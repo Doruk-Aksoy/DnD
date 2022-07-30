@@ -27,7 +27,7 @@ bool PlayerDamageNeedsCaching(int pnum, int wepid, int dmgid) {
 void ClearCache(int pnum, int wepid, int dmgid) {
 	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
 	cache.flat_values[wepid][dmgid] = 0;
-	cache.final_factor[wepid][dmgid] = 1.0;
+	cache.final_factor[wepid][dmgid] = 100;
 }
 
 // this guy gets called last, so we mark recalc stuff here
@@ -61,14 +61,15 @@ void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor, bool isAdditi
 	// if 0, replace otherwise fixed mul
 	if(cache.final_factor[wepid][dmgid]) {
 		if(isAdditive)
-			cache.final_factor[wepid][dmgid] += factor * 0.01;
+			cache.final_factor[wepid][dmgid] += factor;
 		else {
 			// convert to fixed percentages -- these are 1 to 100 originally they need to get mapped to 0.01 to 1.0
-			cache.final_factor[wepid][dmgid] = FixedMul(cache.final_factor[wepid][dmgid], 1.0 + factor * 0.01);
+			// testing new method: just integers so overflows are a lot less likely to occur later on -- we multiply some value like 125% with 1.33 etc here
+			cache.final_factor[wepid][dmgid] = cache.final_factor[wepid][dmgid] * (100 + factor) / 100;
 		}
 	}
 	else
-		cache.final_factor[wepid][dmgid] = 1.0 + factor * 0.01;
+		cache.final_factor[wepid][dmgid] = 100 + factor;
 }
 
 // used for multiplicative item mods that are by default fixed point
@@ -79,10 +80,10 @@ void InsertCacheFactor_Fixed(int pnum, int wepid, int dmgid, int factor) {
 	if(cache.final_factor[wepid][dmgid]) {
 		// since this is already fixed and multiplicative, and is of form (1.0 + more multiplier), we don't add anything here just do fixedmul
 		// notice no "isAdditive" check here, it's pointless
-		cache.final_factor[wepid][dmgid] = FixedMul(cache.final_factor[wepid][dmgid], 1.0 + factor);
+		cache.final_factor[wepid][dmgid] = cache.final_factor[wepid][dmgid] * (100 + ((factor * 100) >> 16)) / 100;
 	}
 	else
-		cache.final_factor[wepid][dmgid] = 1.0 + factor;
+		cache.final_factor[wepid][dmgid] = 100 + ((factor * 100) >> 16);
 }
 
 int GetCachedPlayerDamage(int pnum, int wepid, int dmgid) {

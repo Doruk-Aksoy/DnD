@@ -199,7 +199,7 @@ Script "DND Shared Item Init" (int type) {
 		}
 	}
 	else {
-		Spawn(SP_SharedItems[type], GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+		SpawnForced(SP_SharedItems[type], GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 		Thing_Remove(0);
 	}
 }

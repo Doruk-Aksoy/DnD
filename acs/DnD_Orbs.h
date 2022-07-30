@@ -1841,7 +1841,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		break;
 		case DND_ORB_AFFLUENCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cj", l:"DND_ORBUSETEXT5", s:" \cdx", d:affluence, s: "\c-!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT5", s:" \cdx", d:affluence << 1, s: "\c-!");
 			else
 				Log(s:"\cg", l:"DND_ORBUSEFAIL5", s:". (\ck", d:1 << AFFLUENCE_MAX, s:"\cg)");
 		break;

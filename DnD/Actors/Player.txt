@@ -14,7 +14,7 @@ enum {
 	PAINBLEND_GRAY
 };
 
-Actor DnD_PlayerBase : PlayerPawn {
+Actor DnD_Player : PlayerPawn {
 	Speed 1
 	Health 100
 	Radius 16
@@ -25,6 +25,47 @@ Actor DnD_PlayerBase : PlayerPawn {
 	
 	Player.DamageScreenColor "Black", 0
 	Player.ColorRange 112, 127
+	Player.DisplayName "DnDPlayer"
+	
+	Player.StartItem "DnD_PlayerInventoryPages", 1
+	Player.StartItem "DnD_PlayerCurrentPage", 1
+	Player.StartItem "HPNormal"
+	Player.StartItem "Menu_Setup"
+	Player.StartItem "Accessory_0"
+	
+	Player.StartItem "StartOnly"
+	Player.StartItem "NoRewardsGiven"
+	Player.StartItem "SetMyLives"
+	
+	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
+	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartItem "SpecialAmmoMode_6", 4
+	
+	Player.StartItem "Clip", 50
+	
+	Player.StartItem "MGClip", 50
+	Player.StartItem "MGClip2", 60
+	Player.StartItem "MGClip3", 75
+	Player.StartItem "MGClip4", 40
+	Player.StartItem "MGClip5", 31
+	Player.StartItem "MGClip6", 40
+	Player.StartItem "MGClip7", 75
+	Player.StartItem "AcidClip", 32
+	
+	Player.StartItem "AkimboClipLeft", 12
+	Player.StartItem "AkimboClipRight", 12
+	Player.StartItem "RiotgunClip", 8
+	Player.StartItem "BulletSize_6", 6
+	Player.StartItem "PCanClip", 5
+	Player.StartItem "FuelClip", 75
+	
+	Player.StartItem "ShellSize_2", 2
+	Player.StartItem "ShellSize_8", 8
+	Player.StartItem "ShellSize_8N", 8
+	Player.StartItem "ShellSize_10", 10
+	Player.StartItem "ShellSize_12", 12
+	Player.StartItem "ShellSize_16", 16
+	Player.StartItem "ShellSize_18", 18
 	
 	+NOSKIN
 	+QUICKTORETALIATE
@@ -35,6 +76,576 @@ Actor DnD_PlayerBase : PlayerPawn {
 	+USEDAMAGEEVENTSCRIPT
 
 	States {
+		/*
+			SPAWN STATES
+		*/
+		
+		
+		Spawn:
+			// this delay is needed so the proper class can be setup from clientside => serverside after a selection is made
+			TNT1 A 17 A_JumpIfInventory("DnD_Character", 1, 1)
+		SpawnDelaySkip:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "Spawn_Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "Spawn_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "Spawn_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "Spawn_Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "Spawn_Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "Spawn_Marine")
+		Spawn_Doomguy:
+			DPLY A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			DPLY C -1
+		Spawn_Marine:
+			PLAY A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			PLAY C -1
+		Spawn_Hobo:
+			PREN A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			PREN C -1
+		Spawn_Punisher:
+			BLAZ A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			BLAZ A -1
+		Spawn_Wanderer:
+			MNK1 A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			MNK1 C -1
+		Spawn_Cyborg:
+			PLY6 A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			PLY6 C -1
+		Spawn_Berserker:
+			BERP A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			BERP C -1
+		Goto SpawnDelaySkip
+		
+		
+		/*
+			SEE STATES
+		*/
+		
+
+		See:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "See_Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "See_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "See_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "See_Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "See_Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "See_Marine")
+		See_Doomguy:
+			DPLY A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
+			DPLY A 5
+			DPLY B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Doomguy
+		See2:
+			DPLY C 5
+			DPLY D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Doomguy
+		
+		See_Marine:
+			PLAY A 0 A_JumpIfInventory("P_StepTaken", 1, "See2_Marine")
+			PLAY A 5
+			PLAY B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Marine
+		See2_Marine:
+			PLAY C 5
+			PLAY D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Marine
+		
+		See_Hobo:
+			PREN A 0 A_JumpIfInventory("P_StepTaken", 1, "See2_Hobo")
+			PREN A 5
+			PREN B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Hobo
+		See2_Hobo:
+			PREN C 5
+			PREN D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Hobo
+		
+		See_Punisher:
+			BLAZ A 0 A_JumpIfInventory("P_StepTaken", 1, "See2_Punisher")
+			BLAZ A 5
+			BLAZ B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Punisher
+		See2_Punisher:
+			BLAZ C 5
+			BLAZ D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Punisher
+		
+		See_Wanderer:
+			MNK1 A 0 A_JumpIfInventory("P_StepTaken", 1, "See2_Wanderer")
+			MNK1 A 5
+			MNK1 B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Wanderer
+		See2_Wanderer:
+			MNK1 C 5
+			MNK1 D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Wanderer
+		
+		See_Cyborg:
+			PLY6 A 0 A_JumpIfInventory("P_StepTaken", 1, "See2_Cyborg")
+			PLY6 A 5
+			PLY6 B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Cyborg
+		See2_Cyborg:
+			PLY6 C 5
+			PLY6 D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Cyborg
+		
+		See_Berserker:
+			BERP A 0 A_JumpIfInventory("P_StepTaken", 1, "See2_Berserker")
+			BERP A 5
+			BERP B 5 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Berserker
+		See2_Berserker:
+			BERP C 5
+			BERP D 5 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Berserker
+		
+		
+		/*
+			MISSILE STATE
+		*/
+		
+		
+		Missile:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "Missile_Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "Missile_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "Missile_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "Missile_Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "Missile_Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "Missile_Marine")
+		Missile_Doomguy:
+			DPLY E 12 
+		Goto Spawn_Doomguy
+		
+		Missile_Marine:
+			PLAY E 12 
+		Goto Spawn_Marine
+
+		Missile_Hobo:
+			PREN E 12 
+		Goto Spawn_Hobo
+
+		Missile_Punisher:
+			BLAZ E 12 
+		Goto Spawn_Punisher
+
+		Missile_Wanderer:
+			MNK1 E 12 
+		Goto Spawn_Wanderer
+		
+		Missile_Cyborg:
+			PLY6 E 12 
+		Goto Spawn_Cyborg
+		
+		Missile_Berserker:
+			BERP E 12 
+		Goto Spawn_Berserker
+		
+		
+		/*
+			MELEE STATE
+		*/
+		
+		
+		Melee:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "Melee_Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "Melee_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "Melee_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "Melee_Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "Melee_Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "Melee_Marine")
+		
+			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
+			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
+			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
+			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
+			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
+			DPLY F 6 BRIGHT
+		Goto Missile_Doomguy
+		PlasmaFire:
+			DPLP A 6 Bright
+		Goto Missile_Doomguy
+		GreenFire:
+			DPLP B 6 Bright
+		Goto Missile_Doomguy
+		RedFire:
+			DPLP C 6 Bright
+		Goto Missile_Doomguy
+		PurpleFire:
+			DPLP D 6 Bright
+		Goto Missile_Doomguy
+		GrayFire:
+			DPLP E 6 Bright
+		Goto Missile_Doomguy
+		
+		Melee_Marine:
+			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Marine")
+			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Marine")
+			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Marine")
+			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Marine")
+			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Marine")
+			PLAY F 6 BRIGHT
+		Goto Missile_Marine
+		PlasmaFire_Marine:
+			PLYP A 6 Bright
+		Goto Missile_Marine
+		GreenFire_Marine:
+			PLYP B 6 Bright
+		Goto Missile_Marine
+		RedFire_Marine:
+			PLYP C 6 Bright
+		Goto Missile_Marine
+		PurpleFire_Marine:
+			PLYP D 6 Bright
+		Goto Missile_Marine
+		GrayFire_Marine:
+			PLYP E 6 Bright
+		Goto Missile_Marine
+		
+		Melee_Hobo:
+			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Hobo")
+			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Hobo")
+			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Hobo")
+			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Hobo")
+			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Hobo")
+			PREN F 6 BRIGHT
+		Goto Missile_Hobo
+		PlasmaFire_Hobo:
+			PRNP A 6 Bright
+		Goto Missile_Hobo
+		GreenFire_Hobo:
+			PRNP B 6 Bright
+		Goto Missile_Hobo
+		RedFire_Hobo:
+			PRNP C 6 Bright
+		Goto Missile_Hobo
+		PurpleFire_Hobo:
+			PRNP D 6 Bright
+		Goto Missile_Hobo
+		GrayFire_Hobo:
+			PRNP E 6 Bright
+		Goto Missile_Hobo
+		
+		Melee_Punisher:
+			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Punisher")
+			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Punisher")
+			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Punisher")
+			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Punisher")
+			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Punisher")
+			BLAZ F 6 BRIGHT
+		Goto Missile_Punisher
+		PlasmaFire_Punisher:
+			PPUN A 6 Bright
+		Goto Missile_Punisher
+		GreenFire_Punisher:
+			PPUN B 6 Bright
+		Goto Missile_Punisher
+		RedFire_Punisher:
+			PPUN C 6 Bright
+		Goto Missile_Punisher
+		PurpleFire_Punisher:
+			PPUN D 6 Bright
+		Goto Missile_Punisher
+		GrayFire_Punisher:
+			PPUN E 6 Bright
+		Goto Missile_Punisher
+		
+		Melee_Wanderer:
+			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Wanderer")
+			MNK1 F 6 BRIGHT
+		Goto Missile_Wanderer
+		PlasmaFire_Wanderer:
+			MNKP A 6 Bright
+		Goto Missile_Wanderer
+		GreenFire_Wanderer:
+			MNKP B 6 Bright
+		Goto Missile_Wanderer
+		RedFire_Wanderer:
+			MNKP C 6 Bright
+		Goto Missile_Wanderer
+		PurpleFire_Wanderer:
+			MNKP D 6 Bright
+		Goto Missile_Wanderer
+		GrayFire_Wanderer:
+			MNKP E 6 Bright
+		Goto Missile_Wanderer
+		
+		Melee_Cyborg:
+			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Cyborg")
+			PLY6 F 6 BRIGHT
+		Goto Missile_Cyborg
+		PlasmaFire_Cyborg:
+			PLZ6 A 6 Bright
+		Goto Missile_Cyborg
+		GreenFire_Cyborg:
+			PLZ6 B 6 Bright
+		Goto Missile_Cyborg
+		RedFire_Cyborg:
+			PLZ6 C 6 Bright
+		Goto Missile_Cyborg
+		PurpleFire_Cyborg:
+			PLZ6 D 6 Bright
+		Goto Missile_Cyborg
+		GrayFire_Cyborg:
+			PLZ6 E 6 Bright
+		Goto Missile_Cyborg
+		
+		Melee_Berserker:
+			BERP F 6 BRIGHT
+		Goto Missile_Berserker
+		
+		
+		/*
+			PAIN STATE
+		*/
+		
+		
+		PainAnim:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "PainAnim_Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "PainAnim_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "PainAnim_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "PainAnim_Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "PainAnim_Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "PainAnim_Marine")
+			DPLY G 4
+			DPLY G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Doomguy
+
+		PainAnim_Marine:
+			PLAY G 4 
+			PLAY G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Marine
+		
+		PainAnim_Hobo:
+			PREN G 4 
+			PREN G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Hobo
+		
+		PainAnim_Punisher:
+			BLAZ G 4 
+			BLAZ G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Punisher
+		
+		PainAnim_Wanderer:
+			MNK1 G 4 
+			MNK1 G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Wanderer
+		
+		PainAnim_Cyborg:
+			PLY6 G 4 
+			PLY6 G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Cyborg
+		
+		PainAnim_Berserker:
+			BERP G 4 
+			BERP G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Berserker
+		
+		
+		/*
+			DEATH STATE
+		*/
+		
+		
+		DeathAnim:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+		
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "DeathAnim_Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "DeathAnim_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "DeathAnim_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "DeathAnim_Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "DeathAnim_Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "DeathAnim_Marine")
+			
+			DPLY H 10
+			DPLY I 10 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			DPLY J 10 A_NoBlocking
+			DPLY K 10
+			DPLY L -1
+		Stop
+		
+		DeathAnim_Marine:
+			PLAY H 10
+			PLAY I 10 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			PLAY J 10 A_NoBlocking
+			PLAY KLM 10
+			PLAY N -1
+		Stop
+		
+		DeathAnim_Hobo:
+			PREN H 10
+			PREN I 10 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			PREN J 10 A_NoBlocking
+			PREN KLM 10
+			PREN N -1
+		Stop
+		
+		DeathAnim_Punisher:
+			BLAZ H 10
+			BLAZ I 10 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			BLAZ J 10 A_NoBlocking
+			BLAZ K 10
+			BLAZ L -1
+		Stop
+		
+		DeathAnim_Wanderer:
+			MNK1 H 5
+			MNK1 I 5 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			MNK1 J 5 A_NoBlocking
+			MNK1 KLM 5
+			MNK1 N -1
+		Stop
+		
+		DeathAnim_Cyborg:
+			PLY6 H 10
+			PLY6 I 10 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			PLY6 J 10 A_NoBlocking
+			PLY6 KLM 10
+			PLY6 N -1
+		Stop
+		
+		DeathAnim_Berserker:
+			BERP H 8
+			BERP I 8 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			BERP J 8 A_NoBlocking
+			BERP KLM 8
+			BERP N -1
+		Stop
+		
+		
+		/*
+			XDEATH STATE
+		*/
+		
+		
+		XdeathAnim:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
+			
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "XDeathAnim_Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "XDeathAnim_Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "XDeathAnim_Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "XDeathAnim_Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "XDeathAnim_Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "XDeathAnim_Marine")
+  
+			DPLY O 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			DPLY P 5 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			DPLY Q 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			DPLY RSTUV 5
+			DPLY W -1
+		Stop
+		
+		XDeathAnim_Marine:
+			PLAY O 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLAY P 5 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLAY Q 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLAY RSTUV 5
+			PLAY W -1
+		Stop
+		
+		XDeathAnim_Hobo:
+			PREN O 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PREN P 5 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PREN Q 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PREN RSTU 5
+			PREN V -1
+		Stop
+		
+		XDeathAnim_Punisher:  
+			BLAZ O 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			BLAZ P 5 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			BLAZ Q 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			BLAZ RSTUV 5
+			BLAZ W -1
+		Stop
+		
+		XDeathAnim_Wanderer:
+			MNK1 H 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			MNK1 I 5 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			MNK1 J 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			MNK1 KLM 5
+			MNK1 N -1
+		Stop
+		
+		XDeathAnim_Cyborg: 
+			PLY6 O 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLY6 P 5 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLY6 Q 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			PLY6 RSTUV 5
+			PLY6 W -1
+		Stop
+		
+		XDeathAnim_Berserker:
+			BERP O 5
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			BERP P 5 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			BERP Q 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			BERP RSTUV 5
+			BERP W -1
+		Stop
+		
+		/*
+			GENERIC BURN STATE
+		*/
+
+		PlayerBurn:
+			"####" "#" 0 A_StopSound(7)
+			"####" "#" 0 ACS_ExecuteAlways(920, 0, 1)
+			"####" "#" 3
+			TNT1 A 0 A_Fall
+			TNT1 A 0 A_Scream
+			TNT1 A 0 A_Playsound("Burn/Death", 6)
+			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
+			BLAN A -1
+		Stop
+		
+		/*
+			ICE DEATH STATE
+		*/
+		
+	    IceDeath:
+			TNT1 A 0 A_NoBlocking
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
+			TNT1 A 0 A_PlaySound("misc/freeze")
+			TNT1 A 1 A_GiveInventory("DnD_IceDeathMaker", 1)
+			TNT1 A -1
+		Stop
+	
+	
+	
 	    Pain:
 		Pain.LightningRed:
 		Pain.EnergyRed:
@@ -324,151 +935,6 @@ Actor PainBlend_Gray : DnD_Activator {
 
 Actor DnD_PDead : DnD_Boolean { }
 
-Actor TheDoomGuy : DnD_PlayerBase {	
-	Player.StartItem "DnD_Character", 1
-	Player.Face "STF"
-	Player.DisplayName "Doomguy"
-	
-	Player.StartItem "DnD_PlayerInventoryPages", 1
-	Player.StartItem "DnD_PlayerCurrentPage", 1
-	Player.StartItem "HPNormal"
-	Player.StartItem "Menu_Setup"
-	Player.StartItem "Accessory_0"
-	
-	Player.StartItem "StartOnly"
-	Player.StartItem "NoRewardsGiven"
-	Player.StartItem "SetMyLives"
-	
-	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
-	Player.StartItem "SpecialAmmoMode_6", 4
-	
-	Player.StartItem "Clip", 50
-	
-	Player.StartItem "MGClip", 50
-	Player.StartItem "MGClip2", 60
-	Player.StartItem "MGClip3", 75
-	Player.StartItem "MGClip4", 40
-	Player.StartItem "MGClip5", 31
-	Player.StartItem "MGClip6", 40
-	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 32
-	
-	Player.StartItem "AkimboClipLeft", 12
-	Player.StartItem "AkimboClipRight", 12
-	Player.StartItem "RiotgunClip", 8
-	Player.StartItem "BulletSize_6", 6
-	Player.StartItem "PCanClip", 5
-	Player.StartItem "FuelClip", 75
-	
-	Player.StartItem "ShellSize_2", 2
-	Player.StartItem "ShellSize_8", 8
-	Player.StartItem "ShellSize_8N", 8
-	Player.StartItem "ShellSize_10", 10
-	Player.StartItem "ShellSize_12", 12
-	Player.StartItem "ShellSize_16", 16
-	Player.StartItem "ShellSize_18", 18
-	
-	States {
-		Spawn:
-			DPLY A 1
-		SpawnGo:
-			DPLY A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
-			DPLY A 6
-			DPLY A 0 A_Jump(256, 2)
-			DPLY C 6
-			DPLY A 0
-		Loop
-		See:
-			DPLY A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			DPLY A 5
-			DPLY B 5 A_GiveInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		See2:
-			DPLY C 5
-			DPLY D 5 A_TakeInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		Missile:
-			DPLY E 12 
-		Goto SpawnGo
-		Melee:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
-			DPLY F 6 BRIGHT
-		Goto Missile
-		PlasmaFire:
-			DPLP A 6 Bright
-		Goto Missile
-		GreenFire:
-			DPLP B 6 Bright
-		Goto Missile
-		RedFire:
-			DPLP C 6 Bright
-		Goto Missile
-		PurpleFire:
-			DPLP D 6 Bright
-		Goto Missile
-		GrayFire:
-			DPLP E 6 Bright
-		Goto Missile
-		
-		PainAnim:
-			DPLY G 4
-			DPLY G 4 A_Pain
-		Goto SpawnGo
-		
-		DeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			DPLY H 10
-			DPLY I 10 A_PlayerScream
-			DPLY J 10 A_NoBlocking
-			DPLY K 10
-			DPLY L -1
-		Stop
-		XdeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
-			DPLY O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			DPLY P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			DPLY Q 5 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			DPLY RSTUV 5
-			DPLY W -1
-		Stop
-
-		PlayerBurn:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			DPLY G 3
-			TNT1 A 0 A_Fall
-			TNT1 A 0 A_Scream
-			TNT1 A 0 A_Playsound("Burn/Death", 6)
-			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
-			BLAN A -1
-		Stop
-		
-	    IceDeath:
-			TNT1 A 0 A_NoBlocking
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
-			TNT1 A 0 A_PlaySound("misc/freeze")
-			TNT1 A 1 A_SpawnItemEx("TheDoomGuyFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A -1
-		Stop
-	}
-}
-
 Actor TheDoomGuyFrozen {
 	+CLIENTSIDEONLY
 	Translation Ice
@@ -483,152 +949,6 @@ Actor TheDoomGuyFrozen {
 			DPLY G 5 A_GenericFreezeDeath
 			DPLY G 1 A_FreezeDeathChunks
 		Wait
-	}
-}
-
-Actor TheMarine : DnD_PlayerBase {
-	Player.StartItem "DnD_Character", 2
-	Player.Face "MAR"
-	Player.DisplayName "Space Marine"
-	Player.SoundClass "TheMarine"
-	
-	Player.StartItem "DnD_PlayerInventoryPages", 1
-	Player.StartItem "DnD_PlayerCurrentPage", 1
-	Player.StartItem "HPNormal"
-	Player.StartItem "Menu_Setup"
-	Player.StartItem "Accessory_0"
-	
-	Player.StartItem "StartOnly"
-	Player.StartItem "NoRewardsGiven"
-	Player.StartItem "SetMyLives"
-	
-	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
-	Player.StartItem "SpecialAmmoMode_6", 4
-	
-	Player.StartItem "Clip", 50
-	
-	Player.StartItem "MGClip", 50
-	Player.StartItem "MGClip2", 60
-	Player.StartItem "MGClip3", 75
-	Player.StartItem "MGClip4", 40
-	Player.StartItem "MGClip5", 31
-	Player.StartItem "MGClip6", 40
-	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 32
-	
-	Player.StartItem "AkimboClipLeft", 12
-	Player.StartItem "AkimboClipRight", 12
-	Player.StartItem "RiotgunClip", 8
-	Player.StartItem "BulletSize_6", 6
-	Player.StartItem "PCanClip", 5
-	Player.StartItem "FuelClip", 75
-	
-	Player.StartItem "ShellSize_2", 2
-	Player.StartItem "ShellSize_8", 8
-	Player.StartItem "ShellSize_8N", 8
-	Player.StartItem "ShellSize_10", 10
-	Player.StartItem "ShellSize_12", 12
-	Player.StartItem "ShellSize_16", 16
-	Player.StartItem "ShellSize_18", 18
-	
-	States {
-		Spawn:
-			PLAY A 1
-		SpawnGo:
-			PLAY A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
-			PLAY A 6
-			PLAY A 0 A_Jump(256, 2)
-			PLAY C 6
-			PLAY A 0
-		Loop
-		See:
-			PLAY A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			PLAY A 5
-			PLAY B 5 A_GiveInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		See2:
-			PLAY C 5
-			PLAY D 5 A_TakeInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		Missile:
-			PLAY E 12 
-		Goto SpawnGo
-		Melee:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
-			PLAY F 6 BRIGHT
-		Goto Missile
-		PlasmaFire:
-			PLYP A 6 Bright
-		Goto Missile
-		GreenFire:
-			PLYP B 6 Bright
-		Goto Missile
-		RedFire:
-			PLYP C 6 Bright
-		Goto Missile
-		PurpleFire:
-			PLYP D 6 Bright
-		Goto Missile
-		GrayFire:
-			PLYP E 6 Bright
-		Goto Missile
-		
-		PainAnim:
-			PLAY G 4 
-			PLAY G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
-		Goto SpawnGo
-		
-		DeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			PLAY H 10
-			PLAY I 10 A_PlayerScream
-			PLAY J 10 A_NoBlocking
-			PLAY KLM 10
-			PLAY N -1
-		Stop
-		XdeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
-			PLAY O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PLAY P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PLAY Q 5 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PLAY RSTUV 5
-			PLAY W -1
-		Stop
-
-		PlayerBurn:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			PLAY G 3
-			TNT1 A 0 A_Fall
-			TNT1 A 0 A_Scream
-			TNT1 A 0 A_Playsound("Burn/Death", 6)
-			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
-			BLAN A -1
-		Stop
-
-	    IceDeath:
-			TNT1 A 0 A_NoBlocking
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
-			TNT1 A 0 A_PlaySound("misc/freeze")
-			TNT1 A 1 A_SpawnItemEx("TheMarineFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A -1
-		Stop
 	}
 }
 
@@ -649,152 +969,6 @@ Actor TheMarineFrozen {
 	}
 }
 
-Actor TheHobo : DnD_PlayerBase {
-	Player.StartItem "DnD_Character", 3
-	Player.Face "REN"
-	Player.SoundClass "TheHobo"
-	Player.DisplayName "Hobo"
-	
-	Player.StartItem "DnD_PlayerInventoryPages", 1
-	Player.StartItem "DnD_PlayerCurrentPage", 1
-	Player.StartItem "HPNormal"
-	Player.StartItem "Menu_Setup"
-	Player.StartItem "Accessory_0"
-	
-	Player.StartItem "StartOnly"
-	Player.StartItem "NoRewardsGiven"
-	Player.StartItem "SetMyLives"
-	
-	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
-	Player.StartItem "SpecialAmmoMode_6", 4
-	
-	Player.StartItem "Clip", 50
-	
-	Player.StartItem "MGClip", 50
-	Player.StartItem "MGClip2", 60
-	Player.StartItem "MGClip3", 75
-	Player.StartItem "MGClip4", 40
-	Player.StartItem "MGClip5", 31
-	Player.StartItem "MGClip6", 40
-	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 32
-	
-	Player.StartItem "AkimboClipLeft", 12
-	Player.StartItem "AkimboClipRight", 12
-	Player.StartItem "RiotgunClip", 8
-	Player.StartItem "BulletSize_6", 6
-	Player.StartItem "PCanClip", 5
-	Player.StartItem "FuelClip", 75
-	
-	Player.StartItem "ShellSize_2", 2
-	Player.StartItem "ShellSize_8", 8
-	Player.StartItem "ShellSize_8N", 8
-	Player.StartItem "ShellSize_10", 10
-	Player.StartItem "ShellSize_12", 12
-	Player.StartItem "ShellSize_16", 16
-	Player.StartItem "ShellSize_18", 18
-	
-	States {
-		Spawn:
-			PREN A 1
-		SpawnGo:
-			PREN A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
-			PREN A 6
-			PREN A 0 A_Jump(256, 2)
-			PREN C 6
-			PREN A 0
-		Loop
-		See:
-			PREN A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			PREN A 5
-			PREN B 5 A_GiveInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		See2:
-			PREN C 5
-			PREN D 5 A_TakeInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		Missile:
-			PREN E 12 
-		Goto SpawnGo
-		Melee:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
-			PREN F 6 BRIGHT
-		Goto Missile
-		PlasmaFire:
-			PRNP A 6 Bright
-		Goto Missile
-		GreenFire:
-			PRNP B 6 Bright
-		Goto Missile
-		RedFire:
-			PRNP C 6 Bright
-		Goto Missile
-		PurpleFire:
-			PRNP D 6 Bright
-		Goto Missile
-		GrayFire:
-			PRNP E 6 Bright
-		Goto Missile
-		
-		PainAnim:
-			PREN G 4 
-			PREN G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
-		Goto SpawnGo
-		
-		DeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			PREN H 10
-			PREN I 10 A_PlayerScream
-			PREN J 10 A_NoBlocking
-			PREN KLM 10
-			PREN N -1
-		Stop
-		XdeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
-			PREN O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PREN P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PREN Q 5 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PREN RSTU 5
-			PREN V -1
-		Stop
-
-		PlayerBurn:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			PREN G 3
-			TNT1 A 0 A_Fall
-			TNT1 A 0 A_Scream
-			TNT1 A 0 A_Playsound("Burn/Death", 6)
-			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
-			BLAN A -1
-		Stop
-		
-	    IceDeath:
-			TNT1 A 0 A_NoBlocking
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
-			TNT1 A 0 A_PlaySound("misc/freeze")
-			TNT1 A 1 A_SpawnItemEx("TheHoboFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A -1
-		Stop
-	}
-}
-
 Actor TheHoboFrozen {
 	+CLIENTSIDEONLY
 	Translation Ice
@@ -809,152 +983,6 @@ Actor TheHoboFrozen {
 			PREN G 5 A_GenericFreezeDeath
 			PREN G 1 A_FreezeDeathChunks
 		Wait
-	}
-}
-
-Actor ThePunisher : DnD_PlayerBase {
-	Player.StartItem "DnD_Character", 4
-	Player.Face "BAD"
-	Player.DisplayName "Punisher"
-	Player.SoundClass "Punisher"
-	
-	Player.StartItem "DnD_PlayerInventoryPages", 1
-	Player.StartItem "DnD_PlayerCurrentPage", 1
-	Player.StartItem "HPNormal"
-	Player.StartItem "Menu_Setup"
-	Player.StartItem "Accessory_0"
-	
-	Player.StartItem "StartOnly"
-	Player.StartItem "NoRewardsGiven"
-	Player.StartItem "SetMyLives"
-	
-	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
-	Player.StartItem "SpecialAmmoMode_6", 4
-	
-	Player.StartItem "Clip", 50
-	
-	Player.StartItem "MGClip", 50
-	Player.StartItem "MGClip2", 60
-	Player.StartItem "MGClip3", 75
-	Player.StartItem "MGClip4", 40
-	Player.StartItem "MGClip5", 31
-	Player.StartItem "MGClip6", 40
-	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 32
-	
-	Player.StartItem "AkimboClipLeft", 12
-	Player.StartItem "AkimboClipRight", 12
-	Player.StartItem "RiotgunClip", 8
-	Player.StartItem "BulletSize_6", 6
-	Player.StartItem "PCanClip", 5
-	Player.StartItem "FuelClip", 75
-	
-	Player.StartItem "ShellSize_2", 2
-	Player.StartItem "ShellSize_8", 8
-	Player.StartItem "ShellSize_8N", 8
-	Player.StartItem "ShellSize_10", 10
-	Player.StartItem "ShellSize_12", 12
-	Player.StartItem "ShellSize_16", 16
-	Player.StartItem "ShellSize_18", 18
-	
-	States {
-		Spawn:
-			BLAZ A 1
-		SpawnGo:
-			BLAZ A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
-			BLAZ A 6
-			BLAZ A 0 A_Jump(256, 2)
-			BLAZ C 6
-			BLAZ A 0
-		Loop
-		See:
-			BLAZ A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			BLAZ A 5
-			BLAZ B 5 A_GiveInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		See2:
-			BLAZ C 5
-			BLAZ D 5 A_TakeInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		Missile:
-			BLAZ E 12 
-		Goto SpawnGo
-		Melee:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
-			BLAZ F 6 BRIGHT
-		Goto Missile
-		PlasmaFire:
-			PPUN A 6 Bright
-		Goto Missile
-		GreenFire:
-			PPUN B 6 Bright
-		Goto Missile
-		RedFire:
-			PPUN C 6 Bright
-		Goto Missile
-		PurpleFire:
-			PPUN D 6 Bright
-		Goto Missile
-		GrayFire:
-			PPUN E 6 Bright
-		Goto Missile
-		
-		PainAnim:
-			BLAZ G 4 
-			BLAZ G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
-		Goto SpawnGo
-		
-		DeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			BLAZ H 10
-			BLAZ I 10 A_PlayerScream
-			BLAZ J 10 A_NoBlocking
-			BLAZ K 10
-			BLAZ L -1
-		Stop
-		XdeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
-			BLAZ O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			BLAZ P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			BLAZ Q 5 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			BLAZ RSTUV 5
-			BLAZ W -1
-		Stop
-
-		PlayerBurn:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			BLAZ G 3
-			TNT1 A 0 A_Fall
-			TNT1 A 0 A_Scream
-			TNT1 A 0 A_Playsound("Burn/Death", 6)
-			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
-			BLAN A -1
-		Stop
-
-	    IceDeath:
-			TNT1 A 0 A_NoBlocking
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
-			TNT1 A 0 A_PlaySound("misc/freeze")
-			TNT1 A 1 A_SpawnItemEx("ThePunisherFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A -1
-		Stop
 	}
 }
 
@@ -975,152 +1003,6 @@ Actor ThePunisherFrozen {
 	}
 }
 
-Actor TheWanderer : DnD_PlayerBase {
-	Player.StartItem "DnD_Character", 5
-	Player.Face "CRV"
-	Player.DisplayName "Wanderer"
-	Player.SoundClass "Wanderer"
-	
-	Player.StartItem "DnD_PlayerInventoryPages", 1
-	Player.StartItem "DnD_PlayerCurrentPage", 1
-	Player.StartItem "HPNormal"
-	Player.StartItem "Menu_Setup"
-	Player.StartItem "Accessory_0"
-	
-	Player.StartItem "StartOnly"
-	Player.StartItem "NoRewardsGiven"
-	Player.StartItem "SetMyLives"
-	
-	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
-	Player.StartItem "SpecialAmmoMode_6", 4
-	
-	Player.StartItem "Clip", 50
-	
-	Player.StartItem "MGClip", 50
-	Player.StartItem "MGClip2", 60
-	Player.StartItem "MGClip3", 75
-	Player.StartItem "MGClip4", 40
-	Player.StartItem "MGClip5", 31
-	Player.StartItem "MGClip6", 40
-	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 32
-	
-	Player.StartItem "AkimboClipLeft", 12
-	Player.StartItem "AkimboClipRight", 12
-	Player.StartItem "RiotgunClip", 8
-	Player.StartItem "BulletSize_6", 6
-	Player.StartItem "PCanClip", 5
-	Player.StartItem "FuelClip", 75
-	
-	Player.StartItem "ShellSize_2", 2
-	Player.StartItem "ShellSize_8", 8
-	Player.StartItem "ShellSize_8N", 8
-	Player.StartItem "ShellSize_10", 10
-	Player.StartItem "ShellSize_12", 12
-	Player.StartItem "ShellSize_16", 16
-	Player.StartItem "ShellSize_18", 18
-	
-	States {
-		Spawn:
-			MNK1 A 1
-		SpawnGo:
-			MNK1 A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
-			MNK1 A 6
-			MNK1 A 0 A_Jump(256, 2)
-			MNK1 C 6
-			MNK1 A 0
-		Loop
-		See:
-			MNK1 A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			MNK1 A 5
-			MNK1 B 5 A_GiveInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		See2:
-			MNK1 C 5
-			MNK1 D 5 A_TakeInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		Missile:
-			MNK1 E 12 
-		Goto SpawnGo
-		Melee:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
-			MNK1 F 6 BRIGHT
-		Goto Missile
-		PlasmaFire:
-			MNKP A 6 Bright
-		Goto Missile
-		GreenFire:
-			MNKP B 6 Bright
-		Goto Missile
-		RedFire:
-			MNKP C 6 Bright
-		Goto Missile
-		PurpleFire:
-			MNKP D 6 Bright
-		Goto Missile
-		GrayFire:
-			MNKP E 6 Bright
-		Goto Missile
-		
-		PainAnim:
-			MNK1 G 4 
-			MNK1 G 4 A_Pain
-		Goto SpawnGo
-		
-		DeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			MNK1 H 5
-			MNK1 I 5 A_PlayerScream
-			MNK1 J 5 A_NoBlocking
-			MNK1 KLM 5
-			MNK1 N -1
-		Stop
-		XdeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
-			MNK1 H 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			MNK1 I 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			MNK1 J 5 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			MNK1 KLM 5
-			MNK1 N -1
-		Stop
-
-		PlayerBurn:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			MNK1 G 3
-			TNT1 A 0 A_Fall
-			TNT1 A 0 A_Scream
-			TNT1 A 0 A_Playsound("Burn/Death", 6)
-			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
-			BLAN A -1
-		Stop
-
-	    IceDeath:
-			TNT1 A 0 A_NoBlocking
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
-			TNT1 A 0 A_PlaySound("misc/freeze")
-			TNT1 A 1 A_SpawnItemEx("TheWandererFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A -1
-		Stop
-	}
-}
-
 Actor TheWandererFrozen {
 	+CLIENTSIDEONLY
 	Translation Ice
@@ -1138,152 +1020,6 @@ Actor TheWandererFrozen {
 	}
 }
 
-Actor TheCyborg : DnD_PlayerBase {
-	Player.StartItem "DnD_Character", 6
-	Player.Face "CYG"
-	Player.DisplayName "Cyborg"
-	Player.SoundClass "TheCyborg"
-	
-	Player.StartItem "DnD_PlayerInventoryPages", 1
-	Player.StartItem "DnD_PlayerCurrentPage", 1
-	Player.StartItem "HPNormal"
-	Player.StartItem "Menu_Setup"
-	Player.StartItem "Accessory_0"
-	
-	Player.StartItem "StartOnly"
-	Player.StartItem "NoRewardsGiven"
-	Player.StartItem "SetMyLives"
-	
-	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
-	Player.StartItem "SpecialAmmoMode_6", 4
-	
-	Player.StartItem "Clip", 50
-	
-	Player.StartItem "MGClip", 50
-	Player.StartItem "MGClip2", 60
-	Player.StartItem "MGClip3", 75
-	Player.StartItem "MGClip4", 40
-	Player.StartItem "MGClip5", 31
-	Player.StartItem "MGClip6", 40
-	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 32
-	
-	Player.StartItem "AkimboClipLeft", 12
-	Player.StartItem "AkimboClipRight", 12
-	Player.StartItem "RiotgunClip", 8
-	Player.StartItem "BulletSize_6", 6
-	Player.StartItem "PCanClip", 5
-	Player.StartItem "FuelClip", 75
-	
-	Player.StartItem "ShellSize_2", 2
-	Player.StartItem "ShellSize_8", 8
-	Player.StartItem "ShellSize_8N", 8
-	Player.StartItem "ShellSize_10", 10
-	Player.StartItem "ShellSize_12", 12
-	Player.StartItem "ShellSize_16", 16
-	Player.StartItem "ShellSize_18", 18
-	
-	States {
-		Spawn:
-			PLY6 A 1
-		SpawnGo:
-			PLY6 A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
-			PLY6 A 6
-			PLY6 A 0 A_Jump(256, 2)
-			PLY6 C 6
-			PLY6 A 0
-		Loop
-		See:
-			PLY6 A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			PLY6 A 5
-			PLY6 B 5 A_GiveInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		See2:
-			PLY6 C 5
-			PLY6 D 5 A_TakeInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		Missile:
-			PLY6 E 12 
-		Goto SpawnGo
-		Melee:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
-			PLY6 F 6 BRIGHT
-		Goto Missile
-		PlasmaFire:
-			PLZ6 A 6 Bright
-		Goto Missile
-		GreenFire:
-			PLZ6 B 6 Bright
-		Goto Missile
-		RedFire:
-			PLZ6 C 6 Bright
-		Goto Missile
-		PurpleFire:
-			PLZ6 D 6 Bright
-		Goto Missile
-		GrayFire:
-			PLZ6 E 6 Bright
-		Goto Missile
-		
-		PainAnim:
-			PLY6 G 4 
-			PLY6 G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
-		Goto SpawnGo
-		
-		DeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			PLY6 H 10
-			PLY6 I 10 A_PlayerScream
-			PLY6 J 10 A_NoBlocking
-			PLY6 KLM 10
-			PLY6 N -1
-		Stop
-		XdeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
-			PLY6 O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PLY6 P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PLY6 Q 5 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			PLY6 RSTUV 5
-			PLY6 W -1
-		Stop
-
-		PlayerBurn:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			PLY6 G 3
-			TNT1 A 0 A_Fall
-			TNT1 A 0 A_Scream
-			TNT1 A 0 A_Playsound("Burn/Death", 6)
-			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
-			BLAN A -1
-		Stop
-
-	    IceDeath:
-			TNT1 A 0 A_NoBlocking
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
-			TNT1 A 0 A_PlaySound("misc/freeze")
-			TNT1 A 1 A_SpawnItemEx("TheCyborgFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A -1
-		Stop
-	}
-}
-
 Actor TheCyborgFrozen {
 	+CLIENTSIDEONLY
 	Translation Ice
@@ -1298,132 +1034,6 @@ Actor TheCyborgFrozen {
 			PLY6 G 5 A_GenericFreezeDeath
 			PLY6 G 1 A_FreezeDeathChunks
 		Wait
-	}
-}
-
-Actor TheBerserker : DnD_PlayerBase {
-	Player.StartItem "DnD_Character", 7
-	Player.Face "BER"
-	Player.DisplayName "Berserker"
-	Player.SoundClass "TheBerserker"
-	
-	Player.StartItem "DnD_PlayerInventoryPages", 1
-	Player.StartItem "DnD_PlayerCurrentPage", 1
-	Player.StartItem "HPNormal"
-	Player.StartItem "Menu_Setup"
-	Player.StartItem "Accessory_0"
-	
-	Player.StartItem "StartOnly"
-	Player.StartItem "NoRewardsGiven"
-	Player.StartItem "SetMyLives"
-	
-	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
-	Player.StartItem "SpecialAmmoMode_6", 4
-	
-	Player.StartItem "Clip", 50
-	
-	Player.StartItem "MGClip", 50
-	Player.StartItem "MGClip2", 60
-	Player.StartItem "MGClip3", 75
-	Player.StartItem "MGClip4", 40
-	Player.StartItem "MGClip5", 31
-	Player.StartItem "MGClip6", 40
-	Player.StartItem "MGClip7", 75
-	Player.StartItem "AcidClip", 32
-	
-	Player.StartItem "AkimboClipLeft", 12
-	Player.StartItem "AkimboClipRight", 12
-	Player.StartItem "RiotgunClip", 8
-	Player.StartItem "BulletSize_6", 6
-	Player.StartItem "PCanClip", 5
-	Player.StartItem "FuelClip", 75
-	
-	Player.StartItem "ShellSize_2", 2
-	Player.StartItem "ShellSize_8", 8
-	Player.StartItem "ShellSize_8N", 8
-	Player.StartItem "ShellSize_10", 10
-	Player.StartItem "ShellSize_12", 12
-	Player.StartItem "ShellSize_16", 16
-	Player.StartItem "ShellSize_18", 18
-	
-	States {
-		Spawn:
-			BERP A 1
-		SpawnGo:
-			BERP A 0 A_JumpIfInventory("P_StepTaken", 1, 3)
-			BERP A 6
-			BERP A 0 A_Jump(256, 2)
-			BERP C 6
-			BERP A 0
-		Loop
-		See:
-			BERP A 0 A_JumpIfInventory("P_StepTaken", 1, "See2")
-			BERP A 5
-			BERP B 5 A_GiveInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		See2:
-			BERP C 5
-			BERP D 5 A_TakeInventory("P_StepTaken", 1)
-		Goto SpawnGo
-		Missile:
-			BERP E 12 
-		Goto SpawnGo
-		Melee:
-			BERP F 6 BRIGHT
-		Goto Missile
-		
-		PainAnim:
-			BERP G 4 
-			BERP G 4 A_Pain
-		Goto SpawnGo
-
-		DeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			BERP H 8
-			BERP I 8 A_PlayerScream
-			BERP J 8 A_NoBlocking
-			BERP KLM 8
-			BERP N -1
-		Stop
-		XdeathAnim:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	  
-			BERP O 5
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			BERP P 5 A_XScream
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			BERP Q 5 A_NoBlocking
-			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
-			BERP RSTUV 5
-			BERP W -1
-		Stop
-
-		PlayerBurn:
-			TNT1 A 0 A_StopSound(7)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
-			BERP G 3
-			TNT1 A 0 A_Fall
-			TNT1 A 0 A_Scream
-			TNT1 A 0 A_Playsound("Burn/Death", 6)
-			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
-			BLAN A -1
-		Stop
-
-	    IceDeath:
-			TNT1 A 0 A_NoBlocking
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetBlend("Blue", 0.66, 1)
-			TNT1 A 0 A_PlaySound("misc/freeze")
-			TNT1 A 1 A_SpawnItemEx("TheBerserkerFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
-			TNT1 A -1
-		Stop
 	}
 }
 
@@ -1705,4 +1315,43 @@ ACTOR BurnDeath1
 Actor P_Damaged : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -3
+}
+
+Actor DnD_IceDeathMaker : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "Berserker")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "Cyborg")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "Wanderer")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "Punisher")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "Hobo")
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "Marine")
+			
+			TNT1 A 0 A_SpawnItemEx("TheDoomGuyFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		Stop
+		
+		Marine:
+			TNT1 A 0 A_SpawnItemEx("TheMarineFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		Stop
+	
+		Hobo:
+			TNT1 A 0 A_SpawnItemEx("TheHoboFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		Stop
+	
+		Punisher:
+			TNT1 A 0 A_SpawnItemEx("ThePunisherFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		Stop
+		
+		Wanderer:
+			TNT1 A 0 A_SpawnItemEx("TheWandererFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		Stop
+	
+		Cyborg:
+			TNT1 A 0 A_SpawnItemEx("TheCyborgFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		Stop
+		
+		Berserker:
+			TNT1 A 0 A_SpawnItemEx("TheBerserkerFrozen",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+		Stop
+	}
 }

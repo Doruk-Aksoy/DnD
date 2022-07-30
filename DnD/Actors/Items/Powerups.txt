@@ -152,7 +152,9 @@ ACTOR NewBerserk : CustomInventory replaces Berserk
   }
 }
 
-Actor Invulnerable_Better : PowerInvulnerable {
+// now its not so much better but we had to draw the line!
+Actor Invulnerable_Better : PowerProtection {
+	damagefactor "normal", 1.0
 	Powerup.Duration -30
 }
 
@@ -160,7 +162,7 @@ Actor InvulnerabilitySphere2 : InvulnerabilitySphere replaces InvulnerabilitySph
 {
 	inventory.pickupsound "items/invul"
 	Inventory.PickupAnnouncerEntry ""
-	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Invulnerability!\c-"
+	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Protection 90%!\c-"
 	Powerup.Type "Invulnerable_Better"
 	Powerup.Color "2F 2F 2F", 0.475
 	States {

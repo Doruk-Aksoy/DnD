@@ -58,13 +58,24 @@ void PushPlayerAway(int tid, int mtid, int f_xy, int f_z, bool z_AlwaysUp = fals
 	
 	// z dir is determined simply by sign of z_diff -- f_z is int
 	int dz = z_AlwaysUp ? 1 : sign(GetActorZ(tid) + GetActorProperty(tid, APROP_HEIGHT) / 2 - GetActorZ(mtid) - GetActorProperty(mtid, APROP_HEIGHT) / 2);
+	
+	// clamp the xy and z forces to be at most double repel force
+	f_xy *= m;
+	f_xy / 100;
+	f_xy = Clamp_Between(f_xy, 0, REPEL_FORCE * 2);
+	
+	f_z *= m;
+	f_z /= 100;
+	
+	// default is repel_force/2 on z
+	f_z = Clamp_Between(f_z, 0, REPEL_FORCE);
 	f_z <<= 16;
 	
 	SetActorVelocity(
 		tid,
-		f_xy * cos(a) * m / 100,
-		f_xy * sin(a) * m / 100,
-		f_z * dz * m / 100,
+		f_xy * cos(a),
+		f_xy * sin(a),
+		f_z * dz,
 		true,
 		false
 	);

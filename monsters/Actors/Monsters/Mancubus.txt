@@ -20,6 +20,7 @@ Actor Corpulent : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CORPULENT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -182,6 +183,7 @@ Actor Daedabus : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DAEDABUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -428,6 +430,7 @@ Actor Mafibus : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MAFIBUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -579,6 +582,7 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_PALADIN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -897,6 +901,7 @@ actor Gamon : DnD_BaseHybridMonster {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Gamon Shifter")
 			TNT1 A 0 A_SetArg(4, DND_GAMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1071,6 +1076,7 @@ Actor Mephisto : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MEPHISTO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
 		Idle:
@@ -1218,6 +1224,7 @@ Actor Abomination : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ABOMINATION)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -1409,6 +1416,7 @@ Actor GoldGolem : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GOLDGOLEM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1585,6 +1593,7 @@ ACTOR Redeemer : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_REDEEMER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:

@@ -20,7 +20,11 @@
 	In the future, maybe record everything? Might be too resource demanding.
 */
 
+#define MAX_ACCOUNTNAME_LEN 64
 typedef struct {
+	// max player account name len 64
+	int player_account[MAX_ACCOUNTNAME_LEN];
+
 	int exp;
 	int credit;
 	int budget;
@@ -37,6 +41,17 @@ typedef struct {
 } player_activity_T;
 
 global player_activity_T 18: PlayerActivities[MAXPLAYERS];
+
+// copy stored characters into a string
+str RecoverPlayerAccountName(int pnum) {
+	str result = "";
+	
+	for(int i = 0; i < MAX_ACCOUNTNAME_LEN && PlayerActivities[pnum].player_account[i]; ++i) {
+		result = StrParam(s:result, c:PlayerActivities[pnum].player_account[i]);
+	}
+	
+	return result;
+}
 
 enum {
 	DND_ACTIVITY_EXP,
@@ -176,6 +191,9 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 		// only if someone quits or spectates should the hard reset be resetting these
 		PlayerActivities[pnum].char_id = 0;
 		PlayerActivities[pnum].stash_pages = 0;
+		
+		for(i = 0; i < MAX_ACCOUNTNAME_LEN; ++i)
+			PlayerActivities[pnum].player_account[i] = 0;
 	}
 	
 	for(i = 0; i < DND_MAX_PERKS; ++i)

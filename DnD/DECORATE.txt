@@ -1,5 +1,17 @@
 const int SPECIAL_FX_TID = 2147483647;
 
+/*
+	Members used to embed data:
+	
+	1. Score
+		* Projectiles: Store their owner.
+		* Monsters: Store their rarity.
+	2. Stamina
+		* Projectiles and Monsters: Store damage type related information
+	3. Accuracy
+		* Player Projectiles: Store information on a guaranteed crit. Key is 69.
+*/
+
 #include "Actors/DamageTypes.txt"
 #include "Actors/Items/Base.txt"
 #include "Actors/Items/Keys.txt"

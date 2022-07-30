@@ -23,6 +23,7 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DIABLOIST)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -540,6 +541,7 @@ ACTOR DeathVile : DnD_ArchVileBase {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEATHVILE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
 		Idle:
@@ -621,6 +623,7 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HIEROPHANT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:
@@ -940,6 +943,7 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEATHKNIGHT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1304,6 +1308,7 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HORSHACKER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1715,6 +1720,7 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_UNDEADPRIEST)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		Idle:
@@ -1932,6 +1938,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GURU)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:
@@ -2226,6 +2233,7 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DARKZEALOT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		Idle:
@@ -2552,6 +2560,7 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_FLESHWIZARD)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		Idle:

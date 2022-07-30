@@ -1,0 +1,687 @@
+Graphic "STFGOD0", 24, 29
+{
+	XScale 1.0
+	YScale 1.0
+	Offset -5, -2
+	Patch "STFGOD0", 0, 0
+}
+
+Graphic "STFGOD1", 24, 29
+{
+	XScale 1.0
+	YScale 1.0
+	Offset -5, -2
+	Patch "STFGOD0", 0, 0
+}
+
+Graphic "STFGOD2", 24, 29
+{
+	XScale 1.0
+	YScale 1.0
+	Offset -5, -2
+	Patch "STFGOD0", 0, 0
+}
+
+Graphic "MARXDTH0", 32, 32
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -2, -1
+	Patch "MARDEAD0", 0, 0
+}
+
+Graphic "MARXDTH1", 32, 32
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -2, -1
+	Patch "MARDEAD0", 0, 0
+}
+
+Graphic "MARXDTH2", 32, 32
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -2, -1
+	Patch "MARDEAD0", 0, 0
+}
+
+Graphic "MARXDTH3", 32, 32
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -2, -1
+	Patch "MARDEAD0", 0, 0
+}
+
+Graphic "MARXDTH4", 32, 32
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -2, -1
+	Patch "MARDEAD0", 0, 0
+}
+
+Graphic "RENXDTH0", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -3
+	Patch "RENDEAD0", 0, 0
+}
+
+Graphic "RENXDTH1", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -3
+	Patch "RENDEAD0", 0, 0
+}
+
+Graphic "RENXDTH2", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -3
+	Patch "RENDEAD0", 0, 0
+}
+
+Graphic "RENXDTH3", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -3
+	Patch "RENDEAD0", 0, 0
+}
+
+Graphic "RENXDTH4", 24, 30
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -3
+	Patch "RENDEAD0", 0, 0
+}
+
+Graphic "BADGOD0", 24, 29
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADGOD0", 0, 0
+}
+
+Graphic "BADGOD1", 24, 29
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADGOD0", 0, 0
+}
+
+Graphic "BADGOD2", 24, 29
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADGOD0", 0, 0
+}
+
+Graphic "BADXDTH0", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADDEAD0", 0, 0
+}
+
+Graphic "BADXDTH1", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADDEAD0", 0, 0
+}
+
+Graphic "BADXDTH2", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADDEAD0", 0, 0
+}
+
+Graphic "BADXDTH3", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADDEAD0", 0, 0
+}
+
+Graphic "BADXDTH4", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "BADDEAD0", 0, 0
+}
+
+Graphic "CRVGOD0", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVGOD0", 0, 0
+}
+
+Graphic "CRVGOD1", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVGOD0", 0, 0
+}
+
+Graphic "CRVGOD2", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVGOD0", 0, 0
+}
+
+Graphic "CRVXDTH0", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVDEAD0", 0, 0
+}
+
+Graphic "CRVXDTH1", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVDEAD0", 0, 0
+}
+
+Graphic "CRVXDTH2", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVDEAD0", 0, 0
+}
+
+Graphic "CRVXDTH3", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVDEAD0", 0, 0
+}
+
+Graphic "CRVXDTH4", 34, 33
+{
+	XScale 1.0
+	YScale 1.0
+	Offset 2, 1
+	Patch "CRVDEAD0", 0, 0
+}
+
+Graphic "CYGGOD0", 24, 29
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "CYGGOD0", 0, 0
+}
+
+Graphic "CYGGOD1", 24, 29
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "CYGGOD0", 0, 0
+}
+
+Graphic "CYGGOD2", 24, 29
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -2
+	Patch "CYGGOD0", 0, 0
+}
+
+Graphic "CYGXDTH0", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -1
+	Patch "CYGDEAD0", 0, 0
+}
+
+Graphic "CYGXDTH1", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -1
+	Patch "CYGDEAD0", 0, 0
+}
+
+Graphic "CYGXDTH2", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -1
+	Patch "CYGDEAD0", 0, 0
+}
+
+Graphic "CYGXDTH3", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -1
+	Patch "CYGDEAD0", 0, 0
+}
+
+Graphic "CYGXDTH4", 24, 31
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -5, -1
+	Patch "CYGDEAD0", 0, 0
+}
+
+Graphic "BERDEAD0", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -3
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BEREVL0", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BEREVL0", 0, 0
+}
+
+Graphic "BEREVL1", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BEREVL1", 0, 0
+}
+
+Graphic "BEREVL2", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BEREVL2", 0, 0
+}
+
+Graphic "BEREVL3", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -2
+	Patch "BEREVL3", 0, 0
+}
+
+Graphic "BEREVL4", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BEREVL4", 0, 0
+}
+
+Graphic "BEROUCH0", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BEREVL0", 0, 0
+}
+
+Graphic "BEROUCH1", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BEREVL1", 0, 0
+}
+
+Graphic "BEROUCH2", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BEREVL2", 0, 0
+}
+
+Graphic "BEROUCH3", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -2
+	Patch "BEREVL3", 0, 0
+}
+
+Graphic "BEROUCH4", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BEREVL4", 0, 0
+}
+
+Graphic "BERGOD0", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERGOD0", 0, 0
+}
+
+Graphic "BERGOD1", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERGOD0", 0, 0
+}
+
+Graphic "BERGOD2", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERGOD0", 0, 0
+}
+
+Graphic "BERKILL0", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERKILL0", 0, 0
+}
+
+Graphic "BERKILL1", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERKILL1", 0, 0
+}
+
+Graphic "BERKILL2", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -1
+	Patch "BERKILL2", 0, 0
+}
+
+Graphic "BERKILL3", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -1
+	Patch "BERKILL3", 0, 0
+}
+
+Graphic "BERKILL4", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BERKILL4", 0, 0
+}
+
+Graphic "BERST00", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST01", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST02", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERST10", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST11", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST12", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERST20", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST21", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST22", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERST30", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -1
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST31", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -1
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST32", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -1
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERST40", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERST41", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERST42", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERTL00", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERTL10", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERTL20", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERTL30", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -1
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERTL40", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERTR00", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS00", 0, 0
+}
+
+Graphic "BERTR10", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS10", 0, 0
+}
+
+Graphic "BERTR20", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, 0
+	Patch "BERS20", 0, 0
+}
+
+Graphic "BERTR30", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 5, -1
+	Patch "BERS30", 0, 0
+}
+
+Graphic "BERTR40", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -2
+	Patch "BERS40", 0, 0
+}
+
+Graphic "BERXDTH0", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -3
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH1", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -3
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH2", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -3
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH3", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -3
+	Patch "BERDEAD0", 0, 0
+}
+
+Graphic "BERXDTH4", 40, 40
+{
+	XScale 1.25
+	YScale 1.25
+	Offset 4, -3
+	Patch "BERDEAD0", 0, 0
+}

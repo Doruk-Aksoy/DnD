@@ -12,6 +12,8 @@
 
 #define DND_BASE_POISON_FACTOR 2
 
+#define DND_INVULSPHERE_FACTOR 10 // 10% damage taken, divides by 10 => 90% reduce
+
 #define DND_EXPLOSION_FLAGVARIABLE "user_flags"
 
 #define DND_BERSERKER_DAMAGETRACKTIME 17 // 3 is base, x 5 -- +2 for 0.5 second of buffer inclusion
@@ -474,6 +476,86 @@ int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, in
 	return res;
 }
 
+int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) {
+	// we need to assign a damage category to this first
+	//printbold(d:damage_type, s: " ", d:flags);
+	int damage_category = GetDamageCategory(damage_type, flags);
+	int damage_category_flags = 0;
+	int pnum = tid - P_TIDSTART;
+	
+	damage_category_flags |= 	(IsFireDamage(damage_type) & DND_WDMG_FIREDAMAGE) 		| 
+								(IsFireDamage(damage_type) & DND_WDMG_ICEDAMAGE) 		|
+								(IsPoisonDamage(damage_type) & DND_WDMG_POISONDAMAGE) 	|
+								(IsLightningDamage(damage_type) & DND_WDMG_LIGHTNINGDAMAGE);
+	
+	//printbold(s:"add ", d:MapDamageCategoryToFlatBonus(pnum, damage_category, damage_category_flags));
+	dmg += MapDamageCategoryToFlatBonus(pnum, damage_category, damage_category_flags);
+	
+	// overall percentage bonuses -- this is basically ScaleCachedDamage but unwrapped, we need to rewrite these into a common function that just retrieves the overall bonus factor to multiply with!
+	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category);
+	
+	// specialty armor bonuses
+	int temp = GetArmorID();
+	if(
+		(temp == DND_ARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
+		(temp == DND_ARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
+		(temp == DND_ARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
+		(temp == DND_ARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
+		(temp == DND_ARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
+	)
+	{
+		factor += DND_SPECIALTYARMOR_BUFF;
+	}
+	
+	// apply flat health to damage conversion if player has any
+	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
+	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
+		factor += GetFlatHealthDamageFactor(temp);
+		
+	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
+	if(temp && (damage_category_flags & DND_WDMG_LIGHTNINGDAMAGE))
+		factor += temp;
+		
+	if(damage_category == DND_DAMAGECATEGORY_ELEMENTAL && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
+		factor += DND_MORDECQAI_BOOST;
+
+	// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
+	// quest or accessory bonuses	
+	// is occult (add demon bane bonus)
+	// apply wanderer perk if applicable
+	if((damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_ELEMENTAL) && CheckActorInventory(tid, "Wanderer_Perk25"))
+		factor = factor * (100 + DND_WANDERER_PERK25_BUFF) / 100;
+	
+	if(damage_category == DND_DAMAGECATEGORY_OCCULT)
+		factor = factor * (100 + DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE))) / 100;
+	
+	// % more damage from charms -- already contains 100 in it as it's a multiplicative mod -- its also fixed!
+	if(!(flags & DND_DAMAGEFLAG_ISSPELL)) {
+		temp = (GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE) * 100) >> 16;
+		if(temp)
+			factor = factor * (100 + temp) / 100;
+	}
+		
+	// if we had a factor of 0, dont bother here
+	if(!factor)
+		return dmg;
+		
+	//printbold(s:"dmg factor mult by ", d:factor, s: " base dmg: ", d:dmg, s: " end result: ", d:dmg * factor / 100);
+		
+	if(dmg < INT_MAX / factor) {
+		dmg *= factor;
+		dmg /= 100;
+		// no longer fixed
+		//dmg >>= 16;
+	}
+	else {
+		// beyond this point wepid doesnt matter so use that instead
+		dmg = INT_MAX;//BigNumberFormula(dmg, factor);
+	}
+	
+	return dmg;
+}
+
 // use only flags with DND_WDMG header here!!!
 // NOTE: DO NOT FACTOR ANY DOT MULTIPLIER IN HERE!
 // isSpecial is id of the special ammo + 1
@@ -664,11 +746,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	
 	if(dmg < INT_MAX / temp) {
 		dmg *= temp;
-		dmg >>= 16;
+		dmg /= 100;
+		// no longer fixed
+		//dmg >>= 16;
 	}
 	else {
 		// beyond this point wepid doesnt matter so use that instead
-		dmg = BigNumberFormula(dmg, temp);
+		dmg = INT_MAX;//BigNumberFormula(dmg, temp);
 	}
 	
 	//printbold(d:dmg);
@@ -922,7 +1006,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 }
 
 // for player hitting others damage
-int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, int wepid, int flags, bool isIgnite) {
+int HandlePlayerBuffs(int p_tid, int enemy_tid, int dmg, int damage_type, int wepid, int flags, bool isIgnite) {
 	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
 		dmg /= DND_DEMONBANE_REDUCE;
 		
@@ -993,7 +1077,7 @@ int HandleAccessoryEffects(int p_tid, int enemy_tid, int dmg, int damage_type, i
 }
 
 // for others hitting player damage
-int HandleAccessoryHitEffects(int p_tid, int enemy_tid, int dmg, int dmg_data, str arg2) {
+int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str arg2) {
 	// take extra damage only if they aren't ghost
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK) && !CheckFlag("enemy_tid", "GHOST"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERMASK_AMP, DND_NETHERMASK_DIV);
@@ -1012,6 +1096,10 @@ int HandleAccessoryHitEffects(int p_tid, int enemy_tid, int dmg, int dmg_data, s
 		
 	if(CheckActorInventory(enemy_tid, "HunterTalismanDebuff"))
 		dmg -= dmg / DND_HUNTERTALISMAN_NERF;
+		
+	// 25%
+	if(CheckActorInventory(p_tid, "Invulnerable_Better"))
+		dmg /= DND_INVULSPHERE_FACTOR;
 	
 	return dmg;
 }
@@ -1222,7 +1310,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	dmg = HandleGenericPlayerDamageEffects(pnum, dmg);
 	
 	// ACCESSORY EFFECTS
-	dmg = HandleAccessoryEffects(source, victim, dmg, damage_type, wepid, flags, no_ignite_stack);
+	dmg = HandlePlayerBuffs(source, victim, dmg, damage_type, wepid, flags, no_ignite_stack);
 	
 	// finally the crit check if applicable
 	if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) {
@@ -1356,8 +1444,8 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 	
 	bool wep_neg = wepid < 0 || (flags & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO));
 	
-	// confirm the crit damage
-	actor_flags |= (GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) * DND_ACTORFLAG_CONFIRMEDCRIT;
+	// confirm the crit damage -- only should work for now if this isn't a spell!
+	actor_flags |= (!(flags & DND_DAMAGEFLAG_ISSPELL) && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) * DND_ACTORFLAG_CONFIRMEDCRIT;
 	
 	// turn them to fixed
 	radius <<= 16;
@@ -2006,10 +2094,20 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	if(cap || taltos || brune_1 || brune_2) {
 		taltos = cap + taltos * DND_TALTOS_LIFESTEAL + brune_1 * BLOODRUNE_LIFESTEAL_AMT + brune_2 * BLOODRUNE_LIFESTEAL_AMT2;
 		
-		// divide by 100 as its a percentage -- and >> 16 to make it int
+		//printbold(s:"lifesteal factor ", f:taltos);
+		
+		// divide by 100 as its a percentage -- and >> 16 to make it int -- added little overflow check here too
 		taltos /= 100;
-		taltos *= dmg;
-		taltos >>= 16;
+		if(taltos > INT_MAX / dmg) {
+			taltos >>= 16;
+			taltos *= dmg;
+		}
+		else {
+			taltos *= dmg;
+			taltos >>= 16;
+		}
+				
+		//printbold(s:"to be given ", d:taltos);
 		
 		// no longer accept 1 point of lifesteal
 		if(taltos <= 0)
@@ -2022,7 +2120,7 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 		if(taltos + brune_1 > cap)
 			taltos = cap - brune_1;
 			
-		// printbold(s:"ls amt: ", d:taltos, s: " prev counter: ", d:brune_1);
+		//printbold(s:"ls amt: ", d:taltos, s: " prev counter: ", d:brune_1);
 		
 		if(!brune_1) {
 			GiveInventory("LifeStealAmount", taltos);
@@ -2506,10 +2604,10 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			dmg = dmg * ((GetSelfExplosiveResist(pnum) * 100) >> 16) / 100;
 			
 			// apply accessory and other sources of damage
-			dmg = HandleAccessoryEffects(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
+			dmg = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
 			
 			// factor in players armor here!!!
-			dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
+			//dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 		break;
 	}
 	return dmg;
@@ -2984,7 +3082,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
 					
-				dmg = HandleAccessoryHitEffects(victim, shooter, dmg, dmg_data, arg2);
+				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 				
 				// damage amplifications
 				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
@@ -2999,9 +3097,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					//GiveInventory("DnD_DamageReceived", dmg);
 					PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 					PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
+					
+					// mugshot hook
+					ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);
 				}
 			}
 			
+			// these are on monsters only, dont have much to do with us beyond this point
 			HandleMonsterDamageModChecks(m_id, shooter, victim);
 			
 			//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
@@ -3032,7 +3134,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		}
 		else if(!IsMonster(victim)) {
 			// the above check was necessary
-			// hurt self -- handleplayerselfdamage is ran in explosion side of things
+			// hurt self -- handleplayerselfdamage is ran in explosion side of things, we run additional stuff that isnt handled by that here, like resists and armor
 			pnum = PlayerNumber();
 			
 			if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
@@ -3044,6 +3146,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			dmg = HandlePlayerArmor(dmg, arg2, dmg_data, false);
 			//GiveInventory("DnD_DamageReceived", dmg);
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
+			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
+			
+			// mugshot hook
+			ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);
+			
 			SetResultValue(dmg);
 		}
 	}

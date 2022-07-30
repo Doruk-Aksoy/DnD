@@ -23,6 +23,7 @@ ACTOR CacoLich : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CACOLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		Idle:
@@ -255,6 +256,7 @@ ACTOR DeathWhisperer : DnD_BaseRangedMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEATHWHISPERER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -316,6 +318,7 @@ ACTOR EarthLich : DnD_BaseRangedMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_EARTHLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -473,6 +476,7 @@ ACTOR EnhancedCacodemon : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ENHANCEDCACO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -548,6 +552,7 @@ ACTOR Inferno : DnD_BaseHybridMonster {
 	states { 
 		SetInfo:
 			INFR A 0 A_SetArg(4, DND_INFERNO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -655,6 +660,7 @@ ACTOR Weakener : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_WEAKENER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -849,6 +855,7 @@ ACTOR ShadowPriest : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SHADOWPRIEST)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1082,6 +1089,7 @@ ACTOR Guardian : DnD_BaseRangedMonster {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GUARDIAN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:
@@ -1188,6 +1196,7 @@ Actor Wicked : DnD_BaseRangedMonster {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_WICKED)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:

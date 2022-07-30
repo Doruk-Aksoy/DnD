@@ -68,8 +68,10 @@ enum {
 #include "DnD_ElixirDef.h"
 #include "DnD_CommonResearch.h"
 
-#define DND_ELITE_BASEDROP 0.025
-#define DND_ELITE_BASEDROP_ORB 0.05
+#define DND_ELITE_BASEDROP 0.0025 // same as below
+// this was 0.05 before, but now 0.005 because we have 10% chance for elite in the game as base, so it'll scale up for all monsters from 0.005 now
+// trying 0.01, 1% chance
+#define DND_ELITE_BASEDROP_ORB 0.01
 
 #define DND_BASE_PLAYERSPEED 1.0
 #define DND_BULKINESS_GAIN 0.006
@@ -441,6 +443,19 @@ int GetSpawnHealth() {
 		res = DND_BASE_HEALTH;
 	SetInventory("PlayerHealthCap", res);
 	return res;
+}
+
+int GetHealthPercent() {
+	int hp_pct = CheckInventory("PlayerHealthCap");
+	if(!hp_pct)
+		hp_pct = 100;
+	else {
+		hp_pct = (GetActorProperty(0, APROP_HEALTH) * 100) / CheckInventory("PlayerHealthCap");
+		if(hp_pct > 100)
+			hp_pct = 100;
+	}
+	
+	return hp_pct;
 }
 
 int GetActorSpawnHealth(int t) {

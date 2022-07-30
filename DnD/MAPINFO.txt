@@ -1,11 +1,5 @@
 gameinfo {
-	PlayerClasses 		= "TheDoomGuy"
-	AddPlayerClasses	= "TheMarine"
-	AddPlayerClasses	= "TheHobo"
-	AddPlayerClasses	= "ThePunisher"
-	AddPlayerClasses	= "TheWanderer"
-	AddPlayerClasses    = "TheCyborg"
-	AddPlayerClasses	= "TheBerserker"
+	PlayerClasses 		= "DnD_Player"
 	norandomplayerclass = true
 	translator = "XLAT.txt"
 	intermissionmusic = "INTER1"

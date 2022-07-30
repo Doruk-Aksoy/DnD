@@ -37,6 +37,7 @@ Actor MonsterRegenPause : DnD_Boolean { }
 
 const int pfff = 0;
 
+// these match monsterclassid data in dnd_monsterdata.h
 enum {
 	DND_ZOMBIEMANID,
 	DND_SHOTGUNNERID,

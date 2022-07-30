@@ -32,24 +32,24 @@ void RollChestkeyInfo(int item_pos, int keytype, bool onField) {
 	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_KEY_BEGIN + keytype;
 }
 
-void HandleChestKeyDrop(bool isElite) {
+void HandleChestKeyDrop(int drop_boost) {
 #ifdef ISDEBUGBUILD
-	SpawnChestKey(0, true);
+	SpawnChestKey(0);
 #endif
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_CHESTKEY_DROPRATE)))) {
-			SpawnChestKey(i, isElite);
+		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, DND_CHESTKEY_DROPRATE * (100 + drop_boost) / 100)))) {
+			SpawnChestKey(i);
 			
 			// check for luck mastery on players
 			if(HasActorMasteredPerk(i + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-				SpawnChestKey(i, isElite);
+				SpawnChestKey(i);
 		}
 	}
 }
 
-void SpawnChestKey(int pnum, bool isElite) {
+void SpawnChestKey(int pnum) {
 	int res = 0;
 	int c = CreateItemSpot();
 	if(c != -1) {

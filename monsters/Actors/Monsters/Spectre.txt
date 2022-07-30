@@ -94,6 +94,7 @@ Actor FlameDemonGhost : FlameDemon {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_FLAMEDEMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -210,6 +211,7 @@ Actor Gravedigger : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GRAVEDIGGER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -330,6 +332,7 @@ Actor SoulEaterGhost : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SOULEATER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 		
 		Idle:
@@ -393,6 +396,7 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_NHUMCIGN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -504,6 +508,7 @@ Actor RavagerGhost : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_RAVAGER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:

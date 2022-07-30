@@ -56,44 +56,36 @@ flickerlight2 GRAYATK {
     offset 0 40 0
 }
 
-object TheDoomguy {
+object DnD_Player {
     frame DPLYF { light RANGERATK }
 	frame DPLPA { light PLASMAATK }
 	frame DPLPB { light GREENATK }
 	frame DPLPC { light REDATK }
 	frame DPLPD { light PURPLEATK }
 	frame DPLPE { light GRAYATK }
-}
-
-object TheMarine {
-    frame PLAYF { light RANGERATK }
+	
+	frame PLAYF { light RANGERATK }
 	frame PLYPA { light PLASMAATK }
 	frame PLYPB { light GREENATK }
 	frame PLYPC { light REDATK }
 	frame PLYPD { light PURPLEATK }
 	frame PLYPE { light GRAYATK }
-}
-
-object TheHobo {
+	
     frame PRENF { light RANGERATK }
 	frame PRNPA { light PLASMAATK }
 	frame PRNPB { light GREENATK }
 	frame PRNPC { light REDATK }
 	frame PRNPD { light PURPLEATK }
 	frame PRNPE { light GRAYATK }
-}
-
-object ThePunisher {
-    frame BLAZF { light RANGERATK }
+	
+	frame BLAZF { light RANGERATK }
 	frame PPUNA { light PLASMAATK }
 	frame PPUNB { light GREENATK }
 	frame PPUNC { light REDATK }
 	frame PPUND { light PURPLEATK }
 	frame PPUNE { light GRAYATK }
-}
-
-object TheWanderer {
-    frame MNK1F { light RANGERATK }
+	
+	frame MNK1F { light RANGERATK }
 	frame MNKPA { light PLASMAATK }
 	frame MNKPB { light GREENATK }
 	frame MNKPC { light REDATK }

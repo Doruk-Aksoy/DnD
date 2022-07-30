@@ -98,6 +98,7 @@ Actor Bloodfiend : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BLOODFIEND)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -206,6 +207,7 @@ Actor Ravager : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_RAVAGER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		Idle:
@@ -298,6 +300,7 @@ ACTOR CyberFiend : DnD_BaseHybridMonster {
     States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CYBERFIEND)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -515,6 +518,7 @@ ACTOR FlameDemon : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_FLAMEDEMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -628,6 +632,7 @@ actor StoneDemon : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_STONEDEMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -727,6 +732,7 @@ Actor SoulEater : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SOULEATER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -804,6 +810,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BRUTY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:
@@ -895,6 +902,7 @@ actor Scavenger : DnD_ArchVileHybridBase {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SCAVENGER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -996,6 +1004,7 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_NHUMCIGN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1235,6 +1244,7 @@ actor Satyr : DnD_BaseMeleeMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SATYR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1309,6 +1319,7 @@ Actor EarthGolem : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_EARTHGOLEM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1426,6 +1437,7 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
     States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_PUREBREDDEMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		Idle:

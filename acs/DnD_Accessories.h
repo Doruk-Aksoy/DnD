@@ -32,7 +32,7 @@ enum {
 #define DND_VEIL_FACTOR 20 // percent
 #define DND_VEIL_FACTORUP 3
 #define DND_HUNTERTALISMAN_HEALFACTOR 33
-#define DND_TALTOS_LIFESTEAL 25000 // 25%
+#define DND_TALTOS_LIFESTEAL 25.0 // 25%
 
 #define DND_AMULETHELL_FACTOR 4 // 25% damage
 #define DND_AMULETHELL_AMP 7 // 7 / 4 = 75%

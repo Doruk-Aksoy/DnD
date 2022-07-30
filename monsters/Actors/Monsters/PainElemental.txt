@@ -157,6 +157,7 @@ ACTOR Defiler : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEFILER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -318,6 +319,7 @@ Actor Helemental : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HADESELEMENTAL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -699,6 +701,7 @@ actor DESentinel : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SENTINEL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
 		Idle:
@@ -893,6 +896,7 @@ ACTOR BloodLich : DnD_BaseRangedMonster_NoRes {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BLOODLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -1081,6 +1085,7 @@ ACTOR ShadowDisciple : DnD_BaseRangedMonster {
 	States  { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SHADOWDISCIPLE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1334,6 +1339,7 @@ Actor HellArbiter : DnD_BaseRangedMonster {
 			TNT1 A 0 A_CustomMissile("ArbiterOrbit2", 32, 0, 120, CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("ArbiterOrbit3", 32, 0, 240, CMF_AIMDIRECTION)
 			TNT1 A 0 A_SetArg(4, DND_HELLARBITER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:

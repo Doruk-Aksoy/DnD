@@ -7,25 +7,22 @@
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 20 // 20% per level
 
+// note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
+// so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
 int GetMonsterHPScaling(int m_id, int level) {
-	// new formula: x^2 * 0.033 + 5x, where x is level - 1. This yields a slow increase at earlier levels but sharper increase later, much smoother than before
-	// at level 2, we are looking at the old value of standard percent increase, we will be about the same until about level 14, which after that it increases more
-	// after level 97, we skip old limit of 800% added, and at level 100 monsters have 830% added health
-	// but due to this, dnd_monster_hpscalepercent is no longer in use
+	// new formula: x^2 * 0.33 + 5x, where x is level - 1.
+	int res = (33 * level * level) / 100 + 5 * level;
 	
-	// note: if this is too slow scaling, try x^2 / 20 + 5x later
-	int res = (33 * level * level) / 1000 + 5 * level;
-	
-	// big bosses have higher scaling than other monsters
+	// big bosses have higher scaling than other monsters -- since we reach much higher values than before I decided to go ahead and reduce the big boss scaling here
 	if(IsUniqueBossMonster(m_id))
-		res *= (1 + (level / 10));
+		res *= 1 + (level / 33);
 		
 	return res;
 }
 
 int GetMonsterDMGScaling(int m_id, int level) {
-	// over the old formula of 4x, this provides 600% damage at lvl 100 instead of 400%
-	int res = level * level / 50 + level * 4;
+	// over the old formula of 4x, this provides 500% damage at lvl 100 instead of 400%
+	int res = level * level / 25 + level;
 	
 	// unique bosses have additional damage multiplier per level -- x^2 * 0.01667 + x
 	if(IsUniqueBossMonster(m_id))
@@ -40,6 +37,10 @@ typedef struct {
 	int level;
 	int id;
 	int class;										// monster class
+	int gain;										// the gain value the monster will provide on killing
+	int rarity;										// monster's rarity;
+	int droprate;									// droprate multiplier for this monster based on its initialization data
+	int rarity_boost;								// item rarity boost from monster
 	bool isElite;
 	bool hasTrait;									// used by clients mostly -- do we have traits
 	bool trait_list[MAX_MONSTER_TRAITS_STORED]; 	// 1 if that trait is on, 0 if not
@@ -76,6 +77,68 @@ enum {
 	MONSTERCLASS_CYBERDEMON,
 	MONSTERCLASS_WOLFENSS
 };
+
+// this is the base exp value you get for killing a monster of this class, where all bonuses will be applied to
+// shifted right by 16 it returns the droprate multiplier
+int GetMonsterClassBonus(int class) {
+	switch(class) {
+		case MONSTERCLASS_ZOMBIEMAN:
+		return 10 | (10 << 16);
+		
+		case MONSTERCLASS_SHOTGUNGUY:
+		return 15 | (15 << 16);
+		
+		case MONSTERCLASS_CHAINGUNGUY:
+		return 24 | (20 << 16);
+		
+		case MONSTERCLASS_DEMON:
+		return 32 | (25 << 16);
+		
+		case MONSTERCLASS_SPECTRE:
+		return 35 | (25 << 16);
+		
+		case MONSTERCLASS_IMP:
+		return 20 | (15 << 16);
+		
+		case MONSTERCLASS_CACODEMON:
+		return 75 | (40 << 16);
+		
+		case MONSTERCLASS_PAINELEMENTAL:
+		return 90 | (40 << 16);
+		
+		case MONSTERCLASS_LOSTSOUL:
+		return 40 | (15 << 16);
+		
+		case MONSTERCLASS_REVENANT:
+		return 55 | (20 << 16);
+		
+		case MONSTERCLASS_HELLKNIGHT:
+		return 80 | (35 << 16);
+		
+		case MONSTERCLASS_BARON:
+		return 135 | (50 << 16);
+		
+		case MONSTERCLASS_FATSO:
+		return 130 | (60 << 16);
+		
+		case MONSTERCLASS_ARACHNOTRON:
+		return 120 | (60 << 16);
+		
+		case MONSTERCLASS_ARCHVILE:
+		return 150 | (75 << 16);
+		
+		case MONSTERCLASS_SPIDERMASTERMIND:
+		return 1000 | (100 << 16);
+		
+		case MONSTERCLASS_CYBERDEMON:
+		return 1750 | (100 << 16);
+		
+		case MONSTERCLASS_WOLFENSS:
+		return 15 | (10 << 16);
+	}
+	
+	return 1;
+}
 
 enum {
 	// Classics
@@ -460,6 +523,7 @@ enum {
 #define DND_UNIQUE_CYBER_END MONSTER_ABAXOTH
 
 #define DND_UNIQUEMONSTER_BEGIN MONSTER_TERON
+#define DND_UNIQUEMONSTER_END MONSTER_ABAXOTH
 #define DND_UNIQUEBOSS_BEGIN MONSTER_ERYXIA
 
 #define DND_BOSS_BEGIN MONSTER_DEMOLISHER
@@ -681,6 +745,84 @@ void HandleMonsterClassInnates(int mid, int id) {
 		MonsterProperties[mid].class = MONSTERCLASS_WOLFENSS;
 }
 
+/*
+	Monster rarities formulated:
+		- Common: These are vanilla tier monsters. Either vanilla monsters, or monsters with similar behavior reside here.
+		- Uncommon: These are a monsters that are just a tad bit stronger than vanilla.
+		- Rare - 1: These guys are strong. You don't want to encounter them early on.
+		- Rare - 2: A variant of rare, a little more rare.
+		- Very Rare: These guys... You'd really not want to be against these but they are still better than seeing a Legendary monster.
+		- Epic: Truly dangerous. High threat monsters.
+*/
+
+enum {
+	DND_MWEIGHT_COMMON = 1000,
+	DND_MWEIGHT_UNCOMMON = 750,
+	DND_MWEIGHT_RARE1 = 600,
+	DND_MWEIGHT_RARE2 = 500,
+	DND_MWEIGHT_VERYRARE = 325,
+	DND_MWEIGHT_EPIC = 275,
+	DND_MWEIGHT_ENDMARKER = -1
+};
+
+#define DND_ELITE_GAINBONUS 25 // 25%
+#define DND_CREDITGAIN_FACTOR 3 // divides the regular gain by 3
+
+int GetMonsterLevelDroprateBonus(int lvl) {
+	// this is a curve that dictates how much of the base bonus drop chance of the monster's class we should include
+	return lvl * lvl / 200 + lvl / 2;
+}
+
+/* 
+	Multiply the bonus with 1000 / rarity of monster to get a percentage
+	This is a linear, simple bonus added on top just because of the rarity of the monster. While rarity is important, the level matters more. However early on it should have a tiny impact still.
+*/
+#define DND_DROPBONUS_FROM_RARITY 20 
+int GetMonsterDropBonus(int drop_base, int level, int rarity, bool isElite) {
+	return drop_base * (GetMonsterLevelDroprateBonus(level) + 50 * isElite + (DND_DROPBONUS_FROM_RARITY * DND_MWEIGHT_COMMON) / rarity) / 100;
+}
+
+// you gain the returned value for exp, and third of that for credits -- rarity is monster rarity not item related rarity!
+void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
+	int base = 0;
+	int drop_base = 0;
+	
+	// per lvl we get base 15%, then 25% per lvl if monster is elite
+	int pct = 	100 + (MonsterProperties[m_id].level - 1) * (DND_MONSTERBONUS_PERLVL + DND_ELITE_GAINBONUS * MonsterProperties[m_id].isElite);
+	//printbold(s:"pct: ", d:pct);
+	
+	// if rarity is within general rarity range, get monster class respective bonus
+	// it may not be the case for unique bosses, or any monster that is special. So we use the value in here as the base exp reward to be given instead
+	if(rarity <= DND_MWEIGHT_COMMON) {
+		base = GetMonsterClassBonus(MonsterProperties[m_id].class);
+		drop_base = base >> 16;
+		base &= 0xFFFF;
+		
+		//printbold(s:"base: ", d:base);
+		base = base * pct / 100;
+		//printbold(s:"base after pct ", d:base);
+		// depending on rarity apply a more multiplier
+		MonsterProperties[m_id].gain = base * DND_MWEIGHT_COMMON / rarity;
+		//printbold(s:"base final ", d:MonsterProperties[m_id].gain);
+	
+		// droprate for regular monsters, low level trash tier monsters drop nothing or rarely vs. higher tier and higher level monsters
+		MonsterProperties[m_id].droprate = GetMonsterDropBonus(drop_base, MonsterProperties[m_id].level, rarity, MonsterProperties[m_id].isElite);
+		//printbold(s:"droprate % inc for ", s:GetActorClass(0), s: " of level ", d:MonsterProperties[m_id].level, s: " is ", d:MonsterProperties[m_id].droprate);
+		
+		MonsterProperties[m_id].rarity_boost = MonsterProperties[m_id].droprate / 2;
+	}
+	else {
+		// since rarity for us doesnt make sense as a multiplier here we just return the amplified percentage
+		base = rarity;
+		MonsterProperties[m_id].gain = base = base * pct / 100;
+		//printbold(s:"base final special: ", d:MonsterProperties[m_id].gain);
+		
+		// droprate here for custom dungeon bosses is 0, because they should call their own loot dropper script!
+		MonsterProperties[m_id].droprate = 0;
+		MonsterProperties[m_id].rarity_boost = 33; // 33% rarity boost on dungeon monsters
+	}
+}
+
 // this has any special trait that requires a script to run BEFORE an elite status can apply to a monster
 void HandlePreInitTraits(int mid, int id) {
 	if(MonsterProperties[mid].trait_list[DND_REJUVENATING])
@@ -692,14 +834,29 @@ void HandlePreInitTraits(int mid, int id) {
 }
 
 // this is put as a seperate function because 
-void HandlePostInitTraits(int mid, int id) {
-	if(MonsterProperties[mid].trait_list[DND_FORTIFIED]) {
+void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON) {
+	if(MonsterProperties[m_id].trait_list[DND_FORTIFIED]) {
 		// full fortify exceptions
 		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
-			SetInventory("MonsterFortifyCount", MonsterProperties[mid].maxhp * DND_FORTIFY_AMOUNT / 10);
+			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * DND_FORTIFY_AMOUNT / 10);
 		else
-			SetInventory("MonsterFortifyCount", MonsterProperties[mid].maxhp);
+			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp);
 	}
+	
+	// calculate the gains multiplier -- this is the safest place to do as most of monster data is now known by this point, like level etc.
+	// all unique monsters have highest possible rarity
+	if(rarity == -1) {
+		if(!IsUniqueMonster(id))
+			rarity = GetMonsterRarity(m_id);
+		else
+			rarity = DND_MWEIGHT_EPIC;
+	}
+		
+	//printbold(s:"rarity ", d:rarity, s: " ", d:MonsterProperties[m_id].class, s: " ", d:MonsterProperties[m_id].id);
+	
+	MonsterProperties[m_id].rarity = rarity;
+	
+	CalculateMonsterGainMult(m_id, rarity);
 }
 
 // this is only used in revive of monsters by itself
@@ -876,58 +1033,58 @@ typedef struct {
 } monster_data_T;
 
 monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
-	{ 20, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEMANID,
-	{ 30, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_SHOTGUNNERID,
-	{ 70, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_CHAINGUNGUYID,
-	{ 150, 			DND_MTYPE_DEMON_POW 									},//DND_DEMONID,
-	{ 150, 			DND_MTYPE_DEMON_POW 									},//DND_SPECTREID,
-	{ 60, 			DND_MTYPE_DEMON_POW 									},//DND_IMPID,
-	{ 400, 			DND_MTYPE_DEMON_POW 									},//DND_CACODEMONID,
-	{ 400, 			DND_MTYPE_DEMON_POW 									},//DND_PAINELEMENTALID,
-	{ 50, 			DND_MTYPE_UNDEAD_POW 									},//DND_LOSTSOULID,
-	{ 300, 			DND_MTYPE_UNDEAD_POW 									},//DND_REVENANTID,
-	{ 500, 			DND_MTYPE_DEMON_POW 									},//DND_HELLKNIGHTID,
-	{ 1000, 		DND_MTYPE_DEMON_POW 									},//DND_BARONID,
-	{ 600, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_FATSOID,
-	{ 500, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_ARACHNOTRONID,
-	{ 700, 			DND_MTYPE_DEMON_POW 									},//DND_ARCHVILEID,
-	{ 3000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_SPIDERMASTERMINDID,
-	{ 4000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_CYBERDEMONID,
-	{ 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_NAZIID,	
+	{ 20, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW	 			},//DND_ZOMBIEMANID,
+	{ 30, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_SHOTGUNNERID,
+	{ 70, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW	 			},//DND_CHAINGUNGUYID,
+	{ 150, 			DND_MTYPE_DEMON_POW										},//DND_DEMONID,
+	{ 150, 			DND_MTYPE_DEMON_POW										},//DND_SPECTREID,
+	{ 60, 			DND_MTYPE_DEMON_POW										},//DND_IMPID,
+	{ 400, 			DND_MTYPE_DEMON_POW										},//DND_CACODEMONID,
+	{ 400, 			DND_MTYPE_DEMON_POW										},//DND_PAINELEMENTALID,
+	{ 50, 			DND_MTYPE_UNDEAD_POW									},//DND_LOSTSOULID,
+	{ 300, 			DND_MTYPE_UNDEAD_POW									},//DND_REVENANTID,
+	{ 500, 			DND_MTYPE_DEMON_POW										},//DND_HELLKNIGHTID,
+	{ 1000, 		DND_MTYPE_DEMON_POW										},//DND_BARONID,
+	{ 600, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_FATSOID,
+	{ 500, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_ARACHNOTRONID,
+	{ 700, 			DND_MTYPE_DEMON_POW										},//DND_ARCHVILEID,
+	{ 3000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_SPIDERMASTERMINDID,
+	{ 4000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_CYBERDEMONID,
+	{ 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_NAZIID,	
 	
 	/// Zombieman
-	{ 40, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEGRAY,
-	{ 45, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIERANGER,
-	{ 35, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIESMG,
-	{ 30, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIERAPID,
-	{ 45, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEMARINE,
-    { 45, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIELOS,
-    { 25, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEPISTOL,
-    { 55, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEQUAKE1,
-    { 65, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEHUNTER,
-    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_PROPHET,
+	{ 40, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEGRAY,
+	{ 45, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIERANGER,
+	{ 35, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIESMG,
+	{ 30, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIERAPID,
+	{ 45, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEMARINE,
+    { 45, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIELOS,
+    { 25, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEPISTOL,
+    { 55, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEQUAKE1,
+    { 65, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEHUNTER,
+    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_PROPHET,
 
 	// Shotgunner
-    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_SSGLOS,
-    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZSPECSG,
-    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_SGLOS,
-    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_SAWEDOFF1,
-    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_SAWEDOFF2,
-    { 65, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ROGUE,
-    { 70, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEQUAKE2,
-    { 75, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIESSG,
+    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW		 		},//DND_SSGLOS,
+    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZSPECSG,
+    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_SGLOS,
+    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_SAWEDOFF1,
+    { 50, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_SAWEDOFF2,
+    { 65, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ROGUE,
+    { 70, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEQUAKE2,
+    { 75, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIESSG,
 
 	// Chaingunner
-    { 85, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEQUAKE3,
-    { 85, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZOMBIEMG,
-    { 65, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_INITIATE,
-    { 100, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_DOUBLEGUNNER,
-    { 110, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_CGMAJOR,
+    { 85, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEQUAKE3,
+    { 85, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZOMBIEMG,
+    { 65, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_INITIATE,
+    { 100, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_DOUBLEGUNNER,
+    { 110, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_CGMAJOR,
     { 100, 			DND_MTYPE_ROBOTIC_POW									},//DND_MRROBOT,
-    { 70, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZSEC,
-    { 60,			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_ZSPECMG,
-	{ 85, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_PLASMAZOMBIE,
-	{ 150, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_BERSERKERGUY,
+    { 70, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZSEC,
+    { 60,			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_ZSPECMG,
+	{ 85, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_PLASMAZOMBIE,
+	{ 150, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_BERSERKERGUY,
 
 	// Demon
     { 250, 			DND_MTYPE_DEMON_POW										},//DND_BLOODDEMON,
@@ -975,9 +1132,9 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
     { 50, 			DND_MTYPE_DEMON_POW										},//DND_FLESHSPAWN,
     { 75, 			DND_MTYPE_MAGICAL_POW									},//DND_GUARDIANCUBE,
     { 40, 			DND_MTYPE_UNDEAD_POW									},//DND_FORGOTTENONE,
-	{ 35, 			DND_MTYPE_MAGICAL_POW									},//DND_HADESSPHERE,
+	{ 35, 			DND_MTYPE_MAGICAL_POW									},//DND_HADESSPHERE, S
 	{ 100, 			DND_MTYPE_DEMON_POW										},//DND_WATCHER,
-	{ 75, 			DND_MTYPE_UNDEAD_POW									},//DND_DARKLICH_SPIRIT,
+	{ 75, 			DND_MTYPE_UNDEAD_POW									},//DND_DARKLICH_SPIRIT, S
 
 	// Cacodemon
     { 300, 			DND_MTYPE_DEMON_POW										},//DND_WEAKENER,
@@ -999,8 +1156,8 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 550, 			DND_MTYPE_DEMON_POW										},//DND_TORTUREDSOUL,
 	{ 500, 			DND_MTYPE_MAGICAL_POW									},//DND_SHADOWDISCIPLE,
 	{ 750, 			DND_MTYPE_MAGICAL_POW									},//DND_SENTINEL,
-	{ 300,			DND_MTYPE_MAGICAL_POW									},//DND_PHANTASM
-	{ 75, 			DND_MTYPE_UNDEAD_POW									},//DND_WRAITH,
+	{ 300,			DND_MTYPE_MAGICAL_POW									},//DND_PHANTASM S
+	{ 75, 			DND_MTYPE_UNDEAD_POW									},//DND_WRAITH, S
 
 	// Revenant
 	{ 250, 			DND_MTYPE_UNDEAD_POW									},//DND_INCARNATE,
@@ -1009,8 +1166,8 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 300, 			DND_MTYPE_UNDEAD_POW									},//DND_WIDOWMAKER,
 	{ 350, 			DND_MTYPE_MAGICAL_POW									},//DND_YETI,
 	{ 280, 			DND_MTYPE_MAGICAL_POW									},//DND_SLUDGEGIANT,
-	{ 140, 			DND_MTYPE_MAGICAL_POW									},//DND_SLUDGEGIANT2,
-	{ 70, 			DND_MTYPE_MAGICAL_POW									},//DND_SLUDGEGIANT3,
+	{ 140, 			DND_MTYPE_MAGICAL_POW									},//DND_SLUDGEGIANT2, S
+	{ 70, 			DND_MTYPE_MAGICAL_POW									},//DND_SLUDGEGIANT3, S
 	{ 350, 			DND_MTYPE_UNDEAD_POW									},//DND_CADAVER,
 	{ 275, 			DND_MTYPE_MAGICAL_POW									},//DND_DARKSERVANT,
 	{ 325, 			DND_MTYPE_DEMON_POW										},//DND_CRAWLER,
@@ -1018,99 +1175,99 @@ monster_data_T MonsterData[DND_LASTMONSTER_INDEX + 1] = {
 	{ 350, 			DND_MTYPE_UNDEAD_POW									},//DND_DRAUGR,
 
 	// Hell Knight
-	{ 550, 			DND_MTYPE_DEMON_POW 									},//DND_BLOODSATYR,
-	{ 400, 			DND_MTYPE_DEMON_POW 									},//DND_HELLWARRIOR,
-	{ 600, 			DND_MTYPE_DEMON_POW 									},//DND_HELLSFURY,
-	{ 550, 			DND_MTYPE_UNDEAD_POW 									},//DND_BLACKKNIGHT,
-	{ 700, 			DND_MTYPE_DEMON_POW 									},//DND_ARCHON,
-	{ 650, 			DND_MTYPE_DEMON_POW 									},//DND_WARLORD,
-	{ 500, 			DND_MTYPE_MAGICAL_POW 									},//DND_SKULLWIZARD,
-	{ 650, 			DND_MTYPE_ROBOTIC_POW 									},//DND_CYBORGWARRIOR,
-	{ 400, 			DND_MTYPE_DEMON_POW 									},//DND_SHADOWBEAST,
-	{ 450, 			DND_MTYPE_DEMON_POW 									},//DND_CHAOSSERPENT,
-	{ 750, 			DND_MTYPE_DEMON_POW 									},//DND_MOONSATYR,
-	{ 400, 			DND_MTYPE_MAGICAL_POW 									},//DND_ICEGOLEM,
+	{ 550, 			DND_MTYPE_DEMON_POW										},//DND_BLOODSATYR,
+	{ 400, 			DND_MTYPE_DEMON_POW										},//DND_HELLWARRIOR,
+	{ 600, 			DND_MTYPE_DEMON_POW										},//DND_HELLSFURY,
+	{ 550, 			DND_MTYPE_UNDEAD_POW									},//DND_BLACKKNIGHT,
+	{ 700, 			DND_MTYPE_DEMON_POW										},//DND_ARCHON,
+	{ 650, 			DND_MTYPE_DEMON_POW										},//DND_WARLORD,
+	{ 500, 			DND_MTYPE_MAGICAL_POW									},//DND_SKULLWIZARD,
+	{ 650, 			DND_MTYPE_ROBOTIC_POW									},//DND_CYBORGWARRIOR,
+	{ 400, 			DND_MTYPE_DEMON_POW										},//DND_SHADOWBEAST,
+	{ 450, 			DND_MTYPE_DEMON_POW										},//DND_CHAOSSERPENT,
+	{ 750, 			DND_MTYPE_DEMON_POW										},//DND_MOONSATYR,
+	{ 400, 			DND_MTYPE_MAGICAL_POW									},//DND_ICEGOLEM,
 	{ 500,			DND_MTYPE_ROBOTIC_POW									},//DND_PUTREFIER,
-	{ 450, 			DND_MTYPE_DEMON_POW 									},//DND_GLADIATOR,
+	{ 450, 			DND_MTYPE_DEMON_POW										},//DND_GLADIATOR,
 
 	// Baron
-	{ 1000, 		DND_MTYPE_DEMON_POW 									},//DND_LAVADEMON,
-	{ 1100, 		DND_MTYPE_DEMON_POW 									},//DND_LORDOFHERESY,
-	{ 1200, 		DND_MTYPE_DEMON_POW 									},//DND_BORMERETH,
-	{ 1100, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_BARBATOS,
-	{ 1000, 		DND_MTYPE_DEMON_POW 									},//DND_BLOODSEEKER,
-	{ 900, 			DND_MTYPE_MAGICAL_POW 									},//DND_SHADOWWIZARD,
-	{ 1650, 		DND_MTYPE_DEMON_POW 									},//DND_KJAROCH,
-	{ 1500, 		DND_MTYPE_ROBOTIC_POW 									},//DND_CYBRUISER,
-	{ 1500, 		DND_MTYPE_DEMON_POW 									},//DND_BRUISERDEMON,
-	{ 900, 			DND_MTYPE_DEMON_POW 									},//DND_MAGMASERPENT,
-	{ 900, 			DND_MTYPE_UNDEAD_POW 									},//DND_DREADKNIGHT,
-	{ 900, 			DND_MTYPE_MAGICAL_POW 									},//DND_MAGMAGOLEM,
+	{ 1000, 		DND_MTYPE_DEMON_POW										},//DND_LAVADEMON,
+	{ 1100, 		DND_MTYPE_DEMON_POW										},//DND_LORDOFHERESY,
+	{ 1200, 		DND_MTYPE_DEMON_POW										},//DND_BORMERETH,
+	{ 1100, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_BARBATOS,
+	{ 1000, 		DND_MTYPE_DEMON_POW										},//DND_BLOODSEEKER,
+	{ 900, 			DND_MTYPE_MAGICAL_POW									},//DND_SHADOWWIZARD,
+	{ 1650, 		DND_MTYPE_DEMON_POW										},//DND_KJAROCH,
+	{ 1500, 		DND_MTYPE_ROBOTIC_POW									},//DND_CYBRUISER,
+	{ 1500, 		DND_MTYPE_DEMON_POW										},//DND_BRUISERDEMON,
+	{ 900, 			DND_MTYPE_DEMON_POW										},//DND_MAGMASERPENT,
+	{ 900, 			DND_MTYPE_UNDEAD_POW									},//DND_DREADKNIGHT,
+	{ 900, 			DND_MTYPE_MAGICAL_POW									},//DND_MAGMAGOLEM,
 	{ 800,			DND_MTYPE_ROBOTIC_POW									},//DND_JUDICATOR,
-	{ 1250, 		DND_MTYPE_DEMON_POW 									},//DND_WARMASTER,
+	{ 1250, 		DND_MTYPE_DEMON_POW										},//DND_WARMASTER,
 	
 	// Fatso
-	{ 850, 			DND_MTYPE_DEMON_POW 									},//DND_CORPULENT,
-	{ 850, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_DAEDABUS,
-	{ 775, 			DND_MTYPE_ROBOTIC_POW 									},//DND_PALADIN,
-	{ 875, 			DND_MTYPE_MAGICAL_POW 									},//DND_GAMON,
-	{ 900, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_MEPHISTO,
-	{ 1100, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_MAFIBUS,
-	{ 650, 			DND_MTYPE_DEMON_POW 									},//DND_ICEFATSO,
-	{ 775, 			DND_MTYPE_DEMON_POW 									},//DND_ABOMINATION,
+	{ 850, 			DND_MTYPE_DEMON_POW										},//DND_CORPULENT,
+	{ 850, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_DAEDABUS,
+	{ 775, 			DND_MTYPE_ROBOTIC_POW									},//DND_PALADIN,
+	{ 875, 			DND_MTYPE_MAGICAL_POW									},//DND_GAMON,
+	{ 900, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_MEPHISTO,
+	{ 1100, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_MAFIBUS,
+	{ 650, 			DND_MTYPE_DEMON_POW										},//DND_ICEFATSO,
+	{ 775, 			DND_MTYPE_DEMON_POW										},//DND_ABOMINATION,
 	{ 800,			DND_MTYPE_ROBOTIC_POW									},//DND_REDEEMER
-	{ 1000, 		DND_MTYPE_MAGICAL_POW 									},//DND_GOLDGOLEM,
-	
+	{ 1000, 		DND_MTYPE_MAGICAL_POW									},//DND_GOLDGOLEM,
+
 	// Arachnotron
-	{ 500, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_FUSIONSPIDER,
-	{ 450, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_RAILARACHNOTRON,
-	{ 700, 			DND_MTYPE_DEMON_POW 									},//DND_HELLFORGESPIDER,
-	{ 700, 			DND_MTYPE_DEMON_POW 									},//DND_VORE,
-	{ 700, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_BABYDEMOLISHER,
-	{ 550, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_CHAINGUNGENERAL,
-	{ 550, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_CHAINGUNCOMMANDO,
-	{ 600, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW 			},//DND_LEGIONNAIRE,
-	{ 650, 			DND_MTYPE_DEMON_POW 									},//DND_MANTICORE,
-	
+	{ 500, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_FUSIONSPIDER,
+	{ 450, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_RAILARACHNOTRON,
+	{ 700, 			DND_MTYPE_DEMON_POW										},//DND_HELLFORGESPIDER,
+	{ 700, 			DND_MTYPE_DEMON_POW										},//DND_VORE,
+	{ 700, 			DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_BABYDEMOLISHER,
+	{ 550, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_CHAINGUNGENERAL,
+	{ 550, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_CHAINGUNCOMMANDO,
+	{ 600, 			DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW				},//DND_LEGIONNAIRE,
+	{ 650, 			DND_MTYPE_DEMON_POW										},//DND_MANTICORE,
+
 	// ArchVile
-	{ 850, 			DND_MTYPE_DEMON_POW 									},//DND_DIABLOIST,
-	{ 800, 			DND_MTYPE_UNDEAD_POW 									},//DND_UNDEADPRIEST,
-	{ 100, 			DND_MTYPE_UNDEAD_POW 									},//DND_UNDEADPRIESTGHOST,
-	{ 800, 			DND_MTYPE_DEMON_POW 									},//DND_DEATHVILE,
-	{ 1250, 		DND_MTYPE_DEMON_POW 									},//DND_HIEROPHANT,
-	{ 800, 			DND_MTYPE_MAGICAL_POW 									},//DND_GURU,
-	{ 900, 			DND_MTYPE_UNDEAD_POW 									},//DND_DEATHKNIGHT,
-	{ 900, 			DND_MTYPE_UNDEAD_POW 									},//DND_HORSHACKER,
-	{ 750, 			DND_MTYPE_MAGICAL_POW 									},//DND_DARKZEALOT,
-	{ 625, 			DND_MTYPE_DEMON_POW 									},//DND_FLESHWIZARD,
+	{ 850, 			DND_MTYPE_DEMON_POW										},//DND_DIABLOIST,
+	{ 800, 			DND_MTYPE_UNDEAD_POW									},//DND_UNDEADPRIEST,
+	{ 100, 			DND_MTYPE_UNDEAD_POW									},//DND_UNDEADPRIESTGHOST,
+	{ 800, 			DND_MTYPE_DEMON_POW										},//DND_DEATHVILE,
+	{ 1250, 		DND_MTYPE_DEMON_POW										},//DND_HIEROPHANT,
+	{ 800, 			DND_MTYPE_MAGICAL_POW									},//DND_GURU,
+	{ 900, 			DND_MTYPE_UNDEAD_POW									},//DND_DEATHKNIGHT,
+	{ 900, 			DND_MTYPE_UNDEAD_POW									},//DND_HORSHACKER,
+	{ 750, 			DND_MTYPE_MAGICAL_POW									},//DND_DARKZEALOT,
+	{ 625, 			DND_MTYPE_DEMON_POW										},//DND_FLESHWIZARD,
 	
 	// Spider Mastermind
-	{ 4000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_DEMOLISHER,
-	{ 3500, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_ARACHNOPHYTE,
-	{ 4000, 		DND_MTYPE_DEMON_POW 									},//DND_PSIONICQUEEN,
-	{ 4000, 		DND_MTYPE_DEMON_POW 									},//DND_ANGELOFDEATH,
-	{ 4750, 		DND_MTYPE_MAGICAL_POW 									},//DND_GOLDLICH,
-	{ 300, 			DND_MTYPE_MAGICAL_POW 									},//DND_GOLDLICHFAKE,
-	{ 4000, 		DND_MTYPE_MAGICAL_POW 									},//DND_IRONLICH,
-	{ 4000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_SPIDEROVERLORD,
-	{ 4000, 		DND_MTYPE_MAGICAL_POW 									},//DND_DARKLICH,
+	{ 4000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_DEMOLISHER,
+	{ 3500, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_ARACHNOPHYTE,
+	{ 4000, 		DND_MTYPE_DEMON_POW										},//DND_PSIONICQUEEN,
+	{ 4000, 		DND_MTYPE_DEMON_POW										},//DND_ANGELOFDEATH,
+	{ 4750, 		DND_MTYPE_MAGICAL_POW									},//DND_GOLDLICH,
+	{ 300, 			DND_MTYPE_MAGICAL_POW									},//DND_GOLDLICHFAKE,
+	{ 4000, 		DND_MTYPE_MAGICAL_POW									},//DND_IRONLICH,
+	{ 4000, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_SPIDEROVERLORD,
+	{ 4000, 		DND_MTYPE_MAGICAL_POW									},//DND_DARKLICH,
 	
 	// Cyberdemon
-	{ 4500, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			}, //DND_CARDINAL,
-	{ 5750, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_TERMINATOR,
-	{ 4750, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_THAMUZ,
-	{ 5250, 		DND_MTYPE_DEMON_POW 									},//DND_AZAZEL,
-	{ 6000, 		DND_MTYPE_DEMON_POW 									},//DND_HELLSMITH,
-	{ 6500, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW 			},//DND_THANATOS,
-	{ 5500, 		DND_MTYPE_MAGICAL_POW 									},//DND_AVATAR,
-	{ 6000, 		DND_MTYPE_DEMON_POW 									},//DND_CERBERUS,
+	{ 4500, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_CARDINAL,
+	{ 5750, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_TERMINATOR,
+	{ 4750, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_THAMUZ,
+	{ 5250, 		DND_MTYPE_DEMON_POW										},//DND_AZAZEL,
+	{ 6000, 		DND_MTYPE_DEMON_POW										},//DND_HELLSMITH,
+	{ 6500, 		DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW				},//DND_THANATOS,
+	{ 5500, 		DND_MTYPE_MAGICAL_POW									},//DND_AVATAR,
+	{ 6000, 		DND_MTYPE_DEMON_POW										},//DND_CERBERUS,
 	
 	// Legendaries
-	{ 20000, 		DND_MTYPE_DEMON_POW 									},//DND_DREAMER,
-	{ 16500, 		DND_MTYPE_DEMON_POW 									},//DND_TORRASQUE,
-	{ 18500, 		DND_MTYPE_DEMON_POW 									},//DND_MORDECQAI,
-	{ 13500, 		DND_MTYPE_ROBOTIC_POW 									},//DND_GODSLAYER,
-	{ 17500, 		DND_MTYPE_DEMON_POW 									},//DND_GOLGOTH,
+	{ 20000, 		DND_MTYPE_DEMON_POW										},//DND_DREAMER,
+	{ 16500, 		DND_MTYPE_DEMON_POW										},//DND_TORRASQUE,
+	{ 18500, 		DND_MTYPE_DEMON_POW										},//DND_MORDECQAI,
+	{ 13500, 		DND_MTYPE_ROBOTIC_POW									},//DND_GODSLAYER,
+	{ 17500, 		DND_MTYPE_DEMON_POW										},//DND_GOLGOTH,
 	
 	// uniques
 	{ 500,			DND_MTYPE_ZOMBIE_POW | DND_MTYPE_UNDEAD_POW				},//DND_TERON
@@ -1257,26 +1414,6 @@ bool CanDropSoulAmmo() {
 }
 
 // First element on each list is the "Vanilla" monster, rest follow from their variations with Var1 to VarX
-/*
-	Monster rarities formulated:
-		- Common: These are vanilla tier monsters. Either vanilla monsters, or monsters with similar behavior reside here.
-		- Uncommon: These are a monsters that are just a tad bit stronger than vanilla.
-		- Rare - 1: These guys are strong. You don't want to encounter them early on.
-		- Rare - 2: A variant of rare, a little more rare.
-		- Very Rare: These guys... You'd really not want to be against these but they are still better than seeing a Legendary monster.
-		- Epic: Truly dangerous. High threat monsters.
-*/
-
-enum {
-	DND_MWEIGHT_COMMON = 1000,
-	DND_MWEIGHT_UNCOMMON = 750,
-	DND_MWEIGHT_RARE1 = 600,
-	DND_MWEIGHT_RARE2 = 500,
-	DND_MWEIGHT_VERYRARE = 325,
-	DND_MWEIGHT_EPIC = 275,
-	DND_MWEIGHT_ENDMARKER = -1
-};
-
 #define MAX_MONSTER_CATEGORIES (MONSTERCLASS_WOLFENSS + 1)
 #define MAX_MONSTER_VARIATIONS 17 // this includes vanilla
 
@@ -1543,6 +1680,14 @@ int Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS] = {
 		DND_MWEIGHT_ENDMARKER
 	}
 };
+
+int GetMonsterRarity(int monster_id) {
+	int r = GetActorProperty(monster_id + DND_MONSTERTID_BEGIN, APROP_SCORE);
+	if(!r)
+		return DND_MWEIGHT_COMMON;
+		
+	return r;
+}
 
 // these are filled by hand, finding the rarest monster of each class is needlessly complicated (find top classes, equal ones must be considered as sharing top spot etc.)
 // this requires frequent updates the more monsters are added, but is super fast

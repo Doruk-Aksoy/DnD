@@ -75,7 +75,7 @@ CLASS4_TEXT				= "The lone wolf, excels in being the only hero to clean up the m
 
 CLASS4_PERK1			= "Poison damage taken reduced by 75%.";
 CLASS4_PERK2			= "Elemental and Occult attacks and spells do 25% more damage.";
-CLASS4_PERK3			= "Enemies killed by you have 25% chance to explode for 10% of their maximum health in a 100 unit radius with a random elemental damage. You can't be hurt by this damage.";
+CLASS4_PERK3			= "Enemies killed by you have 25% chance to explode for 5% of their maximum health in a 100 unit radius with a random elemental damage. You can't be hurt by this damage.";
 
 // Cyborg
 

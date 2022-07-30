@@ -1561,103 +1561,107 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	}
 };
 
-str ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
+int ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	// body
 	{
-		"RESBAK29",
-		"RESBAK27",
-		"RESBAK45",		
-		"RESBAK46",
-		"RESBAK47",
-		"RESBAK48",
-		"RESBAK49",
-		"RESBAK50",
-		"RESBAK51",
-		"RESBAK52",
-		"RESBAK53"
+		29,
+		27,
+		45,		
+		46,
+		47,
+		48,
+		49,
+		50,
+		51,
+		52,
+		53
 	},
 	// special ammo types
 	{
-		"RESBAK5",
-		"RESBAK6",
-		"RESBAK7",
-		"RESBAK33",
-		"RESBAK54",
-		"RESBAK9",
-		"RESBAK8",
-		"RESBAK10"
+		5,
+		6,
+		7,
+		33,
+		54,
+		9,
+		8,
+		10
 	},
 	// slot guns
 	{
 		// slot 1
-		"RESBAK34",
-		"RESBAK35",
+		34,
+		35,
 		
 		// slot 2
-		"RESBAK18",
-		"RESBAK41",
+		18,
+		41,
 		
 		// slot 3 -- sg
-		"RESBAK19",
-		"RESBAK31",
-		"RESBAK55",
-		"RESBAK60",
+		19,
+		31,
+		55,
+		60,
 		
 		// slot 3 -- ssg
-		"RESBAK20",
-		"RESBAK37",
-		"RESBAK44",
-		"RESBAK57",
+		20,
+		37,
+		44,
+		57,
 		
 		// slot 4
-		"RESBAK21",
-		"RESBAK32",
-		"RESBAK36",
-		"RESBAK42",
-		"RESBAK61",
+		21,
+		32,
+		36,
+		42,
+		61,
 		
 		// slot 5
-		"RESBAK22",
-		"RESBAK39",
-		"RESBAK40",
-		"RESBAK58",
-		"RESBAK59",
-		"RESBAK23",
+		22,
+		39,
+		40,
+		58,
+		59,
+		23,
 		
 		// slot 6
-		"RESBAK24",
-		"RESBAK25",
-		"RESBAK43",
-		"RESBAK62",
+		24,
+		25,
+		43,
+		62,
 		
 		// slot 7
-		"RESBAK26",
-		"RESBAK38"
+		26,
+		38
 	},
 	// luxury guns
 	{
-		"RESBAK11",
-		"RESBAK12",
-		"RESBAK13",
-		"RESBAK14",
-		"RESBAK15",
-		"RESBAK16",
-		"RESBAK17",
-		"RESBAK28"
+		11,
+		12,
+		13,
+		14,
+		15,
+		16,
+		17,
+		28
 	},
 	// utility
 	{
-		"RESBAK1",
-		"RESBAK2",
-		"RESBAK63",
-		"RESBAK65",
-		"RESBAK64",
-		"RESBAK3",
-		"RESBAK4",
-		"RESBAK30",
-		"RESBAK56"
+		1,
+		2,
+		63,
+		65,
+		64,
+		3,
+		4,
+		30,
+		56
 	}
 };
+
+str GetResearchIcon(int page, int res) {
+	return StrParam(s:"RESBAK", d:ResearchIcons[page][res]);
+}
 
 // put only those that concern menu here
 #define MAX_SPECIALAMMOFIX_WEAPONS 5
@@ -1671,14 +1675,6 @@ int SpecialAmmoFixWeapons[MAX_SPECIALAMMOFIX_WEAPONS][3] = {
 
 // LegendaryKills
 #define MAX_LEGMONS_TEXT 5
-
-str LegendaryMonsterIcons[MAX_LEGMONS_TEXT] = {
-	"LEG_DRMR",
-	"LEG_TORR",
-	"LEG_MORD",
-	"LEG_GODS",
-	"LEG_GOLG"
-};
 
 #define DND_TRAIT_STARTSHOW FIRST_MONSTER_TRAIT // first trait to show
 #define DND_TRAIT_LASTSHOW LAST_MONSTER_TRAIT

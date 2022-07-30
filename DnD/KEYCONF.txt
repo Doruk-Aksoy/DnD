@@ -1,3 +1,6 @@
+clearplayerclasses
+	addplayerclass "DnD_Player"
+
 alias sethardcore "puke 1000 0"
 alias setsoftcore "puke 1000 1"
 alias setcasual "puke 1000 2"
@@ -38,6 +41,8 @@ AddKeySection "DnD Keys" DNDKEYS
 	Alias quest "Puke -1002"
 	AddMenuKey "Toggle Item Mod Range" item_mods
 	Alias item_mods "Puke -1007"
+	AddMenuKey "DnD Taunt" dnd_taunt
+	Alias dnd_taunt "pukename \"DnD Taunt\""
 	
 AddKeySection "DnD Hard/Softcore Keys" DNDKEYS2
 	AddMenuKey "Skip character loading" sl

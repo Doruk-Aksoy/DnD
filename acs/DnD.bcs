@@ -12,9 +12,21 @@
 bool MadeLegendary = 0;
 
 Script "DnD SBAR" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
 	int item, itemcomp;
 	str ammo, ammoalt;
 	int wepid;
+
+	// wait till character is setup properly
+	while(!CheckInventory("DnD_Character"))
+		Delay(const:1);
+
+	PlayerMugshotData[PMUG_CLASS] = CheckInventory("DnD_Character") - 1;
+	PlayerMugshotData[PMUG_STR] = GetMugshotString(PlayerMugshotData[PMUG_CLASS]);
+	ACS_NamedExecuteWithResult("DnD Player Mugshot");
+	
 	while(IsAlive()) {
 		if(!CheckInventory("ShowingMenu")) {
 			if(GetCVar("dnd_killspree"))
@@ -201,6 +213,7 @@ Script "DnD On Map Load" OPEN {
 	
 	// init vars
 	ResetSharedVariables();
+	ResetPlayerInformationLevel();
 	
 	// check for players that are spectating, reset their playerloaded variable (fixes bug where people can leave during intermission and cant load character until they spec again)
 	for(int i = 0; i < MAXPLAYERS; ++i) {
@@ -240,14 +253,44 @@ Script "DnD On Death" DEATH {
 	PlayerDied[pnum] += 1;
 	// put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
 	if(GetCVar("Survival")) {
-		if(!CheckInventory("CurrentLives")) {
-			PlayerWillBeSaved[pnum] = false;
-			PlayerTransferred[pnum] = false;
+		if(CheckInventory("CurrentLives"))
+			TakeInventory("CurrentLives", 1);
+		else {
+			// if player was in middle of saving, don't accidently interfere if player leaves early
+			// save accumulated stats when player leaves
+			// things saved are in DnD_Activity.h
+			i = GetCVar("dnd_mode");
+			if(i == DND_MODE_HARDCORE) {
+				// reset on death
+				ResetHardcoreStuff(pnum);
+				
+				StartDBTransaction();
+				
+				WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
+				ResetPlayerActivities(pnum, false);
+			}
+			else if(i == DND_MODE_SOFTCORE) {
+				// decrease player gained exp
+				int exp = GetStat(STAT_EXP);
+				int lvl = GetStat(STAT_LVL);
+				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, INT_MAX), 0);
+				HandlePlayerDataSave(pnum, false, i);
+			}
+			else
+				ResetHardcoreStuff(pnum);
+				
+			PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
+			PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 			PlayerCanLoad[pnum] = 0;
 			
 			// no more lives left reset this array completely
 			ResetPlayerModList(pnum);
+				
+			// no lives left, make sure the boss bar script keeps running for them (if there's a boss)
+			ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID], 1);
 		}
+		
+		CheckEOL(false, i);
 	}
 	
 	UnmarkPlayerAsExited(pnum);
@@ -268,33 +311,6 @@ Script "DnD On Death" DEATH {
 	//SetInventory("MenuPosY", 5);
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 	BreakTradesBetween(pnum);
-
-	if(GetCVar("Survival")) {
-		if(CheckInventory("CurrentLives"))
-			TakeInventory("CurrentLives", 1);
-		else {
-			// if player was in middle of saving, don't accidently interfere if player leaves early
-			// save accumulated stats when player leaves
-			// things saved are in DnD_Activity.h
-			i = GetCVar("dnd_mode");
-			if(i == DND_MODE_HARDCORE) {
-				ACS_NamedExecuteAlways("DND Database Reset On Death", 0, pnum);
-				ResetPlayerActivities(pnum, false);
-			}
-			else if(i == DND_MODE_SOFTCORE) {
-				// decrease player gained exp
-				int exp = GetStat(STAT_EXP);
-				int lvl = GetStat(STAT_LVL);
-				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, INT_MAX), 0);
-				ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, false);
-			}
-			else
-				ResetHardcoreStuff(pnum);
-				
-			// no lives left, make sure the boss bar script keeps running for them (if there's a boss)
-			ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID], 1);
-		}
-	}
 	
 	// Precious Life check
 	if(active_quest_id == QUEST_NODYING) {
@@ -548,7 +564,7 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 		Delay(3);
 	}
 	SetFont("MONFONT");
-	HudMessage(s:"\ci", l:GetSpreeText(Clamp_Between(mult, 1, MAX_SPREE_TEXT)), s:"!\c- \cix", f:mult * 0.25, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
+	HudMessage(s:"\ci", l:GetSpreeText(mult), s:"!\c- \cix", f:mult * 0.25, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
 	HudMessage(l:"DND_TEXT_GAINEDEXTRA", s:" \cf", d:reward, s: "\c- ", l:"DND_STAT16", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT2ID, CR_WHITE, 240.4, 328.0, 2.0, 1.0, 1.0);
 }
 
@@ -569,8 +585,13 @@ Script "DnD Killing Spree Timer" (void) {
 			// shows kill spree result on hud
 			// for every 10 enemy killed in spree, add a 0.25 multiplier
 			// base multiplication factor is 0.25
-			mult = Clamp_Between(spree / DND_SPREE_PER, 1, MAX_SPREE_TEXT); // how many .25 to add
+			mult = Clamp_Between(spree / DND_SPREE_PER, 1, MAX_SPREE_MULT); // how many .25 to add
+			int prev_mult = mult;
+			
 			temp = CheckInventory("SpreeXP") / DND_SPREE_BASE;
+			if(!temp)
+				temp = 1;
+			
 			while(mult) {
 				// no overflow
 				if(reward < INT_MAX - temp)
@@ -579,7 +600,7 @@ Script "DnD Killing Spree Timer" (void) {
 			}
 			if(IsQuestComplete(0, QUEST_10SPREES))
 				reward += reward * DND_QUEST_BERSERK_SPREEBONUS / 100;
-			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, spree / DND_SPREE_PER, reward);
+			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, prev_mult, reward);
 			GiveInventory("Exp", reward);
 			GiveInventory("LevelExp", reward);
 			GiveInventory("LevelUpChecker", 1);
@@ -629,7 +650,8 @@ Script "DnD Killing Spree Timer" (void) {
 Script "DND Mugshot Grin" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	SetMugshotState("Grin");
+	//SetMugshotState("Grin");
+	ACS_NamedExecuteWithResult("DnD Player MugshotData Update", DND_MUGSTATE_EVILGRIN, 0, DND_MUGGRIN_TIME);
 }
 
 Script "DND On Revive" (void) {
@@ -676,15 +698,27 @@ Script "DnD On Kill Forced CS" (void) CLIENTSIDE {
 
 Script "DnD Wanderer Explosions" (int this, int target) {
 	int hpdamage = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_WANDERER_EXP_DAMAGE;
-	if(hpdamage < 0)
+	int exptid = DND_WANDERER_EXP_TID + target - P_TIDSTART;
+	if(hpdamage <= 0)
 		hpdamage = 1;
 	
-	int exptid = DND_WANDERER_EXP_TID + target - P_TIDSTART;
 	SpawnForced("Wanderer_Explosion", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2 + 24.0, exptid);
 	SetUserVariable(exptid, "user_dmg", hpdamage);
 	SetActivator(exptid);
 	SetPointer(AAPTR_TARGET, target);
 	Thing_ChangeTID(exptid, 0);
+}
+
+
+// accepts similar flags to explosion actors
+Script "DnD Scale Non Weapon Damage" (int damage, int damage_type, int flags) {
+	if(damage) {
+		int owner = GetActorProperty(0, APROP_TARGETTID);
+		
+		// apply base damage bonuses that weapons normally get here
+		//printbold(d:damage, s: " became => ", d:ApplyNonWeaponBaseDamageBonus(owner, damage, damage_type, flags));
+		SetResultValue(ApplyNonWeaponBaseDamageBonus(owner, damage, damage_type, flags));
+	}
 }
 
 Script "DnD Check Elite Clear" (void) CLIENTSIDE {
@@ -767,7 +801,6 @@ Script "DND On Kill" KILL {
 		}
 	}
 	
-	// from here on out, killerWasntPlayer stores if the monster is an elite or not
 	// set activator back to the monster
 	SetActivator(this);
 	
@@ -820,7 +853,7 @@ Script "DND On Kill" KILL {
 	
 	// if this isn't a dungeon boss --- we have special parameters that they themselves should call that can't be done from here!
 	if(!isUniqueBossMonster(m_id))
-		HandleLootDrops(this, target, killerWasntPlayer);
+		HandleLootDrops(this, target, MonsterProperties[m_id].isElite);
 	
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
@@ -1748,6 +1781,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 		if(!pcount)
 			pcount = 1;
+			
 		maxhp = ScaleMonster(this, m_id, pcount, realhp, isSummoned);
 	}
 	else {
@@ -1766,18 +1800,17 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	{
 		MonsterProperties[m_id].isElite = true;
 		
-		//printbold(s:"(Before Elite bonuses) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
-		
 		// Elite bonuses
 		base = maxhp;
 		add = base * GetEliteHealthScale(MonsterProperties[m_id].level) / 100;
 		maxhp = base + add;
+		
 		MonsterProperties[m_id].basehp = maxhp;
 		MonsterProperties[m_id].maxhp = maxhp;
 		// roll more traits randomly
 		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
 		//printbold(s:"DecideEliteTraits: TID: ", d: ActivatorTID());
-		DecideEliteTraits(traitcount);
+		DecideEliteTraits(m_id, traitcount);
 		// Double Health
 		if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 			base = maxhp;
@@ -1790,7 +1823,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	else // important addition to prevent elite name from clogging up later, uncleaned
 		MonsterProperties[m_id].isElite = false;
 		
-	HandlePostInitTraits(m_id, monsterid);
+	HandlePostInitTraits(m_id, monsterid, -1);
 	
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
@@ -1885,7 +1918,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 		MonsterProperties[m_id].maxhp = maxhp;
 		// roll more traits randomly
 		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
-		DecideEliteTraits(traitcount);
+		DecideEliteTraits(m_id, traitcount);
 		// Double Health
 		if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 			base = maxhp;
@@ -1898,7 +1931,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	else // important addition to prevent elite name from clogging up later, uncleaned
 		MonsterProperties[m_id].isElite = false;
 		
-	HandlePostInitTraits(m_id, MonsterProperties[m_id].id);
+	HandlePostInitTraits(m_id, MonsterProperties[m_id].id, -1);
 
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
@@ -2712,11 +2745,12 @@ Script "DnD Monster Kill Ice Chunks" (int r, int h) CLIENTSIDE {
 }
 
 // Calculate chance of item drop, drop if needed (out of 100)
+// Note: not sure where this is called from atm
 Script "DnD Item Dropchance" (int basechance) {
 	SetActivatorToTarget(0);
 	basechance <<= 16;
 	basechance /= 100;
-	SetResultValue(RunDefaultDropChance(ActivatorTID() - P_TIDSTART, CheckInventory("MonsterIsElite"), basechance));
+	SetResultValue(RunDefaultDropChance(ActivatorTID() - P_TIDSTART, basechance));
 }
 
 // Some Generic Chat Log Script
@@ -2775,6 +2809,8 @@ Script "DnD On Respawn" RESPAWN {
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	
+	ResetMugstate();
+	
 	// run the monster scanner script again on respawn
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
 	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
@@ -2818,8 +2854,9 @@ Script 988 (int wepslot, int type) {
 // Clear upon leaving
 Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	//Just to make sure a rare lvl 1 char load bug doesn't happen
-	PlayerWillBeSaved[pnum] = false;
-	PlayerTransferred[pnum] = false;
+	//Log(s:"player left ", d:pnum);
+	PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
+	PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 
 	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
 	// if someone quit during countdown just remove this
@@ -2831,10 +2868,14 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// if player was in middle of saving, don't accidently interfere if player leaves early
 	// save accumulated stats when player leaves
 	// things saved are in DnD_Activity.h
-	ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, true);
+	HandlePlayerDataSave(pnum, true);
+	CheckEOL(true);
+	
+	//ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, true);
 	PlayerDied[pnum] = 0;
 	
 	ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID]);
+	ACS_NamedExecuteAlways("DnD Menu Icon Force Remove", 0, pnum + DND_MENUFLOATYICON_TID);
 }
 
 // End of level checks
@@ -2856,7 +2897,7 @@ Script "DnD On Unloading" UNLOADING {
 		tid = P_TIDSTART + i;
 		// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
 		// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
-	    if(((PlayerWillBeSaved[i] && HardcoreSet) || !HardcoreSet) && GetActorProperty(tid, APROP_HEALTH) > 0) { 
+	    if(((PlayerDatabaseState[i][PLAYER_SAVESTATE] && HardcoreSet) || !HardcoreSet) && GetActorProperty(tid, APROP_HEALTH) > 0) { 
 		    GiveActorInventory(tid, "LevelToken", 1);
 			StatListOpened[i] = 0;
             GiveActorInventory(tid, "Budget", (1 + HardcoreSet) * ((MapDifficulty + 1) + DND_BUDGET_BASE));
@@ -2870,8 +2911,23 @@ Script "DnD On Unloading" UNLOADING {
 
 // Enter level checks
 Script "DnD Player Setup" ENTER {
-	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
+
+	// if its sp and we dont have DnD_Character non-zero, bring up class menu and freeze us
+	if(GameType() == GAME_SINGLE_PLAYER) {
+		// freeze
+		SetPlayerProperty(1, 1, PROP_FROZEN);
+		
+		ACS_NamedExecuteAlways("DnD Class Select", 0, 1);
+		
+		while(!CheckInventory("DnD_Character"))
+			Delay(const:5);
+			
+		SetPlayerProperty(1, 0, PROP_FROZEN);
+	}
+
+	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
+	
 	SetInventory("SphereMade", 0);
 	SetInventory("OrbUseType", 0);
 	SetInventory("OrbResult", 0);
@@ -2882,6 +2938,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_MultikillCounter", 0);
 	SetInventory("LevelExp", 0);
 	SetInventory("LevelCredit", 0);
+	
+	ResetMugstate();
 	
 	ClearLingeringBuffs();
 	
@@ -2917,7 +2975,7 @@ Script "DnD Player Setup" ENTER {
 		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 		SetPlayerProperty(0, 2, PROP_INVULNERABILITY);
 
-		PlayerWillBeSaved[pnum] = true;
+		PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = true;
 		// display countdown timer
 		if (!PlayerLoaded[pnum]) {
 			PlayerCanLoad[pnum] = 1;
@@ -2988,6 +3046,9 @@ Script "DnD Player Setup" ENTER {
 			GiveAndDoAllResearch();
 		ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 	}
+	
+	while(pinfo_pending_reset)
+		Delay(const:10);
 	
 	if(PlayerInGame(pnum)) {
 		curlvl = GetStat(STAT_LVL);
@@ -3102,6 +3163,9 @@ Script 992 (int t, int simple) {
 Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 	int status = GetCVar("dnd_dashstatus");
 	NamedRequestScriptPuke("DnD User CVAR Status Receive", status);
+	
+	if(GameType() != GAME_SINGLE_PLAYER)
+		NamedRequestScriptPuke("DnD Set Class", GetCVar("dnd_playerclass"));
 
 	ResetPlayerScriptChecks();
 	if(ConsolePlayerNumber() != PlayerNumber()) 
@@ -3110,6 +3174,7 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 		SetInventory("ShowMapInfo", 1);
 		
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
+	
 	// Set the ammo capacity
 	// SetAmmoCapacity("ExpVisual", LevelCurve[CheckInventory("Level") - 1]);
 }
@@ -4604,9 +4669,13 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 		// to be affected by gravdis debuff
 		if(CheckActorInventory(i, "GravdisToken") && IsActorAlive(i)) {
 			TakeActorInventory(i, "GravdisToken", 1);
-			// dont affect teleporting / unshootable things
-			if(!CheckFlag(i, "SHOOTABLE"))
+			
+			m_id = MonsterProperties[i - DND_MONSTERTID_BEGIN].id;
+			
+			// dont affect teleporting / unshootable things or dungeon bosses --- no stun, no damage etc.
+			if(!CheckFlag(i, "SHOOTABLE") || isUniqueBossMonster(m_id))
 				continue;
+			
 			// this allows other people or even the same player to elevate monsters higher and keep stunning them for longer for more damage potential
 			if(!CheckActorInventory(i, "GravdisDebuff"))
 				ACS_NamedExecuteWithResult("DnD Gravdis Flinger", i, owner | (proj_crit << 17), dmg, base_dmg);
@@ -4614,7 +4683,6 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 				ACS_NamedExecuteWithResult("DnD Gravdis Elevate", i, dmg, base_dmg);
 				
 			// bosses arent as affected by this
-			m_id = MonsterProperties[i - DND_MONSTERTID_BEGIN].id;
 			if(!IsMonsterIdBoss(m_id))
 				SetActorInventory(i, "GravdisDebuff", GRAVDIS_DELAY_TIME);
 			else
@@ -5010,10 +5078,13 @@ Script "DnD Target Fix" (void) {
 }
 
 Script "DnD Player Pain Sound" (void) CLIENTSIDE {
-	int ptype = CheckInventory("DnD_Character");
-	// special pain sound range handling for hobo, punisher and marine
-	if(ptype >= 2 && ptype <= 4 || ptype == 6)
-		HandlePlayerPainSound(ptype);
+	int ptype = CheckInventory("DnD_Character") - 1;
+	HandlePlayerPainSound(ptype);
+}
+
+Script "DnD Player Death Sound" (int isXDeath) CLIENTSIDE {
+	int ptype = CheckInventory("DnD_Character") - 1;
+	HandlePlayerDeathSound(ptype, isXDeath);
 }
 
 Script "DnD Research Fancy Message" (int res_id) CLIENTSIDE {
@@ -5507,211 +5578,6 @@ Script "DnD Face Tracer" (void) {
 	SetActorPitch(0, VectorPitch(0, target, xdiff, ydiff, 8.0));
 }
 
-Script "DnD Class Select" (void) NET CLIENTSIDE {
-	// close the previous menu
-	ConsoleCommand("closemenu");
-
-	int cpnum = ConsolePlayerNumber();
-	
-	// don't allow duplicates to be run
-	if(GetUserCVar(cpnum, "dnd_onclassmenu"))
-		Terminate;
-	
-	int ctype = GetUserCVar(cpnum, "dnd_playerclass");
-	
-	SetUserCVar(cpnum, "dnd_classmenu_button", 0);
-	SetUserCVar(cpnum, "dnd_onclassmenu", true);
-	
-	ACS_NamedExecuteAlways("DnD Class Select Screen", 0);
-	ACS_NamedExecuteAlways("DnD Class Select Info", 0, ctype);
-	ACS_NamedExecuteAlways("DnD Class Select Animated", 0);
-	
-	int bpress, obpress, dir = 0;
-	while(PlayerIsSpectator(cpnum)) {
-		bpress = GetPlayerInput(-1, INPUT_BUTTONS);
-		obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
-
-		// left move
-		if(isButtonPressed(bpress, obpress, GetMovementButton(MVMT_BT_LEFT))) {
-			dir = -1;
-			ACS_NamedExecuteAlways("DnD Class Select Arrow Press", 0, DND_CLASSMENU_LEFTBUTTON_BIT);
-		}
-		if(isButtonPressed(bpress, obpress, GetMovementButton(MVMT_BT_RIGHT))) {
-			dir = 1;
-			ACS_NamedExecuteAlways("DnD Class Select Arrow Press", 0, DND_CLASSMENU_RIGHTBUTTON_BIT);
-		}
-		if(isButtonPressed(bpress, obpress, BT_USE | BT_ATTACK)) {
-			// terminate this, we made our choice
-			LocalAmbientSound("RPG/MenuChoose", 127);
-			SetUserCVar(cpnum, "dnd_playerclass", ctype);
-			ConsoleCommand(StrParam(s:"menu_joinclassidx ", d:ctype));
-			ConsoleCommand("menu_joingamewithclass");
-			break;
-		}
-		if(isButtonPressed(bpress, obpress, BT_ALTATTACK)) {
-			// clean this, we can exit
-			LocalAmbientSound("RPG/MenuClose", 127);
-			break;
-		}
-		
-		if(dir != 0) {
-			LocalAmbientSound("RPG/MenuMove", 127);
-			ctype += dir;
-			
-			if(ctype < 0)
-				ctype = MAXPLAYERCLASSES - 1;
-			else if(ctype > MAXPLAYERCLASSES - 1)
-				ctype = 0;
-			
-			// update
-			ACS_NamedExecuteAlways("DnD Class Select Info", 0, ctype);
-		}
-		
-		// reset
-		dir = 0;
-		Delay(const:1);
-	}
-	SetUserCVar(cpnum, "dnd_onclassmenu", false);
-	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
-}
-
-Script "DnD Class Select Arrow Press" (int mode) CLIENTSIDE {
-	int cpnum = ConsolePlayerNumber();
-	int bn = GetUserCVar(cpnum, "dnd_classmenu_button");
-	if(bn & mode)
-		Terminate;
-	bn |= mode;
-	SetUserCVar(cpnum, "dnd_classmenu_button", bn);
-}
-
-Script "DnD Class Select Screen" (void) CLIENTSIDE {
-	int cpnum = ConsolePlayerNumber();
-	
-	SetHUDSize(600, 450, 1);
-	SetFont("BIGFONT");
-	HudMessage(s:"\cj", l:"CLASS_SELECT"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 80.0, 0.0);
-	
-	SetHUDSize(320, 240, 1);
-	setFont("DNDCHRSL");
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 160.0, 120.0, 0.0);
-}
-
-Script "DnD Class Select Animated" (int doDelay) CLIENTSIDE {
-	int cpnum = ConsolePlayerNumber();
-	bool larr_inc = false, rarr_inc = false;
-	int larr_timer = 0, rarr_timer = 0;
-	int select_alpha = 0;
-	
-	while(GetUserCVar(cpnum, "dnd_onclassmenu")) {
-		// handle button press detection
-		if(GetUserCVar(cpnum, "dnd_classmenu_button") & DND_CLASSMENU_LEFTBUTTON_BIT) {
-			larr_timer = 0;
-			larr_inc = true;
-			SetUserCVar(cpnum, "dnd_classmenu_button", GetUserCVar(cpnum, "dnd_classmenu_button") ^ DND_CLASSMENU_LEFTBUTTON_BIT);
-		}
-		if(GetUserCVar(cpnum, "dnd_classmenu_button") & DND_CLASSMENU_RIGHTBUTTON_BIT) {
-			rarr_timer = 0;
-			rarr_inc = true;
-			SetUserCVar(cpnum, "dnd_classmenu_button", GetUserCVar(cpnum, "dnd_classmenu_button") ^ DND_CLASSMENU_RIGHTBUTTON_BIT);
-		}
-	
-		SetHudSize(320, 240, 1);
-		
-		// display arrows
-		if(larr_inc)
-			SetFont("CHSLARR2");
-		else
-			SetFont("CHSLARR1");
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_LEFTID, -1, 34.0, 66.0, 0.0);
-		
-		if(rarr_inc)
-			SetFont("CHSRARR2");
-		else
-			SetFont("CHSRARR1");
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_RIGHTID, -1, 284.0, 66.0, 0.0);
-		
-		SetHudSize(600, 450, 1);
-		SetFont("SMALLFONT");
-		
-		// display press w.e keys text
-		HudMessage(
-			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+attack", s: " \c[L7]", l:"CLASS_TOSELECT", s:"!",
-			s:"\n\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+altattack", s:" \c[L7]", l:"CLASS_TOCLOSE", s:"!";
-			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_CLASSMENU_BOTTOMTEXTID, -1, 300.4, 368.1, 0.0, abs(sin(select_alpha * 1.0 / 360))
-		);
-		
-		Delay(const:1);
-		
-		// alpha increment
-		select_alpha = (select_alpha + 4) % 360;
-
-		// button timers
-		if(larr_inc) {
-			larr_timer++;
-			if(larr_timer >= DND_CLASSMENU_BUTTON_DELAY) {
-				larr_timer = 0;
-				larr_inc = false;
-			}
-		}
-		
-		if(rarr_inc) {
-			rarr_timer++;
-			if(rarr_timer >= DND_CLASSMENU_BUTTON_DELAY) {
-				rarr_timer = 0;
-				rarr_inc = false;
-			}
-		}
-	}
-}
-
-Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
-	str cprefix = StrParam(s:"CLASS", d:ctype);
-
-	SetHUDSize(600, 450, 1);
-	SetFont("SMALLFONT");
-	SetHudClipRect(100, 84, 384, 384, 336);
-	
-	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
-	HudMessage(s:"\cj", l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT); HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 184.1, 0.0);
-	
-	// perks
-	HudMessage(s:"+ L5: ",  l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK5ID, CR_GREEN, 128.1, 248.1, 0.0);
-	HudMessage(s:"+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, CR_ORANGE, 128.1, 288.1, 0.0);
-	HudMessage(s:"+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, CR_RED, 128.1, 328.1, 0.0);
-	
-	SetHudClipRect(0, 0, 0, 0, 0);
-	
-	// show the class images -- offsets aligned
-	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_MUGSHOT)));
-	if(ctype == DND_PLAYER_BERSERKER)
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 300.0, 112.1, 0.0);
-	else if(ctype == DND_PLAYER_MARINE)
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 296.0, 112.1, 0.0);
-	else if(ctype == DND_PLAYER_WANDERER)
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 292.0, 116.1, 0.0);
-	else
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 288.0, 112.1, 0.0);
-	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_LEFTIMG)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_LEFTIMG, -1, 80.4, 208.1, 0.0);
-	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_RIGHTIMG, -1, 512.4, 208.1, 0.0);
-	
-	// prev and next class images
-	cprefix = StrParam(s:"CLASS", d:(ctype - 1 < 0) ? MAXPLAYERCLASSES - 1 : ctype - 1);
-	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_LEFTIMG)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_PREVCLASS_IMGID, -1, 112.4, 96.1, 0.0);
-	
-	cprefix = StrParam(s:"CLASS", d:(ctype + 1 > MAXPLAYERCLASSES - 1) ? 0 : ctype + 1);
-	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_NEXTCLASS_IMGID, -1, 480.4, 96.1, 0.0);
-}
-
-Script "DnD Class Select Cleanup" (void) CLIENTSIDE {
-	HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 0, 0, 1.0);
-	for(int i = 0; i < DND_CLASSMENU_IDCOUNT; ++i)
-		HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + i, -1, 0, 0, 1.0);
-}
-
 Script "DnD Doomguy Soul Pickup" (int val) {
 	val = Clamp_Between(val / DND_DOOMGUY_HEALDIV, 1, DND_DOOMGUY_MAXHEAL);
 	// setactivatortotarget is SHIT
@@ -5927,6 +5793,43 @@ Script "DnD Item Linger Check" (int sp) {
 	Thing_Remove(0);
 }
 
+Script "DnD Taunt" (void) NET {
+	// net => clientside setup ensures everyone hears it
+	if(!PlayerInGame(PlayerNumber()) || GetActorProperty(0, APROP_HEALTH) <= 0 || CheckInventory("DnD_TauntCooldown"))
+		Terminate;
+
+	GiveInventory("DnD_TauntCooldown", 1);
+
+	int ptype = CheckInventory("DnD_Character") - 1;
+	ACS_NamedExecuteWithResult("DnD Play Taunt Sound", ptype);
+}
+
+Script "DnD Play Taunt Sound" (int pclass) CLIENTSIDE {
+	str snd = "Doomguy/Taunt";
+	switch(pclass) {
+		case DND_PLAYER_MARINE:
+			snd = "Marine/Taunt";
+		break;
+		case DND_PLAYER_HOBO:
+			snd = "Hobo/Taunt";
+		break;
+		case DND_PLAYER_PUNISHER:
+			snd = "Punisher/Taunt";
+		break;
+		case DND_PLAYER_WANDERER:
+			snd = "Wanderer/Taunt";
+		break;
+		case DND_PLAYER_CYBORG:
+			snd = "CyborgPlayer/Taunt";
+		break;
+		case DND_PLAYER_BERSERKER:
+			snd = "BerserkerPlayer/Taunt";
+		break;
+	}
+	
+	PlaySound(0, snd, CHAN_BODY, 1.0);
+}
+
 // this is also no longer in use
 /*Script "DnD Store Projectile Owner" (int isPet) {
 	int target = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
@@ -6034,7 +5937,7 @@ Script "DnD Rejuvenation" (void) {
 		hp_per = 1;
 	
 	while(isAlive()) {
-		Delay(const:TICRATE);
+		Delay(const:REJUV_TICS);
 		
 		// ignite effects prevent rejuvenation
 		if(!CheckInventory("DnD_IgniteTimer") && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
@@ -6260,6 +6163,9 @@ Script "DnD Ammo Token Pickup" (void) {
 }
 
 Script "DnD Ammo Token Message" (int wepid) CLIENTSIDE {
+	if(PlayerNumber() != ConsolePlayerNumber())
+		Terminate;
+
 	Log(s:"\ccAmmo pickup   : \c[Y5]+10% to ", l:GetWeaponTag(wepid));
 }
 
@@ -6304,7 +6210,7 @@ Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
 		SpawnCharm_ForAll();
 		
 		// 33% chance to spawn a chest as well
-		if(RunDefaultDropChance(target - P_TIDSTART, false, DND_BOSSCHEST_DROPRATE)) {
+		if(RunDefaultDropChance(target - P_TIDSTART, DND_BOSSCHEST_DROPRATE)) {
 			if(tier == 3)
 				SpawnDropAtActor(loc_tid, "DNDGoldChest", 0, 0, 0, 0);
 			else if(tier == 2)
@@ -6350,6 +6256,18 @@ Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
 	
 		ACS_ExecuteAlways(255, 0, 0, 1);
 	}
+}
+
+Script "DnD Request Level Info" (int val) {
+	// as of adding this, these are legal values --- there can be more in future, check DnD_Common.h
+	/*#define PLAYERLEVELINFO_LEVEL 0
+	#define PLAYERLEVELINFO_MINLEVEL 1
+	#define PLAYERLEVELINFO_MAXLEVEL 2
+	#define PLAYERLEVELINFO_COUNTATSTART 3
+	#define PLAYERLEVELINFO_TIDMONSTER 4*/
+	if(val > MAX_PLAYERLEVELINFO_DATA - 1)
+		val = MAX_PLAYERLEVELINFO_DATA - 1;
+	SetResultValue(PlayerInformationInLevel[val]);
 }
 
 Script 1007 (void) NET CLIENTSIDE {
@@ -6410,7 +6328,7 @@ Script 68 (int x) NET {
 		SpawnCharm(0, true);
 		SpawnOrbForAll(1, random(40, 120));
 		//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
-		//SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE, INV_CRITPERCENT_INCREASE, INV_CYBERNETIC);
+		SpawnCharmWithMods_ForAll(INV_FLATELEM_DAMAGE, INV_PERCENTELEM_DAMAGE);
 		//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);
 		/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

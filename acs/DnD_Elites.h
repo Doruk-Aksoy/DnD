@@ -3,12 +3,10 @@
 
 #define DND_MIN_ELITEMODS 2
 #define DND_MAX_ELITEMODS 4
-#define DND_ELITE_DMGSCALE 2
+#define DND_ELITE_DMGSCALE 13
 #define DND_ELITE_EXTRASTRONG_BONUS 35
 #define DND_ELITE_VITAL_SCALE 75
 #define DND_ELITE_CREDITCHANCE_BONUS 0.1
-#define DND_ELITE_EXP_BONUS 25
-#define DND_ELITE_CREDIT_BONUS 25
 #define DND_ELITE_FX_DENSITY 8
 #define MAX_ELITE_FX_WAIT 60
 #define DND_ELITE_FX_TID 900
@@ -34,62 +32,59 @@ int GetEliteHealthScale(int level) {
 #include "DnD_EliteInfo.h"
 
 // these are powers, not actual values
-int EliteTraitNumbers[MAX_ROLLABLE_TRAITS] = {
-	DND_EXPLOSIVE_RESIST,
-	DND_BULLET_RESIST,
-	DND_ENERGY_RESIST,
-	DND_MAGIC_RESIST,
-	DND_ELEMENTAL_RESIST,
+#define ELITETRAIT_ID 0
+#define ELITETRAIT_LVLREQ 1
+int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][2] = {
+	{ DND_EXPLOSIVE_RESIST, 0 },
+	{ DND_BULLET_RESIST, 0 },
+	{ DND_ENERGY_RESIST, 0 },
+	{ DND_MAGIC_RESIST, 0 },
+	{ DND_ELEMENTAL_RESIST, 0 },
 	
-	DND_EXPLOSIVE_IMMUNE,
-	DND_EXPLOSIVE_NONE,
-	DND_BULLET_IMMUNE,
-	DND_ENERGY_IMMUNE,
-	DND_MAGIC_IMMUNE,
-	DND_ELEMENTAL_IMMUNE, 
+	{ DND_EXPLOSIVE_IMMUNE, 36 },
+	{ DND_EXPLOSIVE_NONE, 36 },
+	{ DND_BULLET_IMMUNE, 36 },
+	{ DND_ENERGY_IMMUNE, 36 },
+	{ DND_MAGIC_IMMUNE, 36 },
+	{ DND_ELEMENTAL_IMMUNE, 36 },
 	
-	DND_GHOST,
-	DND_HARDENED_SKIN,
-	DND_REFLECTIVE,
-	DND_AGGRESSIVE,
-	DND_EXTRAFAST,
+	{ DND_GHOST, 0 },
+	{ DND_HARDENED_SKIN, 0 },
+	{ DND_REFLECTIVE, 40 },
+	{ DND_AGGRESSIVE, 0 },
+	{ DND_EXTRAFAST, 30 },
 	
-	DND_FASTREACTION,
-	DND_NOPAIN,
-	DND_EXTRASTRONG,
-	DND_VITAL,
-	DND_ARMORPEN,
+	{ DND_FASTREACTION, 0 },
+	{ DND_NOPAIN, 0 },
+	{ DND_EXTRASTRONG, 0 },
+	{ DND_VITAL, 0 },
+	{ DND_ARMORPEN, 30 },
 	
-	DND_BLOODLESS,
-	DND_VIOLENTRETALIATION,
-	DND_THIEF,
-	DND_HEXFUSION,
-	DND_REBIRTH,
-	DND_VENOMANCER,
-	DND_FRIGID,
-	DND_SCORCHED,
-	DND_INSULATED,
-	DND_REJUVENATING,
+	{ DND_BLOODLESS, 0 },
+	{ DND_VIOLENTRETALIATION, 40 },
+	{ DND_THIEF, 0 },
+	{ DND_HEXFUSION, 36 },
+	{ DND_REBIRTH, 0 },
+	{ DND_VENOMANCER, 0 },
+	{ DND_FRIGID, 0 },
+	{ DND_SCORCHED, 0 },
+	{ DND_INSULATED, 0 },
+	{ DND_REJUVENATING, 30 },
 	
-	DND_HATRED,
-	DND_SHOCKER,
-	DND_VAMPIRISM,
-	DND_FORTIFIED,
-	DND_SUBORDINATE,
-	DND_REPEL,
-	DND_PHANTASM,
-	DND_CRIPPLE,
-	DND_RUINATION
+	{ DND_HATRED, 0 },
+	{ DND_SHOCKER, 40 },
+	{ DND_VAMPIRISM, 0 },
+	{ DND_FORTIFIED, 30 },
+	{ DND_SUBORDINATE, 30 },
+	{ DND_REPEL, 36 },
+	{ DND_PHANTASM, 36 },
+	{ DND_CRIPPLE, 40 },
+	{ DND_RUINATION, 40 }
 };
 
-// previously this was a linear scale of 2% per monster level, capped at 200% at monster level 100
-// now it'll be 250% at monster level 100, and 2% at monster level 1, but scale slowly at the earlier levels and reach the end faster towards later levels
-// it's less than 2xlevel percent until level 75, then it becomes more than 2% per level and reaches ultimate value of %250 at level 100 
-// now remember this is integer operations, so interim values are all going to be lost coming from fractions
-// equation is x^2 / 50 + 0.48 * x + 2
 int GetEliteBonusDamage(int m_id) {
-	// slower start at lower levels and peaking towards level 75
-	return DND_ELITE_DMGSCALE + MonsterProperties[m_id].level * MonsterProperties[m_id].level / 50 + MonsterProperties[m_id].level * 12 / 25;
+	// at level 100 this yields 125%, at level 0 13% and at level 50 44%
+	return DND_ELITE_DMGSCALE + MonsterProperties[m_id].level * MonsterProperties[m_id].level / 100 + (MonsterProperties[m_id].level * 3) / 25;
 }
 
 bool HasTrait(int id, int trait_index) {
@@ -211,9 +206,11 @@ bool CheckEliteCvar(int t) {
 }
 
 // Exception occurs when: Either we rolled a resist when we have the corresponding immunity OR we rolled an immunity when we said this can't roll due to cvar
-bool HasTraitExceptions(int t) {
+bool HasTraitExceptions(int m_id, int trait) {
+	int t = EliteTraitNumbers[trait][ELITETRAIT_ID];
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	return 	CheckEliteCvar(t) 																||
+			MonsterProperties[m_id].level < EliteTraitNumbers[trait][ELITETRAIT_LVLREQ]		||
 			(t == DND_EXPLOSIVE_RESIST && HasTrait(i, DND_EXPLOSIVE_IMMUNE)) 				|| 
 			(t == DND_EXPLOSIVE_IMMUNE && HasTrait(i, DND_EXPLOSIVE_NONE)) 					||
 			(t == DND_BULLET_RESIST && HasTrait(i, DND_BULLET_IMMUNE)) 						||
@@ -259,16 +256,16 @@ int GetPetMonsterTraits(int monster_id, int segment) {
 	return ret;
 }
 
-void DecideEliteTraits(int count) {
+void DecideEliteTraits(int m_id, int count) {
 	int tries = 0;
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	// Run the elite special fx script on this monster
 	ACS_NamedExecuteAlways("DND Elite Special FX", 0);
 	while(tries < MAX_ELITE_TRIES && count) {
 		int try_trait = GetRandomEliteTrait();
-		if(!HasTrait(this, EliteTraitNumbers[try_trait]) && !HasTraitExceptions(EliteTraitNumbers[try_trait]) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait])) {
+		if(!HasTrait(this, EliteTraitNumbers[try_trait][ELITETRAIT_ID]) && !HasTraitExceptions(m_id, try_trait) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait][ELITETRAIT_ID])) {
 			// dont give explosive immunity with resist etc
-			SetEliteFlag(EliteTraitNumbers[try_trait], false);
+			SetEliteFlag(EliteTraitNumbers[try_trait][ELITETRAIT_ID], false);
 			--count;
 		}
 		++tries;

@@ -1220,3 +1220,8 @@ Script "DnD Monster Push All Players" (int dist, int f_xy) {
 	}
 	SetResultValue(0);
 }
+
+Script "DnD Init Monster Data" (int rarity) {
+	SetActorProperty(0, APROP_SCORE, rarity);
+	SetResultValue(0);
+}

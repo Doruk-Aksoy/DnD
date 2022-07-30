@@ -219,6 +219,9 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			democracy = ScoreboardData[DND_SCBRD_TIMER] * TICRATE;
 			while(democracy-- && ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] < GetActivePlayerCount())
 				Delay(const:1);
+				
+			// level end confirmed here, submit db transactions
+			SaveAllPlayerData();
 			
 			if(!isSecretExit)
 				Exit_Normal(0);

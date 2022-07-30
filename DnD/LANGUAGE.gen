@@ -170,6 +170,7 @@ DND_DBERR13A	= "TRANSFER CHAR: Character will be transferred to slot";
 DND_DBERR13B	= "on character save. Previous character on that slot will be deleted!";
 
 DND_DB_CHARLIST = "Character list";
+DND_DB_NOCHARS_MAKEONE = "You have no characters. Make one using \"createchar X\"";
 
 DND_BOSS_LEVELENDSIN = "Level ends in";
 

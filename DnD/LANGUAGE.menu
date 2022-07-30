@@ -357,7 +357,7 @@ DND_MENU_ABLTAG2		=	"Fast Reloading";
 DND_MENU_ABLHELPTEXT2	=	"You reload twice as fast.";
 
 DND_MENU_ABLTAG3		=	"Mobility";
-DND_MENU_ABLHELPTEXT3	=	"Gain dodge moves (tap the move keys to dash).";
+DND_MENU_ABLHELPTEXT3	=	"You can dash to dodge attacks (bind a button under controls).";
 
 DND_MENU_ABLTAG4		=	"Arcanery";
 DND_MENU_ABLHELPTEXT4	=	"Artifact power increases by 50%.";

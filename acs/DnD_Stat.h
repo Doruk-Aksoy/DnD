@@ -70,8 +70,12 @@ enum {
 // RPG ELEMENTS
 int LevelCurve[MAXLEVELS + 1] = { 100, 264, 480, 696, 912, 1128, 1340, 1560, 1780, 1990, 2210, 2420, 2640, 2860, 4200, 5800, 6100, 6600, 6900, 8350, 9900, 10300, 10900, 11400, 11800, 12300, 12800, 13300, 13800, 14300, 19000, 22700, 27000, 31900, 37900, 45000, 53300, 63000, 75000, 89000, 105000, 125000, 149000, 175000, 209000, 247000, 294000, 348000, 412000, 490000, 579000, 680000, 820000, 970000, 1150000, 1360000, 1610000, 1920000, 2270000, 2690000, 3200000, 3780000, 4490000, 5260000, 6300000, 7500000, 8900000, 10600000, 12500000, 14800000, 17500000, 20900000, 24700000, 29300000, 34800000, 41200000, 48900000, 57200000, 69000000, 82000000, 96000000, 115000000, 136000000, 161000000, 192000000, 227000000, 269000000, 319000000, 378000000, 449000000, 528000000, 630000000, 750000000, 890000000, 1050000000, 1250000000, 1480000000, 1750000000, 2090000000, 2147483647, 2147483647 };
 
-global bool 9: PlayerWillBeSaved[MAXPLAYERS];
-global bool 10: PlayerTransferred[MAXPLAYERS];
+// database related
+#define PLAYER_SAVESTATE 0
+#define PLAYER_TRANSFERSTATE 1
+#define MAX_PLAYER_DBSTATES (PLAYER_TRANSFERSTATE + 1)
+global bool 9: PlayerDatabaseState[MAXPLAYERS][MAX_PLAYER_DBSTATES];
+global bool 10: TransactionMade;
 
 int GetExpLimit() {
 	return LevelCurve[GetStat(STAT_LVL) - 1];
@@ -775,7 +779,7 @@ int Calculate_Perks() {
 	return res;
 }
 
-int GetDropChance(int pnum, bool isElite) {
+int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + 
@@ -783,8 +787,8 @@ int GetDropChance(int pnum, bool isElite) {
 			Player_Elixir_Bonuses[pnum].luck +
 			DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
 			
-	if(isElite && IsQuestComplete(pnum + P_TIDSTART, QUEST_KILL20ELITES))
-		base += DND_ELITEDROP_GAIN;
+	//if(isElite && IsQuestComplete(pnum + P_TIDSTART, QUEST_KILL20ELITES))
+	//	base += DND_ELITEDROP_GAIN;
 		
 	// more chance to find loot
 	base = FixedMul(base, 1.0 + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE));
@@ -793,12 +797,12 @@ int GetDropChance(int pnum, bool isElite) {
 	return base;
 }
 
-bool RunDefaultDropChance(int pnum, bool isElite, int basechance) {
-	return RunDropChance(pnum, isElite, basechance, 0, 1.0);
+bool RunDefaultDropChance(int pnum, int basechance) {
+	return RunDropChance(pnum, basechance, 0, 1.0);
 }
 
-bool RunDropChance(int pnum, bool isElite, int basechance, int low, int high) {
-	return FixedMul(GetDropChance(pnum, isElite), basechance) >= random(low, high);
+bool RunDropChance(int pnum, int basechance, int low, int high) {
+	return FixedMul(GetDropChance(pnum), basechance) >= random(low, high);
 }
 
 void DecideAccessories() {

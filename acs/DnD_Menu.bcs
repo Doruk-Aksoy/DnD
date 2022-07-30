@@ -122,6 +122,10 @@ Script "DnD Sync Shop Stock" (int pnum, int itemid, int val) CLIENTSIDE {
 Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
+		
+	// clear mugshot
+	DeleteText(PLAYER_MUGSHOTID);
+		
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 }
 
@@ -136,6 +140,11 @@ Script "DND Menu Icon Spawner" (void) CLIENTSIDE {
 		SetActorPosition(tid, GetActorX(0), GetActorY(0), GetActorZ(0) + 64.0, 0);
 		Delay(const:1);
 	}
+	Thing_Remove(tid);
+}
+
+// this is needed in case user crashes or abruptly leaves
+Script "DnD Menu Icon Force Remove" (int tid) CLIENTSIDE {
 	Thing_Remove(tid);
 }
 
@@ -1729,6 +1738,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 Script "DND Menu Cleanup" (int pnum) CLIENTSIDE {
 	if(pnum != ConsolePlayerNumber())
 		Terminate;
+		
 	ClearMenuDisplay();
 }
 

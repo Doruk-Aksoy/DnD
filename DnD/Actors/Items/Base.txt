@@ -531,3 +531,8 @@ Actor DontAttackRemove : DnD_Activator {
 }
 
 Actor MonsterKilledByPlayer : DnD_Boolean { }
+
+Actor DnD_TauntCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 85
+}

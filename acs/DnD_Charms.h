@@ -141,16 +141,12 @@ void AddAttributeToCharm(int charm_pos, int attrib, int pnum) {
 }
 
 // monsters dropping charms
-void SpawnCharm(int pnum, bool isElite, bool noRepeat = false) {
+void SpawnCharm(int pnum, int rarity_boost, bool noRepeat = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
-		int addchance = 0;
-		if(isElite)
-			addchance = DND_ELITE_BASEDROP / 2;
-
 		#ifndef ISDEBUGBUILD
-			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, isElite, UNIQUE_DROPCHANCE + addchance))
+			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
 		#else
 			if(random(0,1))
 		#endif
@@ -166,7 +162,7 @@ void SpawnCharm(int pnum, bool isElite, bool noRepeat = false) {
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
 		
 		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnCharm(pnum, isElite, true);
+			SpawnCharm(pnum, rarity_boost, true);
 	}
 }
 

@@ -21,6 +21,7 @@ ACTOR BabyCaco : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BABYCACO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -116,6 +117,7 @@ Actor Fleshspawn : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_FLESHSPAWN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -360,6 +362,7 @@ ACTOR ESoul : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ETHEREALSOUL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -462,6 +465,7 @@ Actor GuardianCube : DnD_BaseRangedMonster {
 	States  { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GUARDIANCUBE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -572,6 +576,7 @@ Actor ForgottenOne : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_FORGOTTENONE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -639,6 +644,7 @@ ACTOR Watcher : DnD_BaseHybridMonster {
 	States  { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_WATCHER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		Idle:

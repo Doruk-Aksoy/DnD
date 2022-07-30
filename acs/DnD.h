@@ -1,6 +1,6 @@
 #include "DnD_Common.h"
 #include "DnD_Elites.h"
-#include "DnD_DatabaseRows.h"
+#include "DnD_Database.h"
 #include "DnD_MenuConstants.h"
 #include "DnD_TempWeps.h"
 #include "DnD_DamageCache.h"
@@ -12,10 +12,91 @@
 #include "DnD_Settings.h"
 #include "DnD_ClassMenu.h"
 #include "DnD_Explosion.h"
-#include "DnD_Hud.h"
+#include "DnD_Mugshot.h"
 #include "DnD_Research.h"
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
+
+void HandlePlayerPainSound(int pclass) {
+	int curhp = GetActorProperty(0, APROP_HEALTH);
+	int maxhp = GetSpawnHealth();
+	int hpratio = (curhp * 100) / maxhp;
+	switch(pclass) {
+		case DND_PLAYER_DOOMGUY:
+			PlaySound(0, "Doomguy/Pain1", CHAN_BODY, 1.0);
+		break;
+		case DND_PLAYER_MARINE:
+			// marine -- has 2 sounds for each quarter like so: Player/Pain25
+			if(hpratio <= 25)
+				PlaySound(0, "Player/Pain25", CHAN_BODY, 1.0);
+			else if(hpratio <= 50)
+				PlaySound(0, "Player/Pain50", CHAN_BODY, 1.0);
+			else if(hpratio <= 75)
+				PlaySound(0, "Player/Pain75", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "Player/Pain100", CHAN_BODY, 1.0);
+		break;
+		case DND_PLAYER_HOBO:
+			// hobo
+			if(hpratio <= 50)
+				PlaySound(0, "Hobo/HardPain", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "Hobo/SoftPain", CHAN_BODY, 1.0);
+		break;
+		case DND_PLAYER_PUNISHER:
+			// punisher
+			if(hpratio <= 50)
+				PlaySound(0, "Punisher/Pain", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "Punisher/PainLow", CHAN_BODY, 1.0);
+		break;
+		case DND_PLAYER_WANDERER:
+			PlaySound(0, "Wanderer/Pain", CHAN_BODY, 1.0);
+		break;
+		case DND_PLAYER_CYBORG:
+			// cyborg
+			if(hpratio <= 50)
+				PlaySound(0, "CyborgPlayer/PainLow", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "CyborgPlayer/PainHigh", CHAN_BODY, 1.0);
+		break;
+		case DND_PLAYER_BERSERKER:
+			PlaySound(0, "BerserkerPlayer/Pain", CHAN_BODY, 1.0);
+		break;
+	}
+}
+
+void HandlePlayerDeathSound(int pclass, bool isXDeath) {
+	str snd = "Doomguy/Death";
+	switch(pclass) {
+		case DND_PLAYER_DOOMGUY:
+			if(isXDeath)
+				snd = "Doomguy/XDeath";
+			else
+				snd = "Doomguy/Death";
+		break;
+		case DND_PLAYER_MARINE:
+			snd = "Player/Die";
+		break;
+		case DND_PLAYER_HOBO:
+			snd = "Hobo/Die";
+		break;
+		case DND_PLAYER_PUNISHER:
+			snd = "Punisher/Die";
+		break;
+		case DND_PLAYER_WANDERER:
+			snd = "Wanderer/Die";
+		break;
+		case DND_PLAYER_CYBORG:
+			snd = "CyborgPlayer/Die";
+		break;
+		case DND_PLAYER_BERSERKER:
+			snd = "Berserker/Die";
+		break;
+	}
+	
+	PlaySound(0, snd, CHAN_BODY, 1.0);
+}
 
 enum {
 	PAINBLEND_RED,
@@ -53,7 +134,7 @@ enum {
 #define SD_DASHSTRONG		12.0		// And dash speed whilst grounded
 #define SD_SOUNDVOLUME		1.0			// How loud the dash sound is played
 
-#define CHANCE_HEART 0.05
+#define CHANCE_HEART 0.025
 
 #define UPGRADETEXTID 6999
 #define SURVIVEICO 7000
@@ -78,7 +159,7 @@ enum {
 #define DND_SPREE_AMOUNT 4 * TICRATE // 4 * 35
 #define DND_SPREE_PER 10
 #define DND_SPREE_TRIGGER (DND_SPREE_PER - 1) // -1 because current monster killed doesn't count
-#define DND_SPREE_BASE 4 // 1 / 4
+#define DND_SPREE_BASE 10 // 10%, this is dividing the exp
 #define DND_SPECIALAMMO_TEXTID 6001
 #define DND_SPREE_BLOODID 6000
 #define DND_SPREE_TEXT1ID 5999
@@ -161,7 +242,7 @@ enum {
 
 #define DND_MARINE_SELFRESIST 25 // 25%
 
-#define DND_WANDERER_EXP_DAMAGE 10 // 1 / 10 = 10%
+#define DND_WANDERER_EXP_DAMAGE 20 // 1 / 20 = 5%
 
 // RPG ELEMENTS END
 
@@ -223,6 +304,7 @@ enum {
 };
 	
 #define MAX_SPREE_TEXT 20
+#define MAX_SPREE_MULT 10 // maximum 10 killing sprees will affect your exp gain
 #define SPREE_TEXT_PREFIX "DND_SPREETEXT"
 
 str GetSpreeText(int spree_id) {
@@ -623,34 +705,34 @@ int GetCreditDropData(int id, int which) {
 			if(!which)
 				res = 7500;
 			else
-				res = 0.05;
+				res = 0.025;
 		break;
 		case 1:
 			if(!which)
 				res = 2500;
 			else
-				res = 0.15;
+				res = 0.075;
 		break;
 		case 2:
 			if(!which)
 				res = 1000;
 			else
-				res = 0.3;
+				res = 0.15;
 		break;
 	}
 	
 	return res;
 }
 
-void HandleCashDrops(int m_id, int pnum, bool isElite) {
-	int addedchance = (Clamp_Between(GetCVar("dnd_credit_droprateadd"), 0, 100) << 16) / 100;
+void HandleCashDrops(int m_id, int pnum) {
+	int drop_boost = MonsterProperties[m_id].droprate;
 	for(int i = 0; i < MAXCREDITDROPS; ++i) {
 		// apply simple monster hp scaling code here to scale threshold with player levels
 		int threshold = GetCreditDropData(i, CREDITDROP_THRESHOLD) * (100 + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
 		if(MonsterProperties[m_id].maxhp >= threshold) {
-			if(!RunDefaultDropChance(pnum, isElite, GetCreditDropData(i, CREDITDROP_CHANCE) + addedchance))
+			if(!RunDefaultDropChance(pnum, GetCreditDropData(i, CREDITDROP_CHANCE) * (100 + drop_boost) / 100))
 				continue;
-			GiveInventory(GetCreditDropperName(i, isElite), 1);
+			GiveInventory(GetCreditDropperName(i, MonsterProperties[m_id].isElite), 1);
 			break;
 		}
 	}
@@ -742,12 +824,12 @@ void HandleChestDrops(int ctype) {
 		/*RunDefaultDropChance(int pnum, bool isElite, int basechance)
 		RunDefaultDropChance(i, true, DND_ELITE_BASEDROP_ORB + addchance)*/
 		SpawnOrbForAll(1);
-		if(RunDefaultDropChance(pnum, false, 0.5))
+		if(RunDefaultDropChance(pnum, 0.5))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_SILVER) {
 		SpawnOrbForAll(2);
-		if(RunDefaultDropChance(pnum, false, 0.75))
+		if(RunDefaultDropChance(pnum, 0.75))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
@@ -756,41 +838,39 @@ void HandleChestDrops(int ctype) {
 	}
 	
 	// common to all chests, an extra orb can drop with 25% chance and another with 10%
-	if(RunDefaultDropChance(pnum, false, 0.25))
+	if(RunDefaultDropChance(pnum, 0.25))
 		SpawnOrbForAll(1);
-	if(RunDefaultDropChance(pnum, false, 0.1))
+	if(RunDefaultDropChance(pnum, 0.1))
 		SpawnOrbForAll(1);
 }
 
-void HandleEliteDrops() {
-	int addchance = (Clamp_Between(GetCVar("dnd_orb_dropchanceadd"), 0, 100) << 16) / 100;
+void HandleEliteDrops(int drop_boost) {
+	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
+
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART)))) {
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			// for orbs
-			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP_ORB + addchance))
+			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP_ORB * (100 + drop_boost) / 100))
 				SpawnOrb(i, true);
 			// for tokens -- same likelihood to drop as orbs
-			if(RunDefaultDropChance(i, true, DND_ELITE_BASEDROP + addchance))
+			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP * (100 + drop_boost) / 100))
 				SpawnToken(i, true);
 		}
 	}
 }
 
-void HandleCharmLootDrop(bool isElite) {
-	int addchance = 0;
-	if(isElite)
-		addchance = DND_ELITE_BASEDROP / 2;
+void HandleCharmLootDrop(int drop_boost, int rarity_boost) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if
 		(
 			PlayerInGame(i) &&
-			(GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, isElite, DND_BASE_CHARMRATE + addchance)))
+			(GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, DND_BASE_CHARMRATE * (100 + drop_boost) / 100)))
 		)
-			SpawnCharm(i, isElite);
+			SpawnCharm(i, rarity_boost);
 	}
-	//SpawnCharm(0, isElite);
+	//SpawnCharm(0, rarity_boost);
 }
 
 void HandleSoulDrop() {
@@ -807,32 +887,17 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 	int creditshare = GetCVar("dnd_sharecredit");
 	
     // decide how exp/credit base is calculated
-	int exptemp = MonsterProperties[m_id].maxhp / DND_HEALTHEXPSCALE;
-	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[m_id].maxhp) / DND_HEALTHCREDITSCALE;
+	int exptemp = MonsterProperties[m_id].gain;
+	int credtemp = exptemp / DND_CREDITGAIN_FACTOR;
     int pnum = 0, i = MonsterProperties[m_id].level;
 	
 	if(credtemp < DND_MIN_CREDIT)
 		credtemp = DND_MIN_CREDIT;
 	
-	if(MonsterProperties[m_id].isElite) {
-		exptemp += exptemp * DND_ELITE_EXP_BONUS / 100;
-		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
-	}
-	
 	int pcount = Clamp_Between(PlayerCount(), 1, DND_MAX_SHARE);
 	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
 	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
 	int addone = 0;
-		
-	// add monster scale stuff
-	if(MonsterProperties[m_id].level > 1) {
-		exptemp += exptemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
-		credtemp += credtemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
-		
-		// reduce by 18% every 15 levels up to level 75, its basically what we did but smoother
-		addone = Clamp_Between(MonsterProperties[m_id].level, 1, 75);
-		credtemp = credtemp * (100 - 18 * (addone / 15)) / 100;
-	}
 
 	// if full share is on we won't divide by player count, but if it isn't we will
 	if(!GetCVar("dnd_fullshare")) {
@@ -852,7 +917,7 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 	pcount = GetCVar("dnd_gainrange");
 	
 	// reuse old variable -- we dont need killerplayer w.e info
-	HandleMonsterTemporaryWeaponDrop(m_id, target - P_TIDSTART, MonsterProperties[m_id].isElite, false);
+	HandleMonsterTemporaryWeaponDrop(m_id, target - P_TIDSTART, false);
 
 	if(expshare || creditshare) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
@@ -889,32 +954,16 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 	int creditshare = GetCVar("dnd_sharecredit");
 	
     // decide how exp/credit base is calculated
-	int exptemp = MonsterProperties[m_id].maxhp / DND_HEALTHEXPSCALE;
-	int credtemp = (DND_HEALTHCREDITUPSCALE * MonsterProperties[m_id].maxhp) / DND_HEALTHCREDITSCALE;
+	int exptemp = MonsterProperties[m_id].gain;
+	int credtemp = exptemp / DND_CREDITGAIN_FACTOR;
     int pnum = 0, i = MonsterProperties[m_id].level;
 	
 	if(credtemp < DND_MIN_CREDIT)
 		credtemp = DND_MIN_CREDIT;
 	
-	if(MonsterProperties[m_id].isElite) {
-		exptemp += exptemp * DND_ELITE_EXP_BONUS / 100;
-		credtemp += credtemp * DND_ELITE_CREDIT_BONUS / 100;
-	}
-	
 	int pcount = Clamp_Between(PlayerCount(), 1, DND_MAX_SHARE);
 	int expscale = Clamp_Between(GetCVar("dnd_exp_scale"), 1, EXP_SCALE_MAX);
 	int creditscale = Clamp_Between(GetCVar("dnd_credit_scale"), 1, CREDIT_SCALE_MAX);
-	int addone = 0;
-		
-	// add monster scale stuff
-	if(MonsterProperties[m_id].level > 1) {
-		exptemp += exptemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
-		credtemp += credtemp * MonsterProperties[m_id].level * Clamp_Between(GetCVar("dnd_monster_rewardscalepercent"), 1, 25) / 100;
-		
-		// reduce by 18% every 15 levels up to level 75, its basically what we did but smoother
-		addone = Clamp_Between(MonsterProperties[m_id].level, 1, 75);
-		credtemp = credtemp * (100 - 18 * (addone / 15)) / 100;
-	}
 	
 	// if full share is on we won't divide by player count, but if it isn't we will
 	if(!GetCVar("dnd_fullshare")) {
@@ -962,7 +1011,7 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 	}
 	
 	// guaranteed temp weapon drop
-	HandleMonsterTemporaryWeaponDrop(m_id, -1, 0, true);
+	HandleMonsterTemporaryWeaponDrop(m_id, -1, true);
 }
 
 // loc_tid is a potential drop location
@@ -978,11 +1027,11 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	// drop coins if there should be
 	if(GetCVar("dnd_credit_drops")) {
 		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
-		HandleCashDrops(m_id, pnum, isElite);
+		HandleCashDrops(m_id, pnum);
 	}
 	
 	// ammo specialty drop
-	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(pnum, isElite, DND_MUNITION_MASTERY_CHANCE)) {
+	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(pnum, DND_MUNITION_MASTERY_CHANCE)) {
 		SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
 		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
 			SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
@@ -993,18 +1042,19 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		// make it less likely to drop
 		// addone is the chance here (reusing old variables)
 		temp = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-		if(GetCVar("dnd_ignore_dropweights") || RunDropChance(pnum, isElite, Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, temp))
+		if(GetCVar("dnd_ignore_dropweights") || RunDropChance(pnum, Clamp_Between(GetCVar("dnd_researchdroprate") * (100 + MonsterProperties[m_id].droprate) / 100, 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, temp))
 			SpawnResearch(pnum);
 	}
 	
 	// Chest Key
-	HandleChestKeyDrop(isElite);
+	HandleChestKeyDrop(MonsterProperties[m_id].droprate);
 	
 	// if elite, roll orb and equipment drops
-	if(GetCVar("dnd_ignore_dropweights") || isElite) {
+	// new: we let every monster drop orbs, not just elites but with an overall lower chance
+	//if(GetCVar("dnd_ignore_dropweights") || isElite) {
 		// handle orb drops
-		HandleEliteDrops();
-	}
+		HandleEliteDrops(MonsterProperties[m_id].droprate);
+	//}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
 	//#ifdef ISDEBUGBUILD
@@ -1012,7 +1062,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	//#else
 	if(
 		IsBossTID(tid) && 
-		RunDropChance(pnum, isElite, (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100, 0, 1.0) &&
+		RunDropChance(pnum, ((Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100) * (100 + MonsterProperties[m_id].droprate) / 100, 0, 1.0) &&
 		GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)
 	)
 	{
@@ -1028,10 +1078,10 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		//SpawnToken(0, true);
 	#endif
 	
-	HandleCharmLootDrop(isElite);
+	HandleCharmLootDrop(MonsterProperties[m_id].rarity_boost, MonsterProperties[m_id].droprate);
 	
-	// doomguy drop
-	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(pnum, isElite, DND_DOOMGUY_DROPCHANCE)) {
+	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
+	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(pnum, DND_DOOMGUY_DROPCHANCE)) {
 		temp = MonsterProperties[m_id].maxhp;
 		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
 		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
@@ -1040,7 +1090,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	
 	// soul ammo drop -- considers ability - soulstealer as well
 	if(
-		(CanDropSoulAmmoTID(tid) && RunDefaultDropChance(pnum, isElite, DND_SOULAMMO_DROPRATE)) ||
+		(CanDropSoulAmmoTID(tid) && RunDefaultDropChance(pnum, DND_SOULAMMO_DROPRATE * (100 + MonsterProperties[m_id].droprate) / 100)) ||
 		(IsMonsterIdDemon(m_id) && (CheckActorInventory(target, "Ability_SoulStealer") && CheckActorInventory(tid, "MagicCausedDeath")))
 	  )
 	{
@@ -1066,7 +1116,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		TakeActorInventory(tid, "BookofDeadCausedDeath", 1);
 	}
 	
-	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(pnum, isElite, CHANCE_HEART))
+	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(pnum, CHANCE_HEART * (100 + MonsterProperties[m_id].droprate) / 100))
 		SpawnDrop("DemonHeartPickup", 24.0, 16, 0, 0);
 }
 
@@ -1189,40 +1239,40 @@ void ResetPlayerScriptChecks() {
 			PlayerScriptsCheck[i][j] = false;
 }
 
-void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool isElite, bool guaranteed = false) {
+void HandleMonsterTemporaryWeaponDrop(int id, int pnum, bool guaranteed = false) {
 	id = MonsterProperties[id].id;
 	switch(id) {
 		case MONSTER_BLOODFIEND:
 		case MONSTER_RAVAGER:
 		case MONSTER_LURKER:
-			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
 				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_VULGAR:
-			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_VENOM_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_VENOM_DROPCHANCE))
 				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CHAINGUNGENERAL:
-			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_NAILGUN_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_NAILGUN_DROPCHANCE))
 				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DEATHKNIGHT:
 		case MONSTER_HORSHACKER:
-			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_SOULRENDER_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_SOULRENDER_DROPCHANCE))
 				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CORPULENT:
-			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_HFCANNON_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_HFCANNON_DROPCHANCE))
 				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DARKSERVANT:
-			if(guaranteed || RunDefaultDropChance(pnum, isElite, TEMPWEP_DARKGLOVES_DROPCHANCE))
+			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_DARKGLOVES_DROPCHANCE))
 				SpawnDropAtActor(id + DND_MONSTERTID_BEGIN, TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 	}
 	
 	if(pnum != -1 && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-		HandleMonsterTemporaryWeaponDrop(id, -1, isElite, guaranteed);
+		HandleMonsterTemporaryWeaponDrop(id, -1, guaranteed);
 }
 
 void ApplyRandomCurse(int tid) {
@@ -1450,7 +1500,7 @@ void SyncResearchInvestments(int pnum) {
 void PostPlayerLoadRoutine(int pnum) {
 	// Load period is finished, now check for level stats
 	PlayerDied[pnum] = 0;
-	PlayerTransferred[pnum] = false;
+	PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 	TakeInventory("DnD_PDead", 1);
 	SpawnedChests = 1;
 	SetInventory("CanLoad", 0); //Usually it is 0 at this point, but make sure it is anyways.
@@ -1496,6 +1546,103 @@ void CheckUniqueBossPossibility(int tid, int m_id) {
 		// sync to cs
 		ACS_NamedExecuteWithResult("DnD Register Unique Boss", tid, MonsterProperties[m_id].id, MonsterProperties[m_id].maxhp, MonsterProperties[m_id].level);
 		ACS_NamedExecuteWithResult("DnD Constant Unique Boss Sync", tid);
+	}
+}
+
+// checks end of level, if it is and the gamemode is hard/softcore we save players
+// called in death or spectate case -- checked with a variable
+void CheckEOL(bool isSpectate, int game_mode = -1) {
+	if(game_mode == -1)
+		game_mode = GetCVar("dnd_mode");
+		
+	//Log(s:"check hardcore ", d:HardcoreSet, s: " ", d:game_mode, s: " ", d:DND_MODE_HARDCORE, s: " ", d:DND_MODE_SOFTCORE);
+		
+	if(!HardcoreSet || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
+		return;
+	
+	//Log(s:"spec? ", d:isSpectate, s: " ", d:PlayerCount());
+	bool isEOL = true;
+	
+	// if not spectate, check if everyones dead otherwise check if no players left
+	if(!isSpectate) {
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			// alive or has more lives left
+			if(PlayerInGame(i) && (IsActorAlive(i + P_TIDSTART) || CheckActorInventory(i + P_TIDSTART, "CurrentLives"))) {
+				isEOL = false;
+				break;
+			}
+		}
+	}
+	else
+		isEOL = !PlayerCount();
+	
+	if(isEOL && TransactionMade)
+	{
+		// end of level detected, push database changes
+		Log(s:"End of level reached, finish database operations.");
+		FinishDBTransaction();
+		
+		// level end reached, reset information
+		ResetPlayerInformationLevel();
+	}
+}
+
+void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -1) {
+	if(game_mode == -1)
+		game_mode = GetCVar("dnd_mode");
+		
+	if(!HardcoreSet || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
+		return;
+		
+	if(!isDisconnect) {
+		if(PlayerIsLoggedIn(pnum) && PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) {
+			StartDBTransaction();
+
+			if(PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE]) {
+				WipeoutPlayerData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
+				SetActorInventory(pnum + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID"));
+				PlayerActivities[pnum].char_id = CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID");
+				PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
+			}
+
+			SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
+			ResetPlayerActivities(pnum, false);
+		}
+	}
+	else if(PlayerLoaded[pnum]) {
+		StartDBTransaction();
+		
+		//Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);
+		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
+		
+		// resets player activites already
+		BulkResetPlayerData(pnum);
+		PlayerLoaded[pnum] = 0;
+	}
+}
+
+void SaveAllPlayerData() {
+	if(HardcoreSet) {
+		StartDBTransaction();
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			// don't save peoples stuff while they are in load period
+			//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i]);
+			if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerDatabaseState[i][PLAYER_SAVESTATE]) {
+				if (PlayerIsLoggedIn(i)) {
+					if(PlayerDatabaseState[i][PLAYER_TRANSFERSTATE]) {
+						WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+						SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
+						PlayerDatabaseState[i][PLAYER_TRANSFERSTATE] = false;
+					}
+					SavePlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+					ResetPlayerActivities(i, false); // reset this player's activities for the map, no need for them to be stored anymore
+					PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
+					Log(s:"Saving player ", d:i, s:"'s data.");
+				}
+				PlayerDatabaseState[i][PLAYER_SAVESTATE] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
+			}
+		}
+		FinishDBTransaction();
 	}
 }
 

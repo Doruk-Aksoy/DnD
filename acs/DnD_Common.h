@@ -28,6 +28,8 @@
 
 #define DND_VIEWCHECK_DENSITY 8
 
+#define DND_MONSTERBONUS_PERLVL 15 // 15% increase per level on gains granted by monsters
+
 enum {
 	DND_PLAYER_DOOMGUY,
 	DND_PLAYER_MARINE,
@@ -37,7 +39,6 @@ enum {
 	DND_PLAYER_CYBORG,
 	DND_PLAYER_BERSERKER
 };
-
 #define MAXPLAYERCLASSES (DND_PLAYER_BERSERKER + 1)
 
 #define DND_MARINE_SELFEXPLOSIVEREDUCE 25
@@ -267,14 +268,24 @@ int DnD_TID_Counter[4] = { 0, 0, 0, 0 };
 // holds the monster tids that are in use -- arbitrary order
 int UsedMonsterTIDs[DND_MAX_MONSTERS];
 
+// Turned this to global to allow outside access for modders
 #define PLAYERLEVELINFO_LEVEL 0
 #define PLAYERLEVELINFO_MINLEVEL 1
 #define PLAYERLEVELINFO_MAXLEVEL 2
 #define PLAYERLEVELINFO_COUNTATSTART 3
 #define PLAYERLEVELINFO_TIDMONSTER 4 // how many monster tids were skipped, this can happen if mappers allocated tids of their own
-int PlayerInformationInLevel[5] = {
-	0, INT_MAX, INT_MIN, 0, 0
-};
+#define MAX_PLAYERLEVELINFO_DATA (PLAYERLEVELINFO_TIDMONSTER + 1)
+bool pinfo_pending_reset = true;
+global int 28: PlayerInformationInLevel[MAX_PLAYERLEVELINFO_DATA];
+
+void ResetPlayerInformationLevel() {
+	PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] = 0;
+	PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = INT_MAX;
+	PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = INT_MIN;
+	PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] = 0;
+	PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER] = 0;
+	pinfo_pending_reset = false;
+}
 
 void GiveMonsterTID(int base_tid) {
 	if(!base_tid) {
@@ -733,6 +744,10 @@ int GetPlayerCountAny() {
 		res += PlayerInGame(i) || PlayerIsSpectator(i);
 	
 	return res;
+}
+
+bool PlayerIsInvulnerable() {
+	return CheckInventory("P_Invulnerable") || CheckInventory("Invulnerable_Better");
 }
 
 // user must guarantee setspecial and setspecial2 are less than 65536

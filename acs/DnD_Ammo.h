@@ -259,6 +259,7 @@ enum {
 };
 
 #define MAXCLIPAMMOTYPES (DND_MAGAZINE_DARKLANCE + 1)
+#define MAXCLIPAMMO_FIRINGMODES 6 // specialammomode_3 to goremode hold firing mode info -- thats 6
 str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 	"SpecialAmmoMode_3",
 	"SpecialAmmoMode_3X",

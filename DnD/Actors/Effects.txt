@@ -1771,7 +1771,7 @@ Actor EvilSphereFX : SoulSphereFX {
 }
 
 Actor InvulnerabilitySphereFX : SoulSphereFX {
-	Translation "80:111=112:127", "5:5=127:127"
+	Translation "80:111=%[0.00,0.00,0.00]:[1.17,1.35,0.70]"
 }
 
 Actor AllMapFX : SoulSphereFX {

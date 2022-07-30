@@ -649,7 +649,24 @@ void ShowOrbIcon(int id, int offset) {
 }
 
 void ShowLegendaryMonsterIcon(int id, int j) {
-	SetFont(LegendaryMonsterIcons[id]);
+	switch(id) {
+		case 0:
+			SetFont("LEG_DRMR");
+		break;
+		case 1:
+			SetFont("LEG_TORR");
+		break;
+		case 2:
+			SetFont("LEG_MORD");
+		break;
+		case 3:
+			SetFont("LEG_GODS");
+		break;
+		case 4:
+			SetFont("LEG_GOLG");
+		break;
+	}
+	
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * id - 1, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos.x, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
@@ -2699,7 +2716,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 264.1, 104.0, 0.0, 0.0);
 	}
 	else {
-		SetFont(ResearchIcons[page][posx]);
+		SetFont(GetResearchIcon(page, posx));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
 		
 		SetFont("SMALLFONT");
@@ -4932,7 +4949,7 @@ void DrawPlayerStats(int pnum, int category) {
 		else {
 			// utility
 			// drop chance
-			val = (GetDropChance(pnum, 0) - 1.0);
+			val = (GetDropChance(pnum) - 1.0);
 			if(val > 1.0) {
 				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
 				++k;

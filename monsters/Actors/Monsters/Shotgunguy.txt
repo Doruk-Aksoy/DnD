@@ -19,6 +19,7 @@ ACTOR SSGZombie : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ZOMBIESSG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		Idle:
@@ -88,6 +89,7 @@ Actor ZSpecOpsShotgun : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ZSPECSG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -152,6 +154,7 @@ ACTOR LOSShotgunGuy : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SGLOS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -240,6 +243,7 @@ ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SSGLOS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:
@@ -322,6 +326,7 @@ actor SawedOffShotgunGuy : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -390,6 +395,7 @@ actor SawedOffShotgunGuy2 : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF2)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 		
 		Idle:
@@ -454,6 +460,7 @@ Actor QuakeZombieShotgun : DnD_BaseRangedMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ZOMBIEQUAKE2)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		Idle:
@@ -522,6 +529,7 @@ actor UndeadRogue : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ROGUE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:

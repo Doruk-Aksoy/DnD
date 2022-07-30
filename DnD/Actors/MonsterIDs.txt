@@ -31,8 +31,8 @@ enum {
 };
 
 enum {
-	// Zombieman (Don't change that 18)
-	DND_ZOMBIEGRAY = 18,
+	// Zombieman
+	DND_ZOMBIEGRAY = MONSTERCLASS_WOLFENSS + 1,
 	DND_ZOMBIERANGER,
 	DND_ZOMBIESMG,
 	DND_ZOMBIERAPID,

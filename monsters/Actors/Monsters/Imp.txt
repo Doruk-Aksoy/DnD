@@ -21,6 +21,7 @@ actor STDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DARKIMP1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -132,6 +133,7 @@ actor NamiDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DARKIMP2)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -235,6 +237,7 @@ actor VoidDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_VOIDDARKIMP)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -390,6 +393,7 @@ actor NetherDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_NETHERDARKIMP)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -558,6 +562,7 @@ Actor ImpAbomination : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_IMPABOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -948,6 +953,7 @@ actor PyroImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_PYROIMP)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		Idle:
@@ -1170,6 +1176,7 @@ actor Devil : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEVIL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1249,6 +1256,7 @@ actor Devil2 : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEVIL2)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1402,6 +1410,7 @@ actor Vulgar : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_VULGAR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		Idle:
@@ -1500,6 +1509,7 @@ Actor UndeadMage : DnD_ArchVileBase {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_UNDEADMAGE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1621,6 +1631,7 @@ Actor ReaverRobot : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_REAVER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		Idle:
@@ -1747,6 +1758,7 @@ ACTOR Shadow : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SHADOW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:
@@ -1950,6 +1962,7 @@ Actor Roach : DnD_BaseHybridMonster {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 2), 8)
 			TNT1 A 0 A_SetArg(4, DND_ROACH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		Idle:

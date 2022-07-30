@@ -1,3 +1,11 @@
+$playersound				DnD_Player		Male		*land			PLYLAND
+$playersound				DnD_Player		Male		*taunt			DSNONE
+
+Doomguy/Death				dspldeth
+Doomguy/XDeath				dspdiehi
+Doomguy/Pain1				dsplpain
+Doomguy/Taunt				DSTAUNT
+
 Player/Pain25_1				PLYPN41
 Player/Pain25_2				PLYPN42
 $random Player/Pain25 { Player/Pain25_1 Player/Pain25_2 }
@@ -32,7 +40,9 @@ Player/SlimeBurn1			PLYSBRN1
 Player/SlimeBurn2			PLYSBRN2
 $random Player/SlimeBurn { Player/SlimeBurn1 Player/SlimeBurn2 }
 
-$playeralias			TheMarine		Male		*pain100		Player/Pain100
+Marine/Taunt				PLYTNT
+
+/*$playeralias			TheMarine		Male		*pain100		Player/Pain100
 $playeralias			TheMarine		Male		*pain75			Player/Pain75
 $playeralias			TheMarine		Male		*pain50			Player/Pain50
 $playeralias			TheMarine		Male		*pain25			Player/Pain25
@@ -47,15 +57,18 @@ $playersound			TheMarine		Male		*surface		PLYSURF
 $playeralias			TheMarine		Male		*pain-drowning	Player/Drown
 $playeralias			TheMarine		Male		*pain-slime		Player/SlimeBurn
 $playersound			TheMarine		Male		*death-drowning	PLYDROWN
-$playersound			TheMarine		Male		*taunt			PLYTNT
+$playersound			TheMarine		Male		*taunt			PLYTNT*/
 
+Hobo/Die					HOBODIE
 Hobo/Pain1					HOBOPN1
 Hobo/Pain2					HOBOPN2
 Hobo/Pain3					HOBOPN3
 $random Hobo/SoftPain { Hobo/Pain1 Hobo/Pain2 }
 $random Hobo/HardPain { Hobo/Pain1 Hobo/Pain2 Hobo/Pain2 Hobo/Pain3 Hobo/Pain3 Hobo/Pain3 Hobo/Pain3 }
 
-$playersound			TheHobo			Male		*pain100		HOBOPN1
+Hobo/Taunt					HOBOTNT
+
+/*$playersound			TheHobo			Male		*pain100		HOBOPN1
 $playeralias			TheHobo			Male		*pain75			Hobo/SoftPain
 $playeralias			TheHobo			Male		*pain50			Hobo/HardPain
 $playeralias			TheHobo			Male		*pain25			Hobo/HardPain
@@ -63,7 +76,7 @@ $playersound			TheHobo			Male		*land			HOBOOOF
 $playersounddup			TheHobo			Male		*grunt			*land
 $playersound			TheHobo			Male		*usefail		HOBOUSE
 $playersound			TheHobo			Male		*death			HOBODIE
-$playersound			TheHobo			Male		*taunt			HOBOTNT
+$playersound			TheHobo			Male		*taunt			HOBOTNT*/
 
 Punisher/Die1			DSMDEAD1
 Punisher/Die2			DSMDEAD2
@@ -75,7 +88,9 @@ Punisher/Pain4			DSMPAIN3
 $random Punisher/PainLow { Punisher/Pain1 Punisher/Pain2 }
 $random Punisher/Pain { Punisher/Pain1 Punisher/Pain2 Punisher/Pain3 Punisher/Pain4 }
 
-$playeralias			Punisher			Male		*pain100		Punisher/PainLow
+Punisher/Taunt			PUNTNT
+
+/*$playeralias			Punisher			Male		*pain100		Punisher/PainLow
 $playeralias			Punisher			Male		*pain75			Punisher/Pain
 $playeralias			Punisher			Male		*pain50			Punisher/Pain
 $playeralias			Punisher			Male		*pain25			Punisher/Pain
@@ -83,14 +98,17 @@ $playersound			Punisher			Male		*land			PUNLAND
 $playersounddup			Punisher			Male		*grunt			*land
 $playersound			Punisher			Male		*usefail		DSMNOWAY
 $playeralias			Punisher			Male		*death			Punisher/Die
-$playersound			Punisher			Male		*taunt			PUNTNT
+$playersound			Punisher			Male		*taunt			PUNTNT*/
 
+Wanderer/Pain			WANPAIN
 Wanderer/Die1			WANDIE1
 Wanderer/Die2			WANDIE2
 Wanderer/Die3			WANDIE3
 $random Wanderer/Die { Wanderer/Die1 Wanderer/Die2 Wanderer/Die3 }
 
-$playersound			Wanderer			Male		*pain100		WANPAIN
+Wanderer/Taunt			WANTNT
+
+/*$playersound			Wanderer			Male		*pain100		WANPAIN
 $playersound			Wanderer			Male		*pain75			WANPAIN
 $playersound			Wanderer			Male		*pain50			WANPAIN
 $playersound			Wanderer			Male		*pain25			WANPAIN
@@ -98,7 +116,7 @@ $playersound			Wanderer			Male		*land			WANLAND
 $playersounddup			Wanderer			Male		*grunt			*land
 $playersound			Wanderer			Male		*usefail		WANFAIL
 $playeralias			Wanderer			Male		*death			Wanderer/Die
-$playersound			Wanderer			Male		*taunt			WANTNT
+$playersound			Wanderer			Male		*taunt			WANTNT*/
 
 CyborgPlayer/Die1		PCYGDIE1
 CyborgPlayer/Die2		PCYGDIE2
@@ -124,7 +142,7 @@ CyborgPlayer/Jump1		PCYGJUM1
 CyborgPlayer/Jump2		PCYGJUM2
 $random CyborgPlayer/Jump { CyborgPlayer/Jump1 CyborgPlayer/Jump2 }
 
-$playeralias			TheCyborg		Male		*pain100		CyborgPlayer/PainHigh
+/*$playeralias			TheCyborg		Male		*pain100		CyborgPlayer/PainHigh
 $playeralias			TheCyborg		Male		*pain75			CyborgPlayer/PainHigh
 $playeralias			TheCyborg		Male		*pain50			CyborgPlayer/PainLow
 $playeralias			TheCyborg		Male		*pain25			CyborgPlayer/PainLow
@@ -133,9 +151,9 @@ $playeralias			TheCyborg		Male		*jump			CyborgPlayer/Jump
 $playeralias			TheCyborg		Male		*death			CyborgPlayer/Die
 $playersound			TheCyborg		Male		*usefail		PCYGUSE
 $playersound			TheCyborg		Male		*grunt			PCYGLAND
-$playeralias			TheCyborg		Male		*taunt			CyborgPlayer/Taunt
+$playeralias			TheCyborg		Male		*taunt			CyborgPlayer/Taunt*/
 
-
+Berserker/Die			BERSDTH
 Berserker/Heal			BERSRKHP
 Berserker/Berserk		BERSERKR
 
@@ -156,7 +174,7 @@ $random BerserkerPlayer/Taunt { BerserkerPlayer/Taunt1 BerserkerPlayer/Taunt2 }
 
 Berserker/Thunder			THNDS01
 
-$playeralias			TheBerserker		Male		*pain100		BerserkerPlayer/Pain
+/*$playeralias			TheBerserker		Male		*pain100		BerserkerPlayer/Pain
 $playeralias			TheBerserker		Male		*pain75			BerserkerPlayer/Pain
 $playeralias			TheBerserker		Male		*pain50			BerserkerPlayer/Pain
 $playeralias			TheBerserker		Male		*pain25			BerserkerPlayer/Pain
@@ -164,4 +182,4 @@ $playersound			TheBerserker		Male		*land			PLYLAND
 $playersound			TheBerserker		Male		*death			BERSDTH
 $playersound			TheBerserker		Male		*usefail		BERSUSE
 $playersound			TheBerserker		Male		*grunt			PLYLAND
-$playeralias			TheBerserker		Male		*taunt			BerserkerPlayer/Taunt
+$playeralias			TheBerserker		Male		*taunt			BerserkerPlayer/Taunt*/
