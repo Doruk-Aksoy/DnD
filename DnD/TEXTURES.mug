@@ -22,6 +22,22 @@ Graphic "STFGOD2", 24, 29
 	Patch "STFGOD0", 0, 0
 }
 
+Graphic "MARGOD1", 32, 32
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -2, -1
+	Patch "MARGOD0", 0, 0
+}
+
+Graphic "MARGOD2", 32, 32
+{
+	XScale 1.000
+	YScale 1.000
+	Offset -2, -1
+	Patch "MARGOD0", 0, 0
+}
+
 Graphic "MARXDTH0", 32, 32
 {
 	XScale 1.000
@@ -170,7 +186,7 @@ Graphic "CRVGOD0", 34, 33
 {
 	XScale 1.0
 	YScale 1.0
-	Offset 2, 1
+	Offset 1, 1
 	Patch "CRVGOD0", 0, 0
 }
 
@@ -178,7 +194,7 @@ Graphic "CRVGOD1", 34, 33
 {
 	XScale 1.0
 	YScale 1.0
-	Offset 2, 1
+	Offset 1, 1
 	Patch "CRVGOD0", 0, 0
 }
 
@@ -186,7 +202,7 @@ Graphic "CRVGOD2", 34, 33
 {
 	XScale 1.0
 	YScale 1.0
-	Offset 2, 1
+	Offset 1, 1
 	Patch "CRVGOD0", 0, 0
 }
 
@@ -298,7 +314,7 @@ Graphic "BERDEAD0", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -3
+	Offset 4, -5
 	Patch "BERDEAD0", 0, 0
 }
 
@@ -306,7 +322,7 @@ Graphic "BEREVL0", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BEREVL0", 0, 0
 }
 
@@ -314,7 +330,7 @@ Graphic "BEREVL1", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BEREVL1", 0, 0
 }
 
@@ -322,7 +338,7 @@ Graphic "BEREVL2", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BEREVL2", 0, 0
 }
 
@@ -330,7 +346,7 @@ Graphic "BEREVL3", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -2
+	Offset 5, -4
 	Patch "BEREVL3", 0, 0
 }
 
@@ -338,7 +354,7 @@ Graphic "BEREVL4", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BEREVL4", 0, 0
 }
 
@@ -346,7 +362,7 @@ Graphic "BEROUCH0", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BEREVL0", 0, 0
 }
 
@@ -354,7 +370,7 @@ Graphic "BEROUCH1", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BEREVL1", 0, 0
 }
 
@@ -362,7 +378,7 @@ Graphic "BEROUCH2", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BEREVL2", 0, 0
 }
 
@@ -370,7 +386,7 @@ Graphic "BEROUCH3", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -2
+	Offset 5, -4
 	Patch "BEREVL3", 0, 0
 }
 
@@ -378,7 +394,7 @@ Graphic "BEROUCH4", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BEREVL4", 0, 0
 }
 
@@ -386,7 +402,7 @@ Graphic "BERGOD0", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERGOD0", 0, 0
 }
 
@@ -394,7 +410,7 @@ Graphic "BERGOD1", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERGOD0", 0, 0
 }
 
@@ -402,7 +418,7 @@ Graphic "BERGOD2", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERGOD0", 0, 0
 }
 
@@ -410,7 +426,7 @@ Graphic "BERKILL0", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERKILL0", 0, 0
 }
 
@@ -418,7 +434,7 @@ Graphic "BERKILL1", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERKILL1", 0, 0
 }
 
@@ -426,7 +442,7 @@ Graphic "BERKILL2", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -1
+	Offset 5, -3
 	Patch "BERKILL2", 0, 0
 }
 
@@ -434,7 +450,7 @@ Graphic "BERKILL3", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -1
+	Offset 5, -3
 	Patch "BERKILL3", 0, 0
 }
 
@@ -442,7 +458,7 @@ Graphic "BERKILL4", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BERKILL4", 0, 0
 }
 
@@ -450,7 +466,7 @@ Graphic "BERST00", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS00", 0, 0
 }
 
@@ -458,7 +474,7 @@ Graphic "BERST01", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS00", 0, 0
 }
 
@@ -466,7 +482,7 @@ Graphic "BERST02", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS00", 0, 0
 }
 
@@ -474,7 +490,7 @@ Graphic "BERST10", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS10", 0, 0
 }
 
@@ -482,7 +498,7 @@ Graphic "BERST11", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS10", 0, 0
 }
 
@@ -490,7 +506,7 @@ Graphic "BERST12", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS10", 0, 0
 }
 
@@ -498,7 +514,7 @@ Graphic "BERST20", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS20", 0, 0
 }
 
@@ -506,7 +522,7 @@ Graphic "BERST21", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS20", 0, 0
 }
 
@@ -514,7 +530,7 @@ Graphic "BERST22", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS20", 0, 0
 }
 
@@ -522,7 +538,7 @@ Graphic "BERST30", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -1
+	Offset 5, -3
 	Patch "BERS30", 0, 0
 }
 
@@ -530,7 +546,7 @@ Graphic "BERST31", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -1
+	Offset 5, -3
 	Patch "BERS30", 0, 0
 }
 
@@ -538,7 +554,7 @@ Graphic "BERST32", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -1
+	Offset 5, -3
 	Patch "BERS30", 0, 0
 }
 
@@ -546,7 +562,7 @@ Graphic "BERST40", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BERS40", 0, 0
 }
 
@@ -554,7 +570,7 @@ Graphic "BERST41", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BERS40", 0, 0
 }
 
@@ -562,7 +578,7 @@ Graphic "BERST42", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BERS40", 0, 0
 }
 
@@ -570,7 +586,7 @@ Graphic "BERTL00", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS00", 0, 0
 }
 
@@ -578,7 +594,7 @@ Graphic "BERTL10", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS10", 0, 0
 }
 
@@ -586,7 +602,7 @@ Graphic "BERTL20", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS20", 0, 0
 }
 
@@ -594,7 +610,7 @@ Graphic "BERTL30", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -1
+	Offset 5, -3
 	Patch "BERS30", 0, 0
 }
 
@@ -602,7 +618,7 @@ Graphic "BERTL40", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BERS40", 0, 0
 }
 
@@ -610,7 +626,7 @@ Graphic "BERTR00", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS00", 0, 0
 }
 
@@ -618,7 +634,7 @@ Graphic "BERTR10", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS10", 0, 0
 }
 
@@ -626,7 +642,7 @@ Graphic "BERTR20", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, 0
+	Offset 5, -2
 	Patch "BERS20", 0, 0
 }
 
@@ -634,7 +650,7 @@ Graphic "BERTR30", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 5, -1
+	Offset 5, -3
 	Patch "BERS30", 0, 0
 }
 
@@ -642,7 +658,7 @@ Graphic "BERTR40", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -2
+	Offset 4, -4
 	Patch "BERS40", 0, 0
 }
 
@@ -650,7 +666,7 @@ Graphic "BERXDTH0", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -3
+	Offset 4, -5
 	Patch "BERDEAD0", 0, 0
 }
 
@@ -658,7 +674,7 @@ Graphic "BERXDTH1", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -3
+	Offset 4, -5
 	Patch "BERDEAD0", 0, 0
 }
 
@@ -666,7 +682,7 @@ Graphic "BERXDTH2", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -3
+	Offset 4, -5
 	Patch "BERDEAD0", 0, 0
 }
 
@@ -674,7 +690,7 @@ Graphic "BERXDTH3", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -3
+	Offset 4, -5
 	Patch "BERDEAD0", 0, 0
 }
 
@@ -682,6 +698,6 @@ Graphic "BERXDTH4", 40, 40
 {
 	XScale 1.25
 	YScale 1.25
-	Offset 4, -3
+	Offset 4, -5
 	Patch "BERDEAD0", 0, 0
 }

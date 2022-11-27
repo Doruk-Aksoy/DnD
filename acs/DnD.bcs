@@ -251,6 +251,11 @@ Script "DND Check Hardcore Softcore" OPEN {
 Script "DnD On Death" DEATH {
 	int i, pnum = PlayerNumber();
 	PlayerDied[pnum] += 1;
+	
+	// if SP, fix mugshot
+	if(GameType() == GAME_SINGLE_PLAYER)
+		HandleDeathMugshot(GetActorProperty(0, APROP_HEALTH));
+	
 	// put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
 	if(GetCVar("Survival")) {
 		if(CheckInventory("CurrentLives"))
@@ -2809,8 +2814,6 @@ Script "DnD On Respawn" RESPAWN {
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	
-	ResetMugstate();
-	
 	// run the monster scanner script again on respawn
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
 	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
@@ -2829,9 +2832,15 @@ Script "DnD On Respawn" RESPAWN {
 		}
 	}*/
 	
+	ACS_NamedExecuteWithResult("DnD Player MugshotData Update", DND_MUGSTATE_GOD, 0, DND_MUGGOD_TIME);
+	//ResetMugstate(true);
+	
 	// for properly setting up taltos translucency when spawn protection is on
-	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
+	while(PlayerIsInvulnerable())
 		Delay(const:5);
+		
+	ResetMugstate(true);
+		
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
 		
@@ -2914,7 +2923,7 @@ Script "DnD Player Setup" ENTER {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 
 	// if its sp and we dont have DnD_Character non-zero, bring up class menu and freeze us
-	if(GameType() == GAME_SINGLE_PLAYER) {
+	if(GameType() == GAME_SINGLE_PLAYER && !CheckInventory("DnD_Character")) {
 		// freeze
 		SetPlayerProperty(1, 1, PROP_FROZEN);
 		
@@ -3164,12 +3173,20 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 	int status = GetCVar("dnd_dashstatus");
 	NamedRequestScriptPuke("DnD User CVAR Status Receive", status);
 	
+	int class_id = GetUserCVar(ConsolePlayerNumber(), "dnd_playerclass");
+	
 	if(GameType() != GAME_SINGLE_PLAYER)
-		NamedRequestScriptPuke("DnD Set Class", GetCVar("dnd_playerclass"));
+		NamedRequestScriptPuke("DnD Set Class", class_id);
+		
+	// this is to sync clients between each other
+	bool notSet = CheckInventory("DnD_Character") != class_id + 1;
+	SetInventory("DnD_Character", class_id + 1);
+	
+	if(notSet)
+		SetActorState(0, "Spawn");
 
 	ResetPlayerScriptChecks();
-	if(ConsolePlayerNumber() != PlayerNumber()) 
-		Terminate;
+
 	if(GetCVar("dnd_showmapinfo"))
 		SetInventory("ShowMapInfo", 1);
 		

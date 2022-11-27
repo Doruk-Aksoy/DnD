@@ -39,7 +39,7 @@ void HandleChestKeyDrop(int drop_boost) {
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
-		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, DND_CHESTKEY_DROPRATE * (100 + drop_boost) / 100)))) {
+		if(PlayerInGame(i) && (GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, DND_CHESTKEY_DROPRATE * drop_boost / 100)))) {
 			SpawnChestKey(i);
 			
 			// check for luck mastery on players

@@ -80,10 +80,16 @@ str GetClassName(int id) {
 }
 
 Script "DnD Class Select" (int isSinglePlayer) NET CLIENTSIDE {
+	// these aren't needed for net clientside
+	//if(PlayerNumber() != ConsolePlayerNumber())
+	//	Terminate;
+
 	// close the previous menu
 	ConsoleCommand("closemenu");
 
 	int cpnum = ConsolePlayerNumber();
+	
+	//Log(s:"cpnum ", d:ConsolePlayerNumber(), s: " vs pnum ", d:PlayerNumber());
 	
 	// don't allow duplicates to be run
 	if(GetUserCVar(cpnum, "dnd_onclassmenu"))
@@ -150,7 +156,7 @@ Script "DnD Class Select" (int isSinglePlayer) NET CLIENTSIDE {
 	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
 	
 	if(isSinglePlayer)
-		NamedRequestScriptPuke("DnD Set Class", GetCVar("dnd_playerclass"));
+		NamedRequestScriptPuke("DnD Set Class", GetCVar("dnd_playerclass"), -1, -1);
 }
 
 Script "DnD Set Class" (int class_id) NET {
@@ -269,7 +275,7 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	
 	// show the class images -- offsets aligned
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_MUGSHOT)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 280.4 + GetMugshotXOffset(ctype) / 2, 112.1, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 281.4 + GetIntegerBits(GetMugshotXOffset(ctype)), 112.1, 0.0);
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_LEFTIMG)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_LEFTIMG, -1, 80.4, 208.1, 0.0);
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)));

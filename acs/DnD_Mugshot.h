@@ -39,32 +39,56 @@ enum {
 	PMUG_STATE,
 	PMUG_FRAME,
 	PMUG_TIC,
-	PMUG_TRIGGER_TIC
+	PMUG_TRIGGER_TIC,
+	PMUG_ISRUNNING
 };
-#define MAX_MUGSHOT_DATA (PMUG_TRIGGER_TIC + 1)
-int PlayerMugshotData[MAX_MUGSHOT_DATA] = { DND_PLAYER_DOOMGUY, 0, DND_MUGSTATE_IDLE, 0, DND_MUGIDLE_TIME, 0 };
+#define MAX_MUGSHOT_DATA (PMUG_ISRUNNING + 1)
+int PlayerMugshotData[MAX_MUGSHOT_DATA] = { DND_PLAYER_DOOMGUY, 0, DND_MUGSTATE_IDLE, 0, DND_MUGIDLE_TIME, 0, 0 };
 
-Script "DnD Player MugshotData Update" (int mstate, int frame, int val) CLIENTSIDE {
-	if(PlayerIsInvulnerable()) {
+Script "DnD Player MugshotData Update" (int mstate, int frame, int val, int ignoreInvul) CLIENTSIDE {
+	bool isInvul = (!ignoreInvul && PlayerIsInvulnerable());
+
+	if(ConsolePlayerNumber() != PlayerNumber()) {
 		SetResultValue(0);
 		Terminate;
 	}
-
-	PlayerMugshotData[PMUG_STATE] = mstate;
-	PlayerMugshotData[PMUG_FRAME] = frame;
-	PlayerMugshotData[PMUG_TIC] = val;
+	
+	// dont have other updates interrupt over dying, ex: weapon pickups
+	if(mstate == DND_MUGSTATE_IDLE || (mstate != DND_MUGSTATE_DEATH && mstate != DND_MUGSTATE_XDEATH && isAlive())) {
+		PlayerMugshotData[PMUG_STATE] = mstate;
+		PlayerMugshotData[PMUG_FRAME] = frame;
+		PlayerMugshotData[PMUG_TIC] = val;
+	}
 	
 	SetResultValue(0);
 }
 
 Script "DnD Player Mugshot Class Update" (int pclass) CLIENTSIDE {
-	PlayerMugshotData[PMUG_CLASS] = pclass;
-	PlayerMugshotData[PMUG_STR] = GetMugshotString(pclass);
+	if(ConsolePlayerNumber() == PlayerNumber()) {
+		PlayerMugshotData[PMUG_CLASS] = pclass;
+		PlayerMugshotData[PMUG_STR] = GetMugshotString(pclass);
+	}
 	SetResultValue(0);
 }
 
+void HandleDeathMugshot(int curhp) {
+	if(-curhp < CheckInventory("PlayerHealthCap") * DND_XDEATH_HP_PERCENT / 100) {
+		// if damage - curhp difference is less than the xdeath threshold, normal death
+		// ex: you had 20 hp, you took 100 damage. its 80 vs xdeath percent of hp cap. if health cap is 100 you go to xdeath. But if it's 400+ you don't.
+		PlayerMugshotData[PMUG_TIC] = 0;
+		PlayerMugshotData[PMUG_FRAME] = 0;
+		PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_DEATH;
+	}
+	else {
+		// xdeath
+		PlayerMugshotData[PMUG_TIC] = 3;
+		PlayerMugshotData[PMUG_FRAME] = 0;
+		PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_XDEATH;
+	}
+}
+
 Script "DnD Player MugshotData Ouchies" (int attacker_tid, int damage) CLIENTSIDE {
-	if(PlayerIsInvulnerable())
+	if(PlayerIsInvulnerable() || ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 
 	int curhp = GetActorProperty(0, APROP_HEALTH);
@@ -80,10 +104,10 @@ Script "DnD Player MugshotData Ouchies" (int attacker_tid, int damage) CLIENTSID
 		
 		// if we hurt ourselves only look forward
 		if(attacker_tid == ActivatorTID())
-			PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_KILL;
+			PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_PAIN;
 		else {
 			// determine relative position of us vs whoever attacked us, find out angle to face
-			int ang = AngleToFace(0, attacker_tid) - GetActorAngle(0);
+			int ang = AngleToFace(ActivatorTID(), attacker_tid) - GetActorAngle(0);
 			
 			// 45 degree diff
 			if(ang < -0.125)
@@ -91,28 +115,18 @@ Script "DnD Player MugshotData Ouchies" (int attacker_tid, int damage) CLIENTSID
 			else if(ang > 0.125)
 				PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_OUCHLEFT;
 			else
-				PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_KILL;
+				PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_PAIN;
 		}
 	}
-	else if(-curhp < CheckInventory("PlayerHealthCap") * DND_XDEATH_HP_PERCENT / 100) {
-		// if damage - curhp difference is less than the xdeath threshold, normal death
-		// ex: you had 20 hp, you took 100 damage. its 80 vs xdeath percent of hp cap. if health cap is 100 you go to xdeath. But if it's 400+ you don't.
-		PlayerMugshotData[PMUG_TIC] = 0;
-		PlayerMugshotData[PMUG_FRAME] = 0;
-		PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_DEATH;
-	}
-	else {
-		// xdeath
-		PlayerMugshotData[PMUG_TIC] = 3;
-		PlayerMugshotData[PMUG_FRAME] = 0;
-		PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_XDEATH;
-	}
+	else
+		HandleDeathMugshot(curhp);
 }
 
 enum {
 	DND_MUGSTATE_EVILGRIN,
 	DND_MUGSTATE_GOD,
 	DND_MUGSTATE_KILL,
+	DND_MUGSTATE_PAIN,
 	DND_MUGSTATE_OUCH,
 	DND_MUGSTATE_IDLE,
 	DND_MUGSTATE_OUCHLEFT,
@@ -121,8 +135,8 @@ enum {
 	DND_MUGSTATE_XDEATH
 };
 
-void ResetMugstate() {
-	ACS_NamedExecuteWithResult("DnD Player MugshotData Update", DND_MUGSTATE_IDLE, 0, DND_MUGIDLE_TIME);
+void ResetMugstate(bool ignore_inv = false) {
+	ACS_NamedExecuteWithResult("DnD Player MugshotData Update", DND_MUGSTATE_IDLE, 0, DND_MUGIDLE_TIME, ignore_inv);
 }
 
 str GetMugshotString(int pclass) {
@@ -156,25 +170,25 @@ str GetMugshotString(int pclass) {
 int GetMugshotXOffset(int pclass) {
 	switch(pclass) {
 		case DND_PLAYER_DOOMGUY:
-		return 24.0;
+		return 12.0;
 		
 		case DND_PLAYER_MARINE:
-		return 32.0;
+		return 17.0;
 		
 		case DND_PLAYER_HOBO:
-		return 24.0;
+		return 12.0;
 		
 		case DND_PLAYER_PUNISHER:
-		return 24.0;
+		return 12.0;
 		
 		case DND_PLAYER_WANDERER:
-		return 36.0;
+		return 18.0;
 		
 		case DND_PLAYER_CYBORG:
-		return 24.0;
+		return 12.0;
 		
 		case DND_PLAYER_BERSERKER:
-		return 40.0;
+		return 21.0;
 	}
 	return "";
 }
@@ -192,7 +206,9 @@ str GetMugshotGraphic(str mugstr) {
 		case DND_MUGSTATE_GOD:
 		return StrParam(s:mugstr, s:"GOD", d:PlayerMugshotData[PMUG_FRAME]);
 		
+		// they are new states for discerning purposes of animation times and state transitions, they are otherwise equivalent
 		case DND_MUGSTATE_KILL:
+		case DND_MUGSTATE_PAIN:
 			hp_pct = GetHealthPercent();
 		return StrParam(s:mugstr, s:"KILL", d:5 - (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT);
 		
@@ -226,20 +242,46 @@ void HandleMugshotState(int width, int height, str mugstr, int xoffset, int aspe
 	// get mugshot frame and offset
 	str mugframe = GetMugshotGraphic(mugstr);
 	
+	//if(GetActorProperty(0, APROP_HEALTH) <= 0)
+	//	Log(s:mugframe);
+	
 	width = ((HUD_MUGSIZEX * width / 800) * FixedDiv(1.0, aspect)) >> 16;
 	height = ((HUD_MUGSIZEY * height / 600) * FixedDiv(1.0, ASPECT_4_3)) >> 16;
 		
 	SetFont(mugframe);
 	SetHudSize(width, height, true);
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_NOTWITHFULLMAP, PLAYER_MUGSHOTID, CR_UNTRANSLATED, (GetHudLeft(width) << 16) + xoffset, (height << 16) - 22.0, 0.0);
+	
+	// in case of rounding errors we need to properly get rid of the other parts...
+	xoffset += GetHudLeft(width) << 16;
+	xoffset &= 0xFFFF0000;
+	
+	if(xoffset < 0)
+		xoffset += 0.6;
+	else {
+		xoffset += 0.40001;
+	}
+	
+	//Log(f:xoffset);
+	
+	// > 10 means theres no point for mugshot
+	if(GetCVar("screenblocks") > 10)
+		HudMessage(s:""; HUDMSG_PLAIN | HUDMSG_NOTWITHFULLMAP, PLAYER_MUGSHOTID, CR_UNTRANSLATED, xoffset, (height << 16) - 22.0, 0.0);
+	else
+		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_NOTWITHFULLMAP, PLAYER_MUGSHOTID, CR_UNTRANSLATED, xoffset, (height << 16) - 22.0, 0.0);
 }
 
 Script "DnD Player Mugshot" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber() || PlayerMugshotData[PMUG_ISRUNNING])
+		Terminate;
+		
+	PlayerMugshotData[PMUG_ISRUNNING] = 1;
+
 	// debugger script, enable for tests
 	//ACS_NamedExecuteWithResult("DnD Player Mugshot Cycler", pclass);
-	int vidrefresh_time = 0;
+	int vidrefresh_time = VID_REFRESH_TIME - 1;
 	int pnum = PlayerNumber();
 	int frame_inc = 1;
+	int hud_scale_fac = 1;
 	
 	// immediately update aspect ratio
 	int aspect = GetAspectRatio();
@@ -249,10 +291,17 @@ Script "DnD Player Mugshot" (void) CLIENTSIDE {
 	int width = getcvar("vid_defwidth");
 	int height = getcvar("vid_defheight");
 	
+	if(GetCVar("hud_scale")) {
+		hud_scale_fac = max(1, min(width / 640, height / 400));
+		width /= hud_scale_fac;
+		height /= hud_scale_fac;
+	}
+	
 	int xoffset = GetMugshotXOffset(PlayerMugshotData[PMUG_CLASS]);
-	if(aspect == ASPECT_4_3)
-		xoffset /= 2;
-	xoffset += 0.4;
+	//if(aspect == ASPECT_4_3)
+	//	xoffset /= 2;
+	//else if(GetCVar("hud_scale"))
+	//	xoffset = GetIntegerBits(xoffset * 8 / 5);
 
 	// this is removed on spectate / map reset anyway
 	while(!CheckInventory("DnD_IntermissionState")) {
@@ -265,17 +314,46 @@ Script "DnD Player Mugshot" (void) CLIENTSIDE {
 			height = getcvar("vid_defheight");
 			
 			// if aspect somehow changed, update it
-			if(aspect != ScreenResOffsets[SCREEN_ASPECT_RATIO]) {
+			if(aspect != ScreenResOffsets[SCREEN_ASPECT_RATIO])
 				aspect = ScreenResOffsets[SCREEN_ASPECT_RATIO];
-				if(ScreenResOffsets[SCREEN_ASPECT_RATIO] == ASPECT_4_3)
-					xoffset = GetMugshotXOffset(PlayerMugshotData[PMUG_CLASS]) / 2 + 0.4;
-				else
-					xoffset = GetMugshotXOffset(PlayerMugshotData[PMUG_CLASS]) + 0.4;
+			
+			if(GetCVar("hud_scale")) {
+				xoffset = GetMugshotXOffset(PlayerMugshotData[PMUG_CLASS]);
+				
+				hud_scale_fac = max(1, min(width / 640, height / 400));
+				
+				// idk anymore
+				if(aspect == ASPECT_16_10 && width > 1024 && width < 1600 && height > 768 && height < 1200) {
+					//hud_scale_fac = 2;
+					
+					if(xoffset < 30.0)
+						xoffset = xoffset * 23 / 24;
+					else
+						xoffset = xoffset * 21 / 24;
+				}
+				//else if(aspect == ASPECT_4_3 && width >= 1280 && width <= 1920 && height >= 960 && height <= 1440)
+				//	hud_scale_fac = 2;
+					
+				//if(aspect == ASPECT_4_3)
+				//	xoffset /= 2;
+				//else
+				//	xoffset = GetIntegerBits(GetMugshotXOffset(PlayerMugshotData[PMUG_CLASS]) * 8 / 5);
+				
+				width /= hud_scale_fac;
+				height /= hud_scale_fac;
+			}
+			else {
+				xoffset = GetMugshotXOffset(PlayerMugshotData[PMUG_CLASS]);
+				//if(aspect == ASPECT_4_3)
+				//	xoffset /= 2;
+				//else if(GetCVar("hud_scale"))
+				//	xoffset = GetIntegerBits(xoffset * 8 / 5);
 			}
 		}
 		
 		// constantly decrement
 		if(PlayerMugshotData[PMUG_TIC]) {
+			//Log(s:"tic count ", d:PlayerMugshotData[PMUG_TIC]);
 			--PlayerMugshotData[PMUG_TIC];
 			
 			// god state check
@@ -283,6 +361,9 @@ Script "DnD Player Mugshot" (void) CLIENTSIDE {
 				PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_GOD;
 				PlayerMugshotData[PMUG_TIC] = DND_MUGGOD_TIME;
 				PlayerMugshotData[PMUG_FRAME] = 0;
+				frame_inc = 1;
+				
+				//Log(s:"make god");
 			}
 			
 			// trigger hold check -- only check god as death is a terminal states, they have 0 tic, we wont even enter here
@@ -317,6 +398,7 @@ Script "DnD Player Mugshot" (void) CLIENTSIDE {
 						PlayerMugshotData[PMUG_TIC] = 0;
 				}
 				else if(PlayerMugshotData[PMUG_STATE] == DND_MUGSTATE_GOD) {
+					//Log(s:"is god new frame time from ", d:PlayerMugshotData[PMUG_FRAME], s: " ", d:frame_inc);
 					// if no longer in possession of the invul tokens, go away from this state
 					if(!PlayerIsInvulnerable()) {
 						PlayerMugshotData[PMUG_STATE] = DND_MUGSTATE_IDLE;

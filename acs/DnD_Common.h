@@ -69,7 +69,7 @@ enum {
 #define DND_EXP_HUDID_FILL 266
 #define DND_EXP_HUDID_BACK 267
 
-#define DND_MAX_MONSTERS 8192
+#define DND_MAX_MONSTERS 12800
 
 #define DND_MAX_TEMP_PROJ 200
 #define DND_EMERALD_TIDADD 100
@@ -110,8 +110,11 @@ enum {
 	// 64 player temp tid range
 	TEMPORARY_SPELL_TID = TEMPORARY_PET_TID + MAXPLAYERS,
 	
+	// 64 players temp tid range
+	TEMPORARY_DATADUMMY_TID = TEMPORARY_SPELL_TID + MAXPLAYERS,
+	
 	// 64 player temp tid range
-	DND_MENUFLOATYICON_TID = TEMPORARY_SPELL_TID + MAXPLAYERS,
+	DND_MENUFLOATYICON_TID = TEMPORARY_DATADUMMY_TID + MAXPLAYERS,
 	
 	// 64 player temp tid range
 	DEATHRAY_MARKER_TID = DND_MENUFLOATYICON_TID + MAXPLAYERS,
@@ -747,7 +750,7 @@ int GetPlayerCountAny() {
 }
 
 bool PlayerIsInvulnerable() {
-	return CheckInventory("P_Invulnerable") || CheckInventory("Invulnerable_Better");
+	return CheckInventory("P_Invulnerable") || CheckInventory("Invulnerable_Better") || GEtActorProperty(0, APROP_INVULNERABLE);
 }
 
 // user must guarantee setspecial and setspecial2 are less than 65536

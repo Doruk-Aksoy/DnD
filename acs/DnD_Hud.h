@@ -44,6 +44,7 @@ typedef struct coord {
 
 // x is scroll current pos, y is scroll limit
 coord_T ScrollPos = { 0, 0 };
+//coord_T HudScale = { 1.0, 1.0 };
 
 #define BOSSDATA_TID 0 // unique boss tid, this is typically dungeon boss or one off boss encounters in maps
 #define BOSSDATA_HP 1 // unique boss hp, monster health isnt synced to clients
@@ -102,6 +103,40 @@ void ClearMonsterScanInfo() {
 	DeleteTextRange(MONSTER_TYPEICONID, MONSTER_BARFILLOVERLAY4);
 	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + MAX_MONSTER_TRAITS_SHOWN);
 }
+
+/*int GetUIScale(int hud_scale, int width, int height) {
+	int scale = 1;
+	int htemp, wtemp;
+	if(hud_scale > 0)
+		scale = hud_scale;
+	else {
+		// default scale to 640x400
+		htemp = height / 400;
+		wtemp = width / 640;
+		scale = max(1, min(height, width));
+	}
+	
+	htemp = height / 200;
+	wtemp = width / 320;
+	
+	return max(1, min(scale, max(htemp, wtemp)));
+}
+
+void CalculateHudScale(int width, int height, bool isForcedScale) {
+	int hud_scale = GetCVar("hud_scale");
+	Log(s:"hud cvar: ", d:hud_scale);
+	if(hud_scale < 0 || isForcedScale) {
+		HudScale.x = 1.0;
+		HudScale.y = 1.0;
+		return;
+	}
+		
+	int scale = GetUIScale(hud_scale, width, height);
+	scale = max(1.0, 320.0 * scale / height);
+		
+	HudScale.x = scale;
+	HudScale.y = FixedMul(scale, GetCVar("hud_aspectscale") ? 1.2 : 1.0);
+}*/
 
 #define HUD_DII_MULT 14
 #define MAXINVENTORYBLOCKS_HORIZ 5 // from top to bottom, 5 heights
@@ -903,6 +938,7 @@ Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
 	int hdisp, fdisp;
 	int draw_id = MONSTER_BARFILLID;
 	while(DungeonBossData[BOSSDATA_TID]) {
+		// get health percentage of boss and map it to a range of 0-450 from 0-100 instead
 		hdisp = (DungeonBossData[BOSSDATA_HP] * 100 / MonsterProperties[m_id].maxhp);
 		if(hdisp > 100)
 			hdisp = 100;

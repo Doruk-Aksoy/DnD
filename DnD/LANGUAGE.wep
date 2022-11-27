@@ -207,7 +207,7 @@ WEPTIP_5_12 	= "Sends irradiating energy balls dealing 75-100 damage on impact a
 	 
 WEPTIP_6_0 		= "Best friend of the trigger happy. Can be \cdreplaced.";
 WEPTIP_6_1 		= "Improved with a nuclear reactor, does 36 - 60 on hit and 10 - 30 explosion damage in a 48 unit radius. Can \cgoverheat\c-. Does self damage.";
-WEPTIP_6_2 		= "Particle Cannon fires highly ionized particles doing 125 damage ripping through everything. Continuous fire is less accurate and does 80 damage. Has a range of 768 units. Altfire fires focused shots.";
+WEPTIP_6_2 		= "Particle Cannon fires highly ionized particles doing 80 damage ripping through everything. Continuous fire is less accurate and does less damage to subsequent enemies. Has a range of 1024 units. Altfire fires focused shots with no damage penalty that go up to 1576 units for 135 damage.";
 WEPTIP_6_3 		= "Launches 5 ice shards doing 15 - 30 damage in a 7.5 by 7.5 spread. Alt fire launches a glacial orb launching ice shards all around with itself doing 6-9 damage and rips through enemies. Can't hit \cughosts.";
 WEPTIP_6_4 		= "Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.";
 WEPTIP_6_5 		= "UAC offers this shockingly deadly weapon that can shoot lightning doing 9-12 damage. Alt fire shoots forked lightning. Keep firing and da- mage increases by 4% per stack. Stacks additively.";

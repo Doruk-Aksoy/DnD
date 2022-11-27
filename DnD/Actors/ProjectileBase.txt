@@ -50,6 +50,9 @@ Actor DnD_BasePuff {
 	+NOGRAVITY
 	Height 1
 	Radius 1
+	
+	var int user_hitcount;
+	
 	States {
 		Spawn:
 			TNT1 AAAA 0
@@ -85,6 +88,9 @@ Actor DnD_BaseRailPuff {
 	+HITTRACER
 	+MTHRUSPECIES
 	+NOGRAVITY
+	
+	var int user_hitcount;
+	
 	States {
 		Spawn:
 			TNT1 AAAA 0
@@ -105,12 +111,31 @@ Actor DnD_BaseRailPuff {
 	}
 }
 
+Actor DnD_DataDummy {
+	PROJECTILE
+	Height 1
+	Radius 1
+	var int user_hitcount;
+	+NOINTERACTION
+	+NOCLIP
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 0 A_TakeFromTarget("DnD_DummySpawned", 1)
+		Stop
+	}
+}
+
+Actor DnD_DummySpawned : DnD_Boolean { }
+
 Actor DnD_BaseProjectile {
 	PROJECTILE
 	+HITTRACER
 	+MTHRUSPECIES
 	+DONTBLAST
 	Damage 0
+	
+	var int user_hitcount;
 	
 	States {
 		Spawn:
@@ -137,6 +162,9 @@ Actor DnD_BaseFastProjectile : FastProjectile {
 	+MTHRUSPECIES
 	+DONTBLAST
 	Damage 0
+	
+	var int user_hitcount;
+	
 	States {
 		Spawn:
 			TNT1 A 0

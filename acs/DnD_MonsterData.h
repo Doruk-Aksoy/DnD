@@ -773,13 +773,37 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 	return lvl * lvl / 200 + lvl / 2;
 }
 
+int GetMonsterRarityDroprateBonus(int rarity) {
+	switch(rarity) {
+		case DND_MWEIGHT_COMMON:
+		return 0;
+		
+		case DND_MWEIGHT_UNCOMMON:
+		return 1;
+		
+		case DND_MWEIGHT_RARE1:
+		return 2;
+		
+		case DND_MWEIGHT_RARE2:
+		return 3;
+		
+		case DND_MWEIGHT_VERYRARE:
+		return 4;
+		
+		case DND_MWEIGHT_EPIC:
+		return 5;
+	}
+	return 1;
+}
+
 /* 
 	Multiply the bonus with 1000 / rarity of monster to get a percentage
 	This is a linear, simple bonus added on top just because of the rarity of the monster. While rarity is important, the level matters more. However early on it should have a tiny impact still.
 */
-#define DND_DROPBONUS_FROM_RARITY 20 
+#define DND_DROPBONUS_FROM_RARITY 15
+#define DND_ELITEBONUS_FROM_RARITY 50
 int GetMonsterDropBonus(int drop_base, int level, int rarity, bool isElite) {
-	return drop_base * (GetMonsterLevelDroprateBonus(level) + 50 * isElite + (DND_DROPBONUS_FROM_RARITY * DND_MWEIGHT_COMMON) / rarity) / 100;
+	return drop_base * (100 + GetMonsterLevelDroprateBonus(level) + DND_ELITEBONUS_FROM_RARITY * isElite + DND_DROPBONUS_FROM_RARITY * GetMonsterRarityDroprateBonus(rarity)) / 100;
 }
 
 // you gain the returned value for exp, and third of that for credits -- rarity is monster rarity not item related rarity!

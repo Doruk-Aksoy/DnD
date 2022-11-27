@@ -8,6 +8,9 @@
 #define MAX_RIPPERS_ACTIVE 256
 #define MAX_RIPPER_HITS_STORED 128
 
+#define DND_MAX_DAMAGELOSEHITS 7 // we let maximum of 70% reduction, so you'll do min 30%
+#define DND_DAMAGELOST_PERCENT 10 // 10%
+
 #define DND_HARDCORE_DEBUFF 15 // 15% more damage taken
 
 #define DND_BASE_POISON_FACTOR 2
@@ -183,7 +186,8 @@ enum {
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
 	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b1000000000000000000,
 	DND_DAMAGEFLAG_SOULATTACK			=			0b10000000000000000000,
-	DND_DAMAGEFLAG_FOILINVUL			=			0b100000000000000000000,
+	DND_DAMAGEFLAG_LOSEDAMAGEPERHIT		=			0b100000000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b1000000000000000000000,
 };
 
 enum {
@@ -1683,6 +1687,32 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	}
 }
 
+// we check with if statement here now just in case we add more flags in the future, the check below is to ensure we bypass script execution
+Script "DnD Adjust Impact Damage" (int flags, int dmg, int owner) {
+	if(flags & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT) {
+		int dummy_tid = TEMPORARY_DATADUMMY_TID + owner - P_TIDSTART;
+		if(!CheckActorInventory(owner, "DnD_DummySpawned")) {
+			//printbold(s:"make dummy");
+			GiveActorInventory(owner, "DnD_DummySpawned", 1);
+			SpawnForced("DnD_DataDummy", 0, 0, 0, dummy_tid);
+			SetActivator(dummy_tid);
+			SetPointer(AAPTR_TARGET, owner);
+		}
+		
+		int hitcount = GetUserVariable(dummy_tid, "user_hitcount");
+		if(hitcount != DND_MAX_DAMAGELOSEHITS) {
+			dmg = dmg * (100 - DND_DAMAGELOST_PERCENT * hitcount) / 100;
+			if(dmg < 1)
+				dmg = 1;
+			
+			++hitcount;
+			SetUserVariable(dummy_tid, "user_hitcount", hitcount);
+			//printbold(s:"hitc ", d:hitcount);
+		}
+	}
+	SetResultValue(dmg);
+}
+
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int victim = GetActorProperty(0, APROP_TRACERTID);
@@ -1696,8 +1726,13 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 		SetActivator(owner);
 		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
 	}
-	else
+	else {
+		if(flags & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT)
+			dmg = ACS_NamedExecuteWithResult("DnD Adjust Impact Damage", flags, dmg, owner);
+	
+		// do the previous damage here because this'll be the initial hit, subsequent hits will follow the new damage
 		HandleImpactDamage(owner, victim, dmg, damage_type, flags, wepid);
+	}
 		
 	HandleOnHitEffects(owner);
 	

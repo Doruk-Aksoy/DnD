@@ -1470,6 +1470,13 @@ Actor ReiverGhost : DnD_ArchVileBase {
 		MissileLoop:
 			WRTH G 6 Fast A_SkullAttack(30)
 			WRTH G 2 Fast
+			WRTH G 6 Fast A_SkullAttack(30)
+			WRTH G 2 Fast
+			WRTH G 6 Fast A_SkullAttack(30)
+			WRTH G 2 Fast
+			WRTH G 6 Fast A_SkullAttack(30)
+		RealMissileLoop:
+			WRTH G 2 Fast
 		Loop
 		HealState:
 			TNT1 A 0 A_SpawnItemEx("ResurrectionFlame",16,0,floorz,0,0,0,32,0)

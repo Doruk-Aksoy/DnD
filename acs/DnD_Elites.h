@@ -187,6 +187,7 @@ void SetEliteFlag(int f, bool updateCS) {
 			GiveInventory("Cripple_Script_Run", 1);
 		break;
 	}
+	
 	MonsterProperties[this].trait_list[f] = true;
 	
 	// sync to client too
