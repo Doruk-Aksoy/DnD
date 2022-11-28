@@ -2759,7 +2759,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 int GetResearchDropRate(int pnum, int res_id) {
 	int temp = ResearchInvestments[pnum][res_id];
 	if(temp)
-		return temp * 1.0;
+		return temp * 2.0;
 	return 1.0 / MAX_RESEARCHES;
 }
 

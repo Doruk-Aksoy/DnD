@@ -779,6 +779,7 @@ int Calculate_Perks() {
 	return res;
 }
 
+// this is the generic drop chance factor
 int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
@@ -802,6 +803,7 @@ bool RunDefaultDropChance(int pnum, int basechance) {
 }
 
 bool RunDropChance(int pnum, int basechance, int low, int high) {
+	//printbold(s:"dc ", f:GetDropChance(pnum), s: " x ", f:basechance, s: " = ", f:FixedMul(GetDropChance(pnum), basechance));
 	return FixedMul(GetDropChance(pnum), basechance) >= random(low, high);
 }
 

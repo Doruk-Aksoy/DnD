@@ -456,6 +456,11 @@ Script "DnD Weapon Input Handler" (int wepid) {
 
 // blend scripts, for some reason they seem to be running twice...
 Script "DnD Get Pain Alpha" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber()) {
+		SetResultValue(0);
+		Terminate;
+	}
+
 	int dmg_received = CheckInventory("DnD_DamageFade");
 	if(CheckInventory("SynthMaskToken"))
 		dmg_received /= DND_SYNTHMASK_EFFECT;
@@ -466,7 +471,7 @@ Script "DnD Get Pain Alpha" (void) CLIENTSIDE {
 	if(!cap)
 		cap = GetSpawnHealth();
 	// return min 10% of alpha at any damage regardless, it looks too weak to notice otherwise
-	dmg_received = Min(DND_PAINBLEND_MAXALPHA, 10 + dmg_received * 100 / cap);
+	dmg_received = Min(DND_PAINBLEND_MAXALPHA, 15 + dmg_received * 100 / cap);
 	
 	SetResultValue(dmg_received);
 }
@@ -3170,20 +3175,18 @@ Script 992 (int t, int simple) {
 }
 
 Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
+	int cpnum = ConsolePlayerNumber();
+
+	if(cpnum != PlayerNumber())
+		Terminate;
+
 	int status = GetCVar("dnd_dashstatus");
 	NamedRequestScriptPuke("DnD User CVAR Status Receive", status);
 	
-	int class_id = GetUserCVar(ConsolePlayerNumber(), "dnd_playerclass");
+	int class_id = GetUserCVar(cpnum, "dnd_playerclass");
 	
 	if(GameType() != GAME_SINGLE_PLAYER)
-		NamedRequestScriptPuke("DnD Set Class", class_id);
-		
-	// this is to sync clients between each other
-	bool notSet = CheckInventory("DnD_Character") != class_id + 1;
-	SetInventory("DnD_Character", class_id + 1);
-	
-	if(notSet)
-		SetActorState(0, "Spawn");
+		NamedRequestScriptPuke("DnD Set Class", class_id, cpnum);
 
 	ResetPlayerScriptChecks();
 

@@ -146,7 +146,7 @@ WEPTIP_0_6 		= "Does 100 - 400 damage per swing depending on how long you hold. 
 WEPTIP_0_7 		= "Sickle steals life from enemies on hit. Does 40 - 60 damage 3 times. Alt fire swings for irreducable 75 - 90 damage 3 times. Altfire requires Melee Expertise ability.";
 	 
 WEPTIP_1_0 		= "Your trustworthy Colt45, been with you since the start. Does 15 damage in a 0.5 spread. Can be \cdreplaced.";
-WEPTIP_1_1 		= "Akimbo longslides. Does 35 damage per shot in a 3.5 by 2.5 spread.";
+WEPTIP_1_1 		= "Akimbo longslides. Does 30 damage per shot firing silver bullets in a 3.5 by 2.5 spread.";
 WEPTIP_1_2 		= "Magnum is a true classic, shooting bullets each doing 150 - 225 damage. Has a capacity of 6. 50 damage from bullet rip through enemies.";
 WEPTIP_1_3 		= "Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo.";
 WEPTIP_1_4 		= "Assault Rifle does 30 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.";
@@ -156,7 +156,7 @@ WEPTIP_1_7 		= "Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pelle
 	 
 WEPTIP_2_0 		= "Typical boomstick, now spreads vertically too. 10 pellets, each doing 10-15 damage. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.";
 WEPTIP_2_1 		= "The purifier shotgun, spreads with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads.";
-WEPTIP_2_2 		= "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 7.2 by 5.2 spread. Alt fire reloads.";
+WEPTIP_2_2 		= "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 9.6 by 7.2 spread.";
 WEPTIP_2_3 		= "Fires 5 blasts doing 15 damage in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, releasing an acid rain, doing 8-32 damage each. Can't hit \cughosts\c-. Victims explode on death doing 50 damage in 96 unit radius.";
 WEPTIP_2_4 		= "Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.";
 WEPTIP_2_5 		= "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.";
@@ -177,7 +177,7 @@ WEPTIP_3_9 		= "Slayer creates 6 blades each doing 10 damage and rip through. Al
 	 
 WEPTIP_4_0 		= "An accurate and a very reliable weapon. Each bullet does 15-20 damage. Alt fire reloads. Clip size is 50. Can be \cdreplaced\c-. Can use \cialternate\c- ammo."; 
 WEPTIP_4_1 		= "Finest machine guns UAC has to offer. Bullets do 25 damage in a 1.6 by 0.8 spread. Clip size is 60. Can zoom.";
-WEPTIP_4_2 		= "Lead Spitter is a super sonic bullet shooter shooting 2 bullets doing 18 damage in a 6.4 by 4.8 spread. Clip size is 75.";
+WEPTIP_4_2 		= "Lead Spitter is a super sonic bullet shooter shooting 2 bullets doing 16 damage in a 7.2 by 5.2 spread. Clip size is 75.";
 WEPTIP_4_3 		= "Japanese technology brings the finest demon hunting tool. Shoots magic cards that deal 18 damage, reduce monster damage and resistance by 50%. Altfire places Kanji Traps that deal 150 damage in 144 unit radius. If the monster is below 15% health, culls the monster.";
 WEPTIP_4_4 		= "Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spread. Bullets deal x3 damage to undead and magical enemies. Clip size of 40. Can use \cigrenades\c-.";
 WEPTIP_4_5 		= "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Can use \cialternate\c- ammo. Reload when full to use other ammo.";

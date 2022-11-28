@@ -86,52 +86,52 @@ int GetMonsterClassBonus(int class) {
 		return 10 | (10 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 15 | (15 << 16);
+		return 15 | (18 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 24 | (20 << 16);
+		return 24 | (24 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 32 | (25 << 16);
+		return 32 | (30 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 35 | (25 << 16);
+		return 35 | (30 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 20 | (15 << 16);
+		return 20 | (20 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 75 | (40 << 16);
+		return 75 | (45 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 90 | (40 << 16);
+		return 90 | (50 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 40 | (15 << 16);
+		return 40 | (18 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 55 | (20 << 16);
+		return 55 | (30 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 80 | (35 << 16);
+		return 80 | (40 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 135 | (50 << 16);
+		return 135 | (60 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 130 | (60 << 16);
+		return 130 | (72 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 120 | (60 << 16);
+		return 120 | (72 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 150 | (75 << 16);
+		return 150 | (85 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
 		return 1000 | (100 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1750 | (100 << 16);
+		return 1750 | (110 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
 		return 15 | (10 << 16);
@@ -769,8 +769,12 @@ enum {
 #define DND_CREDITGAIN_FACTOR 3 // divides the regular gain by 3
 
 int GetMonsterLevelDroprateBonus(int lvl) {
-	// this is a curve that dictates how much of the base bonus drop chance of the monster's class we should include
-	return lvl * lvl / 200 + lvl / 2;
+	// piecewise function so the early 25 levels increase sharper, then mid 25 are slower and the later 25 are a bit sharper again
+	if(lvl <= 25)
+		return 3 * lvl;
+	else if(lvl <= 50)
+		return lvl * lvl / 150 + 2 * lvl + 21;
+	return lvl * lvl / 66 + 99;
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {
@@ -800,7 +804,7 @@ int GetMonsterRarityDroprateBonus(int rarity) {
 	Multiply the bonus with 1000 / rarity of monster to get a percentage
 	This is a linear, simple bonus added on top just because of the rarity of the monster. While rarity is important, the level matters more. However early on it should have a tiny impact still.
 */
-#define DND_DROPBONUS_FROM_RARITY 15
+#define DND_DROPBONUS_FROM_RARITY 20
 #define DND_ELITEBONUS_FROM_RARITY 50
 int GetMonsterDropBonus(int drop_base, int level, int rarity, bool isElite) {
 	return drop_base * (100 + GetMonsterLevelDroprateBonus(level) + DND_ELITEBONUS_FROM_RARITY * isElite + DND_DROPBONUS_FROM_RARITY * GetMonsterRarityDroprateBonus(rarity)) / 100;

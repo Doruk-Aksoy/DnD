@@ -605,7 +605,7 @@ ACTOR DNBFGBall : DnD_BaseProjectile {
 	Height 16
 	Speed 40
 	Decal BFGLightning
-	ReactionTime 6
+	ReactionTime 8
 	+FORCERADIUSDMG
 	+FOILINVUL
 	+NODAMAGETHRUST
@@ -702,7 +702,7 @@ Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_MFG << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSUPER | DND_ISSLOT7) / 2)
 			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 3 * user_expradius / 4)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_MFG << 16))
 		ExplosionLoop:
 			TNT1 A 0

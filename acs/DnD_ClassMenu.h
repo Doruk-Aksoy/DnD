@@ -159,12 +159,27 @@ Script "DnD Class Select" (int isSinglePlayer) NET CLIENTSIDE {
 		NamedRequestScriptPuke("DnD Set Class", GetCVar("dnd_playerclass"), -1, -1);
 }
 
-Script "DnD Set Class" (int class_id) NET {
-	bool notSet = CheckInventory("DnD_Character") != class_id + 1;
-	SetInventory("DnD_Character", class_id + 1);
+Script "DnD Set Class" (int class_id, int cpnum) NET {
+	if(cpnum == -1)
+		cpnum = 0;
+		
+	while(!ActivatorTID())
+		Delay(const:1);
+		
+	int tid = ActivatorTID();
+
+	bool notSet = CheckActorInventory(tid, "DnD_Character") != class_id + 1;
+	SetActorInventory(tid, "DnD_Character", class_id + 1);
 	
 	if(notSet)
-		SetActorState(0, "Spawn");
+		SetActorState(tid, "Spawn");
+		
+	// sync this to clients
+	ACS_NamedExecuteWithResult("DnD Sync Set Class", tid, class_id, notSet);
+}
+
+Script "DnD Sync Set Class" (int tid, int class_id, int notSet) CLIENTSIDE {
+	SetActorInventory(tid, "DnD_Character", class_id + 1);
 }
 
 Script "DnD Class Select Arrow Press" (int mode) CLIENTSIDE {

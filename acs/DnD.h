@@ -1078,7 +1078,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		//SpawnToken(0, true);
 	#endif
 	
-	HandleCharmLootDrop(MonsterProperties[m_id].rarity_boost, MonsterProperties[m_id].droprate);
+	HandleCharmLootDrop(MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	
 	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
 	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(pnum, DND_DOOMGUY_DROPCHANCE)) {

@@ -1370,8 +1370,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// cull checks
 	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
 		// if self cull is in effect simply destroy it otherwise return from here
-		Thing_Damage2(victim, GetActorProperty(victim, APROP_HEALTH) * 2, s_damagetype);
 		GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
+		Thing_Damage2(victim, GetActorProperty(victim, APROP_HEALTH) * 2, s_damagetype);
 		return;
 	}
 	
