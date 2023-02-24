@@ -168,7 +168,7 @@ WEPTIP_3_1 		= "Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 b
 WEPTIP_3_2 		= "Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.";
 WEPTIP_3_3 		= "Shoots a missile and 3 mini missiles. Missile does 75, mini missiles do 30 and explode for 25 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter. If it hits an object, explodes for 45 in 64 unit radius. Altfire fires the other side.";
 WEPTIP_3_4 		= "Fires 12 plasma balls in a circular fashion each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.";
-WEPTIP_3_5 		= "Shoots 18 shells each doing 15 damage and forcing pain. Overheats when used. Altfire releases a portion of it with the attack, dealing 192-240 damage in 108 unit radius. \cfIgnores shields.";
+WEPTIP_3_5 		= "Shoots 18 shells each doing 18 damage and forcing pain. Overheats when used. Altfire releases a portion of it with the attack, dealing 240-300 damage in 108 unit radius. \cfIgnores shields.";
 WEPTIP_3_6 		= "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.";
 WEPTIP_3_7 		= "Fires silver bolts dealing 400 damage. Altfire increases tension, allowing shots to rip and gain 50% more damage per increase. Magical or undead enemies hit causes a 200 damage explosion in 128 unit radius.";
 	 
@@ -220,7 +220,7 @@ WEPTIP_6_10 	= "Basilisk is said to be the ancient weapon of hell's most elite w
 	 
 WEPTIP_7_0 		= "BFG 6000, an older model but still capable. Can be \cdreplaced. \cfIgnores shields.";
 WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on impact and 224 damage in a 160 unit radius.";
-WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 32 radius damage in 96 units.";
+WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 64 radius damage in 96 units. Altfire charges up a barrage over 1.5 seconds to fire for a second up to 60 missiles that \cucannot be reflected.\c- Barrage slows user by 66%.";
 WEPTIP_7_3 		= "Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields\c- and has limited range.";
 WEPTIP_7_4 		= "Fires ionized energy doing 125 impact and 160 area damage in 160 unit radius, halving over two more explosions in both radius and damage.";
 WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 100 damage in 420 units. On impact deals 250-500 and 250 radius damage in 96 units. Altfire zaps all enemies in range for 750 damage, \cfignoring shields.";

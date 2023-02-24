@@ -11,9 +11,11 @@ enum {
 	ARTI_BOOK,
 	ARTI_ALLMAP,
 	ARTI_NEWBACKPACK,
-	ARTI_STATRESET
+	ARTI_STATRESET,
+	ARTI_RADSUIT
 };
-#define MAXARTIFACTS (ARTI_STATRESET + 1)
+#define MAXARTIFACTS_PERPAGE 10
+#define MAXARTIFACTS (ARTI_RADSUIT + 1)
 
 #define ARTI_ICON 0
 #define ARTI_NAME 1
@@ -25,9 +27,10 @@ str ArtifactInfo[MAXARTIFACTS][2] = {
 	{ "DMGICO",			    "TripleDamage"			},
 	{ "SHRUA0",			    "BladeVortex"			},
 	{ "BOTDICO",		    "BookOfTheDead"		    },
-	{ "PMAPA0",			    "AllMapOnlyOnce"		},
+	{ "PMAPA0",			    "AllMapGiver"			},
 	{ "BPAKA0",			    "NewBackPack"			},
-	{ "RESETICO",           "StatReset"             }
+	{ "RESETICO",           "StatReset"             },
+	{ "RADSICO",			"Radsuit_Portable"		}
 };
 
 #endif

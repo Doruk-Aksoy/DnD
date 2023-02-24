@@ -18,6 +18,8 @@ server noarchive int dnd_exit_timer = 20; // 20 seconds of scoreboard showing or
 
 server noarchive int dnd_loadtime = 10; // 10 seconds base loadtime for soft/hardcore modes
 
+server noarchive int dnd_budget_reward = 3; // base budget reward for beating a map
+
 server noarchive bool dnd_test = false;
 server noarchive bool dnd_monsterbars = true;
 server noarchive bool dnd_monsterscale = true;

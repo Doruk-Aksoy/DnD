@@ -248,7 +248,7 @@ void SavePlayerData(int pnum, int char_id) {
 	// save weapons
 	for(i = 0; i < MAXWEPS; ++i) {
 		j = i / 32;
-		if(CheckActorInventory(tid, Weapons_Data[i][WEAPON_NAME])) {
+		if(CheckActorInventory(tid, Weapons_Data[i].name)) {
 			temp = SetBit(temp, i - 32 * j);
 		}
 		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed or we hit maxweps
@@ -837,7 +837,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	for(i = 0; i < MAXWEPS; ++i) {
 		j = i / 32;
 		if(IsSet(temp, i - 32 * j)) {
-			GiveInventory(Weapons_Data[i][WEAPON_NAME], 1);
+			GiveInventory(Weapons_Data[i].name, 1);
 		}
 		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed
 			// update bitset

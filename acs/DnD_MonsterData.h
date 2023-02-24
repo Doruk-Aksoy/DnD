@@ -10,8 +10,13 @@
 // note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
 // so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
 int GetMonsterHPScaling(int m_id, int level) {
-	// new formula: x^2 * 0.33 + 5x, where x is level - 1.
-	int res = (33 * level * level) / 100 + 5 * level;
+	// new formula: x^2 * 0.33 + 5x, when x >= 25, where x is level - 1.
+	// else 0.125 x^2 + 0.21 x, when x < 25, which allows for much slower scaling at <25
+	int res = 0;
+	if(level < 25)
+		res = 5 * level * level / 4 + 21 * level / 10;
+	else
+		res = (33 * level * level) / 100 + 5 * level;
 	
 	// big bosses have higher scaling than other monsters -- since we reach much higher values than before I decided to go ahead and reduce the big boss scaling here
 	if(IsUniqueBossMonster(m_id))
@@ -83,13 +88,13 @@ enum {
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 10 | (10 << 16);
+		return 10 | (15 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 15 | (18 << 16);
+		return 15 | (20 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 24 | (24 << 16);
+		return 24 | (28 << 16);
 		
 		case MONSTERCLASS_DEMON:
 		return 32 | (30 << 16);
@@ -98,25 +103,25 @@ int GetMonsterClassBonus(int class) {
 		return 35 | (30 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 20 | (20 << 16);
+		return 20 | (25 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 75 | (45 << 16);
+		return 75 | (48 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 90 | (50 << 16);
+		return 90 | (56 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 40 | (18 << 16);
+		return 40 | (20 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 55 | (30 << 16);
+		return 55 | (36 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 80 | (40 << 16);
+		return 80 | (48 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 135 | (60 << 16);
+		return 135 | (72 << 16);
 		
 		case MONSTERCLASS_FATSO:
 		return 130 | (72 << 16);
@@ -125,16 +130,16 @@ int GetMonsterClassBonus(int class) {
 		return 120 | (72 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 150 | (85 << 16);
+		return 150 | (90 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 1000 | (100 << 16);
+		return 1000 | (115 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1750 | (110 << 16);
+		return 1750 | (125 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
-		return 15 | (10 << 16);
+		return 15 | (15 << 16);
 	}
 	
 	return 1;
@@ -771,10 +776,10 @@ enum {
 int GetMonsterLevelDroprateBonus(int lvl) {
 	// piecewise function so the early 25 levels increase sharper, then mid 25 are slower and the later 25 are a bit sharper again
 	if(lvl <= 25)
-		return 3 * lvl;
+		return 4 * lvl;
 	else if(lvl <= 50)
-		return lvl * lvl / 150 + 2 * lvl + 21;
-	return lvl * lvl / 66 + 99;
+		return lvl * lvl / 100 + 3 * lvl + 19;
+	return lvl * lvl / 150 + 184;
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {
@@ -807,7 +812,9 @@ int GetMonsterRarityDroprateBonus(int rarity) {
 #define DND_DROPBONUS_FROM_RARITY 20
 #define DND_ELITEBONUS_FROM_RARITY 50
 int GetMonsterDropBonus(int drop_base, int level, int rarity, bool isElite) {
-	return drop_base * (100 + GetMonsterLevelDroprateBonus(level) + DND_ELITEBONUS_FROM_RARITY * isElite + DND_DROPBONUS_FROM_RARITY * GetMonsterRarityDroprateBonus(rarity)) / 100;
+	// first a 50% from elites as a multiplicative bonus, then the rest
+	return 	(drop_base * (100 + DND_ELITEBONUS_FROM_RARITY * isElite) / 100) * 
+			(100 + GetMonsterLevelDroprateBonus(level) + DND_DROPBONUS_FROM_RARITY * GetMonsterRarityDroprateBonus(rarity)) / 100;
 }
 
 // you gain the returned value for exp, and third of that for credits -- rarity is monster rarity not item related rarity!

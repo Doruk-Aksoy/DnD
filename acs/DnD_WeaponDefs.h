@@ -4,6 +4,8 @@
 #include "DnD_Common.h"
 #include "DnD_WeaponMods.h"
 
+int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
+
 enum {
 	DND_WEAPON_FIST,
 	DND_WEAPON_CHAINSAW,
@@ -226,5 +228,7 @@ int WeaponMagazineCaps[MAX_MAGAZINES] = {
 	3,
 	75
 };
+
+#include "DnD_TempWeps.h"
 
 #endif

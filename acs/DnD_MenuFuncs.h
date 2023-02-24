@@ -166,7 +166,7 @@ int GetItemFlags(int itemid) {
 		case TYPE_AMMO:
 		return AmmoDrawInfo[itemid - SHOP_FIRSTAMMO_INDEX].flags;
 		case TYPE_ARTI:
-		return ArtifactDrawInfo[itemid - SHOP_FIRSTARTI_INDEX].flags;
+		return ArtifactDrawInfo[itemid - SHOP_FIRSTARTI1_INDEX].flags;
 		case TYPE_ABILITY:
 		return AbilityDrawInfo[itemid - SHOP_ABILITY1_BEGIN].flags;
 		case TYPE_ACCOUNT:
@@ -372,26 +372,26 @@ str GetWeaponToTake(int wepid) {
 	int slot = GetGameSlotOfWeapon(real_id);
 	if(slot != 8 && !IsLuxuryWeapon(real_id)) {
 		if(wepid >= SHOP_WEAPON1CSAW_BEGIN && wepid <= SHOP_WEAPON1CSAW_END)
-			return Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_CHAINSAW].name;
 		else if(wepid >= SHOP_WEAPON2PISTOL_BEGIN && wepid <= SHOP_WEAPON2PISTOL_END)
-			return Weapons_Data[DND_WEAPON_PISTOL][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_PISTOL].name;
 		else if(wepid >= SHOP_WEAPON3SG_BEGIN && wepid <= SHOP_WEAPON3SG_END) {
 			// little hack here to fix special ammos after refunding weapon
 			SetInventory("SpecialAmmoMode_3", AMMO_BASICSHELL);
-			return Weapons_Data[DND_WEAPON_SHOTGUN][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_SHOTGUN].name;
 		}
 		else if(wepid >= SHOP_WEAPON3SSG_BEGIN && wepid <= SHOP_WEAPON3SSG_END)
-			return Weapons_Data[DND_WEAPON_SUPERSHOTGUN][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_SUPERSHOTGUN].name;
 		else if(wepid >= SHOP_WEAPON4CG_BEGIN && wepid <= SHOP_WEAPON4CG_END) {
 			SetInventory("SpecialAmmoMode_4", AMMO_BULLET);
-			return Weapons_Data[DND_WEAPON_MACHINEGUN][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_MACHINEGUN].name;
 		}
 		else if(wepid >= SHOP_WEAPON5RL_BEGIN && wepid <= SHOP_WEAPON5RL_END)
-			return Weapons_Data[DND_WEAPON_ROCKETLAUNCHER][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].name;
 		else if(wepid >= SHOP_WEAPON6PL_BEGIN && wepid <= SHOP_WEAPON6PL_END)
-			return Weapons_Data[DND_WEAPON_PLASMARIFLE][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_PLASMARIFLE].name;
 		else if(wepid >= SHOP_WEAPON7BFG_BEGIN && wepid <= SHOP_WEAPON7BFG_END)
-			return Weapons_Data[DND_WEAPON_BFG6000][WEAPON_NAME];
+			return Weapons_Data[DND_WEAPON_BFG6000].name;
 	}
 	return "";
 }
@@ -406,7 +406,7 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 	if(CheckItemRequirements(wid, RES_KNOWN, WeaponDrawInfo[wid - SHOP_WEAPON_BEGIN].flags)) {
 		SetHudSize(HUDMAX_X * 2, HUDMAX_Y * 2, 1);
 		for(int i = 0; i < MAX_WEAPON_PROPERTIES; ++i) {
-			if(IsSet(WeaponProperties[real_wid], i)) {
+			if(IsSet(Weapons_Data[real_wid].properties, i)) {
 				SetFont(WeaponPropertyImages[i]);
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID - i - 1, -1, -64.0 + (imgcount & 1) * 64.0, -160.0 + ypos * 8.0 + (imgcount / 2) * 40.0, 0.0, 0.0);
 				++imgcount;
@@ -614,7 +614,7 @@ void ClearInfoPanel() {
 
 void ShowWeaponIcon(int wep, int i, int k) {
 	SetHudSize(640, 480, 1);
-	SetFont(Weapons_Data[wep][WEAPON_ICON]);
+	SetFont(Weapons_Data[wep].icon);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 5, CR_WHITE, 280.1, 126.1 + 72.0 * i + 24.0 * k + 6.0 * ScrollPos.x, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -681,7 +681,7 @@ void ShowBobby() {
 
 str GetWeaponShopIcon(int id) {
 	id = ShopTableIdToWeaponTableId(id);
-	return Weapons_Data[id][WEAPON_ICON];
+	return Weapons_Data[id].icon;
 }
 
 str GetWeaponExplanation(int id) {
@@ -781,7 +781,7 @@ int CanTrade (int id, int tradeflag, int price) {
 	type = GetItemType(id);
 	
 	if(type == TYPE_ARTI)
-		item = ArtifactInfo[id - SHOP_FIRSTARTI_INDEX][ARTI_NAME]; // put it in the artifact info range
+		item = ArtifactInfo[id - SHOP_FIRSTARTI1_INDEX][ARTI_NAME]; // put it in the artifact info range
 	else if(type == TYPE_ARMOR)
 		item = "ArmorAmount";
 	else {
@@ -916,7 +916,7 @@ void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 	else if(objflag & OBJ_ABILITY)
 		tag = GetAbilityTag(id - SHOP_ABILITY1_BEGIN);
 	else if(objflag & OBJ_ARTI)
-		tag = GetArtifactTag(id - SHOP_FIRSTARTI_INDEX);
+		tag = GetArtifactTag(id - SHOP_FIRSTARTI1_INDEX);
 	else if(objflag & OBJ_ARMOR)
 		tag = GetArmorTag(id - SHOP_FIRSTARMOR_INDEX);
 	else if(objflag & OBJ_ACCOUNT)
@@ -987,7 +987,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 					} // if I have options color others
 					else if( (!(CheckInventory("Berserker_Perk5") && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
 							 (itemid == SHOP_ARTI_BACKPACK && IsBackpackLimitReached()) ||
-							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX))
+							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI1_INDEX))
 						   ) 
 					{
 						// if has choice and count met or this is a backpack and limit reached on it (backpack limit has to be checked dynamically due to classic backpack cvar)
@@ -1051,11 +1051,11 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			}
 			else if(objectflag & OBJ_ARTI) {
 				SetHudClipRect(192, 224, 256, 64, 256);
-				HudMessage(s:"\cd*\c- ", l:GetArtifactText(curposy); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
+				HudMessage(s:"\cd*\c- ", l:GetArtifactText(itemid - SHOP_FIRSTARTI1_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
 				// update corner panel info
-				DrawArtifactIconCorner(curposy);
+				DrawArtifactIconCorner(itemid - SHOP_FIRSTARTI1_INDEX);
 			}
 			else if(objectflag & OBJ_ARMOR) {
 				SetHudClipRect(192, 216, 256, 64, 256);
@@ -1261,7 +1261,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 							}
 						}
 						if(tradeflag & TRADE_ARTIFACT)
-							SetInventory("DnD_Artifact_MapBits", SetBit(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI_INDEX));
+							SetInventory("DnD_Artifact_MapBits", SetBit(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI1_INDEX));
 						--ShopStockRemaining[pnum][itemid];
 					}
 				} while (givefull && !buystatus);
@@ -2003,7 +2003,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ -1, -1, -1, -1 }
 		},
-		// artifact shop
+		// artifact shop - 1
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
@@ -2015,6 +2015,11 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ 289.0, 117.0, 120.0, 111.0 }, // w9
 			{ 289.0, 101.0, 104.0, 95.0 }, // w10
+			{ -1, -1, -1, -1 }
+		},
+		// artifact shop - 2
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ -1, -1, -1, -1 }
 		},
 		// armor 1
@@ -3984,14 +3989,14 @@ void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 		}
 		// first count over the weapons we must skip
 		for(i = 0; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES * page; ++i)
-			if(CheckInventory(Weapons_Data[i][WEAPON_NAME]))
+			if(CheckInventory(Weapons_Data[i].name))
 				++j;
 		//if(j)
 		//	++i;
 		j = 0;
 		// i will count onwards from here
 		for(; i < MAXWEPS && j < MAX_CRAFTING_ITEMBOXES && j < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
-			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
+			if(CheckInventory(Weapons_Data[i].name)) {
 				if(boxid - 1 == j) {
 					//Log(s:"update item boxlit ", d:i);
 					UpdateCursorHoverData(i, 0, DND_ITEM_WEAPON, pnum);
@@ -4009,7 +4014,7 @@ void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 				else
 					SetFont("CRFBX_N");
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
-				SetFont(Weapons_Data[i][WEAPON_ICON]);
+				SetFont(Weapons_Data[i].icon);
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * j, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (j % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (j / 4), 0.0, 0.0);
 				++j;
 			}
@@ -4138,7 +4143,7 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	
 	// show item details -- dont draw charm icons (saves space)
 	if(item_type == DND_ITEM_WEAPON) {
-		SetFont(Weapons_Data[item_id][WEAPON_ICON]);	
+		SetFont(Weapons_Data[item_id].icon);	
 		HudMessage(s:"A"; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my, 0.0);
 	}
 	/*else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM && PlayerCursorData.itemHoveredType < UNIQUE_BEGIN) {

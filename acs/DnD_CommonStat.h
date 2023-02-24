@@ -182,11 +182,12 @@ enum {
 	PUP_POISONTICSTWICE
 };
 
-bool CheckUniquePropertyOnPlayer(int pnum, int prop) {
+// extra1 and extra2 hold additional information, for example for homing: SEEKINGMISSLE or SCREENSEEKER conditions
+bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 = 0) {
 	switch(prop) {
 		// homing not reflect can come from thorax or marine's perk50 (more generic, all proj cant be reflected)
 		case PUP_HOMINGNOREFLECT:
-		return GetPlayerAttributeValue(pnum, INV_ESS_THORAX) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
+		return (GetPlayerAttributeValue(pnum, INV_ESS_THORAX) && (extra1 | extra2)) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
 		
 		// +FORCERADIUSDMG can come from vaaj or marine
 		case PUP_EXPLOSIVEIGNORERESIST:

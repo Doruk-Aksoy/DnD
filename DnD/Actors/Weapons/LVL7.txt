@@ -298,7 +298,8 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 	inventory.pickupmessage "\ccWeapon pickup: \c[Y5]Devastator 5000"
 	Weapon.SlotNumber 7
 	Weapon.SelectionOrder 500
-	Weapon.AmmoType "DevastatorAmmo"
+	Weapon.AmmoType1 "DevastatorAmmo"
+	Weapon.AmmoType2 "DevastatorAmmo"
 	+INVENTORY.UNDROPPABLE
 	Tag "$WEP_73_TAG"
 	Weapon.BobStyle InverseSmooth
@@ -306,7 +307,8 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.6
 	Weapon.AmmoGive 0
-	Weapon.AmmoUse 1
+	Weapon.AmmoUse1 1
+	Weapon.AmmoUse2 1
 	-NOAUTOFIRE
 	+WEAPON.NOAUTOAIM
 	States {
@@ -335,7 +337,7 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 			TNT1 A 0 A_GiveInventory("DevastatorTurn", 1)
 			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
 			TNT1 A 0 Radius_Quake(4,2,0,1,0)
-			TNT1 A 0 A_GiveInventory("DevastatorShooter1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEVASTATOR, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_DEVASTATOR << 16), DND_ATF_NOAMMOGAINCHECK)
 			DEVA CD 1 Bright
 			DEVA EF 2
 			DEVA A 3 A_Refire
@@ -345,10 +347,147 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 			TNT1 A 0 A_TakeInventory("DevastatorTurn", 1)
 			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
 			TNT1 A 0 Radius_Quake(4,2,0,1,0)
-			TNT1 A 0 A_GiveInventory("DevastatorShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEVASTATOR, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_DEVASTATOR << 16), DND_ATF_NOAMMOGAINCHECK)
 			DEVA HI 1 Bright
 			DEVA JK 2
 			DEVA A 3 A_Refire
+			Goto Ready
+		Altfire:
+			DEVA A 0 A_JumpIfInventory("DevastatorAmmo", 60, "GoAlt")
+		Goto FailAlt
+		GoAlt:
+			// 52 tics => 1.5 secs
+			DEVA A 1 Offset(0, 31) A_GiveInventory("DnD_DevastatorSlowGiver", 1)
+			DEVA A 1 Offset(0, 30) A_PlayWeaponSound("weapons/bigcharge")
+			DEVA A 1 Offset(0, 28)
+			DEVA A 1 Offset(0, 26)
+			DEVA A 2 Offset(0, 25)
+			DEVA A 1 Offset(0, 26)
+			DEVA A 1 Offset(0, 27)
+			DEVA A 1 Offset(0, 29)
+			DEVA A 1 Offset(0, 31)
+			DEVA A 1 Offset(0, 34)
+			DEVA A 1 Offset(0, 37)
+			DEVA A 1 Offset(0, 41)
+			DEVA A 5 Offset(0, 44)
+			// 15 so far, we need 37 for up then down then up for settle
+			DEVA A 1 Offset(0, 43)
+			DEVA A 1 Offset(0, 42)
+			DEVA A 1 Offset(0, 40)
+			DEVA A 1 Offset(0, 38)
+			DEVA A 1 Offset(0, 35)
+			DEVA A 1 Offset(0, 34)
+			DEVA A 1 Offset(0, 33)
+			DEVA A 1 Offset(0, 32)
+			DEVA A 1 Offset(0, 31)
+			DEVA A 1 Offset(0, 30)
+			DEVA A 1 Offset(0, 29)
+			DEVA A 3 Offset(0, 28)
+			DEVA A 1 Offset(0, 29)
+			DEVA A 1 Offset(0, 30)
+			DEVA A 1 Offset(0, 31) A_PlayWeaponSound("weapons/bigcharge2")
+			// 17 here, so we need 20 tics of idle shaking
+			DEVA A 1 Offset(0, 32)
+			DEVA A 1 Offset(-2, 33)
+			DEVA A 1 Offset(-3, 32)
+			DEVA A 1 Offset(1, 34)
+			DEVA A 1 Offset(0, 33)
+			DEVA A 1 Offset(2, 34)
+			DEVA A 1 Offset(-3, 32)
+			DEVA A 1 Offset(1, 32)
+			DEVA A 1 Offset(-1, 34)
+			DEVA A 1 Offset(0, 32)
+			DEVA A 1 Offset(0, 32)
+			DEVA A 1 Offset(-2, 33)
+			DEVA A 1 Offset(-3, 32)
+			DEVA A 1 Offset(1, 34)
+			DEVA A 1 Offset(0, 33)
+			DEVA A 1 Offset(2, 34)
+			DEVA A 1 Offset(-3, 32)
+			DEVA A 1 Offset(1, 32)
+			DEVA A 1 Offset(-1, 34)
+			DEVA A 1 Offset(0, 32)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
+			//--------------------
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA B 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA D 1 Bright A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA F 1 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA G 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA I 1 Bright A_GiveInventory("DevastatorShooter2_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA K 1 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			//--------------------
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA B 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA D 1 Bright A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA F 1 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA G 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA I 1 Bright A_GiveInventory("DevastatorShooter2_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA K 1 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			//--------------------
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA B 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA D 1 Bright A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA F 1 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA G 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA I 1 Bright A_GiveInventory("DevastatorShooter2_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA K 1 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			//--------------------
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA B 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA D 1 Bright A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA F 1 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA G 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA I 1 Bright A_GiveInventory("DevastatorShooter2_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA K 1 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			//--------------------
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA B 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA D 1 Bright A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			DEVA F 1 A_GiveInventory("DevastatorShooter1_Alt", 1)
+			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
+			TNT1 AAA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA G 1 Bright A_GunFlash
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA I 1 Bright A_GiveInventory("DevastatorShooter2_Alt", 1)
+			TNT1 AA 0 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			DEVA K 1 A_GiveInventory("DevastatorShooter2_Alt", 1)
+			//--------------------
+			DEVA A 5 A_WeaponReady(WRF_NOFIRE)
+			Goto Ready
+		FailAlt:
+			DEVA A 1 A_WeaponReady(WRF_NOFIRE)
 			Goto Ready
 		Flash:
 			TNT1 A 2 Bright A_Light1
@@ -361,6 +500,23 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 			DEVA Z -1
 			Stop	
 	}
+}
+
+Actor DnD_DevastatorSlowGiver : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
+			TNT1 A 0 A_GiveInventory("DnD_DevastatorSlower", 1)
+		Stop
+		NoRecoil:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor DnD_DevastatorSlower : PowerSpeed {
+	Speed 0.33
+	powerup.duration 82
 }
 
 Actor DevastatorTurn : DnD_Boolean { }
@@ -403,7 +559,15 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 	}
 }
 
+Actor DevastatorRocket_NR : DevastatorRocket {
+	+DONTREFLECT
+}
+
 Actor DevastatorRocket_GhostHitter : DevastatorRocket {
+	-THRUGHOST
+}
+
+Actor DevastatorRocket_GhostHitter_NR : DevastatorRocket_NR {
 	-THRUGHOST
 }
 
@@ -421,27 +585,8 @@ Actor DevastatorShooter1 : DnD_Activator {
 		Stop
 		
 		FireCircle:
-			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 5))
-			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "LoopStart_GhostHitter")
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket", (360.0 / Args[2]) * Args[4])
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Fire Circle", 0, DND_PROJ_DEVASTATOR | (DND_WEAPON_DEVASTATOR << 16), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), 32)
 		Stop
-		
-		LoopStart_GhostHitter:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue_GhostHitter")
-		Goto Finish
-		LoopContinue_GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_GhostHitter", (360.0 / Args[2]) * Args[4])
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart_GhostHitter
 	}
 }
 
@@ -459,27 +604,34 @@ Actor DevastatorShooter2 : DnD_Activator {
 		Stop
 		
 		FireCircle:
-			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 5))
-			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "LoopStart_GhostHitter")
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket", (360.0 / Args[2]) * Args[4])
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Fire Circle", 0, DND_PROJ_DEVASTATOR | (DND_WEAPON_DEVASTATOR << 16), ACS_NamedExecuteWithResult("DnD Pellet Count", 5), 32)
 		Stop
-		
-		LoopStart_GhostHitter:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue_GhostHitter")
-		Goto Finish
-		LoopContinue_GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_GhostHitter", (360.0 / Args[2]) * Args[4])
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart_GhostHitter
+	}
+}
+
+Actor DevastatorShooter1_Alt : DnD_Activator {
+	States {
+		Use:
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
+			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_NR", frandom(-1.6, 0.0) * (1.0 - accuracy * accuracy_factor), 1, -12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_GhostHitter_NR", frandom(-1.6, 0.0) * (1.0 - accuracy * accuracy_factor), 1, -12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
+		Stop
+	}
+}
+
+Actor DevastatorShooter2_Alt : DnD_Activator {
+	States {
+		Use:
+			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
+			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_NR", frandom(0.0, 1.6) * (1.0 - accuracy * accuracy_factor), 1, 12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
+		Stop
+		GhostHitter:
+			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_GhostHitter_NR", frandom(0.0, 1.6) * (1.0 - accuracy * accuracy_factor), 1, 12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
+		Stop
 	}
 }
 

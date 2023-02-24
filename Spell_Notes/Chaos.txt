@@ -20,7 +20,7 @@
 		- X > 3 => Ally deals 50% more damage for 2 seconds.
 	If targeted an enemy:
 		- X < 3 => Enemy is granted 50% more damage for 2 seconds.
-		- X = 3 => Enemy is healed for 25 + 5 * Level of Caster.
+		- X = 3 => Enemy is healed for (15 + 0.25 * Level) % of Caster.
 		- X > 3 => Enemy takes 50% more damage for 2 seconds.
 	Cost: 10 mana.
 	Cooldown: 12 seconds.
@@ -39,19 +39,19 @@
 	Cast Time: 1 second.
 	Per Rank: +125 damage.
 	Rank 5: During the charge, gain ability to deflect projectiles.
-	Rank 10: Charge damage debuff is reduced to 25%.
+	Rank 10: Charge damage debuff is reduced to 10%.
 	Unlocks: Frenzy, Instability.
  
 * Blades of Fury
  
-	Sharp blades of energy are summoned around you and then tossed to random enemies around you.
+	Sharp blades of energy are summoned around you and then tossed to random enemies nearby. A target can be hit by more than one blade.
 	Each blade deals 150 (+15/INT) damage. 5 (+1/25 INT) blades are summoned. Maximum blade target range: 256 unit radius.
 	Cost: 25 mana.
 	Cooldown: 10 seconds.
 	Cast Time: 2 seconds.
 	Per Rank: +75 blade damage. At every even rank, +1 blade count.
 	Rank 5: Blade max target range +128 unit radius.
-	Rank 10: +5 blades.
+	Rank 10: +10 blades.
 	Requires: Chaos Bolt (Rank 1).
 	Unlocks: Vortex.
 	Synergy - Violent Blows: +5% more damage per rank of Violent Blows.

@@ -939,12 +939,12 @@ Script "DnD Boss HP FX Overlay" (int tid) CLIENTSIDE {
 	int draw_id = MONSTER_BARFILLID;
 	while(DungeonBossData[BOSSDATA_TID]) {
 		// get health percentage of boss and map it to a range of 0-450 from 0-100 instead
-		hdisp = (DungeonBossData[BOSSDATA_HP] * 100 / MonsterProperties[m_id].maxhp);
-		if(hdisp > 100)
+		hdisp = 450 * GetHealthPercentage(DungeonBossData[BOSSDATA_HP], MonsterProperties[m_id].maxhp) / 100;
+		/*if(hdisp > 100)
 			hdisp = 100;
-		hdisp = 450 * hdisp / 100;
+		hdisp = 450 * hdisp / 100;*/
 		
-		fdisp = (DungeonBossData[BOSSDATA_FORT] * 450 / MonsterProperties[m_id].maxhp);
+		fdisp = 450 * GetHealthPercentage(DungeonBossData[BOSSDATA_FORT], MonsterProperties[m_id].maxhp) / 100;
 		
 		alpha = Clamp_Between(DungeonBossData[BOSSDATA_DMGTAKEN] * 0.008, 0.0, 1.0);
 		

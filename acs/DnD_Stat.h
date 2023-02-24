@@ -1182,7 +1182,7 @@ void ResetPlayerItems(int pnum) {
 	// take all weapons
 	int i;
 	for(i = 0; i < MAXWEPS; ++i)
-		TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
+		TakeInventory(Weapons_Data[i].name, 1);
 	for(i = 1; i <= 9; ++i)
 		TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);
 		

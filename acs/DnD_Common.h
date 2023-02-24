@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -93,7 +93,7 @@ enum {
 	// from 1 to DND_MAX_MONSTERS + 1 is the amount of monsters we support -- we'll do tid - 1 to access array loc
 	DND_MONSTERTID_BEGIN = 1,
 	
-	// 8192 - 8245 player tid range
+	// 12801 - 12864 player tid range
 	P_TIDSTART = DND_MONSTERTID_BEGIN + DND_MAX_MONSTERS,
 	// emerald death actors add +100 to here, temp weapons use +200
 	
@@ -113,8 +113,13 @@ enum {
 	// 64 players temp tid range
 	TEMPORARY_DATADUMMY_TID = TEMPORARY_SPELL_TID + MAXPLAYERS,
 	
+	PROJECTILE_HELPER_TID = TEMPORARY_DATADUMMY_TID + MAXPLAYERS,
+	
+	// circle attacks from burst attack modifiers
+	TEMPORARY_ATTACK_TID = PROJECTILE_HELPER_TID + MAXPLAYERS,
+	
 	// 64 player temp tid range
-	DND_MENUFLOATYICON_TID = TEMPORARY_DATADUMMY_TID + MAXPLAYERS,
+	DND_MENUFLOATYICON_TID = TEMPORARY_ATTACK_TID + MAXPLAYERS,
 	
 	// 64 player temp tid range
 	DEATHRAY_MARKER_TID = DND_MENUFLOATYICON_TID + MAXPLAYERS,
@@ -186,17 +191,6 @@ enum {
 	DND_MAPINFO_MAPCHANGED,
 	DND_MAPINFO_HASDOOMGUY
 };
-
-typedef struct vec2 {
-	int x;
-	int y;
-} vec2_T;
-
-typedef struct vec3 {
-	int x;
-	int y;
-	int z;
-} vec3_T;
 
 // save for later
 global bool 0: MapInfo[32];
@@ -334,61 +328,11 @@ void GiveSharedItemTID() {
 	++DnD_TID_Counter[DND_TID_SHAREDITEMS];
 }
 
-int GetIntegerBits(int x) {
-	return x & 0xFFFF0000;
-}
-
 enum {
     LEVEL_TOTAL,
     LEVEL_MIN,
     LEVEL_MAX
 };
-
-int XorBit(int x, int n) {
-	return x ^ (1 << n);
-}
-
-int SetBit(int x, int n) {
-	return x | (1 << n);
-}
-
-int ClearBit(int x, int n) {
-	return x & ~(1 << n);
-}
-
-bool IsSet(int x, int n) {
-	return x & (1 << n);
-}
-
-int ResetBits(int val, int begin, int end) {
-	for(int i = begin; i < end + 1; ++i)
-		val &= ~(1 << i);
-	return val;
-}
-
-// only positive
-int getpow2 (int x) {
-	int res = 0;
-	while((x >>= 1))
-		++res;
-	return res;
-}
-
-int pow (int x, int n) {
-	int y = 1;
-	while (n-- > 0) y *= x;
-	return y;
-}
-
-int abs (int x) {
-	if(x < 0)
-		return -x;
-	return x;
-}
-
-int sign (int x) {
-	return (x > 0) - (x < 0);
-}
 
 // naive search -- assumes lowercase key
 bool StringContains(str s, str key) {
@@ -412,105 +356,14 @@ bool StringContains(str s, str key) {
 	return false;
 }
 
-// INT_MAX has 10 digits
-int PowersOf10[10] = {
-	1,
-	10,
-	100,
-	1000,
-	10000,
-	100000,
-	1000000,
-	10000000,
-	100000000,
-	1000000000
-};
-
-int digitcount(int x) {
-	int res = 1;
-	while((x /= 10))
-		++res;
-	return res;
-}
-
-int fdistance (int tid1, int tid2) {
-	int len;
-	int y = getactory(tid1) - getactory(tid2);
-	int x = getactorx(tid1) - getactorx(tid2);
-	int z = getactorz(tid1) - getactorz(tid2);
-
-	int ang = vectorangle(x,y);
-	if(((ang+0.125)%0.5) > 0.25) len = fixeddiv(y, sin(ang));
-	else len = fixeddiv(x, cos(ang));
-
-	ang = vectorangle(len, z);
-	if(((ang+0.125)%0.5) > 0.25) len = fixeddiv(z, sin(ang));
-	else len = fixeddiv(len, cos(ang));
-
-	return len;
-}
-
 bool isPlayer(int tid) {
 	return tid >= P_TIDSTART && tid < P_TIDSTART + MAXPLAYERS;
-}
-
-int fdistance_delta(int dx, int dy, int dz) {
-	int len;
-	int ang = vectorangle(dx, dy);
-	if(((ang+0.125)%0.5) > 0.25) len = fixeddiv(dy, sin(ang));
-	else len = fixeddiv(dx, cos(ang));
-
-	ang = vectorangle(len, dz);
-	if(((ang+0.125)%0.5) > 0.25) len = fixeddiv(dz, sin(ang));
-	else len = fixeddiv(len, cos(ang));
-
-	return len;
-}
-
-bool MaxAngleDiff (int m1, int m2, int maxdiff) {
-	int x = GetActorX(m2) - GetActorX(m1);
-	int y = GetActorY(m2) - GetActorY(m1);
-	int cone_len = VectorLength(x, y);
-	x = FixedDiv(x, cone_len);
-	y = FixedDiv(y, cone_len);
-
-	// comparison angle to our fov
-	int cone_x = cos(GetActorAngle(0));
-	int cone_y = sin(GetActorAngle(0));
-	cone_len = VectorLength(cone_x, cone_y);
-	
-	int dot = FixedMul(x, FixedDiv(cone_x, cone_len)) + FixedMul(y, FixedDiv(cone_y, cone_len));
-	return dot > cos(maxdiff);
-}
-
-bool MaxAngleDiff_Projection (int m1, int m2, int maxdiff, int projected_angle) {
-	int x = GetActorX(m2) - GetActorX(m1);
-	int y = GetActorY(m2) - GetActorY(m1);
-	int cone_len = VectorLength(x, y);
-	x = FixedDiv(x, cone_len);
-	y = FixedDiv(y, cone_len);
-
-	// comparison angle to our fov
-	int cone_x = cos(projected_angle);
-	int cone_y = sin(projected_angle);
-	cone_len = VectorLength(cone_x, cone_y);
-	
-	int dot = FixedMul(x, FixedDiv(cone_x, cone_len)) + FixedMul(y, FixedDiv(cone_y, cone_len));
-	return dot > cos(maxdiff);
 }
 
 int AngleToFace(int this, int to) {
 	int x = GetActorX(to) - GetActorX(this);
 	int y = GetActorY(to) - GetActorY(this);
 	return VectorAngle(x, y);
-}
-
-int LinearMap(int val, int o_min, int o_max, int n_min, int n_max) {
-	return (val - o_min) * (n_max - n_min) / (o_max - o_min) + n_min;
-}
-
-int LinearMap_Fixed(int val, int o_min, int o_max, int n_min, int n_max) {
-	return FixedDiv(FixedMul(val - o_min, n_max - n_min), o_max - o_min) + n_min;
 }
 
 void HealMonster(int mid, int amount) {
@@ -545,17 +398,6 @@ void FaceActor(int this, int to) {
 	SetActorAngle(this, VectorAngle(x, y));
 }
 
-bool player_pickup_cubes_intersect(int player_tid, int object_tid) {
-	//tid1 = doom player: height: 56, radius: 16.
-	//tid2 = pickups: height: 16, radius: 20.
-
-	//printbold(s:"actor_cubes_intersect: player tid: ", d:player_tid, s:", item tid: ", d:object_tid, s:", radius: ", f:radius, s:", check states: ", d:check_state_1, s:", ", d:check_state_2, s:", ", d:check_state_3_1, s:"; ", d:check_state_3_2, s:", player z:", f:getactorz(player_tid), s:", object z: ", f:getactorz(object_tid));
-	
-	return	((getactorx(player_tid)-16.0 <= getactorx(object_tid)+20.0) && (getactorx(player_tid)+16.0 >= getactorx(object_tid)-20.0)) &&
-			((getactory(player_tid)-16.0 <= getactory(object_tid)+20.0) && (getactory(player_tid)+16.0 >= getactory(object_tid)-20.0)) &&
-			((getactorz(player_tid) <= getactorz(object_tid)+16.0) && (getactorz(player_tid)+56.0 >= getactorz(object_tid)));
-}
-
 // contains overflow checks
 int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
 	// disabled overflow checks for now, see if there's any improvement in performance
@@ -563,17 +405,6 @@ int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
 	//if(dmg < INT_MAX / factor)
 		return dmg * factor / div;
 	//return INT_MAX;
-}
-
-// takes deltax and deltay as parameter for actor comparisons
-int AproxDistance (int dx, int dy) {
-	dx = abs(dx);
-	dy = abs(dy);
-
-	if (dx < dy)
-		return dx + dy - (dx >> 1);
-
-	return dx + dy - (dy >> 1);
 }
 
 int SetInventory (str item, int count) {
@@ -617,118 +448,8 @@ int IsActorAlive(int tid) {
 	return GetActorProperty(tid, APROP_HEALTH) > 0;
 }
 
-// Copied from ZDWiki.
-// Fixed-point version, only works up to 30,000 or so:
-int fsqrt(int number) 
-{ 
-  int samples = 15; // Samples for accuracy
-
-  if (number == 1.0) return 1.0; 
-  if (number <= 0) return 0;
-  int val = samples<<17 + samples<<19; // x*10 = x<<1 + x<<3
-  for (int i=0; i<samples; ++i) 
-    val = (val + FixedDiv(number, val)) >> 1;
-
-  return val; 
-}
-
-int sqrt_z(int number)
-{
-	if(number <= 3)
-	{
-		if(number > 0)
-		{
-			return 1;
-		}
-		return 0;
-	}
-	
-	int oldAns = number >> 1,                     
-	    newAns = (oldAns + number / oldAns) >> 1; 
-	
-	while(newAns < oldAns)
-	{
-		oldAns = newAns;
-		newAns = (oldAns + number / oldAns) >> 1;
-	}
-
-	return oldAns;
-}
-
-int Min(int x, int y) {
-	if(x < y)
-		return x;
-	return y;
-}
-
-
-int Max(int x, int y) {
-	if(x > y)
-		return x;
-	return y;
-}
-
-int magnitudeThree(int x, int y, int z)
-{
-    return sqrt_z(x*x + y*y + z*z);
-}
-
-int smart_mul(int x, int y) {
-	if(x >= 1.0 && y >= 1.0)
-		return FixedMul(x, y);
-	return x * y;
-}
-
 int IsDigit(int c) {
 	return c >= '0' && c <= '9';
-}
-
-int ftrunc(int x) {
-	return ((x * 100 + 50) / 100);
-}
-
-int ConvertFixedToPrecise(int x) {
-	// 1000 = 1.0, but we are talking percentages so 0.01 = 1%
-	// the first >> 4 is so we get rid of unimportant last 4 bits of precision and can multiply with 1000 without worrying
-	// essentially this increases maximum fixed we can clearly represent from 65.0 to 65.0 x 16 = 1024.0
-	return (((x + 0.0005) >> 4) * FACTOR_FIXED_RESOLUTION) >> 12;
-}
-
-Str GetFixedRepresentation(int val, bool isPercentage) {
-	val = ConvertFixedToPrecise(val);
-	
-	if(isPercentage)
-		val *= 100;
-	
-	if(val > 1000) {
-		if((val / 10) % 10)
-			return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
-	}
-		
-	if(val % 10)
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10, d:val % 10);
-	if((val / 10) % 10)
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
-	return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
-}
-
-int CancelMultiplicativeFactors(int f1, int f2) {
-	return FixedDiv(1.0 + f1, 1.0 + f2);
-}
-
-int CombineMultiplicativeFactors(int f1, int f2) {
-	return FixedMul(1.0 + f1, 1.0 + f2);
-}
-
-// converts a factor in fixed to a factor in int (equivalent) -- also used in below
-int ConvertFixedFactorToInt(int factor) {
-	return ((1.0 + factor) * 100) >> 16;
-}
-
-// this is a fixed value and represents a percentage, so convert it into one
-int ApplyFixedFactorToInt(int val, int factor) {
-	return val * (((1.0 + factor) * 100) >> 16) / 100;
 }
 
 int GetActivePlayerCount() {
@@ -751,6 +472,22 @@ int GetPlayerCountAny() {
 
 bool PlayerIsInvulnerable() {
 	return CheckInventory("P_Invulnerable") || CheckInventory("Invulnerable_Better") || GEtActorProperty(0, APROP_INVULNERABLE);
+}
+
+// primarily to be used for cases where the actor in question has health that can overflow when multiplied by 100
+int GetHealthPercentage(int currhp, int maxhp) {
+	// get the 1% of the max hp
+	int one_pct = maxhp / 100;
+	if(one_pct < 1)
+		one_pct = 1;
+		
+	// find how many of this one pct we contain by dividing the curr hp again
+	// forced exception to make sure the player knows they have only done 1% after they really have, and not just 99% displayed on the slightest dmg dealt
+	if(currhp > maxhp - one_pct)
+		return 100;
+
+	// get the pct of the hp now
+	return currhp / one_pct;
 }
 
 // user must guarantee setspecial and setspecial2 are less than 65536
@@ -820,12 +557,6 @@ void DeleteTextRange(int r1, int r2) {
 		HudMessage(s:""; HUDMSG_PLAIN, r1 + i, -1, 160.0, 100.0, 0.1, 0.1);
 }
 
-int VectorPitch (Int t1, Int t2, int dx, int dy, int adj) {
-	If(adj != 0)
-		adj = adj << 16;
-	Return(VectorAngle(AproxDistance(dx, dy), GetActorZ(t1) - (GetActorZ(t2) - adj)));
-}
-
 int VectorLength3d(int x, int y, int z) {
 	int len = VectorLength(x, y);
 	len = VectorLength(z, len);
@@ -844,8 +575,6 @@ int GetActorPlayerClass(int tid) {
 	return CheckActorInventory(tid, "DnD_Character") - 1;
 }
 
-int SmoothStop3(int x) {
-	return 1.0 - FixedMul((1.0 - x), (1.0 - x));
-}
+#include "DnD_Math.h"
 
 #endif

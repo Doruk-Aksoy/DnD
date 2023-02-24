@@ -43,6 +43,14 @@ object DevastatorRocket_GhostHitter {
 	frame DEVM { light Devastator }
 }
 
+object DevastatorRocket_NR {
+	frame DEVM { light Devastator }
+}
+
+object DevastatorRocket_GhostHitter_NR {
+	frame DEVM { light Devastator }
+}
+
 object DevastatorExplosion {
 	frame EXP6A { light EXPSHELL1 }
 	frame EXP6B { light EXPSHELL1 }

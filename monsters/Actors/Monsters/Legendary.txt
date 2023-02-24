@@ -21,6 +21,7 @@ Actor DreamingGod : DnD_BaseRangedBoss {
 	+NOINFIGHTING
 	+NORADIUSDMG
 	+NOTARGET
+	-FLOORCLIP
 	+LOOKALLAROUND
 	+DONTRIP
 	const int dreamer_burn = 3;
@@ -1030,6 +1031,7 @@ Actor Torrasque : DnD_BaseHybridBoss {
 	+MISSILEMORE
 	+QUICKTORETALIATE
 	+LOOKALLAROUND
+	-FLOORCLIP
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_TORRASQUE)
@@ -1430,6 +1432,7 @@ Actor Mordecqai : DnD_BaseRangedBoss {
 	+LOOKALLAROUND
 	+DONTRIP
 	+BOSSDEATH
+	-FLOORCLIP
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MORDECQAI)
@@ -1828,6 +1831,7 @@ Actor GodSlayer : DnD_BaseRangedBoss {
 	+MISSILEMORE
 	+MISSILEEVENMORE
 	+LOOKALLAROUND
+	-FLOORCLIP
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GODSLAYER)
@@ -2643,6 +2647,7 @@ Actor Golgoth : DnD_BaseHybridBoss {
 	+PIERCEARMOR
 	+NODROPOFF
 	+DONTRIP
+	-FLOORCLIP
 	RadiusDamageFactor 0
 	states {
 		SetInfo:

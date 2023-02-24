@@ -348,6 +348,7 @@ DND_MENU_ARTHELPTEXT7	=	"Unleashes power of the dead, deals extreme damage to en
 DND_MENU_ARTHELPTEXT8	=	"Reveals the current map to you.";
 DND_MENU_ARTHELPTEXT9	=	"Increases ammo capacity.";
 DND_MENU_ARTHELPTEXT10	=	"Resets your stats back to zero. You can reassign.";
+DND_MENU_ARTHELPTEXT11	=	"Gives a portable radsuit.";
 
 // abilities
 DND_MENU_ABLTAG1		=	"Melee Expertise";

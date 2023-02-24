@@ -1,6 +1,9 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+weapons/bigcharge		BIGCHARG
+weapons/bigcharge2		BIGCHAR2
+
 weapons/tp_fire 		TP_FIRE
 
 MagicExplosion			MAGCEX

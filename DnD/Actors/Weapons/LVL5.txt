@@ -917,7 +917,7 @@ Actor GrenadeShooter2 : DnD_Activator {
 }
 
 Actor NormalGrenade : DnD_ExplosiveBase {
-	speed 28
+	speed 36
 	BounceSound "weapons/grenadebounce"
 	Scale 1.0
 	Radius 8
@@ -929,7 +929,7 @@ Actor NormalGrenade : DnD_ExplosiveBase {
 	BounceType Doom
 	Bouncecount 3
 	BounceFactor 0.625
-	Gravity 0.84
+	Gravity 0.75
 	DeathSound "Weapons/grenadexpl"
 	States {
 		SpawnState:

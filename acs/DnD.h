@@ -330,7 +330,6 @@ enum {
 int DnD_StateChecker[MAX_STATES];
 // see if map changed or not
 
-int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 bool UniqueMonsterAvailability[MAX_MONSTER_CATEGORIES] = { 0 };
 
 void Reset_RPGInfo (int resetflags) {
@@ -1142,26 +1141,6 @@ int GetWeaponSlotFromFlag(int flags) {
 	return 0;
 }
 
-void HandleAttackEvent(int isSpecial, int extra) {
-	int pnum = PlayerNumber();
-	// elemental bulwark check
-	if(GetPlayerAttributeValue(pnum, INV_EX_CHANCE_CASTELEMSPELLONATK) >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
-		GiveInventory("RandomElementalSpellCooldown", 1);
-		CastRandomElementalSpell();
-	}
-	
-	// roll a crit for this attack, and every projectile etc. to come out of it will use this pre-calculated crit chance here
-	int wepid = CheckInventory("DnD_WeaponID");
-	
-	// reset crit roll before we check for crit on this attack again
-	PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
-	
-	CheckCritChance(wepid, isSpecial, extra);
-	
-	// do the quest checks for slot guns being used
-	DoSlotWeaponQuestChecks(wepid);
-}
-
 int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 	int base = realhp;
 	int add = 0, level = 1, low, high, temp;
@@ -1328,43 +1307,6 @@ void SpawnDarkLanceProjectile_Side(int this, int a, int proj_tid, int x, int y, 
 	SetActorProperty(0, APROP_SPEED, spd << 16);
 	Thing_ChangeTID(proj_tid, 0);
 	SetActivator(this);
-}
-
-void DoSlotWeaponQuestChecks(int wepid) {
-	int pnum = PlayerNumber();
-	// Simple Minded quest check
-	if(PlayerWeaponUsed[pnum] == -1)
-		PlayerWeaponUsed[pnum] = wepid;
-	else if(!CheckInventory("DnD_WeaponFiredOther") && PlayerWeaponUsed[pnum] != wepid)
-		GiveInventory(Quest_List[QUEST_ONLYONEWEAPON].qchecker, 1);
-
-	// only slot 2 quest check
-	if(
-		active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qchecker) &&
-		!IsQuestComplete(ActivatorTID(), QUEST_ONLYPISTOLWEAPONS) && !CheckInventory("H_WeaponSlot2")
-	  )
-		GiveInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qchecker, 1);
-	
-	// only boomstick quest check
-	if(
-		active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qchecker) && 
-		!IsQuestComplete(ActivatorTID(), QUEST_NOSHOTGUNS) && IsBoomstick(wepid)
-	  )
-		GiveInventory(Quest_List[QUEST_NOSHOTGUNS].qchecker, 1);
-	
-	// no superweapon quest check
-	if(
-		active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qchecker) &&
-		!IsQuestComplete(ActivatorTID(), QUEST_NOSUPERWEAPONS) &&
-		(CheckInventory("H_WeaponSlot7") || CheckInventory("H_WeaponSlot8"))
-	  )
-		GiveInventory(Quest_List[QUEST_NOSUPERWEAPONS].qchecker, 1);
-		
-	// only energy quest check
-	if(
-		active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_List[QUEST_ONLYENERGY].qchecker)
-	  )
-		GiveInventory(Quest_List[QUEST_ONLYENERGY].qchecker, 1);
 }
 
 void HandleRuination(int this, int target) {
@@ -1643,6 +1585,33 @@ void SaveAllPlayerData() {
 			}
 		}
 		FinishDBTransaction();
+	}
+}
+
+void HandleEndOfLevelRewards(int pnum) {
+	// for next map things -- give players their rewards and stuff coming from a previous map
+	//Log(s:"run open");
+	int temp = 0;
+	if(MapInfo[DND_MAPINFO_MAPCHANGED] && PlayerInGame(pnum)) {
+		//Log(s:"map changed");
+
+		// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
+		// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
+		//if(((PlayerDatabaseState[i][PLAYER_SAVESTATE] && HardcoreSet) || !HardcoreSet) && GetActorProperty(tid, APROP_HEALTH) > 0) { 
+		if((!HardcoreSet || PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) && GetActorProperty(0, APROP_HEALTH) > 0) {
+			GiveInventory("LevelToken", 1);
+			StatListOpened[pnum] = 0;
+			
+			temp = (1 + HardcoreSet) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
+
+			GiveInventory("Budget", temp);
+			GiveInventory("RoundsSurvived", 1);
+			
+			ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
+		}
+		// Check quests
+		if(active_quest_id != -1)
+			CheckMapExitQuest(pnum, active_quest_id);
 	}
 }
 

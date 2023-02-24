@@ -1,5 +1,6 @@
 #library "DNDMONS"
 #include "zcommon.h"
+#nocompact
 
 #include "DnD_Intercept.h"
 #include "DnD_Monsters.h"

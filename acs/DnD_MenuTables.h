@@ -490,7 +490,8 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 17500,	     BOOKMAX,					0   },
 		{ 27500,         1,							1	},
 		{ 50000,         1,							0	},
-		{ 10000,         RESETMAX,					1 	}
+		{ 10000,         RESETMAX,					1 	},
+		{ 5000,			 1,							1	}
 };
 
 // keeps track of how much is left for all players
@@ -701,6 +702,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_OCCULTARTIFACT, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		{ -1, -1, -1 }
 };
 
@@ -729,7 +731,7 @@ str GetItemName(int id) {
 	
 	switch(type) {
 		case TYPE_WEAPON:
-			name = Weapons_Data[ShopTableIdToWeaponTableId(id)][WEAPON_NAME];
+			name = Weapons_Data[ShopTableIdToWeaponTableId(id)].name;
 		break;
 		case TYPE_AMMO:
 			if(id < SHOP_FIRSTAMMOSPECIAL_INDEX) {
@@ -746,7 +748,7 @@ str GetItemName(int id) {
 			// we handle uses of armor differently
 		break;
 		case TYPE_ARTI:
-			name = ArtifactInfo[id - SHOP_FIRSTARTI_INDEX][ARTI_NAME];
+			name = ArtifactInfo[id - SHOP_FIRSTARTI1_INDEX][ARTI_NAME];
 		break;
 		case TYPE_ACCOUNT:
 			// there's only one for now
@@ -1070,6 +1072,7 @@ struct draw_info ArtifactDrawInfo[MAXARTIFACTS] = {
 	{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_TRIPLE					        },
 	{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_VORTEX				            },
 	{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_BOOK					            },
+	{ OBJ_ARTI,								-1											},
 	{ OBJ_ARTI,								-1											},
 	{ OBJ_ARTI,								-1											},
 	{ OBJ_ARTI,								-1											}

@@ -10,6 +10,7 @@ DND_ARTI7			=	"Book of the Dead";
 DND_ARTI8			=	"Auto Map";
 DND_ARTI9			=	"Backpack";
 DND_ARTI10			=	"Stat Reset";
+DND_ARTI11			=	"Portable Radsuit";
 
 DND_ITEM_UNIQUE		=	"Unique";
 DND_ITEM_CHARM		=	"Charm";

@@ -1,8 +1,6 @@
 #ifndef DND_TEMPWEAPONS_IN
 #define DND_TEMPWEAPONS_IN
 
-#include "DnD_WeaponDefs.h"
-
 #define TEMPBEGIN DND_WEAPON_SAWEDOFF
 #define MAXTEMPWEPS (MAXWEPS - TEMPBEGIN + 1)
 #define UNUSEDWEPS 0 // this is remaining slots out of 2^(nearest power of 2 to maxweps) - maxweps

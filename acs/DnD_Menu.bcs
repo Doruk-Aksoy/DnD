@@ -520,10 +520,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			else if(curopt == MENU_LOAD1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ITEMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 				j = 0;
-				for(i = SHOP_FIRSTARTI_INDEX; i <= SHOP_LASTDRAWNARTI_INDEX; ++i) {
+				for(i = SHOP_FIRSTARTI1_INDEX; i <= SHOP_LASTDRAWNARTI_INDEX; ++i) {
 					k = CheckInventory(GetItemName(i));
 					if(k) {
-						HudMessage(s:"\c[Y5]", l:GetArtifactTag(i - SHOP_FIRSTARTI_INDEX), s:": \cj", d:k; HUDMSG_PLAIN, RPGMENUITEMID - 1 - i + SHOP_FIRSTARTI_INDEX, CR_WHITE, 184.1, 64.0 + j, 0.0, 0.0);
+						HudMessage(s:"\c[Y5]", l:GetArtifactTag(i - SHOP_FIRSTARTI1_INDEX), s:": \cj", d:k; HUDMSG_PLAIN, RPGMENUITEMID - 1 - i + SHOP_FIRSTARTI1_INDEX, CR_WHITE, 184.1, 64.0 + j, 0.0, 0.0);
 						j += 16.0;
 					}
 				}
@@ -721,12 +721,19 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			
 				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 			}
-			else if(curopt == MENU_SHOP_ARTIFACT) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+			else if(curopt == MENU_SHOP_ARTIFACT_1) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits();
 				
-				for(i = 0; i < MAXARTIFACTS; ++i)
-					DrawToggledImage(SHOP_FIRSTARTI_INDEX + i, boxid, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI_INDEX + i][SHOPINFO_MAX], CR_RED);
+				for(i = 0; i < MAXARTIFACTS_PERPAGE; ++i)
+					DrawToggledImage(SHOP_FIRSTARTI1_INDEX + i, boxid, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI1_INDEX + i][SHOPINFO_MAX], CR_RED);
+			}
+			else if(curopt == MENU_SHOP_ARTIFACT_2) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				DrawCredits();
+				
+				for(i = ARTI_RADSUIT; i < MAXARTIFACTS; ++i)
+					DrawToggledImage(SHOP_FIRSTARTI1_INDEX + i, boxid, i - ARTI_RADSUIT, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI1_INDEX + i][SHOPINFO_MAX], CR_RED);
 			}
 			else if(curopt == MENU_SHOP_ARMOR1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1484,7 +1491,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				else if(boxid == MBOX_3)
 					temp = MENU_SHOP_ABILITY_1;
 				else if(boxid == MBOX_4)
-					temp = MENU_SHOP_ARTIFACT;
+					temp = MENU_SHOP_ARTIFACT_1;
 				else if(boxid == MBOX_5)
 					temp = MENU_SHOP_ARMOR1;
 				else if(boxid == MBOX_6)
@@ -1589,13 +1596,23 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_SHOP_ABILITY_1);
 		}
-		else if(curopt == MENU_SHOP_ARTIFACT) {
+		else if(curopt == MENU_SHOP_ARTIFACT_1) {
 			if(HasLeftClicked(pnum)) {
 				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI_INDEX, SHOP_LASTARTI_INDEX, TRADE_BUY | TRADE_ARTIFACT, false);
+					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI1_INDEX, SHOP_ARTIFACT1_END, TRADE_BUY | TRADE_ARTIFACT, false);
 			}
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_SHOP);
+			else if(HasPressedRight(pnum))
+				UpdateMenuPosition(MENU_SHOP_ARTIFACT_2);
+		}
+		else if(curopt == MENU_SHOP_ARTIFACT_2) {
+			if(HasLeftClicked(pnum)) {
+				if(boxid != MAINBOX_NONE)
+					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI2_INDEX, SHOP_LASTARTI_INDEX, TRADE_BUY | TRADE_ARTIFACT, false);
+			}
+			if(HasPressedLeft(pnum))
+				UpdateMenuPosition(MENU_SHOP_ARTIFACT_1);
 		}
 		else if(curopt == MENU_SHOP_ARMOR1) {
 			if(HasLeftClicked(pnum)) {

@@ -197,8 +197,8 @@ str GetSpecialAmmoSuffix(int weptype) {
 bool HasAmmoOnMagazine(int wepid) {
 	// all weapons that have magazines go here
 	// not " "
-	if(StrLen(Weapons_Data[wepid][WEAPON_AMMO2]) > 1)
-		return CheckInventory(Weapons_Data[wepid][WEAPON_AMMO2]);
+	if(Weapons_Data[wepid].ammo_name2 != "")
+		return CheckInventory(Weapons_Data[wepid].ammo_name2);
 	return 0;
 }
 

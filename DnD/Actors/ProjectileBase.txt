@@ -1,4 +1,29 @@
 enum {
+	DND_PROJ_PISTOL,
+	DND_PROJ_AKIMBO,
+	DND_PROJ_MAGNUMREVOLVER,
+	DND_PROJ_LASERPISTOL,
+	DND_PROJ_SCATTERGUN,
+	DND_PROJ_RUBYWAND,
+	DND_PROJ_RUBYWANDFLAME,
+	DND_PROJ_ASSAULTRIFLE,
+	DND_PROJ_VIPERCRAWLER,
+	DND_PROJ_VIPERMISSILE,
+	
+	DND_PROJ_SHOTGUN,
+	
+	DND_PROJ_DEVASTATOR
+};
+
+enum {
+	DND_ATF_NOAMMOTAKE = 1,						// does not take ammo
+	DND_ATF_NOATTACKTRIGGER = 2,				// does not run attack check code ---- use for things that make multi proj attacks that are different proj
+	DND_ATF_NOAMMOGAINCHECK = 4,				// broader variant of the above, skips ammo gain check (probably handled outside etc. for multi ammo taking weapons)
+	DND_ATF_CANFIRECIRCLE = 8,					// attack can be fired around a circle
+	DND_ATF_USEGRAVITY = 16,
+};
+
+enum {
 	DND_ARG_DAMAGE,
 	DND_ARG_DAMAGETYPE,
 	DND_ARG_DAMAGEFLAGS,

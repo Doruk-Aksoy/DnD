@@ -2339,6 +2339,10 @@ Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {
 
 Script "DnD Monster Freeze" (int victim) {
 	SetActorState(victim, "Frozen", 0);
+	
+	// make sure to check BEFORE actually giving NOPAIN property... this would give the trait too, oopsie here!
+	bool hasNoPain = MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_NOPAIN];
+	
 	GiveActorInventory(victim, "MakeNoPain", 1);
 	
 	// actor flags dont get changed properly this way for some reason
@@ -2353,7 +2357,7 @@ Script "DnD Monster Freeze" (int victim) {
 	}
 	
 	// remove frozen nopain thing if monster didnt have it before
-	if(!MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_NOPAIN])
+	if(!hasNoPain)
 		GiveActorInventory(victim, "TakeNoPain", 1);
 	SetResultValue(0);
 }
@@ -2859,7 +2863,13 @@ int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercin
 		
 		// if invulnerable dont deduct
 		// if not mastered take 100%, or mastered we have 10% chance to not take
-		if(!GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable") && (!HasMasteredPerk(STAT_END) || DND_ENDURANCE_MASTERY_CHANCE <= random(1, 100)))
+		if
+		(
+			!GetActorProperty(0, APROP_INVULNERABLE) && 
+			!CheckInventory("Invulnerable_Better") &&
+			!CheckInventory("P_Invulnerable") && 
+			(!HasMasteredPerk(STAT_END) || DND_ENDURANCE_MASTERY_CHANCE <= random(1, 100))
+		)
 			TakeArmorAmount(armor_take);
 	}
 	

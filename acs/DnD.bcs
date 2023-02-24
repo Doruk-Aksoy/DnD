@@ -127,7 +127,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			// primary ammo
 			wepid = CheckInventory("DnD_WeaponID");
 			ammo = GetWeaponAmmoType(wepid, 0);
-			if(StrCmp(" ", ammo)) { // if uses ammo
+			if(ammo != "") { // if uses ammo
 				itemcomp = GetAmmoCapacity(ammo);
 				item = CheckInventory(ammo);
 				if(item > (itemcomp + 1) / 2) {
@@ -149,7 +149,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			
 			// secondary ammo
 			ammoalt = GetWeaponAmmoType(wepid, 1);
-			if(StrCmp(" ", ammoalt) && ammo != ammoalt) { // if uses altammo and is not same as normal ammo
+			if(ammoalt != "" && ammo != ammoalt) { // if uses altammo and is not same as normal ammo
 				itemcomp = GetAmmoCapacity(ammoalt);
 				item = CheckInventory(ammoalt);
 				if(item > (itemcomp + 1) / 2) {
@@ -216,11 +216,13 @@ Script "DnD On Map Load" OPEN {
 	ResetPlayerInformationLevel();
 	
 	// check for players that are spectating, reset their playerloaded variable (fixes bug where people can leave during intermission and cant load character until they spec again)
-	for(int i = 0; i < MAXPLAYERS; ++i) {
+	int i;
+	for(i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerIsSpectator(i) == INTER_PSTATE_SPECTATING)
 			PlayerLoaded[i] = false;
 	}
-
+	
+	// wait just in case for the level to really begin
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
 		
@@ -237,6 +239,14 @@ Script "DnD On Map Load" OPEN {
 
 	// commented out for now!
 	//NPC_Setup();
+}
+
+Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	
+	Log(s:"\cfMAP CLEARED! Gained \cd", d:budget, s:"k\cf budget!");
+	SetResultValue(0);
 }
 
 Script "DND Check Hardcore Softcore" OPEN {
@@ -1497,7 +1507,7 @@ Script 902 (int forceset, int id) CLIENTSIDE {
 		HudMessage(l:"DND_TEXT_NOWUSING", s:" ", s:GetSpecialAmmoTag(i), s:"!"; HUDMSG_PLAIN | HUDMSG_LOG, DND_SPECIALAMMO_TEXTID, CR_WHITE, 0.5, 0.9, 2.0);
 		// hack: update ammo table to trick hud
 		int pos = GetWeaponPosFromTable();
-		Weapons_Data[pos][WEAPON_AMMO1] = GetSpecialAmmoString(i, AMMOINFO_NAME);
+		Weapons_Data[pos].ammo_name1 = GetSpecialAmmoString(i, AMMOINFO_NAME);
 	}
 }
 
@@ -1572,7 +1582,7 @@ Script 917 (int ammo_category, int weptype) {
 	if(HasSpecialAmmoForWeapon(ammo_category) != SpecialAmmoRanges[ammo_category][0]) {
 		SetSpecialAmmoMode(ammo_category, weptype);
 		if(ammo_category == AMMO_TYPE_SHELL || ammo_category == AMMO_TYPE_HEAVYSHELLS)
-			SetInventory(Weapons_Data[GetWeaponPosFromTable()][WEAPON_AMMO2], 0);
+			SetInventory(Weapons_Data[GetWeaponPosFromTable()].ammo_name2, 0);
 		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 		ActivatorSound("AmmoType/Switch", 127);
 		Delay(const:4);
@@ -2387,7 +2397,7 @@ Script 977 (int type, int itemnum) CLIENTSIDE {
 		
 		int hud_pos = (GetHudRight(640) << 16) - QSTBOX_XF / 2 + 0.4;
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, hud_pos, 48.1, 4.0, 1.0, 1.0);
-		SetFont(Weapons_Data[itemnum][WEAPON_ICON]);
+		SetFont(Weapons_Data[itemnum].icon);
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEICO, CR_UNTRANSLATED, hud_pos + 16.0, 64.0, 4.0, 1.0, 1.0);
 		SetFont("OBJFONT");
 		HudMessage(d:GetGameSlotOfWeapon(itemnum); HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_GOLD, hud_pos - 99.0, 70.0, 4.0, 1.0, 1.0);
@@ -2900,27 +2910,8 @@ Script "DnD On Unloading" UNLOADING {
 	//ResetFieldInventory();
 	BreakAllTrades();
 	
-	// reset if there was a unique boss tid set, map ended
 	DungeonBossData[BOSSDATA_TID] = 0;
 	ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
-	
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(!PlayerInGame(i))
-			continue;
-			
-		tid = P_TIDSTART + i;
-		// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
-		// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
-	    if(((PlayerDatabaseState[i][PLAYER_SAVESTATE] && HardcoreSet) || !HardcoreSet) && GetActorProperty(tid, APROP_HEALTH) > 0) { 
-		    GiveActorInventory(tid, "LevelToken", 1);
-			StatListOpened[i] = 0;
-            GiveActorInventory(tid, "Budget", (1 + HardcoreSet) * ((MapDifficulty + 1) + DND_BUDGET_BASE));
-			GiveActorInventory(tid, "RoundsSurvived", 1);
-		}
-		// Check quests
-		if(active_quest_id != -1)
-			CheckMapExitQuest(i, active_quest_id);
-	}
 }
 
 // Enter level checks
@@ -3063,6 +3054,8 @@ Script "DnD Player Setup" ENTER {
 	
 	while(pinfo_pending_reset)
 		Delay(const:10);
+		
+	HandleEndOfLevelRewards(pnum);
 	
 	if(PlayerInGame(pnum)) {
 		curlvl = GetStat(STAT_LVL);
@@ -4051,9 +4044,13 @@ Script "DND Desolator Debuff FX" (int tracer) {
 	TakeActorInventory(tracer, "DesolatorStackCounter", 99);
 }
 
-Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
+Script "DnD Trail Spawner" (int actortype, int density, int target) {
 	int ptid = !target ? GetActorProperty(0, APROP_TARGETTID) : target;
-	//printbold(s:GetActorClass(ptid), s: " ", s:GetActorClass(0));
+	ACS_NamedExecuteWithResult("DND Trail Spawner CS", actortype, density, ptid);
+}
+
+Script "DND Trail Spawner CS" (int actortype, int density, int ptid) CLIENTSIDE {
+	//printbold(d:ptid, s: " ", s:GetActorClass(ptid), s: " ", s:GetActorClass(0));
 	if(DnD_TrailDef[actortype].waittime)
 		Delay(DnD_TrailDef[actortype].waittime);
 	
@@ -4103,6 +4100,7 @@ Script "DND Trail Spawner" (int actortype, int density, int target) CLIENTSIDE {
 			Spawn(DnD_TrailDef[actortype].actor, bX, bY, bZ, 0, VectorAngle(-vX, -vY) >> 8);
         }
     }
+	SetResultValue(0);
 }
 
 Script "DND Charon Trail Spawner" (int plX, int plY, int plZ, int target) CLIENTSIDE {
@@ -4487,7 +4485,7 @@ Script "DND Thunderstaff Bolts" (void) {
 	
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid)
-				ACS_NamedExecuteAlways("DND Trail Spawner", 0, DND_TRAILACTOR_THUNDERZAP, 16, tlist[pnum][i].tid);
+				ACS_NamedExecuteWithResult("DND Trail Spawner", DND_TRAILACTOR_THUNDERZAP, 16, tlist[pnum][i].tid);
 		}
 		
 		int px = GetActorX(0);
@@ -4618,10 +4616,18 @@ Script "DnD Pull Towards Self" (int force, int pull_dist, int flags) {
 		force <<= 16;
 	else
 		adj_fixed = true;
+		
+	
 	
 	pull_dist <<= 16;
 	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		int i = UsedMonsterTIDs[mn];
+		int mass = GetActorProperty(i, APROP_MASS);
+		
+		// overflow check, we divide by x2 of mass so
+		if(mass >= INT_MAX >> 1)
+			continue;
+		
 		// flags has can pull dead, we dont need to check for alive or not
 		if(((flags & DND_PULLF_CANPULLDEAD) || isActorAlive(i)) && fdistance(0, i) <= pull_dist && CheckSight(i, 0, CSF_NOBLOCKALL)) {
 			// get angle to face and thrust it towards this
@@ -4638,7 +4644,7 @@ Script "DnD Pull Towards Self" (int force, int pull_dist, int flags) {
 			}
 			
 			int ang = VectorAngle(fx, fy);
-			int mforce = force / (2 * GetActorProperty(i, APROP_MASS));
+			int mforce = force / (2 * mass);
 			if(adj_fixed && mforce < 1.0)
 				mforce <<= 16;
 			if(mforce > DND_MAX_PULLFORCE)
@@ -5263,31 +5269,8 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 // after 16th bit there can be extra info
 // never put AMMO_CLIP as 16 bit onwards
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
-	bool isSpecial = false;
-	int extra = -1;
-	// if hand of artemis is equipped don't run this
-	if(!IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_HANDARTEMIS) && random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
-		if(slot == DND_AMMOSLOT_MAGAZINE)
-			GiveInventory(ClipAmmoTypes[ammo], amount);
-		else if(slot == DND_AMMOSLOT_SPECIAL) {
-			// subtract one if we are above slug, we have grenade for an exception
-			if(ammo > SSAM_SLUG)
-				--ammo;
-			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
-			isSpecial = true;
-			extra = ammo;
-		}
-		else if(slot == DND_AMMOSLOT_TEMPORARY) {
-			GiveInventory(TemporaryWeaponData[ammo][TEMPWEP_AMMO], amount);
-			if(ammo == DND_TEMPWEP_SOULRENDER)
-				GiveInventory("BladeCharge", 100);
-		}
-		else
-			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
-	}
-	
-	// ammo gain triggering means we made an attack
-	HandleAttackEvent(isSpecial, extra);
+	HandleAmmoGainChance(slot, ammo, amount);
+	HandleAttackEvent(slot == DND_AMMOSLOT_SPECIAL, ammo > SSAM_SLUG ? ammo - 1 : ammo);
 }
 
 Script "DnD Charon Stack Gain Chance" (void) {
@@ -5684,7 +5667,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 			
 		Log(s:"\n--------------------------------\n------- ", l:"DND_WEPSOWNED", s:" -------\n--------------------------------\n");
 		for(i = 0; i < MAXWEPS; ++i)
-			if(CheckInventory(Weapons_Data[i][WEAPON_NAME]))
+			if(CheckInventory(Weapons_Data[i].name))
 				Log(s:"\cd* \c[Y5]", l:GetWeaponTag(i), s:" - \cj", l:"DND_MENU_SLOT", s:" ", d:GetGameSlotOfWeapon(i));
 				
 		Log(s:"\n--------------------------------\n------- ", l:"DND_MENU_HEAD_CHARMS", s:" -------\n--------------------------------\n");
@@ -5929,10 +5912,10 @@ Script "DnD Projectile Checks" (int isPet) {
 	if(CheckActorInventory(owner, "NetherCheck"))
 		GiveInventory("ApplyNetherMaskBuff", 1);
 
-	// this already checks marine perk 50
+	// this already checks marine perk 50 -- send extra params here
 	if
 	(
-		CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT) && (CheckFlag(0, "SEEKERMISSILE") || CheckFlag(0, "SCREENSEEKER"))
+		CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT, CheckFlag(0, "SEEKERMISSILE"), CheckFlag(0, "SCREENSEEKER"))
 	)
 	{
 		GiveInventory("ApplyNoReflect", 1);
@@ -6037,8 +6020,8 @@ Script "DnD Berserker Perk5 Check" (void) {
 	// berserker perk5 fail-safe checks for super weapons
 	if(CheckInventory("Berserker_Perk5")) {
 		for(int i = DND_WEAPON_BFG32768; i <= DND_WEAPON_SOULREAVER; ++i) {
-			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
-				TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
+			if(CheckInventory(Weapons_Data[i].name)) {
+				TakeInventory(Weapons_Data[i].name, 1);
 				TakeInventory("H_WeaponSlot7", 1);
 				break;
 			}
@@ -6052,12 +6035,12 @@ Script "DnD Berserker Perk5 Check (Melee)" (void) {
 	bool has_melee = false;
 	if(!CheckInventory("Berserker_Perk5")) {
 		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= LAST_SLOT0_NONLUXURYWEAPON; ++i) {
-			if(CheckInventory(Weapons_Data[i][WEAPON_NAME])) {
+			if(CheckInventory(Weapons_Data[i].name)) {
 				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
 				if(has_melee) {
-					TakeInventory(Weapons_Data[i][WEAPON_NAME], 1);
+					TakeInventory(Weapons_Data[i].name, 1);
 					TakeInventory("H_WeaponSlot1", 1);
-					GiveInventory(Weapons_Data[DND_WEAPON_CHAINSAW][WEAPON_NAME], 1);
+					GiveInventory(Weapons_Data[DND_WEAPON_CHAINSAW].name, 1);
 				}
 				
 				has_melee = true;
@@ -6161,20 +6144,20 @@ Script "DnD Ammo Token Pickup" (void) {
 	int id = 0;
 	do {
 		id = PickRandomOwnedWeaponID();
-	} while(!StrCmp(Weapons_Data[id][WEAPON_AMMO1], " "));
+	} while(Weapons_Data[id].ammo_name1 != "");
 	
 	// give 10% ammo on this weapon -- soulrender has weapon condition as ammo1 so dont give if it is 
 	str ammo;
 	int cap;
 	
 	if(id != DND_WEAPON_SOULRENDER) {
-		ammo = Weapons_Data[id][WEAPON_AMMO1];
+		ammo = Weapons_Data[id].ammo_name1;
 		cap = GetAmmoCapacity(ammo);
 		GiveInventory(ammo, cap / 10);
 	}
 
-	ammo = Weapons_Data[id][WEAPON_AMMO2];
-	if(ammo != " ") {
+	ammo = Weapons_Data[id].ammo_name2;
+	if(ammo != "") {
 		cap = GetAmmoCapacity(ammo);
 		GiveInventory(ammo, cap / 10);
 	}
@@ -6331,66 +6314,72 @@ Script "Print Loc" (void) {
 }
 
 Script 68 (int x) NET {
-	#ifdef ISDEBUGBUILD
-	int i;
-	if(x < MAX_RESEARCHES)
-		GiveResearch(x, true);
-	else if(x == 32768) {
-		SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
-		SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
-		SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 4);
-	}
-	else if(x == 400) {
-		GiveInventory("Punisher_Perk50_Counter", 125);
-		ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
-	}
-	else if(x == 420) {
-		SpawnCharm(0, true);
-		SpawnOrbForAll(1, random(40, 120));
-		//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
-		SpawnCharmWithMods_ForAll(INV_FLATELEM_DAMAGE, INV_PERCENTELEM_DAMAGE);
-		//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);
-		/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
-		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-		SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-		SpawnCharmWithMods_ForAll(INV_CRITPERCENT_INCREASE);
-		SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
-		SpawnCharmWithMods_ForAll(INV_LIFESTEAL_DAMAGE);
-		SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);*/
-		/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
-		SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
-		SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
-	}
-	else if(x == 422) {
-		printbold(s:"giving ", d:2000000 + GetStat(STAT_EXP) / 2, s: " exp");
-		GiveExp(2000000 + GetStat(STAT_EXP) / 2);
-		printbold(s:"current exp: ", d:GetStat(STAT_EXP));
-	}
-	else if(x == 450) {
-		GiveInventory("PerkPoint", 10);
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERKPOINT, 10, 0);
-		GiveInventory("PerkedUp", 1);
-
-		GiveInventory("AttributePoint", 25);
-		UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, 25, 0);
-	}
-	else if(x == 500) {
-		for(i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
-			IncPlayerModValue(PlayerNumber(), i, 5);
-	}
-	else {
-		int c = CreateItemSpot();
-		//i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
-		i = UITEM_PELLETSTORM;
-		MakeUnique(c, DND_ITEM_CHARM, 0);
-		SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
-		
-		SyncItemData(0, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, 0, DND_ITEM_CHARM);
-	}
+	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode
+	#ifndef ISDEBUGBUILD
+		if(!HardcoreSet && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
 	#endif
+	{
+		int i;
+		if(x < MAX_RESEARCHES)
+			GiveResearch(x, true);
+		else if(x == 32768) {
+			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
+			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
+			SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 4);
+		}
+		else if(x == 400) {
+			GiveInventory("Punisher_Perk50_Counter", 125);
+			ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
+		}
+		else if(x == 420) {
+			SpawnCharm(0, true);
+			SpawnOrbForAll(1, random(40, 120));
+			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
+			SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
+			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);
+			/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+			SpawnCharmWithMods_ForAll(INV_CRITPERCENT_INCREASE);
+			SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
+			SpawnCharmWithMods_ForAll(INV_LIFESTEAL_DAMAGE);
+			SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);*/
+			/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
+			SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
+			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
+		}
+		else if(x == 422) {
+			printbold(s:"giving ", d:2000000 + GetStat(STAT_EXP) / 2, s: " exp");
+			GiveExp(2000000 + GetStat(STAT_EXP) / 2);
+			printbold(s:"current exp: ", d:GetStat(STAT_EXP));
+		}
+		else if(x == 450) {
+			GiveInventory("PerkPoint", 10);
+			UpdateActivity(PlayerNumber(), DND_ACTIVITY_PERKPOINT, 10, 0);
+			GiveInventory("PerkedUp", 1);
+
+			GiveInventory("AttributePoint", 25);
+			UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, 25, 0);
+		}
+		else if(x == 500) {
+			for(i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+				IncPlayerModValue(PlayerNumber(), i, 5);
+		}
+		else if(x == 501)
+			SetPlayerModValue(PlayerNumber(), INV_PELLET_INCREASE, 2 * PlayerModValues[PlayerNumber()][INV_PELLET_INCREASE] + 1.0);
+		else {
+			int c = CreateItemSpot();
+			//i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
+			i = UITEM_PELLETSTORM;
+			MakeUnique(c, DND_ITEM_CHARM, 0);
+			SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
+			
+			SyncItemData(0, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, 0, DND_ITEM_CHARM);
+		}
+	}
 }
 
 // experiment to check how evenly distributed the random attributes are
