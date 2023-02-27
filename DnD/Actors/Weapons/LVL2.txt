@@ -421,7 +421,7 @@ Actor Magnum : Weapon {
 			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-0.75, 0.75), 0, 0, frandom(-0.5, 0.5))
 			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
 			
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_MAGNUM, DND_ATK_PRIMARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_BULLETSIZE_6 << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_MAGNUM, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_BULLETSIZE_6 << 16), 0)
 			TNT1 A 0 A_RailAttack(0, 0, 0, "None", "None", 0, 0, "MagnumPistolPuff_Rail", 1.0)
 			
 			TNT1 A 0 A_GunFlash

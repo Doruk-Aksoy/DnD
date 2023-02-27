@@ -43,25 +43,25 @@ Actor "Plasma Rifle" : PlasmaRifle
    Fire1:
 	  NRAI A 1 Bright A_Gunflash
 	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-	  NRAI A 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI A 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 	  NRAI X 3 A_Refire
       Goto Cooldown
    Fire2:
 	  NRAI B 1 Bright A_Gunflash
 	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-	  NRAI B 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI B 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 	  NRAI X 3 A_Refire
       Goto Cooldown
    Fire3:
 	  NRAI C 1 Bright A_Gunflash
 	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-	  NRAI C 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI C 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 	  NRAI X 3 A_Refire
       Goto Cooldown
    Fire4:
 	  NRAI D 1 Bright A_Gunflash
 	  TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-	  NRAI D 2 Bright A_GiveInventory("PlasmaShooter", 1)
+	  NRAI D 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 	  NRAI X 3 A_Refire  
    Cooldown:
 	  NRAI F 1 A_PlaySound("Weapons/PlasmaCharge")
@@ -145,28 +145,28 @@ Actor "Upgraded Plasma Rifle" : PlasmaRifle {
 		Fire1:
 			QNPL B 1 Bright A_Gunflash
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-			QNPL B 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			QNPL B 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NUCLEARPLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TNT1 A 0 A_Refire
 			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
 		Goto Cooldown
 		Fire2:
 			QNPL C 1 Bright A_Gunflash("FlashB")
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-			QNPL C 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			QNPL C 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NUCLEARPLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TNT1 A 0 A_Refire
 			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
 		Goto Cooldown
 		Fire3:
 			QNPL E 1 Bright A_Gunflash
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-			QNPL E 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			QNPL E 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NUCLEARPLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TNT1 A 0 A_Refire
 			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
 		Goto Cooldown
 		Fire4:
 			QNPL F 1 Bright A_Gunflash("FlashB")
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 0,30+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-			QNPL F 2 Bright A_GiveInventory("PlasmaShooter2", 1)
+			QNPL F 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NUCLEARPLASMARIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TNT1 A 0 A_Refire 
 			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
 		Goto Cooldown
@@ -438,15 +438,6 @@ Actor PlasmaBallX : DnD_BaseProjectile {
 	}
 }
 
-Actor PlasmaShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 1)
-			TNT1 A 0 A_FireCustomMissile("PlasmaBallX")
-		Stop
-	}
-}
-
 Actor NewPlasmaBall : DnD_ExplosiveBase {
 	Radius 8
 	Height 16
@@ -513,23 +504,6 @@ Actor NewPlasmaExplosion {
 	}
 }
 
-Actor PlasmaShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_GiveInventory("PlasmaOverheat", 2)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("NewPlasmaBall")
-			TNT1 A 0 A_JumpIfInventory("PlasmaOverheat", 0, "Give")
-		Stop
-		Give:
-			TNT1 A 0 A_GiveInventory("PlasmaOverheatCooldown", 1)
-		Stop
-	}
-}
-
 Actor "Upgraded Plasma Rifle2" : Weapon {
     Weapon.Slotnumber 6
     Weapon.SelectionOrder 300
@@ -577,7 +551,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TNT1 A 0 A_GunFlash
 			TNT1 AAA 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*20,2 + random(0, 3),27+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 Radius_Quake (1, 4, 0, 1, 0)
-			TNT1 A 0 A_GiveInventory("TurelShooter1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_TURELCANNON, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TURL DEFG 1 Bright
 			TURL H 2
 			TURL A 3 A_Refire
@@ -588,7 +562,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TNT1 A 0 A_GunFlash
 			TNT1 AAA 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*20,2 + random(0, 3),27+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 Radius_Quake (1, 4, 0, 1, 0)
-			TNT1 A 0 A_GiveInventory("TurelShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_TURELCANNON, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TURL DEFG 1 Bright
 			TURL H 2
 			TURL A 3 A_Refire
@@ -610,7 +584,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TNT1 A 0 A_GunFlash
 			TNT1 AAA 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*20,2 + random(0, 3),27+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 Radius_Quake (1, 4, 0, 1, 0)
-			TNT1 A 0 A_GiveInventory("TurelShooter3", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_TURELCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TURL DEFG 1 Bright
 			TURL H 2
 			TURL A 10
@@ -627,7 +601,6 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 Actor TurelShooter1 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 2)
 			TNT1 A 0 A_RailAttack(0, 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff1", 0, 0, 1024, 27, 3.5, 1.0, "TurelParticle", 4)
 		Stop
 	}
@@ -636,7 +609,6 @@ Actor TurelShooter1 : DnD_Activator {
 Actor TurelShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 2)
 			TNT1 A 0 A_RailAttack(0, 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff1", 6.4 * (1.0 - accuracy * accuracy_factor), 3.2 * (1.0 - accuracy * accuracy_factor), 1024, 27, 3.5, 1.0, "TurelParticle", 4)
 		Stop
 	}
@@ -645,7 +617,6 @@ Actor TurelShooter2 : DnD_Activator {
 Actor TurelShooter3 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 4)
 			TNT1 A 0 A_RailAttack(0, 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff2", 0, 0, 1576, 27, 3.5, 1.0, "TurelParticle", 4)
 		Stop
 	}
@@ -755,9 +726,8 @@ Actor "Nailgun" : Weapon {
 			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,-3,36+(sin(-pitch)*20),0,0,2,0,0,0)
 			TNT1 A 0 A_GunFlash
-			TNT1 A 0 A_GiveInventory("NailShooter1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NAILGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_NAIL << 16), 0)
 			DNLG DE 1 Bright
-			TNT1 A 0 A_GiveInventory("NailCounter", 1)
 			DNLG K 3 A_Refire
 		Goto Ready
 		Fire2:
@@ -765,9 +735,8 @@ Actor "Nailgun" : Weapon {
 			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,3,36+(sin(-pitch)*20),0,0,2,0,0,0)
 			TNT1 A 0 A_GunFlash
-			TNT1 A 0 A_GiveInventory("NailShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NAILGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_NAIL << 16), 0)
 			DNLG HI 1 Bright
-			TNT1 A 0 A_TakeInventory("NailCounter", 1)
 			DNLG J 3 A_Refire
 		Goto Ready
 		AltFire:
@@ -776,9 +745,8 @@ Actor "Nailgun" : Weapon {
 			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
 			TNT1 AA 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,-3,36+(sin(-pitch)*20),0,0,2,0,0,0)
 			TNT1 A 0 A_GunFlash
-			TNT1 A 0 A_GiveInventory("NailShooter3", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NAILGUN, DND_ATK_SECONDARY, DND_AMMOSLOT_CELL | (AMMO_NAIL << 16), 0)
 			DNLG DE 1 Bright
-			TNT1 A 0 A_GiveInventory("NailCounter", 1)
 			DNLG K 3 A_Refire
 			TNT1 A 0 A_PlaySound("Weapons/lavanail")
 		Goto Ready
@@ -787,9 +755,8 @@ Actor "Nailgun" : Weapon {
 			TNT1 A 0 A_PlayWeaponSound("weapons/nailfire")
 			TNT1 AA 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,3,36+(sin(-pitch)*20),0,0,2,0,0,0)
 			TNT1 A 0 A_GunFlash
-			TNT1 A 0 A_GiveInventory("NailShooter4", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NAILGUN, DND_ATK_SECONDARY, DND_AMMOSLOT_CELL | (AMMO_NAIL << 16), 0)
 			DNLG HI 1 Bright
-			TNT1 A 0 A_TakeInventory("NailCounter", 1)
 			DNLG J 3 A_Refire
 			TNT1 A 0 A_PlaySound("Weapons/lavanail")
 		Goto Ready
@@ -799,58 +766,6 @@ Actor "Nailgun" : Weapon {
 		    TNT1 A 3 A_Light1
 		    TNT1 A 2 A_Light0
 		stop
-	}
-}
-
-Actor NailShooter1 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, -6)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("NailProjectile_GhostHitter", 0, 1, -6)
-		Stop
-	}
-}
-
-Actor NailShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("NailProjectile", 0, 1, 6)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("NailProjectile_GhostHitter", 0, 1, 6)
-		Stop
-	}
-}
-
-Actor NailShooter3 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 2)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, -6)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile_GhostHitter", 0, 1, -6)
-		Stop
-	}
-}
-
-Actor NailShooter4 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_NAIL, 2)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_NAILGUN, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile", 0, 1, 6)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("LavaNailProjectile_GhostHitter", 0, 1, 6)
-		Stop
 	}
 }
 
@@ -1153,13 +1068,13 @@ ACTOR Basilisk : Weapon {
 			TNT1 A 0 A_AlertMonsters
 			TNT1 A 0 A_GunFlash
 			TNT1 A 0 A_JumpIfInventory("LoadedBasilisk", 1, "Fire2")
-			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BASILISK, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LAVA << 16), 0)
 			BASG E 2 Bright A_SetPitch(pitch - 0.5)
-			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1) 
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BASILISK, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LAVA << 16), 0)
 			BASG F 2 Bright A_SetPitch(pitch - 0.5)
-			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BASILISK, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LAVA << 16), 0)
 			BASG G 2 Bright A_SetPitch(pitch - 0.5)
-			TNT1 A 0 A_GiveInventory("BasiliskShooter1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BASILISK, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LAVA << 16), 0)
 			BASG H 2 Bright A_SetPitch(pitch - 0.5)
 			TNT1 A 0 A_Refire
 			BASG IJKL 2 Bright
@@ -1171,12 +1086,12 @@ ACTOR Basilisk : Weapon {
 		Fire2:
 			BASG E 2 Bright
 			TNT1 A 0 Radius_Quake(6,4,0,1,0)
-			TNT1 A 0 A_GiveInventory("BasiliskShooter2", 1) 
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BASILISK, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_LAVA << 16), 0)
 			BASG F 2 Bright A_SetPitch(pitch - 0.5)
 			TNT1 A 0 A_TakeInventory("LoadedBasilisk", 1)
 			BASG G 2 Bright
 			TNT1 A 0 Radius_Quake(6,4,0,1,0)
-			TNT1 A 0 A_GiveInventory("BasiliskShooter2", 1) 
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BASILISK, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_LAVA << 16), 0)
 			BASG H 2 Bright A_SetPitch(pitch - 0.5)
 			TNT1 A 0 A_Refire("Fire")
 			BASG IJKL 2 Bright
@@ -1251,24 +1166,6 @@ ACTOR Basilisk : Weapon {
 			TNT1 A 1 A_Light0
 		stop   
    }
-}
-
-Actor BasiliskShooter1 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LAVA, 1)
-			TNT1 A 0 A_FireCustomMissile("BasiliskBall", Frandom(-2.5, 2.5) * (1.0 - accuracy * accuracy_factor), 1, 0, 0, 1, frandom(-2.0, 2.0) * (1.0 - accuracy * accuracy_factor))
-		Stop
-	}
-}
-
-Actor BasiliskShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LAVA, 1)
-			TNT1 A 0 A_FireCustomMissile("BasiliskBall2",Frandom(-2.5, 2.5) * (1.0 - accuracy * accuracy_factor),0,0,0,0,Frandom(-2,2) * (1.0 - accuracy * accuracy_factor))
-		Stop
-	}
 }
 
 ACTOR BasiliskBall : DnD_BaseFastProjectile {
@@ -1449,11 +1346,11 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
-			FSTF E 1 Bright Offset(0, 32) A_GiveInventory("FrostFangShooter", 1)
-			FSTF E 2 Bright Offset(1, 33) A_GiveInventory("FrostFangShooter", 1)
-			FSTF E 1 Bright Offset(-1, 35) A_GiveInventory("FrostFangShooter", 1)
-			FSTF E 2 Bright Offset(0, 36) A_GiveInventory("FrostFangShooter", 1)
-			FSTF E 1 Bright Offset(1, 38) A_GiveInventory("FrostFangShooter", 1)
+			FSTF E 1 Bright Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FROSTFANG, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
+			FSTF E 2 Bright Offset(1, 33) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FROSTFANG, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
+			FSTF E 1 Bright Offset(-1, 35) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FROSTFANG, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
+			FSTF E 2 Bright Offset(0, 36) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FROSTFANG, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
+			FSTF E 1 Bright Offset(1, 38) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FROSTFANG, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
 			FSTF D 2 Offset(0, 36)
 			FSTF D 2 Offset(0, 34)
 			FSTF D 2 Offset(1, 32)
@@ -1479,7 +1376,7 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
-			FSTF E 1 Bright Offset(0, 32) A_GiveInventory("FrostFangShooter2", 1)
+			FSTF E 1 Bright Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FROSTFANG, DND_ATK_SECONDARY, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
 			FSTF E 2 Bright Offset(1, 33)
 			FSTF E 1 Bright Offset(-1, 35)
 			FSTF E 2 Bright Offset(0, 36)
@@ -1495,35 +1392,6 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 		Spawn:
 			FSTF A -1
 		Loop
-	}
-}
-
-Actor FrostFangShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_FROSTFANG, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("FrostFangShard", 0, 1, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("FrostFangShard_GhostHitter", 0, 1, frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor), frandom(-7.5, 7.5) * (1.0 - accuracy * accuracy_factor))
-		Stop
-	}
-}
-
-Actor FrostFangShooter2 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 30)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("EverIce", 30)
-		NoTake:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_FROSTFANG, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("FrostFangBall", 0, 0)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("FrostFangBall_GhostHitter", 0, 0)
-		Stop
 	}
 }
 
@@ -1903,7 +1771,7 @@ Actor RhinoRifle : Weapon
 			TNT1 A 0 A_JumpIfInventory("RhinoZoomed", 1, "FireZoomed")
 			MARF A 1 Bright
 			TNT1 A 0 A_GunFlash
-			TNT1 A 0 A_GiveInventory("RhinoShooter", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RHINORIFLE, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP7 << 16), 0)
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 2, 32 * (1 + sin(-pitch)), 2, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("RhinoCasing",cos(pitch)*28,-2,32+(sin(-pitch)*20),0,-8,random(4,10),0,0,0)
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,5,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
@@ -1920,7 +1788,7 @@ Actor RhinoRifle : Weapon
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 10 + 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("RhinoCasing", 10 + cos(pitch)*28,-2,32+(sin(-pitch)*20),0,-8,random(4,10),0,0,0)
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke", 10 + cos(-pitch)*20,0,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-			TNT1 A 0 A_GiveInventory("RhinoShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RHINORIFLE, DND_ATK_SECONDARY DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP7 << 16), 0)
 			TNT1 A 0 A_PlaySound("RhinoRifle/Fire", CHAN_7)
 			MAZF A 1 Bright
 			TNT1 A 0 A_SetPitch(pitch - 1.5)
@@ -2137,32 +2005,6 @@ Actor RhinoRifle : Weapon
 
 Actor RhinoZoomed : DnD_Boolean { }
 Actor HadFullEmptyClip : DnD_Boolean { }
-
-Actor RhinoShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_MGCLIP7, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("MGClip7", 1)
-		NoTake:
-			TNT1 A 0 A_FireBullets(7.2 * (1.0 - accuracy * accuracy_factor), 4.8 * (1.0 - accuracy * accuracy_factor), -1, 0, "RhinoPuff", FBF_NORANDOM | FBF_USEAMMO)
-		Stop
-	}
-}
-
-Actor RhinoShooter2 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_MGCLIP7, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("MGClip7", 1)
-		NoTake:
-			TNT1 A 0 A_FireBullets(0.75 * (1.0 - accuracy * accuracy_factor), 0.75 * (1.0 - accuracy * accuracy_factor), -1, 0, "RhinoPuff", FBF_NORANDOM | FBF_USEAMMO)
-		Stop
-	}
-}
 
 Actor RhinoPuff : DnD_BasePuff {
 	States {

@@ -39,7 +39,7 @@ Actor "Upgraded Rocket Launcher2" : RocketLauncher {
 			MERC BC 1 Bright
 			TNT1 A 0 A_PlayWeaponSound("weapons/mercuryfire")
 			TNT1 A 0 Radius_Quake(4,3,0,1,0)
-			MERC C 1 Bright A_GiveInventory("RocketShooter3", 1)
+			MERC C 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_MERCURYLAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_ROCKET << 16), 0)
 			MERC DEFGHI 1 Bright
 			MERC JKLMN 3
 			MERC A 15
@@ -139,20 +139,6 @@ Actor MercuryRocket_GhostHitter : MercuryRocket {
 	-THRUGHOST
 }
 
-Actor RocketShooter3 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_MERCURYLAUNCHER, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("MercuryRocket", 1, 1, 0, 0)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("MercuryRocket_GhostHitter", 1, 1, 0, 0)
-		Stop
-	}
-}
-
 Actor ResRL1 : Weapon {
 	Weapon.SelectionOrder 2400
 	Weapon.SlotNumber 5
@@ -207,7 +193,7 @@ Actor ResRL1 : Weapon {
 			RW06 M 1
 			RW06 Q 1 Bright
 			TNT1 A 0 A_PlayWeaponSound("MeteorLauncher/fire")
-			TNT1 A 0 A_GiveInventory("MeteorShooter", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_METEORLAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_METEOR << 16), 0)
 			TNT1 A 0 Radius_Quake(5,3,0,4,0)
 			RW06 Q 1 Bright
 			RW06 RSTU 2 Bright
@@ -372,16 +358,6 @@ Actor MeteorMissile : DnD_ExplosiveBase {
 	}
 }
 
-Actor MeteorShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_METEOR, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_FireCustomMissile("MeteorMissile")
-		Stop
-	}
-}
-
 ACTOR ResRL2 : Weapon {
 	//$Category Weapons
 	Weapon.SelectionOrder 2400
@@ -427,7 +403,7 @@ ACTOR ResRL2 : Weapon {
 			GLAU B 3 Offset(1, 34)
 			TNT1 A 0 A_GunFlash
 			TNT1 A 0 A_PlayWeaponSound("HeavyGL/Fire")
-			TNT1 A 0 A_GiveInventory("HeavyGrenadeShooter", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYGL, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_HEAVYGRENADE << 16), 0)
 			TNT1 A 0 A_PlaySound("HeavyGL/Cock", 7)
 			GLAU C 1 Offset(1, 35)
 			GLAU C 1 Offset(3, 40)
@@ -467,39 +443,6 @@ ACTOR ResRL2 : Weapon {
 		Goto LightDone
 		Spawn:
 			GLAU G -1
-		Stop
-	}
-}
-
-Actor HeavyGrenadeShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_HEAVYGRENADE, 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("HeavyGrenades", 1)
-		NoTake:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_HEAVYGL, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("HeavyGrenade")
-			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop")
-		Stop
-		NormalLoop:
-			TNT1 A 0 A_FireCustomMissile("HeavyGrenade", frandom(-4.8, 4.8), 0, 0, 0, 0, frandom(-2.0, 2.0))
-			TNT1 A 0 A_TakeInventory("HeavyGLCounter", 1)
-			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop")
-		Finish:
-			TNT1 A 0
-		Stop
-		
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("HeavyGrenade_GhostHitter")
-			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop_GhostHitter")
-		Stop
-		NormalLoop_GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("HeavyGrenade_GhostHitter", frandom(-4.8, 4.8), 0, 0, 0, 0, frandom(-2.0, 2.0))
-			TNT1 A 0 A_TakeInventory("HeavyGLCounter", 1)
-			TNT1 A 0 A_JumpIfInventory("HeavyGLCounter", 1, "NormalLoop_GhostHitter")
-		Finish:
-			TNT1 A 0
 		Stop
 	}
 }
@@ -781,7 +724,7 @@ Actor ResRL3 : Weapon {
 			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
 			FRZC A 3
 			TNT1 A 0 A_PlaySound("Weapons/FreezerFire", CHAN_AUTO)
-			TNT1 A 0 A_GiveInventory("FreezerShooter1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FREEZER, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
 			TNT1 A 0 A_GunFlash
 			FRZC ABCD 2 A_SetPitch (pitch - 0.5)
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
@@ -804,7 +747,7 @@ Actor ResRL3 : Weapon {
 			FRZC A 1
 			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 A_PlaySound("Weapons/FreezerFire", CHAN_AUTO)
-			TNT1 A 0 A_GiveInventory("FreezerShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FREEZER, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_EVERICE << 16), 0)
 			TNT1 A 0 A_GunFlash
 			FRZC ABCD 2 A_SetPitch (pitch-0.50)
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
@@ -821,32 +764,6 @@ Actor ResRL3 : Weapon {
 			FRZC F 2 Bright A_Light1
 			FRZC G 2 Bright A_Light1
 		goto lightdone	
-	}
-}
-
-Actor FreezerShooter1 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 5)
-			TNT1 A 0 A_GiveInventory("FreezerOverheat", 5)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("EverIce", 5)
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("FreezeBall", 0, 1, 0, 0, 0)
-		Stop
-	}
-}
-
-Actor FreezerShooter2 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_EVERICE, 5)
-			TNT1 A 0 A_GiveInventory("FreezerOverheat", 10)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("EverIce", 5)
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("FreezeBall", frandom(-2, 2), 1, 0, 0, 0, frandom(-2, 2))
-		Stop
 	}
 }
 
@@ -1134,7 +1051,9 @@ Actor ResRL4 : Weapon {
 			BRSC I 4 Bright Offset(0, 32)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 AAA 0 A_SpawnItemEx("GravdisSmoke2", 18 * cos(-pitch), 16, 32 * (1 + sin(-pitch)), frandom(2, 3.5), frandom(-1, 1), frandom(-1, 1))
-			TNT1 A 0 A_GiveInventory("GravdisShooter", 1)
+			TNT1 A 0 A_PlaySound("Gravdis/Fire", 6)
+			TNT1 A 0 A_PlaySound("Gravdis/FireAdd", 7)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_GRAVDIS, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_GRAVDIS << 16), 0)
 			BRSF A 1 Bright Offset(10, 38)
 			BRSF A 1 Bright Offset(19, 46)
 			BRSF A 1 Bright Offset(27, 51)
@@ -1194,18 +1113,6 @@ Actor GravdisToken : DnD_Boolean { }
 
 // 3.5 seconds on gravity hold, then half second for the rise up section = 4 seconds
 Actor GravdisDebuff : DnD_Info { }
-
-Actor GravdisShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_GRAVDIS, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_PlaySound("Gravdis/Fire", 6)
-			TNT1 A 0 A_PlaySound("Gravdis/FireAdd", 7)
-			TNT1 A 0 A_FireCustomMissile("GravdisProjectile")
-		Stop
-	}
-}
 
 Actor GravdisProjectile : DnD_BaseProjectile {
 	Speed 50
@@ -1544,7 +1451,8 @@ Actor ResRL5 : Weapon {
 			RW07 R 1 Bright Offset(0, 33)
 			RW07 R 1 Bright Offset(0, 34)
 			RW07 R 1 Bright Offset(0, 35)
-			TNT1 A 0 A_GiveInventory("VoidCannonShooter", 1)
+			TNT1 A 0 A_PlayWeaponSound("VoidWeapon/Fire")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_VOIDCANNON, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			RW07 S 1 Bright Offset(0, 38)
 			RW07 S 1 Bright Offset(0, 49)
 			RW07 S 1 Bright Offset(0, 56)
@@ -1559,17 +1467,6 @@ Actor ResRL5 : Weapon {
 			RW07 W 4 Offset(0, 32)
 			RW07 A 15
 		Goto Ready
-	}
-}
-
-Actor VoidCannonShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 15)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_PlayWeaponSound("VoidWeapon/Fire")
-			TNT1 A 0 A_FireCustomMissile("VoidMissile")
-		Stop
 	}
 }
 

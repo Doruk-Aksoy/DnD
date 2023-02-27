@@ -22,6 +22,11 @@ typedef struct vector3 {
 
 // Functions with C suffix mean they create a unique copy, if they dont have it they will overwrite the result into first vector
 // To prevent user error, those that overwrite return nothing
+void SetVec2XY(int v, int x, int y) {
+	vec2[v].x = x;
+	vec2[v].y = y;
+}
+
 void AddVec2(int v1, int v2) {
 	vec2[v1].x += vec2[v2].x;
 	vec2[v1].y += vec2[v2].y;

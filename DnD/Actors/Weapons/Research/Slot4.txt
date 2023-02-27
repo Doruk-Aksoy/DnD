@@ -53,14 +53,22 @@ Actor ResMG1 : Chaingun {
 		Fire1:
 			RW03 D 1 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("templar/fire")
-			TNT1 A 0 A_GiveInventory("TemplarShooter", 1)
+			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-2, 2), 0, 0, frandom(-2, 2))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx ("silverbulletcasing",cos(pitch)*20,6,32+(sin(-pitch)*16),0,8,random(4,8),0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_TEMPLARMG, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP4 << 16), 0)
 			TNT1 A 0 Radius_Quake(1,2,0,1,0)
 			RW03 E 2 Bright
 		Goto FireEnd
 		Fire2:
 			RW03 D 1 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("templar/fire")
-			TNT1 A 0 A_GiveInventory("TemplarShooter", 1)			
+			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-2, 2), 0, 0, frandom(-2, 2))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,0,0,0,0)
+			TNT1 A 0 A_SpawnItemEx ("silverbulletcasing",cos(pitch)*20,6,32+(sin(-pitch)*16),0,8,random(4,8),0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_TEMPLARMG, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP4 << 16), 0)
 			TNT1 A 0 Radius_Quake(1,2,0,1,0)
 			RW03 F 2 Bright
 		Goto FireEnd
@@ -155,23 +163,6 @@ Actor ResMG1 : Chaingun {
 			RW03 A 2 Offset(1, 36)
 			RW03 A 2 Offset(0, 34)
 		Goto Ready
-	}
-}
-
-Actor TemplarShooter : DND_Activator {
-	states {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_MGCLIP4, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-2, 2), 0, 0, frandom(-2, 2))
-			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 0, 0, 1)
-			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,2,36+(sin(-pitch)*20),cos(-pitch)*0,0,0,0,0,0)
-			TNT1 A 0 A_SpawnItemEx ("silverbulletcasing",cos(pitch)*20,6,32+(sin(-pitch)*16),0,8,random(4,8),0,0,0)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("MGClip4", 1)
-		NoTake:
-			TNT1 A 0 A_FireBullets(4.4 * (1.0 - accuracy * accuracy_factor), 2.8 * (1.0 - accuracy * accuracy_factor), 1, 0, "TemplarMGPuff", FBF_NORANDOM | FBF_USEAMMO)
-		Stop
 	}
 }
 
@@ -840,20 +831,11 @@ Actor RiotgunAltCooldown : PowerDamage {
 Actor RiotgunShooter1 : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_RIOTGUNCLIP, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("RiotgunClip", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CLIP, AMMO_RIOT, 1)
-			TNT1 A 0 A_TakeInventory("RiotgunShell", 1)
-		NoTake:
+
 			TNT1 A 0 A_playWeaponsound("weapons/RiotgunFire")
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 7))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RIOTCANNON << 16), DND_DAMAGECATEGORY_BULLET, DND_ISSLOT4, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_FireBullets(riot_spreadx * (1.0 - accuracy * accuracy_factor), riot_spready * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "RiotgunPuff", FBF_NORANDOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 		Stop
 
 		Nitro:
@@ -861,20 +843,6 @@ Actor RiotgunShooter1 : DnD_Activator {
 		Stop
 		Explo:
 			TNT1 A 0 A_GiveInventory("ExploShellShooter_Riot", 1)
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_SetArg(4, Args[2])
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "RiotgunPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
 		Stop
 	}
 }
@@ -882,19 +850,11 @@ Actor RiotgunShooter1 : DnD_Activator {
 Actor RiotgunShooter2 : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_RIOTGUNCLIP, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("RiotgunClip", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CLIP, AMMO_RIOT, 1)
-			TNT1 A 0 A_TakeInventory("RiotgunShell", 1)
-		NoTake:
+
 			TNT1 A 0 A_playWeaponsound("weapons/RiotgunFire")
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 7))
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_FireBullets(riot_spreadx2 * (1.0 - accuracy * accuracy_factor), riot_spready2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "RiotgunPuff", FBF_NORANDOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 		Stop
 
 		Nitro:
@@ -902,20 +862,6 @@ Actor RiotgunShooter2 : DnD_Activator {
 		Stop
 		Explo:
 			TNT1 A 0 A_GiveInventory("ExploShellShooter_Riot", 1)
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_SetArg(4, Args[2])
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, Args[3], "RiotgunPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
 		Stop
 	}
 }
@@ -1243,7 +1189,10 @@ Actor ResMG3 : Chaingun {
 		Fire1:
 			RIF2 A 1 Bright
 			TNT1 A 0 A_PlayWeaponSound("AcidRifle/fire")
-			TNT1 A 0 A_GiveInventory("AcidRifleShooter", 1)
+			TNT1 A 0 A_FireCustomMissile("GreenTracer", frandom(-4, 4), 0, 0, frandom(-2.8, 2.8))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 28 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,4,31+(sin(-pitch)*20),cos(-pitch)*0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ACIDRIFLE, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_ACIDCLIP << 16), 0)
 			TNT1 A 0 A_GiveInventory("AcidAnim", 1)
 			TNT1 A 0 Radius_Quake(1,2,0,1,0)
 			RIF2 A 1 Bright Offset(3, 35)
@@ -1252,7 +1201,11 @@ Actor ResMG3 : Chaingun {
 		Fire2:
 			RIF2 B 1 Bright
 			TNT1 A 0 A_PlayWeaponSound("AcidRifle/fire")
-			TNT1 A 0 A_GiveInventory("AcidRifleShooter", 1)
+			TNT1 A 0 A_FireCustomMissile("GreenTracer", frandom(-4, 4), 0, 0, frandom(-2.8, 2.8))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 28 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,4,31+(sin(-pitch)*20),cos(-pitch)*0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ACIDRIFLE, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_ACIDCLIP << 16), 0)
+
 			TNT1 A 0 A_GiveInventory("AcidAnim", 1)
 			TNT1 A 0 Radius_Quake(1,2,0,1,0)
 			RIF2 B 1 Bright Offset(3, 35)
@@ -1261,7 +1214,10 @@ Actor ResMG3 : Chaingun {
 		Fire3:
 			RIF2 C 1 Bright
 			TNT1 A 0 A_PlayWeaponSound("AcidRifle/fire")
-			TNT1 A 0 A_GiveInventory("AcidRifleShooter", 1)
+			TNT1 A 0 A_FireCustomMissile("GreenTracer", frandom(-4, 4), 0, 0, frandom(-2.8, 2.8))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 28 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,4,31+(sin(-pitch)*20),cos(-pitch)*0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ACIDRIFLE, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_ACIDCLIP << 16), 0)
 			TNT1 A 0 A_TakeInventory("AcidAnim", 2)
 			TNT1 A 0 Radius_Quake(1,2,0,1,0)
 			RIF2 C 1 Bright Offset(3, 35)
@@ -1328,7 +1284,8 @@ Actor ResMG3 : Chaingun {
 		Goto Ready
 		ContinueAltFire:
 			RIF2 D 3 A_PlayWeaponSound("AcidRifle/BoltFire")
-			TNT1 A 0 A_GiveInventory("AcidRifleShooter2", 1)
+			TNT1 A 0 A_TakeInventory("AcidClip", 8)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ACIDRIFLE, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_ACIDCLIP << 16), 0)
 			RIF2 E 2 A_AlertMonsters
 			RIF2 F 2
 			RIF2 G 3
@@ -1341,48 +1298,6 @@ Actor ResMG3 : Chaingun {
 
 Actor AcidAnim : Inventory {
 	inventory.maxamount 2
-}
-
-Actor AcidRifleShooter : DND_Activator {
-	states {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_ACIDCLIP, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_FireCustomMissile("GreenTracer", frandom(-4, 4), 0, 0, frandom(-2.8, 2.8))
-			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 28 * (1 + sin(-pitch)), 0, 0, 1)
-			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,4,31+(sin(-pitch)*20),cos(-pitch)*0,0,0,0,0,0)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("AcidClip", 1)
-		NoTake:
-			TNT1 A 0 A_FireBullets(5.6 * (1.0 - accuracy * accuracy_factor), 3.2 * (1.0 - accuracy * accuracy_factor), 1, 0, "AcidPuff", FBF_NORANDOM | FBF_USEAMMO)
-		Stop
-	}
-}
-
-Actor AcidRifleShooter2 : DND_Activator {
-	states {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_ACIDCLIP, 8)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("AcidClip", 8)
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("AcidBolt", 0, 0, 4, -8)
-		Stop
-	}
-}
-
-Actor AcidRifleShooter3 : DND_Activator {
-	states {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_ACIDCLIP, 8)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("AcidClip", 8)
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("AcidBolt", 0, 0, 4, -16)
-		Stop
-	}
 }
 
 Actor AcidPuff : DnD_BasePuff {
@@ -1617,7 +1532,9 @@ Actor ResMG4 : Weapon {
 		Fire1:
 			FUSF A 2 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
-			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FUSIONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP6 << 16), 0)
 			TNT1 A 0 A_SetPitch(pitch - 0.15)
 			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
 			FUSF B 1
@@ -1625,7 +1542,9 @@ Actor ResMG4 : Weapon {
 		Fire2:
 			FUSF C 2 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
-			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FUSIONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP6 << 16), 0)
 			TNT1 A 0 A_SetPitch(pitch - 0.15)
 			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
 			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 1)
@@ -1634,7 +1553,10 @@ Actor ResMG4 : Weapon {
 		Fire3:
 			FUSF E 2 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
-			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FUSIONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP6 << 16), 0)
+
 			TNT1 A 0 A_SetPitch(pitch - 0.15)
 			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
 			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 2)
@@ -1643,7 +1565,10 @@ Actor ResMG4 : Weapon {
 		Fire4:
 			FUSF G 2 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
-			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FUSIONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP6 << 16), 0)
+
 			TNT1 A 0 A_SetPitch(pitch - 0.15)
 			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
 			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 3)
@@ -1652,7 +1577,10 @@ Actor ResMG4 : Weapon {
 		Fire5:
 			FUSF I 2 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
-			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FUSIONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP6 << 16), 0)
+
 			TNT1 A 0 A_SetPitch(pitch - 0.15)
 			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
 			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 4)
@@ -1661,7 +1589,10 @@ Actor ResMG4 : Weapon {
 		Fire6:
 			FUSF K 2 Bright A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/fire")
-			TNT1 A 0 A_GiveInventory("FusionBlasterShooter", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FUSIONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP6 << 16), 0)
+
 			TNT1 A 0 A_SetPitch(pitch - 0.15)
 			TNT1 A 0 A_GiveInventory("FusionAttackCounter", 1)
 			TNT1 A 0 A_GiveInventory("FusionWeaponHeight", 5)
@@ -1749,7 +1680,8 @@ Actor ResMG4 : Weapon {
 			FUSG B 3
 			FUSG B 0 A_AlertMonsters
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/Alt")
-			TNT1 A 0 A_GiveInventory("FusionBlasterShooter2", 1)
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FUSIONBLASTER, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP6 << 16), 0)
 			FUSF E 1 Bright
 			TNT1 A 0 A_SetPitch(pitch - 4.0)
 			FUSF E 1 Bright
@@ -1783,35 +1715,6 @@ Actor ResMG4 : Weapon {
 			FUSF B 1 Offset(2, 32)
 			FUSF B 8 Offset(0, 32)
 		Goto Ready
-	}
-}
-
-Actor FusionBlasterShooter : DND_Activator {
-	states {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_MGCLIP6, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
-			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("MGClip6", 1)
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("FusionBlasterProjectile", frandom(-2.4, 2.4) * (1.0 - accuracy * accuracy_factor), 0, 8, 0, 0, frandom(-1.6, 1.6) * (1.0 - accuracy * accuracy_factor))
-		Stop
-	}
-}
-
-Actor FusionBlasterShooter2 : DND_Activator {
-	states {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_MGCLIP6, 20)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("MGClip6", 20)
-		NoTake:
-			TNT1 A 0 A_FireCustomMissile("FusionBlasterGrenade", 1, 0, 8, 8, 0, 0)
-		Stop
 	}
 }
 
@@ -2053,7 +1956,7 @@ ACTOR ResMG5 : Weapon {
 			TNT1 A 0 A_GunFlash
 			TNT1 A 0 A_PlayWeaponSound("Incinerator/fire")
 			TNT1 AAA 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, frandom(-1, 1), 1)
-			TNT1 A 0 A_GiveInventory("IncineratorShooter", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_INCINERATOR, DND_ATK_PRIMARY, DND_AMMOSLOT_CLIP | (AMMO_INCINERATOR << 16), DND_ATF_CANFIRECIRCLE)
 			RW09 C 1 Bright A_SetPitch (pitch - 0.5)
 			RW09 C 1 Bright A_SetPitch (pitch - 0.2)
 			RW09 D 1 A_SetPitch (pitch - 0.1)
@@ -2102,51 +2005,6 @@ ACTOR ResMG5 : Weapon {
 			TNT1 A 2 A_Light2
 			TNT1 A 0 A_Light0
 		Goto LightDone
-	}
-}
-
-Actor IncineratorShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CLIP, AMMO_INCINERATOR, 4)
-			TNT1 A 0 A_GiveInventory("IncineratorStacks", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile1", frandom(-9.0, 9.0), 1, frandom(-1.6, 1.6), frandom(-1.6, 1.6), 1, frandom(-4.8, 4.8))
-			TNT1 AAAAAAAAAAA 0 A_FireCustomMissile("IncineratorProjectile1", frandom(-9.0, 9.0), 0, frandom(-1.6, 1.6), frandom(-1.6, 1.6), 1, frandom(-4.8, 4.8))
-			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 0, "FullShot")
-		Stop
-		FullShot:
-			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile2", 0, 0, -18)
-			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile2", 0, 0, 18)
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 12))
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNPELLETS])
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[DND_ARG_SHOTGUNTEMP], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile1", (360.0 / Args[DND_ARG_SHOTGUNPELLETS]) * Args[DND_ARG_SHOTGUNTEMP], 0)
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNTEMP] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 0, "FullShot_Circle")
-		Stop
-		
-		FullShot_Circle:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 2))
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNPELLETS])
-		LoopStart_FullShot:
-			TNT1 A 0 A_JumpIf(Args[DND_ARG_SHOTGUNTEMP], "LoopContinue_FullShot")
-		Goto Finish_FullShot
-		LoopContinue_FullShot:
-			TNT1 A 0 A_FireCustomMissile("IncineratorProjectile2", (360.0 / Args[DND_ARG_SHOTGUNPELLETS]) * Args[DND_ARG_SHOTGUNTEMP], 0)
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNTEMP] - 1)
-		Goto LoopStart_FullShot
-		Finish_FullShot:
-			TNT1 A 0
-		Stop
 	}
 }
 

@@ -242,10 +242,6 @@ Actor DoPump : DnD_Boolean { }
 Actor DeadlockShooter : DnD_Activator {
 	States {
 		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_12, 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("ShellSize_12", 1)
-		NoTake:
 			TNT1 A 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 11, "Slug")
 			// slug has only 1 tracer
@@ -254,16 +250,9 @@ Actor DeadlockShooter : DnD_Activator {
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 2, "Magnum")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_3", 1, "Flechette")
 		NormalFire:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_SHELL, 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake2")
-			TNT1 A 0 A_TakeInventory("Shell", 1)
-		NoTake2:
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_PlayWeaponSound("Deadlock/Fire")
 			
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 16))
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_FireBullets (7.0 * (1.0 - accuracy * accuracy_factor), 5.2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "DeadlockPuff", FBF_NORANDOM | FBF_USEAMMO)  
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEADLOCK, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_12 << 16), 0)
 		Stop
 		Flechette:
 			TNT1 A 0 A_GiveInventory("FlechetteShellShooter", 1)
@@ -273,20 +262,6 @@ Actor DeadlockShooter : DnD_Activator {
 		Stop
 		Slug:
 			TNT1 A 0 A_GiveInventory("SlugShellShooter", 1)
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_SetArg(4, Args[2])
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "DeadlockPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
 		Stop
 	}
 }
@@ -381,7 +356,7 @@ Actor ResShotgun2 : Weapon {
 		NoRecoil:
 			BOWG A 0 A_PlaySound("weapons/cryobowshot")
 			BOWG A 0 A_PlaySound("weapons/cryobowfire", CHAN_WEAPON)
-			BOWF A 2 Bright A_GiveInventory("CryoShooter_1", 1)
+			BOWF A 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NITROGENCROSSBOW, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_NITROGENCANISTER << 16), 0)
 			BOWF BCD 2 Bright
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
 			BOWF E 8
@@ -414,7 +389,7 @@ Actor ResShotgun2 : Weapon {
 		NoRecoilAlt:
 			BOWG A 0 A_PlaySound("weapons/cryobowshot")
 			BOWG A 0 A_PlaySound("weapons/cryobowfire", CHAN_WEAPON)
-			BOWF A 2 Bright A_GiveInventory("CryoShooter_2", 1)
+			BOWF A 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_NITROGENCROSSBOW, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_NITROGENCANISTER << 16), 0)
 			BOWF BCD 2 Bright
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadAltFaster")
 			BOWF E 8
@@ -451,31 +426,19 @@ Actor ResShotgun2 : Weapon {
 	}
 }
 
-Actor CryoShooter_1 : DnD_Activator {
+Actor CryobowRailHelper_1 : DnD_Activator {
 	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_NITROGENCANISTER, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+		Pickup:
 			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuff_FX", FBF_NORANDOM)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_RailAttack(0, 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoBowPuff", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
-		Stop
-		NoTake:
 			TNT1 A 0 A_RailAttack(0, 0, 0, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoBowPuff", 0, 0, 0xFFF, 0, 5.0, 0, "CryoTrail", 1)
 		Stop
 	}
 }
 
-Actor CryoShooter_2 : DnD_Activator {
+Actor CryobowRailHelper_2 : DnD_Activator {
 	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_NITROGENCANISTER, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
+		Pickup:
 			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CryoPuffAlt", FBF_NORANDOM, 384)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_RailAttack(0, 0, 1, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoRailPuffAlt", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
-		Stop
-		NoTake:
 			TNT1 A 0 A_RailAttack(0, 0, 0, none, none, RGF_SILENT | RGF_NOPIERCING, 0, "CryoRailPuffAlt", 0, 0, 384, 0, 5.0, 0, "CryoTrail", 1)
 		Stop
 	}
@@ -909,7 +872,7 @@ Actor ResShotgun3 : Weapon {
 		Loop
 		Fire:
 			WOPG W 3 Bright A_PlaySound("WoT/Fire")
-			WOPG X 6 Bright A_GiveInventory("WoTShooter", 1)
+			WOPG X 6 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_WHEELOFTORMENT, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_DEMONBLOOD << 16), 0)
 			WOPG YH 3 Bright 
 			WOPG NOPQRSTUV 2 Bright
 			WOPG A 0 A_Refire
@@ -919,36 +882,11 @@ Actor ResShotgun3 : Weapon {
 			WOPG I 4 Bright A_GiveInventory("BaneCount", 1)
 		AltBane:
 			TNT1 A 0 A_PlaySound("WoT/Alt")
-			WOPG JKL 4 Bright A_GiveInventory("WoTShooter2", 1)
-			WOPG M 4 Bright A_GiveInventory("WoTShooter3", 1)
+			WOPG JKL 4 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_WHEELOFTORMENT, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_DEMONBLOOD << 16), DND_ATF_NOAMMOTAKE | DND_ATF_NOAMMOGAINCHECK)
+			WOPG M 4 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_WHEELOFTORMENT, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_SHELL | (AMMO_DEMONBLOOD << 16), DND_ATF_NOAMMOTAKE | DND_ATF_NOAMMOGAINCHECK)
 			WOPG I 4 A_Refire
 			TNT1 A 0 A_TakeInventory("BaneCount", 1)
 		Goto Ready 
-	}
-}
-
-Actor WoTShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_FireBullets(0, 0, 1, 0, "BloodFX2A", FBF_USEAMMO, 1024)
-		Stop
-	}
-}
-
-Actor WoTShooter2 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "BloodFX3", 0, 84)
-		Stop
-	}
-}
-
-Actor WoTShooter3 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "BloodDrainFX", 0, 84 * (1.0 + m_range_factor * ACS_NamedExecuteWithResult("DnD Get Melee Range Increase")))
-		Stop
 	}
 }
 
@@ -1212,8 +1150,9 @@ ACTOR ResShotgun4 : Weapon {
 			TNT1 A 0 A_AlertMonsters
 			TNT1 A 0 A_GunFlash
 			TNT1 A 0 A_PlayWeaponSound("CharonBlaster/fire")
-			TNT1 A 0 A_GiveInventory("CharonShooter", 1)
-			RW08 J 4 Bright A_SetPitch(pitch - 0.2)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_CHARONBLASTER, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_CHARON << 16), 0)
+			RW08 J 1 Bright
+			RW08 J 3 Bright A_SetPitch(pitch - 0.2)
 			RW08 K 4 Bright A_SetPitch(pitch + 0.11)
 			RW08 L 4 Bright A_SetPitch(pitch + 0.09)
 			RW08 A 1 Bright A_Refire("Fire")
@@ -1228,11 +1167,11 @@ ACTOR ResShotgun4 : Weapon {
 			TNT1 A 0 A_AlertMonsters
 			TNT1 A 0 A_GunFlash
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_GiveInventory("CharonShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_CHARONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_CHARON << 16), 0)
 			RW08 F 1 Bright A_SetPitch(pitch - 0.0875)
-			TNT1 A 0 A_GiveInventory("CharonShooter3", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_CHARONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_CHARON << 16), DND_ATF_NOAMMOGAINCHECK | DND_ATF_NOAMMOTAKE)
 			RW08 G 1 Bright
-			TNT1 A 0 A_GiveInventory("CharonShooter4", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_CHARONBLASTER, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_CHARON << 16), DND_ATF_NOAMMOGAINCHECK | DND_ATF_NOAMMOTAKE)
 			RW08 H 1 Bright A_SetPitch(pitch + 0.0375)
 			TNT1 A 0 A_JumpIfInventory("CharonStacks", 1, "KeepFiring")
 		Goto FireEnd
@@ -1409,64 +1348,8 @@ Actor CharonStacks : Ammo {
 	+IGNORESKILL
 }
 
-Actor CharonShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_CHARON, 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("CharonAmmo", 1)
-		NoTake:
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_FireCustomMissile ("CharonBall", 0, 0)
-			TNT1 A 0 A_FireCustomMissile ("CharonBall", 12.5, 0)
-			TNT1 A 0 A_FireCustomMissile ("CharonBall", -12.5, 0)
-		Stop
-			
-		FireCircle:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 3))
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNPELLETS])
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[DND_ARG_SHOTGUNTEMP], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireCustomMissile("CharonBall", (360.0 / Args[DND_ARG_SHOTGUNPELLETS]) * Args[DND_ARG_SHOTGUNTEMP], 0)
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNTEMP] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
-		Stop
-	}
-}
-
-Actor CharonShooter2 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("CharonStacks", 1)
-		NoTake:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charon Stack Gain Chance", 0)
-			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CharonDamagingPuff_1", 0, 768)
-		Stop
-	}
-}
-
-Actor CharonShooter3 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charon Stack Gain Chance", 0)
-			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CharonDamagingPuff_2", 0, 768)
-		Stop
-	}
-}
-
-Actor CharonShooter4 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Charon Stack Gain Chance", 0)
-			TNT1 A 0 A_FireBullets(0, 0, 0, 0, "CharonDamagingPuff_3", 0, 768)
-		Stop
-	}
+Actor CharonBeamCounter : DnD_Info {
+	inventory.maxamount 3
 }
 
 Actor CharonParticle_Orange {

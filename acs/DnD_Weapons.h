@@ -105,8 +105,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_name1 = "Clip";
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_name2 = "BulletSize_6";
 	Weapons_Data[DND_WEAPON_MAGNUM].icon = "WEPICO11";
-	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use1 = 0;
+	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_MAGNUM].properties = WPROP_IGNORESHIELD;
 	
 	Weapons_Data[DND_WEAPON_LASERPISTOL].name = "Laser Pistol";
@@ -155,7 +155,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SHOTGUN].ammo_name2 = "ShellSize_8N";
 	Weapons_Data[DND_WEAPON_SHOTGUN].icon = "WEPICO17";
 	Weapons_Data[DND_WEAPON_SHOTGUN].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_SHOTGUN].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_SHOTGUN].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_SHOTGUN].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_PURIFIER].name = "Upgraded Shotgun";
@@ -163,7 +163,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PURIFIER].ammo_name2 = "ShellSize_8N";
 	Weapons_Data[DND_WEAPON_PURIFIER].icon = "WEPICO18";
 	Weapons_Data[DND_WEAPON_PURIFIER].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_PURIFIER].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_PURIFIER].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_PURIFIER].properties = WPROP_ALTAMMO;
 	
 	Weapons_Data[DND_WEAPON_KILLSTORM].name = "Upgraded Shotgun2";
@@ -171,7 +171,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_name2 = "ShellSize_10";
 	Weapons_Data[DND_WEAPON_KILLSTORM].icon = "WEPICO19";
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_KILLSTORM].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_EMERALDWAND].name = "Upgraded Shotgun3";
@@ -179,7 +179,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_EMERALDWAND].icon = "WEPICO20";
 	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_EMERALDWAND].properties = WPROP_CANTHITGHOST | WPROP_POISON;
 	
 	Weapons_Data[DND_WEAPON_DEADLOCK].name = "ResShotgun1";
@@ -187,7 +187,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_name2 = "ShellSize_12";
 	Weapons_Data[DND_WEAPON_DEADLOCK].icon = "WEPICO21";
 	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_DEADLOCK].properties = WPROP_ALTAMMO;
 	
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].name = "ResShotgun2";
@@ -195,7 +195,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].icon = "WEPICO22";
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].name = "ResShotgun3";
@@ -211,15 +211,15 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_name2 = "CharonStacks";
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].icon = "WEPICO93";
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_CHARONBLASTER].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_use2 = 1;
+	Weapons_Data[DND_WEAPON_CHARONBLASTER].properties = WPROP_NONE;
 	
 	// SLOT 3 - SUPER SHOTGUNS
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].name = " Super Shotgun ";
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].ammo_name1 = "Shell";
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].icon = "WEPICO24";
-	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].properties = WPROP_NONE;
 	
@@ -227,7 +227,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_name1 = "Shell";
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].icon = "WEPICO25";
-	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].properties = WPROP_RIPPER;
 	
@@ -236,7 +236,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_name2 = "ShellSize_2";
 	Weapons_Data[DND_WEAPON_ERASUS].icon = "WEPICO26";
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_ERASUS].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_ERASUS].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_ERASUS].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_HELLSMAW].name = "Upgraded Super Shotgun3";
@@ -244,7 +244,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_HELLSMAW].icon = "WEPICO27";
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_HELLSMAW].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
 	
 	Weapons_Data[DND_WEAPON_PLASMACANNON].name = "ResSSG1";
@@ -252,14 +252,14 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_name2 = "PCanClip";
 	Weapons_Data[DND_WEAPON_PLASMACANNON].icon = "WEPICO28";
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_PLASMACANNON].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
 	
 	Weapons_Data[DND_WEAPON_SHOCKER].name = "ResSSG2";
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_name1 = "Cell";
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_name2 = "IonOverheat";
 	Weapons_Data[DND_WEAPON_SHOCKER].icon = "WEPICO29";
-	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use1 = 5;
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SHOCKER].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT;
 	
@@ -267,8 +267,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HADES].ammo_name1 = "HadesAmmo";
 	Weapons_Data[DND_WEAPON_HADES].ammo_name2 = "ShellSize_16";
 	Weapons_Data[DND_WEAPON_HADES].icon = "WEPICO30";
-	Weapons_Data[DND_WEAPON_HADES].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_HADES].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_HADES].ammo_use1 = 2;
+	Weapons_Data[DND_WEAPON_HADES].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_HADES].properties = WPROP_RIPPER | WPROP_CANTHITGHOST;
 	
 	Weapons_Data[DND_WEAPON_CROSSBOW].name = "ResSSG4";
@@ -301,7 +301,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MACHINEGUN].ammo_name2 = "MGClip";
 	Weapons_Data[DND_WEAPON_MACHINEGUN].icon = "WEPICO33";
 	Weapons_Data[DND_WEAPON_MACHINEGUN].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_MACHINEGUN].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_MACHINEGUN].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_MACHINEGUN].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].name = "Upgraded Machine Gun";
@@ -309,7 +309,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].ammo_name2 = "MGClip2";
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].icon = "WEPICO34";
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_LEADSPITTER].name = "Upgraded Machine Gun2";
@@ -317,7 +317,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_name2 = "MGClip3";
 	Weapons_Data[DND_WEAPON_LEADSPITTER].icon = "WEPICO35";
 	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_LEADSPITTER].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_DEMONSEALER].name = "Upgraded Machine Gun3";
@@ -325,7 +325,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEMONSEALER].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_DEMONSEALER].icon = "WEPICO36";
 	Weapons_Data[DND_WEAPON_DEMONSEALER].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_DEMONSEALER].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_DEMONSEALER].ammo_use2 = 10;
 	Weapons_Data[DND_WEAPON_DEMONSEALER].properties = WPROP_NONE;
 	
 	Weapons_Data[DND_WEAPON_TEMPLARMG].name = "ResMG1";
@@ -349,7 +349,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_name2 = "AcidClip";
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].icon = "WEPICO39";
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].properties = WPROP_POISON;
 	
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].name = "ResMG4";
@@ -357,7 +357,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_name2 = "MGClip6";
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].icon = "WEPICO40";
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_use2 = 20;
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].properties = WPROP_IGNORESHIELD | WPROP_RIPPER;
 	
 	Weapons_Data[DND_WEAPON_INCINERATOR].name = "ResMG5";
@@ -389,7 +389,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_name2 = "EbonyAmmoX";
 	Weapons_Data[DND_WEAPON_EBONYCANNON].icon = "WEPICO43";
 	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_EBONYCANNON].properties = WPROP_IGNORESHIELD | WPROP_SELFDMG;
 	
 	Weapons_Data[DND_WEAPON_MPPB].name = "MPPB";
@@ -430,7 +430,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VINDICATOR].ammo_name2 = "ShellSize_18";
 	Weapons_Data[DND_WEAPON_VINDICATOR].icon = "WEPICO47";
 	Weapons_Data[DND_WEAPON_VINDICATOR].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_VINDICATOR].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_VINDICATOR].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_VINDICATOR].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
 	
 	Weapons_Data[DND_WEAPON_METEORLAUNCHER].name = "ResRL1";
@@ -453,7 +453,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_name1 = "EverIce";
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_name2 = "FreezerOverheat";
 	Weapons_Data[DND_WEAPON_FREEZER].icon = "WEPICO50";
-	Weapons_Data[DND_WEAPON_FREEZER].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_FREEZER].ammo_use1 = 5;
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_FREEZER].properties = WPROP_RIPPER | WPROP_OVERHEAT;
 	
@@ -493,7 +493,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_name1 = "MISAmmo";
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].icon = "WEPICO53";
-	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
 	
@@ -526,7 +526,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_name1 = "Cell";
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_TURELCANNON].icon = "WEPICO56";
-	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_TURELCANNON].properties = WPROP_RIPPER;
 	
@@ -535,7 +535,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FROSTFANG].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_FROSTFANG].icon = "WEPICO57";
 	Weapons_Data[DND_WEAPON_FROSTFANG].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_FROSTFANG].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_FROSTFANG].ammo_use2 = 30;
 	Weapons_Data[DND_WEAPON_FROSTFANG].properties = WPROP_RIPPER | WPROP_CANTHITGHOST;
 	
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].name = "ResPlasma1";
@@ -543,7 +543,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_name2 = "FuelClip";
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].icon = "WEPICO58";
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].properties = WPROP_SELFDMG;
 	
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].name = "ResPlasma2";
@@ -575,7 +575,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_name2 = "MGClip7";
 	Weapons_Data[DND_WEAPON_RHINORIFLE].icon = "WEPICO61";
 	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_RHINORIFLE].properties = WPROP_ALTAMMO;
 	
 	Weapons_Data[DND_WEAPON_NAILGUN].name = "Nailgun";
@@ -583,7 +583,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_NAILGUN].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_NAILGUN].icon = "WEPICO62";
 	Weapons_Data[DND_WEAPON_NAILGUN].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_NAILGUN].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_NAILGUN].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_NAILGUN].properties = WPROP_RIPPER | WPROP_CANTHITGHOST | WPROP_NOREFLECT;
 	
 	Weapons_Data[DND_WEAPON_BASILISK].name = "Basilisk";
@@ -1269,18 +1269,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	if(ammo_slot != DND_AMMOSLOT_SPECIAL)
 		GiveInventory("DnD_UsedNonSpecial", 1);
 	
-	// moved doesn't have artemis check to here for clarity
-	if(!(flags & DND_ATF_NOAMMOGAINCHECK) && !hasArtemis)
-		HandleAmmoGainChance(ammo_slot, ammo_sub_slot, ammo_take_amt, owner);
-		
-	// NOTE: This rolls a crit chance to be used by the subsequent things below! Disabling it with the flag may remove crits!
-	if(!(flags & DND_ATF_NOATTACKTRIGGER))
-		HandleAttackEvent(ammo_slot == DND_AMMOSLOT_SPECIAL, ammo_sub_slot > SSAM_SLUG ? ammo_sub_slot - 1 : ammo_sub_slot);
-	
 	int proj_id = -1;				// id of proj to fire
 	int count = 1;					// proj count
 	int sp_x = 0, sp_y = 0;			// spread values
-	int angle_vec = GetVec2();
+	int angle_vec = GetVec2();		// negative is left, positive is right
 	int offset_vec = GetVec3();
 	bool use_default = false;		// default behavior
 	
@@ -1335,11 +1327,11 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				use_default = false;
 				
 				// -3, 0, 3 deg angles
-				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, ProjectileInfo[proj_id].spd_range, angle_vec, offset_vec, sp_x, sp_y, flags);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, sp_x, sp_y, flags);
 				vec2[angle_vec].x = -3.0;
-				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, ProjectileInfo[proj_id].spd_range, angle_vec, offset_vec, sp_x, sp_y, flags);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, sp_x, sp_y, flags);
 				vec2[angle_vec].x = 3.0;
-				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, ProjectileInfo[proj_id].spd_range, angle_vec, offset_vec, sp_x, sp_y, flags);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, sp_x, sp_y, flags);
 			}
 		break;
 		case DND_WEAPON_ASSAULTRIFLE:
@@ -1375,7 +1367,655 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			count = 10;
 			sp_x = 5.6;
 			sp_y = 5.6;
+			
+			if(!(flags & DND_ATF_NOAMMOTAKE)) {
+				HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
+				TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+			}
 		break;
+		case DND_WEAPON_PURIFIER:
+			proj_id = DND_PROJ_PURIFIER;
+			use_default = true;
+			count = 15;
+			sp_x = 3.6;
+			sp_y = 3.6;
+			
+			if(!(flags & DND_ATF_NOAMMOTAKE)) {
+				HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
+				TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+			}
+		break;
+		case DND_WEAPON_KILLSTORM:
+			proj_id = DND_PROJ_KILLSTORM;
+			use_default = true;
+			count = 12;
+			sp_x = 9.6;
+			sp_y = 7.2;
+		break;
+		case DND_WEAPON_EMERALDWAND:
+			use_default = true;
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				proj_id = DND_PROJ_EMERALDMAIN;
+				count = 5;
+				sp_x = 6.0;
+				sp_y = 4.5;
+			}
+			else
+				proj_id = DND_PROJ_EMERALDRAINER;
+		break;
+		case DND_WEAPON_SUPERSHOTGUN:
+			proj_id = DND_PROJ_SSG;
+			use_default = true;
+			count = 20;
+			sp_x = 11.2;
+			sp_y = 7.1;
+		break;
+		case DND_WEAPON_HEAVYSUPERSHOTGUN:
+			use_default = false;
+			count = 14;
+			sp_x = 9.6;
+			sp_y = 5.8;
+			
+			// check if circle attack, fire in circle otherwise
+			if(!CheckUniquePropertyOnPlayer(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE)) {
+				// this weapon fires half pellets as railgun, half as hitscan -- so we tuck it at the end
+				Do_Hitscan_Attack(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, sp_x, sp_y, flags);
+				Do_Railgun_Attack("HeavySSG_RailHelper", count);
+			}
+			else {
+				GiveInventory("HeavySSG_RailHelper_Circle", 1);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HEAVYSSG, wepid, GetPelletCount(pnum, count), ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, flags);
+			}
+		break;
+		case DND_WEAPON_ERASUS:
+			proj_id = DND_PROJ_ERASUS;
+			use_default = true;
+			
+			// use other dir to make it different from primary vs alt, and alt to use the magazine not main ammo pool
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				count = 18;
+				sp_x = 9.0;
+				sp_y = 6.4;
+			}
+			else {
+				count = 36;
+				sp_x = 14.8;
+				sp_y = 10.2;
+				
+				// take twice ammo for altfire
+				ammo_take_amt <<= 1;
+			}
+		break;
+		case DND_WEAPON_HELLSMAW:
+			use_default = false;
+			
+			// left or right option to check for here
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				// left
+				vec2[angle_vec].x = -1.0;
+				vec3[offset_vec].y = -12.0;
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				
+				SetVec3XYZ(offset_vec, 0.0, 4.0, 0.0);
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				SetVec3XYZ(offset_vec, 0.0, -12.0, 16.0);
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				SetVec3XYZ(offset_vec, 0.0, -28.0, 0.0);
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+			}
+			else {
+				// right
+				vec2[angle_vec].x = 1.0;
+				vec3[offset_vec].y = 12.0;
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				
+				SetVec3XYZ(offset_vec, 0.0, -4.0, 0.0);
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				SetVec3XYZ(offset_vec, 0.0, 12.0, 16.0);
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				SetVec3XYZ(offset_vec, 0.0, 28.0, 0.0);
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+			}
+		break;
+		case DND_WEAPON_SILVERGUN:
+			proj_id = DND_PROJ_WHITEDEATH;
+			use_default = true;
+			count = 10;
+			sp_x = 6.4;
+			sp_y = 4.8;
+		break;
+		case DND_WEAPON_SLAYER:
+			use_default = false;
+			proj_id = DND_PROJ_SLAYER;
+		
+			if(!CheckUniquePropertyOnPlayer(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE)) {
+				vec2[angle_vec].x = -3.0;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				vec2[angle_vec].x = 3.0;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				vec2[angle_vec].x = -6.0;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				vec2[angle_vec].x = 6.0;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				vec2[angle_vec].x = -1.0;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				vec2[angle_vec].x = 1.0;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+			}
+			else
+				Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 6), ProjectileInfo[proj_id].spd_range, flags);
+		break;
+		case DND_WEAPON_DEADLOCK:
+			proj_id = DND_PROJ_DEADLOCK;
+			use_default = true;
+			count = 16;
+			sp_x = 7.0;
+			sp_y = 5.2;
+			
+			if(!(flags & DND_ATF_NOAMMOTAKE)) {
+				HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
+				TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+			}
+		break;
+		case DND_WEAPON_NITROGENCROSSBOW:
+			use_default = false;
+			
+			if(!(isAltFire & DND_ATK_SECONDARY))
+				Do_Railgun_Attack("CryobowRailHelper_1", 1);
+			else
+				Do_Railgun_Attack("CryobowRailHelper_2", 1);
+		break;
+		case DND_WEAPON_WHEELOFTORMENT:
+			use_default = true;
+			
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				// primary
+				proj_id = DND_PROJ_WHEELOFTORMENT_1;
+			}
+			else if(isAltFire & DND_ATK_OTHER_DIR) {
+				// special 3rd proj that gives ammo
+				proj_id = DND_PROJ_WHEELOFTORMENT_3;
+			}
+			else {
+				// 2nd proj
+				proj_id = DND_PROJ_WHEELOFTORMENT_2;
+			}
+		break;
+		case DND_WEAPON_CHARONBLASTER:
+			use_default = false;
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				proj_id = DND_PROJ_CHARON;
+				if(!CheckUniquePropertyOnPlayer(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE)) {
+					vec2[angle_vec].x = -12.5;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					vec2[angle_vec].x = 0;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					vec2[angle_vec].x = 12.5;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				}
+				else
+					Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 3), ProjectileInfo[proj_id].spd_range, flags);
+			}
+			else {
+				sp_x = CheckInventory("CharonBeamCounter");
+				
+				switch(sp_x) {
+					case 0:
+						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff_1", wepid, 1, 768.0, 0, 0, 0);
+					break;
+					case 1:
+						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff_2", wepid, 1, 768.0, 0, 0, 0);
+					break;
+					case 2:
+						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff_3", wepid, 1, 768.0, 0, 0, 0);
+					break;
+				}
+				
+				GiveInventory("CharonBeamCounter", 1);
+				// we reset at every 3
+				if(sp_x == 2)
+					SetInventory("CharonBeamCounter", 0);
+			}
+		break;
+		case DND_WEAPON_PLASMACANNON:
+			use_default = false;
+			proj_id = DND_PROJ_PLASMACANNON;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				// circle pattern -- check circle fire too
+				if(!CheckUniquePropertyOnPlayer(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE)) {
+					for(sp_x = 0; sp_x < 12; ++sp_x) {
+						SetVec2XY(angle_vec, 4 * cos(30.0 * sp_x), 4 * sin(30.0 * sp_x));
+						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					}
+				}
+				else
+					Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 12), ProjectileInfo[proj_id].spd_range, flags);
+			}
+			else {
+				// spread pattern -- check circle fire too				
+				if(!CheckUniquePropertyOnPlayer(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE)) {
+					vec2[angle_vec].x = 1.0;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					vec2[angle_vec].x = 4.0;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					vec2[angle_vec].x = 6.0;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					vec2[angle_vec].x = -1.0;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					vec2[angle_vec].x = -4.0;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					vec2[angle_vec].x = -6.0;
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+				}
+				else
+					Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 6), ProjectileInfo[proj_id].spd_range, flags);
+			}
+		break;
+		case DND_WEAPON_SHOCKER:
+			// altfire fires an AoE but we dont need direction on that to be precise really, so it just fires pellets
+			count = 18;
+			proj_id = DND_PROJ_SHOCKER;
+			use_default = true;
+			sp_x = 8.4;
+			sp_y = 6.2;
+		break;
+		case DND_WEAPON_HADES:
+			use_default = true;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				proj_id = DND_PROJ_HADES;
+				count = 15;
+				sp_x = 11.6;
+				sp_y = 9.0;
+			}
+			else {
+				proj_id = DND_PROJ_HADES_2;
+				count = 1;
+			}
+		break;
+		case DND_WEAPON_CROSSBOW:
+			use_default = false;
+			sp_x = CheckInventory("Crossbow_PullLevel");
+			
+			switch(sp_x) {
+				case 0:
+					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_1", wepid, 1, 64, angle_vec, offset_vec, 0, 0, 0);
+				break;
+				case 1:
+					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_2", wepid, 1, 80, angle_vec, offset_vec, 0, 0, 0);
+				break;
+				case 2:
+					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_3", wepid, 1, 120, angle_vec, offset_vec, 0, 0, 0);
+				break;
+				case 3:
+					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_4", wepid, 1, 160, angle_vec, offset_vec, 0, 0, 0);
+				break;
+				case 4:
+					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_5", wepid, 1, 200, angle_vec, offset_vec, 0, 0, 0);
+				break;
+			}
+		break;
+		
+		// SLOT 4
+		case DND_WEAPON_MACHINEGUN:
+			use_default = true;
+			proj_id = DND_PROJ_MACHINEGUN;
+			sp_x = 2.4;
+			sp_y = 1.6;
+		break;
+		case DND_WEAPON_HEAVYMACHINEGUN:
+			use_default = true;
+			proj_id = DND_PROJ_HEAVYMACHINEGUN;
+			
+			if(!CheckInventory("WeaponZoom")) {
+				sp_x = 4.0;
+				sp_y = 2.0;
+			}
+			else {
+				sp_x = 1.6;
+				sp_y = 0.8;
+			}
+		break;
+		case DND_WEAPON_LEADSPITTER:
+			use_default = true;
+			proj_id = DND_PROJ_LEADSPITTER;
+			count = 2;
+			sp_x = 7.2;
+			sp_y = 5.2;
+		break;
+		case DND_WEAPON_DEMONSEALER:
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				// fire as normal projectile
+				use_default = true;
+				proj_id = DND_PROJ_DEMONSEALER;
+			}
+			else {
+				use_default = false;
+				
+				// make as a minion that sets TARGET pointer instead of MASTER
+				vec3[offset_vec].z = -36.0; // set it to feet level of player not above!
+				Do_Minion_Summon(owner, "DemonSealTrap", offset_vec, 64, KANJI_TRAP_TID + pnum, DND_MF_MAKETARGET);
+			}
+		break;
+		case DND_WEAPON_DESOLATOR:
+			use_default = true;
+			proj_id = DND_PROJ_DESOLATOR;
+			sp_x = 8.4;
+			sp_y = 6.2;
+		break;
+		case DND_WEAPON_MINIGUN:
+			use_default = true;
+			proj_id = DND_PROJ_MINIGUN;
+			count = 2; // actually fires 2 bullets for high bpm
+			sp_x = 10.5;
+			sp_y = 5.25;
+		break;
+		case DND_WEAPON_EBONYCANNON:
+			use_default = false;
+			
+			if(!(isAltFire & DND_ATK_SECONDARY))
+				proj_id = DND_PROJ_EBONY_1;
+			else {
+				proj_id = DND_PROJ_EBONY_2;
+			}
+			
+			// 4 pattern of ebony balls or circle
+			if(!CheckUniquePropertyOnPlayer(pnum, INV_EX_BEHAVIOR_PELLETSFIRECIRCLE)) {
+				SetVec3XYZ(offset_vec, 0, 10.0, 8.0);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+				SetVec3XYZ(offset_vec, 0, -10.0, 8.0);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+				SetVec3XYZ(offset_vec, 0, 0, 18.0);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+				SetVec3XYZ(offset_vec, 0, 0, -2.0);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+			}
+			else
+				Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 4), ProjectileInfo[proj_id].spd_range, flags);
+		break;
+		case DND_WEAPON_MPPB:
+			use_default = true;
+			sp_x = 8.0;
+			sp_y = 5.0;
+			vec3[offset_vec].z = 2.0; // 6.0 z offset, we have default 36.0 from 32.0 so
+			
+			count = CheckInventory("MPPB_Phase");
+			switch(count) {
+				case 0:
+					proj_id = DND_PROJ_MPPB_1;
+				break;
+				case 1:
+					proj_id = DND_PROJ_MPPB_2;
+				break;
+				case 2:
+					proj_id = DND_PROJ_MPPB_3;
+				break;
+			}
+			
+			if(count == 2)
+				SetInventory("MPPB_Phase", 0);
+			else
+				GiveInventory("MPPB_Phase", 1);
+			count = 1;
+		break;
+		case DND_WEAPON_TEMPLARMG:
+			use_default = true;
+			proj_id = DND_PROJ_TEMPLARMG;
+			sp_x = 4.4;
+			sp_y = 2.8;
+		break;
+		case DND_WEAPON_RIOTCANNON:
+			use_default = true;
+			proj_id = DND_PROJ_RIOTGUN;
+			count = 7;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				sp_x = 3.6;
+				sp_y = 3.6;
+			}
+			else {
+				sp_x = 7.2;
+				sp_y = 7.2;
+			}
+			
+			if(!(flags & DND_ATF_NOAMMOTAKE)) {
+				HandleAmmoGainChance(DND_AMMOSLOT_CLIP, AMMO_RIOT, Weapons_Data[wepid].ammo_use1, owner);
+				TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+			}
+		break;
+		case DND_WEAPON_ACIDRIFLE:
+			use_default = true;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				proj_id = DND_PROJ_ACIDBULLET;
+				sp_x = 5.6;
+				sp_y = 3.2;
+			}
+			else {
+				SetVec3XYZ(offset_vec, 0, 4.0, -12.0);
+				proj_id = DND_PROJ_ACIDSTAKE;
+			}
+		break;
+		case DND_WEAPON_FUSIONBLASTER:
+			use_default = true;
+			vec3[offset_vec].y = 8.0;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				proj_id = DND_PROJ_FUSIONBLASTER;
+				sp_x = 2.4;
+				sp_y = 1.6;
+			}
+			else {
+				proj_id = DND_PROJ_FUSIONBLASTERGRENADE;
+				vec2[angle_vec].x = 1.0;
+			}
+		break;
+		case DND_WEAPON_INCINERATOR:
+			use_default = true;
+			proj_id = DND_PROJ_INCINERATOR;
+			count = 11;
+			sp_x = 9.0;
+			sp_y = 4.8;
+			
+			GiveInventory("IncineratorStacks", 1);
+			if(CheckInventory("IncineratorStacks") == 4) {
+				SetInventory("IncineratorStacks", 0);
+				
+				// fire the two extra lava balls
+				vec3[offset_vec].y = -18.0;
+				Do_Projectile_Attack_Named(owner, pnum, "IncineratorProjectile2", wepid, 1, 32, angle_vec, offset_vec, 0, 0, 0);
+				vec3[offset_vec].y = 18.0;
+				Do_Projectile_Attack_Named(owner, pnum, "IncineratorProjectile2", wepid, 1, 32, angle_vec, offset_vec, 0, 0, 0);
+			}
+			
+			vec3[offset_vec].y = 0.0;
+		break;
+		
+		// SLOT 5
+		case DND_WEAPON_ROCKETLAUNCHER:
+			use_default = true;
+			proj_id = DND_PROJ_ROCKETLAUNCHER;
+		break;
+		case DND_WEAPON_TORPEDOLAUNCHER:
+			use_default = true;
+			proj_id = DND_PROJ_TORPEDOLAUNCHER;
+		break;
+		case DND_WEAPON_VINDICATOR:
+			use_default = true;
+			proj_id = DND_PROJ_VINDICATOR;
+			count = 10;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				sp_x = 10.4;
+				sp_y = 7.8;
+			}
+			else {
+				sp_x = 5.2;
+				sp_y = 3.9;
+			}
+		break;
+		case DND_WEAPON_HEAVYMISSILELAUNCHER:
+			use_default = false;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				vec2[angle_vec].x = -4.0;
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HEAVYMISSILELAUNCHER_1, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+				vec2[angle_vec].x = 4.0;
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HEAVYMISSILELAUNCHER_1, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+			}
+			else {
+				vec3[offset_vec].y = -8.0;
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HEAVYMISSILELAUNCHER_2, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+				vec3[offset_vec].y = 8.0;
+				Do_Projectile_Attack(owner, pnum, DND_PROJ_HEAVYMISSILELAUNCHER_2, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+			}
+		break;
+		case DND_WEAPON_SEDRINSTAFF:
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				use_default = true;
+				proj_id = DND_PROJ_SEDRIN_1;
+			}
+			else {
+				use_default = false;
+				proj_id = DND_PROJ_SEDRIN_2;
+				
+				vec2[angle_vec].x = -9.25;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+				vec2[angle_vec].x = -0;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+				vec2[angle_vec].x = 9.25;
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, 0);
+			}
+		break;
+		case DND_WEAPON_MERCURYLAUNCHER:
+			use_default = true;
+			proj_id = DND_PROJ_MERCURY;
+			vec2[angle_vec].x = 1.0;
+		break;
+		case DND_WEAPON_METEORLAUNCHER:
+			use_default = true;
+			proj_id = DND_PROJ_METEORLAUNCHER;
+		break;
+		case DND_WEAPON_HEAVYGL:
+			use_default = true;
+			proj_id = DND_PROJ_HEAVYGRENADE;
+			count = CheckInventory("HeavyGLCounter") + 1;
+			
+			if(count > 1) {
+				sp_x = 4.8;
+				sp_y = 2.0;
+				SetInventory("HeavyGLCounter", 0);
+				
+				// this is new
+				flags |= DND_ATF_CANFIRECIRCLE;
+			}
+		break;
+		case DND_WEAPON_FREEZER:
+			use_default = true;
+			proj_id = DND_PROJ_FREEZER;
+			if(!(isAltFire & DND_ATK_OTHER_DIR))
+				GiveInventory("FreezerOverheat", 5);
+			else {
+				GiveInventory("FreezerOverheat", 10);
+				sp_x = 2.0;
+				sp_y = 2.0;
+			}
+		break;
+		case DND_WEAPON_GRAVDIS:
+			use_default = true;
+			proj_id = DND_PROJ_GRAVDIS;
+		break;
+		case DND_WEAPON_VOIDCANNON:
+			use_default = true;
+			proj_id = DND_PROJ_VOIDCANNON;
+		break;
+		
+		// SLOT 6
+		case DND_WEAPON_PLASMARIFLE:
+			use_default = true;
+			proj_id = DND_PROJ_PLASMA;
+		break;
+		case DND_WEAPON_NUCLEARPLASMARIFLE:
+			use_default = true;
+			proj_id = DND_PROJ_NUCLEARPLASMA;
+			GiveInventory("PlasmaOverheat", 2);
+			if(CheckInventory("PlasmaOverheat") == 100)
+				GiveInventory("PlasmaOverheatCooldown", 1);
+		break;
+		case DND_WEAPON_TURELCANNON:
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				if(isAltFire & DND_ATK_OTHER_DIR)
+					Do_Railgun_Attack("TurelShooter2", 1);
+				else
+					Do_Railgun_Attack("TurelShooter1", 1);
+			}
+			else {
+				Do_Railgun_Attack("TurelShooter3", 1);
+				ammo_take_amt <<= 1; // double ammo on this one
+			}
+		break;
+		case DND_WEAPON_NAILGUN:
+			use_default = true;
+			
+			// proj type
+			if(isAltFire & DND_ATK_SECONDARY)
+				proj_id = DND_PROJ_NAILGUN_2;
+			else
+				proj_id = DND_PROJ_NAILGUN_1;
+			
+			// left right offset
+			if(CheckInventory("NailCounter")) {
+				SetInventory("NailCounter", 0);
+				vec3[offset_vec].y = 6.0;
+			}
+			else {
+				GiveInventory("NailCounter", 1);
+				vec3[offset_vec].y = -6.0;
+			}			
+			
+			GiveInventory("NailCounter", 1);
+		break;
+		case DND_WEAPON_BASILISK:
+			use_default = true;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				proj_id = DND_PROJ_BASILISK_1;
+				sp_x = 2.5;
+				sp_y = 2.0;
+			}
+			else {
+				sp_x = 3.25;
+				sp_y = 2.75;
+			}
+		break;
+		case DND_WEAPON_FROSTFANG:
+			use_default = true;
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				proj_id = DND_PROJ_FROSTFANG_1;
+				SetVec3XYZ(offset_vec, 0, random(-7.5, 7.5), random(-7.5, 7.5));
+			}
+			else
+				proj_id = DND_PROJ_FROSTFANG_2;
+		break;
+		case DND_WEAPON_RHINORIFLE:
+			use_default = true;
+			proj_id = DND_PROJ_RHINO;
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				sp_x = 7.2;
+				sp_y = 4.8;
+			}
+			else {
+				sp_x = 0.75;
+				sp_y = 0.75;
+			}
+		break;
+		case DND_WEAPON_FLAMETHROWER:
+			use_default = true;
+			proj_id = DND_PROJ_FLAMETHROWER;
+			sp_x = 4.0;
+		break;
+		
 		
 		// SLOT 7
 		case DND_WEAPON_DEVASTATOR:
@@ -1396,6 +2036,14 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	if(!(flags & DND_ATF_NOAMMOTAKE))
 		TakeInventory(ammo_type, ammo_take_amt);
 	
+	// moved doesn't have artemis check to here for clarity
+	if(!(flags & DND_ATF_NOAMMOGAINCHECK) && !hasArtemis)
+		HandleAmmoGainChance(ammo_slot, ammo_sub_slot, ammo_take_amt, owner);
+		
+	// NOTE: This rolls a crit chance to be used by the subsequent things below! Disabling it with the flag may remove crits!
+	if(!(flags & DND_ATF_NOATTACKTRIGGER))
+		HandleAttackEvent(ammo_slot == DND_AMMOSLOT_SPECIAL, ammo_sub_slot > SSAM_SLUG ? ammo_sub_slot - 1 : ammo_sub_slot);
+	
 	// for generic weapons that fire single shots these few lines will suffice, special spread weapons will have specifically crafted code for their attack
 	if(proj_id != -1 && use_default) {
 		// scale count if its a shotgun and/or we got pellets fire circle with non-zero count
@@ -1408,7 +2056,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(ProjectileInfo[proj_id].flags & DND_PROJ_HITSCAN)
 				Do_Hitscan_Attack(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, sp_x, sp_y, flags);
 			else
-				Do_Projectile_Attack(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, angle_vec, offset_vec, sp_x, sp_y, flags);
+				Do_Projectile_Attack(owner, pnum, proj_id, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
 		}
 		else // let circle attack decide what kind of attack we need to do on its own
 			Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);

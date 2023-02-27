@@ -37,7 +37,7 @@ Actor "Rocket Launcher" : RocketLauncher
    Fire:
       MIS9 D 3 Bright A_GunFlash
 	  TNT1 A 0 Radius_Quake(4,3,0,1,0)
-      MIS9 E 4 Bright A_GiveInventory("RocketShooter", 1)
+      MIS9 E 4 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ROCKETLAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_ROCKET << 16), 0)
       MIS9 FGHC 3 Bright
 	  MIS9 B 4 Bright
       MIS9 A 0 A_Refire
@@ -49,20 +49,6 @@ Actor "Rocket Launcher" : RocketLauncher
       TNT1 A 2 A_Light0
       stop
    }
-}
-
-Actor RocketShooter : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_ROCKETLAUNCHER, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("RocketX", 0, 1, 0, 0)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("RocketX_GhostHitter", 0, 1, 0, 0)
-		Stop
-	}
 }
 
 Actor "Upgraded Rocket Launcher" : RocketLauncher {	
@@ -104,7 +90,7 @@ Actor "Upgraded Rocket Launcher" : RocketLauncher {
 			RLDF A 1 Bright A_GunFlash
 			TNT1 A 0 A_PlayWeaponSound("weapons/newrocketfire")
 			TNT1 A 0 Radius_Quake(4, 3, 0, 1,0)
-			RLDF B 1 Bright A_GiveInventory("RocketShooter2", 1)
+			RLDF B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_TORPEDOLAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_ROCKET << 16), 0)
 			RLDF C 1 Bright Offset(14, 39)
 			RLDF D 1 Bright Offset(19, 42)
 			RLDF E 1 Bright Offset(21, 44)
@@ -245,19 +231,6 @@ Actor NewRocket_GhostHitter : NewRocket {
 	-THRUGHOST
 }
 
-Actor RocketShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_TORPEDOLAUNCHER, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("NewRocket", 0, 1, 0, 0)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("NewRocket_GhostHitter", 0, 1, 0, 0)
-		Stop
-	}
-}
-
 ACTOR "Upgraded Rocket Launcher3" : Weapon {
 	Weapon.SelectionOrder 600
 	Weapon.AmmoUse1 0
@@ -315,7 +288,7 @@ ACTOR "Upgraded Rocket Launcher3" : Weapon {
 			TNT1 A 0 A_GunFlash
 			TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
 			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 5, 34 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 A 0 A_GiveInventory("VindicatorShooter", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_VINDICATOR, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_18 << 16), DND_ATF_CANFIRECIRCLE)
 			TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(5, 10), 36+(sin(-pitch)*20),0,0,2,0,0,0)
 			VS9F B 1 A_SetPitch(pitch - 5.0)
 			VS9F B 1 A_SetPitch(pitch + 1.0)
@@ -334,7 +307,7 @@ ACTOR "Upgraded Rocket Launcher3" : Weapon {
 			TNT1 A 0 A_GunFlash
 			TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
 			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 5, 34 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 A 0 A_GiveInventory("VindicatorShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_VINDICATOR, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_18 << 16), DND_ATF_CANFIRECIRCLE)
 			TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, 0, 36+(sin(-pitch)*20),0,0,2,0,0,0)
 			V9ZF B 1 A_SetPitch(pitch - 3.0)
 			V9ZF B 1 A_SetPitch(pitch + 1.0)
@@ -453,97 +426,6 @@ ACTOR "Upgraded Rocket Launcher3" : Weapon {
 }
 
 Actor VindicatorZoomed : DnD_Boolean { }
-
-Actor VindicatorShooter : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Ammo Gain Chance", DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
-		NoTake:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 10))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_VINDICATOR << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT5, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VINDICATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireBullets (10.4 * (1.0 - accuracy * accuracy_factor), 7.8 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireBullets (10.4 * (1.0 - accuracy * accuracy_factor), 7.8 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "FlakShellPuff_GhostHitter", FBF_NORANDOM | FBF_USEAMMO, 320)
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
-			TNT1 A 0 A_TakeInventory("FlakShell", 1)
-		NoTakeCircle:
-			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VINDICATOR, DND_WEP_POWER_GHOSTHIT), "LoopStart_GhostHitter")
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "FlakShellPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 320)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
-		Stop
-		
-		LoopStart_GhostHitter:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue_GhostHitter")
-		Goto Finish
-		LoopContinue_GhostHitter:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "FlakShellPuff_GhostHitter", FBF_NORANDOM | FBF_EXPLICITANGLE, 320)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart_GhostHitter
-	}
-}
-
-Actor VindicatorShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Ammo Gain Chance", DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SHELLSIZE_18, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("ShellSize_18", 1)
-		NoTake:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 10))
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VINDICATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireBullets (5.2 * (1.0 - accuracy * accuracy_factor), 3.9 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "FlakShellPuff", FBF_NORANDOM | FBF_USEAMMO, 320)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireBullets (5.2 * (1.0 - accuracy * accuracy_factor), 3.9 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "FlakShellPuff_GhostHitter", FBF_NORANDOM | FBF_USEAMMO, 320)
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTakeCircle")
-			TNT1 A 0 A_TakeInventory("FlakShell", 1)
-		NoTakeCircle:
-			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_SetArg(4, Args[2])
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_VINDICATOR, DND_WEP_POWER_GHOSTHIT), "LoopStart_GhostHitter")
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "FlakShellPuff", FBF_NORANDOM | FBF_EXPLICITANGLE, 320)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
-		Stop
-		
-		LoopStart_GhostHitter:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue_GhostHitter")
-		Goto Finish
-		LoopContinue_GhostHitter:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "FlakShellPuff_GhostHitter", FBF_NORANDOM | FBF_EXPLICITANGLE, 320)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart_GhostHitter
-	}
-}
 
 Actor FlakShellPuff : DnD_BasePuff {
 	Renderstyle "Add"
@@ -883,7 +765,7 @@ Actor "Upgraded Grenade Launcher" : RocketLauncher
       RTGL BC 1 Bright A_GunFlash
 	  TNT1 A 0 A_PlayWeaponSound("weapons/glauncherfiren")
 	  TNT1 A 0 Radius_Quake(4,3,0,1,0)
-      RTGL D 1 Bright A_GiveInventory("GrenadeShooter2", 1)
+      RTGL D 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ROTARYGRENADELAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_GRENADE << 16), 0)
 	  RTGL EF 1 Bright
 	  TNT1 A 0 A_CheckReload
 	  RTGL G 1
@@ -900,20 +782,6 @@ Actor "Upgraded Grenade Launcher" : RocketLauncher
       TNT1 A 2 A_Light0
       stop
    }
-}
-
-Actor GrenadeShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_GRENADE, 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_ROTARYGRENADELAUNCHER, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("NewGrenade", 0, 1, 0, 4)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("NewGrenade_GhostHitter", 0, 1, 0, 4)
-		Stop
-	}
 }
 
 Actor NormalGrenade : DnD_ExplosiveBase {
@@ -1046,7 +914,7 @@ ACTOR "Heavy Missile Launcher" : Weapon
       MLNG D 4 Bright
 	  TNT1 A 0 A_PlayWeaponSound("weapons/heavyrlfire")
 	  TNT1 A 0 Radius_Quake(4,3,0,1,0)
-      MLNG E 3 Bright A_GiveInventory("MissileShooter", 1)
+      MLNG E 3 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYMISSILELAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_HMISSILE << 16), 0)
 	  MLNG FGHCB 3 Bright
 	  MLNG A 2 
       MLNG A 2 A_Refire  
@@ -1057,7 +925,7 @@ ACTOR "Heavy Missile Launcher" : Weapon
       MLNG D 4 Bright
 	  TNT1 A 0 A_PlayWeaponSound("weapons/heavyrlfire")
 	  TNT1 A 0 Radius_Quake(4,3,0,1,0)
-      MLNG E 3 Bright A_GiveInventory("MissileShooter2", 1)
+      MLNG E 3 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYMISSILELAUNCHER, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_ROCKET | (AMMO_HMISSILE << 16), 0)
 	  MLNG FGHCB 3 Bright
 	  MLNG A 2 
       MLNG A 2 A_Refire  
@@ -1125,38 +993,6 @@ Actor HomRocket1_GhostHitter : HomRocket1 {
 
 Actor HomRocket1NH_GhostHitter : HomRocket1NH {
 	-THRUGHOST
-}
-
-Actor MissileShooter : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_HMISSILE, 2)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_HEAVYMISSILELAUNCHER, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-	        TNT1 A 0 A_FireCustomMissile ("HomRocket1",-4,1,0,0)
-			TNT1 A 0 A_FireCustomMissile ("HomRocket1",4,1,0,0)
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile ("HomRocket1_GhostHitter",-4,1,0,0)
-			TNT1 A 0 A_FireCustomMissile ("HomRocket1_GhostHitter",4,1,0,0)
-		Stop
-	}
-}
-
-Actor MissileShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_HMISSILE, 2)
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_HEAVYMISSILELAUNCHER, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-	        TNT1 A 0 A_FireCustomMissile ("HomRocket1NH", 0,1,-8,0)
-			TNT1 A 0 A_FireCustomMissile ("HomRocket1NH", 0,1,8,0)
-		Stop
-		GhostHitter:
-	        TNT1 A 0 A_FireCustomMissile ("HomRocket1NH_GhostHitter",-4,1,0,0)
-			TNT1 A 0 A_FireCustomMissile ("HomRocket1NH_GhostHitter",4,1,0,0)
-		Stop
-	}
 }
 
 // Sprites by Yholl
@@ -1230,9 +1066,10 @@ ACTOR "Sedrin Staff" : Weapon {
 			TNT1 A 0 A_GunFlash ("Flash")
 			TNT1 A 0 A_AlertMonsters
 			TNT1 A 0 A_StopSound(CHAN_7)
-			AROK HIJK 1 Bright
+			AROK HIJ 1 Bright
 			TNT1 A 0 A_GunFlash ("FlashFire")
-			TNT1 A 0 A_GiveInventory("SedrinShooter", 1)
+			TNT1 A 0 A_PlayWeaponSound("SedrinStaff/Fire")
+			AROK K 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SEDRINSTAFF, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_SEDRIN << 16), 0)
 			AROK L 1 A_SetPitch(pitch - 1.65)
 			AROK L 1 A_SetPitch(pitch - 0.5)
 			AROK L 1 A_SetPitch(pitch + 0.05)
@@ -1255,9 +1092,10 @@ ACTOR "Sedrin Staff" : Weapon {
 			TNT1 A 0 A_GunFlash ("Flash")
 			TNT1 A 0 A_AlertMonsters
 			TNT1 A 0 A_StopSound(CHAN_7)
-			AROK HIJK 1 Bright
+			AROK HIJ 1 Bright
 			TNT1 A 0 A_GunFlash ("FlashFire")
-			TNT1 A 0 A_GiveInventory("SedrinShooter2", 1)
+			TNT1 A 0 A_PlayWeaponSound("SedrinStaff/Fire")
+			AROK K 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SEDRINSTAFF, DND_ATK_SECONDARY, DND_AMMOSLOT_ROCKET | (AMMO_SEDRIN << 16), DND_ATF_CANFIRECIRCLE)
 			AROK L 1 A_SetPitch(pitch - 1.65)
 			AROK L 1 A_SetPitch(pitch - 0.5)
 			AROK L 1 A_SetPitch(pitch + 0.05)
@@ -1286,46 +1124,6 @@ ACTOR "Sedrin Staff" : Weapon {
 			TNT1 A 1 A_Light (1)
 			TNT1 A 0 A_Light0
 		Goto LightDone
-	}
-}
-
-Actor SedrinShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_SEDRIN, 1)
-			TNT1 A 0 A_PlayWeaponSound("SedrinStaff/Fire")
-			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_FireCustomMissile("SedrinProjectile", 0, 1, 0, 0)
-		Stop
-	}
-}
-
-Actor SedrinShooter2 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_ROCKET, AMMO_SEDRIN, 1)
-			TNT1 A 0 A_PlayWeaponSound("SedrinStaff/Fire")
-
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_FireCustomMissile("SedrinSplitProjectile", -9.25, 1, 0, 0)
-			TNT1 A 0 A_FireCustomMissile("SedrinSplitProjectile", 9.25, 0, 0, 0)
-			TNT1 A 0 A_FireCustomMissile("SedrinSplitProjectile", 0, 0, 0, 0)
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 3))
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_TakeInventory("SedrinAmmo", 1)
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[DND_ARG_SHOTGUNTEMP], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireCustomMissile("SedrinSplitProjectile", (360.0 / Args[DND_ARG_SHOTGUNPELLETS]) * Args[DND_ARG_SHOTGUNTEMP], 0)
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNTEMP, Args[DND_ARG_SHOTGUNTEMP] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
-		Stop
 	}
 }
 
@@ -1457,3 +1255,5 @@ Actor SedrinTrail {
 Actor SedrinTrail_Small : SedrinTrail {
 	Scale 0.6
 }
+
+ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SEDRINSTAFF, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_SEDRIN << 16), 0)

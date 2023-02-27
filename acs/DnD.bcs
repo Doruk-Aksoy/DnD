@@ -5273,14 +5273,6 @@ Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	HandleAttackEvent(slot == DND_AMMOSLOT_SPECIAL, ammo > SSAM_SLUG ? ammo - 1 : ammo);
 }
 
-Script "DnD Charon Stack Gain Chance" (void) {
-	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE))
-		GiveInventory("CharonStacks", 1);
-	
-	// ammo gain triggering means we made an attack
-	HandleAttackEvent(0, -1);
-}
-
 // in here because dnd_mons.bcs can't access values of the variables used below
 Script "DnD Warmaster Rage" (void) {
 	while(!CheckInventory("WarmasterActive"))
@@ -6097,7 +6089,7 @@ Script "DnD Kanji Explosion" (int x, int y, int z) {
 	SetResultValue(0);
 }
 
-Script "DnD Create Kanji Trap" (void) {
+/*Script "DnD Create Kanji Trap" (void) {
 	int a = GetActorAngle(0);
 	int p = GetActorPitch(0);
 	int tid = KANJI_TRAP_TID + PlayerNumber();
@@ -6114,7 +6106,7 @@ Script "DnD Create Kanji Trap" (void) {
 		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
 	
 	SetResultValue(0);
-}
+}*/
 
 Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
 	SetActorState(0, "Remove", 0);
