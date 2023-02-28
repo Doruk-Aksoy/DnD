@@ -453,6 +453,37 @@ void Do_Minion_Summon(int owner, str actor, int offset_vec, int speed = 0, int u
 	FreeVec3(velocity);
 }
 
+void Do_DarkLance_Shots(int owner, int pnum, int amt, int dist, int spd, int lvl) {
+	int a = GetActorAngle(owner);
+	int p = GetActorPitch(owner);
+	int vx = FixedMul(cos(p), cos(a));
+	int vy = FixedMul(cos(p), sin(a));
+	int vz = -sin(p);
+	
+	int x = GetActorX(owner);
+	int y = GetActorY(owner);
+	int z = GetActorZ(owner);
+	
+	for(int i = 0; i < amt; ++i)
+		SpawnDarkLanceProjectile(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, i * dist, spd); 
+	
+	// side projectiles
+	if(lvl > 0) {
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 3, -16, 3, spd);
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 11, -30, 11, spd);
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 3, 16, 3, spd);
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 11, 30, 11, spd);
+	}
+	
+	// more side projectiles
+	if(lvl > 1) {
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 20, -39, 20, spd);
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 28, -45, 28, spd);
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 20, 39, 20, spd);
+		SpawnDarkLanceProjectile_Side(owner, a, DARKLANCE_TID + pnum, x, y, z, vx, vy, vz, 28, 45, 28, spd);
+	}
+}
+
 void DoSlotWeaponQuestChecks(int wepid) {
 	int pnum = PlayerNumber();
 	// Simple Minded quest check

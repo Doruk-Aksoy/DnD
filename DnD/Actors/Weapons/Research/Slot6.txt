@@ -395,22 +395,22 @@ Actor ResPlasma2 : Weapon {
 			TNT1 A 0 A_PlaySound("LightningGun/Loop", 7, 0.5, 1)
 		HoldPt1:
 			TNT1 A 0 A_GunFlash
-			LGNF A 1 Bright A_GiveInventory("LGShooter_Ammo", 1)
+			LGNF A 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), 0)
 			LGNF B 1 Bright A_GiveInventory("LGShooter_NoAmmo", 1)
 			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
 			LGNF A 2 A_ReFire("HoldPt2")		//it has 2 stages of fire, to be able to do the "quick tap"
 		Goto EndHold
 		HoldPt2:
 			LGNF A 0 A_GunFlash
-			LGNF C 1 Bright A_GiveInventory("LGShooter_Ammo", 1)
-			LGNF A 1 Bright A_GiveInventory("LGShooter_NoAmmo", 1)
+			LGNF C 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), 0)
+			LGNF A 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), DND_ATF_NOAMMOTAKE)
 			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
 			LGNI B 2 A_ReFire("HoldPt3")
 		Goto EndHold
 		HoldPt3:
 			LGNF A 0 A_GunFlash
-			LGNF B 1 Bright A_GiveInventory("LGShooter_Ammo", 1)
-			LGNF C 1 Bright A_GiveInventory("LGShooter_NoAmmo", 1)
+			LGNF B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), 0)
+			LGNF C 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), DND_ATF_NOAMMOTAKE)
 			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
 			LGNI C 2 A_ReFire("HoldPt1")
 		Goto EndHold
@@ -437,10 +437,9 @@ Actor ResPlasma2 : Weapon {
 		Goto AltEndHold
 		ContinueHold:
 			TNT1 A 0 A_GunFlash			
-			LGNG C 1 Bright A_GiveInventory("LGAltShooter", 1)
+			LGNG C 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), 0)
 			TNT1 A 0 A_GiveInventory("LightningStacks", 3)
-			TNT1 A 0 A_GiveInventory("LGAltShooter", 1)
-			LGNG D 1 Bright A_GiveInventory("LGAmmoTaker", 1)
+			LGNG D 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), DND_ATF_NOAMMOTAKE)
 			LGNG B 1 A_ReFire("AlternateHold")		
 		Goto AltEndHold
 		AltEndHold:
@@ -459,28 +458,10 @@ Actor ResPlasma2 : Weapon {
 	}
 }
 
-Actor LGShooter_Ammo : DnD_Activator {
+Actor LGShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LIGHTNING, 1)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "LGPuffSEX", FBF_NORANDOM, 512)
 			TNT1 A 0 A_RailAttack(0, 4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "NoPuff",0,0,512,0,18,0,"D4LGTrail")
-		Stop
-		NoTake:
-			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "LGPuffSEX", FBF_NORANDOM, 512)
-			TNT1 A 0 A_RailAttack(0, 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "NoPuff",0,0,512,0,18,0,"D4LGTrail")
-		Stop
-	}
-}
-
-ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FLAMETHROWER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_FUELCLIP << 16), 0)
-
-Actor LGShooter_NoAmmo : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_FireBullets(0, 0, -1, 0, "LGPuffNoPain", FBF_NORANDOM, 512)
-			TNT1 A 0 A_RailAttack(0, 4, 0, None,None,RGF_SILENT|RGF_NOPIERCING, 32, "NoPuff",0,0,512,0,18,0,"D4LGTrail")
 		Stop
 	}
 }
@@ -488,22 +469,8 @@ Actor LGShooter_NoAmmo : DnD_Activator {
 Actor LGAltShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_FireBullets(12.0 * (1.0 - accuracy * accuracy_factor), 5.5 * (1.0 - accuracy * accuracy_factor), -1, 0, "LGAltPuff", FBF_NORANDOM, 384)
-			TNT1 A 0 A_FireBullets(12.0 * (1.0 - accuracy * accuracy_factor), 5.5 * (1.0 - accuracy * accuracy_factor), -1, 0, "LGAltPuff_NoPain", FBF_NORANDOM, 384)
 			TNT1 A 0 A_RailAttack(0,4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"NoPuff",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
 			TNT1 A 0 A_RailAttack(0,4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"NoPuff",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
-		Stop
-	}
-}
-
-Actor LGAmmoTaker : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LIGHTNING, 3)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("LightningCell", 3)
-		NoTake:
-			TNT1 A 0
 		Stop
 	}
 }
@@ -670,7 +637,7 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_PlayWeaponSound("Rebounder/Fire")
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke2", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
-			TNT1 A 0 A_GiveInventory("RebounderShooter", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_REBOUNDER, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TNT1 A 0 A_GiveInventory("RebounderCooldownGiver", 1)
 			DGAF BCDEFG 1
 		Goto Ready
@@ -689,7 +656,7 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_PlayWeaponSound("Rebounder/AltFire")
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke2", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
-			TNT1 A 0 A_GiveInventory("RebounderShooter2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_REBOUNDER, DND_ATK_SECONDARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
 			TNT1 A 0 A_GiveInventory("RebounderCooldownGiver", 1)
 			DGXF B 1
 			TNT1 A 0 A_SetPitch(pitch - 5.0)
@@ -713,45 +680,6 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 1 A_Light1
 			TNT1 A 1 A_Light0
 		stop
-	}
-}
-
-Actor RebounderShooter : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 1)
-			TNT1 A 0 A_GiveInventory("RebounderOverheat", 3)
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 60, "SuperBounce")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 45, "ThreeBounce")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 30, "TwoBounce")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 15, "OneBounce")
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectile", 1, 1, 9)
-		Stop
-		SuperBounce:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB4", 1, 1, 9)
-		Stop
-		ThreeBounce:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB3", 1, 1, 9)
-		Stop
-		TwoBounce:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB2", 1, 1, 9)
-		Stop
-		OneBounce:
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileB1", 1, 1, 9)
-		Stop
-	}
-}
-
-Actor RebounderShooter2 : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_CELL, 20)
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("Cell", 20)
-		NoTake:
-			TNT1 A 0 A_GiveInventory("RebounderOverheat", 18)
-			TNT1 A 0 A_FireCustomMissile("RebounderProjectileAlt", 1, 1, 9)
-		Stop
 	}
 }
 
@@ -1085,7 +1013,6 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R2", 0, 0)
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R3", 0, 0)
 			RW10 BCDBCDBCD 2 Bright
-			TNT1 A 0 A_GiveInventory("DarkLanceShooter1", 1)
 		Goto FireEnd
 		Level4:
 			RW10 W 1
@@ -1096,7 +1023,6 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R2", 0, 0)
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R3", 0, 0)
 			RW10 NOPNOPNOP 2 Bright
-			TNT1 A 0 A_GiveInventory("DarkLanceShooter5", 1)
 		Goto FireEnd
 		Level3:
 			RW10 V 1
@@ -1107,7 +1033,6 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R2", 0, 0)
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R3", 0, 0)
 			RW10 KLMKLMKLM 2 Bright
-			TNT1 A 0 A_GiveInventory("DarkLanceShooter4", 1)
 		Goto FireEnd
 		Level2:
 			RW10 U 1
@@ -1118,7 +1043,6 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R2", 0, 0)
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R3", 0, 0)
 			RW10 HIJHIJHIJ 2 Bright
-			TNT1 A 0 A_GiveInventory("DarkLanceShooter3", 1)
 		Goto FireEnd
 		Level1:
 			RW10 T 1
@@ -1129,11 +1053,14 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R2", 0, 0)
 			TNT1 A 0 A_FireCustomMissile("DarkLanceEffect_R3", 0, 0)
 			RW10 EFGEFGEFG 2 Bright
-			TNT1 A 0 A_GiveInventory("DarkLanceShooter2", 1)
 		Goto FireEnd
 		
 		
 		FireEnd:
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("Darklance/Fire")
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DARKLANCE, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_DEMONBLOOD << 16), 0)
 			RW10 S 1 Offset(0, 40)
 			RW10 S 1 Offset(0, 42)
 			RW10 S 2 Offset(0, 43)
@@ -1169,8 +1096,9 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_TakeInventory("LanceBuffer", 0)
 			RW10 Q 5 Bright
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Lance Stack Buffer")
-			TNT1 A 0 A_GiveInventory("DarkLanceShooter6", 1)
-			RW10 R 1 Bright Offset(0, 40)
+			TNT1 A 0 A_PlaySound("Darklance/AltFire", CHAN_5)
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
+			RW10 R 1 Bright Offset(0, 40) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DARKLANCE, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_DEMONBLOOD << 16), DND_ATF_NOAMMOTAKE | DND_ATF_NOAMMOGAINCHECK)
 			RW10 R 1 Bright Offset(0, 42)
 			RW10 R 2 Bright Offset(0, 43)
 			RW10 R 1 Bright Offset(0, 40)
@@ -1188,92 +1116,6 @@ Actor DarkLanceHitMarker : PowerDamage {
 
 Actor GrayFlare_DarkLance : GrayFlare {
 	Scale 0.1
-}
-
-Actor DarkLanceShooter1 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
-		NoTake:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_StopSound(CHAN_WEAPON)
-			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 6, 18, 90)
-		Stop
-	}
-}
-
-Actor DarkLanceShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
-		NoTake:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_StopSound(CHAN_WEAPON)
-			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 8, 18, 90)
-		Stop
-	}
-}
-
-Actor DarkLanceShooter3 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
-		NoTake:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_StopSound(CHAN_WEAPON)
-			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 10, 18, 90)
-		Stop
-	}
-}
-
-Actor DarkLanceShooter4 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
-		NoTake:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_StopSound(CHAN_WEAPON)
-			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 12, 18, 90, 1)
-		Stop
-	}
-}
-
-Actor DarkLanceShooter5 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("DemonBlood", 1)
-		NoTake:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_DEMONBLOOD, 1)
-			TNT1 A 0 A_StopSound(CHAN_WEAPON)
-			TNT1 A 0 A_PlaySound("Darklance/Fire")
-			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dark Lance Shooter", 14, 18, 90, 2)
-		Stop
-	}
-}
-
-Actor DarkLanceShooter6 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Attack", 0, -1, -1)
-			TNT1 A 0 A_PlaySound("Darklance/AltFire", CHAN_5)
-			TNT1 A 0 A_SpawnItemEx("GrayFlare_DarkLance", 28 * cos(-pitch), 0, 36 * (1 + sin(-pitch)))
-			TNT1 A 0 A_FireCustomMissile("DarkLanceShredder", 0, 0)
-		Stop
-	}
 }
 
 Actor DarkLanceEffect_L1 {

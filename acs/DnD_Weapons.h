@@ -559,7 +559,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_name2 = "RebounderOverheat";
 	Weapons_Data[DND_WEAPON_REBOUNDER].icon = "WEPICO60";
 	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_use2 = 20;
 	Weapons_Data[DND_WEAPON_REBOUNDER].properties = WPROP_OVERHEAT | WPROP_NOREFLECT;
 	
 	Weapons_Data[DND_WEAPON_DARKLANCE].name = "ResPlasma4";
@@ -599,7 +599,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BFG6000].ammo_name1 = "Cell";
 	Weapons_Data[DND_WEAPON_BFG6000].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_BFG6000].icon = "WEPICO64";
-	Weapons_Data[DND_WEAPON_BFG6000].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_BFG6000].ammo_use1 = 50;
 	Weapons_Data[DND_WEAPON_BFG6000].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_BFG6000].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
 	
@@ -607,7 +607,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_name1 = "Cell";
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_BFG32768].icon = "WEPICO65";
-	Weapons_Data[DND_WEAPON_BFG32768].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_BFG32768].ammo_use1 = 75;
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_BFG32768].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
 	
@@ -616,14 +616,14 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_DEVASTATOR].icon = "WEPICO66";
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use2 = 60;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST | WPROP_NOREFLECT;
 	
 	Weapons_Data[DND_WEAPON_MFG].name = "MFG";
 	Weapons_Data[DND_WEAPON_MFG].ammo_name1 = "Cell";
 	Weapons_Data[DND_WEAPON_MFG].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_MFG].icon = "WEPICO67";
-	Weapons_Data[DND_WEAPON_MFG].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_MFG].ammo_use1 = 60;
 	Weapons_Data[DND_WEAPON_MFG].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_MFG].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_NOREFLECT;
 	
@@ -2015,20 +2015,109 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_id = DND_PROJ_FLAMETHROWER;
 			sp_x = 4.0;
 		break;
-		
+		case DND_WEAPON_LIGHTNINGGUN:
+			use_default = false;
+			
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				Do_Hitscan_Attack_Named(owner, pnum, "LGPuffSEX", wepid, 1, 512.0, 0, 0, 0);
+				Do_Railgun_Attack("LGShooter", 1);
+			}
+			else {
+				Do_Hitscan_Attack_Named(owner, pnum, "LGAltPuff", wepid, 1, 384.0, 12.0, 5.5, 0);
+				Do_Hitscan_Attack_Named(owner, pnum, "LGAltPuff_NoPain", wepid, 1, 384.0, 12.0, 5.5, 0);
+				Do_Railgun_Attack("LGAltShooter", 1);
+				
+				// triple ammo consumption => 1 to 3
+				ammo_take_amt *= 3;
+			}
+		break;
+		case DND_WEAPON_REBOUNDER:
+			use_default = false;
+			vec2[angle_vec].x = 1.0;
+			vec3[offset_vec].z = 5.0; // 32 + 9 = 41, we assume 36 so 5.0
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				GiveInventory("RebounderOverheat", 3);
+				count = CheckInventory("RebounderOverheat");
+				// every 15 adds 1 up to 60, then its capped
+				if(count < 15)
+					Do_Projectile_Attack_Named(owner, pnum, "RebounderProjectile", wepid, 1, 32, angle_vec, offset_vec, 0, 0, 0);
+				else
+					Do_Projectile_Attack_Named(owner, pnum, StrParam(s:"RebounderProjectileB", d:min(count / 15, 4)), wepid, 1, 32, angle_vec, offset_vec, 0, 0, 0);
+			}
+			else {
+				GiveInventory("RebounderOverheat", 18);
+				Do_Projectile_Attack_Named(owner, pnum, "RebounderProjectileAlt", wepid, 1, 48, angle_vec, offset_vec, 0, 0, 0);
+			}
+		break;
+		case DND_WEAPON_DARKLANCE:
+			// primary atk uses custom firing code
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				use_default = false;
+				count = CheckInventory("LanceStacks");
+
+				if(count < 20)
+					Do_DarkLance_Shots(owner, pnum, 6, 18, 90, 0);
+				else if(count < 40)
+					Do_DarkLance_Shots(owner, pnum, 8, 18, 90, 0);
+				else if(count < 60)
+					Do_DarkLance_Shots(owner, pnum, 10, 18, 90, 1);
+				else if(count < 80)
+					Do_DarkLance_Shots(owner, pnum, 12, 18, 90, 1);
+				else
+					Do_DarkLance_Shots(owner, pnum, 14, 18, 90, 2);
+			}
+			else {
+				use_default = true;
+				proj_id = DND_PROJ_DARKLANCE_SHRED;
+			}
+		break;
 		
 		// SLOT 7
-		case DND_WEAPON_DEVASTATOR:
-			proj_id = DND_PROJ_DEVASTATOR;
+		case DND_WEAPON_BFG6000:
 			use_default = true;
-			count = 5;
-			sp_x = 4.8;
-			sp_y = 2.8;
-			
-			if(isAltfire & DND_ATK_OTHER_DIR)
-				SetVec3XYZ(offset_vec, 0.0, 12.0, 0.0);
-			else
-				SetVec3XYZ(offset_vec, 0.0, -12.0, 0.0);
+			proj_id = DND_PROJ_BFG6000;
+		break;
+		case DND_WEAPON_BFG32768:
+			use_default = true;
+			proj_id = DND_PROJ_BFG32768;
+		break;
+		case DND_WEAPON_DEVASTATOR:
+			if(!(isAltFire & DND_ATK_SECONDARY)) {
+				use_default = true;
+				proj_id = DND_PROJ_DEVASTATOR;
+				count = 5;
+				sp_x = 4.8;
+				sp_y = 2.8;
+				
+				if(isAltfire & DND_ATK_OTHER_DIR)
+					SetVec3XYZ(offset_vec, 0.0, 12.0, 0.0);
+				else
+					SetVec3XYZ(offset_vec, 0.0, -12.0, 0.0);
+			}
+			else {
+				// secondary uses a delayed script to match the firing anim, with delays corresponding to weapon frames in decorate
+				// the entire burst timing is located here
+				// offsets from left to right burst, so - to +
+				// 3s in 1 tic delay, 3 times on each side with 5 total bursts
+				for(sp_y = 0; sp_y < 5; ++sp_y) {
+					for(sp_x = 0; sp_x < 3; ++sp_x) {
+						vec3[offset_vec].y = -12.0;
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_NR", wepid, 3, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
+						Delay(const:1);
+					}
+					
+					for(sp_x = 0; sp_x < 3; ++sp_x) {
+						vec3[offset_vec].y = 12.0;
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_NR", wepid, 1, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
+						Delay(const:1);
+					}
+					Delay(const:1);
+				}
+			}
+		break;
+		case DND_WEAPON_MFG:
+			use_default = true;
+			proj_id = DND_PROJ_MFG;
 		break;
 	}
 	

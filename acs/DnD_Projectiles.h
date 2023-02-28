@@ -100,9 +100,12 @@ enum {
 	DND_PROJ_RHINO,
 	DND_PROJ_FLAMETHROWER,
 	
-	DND_PROJ_DEVASTATOR
+	DND_PROJ_BFG6000,
+	DND_PROJ_BFG32768,
+	DND_PROJ_DEVASTATOR,
+	DND_PROJ_MFG
 };
-#define MAX_PROJECTILE_TYPES (DND_PROJ_DEVASTATOR + 1)
+#define MAX_PROJECTILE_TYPES (DND_PROJ_MFG + 1)
 
 global proj_data_T 30: ProjectileInfo[MAX_PROJECTILE_TYPES];
 
@@ -412,11 +415,26 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_FLAMETHROWER].flags = DND_PROJ_HASGHOSTHITTER;
 	ProjectileInfo[DND_PROJ_FLAMETHROWER].spd_range = 16;
 	
+	ProjectileInfo[DND_PROJ_DARKLANCE_SHRED].name = "DarkLanceShredder";
+	ProjectileInfo[DND_PROJ_DARKLANCE_SHRED].flags = 0;
+	ProjectileInfo[DND_PROJ_DARKLANCE_SHRED].spd_range = 45;
+	
+	ProjectileInfo[DND_PROJ_BFG6000].name = "BFGBall2";
+	ProjectileInfo[DND_PROJ_BFG6000].flags = 0;
+	ProjectileInfo[DND_PROJ_BFG6000].spd_range = 25;
+	
+	ProjectileInfo[DND_PROJ_BFG32768].name = "BFGBallUpgraded";
+	ProjectileInfo[DND_PROJ_BFG32768].flags = 0;
+	ProjectileInfo[DND_PROJ_BFG32768].spd_range = 25;
 
 	// SLOT 7
 	ProjectileInfo[DND_PROJ_DEVASTATOR].name = "DevastatorRocket";
 	ProjectileInfo[DND_PROJ_DEVASTATOR].flags = DND_PROJ_HASGHOSTHITTER;
 	ProjectileInfo[DND_PROJ_DEVASTATOR].spd_range = 32;
+	
+	ProjectileInfo[DND_PROJ_MFG].name = "DNBFGBall";
+	ProjectileInfo[DND_PROJ_MFG].flags = 0;
+	ProjectileInfo[DND_PROJ_MFG].spd_range = 40;
 }
 
 #endif
