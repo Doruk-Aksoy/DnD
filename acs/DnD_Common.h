@@ -198,11 +198,42 @@ global int 5: HardcoreSet;
 global bool 6: PlayerLoaded[MAXPLAYERS];
 global bool 7: PlayerDied[MAXPLAYERS];
 
+// used for aux stuff
+global int 58: TempArray[];
+
+enum {
+	DND_ITEMLOAD_CHECK,
+};
+global bool 10: OneTimeChecks[];
+
 enum {
 	DND_MODE_NORMAL,
 	DND_MODE_SOFTCORE,
 	DND_MODE_HARDCORE
 };
+
+// These are actor inherited flags, like forcepain, foilinvul, painless etc.
+// can store at most 16 bits, the last 16 are for wepid reference
+enum {
+	DND_ACTORFLAG_FOILINVUL				=			0b1,
+	DND_ACTORFLAG_FORCEPAIN				=			0b10,
+	DND_ACTORFLAG_PAINLESS				=			0b100,
+	DND_ACTORFLAG_NOPUSH				=			0b1000,
+	DND_ACTORFLAG_CONFIRMEDCRIT			=			0b10000,
+	DND_ACTORFLAG_COUNTSASMELEE			=			0b100000,
+	DND_ACTORFLAG_THRUGHOST				=			0b1000000,
+	DND_ACTORFLAG_FORCERADIUSDMG		=			0b10000000,
+	DND_ACTORFLAG_ISDAMAGEOVERTIME		=			0b100000000,
+};
+
+int ScanActorFlags() {
+	return 	CheckFlag(0, "FOILINVUL") * DND_ACTORFLAG_FOILINVUL				|
+			CheckFlag(0, "FORCEPAIN") * DND_ACTORFLAG_FORCEPAIN				|
+			CheckFlag(0, "PAINLESS") * DND_ACTORFLAG_PAINLESS				|
+			CheckFlag(0, "NODAMAGETHRUST") * DND_ACTORFLAG_NOPUSH			|
+			CheckFlag(0, "THRUGHOST") * DND_ACTORFLAG_THRUGHOST				|
+			CheckFlag(0, "FORCERADIUSDMG") * DND_ACTORFLAG_FORCERADIUSDMG;
+}
 
 enum {
 	MVMT_BT_FORWARD,

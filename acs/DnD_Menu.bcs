@@ -830,20 +830,21 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			else if(curopt == MENU_HELP) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_HELP", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
 				
-				DrawBoxText("DND_MENU_HELPTEXT1", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID, 192.1, 96.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_HELPTEXT2", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 1, 192.1, 112.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_HELPTEXT3", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 2, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_HELPTEXT4", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 3, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_HELPTEXT5", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 4, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_HELPTEXT6", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_HELPTEXT7", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 192.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_HELPTEXT8", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 208.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT1", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID, 192.1, 64.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT2", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 1, 192.1, 80.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT3", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 2, 192.1, 96.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT4", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 3, 192.1, 112.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT5", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 4, 192.1, 128.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT6", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 5, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT7", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT8", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_HELPTEXT9", DND_LANGUAGE_LOOKUP, boxid, MBOX_9, RPGMENUITEMID - 8, 192.1, 192.0, "\c[B1]", "\c[Y5]");
 				
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_AVGMONLEVEL", s:": \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_AVGMONLEVEL", s:": \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
 				str mapinfo = "DND_MENU_DISABLED";
 				if(CheckInventory("ShowMapInfo"))
 					mapinfo = "DND_MENU_ENABLED";
-				DrawBoxText(StrParam(l:"DND_MENU_MAPINFO", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_9, RPGMENUITEMID - 9, 192.1, 244.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText(StrParam(l:"DND_MENU_MAPINFO", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 244.0, "\c[B1]", "\c[Y5]");
 				if(CheckInventory("SetMapInfo")) {
 					SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
 					SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
@@ -853,7 +854,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				mapinfo = "DND_MENU_DISABLED";
 				if(GetCVar("dnd_detailedmods"))
 					mapinfo = "DND_MENU_ENABLED";
-				DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 260.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_11, RPGMENUITEMID - 11, 192.1, 260.0, "\c[B1]", "\c[Y5]");
 				if(CheckInventory("SetModTierInfo"))
 					SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
 			}
@@ -960,8 +961,21 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					
 				SetHudClipRect(0, 0, 0, 0);
 			}
-			else if(curopt == MENU_HELP_ORBS) {
+			else if(curopt == MENU_HELP_AILMENTS) {
 				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT6", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				SetHudClipRect(192, 52, 256, 228, 256);
+				
+				// we have 5 maximum ailments at the moment
+				for(i = 0; i < 5; ++i)
+					toshow = StrParam(s:toshow, s:"\c[Y5]", l:StrParam(s:"DND_MENU_AILMENT", d:i + 1), s:"\n\n", l:StrParam(s:"DND_MENU_AILMENT", d:i + 1, s: "_EXP"), s:"\n\n");
+				
+				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 8.0 * ScrollPos.x, 0.0, 0.0);
+				
+				SetHudClipRect(0, 0, 0, 0);
+			}
+			else if(curopt == MENU_HELP_ORBS) {
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT7", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				// sum of y and clip y should = 280
 				SetHudClipRect(192, 60, 256, 220, 256);
@@ -980,7 +994,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				SetHudClipRect(0, 0, 0, 0);
 			}
 			else if(curopt == MENU_HELP_LEGMONS) {
-				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT8", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT9", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				SetHudClipRect(192, 52, 256, 228, 256);
 				j = 0;
@@ -994,7 +1008,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				SetHudClipRect(0, 0, 0, 0);
 			}
 			else if(curopt == MENU_HELP_MMODS) {
-				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT7", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT8", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				DrawBoxText("DND_MENU_MMOD_WEAK", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_MMOD_RESIST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
@@ -1700,12 +1714,12 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			if(HasLeftClicked(pnum)) {
 				if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
 					temp = MENU_HELP_BEGIN + boxid - 1;
-				else if(boxid == MBOX_9) {
+				else if(boxid == MBOX_10) {
 					GiveInventory("SetMapInfo", 1);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					temp = -1;
 				}
-				else if(boxid == MBOX_10) {
+				else if(boxid == MBOX_11) {
 					GiveInventory("SetModTierInfo", 1);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					temp = -1;

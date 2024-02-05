@@ -268,21 +268,17 @@ void DrawDamageTypes(int req_id, int constraint, int flags) {
 	}
 }
 
-int GetWeaponEnchantDisplay(int pnum, int wep) {
-	return Player_Weapon_Infos[pnum][wep].quality + GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wep);
-}
-
-bool HasCritDamageBonus(int pnum, int wep) {
-	return Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep);
+/*bool HasCritDamageBonus(int pnum, int wep) {
+	return Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val;
 }
 
 int GetCritDamageDisplay(int pnum, int wep) {
-	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wep));
+	int base = 100.0 + 100 * (Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_CRITDMG].val);
 	return base;
-}
+}*/
 
 int GetDamageTypeBonus(int pnum, int dtype) {
-	return MapDamageCategoryToPercentBonus(pnum, dtype) + GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, dtype);
+	return MapDamageCategoryToPercentBonus(pnum, dtype);
 }
 
 int GetWeaponPage(int boxid) {
@@ -421,6 +417,7 @@ bool HandlePageListening(int curopt, int boxid) {
 	switch(curopt) {
 		case MENU_MAIN:
 		case MENU_HELP_RESEARCHES:
+		case MENU_HELP_AILMENTS:
 			redraw = ListenScroll(-32, 0);
 		break;
 		case MENU_PERK:
@@ -2102,14 +2099,15 @@ rect_T& LoadRect(int menu_page, int id) {
 		},
 		// help
 		{
-			{ 289.0, 229.0, 179.0, 222.0 }, // char
-			{ 289.0, 213.0, 179.0, 206.0 }, // class perks
-			{ 289.0, 197.0, 162.0, 190.0 }, // weapon prop
-			{ 289.0, 181.0, 178.0, 174.0 }, // res
-			{ 289.0, 165.0, 178.0, 158.0 }, // dmg
-			{ 289.0, 149.0, 178.0, 142.0 }, // orb
-			{ 289.0, 133.0, 182.0, 126.0 }, // mods
-			{ 289.0, 117.0, 179.0, 110.0 }, // leg
+			{ 289.0, 261.0, 179.0, 254.0 }, // char
+			{ 289.0, 245.0, 179.0, 238.0 }, // class perks
+			{ 289.0, 229.0, 162.0, 222.0 }, // weapon prop
+			{ 289.0, 213.0, 178.0, 206.0 }, // res
+			{ 289.0, 197.0, 178.0, 190.0 }, // dmg
+			{ 289.0, 181.0, 178.0, 174.0 }, // ailments
+			{ 289.0, 165.0, 178.0, 158.0 }, // orb
+			{ 289.0, 149.0, 182.0, 142.0 }, // mods
+			{ 289.0, 133.0, 179.0, 126.0 }, // leg
 			{ 296.0, 81.0, 182.0, 73.0 }, // show info
 			{ 296.0, 65.0, 142.0, 57.0 }, // show mod tiers
 			{ -1, -1, -1, -1 }
@@ -2131,6 +2129,10 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ -1, -1, -1, -1 }
 		},
 		// help damage
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// help ailments
 		{
 			{ -1, -1, -1, -1 }
 		},
@@ -4177,7 +4179,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx, my + 24.0, 0.0, 0.0);
 		
 		str modText = "";
-		temp = GetWeaponEnchantDisplay(j, extra1);
+		temp = GetPlayerWeaponQuality(j, extra1);
 		// make sure quality text isn't on the weapon name
 		if(temp) {
 			if (temp == MAXWEPQUALITY) // Add the "MAX" indicator.
@@ -4545,14 +4547,14 @@ void DrawPlayerStats(int pnum, int category) {
 			// melee dmg
 			val = GetMeleeDamage(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:GetItemAttributeText(INV_MELEEDAMAGE, val), s:"\n");
+				PlayerStatText = StrParam(s:GetItemAttributeText(INV_MELEEDAMAGE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// melee range
 			val = GetMeleeRangeIncrease(pnum + P_TIDSTART);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_MELEERANGE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_MELEERANGE, 0, 0, val), s:"\n");
 				++k;
 			}
 
@@ -4573,7 +4575,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// accuracy
 			val = GetActorProperty(0, APROP_ACCURACY);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_ACCURACY_INCREASE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_ACCURACY_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 
@@ -4609,7 +4611,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// more damage
 			val = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DAMAGEPERCENT_MORE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DAMAGEPERCENT_MORE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4617,31 +4619,31 @@ void DrawPlayerStats(int pnum, int category) {
 			// pen block begins
 			val = GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_PHYSICAL, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_PHYSICAL, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_ENERGY, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_ENERGY, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_EXPLOSIVE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_EXPLOSIVE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_OCCULT, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_OCCULT, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_ELEMENTAL, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_ELEMENTAL, 0, 0, val), s:"\n");
 				++k;
 			}
 			// pen block ends
@@ -4678,7 +4680,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// blocking mons take % more
 			val = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_BLOCKERS_MOREDMG, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_BLOCKERS_MOREDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4693,13 +4695,13 @@ void DrawPlayerStats(int pnum, int category) {
 			// generic things like dot multi, dot %
 			val = GetPlayerAttributeValue(pnum, INV_DOTMULTI);
 			if(val) {
-				PlayerStatText = StrParam(s:GetItemAttributeText(INV_DOTMULTI, val), s:"\n");
+				PlayerStatText = StrParam(s:GetItemAttributeText(INV_DOTMULTI, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_INCREASEDDOT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INCREASEDDOT, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INCREASEDDOT, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4713,7 +4715,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// +flat fire damage
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_FIREDMG, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_FIREDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4725,7 +4727,7 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = GetPlayerAttributeValue(pnum, INV_IGNITEDURATION);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITEDURATION, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITEDURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4750,7 +4752,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// ice things
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_ICEDMG, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_ICEDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4775,32 +4777,32 @@ void DrawPlayerStats(int pnum, int category) {
 			// lightning things
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_LIGHTNINGDMG, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_LIGHTNINGDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_OVERLOADCHANCE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOADCHANCE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOADCHANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_ZAPCOUNT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOAD_ZAPCOUNT, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOAD_ZAPCOUNT, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOAD_DMGINCREASE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOAD_DMGINCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// poison things
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_POISONDMG, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_POISONDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4812,20 +4814,20 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = GetPlayerAttributeValue(pnum, INV_POISON_DURATION);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_DURATION, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_DURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_POISON_TICDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_TICDMG, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_TICDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// ailment ignore chance
 			val = GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CHANCE_AILMENTIGNORE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CHANCE_AILMENTIGNORE, 0, 0, val), s:"\n");
 				++k;
 			}
 		}
@@ -4853,14 +4855,14 @@ void DrawPlayerStats(int pnum, int category) {
 			// inc damage taken
 			val = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_EX_DMGINCREASE_TAKEN, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_EX_DMGINCREASE_TAKEN, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// regen cap
 			val = GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REGENCAP_INCREASE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REGENCAP_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -4872,7 +4874,7 @@ void DrawPlayerStats(int pnum, int category) {
 			else {
 				val = GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
 				if(val) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_KNOCKBACK_RESIST, val), s:"\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_KNOCKBACK_RESIST, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
@@ -4886,67 +4888,67 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ELEM, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ELEM, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_PHYS, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_PHYS, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ENERGY));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ENERGY, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ENERGY, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_MAGIC));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_MAGIC, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_MAGIC, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_EXPLOSION, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_EXPLOSION, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_HITSCAN));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_HITSCAN, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_HITSCAN, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_FIRE));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_FIRE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_FIRE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ICE));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ICE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ICE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_LIGHTNING));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_LIGHTNING, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_LIGHTNING, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_POISON));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_POISON, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_POISON, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL));
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_REFL, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_REFL, 0, 0, val), s:"\n");
 				++k;
 			}
 			// dmg reduction block ends
@@ -4963,25 +4965,25 @@ void DrawPlayerStats(int pnum, int category) {
 			// lifesteal block begins
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_CAP, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_CAP, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_RATE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_RATE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_RECOVERY, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_RECOVERY, 0, 0, val), s:"\n");
 				++k;
 			}
 			// lifesteal block ends
@@ -4989,7 +4991,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// ammo gain chance
 			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_CHANCE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_CHANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -5010,7 +5012,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// ammo pickup inc
 			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_INCREASE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -5042,7 +5044,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// shop stock
 			val = (GetAmmoCapIncrease() - 100) * (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100;
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 			// shop price reduction

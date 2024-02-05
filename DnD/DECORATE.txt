@@ -41,7 +41,6 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Items/Charms.txt"
 #include "Actors/Items/Orbs.txt"
 #include "Actors/Items/Chest.txt"
-#include "Actors/Items/Elixir.txt"
 #include "Actors/Items/Tokens.txt"
 
 // Spells

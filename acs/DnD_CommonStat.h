@@ -7,6 +7,9 @@
 
 #define DND_ACCURACY_CAP 100000
 
+#define DND_EXP_ADJUST_LEVEL 80
+#define DND_EXP_ADJUST_LEVELFACTOR 0.9
+
 enum {
 	DND_DAMAGECATEGORY_MELEE,
 	DND_DAMAGECATEGORY_BULLET,
@@ -64,8 +67,43 @@ enum {
 	DND_WDMG_ISDOT = 268435456
 };
 
-#include "DnD_OrbsDef.h"
-#include "DnD_ElixirDef.h"
+enum {
+	DND_DAMAGEFLAG_USEMASTER 			= 			0b1,
+	DND_DAMAGEFLAG_ISSHOTGUN 			= 			0b10,
+	DND_DAMAGEFLAG_CULL 				= 			0b100,
+	DND_DAMAGEFLAG_ISDAMAGEOVERTIME		=			0b1000,
+	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE	=			0b10000,
+	DND_DAMAGEFLAG_NOPOISONSTACK		=			0b100000,
+	DND_DAMAGEFLAG_HALFDMGSELF			=			0b1000000,
+	DND_DAMAGEFLAG_INFLICTPOISON		=			0b10000000,
+	DND_DAMAGEFLAG_BLASTSELF			=			0b100000000,
+	DND_DAMAGEFLAG_SELFORIGIN			=			0b1000000000,
+	DND_DAMAGEFLAG_DOFULLDAMAGE			=			0b10000000000,
+	DND_DAMAGEFLAG_EXTRATOUNDEAD		=			0b100000000000,
+	DND_DAMAGEFLAG_ISHITSCAN			=			0b1000000000000,
+	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b10000000000000,
+	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b100000000000000,
+	DND_DAMAGEFLAG_SIMULATERIPPER		=			0b1000000000000000,
+	DND_DAMAGEFLAG_ISSPELL				=			0b10000000000000000,
+	DND_DAMAGEFLAG_ISSPECIALAMMO		=			0b100000000000000000,
+	
+	// below are special things that are cleared after a certain point in HandleImpactDamage function
+	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b1000000000000000000,
+	DND_DAMAGEFLAG_SOULATTACK			=			0b10000000000000000000,
+	DND_DAMAGEFLAG_LOSEDAMAGEPERHIT		=			0b100000000000000000000,
+	DND_DAMAGEFLAG_FOILINVUL			=			0b1000000000000000000000,
+};
+
+enum {
+	DND_DAMAGETICFLAG_PUSH				=			0b1,
+	DND_DAMAGETICFLAG_CRIT				=			0b10,
+	DND_DAMAGETICFLAG_ICE				=			0b100,
+	DND_DAMAGETICFLAG_FIRE				=			0b1000,
+	DND_DAMAGETICFLAG_LIGHTNING			=			0b10000,
+	DND_DAMAGETICFLAG_CONSIDERMELEE		=			0b100000,
+	DND_DAMAGETICFLAG_DOT				=			0b1000000,
+};
+
 #include "DnD_CommonResearch.h"
 
 #define DND_ELITE_BASEDROP 0.0025 // same as below
@@ -324,8 +362,6 @@ enum {
 int GetBonusPlayerSpeed(int pnum) {
 	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE);
 	// add other stuff here
-	res += GetDataFromOrbBonus(pnum, OBI_SPEED);
-	res += Player_Elixir_Bonuses[pnum].speed_bonus;
 	res = res * (100 + CheckInventory("GryphonCheck") * DND_GRYPHON_MSPEED + CheckInventory("CelestialCheck") * DND_CELESTIAL_MSPEED) / 100;
 	return res;
 }
@@ -417,26 +453,22 @@ int GetMissingHealth() {
 }
 
 int CalculateHealthCapBonuses(int pnum) {
-	// consider quest bonuses, charms, orb effects and elixirs
+	// consider quest bonuses, charms, orb effects
 	return IsQuestComplete(pnum + P_TIDSTART, QUEST_NODYING) * DND_QUEST_PRECIOUSLIFE_BONUS 		+
 		   IsQuestComplete(pnum + P_TIDSTART, QUEST_NOHEALINGPICKUP) * DND_QUEST_SKINOTEETH_BONUS 	+
-		   GetPlayerAttributeValue(pnum, INV_HP_INCREASE)			 								+
-		   GetDataFromOrbBonus(pnum, OBI_HPFLAT)						 							+
-		   Player_Elixir_Bonuses[pnum].hp_flat_bonus;
+		   GetPlayerAttributeValue(pnum, INV_HP_INCREASE);
 }
 
 int GetSpawnHealth() {
 	int pnum = PlayerNumber();
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_VIT_INCREASE * GetVitality();
 	// consider percent bonuses from here on
-	int percent  = GetDataFromOrbBonus(pnum, OBI_HPPERCENT)							 		+ 
-				   DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
+	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
 				   // GetStrength() * DND_STR_CAPINCREASE 										+
 				   CheckInventory("CelestialCheck") * CELESTIAL_BOOST 						+
 				   GetResearchHealthBonuses() 												+
-				   Player_Elixir_Bonuses[pnum].hp_percent_bonus 							+
 				   GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
-	// player bonus + elixir + % research bonus
+	// player bonus + % research bonus
 	res += (res * percent) / 100;
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH))
 		res >>= 1;

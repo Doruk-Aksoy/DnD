@@ -248,17 +248,6 @@ enum {
 
 #define DefStepSound "Player/Move"
 
-// thunderstaff info things
-#define DND_THUNDERSTAFF_MAXTARGETS 5
-#define DND_THUNDER_RADIUSPERCOUNT 18
-#define DND_THUNDERSTAFF_BASERANGE 128
-#define DND_THUNDERSTAFF_LIMIT 30
-typedef struct dist_tid_pair {
-	int dist;
-	int tid;
-} dist_tid_pair_T;
-#define DND_MAXSCANTRACER 256
-
 #define DND_MAX_PULLFORCE 256.0
 enum {
 	DND_PULLF_CANPULLDEAD = 1,
@@ -732,6 +721,8 @@ void HandleCashDrops(int m_id, int pnum) {
 			if(!RunDefaultDropChance(pnum, GetCreditDropData(i, CREDITDROP_CHANCE) * drop_boost / 100))
 				continue;
 			GiveInventory(GetCreditDropperName(i, MonsterProperties[m_id].isElite), 1);
+			if(CheckPlayerLuckDuplicator(pnum))
+				GiveInventory(GetCreditDropperName(i, MonsterProperties[m_id].isElite), 1);
 			break;
 		}
 	}
@@ -761,14 +752,14 @@ void SpawnResearchId(int id) {
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// spawn this only if this isn't already found by the player
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(id))
-				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, id);
+				SpawnPlayerDrop(i, "ResearchModule_MP", 24.0, 16, i + 1, id);
 		}
 	}
 	else if(!CheckResearchStatus(id)) // 1 before id is player (0 + 1)
-		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, id);
+		SpawnPlayerDrop(0, "ResearchModule_MP", 24.0, 16, 1, id);
 }
 
-void SpawnAccessory() {
+void SpawnAccessory(int pnum) {
 	int id;
 	if(HardcoreSet) {
 		do {
@@ -777,7 +768,7 @@ void SpawnAccessory() {
 	}
 	else
 		id = random(1, MAX_ACCESSORY);
-	SpawnDrop(StrParam(s:"Accessory_", d:id), 0, 0, 0, 0);
+	SpawnPlayerDrop(pnum, StrParam(s:"Accessory_", d:id), 0, 0, 0, 0);
 }
 
 void UpdateLevelChestLimit() {
@@ -818,7 +809,6 @@ void HandleChestDrops(int ctype) {
 	// the tid of player who opened the chest
 	int tid = GetActorProperty(0, APROP_TARGETTID);
 	int pnum = tid - P_TIDSTART;
-	HandleElixirDrop(true);
 	if(ctype == DND_CHESTTYPE_BRONZE) {
 		/*RunDefaultDropChance(int pnum, bool isElite, int basechance)
 		RunDefaultDropChance(i, true, DND_ELITE_BASEDROP_ORB + addchance)*/
@@ -872,14 +862,14 @@ void HandleCharmLootDrop(int drop_boost, int rarity_boost) {
 	//SpawnCharm(0, rarity_boost);
 }
 
-void HandleSoulDrop() {
+/*void HandleSoulDrop() {
 	if(IsDemon()) {
 		str drop = "SoulsDrop";
 		if(IsBoss())
 			drop = "LargeSoulsDrop";
 		SpawnDrop(drop, GetActorProperty(0, APROP_HEIGHT) / 2, 12, 0, 0);
 	}
-}
+}*/
 
 void HandleCreditExp_Regular(int this, int target, int m_id) {
 	int expshare = GetCVar("dnd_sharexp");
@@ -1030,11 +1020,8 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	}
 	
 	// ammo specialty drop
-	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(pnum, DND_MUNITION_MASTERY_CHANCE)) {
-		SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
-		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnDrop("DnD_AmmoToken", 24.0, 16, 0, 0);
-	}
+	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(pnum, DND_MUNITION_MASTERY_CHANCE))
+		SpawnPlayerDrop(pnum, "DnD_AmmoToken", 24.0, 16, 0, 0);
 	
 	// research drop
 	if(!GetCVar("dnd_allresearchesfound")) {
@@ -1061,12 +1048,13 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	//#else
 	if(
 		IsBossTID(tid) && 
-		RunDropChance(pnum, ((Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100) * MonsterProperties[m_id].droprate / 100, 0, 1.0) &&
+		//RunDropChance(pnum, ((Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100) * MonsterProperties[m_id].droprate / 100, 0, 1.0) &&
+		random(0, 1.0) <= (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100 &&
 		GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)
 	)
 	{
 		// we can drop the spawner
-		SpawnAccessory();
+		SpawnAccessory(pnum);
 	}
 	//#endif
 	
@@ -1082,9 +1070,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
 	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(pnum, DND_DOOMGUY_DROPCHANCE)) {
 		temp = MonsterProperties[m_id].maxhp;
-		SpawnDrop("Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
-		if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnDrop("Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
+		SpawnPlayerDrop(pnum, "Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
 	}
 	
 	// soul ammo drop -- considers ability - soulstealer as well
@@ -1093,16 +1079,10 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		(IsMonsterIdDemon(m_id) && (CheckActorInventory(target, "Ability_SoulStealer") && CheckActorInventory(tid, "MagicCausedDeath")))
 	  )
 	{
-		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE) {
-			SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
-			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-				SpawnDrop("SoulsDrop", 24.0, 16, 0, 0);
-		}
-		else {
-			SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
-			if(HasActorMasteredPerk(target, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-				SpawnDrop("LargeSoulsDrop", 24.0, 16, 0, 0);
-		}
+		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE)
+			SpawnPlayerDrop(pnum, "SoulsDrop", 24.0, 16, 0, 0);
+		else
+			SpawnPlayerDrop(pnum, "LargeSoulsDrop", 24.0, 16, 0, 0);
 		TakeActorInventory(tid, "MagicCausedDeath", 1);
 	}
 	
@@ -1116,7 +1096,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	}
 	
 	if(CheckActorInventory(target, "Ability_HeartSeeker") && RunDefaultDropChance(pnum, CHANCE_HEART * MonsterProperties[m_id].droprate / 100))
-		SpawnDrop("DemonHeartPickup", 24.0, 16, 0, 0);
+		SpawnPlayerDrop(pnum, "DemonHeartPickup", 24.0, 16, 0, 0);
 }
 
 int GetPVelocity(void) {
@@ -1225,33 +1205,30 @@ void HandleMonsterTemporaryWeaponDrop(int this, int id, int pnum, bool guarantee
 		case MONSTER_RAVAGER:
 		case MONSTER_LURKER:
 			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_BLOODFIENDSPINE_DROPCHANCE))
-				SpawnDropAtActor(this, TemporaryWeaponData[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnPlayerDropAtActor(pnum, this, TemporaryWeaponData[DND_TEMPWEP_BLOODFIENDSPINE][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_VULGAR:
 			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_VENOM_DROPCHANCE))
-				SpawnDropAtActor(this, TemporaryWeaponData[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnPlayerDropAtActor(pnum, this, TemporaryWeaponData[DND_TEMPWEP_VENOM][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CHAINGUNGENERAL:
 			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_NAILGUN_DROPCHANCE))
-				SpawnDropAtActor(this, TemporaryWeaponData[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnPlayerDropAtActor(pnum, this, TemporaryWeaponData[DND_TEMPWEP_HEAVYNAILGUN][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DEATHKNIGHT:
 		case MONSTER_HORSHACKER:
 			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_SOULRENDER_DROPCHANCE))
-				SpawnDropAtActor(this, TemporaryWeaponData[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnPlayerDropAtActor(pnum, this, TemporaryWeaponData[DND_TEMPWEP_SOULRENDER][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_CORPULENT:
 			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_HFCANNON_DROPCHANCE))
-				SpawnDropAtActor(this, TemporaryWeaponData[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnPlayerDropAtActor(pnum, this, TemporaryWeaponData[DND_TEMPWEP_HELLFORGECANNON][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 		case MONSTER_DARKSERVANT:
 			if(guaranteed || RunDefaultDropChance(pnum, TEMPWEP_DARKGLOVES_DROPCHANCE))
-				SpawnDropAtActor(this, TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
+				SpawnPlayerDropAtActor(pnum, this, TemporaryWeaponData[DND_TEMPWEP_DARKGLOVES][TEMPWEP_DROP], 24.0, 16, 0, 0);
 		break;
 	}
-	
-	if(pnum != -1 && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-		HandleMonsterTemporaryWeaponDrop(this, id, -1, guaranteed);
 }
 
 void ApplyRandomCurse(int tid) {
@@ -1326,7 +1303,8 @@ bool IsEliteException(int m_id, int monster_type) {
 			monster_type == MONSTER_PHANTASM || monster_type == MONSTER_WRAITH || monster_type == MONSTER_HADESSPHERE || monster_type == MONSTER_UNDEADPRIESTGHOST;
 }
 
-void HandleUniqueDeath(int unique_id) {
+void HandleUniqueDeath(int p_actor, int unique_id) {
+	int pnum = p_actor - P_TIDSTART;
 	switch(unique_id) {
 		case MONSTER_TERON:
 			// spawn some budget
@@ -1336,9 +1314,9 @@ void HandleUniqueDeath(int unique_id) {
 		break;
 		case MONSTER_GANT:
 			if(GameType() != GAME_SINGLE_PLAYER)
-				SpawnDrop("SynthMetalPickup_MP", 24.0, 16, 0, 0);
+				SpawnPlayerDrop(pnum, "SynthMetalPickup_MP", 24.0, 16, 0, 0);
 			else
-				SpawnDrop("SynthMetal_SP", 24.0, 16, 0, 0);
+				SpawnPlayerDrop(pnum, "SynthMetal_SP", 24.0, 16, 0, 0);
 		break;
 		case MONSTER_BRONN:
 			SpawnResearchId(RES_SYNTHMASK);
@@ -1350,9 +1328,9 @@ void HandleUniqueDeath(int unique_id) {
 		case MONSTER_REMUS:
 			// drops armor and gives research for it: lightning coil - super lightning protection, 300, 40% damage reduction. When hurt fires lightning bolts.
 			if(GameType() != GAME_SINGLE_PLAYER)
-				SpawnDrop("LightningCoilPickup_MP", 24.0, 16, 0, 0);
+				SpawnPlayerDrop(pnum, "LightningCoilPickup_MP", 24.0, 16, 0, 0);
 			else
-				SpawnDrop("LightningCoil_SP", 24.0, 16, 0, 0);
+				SpawnPlayerDrop(pnum, "LightningCoil_SP", 24.0, 16, 0, 0);
 		break;
 		case MONSTER_SSRATH:
 			// ssrath influence: soul type weapons penetrate % magic resistance
@@ -1628,3 +1606,4 @@ Script "DnD Register Unique Boss" (int tid, int monid, int maxhp, int level) CLI
 }
 
 #include "DnD_Damage.h"
+#include "DnD_Weapons.h"

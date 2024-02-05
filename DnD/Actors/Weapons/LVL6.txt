@@ -1788,7 +1788,7 @@ Actor RhinoRifle : Weapon
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 10 + 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("RhinoCasing", 10 + cos(pitch)*28,-2,32+(sin(-pitch)*20),0,-8,random(4,10),0,0,0)
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke", 10 + cos(-pitch)*20,0,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RHINORIFLE, DND_ATK_SECONDARY DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP7 << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RHINORIFLE, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP7 << 16), 0)
 			TNT1 A 0 A_PlaySound("RhinoRifle/Fire", CHAN_7)
 			MAZF A 1 Bright
 			TNT1 A 0 A_SetPitch(pitch - 1.5)
@@ -1951,7 +1951,7 @@ Actor RhinoRifle : Weapon
 			MARF X 1 Bright
 			TNT1 A 0 A_PlaySound("GenericGL/Fire", 6)
 			TNT1 A 0 A_PlaySound("GenericGL/FireAdd", 7)
-			MARF X 1 Bright A_GiveInventory("GrenadeShooterGeneric_6", 1)
+			MARF X 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RHINORIFLE, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP7 << 16), 0)
 			MARD A 6
 			MARD BC 3
 			MARG A 1
@@ -1967,7 +1967,7 @@ Actor RhinoRifle : Weapon
 			MZYF A 1 Bright
 			TNT1 A 0 A_PlaySound("GenericGL/Fire", 6)
 			TNT1 A 0 A_PlaySound("GenericGL/FireAdd", 7)
-			MZYF A 1 Bright A_GiveInventory("GrenadeShooterGeneric_6", 1)
+			MZYF A 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RHINORIFLE, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP7 << 16), 0)
 			MZYF B 3
 			MZYF CDE 3
 			MAZG A 1

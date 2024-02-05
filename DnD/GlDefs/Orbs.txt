@@ -34,7 +34,7 @@ pointlight BASICBOOST4
 	size 24
 }
 
-object OrbofSpirit
+object PrismaticOrb
 {
 	frame ORB1E { light BASICBOOST1 }
 	frame ORB1F { light BASICBOOST2 }
@@ -89,7 +89,7 @@ pointlight WISDOMLIGHT {
 	size 32
 }
 
-object OrbofWisdom {
+object OrbofNullification {
 	frame ORB2 { light WISDOMLIGHT }
 }
 
@@ -98,7 +98,7 @@ pointlight GREEDLIGHT {
 	size 32
 }
 
-object OrbofGreed {
+object OrbofDestruction {
 	frame ORB3 { light GREEDLIGHT }
 }
 
@@ -145,11 +145,11 @@ object OrbofSin {
 }
 
 pointlight RICHESLIGHT {
-	color 0.75 0.85 0.45
+	color 0.95 0.65 0.35
 	size 32
 }
 
-object OrbofRiches {
+object OrbofTremors {
 	frame ORB3 { light RICHESLIGHT }
 }
 

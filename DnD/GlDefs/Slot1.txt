@@ -18,7 +18,7 @@ object ExcalibatBall
     frame D3BX { light EXCALIBOOM }
 }
 
-object ExcalibatBall_G
+object ExcalibatBall_GhostHitter
 {
 	frame ECAL { light EXCALIBOLT }
     frame D3BX { light EXCALIBOOM }

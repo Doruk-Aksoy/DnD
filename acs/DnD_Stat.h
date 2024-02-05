@@ -5,10 +5,10 @@
 #include "DnD_CommonStat.h"
 #include "DnD_Common.h"
 #include "DnD_Charms.h"
-#include "DnD_Elixirs.h"
 #include "DnD_Artifacts.h"
 #include "DnD_Abilities.h"
 #include "DnD_Activity.h"
+#include "DnD_WeaponDefs.h"
 
 // There's an underlying assumption here and it is that once an attack is concluded, ie. Another "DnD on Attack" script call is made
 // all projectiles that are meant to come from an attack have come out. This is so that projectiles and multi proj delayed attacks get their crit rolls properly
@@ -469,6 +469,22 @@ bool HasActorMasteredPerk(int tid, int stat) {
 	return GetActorStat(tid, stat) == DND_PERK_MAX;
 }
 
+bool CheckPlayerLuckDuplicator(int pnum) {
+	return HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE;
+}
+
+void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
+	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2);
+	if(CheckPlayerLuckDuplicator(pnum))
+		SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2);
+}
+
+void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
+	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
+	if(CheckPlayerLuckDuplicator(pnum))
+		SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
+}
+
 /*void GiveActorStat(int tid, int stat_id, int amt) {
 	// get cap
 	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
@@ -521,7 +537,7 @@ void GiveActorExp(int tid, int amt) {
 
 int GetPlayerWisdomBonus(int pnum, int tid) {
 	// the item modifier is fixed point and is a more multiplier
-	int base = 100 + BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") + GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
+	int base = 100 + BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom");
 	
 	// halved
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
@@ -536,7 +552,7 @@ int GetPlayerWisdomBonus(int pnum, int tid) {
 
 int GetPlayerGreedBonus(int pnum, int tid) {
 	// the item modifier is fixed point and is a more multiplier
-	int base = 100 + BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") + GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
+	int base = 100 + BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed");
 	
 	// halved
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
@@ -550,6 +566,11 @@ int GetPlayerGreedBonus(int pnum, int tid) {
 }
 
 int RewardActorExp(int tid, int amt) {
+	// if player is >= lvl 80, they only get 25% of the experience -- if too slow precalc and store in an array later
+	int tmp = GetActorStat(tid, STAT_LVL);
+	if(tmp >= DND_EXP_ADJUST_LEVEL)
+		amt = amt * fpow(DND_EXP_ADJUST_LEVELFACTOR, tmp - DND_EXP_ADJUST_LEVEL + 1);
+
 	amt = amt * GetPlayerWisdomBonus(tid - P_TIDSTART, tid) / 100;
 	GiveActorExp(tid, amt);
 	return amt;
@@ -651,12 +672,7 @@ int GetResearchArmorBonuses() {
 
 int CalculateArmorCapBonuses(int pnum) {
 	int res = CheckInventory("DnD_QuestReward_ArmorCapIncrease") * DND_QUEST_ARMORBONUS;
-	
-	// consider orb effects
-	res = 	GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1) + 
-			Player_Elixir_Bonuses[pnum].armor_flat_bonus + 
-			GetPlayerAttributeValue(pnum, INV_ARMOR_INCREASE);
-	return res;
+	return res * GetPlayerAttributeValue(pnum, INV_ARMOR_INCREASE);
 }
 
 int CanPickHealthItem(int type) {
@@ -681,15 +697,14 @@ int GetArmorCapFromID(int armor_id) {
 	// any other armor besides the armor bonuses
 	amt += CalculateArmorCapBonuses(pnum) + DND_ARMOR_PER_BUL * GetBulkiness();
 	
-	inc = 	GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1) + 
-			DND_QUEST_ARMORBONUS * IsQuestComplete(0, QUEST_NOARMORS);
+	inc = 	DND_QUEST_ARMORBONUS * IsQuestComplete(0, QUEST_NOARMORS);
 			DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE);
 	
 	amt += amt * inc / 100;
 	//amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
-	amt += (amt * (Player_Elixir_Bonuses[pnum].armor_percent_bonus + GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE))) / 100;
+	amt += (amt * GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE)) / 100;
 	return amt;
 }
 
@@ -783,10 +798,7 @@ int Calculate_Perks() {
 int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
-	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + 
-			GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1) +
-			Player_Elixir_Bonuses[pnum].luck +
-			DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
+	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
 			
 	//if(isElite && IsQuestComplete(pnum + P_TIDSTART, QUEST_KILL20ELITES))
 	//	base += DND_ELITEDROP_GAIN;
@@ -944,7 +956,7 @@ void UpdateLegendaryKill(int pnum, int mon_id) {
 }
 
 int GetPlayerWeaponEnchant(int pnum, int wepid) {
-	return GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, wepid) + Player_Weapon_Infos[pnum][wepid].quality;
+	return Player_Weapon_Infos[pnum][wepid].quality;
 }
 
 void HandleArmorDependencyCheck() {
@@ -1003,7 +1015,6 @@ int GetBaseCritChance(int pnum) {
 
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
 	return 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT].val +
-			GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, wepid) +
 			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE);
 }
 
@@ -1012,7 +1023,6 @@ int GetCritChance(int pnum, int wepid) {
 	// add current weapon crit bonuses
 	if(wepid != -1) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT].val;
-		chance += GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, wepid);
 	}
 	// add percent bonus
 	if(chance)
@@ -1092,7 +1102,7 @@ int GetIndependentCritModifier(int pnum) {
 
 int GetBaseCritModifier(int pnum, int wepid) {
 	int base = GetIndependentCritModifier(pnum);
-	int wep_bonus = (wepid != -1) * (Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG].val + GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, wepid));
+	int wep_bonus = (wepid != -1) * Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG].val;
 	return base + wep_bonus;
 }
 
@@ -1126,26 +1136,17 @@ int GetCritModifier(int wepid) {
 	return base;
 }
 
-// common place of weapon and orb data
 int GetWeaponModValue(int pnum, int wep, int mod) {
-	int orb_bonus = 0;
-	
-	// these have equivalents in orbs
-	if(mod >= WEP_MOD_CRIT && mod <= WEP_MOD_DMG)
-		orb_bonus = GetDataFromOrbBonus(pnum, mod - WEP_MOD_CRIT + OBI_WEAPON_CRIT, wep);
-	return Player_Weapon_Infos[pnum][wep].wep_mods[mod].val + orb_bonus;
+	return Player_Weapon_Infos[pnum][wep].wep_mods[mod].val;
 }
 
 bool HasWeaponPower(int pnum, int wep, int power) {
-	return 	IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1].val, power) || 
-			IsSet(GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, wep), power);
+	return 	IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1].val, power);
 }
 
 int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
 	// stuff that dont depend on a wepid
-	int res = 	GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, damage_category) +
-				MapDamageCategoryToPercentBonus(pnum, damage_category) +
-				Player_Elixir_Bonuses[pnum].damage_type_bonus[damage_category];
+	int res = MapDamageCategoryToPercentBonus(pnum, damage_category);
 				
 	if(damage_category == DND_DAMAGECATEGORY_ENERGY && IsQuestComplete(0, QUEST_ONLYENERGY))
 		res += DND_QUEST_ENERGYBONUS;
@@ -1155,7 +1156,6 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
 		res -= (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
 	return res;
 }
-
 
 void RecalculatePlayerLevelInfo() {
 	PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] = 0;
@@ -1211,11 +1211,10 @@ void ResetPlayerInfo(int pnum) {
 	ResetPlayerCharmsUsed(pnum);
 	ResetTradeViewList(pnum);
 	ResetPlayerStash(pnum);
-	ResetPlayerElixirBonuses(pnum);
 	// reset weapon mod variable
 	ResetWeaponMods(pnum);
 	ResetMostRecentOrb(pnum);
-	ResetOrbData(pnum);
+	//ResetOrbData(pnum);
 	ResetPlayerModList(pnum);
 	ResetInvestments(pnum);
 	SyncAllClientsideVariables(pnum);
@@ -1287,8 +1286,9 @@ int GetOverloadTime(int pnum) {
 	return (DND_BASE_OVERLOADTIME + ((GetPlayerAttributeValue(pnum, INV_OVERLOAD_DURATION) * TICRATE) >> 16)) / DND_BASE_OVERLOADTICK;
 }
 
-int GetPlayerMeleeRange(int pnum) {
-	return GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC;
+// returns fixed point range
+int GetPlayerMeleeRange(int pnum, int range) {
+	return FixedMul(range, 1.0 + 0.1 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC));
 }
 
 #define DND_BASE_IGNITEDMG 10

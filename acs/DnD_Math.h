@@ -132,7 +132,7 @@ int ApplyFixedFactorToInt(int val, int factor) {
 
 int VectorPitch (Int t1, Int t2, int dx, int dy, int adj) {
 	If(adj != 0)
-		adj = adj << 16;
+		adj <<= 16;
 	Return(VectorAngle(AproxDistance(dx, dy), GetActorZ(t1) - (GetActorZ(t2) - adj)));
 }
 
@@ -292,6 +292,13 @@ int getpow2 (int x) {
 	while((x >>= 1))
 		++res;
 	return res;
+}
+
+int fpow(int x, int n) {
+	int y = 1;
+	while(n-- > 0)
+		y = FixedMul(y, x);
+	return y;
 }
 
 int pow (int x, int n) {

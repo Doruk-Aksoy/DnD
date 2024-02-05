@@ -316,13 +316,20 @@ void SetupUniqueItems() {
 
 // These are necessary to sync the global variables + unique data
 Script "DnD Load Inventory Attributes" OPEN {
-	SetupInventoryAttributeTable();
-	SetupUniqueItems();
+	if(!OneTimeChecks[DND_ITEMLOAD_CHECK]) {
+		SetupInventoryAttributeTable();
+		SetupInventoryTagGroups();
+		SetupUniqueItems();
+		OneTimeChecks[DND_ITEMLOAD_CHECK] = true;
+	}
 }
 
 Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
-	SetupInventoryAttributeTable();
-	SetupUniqueItems();
+	if(!OneTimeChecks[DND_ITEMLOAD_CHECK]) {
+		SetupInventoryAttributeTable();
+		SetupUniqueItems();
+		OneTimeChecks[DND_ITEMLOAD_CHECK] = true;
+	}
 }
 
 #endif

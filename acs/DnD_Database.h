@@ -4,9 +4,8 @@
 #include "DnD_DatabaseRows.h"
 #include "DnD_Common.h"
 #include "DnD_MenuConstants.h"
-#include "DnD_Weapons.h"
+#include "DnD_WeaponDefs.h"
 #include "DnD_Research.h"
-#include "DnD_TempWeps.h"
 #include "DnD_Stat.h"
 #include "DnD_Orbs.h"
 #include "DnD_ClassMenu.h"
@@ -82,6 +81,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].attrib_val);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].attrib_id);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].attrib_tier);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].fractured);
 				}
 			}
 			else {
@@ -99,6 +99,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 				}
 			}
 		}
@@ -120,6 +121,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].attrib_val);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].attrib_id);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].attrib_tier);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].fractured);
 			}
 		}
 	}
@@ -143,6 +145,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].attrib_val);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].attrib_id);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].attrib_tier);
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].fractured);
 					}
 				}
 				else {
@@ -158,6 +161,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc, 0);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc, 0);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:temp), pacc, 0);
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:temp), pacc, 0);
 					}
 				}
 			}
@@ -193,6 +197,7 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_val);
 						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_id);
 						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_tier);
+						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].fractured);
 					}
 				}
 			}
@@ -214,6 +219,7 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_val);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_id);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_tier);
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].fractured);
 					}
 				}
 			}
@@ -232,6 +238,7 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_val);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_id);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_tier);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].fractured);
 			}
 		}
 	}
@@ -441,7 +448,6 @@ void SavePlayerData(int pnum, int char_id) {
 		// enhancement orbs used
 		temp = Player_Weapon_Infos[pnum][i].quality;
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, i));
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
@@ -449,42 +455,11 @@ void SavePlayerData(int pnum, int char_id) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 			temp = Player_Weapon_Infos[pnum][i].wep_mods[j].val;
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
-			
-			// orb stored wepmod data
-			//temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier;
-			//SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
-			temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].val;
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 		}
 	}
 	
 	// save stored medkit
 	SetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc, CheckActorInventory(tid, "StoredMedkit"));
-	
-	// bonuses from orbs
-	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_SPEED, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1));
-	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, GetDataFromOrbBonus(pnum, OBI_HOLDING, -1));
-	
-	// bonuses from elixirs
-	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATHPBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].hp_flat_bonus);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATARMORBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].armor_flat_bonus);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTHPBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].hp_percent_bonus);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTARMORBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].armor_percent_bonus);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].speed_bonus);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc, Player_Elixir_Bonuses[pnum].luck);
-	
-	// damage type bonuses
-	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, i));
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, Player_Elixir_Bonuses[pnum].damage_type_bonus[i]);
-	}
 	
 	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_NPC_Meet"));
 	
@@ -571,28 +546,11 @@ void SavePlayerActivities(int pnum, int char_id) {
 	}
 	IncrementDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc, temp);
 	
-	// bonuses from orbs
-	IncrementDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_flat_bonus);
-	IncrementDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_flat_bonus);
-	IncrementDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_percent_bonus);
-	IncrementDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_percent_bonus);
-	IncrementDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.greed_percent_bonus);
-	IncrementDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.wisdom_percent_bonus);
-	IncrementDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.speed_bonus);
-	IncrementDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.drop_chance);
-	IncrementDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.holding);
-	
-	// damage type bonuses
-	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
-		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.orb_stat_bonuses.damage_type_bonus[i]);
-	
 	for(i = 0; i < MAXWEPS; ++i) {
 		// check mods
 		// enhancement orbs used
 		// orb bonus
-		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
-		//if(i == DND_WEAPON_PLASMARIFLE)
-		//	printbold(s:"enhance: ", d:PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
+		//IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
@@ -600,12 +558,6 @@ void SavePlayerActivities(int pnum, int char_id) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 			temp = Player_Weapon_Infos[pnum][i].wep_mods[j].val;
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
-
-			// orb stored wepmod data
-			temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier;
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
-			temp = Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].val;
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, temp);
 		}
 	}
 	
@@ -678,6 +630,7 @@ void LoadPlayerStash(int pnum, str pacc) {
 					PlayerStashList[pnum][i][j].attributes[temp].attrib_val = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc);
 					PlayerStashList[pnum][i][j].attributes[temp].attrib_id = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc);
 					PlayerStashList[pnum][i][j].attributes[temp].attrib_tier = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:temp), pacc);
+					PlayerStashList[pnum][i][j].attributes[temp].fractured = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:temp), pacc);
 				}
 				
 				// init pointers
@@ -763,6 +716,7 @@ void LoadPlayerData(int pnum, int char_id) {
 				PlayerInventoryList[pnum][i].attributes[j].attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc);
 				PlayerInventoryList[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
 				PlayerInventoryList[pnum][i].attributes[j].attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc);
+				PlayerInventoryList[pnum][i].attributes[j].fractured = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc);
 			}
 			
 			// init pointers
@@ -792,6 +746,7 @@ void LoadPlayerData(int pnum, int char_id) {
 			Charms_Used[pnum][i].attributes[j].attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc);
 			Charms_Used[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
 			Charms_Used[pnum][i].attributes[j].attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc);
+			Charms_Used[pnum][i].attributes[j].fractured = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc);
 		}
 		
 		// apply the loaded charm's features
@@ -802,31 +757,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
 	
 	LoadPlayerStash(pnum, pacc);
-	
-	// damage type bonuses
-	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
-		Player_Elixir_Bonuses[pnum].damage_type_bonus[i] = GetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc);
-		SetDataToOrbBonus_NoActivity(pnum, OBI_DAMAGETYPE, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc));
-	}
-
-	// load bonuses from orbs
-	SetDataToOrbBonus_NoActivity(pnum, OBI_HPFLAT, -1, GetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_ARMORFLAT, -1, GetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_HPPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_ARMORPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_GREEDPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_WISDOMPERCENT, -1, GetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_SPEED, -1, GetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_DROPCHANCE, -1, GetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc));
-	SetDataToOrbBonus_NoActivity(pnum, OBI_HOLDING, -1, GetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc));
-	
-	// load bonuses from elixirs
-	Player_Elixir_Bonuses[pnum].hp_flat_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRFLATHPBONUS, char_id), pacc);
-	Player_Elixir_Bonuses[pnum].armor_flat_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRFLATARMORBONUS, char_id), pacc);
-	Player_Elixir_Bonuses[pnum].hp_percent_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTHPBONUS, char_id), pacc);
-	Player_Elixir_Bonuses[pnum].armor_percent_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTARMORBONUS, char_id), pacc);
-	Player_Elixir_Bonuses[pnum].speed_bonus = GetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc);
-	Player_Elixir_Bonuses[pnum].luck = GetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc);
 	
 	// read temp ammo -- first so weapon doesnt get removed
 	for(i = 0; i < MAXTEMPWEPS; ++i)
@@ -1037,16 +967,11 @@ void LoadPlayerData(int pnum, int char_id) {
 		// enhancement orbs used
 		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc);
 		Player_Weapon_Infos[pnum][i].quality = temp & 0xFF;
-		SetDataToOrbBonus_NoActivity(pnum, OBI_WEAPON_ENCHANT, i, GetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc));
 		
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
 			Player_Weapon_Infos[pnum][i].wep_mods[j].tier = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc);
 			Player_Weapon_Infos[pnum][i].wep_mods[j].val = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc);
-		
-			// orb stored wepmod data
-			//Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].tier = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc);;
-			Player_Orb_Data[pnum].weapon_stat_bonuses[i].wep_mods[j].val = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc);;
 		}
 	}
 	
@@ -1082,38 +1007,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	
 	//printbold(s:"finish load");
 }
-
-// Handle all database stuff now
-/*Script "DND Player Save" OPEN {
-	while(1) {
-		//Log(d:HardcoreSet, d:MapChanged);
-		if(HardcoreSet && MapInfo[DND_MAPINFO_MAPCHANGED]) {
-			BeginDBTransaction();
-			for(int i = 0; i < MAXPLAYERS; ++i) {
-				// don't save peoples stuff while they are in load period
-				//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i]);
-				if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerWillBeSaved[i]) {
-					if (PlayerIsLoggedIn(i)) {
-						if(PlayerTransferred[i]) {
-							WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
-							SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
-							PlayerTransferred[i] = false;
-						}
-						SavePlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
-						ResetPlayerActivities(i, false); // reset this player's activities for the map, no need for them to be stored anymore
-						PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
-						Log(s:"Saving player ", d:i, s:"'s data.");
-					}
-					PlayerWillBeSaved[i] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
-				}
-			}
-			EndDBTransaction();
-
-			Terminate; //No need to repeat this script for whole map if players have been saved already - even more with db transactions
-		}
-		Delay(70);
-	}
-}*/
 
 void load_char(int pnum, int char_id) {
 	SetInventory("DnD_CharacterID", char_id);
@@ -1192,26 +1085,6 @@ void WipeoutPlayerData(int pnum, int cid) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d:i + 1), pacc, 0);
 	}
 	
-	
-	// orbs
-	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, 0);
-	
-	// elixirs
-	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATARMORBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTARMORBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc, 0);
-	
 	// reset researches
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, 0);
@@ -1226,23 +1099,12 @@ void WipeoutPlayerData(int pnum, int cid) {
 	for(i = 0; i < MAXWEPS; ++i) {
 		// enhancement orbs used
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, 0);
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, 0);
 
 		// rest of the mods
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
-			
-			// orb stored wep mods
-			//SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
 		}
-	}
-	
-	// damage type bonuses
-	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
 	}
 	
 	// clean up inventory stuff
@@ -1276,6 +1138,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 		}
 	}
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
@@ -1399,26 +1262,6 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DISCOVERED, char_id), d:i + 1), pacc, 0);
 	}
 	
-	
-	// orbs
-	SetDBEntry(GetCharField(DND_DB_ORBFLATHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBFLATARMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBPERCENTHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBPERCENTARMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBGREEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBWISDOMBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBSPEEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBDROPCHANCEBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ORBHOLDINGBONUS, char_id), pacc, 0);
-	
-	// elixirs
-	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRFLATARMORBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTHPBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRPERCENTARMORBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRSPEEDBONUS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ELIXIRLUCKBONUS, char_id), pacc, 0);
-	
 	// reset researches
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, 0);
@@ -1433,23 +1276,12 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	for(i = 0; i < MAXWEPS; ++i) {
 		// enhancement orbs used
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, 0);
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, 0);
 
 		// rest of the mods
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
-			
-			// orb stored wep mods
-			//SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONORBMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
 		}
-	}
-	
-	// damage type bonuses
-	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i) {
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ELIXIRDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_ORBDAMAGETYPEBONUS, char_id), d:i), pacc, 0);
 	}
 	
 	// clean up inventory stuff
@@ -1466,6 +1298,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 		}
 	}
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -1483,6 +1316,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 		}
 	}
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);

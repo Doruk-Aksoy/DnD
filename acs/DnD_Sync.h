@@ -42,13 +42,16 @@ enum {
 	DND_SYNC_ITEMIMAGE,
 	DND_SYNC_ITEMLEVEL,
 	DND_SYNC_ITEMSTACK,
+
 	// add non attribute related things from above attrib count
 	DND_SYNC_ITEMSATTRIBCOUNT,
 	DND_SYNC_ITEMATTRIBUTES_ID,
 	DND_SYNC_ITEMATTRIBUTES_VAL,
-	DND_SYNC_ITEMATTRIBUTES_TIER
+	DND_SYNC_ITEMATTRIBUTES_TIER,
+	DND_SYNC_ITEMATTRIBUTES_FRACTURE
 	// add attribute related things from below here
 };
+#define DND_LAST_SYNC_TYPE DND_SYNC_ITEMATTRIBUTES_FRACTURE
 
 #define FIRST_WEPMOD_SYNC (DND_SYNC_WEPMOD_CRIT)
 #define MAX_SYNC_VARS (DND_SYNC_WEPMOD_POWERSET1 + 1)
@@ -96,6 +99,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Charms_Used[pnum][extra].attributes[sub].attrib_val;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 			return Charms_Used[pnum][extra].attributes[sub].attrib_tier;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+			return Charms_Used[pnum][extra].attributes[sub].fractured;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_FIELD){
@@ -126,6 +131,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Inventories_On_Field[extra].attributes[sub].attrib_val;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 			return Inventories_On_Field[extra].attributes[sub].attrib_tier;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+			return Inventories_On_Field[extra].attributes[sub].fractured;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
@@ -156,6 +163,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_val;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_tier;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+			return PlayerInventoryList[pnum][extra].attributes[sub].fractured;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW){
@@ -186,6 +195,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return TradeViewList[pnum][extra].attributes[sub].attrib_val;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 			return TradeViewList[pnum][extra].attributes[sub].attrib_tier;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+			return TradeViewList[pnum][extra].attributes[sub].fractured;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_STASH){
@@ -216,87 +227,9 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_val;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_tier;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+			return PlayerStashList[pnum][page][extra].attributes[sub].fractured;
 		}
-	}
-	return 0;
-}
-
-int GetPlayerSyncValue_Orb(int pos, int extra) {
-	int pnum = PlayerNumber();
-	switch(pos) {
-		case DND_SYNC_WEAPONENHANCE:
-		return GetDataFromOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra);
-		case DND_SYNC_SPEED:
-		return GetDataFromOrbBonus(pnum, OBI_SPEED, -1);
-		case DND_SYNC_DROPCHANCE:
-		return GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1);
-		case DND_SYNC_HPFLAT_BONUS:
-		return GetDataFromOrbBonus(pnum, OBI_HPFLAT, -1);
-		case DND_SYNC_ARMORFLAT_BONUS:
-		return GetDataFromOrbBonus(pnum, OBI_ARMORFLAT, -1);
-		case DND_SYNC_HPPERCENT_BONUS:
-		return GetDataFromOrbBonus(pnum, OBI_HPPERCENT, -1);
-		case DND_SYNC_ARMORPERCENT_BONUS:
-		return GetDataFromOrbBonus(pnum, OBI_ARMORPERCENT, -1);
-		case DND_SYNC_GREEDPERCENT_BONUS:
-		return GetDataFromOrbBonus(pnum, OBI_GREEDPERCENT, -1);
-		case DND_SYNC_WISDOMPERCENT_BONUS:
-		return GetDataFromOrbBonus(pnum, OBI_WISDOMPERCENT, -1);
-		case DND_SYNC_HOLDING:
-		return GetDataFromOrbBonus(pnum, OBI_HOLDING, -1);
-		case DND_SYNC_DAMAGEBULLET:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET);
-		case DND_SYNC_DAMAGEENERGY:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY);
-		case DND_SYNC_DAMAGEEXPLOSIVE:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES);
-		case DND_SYNC_DAMAGEMELEE:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE);
-		case DND_SYNC_DAMAGEELEMENTAL:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL);
-		case DND_SYNC_DAMAGEOCCULT:
-		return GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT);
-		case DND_SYNC_WEPMOD_CRIT:
-		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRIT, extra);
-		case DND_SYNC_WEPMOD_CRITDMG:
-		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra);
-		case DND_SYNC_WEPMOD_CRITPERCENT:
-		return GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra);
-		case DND_SYNC_WEPMOD_DMG:
-		return GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, extra);
-		case DND_SYNC_WEPMOD_POWERSET1:
-		return GetDataFromOrbBonus(pnum, OBI_WEAPON_POWERSET1, extra);
-	}
-	return 0;
-}
-
-int GetPlayerSyncValue_Elixir(int pos, int extra) {
-	int pnum = PlayerNumber();
-	switch(pos) {
-		case DND_SYNC_SPEED:
-		return Player_Elixir_Bonuses[pnum].speed_bonus;
-		case DND_SYNC_HPFLAT_BONUS:
-		return Player_Elixir_Bonuses[pnum].hp_flat_bonus;
-		case DND_SYNC_ARMORFLAT_BONUS:
-		return Player_Elixir_Bonuses[pnum].armor_flat_bonus;
-		case DND_SYNC_HPPERCENT_BONUS:
-		return Player_Elixir_Bonuses[pnum].hp_percent_bonus;
-		case DND_SYNC_ARMORPERCENT_BONUS:
-		return Player_Elixir_Bonuses[pnum].armor_percent_bonus;
-		case DND_SYNC_DAMAGEBULLET:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_BULLET];
-		case DND_SYNC_DAMAGEENERGY:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ENERGY];
-		case DND_SYNC_DAMAGEEXPLOSIVE:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_EXPLOSIVES];
-		case DND_SYNC_DAMAGEMELEE:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_MELEE];
-		case DND_SYNC_DAMAGEELEMENTAL:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ELEMENTAL];
-		case DND_SYNC_DAMAGEOCCULT:
-		return Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_OCCULT];
-		case DND_SYNC_LUCK:
-		return Player_Elixir_Bonuses[pnum].luck = 0;
 	}
 	return 0;
 }
@@ -349,6 +282,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 				Charms_Used[pnum][extra].attributes[sub].attrib_tier = val;
 			break;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+				Charms_Used[pnum][extra].attributes[sub].fractured = val;
+			break;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_FIELD) {
@@ -388,6 +324,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 				Inventories_On_Field[extra].attributes[sub].attrib_tier = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+				Inventories_On_Field[extra].attributes[sub].fractured = val;
 			break;
 		}
 	}
@@ -429,6 +368,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 				PlayerInventoryList[pnum][extra].attributes[sub].attrib_tier = val;
 			break;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+				PlayerInventoryList[pnum][extra].attributes[sub].fractured = val;
+			break;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_TRADEVIEW) {
@@ -468,6 +410,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 				TradeViewList[pnum][extra].attributes[sub].attrib_tier = val;
+			break;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+				TradeViewList[pnum][extra].attributes[sub].fractured = val;
 			break;
 		}
 	}
@@ -509,200 +454,11 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
 				PlayerStashList[pnum][page][extra].attributes[sub].attrib_tier = val;
 			break;
+			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
+				PlayerStashList[pnum][page][extra].attributes[sub].fractured = val;
+			break;
 		}
 	}
-}
-
-void SetSyncValue_Orb(int pnum, int pos, int val, int extra, bool increment = false) {
-	switch(pos) {
-		case DND_SYNC_WEAPONENHANCE:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_WEAPON_ENCHANT, extra, val);
-		break;
-		case DND_SYNC_SPEED:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_SPEED, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_SPEED, -1, val);
-		break;
-		case DND_SYNC_DROPCHANCE:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, val);
-		break;
-		case DND_SYNC_HPFLAT_BONUS:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_HPFLAT, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, val);
-		break;
-		case DND_SYNC_ARMORFLAT_BONUS:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_ARMORFLAT, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_ARMORFLAT, -1, val);
-		break;
-		case DND_SYNC_HPPERCENT_BONUS:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_HPPERCENT, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_HPPERCENT, -1, val);
-		break;
-		case DND_SYNC_ARMORPERCENT_BONUS:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_ARMORPERCENT, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_ARMORPERCENT, -1, val);
-		break;
-		case DND_SYNC_GREEDPERCENT_BONUS:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_GREEDPERCENT, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_GREEDPERCENT, -1, val);
-		break;
-		case DND_SYNC_WISDOMPERCENT_BONUS:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_WISDOMPERCENT, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_WISDOMPERCENT, -1, val);
-		break;
-		case DND_SYNC_HOLDING:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_HOLDING, -1, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_HOLDING, -1, val);
-		break;
-		case DND_SYNC_DAMAGEBULLET:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_BULLET, val);
-		break;
-		case DND_SYNC_DAMAGEENERGY:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ENERGY, val);
-		break;
-		case DND_SYNC_DAMAGEEXPLOSIVE:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_EXPLOSIVES, val);
-		break;
-		case DND_SYNC_DAMAGEMELEE:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_MELEE, val);
-		break;
-		case DND_SYNC_DAMAGEELEMENTAL:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_ELEMENTAL, val);
-		break;
-		case DND_SYNC_DAMAGEOCCULT:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT, val);
-		break;
-		case DND_SYNC_WEPMOD_CRIT:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_WEAPON_CRIT, extra, val);
-		break;
-		case DND_SYNC_WEPMOD_CRITDMG:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, extra, val);
-		break;
-		case DND_SYNC_WEPMOD_CRITPERCENT:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, extra, val);
-		break;
-		case DND_SYNC_WEPMOD_DMG:
-			if(increment)
-				IncrementOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
-			else
-				SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, extra, val);
-		break;
-		case DND_SYNC_WEPMOD_POWERSET1:
-			// last param is a sign telling it to just overwrite it not bitset
-			SetDataToOrbBonus(pnum, OBI_WEAPON_POWERSET1, extra, val, true);
-		break;
-	}
-}
-
-void SetSyncValue_Elixir(int pnum, int pos, int val, int extra) {
-	switch(pos) {
-		case DND_SYNC_SPEED:
-			Player_Elixir_Bonuses[pnum].speed_bonus = val;
-		break;
-		case DND_SYNC_HPFLAT_BONUS:
-			Player_Elixir_Bonuses[pnum].hp_flat_bonus = val;
-		break;
-		case DND_SYNC_ARMORFLAT_BONUS:
-			Player_Elixir_Bonuses[pnum].armor_flat_bonus = val;
-		break;
-		case DND_SYNC_HPPERCENT_BONUS:
-			Player_Elixir_Bonuses[pnum].hp_percent_bonus = val;
-		break;
-		case DND_SYNC_ARMORPERCENT_BONUS:
-			Player_Elixir_Bonuses[pnum].armor_percent_bonus = val;
-		break;
-		case DND_SYNC_DAMAGEBULLET:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_BULLET] = val;
-		break;
-		case DND_SYNC_DAMAGEENERGY:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ENERGY] = val;
-		break;
-		case DND_SYNC_DAMAGEEXPLOSIVE:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_EXPLOSIVES] = val;
-		break;
-		case DND_SYNC_DAMAGEMELEE:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_MELEE] = val;
-		break;
-		case DND_SYNC_DAMAGEELEMENTAL:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_ELEMENTAL] = val;
-		break;
-		case DND_SYNC_DAMAGEOCCULT:
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_OCCULT] = val;
-		break;
-		case DND_SYNC_LUCK:
-			Player_Elixir_Bonuses[pnum].luck = val;
-		break;
-	}
-}
-
-Script "DND Clientside Orb Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
-	/*if(ConsolePlayerNumber() != pnum)
-		Terminate;*/
-	SetSyncValue_Orb(pnum, var, to, extra, false);
-	SetResultValue(0);
-}
-
-// made this a seperate thing because we pass the value to increment by in this one compared to the above which is the value to set to, I ran out of params
-Script "DND Clientside Orb Syncer - Inc" (int pnum, int var, int to, int extra) CLIENTSIDE {
-	/*if(ConsolePlayerNumber() != pnum)
-		Terminate;*/
-	SetSyncValue_Orb(pnum, var, to, extra, true);
-	SetResultValue(0);
-}
-
-Script "DND Clientside Elixir Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
-	/*if(ConsolePlayerNumber() != pnum)
-		Terminate;*/
-	SetSyncValue_Elixir(pnum, var, to, extra);
-	SetResultValue(0);
 }
 
 Script "DND Clientside Item Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
@@ -740,27 +496,17 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 	SetResultValue(0);
 }
 
-void SyncClientsideVariable_Orb(int pnum, int var, int extra, bool increment = false, int inc_by = 0) {
-	if(var == DND_SYNC_WEAPONENHANCE || (var >= DND_SYNC_WEPMOD_CRIT && var < MAX_SYNC_VARS)) {
-		/*if(extra == DND_WEAPON_PISTOL || extra == DND_WEAPON_FIST) {
-			printbold(d:extra, s:". ", d:var, s:": ", d:GetPlayerSyncValue_Orb(var, extra));
-		}*/
-		if(increment)
-			ACS_NamedExecuteWithResult("DND Clientside Orb Syncer - Inc", pnum, var, inc_by, extra);
-		else
-			ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, extra), extra);
-	}
-	else if(increment)
-		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer - Inc", pnum, var, inc_by, extra);
-	else
-		ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, var, GetPlayerSyncValue_Orb(var, 0), 0);
+// add more things from wep_info_T in WeaponsDef here later
+Script "DnD Clientside Weapon Property Sync" (int wepid, int prop, int val) CLIENTSIDE {
+	// do a switch-case for properties here
+	int pnum = PlayerNumber();
+	Player_Weapon_Infos[pnum][wepid].quality = val;
+	SetResultValue(0);
 }
 
-void SyncClientsideVariable_Elixir(int pnum, int var, int extra) {
-	if(var == DND_SYNC_WEAPONENHANCE ||(var >= DND_SYNC_WEPMOD_CRIT && var <= DND_SYNC_WEPMOD_DMG))
-		ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, var, GetPlayerSyncValue_Elixir(var, extra), extra);
-	else
-		ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, var, GetPlayerSyncValue_Elixir(var, 0), 0);
+void SyncClientsideVariable_WeaponProperties(int pnum, int wepid) {
+	// do a for loop for all properties we might add here to wep_info_T
+	ACS_NamedExecuteWithResult("DnD Clientside Weapon Property Sync", wepid, 0, Player_Weapon_Infos[pnum][wepid].quality);
 }
 
 void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
@@ -804,7 +550,7 @@ void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev) {
 	
 	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < h; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 }
@@ -838,7 +584,7 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 	
 	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < h; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 }
@@ -857,7 +603,7 @@ void SyncItemData_Field(int itemid) {
 	
 	h = GetItemSyncValue(-1, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD);
 	for(i = 0; i < h; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", j | payload, GetItemSyncValue(-1, j, itemid, i, DND_SYNC_ITEMSOURCE_FIELD), itemid | (i << 16));
 	}
 }
@@ -903,7 +649,7 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev) {
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
 		
 	for(i = 0; i < h; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
 	}
 }
@@ -917,7 +663,7 @@ void SyncItemAttributes(int pnum, int itemid, int source) {
 	
 	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < temp; ++i) {
-		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_SYNC_ITEMATTRIBUTES_TIER; ++j)
+		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
 }
@@ -954,32 +700,11 @@ void SyncAllItemData(int pnum, int source) {
 
 void SyncAllClientsideVariables(int pnum) {
 	int i, j;
-	// sync orbs
-	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i < MAX_SYNC_VARS)) {
-			for(j = 0; j < MAXWEPS; ++j) {
-				/*if(j == DND_WEAPON_PISTOL || j == DND_WEAPON_FIST) {
-					printbold(d:j, s:". ", d:i, s:": ", d:GetPlayerSyncValue_Orb(i, j));
-				}*/
-				ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, i, GetPlayerSyncValue_Orb(i, j), j);
-			}
-		}
-		else
-			ACS_NamedExecuteWithResult("DND Clientside Orb Syncer", pnum, i, GetPlayerSyncValue_Orb(i, 0), 0);
-	}
-	// sync elixirs
-	for(i = 0; i < MAX_SYNC_VARS; ++i) {
-		if(i == DND_SYNC_WEAPONENHANCE || (i >= DND_SYNC_WEPMOD_CRIT && i <= DND_SYNC_WEPMOD_DMG)) {
-			for(j = 0; j < MAXWEPS; ++j)
-				ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, i, GetPlayerSyncValue_Elixir(i, j), j);
-		}
-		else
-			ACS_NamedExecuteWithResult("DND Clientside Elixir Syncer", pnum, i, GetPlayerSyncValue_Elixir(i, 0), 0);
-	}
-	
 	// sync weapon mods
-	for(i = 0; i < MAXWEPS; ++i)
+	for(i = 0; i < MAXWEPS; ++i) {
+		SyncClientsideVariable_WeaponProperties(pnum, i);
 		SyncClientsideVariable_WeaponMods(pnum, i);
+	}
 }
 
 Script "DnD Request Mod Sync" (int pnum, int mod, int val) CLIENTSIDE {

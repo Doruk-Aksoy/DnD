@@ -144,7 +144,7 @@ Actor ResMG1 : Chaingun {
 		
 		FireGrenade:
 			RW03 A 1 Offset(0, 33) A_PlayWeaponSound("WeaponGL/Fire")
-			RW03 A 1 Offset(0, 34) A_GiveInventory("GrenadeShooterGeneric", 1)
+			RW03 A 1 Offset(0, 34) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_TEMPLARMG, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP4 << 16), 0)
 			RW03 A 2 Offset(0, 44)
 			RW03 A 1 Offset(0, 41)
 			RW03 A 1 Offset(0, 36)
@@ -1284,7 +1284,6 @@ Actor ResMG3 : Chaingun {
 		Goto Ready
 		ContinueAltFire:
 			RIF2 D 3 A_PlayWeaponSound("AcidRifle/BoltFire")
-			TNT1 A 0 A_TakeInventory("AcidClip", 8)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ACIDRIFLE, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_ACIDCLIP << 16), 0)
 			RIF2 E 2 A_AlertMonsters
 			RIF2 F 2

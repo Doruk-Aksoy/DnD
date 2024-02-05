@@ -5,8 +5,8 @@
 #include "DnD_Skills.h"
 
 // attack control flags that are added on top of pre-defined constants for each weapon's projectile here
-#define DND_ATK_PRIMARY 0
-#define DND_ATK_SECONDARY 1
+#define DND_ATK_PRIMARY 1
+#define DND_ATK_SECONDARY 2
 #define DND_ATK_OTHER_DIR 4
 
 #define ACCURACY_FACTOR 0.00001
@@ -16,15 +16,75 @@ enum {
 	DND_ATF_NOAMMOGAINCHECK 		= 0b100,				// broader variant of the above, skips ammo gain check (probably handled outside etc. for multi ammo taking weapons)
 	DND_ATF_CANFIRECIRCLE 			= 0b1000,				// attack can be fired around a circle
 	DND_ATF_USEGRAVITY 				= 0b10000,
+	DND_ATF_ISHITSCAN				= 0b100000,				// treated as hitscan for named attacks
+	DND_ATF_NOHELPER				= 0b1000000,			// dont create helper actor to adjust position of attacks
+	DND_ATF_WIDESWING				= 0b10000000,			// melee wide swing attack
 };
 
 enum {
 	DND_MF_MAKETARGET				= 0b1,					// sets target pointer instead of master
 };
 
+// thunderstaff info things
+#define DND_THUNDERSTAFF_MAXTARGETS 5
+#define DND_THUNDER_RADIUSPERCOUNT 18
+#define DND_THUNDERSTAFF_BASERANGE 128
+#define DND_THUNDERSTAFF_LIMIT 30
+typedef struct dist_tid_pair {
+	int dist;
+	int tid;
+} dist_tid_pair_T;
+#define DND_MAXSCANTRACER 256
+
+enum {
+	DND_SCANNER_BFG,
+	DND_SCANNER_BFGUPGRADED,
+	DND_SCANNER_HEART,
+	DND_SCANNER_BOOK
+};
+
+#define MAX_SCANNER_PARTICLES (DND_SCANNER_BOOK + 1)
+str ScannerAttackParticles[MAX_SCANNER_PARTICLES] = {
+	"BFGExtra2",
+	"BFGExtraUpgraded",
+	"HeartAttackPuff",
+	"BookPuff"
+};
+
+typedef struct scan_data {
+	int max_dist;
+	int fov;
+	int spawn_offZ;
+} scan_data_T;
+
+scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
+	{ 1024.0, 			0.1875, 			24.0 },
+	{ 1024.0,		 	0.1875, 			24.0 },
+	{ 2048.0,		 	0.16, 				32.0 },
+	{ 4096.0,			0.25,				32.0 }
+};
+
+int Scan_to_WeaponID(int scan_id) {
+	int ret = DND_WEAPON_BFG6000;
+	switch(scan_id) {
+		case DND_SCANNER_BFGUPGRADED:
+			ret = DND_WEAPON_BFG32768;
+		break;
+		case DND_SCANNER_HEART:
+			ret = DND_WEAPON_DEMONHEART;
+		break;
+		case DND_SCANNER_BOOK:
+			ret = -1;
+		break;
+	}
+	return ret;
+}
+
 // This function will create a projectile with given angles, pitch, direction vector, speed, xy dist and zdist
-void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int velocity, int vPos, bool useGravity = 0) {
+void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int velocity, int vPos, int flags = 0) {
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good
+	int g = (flags & DND_ATF_USEGRAVITY) ? 800.0 : 0;
+	
 	SpawnForced(
 		"ProjectileHelper",
 		vec3[vPos].x,
@@ -36,7 +96,7 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 	SetActivator(p_helper_tid);
 	
 	// make the proj itself
-	SpawnProjectile(0, projectile, angle, 0, 0, useGravity, TEMPORARY_ATTACK_TID);
+	SpawnProjectile(0, projectile, angle, 0, 0, g, TEMPORARY_ATTACK_TID);
 	
 	// clear used tid
 	Thing_ChangeTID(p_helper_tid, 0);
@@ -45,11 +105,11 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
 	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
 	SetActorVelocity(TEMPORARY_ATTACK_TID, vec3[velocity].x, vec3[velocity].y, vec3[velocity].z, 0, 0);
-	
+
 	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_TARGETTID, owner);
 	
 	// remove NOGRAVITY
-	if(useGravity)
+	if(flags & DND_ATF_USEGRAVITY)
 		GiveActorInventory(TEMPORARY_ATTACK_TID, "TakeFlight", 1);
 	
 	SetActivator(TEMPORARY_ATTACK_TID);
@@ -136,13 +196,11 @@ void CreateMinion(int owner, str actor, int start_vels, int vPos, int unique_tid
 void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, int spd, int flags) {
 	// ghost check
 	int a = GetActorAngle(owner);
-	int p = Clamp_Between(GetActorPitch(0), -0.248, 0.248);
-	int p_helper_tid = PROJECTILE_HELPER_TID + PlayerNumber();
-	
-	bool useGravity = false;
+	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
+	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
 	
 	// ghost power check
-	bool makeGhostHitter = HasWeaponPower(PlayerNumber(), wepid, WEP_POWER_GHOSTHIT) && (ProjectileInfo[proj_id].flags & DND_PROJ_HASGHOSTHITTER);
+	bool makeGhostHitter = HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) && (ProjectileInfo[proj_id].flags & DND_PROJ_HASGHOSTHITTER);
 	str proj_name = ProjectileInfo[proj_id].name;
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
@@ -152,18 +210,60 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 
 	int i, proj_ang;
 	if(!(ProjectileInfo[proj_id].flags & DND_PROJ_HITSCAN)) {
-		int cosp = cos(pnum);
+		int cosp = cos(p);
 		int vProj = GetVec3();
 		
 		for(i = 0; i < count; ++i) {
 			proj_ang = (a + (1.0 / count) * i) % 1.0;
 			
 			// these make our direction vector
-			vec3[vProj].x = FixedMul(cos(proj_ang), cosp);
-			vec3[vProj].y = FixedMul(sin(proj_ang), cosp);
-			vec3[vProj].z = -sin(pnum);
+			vec3[vProj].x = spd * FixedMul(cos(proj_ang), cosp);
+			vec3[vProj].y = spd * FixedMul(sin(proj_ang), cosp);
+			vec3[vProj].z = -sin(p) * spd;
 			
-			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, vProj, vPos, useGravity);
+			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, vProj, vPos, flags);
+		}
+	}
+	else {
+		// hitscan version of the above -- spd becomes range for us in this case
+		// since we take speed as an integer here (we discard upper 16 for special flag) we must turn it into fixed
+		if(!spd)
+			spd = 2048.0;
+		else
+			spd <<= 16;
+		
+		for(i = 0; i < count; ++i) {
+			proj_ang = (a + (1.0 / count) * i) % 1.0;
+			CreateHitscan(owner, p_helper_tid, proj_name, proj_ang, p, spd, vPos);
+		}
+	}
+	
+	FreeVec3(vPos);
+}
+
+void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int count, int spd, int flags) {
+	// ghost check
+	int a = GetActorAngle(owner);
+	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
+	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
+		
+	// vector of owner pos
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+
+	int i, proj_ang;
+	if(!(flags & DND_ATF_ISHITSCAN)) {
+		int cosp = cos(p);
+		int vProj = GetVec3();
+		
+		for(i = 0; i < count; ++i) {
+			proj_ang = (a + (1.0 / count) * i) % 1.0;
+			
+			// these make our direction vector
+			vec3[vProj].x = spd * FixedMul(cos(proj_ang), cosp);
+			vec3[vProj].y = spd * FixedMul(sin(proj_ang), cosp);
+			vec3[vProj].z = -sin(p) * spd;
+			
+			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, vProj, vPos, flags);
 		}
 	}
 	else {
@@ -207,7 +307,7 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	//printbold(f:sp_x, s: " ", f:sp_y);
 	
 	if(ProjectileInfo[proj_id].flags & DND_PROJ_MELEEBONUSES)
-		range += (range * GetPlayerMeleeRange(pnum)) / 100;
+		range = GetPlayerMeleeRange(pnum, range);
 	
 	for(int i = 0; i < count; ++i) {
 		// use conical spread
@@ -223,13 +323,16 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	FreeVec3(vPos);
 }
 
-void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags) {
+void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, int proj_id = 0) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = GetActorPitch(owner);
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
 	
-	// add if needs to hit ghosts later here
+	// ghost power check
+	bool makeGhostHitter = (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) || CheckActorInventory(owner, "NetherCheck")) && (ProjectileInfo[proj_id].flags & DND_PROJ_HASGHOSTHITTER);
+	if(makeGhostHitter)
+		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vector of owner pos
 	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
@@ -312,6 +415,8 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 		ScaleVec3(vTemp, vec3[offset_vec].z);
 		AddVec3(vPos, vTemp);
 	}
+	else
+		flags |= DND_ATF_NOHELPER;
 	
 	// we dont use it beyond here
 	FreeVec3(vTemp);
@@ -332,7 +437,7 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, ProjectileInfo[proj_id].spd_range);
 		
-		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, vFireDir, vPos, flags & DND_ATF_USEGRAVITY);
+		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, vFireDir, vPos, flags);
 		
 		FreeVec2(proj_ang_vec);
 		
@@ -345,8 +450,13 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 	FreeVec3(vRight);
 }
 
-void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags) {
+void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, int proj_id = 0) {
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
+	
+	// ghost power check
+	bool makeGhostHitter = (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) || CheckActorInventory(owner, "NetherCheck")) && (ProjectileInfo[proj_id].flags & DND_PROJ_HASGHOSTHITTER);
+	if(makeGhostHitter)
+		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vectors of owner
 	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
@@ -389,6 +499,8 @@ void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, i
 		ScaleVec3(vTemp, vec3[offset_vec].z);
 		AddVec3(vPos, vTemp);
 	}
+	else
+		flags |= DND_ATF_NOHELPER;
 	
 	// we dont use it beyond here
 	FreeVec3(vTemp);
@@ -409,7 +521,7 @@ void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, i
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, speed);
 		
-		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, vFireDir, vPos, flags & DND_ATF_USEGRAVITY);
+		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, vFireDir, vPos, flags);
 		
 		FreeVec2(proj_ang_vec);
 		
@@ -451,6 +563,138 @@ void Do_Minion_Summon(int owner, str actor, int offset_vec, int speed = 0, int u
 	FreeVec3(vDir);
 	FreeVec3(vRight);
 	FreeVec3(velocity);
+}
+
+void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, int proj_id, int angle_offset, int pitch_offset, int flags, int range_offset = 0) {
+	// just like before, we fire hitscans in player's facing direction +- spread depending on the frame
+	int range = GetPlayerMeleeRange(pnum, ProjectileInfo[proj_id].spd_range + range_offset);
+	
+	// ghost check
+	int a = (GetActorAngle(owner) + ANG_TO_DOOM(angle_offset)) % 1.0;
+	int p = Clamp_Between(GetActorPitch(owner) + ANG_TO_DOOM(pitch_offset), -0.248, 0.248);
+	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
+	
+	// ghost power check
+	bool makeGhostHitter = (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) || CheckActorInventory(owner, "NetherCheck")) && (ProjectileInfo[proj_id].flags & DND_PROJ_HASGHOSTHITTER);
+	if(makeGhostHitter)
+		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
+		
+	// vector of owner pos
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 28.0);
+	
+	for(int i = 0; i < count; ++i)
+		CreateHitscan(owner, p_helper_tid, proj_name, a, p, range, vPos);
+	
+	FreeVec3(vPos);
+}
+
+void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
+	// scan field of view
+	// check all monsters
+	static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAXSCANTRACER];
+	
+	int scan_id = tracer_count >> 16;
+	tracer_count &= 0xFFFF;
+	
+	int scan_dist = ScanAttackData[scan_id].max_dist;
+	int scan_fov = ScanAttackData[scan_id].fov;
+	
+	int dist = scan_dist, i, j, k, temp;
+	
+	int tcount = 0;
+	int owner = (flags & DND_DAMAGEFLAG_SELFORIGIN) ? ActivatorTID() : GetActorProperty(0, APROP_TARGETTID);
+	int pnum = owner - P_TIDSTART;
+	
+	// init list
+	for(i = 0; i < DND_MAXSCANTRACER; ++i) {
+		tlist[pnum][i].tid = 0;
+		tlist[pnum][i].dist = scan_dist;
+	}
+	
+	// face player to the originator temporarily to get projection to there
+	int projection_angle = GetActorAngle(owner);
+	// use angle of the ball
+	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
+		projection_angle = GetActorAngle(0);
+	
+	// printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
+	// pick tracer_count closest enemies
+	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+		i = UsedMonsterTIDs[mn];
+		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
+			dist = fdistance(owner, i);
+			//printbold(s:"Checking ", s:GetActorClass(i));
+			if(dist < scan_dist && MaxAngleDiff_Projection(owner, i, scan_fov, projection_angle) && CheckSight(owner, i, CSF_NOBLOCKALL)) {
+				//printbold(s:"approved ", s:GetActorClass(i), s: " ", d:i);
+				// insert sorted
+				temp = tcount;
+				// while our calc dist > alloc dist, keep going -- we add things to the end
+				// if we come by a point where we are smaller, shift things
+				for(j = 0; j < temp && dist > tlist[pnum][j].dist; ++j);
+
+				// we know where to add, check if we must shift (if we should)
+				if(j < temp) {
+					// less, so that means we are in-between things
+					// push everything for insertion
+					// this is needed to move in 0 index shifts
+					if(temp == DND_MAXSCANTRACER)
+						--temp;
+					
+					for(k = temp; k > j; --k) {
+						// slide data
+						tlist[pnum][k].dist = tlist[pnum][k - 1].dist;
+						tlist[pnum][k].tid = tlist[pnum][k - 1].tid;
+					}
+				}
+				
+				tlist[pnum][j].dist = dist;
+				tlist[pnum][j].tid = i;
+				
+				if(tcount < tracer_count)
+					++tcount;
+			}
+		}
+	}
+	
+	if(tcount) {
+		int actor_flags = ScanActorFlags();
+		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN)
+			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+		
+		// damage credit
+		SetActivator(owner);
+		
+		// re-use this as poison damage mod value if any
+		int wepid = Scan_to_WeaponID(scan_id);
+		
+		for(i = 0, j = 0; i < DND_MAXSCANTRACER; ++i) {
+			if(tlist[pnum][i].tid) {
+				// distance reduces damage for scans, closer = better -- gives percentage
+				// curr formula: factor = 100 * ((max_scan_dist - curr_dist) / max_scan_dist)^2 -- returns a percentage
+				if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE) {
+					tlist[pnum][i].dist = FixedDiv((scan_dist - tlist[pnum][i].dist), scan_dist);
+					tlist[pnum][i].dist = FixedMul(tlist[pnum][i].dist, tlist[pnum][i].dist);
+					tlist[pnum][i].dist *= 100;
+					tlist[pnum][i].dist >>= 16;
+					if(!tlist[pnum][i].dist)
+						tlist[pnum][i].dist = 1;
+					temp = (dmg * tlist[pnum][i].dist) / 100;
+				}
+				else
+					temp = dmg;
+				
+				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, wepid, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
+				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
+				
+				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
+				// abort if we reached our tracer cap
+				++j;
+				if(j == tcount)
+					break;
+			}
+		}
+		//printbold(s:"complete? ", d:j, s: " vs ", d:tcount);
+	}
 }
 
 void Do_DarkLance_Shots(int owner, int pnum, int amt, int dist, int spd, int lvl) {

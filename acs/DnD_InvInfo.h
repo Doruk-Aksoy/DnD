@@ -1,6 +1,8 @@
 #ifndef DND_INVINFO_IN
 #define DND_INVINFO_IN
 
+#include "DnD_OrbDefs.h"
+
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
 
@@ -22,9 +24,8 @@ enum {
 	DND_ITEM_CHARM,
 	DND_ITEM_HELM,
 	DND_ITEM_BOOT,
-	DND_ITEM_GLOVE,
+	DND_ITEM_BODYARMOR,
 	DND_ITEM_NECKLACE,
-	DND_ITEM_RING,
 	DND_ITEM_ORB,
 	DND_ITEM_CHESTKEY,
 	DND_ITEM_ELIXIR,
@@ -44,19 +45,29 @@ enum {
 	DND_STACKEDITEM_TOKEN
 };
 
-#define MAX_CRAFTABLEITEMTYPES 4
+#define MAX_CRAFTABLEITEMTYPES 5
 int CraftableItemTypes[MAX_CRAFTABLEITEMTYPES] = {
 	DND_ITEM_CHARM,
 	DND_ITEM_BOOT,
 	DND_ITEM_HELM,
+	DND_ITEM_BODYARMOR,
 	DND_ITEM_NECKLACE
 };
+
+enum {
+	DND_CHARM_SMALL,
+	DND_CHARM_MEDIUM,
+	DND_CHARM_LARGE
+};
+#define MAX_CHARM_TYPES (DND_CHARM_LARGE + 1)
 
 typedef struct {
 	int attrib_val;
 	int attrib_id;
 	int attrib_tier;
+	bool fractured;
 } attr_inf_T;
+#define ATTRIB_DATA_COUNT 4
 
 typedef struct it {
 	int width;										// width in inventory space
@@ -91,29 +102,6 @@ enum {
 };
 
 enum {
-	DND_ORB_ENHANCE,
-	DND_ORB_CORRUPT,
-	DND_ORB_SPIRIT,
-	DND_ORB_REPENT,
-	DND_ORB_AFFLUENCE,
-	DND_ORB_CALAMITY,
-	DND_ORB_PROSPERITY,
-	DND_ORB_WISDOM,
-	DND_ORB_GREED,
-	DND_ORB_VIOLENCE,
-	DND_ORB_FORTITUDE,
-	DND_ORB_SIN,
-	DND_ORB_RICHES,
-	DND_ORB_HOLDING,
-	DND_ORB_REFINEMENT,
-	DND_ORB_SCULPTING,
-	DND_ORB_ELEVATION,
-	DND_ORB_HOLLOW,
-	DND_ORB_PHANTASMAL,
-	DND_ORB_ASSIMILATION
-};
-
-enum {
 	DND_TOKEN_REPAIR,
 	DND_TOKEN_SCOUR
 };
@@ -123,16 +111,6 @@ enum {
 	DND_ISUBT_CHESTTYPE_BRONZE,
 	DND_ISUBT_CHESTTYPE_SILVER,
 	DND_ISUBT_CHESTTYPE_GOLD,
-	
-	DND_ISUBT_ELIXIR_HEALTH,
-	DND_ISUBT_ELIXIR_ARMOR,
-	DND_ISUBT_ELIXIR_HPARMOR,
-	DND_ISUBT_ELIXIR_HPPERCENT,
-	DND_ISUBT_ELIXIR_ARMORPERCENT,
-	DND_ISUBT_ELIXIR_HPARMORPERCENT,
-	DND_ISUBT_ELIXIR_SPEED,
-	DND_ISUBT_ELIXIR_DAMAGE,
-	DND_ISUBT_ELIXIR_LUCK,
 	
 	DND_ISUBT_ORB_ENHANCE,
 	DND_ISUBT_ORB_CORRUPT,
@@ -151,6 +129,15 @@ enum {
 	DND_ISUBT_ORB_REFINEMENT,
 	DND_ISUBT_ORB_SCULPTING,
 	DND_ISUBT_ORB_ELEVATION,
+	DND_ISUBT_ORB_TURMOIL,
+	DND_ISUBT_ORB_HEXES,
+	DND_ISUBT_ORB_GROWTH,
+	DND_ISUBT_ORB_POTENCY,
+	DND_ISUBT_ORB_CRACKLING,
+	DND_ISUBT_ORB_BRUTE,
+	DND_ISUBT_ORB_JAGGED,
+	
+	// monster specific
 	DND_ISUBT_ORB_HOLLOW,
 	DND_ISUBT_ORB_PHANTASMAL,
 	DND_ISUBT_ORB_ASSIMILATION,
@@ -160,18 +147,17 @@ enum {
 };
 
 #define CHESTKEY_BEGIN DND_ISUBT_CHESTTYPE_BRONZE
-#define ELIXIR_BEGIN DND_ISUBT_ELIXIR_HEALTH
 #define ORBS_BEGIN DND_ISUBT_ORB_ENHANCE
+#define MONSTER_ORBS_BEGIN DND_ISUBT_ORB_HOLLOW
 #define TOKEN_BEGIN DND_ISUBT_TOKEN_REPAIR
 
 #define CHESTKEY_END DND_ISUBT_CHESTTYPE_GOLD
-#define ELIXIR_END DND_ISUBT_ELIXIR_LUCK
-#define ORBS_END DND_ISUBT_ORB_ASSIMILATION
+#define ORBS_END DND_ISUBT_ORB_JAGGED
+#define MONSTER_ORBS_END DND_ISUBT_ORB_ASSIMILATION
 #define TOKEN_END DND_ISUBT_TOKEN_SCOUR
 
 #define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)
-#define MAX_ELIXIRS (ELIXIR_END - ELIXIR_BEGIN + 1)
-#define MAX_ORBS (ORBS_END - ORBS_BEGIN + 1)
+#define MAX_ORBS (MONSTER_ORBS_END - ORBS_BEGIN + 1) // notice the monster drops were below regular and we use their index as final here
 #define MAX_TOKENS (TOKEN_END - TOKEN_BEGIN + 1)
 
 int TokenWeights[MAX_TOKENS] = {
@@ -187,33 +173,32 @@ str InventoryInfo[MAX_COMMON_INVENTORY] = {
 	"SilverChestKey",
 	"GoldChestKey",
 	
-	"ElixirOfHealth",
-	"ElixirOfArmor",
-	"ElixirOfProsperity",
-	"ElixirOfLife",
-	"ElixirOfStrongness",
-	"ElixirOfFortitude",
-	"ElixirOfSpeed",
-	"ElixirOfDamage",
-	"ElixirOfLuck",
-	
 	"OrbOfEnhancement",
 	"OrbOfCorruption",
-	"OrbOfSpirit",
+	"PrismaticOrb",
 	"OrbofRepentance",
 	"OrbofAffluence",
 	"OrbofCalamity",
 	"OrbofProsperity",
-	"OrbofWisdom",
+	"OrbofNullification",
 	"OrbofGreed",
 	"OrbofViolence",
 	"OrbofFortitude",
 	"OrbofSin",
-	"OrbofRiches",
-	"OrbofHolding",
+	"OrbofTremors",
+	"OrbofTinkerer",
 	"OrbofRefinement",
 	"OrbofSculpting",
 	"OrbofElevation",
+	"OrbofTurmoil",
+	"OrbofHexes",
+	"OrbofGrowth",
+	"OrbofPotency",
+	"OrbofCrackling",
+	"OrbofBrute",
+	"OrbofJagged",
+
+	// monster specific orb drops
 	"OrbofHollow",
 	"OrbofPhantasmal",
 	"OrbofAssimilation",
@@ -227,20 +212,20 @@ str InventoryInfo[MAX_COMMON_INVENTORY] = {
 str GetInventoryTag(int id) {
 	if(id <= CHESTKEY_END)
 		return StrParam(s:"DND_CHESTKEY", d:id - CHESTKEY_BEGIN + 1);
-	if(id <= ELIXIR_END)
-		return StrParam(s:"DND_ELIXIR", d:id - ELIXIR_BEGIN + 1);
 	if(id <= ORBS_END)
 		return StrParam(s:"DND_ORB", d:id - ORBS_BEGIN + 1);
+	if(id <= MONSTER_ORBS_END)
+		return StrParam(s:"DND_ORB_MON", d:id - MONSTER_ORBS_BEGIN + 1);
 	return StrParam(s:"DND_TOKEN", d:id - TOKEN_BEGIN + 1);
 }
 
 str GetInventoryText(int id) {
 	if(id <= CHESTKEY_END)
 		return StrParam(s:"DND_CHESTKEYTEXT", d:id - CHESTKEY_BEGIN + 1);
-	if(id <= ELIXIR_END)
-		return StrParam(s:"DND_ELIXIRTEXT", d:id - ELIXIR_BEGIN + 1);
 	if(id <= ORBS_END)
 		return StrParam(s:"DND_ORBTEXT", d:id - ORBS_BEGIN + 1);
+	if(id <= MONSTER_ORBS_END)
+		return StrParam(s:"DND_ORB_MONTEXT", d:id - MONSTER_ORBS_BEGIN + 1);
 	return StrParam(s:"DND_TOKENTEXT", d:id - TOKEN_BEGIN + 1);
 }
 

@@ -509,7 +509,7 @@ Actor " Machine gun " : Weapon
 		
 		FireGrenade:
 			DMGG A 1 Offset(0, 33) A_PlayWeaponSound("WeaponGL/Fire")
-			DMGG A 1 Offset(0, 34) A_GiveInventory("GrenadeShooterGeneric", 1)
+			DMGG A 1 Offset(0, 34) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_MACHINEGUN, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_MGCLIP << 16), 0)
 			DMGG A 2 Offset(0, 44)
 			DMGG A 1 Offset(0, 41)
 			DMGG A 1 Offset(0, 36)
@@ -2190,7 +2190,7 @@ Actor "Ebony Cannon" : Weapon {
 			WMAU C 3 Bright A_PlaySoundEx("weapons/ebonyfire", CHAN_WEAPON)
 			TNT1 A 0 A_GiveInventory("EbonyOverHeat", 1)
 			TNT1 A 0 A_GunFlash
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_EBONYCANNON, DND_ATK_PRIMARY, DND_AMMOSLOT_CLIP | (AMMO_EBONY1 << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_EBONYCANNON, DND_ATK_PRIMARY, DND_AMMOSLOT_CLIP | (AMMO_EBONY1 << 16), DND_ATF_CANFIRECIRCLE)
 			WMAU D 1 Bright
 			TNT1 A 0 A_SetPitch(pitch - 5.0)
 			WMAU D 1 Bright
@@ -2219,7 +2219,7 @@ Actor "Ebony Cannon" : Weapon {
 		ContinueAltFire:
 			WMAU L 3 Bright A_PlaySoundEx("weapons/ebonyalt", CHAN_WEAPON)
 			TNT1 A 0 A_GunFlash
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_EBONYCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_CLIP | (AMMO_EBONY2 << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_EBONYCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_CLIP | (AMMO_EBONY2 << 16), DND_ATF_CANFIRECIRCLE)
 			WMAU M 1 Bright
 			TNT1 A 0 A_SetPitch(pitch - 8.0)
 			WMAU M 1 Bright

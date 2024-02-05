@@ -7,7 +7,8 @@ enum {
 	DND_PROJ_HITSCAN 					= 0b1,
 	DND_PROJ_HASGHOSTHITTER				= 0b10,
 	DND_PROJ_ISMINION					= 0b100,
-	DND_PROJ_MELEEBONUSES				= 0b1000,				// melee bonuses apply (range etc)
+	DND_PROJ_MELEE						= 0b1000,
+	DND_PROJ_MELEEBONUSES				= 0b10000,				// melee bonuses apply (range etc)
 };
 
 enum {
@@ -21,6 +22,19 @@ typedef struct proj_data {
 } proj_data_T;
 
 enum {
+	DND_PROJ_FIST,
+	DND_PROJ_CHAINSAW,
+	DND_PROJ_DOUBLECHAINSAW,
+	DND_PROJ_SICKLE,
+	DND_PROJ_EXCALIBAT,
+	DND_PROJ_EXCALIBAT2,
+	DND_PROJ_KATANA,
+	DND_PROJ_KATANA2,
+	DND_PROJ_DUSKBLADE1,
+	DND_PROJ_DUSKBLADE2,
+	DND_PROJ_INFERNOSWORD1,
+	DND_PROJ_INFERNOSWORD2,
+
 	DND_PROJ_PISTOL,
 	DND_PROJ_AKIMBO,
 	DND_PROJ_MAGNUMREVOLVER,
@@ -98,19 +112,99 @@ enum {
 	DND_PROJ_FROSTFANG_1,
 	DND_PROJ_FROSTFANG_2,
 	DND_PROJ_RHINO,
+	DND_PROJ_DARKLANCE_SHRED,
 	DND_PROJ_FLAMETHROWER,
 	
 	DND_PROJ_BFG6000,
 	DND_PROJ_BFG32768,
 	DND_PROJ_DEVASTATOR,
-	DND_PROJ_MFG
+	DND_PROJ_MFG,
+	DND_PROJ_DEATHRAY,
+	DND_PROJ_IONCANNON,
+	DND_PROJ_THUNDERSTAFF,
+	DND_PROJ_DEATHSTAFF,
+	DND_PROJ_SOULREAVER,
+	
+	DND_PROJ_SAWEDOFF,
+	DND_PROJ_SMG,
+	DND_PROJ_SOULRENDER1,
+	DND_PROJ_SOULRENDER2,
+	DND_PROJ_HELLFORGE_1,
+	DND_PROJ_HELLFORGE_2,
+	DND_PROJ_SPINE_1,
+	DND_PROJ_SPINE_2,
+	DND_PROJ_ENFORCERLASER,
+	DND_PROJ_VENOM_1,
+	DND_PROJ_VENOM_2,
+	DND_PROJ_HEAVYNAIL,
+	DND_PROJ_BERETTA,
+	DND_PROJ_PLASMABOLTER_1,
+	DND_PROJ_PLASMABOLTER_2,
+	
+	DND_PROJ_FLECHETTE,
+	DND_PROJ_MAGNUMSHELL,
+	DND_PROJ_ELECTRICSHELL,
+	DND_PROJ_SLUGSHELL,
+	DND_PROJ_NITROSHELL,
+	DND_PROJ_GRENADESPECIAL,
+	DND_PROJ_HEGRENADE,
+	DND_PROJ_SONICGRENADE
 };
-#define MAX_PROJECTILE_TYPES (DND_PROJ_MFG + 1)
+#define MAX_PROJECTILE_TYPES (DND_PROJ_SONICGRENADE + 1)
 
 global proj_data_T 30: ProjectileInfo[MAX_PROJECTILE_TYPES];
 
 // This fills the giant table of projectile information
 void SetupProjectileData() {
+	// SLOT 1
+	ProjectileInfo[DND_PROJ_FIST].name = "FistPuff";
+	ProjectileInfo[DND_PROJ_FIST].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_FIST].spd_range = 64.0;
+	
+	ProjectileInfo[DND_PROJ_CHAINSAW].name = "ChainsawPuff";
+	ProjectileInfo[DND_PROJ_CHAINSAW].flags = DND_PROJ_MELEE | DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_CHAINSAW].spd_range = 65.0;
+	
+	ProjectileInfo[DND_PROJ_DOUBLECHAINSAW].name = "DChainsawPuff";
+	ProjectileInfo[DND_PROJ_DOUBLECHAINSAW].flags = DND_PROJ_MELEE | DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_DOUBLECHAINSAW].spd_range = 65.0;
+	
+	ProjectileInfo[DND_PROJ_SICKLE].name = "SicklePuff";
+	ProjectileInfo[DND_PROJ_SICKLE].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_SICKLE].spd_range = 136.0;
+	
+	ProjectileInfo[DND_PROJ_EXCALIBAT].name = "ExcalibatPuff";
+	ProjectileInfo[DND_PROJ_EXCALIBAT].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_EXCALIBAT].spd_range = 100.0;
+	
+	ProjectileInfo[DND_PROJ_EXCALIBAT2].name = "ExcalibatBall";
+	ProjectileInfo[DND_PROJ_EXCALIBAT2].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_EXCALIBAT2].spd_range = 32;
+	
+	ProjectileInfo[DND_PROJ_KATANA].name = "KatanaPuff";
+	ProjectileInfo[DND_PROJ_KATANA].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_KATANA].spd_range = 100.0;
+	
+	ProjectileInfo[DND_PROJ_KATANA2].name = "KatanaShockWave";
+	ProjectileInfo[DND_PROJ_KATANA2].flags = DND_PROJ_MELEEBONUSES;
+	ProjectileInfo[DND_PROJ_KATANA2].spd_range = 60;
+	
+	ProjectileInfo[DND_PROJ_DUSKBLADE1].name = "DuskBladePuff";
+	ProjectileInfo[DND_PROJ_DUSKBLADE1].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_DUSKBLADE1].spd_range = 96.0;
+	
+	ProjectileInfo[DND_PROJ_DUSKBLADE2].name = "DuskSlash";
+	ProjectileInfo[DND_PROJ_DUSKBLADE2].flags = DND_PROJ_MELEEBONUSES;
+	ProjectileInfo[DND_PROJ_DUSKBLADE2].spd_range = 28;
+	
+	ProjectileInfo[DND_PROJ_INFERNOSWORD1].name = "InfernoSwordPuff";
+	ProjectileInfo[DND_PROJ_INFERNOSWORD1].flags = DND_PROJ_MELEE | DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_INFERNOSWORD1].spd_range = 88.0;
+	
+	ProjectileInfo[DND_PROJ_INFERNOSWORD2].name = "InfernoSwordMissile_1";
+	ProjectileInfo[DND_PROJ_INFERNOSWORD2].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_INFERNOSWORD2].spd_range = 28;
+
 	// SLOT 2
 	ProjectileInfo[DND_PROJ_PISTOL].name = "PistolPuff";
 	ProjectileInfo[DND_PROJ_PISTOL].flags = DND_PROJ_HITSCAN;
@@ -435,6 +529,120 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_MFG].name = "DNBFGBall";
 	ProjectileInfo[DND_PROJ_MFG].flags = 0;
 	ProjectileInfo[DND_PROJ_MFG].spd_range = 40;
+	
+	ProjectileInfo[DND_PROJ_DEATHRAY].name = "DeathRayProjectile";
+	ProjectileInfo[DND_PROJ_DEATHRAY].flags = 0;
+	ProjectileInfo[DND_PROJ_DEATHRAY].spd_range = 8;
+	
+	ProjectileInfo[DND_PROJ_IONCANNON].name = "IonPuff";
+	ProjectileInfo[DND_PROJ_IONCANNON].flags = DND_PROJ_HITSCAN | DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_IONCANNON].spd_range = HITSCAN_RANGE_DEFAULT;
+	
+	ProjectileInfo[DND_PROJ_THUNDERSTAFF].name = "BallLightning";
+	ProjectileInfo[DND_PROJ_THUNDERSTAFF].flags = 0;
+	ProjectileInfo[DND_PROJ_THUNDERSTAFF].spd_range = 10;
+	
+	ProjectileInfo[DND_PROJ_DEATHSTAFF].name = "VolcanoFireball5";
+	ProjectileInfo[DND_PROJ_DEATHSTAFF].flags = 0;
+	ProjectileInfo[DND_PROJ_DEATHSTAFF].spd_range = 40;
+	
+	ProjectileInfo[DND_PROJ_SOULREAVER].name = "SoulReaverSphere";
+	ProjectileInfo[DND_PROJ_SOULREAVER].flags = 0;
+	ProjectileInfo[DND_PROJ_SOULREAVER].spd_range = 40;
+	
+	// TEMP
+	ProjectileInfo[DND_PROJ_SAWEDOFF].name = "SawedoffPuff";
+	ProjectileInfo[DND_PROJ_SAWEDOFF].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_SAWEDOFF].spd_range = HITSCAN_RANGE_DEFAULT;
+	
+	ProjectileInfo[DND_PROJ_SMG].name = "SMGPuff";
+	ProjectileInfo[DND_PROJ_SMG].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_SMG].spd_range = HITSCAN_RANGE_DEFAULT;
+	
+	ProjectileInfo[DND_PROJ_SOULRENDER1].name = "BladePuff1";
+	ProjectileInfo[DND_PROJ_SOULRENDER1].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_SOULRENDER1].spd_range = 96.0;
+	
+	ProjectileInfo[DND_PROJ_SOULRENDER2].name = "BladeSlash";
+	ProjectileInfo[DND_PROJ_SOULRENDER2].flags = DND_PROJ_MELEEBONUSES;
+	ProjectileInfo[DND_PROJ_SOULRENDER2].spd_range = 25;
+	
+	ProjectileInfo[DND_PROJ_HELLFORGE_1].name = "Ripper1";
+	ProjectileInfo[DND_PROJ_HELLFORGE_1].flags = 0;
+	ProjectileInfo[DND_PROJ_HELLFORGE_1].spd_range = 28;
+	
+	ProjectileInfo[DND_PROJ_HELLFORGE_2].name = "Ripper2Proj";
+	ProjectileInfo[DND_PROJ_HELLFORGE_2].flags = 0;
+	ProjectileInfo[DND_PROJ_HELLFORGE_2].spd_range = 24;
+
+	ProjectileInfo[DND_PROJ_SPINE_1].name = "BloodFX";
+	ProjectileInfo[DND_PROJ_SPINE_1].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_SPINE_1].spd_range = 384.0;
+	
+	ProjectileInfo[DND_PROJ_SPINE_2].name = "GoreShot1";
+	ProjectileInfo[DND_PROJ_SPINE_2].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_SPINE_2].spd_range = 36;
+	
+	ProjectileInfo[DND_PROJ_ENFORCERLASER].name = "EnforcerPlasma";
+	ProjectileInfo[DND_PROJ_ENFORCERLASER].flags = 0;
+	ProjectileInfo[DND_PROJ_ENFORCERLASER].spd_range = 48;
+	
+	ProjectileInfo[DND_PROJ_VENOM_1].name = "Barbshot";
+	ProjectileInfo[DND_PROJ_VENOM_1].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_VENOM_1].spd_range = 60;
+	
+	ProjectileInfo[DND_PROJ_VENOM_2].name = "Acidshot";
+	ProjectileInfo[DND_PROJ_VENOM_2].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_VENOM_2].spd_range = 35;
+	
+	ProjectileInfo[DND_PROJ_HEAVYNAIL].name = "BigNailProj";
+	ProjectileInfo[DND_PROJ_HEAVYNAIL].flags = 0;
+	ProjectileInfo[DND_PROJ_HEAVYNAIL].spd_range = 44;
+
+	ProjectileInfo[DND_PROJ_BERETTA].name = "BerettaPuff";
+	ProjectileInfo[DND_PROJ_BERETTA].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_BERETTA].spd_range = HITSCAN_RANGE_DEFAULT;
+
+	ProjectileInfo[DND_PROJ_PLASMABOLTER_1].name = "PlasmaBolterProj";
+	ProjectileInfo[DND_PROJ_PLASMABOLTER_1].flags = 0;
+	ProjectileInfo[DND_PROJ_PLASMABOLTER_1].spd_range = 32;
+	
+	ProjectileInfo[DND_PROJ_PLASMABOLTER_2].name = "PlasmaBolterProj2";
+	ProjectileInfo[DND_PROJ_PLASMABOLTER_2].flags = 0;
+	ProjectileInfo[DND_PROJ_PLASMABOLTER_2].spd_range = 20;
+	
+	// special ammo types
+	ProjectileInfo[DND_PROJ_FLECHETTE].name = "FlechettePuff";
+	ProjectileInfo[DND_PROJ_FLECHETTE].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_FLECHETTE].spd_range = HITSCAN_RANGE_DEFAULT;
+	
+	ProjectileInfo[DND_PROJ_MAGNUMSHELL].name = "MagnumPuff";
+	ProjectileInfo[DND_PROJ_MAGNUMSHELL].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_MAGNUMSHELL].spd_range = HITSCAN_RANGE_DEFAULT;
+	
+	ProjectileInfo[DND_PROJ_ELECTRICSHELL].name = "ShockShellPuff";
+	ProjectileInfo[DND_PROJ_ELECTRICSHELL].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_ELECTRICSHELL].spd_range = HITSCAN_RANGE_DEFAULT;
+
+	ProjectileInfo[DND_PROJ_SLUGSHELL].name = "SlugShellPuff";
+	ProjectileInfo[DND_PROJ_SLUGSHELL].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_SLUGSHELL].spd_range = HITSCAN_RANGE_DEFAULT;
+	
+	ProjectileInfo[DND_PROJ_NITROSHELL].name = "NitroShellPuff";
+	ProjectileInfo[DND_PROJ_NITROSHELL].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_NITROSHELL].spd_range = HITSCAN_RANGE_DEFAULT;
+	
+	ProjectileInfo[DND_PROJ_GRENADESPECIAL].name = "NormalGrenade_Special";
+	ProjectileInfo[DND_PROJ_GRENADESPECIAL].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_GRENADESPECIAL].spd_range = 28;
+	
+	ProjectileInfo[DND_PROJ_HEGRENADE].name = "HEGrenadeX";
+	ProjectileInfo[DND_PROJ_HEGRENADE].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_HEGRENADE].spd_range = 24;
+	
+	ProjectileInfo[DND_PROJ_SONICGRENADE].name = "SonicGrenade";
+	ProjectileInfo[DND_PROJ_SONICGRENADE].flags = DND_PROJ_HASGHOSTHITTER;
+	ProjectileInfo[DND_PROJ_SONICGRENADE].spd_range = 32;
 }
 
 #endif

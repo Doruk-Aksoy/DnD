@@ -36,8 +36,6 @@ typedef struct {
 	
 	int char_id;
 	int stash_pages;
-	
-	orb_max_info_T orb_change;
 } player_activity_T;
 
 global player_activity_T 18: PlayerActivities[MAXPLAYERS];
@@ -117,7 +115,7 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 			PlayerActivities[pnum].free_attributes += val;
 		break;
 		
-		case DND_ACTIVITY_ORB_HPFLAT:
+		/*case DND_ACTIVITY_ORB_HPFLAT:
 			PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_flat_bonus += val;
 		break;
 		case DND_ACTIVITY_ORB_HPPERCENT:
@@ -174,7 +172,7 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 			}
 			else
 				PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val = val;
-		break;
+		break;*/
 	}
 }
 
@@ -201,7 +199,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 	for(i = 0; i < DND_MAX_ATTRIBUTES; ++i)
 		PlayerActivities[pnum].attribute_change[i] = 0;
 		
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_flat_bonus = 0;
+	/*PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_flat_bonus = 0;
 	PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_flat_bonus = 0;
 	PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_percent_bonus = 0;
 	PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_percent_bonus = 0;
@@ -220,7 +218,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].wep_mods[j].val = 0;
 			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].wep_mods[j].tier = 0;
 		}
-	}
+	}*/
 }
 
 #endif

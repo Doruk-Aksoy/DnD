@@ -1,8 +1,8 @@
 // ACCURACY OF 69 MEANS ITS A CRIT!
 const int DND_CRITTOKEN = 69;
 
-const int DND_ATK_PRIMARY = 0;
-const int DND_ATK_SECONDARY = 1;
+const int DND_ATK_PRIMARY = 1;
+const int DND_ATK_SECONDARY = 2;
 const int DND_ATK_OTHER_DIR = 4;
 
 /*
@@ -69,6 +69,29 @@ actor DND_DroppedItem {
 	Height 1
 }
 
+Actor GrabbyHandIcon {
+	Scale 0.5
+	+NOINTERACTION
+	var int user_z;
+	States {
+		Spawn:
+			TNT1 A 0 A_JumpIf(user_z == 35, "GoAway")
+			GRBY A 1 A_ChangeVelocity(0, 0, sin(user_z * 360 / 35), CVF_REPLACE)
+			TNT1 A 0 A_SetUserVar("user_z", user_z + 1)
+		Loop
+		GoAway:
+			GRBY A 1
+		Stop
+	}
+}
+
+Actor GrabbyHandCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 35
+}
+
+const int item_look_dist = 80;
+const int item_pickup_dist = 32;
 Actor InventoryBase : DnD_DroppedItem {
 	Radius 20
 	Height 24
@@ -77,17 +100,26 @@ Actor InventoryBase : DnD_DroppedItem {
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
-		Goto SpawnLoop
+			"####" "#" 1 Bright A_Jump(256, "SpawnLoop")
+		Wait
 		
 		SpawnLoop:
 		Idle:
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		See:
 		CheckPickup:
-			"####" "#" 1 Bright A_JumpIfCloser(32, "Pickup")
-		goto SpawnLoop
+			"####" "#" 1 Bright A_JumpIfCloser(item_look_dist, "Grabby")
+		CheckPickupNext:
+			"####" "#" 1 Bright A_JumpIfCloser(item_pickup_dist, "Pickup")
+			"####" "#" 1 Bright A_Jump(256, "SpawnLoop")
+		Wait
+		Grabby:
+			"####" "#" 0 Bright A_JumpIfInventory("GrabbyHandCooldown", 1, "CheckPickupNext")
+			"####" "#" 0 Bright A_GiveInventory("GrabbyHandCooldown", 1)
+			"####" "#" 0 Bright A_SpawnItemEx("GrabbyHandIcon", 0, 0, 32)
+		Goto CheckPickupNext
 		
 		Pickup:
 			"####" "#" 0 Bright A_JumpIfInventory("DnD_IntermissionState", 1, "PickupFail")
@@ -96,7 +128,8 @@ Actor InventoryBase : DnD_DroppedItem {
 
 		PickupFail:
 			"####" "#" 1 Bright
-		goto SpawnLoop
+			"####" "#" 1 Bright A_Jump(256, "SpawnLoop")
+		Wait
 		
 		PickupCheck2:
 			// Check if player has remaining inventory space
@@ -115,7 +148,6 @@ Actor InventoryBase : DnD_DroppedItem {
 		stop
 	}
 }
-
 
 Actor DnD_SharedItem {
 	Height 48
@@ -550,4 +582,8 @@ Actor ProjectileHelper {
 			TNT1 A 5
 		Stop
 	}
+}
+
+Actor DnD_Weapon_FrameChecker : Inventory {
+	inventory.maxamount 0x7FFFFFFF
 }

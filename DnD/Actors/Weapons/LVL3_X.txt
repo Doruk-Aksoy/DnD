@@ -43,7 +43,7 @@ ACTOR " Super Shotgun " : Weapon
 	TNT1 A 0 A_GunFlash
 	TNT1 AAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
 	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), 0)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), DND_ATF_CANFIRECIRCLE)
 	SHT1 D 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
 	TNT1 A 0 A_SetPitch(pitch - 10.0)
 	SHT1 E 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
@@ -157,7 +157,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon
 		TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "FireFaster")
 		SSGF A 1 Bright
 		TNT1 A 0 A_PlayWeaponSound("weapons/hunssgfire")
-		TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYSUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), 0)
+		TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYSUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), DND_ATF_CANFIRECIRCLE)
 		TNT1 A 0 A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
 		TNT1 AAAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
 		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
@@ -380,7 +380,7 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
 	TNT1 A 0 A_GunFlash
 	TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
 	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 7, 32 * (1 + sin(-pitch)), 2, 0, 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ERASUS, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_2 << 16), 0)
+	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ERASUS, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_2 << 16), DND_ATF_CANFIRECIRCLE)
     TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
 	ERAF B 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
 	TNT1 A 0 A_SetPitch(pitch - 6.0)
@@ -585,7 +585,7 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 		ReallyLeftFire:
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 7)
 			TNT1 A 0 A_GiveInventory("HellsMawFiringLeft", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HELLSMAW, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_HELLSMAWAMMO << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HELLSMAW, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_HELLSMAWAMMO << 16), DND_ATF_CANFIRECIRCLE)
 			HLMW HI 2 Bright A_WeaponReady(WRF_NOFIRE)
 			TNT1 A 0 A_TakeInventory("HellsMawFiringLeft", 1)
 			HLMW JK 2 Bright A_WeaponReady(WRF_NOFIRE)
@@ -639,7 +639,7 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 		ReallyRightFire:
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 6)
 			TNT1 A 0 A_GiveInventory("HellsMawFiringRight", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HELLSMAW, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_SHELL | (AMMO_HELLSMAWAMMO << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HELLSMAW, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_SHELL | (AMMO_HELLSMAWAMMO << 16), DND_ATF_CANFIRECIRCLE)
 			HLMW LM 2 Bright
 			TNT1 A 0 A_TakeInventory("HellsMawFiringRight", 1)
 			HLMW NO 2 Bright
@@ -872,7 +872,7 @@ Actor "Silver Gun" : Weapon
       EXSG CD 1 Bright
 	  TNT1 AAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
 	  TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SILVERGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_EXSHELL << 16), 0)
+	  TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SILVERGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_EXSHELL << 16), DND_ATF_CANFIRECIRCLE)
 	  EXSG E 1 Bright A_PlayWeaponSound("weapons/expshotgunfire")
 	  TNT1 A 0 A_SetPitch(pitch - 6.0)
 	  EXSG F 1 bright
@@ -1032,7 +1032,7 @@ ACTOR Slayer : Weapon {
 			TNT1 A 0 A_TakeInventory("SlayerBack", 1)
 			TNT1 A 0 Radius_Quake(4,3,0,1,0)
 			TNT1 A 0 A_GiveInventory("SlayerTimer", 1)
-			IREG I 2 Bright Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SLAYER, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SLAYER << 16), 0)
+			IREG I 2 Bright Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SLAYER, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SLAYER << 16), DND_ATF_CANFIRECIRCLE)
 			IREG I 2 Bright Offset(0, 35)
 			IREG J 2 Bright Offset(0, 32)
 			IREG J 2 Bright Offset(0, 35)

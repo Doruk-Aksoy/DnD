@@ -57,7 +57,7 @@ Actor ResSSG1 : Weapon {
 			RW02 A 1 Bright
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/Fire")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			RW02 BCD 1 Bright A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			RW02 EFGHI 3
 			RW02 X 6
@@ -72,7 +72,7 @@ Actor ResSSG1 : Weapon {
 			RW02 A 1 Bright
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/Fire")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			RW02 BCD 1 Bright A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			RW02 EFGHI 2
 			RW02 X 3
@@ -80,7 +80,7 @@ Actor ResSSG1 : Weapon {
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/Fire")
 			// fires 2 other shots that need this to be called on them
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), DND_ATF_NOAMMOGAINCHECK)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), DND_ATF_CANFIRECIRCLE | DND_ATF_NOAMMOGAINCHECK)
 			RW02 BCD 1 Bright A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			RW02 EFGHI 2
 			RW02 X 3
@@ -88,7 +88,7 @@ Actor ResSSG1 : Weapon {
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/Fire")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD On Attack", 0)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), DND_ATF_NOAMMOGAINCHECK)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_PLASMACANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_PCANCLIP << 16), DND_ATF_CANFIRECIRCLE | DND_ATF_NOAMMOGAINCHECK)
 			RW02 BCD 1 Bright A_SpawnItemEx ("PlasmaSmoke",cos(-pitch)*25, 4,24+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
 			RW02 EFGHI 2
 			RW02 X 3
@@ -501,6 +501,8 @@ Actor ResSSG3 : Weapon {
 			STRG F 1 Bright Offset(4, 39)
 			TNT1 A 0 A_GiveInventory("HadesBurstTimer", 1)
 			TNT1 A 0 A_TakeInventory("MakeHadesBurst", 1)
+			TNT1 A 0 A_PlaySound("Hades/Fire",1,0.6)
+			TNT1 A 0 A_PlaySound("Hades/Add",5,0.4)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HADES, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_16 << 16), 0)
 			TNT1 AAAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-9, 9), 0, 0, frandom(-7, 7))
 			TNT1 A 0 A_SetBlend("Yellow",0.1,7)

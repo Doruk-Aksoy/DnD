@@ -4,6 +4,8 @@
 #include "DnD_Poison.h"
 #include "DnD_Physics.h"
 
+#define DND_CRIT_TOKEN 69
+
 #define DND_PLAYER_HITSCAN_Z 38.0
 #define MAX_RIPPERS_ACTIVE 256
 #define MAX_RIPPER_HITS_STORED 128
@@ -33,8 +35,6 @@
 #define DND_MONSTER_POISONDOT_MAXTIME 5
 
 #define OCCULT_WEAKEN_DURATION 2
-
-#define DND_CRIT_TOKEN 69
 
 #define DND_CORRUPTORB_DIV 4 // /4 => 75% reduced dmg
 
@@ -163,102 +163,7 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"SoulType"
 };
 
-enum {
-	DND_DAMAGEFLAG_USEMASTER 			= 			0b1,
-	DND_DAMAGEFLAG_ISSHOTGUN 			= 			0b10,
-	DND_DAMAGEFLAG_CULL 				= 			0b100,
-	DND_DAMAGEFLAG_ISDAMAGEOVERTIME		=			0b1000,
-	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE	=			0b10000,
-	DND_DAMAGEFLAG_NOPOISONSTACK		=			0b100000,
-	DND_DAMAGEFLAG_HALFDMGSELF			=			0b1000000,
-	DND_DAMAGEFLAG_INFLICTPOISON		=			0b10000000,
-	DND_DAMAGEFLAG_BLASTSELF			=			0b100000000,
-	DND_DAMAGEFLAG_SELFORIGIN			=			0b1000000000,
-	DND_DAMAGEFLAG_DOFULLDAMAGE			=			0b10000000000,
-	DND_DAMAGEFLAG_EXTRATOUNDEAD		=			0b100000000000,
-	DND_DAMAGEFLAG_ISHITSCAN			=			0b1000000000000,
-	DND_DAMAGEFLAG_NOIGNITESTACK		=			0b10000000000000,
-	DND_DAMAGEFLAG_PERCENTHEALTH		=			0b100000000000000,
-	DND_DAMAGEFLAG_SIMULATERIPPER		=			0b1000000000000000,
-	DND_DAMAGEFLAG_ISSPELL				=			0b10000000000000000,
-	DND_DAMAGEFLAG_ISSPECIALAMMO		=			0b100000000000000000,
-	
-	// below are special things that are cleared after a certain point in HandleImpactDamage function
-	DND_DAMAGEFLAG_COUNTSASMELEE		=			0b1000000000000000000,
-	DND_DAMAGEFLAG_SOULATTACK			=			0b10000000000000000000,
-	DND_DAMAGEFLAG_LOSEDAMAGEPERHIT		=			0b100000000000000000000,
-	DND_DAMAGEFLAG_FOILINVUL			=			0b1000000000000000000000,
-};
-
-enum {
-	DND_DAMAGETICFLAG_PUSH				=			0b1,
-	DND_DAMAGETICFLAG_CRIT				=			0b10,
-	DND_DAMAGETICFLAG_ICE				=			0b100,
-	DND_DAMAGETICFLAG_FIRE				=			0b1000,
-	DND_DAMAGETICFLAG_LIGHTNING			=			0b10000,
-	DND_DAMAGETICFLAG_CONSIDERMELEE		=			0b100000,
-	DND_DAMAGETICFLAG_DOT				=			0b1000000,
-};
-
-// These are actor inherited flags, like forcepain, foilinvul, painless etc.
-// can store at most 16 bits, the last 16 are for wepid reference
-enum {
-	DND_ACTORFLAG_FOILINVUL				=			0b1,
-	DND_ACTORFLAG_FORCEPAIN				=			0b10,
-	DND_ACTORFLAG_PAINLESS				=			0b100,
-	DND_ACTORFLAG_NOPUSH				=			0b1000,
-	DND_ACTORFLAG_CONFIRMEDCRIT			=			0b10000,
-	DND_ACTORFLAG_COUNTSASMELEE			=			0b100000,
-	DND_ACTORFLAG_THRUGHOST				=			0b1000000,
-	DND_ACTORFLAG_FORCERADIUSDMG		=			0b10000000,
-	DND_ACTORFLAG_ISDAMAGEOVERTIME		=			0b100000000,
-};
-
-enum {
-	DND_SCANNER_BFG,
-	DND_SCANNER_BFGUPGRADED,
-	DND_SCANNER_HEART,
-	DND_SCANNER_BOOK
-};
-
-#define MAX_SCANNER_PARTICLES (DND_SCANNER_BOOK + 1)
-str ScannerAttackParticles[MAX_SCANNER_PARTICLES] = {
-	"BFGExtra2",
-	"BFGExtraUpgraded",
-	"HeartAttackPuff",
-	"BookPuff"
-};
-
-typedef struct scan_data {
-	int max_dist;
-	int fov;
-	int spawn_offZ;
-} scan_data_T;
-
-scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
-	{ 1024.0, 			0.1875, 			24.0 },
-	{ 1024.0,		 	0.1875, 			24.0 },
-	{ 2048.0,		 	0.16, 				32.0 },
-	{ 4096.0,			0.25,				32.0 }
-};
-
 vec3_T PlayerDamageVector[MAXPLAYERS];
-
-int Scan_to_WeaponID(int scan_id) {
-	int ret = DND_WEAPON_BFG6000;
-	switch(scan_id) {
-		case DND_SCANNER_BFGUPGRADED:
-			ret = DND_WEAPON_BFG32768;
-		break;
-		case DND_SCANNER_HEART:
-			ret = DND_WEAPON_DEMONHEART;
-		break;
-		case DND_SCANNER_BOOK:
-			ret = -1;
-		break;
-	}
-	return ret;
-}
 
 enum {
 	DND_SPECIALBLOOD_STONE
@@ -326,15 +231,6 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
 	
 	//return ApplyDamageFactor_Safe(dmg, DND_DAMAGERESIST_FACTOR - ((temp * 100) >> 16), DND_DAMAGERESIST_FACTOR);
 	return dmg * ((100.0 - temp) >> 16) / 100;
-}
-
-int ScanActorFlags() {
-	return 	CheckFlag(0, "FOILINVUL") * DND_ACTORFLAG_FOILINVUL				|
-			CheckFlag(0, "FORCEPAIN") * DND_ACTORFLAG_FORCEPAIN				|
-			CheckFlag(0, "PAINLESS") * DND_ACTORFLAG_PAINLESS				|
-			CheckFlag(0, "NODAMAGETHRUST") * DND_ACTORFLAG_NOPUSH			|
-			CheckFlag(0, "THRUGHOST") * DND_ACTORFLAG_THRUGHOST				|
-			CheckFlag(0, "FORCERADIUSDMG") * DND_ACTORFLAG_FORCERADIUSDMG;
 }
 
 bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid = -1) {
@@ -2553,7 +2449,6 @@ Script "DnD Monster Overload Particles" (void) CLIENTSIDE {
 		SpawnForced("OverloadZap_Particles", GetActorX(0) + random(-r, r) / 2, GetActorY(0) + random(-r, r) / 2, GetActorZ(0) + (random(16.0, h + 32.0)) / 2, 0);
 		Delay(random(1, 3));
 	}
-
 }
 
 // this simply distributes the overload debuff, no more zapping special fx!!

@@ -806,7 +806,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	if(IsUniqueMonster(MonsterProperties[m_id].id))
-		HandleUniqueDeath(MonsterProperties[m_id].id);
+		HandleUniqueDeath(target, MonsterProperties[m_id].id);
 		
 	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
 		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
@@ -1702,7 +1702,7 @@ Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
 		else if(CheckActorResearchStatus(ConsolePlayerNumber() + P_TIDSTART, sp >> 16))
 			Thing_Remove(0);
 	}
-	else if(extra & (DND_SPECIAL_ORB | DND_SPECIAL_TALENTCAPSULE | DND_SPECIAL_ELIXIR | DND_SPECIAL_CHARM)) {
+	else if(extra & (DND_SPECIAL_ORB | DND_SPECIAL_TALENTCAPSULE | DND_SPECIAL_CHARM)) {
 		if((sp & 0xFFFF) != 256 && ConsolePlayerNumber() != (sp & 0xFFFF) - 1)
 			Thing_Remove(0);
 		else
@@ -2338,6 +2338,11 @@ Script "DnD Monster Trait Give Single CS" (int tid, int flag) CLIENTSIDE {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
 	MonsterProperties[m_tid].trait_list[flag] = true;
 	SetResultValue(0);
+}
+
+Script "DnD Hit Monster Trait Check" (int flag) {
+	int tracer = GetActorProperty(0, APROP_TRACERTID);
+	SetResultValue(MonsterProperties[tracer - DND_MONSTERTID_BEGIN].trait_list[flag]);
 }
 
 // Checks Ankh
@@ -3907,11 +3912,11 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 	SetResultValue(RetrieveWeaponDamage(PlayerNumber(), wepid, dmgid, damage_category, flags, isSpecial, proj_crit));
 }
 
-Script "DnD Get Melee Range Increase" (int use_target) {
+/*Script "DnD Get Melee Range Increase" (int use_target) {
 	if(use_target)
 		SetActivatorToTarget(0);
 	SetResultValue(GetPlayerMeleeRange(PlayerNumber()));
-}
+}*/
 
 // Used mainly for non-weapons (like artifacts, spells and so on)
 Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
@@ -4283,112 +4288,7 @@ Script "DnD Dark Lance Shred FX" (int tid, int pnum, int time_lim) CLIENTSIDE {
 
 // currently does 90 degree scan from players fov
 Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int flags) {
-	// scan field of view
-	// check all monsters
-	static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAXSCANTRACER];
-	
-	int scan_id = tracer_count >> 16;
-	tracer_count &= 0xFFFF;
-	
-	int scan_dist = ScanAttackData[scan_id].max_dist;
-	int scan_fov = ScanAttackData[scan_id].fov;
-	
-	int dist = scan_dist, i, j, k, temp;
-	
-	int tcount = 0;
-	int owner = (flags & DND_DAMAGEFLAG_SELFORIGIN) ? ActivatorTID() : GetActorProperty(0, APROP_TARGETTID);
-	int pnum = owner - P_TIDSTART;
-	
-	// init list
-	for(i = 0; i < DND_MAXSCANTRACER; ++i) {
-		tlist[pnum][i].tid = 0;
-		tlist[pnum][i].dist = scan_dist;
-	}
-	
-	// face player to the originator temporarily to get projection to there
-	int projection_angle = GetActorAngle(owner);
-	// use angle of the ball
-	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
-		projection_angle = GetActorAngle(0);
-	
-	// printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
-	// pick tracer_count closest enemies
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
-		i = UsedMonsterTIDs[mn];
-		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
-			dist = fdistance(owner, i);
-			//printbold(s:"Checking ", s:GetActorClass(i));
-			if(dist < scan_dist && MaxAngleDiff_Projection(owner, i, scan_fov, projection_angle) && CheckSight(owner, i, CSF_NOBLOCKALL)) {
-				//printbold(s:"approved ", s:GetActorClass(i), s: " ", d:i);
-				// insert sorted
-				temp = tcount;
-				// while our calc dist > alloc dist, keep going -- we add things to the end
-				// if we come by a point where we are smaller, shift things
-				for(j = 0; j < temp && dist > tlist[pnum][j].dist; ++j);
-
-				// we know where to add, check if we must shift (if we should)
-				if(j < temp) {
-					// less, so that means we are in-between things
-					// push everything for insertion
-					// this is needed to move in 0 index shifts
-					if(temp == DND_MAXSCANTRACER)
-						--temp;
-					
-					for(k = temp; k > j; --k) {
-						// slide data
-						tlist[pnum][k].dist = tlist[pnum][k - 1].dist;
-						tlist[pnum][k].tid = tlist[pnum][k - 1].tid;
-					}
-				}
-				
-				tlist[pnum][j].dist = dist;
-				tlist[pnum][j].tid = i;
-				
-				if(tcount < tracer_count)
-					++tcount;
-			}
-		}
-	}
-	
-	if(tcount) {
-		int actor_flags = ScanActorFlags();
-		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN)
-			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-		
-		// damage credit
-		SetActivator(owner);
-		
-		// re-use this as poison damage mod value if any
-		int wepid = Scan_to_WeaponID(scan_id);
-		
-		for(i = 0, j = 0; i < DND_MAXSCANTRACER; ++i) {
-			if(tlist[pnum][i].tid) {
-				// distance reduces damage for scans, closer = better -- gives percentage
-				// curr formula: factor = 100 * ((max_scan_dist - curr_dist) / max_scan_dist)^2 -- returns a percentage
-				if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE) {
-					tlist[pnum][i].dist = FixedDiv((scan_dist - tlist[pnum][i].dist), scan_dist);
-					tlist[pnum][i].dist = FixedMul(tlist[pnum][i].dist, tlist[pnum][i].dist);
-					tlist[pnum][i].dist *= 100;
-					tlist[pnum][i].dist >>= 16;
-					if(!tlist[pnum][i].dist)
-						tlist[pnum][i].dist = 1;
-					temp = (dmg * tlist[pnum][i].dist) / 100;
-				}
-				else
-					temp = dmg;
-				
-				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, wepid, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
-				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
-				
-				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
-				// abort if we reached our tracer cap
-				++j;
-				if(j == tcount)
-					break;
-			}
-		}
-		//printbold(s:"complete? ", d:j, s: " vs ", d:tcount);
-	}
+	Do_Scan_Attack(dmg, damage_type, tracer_count, flags);
 }
 
 Script "DND Thunderstaff Bolts" (void) {
@@ -4621,7 +4521,7 @@ Script "DnD Pull Towards Self" (int force, int pull_dist, int flags) {
 Script "DnD Gravdis Thrust" (int pull_count, int force) {
 	int x = GetActorX(0);
 	int y = GetActorY(0);
-	int z = GetActorZ(0);
+	//int z = GetActorZ(0);
 	
 	// make fixed
 	force <<= 16;
@@ -4691,7 +4591,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_dmg) {
 	bool projcrit = victim >> 17;
 	victim &= 0xFFFF;
-	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS) / (4 * damage / base_dmg), 16, 4096);
+	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS) / (5 * damage / base_dmg), 16, 4096);
 	bool was_flying = CheckFlag(victim, "NOGRAVITY");
 	
 	GiveActorInventory(victim, "AllowFlight", 1);
@@ -4984,13 +4884,6 @@ Script "DnD Orb Message" (int id) CLIENTSIDE {
 	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ORB", s:": \c[Y5]", l:GetInventoryTag(id + ORBS_BEGIN), s:"!\c-"));
 }
 
-Script "DnD Elixir Message" (int id) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-	ActivatorSound("Items/ElixirPick", 127);
-	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ELIXIR", s:": \c[Y5]", l:GetInventoryTag(id + ELIXIR_BEGIN), s:"!\c-"));
-}
-
 Script "DnD Token Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
@@ -5267,40 +5160,47 @@ Script "DnD Get Aspect For Inventory View" (void) CLIENTSIDE {
 	SetResultValue(ScreenResOffsets[2]);
 }
 
-Script "DnD Elixir Use Message" (int eid) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-	LocalAmbientSound("Items/ElixirPick", 127);
-	Log(l:GetInventoryText(eid + ELIXIR_BEGIN));
-}
-
-Script "DnD Elixir Use" (int eid) {
-	ACS_NamedExecuteAlways("DnD Elixir Use Message", 0, eid);
-	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-	HandleElixirUse(eid);
-}
-
 Script "DnD DeathRay Marker TID" (void) {
 	Thing_ChangeTID(0, GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART + DEATHRAY_MARKER_TID);
 }
 
 Script "DnD DeathRay Laser Aim" (int adj) {
-	int target = GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART + DEATHRAY_MARKER_TID;
+	int p_actor = GetActorProperty(0, APROP_TARGETTID);
+	int target = p_actor - P_TIDSTART + DEATHRAY_MARKER_TID;
 	if(!ThingCount(T_NONE, target))
 		terminate;
 	int xdiff = GetActorX(target) - GetActorX(0);
 	int ydiff = GetActorY(target) - GetActorY(0);
-	SetActorProperty(0, APROP_HEALTH, target);
-	SetActorProperty(0, APROP_MASS, (360 * VectorAngle(xdiff, ydiff)) >> 16);
-	SetActorPitch(0, VectorPitch(0, target, xdiff, ydiff, adj));
+	int angle = VectorAngle(xdiff, ydiff);
+	int pitch = VectorPitch(0, target, xdiff, ydiff, adj);
+	
+	// make the proj itself
+	SpawnProjectile(0, "DeathRayLaser", angle, 0, 0, 0, TEMPORARY_ATTACK_TID);
+	
+	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
+	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
+	SetActorVelocity(TEMPORARY_ATTACK_TID, FixedMul(cos(angle), cos(pitch)) * 512, FixedMul(sin(angle), cos(pitch)) * 512, sin(-pitch) * 512, 0, 0);
+	
+	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_TARGETTID, p_actor);
+	
+	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_ACCURACY, GetActorProperty(0, APROP_ACCURACY));
+	SetUserVariable(TEMPORARY_ATTACK_TID, "user_x", GetActorX(0));
+	SetUserVariable(TEMPORARY_ATTACK_TID, "user_y", GetActorY(0));
+	SetUserVariable(TEMPORARY_ATTACK_TID, "user_z", GetActorZ(0));
+	
+	SetActivator(TEMPORARY_ATTACK_TID);
+
+	// this is the line that makes the owner the true owner
+	SetPointer(AAPTR_TARGET, p_actor);
+	
+	Thing_ChangeTID(TEMPORARY_ATTACK_TID, 0);
 }
 
-Script "DnD Deathray Laser Trail" (int density, int target) CLIENTSIDE {
+Script "DnD Deathray Laser Trail" (int density, int grX, int grY, int grZ) CLIENTSIDE {
 	int oX = GetActorX(0);
 	int oY = GetActorY(0);
 	int oZ = GetActorZ(0);
 
-    int grX; int grY;  int grZ;
     int vX;  int vY;   int vZ;
     int nX;  int nY;   int nZ;
     int bX;  int bY;   int bZ;
@@ -5308,9 +5208,9 @@ Script "DnD Deathray Laser Trail" (int density, int target) CLIENTSIDE {
     int pointCount;
     int pointOffset;
 	
-    grX = GetActorX(target);
-    grY = GetActorY(target);
-    grZ = GetActorZ(target);
+    //grX <<= 16;
+    //grY <<= 16;
+    //grZ <<= 16;
 	
     vX   = grX - oX;
 	vY   = grY - oY;
@@ -5333,6 +5233,8 @@ Script "DnD Deathray Laser Trail" (int density, int target) CLIENTSIDE {
             Spawn("DeathRayLaserTrail", bX, bY, bZ);
         }
     }
+	
+	SetResultValue(0);
 }
 
 Script "DnD Force Sync Player Bonuses" (void) {
@@ -5435,9 +5337,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * (100 + temp) / 100;
 	}
 		
-	temp =  GetDataFromOrbBonus(pnum, OBI_DAMAGETYPE, DND_DAMAGECATEGORY_OCCULT) + 
-			MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT) +
-			Player_Elixir_Bonuses[pnum].damage_type_bonus[DND_DAMAGECATEGORY_OCCULT];
+	temp = MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT);
 	if(temp)
 		res = res * (100 + temp) / 100;
 		
@@ -5591,7 +5491,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 	if(PlayerInGame(pnum)) {
 		int tid = pnum + P_TIDSTART;
 		int this = ActivatorTID();
-		int i, j, temp, itype, cnt, val;
+		int i, j, temp, itype, isubt, cnt, val;
 		
 		Log(s:"\n================================\n====== ", l:"DND_PLAYERLOOKUP", s:" ======\n================================\n");
 		SetActivator(tid);
@@ -5628,13 +5528,14 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		Log(s:"\n--------------------------------\n------- ", l:"DND_MENU_HEAD_CHARMS", s:" -------\n--------------------------------\n");
 		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
 			itype = Charms_Used[pnum][i].item_type;
+			isubt = Charms_Used[pnum][i].item_subtype;
 			if(itype != DND_ITEM_NULL) {
 				if(itype == DND_ITEM_CHARM) {
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
 					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED);
 					for(j = 0; j < temp; ++j)
-						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), itype, isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
 				}
 				else if(itype > UNIQUE_BEGIN) {
 					temp = itype & 0xFFFF;
@@ -5653,17 +5554,17 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 							if(temp == INV_EX_CHANCE) {
 								++j;
 								++itype;
-								Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), val, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+								Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), itype, isubt, val, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
 							}
 							else
-								Log(s:"    ", s:GetItemAttributeText(temp, val, 0));
+								Log(s:"    ", s:GetItemAttributeText(temp, itype, isubt, val, 0));
 						}
 						else if(!val) {
 							// unique item doesn't have numeric attribute to show
-							Log(s:"    ", s:GetItemAttributeText(temp, val, 0));
+							Log(s:"    ", s:GetItemAttributeText(temp, itype, isubt, val, 0));
 						}
 						else
-							Log(s:"    - ", s:GetItemAttributeText(temp, val, 0));
+							Log(s:"    - ", s:GetItemAttributeText(temp, itype, isubt, val, 0));
 					}
 				}
 			}
@@ -6099,8 +6000,8 @@ Script "DnD Ammo Token Pickup" (void) {
 	int id = 0;
 	do {
 		id = PickRandomOwnedWeaponID();
-	} while(Weapons_Data[id].ammo_name1 != "");
-	
+	} while(Weapons_Data[id].ammo_name1 == "");
+
 	// give 10% ammo on this weapon -- soulrender has weapon condition as ammo1 so dont give if it is 
 	str ammo;
 	int cap;
@@ -6288,7 +6189,7 @@ Script 68 (int x) NET {
 		}
 		else if(x == 420) {
 			SpawnCharm(0, true);
-			SpawnOrbForAll(1, random(40, 120));
+			SpawnOrbForAll(10, random(40, 120));
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 			SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
 			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);

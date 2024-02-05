@@ -4,8 +4,8 @@ DND_ORB1			=	"Orb of Enhancement";
 DND_ORBTEXT1		=	"Allows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg50%\c- total.";
 DND_ORB2			=	"Orb of Corruption";
 DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?";
-DND_ORB3			=	"Orb of Spirit";
-DND_ORBTEXT3		=	"Grants the user a random stat upon use. Stats can go above \cd100\c- with this orb. Charisma has lowest weight, followed by Vitality and Bulkiness. Rest share the highest weight.";
+DND_ORB3			=	"Prismatic Orb";
+DND_ORBTEXT3		=	"Reforges the item, adding at least one \cvelemental\c- modifier.";
 DND_ORB4			=	"Orb of Repentance";
 DND_ORBTEXT4		=	"Allows you to undo the effects of the most recently used orb.";
 DND_ORB5			=	"Orb of Affluence";
@@ -13,33 +13,48 @@ DND_ORBTEXT5		=	"Doubles the effect of the next orb. This effect can stack with 
 DND_ORB6			=	"Orb of Calamity";
 DND_ORBTEXT6		=	"Turns a random orb into a random orb. It won't work if you have no other orbs or if you only have these orbs.";
 DND_ORB7			=	"Orb of Prosperity";
-DND_ORBTEXT7		=	"Increases health and armor caps by \cd1\c- up to a maximum of \cg500\c-.";
-DND_ORB8			=	"Orb of Wisdom";
-DND_ORBTEXT8		=	"Increases experience gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.";
-DND_ORB9			=	"Orb of Greed";
-DND_ORBTEXT9		=	"Increases credit gain from monsters by \cd1%\c- up to a maximum of \cg250%\c-.";
+DND_ORBTEXT7		=	"Reforges the item, adding at least one \cvlife\c- modifier.";
+DND_ORB8			=	"Orb of Nullification";
+DND_ORBTEXT8		=	"Removes a random attribute with the \cglowest\c- tier.";
+DND_ORB9			=	"Orb of Destruction";
+DND_ORBTEXT9		=	"Reforges the item, adding at least one \cvcritical\c- modifier.";
 DND_ORB10			=	"Orb of Violence";
-DND_ORBTEXT10		=	"Increases a random damage type's damage by \cd1%\c- up to a maximum of \cg300%\c- for each category.";
+DND_ORBTEXT10		=	"Reforges the item, adding at least one \cvattack\c- modifier.";
 DND_ORB11			=	"Orb of Fortitude";
-DND_ORBTEXT11		=	"Increases health and armor caps by \cd1%\c- up to a maximum of \cg200%\c-.";
+DND_ORBTEXT11		=	"Reforges the item, adding at least one \cvdefense\c- modifier.";
 DND_ORB12			=	"Orb of Sin";
-DND_ORBTEXT12		=	"A pact with the devil itself, trading anywhere from \cg1\c- to \cg8\c- stat points for random benefits. Can give some stat points, critical chance, or even a perk point!";
-DND_ORB13			=	"Orb of Riches";
-DND_ORBTEXT13		=	"Grants a random resource on use. Can grant experience, credit or budget. Can give \cd5%\c- of your current level's experience, \cd2000\c- or \cd5%\c- of current credits (whichever is greater) and \cd5k\c- respectively. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
-DND_ORB14			=	"Orb of Holding";
-DND_ORBTEXT14		=	"Increases your ammo capacities by \cd1%\c- up to a maximum of \cg100%\c-. Doesn't increase the capacity of \cusouls\c- or \cstemporary weapons.";
+DND_ORBTEXT12		=	"Fractures an attribute, rendering it impervious to change. Needs to have a minimum of either two or half maximum attributes it can have. Can't fracture if there's another fracture.";
+DND_ORB13			=	"Orb of Tremors";
+DND_ORBTEXT13		=	"Reforges the item, adding at least one \cvexplosive\c- modifier.";
+DND_ORB14			=	"Tinkerer's Orb";
+DND_ORBTEXT14		=	"Reforges the item, adding at least one \cvutility\c- modifier.";
 DND_ORB15			=	"Orb of Refinement";
 DND_ORBTEXT15		=	"Rerolls the attribute values of the selected item.";
 DND_ORB16			=	"Orb of Sculpting";
 DND_ORBTEXT16		=	"Removes a random attribute entirely from the selected item.";
 DND_ORB17			=	"Orb of Elevation";
 DND_ORBTEXT17		=	"Adds a random attribute that's not already present to the selected item, if it has capacity.";
-DND_ORB18			=	"Hollow Orb";
-DND_ORBTEXT18		=	"Adds an extra random attribute to a non-unique charm even if it's at its limit, adding at most one additional over limit. The attribute is well-rolled.";
-DND_ORB19			=	"Phantasmal Orb";
-DND_ORBTEXT19		=	"Grants used weapon ability to hit ghosts but reduces overall damage by 33%.";
-DND_ORB20			=	"Assimilation Orb";
-DND_ORBTEXT20		=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled, but amount of mods may be less than sum of both. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
+DND_ORB18			=	"Orb of Turmoil";
+DND_ORBTEXT18		=	"Reforges the item, completely recrafting it.";
+DND_ORB19			=	"Orb of Hexes";
+DND_ORBTEXT19		=	"Reforges the item, adding at least one \cvoccult\c- modifier.";
+DND_ORB20			=	"Orb of Growth";
+DND_ORBTEXT20		=	"Reforges the item, adding at least one \cvstat\c- modifier.";
+DND_ORB21			=	"Orb of Potency";
+DND_ORBTEXT21		=	"Raises the tier of a random attribute by one.";
+DND_ORB22			=	"Crackling Orb";
+DND_ORBTEXT22		=	"Reforges the item, adding at least one \cvenergy\c- modifier.";
+DND_ORB23			=	"Brute's Orb";
+DND_ORBTEXT23		=	"Reforges the item, adding at least one \cvmelee\c- modifier.";
+DND_ORB24			=	"Jagged Orb";
+DND_ORBTEXT24		=	"Reforges the item, adding at least one \cvphysical\c- modifier.";
+
+DND_ORB_MON1		=	"Hollow Orb";
+DND_ORB_MONTEXT1	=	"Adds an extra random attribute to a non-unique charm even if it's at its limit, adding at most one additional over limit. The attribute is well-rolled.";
+DND_ORB_MON2		=	"Phantasmal Orb";
+DND_ORB_MONTEXT2	=	"Grants used weapon ability to hit ghosts but reduces overall damage by 33%.";
+DND_ORB_MON3		=	"Assimilation Orb";
+DND_ORB_MONTEXT3	=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled, but amount of mods may be less than sum of both. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
 
 // random stuff + use texts
 DND_ORB_ANDGRANTS	=	"and grants";
@@ -72,8 +87,7 @@ DND_ORBUSETEXT2P	=	"Orb of Corruption gives \cvpoison on hit\cj to";
 DND_ORBUSETEXT2Q	=	"Orb of Corruption gives \cvchance to force pain\cj to";
 DND_ORBUSETEXT2R	=	"bonus crit chance to";
 
-DND_ORBUSETEXT3		=	"Orb of Spirit grants you with";
-DND_ORBUSEFAIL3		=	"You're maxed out on stats, Orb of Spirit failed!";
+DND_ORBUSETEXT3		=	"Prismatic Orb reforges the item, guaranteeing an \cvelemental\c- modifier.";
 
 DND_ORBUSETEXT4		=	"Orb of Repentance reverts the effects of";
 DND_ORBUSEFAIL4		=	"No orb used or tried to revert effects of Orb of Repentance!";
@@ -84,36 +98,24 @@ DND_ORBUSEFAIL5		=	"You've reached max stacks of Orb of Affluence";
 DND_ORBUSETEXT6		=	"Orb of Calamity turns your";
 DND_ORBUSEFAIL6		=	"No other orb found to convert!";
 
-DND_ORBUSETEXT7A	=	"Orb of Prosperity grants";
-DND_ORBUSETEXT7B	=	"armor and health cap\cv increase!";
-DND_ORBUSEFAIL7		=	"Max prosperity bonus reached";
+DND_ORBUSETEXT7		=	"Orb of Prosperity reforges the item, guaranteeing a \cvlife\c- modifier";
 
-DND_ORBUSETEXT8A	=	"Orb of Fortitude grants";
-DND_ORBUSETEXT8B	=	"armor and health cap\cv increase!";
-DND_ORBUSEFAIL8		=	"Max fortitude bonus reached";
+DND_ORBUSETEXT8		=	"Orb of Fortitude reforges the item, guaranteeing a \cvdefense\c- modifier";
 
-DND_ORBUSETEXT9A	=	"Orb of Wisdom grants";
-DND_ORBUSETEXT9B	=	"experience gain\cv increase!";
-DND_ORBUSEFAIL9		=	"Max wisdom bonus reached";
+DND_ORBUSETEXT9A	=	"Orb of Nullification removes";
+DND_ORBUSETEXT9B	=	"Orb of Nullification removes \cdan attribute\c-!";
+DND_ORBUSEFAIL9		=	"Orb of Nullification couldn't be used, the item ran out of attributes to remove\c-!";
 
-DND_ORBUSETEXT10A	=	"Orb of Greed grants";
-DND_ORBUSETEXT10B	=	"credit gain\cv increase!";
-DND_ORBUSEFAIL10	=	"Max greed bonus reached";
+DND_ORBUSETEXT10	=	"Orb of Destruction reforges the item, guaranteeing a \cvcritical\c- modifier";
 
-DND_ORBUSETEXT11A	=	"Orb of Violence grants";
-DND_ORBUSETEXT11B	=	"Damage\cv increase!";
-DND_ORBUSEFAIL11	=	"Max violence bonus reached";
+DND_ORBUSETEXT11	=	"Orb of Violence reforges the item, guaranteeing an \cvattack\c- modifier";
 
-DND_ORBUSETEXT12A	=	"Orb of Sin takes";
-DND_ORBUSETEXT12B	=	"random stat points";
-DND_ORBUSETEXT12C	=	"random stat point";
+DND_ORBUSETEXT12	=	"Orb of Sin fractures a modifier, rendering it immutable";
 DND_ORBUSEFAIL12	=	"You don't have enough allocated stat points! Need at least";
 
-DND_ORBUSETEXT13	=	"Orb of Riches gives you";
+DND_ORBUSETEXT13	=	"Orb of Tremors reforges the item, guaranteeing an \cvexplosive\c- modifier";
 
-DND_ORBUSETEXT14A	=	"Orb of Holding grants";
-DND_ORBUSETEXT14B	=	"increased ammo capacity";
-DND_ORBUSEFAIL14	=	"You're maxed out on holding bonuses";
+DND_ORBUSETEXT14	=	"Tinkerer's Orb reforges the item, guaranteeing an \cvutility\c- modifier";
 
 DND_ORBUSETEXT15A	=	"Orb of Refinement rerolls attributes of your item";
 DND_ORBUSEFAIL15	=	"Orb of Refinement couldn't be used";
@@ -136,3 +138,20 @@ DND_ORBUSEFAIL19	=	"Phantasmal Orb can't be used because the weapon already hits
 
 DND_ORBUSETEXT20	=	"Assimilation Orb consumes the selected items, and produces a new one.";
 DND_ORBUSEFAIL20	=	"Assimilation Orb couldn't be used.";
+
+DND_ORBUSETEXT21	=	"Orb of Turmoil reforges the item!";
+
+DND_ORBUSETEXT22	=	"Orb of Hexes reforges the item, guaranteeing an \cvoccult\c- modifier";
+
+DND_ORBUSETEXT23	=	"Orb of Growth reforges the item, guaranteeing a \cvstat\c- modifier";
+
+DND_ORBUSETEXT24A 	=	"Orb of Potency upgrades"
+DND_ORBUSETEXT24B	=	" attribute tiers!";
+DND_ORBUSETEXT24C	=	" attribute tier!";
+DND_ORBUSEFAIL24	=	"Orb of Potency couldn't be used, attribute tiers are maxed out!";
+
+DND_ORBUSETEXT25	=	"Crackling Orb reforges the item, guaranteeing an \cvenergy\c- modifier";
+
+DND_ORBUSETEXT26	=	"Brute's Orb reforges the item, guaranteeing a \cvmelee\c- modifier";
+
+DND_ORBUSETEXT27	=	"Jagged Orb reforges the item, guaranteeing a \cvphysical\c- modifier";

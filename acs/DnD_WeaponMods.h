@@ -1,12 +1,6 @@
 #ifndef DND_WEAPONMOD_IN
 #define DND_WEAPONMOD_IN
 
-// weapon mod data, mod_id contains the modifier, low and high are the rolled values
-typedef struct {
-	int tier;
-	int val;
-} wep_mod_T;
-
 enum {
 	WEP_MOD_TIER_LOW,
 	WEP_MOD_TIER_MEDIUM,
@@ -14,23 +8,27 @@ enum {
 };
 #define MAX_WEP_MODTIER (WEP_MOD_TIER_HIGH + 1)
 
-enum {
-	WEP_MOD_CRIT,
-	WEP_MOD_CRITDMG,
-	WEP_MOD_CRITPERCENT,
-	WEP_MOD_DMG,
-	WEP_MOD_PERCENTDAMAGE,
-	WEP_MOD_POISONFORPERCENTDAMAGE,
-	WEP_MOD_FORCEPAINCHANCE,
-	WEP_MOD_POWERSET1 // holds boolean style modifiers
-};
-#define MAX_WEP_MODS (WEP_MOD_POWERSET1 + 1) // max allowed mods
-
 // powersets
 enum {
 	WEP_POWER_GHOSTHIT
 };
 #define MAX_WEP_MOD_POWERSET1 (WEP_POWER_GHOSTHIT + 1)
+
+int GetPlayerWeaponQuality(int pnum, int wep) {
+	return Player_Weapon_Infos[pnum][wep].quality;
+}
+
+void SetPlayerWeaponQuality(int pnum, int wep, int val) {
+	Player_Weapon_Infos[pnum][wep].quality = val;
+}
+
+// gives a particular powerset to the weapon
+void SetWeaponModPowerset(int pnum, int wepid, int powerset, bool val) {
+	if(val)
+		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1].val |= 1 << powerset;
+	else
+		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << powerset);
+}
 
 #define WEP_POWER_GHOSTHIT_REDUCE 33 // %
 

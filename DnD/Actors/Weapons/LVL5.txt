@@ -685,7 +685,7 @@ Actor "Grenade Launcher" : RocketLauncher {
    ContinueFire:
       NGLN D 3 Bright A_GunFlash
 	  TNT1 A 0 A_PlayWeaponSound("weapons/glauncherfire")
-      NGLN E 3 Bright A_GiveInventory("GrenadeShooterGL", 1)
+      NGLN E 3 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_GRENADELAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_GRENADE << 16), 0)
       NGLN FGH 3 Bright
 	  NGLN CI 2
 	  NGLN B 2
@@ -945,6 +945,7 @@ ACTOR HomRocket1 : DnD_ExplosiveBase {
 	Speed 32
 	DeathSound "weapons/heavyrlexp"
 	+SeekerMissile
+	+SCREENSEEKER
 	+Rockettrail
 	+THRUGHOST
 	+FORCEXYBILLBOARD
@@ -957,7 +958,7 @@ ACTOR HomRocket1 : DnD_ExplosiveBase {
 			HMIS A 4 Bright
 		SpawnLoop:
 			TNT1 A 0 A_SpawnItemEx("DnD_RocketTrail", -12, 0, 10)
-			HMIS AA 2 Bright A_SeekerMissile (10, 18, SMF_PRECISE | SMF_LOOK, 64, 4)
+			HMIS AA 2 Bright A_SeekerMissile (10, 18, SMF_PRECISE | SMF_LOOK | SMF_CURSPEED)
 		Loop
 		XDeath:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYMISSILELAUNCHER << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_USETARGET | DND_ISSLOT5), DND_DAMAGETYPE_EXPLOSIVES, 0, DND_WEAPON_HEAVYMISSILELAUNCHER)
@@ -1255,5 +1256,3 @@ Actor SedrinTrail {
 Actor SedrinTrail_Small : SedrinTrail {
 	Scale 0.6
 }
-
-ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SEDRINSTAFF, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_SEDRIN << 16), 0)

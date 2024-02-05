@@ -1034,7 +1034,7 @@ Actor RubyWand : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
-	Tag "$WEP_14_TAG"
+	Tag "$WEP_12_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -1071,7 +1071,7 @@ Actor RubyWand : Weapon {
 			WAND B 1 Bright Offset(0, 33)
 			WAND B 1 Bright Offset(0, 35)
 			WAND B 1 Bright Offset(0, 38)
-			WAND C 1 Bright Offset(0, 42) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RUBYWAND, DND_ATK_PRIMARY, DND_AMMOSLOT_CLIP | (AMMO_RUBY << 16), 0)
+			WAND C 1 Bright Offset(0, 42) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RUBYWAND, DND_ATK_PRIMARY, DND_AMMOSLOT_CLIP | (AMMO_RUBY << 16), DND_ATF_CANFIRECIRCLE)
 			WAND C 1 Bright Offset(0, 41)
 			WAND C 1 Bright Offset(0, 40)
 			WAND C 1 Bright Offset(0, 39)

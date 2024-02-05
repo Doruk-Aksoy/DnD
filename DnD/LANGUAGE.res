@@ -40,10 +40,10 @@ RES_LABEL12 			= "Slot 1 Occult Weapons";
 RES_DESC12				= "Investigating the corpses of the various demons killed helped us unlock the secrets of their occult powers, allowing use of occult melee weaponry. Unlocks Excalibat and Necromancer's Scythe (1).";
 
 RES_LABEL13 			= "Slot 2 Luxury Weapons";
-RES_DESC13				= "Some can say light weapons are useless but we beg to differ. Some of them can be quite potent. Unlocks Scatter Pistol and Ruby Wand (2).";
+RES_DESC13				= "Some can say light weapons are useless but we beg to differ. Some of them can be quite potent. Unlocks Scatter Pistol (2).";
 
 RES_LABEL14 			= "Slot 3 Luxury Weapons";
-RES_DESC14				= "Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks Silver Gun and Slayer (3).";
+RES_DESC14				= "Through scientific research we came up with stronger tiers of slot 3 weaponry. Unlocks White Death and Slayer (3).";
 
 RES_LABEL15 			= "Slot 4 Luxury Weapons";
 RES_DESC15				= "Ever wanted to use more dangerous machineguns? Now you can! Unlocks Desolator Cannon, Minigun, Ebony Cannon and Multi-Phase Photon Blaster (4).";

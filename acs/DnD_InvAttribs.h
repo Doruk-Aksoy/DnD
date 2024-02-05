@@ -5,12 +5,20 @@
 
 #define MAX_CHARM_AFFIXTIERS 10
 #define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is... its basically every 10 levels a new tier is named for it
+#define MAX_ATTRIBUTE_TIERS 9
+
+int GetItemTier(int level) {
+	int res = level / CHARM_ATTRIBLEVEL_SEPERATOR;
+	if(res > MAX_ATTRIBUTE_TIERS)
+		res = MAX_ATTRIBUTE_TIERS;
+	return res;
+}
 
 #define CHARMSTR_COLORCODE 0
 #define CHARMSTR_TIERTAG 1
 
 // level 100 = perfect
-str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
+str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
 	{ "\c[C8]", "DND_CHARMTIER1" },
 	{ "\c[D5]", "DND_CHARMTIER2" },
 	{ "\c[A3]", "DND_CHARMTIER3" },
@@ -20,8 +28,7 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS + 1][2] = {
 	{ "\c[E2]", "DND_CHARMTIER7" },
 	{ "\c[C5]", "DND_CHARMTIER8" },
 	{ "\c[W9]", "DND_CHARMTIER9" },
-	{ "\c[Y9]", "DND_CHARMTIER10" },
-	{ "\c[L7]", "DND_CHARMTIER11" },
+	{ "\c[Y9]", "DND_CHARMTIER10" }
 };
 
 // formula for accuracy:
@@ -262,7 +269,26 @@ enum {
 	INV_ATTR_TAG_MELEE = 4096
 };
 
+enum {
+	INV_ATTR_TAG_DAMAGE_ID,
+	INV_ATTR_TAG_ATTACK_ID,
+	INV_ATTR_TAG_LIFE_ID,
+	INV_ATTR_TAG_DEFENSE_ID,
+	INV_ATTR_TAG_UTILITY_ID,
+	INV_ATTR_TAG_ELEMENTAL_ID,
+	INV_ATTR_TAG_EXPLOSIVE_ID,
+	INV_ATTR_TAG_OCCULT_ID,
+	INV_ATTR_TAG_CRIT_ID,
+	INV_ATTR_TAG_STAT_ID,
+	INV_ATTR_TAG_PHYSICAL_ID,
+	INV_ATTR_TAG_ENERGY_ID,
+	INV_ATTR_TAG_MELEE_ID
+};
+#define MAX_ATTRIB_TAG_GROUPS 13
+
 // indexing on this one is done by checking ranges, and then mapping appropriately
+global int 8: AttributeTagGroups[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES][64];
+global int 5: AttributeTagGroupCount[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES];
 global int 61: PlayerModValues[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
 
 // More multiplier mods are multiplied amongst themselves in case of having more than one source, and are all "FIXED POINT" values, not integers
@@ -443,7 +469,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_low = 1;
 	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_high = 3;
 	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_level_modifier = 0;
-	ItemModTable[INV_FLATENERGY_DAMAGE].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_FLATENERGY_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_FLATEXP_DAMAGE].attrib_low = 1;
 	ItemModTable[INV_FLATEXP_DAMAGE].attrib_high = 3;
@@ -453,7 +479,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_low = 1;
 	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_high = 3;
 	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_level_modifier = 0;
-	ItemModTable[INV_FLATMAGIC_DAMAGE].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT;
+	ItemModTable[INV_FLATMAGIC_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_FLATELEM_DAMAGE].attrib_low = 1;
 	ItemModTable[INV_FLATELEM_DAMAGE].attrib_high = 3;
@@ -956,35 +982,59 @@ int GetModTierRangeMapper(int attr, int lvl) {
 #define ITEM_MODRANGE_LOW 0
 #define ITEM_MODRANGE_HIGH 1
 
+#define DND_SMALLCHARM_ATTRFACTOR -50
+#define DND_LARGECHARM_ATTRFACTOR 25
+
+// Add other item properties related to item quality here
+int GetCharmAttributeFactor(int item_type, int item_subtype) {
+	if(item_type != DND_ITEM_CHARM)
+		return 0;
+	
+	if(item_subtype == DND_CHARM_LARGE)
+		return 25;
+	else if(item_subtype == DND_CHARM_SMALL)
+		return -50;
+	return 0;
+}
+
 // this uses a precalculated tier mapping to save time
-int GetModRangeWithTier(int attr, int tier_mapping, bool which) {
+int GetModRangeWithTier(int attr, int tier_mapping, bool which, int attr_factor) {
+	int res = 0;
 	if(!which)
-		return ItemModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0);
-	return ItemModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0);
+		res = (ItemModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+	else
+		res = (ItemModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+	
+	if(!res)
+		res = 1;
+	return res;
 }
 
 // this calculates the tier mapping for itself based on supplied level
-int GetModRange(int attr, int tier, bool which) {
-	return GetModRangeWithTier(attr, GetModTierRangeMapper(attr, tier), which);
+int GetModRange(int attr, int tier, bool which, int attr_factor) {
+	return GetModRangeWithTier(attr, GetModTierRangeMapper(attr, tier), which, attr_factor);
 }
 
 // rolls an attribute's value depending on specified parameters
 // if they are fixed, put the truncated value in to match (as closely as possible...) what the menu displays in stat gains
-int RollAttributeValue(int attr, int tier, bool isWellRolled) {
+// item type and subtype store whether its a charm/other and type of charm if applicable
+int RollAttributeValue(int attr, int tier, bool isWellRolled, int item_type, int item_subtype) {
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 	int temp;
 	
+	int f = GetCharmAttributeFactor(item_type, item_subtype);
+	
 	// the + 0.0005 is so the edge rolls can be achieved
 	if(!isWellRolled) {
-		temp = random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH));
+		temp = random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f));
 		if(IsFixedPointMod(attr) && temp > 0.0005)
 			temp += 0.0005;
 		return temp;
 	}
 	
 	// well rolled case
-	temp = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH);
-	temp = random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW) + temp) / 2, temp);
+	temp = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f);
+	temp = random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f) + temp) / 2, temp);
 	
 	if(IsFixedPointMod(attr) && temp > 0.0005)
 		temp += 0.0005;
@@ -1008,25 +1058,27 @@ int PickRandomAttribute() {
 	return val;
 }
 
-str GetDetailedModRange(int attr, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
+str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
 	if(extra != -1)
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
 		
 	str col_tag = Charm_Strings[tier][CHARMSTR_COLORCODE];
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
+	int f = GetCharmAttributeFactor(item_type, item_subtype);
+	
 	if(!trunc_factor) {
 		return StrParam(
 			s:"\c-(",
-			s:col_tag, d:GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW),
+			s:col_tag, d:GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f),
 			s:"\c--",
-			s:col_tag, d:GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH), s:"\c-)"
+			s:col_tag, d:GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f), s:"\c-)"
 		);
 	}
 	return StrParam(
 		s:"\c-(",
-		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW), isPercentage),
+		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f), isPercentage),
 		s:"\c--",
-		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH), isPercentage), s:"\c-)"
+		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f), isPercentage), s:"\c-)"
 	);
 }
 
@@ -1080,8 +1132,16 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
-str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods = false, int extra = -1) {
+str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false) {
 	str text = GetInventoryAttributeText(attr);
+	str ess_tag = "\c[Q7]";
+	str col_tag = "\c[Q9]";
+	str no_tag = "\c- ";
+	if(isFractured) {
+		col_tag = "\c[E2]";
+		ess_tag = "\c[E2]";
+		no_tag = "\c[E2] ";
+	}
 	
 	switch(attr) {
 		case INV_CYBERNETIC:
@@ -1091,35 +1151,35 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_ESS_SSRATH:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"\c[Q7]% ", l:"IATTR_MAGICRES",
-					s:"\c- - ", s:GetModTierText(tier, extra)
+					s:ess_tag, l:text, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, s:"% ", l:"IATTR_MAGICRES",
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, d:val, s:"% ", l:"IATTR_MAGICRES");
+			return StrParam(s:ess_tag, l:text, d:val, s:"% ", l:"IATTR_MAGICRES");
 			
 		case INV_ESS_CHEGOVAX:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"\c[Q7]%",
-					s:"\c- - ", s:GetModTierText(tier, extra)
+					s:ess_tag, l:text, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, s:"%",
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, d:val, s:"%");
+			return StrParam(s:ess_tag, l:text, d:val, s:"%");
 			
 		case INV_ESS_ZRAVOG:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, d:val, s:GetDetailedModRange(attr, tier, 0, extra), s: "\c[Q7]%",
-					s:"\c- - ", s:GetModTierText(tier, extra)
+					s:ess_tag, l:text, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, s:"%",
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, d:val, s: "%");
+			return StrParam(s:ess_tag, l:text, d:val, s: "%");
 
 		// essence with no numeric values
 		case INV_ESS_VAAJ:
 		case INV_ESS_LESHRAC:
 		case INV_ESS_THORAX:
-			return StrParam(s:"\c[Q7]", l:text);
+			return StrParam(s:ess_tag, l:text);
 			
 		// essences with percentages in them
 		case INV_ESS_OMNISIGHT2:
@@ -1127,21 +1187,21 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_ESS_KRULL:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", s:"+ ", d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"\c[Q7]%", l:text,
-					s:"\c- - ", s:GetModTierText(tier, extra)
+					s:ess_tag, s:"+ ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, s:"%", l:text,
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", s:"+ ", d:val, s:"%", l:text);
+			return StrParam(s:ess_tag, s:"+ ", d:val, s:"%", l:text);
 			
 		// essences that are like regular mods, just have color code
 		case INV_ESS_OMNISIGHT:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", s:"+ ", d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"\c[Q7]", l:text,
-					s:"\c- - ", s:GetModTierText(tier, extra)
+					s:ess_tag, s:"+ ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, l:text,
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", s:"+ ", d:val, l:text);
+			return StrParam(s:ess_tag, s:"+ ", d:val, l:text);
 		
 		// since percentages are handled in default case, we will handle all flat value attributes under here
 		case INV_HP_INCREASE:
@@ -1169,14 +1229,14 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 			if(val > 0) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"+ \c[Q9]", d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"\c- ", l:text,
+						s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:no_tag, l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"+ \c[Q9]", d:val, s:"\c- ", l:text);
+				return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
 			}
 			else if(val < 0)
-				return StrParam(s:"- \cg", d:val, s:"\c- ", l:text);
+				return StrParam(s:col_tag, s:"- \cg", d:val, s:no_tag, l:text);
 				
 		// fixed point stuff
 		case INV_EXPGAIN_INCREASE:
@@ -1192,20 +1252,20 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL_DAMAGE:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
+				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:text);
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
 		
 		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q7]", l:text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c[Q7] ", l:"IATTR_MOREDMG",
-					s:"\c- - ", s:GetModTierText(tier, extra)
+					s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c[Q7] ", l:"IATTR_MOREDMG",
+					s:no_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q7]", l:text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c[Q7] ", l:"IATTR_MOREDMG");
+			return StrParam(s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:ess_tag, s:" ", l:"IATTR_MOREDMG");
 		
 		// damage reduction attributes are shown as they are
 		case INV_DMGREDUCE_ELEM:
@@ -1223,41 +1283,41 @@ str ItemAttributeString(int attr, int val, int tier = 0, bool showDetailedMods =
 		case INV_OVERLOAD_DURATION:
 		case INV_LIFESTEAL:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%\c- ", l:text,
+				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:"%\c- ", l:text);
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
 
 		// default takes percentage values
 		default:
 			if(val > 0) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"+ \c[Q9]", d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"%\c- ", l:text,
+						s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"+ \c[Q9]", d:val, s:"%\c- ", l:text);
+				return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text);
 			}
 			else if(val < 0) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"- \c[Q9]", d:val, s:GetDetailedModRange(attr, tier, 0, extra), s:"%\c- ", l:text,
+						s:"- ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"- \cg", d:val, s:"%\c- ", l:text);
+				return StrParam(s:"- \cg", d:val, s:"%", s:no_tag, l:text);
 			}
 	}
 	return "";
 }
 
-str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1) {
+str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false) {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
 	if(attr <= LAST_ESSENCE_ATTRIBUTE)
-		return ItemAttributeString(attr, val1, tier, showDetailedMods, extra);
+		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured);
 
 	// if the item is unique extra is not -1
 	str text = GetInventoryAttributeText(attr);
@@ -1424,6 +1484,37 @@ str GetItemAttributeText(int attr, int val1, int val2 = -1, int tier = 0, bool s
 			return StrParam(l:text);
 	}
 	return "";
+}
+
+void SetupInventoryTagGroups() {
+	// charms can roll every mod, so we iterate and build a table for them as opposed to by hand
+	// move each groups tags looping through all attribs, extracting their bits
+	int i, j;
+	
+	// init to 0
+	for(j = 0; j < MAX_ATTRIB_TAG_GROUPS; ++j) {
+		for(i = 0; i < MAX_CRAFTABLEITEMTYPES; ++i)
+			AttributeTagGroupCount[j][i] = 0;
+	}
+	
+	// scan all attribs and place them in appropriate slots for charms
+	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
+		int tag = ItemModTable[i].tags;
+		int tag_id = 0;
+		// can have multiple
+		while(tag > 0) {
+			if(tag & 1) {
+				AttributeTagGroups[tag_id][DND_ITEM_CHARM][AttributeTagGroupCount[tag_id][DND_ITEM_CHARM]] = i;
+				++AttributeTagGroupCount[tag_id][DND_ITEM_CHARM];
+				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
+			}
+			tag >>= 1;
+			++tag_id;
+		}
+	}
+	
+	// come up with a good method to create "valid mod pools" for certain item types below, like body armor etc.
+	// might need manual approach?
 }
 
 #endif

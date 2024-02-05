@@ -299,7 +299,7 @@ str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 // gets you the percentage to increase by
 int GetAmmoCapIncrease() {
 	int bpcount = CheckInventory("BackpackCounter");
-	return (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE) + GetDataFromOrbBonus(PlayerNumber(), OBI_HOLDING, -1)))) / 100;
+	return (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE)))) / 100;
 }
 
 bool IsBackpackLimitReached() {

@@ -294,9 +294,9 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 2000,  1,		1 },
 		{ 3500,  1,		1 },
 		{ 3000,  1,		1 },
+		{ 3750,  1,		1 },
 		{ 3000,	 1,		1 },
 		{ 4000,  1,		1 },
-		{ 3750,  1,		1 },
 		{ 3250,  1,		1 },
 		
 		// 3 - 1
@@ -512,9 +512,9 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		{ RES_SLOT2UPG1, -1, -1 },
 		{ RES_SLOT2UPG2, -1, -1 },
-		{ RES_SLOT2LUXURY, -1, -1 },
 		{ RES_SLOT2LUXURY, -1, -1 },
 		
 	// wep slot 3 - 1
@@ -874,9 +874,9 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_PHYSICAL,
 	DTYPE_PHYSICAL,
 	DTYPE_ENERGY,
+	DTYPE_ELEMENTAL,
 	DTYPE_PHYSICAL,
 	DTYPE_OCCULT,
-	DTYPE_ELEMENTAL,
 	DTYPE_PHYSICAL,
 	
 	// 3 - 1
@@ -976,9 +976,9 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP,												SHOP_WEP_AKIMBOPISTOL	},
 	{ OBJ_WEP,												SHOP_WEP_MAGNUM			},
 	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_LASERPISTOL	},
+	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_RUBYWAND		},
 	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESPIS1		},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPIS2		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RUBYWAND		},
 	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_SCATTERPISTOL	},
 	
 	// 3 - 1
@@ -1166,7 +1166,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_BASILISK			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_GAUSS				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SLAYER			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_RUBY				},
+	{ OBJ_AMMO,													SHOP_AMMO_RUBY				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_PCAN				},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_RIOTSHELL			},
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_METEOR			},

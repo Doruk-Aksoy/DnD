@@ -65,7 +65,7 @@ void SpawnChestKey(int pnum) {
 		// c is the index on the field now
 		RollChestkeyInfo(c, res, true);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(InventoryInfo[res + CHESTKEY_BEGIN], 24.0, 16, pnum + 1, c);
+		SpawnPlayerDrop(pnum, InventoryInfo[res + CHESTKEY_BEGIN], 24.0, 16, pnum + 1, c);
 	}
 }
 

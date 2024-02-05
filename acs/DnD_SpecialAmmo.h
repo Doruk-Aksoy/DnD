@@ -2,7 +2,6 @@
 #define DND_SPECIALAMMO_IN
 
 #include "DnD_DamageCacheDefs.h"
-#include "DnD_Weapons.h"
 #include "DnD_Ammo.h"
 
 enum {
@@ -11,6 +10,7 @@ enum {
 	SSAM_SHOCK,
 	SSAM_NITROSHELL,
 	SSAM_SLUG,
+	// add below this
 	
 	SSAM_40MM, // this is ignored for shop
 	SSAM_40MMSONIC,
@@ -21,6 +21,8 @@ enum {
 #define MAX_SPECIAL_AMMOS_FOR_SHOP (MAX_SPECIAL_AMMOS - 1) // we need to ignore the regular grenade here
 #define MAX_SPECIALAMMO_DAMAGEINDEX 3
 
+#define DND_SPECIALAMMO_ICON 0
+#define DND_SPECIALAMMO_NAME 1
 str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS_FOR_SHOP][2] = {
 	{	"SAM1A0",			"FlechetteShell"		},
 	{	"SAM3A0",			"PiercingShell"			},

@@ -126,9 +126,21 @@ DND_MENU_HELPTEXT2		=	"Class Perk Help";
 DND_MENU_HELPTEXT3		=	"Weapon Property Help";
 DND_MENU_HELPTEXT4		=	"Research Help";
 DND_MENU_HELPTEXT5		=	"Damage Types Help";
-DND_MENU_HELPTEXT6		=	"Orbs Help";
-DND_MENU_HELPTEXT7		=	"Monster Modifiers Help";
-DND_MENU_HELPTEXT8		=	"Legendary Monster Codex";
+DND_MENU_HELPTEXT6		=	"Ailment Types Help";
+DND_MENU_HELPTEXT7		=	"Orbs Help";
+DND_MENU_HELPTEXT8		=	"Monster Modifiers Help";
+DND_MENU_HELPTEXT9		=	"Legendary Monster Codex";
+
+DND_MENU_AILMENT1		=	"Chill";
+DND_MENU_AILMENT1_EXP	=	"Monsters are slowed by 10% for every 10% of health they lose, up to a maximum of 50% health lost. This stacks and enables \cvfreezing.";
+DND_MENU_AILMENT2		=	"Freeze";
+DND_MENU_AILMENT2_EXP	=	"Monsters become completely encased in ice. It must first be \cvchilled\c-, and each stack of \cvchill\c- increases odds of freezing a monster by 2% up to a maximum of 10%.";
+DND_MENU_AILMENT3		=	"Ignite";
+DND_MENU_AILMENT3_EXP	=	"Fire damage from hits has 15% chance to ignite an enemy, dealing flat damage over 4 seconds. It can proliferate to nearby enemies if the monster dies with time remaining.";
+DND_MENU_AILMENT4		=	"Overload";
+DND_MENU_AILMENT4_EXP	=	"Lightning damage has 5% chance to cause the monster to take 20% extra damage from all elemental damage except lightning for 3 seconds.";
+DND_MENU_AILMENT5		=	"Poison";
+DND_MENU_AILMENT5_EXP	=	"Hits from poison damage inflict a stack of poison for 3 seconds dealing 2% of the damage, up to 5 maximum stacks, each with their own instances.";
 
 DND_MENU_MMOD_WEAK		=	"Weakness Modifiers";
 DND_MENU_MMOD_RESIST	=	"Resistance Modifiers";
@@ -306,14 +318,14 @@ DND_MENU_AMMOTEXT38		=	"Sedrin crystals";
 DND_MENU_AMMOTEXT39		=	"batteries";
 DND_MENU_AMMOTEXT40		=	"incinerator shells";
 	
-DND_MENU_AMMOTEXT41		=	"flechette shells.";
-DND_MENU_AMMOTEXT42		=	"magnum shells.";
-DND_MENU_AMMOTEXT43		=	"electric shells.";
-DND_MENU_AMMOTEXT44		=	"nitrogen shells.";
-DND_MENU_AMMOTEXT45		=	"slug shells.";
+DND_MENU_AMMOTEXT41		=	"flechette shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT42		=	"magnum shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT43		=	"electric shells. \cvLightning damage.";
+DND_MENU_AMMOTEXT44		=	"nitrogen shells. \cnIce damage.";
+DND_MENU_AMMOTEXT45		=	"slug shells. \cuPhysical damage.";
 	
-DND_MENU_AMMOTEXT46		=	"sonic grenades.";
-DND_MENU_AMMOTEXT47		=	"high-ex grenades.";
+DND_MENU_AMMOTEXT46		=	"sonic grenades. \ciExplosion\c- and \chEnergy damage.";
+DND_MENU_AMMOTEXT47		=	"high-ex grenades. \ciExplosion damage.";
 
 // armor text
 DND_MENU_ARMTEXT1		=	"33% protection, 100 armor.";

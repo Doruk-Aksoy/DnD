@@ -12,12 +12,7 @@
 #define DND_CHARM_BASEHEIGHT 1
 #define DND_CHARM_BASEWIDTH 1
 
-enum {
-	DND_CHARM_SMALL,
-	DND_CHARM_MEDIUM,
-	DND_CHARM_LARGE
-};
-#define MAX_CHARM_TYPES (DND_CHARM_LARGE + 1)
+#define DND_CHARM_SIZEFACTOR 4 // 25%
 
 str GetCharmTypeName(int id) {
 	return StrParam(s:"DND_CHARMTYPE", d:id + 1);
@@ -28,6 +23,7 @@ int Charm_MaxAffixes[MAX_CHARM_TYPES] = {
 	4,
 	6
 };
+#define MAX_CHARM_AFFIXES 6
 
 int Charm_MaxUsable[MAX_CHARM_TYPES] = {
 	4,
@@ -55,11 +51,15 @@ int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	return res;
 }
 
+int RollCharmMaxAttribCount(int charm_type) {
+	return random(2, 2 * (charm_type + 1));
+}
+
 void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
-	int count = random(2, 2 * (charm_type + 1));
+	int count = RollCharmMaxAttribCount(charm_type);
 	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
@@ -133,10 +133,17 @@ void AddAttributeToCharm(int charm_pos, int attrib, int pnum) {
 		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_tier = lvl;
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
+		Inventories_On_Field[charm_pos].attributes[temp].fractured = false;
 
 		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
 		// luck adds a small chance for a charm to have well rolled modifier on it -- luck gain is 0.15, 0.05 x 10 = 0.5 max rank thats 50% chance for well rolled mods
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = RollAttributeValue(attrib, lvl, makeWellRolled);
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = RollAttributeValue(
+			attrib, 
+			lvl, 
+			makeWellRolled,
+			Inventories_On_Field[charm_pos].item_type,
+			Inventories_On_Field[charm_pos].item_subtype
+		);
 	}
 }
 
@@ -255,6 +262,7 @@ int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 			Charms_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
 			Charms_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
 			Charms_Used[pnum][use_id].attributes[i].attrib_tier = PlayerInventoryList[pnum][item_index].attributes[i].attrib_tier;
+			Charms_Used[pnum][use_id].attributes[i].fractured = PlayerInventoryList[pnum][item_index].attributes[i].fractured;
 		}
 
 		// the leftover spot is a null charm
@@ -284,6 +292,7 @@ void ResetPlayerCharmsUsed(int pnum) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = 0;
 			Charms_Used[pnum][i].attributes[j].attrib_val = 0;
 			Charms_Used[pnum][i].attributes[j].attrib_tier = 0;
+			Charms_Used[pnum][i].attributes[j].fractured = 0;
 		}
 		Charms_Used[pnum][i].attrib_count = 0;
 	}

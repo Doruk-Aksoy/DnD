@@ -29,8 +29,6 @@
 #define DND_DB_QUESTSTATE1 "DnD_PlayerQuest_1"
 #define DND_DB_QUESTSTATE2 "DnD_PlayerQuest_2"
 #define DND_DB_WEAPONQUALITY "DnD_WeaponQuality_"
-#define DND_DB_WEAPONORBMOD_VAL "DnD_WeaponOrbModVal_"
-#define DND_DB_WEAPONORBMOD_TIER "DnD_WeaponOrbModTier_"
 #define DND_DB_WEAPONMOD_VAL "DnD_WeaponModVal_"
 #define DND_DB_WEAPONMOD_TIER "DnD_WeaponModTier_"
 #define DND_DB_STOREDKIT "DnD_StoredKit"
@@ -46,31 +44,6 @@
 #define DND_DB_KILLTRACKER_MILLION "DnD_LifetimeKills_Mil"
 #define DND_DB_KILLTRACKER_BILLION "DnD_LifetimeKills_Bil"
 
-// Orb Stuff
-#define DND_DB_ORBFLATHPBONUS "DnD_Orb_FlatHPBonus"
-#define DND_DB_ORBFLATARMBONUS "DnD_Orb_FlatARMBonus"
-#define DND_DB_ORBPERCENTHPBONUS "DnD_Orb_PercentHPBonus"
-#define DND_DB_ORBPERCENTARMBONUS "DnD_Orb_PercentARMBonus"
-#define DND_DB_ORBGREEDBONUS "DnD_Orb_GreedBonus"
-#define DND_DB_ORBWISDOMBONUS "DnD_Orb_WisdomBonus"
-#define DND_DB_ORBSPEEDBONUS "DnD_Orb_SpeedBonus"
-#define DND_DB_ORBDROPCHANCEBONUS "DnD_Orb_DropChanceBonus"
-#define DND_DB_ORBHOLDINGBONUS "DnD_Orb_HoldingBonus"
-
-#define DND_DB_ORBWEAPONBONUS "DnD_Orb_WeaponBonus_"
-#define DND_DB_ORBWEAPONQUALITY "DnD_Orb_WeaponQuality_"
-
-#define DND_DB_ORBDAMAGETYPEBONUS "DnD_Orb_DamageType_"
-
-// Elixir Stuff
-#define DND_DB_ELIXIRFLATHPBONUS "DnD_Elixir_FlatHPBonus"
-#define DND_DB_ELIXIRFLATARMORBONUS "DnD_Elixir_FlatArmorBonus"
-#define DND_DB_ELIXIRPERCENTHPBONUS "DnD_Elixir_PercentHPBonus"
-#define DND_DB_ELIXIRPERCENTARMORBONUS "DnD_Elixir_PercentArmorBonus"
-#define DND_DB_ELIXIRSPEEDBONUS "DnD_Elixir_SpeedBonus"
-#define DND_DB_ELIXIRLUCKBONUS "DnD_Elixir_LuckBonus"
-#define DND_DB_ELIXIRDAMAGETYPEBONUS "DnD_Elixir_DamageTypeBonus"
-
 #define DND_DB_PLAYERINVENTORY "DnD_PlayerInventory_"
 #define DND_DB_PLAYERINVENTORYFIELD_WIDTH "Width"
 #define DND_DB_PLAYERINVENTORYFIELD_HEIGHT "Height"
@@ -83,6 +56,7 @@
 #define DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL "AttributeVal"
 #define DND_DB_PLAYERINVENTORYFIELD_ATTRIBID "AttributeID"
 #define DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER "AttributeTier"
+#define DND_DB_PLAYERINVENTORYFIELD_FRACTURE "IsFractured"
 
 #define DND_DB_CHARMUSED "CharmsUsed_"
 
