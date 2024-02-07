@@ -387,35 +387,43 @@ void SlowPlayer(int amt, int mode, int pnum) {
 
 // These getters must be used when doing calculations based on benefit of these stats
 int GetDexterity() {
-	return CheckInventory("PSTAT_Dexterity") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_DEXTERITY);
+	int pnum = PlayerNumber();
+	return (CheckInventory("PSTAT_Dexterity") + GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetIntellect() {
-	return CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_INTELLECT);
+	int pnum = PlayerNumber();
+	return (CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetActorIntellect(int tid) {
-	return CheckActorInventory(tid, "PSTAT_Intellect") + GetPlayerAttributeValue(tid - P_TIDSTART, INV_STAT_INTELLECT);
+	int pnum = tid - P_TIDSTART;
+	return (CheckActorInventory(tid, "PSTAT_Intellect") + GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetStrength() {
-	return CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_STRENGTH);
+	int pnum = PlayerNumber();
+	return (CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetBulkiness() {
-	return CheckInventory("PSTAT_Bulkiness") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_BULKINESS);
+	int pnum = PlayerNumber();
+	return (CheckInventory("PSTAT_Bulkiness") + GetPlayerAttributeValue(pnum, INV_STAT_BULKINESS)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetVitality() {
-	return CheckInventory("PSTAT_Vitality") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_VITALITY);
+	int pnum = PlayerNumber();
+	return (CheckInventory("PSTAT_Vitality") + GetPlayerAttributeValue(pnum, INV_STAT_VITALITY)) * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetCharisma() {
-	return CheckInventory("PSTAT_Charisma") + GetPlayerAttributeValue(PlayerNumber(), INV_STAT_CHARISMA);
+	int pnum = PlayerNumber();
+	return (CheckInventory("PSTAT_Charisma") + GetPlayerAttributeValue(pnum, INV_STAT_CHARISMA)) * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetActorCharisma(int tid) {
-	return CheckActorInventory(tid, "PSTAT_Charisma") + GetPlayerAttributeValue(tid - P_TIDSTART, INV_STAT_CHARISMA);
+	int pnum = PlayerNumber();
+	return (CheckActorInventory(tid, "PSTAT_Charisma") + GetPlayerAttributeValue(pnum, INV_STAT_CHARISMA)) * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_CORR_PERCENTSTAT)) / 100;
 }
 
 int GetPetCap(int tid) {

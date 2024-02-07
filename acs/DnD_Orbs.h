@@ -11,12 +11,6 @@
 #define MAX_ITER 200
 
 #define ENHANCEORB_MAX 50 // 50% bonus
-#define PROSPERITY_MAX 500 // 500 max
-#define FORTITUDE_MAX 200 // 200% max
-#define WISDOMORB_MAX 250
-#define GREEDORB_MAX 250
-#define VIOLENCEORB_MAX 300 // 300% for each category
-#define SINORB_MAX_TAKE 8
 #define AFFLUENCE_MAX 4 // x16
 #define AFFLUENCE_MULT 2
 
@@ -97,135 +91,11 @@ int OrbDropWeights[MAX_ORBS] = {
 #define ENHANCEORB_BONUS 1
 
 #define ORB_MAXWEIGHT 1000
+#define DND_CORRUPT_FAIL 419
+#define DND_CORRUPT_SUCCESS 420
 
-enum {
-	CORRUPTORB_NOTHING,
-	
-	CORRUPTORB_TAKEHP,
-	CORRUPTORB_TAKEDMG,
-	CORRUPTORB_TAKESPEED,
-	CORRUPTORB_TAKEAMMO,
-	CORRUPTORB_TAKEBACKPACK,
-	CORRUPTORB_REDUCEDMGMAP,
-	
-	CORRUPTORB_ADDDMG,
-	CORRUPTORB_ADDCRIT,
-	CORRUPTORB_ADDCRITDMG,
-	CORRUPTORB_ADDSPEED,
-	CORRUPTORB_DROPCHANCE,
-	CORRUPTORB_GIVESTAT,
-	
-	CORRUPTORB_MOD_PERCENTDAMAGE,
-	CORRUPTORB_MOD_POISONFORPERCENTDAMAGE,
-	CORRUPTORB_MOD_FORCEPAINCHANCE
-};
-
-#define CORRUPTORB_WEAPONMOD_BEGIN CORRUPTORB_MOD_PERCENTDAMAGE
-#define CORRUPTORB_MAXEFFECTS (CORRUPTORB_MOD_FORCEPAINCHANCE + 1)
-#define CORRUPTORB_MAXWEIGHT 1000
-
-/*
-chances
-50
-
-3
-3
-3
-3
-3
-3
-
-2
-2
-4
-5
-6
-6
-
-1
-3
-3
-*/
-
-int CorruptOrb_Weights[CORRUPTORB_MAXEFFECTS] = {
-	500,
-	
-	530,
-	560,
-	590,
-	620,
-	650,
-	680,
-	
-	700,
-	720,
-	760,
-	810,
-	870,
-	930,
-	
-	940,
-	970,
-	1000
-};
-
-#define CORRUPTORB_MINDMG -100
-#define CORRUPTORB_MINSPEED -0.5
-#define CORRUPTORB_MAXCRITPERCENT 1.0
-#define CORRUPTORB_MAXDMG 100
-#define CORRUPTORB_MAXCRITDMG 200
-#define CORRUPTORB_MAXSPEED 0.5
-#define CORRUPTORB_MAXDROPCHANCE 0.5
-#define CORRUPTORB_MINHEALTH 100
-
-#define CORRUPTORB_DMGTAKE 5
-#define CORRUPTORB_HPTAKE 10
-#define CORRUPTORB_SPEEDTAKE 0.025
-#define CORRUPTORB_DMGGIVE 5
-#define CORRUPTORB_CRITGIVE 0.0875
-#define CORRUPTORB_CRITDMGGIVE 25
-#define CORRUPTORB_SPEEDGIVE 0.05
-#define CORRUPTORB_DROPCHANCEGIVE 0.025
-#define CORRUPTORB_STATGIVE 5
-
-#define HOLDING_MAX 100
-#define HOLDINGORB_BONUS 1
-
-enum {
-	RICHES_EXP,
-	RICHES_CREDIT,
-	RICHES_BUDGET
-};
-#define MAX_RICHES_WEIGHT 10
-#define MAX_RICHES (RICHES_BUDGET + 1)
-
-#define RICHES_AMOUNT 0
-#define RICHES_WEIGHTS 1
-/*int OrbRichesData[MAX_RICHES][2] = {
-	{ 5, 2 },
-	{ 5, 9 },
-	{ 5, 10 }
-};*/
-
-int GetOrbRichesData(int data, int id) {
-	if(!id)
-		return 5;
-	
-	switch(data) {
-		case RICHES_EXP:
-		return 2;
-		case RICHES_CREDIT:
-		return 9;
-		case RICHES_BUDGET:
-		return 10;
-	}
-	
-	return 0;
-}
-
-bool CanAddModToItem(int itemtype, int item_index, int add_lim) {
+bool CanAddModToItem(int pnum, int itemtype, int item_index, int add_lim) {
 	bool res = false;
-	int pnum = PlayerNumber();
 	if(IsUsableOnInventory(itemtype)) {
 		// this one depends on attribute counts of items it is used on
 		if(PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN)
@@ -251,14 +121,14 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 				res = true;
 		break;
 		case DND_ORB_CORRUPT:
-			res = true; // can always use this, the orb will find a way to fuck you up in some way
+			res = IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra);
 		break;
 		case DND_ORB_REPENT:
 			temp = Player_MostRecent_Orb[pnum].orb_type;
 			if(temp) {
 				--temp;
-				if(temp < DND_ORB_REFINEMENT || temp == DND_ORB_PHANTASMAL)
-					res = Player_MostRecent_Orb[pnum].orb_type - 1 != DND_ORB_REPENT;
+				if(temp == DND_ORB_CORRUPT || temp == DND_ORB_REPENT)
+					res = false;
 				else
 					res = Player_MostRecent_Orb[pnum].p_tempwep;
 			}
@@ -270,7 +140,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = HasOrbsBesidesCalamity();
 		break;
 		case DND_ORB_SIN:
-			if(IsUsableOnInventory(extratype)) {
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// if there's a fractured mod or it's a unique, don't let
 				temp = PlayerInventoryList[pnum][extra].item_type;
 				if(temp == DND_ITEM_CHARM)
@@ -298,18 +168,18 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_CRACKLING:
 		case DND_ORB_BRUTE:
 		case DND_ORB_JAGGED:
-			if(IsUsableOnInventory(extratype)) {
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// don't let this be used on a unique
 				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
 			}
 		break;
 		case DND_ORB_REFINEMENT:
-			if(IsUsableOnInventory(extratype))
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra))
 				res = true;
 		break;
 		case DND_ORB_SCULPTING:
 		case DND_ORB_NULLIFICATION:
-			if(IsUsableOnInventory(extratype)) {
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// don't let this be used on a unique
 				if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN)
 					res = false;
@@ -318,23 +188,25 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			}
 		break;
 		case DND_ORB_ELEVATION:
-			res = CanAddModToItem(extratype, extra, 0);
+			res =  !IsInventoryCorrupted(pnum, extra) && CanAddModToItem(pnum, extratype, extra, 0);
 		break;
 		case DND_ORB_POTENCY:
-			temp = PlayerInventoryList[pnum][extra].attrib_count;
-			res = false;
-			for(i = 0; i < temp; ++i) {
-				if(PlayerInventoryList[pnum][extra].attributes[i].fractured)
-					continue;
+			if(!IsInventoryCorrupted(pnum, extra)) {
+				temp = PlayerInventoryList[pnum][extra].attrib_count;
+				res = false;
+				for(i = 0; i < temp; ++i) {
+					if(PlayerInventoryList[pnum][extra].attributes[i].fractured)
+						continue;
 
-				if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier < MAX_CHARM_AFFIXTIERS)
-					res = true;
+					if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier < MAX_CHARM_AFFIXTIERS)
+						res = true;
+				}
 			}
 		break;
 
 		case DND_ORB_HOLLOW:
 			// this one is basically an orb of elevation with a +1 additional attribute allowed
-			res = CanAddModToItem(extratype, extra, 1);
+			res =  !IsInventoryCorrupted(pnum, extra) && CanAddModToItem(pnum, extratype, extra, 1);
 		break;
 		case DND_ORB_PHANTASMAL:
 			// if the weapon can't hit ghosts on its own or we didnt give it the ghost hit already
@@ -397,12 +269,22 @@ int PickWeightedFromTwoItems(int pnum, int item1, int item2) {
 void SaveUsedItemAttribs(int pnum, int item_id) {
 	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
 	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].attrib_count;
+
 	for(int i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-		Player_MostRecent_Orb[pnum].values[4 * i + 1] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_id;
-		Player_MostRecent_Orb[pnum].values[4 * i + 2] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_val;
-		Player_MostRecent_Orb[pnum].values[4 * i + 3] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_tier;
-		Player_MostRecent_Orb[pnum].values[4 * i + 4] = PlayerInventoryList[pnum][item_id].attributes[i].fractured;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 1] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_id;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_val;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_tier;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_extra;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5] = PlayerInventoryList[pnum][item_id].attributes[i].fractured;
 	}
+}
+
+void SaveUsedItemImplicit(int pnum, int item_id) {
+	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
+	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].implicit.attrib_id;
+	Player_MostRecent_Orb[pnum].values[1] = PlayerInventoryList[pnum][item_id].implicit.attrib_val;
+	Player_MostRecent_Orb[pnum].values[2] = PlayerInventoryList[pnum][item_id].implicit.attrib_tier;
+	Player_MostRecent_Orb[pnum].values[3] = PlayerInventoryList[pnum][item_id].implicit.attrib_extra;
 }
 
 void RestoreItemAttribsFromUsedOrb(int pnum) {
@@ -410,12 +292,24 @@ void RestoreItemAttribsFromUsedOrb(int pnum) {
 	PlayerInventoryList[pnum][temp].attrib_count = Player_MostRecent_Orb[pnum].values[0];
 	
 	for(int i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = Player_MostRecent_Orb[pnum].values[4 * i + 1];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_val = Player_MostRecent_Orb[pnum].values[4 * i + 2];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_tier = Player_MostRecent_Orb[pnum].values[4 * i + 3];
-		PlayerInventoryList[pnum][temp].attributes[i].fractured = Player_MostRecent_Orb[pnum].values[4 * i + 4];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 1];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_val = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_tier = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_extra = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4];
+		PlayerInventoryList[pnum][temp].attributes[i].fractured = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5];
 	}
 	SyncItemAttributes(pnum,temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+}
+
+void RestoreItemImplicitsFromUsedOrb(int pnum) {
+	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
+
+	PlayerInventoryList[pnum][temp].implicit.attrib_id = Player_MostRecent_Orb[pnum].values[0];
+	PlayerInventoryList[pnum][temp].implicit.attrib_val = Player_MostRecent_Orb[pnum].values[1];
+	PlayerInventoryList[pnum][temp].implicit.attrib_tier = Player_MostRecent_Orb[pnum].values[2];
+	PlayerInventoryList[pnum][temp].implicit.attrib_extra = Player_MostRecent_Orb[pnum].values[3];
+
+	SyncItemImplicits(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
 void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
@@ -440,17 +334,37 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SyncClientsideVariable_WeaponProperties(pnum, res);
 		break;
 		case DND_ORB_CORRUPT:
-			// roll what to do
-			do {
-				temp = random(0, CORRUPTORB_MAXWEIGHT);
-				for(i = 0; i < CORRUPTORB_MAXEFFECTS && temp > CorruptOrb_Weights[i]; ++i);
-			} while(!CorruptionMaxChecks(i) && res++ < MAX_ITER);
-			// i = CORRUPTORB_MOD_POISONFORPERCENTDAMAGE;
-			// i has the effect to do now
-			SetInventory("OrbResult", i);
-			Player_MostRecent_Orb[pnum].values[0] = i;
-			Player_MostRecent_Orb[pnum].values[0] |= affluence << 8;
-			HandleCorruptOrbUse(i);
+			/* 
+				corrupt orb can:
+				1. Do Nothing (50% chance)
+				2. Reforge item completely (25% chance)
+				3. Add or replace existing implicit with a corruption implicit (25% chance)
+			*/
+			PlayerInventoryList[pnum][extra].corrupted = true;
+
+			temp = random(1, 1000);
+			if(temp <= 500) {
+				// does nothing but corrupt the item
+				SetInventory("OrbResult", DND_CORRUPT_FAIL);
+				SyncItemImplicits(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			}
+			else if(temp <= 750) {
+				// if it was a unique item, turn it into a random garbage item
+				if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN) {
+
+				}
+				else
+					ReforgeItem(pnum, extra);
+
+				SetInventory("OrbResult", extra);
+				SyncItemImplicits(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			}
+			else {
+				GiveCorruptedImplicit(pnum, extra);
+				SetInventory("OrbResult", DND_CORRUPT_SUCCESS);
+				SyncItemImplicits(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			}
 		break;
 		case DND_ORB_PRISMATIC:
 			// save
@@ -829,7 +743,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				TempArray[temp * ATTRIB_DATA_COUNT] = PlayerInventoryList[pnum][res].attributes[prev].attrib_id;
 				TempArray[temp * ATTRIB_DATA_COUNT + 1] = PlayerInventoryList[pnum][res].attributes[prev].attrib_val;
 				TempArray[temp * ATTRIB_DATA_COUNT + 2] = PlayerInventoryList[pnum][res].attributes[prev].attrib_tier;
-				TempArray[temp * ATTRIB_DATA_COUNT + 3] = PlayerInventoryList[pnum][res].attributes[prev].fractured;
+				TempArray[temp * ATTRIB_DATA_COUNT + 3] = PlayerInventoryList[pnum][res].attributes[prev].attrib_extra;
+				TempArray[temp * ATTRIB_DATA_COUNT + 4] = PlayerInventoryList[pnum][res].attributes[prev].fractured;
 
 				++temp;
 			} while(temp < s);
@@ -847,7 +762,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					TempArray[i * ATTRIB_DATA_COUNT], 
 					TempArray[i * ATTRIB_DATA_COUNT + 1],
 					TempArray[i * ATTRIB_DATA_COUNT + 2],
-					TempArray[i * ATTRIB_DATA_COUNT + 3]
+					TempArray[i * ATTRIB_DATA_COUNT + 3],
+					TempArray[i * ATTRIB_DATA_COUNT + 4]
 				);
 			}
 			
@@ -1044,9 +960,15 @@ void RevertLastOrbEffect() {
 		case DND_ORB_AFFLUENCE:
 			TakeInventory("AffluenceCounter", 1);
 		break;
-		case DND_ORB_CORRUPT:
-			UndoCorruptOrbEffect();
-		break;
+		/*case DND_ORB_CORRUPT:
+			// uncorrupt it
+			PlayerInventoryList[pnum][Player_MostRecent_Orb[pnum].p_tempwep - 1].corrupted = false;
+
+			if(CheckInventory("OrbResult") != DND_CORRUPT_SUCCESS)
+				RestoreItemAttribsFromUsedOrb(pnum);
+			else
+				RestoreItemImplicitsFromUsedOrb(pnum);
+		break;*/
 		case DND_ORB_CALAMITY:
 			// find out how many this player does really have left, and give back that many (will give none if you used up all!)
 			i = TakeOrbFromPlayer(Player_MostRecent_Orb[pnum].values[0] / 100, Player_MostRecent_Orb[pnum].values[1]);
@@ -1104,337 +1026,6 @@ bool HasUnmaxedStats() {
 	return 0;
 }
 
-// do bad stuff as much as you can (except map duration dmg reduction, do it only once in the map)
-bool CorruptionMaxChecks(int effect) {
-/*	switch(effect) {
-		case CORRUPTORB_NOTHING:
-		case CORRUPTORB_TAKEAMMO:
-		return 1; 
-		
-		case CORRUPTORB_TAKEBACKPACK:
-		return CheckInventory("BackpackCounter"); // take only if we have at least 1
-		
-		case CORRUPTORB_TAKEDMG:
-		return GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_DMG, GetWeaponPosFromTable()) > CORRUPTORB_MINDMG;
-		
-		case CORRUPTORB_TAKEHP:
-		return GetSpawnHealth() > CORRUPTORB_MINHEALTH;
-		
-		case CORRUPTORB_TAKESPEED:
-		return GetDataFromOrbBonus(PlayerNumber(), OBI_SPEED, -1) > CORRUPTORB_MINSPEED;
-		
-		case CORRUPTORB_REDUCEDMGMAP:
-		return !CheckInventory("CorruptOrb_DamageReduction");
-		
-		// good ones
-		
-		case CORRUPTORB_ADDCRIT:
-		return GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_CRITPERCENT, GetWeaponPosFromTable()) < CORRUPTORB_MAXCRITPERCENT;
-	
-		case CORRUPTORB_ADDDMG:
-		return GetDataFromOrbBonus(PlayerNumber(), OBI_WEAPON_DMG, GetWeaponPosFromTable()) < CORRUPTORB_MAXDMG;
-	
-		case CORRUPTORB_ADDCRITDMG:
-		return HasWeaponWithoutCritDmgMax();
-		
-		case CORRUPTORB_ADDSPEED:
-		return GetDataFromOrbBonus(PlayerNumber(), OBI_SPEED, -1) < CORRUPTORB_MAXSPEED;
-		
-		case CORRUPTORB_DROPCHANCE:
-		return GetDataFromOrbBonus(PlayerNumber(), OBI_SPEED, -1) < CORRUPTORB_MAXDROPCHANCE;
-		
-		case CORRUPTORB_GIVESTAT:
-		return HasUnmaxedStats();
-		
-		case CORRUPTORB_MOD_PERCENTDAMAGE:
-		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
-		case CORRUPTORB_MOD_FORCEPAINCHANCE:
-		return 1;
-	}*/
-	return 1;
-}
-
-void HandleCorruptOrbUse(int type) {
-/*	int i;
-	int pnum = PlayerNumber(), temp = 0;
-	switch(type) {
-		case CORRUPTORB_TAKEAMMO:
-			for(i = 0; i < MAX_SLOTS; ++i)
-				for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-					Player_MostRecent_Orb[pnum].p_ammos[i][j] = CheckInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME]);
-					SetInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], 0);
-				}
-			for(i = 0; i < MAXTEMPWEPS; ++i) {
-				if(CheckInventory(TemporaryWeaponData[i][TEMPWEP_AMMO])) {
-					Player_MostRecent_Orb[pnum].p_tempammo = CheckInventory(TemporaryWeaponData[i][TEMPWEP_AMMO]);
-					Player_MostRecent_Orb[pnum].p_tempwep = i;
-					SetInventory(TemporaryWeaponData[i][TEMPWEP_AMMO], 0);
-					break;
-				}
-			}
-		break;
-		case CORRUPTORB_TAKEBACKPACK:
-			Player_MostRecent_Orb[pnum].values[2] = CheckInventory("BackpackCounter");
-			TakeInventory("BackpackCounter", GetAffluenceBonus());
-			Player_MostRecent_Orb[pnum].values[2] -= CheckInventory("BackpackCounter");
-		break;
-		case CORRUPTORB_TAKEDMG:
-			// we hold the difference while we can
-			temp = CORRUPTORB_DMGTAKE * GetAffluenceBonus();
-			i = PickRandomOwnedWeaponID();
-			Player_MostRecent_Orb[pnum].values[3] = i;
-			if(GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i) - temp > CORRUPTORB_MINDMG) {
-				Player_MostRecent_Orb[pnum].values[2] = temp;
-				AddOrbBonusData(pnum, OBI_WEAPON_DMG, i, -temp);
-			}
-			else {
-				AddOrbBonusData(pnum, OBI_WEAPON_DMG, i, -CORRUPTORB_MINDMG);
-				Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
-				SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, CORRUPTORB_MINDMG);
-			}
-			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
-		break;
-		case CORRUPTORB_TAKEHP:
-			temp = CORRUPTORB_HPTAKE * GetAffluenceBonus();
-			if(GetSpawnHealth() - temp > CORRUPTORB_MINHEALTH) {
-				Player_MostRecent_Orb[pnum].values[2] = temp;
-				AddOrbBonusData(pnum, OBI_HPFLAT, -1, -temp);
-			}
-			else {
-				Player_MostRecent_Orb[pnum].values[2] = GetSpawnHealth() - CORRUPTORB_MINHEALTH;
-				SetDataToOrbBonus(pnum, OBI_HPFLAT, -1, CORRUPTORB_MINHEALTH);
-			}
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_HPFLAT_BONUS, 0);
-		break;
-		case CORRUPTORB_TAKESPEED:
-			temp = CORRUPTORB_SPEEDTAKE * GetAffluenceBonus();
-			if(GetDataFromOrbBonus(pnum, OBI_SPEED, -1) - temp > CORRUPTORB_MINSPEED) {
-				Player_MostRecent_Orb[pnum].values[2] = temp;
-				AddOrbBonusData(pnum, OBI_SPEED, -1, -temp);
-			}
-			else {
-				Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_SPEED, -1) - CORRUPTORB_MINSPEED;
-				SetDataToOrbBonus(pnum, OBI_SPEED, -1, CORRUPTORB_MINSPEED);
-			}
-			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_SPEED, 0);
-		break;
-		case CORRUPTORB_REDUCEDMGMAP:
-			GiveInventory("CorruptOrb_DamageReduction", 1);
-		break;
-		
-		case CORRUPTORB_ADDDMG:
-			temp = CORRUPTORB_DMGGIVE * GetAffluenceBonus();
-			i = PickRandomOwnedWeaponID();
-			Player_MostRecent_Orb[pnum].values[3] = i;
-			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
-			SetDataToOrbBonus(pnum, OBI_WEAPON_DMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i) + temp, 0, CORRUPTORB_MAXDMG));
-			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_DMG, i);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
-			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
-		break;
-		case CORRUPTORB_ADDCRIT:
-			temp = CORRUPTORB_CRITGIVE * GetAffluenceBonus();
-			i = PickRandomOwnedWeaponID();
-			Player_MostRecent_Orb[pnum].values[3] = i;
-			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
-			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i) + temp, 0, CORRUPTORB_MAXCRITPERCENT));
-			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITPERCENT, i);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
-			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
-		break;
-		case CORRUPTORB_ADDCRITDMG:
-			temp = CORRUPTORB_CRITDMGGIVE * GetAffluenceBonus();
-			i = PickRandomOwnedWeaponID();
-			Player_MostRecent_Orb[pnum].values[3] = i;
-			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
-			SetDataToOrbBonus(pnum, OBI_WEAPON_CRITDMG, i, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i) + temp, 0, CORRUPTORB_MAXCRITDMG));
-			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
-			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
-		break;
-		case CORRUPTORB_ADDSPEED:
-			temp = CORRUPTORB_SPEEDGIVE * GetAffluenceBonus();
-			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_SPEED, -1);
-			SetDataToOrbBonus(pnum, OBI_SPEED, -1, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_SPEED, -1) + temp, 0, CORRUPTORB_MAXSPEED));
-			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_SPEED, -1);
-			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_SPEED, 0);
-		break;
-		case CORRUPTORB_DROPCHANCE:
-			temp = CORRUPTORB_DROPCHANCEGIVE * GetAffluenceBonus();
-			Player_MostRecent_Orb[pnum].values[2] = GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1);
-			SetDataToOrbBonus(pnum, OBI_DROPCHANCE, -1, Clamp_Between(GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1) + temp, 0, CORRUPTORB_MAXDROPCHANCE));
-			Player_MostRecent_Orb[pnum].values[2] -= GetDataFromOrbBonus(pnum, OBI_DROPCHANCE, -1);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_DROPCHANCE, 0);
-		break;
-		case CORRUPTORB_GIVESTAT:
-			do {
-				temp = random(0, STATORB_MAXWEIGHT);
-				for(i = 0; i < STATORB_MAXSTATS; ++i)
-					if(temp <= SpiritOrb_StatDropWeights[i])
-						break;
-			} while(GetStat(i) == DND_STAT_FULLMAX);
-			GiveStat(i, CORRUPTORB_STATGIVE * GetAffluenceBonus());
-			Player_MostRecent_Orb[pnum].values[2] = i;
-			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
-		break;
-		case CORRUPTORB_MOD_PERCENTDAMAGE:
-		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
-		case CORRUPTORB_MOD_FORCEPAINCHANCE:
-			int tier = CheckInventory("AffluenceCounter");
-			if(tier > MAX_WEP_MODTIER)
-				tier = MAX_WEP_MODTIER;
-			
-			// mod order is the same as defined in dnd_weaponmods.h
-			// this is the value, we know the tier now roll a weapon to apply this to
-			i = PickRandomOwnedWeaponID();
-			temp = RollWeaponMod(type - CORRUPTORB_WEAPONMOD_BEGIN, tier);
-			Player_MostRecent_Orb[pnum].values[2] = i;
-			Player_MostRecent_Orb[pnum].values[3] = temp;
-			Player_MostRecent_Orb[pnum].values[4] = tier;
-			
-			// give the mod -- index to 0 base
-			type = type + WEP_MOD_PERCENTDAMAGE - CORRUPTORB_MOD_PERCENTDAMAGE;
-			Player_Weapon_Infos[pnum][i].wep_mods[type].tier = tier;
-			Player_Weapon_Infos[pnum][i].wep_mods[type].val = temp;
-			
-			SyncClientsideVariable_WeaponMods(pnum, i);
-			SetInventory("OrbResult", CheckInventory("OrbResult") | i << 8);
-		break;
-	}*/
-}
-
-void DoCorruptOrbMessage(int val, int affluence) {
-	// val just has the option, except for stat case which has which stat it is << 8
-	switch(val & 0xF) {
-		case CORRUPTORB_NOTHING:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2A");
-		break;
-		case CORRUPTORB_TAKEAMMO:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2B");
-		break;
-		case CORRUPTORB_TAKEBACKPACK:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2C", s:" ", d:affluence, s:" ", l:"DND_ORBUSETEXT2D");
-		break;
-		case CORRUPTORB_TAKEDMG:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2C", s:" ", d:CORRUPTORB_DMGTAKE * affluence, s:"% ", l:"DND_DAMAGE", s:"\cj ", l:"DND_FROM", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
-		break;
-		case CORRUPTORB_REDUCEDMGMAP:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2E");
-		break;
-		case CORRUPTORB_TAKEHP:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2F", s:" ", d:CORRUPTORB_HPTAKE * affluence, s:"\cj!");
-		break;
-		case CORRUPTORB_TAKESPEED:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2G", s:" ", f:ftrunc(CORRUPTORB_SPEEDTAKE * affluence * 100), s:"%\cj!");
-		break;
-		
-		case CORRUPTORB_ADDCRIT:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", s:GetFixedRepresentation(CORRUPTORB_CRITGIVE * affluence, true), s:"%\cj ", l:"DND_ORBUSETEXT2I", s:" \cv", l:GetWeaponTag(val >> 8), s:"\cj!");
-		break;
-		case CORRUPTORB_ADDCRITDMG:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", d:CORRUPTORB_CRITDMGGIVE * affluence, s:"%\cj ", l:"DND_ORBUSETEXT2J", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
-		break;
-		case CORRUPTORB_ADDDMG:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", d:CORRUPTORB_DMGGIVE * affluence, s:"%\cj ", l:"DND_ORBUSETEXT2K", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
-		break;
-		case CORRUPTORB_ADDSPEED:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2H", s:" \cv", f:ftrunc(CORRUPTORB_SPEEDGIVE * affluence * 100), s:"%\cj ", l:"DND_ORBUSETEXT2L", s:"!");
-		break;
-		case CORRUPTORB_DROPCHANCE:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2M", s:" \cv", f:ftrunc(CORRUPTORB_DROPCHANCEGIVE * affluence * 100), s:"%\cj!");
-		break;
-		case CORRUPTORB_GIVESTAT:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2N", s:" \cv", d:CORRUPTORB_STATGIVE * affluence, s:" ", l:GetStatLabel(val >> 8), s:"\cj ", l:"DND_POINTS", s:"!");
-		break;
-		case CORRUPTORB_MOD_PERCENTDAMAGE:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2O", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
-		break;
-		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2P", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
-		break;
-		case CORRUPTORB_MOD_FORCEPAINCHANCE:
-			Log(s:"\cj", l:"DND_ORBUSETEXT2Q", s:" ", l:GetWeaponTag(val >> 8), s:"\cj!");
-		break;
-	}
-}
-
-void UndoCorruptOrbEffect() {
-	// if type is take, we give, if type is give, we take!
-/*	int i;
-	int pnum = PlayerNumber();
-	int type = Player_MostRecent_Orb[pnum].values[0] & 0xF;
-	switch(type) {
-		case CORRUPTORB_TAKEAMMO:
-			for(i = 0; i < MAX_SLOTS; ++i)
-				for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
-					GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], Player_MostRecent_Orb[pnum].p_ammos[i][j]);
-			// try to give this temp weapon if only player doesn't have a temp wep
-			if(HasNoTempWeapon()) {
-				GiveInventory(TemporaryWeaponData[Player_MostRecent_Orb[pnum].p_tempwep][TEMPWEP_AMMO], Player_MostRecent_Orb[pnum].p_tempammo);
-				GiveInventory(TemporaryWeaponData[Player_MostRecent_Orb[pnum].p_tempwep][TEMPWEP_NAME], 1);
-			}
-		break;
-		case CORRUPTORB_TAKEHP:
-			AddOrbBonusData(pnum, OBI_HPFLAT, -1, Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_HPFLAT_BONUS, 0);
-		break;
-		case CORRUPTORB_TAKEBACKPACK:
-			GiveInventory("BackpackCounter", Player_MostRecent_Orb[pnum].values[2]);
-		break;
-		case CORRUPTORB_TAKEDMG:
-			AddOrbBonusData(pnum, OBI_WEAPON_DMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
-		break;
-		case CORRUPTORB_TAKESPEED:
-			AddOrbBonusData(pnum, OBI_SPEED, -1, Player_MostRecent_Orb[pnum].values[2]);
-			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_SPEED, 0);
-		break;
-		case CORRUPTORB_REDUCEDMGMAP:
-			TakeInventory("CorruptOrb_DamageReduction", 1);
-		break;
-		
-		case CORRUPTORB_ADDCRIT:
-			// since diff is meant to be negative, we now add it, not subtract it
-			AddOrbBonusData(pnum, OBI_WEAPON_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_CRITPERCENT, Player_MostRecent_Orb[pnum].values[3]);
-		break;
-		case CORRUPTORB_ADDCRITDMG:
-			AddOrbBonusData(pnum, OBI_WEAPON_CRITDMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_CRITDMG, Player_MostRecent_Orb[pnum].values[3]);
-		break;
-		case CORRUPTORB_ADDDMG:
-			AddOrbBonusData(pnum, OBI_WEAPON_DMG, Player_MostRecent_Orb[pnum].values[3], Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_WEPMOD_DMG, Player_MostRecent_Orb[pnum].values[3]);
-		break;
-		case CORRUPTORB_ADDSPEED:
-			AddOrbBonusData(pnum, OBI_SPEED, -1, Player_MostRecent_Orb[pnum].values[2]);
-			RestoreRPGStat(RES_PLAYERSPEED);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_SPEED, 0);
-		break;
-		case CORRUPTORB_GIVESTAT:
-			TakeStat(Player_MostRecent_Orb[pnum].values[2], CORRUPTORB_STATGIVE * (Player_MostRecent_Orb[pnum].values[0] >> 8));
-		break;
-		case CORRUPTORB_DROPCHANCE:
-			AddOrbBonusData(pnum, OBI_DROPCHANCE, -1, Player_MostRecent_Orb[pnum].values[2]);
-			SyncClientsideVariable_Orb(pnum, DND_SYNC_DROPCHANCE, 0);
-		break;
-		case CORRUPTORB_MOD_PERCENTDAMAGE:
-		case CORRUPTORB_MOD_POISONFORPERCENTDAMAGE:
-		case CORRUPTORB_MOD_FORCEPAINCHANCE:
-			type = type + WEP_MOD_PERCENTDAMAGE - CORRUPTORB_MOD_PERCENTDAMAGE;
-			i = Player_MostRecent_Orb[pnum].values[2];
-			// 2 is wep id, 3 is mod's value, 4 is tier
-			Player_Weapon_Infos[pnum][i].wep_mods[type].tier -= Player_MostRecent_Orb[pnum].values[4];
-			Player_Weapon_Infos[pnum][i].wep_mods[type].val -= Player_MostRecent_Orb[pnum].values[3];
-			SyncClientsideVariable_WeaponMods(pnum, i);
-		break;
-	}*/
-}
-
 void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 	if(ConsolePlayerNumber() != PlayerNumber()) 
 		return;
@@ -1446,7 +1037,12 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 				Log(s:"\cg", l:"DND_ORBUSEFAIL1");
 		break;
 		case DND_ORB_CORRUPT:
-			DoCorruptOrbMessage(val, affluence);
+			if(val == DND_CORRUPT_SUCCESS)
+				Log(s:"\cj", l:"DND_ORBUSETEXT2C");
+			else if(val == DND_CORRUPT_FAIL)
+				Log(s:"\cg", l:"DND_ORBUSETEXT2A");
+			else
+				Log(s:"\cg", l:"DND_ORBUSETEXT2B");
 		break;
 		case DND_ORB_PRISMATIC:
 			Log(s:"\cj", l:"DND_ORBUSETEXT3", s:"\cj!");

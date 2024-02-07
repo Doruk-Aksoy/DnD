@@ -6189,9 +6189,10 @@ Script 68 (int x) NET {
 		}
 		else if(x == 420) {
 			SpawnCharm(0, true);
+			SpawnCharm(0, true);
 			SpawnOrbForAll(10, random(40, 120));
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
-			SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
+			//SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
 			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);
 			/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

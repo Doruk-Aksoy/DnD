@@ -21,6 +21,10 @@ int GetMonsterHPScaling(int m_id, int level) {
 	// big bosses have higher scaling than other monsters -- since we reach much higher values than before I decided to go ahead and reduce the big boss scaling here
 	if(IsUniqueBossMonster(m_id))
 		res *= 1 + (level / 33);
+
+	int cvs = GetCVar("dnd_monster_hpscalepercent");
+	if(cvs)
+		res = res * (100 + cvs) / 100;
 		
 	return res;
 }
@@ -32,6 +36,10 @@ int GetMonsterDMGScaling(int m_id, int level) {
 	// unique bosses have additional damage multiplier per level -- x^2 * 0.01667 + x
 	if(IsUniqueBossMonster(m_id))
 		res = res * (100 + (level * level) / 60 + level) / 100;
+
+	int cvs = GetCVar("dnd_monster_dmgscalepercent");
+	if(cvs)
+		res = res * (100 + cvs) / 100;
 	
 	return res;
 }

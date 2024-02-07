@@ -3,7 +3,7 @@
 DND_ORB1			=	"Orb of Enhancement";
 DND_ORBTEXT1		=	"Allows the user to improve the quality of the currently selected weapon upon use, increasing its damage. Increases damage of selected weapon by \cd1%\c-, up to \cg50%\c- total.";
 DND_ORB2			=	"Orb of Corruption";
-DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out?";
+DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out? Corrupted items \cgcan't be modified\c-!";
 DND_ORB3			=	"Prismatic Orb";
 DND_ORBTEXT3		=	"Reforges the item, adding at least one \cvelemental\c- modifier.";
 DND_ORB4			=	"Orb of Repentance";
@@ -69,23 +69,8 @@ DND_ORBUSETEXT1B	=	"damage by";
 DND_ORBUSEFAIL1		=	"You're maxed out on enhancements, Orb of Enhancement failed!";
 
 DND_ORBUSETEXT2A	=	"Orb of Corruption does \cgnothing!";
-DND_ORBUSETEXT2B	=	"Orb of Corruption \cgtakes away all your ammo!";
-DND_ORBUSETEXT2C	=	"Orb of Corruption \cgtakes";
-DND_ORBUSETEXT2D	=	"of your backpacks!";
-DND_ORBUSETEXT2E	=	"Orb of Corruption \cgreduces your damage by 75%\cj for this map!";
-DND_ORBUSETEXT2F	=	"Orb of Corruption \cgreduces your life cap by";
-DND_ORBUSETEXT2G	=	"Orb of Corruption \cgreduces your movement speed by";
-DND_ORBUSETEXT2H	=	"Orb of Corruption gives";
-DND_ORBUSETEXT2I	=	"increased crit chance to";
-DND_ORBUSETEXT2J	=	"crit damage to";
-DND_ORBUSETEXT2K	=	"increased damage to";
-DND_ORBUSETEXT2L	=	"increased movement speed";
-DND_ORBUSETEXT2M	=	"Orb of Corruption increases your drop chance by";
-DND_ORBUSETEXT2N	=	"Orb of Corruption grants you with";
-DND_ORBUSETEXT2O	=	"Orb of Corruption gives \cvpercent health damage on impact\cj to";
-DND_ORBUSETEXT2P	=	"Orb of Corruption gives \cvpoison on hit\cj to";
-DND_ORBUSETEXT2Q	=	"Orb of Corruption gives \cvchance to force pain\cj to";
-DND_ORBUSETEXT2R	=	"bonus crit chance to";
+DND_ORBUSETEXT2B	=	"Orb of Corruption \cgreforges\c- your item!";
+DND_ORBUSETEXT2C	=	"Orb of Corruption grants you a \cgcorrupted implicit\c- modifier!";
 
 DND_ORBUSETEXT3		=	"Prismatic Orb reforges the item, guaranteeing an \cvelemental\c- modifier.";
 

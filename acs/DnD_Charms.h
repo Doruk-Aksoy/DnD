@@ -43,6 +43,12 @@ int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	Inventories_On_Field[charm_pos].item_subtype = res;
 	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
 	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + res;
+
+	Inventories_On_Field[charm_pos].corrupted = false;
+	Inventories_On_Field[charm_pos].implicit.attrib_id = -1;
+	Inventories_On_Field[charm_pos].implicit.attrib_val = 0;
+	Inventories_On_Field[charm_pos].implicit.attrib_tier = 0;
+	Inventories_On_Field[charm_pos].implicit.attrib_extra = 0;
 	
 	Inventories_On_Field[charm_pos].attrib_count = 0;
 	for(int i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
@@ -128,7 +134,7 @@ void AddAttributeToCharm(int charm_pos, int attrib, int pnum) {
 		bool makeWellRolled = CheckWellRolled(pnum);
 		
 		lvl = GetItemTierRoll(lvl, makeWellRolled);
-		
+
 		// force within bounds
 		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
 		Inventories_On_Field[charm_pos].attributes[temp].attrib_tier = lvl;
@@ -258,6 +264,13 @@ int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 		Charms_Used[pnum][use_id].item_stack = PlayerInventoryList[pnum][item_index].item_stack;
 		Charms_Used[pnum][use_id].attrib_count = PlayerInventoryList[pnum][item_index].attrib_count;
 		Charms_Used[pnum][use_id].topleftboxid = use_id + 1;
+
+		Charms_Used[pnum][use_id].corrupted = PlayerInventoryList[pnum][item_index].corrupted;
+		Charms_Used[pnum][use_id].implicit.attrib_id = PlayerInventoryList[pnum][item_index].implicit.attrib_id;
+		Charms_Used[pnum][use_id].implicit.attrib_val = PlayerInventoryList[pnum][item_index].implicit.attrib_val;
+		Charms_Used[pnum][use_id].implicit.attrib_tier = PlayerInventoryList[pnum][item_index].implicit.attrib_tier;
+		Charms_Used[pnum][use_id].implicit.attrib_extra = PlayerInventoryList[pnum][item_index].implicit.attrib_extra;
+
 		for(i = 0; i < Charms_Used[pnum][use_id].attrib_count; ++i) {
 			Charms_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
 			Charms_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
@@ -288,6 +301,13 @@ void ResetPlayerCharmsUsed(int pnum) {
 		Charms_Used[pnum][i].item_level = 0;
 		Charms_Used[pnum][i].item_stack = 0;
 		Charms_Used[pnum][i].topleftboxid = 0;
+
+		Charms_Used[pnum][i].corrupted = 0;
+		Charms_Used[pnum][i].implicit.attrib_id = -1;
+		Charms_Used[pnum][i].implicit.attrib_val = 0;
+		Charms_Used[pnum][i].implicit.attrib_tier = 0;
+		Charms_Used[pnum][i].implicit.attrib_extra = 0;
+
 		for(int j = 0; j < Charms_Used[pnum][i].attrib_count; ++j) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = 0;
 			Charms_Used[pnum][i].attributes[j].attrib_val = 0;

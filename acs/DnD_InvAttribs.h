@@ -2,6 +2,7 @@
 #define DND_INV_ATTRIBS_IN
 
 #include "DnD_InvInfo.h"
+#include "DnD_WeaponDefs.h"
 
 #define MAX_CHARM_AFFIXTIERS 10
 #define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is... its basically every 10 levels a new tier is named for it
@@ -41,7 +42,9 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
 
 // these two imply we have 1000 regular charm mods potentially, 1000 essence and unlimited unique mods
 // reason we have these generous ranges is so when a new mod is added, database resets do not need to happen
-#define ESSENCE_ATTRIB_ID_BEGIN 1000
+#define CORRUPT_ATTRIB_ID_BEGIN 1000
+#define IMPLICIT_ATTRIB_ID_BEGIN 1250
+#define ESSENCE_ATTRIB_ID_BEGIN 1500
 #define UNIQUE_ATTRIB_ID_BEGIN 2000
 // self note: all status_buffs_X modifiers are handled as exceptions
 enum {
@@ -173,6 +176,20 @@ enum {
 	INV_CHANCE_FLATIGNITE,
 	INV_CHANCE_FLATPROLIF,
 	// add new regular rollable attributes here
+
+	// corrupted implicits -- add new ones here
+	INV_CORR_WEAPONDMG = CORRUPT_ATTRIB_ID_BEGIN,
+	INV_CORR_WEAPONCRIT,
+	INV_CORR_WEAPONCRITDMG,
+	INV_CORR_SPEED,
+	INV_CORR_DROPCHANCE,
+	INV_CORR_PERCENTSTAT,
+	INV_CORR_WEAPONPCTDMG,
+	INV_CORR_WEAPONPOISONPCT,
+	INV_CORR_WEAPONFORCEPAIN,
+
+	// implicits -- add new ones below here
+	INV_IMP_INCARMOR = IMPLICIT_ATTRIB_ID_BEGIN,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
@@ -236,6 +253,12 @@ enum {
 #define UNIQUE_ATTRIB_END INV_EX_SOULWEPSPEN
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
+#define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
+#define LAST_CORRUPT_IMPLICIT INV_CORR_WEAPONFORCEPAIN
+
+#define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
+#define LAST_REGULAR_IMPLICIT INV_IMP_INCARMOR
+
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
 #define ESSENCE_ATTRIBUTE_COUNT (LAST_ESSENCE_ATTRIBUTE - FIRST_ESSENCE_ATTRIBUTE + 1)
@@ -248,6 +271,7 @@ enum {
 typedef struct {
 	int attrib_low;
 	int attrib_high;
+	int attrib_extra;
 	int attrib_level_modifier;
 	int tags;
 } inv_attrib_T;
@@ -337,11 +361,38 @@ bool IsFixedPointMod(int mod) {
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL:
 		case INV_LIFESTEAL_DAMAGE:
+
+		case INV_CORR_DROPCHANCE:
+		case INV_CORR_SPEED:
+
 		case INV_ESS_ERYXIA:
+
 		case INV_EX_MORECRIT_LIGHTNING:
 		return true;
 	}
 	return false;
+}
+
+int GetExtraForMod(int mod) {
+	int res = -1;
+	switch(mod) {
+		// extra is the weapon_id for these
+		case INV_CORR_WEAPONDMG:
+		case INV_CORR_WEAPONCRIT:
+		case INV_CORR_WEAPONCRITDMG:
+		case INV_CORR_WEAPONPCTDMG:
+		case INV_CORR_WEAPONPOISONPCT:
+		case INV_CORR_WEAPONFORCEPAIN:
+			// pick one from a weapon the player owns
+			res = PickRandomOwnedWeaponID();
+		break;
+
+		// extra is the stat id for these --- file header issues, just keep these at 0 and 5... hopefully nothing breaks :)
+		case INV_CORR_PERCENTSTAT:
+			res = random(0, 5);
+		break;
+	}
+	return res;
 }
 
 void SetPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
@@ -400,7 +451,7 @@ Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
 // reason why this uses UNIQUE_ATTRIB_ID_BEGIN, it skips regular and essence mod indexes. This means, we have enough room without database reset for both regular
 // and essence mods. This is good for future compatibility as well.
 // Currently: 2000 mods, 0-1999
-global Inv_attrib_T 62: ItemModTable[UNIQUE_ATTRIB_ID_BEGIN];
+global inv_attrib_T 62: ItemModTable[UNIQUE_ATTRIB_ID_BEGIN];
 
 void SetupInventoryAttributeTable() {
 	// doing this so we populate the global arrays (acs wont allow just initializing them like local variables)
@@ -911,8 +962,61 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_FLATPROLIF].attrib_level_modifier = 0;
 	ItemModTable[INV_CHANCE_FLATPROLIF].tags = INV_ATTR_TAG_ELEMENTAL;
 
-	// essences from here on out
+	/////////////////////////
+	// corrupted implicits //
+	/////////////////////////
+	ItemModTable[INV_CORR_WEAPONDMG].attrib_low = 25;
+	ItemModTable[INV_CORR_WEAPONDMG].attrib_high = 100;
+	ItemModTable[INV_CORR_WEAPONDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_WEAPONDMG].tags = INV_ATTR_TAG_DAMAGE;
 
+	ItemModTable[INV_CORR_WEAPONCRIT].attrib_low = 50;
+	ItemModTable[INV_CORR_WEAPONCRIT].attrib_high = 100;
+	ItemModTable[INV_CORR_WEAPONCRIT].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_WEAPONCRIT].tags = INV_ATTR_TAG_CRIT;
+
+	ItemModTable[INV_CORR_WEAPONCRITDMG].attrib_low = 50;
+	ItemModTable[INV_CORR_WEAPONCRITDMG].attrib_high = 200;
+	ItemModTable[INV_CORR_WEAPONCRITDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_WEAPONCRITDMG].tags = INV_ATTR_TAG_CRIT;
+
+	ItemModTable[INV_CORR_SPEED].attrib_low = 0.1;
+	ItemModTable[INV_CORR_SPEED].attrib_high = 0.25;
+	ItemModTable[INV_CORR_SPEED].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_SPEED].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_CORR_DROPCHANCE].attrib_low = 0.1;
+	ItemModTable[INV_CORR_DROPCHANCE].attrib_high = 0.2;
+	ItemModTable[INV_CORR_DROPCHANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_DROPCHANCE].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_CORR_PERCENTSTAT].attrib_low = 10;
+	ItemModTable[INV_CORR_PERCENTSTAT].attrib_high = 33;
+	ItemModTable[INV_CORR_PERCENTSTAT].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_PERCENTSTAT].tags = INV_ATTR_TAG_STAT;
+
+	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_low = 1;
+	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_high = 5;
+	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_WEAPONPCTDMG].tags = INV_ATTR_TAG_DAMAGE;
+
+	ItemModTable[INV_CORR_WEAPONPOISONPCT].attrib_low = 5;
+	ItemModTable[INV_CORR_WEAPONPOISONPCT].attrib_high = 10;
+	ItemModTable[INV_CORR_WEAPONPOISONPCT].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_WEAPONPOISONPCT].tags = INV_ATTR_TAG_ELEMENTAL;
+	
+	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_low = 1;
+	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_high = 1;
+	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_WEAPONFORCEPAIN].tags = INV_ATTR_TAG_UTILITY;
+
+	///////////////////////
+	// regular implicits //
+	///////////////////////
+
+	///////////////////////////////
+	// essences from here on out //
+	///////////////////////////////
 	ItemModTable[INV_ESS_VAAJ].attrib_low = 1;
 	ItemModTable[INV_ESS_VAAJ].attrib_high = 1;
 	ItemModTable[INV_ESS_VAAJ].attrib_level_modifier = 1;
@@ -1049,7 +1153,7 @@ int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
 }
 
 int PickRandomAttribute() {
-	int bias = Timer();
+	int bias = Timer() & 0xFFFF;
 	int val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
 	// this is a last resort random here, in case there was an overflow... shouldn't, but might
 	// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
@@ -1079,6 +1183,25 @@ str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int
 		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f), isPercentage),
 		s:"\c--",
 		s:col_tag, s:GetFixedRepresentation(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f), isPercentage), s:"\c-)"
+	);
+}
+
+str GetDetailedImplicitModRange(int attr, int item_type, int item_subtype, int trunc_factor = 0, bool isPercentage = false) {
+	str col_tag = "\cg";
+	
+	if(!trunc_factor) {
+		return StrParam(
+			s:"\c-(",
+			s:col_tag, d:ItemModTable[attr].attrib_low,
+			s:"\c--",
+			s:col_tag, d:ItemModTable[attr].attrib_high, s:"\c-)"
+		);
+	}
+	return StrParam(
+		s:"\c-(",
+		s:col_tag, s:GetFixedRepresentation(ItemModTable[attr].attrib_low, isPercentage),
+		s:"\c--",
+		s:col_tag, s:GetFixedRepresentation(ItemModTable[attr].attrib_high, isPercentage), s:"\c-)"
 	);
 }
 
@@ -1123,6 +1246,12 @@ str GetModTierText(int tier, int extra) {
 str GetInventoryAttributeText(int attr) {
 	if(attr <= LAST_INV_ATTRIBUTE)
 		return StrParam(s:"IATTR_T", d:attr);
+
+	if(attr <= LAST_CORRUPT_IMPLICIT)
+		return StrParam(s:"IATTR_TC", d:attr + 1 - FIRST_CORRUPT_IMPLICIT);
+
+	if(attr <= LAST_REGULAR_IMPLICIT)
+		return StrParam(s:"IATTR_TI", d:attr + 1 - FIRST_REGULAR_IMPLICIT);
 		
 	// essences are mapped to 1 again for language file
 	if(attr <= LAST_ESSENCE_ATTRIBUTE)
@@ -1238,6 +1367,31 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			else if(val < 0)
 				return StrParam(s:col_tag, s:"- \cg", d:val, s:no_tag, l:text);
 				
+		// corrupted implicits of certain kinds have +X% text TO (extra)
+		case INV_CORR_WEAPONDMG:
+		case INV_CORR_WEAPONCRIT:
+		case INV_CORR_WEAPONCRITDMG:
+		case INV_CORR_WEAPONPCTDMG:
+		case INV_CORR_WEAPONPOISONPCT:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+ ", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
+				);
+			}
+			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
+
+		case INV_CORR_WEAPONFORCEPAIN:
+			return StrParam(l:GetWeaponTag(extra), s: " ", l:text);
+
+		// fixed point corrupted
+		case INV_CORR_DROPCHANCE:
+		case INV_CORR_SPEED:
+			if(showDetailedMods) {
+				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text
+				);
+			}
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
+
 		// fixed point stuff
 		case INV_EXPGAIN_INCREASE:
 		case INV_CREDITGAIN_INCREASE:

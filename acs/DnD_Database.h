@@ -77,10 +77,18 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, PlayerInventoryList[pnum][i].item_level);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, PlayerInventoryList[pnum][i].item_stack);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, PlayerInventoryList[pnum][i].attrib_count);
+
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, PlayerInventoryList[pnum][i].corrupted);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, PlayerInventoryList[pnum][i].implicit.attrib_id);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, PlayerInventoryList[pnum][i].implicit.attrib_val);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, PlayerInventoryList[pnum][i].implicit.attrib_tier);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, PlayerInventoryList[pnum][i].implicit.attrib_extra);
+
 				for(j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].attrib_val);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].attrib_id);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].attrib_tier);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].attrib_extra);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, PlayerInventoryList[pnum][i].attributes[j].fractured);
 				}
 			}
@@ -95,10 +103,18 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, 0);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, 0);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, 0);
+
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, 0);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, 0);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, 0);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, 0);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, 0);
+
 				for(j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, 0);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 				}
 			}
@@ -117,10 +133,19 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, Charms_Used[pnum][i].item_level);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, Charms_Used[pnum][i].item_stack);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, Charms_Used[pnum][i].attrib_count);
+			
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, Charms_Used[pnum][i].corrupted);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, Charms_Used[pnum][i].implicit.attrib_id);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, Charms_Used[pnum][i].implicit.attrib_val);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, Charms_Used[pnum][i].implicit.attrib_tier);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, Charms_Used[pnum][i].implicit.attrib_extra);
+
+			
 			for(j = 0; j < Charms_Used[pnum][i].attrib_count; ++j) {
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].attrib_val);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].attrib_id);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].attrib_tier);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].attrib_extra);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, Charms_Used[pnum][i].attributes[j].fractured);
 			}
 		}
@@ -141,10 +166,18 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc, PlayerStashList[pnum][i][j].item_level);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc, PlayerStashList[pnum][i][j].item_stack);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc, PlayerStashList[pnum][i][j].attrib_count);
+					
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), pacc, PlayerStashList[pnum][i][j].attrib_count);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), pacc, PlayerStashList[pnum][i][j].implicit.attrib_val);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), pacc, PlayerStashList[pnum][i][j].implicit.attrib_id);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), pacc, PlayerStashList[pnum][i][j].implicit.attrib_tier);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), pacc, PlayerStashList[pnum][i][j].implicit.attrib_extra);
+
 					for(temp = 0; temp < PlayerStashList[pnum][i][j].attrib_count; ++temp) {
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].attrib_val);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].attrib_id);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].attrib_tier);
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].attrib_extra);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:temp), pacc, PlayerStashList[pnum][i][j].attributes[temp].fractured);
 					}
 				}
@@ -157,10 +190,19 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc, 0);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc, 0);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc, 0);
+
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), pacc, 0);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), pacc, 0);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), pacc, 0);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), pacc, 0);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), pacc, 0);
+
+
 					for(temp = 0; temp < PlayerStashList[pnum][i][j].attrib_count; ++temp) {
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc, 0);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc, 0);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:temp), pacc, 0);
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:temp), pacc, 0);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:temp), pacc, 0);
 					}
 				}
@@ -193,10 +235,18 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, PlayerInventoryList[pnum][itemid].item_level);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, PlayerInventoryList[pnum][itemid].item_stack);
 					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, PlayerInventoryList[pnum][itemid].attrib_count);
+					
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, PlayerInventoryList[pnum][itemid].corrupted);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, PlayerInventoryList[pnum][itemid].implicit.attrib_id);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, PlayerInventoryList[pnum][itemid].implicit.attrib_val);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, PlayerInventoryList[pnum][itemid].implicit.attrib_tier);
+					SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, PlayerInventoryList[pnum][itemid].implicit.attrib_extra);
+
 					for(k = 0; k < PlayerInventoryList[pnum][itemid].attrib_count; ++k) {
 						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_val);
 						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_id);
 						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_tier);
+						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].attrib_extra);
 						SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:temp, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:k), char_id), pacc, PlayerInventoryList[pnum][itemid].attributes[k].fractured);
 					}
 				}
@@ -215,10 +265,19 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc, PlayerStashList[pnum][page][temp].item_level);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc, PlayerStashList[pnum][page][temp].item_stack);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc, PlayerStashList[pnum][page][temp].attrib_count);
+					
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), pacc, PlayerStashList[pnum][page][temp].corrupted);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), pacc, PlayerStashList[pnum][page][temp].implicit.attrib_id);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), pacc, PlayerStashList[pnum][page][temp].implicit.attrib_val);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), pacc, PlayerStashList[pnum][page][temp].implicit.attrib_tier);
+					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), pacc, PlayerStashList[pnum][page][temp].implicit.attrib_extra);
+
+
 					for(k = 0; k < PlayerStashList[pnum][page][temp].attrib_count; ++k) {
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_val);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_id);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_tier);
+						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].attrib_extra);
 						SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:page, s:"_", d:temp, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:k), pacc, PlayerStashList[pnum][page][temp].attributes[k].fractured);
 					}
 				}
@@ -234,10 +293,18 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, Charms_Used[pnum][itemid].item_level);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, Charms_Used[pnum][itemid].item_stack);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, Charms_Used[pnum][itemid].attrib_count);
+			
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, Charms_Used[pnum][itemid].corrupted);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, Charms_Used[pnum][itemid].implicit.attrib_id);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, Charms_Used[pnum][itemid].implicit.attrib_val);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, Charms_Used[pnum][itemid].implicit.attrib_tier);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, Charms_Used[pnum][itemid].implicit.attrib_extra);
+
 			for(j = 0; j < Charms_Used[pnum][itemid].attrib_count; ++j) {
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_val);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_id);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_tier);
+				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].attrib_extra);
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, Charms_Used[pnum][itemid].attributes[j].fractured);
 			}
 		}
@@ -626,10 +693,18 @@ void LoadPlayerStash(int pnum, str pacc) {
 				PlayerStashList[pnum][i][j].item_level = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc);
 				PlayerStashList[pnum][i][j].item_stack = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc);
 				PlayerStashList[pnum][i][j].attrib_count = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc);
+				
+				PlayerStashList[pnum][i][j].corrupted = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), pacc);
+				PlayerStashList[pnum][i][j].implicit.attrib_id = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), pacc);
+				PlayerStashList[pnum][i][j].implicit.attrib_val = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), pacc);
+				PlayerStashList[pnum][i][j].implicit.attrib_tier = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), pacc);
+				PlayerStashList[pnum][i][j].implicit.attrib_extra = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), pacc);
+
 				for(temp = 0; temp < PlayerStashList[pnum][i][j].attrib_count; ++temp) {
 					PlayerStashList[pnum][i][j].attributes[temp].attrib_val = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc);
 					PlayerStashList[pnum][i][j].attributes[temp].attrib_id = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:temp), pacc);
 					PlayerStashList[pnum][i][j].attributes[temp].attrib_tier = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:temp), pacc);
+					PlayerStashList[pnum][i][j].attributes[temp].attrib_extra = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:temp), pacc);
 					PlayerStashList[pnum][i][j].attributes[temp].fractured = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:temp), pacc);
 				}
 				
@@ -712,10 +787,19 @@ void LoadPlayerData(int pnum, int char_id) {
 			PlayerInventoryList[pnum][i].item_level = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc);
 			PlayerInventoryList[pnum][i].item_stack = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc);
 			PlayerInventoryList[pnum][i].attrib_count = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc);
+			
+			PlayerInventoryList[pnum][i].corrupted = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc);
+			PlayerInventoryList[pnum][i].implicit.attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc);
+			PlayerInventoryList[pnum][i].implicit.attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc);
+			PlayerInventoryList[pnum][i].implicit.attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc);
+			PlayerInventoryList[pnum][i].implicit.attrib_extra = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc);
+
+
 			for(j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 				PlayerInventoryList[pnum][i].attributes[j].attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc);
 				PlayerInventoryList[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
 				PlayerInventoryList[pnum][i].attributes[j].attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc);
+				PlayerInventoryList[pnum][i].attributes[j].attrib_extra = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc);
 				PlayerInventoryList[pnum][i].attributes[j].fractured = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc);
 			}
 			
@@ -742,10 +826,18 @@ void LoadPlayerData(int pnum, int char_id) {
 		Charms_Used[pnum][i].item_level = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc);
 		Charms_Used[pnum][i].item_stack = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc);
 		Charms_Used[pnum][i].attrib_count = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc);
+		
+		Charms_Used[pnum][i].corrupted = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc);
+		Charms_Used[pnum][i].implicit.attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc);
+		Charms_Used[pnum][i].implicit.attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc);
+		Charms_Used[pnum][i].implicit.attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc);
+		Charms_Used[pnum][i].implicit.attrib_extra = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc);
+
 		for(j = 0; j < Charms_Used[pnum][i].attrib_count; ++j) {
 			Charms_Used[pnum][i].attributes[j].attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc);
 			Charms_Used[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
 			Charms_Used[pnum][i].attributes[j].attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc);
+			Charms_Used[pnum][i].attributes[j].attrib_extra = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc);
 			Charms_Used[pnum][i].attributes[j].fractured = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc);
 		}
 		
@@ -1117,10 +1209,19 @@ void WipeoutPlayerData(int pnum, int cid) {
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, 0);
+
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, 0);
+
 		for(j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 		}
 	}
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -1134,10 +1235,18 @@ void WipeoutPlayerData(int pnum, int cid) {
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, 0);
+
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, 0);
+
 		for(j = 0; j < Charms_Used[pnum][i].attrib_count; ++j) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 		}
 	}
@@ -1294,10 +1403,18 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, 0);
+
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, 0);
+
 		for(j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 		}
 	}
@@ -1312,10 +1429,18 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_STACK), char_id), pacc, 0);
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), char_id), pacc, 0);
+
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITID), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER), char_id), pacc, 0);
+		SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA), char_id), pacc, 0);
+
 		for(j = 0; j < Charms_Used[pnum][i].attrib_count; ++j) {
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBTIER, s:"_", d:j), char_id), pacc, 0);
+			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBEXTRA, s:"_", d:j), char_id), pacc, 0);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, 0);
 		}
 	}

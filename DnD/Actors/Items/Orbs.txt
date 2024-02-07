@@ -445,7 +445,7 @@ Actor OrbofCrackling : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB4 SSSTTTUUUVVVWWWXXXYYYZZZYYYXXXWWWVVVUUUTTT 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB4 SSSTTTUUUVVVWWWXXXYYYZZZVVVWWWXXX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:

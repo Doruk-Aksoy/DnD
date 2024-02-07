@@ -72,7 +72,6 @@ server noarchive int dnd_quest_chance = 20;
 server noarchive int dnd_quest_avglevel = 1;
 server noarchive int dnd_elite_spawnchance = 10;
 server noarchive int dnd_elite_spawnlevel = 20;
-server noarchive int dnd_elite_runedrop_chance = 15;
 server noarchive int dnd_legendary_chance = 1;
 server noarchive int dnd_limitedrespawn_amount = 2;
 
@@ -83,10 +82,10 @@ server noarchive int dnd_credit_scale = 1;
 server noarchive int dnd_budget_scale = 2;
 server noarchive int dnd_accessorylevel = 8;
 server noarchive int dnd_accessorymonsterlevel = 10;
-server noarchive int dnd_monster_hpscalepercent = 5;
+server noarchive int dnd_monster_hpscalepercent = 0;
 server noarchive int dnd_monster_rewardscalepercent = 5;
 server noarchive float dnd_uniquemonster_spawnchance = 0.01; // 0 - 1.0 is 0 to 100% percent
 
 server noarchive float dnd_monster_variation_factor = 1.5;
 server noarchive float dnd_researchdroprate = 0.00249;
-server noarchive int dnd_monster_dmgscalepercent = 4; // 4 percent
+server noarchive int dnd_monster_dmgscalepercent = 0; // 4 percent

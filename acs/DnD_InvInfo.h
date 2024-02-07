@@ -65,9 +65,10 @@ typedef struct {
 	int attrib_val;
 	int attrib_id;
 	int attrib_tier;
+	int attrib_extra;								// this one can hold an extra information regarding the attribute, or corrupted implicit
 	bool fractured;
 } attr_inf_T;
-#define ATTRIB_DATA_COUNT 4
+#define ATTRIB_DATA_COUNT 5
 
 typedef struct it {
 	int width;										// width in inventory space
@@ -78,6 +79,10 @@ typedef struct it {
 	int item_level;									// what level this item is
 	int item_stack;									// the stack of the item (if applicable)
 	int topleftboxid;								// used to determine the owning pointer (-1 of this is the pointer)
+
+	bool corrupted;									// is the item corrupted?
+	attr_inf_T implicit;							// id of the implicit attribute -- can be a corrupted implicit too
+
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
 } inventory_T;

@@ -210,6 +210,20 @@ IATTR_T98			= "chance to ignore ailment immunities";
 IATTR_T99			= "to ignite chance";
 IATTR_T100			= "to ignite proliferation chance";
 
+// corrupt implicits
+
+IATTR_TC1			= "Increased weapon damage to";
+IATTR_TC2			= "Increased crit chance to";
+IATTR_TC3			= "Increased crit damage to";
+IATTR_TC4			= "movement speed";
+IATTR_TC5			= "more chance to find loot";
+IATTR_TC6			= "increased stats";
+IATTR_TC7			= "percentage health damage to";
+IATTR_TC8			= "of damage dealt as poison to";
+IATTR_TC9			= "forces pain";
+
+// regular implicits
+
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
 IATTR_TE2 			= "Soul weapons penetrate ";
