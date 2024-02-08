@@ -5549,20 +5549,8 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 					for(j = 0; j < cnt; ++j) {
 						temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED);
 						val = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED);
-						if(val > 0) {
-							// dont show this, skip to next attribute's detail
-							if(temp == INV_EX_CHANCE) {
-								++j;
-								++itype;
-								Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), itype, isubt, val, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
-							}
-							else
-								Log(s:"    ", s:GetItemAttributeText(temp, itype, isubt, val, 0));
-						}
-						else if(!val) {
-							// unique item doesn't have numeric attribute to show
+						if(val >= 0)
 							Log(s:"    ", s:GetItemAttributeText(temp, itype, isubt, val, 0));
-						}
 						else
 							Log(s:"    - ", s:GetItemAttributeText(temp, itype, isubt, val, 0));
 					}
@@ -6190,7 +6178,7 @@ Script 68 (int x) NET {
 		else if(x == 420) {
 			SpawnCharm(0, true);
 			SpawnCharm(0, true);
-			SpawnOrbForAll(10, random(40, 120));
+			SpawnOrbForAll(1, random(40, 120));
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 			//SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
 			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);

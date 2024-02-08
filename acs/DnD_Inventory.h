@@ -638,6 +638,15 @@ int CheckItemAttribute(int pnum, int item_pos, int attrib_index, int source, int
 	return -1;
 }
 
+// specialized version of the above function for playerinventorylist -- keeps it cleaner arguments wise I guess
+int IsAttribInItem(int pnum, int item_pos, int attrib_id) {
+	int count = PlayerInventoryList[pnum][item_pos].attrib_count;
+	for(int i = 0; i < count; ++i)
+		if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id == attrib_id)
+			return true;
+	return false;
+}
+
 // find the item that has a min, if basis isn't -1 then we must exclude this from inclusion to min
 int FindMinOnUsedCharmsForAttribute(int pnum, int attrib_index, int basis) {
 	int res = -1, temp, compare = INT_MAX;
@@ -1315,26 +1324,48 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 
 void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int itype, int isubt, int id_begin, int id_mult, int attr_count = 0) {
 	int i, j;
-	int val, temp, lvl;
+	int val, temp, lvl, extra;
 	int yoff = 0.0;
 	bool showModTiers = GetCVar("dnd_detailedmods");
+	bool isUnique = false;
 	
 	SetFont("SMALLFONT");
-	if(itype == DND_ITEM_CHARM) {
+	if(IsStackedItem(itype)) {
+		temp = isubt + GetInventoryInfoOffset(itype);
+		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n\n", l:GetInventoryText(temp); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 32.0 * (source == DND_SYNC_ITEMSOURCE_FIELD), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		return;
+	}
+	else {
 		// temp holds charm's tier id
 		lvl = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, topboxid, -1, source);
-		temp = GetItemTier(lvl);
-		HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-		);
+		
+		if(itype == DND_ITEM_CHARM) {
+			temp = GetItemTier(lvl);
+			HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; 
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			);
+		}
+		else if(itype > UNIQUE_BEGIN) {
+			temp = itype & 0xFFFF;
+			itype >>= UNIQUE_BITS;
+			--itype;
+			isUnique = true;
+
+			HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+		}
 		
 		val = GetStat(STAT_LVL) < lvl ? CR_RED : CR_WHITE;
 		HudMessage(l:"DND_LEVEL_HEADER", s:": ", d:lvl; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 4, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
+		// implicit
 		temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, -1, source);
 		if(temp != -1) {
+			if(isUnique)
+				yoff = 6.0;
+
 			HudMessage(
 				s:GetItemAttributeText(
 					temp, 
@@ -1348,143 +1379,60 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 					false
 				); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 4, CR_WHITE, bx, by + 12.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 5, CR_WHITE, bx, by + 12.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
 			yoff = 16.0;
+			if(isUnique)
+				yoff = 24.0;
 		}
 
 		SetFont("IMPSEPR");
 		HudMessage(s:"A"; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 5, val, GetIntegerBits(bx) + 0.4, by + 16.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6, val, GetIntegerBits(bx) + 0.4, by + 16.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
 		SetFont("SMALLFONT");
 		for(j = 0; j < attr_count; ++j) {
 			temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
 			val = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
+
 			lvl = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, topboxid, j, source);
+			if(isUnique)
+				lvl = itype;
+
+			extra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, topboxid, j, source);
 			HudMessage(
-				s:GetItemAttributeText(temp, itype, isubt, val, 0, lvl, showModTiers, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source)); 
+				s:GetItemAttributeText(
+					temp, 
+					itype, 
+					isubt, 
+					val, 
+					extra, 
+					lvl, 
+					showModTiers, 
+					j, 
+					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source)
+				); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
 				id_begin - id_mult * MAX_INVENTORY_BOXES - 6 - j, CR_WHITE, bx, by + 28.0 + 24.0 * j + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
-
-		if(GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, topboxid, -1, source)) {
-			SetFont("IMPSEPRC");
-			HudMessage(s:"A"; 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - attr_count, val, GetIntegerBits(bx) + 0.4, by + 24.0 * (attr_count + 1) + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
-
-			SetFont("SMALLFONT");
-			HudMessage(
-				s:"\cgCORRUPTED"; 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 8 - attr_count, CR_WHITE, bx, by + 36.0 + 24.0 * attr_count + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
-		}
 	}
-	else if(IsStackedItem(itype)) {
-		temp = isubt + GetInventoryInfoOffset(itype);
-		HudMessage(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n\n", l:GetInventoryText(temp); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 32.0 * (source == DND_SYNC_ITEMSOURCE_FIELD), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-	}
-	else if(itype > UNIQUE_BEGIN) {
-		temp = itype & 0xFFFF;
-		itype >>= UNIQUE_BITS;
-		--itype;
-		
-		lvl = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, topboxid, -1, source);
-		val = GetStat(STAT_LVL) < lvl ? CR_RED : CR_WHITE;
-		HudMessage(l:"DND_LEVEL_HEADER", s:": ", d:lvl; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 4, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+
+	// corrupted label and seperator
+	if(GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, topboxid, -1, source)) {
+		SetFont("IMPSEPRC");
+		HudMessage(s:"A"; 
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 8 - attr_count, val, GetIntegerBits(bx) + 0.4, by + 24.0 * (attr_count + 1) + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
-		
-		// itype holds unique position, temp is the actual item type -- so does lvl
-		lvl = itype;
-		HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-		HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-		
-		// itype will count the skipped properties (the helper attributes)
-		itype = 0;
-		for(j = 0; j < attr_count; ++j) {
-			temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
-			val = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source);
-			if(val > 0) {
-				// dont show this, skip to next attribute's detail
-				if(temp == INV_EX_CHANCE) {
-					++j;
-					++itype;
-					HudMessage(
-						s:GetItemAttributeText(
-							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source), 
-							itype, 
-							isubt, 
-							val, 
-							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source), 
-							lvl, 
-							showModTiers, 
-							j,
-							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source)
-						);
-						HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 5 - (j - itype), CR_WHITE,
-						bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-					);
-				}
-				else {
-					HudMessage(
-						s:GetItemAttributeText(
-							temp, 
-							itype, 
-							isubt, 
-							val, 
-							0, 
-							lvl, 
-							showModTiers,
-							j,
-							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source)
-						);
-						HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 5 - (j - itype), CR_WHITE,
-						bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-					);
-				}
-			}
-			else if(!val) {
-				// unique item doesn't have numeric attribute to show
-				HudMessage(
-					s:GetItemAttributeText(
-						temp, 
-						itype, 
-						isubt, 
-						val, 
-						0,
-						0,
-						false,
-						-1,
-						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source)
-					);
-					HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 5 - (j - itype), CR_WHITE,
-					bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-				);
-			}
-			else {
-				HudMessage(
-					s:"- ", s:GetItemAttributeText(
-						temp,
-						itype, 
-						isubt, 
-						val, 
-						0, 
-						lvl, 
-						showModTiers, 
-						j,
-						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source)
-					);
-					HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 5 -  (j - itype), CR_WHITE,
-					bx, by + 24.0 + 24.0 * (j - itype), INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-				);
-			}
-		}
+
+		SetFont("SMALLFONT");
+		HudMessage(
+			s:"\cgCORRUPTED"; 
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
+			id_begin - id_mult * MAX_INVENTORY_BOXES - 9 - attr_count, CR_WHITE, bx, by + 36.0 + 24.0 * attr_count + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+		);
 	}
 }
 
@@ -1849,7 +1797,6 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		break;
 		
 		// exotic stuff -- reason most of these dont have syncs is that they arent meant to be shown in stat menu page, so no need for client to be aware
-		case INV_EX_CHANCE:
 		case INV_EX_FORSHOW_BURSTGETSPELLETBONUS:
 			// by itself these do nothing
 		break;
@@ -1936,22 +1883,6 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 						SetActorProperty(0, APROP_HEALTH, temp);
 				}
 			}
-		break;
-		case INV_EX_CHANCE_HEALMISSINGONPAIN:
-			// -1 of aindex is used to retrieve chance
-			// i will hold the chance of this to happen
-			i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex - 1, source);
-			temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
-			if(temp && asubtype == DND_CHARM_SMALL) {
-				i *= temp;
-				i /= FACTOR_FIXED_RESOLUTION; // our scale to lower it down from integer mult
-			}
-			temp = GetPlayerAttributeValue(pnum, atype);
-			if(!remove)
-				temp = ((temp & 0xFFFF) + aval) | (((temp >> 16) + i) << 16);
-			else
-				temp = ((temp & 0xFFFF) - aval) | (((temp >> 16) - i) << 16);
-			SetPlayerModValue(pnum, atype, temp, noSync);
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
 			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval, noSync);
@@ -2296,41 +2227,26 @@ int ScourItem(int pnum, int item_pos) {
 
 	// completely reset the item attribs
 	for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
-		// skip over fractured mod
+		// is this fractured
 		if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured) {
-			TempArray[frac_id++] = i;
-			continue;
+			// if fractured mods are on top, ordered, do not erase or do anything
+			if(frac_id == i)
+				continue;
+			// move the fractured mod to the beginning
+			PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val;
+			PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+			PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_id = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id;
+			PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_extra = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_extra;
+			PlayerInventoryList[pnum][item_pos].attributes[frac_id].fractured = true;
+			++frac_id;
 		}
+
+		// erase the current attribute slot
 		PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val = 0;
 		PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier = 0;
 		PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id = 0;
 		PlayerInventoryList[pnum][item_pos].attributes[i].attrib_extra = 0;
 		PlayerInventoryList[pnum][item_pos].attributes[i].fractured = 0;
-	}
-
-	// move the fractured mods to the beginning
-	frac_id = 0;
-	for(i = 0; i < min_count; ++i) {
-		// if said fractured mod is the same as frac_id, ignore
-		// ex: id 0 is fractured, skip it etc.
-		if(frac_id == TempArray[i]) {
-			++frac_id;
-			continue;
-		}
-
-		PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_val;
-		PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_tier;
-		PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_id = PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_id;
-		PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_extra = PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_extra;
-		PlayerInventoryList[pnum][item_pos].attributes[frac_id].fractured = true;
-
-		PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_val = 0;
-		PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_tier = 0;
-		PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_id = 0;
-		PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].attrib_extra = 0;
-		PlayerInventoryList[pnum][item_pos].attributes[TempArray[i]].fractured = false;
-
-		++frac_id;
 	}
 
 	PlayerInventoryList[pnum][item_pos].attrib_count = min_count;
@@ -2414,8 +2330,8 @@ void MakeUnique(int item_pos, int item_type, int pnum) {
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	}
 	#ifdef ISDEBUGBUILD
-	i = random(0, MAX_UNIQUE_ITEMS - 1);
-	//i = UITEM_PELLETSTORM;
+	//i = random(0, MAX_UNIQUE_ITEMS - 1);
+	i = UITEM_ANCIENTGEMSTONE;
 	#endif
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type, pnum);
@@ -2437,10 +2353,14 @@ void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type, int pnum
 		
 		// we must roll the value once dropped
 		bool makeWellRolled = CheckWellRolled(pnum);
-		if(!makeWellRolled)
+		if(!makeWellRolled) {
 			Inventories_On_Field[fieldpos].attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
-		else
+			Inventories_On_Field[fieldpos].attributes[i].attrib_extra = random(UniqueItemList[unique_id].rolls[i].attrib_extra_low, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
+		}
+		else {
 			Inventories_On_Field[fieldpos].attributes[i].attrib_val = random((UniqueItemList[unique_id].rolls[i].attrib_low + UniqueItemList[unique_id].rolls[i].attrib_high) / 2, UniqueItemList[unique_id].rolls[i].attrib_high);
+			Inventories_On_Field[fieldpos].attributes[i].attrib_extra = random((UniqueItemList[unique_id].rolls[i].attrib_extra_low + UniqueItemList[unique_id].rolls[i].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
+		}
 	}
 }
 

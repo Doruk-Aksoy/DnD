@@ -207,8 +207,7 @@ enum {
 	// add new essences here
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
-	INV_EX_CHANCE = UNIQUE_ATTRIB_ID_BEGIN, // this is the generic "chance to do X" thing, the starter attribute, any effect that use this will come immediately after it
-	INV_EX_CHANCE_CASTELEMSPELLONATK,
+	INV_EX_CHANCE_CASTELEMSPELLONATK = UNIQUE_ATTRIB_ID_BEGIN,
 	INV_EX_KNOCKBACK_IMMUNITY,
 	INV_EX_FACTOR_SMALLCHARM,
 	INV_EX_ALLSTATS,
@@ -249,7 +248,7 @@ enum {
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
-#define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE
+#define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE_CASTELEMSPELLONATK
 #define UNIQUE_ATTRIB_END INV_EX_SOULWEPSPEN
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
@@ -271,7 +270,8 @@ enum {
 typedef struct {
 	int attrib_low;
 	int attrib_high;
-	int attrib_extra;
+	int attrib_extra_low;
+	int attrib_extra_high;
 	int attrib_level_modifier;
 	int tags;
 } inv_attrib_T;
@@ -1205,35 +1205,41 @@ str GetDetailedImplicitModRange(int attr, int item_type, int item_subtype, int t
 	);
 }
 
-str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_roll_id = 0, bool isPercentage = false) {
+str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_roll_id = 0, bool isPercentage = false, bool isExtra = false) {
+	int low = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low;
+	int high = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high;
+
+	if(isExtra) {
+		low = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_extra_low;
+		high = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_extra_high;
+	}
+
 	if(!trunc_factor) {
 		return StrParam(
 			s:"\c-(",
-			s:"\c[D1]", d:UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low,
+			s:"\c[D1]", d:low,
 			s:"\c--",
-			s:"\c[D1]", d:UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high, s:"\c-)"
+			s:"\c[D1]", d:high, s:"\c-)"
 		);
 	}
 	
 	if(unique_id != UITEM_WELLOFPOWER) {
 		return StrParam(
 			s:"\c-(",
-			s:"\c[D1]", s:GetFixedRepresentation(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low, isPercentage),
+			s:"\c[D1]", s:GetFixedRepresentation(low, isPercentage),
 			s:"\c--",
-			s:"\c[D1]", s:GetFixedRepresentation(UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high, isPercentage), s:"\c-)"
+			s:"\c[D1]", s:GetFixedRepresentation(high, isPercentage), s:"\c-)"
 		);
 	}
 
 	// this item is a little odd, so we need to treat it as such
 	// since ACS can't round floats to shit (bad representation, w.e) we need to do a custom one for weird numbers like this
-	int low = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_low;
-	int hi = UniqueItemList[unique_id].rolls[unique_roll_id].attrib_high;
-	
+
 	return StrParam(
 		s:"\c-(",
 		s:"\c[D1]", d:low / 1000, s:".", d:(low / 100) % 10, d:(low / 10) % 10,
 		s:"\c--",
-		s:"\c[D1]", d:hi / 1000, s:".", d:(hi / 100) % 10, d:(hi / 10) % 10, s:"\c-)"
+		s:"\c[D1]", d:high / 1000, s:".", d:(high / 100) % 10, d:(high / 10) % 10, s:"\c-)"
 	);
 }
 
@@ -1488,12 +1494,12 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra - 1), s:"%\c- ",
-					l:text, s:"\c[Q9]", d:val2, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_RECOVERHPHURT",
+					s:"\c[Q9]", d:val2, s:GetDetailedModRange_Unique(tier, 0, extra, false, true), s:"%\c- ",
+					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_RECOVERHPHURT",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q9]", d:val1, s:"%\c- ", l:GetInventoryAttributeText(INV_EX_CHANCE), l:text, s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
+			return StrParam(s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_TX_CHANCE", l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
 		
 		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			if(showDetailedMods) {

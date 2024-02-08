@@ -198,8 +198,8 @@ global int 5: HardcoreSet;
 global bool 6: PlayerLoaded[MAXPLAYERS];
 global bool 7: PlayerDied[MAXPLAYERS];
 
-// used for aux stuff
-global int 58: TempArray[];
+// used for aux stuff -- 16 unique sections
+global int 58: TempArray[16][256];
 
 enum {
 	DND_ITEMLOAD_CHECK,
