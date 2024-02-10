@@ -812,24 +812,24 @@ void HandleChestDrops(int ctype) {
 	if(ctype == DND_CHESTTYPE_BRONZE) {
 		/*RunDefaultDropChance(int pnum, bool isElite, int basechance)
 		RunDefaultDropChance(i, true, DND_ELITE_BASEDROP_ORB + addchance)*/
-		SpawnOrbForAll(1);
+		SpawnOrbForAll(3);
 		if(RunDefaultDropChance(pnum, 0.5))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_SILVER) {
-		SpawnOrbForAll(2);
+		SpawnOrbForAll(5);
 		if(RunDefaultDropChance(pnum, 0.75))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
-		SpawnOrbForAll(3);
+		SpawnOrbForAll(8);
 		SpawnTokenForAll(1);
 	}
 	
-	// common to all chests, an extra orb can drop with 25% chance and another with 10%
-	if(RunDefaultDropChance(pnum, 0.25))
+	// common to all chests, an extra orb can drop with 33% chance and another with 20%
+	if(RunDefaultDropChance(pnum, 0.33))
 		SpawnOrbForAll(1);
-	if(RunDefaultDropChance(pnum, 0.1))
+	if(RunDefaultDropChance(pnum, 0.2))
 		SpawnOrbForAll(1);
 }
 

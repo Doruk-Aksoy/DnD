@@ -1,9 +1,9 @@
 flickerlight ENHANCEORBLIGHT
 {
     color 0.75 0.75 0.0
-    size 24
-    secondarySize 42
-    chance 0.5
+    size 32
+    secondarySize 40
+    chance 0.25
 }
 
 object OrbOfEnhancement {
@@ -158,7 +158,7 @@ pointlight HOLDINGLIGHT {
 	size 32
 }
 
-object OrbofHolding {
+object OrbofTinkerer {
 	frame ORB3 { light HOLDINGLIGHT }
 }
 
@@ -217,4 +217,156 @@ pointlight ORBASSIMLIGHT {
 
 object OrbofAssimilation {
 	frame ORB3R { light ORBASSIMLIGHT }
+}
+
+flickerlight2 CracklingOrbLight
+{
+    color 0.8 0.8 1.0
+    size 50
+	secondarySize 70
+	interval 0.05
+}
+
+object OrbofCrackling
+{
+    frame ORB4 { light CracklingOrbLight }
+}
+
+pointlight PotencyLight00
+{
+    color 0.4 0.4 1.0
+    size 60
+}
+pointlight PotencyLight01
+{
+    color 0.3 0.6 1.0
+    size 8
+}
+pointlight PotencyLight02
+{
+    color 0.3 0.6 1.0
+    size 16
+    offset 0 16 0
+}
+pointlight PotencyLight03
+{
+    color 0.3 0.6 1.0
+    size 24
+}
+pointlight PotencyLight04
+{
+    color 0.3 0.6 1.0
+    size 32
+}
+pointlight PotencyLight05
+{
+    color 0.3 0.6 1.0
+    size 40
+}
+
+object OrbOfPotency
+{
+    frame ORB4 { light PotencyLight0 }
+    frame ORB4J { light PotencyLight01 }
+    frame ORB4K { light PotencyLight01 }
+    frame ORB4L { light PotencyLight01 }
+    frame ORB4M { light PotencyLight01 }
+	frame ORB4N { light PotencyLight02 }
+	frame ORB4O { light PotencyLight03 }
+	frame ORB4P { light PotencyLight04 }
+	frame ORB4Q { light PotencyLight05 }
+}
+
+pulselight HexOrbLight
+{
+	color 1.0 0.0 1.0
+	size 40
+	secondarySize 42
+	interval 2.0
+}
+
+object OrbofHexes
+{
+	frame ORB4 { light HexOrbLight }
+}
+
+pointlight TurmoilLight
+{
+    color 0.6 0.6 0.1
+    size 32
+}
+
+object OrbOfTurmoil
+{
+	frame ORB4 { light TurmoilLight }
+}
+
+pointlight GrowthLight
+{
+    color 0.9 0.25 0.125
+    size 32
+}
+
+object OrbOfGrowth
+{
+	frame ORB4 { light GrowthLight }
+}
+
+pointlight BruteOrbLight
+{
+    color 0.6 0.1 0.1
+    size 32
+}
+
+object OrbOfBrute
+{
+	frame ORB5 { light BruteOrbLight }
+}
+
+pointlight JaggedLight
+{
+    color 0.15 0.6 0.15
+    size 32
+}
+
+object OrbOfJagged
+{
+	frame ORB5 { light JaggedLight }
+}
+
+pointlight AlchemistOrbLight
+{
+	color 0.7 0.25 0.05
+	size 40
+}
+
+object OrbOfAlchemist
+{
+	frame ORB5 { light AlchemistOrbLight }
+}
+
+pulselight EvokeLight
+{
+	color 0.2 0.8 0.175
+	size 40
+	secondarySize 45
+	interval 2.0
+}
+
+object OrbofEvoker
+{
+	frame ORB5 { light EvokeLight }
+}
+
+pulselight SavageryLight
+{
+	color 0.8 0.4 0.1
+	size 30
+	secondarySize 40
+	interval 2.0
+}
+
+object OrbofSavagery
+{
+	frame ORB5 { light SavageryLight }
 }

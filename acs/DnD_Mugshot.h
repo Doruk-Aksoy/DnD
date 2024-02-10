@@ -201,7 +201,7 @@ str GetMugshotGraphic(str mugstr) {
 	switch(PlayerMugshotData[PMUG_STATE]) {
 		case DND_MUGSTATE_EVILGRIN:
 			hp_pct = GetHealthPercent();
-		return StrParam(s:mugstr, s:"EVL", d:5 - (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT);
+		return StrParam(s:mugstr, s:"EVL", d:5 - max(1, (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT));
 		
 		case DND_MUGSTATE_GOD:
 		return StrParam(s:mugstr, s:"GOD", d:PlayerMugshotData[PMUG_FRAME]);
@@ -210,23 +210,23 @@ str GetMugshotGraphic(str mugstr) {
 		case DND_MUGSTATE_KILL:
 		case DND_MUGSTATE_PAIN:
 			hp_pct = GetHealthPercent();
-		return StrParam(s:mugstr, s:"KILL", d:5 - (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT);
+		return StrParam(s:mugstr, s:"KILL", d:5 - max(1, (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT));
 		
 		case DND_MUGSTATE_OUCH:
 			hp_pct = GetHealthPercent();
-		return StrParam(s:mugstr, s:"OUCH", d:5 - (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT);
+		return StrParam(s:mugstr, s:"OUCH", d:5 - max(1, (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT));
 		
 		case DND_MUGSTATE_IDLE:
 			hp_pct = GetHealthPercent();
-		return StrParam(s:mugstr, s:"ST", d:5 - (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT, d:PlayerMugshotData[PMUG_FRAME]);
+		return StrParam(s:mugstr, s:"ST", d:5 - max(1, (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT), d:PlayerMugshotData[PMUG_FRAME]);
 		
 		case DND_MUGSTATE_OUCHLEFT:
 			hp_pct = GetHealthPercent();
-		return StrParam(s:mugstr, s:"TL", d:5 - (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT, d:0);
+		return StrParam(s:mugstr, s:"TL", d:5 - max(1, (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT), d:0);
 		
 		case DND_MUGSTATE_OUCHRIGHT:
 			hp_pct = GetHealthPercent();
-		return StrParam(s:mugstr, s:"TR", d:5 - (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT, d:0);
+		return StrParam(s:mugstr, s:"TR", d:5 - max(1, (hp_pct + DND_MUGSHOT_HP_PERCENT - 1) / DND_MUGSHOT_HP_PERCENT), d:0);
 		
 		case DND_MUGSTATE_DEATH:
 		return StrParam(s:mugstr, s:"DEAD", d:0);
@@ -250,7 +250,7 @@ void HandleMugshotState(int width, int height, str mugstr, int xoffset, int aspe
 		
 	SetFont(mugframe);
 	SetHudSize(width, height, true);
-	
+
 	// in case of rounding errors we need to properly get rid of the other parts...
 	xoffset += GetHudLeft(width) << 16;
 	xoffset &= 0xFFFF0000;

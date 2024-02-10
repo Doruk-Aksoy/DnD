@@ -159,7 +159,7 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 
 void CleanInventoryInfo(int id_begin = RPGMENUINVENTORYID) {
 	// log(s:"cleaning up!");
-	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 
 // cleans up stuff in crafting material panel -- minus_bg is for preserving the background!

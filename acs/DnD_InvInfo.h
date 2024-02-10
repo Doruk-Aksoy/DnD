@@ -6,11 +6,13 @@
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
 
-// only orbs and elixirs
+// only orbs and tokens
 #define MAX_CRAFTITEMTYPES 2
 
 #define DND_CYBERNETIC_FACTOR_MUL 13 // +30% = x1.3
 #define DND_CYBERNETIC_FACTOR_DIV 10
+
+#define DND_MAX_ITEM_QUALITY 25
 
 enum {
 	DND_INVCATEGORY_WORN,
@@ -28,20 +30,13 @@ enum {
 	DND_ITEM_NECKLACE,
 	DND_ITEM_ORB,
 	DND_ITEM_CHESTKEY,
-	DND_ITEM_ELIXIR,
 	DND_ITEM_WEAPON,
 	DND_ITEM_TOKEN
-};
-
-int CraftItemTypes[MAX_CRAFTITEMTYPES] = {
-	DND_ITEM_ORB,
-	DND_ITEM_ELIXIR
 };
 
 enum {
 	DND_STACKEDITEM_ORB,
 	DND_STACKEDITEM_CHESTKEY,
-	DND_STACKEDITEM_ELIXIR,
 	DND_STACKEDITEM_TOKEN
 };
 
@@ -82,6 +77,7 @@ typedef struct it {
 
 	bool corrupted;									// is the item corrupted?
 	attr_inf_T implicit;							// id of the implicit attribute -- can be a corrupted implicit too
+	int quality;
 
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
@@ -92,23 +88,6 @@ enum {
 	DND_CHESTTYPE_BRONZE,
 	DND_CHESTTYPE_SILVER,
 	DND_CHESTTYPE_GOLD
-};
-
-enum {
-	DND_ELIXIR_HEALTH,
-	DND_ELIXIR_ARMOR,
-	DND_ELIXIR_HPARMOR,
-	DND_ELIXIR_HPPERCENT,
-	DND_ELIXIR_ARMORPERCENT,
-	DND_ELIXIR_HPARMORPERCENT,
-	DND_ELIXIR_SPEED,
-	DND_ELIXIR_DAMAGE,
-	DND_ELIXIR_LUCK
-};
-
-enum {
-	DND_TOKEN_REPAIR,
-	DND_TOKEN_SCOUR
 };
 
 // these are used for accessing common info table below
@@ -141,6 +120,9 @@ enum {
 	DND_ISUBT_ORB_CRACKLING,
 	DND_ISUBT_ORB_BRUTE,
 	DND_ISUBT_ORB_JAGGED,
+	DND_ISUBT_ORB_ALCHEMIST,
+	DND_ISUBT_ORB_EVOKER,
+	DND_ISUBT_ORB_SAVAGERY,
 	
 	// monster specific
 	DND_ISUBT_ORB_HOLLOW,
@@ -148,7 +130,7 @@ enum {
 	DND_ISUBT_ORB_ASSIMILATION,
 	
 	DND_ISUBT_TOKEN_REPAIR,
-	DND_ISUBT_TOKEN_SCOUR
+	DND_ISUBT_TOKEN_GUNSMITH
 };
 
 #define CHESTKEY_BEGIN DND_ISUBT_CHESTTYPE_BRONZE
@@ -157,9 +139,9 @@ enum {
 #define TOKEN_BEGIN DND_ISUBT_TOKEN_REPAIR
 
 #define CHESTKEY_END DND_ISUBT_CHESTTYPE_GOLD
-#define ORBS_END DND_ISUBT_ORB_JAGGED
+#define ORBS_END DND_ISUBT_ORB_SAVAGERY
 #define MONSTER_ORBS_END DND_ISUBT_ORB_ASSIMILATION
-#define TOKEN_END DND_ISUBT_TOKEN_SCOUR
+#define TOKEN_END DND_ISUBT_TOKEN_GUNSMITH
 
 #define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)
 #define MAX_ORBS (MONSTER_ORBS_END - ORBS_BEGIN + 1) // notice the monster drops were below regular and we use their index as final here
@@ -173,44 +155,18 @@ int TokenWeights[MAX_TOKENS] = {
 
 #define MAX_COMMON_INVENTORY (TOKEN_END + 1)
 
-str InventoryInfo[MAX_COMMON_INVENTORY] = {
-	"BronzeChestKey",
-	"SilverChestKey",
-	"GoldChestKey",
-	
-	"OrbOfEnhancement",
-	"OrbOfCorruption",
-	"PrismaticOrb",
-	"OrbofRepentance",
-	"OrbofAffluence",
-	"OrbofCalamity",
-	"OrbofProsperity",
-	"OrbofNullification",
-	"OrbofGreed",
-	"OrbofViolence",
-	"OrbofFortitude",
-	"OrbofSin",
-	"OrbofTremors",
-	"OrbofTinkerer",
-	"OrbofRefinement",
-	"OrbofSculpting",
-	"OrbofElevation",
-	"OrbofTurmoil",
-	"OrbofHexes",
-	"OrbofGrowth",
-	"OrbofPotency",
-	"OrbofCrackling",
-	"OrbofBrute",
-	"OrbofJagged",
-
-	// monster specific orb drops
-	"OrbofHollow",
-	"OrbofPhantasmal",
-	"OrbofAssimilation",
-
-	"RepairToken",
-	"ScouringToken"
-};
+str GetInventoryName(int inv) {
+	str label = "";
+	if(inv <= CHESTKEY_END)
+		label = StrParam(s:"DND_KEYN", d:inv + 1);
+	else if(inv <= ORBS_END)
+		label = StrParam(s:"DND_ORBN", d:inv + 1 - ORBS_BEGIN);
+	else if(inv <= MONSTER_ORBS_END)
+		label = StrParam(s:"DND_ORBNM", d:inv + 1 - MONSTER_ORBS_BEGIN);
+	else
+		label = StrParam(s:"DND_TOKENN", d:inv + 1 - TOKEN_BEGIN);
+	return StrParam(l:label);
+}
 
 // the below two are for when only text or tag are needed, 3rd is for the entire thing being needed (a tiny optimization)
 // draw tag with \c[Y5] color code, then \n then text

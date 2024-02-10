@@ -271,7 +271,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		
 		// hovered on or things that are otherwise redrawn over and over
 		if(PlayerCursorData.itemClicked != -1 && CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1 != PlayerCursorData.itemClicked) {
-			if(PlayerCursorData.clickNeedsReset)
+			if(PlayerCursorData.clickNeedsReset || CheckInventory("DnD_CursorDataClearRequest"))
 				ResetCursorClickData();
 			else {
 				// don't draw twice
@@ -405,6 +405,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				TakeInventory("DnD_CleanTradeviewRequest", 1);
 			}
 
+			SetFont("SMALLFONT");
 			if(curopt == MENU_STAT1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_STATS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				SetHudClipRect(192, 56, 256, 144, 256);
@@ -559,6 +560,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 				SetFont("SMALLFONT");
 				HandleCraftingView(pnum, InventoryPane, boxid, curopt, k);
+				SetFont("SMALLFONT");
 			}
 			else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_TRADE", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);

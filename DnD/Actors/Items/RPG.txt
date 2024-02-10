@@ -528,6 +528,11 @@ Actor DnD_CleanCraftingRequest : PowerDamage {
 	powerup.duration 3
 }
 
+Actor DnD_CursorDataClearRequest : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
 Actor DnD_AmmoToken : CustomInventory {
 	Renderstyle "Translucent"
 	inventory.pickupsound "items/ammo"

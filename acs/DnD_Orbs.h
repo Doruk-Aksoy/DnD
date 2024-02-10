@@ -35,52 +35,34 @@ global orb_info_T 3: Player_MostRecent_Orb[MAXPLAYERS];
 #define MAX_ORBS_BITS getpow2(MAX_ORBS)
 #define MAX_ORBS_BITONES (1 << (MAX_ORBS_BITS)) - 1
 
-// percentages
-/*
-12
-5
-10
-2.5
-1.5
-8
-12
-9
-9
-5
-5
-2.5
-2.5
-2.5
-5
-5
-3.5
-
-
-0 // drops only from specific monster
-0 // drops only from specific monster
-0 // drops only from specific monster
-*/
-
 int OrbDropWeights[MAX_ORBS] = {
-	120,
-	170,
-	270,
-	295,
-	310,
-	390,
-	510,
-	600,
-	690,
-	740,
-	790,
-	815,
-	840,
-	865,
-	915,
-	965,
-	975,
-	985,
-	1000,
+	60, // 6%
+	84, // 2.4%
+	129, // 4.5%
+	147, // 1.8%
+	172, // 2.5%
+	202, // 3%
+	247, // 4.5%
+	272, // 2.5%
+	302, // 3%
+	347, // 4.5%
+	392, // 4.5%
+	410, // 1.8%
+	455, // 4.5%
+	490, // 3.5%
+	540, // 5%
+	580, // 4%
+	615, // 3.5%
+	675, // 6%
+	720, // 4.5%
+	756, // 3.6%
+	781, // 2.5%
+	826, // 4.5%
+	871, // 4.5%
+	916, // 4.5%
+	940, // 2.4%
+	965, // 2.5%
+	1000, // 3.5%
 
 	// drops only from specific monster
 	0xFFFFFF,
@@ -168,6 +150,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_CRACKLING:
 		case DND_ORB_BRUTE:
 		case DND_ORB_JAGGED:
+		case DND_ORB_SAVAGERY:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// don't let this be used on a unique
 				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
@@ -202,6 +185,13 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 						res = true;
 				}
 			}
+		break;
+		case DND_ORB_ALCHEMIST:
+			res = PlayerInventoryList[pnum][extra].quality < DND_MAX_ITEM_QUALITY;
+		break;
+		case DND_ORB_EVOKER:
+			// won't work on uniques
+			res = PlayerInventoryList[pnum][extra].attrib_count > 0 && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
 		break;
 
 		case DND_ORB_HOLLOW:
@@ -279,6 +269,11 @@ void SaveUsedItemAttribs(int pnum, int item_id) {
 	}
 }
 
+void SaveUsedItemQuality(int pnum, int item_id) {
+	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
+	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].quality;
+}
+
 void SaveUsedItemImplicit(int pnum, int item_id) {
 	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
 	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].implicit.attrib_id;
@@ -310,6 +305,12 @@ void RestoreItemImplicitsFromUsedOrb(int pnum) {
 	PlayerInventoryList[pnum][temp].implicit.attrib_extra = Player_MostRecent_Orb[pnum].values[3];
 
 	SyncItemImplicits(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+}
+
+void RestoreItemQualityFromUsedOrb(int pnum) {
+	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
+	PlayerInventoryList[pnum][temp].quality = Player_MostRecent_Orb[pnum].values[0];
+	SyncItemQuality(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
 void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
@@ -354,6 +355,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					FreeItem(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 					GiveInventory("DnD_CleanCraftingRequest", 1);
 					GiveInventory("DnD_RefreshPane", 1);
+					GiveInventory("DnD_CursorDataClearRequest", 1);
 				}
 				else
 					ReforgeItem(pnum, extra);
@@ -665,6 +667,79 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
 		break;
+		case DND_ORB_ALCHEMIST:
+			// save
+			SaveUsedItemAttribs(pnum, extra);
+
+			PlayerInventoryList[pnum][extra].quality += affluence;
+			if(PlayerInventoryList[pnum][extra].quality > DND_MAX_ITEM_QUALITY)
+				PlayerInventoryList[pnum][extra].quality = DND_MAX_ITEM_QUALITY;
+			
+			SyncItemQuality(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			SetInventory("OrbResult", extra);
+		break;
+		case DND_ORB_EVOKER:
+			// check every attribute, find the one with highest tiers, and select one randomly and get an appropriate orb
+			// if it returns a tag we don't have currently, return a random orb
+			prev = -1;
+			s = 0;
+			temp = PlayerInventoryList[pnum][extra].attrib_count;
+			for(i = 0; i < temp; ++i) {
+				if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier > prev) {
+					prev = PlayerInventoryList[pnum][extra].attributes[i].attrib_tier;
+					s = 0;
+					TempArray[0][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+				}
+				else if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier == prev)
+					TempArray[0][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+			}
+
+			// now we have a list of the highest attributes, pick one random
+			s = ItemModTable[TempArray[0][random(0, s - 1)]].tags;
+			if(s & INV_ATTR_TAG_ATTACK)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_VIOLENCE, affluence);
+			if(s & INV_ATTR_TAG_CRIT)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_DESTRUCTION, affluence);
+			if(s & INV_ATTR_TAG_LIFE)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_PROSPERITY, affluence);
+			if(s & INV_ATTR_TAG_DEFENSE)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_FORTITUDE, affluence);
+			if(s & INV_ATTR_TAG_UTILITY)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_TINKERER, affluence);
+			if(s & INV_ATTR_TAG_ELEMENTAL)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_PRISMATIC, affluence);
+			if(s & INV_ATTR_TAG_EXPLOSIVE)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_TREMORS, affluence);
+			if(s & INV_ATTR_TAG_OCCULT)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_HEXES, affluence);
+			if(s & INV_ATTR_TAG_STAT)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_GROWTH, affluence);
+			if(s & INV_ATTR_TAG_PHYSICAL)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_JAGGED, affluence);
+			if(s & INV_ATTR_TAG_ENERGY)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_CRACKLING, affluence);
+			if(s & INV_ATTR_TAG_MELEE)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_BRUTE, affluence);
+			if(s & INV_ATTR_TAG_DAMAGE)
+				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_SAVAGERY, affluence);
+
+			FreeItem(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+			GiveInventory("DnD_CleanCraftingRequest", 1);
+			GiveInventory("DnD_RefreshPane", 1);
+			GiveInventory("DnD_CursorDataClearRequest", 1);
+			SetInventory("OrbResult", 1);
+		break;
+		case DND_ORB_SAVAGERY:
+			// save
+			SaveUsedItemAttribs(pnum, extra);
+				
+			s = affluence;
+			for(res = 0; res < s; ++res)
+				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_DAMAGE_ID);
+			
+			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			SetInventory("OrbResult", extra);
+		break;
 
 		case DND_ORB_HOLLOW:
 			HandleAddRandomMod(pnum, extra, 1, true);
@@ -963,20 +1038,15 @@ void RevertLastOrbEffect() {
 		case DND_ORB_CRACKLING:
 		case DND_ORB_BRUTE:
 		case DND_ORB_JAGGED:
+		case DND_ORB_SAVAGERY:
 			RestoreItemAttribsFromUsedOrb(pnum);
+		break;
+		case DND_ORB_ALCHEMIST:
+			RestoreItemQualityFromUsedOrb(pnum);
 		break;
 		case DND_ORB_AFFLUENCE:
 			TakeInventory("AffluenceCounter", 1);
 		break;
-		/*case DND_ORB_CORRUPT:
-			// uncorrupt it
-			PlayerInventoryList[pnum][Player_MostRecent_Orb[pnum].p_tempwep - 1].corrupted = false;
-
-			if(CheckInventory("OrbResult") != DND_CORRUPT_SUCCESS)
-				RestoreItemAttribsFromUsedOrb(pnum);
-			else
-				RestoreItemImplicitsFromUsedOrb(pnum);
-		break;*/
 		case DND_ORB_CALAMITY:
 			// find out how many this player does really have left, and give back that many (will give none if you used up all!)
 			i = TakeOrbFromPlayer(Player_MostRecent_Orb[pnum].values[0] / 100, Player_MostRecent_Orb[pnum].values[1]);
@@ -1015,23 +1085,6 @@ int PickRandomOrb() {
 
 int GetAffluenceBonus() {
 	return 1 << CheckInventory("AffluenceCounter");
-}
-
-bool HasWeaponWithoutCritDmgMax() {
-	int pnum = PlayerNumber();
-	/*for(int i = 0; i < MAXWEPS; ++i) {
-		if(GetDataFromOrbBonus(pnum, OBI_WEAPON_CRITDMG, i) < CORRUPTORB_MAXCRITDMG)
-			return 1;
-	}*/
-	return 0;
-}
-
-bool HasUnmaxedStats() {
-	for(int i = STAT_STR; i <= STAT_INT; ++i) {
-		if(GetStat(i) < DND_STAT_FULLMAX)
-			return 1;
-	}
-	return 0;
 }
 
 void HandleOrbUseMessage(int orbtype, int val, int affluence) {
@@ -1161,6 +1214,18 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		case DND_ORB_JAGGED:
 			Log(s:"\cj", l:"DND_ORBUSETEXT27", s:"\cj!");
 		break;
+		case DND_ORB_ALCHEMIST:
+			Log(s:"\cj", l:"DND_ORBUSETEXT28", s:"\cd ", d:affluence, s:"%", s:"\cj!");
+		break;
+		case DND_ORB_EVOKER:
+			if(affluence > 1)
+				Log(s:"\cj", l:"DND_ORBUSETEXT29", s:"\cd ", d:affluence, s:" ", l:"DND_ORBUSETEXT29BS", s:"\cj!");
+			else
+				Log(s:"\cj", l:"DND_ORBUSETEXT29", s:"\cd ", d:affluence, s:" ", l:"DND_ORBUSETEXT29B", s:"\cj!");
+		break;
+		case DND_ORB_SAVAGERY:
+			Log(s:"\cj", l:"DND_ORBUSETEXT30", s:"\cj!");
+		break;
 
 		case DND_ORB_HOLLOW:
 			if(val != 0x7FFFFFFF) {
@@ -1227,10 +1292,10 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now
-		// i = DND_ORB_CORRUPT;
+		//i = DND_ORB_EVOKER;
 		RollOrbInfo(c, i, true, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(InventoryInfo[i + ORBS_BEGIN], 24.0, 16, pnum + 1, c);
+		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if (sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
 			
@@ -1254,7 +1319,7 @@ void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false) {
 	if(c != -1) {
 		RollOrbInfo(c, id, true);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnDrop(InventoryInfo[id + ORBS_BEGIN], 24.0, 16, pnum + 1, c);
+		SpawnDrop(GetInventoryName(id + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if(sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
 			
@@ -1288,6 +1353,26 @@ Script "DnD Give Orb Delayed" (int type, int amt) {
 	Delay(1);
 	GiveOrbToPlayer(PlayerNumber(), type, amt);
 	GiveInventory("DnD_RefreshPane", 1);
+}
+
+Script "DND Orb Use Message" (int type, int result, int affluence) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	HandleOrbUseMessage(type, result, affluence);
+}
+
+Script "DND Orb Use Message (Server)" (void) {
+	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
+}
+
+Script "DND Orb Use" (int orbtype, int extra, int extra2) {
+	int pnum = PlayerNumber();
+	HandleOrbUse(pnum, orbtype, extra, extra2);
+	LocalAmbientSound("Items/OrbUse", 127);
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
+	Delay(const:2);
+	if(orbtype != DND_ORB_AFFLUENCE)
+		SetInventory("AffluenceCounter", 0);
 }
 
 #endif

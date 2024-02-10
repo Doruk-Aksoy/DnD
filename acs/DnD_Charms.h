@@ -45,6 +45,7 @@ int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + res;
 
 	Inventories_On_Field[charm_pos].corrupted = false;
+	Inventories_On_Field[charm_pos].quality = 0;
 	Inventories_On_Field[charm_pos].implicit.attrib_id = -1;
 	Inventories_On_Field[charm_pos].implicit.attrib_val = 0;
 	Inventories_On_Field[charm_pos].implicit.attrib_tier = 0;
@@ -266,6 +267,7 @@ int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 		Charms_Used[pnum][use_id].topleftboxid = use_id + 1;
 
 		Charms_Used[pnum][use_id].corrupted = PlayerInventoryList[pnum][item_index].corrupted;
+		Charms_Used[pnum][use_id].quality = PlayerInventoryList[pnum][item_index].quality;
 		Charms_Used[pnum][use_id].implicit.attrib_id = PlayerInventoryList[pnum][item_index].implicit.attrib_id;
 		Charms_Used[pnum][use_id].implicit.attrib_val = PlayerInventoryList[pnum][item_index].implicit.attrib_val;
 		Charms_Used[pnum][use_id].implicit.attrib_tier = PlayerInventoryList[pnum][item_index].implicit.attrib_tier;
@@ -275,6 +277,7 @@ int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {
 			Charms_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
 			Charms_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
 			Charms_Used[pnum][use_id].attributes[i].attrib_tier = PlayerInventoryList[pnum][item_index].attributes[i].attrib_tier;
+			Charms_Used[pnum][use_id].attributes[i].attrib_extra = PlayerInventoryList[pnum][item_index].attributes[i].attrib_extra;
 			Charms_Used[pnum][use_id].attributes[i].fractured = PlayerInventoryList[pnum][item_index].attributes[i].fractured;
 		}
 
@@ -303,6 +306,7 @@ void ResetPlayerCharmsUsed(int pnum) {
 		Charms_Used[pnum][i].topleftboxid = 0;
 
 		Charms_Used[pnum][i].corrupted = 0;
+		Charms_Used[pnum][i].quality = 0;
 		Charms_Used[pnum][i].implicit.attrib_id = -1;
 		Charms_Used[pnum][i].implicit.attrib_val = 0;
 		Charms_Used[pnum][i].implicit.attrib_tier = 0;
@@ -312,6 +316,7 @@ void ResetPlayerCharmsUsed(int pnum) {
 			Charms_Used[pnum][i].attributes[j].attrib_id = 0;
 			Charms_Used[pnum][i].attributes[j].attrib_val = 0;
 			Charms_Used[pnum][i].attributes[j].attrib_tier = 0;
+			Charms_Used[pnum][i].attributes[j].attrib_extra = 0;
 			Charms_Used[pnum][i].attributes[j].fractured = 0;
 		}
 		Charms_Used[pnum][i].attrib_count = 0;

@@ -109,7 +109,7 @@ enum {
 #define DND_ELITE_BASEDROP 0.0025 // same as below
 // this was 0.05 before, but now 0.005 because we have 10% chance for elite in the game as base, so it'll scale up for all monsters from 0.005 now
 // trying 0.01, 1% chance
-#define DND_ELITE_BASEDROP_ORB 0.01
+#define DND_ELITE_BASEDROP_ORB 0.015
 
 #define DND_BASE_PLAYERSPEED 1.0
 #define DND_BULKINESS_GAIN 0.006
@@ -571,6 +571,10 @@ void RestoreRPGStat (int statflag) {
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
 	return PlayerModValues[pnum][attrib];
+}
+
+int GetPlayerAttributeExtra(int pnum, int attrib) {
+	return PlayerModExtras[pnum][attrib];
 }
 
 int GetActorAttributeValue(int tid, int attrib) {

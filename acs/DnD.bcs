@@ -4704,26 +4704,6 @@ Script "DnD Toggle NoPain" (void) {
 		GiveInventory("TakeNoPain", 1);
 }
 
-Script "DND Orb Use Message" (int type, int result, int affluence) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-	HandleOrbUseMessage(type, result, affluence);
-}
-
-Script "DND Orb Use Message (Server)" (void) {
-	ACS_NamedExecuteAlways("DND Orb Use Message", 0, GetAffluenceBonus());
-}
-
-Script "DND Orb Use" (int orbtype, int extra, int extra2) {
-	int pnum = PlayerNumber();
-	HandleOrbUse(pnum, orbtype, extra, extra2);
-	LocalAmbientSound("Items/OrbUse", 127);
-	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
-	Delay(const:2);
-	if(orbtype != DND_ORB_AFFLUENCE)
-		SetInventory("AffluenceCounter", 0);
-}
-
 Script "DnD Timed Monster" (int time, int isPet) {
 	int cnt = 0;
 	while(cnt++ != time)
@@ -5094,7 +5074,7 @@ Script "DnD Try Open Chestkey" (int keytype) {
 		res = CheckPlayerInventoryList(GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
 		if(res != -1) {
 			SetActivatorToTarget(0);
-			UsePlayerItem(PlayerNumber(), res);
+			UsePlayerItem(PlayerNumber(), res, false);
 		}
 	}
 	SetResultValue(res != -1);
@@ -6178,6 +6158,7 @@ Script 68 (int x) NET {
 		else if(x == 420) {
 			SpawnCharm(0, true);
 			SpawnCharm(0, true);
+			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 			//SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);

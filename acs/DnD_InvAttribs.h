@@ -313,6 +313,7 @@ enum {
 // indexing on this one is done by checking ranges, and then mapping appropriately
 global int 8: AttributeTagGroups[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES][64];
 global int 5: AttributeTagGroupCount[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES];
+global int 57: PlayerModExtras[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
 global int 61: PlayerModValues[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
 
 // More multiplier mods are multiplied amongst themselves in case of having more than one source, and are all "FIXED POINT" values, not integers
@@ -403,6 +404,14 @@ void SetPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
 		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
 
+void SetPlayerModExtra(int pnum, int mod, int val, bool noSync = false) {
+	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
+	PlayerModExtras[pnum][mod] = val;
+	
+	if(!noSync)
+		ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
+}
+
 void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
@@ -430,22 +439,56 @@ void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
 		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
 }
 
+void IncPlayerModExtra(int pnum, int mod, int val, bool noSync = false) {
+	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
+	// check if it's a "more" multiplier, they are multiplicative with each other
+	if(!IsMoreMultiplierMod(mod)) {
+		PlayerModExtras[pnum][mod] += val;
+	}
+	else if(!PlayerModExtras[pnum][mod]) {
+		// if we are zero, simply replace with val
+		PlayerModExtras[pnum][mod] = val;
+	}
+	else if(val > 0) {
+		// non-zero, multiply case -- we store things like 0.2 etc. here, but while we amplify it we need to consider 1.0 + val
+		PlayerModExtras[pnum][mod] = CombineMultiplicativeFactors(PlayerModExtras[pnum][mod], val) - 1.0;
+	}
+	else if(val < 0) {
+		// if negative we divide
+		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
+		if(PlayerModExtras[pnum][mod] + val < EPSILON)
+			PlayerModExtras[pnum][mod] = 0;
+		else
+			PlayerModExtras[pnum][mod] = CancelMultiplicativeFactors(PlayerModExtras[pnum][mod], -val) - 1.0;
+	}
+	
+	if(!noSync)
+		ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
+}
+
 void ResetPlayerModList(int pnum) {
-	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
 		PlayerModValues[pnum][i] = 0;
+		PlayerModExtras[pnum][i] = 0;
+	}
 	ACS_NamedExecuteWithResult("DnD Reset Player Mod List", pnum);
 }
 
 void SyncPlayerItemMods(int pnum) {
-	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
 		if(PlayerModValues[pnum][i])
 			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModValues[pnum][i]);
+		if(PlayerModExtras[pnum][i])
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, i, PlayerModExtras[pnum][i]);
+	}
 }
 
 // resets things clientside for the array
 Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
-	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
+	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
 		PlayerModValues[pnum][i] = 0;
+		PlayerModExtras[pnum][i] = 0;
+	}
 }
 
 // reason why this uses UNIQUE_ATTRIB_ID_BEGIN, it skips regular and essence mod indexes. This means, we have enough room without database reset for both regular
@@ -1101,6 +1144,12 @@ int GetCharmAttributeFactor(int item_type, int item_subtype) {
 	return 0;
 }
 
+int GetCharmAttributeFactorVisual(int item_type, int item_subtype) {
+	int base = GetCharmAttributeFactor(item_type, item_subtype);
+
+	return base;
+}
+
 // this uses a precalculated tier mapping to save time
 int GetModRangeWithTier(int attr, int tier_mapping, bool which, int attr_factor) {
 	int res = 0;
@@ -1168,6 +1217,8 @@ str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int
 		
 	str col_tag = Charm_Strings[tier][CHARMSTR_COLORCODE];
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
+
+	// visually change the attribute values depending on item scale factors
 	int f = GetCharmAttributeFactor(item_type, item_subtype);
 	
 	if(!trunc_factor) {
@@ -1267,7 +1318,7 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
-str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false) {
+str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
 	str text = GetInventoryAttributeText(attr);
 	str ess_tag = "\c[Q7]";
 	str col_tag = "\c[Q9]";
@@ -1276,6 +1327,17 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		col_tag = "\c[E2]";
 		ess_tag = "\c[E2]";
 		no_tag = "\c[E2] ";
+	}
+
+	if(qual) {
+		if(val < 100000) {
+			val *= qual + 100;
+			val /= 100;
+		}
+		else {
+			val /= 100;
+			val *= qual + 100;
+		}
 	}
 	
 	switch(attr) {
@@ -1473,11 +1535,31 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 	return "";
 }
 
-str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false) {
+str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
 	if(attr <= LAST_ESSENCE_ATTRIBUTE)
-		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured);
+		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual);
+
+	if(qual) {
+		if(val1 < 100000) {
+			val1 *= qual + 100;
+			val1 /= 100;
+		}
+		else {
+			val1 /= 100;
+			val1 *= qual + 100;
+		}
+
+		if(val2 < 100000) {
+			val2 *= qual + 100;
+			val2 /= 100;
+		}
+		else {
+			val2 /= 100;
+			val2 *= qual + 100;
+		}
+	}
 
 	// if the item is unique extra is not -1
 	str text = GetInventoryAttributeText(attr);
@@ -1577,17 +1659,17 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 				// singular matters here
 				if(val1 > 1)
 					return StrParam(
-						l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX30_2",
+						l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2",
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				return StrParam(
-					l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX30_2S",
+					l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2S",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
 			if(val1 > 1)
-				return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX30_2");
-			return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX30_2S");
+				return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX29_2");
+			return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX29_2S");
 		
 		case INV_EX_ALLSTATS:
 		case INV_EX_FLATDMG_ALL:

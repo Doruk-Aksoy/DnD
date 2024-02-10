@@ -30,3 +30,12 @@ Actor RepairToken : TokenBase {
 		Goto SpawnInit
 	}
 }
+
+Actor GunsmithToken : TokenBase {
+	Scale 0.6
+	States {
+		Spawn:
+			TOK0 B 0
+		Goto SpawnInit
+	}
+}

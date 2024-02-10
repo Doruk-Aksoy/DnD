@@ -133,6 +133,8 @@ void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, in
 void ResetCursorClickData() {
 	CleanInventoryInfo(RPGMENUCLICKEDID);
 	
+	TakeInventory("DnD_CursorDataClearRequest", 1);
+
 	PlayerCursorData.itemClicked = -1;
 	PlayerCursorData.itemClickedPos.x = -1;
 	PlayerCursorData.itemClickedPos.y = -1;
@@ -423,9 +425,12 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_PERK:
 			redraw = ListenScroll(-16, 0);
 		break;
+
+		case MENU_STAT2_DEFENSE:
+			redraw = ListenScroll(ScrollPos.y - 8, 0);
+		break;
 		case MENU_STAT2_OFFENSE1:
 		case MENU_STAT2_OFFENSE2:
-		case MENU_STAT2_DEFENSE:
 		case MENU_STAT2_UTILITY:
 			redraw = ListenScroll(ScrollPos.y, 0);
 		break;
@@ -640,7 +645,7 @@ void ShowWeaponPropertyIcon(int id) {
 }
 
 void ShowOrbIcon(int id, int offset) {
-	SetFont(Item_Images[id + ITEM_IMAGE_ORB_BEGIN]);
+	SetFont(GetItemImage(id + ITEM_IMAGE_ORB_BEGIN));
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 8.0 * ScrollPos.x + offset, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
@@ -2843,7 +2848,6 @@ void ResetInventoryLitState(int beg, int end) {
 
 void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) {
 	str charmborderpic = CharmBoxLabels[charm_type][boxid == thisboxid];
-	str charmpic = "";
 	int pnum = PlayerNumber();
 	
 	// fixes background being lit on first row boxes
@@ -2852,8 +2856,7 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	
 	// if there is a charm here
 	if(Charms_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
-		charmpic = Charms_Used[pnum][thisboxid - 1].item_image;
-		SetFont(Item_Images[charmpic]);
+		SetFont(GetItemImage(Charms_Used[pnum][thisboxid - 1].item_image));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid) {
@@ -2879,7 +2882,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	if(hasItem && (PlayerCursorData.itemDragInfo.topboxid != bid || PlayerCursorData.itemDragInfo.source != source)) {
 		// shift down tall items height - 1 times
 		temp = (GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, bid, -1, source) - 1) * ITEMOFFSETSCALE;
-		SetFont(Item_Images[img]);
+		SetFont(GetItemImage(img));
 		HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + temp, 0.0, 0.0);
 	
 		temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, bid, -1, source);
@@ -2943,7 +2946,8 @@ void DrawInventoryInfo(int pnum) {
 		
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		int attr_count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-		if(attr_count < 4)
+		bool lessThanFour = attr_count + (GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource) != -1) < 4;
+		if(lessThanFour)
 			SetFont("LDTITINS");
 		else
 			SetFont("LDTITINF");
@@ -3686,7 +3690,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 }
 
 void DrawDraggedItem() {
-	SetFont(Item_Images[PlayerCursorData.itemDragged]);
+	SetFont(GetItemImage(PlayerCursorData.itemDragged));
 	
 	if(PlayerCursorData.itemDraggedStashSize) {
 		SetHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH, 1);
@@ -3893,7 +3897,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 }
 
 void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
-	int mcount = CountCraftingMaterials();
+	int mcount = CountCraftingMaterials(curopt == MENU_LOAD_CRAFTING_WEAPON);
 	int i;
 	int tx, ty, bx, by;
 	int page = CheckInventory("DnD_Crafting_MaterialPage");
@@ -3912,10 +3916,10 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 			}
 		}
 		i = 0;
-		for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
+		//for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
 			// by holds currently visited unique item's order, it's unique to each item type so we reset it, we don't reset i
 			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
-				tx = GetNextUniqueCraftingMaterial(by + MAX_CRAFTING_MATERIALBOXES * page);
+				tx = GetNextUniqueCraftingMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, curopt == MENU_LOAD_CRAFTING_WEAPON);
 				if(tx != -1) {
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
@@ -3937,7 +3941,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 						SetFont("CRFBX_N2");
 					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
 					if(tx != -1) {
-						SetFont(Item_Images[PlayerInventoryList[pnum][tx].item_image]);
+						SetFont(GetItemImage(PlayerInventoryList[pnum][tx].item_image));
 						HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
 						bx = GetTotalStackOfMaterial(tx);
 						if(bx > 0) {
@@ -3949,7 +3953,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 				else
 					break;
 			}
-		}
+		//}
 		SetFont("SMALLFONT");
 		HudMessage(s:"P", d:page + 1; HUDMSG_PLAIN, RPGMENUID - MATERIALARROW_HUDID - 2, CR_WHITE, 426.4, 284.0, 0.0);
 		// draw next page button and enable it for use
@@ -4089,7 +4093,7 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 			else
 				SetFont("CRFBX_N");
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * i, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (i % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (i / 4), 0.0, 0.0);
-			SetFont(Item_Images[PlayerInventoryList[pnum][tx].item_image]);
+			SetFont(GetItemImage(PlayerInventoryList[pnum][tx].item_image));
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * i, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (i % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (i / 4), 0.0, 0.0);
 		}
 		
@@ -4126,7 +4130,8 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	
 	if(item_type != DND_ITEM_WEAPON) {
 		attr_count = GetItemSyncValue(pn, DND_SYNC_ITEMSATTRIBCOUNT, item_id, -1, item_source);
-		if(attr_count < 4)
+		bool lessThanFour = attr_count + (GetItemSyncValue(pn, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_id, -1, item_source) != -1) < 4;
+		if(lessThanFour)
 			SetFont("LDTITINS");
 		else
 			SetFont("LDTITINF");
@@ -4341,7 +4346,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 							if(!HandleTwoRequirementMaterialUse(pnum, previtemindex, curitemeindex))
 								ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							else // we managed to use it
-								UsePlayerItem(pnum, CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1);
+								UsePlayerItem(pnum, CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1, false);
 							SetInventory("DnD_SelectedInventoryBox", 0);
 							SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
 						}
@@ -4364,7 +4369,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 							SetInventory("DnD_UsedTwoItemRequirementMaterial", curitemeindex + 1);
 						}
 						else if(HandleMaterialUse(pnum, curitemeindex, 0, DND_ITEM_NULL))
-							UsePlayerItem(pnum, curitemeindex);
+							UsePlayerItem(pnum, curitemeindex, curopt == MENU_LOAD_CRAFTING_WEAPON);
 						else
 							ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 					}
@@ -4377,7 +4382,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
 								if(HandleMaterialUse(pnum, curitemeindex, previtemindex, DND_ITEM_WEAPON))
-									UsePlayerItem(pnum, curitemeindex);
+									UsePlayerItem(pnum, curitemeindex, true);
 								else
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
@@ -4385,7 +4390,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 								//printbold(d:previtemindex, s: " ", d:PlayerInventoryList[pnum][curitemeindex].item_type, s: " vs ", d:DND_ITEM_CHARM);
 								// is the index shown here not being the same as the one on inventory list causing the problem here?
 								if(HandleMaterialUse(pnum, curitemeindex, previtemindex, DND_ITEM_CHARM))
-									UsePlayerItem(pnum, curitemeindex);
+									UsePlayerItem(pnum, curitemeindex, false);
 								else // this part can handle rest of the item types to come later on
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 							}
@@ -4446,16 +4451,18 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 				ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, 0);
 			}
 		}
-		else if(itype == DND_ITEM_ELIXIR) {
-			res = true;
-			ACS_NamedExecuteAlways("DnD Elixir Use", 0, isubtype);
-		}
 	}
 	else if(itype == DND_ITEM_ORB) {
 		// targettype is a craftable item
 		res = CanUseOrb(isubtype, target, targettype);
 		if(res) {
 			ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, target);
+		}
+	}
+	else if(itype == DND_ITEM_TOKEN) {
+		res = CanUseToken(isubtype, target, targettype);
+		if(res) {
+			ACS_NamedExecuteAlways("DND Token Use", 0, isubtype, target);
 		}
 	}
 	
@@ -4537,6 +4544,7 @@ void DrawPlayerStats(int pnum, int category) {
 	int val;
 	int k = 0;
 	int tid = pnum + P_TIDSTART;
+	int i;
 	
 	// sum of y and height should = 248
 	SetHudClipRect(192, 52, 256, 196, 256);
@@ -4650,7 +4658,6 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			
 			// flat and % dmg block
-			int i;
 			for(i = DND_DAMAGECATEGORY_BEGIN; i < DND_DAMAGECATEGORY_END; ++i) {
 				val = GetDamageTypeBonus(pnum, i);
 				if(val) {
@@ -4886,71 +4893,50 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ELEM, 0, 0, val), s:"\n");
-				++k;
-			}
+			i = GetMaxResistCap(pnum);
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ELEM, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_PHYS, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_PHYS, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ENERGY));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ENERGY, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ENERGY), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ENERGY, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_MAGIC));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_MAGIC, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_MAGIC), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_MAGIC, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_EXPLOSION, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_EXPLOSION, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_HITSCAN));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_HITSCAN, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_HITSCAN), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_HITSCAN, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_FIRE));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_FIRE, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_FIRE), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_FIRE, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ICE));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ICE, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ICE), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ICE, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_LIGHTNING));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_LIGHTNING, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_LIGHTNING), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_LIGHTNING, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_POISON));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_POISON, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_POISON), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_POISON, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL));
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_REFL, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL), i);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_REFL, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			++k;
 			// dmg reduction block ends
 		}
 		else {

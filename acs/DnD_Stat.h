@@ -1212,7 +1212,7 @@ void ResetPlayerInfo(int pnum) {
 	ResetTradeViewList(pnum);
 	ResetPlayerStash(pnum);
 	// reset weapon mod variable
-	ResetWeaponMods(pnum);
+	ResetAllWeaponMods(pnum);
 	ResetMostRecentOrb(pnum);
 	//ResetOrbData(pnum);
 	ResetPlayerModList(pnum);
@@ -1465,14 +1465,19 @@ int GetRangedBonus(int pnum, bool isOccult = false) {
 	return GetBonusFromIntellect() * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC) / 100;
 }
 
-int ApplyResistCap(int pnum, int res) {
+int GetMaxResistCap(int pnum) {
 	// cap the cap...
 	int cap = GetPlayerAttributeValue(pnum, INV_ADDEDMAXRESIST) + DND_BASE_DAMAGERESISTCAP;
 	if(cap > DND_MAX_DAMAGERESISTCAP)
-		cap = DND_MAX_DAMAGERESISTCAP;
-	
+		return DND_MAX_DAMAGERESISTCAP;
+	return cap;
+}
+
+int ApplyResistCap(int pnum, int res, int cap = 0) {
 	// these are in fixed point, so we gotta convert them later
-	return Clamp_Between(res, 0, cap);
+	if(cap)
+		return Clamp_Between(res, 0, cap);
+	return Clamp_Between(res, 0, GetMaxResistCap(pnum));
 }
 
 int GetExplosiveRepeatChance(int pnum) {

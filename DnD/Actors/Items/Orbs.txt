@@ -40,6 +40,12 @@ Actor OrbOfEnhancement : OrbDrop {
 		Spawn:
 			ORB1 C 0 Bright
 		Goto Super::SpawnInit
+		
+		// apparently the game wont put gllights on things that just have #### # as frame even if the frame is preloaded beforehand... no idea why
+		SpawnLoop:
+		Idle:
+			ORB1 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -298,6 +304,10 @@ Actor OrbofTremors : OrbDrop {
 		Spawn:
 			ORB3 F 0
 		Goto SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB3 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -306,6 +316,10 @@ Actor OrbofTinkerer : OrbDrop {
 		Spawn:
 			ORB3 H 0
 		Goto SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB3 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -314,6 +328,10 @@ Actor OrbofRefinement : OrbDrop {
 		Spawn:
 			ORB3 J 0
 		Goto SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB3 J 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -322,6 +340,10 @@ Actor OrbofSculpting : OrbDrop {
 		Spawn:
 			ORB3 L 0
 		Goto SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB3 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -330,6 +352,10 @@ Actor OrbofElevation : OrbDrop {
 		Spawn:
 			ORB3 N 0
 		Goto SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB3 N 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -338,6 +364,10 @@ Actor OrbofHollow : OrbDrop {
 		Spawn:
 			ORB3 P 0
 		Goto SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB3 P 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -375,6 +405,10 @@ Actor OrbofAssimilation : OrbDrop {
 		Spawn:
 			ORB3 R 0
 		Goto SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB3 R 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -383,6 +417,10 @@ Actor OrbOfTurmoil : OrbDrop {
 		Spawn:
 			ORB4 A 0 Bright
 		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB4 A 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -411,6 +449,10 @@ Actor OrbOfGrowth : OrbDrop {
 		Spawn:
 			ORB4 C 0 Bright
 		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB4 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -459,6 +501,10 @@ Actor OrbOfBrute : OrbDrop {
 		Spawn:
 			ORB5 B 0 Bright
 		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB5 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -467,5 +513,45 @@ Actor OrbOfJagged : OrbDrop {
 		Spawn:
 			ORB5 D 0 Bright
 		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB5 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfAlchemist : OrbDrop {
+	States {
+		Spawn:
+			ORB5 F 0 Bright
+		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB5 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfEvoker : OrbDrop {
+	States {
+		Spawn:
+			ORB5 H 0 Bright
+		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB5 HHHIIIJJJKKK 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfSavagery : OrbDrop {
+	States {
+		Spawn:
+			ORB5 M 0 Bright
+		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB5 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }

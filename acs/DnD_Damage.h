@@ -2832,13 +2832,12 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 	temp = GetPlayerAttributeValue(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN);
 	if(temp && target && target != this) {
 		// roll chance
-		// upper 16 bits hold the chance
-		if(random(1, 100) <= (temp >> 16)) {
+		if(random(1, 100) <= GetPlayerAttributeExtra(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN)) {
 			// heal for missing health
 			GiveActorInventory(this, "VeilHealFXSpawner", 1); // use same fx as veil for now
 			
 			SetActivator(this);
-			HandleHealthPickup(((temp & 0xFFFF) * GetMissingHealth()) / 100, 0, 0);
+			HandleHealthPickup((temp * GetMissingHealth()) / 100, 0, 0);
 			// restore ptr
 			SetActivator(0, AAPTR_DAMAGE_TARGET);
 		}

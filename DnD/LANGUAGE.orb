@@ -48,6 +48,12 @@ DND_ORB23			=	"Brute's Orb";
 DND_ORBTEXT23		=	"Reforges the item, adding at least one \cvmelee\c- modifier.";
 DND_ORB24			=	"Jagged Orb";
 DND_ORBTEXT24		=	"Reforges the item, adding at least one \cvphysical\c- modifier.";
+DND_ORB25			=	"Alchemist's Orb";
+DND_ORBTEXT25		=	"Improves the quality of the item by 1%, up to a maximum of \cg25%\c-.";
+DND_ORB26			=	"Evoker's Orb";
+DND_ORBTEXT26		=	"Extracts the highest tier modifier as an orb that guarantees that modifier type, \cgdestroying the item\c- in the process.";
+DND_ORB27			=	"Orb of Savagery";
+DND_ORBTEXT27		=	"Reforges the item, adding at least one \cvdamage\c- modifier.";
 
 DND_ORB_MON1		=	"Hollow Orb";
 DND_ORB_MONTEXT1	=	"Adds an extra random attribute to a non-unique charm even if it's at its limit, adding at most one additional over limit. The attribute is well-rolled.";
@@ -140,3 +146,9 @@ DND_ORBUSETEXT25	=	"Crackling Orb reforges the item, guaranteeing an \cvenergy\c
 DND_ORBUSETEXT26	=	"Brute's Orb reforges the item, guaranteeing a \cvmelee\c- modifier";
 
 DND_ORBUSETEXT27	=	"Jagged Orb reforges the item, guaranteeing a \cvphysical\c- modifier";
+
+DND_ORBUSETEXT28	=	"Alchemist's Orb increases the quality of your item by";
+
+DND_ORBUSETEXT29	=	"Evoker's Orb extracts the potential from this item, giving"; DND_ORBUSETEXT29B = "orb"; DND_ORBUSETEXT29BS = "orbs";
+
+DND_ORBUSETEXT30	=	"Orb of Savagery reforges the item, guaranteeing a \cvdamage\c- modifier";

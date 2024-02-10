@@ -43,6 +43,7 @@ enum {
 	DND_SYNC_ITEMLEVEL,
 	DND_SYNC_ITEMSTACK,
 	DND_SYNC_ITEMCORRUPTED,
+	DND_SYNC_ITEMQUALITY,
 
 	// add non attribute related things from above attrib count
 
@@ -104,6 +105,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Charms_Used[pnum][extra].attrib_count;
 			case DND_SYNC_ITEMCORRUPTED:
 			return Charms_Used[pnum][extra].corrupted;
+			case DND_SYNC_ITEMQUALITY:
+			return Charms_Used[pnum][extra].quality;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return Charms_Used[pnum][extra].attributes[sub].attrib_id;
@@ -150,6 +153,9 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Inventories_On_Field[extra].attrib_count;
 			case DND_SYNC_ITEMCORRUPTED:
 			return Inventories_On_Field[extra].corrupted;
+			case DND_SYNC_ITEMQUALITY:
+			return Inventories_On_Field[extra].quality;
+
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return Inventories_On_Field[extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
@@ -195,6 +201,9 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].attrib_count;
 			case DND_SYNC_ITEMCORRUPTED:
 			return PlayerInventoryList[pnum][extra].corrupted;
+			case DND_SYNC_ITEMQUALITY:
+			return PlayerInventoryList[pnum][extra].quality;
+
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
@@ -240,6 +249,9 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return TradeViewList[pnum][extra].attrib_count;
 			case DND_SYNC_ITEMCORRUPTED:
 			return TradeViewList[pnum][extra].corrupted;
+			case DND_SYNC_ITEMQUALITY:
+			return TradeViewList[pnum][extra].quality;
+
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return TradeViewList[pnum][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
@@ -285,6 +297,9 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerStashList[pnum][page][extra].attrib_count;
 			case DND_SYNC_ITEMCORRUPTED:
 			return PlayerStashList[pnum][page][extra].corrupted;
+			case DND_SYNC_ITEMQUALITY:
+			return PlayerStashList[pnum][page][extra].quality;
+
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
@@ -351,6 +366,10 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMCORRUPTED:
 				Charms_Used[pnum][extra].corrupted = val;
 			break;
+			case DND_SYNC_ITEMQUALITY:
+				Charms_Used[pnum][extra].quality = val;
+			break;
+
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				Charms_Used[pnum][extra].attributes[sub].attrib_id = val;
 			break;
@@ -413,6 +432,10 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMCORRUPTED:
 				Inventories_On_Field[extra].corrupted = val;
 			break;
+			case DND_SYNC_ITEMQUALITY:
+				Inventories_On_Field[extra].quality = val;
+			break;
+
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				Inventories_On_Field[extra].attributes[sub].attrib_id = val;
 			break;
@@ -475,6 +498,10 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMCORRUPTED:
 				PlayerInventoryList[pnum][extra].corrupted = val;
 			break;
+			case DND_SYNC_ITEMQUALITY:
+				PlayerInventoryList[pnum][extra].quality = val;
+			break;
+			
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				PlayerInventoryList[pnum][extra].attributes[sub].attrib_id = val;
 			break;
@@ -537,6 +564,10 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMCORRUPTED:
 				TradeViewList[pnum][extra].corrupted = val;
 			break;
+			case DND_SYNC_ITEMQUALITY:
+				TradeViewList[pnum][extra].quality = val;
+			break;
+
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				TradeViewList[pnum][extra].attributes[sub].attrib_id = val;
 			break;
@@ -599,6 +630,10 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMCORRUPTED:
 				PlayerStashList[pnum][page][extra].corrupted = val;
 			break;
+			case DND_SYNC_ITEMQUALITY:
+				PlayerStashList[pnum][page][extra].quality = val;
+			break;
+			
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				PlayerStashList[pnum][page][extra].attributes[sub].attrib_id = val;
 			break;
@@ -838,6 +873,14 @@ void SyncItemAttributes(int pnum, int itemid, int source) {
 	}
 }
 
+void SyncItemQuality(int pnum, int itemid, int source) {
+	int i, j, temp;
+	int page = source >> 16;
+	int raw_source = source & 0xFFFF;
+	int payload = (raw_source << 8) | (page << 16);
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMQUALITY | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, itemid, -1, source), itemid);
+}
+
 void SyncItemImplicits(int pnum, int itemid, int source) {
 	int i;
 	int page = source >> 16;
@@ -892,6 +935,12 @@ void SyncAllClientsideVariables(int pnum) {
 Script "DnD Request Mod Sync" (int pnum, int mod, int val) CLIENTSIDE {
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	PlayerModValues[pnum][mod] = val;
+	SetResultValue(0);
+}
+
+Script "DnD Request Mod Extra Sync" (int pnum, int mod, int val) CLIENTSIDE {
+	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
+	PlayerModExtras[pnum][mod] = val;
 	SetResultValue(0);
 }
 

@@ -1,5 +1,119 @@
 [enu default]
 
+// don't translate these!
+DND_KEYN1			=	"BronzeChestKey";
+DND_KEYN2			=	"SilverChestKey";
+DND_KEYN3			=	"GoldChestKey";
+
+DND_ORBN1			=	"OrbOfEnhancement";
+DND_ORBN2			=	"OrbOfCorruption";
+DND_ORBN3			=	"PrismaticOrb";
+DND_ORBN4			=	"OrbofRepentance";
+DND_ORBN5			=	"OrbofAffluence";
+DND_ORBN6			=	"OrbofCalamity";
+DND_ORBN7			=	"OrbofProsperity";
+DND_ORBN8			=	"OrbofNullification";
+DND_ORBN9			=	"OrbofDestruction";
+DND_ORBN10			=	"OrbofViolence";
+DND_ORBN11			=	"OrbofFortitude";
+DND_ORBN12			=	"OrbofSin";
+DND_ORBN13			=	"OrbofTremors";
+DND_ORBN14			=	"OrbofTinkerer";
+DND_ORBN15			=	"OrbofRefinement";
+DND_ORBN16			=	"OrbofSculpting";
+DND_ORBN17			=	"OrbofElevation";
+DND_ORBN18			=	"OrbofTurmoil";
+DND_ORBN19			=	"OrbofHexes";
+DND_ORBN20			=	"OrbofGrowth";
+DND_ORBN21			=	"OrbofPotency";
+DND_ORBN22			=	"OrbofCrackling";
+DND_ORBN23			=	"OrbofBrute";
+DND_ORBN24			=	"OrbofJagged";
+DND_ORBN25			=	"OrbofAlchemist";
+DND_ORBN26			=	"OrbofEvoker";
+DND_ORBN27			=	"OrbofSavagery";
+
+// monster specific orb drops
+DND_ORBNM1			=	"OrbofHollow";
+DND_ORBNM2			=	"OrbofPhantasmal";
+DND_ORBNM3			=	"OrbofAssimilation";
+
+DND_TOKENN1			=	"RepairToken";
+DND_TOKENN2			=	"GunsmithToken";
+///////////////////////////////////////////////////////
+
+// Inventory images
+
+// charms
+DND_CIMG1			=	"SCHRM1";
+DND_CIMG2			=	"SCHRM2";
+DND_CIMG3			=	"SCHRM3";
+	
+DND_CIMG4			=	"MCHRM1";
+DND_CIMG5			=	"MCHRM2";
+DND_CIMG6			=	"MCHRM3";
+
+DND_CIMG7			=	"LCHRM1";
+DND_CIMG8			=	"LCHRM2";
+DND_CIMG9			=	"LCHRM3";
+	
+// unique charms
+DND_UCIMG1			=	"UCHRM1";
+DND_UCIMG2			=	"UCHRM2";
+DND_UCIMG3			=	"UCHRM3";
+DND_UCIMG4			=	"UCHRM4";
+DND_UCIMG5			=	"UCHRM5";
+DND_UCIMG6			=	"UCHRM6";
+DND_UCIMG7			=	"UCHRM7";
+DND_UCIMG8			=	"UCHRM8";
+DND_UCIMG9			=	"UCHRM9";
+DND_UCIMG10			=	"UCHRM10";
+DND_UCIMG11			=	"UCHRM11";
+DND_UCIMG12			=	"UCHRM12";
+DND_UCIMG13			=	"UCHRM13";
+DND_UCIMG14			=	"UCHRM14";
+	
+// orbs
+DND_OIMG1			=	"ORB1D0";
+DND_OIMG2			=	"ORB1B0";
+DND_OIMG3			=	"ORB1I0";
+DND_OIMG4			=	"ORB1Z0";
+DND_OIMG5			=	"ORB3A0";
+DND_OIMG6			=	"ORB1N0";
+DND_OIMG7			=	"ORB1S0";
+DND_OIMG8			=	"ORB2J0";
+DND_OIMG9			=	"ORB3E0";
+DND_OIMG10			=	"ORB2O0";
+DND_OIMG11			=	"ORB2V0";
+DND_OIMG12			=	"ORB2E0";
+DND_OIMG13			=	"ORB3G0";
+DND_OIMG14			=	"ORB3I0";
+DND_OIMG15			=	"ORB3K0";
+DND_OIMG16			=	"ORB3M0";
+DND_OIMG17			=	"ORB3O0";
+DND_OIMG18			=	"ORB4B0";
+DND_OIMG19			=	"ORB4I0";
+DND_OIMG20			=	"ORB4D0";
+DND_OIMG21			=	"ORB4R0";
+DND_OIMG22			=	"ORB5A0";
+DND_OIMG23			=	"ORB5C0";
+DND_OIMG24			=	"ORB5E0";
+DND_OIMG25			=	"ORB5G0";
+DND_OIMG26			=	"ORB5L0";
+DND_OIMG27			=	"ORB5N0";
+
+DND_MOIMG1			=	"ORB3Q0";
+DND_MOIMG2			=	"ORB3Z0";
+DND_MOIMG3			=	"ORB3S0";
+	
+DND_KIMG1			=	"SBKGA0";
+DND_KIMG2			=	"SBKGB0";
+DND_KIMG3			=	"SBKGC0";
+	
+DND_TIMG1			=	"REPTOKN";
+DND_TIMG2			=	"SCRTOKN";
+
+///////////////////////////////////////////////////////
 DND_ARTI1			=	"Field Kit";
 DND_ARTI2			=	"Salvation Sphere";
 DND_ARTI3			=	"Portable Shield";
@@ -40,30 +154,11 @@ DND_CHESTKEY2		=	"Silver Chest Key";
 DND_CHESTKEYTEXT2	=	"Opens a mysterious silver chest.";
 DND_CHESTKEY3		=	"Gold Chest Key";
 DND_CHESTKEYTEXT3	=	"Opens a mysterious gold chest.";
-	
-DND_ELIXIR1			=	"Elixir of Health";
-DND_ELIXIRTEXT1		=	"Adds 5 to your health cap.";
-DND_ELIXIR2			=	"Elixir of Armor";
-DND_ELIXIRTEXT2		=	"Adds 5 to your armor cap.";
-DND_ELIXIR3			=	"Elixir of Prosperity";
-DND_ELIXIRTEXT3		=	"Adds 5 to your health and armor caps.";
-DND_ELIXIR4			=	"Elixir of Life";
-DND_ELIXIRTEXT4		=	"Increases health cap by 1%.";
-DND_ELIXIR5			=	"Elixir of Durability";
-DND_ELIXIRTEXT5		=	"Increases armor cap by 1%.";
-DND_ELIXIR6			=	"Elixir of Fortitude";
-DND_ELIXIRTEXT6		=	"Increases health and armor caps by 1%.";
-DND_ELIXIR7			=	"Elixir of Speed";
-DND_ELIXIRTEXT7		=	"Increases your speed by 1%.";
-DND_ELIXIR8			=	"Elixir of Damage";
-DND_ELIXIRTEXT8		=	"Adds 1% damage to all damage types.";
-DND_ELIXIR9			=	"Elixir of Luck";
-DND_ELIXIRTEXT9		=	"Gives 5% increased drop rate.";
 
 DND_TOKEN1			=	"Repair Token";
 DND_TOKENTEXT1		=	"Allows repair of currently equipped armor via the shop.";
-DND_TOKEN2			=	"Scouring Token";
-DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and halving its quality.";
+DND_TOKEN2			=	"Gunsmith's Token";
+DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and removing its quality.";
 
 // unique item names
 DND_UNIQUE1				=	"Elemental Bulwark";
@@ -218,7 +313,7 @@ IATTR_TC3			= "Increased crit damage to";
 IATTR_TC4			= "movement speed";
 IATTR_TC5			= "more chance to find loot";
 IATTR_TC6			= "increased stats";
-IATTR_TC7			= "percentage health damage to";
+IATTR_TC7			= "enemy health as extra damage to";
 IATTR_TC8			= "of damage dealt as poison to";
 IATTR_TC9			= "forces pain";
 

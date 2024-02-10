@@ -1197,7 +1197,7 @@ str WeaponOverheatItems[MAXOVERHEATWEPS] = {
 // 32 overheat weapons supported
 int PlayerRunsOverheat[MAXPLAYERS] = { 0 };
 
-void ResetWeaponMods(int pnum) {
+void ResetAllWeaponMods(int pnum) {
 	int i, j;
 	for(j = 0; j < MAXWEPS; ++j) {
 		Player_Weapon_Infos[pnum][j].quality = 0;
