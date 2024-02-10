@@ -1014,7 +1014,8 @@ int GetBaseCritChance(int pnum) {
 }
 
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
-	return 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT].val +
+	return 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
+			Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
 			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE);
 }
 
@@ -1022,7 +1023,7 @@ int GetCritChance(int pnum, int wepid) {
 	int chance = GetBaseCritChance(pnum);
 	// add current weapon crit bonuses
 	if(wepid != -1) {
-		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT].val;
+		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_WEP].val;
 	}
 	// add percent bonus
 	if(chance)
@@ -1102,7 +1103,7 @@ int GetIndependentCritModifier(int pnum) {
 
 int GetBaseCritModifier(int pnum, int wepid) {
 	int base = GetIndependentCritModifier(pnum);
-	int wep_bonus = (wepid != -1) * Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG].val;
+	int wep_bonus = (wepid != -1) * (Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG][WMOD_WEP].val);
 	return base + wep_bonus;
 }
 
@@ -1137,11 +1138,11 @@ int GetCritModifier(int wepid) {
 }
 
 int GetWeaponModValue(int pnum, int wep, int mod) {
-	return Player_Weapon_Infos[pnum][wep].wep_mods[mod].val;
+	return Player_Weapon_Infos[pnum][wep].wep_mods[mod][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wep].wep_mods[mod][WMOD_WEP].val;
 }
 
 bool HasWeaponPower(int pnum, int wep, int power) {
-	return 	IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1].val, power);
+	return IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1][WMOD_ITEMS].val, power) || IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1][WMOD_WEP].val, power);
 }
 
 int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {

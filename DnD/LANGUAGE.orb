@@ -136,7 +136,7 @@ DND_ORBUSETEXT22	=	"Orb of Hexes reforges the item, guaranteeing an \cvoccult\c-
 
 DND_ORBUSETEXT23	=	"Orb of Growth reforges the item, guaranteeing a \cvstat\c- modifier";
 
-DND_ORBUSETEXT24A 	=	"Orb of Potency upgrades"
+DND_ORBUSETEXT24A 	=	"Orb of Potency upgrades";
 DND_ORBUSETEXT24B	=	" attribute tiers!";
 DND_ORBUSETEXT24C	=	" attribute tier!";
 DND_ORBUSEFAIL24	=	"Orb of Potency couldn't be used, attribute tiers are maxed out!";

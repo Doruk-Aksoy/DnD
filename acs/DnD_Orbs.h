@@ -747,7 +747,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_PHANTASMAL:
 			res = extra;
 
-			SetWeaponModPowerset(pnum, extra, WEP_POWER_GHOSTHIT, true);
+			SetWeaponModPowerset(pnum, extra, WEP_POWER_GHOSTHIT, true, WMOD_WEP);
 
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
@@ -1065,10 +1065,9 @@ void RevertLastOrbEffect() {
 		break;
 		case DND_ORB_PHANTASMAL:
 			temp = Player_MostRecent_Orb[pnum].values[0];
-			SetWeaponModPowerset(pnum, temp, WEP_POWER_GHOSTHIT, false);
+			SetWeaponModPowerset(pnum, temp, WEP_POWER_GHOSTHIT, false, WMOD_WEP);
 			SyncClientsideVariable_WeaponMods(pnum, temp);
 		break;
-		
 	}
 	SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 	ResetMostRecentOrb(pnum);

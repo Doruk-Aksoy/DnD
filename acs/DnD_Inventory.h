@@ -2123,27 +2123,27 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 
 		// weapon mods
 		case INV_CORR_WEAPONCRIT:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_CRITPERCENT].val += aval;
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val += aval;
 			SyncClientsideVariable_WeaponMods(pnum, aextra);
 		break;
 		case INV_CORR_WEAPONCRITDMG:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_CRITDMG].val += aval;
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_CRITDMG][WMOD_ITEMS].val += aval;
 			SyncClientsideVariable_WeaponMods(pnum, aextra);
 		break;
 		case INV_CORR_WEAPONDMG:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG].val += aval;
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val += aval;
 			SyncClientsideVariable_WeaponMods(pnum, aextra);
 		break;
 		case INV_CORR_WEAPONFORCEPAIN:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_FORCEPAINCHANCE].val += aval;
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_FORCEPAINCHANCE][WMOD_ITEMS].val += aval;
 			SyncClientsideVariable_WeaponMods(pnum, aextra);
 		break;
 		case INV_CORR_WEAPONPCTDMG:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_PERCENTDAMAGE].val += aval;
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_PERCENTDAMAGE][WMOD_ITEMS].val += aval;
 			SyncClientsideVariable_WeaponMods(pnum, aextra);
 		break;
 		case INV_CORR_WEAPONPOISONPCT:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val += aval;
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE][WMOD_ITEMS].val += aval;
 			SyncClientsideVariable_WeaponMods(pnum, aextra);
 		break;
 	}

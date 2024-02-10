@@ -692,12 +692,14 @@ Script "DND Clientside Item Syncer Field" (int var, int to, int extra) CLIENTSID
 
 Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) CLIENTSIDE {
 	int pnum = PlayerNumber();
+	int source = mod >> 16;
+	mod &= 0xFFFF;
 	
 	/*if(ConsolePlayerNumber() != pnum)
 		Terminate;*/
 	
-	Player_Weapon_Infos[pnum][wepid].wep_mods[mod].val = val;
-	Player_Weapon_Infos[pnum][wepid].wep_mods[mod].tier = tier;
+	Player_Weapon_Infos[pnum][wepid].wep_mods[mod][source].val = val;
+	Player_Weapon_Infos[pnum][wepid].wep_mods[mod][source].tier = tier;
 	SetResultValue(0);
 }
 
@@ -716,7 +718,14 @@ void SyncClientsideVariable_WeaponProperties(int pnum, int wepid) {
 
 void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
 	for(int i = 0; i < MAX_WEP_MODS; ++i) {
-		ACS_NamedExecuteWithResult("DND Clientside Weapon Mod Sync", wepid, i, Player_Weapon_Infos[pnum][wepid].wep_mods[i].val, Player_Weapon_Infos[pnum][wepid].wep_mods[i].tier);
+		for(int j = 0; j < DND_MAX_WEAPONMODSOURCES; ++j)
+			ACS_NamedExecuteWithResult(
+				"DND Clientside Weapon Mod Sync", 
+				wepid, 
+				i | (j << 16), 
+				Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].val,
+				Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].tier
+			);
 	}
 }
 

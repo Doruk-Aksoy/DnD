@@ -686,7 +686,7 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 			HPLX J -1 A_KillMaster
 		Stop 
 		RaiseState: 
-			HPAL W 5 A_KillChildren
+			HPAL W 5 A_KillChildren("Perish")
 			HPAL VUTSRQ 5
 		Goto See
 	} 

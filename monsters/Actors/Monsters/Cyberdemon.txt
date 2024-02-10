@@ -2427,18 +2427,18 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 			TNT1 A 0 A_CustomMissile("SorcBall1Projectile", 90, 0, 0, CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SorcBall2Projectile", 90, 0, 60, CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("SorcBall3Projectile", 90, 0, 120, CMF_AIMDIRECTION)
-			AVAT N 7 Bright A_KillChildren
+			AVAT N 7 Bright A_KillChildren("Perish")
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			AVAT O 7 Bright A_Scream
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			AVAT P 7 Bright
-			TNT1 A 0 A_KillChildren
+			TNT1 A 0 A_KillChildren("Perish")
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			AVAT Q 7 Bright 
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagic", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			TNT1 A 0 A_NoBlocking
 			AVAT RSTU 7 Bright
-			AVAT V -1 A_KillMaster
+			AVAT V -1 A_KillMaster("Perish")
 		Stop
 		
 		// override base states that result in this monster dying to the cubes dont mess up
@@ -3245,7 +3245,8 @@ Actor AcolyteSummonBall {
 		Loop
 		Death:
 			SBS2 D 4 Bright A_Stop
-			TNT1 A 0 A_SpawnItemEx("ShadowPriest2", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER)
+			TNT1 A 0 A_RearrangePointers(AAPTR_DEFAULT, AAPTR_TARGET)
+			TNT1 A 0 A_SpawnItemEx("ShadowPriest2", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
 			SBS2 EFGH 4 Bright
 		Stop
 	}
@@ -3258,9 +3259,9 @@ Actor AcolyteSummoner : CustomInventory {
 	
 	States {
 		Use:
-			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 90)
-			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 180)
-			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 270)
+			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 90, CMF_CHECKTARGETDEAD)
+			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 180, CMF_CHECKTARGETDEAD)
+			TNT1 A 0 A_CustomMissile("AcolyteSummonBall", 48, 0, 270, CMF_CHECKTARGETDEAD)
 		Stop
 	}
 }

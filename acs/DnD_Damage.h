@@ -1107,16 +1107,17 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// extra property checks moved here
 	if(!wep_neg) {
 		// chance to force pain
-		if(Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val && Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_FORCEPAINCHANCE].val > random(1, 100))
+		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_FORCEPAINCHANCE);
+		if(extra && extra > random(1, 100))
 			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
 		
 		// poison on hit with % dmg
-		poison_factor = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE].val +
-						(!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * DND_BASE_POISON_FACTOR;
+		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
+		poison_factor = extra + (!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * DND_BASE_POISON_FACTOR;
 		//flags |= (!!poison_factor) * DND_DAMAGEFLAG_INFLICTPOISON;
 		
 		// percent damage of monster if it exists
-		extra = Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_PERCENTDAMAGE].val;
+		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_PERCENTDAMAGE);
 		dmg += (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * extra) / 100;
 		flags |= (!!extra) * DND_DAMAGEFLAG_PERCENTHEALTH;
 	}
@@ -2902,6 +2903,12 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
+	// this causes A_KillChildren etc. to actually work...
+	if(arg2 == "Perish") {
+		SetResultValue(arg1);
+		Terminate;
+	}
+
 	int temp, dmg, m_id;
 	int pnum;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
@@ -2910,7 +2917,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		// printbold(s:GetactorClass(0), s:" inflicts damage ", d:GetActorProperty(0, APROP_DAMAGE));
+		//printbold(s:GetactorClass(0), s:" inflicts damage ", d:GetActorProperty(0, APROP_DAMAGE), s: " ", d:arg1, s:" type ", s:arg2);
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);

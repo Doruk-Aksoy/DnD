@@ -84,7 +84,7 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 			INCX K -1
 		Stop
 		RaiseState:
-			INCA Q 0 A_KillChildren
+			INCA Q 0 A_KillChildren("Perish")
 			INCA QPONML 5
 		Goto See
    }

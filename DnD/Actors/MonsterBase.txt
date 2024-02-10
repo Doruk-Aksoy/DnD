@@ -75,7 +75,7 @@ Actor DnD_BaseMonster {
 		Wait
 		
 		SpawnSetup:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[4])
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[4], args[1])
 			"####" "#" 0 A_Jump(256, "Idle")
 			"####" "#" 35
 		Wait

@@ -1123,8 +1123,8 @@ void ResetWeaponStats(int wepid) {
 	Player_Weapon_Infos[pnum][wepid].quality = 0;
 	
 	for(int i = 0; i < MAX_WEP_MODS; ++i) {
-		Player_Weapon_Infos[pnum][wepid].wep_mods[i].val = 0;
-		Player_Weapon_Infos[pnum][wepid].wep_mods[i].tier = 0;
+		Player_Weapon_Infos[pnum][wepid].wep_mods[i][WMOD_WEP].val = 0;
+		Player_Weapon_Infos[pnum][wepid].wep_mods[i][WMOD_WEP].tier = 0;
 	}
 	SyncClientsideVariable_WeaponMods(pnum, wepid);
 }

@@ -138,10 +138,17 @@ enum {
 };
 #define MAX_WEP_MODS (WEP_MOD_POWERSET1 + 1) // max allowed mods
 
+// source of weapon mod value, can come from either equipped items or weapon itself directly
+enum {
+	WMOD_ITEMS,
+	WMOD_WEP
+};
+#define DND_MAX_WEAPONMODSOURCES (WMOD_WEP + 1)
+
 // store players mods etc.
 typedef struct {
 	int quality;
-	wep_mod_T wep_mods[MAX_WEP_MODS];
+	wep_mod_T wep_mods[MAX_WEP_MODS][DND_MAX_WEAPONMODSOURCES];
 } wep_info_T;
 
 global wep_info_T 2: Player_Weapon_Infos[MAXPLAYERS][MAXWEPS];
@@ -1202,8 +1209,11 @@ void ResetAllWeaponMods(int pnum) {
 	for(j = 0; j < MAXWEPS; ++j) {
 		Player_Weapon_Infos[pnum][j].quality = 0;
 		for(i = 0; i < MAX_WEP_MODS; ++i) {
-			Player_Weapon_Infos[pnum][j].wep_mods[i].tier = 0;
-			Player_Weapon_Infos[pnum][j].wep_mods[i].val = 0;
+			Player_Weapon_Infos[pnum][j].wep_mods[i][WMOD_ITEMS].tier = 0;
+			Player_Weapon_Infos[pnum][j].wep_mods[i][WMOD_ITEMS].val = 0;
+
+			Player_Weapon_Infos[pnum][j].wep_mods[i][WMOD_WEP].tier = 0;
+			Player_Weapon_Infos[pnum][j].wep_mods[i][WMOD_WEP].val = 0;
 		}
 	}
 }

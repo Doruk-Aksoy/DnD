@@ -1770,7 +1770,7 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 		Goto See
 		DeathState:
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
-			UNDP H 6 A_KillChildren
+			UNDP H 6 A_KillChildren("Perish")
 			UNDP I 6 A_Scream
 			UNDP JK 6
 			UNDP L 6 A_NoBlocking
@@ -1780,7 +1780,7 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 		XDeathState:
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			TNT1 A 0 A_GiveInventory("NoDrop", 1)
-			TNT1 A 0 A_KillChildren
+			TNT1 A 0 A_KillChildren("Perish")
 			UNDP O 5 A_Scream
 			UNDP P 5
 			UNDP R 5 A_NoBlocking

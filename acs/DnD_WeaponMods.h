@@ -23,11 +23,16 @@ void SetPlayerWeaponQuality(int pnum, int wep, int val) {
 }
 
 // gives a particular powerset to the weapon
-void SetWeaponModPowerset(int pnum, int wepid, int powerset, bool val) {
+void SetWeaponModPowerset(int pnum, int wepid, int powerset, bool val, int source) {
 	if(val)
-		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1].val |= 1 << powerset;
+		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1][source].val |= 1 << powerset;
 	else
-		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << powerset);
+		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1][source].val &= ~(1 << powerset);
+}
+
+// This will always return the sum of all sources, as the "net" value for use in calculations
+int GetPlayerWeaponModVal(int pnum, int wepid, int wepmod) {
+	return Player_Weapon_Infos[pnum][wepid].wep_mods[wepmod][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[wepmod][WMOD_WEP].val;
 }
 
 #define WEP_POWER_GHOSTHIT_REDUCE 33 // %
