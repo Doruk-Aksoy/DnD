@@ -2567,7 +2567,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	int temp;
 	int dot_temp;
 	
-	if(HardcoreSet)
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE))
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_HARDCORE_DEBUFF);
 	
 	dmg = HandleCursePlayerResistEffects(dmg);

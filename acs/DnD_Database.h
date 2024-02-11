@@ -222,7 +222,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 }
 
 void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
-	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerIsLoggedIn(pnum)) {
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerIsLoggedIn(pnum)) {
 		StartDBTransaction();
 		int tid = pnum + P_TIDSTART, i, j, k, temp;
 		char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
@@ -1142,7 +1142,7 @@ void load_char(int pnum, int char_id) {
 
 int check_load_char(int pnum, int char_id) {
 	// if not hardcore don't bother trying to load
-	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) return DND_LOGIN_NOTHARDCORE;
 	if(!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	// if gamestate is countdown don't let them because it'll be reset anyways
@@ -1311,7 +1311,7 @@ void create_char(int pnum, int char_id) {
 }
 
 int check_create_char(int pnum, int char_id) {
-	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) return DND_LOGIN_NOTHARDCORE;
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
@@ -1331,7 +1331,7 @@ void transfer_char(int pnum, int char_id) {
 }
 
 int check_transfer_char(int pnum, int char_id) {
-	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !HardcoreSet) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) return DND_LOGIN_NOTHARDCORE;
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;

@@ -251,8 +251,8 @@ Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
 
 Script "DND Check Hardcore Softcore" OPEN {
 	while(true) {
-		if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER))
-			HardcoreSet = CheckHardcoreSettings();
+		if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER) && CheckHardcoreSettings())
+			SetupComplete(SETUP_STATE1, SETUP_HARDCORE);
 		Delay(const:105);
 	}
 }
@@ -1716,7 +1716,7 @@ Script 920 (int mode) {
 	}
 	else {
 		// hacky fix: while this player can load, hold back on fixing player movement
-		while(HardcoreSet && PlayerCanLoad[PlayerNumber()])
+		while(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && PlayerCanLoad[PlayerNumber()])
 			Delay(17);
 		if(mode == 1) {
 			if(!CheckInventory("ShowingMenu")) // don't break menu functionality
@@ -2423,7 +2423,7 @@ Script "DnD Bonus Detect" OPEN {
 	// this construct is necessary so maps that don't have any monster besides custom monsters dont act up... I've seen things, alright? I SAW MONSTER COUNT == -2 in this fucking loop, dont test me!
 	do {
 		Delay(const:TICRATE);
-	} while (HardcoreSet && PlayersNotReadyForHardcore());
+	} while (isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && PlayersNotReadyForHardcore());
 	Delay(const:17 * (DND_MAX_MONSTERDELAY + 2));
 
 	while(true) {
@@ -2977,7 +2977,7 @@ Script "DnD Player Setup" ENTER {
 	ACS_NamedExecuteAlways("DnD SBAR", 0);
 	
 	// begin hardcore countdown
-	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		GiveInventory("P_Frozen", 1);
 		GiveInventory("DontAttack", 1);
 		while(GetGameModeState() == GAMESTATE_COUNTDOWN)
@@ -3076,7 +3076,7 @@ Script "DnD Player Setup" ENTER {
 	
 	PostPlayerLoadRoutine(pnum);
 	
-	if(HardcoreSet) {
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
 		Delay(17 * (DND_MAX_MONSTERDELAY + 2));
@@ -3145,7 +3145,7 @@ Script "DnD Player Setup" ENTER {
 		
 	// give some time for completion thing to get through
 	SetInventory("QuestCompletionToken", 0);
-	if(HardcoreSet && !CheckInventory("HardcoreDebuff"))
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 		
 	/*if(isPlayerClass(DND_PLAYER_DOOMGUY) && CheckInventory("Doomguy_Perk25"))
@@ -4817,7 +4817,7 @@ Script "DnD Chest Opened" (int ctype) {
 }
 
 Script "DnD Check Special GameMode" (void) {
-	SetResultValue(HardcoreSet);
+	SetResultValue(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE));
 }
 
 Script "DnD Talisman Mark Timer" (int counter) {
@@ -6140,7 +6140,7 @@ Script "Print Loc" (void) {
 Script 68 (int x) NET {
 	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode
 	#ifndef ISDEBUGBUILD
-		if(!HardcoreSet && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
+		if(!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
 	#endif
 	{
 		int i;

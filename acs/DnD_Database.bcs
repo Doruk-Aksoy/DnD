@@ -153,7 +153,7 @@ Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {
 Script "DnD Save Player Inventory" (int pnc1, int pnc2) {
 	int pn1 = pnc1 & 0xFFFF;
 	int pn2 = pnc2 & 0xFFFF;
-	if(HardcoreSet && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		BeginDBTransaction();
 		if(PlayerIsLoggedIn(pn1)) {
 			pnc1 >>= 16;

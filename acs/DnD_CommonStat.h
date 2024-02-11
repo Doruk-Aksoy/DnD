@@ -201,10 +201,6 @@ enum {
 	DND_MHR_DURATION
 };
 
-int IsHardcore() {
-	return HardcoreSet;
-}
-
 enum {
 	PUP_HOMINGNOREFLECT,
 	PUP_EXPLOSIVEIGNORERESIST,

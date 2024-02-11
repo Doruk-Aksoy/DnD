@@ -194,17 +194,31 @@ enum {
 
 // save for later
 global bool 0: MapInfo[32];
-global int 5: HardcoreSet;
+
+enum {
+	SETUP_STATE1
+};
+
+enum {
+	SETUP_HARDCORE,
+	SETUP_MONSTERS,
+	SETUP_ITEMTABLES
+};
+global int 55: SetupStates[2];
+
+void SetupComplete(int state, int flag) {
+	SetupStates[state] |= 1 << flag;
+}
+
+bool isSetupComplete(int state, int flag) {
+	return SetupStates[state] & (1 << flag);
+}
+
 global bool 6: PlayerLoaded[MAXPLAYERS];
 global bool 7: PlayerDied[MAXPLAYERS];
 
 // used for aux stuff -- 16 unique sections
 global int 58: TempArray[16][256];
-
-enum {
-	DND_ITEMLOAD_CHECK,
-};
-global bool 10: OneTimeChecks[];
 
 enum {
 	DND_MODE_NORMAL,

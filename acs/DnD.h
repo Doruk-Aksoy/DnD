@@ -761,7 +761,7 @@ void SpawnResearchId(int id) {
 
 void SpawnAccessory(int pnum) {
 	int id;
-	if(HardcoreSet) {
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) {
 		do {
 			id = random(1, MAX_ACCESSORY);
 		} while(id == DND_REPLACE_THIS_ACCESSORY);
@@ -810,19 +810,17 @@ void HandleChestDrops(int ctype) {
 	int tid = GetActorProperty(0, APROP_TARGETTID);
 	int pnum = tid - P_TIDSTART;
 	if(ctype == DND_CHESTTYPE_BRONZE) {
-		/*RunDefaultDropChance(int pnum, bool isElite, int basechance)
-		RunDefaultDropChance(i, true, DND_ELITE_BASEDROP_ORB + addchance)*/
-		SpawnOrbForAll(3);
+		SpawnOrbForAll(random(1, 3));
 		if(RunDefaultDropChance(pnum, 0.5))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_SILVER) {
-		SpawnOrbForAll(5);
+		SpawnOrbForAll(random(3, 5));
 		if(RunDefaultDropChance(pnum, 0.75))
 			SpawnTokenForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
-		SpawnOrbForAll(8);
+		SpawnOrbForAll(random(5, 8));
 		SpawnTokenForAll(1);
 	}
 	
@@ -1477,7 +1475,7 @@ void CheckEOL(bool isSpectate, int game_mode = -1) {
 		
 	//Log(s:"check hardcore ", d:HardcoreSet, s: " ", d:game_mode, s: " ", d:DND_MODE_HARDCORE, s: " ", d:DND_MODE_SOFTCORE);
 		
-	if(!HardcoreSet || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
+	if(!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
 		return;
 	
 	//Log(s:"spec? ", d:isSpectate, s: " ", d:PlayerCount());
@@ -1511,7 +1509,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 	if(game_mode == -1)
 		game_mode = GetCVar("dnd_mode");
 		
-	if(!HardcoreSet || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
+	if(!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
 		return;
 		
 	if(!isDisconnect) {
@@ -1542,7 +1540,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 }
 
 void SaveAllPlayerData() {
-	if(HardcoreSet) {
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) {
 		StartDBTransaction();
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// don't save peoples stuff while they are in load period
@@ -1576,11 +1574,11 @@ void HandleEndOfLevelRewards(int pnum) {
 		// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
 		// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
 		//if(((PlayerDatabaseState[i][PLAYER_SAVESTATE] && HardcoreSet) || !HardcoreSet) && GetActorProperty(tid, APROP_HEALTH) > 0) { 
-		if((!HardcoreSet || PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) && GetActorProperty(0, APROP_HEALTH) > 0) {
+		if((!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) && GetActorProperty(0, APROP_HEALTH) > 0) {
 			GiveInventory("LevelToken", 1);
 			StatListOpened[pnum] = 0;
 			
-			temp = (1 + HardcoreSet) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
+			temp = (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
 
 			GiveInventory("Budget", temp);
 			GiveInventory("RoundsSurvived", 1);
