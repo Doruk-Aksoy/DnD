@@ -1,0 +1,27 @@
+Graphic "ARWICO1", 31, 18
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO1", 0, 0
+}
+
+Graphic "ARWICO2", 31, 18
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO2", 0, 0
+}
+
+Graphic "ARWICO3", 31, 18
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO3", 0, 0
+}
+
+Graphic "ARWICO4", 31, 18
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO4", 0, 0
+}

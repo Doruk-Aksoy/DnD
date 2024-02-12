@@ -324,8 +324,6 @@ Actor AkimboReloadDecider : DND_Activator {
 	}
 }
 
-
-
 Actor AkimboShooter_R : DND_Activator {
 	states {
 		Use:

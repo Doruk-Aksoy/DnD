@@ -218,6 +218,11 @@ global bool 6: PlayerLoaded[MAXPLAYERS];
 global bool 7: PlayerDied[MAXPLAYERS];
 
 // used for aux stuff -- 16 unique sections
+enum {
+	TARR_ORB1,
+	TARR_ORB2,
+	TARR_MENU
+};
 global int 58: TempArray[16][256];
 
 enum {
@@ -317,6 +322,7 @@ int UsedMonsterTIDs[DND_MAX_MONSTERS];
 #define PLAYERLEVELINFO_COUNTATSTART 3
 #define PLAYERLEVELINFO_TIDMONSTER 4 // how many monster tids were skipped, this can happen if mappers allocated tids of their own
 #define MAX_PLAYERLEVELINFO_DATA (PLAYERLEVELINFO_TIDMONSTER + 1)
+
 bool pinfo_pending_reset = true;
 global int 28: PlayerInformationInLevel[MAX_PLAYERLEVELINFO_DATA];
 

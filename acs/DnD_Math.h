@@ -86,6 +86,17 @@ int ftrunc(int x) {
 	return ((x * 100 + 50) / 100);
 }
 
+int roundUp(int x, int mult) {
+    if (!mult)
+        return x;
+
+    int remainder = x % mult;
+    if (!remainder)
+        return x;
+
+    return x + mult - remainder;
+}
+
 int ConvertFixedToPrecise(int x) {
 	// 1000 = 1.0, but we are talking percentages so 0.01 = 1%
 	// the first >> 4 is so we get rid of unimportant last 4 bits of precision and can multiply with 1000 without worrying

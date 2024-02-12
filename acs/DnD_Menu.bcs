@@ -315,7 +315,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			ResetCursorHoverData();
 			
 		if(PlayerCursorData.itemDragged != -1) {
-			DrawDraggedItem();
+			DrawDraggedItem(pnum);
 			redraw = true;
 		}
 		

@@ -608,7 +608,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SLOT1_DAMAGE].attrib_low = 5;
 	ItemModTable[INV_SLOT1_DAMAGE].attrib_high = 25;
 	ItemModTable[INV_SLOT1_DAMAGE].attrib_level_modifier = 0;
-	ItemModTable[INV_SLOT1_DAMAGE].tags = INV_ATTR_TAG_DAMAGE;
+	ItemModTable[INV_SLOT1_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_MELEE;
 	
 	ItemModTable[INV_SLOT2_DAMAGE].attrib_low = 5;
 	ItemModTable[INV_SLOT2_DAMAGE].attrib_high = 25;
@@ -1135,7 +1135,7 @@ int GetModTierRangeMapper(int attr, int lvl) {
 // Add other item properties related to item quality here
 int GetCharmAttributeFactor(int item_type, int item_subtype) {
 	if(item_type != DND_ITEM_CHARM)
-		return 0;
+		return 1;
 	
 	if(item_subtype == DND_CHARM_LARGE)
 		return 25;

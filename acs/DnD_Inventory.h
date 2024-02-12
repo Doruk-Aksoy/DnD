@@ -114,6 +114,12 @@ enum {
 	IIMG_MORB_1,
 	IIMG_MORB_2,
 	IIMG_MORB_3,
+
+	// armor
+	IIMG_ARM_1,
+	IIMG_ARM_2,
+	IIMG_ARM_3,
+	IIMG_ARM_4,
 	
 	IIMG_CKEY_1,
 	IIMG_CKEY_2,
@@ -135,6 +141,8 @@ enum {
 #define ITEM_IMAGE_KEY_BEGIN IIMG_CKEY_1
 #define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_REPAIR
 
+#define ITEM_IMAGE_ARMOR_BEGIN IIMG_ARM_1
+#define ITEM_IMAGE_ARMOR_END IIMG_ARM_4
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
 
@@ -145,7 +153,10 @@ enum {
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
 #define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_SCOUR
 
-str GetItemImage(int id) {
+#include "DnD_Armor.h"
+
+// wide returns wider version
+str GetItemImage(int id, bool wide = false) {
 	str img_prefix = "";
 	int suffix = 0;
 	if(id <= ITEM_IMAGE_CHARM_END) {
@@ -163,6 +174,12 @@ str GetItemImage(int id) {
 	else if(id <= ITEM_IMAGE_MONSTERORB_END) {
 		img_prefix = "MO";
 		suffix = id - ITEM_IMAGE_MONSTERORB_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_ARMOR_END) {
+		img_prefix = "AR";
+		suffix = id - ITEM_IMAGE_ARMOR_BEGIN + 1;
+		if(wide)
+			img_prefix = "ARW";
 	}
 	else if(id <= ITEM_IMAGE_KEY_END) {
 		img_prefix = "K";
@@ -313,6 +330,14 @@ void FreeSpot(int pnum, int item_index, int source) {
 	SetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_index, -1, DND_ITEM_NULL, source);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, item_index, -1, 0, source);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, item_index, -1, 0, source);
+}
+
+// move this from field to player's inventory
+int HandleInventoryPickup(int item_index) {
+	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), pcharm_index);
+	GiveInventory("DnD_RefreshRequest", 1);
+	return pcharm_index;
 }
 
 int GetStackValue(int type) {
@@ -724,39 +749,28 @@ int CloneItem(int pnum, int item_index, int source, bool dontSync) {
 }
 
 // check if clicked spot is free for the item we want to put
-bool IsFreeSpot(int pnum, int itempos, int emptypos) {
-	int temp = PlayerInventoryList[pnum][itempos].topleftboxid - 1;
-	int w = PlayerInventoryList[pnum][temp].width;
-	int h = PlayerInventoryList[pnum][temp].height;
-	int offset = temp - itempos;
-	int bid = 0;
-	
-	for(int i = 0; i < h; ++i) {
-		for(int j = 0; j < w; ++j) {
-			bid = emptypos + offset + j + i * MAXINVENTORYBLOCKS_VERT;
-			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
-				return false;
-			// if not empty and it's not us
-			if(PlayerInventoryList[pnum][bid].topleftboxid && PlayerInventoryList[pnum][bid].topleftboxid - 1 != temp)
-				return false;
-		}
-	}
-	return true;
-}
-
-bool IsFreeSpot_Trade(int pnum, int itempos, int emptypos, int itemsource, int emptysource) {
+bool IsFreeSpot(int pnum, int itempos, int emptypos, int itemsource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, int emptysource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) {
 	int temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itempos, -1, itemsource) - 1;
 	int w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, temp, -1, itemsource);
 	int h = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, temp, -1, itemsource);
 	int offset = temp - itempos;
 	int bid = 0;
-	int tb;
+	int tb = 0;
+
+	bool rowStart = !((emptypos + offset) % MAXINVENTORYBLOCKS_VERT);
 	
 	for(int i = 0; i < h; ++i) {
 		for(int j = 0; j < w; ++j) {
 			bid = emptypos + offset + j + i * MAXINVENTORYBLOCKS_VERT;
+			// vertical range check
 			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
 				return false;
+
+			// horiz range check -- this one's a bit more involved
+			// check if we go from a non-multiple of 9 to a multiple of 9, that's when you get on a new line
+			if(!rowStart && !(bid % 9))
+				return false;
+
 			// if not empty and it's not us
 			tb = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, emptysource);
 			if(tb && tb - 1 != temp)
@@ -764,6 +778,10 @@ bool IsFreeSpot_Trade(int pnum, int itempos, int emptypos, int itemsource, int e
 		}
 	}
 	return true;
+}
+
+bool IsValidBox(int beg, int off) {
+	return beg + off < MAX_INVENTORY_BOXES && beg + off >= 0;
 }
 
 bool IsSourceInventoryView(int source) {
@@ -1301,12 +1319,17 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		return;
 	}
 	else {
-		// temp holds charm's tier id
+		// this holds charm's tier id
 		lvl = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, topboxid, -1, source);
 		
 		if(itype == DND_ITEM_CHARM) {
 			temp = GetItemTier(lvl);
 			HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; 
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			);
+		}
+		else if(itype == DND_ITEM_BODYARMOR) {
+			HudMessage(s:GetArmorInventoryTag(isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
@@ -2196,6 +2219,37 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 	PlayerInventoryList[pnum][item_pos].attributes[temp].fractured = a_fracture;
 }
 
+// can only add attributes to items that are about to be created ie. on field dropped from monster
+void AddAttributeToFieldItem(int charm_pos, int attrib, int pnum, int max_affixes = 0) {
+	if(!max_affixes)
+		max_affixes = Charm_MaxAffixes[Inventories_On_Field[charm_pos].item_subtype];
+	if(Inventories_On_Field[charm_pos].attrib_count < max_affixes) {
+		int temp = Inventories_On_Field[charm_pos].attrib_count++;
+		int lvl = Inventories_On_Field[charm_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
+		
+		bool makeWellRolled = CheckWellRolled(pnum);
+		
+		lvl = GetItemTierRoll(lvl, makeWellRolled);
+
+		// force within bounds
+		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_tier = lvl;
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
+		Inventories_On_Field[charm_pos].attributes[temp].fractured = false;
+
+		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
+		// luck adds a small chance for a charm to have well rolled modifier on it -- luck gain is 0.15, 0.05 x 10 = 0.5 max rank thats 50% chance for well rolled mods
+		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = RollAttributeValue(
+			attrib, 
+			lvl, 
+			makeWellRolled,
+			Inventories_On_Field[charm_pos].item_type,
+			Inventories_On_Field[charm_pos].item_subtype
+		);
+	}
+}
+
+// adds attribute to existing item in player inventory
 void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = false) {
 	int temp = PlayerInventoryList[pnum][item_pos].attrib_count++;
 	int lvl = GetItemTier(PlayerInventoryList[pnum][item_pos].item_level);

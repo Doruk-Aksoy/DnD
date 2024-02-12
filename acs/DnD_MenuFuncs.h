@@ -2882,8 +2882,16 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	if(hasItem && (PlayerCursorData.itemDragInfo.topboxid != bid || PlayerCursorData.itemDragInfo.source != source)) {
 		// shift down tall items height - 1 times
 		temp = (GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, bid, -1, source) - 1) * ITEMOFFSETSCALE;
-		SetFont(GetItemImage(img));
-		HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + temp, 0.0, 0.0);
+		SetFont(GetItemImage(img, true));
+		HudMessage(
+			s:"A"; 
+			HUDMSG_PLAIN, idbase - bid - boff - MAX_INVENTORY_BOXES - 2, 
+			CR_WHITE, 
+			basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + (GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, bid, -1, source) - 1) * ITEMOFFSETSCALE, 
+			basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + temp, 
+			0.0, 
+			0.0
+		);
 	
 		temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, bid, -1, source);
 		if(temp) {
@@ -2897,12 +2905,15 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 		DeleteText(idbase - bid - boff - MAX_INVENTORY_BOXES - 2);
 		DeleteText(idbase - bid - boff - 2 * MAX_INVENTORY_BOXES - 2);
 	}
+
 	// gray inventory chunks
-	if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_CURSORON)
+	if(IsValidBox(bid, boff) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CURSORON)
 		SetFont("LDTBOXS");
+	else if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_BAD)
+		SetFont("LDTBOXN");
 	else if(CheckActorInventory(pnum + P_TIDSTART, "DnD_Trade_Confirmed"))
 		SetFont("LDTBOXCN");
-	else if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_CLICK)
+	else if(IsValidBox(bid, boff) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CLICK)
 		SetFont("LDTBOXC");
 	else if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source))) {
 		// if lvl requirement is satisfied draw them normal -- topbox is +1 of actual index
@@ -2975,22 +2986,58 @@ void DrawInventoryInfo(int pnum) {
 }
 
 // min is included max is excluded
-void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum) {
+void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, int source) {
 	// update the area being hovered wrt item being dragged
 	int temp = PlayerCursorData.itemDragInfo.topboxid;
 	--boxid;
 	if(boxid == -1 || boxid >= max_box || boxid < min_box)
 		return;
-	
+
 	if(temp != -1) {
 		int idx;
-		// all boxes in range of this should be highlighted
-		for(int p = 0; p < PlayerCursorData.itemDragInfo.size_y; ++p) {
-			for(int s = 0; s < PlayerCursorData.itemDragInfo.size_x; ++s) {
-				idx = boxid + temp - PlayerCursorData.itemDragInfo.click_box + s + p * MAXINVENTORYBLOCKS_VERT;
-				//Log(s:"set lit ", d:idx, s: " boxid: ", d:boxid, s: " diff: ", d:temp - PlayerCursorData.itemDragInfo.click_box);
-				if(idx >= min_box && idx < max_box)
+		int s, p;
+
+		int prev_boxid = boxid;
+		if(!(prev_boxid % MAXINVENTORYBLOCKS_VERT) && temp - PlayerCursorData.itemDragInfo.click_box) {
+			boxid = prev_boxid - (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT;
+			if(boxid < min_box)
+				boxid = min_box;
+		}
+		else {
+			boxid += temp - PlayerCursorData.itemDragInfo.click_box;
+
+			// adjust boxid so that we align the top left corner to be within our grid at all times
+			// if we are at the beginning of a row, don't do it obviously, so we check mod for that
+			// to detect beginning of a new line, we check if adding a size - 1 to it would make it go over nearest multiple of 9, if it would we stop it
+			// this coincidentally also checks for upper bound, as the upper bound is always a multiple of 9 as well
+			if(boxid < min_box) {
+				boxid = min_box + (prev_boxid % MAXINVENTORYBLOCKS_VERT) - (PlayerCursorData.itemDragInfo.size_x - 1);
+				if(boxid < min_box)
+					boxid = min_box;
+			}
+
+			if(boxid % MAXINVENTORYBLOCKS_VERT) {			
+				if(boxid + PlayerCursorData.itemDragInfo.size_x - 1 >= roundUp(boxid, MAXINVENTORYBLOCKS_VERT))
+					boxid -= PlayerCursorData.itemDragInfo.size_x - 1;
+			}
+			
+			if(boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT >= max_box) {
+				temp = ((boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT) - max_box);
+				if(!temp)
+					temp = 1;
+				boxid -= roundUp(temp, MAXINVENTORYBLOCKS_VERT);
+			}
+		}
+
+		for(p = 0; p < PlayerCursorData.itemDragInfo.size_y; ++p) {
+			for(s = 0; s < PlayerCursorData.itemDragInfo.size_x; ++s) {
+				idx = boxid + s + p * MAXINVENTORYBLOCKS_VERT;
+				
+				// if this id isn't occupied by another item and its color scheme, color it
+				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, idx, -1, source) - 1 == -1)
 					InventoryBoxLit[idx] = BOXLIT_STATE_CURSORON;
+				else
+					InventoryBoxLit[idx] = BOXLIT_STATE_BAD;
 			}
 		}
 	}
@@ -3074,7 +3121,7 @@ void HandleInventoryView(int boxid) {
 	
 	//CleanInventoryInfo();
 	int pnum = PlayerNumber();
-	UpdateDraggedItemLitBoxes(boxid, 0, MAX_INVENTORY_BOXES, pnum);
+	UpdateDraggedItemLitBoxes(boxid, 0, MAX_INVENTORY_BOXES, pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, HUDMAX_X, HUDMAX_Y);
@@ -3356,7 +3403,7 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	
 	// draw other player offering up top
 	ResetInventoryLitState(0, 3 * MAX_INVENTORY_BOXES);
-	UpdateDraggedItemLitBoxes(boxid, 0, 3 * MAX_INVENTORY_BOXES, pnum);
+	UpdateDraggedItemLitBoxes(boxid, 0, 3 * MAX_INVENTORY_BOXES, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW);
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEUP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_TRADEVIEW, GetTradee(), dimx, dimy);
@@ -3601,7 +3648,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 								soffset = ioffset;
 								ioffset = temp;
 								*/
-								if(IsFreeSpot_Trade(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
+								if(IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
 									MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
 									GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 								}
@@ -3630,7 +3677,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							}
 							// epos holds the empty position now
 							// make sure we aren't both empty slots
-							if((boxidon || prevselecton) && IsFreeSpot_Trade(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
+							if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
 								MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
 								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
 							}
@@ -3689,15 +3736,19 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 	}
 }
 
-void DrawDraggedItem() {
-	SetFont(GetItemImage(PlayerCursorData.itemDragged));
+void DrawDraggedItem(int pnum) {
+	SetFont(GetItemImage(PlayerCursorData.itemDragged, true));
+
+	int scale = 1;
+	if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemDragInfo.topboxid, -1, PlayerCursorData.itemDragInfo.source) == DND_ITEM_BODYARMOR)
+		scale = 0;
 	
 	if(PlayerCursorData.itemDraggedStashSize) {
 		SetHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH, 1);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((PlayerCursorData.posx * 3 / 2) & MMASK) - 16.0 * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF_STASH - ((PlayerCursorData.posy * 3 / 2) & MMASK), 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((PlayerCursorData.posx * 3 / 2) & MMASK) - 16.0 * scale * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF_STASH - ((PlayerCursorData.posy * 3 / 2) & MMASK), 0.0, 0.0);
 	}
 	else
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (PlayerCursorData.posx & MMASK) - 16.0 * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF - (PlayerCursorData.posy & MMASK), 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (PlayerCursorData.posx & MMASK) - 16.0 * scale * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF - (PlayerCursorData.posy & MMASK), 0.0, 0.0);
 }
 
 void HandleStashView(int boxid) {
@@ -3713,7 +3764,7 @@ void HandleStashView(int boxid) {
 	PlayerCursorData.itemDraggedStashSize = true;
 	
 	ResetInventoryLitState(0, 2 * MAX_INVENTORY_BOXES);
-	UpdateDraggedItemLitBoxes(boxid, 0, 2 * MAX_INVENTORY_BOXES, pnum);
+	UpdateDraggedItemLitBoxes(boxid, 0, 2 * MAX_INVENTORY_BOXES, pnum, DND_SYNC_ITEMSOURCE_STASH);
 	// draw stash at top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -3833,7 +3884,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 						soffset = ioffset;
 						ioffset = temp;
 						*/
-						if(IsFreeSpot_Trade(pnum, ipos - ioffset, epos - soffset, isource, ssource))
+						if(IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource))
 							MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
 					}
 					else {
@@ -3860,7 +3911,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 					}
 					// epos holds the empty position now
 					// make sure we aren't both empty slots
-					if((boxidon || prevselecton) && IsFreeSpot_Trade(pnum, ipos - ioffset, epos - soffset, isource, ssource))
+					if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource))
 						MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
 				}
 				//printbold(s:"reset at mainbox != none");

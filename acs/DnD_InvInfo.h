@@ -20,6 +20,7 @@ enum {
 };
 #define MAX_INVENTORY_CATEGORIES DND_INVCATEGORY_CHARM + 1
 
+// main item types
 enum {
 	DND_ITEM_NULL,
 	DND_ITEM_TEMPORARY,

@@ -1,0 +1,9 @@
+Actor ArmorDrop : InventoryBase {
+	Renderstyle Translucent
+	Alpha 0.0
+	States {
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Armor Item Pickup", 0, mass - 1)
+		stop
+	}
+}

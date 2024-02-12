@@ -402,7 +402,7 @@ ACTOR ProjBullet : FastProjectile {
 			TRAC A -1 Bright
 		Stop
 		Death:
-			TNT1 A 1 A_SpawnItem("NewBulletPuff")
+			TNT1 A 1 A_SpawnItemEx("NewBulletPuff")
 		Stop
 		XDeath:
 			TNT1 A 1

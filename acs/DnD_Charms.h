@@ -84,7 +84,7 @@ void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
 		do {
 			roll = PickRandomAttribute();
 		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
-		AddAttributeToCharm(charm_pos, roll, pnum);
+		AddAttributeToFieldItem(charm_pos, roll, pnum);
 		++i;
 	}
 }
@@ -108,11 +108,11 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	}
 	
 	// add the guaranteed mods first, because rolling later will check for their presence if they are rolled
-	AddAttributeToCharm(charm_pos, m1, pnum);
+	AddAttributeToFieldItem(charm_pos, m1, pnum);
 	if(m2 != -1)
-		AddAttributeToCharm(charm_pos, m2, pnum);
+		AddAttributeToFieldItem(charm_pos, m2, pnum);
 	if(m3 != -1)
-		AddAttributeToCharm(charm_pos, m3, pnum);
+		AddAttributeToFieldItem(charm_pos, m3, pnum);
 	
 	// the guaranteed mods are subtracted from random rolls
 	// rolling logic is as follows:
@@ -121,36 +121,8 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 		do {
 			roll = PickRandomAttribute();
 		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
-		AddAttributeToCharm(charm_pos, roll, pnum);
+		AddAttributeToFieldItem(charm_pos, roll, pnum);
 		++i;
-	}
-}
-
-// can only add attributes to charms that are about to be created ie. on field dropped from monster
-void AddAttributeToCharm(int charm_pos, int attrib, int pnum) {
-	if(Inventories_On_Field[charm_pos].attrib_count < Charm_MaxAffixes[Inventories_On_Field[charm_pos].item_subtype]) {
-		int temp = Inventories_On_Field[charm_pos].attrib_count++;
-		int lvl = Inventories_On_Field[charm_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
-		
-		bool makeWellRolled = CheckWellRolled(pnum);
-		
-		lvl = GetItemTierRoll(lvl, makeWellRolled);
-
-		// force within bounds
-		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_tier = lvl;
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
-		Inventories_On_Field[charm_pos].attributes[temp].fractured = false;
-
-		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
-		// luck adds a small chance for a charm to have well rolled modifier on it -- luck gain is 0.15, 0.05 x 10 = 0.5 max rank thats 50% chance for well rolled mods
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = RollAttributeValue(
-			attrib, 
-			lvl, 
-			makeWellRolled,
-			Inventories_On_Field[charm_pos].item_type,
-			Inventories_On_Field[charm_pos].item_subtype
-		);
 	}
 }
 
@@ -206,14 +178,6 @@ void SpawnCharm_ForAll() {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
 			SpawnCharm(i, true, false);
 	}
-}
-
-// move this from field to player's inventory
-int HandleCharmPickup(int item_index) {
-	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), pcharm_index);
-	GiveInventory("DnD_RefreshRequest", 1);
-	return pcharm_index;
 }
 
 int MakeCharmUsed(int pnum, int use_id, int item_index, int target_type) {

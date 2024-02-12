@@ -349,7 +349,7 @@ Actor LightningCoilMsg : CustomInventory {
 	}
 }
 
-Actor GreenArmorSpawner : Randomspawner replaces GreenArmor {
+/*Actor GreenArmorSpawner : Randomspawner replaces GreenArmor {
 	DropItem "GreenArmorPickup_MP", 255, 16
 	DropItem "YellowArmorPickup_MP", 255, 8
 }
@@ -358,7 +358,7 @@ Actor BlueArmorSpawner : Randomspawner replaces BlueArmor
 {
 	DropItem "BlueArmorPickup_MP", 255, 16
 	DropItem "RedArmorPickup_MP", 255, 4
-}
+}*/
 
 Actor NecroSpikeShooter : DnD_Activator {
 	States {

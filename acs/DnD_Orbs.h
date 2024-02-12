@@ -446,11 +446,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 						// we use res to hold the count of elements in this temporary array
 						// reset current count if we found a new minimum, then add it to our array
 						res = 0;
-						TempArray[0][res++] = i;
+						TempArray[TARR_ORB1][res++] = i;
 						temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_tier;
 					}
 					else if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier == temp) // if equal to current min, store it
-						TempArray[0][res++] = i;
+						TempArray[TARR_ORB1][res++] = i;
 				}
 
 				// res holds count now, so we must have non-zero or do nothing
@@ -458,7 +458,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					res = random(0, res - 1);
 
 					// remove the randomized minimum found
-					RemoveAttributeFromItem(pnum, extra, TempArray[0][res]);
+					RemoveAttributeFromItem(pnum, extra, TempArray[TARR_ORB1][res]);
 				}
 			}
 
@@ -688,14 +688,14 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier > prev) {
 					prev = PlayerInventoryList[pnum][extra].attributes[i].attrib_tier;
 					s = 0;
-					TempArray[0][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+					TempArray[TARR_ORB1][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
 				}
 				else if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier == prev)
-					TempArray[0][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+					TempArray[TARR_ORB1][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
 			}
 
 			// now we have a list of the highest attributes, pick one random
-			s = ItemModTable[TempArray[0][random(0, s - 1)]].tags;
+			s = ItemModTable[TempArray[TARR_ORB1][random(0, s - 1)]].tags;
 			if(s & INV_ATTR_TAG_ATTACK)
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_VIOLENCE, affluence);
 			if(s & INV_ATTR_TAG_CRIT)
@@ -762,7 +762,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			
 			// init the temp array to -1s
 			for(i = 0; i < MAX_ITEM_ATTRIBUTES * ATTRIB_DATA_COUNT; ++i)
-				TempArray[1][i] = -1;
+				TempArray[TARR_ORB2][i] = -1;
 			
 			// we determine when to stop, we either stop until max affixes or we have minimum of both attrib counts total
 			// make the latter count unique attributes on both combined, not just total attribute count of both
@@ -808,8 +808,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					picked_mod = PlayerInventoryList[pnum][res].attributes[prev].attrib_id;
 					
 					// if its not in our array add it to it
-					for(i = 0; i < MAX_ITEM_ATTRIBUTES && TempArray[1][i * ATTRIB_DATA_COUNT] != -1; ++i) {
-						if(picked_mod == TempArray[1][i * ATTRIB_DATA_COUNT]) {
+					for(i = 0; i < MAX_ITEM_ATTRIBUTES && TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT] != -1; ++i) {
+						if(picked_mod == TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT]) {
 							fail_pick = true;
 							break;
 						}
@@ -819,11 +819,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				} while(fail_pick && affluence != MAX_ITER);
 
 				// confirmed addable attribute
-				TempArray[1][temp * ATTRIB_DATA_COUNT] = PlayerInventoryList[pnum][res].attributes[prev].attrib_id;
-				TempArray[1][temp * ATTRIB_DATA_COUNT + 1] = PlayerInventoryList[pnum][res].attributes[prev].attrib_val;
-				TempArray[1][temp * ATTRIB_DATA_COUNT + 2] = PlayerInventoryList[pnum][res].attributes[prev].attrib_tier;
-				TempArray[1][temp * ATTRIB_DATA_COUNT + 3] = PlayerInventoryList[pnum][res].attributes[prev].attrib_extra;
-				TempArray[1][temp * ATTRIB_DATA_COUNT + 4] = PlayerInventoryList[pnum][res].attributes[prev].fractured;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT] = PlayerInventoryList[pnum][res].attributes[prev].attrib_id;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 1] = PlayerInventoryList[pnum][res].attributes[prev].attrib_val;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 2] = PlayerInventoryList[pnum][res].attributes[prev].attrib_tier;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 3] = PlayerInventoryList[pnum][res].attributes[prev].attrib_extra;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 4] = PlayerInventoryList[pnum][res].attributes[prev].fractured;
 
 				++temp;
 			} while(temp < s);
@@ -834,19 +834,19 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			ScourItem(pnum, extra2);
 			
 			// copy the attributes into extra2
-			for(i = 0; i < temp && TempArray[1][i * ATTRIB_DATA_COUNT] != -1; ++i) {
+			for(i = 0; i < temp && TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT] != -1; ++i) {
 				// check if the host already has it! we shouldn't add it again!
-				if(IsAttribInItem(pnum, extra2, TempArray[1][i * ATTRIB_DATA_COUNT]))
+				if(IsAttribInItem(pnum, extra2, TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT]))
 					continue;
 
 				InsertAttributeToItem(
 					pnum, 
 					extra2, 
-					TempArray[1][i * ATTRIB_DATA_COUNT], 
-					TempArray[1][i * ATTRIB_DATA_COUNT + 1],
-					TempArray[1][i * ATTRIB_DATA_COUNT + 2],
-					TempArray[1][i * ATTRIB_DATA_COUNT + 3],
-					TempArray[1][i * ATTRIB_DATA_COUNT + 4]
+					TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT], 
+					TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT + 1],
+					TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT + 2],
+					TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT + 3],
+					TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT + 4]
 				);
 			}
 			
