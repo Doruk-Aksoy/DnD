@@ -741,7 +741,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits();
 				
-				for(i  = 0; i < PAGE1_ARMOR_COUNT; ++i)
+				/*for(i  = 0; i < PAGE1_ARMOR_COUNT; ++i)
 					DrawToggledImage(SHOP_ARMOR_GREEN + i, boxid, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + 1][ARMORDATA_BASEAMOUNT], CR_RED);
 			
 				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
@@ -752,13 +752,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
 					else
 						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-				}
+				}*/
 			}
 			else if(curopt == MENU_SHOP_ARMOR2) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits();
 				
-				for(i  = 0; i < PAGE2_ARMOR_COUNT; ++i)
+				/*for(i  = 0; i < PAGE2_ARMOR_COUNT; ++i)
 					DrawToggledImage(SHOP_FIRSTARMOR2_INDEX + i, boxid, i, ArmorDrawInfo[PAGE1_ARMOR_COUNT + i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + PAGE1_ARMOR_COUNT + 1][ARMORDATA_BASEAMOUNT], CR_RED);
 
 				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
@@ -769,7 +769,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
 					else
 						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-				}
+				}*/
 			}
 			else if(curopt == MENU_SHOP_ACCOUNT) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCOUNT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);

@@ -1056,6 +1056,11 @@ void SetupInventoryAttributeTable() {
 	///////////////////////
 	// regular implicits //
 	///////////////////////
+	ItemModTable[INV_IMP_INCARMOR].attrib_low = 100000;
+	ItemModTable[INV_IMP_INCARMOR].attrib_high = -1;
+	ItemModTable[INV_IMP_INCARMOR].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_INCARMOR].tags = INV_ATTR_TAG_DEFENSE;
+
 
 	///////////////////////////////
 	// essences from here on out //
@@ -1199,16 +1204,6 @@ int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
 	if(!isWellRolled)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
 	return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
-}
-
-int PickRandomAttribute() {
-	int bias = Timer() & 0xFFFF;
-	int val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
-	// this is a last resort random here, in case there was an overflow... shouldn't, but might
-	// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
-	if(val < 0)
-		val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
-	return val;
 }
 
 str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
@@ -1447,6 +1442,10 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 				);
 			}
 			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
+
+		// this doesn't have detailed mod explanation on purpose, each item has their own presets
+		case INV_IMP_INCARMOR:
+			return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
 
 		case INV_CORR_WEAPONFORCEPAIN:
 			return StrParam(l:GetWeaponTag(extra), s: " ", l:text);
@@ -1732,7 +1731,7 @@ void SetupInventoryTagGroups() {
 	// charms can roll every mod, so we iterate and build a table for them as opposed to by hand
 	// move each groups tags looping through all attribs, extracting their bits
 	int i, j;
-	
+	int tag, tag_id;
 	// init to 0
 	for(j = 0; j < MAX_ATTRIB_TAG_GROUPS; ++j) {
 		for(i = 0; i < MAX_CRAFTABLEITEMTYPES; ++i)
@@ -1741,13 +1740,13 @@ void SetupInventoryTagGroups() {
 	
 	// scan all attribs and place them in appropriate slots for charms
 	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
-		int tag = ItemModTable[i].tags;
-		int tag_id = 0;
+		tag = ItemModTable[i].tags;
+		tag_id = 0;
 		// can have multiple
 		while(tag > 0) {
 			if(tag & 1) {
-				AttributeTagGroups[tag_id][DND_ITEM_CHARM][AttributeTagGroupCount[tag_id][DND_ITEM_CHARM]] = i;
-				++AttributeTagGroupCount[tag_id][DND_ITEM_CHARM];
+				AttributeTagGroups[tag_id][DND_CRAFTABLEID_CHARM][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_CHARM]] = i;
+				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_CHARM];
 				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
 			}
 			tag >>= 1;
@@ -1755,8 +1754,26 @@ void SetupInventoryTagGroups() {
 		}
 	}
 	
-	// come up with a good method to create "valid mod pools" for certain item types below, like body armor etc.
-	// might need manual approach?
+	// do the same thing we did for charms to armors
+	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
+		tag = ItemModTable[i].tags;
+
+		// armors won't roll these, a general rule for now, we can add specifics later perhaps
+		if(tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_MELEE))
+			continue;
+
+		tag_id = 0;
+		// can have multiple
+		while(tag > 0) {
+			if(tag & 1) {
+				AttributeTagGroups[tag_id][DND_CRAFTABLEID_BODYARMOR][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BODYARMOR]] = i;
+				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BODYARMOR];
+				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
+			}
+			tag >>= 1;
+			++tag_id;
+		}
+	}
 }
 
 #endif

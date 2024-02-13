@@ -1285,12 +1285,12 @@ void SpawnDarkLanceProjectile_Side(int this, int a, int proj_tid, int x, int y, 
 }
 
 void HandleRuination(int this, int target) {
-	if(GetArmorAmount()) {
+	/*if(GetArmorAmount()) {
 		// remove a third of armor
 		TakeArmorAmount(GetArmorCapFromID(GetArmorID()) / 3);
 	}
 	else
-		ACS_NamedExecuteAlways("DnD Hurt Actor", 0, target, this, GetSpawnHealth() / 3);
+		ACS_NamedExecuteAlways("DnD Hurt Actor", 0, target, this, GetSpawnHealth() / 3);*/
 	TakeInventory("RuinationStacks", RUINATION_MAX_STACKS);
 	PlaySound(this, "Elite/RuinationTrigger", CHAN_5, 1.0);
 	GiveInventory("RuinBlend", 1);

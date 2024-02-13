@@ -1742,6 +1742,10 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return true;
 }
 
+void RemoveAllArmor() {
+
+}
+
 enum {
 	REQ_SYNC_ACC = 1
 };
@@ -1885,11 +1889,8 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			
 			// for str
 			UpdatePlayerKnockbackResist();
-
-			// for bulk
-			UpdateArmorVisual();
 			
-			i = GetArmorAmount();
+			/*i = GetArmorAmount();
 			if(i) {
 				cap = GetArmorCapFromID(GetArmorID());
 				i = i - cap;
@@ -1903,7 +1904,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 							SetArmorAmount(temp);
 					}
 				}
-			}
+			}*/
 
 			// for vit
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
@@ -1980,25 +1981,8 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_STAT_BULKINESS:
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			UpdatePlayerKnockbackResist();
-			UpdateArmorVisual();
-			
-			i = GetArmorAmount();
-			if(i) {
-				cap = GetArmorCapFromID(GetArmorID());
-				i = i - cap;
-				if(remove) {
-					temp = cap;
-					if(GetArmorAmount() > temp) {
-						// set health to new cap, add the extra to player
-						if(i > 0)
-							SetArmorAmount(temp + i);
-						else
-							SetArmorAmount(temp);
-					}
-				}
-			}
 		break;
-		case INV_ARMOR_INCREASE:
+		/*case INV_ARMOR_INCREASE:
 		case INV_ARMORPERCENT_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			i = GetArmorAmount();
@@ -2016,7 +2000,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 					}
 				}
 			}
-		break;
+		break;*/
 		case INV_SPEED_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
@@ -2111,25 +2095,6 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			// for str
 			UpdatePlayerKnockbackResist();
 
-			// for bulk
-			UpdateArmorVisual();
-			
-			i = GetArmorAmount();
-			if(i) {
-				cap = GetArmorCapFromID(GetArmorID());
-				i = i - cap;
-				if(remove) {
-					temp = cap;
-					if(GetArmorAmount() > temp) {
-						// set health to new cap, add the extra to player
-						if(i > 0)
-							SetArmorAmount(temp + i);
-						else
-							SetArmorAmount(temp);
-					}
-				}
-			}
-
 			// for vit
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
 			if(remove) {
@@ -2220,12 +2185,12 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 }
 
 // can only add attributes to items that are about to be created ie. on field dropped from monster
-void AddAttributeToFieldItem(int charm_pos, int attrib, int pnum, int max_affixes = 0) {
+void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes = 0) {
 	if(!max_affixes)
-		max_affixes = Charm_MaxAffixes[Inventories_On_Field[charm_pos].item_subtype];
-	if(Inventories_On_Field[charm_pos].attrib_count < max_affixes) {
-		int temp = Inventories_On_Field[charm_pos].attrib_count++;
-		int lvl = Inventories_On_Field[charm_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
+		max_affixes = Charm_MaxAffixes[Inventories_On_Field[item_pos].item_subtype];
+	if(Inventories_On_Field[item_pos].attrib_count < max_affixes) {
+		int temp = Inventories_On_Field[item_pos].attrib_count++;
+		int lvl = Inventories_On_Field[item_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
 		
 		bool makeWellRolled = CheckWellRolled(pnum);
 		
@@ -2233,18 +2198,18 @@ void AddAttributeToFieldItem(int charm_pos, int attrib, int pnum, int max_affixe
 
 		// force within bounds
 		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_tier = lvl;
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_id = attrib;
-		Inventories_On_Field[charm_pos].attributes[temp].fractured = false;
+		Inventories_On_Field[item_pos].attributes[temp].attrib_tier = lvl;
+		Inventories_On_Field[item_pos].attributes[temp].attrib_id = attrib;
+		Inventories_On_Field[item_pos].attributes[temp].fractured = false;
 
 		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
 		// luck adds a small chance for a charm to have well rolled modifier on it -- luck gain is 0.15, 0.05 x 10 = 0.5 max rank thats 50% chance for well rolled mods
-		Inventories_On_Field[charm_pos].attributes[temp].attrib_val = RollAttributeValue(
+		Inventories_On_Field[item_pos].attributes[temp].attrib_val = RollAttributeValue(
 			attrib, 
 			lvl, 
 			makeWellRolled,
-			Inventories_On_Field[charm_pos].item_type,
-			Inventories_On_Field[charm_pos].item_subtype
+			Inventories_On_Field[item_pos].item_type,
+			Inventories_On_Field[item_pos].item_subtype
 		);
 	}
 }
@@ -2272,6 +2237,34 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 		PlayerInventoryList[pnum][item_pos].item_type,
 		PlayerInventoryList[pnum][item_pos].item_subtype
 	);
+}
+
+int PickRandomAttribute(int item_type) {
+	int bias = Timer() & 0xFFFF;
+	int val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
+	// this is a last resort random here, in case there was an overflow... shouldn't, but might
+	// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
+	if(val < 0)
+		val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+	return val;
+}
+
+void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
+	if(extra != -1)
+		Inventories_On_Field[item_pos].implicit.attrib_extra = extra;
+
+	Inventories_On_Field[item_pos].implicit.attrib_id = attr;
+	Inventories_On_Field[item_pos].implicit.attrib_tier = tier;
+
+	if(!tier)
+		Inventories_On_Field[item_pos].implicit.attrib_val = val;
+	else {
+		int temp = GetItemTier(tier);
+		if(tier_mapping)
+			Inventories_On_Field[item_pos].implicit.attrib_val = random(val + temp * tier_mapping, val + (temp + 1) * tier_mapping);
+		else
+			Inventories_On_Field[item_pos].implicit.attrib_val = val * (temp + 1);
+	}
 }
 
 void GiveCorruptedImplicit(int pnum, int item_pos) {
@@ -2346,7 +2339,7 @@ void ReforgeItem(int pnum, int item_pos) {
 	int i = 0, roll;
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute();
+			roll = PickRandomAttribute(itype);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) != -1);
 		AddAttributeToItem(pnum, item_pos, roll);
 		++i;
@@ -2374,14 +2367,14 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	// charm group etc.
 	int rand_attr = -1, attr_count = 0;
 	if(itype == DND_ITEM_CHARM) {
-		rand_attr = random(0, AttributeTagGroupCount[tag_id][DND_ITEM_CHARM] - 1);
+		rand_attr = random(0, AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_CHARM] - 1);
 		attr_count = RollCharmMaxAttribCount(PlayerInventoryList[pnum][item_pos].item_subtype) - min_count;
 
 		// in case this is a fully fractured mod item
 		if(attr_count <= 0)
 			return;
 
-		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][DND_ITEM_CHARM][rand_attr]);
+		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][DND_CRAFTABLEID_CHARM][rand_attr]);
 	}
 	
 	--attr_count;
@@ -2390,7 +2383,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	int i = 0, roll;
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute();
+			roll = PickRandomAttribute(itype);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, attr_count) != -1);
 		AddAttributeToItem(pnum, item_pos, roll);
 		++i;

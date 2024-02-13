@@ -82,7 +82,7 @@ void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute();
+			roll = PickRandomAttribute(DND_ITEM_CHARM);
 		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(charm_pos, roll, pnum);
 		++i;
@@ -119,7 +119,7 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	// we extend the resolution of the range (the ends weren't being picked as evenly) example: range of 0 to 5 x 10 => 0 to 50, then we divide by 10. We extend possibility of picking the ends
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute();
+			roll = PickRandomAttribute(DND_ITEM_CHARM);
 		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(charm_pos, roll, pnum);
 		++i;

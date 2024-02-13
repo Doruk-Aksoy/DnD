@@ -48,24 +48,30 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum) {
 	int armor_type = ConstructArmorDataOnField(item_pos, item_tier);
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
 	
+	// implicits that come along with the item always
 	switch(armor_type) {
 		case BODYARMOR_GREEN:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_1;
+			// 100 armor, 33% damage reduction
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 80);
 		break;
 		case BODYARMOR_YELLOW:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_2;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 150, 0, item_tier, 100);
 		break;
 		case BODYARMOR_BLUE:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_3;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 125);
 		break;
         case BODYARMOR_RED:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_4;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 300, 0, item_tier, 150);
 		break;
 	}
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute();
+			roll = PickRandomAttribute(DND_ITEM_BODYARMOR);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;

@@ -2674,21 +2674,27 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	return dmg;
 }
 
+int GetArmorRatingEffect(int dmg) {
+	int pnum = PlayerNumber();
+	int rating = GetPlayerArmor(pnum);
+
+	// you will need 5 times the damage to gain half reduction
+	return dmg - (dmg * rating) / (rating + 5 * dmg);
+}
+
 int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
 	if(armor_id != -1) {
 		// if we are affected by poison and we dont have a specialty armor providing res to ele dmg, skip this, poison DOT shouldn't be negated by armor
 		if(dmg_string == "PoisonDOT" && armor_id != DND_ARMOR_ELEMENTAL)
 			return dmg;
-	
-		int armor_take = 0;
-		// apply percentage protection of armor as long as armor amount > dmg being received
-		int armor_amt = GetArmorAmount();
-		int armor_damage = dmg;
 		
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
 		// dmg here is the one to be dealt to the player's health pool
-		int factor = ArmorData[armor_id][ARMORDATA_PROTECTIONFACTOR];
+		int factor = 0.0;
+
+		// apply armor effect on this damage
+		dmg = GetArmorRatingEffect(dmg);
 		
 		// special armor cases: Knight gives more reduction if using melee weapon, Duelist negates all hitscan 100% at cost of armor
 		if(armor_id == DND_ARMOR_KNIGHT && IsUsingMeleeWeapon())
@@ -2728,45 +2734,6 @@ int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercin
 		}
 		else if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == DND_ARMOR_LIGHTNINGCOIL)
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_LIGHTNINGCOIL_SPECIAL);
-		
-		// bulkiness can lower damage the armor receives
-		// do the reduction if its not armor piercing or we have armor that protects against it
-		if(!isArmorPiercing || IsArmorShredException(armor_id)) {
-			armor_damage -= dmg;
-			int armor_eff = GetArmorEfficiency();
-			if(armor_eff)
-				armor_damage = ApplyDamageFactor_Safe(armor_damage, ARMOR_INTEGER_FACTOR - ((armor_eff * 1000) >> 16), ARMOR_INTEGER_FACTOR);
-			
-			// will always suffer at least 1 damage to armor
-			if(!armor_damage)
-				armor_damage = 1;
-		}
-		
-		// easy case -- we are guaranteed to apply absorption to all of the dmg
-		if(armor_amt >= armor_damage) {
-			armor_take = armor_damage;
-			//printbold(s:"Armor suffered ", d:armor_damage,  s: " health takes ", d:dmg, s: " reduced from ", d:dmg_prev);
-		}
-		else {
-			// we take all the armor away otherwise, and replace the damage that'd be too much back in the factored version
-			armor_take = armor_amt;
-			//printbold(s:"Armor cant handle ", d:dmg, s: " vs ", d:armor_amt);
-			
-			// since we already dmg > armor points, we need to add the leftover damage to the damage pool as our armor could not handle this much
-			dmg += armor_damage - armor_amt;
-			//printbold(s:"So extra damage dealt to player is ", d:dmg, s: " with difference ", d:armor_damage - armor_amt, s: " reduced from ", d:dmg_prev);
-		}
-		
-		// if invulnerable dont deduct
-		// if not mastered take 100%, or mastered we have 10% chance to not take
-		if
-		(
-			!GetActorProperty(0, APROP_INVULNERABLE) && 
-			!CheckInventory("Invulnerable_Better") &&
-			!CheckInventory("P_Invulnerable") && 
-			(!HasMasteredPerk(STAT_END) || DND_ENDURANCE_MASTERY_CHANCE <= random(1, 100))
-		)
-			TakeArmorAmount(armor_take);
 	}
 	
 	return dmg;

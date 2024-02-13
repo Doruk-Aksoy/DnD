@@ -1261,7 +1261,6 @@ void ResetMostRecentOrb(int pnum) {
 			Player_MostRecent_Orb[pnum].p_ammos[i][j] = 0;
 	Player_MostRecent_Orb[pnum].p_tempammo = 0;
 	Player_MostRecent_Orb[pnum].p_tempwep = 0;
-	UpdateArmorVisual();
 }
 
 bool IsOrbDropException(int orb_id) {

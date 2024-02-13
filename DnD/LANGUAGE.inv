@@ -323,6 +323,7 @@ IATTR_TC8			= "of damage dealt as poison to";
 IATTR_TC9			= "forces pain";
 
 // regular implicits
+IATTR_TI1			= "to armor";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

@@ -63,7 +63,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 				GiveInventory("HPBelow25", 1);
 			}
 			
-			item = GetArmorAmount();
+			/*item = GetArmorAmount();
 			itemcomp = GetArmorCapFromID(GetArmorID());
 			if(item > itemcomp) {
 				// can happen with armor bonuses -- up to maximum of x2 of cap (only fully reached with ubersphere)
@@ -97,7 +97,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 				TakeInventory("ARMNormal", 1);
 				TakeInventory("ARMBelow50", 1);
 				GiveInventory("ARMBelow25", 1);
-			}
+			}*/
 				
 			if(((Timer() * 98) / (100 * TICRATE)) < GetLevelInfo(LEVELINFO_PAR_TIME))
 				GiveInventory("H_UnderPar", 1);
@@ -635,7 +635,7 @@ Script "DnD Killing Spree Timer" (void) {
 			}
 			
 			// ravager armor add
-			int armor_id = GetArmorID();
+			/*int armor_id = GetArmorID();
 			int armor_amt = GetArmorAmount();
 			int cap = GetArmorCapFromID(armor_id);
 			if(armor_id == DND_ARMOR_RAVAGER && armor_amt && armor_amt < cap) {
@@ -655,7 +655,7 @@ Script "DnD Killing Spree Timer" (void) {
 				
 				if(armor_amt < cap)
 					HandleArmorPickup(armor_id, temp, ARMORGF_IGNOREIFNONE);
-			}
+			}*/
 		}
 		else {
 			SetInventory("DnD_MultikillCounter", 0);
@@ -1011,9 +1011,9 @@ Script 832 (void) {
 		SetActorProperty(0, APROP_HEALTH, temp);
 		
 	// update armor to new cap if higher
-	temp = GetArmorCapFromID(GetArmorID());
+	/*temp = GetArmorCapFromID(GetArmorID());
 	if(GetArmorAmount() > temp)
-		SetArmorAmount(temp);
+		SetArmorAmount(temp);*/
 	
 	// update activities for unspent attrib and perk points
 	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, statpts, 0);
@@ -3572,7 +3572,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				}
 			}
 		
-			if(GetArmorID() == DND_ARMOR_CYBERNETIC && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS) && (cur = GetArmorAmount())) {
+			/*if(GetArmorID() == DND_ARMOR_CYBERNETIC && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS) && (cur = GetArmorAmount())) {
 				lim = GetArmorCapFromID(DND_ARMOR_CYBERNETIC);
 				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 				amt = lim * DND_REGEN_PERCENT / 100;
@@ -3588,7 +3588,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					GiveInventory("CyberneticEffect", 1);
 					LocalAmbientSound("items/armorbonus", 127);
 				}
-			}
+			}*/
 		}
 		Delay(const:TICRATE);
 	}
@@ -3984,7 +3984,7 @@ Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 }
 
 // idk why parameters are reversed here compared to below... ugh
-Script "DND Armor Pickup Check" (int amount, int armor_type) {
+/*Script "DND Armor Pickup Check" (int amount, int armor_type) {
 	if (CheckInventory("CanLoad"))
 		SetResultValue(-1);
 	else {
@@ -4002,7 +4002,7 @@ Script "DND Armor Pickup Check" (int amount, int armor_type) {
 
 Script "DND Armor Give" (int armor_type, int amount, int overcap_factor) {
 	HandleArmorPickup(armor_type, amount, 0, overcap_factor);
-}
+}*/
 
 Script "DND Acid Rifle Bolt Stick" (int type) {
 	int res = 0;
@@ -5478,7 +5478,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		Log(s:"\cd", l:"DND_PLAYER", s:": \c-", n:pnum + 1, s:"\n\cd", l:"DND_STAT18", s:": \c-", d:CheckInventory("Level"));
 		Log(s:"\cd", l:"DND_CLASS", s:": \c-", s:"\c[J7]", l:GetClassLabel(StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1), DND_CLASS_LABEL_NAME));
 		Log(s:"\cd", l:"IATTR_T0", s:": \c-", d:GetActorProperty(0, APROP_HEALTH), s: " / ", d:GetSpawnHealth());
-		Log(s:"\cd", l:"IATTR_T1", s:": \c-", d:GetArmorAmount(), s: " / ", d:GetArmorCapFromID(GetArmorID()));
+		//Log(s:"\cd", l:"IATTR_T1", s:": \c-", d:GetArmorAmount(), s: " / ", d:GetArmorCapFromID(GetArmorID()));
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_STATALLOCATION", s:" -------\n--------------------------------\n");
 		Log(s:"\c[Y5]", l:"DND_STAT1", s:": \c-", d:GetStrength(), s:"\n\c[Y5]", l:"DND_STAT2", s:": \c-", d:GetDexterity(), s:"\n\c[Y5]", l:"DND_STAT3", s:": \c-", d:GetBulkiness());

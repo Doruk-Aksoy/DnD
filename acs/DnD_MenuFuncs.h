@@ -796,13 +796,13 @@ int CanTrade (int id, int tradeflag, int price) {
 			cond2 = (CheckInventory(item) < GetAmmoCapacity(item));
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
-		else if(type == TYPE_ARMOR) { // armor
+		/*else if(type == TYPE_ARMOR) { // armor
 			if (!(tradeflag & TRADE_ARMOR_REPLACE))
 				cond2 = CheckInventory(item) < GetArmorCapFromID(id - SHOP_FIRSTARMOR_INDEX + 1);
 			else
 				cond2 = true; //replacement should always be possible.
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
-		}
+		}*/
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
 			if(id != SHOP_ARTI_BACKPACK) {
 				cond2 = (CheckInventory(item) < ShopInfo[id][SHOPINFO_MAX]);
@@ -1163,7 +1163,7 @@ int GetBulkPriceForAmmo(int itemid) {
 
 int GetArmorFillPrice() {
 	int res = 0;
-	int armor_type = GetArmorID();
+	/*int armor_type = GetArmorID();
 	// not shards
 	if(armor_type > 0) {
 		res = ShopInfo[SHOP_FIRSTARMOR_INDEX + armor_type][SHOPINFO_PRICE] / DND_ARMORFILL_FACTOR;
@@ -1179,14 +1179,14 @@ int GetArmorFillPrice() {
 		// get missing armor
 		//printbold(d:GetArmorSpecificCap(ArmorBaseAmounts[armor_type]), s:" vs ", d:CheckInventory("Armor"), s: " with base amt: ", d:ArmorBaseAmounts[armor_type], s: " and type: ", d:armor_type);
 		res = res * (GetArmorCapFromID(armor_type) - GetArmorAmount());
-	}
+	}*/
 	return res;
 }
 
 // check for $$, armor type, armor being less than max and having repair tokens
 int CanFillArmor(int pnum) {
 	int res = -1;
-	if(CheckInventory("Credit") < GetArmorFillPrice())
+	/*if(CheckInventory("Credit") < GetArmorFillPrice())
 		return -POPUP_NOFUNDS;
 	if(CheckInventory("DnD_ArmorType") < 1)
 		return -POPUP_NOARMORWORN;
@@ -1196,12 +1196,12 @@ int CanFillArmor(int pnum) {
 	// discover where the player may have a repair token, and return that as position
 	if((res = FindInventoryOfType(pnum, DND_ITEM_TOKEN, DND_TOKEN_REPAIR)) == -1)
 		return -POPUP_NOREPAIRTOKENS;
-	
+	*/
 	return res;
 }
 
 void FillCurrentArmor(int pnum, int take_pos) {
-	int armor_type = CheckInventory("DnD_ArmorType") - 1;
+	/*int armor_type = CheckInventory("DnD_ArmorType") - 1;
 	int price = GetArmorFillPrice();
 	// fill armor
 	LocalAmbientSound("items/armorbonus", 127);
@@ -1210,7 +1210,7 @@ void FillCurrentArmor(int pnum, int take_pos) {
 	TakeCredit(price);
 	
 	// take a repair token away
-	ConsumePlayerItem(pnum, take_pos);
+	ConsumePlayerItem(pnum, take_pos);*/
 }
 
 // will process item selections depending on given valid range
@@ -1245,10 +1245,10 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 					if(!buystatus) {
 						// consider researches before handing out
 						TakeCredit(price);
-						if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
+						/*if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
 							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorData[itemid - SHOP_FIRSTARMOR_INDEX + 1][ARMORDATA_BASEAMOUNT], !!(tradeflag & TRADE_ARMOR_REPLACE));
 						}
-						else
+						else*/
 							GiveInventory(GetItemName(itemid), 1);
 						if(tradeflag & TRADE_WEAPON) {
 							totake = GetWeaponToTake(itemid);
@@ -4896,12 +4896,12 @@ void DrawPlayerStats(int pnum, int category) {
 			++k;
 			
 			// armor cap
-			val = GetArmorID();
+			/*val = GetArmorID();
 			if(val < 0)
 				val = 0;
 			val = GetArmorCapFromID(val);
 			PlayerStatText = StrParam(s:PlayerStatText, l:"DND_ARMORCAPIS", s:": \c[Q9]", d:val, s:"\n");
-			++k;
+			++k;*/
 			
 			// armor efficiency
 			val = 100 * DND_BULKINESS_GAIN * 100 + (GetBulkiness() - 100) * DND_BULKINESS_GAIN_AFTER100;

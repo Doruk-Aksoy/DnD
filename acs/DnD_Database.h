@@ -948,13 +948,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	// reset whatever armor might have been on the player at the time
 	RemoveAllArmor();
 	temp = GetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc);
-	for(i = 0; i < MAXARMORS; ++i) {
-		if(IsSet(temp, i)) {
-			SetArmorType(i);
-			SetArmorAmount(armor);
-			break;
-		}
-	}
 	
 	// read accessories
 	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);
