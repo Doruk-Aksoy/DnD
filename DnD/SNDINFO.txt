@@ -1,6 +1,8 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Items/ArmorEquip		ARMEQUI
+
 weapons/bigcharge		BIGCHARG
 weapons/bigcharge2		BIGCHAR2
 

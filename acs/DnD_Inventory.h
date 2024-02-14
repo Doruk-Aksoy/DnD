@@ -37,7 +37,8 @@
 #define MAX_SMALL_CHARMS_USED 4
 #define MAX_MEDIUM_CHARMS_USED 2
 #define MAX_LARGE_CHARMS_USED 1
-#define MAX_CHARMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED)
+#define MAX_ARMORS_USED 3 // BOOT BODY NECKLACE
+#define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED)
 
 enum {
 	IPROCESS_ADD,
@@ -209,13 +210,14 @@ enum {
 global int 24: PointerIndexTable[MAX_POINTERS];
 
 #define MAX_INVENTORIES_ON_FIELD 8192
+// holds indexes to items used that are on players like charms or armors
+global inventory_T 12: Items_Used[MAXPLAYERS][MAX_ITEMS_EQUIPPABLE];
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
-
 global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
 global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
 
 #define INVSOURCE_PLAYER PlayerInventoryList
-#define INVSOURCE_CHARMUSED Charms_Used
+#define INVSOURCE_ITEMSUSED Items_Used
 
 // Creates an item on the game field
 int CreateItemSpot() {
@@ -579,6 +581,82 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 	return true;
 }
 
+int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target_type) {
+	int i, j;
+	
+	// type mismatch, popup
+	if(item_type == DND_ITEM_CHARM && target_type != PlayerInventoryList[pnum][item_index].item_subtype)
+		return POPUP_CHARMMISMATCH;
+		
+	// too high level
+	if(PlayerInventoryList[pnum][item_index].item_level > GetStat(STAT_LVL))
+		return POPUP_ITEMLVLTOOHIGH;
+		
+	// no duplicate uniques
+	if(DoUniqueCheck(pnum, use_id, item_index, target_type))
+		return POPUP_ONLYONEUNIQUE;
+	
+	// tried to put well of power, but have too many small charms -- its always attribute id 2 on well of power
+	// we have to check for that specifically because technically its not equipped yet, so player has no tokens of it on them
+	if
+	(
+		PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN && 
+		(PlayerInventoryList[pnum][item_index].item_type >> UNIQUE_BITS) - 1 == UITEM_WELLOFPOWER &&
+		CountPlayerSmallCharms(pnum) > PlayerInventoryList[pnum][item_index].attributes[2].attrib_val
+	)
+		return POPUP_NOMORESMALLCHARMS;
+	
+	// or tried to put small charm when well of power is there and would exceed limit
+	if(target_type == DND_CHARM_SMALL && (i = GetPlayerAttributeValue(pnum, INV_EX_LIMITEDSMALLCHARMS)) && i == CountPlayerSmallCharms(pnum))
+		return POPUP_NOMORESMALLCHARMS;
+		
+	// request damage cache recalculation
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+	
+	// this means we must swap items
+	if(Items_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
+		SwapItems(pnum, use_id, item_index, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	}
+	else {
+		// just zero the stuff in inventory, and copy them into items used
+		Items_Used[pnum][use_id].width = PlayerInventoryList[pnum][item_index].width;
+		Items_Used[pnum][use_id].height = PlayerInventoryList[pnum][item_index].height;
+		Items_Used[pnum][use_id].item_type = PlayerInventoryList[pnum][item_index].item_type;
+		Items_Used[pnum][use_id].item_subtype = PlayerInventoryList[pnum][item_index].item_subtype;
+		Items_Used[pnum][use_id].item_image = PlayerInventoryList[pnum][item_index].item_image;
+		Items_Used[pnum][use_id].item_level = PlayerInventoryList[pnum][item_index].item_level;
+		Items_Used[pnum][use_id].item_stack = PlayerInventoryList[pnum][item_index].item_stack;
+		Items_Used[pnum][use_id].attrib_count = PlayerInventoryList[pnum][item_index].attrib_count;
+		Items_Used[pnum][use_id].topleftboxid = use_id + 1;
+
+		Items_Used[pnum][use_id].corrupted = PlayerInventoryList[pnum][item_index].corrupted;
+		Items_Used[pnum][use_id].quality = PlayerInventoryList[pnum][item_index].quality;
+		Items_Used[pnum][use_id].implicit.attrib_id = PlayerInventoryList[pnum][item_index].implicit.attrib_id;
+		Items_Used[pnum][use_id].implicit.attrib_val = PlayerInventoryList[pnum][item_index].implicit.attrib_val;
+		Items_Used[pnum][use_id].implicit.attrib_tier = PlayerInventoryList[pnum][item_index].implicit.attrib_tier;
+		Items_Used[pnum][use_id].implicit.attrib_extra = PlayerInventoryList[pnum][item_index].implicit.attrib_extra;
+
+		for(i = 0; i < Items_Used[pnum][use_id].attrib_count; ++i) {
+			Items_Used[pnum][use_id].attributes[i].attrib_id = PlayerInventoryList[pnum][item_index].attributes[i].attrib_id;
+			Items_Used[pnum][use_id].attributes[i].attrib_val = PlayerInventoryList[pnum][item_index].attributes[i].attrib_val;
+			Items_Used[pnum][use_id].attributes[i].attrib_tier = PlayerInventoryList[pnum][item_index].attributes[i].attrib_tier;
+			Items_Used[pnum][use_id].attributes[i].attrib_extra = PlayerInventoryList[pnum][item_index].attributes[i].attrib_extra;
+			Items_Used[pnum][use_id].attributes[i].fractured = PlayerInventoryList[pnum][item_index].attributes[i].fractured;
+		}
+
+		// the leftover spot is a null item
+		int wtemp = PlayerInventoryList[pnum][item_index].width;
+		int htemp = PlayerInventoryList[pnum][item_index].height;
+		FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		//SyncItemData(item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
+		SyncItemData(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, -1, -1);
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	}
+	return -1;
+}
+
 // based on average player level
 int RollItemLevel() {
 	int res = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
@@ -615,15 +693,15 @@ int IsAttribInItem(int pnum, int item_pos, int attrib_id) {
 // find the item that has a min, if basis isn't -1 then we must exclude this from inclusion to min
 int FindMinOnUsedCharmsForAttribute(int pnum, int attrib_index, int basis) {
 	int res = -1, temp, compare = INT_MAX;
-	for(int i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
+	for(int i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
 		if(i == basis)
 			continue;
-		if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL) {
-			temp = CheckItemAttribute(pnum, i, attrib_index, DND_SYNC_ITEMSOURCE_CHARMUSED, Charms_Used[pnum][i].attrib_count);
+		if(Items_Used[pnum][i].item_type != DND_ITEM_NULL) {
+			temp = CheckItemAttribute(pnum, i, attrib_index, DND_SYNC_ITEMSOURCE_ITEMSUSED, Items_Used[pnum][i].attrib_count);
 			// means this exists
 			if(temp != -1) {
-				if(Charms_Used[pnum][i].attributes[temp].attrib_val < compare) {
-					compare = Charms_Used[pnum][i].attributes[temp].attrib_val;
+				if(Items_Used[pnum][i].attributes[temp].attrib_val < compare) {
+					compare = Items_Used[pnum][i].attributes[temp].attrib_val;
 					SetInventory("DamagePerFlatHPBuffer", compare);
 					res = i;
 				}
@@ -1742,10 +1820,6 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return true;
 }
 
-void RemoveAllArmor() {
-
-}
-
 enum {
 	REQ_SYNC_ACC = 1
 };
@@ -1847,15 +1921,15 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 				// we now need to re-apply all other features of small charms we have equipped
 				// first 4 are small charms
 				for(i = 0; i < 4; ++i)
-					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE, true);
+					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
 				
 				// now give the item and re-apply
 				IncPlayerModValue(pnum, atype, aval, true);
 								
 				for(i = 0; i < 4; ++i)
-					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_ADD, true);
+					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD, true);
 								
 				// sync all at once at the end here for well of power...
 				SyncPlayerItemMods(pnum);
@@ -1863,25 +1937,20 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			else if(PlayerModValues[pnum][atype]) {
 				// just take the attribute off and remove features and reapply
 				for(i = 0; i < 4; ++i)
-					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE, true);
+					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
 										
 				// little note: aval can be negative if we are removing, so just + is enough to subtract it
 				IncPlayerModValue(pnum, atype, aval, true);
 								
 				// reapply with this gone
 				for(i = 0; i < 4; ++i)
-					if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_ADD, true);
+					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD, true);
 						
 				// sync all at once for well of power
 				SyncPlayerItemMods(pnum);
 			}
-		break;
-		case INV_EX_FORBID_ARMOR:
-			IncPlayerModValue(pnum, atype, aval, noSync);
-			if(GetPlayerAttributeValue(pnum, atype))
-				RemoveAllArmor();
 		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
@@ -2239,13 +2308,36 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 	);
 }
 
-int PickRandomAttribute(int item_type) {
+int PickRandomAttribute(int item_type = DND_ITEM_CHARM) {
 	int bias = Timer() & 0xFFFF;
-	int val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
-	// this is a last resort random here, in case there was an overflow... shouldn't, but might
-	// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
-	if(val < 0)
-		val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+	int val;
+
+	if(item_type == DND_ITEM_CHARM) {
+		// unrestricted picking
+		val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
+		// this is a last resort random here, in case there was an overflow... shouldn't, but might
+		// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
+		if(val < 0)
+			val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+	}
+	else {
+		// restricted picking -- tries to pick a tag at random, rerolls if there are 0 mods in that group for this item
+		item_type = MapItemTypeToCraftableID(item_type);
+
+		// find a random valid tag for this item
+		int tag;
+		do {
+			tag = random(DND_ATTRIB_TAG_ID_BEGIN + bias, DND_ATTRIB_TAG_ID_END + bias) - bias;
+			if(tag < 0)
+				tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
+		} while(!AttributeTagGroupCount[tag][item_type]);
+
+		// finally roll the attrib at random from the group
+		val = random(bias, AttributeTagGroupCount[tag][item_type] + bias) - bias;
+		if(val < 0)
+			val = random(0, AttributeTagGroupCount[tag][item_type]);
+		val = AttributeTagGroups[tag][item_type][val];
+	}
 	return val;
 }
 

@@ -248,9 +248,7 @@ enum {
 	TRADE_AMMO = 8,
 	TRADE_ABILITY = 16,
 	TRADE_ARTIFACT = 32,
-	TRADE_ARMOR = 128,
-	TRADE_ARMOR_REPLACE = 256,
-	TRADE_ACCOUNT = 512
+	TRADE_ACCOUNT = 64
 };
 
 // Popup Definitions
@@ -456,27 +454,6 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 14000,  1,		1 },
 		{ 19500,  1,		1 },
 		
-		// Armor costs
-		{ 4500,	 1,			1 },
-		{ 9000,  1,			1 },
-		{ 13500, 1,			1 },
-		{ 18000, 1,			1 },
-		
-		{ 10000, 1,			1 },
-		{ 10000, 1,			1 },
-		{ 10000, 1,			1 },
-		{ 10000, 1,			1 },
-        { 10000, 1,			1 },
-        
-        { 22500, 1,			1 },
-		{ 18500, 1,			1 },
-		{ 8500,  1,			1 },
-		{ 15000, 1,			1 },
-		{ 17000, 1,			1 },
-		{ 12000, 1,			1 },
-		{ 19000, 1,			1 },
-		{ 16500, 1,			1 },
-		
 		// Account
 		{ 1500000, MAX_EXTRA_INVENTORY_PAGES,		5 },
 
@@ -667,27 +644,6 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_NANOTECH, -1, -1 },
 		{ RES_OCCULTABILITY, -1, -1 },
 		{ RES_OCCULTABILITY, -1, -1 },
-		
-	// armor 1
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		{ -1, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-	
-	// armor 2
-		{ RES_SUPERARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_RAREARMOR, -1, -1 },
-		{ RES_SYNTHMETALARMOR, -1, -1},
-		{ RES_LIGHTNINGCOIL, -1, -1},
 		
 	// account
 		{ RES_STASHTAB, -1, -1 },

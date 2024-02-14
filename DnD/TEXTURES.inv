@@ -1,3 +1,17 @@
+Graphic "ARMBAK", 31, 18
+{
+	XScale 0.600
+	YScale 0.600
+	Patch "ARMBAKS", 0, 0
+}
+
+Graphic "INVCICO", 22, 29 
+{
+	XScale 2.0
+	YScale 2.0
+	Patch "BPAKA0", 0, 0
+}
+
 Graphic "ARWICO1", 31, 18
 {
 	XScale 0.500

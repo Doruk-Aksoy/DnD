@@ -1135,7 +1135,7 @@ void ResetHardcoreStuff(int pnum) {
 	// may join later, sync everything
 	if(PlayerIsSpectator(pnum)) {
 		SyncAllClientsideVariables(pnum);
-		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
 	}

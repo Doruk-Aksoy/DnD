@@ -1009,11 +1009,6 @@ Script 832 (void) {
 	int temp = GetSpawnHealth();
 	if(GetActorProperty(0, APROP_HEALTH) > temp)
 		SetActorProperty(0, APROP_HEALTH, temp);
-		
-	// update armor to new cap if higher
-	/*temp = GetArmorCapFromID(GetArmorID());
-	if(GetArmorAmount() > temp)
-		SetArmorAmount(temp);*/
 	
 	// update activities for unspent attrib and perk points
 	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, statpts, 0);
@@ -3161,7 +3156,7 @@ Script "DnD Player Setup" ENTER {
 
 Script "DnD Force Sync Player Global Data" (void) {
 	int pnum = PlayerNumber();
-	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_CHARMUSED);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
 	SyncAllClientsideVariables(pnum);
@@ -3571,24 +3566,6 @@ Script "DnD Periodic Regeneration" ENTER {
 					LocalAmbientSound("ability/regen", 127);
 				}
 			}
-		
-			/*if(GetArmorID() == DND_ARMOR_CYBERNETIC && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS) && (cur = GetArmorAmount())) {
-				lim = GetArmorCapFromID(DND_ARMOR_CYBERNETIC);
-				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
-				amt = lim * DND_REGEN_PERCENT / 100;
-				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
-				lim >>= 1; // half limit for this armor
-				
-				// cyborg perk
-				if(CheckInventory("Cyborg_Perk25"))
-					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
-
-				if(cur < lim && !CheckInventory("P_Damaged")) {
-					AddArmorAmount(Min(amt, lim - cur));
-					GiveInventory("CyberneticEffect", 1);
-					LocalAmbientSound("items/armorbonus", 127);
-				}
-			}*/
 		}
 		Delay(const:TICRATE);
 	}
@@ -5506,29 +5483,29 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 				Log(s:"\cd* \c[Y5]", l:GetWeaponTag(i), s:" - \cj", l:"DND_MENU_SLOT", s:" ", d:GetGameSlotOfWeapon(i));
 				
 		Log(s:"\n--------------------------------\n------- ", l:"DND_MENU_HEAD_CHARMS", s:" -------\n--------------------------------\n");
-		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
-			itype = Charms_Used[pnum][i].item_type;
-			isubt = Charms_Used[pnum][i].item_subtype;
+		for(i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
+			itype = Items_Used[pnum][i].item_type;
+			isubt = Items_Used[pnum][i].item_subtype;
 			if(itype != DND_ITEM_NULL) {
 				if(itype == DND_ITEM_CHARM) {
-					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
-					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
-					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED);
+					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
+					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)), s:" ", l:"DND_ITEM_CHARM");
+					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 					for(j = 0; j < temp; ++j)
-						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED), itype, isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED)));
+						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED), itype, isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
 				}
 				else if(itype > UNIQUE_BEGIN) {
 					temp = itype & 0xFFFF;
 					itype >>= UNIQUE_BITS;
 					--itype;
 					// itype holds unique position, temp is the actual item type
-					Log(s:"\c[A1]", l:GetUniqueItemName(itype), s:"\c- - \c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED)), s:" ", l:"DND_ITEM_CHARM");
-					cnt = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_CHARMUSED);
+					Log(s:"\c[A1]", l:GetUniqueItemName(itype), s:"\c- - \c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)), s:" ", l:"DND_ITEM_CHARM");
+					cnt = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 					// itype will count the skipped properties (the helper attributes)
 					itype = 0;
 					for(j = 0; j < cnt; ++j) {
-						temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED);
-						val = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_CHARMUSED);
+						temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+						val = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 						if(val >= 0)
 							Log(s:"    ", s:GetItemAttributeText(temp, itype, isubt, val, 0));
 						else

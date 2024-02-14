@@ -501,10 +501,6 @@ bool HandlePageListening(int curopt, int boxid) {
 			if(boxid == MBOX_2)
 				redraw = ListenScroll(-16, 0);
 		break;
-		case MENU_SHOP_ARMOR2:
-			if(boxid == MBOX_6) // ravager
-				redraw = ListenScroll(-8, 0);
-		break;
 		#ifdef ISAPRILFIRST
 		case MENU_SHOP_NFT:
 			redraw = ListenScroll(-48, 0);
@@ -796,13 +792,6 @@ int CanTrade (int id, int tradeflag, int price) {
 			cond2 = (CheckInventory(item) < GetAmmoCapacity(item));
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
-		/*else if(type == TYPE_ARMOR) { // armor
-			if (!(tradeflag & TRADE_ARMOR_REPLACE))
-				cond2 = CheckInventory(item) < GetArmorCapFromID(id - SHOP_FIRSTARMOR_INDEX + 1);
-			else
-				cond2 = true; //replacement should always be possible.
-			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
-		}*/
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
 			if(id != SHOP_ARTI_BACKPACK) {
 				cond2 = (CheckInventory(item) < ShopInfo[id][SHOPINFO_MAX]);
@@ -919,8 +908,6 @@ void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 		tag = GetAbilityTag(id - SHOP_ABILITY1_BEGIN);
 	else if(objflag & OBJ_ARTI)
 		tag = GetArtifactTag(id - SHOP_FIRSTARTI1_INDEX);
-	else if(objflag & OBJ_ARMOR)
-		tag = GetArmorTag(id - SHOP_FIRSTARMOR_INDEX);
 	else if(objflag & OBJ_ACCOUNT)
 		tag = GetAccountPurchaseTag(id - SHOP_ACCOUNT_BEGIN);
 	
@@ -1059,15 +1046,6 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				// update corner panel info
 				DrawArtifactIconCorner(itemid - SHOP_FIRSTARTI1_INDEX);
 			}
-			else if(objectflag & OBJ_ARMOR) {
-				SetHudClipRect(192, 216, 256, 64, 256);
-				HudMessage(s:"\cd*\c- ", l:GetArmorExplanation(itemid - SHOP_FIRSTARMOR_INDEX); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 232.1 + 1.0 * ScrollPos.x, 0.0, 0.0);
-				SetHudClipRect(0, 0, 0, 0, 0);
-				// stock
-				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 48, CR_WHITE, 440.2, 216.1, 0.0, 0.0);
-			
-				DrawArmorIconCorner(itemid - SHOP_FIRSTARMOR_INDEX);
-			}
 			else if(objectflag & OBJ_ABILITY) {
 				SetHudClipRect(192, 208, 256, 64, 256);
 				if(objectflag & OBJ_USESCROLL)
@@ -1129,20 +1107,6 @@ void ResetWeaponStats(int wepid) {
 	SyncClientsideVariable_WeaponMods(pnum, wepid);
 }
 
-bool CanReplaceArmor(int armor_type) {
-	// put that to familiar armor range
-	armor_type = armor_type - SHOP_FIRSTARMOR_INDEX;
-	int myarmor = CheckInventory("DnD_ArmorType") - 1;
-	if(myarmor < 0)
-		myarmor = 0;
-	
-	if(armor_type == myarmor) {
-		ShowPopup(POPUP_POINTLESSARMOR, false, 0);
-		return false;
-	}
-	return true;
-}
-
 int GetBulkPriceForAmmo(int itemid) {
 	int id = GetAmmoSlotAndIndexFromShop(itemid);
 	int temp = 0, count = 0;
@@ -1161,58 +1125,6 @@ int GetBulkPriceForAmmo(int itemid) {
 	return 0;
 }
 
-int GetArmorFillPrice() {
-	int res = 0;
-	/*int armor_type = GetArmorID();
-	// not shards
-	if(armor_type > 0) {
-		res = ShopInfo[SHOP_FIRSTARMOR_INDEX + armor_type][SHOPINFO_PRICE] / DND_ARMORFILL_FACTOR;
-		res *= Clamp_Between(GetCVar("dnd_shop_scale"), 1, SHOP_SCALE_MAX);
-		int ch_factor = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
-		if(ch_factor > 100)
-			res -= res / 2 + (res * (ch_factor - 100)) / (100 * CHARISMA_REDUCE_AFTER100);
-		else
-			res -= (res * ch_factor) / (100 * CHARISMA_REDUCE);
-		// just in case, a minimum price is there
-		if(!res)
-			res = 1;
-		// get missing armor
-		//printbold(d:GetArmorSpecificCap(ArmorBaseAmounts[armor_type]), s:" vs ", d:CheckInventory("Armor"), s: " with base amt: ", d:ArmorBaseAmounts[armor_type], s: " and type: ", d:armor_type);
-		res = res * (GetArmorCapFromID(armor_type) - GetArmorAmount());
-	}*/
-	return res;
-}
-
-// check for $$, armor type, armor being less than max and having repair tokens
-int CanFillArmor(int pnum) {
-	int res = -1;
-	/*if(CheckInventory("Credit") < GetArmorFillPrice())
-		return -POPUP_NOFUNDS;
-	if(CheckInventory("DnD_ArmorType") < 1)
-		return -POPUP_NOARMORWORN;
-	if(GetArmorAmount() == GetArmorCapFromID(GetArmorID()))
-		return -POPUP_ARMORISFULL;
-		
-	// discover where the player may have a repair token, and return that as position
-	if((res = FindInventoryOfType(pnum, DND_ITEM_TOKEN, DND_TOKEN_REPAIR)) == -1)
-		return -POPUP_NOREPAIRTOKENS;
-	*/
-	return res;
-}
-
-void FillCurrentArmor(int pnum, int take_pos) {
-	/*int armor_type = CheckInventory("DnD_ArmorType") - 1;
-	int price = GetArmorFillPrice();
-	// fill armor
-	LocalAmbientSound("items/armorbonus", 127);
-	AddArmorAmount(GetArmorCapFromID(GetArmorID()) - GetArmorAmount());
-	// take money
-	TakeCredit(price);
-	
-	// take a repair token away
-	ConsumePlayerItem(pnum, take_pos);*/
-}
-
 // will process item selections depending on given valid range
 // support for selling other stuff is here, it's just a few extra lines in the serverside script to handle the process
 void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool givefull) {
@@ -1227,10 +1139,6 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				ShowNeedResearchPopup();
 			}
 			else {
-				if(CheckUniquePropertyOnPlayer(pnum, PUP_FORBIDARMOR) && (tradeflag & TRADE_ARMOR)) {
-					ShowPopup(POPUP_CANTBUY, false, 0);
-					return;
-				}
 				// loop 
 				do {
 					loopnumber++;
@@ -1245,11 +1153,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 					if(!buystatus) {
 						// consider researches before handing out
 						TakeCredit(price);
-						/*if(tradeflag & TRADE_ARMOR) { // armors are handled differently (+1 below is because armor_type considers armor bonus)
-							HandleArmorPickup(itemid - SHOP_FIRSTARMOR_INDEX + 1, ArmorData[itemid - SHOP_FIRSTARMOR_INDEX + 1][ARMORDATA_BASEAMOUNT], !!(tradeflag & TRADE_ARMOR_REPLACE));
-						}
-						else*/
-							GiveInventory(GetItemName(itemid), 1);
+						GiveInventory(GetItemName(itemid), 1);
 						if(tradeflag & TRADE_WEAPON) {
 							totake = GetWeaponToTake(itemid);
 							if(StrCmp(totake, ""))
@@ -1281,8 +1185,6 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						if(itemid == SHOP_ACCOUNT_STASHTAB)
 							++PlayerActivities[pnum].stash_pages;
 					}
-					else if(tradeflag & TRADE_ARMOR)
-						LocalAmbientSound("items/armor", 127);
 				}
 			}
 		}
@@ -1667,16 +1569,25 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// loadout for charms
+		// loadout for equipments
 		{
-			{ 284.0, 125.0, 243.0, 87.0 },
-			{ 220.0, 125.0, 179.0, 87.0 },
-			{ 156.0, 125.0, 115.0, 87.0 },
-			{ 92.0, 125.0, 51.0, 87.0 },
-			{ 252.0, 197.0, 211.0, 143.0 },
-			{ 123.0, 197.0, 82.0, 143.0 },
-			{ 188.0, 268.0, 147.0, 184.0 },
-			{ 214.0, 76.0, 100.0, 68.0 },
+			// leftside -- charms
+			{ 292.0, 132.0, 252.0, 94.0 },
+			{ 236.0, 132.0, 196.0, 94.0 },
+			{ 292.0, 84.0, 252.0, 46.0 },
+			{ 236.0, 84.0, 196.0, 46.0 },
+			{ 292.0, 194.0, 252.0, 140.0 },
+			{ 236.0, 194.0, 196.0, 140.0 },
+			{ 265.0, 282.0, 225.0, 200.0 },
+			
+			// rightside -- armors
+			{ 135.0, 248.0, 86.0, 202.0 },
+			{ 135.0, 184.0, 86.0, 138.0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+
+			// inv explore icon
+			{ 58.0, 66.0, 38.0, 48.0 },
 			{ -1, -1, -1, -1 }
 		},
 		// loadout for crafting
@@ -1753,10 +1664,9 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 162.0, 205.0 }, // ammo
 			{ 289.0, 197.0, 178.0, 189.0 }, // ability
 			{ 289.0, 181.0, 169.0, 173.0 }, // arti
-			{ 289.0, 165.0, 183.0, 157.0 }, // armor
-			{ 289.0, 149.0, 188.0, 141.0 }, // account
+			{ 289.0, 165.0, 183.0, 157.0 }, // account
 			#ifdef ISAPRILFIRST
-				{ 289.0, 133.0, 188.0, 125.0 }, // nft
+				{ 289.0, 149.0, 188.0, 141.0 }, // nft
 			#endif
 			{ -1, -1, -1, -1 }
 		},
@@ -2022,31 +1932,6 @@ rect_T& LoadRect(int menu_page, int id) {
 		// artifact shop - 2
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ -1, -1, -1, -1 }
-		},
-		// armor 1
-		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
-			{ 289.0, 117.0, 120.0, 111.0 }, // w9
-			{ -1, -1, -1, -1 }
-		},
-		// armor 2
-		{
-			{ 289.0, 245.0, 120.0, 239.0 }, // w1
-			{ 289.0, 229.0, 120.0, 223.0 }, // w2
-			{ 289.0, 213.0, 120.0, 207.0 }, // w3
-			{ 289.0, 197.0, 120.0, 191.0 }, // w4
-			{ 289.0, 181.0, 120.0, 175.0 }, // w5
-			{ 289.0, 165.0, 120.0, 159.0 }, // w6
-			{ 289.0, 149.0, 120.0, 143.0 }, // w7
-			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ -1, -1, -1, -1 }
 		},
 		// account
@@ -2855,13 +2740,13 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 		charmborderpic = CharmBoxLabels[charm_type][0];
 	
 	// if there is a charm here
-	if(Charms_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
-		SetFont(GetItemImage(Charms_Used[pnum][thisboxid - 1].item_image));
+	if(Items_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
+		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid) {
 			if(!CheckInventory("DnD_InventoryView"))
-				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
+				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
 		}
 		// breaks things (so far)
 		/*else {
@@ -2872,6 +2757,50 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	}
 	SetFont(charmborderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	SetFont("SMALLFONT");
+}
+
+void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) {
+	int pnum = PlayerNumber();
+
+	if(Items_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
+		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		
+		if(boxid == thisboxid) {
+			if(!CheckInventory("DnD_InventoryView"))
+				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
+		}
+	}
+	else {
+		switch(armor_slot) {
+			case DND_ITEM_BODYARMOR:
+				SetFont("ARMBAK");
+			break;
+			case DND_ITEM_BOOT:
+				SetFont("TNT1A0");
+			break;
+		}
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 26 - thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	}
+
+	if(boxid != thisboxid)
+		SetFont("ARMSELB");
+	else
+		SetFont("ARMSELG");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	SetFont("SMALLFONT");
+}
+
+void DrawInventoryExploreIcon(int boxid, int thisboxid, int id, int x, int y) {
+	SetFont("INVCICO");
+	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_CYAN, x, y, 0.0, 0.0);
+
+	if(boxid != thisboxid)
+		SetFont("ICOBSML");
+	else if(!CheckInventory("DnD_InventoryView")) // don't highlight in inventory view
+		SetFont("ICOGSML");
+	HudMessage(s:"A"; HUDMSG_PLAIN, id - 1, CR_CYAN, x, y, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
@@ -2931,7 +2860,7 @@ void DrawInventoryInfo(int pnum) {
 	int pn, mx, my, offset, stack = 0;
 		
 	if(CheckInventory("DnD_SelectedCharmBox"))
-		DrawInventoryInfo_Field(pnum, CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, 0, true);
+		DrawInventoryInfo_Field(pnum, CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, true);
 		
 	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 	if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource) != DND_ITEM_NULL) {
@@ -3243,35 +3172,61 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 
 // charm page controls
 void HandleItemPageInputs(int pnum, int boxid) {
-	int charm_sel, charm_type, topboxid;
+	int item_sel, item_type, item_subt = 0, topboxid;
 	int temp;
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE) {
-			// we pressed a charm box or view inventory box
-			if(!CheckInventory("DnD_InventoryView")) {
+			// we pressed an item box
+			if(boxid == DND_INV_ICON_BOXID) {
 				GiveInventory("DnD_InventoryView", 1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
-				if(boxid != MBOX_8) // mark our previous box selection if we clicked on a charm
-					SetInventory("DnD_SelectedCharmBox", boxid);
+			}
+			else if(!CheckInventory("DnD_InventoryView")) {
+				GiveInventory("DnD_InventoryView", 1);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				SetInventory("DnD_SelectedCharmBox", boxid);
 			}
 			else {
 				// now track our choices made in the inventory view
-				charm_sel = CheckInventory("DnD_SelectedCharmBox");
-				charm_type = 0;
+				item_sel = CheckInventory("DnD_SelectedCharmBox");
+				item_type = DND_ITEM_NULL;
 				topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
-				if(charm_sel) {
-					if(charm_sel <= MBOX_4) // small charm replacement
-						charm_type = DND_CHARM_SMALL;
-					else if(charm_sel <= MBOX_6) // medium charm replacement
-						charm_type = DND_CHARM_MEDIUM;
-					else // grand charm replacement
-						charm_type = DND_CHARM_LARGE;
-					--charm_sel;
-					if(topboxid != -1 && (PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) == DND_ITEM_CHARM) {
+				if(item_sel) {
+					switch(item_sel) {
+						case MBOX_1:
+						case MBOX_2:
+						case MBOX_3:
+						case MBOX_4:
+							item_type = DND_ITEM_CHARM;
+							item_subt = DND_CHARM_SMALL;
+						break;
+						case MBOX_5:
+						case MBOX_6:
+							item_type = DND_ITEM_CHARM;
+							item_subt = DND_CHARM_MEDIUM;
+						break;
+						case MBOX_7:
+							item_type = DND_ITEM_CHARM;
+							item_subt = DND_CHARM_LARGE;
+						break;
+						case MBOX_8:
+							item_type = DND_ITEM_BODYARMOR;
+						break;
+						case MBOX_9:
+							item_type = DND_ITEM_BOOT;
+						break;
+					}
+					--item_sel;
+					
+					if(topboxid != -1 && (PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) == item_type) {
 						// this returns popupid to show, and -1 if it was ok
-						temp = MakeCharmUsed(pnum, charm_sel, topboxid, charm_type);
+						temp = MakeItemUsed(pnum, item_sel, topboxid, item_type, item_subt);
 						if(temp == -1) {
-							LocalAmbientSound("Items/CharmDrop", 127);
+							if(item_type == DND_ITEM_CHARM)
+								LocalAmbientSound("Items/CharmDrop", 127);
+							else
+								LocalAmbientSound("Items/ArmorEquip", 127);
+
 							TakeInventory("DnD_InventoryView", 1);
 							SetInventory("DnD_SelectedCharmBox", 0);
 							GiveInventory("DnD_CleanInventoryRequest", 1);
@@ -3318,15 +3273,15 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		}
 		ClearPlayerInput(pnum, true);
 	}
-	else if(HasRightClicked(pnum)) {
+	else if(HasRightClicked(pnum) && boxid != DND_INV_ICON_BOXID) {
 		// mbox 8 is the view inventory button
-		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && boxid != MBOX_8 && Charms_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
+		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && Items_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
 			// try to drop item
-			charm_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			if(charm_sel != -1) {
+			item_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			if(item_sel != -1) {
 				LocalAmbientSound("Items/CharmDrop", 127);
-				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_ITEMMOD_REMOVE);
-				MoveItemTrade(pnum, boxid - 1, charm_sel, DND_SYNC_ITEMSOURCE_CHARMUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
+				MoveItemTrade(pnum, boxid - 1, item_sel, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
 				ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 			}

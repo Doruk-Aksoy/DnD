@@ -23,7 +23,7 @@ different behavior.
 */
 
 // Shows the menu
-Script 900 (void) NET {
+Script 900 (int opt) NET {
 	int pnum = PlayerNumber();
 	if(StatListOpened[pnum]) {
 		SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
@@ -77,7 +77,11 @@ Script 900 (void) NET {
 			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 			GiveInventory("P_Frozen", 1);
 			StatListOpened[pnum] = 1;
-			SetInventory("MenuOption", MENU_MAIN);
+
+			if(!opt)
+				SetInventory("MenuOption", MENU_MAIN);
+			else
+				SetInventory("MenuOption", opt);
 			SetInventory("ShowingMenu", 1);
 			TakeInventory("ShowingPrompt", 1);
 			LocalAmbientSound("RPG/MenuOpen", 127);
@@ -513,7 +517,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_ITEMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_INVENTORY", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_STASH", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_CHARMS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_EQUIPMENTS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_CRAFTING", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_ACCESSORIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_TRADING", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
@@ -536,22 +540,30 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_STASH", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_LOAD_CHARM) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_CHARMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				
+				DeleteText(RPGMENUHELPID);
+
 				if(boxid == MAINBOX_NONE || (boxid == MBOX_8 && !CheckInventory("DnD_InventoryView")))
 					CleanInventoryInfo();
 				
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_1, 218.4, 216.0);
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_2, 282.4, 216.0);
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_3, 346.4, 216.0);
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_4, 410.4, 216.0);
-				
-				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_5, 250.4, 152.0);
-				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 378.4, 152.0);
-				
-				DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 314.4, 96.0);
-				
-				DrawBoxText("DND_MENU_VIEWINV", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID, 316.4, 248.0, "\c[B1]", "\c[Y5]");
+				// charms
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_1, 208.4, 208.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_2, 264.4, 208.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_3, 208.4, 256.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_4, 264.4, 256.0);
+				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_5, 208.4, 154.0);
+				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 264.4, 154.0);
+				DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 236.4, 80.0);
+
+				// armors
+				DrawArmorBox(boxid, MBOX_8, 370.4, 96.0, DND_ITEM_BODYARMOR);
+				DrawArmorBox(boxid, MBOX_9, 370.4, 160.0, DND_ITEM_BOOT);
+				// helm
+				// necklace
+
+				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 40, 432.4, 264.0);
+
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 24, CR_CYAN, 236.4, 32.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 25, CR_CYAN, 368.4, 32.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON) {
 				SetHudSize(384, 200, 1);
@@ -635,11 +647,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_ABILITIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_ARTIFACTS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_ARMORS", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_ACCOUNT", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ACCOUNT", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 6, 192.1, 160.0, "\c[B1]", "\c[Y5]");
 			
 				#ifdef ISAPRILFIRST
-					DrawBoxText("DND_MENU_NFT", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+					DrawBoxText("DND_MENU_NFT", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
 				#endif
 			}
 			else if(curopt == MENU_SHOP_WEAPON) {
@@ -736,40 +747,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				for(i = ARTI_RADSUIT; i < MAXARTIFACTS; ++i)
 					DrawToggledImage(SHOP_FIRSTARTI1_INDEX + i, boxid, i - ARTI_RADSUIT, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI1_INDEX + i][SHOPINFO_MAX], CR_RED);
-			}
-			else if(curopt == MENU_SHOP_ARMOR1) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (1) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				DrawCredits();
-				
-				/*for(i  = 0; i < PAGE1_ARMOR_COUNT; ++i)
-					DrawToggledImage(SHOP_ARMOR_GREEN + i, boxid, i, ArmorDrawInfo[i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + 1][ARMORDATA_BASEAMOUNT], CR_RED);
-			
-				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-			
-				temp = GetArmorFillPrice();
-				if(temp > 0) {
-					if(CheckInventory("Credit") >= temp)
-						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-					else
-						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-				}*/
-			}
-			else if(curopt == MENU_SHOP_ARMOR2) {
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARMORS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				DrawCredits();
-				
-				/*for(i  = 0; i < PAGE2_ARMOR_COUNT; ++i)
-					DrawToggledImage(SHOP_FIRSTARMOR2_INDEX + i, boxid, i, ArmorDrawInfo[PAGE1_ARMOR_COUNT + i].flags, CR_WHITE, CR_GREEN, "ArmorAmount", ArmorData[i + PAGE1_ARMOR_COUNT + 1][ARMORDATA_BASEAMOUNT], CR_RED);
-
-				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-			
-				temp = GetArmorFillPrice();
-				if(temp > 0) {
-					if(CheckInventory("Credit") >= temp)
-						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \cj$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-					else
-						HudMessage(s:"\c[Y5]", l:"DND_MENU_FILLPRICE", s:": \c[Q2]$", d:temp; HUDMSG_PLAIN, RPGMENUITEMID - 44, CR_CYAN, 192.1, 216.1, 0.0, 0.0);
-				}*/
 			}
 			else if(curopt == MENU_SHOP_ACCOUNT) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCOUNT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1509,11 +1486,9 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				else if(boxid == MBOX_4)
 					temp = MENU_SHOP_ARTIFACT_1;
 				else if(boxid == MBOX_5)
-					temp = MENU_SHOP_ARMOR1;
-				else if(boxid == MBOX_6)
 					temp = MENU_SHOP_ACCOUNT;
 				#ifdef ISAPRILFIRST
-				else if(boxid == MBOX_7)
+				else if(boxid == MBOX_6)
 					temp = MENU_SHOP_NFT;
 				#endif
 				else
@@ -1629,42 +1604,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			}
 			if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_SHOP_ARTIFACT_1);
-		}
-		else if(curopt == MENU_SHOP_ARMOR1) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE && CanReplaceArmor(SHOP_FIRSTARMOR_INDEX + boxid))
-					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARMOR_INDEX, SHOP_ARMORPAGE1_END, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
-			}
-			else if(HasRightClicked(pnum)) {
-				if(boxid != MAINBOX_NONE) {
-					// returns the popup id as negative number if something is wrong so if we are 0 or up we are good
-					if((tpos = CanFillArmor(pnum)) >= 0)
-						FillCurrentArmor(pnum, tpos);
-					else
-						ShowPopup(-tpos, false, 0);
-				}
-			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP);
-			else if(HasPressedRight(pnum))
-				UpdateMenuPosition(MENU_SHOP_ARMOR2);
-		}
-		else if(curopt == MENU_SHOP_ARMOR2) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE && CanReplaceArmor(SHOP_FIRSTARMOR2_INDEX + boxid))
-					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARMOR2_INDEX, SHOP_LASTARMOR_INDEX, TRADE_BUY | TRADE_ARMOR | TRADE_ARMOR_REPLACE, false);
-			}
-			else if(HasRightClicked(pnum)) {
-				if(boxid != MAINBOX_NONE) {
-					// returns the popup id as negative number if something is wrong so if we are 0 or up we are good
-					if((tpos = CanFillArmor(pnum)) >= 0)
-						FillCurrentArmor(pnum, tpos);
-					else
-						ShowPopup(-tpos, false, 0);
-				}
-			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP_ARMOR1);
 		}
 		else if(curopt == MENU_SHOP_ACCOUNT) {
 			if(HasLeftClicked(pnum)) {
@@ -1924,6 +1863,10 @@ Script "DnD Menu Sell Popup Clear" (void) CLIENTSIDE {
 Script "DnD Menu Investment Sync" (int pnum, int resid, int val) CLIENTSIDE {
 	ResearchInvestments[pnum][resid] = val;
 	SetResultValue(0);
+}
+
+Script "DnD Open Inventory" (void) NET {
+	ACS_ExecuteAlways(900, 0, MENU_LOAD_CHARM);
 }
 
 #ifdef ISAPRILFIRST

@@ -308,7 +308,9 @@ enum {
 	INV_ATTR_TAG_ENERGY_ID,
 	INV_ATTR_TAG_MELEE_ID
 };
-#define MAX_ATTRIB_TAG_GROUPS 13
+#define DND_ATTRIB_TAG_ID_BEGIN INV_ATTR_TAG_DAMAGE_ID
+#define DND_ATTRIB_TAG_ID_END INV_ATTR_TAG_MELEE_ID
+#define MAX_ATTRIB_TAG_GROUPS (DND_ATTRIB_TAG_ID_END + 1)
 
 // indexing on this one is done by checking ranges, and then mapping appropriately
 global int 8: AttributeTagGroups[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES][64];
@@ -1755,11 +1757,15 @@ void SetupInventoryTagGroups() {
 	}
 	
 	// do the same thing we did for charms to armors
+	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
 	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
 		tag = ItemModTable[i].tags;
 
 		// armors won't roll these, a general rule for now, we can add specifics later perhaps
-		if(tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_MELEE))
+		if((tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE) || (tag & INV_ATTR_TAG_CRIT) || (tag & INV_ATTR_TAG_MELEE))
 			continue;
 
 		tag_id = 0;
@@ -1774,6 +1780,18 @@ void SetupInventoryTagGroups() {
 			++tag_id;
 		}
 	}
+}
+
+int MapItemTypeToCraftableID(int type) {
+	switch(type) {
+		case DND_ITEM_BODYARMOR:
+		return DND_CRAFTABLEID_BODYARMOR;
+		case DND_ITEM_BOOT:
+		return DND_CRAFTABLEID_BOOT;
+		case DND_ITEM_NECKLACE:
+		return DND_CRAFTABLEID_NECKLACE;
+	}
+	return DND_CRAFTABLEID_CHARM;
 }
 
 #endif

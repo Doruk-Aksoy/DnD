@@ -67,7 +67,7 @@ enum {
 #define MAX_SYNC_VARS (DND_SYNC_WEPMOD_POWERSET1 + 1)
 
 enum {
-	DND_SYNC_ITEMSOURCE_CHARMUSED,
+	DND_SYNC_ITEMSOURCE_ITEMSUSED,
 	DND_SYNC_ITEMSOURCE_PLAYERINVENTORY,
 	DND_SYNC_ITEMSOURCE_FIELD,
 	DND_SYNC_ITEMSOURCE_TRADEVIEW,		// trade view array
@@ -82,51 +82,51 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 		source &= 0xFFFF;
 	}
 	
-	if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
+	if(source == DND_SYNC_ITEMSOURCE_ITEMSUSED) {
 		// safety
-		if(extra >= MAX_CHARMS_EQUIPPABLE || extra < 0)
+		if(extra >= MAX_ITEMS_EQUIPPABLE || extra < 0)
 			return 0;
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
-			return Charms_Used[pnum][extra].width;
+			return Items_Used[pnum][extra].width;
 			case DND_SYNC_ITEMHEIGHT:
-			return Charms_Used[pnum][extra].height;
+			return Items_Used[pnum][extra].height;
 			case DND_SYNC_ITEMIMAGE:
-			return Charms_Used[pnum][extra].item_image;
+			return Items_Used[pnum][extra].item_image;
 			case DND_SYNC_ITEMTYPE:
-			return Charms_Used[pnum][extra].item_type;
+			return Items_Used[pnum][extra].item_type;
 			case DND_SYNC_ITEMSUBTYPE:
-			return Charms_Used[pnum][extra].item_subtype;
+			return Items_Used[pnum][extra].item_subtype;
 			case DND_SYNC_ITEMLEVEL:
-			return Charms_Used[pnum][extra].item_level;
+			return Items_Used[pnum][extra].item_level;
 			case DND_SYNC_ITEMTOPLEFTBOX:
-			return Charms_Used[pnum][extra].topleftboxid;
+			return Items_Used[pnum][extra].topleftboxid;
 			case DND_SYNC_ITEMSATTRIBCOUNT:
-			return Charms_Used[pnum][extra].attrib_count;
+			return Items_Used[pnum][extra].attrib_count;
 			case DND_SYNC_ITEMCORRUPTED:
-			return Charms_Used[pnum][extra].corrupted;
+			return Items_Used[pnum][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
-			return Charms_Used[pnum][extra].quality;
+			return Items_Used[pnum][extra].quality;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
-			return Charms_Used[pnum][extra].attributes[sub].attrib_id;
+			return Items_Used[pnum][extra].attributes[sub].attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
-			return Charms_Used[pnum][extra].attributes[sub].attrib_val;
+			return Items_Used[pnum][extra].attributes[sub].attrib_val;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
-			return Charms_Used[pnum][extra].attributes[sub].attrib_tier;
+			return Items_Used[pnum][extra].attributes[sub].attrib_tier;
 			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
-			return Charms_Used[pnum][extra].attributes[sub].fractured;
+			return Items_Used[pnum][extra].attributes[sub].fractured;
 			case DND_SYNC_ITEMATTRIBUTES_EXTRA:
-			return Charms_Used[pnum][extra].attributes[sub].attrib_extra;
+			return Items_Used[pnum][extra].attributes[sub].attrib_extra;
 
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID:
-			return Charms_Used[pnum][extra].implicit.attrib_id;
+			return Items_Used[pnum][extra].implicit.attrib_id;
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL:
-			return Charms_Used[pnum][extra].implicit.attrib_val;
+			return Items_Used[pnum][extra].implicit.attrib_val;
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER:
-			return Charms_Used[pnum][extra].implicit.attrib_tier;
+			return Items_Used[pnum][extra].implicit.attrib_tier;
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA:
-			return Charms_Used[pnum][extra].implicit.attrib_extra;
+			return Items_Used[pnum][extra].implicit.attrib_extra;
 		}
 	}
 	else if(source == DND_SYNC_ITEMSOURCE_FIELD){
@@ -337,66 +337,66 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 		source &= 0xFFFF;
 	}
 	
-	if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
+	if(source == DND_SYNC_ITEMSOURCE_ITEMSUSED) {
 		switch(which) {
 			case DND_SYNC_ITEMWIDTH:
-				Charms_Used[pnum][extra].width = val;
+				Items_Used[pnum][extra].width = val;
 			break;
 			case DND_SYNC_ITEMHEIGHT:
-				Charms_Used[pnum][extra].height = val;
+				Items_Used[pnum][extra].height = val;
 			break;
 			case DND_SYNC_ITEMIMAGE:
-				Charms_Used[pnum][extra].item_image = val;
+				Items_Used[pnum][extra].item_image = val;
 			break;
 			case DND_SYNC_ITEMTYPE:
-				Charms_Used[pnum][extra].item_type = val;
+				Items_Used[pnum][extra].item_type = val;
 			break;
 			case DND_SYNC_ITEMSUBTYPE:
-				Charms_Used[pnum][extra].item_subtype = val;
+				Items_Used[pnum][extra].item_subtype = val;
 			break;
 			case DND_SYNC_ITEMLEVEL:
-				Charms_Used[pnum][extra].item_level = val;
+				Items_Used[pnum][extra].item_level = val;
 			break;
 			case DND_SYNC_ITEMTOPLEFTBOX:
-				Charms_Used[pnum][extra].topleftboxid = val;
+				Items_Used[pnum][extra].topleftboxid = val;
 			break;
 			case DND_SYNC_ITEMSATTRIBCOUNT:
-				Charms_Used[pnum][extra].attrib_count = val;
+				Items_Used[pnum][extra].attrib_count = val;
 			break;
 			case DND_SYNC_ITEMCORRUPTED:
-				Charms_Used[pnum][extra].corrupted = val;
+				Items_Used[pnum][extra].corrupted = val;
 			break;
 			case DND_SYNC_ITEMQUALITY:
-				Charms_Used[pnum][extra].quality = val;
+				Items_Used[pnum][extra].quality = val;
 			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
-				Charms_Used[pnum][extra].attributes[sub].attrib_id = val;
+				Items_Used[pnum][extra].attributes[sub].attrib_id = val;
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_VAL:
-				Charms_Used[pnum][extra].attributes[sub].attrib_val = val;
+				Items_Used[pnum][extra].attributes[sub].attrib_val = val;
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_TIER:
-				Charms_Used[pnum][extra].attributes[sub].attrib_tier = val;
+				Items_Used[pnum][extra].attributes[sub].attrib_tier = val;
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_FRACTURE:
-				Charms_Used[pnum][extra].attributes[sub].fractured = val;
+				Items_Used[pnum][extra].attributes[sub].fractured = val;
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_EXTRA:
-				Charms_Used[pnum][extra].attributes[sub].attrib_extra = val;
+				Items_Used[pnum][extra].attributes[sub].attrib_extra = val;
 			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID:
-				Charms_Used[pnum][extra].implicit.attrib_id = val;
+				Items_Used[pnum][extra].implicit.attrib_id = val;
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL:
-				Charms_Used[pnum][extra].implicit.attrib_val = val;
+				Items_Used[pnum][extra].implicit.attrib_val = val;
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER:
-				Charms_Used[pnum][extra].implicit.attrib_tier = val;
+				Items_Used[pnum][extra].implicit.attrib_tier = val;
 			break;
 			case DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA:
-				Charms_Used[pnum][extra].implicit.attrib_extra = val;
+				Items_Used[pnum][extra].implicit.attrib_extra = val;
 			break;
 		}
 	}
@@ -912,9 +912,9 @@ void SyncAllItemData(int pnum, int source) {
 				SyncItemData_Null(pnum, i, source, 1, 1);
 		}
 	}
-	else if(source == DND_SYNC_ITEMSOURCE_CHARMUSED) {
-		for(i = 0; i < MAX_CHARMS_EQUIPPABLE; ++i) {
-			if(Charms_Used[pnum][i].item_type != DND_ITEM_NULL)
+	else if(source == DND_SYNC_ITEMSOURCE_ITEMSUSED) {
+		for(i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
+			if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
 				SyncItemData(pnum, i, source, 1, 1);
 			else
 				SyncItemData_Null(pnum, i, source, 1, 1);
