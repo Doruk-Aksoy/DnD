@@ -1,6 +1,7 @@
 // Gib generator fixed by LilWhiteMouse - thanks LWM!
 actor NashGore_GibGenerator { 
 	+CLIENTSIDEONLY
+	+DONTSPLASH
 	states  { 
 		Spawn: 
 			TNT1 A 0 
@@ -37,6 +38,7 @@ Actor BloodSmoke {
 	Alpha 0.3
 	+CLIENTSIDEONLY
 	+NOINTERACTION
+	+DONTSPLASH
 	States {
 		Spawn:
 			TNT1 A 0 
@@ -59,6 +61,7 @@ Actor BloodSmoke_Large : BloodSmoke {
 Actor GenericGibber_Low {
 	+CLIENTSIDEONLY
 	+NOINTERACTION
+	+DONTSPLASH
 	States {
 		Spawn:
 			TNT1 A 0 
@@ -125,8 +128,7 @@ Actor NashGore_GibGenerator_Purple : NashGore_GibGenerator
 	Translation "168:191=250:254", "32:47=250:254"
 }
 
-// Gib 1
-actor NashGore_Gib1 {
+Actor DnD_GibBase {
 	health 1
 	radius 8
 	height 8
@@ -136,6 +138,11 @@ actor NashGore_Gib1 {
 	+NOTELEPORT
 	+CLIENTSIDEONLY
 	+MOVEWITHSECTOR
+	+DONTSPLASH
+}
+
+// Gib 1
+actor NashGore_Gib1 : DnD_GibBase {
 	states {
 		Spawn:
 			TNT1 A 0
@@ -151,46 +158,25 @@ actor NashGore_Gib1 {
 }
 
 // Gib 2
-actor NashGore_Gib2
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
-states
-	{
-	Spawn:
-		TNT1 A 0
-		TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
-	SpawnLoop:
-	 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
-	 GIB2 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
-	 loop
-	Crash:
-	 GIB2 A 3500
-	 GIB2 AAAAAAAAAA 7 A_FadeOut(0.1)
-	 stop
+actor NashGore_Gib2 : DnD_GibBase {
+	states {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+		 TNT1 A 0 A_JumpIf(waterlevel > 2, "Crash")
+		 GIB2 A 8 A_SpawnDebris("NashGore_FlyingBlood",1)
+		 loop
+		Crash:
+		 GIB2 A 3500
+		 GIB2 AAAAAAAAAA 7 A_FadeOut(0.1)
+		 stop
 	}
 }
 
 // Gib 3
-actor NashGore_Gib3
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
-states
+actor NashGore_Gib3 : DnD_GibBase {
+	states
 	{
 	Spawn:
 		TNT1 A 0
@@ -207,18 +193,8 @@ states
 }
 
 // Gib 4
-actor NashGore_Gib4
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
-states
+actor NashGore_Gib4 : DnD_GibBase{
+	states
 	{
 	Spawn:
 		TNT1 A 0
@@ -235,17 +211,7 @@ states
 }
 
 // Gib 5
-actor NashGore_Gib5
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
+actor NashGore_Gib5 : DnD_GibBase {
 states
 	{
 	Spawn:
@@ -263,18 +229,8 @@ states
 }
 
 // Gib 6
-actor NashGore_Gib6
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
-states
+actor NashGore_Gib6 : DnD_GibBase {
+	states
 	{
 	Spawn:
 		TNT1 A 0
@@ -291,18 +247,8 @@ states
 }
 
 // Gib 7
-actor NashGore_Gib7
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
-states
+actor NashGore_Gib7 : DnD_GibBase {
+	states
 	{
 	Spawn:
 		TNT1 A 0
@@ -319,18 +265,8 @@ states
 }
 
 // Gib 8
-actor NashGore_Gib8
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
-states
+actor NashGore_Gib8 : DnD_GibBase {
+	states
 	{
 	Spawn:
 		TNT1 A 0
@@ -347,17 +283,7 @@ states
 }
 
 // Gib 9 (hand)
-actor NashGore_Gib9
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
+actor NashGore_Gib9 : DnD_GibBase {
 states
 	{
 	Spawn:
@@ -380,17 +306,7 @@ Actor NashGore_Gib9_G : NashGore_Gib9
 }
 
 // Gib 10 (arm)
-actor NashGore_Gib10
-{
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
+actor NashGore_Gib10 : DnD_GibBase {
 states
 	{
 	Spawn:
@@ -413,17 +329,8 @@ Actor NashGore_Gib10_G : NashGore_Gib10
 }
 
 // Gib 11 (eyeball)
-actor NashGore_Gib11
+actor NashGore_Gib11 : DnD_GibBase
 {
-health 1
-radius 8
-height 8
-mass 1
-scale 0.75
-+CORPSE
-+NOTELEPORT
-+CLIENTSIDEONLY
-+MOVEWITHSECTOR
 states
 	{
 	Spawn:
@@ -467,7 +374,7 @@ Actor RealBlood {
 	+CLIENTSIDEONLY
 	+NOTELEPORT
 	-ALLOWPARTICLES
-	
+	+DONTSPLASH
 	States {
 		Spawn:
 			TNT1 A 0
@@ -504,6 +411,7 @@ Actor BloodVariant1
 	+NOINTERACTION
 	+CLIENTSIDEONLY
 	+NOGRAVITY
+	+DONTSPLASH
 	States
 	{
 		Spawn:
@@ -548,6 +456,7 @@ Actor BloodVariant4 : BloodVariant1
 actor NashGore_BloodSplatter : BloodSplatter replaces BloodSplatter
 {
  +CLIENTSIDEONLY
+ +DONTSPLASH
  states
  {
   Spawn:
@@ -585,6 +494,7 @@ actor NashGore_FlyingBlood
  +NOTELEPORT
  +NOBLOCKMAP
  +CLIENTSIDEONLY
+ +DONTSPLASH
  states
  {
  Spawn:
@@ -667,6 +577,7 @@ actor NashGore_BloodSpot
  +NOTELEPORT
  -NOBLOCKMAP
  +CLIENTSIDEONLY
+ +DONTSPLASH
  states
  {
  Spawn:
@@ -818,6 +729,7 @@ actor NashGore_FlyingBloodTrail
  +NOTELEPORT
  +NOBLOCKMAP
  +CLIENTSIDEONLY
+ +DONTSPLASH
  states
  {
   Spawn:
@@ -848,6 +760,7 @@ Actor MetalScrap {
 	+NOBLOCKMAP
 	+CLIENTSIDEONLY
 	+MOVEWITHSECTOR
+	+DONTSPLASH
 	-NOGRAVITY
 	States {
 		Spawn:

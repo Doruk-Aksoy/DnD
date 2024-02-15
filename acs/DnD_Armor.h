@@ -6,10 +6,26 @@ enum {
     BODYARMOR_GREEN,
     BODYARMOR_YELLOW,
     BODYARMOR_BLUE,
-    BODYARMOR_RED
+    BODYARMOR_RED,
+
+	BODYARMOR_GUNSLINGER,
+	BODYARMOR_OCCULT,
+	BODYARMOR_DEMO,
+	BODYARMOR_ENERGY,
+	BODYARMOR_ELEMENTAL,
+
+	BODYARMOR_MONOLITH,
+	BODYARMOR_CYBER,
+	BODYARMOR_DUELIST,
+	BODYARMOR_NECRO,
+	BODYARMOR_KNIGHT,
+	BODYARMOR_RAVAGER,
+
+	BODYARMOR_SYNTHMETAL,
+	BODYARMOR_LIGHTNINGCOIL
 };
 #define BODYARMORS_BEGIN BODYARMOR_GREEN
-#define BODYARMORS_END BODYARMOR_RED
+#define BODYARMORS_END BODYARMOR_LIGHTNINGCOIL
 
 #define DND_BODYARMOR_BASEWIDTH 2
 #define DND_BODYARMOR_BASEHEIGHT 2
@@ -17,9 +33,31 @@ enum {
 #define MAX_ARMOR_ATTRIB_DEFAULT 6
 
 // returns type of charm as result
-int ConstructArmorDataOnField(int item_pos, int item_tier) {
-    // decide what type of armor to spawn here
-	int res = random(BODYARMORS_BEGIN, BODYARMORS_END);
+int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
+    // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
+	int res;
+	if(!tiers) {
+		// pick with some weight here
+		res = random(BODYARMORS_BEGIN, BODYARMORS_END);
+	}
+	else if(tiers == 1) {
+		res = random(0, 2);
+		// 1/3rd chance to be yellow spawn
+		if(res)
+			res = BODYARMOR_GREEN;
+		else
+			res = BODYARMOR_YELLOW;
+	}
+	else if(tiers == 2) {
+		// 1/5 chance to be red
+		res = random(0, 4);
+		if(res)
+			res = BODYARMOR_BLUE;
+		else
+			res = BODYARMOR_RED;
+	}
+	else if(tiers < 0)
+		res = -tiers;
 
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;
@@ -42,10 +80,10 @@ int ConstructArmorDataOnField(int item_pos, int item_tier) {
 	return res;
 }
 
-void RollArmorInfo(int item_pos, int item_tier, int pnum) {
+int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	// roll random attributes for the charm
 	int i = 0, roll;
-	int armor_type = ConstructArmorDataOnField(item_pos, item_tier);
+	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers);
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
 	
 	// implicits that come along with the item always
@@ -67,6 +105,61 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum) {
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_4;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 300, 0, item_tier, 150);
 		break;
+
+		case BODYARMOR_GUNSLINGER:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_5;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 75);
+		break;
+		case BODYARMOR_OCCULT:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_6;
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, 0, item_tier, 60);
+		break;
+		case BODYARMOR_DEMO:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_7;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 75);
+		break;
+		case BODYARMOR_ENERGY:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_8;
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, 0, item_tier, 60);
+		break;
+		case BODYARMOR_ELEMENTAL:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_9;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 75);
+		break;
+
+		case BODYARMOR_MONOLITH:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_10;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 200, 0, item_tier, 100);
+		break;
+		case BODYARMOR_CYBER:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_11;
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 250, 0, item_tier, 150);
+		break;
+		case BODYARMOR_DUELIST:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_12;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 125, 0, item_tier, 75);
+		break;
+		case BODYARMOR_NECRO:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_13;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 100);
+		break;
+		case BODYARMOR_KNIGHT:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_14;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 225, 0, item_tier, 125);
+		break;
+		case BODYARMOR_RAVAGER:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_15;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 180, 0, item_tier, 90);
+		break;
+
+		case BODYARMOR_SYNTHMETAL:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_16;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 125);
+		break;
+		case BODYARMOR_LIGHTNINGCOIL:
+			Inventories_On_Field[item_pos].item_image = IIMG_ARM_17;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 180, 0, item_tier, 90);
+		break;
 	}
 	
 	while(i < count) {
@@ -76,31 +169,51 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum) {
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
 	}
+
+	return armor_type;
 }
 
-void SpawnBodyArmor(int pnum, int rarity_boost, bool noRepeat = false) {
+str GetArmorDropClass(int type) {
+	return StrParam(s:"ArmorDrop_", d:type);
+}
+
+int GetArmorID(int pnum = -1) {
+	if(pnum == -1)
+		pnum = PlayerNumber();
+
+	if(Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL)
+		return -1;
+
+	return Items_Used[pnum][BODY_ARMOR_INDEX].item_subtype;
+}
+
+int GetActorArmorID(int tid) {
+	return GetArmorID(tid - P_TIDSTART);
+}
+
+bool ActorHasNoArmor(int tid) {
+	int pnum = tid - P_TIDSTART;
+
+	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][BOOT_INDEX].item_type == DND_ITEM_NULL;
+}
+
+bool IsArmorShredException(int id) {
+	switch(id) {
+		case BODYARMOR_MONOLITH:
+		case BODYARMOR_KNIGHT:
+		case BODYARMOR_RAVAGER:
+		return true;
+	}
+	return false;
+}
+
+void SpawnBodyArmor(int pnum, int rarity_boost, bool noRepeat = false, int tiers = 0) {
     int c = CreateItemSpot();
 	if(c != -1) {
-		// c is the index on the field now
-        // no unique armors... yet
-		/*#ifndef ISDEBUGBUILD
-			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
-		#else
-			if(random(0,1))
-		#endif
-		{
-			MakeUnique(c, DND_ITEM_CHARM, pnum);
-			SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c);
-		}
-		else {
-			RollCharmInfo(c, RollItemLevel(), pnum);
-			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
-		}*/
-
-        RollArmorInfo(c, RollItemLevel(), pnum);
+        int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
 
         // depending on armor type rolled, spawn its appropriate actor
-        SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
+        SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, true);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
@@ -119,11 +232,30 @@ Script "DnD Armor Item Pickup" (int sp) {
 		SetActivatorToTarget(0);
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
+
 	ACS_NamedExecuteAlways("DnD Armor Message", 0, Inventories_On_Field[sp >> 16].item_subtype, Inventories_On_Field[sp >> 16].item_type);
-	
-    GiveInventory("CharmSoundPlayer", 1);
+    GiveInventory("ArmorSoundPlayer", 1);
 	
     HandleInventoryPickup(sp >> 16);
+}
+
+Script "DnD Armor Message" (int id, int type) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+	if(type > UNIQUE_BEGIN) {
+		type = (type >> UNIQUE_BITS) - 1;
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ARMOR", s:": \c[Y5]", l:GetUniqueItemName(type), s:"!\c-"));
+	}
+	else
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ARMOR", s:": \c[Y5]", l:GetArmorInventoryTag(id), s:"!\c-"));
+}
+
+Script "DnD Drop Random Basic Armor" (int higher_tier) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && !PlayerIsSpectator(i))
+			SpawnBodyArmor(i, 0, true, higher_tier);
+	}
 }
 
 #endif

@@ -9,15 +9,9 @@
 enum {
 	SHI_STIMPACK,
 	SHI_MEDKIT,
-	SHI_GREENARMOR,
-	SHI_YELLOWARMOR,
-	SHI_BLUEARMOR,
-	SHI_REDARMOR,
-	SHI_BACKPACK,
-	SHI_SYNTHMETALARMOR,
-	SHI_LIGHTNINGCOIL
+	SHI_BACKPACK
 };
-#define MAX_SHARED_ITEM_TYPES (SHI_LIGHTNINGCOIL + 1)
+#define MAX_SHARED_ITEM_TYPES (SHI_BACKPACK + 1)
 
 void HandleSharedItemPickupMessage(int id) {
 	str header = "";
@@ -34,39 +28,9 @@ void HandleSharedItemPickupMessage(int id) {
 			text = "DND_MEDIKIT";
 			extra = " x 25%";
 		break;
-		case SHI_GREENARMOR:
-			header = "DND_ARMORPICKUP";
-			text = "DND_ARMOR1";
-			extra = " 33%";
-		break;
-		case SHI_YELLOWARMOR:
-			header = "DND_ARMORPICKUP";
-			text = "DND_ARMOR2";
-			extra = " 42%";
-		break;
-		case SHI_BLUEARMOR:
-			header = "DND_ARMORPICKUP";
-			text = "DND_ARMOR3";
-			extra = " 50%";
-		break;
-		case SHI_REDARMOR:
-			header = "DND_ARMORPICKUP";
-			text = "DND_ARMOR4";
-			extra = " 75%";
-		break;
 		case SHI_BACKPACK:
 			header = "DND_ITEMPICKUP";
 			text = "DND_BACKPACK";
-		break;
-		case SHI_SYNTHMETALARMOR:
-			header = "DND_ARMORPICKUP";
-			text = "DND_ARMOR16";
-			extra = " 65%";
-		break;
-		case SHI_LIGHTNINGCOIL:
-			header = "DND_ARMORPICKUP";
-			text = "DND_ARMOR17";
-			extra = " 40%";
 		break;
 	}
 	
@@ -76,17 +40,11 @@ void HandleSharedItemPickupMessage(int id) {
 str SP_SharedItems[MAX_SHARED_ITEM_TYPES] = {
 	"Stimpack_SP",
 	"Medikit_SP",
-	"GreenArmor_SP",
-	"YellowArmor_SP",
-	"BlueArmor_SP",
-	"RedArmor_SP",
-	"Backpack_SP",
-	"Synthmetal_SP",
-	"LightningCoil_SP"
+	"Backpack_SP"
 };
 
 // these all can be grouped into a struct to save variable space
-int shared_type_items_counter[MAX_SHARED_ITEM_TYPES] = {0,0,0,0,0,0,0,0};
+int shared_type_items_counter[MAX_SHARED_ITEM_TYPES] = {0,0,0};
 bool Shared_Item_pickup_state[MAX_SHARED_ITEMS][MAXPLAYERS];
 
 int limitedrespawn_item_counter = 0;
@@ -117,50 +75,6 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 	
 	if(!Shared_Item_pickup_state[tid - SHARED_ITEM_TID_BEGIN][pnum]) {
 		switch(type) {
-			case SHI_REDARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_RED)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_RED, 300);
-					GiveInventory("RedArmorMsg", 1);
-					pickedup = true;
-				}
-			break;
-			case SHI_BLUEARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 200, DND_ARMOR_BLUE)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_BLUE, 200);
-					GiveInventory("BlueArmorMsg", 1);
-					pickedup = true;
-				}
-			break;
-			case SHI_YELLOWARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 150, DND_ARMOR_YELLOW)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_YELLOW, 150);
-					GiveInventory("YellowArmorMsg", 1);
-					pickedup = true;
-				}
-			break;
-			case SHI_GREENARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 100, DND_ARMOR_GREEN)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_GREEN, 100);
-					GiveInventory("GreenArmorMsg", 1);
-					pickedup = true;
-				}
-			break;
-			case SHI_SYNTHMETALARMOR:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 400, DND_ARMOR_SYNTHMETAL)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_SYNTHMETAL, 400);
-					GiveInventory("SynthmetalArmorMsg", 1);
-					ACS_NamedExecuteAlways("DnD Give Research - Regular", 0, RES_SYNTHMETALARMOR, 1);
-					pickedup = true;
-				}
-			break;
-			case SHI_LIGHTNINGCOIL:
-				if(ACS_NamedExecuteWithResult("DND Armor Pickup Check", 300, DND_ARMOR_LIGHTNINGCOIL)) {
-					ACS_NamedExecuteWithResult("DND Armor Give", DND_ARMOR_LIGHTNINGCOIL, 300);
-					GiveInventory("LightningCoilMsg", 1);
-					ACS_NamedExecuteAlways("DnD Give Research - Regular", 0, RES_LIGHTNINGCOIL, 1);
-					pickedup = true;
-				}
-			break;
 			case SHI_BACKPACK:
 				GiveInventory("NewBackpack", 1);
 				GiveInventory("BackpackPickMSG", 1);

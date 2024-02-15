@@ -110,6 +110,22 @@ DND_ARIMG1			=	"ARICO1";			DND_ARWIMG1			=	"ARWICO1";
 DND_ARIMG2			=	"ARICO2";			DND_ARWIMG2			=	"ARWICO2";
 DND_ARIMG3			=	"ARICO3";			DND_ARWIMG3			=	"ARWICO3";
 DND_ARIMG4			=	"ARICO4";			DND_ARWIMG4			=	"ARWICO4";
+
+DND_ARIMG5			=	"ARICO5";			DND_ARWIMG5			=	"ARWICO5";
+DND_ARIMG6			=	"ARICO6";			DND_ARWIMG6			=	"ARWICO6";
+DND_ARIMG7			=	"ARICO7";			DND_ARWIMG7			=	"ARWICO7";
+DND_ARIMG8			=	"ARICO8";			DND_ARWIMG8			=	"ARWICO8";
+DND_ARIMG9			=	"ARICO9";			DND_ARWIMG9			=	"ARWICO9";
+
+DND_ARIMG10			=	"ARICO10";			DND_ARWIMG10		=	"ARWICO10";
+DND_ARIMG11			=	"ARICO11";			DND_ARWIMG11		=	"ARWICO11";
+DND_ARIMG12			=	"ARICO12";			DND_ARWIMG12		=	"ARWICO12";
+DND_ARIMG13			=	"ARICO13";			DND_ARWIMG13		=	"ARWICO13";
+DND_ARIMG14			=	"ARICO14";			DND_ARWIMG14		=	"ARWICO14";
+DND_ARIMG15			=	"ARICO15";			DND_ARWIMG15		=	"ARWICO15";
+
+DND_ARIMG16			=	"ARICO16";			DND_ARWIMG16		=	"ARWICO16";
+DND_ARIMG17			=	"ARICO17";			DND_ARWIMG17		=	"ARWICO17";
 	
 DND_KIMG1			=	"SBKGA0";
 DND_KIMG2			=	"SBKGB0";
@@ -310,6 +326,9 @@ IATTR_T98			= "chance to ignore ailment immunities";
 IATTR_T99			= "to ignite chance";
 IATTR_T100			= "to ignite proliferation chance";
 
+IATTR_T101			= "to energy shield";
+IATTR_T102			= "increased energy shield";
+
 // corrupt implicits
 
 IATTR_TC1			= "Increased weapon damage to";
@@ -324,6 +343,8 @@ IATTR_TC9			= "forces pain";
 
 // regular implicits
 IATTR_TI1			= "to armor";
+IATTR_TI2			= "to energy shield";
+IATTR_TI3			= "to armor and energy shield";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
@@ -350,7 +371,7 @@ IATTR_TX7 			= "increased crit chance to lightning attacks";
 IATTR_TX8 			= "increased damage to shotguns";
 IATTR_TX9 			= "Double Health Cap";
 IATTR_TX10 			= "Gain 1% increased physical damage every ";
-IATTR_TX11 			= "Can't use armor";
+IATTR_TX11 			= "Can't use body armor";
 IATTR_TX12 			= "Burst type attacks fire in a circle around you";
 IATTR_TX13 			= "Burst type attacks also benefit from pellet bonuses";
 IATTR_TX14 			= "chance to raise a zombie from slain enemies";

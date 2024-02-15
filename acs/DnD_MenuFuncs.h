@@ -559,18 +559,6 @@ void DrawArtifactIconCorner(int boxid) {
 		DeleteText(RPGMENUHELPCORNERID);
 }
 
-void DrawArmorIconCorner(int itemid) {
-	str toshow = GetTextWithResearch(ArmorIcons[itemid + 1], "", ArmorDrawInfo[itemid].res_id,  RES_KNOWN, ArmorDrawInfo[itemid].flags);
-
-	if(StrCmp(toshow, "")) {
-		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
-		SetFont("SMALLFONT");
-	}
-	else
-		DeleteText(RPGMENUHELPCORNERID);
-}
-
 // curopt is the pageid
 void HandleItemInfoPanel(int curopt, int animcounter, int boxid, bool redraw) {
 	static int ypos = 0;
@@ -1551,7 +1539,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 248.0, 222.0 }, // items
 			{ 289.0, 213.0, 215.0, 206.0 }, // inventory
 			{ 289.0, 197.0, 243.0, 190.0 }, // stash
-			{ 289.0, 181.0, 234.0, 174.0 }, // charms
+			{ 289.0, 181.0, 200.0, 174.0 }, // equipments
 			{ 289.0, 165.0, 221.0, 158.0 }, // crafting
 			{ 289.0, 149.0, 196.0, 142.0 }, // accessories
 			{ 289.0, 133.0, 230.0, 126.0 }, // trading
@@ -2796,9 +2784,8 @@ void DrawInventoryExploreIcon(int boxid, int thisboxid, int id, int x, int y) {
 	SetFont("INVCICO");
 	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_CYAN, x, y, 0.0, 0.0);
 
-	if(boxid != thisboxid)
-		SetFont("ICOBSML");
-	else if(!CheckInventory("DnD_InventoryView")) // don't highlight in inventory view
+	SetFont("ICOBSML");
+	if(boxid == thisboxid && !CheckInventory("DnD_InventoryView")) // don't highlight in inventory view
 		SetFont("ICOGSML");
 	HudMessage(s:"A"; HUDMSG_PLAIN, id - 1, CR_CYAN, x, y, 0.0, 0.0);
 	SetFont("SMALLFONT");
@@ -3177,14 +3164,11 @@ void HandleItemPageInputs(int pnum, int boxid) {
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE) {
 			// we pressed an item box
-			if(boxid == DND_INV_ICON_BOXID) {
+			if(!CheckInventory("DnD_InventoryView")) {
 				GiveInventory("DnD_InventoryView", 1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
-			}
-			else if(!CheckInventory("DnD_InventoryView")) {
-				GiveInventory("DnD_InventoryView", 1);
-				LocalAmbientSound("RPG/MenuChoose", 127);
-				SetInventory("DnD_SelectedCharmBox", boxid);
+				if(boxid != DND_INV_ICON_BOXID)
+					SetInventory("DnD_SelectedCharmBox", boxid);
 			}
 			else {
 				// now track our choices made in the inventory view
@@ -3279,7 +3263,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			// try to drop item
 			item_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			if(item_sel != -1) {
-				LocalAmbientSound("Items/CharmDrop", 127);
+				if(Items_Used[pnum][boxid - 1].item_type == DND_ITEM_BODYARMOR)
+					LocalAmbientSound("Items/ArmorEquip", 127);
+				else
+					LocalAmbientSound("Items/CharmDrop", 127);
 				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
 				MoveItemTrade(pnum, boxid - 1, item_sel, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc

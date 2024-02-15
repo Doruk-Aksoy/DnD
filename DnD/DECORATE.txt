@@ -28,7 +28,6 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Items/Health.txt"
 #include "Actors/Items/Accessories.txt"
 #include "Actors/Items/Research.txt"
-#include "Actors/Items/Armor.txt"
 #include "Actors/Items/Powerups.txt"
 #include "Actors/Items/Artifacts.txt"
 #include "Actors/Items/RPG.txt"

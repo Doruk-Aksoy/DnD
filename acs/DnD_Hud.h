@@ -238,6 +238,8 @@ enum {
 	POPUP_ALREADYFOUND,
 	POPUP_MAXINVESTMENT,
 	POPUP_NARESEARCH,
+	POPUP_CANTWEARBODYARMOR,
+	POPUP_CANTPUTONBODYARMOR,
 	POPUP_NOTENOUGHSPACE,
 	
 	#ifdef ISAPRILFIRST
@@ -323,6 +325,10 @@ str GetPopupText(int id) {
 		return "DND_POPUP_MAXINVESTMENT";
 		case POPUP_NARESEARCH:
 		return "DND_POPUP_NARESEARCH";
+		case POPUP_CANTWEARBODYARMOR:
+		return "DND_POPUP_CANTUSEBODYARMOR";
+		case POPUP_CANTPUTONBODYARMOR:
+		return "DND_POPUP_CANTPUTONBODYARMOR";
 		case POPUP_NOTENOUGHSPACE:
 		return "DND_POPUP_NOTENOUGHSPACE";
 		
@@ -537,7 +543,7 @@ void DrawCursor() {
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
 	
-	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
+	//printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
 
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 0.1, HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }

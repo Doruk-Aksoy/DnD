@@ -391,20 +391,7 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	// save health and armor
 	temp = GetActorProperty(tid, APROP_HEALTH);
-	temp <<= 16;
-	temp |= GetActorArmorAmount(tid);
-	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, temp);
-	
-	// save armor type
-	temp = 0;
-	for(i = 0; i < MAXARMORS; ++i) {
-		if(GetActorArmorID(tid) == i) {
-			temp = SetBit(temp, i);
-			break;
-		}
-	}
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, temp);
+	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, temp);
 	
 	// save ammo counts
 	for(i = 0; i < MAX_SLOTS; ++i)
@@ -936,18 +923,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp >>= 4;
 	SetInventory("Perk_Luck", temp & 0xF);
 	
-	// read health and armor
-	temp = GetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc);
-	// make sure charms and shit are added here too
-	int armor = temp & 0xFFFF;
-	temp >>= 16;
+	// read health
+	temp = GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc);
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 	SetActorProperty(0, APROP_HEALTH, (temp & 0xFFFF) ? temp & 0xFFFF : DND_BASE_HEALTH);
-	
-	// read armor type
-	// reset whatever armor might have been on the player at the time
-	//RemoveAllArmor();
-	temp = GetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc);
 	
 	// read accessories
 	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);
@@ -1142,7 +1121,7 @@ int check_load_char(int pnum, int char_id) {
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
 	if(char_id < 0 || char_id > DND_MAX_CHARS - 1) return DND_LOGIN_CHARNOTINRANGE;
 	// handle no data case -- only let people to load their stuff if there really is some data
-	if(!GetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), GetPlayerAccountName(pnum))) return DND_LOGIN_NOCHAR;
+	if(!GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), GetPlayerAccountName(pnum))) return DND_LOGIN_NOCHAR;
 	// prevent people from loading their stuff to escape death, prevent loading if a save on this player happened already!
 	if(PlayerLoaded[pnum]) return DND_LOGIN_CHARINUSE;
 	if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME;
@@ -1222,8 +1201,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, 0);
 	
 	// reset ammo counts
@@ -1357,8 +1335,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_HEALTHARMOR, char_id), pacc, 100); // base health
-	SetDBEntry(GetCharField(DND_DB_ARMORTYPE, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_Character"));
 	
 	// reset ammo counts

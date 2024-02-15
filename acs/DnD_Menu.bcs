@@ -546,21 +546,21 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					CleanInventoryInfo();
 				
 				// charms
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_1, 208.4, 208.0);
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_2, 264.4, 208.0);
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_3, 208.4, 256.0);
-				DrawCharmBox(DND_CHARM_SMALL, boxid, MBOX_4, 264.4, 256.0);
-				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_5, 208.4, 154.0);
-				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MBOX_6, 264.4, 154.0);
-				DrawCharmBox(DND_CHARM_LARGE, boxid, MBOX_7, 236.4, 80.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, SMALLCHARM_INDEX1 + 1, 208.4, 208.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, SMALLCHARM_INDEX2 + 1, 264.4, 208.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, SMALLCHARM_INDEX3 + 1, 208.4, 256.0);
+				DrawCharmBox(DND_CHARM_SMALL, boxid, SMALLCHARM_INDEX4 + 1, 264.4, 256.0);
+				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MEDIUMCHARM_INDEX1 + 1, 208.4, 154.0);
+				DrawCharmBox(DND_CHARM_MEDIUM, boxid, MEDIUMCHARM_INDEX2 + 1, 264.4, 154.0);
+				DrawCharmBox(DND_CHARM_LARGE, boxid, LARGECHARM_INDEX + 1, 236.4, 80.0);
 
 				// armors
-				DrawArmorBox(boxid, MBOX_8, 370.4, 96.0, DND_ITEM_BODYARMOR);
-				DrawArmorBox(boxid, MBOX_9, 370.4, 160.0, DND_ITEM_BOOT);
+				DrawArmorBox(boxid, BODY_ARMOR_INDEX + 1, 370.4, 96.0, DND_ITEM_BODYARMOR);
+				DrawArmorBox(boxid, BOOT_INDEX + 1, 370.4, 160.0, DND_ITEM_BOOT);
 				// helm
 				// necklace
 
-				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 40, 432.4, 264.0);
+				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 22, 432.4, 264.0);
 
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 24, CR_CYAN, 236.4, 32.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 25, CR_CYAN, 368.4, 32.0, 0.0, 0.0);

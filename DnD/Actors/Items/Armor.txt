@@ -26,24 +26,6 @@ const int DND_BASE_ARMORCAP = 300;
 
 Actor DnD_ArmorType : DnD_Info { }
 
-// This is the counter used to know the player's armor
-Actor ArmorAmount : Ammo {
-	inventory.maxamount 0x7FFFFFFF
-	inventory.amount 1
-	ammo.backpackamount 0
-	ammo.backpackmaxamount 0
-	+IGNORESKILL
-}
-
-// this is used to display it on statusbarinfo
-Actor ArmorAmountVisual : Ammo {
-	inventory.maxamount 100
-	inventory.amount 1
-	ammo.backpackamount 0
-	ammo.backpackmaxamount 0
-	+IGNORESKILL
-}
-
 Actor NewArmorBonus : CustomInventory replaces ArmorBonus {
 	Radius 20
 	Height 16
@@ -246,6 +228,8 @@ Actor RedArmor_SP : GreenArmor_SP {
 		Stop
 	}
 }
+
+items/armor
 
 Actor RedArmorMsg : CustomInventory {
 	States {

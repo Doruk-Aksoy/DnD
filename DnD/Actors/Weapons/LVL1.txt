@@ -1432,7 +1432,7 @@ Actor DuskHealFX : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_SpawnItem("DuskHealFXSpawner")
-			TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BONUS, 1)
+			//TNT1 A 0 ACS_NamedExecuteAlways("DND Armor Give", 0, DND_ARMOR_BONUS, 1)
 		Stop
 	}
 }

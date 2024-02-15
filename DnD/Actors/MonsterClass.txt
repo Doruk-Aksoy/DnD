@@ -300,6 +300,12 @@ Actor RuinationStacks : Inventory {
 	inventory.maxamount 7
 }
 
+Actor RuinationHardDebuff : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+	Powerup.Color "33 33 99"
+}
+
 Actor RuinBlend : DnD_Activator {
 	States {
 		Pickup:

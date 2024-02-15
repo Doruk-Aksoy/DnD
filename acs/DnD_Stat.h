@@ -186,40 +186,6 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 	HandleHealDependencyCheck();
 }
 
-enum {
-	DND_ARMOR_BONUS,
-	DND_ARMOR_GREEN,
-	DND_ARMOR_YELLOW,
-	DND_ARMOR_BLUE,
-	DND_ARMOR_RED,
-	
-	DND_ARMOR_GUNSLINGER,
-	DND_ARMOR_OCCULT,
-	DND_ARMOR_DEMO,
-	DND_ARMOR_ENERGY,
-	DND_ARMOR_ELEMENTAL,
-	
-	DND_ARMOR_SUPER,
-	DND_ARMOR_CYBERNETIC,
-	DND_ARMOR_DUELIST,
-	DND_ARMOR_NECRO,
-	DND_ARMOR_KNIGHT,
-	DND_ARMOR_RAVAGER,
-	DND_ARMOR_SYNTHMETAL,
-	DND_ARMOR_LIGHTNINGCOIL
-};
-#define MAXARMORS (DND_ARMOR_LIGHTNINGCOIL + 1)
-
-bool IsArmorShredException(int id) {
-	switch(id) {
-		case DND_ARMOR_SUPER:
-		case DND_ARMOR_KNIGHT:
-		case DND_ARMOR_RAVAGER:
-		return true;
-	}
-	return false;
-}
-
 #define DND_SPECIALTYARMOR_REDUCE 75
 #define DND_SPECIALTYARMOR_BUFF 50
 #define DND_KNIGHT_MELEEREDUCE 50
@@ -237,153 +203,16 @@ bool IsArmorShredException(int id) {
 bool IsWearingSpecialtyArmor() {
 	int armor_id = GetArmorID();
 	switch(armor_id) {
-		case DND_ARMOR_GUNSLINGER:
-		case DND_ARMOR_OCCULT:
-		case DND_ARMOR_DEMO:
-		case DND_ARMOR_ENERGY:
-		case DND_ARMOR_ELEMENTAL:
+		case BODYARMOR_GUNSLINGER:
+		case BODYARMOR_OCCULT:
+		case BODYARMOR_DEMO:
+		case BODYARMOR_ENERGY:
+		case BODYARMOR_ELEMENTAL:
 		return true;
 	}
 	return false;
 }
-
-str ArmorIcons[MAXARMORS] = {
-	"BON2C0",
-	"ARM1A0",
-	"ARM3A0",
-	"ARM2A0",
-	"QRARA0",
-	
-	"ARM9A0",
-	"AR10A0",
-	"AR11A0",
-	"AR12A1",
-    "AR14A0",
-    
-    "AR13A0",
-	"ARM4A1",
-	"ARM5A0",
-	"ARM6A0",
-	"ARM7A0",
-	"ARM8A0",
-	"AR15B0",
-	"AR16A0"
-};
-
-enum {
-	DND_ARMORTIER_REGULAR_BONUS,
-	DND_ARMORTIER_REGULAR_GREEN,
-	DND_ARMORTIER_REGULAR_YELLOW,
-	DND_ARMORTIER_REGULAR_BLUE,
-	DND_ARMORTIER_REGULAR_RED,
-	DND_ARMORTIER_SPECIALTY,
-	DND_ARMORTIER_SUPER
-};
-
 #define ARMOR_INTEGER_FACTOR 1000
-/*#define ARMORDATA_BASEAMOUNT 0
-#define ARMORDATA_PROTECTIONFACTOR 1
-#define ARMORDATA_TIER 2
-int ArmorData[MAXARMORS][3] = {
-	{	100,	0.33,	DND_ARMORTIER_REGULAR_BONUS		},
-	{	100,	0.33,	DND_ARMORTIER_REGULAR_GREEN		},
-	{	150,	0.417,	DND_ARMORTIER_REGULAR_YELLOW	},
-	{	200,	0.5,	DND_ARMORTIER_REGULAR_BLUE		},
-	{	300,	0.75,	DND_ARMORTIER_REGULAR_RED		},
-	
-	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
-	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
-	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
-	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
-	{	200,	0.33,	DND_ARMORTIER_SPECIALTY	},
-	
-	{	400,	1.0,	DND_ARMORTIER_SUPER	},
-	{	300,	0.45,	DND_ARMORTIER_SPECIALTY	},
-	{	250,	0.33,	DND_ARMORTIER_SPECIALTY	},
-	{	300,	0.40,	DND_ARMORTIER_SPECIALTY	},
-	{	400,	0.35,	DND_ARMORTIER_SPECIALTY	},
-	{	250,	0.25,	DND_ARMORTIER_SPECIALTY	},
-	{	400,	0.65,	DND_ARMORTIER_SPECIALTY	},
-	{	300,	0.4,	DND_ARMORTIER_SPECIALTY	}
-};*/
-
-int GetArmorAmount() {
-	return CheckInventory("ArmorAmount");
-}
-
-int GetActorArmorAmount(int tid) {
-	return CheckActorInventory(tid, "ArmorAmount");
-}
-
-int GetArmorID() {
-	return CheckInventory("DnD_ArmorType") - 1;
-}
-
-int GetActorArmorID(int tid) {
-	return CheckActorInventory(tid, "DnD_ArmorType") - 1;
-}
-
-void SetArmorAmount(int amt) {
-	SetInventory("ArmorAmount", amt);
-	SetInventory("ArmorAmountVisual", amt);
-}
-
-void AddArmorAmount(int amt) {
-	GiveInventory("ArmorAmount", amt);
-	GiveInventory("ArmorAmountVisual", amt);
-}
-
-void TakeArmorAmount(int amt) {
-	TakeInventory("ArmorAmount", amt);
-	int current_armor = CheckInventory("ArmorAmount");
-	
-	if(current_armor <= CheckInventory("ArmorAmountVisual"))
-		SetInventory("ArmorAmountVisual", current_armor);
-	
-	// no armor left, remove it
-	/*if(!current_armor) {
-		SetInventory("DnD_ArmorType", 0);
-		SetAmmoCapacity("ArmorAmountVisual", GetArmorCapFromID(0));
-		// do a recalc on cache in case player wore specialty armor
-		ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-	}*/
-}
-
-// we always add +1, as 0 is no armor
-/*void SetArmorType(int id) {
-	SetInventory("DnD_ArmorType", id + 1);
-	SetAmmoCapacity("ArmorAmountVisual", GetArmorCapFromID(id));
-}
-
-void UpdateArmorVisual() {
-	SetAmmoCapacity("ArmorAmountVisual", GetArmorCapFromID(GetArmorID()));
-}
-
-#define DND_MIN_ARMOR_EFFICIENCY 0.1
-int GetArmorEfficiency() {
-	int temp = Clamp_Between(GetBulkiness(), 0, DND_STAT_FULLMAX);
-	if(!temp)
-		return 0;
-	
-	if(temp > 100) {
-		temp -= 100;
-		return Clamp_Between(DND_BULKINESS_GAIN * 100 + DND_BULKINESS_GAIN_AFTER100 * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
-	}
-	return Clamp_Between(DND_BULKINESS_GAIN * temp, DND_MIN_ARMOR_EFFICIENCY, 1.0);
-}*/
-
-enum {
-	DND_CKEY_BRONZE,
-	DND_CKEY_SILVER,
-	DND_CKEY_GOLD
-};
-
-#define MAX_CHEST_KEYS DND_CKEY_GOLD + 1
-str ChestKeyTypes[MAX_CHEST_KEYS] = {
-	"BronzeChestKey",
-	"SilverChestKey",
-	"GoldChestKey"
-};
 
 int GetStat(int stat_id) {
 	return CheckInventory(StatData[stat_id]);

@@ -10,6 +10,8 @@
 #define MAX_RIPPERS_ACTIVE 256
 #define MAX_RIPPER_HITS_STORED 128
 
+#define DND_RUINATION_REDUCE_PER_STACK 5
+
 #define DND_MAX_DAMAGELOSEHITS 7 // we let maximum of 70% reduction, so you'll do min 30%
 #define DND_DAMAGELOST_PERCENT 10 // 10%
 
@@ -397,11 +399,11 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	// specialty armor bonuses
 	int temp = GetArmorID();
 	if(
-		(temp == DND_ARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
-		(temp == DND_ARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
-		(temp == DND_ARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
-		(temp == DND_ARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
-		(temp == DND_ARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
+		(temp == BODYARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
+		(temp == BODYARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
+		(temp == BODYARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
+		(temp == BODYARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
+		(temp == BODYARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
 	)
 	{
 		factor += DND_SPECIALTYARMOR_BUFF;
@@ -520,11 +522,11 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// specialty armor bonuses
 		temp = GetArmorID();
 		if(
-			(temp == DND_ARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
-			(temp == DND_ARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
-			(temp == DND_ARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
-			(temp == DND_ARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
-			(temp == DND_ARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
+			(temp == BODYARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
+			(temp == BODYARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
+			(temp == BODYARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
+			(temp == BODYARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
+			(temp == BODYARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
 		)
 		{
 			InsertCacheFactor(pnum, wepid, dmgid, DND_SPECIALTYARMOR_BUFF, true);
@@ -1035,7 +1037,7 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL);
 		
 	// dmg is multiplied by 3/2 = 1.5, 50% more dmg
-	if(GetArmorID() == DND_ARMOR_RAVAGER && CheckInventory("RavagerPower"))
+	if(GetArmorID() == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_DMGMUL, DND_RAVAGER_DMGDIV);
 		
 	// artifact things
@@ -1358,7 +1360,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// sedrin staff armor check
 		// if not sedrin staff, immediately check
 		// if sedrin staff and if we have armor, both are false so no damage to us
-		if(wepid != DND_WEAPON_SEDRINSTAFF || !GetActorArmorAmount(owner)) {
+		if(wepid != DND_WEAPON_SEDRINSTAFF || ActorHasNoArmor(owner)) {
 			// if this flag is in place, do half damage within half radius
 			if(flags & DND_DAMAGEFLAG_HALFDMGSELF)
 				final_dmg = ScaleExplosionToDistance(owner, dmg / 2, radius / 2, fullradius / 2, px, py, pz, proj_r);
@@ -2542,7 +2544,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			dmg = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
 			
 			// factor in players armor here!!!
-			//dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
+			dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 		break;
 	}
 	return dmg;
@@ -2674,9 +2676,24 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	return dmg;
 }
 
-int GetArmorRatingEffect(int dmg) {
+int GetArmorRatingEffect(int dmg, int armor_id, bool isArmorPiercing) {
 	int pnum = PlayerNumber();
 	int rating = GetPlayerArmor(pnum);
+
+	// if these armors can be shredded
+	if(!IsArmorShredException(armor_id)) {
+		if(CheckInventory("RuinationHardDebuff"))
+			rating /= 4;
+		else {
+			pnum = CheckInventory("RuinationStacks");
+			if(pnum)
+				rating -= rating * pnum * DND_RUINATION_REDUCE_PER_STACK / 100;
+		}
+
+		// rating is treated as 50% instead of 100% if monster is armor piercing
+		if(isArmorPiercing)
+			rating >>= 1;
+	}
 
 	// you will need 5 times the damage to gain half reduction
 	return dmg - (dmg * rating) / (rating + 5 * dmg);
@@ -2686,7 +2703,7 @@ int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercin
 	int armor_id = GetArmorID();
 	if(armor_id != -1) {
 		// if we are affected by poison and we dont have a specialty armor providing res to ele dmg, skip this, poison DOT shouldn't be negated by armor
-		if(dmg_string == "PoisonDOT" && armor_id != DND_ARMOR_ELEMENTAL)
+		if(dmg_string == "PoisonDOT" && armor_id != BODYARMOR_ELEMENTAL)
 			return dmg;
 		
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
@@ -2694,12 +2711,12 @@ int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercin
 		int factor = 0.0;
 
 		// apply armor effect on this damage
-		dmg = GetArmorRatingEffect(dmg);
+		dmg = GetArmorRatingEffect(dmg, armor_id, isArmorPiercing);
 		
 		// special armor cases: Knight gives more reduction if using melee weapon, Duelist negates all hitscan 100% at cost of armor
-		if(armor_id == DND_ARMOR_KNIGHT && IsUsingMeleeWeapon())
+		if(armor_id == BODYARMOR_KNIGHT && IsUsingMeleeWeapon())
 			factor += DND_KNIGHTARMOR_MELEEWEP_BONUS;
-		else if(armor_id == DND_ARMOR_DUELIST && (dmg_data & DND_DAMAGETYPEFLAG_HITSCAN))
+		else if(armor_id == BODYARMOR_DUELIST && (dmg_data & DND_DAMAGETYPEFLAG_HITSCAN))
 			factor = 1.0;
 		
 		factor *= ARMOR_INTEGER_FACTOR;
@@ -2709,30 +2726,30 @@ int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercin
 		dmg = ApplyDamageFactor_Safe(dmg, ARMOR_INTEGER_FACTOR - factor, ARMOR_INTEGER_FACTOR);
 		
 		// if we have ravager armor and on killing spree, reduce damage to 3/4 (25% reduced)
-		if(armor_id == DND_ARMOR_RAVAGER && CheckInventory("RavagerPower"))
+		if(armor_id == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
 			dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_FACTOR, DND_RAVAGER_REDUCE);
 		
 		// apply special reductions offered by certain armors
 		if
 		(
-			(armor_id == DND_ARMOR_GUNSLINGER 	&& (dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)) 																						||
-			(armor_id == DND_ARMOR_OCCULT 		&& (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL))																							||
-			(armor_id == DND_ARMOR_DEMO 		&& (dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE))																						||
-			(armor_id == DND_ARMOR_ENERGY 		&& (dmg_data & DND_DAMAGETYPEFLAG_ENERGY))																							||
-			(armor_id == DND_ARMOR_ELEMENTAL 	&& (dmg_data & (DND_DAMAGETYPEFLAG_FIRE | DND_DAMAGETYPEFLAG_ICE | DND_DAMAGETYPEFLAG_POISON | DND_DAMAGETYPEFLAG_LIGHTNING)))
+			(armor_id == BODYARMOR_GUNSLINGER 	&& (dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)) 																						||
+			(armor_id == BODYARMOR_OCCULT 		&& (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL))																							||
+			(armor_id == BODYARMOR_DEMO 		&& (dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE))																						||
+			(armor_id == BODYARMOR_ENERGY 		&& (dmg_data & DND_DAMAGETYPEFLAG_ENERGY))																							||
+			(armor_id == BODYARMOR_ELEMENTAL 	&& (dmg_data & (DND_DAMAGETYPEFLAG_FIRE | DND_DAMAGETYPEFLAG_ICE | DND_DAMAGETYPEFLAG_POISON | DND_DAMAGETYPEFLAG_LIGHTNING)))
 		)
 		{
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_SPECIALTYARMOR_REDUCE);
 		}
-		else if(armor_id == DND_ARMOR_KNIGHT && dmg_string == "Melee")
+		else if(armor_id == BODYARMOR_KNIGHT && dmg_string == "Melee")
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_KNIGHT_MELEEREDUCE);
-		else if(armor_id == DND_ARMOR_SYNTHMETAL) {
+		else if(armor_id == BODYARMOR_SYNTHMETAL) {
 			if(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)
 				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_SYNTHMETAL_HITSCANBUFF);
 			else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING)
 				dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_SYNTHMETAL_LIGHTNINGNERF);
 		}
-		else if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == DND_ARMOR_LIGHTNINGCOIL)
+		else if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_LIGHTNINGCOIL_SPECIAL);
 	}
 	
@@ -2786,11 +2803,11 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 	
 	// necro and lightning coil chance
 	int temp = GetActorArmorID(this);
-	if(temp == DND_ARMOR_NECRO && !CheckActorInventory(this, "NecroSpikeCooldown") && !random(0, 2)) {
+	if(temp == BODYARMOR_NECRO && !CheckActorInventory(this, "NecroSpikeCooldown") && !random(0, 2)) {
 		GiveActorInventory(this, "NecroSpikeShooter", 1);
 		GiveActorInventory(this, "NecroSpikeCooldown", 1);
 	}
-	else if(temp == DND_ARMOR_LIGHTNINGCOIL && !CheckActorInventory(this, "LightningCoilCooldown") && !random(0, 3)) {
+	else if(temp == BODYARMOR_LIGHTNINGCOIL && !CheckActorInventory(this, "LightningCoilCooldown") && !random(0, 3)) {
 		// 25% chance
 		GiveActorInventory(this, "LightningCoilShooter", 1);
 		GiveActorInventory(this, "LightningCoilCooldown", 1);

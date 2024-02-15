@@ -39,3 +39,108 @@ Graphic "ARWICO4", 31, 18
 	YScale 0.500
 	Patch "ARICO4", 0, 0
 }
+
+Graphic "ARWICO5", 31, 33
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO5", 0, 0
+}
+
+Graphic "ARWICO6", 32, 29
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO6", 0, 0
+}
+
+Graphic "ARWICO7", 31, 17
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO7", 0, 0
+}
+
+Graphic "ARWICO8", 31, 28
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO8", 0, 0
+}
+
+Graphic "ARWICO9", 32, 30
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO9", 0, 0
+}
+
+Graphic "ARWICO10", 33, 33
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO10", 0, 0
+}
+
+Graphic "ARWICO11", 39, 20
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO11", 0, 0
+}
+
+Graphic "ARWICO12", 22, 24
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO12", 0, 0
+}
+
+Graphic "ARWICO13", 33, 27
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO13", 0, 0
+}
+
+Graphic "ARWICO13", 33, 27
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO13", 0, 0
+}
+
+Graphic "ARWICO13", 32, 31
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO13", 0, 0
+}
+
+Graphic "ARWICO14", 31, 29
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO14", 0, 0
+}
+
+Graphic "ARWICO15", 31, 29
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO15", 0, 0
+}
+
+Graphic "ARWICO16", 49, 41
+{
+	XScale 0.875
+	YScale 0.875
+	Patch "ARICO16", 0, 0
+}
+
+Graphic "ARWICO17", 27, 26
+{
+	XScale 0.500
+	YScale 0.500
+	Patch "ARICO17", 0, 0
+}

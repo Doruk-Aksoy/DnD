@@ -851,6 +851,7 @@ ACTOR ShadowPriest : DnD_BaseRangedMonster {
 	PainSound "monster/acopai"
 	DeathSound "monster/acodth"
 	ActiveSound "monster/acoact"
+	Species "Cacodemon"
 	Tag "Shadow Priest"
 	States {
 		SetInfo:

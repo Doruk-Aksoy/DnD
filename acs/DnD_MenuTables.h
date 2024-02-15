@@ -1243,27 +1243,6 @@ void DrawAmmoExplanation(int itemid) {
 		);
 }
 
-struct draw_info ArmorDrawInfo[MAXARMORS] = {
-	{ OBJ_ARMOR, 								-1 										},
-	{ OBJ_ARMOR, 								-1										},
-	{ OBJ_ARMOR, 								-1 										},
-	{ OBJ_ARMOR, 								-1 										},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_GUNSLINGER	 					    },
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_OCCULT	 							},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_DEMO	 								},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_ENERGY	 							},
-    { OBJ_ARMOR | OBJ_RESEARCH,         SHOP_ARMOR_ELEMENTAL                            },
-    
-    { OBJ_ARMOR | OBJ_RESEARCH,         SHOP_ARMOR_MONOLITH                             },
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_CYBERNETIC		 					},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_DUELIST	 							},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_NECRO		 						},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_KNIGHT	 							},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_RAVAGER		 						},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_SYNTHMETAL		 					},
-	{ OBJ_ARMOR | OBJ_RESEARCH, 		SHOP_ARMOR_LIGHTNINGCOIL		 				}
-};
-
 struct draw_info AbilityDrawInfo[MAXABILITIES] = {
 	{ OBJ_ABILITY, 								SHOP_ABILITY_KICK 								},
 	{ OBJ_ABILITY, 								SHOP_ABILITY_RELOAD								},

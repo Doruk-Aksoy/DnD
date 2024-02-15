@@ -175,6 +175,9 @@ enum {
 	INV_CHANCE_AILMENTIGNORE,
 	INV_CHANCE_FLATIGNITE,
 	INV_CHANCE_FLATPROLIF,
+
+	INV_SHIELD_INCREASE,
+	INV_PERCENTSHIELD_INCREASE,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -190,6 +193,8 @@ enum {
 
 	// implicits -- add new ones below here
 	INV_IMP_INCARMOR = IMPLICIT_ATTRIB_ID_BEGIN,
+	INV_IMP_INCSHIELD,
+	INV_IMP_INCARMORSHIELD,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
@@ -244,7 +249,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_CHANCE_FLATPROLIF
+#define LAST_INV_ATTRIBUTE INV_PERCENTSHIELD_INCREASE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -256,7 +261,7 @@ enum {
 #define LAST_CORRUPT_IMPLICIT INV_CORR_WEAPONFORCEPAIN
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_INCARMOR
+#define LAST_REGULAR_IMPLICIT INV_IMP_INCARMORSHIELD
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -1007,6 +1012,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_FLATPROLIF].attrib_level_modifier = 0;
 	ItemModTable[INV_CHANCE_FLATPROLIF].tags = INV_ATTR_TAG_ELEMENTAL;
 
+	ItemModTable[INV_SHIELD_INCREASE].attrib_low = 3;
+	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 7;
+	ItemModTable[INV_SHIELD_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_SHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_low = 1;
+	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 4;
+	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTSHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+
 	/////////////////////////
 	// corrupted implicits //
 	/////////////////////////
@@ -1063,6 +1078,15 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_IMP_INCARMOR].attrib_level_modifier = 0;
 	ItemModTable[INV_IMP_INCARMOR].tags = INV_ATTR_TAG_DEFENSE;
 
+	ItemModTable[INV_IMP_INCSHIELD].attrib_low = 100000;
+	ItemModTable[INV_IMP_INCSHIELD].attrib_high = -1;
+	ItemModTable[INV_IMP_INCSHIELD].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_INCSHIELD].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_low = 100000;
+	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_high = -1;
+	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_INCARMORSHIELD].tags = INV_ATTR_TAG_DEFENSE;
 
 	///////////////////////////////
 	// essences from here on out //
@@ -1400,6 +1424,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		// since percentages are handled in default case, we will handle all flat value attributes under here
 		case INV_HP_INCREASE:
 		case INV_ARMOR_INCREASE:
+		case INV_SHIELD_INCREASE:
 		case INV_FLATPHYS_DAMAGE:
 		case INV_FLATENERGY_DAMAGE:
 		case INV_FLATEXP_DAMAGE:
@@ -1447,6 +1472,8 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		// this doesn't have detailed mod explanation on purpose, each item has their own presets
 		case INV_IMP_INCARMOR:
+		case INV_IMP_INCSHIELD:
+		case INV_IMP_INCARMORSHIELD:
 			return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
 
 		case INV_CORR_WEAPONFORCEPAIN:

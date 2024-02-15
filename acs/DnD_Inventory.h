@@ -41,6 +41,18 @@
 #define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED)
 
 enum {
+	SMALLCHARM_INDEX1,
+	SMALLCHARM_INDEX2,
+	SMALLCHARM_INDEX3,
+	SMALLCHARM_INDEX4,
+	MEDIUMCHARM_INDEX1,
+	MEDIUMCHARM_INDEX2,
+	LARGECHARM_INDEX,
+	BODY_ARMOR_INDEX,
+	BOOT_INDEX
+};
+
+enum {
 	IPROCESS_ADD,
 	IPROCESS_REMOVE
 };
@@ -121,6 +133,22 @@ enum {
 	IIMG_ARM_2,
 	IIMG_ARM_3,
 	IIMG_ARM_4,
+
+	IIMG_ARM_5,
+	IIMG_ARM_6,
+	IIMG_ARM_7,
+	IIMG_ARM_8,
+	IIMG_ARM_9,
+
+	IIMG_ARM_10,
+	IIMG_ARM_11,
+	IIMG_ARM_12,
+	IIMG_ARM_13,
+	IIMG_ARM_14,
+	IIMG_ARM_15,
+
+	IIMG_ARM_16,
+	IIMG_ARM_17,
 	
 	IIMG_CKEY_1,
 	IIMG_CKEY_2,
@@ -143,7 +171,7 @@ enum {
 #define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_REPAIR
 
 #define ITEM_IMAGE_ARMOR_BEGIN IIMG_ARM_1
-#define ITEM_IMAGE_ARMOR_END IIMG_ARM_4
+#define ITEM_IMAGE_ARMOR_END IIMG_ARM_17
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
 
@@ -190,6 +218,7 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "T";
 		suffix = id - ITEM_IMAGE_TOKEN_BEGIN + 1;
 	}
+	Log(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 	return StrParam(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 }
 
@@ -581,6 +610,10 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 	return true;
 }
 
+bool IsWearingBodyArmor(int pnum) {
+	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_BODYARMOR;
+}
+
 int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target_type) {
 	int i, j;
 	
@@ -596,11 +629,13 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	if(DoUniqueCheck(pnum, use_id, item_index, target_type))
 		return POPUP_ONLYONEUNIQUE;
 	
+	// special condition checks
+	bool isUnique = PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN;
 	// tried to put well of power, but have too many small charms -- its always attribute id 2 on well of power
 	// we have to check for that specifically because technically its not equipped yet, so player has no tokens of it on them
 	if
 	(
-		PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN && 
+		isUnique && 
 		(PlayerInventoryList[pnum][item_index].item_type >> UNIQUE_BITS) - 1 == UITEM_WELLOFPOWER &&
 		CountPlayerSmallCharms(pnum) > PlayerInventoryList[pnum][item_index].attributes[2].attrib_val
 	)
@@ -609,7 +644,20 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	// or tried to put small charm when well of power is there and would exceed limit
 	if(target_type == DND_CHARM_SMALL && (i = GetPlayerAttributeValue(pnum, INV_EX_LIMITEDSMALLCHARMS)) && i == CountPlayerSmallCharms(pnum))
 		return POPUP_NOMORESMALLCHARMS;
-		
+
+	// if has forbid armor but has equipped body armor, don't allow that item to be put, and vice versa if has no armor and has forbid armor etc.
+	if
+	(
+		isUnique &&
+		(PlayerInventoryList[pnum][item_index].item_type >> UNIQUE_BITS) - 1 == UITEM_OAKHEART &&
+		IsWearingBodyArmor(pnum)
+	)
+		return POPUP_CANTWEARBODYARMOR;
+
+	if(item_type == DND_ITEM_BODYARMOR && GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR))
+		return POPUP_CANTPUTONBODYARMOR;
+
+	// proceed to equip the item now
 	// request damage cache recalculation
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	
@@ -1407,7 +1455,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			);
 		}
 		else if(itype == DND_ITEM_BODYARMOR) {
-			HudMessage(s:GetArmorInventoryTag(isubt); 
+			HudMessage(s:"\c[Y5]", s:GetArmorInventoryTag(isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
@@ -1563,6 +1611,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetInventoryName(stype + CHESTKEY_BEGIN);
 	else if(itype == DND_ITEM_TOKEN)
 		droptype = GetInventoryName(stype + TOKEN_BEGIN);
+	else if(itype == DND_ITEM_BODYARMOR)
+		droptype = GetArmorDropClass(stype);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 

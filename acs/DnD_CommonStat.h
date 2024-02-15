@@ -187,7 +187,7 @@ enum {
 
 #define DND_EXP_RES_ABILITY_BONUS 50
 
-global int 1: StatListOpened[];
+global int 1: StatListOpened[MAXPLAYERS];
 
 #define MAX_MAP_DIFFICULTIES 5
 global int 4: MapDifficulty;
