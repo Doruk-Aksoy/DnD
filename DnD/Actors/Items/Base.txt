@@ -402,6 +402,7 @@ ACTOR ProjBullet : FastProjectile {
 			TRAC A -1 Bright
 		Stop
 		Death:
+		Crash:
 			TNT1 A 1 A_SpawnItemEx("NewBulletPuff")
 		Stop
 		XDeath:
@@ -523,6 +524,11 @@ Actor DnD_Credit_Counter : Inventory {
 Actor DnD_Hit_Cooldown : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration 9
+}
+
+Actor DnD_Hit_CombatTimer : PowerProtection {
+	damagefactor "normal", 1
+	powerup.duration -3
 }
 
 Actor MarkAsReflected : DnD_Activator {

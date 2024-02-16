@@ -21,6 +21,9 @@ bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
 #define DND_SAVAGERY_MASTERYBONUS 100
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
+#define ESHIELD_RECHARGEDELAY_BASE (10 * TICRATE) // base time is 10 seconds
+#define ESHIELD_RECOVERYRATE_TICS 1
+
 #define EXO_AR_ADD_1 5
 #define EXO_AR_ADD_2 6
 #define EXO_AR_ADD_3 9
@@ -226,6 +229,12 @@ str GetStatLabel(int id) {
 
 int GetActorStat(int tid, int stat_id) {
 	return CheckActorInventory(tid, StatData[stat_id]);
+}
+
+int GetPlayerEnergyShieldCap(int pnum) {
+	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
+	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE))) / 100;
+	return base;
 }
 
 void GiveStat(int stat_id, int amt) {

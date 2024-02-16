@@ -328,6 +328,8 @@ IATTR_T100			= "to ignite proliferation chance";
 
 IATTR_T101			= "to energy shield";
 IATTR_T102			= "increased energy shield";
+IATTR_T103			= "increased energy shield recovery rate";
+IATTR_T104			= "faster start of energy shield recharge";
 
 // corrupt implicits
 

@@ -1,6 +1,11 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+EShield/Hit				ESHLDHIT
+EShield/Break			ESHLDBRK
+EShield/Begin			ESHLDBGN
+EShield/Finish			ESHLDFIN
+
 Items/ArmorEquip		ARMEQUI
 
 weapons/bigcharge		BIGCHARG

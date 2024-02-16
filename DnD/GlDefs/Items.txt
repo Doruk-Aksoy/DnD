@@ -22,54 +22,6 @@ pointlight YELLOWARMOR2
     size 32
 }
 
-object GreenArmorPickup_MP
-{
-    frame ARM1A { light GREENARMOR1 }
-    frame ARM1B { light GREENARMOR2 }
-}
-
-object GreenArmor_SP
-{
-    frame ARM1A { light GREENARMOR1 }
-    frame ARM1B { light GREENARMOR2 }
-}
-
-object BlueArmorPickup_MP
-{
-    frame ARM2A { light BLUEARMOR1 }
-    frame ARM2B { light BLUEARMOR2 }
-}
-
-object BlueArmor_SP
-{
-    frame ARM2A { light BLUEARMOR1 }
-    frame ARM2B { light BLUEARMOR2 }
-}
-
-object YellowArmorPickup_MP
-{
-    frame ARM2A { light YELLOWARMOR1 }
-    frame ARM2B { light YELLOWARMOR2 }
-}
-
-object YellowArmor_SP
-{
-    frame ARM2A { light YELLOWARMOR1 }
-    frame ARM2B { light YELLOWARMOR2 }
-}
-
-object RedArmorPickup_MP
-{
-    frame ARM2A { light THEREDARMOR1 }
-    frame ARM2B { light THEREDARMOR2 }
-}
-
-object RedArmor_SP
-{
-    frame ARM2A { light THEREDARMOR1 }
-    frame ARM2B { light THEREDARMOR2 }
-}
-
 object NewHealthBonus
 {
     frame BON1 { light HEALTHPOTION }

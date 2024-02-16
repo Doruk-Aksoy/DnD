@@ -178,6 +178,8 @@ enum {
 
 	INV_SHIELD_INCREASE,
 	INV_PERCENTSHIELD_INCREASE,
+	INV_SHIELD_RECOVERYRATE,
+	INV_SHIELD_RECHARGEDELAY,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -1021,6 +1023,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 4;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_low = 3;
+	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_high = 5;
+	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_level_modifier = 0;
+	ItemModTable[INV_SHIELD_RECOVERYRATE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_low = 2;
+	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_high = 7;
+	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_level_modifier = 0;
+	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE;
 
 	/////////////////////////
 	// corrupted implicits //

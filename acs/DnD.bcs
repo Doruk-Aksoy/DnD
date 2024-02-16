@@ -63,8 +63,8 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 				GiveInventory("HPBelow25", 1);
 			}
 			
-			/*item = GetArmorAmount();
-			itemcomp = GetArmorCapFromID(GetArmorID());
+			item = CheckInventory("EShieldAmount");
+			itemcomp = GetAmmoCapacity("EShieldAmountVisual");
 			if(item > itemcomp) {
 				// can happen with armor bonuses -- up to maximum of x2 of cap (only fully reached with ubersphere)
 				SetAmmoCapacity("ARMOverAmount", itemcomp * 2);
@@ -97,7 +97,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 				TakeInventory("ARMNormal", 1);
 				TakeInventory("ARMBelow50", 1);
 				GiveInventory("ARMBelow25", 1);
-			}*/
+			}
 				
 			if(((Timer() * 98) / (100 * TICRATE)) < GetLevelInfo(LEVELINFO_PAR_TIME))
 				GiveInventory("H_UnderPar", 1);
@@ -3566,9 +3566,87 @@ Script "DnD Periodic Regeneration" ENTER {
 					LocalAmbientSound("ability/regen", 127);
 				}
 			}
+
+			// energy shield regeneration
+			amt = GetPlayerEnergyShieldCap(pnum);
+			if(amt && !CheckInventory("EShieldCharging") && !CheckInventory("DnD_Hit_CombatTimer"))
+				ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, amt, pnum);
 		}
 		Delay(const:TICRATE);
 	}
+}
+
+Script "DnD Energy Shield Regen" (int cap, int pnum) {
+	GiveInventory("EShieldCharging", 1);
+
+	// minimum wait time will always be 1 second before a recovery can start
+	int rchrg = ESHIELD_RECHARGEDELAY_BASE;
+	rchrg = rchrg * (100 - GetPlayerAttributeValue(pnum, INV_SHIELD_RECHARGEDELAY)) / 100;
+	if(rchrg < TICRATE)
+		rchrg = TICRATE;
+
+	// if we get hit, stop this
+	rchrg /= 5;
+	int count = 0;
+	while(count < 5) {
+		++count;
+
+		if(!isAlive() || CheckInventory("DnD_Hit_CombatTimer"))
+			Terminate;
+
+		Delay(rchrg);
+	}
+
+	LocalAmbientSound("EShield/Begin", 127);
+	ACS_NamedExecuteAlways("DnD Energy Shield FX", 0, cap, pnum);
+
+	// we can start the recovery now, but we still have to check if we enter combat etc.
+	rchrg = (cap * GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE)) / 1000;
+	if(!rchrg)
+		rchrg = 1;
+
+	while(isAlive() && CheckInventory("EShieldAmount") < cap) {
+		AddEnergyShield(rchrg);
+
+		if(CheckInventory("EShieldAmount") >= cap)
+			SetEnergyShield(cap);
+		
+		if(CheckInventory("DnD_Hit_CombatTimer"))
+			Terminate;
+
+		Delay(ESHIELD_RECOVERYRATE_TICS);
+	}
+
+	if(isAlive())
+		LocalAmbientSound("EShield/Finish", 127);
+}
+
+Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	int amt;
+	int x, y, a;
+	while(isAlive() && !CheckInventory("DnD_Hit_CombatTimer") && (amt = CheckInventory("EShieldAmount")) < cap) {
+		// get how far off we are from completion to adjust position and alpha
+		int pct = amt * 100.0 / cap;
+
+		SetHudSize(640, 480, 0);
+		SetFont("SHLDLFT");
+
+		x = (GetHudLeft(640) << 16) - 120.0;
+		y = 0.0;
+		a = abs(sin(pct / 50)) % 1.0;
+		HudMessage(s:"A";  HUDMSG_FADEINOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_LEFT_ID, CR_WHITE, GetIntegerBits(x + 80 * pct / 100) + 0.2, y, 0.75, 0.0, 0.75, a);
+
+		SetFont("SHLDRGT");
+		x = (GetHudRight(640) << 16) - 136.0;
+		HudMessage(s:"A";  HUDMSG_FADEINOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_RIGHT_ID, CR_WHITE, GetIntegerBits(x - 80 * pct / 100) + 0.1, y, 0.75, 0.0, 0.75, a);
+
+		Delay(const:1);
+	}
+
+	GiveInventory("EShieldBlend", 1);
 }
 
 Script "DnD Lifesteal Script" (void) {
@@ -5634,71 +5712,7 @@ Script "DnD Play Taunt Sound" (int pclass) CLIENTSIDE {
 	PlaySound(0, snd, CHAN_BODY, 1.0);
 }
 
-// this is also no longer in use
-/*Script "DnD Store Projectile Owner" (int isPet) {
-	int target = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
-	SetActorProperty(0, APROP_SCORE, target);
-	
-	// hack for crit store on burst fire projectiles
-	if(CheckActorInventory(target, "DnD_CritToken"))
-		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
-
-	SetResultValue(0);
-*/
-
-/*Script "DnD Check Spawner Crit" (int isPlayer) {
-	int owner = 0;
-	int ptr = isPlayer ? AAPTR_MASTER : AAPTR_TARGET;
-	SetActivator(0, ptr);
-	
-	int crit_state = GetActorProperty(0, APROP_ACCURACY);
-	
-	if(!(test_shit % 4))
-		printbold(s:"Intermediary owner ", s:GetActorClass(0));
-	
-	SetActivator(0, AAPTR_TARGET);
-	
-	owner = ActivatorTID();
-	
-	if(!(test_shit % 4))
-		printbold(s:"Intermediary owner #2 ", s:GetActorClass(0), s: " ", d:owner);
-
-	SetResultValue(crit_state == DND_CRIT_TOKEN | (owner << 8));
-}
-
-Script "DnD Check Puff Crit" (void) {
-	int owner = GetActorProperty(0, APROP_TARGETTID);
-	if(owner && CheckActorInventory(owner, "DnD_CritToken")) {
-		if(!(test_shit % 4))
-			printbold(s:"update puff crit state ", d:DND_CRIT_TOKEN);
-		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
-	}
-}*/
-
 Script "DnD Projectile Checks" (int isPet) {
-	/*int temp;
-	bool hasCrit = GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
-	
-	++test_shit;
-	
-	// no crit state -- we must climb up some predecessors and obtain their values if possible
-	if(!hasCrit) {
-		temp = ACS_NamedExecuteWithResult("DnD Check Spawner Crit", GetActorProperty(0, APROP_TARGETTID));
-		hasCrit = !!(temp & 0xFF);
-		temp >>= 8;
-		
-		SetActorProperty(0, APROP_ACCURACY, hasCrit * DND_CRIT_TOKEN);
-		
-		// do owner correction
-		if(temp) {
-			SetPointer(AAPTR_TARGET, temp >> 8);
-			SetActorProperty(0, APROP_TARGETTID, temp >> 8);
-		}
-		
-		if(!(test_shit % 4))
-			printbold(s:GetActorClass(0), s:" Owned by ", d:GetActorProperty(0, APROP_TARGETTID), s: " crit: ", d:hasCrit, s: " ", d:GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN);
-	}*/
-
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
 	int pnum = owner - P_TIDSTART;
 	int wepid = CheckActorInventory(owner, "DnD_WeaponID");
@@ -5897,25 +5911,6 @@ Script "DnD Kanji Explosion" (int x, int y, int z) {
 	
 	SetResultValue(0);
 }
-
-/*Script "DnD Create Kanji Trap" (void) {
-	int a = GetActorAngle(0);
-	int p = GetActorPitch(0);
-	int tid = KANJI_TRAP_TID + PlayerNumber();
-	int owner = ActivatorTID();
-	
-	SpawnForced("DemonSealTrap", GetActorX(0), GetActorY(0), GetActorZ(0), tid);
-	SetActivator(tid);
-	Thing_ChangeTID(0, 0);
-	SetActorProperty(0, APROP_TARGETTID, owner);
-	SetPointer(AAPTR_TARGET, owner);
-	SetActorVelocity(0, FixedMul(64 * cos(a), cos(p)), FixedMul(64 * sin(a), cos(p)), -64 * sin(p), 0, 0);
-	
-	if(CheckActorInventory(owner, "DnD_CritToken"))
-		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
-	
-	SetResultValue(0);
-}*/
 
 Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
 	SetActorState(0, "Remove", 0);

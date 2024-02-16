@@ -1379,11 +1379,6 @@ menu_inventory_T& GetInventoryPane() {
 	return pane;
 }
 
-menu_trade_T& GetTradePane() {
-	static menu_trade_T pane;
-	return pane;
-}
-
 void DisableBoxesInPane(menu_inventory_T& p, int beg, int end) {
 	for(int i = beg; i <= end; ++i)
 		p.MenuRectangles[i].topleft_x = -1;
@@ -1394,6 +1389,7 @@ void DisableBoxInPane(menu_inventory_T& p, int i) {
 }
 
 void EnableBoxWithPoints(menu_inventory_T& p, int box, int tx, int ty, int bx, int by) {
+	//Log(d:box, s:" ", d:MAX_INVENTORY_BOXES);
 	p.MenuRectangles[box].topleft_x = tx;
 	p.MenuRectangles[box].topleft_y = ty;
 	p.MenuRectangles[box].botright_x = bx;
@@ -1406,6 +1402,7 @@ bool IsBoxEnabled(menu_inventory_T& p, int box) {
 
 // deepcopy to avoid accidental overriding
 void AddBoxToPane(menu_pane_T& p, rect_T& box) {
+	//Log(s:"add box ", d:p.cursize);
 	//if(p.cursize < MAX_MENU_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
 		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
@@ -1417,19 +1414,8 @@ void AddBoxToPane(menu_pane_T& p, rect_T& box) {
 		Log(s:"Menu box limit exceeded.");*/
 }
 
-void AddBoxToTrade(menu_trade_T? p, rect_T& box) {
-	//if(p.cursize < 3 * MAX_INVENTORY_BOXES + 2) {
-		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
-		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
-		p.MenuRectangles[p.cursize].botright_x = box.botright_x;
-		p.MenuRectangles[p.cursize].botright_y = box.botright_y;
-		++p.cursize;
-	/*}
-	else
-		Log(s:"Menu box limit exceeded.");*/
-}
-
 void AddBoxToInventory(menu_inventory_T? p, rect_T& box) {
+	//Log(s:"add box inv ", d:p.cursize);
 	//if(p.cursize < MAX_INVENTORY_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
 		p.MenuRectangles[p.cursize].topleft_y = box.topleft_y;
@@ -2214,13 +2200,13 @@ rect_T& LoadCraftingViewRect(int id) {
 	return bp[id];
 }
 
-void LoadTradeView(menu_trade_T& p) {
+void LoadTradeView(menu_inventory_T& p) {
 	p.cursize = 0;
 	for(int i = 0; i < 3 * MAX_INVENTORY_BOXES + 2; ++i) {
 		auto r = LoadTradeViewRect(i);
 		if(r.topleft_x != -1) {
 			// Log(s:"Adding box: ", f:bp[menu_page][i].topleft_x, s: " ", f:bp[menu_page][i].topleft_y, s: " ", f:bp[menu_page][i].botright_x, s: " ", f:bp[menu_page][i].botright_y);
-			AddBoxToTrade(p, r);
+			AddBoxToInventory(p, r);
 		}
 		else
 			break;
@@ -2240,13 +2226,13 @@ void LoadInventoryView(menu_inventory_T& p) {
 	}
 }
 
-void LoadStashView(menu_trade_T& p) {
+void LoadStashView(menu_inventory_T& p) {
 	p.cursize = 0;
 	for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES; ++i) {
 		auto r = LoadStashViewRect(i);
 		if(r.topleft_x != -1) {
 			// Log(s:"Adding box: ", f:bp[menu_page][i].topleft_x, s: " ", f:bp[menu_page][i].topleft_y, s: " ", f:bp[menu_page][i].botright_x, s: " ", f:bp[menu_page][i].botright_y);
-			AddBoxToTrade(p, r);
+			AddBoxToInventory(p, r);
 		}
 		else
 			break;
@@ -2296,7 +2282,7 @@ int GetTriggeredBoxOnCraftingPane(menu_inventory_T& p, int mx, int my) {
 	return MAINBOX_NONE;
 }
 
-int GetTriggeredBoxOnTradePane(menu_trade_T& p, int mx, int my) {
+int GetTriggeredBoxOnTradePane(menu_inventory_T& p, int mx, int my) {
 	if(mx >= 465.0 || mx <= 30.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
@@ -2306,7 +2292,7 @@ int GetTriggeredBoxOnTradePane(menu_trade_T& p, int mx, int my) {
 	return MAINBOX_NONE;
 }
 
-int GetTriggeredBoxOnStashPane(menu_trade_T& p, int mx, int my) {
+int GetTriggeredBoxOnStashPane(menu_inventory_T& p, int mx, int my) {
 	if(mx >= 304.0 || my <= 27.0 || mx <= 68.0 || my >= 293.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {

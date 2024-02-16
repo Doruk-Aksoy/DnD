@@ -155,14 +155,9 @@ enum {
 int InventoryBoxLit[MAXLITBOXES];
 
 typedef struct mi {
-	rect_T MenuRectangles[MAX_INVENTORY_BOXES];
-	int cursize;
-} menu_inventory_T;
-
-typedef struct mt {
 	rect_T MenuRectangles[3 * MAX_INVENTORY_BOXES + 2];
 	int cursize;
-} menu_trade_T;
+} menu_inventory_T;
 
 #define MAX_STACK_ELEMS 16
 typedef struct menu_stack {

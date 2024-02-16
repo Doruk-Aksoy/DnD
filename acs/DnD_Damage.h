@@ -2544,7 +2544,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			dmg = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
 			
 			// factor in players armor here!!!
-			dmg = HandlePlayerArmor(dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
+			dmg = HandlePlayerArmor(pnum, dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 		break;
 	}
 	return dmg;
@@ -2699,7 +2699,7 @@ int GetArmorRatingEffect(int dmg, int armor_id, bool isArmorPiercing) {
 	return dmg - (dmg * rating) / (rating + 5 * dmg);
 }
 
-int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
+int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
 	if(armor_id != -1) {
 		// if we are affected by poison and we dont have a specialty armor providing res to ele dmg, skip this, poison DOT shouldn't be negated by armor
@@ -2751,6 +2751,24 @@ int HandlePlayerArmor(int dmg, str dmg_string, int dmg_data, bool isArmorPiercin
 		}
 		else if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_LIGHTNINGCOIL_SPECIAL);
+	}
+
+	// energy shield reduction
+	int temp = CheckInventory("EShieldAmount");
+	if(dmg_string != "PoisonDOT" && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) && temp) {
+		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
+		dmg -= temp;
+		if(dmg < 0) {
+			// completely absorbed by our shield, so set our shield to -dmg
+			SetEnergyShield(-dmg);
+			dmg = 0;
+			LocalAmbientSound("EShield/Hit", 127);
+		}
+		else {
+			// fully depleted if dmg >= shield, we couldnt reduce it
+			SetEnergyShield(0);
+			LocalAmbientSound("EShield/Break", 127);
+		}
 	}
 	
 	return dmg;
@@ -2972,6 +2990,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// resists of player now will factor in after we've calculated the damage accurately
 			if(IsPlayer(victim)) {
 				pnum = victim - P_TIDSTART;
+
+				// out of combat hit timer, 3 seconds
+				GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 				
 				if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
 					OnPlayerHit(victim, pnum, shooter, true);
@@ -3001,7 +3022,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 				
 				// finally apply player armor
-				dmg = HandlePlayerArmor(dmg, arg2, dmg_data, isArmorPiercing);
+				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);
 					
 				// doomguy demon reduction
 				if(IsMonsterIdDemon(m_id) && CheckInventory("Doomguy_Perk5"))
@@ -3073,7 +3094,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 			
 			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
-			dmg = HandlePlayerArmor(dmg, arg2, dmg_data, false);
+			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
 			//GiveInventory("DnD_DamageReceived", dmg);
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);

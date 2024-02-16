@@ -103,7 +103,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
         case BODYARMOR_RED:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_4;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 300, 0, item_tier, 150);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 150);
 		break;
 
 		case BODYARMOR_GUNSLINGER:
@@ -129,11 +129,11 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 
 		case BODYARMOR_MONOLITH:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_10;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 200, 0, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 150, 0, item_tier, 75);
 		break;
 		case BODYARMOR_CYBER:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_11;
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 250, 0, item_tier, 150);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 185, 0, item_tier, 90);
 		break;
 		case BODYARMOR_DUELIST:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_12;
@@ -158,7 +158,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 		case BODYARMOR_LIGHTNINGCOIL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_17;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 180, 0, item_tier, 90);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 125, 0, item_tier, 60);
 		break;
 	}
 	
@@ -205,6 +205,25 @@ bool IsArmorShredException(int id) {
 		return true;
 	}
 	return false;
+}
+
+void SetEnergyShield(int val) {
+	SetInventory("EShieldAmount", val);
+	SetInventory("EShieldAmountVisual", val);
+}
+
+void AddEnergyShield(int val) {
+	GiveInventory("EShieldAmount", val);
+	GiveInventory("EShieldAmountVisual", val);
+}
+
+void TakeEnergyShield(int val) {
+	TakeInventory("EShieldAmount", val);
+	TakeInventory("EShieldAmountVisual", val);
+}
+
+void UpdateEnergyShieldVisual(int val) {
+	SetAmmoCapacity("EShieldAmountVisual", val);
 }
 
 void SpawnBodyArmor(int pnum, int rarity_boost, bool noRepeat = false, int tiers = 0) {

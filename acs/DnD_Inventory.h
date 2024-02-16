@@ -24,7 +24,7 @@
 
 #define MAXSTACKS_ORB 128
 #define MAXSTACKS_CKEY 32
-#define MAXSTACKS_ELIXIR 25
+#define MAXSTACKS_TOKEN 30
 
 #define HUD_DII_FIELD_MULT 10
 
@@ -218,7 +218,7 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "T";
 		suffix = id - ITEM_IMAGE_TOKEN_BEGIN + 1;
 	}
-	Log(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
+	//Log(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 	return StrParam(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 }
 
@@ -378,7 +378,7 @@ int GetStackValue(int type) {
 		case DND_ITEM_CHESTKEY:
 		return MAXSTACKS_CKEY;
 		case DND_ITEM_TOKEN:
-		return MAXSTACKS_ELIXIR;
+		return MAXSTACKS_TOKEN;
 	}
 	return 0;
 }
@@ -2140,6 +2140,12 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			UpdatePlayerKnockbackResist();
 		break;
+
+		case INV_SHIELD_INCREASE:
+		case INV_PERCENTSHIELD_INCREASE:
+			IncPlayerModValue(pnum, atype, aval, noSync);
+			UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+		break;
 		
 		// anything that fits our generic formula
 		default:
@@ -2199,6 +2205,20 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		aval = -aval;
 
 	switch(atype) {
+		// standard implicits
+		case INV_IMP_INCARMOR:
+			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
+		break;
+		case INV_IMP_INCSHIELD:
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
+			UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+		break;
+		case INV_IMP_INCARMORSHIELD:
+			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
+			UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+		break;
+
 		// corrupted implicits
 		// non-weapon mods
 		case INV_CORR_SPEED:

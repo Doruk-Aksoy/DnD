@@ -165,7 +165,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
-	auto TradePane = GetTradePane();
 	
 	// initialize cursor data
 	PlayerCursorData.itemHovered = -1;
@@ -211,9 +210,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				if(CheckInventory("DnD_InventoryView"))
 					boxid = GetTriggeredBoxOnInventoryPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
 				else if(CheckInventory("InTradeView"))
-					boxid = GetTriggeredBoxOnTradePane(TradePane, PlayerCursorData.posx, PlayerCursorData.posy);
+					boxid = GetTriggeredBoxOnTradePane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
 				else if(CheckInventory("DnD_StashView")) // I used the trade pane variable to hold the stash content
-					boxid = GetTriggeredBoxOnStashPane(TradePane, PlayerCursorData.posx, PlayerCursorData.posy);
+					boxid = GetTriggeredBoxOnStashPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
 			}
 		}
 		else {
@@ -385,11 +384,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HandleInventoryView(boxid);
 			}
 			else if(CheckInventory("DnD_StashView")) {
-				LoadStashView(TradePane);
+				LoadStashView(InventoryPane);
 				HandleStashView(boxid);
 			}
 			else if(CheckInventory("InTradeView")) {
-				LoadTradeView(TradePane);
+				LoadTradeView(InventoryPane);
 			}
 			
 			if(CheckInventory("DnD_CleanInventoryRequest")) {

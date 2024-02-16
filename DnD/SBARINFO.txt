@@ -158,7 +158,7 @@ statusbar normal, fullscreenoffsets {
   drawnumber 10, SHOPFONT, Untranslated, ammo Credit, alignment(right), fillzeros, -16, 16;
 
   // Draw both health and armor displays if the player has at least one point of armor
-  InInventory ArmorAmount, 1
+  InInventory EShieldAmount, 1
   {
     // Health -------------------------------------------------------------------------------------------
 
@@ -223,61 +223,6 @@ statusbar normal, fullscreenoffsets {
 		DND_ARMOR_SYNTHMETAL,	"AR15B0",	
 		DND_ARMOR_LIGHTNINGCOIL	"AR16A0"
 	*/
-	
-	InInventory DnD_ArmorType, 18 {
-		drawimage "AR16A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 17 {
-		drawimage "AR15B0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 16 {
-		drawimage "ARM8A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 15 {
-		drawimage "ARM7A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 14 {
-		drawimage "ARM6A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 13 {
-		drawimage "ARM5A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 12 {
-		drawimage "ARM4A1", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 11 {
-		drawimage "AR13A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 10 {
-		drawimage "AR14A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 9 {
-		drawimage "AR12A1", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 8 {
-		drawimage "AR11A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 7 {
-		drawimage "AR10A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 6 {
-		drawimage "ARM9A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 5 {
-		drawimage "QRARA0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 4 {
-		drawimage "ARM2A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 3 {
-		drawimage "ARM3A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 2 {
-		drawimage "ARM1A0", 80, -68, center, 18, 18;
-	}
-	else InInventory DnD_ArmorType, 1 {
-		drawimage "BON2C0", 80, -68, center, 18, 18;
-	}
 
     // If armor is above 100, draw the bar overlay and counter in blue color,
     // and the bar frame in "normal" color
@@ -285,25 +230,25 @@ statusbar normal, fullscreenoffsets {
     {
       drawimage "H_BRFRMX", 93, -74; // Bar frame
 	  drawimage "H_BRFILG", 96, -71; // Bar green
-      //drawbar "H_BRFILG", "H_BRFBGG", ammo ArmorAmountVisual, horizontal, 96, -71; // Bar
+      //drawbar "H_BRFILG", "H_BRFBGG", ammo EShieldAmountVisual, horizontal, 96, -71; // Bar
       drawbar "H_BRFILB", "H_BRFBGB", ARMOverAmount, horizontal, 96, -71; // Bar (over 100)
-      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo ArmorAmount, alignment(left), 189, -73; // Counter
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo EShieldAmount, alignment(left), 189, -73; // Counter
     }
 
     // If armor is in "good" state, draw the bar and counter in green color
     InInventory ARMNormal
     {
       drawimage "H_BRFRMX", 93, -74;
-      drawbar "H_BRFILG", "H_BRFBGG", ammo ArmorAmountVisual, horizontal, 96, -71;
-      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo ArmorAmount, alignment(left), 189, -73;
+      drawbar "H_BRFILG", "H_BRFBGG", ammo EShieldAmountVisual, horizontal, 96, -71;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo EShieldAmount, alignment(left), 189, -73;
     }
 
     // If armor is in "warning" state, draw the bar and counter in yellow color
     InInventory ARMBelow50
     {
       drawimage "H_BRFRMX", 93, -74;
-      drawbar "H_BRFILY", "H_BRFBGY", ammo ArmorAmountVisual, horizontal, 96, -71;
-      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo ArmorAmount, alignment(left), 189, -73;
+      drawbar "H_BRFILY", "H_BRFBGY", ammo EShieldAmountVisual, horizontal, 96, -71;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo EShieldAmount, alignment(left), 189, -73;
     }
 
     // If armor is in "critical" state, draw the bar and counter in red color,
@@ -311,8 +256,8 @@ statusbar normal, fullscreenoffsets {
     InInventory ARMBelow25
     {
       drawimage "H_ARFW01", 93, -74;
-      drawbar "H_BRFILR", "H_BRFBGR", ammo ArmorAmountVisual, horizontal, 96, -71;
-      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo ArmorAmount, alignment(left), 189, -73;
+      drawbar "H_BRFILR", "H_BRFBGR", ammo EShieldAmountVisual, horizontal, 96, -71;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo EShieldAmount, alignment(left), 189, -73;
     }
   }
 
