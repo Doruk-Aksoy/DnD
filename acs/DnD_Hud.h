@@ -16,6 +16,8 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define INVENTORYINFO_TRADEVIEW_WRAPX 272.0
 #define INVENTORYINFO_TRADEVIEW_WRAPY 152.0
 
+#define NEXT_LINE_LEN 35
+
 #define NOTIFBAK_X 160
 #define NOTIFBAK_Y 128
 #define NOTIFBAK_XF 160.0
@@ -669,7 +671,8 @@ bool ListenScroll(int condx_min, int condx_max) {
 }
 
 // we need this because the player name returned from acs functions currently includes color codes which may affect text length for trims
-int GetPlayernameRawLength(str name) {
+// holds amounts of newlines << 16
+int GetRawLength(str name) {
 	int len = Strlen(name);
 	int real_len = 0;
 	int color_count = 0;
@@ -693,8 +696,10 @@ int GetPlayernameRawLength(str name) {
 				color_count = 0;
 			}
 		}
-		else
+		else if(c != 10)
 			++real_len;
+		else
+			real_len += 1 << 16;
 	}
 	return real_len;
 }

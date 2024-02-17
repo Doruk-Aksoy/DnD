@@ -4820,21 +4820,33 @@ void DrawPlayerStats(int pnum, int category) {
 		else if(category == DRAW_STAT_DEFENSE) {
 			// hp cap
 			val = GetSpawnHealth();
-			PlayerStatText = StrParam(l:"DND_HEALTHCAPIS", s:": \c[Q9]", d:val, s:"\n");
+			PlayerStatText = StrParam(s:"\c[Q9]", d:val, s: " \c-", l:"DND_HEALTHCAPIS", s:"\n");
 			++k;
 			
-			// armor cap
-			/*val = GetArmorID();
-			if(val < 0)
-				val = 0;
-			val = GetArmorCapFromID(val);
-			PlayerStatText = StrParam(s:PlayerStatText, l:"DND_ARMORCAPIS", s:": \c[Q9]", d:val, s:"\n");
-			++k;*/
-			
-			// armor efficiency
-			val = 100 * DND_BULKINESS_GAIN * 100 + (GetBulkiness() - 100) * DND_BULKINESS_GAIN_AFTER100;
-			if(val > 100.0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_ARMOREFF", s:"\n");
+			// armor rating
+			val = GetPlayerArmor(pnum);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ARMORCAPIS", s:"\n");
+				++k;
+
+				// estimated armor protection
+				val = GetPlayerEstimatedArmorProtect(pnum, val);
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"% \c-", l:"DND_ESTREDUCTION", s:"\n");
+				++k;
+			}
+
+			val = GetPlayerEnergyShieldCap(pnum);
+			i = val;
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ESHIELDIS", s:"\n");
+				++k;
+
+				val = GetPlayerEnergyShieldRechargeDelay(pnum);
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation((val << 16) / TICRATE, false), s:"\c-", l:"DND_ESHIELDDELAY", s:"\n");
+				++k;
+
+				val = GetPlayerEnergyShieldRecoveryRate(pnum, i);
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ESHIELDRECOVERY", s:"\n");
 				++k;
 			}
 			
@@ -4874,47 +4886,47 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			i = GetMaxResistCap(pnum);
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ELEM, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ELE", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_PHYS, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ENERGY), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ENERGY, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ENRG", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_MAGIC), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_MAGIC, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_MAGC", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_EXPLOSION, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_EXPL", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_HITSCAN), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_HITSCAN, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_HTSC", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_FIRE), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_FIRE, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_FIRE", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ICE), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_ICE, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ICE", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_LIGHTNING), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_LIGHTNING, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_LGHT", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_POISON), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_POISON, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_POIS", s:"\n");
 			++k;
 			
 			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DMGREDUCE_REFL, 0, 0, val), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_REFL", s:"\n");
 			++k;
 			// dmg reduction block ends
 		}

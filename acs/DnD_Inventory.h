@@ -1424,6 +1424,8 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	int yoff = 0.0;
 	bool showModTiers = GetCVar("dnd_detailedmods");
 	bool isUnique = false;
+
+	str tmp_text;
 	
 	// potential delete of quality in case we hover over an item that doesn't have it, we don't want it lingering!
 	DeleteText(id_begin - id_mult * MAX_INVENTORY_BOXES - 18);
@@ -1492,25 +1494,32 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		if(temp != -1) {
 			if(isUnique)
 				yoff = 6.0;
+			
+			tmp_text = GetItemAttributeText(
+				temp, 
+				itype, 
+				isubt, 
+				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, topboxid, j, source), 
+				0, 
+				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, topboxid, j, source), 
+				showModTiers, 
+				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, topboxid, j, source), 
+				false,
+				val
+			);
 
 			HudMessage(
-				s:GetItemAttributeText(
-					temp, 
-					itype, 
-					isubt, 
-					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, topboxid, j, source), 
-					0, 
-					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, topboxid, j, source), 
-					showModTiers, 
-					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, topboxid, j, source), 
-					false,
-					val
-				); 
+				s:tmp_text;
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
 				id_begin - id_mult * MAX_INVENTORY_BOXES - 5, CR_WHITE, bx, by + 12.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
-			yoff = 24.0 - 8.0 * isUnique;
+			// add 1 for each newline... they count :p
+			temp = GetRawLength(tmp_text);
+			i = temp >> 16;
+			temp &= 0xFFFF;
+			temp = temp / NEXT_LINE_LEN + i;
+			yoff = 12.0 + 8.0 * temp;
 		}
 
 		by += 12.0 + 8.0 * isUnique;
@@ -1527,22 +1536,26 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			if(isUnique)
 				lvl = itype;
 
-			HudMessage(
-				s:GetItemAttributeText(
-					temp, 
-					itype, 
-					isubt, 
-					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source), 
-					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, topboxid, j, source), 
-					lvl, 
-					showModTiers, 
-					!isUnique ? -1 : j, 
-					GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source),
-					val
-				); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - j, CR_WHITE, bx, by + 8.0 + 24.0 * j + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			tmp_text = GetItemAttributeText(
+				temp, 
+				itype, 
+				isubt, 
+				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, topboxid, j, source), 
+				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, topboxid, j, source), 
+				lvl, 
+				showModTiers, 
+				!isUnique ? -1 : j, 
+				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source),
+				val
 			);
+
+			HudMessage(
+				s:tmp_text; 
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - j, CR_WHITE, bx, by + 8.0 + 12.0 * j + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			);
+
+			yoff += 10.0 * ((GetRawLength(tmp_text) & 0xFFFF) / NEXT_LINE_LEN);
 		}
 	}
 
@@ -1550,14 +1563,14 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	if(GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, topboxid, -1, source)) {
 		SetFont("IMPSEPRC");
 		HudMessage(s:"A"; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 8 - attr_count, val, GetIntegerBits(bx) + 0.4, by + 8.0 + 24.0 * attr_count + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 8 - attr_count, val, GetIntegerBits(bx) + 0.4, by + 8.0 + 12.0 * attr_count + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
 		SetFont("SMALLFONT");
 		HudMessage(
 			s:"\cgCORRUPTED"; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-			id_begin - id_mult * MAX_INVENTORY_BOXES - 9 - attr_count, CR_WHITE, bx, by + 16.0 + 24.0 * attr_count + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			id_begin - id_mult * MAX_INVENTORY_BOXES - 9 - attr_count, CR_WHITE, bx, by + 16.0 + 12.0 * attr_count + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 	}
 }
@@ -1737,6 +1750,7 @@ bool IsCraftableItem(int itype) {
 		case DND_ITEM_HELM:
 		case DND_ITEM_NECKLACE:
 		case DND_ITEM_WEAPON:
+		case DND_ITEM_BODYARMOR:
 		return true;
 	}
 	return false;
@@ -1868,6 +1882,14 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 		return false;
 	}
 	return true;
+}
+
+void HandleEShieldChange(int pnum, bool remove) {
+	int i = GetPlayerEnergyShieldCap(pnum);
+	UpdateEnergyShieldVisual(i);
+
+	if(remove && CheckInventory("EShieldAmount") > i)
+		SetEnergyShield(i);
 }
 
 enum {
@@ -2008,22 +2030,6 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			
 			// for str
 			UpdatePlayerKnockbackResist();
-			
-			/*i = GetArmorAmount();
-			if(i) {
-				cap = GetArmorCapFromID(GetArmorID());
-				i = i - cap;
-				if(remove) {
-					temp = cap;
-					if(GetArmorAmount() > temp) {
-						// set health to new cap, add the extra to player
-						if(i > 0)
-							SetArmorAmount(temp + i);
-						else
-							SetArmorAmount(temp);
-					}
-				}
-			}*/
 
 			// for vit
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
@@ -2101,25 +2107,6 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			UpdatePlayerKnockbackResist();
 		break;
-		/*case INV_ARMOR_INCREASE:
-		case INV_ARMORPERCENT_INCREASE:
-			IncPlayerModValue(pnum, atype, aval, noSync);
-			i = GetArmorAmount();
-			if(i) {
-				cap = GetArmorCapFromID(GetArmorID());
-				i = i - cap;
-				if(remove) {
-					temp = cap;
-					if(GetArmorAmount() > temp) {
-						// set health to new cap, add the extra to player
-						if(i > 0)
-							SetArmorAmount(temp + i);
-						else
-							SetArmorAmount(temp);
-					}
-				}
-			}
-		break;*/
 		case INV_SPEED_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
@@ -2144,7 +2131,8 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_SHIELD_INCREASE:
 		case INV_PERCENTSHIELD_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync);
-			UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+
+			HandleEShieldChange(pnum, remove);
 		break;
 		
 		// anything that fits our generic formula
@@ -2154,6 +2142,16 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 	}
 
 	return sync_required;
+}
+
+bool IsAttributeExtraException(int attr) {
+	switch(attr) {
+		case INV_IMP_INCARMOR:
+		case INV_IMP_INCARMORSHIELD:
+		case INV_IMP_INCSHIELD:
+		return true;
+	}
+	return false;
 }
 
 void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool has_cybernetic, bool noSync = false) {
@@ -2175,6 +2173,9 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			aval *= temp;
 			aval /= FACTOR_FIXED_RESOLUTION; // our scale to lower it down from integer mult
 		}
+
+		aextra *= temp;
+		aextra /= 100;
 	}
 
 	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source);
@@ -2191,8 +2192,10 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			aval /= 100;
 		}
 
-		aextra *= temp;
-		aextra /= 100;
+		if(!IsAttributeExtraException(atype)) {
+			aextra *= temp;
+			aextra /= 100;
+		}
 	}
 	
 	// cybernetic check
@@ -2208,15 +2211,43 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		// standard implicits
 		case INV_IMP_INCARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
+			if(aextra) {
+				if(!remove)
+					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) | aextra;
+				else
+					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & ~(1 << aextra);
+
+				SetPlayerModValue(pnum, INV_EX_PLAYERPOWERSET1, aextra, noSync);
+			}
 		break;
 		case INV_IMP_INCSHIELD:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
-			UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+
+			HandleEShieldChange(pnum, remove);
+
+			if(aextra) {
+				if(!remove)
+					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) | aextra;
+				else
+					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & ~(1 << aextra);
+
+				SetPlayerModValue(pnum, INV_EX_PLAYERPOWERSET1, aextra, noSync);
+			}
 		break;
 		case INV_IMP_INCARMORSHIELD:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
-			UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+
+			HandleEShieldChange(pnum, remove);
+
+			if(aextra) {
+				if(!remove)
+					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) | aextra;
+				else
+					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & ~(1 << aextra);
+
+				SetPlayerModValue(pnum, INV_EX_PLAYERPOWERSET1, aextra, noSync);
+			}
 		break;
 
 		// corrupted implicits
@@ -2378,39 +2409,6 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 	);
 }
 
-int PickRandomAttribute(int item_type = DND_ITEM_CHARM) {
-	int bias = Timer() & 0xFFFF;
-	int val;
-
-	if(item_type == DND_ITEM_CHARM) {
-		// unrestricted picking
-		val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
-		// this is a last resort random here, in case there was an overflow... shouldn't, but might
-		// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
-		if(val < 0)
-			val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
-	}
-	else {
-		// restricted picking -- tries to pick a tag at random, rerolls if there are 0 mods in that group for this item
-		item_type = MapItemTypeToCraftableID(item_type);
-
-		// find a random valid tag for this item
-		int tag;
-		do {
-			tag = random(DND_ATTRIB_TAG_ID_BEGIN + bias, DND_ATTRIB_TAG_ID_END + bias) - bias;
-			if(tag < 0)
-				tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
-		} while(!AttributeTagGroupCount[tag][item_type]);
-
-		// finally roll the attrib at random from the group
-		val = random(bias, AttributeTagGroupCount[tag][item_type] + bias) - bias;
-		if(val < 0)
-			val = random(0, AttributeTagGroupCount[tag][item_type]);
-		val = AttributeTagGroups[tag][item_type][val];
-	}
-	return val;
-}
-
 void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
 	if(extra != -1)
 		Inventories_On_Field[item_pos].implicit.attrib_extra = extra;
@@ -2487,25 +2485,101 @@ int ScourItem(int pnum, int item_pos) {
 	return min_count;
 }
 
-void ReforgeItem(int pnum, int item_pos) {
-	int itype = PlayerInventoryList[pnum][item_pos].item_type;
+bool CanAllowModRollSpecial(int tag, int special_roll_rule) {
+	return 	(tag == INV_ATTR_TAG_ELEMENTAL_ID && (special_roll_rule & PPOWER_CANROLLELEMENTAL)) ||
+			(tag == INV_ATTR_TAG_OCCULT_ID && (special_roll_rule & PPOWER_CANROLLOCCULT)) ||
+			(tag == INV_ATTR_TAG_PHYSICAL_ID && (special_roll_rule & PPOWER_CANROLLPHYS)) ||
+			(tag == INV_ATTR_TAG_EXPLOSIVE_ID && (special_roll_rule & PPOWER_CANROLLEXP)) ||
+			(tag == INV_ATTR_TAG_ENERGY_ID && (special_roll_rule & PPOWER_CANROLLENERGY));
+}
 
-	int min_count = ScourItem(pnum, item_pos);
-	int max_natural = RollCharmMaxAttribCount(PlayerInventoryList[pnum][item_pos].item_subtype);
-	
-	// subtract the fractured mods on it from what it can max have
-	int attr_count = 0;
-	if(itype == DND_ITEM_CHARM)
-		attr_count = random(min(1, max_natural - min_count), max_natural - min_count);
+bool IsImplicitException(int imp, int rolled_attr) {
+	switch(imp) {
+		// don't let eshield modifiers roll on armor base items
+		case INV_IMP_INCARMOR:
+		return rolled_attr == INV_SHIELD_INCREASE || rolled_attr == INV_SHIELD_RECHARGEDELAY || rolled_attr == INV_SHIELD_RECOVERYRATE;
+	}
+	return false;
+}
+
+// special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
+int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int special_roll_rule = 0, int implicit_id = -1) {
+	int bias = Timer() & 0xFFFF;
+	int val;
+
+	if(item_type == DND_ITEM_CHARM) {
+		// unrestricted picking
+		val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
+		// this is a last resort random here, in case there was an overflow... shouldn't, but might
+		// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
+		if(val < 0)
+			val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+	}
+	else {
+		item_type = MapItemTypeToCraftableID(item_type);
+
+		// find a random valid tag for this item
+		int tag;
+		do {
+			do {
+				tag = random(DND_ATTRIB_TAG_ID_BEGIN + bias, DND_ATTRIB_TAG_ID_END + bias) - bias;
+				if(tag < 0)
+					tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
+
+				// check rule exceptions
+				if(!AttributeTagGroupCount[tag][item_type]) {
+					// check potential special rolls
+					if(CanAllowModRollSpecial(tag, special_roll_rule)) {
+						// charms can roll everything possible, so we switch it to that, and then let it pick from that category
+						item_type = DND_CRAFTABLEID_CHARM;
+						break;
+					}
+				}
+			} while(!AttributeTagGroupCount[tag][item_type]);
+
+			// finally roll the attrib at random from the group
+			val = random(bias, AttributeTagGroupCount[tag][item_type] + bias) - bias;
+			if(val < 0)
+				val = random(0, AttributeTagGroupCount[tag][item_type]);
+			val = AttributeTagGroups[tag][item_type][val];
+			// finally check for implicit exception => Ex: Don't roll EShield on Armor base items!
+		} while(IsImplicitException(implicit_id, val));
+	}
+	return val;
+}
+
+void AssignAttributes(int pnum, int item_pos, int itype, int attr_count) {
+	int special_roll = 0;
+	if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && itype == DND_ITEM_BODYARMOR) {
+		special_roll = PlayerInventoryList[pnum][item_pos].implicit.attrib_extra;
+	}
 	
 	int i = 0, roll;
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute(itype);
+			roll = PickRandomAttribute(itype, special_roll, PlayerInventoryList[pnum][item_pos].implicit.attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) != -1);
 		AddAttributeToItem(pnum, item_pos, roll);
 		++i;
 	}
+}
+
+void ReforgeItem(int pnum, int item_pos) {
+	int itype = PlayerInventoryList[pnum][item_pos].item_type;
+
+	int min_count = ScourItem(pnum, item_pos);
+	
+	// subtract the fractured mods on it from what it can max have
+	int attr_count = 0;
+	if(itype == DND_ITEM_CHARM) {
+		int max_natural = RollCharmMaxAttribCount(PlayerInventoryList[pnum][item_pos].item_subtype);
+		attr_count = random(min(1, max_natural - min_count), max_natural - min_count);
+	}
+	else if(itype == DND_ITEM_BODYARMOR)
+		attr_count = random(1, MAX_ARMOR_ATTRIB_DEFAULT) - min_count;
+
+	if(attr_count > 0)
+		AssignAttributes(pnum, item_pos, itype, attr_count);
 }
 
 void RemoveAttributeFromItem(int pnum, int item_id, int to_remove) {
@@ -2523,33 +2597,53 @@ void RemoveAttributeFromItem(int pnum, int item_id, int to_remove) {
 // Gives an attribute of a tag group guaranteed, and completely reforges the attribs
 void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	int itype = PlayerInventoryList[pnum][item_pos].item_type;
+	int craftable_type;
 	
 	int min_count = ScourItem(pnum, item_pos);
 	
 	// charm group etc.
 	int rand_attr = -1, attr_count = 0;
 	if(itype == DND_ITEM_CHARM) {
-		rand_attr = random(0, AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_CHARM] - 1);
+		craftable_type = DND_CRAFTABLEID_CHARM;
+		rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
 		attr_count = RollCharmMaxAttribCount(PlayerInventoryList[pnum][item_pos].item_subtype) - min_count;
 
 		// in case this is a fully fractured mod item
 		if(attr_count <= 0)
 			return;
 
-		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][DND_CRAFTABLEID_CHARM][rand_attr]);
+		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
+		--attr_count;
 	}
-	
-	--attr_count;
-	
-	// add rest of the mods
-	int i = 0, roll;
-	while(i < attr_count) {
-		do {
-			roll = PickRandomAttribute(itype);
-		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, attr_count) != -1);
-		AddAttributeToItem(pnum, item_pos, roll);
-		++i;
+	else if(itype == DND_ITEM_BODYARMOR) {
+		craftable_type = DND_CRAFTABLEID_BODYARMOR;
+		attr_count = random(1, MAX_ARMOR_ATTRIB_DEFAULT) - min_count;
+
+		// in case this is a fully fractured mod item or we rolled less than amount of fractures
+		if(attr_count <= 0)
+			return;
+
+		// if no attributes of this type are allowed, but we have some special roll, include it and try again
+		if(!AttributeTagGroupCount[tag_id][craftable_type]) {
+			if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
+				craftable_type = DND_CRAFTABLEID_CHARM;
+				rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
+			}
+			else {
+				// rest of the mods, we can't fit a guaranteed attribute here
+				AssignAttributes(pnum, item_pos, itype, attr_count);
+				return;
+			}
+		}
+		else// we have an attribute of this type fitting, good, go ahead
+			rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
+
+		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
+		--attr_count;
 	}
+
+	// rest of the mods
+	AssignAttributes(pnum, item_pos, itype, attr_count);
 }
 
 // this doesn't consider the item_type yet!

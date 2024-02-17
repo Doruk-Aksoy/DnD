@@ -200,29 +200,7 @@ statusbar normal, fullscreenoffsets {
     // Armor --------------------------------------------------------------------------------------------
 
     // Icon
-	/*
-		uses icon order from here +1
-		DND_ARMOR_BONUS,		"BON2C0",
-		DND_ARMOR_GREEN,		"ARM1A0",
-		DND_ARMOR_YELLOW,		"ARM3A0",
-		DND_ARMOR_BLUE,			"ARM2A0",
-		DND_ARMOR_RED,			"QRARA0",
-		
-		DND_ARMOR_GUNSLINGER,	"ARM9A0",
-		DND_ARMOR_OCCULT,		"AR10A0",
-		DND_ARMOR_DEMO,			"AR11A0",
-		DND_ARMOR_ENERGY,		"AR12A1",
-		DND_ARMOR_ELEMENTAL,	"AR14A0",
-		
-		DND_ARMOR_SUPER,		"AR13A0",
-		DND_ARMOR_CYBERNETIC,	"ARM4A1",
-		DND_ARMOR_DUELIST,		"ARM5A0",
-		DND_ARMOR_NECRO,		"ARM6A0",
-		DND_ARMOR_KNIGHT,		"ARM7A0",
-		DND_ARMOR_RAVAGER,		"ARM8A0",
-		DND_ARMOR_SYNTHMETAL,	"AR15B0",	
-		DND_ARMOR_LIGHTNINGCOIL	"AR16A0"
-	*/
+	drawimage "H_ICNARR", 80, -68, center, 18, 18;
 
     // If armor is above 100, draw the bar overlay and counter in blue color,
     // and the bar frame in "normal" color

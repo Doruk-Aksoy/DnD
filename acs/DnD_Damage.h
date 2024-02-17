@@ -2680,23 +2680,19 @@ int GetArmorRatingEffect(int dmg, int armor_id, bool isArmorPiercing) {
 	int pnum = PlayerNumber();
 	int rating = GetPlayerArmor(pnum);
 
-	// if these armors can be shredded
-	if(!IsArmorShredException(armor_id)) {
-		if(CheckInventory("RuinationHardDebuff"))
-			rating /= 4;
-		else {
-			pnum = CheckInventory("RuinationStacks");
-			if(pnum)
-				rating -= rating * pnum * DND_RUINATION_REDUCE_PER_STACK / 100;
-		}
-
-		// rating is treated as 50% instead of 100% if monster is armor piercing
-		if(isArmorPiercing)
-			rating >>= 1;
+	if(CheckInventory("RuinationHardDebuff"))
+		rating /= 4;
+	else {
+		pnum = CheckInventory("RuinationStacks");
+		if(pnum)
+			rating -= rating * pnum * DND_RUINATION_REDUCE_PER_STACK / 100;
 	}
 
-	// you will need 5 times the damage to gain half reduction
-	return dmg - (dmg * rating) / (rating + 5 * dmg);
+	// rating is treated as 50% instead of 100% if monster is armor piercing
+	if(isArmorPiercing)
+		rating >>= 1;
+
+	return DoArmorRatingEffect(dmg, rating);
 }
 
 int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
@@ -2717,7 +2713,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		if(armor_id == BODYARMOR_KNIGHT && IsUsingMeleeWeapon())
 			factor += DND_KNIGHTARMOR_MELEEWEP_BONUS;
 		else if(armor_id == BODYARMOR_DUELIST && (dmg_data & DND_DAMAGETYPEFLAG_HITSCAN))
-			factor = 1.0;
+			factor = 0.75;
 		
 		factor *= ARMOR_INTEGER_FACTOR;
 		factor >>= 16;
@@ -2757,7 +2753,11 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	int temp = CheckInventory("EShieldAmount");
 	if(dmg_string != "PoisonDOT" && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) && temp) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
-		dmg -= temp;
+		if(armor_id != BODYARMOR_LIGHTNINGCOIL)
+			dmg -= temp;
+		else
+			dmg -= temp / 5; // only 20% reduced from ES
+
 		if(dmg < 0) {
 			// completely absorbed by our shield, so set our shield to -dmg
 			SetEnergyShield(-dmg);
@@ -3020,6 +3020,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
+
+				// 90% less => 1/10th
+				if(isReflected)
+					dmg /= 10;
 				
 				// finally apply player armor
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);

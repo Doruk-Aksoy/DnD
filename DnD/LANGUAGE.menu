@@ -198,6 +198,19 @@ DND_MENU_PERKMASTERY8	=	"Every 7th hit you land within four seconds is a guarant
 DND_MENU_PERKMASTERY9	=	"100% to crit multiplier if you haven't dealt a critical strike in 5 seconds.";
 DND_MENU_PERKMASTERY10	=	"When an item drops there's a 25% chance to get an additional item drop of its type.";
 
+// resists for defense tab
+DND_MENU_RES_ELE		=	"Elemental Resist";
+DND_MENU_RES_PHYS		=	"Physical Resist";
+DND_MENU_RES_ENRG		=	"Energy Resist";
+DND_MENU_RES_MAGC		=	"Magic Resist";
+DND_MENU_RES_EXPL		=	"Explosive Resist";
+DND_MENU_RES_HTSC		=	"Hitscan Resist";
+DND_MENU_RES_FIRE		=	"Fire Resist";
+DND_MENU_RES_ICE		=	"Ice Resist";
+DND_MENU_RES_LGHT		=	"Lightning Resist";
+DND_MENU_RES_POIS		=	"Poison Resist";
+DND_MENU_RES_REFL		=	"Reflection Resist";
+
 // accessories
 ACCTX_T0				=	"Wisdom Talisman";
 ACCTX_P0				=	"Increases exp gain by 50%.";
@@ -325,28 +338,6 @@ DND_MENU_AMMOTEXT45		=	"slug shells. \cuPhysical damage.";
 	
 DND_MENU_AMMOTEXT46		=	"sonic grenades. \ciExplosion\c- and \chEnergy damage.";
 DND_MENU_AMMOTEXT47		=	"high-ex grenades. \ciExplosion damage.";
-
-// armor text
-DND_MENU_ARMTEXT1		=	"33% protection, 100 armor.";
-DND_MENU_ARMTEXT2		=	"41.6% protection, 150 armor.";
-DND_MENU_ARMTEXT3		=	"50% protection, 200 armor.";
-DND_MENU_ARMTEXT4		=	"75% protection, 300 armor.";
-
-DND_MENU_ARMTEXT5		=	"33% protection, 200 armor. Extra 50% hitscan damage, 75% hitscan protection.";
-DND_MENU_ARMTEXT6		=	"33% protection, 200 armor. Extra 50% magic damage, 75% magic protection.";
-DND_MENU_ARMTEXT7		=	"33% protection, 200 armor. Extra 50% explosives damage, 75% explosive protection.";
-DND_MENU_ARMTEXT8		=	"33% protection, 200 armor. Extra 50% energy damage, 75% energy protection.";
-DND_MENU_ARMTEXT9		=	"33% protection, 200 armor. Extra 50% elemental damage, 75% elemental protection.";
-
-DND_MENU_ARMTEXT10		=	"100% protection, 400 armor. Can't be \cgshredded\c-.";
-DND_MENU_ARMTEXT11		=	"45% protection, 300 armor. If not damaged for 3 seconds, restores armor slowly.";
-DND_MENU_ARMTEXT12		=	"33% protection, 250 armor. Extra 100% hitscan resist.";
-DND_MENU_ARMTEXT13		=	"50% protection, 300 armor. 33% chance on hit to release spikes. Melee buffs and bulkiness increase the damage.";
-DND_MENU_ARMTEXT14		=	"35% protection, 400 armor. 50% reduced damage from melee attacks. If a melee weapon is held extra 40% protection is bestowed. Can't be \cgshredded\c-.";
-DND_MENU_ARMTEXT15		=	"33% protection, 250 armor. On a killing spree, gain 50% more damage and 25% damage reduction. Restore armor completely when a killing spree ends. Can't be \cgshredded\c-.";
-DND_MENU_ARMTEXT16		=	"65% protection, 400 armor. 50% reduced damage taken from hitscan attacks, but 50% more damage taken from lightning attacks.";
-DND_MENU_ARMTEXT17		=	"40% protection, 300 armor. All lightning damage taken reduced by 85%. When hurt, 25% chance to release a lightning bolt towards an enemy.";
-// armors end
 
 // artifacts
 DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";
@@ -534,6 +525,9 @@ DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";
 
+
+
+// meme nfts
 DND_NFT_INTRO			=	"Welcome to emporium of NFTs, the best place to obtain the top NFTs in Doom! All NFTs cost a million dollars. Please, do enjoy yourself!";
 DND_NFT_TAG0			=	"Cybape";
 DND_NFT_EXP0			=	"This beautiful monkey here was manifactured to be the ruler of cyborgs in an abandoned UAC facility. "

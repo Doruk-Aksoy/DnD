@@ -245,8 +245,24 @@ enum {
 	INV_EX_LIMITEDSMALLCHARMS,
 	INV_EX_FLATPERSHOTGUNOWNED,
 	INV_EX_LESSHEALING,
-	INV_EX_SOULWEPSPEN
+	INV_EX_SOULWEPSPEN,
+	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one
 	// add new unique attributes here
+};
+
+enum {
+	PPOWER_RAVAGER 						= 	0b1,
+	PPOWER_CYBER 						= 	0b10,
+	PPOWER_LIGHTNINGABSORB				= 	0b100,
+	PPOWER_KNIGHTMELEEBONUS				= 	0b1000,
+	PPOWER_HITSCANPROTECT				=	0b10000,
+	PPOWER_SPIKES						=	0b100000,
+	PPOWER_CANROLLPHYS					=	0b1000000,
+	PPOWER_CANROLLOCCULT				=	0b10000000,
+	PPOWER_CANROLLEXP					=	0b100000000,
+	PPOWER_CANROLLENERGY				=	0b1000000000,
+	PPOWER_CANROLLELEMENTAL				=	0b10000000000,
+	PPOWER_LOWERREFLECT					=	0b100000000000,
 };
 
 // attributes below last_inv (normal rollables) are exotic
@@ -256,7 +272,7 @@ enum {
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
 #define UNIQUE_ATTRIB_BEGIN INV_EX_CHANCE_CASTELEMSPELLONATK
-#define UNIQUE_ATTRIB_END INV_EX_SOULWEPSPEN
+#define UNIQUE_ATTRIB_END INV_EX_PLAYERPOWERSET1
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
@@ -1486,7 +1502,33 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_INCARMOR:
 		case INV_IMP_INCSHIELD:
 		case INV_IMP_INCARMORSHIELD:
-			return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
+			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
+			// armor extras, can't have other implicits of armors together
+			if(extra & PPOWER_RAVAGER)
+				text = StrParam(s:text, s:"\n", l:"RAVAGER_BONUS");
+			else if(extra & PPOWER_KNIGHTMELEEBONUS)
+				text = StrParam(s:text, s:"\n", l:"KNIGHT_BONUS");
+			else if(extra & PPOWER_HITSCANPROTECT)
+				text = StrParam(s:text, s:"\n", l:"HITSCAN_PROTECT");
+			else if(extra & PPOWER_SPIKES)
+				text = StrParam(s:text, s:"\n", l:"SPIKES_ON_HIT");
+			else if(extra & PPOWER_LIGHTNINGABSORB)
+				text = StrParam(s:text, s:"\n", l:"LIGHTNING_ABSORB");
+			else if(extra & PPOWER_CYBER)
+				text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS");
+			else if(extra & PPOWER_CANROLLPHYS)
+				text = StrParam(s:text, s:"\n", l:"CANROLL_PHYS");
+			else if(extra & PPOWER_CANROLLOCCULT)
+				text = StrParam(s:text, s:"\n", l:"CANROLL_OCCULT");
+			else if(extra & PPOWER_CANROLLEXP)
+				text = StrParam(s:text, s:"\n", l:"CANROLL_EXP");
+			else if(extra & PPOWER_CANROLLENERGY)
+				text = StrParam(s:text, s:"\n", l:"CANROLL_ENERGY");
+			else if(extra & PPOWER_CANROLLELEMENTAL)
+				text = StrParam(s:text, s:"\n", l:"CANROLL_ELEMENTAL");
+			else if(extra & PPOWER_LOWERREFLECT)
+				text = StrParam(s:text, s:"\n", l:"LOWER_REFLECT");
+		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
 			return StrParam(l:GetWeaponTag(extra), s: " ", l:text);

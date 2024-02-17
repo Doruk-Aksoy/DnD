@@ -23,10 +23,13 @@ bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
 
 #define ESHIELD_RECHARGEDELAY_BASE (10 * TICRATE) // base time is 10 seconds
 #define ESHIELD_RECOVERYRATE_TICS 1
+#define DND_ESHIELD_NONE_BASE 50
 
 #define EXO_AR_ADD_1 5
 #define EXO_AR_ADD_2 6
 #define EXO_AR_ADD_3 9
+
+#define DND_ESTIMATED_AVG_DAMAGE 40 // This is used in estimated damage reduction for armor rating, assumes avg damage a player would receive throughout anything really
 
 #define TALENT_CAP 100
 
@@ -237,6 +240,30 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	return base;
 }
 
+int GetPlayerEnergyShieldRechargeDelay(int pnum) {
+	int res = ESHIELD_RECHARGEDELAY_BASE;
+	res = res * (100 - GetPlayerAttributeValue(pnum, INV_SHIELD_RECHARGEDELAY)) / 100;
+	if(res < TICRATE)
+		res = TICRATE;
+	return res;
+}
+
+int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
+	int bonus = 1;
+	if(GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & PPOWER_CYBER)
+		bonus = 2;
+
+	int res = (cap * GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE) * bonus) / 1000;
+	if(!res)
+		res = 1;
+	return res;
+}
+
+int GetPlayerEstimatedArmorProtect(int pnum, int cap) {
+	int base_dmg = DND_ESTIMATED_AVG_DAMAGE * (100 + GetMonsterDMGScaling(0, GetActorStat(pnum + P_TIDSTART, STAT_LVL))) / 100;
+	return DoArmorRatingEffect(base_dmg, cap) * 100 / base_dmg;
+}
+
 void GiveStat(int stat_id, int amt) {
 	// get cap
 	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
@@ -309,18 +336,6 @@ void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thru
 	if(CheckPlayerLuckDuplicator(pnum))
 		SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
 }
-
-/*void GiveActorStat(int tid, int stat_id, int amt) {
-	// get cap
-	int lim = stat_id <= DND_ATTRIB_END ? DND_STAT_FULLMAX : DND_PERK_MAX;
-	amt = Clamp_Between(CheckActorInventory(tid, StatData[stat_id]) + amt, 0, lim) - CheckActorInventory(tid, StatData[stat_id]);
-	GiveActorInventory(tid, StatData[stat_id], amt);
-	
-	if(lim == DND_STAT_FULLMAX)
-		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_ATTRIBUTE, amt, stat_id);
-	else if(lim == DND_PERK_MAX)
-		UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_PERK, amt, stat_id);
-}*/
 
 bool CheckWellRolled(int pnum) {
 	return random(0, 1.0) <= DND_LUCK_GAIN * GetActorStat(pnum + P_TIDSTART, STAT_LUCK) / 3;

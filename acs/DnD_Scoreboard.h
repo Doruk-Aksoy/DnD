@@ -493,7 +493,7 @@ void DrawPlayerOnScoreboard(int interstate, int pnum, int draw_count, int total_
 	SetFont("INTERFONT");
 	
 	text = StrParam(n:pnum + 1);
-	temp = GetPlayernameRawLength(text);
+	temp = GetRawLength(text);
 	// don't clutter the intermission board
 	if(temp > MAX_INTERMISSION_PNAMELEN)
 		text = StrParam(s:StrLeft(text, MAX_INTERMISSION_PNAMELEN), s:"...");
@@ -688,10 +688,10 @@ int DrawHoveredPlayerData() {
 				);
 				
 				// armor
-				/*HudMessage(
-					s:"\cd", l:"IATTR_T1", s:": \c-", d:GetActorArmorAmount(tid);
+				HudMessage(
+					s:"\cd", l:"IATTR_T1", s:": \c-", d:GetPlayerArmor(tid - P_TIDSTART);
 					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_ARMOR, CR_WHITE, mx, my + 48.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-				);*/
+				);
 				
 				// exp
 				HudMessage(

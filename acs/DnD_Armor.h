@@ -39,6 +39,7 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
 	if(!tiers) {
 		// pick with some weight here
 		res = random(BODYARMORS_BEGIN, BODYARMORS_END);
+		//res = BODYARMOR_CYBER;
 	}
 	else if(tiers == 1) {
 		res = random(0, 2);
@@ -85,6 +86,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	int i = 0, roll;
 	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers);
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
+	int special_roll = 0;
 	
 	// implicits that come along with the item always
 	switch(armor_type) {
@@ -108,63 +110,68 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 
 		case BODYARMOR_GUNSLINGER:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_5;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 75);
+			special_roll = PPOWER_CANROLLPHYS;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, PPOWER_CANROLLPHYS, item_tier, 75);
 		break;
 		case BODYARMOR_OCCULT:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_6;
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, 0, item_tier, 60);
+			special_roll = PPOWER_CANROLLOCCULT;
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, PPOWER_CANROLLOCCULT, item_tier, 60);
 		break;
 		case BODYARMOR_DEMO:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_7;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 75);
+			special_roll = PPOWER_CANROLLEXP;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, PPOWER_CANROLLEXP, item_tier, 75);
 		break;
 		case BODYARMOR_ENERGY:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_8;
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, 0, item_tier, 60);
+			special_roll = PPOWER_CANROLLENERGY;
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, PPOWER_CANROLLENERGY, item_tier, 60);
 		break;
 		case BODYARMOR_ELEMENTAL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_9;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 75);
+			special_roll = PPOWER_CANROLLELEMENTAL;
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, PPOWER_CANROLLELEMENTAL, item_tier, 75);
 		break;
 
 		case BODYARMOR_MONOLITH:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_10;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 150, 0, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 100, 0, item_tier, 50);
 		break;
 		case BODYARMOR_CYBER:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_11;
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 185, 0, item_tier, 90);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 125, PPOWER_CYBER, item_tier, 75);
 		break;
 		case BODYARMOR_DUELIST:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_12;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 125, 0, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 125, PPOWER_HITSCANPROTECT, item_tier, 75);
 		break;
 		case BODYARMOR_NECRO:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_13;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_SPIKES, item_tier, 100);
 		break;
 		case BODYARMOR_KNIGHT:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_14;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 225, 0, item_tier, 125);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 225, PPOWER_KNIGHTMELEEBONUS, item_tier, 125);
 		break;
 		case BODYARMOR_RAVAGER:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_15;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 180, 0, item_tier, 90);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 180, PPOWER_RAVAGER, item_tier, 90);
 		break;
 
 		case BODYARMOR_SYNTHMETAL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_16;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 125);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_LOWERREFLECT, item_tier, 125);
 		break;
 		case BODYARMOR_LIGHTNINGCOIL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_17;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 125, 0, item_tier, 60);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 75, PPOWER_LIGHTNINGABSORB, item_tier, 35);
 		break;
 	}
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_BODYARMOR);
+			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, special_roll);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -197,14 +204,9 @@ bool ActorHasNoArmor(int tid) {
 	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][BOOT_INDEX].item_type == DND_ITEM_NULL;
 }
 
-bool IsArmorShredException(int id) {
-	switch(id) {
-		case BODYARMOR_MONOLITH:
-		case BODYARMOR_KNIGHT:
-		case BODYARMOR_RAVAGER:
-		return true;
-	}
-	return false;
+int DoArmorRatingEffect(int dmg, int rating) {
+	// you will need 5 times the damage to gain half reduction
+	return dmg - (dmg * rating) / (rating + 5 * dmg);
 }
 
 void SetEnergyShield(int val) {

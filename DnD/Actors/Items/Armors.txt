@@ -10,7 +10,7 @@ Actor NewArmorBonus : CustomInventory replaces ArmorBonus {
 			BON2 ABCDCB 4
 		Loop
 		Pickup:
-
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Give Energy Shield", 0, 1)
 		Stop
 		Failed:
 			TNT1 A 0

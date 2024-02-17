@@ -343,7 +343,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			*/
 			PlayerInventoryList[pnum][extra].corrupted = true;
 
+#ifdef ISDEBUGBUILD
+			temp = 1000;
+#else
 			temp = random(1, 1000);
+#endif
 			if(temp <= 500) {
 				// does nothing but corrupt the item
 				SetInventory("OrbResult", DND_CORRUPT_FAIL);
@@ -1290,7 +1294,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now
-		//i = DND_ORB_EVOKER;
+		//i = DND_ORB_CORRUPT;
 		RollOrbInfo(c, i, true, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
