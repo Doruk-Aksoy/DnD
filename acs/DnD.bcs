@@ -6116,7 +6116,7 @@ Script 68 (int x) NET {
 		else if(x == 420) {
 			SpawnCharm(0, true);
 			SpawnCharm(0, true);
-			SpawnBodyArmor(0, 0, true);
+			SpawnArmor(0, 0, true);
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);

@@ -1345,11 +1345,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_LOAD);
 			}
 		}
-		else if(curopt == MENU_LOAD_CRAFTING)
-			HandleCraftingInputs(boxid, curopt);
-		else if(curopt == MENU_LOAD_CRAFTING_WEAPON)
-			HandleCraftingInputs(boxid, curopt);
-		else if(curopt == MENU_LOAD_CRAFTING_INVENTORY)
+		else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY)
 			HandleCraftingInputs(boxid, curopt);
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			if(HasPlayerClicked(pnum)) {

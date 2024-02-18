@@ -493,7 +493,7 @@ void DrawPlayerOnScoreboard(int interstate, int pnum, int draw_count, int total_
 	SetFont("INTERFONT");
 	
 	text = StrParam(n:pnum + 1);
-	temp = GetRawLength(text);
+	temp = GetRawLength(text) & 0xFFFF;
 	// don't clutter the intermission board
 	if(temp > MAX_INTERMISSION_PNAMELEN)
 		text = StrParam(s:StrLeft(text, MAX_INTERMISSION_PNAMELEN), s:"...");

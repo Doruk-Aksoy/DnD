@@ -4376,6 +4376,11 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						}
 					}
 				}
+				else if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
+					// scavenge, ask user in the form of a popup to confirm
+					ShowPopup(POPUP_SCAVENGECONFIRM, false, 0);
+					LocalAmbientSound("RPG/MenuSellConfirm", 127);
+				}
 			}
 		}
 		else {

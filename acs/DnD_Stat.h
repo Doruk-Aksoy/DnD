@@ -719,7 +719,7 @@ int GetPlayerWeaponEnchant(int pnum, int wepid) {
 	return Player_Weapon_Infos[pnum][wepid].quality;
 }
 
-void HandleArmorDependencyCheck() {
+/*void HandleArmorDependencyCheck() {
 	// Research Dependency
 	if(CheckInventory("Research_Body_Ar_1_Tracker") == GetAmmoCapacity("Research_Body_Ar_1_Tracker") && CheckResearchStatus(RES_EXO1) == RES_NA)
 		GiveResearch(RES_EXO1, true);
@@ -729,7 +729,7 @@ void HandleArmorDependencyCheck() {
 		GiveInventory(Quest_List[active_quest_id].qchecker, 1);
 		FailQuest(ActivatorTID());
 	}
-}
+}*/
 
 // break all trades between this player and others
 void BreakTradesBetween(int pnum) {

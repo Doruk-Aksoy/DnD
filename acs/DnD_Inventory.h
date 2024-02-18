@@ -2526,8 +2526,8 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int special_roll_rule = 
 				if(tag < 0)
 					tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
 
-				// check rule exceptions
-				if(!AttributeTagGroupCount[tag][item_type]) {
+				// check rule exceptions -- compare vs charms for "cant roll" condition, charms can roll anything
+				if(AttributeTagGroupCount[tag][item_type] < AttributeTagGroupCount[tag][DND_CRAFTABLEID_CHARM]) {
 					// check potential special rolls
 					if(CanAllowModRollSpecial(tag, special_roll_rule)) {
 						// charms can roll everything possible, so we switch it to that, and then let it pick from that category
@@ -2535,6 +2535,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int special_roll_rule = 
 						break;
 					}
 				}
+				// we check for "0" here because, if the above doesnt make it reroll into a wider pool, and if theres non-zero, that means we still get valid stuff here
 			} while(!AttributeTagGroupCount[tag][item_type]);
 
 			// finally roll the attrib at random from the group

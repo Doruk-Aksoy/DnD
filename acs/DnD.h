@@ -831,7 +831,8 @@ void HandleChestDrops(int ctype) {
 		SpawnOrbForAll(1);
 }
 
-void HandleEliteDrops(int drop_boost) {
+// drop boost increases chance for a drop, rarity is for chance for it to be unique
+void HandleItemDrops(int drop_boost, int rarity_boost) {
 	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
@@ -843,31 +844,15 @@ void HandleEliteDrops(int drop_boost) {
 			// for tokens -- same likelihood to drop as orbs
 			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP * drop_boost / 100))
 				SpawnToken(i, true);
+
+			if(ignoreWeight || RunDefaultDropChance(i, DND_BASEARMOR_DROP * drop_boost ))
+				SpawnArmor(i, rarity_boost, true);
+
+			if(ignoreWeight || RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100))
+				SpawnCharm(i, rarity_boost);
 		}
 	}
 }
-
-void HandleCharmLootDrop(int drop_boost, int rarity_boost) {
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		// run each player's chance, drop for corresponding player only
-		if
-		(
-			PlayerInGame(i) &&
-			(GetCVar("dnd_ignore_dropweights") || (IsActorAlive(i + P_TIDSTART) && RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100)))
-		)
-			SpawnCharm(i, rarity_boost);
-	}
-	//SpawnCharm(0, rarity_boost);
-}
-
-/*void HandleSoulDrop() {
-	if(IsDemon()) {
-		str drop = "SoulsDrop";
-		if(IsBoss())
-			drop = "LargeSoulsDrop";
-		SpawnDrop(drop, GetActorProperty(0, APROP_HEIGHT) / 2, 12, 0, 0);
-	}
-}*/
 
 void HandleCreditExp_Regular(int this, int target, int m_id) {
 	int expshare = GetCVar("dnd_sharexp");
@@ -1037,7 +1022,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	// new: we let every monster drop orbs, not just elites but with an overall lower chance
 	//if(GetCVar("dnd_ignore_dropweights") || isElite) {
 		// handle orb drops
-		HandleEliteDrops(MonsterProperties[m_id].droprate);
+	HandleItemDrops(MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	//}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
@@ -1062,8 +1047,6 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		SpawnOrb(0, true);
 		//SpawnToken(0, true);
 	#endif
-	
-	HandleCharmLootDrop(MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	
 	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
 	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(pnum, DND_DOOMGUY_DROPCHANCE)) {
@@ -1306,10 +1289,7 @@ void HandleUniqueDeath(int p_actor, int unique_id) {
 			SpawnForced("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
 		break;
 		case MONSTER_GANT:
-			if(GameType() != GAME_SINGLE_PLAYER)
-				SpawnPlayerDrop(pnum, "SynthMetalPickup_MP", 24.0, 16, 0, 0);
-			else
-				SpawnPlayerDrop(pnum, "SynthMetal_SP", 24.0, 16, 0, 0);
+			SpawnArmor(pnum, 0, -BODYARMOR_SYNTHMETAL);
 		break;
 		case MONSTER_BRONN:
 			SpawnResearchId(RES_SYNTHMASK);
@@ -1320,10 +1300,7 @@ void HandleUniqueDeath(int p_actor, int unique_id) {
 		break;
 		case MONSTER_REMUS:
 			// drops armor and gives research for it: lightning coil - super lightning protection, 300, 40% damage reduction. When hurt fires lightning bolts.
-			if(GameType() != GAME_SINGLE_PLAYER)
-				SpawnPlayerDrop(pnum, "LightningCoilPickup_MP", 24.0, 16, 0, 0);
-			else
-				SpawnPlayerDrop(pnum, "LightningCoil_SP", 24.0, 16, 0, 0);
+			SpawnArmor(pnum, 0, -BODYARMOR_LIGHTNINGCOIL);
 		break;
 		case MONSTER_SSRATH:
 			// ssrath influence: soul type weapons penetrate % magic resistance

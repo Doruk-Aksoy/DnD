@@ -110,6 +110,7 @@ enum {
 // this was 0.05 before, but now 0.005 because we have 10% chance for elite in the game as base, so it'll scale up for all monsters from 0.005 now
 // trying 0.01, 1% chance
 #define DND_ELITE_BASEDROP_ORB 0.015
+#define DND_BASEARMOR_DROP 0.0075
 
 #define DND_BASE_PLAYERSPEED 1.0
 #define DND_BULKINESS_GAIN 0.006
@@ -124,6 +125,8 @@ enum {
 #define DND_CHR_GAIN 0.5
 #define DND_PET_CHARISMA_FACTOR 20
 #define DND_TALENTPOINT_MARK 4
+
+#define DND_HP_PER_LVL 4
 
 #define BASE_PET_CAP 3
 
@@ -463,9 +466,10 @@ int CalculateHealthCapBonuses(int pnum) {
 		   GetPlayerAttributeValue(pnum, INV_HP_INCREASE);
 }
 
+// returns player max health
 int GetSpawnHealth() {
 	int pnum = PlayerNumber();
-	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_VIT_INCREASE * GetVitality();
+	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * GetStat(STAT_LVL) + DND_VIT_INCREASE * GetVitality();
 	// consider percent bonuses from here on
 	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
 				   // GetStrength() * DND_STR_CAPINCREASE 										+

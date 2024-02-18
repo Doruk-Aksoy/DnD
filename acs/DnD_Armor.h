@@ -3,29 +3,71 @@
 
 enum {
     // body armors
-    BODYARMOR_GREEN,
-    BODYARMOR_YELLOW,
-    BODYARMOR_BLUE,
-    BODYARMOR_RED,
+    BODYARMOR_GREEN, // 20%
+    BODYARMOR_YELLOW, // 15%
+    BODYARMOR_BLUE, // 10%
+    BODYARMOR_RED, // 5%
 
-	BODYARMOR_GUNSLINGER,
-	BODYARMOR_OCCULT,
-	BODYARMOR_DEMO,
-	BODYARMOR_ENERGY,
-	BODYARMOR_ELEMENTAL,
+	BODYARMOR_GUNSLINGER, // 6%
+	BODYARMOR_OCCULT, // 6%
+	BODYARMOR_DEMO, // 6%
+	BODYARMOR_ENERGY, // 6%
+	BODYARMOR_ELEMENTAL, // 6%
 
-	BODYARMOR_MONOLITH,
-	BODYARMOR_CYBER,
-	BODYARMOR_DUELIST,
-	BODYARMOR_NECRO,
-	BODYARMOR_KNIGHT,
-	BODYARMOR_RAVAGER,
+	BODYARMOR_MONOLITH, // 1%
+	BODYARMOR_CYBER, // 4%
+	BODYARMOR_DUELIST, // 5%
+	BODYARMOR_NECRO, // 3%
+	BODYARMOR_KNIGHT, // 3%
+	BODYARMOR_RAVAGER, // 4%
 
+	// special drops, can't randomly appear
 	BODYARMOR_SYNTHMETAL,
 	BODYARMOR_LIGHTNINGCOIL
 };
 #define BODYARMORS_BEGIN BODYARMOR_GREEN
+#define BODYARMORS_REGULAREND BODYARMOR_RAVAGER
 #define BODYARMORS_END BODYARMOR_LIGHTNINGCOIL
+
+enum {
+	ARMWEIGHT_GREEN = 20,
+	ARMWEIGHT_YELLOW = 35,
+	ARMWEIGHT_BLUE = 45,
+	ARMWEIGHT_RED = 50,
+
+	ARMWEIGHT_GUNSLINGER = 56,
+	ARMWEIGHT_OCCULT = 62,
+	ARMWEIGHT_DEMO = 68,
+	ARMWEIGHT_ENERGY = 74,
+	ARMWEIGHT_ELEMENTAL = 80,
+
+	ARMWEIGHT_MONOLITH = 81,
+	ARMWEIGHT_CYBER = 85,
+	ARMWEIGHT_DUELIST = 90,
+	ARMWEIGHT_NECRO = 93,
+	ARMWEIGHT_KNIGHT = 96,
+	ARMWEIGHT_RAVAGER = 100
+};
+
+int ArmorDropWeights[BODYARMORS_REGULAREND + 1] = {
+	ARMWEIGHT_GREEN,
+	ARMWEIGHT_YELLOW,
+	ARMWEIGHT_BLUE,
+	ARMWEIGHT_RED,
+
+	ARMWEIGHT_GUNSLINGER,
+	ARMWEIGHT_OCCULT,
+	ARMWEIGHT_DEMO,
+	ARMWEIGHT_ENERGY,
+	ARMWEIGHT_ELEMENTAL,
+
+	ARMWEIGHT_MONOLITH,
+	ARMWEIGHT_CYBER,
+	ARMWEIGHT_DUELIST,
+	ARMWEIGHT_NECRO,
+	ARMWEIGHT_KNIGHT,
+	ARMWEIGHT_RAVAGER
+};
 
 #define DND_BODYARMOR_BASEWIDTH 2
 #define DND_BODYARMOR_BASEHEIGHT 2
@@ -35,10 +77,15 @@ enum {
 // returns type of charm as result
 int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
     // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
-	int res;
+	int res, i;
 	if(!tiers) {
-		// pick with some weight here
-		res = random(BODYARMORS_BEGIN, BODYARMORS_END);
+		// pick with some weight here -- <= here for index, size is that +1
+		res = random(1, 100);
+		for(i = 0; i <= BODYARMORS_REGULAREND; ++i)
+			if(res <= ArmorDropWeights[i]) {
+				res = i;
+				break;
+			}
 		//res = BODYARMOR_CYBER;
 	}
 	else if(tiers == 1) {
@@ -75,7 +122,7 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
 	Inventories_On_Field[item_pos].implicit.attrib_extra = 0;
 	
 	Inventories_On_Field[item_pos].attrib_count = 0;
-	for(int i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
 		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
 
 	return res;
@@ -228,7 +275,7 @@ void UpdateEnergyShieldVisual(int val) {
 	SetAmmoCapacity("EShieldAmountVisual", val);
 }
 
-void SpawnBodyArmor(int pnum, int rarity_boost, bool noRepeat = false, int tiers = 0) {
+void SpawnArmor(int pnum, bool noRepeat = false, int tiers = 0) {
     int c = CreateItemSpot();
 	if(c != -1) {
         int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
@@ -240,7 +287,7 @@ void SpawnBodyArmor(int pnum, int rarity_boost, bool noRepeat = false, int tiers
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
 		
 		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnBodyArmor(pnum, rarity_boost, true);
+			SpawnArmor(pnum, true);
 	}
 }
 
@@ -275,7 +322,7 @@ Script "DnD Armor Message" (int id, int type) CLIENTSIDE {
 Script "DnD Drop Random Basic Armor" (int higher_tier) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnBodyArmor(i, 0, true, higher_tier);
+			SpawnArmor(i, true, higher_tier);
 	}
 }
 
