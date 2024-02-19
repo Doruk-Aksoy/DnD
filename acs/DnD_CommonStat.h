@@ -469,7 +469,7 @@ int CalculateHealthCapBonuses(int pnum) {
 // returns player max health
 int GetSpawnHealth() {
 	int pnum = PlayerNumber();
-	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * GetStat(STAT_LVL) + DND_VIT_INCREASE * GetVitality();
+	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + DND_VIT_INCREASE * GetVitality();
 	// consider percent bonuses from here on
 	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
 				   // GetStrength() * DND_STR_CAPINCREASE 										+

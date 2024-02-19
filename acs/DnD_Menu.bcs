@@ -1345,8 +1345,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_LOAD);
 			}
 		}
-		else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY)
+		else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY) {
+			Log(s:"process craft inp");
 			HandleCraftingInputs(boxid, curopt);
+		}
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			if(HasPlayerClicked(pnum)) {
 				if(boxid >= MBOX_1) {
@@ -1844,6 +1846,41 @@ Script "DnD Menu Popup Show" (int id, int pnum, int isSell) CLIENTSIDE {
 		HudMessage(s:"\c[Q2]", l:title; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 0.0);
 		HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 160.1, 0.0);
 	}
+	SetHudClipRect(0, 0, 0, 0, 0);
+}
+
+Script "DnD Menu Notif" (int pnum, int extra, int activebox) {
+	int popupid = pnum >> 16;
+	pnum &= 0xFFFF;
+
+	SetActivator(pnum + P_TIDSTART);
+
+	GiveInventory("DnD_ShowPopup", 1);
+	SetInventory("ActivePopupBox", activebox);
+	SetInventory("DnD_PopupID", popupid);
+	
+	ACS_NamedExecuteAlways("DnD Menu Notif Show", 0, pnum, popupid, extra);
+}
+
+Script "DnD Menu Notif Show" (int pnum, int popupid, int extra) CLIENTSIDE {
+	// 0 for buy being possible, 2 if credits was not enough, 1 if credits was enough but you are maxed on the item and 3 if neither were satisfied 4 if item can't be sold
+	SetActivator(pnum + P_TIDSTART);
+	
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	
+	SetFont("DND_ERR");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUPOPUPID, -1, 216.1, 128.1, 0.0);
+	
+	SetFont("SMALLFONT");
+	SetHudClipRect(220, 132, 180, 128, 180);
+	HudMessage(s:"\cd", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 0.0);
+	if(popupid == POPUP_SCAVENGECONFIRM)
+		HudMessage(l:GetPopupText(popupid), s:"\cd$", d:extra, s:"\c-?", s:" (\cd", k:"+altattack", s:" = ", l:"DND_MENU_CONFIRM", s:", \cg", k:"+attack", s:"\c- = ", l:"DND_MENU_CANCEL", s:")"; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 144.1, 0.0);
+	else
+		HudMessage(l:GetPopupText(popupid); HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 144.1, 0.0);
 	SetHudClipRect(0, 0, 0, 0, 0);
 }
 

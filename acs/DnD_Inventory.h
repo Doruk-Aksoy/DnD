@@ -20,6 +20,18 @@
 #define INVENTORY_HOLDTIME 0.5
 #define INVENTORY_FADETIME 0.5
 
+#define DND_BASE_DISASSEMBLE_COST 1000
+#define DND_DISASSEMBLE_LEVEL_PERCENT 25
+#define DND_DISASSEMBLE_TIER_PERCENT 30
+#define DND_BASE_DISASSEMBLE_CHANCE 25 // 25%
+#define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 10 // 20%
+#define DND_BASE_FRACTURE_DISASSEMBLE_CHANCE 3
+#define DND_BASE_CORRUPT_DISASSEMBLE_CHANCE 5
+#define DND_BASE_ILVL_YIELD 10
+#define DND_BASE_AVGMOD_YIELD 30
+#define DND_BASE_FRACTURE_YIELD 50
+#define DND_BASE_CORRUPT_YIELD 100
+
 #define MAX_EXTRA_INVENTORY_PAGES 10
 
 #define MAXSTACKS_ORB 128
@@ -2819,6 +2831,118 @@ void ResetPlayerStash(int pnum) {
 			}
 			PlayerStashList[pnum][p][i].attrib_count = 0;
 		}
+	}
+}
+
+// underlying assumption that the item isn't null, as it's returned from crafting screen
+int DisassembleItem_Price(int pnum, int item_pos) {
+	// we have a price band for the item, use the price the gauge what kind of orb(s) we can give to the player
+	// make tier and amount of mods contribute highly to this too, so we need to do some of the steps we did again for this one
+	int base = DND_BASE_DISASSEMBLE_COST;
+	int ilvl = PlayerInventoryList[pnum][item_pos].item_level;
+
+	int avg_mod_tier = 0;
+	int acount = PlayerInventoryList[pnum][item_pos].attrib_count;
+	int fracture_count = 0;
+	if(acount) {
+		for(int i = 0; i < acount; ++i) {
+			avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+			fracture_count += PlayerInventoryList[pnum][item_pos].attributes[i].fractured;
+		}
+		avg_mod_tier /= acount;
+	}
+
+	base = base * (100 + (ilvl - 1) * DND_DISASSEMBLE_LEVEL_PERCENT) / 100;
+	base = base * (100 + DND_DISASSEMBLE_TIER_PERCENT * avg_mod_tier) / 100;
+
+	// if corrupted or has implicit, include that too
+	if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1) {
+		// 50% increase
+		base *= 3;
+		base >>= 1;
+	}
+	
+	if(PlayerInventoryList[pnum][item_pos].corrupted) {
+		// 50% increase
+		base *= 3;
+		base >>= 1;
+	}
+
+	return base;
+}
+
+// returns the chance and a score rating how big the orb rarity and yield should be depending on how loaded the item is
+int GetDissassembleChance(int pnum, int item_pos) {
+	int ilvl = PlayerInventoryList[pnum][item_pos].item_level;
+
+	int avg_mod_tier = 0;
+	int acount = PlayerInventoryList[pnum][item_pos].attrib_count;
+	int fracture_count = 0;
+	if(acount) {
+		for(int i = 0; i < acount; ++i) {
+			avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+			fracture_count += PlayerInventoryList[pnum][item_pos].attributes[i].fractured;
+		}
+		avg_mod_tier /= acount;
+	}
+
+	// give more chance to succeed if we have the research related to it too
+	int chance = DND_BASE_DISASSEMBLE_CHANCE + DND_BASE_DISASSEMBLE_CHANCE_PERLUCK * GetStat(STAT_LUCK);
+
+	// 10% of ilvl + 25% of avg mod tier + 3% flat per fractured mod and 5% if corrupted to fail
+	chance -= ilvl / 10 + avg_mod_tier / 4 + DND_BASE_FRACTURE_DISASSEMBLE_CHANCE * fracture_count + DND_BASE_CORRUPT_DISASSEMBLE_CHANCE * PlayerInventoryList[pnum][item_pos].corrupted;
+
+	int yields = ilvl * DND_BASE_ILVL_YIELD + avg_mod_tier * DND_BASE_AVGMOD_YIELD + DND_BASE_FRACTURE_YIELD * fracture_count + DND_BASE_CORRUPT_YIELD * PlayerInventoryList[pnum][item_pos].corrupted;
+
+	return (chance << 16) + yields;
+}
+
+void DisassembleItem(int pnum, int item_pos, int price) {
+	TakeInventory("Credit", price);
+	// give more chance to succeed if we have the research related to it too
+	int chance = GetDissassembleChance(pnum, item_pos);
+	int yield = chance & 0xFFFF;
+	chance >>= 16;
+
+	bool result = chance >= random(1, 100);
+	if(result) {
+		// success, give user orbs depending on yield
+		do {
+			int orb = -1;
+			int sub = random(75, 150);
+			if(yield >= 1000) {
+				orb = PickHighTierOrb();
+				sub *= 7;
+			}
+			else if(yield >= 500) {
+				orb = PickMidTierOrb();
+				sub *= 3;
+			}
+			else
+				orb = PickLowTierOrb();
+			yield -= sub;
+			
+			ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, orb, 1);
+		} while(yield > 0);
+	}
+
+	ACS_NamedExecuteAlways("DnD Disassemble CS", 0, result);
+
+	// destroy item and give nothing to the user
+	FreeItem(pnum, item_pos, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+	GiveInventory("DnD_CleanCraftingRequest", 1);
+	GiveInventory("DnD_RefreshPane", 1);
+	GiveInventory("DnD_CursorDataClearRequest", 1);
+}
+
+Script "DnD Disassemble CS" (int result) CLIENTSIDE {
+	if(result) {
+		Log(s:"\c[Y5]", l:"DND_DISASS", s:": \cd", l:"DND_DISASS_WIN");
+		LocalAmbientSound("Items/SuccessDisassemble", 127);
+	}
+	else {
+		Log(s:"\c[Y5]", l:"DND_DISASS", s:": \cg", l:"DND_DISASS_LOSS");
+		LocalAmbientSound("Items/FailDisassemble", 127);
 	}
 }
 

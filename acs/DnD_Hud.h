@@ -351,6 +351,10 @@ void ShowPopup(int popupid, bool isSell, int activebox) {
 	ACS_NamedExecuteAlways("DnD Menu Popup", 0, Playernumber() | (popupid << 16), isSell, activebox);
 }
 
+void ShowNotif(int popupid, int activebox, int extra) {
+	ACS_NamedExecuteAlways("DnD Menu Notif", 0, Playernumber() | (popupid << 16), extra, activebox);
+}
+
 void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
 	ACS_NamedExecuteAlways("DnD Menu Popup", 0, pnum | (popupid << 16), isSell, activebox);
 }

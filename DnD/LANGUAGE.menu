@@ -17,6 +17,11 @@ DND_MENU_AVGMONLEVEL	=	"Average Monster Level";
 DND_MENU_MAPINFO		=	"Show Map Info: ";
 DND_MENU_MODTIERS		=	"Show Item Mod Tiers: ";
 
+// crafting
+DND_DISASS				=	"Disassemble";
+DND_DISASS_WIN			=	"Successfully gained orbs from the item!";
+DND_DISASS_LOSS			=	"Failed to extract any orbs from the item!";
+
 // basic words
 DND_MENU_ENABLED		=	"\cdEnabled";
 DND_MENU_DISABLED		=	"\cgDisabled";

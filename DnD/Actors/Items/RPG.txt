@@ -397,6 +397,8 @@ Actor DnD_Character : Ammo {
 	+IGNORESKILL
 }
 
+Actor DnD_ItemPriceTemp : DnD_Info { }
+
 Actor DnD_Crafting_MaterialPage : Inventory {
 	inventory.maxamount 10
 }

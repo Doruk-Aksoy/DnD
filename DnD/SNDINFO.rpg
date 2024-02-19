@@ -3,6 +3,9 @@ Intermission2		INTER2
 Intermission3		INTER3
 Intermission4		INTER4
 
+Items/SuccessDisassemble	DISASWIN
+Items/FailDisassemble		DISASLOS
+
 RPG/LevelUp			RPGLVLUP
 RPG/KillBonus		RPGKILLS
 RPG/ItemBonus		RPGITEMS

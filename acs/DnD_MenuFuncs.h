@@ -4059,6 +4059,8 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
 				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
 				SetFont("CRFBX_H");
+
+
 			}
 			else if(boxid - 1 == i) {
 				UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum);
@@ -4263,7 +4265,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 		//Log(d:curitemeindex, s: " ", d:previtemindex);
 		//printbold(d:previtemindex, s: " ", d:boxid);
 		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
-		if(boxid != MAINBOX_NONE && boxid != CheckInventory("DnD_SelectedInventoryBox")) {
+		if(boxid != MAINBOX_NONE && (CheckInventory("DnD_SellConfirm") || boxid != CheckInventory("DnD_SelectedInventoryBox"))) {
 			if(HasLeftClicked(pnum)) {
 				// arrows in material part, left and right respectively
 				if(boxid == MATERIALARROW_ID) {
@@ -4377,9 +4379,31 @@ void HandleCraftingInputs(int boxid, int curopt) {
 					}
 				}
 				else if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
-					// scavenge, ask user in the form of a popup to confirm
-					ShowPopup(POPUP_SCAVENGECONFIRM, false, 0);
-					LocalAmbientSound("RPG/MenuSellConfirm", 127);
+					if(!CheckInventory("DnD_SellConfirm")) {
+						// scavenge, ask user in the form of a popup to confirm
+						SetInventory("DnD_ItemPriceTemp", DisassembleItem_Price(pnum, curitemeindex));
+						ShowNotif(POPUP_SCAVENGECONFIRM, 0, CheckInventory("DnD_ItemPriceTemp"));
+						LocalAmbientSound("RPG/MenuSellConfirm", 127);
+						SetInventory("DnD_SelectedInventoryBox", boxid);
+						GiveInventory("DnD_SellConfirm", 1);
+					}
+					else {
+						int price = CheckInventory("DnD_ItemPriceTemp");
+						if(CheckInventory("Credit") >= price) {
+							DisassembleItem(pnum, curitemeindex, price);
+							TakeInventory("DnD_SellConfirm", 1);
+							ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+						}
+						else {
+							TakeInventory("DnD_SellConfirm", 1);
+							SetInventory("DnD_SelectedInventoryBox", 0);
+							ShowPopup(POPUP_NOFUNDS, false, 0);
+						}
+					}
+				}
+				else if(CheckInventory("DnD_SellConfirm")) {
+					TakeInventory("DnD_SellConfirm", 1);
+					ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
 				}
 			}
 		}
