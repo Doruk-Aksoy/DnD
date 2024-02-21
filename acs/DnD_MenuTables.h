@@ -56,8 +56,8 @@ enum {
 #define INVENTORYBOX_BASEX_RECT 384.0
 #define INVENTORYBOX_BASEY_RECT 240.0
 
-#define TRADE_RES_X HUDMAX_X * 3 / 2
-#define TRADE_RES_Y HUDMAX_Y * 3 / 2
+#define TRADE_RES_X (HUDMAX_X * 3 / 2)
+#define TRADE_RES_Y (HUDMAX_Y * 3 / 2)
 
 #define TRADEBOX_SKIP ((2 * 32.0 / 3) & 0xFFFF0000)
 #define INVENTORYBOXTRADE_TOP_BASEX_RECT 465.0
@@ -260,7 +260,6 @@ enum {
 	TYPE_AMMO,
 	TYPE_ABILITY,
 	TYPE_ARTI,
-	TYPE_ARMOR,
 	TYPE_ACCOUNT
 };
 
@@ -455,14 +454,14 @@ int ShopInfo[MAXSHOPITEMS][3] =
 
 		// Artifacts, here for convenience. Index = MAXSHOPITEMS - MAXARTIFACTS
 		{ 1250,          FIELDKITMAX,				3   },
-		{ 18000,         SOLVEMAX,					0   },
-		{ 12000,         STASISMAX,					0   },
-		{ 20000,         BLOODRUNEMAX,				0 	},
-		{ 20000,         TRIPLEMAX,					0   },
-		{ 20000,         VORTEXMAX,					0   },
-		{ 17500,	     BOOKMAX,					0   },
+		{ 18000,         SOLVEMAX,					1   },
+		{ 12000,         STASISMAX,					1   },
+		{ 20000,         BLOODRUNEMAX,				1 	},
+		{ 20000,         TRIPLEMAX,					1   },
+		{ 20000,         VORTEXMAX,					1   },
+		{ 17500,	     BOOKMAX,					1   },
 		{ 27500,         1,							1	},
-		{ 50000,         1,							0	},
+		{ 50000,         1,							1	},
 		{ 10000,         RESETMAX,					1 	},
 		{ 5000,			 1,							1	}
 };
@@ -668,8 +667,6 @@ int GetItemType(int id) {
 		return TYPE_AMMO;
 	else if(id <= SHOP_LASTABILITY_INDEX)
 		return TYPE_ABILITY;
-	else if(id <= SHOP_LASTARMOR_INDEX)
-		return TYPE_ARMOR;
 	else if(id <= SHOP_ACCOUNT_END)
 		return TYPE_ACCOUNT;
 	else
@@ -695,9 +692,6 @@ str GetItemName(int id) {
 		break; 
 		case TYPE_ABILITY:
 			name = AbilityInfo[id - SHOP_ABILITY1_BEGIN];
-		break;
-		case TYPE_ARMOR:
-			// we handle uses of armor differently
 		break;
 		case TYPE_ARTI:
 			name = ArtifactInfo[id - SHOP_FIRSTARTI1_INDEX][ARTI_NAME];
@@ -1463,7 +1457,7 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	// utility
 	{
 		{
-			RES_RAREARMOR, 4301, 60
+			RES_MOLECULARREC, 4301, 60
 		},
 		{
 			RES_SUPERARMOR, 4300, 80

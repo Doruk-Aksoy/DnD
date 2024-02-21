@@ -1,7 +1,7 @@
 [enu default]
 
-RES_LABEL0 				= "Rare Armors";
-RES_DESC0				= "By using parts from fallen enemies, we can manufacture armors of varying properties.";
+RES_LABEL0 				= "Molecular Reconstruction";
+RES_DESC0				= "UAC's research on the salvaged items found on the battlefields has allowed for a better chance to gain more materials through disassembly. +25% to disassembly success chance and 33% more yield.";
 
 RES_LABEL1 				= "Super Armor";
 RES_DESC1				= "With this breakthrough technology, we can start distributing state of the art armors to the marines, blocking 100% of the damage. Unlocks Monolith Armor.";

@@ -33,6 +33,11 @@ void ReturnToMain() {
 	LocalAmbientSound("RPG/MenuChoose", 127);
 }
 
+void ClearTempItemInventory() {
+	SetInventory("DnD_ItemSelectTemp", 0);
+	SetInventory("DnD_ItemCursorMsg", 0);
+}
+
 // includes left right shortcuts
 // works clientside
 void ListenInput(int listenflag, int condx_min, int condx_max) {
@@ -332,7 +337,7 @@ int GetWeaponBeginIndexFromOption(int curopt) {
 		case MENU_SHOP_WEAPON8:
 		return SHOP_WEAPON8_BEGIN;
 	}
-	return 0;
+	return SHOP_WEAPON1_BEGIN;
 }
 
 int GetWeaponEndIndexFromOption(int curopt) {
@@ -362,7 +367,7 @@ int GetWeaponEndIndexFromOption(int curopt) {
 		case MENU_SHOP_WEAPON8:
 		return SHOP_WEAPON_SLOT8END;
 	}
-	return 0;
+	return SHOP_WEAPON_SLOT1END;
 }
 
 str GetWeaponToTake(int wepid) {
@@ -410,6 +415,7 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 				++imgcount;
 			}
 		}
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	}
 }
 
@@ -464,6 +470,8 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-144, 0);
 		break;
 		case MENU_HELP_ORBS:
+			redraw = ListenScroll(-320, 0);
+		break;
 		case MENU_HELP_MMODS_DEFENSIVE:
 			redraw = ListenScroll(-224, 0);
 		break;
@@ -560,11 +568,12 @@ void DrawArtifactIconCorner(int boxid) {
 }
 
 // curopt is the pageid
-void HandleItemInfoPanel(int curopt, int animcounter, int boxid, bool redraw) {
+void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 	static int ypos = 0;
 	bool mode = 0;
+	bool isWepPage = IsWeaponPage(curopt);
 	// pull down = 1
-	if(IsWeaponPage(curopt))
+	if(isWepPage)
 		mode = 1;
 	else if(redraw)
 		ClearInfoPanel();
@@ -577,11 +586,12 @@ void HandleItemInfoPanel(int curopt, int animcounter, int boxid, bool redraw) {
 		if(ypos > 0)
 			--ypos;
 	}
+
 	SetFont("DND_PANL");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID, -1, -12.0, -64.0 + ypos * 4.0, 0.0, 0.0);
 	
-	if(boxid != MAINBOX_NONE)
+	if(isWepPage && boxid != MAINBOX_NONE)
 		HandleWeaponPropertyImages(curopt, boxid, ypos);
 	else {
 		if(redraw)
@@ -630,7 +640,7 @@ void ShowWeaponPropertyIcon(int id) {
 
 void ShowOrbIcon(int id, int offset) {
 	SetFont(GetItemImage(id + ITEM_IMAGE_ORB_BEGIN));
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 60.1 + 8.0 * ScrollPos.x + offset, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 172.1 + 8.0 * ScrollPos.x + offset, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
@@ -698,8 +708,6 @@ int ShopScale(int amount, int id) {
 		return amount * Clamp_Between(GetCVar("dnd_shop_ability_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_ARTI:
 		return amount * Clamp_Between(GetCVar("dnd_shop_artifact_scale"), 1, SHOP_SCALE_MAX);
-		case TYPE_ARMOR:
-		return amount * Clamp_Between(GetCVar("dnd_shop_armor_scale"), 1, SHOP_SCALE_MAX);
 		case TYPE_ACCOUNT:
 		return amount * Clamp_Between(GetCVar("dnd_shop_account_scale"), 1, SHOP_SCALE_MAX);
 	}
@@ -768,8 +776,6 @@ int CanTrade (int id, int tradeflag, int price) {
 	
 	if(type == TYPE_ARTI)
 		item = ArtifactInfo[id - SHOP_FIRSTARTI1_INDEX][ARTI_NAME]; // put it in the artifact info range
-	else if(type == TYPE_ARMOR)
-		item = "ArmorAmount";
 	else {
 		item = GetItemName(id);
 		wepcheck = GetWeaponCondition(id);
@@ -1289,22 +1295,32 @@ void DrawHighLightBar (int posy, int framecounter) {
 	SetFont("SMALLFONT");
 }
 
-void DrawFrequentRedrawItems(int pnum) {
+void DrawFrequentRedrawItems(int curopt, int pnum) {
+	// generally used for drawing things right under cursor that are messages and such, and not dragged items
 	// check if we have used an assimilation orb, if we did draw text under cursor
-	int i = CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1;
-	if(i != -1) {
-		// player used an assimilation orb, figure out if they made a choice or not
-		if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == DND_ORB_ASSIMILATION) {
+	if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+		int i = CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1;
+		bool doDraw = false;
+		str text = "";
+		if(i != -1) {
+			// player used an assimilation orb, figure out if they made a choice or not
+			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == DND_ORB_ASSIMILATION) {
+				doDraw = true;
+				if(!CheckInventory("DnD_SelectedInventoryBox"))
+					text = StrParam(s:"\c[Q2]", l:"DND_MENU_ASSIMORB1");
+				else
+					text = StrParam(s:"\c[Q2]", l:"DND_MENU_ASSIMORB2");
+			}
+		}
+
+		// draw right under crosshair
+		if(doDraw) {
 			int x = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.0;
 			int y = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 24.0;
-
 			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 			SetFont("SMALLFONT");
 			SetHudClipRect((x >> 16) - 8, (y >> 16) - 8, 96, 64, 96);
-			if(!CheckInventory("DnD_SelectedInventoryBox"))
-				HudMessage(s:"\c[Q2]", l:"DND_MENU_ASSIMORB1"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, -1, x + 0.1, y + 0.1, 0.0);
-			else
-				HudMessage(s:"\c[Q2]", l:"DND_MENU_ASSIMORB2"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, -1, x + 0.1, y + 0.1, 0.0);
+			HudMessage(s:text; HUDMSG_PLAIN, RPGMENUCURSORID + 1, -1, x + 0.1, y + 0.1, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
 		}
 	}
@@ -3934,7 +3950,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 			}
 		//}
 		SetFont("SMALLFONT");
-		HudMessage(s:"P", d:page + 1; HUDMSG_PLAIN, RPGMENUID - MATERIALARROW_HUDID - 2, CR_WHITE, 426.4, 284.0, 0.0);
+		HudMessage(s:"P", d:page + 1; HUDMSG_PLAIN, RPGMENUID - MATERIALARROW_HUDID - 2, CR_WHITE, 430.4, 284.0, 0.0);
 		// draw next page button and enable it for use
 		if(mcount > MAX_CRAFTING_MATERIALBOXES) {
 			if(page) {
@@ -4251,6 +4267,10 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 	else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		HandleCraftingInventoryDraw(pnum, p, boxid, k);
+
+		// draw player credits on top right corner
+		SetFont("SMALLFONT");
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
 	}
 	SetFont("SMALLFONT");
 }
@@ -4381,21 +4401,26 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				else if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
 					if(!CheckInventory("DnD_SellConfirm")) {
 						// scavenge, ask user in the form of a popup to confirm
+						SetInventory("DnD_ItemCursorMsg", GetDissassembleChance(pnum, curitemeindex));
 						SetInventory("DnD_ItemPriceTemp", DisassembleItem_Price(pnum, curitemeindex));
+						SetInventory("DnD_ItemSelectTemp", curitemeindex);
 						ShowNotif(POPUP_SCAVENGECONFIRM, 0, CheckInventory("DnD_ItemPriceTemp"));
 						LocalAmbientSound("RPG/MenuSellConfirm", 127);
 						SetInventory("DnD_SelectedInventoryBox", boxid);
 						GiveInventory("DnD_SellConfirm", 1);
 					}
 					else {
-						int price = CheckInventory("DnD_ItemPriceTemp");
+						int price = CheckInventory("DnD_ItemPriceTemp"); 
 						if(CheckInventory("Credit") >= price) {
-							DisassembleItem(pnum, curitemeindex, price);
+							DisassembleItem(pnum, CheckInventory("DnD_ItemSelectTemp"), price, CheckInventory("DnD_ItemCursorMsg"));
 							TakeInventory("DnD_SellConfirm", 1);
+							ClearTempItemInventory();
+							SetInventory("DnD_SelectedInventoryBox", 0);
 							ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
 						}
 						else {
 							TakeInventory("DnD_SellConfirm", 1);
+							ClearTempItemInventory();
 							SetInventory("DnD_SelectedInventoryBox", 0);
 							ShowPopup(POPUP_NOFUNDS, false, 0);
 						}
@@ -4403,6 +4428,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				}
 				else if(CheckInventory("DnD_SellConfirm")) {
 					TakeInventory("DnD_SellConfirm", 1);
+					ClearTempItemInventory();
 					ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
 				}
 			}

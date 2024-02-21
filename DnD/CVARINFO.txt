@@ -52,7 +52,6 @@ server noarchive int dnd_shop_ammo_scale = 1;
 server noarchive int dnd_shop_artifact_scale = 1;
 server noarchive int dnd_shop_ability_scale = 1;
 server noarchive int dnd_shop_talent_scale = 1;
-server noarchive int dnd_shop_armor_scale = 1;
 server noarchive int dnd_shop_account_scale = 1;
 
 server noarchive int dnd_maxmonsterlevel = 100;

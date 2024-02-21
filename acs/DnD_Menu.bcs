@@ -35,6 +35,7 @@ Script 900 (int opt) NET {
 		SetInventory("DnD_PlayerPrevItemIndex", 0);
 		SetInventory("DnD_PopupId", 0);
 		SetInventory("DnD_SelectedCharmBox", 0);
+		SetInventory("DnD_ItemSelectTemp", 0);
 		SetInventory("DnD_SelectedInventoryBox", 0);
 		SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
 		SetInventory("DnD_Crafting_MaterialPage", 0);
@@ -329,10 +330,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		DrawHighLightBar(mainboxid, framecounter);
 		
 		// Handle panel on the left
-		HandleItemInfoPanel(curopt, animcounter, boxid, redraw);
+		HandleItemInfoPanel(curopt, boxid, redraw);
 		
 		// draws items that need frequent redraw
-		DrawFrequentRedrawItems(pnum);
+		DrawFrequentRedrawItems(curopt, pnum);
 		
 		// animation things
 		animcounter++;
@@ -959,10 +960,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				SetHudClipRect(192, 60, 256, 220, 256);
 				
 				j = 0;
+
+				// top header text
+				HudMessage(l:"DND_MENU_ORBHELPTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 8.0 * ScrollPos.x + j, 0.0, 0.0);
+
 				for(i = 0; i < MAX_ORBS; ++i) {
 					// maybe optimize this in the future to not use this many strparams but idk now -- storing these is not an option
 					toshow = StrParam(s:"\c[Y5]", l:GetInventoryTag(i + ORBS_BEGIN), s:"\n", l:GetInventoryText(i + ORBS_BEGIN));
-					HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i, CR_WHITE, 192.1, 88.1 + 8.0 * ScrollPos.x + j, 0.0, 0.0);
+					HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i - 2, CR_WHITE, 192.1, 200.1 + 8.0 * ScrollPos.x + j, 0.0, 0.0);
 					ShowOrbIcon(i, j);
 					
 					k = StrLen(toshow);
@@ -1345,10 +1350,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_LOAD);
 			}
 		}
-		else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY) {
-			Log(s:"process craft inp");
+		else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY)
 			HandleCraftingInputs(boxid, curopt);
-		}
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			if(HasPlayerClicked(pnum)) {
 				if(boxid >= MBOX_1) {
@@ -1878,7 +1881,11 @@ Script "DnD Menu Notif Show" (int pnum, int popupid, int extra) CLIENTSIDE {
 	SetHudClipRect(220, 132, 180, 128, 180);
 	HudMessage(s:"\cd", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUPOPUPID - 1, -1, 316.4, 136.1, 0.0);
 	if(popupid == POPUP_SCAVENGECONFIRM)
-		HudMessage(l:GetPopupText(popupid), s:"\cd$", d:extra, s:"\c-?", s:" (\cd", k:"+altattack", s:" = ", l:"DND_MENU_CONFIRM", s:", \cg", k:"+attack", s:"\c- = ", l:"DND_MENU_CANCEL", s:")"; HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 144.1, 0.0);
+		HudMessage(
+			l:GetPopupText(popupid), s:"\cd$", d:extra, s:"\c-?", s:" (\cd", k:"+altattack", s:" = ", l:"DND_MENU_CONFIRM", s:", \cg", k:"+attack", s:"\c- = \cg", l:"DND_MENU_CANCEL", s:"\c-)\n",
+			l:"DND_DISASS_CHANCE", s:": \ci", d:CheckInventory("DnD_ItemCursorMsg") >> 16, s:"%";
+			HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 144.1, 0.0
+		);
 	else
 		HudMessage(l:GetPopupText(popupid); HUDMSG_PLAIN, RPGMENUPOPUPID - 2, CR_GOLD, 224.1, 144.1, 0.0);
 	SetHudClipRect(0, 0, 0, 0, 0);

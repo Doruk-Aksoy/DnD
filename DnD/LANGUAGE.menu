@@ -21,6 +21,7 @@ DND_MENU_MODTIERS		=	"Show Item Mod Tiers: ";
 DND_DISASS				=	"Disassemble";
 DND_DISASS_WIN			=	"Successfully gained orbs from the item!";
 DND_DISASS_LOSS			=	"Failed to extract any orbs from the item!";
+DND_DISASS_CHANCE		=	"Chance";
 
 // basic words
 DND_MENU_ENABLED		=	"\cdEnabled";
@@ -388,8 +389,11 @@ DND_MENU_ABLHELPTEXT9	=	"Temporary weapons give 50% more ammo, and at the beginn
 DND_MENU_ABLTAG10		=	"Soul Stealing";
 DND_MENU_ABLHELPTEXT10	=	"Demons drop souls when killed with an occult weapon.";
 
-
 DND_MENU_ABLHELPTEXT11	=	"Toggles dashing.";
+
+// Orb generic help
+
+DND_MENU_ORBHELPTEXT	=	"Orbs can be found as drops from monsters or chests. They can also be obtained as the result of disassembling them in crafting menu. They allow players to craft and improve various aspects of their gameplay. Interact with them in the \cd\"Loadout\"\c- section under \cd\"Crafting\"\c-.";
 
 // account things
 DND_MENU_ACCITEMTAG1	=	"Extra Stash Tab";

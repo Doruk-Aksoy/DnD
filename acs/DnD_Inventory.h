@@ -626,6 +626,10 @@ bool IsWearingBodyArmor(int pnum) {
 	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_BODYARMOR;
 }
 
+bool IsPlayerInventoryItemUnique(int pnum, int pos) {
+	return PlayerInventoryList[pnum][pos].item_type > UNIQUE_BEGIN;
+}
+
 int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target_type) {
 	int i, j;
 	
@@ -642,7 +646,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		return POPUP_ONLYONEUNIQUE;
 	
 	// special condition checks
-	bool isUnique = PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN;
+	bool isUnique = IsPlayerInventoryItemUnique(pnum, item_index);
 	// tried to put well of power, but have too many small charms -- its always attribute id 2 on well of power
 	// we have to check for that specifically because technically its not equipped yet, so player has no tokens of it on them
 	if
@@ -2692,6 +2696,7 @@ void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type, int pnum
 
 	for(int i = 0; i < Inventories_On_Field[fieldpos].attrib_count; ++i) {
 		Inventories_On_Field[fieldpos].attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
+		Inventories_On_Field[fieldpos].attributes[i].attrib_tier = 0;
 		
 		// we must roll the value once dropped
 		bool makeWellRolled = CheckWellRolled(pnum);
@@ -2846,7 +2851,11 @@ int DisassembleItem_Price(int pnum, int item_pos) {
 	int fracture_count = 0;
 	if(acount) {
 		for(int i = 0; i < acount; ++i) {
-			avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+			// uniques have tier 0
+			if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier)
+				avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+			else
+				avg_mod_tier += MAX_CHARM_AFFIXTIERS / 2;
 			fracture_count += PlayerInventoryList[pnum][item_pos].attributes[i].fractured;
 		}
 		avg_mod_tier /= acount;
@@ -2880,27 +2889,40 @@ int GetDissassembleChance(int pnum, int item_pos) {
 	int fracture_count = 0;
 	if(acount) {
 		for(int i = 0; i < acount; ++i) {
-			avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+			// uniques have tier 0
+			if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier)
+				avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+			else
+				avg_mod_tier += MAX_CHARM_AFFIXTIERS / 2;
 			fracture_count += PlayerInventoryList[pnum][item_pos].attributes[i].fractured;
 		}
 		avg_mod_tier /= acount;
 	}
 
 	// give more chance to succeed if we have the research related to it too
-	int chance = DND_BASE_DISASSEMBLE_CHANCE + DND_BASE_DISASSEMBLE_CHANCE_PERLUCK * GetStat(STAT_LUCK);
+	bool hasResearch = CheckResearchStatus(RES_MOLECULARREC);
+	int chance = 	DND_BASE_DISASSEMBLE_CHANCE + 
+					DND_BASE_DISASSEMBLE_CHANCE_PERLUCK * GetStat(STAT_LUCK) +
+					hasResearch * DND_DISASS_CHANCEBONUS_RESEARCH;
 
 	// 10% of ilvl + 25% of avg mod tier + 3% flat per fractured mod and 5% if corrupted to fail
 	chance -= ilvl / 10 + avg_mod_tier / 4 + DND_BASE_FRACTURE_DISASSEMBLE_CHANCE * fracture_count + DND_BASE_CORRUPT_DISASSEMBLE_CHANCE * PlayerInventoryList[pnum][item_pos].corrupted;
 
-	int yields = ilvl * DND_BASE_ILVL_YIELD + avg_mod_tier * DND_BASE_AVGMOD_YIELD + DND_BASE_FRACTURE_YIELD * fracture_count + DND_BASE_CORRUPT_YIELD * PlayerInventoryList[pnum][item_pos].corrupted;
+	int yields = 	ilvl * DND_BASE_ILVL_YIELD +
+					avg_mod_tier * DND_BASE_AVGMOD_YIELD + 
+					DND_BASE_FRACTURE_YIELD * fracture_count + 
+					DND_BASE_CORRUPT_YIELD * PlayerInventoryList[pnum][item_pos].corrupted +
+					hasResearch + DND_DISASS_CHANCEBONUS_YIELD;
+	
+	if(yields > 0xFFFF)
+		yields = 0xFFFF;
 
 	return (chance << 16) + yields;
 }
 
-void DisassembleItem(int pnum, int item_pos, int price) {
+void DisassembleItem(int pnum, int item_pos, int price, int chance) {
 	TakeInventory("Credit", price);
 	// give more chance to succeed if we have the research related to it too
-	int chance = GetDissassembleChance(pnum, item_pos);
 	int yield = chance & 0xFFFF;
 	chance >>= 16;
 
@@ -2912,7 +2934,7 @@ void DisassembleItem(int pnum, int item_pos, int price) {
 			int sub = random(75, 150);
 			if(yield >= 1000) {
 				orb = PickHighTierOrb();
-				sub *= 7;
+				sub *= 5;
 			}
 			else if(yield >= 500) {
 				orb = PickMidTierOrb();

@@ -103,7 +103,6 @@ enum {
 };
 
 enum {
-	RES_REQID_SUPERARMOR,
 	RES_REQID_BIO1,
 	RES_REQID_BIO2,
 	RES_REQID_EXO1,
@@ -119,8 +118,8 @@ typedef struct {
 } res_req_info_T;
 
 res_req_info_T ResearchFlags[MAX_RESEARCHES] = { 
-	{ RESF_UNLOCKSOTHER, RES_REQID_SUPERARMOR },
-	{ RESF_NODROP, -1 },
+	{ 0, -1 },
+	{ 0, -1 },
 	{ 0, -1 },
     { 0, -1 },
    
@@ -219,7 +218,6 @@ typedef struct {
 } res_dependency_T;
 
 res_dependency_T ResearchDependencies[MAX_RES_REQID] = {
-	{RES_SUPERARMOR, 	{RES_RAREARMOR}},
 	{RES_BIO2,			{RES_BIO1}},
 	{RES_BIO3,			{RES_BIO2}},
 	{RES_EXO2,			{RES_EXO1}},

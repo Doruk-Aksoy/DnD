@@ -4521,8 +4521,6 @@ Script "DnD Pull Towards Self" (int force, int pull_dist, int flags) {
 	else
 		adj_fixed = true;
 		
-	
-	
 	pull_dist <<= 16;
 	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		int i = UsedMonsterTIDs[mn];
@@ -4575,9 +4573,7 @@ Script "DnD Gravdis Thrust" (int pull_count, int force) {
 				int fx = x - GetActorX(i);
 				int fy = y - GetActorY(i);
 				int ang = VectorAngle(fx, fy);
-				int mforce = force / (2 * GetActorProperty(i, APROP_MASS));
-				if(mforce > GRAVIDS_MAXPULLVEL)
-					mforce = GRAVIDS_MAXPULLVEL;
+				int mforce = Clamp_Between(force / (2 * GetActorProperty(i, APROP_MASS)), GRAVDIS_MINPULLVEL, GRAVDIS_MAXPULLVEL);
 				SetActorVelocity(i, FixedMul(mforce, cos(ang)), FixedMul(mforce, sin(ang)), 0, true, false);
 			}
 		}

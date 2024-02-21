@@ -398,6 +398,8 @@ Actor DnD_Character : Ammo {
 }
 
 Actor DnD_ItemPriceTemp : DnD_Info { }
+Actor DnD_ItemSelectTemp : DnD_Info { }
+Actor DnD_ItemCursorMsg : DnD_Info { }
 
 Actor DnD_Crafting_MaterialPage : Inventory {
 	inventory.maxamount 10
