@@ -260,8 +260,6 @@ int GetPetMonsterTraits(int monster_id, int segment) {
 void DecideEliteTraits(int m_id, int count) {
 	int tries = 0;
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	// Run the elite special fx script on this monster
-	ACS_NamedExecuteAlways("DND Elite Special FX", 0);
 	while(tries < MAX_ELITE_TRIES && count) {
 		int try_trait = GetRandomEliteTrait();
 		if(!HasTrait(this, EliteTraitNumbers[try_trait][ELITETRAIT_ID]) && !HasTraitExceptions(m_id, try_trait) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait][ELITETRAIT_ID])) {
@@ -271,6 +269,9 @@ void DecideEliteTraits(int m_id, int count) {
 		}
 		++tries;
 	}
+
+	// Run the elite special fx script on this monster
+	ACS_NamedExecuteAlways("DND Elite Special FX", 0);
 }
 
 #endif

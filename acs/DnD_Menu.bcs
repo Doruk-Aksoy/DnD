@@ -763,6 +763,16 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_RESMENU_AMMO", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_RESMENU_GUNS", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_RESMENU_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+
+				i = CheckInventory("Budget");
+				if(i)
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:i, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 176.0, 0.0, 0.0);
+				else
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$0"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 176.0, 0.0, 0.0);
+
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"), s:"\n\c[Y5]", l:"DND_MENU_CONVRATE", s:": \cj$", d:DND_BUDGET_CONVERSION_CREDIT, s:" <=> 1k"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 192.0, 0.0, 0.0);
+
+				DrawBoxText("DND_MENU_DONATE", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 7, 192.1, 224.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_RESEARCH_GUNS) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESGUNS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -836,6 +846,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_11, RPGMENUITEMID - 11, 192.1, 260.0, "\c[B1]", "\c[Y5]");
 				if(CheckInventory("SetModTierInfo"))
 					SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
+
+				// ignore temp wep drops
+				mapinfo = "DND_MENU_DISABLED";
+				if(GetCVar("dnd_ignoretempweps"))
+					mapinfo = "DND_MENU_ENABLED";
+				DrawBoxText(StrParam(l:"DND_MENU_IGNORETEMPS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_12, RPGMENUITEMID - 12, 192.1, 276.0, "\c[B1]", "\c[Y5]");
+				if(CheckInventory("SetTempWepIgnore"))
+					SetCVar("dnd_ignoretempweps", !GetCVar("dnd_ignoretempweps"));
 			}
 			else if(curopt == MENU_HELP_CHARACTER) {
 				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT1", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1617,12 +1635,35 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			if(HasLeftClicked(pnum)) {
 				if(boxid == MBOX_1)
 					UpdateMenuPosition(MENU_RESEARCH_BODY);
-				if(boxid == MBOX_2)
+				else if(boxid == MBOX_2)
 					UpdateMenuPosition(MENU_RESEARCH_AMMO);
-				if(boxid == MBOX_3)
+				else if(boxid == MBOX_3)
 					UpdateMenuPosition(MENU_RESEARCH_GUNS);
-				if(boxid == MBOX_4)
+				else if(boxid == MBOX_4)
 					UpdateMenuPosition(MENU_RESEARCH_UTILITY);
+				else if(boxid == MBOX_5) {
+					// donate budget option, basically credit to budget conversion
+					// 10,000 credits => 1k budget
+					if(CheckInventory("Credit") >= DND_BUDGET_CONVERSION_CREDIT) {
+						TakeInventory("Credit", DND_BUDGET_CONVERSION_CREDIT);
+						GiveInventory("Budget", 1);
+						LocalAmbientSound("RPG/MenuSell", 127);
+					}
+					else
+						ShowPopup(POPUP_NOFUNDS, false, 0);
+				}
+			}
+			else if(HasRightClicked(pnum) && boxid == MBOX_5) {
+				// x10
+				// donate budget option, basically credit to budget conversion
+				// 10,000 credits => 1k budget
+				if(CheckInventory("Credit") >= DND_BUDGET_CONVERSION_CREDIT * 10) {
+					TakeInventory("Credit", DND_BUDGET_CONVERSION_CREDIT * 10);
+					GiveInventory("Budget", 10);
+					LocalAmbientSound("RPG/MenuSell", 127);
+				}
+				else
+					ShowPopup(POPUP_NOFUNDS, false, 0);
 			}
 			if(HasPressedLeft(pnum))
 				ReturnToMain();
@@ -1662,6 +1703,12 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				}
 				else if(boxid == MBOX_11) {
 					GiveInventory("SetModTierInfo", 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					temp = -1;
+				}
+				else if(boxid == MBOX_12) {
+					GiveInventory("SetTempWepIgnore", 1);
+					SetInventory("DnD_NoTempPickup", !CheckInventory("DnD_NoTempPickup"));
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					temp = -1;
 				}

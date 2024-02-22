@@ -108,6 +108,16 @@ void ResetInvestments(int pnum) {
 	}
 }
 
+int GetResearchDropRate(int pnum, int res_id, bool wantFixed = false) {
+	int temp = ResearchInvestments[pnum][res_id];
+	if(wantFixed) {
+		if(temp)
+			return temp * 2.0;
+		return 1.0 / MAX_RESEARCHES;
+	}
+	return temp * 2;
+}
+
 enum {
 	RES_NA = 0,
 	RES_KNOWN,

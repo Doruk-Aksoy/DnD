@@ -1935,6 +1935,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 211.0, 96.0, 203.0 }, // 2
 			{ 289.0, 195.0, 96.0, 187.0 }, // 3
 			{ 289.0, 181.0, 80.0, 173.0 }, // 4
+			{ 289.0, 102.0, 80.0, 94.0 }, // donate
 			{ -1, -1, -1, -1 }
 		},
 		// research - guns
@@ -1990,6 +1991,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 133.0, 179.0, 126.0 }, // leg
 			{ 296.0, 81.0, 182.0, 73.0 }, // show info
 			{ 296.0, 65.0, 142.0, 57.0 }, // show mod tiers
+			{ 296.0, 49.0, 142.0, 41.0 }, // show mod tiers
 			{ -1, -1, -1, -1 }
 		},
 		// help char
@@ -2625,7 +2627,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[Y5]");
 		
 			// show the invested % chance to drop if it can drop
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", s:GetFixedRepresentation(GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id), false), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", s:GetFixedRepresentation(GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id, true), false), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
 		}
 		else
 			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[G8]");
@@ -2641,13 +2643,6 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 	}
 	else
 		DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[G8]");
-}
-
-int GetResearchDropRate(int pnum, int res_id) {
-	int temp = ResearchInvestments[pnum][res_id];
-	if(temp)
-		return temp * 2.0;
-	return 1.0 / MAX_RESEARCHES;
 }
 
 int GetInvestmentCost(int pnum, int page, int menu_res_id, int res_id) {

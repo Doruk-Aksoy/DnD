@@ -64,7 +64,7 @@ ACTOR ZombiePet : PetMonsterBase {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pet Monster Scale", 0, DND_PET_ZOMBIEID, DND_SILVER_WEAKNESS, -1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Timed Monster", 0, ACS_NamedExecuteWithResult("DnD Master Skill Info", SKILLINFO_ZOMBIEPETTIMER), 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Timed Monster", ACS_NamedExecuteWithResult("DnD Master Skill Info", SKILLINFO_ZOMBIEPETTIMER), 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pet Distance Move", 0)
 			ZFOD S 6
 			ZFOD RQPON 3

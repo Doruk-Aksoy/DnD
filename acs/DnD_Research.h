@@ -255,9 +255,11 @@ void SpawnResearch(int pnum, bool noRepeat = false) {
 	// Therefore it's not important to worry about that kind of solution here.
 	int weight_acc = random(1, 100);
 	int invest_acc = 0;
+	int drop_rate = 0;
 	for(i = 0; i < MAX_RESEARCHES; ++i) {
 		if(ResearchInvestments[pnum][i]) {
-			invest_acc += ResearchInvestments[pnum][i];
+			drop_rate = GetResearchDropRate(pnum, i);
+			invest_acc += drop_rate;
 			if(weight_acc <= invest_acc) {
 				temp = i;
 				// important! we must reset this now so as to not make this affect results again
@@ -266,7 +268,7 @@ void SpawnResearch(int pnum, bool noRepeat = false) {
 				break;
 			}
 			else
-				weight_acc += ResearchInvestments[pnum][i];
+				weight_acc += drop_rate;
 		}
 	}
 	

@@ -16,6 +16,10 @@ DND_MENU_AVGMONLEVEL	=	"Average Monster Level";
 
 DND_MENU_MAPINFO		=	"Show Map Info: ";
 DND_MENU_MODTIERS		=	"Show Item Mod Tiers: ";
+DND_MENU_IGNORETEMPS	=	"Ignore Temp Weapons: ";
+
+DND_MENU_DONATE			=	"Donate Budget";
+DND_MENU_CONVRATE		=	"Conversion Rate";
 
 // crafting
 DND_DISASS				=	"Disassemble";

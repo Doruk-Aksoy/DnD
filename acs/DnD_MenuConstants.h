@@ -10,6 +10,8 @@
 #define DND_LANGUAGE_LOOKUP true
 #define DND_NOLOOKUP false
 
+#define DND_BUDGET_CONVERSION_CREDIT 10000
+
 // Box definitions for clickables
 // 7 images on menu leftmost bar
 #define MAX_MAIN_BOXES 10

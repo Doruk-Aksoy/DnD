@@ -2543,8 +2543,8 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			// apply accessory and other sources of damage
 			dmg = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
 			
-			// factor in players armor here!!!
-			dmg = HandlePlayerArmor(pnum, dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
+			// factor in players armor here!!! -- NO DON'T DO THAT! We have a generic resist and armor handle in main dmg script
+			//dmg = HandlePlayerArmor(pnum, dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 		break;
 	}
 	return dmg;
@@ -3096,7 +3096,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				OnPlayerHit(victim, pnum, shooter, false);
 				GiveActorInventory(victim, "DnD_Hit_Cooldown", 1);
 			}
-			
+
 			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
 			//GiveInventory("DnD_DamageReceived", dmg);

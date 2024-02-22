@@ -1,3 +1,5 @@
+Actor DnD_NoTempPickup : DnD_Boolean { }
+
 Actor Sawedoff : Weapon {
 	radius 20
 	height 16
