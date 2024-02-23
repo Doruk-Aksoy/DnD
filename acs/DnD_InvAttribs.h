@@ -180,6 +180,8 @@ enum {
 	INV_PERCENTSHIELD_INCREASE,
 	INV_SHIELD_RECOVERYRATE,
 	INV_SHIELD_RECHARGEDELAY,
+	INV_MIT_INCREASE,
+	INV_MITEFFECT_INCREASE,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -197,6 +199,9 @@ enum {
 	INV_IMP_INCARMOR = IMPLICIT_ATTRIB_ID_BEGIN,
 	INV_IMP_INCSHIELD,
 	INV_IMP_INCARMORSHIELD,
+	INV_IMP_INCMIT,
+	INV_IMP_INCMITARMOR,
+	INV_IMP_INCMITSHIELD,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
@@ -267,7 +272,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_PERCENTSHIELD_INCREASE
+#define LAST_INV_ATTRIBUTE INV_MITEFFECT_INCREASE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -279,7 +284,7 @@ enum {
 #define LAST_CORRUPT_IMPLICIT INV_CORR_WEAPONFORCEPAIN
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_INCARMORSHIELD
+#define LAST_REGULAR_IMPLICIT INV_IMP_INCMITSHIELD
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -387,6 +392,9 @@ bool IsFixedPointMod(int mod) {
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL:
 		case INV_LIFESTEAL_DAMAGE:
+
+		case INV_MIT_INCREASE:
+		case INV_MITEFFECT_INCREASE:
 
 		case INV_CORR_DROPCHANCE:
 		case INV_CORR_SPEED:
@@ -1050,6 +1058,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE;
 
+	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.25;
+	ItemModTable[INV_MIT_INCREASE].attrib_high = 0.5;
+	ItemModTable[INV_MIT_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.1;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.25;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+
 	/////////////////////////
 	// corrupted implicits //
 	/////////////////////////
@@ -1115,6 +1133,21 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_high = -1;
 	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_level_modifier = 0;
 	ItemModTable[INV_IMP_INCARMORSHIELD].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_IMP_INCMIT].attrib_low = 100000;
+	ItemModTable[INV_IMP_INCMIT].attrib_high = -1;
+	ItemModTable[INV_IMP_INCMIT].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_INCMIT].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_IMP_INCMITARMOR].attrib_low = 100000;
+	ItemModTable[INV_IMP_INCMITARMOR].attrib_high = -1;
+	ItemModTable[INV_IMP_INCMITARMOR].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_INCMITARMOR].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_IMP_INCMITSHIELD].attrib_low = 100000;
+	ItemModTable[INV_IMP_INCMITSHIELD].attrib_high = -1;
+	ItemModTable[INV_IMP_INCMITSHIELD].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_INCMITSHIELD].tags = INV_ATTR_TAG_DEFENSE;
 
 	///////////////////////////////
 	// essences from here on out //
@@ -1367,6 +1400,34 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
+str GetArmorImplicitExtraText(str text, int extra) {
+	if(extra & PPOWER_RAVAGER)
+		text = StrParam(s:text, s:"\n", l:"RAVAGER_BONUS");
+	else if(extra & PPOWER_KNIGHTMELEEBONUS)
+		text = StrParam(s:text, s:"\n", l:"KNIGHT_BONUS");
+	else if(extra & PPOWER_HITSCANPROTECT)
+		text = StrParam(s:text, s:"\n", l:"HITSCAN_PROTECT");
+	else if(extra & PPOWER_SPIKES)
+		text = StrParam(s:text, s:"\n", l:"SPIKES_ON_HIT");
+	else if(extra & PPOWER_LIGHTNINGABSORB)
+		text = StrParam(s:text, s:"\n", l:"LIGHTNING_ABSORB");
+	else if(extra & PPOWER_CYBER)
+		text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS");
+	else if(extra & PPOWER_CANROLLPHYS)
+		text = StrParam(s:text, s:"\n", l:"CANROLL_PHYS");
+	else if(extra & PPOWER_CANROLLOCCULT)
+		text = StrParam(s:text, s:"\n", l:"CANROLL_OCCULT");
+	else if(extra & PPOWER_CANROLLEXP)
+		text = StrParam(s:text, s:"\n", l:"CANROLL_EXP");
+	else if(extra & PPOWER_CANROLLENERGY)
+		text = StrParam(s:text, s:"\n", l:"CANROLL_ENERGY");
+	else if(extra & PPOWER_CANROLLELEMENTAL)
+		text = StrParam(s:text, s:"\n", l:"CANROLL_ELEMENTAL");
+	else if(extra & PPOWER_LOWERREFLECT)
+		text = StrParam(s:text, s:"\n", l:"LOWER_REFLECT");
+	return text;
+}
+
 str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
 	str text = GetInventoryAttributeText(attr);
 	str ess_tag = "\c[Q7]";
@@ -1504,30 +1565,22 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_INCARMORSHIELD:
 			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
 			// armor extras, can't have other implicits of armors together
-			if(extra & PPOWER_RAVAGER)
-				text = StrParam(s:text, s:"\n", l:"RAVAGER_BONUS");
-			else if(extra & PPOWER_KNIGHTMELEEBONUS)
-				text = StrParam(s:text, s:"\n", l:"KNIGHT_BONUS");
-			else if(extra & PPOWER_HITSCANPROTECT)
-				text = StrParam(s:text, s:"\n", l:"HITSCAN_PROTECT");
-			else if(extra & PPOWER_SPIKES)
-				text = StrParam(s:text, s:"\n", l:"SPIKES_ON_HIT");
-			else if(extra & PPOWER_LIGHTNINGABSORB)
-				text = StrParam(s:text, s:"\n", l:"LIGHTNING_ABSORB");
-			else if(extra & PPOWER_CYBER)
-				text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS");
-			else if(extra & PPOWER_CANROLLPHYS)
-				text = StrParam(s:text, s:"\n", l:"CANROLL_PHYS");
-			else if(extra & PPOWER_CANROLLOCCULT)
-				text = StrParam(s:text, s:"\n", l:"CANROLL_OCCULT");
-			else if(extra & PPOWER_CANROLLEXP)
-				text = StrParam(s:text, s:"\n", l:"CANROLL_EXP");
-			else if(extra & PPOWER_CANROLLENERGY)
-				text = StrParam(s:text, s:"\n", l:"CANROLL_ENERGY");
-			else if(extra & PPOWER_CANROLLELEMENTAL)
-				text = StrParam(s:text, s:"\n", l:"CANROLL_ELEMENTAL");
-			else if(extra & PPOWER_LOWERREFLECT)
-				text = StrParam(s:text, s:"\n", l:"LOWER_REFLECT");
+			text = GetArmorImplicitExtraText(text, extra);
+		return text;
+		case INV_IMP_INCMIT:
+			text = StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:no_tag, l:text);
+			// armor extras, can't have other implicits of armors together
+			text = GetArmorImplicitExtraText(text, extra);
+		return text;
+		case INV_IMP_INCMITARMOR:
+			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, f:((val << 16) / DND_ARMOR_TO_MIT_RATIO), s:no_tag, l:"IATTR_TI4");
+			// armor extras, can't have other implicits of armors together
+			text = GetArmorImplicitExtraText(text, extra);
+		return text;
+		case INV_IMP_INCMITSHIELD:
+			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, f:((val << 16) / DND_SHIELD_TO_MIT_RATIO), s:no_tag, l:"IATTR_TI4");
+			// armor extras, can't have other implicits of armors together
+			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
@@ -1586,6 +1639,8 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_ADDEDMAXRESIST:
 		case INV_OVERLOAD_DURATION:
 		case INV_LIFESTEAL:
+		case INV_MIT_INCREASE:
+		case INV_MITEFFECT_INCREASE:
 			if(showDetailedMods) {
 				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)

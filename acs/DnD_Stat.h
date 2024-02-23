@@ -235,7 +235,7 @@ int GetActorStat(int tid, int stat_id) {
 }
 
 int GetPlayerEnergyShieldCap(int pnum) {
-	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
+	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE) + GetStat(STAT_INT) / 2;
 	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE))) / 100;
 	return base;
 }

@@ -126,7 +126,7 @@ enum {
 #define DND_PET_CHARISMA_FACTOR 20
 #define DND_TALENTPOINT_MARK 4
 
-#define DND_HP_PER_LVL 4
+#define DND_HP_PER_LVL 5
 
 #define BASE_PET_CAP 3
 

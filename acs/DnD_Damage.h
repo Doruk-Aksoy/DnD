@@ -397,7 +397,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category);
 	
 	// specialty armor bonuses
-	int temp = GetArmorID();
+	/*int temp = GetArmorID();
 	if(
 		(temp == BODYARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
 		(temp == BODYARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
@@ -407,10 +407,10 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	)
 	{
 		factor += DND_SPECIALTYARMOR_BUFF;
-	}
+	}*/
 	
 	// apply flat health to damage conversion if player has any
-	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
+	int temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
 	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
 		factor += GetFlatHealthDamageFactor(temp);
 		
@@ -2749,8 +2749,16 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_LIGHTNINGCOIL_SPECIAL);
 	}
 
+	// mitigation
+	int temp;
+	if(CouldMitigateDamage(pnum)) {
+		temp = GetMitigationEffect(pnum);
+		dmg = dmg * ((100.0 - temp) >> 16) / 100;
+		LocalAmbientSound("Mitigation/Success", 96);
+	}
+
 	// energy shield reduction
-	int temp = CheckInventory("EShieldAmount");
+	temp = CheckInventory("EShieldAmount");
 	if(dmg_string != "PoisonDOT" && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) && temp) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
 		if(armor_id != BODYARMOR_LIGHTNINGCOIL)

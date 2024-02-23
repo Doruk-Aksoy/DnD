@@ -2165,9 +2165,23 @@ bool IsAttributeExtraException(int attr) {
 		case INV_IMP_INCARMOR:
 		case INV_IMP_INCARMORSHIELD:
 		case INV_IMP_INCSHIELD:
+		case INV_IMP_INCMIT:
+		case INV_IMP_INCMITARMOR:
+		case INV_IMP_INCMITSHIELD:
 		return true;
 	}
 	return false;
+}
+
+void HandleAttributeExtra(int pnum, int aextra, int powerset, bool remove, bool noSync = false) {
+	if(aextra) {
+		if(!remove)
+			aextra = GetPlayerAttributeValue(pnum, powerset) | aextra;
+		else
+			aextra = GetPlayerAttributeValue(pnum, powerset) & ~(1 << aextra);
+
+		SetPlayerModValue(pnum, powerset, aextra, noSync);
+	}
 }
 
 void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool has_cybernetic, bool noSync = false) {
@@ -2227,28 +2241,18 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		// standard implicits
 		case INV_IMP_INCARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
-			if(aextra) {
-				if(!remove)
-					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) | aextra;
-				else
-					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & ~(1 << aextra);
-
-				SetPlayerModValue(pnum, INV_EX_PLAYERPOWERSET1, aextra, noSync);
-			}
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
 		case INV_IMP_INCSHIELD:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
 
 			HandleEShieldChange(pnum, remove);
 
-			if(aextra) {
-				if(!remove)
-					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) | aextra;
-				else
-					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & ~(1 << aextra);
-
-				SetPlayerModValue(pnum, INV_EX_PLAYERPOWERSET1, aextra, noSync);
-			}
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+		break;
+		case INV_IMP_INCMIT:
+			IncPlayerModValue(pnum, INV_MIT_INCREASE, aval, noSync);
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
 		case INV_IMP_INCARMORSHIELD:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
@@ -2256,15 +2260,22 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 
 			HandleEShieldChange(pnum, remove);
 
-			if(aextra) {
-				if(!remove)
-					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) | aextra;
-				else
-					aextra = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & ~(1 << aextra);
-
-				SetPlayerModValue(pnum, INV_EX_PLAYERPOWERSET1, aextra, noSync);
-			}
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
+		case INV_IMP_INCMITSHIELD:
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_SHIELD_TO_MIT_RATIO), noSync);
+
+			HandleEShieldChange(pnum, remove);
+
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+		break;
+		case INV_IMP_INCMITARMOR:
+			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_ARMOR_TO_MIT_RATIO), noSync);
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+		break;
+
 
 		// corrupted implicits
 		// non-weapon mods
@@ -2511,9 +2522,35 @@ bool CanAllowModRollSpecial(int tag, int special_roll_rule) {
 
 bool IsImplicitException(int imp, int rolled_attr) {
 	switch(imp) {
-		// don't let eshield modifiers roll on armor base items
+		// don't let eshield modifiers roll on armor base items etc.
 		case INV_IMP_INCARMOR:
-		return rolled_attr == INV_SHIELD_INCREASE || rolled_attr == INV_SHIELD_RECHARGEDELAY || rolled_attr == INV_SHIELD_RECOVERYRATE;
+		return 	rolled_attr == INV_SHIELD_INCREASE || 
+				rolled_attr == INV_SHIELD_RECHARGEDELAY || 
+				rolled_attr == INV_SHIELD_RECOVERYRATE ||
+				rolled_attr == INV_MIT_INCREASE ||
+				rolled_attr == INV_MITEFFECT_INCREASE;
+		case INV_IMP_INCSHIELD:
+		return 	rolled_attr == INV_ARMOR_INCREASE || 
+				rolled_attr == INV_ARMORPERCENT_INCREASE || 
+				rolled_attr == INV_MIT_INCREASE ||
+				rolled_attr == INV_MITEFFECT_INCREASE;
+		case INV_IMP_INCMIT:
+		return 	rolled_attr == INV_SHIELD_INCREASE || 
+				rolled_attr == INV_SHIELD_RECHARGEDELAY || 
+				rolled_attr == INV_SHIELD_RECOVERYRATE ||
+				rolled_attr == INV_ARMOR_INCREASE ||
+				rolled_attr == INV_ARMORPERCENT_INCREASE;
+
+		case INV_IMP_INCARMORSHIELD:
+		return 	rolled_attr == INV_MIT_INCREASE ||
+				rolled_attr == INV_MITEFFECT_INCREASE;
+		case INV_IMP_INCMITSHIELD:
+		return 	rolled_attr == INV_ARMOR_INCREASE ||
+				rolled_attr == INV_ARMORPERCENT_INCREASE;
+		case INV_IMP_INCMITARMOR:
+		return 	rolled_attr == INV_SHIELD_INCREASE ||
+				rolled_attr == INV_SHIELD_RECHARGEDELAY ||
+				rolled_attr == INV_SHIELD_RECOVERYRATE;
 	}
 	return false;
 }

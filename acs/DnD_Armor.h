@@ -1,6 +1,10 @@
 #ifndef DND_ARMOR_IN
 #define DND_ARMOR_IN
 
+#define DND_MIT_PER_DEX 0.05
+#define DND_MIT_BASE 50.0 // 50%
+#define DND_MIT_MAXEFFECT 90.0
+
 enum {
     // body armors
     BODYARMOR_GREEN, // 20%
@@ -158,12 +162,12 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		case BODYARMOR_GUNSLINGER:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_5;
 			special_roll = PPOWER_CANROLLPHYS;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, PPOWER_CANROLLPHYS, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 22.5, PPOWER_CANROLLPHYS, item_tier, 1.25);
 		break;
 		case BODYARMOR_OCCULT:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_6;
 			special_roll = PPOWER_CANROLLOCCULT;
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, PPOWER_CANROLLOCCULT, item_tier, 60);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 80, PPOWER_CANROLLOCCULT, item_tier, 60);
 		break;
 		case BODYARMOR_DEMO:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_7;
@@ -191,11 +195,11 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 		case BODYARMOR_DUELIST:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_12;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 125, PPOWER_HITSCANPROTECT, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 25.0, PPOWER_HITSCANPROTECT, item_tier, 1.75);
 		break;
 		case BODYARMOR_NECRO:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_13;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_SPIKES, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 175, PPOWER_SPIKES, item_tier, 100);
 		break;
 		case BODYARMOR_KNIGHT:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_14;
@@ -208,7 +212,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 
 		case BODYARMOR_SYNTHMETAL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_16;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_LOWERREFLECT, item_tier, 125);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 200, PPOWER_LOWERREFLECT, item_tier, 125);
 		break;
 		case BODYARMOR_LIGHTNINGCOIL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_17;
@@ -273,6 +277,22 @@ void TakeEnergyShield(int val) {
 
 void UpdateEnergyShieldVisual(int val) {
 	SetAmmoCapacity("EShieldAmountVisual", val);
+}
+
+int GetMitigationChance(int pnum) {
+	return GetDexterity() * DND_MIT_PER_DEX + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
+}
+
+bool CouldMitigateDamage(int pnum) {
+	//Log(f:random(1.0, 100.0), s: " vs ", f:GetMitigationChance(pnum));
+	return random(1.0, 100.0) <= GetMitigationChance(pnum);
+}
+
+int GetMitigationEffect(int pnum) {
+	int mit_eff = GetPlayerAttributeValue(pnum, INV_MITEFFECT_INCREASE) + DND_MIT_BASE;
+	if(mit_eff > DND_MIT_MAXEFFECT)
+		mit_eff = DND_MIT_MAXEFFECT;
+	return mit_eff;
 }
 
 void SpawnArmor(int pnum, bool noRepeat = false, int tiers = 0) {

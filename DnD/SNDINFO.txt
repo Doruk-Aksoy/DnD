@@ -1,6 +1,8 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Mitigation/Success		MITSUCCS
+
 EShield/Hit				ESHLDHIT
 EShield/Break			ESHLDBRK
 EShield/Begin			ESHLDBGN

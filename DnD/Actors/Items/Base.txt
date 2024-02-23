@@ -392,21 +392,17 @@ ACTOR ProjBullet : FastProjectile {
 	Alpha 0.85
 	PROJECTILE
 	+FORCEXYBILLBOARD
-	+BLOODSPLATTER
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 A_ChangeVelocity(velx / 50.0, vely / 50.0, velz / 50.0, CVF_REPLACE)
-			TNT1 A 1
-			TNT1 A 0 A_ChangeVelocity(velx * 50.0, vely * 50.0, velz * 50.0, CVF_REPLACE)
 			TRAC A -1 Bright
 		Stop
 		Death:
-		Crash:
+			TNT1 A 1
 			TNT1 A 1 A_SpawnItemEx("NewBulletPuff")
 		Stop
 		XDeath:
-			TNT1 A 1
+			TNT1 A 1 A_SpawnItemEx("RealBlood", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
 		Stop
 	}
 }

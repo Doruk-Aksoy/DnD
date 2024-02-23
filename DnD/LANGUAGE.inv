@@ -330,6 +330,8 @@ IATTR_T101			= "to energy shield";
 IATTR_T102			= "increased energy shield";
 IATTR_T103			= "increased energy shield recovery rate";
 IATTR_T104			= "faster start of energy shield recharge";
+IATTR_T105			= "mitigation chance";
+IATTR_T106			= "mitigation effect";
 
 // corrupt implicits
 
@@ -347,6 +349,9 @@ IATTR_TC9			= "forces pain";
 IATTR_TI1			= "to armor";
 IATTR_TI2			= "to energy shield";
 IATTR_TI3			= "to armor and energy shield";
+IATTR_TI4			= "to mitigation chance";
+IATTR_TI5			= "to armor and";
+IATTR_TI6			= "to energy shield and";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

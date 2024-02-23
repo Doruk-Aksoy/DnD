@@ -4885,6 +4885,18 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
+			val = GetMitigationChance(pnum);
+			if(val > 0) {
+				// clamp it on display, the math stuff behind the scenes doesn't need an extra if statement
+				if(val > 100.0)
+					val = 100.0;
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" \c-", l:"IATTR_T105", s:"\n");
+				++k;
+
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:" \c-", l:"IATTR_T106", s:"\n");
+				++k;
+			}
+
 			val = GetPlayerEnergyShieldCap(pnum);
 			i = val;
 			if(val > 0) {
