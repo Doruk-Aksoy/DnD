@@ -23,11 +23,11 @@
 
 #define DND_EXPLOSION_FLAGVARIABLE "user_flags"
 
-#define DND_BERSERKER_DAMAGETRACKTIME 17 // 3 is base, x 5 -- +2 for 0.5 second of buffer inclusion
+#define DND_BERSERKER_DAMAGETRACKTIME 122 // 3 is base, x 5 -- +2 for 0.5 second of buffer inclusion
 #define DND_BERSERKER_PERK25_MAXSTACKS 15
 #define DND_BERSERKER_PERK25_HEALPERCENT 15
 #define DND_BERSERKER_PERK25_REDUCTION 2 // 2% per stack
-#define DND_BERSERKER_PERK50_TIMER 14 // 14 x 5 = 70 => 2 seconds
+#define DND_BERSERKER_PERK50_TIMER 70 // 14 x 5 = 70 => 2 seconds
 #define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
 
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
@@ -506,31 +506,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		
 		int mult_factor = 0;
 		
-		// include the stat bonus
-		//printbold(d:talent_type == TALENT_MELEE, s: " ", d: IsMeleeWeapon(wepid), s: " ", d:(flags & DND_WDMG_ISMELEE));
-		if(damage_category == DND_DAMAGECATEGORY_MELEE || is_melee_mastery_exception) {
-			InsertCacheFactor(pnum, wepid, dmgid, GetMeleeDamage(pnum), true);
-			//printbold(s:"factor added ", d:temp);
-		}
-		
-		// occult uses intellect
-		if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT)
-			InsertCacheFactor(pnum, wepid, dmgid, GetRangedBonus(pnum, true), true);
-		else if(damage_category != DND_DAMAGECATEGORY_MELEE)
-			InsertCacheFactor(pnum, wepid, dmgid, GetRangedBonus(pnum), true);
-		
-		// specialty armor bonuses
-		temp = GetArmorID();
-		if(
-			(temp == BODYARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
-			(temp == BODYARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
-			(temp == BODYARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
-			(temp == BODYARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
-			(temp == BODYARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
-		)
-		{
-			InsertCacheFactor(pnum, wepid, dmgid, DND_SPECIALTYARMOR_BUFF, true);
-		}
+		// include the stat attunement bonus
+		InsertCacheFactor(pnum, wepid, dmgid, GetStatAttunementBonus(pnum, wepid, damage_category == DND_DAMAGECATEGORY_MELEE || is_melee_mastery_exception), true);
 
 		// include enhancement orb bonuses
 		temp = GetPlayerWeaponEnchant(pnum, wepid);
@@ -1232,7 +1209,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	temp = victim - DND_MONSTERTID_BEGIN;
 	
 	// extra represents the flag list of damageticflag
-	extra = (!!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
+	extra = (!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
 			(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
 			(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
 			(!!((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)) * DND_DAMAGETICFLAG_DOT);

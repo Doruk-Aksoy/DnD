@@ -263,6 +263,7 @@ typedef struct wep_data {
 	int ammo_use1;
 	int ammo_use2;
 	int properties;
+	int attunement; // which stat attunement does this weapon have
 	str name;
 	str ammo_name1;
 	str ammo_name2;
@@ -280,6 +281,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FIST].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_FIST].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_FIST].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_FIST].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_CHAINSAW].name = " Chainsaw ";
 	Weapons_Data[DND_WEAPON_CHAINSAW].ammo_name1 = "";
@@ -288,6 +290,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_CHAINSAW].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_CHAINSAW].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_CHAINSAW].properties = WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_CHAINSAW].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].name = "Upgraded Chainsaw";
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].ammo_name1 = "";
@@ -296,6 +299,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].properties = WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_KATANA].name = "Katana";
 	Weapons_Data[DND_WEAPON_KATANA].ammo_name1 = "";
@@ -304,6 +308,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_KATANA].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_KATANA].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_KATANA].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_KATANA].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_EXCALIBAT].name = "Excalibat";
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_name1 = "BatCharge";
@@ -312,6 +317,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_use2 = 3;
 	Weapons_Data[DND_WEAPON_EXCALIBAT].properties = WPROP_CANTHITGHOST | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_EXCALIBAT].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].name = "ResMelee1";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name1 = "Souls";
@@ -320,6 +326,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use2 = 5;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].properties = WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_INFERNOSWORD].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_DUSKBLADE].name = "Dusk Blade";
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_name1 = "SwordHitCharge";
@@ -328,6 +335,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_SICKLE].name = "Sickle";
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_name1 = "";
@@ -336,6 +344,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SICKLE].properties = WPROP_IRREDUCIBLE;
+	Weapons_Data[DND_WEAPON_SICKLE].attunement = STAT_INT;
 	
 	// SLOT 2
 	Weapons_Data[DND_WEAPON_PISTOL].name = " Pistol ";
@@ -345,6 +354,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PISTOL].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PISTOL].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_PISTOL].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_PISTOL].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_AKIMBOPISTOL].name = " Akimbo Pistols ";
 	Weapons_Data[DND_WEAPON_AKIMBOPISTOL].ammo_name1 = "Clip";
@@ -353,6 +363,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_AKIMBOPISTOL].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_AKIMBOPISTOL].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_AKIMBOPISTOL].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_AKIMBOPISTOL].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_MAGNUM].name = "Magnum";
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_name1 = "Clip";
@@ -361,6 +372,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_MAGNUM].properties = WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_MAGNUM].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_LASERPISTOL].name = "Laser Pistol";
 	Weapons_Data[DND_WEAPON_LASERPISTOL].ammo_name1 = "LPistolCharge";
@@ -369,6 +381,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_LASERPISTOL].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_LASERPISTOL].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_LASERPISTOL].properties = WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_LASERPISTOL].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].name = "ResPistol1";
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].ammo_name1 = "Clip";
@@ -377,6 +390,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].name = "ResPistol2";
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].ammo_name1 = "ViperAmmo";
@@ -385,6 +399,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].properties = WPROP_IGNORESHIELD | WPROP_POISON;
+	Weapons_Data[DND_WEAPON_VIPERSTAFF].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_RUBYWAND].name = "RubyWand";
 	Weapons_Data[DND_WEAPON_RUBYWAND].ammo_name1 = "RubyAmmo";
@@ -393,6 +408,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RUBYWAND].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RUBYWAND].ammo_use2 = 7;
 	Weapons_Data[DND_WEAPON_RUBYWAND].properties = WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_RUBYWAND].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_SCATTERGUN].name = "ScatterGun";
 	Weapons_Data[DND_WEAPON_SCATTERGUN].ammo_name1 = "Clip";
@@ -401,6 +417,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SCATTERGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SCATTERGUN].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_SCATTERGUN].properties = WPROP_IGNORESHIELD | WPROP_IRREDUCIBLE;
+	Weapons_Data[DND_WEAPON_SCATTERGUN].attunement = STAT_DEX;
 	
 	// SLOT 3 - SHOTGUNS
 	Weapons_Data[DND_WEAPON_SHOTGUN].name = " Shotgun ";
@@ -410,6 +427,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SHOTGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SHOTGUN].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_SHOTGUN].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_SHOTGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_PURIFIER].name = "Upgraded Shotgun";
 	Weapons_Data[DND_WEAPON_PURIFIER].ammo_name1 = "Shell";
@@ -418,6 +436,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PURIFIER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PURIFIER].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_PURIFIER].properties = WPROP_ALTAMMO;
+	Weapons_Data[DND_WEAPON_PURIFIER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_KILLSTORM].name = "Upgraded Shotgun2";
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_name1 = "Shell";
@@ -426,6 +445,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_KILLSTORM].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_KILLSTORM].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_EMERALDWAND].name = "Upgraded Shotgun3";
 	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_name1 = "EmeraldMana";
@@ -434,6 +454,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_EMERALDWAND].properties = WPROP_CANTHITGHOST | WPROP_POISON;
+	Weapons_Data[DND_WEAPON_EMERALDWAND].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_DEADLOCK].name = "ResShotgun1";
 	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_name1 = "Shell";
@@ -442,6 +463,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_DEADLOCK].properties = WPROP_ALTAMMO;
+	Weapons_Data[DND_WEAPON_DEADLOCK].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].name = "ResShotgun2";
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_name1 = "NitrogenCanister";
@@ -450,6 +472,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].name = "ResShotgun3";
 	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].ammo_name1 = "DemonBlood";
@@ -458,6 +481,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].properties = WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].name = "ResShotgun4";
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_name1 = "CharonAmmo";
@@ -466,6 +490,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_CHARONBLASTER].attunement = STAT_DEX;
 	
 	// SLOT 3 - SUPER SHOTGUNS
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].name = " Super Shotgun ";
@@ -475,6 +500,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_SUPERSHOTGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].name = "Upgraded Super Shotgun";
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_name1 = "Shell";
@@ -483,6 +509,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_ERASUS].name = "Upgraded Super Shotgun2";
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_name1 = "Shell";
@@ -491,6 +518,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_ERASUS].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_ERASUS].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_HELLSMAW].name = "Upgraded Super Shotgun3";
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_name1 = "HellsMawAmmo";
@@ -499,6 +527,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_HELLSMAW].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_HELLSMAW].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_PLASMACANNON].name = "ResSSG1";
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_name1 = "PCanAmmo";
@@ -507,6 +536,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_PLASMACANNON].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_PLASMACANNON].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_SHOCKER].name = "ResSSG2";
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_name1 = "Cell";
@@ -515,6 +545,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use1 = 5;
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SHOCKER].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT;
+	Weapons_Data[DND_WEAPON_SHOCKER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_HADES].name = "ResSSG3";
 	Weapons_Data[DND_WEAPON_HADES].ammo_name1 = "HadesAmmo";
@@ -523,6 +554,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HADES].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HADES].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_HADES].properties = WPROP_RIPPER | WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_HADES].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_CROSSBOW].name = "ResSSG4";
 	Weapons_Data[DND_WEAPON_CROSSBOW].ammo_name1 = "FlayerAmmo";
@@ -531,6 +563,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_CROSSBOW].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_CROSSBOW].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_CROSSBOW].properties = WPROP_RIPPER | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_CROSSBOW].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_SILVERGUN].name = "Silver Gun";
 	Weapons_Data[DND_WEAPON_SILVERGUN].ammo_name1 = "ExplodingShell";
@@ -539,6 +572,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SILVERGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SILVERGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SILVERGUN].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_SILVERGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_SLAYER].name = "Slayer";
 	Weapons_Data[DND_WEAPON_SLAYER].ammo_name1 = "SlayerAmmo";
@@ -547,6 +581,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SLAYER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SLAYER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SLAYER].properties = WPROP_SELFDMG | WPROP_CANTHITGHOST | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_SLAYER].attunement = STAT_INT;
 	
 	// SLOT 4
 	Weapons_Data[DND_WEAPON_MACHINEGUN].name = " Machine gun ";
@@ -556,6 +591,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MACHINEGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_MACHINEGUN].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_MACHINEGUN].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_MACHINEGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].name = "Upgraded Machine Gun";
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].ammo_name1 = "Clip";
@@ -564,6 +600,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_HEAVYMACHINEGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_LEADSPITTER].name = "Upgraded Machine Gun2";
 	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_name1 = "Clip";
@@ -572,6 +609,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_LEADSPITTER].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_LEADSPITTER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DEMONSEALER].name = "Upgraded Machine Gun3";
 	Weapons_Data[DND_WEAPON_DEMONSEALER].ammo_name1 = "DsealAmmo";
@@ -580,6 +618,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEMONSEALER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEMONSEALER].ammo_use2 = 10;
 	Weapons_Data[DND_WEAPON_DEMONSEALER].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_DEMONSEALER].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_TEMPLARMG].name = "ResMG1";
 	Weapons_Data[DND_WEAPON_TEMPLARMG].ammo_name1 = "Clip";
@@ -588,6 +627,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_TEMPLARMG].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_TEMPLARMG].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_TEMPLARMG].properties = WPROP_ALTAMMO;
+	Weapons_Data[DND_WEAPON_TEMPLARMG].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_RIOTCANNON].name = "ResMG2";
 	Weapons_Data[DND_WEAPON_RIOTCANNON].ammo_name1 = "RiotgunShell";
@@ -596,6 +636,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RIOTCANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RIOTCANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_RIOTCANNON].properties = WPROP_ALTAMMO;
+	Weapons_Data[DND_WEAPON_RIOTCANNON].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].name = "ResMG3";
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_name1 = "AcidAmmo";
@@ -604,6 +645,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].properties = WPROP_POISON;
+	Weapons_Data[DND_WEAPON_ACIDRIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].name = "ResMG4";
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_name1 = "FusionCell";
@@ -612,6 +654,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_use2 = 20;
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].properties = WPROP_IGNORESHIELD | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_FUSIONBLASTER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_INCINERATOR].name = "ResMG5";
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_name1 = "IncineratorAmmo";
@@ -620,6 +663,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_INCINERATOR].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_SELFDMG | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_INCINERATOR].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DESOLATOR].name = "Desolator";
 	Weapons_Data[DND_WEAPON_DESOLATOR].ammo_name1 = "DesolatorAmmo";
@@ -628,6 +672,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DESOLATOR].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DESOLATOR].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DESOLATOR].properties = WPROP_OVERHEAT | WPROP_POISON;
+	Weapons_Data[DND_WEAPON_DESOLATOR].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_MINIGUN].name = " Minigun ";
 	Weapons_Data[DND_WEAPON_MINIGUN].ammo_name1 = "Clip";
@@ -636,6 +681,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MINIGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_MINIGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_MINIGUN].properties = WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_MINIGUN].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_EBONYCANNON].name = "Ebony Cannon";
 	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_name1 = "EbonyAmmo";
@@ -644,6 +690,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_EBONYCANNON].properties = WPROP_IGNORESHIELD | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_EBONYCANNON].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_MPPB].name = "MPPB";
 	Weapons_Data[DND_WEAPON_MPPB].ammo_name1 = "Cell";
@@ -652,6 +699,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MPPB].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_MPPB].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_MPPB].properties = WPROP_RIPPER | WPROP_NOREFLECT | WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_MPPB].attunement = STAT_DEX;
 	
 	// SLOT 5
 	Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].name = "Rocket Launcher";
@@ -661,6 +709,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].name = "Upgraded Rocket Launcher";
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].ammo_name1 = "RocketAmmo";
@@ -669,6 +718,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].name = "Grenade Launcher";
 	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].ammo_name1 = "Grenades";
@@ -677,6 +727,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_ALTAMMO;
+	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_VINDICATOR].name = "Upgraded Rocket Launcher3";
 	Weapons_Data[DND_WEAPON_VINDICATOR].ammo_name1 = "FlakShell";
@@ -685,6 +736,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VINDICATOR].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_VINDICATOR].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_VINDICATOR].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_VINDICATOR].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_METEORLAUNCHER].name = "ResRL1";
 	Weapons_Data[DND_WEAPON_METEORLAUNCHER].ammo_name1 = "MeteorAmmo";
@@ -693,6 +745,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_METEORLAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_METEORLAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_METEORLAUNCHER].properties = WPROP_IGNORESHIELD | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_METEORLAUNCHER].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_HEAVYGL].name = "ResRL2";
 	Weapons_Data[DND_WEAPON_HEAVYGL].ammo_name1 = "HeavyGrenades";
@@ -701,6 +754,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYGL].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_HEAVYGL].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_HEAVYGL].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_HEAVYGL].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_FREEZER].name = "ResRL3";
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_name1 = "EverIce";
@@ -709,6 +763,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_use1 = 5;
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_FREEZER].properties = WPROP_RIPPER | WPROP_OVERHEAT;
+	Weapons_Data[DND_WEAPON_FREEZER].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_GRAVDIS].name = "ResRL4";
 	Weapons_Data[DND_WEAPON_GRAVDIS].ammo_name1 = "GravdisAmmo";
@@ -717,6 +772,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_GRAVDIS].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_GRAVDIS].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_GRAVDIS].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_GRAVDIS].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_VOIDCANNON].name = "ResRL5";
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_name1 = "Cell";
@@ -725,6 +781,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_VOIDCANNON].properties = WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_VOIDCANNON].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].name = "Upgraded Rocket Launcher2";
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].ammo_name1 = "RocketAmmo";
@@ -733,6 +790,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].name = "Upgraded Grenade Launcher";
 	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].ammo_name1 = "Grenades";
@@ -741,6 +799,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].name = "Heavy Missile Launcher";
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_name1 = "MISAmmo";
@@ -749,6 +808,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].name = "Sedrin Staff";
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].ammo_name1 = "SedrinAmmo";
@@ -757,6 +817,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].properties = WPROP_SELFDMG | WPROP_POISON;
+	Weapons_Data[DND_WEAPON_SEDRINSTAFF].attunement = STAT_DEX;
 	
 	// SLOT 6
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].name = "Plasma Rifle";
@@ -766,6 +827,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_PLASMARIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].name = "Upgraded Plasma Rifle";
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].ammo_name1 = "Cell";
@@ -774,6 +836,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_TURELCANNON].name = "Upgraded Plasma Rifle2";
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_name1 = "Cell";
@@ -782,6 +845,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_TURELCANNON].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_TURELCANNON].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_FROSTFANG].name = "Upgraded Plasma Rifle3";
 	Weapons_Data[DND_WEAPON_FROSTFANG].ammo_name1 = "EverIce";
@@ -790,6 +854,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FROSTFANG].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_FROSTFANG].ammo_use2 = 30;
 	Weapons_Data[DND_WEAPON_FROSTFANG].properties = WPROP_RIPPER | WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_FROSTFANG].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].name = "ResPlasma1";
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_name1 = "Fuel";
@@ -798,6 +863,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].properties = WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_FLAMETHROWER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].name = "ResPlasma2";
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].ammo_name1 = "LightningCell";
@@ -806,6 +872,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_REBOUNDER].name = "ResPlasma3";
 	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_name1 = "Cell";
@@ -814,6 +881,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_use2 = 20;
 	Weapons_Data[DND_WEAPON_REBOUNDER].properties = WPROP_OVERHEAT | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_REBOUNDER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DARKLANCE].name = "ResPlasma4";
 	Weapons_Data[DND_WEAPON_DARKLANCE].ammo_name1 = "DemonBlood";
@@ -822,14 +890,16 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DARKLANCE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DARKLANCE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DARKLANCE].properties = WPROP_NOREFLECT | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_DARKLANCE].attunement = STAT_INT;
 	
-	Weapons_Data[DND_WEAPON_RHINORIFLE].name = "Nailgun";
+	Weapons_Data[DND_WEAPON_RHINORIFLE].name = "RhinoRifle";
 	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_name1 = "Clip";
 	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_name2 = "MGClip7";
 	Weapons_Data[DND_WEAPON_RHINORIFLE].icon = "WEPICO61";
 	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RHINORIFLE].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_RHINORIFLE].properties = WPROP_ALTAMMO;
+	Weapons_Data[DND_WEAPON_RHINORIFLE].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_NAILGUN].name = "Nailgun";
 	Weapons_Data[DND_WEAPON_NAILGUN].ammo_name1 = "NailgunAmmo";
@@ -838,6 +908,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_NAILGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_NAILGUN].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_NAILGUN].properties = WPROP_RIPPER | WPROP_CANTHITGHOST | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_NAILGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_BASILISK].name = "Basilisk";
 	Weapons_Data[DND_WEAPON_BASILISK].ammo_name1 = "BasiliskAmmo";
@@ -846,6 +917,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BASILISK].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_BASILISK].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_BASILISK].properties = WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_BASILISK].attunement = STAT_STR;
 	
 	// SLOT 7
 	Weapons_Data[DND_WEAPON_BFG6000].name = "BFG 9000";
@@ -855,6 +927,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BFG6000].ammo_use1 = 50;
 	Weapons_Data[DND_WEAPON_BFG6000].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_BFG6000].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_BFG6000].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_BFG32768].name = "Upgraded BFG 9000";
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_name1 = "Cell";
@@ -863,6 +936,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_use1 = 75;
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_BFG32768].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_BFG32768].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_DEVASTATOR].name = "Devastator";
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_name1 = "DevastatorAmmo";
@@ -871,6 +945,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use2 = 60;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_DEVASTATOR].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_MFG].name = "MFG";
 	Weapons_Data[DND_WEAPON_MFG].ammo_name1 = "Cell";
@@ -879,6 +954,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MFG].ammo_use1 = 60;
 	Weapons_Data[DND_WEAPON_MFG].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_MFG].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_MFG].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_IONCANNON].name = "ResBFG1";
 	Weapons_Data[DND_WEAPON_IONCANNON].ammo_name1 = "IonAmmo";
@@ -887,6 +963,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_IONCANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_IONCANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_IONCANNON].properties = WPROP_OVERHEAT | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_IONCANNON].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_THUNDERSTAFF].name = "ResBFG2";
 	Weapons_Data[DND_WEAPON_THUNDERSTAFF].ammo_name1 = "ThunderAmmo";
@@ -895,6 +972,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_THUNDERSTAFF].ammo_use1 = 20;
 	Weapons_Data[DND_WEAPON_THUNDERSTAFF].ammo_use2 = 40;
 	Weapons_Data[DND_WEAPON_THUNDERSTAFF].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_THUNDERSTAFF].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].name = "Gauss Rifle";
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].ammo_name1 = "GaussRound";
@@ -903,6 +981,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_GAUSSRIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_RAILGUN].name = "Rail gun";
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_name1 = "Cell";
@@ -911,6 +990,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_RAILGUN].properties = WPROP_IGNORESHIELD | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_RAILGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DEATHRAY].name = "Death Ray";
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_name1 = "IonAmmo";
@@ -919,6 +999,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DEATHRAY].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT;
+	Weapons_Data[DND_WEAPON_DEATHRAY].attunement = STAT_DEX;
 	
 	// SLOT 8
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].name = "Death Staff";
@@ -928,6 +1009,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use2 = 9;
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].properties = WPROP_IGNORESHIELD | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_DEATHSTAFF].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_RAZORFANG].name = "Razorfang";
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_name1 = "Souls";
@@ -936,6 +1018,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_use2 = 4;
 	Weapons_Data[DND_WEAPON_RAZORFANG].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_RAZORFANG].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_SUNSTAFF].name = "Sun Staff";
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_name1 = "Souls";
@@ -944,6 +1027,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_use2 = 5;
 	Weapons_Data[DND_WEAPON_SUNSTAFF].properties = WPROP_IGNORESHIELD | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_SUNSTAFF].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_SOULREAVER].name = "Soul Reaver";
 	Weapons_Data[DND_WEAPON_SOULREAVER].ammo_name1 = "Souls";
@@ -952,6 +1036,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SOULREAVER].ammo_use1 = 75;
 	Weapons_Data[DND_WEAPON_SOULREAVER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SOULREAVER].properties = WPROP_IGNORESHIELD | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_SOULREAVER].attunement = STAT_INT;
 	
 	// TEMP WEPS
 	Weapons_Data[DND_WEAPON_SAWEDOFF].name = "Sawedoff";
@@ -961,6 +1046,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SAWEDOFF].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_SAWEDOFF].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_SOULRENDER].name = "Soul Render";
 	Weapons_Data[DND_WEAPON_SOULRENDER].ammo_name1 = "BladeHits";
@@ -969,6 +1055,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SOULRENDER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SOULRENDER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SOULRENDER].properties = WPROP_RIPPER | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_SOULRENDER].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_SMG].name = "SMG";
 	Weapons_Data[DND_WEAPON_SMG].ammo_name1 = "SMGAmmo";
@@ -977,6 +1064,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SMG].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SMG].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SMG].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_SMG].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].name = "Hellforge Cannon";
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].ammo_name1 = "IronBalls";
@@ -985,6 +1073,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].properties = WPROP_RIPPER | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_HELLFORGECANNON].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_BLOODFIENDSPINE].name = "Bloodfiend Spine";
 	Weapons_Data[DND_WEAPON_BLOODFIENDSPINE].ammo_name1 = "BloodAmmo";
@@ -993,6 +1082,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BLOODFIENDSPINE].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_BLOODFIENDSPINE].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_BLOODFIENDSPINE].properties = WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_BLOODFIENDSPINE].attunement = STAT_INT;
 
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].name = "Enforcer Rifle";
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].ammo_name1 = "LaserAmmo";
@@ -1001,6 +1091,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].properties = WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_VENOM].name = "Venom";
 	Weapons_Data[DND_WEAPON_VENOM].ammo_name1 = "VenomAmmo";
@@ -1009,6 +1100,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VENOM].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_VENOM].ammo_use2 = 3;
 	Weapons_Data[DND_WEAPON_VENOM].properties = WPROP_RIPPER | WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_VENOM].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_DEMONHEART].name = "Demon Heart";
 	Weapons_Data[DND_WEAPON_DEMONHEART].ammo_name1 = "HeartAmmo";
@@ -1017,6 +1109,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEMONHEART].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEMONHEART].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DEMONHEART].properties = WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_DEMONHEART].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_DARKGLOVES].name = "DarkServantGloves";
 	Weapons_Data[DND_WEAPON_DARKGLOVES].ammo_name1 = "DarkServantEnergy";
@@ -1025,6 +1118,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DARKGLOVES].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DARKGLOVES].ammo_use2 = 4;
 	Weapons_Data[DND_WEAPON_DARKGLOVES].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_DARKGLOVES].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_HEAVYNAILGUN].name = "Nailgun2";
 	Weapons_Data[DND_WEAPON_HEAVYNAILGUN].ammo_name1 = "BigNail";
@@ -1033,6 +1127,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYNAILGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_HEAVYNAILGUN].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_HEAVYNAILGUN].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_HEAVYNAILGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_BERETTAS].name = "Berettas";
 	Weapons_Data[DND_WEAPON_BERETTAS].ammo_name1 = "BerettaAmmo";
@@ -1041,6 +1136,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BERETTAS].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_BERETTAS].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_BERETTAS].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_BERETTAS].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].name = "Plasma Bolter";
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].ammo_name1 = "PlasmaBolterAmmo";
@@ -1049,6 +1145,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].ammo_use2 = 5;
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].properties = WPROP_RIPPER | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_PLASMABOLTER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].name = "Ripper Cannon";
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].ammo_name1 = "RipperCannonAmmo";
@@ -1057,6 +1154,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_RIPPERCANNON].attunement = STAT_STR;
 }
 	
 
@@ -1468,7 +1566,7 @@ int GetWeaponOrderSlot(int wepid, int slot) {
 str GetWeaponTipText(int wepid) {
 	int slot = GetSlotOfWeapon(wepid);
 	int subid = GetWeaponOrderSlot(wepid, slot);
-	return StrParam(s:"WEPTIP_", d:slot, s:"_", d:subid);
+	return StrParam(l:GetAttributeLabel(Weapons_Data[wepid].attunement), s:" ", l:"DND_MENU_ATTUNED", s:"\n", l:StrParam(s:"WEPTIP_", d:slot, s:"_", d:subid));
 }
 
 str GetWeaponTag(int wepid) {

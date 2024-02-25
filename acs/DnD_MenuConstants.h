@@ -11,6 +11,8 @@
 #define DND_NOLOOKUP false
 
 #define DND_BUDGET_CONVERSION_CREDIT 10000
+#define DND_TRANSMUTE_COST 5000
+int TransmuteOrbs[MAXPLAYERS][MAX_TRANSMUTE_BOXES]; // holds topboxid from inventories
 
 // Box definitions for clickables
 // 7 images on menu leftmost bar
@@ -81,6 +83,7 @@ enum {
 	MENU_LOAD_CRAFTING,
 	MENU_LOAD_CRAFTING_WEAPON,
 	MENU_LOAD_CRAFTING_INVENTORY,
+	MENU_LOAD_CRAFTING_TRANSMUTING,
 	MENU_LOAD_ACC1,
 	MENU_LOAD_ACC2,
 	MENU_LOAD_ACC3,
@@ -454,7 +457,7 @@ enum {
 #define MENU_TRADE_PLAYERCOUNT 16
 
 #define MENU_LOAD_CRAFTING_FIRST MENU_LOAD_CRAFTING_WEAPON
-#define MENU_LOAD_CRAFTING_LAST MENU_LOAD_CRAFTING_INVENTORY
+#define MENU_LOAD_CRAFTING_LAST MENU_LOAD_CRAFTING_TRANSMUTING
 
 #define MAXACCOUNTITEMS (SHOP_ACCOUNT_END - SHOP_ACCOUNT_BEGIN + 1)
 
@@ -468,6 +471,10 @@ bool IsWeaponPage(int page) {
 
 bool IsAmmoPage(int page) {
 	return page >= SHOP_FIRSTAMMO_PAGE && page <= SHOP_LASTAMMO_PAGE;
+}
+
+bool IsCraftingPageForTokens(int page) {
+	return page == MENU_LOAD_CRAFTING_WEAPON || page == MENU_LOAD_CRAFTING_INVENTORY;
 }
 
 #ifdef ISAPRILFIRST

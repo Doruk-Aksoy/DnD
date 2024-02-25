@@ -166,10 +166,10 @@ enum {
 	IIMG_CKEY_2,
 	IIMG_CKEY_3,
 	
-	IIMG_TOKEN_REPAIR,
-	IIMG_TOKEN_SCOUR
+	IIMG_TOKEN_ARMORER,
+	IIMG_TOKEN_GUNSMITH
 };
-#define MAX_ITEM_IMAGES (IIMG_TOKEN_SCOUR + 1)
+#define MAX_ITEM_IMAGES (IIMG_TOKEN_GUNSMITH + 1)
 
 #define DND_SMALLCHARM_IMAGEBEGIN IIMG_SC_1
 #define DND_SMALLCHARM_IMAGEEND IIMG_SC_3
@@ -180,7 +180,7 @@ enum {
 
 #define ITEM_IMAGE_ORB_BEGIN IIMG_ORB_1
 #define ITEM_IMAGE_KEY_BEGIN IIMG_CKEY_1
-#define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_REPAIR
+#define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_ARMORER
 
 #define ITEM_IMAGE_ARMOR_BEGIN IIMG_ARM_1
 #define ITEM_IMAGE_ARMOR_END IIMG_ARM_17
@@ -192,7 +192,7 @@ enum {
 #define ITEM_IMAGE_ORB_END IIMG_ORB_27
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_3
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
-#define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_SCOUR
+#define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_GUNSMITH
 
 #include "DnD_Armor.h"
 
@@ -1778,6 +1778,7 @@ bool IsUsableOnInventory(int itype) {
 		itype &= 0xFFFF; // lower 16 bits contain item type
 	switch(itype) {
 		case DND_ITEM_CHARM:
+		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
 		case DND_ITEM_NECKLACE:
@@ -2104,11 +2105,10 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		break;
 		case INV_HP_INCREASE:
 		case INV_HPPERCENT_INCREASE:
-		case INV_STAT_VITALITY:
-			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
+			temp = GetSpawnHealth();
+			i = GetActorProperty(0, APROP_HEALTH) - temp;
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			if(remove) {
-				temp = GetSpawnHealth();
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
 					// set health to new cap, add the extra to player
 					if(i > 0)
@@ -2119,10 +2119,6 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			}
 		break;
 		
-		case INV_STAT_BULKINESS:
-			IncPlayerModValue(pnum, atype, aval, noSync);
-			UpdatePlayerKnockbackResist();
-		break;
 		case INV_SPEED_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
@@ -2142,6 +2138,18 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_STAT_STRENGTH:
 			IncPlayerModValue(pnum, atype, aval, noSync);
 			UpdatePlayerKnockbackResist();
+
+			temp = GetSpawnHealth();
+			i = GetActorProperty(0, APROP_HEALTH) - temp;
+			if(remove) {
+				if(GetActorProperty(0, APROP_HEALTH) > temp) {
+					// set health to new cap, add the extra to player
+					if(i > 0)
+						SetActorProperty(0, APROP_HEALTH, temp + i);
+					else
+						SetActorProperty(0, APROP_HEALTH, temp);
+				}
+			}
 		break;
 
 		case INV_SHIELD_INCREASE:

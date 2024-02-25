@@ -621,11 +621,7 @@ Script "DnD Killing Spree Timer" (void) {
 			if(IsQuestComplete(0, QUEST_10SPREES))
 				reward += reward * DND_QUEST_BERSERK_SPREEBONUS / 100;
 			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, prev_mult, reward);
-			GiveInventory("Exp", reward);
-			GiveInventory("LevelExp", reward);
-			GiveInventory("LevelUpChecker", 1);
-			CalculateExpRatio();
-			SetInventory("SpreeXP", 0);
+			GiveExp(reward, true);
 			
 			// check 10 kill spree quest
 			if(active_quest_id == QUEST_10SPREES && !IsQuestComplete(0, QUEST_10SPREES)) {
@@ -2355,7 +2351,7 @@ Script "DnD Ankh Checker" (void) {
 }
 
 Script "DnD Player Levelup Check" (void) {
-	HandleLevelup(PlayerNumber());
+	HandleLevelup();
 }
 
 // Weapon tip display
@@ -3328,7 +3324,7 @@ Script "DnD Ruination Ticker" (void) {
 
 Script "DnD Berserker Perk25" (void) {
 	while(CheckInventory("Berserker_DamageTimer")) {
-		delay(const:7);
+		delay(const:1);
 		TakeInventory("Berserker_DamageTimer", 1);
 	}
 	
@@ -3355,7 +3351,7 @@ Script "DnD Berserker Perk50 Timer" (int this) {
 			}
 		
 			TakeInventory("Berserker_HitTimer", 1);
-			delay(const:5);
+			delay(const:1);
 		}
 		TakeInventory("Berserker_Perk50_Speed", 1);
 		TakeInventory("Berserker_HitTracker", 1);
@@ -3993,8 +3989,9 @@ Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 	
 	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
 	
-	if(damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE))
-		dmg = dmg * (100 + DND_STR_GAIN * GetStrength()) / 100;
+	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
+	if(isMelee)
+		dmg = dmg * HandleStatBonus(pnum, STAT_STR, isMelee);
 		
 	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
 		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
@@ -4002,14 +3999,11 @@ Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 	if(flags & DMG_WDMG_ISARTIFACT)
 		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckInventory("Ability_Arcanery")) / 100;
 		
-	if(flags & DMG_WDMG_NECROBULK)
-		dmg = dmg * (100 + DND_NECRO_BULKSCALE * GetBulkiness()) / 100;
-		
 	// attribute bonus
 	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
-		dmg = dmg * (100 + DND_INT_GAIN * GetIntellect()) / 100;
+		dmg = dmg * HandleStatBonus(pnum, STAT_INT, isMelee);
 	else
-		dmg = dmg * (100 + GetBonusFromDexterity()) / 100;
+		dmg = dmg * HandleStatBonus(pnum, STAT_DEX, isMelee);
 	
 	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
 	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp) {
@@ -5353,8 +5347,10 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	int pnum = PlayerNumber();
 	res += MapDamageCategoryToFlatBonus(pnum, DND_DAMAGECATEGORY_OCCULT, flags);
 	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+
 	// talent bonus
-	res = res * (100 + DND_INT_GAIN * GetIntellect()) / 100;
+	// to do: check if pet attack was melee or ranged... it makes no sense otherwise -- assuming melee as the only pet is a melee one now
+	res = res * (100 + HandleStatBonus(pnum, STAT_INT, true)) / 100;
 	
 	// TODO: later check if damage is physical, improve this script
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
@@ -5527,8 +5523,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		//Log(s:"\cd", l:"IATTR_T1", s:": \c-", d:GetArmorAmount(), s: " / ", d:GetArmorCapFromID(GetArmorID()));
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_STATALLOCATION", s:" -------\n--------------------------------\n");
-		Log(s:"\c[Y5]", l:"DND_STAT1", s:": \c-", d:GetStrength(), s:"\n\c[Y5]", l:"DND_STAT2", s:": \c-", d:GetDexterity(), s:"\n\c[Y5]", l:"DND_STAT3", s:": \c-", d:GetBulkiness());
-		Log(s:"\c[Y5]", l:"DND_STAT4", s:": \c-", d:GetCharisma(), s:"\n\c[Y5]", l:"DND_STAT5", s:": \c-", d:GetVitality(), s:"\n\c[Y5]", l:"DND_STAT6", s:": \c-", d:GetIntellect());
+		Log(s:"\c[Y5]", l:"DND_STAT1", s:": \c-", d:GetStrength(), s:"\n\c[Y5]", l:"DND_STAT2", s:": \c-", d:GetDexterity(), s:"\n\c[Y5]", l:"DND_STAT3", s:": \c-", d:GetIntellect());
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_PERKALLOCATION", s:" -------\n--------------------------------\n");
 		for(i = 0; i < DND_MAX_PERKS; ++i)
@@ -6113,8 +6108,10 @@ Script 68 (int x) NET {
 		if(!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
 	{
 		int i;
-		if(x < MAX_RESEARCHES)
+		if(x < MAX_RESEARCHES) {
 			GiveResearch(x, true);
+			CompleteResearch(x);
+		}
 		else if(x == 32768) {
 			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
 			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);

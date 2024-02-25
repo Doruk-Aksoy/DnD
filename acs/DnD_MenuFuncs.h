@@ -12,6 +12,7 @@ void UpdateMenuPosition(int option) {
 		menu_stack_T? stack = GetMenuStack(PlayerNumber());
 		PushStack(PlayerNumber(), option);
 	}
+	GiveInventory("DnD_HighlightBlocker", 1);
 	SetPage(option, true);
 }
 
@@ -549,10 +550,10 @@ void DrawWeaponIconCorner(int itemid) {
 		SetFont(toshow);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 96.4, 48.0, 0.0, 0.0);
 		SetFont("SMALLFONT");
+		
+		// draw damage types as well
+		DrawDamageTypes(itemid, RES_KNOWN, WeaponDrawInfo[itemid].flags);
 	}
-
-	// draw damage types as well
-	DrawDamageTypes(itemid, RES_KNOWN, WeaponDrawInfo[itemid].flags);
 }
 
 void DrawArtifactIconCorner(int boxid) {
@@ -575,29 +576,23 @@ void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 	// pull down = 1
 	if(isWepPage)
 		mode = 1;
-	else if(redraw)
-		ClearInfoPanel();
 		
 	if(mode) {
 		if(ypos < 25)
 			++ypos;
 	}
-	else {
-		if(ypos > 0)
-			--ypos;
-	}
+	else if(ypos > 0)
+		--ypos;
 
 	SetFont("DND_PANL");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID, -1, -12.0, -64.0 + ypos * 4.0, 0.0, 0.0);
 	
-	if(isWepPage && boxid != MAINBOX_NONE)
-		HandleWeaponPropertyImages(curopt, boxid, ypos);
-	else {
-		if(redraw)
-			ClearInfoPanel();
-	
-		DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
+	if(curopt >= MENU_SHOP && curopt <= SHOP_LASTWEAPON_PAGE) {
+		if(isWepPage && boxid != MAINBOX_NONE)
+			HandleWeaponPropertyImages(curopt, boxid, ypos);
+		else if(redraw)
+			DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
 	}
 	
 	SetFont("SMALLFONT");
@@ -719,19 +714,12 @@ int GetShopPrice (int id, int priceflag) {
 	if(id < MAXSHOPITEMS)
 		res = ShopInfo[id][SHOPINFO_PRICE] * shop_scale;
 	res = ShopScale(res, id);
-	if(priceflag & PRICE_CHARISMAREDUCE) {
-		chr = Clamp_Between(GetCharisma(), 0, DND_STAT_FULLMAX);
-		if(chr > 100)
-			res -= res / 2 + (res * (chr - 100)) / (100 * CHARISMA_REDUCE_AFTER100);
-		else
-			res -= (res * chr) / (100 * CHARISMA_REDUCE);
-	}
 	
 	if(priceflag & PRICE_INCREASE_STOCK_LOW) {
 	
 	}
 	
-	if(GetItemFlags(id) & OBJ_SHOTGUN && CheckInventory("Hobo_Perk5")) {
+	if((GetItemFlags(id) & OBJ_SHOTGUN) && CheckInventory("Hobo_Perk5")) {
 		res -= res / 5;
 		if(res < 0)
 			res = 0;
@@ -915,7 +903,7 @@ void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 // By default, if insufficient credits occur, it will be gray.
 // of it's kind. For example, there are 2 weapons that replace the shotgun. You can have only one, so you set this flag, and set choicename to P_Slot3Replaced. One of the two will be
 // red if the other is bought. The item that is bought will be green.
-void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int offcolor, int oncolor, str choicename, int choicecount, int choicecolor) {
+void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int offcolor, int oncolor, str choicename, int choicecount, int choicecolor, bool redraw = false) {
 	// first of all check research (assuming the player can't own this item without having it researched)
 	int res_state = 1;
 	if(objectflag & OBJ_RESEARCH) {
@@ -1002,6 +990,10 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				weptype = "\c[J7][\c[S7]R\c[J7]] ";
 			else
 				weptype = "\c[J7][\c[E3]L\c[J7]] ";
+
+			// we aren't on anything, clear it
+			if(boxid == MAINBOX_NONE && redraw)
+				ClearInfoPanel();
 		}
 		
 		if(curposy == onposy) {
@@ -1012,10 +1004,11 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				// stock
 				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256);
-				if(objectflag & OBJ_USESCROLL)
-					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + 1.0 * ScrollPos.x, 0.0, 0.0);
-				else
-					HudMessage(s:"\cd*\c- ", l:GetWeaponExplanation(itemid); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1, 0.0, 0.0);
+				HudMessage
+				(
+					s:"\cd*\c- ", s:GetWeaponExplanation(itemid);
+					HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 216.1 + !!(objectflag & OBJ_USESCROLL) * (1.0 * ScrollPos.x), 0.0, 0.0
+				);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
 				// update corner panel info
@@ -1228,14 +1221,7 @@ void DrawHighLightBar (int posy, int framecounter) {
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	if(
 		CheckInventory("AttributePoint") && 
-		!(framecounter % 2)	&&
-		//Don't flash if stats are already maxed
-	   !((CheckInventory("PSTAT_Strength") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Dexterity") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Bulkiness") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Charisma") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Vitality") == DND_STAT_FULLMAX) &&
-		(CheckInventory("PSTAT_Intellect") == DND_STAT_FULLMAX))
+		!(framecounter % 2)
 	)
 	{
 		drawstate = posy == MAINBOX_STATS;
@@ -1480,10 +1466,7 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ 288.0, 180.0, 108.0, 172.0 }, // str
 			{ 288.0, 164.0, 108.0, 156.0 }, // dex
-			{ 288.0, 148.0, 108.0, 140.0 }, // bul
-			{ 288.0, 132.0, 108.0, 124.0 }, // chr
-			{ 288.0, 116.0, 108.0, 108.0 }, // vit
-			{ 288.0, 100.0, 108.0, 92.0 }, // int
+			{ 288.0, 148.0, 108.0, 140.0 }, // int
 			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
@@ -1584,11 +1567,15 @@ rect_T& LoadRect(int menu_page, int id) {
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// loadout for crafting - 1
+		// loadout for crafting - weps
 		{
 			{ -1, -1, -1, -1 }
 		},
-		// loadout for crafting - 2
+		// loadout for crafting - inv
+		{
+			{ -1, -1, -1, -1 }
+		},
+		// loadout for crafting - transmute
 		{
 			{ -1, -1, -1, -1 }
 		},
@@ -2212,6 +2199,11 @@ rect_T& LoadCraftingViewRect(int id) {
 		bp[CRAFTING_INVENTORY_BOXID].topleft_y = -1;
 		bp[CRAFTING_INVENTORY_BOXID].botright_x = -1;
 		bp[CRAFTING_INVENTORY_BOXID].botright_y = -1;
+		// transmuting crafting box
+		bp[CRAFTING_TRANSMUTING_BOXID].topleft_x = -1;
+		bp[CRAFTING_TRANSMUTING_BOXID].topleft_y = -1;
+		bp[CRAFTING_TRANSMUTING_BOXID].botright_x = -1;
+		bp[CRAFTING_TRANSMUTING_BOXID].botright_y = -1;
 		
 		PaneSetup = SetBit(PaneSetup, CRAFTING_SETUP_BIT);
 	}
@@ -2331,18 +2323,14 @@ int GetTriggeredBoxOnMainPane(int mx, int my) {
 }
 
 void DrawBoxText(str msg, bool language_lookup, int boxid, int thisboxid, int id, int x, int y, str hcolor, str lcolor) {
-	if(language_lookup) {
-		if(boxid == thisboxid)
-			HudMessage(s:hcolor, l:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
-		else
-			HudMessage(s:lcolor, l:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
-	}
-	else {
-		if(boxid == thisboxid)
-			HudMessage(s:hcolor, s:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
-		else
-			HudMessage(s:lcolor, s:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
-	}
+	str color = lcolor;
+	if(boxid == thisboxid && !CheckInventory("DnD_HighlightBlocker"))
+		color = hcolor;
+
+	if(language_lookup)
+		HudMessage(s:color, l:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
+	else
+		HudMessage(s:color, s:msg, s:"\c-"; HUDMSG_PLAIN, id, CR_WHITE, x, y, 0.0, 0.0);
 }
 
 void DrawClickableButton(str image, int boxid, int thisboxid, int id, int x, int y, str hoverimage, str clickimage) {
@@ -2421,7 +2409,7 @@ void HandleButtonClick(int boxid) {
 }
 
 // opt is menu page, multipage is for when one option can lead to multiple weapon pages
-void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scrollamt, int total_boxes) {
+void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scrollamt, int total_boxes, bool redraw) {
 	int begin = GetWeaponBeginIndexFromOption(opt);
 	int end = GetWeaponEndIndexFromOption(opt);
 	
@@ -2441,7 +2429,7 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 	
 	for(int i = begin; i <= end; ++i)
-		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, GetWeaponCondition(i), 1, CR_RED);
+		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, GetWeaponCondition(i), 1, CR_RED, redraw);
 }
 
 // These except ammo indexes, true ammo indexes (dnd_ammo.h) not menu relative
@@ -2729,16 +2717,8 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
-		if(boxid == thisboxid) {
-			if(!CheckInventory("DnD_InventoryView"))
-				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
-		}
-		// breaks things (so far)
-		/*else {
-			if(PlayerCursorData.itemHovered != -1)
-				PlayerCursorData.hoverNeedsReset = true;
-			PlayerCursorData.itemHovered = -1;
-		}*/
+		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
+			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
 	}
 	SetFont(charmborderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
@@ -2978,8 +2958,10 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 			wt = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, temp, -1, source);
 			// in the part below, use the real value of actual box clicked for highlighting
 			for(p = 0; p < ht; ++p) {
-				for(s = 0; s < wt; ++s)
+				for(s = 0; s < wt; ++s) {
+					//Log(s:"id ", d:temp + offset + s + p * MAXINVENTORYBLOCKS_VERT);
 					InventoryBoxLit[temp + offset + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CLICK;
+				}
 			}
 			if(PlayerCursorData.itemDragInfo.click_box == -1) {
 				PlayerCursorData.itemDragged = GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, temp, -1, source);
@@ -3887,7 +3869,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 }
 
 void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
-	int mcount = CountCraftingMaterials(curopt == MENU_LOAD_CRAFTING_WEAPON);
+	int mcount = CountCraftingMaterials(IsCraftingPageForTokens(curopt));
 	int i;
 	int tx, ty, bx, by;
 	int page = CheckInventory("DnD_Crafting_MaterialPage");
@@ -3909,7 +3891,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 		//for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
 			// by holds currently visited unique item's order, it's unique to each item type so we reset it, we don't reset i
 			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
-				tx = GetNextUniqueCraftingMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, curopt == MENU_LOAD_CRAFTING_WEAPON);
+				tx = GetNextUniqueCraftingMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, IsCraftingPageForTokens(curopt));
 				if(tx != -1) {
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
@@ -4105,6 +4087,134 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 	SetFont("SMALLFONT");
 }
 
+void ResetTransmutingData(int pnum) {
+	for(int i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
+		TransmuteOrbs[pnum][i] = -1;
+		ACS_NamedExecuteWithResult("DnD Transmute Orb Sync", pnum, i, -1);
+	}
+}
+
+int IsValidTransmuteRecipe(int pnum) {
+	// check the orbs now for valid recipes
+	static int orb_counts[MAX_ORBS];
+	int res = -1, i, j;
+	int overall_count = 0;
+
+	for(i = 0; i < MAX_ORBS; ++i)
+		orb_counts[i] = 0;
+
+	// get count of all orbs in the transmute chamber
+	for(i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
+		j = TransmuteOrbs[pnum][i];
+		if(j != -1) {
+			++orb_counts[j];
+			++overall_count;
+		}
+	}
+
+	// recipe verification... could honestly be a lot better if stored in an array, but maybe wasteful in resources too, idk... mods kinda tight with array usage
+	// besides, I feel like I'd have to use a tree to really handle this properly... I think? I haven't thought too hard on making it efficiently, hopefully wont have to
+	for(i = 0; i < DND_MAX_ORB_KINDS; ++i) {
+		auto recipe = GetOrbRecipe(i);
+		int running_count = 0;
+		bool goodCount = false;
+		for(j = 0; j < MAX_TRANSMUTE_BOXES; ++j) {
+			if(recipe.components[j].id != -1) {
+				goodCount = orb_counts[recipe.components[j].id] == recipe.components[j].count;
+				if(goodCount)
+					running_count += recipe.components[j].count;
+				else // don't look further, we won't match, quit this loop
+					break;
+			}
+		}
+
+		if(goodCount && overall_count && running_count == overall_count) {
+			res = i;
+			break;
+		}
+	}
+
+	if(res == -1) {
+		// check special recipes, like the 420 one for TURMOIL + tagged orb => another random tagged orb
+		if
+		(
+			orb_counts[DND_ORB_TURMOIL] == 1 && overall_count == 2 &&
+			(
+				orb_counts[DND_ORB_PRISMATIC] || orb_counts[DND_ORB_DESTRUCTION] || orb_counts[DND_ORB_VIOLENCE] ||
+				orb_counts[DND_ORB_FORTITUDE] || orb_counts[DND_ORB_TREMORS] || orb_counts[DND_ORB_TINKERER] ||
+				orb_counts[DND_ORB_HEXES] || orb_counts[DND_ORB_GROWTH] || orb_counts[DND_ORB_CRACKLING] ||
+				orb_counts[DND_ORB_BRUTE] || orb_counts[DND_ORB_JAGGED] || orb_counts[DND_ORB_SAVAGERY] || orb_counts[DND_ORB_PROSPERITY]
+			)
+		)
+			res = DND_RANDOM_TAGGED_ORB_TRANSMUTE; // random tagged orb
+	}
+
+	return res;
+}
+
+void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
+	// first three are the 3 slots for orbs, 4th is transmute button
+	EnableBoxWithPoints(p, 0, 392.0, 148.0, 352.0, 108.0);
+	EnableBoxWithPoints(p, 1, 312.0, 276.0, 272.0, 236.0);
+	EnableBoxWithPoints(p, 2, 232.0, 148.0, 192.0, 108.0);
+	EnableBoxWithPoints(p, 3, 334.0, 68.0, 250.0, 60.0);
+
+	// we have three total boxes
+	int id_offset = 7;
+	for(int i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
+		str borderpic = "SCHNOR";
+		int thisboxid = MBOX_1 + i;
+		bool isHovered = boxid == thisboxid && !CheckInventory("DnD_InventoryView");
+		if(isHovered)
+			borderpic = "SCHSEL";
+
+		int hudx = 108.4 + i * 80.0;
+		int hudy = 128.0 + 64.0 * (1 - 2 * (i % 2));
+			
+		// if there is an orb here, draw it
+		int o_id = TransmuteOrbs[pnum][i];
+		if(o_id != -1) {
+			SetFont(GetItemImage(o_id + ITEM_IMAGE_ORB_BEGIN));
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 2 * thisboxid - id_offset, CR_WHITE, hudx, hudy, 0.0, 0.0);
+			
+			if(isHovered)
+				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
+		}
+		else {
+			SetFont("ORBBAK");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 2 * thisboxid - id_offset, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		}
+		SetFont(borderpic);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 2 * thisboxid - id_offset + 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	}
+
+	// middle orb -- hudx + offset, hudy - offset / 2
+	int recipe_out = IsValidTransmuteRecipe(pnum);
+	if(recipe_out == -1) {
+		SetFont("ORBMBK");
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
+
+		SetFont("SMALLFONT");
+		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 7, 188.4, 256.0, "\c[B1]", "\c[G8]");
+	}
+	else {
+		SetFont("ORBMBKG");
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
+
+		if(recipe_out != DND_RANDOM_TAGGED_ORB_TRANSMUTE)
+			SetFont(GetItemImage(ITEM_IMAGE_ORB_BEGIN + recipe_out));
+		else
+			SetFont("ORBBAKQ");
+
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
+
+		SetFont("SMALLFONT");
+		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 5, 188.4, 256.0, "\c[B1]", "\c[Y5]");
+	}
+
+	SetFont("SMALLFONT");
+}
+
 void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, int item_type, int item_source) {
 	int mx, my;
 	
@@ -4238,22 +4348,29 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 	
 		// these were lingering
 		if(curopt != MENU_LOAD_CRAFTING)
-			DeleteTextRange(RPGMENUID - 4, RPGMENUID - 3);
+			DeleteTextRange(RPGMENUID - 5, RPGMENUID - 3);
 		else {
 			// enable these two only for crafting view
 			// weapon crafting box
 			EnableBoxWithPoints(p, CRAFTING_WEAPON_BOXID, 455.0, 292.0, 321.0, 285.0);
 			// inventory crafting box
 			EnableBoxWithPoints(p, CRAFTING_INVENTORY_BOXID, 455.0, 276.0, 310.0, 269.0);
+			// transmuting box
+			EnableBoxWithPoints(p, CRAFTING_TRANSMUTING_BOXID, 455.0, 260.0, 310.0, 253.0);
 		}
 	}
 	
 	// CleanInventoryInfo();
 	HandleMaterialDraw(p, boxid, curopt, k);
 	if(curopt == MENU_LOAD_CRAFTING) {
-		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 5, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 6, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("DND_MENU_WEPCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_WEAPON_BOXID + 1, RPGMENUID - 3, 24.1, 32.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("DND_MENU_INVCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_INVENTORY_BOXID + 1, RPGMENUID - 4, 24.1, 48.0, "\c[B1]", "\c[Y5]");
+
+		if(CheckResearchStatus(RES_TRANSMUTING) != RES_DONE)
+			DrawBoxText("???", DND_NOLOOKUP, boxid, CRAFTING_TRANSMUTING_BOXID + 1, RPGMENUID - 5, 24.1, 64.0, "\c[B1]", "\c[Y5]");
+		else
+			DrawBoxText("DND_MENU_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_TRANSMUTING_BOXID + 1, RPGMENUID - 5, 24.1, 64.0, "\c[B1]", "\c[Y5]");
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
@@ -4263,6 +4380,14 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		HandleCraftingInventoryDraw(pnum, p, boxid, k);
 
+		// draw player credits on top right corner
+		SetFont("SMALLFONT");
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
+	}
+	else if(curopt == MENU_LOAD_CRAFTING_TRANSMUTING) {
+		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
+		HandleTransmutingDraw(pnum, p, boxid, k);
+		
 		// draw player credits on top right corner
 		SetFont("SMALLFONT");
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
@@ -4328,6 +4453,14 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						UpdateMenuPosition(MENU_LOAD_CRAFTING_WEAPON);
 					else if(boxid == CRAFTING_INVENTORY_BOXID + 1)
 						UpdateMenuPosition(MENU_LOAD_CRAFTING_INVENTORY);
+					else if(boxid == CRAFTING_TRANSMUTING_BOXID + 1) {
+						if(CheckResearchStatus(RES_TRANSMUTING) != RES_DONE)
+							ShowPopup(POPUP_NEEDRESEARCH, false, 0);
+						else {
+							ResetTransmutingData(pnum);
+							UpdateMenuPosition(MENU_LOAD_CRAFTING_TRANSMUTING);
+						}
+					}
 				}
 				else if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
 					if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
@@ -4364,8 +4497,8 @@ void HandleCraftingInputs(int boxid, int curopt) {
 							// printbold(s:"right click on assim ", d:curitemeindex);
 							SetInventory("DnD_UsedTwoItemRequirementMaterial", curitemeindex + 1);
 						}
-						else if(HandleMaterialUse(pnum, curitemeindex, 0, DND_ITEM_NULL))
-							UsePlayerItem(pnum, curitemeindex, curopt == MENU_LOAD_CRAFTING_WEAPON);
+						else if(HandleMaterialUse(pnum, curitemeindex, -1))
+							UsePlayerItem(pnum, curitemeindex, IsCraftingPageForTokens(curopt));
 						else
 							ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
 					}
@@ -4377,7 +4510,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						prevselect = CheckInventory("DnD_SelectedInventoryBox") - 1;
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
-								if(HandleMaterialUse(pnum, curitemeindex, previtemindex, DND_ITEM_WEAPON))
+								if(HandleMaterialUse(pnum, curitemeindex, previtemindex))
 									UsePlayerItem(pnum, curitemeindex, true);
 								else
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
@@ -4385,7 +4518,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 							else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
 								//printbold(d:previtemindex, s: " ", d:PlayerInventoryList[pnum][curitemeindex].item_type, s: " vs ", d:DND_ITEM_CHARM);
 								// is the index shown here not being the same as the one on inventory list causing the problem here?
-								if(HandleMaterialUse(pnum, curitemeindex, previtemindex, DND_ITEM_CHARM))
+								if(HandleMaterialUse(pnum, curitemeindex, previtemindex))
 									UsePlayerItem(pnum, curitemeindex, false);
 								else // this part can handle rest of the item types to come later on
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
@@ -4466,11 +4599,148 @@ void HandleCraftingInputs(int boxid, int curopt) {
 	}
 }
 
+void HandleTransmutingInputs(int pnum, int boxid) {
+	if(HasPlayerClicked(pnum)) {
+		int curitemeindex = ((boxid >> DND_MENU_ITEMSAVEBITS1) & DND_MENU_ITEMSAVEBITS1_MASK);
+		int previtemindex = (boxid >> DND_MENU_ITEMSAVEBITS2);
+		int recipe = 0, i, temp;
+		//Log(d:curitemeindex, s: " ", d:previtemindex);
+		//printbold(d:previtemindex, s: " ", d:boxid);
+		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
+		if(boxid != MAINBOX_NONE) {
+			if(HasLeftClicked(pnum)) {
+				// arrows in material part, left and right respectively
+				if(boxid == MATERIALARROW_ID) {
+					TakeInventory("DnD_Crafting_MaterialPage", 1);
+					GiveInventory("DnD_RefreshPane", 1);
+					GiveInventory("DnD_CleanCraftingRequest", 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				else if(boxid == MATERIALARROW_ID + 1) {
+					GiveInventory("DnD_Crafting_MaterialPage", 1);
+					GiveInventory("DnD_RefreshPane", 1);
+					GiveInventory("DnD_CleanCraftingRequest", 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				else if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
+					// marking a material in case they need something to be used on
+					SetInventory("DnD_SelectedInventoryBox", boxid);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				else if(boxid == CRAFTING_PAGEARROW_ID) {
+					// bottom arrows for crafting
+					UpdateMenuPosition(MENU_LOAD_CRAFTING);
+					GiveInventory("DnD_CleanCraftingRequest", 1);
+					SetInventory("DnD_SelectedInventoryBox", 0);
+				}
+				else if(boxid == MBOX_4 && (recipe = IsValidTransmuteRecipe(pnum)) != -1) {
+					// check credit
+					if(CheckInventory("Credit") < DND_TRANSMUTE_COST) {
+						ShowPopup(POPUP_NOFUNDS, false, 0);
+						return;
+					}
+
+					// add them only if they aren't the same -- really shitty code but I really didn't wanna use an array to group them together
+					int oid_1 = TransmuteOrbs[pnum][0];
+					int oid_2 = TransmuteOrbs[pnum][1];
+					int oid_3 = TransmuteOrbs[pnum][2];
+					int oamt_1 = 1;
+					int oamt_2 = 1;
+					int oamt_3 = 1;
+					int ocount_1 = 0;
+					int ocount_2 = 0;
+					int ocount_3 = 0;
+					if(oid_1 == oid_2) {
+						++oamt_1;
+						oid_2 = -1;
+					}
+					if(oid_1 == oid_3) {
+						++oamt_1;
+						oid_3 = -1;
+					}
+					if(oid_2 == oid_3) {
+						++oamt_2;
+						oid_3 = -1;
+					}
+
+					if
+					(
+						(oid_1 == -1 || (ocount_1 = CountOrbsOfTypeInventory(pnum, oid_1)) >= oamt_1) &&
+						(oid_2 == -1 || (ocount_2 = CountOrbsOfTypeInventory(pnum, oid_2)) >= oamt_2) &&
+						(oid_3 == -1 || (ocount_3 = CountOrbsOfTypeInventory(pnum, oid_3)) >= oamt_3)
+					)
+					{
+						if(oid_1 != -1)
+							TakeOrbFromPlayer_NoStash(pnum, oid_1, oamt_1);
+						if(oid_2 != -1)
+							TakeOrbFromPlayer_NoStash(pnum, oid_2, oamt_2);
+						if(oid_3 != -1)
+							TakeOrbFromPlayer_NoStash(pnum, oid_3, oamt_3);
+
+						if(recipe != DND_RANDOM_TAGGED_ORB_TRANSMUTE) {
+							ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, recipe, 1);
+							MarkOrbRecipeComplete(recipe);
+						}
+						else {
+							recipe = PickRandomTaggedOrb();
+							ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, recipe, 1);
+						}
+
+						TakeInventory("Credit", DND_TRANSMUTE_COST);
+						GiveInventory("DnD_CleanCraftingRequest", 1);
+						LocalAmbientSound("Items/SuccessDisassemble", 108);
+
+						if((oid_1 != -1 && ocount_1 - oamt_1 < oamt_1) || (oid_2 != -1 && ocount_2 - oamt_2 < oamt_2) || (oid_3 != -1 && ocount_3 - oamt_3 < oamt_3)) {
+							// reset the transmute array
+							ResetTransmutingData(pnum);
+						}
+					}
+					else
+						ShowPopup(POPUP_NOTENOUGHMATERIALS, false, 0);
+				}
+				else if(boxid >= MBOX_1 && boxid <= MBOX_3 && CheckInventory("DnD_SelectedInventoryBox")) {
+					// previtemindex holds (topboxid of item) - 1 in inventory
+					temp = PlayerInventoryList[pnum][previtemindex].item_subtype;
+					TransmuteOrbs[pnum][boxid - 1] = temp;
+					ACS_NamedExecuteAlways("DnD Transmute Orb Sync", 0, pnum, boxid - 1, temp);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					SetInventory("DnD_SelectedInventoryBox", 0);
+				}
+			}
+			else if(HasRightClicked(pnum) && boxid >= MBOX_1 && boxid <= MBOX_3) {
+				// take orb off transmute list
+				TransmuteOrbs[pnum][boxid - 1] = -1;
+				ACS_NamedExecuteAlways("DnD Transmute Orb Sync", 0, pnum, boxid - 1, -1);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				SetInventory("DnD_SelectedInventoryBox", 0);
+			}
+		}
+		else {
+			SetInventory("DnD_SelectedInventoryBox", 0);
+			
+			// if player clicks nothing we reset the two item engagement
+			SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
+		}
+		ClearPlayerInput(pnum, true);
+	}
+	else if(HasPressedLeft(pnum)) {
+		UpdateMenuPosition(MENU_LOAD_CRAFTING);
+		GiveInventory("DnD_CleanCraftingRequest", 1);
+		SetInventory("DnD_SelectedInventoryBox", 0);
+	}
+}
+
 // returns success of use of item
-bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
+// item is craft material, target is the item we intend to use it on
+bool HandleMaterialUse(int pnum, int itemindex, int targetindex) {
 	bool res = false;
 	int itype = PlayerInventoryList[pnum][itemindex].item_type;
 	int isubtype = PlayerInventoryList[pnum][itemindex].item_subtype;
+	
+	int targettype = DND_ITEM_NULL;
+	if(targetindex != -1)
+		targettype = PlayerInventoryList[pnum][targetindex].item_type;
+
 	// printbold(s:"type: ", d:itype, s: " ", d:isubtype);
 	// self usable materials usually go here as they have targettype NULL
 	if(!IsCraftableItem(targettype)) {
@@ -4483,15 +4753,15 @@ bool HandleMaterialUse(int pnum, int itemindex, int target, int targettype) {
 	}
 	else if(itype == DND_ITEM_ORB) {
 		// targettype is a craftable item
-		res = CanUseOrb(isubtype, target, targettype);
+		res = CanUseOrb(isubtype, targetindex, targettype);
 		if(res) {
-			ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, target);
+			ACS_NamedExecuteAlways("DND Orb Use", 0, isubtype, targetindex);
 		}
 	}
 	else if(itype == DND_ITEM_TOKEN) {
-		res = CanUseToken(isubtype, target, targettype);
+		res = CanUseToken(isubtype, targetindex, targettype);
 		if(res) {
-			ACS_NamedExecuteAlways("DND Token Use", 0, isubtype, target);
+			ACS_NamedExecuteAlways("DND Token Use", 0, isubtype, targetindex);
 		}
 	}
 	
@@ -4546,7 +4816,7 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 }
 
 void ResetShopStock(int pnum) {
-	int ch_factor = (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
+	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
 		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
@@ -4582,7 +4852,7 @@ void DrawPlayerStats(int pnum, int category) {
 	if(PlayerStatText == "") {
 		if(category == DRAW_STAT_OFFENSE1) {
 			// melee dmg
-			val = GetMeleeDamage(pnum);
+			val = GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE);
 			if(val) {
 				PlayerStatText = StrParam(s:GetItemAttributeText(INV_MELEEDAMAGE, 0, 0, val), s:"\n");
 				++k;
@@ -4596,7 +4866,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 
 			// non-magical dmg
-			val = GetRangedBonus(pnum);
+			/*val = GetRangedBonus(pnum);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_NONMAGICDMG", s:"\n");
 				++k;
@@ -4607,7 +4877,7 @@ void DrawPlayerStats(int pnum, int category) {
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_MAGICDMG", s:"\n");
 				++k;
-			}
+			}*/
 
 			// accuracy
 			val = GetActorProperty(0, APROP_ACCURACY);
@@ -5081,15 +5351,9 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// shop stock
-			val = (GetAmmoCapIncrease() - 100) * (100 + GetCharisma() + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100;
+			val = (GetAmmoCapIncrease() - 100) * (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100;
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, 0, 0, val), s:"\n");
-				++k;
-			}
-			// shop price reduction
-			val = CheckInventory("PSTAT_Charisma");
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(DND_CHR_GAIN * val, false), s:"%\c- ", l:"DND_MENU_DISCOUNT", s:"\n");
 				++k;
 			}
 		}

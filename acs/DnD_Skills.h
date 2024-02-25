@@ -70,7 +70,7 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 		case DND_SPELL_RALLY:
 			ActivatorSound("Spell/RallyCast", 127);
 			spell_level = GetPlayerAttributeValue(PlayerNumber(), INV_EX_ABILITY_RALLY);
-			temp = RALLY_DISTANCE + GetIntellect() * RALLY_DIST_PER_INT + GetCharisma() * RALLY_DIST_PER_CHR;
+			temp = RALLY_DISTANCE + GetIntellect() * RALLY_DIST_PER_INT;
 			bufftimer = RALLY_DURATION * TICRATE;
 			/*if(CheckInventory("Wanderer_Perk50")) {
 				sptr1 = StrParam(s:"Rally_Damage_Wanderer_Lvl", d:spell_level);

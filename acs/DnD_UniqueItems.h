@@ -73,7 +73,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].item_stack = 0;
 	UniqueItemList[id].attrib_count = 5;
 	UniqueItemList[id].attrib_id_list[0] = INV_FLATPHYS_DAMAGE;
-	UniqueItemList[id].attrib_id_list[1] = INV_STAT_BULKINESS;
+	UniqueItemList[id].attrib_id_list[1] = INV_STAT_STRENGTH;
 	UniqueItemList[id].attrib_id_list[2] = INV_DMGREDUCE_PHYS;
 	UniqueItemList[id].attrib_id_list[3] = INV_REGENCAP_INCREASE;
 	UniqueItemList[id].attrib_id_list[4] = INV_EX_KNOCKBACK_IMMUNITY;

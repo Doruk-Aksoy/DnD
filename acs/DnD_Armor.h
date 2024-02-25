@@ -144,19 +144,19 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		case BODYARMOR_GREEN:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_1;
 			// 100 armor, 33% damage reduction
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 80);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100);
 		break;
 		case BODYARMOR_YELLOW:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_2;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 150, 0, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100);
 		break;
 		case BODYARMOR_BLUE:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_3;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 125);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 325, 0, item_tier, 100);
 		break;
         case BODYARMOR_RED:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_4;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 150);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 450, 0, item_tier, 100);
 		break;
 
 		case BODYARMOR_GUNSLINGER:
@@ -172,7 +172,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		case BODYARMOR_DEMO:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_7;
 			special_roll = PPOWER_CANROLLEXP;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, PPOWER_CANROLLEXP, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, PPOWER_CANROLLEXP, item_tier, 100);
 		break;
 		case BODYARMOR_ENERGY:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_8;
@@ -182,16 +182,16 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		case BODYARMOR_ELEMENTAL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_9;
 			special_roll = PPOWER_CANROLLELEMENTAL;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, PPOWER_CANROLLELEMENTAL, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, PPOWER_CANROLLELEMENTAL, item_tier, 100);
 		break;
 
 		case BODYARMOR_MONOLITH:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_10;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 100, 0, item_tier, 50);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 125, 0, item_tier, 50);
 		break;
 		case BODYARMOR_CYBER:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_11;
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 125, PPOWER_CYBER, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 125, PPOWER_CYBER, item_tier, 80);
 		break;
 		case BODYARMOR_DUELIST:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_12;
@@ -203,11 +203,11 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 		case BODYARMOR_KNIGHT:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_14;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 225, PPOWER_KNIGHTMELEEBONUS, item_tier, 125);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 300, PPOWER_KNIGHTMELEEBONUS, item_tier, 150);
 		break;
 		case BODYARMOR_RAVAGER:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_15;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 180, PPOWER_RAVAGER, item_tier, 90);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 225, PPOWER_RAVAGER, item_tier, 90);
 		break;
 
 		case BODYARMOR_SYNTHMETAL:
@@ -216,7 +216,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 		case BODYARMOR_LIGHTNINGCOIL:
 			Inventories_On_Field[item_pos].item_image = IIMG_ARM_17;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 75, PPOWER_LIGHTNINGABSORB, item_tier, 35);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, PPOWER_LIGHTNINGABSORB, item_tier, 50);
 		break;
 	}
 	

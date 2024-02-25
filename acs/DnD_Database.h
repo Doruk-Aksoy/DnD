@@ -354,23 +354,14 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	// save stats of player (can fit 4 stats in one int, using 7 bits)
 	temp = CheckActorInventory(tid, "PSTAT_Strength");
-	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Dexterity")) << 8;
-	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Bulkiness")) << 16;
-	temp |= (0xFF & CheckActorInventory(tid, "PSTAT_Charisma")) << 24;
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc, temp);
-	
-	// save vitality, backpack count and active accessory
-	temp = CheckActorInventory(tid, "PSTAT_Vitality");
-	// backpack covers 6 bits max (count = 55 < 63)
-	temp |= CheckActorInventory(tid, "BackpackCounter") << 8; // for backpack
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, temp);
-	
-	// save intellect
+	SetDBEntry(GetCharField(DND_DB_STATS_STR, char_id), pacc, temp);
+	temp = CheckActorInventory(tid, "PSTAT_Dexterity");
+	SetDBEntry(GetCharField(DND_DB_STATS_DEX, char_id), pacc, temp);
 	temp = CheckActorInventory(tid, "PSTAT_Intellect");
+	SetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, temp);
 
-	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
+	temp = CheckActorInventory(tid, "BackpackCounter");
+	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, temp);
 	
 	// save perks (use 4 bits per perk, max is 10 for a perk)
 	temp = CheckActorInventory(tid, "Perk_Sharpshooting");
@@ -488,7 +479,11 @@ void SavePlayerData(int pnum, int char_id) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc, CheckActorInventory(tid, ResearchTrackers[i]));
 	
 	// save legendary monster kills
-	SetDBEntry(StrParam(s:GetCharField(DND_DB_LEGENDARYTRACKER, char_id), d:i + 1), pacc, CheckActorInventory(tid, "LegendaryKills"));
+	SetDBEntry(GetCharField(DND_DB_LEGENDARYTRACKER, char_id), pacc, CheckActorInventory(tid, "LegendaryKills"));
+
+	// save orb recipes
+	SetDBEntry(GetCharField(DND_DB_ORBRECIPETRACKER_1, char_id), pacc, CheckActorInventory(tid, "DnD_OrbRecipes_1"));
+	SetDBEntry(GetCharField(DND_DB_ORBRECIPETRACKER_2, char_id), pacc, CheckActorInventory(tid, "DnD_OrbRecipes_2"));
 	
 	// save budget
 	temp = CheckActorInventory(tid, "Budget");
@@ -554,39 +549,16 @@ void SavePlayerActivities(int pnum, int char_id) {
 	int temp; //DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = RecoverPlayerAccountName(pnum);
 	//Log(s:"player ", d:pnum, s: " account name ", s:pacc);
-	
-	// save stats of player (can fit 4 stats in one int, using 7 bits)
+
 	temp = 0;
 	temp = PlayerActivities[pnum].attribute_change[STAT_STR];
+	IncrementDBEntry(GetCharField(DND_DB_STATS_STR, char_id), pacc, temp);
+
+	temp = PlayerActivities[pnum].attribute_change[STAT_DEX];
+	IncrementDBEntry(GetCharField(DND_DB_STATS_DEX, char_id), pacc, temp);
 	
-	vt = PlayerActivities[pnum].attribute_change[STAT_DEX];
-	if(vt < 0)
-		temp -= (-vt) << 8;
-	else
-		temp += vt << 8;
-	
-	vt = PlayerActivities[pnum].attribute_change[STAT_BUL];
-	if(vt < 0)
-		temp -= (-vt) << 16;
-	else
-		temp += vt << 16;
-		
-	vt = PlayerActivities[pnum].attribute_change[STAT_CHR];
-	if(vt < 0)
-		temp -= (-vt) << 24;
-	else
-		temp += vt << 24;
-	// send temp over
-	IncrementDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc, temp);
-	
-	// save vitality
-	temp = PlayerActivities[pnum].attribute_change[STAT_VIT];
-	// send temp over -- we increment this so the backpack count should not be affected
-	IncrementDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, temp);
-	
-	// save intellect
 	temp = PlayerActivities[pnum].attribute_change[STAT_INT];
-	IncrementDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, temp);
+	IncrementDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, temp);
 	
 	// save perks (use 4 bits per perk, max is 10 for a perk so it saves the first 8 perks packed into 4 bits)
 	i = STAT_SHRP - DND_PERK_BEGIN;
@@ -881,23 +853,15 @@ void LoadPlayerData(int pnum, int char_id) {
 	}
 	
 	// read stats
-	temp = GetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc);
-	SetInventory("PSTAT_Strength", temp & 0xFF);
-	temp >>= 8;
-	SetInventory("PSTAT_Dexterity", temp & 0xFF);
-	temp >>= 8;
-	SetInventory("PSTAT_Bulkiness", temp & 0xFF);
-	temp >>= 8;
-	SetInventory("PSTAT_Charisma", temp & 0xFF);
-	
-	temp = GetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc);
-	SetInventory("PSTAT_Vitality", temp & 0xFF);
-	temp >>= 8;
-	SetInventory("BackpackCounter", temp & 0xFF);
-	
-	// intellect
-	temp = GetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc);
-	SetInventory("PSTAT_Intellect", temp & 0xFF);
+	temp = GetDBEntry(GetCharField(DND_DB_STATS_STR, char_id), pacc);
+	SetInventory("PSTAT_Strength", temp);
+	temp = GetDBEntry(GetCharField(DND_DB_STATS_DEX, char_id), pacc);
+	SetInventory("PSTAT_Dexterity", temp);
+	temp = GetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc);
+	SetInventory("PSTAT_Intellect", temp);
+
+	temp = GetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc);
+	SetInventory("BackpackCounter", temp);
 	
 	// read perks - 1
 	temp = GetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc);
@@ -1027,7 +991,11 @@ void LoadPlayerData(int pnum, int char_id) {
 		SetInventory(ResearchTrackers[i], GetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCHTRACKER, char_id), d:i + 1), pacc));
 		
 	// read legendary monster kills
-	SetInventory("LegendaryKills", GetDBEntry(StrParam(s:GetCharField(DND_DB_LEGENDARYTRACKER, char_id), d:i + 1), pacc));
+	SetInventory("LegendaryKills", GetDBEntry(GetCharField(DND_DB_LEGENDARYTRACKER, char_id), pacc));
+
+	// read orb recipes
+	SetInventory("DnD_OrbRecipes_1", GetDBEntry(GetCharField(DND_DB_ORBRECIPETRACKER_1, char_id), pacc));
+	SetInventory("DnD_OrbRecipes_2", GetDBEntry(GetCharField(DND_DB_ORBRECIPETRACKER_2, char_id), pacc));
 	
 	// read budget
 	temp = GetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc);
@@ -1197,9 +1165,10 @@ void WipeoutPlayerData(int pnum, int cid) {
 	for(i = 1; i <= (MAXWEPS / 32) + 1; ++i)
 		SetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:i), char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_TEMPAMMO, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_STR, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_DEX, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, 0);
@@ -1331,9 +1300,10 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	}
 	
 	SetDBEntry(GetCharField(DND_DB_TEMPAMMO, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_STATS_1, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_STATS_2, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_STATS_3, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_STR, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_DEX, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_Character"));

@@ -32,35 +32,37 @@ typedef struct {
 // holds most recently used orb values
 global orb_info_T 3: Player_MostRecent_Orb[MAXPLAYERS];
 
-#define MAX_ORBS_BITS getpow2(MAX_ORBS)
-#define MAX_ORBS_BITONES (1 << (MAX_ORBS_BITS)) - 1
-
 int OrbDropWeights[MAX_ORBS] = {
 	60, // 6%
 	84, // 2.4%
 	129, // 4.5%
 	147, // 1.8%
 	172, // 2.5%
+
 	202, // 3%
 	247, // 4.5%
 	272, // 2.5%
 	302, // 3%
 	347, // 4.5%
+
 	392, // 4.5%
 	410, // 1.8%
 	455, // 4.5%
 	490, // 3.5%
 	540, // 5%
+
 	580, // 4%
 	615, // 3.5%
 	675, // 6%
 	720, // 4.5%
 	756, // 3.6%
+
 	781, // 2.5%
 	826, // 4.5%
 	871, // 4.5%
 	916, // 4.5%
 	940, // 2.4%
+	
 	965, // 2.5%
 	1000, // 3.5%
 
@@ -85,6 +87,9 @@ bool CanAddModToItem(int pnum, int itemtype, int item_index, int add_lim) {
 		else if(itemtype == DND_ITEM_CHARM) {
 			// printbold(d:PlayerInventoryList[pnum][item_index].attrib_count, s: " < ", d:Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim);
 			res = PlayerInventoryList[pnum][item_index].attrib_count < Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;
+		}
+		else {
+			res = PlayerInventoryList[pnum][item_index].attrib_count < MAX_ARMOR_ATTRIB_DEFAULT + add_lim;
 		}
 	}
 	return res;
@@ -931,6 +936,40 @@ int TakeOrbFromPlayer(int otype, int amt) {
 	return res;
 }
 
+int CountOrbsOfTypeInventory(int pnum, int otype) {
+	int amt = 0, i;
+	// search player inventory to take from first
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == otype)
+			amt += PlayerInventoryList[pnum][i].item_stack;
+	}
+	return amt;
+}
+
+// used for taking only from inventory of player, and returns error codes if it can't
+int TakeOrbFromPlayer_NoStash(int pnum, int otype, int amt) {
+	int i;
+	int res = 0;
+	// search player inventory to take from first
+	for(i = 0; i < MAX_INVENTORY_BOXES && res < amt; ++i) {
+		if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == otype) {
+			if(PlayerInventoryList[pnum][i].item_stack > amt - res) {
+				UsePlayerItem_Count(pnum, i, amt - res);
+				res += amt;
+			}
+			else { 
+				// use however many we are left to reach amt
+				res += PlayerInventoryList[pnum][i].item_stack;
+				UsePlayerItem_Count(pnum, i, PlayerInventoryList[pnum][i].item_stack);
+			}
+		}
+	}
+	
+	if(res == amt)
+		return res;
+	return -1;
+}
+
 // very badly coded, improve later
 void GiveOrbToPlayer(int pnum, int otype, int amt) {
 	int res = 0;
@@ -1294,7 +1333,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now
-		//i = DND_ORB_CORRUPT;
+		//i = DND_ORB_ELEVATION;
 		RollOrbInfo(c, i, true, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);

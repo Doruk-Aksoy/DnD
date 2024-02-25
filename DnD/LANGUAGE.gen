@@ -88,10 +88,7 @@ DND_CLASS								= "Class";
 
 DND_STAT1								= "Strength";
 DND_STAT2								= "Dexterity";
-DND_STAT3								= "Bulkiness";
-DND_STAT4								= "Charisma";
-DND_STAT5								= "Vitality";
-DND_STAT6								= "Intellect";
+DND_STAT3								= "Intellect";
 	
 DND_PERK1								= "Sharpshooting";
 DND_PERK2								= "Brutality";
@@ -216,6 +213,7 @@ DND_POPUP_CANTPUTONBODYARMOR				=	"You can't use a body armor, it's forbidden!";
 DND_POPUP_NOTENOUGHSPACE					=	"You don't have enough space!";
 DND_POPUP_SCAVENGECONFIRM					=	"Disassemble the item for ";
 DND_POPUP_OWNNFT							=	"You already own this NFT... idiot.";
+DND_POPUP_NOTENOUGHMATERIALS				=	"Not enough materials to combine!";
 
 // exceptions for some character sheet text
 DND_IGNITEDAMAGE							=	"ignite damage";

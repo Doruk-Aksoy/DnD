@@ -103,9 +103,6 @@ enum {
 	
 	INV_STAT_STRENGTH,
 	INV_STAT_DEXTERITY,
-	INV_STAT_BULKINESS,
-	INV_STAT_CHARISMA,
-	INV_STAT_VITALITY,
 	INV_STAT_INTELLECT,
 	
 	INV_DMGREDUCE_ELEM,
@@ -539,7 +536,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_HP_INCREASE].tags = INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_ARMOR_INCREASE].attrib_low = 5;
-	ItemModTable[INV_ARMOR_INCREASE].attrib_high = 14;
+	ItemModTable[INV_ARMOR_INCREASE].attrib_high = 24;
 	ItemModTable[INV_ARMOR_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_ARMOR_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	
@@ -549,7 +546,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_HPPERCENT_INCREASE].tags = INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_low = 1;
-	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_high = 6;
+	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_high = 9;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	
@@ -757,21 +754,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_STAT_DEXTERITY].attrib_high = 4;
 	ItemModTable[INV_STAT_DEXTERITY].attrib_level_modifier = 0;
 	ItemModTable[INV_STAT_DEXTERITY].tags = INV_ATTR_TAG_STAT;
-	
-	ItemModTable[INV_STAT_BULKINESS].attrib_low = 1;
-	ItemModTable[INV_STAT_BULKINESS].attrib_high = 4;
-	ItemModTable[INV_STAT_BULKINESS].attrib_level_modifier = 0;
-	ItemModTable[INV_STAT_BULKINESS].tags = INV_ATTR_TAG_STAT;
-	
-	ItemModTable[INV_STAT_CHARISMA].attrib_low = 1;
-	ItemModTable[INV_STAT_CHARISMA].attrib_high = 4;
-	ItemModTable[INV_STAT_CHARISMA].attrib_level_modifier = 0;
-	ItemModTable[INV_STAT_CHARISMA].tags = INV_ATTR_TAG_STAT;
-	
-	ItemModTable[INV_STAT_VITALITY].attrib_low = 1;
-	ItemModTable[INV_STAT_VITALITY].attrib_high = 4;
-	ItemModTable[INV_STAT_VITALITY].attrib_level_modifier = 0;
-	ItemModTable[INV_STAT_VITALITY].tags = INV_ATTR_TAG_STAT;
 	
 	ItemModTable[INV_STAT_INTELLECT].attrib_low = 1;
 	ItemModTable[INV_STAT_INTELLECT].attrib_high = 4;
@@ -1524,9 +1506,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_ACCURACY_INCREASE:
 		case INV_STAT_STRENGTH:
 		case INV_STAT_DEXTERITY:
-		case INV_STAT_BULKINESS:
-		case INV_STAT_CHARISMA:
-		case INV_STAT_VITALITY:
 		case INV_STAT_INTELLECT:
 		case INV_FLAT_FIREDMG:
 		case INV_FLAT_ICEDMG:

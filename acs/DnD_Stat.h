@@ -9,6 +9,7 @@
 #include "DnD_Abilities.h"
 #include "DnD_Activity.h"
 #include "DnD_WeaponDefs.h"
+#include "DnD_DamageCache.h"
 
 // There's an underlying assumption here and it is that once an attack is concluded, ie. Another "DnD on Attack" script call is made
 // all projectiles that are meant to come from an attack have come out. This is so that projectiles and multi proj delayed attacks get their crit rolls properly
@@ -99,9 +100,6 @@ str GetTalentTag(int id) {
 str StatData[STAT_LVLCRED + 1] = {
 	"PSTAT_Strength",
 	"PSTAT_Dexterity",
-	"PSTAT_Bulkiness",
-	"PSTAT_Charisma",
-	"PSTAT_Vitality",
 	"PSTAT_Intellect",
 	
 	"Perk_Sharpshooting",
@@ -278,11 +276,10 @@ void GiveStat(int stat_id, int amt) {
 	}
 
 	// visual updates
-	if(stat_id == STAT_STR || stat_id == STAT_BUL) {
+	if(stat_id == STAT_STR) {
 		UpdatePlayerKnockbackResist();
-	}
-	else if(stat_id == STAT_VIT)
 		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
+	}
 }
 
 // Takes a stat from the player, also removing effects of it
@@ -298,19 +295,10 @@ void TakeStat(int stat_id, int amt) {
 	}
 		
 	// visual updates
-	if(stat_id == STAT_STR || stat_id == STAT_BUL) {
+	if(stat_id == STAT_STR) {
 		UpdatePlayerKnockbackResist();
-	}
-	else if(stat_id == STAT_VIT)
 		SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
-}
-
-int GetBonusFromDexterity() {
-	return (DND_DEX_GAIN + DND_SHARPSHOOTER_MASTERY_BONUS * HasMasteredPerk(STAT_SHRP)) * GetDexterity();
-}
-
-int GetBonusFromIntellect() {
-	return DND_INT_GAIN * GetIntellect();
+	}
 }
 
 bool HasMasteredPerk(int stat) {
@@ -359,11 +347,82 @@ void CalculatePlayerExpRatio(int tid) {
 		SetActorInventory(tid, "ExpVisual", 1000 * CheckActorInventory(tid, "Exp") / cap);
 }
 
-void GiveExp(int amt) {
+int CheckLevelUp (int pnum) {
+	int prevlvl = GetStat(STAT_LVL), exptemp;
+	int currlvl;
+	// -1 because initial level is 1
+	// we need to check for the current up-to-date level, not previous level here!!
+	while((currlvl = GetStat(STAT_LVL)) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[currlvl - 1]) {
+		exptemp = GetStat(STAT_EXP) - LevelCurve[currlvl - 1];
+		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
+			GiveInventory("PerkPoint", 1);
+			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
+			GiveInventory("PerkedUp", 1);
+			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
+		}
+
+		GiveInventory("Level", 1);
+		SetInventory("Exp", exptemp);
+		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
+		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
+		
+		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
+		UpdateActivity(pnum, DND_ACTIVITY_LEVEL, 1, 0);
+	}
+	return GetStat(STAT_LVL) - prevlvl;
+}
+
+void HandleLevelup() {
+	int pnum = PlayerNumber();
+	int prevlvl = CheckInventory("Level");
+	if(CheckLevelUp(pnum)) {
+		LocalAmbientSound("RPG/LevelUp", 127);
+		GiveInventory("LevelUpEffectSpawner", 1);
+		GiveInventory("LeveledUp", 1);
+		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
+		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
+			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
+			
+		// sync level cap exp
+		CalculateExpRatio();
+		// heal on level up flag is on
+		if(GetCVar("dnd_healonlevelup"))
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
+		
+		int curlvl = CheckInventory("Level");
+		// player just leveled and got their perks? check if so
+		if
+		(
+			(prevlvl < DND_CLASSPERK1_LEVEL && curlvl >= DND_CLASSPERK1_LEVEL) ||
+			(prevlvl < DND_CLASSPERK2_LEVEL && curlvl >= DND_CLASSPERK2_LEVEL) ||
+			(prevlvl < DND_CLASSPERK3_LEVEL && curlvl >= DND_CLASSPERK3_LEVEL)
+		)
+		{
+			HandleClassPerks();
+			
+			// this is done as new perks might increase some damage factors
+			ForcePlayerDamageCaching(pnum);
+			
+			// make some announcement the player has a new perk
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
+		}
+		else
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
+	}
+	
+	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
+}
+
+void GiveExp(int amt, bool resetSpree = false) {
 	GiveInventory("Exp", amt);
-	GiveInventory("SpreeXP", amt);
+
+	if(!resetSpree)
+		GiveInventory("SpreeXP", amt);
+	else
+		SetInventory("SpreeXP", 0);
+
 	GiveInventory("LevelExp", amt);
-	GiveInventory("LevelUpChecker", 1);
+	HandleLevelup();
 	CalculateExpRatio();
 }
 
@@ -1213,17 +1272,22 @@ int GetPelletCount(int pnum, int base) {
 	return ApplyFixedFactorToInt(base, GetPelletIncrease(pnum) - 1.0);
 }
 
-// display only, inner workings of this depends on order of operations of other modifiers
-int GetMeleeDamage(int pnum) {
+int HandleStatBonus(int pnum, int attunement, bool isMelee) {
+	int statOf = GetStat(attunement);
+	statOf *= DND_STAT_ATTUNEMENT_GAIN + (attunement == STAT_DEX) * HasMasteredPerk(STAT_SHRP) * DND_SHARPSHOOTER_MASTERY_BONUS;
+
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
-	return (DND_STR_GAIN * GetStrength() + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) * (100 + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
+	if(isMelee)
+		statOf = (statOf + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) * (100 + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
+	else
+		statOf = (statOf * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC)) / 100;
+	return statOf;
 }
 
-int GetRangedBonus(int pnum, bool isOccult = false) {
+int GetStatAttunementBonus(int pnum, int wepid, bool isMelee) {
 	// sharpshooting is a more multiplier
-	if(!isOccult)
-		return GetBonusFromDexterity() * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC) / 100;
-	return GetBonusFromIntellect() * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC) / 100;
+	int attunement = Weapons_Data[wepid].attunement;
+	return HandleStatBonus(pnum, attunement, isMelee);
 }
 
 int GetMaxResistCap(int pnum) {

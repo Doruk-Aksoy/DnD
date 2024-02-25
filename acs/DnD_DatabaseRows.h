@@ -3,9 +3,10 @@
 
 #define DND_DB_CLASSID "DnD_ClassID"
 #define DND_DB_WEAPONINT "DND_PlayerWeapons_"
-#define DND_DB_STATS_1 "DND_PlayerStats_1"
-#define DND_DB_STATS_2 "DND_PlayerStats_2"
-#define DND_DB_STATS_3 "DND_PlayerStats_3"
+#define DND_DB_STATS_STR "DND_PlayerStats_1"
+#define DND_DB_STATS_DEX "DND_PlayerStats_2"
+#define DND_DB_STATS_INT "DND_PlayerStats_3"
+#define DND_DB_BACKPACKS "DND_Backpacks"
 #define DND_DB_PERKS "DND_PlayerPerks"
 #define DND_DB_PERKS2 "DND_PlayerPerks2"
 #define DND_DB_HEALTH "DND_PlayerHealth"
@@ -38,6 +39,8 @@
 #define DND_DB_RESEARCHTRACKER "DnD_ResearchTracker"
 #define DND_DB_NPCTRACKER "DnD_NPCTracker"
 #define DND_DB_LEGENDARYTRACKER "DnD_LegendaryKills"
+#define DND_DB_ORBRECIPETRACKER_1 "DnD_OrbRecipe_1"
+#define DND_DB_ORBRECIPETRACKER_2 "DnD_OrbRecipe_2"
 
 #define DND_DB_KILLTRACKER "DnD_LifetimeKills"
 #define DND_DB_KILLTRACKER_MILLION "DnD_LifetimeKills_Mil"

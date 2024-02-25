@@ -3,7 +3,6 @@
 #include "DnD_Database.h"
 #include "DnD_MenuConstants.h"
 #include "DnD_TempWeps.h"
-#include "DnD_DamageCache.h"
 #include "DnD_Ammo.h"
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
@@ -332,75 +331,6 @@ void Reset_RPGInfo (int resetflags) {
 	
 	if(resetflags & RESET_CREDIT)
 		SetInventory("Credit", 0);
-}
-
-int CheckLevelUp (int pnum) {
-	int prevlvl = GetStat(STAT_LVL), exptemp;
-	int currlvl;
-	// -1 because initial level is 1
-	// we need to check for the current up-to-date level, not previous level here!!
-	while((currlvl = GetStat(STAT_LVL)) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[currlvl - 1]) {
-		exptemp = GetStat(STAT_EXP) - LevelCurve[currlvl - 1];
-		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
-			GiveInventory("PerkPoint", 1);
-			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
-			GiveInventory("PerkedUp", 1);
-			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
-		}
-		// talents are removed from game
-		/*if(!((GetStat(STAT_LVL) + 1) % DND_TALENTPOINT_MARK)) {
-			// disabled for now
-			//GiveInventory("TalentPoint", 1);
-			//GiveInventory("TalentedUp", 1);
-		}*/
-		GiveInventory("Level", 1);
-		SetInventory("Exp", exptemp);
-		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
-		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
-		
-		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
-		UpdateActivity(pnum, DND_ACTIVITY_LEVEL, 1, 0);
-	}
-	return GetStat(STAT_LVL) - prevlvl;
-}
-
-void HandleLevelup(int pnum) {
-	int prevlvl = CheckInventory("Level");
-	if(CheckLevelUp(pnum)) {
-		LocalAmbientSound("RPG/LevelUp", 127);
-		GiveInventory("LevelUpEffectSpawner", 1);
-		GiveInventory("LeveledUp", 1);
-		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
-		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
-			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
-			
-		// sync level cap exp
-		CalculateExpRatio();
-		// heal on level up flag is on
-		if(GetCVar("dnd_healonlevelup"))
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
-		
-		int curlvl = CheckInventory("Level");
-		// player just leveled and got their perks? check if so
-		if
-		(
-			(prevlvl < DND_CLASSPERK1_LEVEL && curlvl >= DND_CLASSPERK1_LEVEL) ||
-			(prevlvl < DND_CLASSPERK2_LEVEL && curlvl >= DND_CLASSPERK2_LEVEL) ||
-			(prevlvl < DND_CLASSPERK3_LEVEL && curlvl >= DND_CLASSPERK3_LEVEL)
-		) {
-			HandleClassPerks();
-			
-			// this is done as new perks might increase some damage factors
-			ForcePlayerDamageCaching(PlayerNumber());
-			
-			// make some announcement the player has a new perk
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
-		}
-		else
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
-	}
-	
-	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
 }
 
 int DnD_BonusMessageY(int bonustype) {

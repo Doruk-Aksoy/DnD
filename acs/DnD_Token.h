@@ -2,7 +2,7 @@
 #define DND_TOKENINFO_IN
 
 enum {
-	DND_TOKEN_REPAIR,
+	DND_TOKEN_ARMORER,
 	DND_TOKEN_GUNSMITH
 };
 
@@ -11,8 +11,8 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
     int pnum = PlayerNumber();
 
     switch(token_type) {
-        case DND_TOKEN_REPAIR:
-            res = item_type == DND_ITEM_BODYARMOR;
+        case DND_TOKEN_ARMORER:
+            res = item_type == DND_ITEM_BODYARMOR && PlayerInventoryList[pnum][item_id].quality < DND_MAX_ITEM_QUALITY;
         break;
         case DND_TOKEN_GUNSMITH:
             // if we have quality OR power to hit ghost from modifications made directly to a weapon
@@ -29,7 +29,13 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
 void RollTokenInfo(int item_pos, int token_type, bool onField) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = 1;
+	
+#ifdef ISDEBUGBUILD
+	Inventories_On_Field[item_pos].item_stack = 100;
+#else
 	Inventories_On_Field[item_pos].item_stack = 1; // stackables have default stack of 1
+#endif
+
 	Inventories_On_Field[item_pos].item_type = DND_ITEM_TOKEN;
 	Inventories_On_Field[item_pos].item_subtype = token_type;
 	Inventories_On_Field[item_pos].width = 1;
@@ -74,7 +80,10 @@ void ApplyGunsmithToken(int pnum, int wepid) {
 
 void HandleTokenUse(int pnum, int token_type, int item_id) {
     switch(token_type) {
-        case DND_TOKEN_REPAIR:
+        case DND_TOKEN_ARMORER:
+			// just increment quality
+			++PlayerInventoryList[pnum][item_id].quality;
+			SyncItemQuality(pnum, item_id, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
         break;
         case DND_TOKEN_GUNSMITH:
             // zero all mods and quality
@@ -88,7 +97,7 @@ void HandleTokenUse(int pnum, int token_type, int item_id) {
 
 void HandleTokenUseMessage(int token_type, int item_id) {
     switch(token_type) {
-        case DND_TOKEN_REPAIR:
+        case DND_TOKEN_ARMORER:
             Log(s:"\cj", l:"TOK_USE1");
         break;
         case DND_TOKEN_GUNSMITH:

@@ -22,7 +22,7 @@ Actor TokenSoundPlayer : CustomInventory {
 	}
 }
 
-Actor RepairToken : TokenBase {
+Actor ArmorerToken : TokenBase {
 	Scale 0.5
 	States {
 		Spawn:

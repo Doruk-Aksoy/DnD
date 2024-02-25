@@ -2,6 +2,7 @@
 #define DND_PHYS_IN
 
 #define DND_DMGPUSH_CAP 72.0
+#define DND_DMGPUSH_MASSCAP 32768
 
 void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeRipperHack = false) {
 	// if not to be pushed, ignore
@@ -11,7 +12,9 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeR
 	// get push vector
 	int dx, dy, dz;
 	int m = GetActorProperty(victim, APROP_MASS) / 2;
-	if(!m)
+	if(m > DND_DMGPUSH_MASSCAP)
+		m = DND_DMGPUSH_MASSCAP;
+	else if(!m)
 		m = 1;
 	
 	if(!oneTimeRipperHack) {

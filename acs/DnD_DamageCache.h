@@ -1,6 +1,7 @@
 #ifndef DND_DAMAGECACHE_IN
 #define DND_DAMAGECACHE_IN
 
+#include "DnD_DamageCacheDefs.h"
 #include "DnD_Common.h"
 #include "DnD_WeaponDefs.h"
 

@@ -89,6 +89,8 @@ Script 900 (int opt) NET {
 			ClearPlayerInput(pnum, true);
 			DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 			FlushStack(pnum);
+
+			ResetTransmutingData(pnum);
 			
 			ACS_NamedExecuteAlways("DnD Menu Input Loop", 0);
 			ACS_NamedExecuteAlways("DND Menu Icon Spawner", 0);
@@ -98,6 +100,14 @@ Script 900 (int opt) NET {
 			HudMessage(l:"DND_MENU_NOTINGAME"; HUDMSG_FADEINOUT, MENUUSEID, CR_GOLD, 400.4, 2.1, 4.0, 1.0, 1.0);
 		}
 	}
+}
+
+Script "DnD Transmute Orb Sync" (int pnum, int id, int val) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	TransmuteOrbs[pnum][id] = val;
+	SetResultValue(0);
 }
 
 Script "DnD Menu Reset on Enter" ENTER {
@@ -192,6 +202,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			PlayerStatText = ""; // reset stat block text
 			PlayerCursorData.hoverNeedsReset = true;
 			redraw = true;
+
+			if(IsWeaponPage(curopt_prev))
+				ClearInfoPanel();
 		}
 			
 		curopt_prev = curopt;
@@ -328,7 +341,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		// Side bar options with animations -- these require framecounter so they can be checked every tic
 		// this also draws "Stats" and "Perks" text, it looks tidier in here this way
 		DrawHighLightBar(mainboxid, framecounter);
-		
+
 		// Handle panel on the left
 		HandleItemInfoPanel(curopt, boxid, redraw);
 		
@@ -363,7 +376,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			SetHudSize(384, 200, 1);
 			/*SetFont("DND_STAT");
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 192.0, 100.0, 0.0);*/
-			DeleteText(RPGMENUID);
+			//DeleteText(RPGMENUID);
 			SetFont("DND_STAB");
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 192.0, 100.0, 0.0);
 			// the 3 buttons at bottom
@@ -422,28 +435,19 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 3, "\c[Y5]", "\c[B1]", 192.1, 144.0);
 				DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 4, "\c[Y5]", "\c[B1]", 192.1, 160.0);
-				DrawToggledLabel("BUL", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 176.0);
-				DrawToggledLabel("CHR", DND_NOLOOKUP, -1, boxid, MBOX_4, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 192.0);
-				DrawToggledLabel("VIT", DND_NOLOOKUP, -1, boxid, MBOX_5, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 208.0);
-				DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_6, RPGMENUITEMID - 8, "\c[Y5]", "\c[B1]", 192.1, 224.0);
+				DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 176.0);
 				// draw values seperately so they align
 				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Strength"); HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 256.1, 144.0, 0.0);
 				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 256.1, 160.0, 0.0);
-				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Bulkiness"); HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 256.1, 176.0, 0.0);
-				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Charisma"); HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 256.1, 192.0, 0.0);
-				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Vitality"); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 256.1, 208.0, 0.0);
-				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 256.1, 224.0, 0.0);
+				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 256.1, 176.0, 0.0);
 				// draw bonus stat acquired
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 320.1, 144.0, 0.0);
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 320.1, 160.0, 0.0);
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_BULKINESS), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 320.1, 176.0, 0.0);
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_CHARISMA), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 320.1, 192.0, 0.0);
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_VITALITY), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 21, CR_WHITE, 320.1, 208.0, 0.0);
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 22, CR_WHITE, 320.1, 224.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 320.1, 144.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 320.1, 160.0, 0.0);
+				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 320.1, 176.0, 0.0);
 				
-				if(boxid != MAINBOX_NONE && boxid < MBOX_7) {
+				if(boxid != MAINBOX_NONE && boxid <= MBOX_3) {
 					SetHudClipRect(184, 208, 256, 64, 256);
-					HudMessage(s:"\cd*\c- ", l:GetAttributeText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1, 0.0, 0.0);
+					HudMessage(s:"\cd*\c- ", l:GetAttributeLabel(boxid - 1), s:"\n", l:GetAttributeText(boxid - 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 184.1, 232.1, 0.0, 0.0);
 					SetHudClipRect(0, 0, 0, 0, 0);
 				}
 				
@@ -565,7 +569,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 24, CR_CYAN, 236.4, 32.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 25, CR_CYAN, 368.4, 32.0, 0.0, 0.0);
 			}
-			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON) {
+			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON || curopt == MENU_LOAD_CRAFTING_TRANSMUTING) {
 				SetHudSize(384, 200, 1);
 				SetFont("CRFTVW");
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, CR_CYAN, 176.0, 100.0, 0.0, 0.0);
@@ -671,29 +675,29 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				);
 			}
 			else if(curopt == MENU_SHOP_WEAPON1)
-				HandleWeaponPageDraw(curopt, 0, 1, boxid, -32, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 0, 1, boxid, -32, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON2)
-				HandleWeaponPageDraw(curopt, 0, 2, boxid, -16, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 0, 2, boxid, -16, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON3_1)
-				HandleWeaponPageDraw(curopt, 1, 3, boxid, -32, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 1, 3, boxid, -32, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON3_2)
-				HandleWeaponPageDraw(curopt, -2, 3, boxid, -32, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, -2, 3, boxid, -32, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON4_1)
-				HandleWeaponPageDraw(curopt, 1, 4, boxid, -24, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 1, 4, boxid, -24, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON4_2)
-				HandleWeaponPageDraw(curopt, -2, 4, boxid, -32, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, -2, 4, boxid, -32, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON5_1)
-				HandleWeaponPageDraw(curopt, 1, 5, boxid, -32, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 1, 5, boxid, -32, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON5_2)
-				HandleWeaponPageDraw(curopt, -2, 5, boxid, -24, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, -2, 5, boxid, -24, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON6_1)
-				HandleWeaponPageDraw(curopt, 1, 6, boxid, -40, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 1, 6, boxid, -40, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON6_2)
-				HandleWeaponPageDraw(curopt, -2, 6, boxid, -16, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, -2, 6, boxid, -16, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON7)
-				HandleWeaponPageDraw(curopt, 0, 7, boxid, -16, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 0, 7, boxid, -16, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_WEAPON8)
-				HandleWeaponPageDraw(curopt, 0, 8, boxid, 0, CurrentPane.cursize);
+				HandleWeaponPageDraw(curopt, 0, 8, boxid, 0, CurrentPane.cursize, redraw);
 			else if(curopt == MENU_SHOP_AMMOSELECT) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_AMMO", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits();
@@ -985,6 +989,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				for(i = 0; i < MAX_ORBS; ++i) {
 					// maybe optimize this in the future to not use this many strparams but idk now -- storing these is not an option
 					toshow = StrParam(s:"\c[Y5]", l:GetInventoryTag(i + ORBS_BEGIN), s:"\n", l:GetInventoryText(i + ORBS_BEGIN));
+
+					// if there's a recipe completed, add it next to it as well
+					if(CheckOrbRecipe(i))
+						toshow = StrParam(s:toshow, s:"\n", s:GetOrbRecipeText(i));
+
 					HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - i - 2, CR_WHITE, 192.1, 200.1 + 8.0 * ScrollPos.x + j, 0.0, 0.0);
 					ShowOrbIcon(i, j);
 					
@@ -1184,30 +1193,18 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				if(boxid == MBOX_7)
 					UpdateMenuPosition(MENU_STAT2);
 				else if(CheckInventory("AttributePoint") && boxid != MAINBOX_NONE) { // tried to level stat, so you must have some attrib point
-					// allow allocation of stats past 100 if all stats have at least 100.
-					int cur_stat_max = DND_STAT_MAX;
-					if ((CheckInventory("PSTAT_Strength") >= cur_stat_max) &&
-						(CheckInventory("PSTAT_Dexterity") >= cur_stat_max) &&
-						(CheckInventory("PSTAT_Bulkiness") >= cur_stat_max) &&
-						(CheckInventory("PSTAT_Charisma") >= cur_stat_max) &&
-						(CheckInventory("PSTAT_Vitality") >= cur_stat_max) &&
-						(CheckInventory("PSTAT_Intellect") >= cur_stat_max))
-						cur_stat_max = DND_STAT_FULLMAX;
-					
 					// here we check if option was left click or right click, right click consumes whatever we can on the given selection
 					if(HasLeftClicked(pnum))
 						temp = 1;
 					else
-						temp = Min(CheckInventory("AttributePoint"), cur_stat_max - GetStat(boxid - 1 + DND_ATTRIB_BEGIN));
+						temp = CheckInventory("AttributePoint");
 						
 					stat_id = boxid - 1 + DND_ATTRIB_BEGIN;
 					stat_pt = GetStat(stat_id);
 				
-					if(stat_pt < cur_stat_max) {
-						ConsumeAttributePointOn(stat_id, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}
+					ConsumeAttributePointOn(stat_id, temp);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 				}
 			}
 			else if(HasPressedLeft(pnum))
@@ -1370,6 +1367,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		}
 		else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY)
 			HandleCraftingInputs(boxid, curopt);
+		else if(curopt == MENU_LOAD_CRAFTING_TRANSMUTING)
+			HandleTransmutingInputs(pnum, boxid);
 		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
 			if(HasPlayerClicked(pnum)) {
 				if(boxid >= MBOX_1) {

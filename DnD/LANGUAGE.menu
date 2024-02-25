@@ -121,6 +121,8 @@ DND_MENU_SPECIALAMMO	=	"Special Ammo";
 
 DND_MENU_WEPCRAFT		=	"Weapons Crafting";
 DND_MENU_INVCRAFT		=	"Inventory Crafting";
+DND_MENU_TRANSMUTE		=	"Transmute Station";
+DND_TRANSMUTE			=	"Transmute!";
 
 DND_RESMENU_BODY		=	"Research Category: Body";
 DND_RESMENU_AMMO		=	"Research Category: Ammo";
@@ -177,12 +179,15 @@ DND_MENU_WEPHELPTEXT8	=	"Projectiles fired from this weapon can't be \cureflecte
 DND_MENU_WEPHELPTEXT9	=	"Damage from the weapon can \cqinflict poison\c- on enemies.";
 
 // yeah numbers here aren't the smartest because hypothetically if a balance change were to happen then all languages would need a change but it's too cumbersome to add numbers in between text \_(*__*)_/
-DND_MENU_ATTRTEXT1		=	"\c[INT]Strength\c-\nIncreases \cuMelee Damage\c- by 9% and \cqKnockback Resist\c- by 50.";
-DND_MENU_ATTRTEXT2		=	"\c[INT]Dexterity\c-\nIncreases \cfNon-Magical Ranged Damage\c- by 3%.";
-DND_MENU_ATTRTEXT3		=	"\c[INT]Bulkiness\c-\nIncreases \cdArmor\c- Efficiency by 0.6%, \cdArmor\c- Cap by 4 and \cqKnockback Resist\c- by 25.";
-DND_MENU_ATTRTEXT4		=	"\c[INT]Charisma\c-\nReduces \cishop prices\c- by 0.5%, increases \cishop stock\c- by 1% and \ckpet\c- cap by 1 every 20 points.";
-DND_MENU_ATTRTEXT5		=	"\c[INT]Vitality\c-\nIncreases \cgHealth\c- Cap by 4.";
-DND_MENU_ATTRTEXT6		=	"\c[INT]Intellect\c-\nIncreases \cmOccult Ranged Damage\c- by 3% and improves spells.";
+DND_MENU_ATTR1 			=	"\c[INT]Strength\c-";
+DND_MENU_ATTR2 			=	"\c[INT]Dexterity\c-";
+DND_MENU_ATTR3 			=	"\c[INT]Intellect\c-";
+
+DND_MENU_ATTUNED		=	"Attuned";
+
+DND_MENU_ATTRTEXT1		=	"Increases \cqKnockback Resist\c- by 50 and \cgmaximum life\c- by 2.";
+DND_MENU_ATTRTEXT2		=	"Increases \cdMitigation Chance\c- by 0.05%.";
+DND_MENU_ATTRTEXT3		=	"Increases \cvEnergy Shield\c- by 1% per 2 points and improves spells.";
 
 DND_MENU_PERKTEXT1		=	"more ranged damage.";
 DND_MENU_PERKTEXT2		=	"more melee damage";			DND_MENU_PERKTEXT2_CONT 	=	"increased melee range.";
@@ -197,7 +202,7 @@ DND_MENU_PERKTEXT10		=	"increased drop chance and 5% chance to have better rolls
 
 DND_MENU_MASTERY		=	"Mastery";
 DND_MENU_MASTERY_COND	=	"Requires 10 points";
-DND_MENU_PERKMASTERY1	=	"Dexterity gives 4% damage per point instead of 3%.";
+DND_MENU_PERKMASTERY1	=	"Dexterity gives 6% damage per point instead of 5% for attunement.";
 DND_MENU_PERKMASTERY2	=	"Melee damage and range increase also applies to projectiles fired from melee weapons.";
 DND_MENU_PERKMASTERY3	=	"Damage going to armor has 10% chance to be completely negated.";
 DND_MENU_PERKMASTERY4	=	"Gain experience from kills regardless of the killer or the range limit.";

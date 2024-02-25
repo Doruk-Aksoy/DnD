@@ -120,24 +120,6 @@ Actor PSTAT_Dexterity : Ammo {
 	+IGNORESKILL
 }
 
-Actor PSTAT_Charisma : Ammo {
-	inventory.amount 1
-	inventory.maxamount 200
-	+IGNORESKILL
-}
-
-Actor PSTAT_Bulkiness : Ammo {
-	inventory.amount 1
-	inventory.maxamount 200
-	+IGNORESKILL
-}
-
-Actor PSTAT_Vitality : Ammo {
-	inventory.amount 1
-	inventory.maxamount 200
-	+IGNORESKILL
-}
-
 Actor PSTAT_Intellect : Ammo {
 	inventory.amount 1
 	inventory.maxamount 200
@@ -371,6 +353,23 @@ Actor DnD_Trade_Cooldown : DnD_ButtonPressTimer {
 }
 
 Actor DnD_Trade_Confirmed : DnD_Boolean { }
+
+Actor DnD_HighlightBlocker : PowerDamage {
+	powerup.duration 3
+	damagefactor "normal", 1.0
+}
+
+Actor DnD_OrbRecipes_1 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
+Actor DnD_OrbRecipes_2 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
 
 Actor DnD_ShowPopup : PowerDamage {
 	powerup.duration 3

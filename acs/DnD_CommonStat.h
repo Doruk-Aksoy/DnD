@@ -47,7 +47,7 @@ enum {
 	DND_WDMG_SETMASTER = 256,
 	DND_WDMG_USETRACER = 512,
 	DND_WDMG_ISRIPPER = 1024,
-	DMG_WDMG_NECROBULK = 2048,
+	//DMG_WDMG_NECROBULK = 2048,
 	DND_WDMG_ISMELEE = 4096,
 	DND_WDMG_ISSLOT1 = 8192,
 	DND_WDMG_ISSLOT2 = 16384,
@@ -113,19 +113,8 @@ enum {
 #define DND_BASEARMOR_DROP 0.0075
 
 #define DND_BASE_PLAYERSPEED 1.0
-#define DND_BULKINESS_GAIN 0.006
-#define DND_BULKINESS_GAIN_AFTER100 0.0025
-#define DND_DEX_GAIN 3
-#define DND_INT_GAIN 3
-#define DND_VIT_INCREASE 4
-#define DND_STR_GAIN 9
-#define DND_STR_CAPINCREASE 1 // 1 out of 200 => 0.5 out of 100
-#define DND_STR_CAPFACTOR 200
-#define DND_ARMOR_PER_BUL 4
-#define DND_CHR_GAIN 0.5
-#define DND_PET_CHARISMA_FACTOR 20
-#define DND_TALENTPOINT_MARK 4
-
+#define DND_STAT_ATTUNEMENT_GAIN 5
+#define DND_HP_PER_STR 2
 #define DND_HP_PER_LVL 5
 
 #define BASE_PET_CAP 3
@@ -143,7 +132,6 @@ enum {
 
 #define DND_SHARPSHOOTER_MASTERY_BONUS 1
 
-#define DND_BUL_KNOCKBACK_GAIN 25
 #define DND_STR_KNOCKBACK_GAIN 50
 #define DND_BASE_PLAYER_MASS 100
 
@@ -298,9 +286,6 @@ enum {
 	// dont change order of these, add below the last!
 	STAT_STR,
 	STAT_DEX,
-	STAT_BUL,
-	STAT_CHR,
-	STAT_VIT,
 	STAT_INT,
 	
 	// same for these
@@ -321,6 +306,10 @@ enum {
 	STAT_CRED,
 	STAT_LVLCRED
 };
+
+str GetAttributeLabel(int id) {
+	return StrParam(s:"DND_MENU_ATTR", d:id + 1);
+}
 
 #define DND_ATTRIB_BEGIN STAT_STR
 #define DND_ATTRIB_END STAT_INT
@@ -405,28 +394,8 @@ int GetStrength() {
 	return (CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
 }
 
-int GetBulkiness() {
-	int pnum = PlayerNumber();
-	return (CheckInventory("PSTAT_Bulkiness") + GetPlayerAttributeValue(pnum, INV_STAT_BULKINESS)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
-}
-
-int GetVitality() {
-	int pnum = PlayerNumber();
-	return (CheckInventory("PSTAT_Vitality") + GetPlayerAttributeValue(pnum, INV_STAT_VITALITY)) * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_CORR_PERCENTSTAT)) / 100;
-}
-
-int GetCharisma() {
-	int pnum = PlayerNumber();
-	return (CheckInventory("PSTAT_Charisma") + GetPlayerAttributeValue(pnum, INV_STAT_CHARISMA)) * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_CORR_PERCENTSTAT)) / 100;
-}
-
-int GetActorCharisma(int tid) {
-	int pnum = PlayerNumber();
-	return (CheckActorInventory(tid, "PSTAT_Charisma") + GetPlayerAttributeValue(pnum, INV_STAT_CHARISMA)) * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_CORR_PERCENTSTAT)) / 100;
-}
-
 int GetPetCap(int tid) {
-	return BASE_PET_CAP + GetActorCharisma(tid) / DND_PET_CHARISMA_FACTOR;
+	return BASE_PET_CAP;
 }
 
 int GetHealingBonuses(int pnum) {
@@ -469,7 +438,7 @@ int CalculateHealthCapBonuses(int pnum) {
 // returns player max health
 int GetSpawnHealth() {
 	int pnum = PlayerNumber();
-	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + DND_VIT_INCREASE * GetVitality();
+	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + DND_HP_PER_STR * GetStrength();
 	// consider percent bonuses from here on
 	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
 				   // GetStrength() * DND_STR_CAPINCREASE 										+
@@ -519,9 +488,8 @@ void UpdatePlayerKnockbackResist() {
 	if(CheckUniquePropertyOnPlayer(PlayerNumber(), PUP_KNOCKBACKIMMUNE))
 		SetActorProperty(0, APROP_MASS, INT_MAX);
 	else {
-		int bul = GetBulkiness();
 		int strgth = GetStrength();
-		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + bul * DND_BUL_KNOCKBACK_GAIN + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
+		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
 	}
 }
 
