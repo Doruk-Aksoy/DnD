@@ -253,85 +253,92 @@ IATTR_T42 			= "accuracy rating";
 	
 IATTR_T43 			= "strength";
 IATTR_T44 			= "dexterity";
-IATTR_T45 			= "bulkiness";
-IATTR_T46 			= "charisma";
-IATTR_T47 			= "vitality";
-IATTR_T48 			= "intellect";
+IATTR_T45 			= "intellect";
 	
-IATTR_T49 			= "reduced elemental damage taken";
-IATTR_T50 			= "reduced physical damage taken";
-IATTR_T51 			= "reduced reflected damage taken";
+IATTR_T46 			= "reduced elemental damage taken";
+IATTR_T47 			= "reduced physical damage taken";
+IATTR_T48 			= "reduced reflected damage taken";
 	
-IATTR_T52 			= "physical resist penetration";
-IATTR_T53 			= "energy resist penetration";
-IATTR_T54 			= "explosive resist penetration";
-IATTR_T55 			= "occult resist penetration";
-IATTR_T56 			= "elemental resist penetration";
+IATTR_T49 			= "physical resist penetration";
+IATTR_T50 			= "energy resist penetration";
+IATTR_T51 			= "explosive resist penetration";
+IATTR_T52 			= "occult resist penetration";
+IATTR_T53 			= "elemental resist penetration";
 	
-IATTR_T57 			= "to fire damage";
-IATTR_T58 			= "to ice damage";
-IATTR_T59 			= "to lightning damage";
-IATTR_T60 			= "to poison damage";
+IATTR_T54 			= "to fire damage";
+IATTR_T55 			= "to ice damage";
+IATTR_T56 			= "to lightning damage";
+IATTR_T57 			= "to poison damage";
 	
-IATTR_T61 			= "lifesteal";
+IATTR_T58 			= "lifesteal";
 	
-IATTR_T62 			= "faster poison ticrate";
-IATTR_T63 			= "increased poison stack duration";
-IATTR_T64 			= "increased damage per tic for poison";
+IATTR_T59 			= "faster poison ticrate";
+IATTR_T60 			= "increased poison stack duration";
+IATTR_T61 			= "increased damage per tic for poison";
 	
-IATTR_T65 			= "more damage against blocking enemies";
+IATTR_T62 			= "more damage against blocking enemies";
 	
-IATTR_T66 			= "increased chance to freeze for ice attacks";
-IATTR_T67 			= "increased chill effectiveness";
-IATTR_T68 			= "reduced enemy chill threshold";
+IATTR_T63 			= "increased chance to freeze for ice attacks";
+IATTR_T64 			= "increased chill effectiveness";
+IATTR_T65 			= "reduced enemy chill threshold";
 	
-IATTR_T69 			= "increased chance to ignite for fire atttacks";
-IATTR_T70 			= "increased ignite damage";
-IATTR_T71 			= "increased ignite duration";
+IATTR_T66 			= "increased chance to ignite for fire atttacks";
+IATTR_T67 			= "increased ignite damage";
+IATTR_T68 			= "increased ignite duration";
 	
-IATTR_T72 			= "increased chance to overload for lightning attacks";
-IATTR_T73 			= "additional overload reflections on overload kills";
-IATTR_T74 			= "more damage amplification for overload";
+IATTR_T69 			= "increased chance to overload for lightning attacks";
+IATTR_T70 			= "additional overload reflections on overload kills";
+IATTR_T71 			= "more damage amplification for overload";
 	
-IATTR_T75 			= "\c[R5]CYBERNETIC\c-";
-IATTR_T76 			= "increased melee range";
-IATTR_T77			= "increased melee damage";
-IATTR_T78			= "damage over time multiplier";
-IATTR_T79			= "increased damage over time";
+IATTR_T72 			= "\c[R5]CYBERNETIC\c-";
+IATTR_T73 			= "increased melee range";
+IATTR_T74			= "increased melee damage";
+IATTR_T75			= "damage over time multiplier";
+IATTR_T76			= "increased damage over time";
 
-IATTR_T80			= "reduced hitscan damage taken";
-IATTR_T81			= "reduced energy damage taken";
-IATTR_T82			= "reduced explosion damage taken";
-IATTR_T83			= "reduced magic damage taken";
-IATTR_T84			= "reduced fire damage taken";
-IATTR_T85			= "reduced ice damage taken";
-IATTR_T86			= "reduced lightning damage taken";
-IATTR_T87			= "reduced poison damage taken";
+IATTR_T77			= "reduced hitscan damage taken";
+IATTR_T78			= "reduced energy damage taken";
+IATTR_T79			= "reduced explosion damage taken";
+IATTR_T80			= "reduced magic damage taken";
+IATTR_T81			= "reduced fire damage taken";
+IATTR_T82			= "reduced ice damage taken";
+IATTR_T83			= "reduced lightning damage taken";
+IATTR_T84			= "reduced poison damage taken";
 
-IATTR_T88			= "to maximum damage resist cap";
-IATTR_T89			= "increased regeneration rate";
+IATTR_T85			= "to maximum damage resist cap";
+IATTR_T86			= "increased regeneration rate";
 
-IATTR_T90			= "increased lifesteal rate";
-IATTR_T91			= "increased life recovery from lifesteal";
-IATTR_T92			= "increased lifesteal cap";
-IATTR_T93			= "more damage while lifestealing";
+IATTR_T87			= "increased lifesteal rate";
+IATTR_T88			= "increased life recovery from lifesteal";
+IATTR_T89			= "increased lifesteal cap";
+IATTR_T90			= "more damage while lifestealing";
 
-IATTR_T94			= "seconds to overload duration";
+IATTR_T91			= "seconds to overload duration";
 
-IATTR_T95			= "increased ignite proliferation chance";
-IATTR_T96			= "to max ignite proliferation";
-IATTR_T97			= "increased ignite proliferation range";
+IATTR_T92			= "increased ignite proliferation chance";
+IATTR_T93			= "to max ignite proliferation";
+IATTR_T94			= "increased ignite proliferation range";
 
-IATTR_T98			= "chance to ignore ailment immunities";
-IATTR_T99			= "to ignite chance";
-IATTR_T100			= "to ignite proliferation chance";
+IATTR_T95			= "chance to ignore ailment immunities";
+IATTR_T96			= "to ignite chance";
+IATTR_T97			= "to ignite proliferation chance";
 
-IATTR_T101			= "to energy shield";
-IATTR_T102			= "increased energy shield";
-IATTR_T103			= "increased energy shield recovery rate";
-IATTR_T104			= "faster start of energy shield recharge";
-IATTR_T105			= "mitigation chance";
-IATTR_T106			= "mitigation effect";
+IATTR_T98			= "to energy shield";
+IATTR_T99			= "increased energy shield";
+IATTR_T100			= "increased energy shield recovery rate";
+IATTR_T101			= "faster start of energy shield recharge";
+IATTR_T102			= "mitigation chance";
+IATTR_T103			= "mitigation effect";
+
+IATTR_T104			= "increased fire damage";
+IATTR_T105			= "increased ice damage";
+IATTR_T106			= "increased poison damage";
+IATTR_T107			= "increased lightning damage";
+
+IATTR_T108			= "fire resist penetration";
+IATTR_T109			= "ice resist penetration";
+IATTR_T110			= "lightning resist penetration";
+IATTR_T111			= "poison resist penetration";
 
 // corrupt implicits
 

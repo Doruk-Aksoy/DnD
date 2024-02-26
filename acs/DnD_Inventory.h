@@ -2718,7 +2718,8 @@ void MakeUnique(int item_pos, int item_type, int pnum) {
 		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
 	}
 	#ifdef ISDEBUGBUILD
-	i = random(0, MAX_UNIQUE_ITEMS - 1);
+		int bias = Timer() & 0xFFFF;
+		i = random(bias, bias + MAX_UNIQUE_ITEMS - 1) - bias;
 	//i = UITEM_ANCIENTGEMSTONE;
 	#endif
 	// i is the unique id

@@ -105,7 +105,7 @@ bool IsOccultDamage(int damage_type) {
 }
 
 bool IsFireDamage(int damage_type) {
-	return damage_type == DND_DAMAGETYPE_OCCULTFIRE || damage_type == DND_DAMAGETYPE_FIRE;
+	return damage_type == DND_DAMAGETYPE_FIRE;
 }
 
 bool IsIceDamage(int damage_type) {
@@ -120,8 +120,16 @@ bool IsLightningDamage(int damage_type) {
 	return damage_type == DND_DAMAGETYPE_LIGHTNING;
 }
 
-bool IsElementalDamage(int damage_type) {
+bool IsElementalDamageType(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_FIRE && damage_type <= DND_DAMAGETYPE_LIGHTNING;
+}
+
+bool IsElementalDamageCategory(int damage_category) {
+	return damage_category >= DND_ELECATEGORY_BEGIN && damage_category <= DND_ELECATEGORY_END;
+}
+
+bool IsDamageCapableOfIgnite(int damage_type) {
+	return damage_type == DND_DAMAGETYPE_FIRE || damage_type == DND_DAMAGETYPE_OCCULTFIRE;
 }
 
 int GetDamageCategory(int damage_type, int flags) {
@@ -133,8 +141,14 @@ int GetDamageCategory(int damage_type, int flags) {
 		return DND_DAMAGECATEGORY_EXPLOSIVES;
 	else if(IsEnergyDamage(damage_type))
 		return DND_DAMAGECATEGORY_ENERGY;
-	else if(IsElementalDamage(damage_type))
-		return DND_DAMAGECATEGORY_ELEMENTAL;
+	else if(IsFireDamage(damage_type))
+		return DND_DAMAGECATEGORY_FIRE;
+	else if(IsIceDamage(damage_type))
+		return DND_DAMAGECATEGORY_ICE;
+	else if(IsPoisonDamage(damage_type))
+		return DND_DAMAGECATEGORY_POISON;
+	else if(IsLightningDamage(damage_type))
+		return DND_DAMAGECATEGORY_LIGHTNING;
 	else if(damage_type == DND_DAMAGETYPE_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK))
 		return DND_DAMAGECATEGORY_SOUL;
 	// switched soul up because IsOccultDamage contains soul damage in it, and it'd return occult, absorbing other checks
@@ -210,12 +224,6 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_POISON_TIMER 3.0
 
 #define DND_EXTRAUNDEADDMG_MULTIPLIER 3
-
-#define DND_WEAKNESS_FACTOR 25 // 25% extra dmg
-#define DND_SPECIFICELEWEAKNESS_FACTOR 50 // 50% extra dmg taken from specific elemental dmg
-#define DND_RESIST_FACTOR 50 // 50% dmg taken
-#define DND_IMMUNITY_FACTOR 95 // 5% dmg taken
-#define DND_IMMUNITY_HARDCAP_FACTOR 99 // 1% damage taken
 
 #define DND_MAX_MONSTER_TICDATA 16383 // even this is a bit much but w.e
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
@@ -396,19 +404,6 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	// overall percentage bonuses -- this is basically ScaleCachedDamage but unwrapped, we need to rewrite these into a common function that just retrieves the overall bonus factor to multiply with!
 	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category);
 	
-	// specialty armor bonuses
-	/*int temp = GetArmorID();
-	if(
-		(temp == BODYARMOR_GUNSLINGER 	&& damage_category == DND_DAMAGECATEGORY_BULLET) 			||
-		(temp == BODYARMOR_OCCULT 		&& damage_category == DND_DAMAGECATEGORY_OCCULT)			||
-		(temp == BODYARMOR_DEMO 		&& damage_category == DND_DAMAGECATEGORY_EXPLOSIVES)		||
-		(temp == BODYARMOR_ENERGY 		&& damage_category == DND_DAMAGECATEGORY_ENERGY)			||
-		(temp == BODYARMOR_ELEMENTAL 	&& damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
-	)
-	{
-		factor += DND_SPECIALTYARMOR_BUFF;
-	}*/
-	
 	// apply flat health to damage conversion if player has any
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
 	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
@@ -417,15 +412,16 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
 	if(temp && (damage_category_flags & DND_WDMG_LIGHTNINGDAMAGE))
 		factor += temp;
-		
-	if(damage_category == DND_DAMAGECATEGORY_ELEMENTAL && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
+	
+	temp = IsElementalDamageCategory(damage_category);
+	if(temp && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
 		factor += DND_MORDECQAI_BOOST;
 
 	// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 	// quest or accessory bonuses	
 	// is occult (add demon bane bonus)
-	// apply wanderer perk if applicable
-	if((damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_ELEMENTAL) && CheckActorInventory(tid, "Wanderer_Perk25"))
+	// apply wanderer perk if applicable -- ele check from temp applied here too!
+	if((damage_category == DND_DAMAGECATEGORY_OCCULT || temp) && CheckActorInventory(tid, "Wanderer_Perk25"))
 		factor = factor * (100 + DND_WANDERER_PERK25_BUFF) / 100;
 	
 	if(damage_category == DND_DAMAGECATEGORY_OCCULT)
@@ -551,15 +547,16 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// check for quest % increases
 		if(IsQuestComplete(tid, QUEST_ONLYONEWEAPON))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_ONEWEAPON_BONUS, true);
-			
-		if(damage_category == DND_DAMAGECATEGORY_ELEMENTAL && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
+		
+		temp = IsElementalDamageCategory(damage_category);
+		if(temp && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_MORDECQAI_BOOST, true);
 
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses	
 		// is occult (add demon bane bonus)
-		// apply wanderer perk if applicable
-		if((damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_ELEMENTAL) && CheckInventory("Wanderer_Perk25"))
+		// apply wanderer perk if applicable -- ele check used with temp here again
+		if((damage_category == DND_DAMAGECATEGORY_OCCULT || temp) && CheckInventory("Wanderer_Perk25"))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_WANDERER_PERK25_BUFF, false);
 			
 		// hobo perk if applicable
@@ -732,48 +729,47 @@ int GetResistPenetration(int pnum, int category) {
 		return GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
 		case DND_DAMAGECATEGORY_OCCULT:
 		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
-		case DND_DAMAGECATEGORY_ELEMENTAL:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
+
+		case DND_DAMAGECATEGORY_FIRE:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
+		case DND_DAMAGECATEGORY_ICE:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_ICE);
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
+		case DND_DAMAGECATEGORY_POISON:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_POISON);
+
 		case DND_DAMAGECATEGORY_SOUL:
 		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT) + GetPlayerAttributeValue(pnum, INV_EX_SOULWEPSPEN);
 	}
 	return 0;
 }
 
-Script "DnD Occult Weaken" (int victim) {
+// tid, mon_id, weaken %
+Script "DnD Occult Weaken" (int victim, int mon_id, int occ_weak) {
 	SetActivator(victim);
 	
 	int time = 0;
+	int base_res = MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_OCCULT];
 	while(time < OCCULT_WEAKEN_DURATION) {
 		int prev = CheckInventory("OccultWeaknessStack");
+
+		// percentage amplification of penetration per stack on victim
+		MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_OCCULT] = base_res * (100 - occ_weak * prev) / 100;
+
 		Delay(const:TICRATE);
 		++time;
-		if(prev != CheckInventory("OccultWeaknessStack"))
+		if(prev != CheckInventory("OccultWeaknessStack") || CheckInventory("OccultWeaknessTimeReset"))
 			time = 0;
 	}
 	
 	SetInventory("OccultWeaknessStack", 0);
+	MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_OCCULT] = base_res;
 	
 	SetResultValue(0);
 }
 
 int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category, int flags, int resist, int pen) {
-	// if occult weakness exists, apply it checking monster's debuff -- to be done as a resist reduction to affect all players later
-	if(damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK)) {
-		int occ_weak = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
-		if(occ_weak) {
-			if(!CheckActorInventory(victim, "OccultWeaknessStack")) {
-				GiveActorInventory(victim, "OccultWeaknessStack", 1);
-				ACS_NamedExecuteWithResult("DnD Occult Weaken", victim);
-			}
-			else
-				GiveActorInventory(victim, "OccultWeaknessStack", 1);
-			
-			// percentage amplification of penetration per stack on victim
-			resist = resist * (100 - occ_weak * CheckActorInventory(victim, "OccultWeaknessStack")) / 100;
-		}
-	}
-
 	// factor is the final resistance the monster will have against the attack
 	int factor = (100 - resist + pen);
 	if(factor <= 0)
@@ -789,98 +785,40 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 	int damage_category = GetDamageCategory(damage_type, flags);
 	int pnum = PlayerNumber();
 	int pen = GetResistPenetration(pnum, damage_category);
-	int resist = 0;
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
 	// added crit ignore res modifier here from below
 	forced_full |= 	(CheckInventory("Doomguy_Perk50") && !(flags & DND_DAMAGEFLAG_ISSPELL) && IsMonsterIdDemon(mon_id)) || 
 					(!wep_neg && (actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100));
 	
-	// weaknesses
-	if
-	(
-		(MonsterProperties[mon_id].trait_list[DND_ENERGY_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ENERGY) ||
-		(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_WEAKNESS] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL) ||
-		(MonsterProperties[mon_id].trait_list[DND_MAGIC_WEAKNESS] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL))
-	)
-	{
-		resist = -DND_WEAKNESS_FACTOR;
+	// apply percentage reductions to resist HERE, ABOVE checking the penetration
+	// if occult weakness exists, apply it checking monster's debuff -- to be done as a resist reduction to affect all players later
+	if(damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK)) {
+		int occ_weak = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
+		if(occ_weak) {
+			if(!CheckActorInventory(victim, "OccultWeaknessStack")) {
+				GiveActorInventory(victim, "OccultWeaknessStack", 1);
+				ACS_NamedExecuteWithResult("DnD Occult Weaken", victim, mon_id, occ_weak);
+			}
+			else {
+				// latter forces the reset on debuff timer
+				GiveActorInventory(victim, "OccultWeaknessStack", 1);
+				GiveActorInventory(victim, "OccultWeaknessTimeReset", 1);
+			}
+		}
 	}
-	else if
-	(
-		(MonsterProperties[mon_id].trait_list[DND_FIRE_WEAKNESS] && damage_type == DND_DAMAGETYPE_FIRE) ||
-		(MonsterProperties[mon_id].trait_list[DND_ICE_WEAKNESS] && damage_type == DND_DAMAGETYPE_ICE)
-	)
-	{
-		resist = -DND_SPECIFICELEWEAKNESS_FACTOR;
-	}
-	
-	// special bonuses for certain creature types
-	if(MonsterProperties[mon_id].trait_list[DND_ICECREATURE]) {
-		// make sure to check ice and fire pen seperate
-		if(damage_type == DND_DAMAGETYPE_ICE)
-			resist += DND_IMMUNITY_FACTOR * (!forced_full);
-		else if(damage_type == DND_DAMAGETYPE_FIRE)
-			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
-	}
-	else if(MonsterProperties[mon_id].trait_list[DND_FIRECREATURE]) {
-		// make sure to check ice and fire pen seperate
-		if(damage_type == DND_DAMAGETYPE_FIRE)
-			resist += DND_IMMUNITY_FACTOR * (!forced_full);
-		else if(damage_type == DND_DAMAGETYPE_ICE)
-			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
-	}
-	else if(MonsterProperties[mon_id].trait_list[DND_STONECREATURE]) {
-		// make sure to check these seperate
-		if(damage_type == DND_DAMAGETYPE_FIRE)
-			resist += DND_RESIST_FACTOR * (!forced_full);
-		else if(damage_type == DND_DAMAGETYPE_ICE)
-			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
-		else if(damage_type == DND_DAMAGETYPE_LIGHTNING || damage_type == DND_DAMAGETYPE_POISON)
-			resist += DND_IMMUNITY_FACTOR * (!forced_full);
-	}
-	else if(MonsterProperties[mon_id].trait_list[DND_EARTHCREATURE]) {
-		// make sure to check these seperate
-		if(damage_type == DND_DAMAGETYPE_LIGHTNING)
-			resist += -DND_SPECIFICELEWEAKNESS_FACTOR;
-		else if(damage_type == DND_DAMAGETYPE_POISON)
-			resist += -DND_IMMUNITY_FACTOR * (!forced_full);
-	}
-	
-	// addition of pen here means if we ignored resists and immunities, we still give penetration a chance to weaken the defences further
-	// return early as we ignored resists and immunities
-	// if we do forced full damage skip resists and immunities
+
+	// decide which type of monster resist we will be using for resist variable below
+	int resist = MonsterProperties[mon_id].resists[damage_category];
+
+	// if we do full dmg, either do dmg as is or check for pen overpowering the resist, so we can go ahead and do extra damage
 	if(forced_full) {
-		if(pen)
+		if(pen - resist > 0)
 			return ApplyPenetrationToDamage(pnum, victim, dmg, damage_category, flags, resist, pen);
 		return dmg;
 	}
-		
-	// resists from here on -- could be nicely tidied up with some array lining up but I dont really want to bother with that right now -- some more careful organization could be better later down the line
-	if
-	(
-		(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_RESIST] && damage_type == DND_DAMAGETYPE_EXPLOSIVES) ||
-		(MonsterProperties[mon_id].trait_list[DND_BULLET_RESIST] && (damage_category == DND_DAMAGECATEGORY_BULLET || damage_category == DND_DAMAGECATEGORY_MELEE)) ||
-		(MonsterProperties[mon_id].trait_list[DND_ENERGY_RESIST] && damage_category == DND_DAMAGECATEGORY_ENERGY) ||
-		(MonsterProperties[mon_id].trait_list[DND_MAGIC_RESIST] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL)) ||
-		(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_RESIST] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
-	)
-		resist += DND_RESIST_FACTOR;
-	// immunities
-	else if
-	(
-		(MonsterProperties[mon_id].trait_list[DND_EXPLOSIVE_NONE] && damage_type == DND_DAMAGETYPE_EXPLOSIVES) ||
-		(MonsterProperties[mon_id].trait_list[DND_BULLET_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_BULLET || damage_category == DND_DAMAGECATEGORY_MELEE)) ||
-		(MonsterProperties[mon_id].trait_list[DND_ENERGY_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ENERGY) ||
-		(MonsterProperties[mon_id].trait_list[DND_MAGIC_IMMUNE] && (damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL)) ||
-		(MonsterProperties[mon_id].trait_list[DND_ELEMENTAL_IMMUNE] && damage_category == DND_DAMAGECATEGORY_ELEMENTAL)
-		
-	)
-		resist += DND_IMMUNITY_FACTOR;
-	else if(MonsterProperties[mon_id].trait_list[DND_ETHEREAL] && damage_category != DND_DAMAGECATEGORY_OCCULT && damage_category != DND_DAMAGECATEGORY_SOUL)
-		resist += DND_IMMUNITY_HARDCAP_FACTOR;
 	
-	// no special factors, process as is
+	// no full dmg, so we just factor resist in as usual
 	return ApplyPenetrationToDamage(pnum, victim, dmg, damage_category, flags, resist, pen);
 }
 
@@ -926,25 +864,25 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int dmg, int damage_type, int we
 	if(CheckInventory("ElementPower_Fire")) {
 		if(IsFireDamage(damage_type))
 			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamage(damage_type))
+		else if(IsElementalDamageType(damage_type))
 			dmg *= DND_SIGIL_NERF;
 	}
 	else if(CheckInventory("ElementPower_Ice")) {
 		if(IsIceDamage(damage_type))
 			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamage(damage_type))
+		else if(IsElementalDamageType(damage_type))
 			dmg /= DND_SIGIL_NERF;
 	}
 	else if(CheckInventory("ElementPower_Lightning")) {
 		if(IsLightningDamage(damage_type))
 			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamage(damage_type))
+		else if(IsElementalDamageType(damage_type))
 			dmg /= DND_SIGIL_NERF;
 	}
 	else if(CheckInventory("ElementPower_Earth")) {
 		if(IsPoisonDamage(damage_type))
 			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamage(damage_type))
+		else if(IsElementalDamageType(damage_type))
 			dmg /= DND_SIGIL_NERF;
 	}
 	
@@ -1124,7 +1062,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	
 	// increase damage they take from elemental attacks for each stack
 	// poison damage gets sent already scaled, dont scale twice
-	if(IsElementalDamage(damage_type) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
+	if(IsElementalDamageType(damage_type) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
 		temp = CheckActorInventory(victim, "DesolatorStackCounter");
 		// 10% increase from desolator
 		if(temp)
@@ -1157,7 +1095,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		}
 	}
 	
-	if((flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) && (MonsterData[MonsterProperties[victim - DND_MONSTERTID_BEGIN].id].flags & (DND_MTYPE_UNDEAD_POW | DND_MTYPE_MAGICAL_POW))) {
+	if((flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_SILVER_WEAKNESS]) {
 		dmg *= DND_EXTRAUNDEADDMG_MULTIPLIER;
 		
 		if(IsQuestComplete(0, QUEST_SPAREZOMBIES))
@@ -1217,7 +1155,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 	if(damage_type == DND_DAMAGETYPE_ICE)
 		extra |= DND_DAMAGETICFLAG_ICE;
-	else if(IsFireDamage(damage_type) && !no_ignite_stack)
+	else if(IsDamageCapableOfIgnite(damage_type) && !no_ignite_stack)
 		extra |= DND_DAMAGETICFLAG_FIRE;
 	else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
 		extra |= DND_DAMAGETICFLAG_LIGHTNING;
@@ -2042,6 +1980,65 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	}
 }
 
+int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
+	int temp, temp2;
+	int pnum = PlayerNumber();
+	int pct_bonus = 0;
+	bool isSpell = flags & DND_WDMG_ISSPELL;
+	if(isSpell) {
+		// we take id of spell from the table as input, then read its damage
+		temp2 = dmg;
+		dmg = SpellDamageTable[dmg].dmg;
+	}
+	
+	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
+	
+	// attribute bonus
+	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
+	if(isMelee)
+		pct_bonus += HandleStatBonus(pnum, STAT_STR, isMelee);
+	else if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
+		pct_bonus += HandleStatBonus(pnum, STAT_INT, isMelee);
+	else
+		pct_bonus += HandleStatBonus(pnum, STAT_DEX, isMelee);
+		
+	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
+		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
+		
+	if(flags & DMG_WDMG_ISARTIFACT)
+		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckInventory("Ability_Arcanery")) / 100;
+	
+	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
+	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
+		pct_bonus += GetFlatHealthDamageFactor(temp);
+	
+	temp = GetPlayerPercentDamage(pnum, -1, damage_category);
+	if(temp/* && !isSpell*/)
+		pct_bonus += temp;
+
+	// apply the % bonus now
+	dmg = dmg * (100 + pct_bonus) / 100;
+		
+	// finally crit chance
+	// spells will have their own crit source compared to attacks
+	if(!isSpell && CheckCritChance(-1, false, -1)) {
+		dmg = dmg * GetCritModifier(-1) / 100;
+		HandleHunterTalisman();
+	}
+	
+	// final additions
+	if((flags & DMG_WDMG_ISARTIFACT) && IsQuestcomplete(0, QUEST_USENOARTIFACT))
+		dmg = dmg * (100 + DND_QUEST_ARTIBONUS) / 100;
+	
+	if(isSpell) {
+		if(SpellDamageTable[temp2].dmg_low)
+			dmg *= random(SpellDamageTable[temp2].dmg_low, SpellDamageTable[temp2].dmg_high);
+	}
+	
+	//printbold(s:"scaled player damage ", d:dmg);
+	return dmg;
+}
+
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
 Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 	int pnum = PlayerNumber();
@@ -2139,6 +2136,7 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 
 Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 	int pnum = PlayerNumber();
+	int source = pnum + P_TIDSTART;
 	int time_limit = DND_BASE_POISON_TIMER * (100 + GetPlayerAttributeValue(pnum, INV_POISON_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
 	int trigger_tic = GetPoisonTicrate(pnum);
 	
@@ -2153,7 +2151,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
-			HandleDamageDeal(ActivatorTID(), victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME);
+			HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME);
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
 			
 			// go up to the next threshold for next tic etc.
@@ -2269,10 +2267,11 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 
 Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 	int pnum = PlayerNumber();
+	int source = pnum + P_TIDSTART;
 	int dmg = GetFireDOTDamage(pnum);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 	
-	dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", dmg, DND_DAMAGECATEGORY_ELEMENTAL);
+	dmg = HandleNonWeaponDamageScale(dmg, DND_DAMAGECATEGORY_FIRE, 0);
 	
 	int next_dmg = dmg;
 	int inc_by = dmg * dmg_tic_buff / 100;
@@ -2283,7 +2282,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 	do {	
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
-		HandleDamageDeal(ActivatorTID(), victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_ISDAMAGEOVERTIME);
+		HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_ISDAMAGEOVERTIME);
 		//if(random(0, 1))
 		//	GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
 		
@@ -2701,29 +2700,8 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		// if we have ravager armor and on killing spree, reduce damage to 3/4 (25% reduced)
 		if(armor_id == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
 			dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_FACTOR, DND_RAVAGER_REDUCE);
-		
-		// apply special reductions offered by certain armors
-		if
-		(
-			(armor_id == BODYARMOR_GUNSLINGER 	&& (dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)) 																						||
-			(armor_id == BODYARMOR_OCCULT 		&& (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL))																							||
-			(armor_id == BODYARMOR_DEMO 		&& (dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE))																						||
-			(armor_id == BODYARMOR_ENERGY 		&& (dmg_data & DND_DAMAGETYPEFLAG_ENERGY))																							||
-			(armor_id == BODYARMOR_ELEMENTAL 	&& (dmg_data & (DND_DAMAGETYPEFLAG_FIRE | DND_DAMAGETYPEFLAG_ICE | DND_DAMAGETYPEFLAG_POISON | DND_DAMAGETYPEFLAG_LIGHTNING)))
-		)
-		{
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_SPECIALTYARMOR_REDUCE);
-		}
-		else if(armor_id == BODYARMOR_KNIGHT && dmg_string == "Melee")
+		else if(armor_id == BODYARMOR_KNIGHT && dmg_string == "Melee") // apply special reductions offered by certain armors
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_KNIGHT_MELEEREDUCE);
-		else if(armor_id == BODYARMOR_SYNTHMETAL) {
-			if(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)
-				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_SYNTHMETAL_HITSCANBUFF);
-			else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING)
-				dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_SYNTHMETAL_LIGHTNINGNERF);
-		}
-		else if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_LIGHTNINGCOIL_SPECIAL);
 	}
 
 	// mitigation

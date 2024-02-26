@@ -1471,7 +1471,7 @@ void HandleEndOfLevelRewards(int pnum) {
 	// for next map things -- give players their rewards and stuff coming from a previous map
 	//Log(s:"run open");
 	int temp = 0;
-	if(MapInfo[DND_MAPINFO_MAPCHANGED] && PlayerInGame(pnum)) {
+	if(IsSetupComplete(SETUP_STATE1, SETUP_MAPCHANGED) && PlayerInGame(pnum)) {
 		//Log(s:"map changed");
 
 		// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.

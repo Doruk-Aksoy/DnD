@@ -257,7 +257,8 @@ bool ActorHasNoArmor(int tid) {
 
 int DoArmorRatingEffect(int dmg, int rating) {
 	// you will need 5 times the damage to gain half reduction
-	return dmg - (dmg * rating) / (rating + 5 * dmg);
+	int dmg_f = 5 - HasMasteredPerk(STAT_END);
+	return dmg - (dmg * rating) / (rating + dmg_f * dmg);
 }
 
 void SetEnergyShield(int val) {

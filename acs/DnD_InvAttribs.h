@@ -179,6 +179,16 @@ enum {
 	INV_SHIELD_RECHARGEDELAY,
 	INV_MIT_INCREASE,
 	INV_MITEFFECT_INCREASE,
+
+	INV_PERCENTFIRE_DAMAGE,
+	INV_PERCENTICE_DAMAGE,
+	INV_PERCENTLIGHTNING_DAMAGE,
+	INV_PERCENTPOISON_DAMAGE,
+
+	INV_PEN_FIRE,
+	INV_PEN_ICE,
+	INV_PEN_LIGHTNING,
+	INV_PEN_POISON,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -269,7 +279,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_MITEFFECT_INCREASE
+#define LAST_INV_ATTRIBUTE INV_PEN_POISON
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -1049,6 +1059,46 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.25;
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_low = 8;
+	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_high = 16;
+	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTFIRE_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_PERCENTICE_DAMAGE].attrib_low = 8;
+	ItemModTable[INV_PERCENTICE_DAMAGE].attrib_high = 16;
+	ItemModTable[INV_PERCENTICE_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTICE_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_PERCENTPOISON_DAMAGE].attrib_low = 8;
+	ItemModTable[INV_PERCENTPOISON_DAMAGE].attrib_high = 16;
+	ItemModTable[INV_PERCENTPOISON_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTPOISON_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].attrib_low = 8;
+	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].attrib_high = 16;
+	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_PEN_FIRE].attrib_low = 1;
+	ItemModTable[INV_PEN_FIRE].attrib_high = 5;
+	ItemModTable[INV_PEN_FIRE].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_FIRE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_PEN_ICE].attrib_low = 1;
+	ItemModTable[INV_PEN_ICE].attrib_high = 5;
+	ItemModTable[INV_PEN_ICE].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_ICE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_PEN_LIGHTNING].attrib_low = 1;
+	ItemModTable[INV_PEN_LIGHTNING].attrib_high = 5;
+	ItemModTable[INV_PEN_LIGHTNING].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_LIGHTNING].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_PEN_POISON].attrib_low = 1;
+	ItemModTable[INV_PEN_POISON].attrib_high = 5;
+	ItemModTable[INV_PEN_POISON].attrib_level_modifier = 0;
+	ItemModTable[INV_PEN_POISON].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 
 	/////////////////////////
 	// corrupted implicits //

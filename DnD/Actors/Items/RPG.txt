@@ -12,6 +12,11 @@ Actor OccultWeaknessStack : Inventory {
 	inventory.maxamount 5
 }
 
+Actor OccultWeaknessTimeReset : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 40
+}
+
 Actor DnD_ExplosionRepeated : DnD_Boolean { }
 
 Actor DamagePerFlatHPBuffer : DnD_Info { }

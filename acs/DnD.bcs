@@ -2892,7 +2892,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 // End of level checks
 Script "DnD On Unloading" UNLOADING {
 	int tid;
-	MapInfo[DND_MAPINFO_MAPCHANGED] = true;
+	SetupComplete(SETUP_STATE1, SETUP_MAPCHANGED);
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
 	BreakAllTrades();
@@ -3068,7 +3068,7 @@ Script "DnD Player Setup" ENTER {
 	UnfreezePlayer();
 	
 	// if map changed, reset accessory stuff
-	if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
+	if(IsSetupComplete(SETUP_STATE1, SETUP_MAPCHANGED)) {
 		SetInventory("ReflectCount", 0);
 		SetInventory("Intervened", 0);
 		SetInventory("P_Invulnerable", 0);
@@ -3109,7 +3109,7 @@ Script "DnD Player Setup" ENTER {
 	// moved here to attempt to fix the reflect pendant issue
 	// just in case
 	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
-		MapInfo[DND_MAPINFO_MAPCHANGED] = false;
+		SetupUndo(SETUP_STATE1, SETUP_MAPCHANGED);
 	
 	TakeInventory("QuestWasPicked", 1); // helps sync clientside variable Quest_Pick_Done
 	while(!Quest_Pick_Done)
@@ -3130,9 +3130,6 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("QuestCompletionToken", 0);
 	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
-		
-	/*if(isPlayerClass(DND_PLAYER_DOOMGUY) && CheckInventory("Doomguy_Perk25"))
-		MapInfo[DND_MAPINFO_HASDOOMGUY] = true;*/
 	
 	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
 	// for zombie quest to work
@@ -3975,64 +3972,8 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 
 // Used mainly for non-weapons (like artifacts, spells and so on)
 Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
-	int temp, temp2;
-	
 	AdjustDamageRetrievePointers(flags, true);
-	
-	int pnum = PlayerNumber();
-	bool isSpell = flags & DND_WDMG_ISSPELL;
-	if(isSpell) {
-		// we take id of spell from the table as input, then read its damage
-		temp2 = dmg;
-		dmg = SpellDamageTable[dmg].dmg;
-	}
-	
-	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
-	
-	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
-	if(isMelee)
-		dmg = dmg * HandleStatBonus(pnum, STAT_STR, isMelee);
-		
-	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
-		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
-		
-	if(flags & DMG_WDMG_ISARTIFACT)
-		dmg = dmg * (100 + DND_ARTIFACT_GAIN * CheckInventory("Ability_Arcanery")) / 100;
-		
-	// attribute bonus
-	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
-		dmg = dmg * HandleStatBonus(pnum, STAT_INT, isMelee);
-	else
-		dmg = dmg * HandleStatBonus(pnum, STAT_DEX, isMelee);
-	
-	temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
-	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp) {
-		temp = GetFlatHealthDamageFactor(temp);
-		dmg = dmg * (100 + temp) / 100;
-	}
-	
-	temp =  GetPlayerPercentDamage(pnum, -1, damage_category);
-	if(temp && !isSpell)
-		dmg = dmg * (100 + temp) / 100;
-		
-	// finally crit chance
-	// spells will have their own crit source compared to attacks
-	if(!isSpell && CheckCritChance(-1, false, -1)) {
-		dmg = dmg * GetCritModifier(-1) / 100;
-		HandleHunterTalisman();
-	}
-	
-	// final additions
-	if((flags & DMG_WDMG_ISARTIFACT) && IsQuestcomplete(0, QUEST_USENOARTIFACT))
-		dmg = dmg * (100 + DND_QUEST_ARTIBONUS) / 100;
-	
-	if(isSpell) {
-		if(SpellDamageTable[temp2].dmg_low)
-			dmg *= random(SpellDamageTable[temp2].dmg_low, SpellDamageTable[temp2].dmg_high);
-	}
-	
-	//printbold(s:"scaled player damage ", d:dmg);
-	
+	dmg = HandleNonWeaponDamageScale(dmg, damage_category, flags);
 	SetResultValue(dmg);
 }
 
@@ -4400,7 +4341,7 @@ Script "DND Thunderstaff Bolts" (void) {
 		
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE, 0, 0);
+		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_LIGHTNINGDAMAGE, 0, 0);
 
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid) {
@@ -4468,7 +4409,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int pnum = PlayerNumber();
-	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE, 0, 0);
+	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_LIGHTNINGDAMAGE, 0, 0);
 	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	int scan_amt = 0;
 	
@@ -6130,6 +6071,7 @@ Script 68 (int x) NET {
 			SpawnArmor(0, true, 0);
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
+			SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 			//SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
 			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);

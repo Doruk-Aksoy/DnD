@@ -22,6 +22,32 @@
 
 #define DND_BASE_HEALTH 100
 
+// moved here for better access everywhere, was necessary for monster resists
+enum {
+	DND_DAMAGECATEGORY_MELEE,
+	DND_DAMAGECATEGORY_BULLET,
+	DND_DAMAGECATEGORY_ENERGY,
+	DND_DAMAGECATEGORY_EXPLOSIVES,
+	DND_DAMAGECATEGORY_OCCULT,
+	DND_DAMAGECATEGORY_FIRE,
+	DND_DAMAGECATEGORY_ICE,
+	DND_DAMAGECATEGORY_LIGHTNING,
+	DND_DAMAGECATEGORY_POISON,
+	DND_DAMAGECATEGORY_SOUL
+};
+#define DND_ELECATEGORY_BEGIN DND_DAMAGECATEGORY_FIRE
+#define DND_ELECATEGORY_END DND_DAMAGECATEGORY_POISON
+#define MAX_DAMAGE_CATEGORIES (DND_DAMAGECATEGORY_SOUL + 1)
+
+#define DND_WEAKNESS_FACTOR 25 // 25% extra dmg
+#define DND_SPECIFICELEWEAKNESS_FACTOR 50 // 50% extra dmg taken from specific elemental dmg
+#define DND_RESIST_FACTOR 50 // 50% dmg taken
+#define DND_IMMUNITY_FACTOR 95 // 5% dmg taken
+#define DND_IMMUNITY_HARDCAP_FACTOR 99 // 1% damage taken
+
+#define DND_DAMAGECATEGORY_BEGIN DND_DAMAGECATEGORY_MELEE
+#define DND_DAMAGECATEGORY_END (DND_DAMAGECATEGORY_POISON + 1)
+
 // this dumb number wasted weeks of our time, fuck you dumb number!
 //#define DND_DROP_TID 343 // some dumb number
 
@@ -189,26 +215,24 @@ enum {
 #define DND_PETTID_END (DND_PETTID_BEGIN + MAX_PETS)
 
 enum {
-	DND_MAPINFO_MAPCHANGED,
-	DND_MAPINFO_HASDOOMGUY
-};
-
-// save for later
-global bool 0: MapInfo[32];
-
-enum {
 	SETUP_STATE1
 };
 
 enum {
+	// 32 per
 	SETUP_HARDCORE,
 	SETUP_MONSTERS,
-	SETUP_ITEMTABLES
+	SETUP_ITEMTABLES,
+	SETUP_MAPCHANGED,
 };
 global int 55: SetupStates[2];
 
 void SetupComplete(int state, int flag) {
 	SetupStates[state] |= 1 << flag;
+}
+
+void SetupUndo(int state, int flag) {
+	SetupStates[state] &= ~(1 << flag);
 }
 
 bool isSetupComplete(int state, int flag) {

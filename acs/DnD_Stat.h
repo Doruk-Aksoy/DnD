@@ -233,8 +233,8 @@ int GetActorStat(int tid, int stat_id) {
 }
 
 int GetPlayerEnergyShieldCap(int pnum) {
-	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE) + GetStat(STAT_INT) / 2;
-	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE))) / 100;
+	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
+	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + GetStat(STAT_INT) / 2)) / 100;
 	return base;
 }
 
@@ -678,7 +678,7 @@ void DecideAccessories() {
 	else {
 		// take the ghost portion away as well if unequipped so people can't cheese and are stuck with no healing
 		GiveInventory("TaltosUnsetEffect", 1);
-		if(MapInfo[DND_MAPINFO_MAPCHANGED]) {
+		if(IsSetupComplete(SETUP_STATE1, SETUP_MAPCHANGED)) {
 			// only let player take these away if map has changed, so they have to commit
 			TakeInventory("TaltosUp", 1);
 		}
@@ -1064,17 +1064,15 @@ int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
 		return GetPlayerAttributeValue(pnum, INV_FLATEXP_DAMAGE);
 		case DND_DAMAGECATEGORY_ENERGY:
 		return GetPlayerAttributeValue(pnum, INV_FLATENERGY_DAMAGE);
-		case DND_DAMAGECATEGORY_ELEMENTAL:
-			int bonus = 0;
-			if(flags & DND_WDMG_FIREDAMAGE)
-				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
-			else if(flags & DND_WDMG_ICEDAMAGE)
-				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
-			else if(flags & DND_WDMG_POISONDAMAGE)
-				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
-			else if(flags & DND_WDMG_LIGHTNINGDAMAGE)
-				bonus += GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
-		return bonus + GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE);
+
+		case DND_DAMAGECATEGORY_FIRE:
+		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
+		case DND_DAMAGECATEGORY_ICE:
+		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
+		case DND_DAMAGECATEGORY_POISON:
+		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
 	}
 	return 0;
 }
@@ -1090,8 +1088,15 @@ int MapDamageCategoryToPercentBonus(int pnum, int talent) {
 		return GetPlayerAttributeValue(pnum, INV_PERCENTEXP_DAMAGE);
 		case DND_DAMAGECATEGORY_ENERGY:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTENERGY_DAMAGE);
-		case DND_DAMAGECATEGORY_ELEMENTAL:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE);
+
+		case DND_DAMAGECATEGORY_FIRE:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTFIRE_DAMAGE);
+		case DND_DAMAGECATEGORY_ICE:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTICE_DAMAGE);
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTLIGHTNING_DAMAGE);
+		case DND_DAMAGECATEGORY_POISON:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTPOISON_DAMAGE);
 	}
 	return 0;
 }
@@ -1111,7 +1116,7 @@ int GetPlayerMeleeRange(int pnum, int range) {
 	return FixedMul(range, 1.0 + 0.1 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC));
 }
 
-#define DND_BASE_IGNITEDMG 10
+#define DND_BASE_IGNITEDMG 20
 int GetFireDOTDamage(int pnum) {
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG + 

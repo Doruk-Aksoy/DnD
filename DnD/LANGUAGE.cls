@@ -88,7 +88,7 @@ CLASS5_TEXT				= "Finest specimen from the Russian laboratories, the Cyborg is e
 						  "The last thing many see is the cold metallic enforcer's visage, before they perish.";
 
 CLASS5_PERK1			= "Energy attacks deal 15% less damage to you.";
-CLASS5_PERK2			= "Cybernetic enhancements are 30% more effective.";
+CLASS5_PERK2			= "Cybernetic equipments are 30% more effective.";
 CLASS5_PERK3			= "Energy weapons do irreducible damage.";
 
 // Berserker
