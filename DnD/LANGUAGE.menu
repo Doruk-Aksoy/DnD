@@ -479,7 +479,7 @@ DND_MENU_MMOD_RES8		=	"Monster is a being of stone, has ice weakness, fire resis
 DND_MENU_MMOD_RES9		=	"Monster is a being of earth, takes 50% more damage from lightning, but immune to poison attacks.";
 
 // immunity group
-DND_MENU_MMOD_IMM1		=	"Monster is immune to area damage.";
+DND_MENU_MMOD_IMM1		=	"Monster is immune to radius damage from explosive attacks.";
 DND_MENU_MMOD_IMM2		=	"Monster is immune to explosives.";
 DND_MENU_MMOD_IMM3		=	"Monster is immune to any kind of melee or ballistic attack.";
 DND_MENU_MMOD_IMM4		=	"Monster is immune to energy attacks.";

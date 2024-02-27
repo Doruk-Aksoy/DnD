@@ -66,7 +66,7 @@ enum {
 	DND_DAMAGETYPE_SOUL
 };
 
-// monster flag encoding
+// monster flag encoding in stamina
 enum {
 	DND_DAMAGETYPEFLAG_PHYSICAL = 1,
 	DND_DAMAGETYPEFLAG_HITSCAN = 2,
@@ -393,13 +393,8 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	int damage_category_flags = 0;
 	int pnum = tid - P_TIDSTART;
 	
-	damage_category_flags |= 	(IsFireDamage(damage_type) & DND_WDMG_FIREDAMAGE) 		| 
-								(IsFireDamage(damage_type) & DND_WDMG_ICEDAMAGE) 		|
-								(IsPoisonDamage(damage_type) & DND_WDMG_POISONDAMAGE) 	|
-								(IsLightningDamage(damage_type) & DND_WDMG_LIGHTNINGDAMAGE);
-	
 	//printbold(s:"add ", d:MapDamageCategoryToFlatBonus(pnum, damage_category, damage_category_flags));
-	dmg += MapDamageCategoryToFlatBonus(pnum, damage_category, damage_category_flags);
+	dmg += MapDamageCategoryToFlatBonus(pnum, damage_category);
 	
 	// overall percentage bonuses -- this is basically ScaleCachedDamage but unwrapped, we need to rewrite these into a common function that just retrieves the overall bonus factor to multiply with!
 	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category);
@@ -410,7 +405,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 		factor += GetFlatHealthDamageFactor(temp);
 		
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
-	if(temp && (damage_category_flags & DND_WDMG_LIGHTNINGDAMAGE))
+	if(temp && IsLightningDamage(damage_type))
 		factor += temp;
 	
 	temp = IsElementalDamageCategory(damage_category);
@@ -491,7 +486,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		temp = (!!(flags & DND_WDMG_ISBOOMSTICK)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
 		// add flat damage bonus mapping talent name to flat bonus type
-		temp += MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
+		temp += MapDamageCategoryToFlatBonus(pnum, damage_category);
 		
 		ClearCache(pnum, wepid, dmgid);
 		
@@ -1991,7 +1986,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 		dmg = SpellDamageTable[dmg].dmg;
 	}
 	
-	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
+	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category);
 	
 	// attribute bonus
 	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
@@ -2050,6 +2045,16 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 	int oz = PlayerDamageVector[pnum].z;
 	
 	Delay(const:1);
+
+	// just test code for future if I rework crits
+	/*if(PlayerDamageTicData[pnum][victim_data] > 0) {
+		int victim = victim_data + DND_MONSTERTID_BEGIN;
+		// give this token early to prevent order of events getting mixed up
+		if(GetActorProperty(victim, APROP_HEALTH) <= PlayerDamageTicData[pnum][victim_data])
+			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
+		Thing_Damage2(victim, PlayerDamageTicData[pnum][victim_data], "test_damage_type");
+		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, PlayerDamageTicData[pnum][victim_data], ActivatorTID());
+	}*/
 
 	// do the real pushing after 1 tic of dmg data has been accumulated and we have non-zero damage in effect
 	// wep_neg here contains 2 bits: was it negative at 1st bit and was it a one time ripper in 2nd bit
@@ -2675,7 +2680,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	int armor_id = GetArmorID();
 	if(armor_id != -1) {
 		// if we are affected by poison and we dont have a specialty armor providing res to ele dmg, skip this, poison DOT shouldn't be negated by armor
-		if(dmg_string == "PoisonDOT" && armor_id != BODYARMOR_ELEMENTAL)
+		if(dmg_string == "PoisonDOT")
 			return dmg;
 		
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method

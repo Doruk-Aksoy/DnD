@@ -4964,7 +4964,7 @@ void DrawPlayerStats(int pnum, int category) {
 					++k;
 				}
 				
-				val = MapDamageCategoryToFlatBonus(pnum, i, 0);
+				val = MapDamageCategoryToFlatBonus(pnum, i);
 				if(val) {
 					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"\c- to ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGE", s:"\n");
 					++k;

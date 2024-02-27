@@ -1053,7 +1053,7 @@ void ResetHardcoreStuff(int pnum) {
 	}
 }
 
-int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
+int MapDamageCategoryToFlatBonus(int pnum, int talent) {
 	switch(talent) {
 		case DND_DAMAGECATEGORY_BULLET:
 		case DND_DAMAGECATEGORY_MELEE:

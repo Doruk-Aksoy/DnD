@@ -45,6 +45,7 @@ enum {
 	AMMO_NGRENADE,
 	AMMO_HMISSILE,
 	AMMO_SEDRIN,
+	AMMO_HAMMER,
 	
 	// category 5
 	AMMO_CELL = 0,
@@ -990,6 +991,15 @@ Actor IncineratorAmmo : Ammo {
 	inventory.icon "INCRAMMO"
 	ammo.backpackamount 8
 	ammo.backpackmaxamount 72
+	+IGNORESKILL
+}
+
+Actor HammerAmmo : Ammo {
+	inventory.amount 1
+	inventory.maxamount 1
+	inventory.icon "WEPICO98"
+	ammo.backpackamount 1
+	ammo.backpackmaxamount 1
 	+IGNORESKILL
 }
 

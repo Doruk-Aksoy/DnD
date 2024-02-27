@@ -28,7 +28,7 @@ DND_EMOD_ENERGYRESIST			= "\cuEnergy Resist\c-";
 DND_EMOD_MAGICRESIST			= "\cuMagic Resist\c-";
 DND_EMOD_ELERESIST				= "\cuElemental Resist\c-";
 
-DND_EMOD_HIGHEXPRESIST			= "\cmHigh Explosive Resist\c-";
+DND_EMOD_HIGHEXPRESIST			= "\cmRadius Damage Immune\c-";
 DND_EMOD_EXPIMMUNE				= "\cmExplosive Immune\c-";
 DND_EMOD_PHYSIMMUNE				= "\cmPhysical Immune\c-";
 DND_EMOD_ENERGYIMMUNE			= "\cmEnergy Immune\c-";

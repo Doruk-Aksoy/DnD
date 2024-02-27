@@ -102,6 +102,8 @@ enum {
 	DND_PROJ_FREEZER,
 	DND_PROJ_GRAVDIS,
 	DND_PROJ_VOIDCANNON,
+	DND_PROJ_HAMMER,
+	DND_PROJ_HAMMERMELEE,
 	
 	DND_PROJ_PLASMA,
 	DND_PROJ_NUCLEARPLASMA,
@@ -464,6 +466,14 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_VOIDCANNON].name = "VoidMissile";
 	ProjectileInfo[DND_PROJ_VOIDCANNON].flags = 0;
 	ProjectileInfo[DND_PROJ_VOIDCANNON].spd_range = 40;
+
+	ProjectileInfo[DND_PROJ_HAMMER].name = "HammerThrown";
+	ProjectileInfo[DND_PROJ_HAMMER].flags = DND_PROJ_MELEEBONUSES;
+	ProjectileInfo[DND_PROJ_HAMMER].spd_range = 32;
+
+	ProjectileInfo[DND_PROJ_HAMMERMELEE].name = "BigHammerPuff";
+	ProjectileInfo[DND_PROJ_HAMMERMELEE].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_HAMMERMELEE].spd_range = 108.0;
 	
 	ProjectileInfo[DND_PROJ_PLASMA].name = "PlasmaBallX";
 	ProjectileInfo[DND_PROJ_PLASMA].flags = 0;

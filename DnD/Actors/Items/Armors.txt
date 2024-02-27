@@ -177,7 +177,7 @@ Actor LightningCoilBolt : DnD_BaseProjectile {
 			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailC", -40)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Player Damage Scale", 300, DND_DAMAGECATEGORY_ELEMENTAL, DND_USETARGET), DND_DAMAGETYPE_LIGHTNING, 0, -1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Player Damage Scale", 300, DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET), DND_DAMAGETYPE_LIGHTNING, 0, -1)
 		Death:
 			MORZ AAA 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)
 			MORZ BBB 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)

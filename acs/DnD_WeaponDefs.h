@@ -71,6 +71,7 @@ enum {
 	DND_WEAPON_VOIDCANNON,
 	
 	DND_WEAPON_MERCURYLAUNCHER,
+	DND_WEAPON_HAMMER,
 	DND_WEAPON_ROTARYGRENADELAUNCHER,
 	DND_WEAPON_HEAVYMISSILELAUNCHER,
 	DND_WEAPON_SEDRINSTAFF,
@@ -718,7 +719,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_NOREFLECT;
-	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].attunement = STAT_DEX;
+	Weapons_Data[DND_WEAPON_TORPEDOLAUNCHER].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].name = "Grenade Launcher";
 	Weapons_Data[DND_WEAPON_GRENADELAUNCHER].ammo_name1 = "Grenades";
@@ -791,6 +792,15 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].attunement = STAT_DEX;
+
+	Weapons_Data[DND_WEAPON_HAMMER].name = "TheHammer";
+	Weapons_Data[DND_WEAPON_HAMMER].ammo_name1 = "HammerThrowStrength";
+	Weapons_Data[DND_WEAPON_HAMMER].ammo_name2 = "HammerAmmo";
+	Weapons_Data[DND_WEAPON_HAMMER].icon = "WEPICO98";
+	Weapons_Data[DND_WEAPON_HAMMER].ammo_use1 = 0;
+	Weapons_Data[DND_WEAPON_HAMMER].ammo_use2 = 1;
+	Weapons_Data[DND_WEAPON_HAMMER].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_HAMMER].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].name = "Upgraded Grenade Launcher";
 	Weapons_Data[DND_WEAPON_ROTARYGRENADELAUNCHER].ammo_name1 = "Grenades";

@@ -1409,7 +1409,7 @@ Actor FrostFangShard : DnD_BaseProjectile {
 			FFSD AAABBBCCC 1 Bright A_SpawnItemEx("FrostFangFog", -(MomX/1.4), -(MomY/1.4), (MomZ/1.4*-1), (MomX/1.4), (MomY/1.4), (MomZ/1.4), -Angle, 138)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FFSD DEFGH 5 Bright
 		Stop
@@ -1428,7 +1428,7 @@ Actor FrostFangShard_Glowing : FrostFangShard {
 			FX39 HIJ 3 Bright
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FX39 DEFG 3 Bright
 		Stop
@@ -1549,7 +1549,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FFBL CDEFG 4 Bright
 		Stop
@@ -1569,7 +1569,7 @@ Actor FrostFangBall_Damager : DnD_BaseProjectile {
 			TNT1 A 1
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ELEMENTAL, DND_ICEDAMAGE | DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			TNT1 A 1
 		Stop

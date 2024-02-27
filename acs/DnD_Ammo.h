@@ -60,6 +60,7 @@ enum {
 	AMMO_GRENADE,
 	AMMO_HMISSILE,
 	AMMO_SEDRIN,
+	AMMO_HAMMER,
 	
 	// category 5
 	AMMO_CELL = 0,
@@ -86,7 +87,7 @@ enum {
 #define AMMOSLOT_SHELL2_BEGIN AMMO_SLAYER
 #define AMMOSLOT_SHELL2_END AMMO_SLAYER
 #define AMMOSLOT_ROCKET_BEGIN AMMO_ROCKET
-#define AMMOSLOT_ROCKET_END AMMO_SEDRIN
+#define AMMOSLOT_ROCKET_END AMMO_HAMMER
 #define AMMOSLOT_CELL_BEGIN AMMO_CELL
 #define AMMOSLOT_CELL_END AMMO_GAUSS
 
@@ -137,6 +138,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"GBUNA0",			"Grenades"				},
 		{		"AHRLA0",			"MISAmmo"				},
 		{ 		"SEDCRY",			"SedrinAmmo"			},
+		{ 		"WEPICO98",			"HammerAmmo"			},
 		{		"",					""						}
 	},
 	// category 4 -- cell box
@@ -199,6 +201,7 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{  		50,			5		},
 		{ 		80,			6		},
 		{ 		45,			3		},
+		{ 		1,			1		},
 		{ 		-1,			0		}
 	},
 	// category 4 -- cell box
