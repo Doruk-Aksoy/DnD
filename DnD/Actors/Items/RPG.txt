@@ -17,6 +17,8 @@ Actor OccultWeaknessTimeReset : PowerProtection {
 	powerup.duration 40
 }
 
+Actor DnD_SpeedAdjustRunning : DnD_Boolean { }
+
 Actor DnD_ExplosionRepeated : DnD_Boolean { }
 
 Actor DamagePerFlatHPBuffer : DnD_Info { }

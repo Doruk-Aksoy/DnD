@@ -1525,6 +1525,9 @@ Script "DnD Adjust Impact Damage" (int flags, int dmg, int owner) {
 Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int victim = GetActorProperty(0, APROP_TRACERTID);
+
+	if(!victim || !owner)
+		Terminate;
 	
 	// add 1 flip sign, damage functions require wepid to be non-negative, if they are we will know they need to use spell index
 	if(flags & DND_DAMAGEFLAG_ISSPELL)

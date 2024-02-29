@@ -10,7 +10,7 @@ enum {
 Actor DnD_BaseMonster {
 	GibHealth -150
 	+USEKILLSCRIPTS
-	+FLOORCLIP
+	-FLOORCLIP // no view sink on liquid floors
 	+DONTBLAST
 	+COUNTKILL
 	+CANPUSHWALLS

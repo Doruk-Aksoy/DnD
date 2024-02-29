@@ -416,6 +416,8 @@ Actor DND_ACK : PowerDamage {
 
 Actor DND_ACKLoop : DnD_Boolean { }
 
+Actor DnD_ActorWorking : DnD_Boolean { }
+
 enum {
 	DND_SELF = 0,
 	DND_USETARGET = 1,

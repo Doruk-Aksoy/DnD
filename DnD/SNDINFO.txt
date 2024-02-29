@@ -1,6 +1,18 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Hammer/Fetched			HAMFETCH
+Hammer/Throw			HAMTHRW
+Hammer/Exp				HAMBOOM
+Hammer/BigExp1			HAMBIGB1
+Hammer/BigExp2			HAMBIGB2
+$random Hammer/BigExp { Hammer/BigExp1 Hammer/BigExp2 }
+Hammer/Spin				HAMSPN
+$alias Hammer/BounceOffActor weapons/swinghit
+Hammer/BounceSurf1		HAMBNCS1
+Hammer/BounceSurf2		HAMBNCS2
+$random Hammer/BounceOffSurface	{ Hammer/BounceSurf1 Hammer/BounceSurf2 }
+
 Mitigation/Success		MITSUCCS
 
 EShield/Hit				ESHLDHIT

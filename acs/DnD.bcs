@@ -1688,6 +1688,15 @@ Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
 	}
 }
 
+Script "DnD Player Speed Slowdown" (int mult, int div) {
+	if(mult == -1 && div == -1)
+		RestoreRPGStat(RES_PLAYERSPEED);
+	else {
+		SlowPlayer(1.0 * mult / div, 0, 0);
+	}
+	SetResultValue(0);
+}
+
 Script 920 (int mode) {
 	if(!mode) {
 		SlowPlayer(0, SF_FREEZE, 0);

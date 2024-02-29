@@ -1806,14 +1806,99 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 }
 
 Script "DnD Load Weapon Information" OPEN {
-	SetupProjectileData();
-	SetupWeaponData();
+	if(!isSetupComplete(SETUP_STATE1, SETUP_WEAPONDATA)) {
+		SetupProjectileData();
+		SetupWeaponData();
+		SetupComplete(SETUP_STATE1, SETUP_WEAPONDATA);
+	}
 }
 
 Script "DnD Load Weapon Information CS" OPEN CLIENTSIDE {
-	// clients dont need proj data so far!
-	//SetupProjectileData();
-	SetupWeaponData();
+	if(!isSetupComplete(SETUP_STATE1, SETUP_WEAPONDATA)) {
+		// clients dont need proj data so far!
+		//SetupProjectileData();
+		SetupWeaponData();
+		SetupComplete(SETUP_STATE1, SETUP_WEAPONDATA);
+	}
+}
+
+Script "DnD Hammer Return" (void) {
+	while(CheckInventory("DnD_ActorWorking"))
+		Delay(const:5);
+	SetActivatorToTarget(0);
+	TakeInventory("HammerFetched", 1);
+	TakeInventory("HammerReturnSignal", 1);
+	GiveInventory("HammerAmmo", 1);
+}
+
+// used in case something goes horribly wrong and the hammer gets to absurd speeds while bouncing and seeking
+Script "DnD Hammer Speed Limiter" (int max_vel, int min_vel, int crit_bounces) {
+	bool update_spd = false;
+	int new_spd = 0;
+	int owner_tid = GetActorProperty(0, APROP_TARGETTID);
+	min_vel <<= 16;
+	max_vel <<= 16;
+	while(CheckInventory("DnD_ActorWorking")) {
+		int vx = GetActorVelX(0);
+		int vy = GetActorVelY(0);
+		int vz = GetACtorVelZ(0);
+
+		int len = VectorLength(vx, vy);
+		len = VectorLength(vz, len);
+		if(!len)
+			len = 1;
+
+		if(len > max_vel) {
+			new_spd = max_vel;
+			update_spd = true;
+		}
+		else if(len < min_vel) {
+			new_spd = min_vel;
+			update_spd = true;
+		}
+
+		if(update_spd && CheckInventory("DnD_Boolean")) {
+			int tracer_tid = GetActorProperty(0, APROP_TRACERTID);
+			if(tracer_tid && tracer_tid != owner_tid) {
+				int v_dir = Vec3To(tracer_tid);
+				ToUnitVec3(v_dir);
+
+				update_spd = false;
+				new_spd >>= 16;
+				SetActorVelocity(
+					0,
+					vec3[v_dir].x * new_spd,
+					vec3[v_dir].y * new_spd,
+					vec3[v_dir].z * new_spd,
+					0,
+					0
+				);
+				GiveInventory("HammerSeekDelay", 1);
+				FreeVec3(v_dir);
+
+				// printbold(s:"is missile? ", d:CheckFlag(0, "MISSILE"), s: " ", s:GetActorClass(0), s: " vs ", s:GetActorClass(owner_tid));
+
+				ACS_NamedExecuteWithResult("DnD Hammer Self Cooldown");
+			}
+		}
+		//Log(s:GetActorClass(0), s: " ", d:ActivatorTID());
+
+		if(GetActorProperty(0, APROP_ACCURACY) != DND_CRIT_TOKEN && GetUserVariable(0, "user_bcount") >= crit_bounces)
+			SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
+
+		Delay(const:1);
+	}
+}
+
+Script "DnD Hammer Self Cooldown" (void) {
+	GiveInventory("HammerThruActors", 1);
+	Delay(const:5);
+	// this check is necessary, from my tests, the projectile was so volatile and "engine-breaking" that by the time this ran it may not even be there
+	// somehow the scripts and stuff in them assume its a bright idea to let the "owner" aka the player receive this shit...
+	// so I had the player turn into a vegetable MISSILE that died and reanimated randomly... yeah...
+	if(CheckInventory("DnD_ActorWorking") && GetActorClass(0) != "None")
+		GiveInventory("HammerNoThruActors", 1);
+	SetResultValue(0);
 }
 
 #endif

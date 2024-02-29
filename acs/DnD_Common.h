@@ -189,6 +189,7 @@ enum {
 	// we allocate each player proj tid to their own pnum
 	DND_THUNDER_RING_TIDSTART = DND_TEMP_PLAYERPROJTID + MAXPLAYERS,
 	
+	// allocate enough room for max 4 hammers per player... idk why but why not
 	DND_TALISMAN_MARK = DND_THUNDER_RING_TIDSTART + THUNDERSTAFF_RING_SKIP,
 	
 	DND_SHOOTABLETID_BEGIN,
@@ -224,6 +225,7 @@ enum {
 	SETUP_MONSTERS,
 	SETUP_ITEMTABLES,
 	SETUP_MAPCHANGED,
+	SETUP_WEAPONDATA
 };
 global int 55: SetupStates[2];
 

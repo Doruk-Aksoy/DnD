@@ -424,3 +424,55 @@ object VoidMissile {
 	
 	frame R045 { light VoidMissileLight9 }
 }
+
+flickerlight THROWHAMMER {
+    attenuate 1
+	color 1.0 0.2 0.0
+    size 72
+    secondarysize 78
+    chance 0.4
+}
+
+object HammerThrown {
+    frame BHMRA { light THROWHAMMER }
+    frame BHMRB { light THROWHAMMER }
+    frame BHMRC { light THROWHAMMER }
+    frame BHMRD { light THROWHAMMER }
+    frame BHMRE { light THROWHAMMER }
+    frame BHMRF { light THROWHAMMER }
+    frame BHMRG { light THROWHAMMER }
+    frame BHMRH { light THROWHAMMER }
+}
+
+object HammerReturn {
+    frame BHMRA { light THROWHAMMER }
+    frame BHMRB { light THROWHAMMER }
+    frame BHMRC { light THROWHAMMER }
+    frame BHMRD { light THROWHAMMER }
+    frame BHMRE { light THROWHAMMER }
+    frame BHMRF { light THROWHAMMER }
+    frame BHMRG { light THROWHAMMER }
+    frame BHMRH { light THROWHAMMER }
+}
+
+object HammerExplosion {
+	frame MACXD { light ROCKET_X2 }
+	frame MACXE { light ROCKET_X2 }
+	frame MACXF { light ROCKET_X2 }
+	frame MACXG { light ROCKET_X2 }
+	frame MACXH { light ROCKET_X3 }
+	frame MACXI { light ROCKET_X3 }
+	frame MACXJ { light ROCKET_X3 }
+}
+
+object HammerExplosion_Crit {
+	Frame MSP1H { Light SatyrLordRedMissile3 }
+	Frame MSP1I { Light SatyrLordRedMissile4 }
+	Frame MSP1J { Light SatyrLordRedMissile5 }
+	Frame MSP1K { Light SatyrLordRedMissile6 }
+	Frame MSP1L { Light SatyrLordRedMissile7 }
+	Frame MSP1M { Light SatyrLordRedMissile8 }
+	Frame MSP1N { Light SatyrLordRedMissile9 }
+	Frame MSP1O { Light SatyrLordRedMissile10 }
+	Frame MSP1P { Light SatyrLordRedMissile11 }
+}

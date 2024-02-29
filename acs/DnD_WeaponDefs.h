@@ -1580,7 +1580,9 @@ str GetWeaponTipText(int wepid) {
 }
 
 str GetWeaponTag(int wepid) {
-	return StrParam(s:"WEP_", d:wepid, s:"_TAG");
+	int slot = GetSlotOfWeapon(wepid);
+	int subid = GetWeaponOrderSlot(wepid, slot);
+	return StrParam(s:"WEP_", d:slot, s:"_", d:subid, s:"_TAG");
 }
 
 #endif
