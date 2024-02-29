@@ -16,7 +16,7 @@ ACTOR " Super Shotgun " : Weapon
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.8
   +INVENTORY.UNDROPPABLE
-  Tag "$WEP_24_TAG"
+  Tag "$WEP_3_0_TAG"
   +WEAPON.NOAUTOAIM
   States
   {
@@ -125,7 +125,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon
   Inventory.PickupMessage "$GOTSHOTGUN2"
   Inventory.PickupSound "weapons/pickup"
   Obituary "$OB_MPSSHOTGUN"
-  Tag "$WEP_25_TAG"
+  Tag "$WEP_3_1_TAG"
   Decal "BulletChip"
   +INVENTORY.UNDROPPABLE
   Weapon.BobStyle InverseSmooth
@@ -343,7 +343,7 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
   Inventory.PickupMessage "$GOTSHOTGUN2"
   Inventory.PickupSound "weapons/pickup"
   Obituary "$OB_MPSSHOTGUN"
-  Tag "$WEP_26_TAG"
+  Tag "$WEP_3_2_TAG"
   Decal "BulletChip"
   +INVENTORY.UNDROPPABLE
   Weapon.BobStyle InverseSmooth
@@ -533,7 +533,7 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.9
-	Tag "$WEP_27_TAG"
+	Tag "$WEP_3_3_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -841,7 +841,7 @@ Actor "Silver Gun" : Weapon
   Weapon.BobSpeed 1.8
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.8
-  Tag "$WEP_32_TAG"
+  Tag "$WEP_3_8_TAG"
   +WEAPON.NOAUTOAIM
   states
   {
@@ -1000,7 +1000,7 @@ ACTOR Slayer : Weapon {
 	Weapon.BobSpeed 1.9
 	Weapon.BobRangeY 0.33
 	Weapon.BobRangeX 0.64
-	Tag "$WEP_33_TAG"
+	Tag "$WEP_3_9_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -1357,4 +1357,186 @@ Actor SlayerHook_Damager_Crit : SlayerHook_Damager {
 Actor SlayerTimer : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration 3
+}
+
+Actor TheAxe : Weapon {
+	Inventory.PickupSound "weapons/pickup"
+	Inventory.PickupMessage "You got the Axe!"
+	Obituary "%o couldn't dodge %k's missiles."
+	Weapon.AmmoType "AxeMana"
+	Weapon.AmmoGive 10
+	Weapon.AmmoUse1 1
+	Weapon.AmmoUse2 4
+	Weapon.Slotnumber 5
+	Weapon.SelectionOrder 1000
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.45
+	Weapon.BobRangeY 0.215
+	Weapon.BobRangeX 0.325
+	Tag "$WEP_5_4_TAG"
+	+WEAPON.NOAUTOAIM
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+		Ready:
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "ReadyAmmo")
+		ReadyNoAmmo:
+			TNT1 A 0 A_JumpIfInventory("HammerFetched", 1, "Fetch")
+			FHMR H 1 A_WeaponReady
+		Goto Ready
+		Fetch:
+			TNT1 A 0 A_TakeInventory("HammerFetched", 1)
+			TNT1 A 0 A_TakeInventory("HammerReturnSignal", 1)
+			FHMR I 1 Offset(8, 32)
+			FHMR I 1 Offset(-9, 27)
+			FHMR I 1 Offset(-24, 22)
+			FHMR I 1 Offset(-36, 15)
+			FHMR I 1 Offset(-48, 12)
+			TNT1 A 0 A_PlayWeaponSound("Hammer/Fetched")
+			FHMR I 1 Offset(-55, 11)
+			FHMR I 1 Offset(-67, 10)
+			TNT1 A 0 A_GiveInventory("HammerAmmo", 1)
+			FHMR A 1 Bright Offset(-81, 50)
+			FHMR A 1 Bright Offset(-83, 51)
+			FHMR A 1 Bright Offset(-84, 49)
+			FHMR A 1 Bright Offset(-78, 48)
+			FHMR A 1 Bright Offset(-67, 45)
+			FHMR A 1 Bright Offset(-55, 42)
+			FHMR A 1 Bright Offset(-45, 38)
+			FHMR A 1 Bright Offset(-31, 35)
+			FHMR A 1 Bright Offset(-20, 34)
+			FHMR A 1 Bright Offset(-10, 33)
+		Goto ReadyAmmo
+		ReadyAmmo:
+			TNT1 A 0 A_TakeInventory("HammerFetched", 1)
+			FHMR ABC 3 Bright A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "DeselectAmmo")
+		DeselectNoAmmo:
+			FHMR H 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		DeselectAmmo:
+			TNT1 A 0 A_TakeInventory("HammerFetched", 1)
+			FHMR A 1 Bright A_Lower
+			TNT1 A 0 A_Lower
+			FHMR A 1 Bright A_Lower
+			TNT1 A 0 A_Lower
+			FHMR A 1 Bright A_Lower
+			TNT1 A 0 A_Lower
+			FHMR B 1 Bright A_Lower
+			TNT1 A 0 A_Lower
+			FHMR B 1 Bright A_Lower
+			TNT1 A 0 A_Lower
+			FHMR B 1 Bright A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
+			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_HAMMER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 25, 3 | (5 << 16), DND_WEAPON_HAMMER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 96, 0, DND_WEAPON_HAMMER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 180, 0, DND_WEAPON_HAMMER)
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "SelectLoop")
+		SelectNoAmmo:
+			FHMR H 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		SelectLoop:
+			TNT1 A 0 A_TakeInventory("HammerFetched", 1)
+			FHMR A 1 Bright A_Raise
+			TNT1 A 0 A_Raise
+			FHMR A 1 Bright A_Raise
+			TNT1 A 0 A_Raise
+			FHMR A 1 Bright A_Raise
+			TNT1 A 0 A_Raise
+			FHMR B 1 Bright A_Raise
+			TNT1 A 0 A_Raise
+			FHMR B 1 Bright A_Raise
+			TNT1 A 0 A_Raise
+			FHMR B 1 Bright A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		NoAmmo:
+			FHMR HH 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto ReadyNoAmmo
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "ContinueFire")
+		Goto NoAmmo
+		ContinueFire:
+			FHMR D 1 Bright Offset(1, 32) ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", 1, 2)
+			FHMR D 1 Bright Offset(4, 27)
+			FHMR D 1 Bright Offset(9, 20)
+			FHMR D 1 Bright Offset(16, 11)
+			FHMR D 1 Bright Offset(25, 0)
+		HammerHeld:
+			TNT1 A 0 A_GiveInventory("HammerThrowStrength", 4)
+			FHMR D 1 Bright Offset(25, 0)
+			TNT1 A 0 A_Refire("HammerHeld")
+			TNT1 A 0 A_PlayWeaponSound("Hammer/Throw")
+			FHMR E 1 Bright Offset(25, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HAMMER, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE)
+			FHMR E 1 Bright Offset(19, 35)
+			FHMR E 1 Bright Offset(13, 39)
+			FHMR F 1 Bright Offset(10, 35)
+			FHMR F 1 Bright Offset(5, 37)
+			FHMR F 1 Bright Offset(0, 41)
+			FHMR G 1 Bright Offset(-7, 41)
+			FHMR G 1 Bright Offset(-15, 47)
+			FHMR G 1 Bright Offset(-25, 69)
+			FHMR G 1 Bright Offset(-37, 95)
+			FHMR G 1 Bright Offset(-50, 120)
+			TNT1 A 0 A_JumpIfInventory("HammerThrowStrength", 0, "ThrowHammer")
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "FireAmmo")
+		Goto FireNoAmmo
+		ThrowHammer:
+			FHMR G 1 Offset(5, 150)
+			TNT1 A 0 Bright A_GiveInventory("HammerRecallCooldown", 1)
+			FHMR G 2 Bright Offset(5, 150) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HAMMER, DND_ATK_SECONDARY, DND_AMMOSLOT_ROCKET | (AMMO_HAMMER << 16), 0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
+			FHMR G 1 Bright Offset(5, 150) Radius_Quake(4,3,0,1,0)
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "FireAmmo")
+		FireNoAmmo:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
+			TNT1 A 0 A_TakeInventory("HammerThrowStrength", 0)
+			FHMR G 9 Offset(5, 150)
+			FHMR H 1 Offset(0, 150)
+			FHMR H 1 Offset(0, 120)
+			FHMR H 1 Offset(0, 100)
+			FHMR H 1 Offset(0, 85)
+			FHMR H 1 Offset(0, 67)
+			FHMR H 1 Offset(0, 52)
+			FHMR H 1 Offset(0, 39)
+		Goto Ready
+		FireAmmo:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
+			TNT1 A 0 A_TakeInventory("HammerThrowStrength", 0)
+			FHMR G 9 Offset(5, 150)
+			FHMR B 1 Bright Offset(0, 60)
+			FHMR B 1 Bright Offset(0, 55)
+			FHMR B 1 Bright Offset(0, 50)
+			FHMR C 1 Bright Offset(0, 45)
+			FHMR C 1 Bright Offset(0, 40)
+			FHMR C 1 Bright Offset(0, 35)
+			FHMR A 1 Bright
+		Goto Ready
+		AltFire:
+			TNT1 A 0 A_JumpIfInventory("HammerRecallCooldown", 1, "NoCatch")
+		AltFireLoop:
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "NoAlt")
+			FHMR I 1 Offset(8, 32) A_JumpIfInventory("HammerFetched", 1, "Fetch")
+			TNT1 A 0 A_GiveInventory("HammerReturnSignal", 1)
+			FHMR I 1 Offset(8, 32) A_Refire
+		Goto Ready
+		NoCatch:
+			FHMR H 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		NoAlt:
+			FHMR ABC 3 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+	}
 }

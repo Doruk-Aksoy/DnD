@@ -15,7 +15,7 @@ Actor " Machine gun " : Weapon
 	+WEAPON.NOALERT
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_34_TAG"
+	Tag "$WEP_4_0_TAG"
 	Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.9
     Weapon.BobRangeY 0.4
@@ -568,7 +568,7 @@ Actor "Upgraded Machine Gun" : Chaingun
 	+WEAPON.NOALERT
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_35_TAG"
+	Tag "$WEP_4_1_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.4
@@ -728,7 +728,7 @@ Actor "Upgraded Machine Gun2" : Weapon {
 	Inventory.PickupMessage " "
 	Weapon.SlotNumber 4
 	Scale 0.8
-	Tag "$WEP_36_TAG"
+	Tag "$WEP_4_2_TAG"
 	Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 2.0
     Weapon.BobRangeY 0.4
@@ -921,7 +921,7 @@ Actor "Upgraded Machine Gun3" : Weapon {
 	Weapon.SlotNumber 4
 	Obituary "%o was sealed away by %k."
 	Decal ""
-	Tag "$WEP_37_TAG"
+	Tag "$WEP_4_3_TAG"
 	Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.8
     Weapon.BobRangeY 0.5
@@ -1453,7 +1453,7 @@ Actor Desolator : Weapon {
     Weapon.BobSpeed 1.8
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.7
-	Tag "$WEP_43_TAG"
+	Tag "$WEP_4_9_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
@@ -1711,7 +1711,7 @@ actor " Minigun " : Chaingun {
 	Obituary "%o didn't quite make through %k's Minigun bullet storm."
 	+NOALERT
 	+NOAUTOAIM
-	Tag "$WEP_44_TAG"
+	Tag "$WEP_4_10_TAG"
 	Scale 1.1
 	Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.4
@@ -2168,7 +2168,7 @@ Actor "Ebony Cannon" : Weapon {
     Weapon.BobSpeed 1.8
     Weapon.BobRangeY 0.3
     Weapon.BobRangeX 0.6
-	Tag "$WEP_45_TAG"
+	Tag "$WEP_4_11_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -2399,7 +2399,7 @@ ACTOR MPPB : Weapon {
 	Weapon.SlotNumber 4
 	Obituary "%o was mowed down by %k."
 	Decal "PlasmaScorch"
-	Tag "$WEP_46_TAG_ALT"
+	Tag "$WEP_4_12_TAG_ALT"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.3

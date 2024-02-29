@@ -332,13 +332,14 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 4750,  1,		1 },
 		{ 2500,  1,		1 },
 		{ 6750,  1,		1 },
+		{ 6250,  1,     1 },
 		{ 5500,  1,		1 },
 		{ 5750,  1,		1 },
 		{ 5500,  1,		1 },
 		{ 7000,  1,     1 },
-		{ 6250,  1,		1 },
 		
 		// 5 - 2
+		{ 6250,  1,		1 },
 		{ 6800,  1,		1 },
 		{ 4000,  1,		1 },
 		{ 5000,  1,		1 },
@@ -529,13 +530,14 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		{ RES_SLOT5UPG1, -1, -1 },
 		{ RES_SLOT5UPG2, -1, -1 },
 		{ RES_SLOT5UPG3, -1, -1 },
 		{ RES_SLOT5UPG4, -1, -1 },
-		{ RES_SLOT5UPG5, -1, -1 },
 		
 	// wep slot 5 - 2
+		{ RES_SLOT5UPG5, -1, -1 },
 		{ RES_SLOT5MERC, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },
@@ -866,13 +868,14 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
 	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+	DTYPE_ELEMENTAL,
 	DTYPE_OCCULT,
 	DTYPE_EXPLOSIVE | DTYPE_PHYSICAL,
 	DTYPE_ELEMENTAL,
 	DTYPE_PHYSICAL,
-	DTYPE_ENERGY,
 	
 	// 5 - 2
+	DTYPE_ENERGY,
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
 	DTYPE_EXPLOSIVE,
@@ -967,13 +970,14 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_TORPEDO		},
 	{ OBJ_WEP,												SHOP_WEP_GRENADE		},
 	{ OBJ_WEP | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_VINDICATOR		},
+	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_HAMMER			},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL1			},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL2			},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL3			},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL4			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL5			},
 	
 	// 5 - 2
+	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL5			},
 	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_MERC			},
 	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_ROTARYGL		},
 	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_HEAVYML		},

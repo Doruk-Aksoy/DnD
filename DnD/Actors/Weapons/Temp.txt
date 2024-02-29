@@ -23,7 +23,7 @@ Actor Sawedoff : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_84_TAG"
+	Tag "$WEP_9_0_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Remove:
@@ -275,7 +275,7 @@ ACTOR "Soul Render" : Weapon
     Weapon.BobSpeed 2.1
     Weapon.BobRangeY 0.4
     Weapon.BobRangeX 0.7
-	Tag "$WEP_85_TAG"
+	Tag "$WEP_9_1_TAG"
 	+WEAPON.NOAUTOAIM
    States
    {
@@ -834,7 +834,7 @@ actor "SMG" : Weapon
   Weapon.BobSpeed 2.0
   Weapon.BobRangeY 0.3
   Weapon.BobRangeX 0.6
-  Tag "$WEP_86_TAG"
+  Tag "$WEP_9_2_TAG"
   +WEAPON.NOAUTOAIM
   States
   {
@@ -1020,7 +1020,7 @@ ACTOR "Hellforge Cannon" : Weapon
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.9
-	Tag "$WEP_87_TAG"
+	Tag "$WEP_9_3_TAG"
 	+WEAPON.NOAUTOAIM
    States
    {
@@ -1374,7 +1374,7 @@ ACTOR "Bloodfiend Spine" : Weapon
   Weapon.BobSpeed 1.6
   Weapon.BobRangeY 0.6
   Weapon.BobRangeX 0.9
-  Tag "$WEP_88_TAG"
+  Tag "$WEP_9_4_TAG"
   +WEAPON.NOAUTOAIM
    States
    {
@@ -1703,7 +1703,7 @@ actor "Enforcer Rifle" : Weapon
   Weapon.BobSpeed 2.1
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.7
-  Tag "$WEP_89_TAG"
+  Tag "$WEP_9_5_TAG"
   +WEAPON.NOAUTOAIM
   States
   {
@@ -1929,7 +1929,7 @@ ACTOR Venom : Weapon
   Weapon.BobSpeed 1.6
   Weapon.BobRangeY 0.6
   Weapon.BobRangeX 0.9
-  Tag "$WEP_90_TAG"
+  Tag "$WEP_9_6_TAG"
   +WEAPON.NOAUTOAIM
    States
    {
@@ -2347,7 +2347,7 @@ ACTOR "Demon Heart" : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.5
-	Tag "$WEP_91_TAG"
+	Tag "$WEP_9_7_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -2641,7 +2641,7 @@ Actor DarkServantGloves : Weapon {
 	weapon.ammouse2 0
 	weapon.ammogive 0
 	weapon.ammogive2 0
-	Tag "$WEP_92_TAG"
+	Tag "$WEP_9_8_TAG"
 	YScale 0.59
 	XScale 0.4
 	+INVENTORY.UNDROPPABLE
@@ -2938,7 +2938,7 @@ Actor Nailgun2 : Weapon {
 	Weapon.BobSpeed 2.3
 	Weapon.BobRangeY 0.45
 	Weapon.BobRangeX 0.75
-	Tag "$WEP_93_TAG"
+	Tag "$WEP_9_9_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -3221,7 +3221,7 @@ Actor Berettas : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_94_TAG"
+	Tag "$WEP_9_10_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -3406,7 +3406,7 @@ actor "Plasma Bolter" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.6
-	Tag "$WEP_95_TAG"
+	Tag "$WEP_9_11_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Remove:
@@ -3757,7 +3757,7 @@ actor "Ripper Cannon" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.65
-	Tag "$WEP_96_TAG"
+	Tag "$WEP_9_12_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Remove:

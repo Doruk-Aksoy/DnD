@@ -9,7 +9,7 @@ Actor "Plasma Rifle" : PlasmaRifle
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
 	Weapon.AmmoGive 0
-	Tag "$WEP_60_TAG"
+	Tag "$WEP_6_0_TAG"
 	+WEAPON.NOAUTOAIM
    States
    {
@@ -80,7 +80,7 @@ Actor "Plasma Rifle" : PlasmaRifle
 Actor "Upgraded Plasma Rifle" : PlasmaRifle {	
 	Weapon.Slotnumber 6
 	Weapon.AmmoType2 "PlasmaOverheat"
-	Tag "$WEP_61_TAG"
+	Tag "$WEP_6_1_TAG"
 	+INVENTORY.UNDROPPABLE
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
@@ -517,7 +517,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 	Weapon.AmmoUse2 2
 	Weapon.AmmoType1 "Cell"
 	Weapon.AmmoType2 "Cell"
-	Tag "$WEP_62_TAG"
+	Tag "$WEP_6_2_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -695,7 +695,7 @@ Actor "Nailgun" : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_69_TAG"
+	Tag "$WEP_6_9_TAG"
 	+WEAPON.NOAUTOAIM
 	States
 	{
@@ -1036,7 +1036,7 @@ ACTOR Basilisk : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_70_TAG"
+	Tag "$WEP_6_10_TAG"
 	+ALT_AMMO_OPTIONAL
 	+WEAPON.NOAUTOAIM
 	+NOALERT
@@ -1306,7 +1306,7 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 	Weapon.AmmoGive 0
 	Weapon.AmmoUse 1
 	Weapon.AmmoType "EverIce"
-	Tag "$WEP_63_TAG"
+	Tag "$WEP_6_3_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
@@ -1728,7 +1728,7 @@ Actor RhinoRifle : Weapon
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
 	+WEAPON.NOAUTOFIRE
-	Tag "$WEP_68_TAG"
+	Tag "$WEP_6_8_TAG"
 	Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.9
     Weapon.BobRangeY 0.3

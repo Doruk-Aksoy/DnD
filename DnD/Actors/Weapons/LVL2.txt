@@ -10,7 +10,7 @@ Actor " Pistol " : Pistol
     Weapon.BobSpeed 2.1
     Weapon.BobRangeY 0.3
     Weapon.BobRangeX 0.6
-	Tag "$WEP_8_TAG"
+	Tag "$WEP_1_0_TAG"
 	+WEAPON.NOAUTOAIM
 	States
 	{
@@ -94,7 +94,7 @@ Actor " Akimbo Pistols " : Pistol {
     Weapon.BobRangeX 0.6
 	attacksound ""
 	Decal "BulletChip"
-	Tag "$WEP_9_TAG"
+	Tag "$WEP_1_1_TAG"
 	+INVENTORY.UNDROPPABLE
 	+AMMO_OPTIONAL
 	+ALT_AMMO_OPTIONAL
@@ -379,7 +379,7 @@ Actor Magnum : Weapon {
 	Weapon.AmmoType2 "BulletSize_6"
 	Weapon.SelectionOrder 1850
 	attacksound ""
-	Tag "$WEP_10_TAG"
+	Tag "$WEP_1_2_TAG"
 	Decal "BulletChip"
 	+INVENTORY.UNDROPPABLE
     Weapon.BobStyle InverseSmooth
@@ -547,7 +547,7 @@ Actor "Laser Pistol" : Weapon {
 	Weapon.SelectionOrder 1850
 	attacksound ""
 	Decal "LaserPistolDecal"
-	Tag "$WEP_11_TAG"
+	Tag "$WEP_1_3_TAG"
 	+INVENTORY.UNDROPPABLE
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.8
@@ -847,7 +847,7 @@ ACTOR ScatterGun : Weapon
    Weapon.AmmoGive 0
    Weapon.AmmoUse1 1
    Weapon.AmmoUse2 1
-   Tag "$WEP_15_TAG"
+   Tag "$WEP_1_7_TAG"
    Weapon.BobStyle InverseSmooth
    Weapon.BobSpeed 2.1
    Weapon.BobRangeY 0.3
@@ -1032,7 +1032,7 @@ Actor RubyWand : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
-	Tag "$WEP_12_TAG"
+	Tag "$WEP_1_4_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:

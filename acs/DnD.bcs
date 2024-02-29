@@ -130,7 +130,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			if(ammo != "") { // if uses ammo
 				itemcomp = GetAmmoCapacity(ammo);
 				item = CheckInventory(ammo);
-				if(item > (itemcomp + 1) / 2) {
+				if(item > (itemcomp + 1) / 2 || itemcomp == 1) {
 					GiveInventory("H_PrimaryGreen", 1);
 					TakeInventory("H_PrimaryYellow", 1);
 					TakeInventory("H_PrimaryRed", 1);
@@ -152,7 +152,7 @@ Script "DnD SBAR" (void) CLIENTSIDE {
 			if(ammoalt != "" && ammo != ammoalt) { // if uses altammo and is not same as normal ammo
 				itemcomp = GetAmmoCapacity(ammoalt);
 				item = CheckInventory(ammoalt);
-				if(item > (itemcomp + 1) / 2) {
+				if(item > (itemcomp + 1) / 2 || itemcomp == 1) {
 					GiveInventory("H_SecondaryGreen", 1);
 					TakeInventory("H_SecondaryYellow", 1);
 					TakeInventory("H_SecondaryRed", 1);

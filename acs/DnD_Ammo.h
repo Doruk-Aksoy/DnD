@@ -18,7 +18,7 @@ enum {
 };
 
 #define MAX_SLOTS (DND_AMMOSLOT_SOULS + 1)
-#define MAX_AMMOTYPES_PER_SLOT 11
+#define MAX_AMMOTYPES_PER_SLOT 16
 
 enum {
 	DND_AMMO_SECONDARYISCLIP = 1
@@ -49,7 +49,9 @@ enum {
 	AMMO_HADES,
 	AMMO_FLAYER,
 	AMMO_EXSHELL,
+
 	AMMO_SLAYER,
+	AMMO_AXE,
 	
 	// category 4
 	AMMO_ROCKET = 0,
@@ -85,7 +87,7 @@ enum {
 #define AMMOSLOT_SHELL_BEGIN AMMO_SHELL
 #define AMMOSLOT_SHELL_END AMMO_EXSHELL
 #define AMMOSLOT_SHELL2_BEGIN AMMO_SLAYER
-#define AMMOSLOT_SHELL2_END AMMO_SLAYER
+#define AMMOSLOT_SHELL2_END AMMO_AXE
 #define AMMOSLOT_ROCKET_BEGIN AMMO_ROCKET
 #define AMMOSLOT_ROCKET_END AMMO_HAMMER
 #define AMMOSLOT_CELL_BEGIN AMMO_CELL
@@ -112,7 +114,8 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"INCRAMMO",			"IncineratorAmmo"		},
 		{		"DES4Y0",			"DesolatorAmmo"			},
 		{		"EBOPA0",			"EbonyAmmo"				},
-		{		"EBOPE0",			"EbonyAmmoX"			}
+		{		"EBOPE0",			"EbonyAmmoX"			},
+		{		"",					""						}
 	},
 	// category 2 -- shell box
 	{
@@ -126,7 +129,9 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"STRGY0",			"HadesAmmo"				},
 		{		"CBWAA0",			"FlayerAmmo"			},
 		{		"ESHAA0",			"ExplodingShell"		},
-		{		"SLAYAM01",			"SlayerAmmo"			}
+		{		"SLAYAM01",			"SlayerAmmo"			},
+		{		"AXEAMM",			"AxeAmmo"				},
+		{		"",					""						}
 	},
 	// category 3 -- rocket box
 	{
@@ -175,7 +180,8 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		72,			18		},
 		{ 		75,			25		},
 		{ 		60,			12		},
-		{ 		30,			6		}
+		{ 		30,			6		},
+		{		-1,			0		},
 	},
 	// category 2 -- shell box
 	{
@@ -189,7 +195,9 @@ ammo_info_T AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		{ 		32,			8		},
 		{ 		36,			9		},
 		{ 		40,			15		},
-		{ 		40,			15		}
+		{ 		40,			15		},
+		{		60,			15		},
+		{		-1,			0		},
 	},
 	// category 3 -- rocket box
 	{

@@ -3,7 +3,7 @@ Actor "Upgraded Rocket Launcher2" : RocketLauncher {
 	Weapon.Slotnumber 5
 	Inventory.PickupSound "weapons/pickup"
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_56_TAG"
+	Tag "$WEP_5_10_TAG"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
@@ -151,7 +151,7 @@ Actor ResRL1 : Weapon {
 	Decal "BulletChip"
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_51_TAG"
+	Tag "$WEP_5_5_TAG"
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.45
@@ -368,7 +368,7 @@ ACTOR ResRL2 : Weapon {
 	Weapon.AmmoType1 "HeavyGrenades"
 	Weapon.AmmoType2 "HeavyGLCounter"
 	Scale 0.75
-	Tag "$WEP_52_TAG"
+	Tag "$WEP_5_6_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.5
@@ -671,7 +671,7 @@ Actor ResRL3 : Weapon {
 	Weapon.SlotNumber 5
 	Inventory.PickupMessage "You got the Freezer Cannon!"
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_53_TAG"
+	Tag "$WEP_5_7_TAG"
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.35
@@ -998,7 +998,7 @@ Actor ResRL4 : Weapon {
 	Weapon.AmmoGive 5
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_54_TAG"
+	Tag "$WEP_5_8_TAG"
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.25
 	Weapon.BobRangeX 0.45
@@ -1407,7 +1407,7 @@ Actor ResRL5 : Weapon {
 	Weapon.AmmoGive 15
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_55_TAG"
+	Tag "$WEP_5_9_TAG"
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.2
 	Weapon.BobRangeX 0.4

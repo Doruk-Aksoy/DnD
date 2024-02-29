@@ -482,9 +482,12 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_SHOP_WEAPON3_1:
 		case MENU_SHOP_WEAPON3_2:
 		case MENU_SHOP_WEAPON4_2:
-		case MENU_SHOP_WEAPON5_1:
 			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
 				redraw = ListenScroll(-32, 0);
+		break;
+		case MENU_SHOP_WEAPON5_1:
+			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+				redraw = ListenScroll(-40, 0);
 		break;
 		case MENU_SHOP_WEAPON2:
 		case MENU_SHOP_WEAPON6_2:
@@ -1747,6 +1750,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 120.0, 223.0 }, // w2
 			{ 289.0, 213.0, 120.0, 207.0 }, // w3
 			{ 289.0, 197.0, 120.0, 191.0 }, // w4
+			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},

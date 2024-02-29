@@ -12,7 +12,7 @@ ACTOR "Death Staff" : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_80_TAG"
+	Tag "$WEP_8_0_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -561,7 +561,7 @@ ACTOR Razorfang : Weapon
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_81_TAG"
+	Tag "$WEP_8_1_TAG"
 	+WEAPON.NOAUTOAIM
    States
    {
@@ -857,7 +857,7 @@ Actor "Sun Staff" : Weapon
   Weapon.BobSpeed 2.1
   Weapon.BobRangeY 0.4
   Weapon.BobRangeX 0.7
-  Tag "$WEP_82_TAG"
+  Tag "$WEP_8_2_TAG"
   +WEAPON.NOAUTOAIM
   States
   {
@@ -1241,7 +1241,7 @@ Actor "Soul Reaver" : Weapon {
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_83_TAG"
+	Tag "$WEP_8_3_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:

@@ -34,7 +34,9 @@ enum {
 	AMMO_HADES,
 	AMMO_FLAYER,
 	AMMO_EXSHELL,
+	
 	AMMO_SLAYER,
+	AMMO_AXE,
 	
 	// category 4
 	AMMO_ROCKET = 0,
@@ -1000,6 +1002,15 @@ Actor HammerAmmo : Ammo {
 	inventory.icon "WEPICO98"
 	ammo.backpackamount 1
 	ammo.backpackmaxamount 1
+	+IGNORESKILL
+}
+
+Actor AxeAmmo : Ammo {
+	inventory.amount 5
+	inventory.maxamount 60
+	inventory.icon "AXEAMM"
+	ammo.backpackamount 5
+	ammo.backpackmaxamount 60
 	+IGNORESKILL
 }
 

@@ -22,7 +22,7 @@ Actor ResShotgun1 : Weapon {
 	Weapon.BobSpeed 1.7
 	Weapon.BobRangeY 0.6
 	Weapon.BobRangeX 0.9
-	Tag "$WEP_20_TAG"
+	Tag "$WEP_2_4_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -288,7 +288,7 @@ Actor ResShotgun2 : Weapon {
 	Weapon.selectionorder 700
 	Inventory.PickupMessage "You got the Nitrogen Crossbow!"
 	Obituary "%o tasted %k's nitrogen."
-	Tag "$WEP_21_TAG"
+	Tag "$WEP_2_5_TAG"
 	+INVENTORY.UNDROPPABLE
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
@@ -807,7 +807,7 @@ Actor ResShotgun3 : Weapon {
 	Weapon.SelectionOrder 900
 	Weapon.SlotNumber 3
 	Weapon.AmmoUse 1
-	Tag "$WEP_22_TAG"
+	Tag "$WEP_2_6_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.5
@@ -1066,7 +1066,7 @@ ACTOR ResShotgun4 : Weapon {
 	Weapon.SlotNumber 3
 	Obituary "%o was brought down by %k."
 	Decal ""
-	Tag "$WEP_23_TAG"
+	Tag "$WEP_2_7_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.45

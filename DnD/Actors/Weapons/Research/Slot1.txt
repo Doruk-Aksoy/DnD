@@ -7,7 +7,7 @@ Actor ResMelee1 : Weapon {
 	Weapon.AmmoUse 0
 	Inventory.PickupMessage "You got the blade!!!11"
 	Obituary "%o was removed by %k's Inferno Sword."
-	Tag "$WEP_5_TAG"
+	Tag "$WEP_0_5_TAG"
     +INVENTORY.UNDROPPABLE
 	+WEAPON.NOAUTOAIM
     Weapon.BobStyle InverseSmooth

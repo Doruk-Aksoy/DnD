@@ -21,7 +21,7 @@ Actor " Shotgun " : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
-	Tag "$WEP_16_TAG"
+	Tag "$WEP_2_0_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -271,7 +271,7 @@ Actor "Upgraded Shotgun" : Weapon {
 	Weapon.BobRangeY 0.4
 	Weapon.BobRangeX 0.8
 	Decal "BulletChip"
-	Tag "$WEP_17_TAG"
+	Tag "$WEP_2_1_TAG"
 	+INVENTORY.UNDROPPABLE
 	+WEAPON.NOAUTOAIM
 	states {
@@ -498,7 +498,7 @@ ACTOR "Upgraded Shotgun2" : Weapon
   Inventory.PickupMessage "$GOTSHOTGUN2"
   Inventory.PickupSound "weapons/pickup"
   Obituary "$OB_MPSSHOTGUN"
-  Tag "$WEP_18_TAG"
+  Tag "$WEP_2_2_TAG"
   Decal "BulletChip"
   +INVENTORY.UNDROPPABLE
   Weapon.BobStyle InverseSmooth
@@ -640,7 +640,7 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 	Weapon.AmmoUse 1
 	Weapon.KickBack 100
 	+UNDROPPABLE
-	Tag "$WEP_19_TAG"
+	Tag "$WEP_2_3_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4

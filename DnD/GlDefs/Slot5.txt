@@ -426,7 +426,6 @@ object VoidMissile {
 }
 
 flickerlight THROWHAMMER {
-    attenuate 1
 	color 1.0 0.2 0.0
     size 72
     secondarysize 78
