@@ -3,6 +3,9 @@
 
 #include "DnD_Common.h"
 
+#define DND_THUNDERAXE_WEAKENPCT 50
+#define CHAIN_LIGHTNING_DELAY 4
+
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 enum {
@@ -37,6 +40,7 @@ enum {
 	DND_WEAPON_HEAVYSUPERSHOTGUN,
 	DND_WEAPON_ERASUS,
 	DND_WEAPON_HELLSMAW,
+	DND_WEAPON_AXE,
 	DND_WEAPON_PLASMACANNON,
 	DND_WEAPON_SHOCKER,
 	DND_WEAPON_HADES,
@@ -529,6 +533,15 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_HELLSMAW].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
 	Weapons_Data[DND_WEAPON_HELLSMAW].attunement = STAT_INT;
+
+	Weapons_Data[DND_WEAPON_AXE].name = "TheAxe";
+	Weapons_Data[DND_WEAPON_AXE].ammo_name1 = "AxeMana";
+	Weapons_Data[DND_WEAPON_AXE].ammo_name2 = "AxeMana";
+	Weapons_Data[DND_WEAPON_AXE].icon = "WEPICO99";
+	Weapons_Data[DND_WEAPON_AXE].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_AXE].ammo_use2 = 3;
+	Weapons_Data[DND_WEAPON_AXE].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_AXE].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_PLASMACANNON].name = "ResSSG1";
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_name1 = "PCanAmmo";
@@ -1502,6 +1515,7 @@ bool IsMeleeWeapon(int wepid) {
 		case DND_WEAPON_SICKLE:
 		case DND_WEAPON_SOULRENDER:
 		case DND_WEAPON_HAMMER:
+		case DND_WEAPON_AXE:
 		return true;
 	}
 	return false;

@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -139,7 +139,7 @@ enum {
 	
 	// 64 players temp tid range
 	TEMPORARY_DATADUMMY_TID = TEMPORARY_SPELL_TID + MAXPLAYERS,
-	
+
 	PROJECTILE_HELPER_TID = TEMPORARY_DATADUMMY_TID + MAXPLAYERS,
 	
 	// circle attacks from burst attack modifiers

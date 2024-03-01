@@ -32,6 +32,7 @@ DND_AMMO_1_7		=	"Hades Shells";
 DND_AMMO_1_8		=	"Flayer Bolts";
 DND_AMMO_1_9		=	"Explosive Shells";
 DND_AMMO_1_10		=	"Slayer Essence";
+DND_AMMO_1_11		=	"Siegebreaker Mana";
 
 DND_AMMO_2_0		=	"Rockets";
 DND_AMMO_2_1		=	"Flak Shells";

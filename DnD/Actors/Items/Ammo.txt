@@ -1005,7 +1005,7 @@ Actor HammerAmmo : Ammo {
 	+IGNORESKILL
 }
 
-Actor AxeAmmo : Ammo {
+Actor AxeMana : Ammo {
 	inventory.amount 5
 	inventory.maxamount 60
 	inventory.icon "AXEAMM"

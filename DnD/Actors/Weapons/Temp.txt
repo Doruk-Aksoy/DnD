@@ -623,8 +623,8 @@ Actor BladeHitFX {
 	+NOINTERACTION
 	States {
 		Spawn:
-			FAXE F 4
-			FAXE GHIJK 3
+			BLHB F 4
+			BLHB GHIJK 3
 		Stop
 	}
 }

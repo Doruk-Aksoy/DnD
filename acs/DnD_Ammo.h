@@ -130,7 +130,7 @@ str AmmoInfo_Str[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT][2] = {
 		{		"CBWAA0",			"FlayerAmmo"			},
 		{		"ESHAA0",			"ExplodingShell"		},
 		{		"SLAYAM01",			"SlayerAmmo"			},
-		{		"AXEAMM",			"AxeAmmo"				},
+		{		"AXEAMM",			"AxeMana"				},
 		{		"",					""						}
 	},
 	// category 3 -- rocket box

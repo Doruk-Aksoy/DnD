@@ -20,7 +20,7 @@ Actor ResSSG1 : Weapon {
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.55
 	Weapon.BobRangeX 0.75
-	Tag "$WEP_3_4_TAG"
+	Tag "$WEP_3_5_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -192,7 +192,7 @@ Actor ResSSG2 : Weapon {
 	Weapon.BobSpeed 1.7
 	Weapon.BobRangeY 0.6
 	Weapon.BobRangeX 0.9
-	Tag "$WEP_3_5_TAG"
+	Tag "$WEP_3_6_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -435,7 +435,7 @@ Actor ResSSG3 : Weapon {
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.6
 	Weapon.BobRangeX 0.7
-	Tag "$WEP_3_6_TAG"
+	Tag "$WEP_3_7_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -1343,7 +1343,7 @@ Actor ResSSG4 : Weapon {
 	Weapon.BobSpeed 1.5
 	Weapon.BobRangeY 0.45
 	Weapon.BobRangeX 0.65
-	Tag "$WEP_3_7_TAG"
+	Tag "$WEP_3_8_TAG"
 	+WEAPON.NOAUTOAIM
 	states {
 		Spawn:
@@ -1550,7 +1550,7 @@ Actor CrossbowBolt_2 : DnD_BaseFastProjectile {
 	Damage (1)
 	Radius 4
 	Height 8
-	DeathSound "Crossbow/Hit"
+	DeathSound "weapons/swingwall"
 	+DONTREFLECT
 	+RIPPER
 	States {

@@ -1,6 +1,27 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Axe/Throw1				AXETHR1
+Axe/Throw2				AXETHR2
+Axe/Throw3				AXETHR3
+$random Axe/Throw { Axe/Throw1 Axe/Throw2 Axe/Throw3 }
+
+Axe/Miss1				AXEMIS1
+Axe/Miss2				AXEMIS2
+$random Axe/Miss		{ Axe/Miss1 Axe/Miss2 }
+
+Axe/HitBleeding1		AXEHITL1
+Axe/HitBleeding2		AXEHITL2
+Axe/HitBleeding3		AXEHITL3
+Axe/HitBleeding4		AXEHITL4
+Axe/HitBleeding5		AXEHITL5
+$random Axe/HitBleeding { Axe/HitBleeding1 Axe/HitBleeding2 Axe/HitBleeding3 Axe/HitBleeding4 Axe/HitBleeding5 }
+
+Axe/HitWall1			AXEWALL1
+Axe/HitWall2			AXEWALL2
+Axe/HitWall3			AXEWALL3
+$random Axe/HitWall { Axe/HitWall1 Axe/HitWall2 Axe/HitWall3 }
+
 Hammer/Fetched			HAMFETCH
 Hammer/Throw			HAMTHRW
 Hammer/Exp				HAMBOOM

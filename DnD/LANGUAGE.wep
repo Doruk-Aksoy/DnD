@@ -43,13 +43,14 @@ WEP_3_0_TAG 			= 			"Super Shotgun";
 WEP_3_1_TAG 			= 			"Heavy Super Shotgun";
 WEP_3_2_TAG 			= 			"Erasus";
 WEP_3_3_TAG 			= 			"Hell's Maw";
-WEP_3_4_TAG 			= 			"Plasma Cannon";
-WEP_3_5_TAG 			= 			"Shocker";
-WEP_3_6_TAG 			= 			"Hades Shotgun";
-WEP_3_7_TAG 			= 			"Flayer Crossbow";
+WEP_3_4_TAG				=			"Siegebreaker";
+WEP_3_5_TAG 			= 			"Plasma Cannon";
+WEP_3_6_TAG 			= 			"Shocker";
+WEP_3_7_TAG 			= 			"Hades Shotgun";
+WEP_3_8_TAG 			= 			"Flayer Crossbow";
 	 
-WEP_3_8_TAG 			= 			"White Death";
-WEP_3_9_TAG 			= 			"Slayer";
+WEP_3_9_TAG 			= 			"White Death";
+WEP_3_10_TAG 			= 			"Slayer";
 	 
 WEP_4_0_TAG 			= 			"Machine Gun";
 WEP_4_1_TAG 			= 			"Heavy Machine Gun";
@@ -168,13 +169,14 @@ WEPTIP_3_0 		= "Same old buckshot we all love! Can be \cdreplaced.";
 WEPTIP_3_1 		= "Heavy Super Shotgun shoots 28 pellets doing 15 damage in a 9.6 by 5.8 spread. Half of these rip through targets.";
 WEPTIP_3_2 		= "Erasus shotgun shoots highly ballistic shells with 18 pellets each doing 15 damage. Has to reload after shooting twice. Alt fire shoots both shells in the chamber, or reloads.";
 WEPTIP_3_3 		= "Shoots a missile and 3 mini missiles. Missile does 75, mini missiles do 30 and explode for 25 in 32 unit radius, not hitting \cughosts\c-. Main missile can scatter. If it hits an object, explodes for 45 in 64 unit radius. Altfire fires the other side.";
-WEPTIP_3_4 		= "Fires 12 plasma balls in a circular fashion each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.";
-WEPTIP_3_5 		= "Shoots 18 shells each doing 18 damage and forcing pain. Overheats when used. Altfire releases a portion of it with the attack, dealing 240-300 damage in 108 unit radius. \cfIgnores shields.";
-WEPTIP_3_6 		= "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.";
-WEPTIP_3_7 		= "Fires silver bolts dealing 400 damage. Altfire increases tension, allowing shots to rip and gain 50% more damage per increase. Magical or undead enemies hit causes a 200 damage explosion in 128 unit radius.";
+WEPTIP_3_4		= "Deals 144-192 damage on melee hits, chaining 4 times for the same damage, reduced by 10% per bounce. Altfire throws the axe, ripping for 125 damage and exploding after hitting a surface for 100 damage, reducing lightning resist by 50% for 4 seconds."
+WEPTIP_3_5 		= "Fires 12 plasma balls in a circular fashion each doing 40 damage. Altfire fires them in a horizontal spread over 3 bursts. Has a clip size of 5.";
+WEPTIP_3_6 		= "Shoots 18 shells each doing 18 damage and forcing pain. Overheats when used. Altfire releases a portion of it with the attack, dealing 240-300 damage in 108 unit radius. \cfIgnores shields.";
+WEPTIP_3_7 		= "Fires 15 shells doing 13 damage in a 11.6 and 9.0 spread, releasing embers on hit doing 2 damage. Altfire shoots a chunk of embers doing 30 damage on hit. Pressing altfire while on flight splits it into 15 embers doing 18 damage.";
+WEPTIP_3_8 		= "Fires silver bolts dealing 400 damage. Altfire increases tension, allowing shots to rip and gain 50% more damage per increase. Magical or undead enemies hit causes a 200 damage explosion in 128 unit radius.";
 	 
-WEPTIP_3_8 		= "The explosive shotgun, the best there is. Fires 10 pellets, each doing 15 on hit. Each pellet does 32-48 damage in a small area. Does self damage. \cfIgnores shields.";
-WEPTIP_3_9 		= "Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius, \cfignoring \cfshields\c-. Blades return to you after travelling a bit. Can't hit \cughosts.";
+WEPTIP_3_9 		= "The explosive shotgun, the best there is. Fires 10 pellets, each doing 15 on hit. Each pellet does 32-48 damage in a small area. Does self damage. \cfIgnores shields.";
+WEPTIP_3_10 	= "Slayer creates 6 blades each doing 10 damage and rip through. Alt fire detonates blades at will for 100 damage in a 108 unit radius, \cfignoring \cfshields\c-. Blades return to you after travelling a bit. Can't hit \cughosts.";
 	 
 WEPTIP_4_0 		= "An accurate and a very reliable weapon. Each bullet does 15-20 damage. Alt fire reloads. Clip size is 50. Can be \cdreplaced\c-. Can use \cialternate\c- ammo."; 
 WEPTIP_4_1 		= "Finest machine guns UAC has to offer. Bullets do 25 damage in a 1.6 by 0.8 spread. Clip size is 60. Can zoom.";

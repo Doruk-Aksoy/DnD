@@ -1327,6 +1327,10 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		HandleOnHitEffects(owner);
 		
 		//printbold(s:"Dealing ", d: final_dmg, s: " damage to ", d:mon_id, s: " of type ", s:DamageTypeList[damage_type]);
+
+		// axe's explosion damage reduces lightning resist by 50% for 4 seconds
+		if(wepid == DND_WEAPON_AXE)
+			GiveActorInventory(mon_id, "ThunderAxeWeaken", 1);
 	}
 	
 	// damage is dealt we are done with this instance, free it up
@@ -1563,6 +1567,10 @@ Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int w
 
 void HandleRipperHitSound(int tid, int owner, int wepid) {
 	switch(wepid) {
+		case DND_WEAPON_AXE:
+			PlaySound(tid, "Axe/HitBleeding", 5, 1.0);
+			SpawnForced("BladeHitFX", GetActorX(tid), GetActorY(tid), GetActorZ(tid));
+		break;
 		case DND_WEAPON_CROSSBOW:
 			PlaySound(tid, "Crossbow/Hit", 5, 1.0);
 		break;

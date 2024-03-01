@@ -56,6 +56,8 @@ enum {
 	DND_PROJ_ERASUS,
 	DND_PROJ_HELLSMAWMAIN,
 	DND_PROJ_HELLSMAWMINI,
+	DND_PROJ_AXEMELEE,
+	DND_PROJ_AXETHROWN,
 	DND_PROJ_WHITEDEATH,
 	DND_PROJ_SLAYER,
 	DND_PROJ_DEADLOCK,
@@ -288,6 +290,14 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_HELLSMAWMINI].name = "HellsMawMiniRocket";
 	ProjectileInfo[DND_PROJ_HELLSMAWMINI].flags = DND_PROJ_HASGHOSTHITTER;
 	ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range = 35;
+
+	ProjectileInfo[DND_PROJ_AXEMELEE].name = "ThunderAxePuff";
+	ProjectileInfo[DND_PROJ_AXEMELEE].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_AXEMELEE].spd_range = 84.0;
+
+	ProjectileInfo[DND_PROJ_AXETHROWN].name = "ThunderAxeThrown";
+	ProjectileInfo[DND_PROJ_AXETHROWN].flags = DND_PROJ_MELEEBONUSES;
+	ProjectileInfo[DND_PROJ_AXETHROWN].spd_range = 35;
 
 	ProjectileInfo[DND_PROJ_WHITEDEATH].name = "WhiteDeathPuff";
 	ProjectileInfo[DND_PROJ_WHITEDEATH].flags = DND_PROJ_HITSCAN;

@@ -269,7 +269,8 @@ void DrawDamageTypes(int req_id, int constraint, int flags) {
 		for(int i = 0; i < MAX_DAMAGE_TYPES; ++i) {
 			if(IsSet(WeaponDamageTypes[req_id], i)) {
 				SetFont(DamageTypeIcons[i]);
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + (j++) * 30.0, 84.1, 0.0, 0.0);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + j * 30.0 - 60.0 * (j > 1), 84.1 - 32.0 * (j > 1), 0.0, 0.0);
+				++j;
 			}
 		}
 		SetFont("SMALLFONT");
@@ -321,6 +322,8 @@ int GetWeaponBeginIndexFromOption(int curopt) {
 		return SHOP_WEAPON31_BEGIN;
 		case MENU_SHOP_WEAPON3_2:
 		return SHOP_WEAPON32_BEGIN;
+		case MENU_SHOP_WEAPON3_3:
+		return SHOP_WEAPON33_BEGIN;
 		case MENU_SHOP_WEAPON4_1:
 		return SHOP_WEAPON41_BEGIN;
 		case MENU_SHOP_WEAPON4_2:
@@ -351,6 +354,8 @@ int GetWeaponEndIndexFromOption(int curopt) {
 		return SHOP_WEAPON_SLOT31END;
 		case MENU_SHOP_WEAPON3_2:
 		return SHOP_WEAPON_SLOT32END;
+		case MENU_SHOP_WEAPON3_3:
+		return SHOP_WEAPON_SLOT33END;
 		case MENU_SHOP_WEAPON4_1:
 		return SHOP_WEAPON_SLOT41END;
 		case MENU_SHOP_WEAPON4_2:
@@ -592,7 +597,7 @@ void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID, -1, -12.0, -64.0 + ypos * 4.0, 0.0, 0.0);
 	
 	if(curopt >= MENU_SHOP && curopt <= SHOP_LASTWEAPON_PAGE) {
-		if(isWepPage && boxid != MAINBOX_NONE)
+		if(isWepPage && boxid != MAINBOX_NONE && boxid <= MAX_WEPS_PER_PAGE)
 			HandleWeaponPropertyImages(curopt, boxid, ypos);
 		else if(redraw)
 			DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
@@ -1706,6 +1711,13 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
 			{ 289.0, 133.0, 120.0, 127.0 }, // w8
+			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE }, // right arr
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE }, // left arr
+			{ -1, -1, -1, -1 }
+		},
+		// wep 3 - 3
+		{
+			{ 289.0, 245.0, 120.0, 239.0 }, // w1
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
@@ -1839,6 +1851,7 @@ rect_T& LoadRect(int menu_page, int id) {
 		// ammo 2 - 2
 		{
 			{ 289.0, 245.0, 120.0, 239.0 }, // w1
+			{ 289.0, 229.0, 96.0, 221.0 }, // w2
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 3
@@ -2416,11 +2429,17 @@ void HandleButtonClick(int boxid) {
 void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scrollamt, int total_boxes, bool redraw) {
 	int begin = GetWeaponBeginIndexFromOption(opt);
 	int end = GetWeaponEndIndexFromOption(opt);
+
+	// if both pages exist, left arrow is always the last one
+	int sub_for_arr = 0;
 	
-	if(multipage > 0)
-		DrawBoxText("=>", DND_NOLOOKUP, boxid, total_boxes, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
-	if(multipage > 1 || multipage < 0)
+	if(multipage > 1 || multipage < 0) {
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, total_boxes, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+		sub_for_arr = 1;
+	}
+
+	if(multipage > 0)
+		DrawBoxText("=>", DND_NOLOOKUP, boxid, total_boxes - sub_for_arr, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
 
 	// negative indicates last page
 	if(multipage < 0)
@@ -2476,14 +2495,26 @@ void HandleAmmoPageDraw(int boxid, int slot, int multipage, int start_index, int
 void HandleWeaponPageInput(int pnum, int boxid, int wbegin, int wend, int pageprev, int pagenext) {
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE) {
-			if(boxid - 1 == wend - wbegin + 1) {
-				if(pageprev != -1)
-					UpdateMenuPosition(pageprev);
+			// only one arrow available
+			if(pageprev == -1 || pagenext == -1) {
+				if(boxid - 1 == wend - wbegin + 1) {
+					if(pageprev != -1)
+						UpdateMenuPosition(pageprev);
+					else
+						UpdateMenuPosition(pagenext);
+				}
 				else
-					UpdateMenuPosition(pagenext);
+					ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
 			}
-			else
-				ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
+			else {
+				// both arrows available
+				if(boxid - 1 == wend - wbegin + 2)
+					UpdateMenuPosition(pageprev);
+				else if(boxid - 1 == wend - wbegin + 1)
+					UpdateMenuPosition(pagenext);
+				else
+					ProcessTrade(pnum, boxid - 1, wbegin, wend, TRADE_BUY | TRADE_WEAPON, false);
+			}
 		}
 		ClearPlayerInput(pnum, true);
 	}

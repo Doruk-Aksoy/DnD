@@ -345,3 +345,57 @@ object HellsMawMiniRocket_Split_GhostHitter_Crit
 	frame HLMLQ { light HellsmawLight4 }
 	frame HLMLR { light HellsmawLight4 }
 }
+
+flickerlight CAXEPUFF1
+{
+    color 0.4 0.4 1.0
+    size 40
+    secondarySize 44
+    chance 0.5
+}
+
+flickerlight CAXEPUFF2
+{
+    color 0.2 0.2 0.8
+    size 48
+    secondarySize 52
+    chance 0.5
+}
+
+flickerlight CAXEPUFF3
+{
+    color 0.0 0.0 0.5
+    size 44
+    secondarySize 48
+    chance 0.5
+}
+
+object ThunderAxePuff
+{
+    frame FAXER { light CAXEPUFF1 }
+    frame FAXES { light CAXEPUFF1 }
+    frame FAXET { light CAXEPUFF2 }
+    frame FAXEU { light CAXEPUFF2 }
+    frame FAXEV { light CAXEPUFF3 }
+    frame FAXEW { light CAXEPUFF3 }
+    frame FAXEX { light CAXEPUFF3 }
+}
+
+pointlight THROWNAXE
+{
+    color 0.4 0.4 1.0
+    size 30
+}
+
+Object ThunderAxeThrown
+{
+    Frame THAX { Light THROWNAXE }
+	
+	frame FAXER { light CAXEPUFF1 }
+    frame FAXES { light CAXEPUFF1 }
+    frame FAXET { light CAXEPUFF2 }
+    frame FAXEU { light CAXEPUFF2 }
+    frame FAXEV { light CAXEPUFF3 }
+    frame FAXEW { light CAXEPUFF3 }
+    frame FAXEX { light CAXEPUFF3 }
+}

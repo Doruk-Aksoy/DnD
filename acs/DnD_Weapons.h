@@ -678,6 +678,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 3, ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range, flags);
 			}
 		break;
+		case DND_WEAPON_AXE:
+			use_default = true;
+			vec2[angle_vec].x = 0.875;
+			if(isAltFire & DND_ATK_SECONDARY)
+				proj_id = DND_PROJ_AXETHROWN;
+			else {
+				proj_id = DND_PROJ_AXEMELEE;
+				if(!(isAltFire & DND_ATK_OTHER_DIR))
+					proj_name_alt = ProjectileInfo[DND_PROJ_AXEMELEE].name;
+				else
+					proj_name_alt = "ThunderAxePuff_NoMana";
+			}
+		break;
 		case DND_WEAPON_SILVERGUN:
 			proj_id = DND_PROJ_WHITEDEATH;
 			use_default = true;
@@ -1179,7 +1192,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		break;
 		case DND_WEAPON_HAMMER:
 			use_default = true;
-			vec2[angle_vec].x = 1.0;
+			vec2[angle_vec].x = 0.875;
 			if(isAltFire & DND_ATK_SECONDARY)
 				proj_id = DND_PROJ_HAMMER;
 			else {
@@ -1899,6 +1912,139 @@ Script "DnD Hammer Self Cooldown" (void) {
 	if(CheckInventory("DnD_ActorWorking") && GetActorClass(0) != "None")
 		GiveInventory("HammerNoThruActors", 1);
 	SetResultValue(0);
+}
+
+Script "DnD Puff Take Ammo" (int wepid, int amt, int ammo_slot, int secondary) {
+	SetActivatorToTarget(0);
+
+	int owner = ActivatorTID();
+	str ammo_type = "";
+
+	int ammo_sub_slot = ammo_slot >> 16;
+	ammo_slot &= 0xFFFF;
+
+	if(secondary)
+		ammo_type = Weapons_Data[wepid].ammo_name2;
+	else
+		ammo_type = Weapons_Data[wepid].ammo_name1;
+
+	if(ammo_type != "") {
+		TakeInventory(ammo_type, amt);
+
+		if(!IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS))
+			HandleAmmoGainChance(ammo_slot, ammo_sub_slot, amt, owner);
+	}
+
+	SetResultValue(0);
+}
+
+// this is called by projectiles only
+Script "DnD Update Melee ReactionTime" (int base) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(IsPlayer(owner)) {
+		//printbold(d:base * (100 + GetMeleeRangeIncrease(owner)) / 100);
+		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + GetMeleeRangeIncrease(owner)) / 100);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Get Melee Range Increase" (int safety_for_inv) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int val = 0;
+	if(IsPlayer(owner)) {
+		val = GetMeleeRangeIncrease(owner);
+		if(safety_for_inv)
+			val = Clamp_Between(100 - val, 1, 100);
+		else
+			val += 100;
+	}
+	SetResultValue(val);
+}
+
+Script "DnD Thunder Axe Weaken" (void) {
+	int mon_id = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	int base_res = MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_LIGHTNING];
+
+	// set it to this from the get-go
+	MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = base_res * (100 - DND_THUNDERAXE_WEAKENPCT) / 100;
+
+	while(IsAlive() && CheckInventory("ThunderAxeWeakenTimer")) {
+		Delay(const:7);
+		TakeInventory("ThunderAxeWeakenTimer", 1);
+	}
+	
+	SetInventory("ThunderAxeWeakenTimer", 0);
+	MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = base_res;
+	
+	SetResultValue(0);
+}
+
+Script "DnD Chain Lightning (Weapon)" (int dmg, int dmg_type, int flags, int wepid) {
+	int zap_count = dmg_type >> 16;
+	int jump_dist = wepid & 0xFFFF0000;
+	int i, mn;
+
+	int this = GetActorProperty(0, APROP_TRACERTID);
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+
+	if(!this || !owner)
+		Terminate;
+	
+	int pnum = owner - P_TIDSTART;
+	int min_dmg = dmg / 10;
+	
+	dmg_type &= 0xFFFF;
+	wepid &= 0xFFFF;
+
+	// range inc
+	if(IsMeleeWeapon(wepid))
+		jump_dist = jump_dist * (100 + GetMeleeRangeIncrease(owner)) / 100;
+
+	// give to the origin actor
+	GiveInventory("DnD_OverloadZapGiver", 1);
+	//Thing_ChangeTID(0, TEMPORARY_CHAIN_LIGHTNING_TID + pnum);
+
+	SetActivatorToTarget(0);
+
+	Delay(const:1);
+
+	static int zap_tids[MAXPLAYERS][DND_MAX_OVERLOADTARGETS];
+
+	while(IsActorAlive(owner) && zap_count) {
+		// init
+		int cur_count = 0;
+		for(i = 0; i < zap_count; ++i)
+			zap_tids[pnum][i] = 0;
+
+		for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+			// if currently alive and received the checker item
+			i = UsedMonsterTIDs[mn];
+			if(i != this && isActorAlive(i) && CheckFlag(i, "SHOOTABLE") && fdistance(this, i) <= jump_dist && CheckSight(this, i, 0))
+				zap_tids[pnum][cur_count++] = i;
+		}
+
+		// no candidates left, stop
+		if(!cur_count)
+			Terminate;
+
+		int victim = zap_tids[pnum][random(0, cur_count - 1)];
+
+		// fx
+		ACS_NamedExecuteAlways("DnD Overload Zap FX", 0, this, victim);
+
+		// dmg
+		HandleImpactDamage(owner, victim, dmg, dmg_type, flags, wepid);
+		PlaySound(victim, "Spell/LightningSpearBounce", CHAN_WEAPON, 1.0);
+
+		// new origin and reduced damage per bounce by 10% (for now, we can make it configurable later)
+		this = victim;
+		dmg -= dmg / 10;
+		if(dmg < min_dmg)
+			dmg = min_dmg;
+		
+		Delay(const:CHAIN_LIGHTNING_DELAY);
+		--zap_count;
+	}
 }
 
 #endif

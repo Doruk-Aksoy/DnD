@@ -344,15 +344,16 @@ DND_MENU_AMMOTEXT37		=	"anti-gravity modules";
 DND_MENU_AMMOTEXT38		=	"Sedrin crystals";
 DND_MENU_AMMOTEXT39		=	"batteries";
 DND_MENU_AMMOTEXT40		=	"incinerator shells";
+DND_MENU_AMMOTEXT41		=	"mana";
 	
-DND_MENU_AMMOTEXT41		=	"flechette shells. \cuPhysical damage.";
-DND_MENU_AMMOTEXT42		=	"magnum shells. \cuPhysical damage.";
-DND_MENU_AMMOTEXT43		=	"electric shells. \cvLightning damage.";
-DND_MENU_AMMOTEXT44		=	"nitrogen shells. \cnIce damage.";
-DND_MENU_AMMOTEXT45		=	"slug shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT42		=	"flechette shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT43		=	"magnum shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT44		=	"electric shells. \cvLightning damage.";
+DND_MENU_AMMOTEXT45		=	"nitrogen shells. \cnIce damage.";
+DND_MENU_AMMOTEXT46		=	"slug shells. \cuPhysical damage.";
 	
-DND_MENU_AMMOTEXT46		=	"sonic grenades. \ciExplosion\c- and \chEnergy damage.";
-DND_MENU_AMMOTEXT47		=	"high-ex grenades. \ciExplosion damage.";
+DND_MENU_AMMOTEXT47		=	"sonic grenades. \ciExplosion\c- and \chEnergy damage.";
+DND_MENU_AMMOTEXT48		=	"high-ex grenades. \ciExplosion damage.";
 
 // artifacts
 DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";

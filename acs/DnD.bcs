@@ -5858,16 +5858,6 @@ Script "DnD Remove Actor - CS" (void) CLIENTSIDE {
 	SetResultValue(0);
 }
 
-// this is called by projectiles only
-Script "DnD Update Melee ReactionTime" (int base) {
-	int owner = GetActorProperty(0, APROP_TARGETTID);
-	if(IsPlayer(owner)) {
-		//printbold(d:base * (100 + GetMeleeRangeIncrease(owner)) / 100);
-		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + GetMeleeRangeIncrease(owner)) / 100);
-	}
-	SetResultValue(0);
-}
-
 Script "DnD Pain Immune Toggle" (int secs) {
 	GiveInventory("MakeNoPain", 1);
 	ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_NOPAIN, -1, -1, -1);
