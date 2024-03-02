@@ -49,8 +49,9 @@
 #define MAX_SMALL_CHARMS_USED 4
 #define MAX_MEDIUM_CHARMS_USED 2
 #define MAX_LARGE_CHARMS_USED 1
-#define MAX_ARMORS_USED 3 // BOOT BODY NECKLACE
-#define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED)
+#define MAX_ARMORS_USED 3 // BOOT BODY HELM
+#define MAX_POWERCORES_USED 1
+#define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED + MAX_POWERCORES_USED)
 
 enum {
 	SMALLCHARM_INDEX1,
@@ -60,7 +61,9 @@ enum {
 	MEDIUMCHARM_INDEX1,
 	MEDIUMCHARM_INDEX2,
 	LARGECHARM_INDEX,
+	HELM_INDEX,
 	BODY_ARMOR_INDEX,
+	POWERCORE_INDEX,
 	BOOT_INDEX
 };
 
@@ -161,6 +164,13 @@ enum {
 
 	IIMG_ARM_16,
 	IIMG_ARM_17,
+
+	// boots
+
+	// powercores
+	IIMG_CORE_1,
+	IIMG_CORE_2,
+	IIMG_CORE_3,
 	
 	IIMG_CKEY_1,
 	IIMG_CKEY_2,
@@ -186,15 +196,18 @@ enum {
 #define ITEM_IMAGE_ARMOR_END IIMG_ARM_17
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
+#define ITEM_IMAGE_POWERCORE_BEGIN IIMG_CORE_1
 
 #define ITEM_IMAGE_CHARM_END IIMG_LC_3
 #define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_14
 #define ITEM_IMAGE_ORB_END IIMG_ORB_27
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_3
+#define ITEM_IMAGE_POWERCORE_END IIMG_CORE_3
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
 #define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_GUNSMITH
 
 #include "DnD_Armor.h"
+#include "DnD_Powercore.h"
 
 // wide returns wider version
 str GetItemImage(int id, bool wide = false) {
@@ -221,6 +234,10 @@ str GetItemImage(int id, bool wide = false) {
 		suffix = id - ITEM_IMAGE_ARMOR_BEGIN + 1;
 		if(wide)
 			img_prefix = "ARW";
+	}
+	else if(id <= ITEM_IMAGE_POWERCORE_END) {
+		img_prefix = "PC";
+		suffix = id - ITEM_IMAGE_POWERCORE_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_KEY_END) {
 		img_prefix = "K";
@@ -1477,6 +1494,11 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
+		else if(itype == DND_ITEM_POWERCORE) {
+			HudMessage(s:"\c[Y5]", s:GetPowercoreInventoryTag(isubt); 
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			);
+		}
 		else if(itype > UNIQUE_BEGIN) {
 			temp = itype & 0xFFFF;
 			itype >>= UNIQUE_BITS;
@@ -1764,7 +1786,7 @@ bool IsCraftableItem(int itype) {
 		case DND_ITEM_CHARM:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
-		case DND_ITEM_NECKLACE:
+		case DND_ITEM_POWERCORE:
 		case DND_ITEM_WEAPON:
 		case DND_ITEM_BODYARMOR:
 		return true;
@@ -1781,7 +1803,7 @@ bool IsUsableOnInventory(int itype) {
 		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
-		case DND_ITEM_NECKLACE:
+		case DND_ITEM_POWERCORE:
 		return true;
 	}
 	return false;
@@ -1957,7 +1979,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 	}
 	
 	// cybernetic check
-	if(has_cybernetic && CheckInventory("Cyborg_Perk25")) {
+	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
 		aval *= DND_CYBERNETIC_FACTOR_MUL;
 		aval /= DND_CYBERNETIC_FACTOR_DIV;
 	}
@@ -2237,7 +2259,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 	}
 	
 	// cybernetic check
-	if(has_cybernetic && CheckInventory("Cyborg_Perk25")) {
+	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
 		aval *= DND_CYBERNETIC_FACTOR_MUL;
 		aval /= DND_CYBERNETIC_FACTOR_DIV;
 	}
@@ -2281,6 +2303,11 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		case INV_IMP_INCMITARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_ARMOR_TO_MIT_RATIO), noSync);
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+		break;
+		case INV_IMP_POWERCORE:
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
+			HandleEShieldChange(pnum, remove);
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
 
@@ -2355,6 +2382,9 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 			break;
 		}
 	}
+
+	// power cores are inherently cybernetic
+	has_cybernetic |= GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source) == INV_IMP_POWERCORE;
 
 	int sync_required = 0;
 	for(i = 0; i < ac; ++i)

@@ -741,26 +741,18 @@ int GetResistPenetration(int pnum, int category) {
 }
 
 // tid, mon_id, weaken %
-Script "DnD Occult Weaken" (int victim, int mon_id, int occ_weak) {
+Script "DnD Occult Weaken" (int victim, int mon_id) {
 	SetActivator(victim);
-	
 	int time = 0;
 	int base_res = MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_OCCULT];
 	while(time < OCCULT_WEAKEN_DURATION) {
 		int prev = CheckInventory("OccultWeaknessStack");
-
-		// percentage amplification of penetration per stack on victim
-		MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_OCCULT] = base_res * (100 - occ_weak * prev) / 100;
-
 		Delay(const:TICRATE);
 		++time;
 		if(prev != CheckInventory("OccultWeaknessStack") || CheckInventory("OccultWeaknessTimeReset"))
 			time = 0;
 	}
-	
 	SetInventory("OccultWeaknessStack", 0);
-	MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_OCCULT] = base_res;
-	
 	SetResultValue(0);
 }
 
@@ -783,28 +775,46 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
 	// added crit ignore res modifier here from below
-	forced_full |= 	(CheckInventory("Doomguy_Perk50") && !(flags & DND_DAMAGEFLAG_ISSPELL) && IsMonsterIdDemon(mon_id)) || 
-					(!wep_neg && (actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100));
+	forced_full |= 	(!wep_neg && (actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100));
 	
+	int resist = MonsterProperties[mon_id].resists[damage_category];
+	int temp;
+	int pct_val = 0;
+
 	// apply percentage reductions to resist HERE, ABOVE checking the penetration
 	// if occult weakness exists, apply it checking monster's debuff -- to be done as a resist reduction to affect all players later
+	// we will handle all percentage reductions here deliberately so that we don't mess up the base resist value of the monster!
 	if(damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK)) {
-		int occ_weak = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
-		if(occ_weak) {
+		temp = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
+		if(temp) {
 			if(!CheckActorInventory(victim, "OccultWeaknessStack")) {
 				GiveActorInventory(victim, "OccultWeaknessStack", 1);
-				ACS_NamedExecuteWithResult("DnD Occult Weaken", victim, mon_id, occ_weak);
+				ACS_NamedExecuteWithResult("DnD Occult Weaken", victim, mon_id);
 			}
 			else {
 				// latter forces the reset on debuff timer
 				GiveActorInventory(victim, "OccultWeaknessStack", 1);
 				GiveActorInventory(victim, "OccultWeaknessTimeReset", 1);
 			}
+			pct_val += temp * CheckActorInventory(victim, "OccultWeaknessStack");
 		}
 	}
+	else if(damage_category == DND_DAMAGECATEGORY_LIGHTNING) {
+		pct_val += DND_THUNDERAXE_WEAKENPCT * CheckActorInventory(victim, "ThunderAxeWeakenTimer");
+	}
 
-	// decide which type of monster resist we will be using for resist variable below
-	int resist = MonsterProperties[mon_id].resists[damage_category];
+	if((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"))
+		pct_val += DND_HOBO_RESISTPCT;
+	
+	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
+		pct_val += DND_DOOMGUY_RESISTPCT;
+
+	// apply pct reduction
+	if(pct_val) {
+		if(pct_val > 100)
+			pct_val = 100;
+		resist = resist * (100 - pct_val) / 100;
+	}
 
 	// if we do full dmg, either do dmg as is or check for pen overpowering the resist, so we can go ahead and do extra damage
 	if(forced_full) {
@@ -918,7 +928,7 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 
 // This function is responsible for handling all damage effects player has that affect their damage some way
 // ex: curses etc.
-int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
+int HandleGenericPlayerDamageEffects(int pnum, int dmg, int wepid) {
 	// little orbs he drops
 	if(CheckInventory("Doomguy_Perk25_Damage"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_DOOMGUY_DMGMULT, DND_DOOMGUY_DMGDIV);
@@ -958,6 +968,10 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg) {
 		dmg *= 3;
 	else if(CheckInventory("TripleDamagePower2"))
 		dmg = dmg * 9 / 2;
+
+	// 30% more effectiveness
+	if(CheckInventory("Cyborg_Perk5") && Weapons_Data[wepid].properties & WPROP_TECH)
+		dmg += dmg * 3 / 10;
 	
 	return dmg;
 }
@@ -996,8 +1010,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 					(IsOccultDamage(damage_type) && IsQuestComplete(0, QUEST_KILLDREAMINGGOD))									||
 					(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
 					(IsExplosionDamage(damage_type) && CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))			||
-					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL))				||
-					((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"));
+					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL));
 
 	// check blocking/invulnerable status of monster -- if they are and we dont have foilinvul on this, no penetration
 	if
@@ -1120,7 +1133,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
 		
 	// CURSE EFFECTS
-	dmg = HandleGenericPlayerDamageEffects(pnum, dmg);
+	dmg = HandleGenericPlayerDamageEffects(pnum, dmg, wepid);
 	
 	// ACCESSORY EFFECTS
 	dmg = HandlePlayerBuffs(source, victim, dmg, damage_type, wepid, flags, no_ignite_stack);
@@ -1190,6 +1203,9 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 		Thing_Damage2(victim, dmg, s_damagetype);
 		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, dmg, source);
+
+		if(isActorAlive(victim) && CheckInventory("Doomguy_Perk50") && IsMonsterIdDemon(victim - DND_MONSTERTID_BEGIN))
+			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
 	}
 	
 	// monster or w.e we shot at died
@@ -2641,12 +2657,8 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	}
 	
 	// energy sources
-	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
-		if(CheckInventory("Cyborg_Perk5"))
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_CYBORG_ENERGYREDUCE);
-
+	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY)
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ENERGY);
-	}
 	
 	// gravecaller unique mod
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_PAINSHAREDWITHPETS)) {
@@ -2730,7 +2742,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 
 	// energy shield reduction
 	temp = CheckInventory("EShieldAmount");
-	if(dmg_string != "PoisonDOT" && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) && temp) {
+	if(temp && ((GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & PPOWER_ESHIELDBLOCKALL) || (dmg_string != "PoisonDOT" && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)))) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
 		if(armor_id != BODYARMOR_LIGHTNINGCOIL)
 			dmg -= temp;

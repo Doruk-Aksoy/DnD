@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -89,7 +89,6 @@ enum {
 #define DND_WANDERER_SPELLEFFICIENCY 4
 #define DND_WANDERER_COOLDOWNBONUS 4
 
-#define DND_CYBORG_ENERGYREDUCE 15
 #define DND_CYBORG_CYBER_MULT 3
 #define DND_CYBORG_CYBER_DIV 10
 

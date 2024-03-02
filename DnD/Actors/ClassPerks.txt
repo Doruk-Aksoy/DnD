@@ -47,6 +47,11 @@ Actor Doomguy_DemonSoul_PickMsg : CustomInventory {
 	}
 }
 
+Actor Doomguy_ResistReduced : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+}
+
 Actor Marine_Perk5 : DnD_Boolean { }
 
 Actor Marine_Perk25 : DnD_Boolean { }

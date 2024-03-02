@@ -646,7 +646,6 @@ Script "DnD Killing Spree Timer" (void) {
 		}
 		
 		// spree ended
-		TakeInventory("Punisher_Perk5_MoveSpeed", 1);
 	}
 }
 
@@ -3404,9 +3403,11 @@ Script 996 (int type, int id) {
 		int i,j;
 		//Give base 1/20 of initial ammo on backpack pickup.
 		for(i = 0; i < MAX_SLOTS - 1; ++i) //Except souls
-			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
-				GiveInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], ((AmmoInfo[i][j].container_value / 5) + (AmmoInfo[i][j].container_value / 5) * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN))/100));
-    }
+			for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+				type = GetAmmoContainerValue(i, j);
+				GiveInventory(AmmoInfo[i][j].name, ((type / 5) + (type / 5) * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN))/100));
+			}
+	}
     else if(type == 1) {
         // give research
         GiveResearch(id, false);
@@ -4799,6 +4800,14 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype) CLIENTSIDE {
 		case DND_ITEM_TOKEN:
 			Playsound(0, "Items/TokenDrop", 6);
 		break;
+		case DND_ITEM_BODYARMOR:
+		case DND_ITEM_BOOT:
+		case DND_ITEM_HELM:
+			Playsound(0, "Items/ArmorEquip", 6);
+		break;
+		case DND_ITEM_POWERCORE:
+			Playsound(0, "Items/PowercoreDrop", 6);
+		break;
 	}
 }
 
@@ -6071,11 +6080,12 @@ Script 68 (int x) NET {
 		}
 		else if(x == 420) {
 			SpawnCharm(0, true);
-			SpawnCharm(0, true);
+			//SpawnCharm(0, true);
 			SpawnArmor(0, true, 0);
-			SpawnToken(0, true);
+			SpawnPowercore(0, true);
+			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
-			SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
+			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 			//SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
 			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);

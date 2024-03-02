@@ -1,0 +1,42 @@
+Actor PowercoreSoundPlayer : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlaySound("Items/PowercoreEquip")
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
+Actor PowercoreDrop : InventoryBase {
+	Renderstyle Translucent
+	Alpha 1.0
+	States {
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Powercore Item Pickup", 0, mass - 1)
+		stop
+	}
+}
+
+Actor PowercoreDrop_0 : PowercoreDrop {
+	States {
+		Spawn:
+			PCOR A 0
+		Goto SpawnInit
+	}
+}
+
+Actor PowercoreDrop_1 : PowercoreDrop {
+	States {
+		Spawn:
+			PCOR B 0
+		Goto SpawnInit
+	}
+}
+
+Actor PowercoreDrop_2 : PowercoreDrop {
+	States {
+		Spawn:
+			PCOR C 0
+		Goto SpawnInit
+	}
+}

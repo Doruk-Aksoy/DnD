@@ -205,6 +205,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 			if(IsWeaponPage(curopt_prev))
 				ClearInfoPanel();
+			else if(IsAmmoPage(curopt_prev))
+				DeleteText(RPGMENUHELPCORNERID);
 		}
 			
 		curopt_prev = curopt;
@@ -559,15 +561,15 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawCharmBox(DND_CHARM_LARGE, boxid, LARGECHARM_INDEX + 1, 236.4, 80.0);
 
 				// armors
-				DrawArmorBox(boxid, BODY_ARMOR_INDEX + 1, 370.4, 96.0, DND_ITEM_BODYARMOR);
-				DrawArmorBox(boxid, BOOT_INDEX + 1, 370.4, 160.0, DND_ITEM_BOOT);
-				// helm
-				// necklace
+				DrawArmorBox(boxid, HELM_INDEX + 1, 394.4, 88.0, DND_ITEM_HELM);
+				DrawArmorBox(boxid, BODY_ARMOR_INDEX + 1, 394.4, 152.0, DND_ITEM_BODYARMOR);
+				DrawArmorBox(boxid, POWERCORE_INDEX + 1, 338.4, 152.0, DND_ITEM_POWERCORE);
+				DrawArmorBox(boxid, BOOT_INDEX + 1, 394.4, 216.0, DND_ITEM_BOOT);
 
-				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 22, 432.4, 264.0);
+				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 26, 432.4, 264.0);
 
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 24, CR_CYAN, 236.4, 32.0, 0.0, 0.0);
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 25, CR_CYAN, 368.4, 32.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 28, CR_CYAN, 236.4, 32.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 29, CR_CYAN, 396.4, 32.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON || curopt == MENU_LOAD_CRAFTING_TRANSMUTING) {
 				SetHudSize(384, 200, 1);

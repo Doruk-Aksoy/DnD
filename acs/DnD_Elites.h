@@ -101,7 +101,15 @@ bool RollEliteChance() {
 
 void SetEliteFlag(int f, bool updateCS) {
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	int i;
 	switch (f) {
+		case DND_EXPLOSIVE_RESIST:
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] < DND_RESIST_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = DND_RESIST_FACTOR;
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] < DND_RESIST_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = DND_RESIST_FACTOR;
+		break;
 		case DND_EXPLOSIVE_IMMUNE:
 			MonsterProperties[this].trait_list[DND_EXPLOSIVE_RESIST] = false;
 			GiveInventory("MakeExplosiveHighResist", 1);
@@ -110,37 +118,66 @@ void SetEliteFlag(int f, bool updateCS) {
 			MonsterProperties[this].trait_list[DND_EXPLOSIVE_RESIST] = false;
 			MonsterProperties[this].trait_list[DND_EXPLOSIVE_IMMUNE] = false;
 			GiveInventory("MakeExplosiveHighResist", 1);
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_BULLET_RESIST:
 			GiveInventory("MakePhysicalResist", 1);
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_BULLET] < DND_RESIST_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_BULLET] = DND_RESIST_FACTOR;
 		break;
 		case DND_BULLET_IMMUNE:
 			MonsterProperties[this].trait_list[DND_BULLET_RESIST] = false;
 			MonsterProperties[this].trait_list[DND_SILVER_WEAKNESS] = false;
 			GiveInventory("MakePhysicalResist", 1);
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_BULLET] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_BULLET] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_ENERGY_RESIST:
 			MonsterProperties[this].trait_list[DND_ENERGY_WEAKNESS] = false;
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] < DND_RESIST_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] = DND_RESIST_FACTOR;
 		break;
 		case DND_ENERGY_IMMUNE:
 			MonsterProperties[this].trait_list[DND_ENERGY_RESIST] = false;
 			MonsterProperties[this].trait_list[DND_ENERGY_WEAKNESS] = false;
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_MAGIC_RESIST:
 			MonsterProperties[this].trait_list[DND_MAGIC_WEAKNESS] = false;
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] < DND_RESIST_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] = DND_RESIST_FACTOR;
 		break;
 		case DND_MAGIC_IMMUNE:
 			MonsterProperties[this].trait_list[DND_MAGIC_RESIST] = false;
 			MonsterProperties[this].trait_list[DND_MAGIC_WEAKNESS] = false;
+
+			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] < DND_IMMUNITY_FACTOR)
+				MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_ELEMENTAL_RESIST:
 			MonsterProperties[this].trait_list[DND_FIRE_WEAKNESS] = false;
 			MonsterProperties[this].trait_list[DND_ICE_WEAKNESS] = false;
+
+			for(i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END; ++i)
+				if(MonsterProperties[this].resists[i] < DND_RESIST_FACTOR)
+					MonsterProperties[this].resists[i] = DND_RESIST_FACTOR;
 		break;
 		case DND_ELEMENTAL_IMMUNE:
 			MonsterProperties[this].trait_list[DND_ELEMENTAL_RESIST] = false;
 			MonsterProperties[this].trait_list[DND_FIRE_WEAKNESS] = false;
 			MonsterProperties[this].trait_list[DND_ICE_WEAKNESS] = false;
+
+			for(i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END; ++i)
+				if(MonsterProperties[this].resists[i] < DND_IMMUNITY_FACTOR)
+					MonsterProperties[this].resists[i] = DND_IMMUNITY_FACTOR;
 		break;
 		
 		case DND_GHOST:

@@ -106,6 +106,8 @@ DND_MOIMG1			=	"ORB3Q0";
 DND_MOIMG2			=	"ORB3Z0";
 DND_MOIMG3			=	"ORB3S0";
 
+// armor images
+
 DND_ARIMG1			=	"ARICO1";			DND_ARWIMG1			=	"ARWICO1";
 DND_ARIMG2			=	"ARICO2";			DND_ARWIMG2			=	"ARWICO2";
 DND_ARIMG3			=	"ARICO3";			DND_ARWIMG3			=	"ARWICO3";
@@ -126,6 +128,11 @@ DND_ARIMG15			=	"ARICO15";			DND_ARWIMG15		=	"ARWICO15";
 
 DND_ARIMG16			=	"ARICO16";			DND_ARWIMG16		=	"ARWICO16";
 DND_ARIMG17			=	"ARICO17";			DND_ARWIMG17		=	"ARWICO17";
+
+// power core images
+DND_PCIMG1			=	"PCORE01";
+DND_PCIMG2			=	"PCORE02";
+DND_PCIMG3			=	"PCORE03";
 	
 DND_KIMG1			=	"SBKGA0";
 DND_KIMG2			=	"SBKGB0";
@@ -180,6 +187,10 @@ DND_TOKEN1			=	"Armorer's Token";
 DND_TOKENTEXT1		=	"Allows to increase the quality of an armor by \cd1%\c-, capped at \cg50%\c-.";
 DND_TOKEN2			=	"Gunsmith's Token";
 DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and removing its quality.";
+
+DND_PCORE1			=	"Copper Powercore";
+DND_PCORE2			=	"Gold Powercore";
+DND_PCORE3			=	"Molybdenum Powercore";
 
 // unique item names
 DND_UNIQUE1				=	"Elemental Bulwark";
@@ -359,6 +370,7 @@ IATTR_TI3			= "to armor and energy shield";
 IATTR_TI4			= "to mitigation chance";
 IATTR_TI5			= "to armor and";
 IATTR_TI6			= "to energy shield and";
+IATTR_TI7			= "Energy shield blocks all damage";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

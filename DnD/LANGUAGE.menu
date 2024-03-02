@@ -177,6 +177,7 @@ DND_MENU_WEPHELPTEXT6	=	"Weapon has attacks that rip through enemies unless they
 DND_MENU_WEPHELPTEXT7	=	"Weapon has attacks that can't be mitigated by any resistance.";
 DND_MENU_WEPHELPTEXT8	=	"Projectiles fired from this weapon can't be \cureflected\c-.";
 DND_MENU_WEPHELPTEXT9	=	"Damage from the weapon can \cqinflict poison\c- on enemies.";
+DND_MENU_WEPHELPTEXT10	=	"Weapon is a \cktech\c- weapon.";
 
 // yeah numbers here aren't the smartest because hypothetically if a balance change were to happen then all languages would need a change but it's too cumbersome to add numbers in between text \_(*__*)_/
 DND_MENU_ATTR1 			=	"\c[INT]Strength\c-";
@@ -345,15 +346,16 @@ DND_MENU_AMMOTEXT38		=	"Sedrin crystals";
 DND_MENU_AMMOTEXT39		=	"batteries";
 DND_MENU_AMMOTEXT40		=	"incinerator shells";
 DND_MENU_AMMOTEXT41		=	"mana";
+DND_MENU_AMMOTEXT42		=	"hammer";
 	
-DND_MENU_AMMOTEXT42		=	"flechette shells. \cuPhysical damage.";
-DND_MENU_AMMOTEXT43		=	"magnum shells. \cuPhysical damage.";
-DND_MENU_AMMOTEXT44		=	"electric shells. \cvLightning damage.";
-DND_MENU_AMMOTEXT45		=	"nitrogen shells. \cnIce damage.";
-DND_MENU_AMMOTEXT46		=	"slug shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT43		=	"flechette shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT44		=	"magnum shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT45		=	"electric shells. \cvLightning damage.";
+DND_MENU_AMMOTEXT46		=	"nitrogen shells. \cnIce damage.";
+DND_MENU_AMMOTEXT47		=	"slug shells. \cuPhysical damage.";
 	
-DND_MENU_AMMOTEXT47		=	"sonic grenades. \ciExplosion\c- and \chEnergy damage.";
-DND_MENU_AMMOTEXT48		=	"high-ex grenades. \ciExplosion damage.";
+DND_MENU_AMMOTEXT48		=	"sonic grenades. \ciExplosion\c- and \chEnergy damage.";
+DND_MENU_AMMOTEXT49		=	"high-ex grenades. \ciExplosion damage.";
 
 // artifacts
 DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";

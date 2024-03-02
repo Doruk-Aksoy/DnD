@@ -8,6 +8,35 @@
 
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
+// Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
+enum {
+	WPROP_NONE,
+	WPROP_CANTHITGHOST = 1,
+	WPROP_SELFDMG = 2,
+	WPROP_OVERHEAT = 4,
+	WPROP_IGNORESHIELD = 8,
+	WPROP_ALTAMMO = 16,
+	WPROP_RIPPER = 32,
+	WPROP_IRREDUCIBLE = 64,
+	WPROP_NOREFLECT = 128,
+	WPROP_POISON = 256,
+	WPROP_TECH = 512
+};
+#define MAX_WEAPON_PROPERTIES 10
+
+str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
+	"WNOGHST",
+	"WSLFDMG",
+	"WOHEAT",
+	"WOSHLD",
+	"WOALT",
+	"WORIP",
+	"WOFULL",
+	"WNOREFL",
+	"WOPOIS",
+	"WOTECH"
+};
+
 enum {
 	DND_WEAPON_FIST,
 	DND_WEAPON_CHAINSAW,
@@ -421,7 +450,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SCATTERGUN].icon = "WEPICO16";
 	Weapons_Data[DND_WEAPON_SCATTERGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SCATTERGUN].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_SCATTERGUN].properties = WPROP_IGNORESHIELD | WPROP_IRREDUCIBLE;
+	Weapons_Data[DND_WEAPON_SCATTERGUN].properties = WPROP_IGNORESHIELD | WPROP_IRREDUCIBLE | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_SCATTERGUN].attunement = STAT_DEX;
 	
 	// SLOT 3 - SHOTGUNS
@@ -549,7 +578,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PLASMACANNON].icon = "WEPICO28";
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PLASMACANNON].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_PLASMACANNON].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_PLASMACANNON].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_PLASMACANNON].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_SHOCKER].name = "ResSSG2";
@@ -558,7 +587,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SHOCKER].icon = "WEPICO29";
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use1 = 5;
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_SHOCKER].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT;
+	Weapons_Data[DND_WEAPON_SHOCKER].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_SHOCKER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_HADES].name = "ResSSG3";
@@ -622,7 +651,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_LEADSPITTER].icon = "WEPICO35";
 	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_LEADSPITTER].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_LEADSPITTER].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_LEADSPITTER].properties = WPROP_TECH;
 	Weapons_Data[DND_WEAPON_LEADSPITTER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DEMONSEALER].name = "Upgraded Machine Gun3";
@@ -658,7 +687,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].icon = "WEPICO39";
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use2 = 8;
-	Weapons_Data[DND_WEAPON_ACIDRIFLE].properties = WPROP_POISON;
+	Weapons_Data[DND_WEAPON_ACIDRIFLE].properties = WPROP_POISON | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].name = "ResMG4";
@@ -667,7 +696,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].icon = "WEPICO40";
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].ammo_use2 = 20;
-	Weapons_Data[DND_WEAPON_FUSIONBLASTER].properties = WPROP_IGNORESHIELD | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_FUSIONBLASTER].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_FUSIONBLASTER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_INCINERATOR].name = "ResMG5";
@@ -712,7 +741,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MPPB].icon = "WEPICO95";
 	Weapons_Data[DND_WEAPON_MPPB].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_MPPB].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_MPPB].properties = WPROP_RIPPER | WPROP_NOREFLECT | WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_MPPB].properties = WPROP_RIPPER | WPROP_NOREFLECT | WPROP_CANTHITGHOST | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_MPPB].attunement = STAT_DEX;
 	
 	// SLOT 5
@@ -776,7 +805,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYGL].icon = "WEPICO49";
 	Weapons_Data[DND_WEAPON_HEAVYGL].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_HEAVYGL].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_HEAVYGL].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_HEAVYGL].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_RIPPER | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_HEAVYGL].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_FREEZER].name = "ResRL3";
@@ -785,7 +814,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FREEZER].icon = "WEPICO50";
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_use1 = 5;
 	Weapons_Data[DND_WEAPON_FREEZER].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_FREEZER].properties = WPROP_RIPPER | WPROP_OVERHEAT;
+	Weapons_Data[DND_WEAPON_FREEZER].properties = WPROP_RIPPER | WPROP_OVERHEAT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_FREEZER].attunement = STAT_INT;
 	
 	Weapons_Data[DND_WEAPON_GRAVDIS].name = "ResRL4";
@@ -794,7 +823,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_GRAVDIS].icon = "WEPICO91";
 	Weapons_Data[DND_WEAPON_GRAVDIS].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_GRAVDIS].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_GRAVDIS].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_GRAVDIS].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_GRAVDIS].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_VOIDCANNON].name = "ResRL5";
@@ -803,7 +832,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VOIDCANNON].icon = "WEPICO96";
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_VOIDCANNON].properties = WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_VOIDCANNON].properties = WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_VOIDCANNON].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].name = "Upgraded Rocket Launcher2";
@@ -830,7 +859,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].icon = "WEPICO53";
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].name = "Sedrin Staff";
@@ -849,7 +878,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].icon = "WEPICO54";
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_PLASMARIFLE].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_PLASMARIFLE].properties = WPROP_TECH;
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].name = "Upgraded Plasma Rifle";
@@ -858,7 +887,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].icon = "WEPICO55";
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_SELFDMG | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_NUCLEARPLASMARIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_TURELCANNON].name = "Upgraded Plasma Rifle2";
@@ -867,7 +896,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_TURELCANNON].icon = "WEPICO56";
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_TURELCANNON].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_TURELCANNON].properties = WPROP_RIPPER | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_TURELCANNON].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_FROSTFANG].name = "Upgraded Plasma Rifle3";
@@ -885,7 +914,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].icon = "WEPICO58";
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_FLAMETHROWER].properties = WPROP_SELFDMG;
+	Weapons_Data[DND_WEAPON_FLAMETHROWER].properties = WPROP_SELFDMG | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].name = "ResPlasma2";
@@ -894,7 +923,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].icon = "WEPICO59";
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].properties = WPROP_TECH;
 	Weapons_Data[DND_WEAPON_LIGHTNINGGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_REBOUNDER].name = "ResPlasma3";
@@ -903,7 +932,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_REBOUNDER].icon = "WEPICO60";
 	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_REBOUNDER].ammo_use2 = 20;
-	Weapons_Data[DND_WEAPON_REBOUNDER].properties = WPROP_OVERHEAT | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_REBOUNDER].properties = WPROP_OVERHEAT | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_REBOUNDER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DARKLANCE].name = "ResPlasma4";
@@ -949,7 +978,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BFG6000].icon = "WEPICO64";
 	Weapons_Data[DND_WEAPON_BFG6000].ammo_use1 = 50;
 	Weapons_Data[DND_WEAPON_BFG6000].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_BFG6000].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_BFG6000].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_BFG6000].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_BFG32768].name = "Upgraded BFG 9000";
@@ -958,7 +987,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BFG32768].icon = "WEPICO65";
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_use1 = 75;
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_BFG32768].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_BFG32768].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_BFG32768].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_DEVASTATOR].name = "Devastator";
@@ -967,7 +996,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEVASTATOR].icon = "WEPICO66";
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use2 = 60;
-	Weapons_Data[DND_WEAPON_DEVASTATOR].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_DEVASTATOR].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_MFG].name = "MFG";
@@ -976,7 +1005,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MFG].icon = "WEPICO67";
 	Weapons_Data[DND_WEAPON_MFG].ammo_use1 = 60;
 	Weapons_Data[DND_WEAPON_MFG].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_MFG].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_MFG].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_MFG].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_IONCANNON].name = "ResBFG1";
@@ -985,7 +1014,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_IONCANNON].icon = "WEPICO68";
 	Weapons_Data[DND_WEAPON_IONCANNON].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_IONCANNON].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_IONCANNON].properties = WPROP_OVERHEAT | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST;
+	Weapons_Data[DND_WEAPON_IONCANNON].properties = WPROP_OVERHEAT | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_IONCANNON].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_THUNDERSTAFF].name = "ResBFG2";
@@ -1003,7 +1032,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].icon = "WEPICO70";
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_GAUSSRIFLE].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_GAUSSRIFLE].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_RAILGUN].name = "Rail gun";
@@ -1012,7 +1041,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RAILGUN].icon = "WEPICO71";
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_RAILGUN].properties = WPROP_IGNORESHIELD | WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_RAILGUN].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_RAILGUN].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DEATHRAY].name = "Death Ray";
@@ -1021,7 +1050,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEATHRAY].icon = "WEPICO88";
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_DEATHRAY].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT;
+	Weapons_Data[DND_WEAPON_DEATHRAY].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_DEATHRAY].attunement = STAT_DEX;
 	
 	// SLOT 8
@@ -1113,7 +1142,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].icon = "WEPICO81";
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].ammo_use2 = 2;
-	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].properties = WPROP_IGNORESHIELD;
+	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].properties = WPROP_IGNORESHIELD | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_ENFORCERRIFLE].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_VENOM].name = "Venom";
@@ -1167,7 +1196,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].icon = "WEPICO87";
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].ammo_use2 = 5;
-	Weapons_Data[DND_WEAPON_PLASMABOLTER].properties = WPROP_RIPPER | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_PLASMABOLTER].properties = WPROP_RIPPER | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_PLASMABOLTER].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].name = "Ripper Cannon";
@@ -1179,34 +1208,6 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].properties = WPROP_RIPPER;
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].attunement = STAT_STR;
 }
-	
-
-// Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
-enum {
-	WPROP_NONE,
-	WPROP_CANTHITGHOST = 1,
-	WPROP_SELFDMG = 2,
-	WPROP_OVERHEAT = 4,
-	WPROP_IGNORESHIELD = 8,
-	WPROP_ALTAMMO = 16,
-	WPROP_RIPPER = 32,
-	WPROP_IRREDUCIBLE = 64,
-	WPROP_NOREFLECT = 128,
-	WPROP_POISON = 256
-};
-#define MAX_WEAPON_PROPERTIES 9
-
-str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
-	"WNOGHST",
-	"WSLFDMG",
-	"WOHEAT",
-	"WOSHLD",
-	"WOALT",
-	"WORIP",
-	"WOFULL",
-	"WNOREFL",
-	"WOPOIS"
-};
 
 // put them in this place if they are luxury weapons
 bool IsLuxuryWeapon(int id) {
@@ -1598,6 +1599,14 @@ str GetWeaponTag(int wepid) {
 	int slot = GetSlotOfWeapon(wepid);
 	int subid = GetWeaponOrderSlot(wepid, slot);
 	return StrParam(s:"WEP_", d:slot, s:"_", d:subid, s:"_TAG");
+}
+
+void GiveOverheat(str item, int amt, int wepid) {
+	if((Weapons_Data[wepid].properties & WPROP_TECH) && CheckInventory("Cyborg_Perk5"))
+		amt -= amt * 3 / 10;
+	if(!amt)
+		amt = 1;
+	GiveInventory(item, amt);
 }
 
 #endif

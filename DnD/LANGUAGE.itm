@@ -42,6 +42,7 @@ DND_AMMO_2_4		=	"Gravity Modules";
 DND_AMMO_2_5		=	"Grenades";
 DND_AMMO_2_6		=	"Heavy Missiles";
 DND_AMMO_2_7		=	"Sedrin Crystals";
+DND_AMMO_2_8		=	"Prometheus' Hammer";
 
 DND_AMMO_3_0		=	"Cells";
 DND_AMMO_3_1		=	"Devastator Rockets";
@@ -52,8 +53,7 @@ DND_AMMO_3_5		=	"Nails";
 DND_AMMO_3_6		=	"Lava Cells";
 DND_AMMO_3_7		=	"Ion Cell";
 DND_AMMO_3_8		=	"Thunder Mana";
-DND_AMMO_3_9		=	"Explosive Shells";
-DND_AMMO_3_10		=	"Gauss Rounds";
+DND_AMMO_3_9		=	"Gauss Rounds";
 
 DND_AMMO_SOULS		=	"Souls";
 

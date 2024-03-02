@@ -3,6 +3,9 @@ Intermission2		INTER2
 Intermission3		INTER3
 Intermission4		INTER4
 
+Items/PowercoreEquip		PCOREPIC
+Items/PowercoreDrop			PCOREDRO
+
 Items/SuccessDisassemble	DISASWIN
 Items/FailDisassemble		DISASLOS
 

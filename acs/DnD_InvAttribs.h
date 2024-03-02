@@ -209,6 +209,7 @@ enum {
 	INV_IMP_INCMIT,
 	INV_IMP_INCMITARMOR,
 	INV_IMP_INCMITSHIELD,
+	INV_IMP_POWERCORE,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
@@ -275,6 +276,7 @@ enum {
 	PPOWER_CANROLLENERGY				=	0b1000000000,
 	PPOWER_CANROLLELEMENTAL				=	0b10000000000,
 	PPOWER_LOWERREFLECT					=	0b100000000000,
+	PPOWER_ESHIELDBLOCKALL				=	0b1000000000000,
 };
 
 // attributes below last_inv (normal rollables) are exotic
@@ -291,7 +293,7 @@ enum {
 #define LAST_CORRUPT_IMPLICIT INV_CORR_WEAPONFORCEPAIN
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_INCMITSHIELD
+#define LAST_REGULAR_IMPLICIT INV_IMP_POWERCORE
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -1181,6 +1183,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_IMP_INCMITSHIELD].attrib_level_modifier = 0;
 	ItemModTable[INV_IMP_INCMITSHIELD].tags = INV_ATTR_TAG_DEFENSE;
 
+	ItemModTable[INV_IMP_POWERCORE].attrib_low = 100000;
+	ItemModTable[INV_IMP_POWERCORE].attrib_high = -1;
+	ItemModTable[INV_IMP_POWERCORE].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_POWERCORE].tags = INV_ATTR_TAG_DEFENSE;
+
 	///////////////////////////////
 	// essences from here on out //
 	///////////////////////////////
@@ -1611,6 +1618,9 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			// armor extras, can't have other implicits of armors together
 			text = GetArmorImplicitExtraText(text, extra);
 		return text;
+		case INV_IMP_POWERCORE:
+			text = StrParam(l:text, s: "\n", s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n", l:"IATTR_T72");
+		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
 			return StrParam(l:GetWeaponTag(extra), s: " ", l:text);
@@ -1945,6 +1955,32 @@ void SetupInventoryTagGroups() {
 			++tag_id;
 		}
 	}
+
+	// powercores
+	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_POWERCORE] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_POWERCORE] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_POWERCORE] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_POWERCORE] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_OCCULT_ID][DND_CRAFTABLEID_POWERCORE] = 0;
+	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
+		tag = ItemModTable[i].tags;
+
+		// we won't roll these, a general rule for now, we can add specifics later perhaps
+		if((tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE) || (tag & INV_ATTR_TAG_CRIT) || (tag & INV_ATTR_TAG_MELEE) || (tag & INV_ATTR_TAG_OCCULT))
+			continue;
+
+		tag_id = 0;
+		// can have multiple
+		while(tag > 0) {
+			if(tag & 1) {
+				AttributeTagGroups[tag_id][DND_CRAFTABLEID_POWERCORE][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_POWERCORE]] = i;
+				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_POWERCORE];
+				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
+			}
+			tag >>= 1;
+			++tag_id;
+		}
+	}
 }
 
 int MapItemTypeToCraftableID(int type) {
@@ -1953,8 +1989,8 @@ int MapItemTypeToCraftableID(int type) {
 		return DND_CRAFTABLEID_BODYARMOR;
 		case DND_ITEM_BOOT:
 		return DND_CRAFTABLEID_BOOT;
-		case DND_ITEM_NECKLACE:
-		return DND_CRAFTABLEID_NECKLACE;
+		case DND_ITEM_POWERCORE:
+		return DND_CRAFTABLEID_POWERCORE;
 	}
 	return DND_CRAFTABLEID_CHARM;
 }

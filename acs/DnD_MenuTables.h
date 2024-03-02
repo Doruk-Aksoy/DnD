@@ -429,6 +429,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 100,		1,		-1 },
 
 		{ 110,		1,		-1 },
+		{ 250,		1,		-1 },
 		
 		// Special Ammunition
 		{ 500,	    1, 		-1 },
@@ -508,11 +509,14 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 	// wep slot 3 - 2
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		{ RES_SLOT3SSGUPG1, -1, -1 },
 		{ RES_SLOT3SSGUPG2, -1, -1 },
 		{ RES_SLOT3SSGUPG3, -1, -1 },
 		{ RES_SLOT3SSGUPG4, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
+
+	// wep slot 3 - 3
 		{ RES_SLOT3LUXURY, -1, -1 },
 		
 	// wep slot 4 - 1
@@ -594,7 +598,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT6LUXURY, -1, -1 },
 		{ RES_SLOT7LUXURY, -1, -1 },
 		{ RES_SLOT3LUXURY, -1, -1 },
-		{ RES_SLOT2LUXURY, -1, -1 },
+		{ -1, -1, -1 },
 		{ RES_SLOT3SSGUPG1, -1, -1 },
 		{ RES_SLOT4UPG2, -1, -1 },
 		{ RES_SLOT5UPG1, -1, -1 },
@@ -627,6 +631,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT4UPG5, -1, -1 },
 
 	// ammo 5
+		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		
 	// ammo special
@@ -695,7 +700,7 @@ str GetItemName(int id) {
 		case TYPE_AMMO:
 			if(id < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				type = ShopAmmoIndexToRegularAmmoIndex(id - SHOP_FIRSTAMMO_INDEX);
-				name = AmmoInfo_Str[type >> 16][type & 0xFFFF][AMMOINFO_NAME];
+				name = AmmoInfo[type >> 16][type & 0xFFFF].name;
 			}
 			else
 				name = SpecialAmmoInfo_Str[id - SHOP_FIRSTAMMOSPECIAL_INDEX][AMMOINFO_NAME];
@@ -1091,6 +1096,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_GL,
 		SHOP_AMMO_MIS,
 		SHOP_AMMO_SEDRIN,
+		SHOP_AMMO_HAMMER,
 		-1
 	},
 	// category 4
@@ -1170,6 +1176,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_INCINERATOR		},
 
 	{ OBJ_AMMO,													SHOP_AMMO_AXEMANA			},
+	{ OBJ_AMMO,													SHOP_AMMO_HAMMER			},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1230,6 +1237,7 @@ int AmmoCounts[MAXSHOPAMMOS][2] = {
 	{ 10, DND_WEAPON_CHARONBLASTER },
 	{ 8, DND_WEAPON_INCINERATOR },
 	{ 6, DND_WEAPON_AXE },
+	{ 1, DND_WEAPON_HAMMER },
 	
 	// special
 	{ 8, -1 },

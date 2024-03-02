@@ -11,6 +11,7 @@ DND_PICKUP_TOKEN						= "Token pickup";
 DND_PICKUP_CHARM						= "Charm pickup";
 DND_PICKUP_ARMOR						= "Armor pickup";
 DND_PICKUP_BONUS						= "Bonus pickup";
+DND_PICKUP_POWERCORE					= "Powercore pickup";
 
 DND_KILLS								= "Kills";
 DND_PLAYER								= "Player";
@@ -214,6 +215,7 @@ DND_POPUP_NOTENOUGHSPACE					=	"You don't have enough space!";
 DND_POPUP_SCAVENGECONFIRM					=	"Disassemble the item for ";
 DND_POPUP_OWNNFT							=	"You already own this NFT... idiot.";
 DND_POPUP_NOTENOUGHMATERIALS				=	"Not enough materials to combine!";
+DND_POPUP_CANTUSEPOWERCORE					=	"You can't use a power core!";
 
 // exceptions for some character sheet text
 DND_IGNITEDAMAGE							=	"ignite damage";

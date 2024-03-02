@@ -1234,6 +1234,13 @@ bool IsRobotic() {
 	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_ROBOTIC_POW;
 }
 
+bool IsActorRobotic(int tid) {
+	int monsterID = MonsterProperties[tid - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & DND_MTYPE_ROBOTIC_POW;
+	return CheckActorInventory(tid, "MonsterTypeToken") & DND_MTYPE_ROBOTIC_POW;
+}
+
 bool IsActorFullRobotic(int tid) {
 	int monsterID = MonsterProperties[tid - DND_MONSTERTID_BEGIN].id;
 	if(monsterID < MONSTER_CUSTOM)

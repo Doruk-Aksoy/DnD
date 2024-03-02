@@ -115,11 +115,16 @@ int SpecialAmmoRanges[SPECIALAMMO_TYPE_MAX][SPECIALAMMO_PERWEAPON_MAX] = {
 #define MAXSPECIALAMMOCATEGORY 2
 #define MAXSPECIALAMMOTYPES (AMMO_SLUGSHELL + 1)
 
+#define AMMOINFO_ICON 0
+#define AMMOINFO_NAME 1
+
 // yeah these are ugly I know, but so is this special ammo system, maybe one day I'll rewrite it if I think of a clean way to do it... maybe
 str GetSpecialAmmoString(int id, int which) {
 	switch(id) {
 		case AMMO_BASICSHELL:
-		return AmmoInfo_Str[DND_AMMOSLOT_SHELL][AMMO_SHELL][which];
+			if(which == AMMOINFO_ICON)
+				return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_SHELL].icon;
+			return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_SHELL].name;
 		case AMMO_FLECHETTE:
 		return SpecialAmmoInfo_Str[SSAM_FLECHETTE][which];
 		case AMMO_PIERCING:
@@ -128,20 +133,28 @@ str GetSpecialAmmoString(int id, int which) {
 		return SpecialAmmoInfo_Str[SSAM_SHOCK][which];
 		
 		case AMMO_BULLET:
-		return AmmoInfo_Str[DND_AMMOSLOT_CLIP][AMMO_CLIP][which];
+			if(which == AMMOINFO_ICON)
+				return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_CLIP].icon;
+			return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_CLIP].name;
 		case AMMO_BASICGRENADE:
-		return AmmoInfo_Str[DND_AMMOSLOT_ROCKET][AMMO_GRENADE][which];
+			if(which == AMMOINFO_ICON)
+				return AmmoInfo[DND_AMMOSLOT_ROCKET][AMMO_GRENADE].icon;
+			return AmmoInfo[DND_AMMOSLOT_ROCKET][AMMO_GRENADE].name;
 		case AMMO_40MMSONIC:
 		return SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][which];
 		case AMMO_40MMHEGRENADE:
 		return SpecialAmmoInfo_Str[SSAM_40MMHE - 1][which];
 		
 		case AMMO_RIOTSHELL:
-		return AmmoInfo_Str[DND_AMMOSLOT_CLIP][AMMO_RIOT][which];
+			if(which == AMMOINFO_ICON)
+				return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_RIOT].icon;
+			return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_RIOT].name;
 		case AMMO_NITROGENSHELL:
 		return SpecialAmmoInfo_Str[SSAM_NITROSHELL][which];
 		case AMMO_EXPLOSIVESHELL:
-		return AmmoInfo_Str[DND_AMMOSLOT_SHELL][AMMO_EXSHELL][which];
+			if(which == AMMOINFO_ICON)
+				return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].icon;
+			return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name;
 		case AMMO_SLUGSHELL:
 		return SpecialAmmoInfo_Str[SSAM_SLUG][which];
 	}

@@ -19,7 +19,7 @@ CLASS0_TEXT				= "The original hero. Mean, tough and ready to kick ass of the de
 
 CLASS0_PERK1			= "Damage taken from demons is reduced by 10%.";
 CLASS0_PERK2			= "Demons have 5% chance to drop their essence. Anyone can pick these to heal for 1% of enemy max health and gain 18% more damage for 5 seconds.";
-CLASS0_PERK3			= "Attacks ignore resists of demons.";
+CLASS0_PERK3			= "Attacks reduce resists of demons by 33% for 5 seconds.";
 
 // Marine
 
@@ -47,7 +47,7 @@ CLASS2_TEXT				= "Can't tie him, a loose cannon. He'll do whatever he god damn p
 
 CLASS2_PERK1			= "Shotgun weapons have 20% discount.";
 CLASS2_PERK2			= "Shotguns do 30% more damage.";
-CLASS2_PERK3			= "Shotguns do irreducible damage, and have 50% more pellets.";
+CLASS2_PERK3			= "Shotguns have 50% resist penetration, and have 50% more pellets.";
 
 // Punisher
 
@@ -59,7 +59,7 @@ CLASS3_MUGSHOT			= "BADEVL0";
 CLASS3_TEXT				= "Was a chill guy, until the fateful day his wife died and his dog was murdered right before his very eyes... "
 						  "Ever since, he hasn't been the same, it's as if something ticked in him and he became the greatest murder machine...";
 
-CLASS3_PERK1			= "Being on a killing spree gives 10% movement speed.";
+CLASS3_PERK1			= "Being on a killing spree gives 10% movement speed as well as 10% of current weapon's ammo capacity for starting the spree.";
 CLASS3_PERK2			= "At the end of at least the \ckMerciless\c- killing spree, heal for 24% + 8% per spree of your max health.";
 CLASS3_PERK3			= "Every 10 kills you get increases your damage by 4% for that map. Caps at 400%.";
 
@@ -87,8 +87,8 @@ CLASS5_MUGSHOT			= "CYGEVL0";
 CLASS5_TEXT				= "Finest specimen from the Russian laboratories, the Cyborg is employed when all negotiations have failed. "
 						  "The last thing many see is the cold metallic enforcer's visage, before they perish.";
 
-CLASS5_PERK1			= "Energy attacks deal 15% less damage to you.";
-CLASS5_PERK2			= "Cybernetic equipments are 30% more effective.";
+CLASS5_PERK1			= "Cybernetic equipments are 30% more effective.";
+CLASS5_PERK2			= "Can make use of Power Cores in the equipment slot.";
 CLASS5_PERK3			= "Energy weapons do irreducible damage.";
 
 // Berserker

@@ -749,10 +749,14 @@ void HandleChestDrops(int ctype) {
 		SpawnOrbForAll(random(3, 5));
 		if(RunDefaultDropChance(pnum, 0.75))
 			SpawnTokenForAll(1);
+		if(RunDefaultDropChance(pnum, 0.5))
+			SpawnPowercoreForAll(1);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
 		SpawnOrbForAll(random(5, 8));
 		SpawnTokenForAll(1);
+		SpawnPowercoreForAll(1);
+		SpawnArmorForAll(1);
 	}
 	
 	// common to all chests, an extra orb can drop with 33% chance and another with 20%
@@ -763,8 +767,9 @@ void HandleChestDrops(int ctype) {
 }
 
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
-void HandleItemDrops(int drop_boost, int rarity_boost) {
+void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
+	bool mon_robot = IsActorRobotic(tid);
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
@@ -777,10 +782,13 @@ void HandleItemDrops(int drop_boost, int rarity_boost) {
 				SpawnToken(i, true);
 
 			if(ignoreWeight || RunDefaultDropChance(i, DND_BASEARMOR_DROP * drop_boost ))
-				SpawnArmor(i, rarity_boost, true);
+				SpawnArmor(i, rarity_boost, true, 0);
 
 			if(ignoreWeight || RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100))
 				SpawnCharm(i, rarity_boost);
+
+			if(ignoreWeight || (mon_robot && RunDefaultDropChance(i, DND_BASE_POWERCORERATE * drop_boost / 100)))
+				SpawnPowercore(i, rarity_boost, true);
 		}
 	}
 }
@@ -953,7 +961,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	// new: we let every monster drop orbs, not just elites but with an overall lower chance
 	//if(GetCVar("dnd_ignore_dropweights") || isElite) {
 		// handle orb drops
-	HandleItemDrops(MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
+	HandleItemDrops(tid, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	//}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
@@ -1097,8 +1105,22 @@ void ActivateKillingSpree() {
 			GiveInventory("RavagerPower", 1);
 		
 		// punisher perk -- be on cruel or more
-		if(CheckInventory("Punisher_Perk5") && (CheckInventory("DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1)
+		if(CheckInventory("Punisher_Perk5") && (CheckInventory("DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) {
+			if(!CheckInventory("Punisher_Perk5_MoveSpeed")) {
+				int wepid = CheckInventory("DnD_WeaponID");
+				if(GetSlotOfWeapon(wepid) != 9) {
+					if(Weapons_Data[wepid].ammo_name1 != "" && Weapons_Data[wepid].ammo_name1 != "Souls") {
+						GiveInventory(Weapons_Data[wepid].ammo_name1, GetAmmoCapacity(Weapons_Data[wepid].ammo_name1) / 10);
+						LocalAmbientSound("items/ammo", 90);
+					}
+					if(Weapons_Data[wepid].ammo_name2 != "" && Weapons_Data[wepid].ammo_name2 != "Souls") {
+						GiveInventory(Weapons_Data[wepid].ammo_name2, GetAmmoCapacity(Weapons_Data[wepid].ammo_name2) / 10);
+						LocalAmbientSound("items/ammo", 90);
+					}
+				}
+			}
 			GiveInventory("Punisher_Perk5_MoveSpeed", 1);
+		}
 	}
 	// give spree counter
 	GiveInventory("DnD_SpreeTimer", DND_SPREE_AMOUNT);

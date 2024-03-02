@@ -537,13 +537,13 @@ void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
 		}
 		else {
 			int shopindex = MenuAmmoIndexMap[slot][ammoindex] - SHOP_FIRSTAMMO_INDEX;
-			toshow = GetTextWithResearch(AmmoInfo_Str[slot][ammoindex][AMMOINFO_ICON], "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
+			toshow = GetTextWithResearch(AmmoInfo[slot][ammoindex].icon, "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
 		}
 	}
 
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 108.4, 84.0, 0.0, 0.0);
 		SetFont("SMALLFONT");
 	}
 	else
@@ -1105,7 +1105,7 @@ void ResetWeaponStats(int wepid) {
 int GetBulkPriceForAmmo(int itemid) {
 	int id = GetAmmoSlotAndIndexFromShop(itemid);
 	int temp = 0, count = 0;
-	str ammo = AmmoInfo_Str[id & 0xFFFF][id >> 16][AMMOINFO_NAME];
+	str ammo = AmmoInfo[id & 0xFFFF][id >> 16].name;
 	if(CheckInventory(ammo) < GetAmmoCapacity(ammo)) {
 		int price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
 		temp = GetAmmoToGive(itemid);
@@ -1337,7 +1337,7 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 				// count was overcounting before
 				--count;
 				if(slot != -1)
-					count += (GetAmmoCapacity(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME]) - CheckInventory(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME])) / amt;
+					count += (GetAmmoCapacity(AmmoInfo[slot][itemid].name) - CheckInventory(AmmoInfo[slot][itemid].name)) / amt;
 				else
 					count += (GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME])) / amt;
 				price = price * count;
@@ -1350,7 +1350,7 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 					amt *= count;
 					// we can indeed afford to buy a complete fill, check for remainder ammo from bulk purchase -- like 28 shells, need 32 but each buy gives 10 so 2 remains
 					if(slot != -1)
-						buystatus = GetAmmoCapacity(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME]) - (CheckInventory(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME]) + amt);
+						buystatus = GetAmmoCapacity(AmmoInfo[slot][itemid].name) - (CheckInventory(AmmoInfo[slot][itemid].name) + amt);
 					else
 						buystatus = GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - (CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) + amt);
 					if(buystatus) {
@@ -1368,7 +1368,7 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 			// we're OK now
 			TakeCredit(price);
 			if(slot != -1)
-				GiveInventory(AmmoInfo_Str[slot][itemid][AMMOINFO_NAME], amt);
+				GiveInventory(AmmoInfo[slot][itemid].name, amt);
 			else
 				GiveInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME], amt);
 			ShopStockRemaining[PlayerNumber()][shop_index] -= amt;
@@ -1562,10 +1562,10 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 265.0, 282.0, 225.0, 200.0 },
 			
 			// rightside -- armors
-			{ 135.0, 248.0, 86.0, 202.0 },
-			{ 135.0, 184.0, 86.0, 138.0 },
-			{ 0, 0, 0, 0 },
-			{ 0, 0, 0, 0 },
+			{ 112.0, 257.0, 62.0, 207.0 },
+			{ 112.0, 193.0, 62.0, 143.0 },
+			{ 161.0, 193.0, 111.0, 143.0 },
+			{ 112.0, 129.0, 62.0, 79.0 },
 
 			// inv explore icon
 			{ 58.0, 66.0, 38.0, 48.0 },
@@ -1864,6 +1864,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 165.0, 96.0, 157.0 }, // w6
 			{ 289.0, 149.0, 96.0, 141.0 }, // w7
 			{ 289.0, 133.0, 96.0, 125.0 }, // w8
+			{ 289.0, 117.0, 96.0, 109.0 }, // w9
 			{ -1, -1, -1, -1 }
 		},
 		// ammo 4
@@ -2767,39 +2768,43 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
-		if(boxid == thisboxid) {
-			if(!CheckInventory("DnD_InventoryView"))
-				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
-		}
+		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
+			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
 	}
 	else {
 		switch(armor_slot) {
 			case DND_ITEM_BODYARMOR:
 				SetFont("ARMBAK");
 			break;
+			case DND_ITEM_POWERCORE:
+				if(!CheckInventory("Cyborg_Perk25"))
+					SetFont("PCORBAKB");
+				else
+					SetFont("PCORBAK");
+			break;
+			case DND_ITEM_HELM:
+				SetFont("HELMBAK");
+			break;
 			case DND_ITEM_BOOT:
-				SetFont("TNT1A0");
+				SetFont("BOOTBAK");
 			break;
 		}
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 26 - thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 30 - thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
 	}
 
-	if(boxid != thisboxid)
-		SetFont("ARMSELB");
-	else
+	if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
 		SetFont("ARMSELG");
+	else
+		SetFont("ARMSELB");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
 void DrawInventoryExploreIcon(int boxid, int thisboxid, int id, int x, int y) {
-	SetFont("INVCICO");
-	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_CYAN, x, y, 0.0, 0.0);
-
 	SetFont("ICOBSML");
 	if(boxid == thisboxid && !CheckInventory("DnD_InventoryView")) // don't highlight in inventory view
 		SetFont("ICOGSML");
-	HudMessage(s:"A"; HUDMSG_PLAIN, id - 1, CR_CYAN, x, y, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_CYAN, x, y, 0.0, 0.0);
 	SetFont("SMALLFONT");
 }
 
@@ -3116,7 +3121,7 @@ void HandleM2Inputs(int pnum, int boxid, int source, int seloffset, int prevsour
 
 void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 	int bid;
-	int epos, ipos;
+	int epos, ipos, temp;
 	if(choice == DND_MENUINPUT_LCLICK) {
 		if(boxid != MAINBOX_NONE) {
 			// m1
@@ -3159,16 +3164,29 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 				SetInventory("DnD_SelectedInventoryBox", 0);
 			LocalAmbientSound("RPG/MenuChoose", 127);
 		}
-		else if(CheckInventory("DnD_SelectedInventoryBox") && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
+		else if(CheckInventory("DnD_SelectedInventoryBox") && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 			// drop selected item
 			DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("DnD_SelectedInventoryBox", 0);
-			ActivatorSound("Items/Drop", 127);
+			PlayItemDropSound(temp, true);
 		}
 	}
 	else if(choice == DND_MENUINPUT_RCLICK)
 		HandleM2Inputs(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+}
+
+void PlayItemDropSound(int type, bool use_activator_sound) {
+	str snd = "Items/Drop";
+	if(type == DND_ITEM_BODYARMOR)
+		snd = "Items/ArmorEquip";
+	else if(type == DND_ITEM_POWERCORE)
+		snd = "Items/PowercoreDrop";
+
+	if(!use_activator_sound)
+		LocalAmbientSound(snd, 127);
+	else
+		ActivatorSound(snd, 127);
 }
 
 // charm page controls
@@ -3179,6 +3197,12 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		if(boxid != MAINBOX_NONE) {
 			// we pressed an item box
 			if(!CheckInventory("DnD_InventoryView")) {
+				// don't let user even click this if they aren't allowed
+				if(boxid - 1 == POWERCORE_INDEX && !CheckInventory("Cyborg_Perk25")) {
+					ShowPopup(POPUP_CANTUSEPOWERCORE, false, 0);
+					return;
+				}
+
 				GiveInventory("DnD_InventoryView", 1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				if(boxid != DND_INV_ICON_BOXID)
@@ -3190,31 +3214,37 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				item_type = DND_ITEM_NULL;
 				topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
 				if(item_sel) {
+					--item_sel;
 					switch(item_sel) {
-						case MBOX_1:
-						case MBOX_2:
-						case MBOX_3:
-						case MBOX_4:
+						case SMALLCHARM_INDEX1:
+						case SMALLCHARM_INDEX2:
+						case SMALLCHARM_INDEX3:
+						case SMALLCHARM_INDEX4:
 							item_type = DND_ITEM_CHARM;
 							item_subt = DND_CHARM_SMALL;
 						break;
-						case MBOX_5:
-						case MBOX_6:
+						case MEDIUMCHARM_INDEX1:
+						case MEDIUMCHARM_INDEX2:
 							item_type = DND_ITEM_CHARM;
 							item_subt = DND_CHARM_MEDIUM;
 						break;
-						case MBOX_7:
+						case LARGECHARM_INDEX:
 							item_type = DND_ITEM_CHARM;
 							item_subt = DND_CHARM_LARGE;
 						break;
-						case MBOX_8:
+						case HELM_INDEX:
+							item_type = DND_ITEM_HELM;
+						break;
+						case BODY_ARMOR_INDEX:
 							item_type = DND_ITEM_BODYARMOR;
 						break;
-						case MBOX_9:
+						case POWERCORE_INDEX:
+							item_type = DND_ITEM_POWERCORE;
+						break;
+						case BOOT_INDEX:
 							item_type = DND_ITEM_BOOT;
 						break;
 					}
-					--item_sel;
 					
 					if(topboxid != -1 && (PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) == item_type) {
 						// this returns popupid to show, and -1 if it was ok
@@ -3222,9 +3252,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						if(temp == -1) {
 							if(item_type == DND_ITEM_CHARM)
 								LocalAmbientSound("Items/CharmDrop", 127);
-							else
+							else if(item_type != DND_ITEM_POWERCORE)
 								LocalAmbientSound("Items/ArmorEquip", 127);
-
+							else
+								LocalAmbientSound("Items/PowercoreEquip", 127);
 							TakeInventory("DnD_InventoryView", 1);
 							SetInventory("DnD_SelectedCharmBox", 0);
 							GiveInventory("DnD_CleanInventoryRequest", 1);
@@ -3252,11 +3283,11 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				// ok we are in inventory view
 				if(CheckInventory("DnD_SelectedInventoryBox")) {
 					// we have selected a box previously, if this has an item drop it otherwise clear it
-					if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != DND_ITEM_NULL) {
+					if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 						// drop selected item
 						DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-						ActivatorSound("Items/Drop", 127);
+						PlayItemDropSound(temp, true);
 					}
 					// clear selection
 					SetInventory("DnD_SelectedInventoryBox", 0);
@@ -3277,10 +3308,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			// try to drop item
 			item_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			if(item_sel != -1) {
-				if(Items_Used[pnum][boxid - 1].item_type == DND_ITEM_BODYARMOR)
-					LocalAmbientSound("Items/ArmorEquip", 127);
-				else
-					LocalAmbientSound("Items/CharmDrop", 127);
+				PlayItemDropSound(Items_Used[pnum][boxid - 1].item_type, false);
 				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
 				MoveItemTrade(pnum, boxid - 1, item_sel, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
@@ -4899,20 +4927,6 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_MELEERANGE, 0, 0, val), s:"\n");
 				++k;
 			}
-
-			// non-magical dmg
-			/*val = GetRangedBonus(pnum);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_NONMAGICDMG", s:"\n");
-				++k;
-			}
-			
-			// magical dmg
-			val = GetRangedBonus(pnum, true);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_MAGICDMG", s:"\n");
-				++k;
-			}*/
 
 			// accuracy
 			val = GetActorProperty(0, APROP_ACCURACY);

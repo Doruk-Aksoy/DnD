@@ -22,7 +22,7 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 				GiveInventory("BladeCharge", 100);
 		}
 		else
-			GiveInventory(AmmoInfo_Str[slot][ammo][AMMOINFO_NAME], amount);
+			GiveInventory(AmmoInfo[slot][ammo].name, amount);
 	}
 }
 
@@ -1261,9 +1261,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			proj_id = DND_PROJ_FREEZER;
 			if(!(isAltFire & DND_ATK_OTHER_DIR))
-				GiveInventory("FreezerOverheat", 5);
+				GiveOverheat("FreezerOverheat", 5, DND_WEAPON_FREEZER);
 			else {
-				GiveInventory("FreezerOverheat", 10);
+				GiveOverheat("FreezerOverheat", 10, DND_WEAPON_FREEZER);
 				sp_x = 2.0;
 				sp_y = 2.0;
 			}
@@ -1285,7 +1285,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_NUCLEARPLASMARIFLE:
 			use_default = true;
 			proj_id = DND_PROJ_NUCLEARPLASMA;
-			GiveInventory("PlasmaOverheat", 2);
+			GiveOverheat("PlasmaOverheat", 2, DND_WEAPON_NUCLEARPLASMARIFLE);
 			if(CheckInventory("PlasmaOverheat") == 100)
 				GiveInventory("PlasmaOverheatCooldown", 1);
 		break;
@@ -1393,7 +1393,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			vec2[angle_vec].x = 1.0;
 			vec3[offset_vec].z = 5.0; // 32 + 9 = 41, we assume 36 so 5.0
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
-				GiveInventory("RebounderOverheat", 3);
+				GiveOverheat("RebounderOverheat", 3, DND_WEAPON_REBOUNDER);
 				count = CheckInventory("RebounderOverheat");
 				// every 15 adds 1 up to 60, then its capped
 				if(count < 15)
@@ -1404,7 +1404,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			else {
 				// secondary of rebounder is in the array for HUD, we still use cells here
 				ammo_type = Weapons_Data[wepid].ammo_name1;
-				GiveInventory("RebounderOverheat", 18);
+				GiveOverheat("RebounderOverheat", 10, DND_WEAPON_REBOUNDER);
 				Do_Projectile_Attack_Named(owner, pnum, "RebounderProjectileAlt", wepid, 1, 48, angle_vec, offset_vec, 0, 0, 0);
 			}
 		break;
@@ -1821,7 +1821,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 Script "DnD Load Weapon Information" OPEN {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_WEAPONDATA)) {
 		SetupProjectileData();
+		Delay(const:5);
 		SetupWeaponData();
+		Delay(const:5);
+		SetupAmmoInfos();
 		SetupComplete(SETUP_STATE1, SETUP_WEAPONDATA);
 	}
 }
@@ -1831,6 +1834,8 @@ Script "DnD Load Weapon Information CS" OPEN CLIENTSIDE {
 		// clients dont need proj data so far!
 		//SetupProjectileData();
 		SetupWeaponData();
+		Delay(const:5);
+		SetupAmmoInfos();
 		SetupComplete(SETUP_STATE1, SETUP_WEAPONDATA);
 	}
 }
@@ -1962,19 +1967,11 @@ Script "DnD Get Melee Range Increase" (int safety_for_inv) {
 }
 
 Script "DnD Thunder Axe Weaken" (void) {
-	int mon_id = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	int base_res = MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_LIGHTNING];
-
-	// set it to this from the get-go
-	MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = base_res * (100 - DND_THUNDERAXE_WEAKENPCT) / 100;
-
 	while(IsAlive() && CheckInventory("ThunderAxeWeakenTimer")) {
 		Delay(const:7);
 		TakeInventory("ThunderAxeWeakenTimer", 1);
 	}
-	
 	SetInventory("ThunderAxeWeakenTimer", 0);
-	MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = base_res;
 	
 	SetResultValue(0);
 }

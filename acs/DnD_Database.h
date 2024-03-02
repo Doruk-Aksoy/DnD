@@ -387,9 +387,9 @@ void SavePlayerData(int pnum, int char_id) {
 	// save ammo counts
 	for(i = 0; i < MAX_SLOTS; ++i)
 		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-			temp = CheckActorInventory(tid, AmmoInfo_Str[i][j][AMMOINFO_NAME]);
+			temp = CheckActorInventory(tid, AmmoInfo[i][j].name);
 			// send temp over
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc, temp);
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, temp);
 		}
 		
 	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
@@ -906,8 +906,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read each ammo count
 	for(i = 0; i < MAX_SLOTS; ++i)
 		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-			temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc);
-			SetInventory(AmmoInfo_Str[i][j][AMMOINFO_NAME], temp);
+			temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc);
+			SetInventory(AmmoInfo[i][j].name, temp);
 		}
 	
 	// read special ammos
@@ -1176,7 +1176,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	// reset ammo counts
 	for(i = 0; i < MAX_SLOTS; ++i)
 		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc, 0);
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 0);
 		}
 	
 	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i)
@@ -1312,9 +1312,9 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	for(i = 0; i < MAX_SLOTS; ++i)
 		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			if(i != DND_AMMOSLOT_CLIP || j != AMMO_CLIP)
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc, 0);
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 0);
 			else
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo_Str[i][j][AMMOINFO_NAME]), pacc, 50);
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 50);
 		}
 	
 	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i)
