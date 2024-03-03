@@ -1849,7 +1849,6 @@ ACTOR "Death Ray" : Weapon
 			ERWE F 1 Bright Offset(0, 45)
 			ERWE F 1 Bright Offset(1, 47)
 			TNT1 A 0 A_PlaySound("DeathRay/Fire", 5)
-			TNT1 A 0 A_GiveInventory("DeathRayOverheat", 40)
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 36 * (1 + sin(-pitch)), 0, 0, 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEATHRAY, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_ION << 16), DND_ATF_NOAMMOGAINCHECK)
 			ERWE G 1 Bright Offset(1, 52)

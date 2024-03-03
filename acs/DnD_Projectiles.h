@@ -152,9 +152,11 @@ enum {
 	DND_PROJ_NITROSHELL,
 	DND_PROJ_GRENADESPECIAL,
 	DND_PROJ_HEGRENADE,
-	DND_PROJ_SONICGRENADE
+	DND_PROJ_SONICGRENADE,
+
+	DND_PROJ_INSTABILITY
 };
-#define MAX_PROJECTILE_TYPES (DND_PROJ_SONICGRENADE + 1)
+#define MAX_PROJECTILE_TYPES (DND_PROJ_INSTABILITY + 1)
 
 global proj_data_T 30: ProjectileInfo[MAX_PROJECTILE_TYPES];
 
@@ -663,6 +665,11 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_SONICGRENADE].name = "SonicGrenade";
 	ProjectileInfo[DND_PROJ_SONICGRENADE].flags = DND_PROJ_HASGHOSTHITTER;
 	ProjectileInfo[DND_PROJ_SONICGRENADE].spd_range = 32;
+
+	// Class perks or special
+	ProjectileInfo[DND_PROJ_INSTABILITY].name = "InstabilityBlast";
+	ProjectileInfo[DND_PROJ_INSTABILITY].flags = WPROP_NOREFLECT | WPROP_IGNORESHIELD;
+	ProjectileInfo[DND_PROJ_INSTABILITY].spd_range = 60;
 }
 
 #endif

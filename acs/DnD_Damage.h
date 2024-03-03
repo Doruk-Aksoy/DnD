@@ -592,6 +592,9 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	
 	// Get the cached flat dmg and factor and apply them both
 	temp = GetCachedPlayerFlatDamage(pnum, wepid, dmgid);
+	range = CheckActorInventory(tid, "Cyborg_InstabilityStack");
+	if(range == DND_MAXCYBORG_INSTABILITY && IsTechWeapon(wepid))
+		temp += DND_DMG_PER_INSTABILITY * range;
 	
 	// isSpecial isn't used or kept track of below here, so re-use
 	// 66% effectiveness of damage scaling on tracer -- dmgid is 1 on tracers
@@ -766,7 +769,7 @@ int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category,
 	return dmg * factor / 100;
 }
 
-int FactorResists(int source, int victim, int dmg, int damage_type, int actor_flags, int flags, bool forced_full, int wepid, bool wep_neg = false) {
+int FactorResists(int source, int victim, int dmg, int damage_type, int actor_flags, int flags, bool forced_full, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type, flags);
@@ -775,7 +778,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
 	// added crit ignore res modifier here from below
-	forced_full |= 	(!wep_neg && (actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100));
+	forced_full |= (!wep_neg && (actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100));
 	
 	int resist = MonsterProperties[mon_id].resists[damage_category];
 	int temp;
@@ -970,7 +973,7 @@ int HandleGenericPlayerDamageEffects(int pnum, int dmg, int wepid) {
 		dmg = dmg * 9 / 2;
 
 	// 30% more effectiveness
-	if(CheckInventory("Cyborg_Perk5") && Weapons_Data[wepid].properties & WPROP_TECH)
+	if(wepid >= 0 && CheckInventory("Cyborg_Perk5") && (Weapons_Data[wepid].properties & WPROP_TECH))
 		dmg += dmg * 3 / 10;
 	
 	return dmg;
@@ -1080,7 +1083,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// handle resists and all that here
 	//printbold(s:"res calc");
 	temp = dmg;
-	dmg = FactorResists(source, victim, dmg, damage_type, actor_flags, flags, forced_full, wepid, wep_neg);
+	dmg = FactorResists(source, victim, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
 	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
 	if(dmg > temp)
 		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
@@ -1509,8 +1512,25 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	
 	//printbold(d:dmg, s: " to ", d:victim);
 	if(owner && victim) {
-		if(victim_IsMonster)
+		if(victim_IsMonster) {
 			HandleDamageDeal(owner, victim, dmg, damage_type, wepid, flags, px, py, pz, actor_flags, wep_neg, oneTimeRipperHack);
+
+			// cyobrg perk50 -- given after damage is dealt
+			if(!wep_neg && CheckInventory("Cyborg_Perk50") && IsTechWeapon(wepid)) {
+				px = CheckInventory("Cyborg_InstabilityStack");
+				
+				SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER);
+				if(!px)
+					ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
+				else if(px == DND_MAXCYBORG_INSTABILITY - 1 && !CheckInventory("Cyborg_NoAnim")) {
+					// we check -1 above because we'll give 1 already
+					PlaySound(owner, "Cyborg/Unstable", CHAN_BODY, 1.0);
+					GiveInventory("Cyborg_NoAnim", 1);
+					ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
+				}
+				GiveInventory("Cyborg_InstabilityStack", 1);
+			}
+		}
 		else // just deal damage to the shootable
 			Thing_Damage2(victim, dmg, "Normal");
 	}
@@ -1548,6 +1568,9 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 
 	if(!victim || !owner)
 		Terminate;
+
+	if(wepid == -1)
+		wepid = GetUserVariable(0, "user_wepid");
 	
 	// add 1 flip sign, damage functions require wepid to be non-negative, if they are we will know they need to use spell index
 	if(flags & DND_DAMAGEFLAG_ISSPELL)
@@ -2014,6 +2037,9 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 	}
 	
 	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category);
+
+	if(flags & DMG_WDMG_ESHIELDSCALE)
+		dmg += CheckInventory("EShieldAmount") / 10; // 10%
 	
 	// attribute bonus
 	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);

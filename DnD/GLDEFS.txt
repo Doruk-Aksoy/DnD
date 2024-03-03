@@ -93,6 +93,64 @@ object DnD_Player {
 	frame MNKPE { light GRAYATK }
 }
 
+pointlight INSTABILITYBALL
+{
+    color 0.0 0.1 1.0
+    size 56
+}
+
+flickerlight INSTABILITY_X1
+{
+    color 0.2 0.2 1.0
+    size 64
+    secondarySize 72
+    chance 0.4
+}
+
+flickerlight INSTABILITY_X2
+{
+    color 0.2 0.2 0.8
+    size 80
+    secondarySize 88
+    chance 0.4
+}
+
+flickerlight INSTABILITY_X3
+{
+    color 0.1 0.1 0.5
+    size 64
+    secondarySize 72
+    chance 0.4
+}
+
+flickerlight INSTABILITY_X4
+{
+    color 0.0 0.0 0.2
+    size 8
+    secondarySize 16
+    chance 0.4
+}
+
+object InstabilityBlast
+{
+    frame CYP0A { light INSTABILITYBALL }
+    frame CYP0B { light INSTABILITYBALL }
+	frame CYP0C { light INSTABILITYBALL }
+	frame CYP0D { light INSTABILITYBALL }
+	frame CYP0E { light INSTABILITYBALL }
+	frame CYP0F { light INSTABILITYBALL }
+	frame CYP0G { light INSTABILITYBALL }
+	frame CYP0H { light INSTABILITYBALL }
+	frame CYP0I { light INSTABILITYBALL }
+	frame CYP0J { light INSTABILITYBALL }
+
+    frame CYP0K { light INSTABILITY_X1 }
+    frame CYP0L { light INSTABILITY_X2 }
+    frame CYP0M { light INSTABILITY_X2 }
+    frame CYP0N { light INSTABILITY_X3 }
+    frame CYP0O { light INSTABILITY_X4 }
+}
+
 //===============
 // Glowing Flats
 //===============

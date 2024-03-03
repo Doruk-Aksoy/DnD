@@ -84,31 +84,6 @@ str GetPowercoreDropClass(int type) {
 	return StrParam(s:"PowercoreDrop_", d:type);
 }
 
-void SpawnPowercore(int pnum, int rarity_boost, bool noRepeat = false) {
-    int c = CreateItemSpot();
-	if(c != -1) {
-        int type = RollPowercoreInfo(c, RollItemLevel(), pnum);
-
-        // depending on armor type rolled, spawn its appropriate actor
-        SpawnDrop(GetPowercoreDropClass(type), 16.0, 16, pnum + 1, c, true);
-
-		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_POWERCORE);
-		
-		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnPowercore(pnum, true);
-	}
-}
-
-void SpawnPowercoreForAll(int repeats) {
-	for(int k = 0; k < repeats; ++k) {
-		for(int j = 0; j < MAXPLAYERS; ++j) {
-			if(PlayerInGame(j) && !PlayerIsSpectator(j))
-				SpawnPowercore(j, 0, false);
-		}
-	}
-}
-
 str GetPowercoreInventoryTag(int subt) {
 	return StrParam(l:StrParam(s:"DND_PCORE", d:subt + 1));
 }

@@ -31,10 +31,8 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	int owner = ActivatorTID();
 	int pnum = PlayerNumber();
-	
-	bool hasArtemis = IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS);
-	
-	flags |= hasArtemis * DND_ATF_NOAMMOTAKE;
+
+	flags |= IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS) * DND_ATF_NOAMMOTAKE;
 	
 	int ammo_sub_slot = ammo_slot >> 16;
 	ammo_slot &= 0xFFFF;
@@ -70,6 +68,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	int angle_vec = GetVec2();		// negative is left, positive is right
 	int offset_vec = GetVec3();
 	bool use_default = false;		// default behavior
+
+	// check for cyborg instability
+	flags |= (IsTechWeapon(wepid) && random(1, 100) <= DND_CYBORG_INSTABILITY_CHANCE + DND_LUCK_OUTCOME_GAIN * GetStat(STAT_LUCK)  && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY) * DND_ATF_INSTABILITY;
 	
 	// we will scale count whenever the weapon would require it!
 	// unused variables use their default values from above
@@ -380,8 +381,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 							Do_Projectile_Attack_Named(owner, pnum, StrParam(s:"InfernoSwordMissile_", d:count + 1), wepid, 1, 28, angle_vec, offset_vec, 0, 0, flags, proj_id);
 					}
 				}
-				else
-					Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 5), ProjectileInfo[proj_id].spd_range, flags);
+				else {
+					count = GetPelletCount(pnum, 5);
+					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
+				}
 			}
 		break;
 		
@@ -619,7 +622,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			else {
 				GiveInventory("HeavySSG_RailHelper_Circle", 1);
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HEAVYSSG, wepid, GetPelletCount(pnum, count), ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, flags);
+				count = GetPelletCount(pnum, count);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, flags);
 			}
 		break;
 		case DND_WEAPON_ERASUS:
@@ -674,8 +678,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				}
 			}
 			else {
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, ProjectileInfo[DND_PROJ_HELLSMAWMAIN].spd_range, flags);
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 3, ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range, flags);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, GetPelletCount(pnum, 1), ProjectileInfo[DND_PROJ_HELLSMAWMAIN].spd_range, flags);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, GetPelletCount(pnum, 3), ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range, flags);
 			}
 		break;
 		case DND_WEAPON_AXE:
@@ -716,8 +720,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				vec2[angle_vec].x = 1.0;
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 			}
-			else
-				Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 6), ProjectileInfo[proj_id].spd_range, flags);
+			else {
+				count = GetPelletCount(pnum, 6);
+				Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
+			}
 		break;
 		case DND_WEAPON_DEADLOCK:
 			use_default = true;
@@ -807,8 +813,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					vec2[angle_vec].x = 12.5;
 					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 				}
-				else
-					Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 3), ProjectileInfo[proj_id].spd_range, flags);
+				else {
+					count = GetPelletCount(pnum, 3);
+					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
+				}
 			}
 			else {
 				sp_x = CheckInventory("CharonBeamCounter");
@@ -843,8 +851,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					}
 				}
-				else
-					Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 12), ProjectileInfo[proj_id].spd_range, flags);
+				else {
+					count = GetPelletCount(pnum, 12);
+					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
+				}
 			}
 			else {
 				// spread pattern -- check circle fire too				
@@ -862,8 +872,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					vec2[angle_vec].x = -6.0;
 					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 				}
-				else
-					Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 6), ProjectileInfo[proj_id].spd_range, flags);
+				else {
+					count = GetPelletCount(pnum, 6);
+					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
+				}
 			}
 		break;
 		case DND_WEAPON_SHOCKER:
@@ -981,6 +993,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_id = DND_PROJ_DESOLATOR;
 			sp_x = 8.4;
 			sp_y = 6.2;
+
+			GiveOverheat("DesolatorOverheat", 2, DND_WEAPON_DESOLATOR);
 		break;
 		case DND_WEAPON_MINIGUN:
 			use_default = true;
@@ -1011,8 +1025,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				SetVec3XYZ(offset_vec, 0, 0, -2.0);
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 			}
-			else
-				Do_Attack_Circle(owner, pnum, proj_id, wepid, GetPelletCount(pnum, 4), ProjectileInfo[proj_id].spd_range, flags);
+			else {
+				count = GetPelletCount(pnum, 4);
+				Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
+			}
 		break;
 		case DND_WEAPON_MPPB:
 			use_default = true;
@@ -1521,12 +1537,14 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_DEATHRAY:
 			use_default = true;
 			proj_id = DND_PROJ_DEATHRAY;
+			GiveOverheat("DeathRayOverheat", 40, DND_WEAPON_DEATHRAY);
 		break;
 		case DND_WEAPON_IONCANNON:
 			use_default = true;
 			proj_id = DND_PROJ_IONCANNON;
 			sp_x = 7.2;
 			sp_y = 5.6;
+			GiveOverheat("IonOverheat", 2, DND_WEAPON_IONCANNON);
 		break;
 		case DND_WEAPON_THUNDERSTAFF:
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
@@ -1580,8 +1598,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Projectile_Attack_Named(owner, pnum, "RazorShot1", wepid, 1, 50, angle_vec, offset_vec, 0, 0, 0);
 					}
 				}
-				else
-					Do_Attack_Circle_Named(owner, pnum, "RazorShot1", wepid, GetPelletCount(pnum, 9), 50, 0);
+				else {
+					count = GetPelletCount(pnum, 9);
+					Do_Attack_Circle_Named(owner, pnum, "RazorShot1", wepid, count, 50, 0);
+				}
 			}
 			else if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
 				// fire three skulls
@@ -1591,8 +1611,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				vec2[angle_vec].x = 7.0;
 				Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, 0);
 			}
-			else
-				Do_Attack_Circle_Named(owner, pnum, "RazorSkull", wepid, GetPelletCount(pnum, 3), 25, 0);
+			else {
+				count = GetPelletCount(pnum, 3);
+				Do_Attack_Circle_Named(owner, pnum, "RazorSkull", wepid, count, 25, 0);
+			}
 		break;
 		case DND_WEAPON_SUNSTAFF:
 			use_default = false;
@@ -1611,8 +1633,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				vec2[angle_vec].x = 9.0;
 				Do_Projectile_Attack_Named(owner, pnum, "SunBeamSpawner", wepid, 1, 25, angle_vec, offset_vec, 0, 0, 0);
 			}
-			else
-				Do_Attack_Circle_Named(owner, pnum, "SunBeamSpawner", wepid, GetPelletCount(pnum, 3), 20, 0);
+			else {
+				count = GetPelletCount(pnum, 3);
+				Do_Attack_Circle_Named(owner, pnum, "SunBeamSpawner", wepid, count, 20, 0);
+			}
 		break;
 		case DND_WEAPON_SOULREAVER:
 			use_default = true;
@@ -1783,12 +1807,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	}
 	
 	// moved doesn't have artemis check to here for clarity
-	if(!(flags & DND_ATF_NOAMMOGAINCHECK) && !hasArtemis)
+	if(!(flags & DND_ATF_NOAMMOGAINCHECK) && !(flags & DND_ATF_NOAMMOTAKE))
 		HandleAmmoGainChance(ammo_slot, ammo_sub_slot, ammo_take_amt, owner);
 		
 	// NOTE: This rolls a crit chance to be used by the subsequent things below! Disabling it with the flag may remove crits!
 	if(!(flags & DND_ATF_NOATTACKTRIGGER))
-		HandleAttackEvent(ammo_slot == DND_AMMOSLOT_SPECIAL, ammo_sub_slot > SSAM_SLUG ? ammo_sub_slot - 1 : ammo_sub_slot);
+		HandleAttackEvent(wepid, ammo_slot == DND_AMMOSLOT_SPECIAL, ammo_sub_slot > SSAM_SLUG ? ammo_sub_slot - 1 : ammo_sub_slot);
 	
 	// for generic weapons that fire single shots these few lines will suffice, special spread weapons will have specifically crafted code for their attack
 	if(proj_id != -1 && use_default) {
@@ -1810,6 +1834,23 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			// let circle attack decide what kind of attack we need to do on its own
 			Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
 		}
+	}
+
+	if(flags & DND_ATF_INSTABILITY) {
+		if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE) || !(flags & DND_ATF_CANFIRECIRCLE)) {
+			if(sp_x)
+				sp_x = sp_x * 5 / 4;
+			else
+				sp_x = 3.2;
+
+			if(sp_y)
+				sp_y = sp_y * 5 / 4;
+			else
+				sp_y = 1.8;
+			Do_Projectile_Attack(owner, pnum, DND_PROJ_INSTABILITY, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
+		}
+		else
+			Do_Attack_Circle(owner, pnum, DND_PROJ_INSTABILITY, wepid, count, ProjectileInfo[DND_PROJ_INSTABILITY].spd_range, flags);
 	}
 	
 	FreeVec2(angle_vec);

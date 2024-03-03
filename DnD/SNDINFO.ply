@@ -136,11 +136,17 @@ CyborgPlayer/Taunt3		PCYGTNT3
 CyborgPlayer/Taunt4		PCYGTNT4
 CyborgPlayer/Taunt5		PCYGTNT5
 CyborgPlayer/Taunt6		PCYGTNT6
+$random Cyborg/Unstable { CyborgPlayer/Taunt1 CyborgPlayer/Taunt2 }
 $random CyborgPlayer/Taunt { CyborgPlayer/Taunt1 CyborgPlayer/Taunt2 CyborgPlayer/Taunt3 CyborgPlayer/Taunt4 CyborgPlayer/Taunt5 CyborgPlayer/Taunt6 }
 
 CyborgPlayer/Jump1		PCYGJUM1
 CyborgPlayer/Jump2		PCYGJUM2
 $random CyborgPlayer/Jump { CyborgPlayer/Jump1 CyborgPlayer/Jump2 }
+
+Instability/See			INSTSEE
+Instability/Hit			INSTHIT
+Instability/Load		INSTLOAD
+Instability/End			INSTEND
 
 /*$playeralias			TheCyborg		Male		*pain100		CyborgPlayer/PainHigh
 $playeralias			TheCyborg		Male		*pain75			CyborgPlayer/PainHigh

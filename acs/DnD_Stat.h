@@ -922,7 +922,10 @@ int GetIndependentCritModifier(int pnum) {
 
 int GetBaseCritModifier(int pnum, int wepid) {
 	int base = GetIndependentCritModifier(pnum);
-	int wep_bonus = (wepid != -1) * (Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG][WMOD_WEP].val);
+	int wep_bonus = 0;
+	
+	if(wepid != -1)
+		wep_bonus = (Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITDMG][WMOD_WEP].val);
 	return base + wep_bonus;
 }
 

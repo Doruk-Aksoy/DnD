@@ -208,6 +208,7 @@ enum {
 
 #include "DnD_Armor.h"
 #include "DnD_Powercore.h"
+#include "DnD_InvGeneric.h"
 
 // wide returns wider version
 str GetItemImage(int id, bool wide = false) {
@@ -1974,14 +1975,22 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			aval *= temp;
 			aval /= 100;
 		}
-		aextra *= temp;
-		aextra /= 100;
+
+		if(!IsAttributeExtraException(atype)) {
+			aextra *= temp;
+			aextra /= 100;
+		}
 	}
 	
 	// cybernetic check
 	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
 		aval *= DND_CYBERNETIC_FACTOR_MUL;
 		aval /= DND_CYBERNETIC_FACTOR_DIV;
+
+		if(!IsAttributeExtraException(atype)) {
+			aextra *= DND_CYBERNETIC_FACTOR_MUL;
+			aextra /= DND_CYBERNETIC_FACTOR_DIV;
+		}
 	}
 	
 	if(remove)
@@ -2198,6 +2207,7 @@ bool IsAttributeExtraException(int attr) {
 		case INV_IMP_INCMIT:
 		case INV_IMP_INCMITARMOR:
 		case INV_IMP_INCMITSHIELD:
+		case INV_IMP_POWERCORE:
 		return true;
 	}
 	return false;
@@ -2252,6 +2262,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			aval /= 100;
 		}
 
+		// don't scale extras of these, they are either bitflags or something that shouldn't change like this
 		if(!IsAttributeExtraException(atype)) {
 			aextra *= temp;
 			aextra /= 100;
@@ -2262,6 +2273,11 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
 		aval *= DND_CYBERNETIC_FACTOR_MUL;
 		aval /= DND_CYBERNETIC_FACTOR_DIV;
+
+		if(!IsAttributeExtraException(atype)) {
+			aextra *= DND_CYBERNETIC_FACTOR_MUL;
+			aextra /= DND_CYBERNETIC_FACTOR_DIV;
+		}
 	}
 	
 	if(remove)

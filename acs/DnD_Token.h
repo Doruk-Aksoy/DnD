@@ -44,31 +44,6 @@ void RollTokenInfo(int item_pos, int token_type, bool onField) {
 	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_TOKEN_BEGIN + token_type;
 }
 
-void SpawnToken(int pnum, bool sound) {
-	int c = CreateItemSpot();
-	if(c != -1) {
-		// c is the index on the field now
-		// only current token is repair token, so just assume that instead
-		int i = 0, w = random(1, MAX_TOKEN_WEIGHT);
-		
-		for(; i < MAX_TOKENS && TokenWeights[i] < w; ++i);
-		
-		RollTokenInfo(c, i, true);
-		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		SpawnPlayerDrop(pnum, GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c);
-		if(sound)
-			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
-	}
-}
-
-void SpawnTokenForAll(int repeats) {
-	for(int k = 0; k < repeats; ++k) {
-		for(int j = 0; j < MAXPLAYERS; ++j) {
-			SpawnToken(j, false);
-		}
-	}
-}
-
 // if we add more mods that can be directly applied through use of orbs on the weapon itself, modify here!
 void ApplyGunsmithToken(int pnum, int wepid) {
 	int i;

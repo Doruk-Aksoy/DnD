@@ -147,6 +147,7 @@ Actor DnD_BaseProjectile {
 	Damage 0
 	
 	var int user_hitcount;
+	var int user_wepid;
 	
 	States {
 		Spawn:

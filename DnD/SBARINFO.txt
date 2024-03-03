@@ -1303,6 +1303,12 @@ statusbar normal, fullscreenoffsets {
   drawselectedinventory alternateonempty, center, NCNormalFont, -23, -106, -8, -100, NCWhiteC {}
   else { drawimage "ARTIBOX", -42, -125; }
   
+  // cyborg display
+  InInventory Cyborg_InstabilityStack {
+	drawbar "INSTICO", "INSTICOB", Cyborg_Instability_Timer, vertical, -152, -200;
+	drawnumber 2, NCNormalFont, NCWhiteC, Cyborg_InstabilityStack, alignment(center), -122, -144;
+  }
+  
   // berserker display
   InInventory Berserker_DamageTracker {
 	drawbar "BERSICO1", "BERSICB1", Berserker_DamageTimer, vertical, -152, -200;

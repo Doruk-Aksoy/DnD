@@ -303,3 +303,59 @@ decalgroup DesolatorDecal
 	DesoScorch1	1
 	DesoScorch2	1
 }
+
+decal BFGScorch3
+{
+	pic BFGSCRC1
+	shade "00 00 00"
+	randomflipx
+	randomflipy
+	x-scale 0.5
+	y-scale 0.5
+}
+
+decal BFGScorch4
+{
+	pic BFGSCRC2
+	shade "00 00 00"
+	randomflipx
+	randomflipy
+	x-scale 0.5
+	y-scale 0.5
+}
+
+decalgroup BFGScorchx
+{
+	BFGScorch3	1
+	BFGScorch4	1
+}
+
+decal InstabilityDecal1
+{
+	pic BFGLITE1
+	shade "00 33 ff"
+	fullbright
+	randomflipx
+	animator GoAway2
+	x-scale 0.5
+	y-scale 0.5
+	lowerdecal BFGScorchx
+}
+
+decal InstabilityDecal2
+{
+	pic BFGLITE2
+	shade "00 33 ff"
+	fullbright
+	randomflipy
+	animator GoAway2
+	x-scale 0.5
+	y-scale 0.5
+	lowerdecal BFGScorchx
+}
+
+decalgroup InstabilityDecal
+{
+	InstabilityDecal1	1
+	InstabilityDecal2	1
+}

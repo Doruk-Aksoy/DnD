@@ -199,7 +199,7 @@ DND_MENU_PERKTEXT6		=	"increased effect of healing.";
 DND_MENU_PERKTEXT7		=	"increased ammo gain.";
 DND_MENU_PERKTEXT8		=	"to critical strike chance.";
 DND_MENU_PERKTEXT9		=	"to critical strike multiplier.";
-DND_MENU_PERKTEXT10		=	"increased drop chance and 5% chance to have better rolls.";
+DND_MENU_PERKTEXT10		=	"increased drop chance and 5% chance to have better outcomes.";
 
 DND_MENU_MASTERY		=	"Mastery";
 DND_MENU_MASTERY_COND	=	"Requires 10 points";

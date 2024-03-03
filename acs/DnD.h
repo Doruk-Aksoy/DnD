@@ -743,20 +743,20 @@ void HandleChestDrops(int ctype) {
 	if(ctype == DND_CHESTTYPE_BRONZE) {
 		SpawnOrbForAll(random(1, 3));
 		if(RunDefaultDropChance(pnum, 0.5))
-			SpawnTokenForAll(1);
+			SpawnItemForAll(DND_ITEM_TOKEN);
 	}
 	else if(ctype == DND_CHESTTYPE_SILVER) {
 		SpawnOrbForAll(random(3, 5));
 		if(RunDefaultDropChance(pnum, 0.75))
-			SpawnTokenForAll(1);
+			SpawnItemForAll(DND_ITEM_TOKEN);
 		if(RunDefaultDropChance(pnum, 0.5))
-			SpawnPowercoreForAll(1);
+			SpawnItemForAll(DND_ITEM_POWERCORE);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
 		SpawnOrbForAll(random(5, 8));
-		SpawnTokenForAll(1);
-		SpawnPowercoreForAll(1);
-		SpawnArmorForAll(1);
+		SpawnItemForAll(DND_ITEM_TOKEN);
+		SpawnItemForAll(DND_ITEM_POWERCORE);
+		SpawnItemForAll(DND_ITEM_BODYARMOR);
 	}
 	
 	// common to all chests, an extra orb can drop with 33% chance and another with 20%
@@ -779,16 +779,16 @@ void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 				SpawnOrb(i, true);
 			// for tokens -- same likelihood to drop as orbs
 			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP * drop_boost / 100))
-				SpawnToken(i, true);
+				SpawnToken(i);
 
 			if(ignoreWeight || RunDefaultDropChance(i, DND_BASEARMOR_DROP * drop_boost ))
-				SpawnArmor(i, rarity_boost, true, 0);
+				SpawnArmor(i, rarity_boost, 0);
 
 			if(ignoreWeight || RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100))
 				SpawnCharm(i, rarity_boost);
 
 			if(ignoreWeight || (mon_robot && RunDefaultDropChance(i, DND_BASE_POWERCORERATE * drop_boost / 100)))
-				SpawnPowercore(i, rarity_boost, true);
+				SpawnPowercore(i, rarity_boost);
 		}
 	}
 }
@@ -1325,6 +1325,11 @@ void ClearLingeringBuffs() {
 	SetInventory("DarkWanderer_Artifact", 0);
 	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
+
+	SetInventory("Cyborg_InstabilityStack", 0);
+	SetInventory("Cyborg_Instability_Timer", 0);
+	SetInventory("Cyborg_NoAnim", 0);
+	SetInventory("EShieldChargeNow", 0);
 	
 	// some buffs from spells, that arent powerups
 	SetInventory("Rally_DamageBuff", 0);

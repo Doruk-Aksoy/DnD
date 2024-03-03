@@ -3386,6 +3386,56 @@ Script "DnD Berserker Roar" (int this) CLIENTSIDE {
 	}
 }
 
+Script "DnD Cyborg Instability Timer" (void) {
+	while(IsAlive() && CheckInventory("Cyborg_Instability_Timer")) {
+		delay(const:1);
+		TakeInventory("Cyborg_Instability_Timer", 1);
+	}
+	SetInventory("Cyborg_NoAnim", 0);
+	SetInventory("Cyborg_InstabilityStack", 0);
+	LocalAmbientSound("Instability/End", 127);
+}
+
+Script "DnD Cyborg Visor Anim" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+	LocalAmbientSound("Instability/Load", 127);
+
+	int width = (640 * FixedDiv(1.0, ScreenResOffsets[SCREEN_ASPECT_RATIO])) >> 16;
+	int height = (360 * FixedDiv(1.0, ASPECT_4_3)) >> 16;
+
+	SetHudSize(width, height, 0);
+
+	width = (width << 15) + 0.4;
+	height <<= 15;
+
+	SetFont("VISORB");
+	HudMessage (s:"A"; HUDMSG_FADEINOUT | HUDMSG_ALPHA, HUD_GRAPHIC_ID, CR_UNTRANSLATED, width, height, 0.5, 0.5, 0.25, 0.875);
+
+	SetFont("VISBG");
+	HudMessage (s:"A"; HUDMSG_FADEINOUT | HUDMSG_ALPHA, HUD_GRAPHIC_ID + 1, CR_UNTRANSLATED, width, height, 0.8, 0.5, 0.5, 0.75);
+
+	int repeats = 0;
+	int hx = 512.4, hy = 384.0;
+	int ofx = 0, ofy = 0;
+	do {
+		for(int i = 1; i <= MAX_CYBORG_VISOR_FRAMES && isAlive(); ++i) {
+			SetHudSize(1024, 768, 0);
+			SetFont(StrParam(s:"HACKB", d:i));
+
+			if(random(1, 100) <= 16) {
+				ofx += GetIntegerBits(random(-8.0, 8.0));
+				ofy += GetIntegerBits(random(-8.0, 8.0));
+			}
+
+			HudMessage (s:"A"; HUDMSG_FADEINOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, HUD_GRAPHIC_ID + 2, CR_UNTRANSLATED, hx + ofx, hy + ofy, 0.05, 0.0, 0.25, 0.666);
+			Delay(const:1);
+		}
+		++repeats;
+	} while(repeats < 2 && isAlive());
+}
+
 // Backpack / Research script
 Script 996 (int type, int id) {
     if(!type) {
@@ -3580,13 +3630,14 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 	int rchrg = GetPlayerEnergyShieldRechargeDelay(pnum);
 
 	// if we get hit, stop this
-	rchrg /= 5;
+	rchrg /= 7;
 
 	int count = 0;
-	while(count < 5) {
+	while(count < 7 && !CheckInventory("EShieldChargeNow")) {
 		++count;
 
-		if(!isAlive() || CheckInventory("DnD_Hit_CombatTimer") || !GetAmmoCapacity("EShieldAmountVisual")) {
+		// if we died, or if we are in combat AND we don't have "can charge right now!" or we have no eshield at this time
+		if(!isAlive() || (CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("EShieldChargeNow")) || !GetAmmoCapacity("EShieldAmountVisual")) {
 			TakeInventory("EShieldCharging", 1);
 			Terminate;
 		}
@@ -3606,7 +3657,7 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 		if(CheckInventory("EShieldAmount") >= cap)
 			SetEnergyShield(cap);
 		
-		if(CheckInventory("DnD_Hit_CombatTimer")) {
+		if(CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("EShieldChargeNow")) {
 			TakeInventory("EShieldCharging", 1);
 			Terminate;
 		}
@@ -3981,6 +4032,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 }*/
 
 // Used mainly for non-weapons (like artifacts, spells and so on)
+// uses WDMG flags
 Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 	AdjustDamageRetrievePointers(flags, true);
 	dmg = HandleNonWeaponDamageScale(dmg, damage_category, flags);
@@ -5105,7 +5157,7 @@ Script "DnD Explosion Radius Retrieve" (int flags) {
 // never put AMMO_CLIP as 16 bit onwards
 Script "DnD Ammo Gain Chance" (int slot, int ammo, int amount) {
 	HandleAmmoGainChance(slot, ammo, amount);
-	HandleAttackEvent(slot == DND_AMMOSLOT_SPECIAL, ammo > SSAM_SLUG ? ammo - 1 : ammo);
+	HandleAttackEvent(CheckInventory("DnD_WeaponID"), slot == DND_AMMOSLOT_SPECIAL, ammo > SSAM_SLUG ? ammo - 1 : ammo);
 }
 
 // in here because dnd_mons.bcs can't access values of the variables used below
@@ -5379,7 +5431,7 @@ Script "DnD Give Soul Ammo" (int amt) {
 // reason is this is embedded in ammo gain chance script for ease
 // extra is special ammo type, isspecial is 1 or 0
 Script "DnD On Attack" (int isSpecial, int extra) {
-	HandleAttackEvent(isSpecial, extra);
+	HandleAttackEvent(CheckInventory("DnD_WeaponID"), isSpecial, extra);
 	
 	SetResultValue(0);
 }
@@ -5664,6 +5716,7 @@ Script "DnD Projectile Checks" (int isPet) {
 	
 	// store owner
 	SetActorProperty(0, APROP_SCORE, owner);
+	SetUserVariable(0, "user_wepid", wepid);
 	
 	// hack for crit store on burst fire projectiles -- they call this on their initialization phase so at this point we should be able to check the wepid
 	if((wepid != -1 && PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid]) || CheckActorInventory(owner, "DnD_CritToken"))
@@ -5946,7 +5999,7 @@ Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
 	
 	if(tier >= 1) {
 		// guaranteed charm drop from anything above medium, and a potential chest drop
-		SpawnCharm_ForAll();
+		SpawnItemForAll(DND_ITEM_CHARM, 1);
 		
 		// 33% chance to spawn a chest as well
 		if(RunDefaultDropChance(target - P_TIDSTART, DND_BOSSCHEST_DROPRATE)) {
@@ -6121,6 +6174,8 @@ Script 68 (int x) NET {
 		}
 		else if(x == 501)
 			SetPlayerModValue(PlayerNumber(), INV_PELLET_INCREASE, 2 * PlayerModValues[PlayerNumber()][INV_PELLET_INCREASE] + 1.0);
+		else if(x == 666)
+			ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
 		else {
 			int c = CreateItemSpot();
 			//i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);

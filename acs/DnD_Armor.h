@@ -296,31 +296,6 @@ int GetMitigationEffect(int pnum) {
 	return mit_eff;
 }
 
-void SpawnArmor(int pnum, int rarity_boost, bool noRepeat = false, int tiers = 0) {
-    int c = CreateItemSpot();
-	if(c != -1) {
-        int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
-
-        // depending on armor type rolled, spawn its appropriate actor
-        SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, true);
-
-		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
-		
-		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnArmor(pnum, true);
-	}
-}
-
-void SpawnArmorForAll(int repeats) {
-	for(int k = 0; k < repeats; ++k) {
-		for(int j = 0; j < MAXPLAYERS; ++j) {
-			if(PlayerInGame(j) && !PlayerIsSpectator(j))
-				SpawnArmor(j, 0, false);
-		}
-	}
-}
-
 str GetArmorInventoryTag(int subt) {
 	return StrParam(l:StrParam(s:"DND_ARMOR", d:subt + 1));
 }

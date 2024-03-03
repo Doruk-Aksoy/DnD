@@ -19,6 +19,10 @@ enum {
 	DND_ATF_ISHITSCAN				= 0b100000,				// treated as hitscan for named attacks
 	DND_ATF_NOHELPER				= 0b1000000,			// dont create helper actor to adjust position of attacks
 	DND_ATF_WIDESWING				= 0b10000000,			// melee wide swing attack
+
+
+	DND_ATF_INSTABILITY				= 0b100000000000000000000000000000,
+	DND_ATF_NOINSTABILITY			= 0b1000000000000000000000000000000
 };
 
 enum {
@@ -765,16 +769,13 @@ void DoSlotWeaponQuestChecks(int wepid) {
 		GiveInventory(Quest_List[QUEST_ONLYENERGY].qchecker, 1);
 }
 
-void HandleAttackEvent(int isSpecial, int extra) {
+void HandleAttackEvent(int wepid, int isSpecial, int extra) {
 	int pnum = PlayerNumber();
 	// elemental bulwark check
 	if(GetPlayerAttributeValue(pnum, INV_EX_CHANCE_CASTELEMSPELLONATK) >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
 		GiveInventory("RandomElementalSpellCooldown", 1);
 		CastRandomElementalSpell();
 	}
-	
-	// roll a crit for this attack, and every projectile etc. to come out of it will use this pre-calculated crit chance here
-	int wepid = CheckInventory("DnD_WeaponID");
 	
 	// reset crit roll before we check for crit on this attack again
 	PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;

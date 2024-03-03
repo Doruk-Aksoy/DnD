@@ -1589,6 +1589,10 @@ int GetWeaponOrderSlot(int wepid, int slot) {
 	return 0;
 }
 
+bool IsTechWeapon(int wepid) {
+	return Weapons_Data[wepid].properties & WPROP_TECH;
+}
+
 str GetWeaponTipText(int wepid) {
 	int slot = GetSlotOfWeapon(wepid);
 	int subid = GetWeaponOrderSlot(wepid, slot);

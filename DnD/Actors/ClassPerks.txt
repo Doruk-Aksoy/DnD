@@ -142,6 +142,49 @@ Actor Cyborg_Perk5 : DnD_Boolean { }
 Actor Cyborg_Perk25 : DnD_Boolean { }
 Actor Cyborg_Perk50 : DnD_Boolean { }
 
+Actor Cyborg_NoAnim : DnD_Boolean { }
+
+Actor Cyborg_InstabilityStack : Inventory {
+	inventory.maxamount 20
+}
+
+Actor Cyborg_Instability_Timer : Inventory {
+	inventory.maxamount 165
+}
+
+Actor InstabilityBlast : DnD_BaseProjectile {
+	Radius 6
+	Height 12
+	Speed 60
+	Scale 0.75
+	RenderStyle Add
+	Alpha 1.0
+	Decal "InstabilityDecal"
+	DeathSound "Instability/Hit"
+	+FOILINVUL
+	+RANDOMIZE
+	+DONTREFLECT
+	States {
+		SpawnState:
+			TNT1 A 0 A_PlaySound("Instability/See", CHAN_5)
+		SpawnStateLoop:
+			CYP0 ABCDEFGHIJ 1 Bright
+		Loop
+		XDeath: 
+			TNT1 A 0 ACS_NamedExecuteWithResult(
+				"DnD Do Impact Damage",
+				ACS_NamedExecuteWithResult("DND Player Damage Scale", random(4, 64), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DMG_ESHIELDSCALE),
+				DND_DAMAGETYPE_ENERGY,
+				DND_DAMAGEFLAG_DOFULLDAMAGE,
+				-1
+			)
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			CYP0 KLMNOPQRSTUVW 1 Bright
+		Stop
+	}
+}
+
 Actor Berserker_Perk5 : DnD_Boolean { }
 
 Actor Berserker_Perk25 : DnD_Boolean { }

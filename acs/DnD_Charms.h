@@ -123,32 +123,6 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	}
 }
 
-// monsters dropping charms
-void SpawnCharm(int pnum, int rarity_boost, bool noRepeat = false) {
-	int c = CreateItemSpot();
-	if(c != -1) {
-		// c is the index on the field now
-		#ifndef ISDEBUGBUILD
-			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
-		#else
-			if(random(0,1))
-		#endif
-		{
-			MakeUnique(c, DND_ITEM_CHARM, pnum);
-			SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c);
-		}
-		else {
-			RollCharmInfo(c, RollItemLevel(), pnum);
-			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
-		}
-		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
-		
-		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnCharm(pnum, rarity_boost, true);
-	}
-}
-
 // creates a charm with given mods as guaranteed
 void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
 	int c = CreateItemSpot();
@@ -167,13 +141,6 @@ void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
 			SpawnCharmWithMods(i, m1, m2, m3);
-	}
-}
-
-void SpawnCharm_ForAll() {
-	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnCharm(i, true, false);
 	}
 }
 
