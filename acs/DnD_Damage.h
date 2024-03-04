@@ -23,13 +23,6 @@
 
 #define DND_EXPLOSION_FLAGVARIABLE "user_flags"
 
-#define DND_BERSERKER_DAMAGETRACKTIME 122 // 3 is base, x 5 -- +2 for 0.5 second of buffer inclusion
-#define DND_BERSERKER_PERK25_MAXSTACKS 15
-#define DND_BERSERKER_PERK25_HEALPERCENT 15
-#define DND_BERSERKER_PERK25_REDUCTION 2 // 2% per stack
-#define DND_BERSERKER_PERK50_TIMER 70 // 14 x 5 = 70 => 2 seconds
-#define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
-
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
 
 #define DND_MONSTER_POISONPERCENT 20 // 20% of damage taken from a hit is dealt as poison damage again over the duration
@@ -553,10 +546,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// apply wanderer perk if applicable -- ele check used with temp here again
 		if((damage_category == DND_DAMAGECATEGORY_OCCULT || temp) && CheckInventory("Wanderer_Perk25"))
 			InsertCacheFactor(pnum, wepid, dmgid, DND_WANDERER_PERK25_BUFF, false);
-			
-		// hobo perk if applicable
-		if((flags & DND_WDMG_ISBOOMSTICK) && CheckInventory("Hobo_Perk25"))
-			InsertCacheFactor(pnum, wepid, dmgid, DND_HOBO_SHOTGUNBONUS, false);
 		
 		if(flags & DND_WDMG_ISOCCULT || damage_category == DND_DAMAGECATEGORY_OCCULT)
 			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE)), false);
@@ -806,7 +795,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 		pct_val += DND_THUNDERAXE_WEAKENPCT * CheckActorInventory(victim, "ThunderAxeWeakenTimer");
 	}
 
-	if((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk50"))
+	if((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk25"))
 		pct_val += DND_HOBO_RESISTPCT;
 	
 	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
@@ -2119,24 +2108,45 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS] && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleLifesteal(pnum, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 	}
+
+	ox = victim_data + DND_MONSTERTID_BEGIN;
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance
 	// do these if only the actor was alive after the tic they received dmg
-	if(IsActorAlive(victim_data + DND_MONSTERTID_BEGIN)) {
+	if(IsActorAlive(ox)) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
-			HandleChillEffects(pnum, victim_data + DND_MONSTERTID_BEGIN);
+			HandleChillEffects(pnum, ox);
 		else if(flags & DND_DAMAGETICFLAG_FIRE)
-			HandleIgniteEffects(pnum, victim_data + DND_MONSTERTID_BEGIN, wepid);
+			HandleIgniteEffects(pnum, ox, wepid);
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
-			HandleOverloadEffects(pnum, victim_data + DND_MONSTERTID_BEGIN);
+			HandleOverloadEffects(pnum, ox);
 		
 		// frozen monsters cant retaliate		
-		if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_FreezeTimer"))
-			GiveActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_ViolentRetaliationItem", 1);
-		GiveActorInventory(victim_data + DND_MONSTERTID_BEGIN, "DnD_HurtToken", 1);
+		if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(ox, "DnD_FreezeTimer"))
+			GiveActorInventory(ox, "DnD_ViolentRetaliationItem", 1);
+		GiveActorInventory(ox, "DnD_HurtToken", 1);
+
+		// actor is alive, we can tag with shotgun for hobo perk 50
+		if(IsBoomstick(wepid) && CheckInventory("Hobo_Perk50")) {
+			// if the window passed, ignore remaining tags
+			if(!CheckActorInventory(ox, "Hobo_ShotgunTag_Window"))
+				SetActorInventory(ox, "Hobo_ShotgunTag", 0);
+			GiveActorInventory(ox, "Hobo_ShotgunTag_Window", 1);
+			GiveActorInventroy(ox, "Hobo_ShotgunTag", 1);
+
+			if(!CheckInventory("Hobo_ShotgunFrenzyTimer") && CheckActorInventory(ox, "Hobo_ShotgunTag") >= DND_HOBO_SHOTGUNTAGLIMIT) {
+				SetActorInventory(ox, "Hobo_ShotgunTag", 0);
+				GiveInventory("Hobo_ShotgunFrenzyTimer", DND_HOBO_FRENZYBASETIME);
+				CalculatePlayerAccuracy(pnum);
+				ACS_NamedExecuteAlways("DnD Hobo Frenzy Timer", 0);
+			}
+		}
 	}
 
-	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_data + DND_MONSTERTID_BEGIN, PlayerDamageTicData[pnum][victim_data], flags);
+	ACS_NamedExecuteWithResult("DnD Damage Numbers", ox, PlayerDamageTicData[pnum][victim_data], flags);
+
+	if(CheckInventory("Marine_DamageReduction_Timer"))
+		GiveInventory("Marine_Perk50_DamageDealt", PlayerDamageTicData[pnum][victim_data]);
 	
 	// reset dmg counter on this mob
 	PlayerDamageTicData[pnum][victim_data] = 0;
@@ -2637,37 +2647,32 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	}
 	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
 		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
-		// marine 50 perk
-		if(!CheckInventory("Marine_Perk50")) {
-			// wanderer perk
-			if(CheckInventory("Wanderer_Perk5"))
-				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_WANDERER_POISONPERCENT);
-			
-			// reduced poison damage taken
-			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_POISON);
-			dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
-			
-			// toxicology ability
-			if(CheckInventory("Ability_AntiPoison")) {
-				if(!CheckInventory("Cyborg_Perk25"))
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_TOXICOLOGY_REDUCE);
-				else
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_TOXICOLOGY_REDUCE + DND_TOXICOLOGY_REDUCE * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
-			}
-			
-			// check if we should apply poison here
-			// do not register more instances on poison dots
-			if(dmg && (dmg_data & DND_DAMAGETYPEFLAG_POISON)) {
-				dot_temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
-				if(!dot_temp)
-					dot_temp = 1;
-				// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
-				// random damage of 10% to 12% of it is applied below
-				RegisterPoisonDamage(random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME), inflictor_class);
-			}
+		// wanderer perk
+		if(CheckInventory("Wanderer_Perk5"))
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_WANDERER_POISONPERCENT);
+		
+		// reduced poison damage taken
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_POISON);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
+		
+		// toxicology ability
+		if(CheckInventory("Ability_AntiPoison")) {
+			if(!CheckInventory("Cyborg_Perk25"))
+				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_TOXICOLOGY_REDUCE);
+			else
+				dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_TOXICOLOGY_REDUCE + DND_TOXICOLOGY_REDUCE * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
 		}
-		else // marine perk50 gives immunity to poison, so reduce it to 1%
-			dmg /= 100;
+		
+		// check if we should apply poison here
+		// do not register more instances on poison dots
+		if(dmg && (dmg_data & DND_DAMAGETYPEFLAG_POISON)) {
+			dot_temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
+			if(!dot_temp)
+				dot_temp = 1;
+			// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
+			// random damage of 10% to 12% of it is applied below
+			RegisterPoisonDamage(random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME), inflictor_class);
+		}
 	}
 	// ELEMENTAL DAMAGE BLOCK ENDS
 	
@@ -2697,6 +2702,10 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 		
 		// distribute this damage to other pets
 	}
+
+	// marine perk 50 -- 50% reduction
+	if(CheckInventory("Marine_DamageReduction_Timer"))
+		dmg /= 2;
 	
 	// ALL DAMAGE AMPLIFYING EFFECTS COME LAST!
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);

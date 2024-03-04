@@ -385,8 +385,10 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, temp);
 	
 	// save ammo counts
+	int slot_tmp;
 	for(i = 0; i < MAX_SLOTS; ++i)
-		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+		slot_tmp = GetAmmoSlotMaxIndex(i);
+		for(j = 0; j < slot_tmp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			temp = CheckActorInventory(tid, AmmoInfo[i][j].name);
 			// send temp over
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, temp);
@@ -904,8 +906,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetAllAmmoCapacities();
 	
 	// read each ammo count
+	int slot_tmp;
 	for(i = 0; i < MAX_SLOTS; ++i)
-		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+		slot_tmp = GetAmmoSlotMaxIndex(i);
+		for(j = 0; j < slot_tmp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc);
 			SetInventory(AmmoInfo[i][j].name, temp);
 		}
@@ -1174,8 +1178,10 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, 0);
 	
 	// reset ammo counts
+	int slot_tmp;
 	for(i = 0; i < MAX_SLOTS; ++i)
-		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+		slot_tmp = GetAmmoSlotMaxIndex(i);
+		for(j = 0; j < slot_tmp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 0);
 		}
 	
@@ -1309,8 +1315,10 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_Character"));
 	
 	// reset ammo counts
+	int slot_tmp;
 	for(i = 0; i < MAX_SLOTS; ++i)
-		for(j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+		slot_tmp = GetAmmoSlotMaxIndex(i);
+		for(j = 0; j < slot_tmp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
 			if(i != DND_AMMOSLOT_CLIP || j != AMMO_CLIP)
 				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 0);
 			else

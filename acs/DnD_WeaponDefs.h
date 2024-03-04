@@ -505,7 +505,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].icon = "WEPICO22";
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].properties = WPROP_NONE;
+	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].properties = WPROP_TECH;
 	Weapons_Data[DND_WEAPON_NITROGENCROSSBOW].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_WHEELOFTORMENT].name = "ResShotgun3";
@@ -705,7 +705,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_INCINERATOR].icon = "WEPICO94";
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_INCINERATOR].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_SELFDMG | WPROP_NOREFLECT;
+	Weapons_Data[DND_WEAPON_INCINERATOR].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_SELFDMG | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_INCINERATOR].attunement = STAT_DEX;
 	
 	Weapons_Data[DND_WEAPON_DESOLATOR].name = "Desolator";
@@ -714,7 +714,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DESOLATOR].icon = "WEPICO41";
 	Weapons_Data[DND_WEAPON_DESOLATOR].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DESOLATOR].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_DESOLATOR].properties = WPROP_OVERHEAT | WPROP_POISON;
+	Weapons_Data[DND_WEAPON_DESOLATOR].properties = WPROP_OVERHEAT | WPROP_POISON | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_DESOLATOR].attunement = STAT_STR;
 	
 	Weapons_Data[DND_WEAPON_MINIGUN].name = " Minigun ";

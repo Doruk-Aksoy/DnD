@@ -24,6 +24,7 @@ enum {
 	DND_AMMO_SECONDARYISCLIP = 1
 };
 
+// Note to self: UPDATE THE MAX INDEX DEFINES BELOW
 enum {
 	// category 2
 	AMMO_CLIP = 0,
@@ -84,14 +85,40 @@ enum {
 #define AMMOSLOT_CLIP_END AMMO_EBONY1
 #define AMMOSLOT_CLIP2_BEGIN AMMO_EBONY2
 #define AMMOSLOT_CLIP2_END AMMO_EBONY2
+#define AMMOSLOT_CLIP_REALEND AMMO_EBONY2
+
 #define AMMOSLOT_SHELL_BEGIN AMMO_SHELL
 #define AMMOSLOT_SHELL_END AMMO_EXSHELL
 #define AMMOSLOT_SHELL2_BEGIN AMMO_SLAYER
 #define AMMOSLOT_SHELL2_END AMMO_AXE
+#define AMMOSLOT_SHELL_REALEND AMMO_AXE
+
 #define AMMOSLOT_ROCKET_BEGIN AMMO_ROCKET
 #define AMMOSLOT_ROCKET_END AMMO_HAMMER
+
 #define AMMOSLOT_CELL_BEGIN AMMO_CELL
 #define AMMOSLOT_CELL_END AMMO_GAUSS
+
+int GetAmmoSlotMaxIndex(int ammo_slot) {
+	int res = 1;
+
+	switch(ammo_slot) {
+		case DND_AMMOSLOT_CLIP:
+			res = AMMOSLOT_CLIP_REALEND + 1;
+		break;
+		case DND_AMMOSLOT_SHELL:
+			res = AMMOSLOT_SHELL_REALEND + 1;
+		break;
+		case DND_AMMOSLOT_ROCKET:
+			res = AMMOSLOT_ROCKET_END + 1;
+		break;
+		case DND_AMMOSLOT_CELL:
+			res = AMMOSLOT_CELL_END + 1;
+		break;
+	}
+
+	return res;
+}
 
 // don't make tables with strings and ints... weird fuckups happen
 // replaced container value => it's calculated as follows:
@@ -396,23 +423,28 @@ bool IsBackpackLimitReached() {
 void SetAllAmmoCapacities() {
 	// last slot is for souls, we don't increase it here
 	int factor = GetAmmoCapIncrease();
-	for(int i = 0; i < MAX_SLOTS - 1; ++i)
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
+		int temp = GetAmmoSlotMaxIndex(i);
+		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity != -1; ++j)
 			SetAmmoCapacity(AmmoInfo[i][j].name, (AmmoInfo[i][j].initial_capacity * factor) / 100);
+	}
 }
 
 void SetAllAmmoCapacitiesToDefault() {
 	// last slot is for souls, we don't increase it here
-	for(int i = 0; i < MAX_SLOTS - 1; ++i)
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
+		int temp = GetAmmoSlotMaxIndex(i);
+		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity != -1; ++j)
 			SetAmmoCapacity(AmmoInfo[i][j].name, AmmoInfo[i][j].initial_capacity);
+	}
 }
 
 bool CheckAmmoPickup(int slot, bool simple) {
 	bool res = CheckInventory(AmmoInfo[slot][0].name) >= GetAmmoCapacity(AmmoInfo[slot][0].name);
 	if(!simple) {
 		// start from 1, we already included 0 above
-		for(int i = 1; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
+		int temp = GetAmmoSlotMaxIndex(slot);
+		for(int i = 1; i < temp && AmmoInfo[slot][i].initial_capacity != -1; ++i)
 			res = res && CheckInventory(AmmoInfo[slot][i].name) >= GetAmmoCapacity(AmmoInfo[slot][i].name);
 			
 		// we got a few exceptions -- everice is used in rocket slot, and cell slot has clip using weapon
@@ -446,7 +478,8 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 		GiveAmmo(amt, slot, 0);
 	}
 	else {
-		for(int i = 0; i < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[slot][i].initial_capacity != -1; ++i)
+		int temp = GetAmmoSlotMaxIndex(slot);
+		for(int i = 0; i < temp && AmmoInfo[slot][i].initial_capacity != -1; ++i)
 			GiveAmmo(GetAmmoContainerValue(slot, i), slot, i);
 		
 		if(slot == DND_AMMOSLOT_SHELL) {

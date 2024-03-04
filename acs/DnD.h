@@ -1326,6 +1326,10 @@ void ClearLingeringBuffs() {
 	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
 
+	SetInventory("Marine_DamageReduction_Timer", 0);
+	SetInventory("Marine_Perk50_DamageDealt", 0);
+	SetInventory("Marine_Perk50_Cooldown", 0);
+
 	SetInventory("Cyborg_InstabilityStack", 0);
 	SetInventory("Cyborg_Instability_Timer", 0);
 	SetInventory("Cyborg_NoAnim", 0);

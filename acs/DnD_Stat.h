@@ -1271,7 +1271,7 @@ int GetCritChance_Display(int pnum) {
 int GetPelletIncrease(int pnum) {
 	return CombineMultiplicativeFactors(
 		GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE),
-		CheckInventory("Hobo_Perk50") * DND_HOBO_SHOTGUNPELLETBONUS
+		CheckInventory("Hobo_Perk25") * DND_HOBO_SHOTGUNPELLETBONUS
 	);
 }
 

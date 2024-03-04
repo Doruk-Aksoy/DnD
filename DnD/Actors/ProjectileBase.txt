@@ -309,7 +309,7 @@ Actor DnD_ExplosiveBase {
 	
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Projectile Checks")//A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
+			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Projectile Checks", 0, 1)//A_GiveInventory("DnD_Projectile_SpawnChecks", 1)
 			TNT1 A 35 A_Jump(256, "SpawnState")
 		Wait
 		DoExplosionDamage:

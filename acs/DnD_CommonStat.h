@@ -141,27 +141,9 @@ enum {
 #define DND_CLASSPERK2_LEVEL 25
 #define DND_CLASSPERK3_LEVEL 50
 
-#define DND_DOOMGUY_DMGREDUCE_PERCENT 10
-#define DND_DOOMGUY_DROPCHANCE 0.05
-#define DND_DOOMGUY_HEALDIV 100
-#define DND_DOOMGUY_MAXHEAL 10000
-#define DND_DOOMGUY_DMGMULT 5
-#define DND_DOOMGUY_DMGDIV 4
-#define DND_DOOMGUY_RESISTPCT 33
-
-#define DND_HOBO_RESISTPCT 50
-
-#define DND_WANDERER_PERK25_BUFF 25 // 25%
-
-#define DND_MAXCYBORG_INSTABILITY 20
-#define DND_DMG_PER_INSTABILITY 2
-#define DND_CYBORG_INSTABILITY_CHANCE 50 // percent
-#define DND_CYBORG_INSTABILITY_TIMER 165
-
-#define DND_BERSERKER_PERK50_MAXSTACKS 30
-#define DND_BERSERKER_PERK50_CRITBONUS 50
-
 #define DND_EXP_RES_ABILITY_BONUS 50
+
+#include "DnD_ClassConstants.h"
 
 global int 1: StatListOpened[MAXPLAYERS];
 
@@ -197,7 +179,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 	switch(prop) {
 		// homing not reflect can come from thorax or marine's perk50 (more generic, all proj cant be reflected)
 		case PUP_HOMINGNOREFLECT:
-		return (GetPlayerAttributeValue(pnum, INV_ESS_THORAX) && (extra1 | extra2)) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
+		return (GetPlayerAttributeValue(pnum, INV_ESS_THORAX) && (extra1 | extra2));
 		
 		// +FORCERADIUSDMG can come from vaaj or marine
 		case PUP_EXPLOSIVEIGNORERESIST:
@@ -219,7 +201,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		return GetPlayerAttributeValue(pnum, INV_EX_KNOCKBACK_IMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "GryphonCheck");
 		
 		case PUP_CURSEIMMUNITY:
-		return GetPlayerAttributeValue(pnum, INV_EX_CURSEIMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50");
+		return GetPlayerAttributeValue(pnum, INV_EX_CURSEIMMUNITY)/* || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50")*/;
 		
 		case PUP_PAINSHAREDWITHPETS:
 		return GetPlayerAttributeValue(pnum, INV_EX_DMGREDUCE_SHAREWITHPETS);
@@ -462,10 +444,8 @@ int GetActorSpawnHealth(int t) {
 }
 
 void HandleCurseImmunityRemoval() {
-	// if not marine and level less than 50, take it
 	// we shouldnt immediately take it as there might be other ways the player has obtained curse immunity
-	bool isMarine = isPlayerClass(DND_PLAYER_MARINE);
-	if((!isMarine || CheckInventory("Level") < 50) && !GetPlayerAttributeValue(PlayerNumber(), INV_EX_CURSEIMMUNITY))
+	if(!GetPlayerAttributeValue(PlayerNumber(), INV_EX_CURSEIMMUNITY))
 		TakeInventory("CurseImmunity", 1);
 }
 
@@ -534,10 +514,18 @@ int GetActorAttributeValue(int tid, int attrib) {
 	return PlayerModValues[tid - P_TIDSTART][attrib];
 }
 
-void CalculatePlayerAccuracy(int pnum) {
+void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 	int acc = GetPlayerAttributeValue(pnum, INV_ACCURACY_INCREASE) + GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT);
+	int acc_pct = GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT2);
+
+	if(wepid == -1)
+		wepid = CheckInventory("DnD_WeaponID");
+
+	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && IsBoomstick(wepid))
+		acc_pct += DND_HOBO_ACCURACYBONUS;
+
 	// omnisight essence gives % increased accuracy
-	acc += (acc * GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT2)) / 100;
+	acc += (acc * acc_pct) / 100;
 	if(acc > DND_ACCURACY_CAP)
 		acc = DND_ACCURACY_CAP;
 	//printbold(s:"calc acc ", d:acc);

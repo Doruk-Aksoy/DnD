@@ -41,6 +41,7 @@ Player/SlimeBurn2			PLYSBRN2
 $random Player/SlimeBurn { Player/SlimeBurn1 Player/SlimeBurn2 }
 
 Marine/Taunt				PLYTNT
+Marine/Shielded				MARSHLDD
 
 /*$playeralias			TheMarine		Male		*pain100		Player/Pain100
 $playeralias			TheMarine		Male		*pain75			Player/Pain75

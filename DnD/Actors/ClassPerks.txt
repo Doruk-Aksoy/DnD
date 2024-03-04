@@ -56,24 +56,36 @@ Actor Marine_Perk5 : DnD_Boolean { }
 
 Actor Marine_Perk25 : DnD_Boolean { }
 
-Actor Marine_Perk50 : CurseImmunity {
-	damagefactor "ImpPoison_Roach", 0.0
-	damagefactor "ImpPoison_Vulgar", 0.0
-	damagefactor "DemonPoison_EarthGolem", 0.0
-	damagefactor "RevSludge", 0.0
-	damagefactor "RevPoison_Crawler", 0.0
-	damagefactor "CacoPoison", 0.0
-	damagefactor "PainePoison", 0.0
-	damagefactor "BaronsPoison", 0.0
-	damagefactor "Slime", 0.0
-	damagefactor "Poison", 0.0
+Actor Marine_Perk50 : DnD_Boolean { }
+
+Actor Marine_DamageReduction_Timer : DnD_Info {
+	inventory.maxamount 525
 }
+
+Actor Marine_Perk50_Cooldown : DnD_Info {
+	inventory.maxamount 6300
+}
+
+Actor Marine_Perk50_DamageDealt : DnD_Info { }
 
 Actor Hobo_Perk5 : DnD_Boolean { }
 
 Actor Hobo_Perk25 : DnD_Boolean { }
 
 Actor Hobo_Perk50 : DnD_Boolean { }
+
+Actor Hobo_ShotgunTag : Inventory {
+	inventory.maxamount 4
+}
+
+Actor Hobo_ShotgunTag_Window : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -10
+}
+
+Actor Hobo_ShotgunFrenzyTimer : DnD_Info {
+	inventory.maxamount 700 // default setup is 350 = 10 secs
+}
 
 Actor Punisher_Perk5 : DnD_Boolean { }
 

@@ -728,7 +728,7 @@ int GetShopPrice (int id, int priceflag) {
 	}
 	
 	if((GetItemFlags(id) & OBJ_SHOTGUN) && CheckInventory("Hobo_Perk5")) {
-		res -= res / 5;
+		res -= res / 4;
 		if(res < 0)
 			res = 0;
 	}
@@ -4867,7 +4867,8 @@ void GetInputOnMenuPage(int opt) {
 int GetAmmoSlotAndIndexFromShop(int index) {
 	if(index < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 		for(int i = 0; i < MAX_SLOTS; ++i)
-			for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT; ++j) {
+			int temp = GetAmmoSlotMaxIndex(i);
+			for(int j = 0; j < temp; ++j) {
 				if(MenuAmmoIndexMap[i][j] == index)
 					return i | (j << 16);
 			}

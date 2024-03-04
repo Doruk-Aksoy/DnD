@@ -1303,22 +1303,31 @@ statusbar normal, fullscreenoffsets {
   drawselectedinventory alternateonempty, center, NCNormalFont, -23, -106, -8, -100, NCWhiteC {}
   else { drawimage "ARTIBOX", -42, -125; }
   
-  // cyborg display
-  InInventory Cyborg_InstabilityStack {
-	drawbar "INSTICO", "INSTICOB", Cyborg_Instability_Timer, vertical, -152, -200;
-	drawnumber 2, NCNormalFont, NCWhiteC, Cyborg_InstabilityStack, alignment(center), -122, -144;
-  }
+	// marine display
+	InInventory Marine_DamageReduction_Timer {
+		drawbar "MRESICO", "MRESICOB", Marine_DamageReduction_Timer, vertical, -152, -200;
+	}
+	
+	InInventory Marine_Perk50_Cooldown {
+		drawbar "MRCDICO", "MRESICOB", Marine_Perk50_Cooldown, vertical, -152, -200;
+	}
   
-  // berserker display
-  InInventory Berserker_DamageTracker {
-	drawbar "BERSICO1", "BERSICB1", Berserker_DamageTimer, vertical, -152, -200;
-	drawnumber 2, NCNormalFont, NCWhiteC, Berserker_DamageTracker, alignment(center), -122, -144;
-  }
-  
-  InInventory Berserker_HitTracker {
-	drawbar "BERSICO2", "BERSICB2", Berserker_HitTimer, vertical, -88, -200;
-	drawnumber 2, NCNormalFont, NCWhiteC, Berserker_HitTracker, alignment(center), -58, -144;
-  }
+	// cyborg display
+	InInventory Cyborg_InstabilityStack {
+		drawbar "INSTICO", "INSTICOB", Cyborg_Instability_Timer, vertical, -152, -200;
+		drawnumber 2, NCNormalFont, NCWhiteC, Cyborg_InstabilityStack, alignment(center), -122, -144;
+	}
+
+	// berserker display
+	InInventory Berserker_DamageTracker {
+		drawbar "BERSICO1", "BERSICB1", Berserker_DamageTimer, vertical, -152, -200;
+		drawnumber 2, NCNormalFont, NCWhiteC, Berserker_DamageTracker, alignment(center), -122, -144;
+	}
+
+	InInventory Berserker_HitTracker {
+		drawbar "BERSICO2", "BERSICB2", Berserker_HitTimer, vertical, -88, -200;
+		drawnumber 2, NCNormalFont, NCWhiteC, Berserker_HitTracker, alignment(center), -58, -144;
+	}
   
 	InInventory RuinationStacks, 1 {
 		InInventory RuinationStacks, 2 {

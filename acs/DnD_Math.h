@@ -165,6 +165,10 @@ int SmoothSine(int x) {
 	return 1.0 - sin(x);
 }
 
+int SmoothStartStop(int x) {
+	return x < 0.5 ? 2 * FixedMul(x, x) : 1 - FixedMul(-2 * x + 2, -2 * x + 2) / 2;
+}
+
 int lerpDouble(int d1, int d2, int a) {
 	return d1 + FixedMul(d2 - d1, a);
 }
