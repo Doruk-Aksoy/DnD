@@ -129,9 +129,6 @@ typedef struct {
 	str name;
 } ammo_info_T;
 
-#define AMMOINFO_ICON 0
-#define AMMOINFO_NAME 1
-
 global ammo_info_T 16: AmmoInfo[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT];
 
 void SetupAmmoInfos() {
@@ -471,7 +468,7 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 	int amt = 0;
 	if (basic_kind > 0) {
 		amt = GetAmmoContainerValue(slot, 0); // large pack
-		if (basic_kind <= 2)
+		if (basic_kind == 2)
 			amt /= 5; // small pack
 		if (basic_kind == 1)
 			amt /= 2; // dropped pack (clip only)

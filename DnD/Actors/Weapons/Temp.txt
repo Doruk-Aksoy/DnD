@@ -186,6 +186,7 @@ Actor SawedoffPickup : CustomInventory
     XScale 0.4
 	Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Sawedoff - 9\c-"
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -753,6 +754,7 @@ Actor SoulRenderPickup : CustomInventory
 	Height 24
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Soul Render - 9\c-"	
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -941,6 +943,7 @@ Actor SMGPickup : CustomInventory
 	Scale 0.65
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Submachine Gun - 9"	
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -1298,6 +1301,7 @@ Actor HellforgeCannonPickup : CustomInventory
 	Height 24
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Hellforge Cannon - 9\c-"	
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -1620,6 +1624,7 @@ Actor SpinePickup : CustomInventory
 	Height 24
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Bloodfiend Spine - 9\c-"	
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -1850,6 +1855,7 @@ Actor LaserPickup : CustomInventory
 	YScale 0.8
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Enforcer Laser Rifle - 9\c-"	
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -2271,6 +2277,7 @@ Actor VenomPickup : CustomInventory
 	Height 24
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Venom - 9\c-"	
+	+DONTGIB
 	Scale 0.67
 	States
 	{
@@ -2561,6 +2568,7 @@ Actor DemonHeartPickup : CustomInventory
 	Height 24
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Demon Heart - 9\c-"	
+	+DONTGIB
 	Scale 0.67
 	States
 	{
@@ -2856,6 +2864,7 @@ Actor DarkServantGlovesPickup : CustomInventory
 	Height 24
 	Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Dark Servant Gloves - 9\c-"
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -3138,6 +3147,7 @@ Actor Nailgun2Pickup : CustomInventory
 	Height 24
 	Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Heavy Nailgun - 9\c-"
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -3327,6 +3337,7 @@ Actor BerettasPickup : CustomInventory
 	Height 24
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Akimbo Berettas - 9\c-"	
+	+DONTGIB
 	Scale 0.75
 	States
 	{
@@ -3677,6 +3688,7 @@ Actor PlasmaBolterPickup : CustomInventory
 	Height 24
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Plasma Bolter - 9\c-"	
+	+DONTGIB
 	States
 	{
 		Spawn:
@@ -3906,6 +3918,7 @@ Actor RipperCannonPickup : CustomInventory {
 	Scale 0.8
     Inventory.PickupSound "weapons/pickup"
     Inventory.pickupmessage "\ccWeapon Pickup : \c[Y5]Ripper Cannon - 9"	
+	+DONTGIB
 	States {
 		Spawn:
 			TWP0 X -1

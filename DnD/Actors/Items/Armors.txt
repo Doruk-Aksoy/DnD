@@ -242,13 +242,14 @@ Actor ArmorDrop : InventoryBase {
 	}
 }
 
+// these have 3 second spawn times because... we want to ensure they spawn the thing at their location and not "0,0" default in case they expired by the time the script can finally run!
 Actor ArmorDropper replaces GreenArmor {
 	+NOINTERACTION
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 3 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 1)
-		Stop
+			SARG A -1 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 1)
+		Wait
 	}
 }
 
@@ -257,8 +258,8 @@ Actor ArmorDropper_HighTier replaces BlueArmor {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 3 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 2)
-		Stop
+			SARG A -1 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 2)
+		Wait
 	}
 }
 

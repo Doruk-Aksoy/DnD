@@ -1,13 +1,12 @@
 #ifndef DND_INV_GEN_IN
 #define DND_INV_GEN_IN
 
-void SpawnArmor(int pnum, int rarity_boost, int tiers = 0) {
+void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false) {
     int c = CreateItemSpot();
 	if(c != -1) {
         int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
-
         // depending on armor type rolled, spawn its appropriate actor
-        SpawnPlayerDrop(pnum, GetArmorDropClass(type), 16.0, 16, pnum + 1, c);
+        SpawnPlayerDrop(pnum, GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
@@ -15,7 +14,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0) {
 }
 
 // monsters dropping charms
-void SpawnCharm(int pnum, int rarity_boost, int unused = 0) {
+void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
@@ -26,7 +25,7 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0) {
 		#endif
 		{
 			MakeUnique(c, DND_ITEM_CHARM, pnum);
-			SpawnPlayerDrop(pnum, "UniqueCharmDrop", 16.0, 16, pnum + 1, c);
+			SpawnPlayerDrop(pnum, "UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 		else {
 			RollCharmInfo(c, RollItemLevel(), pnum);
@@ -37,19 +36,19 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0) {
 	}
 }
 
-void SpawnPowercore(int pnum, int rarity_boost, int unused = 0) {
+void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
     int c = CreateItemSpot();
 	if(c != -1) {
         int type = RollPowercoreInfo(c, RollItemLevel(), pnum);
 
         // depending on armor type rolled, spawn its appropriate actor
-        SpawnPlayerDrop(pnum, GetPowercoreDropClass(type), 24.0, 16, pnum + 1, c);
+        SpawnPlayerDrop(pnum, GetPowercoreDropClass(type), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_POWERCORE);
 	}
 }
 
-void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0) {
+void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0, bool noRandomVelXY = false) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
@@ -59,14 +58,14 @@ void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0) {
 		for(; i < MAX_TOKENS && TokenWeights[i] < w; ++i);
 		
 		RollTokenInfo(c, i, true);
-        SpawnPlayerDrop(pnum, GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c);
+        SpawnPlayerDrop(pnum, GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
 	}
 }
 
 void SpawnItemForAll(int type, int repeats = 1) {
-    void function(int, int, int)& f = SpawnArmor;
+    void function(int, int, int, bool)& f = SpawnArmor;
     switch(type) {
         case DND_ITEM_CHARM:
             f = SpawnCharm;
@@ -85,7 +84,7 @@ void SpawnItemForAll(int type, int repeats = 1) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j))
-				f(j, 0, 0);
+				f(j, 0, 0, 0);
 		}
 	}
 }

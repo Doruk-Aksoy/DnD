@@ -68,6 +68,9 @@ enum {
 };
 #define MAXPLAYERCLASSES (DND_PLAYER_BERSERKER + 1)
 
+#define DND_PLAYER_RADIUS 16.0
+#define DND_PLAYER_RADIUS_INT (DND_PLAYER_RADIUS >> 16)
+
 #define DND_MARINE_SELFEXPLOSIVEREDUCE 25
 #define DND_MARINE_EXPLOSIVEREDUCTION 33
 
@@ -224,7 +227,8 @@ enum {
 	SETUP_MONSTERS,
 	SETUP_ITEMTABLES,
 	SETUP_MAPCHANGED,
-	SETUP_WEAPONDATA
+	SETUP_WEAPONDATA,
+	SETUP_PLAYERINFO_MINMAXLEVELS,
 };
 global int 55: SetupStates[2];
 
@@ -359,6 +363,8 @@ void ResetPlayerInformationLevel() {
 	PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] = 0;
 	PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER] = 0;
 	pinfo_pending_reset = false;
+
+	SetupUndo(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
 }
 
 void GiveMonsterTID(int base_tid) {
@@ -577,9 +583,10 @@ void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecia
 	Thing_ChangeTID(DND_DROP_TID, 0);
 }
 
-void SpawnDropAtActor(int dest_tid, str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
+void SpawnDropAtActor(int dest_tid, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
 	SpawnForced(actor, GetActorX(dest_tid), GetActorY(dest_tid), GetActorZ(dest_tid) + zoffset, DND_DROP_TID);
-	ThrustThing(random(0, 255), random(3, 6), 0, DND_DROP_TID);
+	if(!noRandomVelXY)
+		ThrustThing(random(0, 255), random(3, 6), 0, DND_DROP_TID);
 	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
 	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
 	Thing_ChangeTID(DND_DROP_TID, 0);

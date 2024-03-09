@@ -688,7 +688,7 @@ actor StoneDemonBoulder {
 	Scale 0.7
 	Speed 20
 	VSpeed 3
-	Damage (random(6,12))
+	Damage (random(4, 7))
 	DamageType "Physical"
 	Stamina 1
 	States {

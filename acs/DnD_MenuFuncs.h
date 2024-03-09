@@ -3183,8 +3183,12 @@ void PlayItemDropSound(int type, bool use_activator_sound) {
 	else if(type == DND_ITEM_POWERCORE)
 		snd = "Items/PowercoreDrop";
 
-	if(!use_activator_sound)
+	if(!use_activator_sound) {
+		// this is the "unequip item" case, we should use this one as charms dont have their own "throw" sound
+		if(type == DND_ITEM_CHARM)
+			snd = "Items/CharmDrop";
 		LocalAmbientSound(snd, 127);
+	}
 	else
 		ActivatorSound(snd, 127);
 }
@@ -4357,7 +4361,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 			else
 				modText = StrParam(s:"\c[Y5]* ", l:"WEPMOD_TEXT1", s:": \c[Q9]+", d:temp, s:"% \n");
 		}
-		temp = GetCritChance(j, extra1);
+		temp = GetCritChance(j, -1, extra1);
 		if(temp)
 			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_CRIT), s:"\n");
 		else {
@@ -4573,7 +4577,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						prevselect = CheckInventory("DnD_SelectedInventoryBox") - 1;
 						if(prevselect >= 0 && prevselect < MAX_CRAFTING_ITEMBOXES) {
 							if(curopt == MENU_LOAD_CRAFTING_WEAPON) {
-								if(HandleMaterialUse(pnum, curitemeindex, previtemindex))
+								if(HandleMaterialUse(pnum, curitemeindex, previtemindex, true))
 									UsePlayerItem(pnum, curitemeindex, true);
 								else
 									ShowPopup(POPUP_MATERIALCANTUSE, false, 0);
@@ -4795,14 +4799,18 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 
 // returns success of use of item
 // item is craft material, target is the item we intend to use it on
-bool HandleMaterialUse(int pnum, int itemindex, int targetindex) {
+bool HandleMaterialUse(int pnum, int itemindex, int targetindex, bool isWeapon = false) {
 	bool res = false;
 	int itype = PlayerInventoryList[pnum][itemindex].item_type;
 	int isubtype = PlayerInventoryList[pnum][itemindex].item_subtype;
 	
 	int targettype = DND_ITEM_NULL;
-	if(targetindex != -1)
-		targettype = PlayerInventoryList[pnum][targetindex].item_type;
+	if(targetindex != -1) {
+		if(!isWeapon)
+			targettype = PlayerInventoryList[pnum][targetindex].item_type;
+		else
+			targettype = DND_ITEM_WEAPON;
+	}
 
 	// printbold(s:"type: ", d:itype, s: " ", d:isubtype);
 	// self usable materials usually go here as they have targettype NULL

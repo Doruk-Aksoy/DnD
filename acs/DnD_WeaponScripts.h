@@ -362,9 +362,7 @@ Script "DND Thunderstaff Bolts" (void) {
 				tcount = dist;
 				
 				// do not tokenize to not affect projectiles and clear crit flag after consumption
-				if(CheckCritChance(DND_WEAPON_THUNDERSTAFF, false, -1, true))
-					actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-				else if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
+				if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 					actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
 				
 				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, px, py, pz, actor_flags);
@@ -432,9 +430,7 @@ Script "DND Thunderstaff Lightning" (void) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
 			//SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
 			
-			if(CheckCritChance(DND_WEAPON_THUNDERSTAFF, false, -1, true))
-				actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-			else if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
+			 if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 				actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
 			
 			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0, 0, 0, actor_flags);
@@ -582,7 +578,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 }
 
 Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_dmg) {
-	bool projcrit = victim >> 17;
+	//bool projcrit = victim >> 17;
 	victim &= 0xFFFF;
 	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS) / (5 * damage / base_dmg), 16, 4096);
 	bool was_flying = CheckFlag(victim, "NOGRAVITY");
@@ -646,7 +642,7 @@ Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_d
 	// apply the damage
 	int height_factor = (GRAVDIS_HEIGHT_FACTOR * height / GRAVDIS_HEIGHTADD_PER) >> 16;
 	SetActivator(dmg_source);
-	HandleImpactDamage(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_DAMAGEFLAG_FOILINVUL, DND_WEAPON_GRAVDIS, false, projcrit);
+	HandleImpactDamage(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_DAMAGEFLAG_FOILINVUL, DND_WEAPON_GRAVDIS, false);
 	ACS_NamedExecuteWithResult("DnD Gravdis FX Spawner", victim, 1);
 	
 	SetResultValue(0);

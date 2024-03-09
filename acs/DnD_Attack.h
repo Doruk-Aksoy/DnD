@@ -778,9 +778,7 @@ void HandleAttackEvent(int wepid, int isSpecial, int extra) {
 	}
 	
 	// reset crit roll before we check for crit on this attack again
-	PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = false;
-	
-	CheckCritChance(wepid, isSpecial, extra);
+	UnsetPlayerWeaponCritState(pnum, wepid);
 	
 	// do the quest checks for slot guns being used
 	DoSlotWeaponQuestChecks(wepid);

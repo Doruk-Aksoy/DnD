@@ -223,6 +223,48 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
 global int 27: PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
 
+// we use this as a bitfield -- 64 players => 2 ints
+// stores player weapon crit state
+int PlayerDamageCritState[MAXWEPS][2];
+int PlayerDamageCritLock[MAXWEPS][2];
+#define CRIT_CLEAR_WAIT_TIME 2 // +1 tics added on top
+
+bool GetPlayerWeaponCritState(int pnum, int wepid) {
+	if(pnum > 31)
+		return PlayerDamageCritState[wepid][1] & (1 << (pnum - 32));
+	return PlayerDamageCritState[wepid][0] & (1 << pnum);
+}
+
+void SetPlayerWeaponCritState(int pnum, int wepid) {
+	if(pnum > 31)
+		PlayerDamageCritState[wepid][1] |= (1 << (pnum - 32));
+	PlayerDamageCritState[wepid][0] |= (1 << pnum);
+}
+
+void UnsetPlayerWeaponCritState(int pnum, int wepid) {
+	if(pnum > 31)
+		PlayerDamageCritState[wepid][1] &= ~(1 << (pnum - 32));
+	PlayerDamageCritState[wepid][0] &= ~(1 << pnum);
+}
+
+bool GetPlayerWeaponCritLock(int pnum, int wepid) {
+	if(pnum > 31)
+		return PlayerDamageCritLock[wepid][1] & (1 << (pnum - 32));
+	return PlayerDamageCritLock[wepid][0] & (1 << pnum);
+}
+
+void LockPlayerCritState(int pnum, int wepid) {
+	if(pnum > 31)
+		PlayerDamageCritLock[wepid][1] |= (1 << (pnum - 32));
+	PlayerDamageCritLock[wepid][0] |= (1 << pnum);
+}
+
+void UnlockPlayerCritState(int pnum, int wepid) {
+	if(pnum > 31)
+		PlayerDamageCritLock[wepid][1] &= ~(1 << (pnum - 32));
+	PlayerDamageCritLock[wepid][0] &= ~(1 << pnum);
+}
+
 // All resists uniformly follow same factors
 int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
 	int temp = GetPlayerAttributeValue(pnum, res_attribute);
@@ -246,8 +288,8 @@ bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid 
 			temp = GetActorProperty(0, APROP_TARGETTID);
 			SetActorProperty(0, APROP_SCORE, temp);
 			
-			res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
-			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+			/*res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);*/
 			
 			SetActivator(0, AAPTR_TARGET);
 		}
@@ -256,8 +298,8 @@ bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid 
 		if(flags & DND_WDMG_SETMASTER) {
 			temp = GetActorProperty(0, APROP_MASTERTID);
 		
-			res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
-			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+			/*res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);*/
 		
 			// this is a hack
 			SetPointer(AAPTR_TARGET, temp);
@@ -267,8 +309,8 @@ bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid 
 		
 			SetActorProperty(0, APROP_SCORE, temp);
 			
-			res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
-			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+			/*res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+			SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);*/
 			
 			SetActivator(GetActorProperty(0, APROP_MASTERTID));
 		}
@@ -276,8 +318,8 @@ bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid 
 	else if(flags & DND_WDMG_USETRACER) {
 		temp = GetActorProperty(0, APROP_TRACERTID);
 		
-		res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
-		SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+		/*res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+		SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);*/
 	
 		SetActivator(0, AAPTR_TRACER);
 	}
@@ -286,8 +328,8 @@ bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid 
 		if(!GetActorProperty(0, APROP_SCORE))
 			SetActorProperty(0, APROP_SCORE, temp);
 		
-		res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
-		SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);
+		/*res = crit_check && (CheckActorInventory(temp, "DnD_CritToken") || (wepid != -1 && PlayerCritState[temp - P_TIDSTART][DND_CRITSTATE_CONFIRMED][wepid]));
+		SetActorProperty(0, APROP_ACCURACY, res * DND_CRIT_TOKEN);*/
 		
 		SetActivator(temp);
 	}
@@ -515,7 +557,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		
 		// special damage increase attributes -- usually obtained by means of charms
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
-		if(temp && IsWeaponLightningType(wepid, dmgid, isSpecial - 1))
+		if(temp && IsWeaponLightningType(wepid))
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
 		// shotgun damage bonus
@@ -995,14 +1037,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		return;
 	
 	int pnum = source - P_TIDSTART;
-	
-	// check if the damage is to be dealt without any reductions from resistances or immunities
-	forced_full |= 	(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
-					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckUniquePropertyOnPlayer(pnum, PUP_SPELLSDOFULL))					||
-					(IsOccultDamage(damage_type) && IsQuestComplete(0, QUEST_KILLDREAMINGGOD))									||
-					(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
-					(IsExplosionDamage(damage_type) && CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))			||
-					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL));
 
 	// check blocking/invulnerable status of monster -- if they are and we dont have foilinvul on this, no penetration
 	if
@@ -1017,31 +1051,17 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 			return;
 		}
 	}
+
+	// check if the damage is to be dealt without any reductions from resistances or immunities
+	forced_full |= 	(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
+					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckUniquePropertyOnPlayer(pnum, PUP_SPELLSDOFULL))					||
+					(IsOccultDamage(damage_type) && IsQuestComplete(0, QUEST_KILLDREAMINGGOD))									||
+					(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
+					(IsExplosionDamage(damage_type) && CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))			||
+					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL));
 	
 	int extra = 0;
 	int poison_factor = 0;
-	
-	// extra property checks moved here
-	if(!wep_neg) {
-		// chance to force pain
-		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_FORCEPAINCHANCE);
-		if(extra && extra > random(1, 100))
-			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
-		
-		// poison on hit with % dmg
-		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
-		poison_factor = extra + (!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * DND_BASE_POISON_FACTOR;
-		//flags |= (!!poison_factor) * DND_DAMAGEFLAG_INFLICTPOISON;
-		
-		// percent damage of monster if it exists
-		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_PERCENTDAMAGE);
-		dmg += (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * extra) / 100;
-		flags |= (!!extra) * DND_DAMAGEFLAG_PERCENTHEALTH;
-	}
-	else if(flags & DND_DAMAGEFLAG_ISSPELL) {
-		// check if it has any poison factor on the spell
-		poison_factor = GetSpellPoisonFactor(wepid);
-	}
 	
 	// pain checks
 	if(actor_flags & DND_ACTORFLAG_PAINLESS)
@@ -1068,33 +1088,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		if(temp)
 			dmg = ApplyDamageFactor_Safe(dmg, 100 + temp * DND_DESOLATOR_DMG_GAIN);
 	}
-	
-	// handle resists and all that here
-	//printbold(s:"res calc");
-	temp = dmg;
-	dmg = FactorResists(source, victim, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
-	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
-	if(dmg > temp)
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
-	else if(dmg < temp / 4)
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
-	else if(dmg < temp)
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
-	
-	// handle poison checks
-	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
-	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_VENOMANCER)) {
-		// poison damage deals 10% of its damage per stack over 3 seconds
-		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
-			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
-			// 2% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
-			poison_factor = Max(DND_BASE_POISON_FACTOR, poison_factor);
-			extra = Max((dmg * poison_factor) / 100, 1);
-			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, extra, wepid);
-			//printbold(s:"poison received by ", d:victim);
-		}
-	}
-	
+
 	if((flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_SILVER_WEAKNESS]) {
 		dmg *= DND_EXTRAUNDEADDMG_MULTIPLIER;
 		
@@ -1130,16 +1124,79 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// ACCESSORY EFFECTS
 	dmg = HandlePlayerBuffs(source, victim, dmg, damage_type, wepid, flags, no_ignite_stack);
 	
-	// finally the crit check if applicable
-	if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) {
-		//printbold(s:"confirmed crit with factor application: ", d:dmg, s: " => ", d: ConfirmedCritFactor(dmg, wepid));
-		// DOT doesn't crit
-		if((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME))
-			actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
-		else
-			dmg = ConfirmedCritFactor(dmg, wepid);
+	// extra property checks moved here
+	// WE CHECK FOR CRITS HERE, EITHER WEAPON OR SPELL! THE FINAL STEP BEFORE RESISTS
+	if(!wep_neg) {
+		// chance to force pain
+		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_FORCEPAINCHANCE);
+		if(extra && extra > random(1, 100))
+			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
+		
+		// poison on hit with % dmg
+		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
+		poison_factor = extra + (!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * DND_BASE_POISON_FACTOR;
+		//flags |= (!!poison_factor) * DND_DAMAGEFLAG_INFLICTPOISON;
+		
+		// percent damage of monster if it exists
+		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_PERCENTDAMAGE);
+		dmg += (MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp * extra) / 100;
+		flags |= (!!extra) * DND_DAMAGEFLAG_PERCENTHEALTH;
+
+		// not DOT and we can roll crit
+		if
+		(
+			!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) && 
+			!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && 
+			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || GetPlayerWeaponCritState(pnum, wepid) || (!GetPlayerWeaponCritLock(pnum, wepid) && CheckCritChance(pnum, victim, wepid, IsLightningDamage(damage_type))))
+		)
+		{
+			SetPlayerWeaponCritState(pnum, wepid);
+			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+		}
+
+		LockPlayerCritState(pnum, wepid);
 	}
+	else if(flags & DND_DAMAGEFLAG_ISSPELL) {
+		// check if it has any poison factor on the spell
+		poison_factor = GetSpellPoisonFactor(wepid);
+
+		if
+		(
+			!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) && 
+			!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) && 
+			((actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) || CheckCritChance(pnum, victim, -1, 0, IsLightningDamage(damage_type)))
+		)
+		{
+			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+		}
+	}
+
+	// FINALIZED DAMAGE WILL BE BELOW, AFTER RESISTS!
+	//printbold(s:"res calc");
+	temp = dmg;
+	dmg = FactorResists(source, victim, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
+	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
+	if(dmg > temp)
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
+	else if(dmg < temp / 4)
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+	else if(dmg < temp)
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
 	
+	// handle poison checks
+	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
+	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_VENOMANCER)) {
+		// poison damage deals 10% of its damage per stack over 3 seconds
+		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
+			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
+			// 2% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
+			poison_factor = Max(DND_BASE_POISON_FACTOR, poison_factor);
+			extra = Max((dmg * poison_factor) / 100, 1);
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, extra, wepid);
+			//printbold(s:"poison received by ", d:victim);
+		}
+	}
+
 	// damage number handling - NO MORE DAMAGE FIDDLING FROM BELOW HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
 	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
@@ -1194,7 +1251,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		if(GetActorProperty(victim, APROP_HEALTH) <= dmg)
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 		Thing_Damage2(victim, dmg, s_damagetype);
-		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, dmg, source);
 
 		if(isActorAlive(victim) && CheckInventory("Doomguy_Perk50") && IsMonsterIdDemon(victim - DND_MONSTERTID_BEGIN))
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
@@ -1285,8 +1341,8 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 			else
 				final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
 				
-			// crit check done explicitly here for player, player doesn't use HandleDamageDeal
-			final_dmg = ConfirmedCritFactor(final_dmg, wepid);
+			// crit check done explicitly here for player, player doesn't use HandleDamageDeal -- victim is owner here
+			final_dmg = ConfirmedCritFactor(final_dmg, owner, final_dmg, wepid);
 				
 			// added sight check to fix explosives hurting behind walls bug
 			if(final_dmg > 0 && CheckSight(0, owner, CSF_NOBLOCKALL)) {
@@ -1380,7 +1436,7 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 	SetResultValue(0);
 }
 
-void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false, bool wasCrit = false) {
+void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false) {
 	int px, py, pz;
 	bool victim_IsMonster = IsMonster(victim);
 
@@ -1467,7 +1523,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	
 	if(!wep_neg) {
 		// printbold(d:owner, s: " ", d:victim);
-		if(wasCrit || GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
+		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
 			// printbold(s:"actor got crit confirm");
 		}
@@ -2058,10 +2114,10 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 		
 	// finally crit chance
 	// spells will have their own crit source compared to attacks
-	if(!isSpell && CheckCritChance(-1, false, -1)) {
+	/*if(!isSpell && CheckCritChance(-1, false, -1)) {
 		dmg = dmg * GetCritModifier(-1) / 100;
 		HandleHunterTalisman();
-	}
+	}*/
 	
 	// final additions
 	if((flags & DMG_WDMG_ISARTIFACT) && IsQuestcomplete(0, QUEST_USENOARTIFACT))
@@ -2085,57 +2141,85 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 	int ox = PlayerDamageVector[pnum].x;
 	int oy = PlayerDamageVector[pnum].y;
 	int oz = PlayerDamageVector[pnum].z;
+
+	int victim_tid = victim_data + DND_MONSTERTID_BEGIN;
+	int temp;
 	
 	Delay(const:1);
 
-	// just test code for future if I rework crits
-	/*if(PlayerDamageTicData[pnum][victim_data] > 0) {
-		int victim = victim_data + DND_MONSTERTID_BEGIN;
-		// give this token early to prevent order of events getting mixed up
-		if(GetActorProperty(victim, APROP_HEALTH) <= PlayerDamageTicData[pnum][victim_data])
-			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
-		Thing_Damage2(victim, PlayerDamageTicData[pnum][victim_data], "test_damage_type");
-		IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, PlayerDamageTicData[pnum][victim_data], ActivatorTID());
-	}*/
+	if(flags & DND_DAMAGETICFLAG_CRIT) {
+		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
+		temp = PlayerDamageTicData[pnum][victim_data];
+		PlayerDamageTicData[pnum][victim_data] = ConfirmedCritFactor(pnum, victim_tid, PlayerDamageTicData[pnum][victim_data], wepid);
+
+		// deal the damage difference between the crit and original on top, like hobo thing below
+		Thing_Damage2(victim_tid, PlayerDamageTicData[pnum][victim_data] - temp, "Bullet_NoPain");
+		HandleHunterTalisman();
+	}
+
+	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
+	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
+	// plus we get to adjust the push factor and other things before they affect the monster proper here
+	bool isHoboPowerApplicable = IsBoomstick(wepid) && CheckInventory("Hobo_Perk50");
+	if(isHoboPowerApplicable && CheckInventory("Hobo_ShotgunFrenzyTimer")) {
+		temp = fdistance_delta(ox - GetActorX(victim_tid), oy - GetActorY(victim_tid), oz - GetActorZ(victim_tid));
+		temp -= FixedMul(GetActorProperty(victim_tid, APROP_RADIUS) + DND_PLAYER_RADIUS, 1.207);
+
+		// give leeway for max scale window
+		if(temp < DND_HOBO_SHOTGUNMINBESTDIST)
+			temp = DND_HOBO_SHOTGUNMINBESTDIST;
+		temp >>= 16;
+
+		if(temp <= DND_HOBO_SHOTGUNFALLOFFDIST) {
+			temp = LinearMap(temp, DND_HOBO_SHOTGUNMINBESTDIST_INT, DND_HOBO_SHOTGUNFALLOFFDIST, 0, 100);
+			// 100 - temp because well, we scale inversely with distance... if distance is max we get 100%... so :p
+			temp = PlayerDamageTicData[pnum][victim_data] * (100 - temp) / 100;
+
+			// dmg type at this point should not matter, this is the damage reduced, buffed etc. finalized damage by resist, so buffing it with this "should" theoretically be ok
+			Thing_Damage2(victim_tid, temp, "Bullet_NoPain");
+			PlayerDamageTicData[pnum][victim_data] += temp;
+		}
+	}
+
+	// moved here as it's simpler and more efficient to run this function after 1 tic rather than immediately with multiple instances
+	IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, PlayerDamageTicData[pnum][victim_data], pnum + P_TIDSTART);
 
 	// do the real pushing after 1 tic of dmg data has been accumulated and we have non-zero damage in effect
 	// wep_neg here contains 2 bits: was it negative at 1st bit and was it a one time ripper in 2nd bit
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
-		HandleDamagePush(2 * PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_data + DND_MONSTERTID_BEGIN, wep_neg & 2);
+		HandleDamagePush(2 * PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_tid, wep_neg & 2);
 	
 	if(!(wep_neg & 1)) {
 		// check if player has lifesteal, if they do reward some hp back
 		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS] && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleLifesteal(pnum, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 	}
-
-	ox = victim_data + DND_MONSTERTID_BEGIN;
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance
 	// do these if only the actor was alive after the tic they received dmg
-	if(IsActorAlive(ox)) {
+	if(IsActorAlive(victim_tid)) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
-			HandleChillEffects(pnum, ox);
+			HandleChillEffects(pnum, victim_tid);
 		else if(flags & DND_DAMAGETICFLAG_FIRE)
-			HandleIgniteEffects(pnum, ox, wepid);
+			HandleIgniteEffects(pnum, victim_tid, wepid);
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
-			HandleOverloadEffects(pnum, ox);
+			HandleOverloadEffects(pnum, victim_tid);
 		
 		// frozen monsters cant retaliate		
 		if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(ox, "DnD_FreezeTimer"))
-			GiveActorInventory(ox, "DnD_ViolentRetaliationItem", 1);
-		GiveActorInventory(ox, "DnD_HurtToken", 1);
+			GiveActorInventory(victim_tid, "DnD_ViolentRetaliationItem", 1);
+		GiveActorInventory(victim_tid, "DnD_HurtToken", 1);
 
 		// actor is alive, we can tag with shotgun for hobo perk 50
-		if(IsBoomstick(wepid) && CheckInventory("Hobo_Perk50")) {
+		if(isHoboPowerApplicable && !CheckInventory("Hobo_ShotgunFrenzyTimer")) {
 			// if the window passed, ignore remaining tags
-			if(!CheckActorInventory(ox, "Hobo_ShotgunTag_Window"))
-				SetActorInventory(ox, "Hobo_ShotgunTag", 0);
-			GiveActorInventory(ox, "Hobo_ShotgunTag_Window", 1);
-			GiveActorInventroy(ox, "Hobo_ShotgunTag", 1);
+			if(!CheckActorInventory(victim_tid, "Hobo_ShotgunTag_Window"))
+				SetActorInventory(victim_tid, "Hobo_ShotgunTag", 0);
+			GiveActorInventory(victim_tid, "Hobo_ShotgunTag_Window", 1);
+			GiveActorInventory(victim_tid, "Hobo_ShotgunTag", 1);
 
-			if(!CheckInventory("Hobo_ShotgunFrenzyTimer") && CheckActorInventory(ox, "Hobo_ShotgunTag") >= DND_HOBO_SHOTGUNTAGLIMIT) {
-				SetActorInventory(ox, "Hobo_ShotgunTag", 0);
+			if(CheckActorInventory(victim_tid, "Hobo_ShotgunTag") >= DND_HOBO_SHOTGUNTAGLIMIT) {
+				SetActorInventory(victim_tid, "Hobo_ShotgunTag", 0);
 				GiveInventory("Hobo_ShotgunFrenzyTimer", DND_HOBO_FRENZYBASETIME);
 				CalculatePlayerAccuracy(pnum);
 				ACS_NamedExecuteAlways("DnD Hobo Frenzy Timer", 0);
@@ -2143,13 +2227,17 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		}
 	}
 
-	ACS_NamedExecuteWithResult("DnD Damage Numbers", ox, PlayerDamageTicData[pnum][victim_data], flags);
+	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_tid, PlayerDamageTicData[pnum][victim_data], flags);
 
 	if(CheckInventory("Marine_DamageReduction_Timer"))
 		GiveInventory("Marine_Perk50_DamageDealt", PlayerDamageTicData[pnum][victim_data]);
 	
 	// reset dmg counter on this mob
 	PlayerDamageTicData[pnum][victim_data] = 0;
+
+	Delay(const:CRIT_CLEAR_WAIT_TIME);
+	UnsetPlayerWeaponCritState(pnum, wepid);
+	UnlockPlayerCritState(pnum, wepid);
 	
 	SetResultValue(0);
 }

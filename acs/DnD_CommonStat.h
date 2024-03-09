@@ -85,8 +85,9 @@ enum {
 #define DND_ELITE_BASEDROP 0.0025 // same as below
 // this was 0.05 before, but now 0.005 because we have 10% chance for elite in the game as base, so it'll scale up for all monsters from 0.005 now
 // trying 0.01, 1% chance
-#define DND_ELITE_BASEDROP_ORB 0.015
-#define DND_BASEARMOR_DROP 0.0015
+#define DND_ELITE_BASEDROP_ORB 0.025
+#define DND_BASEARMOR_DROP 0.0075
+#define DND_BASE_CHARMRATE 0.01875
 
 #define DND_BASE_PLAYERSPEED 1.0
 #define DND_STAT_ATTUNEMENT_GAIN 5

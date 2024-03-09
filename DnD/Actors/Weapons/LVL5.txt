@@ -1428,6 +1428,9 @@ Actor TheHammer : Weapon {
 			TNT1 A 0 A_JumpIfInventory("HammerRecallCooldown", 1, "NoCatch")
 		AltFireLoop:
 			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "NoAlt")
+			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "CanCatchHammer")
+		Goto NoAlt
+		CanCatchHammer:
 			FHMR I 1 Offset(8, 32) A_JumpIfInventory("HammerFetched", 1, "Fetch")
 			TNT1 A 0 A_GiveInventory("HammerReturnSignal", 1)
 			FHMR I 1 Offset(8, 32) A_Refire

@@ -492,7 +492,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Shock", CHAN_5);
 					PlaySound(owner, "Shells/Shock2", CHAN_7);
@@ -504,7 +504,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -515,7 +515,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -545,7 +545,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Shock", CHAN_5);
 					PlaySound(owner, "Shells/Shock2", CHAN_7);
@@ -557,7 +557,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -568,7 +568,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -740,7 +740,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Slug", CHAN_5);
 					ammo_handler = "SlugShellHandler";
@@ -751,7 +751,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -762,7 +762,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -949,7 +949,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						ammo_handler = "SonicGrenadeHandler";
 					break;
 					case AMMO_BASICGRENADE:
-						proj_id = DND_PROJ_GRENADE;
+						proj_id = DND_PROJ_GRENADESPECIAL;
 						ammo_type = Weapons_Data[DND_WEAPON_GRENADELAUNCHER].ammo_name1;
 						ammo_handler = "NormalGrenadeHandler";
 					break;
@@ -1082,7 +1082,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						ammo_handler = "SonicGrenadeHandler";
 					break;
 					case AMMO_BASICGRENADE:
-						proj_id = DND_PROJ_GRENADE;
+						proj_id = DND_PROJ_GRENADESPECIAL;
 						ammo_type = Weapons_Data[DND_WEAPON_GRENADELAUNCHER].ammo_name1;
 						ammo_handler = "NormalGrenadeHandler";
 					break;
@@ -1185,6 +1185,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					ammo_handler = "SonicGrenadeHandler";
 				break;
 				case AMMO_BASICGRENADE:
+					// GL uses its own grenade projectile, not special one!!
 					proj_id = DND_PROJ_GRENADE;
 				break;
 			}
@@ -1752,7 +1753,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					DND_DAMAGECATEGORY_OCCULT, 
 					DND_WDMG_ISSLOT9, 
 					false, 
-					CheckInventory("DnD_CritToken") || PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][DND_WEAPON_DEMONHEART]
+					CheckInventory("DnD_CritToken") || GetPlayerWeaponCritState(pnum, DND_WEAPON_DEMONHEART)
 				), 
 				DND_DAMAGETYPE_OCCULT, 
 				90 | (DND_SCANNER_HEART << 16), 

@@ -76,6 +76,8 @@ int ArmorDropWeights[BODYARMORS_REGULAREND + 1] = {
 #define DND_BODYARMOR_BASEWIDTH 2
 #define DND_BODYARMOR_BASEHEIGHT 2
 
+#define MAX_HELM_ATTRIB_DEFAULT 4
+#define MAX_BOOT_ATTRIB_DEFAULT 4
 #define MAX_ARMOR_ATTRIB_DEFAULT 6
 
 // returns type of charm as result
@@ -99,6 +101,10 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
 			res = BODYARMOR_GREEN;
 		else
 			res = BODYARMOR_YELLOW;
+		// make sure everyone can equip this armor (we need this to ensure map spawned armors are readily equippable)
+		item_tier = PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL];
+		if(!item_tier)
+			item_tier = 1;
 	}
 	else if(tiers == 2) {
 		// 1/5 chance to be red
@@ -107,6 +113,9 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
 			res = BODYARMOR_BLUE;
 		else
 			res = BODYARMOR_RED;
+		item_tier = PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL];
+		if(!item_tier)
+			item_tier = 1;
 	}
 	else if(tiers < 0)
 		res = -tiers;
@@ -138,7 +147,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers);
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
 	int special_roll = 0;
-	
+
 	// implicits that come along with the item always
 	switch(armor_type) {
 		case BODYARMOR_GREEN:
@@ -219,7 +228,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, PPOWER_LIGHTNINGABSORB, item_tier, 50);
 		break;
 	}
-	
+
 	while(i < count) {
 		do {
 			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, special_roll);
@@ -325,10 +334,16 @@ Script "DnD Armor Message" (int id, int type) CLIENTSIDE {
 }
 
 Script "DnD Drop Random Basic Armor" (int higher_tier) {
+	// wait for the setup phase to finish
+	while(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+		Delay(const:TICRATE);
+
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnArmor(i, true, higher_tier);
+			SpawnArmor(i, true, higher_tier, true);
 	}
+
+	Thing_Remove(0);
 }
 
 #endif

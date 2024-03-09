@@ -894,6 +894,7 @@ Script "DND On Kill" KILL {
 	// Kill spree
 	if(GetCVar("dnd_killspree"))
 		ActivateKillingSpree();
+		
 	// Hunter Talisman Heal
 	if(i) {
 		GiveInventory("HunterTalismanHealFXSpawner", 1);
@@ -3063,6 +3064,8 @@ Script "DnD Player Setup" ENTER {
 		// wait for monsters to appear
 		Delay(17 * (DND_MAX_MONSTERDELAY + 2));
 	}
+
+	SetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
 	
 	UnfreezePlayer();
 	
@@ -3531,7 +3534,6 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 		Delay(rchrg);
 	}
 
-	LocalAmbientSound("EShield/Begin", 127);
 	ACS_NamedExecuteAlways("DnD Energy Shield FX", 0, cap, pnum);
 
 	// we can start the recovery now, but we still have to check if we enter combat etc.
@@ -3569,6 +3571,9 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 
 	int amt;
 	int x, y, a;
+
+	PlaySound(0, "EShield/Begin", CHAN_6, 1.0);
+
 	while(isAlive() && !CheckInventory("DnD_Hit_CombatTimer") && (amt = CheckInventory("EShieldAmount")) < cap) {
 		// get how far off we are from completion to adjust position and alpha
 		int pct = amt * 100.0 / cap;
@@ -3587,6 +3592,8 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 
 		Delay(const:1);
 	}
+
+	StopSound(0, CHAN_6);
 
 	GiveInventory("EShieldBlend", 1);
 }
@@ -4573,9 +4580,9 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	if(temp)
 		res = res * (100 + temp) / 100;
 		
-	// finally crit chance
-	if(CheckCritChance(-1, false, -1)) {
-		res = res * GetCritModifier(-1) / 100;
+	// finally crit chance -- move to damagedeal for pets in damage event later
+	if(CheckCritChance(pnum, -1, -1, false, -1)) {
+		res = res * GetCritModifier(pnum, -1, -1) / 100;
 		HandleHunterTalisman();
 	}
 	res *= random(rnd & 0xFFFF, rnd >> 16);
@@ -4866,6 +4873,7 @@ Script "DnD Item Linger Check" (int sp) {
 		if(Inventories_On_Field[sp].item_type == DND_ITEM_NULL)
 			Terminate;
 	}
+
 	// not picked until now, remove it
 	RemoveItemFromWorld(sp);
 	Thing_Remove(0);
@@ -4918,7 +4926,7 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	SetUserVariable(0, "user_wepid", wepid);
 	
 	// hack for crit store on burst fire projectiles -- they call this on their initialization phase so at this point we should be able to check the wepid
-	if((wepid != -1 && PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid]) || CheckActorInventory(owner, "DnD_CritToken"))
+	if((wepid != -1 && GetPlayerWeaponCritState(pnum, wepid)) || CheckActorInventory(owner, "DnD_CritToken"))
 		SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
 	
 	if(CheckActorInventory(owner, "NetherCheck"))
@@ -5337,6 +5345,7 @@ Script 68 (int x) NET {
 			SpawnPowercore(0, true);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
+			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 			//SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);

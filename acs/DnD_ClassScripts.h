@@ -68,7 +68,41 @@ Script "DnD Marine Shield Anim" (void) CLIENTSIDE {
     }
 }
 
+Script "DnD Hobo Frenzy Anim" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+    int width = (800 * FixedDiv(1.0, ScreenResOffsets[SCREEN_ASPECT_RATIO])) >> 16;
+	int height = (450 * FixedDiv(1.0, ASPECT_4_3)) >> 16;
+
+    SetHudSize(width, height, 1);
+
+	width = (width << 15) + 0.4;
+	height <<= 15;
+    height = GetIntegerBits(height);
+
+	int anim_count = 0;
+    for(int i = 0; IsAlive() && CheckInventory("Hobo_ShotgunFrenzyTimer"); ++i) {
+        int a = abs(sin(1.0 * (i % 72) / 72));
+        if(a > 0.6)
+            a = 0.6;
+		
+		++anim_count;
+		SetFont("SHGFRZ1");
+		if(anim_count == 4) {
+			anim_count = 0;
+			SetFont("SHGFRZ2");
+		}
+	    HudMessage (s:"A"; HUDMSG_FADEINOUT | HUDMSG_ALPHA, HUD_GRAPHIC_ID, CR_UNTRANSLATED, width, height, 0.333, 0, 0.125, a);
+        Delay(const:1);
+    }
+}
+
 Script "DnD Hobo Frenzy Timer" (void) {
+	PlaySound(0, "Hobo/Frenzy", CHAN_6, 1.0);
+
+	ACS_NamedExecuteAlways("DnD Hobo Frenzy Anim", 0);
+
     while(isAlive() && CheckInventory("Hobo_ShotgunFrenzyTimer")) {
         TakeInventory("Hobo_ShotgunFrenzyTimer", 1);
         Delay(const:1);

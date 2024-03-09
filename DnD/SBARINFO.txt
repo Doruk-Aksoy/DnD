@@ -1311,6 +1311,11 @@ statusbar normal, fullscreenoffsets {
 	InInventory Marine_Perk50_Cooldown {
 		drawbar "MRCDICO", "MRESICOB", Marine_Perk50_Cooldown, vertical, -152, -200;
 	}
+	
+	// hobo display
+	InInventory Hobo_ShotgunFrenzyTimer {
+		drawbar "SGFRNZ", "SGFRNZB", Hobo_ShotgunFrenzyTimer, vertical, -152, -200;
+	}
   
 	// cyborg display
 	InInventory Cyborg_InstabilityStack {

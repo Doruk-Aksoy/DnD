@@ -423,6 +423,34 @@ bool IsStackedItem(int type) {
 	return false;
 }
 
+int GetMaxItemAffixes(int item_type, int item_subtype = -1) {
+	int res = 0;
+
+	if(item_type > UNIQUE_BEGIN)
+		item_type &= 0xFFFF;
+
+	switch(item_type) {
+		case DND_ITEM_CHARM:
+			if(item_subtype == DND_CHARM_SMALL)
+				res = 2;
+			else if(item_subtype == DND_CHARM_MEDIUM)
+				res = 4;
+			else
+				res = 6;
+		break;
+		case DND_ITEM_BODYARMOR:
+			res = MAX_ARMOR_ATTRIB_DEFAULT;
+		break;
+		case DND_ITEM_HELM:
+			res = MAX_HELM_ATTRIB_DEFAULT;
+		break;
+		case DND_ITEM_BOOT:
+			res = MAX_BOOT_ATTRIB_DEFAULT;
+		break;
+	}
+	return res;
+}
+
 int FindInventoryOfType(int player_index, int item_type, int item_subtype) {
 	int i = 0, j = 0, bid = 0;
 	
@@ -1650,8 +1678,11 @@ void CopyItemToField(int fieldpos, int player_index, int item_index, int source)
 void DropItemToField(int player_index, int pitem_index, bool forAll, int source) {
 	int c = CreateItemSpot();
 	
+	// note to self here: subtype should always be looked up on TOPLEFTBOX property... that one index only has the fully synced info, rest dont
 	int itype = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, pitem_index, -1, source);
-	int stype = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, pitem_index, -1, source);
+	int topboxid = GetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, pitem_index, -1, source) - 1;
+	int stype = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, topboxid, -1, source);
+
 	// copy now
 	CopyItemToField(c, player_index, pitem_index, source);
 	str droptype = "CharmDrop";
@@ -1663,8 +1694,9 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetInventoryName(stype + CHESTKEY_BEGIN);
 	else if(itype == DND_ITEM_TOKEN)
 		droptype = GetInventoryName(stype + TOKEN_BEGIN);
-	else if(itype == DND_ITEM_BODYARMOR)
+	else if(itype == DND_ITEM_BODYARMOR) {
 		droptype = GetArmorDropClass(stype);
+	}
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 
@@ -2438,7 +2470,7 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 // can only add attributes to items that are about to be created ie. on field dropped from monster
 void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes = 0) {
 	if(!max_affixes)
-		max_affixes = Charm_MaxAffixes[Inventories_On_Field[item_pos].item_subtype];
+		max_affixes = GetMaxItemAffixes(Inventories_On_Field[item_pos].item_type, Inventories_On_Field[item_pos].item_subtype);
 	if(Inventories_On_Field[item_pos].attrib_count < max_affixes) {
 		int temp = Inventories_On_Field[item_pos].attrib_count++;
 		int lvl = Inventories_On_Field[item_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
@@ -2678,13 +2710,8 @@ void ReforgeItem(int pnum, int item_pos) {
 	int min_count = ScourItem(pnum, item_pos);
 	
 	// subtract the fractured mods on it from what it can max have
-	int attr_count = 0;
-	if(itype == DND_ITEM_CHARM) {
-		int max_natural = RollCharmMaxAttribCount(PlayerInventoryList[pnum][item_pos].item_subtype);
-		attr_count = random(min(1, max_natural - min_count), max_natural - min_count);
-	}
-	else if(itype == DND_ITEM_BODYARMOR)
-		attr_count = random(1, MAX_ARMOR_ATTRIB_DEFAULT) - min_count;
+	int max_natural = GetMaxItemAffixes(itype, PlayerInventoryList[pnum][item_pos].item_subtype);
+	int attr_count = random(1, max_natural) - min_count;
 
 	if(attr_count > 0)
 		AssignAttributes(pnum, item_pos, itype, attr_count);
@@ -2710,11 +2737,11 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	int min_count = ScourItem(pnum, item_pos);
 	
 	// charm group etc.
-	int rand_attr = -1, attr_count = 0;
+	int rand_attr = -1;
+	int attr_count = GetMaxItemAffixes(itype, PlayerInventoryList[pnum][item_pos].item_subtype) - min_count;
 	if(itype == DND_ITEM_CHARM) {
 		craftable_type = DND_CRAFTABLEID_CHARM;
 		rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
-		attr_count = RollCharmMaxAttribCount(PlayerInventoryList[pnum][item_pos].item_subtype) - min_count;
 
 		// in case this is a fully fractured mod item
 		if(attr_count <= 0)
@@ -2723,9 +2750,8 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
 		--attr_count;
 	}
-	else if(itype == DND_ITEM_BODYARMOR) {
-		craftable_type = DND_CRAFTABLEID_BODYARMOR;
-		attr_count = random(1, MAX_ARMOR_ATTRIB_DEFAULT) - min_count;
+	else {
+		craftable_type = MapItemTypeToCraftableID(itype);
 
 		// in case this is a fully fractured mod item or we rolled less than amount of fractures
 		if(attr_count <= 0)

@@ -47,7 +47,7 @@ CLASS2_TEXT				= "Can't tie him, a loose cannon. He'll do whatever he god damn p
 
 CLASS2_PERK1			= "Shotgun weapons have 25% discount.";
 CLASS2_PERK2			= "Shotguns have 25% resist penetration, and have 50% more pellets.";
-CLASS2_PERK3			= "Hitting the same enemy with any shotgun more than 3 times within 10 seconds triggers \ciShotgun Frenzy\c-, if not already frenzied. During this, shotguns don't consume any ammo for 10 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
+CLASS2_PERK3			= "Hitting the same enemy with any shotgun more than 3 times within 10 seconds triggers \ciShotgun Frenzy\c-, if not already frenzied. During this, shotguns don't consume any ammo for 12 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
 
 // Punisher
 

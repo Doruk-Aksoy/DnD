@@ -317,7 +317,9 @@ void SetupUniqueItems() {
 Script "DnD Load Inventory Attributes" OPEN {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
 		SetupInventoryAttributeTable();
+		Delay(const:2);
 		SetupInventoryTagGroups();
+		Delay(const:2);
 		SetupUniqueItems();
 		SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
 	}
@@ -326,6 +328,7 @@ Script "DnD Load Inventory Attributes" OPEN {
 Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
 		SetupInventoryAttributeTable();
+		Delay(const:2);
 		SetupUniqueItems();
 		SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
 	}

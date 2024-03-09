@@ -1493,15 +1493,16 @@ int MapClassicWeaponToTableID(int id) {
 	return ret;
 }
 
-bool IsWeaponLightningType(int wepid, int extra, bool isSpecial) {
+bool IsWeaponLightningType(int wepid) {
 	switch(wepid) {
 		case DND_WEAPON_SHOCKER:
 		case DND_WEAPON_LIGHTNINGGUN:
 		case DND_WEAPON_THUNDERSTAFF:
 		return true;
 	}
+	return false;
 	// SSAM_SHOCK == 2... THIS IS TERRIBLE, UNTANGLE DEPENDENCY HERE LATER!
-	return isSpecial && extra == 2;
+	//return isSpecial && extra == 2;
 }
 
 bool IsMeleeWeapon(int wepid) {

@@ -7,8 +7,6 @@
 
 #define NULL_CHARM -1
 
-#define DND_BASE_CHARMRATE 0.01
-
 #define DND_CHARM_BASEHEIGHT 1
 #define DND_CHARM_BASEWIDTH 1
 
@@ -17,19 +15,6 @@
 str GetCharmTypeName(int id) {
 	return StrParam(s:"DND_CHARMTYPE", d:id + 1);
 }
-
-int Charm_MaxAffixes[MAX_CHARM_TYPES] = {
-	2,
-	4,
-	6
-};
-#define MAX_CHARM_AFFIXES 6
-
-int Charm_MaxUsable[MAX_CHARM_TYPES] = {
-	4,
-	2,
-	1
-};
 
 // returns type of charm as result
 int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
@@ -55,15 +40,11 @@ int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	return res;
 }
 
-int RollCharmMaxAttribCount(int charm_type) {
-	return random(2, 2 * (charm_type + 1));
-}
-
 void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
-	int count = RollCharmMaxAttribCount(charm_type);
+	int count = GetMaxItemAffixes(DND_ITEM_CHARM, charm_type);
 	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:

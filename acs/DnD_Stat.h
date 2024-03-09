@@ -11,13 +11,6 @@
 #include "DnD_WeaponDefs.h"
 #include "DnD_DamageCache.h"
 
-// There's an underlying assumption here and it is that once an attack is concluded, ie. Another "DnD on Attack" script call is made
-// all projectiles that are meant to come from an attack have come out. This is so that projectiles and multi proj delayed attacks get their crit rolls properly
-// In short, we can't support methods where the attack comes way way later after the DnD On Attack call is made. We need to update crit roll immediately on the proj
-#define DND_CRITSTATE_NOCALC 0
-#define DND_CRITSTATE_CONFIRMED 1
-bool PlayerCritState[MAXPLAYERS][2][MAXWEPS];
-
 #define DND_BASE_CRITMODIFIER 200
 #define DND_SAVAGERY_MASTERYBONUS 100
 #define DND_HARDCORE_DROPRATEBONUS 0.15
@@ -313,14 +306,14 @@ bool CheckPlayerLuckDuplicator(int pnum) {
 	return HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE;
 }
 
-void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
-	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2);
+void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
+	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
 	if(CheckPlayerLuckDuplicator(pnum))
 		SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2);
 }
 
-void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thrust, int setspecial, int setspecial2) {
-	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
+void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
+	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
 	if(CheckPlayerLuckDuplicator(pnum))
 		SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
 }
@@ -838,15 +831,20 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE);
 }
 
-int GetCritChance(int pnum, int wepid) {
+int GetCritChance(int pnum, int victim, int wepid) {
 	int chance = GetBaseCritChance(pnum);
-	// add current weapon crit bonuses
-	if(wepid != -1) {
+	// add other flat crit bonuses here
+	if(wepid != -1)
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_WEP].val;
-	}
-	// add percent bonus
+
+	// monster related bonuses
+	//if(victim != -1)
+	
+
+	// add percent bonuses here
 	if(chance)
 		chance = FixedMul(chance, 1.0 + GetPercentCritChanceIncrease(pnum, wepid));
+
 	return chance;
 }
 
@@ -856,15 +854,15 @@ bool CheckGuaranteedCritCases() {
 	return CheckInventory("DnD_GuaranteeCrit_FromDeadliness") && CheckInventory("DnD_DeadlinessMasteryWindow");
 }
 
-bool CheckCritChance(int wepid, bool isSpecial, int extra, bool noToken = false) {
-	int pnum = PlayerNumber();
+bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noToken = false) {
 	// veil disables crits for the cooldown period
 	if(CheckInventory("VeilCheck") && CheckInventory("VeilCooldown"))
 		return false;
+
 	bool res = false;
-	int chance = GetCritChance(pnum, wepid);
+	int chance = GetCritChance(pnum, victim, wepid);
 	
-	if(IsWeaponLightningType(wepid, extra, isSpecial))
+	if(isLightning)
 		chance = FixedMul(chance, 1.0 + GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING));
 		
 	//printbold(s:"running crit chance: ", f:chance);
@@ -879,12 +877,8 @@ bool CheckCritChance(int wepid, bool isSpecial, int extra, bool noToken = false)
 	if(res || CheckGuaranteedCritCases()) {
 		// return true if we got in due to guaranteed case!
 		res = true;
-		if(!noToken) {
-			// this is still needed to embed data into attacks that are delayed
-			if(wepid != -1)
-				PlayerCritState[pnum][DND_CRITSTATE_CONFIRMED][wepid] = true;
+		if(!noToken)
 			GiveInventory("DnD_CritToken", 1);
-		}
 		
 		TakeInventory("DnD_GuaranteeCrit_FromDeadliness", 1);
 		
@@ -908,9 +902,8 @@ void HandleHunterTalisman() {
 	}
 }
 
-int ConfirmedCritFactor(int dmg, int wepid = -1) {
-	dmg = dmg * GetCritModifier(wepid) / 100;
-	HandleHunterTalisman();
+int ConfirmedCritFactor(int pnum, int victim, int dmg, int wepid = -1) {
+	dmg = dmg * GetCritModifier(pnum, victim, wepid) / 100;
 	return dmg;
 }
 
@@ -929,8 +922,7 @@ int GetBaseCritModifier(int pnum, int wepid) {
 	return base + wep_bonus;
 }
 
-int GetCritModifier(int wepid) {
-	int pnum = PlayerNumber();
+int GetCritModifier(int pnum, int victim, int wepid) {
 	int base = GetBaseCritModifier(pnum, wepid); // calculates the regular "base" bonuses
 	
 	// berserker perk50 check
@@ -1258,7 +1250,7 @@ int GetFreezeChance(int pnum, int stacks) {
 }
 
 int GetCritChance_Display(int pnum) {
-	int base = GetCritChance(pnum, -1);
+	int base = GetCritChance(pnum, -1, -1);
 	
 	// how it works: let crit chance be "p", you either get a crit, which is probability "p", or you don't and then you get it, which is p * (1 - p)
 	// add them both, we get: 2p - p^2, which is our theoretical crit chance if we are lucky

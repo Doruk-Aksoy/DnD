@@ -68,6 +68,7 @@ $random Hobo/SoftPain { Hobo/Pain1 Hobo/Pain2 }
 $random Hobo/HardPain { Hobo/Pain1 Hobo/Pain2 Hobo/Pain2 Hobo/Pain3 Hobo/Pain3 Hobo/Pain3 Hobo/Pain3 }
 
 Hobo/Taunt					HOBOTNT
+Hobo/Frenzy					HOBOFRNZ
 
 /*$playersound			TheHobo			Male		*pain100		HOBOPN1
 $playeralias			TheHobo			Male		*pain75			Hobo/SoftPain

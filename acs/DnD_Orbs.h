@@ -84,12 +84,8 @@ bool CanAddModToItem(int pnum, int itemtype, int item_index, int add_lim) {
 		// this one depends on attribute counts of items it is used on
 		if(PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN)
 			res = false;
-		else if(itemtype == DND_ITEM_CHARM) {
-			// printbold(d:PlayerInventoryList[pnum][item_index].attrib_count, s: " < ", d:Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim);
-			res = PlayerInventoryList[pnum][item_index].attrib_count < Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;
-		}
 		else {
-			res = PlayerInventoryList[pnum][item_index].attrib_count < MAX_ARMOR_ATTRIB_DEFAULT + add_lim;
+			res = PlayerInventoryList[pnum][item_index].attrib_count < GetMaxItemAffixes(PlayerInventoryList[pnum][item_index].item_type, PlayerInventoryList[pnum][item_index].item_subtype) + add_lim;
 		}
 	}
 	return res;
@@ -104,8 +100,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 	SetInventory("OrbUseType", orbtype + 1);
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
-			if(extratype == DND_ITEM_WEAPON && GetPlayerWeaponQuality(pnum, extra) != ENHANCEORB_MAX)
-				res = true;
+			res = extratype == DND_ITEM_WEAPON && GetPlayerWeaponQuality(pnum, extra) != ENHANCEORB_MAX;
 		break;
 		case DND_ORB_CORRUPT:
 			res = IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra);
@@ -130,10 +125,15 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// if there's a fractured mod or it's a unique, don't let
 				temp = PlayerInventoryList[pnum][extra].item_type;
-				if(temp == DND_ITEM_CHARM)
-					res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && PlayerInventoryList[pnum][extra].attrib_count >= Max(2, 1 + Charm_MaxAffixes[PlayerInventoryList[pnum][extra].item_subtype] / 2);
-				
-				for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
+
+				// unique case
+				res = temp < UNIQUE_BEGIN;
+
+				// mod count > half case
+				res = res && Max(2, 1 + GetMaxItemAffixes(temp, PlayerInventoryList[pnum][extra].item_subtype) / 2);
+
+				// fracture case
+				for(i = 0; res && i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
 					if(PlayerInventoryList[pnum][extra].attributes[i].fractured) {
 						res = false;
 						break;
@@ -179,7 +179,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res =  !IsInventoryCorrupted(pnum, extra) && CanAddModToItem(pnum, extratype, extra, 0);
 		break;
 		case DND_ORB_POTENCY:
-			if(!IsInventoryCorrupted(pnum, extra)) {
+			if(!IsInventoryCorrupted(pnum, extra) && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN) {
 				temp = PlayerInventoryList[pnum][extra].attrib_count;
 				res = false;
 				for(i = 0; i < temp; ++i) {
@@ -213,6 +213,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			// we must have matching item types, so charm x charm, Y x Y etc.
 			// and we have at least an attribute on both to be taking
 			res = 	PlayerInventoryList[pnum][extra].item_type == PlayerInventoryList[pnum][extratype].item_type && 
+					PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && PlayerInventoryList[pnum][extratype].item_type < UNIQUE_BEGIN &&
 					(PlayerInventoryList[pnum][extra].attrib_count && PlayerInventoryList[pnum][extratype].attrib_count);
 		break;
 	}
@@ -224,6 +225,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled) {
 	int i, temp, aff = GetAffluenceBonus();
 	bool finish = false;
+	int max_possible = GetMaxItemAffixes(PlayerInventoryList[pnum][item_index].item_type, PlayerInventoryList[pnum][item_index].item_subtype);
 
 	// save
 	SaveUsedItemAttribs(pnum, item_index);
@@ -237,7 +239,7 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 		
 		// if not well rolled by default, run the chance (orbs may force it, but sometimes they may not)
 		AddAttributeToItem(pnum, item_index, temp, !isWellRolled ? CheckWellRolled(pnum) : isWellRolled);
-		finish = PlayerInventoryList[pnum][item_index].item_type == DND_ITEM_CHARM && PlayerInventoryList[pnum][item_index].attrib_count >= Charm_MaxAffixes[PlayerInventoryList[pnum][item_index].item_subtype] + add_lim;
+		finish = PlayerInventoryList[pnum][item_index].attrib_count >= max_possible + add_lim;
 	}
 	SyncItemAttributes(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	SetInventory("OrbResult", item_index);
@@ -790,10 +792,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			
 			// will pick anywhere from half of max affix count of a charm to max affix count + 1
 			// if we don't have at least half of affix count of item on total sum of mods, we'll pick between 1 and the sum instead
-			if(temp < Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] / 2)
+			affluence = GetMaxItemAffixes(PlayerInventoryList[pnum][extra2].item_type, PlayerInventoryList[pnum][extra2].item_subtype);
+			if(temp < affluence / 2)
 				s = random(1, temp);
 			else
-				s = random(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] / 2, Min(Charm_MaxAffixes[PlayerInventoryList[pnum][extra2].item_subtype] + 1, temp));
+				s = random(affluence / 2, Min(affluence + 1, temp));
 			
 			/*printbold(
 				s:"start picking ", d:s, s: " attribs with ", d:temp, s: " unique attributes (random from ",
@@ -1333,7 +1336,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now
-		//i = DND_ORB_ELEVATION;
+		i = DND_ORB_POTENCY;
 		RollOrbInfo(c, i, true, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);

@@ -695,12 +695,12 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PELLET_INCREASE].attrib_low = 0.02;
 	ItemModTable[INV_PELLET_INCREASE].attrib_high = 0.04;
 	ItemModTable[INV_PELLET_INCREASE].attrib_level_modifier = 0.02;
-	ItemModTable[INV_PELLET_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
+	ItemModTable[INV_PELLET_INCREASE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_EXPLOSION_RADIUS].attrib_low = 1;
 	ItemModTable[INV_EXPLOSION_RADIUS].attrib_high = 8;
 	ItemModTable[INV_EXPLOSION_RADIUS].attrib_level_modifier = 0;
-	ItemModTable[INV_EXPLOSION_RADIUS].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_EXPLOSIVE;
+	ItemModTable[INV_EXPLOSION_RADIUS].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_SELFDMG_RESIST].attrib_low = 1;
 	ItemModTable[INV_SELFDMG_RESIST].attrib_high = 8;
