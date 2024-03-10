@@ -90,7 +90,6 @@ enum {
 #define DND_BASE_CHARMRATE 0.01875
 
 #define DND_BASE_PLAYERSPEED 1.0
-#define DND_STAT_ATTUNEMENT_GAIN 5
 #define DND_HP_PER_STR 2
 #define DND_HP_PER_LVL 5
 
@@ -108,7 +107,7 @@ enum {
 #define DND_LUCK_GAIN 0.15 // 15% multiplicative lucke
 #define DND_LUCK_OUTCOME_GAIN 5
 
-#define DND_SHARPSHOOTER_MASTERY_BONUS 1
+#define DND_SHARPSHOOTER_MASTERY_BONUS 0.01
 
 #define DND_STR_KNOCKBACK_GAIN 50
 #define DND_BASE_PLAYER_MASS 100
@@ -250,38 +249,13 @@ enum {
 	RESET_PERKS = 8
 };
 
-enum {
-	// dont change order of these, add below the last!
-	STAT_STR,
-	STAT_DEX,
-	STAT_INT,
-	
-	// same for these
-	STAT_SHRP,
-	STAT_BRUT,
-	STAT_END,
-	STAT_WIS,
-	STAT_GRE,
-	STAT_MED,
-	STAT_MUN,
-    STAT_DED,
-	STAT_SAV,
-	STAT_LUCK,
-	
-	STAT_EXP,
-	STAT_LVLEXP,
-	STAT_LVL,
-	STAT_CRED,
-	STAT_LVLCRED
-};
-
 str GetAttributeLabel(int id) {
 	return StrParam(s:"DND_MENU_ATTR", d:id + 1);
 }
 
-#define DND_ATTRIB_BEGIN STAT_STR
-#define DND_ATTRIB_END STAT_INT
-#define DND_MAX_ATTRIBUTES (DND_ATTRIB_END - DND_ATTRIB_BEGIN + 1)
+str GetAttributeLabel_Short(int id) {
+	return StrParam(s:"DND_MENU_ATTR_SHORT", d:id + 1);
+}
 
 #define DND_PERK_BEGIN STAT_SHRP
 #define DND_PERK_END STAT_LUCK

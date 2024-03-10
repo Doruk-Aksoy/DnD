@@ -5,6 +5,8 @@
 #define DND_MIT_BASE 50.0 // 50%
 #define DND_MIT_MAXEFFECT 90.0
 
+#define BASE_ARMOR_FACTOR 6
+
 enum {
     // body armors
     BODYARMOR_GREEN, // 20%
@@ -27,11 +29,26 @@ enum {
 
 	// special drops, can't randomly appear
 	BODYARMOR_SYNTHMETAL,
-	BODYARMOR_LIGHTNINGCOIL
+	BODYARMOR_LIGHTNINGCOIL,
+
+	BOOTS_SILVER = 0,
+	BOOTS_ENGINEER,
+	BOOTS_INSULATED,
+	BOOTS_PLATED,
+	BOOTS_POWER,
+	BOOTS_ENERGY,
+	BOOTS_TACTICAL,
+	BOOTS_FUSION,
+	BOOTS_LEATHER,
+	BOOTS_SNAKESKIN,
+	BOOTS_DRAKESKIN
 };
 #define BODYARMORS_BEGIN BODYARMOR_GREEN
 #define BODYARMORS_REGULAREND BODYARMOR_RAVAGER
 #define BODYARMORS_END BODYARMOR_LIGHTNINGCOIL
+
+#define BOOTS_BEGIN BOOTS_SILVER
+#define BOOTS_END BOOTS_DRAKESKIN
 
 enum {
 	ARMWEIGHT_GREEN = 20,
@@ -75,6 +92,9 @@ int ArmorDropWeights[BODYARMORS_REGULAREND + 1] = {
 
 #define DND_BODYARMOR_BASEWIDTH 2
 #define DND_BODYARMOR_BASEHEIGHT 2
+
+#define DND_BOOT_BASEWIDTH 2
+#define DND_BOOT_BASEHEIGHT 1
 
 #define MAX_HELM_ATTRIB_DEFAULT 4
 #define MAX_BOOT_ATTRIB_DEFAULT 4
@@ -141,6 +161,38 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
 	return res;
 }
 
+// returns type of charm as result
+int ConstructBootDataOnField(int item_pos, int item_tier) {
+    // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
+	int i;
+	int res = random(1, 100);
+	for(i = 0; i <= BOOTS_END; ++i)
+		if(res <= ArmorDropWeights[i]) {
+			res = i;
+			break;
+		}
+
+	Inventories_On_Field[item_pos].item_level = item_tier;
+	Inventories_On_Field[item_pos].item_stack = 0;
+	Inventories_On_Field[item_pos].item_type = DND_ITEM_BOOT;
+	Inventories_On_Field[item_pos].item_subtype = res;
+	Inventories_On_Field[item_pos].width = DND_BOOT_BASEWIDTH;
+	Inventories_On_Field[item_pos].height = DND_BOOT_BASEHEIGHT;
+
+	Inventories_On_Field[item_pos].corrupted = false;
+	Inventories_On_Field[item_pos].quality = 0;
+	Inventories_On_Field[item_pos].implicit.attrib_id = -1;
+	Inventories_On_Field[item_pos].implicit.attrib_val = 0;
+	Inventories_On_Field[item_pos].implicit.attrib_tier = 0;
+	Inventories_On_Field[item_pos].implicit.attrib_extra = 0;
+	
+	Inventories_On_Field[item_pos].attrib_count = 0;
+	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
+
+	return res;
+}
+
 int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	// roll random attributes for the charm
 	int i = 0, roll;
@@ -148,83 +200,68 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
 	int special_roll = 0;
 
+	Inventories_On_Field[item_pos].item_image = IIMG_ARM_1 + armor_type;
+
 	// implicits that come along with the item always
 	switch(armor_type) {
 		case BODYARMOR_GREEN:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_1;
 			// 100 armor, 33% damage reduction
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100);
 		break;
 		case BODYARMOR_YELLOW:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_2;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100);
 		break;
 		case BODYARMOR_BLUE:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_3;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 325, 0, item_tier, 100);
 		break;
         case BODYARMOR_RED:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_4;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 450, 0, item_tier, 100);
 		break;
 
 		case BODYARMOR_GUNSLINGER:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_5;
 			special_roll = PPOWER_CANROLLPHYS;
 			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 22.5, PPOWER_CANROLLPHYS, item_tier, 1.25);
 		break;
 		case BODYARMOR_OCCULT:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_6;
 			special_roll = PPOWER_CANROLLOCCULT;
 			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 80, PPOWER_CANROLLOCCULT, item_tier, 60);
 		break;
 		case BODYARMOR_DEMO:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_7;
 			special_roll = PPOWER_CANROLLEXP;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, PPOWER_CANROLLEXP, item_tier, 100);
 		break;
 		case BODYARMOR_ENERGY:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_8;
 			special_roll = PPOWER_CANROLLENERGY;
 			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, PPOWER_CANROLLENERGY, item_tier, 60);
 		break;
 		case BODYARMOR_ELEMENTAL:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_9;
 			special_roll = PPOWER_CANROLLELEMENTAL;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, PPOWER_CANROLLELEMENTAL, item_tier, 100);
 		break;
 
 		case BODYARMOR_MONOLITH:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_10;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 125, 0, item_tier, 50);
 		break;
 		case BODYARMOR_CYBER:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_11;
 			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 125, PPOWER_CYBER, item_tier, 80);
 		break;
 		case BODYARMOR_DUELIST:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_12;
 			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 25.0, PPOWER_HITSCANPROTECT, item_tier, 1.75);
 		break;
 		case BODYARMOR_NECRO:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_13;
 			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 175, PPOWER_SPIKES, item_tier, 100);
 		break;
 		case BODYARMOR_KNIGHT:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_14;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 300, PPOWER_KNIGHTMELEEBONUS, item_tier, 150);
 		break;
 		case BODYARMOR_RAVAGER:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_15;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 225, PPOWER_RAVAGER, item_tier, 90);
 		break;
 
 		case BODYARMOR_SYNTHMETAL:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_16;
 			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 200, PPOWER_LOWERREFLECT, item_tier, 125);
 		break;
 		case BODYARMOR_LIGHTNINGCOIL:
-			Inventories_On_Field[item_pos].item_image = IIMG_ARM_17;
 			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, PPOWER_LIGHTNINGABSORB, item_tier, 50);
 		break;
 	}
@@ -232,6 +269,62 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	while(i < count) {
 		do {
 			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, special_roll);
+		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		AddAttributeToFieldItem(item_pos, roll, pnum, count);
+		++i;
+	}
+
+	return armor_type;
+}
+
+int RollBootInfo(int item_pos, int item_tier, int pnum) {
+	// roll random attributes for the charm
+	int i = 0, roll;
+	int armor_type = ConstructBootDataOnField(item_pos, item_tier, tiers);
+	int count = random(1, MAX_BOOT_ATTRIB_DEFAULT);
+	int special_roll = 0;
+
+	Inventories_On_Field[item_pos].item_image = IIMG_BOO_1 + armor_type;
+	// implicits that come along with the item always
+	switch(armor_type) {
+		case BOOT_SILVER:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 20);
+		break;
+		case BOOTS_ENGINEER:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 15, 0, item_tier, 5);
+		break;
+		case BOOTS_INSULATED:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 10, 0, item_tier, 5);
+		break;
+		case BOOTS_PLATED:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 28);
+		break;
+		case BOOTS_POWER:
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8);
+		break;
+		case BOOTS_ENERGY:
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 12, 0, item_tier, 6);
+		break;
+		case BOOTS_TACTICAL:
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 40, 0, item_tier, 18);
+		break;
+		case BOOTS_FUSION:
+			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 18, 0, item_tier, 8);
+		break;
+		case BOOTS_LEATHER:
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 7.5, 0, item_tier, 0.5);
+		break;
+		case BOOTS_SNAKESKIN:
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.0, 0, item_tier, 0.5);
+		break;
+		case BOOTS_DRAKESKIN:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10);
+		break;
+	}
+
+	while(i < count) {
+		do {
+			roll = PickRandomAttribute(DND_ITEM_BOOT, special_roll);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -266,7 +359,7 @@ bool ActorHasNoArmor(int tid) {
 
 int DoArmorRatingEffect(int dmg, int rating) {
 	// you will need 5 times the damage to gain half reduction
-	int dmg_f = 5 - HasMasteredPerk(STAT_END);
+	int dmg_f = BASE_ARMOR_FACTOR - HasMasteredPerk(STAT_END);
 	return dmg - (dmg * rating) / (rating + dmg_f * dmg);
 }
 

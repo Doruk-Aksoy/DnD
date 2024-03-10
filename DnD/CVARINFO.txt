@@ -64,10 +64,8 @@ server noarchive int dnd_monsterlevel_low = 1;
 server noarchive noarchive int dnd_monsterlevel_high = 2;
 server noarchive int dnd_respawn_count = 3;
 server noarchive int dnd_accessory_droprate = 5;
-server noarchive int dnd_credit_droprateadd = 0;
 server noarchive int dnd_gainrange = 768;
 
-server noarchive int dnd_orb_dropchanceadd = 0;
 server noarchive int dnd_quest_chance = 20;
 server noarchive int dnd_quest_avglevel = 1;
 server noarchive int dnd_elite_spawnchance = 10;

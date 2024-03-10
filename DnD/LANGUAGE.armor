@@ -33,3 +33,15 @@ CANROLL_EXP				=		"Can roll all \cdexplosive\c- modifiers";
 CANROLL_ENERGY			=		"Can roll all \cdenergy\c- modifiers";
 CANROLL_ELEMENTAL		=		"Can roll all \cdelemental\c- modifiers";
 LOWER_REFLECT			=		"Take \cd90%\c- less damage from reflect";
+
+DND_BOOT1		=		"Silver Boots";
+DND_BOOT2		=		"Engineer's Boots";
+DND_BOOT3		=		"Insulated Boots";
+DND_BOOT4		=		"Plated Boots";
+DND_BOOT5		=		"Power Boots";
+DND_BOOT6		=		"Charged Boots";
+DND_BOOT7		=		"Tactical Boots";
+DND_BOOT8		=		"Fusion Boots";
+DND_BOOT9		=		"Leather Boots";
+DND_BOOT10		=		"Snakeskin Boots";
+DND_BOOT11		=		"Drakeskin Boots";

@@ -244,6 +244,8 @@ Script "DnD On Map Load" OPEN {
 Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
+
+	//Log(s:"cs budget: ", d:budget);
 	
 	Log(s:"\cfMAP CLEARED! Gained \cd", d:budget, s:"k\cf budget!");
 	SetResultValue(0);
@@ -856,7 +858,12 @@ Script "DND On Kill" KILL {
 	}
 	
 	// chaos marked monsters are removed on death, no ressing
-	if(CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
+	if
+	(
+		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
+		(CheckInventory("Doomguy_Perk50") && IsDemon()) ||
+		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
+	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
 	
 	// from here on out we are the player
@@ -3042,8 +3049,6 @@ Script "DnD Player Setup" ENTER {
 	
 	while(pinfo_pending_reset)
 		Delay(const:10);
-		
-	HandleEndOfLevelRewards(pnum);
 	
 	if(PlayerInGame(pnum)) {
 		curlvl = GetStat(STAT_LVL);
@@ -4567,7 +4572,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 
 	// talent bonus
 	// to do: check if pet attack was melee or ranged... it makes no sense otherwise -- assuming melee as the only pet is a melee one now
-	res = res * (100 + HandleStatBonus(pnum, STAT_INT, true)) / 100;
+	res = res * (100 + HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, true)) / 100;
 	
 	// TODO: later check if damage is physical, improve this script
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);

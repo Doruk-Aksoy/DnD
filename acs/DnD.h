@@ -157,6 +157,7 @@ enum {
 #define DND_MAX_SHARE 4
 #define DND_SPREE_AMOUNT 4 * TICRATE // 4 * 35
 #define DND_SPREE_PER 10
+#define DND_HALF_SPREE_PER (DND_SPREE_PER / 2)
 #define DND_SPREE_TRIGGER (DND_SPREE_PER - 1) // -1 because current monster killed doesn't count
 #define DND_SPREE_BASE 10 // 10%, this is dividing the exp
 #define DND_SPECIALAMMO_TEXTID 6001
@@ -1100,26 +1101,30 @@ void ActivateKillingSpree() {
 	if(CheckInventory("DnD_SpreeTimer")) {
 		GiveInventory("DnD_MultikillCounter", 1);
 		
-		// screen tint
-		if(GetArmorID() == BODYARMOR_RAVAGER)
-			GiveInventory("RavagerPower", 1);
-		
 		// punisher perk -- be on cruel or more
-		if(CheckInventory("Punisher_Perk5") && (CheckInventory("DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) {
-			if(!CheckInventory("Punisher_Perk5_MoveSpeed")) {
-				int wepid = CheckInventory("DnD_WeaponID");
-				if(GetSlotOfWeapon(wepid) != 9) {
-					if(Weapons_Data[wepid].ammo_name1 != "" && Weapons_Data[wepid].ammo_name1 != "Souls") {
-						GiveInventory(Weapons_Data[wepid].ammo_name1, GetAmmoCapacity(Weapons_Data[wepid].ammo_name1) / 10);
-						LocalAmbientSound("items/ammo", 90);
-					}
-					if(Weapons_Data[wepid].ammo_name2 != "" && Weapons_Data[wepid].ammo_name2 != "Souls") {
-						GiveInventory(Weapons_Data[wepid].ammo_name2, GetAmmoCapacity(Weapons_Data[wepid].ammo_name2) / 10);
-						LocalAmbientSound("items/ammo", 90);
+		int temp = CheckInventory("DnD_MultikillCounter") + 1;
+		if(temp / DND_SPREE_PER >= 1) {
+			// punisher perks
+			if(CheckInventory("Punisher_Perk5")) {
+				if(!CheckInventory("Punisher_Perk5_MoveSpeed")) {
+					int wepid = CheckInventory("DnD_WeaponID");
+					if(GetSlotOfWeapon(wepid) != 9) {
+						if(Weapons_Data[wepid].ammo_name1 != "" && Weapons_Data[wepid].ammo_name1 != "Souls") {
+							GiveInventory(Weapons_Data[wepid].ammo_name1, GetAmmoCapacity(Weapons_Data[wepid].ammo_name1) / 10);
+							LocalAmbientSound("items/ammo", 90);
+						}
+						if(Weapons_Data[wepid].ammo_name2 != "" && Weapons_Data[wepid].ammo_name2 != "Souls") {
+							GiveInventory(Weapons_Data[wepid].ammo_name2, GetAmmoCapacity(Weapons_Data[wepid].ammo_name2) / 10);
+							LocalAmbientSound("items/ammo", 90);
+						}
 					}
 				}
+				GiveInventory("Punisher_Perk5_MoveSpeed", 1);
 			}
-			GiveInventory("Punisher_Perk5_MoveSpeed", 1);
+		}
+		else if(temp / DND_HALF_SPREE_PER >= 1 && GetArmorID() == BODYARMOR_RAVAGER) {
+			// ravager armor activation on killing spree
+			GiveInventory("RavagerPower", 1);
 		}
 	}
 	// give spree counter
@@ -1502,27 +1507,26 @@ void HandleEndOfLevelRewards(int pnum) {
 	// for next map things -- give players their rewards and stuff coming from a previous map
 	//Log(s:"run open");
 	int temp = 0;
-	if(IsSetupComplete(SETUP_STATE1, SETUP_MAPCHANGED) && PlayerInGame(pnum)) {
-		//Log(s:"map changed");
+	//Log(s:"map changed");
 
-		// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
-		// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
-		//if(((PlayerDatabaseState[i][PLAYER_SAVESTATE] && HardcoreSet) || !HardcoreSet) && GetActorProperty(tid, APROP_HEALTH) > 0) { 
-		if((!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) && GetActorProperty(0, APROP_HEALTH) > 0) {
-			GiveInventory("LevelToken", 1);
-			StatListOpened[pnum] = 0;
-			
-			temp = (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
+	// Now using PlayerWillBeSaved, because some servers might use multiple lives setting.
+	// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
+	if((!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || PlayerDatabaseState[pnum][PLAYER_SAVESTATE])) {
+		GiveInventory("LevelToken", 1);
+		StatListOpened[pnum] = 0;
+		
+		temp = (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
 
-			GiveInventory("Budget", temp);
-			GiveInventory("RoundsSurvived", 1);
-			
-			ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
-		}
-		// Check quests
-		if(active_quest_id != -1)
-			CheckMapExitQuest(pnum, active_quest_id);
+		GiveInventory("Budget", temp);
+		GiveInventory("RoundsSurvived", 1);
+
+		//Log(s:"give budget ", d:temp);
+		
+		ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
 	}
+	// Check quests
+	if(active_quest_id != -1)
+		CheckMapExitQuest(pnum, active_quest_id);
 }
 
 // registers a unique boss to clientside, can be used to reset it as well

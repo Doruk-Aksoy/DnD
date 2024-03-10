@@ -117,7 +117,6 @@ Actor CyberneticEffect : DnD_Activator {
 Actor RavagerPower : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -4
-	powerup.color "72 24 24"
 }
 
 Actor RavagerEffect : DnD_Activator {

@@ -119,6 +119,37 @@ enum {
 #define MAX_PICKUPS 3000
 
 enum {
+	// dont change order of these, add below the last!
+	STAT_STR,
+	STAT_DEX,
+	STAT_INT,
+	
+	// same for these
+	STAT_SHRP,
+	STAT_BRUT,
+	STAT_END,
+	STAT_WIS,
+	STAT_GRE,
+	STAT_MED,
+	STAT_MUN,
+    STAT_DED,
+	STAT_SAV,
+	STAT_LUCK,
+	
+	STAT_EXP,
+	STAT_LVLEXP,
+	STAT_LVL,
+	STAT_CRED,
+	STAT_LVLCRED
+};
+
+#define DND_ATTRIB_BEGIN STAT_STR
+#define DND_ATTRIB_END STAT_INT
+#define DND_MAX_ATTRIBUTES (DND_ATTRIB_END - DND_ATTRIB_BEGIN + 1)
+
+#define DND_STAT_ATTUNEMENT_GAIN 0.05
+
+enum {
 	// from 1 to DND_MAX_MONSTERS + 1 is the amount of monsters we support -- we'll do tid - 1 to access array loc
 	DND_MONSTERTID_BEGIN = 1,
 	

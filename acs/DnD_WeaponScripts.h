@@ -697,7 +697,7 @@ Script "DnD Hammer Return" (void) {
 }
 
 // used in case something goes horribly wrong and the hammer gets to absurd speeds while bouncing and seeking
-Script "DnD Hammer Speed Limiter" (int max_vel, int min_vel, int crit_bounces) {
+Script "DnD Hammer Speed Limiter" (int max_vel, int min_vel) {
 	bool update_spd = false;
 	int new_spd = 0;
 	int owner_tid = GetActorProperty(0, APROP_TARGETTID);
@@ -748,8 +748,8 @@ Script "DnD Hammer Speed Limiter" (int max_vel, int min_vel, int crit_bounces) {
 		}
 		//Log(s:GetActorClass(0), s: " ", d:ActivatorTID());
 
-		if(GetActorProperty(0, APROP_ACCURACY) != DND_CRIT_TOKEN && GetUserVariable(0, "user_bcount") >= crit_bounces)
-			SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
+		//if(GetActorProperty(0, APROP_ACCURACY) != DND_CRIT_TOKEN && GetUserVariable(0, "user_bcount") >= crit_bounces)
+		//	SetActorProperty(0, APROP_ACCURACY, DND_CRIT_TOKEN);
 
 		Delay(const:1);
 	}

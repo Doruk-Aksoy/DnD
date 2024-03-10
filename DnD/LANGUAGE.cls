@@ -19,7 +19,7 @@ CLASS0_TEXT				= "The original hero. Mean, tough and ready to kick ass of the de
 
 CLASS0_PERK1			= "Damage taken from demons is reduced by 10%.";
 CLASS0_PERK2			= "Demons have 5% chance to drop their essence. Anyone can pick these to heal for 1% of enemy max health and gain 18% more damage for 5 seconds.";
-CLASS0_PERK3			= "Your attacks reduce resists of demons by 33% for 5 seconds.";
+CLASS0_PERK3			= "Your attacks reduce resists of demons by 33% for 5 seconds. Slain demons rest in peace.";
 
 // Marine
 
@@ -74,7 +74,7 @@ CLASS4_TEXT				= "The lone wolf, excels in being the only hero to clean up the m
 						  "When he sets his gaze upon something, that thing hits the ground, lifeless.";
 
 CLASS4_PERK1			= "Poison damage taken reduced by 75%.";
-CLASS4_PERK2			= "Elemental and Occult attacks and spells do 25% more damage.";
+CLASS4_PERK2			= "Applying elemental ailments to enemies reduce their resists by 10 per different ailment on them.";
 CLASS4_PERK3			= "Enemies killed by you have 25% chance to explode for 5% of their maximum health in a 100 unit radius with a random elemental damage. You can't be hurt by this damage.";
 
 // Cyborg

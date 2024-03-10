@@ -20,9 +20,10 @@
 #define INVENTORY_HOLDTIME 0.5
 #define INVENTORY_FADETIME 0.5
 
-#define DND_BASE_DISASSEMBLE_COST 1000
-#define DND_DISASSEMBLE_LEVEL_PERCENT 25
-#define DND_DISASSEMBLE_TIER_PERCENT 30
+#define DND_BASE_DISASSEMBLE_COST 500
+#define DND_DISASSEMBLE_LEVEL_PERCENT 20
+#define DND_DISASSEMBLE_IMPLICIT_PERCENT 33
+#define DND_DISASSEMBLE_TIER_PERCENT 25
 #define DND_BASE_DISASSEMBLE_CHANCE 25 // 25%
 #define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 10 // 20%
 #define DND_BASE_FRACTURE_DISASSEMBLE_CHANCE 3
@@ -2985,8 +2986,7 @@ int DisassembleItem_Price(int pnum, int item_pos) {
 	// if corrupted or has implicit, include that too
 	if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1) {
 		// 50% increase
-		base *= 3;
-		base >>= 1;
+		base = base * (100 + DND_DISASSEMBLE_IMPLICIT_PERCENT) / 100;
 	}
 	
 	if(PlayerInventoryList[pnum][item_pos].corrupted) {

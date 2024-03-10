@@ -184,6 +184,10 @@ DND_MENU_ATTR1 			=	"\c[INT]Strength\c-";
 DND_MENU_ATTR2 			=	"\c[INT]Dexterity\c-";
 DND_MENU_ATTR3 			=	"\c[INT]Intellect\c-";
 
+DND_MENU_ATTR_SHORT1 	=	"\c[INT]STR\c-";
+DND_MENU_ATTR_SHORT2 	=	"\c[INT]DEX\c-";
+DND_MENU_ATTR_SHORT3 	=	"\c[INT]INT\c-";
+
 DND_MENU_ATTUNED		=	"Attuned";
 
 DND_MENU_ATTRTEXT1		=	"Increases \cqKnockback Resist\c- by 50 and \cgmaximum life\c- by 2.";

@@ -1272,22 +1272,27 @@ int GetPelletCount(int pnum, int base) {
 	return ApplyFixedFactorToInt(base, GetPelletIncrease(pnum) - 1.0);
 }
 
-int HandleStatBonus(int pnum, int attunement, bool isMelee) {
-	int statOf = GetStat(attunement);
-	statOf *= DND_STAT_ATTUNEMENT_GAIN + (attunement == STAT_DEX) * HasMasteredPerk(STAT_SHRP) * DND_SHARPSHOOTER_MASTERY_BONUS;
+int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool isMelee) {
+	if(HasMasteredPerk(STAT_SHRP))
+		dexterity += DND_SHARPSHOOTER_MASTERY_BONUS;
+
+	// 1.0 is 100%, we get stuff like 0.03 here for 3% etc.
+	int statOf = GetStat(STAT_STR) * strength + GetStat(STAT_DEX) * dexterity + GetStat(STAT_INT) * intellect;
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)
 		statOf = (statOf + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) * (100 + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
 	else
 		statOf = (statOf * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC)) / 100;
+
+	statOf = (statOf * 100) >> 16;
+
 	return statOf;
 }
 
 int GetStatAttunementBonus(int pnum, int wepid, bool isMelee) {
 	// sharpshooting is a more multiplier
-	int attunement = Weapons_Data[wepid].attunement;
-	return HandleStatBonus(pnum, attunement, isMelee);
+	return HandleStatBonus(pnum, Weapons_Data[wepid].attunement[STAT_STR], Weapons_Data[wepid].attunement[STAT_DEX], Weapons_Data[wepid].attunement[STAT_INT], isMelee);
 }
 
 int GetMaxResistCap(int pnum) {

@@ -196,6 +196,10 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 					SetActivator(i + P_TIDSTART);
 					TakeInventory("ShowingMenu", 1);
 					GiveInventory("DnD_IntermissionState", 1);
+
+					if(isActorAlive(i + P_TIDSTART))
+						HandleEndOfLevelRewards(i);
+
 					ACS_NamedExecuteWithResult("DnD Scoreboard Input Loop", i);
 				}
 			}
@@ -251,7 +255,7 @@ Script "DnD Scoreboard Input Loop" (int pnum) {
 }
 
 enum {
-	DND_SCBRDID_HOVERBG_WHO = 2000,
+	DND_SCBRDID_HOVERBG_WHO = 2900,
 	DND_SCBRDID_HOVERBG_CLASS,
 	DND_SCBRDID_HOVER_LIFE,
 	DND_SCBRDID_HOVER_ARMOR,
@@ -272,7 +276,7 @@ enum {
 	DND_SCBRDID_DAMAGETAKENUNDERLINE,
 	DND_SCBRDID_PDATA,
 	
-	DND_SCBRDID_BG = 3000
+	DND_SCBRDID_BG = 3800
 };
 #define DND_SCBRD_PDATA_THINGS 6 // status, name, damage dealt, damage taken, kill pct, tick icon
 
@@ -688,21 +692,21 @@ int DrawHoveredPlayerData() {
 				);
 				
 				// armor
-				HudMessage(
+				/*HudMessage(
 					s:"\cd", l:"IATTR_T1", s:": \c-", d:GetPlayerArmor(tid - P_TIDSTART);
 					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_ARMOR, CR_WHITE, mx, my + 48.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-				);
+				);*/
 				
 				// exp
 				HudMessage(
 					s:"\cd", l:"DND_STAT16", s:": \c-", d:GetActorStat(tid, STAT_EXP), s:" / ", d:LevelCurve[GetActorStat(tid, STAT_LVL) - 1];
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_EXP, CR_WHITE, mx, my + 64.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_EXP, CR_WHITE, mx, my + 48.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 
 				// credit
 				HudMessage(
 					s:"\cd", l:"DND_STAT19", s:": \c-", d:GetActorStat(tid, STAT_CRED);
-					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_CREDIT, CR_WHITE, mx, my + 80.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_CREDIT, CR_WHITE, mx, my + 64.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 			}
 		}

@@ -450,9 +450,6 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 	// quest or accessory bonuses	
 	// is occult (add demon bane bonus)
-	// apply wanderer perk if applicable -- ele check from temp applied here too!
-	if((damage_category == DND_DAMAGECATEGORY_OCCULT || temp) && CheckActorInventory(tid, "Wanderer_Perk25"))
-		factor = factor * (100 + DND_WANDERER_PERK25_BUFF) / 100;
 	
 	if(damage_category == DND_DAMAGECATEGORY_OCCULT)
 		factor = factor * (100 + DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE))) / 100;
@@ -585,10 +582,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses	
 		// is occult (add demon bane bonus)
-		// apply wanderer perk if applicable -- ele check used with temp here again
-		if((damage_category == DND_DAMAGECATEGORY_OCCULT || temp) && CheckInventory("Wanderer_Perk25"))
-			InsertCacheFactor(pnum, wepid, dmgid, DND_WANDERER_PERK25_BUFF, false);
-		
 		if(flags & DND_WDMG_ISOCCULT || damage_category == DND_DAMAGECATEGORY_OCCULT)
 			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE)), false);
 		
@@ -834,7 +827,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 		}
 	}
 	else if(damage_category == DND_DAMAGECATEGORY_LIGHTNING) {
-		pct_val += DND_THUNDERAXE_WEAKENPCT * CheckActorInventory(victim, "ThunderAxeWeakenTimer");
+		pct_val += DND_THUNDERAXE_WEAKENPCT * (!!CheckActorInventory(victim, "ThunderAxeWeakenTimer"));
 	}
 
 	if((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk25"))
@@ -849,6 +842,19 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 			pct_val = 100;
 		resist = resist * (100 - pct_val) / 100;
 	}
+
+	// debuffs to reduce flat
+	if(CheckInventory("Wanderer_Perk25")) {
+		resist -= 	(
+						(!!CheckActorInventory(victim, "DnD_IgniteTimer")) + 
+						(!!CheckActorInventory(victim, "DnD_PoisonStacks")) +
+						(!!CheckActorInventory(victim, "DnD_ChillStacks")) +
+						(!!CheckActorInventory(victim, "DnD_FreezeTimer")) +
+						(!!CheckActorInventory(victim, "DnD_OverloadTimer"))
+					) * DND_WANDERER_RESREDUCE;
+	}
+
+	//printbold(s:"new res ", d:resist);
 
 	// if we do full dmg, either do dmg as is or check for pen overpowering the resist, so we can go ahead and do extra damage
 	if(forced_full) {
@@ -2089,11 +2095,11 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 	// attribute bonus
 	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
 	if(isMelee)
-		pct_bonus += HandleStatBonus(pnum, STAT_STR, isMelee);
+		pct_bonus += HandleStatBonus(pnum, DND_STAT_ATTUNEMENT_GAIN, 0, 0, isMelee);
 	else if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
-		pct_bonus += HandleStatBonus(pnum, STAT_INT, isMelee);
+		pct_bonus += HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, isMelee);
 	else
-		pct_bonus += HandleStatBonus(pnum, STAT_DEX, isMelee);
+		pct_bonus += HandleStatBonus(pnum, 0, DND_STAT_ATTUNEMENT_GAIN, 0, isMelee);
 		
 	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
 		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;

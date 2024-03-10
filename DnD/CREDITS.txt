@@ -1,9 +1,14 @@
 ==================================================================================
 SPECIAL THANKS TO THE FOLLOWING AWESOME PEOPLE FOR SUPPORTING ME ON PATREON:
 
-* Exarch Supporters
+- Initiate Supporters
+
+	* Ancalagon
+	* Trenton
 	
-- Joke
+- Scholar Supporters
+
+	* magicmancer
 
 ==================================================================================
 
@@ -13,7 +18,8 @@ Renegade's sprites - SoloSpaghetti
 Former Overwatch's sprites (AVSG) from DRLA - Marty Kirra 
 jawless shotgunner sprite. - yholl
 Elite Former Sergeant [Assault Shotgun] (EASS) - SoloSpaghetti.
-Nightmare Mastermind (NMAS) sprites from DRLA -Seryder, Yuraofthehairfan
+Nightmare Mastermind (NMAS) sprites from DRLA - Seryder, Yuraofthehairfan
+Boot sprites - Yholl
 
 The above is incomplete and will be updated.
 
@@ -80,7 +86,7 @@ Thanks to:
 - HorrorMovieGuy (Sprites)
 - Sgt. Shivers (Katana + Demon Sealer sprites / parts of code)
 - OSJLatchford (Sprites)
-- Yholl (Code for player movement)
+- Yholl (Code for player movement, sprites)
 - Ryan_Cordell (Nuclear Plasma Rifle Sprites)
 - icytux (Sprites)
 - Ichor (Sprites, Decorate)

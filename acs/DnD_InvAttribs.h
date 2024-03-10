@@ -1931,11 +1931,17 @@ void SetupInventoryTagGroups() {
 		}
 	}
 	
-	// do the same thing we did for charms to armors
+	// do the same thing we did for charms to armors -- boots too
 	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
 	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
 	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
 	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
+
+	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_BOOT] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_BOOT] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_BOOT] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_BOOT] = 0;
+
 	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
 		tag = ItemModTable[i].tags;
 
@@ -1949,6 +1955,10 @@ void SetupInventoryTagGroups() {
 			if(tag & 1) {
 				AttributeTagGroups[tag_id][DND_CRAFTABLEID_BODYARMOR][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BODYARMOR]] = i;
 				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BODYARMOR];
+
+				// boots also
+				AttributeTagGroups[tag_id][DND_CRAFTABLEID_BOOT][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BOOT]] = i;
+				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BOOT];
 				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
 			}
 			tag >>= 1;
@@ -1966,7 +1976,7 @@ void SetupInventoryTagGroups() {
 		tag = ItemModTable[i].tags;
 
 		// we won't roll these, a general rule for now, we can add specifics later perhaps
-		if((tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE) || (tag & INV_ATTR_TAG_CRIT) || (tag & INV_ATTR_TAG_MELEE) || (tag & INV_ATTR_TAG_OCCULT))
+		if((tag & INV_ATTR_TAG_OCCULT))
 			continue;
 
 		tag_id = 0;
