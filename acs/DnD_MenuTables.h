@@ -623,7 +623,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
-		{ RES_SLOT5LUXURY, -1, -1 },
+		{ RES_SLOT5UPG2, -1, -1 },
 		{ RES_SLOT3SSGUPG4, -1, -1 },
 		{ RES_SLOT5UPG4, -1, -1 },
 		{ RES_SLOT5LUXURY, -1, -1 },

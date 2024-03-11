@@ -255,6 +255,10 @@ Script "DND Check Hardcore Softcore" OPEN {
 	while(true) {
 		if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER) && CheckHardcoreSettings())
 			SetupComplete(SETUP_STATE1, SETUP_HARDCORE);
+		else {
+			SetupUndo(SETUP_STATE1, SETUP_HARDCORE);
+			SetupUndo(SETUP_STATE1, SETUP_SOFTCORE);
+		}
 		Delay(const:105);
 	}
 }
@@ -1701,7 +1705,7 @@ Script 920 (int mode) {
 	}
 	else {
 		// hacky fix: while this player can load, hold back on fixing player movement
-		while(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && PlayerCanLoad[PlayerNumber()])
+		while(isSoftorHardcore() && PlayerCanLoad[PlayerNumber()])
 			Delay(17);
 		if(mode == 1) {
 			if(!CheckInventory("ShowingMenu")) // don't break menu functionality
@@ -2408,7 +2412,7 @@ Script "DnD Bonus Detect" OPEN {
 	// this construct is necessary so maps that don't have any monster besides custom monsters dont act up... I've seen things, alright? I SAW MONSTER COUNT == -2 in this fucking loop, dont test me!
 	do {
 		Delay(const:TICRATE);
-	} while (isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && PlayersNotReadyForHardcore());
+	} while (isSoftorHardcore() && PlayersNotReadyForHardcore());
 	Delay(const:17 * (DND_MAX_MONSTERDELAY + 2));
 
 	while(true) {
@@ -2967,7 +2971,7 @@ Script "DnD Player Setup" ENTER {
 	ACS_NamedExecuteAlways("DnD SBAR", 0);
 	
 	// begin hardcore countdown
-	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
+	if(isSoftorHardcore() && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		GiveInventory("P_Frozen", 1);
 		GiveInventory("DontAttack", 1);
 		while(GetGameModeState() == GAMESTATE_COUNTDOWN)
@@ -3064,7 +3068,7 @@ Script "DnD Player Setup" ENTER {
 	
 	PostPlayerLoadRoutine(pnum);
 	
-	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) {
+	if(isSoftorHardcore()) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
 		Delay(17 * (DND_MAX_MONSTERDELAY + 2));
@@ -3138,7 +3142,7 @@ Script "DnD Player Setup" ENTER {
 		
 	// give some time for completion thing to get through
 	SetInventory("QuestCompletionToken", 0);
-	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && !CheckInventory("HardcoreDebuff"))
+	if(isHardcore() && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 	
 	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
@@ -3969,17 +3973,32 @@ Script "DnD Timed Monster" (int time, int isPet) {
 }
 
 Script "DnD Overheat Reduction" (int index, int rate) {
-	int d = (rate & 0xFFFF0000) >> 16;
+	int d = rate >> 16;
 	rate &= 0x0000FFFF;
+
+	int pnum = PlayerNumber();
+
+	if(HasPlayerPowerSet(pnum, PPOWER_OVERHEATGOFAST)) {
+		int temp = d * (100 - OVERHEAT_DISS_FACTOR) / 100;
+		if(!temp) {
+			rate = rate * (100 + OVERHEAT_DISS_FACTOR) / 100;
+			// if not 1 then we also reduce the delay if the difference is that small
+			if(d != 1)
+				d = 1;
+		}
+		else
+			d = temp;
+	}
+
 	// prevent multiple copies, also dont keep this busy if we got no overheat bonus
-	if(!IsSet(PlayerRunsOverheat[PlayerNumber()], index) && !IsQuestComplete(0, QUEST_KILLGODSLAYER)) {
-		PlayerRunsOverheat[PlayerNumber()] = SetBit(PlayerRunsOverheat[PlayerNumber()], index);
+	if(!IsSet(PlayerRunsOverheat[pnum], index) && !IsQuestComplete(0, QUEST_KILLGODSLAYER)) {
+		PlayerRunsOverheat[pnum] = SetBit(PlayerRunsOverheat[pnum], index);
 		while(CheckInventory(WeaponOverheatItems[index])) {
 			if(CheckInventory("DnD_OverheatCanReduce"))
 				TakeInventory(WeaponOverheatItems[index], rate);
 			Delay(d);
 		}
-		PlayerRunsOverheat[PlayerNumber()] = ClearBit(PlayerRunsOverheat[PlayerNumber()], index);
+		PlayerRunsOverheat[pnum] = ClearBit(PlayerRunsOverheat[pnum], index);
 	}
 }
 
@@ -4079,7 +4098,7 @@ Script "DnD Chest Opened" (int ctype) {
 }
 
 Script "DnD Check Special GameMode" (void) {
-	SetResultValue(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE));
+	SetResultValue(isSoftorHardcore());
 }
 
 Script "DnD Talisman Mark Timer" (int counter) {
@@ -5324,7 +5343,7 @@ Script "Print Loc" (void) {
 Script 68 (int x) NET {
 	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode
 	#ifdef ISDEBUGBUILD
-		if(!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
+		if(!isSoftorHardcore() && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
 	{
 		int i;
 		if(x < MAX_RESEARCHES) {
@@ -5348,6 +5367,7 @@ Script 68 (int x) NET {
 			//SpawnCharm(0, true);
 			SpawnArmor(0, true, 0);
 			SpawnPowercore(0, true);
+			SpawnBoot(0, true);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;

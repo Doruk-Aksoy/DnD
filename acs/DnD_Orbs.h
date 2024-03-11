@@ -1336,7 +1336,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now
-		i = DND_ORB_POTENCY;
+		//i = DND_ORB_POTENCY;
 		RollOrbInfo(c, i, true, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);

@@ -13,6 +13,18 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 	}
 }
 
+void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
+    int c = CreateItemSpot();
+	if(c != -1) {
+        int type = RollBootInfo(c, RollItemLevel(), pnum);
+        // depending on armor type rolled, spawn its appropriate actor
+        SpawnPlayerDrop(pnum, GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BOOT);
+	}
+}
+
 // monsters dropping charms
 void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
 	int c = CreateItemSpot();
@@ -73,6 +85,9 @@ void SpawnItemForAll(int type, int repeats = 1) {
         case DND_ITEM_BODYARMOR:
             f = SpawnArmor;
         break;
+		case DND_ITEM_BOOT:
+			f = SpawnBoot;
+		break;
         case DND_ITEM_POWERCORE:
             f = SpawnPowercore;
         break;

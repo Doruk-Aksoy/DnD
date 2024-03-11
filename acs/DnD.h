@@ -782,8 +782,13 @@ void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP * drop_boost / 100))
 				SpawnToken(i);
 
-			if(ignoreWeight || RunDefaultDropChance(i, DND_BASEARMOR_DROP * drop_boost / 100))
-				SpawnArmor(i, rarity_boost, 0);
+			if(ignoreWeight || RunDefaultDropChance(i, DND_BASEARMOR_DROP * drop_boost / 100)) {
+				// boot and body armor chance is equal
+				if(random(1, 100) <= 50)
+					SpawnArmor(i, rarity_boost, 0);
+				else
+					SpawnBoot(i, rarity_boost);
+			}
 
 			if(ignoreWeight || RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100))
 				SpawnCharm(i, rarity_boost);

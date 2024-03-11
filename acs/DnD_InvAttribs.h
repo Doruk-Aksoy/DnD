@@ -277,7 +277,22 @@ enum {
 	PPOWER_CANROLLELEMENTAL				=	0b10000000000,
 	PPOWER_LOWERREFLECT					=	0b100000000000,
 	PPOWER_ESHIELDBLOCKALL				=	0b1000000000000,
+	PPOWER_INCMAGICRES					=	0b10000000000000,
+	PPOWER_INCENERGYRES					=	0b100000000000000,
+	PPOWER_REDUCEDLIGHTNINGTAKEN		=	0b1000000000000000,
+	PPOWER_OVERHEATGOFAST				=	0b10000000000000000,
+	PPOWER_LESSOVERHEAT					=	0b100000000000000000,
+	PPOWER_REDUCEDPOISONTAKEN			=	0b1000000000000000000,
+	PPOWER_REDUCEDFIRETAKEN				=	0b10000000000000000000,
+	PPOWER_REDUCEDSELFDMG				=	0b100000000000000000000,
 };
+
+#define REDUCED_SELF_DMG_FACTOR 25 // 25%
+#define OVERHEAT_DISS_FACTOR 25 // 25%
+
+bool HasPlayerPowerset(int pnum, int power) {
+	return GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & (1 << power);
+}
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
@@ -1464,6 +1479,20 @@ str GetArmorImplicitExtraText(str text, int extra) {
 		text = StrParam(s:text, s:"\n", l:"CANROLL_ELEMENTAL");
 	else if(extra & PPOWER_LOWERREFLECT)
 		text = StrParam(s:text, s:"\n", l:"LOWER_REFLECT");
+	else if(extra & PPOWER_INCMAGICRES)
+		text = StrParam(s:text, s:"\n", l:"INC_MAGICRES");
+	else if(extra & PPOWER_INCENERGYRES)
+		text = StrParam(s:text, s:"\n", l:"INC_ENERGYRES");
+	else if(extra & PPOWER_REDUCEDLIGHTNINGTAKEN)
+		text = StrParam(s:text, s:"\n", l:"PPOWER_REDUCEDLIGHTNINGTAKEN");
+	else if(extra & PPOWER_OVERHEATGOFAST)
+		text = StrParam(s:text, s:"\n", l:"PPOWER_OVERHEATGOFAST");
+	else if(extra & PPOWER_LESSOVERHEAT)
+		text = StrParam(s:text, s:"\n", l:"PPOWER_LESSOVERHEAT");
+	else if(extra & PPOWER_REDUCEDPOISONTAKEN)
+		text = StrParam(s:text, s:"\n", l:"PPOWER_REDUCEDPOISONTAKEN");
+	else if(extra & PPOWER_REDUCEDFIRETAKEN)
+		text = StrParam(s:text, s:"\n", l:"PPOWER_REDUCEDFIRETAKEN");
 	return text;
 }
 

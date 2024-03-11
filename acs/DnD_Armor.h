@@ -90,6 +90,32 @@ int ArmorDropWeights[BODYARMORS_REGULAREND + 1] = {
 	ARMWEIGHT_RAVAGER
 };
 
+enum {
+	BOOTWEIGHT_SILVER = 15,
+	BOOTWEIGHT_ENGINEER = 30,
+	BOOTWEIGHT_INSULATED = 35,
+	BOOTWEIGHT_POWER = 40,
+	BOOTWEIGHT_ENERGY = 45,
+	BOOTWEIGHT_TACTICAL = 49,
+	BOOTWEIGHT_FUSION = 55,
+	BOOTWEIGHT_LEATHER = 70,
+	BOOTWEIGHT_SNAKESKIN = 85,
+	BOOTWEIGHT_DRAKESKIN = 100
+};
+
+int BootDropWeights[BOOTS_END + 1] = {
+	BOOTWEIGHT_SILVER,
+	BOOTWEIGHT_ENGINEER,
+	BOOTWEIGHT_INSULATED,
+	BOOTWEIGHT_POWER,
+	BOOTWEIGHT_ENERGY,
+	BOOTWEIGHT_TACTICAL,
+	BOOTWEIGHT_FUSION,
+	BOOTWEIGHT_LEATHER,
+	BOOTWEIGHT_SNAKESKIN,
+	BOOTWEIGHT_DRAKESKIN
+};
+
 #define DND_BODYARMOR_BASEWIDTH 2
 #define DND_BODYARMOR_BASEHEIGHT 2
 
@@ -166,8 +192,8 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
     // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
 	int i;
 	int res = random(1, 100);
-	for(i = 0; i <= BOOTS_END; ++i)
-		if(res <= ArmorDropWeights[i]) {
+	for(i = 0; i < BOOTS_END; ++i)
+		if(res <= BootDropWeights[i]) {
 			res = i;
 			break;
 		}
@@ -280,45 +306,45 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 int RollBootInfo(int item_pos, int item_tier, int pnum) {
 	// roll random attributes for the charm
 	int i = 0, roll;
-	int armor_type = ConstructBootDataOnField(item_pos, item_tier, tiers);
+	int armor_type = ConstructBootDataOnField(item_pos, item_tier);
 	int count = random(1, MAX_BOOT_ATTRIB_DEFAULT);
 	int special_roll = 0;
 
 	Inventories_On_Field[item_pos].item_image = IIMG_BOO_1 + armor_type;
 	// implicits that come along with the item always
 	switch(armor_type) {
-		case BOOT_SILVER:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 20);
+		case BOOTS_SILVER:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 50, PPOWER_INCMAGICRES, item_tier, 20);
 		break;
 		case BOOTS_ENGINEER:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 15, 0, item_tier, 5);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 16, PPOWER_INCENERGYRES, item_tier, 5);
 		break;
 		case BOOTS_INSULATED:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 10, 0, item_tier, 5);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 10, PPOWER_REDUCEDLIGHTNINGTAKEN, item_tier, 5);
 		break;
 		case BOOTS_PLATED:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 28);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 25);
 		break;
 		case BOOTS_POWER:
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 25, PPOWER_OVERHEATGOFAST, item_tier, 8);
 		break;
 		case BOOTS_ENERGY:
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 12, 0, item_tier, 6);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 12, PPOWER_REDUCEDSELFDMG, item_tier, 6);
 		break;
 		case BOOTS_TACTICAL:
-			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 40, 0, item_tier, 18);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 45, 0, item_tier, 25);
 		break;
 		case BOOTS_FUSION:
-			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 18, 0, item_tier, 8);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 18, PPOWER_LESSOVERHEAT, item_tier, 8);
 		break;
 		case BOOTS_LEATHER:
 			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 7.5, 0, item_tier, 0.5);
 		break;
 		case BOOTS_SNAKESKIN:
-			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.0, 0, item_tier, 0.5);
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.0, PPOWER_REDUCEDPOISONTAKEN, item_tier, 0.5);
 		break;
 		case BOOTS_DRAKESKIN:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, PPOWER_REDUCEDFIRETAKEN, item_tier, 10);
 		break;
 	}
 
@@ -335,6 +361,10 @@ int RollBootInfo(int item_pos, int item_tier, int pnum) {
 
 str GetArmorDropClass(int type) {
 	return StrParam(s:"ArmorDrop_", d:type);
+}
+
+str GetBootDropClass(int type) {
+	return StrParam(s:"BootDrop_", d:type);
 }
 
 int GetArmorID(int pnum = -1) {
@@ -354,7 +384,7 @@ int GetActorArmorID(int tid) {
 bool ActorHasNoArmor(int tid) {
 	int pnum = tid - P_TIDSTART;
 
-	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][BOOT_INDEX].item_type == DND_ITEM_NULL;
+	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][BOOT_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][HELM_INDEX].item_type == DND_ITEM_NULL;
 }
 
 int DoArmorRatingEffect(int dmg, int rating) {
@@ -400,6 +430,10 @@ int GetMitigationEffect(int pnum) {
 
 str GetArmorInventoryTag(int subt) {
 	return StrParam(l:StrParam(s:"DND_ARMOR", d:subt + 1));
+}
+
+str GetBootInventoryTag(int subt) {
+	return StrParam(l:StrParam(s:"DND_BOOT", d:subt + 1));
 }
 
 Script "DnD Armor Item Pickup" (int sp) {

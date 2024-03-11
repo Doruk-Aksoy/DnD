@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -255,6 +255,7 @@ enum {
 enum {
 	// 32 per
 	SETUP_HARDCORE,
+	SETUP_SOFTCORE,
 	SETUP_MONSTERS,
 	SETUP_ITEMTABLES,
 	SETUP_MAPCHANGED,
@@ -273,6 +274,14 @@ void SetupUndo(int state, int flag) {
 
 bool isSetupComplete(int state, int flag) {
 	return SetupStates[state] & (1 << flag);
+}
+
+bool isSoftorHardcore() {
+	return isSetupComplete(SETUP_STATE1, SETUP_SOFTCORE) || isSetupComplete(SETUP_STATE1, SETUP_HARDCORE);
+}
+
+bool isHardcore() {
+	return isSetupComplete(SETUP_STATE1, SETUP_HARDCORE);
 }
 
 global bool 6: PlayerLoaded[MAXPLAYERS];

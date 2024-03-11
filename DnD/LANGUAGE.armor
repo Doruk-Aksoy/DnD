@@ -1,5 +1,6 @@
 [enu default]
 
+// body armors
 DND_ARMOR1		=		"Light Armor";
 DND_ARMOR2		=		"Security Armor";
 DND_ARMOR3		=		"Combat Armor";
@@ -21,6 +22,20 @@ DND_ARMOR15		=		"Ravager Armor";
 DND_ARMOR16		=		"Synth-metal Armor";
 DND_ARMOR17		=		"Lightning Coil Armor";
 
+// boots
+DND_BOOT1		=		"Silver Boots";
+DND_BOOT2		=		"Engineer's Boots";
+DND_BOOT3		=		"Insulated Boots";
+DND_BOOT4		=		"Plated Boots";
+DND_BOOT5		=		"Power Boots";
+DND_BOOT6		=		"Charged Boots";
+DND_BOOT7		=		"Tactical Boots";
+DND_BOOT8		=		"Fusion Boots";
+DND_BOOT9		=		"Leather Boots";
+DND_BOOT10		=		"Snakeskin Boots";
+DND_BOOT11		=		"Drakeskin Boots";
+
+// armor implicits
 RAVAGER_BONUS			=		"\cd50%\c- more damage and \cd25%\c- damage reduction during killing sprees";
 KNIGHT_BONUS			=		"\cd50%\c- reduced damage from melee attacks. If a melee weapon is held extra \cd40%\c- protection is bestowed";
 HITSCAN_PROTECT			=		"Extra \cd75%\c- hitscan resistance";
@@ -33,15 +48,11 @@ CANROLL_EXP				=		"Can roll all \cdexplosive\c- modifiers";
 CANROLL_ENERGY			=		"Can roll all \cdenergy\c- modifiers";
 CANROLL_ELEMENTAL		=		"Can roll all \cdelemental\c- modifiers";
 LOWER_REFLECT			=		"Take \cd90%\c- less damage from reflect";
-
-DND_BOOT1		=		"Silver Boots";
-DND_BOOT2		=		"Engineer's Boots";
-DND_BOOT3		=		"Insulated Boots";
-DND_BOOT4		=		"Plated Boots";
-DND_BOOT5		=		"Power Boots";
-DND_BOOT6		=		"Charged Boots";
-DND_BOOT7		=		"Tactical Boots";
-DND_BOOT8		=		"Fusion Boots";
-DND_BOOT9		=		"Leather Boots";
-DND_BOOT10		=		"Snakeskin Boots";
-DND_BOOT11		=		"Drakeskin Boots";
+INC_MAGICRES			=		"\cd+5%\c- magic resist";
+INC_ENERGYRES			=		"\cd+5%\c- energy resist";
+REDUCED_LIGHTNINGTAKEN	=		"\cd10%\c- less lightning damage taken";
+OVERHEAT_GOFAST			=		"\cd25%\c- faster overheat dissipation";
+LESS_OVERHEAT			=		"\cd20%\c- less overheat gained";
+REDUCED_POISONTAKEN		=		"\cd+10%\c- less poison damage taken";
+REDUCED_FIRETAKEN		=		"\cd+10%\c- less fire damage taken";
+REDUCED_SELFDMG			=		"\cd25%\c- less self damage taken";

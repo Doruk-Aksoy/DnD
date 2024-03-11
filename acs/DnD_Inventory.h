@@ -167,6 +167,17 @@ enum {
 	IIMG_ARM_17,
 
 	// boots
+	IIMG_BOO_1,
+	IIMG_BOO_2,
+	IIMG_BOO_3,
+	IIMG_BOO_4,
+	IIMG_BOO_5,
+	IIMG_BOO_6,
+	IIMG_BOO_7,
+	IIMG_BOO_8,
+	IIMG_BOO_9,
+	IIMG_BOO_10,
+	IIMG_BOO_11,
 
 	// powercores
 	IIMG_CORE_1,
@@ -195,6 +206,10 @@ enum {
 
 #define ITEM_IMAGE_ARMOR_BEGIN IIMG_ARM_1
 #define ITEM_IMAGE_ARMOR_END IIMG_ARM_17
+
+#define ITEM_IMAGE_BOOT_BEGIN IIMG_BOO_1
+#define ITEM_IMAGE_BOOT_END IIMG_BOO_11
+
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
 #define ITEM_IMAGE_POWERCORE_BEGIN IIMG_CORE_1
@@ -236,6 +251,10 @@ str GetItemImage(int id, bool wide = false) {
 		suffix = id - ITEM_IMAGE_ARMOR_BEGIN + 1;
 		if(wide)
 			img_prefix = "ARW";
+	}
+	else if(id <= ITEM_IMAGE_BOOT_END)  {
+		img_prefix = "BO";
+		suffix = id - ITEM_IMAGE_BOOT_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_POWERCORE_END) {
 		img_prefix = "PC";
@@ -1521,6 +1540,11 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		}
 		else if(itype == DND_ITEM_BODYARMOR) {
 			HudMessage(s:"\c[Y5]", s:GetArmorInventoryTag(isubt); 
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			);
+		}
+		else if(itype == DND_ITEM_BOOT) {
+			HudMessage(s:"\c[Y5]", s:GetBootInventoryTag(isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}

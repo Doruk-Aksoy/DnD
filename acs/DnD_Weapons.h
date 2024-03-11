@@ -996,7 +996,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			sp_x = 8.4;
 			sp_y = 6.2;
 
-			GiveOverheat("DesolatorOverheat", 2, DND_WEAPON_DESOLATOR);
+			GiveOverheat(pnum, "DesolatorOverheat", 2, DND_WEAPON_DESOLATOR);
 		break;
 		case DND_WEAPON_MINIGUN:
 			use_default = true;
@@ -1280,9 +1280,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			proj_id = DND_PROJ_FREEZER;
 			if(!(isAltFire & DND_ATK_OTHER_DIR))
-				GiveOverheat("FreezerOverheat", 5, DND_WEAPON_FREEZER);
+				GiveOverheat(pnum, "FreezerOverheat", 5, DND_WEAPON_FREEZER);
 			else {
-				GiveOverheat("FreezerOverheat", 10, DND_WEAPON_FREEZER);
+				GiveOverheat(pnum, "FreezerOverheat", 10, DND_WEAPON_FREEZER);
 				sp_x = 2.0;
 				sp_y = 2.0;
 			}
@@ -1304,7 +1304,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_NUCLEARPLASMARIFLE:
 			use_default = true;
 			proj_id = DND_PROJ_NUCLEARPLASMA;
-			GiveOverheat("PlasmaOverheat", 2, DND_WEAPON_NUCLEARPLASMARIFLE);
+			GiveOverheat(pnum, "PlasmaOverheat", 2, DND_WEAPON_NUCLEARPLASMARIFLE);
 			if(CheckInventory("PlasmaOverheat") == 100)
 				GiveInventory("PlasmaOverheatCooldown", 1);
 		break;
@@ -1412,7 +1412,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			vec2[angle_vec].x = 1.0;
 			vec3[offset_vec].z = 5.0; // 32 + 9 = 41, we assume 36 so 5.0
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
-				GiveOverheat("RebounderOverheat", 3, DND_WEAPON_REBOUNDER);
+				GiveOverheat(pnum, "RebounderOverheat", 3, DND_WEAPON_REBOUNDER);
 				count = CheckInventory("RebounderOverheat");
 				// every 15 adds 1 up to 60, then its capped
 				if(count < 15)
@@ -1423,7 +1423,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			else {
 				// secondary of rebounder is in the array for HUD, we still use cells here
 				ammo_type = Weapons_Data[wepid].ammo_name1;
-				GiveOverheat("RebounderOverheat", 10, DND_WEAPON_REBOUNDER);
+				GiveOverheat(pnum, "RebounderOverheat", 10, DND_WEAPON_REBOUNDER);
 				Do_Projectile_Attack_Named(owner, pnum, "RebounderProjectileAlt", wepid, 1, 48, angle_vec, offset_vec, 0, 0, 0);
 			}
 		break;
@@ -1540,14 +1540,14 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_DEATHRAY:
 			use_default = true;
 			proj_id = DND_PROJ_DEATHRAY;
-			GiveOverheat("DeathRayOverheat", 40, DND_WEAPON_DEATHRAY);
+			GiveOverheat(pnum, "DeathRayOverheat", 40, DND_WEAPON_DEATHRAY);
 		break;
 		case DND_WEAPON_IONCANNON:
 			use_default = true;
 			proj_id = DND_PROJ_IONCANNON;
 			sp_x = 7.2;
 			sp_y = 5.6;
-			GiveOverheat("IonOverheat", 2, DND_WEAPON_IONCANNON);
+			GiveOverheat(pnum, "IonOverheat", 2, DND_WEAPON_IONCANNON);
 		break;
 		case DND_WEAPON_THUNDERSTAFF:
 			if(!(isAltFire & DND_ATK_SECONDARY)) {

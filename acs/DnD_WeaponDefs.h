@@ -6,6 +6,8 @@
 #define DND_THUNDERAXE_WEAKENPCT 50
 #define CHAIN_LIGHTNING_DELAY 4
 
+#define LESS_OVERHEAT_FACTOR 20
+
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 // Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
@@ -1735,9 +1737,13 @@ str GetWeaponTag(int wepid) {
 	return StrParam(s:"WEP_", d:slot, s:"_", d:subid, s:"_TAG");
 }
 
-void GiveOverheat(str item, int amt, int wepid) {
+void GiveOverheat(int pnum, str item, int amt, int wepid) {
 	if((Weapons_Data[wepid].properties & WPROP_TECH) && CheckInventory("Cyborg_Perk5"))
 		amt -= amt * 3 / 10;
+
+	if(HasPlayerPowerset(pnum, PPOWER_LESSOVERHEAT))
+		amt = amt * (100 - LESS_OVERHEAT_FACTOR) / 100;
+
 	if(!amt)
 		amt = 1;
 	GiveInventory(item, amt);

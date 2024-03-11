@@ -538,3 +538,93 @@ Actor ArmorDrop_16 : ArmorDrop {
 		Goto SpawnInit
 	}
 }
+
+// BOOTS
+
+Actor BootDrop_0 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 A 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_1 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 B 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_2 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 C 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_3 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 D 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_4 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 E 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_5 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 F 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_6 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 G 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_7 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 H 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_8 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 I 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_9 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 J 0
+		Goto SpawnInit
+	}
+}
+
+Actor BootDrop_10 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 K 0
+		Goto SpawnInit
+	}
+}

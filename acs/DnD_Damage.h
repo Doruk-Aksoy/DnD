@@ -31,6 +31,9 @@
 
 #define OCCULT_WEAKEN_DURATION 2
 
+#define RESIST_BOOST_FROM_BOOTS 5 // 5%
+#define DMGREDUCE_BOOST_FROM_BOOTS 10 // 10%
+
 #define DND_CORRUPTORB_DIV 4 // /4 => 75% reduced dmg
 
 enum {
@@ -266,8 +269,8 @@ void UnlockPlayerCritState(int pnum, int wepid) {
 }
 
 // All resists uniformly follow same factors
-int ApplyPlayerResist(int pnum, int dmg, int res_attribute) {
-	int temp = GetPlayerAttributeValue(pnum, res_attribute);
+int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
+	int temp = GetPlayerAttributeValue(pnum, res_attribute) + bonus;
 	if(!temp)
 		return dmg;
 	
@@ -2672,19 +2675,16 @@ Script "DnD Check Explosion Repeat" (void) {
 }
 
 int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags, bool isArmorPiercing) {
-	switch(dmg_type) {
-		case DND_DAMAGETYPE_ENERGYEXPLOSION:
-		case DND_DAMAGETYPE_EXPLOSIVES:
-		case DND_DAMAGETYPE_OCCULTEXPLOSION:
-			dmg = dmg * ((GetSelfExplosiveResist(pnum) * 100) >> 16) / 100;
-			
-			// apply accessory and other sources of damage
-			dmg = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
-			
-			// factor in players armor here!!! -- NO DON'T DO THAT! We have a generic resist and armor handle in main dmg script
-			//dmg = HandlePlayerArmor(pnum, dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
-		break;
-	}
+	dmg = dmg * ((GetSelfExplosiveResist(pnum) * 100) >> 16) / 100;
+
+	if(HasPlayerPowerset(pnum, PPOWER_REDUCEDSELFDMG))
+		dmg = dmg * (100 - REDUCED_SELF_DMG_FACTOR) / 100;
+	
+	// apply accessory and other sources of damage
+	dmg = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
+	
+	// factor in players armor here!!! -- NO DON'T DO THAT! We have a generic resist and armor handle in main dmg script
+	//dmg = HandlePlayerArmor(pnum, dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 	return dmg;
 }
 
@@ -2704,10 +2704,10 @@ int HandleCursePlayerResistEffects(int dmg) {
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
 int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected, str inflictor_class) {
-	int temp;
+	int temp = 0;
 	int dot_temp;
 	
-	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE))
+	if(isHardcore())
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_HARDCORE_DEBUFF);
 	
 	dmg = HandleCursePlayerResistEffects(dmg);
@@ -2722,14 +2722,19 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	if(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_HITSCAN);
 	
-	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_MAGIC);
+	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
+		temp = HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_MAGIC, temp);
+	}
 	
 	// ELEMENTAL DAMAGE BLOCK BEGINS
 	// we can only have 1 element attributed to one damage type at a time
 	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_FIRE);
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
+
+		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDFIRETAKEN))
+			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ICE);
@@ -2738,12 +2743,18 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_LIGHTNING);
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
+
+		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDLIGHTNINGTAKEN))
+			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
 	}
 	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
 		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
 		// wanderer perk
 		if(CheckInventory("Wanderer_Perk5"))
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_WANDERER_POISONPERCENT);
+
+		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDPOISONTAKEN))
+			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
 		
 		// reduced poison damage taken
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_POISON);
@@ -2782,8 +2793,10 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	}
 	
 	// energy sources
-	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY)
+	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
+		temp = HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ENERGY);
+	}
 	
 	// gravecaller unique mod
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_PAINSHAREDWITHPETS)) {
