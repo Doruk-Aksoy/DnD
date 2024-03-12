@@ -22,10 +22,6 @@ void HandleZombieRaiseOnDeath(int target) {
 	SetActivator(this);
 }
 
-bool HasRoomForPets(int tid) {
-	return CheckActorInventory(tid, "PetCounter") < GetPetCap(tid);
-}
-
 void CleanPetStuff() {
 	SetInventory("SummonedZombiePets", 0);
 	SetInventory("PetCounter", 0);

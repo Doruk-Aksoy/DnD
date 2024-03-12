@@ -252,9 +252,15 @@ Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
 }
 
 Script "DND Check Hardcore Softcore" OPEN {
+	int cv;
 	while(true) {
-		if((GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER) && CheckHardcoreSettings())
-			SetupComplete(SETUP_STATE1, SETUP_HARDCORE);
+		cv = GetCVar("dnd_mode");
+		if((cv >= DND_MODE_SOFTCORE) && (GameType() != GAME_SINGLE_PLAYER) && CheckHardcoreSettings()) {
+			if(cv == DND_MODE_HARDCORE)
+				SetupComplete(SETUP_STATE1, SETUP_HARDCORE);
+			else
+				SetupComplete(SETUP_STATE1, SETUP_SOFTCORE);
+		}
 		else {
 			SetupUndo(SETUP_STATE1, SETUP_HARDCORE);
 			SetupUndo(SETUP_STATE1, SETUP_SOFTCORE);
@@ -726,24 +732,39 @@ Script "DND On Kill" KILL {
 	int this = ActivatorTID();
 	
 	// pet check -- pets dont have anything going for them beyond here
-	if(IsPet(this) || CheckFlag(0, "FRIENDLY")) {
+	if(IsPet(this)) {
 		Thing_ChangeTID(this, 0);
 		Terminate;
 	}
 	
 	int m_id = this - DND_MONSTERTID_BEGIN;
+	
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
+
+	int target = GetActorProperty(0, APROP_TARGETTID), temp;
+
 	// don't continue if monster is revived or summoned
-	if(HasTrait(m_id, DND_SUMMONED) || HasTrait(m_id, DND_REVIVED))
+	if(HasTrait(m_id, DND_SUMMONED) || HasTrait(m_id, DND_REVIVED)) {
+		// regular pets get eliminated by the top if statement, so player summoned ones should deduce pet counter
+		temp = GetActorProperty(this, APROP_MASTERTID);
+		if(IsPlayer(temp)) {
+			//printbold(s:"take pet");
+			TakeActorInventory(temp, "PetCounter", 1);
+		}
+			
 		Terminate;
+	}
 	
-	int target = GetActorProperty(0, APROP_TARGETTID);
+	// check if this was a pet to give kill credit to the owner
+	temp = GetActorProperty(target, APROP_MASTERTID);
+	if(IsPlayer(temp) && CheckFlag(target, "FRIENDLY"))
+		target = temp;
+
 	bool killerWasntPlayer = !CheckInventory("MonsterKilledByPlayer");
 	TakeInventory("MonsterKilledByPlayer", 1);
 
-	// if theres cooldown item, reduce by a second here
-	TakeActorInventory(target, "Marine_Perk50_Cooldown", TICRATE);
+	MonsterProperties[this - DND_MONSTERTID_BEGIN].killer_tid = target;
 	
 	// if this was a unique boss monster, since its dead now we can clear it to clients
 	if(isUniqueBossMonster(m_id)) {
@@ -760,6 +781,9 @@ Script "DND On Kill" KILL {
 	)
 		Terminate;
 		
+	// if theres cooldown item, reduce by a second here
+	TakeActorInventory(target, "Marine_Perk50_Cooldown", TICRATE);
+
 	// remove freeze and chill timers
 	SetInventory("DnD_ChillStacks", 0);
 	SetInventory("DnD_FreezeTimer", 0);
@@ -826,7 +850,7 @@ Script "DND On Kill" KILL {
 	}
 	
 	// Legendary Kill Item
-	int i, temp;
+	int i;
 	if(MonsterProperties[m_id].id >= LEGENDARY_START) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
@@ -855,7 +879,7 @@ Script "DND On Kill" KILL {
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
 		temp = GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_CHANCE_ONDEATH_RAISEZOMBIE);
-		if(HasRoomForPets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && temp >= random(1, 100)) {
+		if(CanActorHaveMorePets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && temp >= random(1, 100)) {
 			// raise zombie
 			HandleZombieRaiseOnDeath(target);
 		}
@@ -929,6 +953,7 @@ Script "DND On Kill" KILL {
 }
 
 Script "DnD Monster RIP" (int tid) {
+	GiveActorInventory(tid, "DnD_EnemySlatedForRemoval", 1);
 	Delay(const:RIP_MONSTER_FADE_DELAY);
 	SetActorProperty(tid, APROP_RENDERSTYLE, STYLE_Translucent);
 	int a = GetActorProperty(tid, APROP_ALPHA);
@@ -1802,8 +1827,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 
 	// run elite checks
 	if(
-		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																&& 
-		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
+		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																	&& 
+		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
 		!IsUniqueMonster(monsterid)
 	)
 	{
@@ -1915,7 +1940,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 		MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS && 
 		GetCVar("dnd_enable_elites") && 
 		RollEliteChance() && 
-		PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_elite_spawnlevel")
+		PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")
 	) {
 		MonsterProperties[m_id].isElite = true;
 
@@ -3057,6 +3082,7 @@ Script "DnD Player Setup" ENTER {
 	if(PlayerInGame(pnum)) {
 		curlvl = GetStat(STAT_LVL);
 		PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] += curlvl;
+		PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] += curlvl;
 		++PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 		if(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] < curlvl)
 			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = curlvl;
@@ -3968,7 +3994,7 @@ Script "DnD Timed Monster" (int time, int isPet) {
 	if(!isPet)
 		SetActorState(0, "Remove");
 	else
-		Thing_Damage(0, GetActorProperty(0, APROP_HEALTH) * 3);
+		Thing_Damage2(0, GetActorProperty(0, APROP_HEALTH) * 3, "Perish");
 	SetResultValue(0);
 }
 
@@ -4609,9 +4635,10 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * GetCritModifier(pnum, -1, -1) / 100;
 		HandleHunterTalisman();
 	}
-	res *= random(rnd & 0xFFFF, rnd >> 16);
-		
-	//printbold(d:res);
+
+	if(rnd)
+		res *= random(rnd & 0xFFFF, rnd >> 16);
+
 	SetResultValue(res);
 }
 
@@ -5065,37 +5092,53 @@ Script "DnD Rejuvenation FX CS" (void) CLIENTSIDE {
 	GiveInventory("RejuvenationFX_Spawner", 1);
 }
 
-Script "DnD Berserker Perk5 Check" (void) {
-	// berserker perk5 fail-safe checks for super weapons
-	if(CheckInventory("Berserker_Perk5")) {
-		for(int i = DND_WEAPON_BFG32768; i <= DND_WEAPON_SOULREAVER; ++i) {
-			if(CheckInventory(Weapons_Data[i].name)) {
-				TakeInventory(Weapons_Data[i].name, 1);
-				TakeInventory("H_WeaponSlot7", 1);
-				break;
-			}
-		}
+// checks if a monster is resurrectable and if so, resurrects and makes it a pet
+Script "DnD Resurrect Checker" (void) {
+	Delay(const:(TICRATE * 5));
+	
+	int this = ActivatorTID();
+	int id = this - DND_MONSTERTID_BEGIN;
+	
+	if(HasTrait(id, DND_SUMMONED) || HasTrait(id, DND_REVIVED))
+		Terminate;
+	
+	int killer = MonsterProperties[id].killer_tid;
+	
+	if(!CheckInventory("DnD_EnemySlatedForRemoval") && CanActorHaveMorePets(killer) && IsMonsterCategoryResurrectable(id) && isPlayer(killer)) {
+		// proceed to resurrect and make the master the player and mark this monster as a pet
+		SetEliteFlag(DND_REVIVED, true);
+
+		int tries = 0;
+		while(!CanRaiseActor(0) && tries++ < 15)
+			Delay(const:HALF_TICRATE);
+
+		if(!CanRaiseActor(0))
+			Terminate;
+
+		GiveInventory("DnD_ResurrectMonster", 1);
+		GiveActorInventory(killer, "PetCounter", 1);
+
+		// set the killer as its owner now
+		SetActorProperty(0, APROP_MASTERTID, killer);
+		SetActorProperty(0, APROP_FRIENDLY, 1);
+		SetActorProperty(0, APROP_SPECIES, "Player");
+
+		int lifetime = DND_SICKLE_RESTIME_BASE + GetActorIntellect(killer) / DND_SICKLE_RESTIME_FACTOR;
+
+		// timer and follow setups
+		ACS_NamedExecuteWithResult("DnD Timed Monster", lifetime, 1);
+
+		// don't give this, they are solid and block the player
+		ACS_NamedExecuteAlways("DnD Pet Distance Move", 0);
 	}
 }
 
-Script "DnD Berserker Perk5 Check (Melee)" (void) {
-	// berserker perk5 fail-safe checks for class change from berserker to any other
-	// do not include luxury weapons as part of this
-	bool has_melee = false;
-	if(!CheckInventory("Berserker_Perk5")) {
-		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= LAST_SLOT0_NONLUXURYWEAPON; ++i) {
-			if(CheckInventory(Weapons_Data[i].name)) {
-				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
-				if(has_melee) {
-					TakeInventory(Weapons_Data[i].name, 1);
-					TakeInventory("H_WeaponSlot1", 1);
-					GiveInventory(Weapons_Data[DND_WEAPON_CHAINSAW].name, 1);
-				}
-				
-				has_melee = true;
-			}
-		}
-	}
+Script "DnD Roll Proc" (int base, int owner_flags) {
+	if(owner_flags & DND_WDMG_USETARGET)
+		SetActivatorToTarget(0);
+
+	base = (base << 16) / 100;
+	SetResultValue(RunLuckBasedChance(PlayerNumber(), base, DND_LUCK_OUTCOME_GAIN));
 }
 
 Script "DnD Hurt Actor" (int hurter, int victim, int dmg) {

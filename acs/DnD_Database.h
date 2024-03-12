@@ -222,7 +222,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 }
 
 void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
-	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerIsLoggedIn(pnum)) {
+	if(isSoftorHardcore() && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerIsLoggedIn(pnum)) {
 		StartDBTransaction();
 		int tid = pnum + P_TIDSTART, i, j, k, temp;
 		char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
@@ -343,6 +343,7 @@ void SavePlayerData(int pnum, int char_id) {
 		}
 		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed or we hit maxweps
 			// send temp over
+			//Log(s:"send wep bitset ", d:j + 1, s: " ", d:temp);
 			SetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:j + 1), char_id), pacc, temp);
 			temp = 0;
 		}
@@ -648,7 +649,7 @@ void SavePlayerActivities(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Millions"));
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Billions"));
 	
-	Log(s:"Saving player ", d:pnum, s:"'s activities.");
+	Log(s:"Saving player ", n:pnum + 1, s:"'s activities.");
 }
 
 void LoadPlayerStash(int pnum, str pacc) {
@@ -852,6 +853,7 @@ void LoadPlayerData(int pnum, int char_id) {
 		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed
 			// update bitset
 			temp = GetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:j + 2), char_id), pacc);
+			//Log(s:"read wep bitset: ", d:j + 2, s: " ", d:temp);
 		}
 	}
 	
@@ -1088,7 +1090,7 @@ void load_char(int pnum, int char_id) {
 
 int check_load_char(int pnum, int char_id) {
 	// if not hardcore don't bother trying to load
-	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSoftorHardcore()) return DND_LOGIN_NOTHARDCORE;
 	if(!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	// if gamestate is countdown don't let them because it'll be reset anyways
@@ -1166,6 +1168,7 @@ void WipeoutPlayerUsedItems(int pnum, str pacc, int char_id) {
 
 // on Hardcore death, wipeout all data related to this player
 void WipeoutPlayerData(int pnum, int cid) {
+	Log(s:"Wiping out data of player ", n:pnum + 1, s:".");
 	int i, j, char_id = Clamp_Between(cid, 0, DND_MAX_CHARS - 1);
 	str pacc = GetPlayerAccountName(pnum);
 	for(i = 1; i <= (MAXWEPS / 32) + 1; ++i)
@@ -1260,7 +1263,7 @@ void create_char(int pnum, int char_id) {
 }
 
 int check_create_char(int pnum, int char_id) {
-	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSoftorHardcore()) return DND_LOGIN_NOTHARDCORE;
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
@@ -1280,7 +1283,7 @@ void transfer_char(int pnum, int char_id) {
 }
 
 int check_transfer_char(int pnum, int char_id) {
-	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) return DND_LOGIN_NOTHARDCORE;
+	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSoftorHardcore()) return DND_LOGIN_NOTHARDCORE;
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
@@ -1297,6 +1300,8 @@ void BulkResetPlayerData(int pnum) {
 }
 
 void SaveDefaultPlayer(int pnum, int char_id) {
+	Log(s:"Saving default player for ", n:pnum + 1, s:".");
+
 	int i, j;
 	str pacc = GetPlayerAccountName(pnum);
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);

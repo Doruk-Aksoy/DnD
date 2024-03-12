@@ -559,7 +559,7 @@ global int 21: MonsterCategoryData[][2];
 
 void PickQuest() {
 	if(GetCVar("dnd_enable_quests") && PlayerCount()) {
-		if(GetCVar("dnd_quest_avglevel") <= (PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerCount()) && random(1, 100) <= Clamp_Between(GetCVar("dnd_quest_chance"), 1, 100)) {
+		if(GetCVar("dnd_quest_avglevel") <= (PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / PlayerCount()) && random(1, 100) <= Clamp_Between(GetCVar("dnd_quest_chance"), 1, 100)) {
 			do {
 				active_quest_id = random(0, MAX_QUESTS - 1);
 			} while(!IsValidQuest(active_quest_id));
@@ -1050,7 +1050,7 @@ int GetWeaponSlotFromFlag(int flags) {
 int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 	int base = realhp;
 	int add = 0, level = 1, low, high, temp;
-	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount;
+	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount;
 	// ensure minions use master's level -- do so only if its summoned, boss tier monsters have tids on the spawners that can mess this up during mapload!!!
 	if(GetActorProperty(0, APROP_MASTERTID) && isSummoned)
 		level = MonsterProperties[GetActorProperty(0, APROP_MASTERTID) - DND_MONSTERTID_BEGIN].level;
@@ -1074,7 +1074,7 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 			level = PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL];
 	}
 	if(GetCVar("dnd_monsterlevel_behind"))
-		level = Clamp_Between(level, 1, PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount);
+		level = Clamp_Between(level, 1, PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount);
 	level = Clamp_Between(level, 1, GetCVar("dnd_maxmonsterlevel"));
 	if(level > 1) {
 		add = GetMonsterHPScaling(m_id, level);
@@ -1320,7 +1320,7 @@ int GetAveragePlayerLevel() {
 	int temp = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 	if(temp < 1)
 		temp = 1;
-	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / temp;
+	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / temp;
 }
 
 void ClearLingeringBuffs() {
@@ -1344,6 +1344,9 @@ void ClearLingeringBuffs() {
 	SetInventory("Cyborg_Instability_Timer", 0);
 	SetInventory("Cyborg_NoAnim", 0);
 	SetInventory("EShieldChargeNow", 0);
+
+	// rework this when we add persistent pets
+	SetInventory("PetCounter", 0);
 	
 	// some buffs from spells, that arent powerups
 	SetInventory("Rally_DamageBuff", 0);
@@ -1419,7 +1422,7 @@ void CheckEOL(bool isSpectate, int game_mode = -1) {
 		
 	//Log(s:"check hardcore ", d:HardcoreSet, s: " ", d:game_mode, s: " ", d:DND_MODE_HARDCORE, s: " ", d:DND_MODE_SOFTCORE);
 		
-	if(!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
+	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
 		return;
 	
 	//Log(s:"spec? ", d:isSpectate, s: " ", d:PlayerCount());
@@ -1453,7 +1456,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 	if(game_mode == -1)
 		game_mode = GetCVar("dnd_mode");
 		
-	if(!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
+	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
 		return;
 		
 	if(!isDisconnect) {
@@ -1484,7 +1487,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 }
 
 void SaveAllPlayerData() {
-	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) {
+	if(isSoftorHardcore()) {
 		StartDBTransaction();
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// don't save peoples stuff while they are in load period
@@ -1499,7 +1502,7 @@ void SaveAllPlayerData() {
 					SavePlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
 					ResetPlayerActivities(i, false); // reset this player's activities for the map, no need for them to be stored anymore
 					PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
-					Log(s:"Saving player ", d:i, s:"'s data.");
+					Log(s:"Saving player ", n:i + 1, s:"'s data.");
 				}
 				PlayerDatabaseState[i][PLAYER_SAVESTATE] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
 			}

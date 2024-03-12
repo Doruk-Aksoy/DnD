@@ -72,7 +72,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	bool use_default = false;		// default behavior
 
 	// check for cyborg instability
-	flags |= (IsTechWeapon(wepid) && random(1, 100) <= DND_CYBORG_INSTABILITY_CHANCE + DND_LUCK_OUTCOME_GAIN * GetStat(STAT_LUCK)  && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY) * DND_ATF_INSTABILITY;
+	flags |= (IsTechWeapon(wepid) && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY && RunLuckBasedChance(pnum, DND_CYBORG_INSTABILITY_CHANCE, DND_LUCK_OUTCOME_GAIN)) * DND_ATF_INSTABILITY;
 	
 	// we will scale count whenever the weapon would require it!
 	// unused variables use their default values from above

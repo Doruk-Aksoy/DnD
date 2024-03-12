@@ -54,6 +54,7 @@ typedef struct {
 	int rarity;										// monster's rarity;
 	int droprate;									// droprate multiplier for this monster based on its initialization data
 	int rarity_boost;								// item rarity boost from monster
+	int killer_tid;									// tid of the killer
 	bool isElite;
 	bool hasTrait;									// used by clients mostly -- do we have traits
 	int resists[MAX_DAMAGE_CATEGORIES];				// resists of the monster
@@ -1254,7 +1255,11 @@ bool IsLostSoul() {
 }
 
 bool isPet(int tid) {
-	return tid >= DND_PETTID_BEGIN && tid < DND_PETTID_END;
+	return (tid >= DND_PETTID_BEGIN && tid < DND_PETTID_END);
+}
+
+bool IsMonsterCategoryResurrectable(int id) {
+	return MonsterProperties[id].class != MONSTERCLASS_ARCHVILE && !IsMonsterIdBoss(id);
 }
 
 // all demon barons, fatsos or arachnos or bosses that are demons can drop a soul ammo

@@ -417,7 +417,7 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 		for(int i = 0; i < MAX_WEAPON_PROPERTIES; ++i) {
 			if(IsSet(Weapons_Data[real_wid].properties, i)) {
 				SetFont(WeaponPropertyImages[i]);
-				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID - i - 1, -1, -64.0 + (imgcount & 1) * 64.0, -160.0 + ypos * 8.0 + (imgcount / 2) * 40.0, 0.0, 0.0);
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID - i - 1, -1, -64.0 + (imgcount & 1) * 64.0, -160.0 + ypos * 9.0 + (imgcount / 2) * 40.0, 0.0, 0.0);
 				++imgcount;
 			}
 		}
@@ -451,7 +451,6 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-128, 0);
 		break;
 		case MENU_HELP_CHARACTER:
-		case MENU_HELP_WEAPONPROPS:
 		case MENU_HELP_MMODS_RESIST:
 			redraw = ListenScroll(-96, 0);
 		break;
@@ -472,6 +471,7 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_HELP_MMODS_WEAKNESS:
 			redraw = ListenScroll(-48, 0);
 		break;
+		case MENU_HELP_WEAPONPROPS:
 		case MENU_HELP_MMODS_AGGRESSIVE:
 			redraw = ListenScroll(-144, 0);
 		break;
@@ -586,7 +586,7 @@ void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 		mode = 1;
 		
 	if(mode) {
-		if(ypos < 25)
+		if(ypos < 22)
 			++ypos;
 	}
 	else if(ypos > 0)
@@ -594,7 +594,7 @@ void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 
 	SetFont("DND_PANL");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID, -1, -12.0, -64.0 + ypos * 4.0, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUWEAPONPANELID, -1, -12.0, -64.0 + ypos * 5.0, 0.0, 0.0);
 	
 	if(curopt >= MENU_SHOP && curopt <= SHOP_LASTWEAPON_PAGE) {
 		if(isWepPage && boxid != MAINBOX_NONE && boxid <= MAX_WEPS_PER_PAGE)

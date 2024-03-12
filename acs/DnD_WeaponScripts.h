@@ -1,6 +1,19 @@
 #ifndef DND_WEAPON_SC_IN
 #define DND_WEAPON_SC_IN
 
+Script "DnD Sickle Check Res" (int base) {
+	int res = 0;
+	int hit = GetActorProperty(0, APROP_TRACERTID);
+
+	if(IsMonster(hit) && !IsActorAlive(hit)) {
+		SetActivatorToTarget(0);
+		base = (base << 16) / 100;
+		res = RunLuckBasedChance(PlayerNumber(), base, DND_LUCK_OUTCOME_GAIN);
+	}
+
+	SetResultValue(res);
+}
+
 Script "DND Acid Rifle Bolt Stick" (int type) {
 	int res = 0;
 	int tracer = GetActorProperty(0, APROP_TRACERTID);

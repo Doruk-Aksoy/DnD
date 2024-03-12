@@ -606,17 +606,27 @@ int Calculate_Perks() {
 	return res;
 }
 
+// this is used in drop rates, weapons proc chances etc.
+int GetPlayerLuck(int pnum, int outcome_val = DND_LUCK_GAIN) {
+	return outcome_val * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck") + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
+}
+
+bool RunLuckBasedChance(int pnum, int base, int outcome_val = DND_LUCK_GAIN) {
+	int r = random(0, 1.0);
+	return r <= FixedMul(base, 1.0 + GetPlayerLuck(pnum, outcome_val));
+}
+
 // this is the generic drop chance factor
 int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
-	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE) + DND_LUCK_GAIN * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck");
+	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE);
 			
 	//if(isElite && IsQuestComplete(pnum + P_TIDSTART, QUEST_KILL20ELITES))
 	//	base += DND_ELITEDROP_GAIN;
 		
 	// more chance to find loot
-	base = FixedMul(base, 1.0 + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE));
+	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 	return base;
@@ -982,6 +992,7 @@ void RecalculatePlayerLevelInfo() {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			temp = CheckActorInventory(i + P_TIDSTART, "Level");
 			PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] += temp;
+			PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] += temp;
 			if(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] > temp)
 				PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = temp;
 			if(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] < temp)
@@ -1281,7 +1292,7 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)
-		statOf = (statOf + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) * (100 + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
+		statOf = (statOf + (GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE) << 16) / 100) * (100 + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
 	else
 		statOf = (statOf * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC)) / 100;
 

@@ -150,6 +150,39 @@ Script "DnD Berserker Perk50 Timer" (int this) {
 	SetInventory("Berserker_HitTimer", 0);
 }
 
+Script "DnD Berserker Perk5 Check" (void) {
+	// berserker perk5 fail-safe checks for super weapons
+	if(CheckInventory("Berserker_Perk5")) {
+		for(int i = DND_WEAPON_BFG32768; i <= DND_WEAPON_SOULREAVER; ++i) {
+			if(CheckInventory(Weapons_Data[i].name)) {
+				TakeInventory(Weapons_Data[i].name, 1);
+				TakeInventory("H_WeaponSlot7", 1);
+				break;
+			}
+		}
+	}
+}
+
+Script "DnD Berserker Perk5 Check (Melee)" (void) {
+	// berserker perk5 fail-safe checks for class change from berserker to any other
+	// do not include luxury weapons as part of this
+	bool has_melee = false;
+	if(!CheckInventory("Berserker_Perk5")) {
+		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= LAST_SLOT0_NONLUXURYWEAPON; ++i) {
+			if(CheckInventory(Weapons_Data[i].name)) {
+				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
+				if(has_melee) {
+					TakeInventory(Weapons_Data[i].name, 1);
+					TakeInventory("H_WeaponSlot1", 1);
+					GiveInventory(Weapons_Data[DND_WEAPON_CHAINSAW].name, 1);
+				}
+				
+				has_melee = true;
+			}
+		}
+	}
+}
+
 Script "DnD Berserker Roar" (int this) CLIENTSIDE {
 	SetActivator(this);
 	

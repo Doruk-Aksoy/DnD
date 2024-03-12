@@ -552,3 +552,21 @@ Actor ProjectileHelper {
 Actor DnD_Weapon_FrameChecker : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
+
+Actor DnD_EnemySlatedForRemoval : DnD_Boolean { }
+
+Actor DnD_ResurrectChecker : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Resurrect Checker", 0)
+		Stop
+	}
+}
+
+Actor DnD_ResurrectMonster : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 Thing_Raise(0)
+		Stop
+	}
+}

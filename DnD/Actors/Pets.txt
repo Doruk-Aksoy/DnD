@@ -54,6 +54,7 @@ ACTOR ZombiePet : PetMonsterBase {
 	Height 56
 	Speed 10
 	PainChance 192
+	Stamina 1
 	SeeSound "ZombieFodder/sight"
 	PainSound "ZombieFodder/pain"
 	DeathSound "ZombieFodder/death"

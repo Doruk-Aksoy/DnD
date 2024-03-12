@@ -178,6 +178,8 @@ DND_MENU_WEPHELPTEXT7	=	"Weapon has attacks that can't be mitigated by any resis
 DND_MENU_WEPHELPTEXT8	=	"Projectiles fired from this weapon can't be \cureflected\c-.";
 DND_MENU_WEPHELPTEXT9	=	"Damage from the weapon can \cqinflict poison\c- on enemies.";
 DND_MENU_WEPHELPTEXT10	=	"Weapon is a \cktech\c- weapon.";
+DND_MENU_WEPHELPTEXT11	=	"Weapon is a \cishotgun\c-.";
+DND_MENU_WEPHELPTEXT12	=	"Weapon is a \cqprecision\c- weapon.";
 
 // yeah numbers here aren't the smartest because hypothetically if a balance change were to happen then all languages would need a change but it's too cumbersome to add numbers in between text \_(*__*)_/
 DND_MENU_ATTR1 			=	"\c[INT]Strength\c-";
@@ -203,7 +205,7 @@ DND_MENU_PERKTEXT6		=	"increased effect of healing.";
 DND_MENU_PERKTEXT7		=	"increased ammo gain.";
 DND_MENU_PERKTEXT8		=	"to critical strike chance.";
 DND_MENU_PERKTEXT9		=	"to critical strike multiplier.";
-DND_MENU_PERKTEXT10		=	"increased drop chance and 5% chance to have better outcomes.";
+DND_MENU_PERKTEXT10		=	"more drop chance and 5% chance to have better outcomes.";
 
 DND_MENU_MASTERY		=	"Mastery";
 DND_MENU_MASTERY_COND	=	"Requires 10 points";

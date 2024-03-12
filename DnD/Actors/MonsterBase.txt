@@ -214,6 +214,7 @@ Actor DnD_IceDeathToken : DnD_Activator {
 
 // inherit melee if monster can ONLY do melee
 Actor DnD_BaseMeleeMonster_NoRes : DnD_BaseMonster {
+	Stamina 1
 	States {
 		Melee:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
@@ -224,6 +225,7 @@ Actor DnD_BaseMeleeMonster_NoRes : DnD_BaseMonster {
 }
 
 Actor DnD_BaseMeleeMonster : DnD_BaseMeleeMonster_NoRes {
+	Stamina 1
 	States {
 		Raise:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
@@ -256,6 +258,7 @@ Actor DnD_BaseRangedMonster : DnD_BaseRangedMonster_NoRes {
 
 // inherit this if the monster is supposed to have both attack types, melee and ranged!
 Actor DnD_BaseHybridMonster_NoRes : DnD_BaseMonster {
+	Stamina 1
 	States {
 		Melee:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
@@ -271,6 +274,7 @@ Actor DnD_BaseHybridMonster_NoRes : DnD_BaseMonster {
 }
 
 Actor DnD_BaseHybridMonster : DnD_BaseHybridMonster_NoRes {
+	Stamina 1
 	States {
 		Raise:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Revive", 0)
@@ -281,6 +285,7 @@ Actor DnD_BaseHybridMonster : DnD_BaseHybridMonster_NoRes {
 }
 
 Actor DnD_ArchVileBase : DnD_BaseRangedMonster_NoRes {
+	Stamina 1
 	States {
 		Heal:
 			"####" "#" 0 A_Jump(256, "HealState")
@@ -290,6 +295,7 @@ Actor DnD_ArchVileBase : DnD_BaseRangedMonster_NoRes {
 }
 
 Actor DnD_ArchVilePassiveBase : DnD_BaseMonster {
+	Stamina 1
 	States {
 		Heal:
 			"####" "#" 0 A_Jump(256, "HealState")
@@ -299,6 +305,7 @@ Actor DnD_ArchVilePassiveBase : DnD_BaseMonster {
 }
 
 Actor DnD_ArchVileHybridBase : DnD_BaseHybridMonster_NoRes {
+	Stamina 1
 	States {
 		Heal:
 			"####" "#" 0 A_Jump(256, "HealState")
@@ -309,6 +316,7 @@ Actor DnD_ArchVileHybridBase : DnD_BaseHybridMonster_NoRes {
 
 // inherit melee if monster can ONLY do melee and is a boss creature -- SM or Cyber (not ressurectable)
 Actor DnD_BaseMeleeBoss : DnD_BaseMeleeMonster_NoRes {
+	Stamina 1
 	GibHealth -500
 	+NEVERRESPAWN
 	+NOFEAR
@@ -323,6 +331,7 @@ Actor DnD_BaseRangedBoss : DnD_BaseRangedMonster_NoRes {
 
 // inherit this if the monster is supposed to have both attack types, melee and ranged!
 Actor DnD_BaseHybridBoss : DnD_BaseHybridMonster_NoRes {
+	Stamina 1
 	GibHealth -200
 	+NEVERRESPAWN
 	+NOFEAR

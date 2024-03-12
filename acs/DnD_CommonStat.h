@@ -102,8 +102,8 @@ enum {
 #define DND_SAVAGERY_BONUS 20 // percent
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
 #define DND_MUNITION_GAIN 10
-#define DND_LUCK_GAIN 0.15 // 15% multiplicative lucke
-#define DND_LUCK_OUTCOME_GAIN 5
+#define DND_LUCK_GAIN 0.15 // 15% multiplicative luck
+#define DND_LUCK_OUTCOME_GAIN 0.05
 
 #define DND_SHARPSHOOTER_MASTERY_BONUS 0.01
 
@@ -334,8 +334,16 @@ int GetStrength() {
 	return (CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTAT)) / 100;
 }
 
-int GetPetCap(int tid) {
+int GetPetCap() {
 	return BASE_PET_CAP;
+}
+
+int GetActorPetCap(int tid) {
+	return BASE_PET_CAP;
+}
+
+bool CanActorHaveMorePets(int tid) {
+	return CheckActorInventory(tid, "PetCounter") < GetActorPetCap(tid);
 }
 
 int GetHealingBonuses(int pnum) {

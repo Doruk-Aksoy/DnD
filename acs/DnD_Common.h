@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -391,7 +391,8 @@ int UsedMonsterTIDs[DND_MAX_MONSTERS];
 #define PLAYERLEVELINFO_MAXLEVEL 2
 #define PLAYERLEVELINFO_COUNTATSTART 3
 #define PLAYERLEVELINFO_TIDMONSTER 4 // how many monster tids were skipped, this can happen if mappers allocated tids of their own
-#define MAX_PLAYERLEVELINFO_DATA (PLAYERLEVELINFO_TIDMONSTER + 1)
+#define PLAYERLEVELINFO_LEVELATSTART 5 // level total of players at the start of the game
+#define MAX_PLAYERLEVELINFO_DATA (PLAYERLEVELINFO_LEVELATSTART + 1)
 
 bool pinfo_pending_reset = true;
 global int 28: PlayerInformationInLevel[MAX_PLAYERLEVELINFO_DATA];
@@ -402,6 +403,7 @@ void ResetPlayerInformationLevel() {
 	PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = INT_MIN;
 	PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] = 0;
 	PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER] = 0;
+	PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] = 0;
 	pinfo_pending_reset = false;
 
 	SetupUndo(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);

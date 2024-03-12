@@ -76,6 +76,32 @@ enum {
 	DND_DAMAGETYPEFLAG_PERCENTHP = 512,
 };
 
+int MonsterDamageTypeToDamageCategory(int d) {
+	if(d & DND_DAMAGETYPEFLAG_PHYSICAL)
+		return DND_DAMAGECATEGORY_BULLET;
+
+	if(d & DND_DAMAGETYPEFLAG_FIRE)
+		return DND_DAMAGECATEGORY_FIRE;
+	if(d & DND_DAMAGETYPEFLAG_ICE)
+		return DND_DAMAGECATEGORY_FIRE;
+	if(d & DND_DAMAGECATEGORY_ICE)
+		return DND_DAMAGECATEGORY_POISON;
+	if(d & DND_DAMAGETYPEFLAG_LIGHTNING)
+		return DND_DAMAGECATEGORY_LIGHTNING;
+
+	if(d & DND_DAMAGETYPEFLAG_ENERGY)
+		return DND_DAMAGECATEGORY_ENERGY;
+
+	if(d & DND_DAMAGETYPEFLAG_MAGICAL)
+		return DND_DAMAGECATEGORY_OCCULT;
+
+	if(d & DND_DAMAGECATEGORY_EXPLOSIVES)
+		return DND_DAMAGECATEGORY_EXPLOSIVES;
+
+	return DND_DAMAGECATEGORY_MELEE;
+}
+
+
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
 #define DAMAGE_TYPE_SHIFT 5
 #define DAMAGE_TYPE_MASK 0x1F
@@ -2928,6 +2954,45 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim) {
 	}	
 }
 
+int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int dmg_data, int flags) {
+	// set pointer to owner
+	SetActivator(master);
+
+	int pnum = master - P_TIDSTART, temp;
+	bool wantDmgNums = flags == -1;
+	int dmgnum_flags = 0;
+
+	// extract damage category from dmg_data stamina
+	int dmg_category = MonsterDamageTypeToDamageCategory(dmg_data);
+	
+	// revived monsters have half stat gain
+	dmg += MapDamageCategoryToFlatBonus(pnum, dmg_category);
+	dmg = dmg * (100 + HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN / 2, true)) / 100;
+
+	if((dmg_category == DND_DAMAGECATEGORY_BULLET || dmg_category == DND_DAMAGECATEGORY_MELEE) && (temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH))) {
+		temp = GetFlatHealthDamageFactor(temp);
+		dmg = dmg * (100 + temp) / 100;
+	}
+
+	temp = MapDamageCategoryToPercentBonus(pnum, dmg_category);
+	if(temp)
+		dmg = dmg * (100 + temp) / 100;
+	
+	// finally crit chance -- move to damagedeal for pets in damage event later
+	if(CheckCritChance(pnum, -1, -1, false, -1)) {
+		dmg = dmg * GetCritModifier(pnum, -1, -1) / 100;
+		HandleHunterTalisman();
+		dmgnum_flags |= DND_DAMAGETICFLAG_CRIT;
+	}
+
+	if(flags == -1)
+		ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, dmgnum_flags);
+
+	SetActivator(this);
+
+	return dmg;
+}
+
 int HandlePercentDamageFromEnemy(int dmg, int dmg_data) {
 	// check inflictor momentarily
 	SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
@@ -3085,7 +3150,17 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// if victim was a monster, check for infight situation
 			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
 			// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
-			if(IsMonster(victim) && victim != shooter && GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES)) {
+			if
+			(
+				// added condition for friendlies
+				(IsPlayer(victim) && GetActorProperty(shooter, APROP_SPECIES) == "Player") ||
+				(
+					IsMonster(victim) && 
+					victim != shooter && 
+					GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES)
+				)
+			)
+			{
 				// no damage dealt from same species, makes damage things much easier to keep track of	
 				SetResultValue(0);
 				Terminate;
@@ -3189,10 +3264,22 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					// mugshot hook
 					ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);
 				}
+
+				// these are on monsters only, dont have much to do with us beyond this point
+				HandleMonsterDamageModChecks(m_id, shooter, victim);
 			}
-			
-			// these are on monsters only, dont have much to do with us beyond this point
-			HandleMonsterDamageModChecks(m_id, shooter, victim);
+			else {
+				temp = GetActorProperty(shooter, APROP_MASTERTID);
+				if(IsPlayer(temp)) {
+					dmg = HandlePetMonsterDamageScale(shooter, temp, victim, dmg, dmg_data, -1);
+
+					// these are on monsters only, dont have much to do with us beyond this point
+					HandleMonsterDamageModChecks(m_id, shooter, victim);
+					
+					if(GetActorProperty(victim, APROP_HEALTH) <= dmg)
+						GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
+				}
+			}
 			
 			//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
 			SetResultValue(dmg);
