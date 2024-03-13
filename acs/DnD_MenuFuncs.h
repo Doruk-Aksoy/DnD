@@ -488,7 +488,7 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_SHOP_WEAPON3_2:
 		case MENU_SHOP_WEAPON4_2:
 			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
-				redraw = ListenScroll(-32, 0);
+				redraw = ListenScroll(-36, 0);
 		break;
 		case MENU_SHOP_WEAPON5_1:
 			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))

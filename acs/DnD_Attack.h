@@ -210,7 +210,7 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 
 	int i, proj_ang;
 	if(!(ProjectileInfo[proj_id].flags & DND_PROJ_HITSCAN)) {
@@ -252,7 +252,7 @@ void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int c
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
 		
 	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 
 	int i, proj_ang;
 	if(!(flags & DND_ATF_ISHITSCAN)) {
@@ -302,7 +302,7 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
@@ -339,7 +339,7 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
@@ -379,7 +379,7 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vectors of owner
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int vDir = GetDirectionVector(owner);
 	int vUp = GetUpVector(vDir);
 	int vRight = GetRightVector(vDir, vUp);
@@ -463,7 +463,7 @@ void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, i
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vectors of owner
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int vDir = GetDirectionVector(owner);
 	int vUp = GetUpVector(vDir);
 	int vRight = GetRightVector(vDir, vUp);
@@ -540,7 +540,7 @@ void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, i
 
 // takes DND_MF_XXX not the ATF! This is a minion summon!
 void Do_Minion_Summon(int owner, str actor, int offset_vec, int speed = 0, int unique_tid = 0, int flags = 0) {
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 36.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int vDir = GetDirectionVector(owner);
 	int vUp = GetUpVector(vDir);
 	int vRight = GetRightVector(vDir, vUp);
@@ -584,7 +584,7 @@ void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, i
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + 28.0);
+	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 9.0);
 	
 	for(int i = 0; i < count; ++i)
 		CreateHitscan(owner, p_helper_tid, proj_name, a, p, range, vPos);
@@ -699,6 +699,30 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 		}
 		//printbold(s:"complete? ", d:j, s: " vs ", d:tcount);
 	}
+}
+
+void SpawnDarkLanceProjectile(int this, int a, int proj_tid, int x, int y, int z, int vx, int vy, int vz, int dist, int spd) {
+	SpawnProjectile(this, "DarkLanceProjectile", a, 0, 0, 0, proj_tid);
+	SetActivator(proj_tid);
+	SetActorVelocity(0, vx * spd, vy * spd, vz * spd, 0, 0);
+	SetActorPosition(0, x + vx * dist, y + vy * dist, z + GetActorViewHeight(this) - 9.0 + vz * dist, 0);
+	SetPointer(AAPTR_TARGET, this);
+	SetActorProperty(0, APROP_TARGETTID, this);
+	SetActorProperty(0, APROP_SPEED, spd << 16);
+	Thing_ChangeTID(proj_tid, 0);
+	SetActivator(this);
+}
+
+void SpawnDarkLanceProjectile_Side(int this, int a, int proj_tid, int x, int y, int z, int vx, int vy, int vz, int xd, int yd, int zd, int spd) {
+	SpawnProjectile(this, "DarkLanceProjectile", a, 0, 0, 0, proj_tid);
+	SetActivator(proj_tid);
+	SetActorVelocity(0, vx * spd, vy * spd, vz * spd, 0, 0);
+	SetActorPosition(0, x + vx * xd + vy * yd, y + vy * xd - vx * yd, z + GetActorViewHeight(this) - 9.0 + vz * zd, 0);
+	SetPointer(AAPTR_TARGET, this);
+	SetActorProperty(0, APROP_TARGETTID, this);
+	SetActorProperty(0, APROP_SPEED, spd << 16);
+	Thing_ChangeTID(proj_tid, 0);
+	SetActivator(this);
 }
 
 void Do_DarkLance_Shots(int owner, int pnum, int amt, int dist, int spd, int lvl) {

@@ -1,6 +1,9 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Sickle/GhostRes			SICKSOUL
+Sickle/Ghost			SICKGHST
+
 Axe/Throw1				AXETHR1
 Axe/Throw2				AXETHR2
 Axe/Throw3				AXETHR3

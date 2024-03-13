@@ -58,16 +58,16 @@ Script 1003 (int char_id) NET {
 		BulkResetPlayerData(pnum);
 
 		// save default data for this character -- we do this to prevent overlap and stacking from death/spec related to player activity save on a pre-existing char
-		StartDBTransaction();
+		BeginDBTransaction();
 
 		SaveDefaultPlayer(pnum, char_id);
-		
-		//EndDBTransaction();
 		
 		create_char(pnum, char_id);
 		
 		// load player stash only if we could do it properly
 		LoadPlayerStash(pnum, GetPlayerAccountName(pnum));
+
+		EndDBTransaction();
 	}
 	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
 }

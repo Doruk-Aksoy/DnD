@@ -558,7 +558,7 @@ Actor DnD_EnemySlatedForRemoval : DnD_Boolean { }
 Actor DnD_ResurrectChecker : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Resurrect Checker", 0)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Resurrect Checker", 0, 35 * 5, -1) // delay and who, -1 is activator
 		Stop
 	}
 }

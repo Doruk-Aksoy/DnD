@@ -36,7 +36,7 @@ enum {
 };
 
 // this is a wrapper for BeginDBTransaction, we won't call it again if there's a big on-going one already -- fixes console errors
-void StartDBTransaction() {
+/*void StartDBTransaction() {
 	if(!TransactionMade) {
 		TransactionMade = true;
 		BeginDBTransaction();
@@ -46,7 +46,7 @@ void StartDBTransaction() {
 void FinishDBTransaction() {
 	EndDBTransaction();
 	TransactionMade = false;
-}
+}*/
 
 void RestoreResearchItems() {
 	if(CheckResearchStatus(RES_DOUBLESPECIALCAP) == RES_DONE)
@@ -223,7 +223,7 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 
 void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 	if(isSoftorHardcore() && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerIsLoggedIn(pnum)) {
-		StartDBTransaction();
+		BeginDBTransaction();
 		int tid = pnum + P_TIDSTART, i, j, k, temp;
 		char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
 		str pacc = GetPlayerAccountName(pnum);
@@ -324,6 +324,7 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 				SetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:itemid, s:DND_DB_PLAYERINVENTORYFIELD_FRACTURE, s:"_", d:j), char_id), pacc, Items_Used[pnum][itemid].attributes[j].fractured);
 			}
 		}
+		EndDBTransaction();
 	}
 }
 
@@ -340,6 +341,7 @@ void SavePlayerData(int pnum, int char_id) {
 		j = i / 32;
 		if(CheckActorInventory(tid, Weapons_Data[i].name)) {
 			temp = SetBit(temp, i - 32 * j);
+			//Log(s:"Save weapon ", s:Weapons_Data[i].name, s:" ", d:i, s: " bit: ", d:i - 32 * j);
 		}
 		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed or we hit maxweps
 			// send temp over
@@ -516,15 +518,18 @@ void SavePlayerData(int pnum, int char_id) {
 		// check mods
 		// enhancement orbs used
 		temp = Player_Weapon_Infos[pnum][i].quality;
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
+		if(temp)
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
 			for(int k = 0; k < DND_MAX_WEAPONMODSOURCES; ++k) {
 				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][k].tier;
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
+				if(temp)
+					SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
 				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][k].val;
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
+				if(temp)
+					SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
 			}
 		}
 	}
@@ -549,6 +554,7 @@ void SavePlayerData(int pnum, int char_id) {
 // This uses a method completely off grid of inventory data --- eventually move on to this completely!!!
 void SavePlayerActivities(int pnum, int char_id) {
 	int i, j, vt;
+	int tid = pnum + P_TIDSTART;
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
 	int temp; //DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = RecoverPlayerAccountName(pnum);
@@ -601,12 +607,16 @@ void SavePlayerActivities(int pnum, int char_id) {
 		//IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
 
 		// rest of the mods for the weapon
-		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			for(vt = 0; vt < DND_MAX_WEAPONMODSOURCES; ++vt) {
-				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].tier;
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
-				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].val;
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
+		if(CheckActorInventory(tid, Weapons_Data[i].name)) {
+			for(j = 0; j < MAX_WEP_MODS; ++j) {
+				for(vt = 0; vt < DND_MAX_WEAPONMODSOURCES; ++vt) {
+					temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].tier;
+					if(temp)
+						SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
+					temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].val;
+					if(temp)
+						SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
+				}
 			}
 		}
 	}
@@ -643,11 +653,11 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// save singular items that have their ids noted by activities instead in here
 	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
 	
-	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_NPC_Meet"));
+	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_NPC_Meet"));
 	
-	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills"));
-	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Millions"));
-	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_LifeTimeKills_Billions"));
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills"));
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Millions"));
+	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Billions"));
 	
 	Log(s:"Saving player ", n:pnum + 1, s:"'s activities.");
 }
@@ -1035,10 +1045,16 @@ void LoadPlayerData(int pnum, int char_id) {
 		Player_Weapon_Infos[pnum][i].quality = temp & 0xFF;
 		
 		// rest of the mods for the weapon
-		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			for(h = 0; h < DND_MAX_WEAPONMODSOURCES; ++h) {
-				Player_Weapon_Infos[pnum][i].wep_mods[j][h].tier = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:h), pacc);
-				Player_Weapon_Infos[pnum][i].wep_mods[j][h].val = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:h), pacc);
+		if(CheckInventory(Weapons_Data[i].name)) {
+			for(j = 0; j < MAX_WEP_MODS; ++j) {
+				for(h = 0; h < DND_MAX_WEAPONMODSOURCES; ++h) {
+					temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:h), pacc);
+					if(temp)
+						Player_Weapon_Infos[pnum][i].wep_mods[j][h].tier = temp;
+					temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:h), pacc);
+					if(temp)
+						Player_Weapon_Infos[pnum][i].wep_mods[j][h].val = temp;
+				}
 			}
 		}
 	}
@@ -1236,8 +1252,13 @@ void WipeoutPlayerData(int pnum, int cid) {
 
 		// rest of the mods
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
+			for(int k = 0; k < DND_MAX_WEAPONMODSOURCES; ++k) {
+				// so we dont save hundreds of data for no reason if they dont even exist
+				if(Player_Weapon_Infos[pnum][i].wep_mods[j][k].tier)
+					SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, 0);
+				if(Player_Weapon_Infos[pnum][i].wep_mods[j][k].val)
+					SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, 0);
+			}
 		}
 	}
 	
@@ -1303,6 +1324,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	Log(s:"Saving default player for ", n:pnum + 1, s:".");
 
 	int i, j;
+	int tid = pnum + P_TIDSTART;
 	str pacc = GetPlayerAccountName(pnum);
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
 	
@@ -1320,7 +1342,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
-	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(pnum + P_TIDSTART, "DnD_Character"));
+	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(tid, "DnD_Character"));
 	
 	// reset ammo counts
 	int slot_tmp;
@@ -1380,13 +1402,20 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(StrParam(s:GetCharField(DND_DB_LEGENDARYTRACKER, char_id), d:i + 1), pacc, 0);
 
 	for(i = 0; i < MAXWEPS; ++i) {
-		// enhancement orbs used
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, 0);
-
-		// rest of the mods
-		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i), pacc, 0);
+		if(CheckActorInventory(tid, Weapons_Data[i].name)) {
+			// enhancement orbs used
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, 0);
+			
+			// rest of the mods
+			for(j = 0; j < MAX_WEP_MODS; ++j) {
+				for(int k = 0; k < DND_MAX_WEAPONMODSOURCES; ++k) {
+					// so we dont save hundreds of data for no reason if they dont even exist
+					if(Player_Weapon_Infos[pnum][i].wep_mods[j][k].tier)
+						SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, 0);
+					if(Player_Weapon_Infos[pnum][i].wep_mods[j][k].val)
+						SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, 0);
+				}
+			}
 		}
 	}
 	

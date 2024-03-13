@@ -389,11 +389,11 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement[STAT_INT] = 0.02;
 	
 	Weapons_Data[DND_WEAPON_SICKLE].name = "Sickle";
-	Weapons_Data[DND_WEAPON_SICKLE].ammo_name1 = "";
+	Weapons_Data[DND_WEAPON_SICKLE].ammo_name1 = "Souls";
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_SICKLE].icon = "WEPICO8";
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use1 = 0;
-	Weapons_Data[DND_WEAPON_SICKLE].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_SICKLE].ammo_use2 = 10;
 	Weapons_Data[DND_WEAPON_SICKLE].properties = WPROP_IRREDUCIBLE;
 	Weapons_Data[DND_WEAPON_SICKLE].attunement[STAT_STR] = 0.015;
 	Weapons_Data[DND_WEAPON_SICKLE].attunement[STAT_DEX] = 0.01;
@@ -1629,6 +1629,20 @@ bool IsMeleeWeapon(int wepid) {
 		return true;
 	}
 	return false;
+}
+
+int IsUsingMeleeWeapon() {
+	return CheckWeapon(Weapons_Data[DND_WEAPON_FIST].name) || 
+		   CheckWeapon(Weapons_Data[DND_WEAPON_CHAINSAW].name) || 
+		   CheckWeapon(Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].name) || 
+		   CheckWeapon(Weapons_Data[DND_WEAPON_KATANA].name) || 
+		   CheckWeapon(Weapons_Data[DND_WEAPON_EXCALIBAT].name) || 
+		   CheckWeapon(Weapons_Data[DND_WEAPON_INFERNOSWORD].name) ||
+		   CheckWeapon(Weapons_Data[DND_WEAPON_DUSKBLADE].name) ||
+		   CheckWeapon(Weapons_Data[DND_WEAPON_SICKLE].name) ||
+		   CheckWeapon(Weapons_Data[DND_WEAPON_SOULRENDER].name) ||
+		   CheckWeapon(Weapons_Data[DND_WEAPON_HAMMER].name) ||
+		   CheckWeapon(Weapons_Data[DND_WEAPON_AXE].name);
 }
 
 void DoWeaponTip(int curweap) {

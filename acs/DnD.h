@@ -537,18 +537,6 @@ void DistributeBonus(int bonustype) {
 	}
 }
 
-int IsUsingMeleeWeapon() {
-	return CheckWeapon(" Fists ") || 
-		   CheckWeapon(" Chainsaw ") || 
-		   CheckWeapon("Upgraded Chainsaw") || 
-		   CheckWeapon("Sickle") || 
-		   CheckWeapon("Excalibat") || 
-		   CheckWeapon("Katana") ||
-		   CheckWeapon("Dusk Blade") ||
-		   CheckWeapon("ResMelee1") ||
-		   CheckWeapon("Soul Render");
-}
-
 enum {
 	MONSTERDATA_VARIATIONCOUNT,
 	MONSTERDATA_WEIGHTSUM
@@ -1206,30 +1194,6 @@ void ApplyRandomCurse(int tid) {
 	}
 }
 
-void SpawnDarkLanceProjectile(int this, int a, int proj_tid, int x, int y, int z, int vx, int vy, int vz, int dist, int spd) {
-	SpawnProjectile(this, "DarkLanceProjectile", a, 0, 0, 0, proj_tid);
-	SetActivator(proj_tid);
-	SetActorVelocity(0, vx * spd, vy * spd, vz * spd, 0, 0);
-	SetActorPosition(0, x + vx * dist, y + vy * dist, z + 32.0 + vz * dist, 0);
-	SetPointer(AAPTR_TARGET, this);
-	SetActorProperty(0, APROP_TARGETTID, this);
-	SetActorProperty(0, APROP_SPEED, spd << 16);
-	Thing_ChangeTID(proj_tid, 0);
-	SetActivator(this);
-}
-
-void SpawnDarkLanceProjectile_Side(int this, int a, int proj_tid, int x, int y, int z, int vx, int vy, int vz, int xd, int yd, int zd, int spd) {
-	SpawnProjectile(this, "DarkLanceProjectile", a, 0, 0, 0, proj_tid);
-	SetActivator(proj_tid);
-	SetActorVelocity(0, vx * spd, vy * spd, vz * spd, 0, 0);
-	SetActorPosition(0, x + vx * xd + vy * yd, y + vy * xd - vx * yd, z + 32.0 + vz * zd, 0);
-	SetPointer(AAPTR_TARGET, this);
-	SetActorProperty(0, APROP_TARGETTID, this);
-	SetActorProperty(0, APROP_SPEED, spd << 16);
-	Thing_ChangeTID(proj_tid, 0);
-	SetActivator(this);
-}
-
 void HandleRuination(int this, int target) {
 	TakeInventory("RuinationStacks", RUINATION_MAX_STACKS);
 	PlaySound(this, "Elite/RuinationTrigger", CHAN_5, 1.0);
@@ -1441,11 +1405,11 @@ void CheckEOL(bool isSpectate, int game_mode = -1) {
 	else
 		isEOL = !PlayerCount();
 	
-	if(isEOL && TransactionMade)
+	if(isEOL/* && TransactionMade*/)
 	{
 		// end of level detected, push database changes
-		Log(s:"End of level reached, finish database operations.");
-		FinishDBTransaction();
+		Log(s:"End of level reached.");
+		//FinishDBTransaction();
 		
 		// level end reached, reset information
 		ResetPlayerInformationLevel();
@@ -1461,7 +1425,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 		
 	if(!isDisconnect) {
 		if(PlayerIsLoggedIn(pnum) && PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) {
-			StartDBTransaction();
+			BeginDBTransaction();
 
 			if(PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE]) {
 				WipeoutPlayerData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
@@ -1472,10 +1436,11 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 
 			SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
 			ResetPlayerActivities(pnum, false);
+			EndDBTransaction();
 		}
 	}
 	else if(PlayerLoaded[pnum]) {
-		StartDBTransaction();
+		BeginDBTransaction();
 		
 		//Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);
 		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
@@ -1483,17 +1448,21 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 		// resets player activites already
 		BulkResetPlayerData(pnum);
 		PlayerLoaded[pnum] = 0;
+		EndDBTransaction();
 	}
 }
 
 void SaveAllPlayerData() {
+	Log(s:"Save all player data executed.");
 	if(isSoftorHardcore()) {
-		StartDBTransaction();
+		Log(s:"Database save mode confirmed.");
+		BeginDBTransaction();
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// don't save peoples stuff while they are in load period
-			//Log(d:i,s:": ",d:PlayerInGame(i), d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), d:PlayerWillBeSaved[i]);
+			//Log(d:i,s:": ",d:PlayerInGame(i), s:" " ,d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), s:" ", d:PlayerDatabaseState[i][PLAYER_SAVESTATE]);
 			if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerDatabaseState[i][PLAYER_SAVESTATE]) {
 				if (PlayerIsLoggedIn(i)) {
+					// if transfer requested, wipeout old one and move to new one
 					if(PlayerDatabaseState[i][PLAYER_TRANSFERSTATE]) {
 						WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
 						SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
@@ -1507,7 +1476,7 @@ void SaveAllPlayerData() {
 				PlayerDatabaseState[i][PLAYER_SAVESTATE] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
 			}
 		}
-		FinishDBTransaction();
+		EndDBTransaction();
 	}
 }
 

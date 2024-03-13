@@ -291,10 +291,12 @@ Script "DnD On Death" DEATH {
 				// reset on death
 				ResetHardcoreStuff(pnum);
 				
-				StartDBTransaction();
+				BeginDBTransaction();
 				
 				WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
 				ResetPlayerActivities(pnum, false);
+
+				EndDBTransaction();
 			}
 			else if(i == DND_MODE_SOFTCORE) {
 				// decrease player gained exp
@@ -694,6 +696,28 @@ Script "DND On Revive" (void) {
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
+
+	// check if we are revived by a player now, set it up and stuff if so
+	int temp = GetActorProperty(this, APROP_MASTERTID);
+	if(IsPlayer(temp)) {
+		// set player related stuff here
+		GiveActorInventory(temp, "PetCounter", 1);
+		//printbold(s:"give pet counter total: ", d:CheckActorInventory(temp, "PetCounter"));
+
+		SpawnForced("EnemyResSoul", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorProperty(0, APROP_HEIGHT) / 4);
+		PlaySound(0, "Sickle/GhostRes", CHAN_5, 1.0);
+
+		int lifetime = DND_SICKLE_RESTIME_BASE + GetActorIntellect(temp) / DND_SICKLE_RESTIME_FACTOR;
+
+		ACS_NamedExecuteWithResult("DnD Sync Hack Immediate", GetActorX(0), GetActorY(0), GetActorZ(0));
+
+		// timer and follow setups
+		ACS_NamedExecuteWithResult("DnD Timed Monster", lifetime, 1);
+
+		// don't give this, they are solid and block the player
+		ACS_NamedExecuteAlways("DnD Pet Distance Move", 0);
+	}
+
 	GiveInventory("DnD_MonsterSetupDone", 1);
 }
 
@@ -749,8 +773,8 @@ Script "DND On Kill" KILL {
 		// regular pets get eliminated by the top if statement, so player summoned ones should deduce pet counter
 		temp = GetActorProperty(this, APROP_MASTERTID);
 		if(IsPlayer(temp)) {
-			//printbold(s:"take pet");
 			TakeActorInventory(temp, "PetCounter", 1);
+			//printbold(s:"take pet total: ", d:CheckActorInventory(temp, "PetCounter"));
 		}
 			
 		Terminate;
@@ -5093,43 +5117,38 @@ Script "DnD Rejuvenation FX CS" (void) CLIENTSIDE {
 }
 
 // checks if a monster is resurrectable and if so, resurrects and makes it a pet
-Script "DnD Resurrect Checker" (void) {
-	Delay(const:(TICRATE * 5));
-	
-	int this = ActivatorTID();
+Script "DnD Resurrect Checker" (int d, int this) {
+	Delay(d);
+
+	if(this == -1)
+		this = ActivatorTID();
+	//printbold(s:"res check on ", d:this);
 	int id = this - DND_MONSTERTID_BEGIN;
 	
 	if(HasTrait(id, DND_SUMMONED) || HasTrait(id, DND_REVIVED))
 		Terminate;
 	
 	int killer = MonsterProperties[id].killer_tid;
-	
+	//printbold(d:!CheckInventory("DnD_EnemySlatedForRemoval"), s: " ", d:CanActorHaveMorePets(killer), s: " ", d:IsMonsterCategoryResurrectable(id), s: " ", d:isPlayer(killer));
 	if(!CheckInventory("DnD_EnemySlatedForRemoval") && CanActorHaveMorePets(killer) && IsMonsterCategoryResurrectable(id) && isPlayer(killer)) {
 		// proceed to resurrect and make the master the player and mark this monster as a pet
 		SetEliteFlag(DND_REVIVED, true);
 
 		int tries = 0;
-		while(!CanRaiseActor(0) && tries++ < 15)
+		while(!CanRaiseActor(this) && tries++ < 15)
 			Delay(const:HALF_TICRATE);
 
-		if(!CanRaiseActor(0))
+		if(!CanRaiseActor(this))
 			Terminate;
 
-		GiveInventory("DnD_ResurrectMonster", 1);
-		GiveActorInventory(killer, "PetCounter", 1);
+		//printbold(s:"yes we can!!");
+
+		GiveActorInventory(this, "DnD_ResurrectMonster", 1);
 
 		// set the killer as its owner now
-		SetActorProperty(0, APROP_MASTERTID, killer);
-		SetActorProperty(0, APROP_FRIENDLY, 1);
-		SetActorProperty(0, APROP_SPECIES, "Player");
-
-		int lifetime = DND_SICKLE_RESTIME_BASE + GetActorIntellect(killer) / DND_SICKLE_RESTIME_FACTOR;
-
-		// timer and follow setups
-		ACS_NamedExecuteWithResult("DnD Timed Monster", lifetime, 1);
-
-		// don't give this, they are solid and block the player
-		ACS_NamedExecuteAlways("DnD Pet Distance Move", 0);
+		SetActorProperty(this, APROP_MASTERTID, killer);
+		SetActorProperty(this, APROP_FRIENDLY, 1);
+		SetActorProperty(this, APROP_SPECIES, "Player");
 	}
 }
 

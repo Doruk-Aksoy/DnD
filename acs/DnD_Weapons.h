@@ -104,8 +104,11 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_SICKLE:
 			use_default = true;
 			proj_id = DND_PROJ_SICKLE;
-			if(isAltFire & DND_ATK_SECONDARY)
+			if(isAltFire & DND_ATK_SECONDARY) {
 				proj_name_alt = "SicklePuff_X";
+				if(isAltFire & DND_ATK_OTHER_DIR)
+					Do_Projectile_Attack_Named(owner, pnum, "SickleGhostwave", wepid, 1, 48, angle_vec, offset_vec, 0, 0, flags);
+			}
 			else
 				proj_name_alt = ProjectileInfo[proj_id].name;
 		break;

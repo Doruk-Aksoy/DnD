@@ -2658,3 +2658,17 @@ ACTOR StoneBitsLarge {
 		Loop
 	}
 }
+
+Actor EnemyResSoul {
+	Renderstyle Translucent
+	Alpha 0.875
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			SRV3 IHG 3
+			SRV3 FED 2
+			SRV3 CBA 1
+		Stop
+	}
+}

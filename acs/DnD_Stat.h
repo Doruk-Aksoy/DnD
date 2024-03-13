@@ -75,7 +75,7 @@ int LevelCurve[MAXLEVELS + 1] = { 100, 264, 480, 696, 912, 1128, 1340, 1560, 178
 #define PLAYER_TRANSFERSTATE 1
 #define MAX_PLAYER_DBSTATES (PLAYER_TRANSFERSTATE + 1)
 global bool 9: PlayerDatabaseState[MAXPLAYERS][MAX_PLAYER_DBSTATES];
-global bool 10: TransactionMade;
+//global bool 10: TransactionMade;
 
 int GetExpLimit() {
 	return LevelCurve[GetStat(STAT_LVL) - 1];

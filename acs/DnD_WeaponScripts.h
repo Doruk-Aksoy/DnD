@@ -14,6 +14,21 @@ Script "DnD Sickle Check Res" (int base) {
 	SetResultValue(res);
 }
 
+Script "DnD Sickle Mass Res" (int base, int dist) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int pnum = owner - P_TIDSTART;
+
+	dist <<= 16;
+	base = (base << 16) / 100;
+
+	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+		int i = UsedMonsterTIDs[mn];
+		if(!isActorAlive(i) && RunLuckBasedChance(pnum, base, DND_LUCK_OUTCOME_GAIN) && fdistance(0, i) <= dist) {
+			ACS_NamedExecuteAlways("DnD Resurrect Checker", 0, TICRATE, i);
+		}
+	}
+}
+
 Script "DND Acid Rifle Bolt Stick" (int type) {
 	int res = 0;
 	int tracer = GetActorProperty(0, APROP_TRACERTID);
