@@ -17,6 +17,7 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define INVENTORYINFO_TRADEVIEW_WRAPY 152.0
 
 #define NEXT_LINE_LEN 35
+#define NEXT_LINE_LEN_ATTR 30
 
 #define NOTIFBAK_X 160
 #define NOTIFBAK_Y 128

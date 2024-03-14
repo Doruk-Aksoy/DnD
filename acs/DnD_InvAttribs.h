@@ -1484,15 +1484,17 @@ str GetArmorImplicitExtraText(str text, int extra) {
 	else if(extra & PPOWER_INCENERGYRES)
 		text = StrParam(s:text, s:"\n", l:"INC_ENERGYRES");
 	else if(extra & PPOWER_REDUCEDLIGHTNINGTAKEN)
-		text = StrParam(s:text, s:"\n", l:"PPOWER_REDUCEDLIGHTNINGTAKEN");
+		text = StrParam(s:text, s:"\n", l:"REDUCED_LIGHTNINGTAKEN");
 	else if(extra & PPOWER_OVERHEATGOFAST)
-		text = StrParam(s:text, s:"\n", l:"PPOWER_OVERHEATGOFAST");
+		text = StrParam(s:text, s:"\n", l:"OVERHEAT_GOFAST");
 	else if(extra & PPOWER_LESSOVERHEAT)
-		text = StrParam(s:text, s:"\n", l:"PPOWER_LESSOVERHEAT");
+		text = StrParam(s:text, s:"\n", l:"LESS_OVERHEAT");
 	else if(extra & PPOWER_REDUCEDPOISONTAKEN)
-		text = StrParam(s:text, s:"\n", l:"PPOWER_REDUCEDPOISONTAKEN");
+		text = StrParam(s:text, s:"\n", l:"REDUCED_POISONTAKEN");
 	else if(extra & PPOWER_REDUCEDFIRETAKEN)
-		text = StrParam(s:text, s:"\n", l:"PPOWER_REDUCEDFIRETAKEN");
+		text = StrParam(s:text, s:"\n", l:"REDUCED_FIRETAKEN");
+	else if(extra & PPOWER_REDUCEDSELFDMG)
+		text = StrParam(s:text, s:"\n", l:"REDUCED_SELFDMG");
 	return text;
 }
 

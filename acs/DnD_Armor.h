@@ -232,16 +232,16 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	switch(armor_type) {
 		case BODYARMOR_GREEN:
 			// 100 armor, 33% damage reduction
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 50);
 		break;
 		case BODYARMOR_YELLOW:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 150, 0, item_tier, 75);
 		break;
 		case BODYARMOR_BLUE:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 325, 0, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 100);
 		break;
         case BODYARMOR_RED:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 450, 0, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 300, 0, item_tier, 100);
 		break;
 
 		case BODYARMOR_GUNSLINGER:
@@ -262,30 +262,30 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 		case BODYARMOR_ELEMENTAL:
 			special_roll = PPOWER_CANROLLELEMENTAL;
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, PPOWER_CANROLLELEMENTAL, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 125, PPOWER_CANROLLELEMENTAL, item_tier, 60);
 		break;
 
 		case BODYARMOR_MONOLITH:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 125, 0, item_tier, 50);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 50);
 		break;
 		case BODYARMOR_CYBER:
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 125, PPOWER_CYBER, item_tier, 80);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 120, PPOWER_CYBER, item_tier, 80);
 		break;
 		case BODYARMOR_DUELIST:
 			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 25.0, PPOWER_HITSCANPROTECT, item_tier, 1.75);
 		break;
 		case BODYARMOR_NECRO:
-			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 175, PPOWER_SPIKES, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, PPOWER_SPIKES, item_tier, 75);
 		break;
 		case BODYARMOR_KNIGHT:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 300, PPOWER_KNIGHTMELEEBONUS, item_tier, 150);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, PPOWER_KNIGHTMELEEBONUS, item_tier, 100);
 		break;
 		case BODYARMOR_RAVAGER:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 225, PPOWER_RAVAGER, item_tier, 90);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_RAVAGER, item_tier, 80);
 		break;
 
 		case BODYARMOR_SYNTHMETAL:
-			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 200, PPOWER_LOWERREFLECT, item_tier, 125);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 180, PPOWER_LOWERREFLECT, item_tier, 100);
 		break;
 		case BODYARMOR_LIGHTNINGCOIL:
 			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, PPOWER_LIGHTNINGABSORB, item_tier, 50);
@@ -436,6 +436,11 @@ str GetBootInventoryTag(int subt) {
 	return StrParam(l:StrParam(s:"DND_BOOT", d:subt + 1));
 }
 
+str GetHelmInventoryTag(int subt) {
+	return StrParam(l:StrParam(s:"DND_HELM", d:subt + 1));
+}
+
+
 Script "DnD Armor Item Pickup" (int sp) {
     if((sp & 0xFFFF) == 255)
 		SetActivatorToTarget(0);
@@ -456,8 +461,12 @@ Script "DnD Armor Message" (int id, int type) CLIENTSIDE {
 		type = (type >> UNIQUE_BITS) - 1;
 		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ARMOR", s:": \c[Y5]", l:GetUniqueItemName(type), s:"!\c-"));
 	}
-	else
+	else if(type == DND_ITEM_BODYARMOR)
 		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ARMOR", s:": \c[Y5]", l:GetArmorInventoryTag(id), s:"!\c-"));
+	else if(type == DND_ITEM_BOOT)
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ARMOR", s:": \c[Y5]", l:GetBootInventoryTag(id), s:"!\c-"));
+	else if(type == DND_ITEM_HELM)
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ARMOR", s:": \c[Y5]", l:GetHelmInventoryTag(id), s:"!\c-"));
 }
 
 Script "DnD Drop Random Basic Armor" (int higher_tier) {
@@ -465,10 +474,14 @@ Script "DnD Drop Random Basic Armor" (int higher_tier) {
 	while(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
 		Delay(const:TICRATE);
 
+	Delay(const:HALF_TICRATE);
+
 	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && !PlayerIsSpectator(i))
+		if(PlayerInGame(i) && !PlayerIsSpectator(i) && IsActorAlive(i + P_TIDSTART))
 			SpawnArmor(i, true, higher_tier, true);
 	}
+
+	Delay(const:TICRATE);
 
 	Thing_Remove(0);
 }

@@ -2041,6 +2041,10 @@ Script "DnD Sync Custom Monster Type" (int token) CLIENTSIDE {
 Script "DnD Monster Spawner" (int category) {
     // count and initialization
 	int i = 0;
+
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_MONSTERS))
+		Delay(const:HALF_TICRATE);
+
     // add up total count and weight sum of category
     if(!MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT]) {
         for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != DND_MWEIGHT_ENDMARKER; MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM] += Monster_Weights[category][i], ++i);
@@ -2561,7 +2565,35 @@ Script "DnD Monster Scanner Picker" (void) {
 			// manipulate player stuff now
 			SetActivator(this);
 			
-			if(!isActorAlive(montid)) {
+			if(isActorAlive(montid)) {
+				// this part retrieves data from server
+				// if not a pet
+				bool pet_state = IsPet(montid);
+				if(!pet_state) {
+					// this part uses the inventory method to avoid having to constantly sync variables between clients
+					m_id = montid - DND_MONSTERTID_BEGIN;
+					SetInventory("TargetMaximumHealth", MonsterProperties[m_id].maxhp);
+					SetInventory("TargetLevel", MonsterProperties[m_id].level);
+					SetInventory("TargetIsWhat", MonsterProperties[m_id].id);
+					SetInventory("TargetIsElite", MonsterProperties[m_id].isElite);
+					SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
+				}
+				else {
+					// this part uses the inventory method to avoid having to constantly sync variables between clients
+					m_id = montid - DND_PETTID_BEGIN;
+					SetInventory("TargetMaximumHealth", PetMonsterProperties[m_id].maxhp);
+					SetInventory("TargetLevel", PetMonsterProperties[m_id].level);
+					SetInventory("TargetIsWhat", PetMonsterProperties[m_id].id);
+					SetInventory("TargetIsElite", PetMonsterProperties[m_id].isElite);
+					SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
+				}
+
+				SetInventory("TargetTID", montid);
+				SetInventory("TargetMonId", m_id);
+				SetInventory("TargetHealthBarColor", healthbarcolor);
+				SetInventory("TargetCurrentHealth", GetActorProperty (montid, APROP_Health));
+			}
+			else {
 				SetInventory("TargetMaximumHealth", 0);
 				SetInventory("TargetCurrentHealth", 0);
 				SetInventory("TargetHealthBarColor", 0);
@@ -2570,35 +2602,7 @@ Script "DnD Monster Scanner Picker" (void) {
 				SetInventory("TargetIsElite", 0);
 				SetInventory("TargetFortify", 0);
 				SetInventory("TargetTID", 0);
-				continue;
 			}
-			
-			// this part retrieves data from server
-			// if not a pet
-			bool pet_state = IsPet(montid);
-			if(!pet_state) {
-				// this part uses the inventory method to avoid having to constantly sync variables between clients
-				m_id = montid - DND_MONSTERTID_BEGIN;
-				SetInventory("TargetMaximumHealth", MonsterProperties[m_id].maxhp);
-				SetInventory("TargetLevel", MonsterProperties[m_id].level);
-				SetInventory("TargetIsWhat", MonsterProperties[m_id].id);
-				SetInventory("TargetIsElite", MonsterProperties[m_id].isElite);
-				SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
-			}
-			else {
-				// this part uses the inventory method to avoid having to constantly sync variables between clients
-				m_id = montid - DND_PETTID_BEGIN;
-				SetInventory("TargetMaximumHealth", PetMonsterProperties[m_id].maxhp);
-				SetInventory("TargetLevel", PetMonsterProperties[m_id].level);
-				SetInventory("TargetIsWhat", PetMonsterProperties[m_id].id);
-				SetInventory("TargetIsElite", PetMonsterProperties[m_id].isElite);
-				SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
-			}
-
-			SetInventory("TargetTID", montid);
-			SetInventory("TargetMonId", m_id);
-			SetInventory("TargetHealthBarColor", healthbarcolor);
-			SetInventory("TargetCurrentHealth", GetActorProperty (montid, APROP_Health));
 			
 			// fixes initialization bug
 			SetActivator(this);
@@ -3909,11 +3913,6 @@ Script 1002 (void) NET CLIENTSIDE {
 	SetHudClipRect(0, 0, 0, 0, 0);
 }
 
-// a fancy ammo pickup script to make it easier to add new ammo types to slots
-Script "DND Ammo Container Pickup" (int ctype, int basic_kind) {
-	HandleAmmoContainerPickup(ctype, basic_kind);
-}
-
 Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 	while(CheckInventory("ShowingMenu"))
 		Delay(const:35);
@@ -4389,7 +4388,9 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 		
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
+
 	int field_index = sp >> 16;
+	//Log(s:"trying to preview item ", d:GetItemSyncValue(PlayerNumber(), DND_SYNC_ITEMTYPE, field_index, -1, DND_SYNC_ITEMSOURCE_FIELD));
 	DrawInventoryInfo_Field(PlayerNumber(), field_index, DND_SYNC_ITEMSOURCE_FIELD, 16.0, false);
 }
 
@@ -5432,6 +5433,7 @@ Script 68 (int x) NET {
 			SpawnBoot(0, true);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
+			SpawnCharmWithMods_ForAll(INV_AMMOGAIN_CHANCE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);

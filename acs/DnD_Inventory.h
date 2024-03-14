@@ -35,6 +35,8 @@
 
 #define MAX_EXTRA_INVENTORY_PAGES 10
 
+#define MAX_POWERCORE_ATTRIB_DEFAULT 2
+
 #define MAXSTACKS_ORB 128
 #define MAXSTACKS_CKEY 32
 #define MAXSTACKS_TOKEN 30
@@ -466,6 +468,9 @@ int GetMaxItemAffixes(int item_type, int item_subtype = -1) {
 		break;
 		case DND_ITEM_BOOT:
 			res = MAX_BOOT_ATTRIB_DEFAULT;
+		break;
+		case DND_ITEM_POWERCORE:
+			res = MAX_POWERCORE_ATTRIB_DEFAULT;
 		break;
 	}
 	return res;
@@ -1603,15 +1608,15 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			HudMessage(
 				s:tmp_text;
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 5, CR_WHITE, bx, by + 12.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 5, CR_WHITE, bx, by + 10.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
 			// add 1 for each newline... they count :p
 			temp = GetRawLength(tmp_text);
 			i = temp >> 16;
 			temp &= 0xFFFF;
-			temp = temp / NEXT_LINE_LEN + i;
-			yoff = 12.0 + 8.0 * temp;
+			temp = Max(temp / NEXT_LINE_LEN, i);
+			yoff = 10.0 + 8.0 * temp;
 		}
 
 		by += 12.0 + 8.0 * isUnique;
@@ -1620,6 +1625,8 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		HudMessage(s:"A"; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6, val, GetIntegerBits(bx) + 0.4, by + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
+
+		by += 8.0;
 
 		SetFont("SMALLFONT");
 		for(j = 0; j < attr_count; ++j) {
@@ -1644,10 +1651,10 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			HudMessage(
 				s:tmp_text; 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - j, CR_WHITE, bx, by + 8.0 + 12.0 * j + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - j, CR_WHITE, bx, by + 10.0 * j + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
-			yoff += 10.0 * ((GetRawLength(tmp_text) & 0xFFFF) / NEXT_LINE_LEN);
+			yoff += 8.0 * ((GetRawLength(tmp_text) & 0xFFFF) / NEXT_LINE_LEN_ATTR);
 		}
 	}
 

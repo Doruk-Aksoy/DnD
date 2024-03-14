@@ -247,8 +247,8 @@ Actor ArmorDropper replaces GreenArmor {
 	States {
 		Spawn:
 			TNT1 A 0
-			SARG A -1 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 1)
-		Wait
+			TNT1 A -1 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 1)
+		Stop
 	}
 }
 
@@ -257,8 +257,8 @@ Actor ArmorDropper_HighTier replaces BlueArmor {
 	States {
 		Spawn:
 			TNT1 A 0
-			SARG A -1 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 2)
-		Wait
+			TNT1 A -1 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, 2)
+		Stop
 	}
 }
 

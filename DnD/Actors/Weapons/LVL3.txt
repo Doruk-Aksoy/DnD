@@ -751,7 +751,7 @@ Actor EmeraldPuff : DnD_BasePuff {
 	}
 }
 
-Actor EmeraldPuff_G : EmeraldPuff {
+Actor EmeraldPuff_GhostHitter : EmeraldPuff {
 	-THRUGHOST
 }
 

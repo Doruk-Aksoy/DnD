@@ -157,7 +157,7 @@ Actor Cyborg_Perk50 : DnD_Boolean { }
 Actor Cyborg_NoAnim : DnD_Boolean { }
 
 Actor Cyborg_InstabilityStack : Inventory {
-	inventory.maxamount 20
+	inventory.maxamount 10
 }
 
 Actor Cyborg_Instability_Timer : Inventory {

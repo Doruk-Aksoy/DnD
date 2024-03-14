@@ -23,7 +23,7 @@ different behavior.
 */
 
 // Shows the menu
-Script 900 (int opt) NET {
+Script 900 (int opt, int showInv) NET {
 	int pnum = PlayerNumber();
 	if(StatListOpened[pnum]) {
 		SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
@@ -83,6 +83,10 @@ Script 900 (int opt) NET {
 				SetInventory("MenuOption", MENU_MAIN);
 			else
 				SetInventory("MenuOption", opt);
+
+			if(showInv)
+				GiveInventory("DnD_InventoryView", 1);
+
 			SetInventory("ShowingMenu", 1);
 			TakeInventory("ShowingPrompt", 1);
 			LocalAmbientSound("RPG/MenuOpen", 127);
@@ -168,11 +172,12 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 
+	// mainboxid was MAINBOX_NONE + 1
 	bool redraw = false;
 	int animcounter = 0, framecounter = 0, pnum = PlayerNumber();
 	int i = 0;
 	int curopt, curopt_prev = MENU_NULL;
-	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE + 1, mainboxid_prev = MAINBOX_NONE;
+	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE, mainboxid_prev = MAINBOX_NONE;
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
@@ -1951,7 +1956,7 @@ Script "DnD Menu Investment Sync" (int pnum, int resid, int val) CLIENTSIDE {
 }
 
 Script "DnD Open Inventory" (void) NET {
-	ACS_ExecuteAlways(900, 0, MENU_LOAD_CHARM);
+	ACS_ExecuteAlways(900, 0, MENU_LOAD_CHARM, 1);
 }
 
 #ifdef ISAPRILFIRST

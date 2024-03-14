@@ -1453,7 +1453,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 }
 
 void SaveAllPlayerData() {
-	Log(s:"Save all player data executed.");
+	//Log(s:"Save all player data executed.");
 	if(isSoftorHardcore()) {
 		Log(s:"Database save mode confirmed.");
 		BeginDBTransaction();

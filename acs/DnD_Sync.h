@@ -757,6 +757,8 @@ void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev) {
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTOPLEFTBOX | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itemid, -1, source), itemid);
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
+
+	//Log(s:"syncing item at field pos ", d:itemid, s:" type ", d:GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), s:" for player ", d:pnum);
 	
 	// skip top left box and item type, we handled it
 	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMSATTRIBCOUNT ; ++i)

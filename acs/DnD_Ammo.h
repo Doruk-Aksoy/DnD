@@ -317,7 +317,8 @@ int GetAmmoContainerValue(int ammo_slot, int ammo) {
 			res /= 4;
 		break;
 		case DND_AMMOSLOT_SHELL:
-			res /= 5;
+			// 40%
+			res = 2 * res / 5;
 		break;
 		case DND_AMMOSLOT_ROCKET:
 			res /= 10;
@@ -422,7 +423,7 @@ void SetAllAmmoCapacities() {
 	int factor = GetAmmoCapIncrease();
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
 		int temp = GetAmmoSlotMaxIndex(i);
-		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity != -1; ++j)
+		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity; ++j)
 			SetAmmoCapacity(AmmoInfo[i][j].name, (AmmoInfo[i][j].initial_capacity * factor) / 100);
 	}
 }
@@ -431,7 +432,7 @@ void SetAllAmmoCapacitiesToDefault() {
 	// last slot is for souls, we don't increase it here
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
 		int temp = GetAmmoSlotMaxIndex(i);
-		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity != -1; ++j)
+		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity; ++j)
 			SetAmmoCapacity(AmmoInfo[i][j].name, AmmoInfo[i][j].initial_capacity);
 	}
 }
@@ -441,7 +442,7 @@ bool CheckAmmoPickup(int slot, bool simple) {
 	if(!simple) {
 		// start from 1, we already included 0 above
 		int temp = GetAmmoSlotMaxIndex(slot);
-		for(int i = 1; i < temp && AmmoInfo[slot][i].initial_capacity != -1; ++i)
+		for(int i = 1; i < temp && AmmoInfo[slot][i].initial_capacity; ++i)
 			res = res && CheckInventory(AmmoInfo[slot][i].name) >= GetAmmoCapacity(AmmoInfo[slot][i].name);
 			
 		// we got a few exceptions -- everice is used in rocket slot, and cell slot has clip using weapon
@@ -476,7 +477,7 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 	}
 	else {
 		int temp = GetAmmoSlotMaxIndex(slot);
-		for(int i = 0; i < temp && AmmoInfo[slot][i].initial_capacity != -1; ++i)
+		for(int i = 0; i < temp && AmmoInfo[slot][i].initial_capacity; ++i)
 			GiveAmmo(GetAmmoContainerValue(slot, i), slot, i);
 		
 		if(slot == DND_AMMOSLOT_SHELL) {
@@ -497,6 +498,11 @@ void GiveAmmo(int amt, int slot, int t) {
 	else
 		amt = amt * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_EX_PICKUPS_MORESOUL)) / 100;
 	GiveInventory(AmmoInfo[slot][t].name, amt);
+}
+
+// a fancy ammo pickup script to make it easier to add new ammo types to slots
+Script "DND Ammo Container Pickup" (int ctype, int basic_kind) {
+	HandleAmmoContainerPickup(ctype, basic_kind);
 }
 
 #endif

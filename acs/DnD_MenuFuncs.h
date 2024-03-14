@@ -3215,9 +3215,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			else {
 				// now track our choices made in the inventory view
 				item_sel = CheckInventory("DnD_SelectedCharmBox");
-				item_type = DND_ITEM_NULL;
-				topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
 				if(item_sel) {
+					item_type = DND_ITEM_NULL;
+					topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
+
 					--item_sel;
 					switch(item_sel) {
 						case SMALLCHARM_INDEX1:
@@ -3275,7 +3276,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				else {
 					// normal clicking functionality on inventory view
 					// 1 is for m1
-					HandleInventoryViewClicks(pnum, boxid, 1);
+					HandleInventoryViewClicks(pnum, boxid, DND_MENUINPUT_LCLICK);
 				}
 			}
 		}
@@ -3285,12 +3286,13 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			SetInventory("DnD_SelectedCharmBox", 0);
 			if(CheckInventory("DnD_InventoryView")) {
 				// ok we are in inventory view
-				if(CheckInventory("DnD_SelectedInventoryBox")) {
+				item_sel = CheckInventory("DnD_SelectedInventoryBox");
+				if(item_sel) {
 					// we have selected a box previously, if this has an item drop it otherwise clear it
-					if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
+					if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_sel - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 						// drop selected item
-						DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+						DropItemToField(pnum, item_sel - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), item_sel - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 						PlayItemDropSound(temp, true);
 					}
 					// clear selection
@@ -3298,10 +3300,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				}
 				else { 
 					// just exit if nothing was selected
+					GiveInventory("DnD_CleanInventoryRequest", 1);
 					TakeInventory("DnD_InventoryView", 1);
 					LocalAmbientSound("RPG/MenuClose", 127);
 				}
-				GiveInventory("DnD_CleanInventoryRequest", 1);
 			}
 		}
 		ClearPlayerInput(pnum, true);
@@ -5218,10 +5220,10 @@ void DrawPlayerStats(int pnum, int category) {
 				// clamp it on display, the math stuff behind the scenes doesn't need an extra if statement
 				if(val > 100.0)
 					val = 100.0;
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" \c-", l:"IATTR_T105", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" \c-", l:"IATTR_T102", s:"\n");
 				++k;
 
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:" \c-", l:"IATTR_T106", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:" \c-", l:"IATTR_T103", s:"\n");
 				++k;
 			}
 

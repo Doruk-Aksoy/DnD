@@ -89,7 +89,7 @@ object EmeraldPuff
 	frame IDSE { light EmeraldLight }
 }
 
-object EmeraldPuff_G
+object EmeraldPuff_GhostHitter
 {
 	frame IDSE { light EmeraldLight }
 }

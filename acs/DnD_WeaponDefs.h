@@ -1731,7 +1731,7 @@ str GetWeaponTipText(int wepid) {
 
 	tmp = Weapons_Data[wepid].attunement[STAT_INT];
 	if(tmp)
-		res = StrParam(s:res, l:"DND_MENU_ATTR_SHORT3", s: ": \d", s:GetFixedRepresentation(tmp, true), s: "%");
+		res = StrParam(s:res, l:"DND_MENU_ATTR_SHORT3", s: ": \cd", s:GetFixedRepresentation(tmp, true), s: "%");
 
 	return StrParam(s:res, s:"\n", l:StrParam(s:"WEPTIP_", d:slot, s:"_", d:subid));
 }

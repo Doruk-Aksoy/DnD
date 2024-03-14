@@ -714,6 +714,10 @@ Script "DnD Vaaj Pull" (void) {
 		
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			int curtarget = i + P_TIDSTART;
+			int pmass = GetActorProperty(curtarget, APROP_MASS);
+			if(pmass < DND_BASE_PLAYER_MASS)
+				pmass = DND_BASE_PLAYER_MASS;
+
 			if(AproxDistance(GetActorX(curtarget) - oX, GetActorY(curtarget) - oY) <= VAAJ_PULL_DIST) {
 				int tX = GetActorX(curtarget);
 				int tY = GetActorY(curtarget);
@@ -723,7 +727,7 @@ Script "DnD Vaaj Pull" (void) {
 				int ydiff = oY - tY;
 				
 				int velz = (oZ - tZ) >> 16;
-				velz /= GetActorProperty(curtarget, APROP_MASS); 
+				velz /= pmass; 
 				ThrustThing(VectorAngle(xdiff, ydiff) >> 8, 2, 1, curtarget);
 				ThrustThingZ(curtarget, velz * 2, velz > 0, 0);
 			}
