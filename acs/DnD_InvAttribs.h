@@ -637,28 +637,28 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLATELEM_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLATELEM_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 	
-	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 15;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_low = 9;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 18;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL;
 	
-	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 15;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_low = 9;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 18;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ENERGY;
 	
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 15;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_low = 9;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 18;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
 	
-	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 15;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_low = 9;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 18;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
 	
-	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 15;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_low = 9;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 18;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
 
@@ -1048,17 +1048,17 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_FLATPROLIF].tags = INV_ATTR_TAG_ELEMENTAL;
 
 	ItemModTable[INV_SHIELD_INCREASE].attrib_low = 3;
-	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 7;
+	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 10;
 	ItemModTable[INV_SHIELD_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_low = 1;
-	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 4;
+	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 6;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
-	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_low = 3;
-	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_high = 5;
+	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_low = 5;
+	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_high = 9;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].tags = INV_ATTR_TAG_DEFENSE;
 
@@ -1350,8 +1350,9 @@ int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
 str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
 	if(extra != -1)
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
-		
-	str col_tag = Charm_Strings[tier][CHARMSTR_COLORCODE];
+	
+	// limit this to here at t10...
+	str col_tag = Charm_Strings[Clamp_Between(tier, 0, 9)][CHARMSTR_COLORCODE];
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 
 	// visually change the attribute values depending on item scale factors
@@ -1433,7 +1434,7 @@ str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_r
 str GetModTierText(int tier, int extra) {
 	if(extra != -1)
 		return StrParam(s:"\c[D1]", s:"U");
-	return StrParam(s:Charm_Strings[tier][CHARMSTR_COLORCODE], s:"T", d:tier);
+	return StrParam(s:Charm_Strings[Clamp_Between(tier, 0, 9)][CHARMSTR_COLORCODE], s:"T", d:tier);
 }
 
 str GetInventoryAttributeText(int attr) {
@@ -1466,7 +1467,7 @@ str GetArmorImplicitExtraText(str text, int extra) {
 	else if(extra & PPOWER_LIGHTNINGABSORB)
 		text = StrParam(s:text, s:"\n", l:"LIGHTNING_ABSORB");
 	else if(extra & PPOWER_CYBER)
-		text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS");
+		text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS", s:"\n", l:"IATTR_T72");
 	else if(extra & PPOWER_CANROLLPHYS)
 		text = StrParam(s:text, s:"\n", l:"CANROLL_PHYS");
 	else if(extra & PPOWER_CANROLLOCCULT)
@@ -1998,11 +1999,8 @@ void SetupInventoryTagGroups() {
 	}
 
 	// powercores
-	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_POWERCORE] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_POWERCORE] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_POWERCORE] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_POWERCORE] = 0;
 	AttributeTagGroupCount[INV_ATTR_TAG_OCCULT_ID][DND_CRAFTABLEID_POWERCORE] = 0;
+
 	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
 		tag = ItemModTable[i].tags;
 

@@ -1611,11 +1611,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 				id_begin - id_mult * MAX_INVENTORY_BOXES - 5, CR_WHITE, bx, by + 10.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
-			// add 1 for each newline... they count :p
-			temp = GetRawLength(tmp_text);
-			i = temp >> 16;
-			temp &= 0xFFFF;
-			temp = Max(temp / NEXT_LINE_LEN, i);
+			temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 2);
 			yoff = 10.0 + 8.0 * temp;
 		}
 
@@ -1726,9 +1722,12 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetInventoryName(stype + CHESTKEY_BEGIN);
 	else if(itype == DND_ITEM_TOKEN)
 		droptype = GetInventoryName(stype + TOKEN_BEGIN);
-	else if(itype == DND_ITEM_BODYARMOR) {
+	else if(itype == DND_ITEM_BODYARMOR)
 		droptype = GetArmorDropClass(stype);
-	}
+	else if(itype == DND_ITEM_BOOT)
+		droptype = GetBootDropClass(stype);
+	else if(itype == DND_ITEM_POWERCORE)
+		droptype = GetPowercoreDropClass(stype);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 
@@ -2464,7 +2463,8 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	}
 
 	// power cores are inherently cybernetic
-	has_cybernetic |= GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source) == INV_IMP_POWERCORE;
+	i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source);
+	has_cybernetic |= i == INV_IMP_POWERCORE || (GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, source) & PPOWER_CYBER);
 
 	int sync_required = 0;
 	for(i = 0; i < ac; ++i)
@@ -2487,6 +2487,10 @@ int GetItemTierRoll(int lvl, bool isWellRolled) {
 		++lvl;
 	else if(!random(0, 9 - 5 * isWellRolled))
 		--lvl;
+
+	// clamp just in case
+	if(lvl > MAX_CHARM_AFFIXTIERS)
+		lvl = MAX_CHARM_AFFIXTIERS;
 	return lvl;
 }
 
@@ -2673,6 +2677,15 @@ bool IsImplicitException(int imp, int rolled_attr) {
 	return false;
 }
 
+int GetHighestModTierOnItem(int pnum, int item_pos) {
+	int count = PlayerInventoryList[pnum][item_pos].attrib_count;
+	int t = 0;
+	for(int i = 0; i < count; ++i)
+		if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier > t)
+			t = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+	return t;
+}
+
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
 int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int special_roll_rule = 0, int implicit_id = -1) {
 	int bias = Timer() & 0xFFFF;
@@ -2771,23 +2784,23 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	// charm group etc.
 	int rand_attr = -1;
 	int attr_count = GetMaxItemAffixes(itype, PlayerInventoryList[pnum][item_pos].item_subtype) - min_count;
+
+	// in case this is a fully fractured mod item
+	if(attr_count <= 0)
+		return;
+
 	if(itype == DND_ITEM_CHARM) {
 		craftable_type = DND_CRAFTABLEID_CHARM;
 		rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
 
-		// in case this is a fully fractured mod item
-		if(attr_count <= 0)
-			return;
-
-		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
-		--attr_count;
+		// if this isn't already present on the item in question
+		if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
+			AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
+			--attr_count;
+		}
 	}
 	else {
 		craftable_type = MapItemTypeToCraftableID(itype);
-
-		// in case this is a fully fractured mod item or we rolled less than amount of fractures
-		if(attr_count <= 0)
-			return;
 
 		// if no attributes of this type are allowed, but we have some special roll, include it and try again
 		if(!AttributeTagGroupCount[tag_id][craftable_type]) {
@@ -2801,11 +2814,17 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 				return;
 			}
 		}
-		else// we have an attribute of this type fitting, good, go ahead
+		else {
+			// we have an attribute of this type fitting, good, go ahead
 			rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
+			//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
+		}
 
-		AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
-		--attr_count;
+		if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
+			//printbold(s:"guaranteed add ", d:AttributeTagGroups[tag_id][craftable_type][rand_attr]);
+			AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
+			--attr_count;
+		}
 	}
 
 	// rest of the mods

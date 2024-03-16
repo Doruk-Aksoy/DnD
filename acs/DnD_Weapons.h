@@ -72,7 +72,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	bool use_default = false;		// default behavior
 
 	// check for cyborg instability
-	flags |= (IsTechWeapon(wepid) && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY && RunLuckBasedChance(pnum, DND_CYBORG_INSTABILITY_CHANCE, DND_LUCK_OUTCOME_GAIN)) * DND_ATF_INSTABILITY;
+	flags |= (IsTechWeapon(wepid) && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY && !CheckInventory("Cyborg_Instability_CD") && RunLuckBasedChance(pnum, DND_CYBORG_INSTABILITY_CHANCE, DND_LUCK_OUTCOME_GAIN)) * DND_ATF_INSTABILITY;
 	
 	// we will scale count whenever the weapon would require it!
 	// unused variables use their default values from above
@@ -1843,6 +1843,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	}
 
 	if(flags & DND_ATF_INSTABILITY) {
+		GiveInventory("Cyborg_Instability_CD", 1);
 		if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE) || !(flags & DND_ATF_CANFIRECIRCLE)) {
 			if(sp_x)
 				sp_x = sp_x * 5 / 4;

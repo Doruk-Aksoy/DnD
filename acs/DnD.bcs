@@ -713,12 +713,17 @@ Script "DND On Revive" (void) {
 
 		// timer and follow setups
 		ACS_NamedExecuteWithResult("DnD Timed Monster", lifetime, 1);
-
+		ACS_NamedExecuteAlways("DnD Give Ally Pet Icon", 0);
 		// don't give this, they are solid and block the player
 		ACS_NamedExecuteAlways("DnD Pet Distance Move", 0);
 	}
 
 	GiveInventory("DnD_MonsterSetupDone", 1);
+}
+
+// so the icons are actually clientside
+Script "DnD Give Ally Pet Icon" (void) CLIENTSIDE {
+	GiveInventory("DnD_PetEffectSpawner", 1);
 }
 
 Script "DnD On Revive CS" (void) CLIENTSIDE {
@@ -4607,6 +4612,9 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 		GetPetMonsterTraits(m_id, 1),
 		GetPetMonsterTraits(m_id, 2)
 	);
+
+	// pet icon
+	ACS_NamedExecuteAlways("DnD Give Ally Pet Icon", 0);
 }
 
 Script "DnD Master Skill Info" (int skill_id) {
@@ -5433,7 +5441,7 @@ Script 68 (int x) NET {
 			SpawnBoot(0, true);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
-			SpawnCharmWithMods_ForAll(INV_AMMOGAIN_CHANCE);
+			//SpawnCharmWithMods_ForAll(INV_SHIELD_RECOVERYRATE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);

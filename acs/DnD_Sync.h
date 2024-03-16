@@ -877,6 +877,9 @@ void SyncItemAttributes(int pnum, int itemid, int source) {
 	int payload = (raw_source << 8) | (page << 16);
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source), itemid);
 	
+	// we now sync ilvl too
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMLEVEL | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, itemid, -1, source), itemid);
+
 	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
 	for(i = 0; i < temp; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)

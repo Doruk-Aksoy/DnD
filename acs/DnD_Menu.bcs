@@ -316,7 +316,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 		}
 		
-		if(PlayerCursorData.itemHovered != -1 && (PlayerCursorData.itemClicked == -1 || CheckInventory("DnD_UsedTwoItemRequirementMaterial"))) {
+		if(PlayerCursorData.itemHovered != -1/* && (PlayerCursorData.itemClicked == -1 || CheckInventory("DnD_UsedTwoItemRequirementMaterial"))*/) {
 			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
 				ResetCursorHoverData();
 			else {

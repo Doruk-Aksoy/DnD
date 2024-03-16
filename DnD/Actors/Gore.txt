@@ -377,7 +377,7 @@ Actor RealBlood {
 	+DONTSPLASH
 	States {
 		Spawn:
-			TNT1 A 0
+			TNT1 AA 0
 			TNT1 A 0 A_Jump(128, "Var1", "Var2", "Var3", "Var4")
 			BLUD C 8 A_SpawnDebris("NashGore_FlyingBlood",1)
 			BLUD BA 8

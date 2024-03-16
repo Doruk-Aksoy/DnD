@@ -2993,18 +2993,14 @@ int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int d
 	return dmg;
 }
 
-int HandlePercentDamageFromEnemy(int dmg, int dmg_data) {
+int HandlePercentDamageFromEnemy(int victim, int dmg, int dmg_data) {
 	// check inflictor momentarily
-	SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-	if(CheckInventory("DnD_PercentDamageHalt")) {
-		SetActivator(0, AAPTR_DAMAGE_TARGET);
+	if(CheckActorInventory(victim, "DnD_PercentDamageHalt") || !(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP))
 		return 0;
-	}
 	
-	GiveInventory("DnD_PercentDamageHalt", 1);
-	SetActivator(0, AAPTR_DAMAGE_TARGET);
-	
-	return !!(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) * (GetActorProperty(0, APROP_HEALTH) * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
+	GiveActorInventory(victim, "DnD_PercentDamageHalt", 1);
+
+	return (GetActorProperty(victim, APROP_HEALTH) * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
 }
 
 int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
@@ -3121,7 +3117,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
-		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT";
+		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT" && arg2 != "MagicalRedLeash";
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		if(CheckFlag(0, "RIPPER"))
 			isRipper = true;
@@ -3192,7 +3188,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg >>= 1;
 				
 			// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
-			dmg += HandlePercentDamageFromEnemy(dmg, dmg_data);
+			dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);
 
 			// if this was a player, factor their resists in
 			// resists of player now will factor in after we've calculated the damage accurately

@@ -223,6 +223,9 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers);
+
+	//armor_type = BODYARMOR_CYBER;
+
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
 	int special_roll = 0;
 

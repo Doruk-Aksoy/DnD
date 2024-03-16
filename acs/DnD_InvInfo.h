@@ -18,6 +18,8 @@
 #define DND_ARMOR_TO_MIT_RATIO 20 // armor mit or shield mit implicits will only give this factor of the rating provided as mitigation %
 #define DND_SHIELD_TO_MIT_RATIO 10 // same as above but for es
 
+#define MAX_ITEM_LEVEL 100
+
 // main item types
 enum {
 	DND_ITEM_NULL,

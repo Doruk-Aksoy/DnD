@@ -2551,6 +2551,7 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes {
 	Tag "Flesh Wizard"
 	Species "AV"
 	Stamina 520
+	Scale 0.75
 	+ISMONSTER
 	+QUICKTORETALIATE
 	+NOINFIGHTING

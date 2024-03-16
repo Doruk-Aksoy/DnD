@@ -11,8 +11,6 @@ enum {
 
 #define MAX_POWERCORE_ATTRIBS 2
 
-#define DND_BASE_POWERCORERATE 0.00025
-
 int ConstructPowercoreDataOnField(int item_pos, int item_tier) {
     // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
 	int res, i;

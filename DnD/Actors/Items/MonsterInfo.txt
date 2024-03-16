@@ -247,3 +247,35 @@ Actor EliteFXRunner : DnD_Activator {
 		Stop
 	}
 }
+
+Actor DnD_PetIcon {
+	+MISSILE
+	+NOGRAVITY
+	+NOCLIP
+	+CLIENTSIDEONLY
+	Scale 0.4
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 2 ACS_NamedExecuteAlways("DnD Align Elite FX")
+		SpawnLoop:
+            AMIN AA 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
+		Loop
+		Death:
+		Disappear:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+		Stop
+		Remove:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor DnD_PetEffectSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_CustomMissile("DnD_PetIcon", 32, 0, 0, CMF_AIMDIRECTION)
+		Stop
+	}
+}

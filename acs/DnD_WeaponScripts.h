@@ -382,7 +382,7 @@ Script "DND Thunderstaff Bolts" (void) {
 		
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, 0, 0, 0);
+		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0, 0);
 
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid) {
@@ -448,7 +448,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int pnum = PlayerNumber();
-	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, 0, 0, 0);
+	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0, 0);
 	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	int scan_amt = 0;
 	

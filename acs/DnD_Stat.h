@@ -243,8 +243,19 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	int bonus = 1;
 	if(GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & PPOWER_CYBER)
 		bonus = 2;
+	
+	int pct = 100 + GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE);
+	int res = cap * bonus;
 
-	int res = (cap * GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE) * bonus) / 1000;
+	if(bonus > 1 && CheckInventory("Cyborg_Perk5")) {
+		res *= DND_CYBERNETIC_FACTOR_MUL;
+		res /= DND_CYBERNETIC_FACTOR_DIV;
+	}
+
+	if(pct != 100)
+		res = res * (100 + GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE)) / 100;
+	res /= 1000;
+
 	if(!res)
 		res = 1;
 	return res;

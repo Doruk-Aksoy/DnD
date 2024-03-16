@@ -41,7 +41,7 @@ DND_ORBTEXT19		=	"Reforges the item, adding at least one \cvoccult\c- modifier."
 DND_ORB20			=	"Orb of Growth";
 DND_ORBTEXT20		=	"Reforges the item, adding at least one \cvstat\c- modifier.";
 DND_ORB21			=	"Orb of Potency";
-DND_ORBTEXT21		=	"Raises the tier of a random attribute by one.";
+DND_ORBTEXT21		=	"Has 33% chance to raise the tier of a random attribute by one.";
 DND_ORB22			=	"Crackling Orb";
 DND_ORBTEXT22		=	"Reforges the item, adding at least one \cvenergy\c- modifier.";
 DND_ORB23			=	"Brute's Orb";
@@ -49,7 +49,7 @@ DND_ORBTEXT23		=	"Reforges the item, adding at least one \cvmelee\c- modifier.";
 DND_ORB24			=	"Jagged Orb";
 DND_ORBTEXT24		=	"Reforges the item, adding at least one \cvphysical\c- modifier.";
 DND_ORB25			=	"Alchemist's Orb";
-DND_ORBTEXT25		=	"Improves the quality of the item by 1%, up to a maximum of \cg25%\c-.";
+DND_ORBTEXT25		=	"Improves the quality of a charm by 1%, up to a maximum of \cg25%\c-.";
 DND_ORB26			=	"Evoker's Orb";
 DND_ORBTEXT26		=	"Extracts the highest tier modifier as an orb that guarantees that modifier type, \cgdestroying the item\c- in the process.";
 DND_ORB27			=	"Orb of Savagery";
@@ -140,6 +140,7 @@ DND_ORBUSETEXT24A 	=	"Orb of Potency upgrades";
 DND_ORBUSETEXT24B	=	" attribute tiers!";
 DND_ORBUSETEXT24C	=	" attribute tier!";
 DND_ORBUSEFAIL24	=	"Orb of Potency couldn't be used, attribute tiers are maxed out!";
+DND_ORBUSEFAIL24B	=	"Orb of Potency did \cgnothing!\c-";
 
 DND_ORBUSETEXT25	=	"Crackling Orb reforges the item, guaranteeing an \cvenergy\c- modifier";
 

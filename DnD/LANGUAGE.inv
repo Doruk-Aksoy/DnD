@@ -197,7 +197,7 @@ DND_CHESTKEY3		=	"Gold Chest Key";
 DND_CHESTKEYTEXT3	=	"Opens a mysterious gold chest.";
 
 DND_TOKEN1			=	"Armorer's Token";
-DND_TOKENTEXT1		=	"Allows to increase the quality of an armor by \cd1%\c-, capped at \cg50%\c-.";
+DND_TOKENTEXT1		=	"Allows to increase the quality of an armor by \cd1%\c-, capped at \cg25%\c-.";
 DND_TOKEN2			=	"Gunsmith's Token";
 DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and removing its quality.";
 

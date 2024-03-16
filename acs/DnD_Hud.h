@@ -722,6 +722,48 @@ int GetRawLength(str name) {
 	return real_len;
 }
 
+// this is the refined version of the above function where it counts how many new lines we'd need given a big string that can potentially have many line breaks
+int CountNewLinesInText(str name, int char_count_per_line) {
+	int len = Strlen(name);
+	int real_len = 0;
+	int line_count = 0;
+	int color_count = 0;
+	bool in_ccode = false;
+	bool in_bracketed_color = false;
+	
+	for(int i = 0; i < len; ++i) {
+		int c = GetChar(name, i);
+		
+		// 28 is FS (File Seperator)
+		if(c == 28)
+			in_ccode = true;
+		else if(in_ccode) {
+			++color_count;
+			if(c == '[')
+				in_bracketed_color = true;
+			else if((!in_bracketed_color && color_count == 1) || (in_bracketed_color && c == ']')) {
+				// enter here if we counted the color character in zandro (\c + u into \cu example) or in newtextcolors bracket style (\c[M3] for example)
+				in_ccode = false;
+				in_bracketed_color = false;
+				color_count = 0;
+			}
+		}
+		else if(c != 10) {
+			// not new line
+			++real_len;
+			if(real_len >= char_count_per_line) {
+				real_len = 0;
+				++line_count;
+			}
+		}
+		else {
+			++line_count;
+			real_len = 0;
+		}
+	}
+	return line_count;
+}
+
 void HudMessageOnActor(int tid, int msgID, int hudX = 640, int hudY = 480, int xOffset = 0, int yOffset = 0, int range = 128, str sprite = "TNT1A0", str text = "Null", int holdTime = 0.1, int colour = CR_RED) {
 	int dist, angle, vang, pitch, x, y;
 

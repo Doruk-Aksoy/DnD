@@ -192,7 +192,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			}
 		break;
 		case DND_ORB_ALCHEMIST:
-			res = PlayerInventoryList[pnum][extra].quality < DND_MAX_ITEM_QUALITY;
+			res = (extratype & 0xFFFF) == DND_ITEM_CHARM && PlayerInventoryList[pnum][extra].quality < DND_MAX_ITEM_QUALITY;
 		break;
 		case DND_ORB_EVOKER:
 			// won't work on uniques
@@ -266,13 +266,14 @@ int PickWeightedFromTwoItems(int pnum, int item1, int item2) {
 void SaveUsedItemAttribs(int pnum, int item_id) {
 	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
 	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].attrib_count;
+	Player_MostRecent_Orb[pnum].values[1] = PlayerInventoryList[pnum][item_id].item_level;
 
 	for(int i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 1] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_id;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_val;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_tier;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_extra;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5] = PlayerInventoryList[pnum][item_id].attributes[i].fractured;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_id;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_val;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_tier;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_extra;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 6] = PlayerInventoryList[pnum][item_id].attributes[i].fractured;
 	}
 }
 
@@ -292,15 +293,16 @@ void SaveUsedItemImplicit(int pnum, int item_id) {
 void RestoreItemAttribsFromUsedOrb(int pnum) {
 	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
 	PlayerInventoryList[pnum][temp].attrib_count = Player_MostRecent_Orb[pnum].values[0];
+	PlayerInventoryList[pnum][temp].item_level = Player_MostRecent_Orb[pnum].values[1];
 	
 	for(int i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 1];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_val = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_tier = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_extra = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4];
-		PlayerInventoryList[pnum][temp].attributes[i].fractured = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_val = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_tier = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4];
+		PlayerInventoryList[pnum][temp].attributes[i].attrib_extra = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5];
+		PlayerInventoryList[pnum][temp].attributes[i].fractured = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 6];
 	}
-	SyncItemAttributes(pnum,temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SyncItemAttributes(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
 void RestoreItemImplicitsFromUsedOrb(int pnum) {
@@ -324,7 +326,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	int res = -1;
 	int temp;
 	int prev;
-	int i, s;
+	int i, s, x;
 	int affluence = GetAffluenceBonus();
 	SetInventory("OrbUseType", orbtype + 1);
 	// for any other orb, reset most recently used orb
@@ -618,32 +620,54 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", extra);
 		break;
 		case DND_ORB_POTENCY:
+			res = 0;
+
+			// get the highest tier mod's tier and save it here, check if we go above it and hold the old value
+			prev = GetHighestModTierOnItem(pnum, extra);
+			x = prev;
 			// save
 			SaveUsedItemAttribs(pnum, extra);
-
-			// failsafe, if it tried it 100 times there's a really good chance the item now has perfect tiers... don't bother
-			s = 0;
 			for(i = 0; i < affluence; ++i) {
-				do {
-					temp = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
-					++s;
-				} while(s < DND_MAX_ORB_REROLL_ATTEMPTS && (PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || PlayerInventoryList[pnum][extra].attributes[temp].fractured));
+				if(random(1, 100) <= DND_POTENCY_CHANCE) {
+					// failsafe, if it tried it 100 times there's a really good chance the item now has perfect tiers... don't bother
+					s = 0;
 				
-				// increment the tier and reroll that attribute!
-				if(!PlayerInventoryList[pnum][extra].attributes[temp].fractured && PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier < MAX_CHARM_AFFIXTIERS) {
-					++PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier;
-					PlayerInventoryList[pnum][extra].attributes[temp].attrib_val = RollAttributeValue(
+					do {
+						temp = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
+						++s;
+					} while(s < DND_MAX_ORB_REROLL_ATTEMPTS && (PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || PlayerInventoryList[pnum][extra].attributes[temp].fractured));
+					
+					// increment the tier and reroll that attribute!
+					if(!PlayerInventoryList[pnum][extra].attributes[temp].fractured && PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier < MAX_CHARM_AFFIXTIERS) {
+						++PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier;
+						PlayerInventoryList[pnum][extra].attributes[temp].attrib_val = RollAttributeValue(
 							PlayerInventoryList[pnum][extra].attributes[temp].attrib_id, 
 							PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier,
 							false, 
 							PlayerInventoryList[pnum][extra].item_type, 
 							PlayerInventoryList[pnum][extra].item_subtype
 						);
+						++res;
+
+						if(PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier > prev)
+							prev = PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier;
+					}
 				}
 			}
 
+			// check how many ilvls this should jump now
+			temp = prev - x;
+			if(temp > 0) {
+				// clear difference here, so adjust ilvl accordingly by +7-10 ilvls
+				for(s = 0; s < temp; ++s)
+					PlayerInventoryList[pnum][extra].item_level += random(3 * MAX_CHARM_AFFIXTIERS / 4, MAX_CHARM_AFFIXTIERS);
+				if(PlayerInventoryList[pnum][extra].item_level > MAX_ITEM_LEVEL)
+					PlayerInventoryList[pnum][extra].item_level = MAX_ITEM_LEVEL;
+			}
+
+			// sync at end all at once
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			SetInventory("OrbResult", res);
 		break;
 		case DND_ORB_CRACKLING:
 			// save
@@ -1241,14 +1265,16 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 			Log(s:"\cj", l:"DND_ORBUSETEXT23", s:"\cj!");
 		break;
 		case DND_ORB_POTENCY:
-			if(val != 0x7FFFFFFF) {
-				if(affluence > 1)
-					Log(s:"\cj", l:"DND_ORBUSETEXT24A", s:" \cd ", d:affluence, s:"\c- ", l:"DND_ORBUSETEXT24B", s:"!");
+			if(val > 0) {
+				if(val > 1)
+					Log(s:"\cj", l:"DND_ORBUSETEXT24A", s:" \cd ", d:val, s:"\c- ", l:"DND_ORBUSETEXT24B", s:"!");
 				else
-				Log(s:"\cj", l:"DND_ORBUSETEXT24A", s:" \cd ", d:affluence, s:"\c- ", l:"DND_ORBUSETEXT24C", s:"!");
+					Log(s:"\cj", l:"DND_ORBUSETEXT24A", s:" \cd ", d:val, s:"\c- ", l:"DND_ORBUSETEXT24C", s:"!");
 			}
-			else
+			else if(val == -1)
 				Log(s:"\cj", l:"DND_ORBUSEFAIL24");
+			else
+				Log(s:"\cj", l:"DND_ORBUSEFAIL24B");
 		break;
 		case DND_ORB_CRACKLING:
 			Log(s:"\cj", l:"DND_ORBUSETEXT25", s:"\cj!");

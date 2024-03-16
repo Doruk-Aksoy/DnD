@@ -215,7 +215,7 @@ Script "DND Flesh Wizard Leash Trail" (int density, int target) CLIENTSIDE {
 	
     grX = GetActorX(target);
     grY = GetActorY(target);
-    grZ = GetActorZ(target) + 32.0;
+    grZ = GetActorZ(target) + GetActorProperty(target, APROP_VIEWHEIGHT) - 9.0;
 	
     vX   = grX - oX;
 	vY   = grY - oY;
@@ -235,7 +235,7 @@ Script "DND Flesh Wizard Leash Trail" (int density, int target) CLIENTSIDE {
             bY = (nY * j) + oY;
             bZ = (nZ * j) + oZ;
 
-            Spawn("FleshWizardLeashFX", bX, bY, bZ);
+            SpawnForced("FleshWizardLeashFX", bX, bY, bZ);
         }
     }
 }
@@ -268,7 +268,11 @@ Script "DND Flesh Wizard Torment" (int force) {
 					int ydiff = oY - tY;
 					
 					int velz = (oZ - tZ) >> 16;
-					velz /= GetActorProperty(curtarget, APROP_MASS); // player mass
+					int pmass = GetActorProperty(curtarget, APROP_MASS);
+					if(!pmass)
+						pmass = 1;
+					velz /= pmass; // player mass
+
 					ThrustThing(VectorAngle(xdiff, ydiff) >> 8, force, 1, curtarget);
 					ThrustThingZ(curtarget, velz * force, velz > 0, 0);
 					
@@ -281,7 +285,7 @@ Script "DND Flesh Wizard Torment" (int force) {
 			}
 			ActivatorSound("FleshWizard/SnareLoop", 127);
 		}
-		timecounter = ++timecounter % FLESHWIZARD_DAMAGE_PERIOD;
+		timecounter = (++timecounter) % FLESHWIZARD_DAMAGE_PERIOD;
 		Delay(1);
 		if(GetActorProperty(target, APROP_HEALTH) <= 0 || dist >= FLESHWIZARD_TETHERRANGE_MAX)
 			GiveActorInventory(source, "StopLeash", 1);

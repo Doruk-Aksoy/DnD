@@ -117,19 +117,19 @@ Actor PerkPoint : Ammo {
 
 Actor PSTAT_Strength : Ammo {
 	inventory.amount 1
-	inventory.maxamount 200
+	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
 
 Actor PSTAT_Dexterity : Ammo {
 	inventory.amount 1
-	inventory.maxamount 200
+	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
 
 Actor PSTAT_Intellect : Ammo {
 	inventory.amount 1
-	inventory.maxamount 200
+	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
 
