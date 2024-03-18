@@ -68,10 +68,11 @@ enum {
 	DND_DAMAGEFLAG_SIMULATERIPPER = 32768,
 	DND_DAMAGEFLAG_ISSPELL = 65536,
 	DND_DAMAGEFLAG_ISSPECIALAMMO = 131072,
+	DND_DAMAGEFLAG_ADDEDIGNITE = 262144,					// does guaranteed ignite and this damage is contribued on top of the base ignite dmg
 	
-	DND_DAMAGEFLAG_COUNTSASMELEE = 262144,
-	DND_DAMAGEFLAG_SOULATTACK = 524288,
-	DND_DAMAGEFLAG_LOSEDAMAGEPERHIT = 1048576,				// loses 10% damage per enemy hit, least it'll do is 30% damage on subsequent enemies
+	DND_DAMAGEFLAG_COUNTSASMELEE = 524288,
+	DND_DAMAGEFLAG_SOULATTACK = 1048576,
+	DND_DAMAGEFLAG_LOSEDAMAGEPERHIT = 2097152,				// loses 10% damage per enemy hit, least it'll do is 30% damage on subsequent enemies
 };
 
 enum {

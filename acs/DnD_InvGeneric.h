@@ -6,7 +6,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 	if(c != -1) {
         int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
         // depending on armor type rolled, spawn its appropriate actor
-        SpawnPlayerDrop(pnum, GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+        SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
@@ -18,7 +18,7 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 	if(c != -1) {
         int type = RollBootInfo(c, RollItemLevel(), pnum);
         // depending on armor type rolled, spawn its appropriate actor
-        SpawnPlayerDrop(pnum, GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+        SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BOOT);
@@ -37,11 +37,11 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY =
 		#endif
 		{
 			MakeUnique(c, DND_ITEM_CHARM, pnum);
-			SpawnPlayerDrop(pnum, "UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
+			SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 		else {
 			RollCharmInfo(c, RollItemLevel(), pnum);
-			SpawnPlayerDrop(pnum, "CharmDrop", 16.0, 16, pnum + 1, c);
+			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		}
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
@@ -54,7 +54,8 @@ void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVel
         int type = RollPowercoreInfo(c, RollItemLevel(), pnum);
 
         // depending on armor type rolled, spawn its appropriate actor
-        SpawnPlayerDrop(pnum, GetPowercoreDropClass(type), 24.0, 16, pnum + 1, c, noRandomVelXY);
+		SpawnDrop(GetPowercoreDropClass(type), 24.0, 16, pnum + 1, c, noRandomVelXY);
+
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_POWERCORE);
 	}
@@ -70,7 +71,7 @@ void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0, bool noRandomVelXY =
 		for(; i < MAX_TOKENS && TokenWeights[i] < w; ++i);
 		
 		RollTokenInfo(c, i, true);
-        SpawnPlayerDrop(pnum, GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c, noRandomVelXY);
+		SpawnDrop( GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
 	}

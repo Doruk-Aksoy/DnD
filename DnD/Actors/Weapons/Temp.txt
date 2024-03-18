@@ -2835,9 +2835,9 @@ Actor DarkServantMissileBig : DnD_BaseProjectile {
 	+FORCEPAIN
 	States {
 		SpawnState:
-			TNT1 A 0 A_SeekerMissile(16, 16, SMF_LOOK)
+			TNT1 A 0 A_SeekerMissile(16, 16, SMF_LOOK | SMF_CURSPEED)
 			FX18 AA 2 Bright A_SpawnItem("DarkServantMissile2Trail")
-			TNT1 A 0 A_SeekerMissile(16, 16, SMF_LOOK)
+			TNT1 A 0 A_SeekerMissile(16, 16, SMF_LOOK | SMF_CURSPEED)
 			FX18 BB 2 Bright A_SpawnItem("DarkServantMissile2Trail")
 		Loop
 		XDeath:

@@ -1523,7 +1523,9 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 	
 	switch(attr) {
 		case INV_CYBERNETIC:
-			return StrParam(l:text);
+			if(!isFractured)
+				col_tag = "\c[R5]";
+			return StrParam(s:col_tag, l:text);
 			
 		// essences with specific writing
 		case INV_ESS_SSRATH:

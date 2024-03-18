@@ -116,6 +116,7 @@ Actor InfernoSwordPuff : DnD_BasePuff {
 	+LOOKALLAROUND
 	+FORCEXYBILLBOARD
 	+THRUGHOST
+	-NONETID // was necessary for some reason game thinks this is a puff
 	Translation "0:255=%[0.00,0.00,0.00]:[1.94,0.71,0.05]"
 	States {
 		Init:
@@ -134,9 +135,39 @@ Actor InfernoSwordPuff : DnD_BasePuff {
 			TNT1 A 0 A_PlaySound("Sword/HitWall")
 			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
 		Anim:
+			DKAT D 1 A_JumpIfInventory("InfernoSwordDebuff", 1, "Boom", AAPTR_TRACER)
+		ContAnim:
 			TNT1 A 0 A_CustomMissile("InfernoExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			DKAT DEFG 3 Bright
 			DKAT HIJKLM 2 Bright
+		Stop
+		Boom:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Take Inferno Debuff")
+			TNT1 A 0 A_PlaySound("Hammer/BigExp", 5)
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 32, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 A 0 A_CustomMissile("InfernoExplosion_Debuff", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+		Goto ContAnim
+	}
+}
+
+Actor InfernoExplosion_Debuff : DnD_ExplosiveBase {
+	Speed 0
+	+THRUACTORS
+	States {
+		SpawnState:
+			TNT1 A 0//TNT1 A 2 ACS_NamedExecuteAlways("DnD Target Fix")
+		Death:
+			TNT1 A 0 A_SetUserVar("user_expdmg", 0.25 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_INFERNOSWORD << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT1))
+			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 96)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ADDEDIGNITE)
+			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_INFERNOSWORD << 16))
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 1
 		Stop
 	}
 }
@@ -185,6 +216,7 @@ Actor InfernoSwordMissile_1 : DnD_ExplosiveBase {
 			DKAT ABC 3 Bright
 		Loop
 		XDeath:
+			TNT1 A 0 A_GiveInventory("InfernoDebuffGiver", 1, AAPTR_TRACER)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_INFERNOSWORD << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT1), DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_SOULATTACK, DND_WEAPON_INFERNOSWORD)
 		Death:
 			DKAT D 4 Bright
@@ -289,5 +321,46 @@ Actor InfernoSwordMissileFX {
 			DKAT NOPQRST 4 Bright
 			DKAT UVW 3 Bright
 		Stop
+	}
+}
+
+Actor InfernoSwordDebuff : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+}
+
+Actor InfernoDebuffGiver : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("InfernoSwordDebuff", 1, "Finish")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Inferno Debuff FX", 0)
+		Finish:
+			TNT1 A 0 A_GiveInventory("InfernoSwordDebuff", 1)
+		Stop
+	}
+}
+
+Actor InfernoDebuffFX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION 
+	+NOTONAUTOMAP
+	+FORCEXYBILLBOARD
+	RenderStyle Add
+	Alpha 0.725
+	Scale 0.375
+	const int v = 2;
+	States {
+		Spawn:
+			TNT1 A 2 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_ChangeVelocity(frandom(-v, v), frandom(-v, v), frandom(-v, v))
+			TNT1 A 0 A_Jump(256, "One", "Two")
+		One:
+			X007 CDE 2 Bright 
+			X007 FGHIJ 2 Bright 
+		Stop
+		Two:
+			X007 MNO 2 Bright 
+			X007 PQRST 2 Bright 
+		Stop		
 	}
 }

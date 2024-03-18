@@ -1134,9 +1134,10 @@ int GetPlayerMeleeRange(int pnum, int range) {
 }
 
 #define DND_BASE_IGNITEDMG 20
-int GetFireDOTDamage(int pnum) {
+int GetFireDOTDamage(int pnum, int bonus = 0) {
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG + 
+				bonus +
 				GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG) + 
 				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	

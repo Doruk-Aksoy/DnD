@@ -5441,7 +5441,7 @@ Script 68 (int x) NET {
 			SpawnBoot(0, true);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
-			//SpawnCharmWithMods_ForAll(INV_SHIELD_RECOVERYRATE);
+			SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);

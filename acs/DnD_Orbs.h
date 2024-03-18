@@ -628,7 +628,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 			for(i = 0; i < affluence; ++i) {
-				if(random(1, 100) <= DND_POTENCY_CHANCE) {
+				if(RunLuckBasedChance(pnum, DND_POTENCY_CHANCE, DND_LUCK_OUTCOME_GAIN)) {
 					// failsafe, if it tried it 100 times there's a really good chance the item now has perfect tiers... don't bother
 					s = 0;
 				

@@ -390,7 +390,7 @@ DND_MENU_ABLTAG4		=	"Arcanery";
 DND_MENU_ABLHELPTEXT4	=	"Artifact power increases by 50%.";
 
 DND_MENU_ABLTAG5		=	"Toxicology";
-DND_MENU_ABLHELPTEXT5	=	"\c[R5]CYBERNETIC \cj- Gain 33% poison resistance.";
+DND_MENU_ABLHELPTEXT5	=	"\c[R5]CYBERNETIC \cj- You take 33% less poison damage.";
 
 DND_MENU_ABLTAG6		=	"Demolitions";
 DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.";

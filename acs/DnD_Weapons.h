@@ -135,17 +135,25 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			else {
 				proj_id = DND_PROJ_EXCALIBAT2;
+				sp_x = CheckInventory("BatCharge");
 				
 				// dont make the delay cause ammo from being taken late
+				ammo_take_amt = max(1, (ammo_take_amt * sp_x) / 100);
 				TakeInventory(ammo_type, ammo_take_amt);
 				flags |= DND_ATF_NOAMMOTAKE;
 				
 				// angle increments of 4 degrees, start from -32 deg
-				for(count = 0; count < 17; ++count) {
-					vec2[angle_vec].x = -32.0 + count * 4.0;
+				// max charges results in 17
+				sp_y = 1 + (16 * sp_x) / 100;
+				for(count = 0; count < sp_y; ++count) {
+					vec2[angle_vec].x = -2.0 * (sp_y - 1) + count * 4.0;
 					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0.0, 0.0, flags);
 					Delay(const:1);
 				}
+
+				SetInventory("BatCharge", 0);
+				sp_x = 0;
+				sp_y = 0;
 			}
 		break;
 		case DND_WEAPON_KATANA:
@@ -1743,8 +1751,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			sp_y = 4.0;
 			if(!(isAltfire & DND_ATK_SECONDARY))
 				proj_id = DND_PROJ_VENOM_1;
-			else
+			else {
 				proj_id = DND_PROJ_VENOM_2;
+				flags |= DND_ATF_USEGRAVITY;
+			}
 		break;
 		case DND_WEAPON_DEMONHEART:
 			use_default = false;

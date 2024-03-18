@@ -76,6 +76,11 @@ enum {
 	DND_DAMAGETYPEFLAG_PERCENTHP = 512,
 };
 
+enum {
+	DND_IGNITEFLAG_CANPROLIF = 1,
+	DND_IGNITEFLAG_ADDEDIGN = 2
+};
+
 int MonsterDamageTypeToDamageCategory(int d) {
 	if(d & DND_DAMAGETYPEFLAG_PHYSICAL)
 		return DND_DAMAGECATEGORY_BULLET;
@@ -734,18 +739,23 @@ void HandleChillEffects(int pnum, int victim) {
 	}
 }
 
-void HandleIgniteEffects(int pnum, int victim, int wepid) {
+void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_within_tic) {
+	bool addedIgn = flags & DND_DAMAGETICFLAG_ADDEDIGNITE;
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_SCORCHED) &&
-		CheckIgniteChance(pnum)
+		(addedIgn || CheckIgniteChance(pnum))
 	)
 	{
 		int amt = DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
 		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
+		int ign_flags = DND_IGNITEFLAG_CANPROLIF;
+		if(addedIgn)
+			ign_flags |= DND_IGNITEFLAG_ADDEDIGN;
+
 		if(!current_ign_time) {
 			SetActorInventory(victim, "DnD_IgniteTimer", amt);
-			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim, wepid, true);
+			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim, wepid, ign_flags, dmg_within_tic);
 		}
 		else // only replace timer if this is higher
 			SetActorInventory(victim, "DnD_IgniteTimer", Max(amt, current_ign_time));
@@ -1242,6 +1252,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	extra = (!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
 			(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
 			(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
+			(!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
 			(!!((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)) * DND_DAMAGETICFLAG_DOT);
 	
 	// we send particular damage types in that can cause certain status effects like chill, freeze etc.
@@ -1375,9 +1386,12 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				final_dmg = ScaleExplosionToDistance(owner, dmg / 2, radius / 2, fullradius / 2, px, py, pz, proj_r);
 			else
 				final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
-				
+			
 			// crit check done explicitly here for player, player doesn't use HandleDamageDeal -- victim is owner here
-			final_dmg = ConfirmedCritFactor(final_dmg, owner, final_dmg, wepid);
+			// self note: this probably will never trigger for the player themselves here, because crit is now calculated in "handledamagedeal", therefore we won't see it here
+			// can be fixed later with a workaround, not urgent
+			if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
+				final_dmg = ConfirmedCritFactor(final_dmg, owner, final_dmg, wepid);
 				
 			// added sight check to fix explosives hurting behind walls bug
 			if(final_dmg > 0 && CheckSight(0, owner, CSF_NOBLOCKALL)) {
@@ -1387,8 +1401,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				// push with some greater force
 				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
 				
+				//printbold(s:"before ", d:final_dmg);
+
 				// handle player's self explosion resists here
 				final_dmg = HandlePlayerSelfDamage(pnum, final_dmg, damage_type, wepid, flags, isArmorPiercing);
+
+				//printbold(s:"after ", d:final_dmg);
+
 				Thing_Damage2(0, final_dmg, DamageTypeList[damage_type]);
 			}
 		}
@@ -2187,8 +2206,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		temp = PlayerDamageTicData[pnum][victim_data];
 		PlayerDamageTicData[pnum][victim_data] = ConfirmedCritFactor(pnum, victim_tid, PlayerDamageTicData[pnum][victim_data], wepid);
 
-		// deal the damage difference between the crit and original on top, like hobo thing below
-		Thing_Damage2(victim_tid, PlayerDamageTicData[pnum][victim_data] - temp, "Bullet_NoPain");
+		// deal the damage difference between the crit and original on top, like hobo thing below -- note use of Special_NoPain
+		Thing_Damage2(victim_tid, PlayerDamageTicData[pnum][victim_data] - temp, "Special_NoPain");
 		HandleHunterTalisman();
 	}
 
@@ -2211,7 +2230,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 			temp = PlayerDamageTicData[pnum][victim_data] * (100 - temp) / 100;
 
 			// dmg type at this point should not matter, this is the damage reduced, buffed etc. finalized damage by resist, so buffing it with this "should" theoretically be ok
-			Thing_Damage2(victim_tid, temp, "Bullet_NoPain");
+			Thing_Damage2(victim_tid, temp, "Special_NoPain");
 			PlayerDamageTicData[pnum][victim_data] += temp;
 		}
 	}
@@ -2236,7 +2255,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
 			HandleChillEffects(pnum, victim_tid);
 		else if(flags & DND_DAMAGETICFLAG_FIRE)
-			HandleIgniteEffects(pnum, victim_tid, wepid);
+			HandleIgniteEffects(pnum, victim_tid, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
 			HandleOverloadEffects(pnum, victim_tid);
 		
@@ -2456,10 +2475,15 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 	SetResultValue(0);
 }
 
-Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
+Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
-	int dmg = GetFireDOTDamage(pnum);
+
+	// if no added dmg, reset it
+	if(!(ign_flags & DND_IGNITEFLAG_ADDEDIGN))
+		added_dmg = 0;
+
+	int dmg = GetFireDOTDamage(pnum, added_dmg);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 	
 	dmg = HandleNonWeaponDamageScale(dmg, DND_DAMAGECATEGORY_FIRE, 0);
@@ -2484,27 +2508,28 @@ Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 		Delay(const:7);		
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
 	
-	// check ignite prolif
-	int owner = P_TIDSTART + pnum;
-	int prolif_dist = GetIgniteProlifRange(pnum);
-	int prolif_count = GetIgniteProlifCount(pnum);
-	
-	next_dmg = 0; // used as temp variable
-	inc_by = 0; // same as above
-	dmg_tic_buff = 0; // same as above...
-	
-	static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAX_IGNITEPROLIFS];
-	
-	// init list
-	int i;
-	for(i = 0; i < DND_MAX_IGNITEPROLIFS; ++i) {
-		tlist[pnum][i].tid = 0;
-		tlist[pnum][i].dist = prolif_dist;
-	}
-	
 	// find N closest targets to victim for igniting
 	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
-	if(canProlif && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
+	if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
+		// Moved here, makes more sense to only check if applicable...
+		// check ignite prolif
+		int owner = P_TIDSTART + pnum;
+		int prolif_dist = GetIgniteProlifRange(pnum);
+		int prolif_count = GetIgniteProlifCount(pnum);
+		
+		next_dmg = 0; // used as temp variable
+		inc_by = 0; // same as above
+		dmg_tic_buff = 0; // same as above...
+		
+		static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAX_IGNITEPROLIFS];
+		
+		// init list
+		int i;
+		for(i = 0; i < DND_MAX_IGNITEPROLIFS; ++i) {
+			tlist[pnum][i].tid = 0;
+			tlist[pnum][i].dist = prolif_dist;
+		}
+
 		int j, k;
 		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 			i = UsedMonsterTIDs[mn];
@@ -2555,7 +2580,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int canProlif) {
 						
 						// we don't proliferate from the proliferated targets... that'd be busted
 						// note: WAIT AND SEE IF ITS OP!
-						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, true);
+						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, ign_flags, added_dmg);
 					}
 					else
 						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", Max(ign_time, next_dmg));
@@ -3100,7 +3125,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
 	// this causes A_KillChildren etc. to actually work...
-	if(arg2 == "Perish") {
+	if(arg2 == "Perish" || arg2 == "Special_NoPain") {
 		SetResultValue(arg1);
 		Terminate;
 	}

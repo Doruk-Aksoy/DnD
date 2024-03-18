@@ -755,6 +755,25 @@ void HandleChestDrops(int ctype) {
 		SpawnOrbForAll(1);
 }
 
+enum {
+	DND_LOOTBIT_ORB = 1,
+	DND_LOOTBIT_TOKEN = 2,
+	DND_LOOTBIT_ARMOR = 4,
+	DND_LOOTBIT_CHARM = 8,
+	DND_LOOTBIT_POWERCORE = 16,
+	DND_LOOTBIT_CHESTKEY = 32
+};
+
+enum {
+	DND_LOOT_ORB,
+	DND_LOOT_TOKEN,
+	DND_LOOT_ARMOR,
+	DND_LOOT_CHARM,
+	DND_LOOT_POWERCORE,
+	DND_LOOT_CHESTKEY
+};
+#define DND_MAX_LOOTBITS 6
+
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
 void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
@@ -764,11 +783,17 @@ void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			// for orbs
-			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP_ORB * drop_boost / 100))
+			int bits = 0;
+			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP_ORB * drop_boost / 100)) {
 				SpawnOrb(i, true);
+				bits |= DND_LOOTBIT_ORB;
+			}
+
 			// for tokens -- same likelihood to drop as orbs
-			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP * drop_boost / 100))
+			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP * drop_boost / 100)) {
 				SpawnToken(i);
+				bits |= DND_LOOTBIT_TOKEN;
+			}
 
 			if(ignoreWeight || RunDefaultDropChance(i, DND_BASEARMOR_DROP * drop_boost / 100)) {
 				// boot and body armor chance is equal
@@ -776,13 +801,52 @@ void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 					SpawnArmor(i, rarity_boost, 0);
 				else
 					SpawnBoot(i, rarity_boost);
+				bits |= DND_LOOTBIT_ARMOR;
 			}
 
-			if(ignoreWeight || RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100))
+			if(ignoreWeight || RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100)) {
 				SpawnCharm(i, rarity_boost);
+				bits |= DND_LOOTBIT_CHARM;
+			}
 
-			if(ignoreWeight || (mon_robot && RunDefaultDropChance(i, DND_BASE_POWERCORERATE * drop_boost / 100)))
+			if(ignoreWeight || (mon_robot && RunDefaultDropChance(i, DND_BASE_POWERCORERATE * drop_boost / 100))) {
 				SpawnPowercore(i, rarity_boost);
+				bits |= DND_LOOTBIT_POWERCORE;
+			}
+
+			if(ignoreWeight || RunDefaultDropChance(i, DND_CHESTKEY_DROPRATE * drop_boost / 100)) {
+				SpawnChestKey(i);
+				bits |= DND_LOOTBIT_CHESTKEY;
+			}
+
+			// luck mastery check for inventory items --- they need special handling
+			for(int j = 0; j < DND_MAX_LOOTBITS; ++j) {
+				if(IsSet(bits, j) && CheckPlayerLuckDuplicator(i)) {
+					switch(j) {
+						case DND_LOOT_ORB:
+							SpawnOrb(i, true);
+						break;
+						case DND_LOOT_TOKEN:
+							SpawnToken(i);
+						break;
+						case DND_LOOT_ARMOR:
+							if(random(1, 100) <= 50)
+								SpawnArmor(i, rarity_boost, 0);
+							else
+								SpawnBoot(i, rarity_boost);
+						break;
+						case DND_LOOT_CHARM:
+							SpawnCharm(i, rarity_boost);
+						break;
+						case DND_LOOT_POWERCORE:
+							SpawnPowercore(i, rarity_boost);
+						break;
+						case DND_LOOT_CHESTKEY:
+							SpawnChestKey(i);
+						break;
+					}
+				}
+			}
 		}
 	}
 }
@@ -947,9 +1011,6 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		if(GetCVar("dnd_ignore_dropweights") || RunDropChance(pnum, Clamp_Between(GetCVar("dnd_researchdroprate") * MonsterProperties[m_id].droprate / 100, 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, temp))
 			SpawnResearch(pnum);
 	}
-	
-	// Chest Key
-	HandleChestKeyDrop(MonsterProperties[m_id].droprate);
 	
 	// if elite, roll orb and equipment drops
 	// new: we let every monster drop orbs, not just elites but with an overall lower chance

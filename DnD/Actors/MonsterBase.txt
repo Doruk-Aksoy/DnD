@@ -33,6 +33,9 @@ Actor DnD_BaseMonster {
 	Painchance "MagicFire_NoPain", 0
 	Painchance "Explosives_Magic_NoPain", 0
 	
+	// called by crits or scripts etc. to avoid triggering the event script again
+	PainChance "Special_NoPain", 0
+	
 	// elemental
 	Painchance "Fire_NoPain", 0
 	Painchance "P_Ice_NoPain", 0

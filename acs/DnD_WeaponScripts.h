@@ -29,6 +29,32 @@ Script "DnD Sickle Mass Res" (int base, int dist) {
 	}
 }
 
+Script "DnD Inferno Debuff FX" (void) CLIENTSIDE {
+	int r = GetActorProperty(0, APROP_RADIUS);
+	int h = GetActorProperty(0, APROP_HEIGHT);
+	GiveInventory("InfernoSwordDebuff", 1);
+	while(isAlive() && CheckInventory("InfernoSwordDebuff")) {
+		for(int i = 0; i < 3; ++i)
+			SpawnForced("InfernoDebuffFX", GetActorX(0) + random(-r / 2, r / 2), GetActorY(0) + random(-r / 2, r / 2), GetActorZ(0) + random(16.0, 3 * h / 4));
+		Delay(const:3);
+	}
+}
+
+Script "DnD Take Inferno Debuff" (void) {
+	int tid = GetActorProperty(0, APROP_TRACERTID);
+	if(tid) {
+		SetActivator(tid);
+		TakeInventory("InfernoSwordDebuff", 1);
+		ACS_NamedExecuteWithResult("DnD Take Inferno Debuff CS");
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Take Inferno Debuff CS" (void) CLIENTSIDE {
+	TakeInventory("InfernoSwordDebuff", 1);
+	SetResultValue(0);
+}
+
 Script "DND Acid Rifle Bolt Stick" (int type) {
 	int res = 0;
 	int tracer = GetActorProperty(0, APROP_TRACERTID);

@@ -314,7 +314,7 @@ IATTR_T69 			= "increased chance to overload for lightning attacks";
 IATTR_T70 			= "additional overload reflections on overload kills";
 IATTR_T71 			= "more damage amplification for overload";
 	
-IATTR_T72 			= "\c[R5]CYBERNETIC\c-";
+IATTR_T72 			= "CYBERNETIC";
 IATTR_T73 			= "increased melee range";
 IATTR_T74			= "increased melee damage";
 IATTR_T75			= "damage over time multiplier";
