@@ -1749,9 +1749,9 @@ void GiveOverheat(int pnum, str item, int amt, int wepid) {
 	if(HasPlayerPowerset(pnum, PPOWER_LESSOVERHEAT))
 		amt = amt * (100 - LESS_OVERHEAT_FACTOR) / 100;
 
-	if(!amt)
-		amt = 1;
-	GiveInventory(item, amt);
+	// let players attain maximum overheat reduction
+	if(amt)
+		GiveInventory(item, amt);
 }
 
 #endif

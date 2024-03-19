@@ -455,7 +455,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-96, 0);
 		break;
 		case MENU_HELP_DAMAGETYPES:
-			redraw = ListenScroll(-64, 0);
+			redraw = ListenScroll(-128, 0);
 		break;
 		case MENU_HELP_MMODS_UTILITY:
 			redraw = ListenScroll(-192, 0);
@@ -1003,6 +1003,8 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			if(boxid == MAINBOX_NONE && redraw)
 				ClearInfoPanel();
 		}
+		else if(boxid == MAINBOX_NONE)
+			DeleteText(RPGMENUHELPCORNERID);
 		
 		if(curposy == onposy) {
 			// this part could be grouped into just deciding on a string to use, but I want to keep variable amount low here (already a lot)

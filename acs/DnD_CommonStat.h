@@ -466,7 +466,7 @@ void RestoreRPGStat (int statflag) {
 		
 	if(CheckInventory("HateCheck")) {
 		GiveInventory("PowerReflection", 1);
-		GiveInventory("HateReduction", 1);
+		//GiveInventory("HateReduction", 1);
 	}
 
 	if(CheckInventory("GryphonCheck"))

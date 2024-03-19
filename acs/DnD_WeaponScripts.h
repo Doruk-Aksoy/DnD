@@ -1,6 +1,36 @@
 #ifndef DND_WEAPON_SC_IN
 #define DND_WEAPON_SC_IN
 
+Script "DnD Overheat Reduction" (int index, int rate) {
+	int d = rate >> 16;
+	rate &= 0x0000FFFF;
+
+	int pnum = PlayerNumber();
+
+	if(HasPlayerPowerSet(pnum, PPOWER_OVERHEATGOFAST)) {
+		int temp = d * (100 - OVERHEAT_DISS_FACTOR) / 100;
+		if(!temp) {
+			rate = rate * (100 + OVERHEAT_DISS_FACTOR) / 100;
+			// if not 1 then we also reduce the delay if the difference is that small
+			if(d != 1)
+				d = 1;
+		}
+		else
+			d = temp;
+	}
+
+	// prevent multiple copies, also dont keep this busy if we got no overheat bonus
+	if(!IsSet(PlayerRunsOverheat[pnum], index) && !IsQuestComplete(0, QUEST_KILLGODSLAYER)) {
+		PlayerRunsOverheat[pnum] = SetBit(PlayerRunsOverheat[pnum], index);
+		while(CheckInventory(WeaponOverheatItems[index])) {
+			if(CheckInventory("DnD_OverheatCanReduce"))
+				TakeInventory(WeaponOverheatItems[index], rate);
+			Delay(d);
+		}
+		PlayerRunsOverheat[pnum] = ClearBit(PlayerRunsOverheat[pnum], index);
+	}
+}
+
 Script "DnD Sickle Check Res" (int base) {
 	int res = 0;
 	int hit = GetActorProperty(0, APROP_TRACERTID);

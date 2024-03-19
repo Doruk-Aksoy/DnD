@@ -35,8 +35,8 @@ Actor ResPlasma1 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_FLAMETHROWER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, 1 | (8 << 16), DND_WEAPON_FLAMETHROWER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 5, 0, DND_WEAPON_FLAMETHROWER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, 1 | (4 << 16), DND_WEAPON_FLAMETHROWER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 2, 0, DND_WEAPON_FLAMETHROWER)
 	    SelectLoop:
 			RW05 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -136,7 +136,7 @@ Actor FTExplosion1 : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 23)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
 		ExplosionLoop:
 			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
@@ -166,7 +166,7 @@ Actor FTExplosion1_NoSelf : FTExplosion1 {
 			TNT1 A 1 A_SetUserVar("user_count", 23)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE)
 		ExplosionLoop:
 			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
@@ -203,7 +203,7 @@ Actor FTExplosion2 : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", 70)
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
+			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
 			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		ExplosionLoop:
@@ -236,7 +236,7 @@ Actor FTFire : DnD_BaseProjectile {
 			FRFX EFGHIJKLMNO 2 bright
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_FLAMETHROWER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_ADDEDIGNITE, DND_WEAPON_FLAMETHROWER)
 		Death:
 			FRFX HIJ 2 bright
 			TNT1 A 0 A_CustomMissile("DropFire", 0, 0, 0, CMF_TRACKOWNER)

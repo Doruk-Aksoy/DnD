@@ -859,6 +859,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				// circle pattern -- check circle fire too
 				if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
+					count = 12;
 					for(sp_x = 0; sp_x < 12; ++sp_x) {
 						SetVec2XY(angle_vec, 4 * cos(ANG_TO_DOOM(30.0 * sp_x)), 4 * sin(ANG_TO_DOOM(30.0 * sp_x)));
 						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
@@ -872,6 +873,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			else {
 				// spread pattern -- check circle fire too				
 				if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
+					count = 6;
 					vec2[angle_vec].x = 1.0;
 					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					vec2[angle_vec].x = 4.0;
@@ -1430,6 +1432,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					Do_Projectile_Attack_Named(owner, pnum, "RebounderProjectile", wepid, 1, 32, angle_vec, offset_vec, 0, 0, 0);
 				else
 					Do_Projectile_Attack_Named(owner, pnum, StrParam(s:"RebounderProjectileB", d:min(count / 15, 4)), wepid, 1, 32, angle_vec, offset_vec, 0, 0, 0);
+				count = 1;
 			}
 			else {
 				// secondary of rebounder is in the array for HUD, we still use cells here
@@ -1454,6 +1457,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					Do_DarkLance_Shots(owner, pnum, 12, 18, 90, 1);
 				else
 					Do_DarkLance_Shots(owner, pnum, 14, 18, 90, 2);
+				count = 1;
 			}
 			else {
 				use_default = true;

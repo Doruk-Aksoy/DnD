@@ -6,3 +6,8 @@ Actor OccultWeaknessStack : Inventory {
 }
 
 Actor DnD_ExplosionRepeated : DnD_Boolean { }
+
+Actor DnD_HealOnMissingCD : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}

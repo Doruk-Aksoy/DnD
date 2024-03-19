@@ -488,6 +488,10 @@ bool IsCraftingPageForTokens(int page) {
 	return page == MENU_LOAD_CRAFTING_WEAPON || page == MENU_LOAD_CRAFTING_INVENTORY;
 }
 
+bool IsArtifactPage(int page) {
+	return page == MENU_SHOP_ARTIFACT_1 || page == MENU_SHOP_ARTIFACT_2;
+}
+
 #ifdef ISAPRILFIRST
 	#define MAX_NFTS 8
 	#define NFT_COST 1000000 // 1 million dollars!

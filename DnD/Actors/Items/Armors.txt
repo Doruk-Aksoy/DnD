@@ -532,6 +532,7 @@ Actor ArmorDrop_15 : ArmorDrop {
 }
 
 Actor ArmorDrop_16 : ArmorDrop {
+	Scale 0.75
 	States {
 		Spawn:
 			AR16 A 0

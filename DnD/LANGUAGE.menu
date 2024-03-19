@@ -166,7 +166,10 @@ DND_MENU_MELEETEXT		=	"\c[Y5]Melee\n\nFound specifically in \c[Y5]Slot 1\c- weap
 DND_MENU_OCCULTTEXT		=	"\c[Y5]Occult\n\nDemonic or holy weapons utilize this damage type. The most dominant weapons of this type are \c[Y5]Slot 8\c- weapons. Magical and undead monsters take extra damage from this type.";
 DND_MENU_EXPLOTEXT		=	"\c[Y5]Explosive\n\nMany weapons that feature explosions use this damage type. Mostly found in \c[Y5]Slot 5\c- weapons.";
 DND_MENU_ENERGYTEXT		=	"\c[Y5]Energy\n\nGeneral category of the plasma type weapons. Mostly found in \c[Y5]Slot 6\c- and \c[Y5]7\c- weapons. Mechanical enemies take extra damage from this type.";
-DND_MENU_ELEMENTTEXT	=	"\c[Y5]Elemental\n\nThis damage type is found in weapons that utilize any of the four elements in their attacks. This type is generally spread out in the weapon slots.";
+DND_MENU_FIRETEXT		=	"\c[Y5]Fire\n\nWeapon deals fire damage. These weapons can ignite enemies.";
+DND_MENU_ICETEXT		=	"\c[Y5]Ice\n\nWeapon deals ice damage. These weapons can chill and freeze enemies.";
+DND_MENU_POISONTEXT		=	"\c[Y5]Poison\n\nWeapon deals poison damage. These weapons can poison enemies.";
+DND_MENU_LIGHTNINGTEXT	=	"\c[Y5]Lightning\n\nWeapon deals lightning damage. These weapons can overload enemies.";
 
 DND_MENU_WEPHELPTEXT1	=	"Can't hit enemies with the \cughost\c- modifier.";
 DND_MENU_WEPHELPTEXT2	=	"Weapon can inflict \ciself damage\c-.";

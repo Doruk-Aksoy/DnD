@@ -84,7 +84,8 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][2] = {
 
 int GetEliteBonusDamage(int m_id) {
 	// at level 100 this yields 125%, at level 0 13% and at level 50 44%
-	return DND_ELITE_DMGSCALE + MonsterProperties[m_id].level * MonsterProperties[m_id].level / 100 + (MonsterProperties[m_id].level * 3) / 25;
+	int lvl = MonsterProperties[m_id].level;
+	return DND_ELITE_DMGSCALE + lvl * lvl / 100 + (lvl * 3) / 25;
 }
 
 bool HasTrait(int id, int trait_index) {

@@ -210,7 +210,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 			if(IsWeaponPage(curopt_prev))
 				ClearInfoPanel();
-			else if(IsAmmoPage(curopt_prev))
+			else if(IsAmmoPage(curopt_prev) || IsArtifactPage(curopt_prev))
 				DeleteText(RPGMENUHELPCORNERID);
 		}
 			
@@ -955,7 +955,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(l:"DND_MENU_OCCULTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 224.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 				HudMessage(l:"DND_MENU_EXPLOTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 304.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 				HudMessage(l:"DND_MENU_ENERGYTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 384.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-				HudMessage(l:"DND_MENU_ELEMENTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_FIRETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_ICETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 544.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_POISONTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 624.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_LIGHTNINGTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 704.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 				
 				// size is 640 by 480 instead of 480 by 320, ratio them
 				SetHudClipRect(192, 90, 256, 330, 256);

@@ -44,6 +44,15 @@ int GetMonsterDMGScaling(int m_id, int level) {
 	return res;
 }
 
+// used to eliminate various random calls when a monster dies, to offload it to initialization phase to reuse the numbers
+enum {
+	DND_MON_RNG_1,
+	DND_MON_RNG_2,
+	DND_MON_RNG_3,
+	DND_MON_RNG_4
+};
+#define DND_MAX_MONSTER_PRECALC_RNG 4
+
 typedef struct {
 	int basehp;
 	int maxhp;
@@ -55,6 +64,7 @@ typedef struct {
 	int droprate;									// droprate multiplier for this monster based on its initialization data
 	int rarity_boost;								// item rarity boost from monster
 	int killer_tid;									// tid of the killer
+	int rng_vals[DND_MAX_MONSTER_PRECALC_RNG];		// precalculated rng outcomes
 	bool isElite;
 	bool hasTrait;									// used by clients mostly -- do we have traits
 	int resists[MAX_DAMAGE_CATEGORIES];				// resists of the monster
@@ -1817,6 +1827,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_BABYDEMOLISHER].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
 	MonsterData[MONSTER_CHAINGUNGENERAL].health = 550;
 	MonsterData[MONSTER_CHAINGUNGENERAL].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
+	MonsterData[MONSTER_CHAINGUNCOMMANDO].health = 700;
+	MonsterData[MONSTER_CHAINGUNCOMMANDO].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
 	MonsterData[MONSTER_LEGIONNAIRE].health = 600;
 	MonsterData[MONSTER_LEGIONNAIRE].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
 	MonsterData[MONSTER_MANTICORE].health = 650;

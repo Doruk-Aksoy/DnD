@@ -72,11 +72,16 @@ actor DND_DroppedItem {
 
 Actor GrabbyHandIcon {
 	Scale 0.5
+	Height 2
+	Radius 1
+	+CLIENTSIDEONLY
 	+NOINTERACTION
 	var int user_z;
 	States {
 		Spawn:
-			TNT1 A 0 A_JumpIf(user_z == 35, "GoAway")
+			TNT1 A 0 NoDelay A_SetUserVar("user_z", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_z >= 35, "GoAway")
 			GRBY A 1 A_ChangeVelocity(0, 0, sin(user_z * 360 / 35), CVF_REPLACE)
 			TNT1 A 0 A_SetUserVar("user_z", user_z + 1)
 		Loop
@@ -117,9 +122,9 @@ Actor InventoryBase : DnD_DroppedItem {
 			"####" "#" 1 Bright A_Jump(256, "SpawnLoop")
 		Wait
 		Grabby:
-			"####" "#" 0 Bright A_JumpIfInventory("GrabbyHandCooldown", 1, "CheckPickupNext")
+			"####" "#" 1 Bright A_JumpIfInventory("GrabbyHandCooldown", 1, "CheckPickupNext")
 			"####" "#" 0 Bright A_GiveInventory("GrabbyHandCooldown", 1)
-			"####" "#" 0 Bright A_SpawnItemEx("GrabbyHandIcon", 0, 0, 32)
+			"####" "#" 0 Bright ACS_NamedExecuteAlways("DnD Spawn Grabby", 0, DND_SPECIAL_CHARM)
 		Goto CheckPickupNext
 		
 		Pickup:

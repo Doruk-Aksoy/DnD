@@ -1638,17 +1638,17 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_INCMIT:
-			text = StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:no_tag, l:text);
+			text = StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
 			// armor extras, can't have other implicits of armors together
 			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_INCMITARMOR:
-			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, f:((val << 16) / DND_ARMOR_TO_MIT_RATIO), s:no_tag, l:"IATTR_TI4");
+			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_ARMOR_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
 			// armor extras, can't have other implicits of armors together
 			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_INCMITSHIELD:
-			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, f:((val << 16) / DND_SHIELD_TO_MIT_RATIO), s:no_tag, l:"IATTR_TI4");
+			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_SHIELD_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
 			// armor extras, can't have other implicits of armors together
 			text = GetArmorImplicitExtraText(text, extra);
 		return text;

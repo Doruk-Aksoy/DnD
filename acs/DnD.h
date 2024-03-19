@@ -16,6 +16,17 @@
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
 
+#define DND_EXP_BASEFACTOR 4
+#define DND_CREDIT_BASEFACTOR 5
+#define DND_RESEARCH_MAX_CHANCE 1.0
+#define DND_RESEARCH_DROPMULT 3
+
+void SetupCVarTracking() {
+	CVarValues[DND_CVAR_RESEARCHDROPRATE] = Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE);
+	CVarValues[DND_CVAR_ACCESSORYDROPRATE] = (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100;
+	CVarValues[DND_CVAR_ACCESSORYLEVEL] = Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100);
+}
+
 void HandlePlayerPainSound(int pclass) {
 	int curhp = GetActorProperty(0, APROP_HEALTH);
 	int maxhp = GetSpawnHealth();
@@ -210,11 +221,6 @@ enum {
 #define DND_ARTIFACT_GAIN 50
 
 #define DND_NECRO_BULKSCALE 8
-
-#define DND_EXP_BASEFACTOR 4
-#define DND_CREDIT_BASEFACTOR 5
-#define DND_RESEARCH_MAX_CHANCE 1.0
-#define DND_RESEARCH_DROPMULT 3
 
 #define DND_AFTER50_INCREMENT 200
 #define DND_AFTER75_INCREMENT 800
@@ -775,7 +781,7 @@ enum {
 #define DND_MAX_LOOTBITS 6
 
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
-void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
+void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
 	bool mon_robot = IsActorRobotic(tid);
 
@@ -784,18 +790,20 @@ void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			// for orbs
 			int bits = 0;
-			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP_ORB * drop_boost / 100)) {
+			int p_chance = GetDropChance(i);
+
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1)) {
 				SpawnOrb(i, true);
 				bits |= DND_LOOTBIT_ORB;
 			}
 
 			// for tokens -- same likelihood to drop as orbs
-			if(ignoreWeight || RunDefaultDropChance(i, DND_ELITE_BASEDROP * drop_boost / 100)) {
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2)) {
 				SpawnToken(i);
 				bits |= DND_LOOTBIT_TOKEN;
 			}
 
-			if(ignoreWeight || RunDefaultDropChance(i, DND_BASEARMOR_DROP * drop_boost / 100)) {
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
 				// boot and body armor chance is equal
 				if(random(1, 100) <= 50)
 					SpawnArmor(i, rarity_boost, 0);
@@ -804,17 +812,17 @@ void HandleItemDrops(int tid, int drop_boost, int rarity_boost) {
 				bits |= DND_LOOTBIT_ARMOR;
 			}
 
-			if(ignoreWeight || RunDefaultDropChance(i, DND_BASE_CHARMRATE * drop_boost / 100)) {
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASE_CHARMRATE * drop_boost / 100, m_id, DND_MON_RNG_4)) {
 				SpawnCharm(i, rarity_boost);
 				bits |= DND_LOOTBIT_CHARM;
 			}
 
-			if(ignoreWeight || (mon_robot && RunDefaultDropChance(i, DND_BASE_POWERCORERATE * drop_boost / 100))) {
+			if(ignoreWeight || (mon_robot && RunPrecalcDropChance(p_chance, DND_BASE_POWERCORERATE * drop_boost / 100, m_id, DND_MON_RNG_4))) {
 				SpawnPowercore(i, rarity_boost);
 				bits |= DND_LOOTBIT_POWERCORE;
 			}
-
-			if(ignoreWeight || RunDefaultDropChance(i, DND_CHESTKEY_DROPRATE * drop_boost / 100)) {
+			
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_2)) {
 				SpawnChestKey(i);
 				bits |= DND_LOOTBIT_CHESTKEY;
 			}
@@ -991,6 +999,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	int m_id = tid - DND_MONSTERTID_BEGIN;
 	int pnum = target - P_TIDSTART;
 	int temp;
+	int p_chance = GetDropChance(pnum);
 
 	// Handle all drops here
 	// drop coins if there should be
@@ -1000,7 +1009,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	}
 	
 	// ammo specialty drop
-	if(HasActorMasteredPerk(target, STAT_MUN) && RunDefaultDropChance(pnum, DND_MUNITION_MASTERY_CHANCE))
+	if(HasActorMasteredPerk(target, STAT_MUN) && RunPrecalcDropChance(p_chance, DND_MUNITION_MASTERY_CHANCE, m_id, DND_MON_RNG_1))
 		SpawnPlayerDrop(pnum, "DnD_AmmoToken", 24.0, 16, 0, 0);
 	
 	// research drop
@@ -1008,7 +1017,9 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		// make it less likely to drop
 		// addone is the chance here (reusing old variables)
 		temp = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-		if(GetCVar("dnd_ignore_dropweights") || RunDropChance(pnum, Clamp_Between(GetCVar("dnd_researchdroprate") * MonsterProperties[m_id].droprate / 100, 0.0, DND_RESEARCH_MAX_CHANCE), 0.0, temp))
+
+		
+		if(GetCVar("dnd_ignore_dropweights") || RunPrecalcDropChance(p_chance, CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_2))
 			SpawnResearch(pnum);
 	}
 	
@@ -1016,7 +1027,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	// new: we let every monster drop orbs, not just elites but with an overall lower chance
 	//if(GetCVar("dnd_ignore_dropweights") || isElite) {
 		// handle orb drops
-	HandleItemDrops(tid, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
+	HandleItemDrops(tid, m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	//}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
@@ -1025,9 +1036,8 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	//#else
 	if(
 		IsBossTID(tid) && 
-		//RunDropChance(pnum, ((Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100) * MonsterProperties[m_id].droprate / 100, 0, 1.0) &&
-		random(0, 1.0) <= (Clamp_Between(GetCVar("dnd_accessory_droprate"), 0, 100) * 1.0) / 100 &&
-		GetAveragePlayerLevel() >= Clamp_Between(GetCVar("dnd_accessorylevel"), 1, 100)
+		random(0, 1.0) <= CVarValues[DND_CVAR_ACCESSORYDROPRATE] &&
+		GetAveragePlayerLevel() >= CVarValues[DND_CVAR_ACCESSORYLEVEL]
 	)
 	{
 		// we can drop the spawner
@@ -1042,15 +1052,9 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		//SpawnToken(0, true);
 	#endif
 	
-	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
-	if(CheckActorInventory(target, "Doomguy_Perk25") && RunDefaultDropChance(pnum, DND_DOOMGUY_DROPCHANCE)) {
-		temp = MonsterProperties[m_id].maxhp;
-		SpawnPlayerDrop(pnum, "Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
-	}
-	
 	// soul ammo drop -- considers ability - soulstealer as well
 	if(
-		(CanDropSoulAmmoTID(tid) && RunDefaultDropChance(pnum, DND_SOULAMMO_DROPRATE * MonsterProperties[m_id].droprate / 100)) ||
+		(CanDropSoulAmmoTID(tid) && RunPrecalcDropChance(p_chance, DND_SOULAMMO_DROPRATE * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_4)) ||
 		(IsMonsterIdDemon(m_id) && (CheckActorInventory(target, "Ability_SoulStealer") && CheckActorInventory(tid, "MagicCausedDeath")))
 	  )
 	{
@@ -1061,6 +1065,12 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		TakeActorInventory(tid, "MagicCausedDeath", 1);
 	}
 	
+	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
+	if(CheckActorInventory(target, "Doomguy_Perk25") && RunPrecalcDropChance(p_chance, DND_DOOMGUY_DROPCHANCE, m_id, DND_MON_RNG_3)) {
+		temp = MonsterProperties[m_id].maxhp;
+		SpawnPlayerDrop(pnum, "Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
+	}
+
 	if(IsMonsterIdZombie(m_id))
 		GiveActorInventory(target, "DnD_ShotUndead", 1);
 		

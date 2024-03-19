@@ -237,6 +237,8 @@ Script "DnD On Map Load" OPEN {
 	if (GetLevelInfo(LEVELINFO_LEVELNUM) != 99) //Prevents quests from firing on VR map (Lexicon) - compendium hubmap can't be detected this way unfortunately.
 		PickQuest();
 
+	SetupCVarTracking();
+
 	// commented out for now!
 	//NPC_Setup();
 }
@@ -1897,7 +1899,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		GetMonsterTraits(m_id, 2)
 	);
 	
-	//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
+	//printbold(s:"(Before) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
 	//int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 	SetActorProperty(0, APROP_HEALTH, maxhp);
 	
@@ -1917,6 +1919,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	// handle things that should be given specifically to certain traits
 	// commented out as we already did this in decidetraits, this is only relevant for reviving monsters
 	// HandleSpecialTraits(m_id, monsterid);
+
+	for(maxhp = 0; maxhp < DND_MAX_MONSTER_PRECALC_RNG; ++maxhp)
+		MonsterProperties[m_id].rng_vals[maxhp] = random(0, 1.0);
 	
 	// set its true height user variable user_spawnheight
 	// printbold(s:"set spawn height to ", d:GetActorProperty(0, APROP_HEIGHT) >> 16);
@@ -3366,6 +3371,42 @@ Script "DnD Check Special Match" (int multispecial) {
 	SetResultValue(res);
 }
 
+Script "DnD Spawn Grabby" (int multispecial) {
+	int sp = GetActorProperty(0, APROP_MASS), res = 0;
+	int who = 0;
+
+	int ox = GetActorX(0);
+	int oy = GetActorY(0);
+	int oz = GetActorZ(0);
+
+	SetActivatorToTarget(0);
+	who = ActivatorTID();
+	if(!multispecial)
+		res = who - P_TIDSTART == sp - 1;
+	else {
+		// 256 means anyone can pick or see w.e
+		if((sp & 0xFFFF) == 256)
+			res = 1;
+		else {
+			res = who - P_TIDSTART == (sp & 0xFFFF) - 1;
+			if(multispecial & DND_SPECIAL_RESEARCH)
+				res = res && !CheckActorResearchStatus(who, sp >> 16);
+		}
+	}
+
+	if(!res)
+		Terminate;
+
+	ACS_NamedExecuteWithResult("DnD Spawn Grabby - CS", who - P_TIDSTART, ox, oy, oz);
+}
+
+Script "DnD Spawn Grabby - CS" (int pnum, int ox, int oy, int oz) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	SpawnForced("GrabbyHandIcon", ox, oy, oz + 32.0);
+	SetResultValue(0);
+}
+
 Script "DnD Blood Rune" (void) {
 	str togive = "FakeBloodPower";
 	if(CheckInventory("Ability_Arcanery"))
@@ -4024,36 +4065,6 @@ Script "DnD Timed Monster" (int time, int isPet) {
 	else
 		Thing_Damage2(0, GetActorProperty(0, APROP_HEALTH) * 3, "Perish");
 	SetResultValue(0);
-}
-
-Script "DnD Overheat Reduction" (int index, int rate) {
-	int d = rate >> 16;
-	rate &= 0x0000FFFF;
-
-	int pnum = PlayerNumber();
-
-	if(HasPlayerPowerSet(pnum, PPOWER_OVERHEATGOFAST)) {
-		int temp = d * (100 - OVERHEAT_DISS_FACTOR) / 100;
-		if(!temp) {
-			rate = rate * (100 + OVERHEAT_DISS_FACTOR) / 100;
-			// if not 1 then we also reduce the delay if the difference is that small
-			if(d != 1)
-				d = 1;
-		}
-		else
-			d = temp;
-	}
-
-	// prevent multiple copies, also dont keep this busy if we got no overheat bonus
-	if(!IsSet(PlayerRunsOverheat[pnum], index) && !IsQuestComplete(0, QUEST_KILLGODSLAYER)) {
-		PlayerRunsOverheat[pnum] = SetBit(PlayerRunsOverheat[pnum], index);
-		while(CheckInventory(WeaponOverheatItems[index])) {
-			if(CheckInventory("DnD_OverheatCanReduce"))
-				TakeInventory(WeaponOverheatItems[index], rate);
-			Delay(d);
-		}
-		PlayerRunsOverheat[pnum] = ClearBit(PlayerRunsOverheat[pnum], index);
-	}
 }
 
 Script "DND Hardcore Timer" (void) CLIENTSIDE {
@@ -5410,6 +5421,12 @@ Script "Print Loc" (void) {
 	printbold(f:GetActorX(0), s: " ", f:GetActorY(0), s: " ", f:GetActorZ(0));
 	SetResultValue(0);
 }
+
+#ifdef ISDEBUGBUILD
+Script "test" (void) {
+	printbold(s:"yes");
+}
+#endif
 
 Script 68 (int x) NET {
 	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode

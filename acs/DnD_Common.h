@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -91,9 +91,6 @@ enum {
 #define DND_WANDERER_POISONPERCENT 75
 #define DND_WANDERER_SPELLEFFICIENCY 4
 #define DND_WANDERER_COOLDOWNBONUS 4
-
-#define DND_CYBORG_CYBER_MULT 3
-#define DND_CYBORG_CYBER_DIV 10
 
 #define DND_EXP_HUDID_FILL 266
 #define DND_EXP_HUDID_BACK 267
@@ -357,6 +354,16 @@ int IsButtonPressed (int input, int oldInput, int mask) {
 int IsButtonHeld (int input, int mask) {
 	return input & mask;
 }
+
+// tracking of CVars and caching them here for values that have limits (to avoid calling constant Clamp)
+enum {
+	DND_CVAR_RESEARCHDROPRATE,
+	DND_CVAR_ACCESSORYDROPRATE,
+	DND_CVAR_ACCESSORYLEVEL,
+};
+#define MAX_CVARS_TRACKED (DND_CVAR_ACCESSORYLEVEL + 1)
+
+global int 29: CVarValues[MAX_CVARS_TRACKED];
 
 // for now allocate slots for 10
 #define MAX_SCRIPT_TRACK 10

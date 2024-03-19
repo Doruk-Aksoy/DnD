@@ -3126,6 +3126,9 @@ void DisassembleItem(int pnum, int item_pos, int price, int chance) {
 }
 
 Script "DnD Disassemble CS" (int result) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
 	if(result) {
 		Log(s:"\c[Y5]", l:"DND_DISASS", s:": \cd", l:"DND_DISASS_WIN");
 		LocalAmbientSound("Items/SuccessDisassemble", 127);

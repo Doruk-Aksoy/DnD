@@ -980,7 +980,7 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int dmg, int damage_type, int we
 // for others hitting player damage
 int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str arg2) {
 	// take extra damage only if they aren't ghost
-	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK) && !CheckFlag("enemy_tid", "GHOST"))
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK) && !CheckFlag(enemy_tid, "GHOST"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERMASK_AMP, DND_NETHERMASK_DIV);
 		
 	// amps ice damage taken, reduces fire damage
@@ -2846,7 +2846,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	// energy sources
 	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
 		temp = HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ENERGY);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ENERGY, temp);
 	}
 	
 	// gravecaller unique mod
@@ -2894,11 +2894,10 @@ int GetArmorRatingEffect(int dmg, int armor_id, bool isArmorPiercing) {
 
 int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
-	if(armor_id != -1) {
-		// if we are affected by poison and we dont have a specialty armor providing res to ele dmg, skip this, poison DOT shouldn't be negated by armor
-		if(dmg_string == "PoisonDOT")
-			return dmg;
-		
+	bool isPoison = dmg_string == "PoisonDOT";
+
+	// poison is not negated by armor
+	if(armor_id != -1 && !isPoison) {
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
 		// dmg here is the one to be dealt to the player's health pool
 		int factor = 0.0;
@@ -2925,9 +2924,9 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_KNIGHT_MELEEREDUCE);
 	}
 
-	// mitigation
+	// mitigation -- poison goes through as well
 	int temp;
-	if(CouldMitigateDamage(pnum)) {
+	if(!isPoison && CouldMitigateDamage(pnum)) {
 		temp = GetMitigationEffect(pnum);
 		dmg = dmg * ((100.0 - temp) >> 16) / 100;
 		LocalAmbientSound("Mitigation/Success", 96);
@@ -2935,12 +2934,12 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 
 	// energy shield reduction
 	temp = CheckInventory("EShieldAmount");
-	if(temp && ((GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & PPOWER_ESHIELDBLOCKALL) || (dmg_string != "PoisonDOT" && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)))) {
+	if(temp && ((GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & PPOWER_ESHIELDBLOCKALL) || (!isPoison && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)))) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
-		if(armor_id != BODYARMOR_LIGHTNINGCOIL)
-			dmg -= temp;
-		else
-			dmg -= temp / 5; // only 20% reduced from ES
+		// lightning coil absorbs 80%
+		if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
+			dmg /= 5;
+		dmg -= temp;
 
 		if(dmg < 0) {
 			// completely absorbed by our shield, so set our shield to -dmg
@@ -3020,7 +3019,7 @@ int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int d
 
 int HandlePercentDamageFromEnemy(int victim, int dmg, int dmg_data) {
 	// check inflictor momentarily
-	if(CheckActorInventory(victim, "DnD_PercentDamageHalt") || !(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP))
+	if(!(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) || CheckActorInventory(victim, "DnD_PercentDamageHalt"))
 		return 0;
 	
 	GiveActorInventory(victim, "DnD_PercentDamageHalt", 1);
@@ -3051,18 +3050,16 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 	}
 	
 	// player heal on hit check -- target is 0 if we are the target, but the extra check in there is for safety
-	temp = GetPlayerAttributeValue(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN);
-	if(temp && target && target != this) {
-		// roll chance
-		if(random(1, 100) <= GetPlayerAttributeExtra(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN)) {
-			// heal for missing health
-			GiveActorInventory(this, "VeilHealFXSpawner", 1); // use same fx as veil for now
-			
-			SetActivator(this);
-			HandleHealthPickup((temp * GetMissingHealth()) / 100, 0, 0);
-			// restore ptr
-			SetActivator(0, AAPTR_DAMAGE_TARGET);
-		}
+	// extra is chance to proc, value is the heal %
+	temp = GetPlayerAttributeExtra(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN);
+	if(temp && target && target != this && random(1, 100) <= temp && !CheckActorInventory(temp, "DnD_HealOnMissingCD")) {
+		// heal for missing health
+		GiveActorInventory(this, "VeilHealFXSpawner", 1); // use same fx as veil for now
+		GiveActorInventory(this, "DnD_HealOnMissingCD", 1);
+		SetActivator(this);
+		HandleHealthPickup((GetPlayerAttributeValue(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN) * GetMissingHealth()) / 100, 0, 0);
+		// restore ptr
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
 	}
 	
 	// check perk25 for berserker with cooldown
@@ -3089,11 +3086,11 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 		str cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), temp);
 		
 		// if we picked no ammo, flip to check the other one using negation
-		if(cur_ammo == " ")
+		if(cur_ammo == "")
 			cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), !temp);
 		
 		// if it's something we can take ammo from		
-		if(cur_ammo != " ")
+		if(cur_ammo != "")
 			TakeActorInventory(this, cur_ammo, CheckActorInventory(this, cur_ammo) * DND_ELITE_THIEFRATE / 100);
 	}
 	
@@ -3269,9 +3266,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 				
 				// damage amplifications
-				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
-				if(temp)
-					dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
+				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;
+				if(temp > 100)
+					dmg = ApplyDamageFactor_Safe(dmg, temp);
 					
 				dmg = MonsterSpecificDamageChecks(m_id, victim, dmg);
 					
@@ -3338,7 +3335,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				GiveActorInventory(victim, "DnD_Hit_Cooldown", 1);
 			}
 
-			dmg = HandlePlayerResists(PlayerNumber(), dmg, arg2, dmg_data, isReflected, inflictor_class);
+			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
 			//GiveInventory("DnD_DamageReceived", dmg);
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;

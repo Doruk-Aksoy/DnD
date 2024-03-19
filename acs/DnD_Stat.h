@@ -647,6 +647,10 @@ bool RunDefaultDropChance(int pnum, int basechance) {
 	return RunDropChance(pnum, basechance, 0, 1.0);
 }
 
+bool RunPrecalcDropChance(int p_chance, int basechance, int m_id, int rng_id) {
+	return FixedMul(p_chance, basechance) >= MonsterProperties[m_id].rng_vals[rng_id];
+}
+
 bool RunDropChance(int pnum, int basechance, int low, int high) {
 	//printbold(s:"dc ", f:GetDropChance(pnum), s: " x ", f:basechance, s: " = ", f:FixedMul(GetDropChance(pnum), basechance));
 	return FixedMul(GetDropChance(pnum), basechance) >= random(low, high);
@@ -1343,10 +1347,8 @@ int GetResearchResistBonuses() {
 	res += IMP_RES_ADD_3 * (CheckResearchStatus(RES_IMP3) == RES_DONE);
 	
 	// cyborg's bonus
-	if(CheckInventory("Cyborg_Perk50")) {
-		res *= DND_CYBORG_CYBER_MULT;
-		res /= DND_CYBORG_CYBER_DIV;
-	}
+	if(CheckInventory("Cyborg_Perk25"))
+		res += res * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 
 	return res;
 }
