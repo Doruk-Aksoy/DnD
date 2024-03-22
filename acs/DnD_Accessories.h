@@ -36,8 +36,33 @@ enum {
 
 #define DND_AMULETHELL_FACTOR 4 // 25% damage
 #define DND_AMULETHELL_AMP 7 // 7 / 4 = 75%
-#define DND_AMULETHELL_DAMAGE_MUL 3
-#define DND_AMULETHELL_DAMAGE_DIV 2
+#define DND_AMULETHELL_DAMAGE 50 // 50%
+
+#define DND_DEMONBANE_GAIN 50
+#define DND_DEMONBANE_REDUCE 75 // 1 / 4 = 25% damage, 75% reduction
+
+#define DND_NETHERMASK_AMP 3 // 3 / 2 => 50%
+#define DND_NETHERMASK_DIV 2
+#define DND_NETHERGHOST_BONUS 25 // 25%
+
+#define DND_HATESHARD_BUFF 50 // 50% more
+#define DND_HATESHARD_REDUCTION 80 // 80%
+
+#define DND_ARTEMIS_REDUCE 66
+#define DND_ARTEMIS_REDUCE_SUPER 90 // 90%
+
+#define DND_AGAMOTTO_DEFENSE 14 // 14/10 is 1.4 => 40% more damage
+#define DND_AGAMOTTO_DEFENSE_FACTOR 10
+#define DND_AGAMOTTO_OFFENSE 2 // 100% more damage => x2
+#define DND_AGAMOTTO_OFFENSE_FACTOR 1
+
+#define DND_LICHARM_NERF 90 // 90% reduced damage
+#define DND_LICHARM_BUFF 25 // 25% more damage
+
+#define DND_SIGIL_BUFF 100 // x2
+#define DND_SIGIL_NERF 99999 // x0 => complete negation of damage
+
+#define DND_HUNTERTALISMAN_NERF 3 // 1 / 3 -- this is subtracted
 
 #define ACCESSORY_NAME 0
 #define ACCESSORY_ICON 1

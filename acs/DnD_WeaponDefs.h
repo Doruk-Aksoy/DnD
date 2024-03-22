@@ -1333,6 +1333,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].attunement[STAT_DEX] = 0.02;
 }
 
+#define DEMONSEAL_DMGTAKEN_DEBUFF 50 // 50%
+
 // put them in this place if they are luxury weapons
 bool IsLuxuryWeapon(int id) {
 	switch(id) {

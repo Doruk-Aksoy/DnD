@@ -34,7 +34,7 @@
 #define RESIST_BOOST_FROM_BOOTS 5 // 5%
 #define DMGREDUCE_BOOST_FROM_BOOTS 10 // 10%
 
-#define DND_CORRUPTORB_DIV 4 // /4 => 75% reduced dmg
+#define DND_CORRUPTORB_DMGREDUCE 75 // /4 => 75% reduced dmg
 
 enum {
 	DND_DAMAGETYPE_MELEE,
@@ -250,7 +250,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
 
-#define DND_EXTRAUNDEADDMG_MULTIPLIER 3
+#define DND_EXTRAUNDEADDMG_MULTIPLIER 300
 
 #define DND_MAX_MONSTER_TICDATA 16383 // even this is a bit much but w.e
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
@@ -907,74 +907,63 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 }
 
 // for player hitting others damage
-int HandlePlayerBuffs(int p_tid, int enemy_tid, int dmg, int damage_type, int wepid, int flags, bool isIgnite) {
+int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int flags) {
+	int more_bonus = 0;
 	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
-		dmg /= DND_DEMONBANE_REDUCE;
+		more_bonus -= DND_DEMONBANE_REDUCE;
 		
 	// ghost enemies take more damage if nether mask is equipped
 	if(CheckFlag(enemy_tid, "GHOST") && IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERGHOST_AMP, DND_NETHERGHOST_DIV);
+		more_bonus += DND_NETHERGHOST_BONUS;
 		
 	// amps fire damage, reduces ice damage
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
 		// we handle ignite damage buff in the dot calculation
-		if(IsFireDamage(damage_type) && !isIgnite)
-			dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_DAMAGE_MUL, DND_AMULETHELL_DAMAGE_DIV);
+		if(IsFireDamage(damage_type) && !(flags & DND_DAMAGETICFLAG_NOIGNITESTACK))
+			more_bonus += DND_AMULETHELL_DAMAGE;
 		else if(IsIceDamage(damage_type))
-			dmg /= DND_AMULETHELL_DAMAGE_DIV;
+			more_bonus -= DND_AMULETHELL_DAMAGE;
 	}
 	
-	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
-		dmg /= DND_HATESHARD_REDUCTION;
+	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
+		more_bonus -= DND_HATESHARD_REDUCTION;
 	
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS)) {
 		if(IsSuperWeapon(wepid))
-			dmg /= DND_ARTEMIS_REDUCE_SUPER;
+			more_bonus -= DND_ARTEMIS_REDUCE_SUPER;
 		else
-			dmg /= DND_ARTEMIS_REDUCE;
+			more_bonus -= DND_ARTEMIS_REDUCE;
 	}
 		
 	// if there's poison stack that means it's a regular poison attack, but if there's not that means its a poison dot, do not include it again for that
 	if(CheckInventory("AgamottoOffense") && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_AGAMOTTO_OFFENSE, DND_AGAMOTTO_OFFENSE_FACTOR);
+		more_bonus += DND_AGAMOTTO_OFFENSE;
 	
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_LICHARM)) {
-		if(damage_type == DND_DAMAGETYPE_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK))
-			dmg = ApplyDamageFactor_Safe(dmg, DND_LICHARM_BUFF, DND_LICHARM_BUFF_DIV);
+		if(damage_type == DND_DAMAGETYPE_SOUL || (flags & DND_DAMAGETICFLAG_SOULATTACK))
+			more_bonus += DND_LICHARM_BUFF;
 		else
-			dmg /= DND_LICHARM_FACTOR;
+			more_bonus -= DND_LICHARM_NERF;
 	}
-	
-	if(CheckInventory("ElementPower_Fire")) {
-		if(IsFireDamage(damage_type))
-			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamageType(damage_type))
-			dmg *= DND_SIGIL_NERF;
+
+	if
+	(
+		(IsFireDamage(damage_type) && CheckInventory("ElementPower_Fire")) ||
+		(IsIceDamage(damage_type) && CheckInventory("ElementPower_Ice")) ||
+		(IsLightningDamage(damage_type) && CheckInventory("ElementPower_Lightning")) ||
+		(IsPoisonDamage(damage_type) && CheckInventory("ElementPower_Earth"))
+	)
+	{
+		more_bonus += DND_SIGIL_BUFF;
 	}
-	else if(CheckInventory("ElementPower_Ice")) {
-		if(IsIceDamage(damage_type))
-			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamageType(damage_type))
-			dmg /= DND_SIGIL_NERF;
-	}
-	else if(CheckInventory("ElementPower_Lightning")) {
-		if(IsLightningDamage(damage_type))
-			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamageType(damage_type))
-			dmg /= DND_SIGIL_NERF;
-	}
-	else if(CheckInventory("ElementPower_Earth")) {
-		if(IsPoisonDamage(damage_type))
-			dmg *= DND_SIGIL_BUFF;
-		else if(IsElementalDamageType(damage_type))
-			dmg /= DND_SIGIL_NERF;
-	}
+	else if(IsElementalDamageType(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_SIGILELEMENTS))
+		more_bonus -= DND_SIGIL_NERF;
 	
 	// 50% more damage taken
 	if(CheckInventory("HateWeakness"))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_HATESHARD_FACTOR, DND_HATESHARD_DIV);
+		more_bonus += DND_HATESHARD_BUFF;
 	
-	return dmg;
+	return more_bonus;
 }
 
 // for others hitting player damage
@@ -1007,52 +996,54 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 
 // This function is responsible for handling all damage effects player has that affect their damage some way
 // ex: curses etc.
-int HandleGenericPlayerDamageEffects(int pnum, int dmg, int wepid) {
+int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
+	int more_bonus = 0;
+
 	// little orbs he drops
 	if(CheckInventory("Doomguy_Perk25_Damage"))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_DOOMGUY_DMGMULT, DND_DOOMGUY_DMGDIV);
+		more_bonus += DND_DOOMGUY_DMGBONUS;
 
 	// 25% reduction, so 3 / 4
 	if(CheckInventory("FleshWizardWeaken"))
-		dmg = ApplyDamageFactor_Safe(dmg, 3, 4);
+		more_bonus -= 25;
 	
 	// 70% reduction, so 3 / 10
 	if(CheckInventory("PowerLessDamage"))
-		dmg = ApplyDamageFactor_Safe(dmg, 3, 10);
+		more_bonus -= 70;
 		
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
-		dmg = ApplyFixedFactorToInt(dmg, temp);
+		more_bonus += ConvertFixedFactorToInt(temp);
 		
 	if(CheckInventory("CorruptOrb_DamageReduction"))
-		dmg /= DND_CORRUPTORB_DIV;
+		more_bonus -= DND_CORRUPTORB_DMGREDUCE;
 	
 	temp = CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT;
 	if(temp)
-		dmg = ApplyDamageFactor_Safe(dmg, 100 + temp * DND_PUNISHER_DMGINC);
+		more_bonus += temp * DND_PUNISHER_DMGINC;
 		
 	temp = CheckInventory("Rally_DamageBuff");
 	if(temp)
-		dmg = ApplyDamageFactor_Safe(dmg, 100 + RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL);
+		more_bonus += RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL;
 		
 	// dmg is multiplied by 3/2 = 1.5, 50% more dmg
 	if(GetArmorID() == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_DMGMUL, DND_RAVAGER_DMGDIV);
+		more_bonus += DND_RAVAGER_DMGBONUS;
 		
 	// artifact things
 	if(CheckInventory("DnD_ArtiDmgPower"))
-		dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_QUEST_NOARTIDMG);
+		more_bonus += DND_QUEST_NOARTIDMG;
 		
 	if(CheckInventory("TripleDamagePower"))
-		dmg *= 3;
+		more_bonus += 300;
 	else if(CheckInventory("TripleDamagePower2"))
-		dmg = dmg * 9 / 2;
+		more_bonus += 450;
 
 	// 30% more effectiveness
 	if(wepid >= 0 && CheckInventory("Cyborg_Perk5") && (Weapons_Data[wepid].properties & WPROP_TECH))
-		dmg += dmg * 3 / 10;
+		more_bonus += 30;
 	
-	return dmg;
+	return more_bonus;
 }
 
 void HandleTargetPicking(int montid) {
@@ -1113,61 +1104,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		s_damagetype = StrParam(s:s_damagetype, s:"_NoPain");
 	else if(actor_flags & DND_ACTORFLAG_FORCEPAIN)
 		s_damagetype = StrParam(s:s_damagetype, s:"_ForcePain");
-	
-	// desolator damage increase
-	if(damage_type == DND_DAMAGETYPE_DESOLATOR) {
-		if(!CheckActorInventory(victim, "DesolatorStackCounter")) {
-			GiveActorInventory(victim, "DesolatorStackTimer", 52);
-			ACS_NamedExecuteAlways("DND Desolator Debuff FX", 0, victim);
-		}
-		else
-			GiveActorInventory(victim, "DesolatorStackTimer", 17);
-		GiveActorInventory(victim, "DesolatorStackCounter", 1);
-	}
-	
-	// increase damage they take from elemental attacks for each stack
-	// poison damage gets sent already scaled, dont scale twice
-	if(IsElementalDamageType(damage_type) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK)) {
-		temp = CheckActorInventory(victim, "DesolatorStackCounter");
-		// 10% increase from desolator
-		if(temp)
-			dmg = ApplyDamageFactor_Safe(dmg, 100 + temp * DND_DESOLATOR_DMG_GAIN);
-	}
-
-	if((flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_SILVER_WEAKNESS]) {
-		dmg *= DND_EXTRAUNDEADDMG_MULTIPLIER;
-		
-		if(IsQuestComplete(0, QUEST_SPAREZOMBIES))
-			dmg += dmg * DND_QUEST_UNDEADGAIN / 100;
-	}
-	
-	// check blockers take more dmg modifier
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING]) {
-		temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
-		dmg = ApplyFixedFactorToInt(dmg, temp);
-	}
-	
-	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
-	if(CheckActorInventory(victim, "DnD_OverloadTimer")) {
-		if(damage_type != DND_DAMAGETYPE_LIGHTNING)
-			dmg = dmg * (100 + DND_BASE_OVERLOADBUFF + CheckActorInventory(victim, "DnD_OverloadDamage")) / 100;
-		//GiveActorInventory(victim, "DnD_OverloadDamage", dmg);
-	}
-	
-	// additional damage vs frozen enemies modifier
-	temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA);
-	if(CheckActorInventory(victim, "DnD_FreezeTimer") && temp)
-		dmg = ApplyFixedFactorToInt(dmg, temp);
-		
-	// 50% more damage taken, so dmg * 3 / 2
-	if(CheckActorInventory(victim, "DemonSealResistDebuff"))
-		dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
-		
-	// CURSE EFFECTS
-	dmg = HandleGenericPlayerDamageEffects(pnum, dmg, wepid);
-	
-	// ACCESSORY EFFECTS
-	dmg = HandlePlayerBuffs(source, victim, dmg, damage_type, wepid, flags, no_ignite_stack);
 	
 	// extra property checks moved here
 	// WE CHECK FOR CRITS HERE, EITHER WEAPON OR SPELL! THE FINAL STEP BEFORE RESISTS
@@ -1253,6 +1189,10 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 			(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
 			(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
 			(!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
+			(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
+			(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
+			(no_ignite_stack * DND_DAMAGETICFLAG_NOIGNITESTACK)									|
+			(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
 			(!!((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)) * DND_DAMAGETICFLAG_DOT);
 	
 	// we send particular damage types in that can cause certain status effects like chill, freeze etc.
@@ -1267,7 +1207,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		PlayerDamageVector[pnum].x = ox;
 		PlayerDamageVector[pnum].y = oy;
 		PlayerDamageVector[pnum].z = oz;
-		ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (extra << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg | (oneTimeRipperHack << 1));
+		ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (extra << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg | (oneTimeRipperHack << 1), damage_type);
 	}
 	PlayerDamageTicData[pnum][temp] += dmg;
 	
@@ -1559,17 +1499,15 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			pz = GetActorZ(owner) + GetActorProperty(owner, APROP_HEIGHT) / 2 + 8.0;
 		}
 	}
+	else if(!oneTimeRipperHack) {
+		px = GetActorX(0);
+		py = GetActorY(0);
+		pz = GetActorZ(0);
+	}
 	else {
-		if(!oneTimeRipperHack) {
-			px = GetActorX(0);
-			py = GetActorY(0);
-			pz = GetActorZ(0);
-		}
-		else {
-			px = GetActorVelX(0);
-			py = GetActorVelY(0);
-			pz = GetActorVelZ(0);
-		}
+		px = GetActorVelX(0);
+		py = GetActorVelY(0);
+		pz = GetActorVelZ(0);
 	}
 	
 	// true if wepid is negative (misc damage sources like armors etc.) or if we used a spell
@@ -2187,7 +2125,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 }
 
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
-Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
+Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int damage_type) {
 	int pnum = PlayerNumber();
 	int flags = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
@@ -2201,15 +2139,61 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 	
 	Delay(const:1);
 
-	if(flags & DND_DAMAGETICFLAG_CRIT) {
-		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
-		temp = PlayerDamageTicData[pnum][victim_data];
-		PlayerDamageTicData[pnum][victim_data] = ConfirmedCritFactor(pnum, victim_tid, PlayerDamageTicData[pnum][victim_data], wepid);
+	/*
+		THINGS THAT ALTER DAMAGE IN ANY WAY AFTER ACCUMULATION END UP HERE!!!!
+	*/
+	int prev_dmg = PlayerDamageTicData[pnum][victim_data];
+	int crit = 0;
+	int more_dmg = 0;
 
-		// deal the damage difference between the crit and original on top, like hobo thing below -- note use of Special_NoPain
-		Thing_Damage2(victim_tid, PlayerDamageTicData[pnum][victim_data] - temp, "Special_NoPain");
-		HandleHunterTalisman();
+	// desolator damage increase
+	if(damage_type == DND_DAMAGETYPE_DESOLATOR) {
+		if(!CheckActorInventory(victim_tid, "DesolatorStackCounter")) {
+			GiveActorInventory(victim_tid, "DesolatorStackTimer", 52);
+			ACS_NamedExecuteAlways("DND Desolator Debuff FX", 0, victim_tid);
+		}
+		else
+			GiveActorInventory(victim_tid, "DesolatorStackTimer", 17);
+		GiveActorInventory(victim_tid, "DesolatorStackCounter", 1);
 	}
+
+	// increase damage they take from elemental attacks for each stack
+	// poison damage gets sent already scaled, dont scale twice
+	if(IsElementalDamageType(damage_type) && !(flags & DND_DAMAGETICFLAG_NOPOISONSTACK)) {
+		temp = CheckActorInventory(victim_tid, "DesolatorStackCounter");
+		// 10% increase from desolator
+		if(temp)
+			more_dmg += temp * DND_DESOLATOR_DMG_GAIN;
+	}
+
+	if((flags & DND_DAMAGETICFLAG_EXTRATOUNDEAD) && MonsterProperties[victim_data].trait_list[DND_SILVER_WEAKNESS]) {
+		more_dmg += DND_EXTRAUNDEADDMG_MULTIPLIER;
+		
+		if(IsQuestComplete(0, QUEST_SPAREZOMBIES))
+			more_dmg += DND_QUEST_UNDEADGAIN;
+	}
+
+	// check blockers take more dmg modifier
+	if(MonsterProperties[victim_data].trait_list[DND_ISBLOCKING] && (temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG)))
+		more_dmg += ConvertFixedFactorToInt(temp);
+	
+	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
+	if(CheckActorInventory(victim_tid, "DnD_OverloadTimer") && damage_type != DND_DAMAGETYPE_LIGHTNING)
+		more_dmg += DND_BASE_OVERLOADBUFF + CheckActorInventory(victim_tid, "DnD_OverloadDamage");
+	
+	// additional damage vs frozen enemies modifier
+	if(CheckActorInventory(victim_tid, "DnD_FreezeTimer") && (temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA)))
+		more_dmg += ConvertFixedFactorToInt(temp);
+		
+	// 50% more damage taken, so dmg * 3 / 2
+	if(CheckActorInventory(victim_tid, "DemonSealResistDebuff"))
+		more_dmg += DEMONSEAL_DMGTAKEN_DEBUFF;
+
+	// General buff effects, includes curses and stuff too
+	more_dmg += HandleGenericPlayerMoreDamageEffects(pnum, wepid);
+	
+	// ACCESSORY EFFECTS
+	more_dmg += HandlePlayerBuffs(ActivatorTID(), victim_tid, damage_type, wepid, flags);
 
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
 	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
@@ -2227,13 +2211,44 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg) {
 		if(temp <= DND_HOBO_SHOTGUNFALLOFFDIST) {
 			temp = LinearMap(temp, DND_HOBO_SHOTGUNMINBESTDIST_INT, DND_HOBO_SHOTGUNFALLOFFDIST, 0, 100);
 			// 100 - temp because well, we scale inversely with distance... if distance is max we get 100%... so :p
-			temp = PlayerDamageTicData[pnum][victim_data] * (100 - temp) / 100;
-
-			// dmg type at this point should not matter, this is the damage reduced, buffed etc. finalized damage by resist, so buffing it with this "should" theoretically be ok
-			Thing_Damage2(victim_tid, temp, "Special_NoPain");
-			PlayerDamageTicData[pnum][victim_data] += temp;
+			more_dmg += 100 - temp;
 		}
 	}
+
+	// moved crit at the end here -- copied code to save from 1 extra if check to see if more_dmg or crit is non-zero
+	if(flags & DND_DAMAGETICFLAG_CRIT) {
+		if(more_dmg != 0) {
+			// apply more_dmg factor to this and deal the diff
+			if(more_dmg < -100)
+				more_dmg = -100;
+			PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], 100 + more_dmg);
+		}
+
+		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
+		crit += GetCritModifier(pnum, victim_tid, wepid);
+
+		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], crit);
+
+		HandleHunterTalisman();
+	}
+	else if(more_dmg != 0) {
+		// apply more_dmg factor to this and deal the diff
+		if(more_dmg < -100)
+			more_dmg = -100;
+		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], 100 + more_dmg);
+	}
+
+	printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTicData[pnum][victim_data]);
+
+	// deal the damage difference between the crit and original on top, like hobo thing -- note use of Special_NoPain
+	if(PlayerDamageTicData[pnum][victim_data] > prev_dmg)
+		Thing_Damage2(victim_tid, PlayerDamageTicData[pnum][victim_data] - prev_dmg, "Special_NoPain");
+	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) // we have reduced the overall damage instead, heal for the difference instead
+		SetActorProperty(victim_tid, APROP_HEALTH, GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTicData[pnum][victim_data]);
+
+	/*
+		DMG ALTERING ENDS BY HERE! NO MORE! FINALIZED!
+	*/
 
 	// moved here as it's simpler and more efficient to run this function after 1 tic rather than immediately with multiple instances
 	IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, PlayerDamageTicData[pnum][victim_data], pnum + P_TIDSTART);
@@ -2731,9 +2746,17 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 	if(HasPlayerPowerset(pnum, PPOWER_REDUCEDSELFDMG))
 		dmg = dmg * (100 - REDUCED_SELF_DMG_FACTOR) / 100;
 	
-	// apply accessory and other sources of damage
-	dmg = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg, dmg_type, wepid, flags, false);
-	
+	// apply accessory and other sources of damage -- convert to dmg tic flag due to the recent rewrite
+	int tflag = (!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
+				(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
+				(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
+				(!!(flags & DND_DAMAGEFLAG_NOIGNITESTACK) * DND_DAMAGETICFLAG_NOIGNITESTACK)		|
+				(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
+				(!!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT);
+	int amp = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg_type, wepid, tflag);
+	if(amp)
+		dmg = ApplyDamageFactor_Safe(dmg, 100 + amp);
+
 	// factor in players armor here!!! -- NO DON'T DO THAT! We have a generic resist and armor handle in main dmg script
 	//dmg = HandlePlayerArmor(pnum, dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
 	return dmg;

@@ -1067,8 +1067,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE;
 
-	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.25;
-	ItemModTable[INV_MIT_INCREASE].attrib_high = 0.5;
+	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.35;
+	ItemModTable[INV_MIT_INCREASE].attrib_high = 0.75;
 	ItemModTable[INV_MIT_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 

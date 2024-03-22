@@ -1606,6 +1606,7 @@ Actor ThunderAxePuff : DnD_BasePuff {
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_AXE)
 		Goto DoDamage
+		HitNoBlood:
 		AfterDamage:
 			TNT1 A 0 A_SpawnItemEx("BladeHitFX")
 			TNT1 A 0 Radius_Quake(5, 8, 0, 2, 0)
@@ -1616,7 +1617,6 @@ Actor ThunderAxePuff : DnD_BasePuff {
 			FAXE STUVWX 3 Bright
 		Stop
 		Crash:
-		HitNoBlood:
 			TNT1 A 0 Radius_Quake(5, 8, 0, 2, 0)
 			FAXE RSTUVWX 3 Bright
 		Stop

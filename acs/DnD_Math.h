@@ -310,7 +310,7 @@ int getpow2 (int x) {
 }
 
 int fpow(int x, int n) {
-	int y = 1;
+	int y = 1.0;
 	while(n-- > 0)
 		y = FixedMul(y, x);
 	return y;

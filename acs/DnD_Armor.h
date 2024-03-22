@@ -1,7 +1,7 @@
 #ifndef DND_ARMOR_IN
 #define DND_ARMOR_IN
 
-#define DND_MIT_PER_DEX 0.05
+#define DND_MIT_PER_DEX 0.075
 #define DND_MIT_BASE 50.0 // 50%
 #define DND_MIT_MAXEFFECT 90.0
 

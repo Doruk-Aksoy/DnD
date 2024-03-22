@@ -190,8 +190,7 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 
 #define DND_RAVAGER_FACTOR 3
 #define DND_RAVAGER_REDUCE 4
-#define DND_RAVAGER_DMGMUL 3
-#define DND_RAVAGER_DMGDIV 2
+#define DND_RAVAGER_DMGBONUS 50
 
 #define DND_SYNTHMETAL_HITSCANBUFF 50 // 50%
 #define DND_SYNTHMETAL_LIGHTNINGNERF 50
@@ -472,7 +471,7 @@ int RewardActorExp(int tid, int amt) {
 	// if player is >= lvl 80, they only get 25% of the experience -- if too slow precalc and store in an array later
 	int tmp = GetActorStat(tid, STAT_LVL);
 	if(tmp >= DND_EXP_ADJUST_LEVEL)
-		amt = amt * fpow(DND_EXP_ADJUST_LEVELFACTOR, tmp - DND_EXP_ADJUST_LEVEL + 1);
+		amt = amt * ((fpow(DND_EXP_ADJUST_LEVELFACTOR, tmp - DND_EXP_ADJUST_LEVEL + 1) * 100) >> 16) / 100;
 
 	amt = amt * GetPlayerWisdomBonus(tid - P_TIDSTART, tid) / 100;
 	GiveActorExp(tid, amt);

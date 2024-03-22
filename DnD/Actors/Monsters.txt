@@ -414,6 +414,7 @@ Actor LostSoul2 : DnD_BaseRangedMonster {
 	+MISSILEMORE
 	+DONTFALL
 	+NOBLOOD
+	+ISMONSTER
 	PainChance 256
 	AttackSound "skull/melee"
 	PainSound "LostSoul/Pain"

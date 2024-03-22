@@ -928,10 +928,6 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int dmg_type, int flags, int wep
 	if(IsMeleeWeapon(wepid))
 		jump_dist = jump_dist * (100 + GetMeleeRangeIncrease(owner)) / 100;
 
-	// give to the origin actor
-	GiveInventory("DnD_OverloadZapGiver", 1);
-	//Thing_ChangeTID(0, TEMPORARY_CHAIN_LIGHTNING_TID + pnum);
-
 	SetActivatorToTarget(0);
 
 	Delay(const:1);
@@ -945,7 +941,6 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int dmg_type, int flags, int wep
 			zap_tids[pnum][i] = 0;
 
 		for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
-			// if currently alive and received the checker item
 			i = UsedMonsterTIDs[mn];
 			if(i != this && isActorAlive(i) && CheckFlag(i, "SHOOTABLE") && fdistance(this, i) <= jump_dist && CheckSight(this, i, 0))
 				zap_tids[pnum][cur_count++] = i;
