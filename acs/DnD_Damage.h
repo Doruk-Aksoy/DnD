@@ -908,42 +908,42 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 
 // for player hitting others damage
 int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int flags) {
-	int more_bonus = 0;
+	int more_bonus = 100;
 	if(!IsOccultDamage(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_DEMONBANE))
-		more_bonus -= DND_DEMONBANE_REDUCE;
+		more_bonus = more_bonus * (100 - DND_DEMONBANE_REDUCE) / 100;
 		
 	// ghost enemies take more damage if nether mask is equipped
 	if(CheckFlag(enemy_tid, "GHOST") && IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK))
-		more_bonus += DND_NETHERGHOST_BONUS;
+		more_bonus = more_bonus * (100 + DND_NETHERGHOST_BONUS) / 100;
 		
 	// amps fire damage, reduces ice damage
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
 		// we handle ignite damage buff in the dot calculation
 		if(IsFireDamage(damage_type) && !(flags & DND_DAMAGETICFLAG_NOIGNITESTACK))
-			more_bonus += DND_AMULETHELL_DAMAGE;
+			more_bonus = more_bonus * (100 + DND_AMULETHELL_DAMAGE) / 100;
 		else if(IsIceDamage(damage_type))
-			more_bonus -= DND_AMULETHELL_DAMAGE;
+			more_bonus = more_bonus * (100 - DND_AMULETHELL_DAMAGE) / 100;
 	}
 	
 	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
-		more_bonus -= DND_HATESHARD_REDUCTION;
+		more_bonus = more_bonus * (100 - DND_HATESHARD_REDUCTION) / 100;
 	
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS)) {
 		if(IsSuperWeapon(wepid))
-			more_bonus -= DND_ARTEMIS_REDUCE_SUPER;
+			more_bonus = more_bonus * (100 - DND_ARTEMIS_REDUCE_SUPER) / 100;
 		else
-			more_bonus -= DND_ARTEMIS_REDUCE;
+			more_bonus = more_bonus * (100 - DND_ARTEMIS_REDUCE) / 100;
 	}
 		
 	// if there's poison stack that means it's a regular poison attack, but if there's not that means its a poison dot, do not include it again for that
 	if(CheckInventory("AgamottoOffense") && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK))
-		more_bonus += DND_AGAMOTTO_OFFENSE;
+		more_bonus = more_bonus * (100 + DND_AGAMOTTO_OFFENSE) / 100;
 	
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_LICHARM)) {
 		if(damage_type == DND_DAMAGETYPE_SOUL || (flags & DND_DAMAGETICFLAG_SOULATTACK))
-			more_bonus += DND_LICHARM_BUFF;
+			more_bonus = more_bonus * (100 + DND_LICHARM_BUFF) / 100;
 		else
-			more_bonus -= DND_LICHARM_NERF;
+			more_bonus = more_bonus * (100 - DND_LICHARM_NERF) / 100;
 	}
 
 	if
@@ -954,14 +954,14 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 		(IsPoisonDamage(damage_type) && CheckInventory("ElementPower_Earth"))
 	)
 	{
-		more_bonus += DND_SIGIL_BUFF;
+		more_bonus = more_bonus * (100 + DND_SIGIL_BUFF) / 100;
 	}
 	else if(IsElementalDamageType(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_SIGILELEMENTS))
-		more_bonus -= DND_SIGIL_NERF;
+		more_bonus = more_bonus * (100 - DND_SIGIL_NERF) / 100;
 	
 	// 50% more damage taken
 	if(CheckInventory("HateWeakness"))
-		more_bonus += DND_HATESHARD_BUFF;
+		more_bonus = more_bonus * (100 + DND_HATESHARD_BUFF) / 100;
 	
 	return more_bonus;
 }
@@ -997,51 +997,51 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 // This function is responsible for handling all damage effects player has that affect their damage some way
 // ex: curses etc.
 int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
-	int more_bonus = 0;
+	int more_bonus = 100;
 
 	// little orbs he drops
 	if(CheckInventory("Doomguy_Perk25_Damage"))
-		more_bonus += DND_DOOMGUY_DMGBONUS;
+		more_bonus = more_bonus * (100 + DND_DOOMGUY_DMGBONUS) / 100;
 
 	// 25% reduction, so 3 / 4
 	if(CheckInventory("FleshWizardWeaken"))
-		more_bonus -= 25;
+		more_bonus = more_bonus * 3 / 4;
 	
 	// 70% reduction, so 3 / 10
 	if(CheckInventory("PowerLessDamage"))
-		more_bonus -= 70;
+		more_bonus = more_bonus * 3 / 10;
 		
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
-		more_bonus += ConvertFixedFactorToInt(temp);
+		more_bonus = more_bonus * (100 + ConvertFixedFactorToInt(temp)) / 100;
 		
 	if(CheckInventory("CorruptOrb_DamageReduction"))
-		more_bonus -= DND_CORRUPTORB_DMGREDUCE;
+		more_bonus = more_bonus * (100 - DND_CORRUPTORB_DMGREDUCE) / 100;
 	
 	temp = CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT;
 	if(temp)
-		more_bonus += temp * DND_PUNISHER_DMGINC;
+		more_bonus = more_bonus * (100 + temp * DND_PUNISHER_DMGINC) / 100;
 		
 	temp = CheckInventory("Rally_DamageBuff");
 	if(temp)
-		more_bonus += RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL;
+		more_bonus = more_bonus * (100 + RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL) / 100;
 		
 	// dmg is multiplied by 3/2 = 1.5, 50% more dmg
 	if(GetArmorID() == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
-		more_bonus += DND_RAVAGER_DMGBONUS;
+		more_bonus = more_bonus * (100 + DND_RAVAGER_DMGBONUS) / 100;
 		
 	// artifact things
 	if(CheckInventory("DnD_ArtiDmgPower"))
-		more_bonus += DND_QUEST_NOARTIDMG;
+		more_bonus = more_bonus * (100 + DND_QUEST_NOARTIDMG) / 100;
 		
 	if(CheckInventory("TripleDamagePower"))
-		more_bonus += 300;
+		more_bonus *= 3;
 	else if(CheckInventory("TripleDamagePower2"))
-		more_bonus += 450;
+		more_bonus = more_bonus * 9 / 2;
 
 	// 30% more effectiveness
 	if(wepid >= 0 && CheckInventory("Cyborg_Perk5") && (Weapons_Data[wepid].properties & WPROP_TECH))
-		more_bonus += 30;
+		more_bonus = more_bonus * 13 / 10;
 	
 	return more_bonus;
 }
@@ -2143,8 +2143,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		THINGS THAT ALTER DAMAGE IN ANY WAY AFTER ACCUMULATION END UP HERE!!!!
 	*/
 	int prev_dmg = PlayerDamageTicData[pnum][victim_data];
-	int crit = 0;
-	int more_dmg = 0;
+	int more_dmg = 100; // baseline damage, 100% is regular value
 
 	// desolator damage increase
 	if(damage_type == DND_DAMAGETYPE_DESOLATOR) {
@@ -2163,37 +2162,33 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		temp = CheckActorInventory(victim_tid, "DesolatorStackCounter");
 		// 10% increase from desolator
 		if(temp)
-			more_dmg += temp * DND_DESOLATOR_DMG_GAIN;
+			more_dmg = more_dmg * (100 + temp * DND_DESOLATOR_DMG_GAIN) / 100;
 	}
 
-	if((flags & DND_DAMAGETICFLAG_EXTRATOUNDEAD) && MonsterProperties[victim_data].trait_list[DND_SILVER_WEAKNESS]) {
-		more_dmg += DND_EXTRAUNDEADDMG_MULTIPLIER;
-		
-		if(IsQuestComplete(0, QUEST_SPAREZOMBIES))
-			more_dmg += DND_QUEST_UNDEADGAIN;
-	}
+	if((flags & DND_DAMAGETICFLAG_EXTRATOUNDEAD) && MonsterProperties[victim_data].trait_list[DND_SILVER_WEAKNESS])
+		more_dmg = more_dmg * (100 + DND_EXTRAUNDEADDMG_MULTIPLIER + IsQuestComplete(0, QUEST_SPAREZOMBIES) * DND_QUEST_UNDEADGAIN) / 100;
 
 	// check blockers take more dmg modifier
 	if(MonsterProperties[victim_data].trait_list[DND_ISBLOCKING] && (temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG)))
-		more_dmg += ConvertFixedFactorToInt(temp);
+		more_dmg = more_dmg * (100 + ConvertFixedFactorToInt(temp)) / 100;
 	
 	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
-	if(CheckActorInventory(victim_tid, "DnD_OverloadTimer") && damage_type != DND_DAMAGETYPE_LIGHTNING)
-		more_dmg += DND_BASE_OVERLOADBUFF + CheckActorInventory(victim_tid, "DnD_OverloadDamage");
+	if(damage_type != DND_DAMAGETYPE_LIGHTNING && CheckActorInventory(victim_tid, "DnD_OverloadTimer"))
+		more_dmg = more_dmg * (100 + DND_BASE_OVERLOADBUFF + CheckActorInventory(victim_tid, "DnD_OverloadDamage")) / 100;
 	
 	// additional damage vs frozen enemies modifier
 	if(CheckActorInventory(victim_tid, "DnD_FreezeTimer") && (temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA)))
-		more_dmg += ConvertFixedFactorToInt(temp);
+		more_dmg = more_dmg * (100 + ConvertFixedFactorToInt(temp)) / 100;
 		
 	// 50% more damage taken, so dmg * 3 / 2
 	if(CheckActorInventory(victim_tid, "DemonSealResistDebuff"))
-		more_dmg += DEMONSEAL_DMGTAKEN_DEBUFF;
+		more_dmg = more_dmg * (100 + DEMONSEAL_DMGTAKEN_DEBUFF) / 100;
 
 	// General buff effects, includes curses and stuff too
-	more_dmg += HandleGenericPlayerMoreDamageEffects(pnum, wepid);
+	more_dmg = more_dmg * HandleGenericPlayerMoreDamageEffects(pnum, wepid) / 100;
 	
 	// ACCESSORY EFFECTS
-	more_dmg += HandlePlayerBuffs(ActivatorTID(), victim_tid, damage_type, wepid, flags);
+	more_dmg = more_dmg * HandlePlayerBuffs(pnum + P_TIDSTART, victim_tid, damage_type, wepid, flags) / 100;
 
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
 	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
@@ -2210,35 +2205,27 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 
 		if(temp <= DND_HOBO_SHOTGUNFALLOFFDIST) {
 			temp = LinearMap(temp, DND_HOBO_SHOTGUNMINBESTDIST_INT, DND_HOBO_SHOTGUNFALLOFFDIST, 0, 100);
-			// 100 - temp because well, we scale inversely with distance... if distance is max we get 100%... so :p
-			more_dmg += 100 - temp;
+			// 100 + (100 - temp) would mean 200 - temp, and we scale inversely with distance so if we are farthest, we will be getting 100 to be dealing the same amount of damage anyway
+			more_dmg = more_dmg * (100 + DND_HOBO_SHOTGUNDISTMOREDMG - temp) / 100;
 		}
 	}
 
 	// moved crit at the end here -- copied code to save from 1 extra if check to see if more_dmg or crit is non-zero
 	if(flags & DND_DAMAGETICFLAG_CRIT) {
-		if(more_dmg != 0) {
-			// apply more_dmg factor to this and deal the diff
-			if(more_dmg < -100)
-				more_dmg = -100;
-			PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], 100 + more_dmg);
-		}
+		if(more_dmg != 100)
+			PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], more_dmg);
 
 		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
-		crit += GetCritModifier(pnum, victim_tid, wepid);
+		more_dmg = GetCritModifier(pnum, victim_tid, wepid);
 
-		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], crit);
+		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], more_dmg);
 
 		HandleHunterTalisman();
 	}
-	else if(more_dmg != 0) {
-		// apply more_dmg factor to this and deal the diff
-		if(more_dmg < -100)
-			more_dmg = -100;
-		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], 100 + more_dmg);
-	}
+	else if(more_dmg != 100)
+		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], more_dmg);
 
-	printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTicData[pnum][victim_data]);
+	//printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTicData[pnum][victim_data], s: " ", d:more_dmg);
 
 	// deal the damage difference between the crit and original on top, like hobo thing -- note use of Special_NoPain
 	if(PlayerDamageTicData[pnum][victim_data] > prev_dmg)
@@ -2754,7 +2741,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 				(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
 				(!!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT);
 	int amp = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg_type, wepid, tflag);
-	if(amp)
+	if(amp != 100)
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + amp);
 
 	// factor in players armor here!!! -- NO DON'T DO THAT! We have a generic resist and armor handle in main dmg script
@@ -2980,7 +2967,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	return dmg;
 }
 
-void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim) {
+void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg) {
 	// vampirism check
 	if(MonsterProperties[m_id].trait_list[DND_VAMPIRISM] && isActorAlive(monster_tid)) {
 		// if this monster is trying to leech off of a bloodless monster, do not allow (we cant have all rules be against players... right?)
@@ -2988,7 +2975,7 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim) {
 			return;
 	
 		// 10% or 10 flat healing per hit, minimum
-		int hp = Max(MonsterProperties[m_id].maxhp / 10, 10);
+		int hp = Max(dmg / 10, 10);
 		
 		// ignite effects prevent vampirism healing
 		if(!CheckActorInventory(monster_tid, "DnD_IgniteTimer")) {
@@ -3211,8 +3198,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			
 			// dont scale reflected damage by this
 			// special bonuses
-			factor += 	!isReflected * (MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) +
-						MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
+			factor += 	!isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
 				
 			dmg = dmg * (100 + factor) / 100;
 			
@@ -3307,7 +3293,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				// these are on monsters only, dont have much to do with us beyond this point
-				HandleMonsterDamageModChecks(m_id, shooter, victim);
+				HandleMonsterDamageModChecks(m_id, shooter, victim, dmg);
 			}
 			else {
 				temp = GetActorProperty(shooter, APROP_MASTERTID);
@@ -3315,7 +3301,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = HandlePetMonsterDamageScale(shooter, temp, victim, dmg, dmg_data, -1);
 
 					// these are on monsters only, dont have much to do with us beyond this point
-					HandleMonsterDamageModChecks(m_id, shooter, victim);
+					HandleMonsterDamageModChecks(m_id, shooter, victim, dmg);
 					
 					if(GetActorProperty(victim, APROP_HEALTH) <= dmg)
 						GiveActorInventory(victim, "MonsterKilledByPlayer", 1);

@@ -75,10 +75,6 @@ enum {
 	RES_IMP2,
 	RES_IMP3,
 	
-	RES_SYNTHMETALARMOR,
-	RES_SYNTHMASK,
-	RES_LIGHTNINGCOIL,
-	
 	RES_STASHTAB
 };
 
@@ -142,8 +138,6 @@ Actor Research_Done_2 : Inventory {
 Actor Research_Done_3 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
-
-Actor SynthMaskToken : DnD_Boolean { }
 
 // ****************************
 //		DEPENDENCY TRACKERS

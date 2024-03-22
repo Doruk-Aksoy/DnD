@@ -118,11 +118,6 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_IMP2 },
 	{ RESF_NODROP, -1},
 	
-	// unique monster drops
-	{ RESF_NODROP, -1},
-	{ RESF_NODROP, -1},
-	{ RESF_NODROP, -1},
-	
 	{ 0, -1 },
 };
 
@@ -245,8 +240,6 @@ void CompleteResearch(int res_id) {
 		DoubleSpecialAmmoCapacity();
 	if(res_id == RES_MEDKITSTORE)
 		GiveInventory("MedkitItem", 1);
-	if(res_id == RES_SYNTHMASK)
-		GiveInventory("SynthMaskToken", 1);
 }
 
 bool HasIncompleteResearches() {

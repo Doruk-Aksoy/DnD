@@ -285,6 +285,9 @@ enum {
 	PPOWER_REDUCEDPOISONTAKEN			=	0b1000000000000000000,
 	PPOWER_REDUCEDFIRETAKEN				=	0b10000000000000000000,
 	PPOWER_REDUCEDSELFDMG				=	0b100000000000000000000,
+	PPOWER_PETCAP						=	0b1000000000000000000000,
+	PPOWER_MELEEDAMAGE					=	0b10000000000000000000000,
+	PPOWER_SYNTHMETALMASK				=	0b100000000000000000000000
 };
 
 #define REDUCED_SELF_DMG_FACTOR 25 // 25%
@@ -1455,6 +1458,7 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
+// Note to self: Just construct a global array with these strings prebuilt for these attributes later... this is getting out of hand real bad
 str GetArmorImplicitExtraText(str text, int extra) {
 	if(extra & PPOWER_RAVAGER)
 		text = StrParam(s:text, s:"\n", l:"RAVAGER_BONUS");
@@ -1496,6 +1500,12 @@ str GetArmorImplicitExtraText(str text, int extra) {
 		text = StrParam(s:text, s:"\n", l:"REDUCED_FIRETAKEN");
 	else if(extra & PPOWER_REDUCEDSELFDMG)
 		text = StrParam(s:text, s:"\n", l:"REDUCED_SELFDMG");
+	else if(extra & PPOWER_PETCAP)
+		text = StrParam(s:text, s:"\n", l:"INCREASED_PETCAP");
+	else if(extra & PPOWER_MELEEDAMAGE)
+		text = StrParam(s:text, s:"\n", l:"INCREASED_MELEE");
+	else if(extra & PPOWER_SYNTHMETALMASK)
+		text = StrParam(s:text, s:"\n", l:"SYNTHMETAL_MASK");
 	return text;
 }
 
@@ -1976,6 +1986,9 @@ void SetupInventoryTagGroups() {
 	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_BOOT] = 0;
 	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_BOOT] = 0;
 
+	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_HELM] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_HELM] = 0;
+
 	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
 		tag = ItemModTable[i].tags;
 
@@ -1994,6 +2007,29 @@ void SetupInventoryTagGroups() {
 				AttributeTagGroups[tag_id][DND_CRAFTABLEID_BOOT][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BOOT]] = i;
 				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BOOT];
 				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
+			}
+			tag >>= 1;
+			++tag_id;
+		}
+	}
+
+	// helms can roll crit and melee
+	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_HELM] = 0;
+	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_HELM] = 0;
+
+	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
+		tag = ItemModTable[i].tags;
+
+		// armors won't roll these, a general rule for now, we can add specifics later perhaps
+		if((tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE))
+			continue;
+
+		tag_id = 0;
+		// can have multiple
+		while(tag > 0) {
+			if(tag & 1) {
+				AttributeTagGroups[tag_id][DND_CRAFTABLEID_HELM][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_HELM]] = i;
+				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_HELM];
 			}
 			tag >>= 1;
 			++tag_id;

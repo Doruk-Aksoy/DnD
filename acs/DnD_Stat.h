@@ -350,72 +350,6 @@ void CalculatePlayerExpRatio(int tid) {
 		SetActorInventory(tid, "ExpVisual", 1000 * CheckActorInventory(tid, "Exp") / cap);
 }
 
-int CheckLevelUp (int pnum) {
-	int prevlvl = GetStat(STAT_LVL), exptemp;
-	int currlvl;
-	// -1 because initial level is 1
-	// we need to check for the current up-to-date level, not previous level here!!
-	while((currlvl = GetStat(STAT_LVL)) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[currlvl - 1]) {
-		exptemp = GetStat(STAT_EXP) - LevelCurve[currlvl - 1];
-		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
-			GiveInventory("PerkPoint", 1);
-			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
-			GiveInventory("PerkedUp", 1);
-			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
-		}
-
-		GiveInventory("Level", 1);
-		SetInventory("Exp", exptemp);
-		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
-		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
-		
-		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
-		UpdateActivity(pnum, DND_ACTIVITY_LEVEL, 1, 0);
-	}
-	return GetStat(STAT_LVL) - prevlvl;
-}
-
-void HandleLevelup() {
-	int pnum = PlayerNumber();
-	int prevlvl = CheckInventory("Level");
-	if(CheckLevelUp(pnum)) {
-		LocalAmbientSound("RPG/LevelUp", 127);
-		GiveInventory("LevelUpEffectSpawner", 1);
-		GiveInventory("LeveledUp", 1);
-		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
-		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
-			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
-			
-		// sync level cap exp
-		CalculateExpRatio();
-		// heal on level up flag is on
-		if(GetCVar("dnd_healonlevelup"))
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
-		
-		int curlvl = CheckInventory("Level");
-		// player just leveled and got their perks? check if so
-		if
-		(
-			(prevlvl < DND_CLASSPERK1_LEVEL && curlvl >= DND_CLASSPERK1_LEVEL) ||
-			(prevlvl < DND_CLASSPERK2_LEVEL && curlvl >= DND_CLASSPERK2_LEVEL) ||
-			(prevlvl < DND_CLASSPERK3_LEVEL && curlvl >= DND_CLASSPERK3_LEVEL)
-		)
-		{
-			HandleClassPerks();
-			
-			// this is done as new perks might increase some damage factors
-			ForcePlayerDamageCaching(pnum);
-			
-			// make some announcement the player has a new perk
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
-		}
-		else
-			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
-	}
-	
-	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
-}
-
 void GiveExp(int amt, bool resetSpree = false) {
 	GiveInventory("Exp", amt);
 
@@ -425,7 +359,7 @@ void GiveExp(int amt, bool resetSpree = false) {
 		SetInventory("SpreeXP", 0);
 
 	GiveInventory("LevelExp", amt);
-	HandleLevelup();
+	ACS_NamedExecuteAlways("DnD Player Levelup Check", 0);
 	CalculateExpRatio();
 }
 
@@ -1133,7 +1067,12 @@ int GetOverloadTime(int pnum) {
 
 // returns fixed point range
 int GetPlayerMeleeRange(int pnum, int range) {
-	return FixedMul(range, 1.0 + 0.1 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC));
+	return FixedMul(
+		range, 
+		1.0 + 
+		(GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_RANGEINC + 
+		0.1 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
+	);
 }
 
 #define DND_BASE_IGNITEDMG 20

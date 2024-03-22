@@ -180,6 +180,11 @@ enum {
 	IIMG_BOO_9,
 	IIMG_BOO_10,
 	IIMG_BOO_11,
+	
+	// helm
+	IIMG_HLM_1,
+	IIMG_HLM_2,
+	IIMG_HLM_3,
 
 	// powercores
 	IIMG_CORE_1,
@@ -211,6 +216,9 @@ enum {
 
 #define ITEM_IMAGE_BOOT_BEGIN IIMG_BOO_1
 #define ITEM_IMAGE_BOOT_END IIMG_BOO_11
+
+#define ITEM_IMAGE_HELM_BEGIN IIMG_HLM_1
+#define ITEM_IMAGE_HELM_END IIMG_HLM_3
 
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
@@ -257,6 +265,10 @@ str GetItemImage(int id, bool wide = false) {
 	else if(id <= ITEM_IMAGE_BOOT_END)  {
 		img_prefix = "BO";
 		suffix = id - ITEM_IMAGE_BOOT_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_HELM_END) {
+		img_prefix = "HL";
+		suffix = id - ITEM_IMAGE_HELM_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_POWERCORE_END) {
 		img_prefix = "PC";
@@ -1553,6 +1565,11 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
+		else if(itype == DND_ITEM_HELM) {
+			HudMessage(s:"\c[Y5]", s:GetHelmInventoryTag(isubt); 
+				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			);
+		}
 		else if(itype == DND_ITEM_POWERCORE) {
 			HudMessage(s:"\c[Y5]", s:GetPowercoreInventoryTag(isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
@@ -1726,6 +1743,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetArmorDropClass(stype);
 	else if(itype == DND_ITEM_BOOT)
 		droptype = GetBootDropClass(stype);
+	else if(itype == DND_ITEM_HELM)
+		droptype = GetHelmDropClass(stype);
 	else if(itype == DND_ITEM_POWERCORE)
 		droptype = GetPowercoreDropClass(stype);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);

@@ -755,6 +755,7 @@ enum {
 void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
 	bool mon_robot = IsActorRobotic(tid);
+	int tmp;
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
@@ -776,10 +777,13 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
 				// boot and body armor chance is equal
-				if(random(1, 100) <= 50)
+				tmp = random(1, 100);
+				if(tmp <= 33)
 					SpawnArmor(i, rarity_boost, 0);
-				else
+				else if(tmp <= 66)
 					SpawnBoot(i, rarity_boost);
+				else
+					SpawnHelm(i, rarity_boost);
 				bits |= DND_LOOTBIT_ARMOR;
 			}
 
@@ -809,10 +813,13 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 							SpawnToken(i);
 						break;
 						case DND_LOOT_ARMOR:
-							if(random(1, 100) <= 50)
+							tmp = random(1, 100);
+							if(tmp <= 33)
 								SpawnArmor(i, rarity_boost, 0);
-							else
+							else if(tmp <= 66)
 								SpawnBoot(i, rarity_boost);
+							else
+								SpawnHelm(i, rarity_boost);
 						break;
 						case DND_LOOT_CHARM:
 							SpawnCharm(i, rarity_boost);
@@ -1261,7 +1268,7 @@ void HandleUniqueDeath(int p_actor, int unique_id) {
 			SpawnArmor(pnum, 0, -BODYARMOR_SYNTHMETAL);
 		break;
 		case MONSTER_BRONN:
-			SpawnResearchId(RES_SYNTHMASK);
+			SpawnHelm(pnum, 0, HELMS_SYNTHMETAL);
 		break;
 		case MONSTER_VAAJ:
 			// drops vaaj influenced charm: explosives ignore resists mod guaranteed

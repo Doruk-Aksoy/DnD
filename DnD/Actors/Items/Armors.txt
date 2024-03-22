@@ -629,3 +629,30 @@ Actor BootDrop_10 : ArmorDrop {
 		Goto SpawnInit
 	}
 }
+
+// HELMS
+
+Actor HelmDrop_0 : ArmorDrop {
+	States {
+		Spawn:
+			HELM A 0
+		Goto SpawnInit
+	}
+}
+
+Actor HelmDrop_1 : ArmorDrop {
+	States {
+		Spawn:
+			HELM B 0
+		Goto SpawnInit
+	}
+}
+
+Actor HelmDrop_2 : ArmorDrop {
+	Scale 0.6
+	States {
+		Spawn:
+			HELM C 0
+		Goto SpawnInit
+	}
+}

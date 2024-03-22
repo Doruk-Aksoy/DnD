@@ -1501,15 +1501,6 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_TRANSMUTING, 4300, 80
 		},
 		{
-			RES_SYNTHMETALARMOR, 4675, 75
-		},
-		{
-			RES_LIGHTNINGCOIL, 4694, 70
-		},
-		{
-			RES_SYNTHMASK, 4713, 50
-		},
-		{
 			RES_MEDKITSTORE, 3531, 55
 		},
 		{
@@ -1615,9 +1606,6 @@ int ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 	{
 		1,
 		2,
-		63,
-		65,
-		64,
 		3,
 		4,
 		30,

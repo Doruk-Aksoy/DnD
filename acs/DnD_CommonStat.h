@@ -343,11 +343,11 @@ int GetStrength() {
 }
 
 int GetPetCap() {
-	return BASE_PET_CAP;
+	return BASE_PET_CAP + HasPlayerPowerset(PlayerNumber(), PPOWER_PETCAP);
 }
 
 int GetActorPetCap(int tid) {
-	return BASE_PET_CAP;
+	return BASE_PET_CAP + HasPlayerPowerset(tid - P_TIDSTART, PPOWER_PETCAP);
 }
 
 bool CanActorHaveMorePets(int tid) {
@@ -476,9 +476,6 @@ void RestoreRPGStat (int statflag) {
 
 	if(CheckInventory("GryphonCheck"))
 		GiveInventory("CurseImmunity", 1);
-	
-	if(CheckResearchStatus(RES_SYNTHMASK) == RES_DONE)
-		GiveInventory("SynthMaskToken", 1);
 		
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY))
 		GiveInventory("CurseImmunity", 1);

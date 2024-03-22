@@ -144,3 +144,17 @@ Graphic "ARWICO17", 27, 26
 	YScale 0.500
 	Patch "ARICO17", 0, 0
 }
+
+Graphic "HLMICO1", 25, 25
+{
+	XScale 0.750
+	YScale 0.750
+	Patch "HLMICO1", 2, 1
+}
+
+Graphic "HLMICO2", 28, 18
+{
+	XScale 0.750
+	YScale 0.750
+	Patch "HLMICO2", 2, 2
+}

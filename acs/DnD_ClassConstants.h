@@ -19,6 +19,7 @@
 #define DND_HOBO_SHOTGUNFALLOFFDIST 400 // this is the least amount of distance his level 50 perk will gain bonuses from
 #define DND_HOBO_SHOTGUNMINBESTDIST (2 * DND_PLAYER_RADIUS)
 #define DND_HOBO_SHOTGUNMINBESTDIST_INT ((DND_HOBO_SHOTGUNMINBESTDIST) >> 16)
+#define DND_HOBO_SHOTGUNDISTMOREDMG 100 // 100% more dmg
 
 #define DND_WANDERER_PERK25_BUFF 25 // 25%
 

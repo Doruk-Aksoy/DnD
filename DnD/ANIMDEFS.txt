@@ -17,12 +17,6 @@ texture BASIB01
 texture SLAYAM01
 	range SLAYAM04 tics 4.0 oscillate
 	
-texture ARM4A1
-	range ARM4A3 tics 4.0 oscillate
-	
-texture AR12A1
-	range AR12A4 tics 4.0 oscillate
-	
 texture PCNIC1
 	range PCNIC3 tics 3.0 oscillate
 	

@@ -488,7 +488,7 @@ Script "DnD Get Pain Alpha" (void) CLIENTSIDE {
 	}
 
 	int dmg_received = CheckInventory("DnD_DamageFade");
-	if(CheckInventory("SynthMaskToken"))
+	if(GetHelmID() == HELMS_SYNTHMETAL)
 		dmg_received /= DND_SYNTHMASK_EFFECT;
 		
 	// max 75% alpha on really hard hits
@@ -504,7 +504,7 @@ Script "DnD Get Pain Alpha" (void) CLIENTSIDE {
 
 Script "DnD Get Pain Tics" (void) CLIENTSIDE {
 	int dmg_received = CheckInventory("DnD_DamageFade");
-	if(CheckInventory("SynthMaskToken"))
+	if(GetHelmID() == HELMS_SYNTHMETAL)
 		dmg_received /= DND_SYNTHMASK_EFFECT;
 		
 	// dont go too overboard with this, cap it
@@ -586,7 +586,7 @@ Script "DnD Hit Blend" (int blend_id) {
 }
 
 Script "DnD Synth Mask Acquired" (void) {
-	int res = CheckInventory("SynthMaskToken") ? DND_SYNTHMASK_EFFECT : 1;
+	int res = GetHelmID() == HELMS_SYNTHMETAL ? DND_SYNTHMASK_EFFECT : 1;
 	SetResultValue(res);
 }
 
@@ -2425,7 +2425,74 @@ Script "DnD Ankh Checker" (void) {
 }
 
 Script "DnD Player Levelup Check" (void) {
-	HandleLevelup();
+	int pnum = PlayerNumber();
+	int prevlvl = GetStat(STAT_LVL), exptemp;
+	int currlvl;
+
+	// -1 because initial level is 1
+	// we need to check for the current up-to-date level, not previous level here!!
+	while((currlvl = GetStat(STAT_LVL)) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[currlvl - 1]) {
+		exptemp = GetStat(STAT_EXP) - LevelCurve[currlvl - 1];
+		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
+			GiveInventory("PerkPoint", 1);
+			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
+			GiveInventory("PerkedUp", 1);
+			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
+		}
+
+		GiveInventory("Level", 1);
+		SetInventory("Exp", exptemp);
+		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
+		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
+		
+		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
+		UpdateActivity(pnum, DND_ACTIVITY_LEVEL, 1, 0);
+
+		Delay(const:1);
+
+		// don't keep checking if player suffers a terrible fate
+		if(!PlayerInGame(pnum) || !IsAlive())
+			Terminate;
+	}
+
+	currlvl = GetStat(STAT_LVL) - prevlvl;
+
+	if(currlvl) {
+		LocalAmbientSound("RPG/LevelUp", 127);
+		GiveInventory("LevelUpEffectSpawner", 1);
+		GiveInventory("LeveledUp", 1);
+		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
+		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
+			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
+			
+		// sync level cap exp
+		CalculateExpRatio();
+		// heal on level up flag is on
+		if(GetCVar("dnd_healonlevelup"))
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
+		
+		currlvl = GetStat(STAT_LVL);
+		// player just leveled and got their perks? check if so
+		if
+		(
+			(prevlvl < DND_CLASSPERK1_LEVEL && currlvl >= DND_CLASSPERK1_LEVEL) ||
+			(prevlvl < DND_CLASSPERK2_LEVEL && currlvl >= DND_CLASSPERK2_LEVEL) ||
+			(prevlvl < DND_CLASSPERK3_LEVEL && currlvl >= DND_CLASSPERK3_LEVEL)
+		)
+		{
+			HandleClassPerks();
+			
+			// this is done as new perks might increase some damage factors
+			ForcePlayerDamageCaching(pnum);
+			
+			// make some announcement the player has a new perk
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
+		}
+		else
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
+	}
+	
+	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
 }
 
 // Weapon tip display
@@ -3685,19 +3752,28 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 
 	while(isAlive() && !CheckInventory("DnD_Hit_CombatTimer") && (amt = CheckInventory("EShieldAmount")) < cap) {
 		// get how far off we are from completion to adjust position and alpha
-		int pct = amt * 100.0 / cap;
+		int pct = 0;
+		if(amt < 65536) {
+			amt <<= 16;
+			pct = FixedDiv(amt, cap << 16) * 100;
+		}
+		else {
+			// at this point the tiny pct values we lose are irrelevant
+			pct = amt * 100 / cap;
+			pct <<= 16;
+		}
 
 		SetHudSize(640, 480, 0);
 		SetFont("SHLDLFT");
 
 		x = (GetHudLeft(640) << 16) - 120.0;
 		y = 0.0;
-		a = abs(sin(pct / 50)) % 1.0;
-		HudMessage(s:"A";  HUDMSG_FADEINOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_LEFT_ID, CR_WHITE, GetIntegerBits(x + 80 * pct / 100) + 0.2, y, 0.75, 0.0, 0.75, a);
+		a = abs(sin((pct / 50) % 1.0));
+		HudMessage(s:"A";  HUDMSG_FADEINOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_LEFT_ID, CR_WHITE, GetIntegerBits(x + 88 * pct / 100) + 0.2, y, 0.75, 0.0, 0.75, a);
 
 		SetFont("SHLDRGT");
 		x = (GetHudRight(640) << 16) - 136.0;
-		HudMessage(s:"A";  HUDMSG_FADEINOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_RIGHT_ID, CR_WHITE, GetIntegerBits(x - 80 * pct / 100) + 0.1, y, 0.75, 0.0, 0.75, a);
+		HudMessage(s:"A";  HUDMSG_FADEINOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_RIGHT_ID, CR_WHITE, GetIntegerBits(x - 88 * pct / 100) + 0.1, y, 0.75, 0.0, 0.75, a);
 
 		Delay(const:1);
 	}
@@ -5455,7 +5531,8 @@ Script 68 (int x) NET {
 			//SpawnCharm(0, true);
 			SpawnArmor(0, true, 0);
 			SpawnPowercore(0, true);
-			SpawnBoot(0, true);
+			SpawnBoot(0, 0);
+			SpawnHelm(0, 0);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
 			SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
@@ -5491,8 +5568,9 @@ Script 68 (int x) NET {
 			UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, 25, 0);
 		}
 		else if(x == 500) {
-			for(i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i)
-				IncPlayerModValue(PlayerNumber(), i, 5);
+			IncPlayerModValue(PlayerNumber(), INV_SHIELD_INCREASE, 1000, false);
+			IncPlayerModValue(PlayerNumber(), INV_SHIELD_RECHARGEDELAY, 100, false);
+			HandleEShieldChange(PlayerNumber(), 0);
 		}
 		else if(x == 501)
 			SetPlayerModValue(PlayerNumber(), INV_PELLET_INCREASE, 2 * PlayerModValues[PlayerNumber()][INV_PELLET_INCREASE] + 1.0);

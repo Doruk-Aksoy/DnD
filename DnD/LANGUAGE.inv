@@ -142,6 +142,11 @@ DND_BOIMG9			=	"BOOICO9";
 DND_BOIMG10			=	"BOOICO10";
 DND_BOIMG11			=	"BOOICO11";
 
+// helm images
+DND_HLIMG1			=	"HLMICO1";
+DND_HLIMG2			=	"HLMICO2";
+DND_HLIMG3			=	"HLMICO3";
+
 // power core images
 DND_PCIMG1			=	"PCORE01";
 DND_PCIMG2			=	"PCORE02";

@@ -25,6 +25,18 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 	}
 }
 
+void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY = false) {
+    int c = CreateItemSpot();
+	if(c != -1) {
+        int type = RollHelmInfo(c, RollItemLevel(), pnum, pre_id);
+        // depending on armor type rolled, spawn its appropriate actor
+        SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
+	}
+}
+
 // monsters dropping charms
 void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
 	int c = CreateItemSpot();

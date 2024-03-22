@@ -41,7 +41,11 @@ enum {
 	BOOTS_FUSION,
 	BOOTS_LEATHER,
 	BOOTS_SNAKESKIN,
-	BOOTS_DRAKESKIN
+	BOOTS_DRAKESKIN,
+
+	HELMS_LICH = 0,
+	HELMS_WARRIOR,
+	HELMS_SYNTHMETAL,
 };
 #define BODYARMORS_BEGIN BODYARMOR_GREEN
 #define BODYARMORS_REGULAREND BODYARMOR_RAVAGER
@@ -49,6 +53,9 @@ enum {
 
 #define BOOTS_BEGIN BOOTS_SILVER
 #define BOOTS_END BOOTS_DRAKESKIN
+
+#define HELMS_BEGIN HELMS_LICH
+#define HELMS_END HELMS_SYNTHMETAL
 
 enum {
 	ARMWEIGHT_GREEN = 20,
@@ -116,11 +123,29 @@ int BootDropWeights[BOOTS_END + 1] = {
 	BOOTWEIGHT_DRAKESKIN
 };
 
+enum {
+	HELMWEIGHT_LICH = 25,
+	HELMWEIGHT_WARRIOR = 50,
+	HELMWEIGHT_SYNTH = 100
+};
+
+int HelmDropWeights[HELMS_END + 1] = {
+	HELMWEIGHT_LICH,
+	HELMWEIGHT_WARRIOR,
+	HELMWEIGHT_SYNTH
+};
+
 #define DND_BODYARMOR_BASEWIDTH 2
 #define DND_BODYARMOR_BASEHEIGHT 2
 
 #define DND_BOOT_BASEWIDTH 2
 #define DND_BOOT_BASEHEIGHT 1
+
+#define DND_HELM_BASEWIDTH 1
+#define DND_HELM_BASEHEIGHT 1
+
+#define WARRIORHELM_RANGEINC 0.15
+#define WARRIORHELM_DMGINC 25
 
 #define MAX_HELM_ATTRIB_DEFAULT 4
 #define MAX_BOOT_ATTRIB_DEFAULT 4
@@ -192,7 +217,7 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
     // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
 	int i;
 	int res = random(1, 100);
-	for(i = 0; i < BOOTS_END; ++i)
+	for(i = 0; i <= BOOTS_END; ++i)
 		if(res <= BootDropWeights[i]) {
 			res = i;
 			break;
@@ -216,6 +241,42 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
 		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
 
+	return res;
+}
+
+int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
+    // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
+	int i;
+	int res = 0;
+	if(helm == -1) {
+		res = random(1, 100);
+		for(i = 0; i <= HELMS_END; ++i) {
+			if(res <= HelmDropWeights[i]) {
+				res = i;
+				break;
+			}
+		}
+	}
+	else
+		res = helm;
+
+	Inventories_On_Field[item_pos].item_level = item_tier;
+	Inventories_On_Field[item_pos].item_stack = 0;
+	Inventories_On_Field[item_pos].item_type = DND_ITEM_HELM;
+	Inventories_On_Field[item_pos].item_subtype = res;
+	Inventories_On_Field[item_pos].width = DND_HELM_BASEWIDTH;
+	Inventories_On_Field[item_pos].height = DND_HELM_BASEHEIGHT;
+
+	Inventories_On_Field[item_pos].corrupted = false;
+	Inventories_On_Field[item_pos].quality = 0;
+	Inventories_On_Field[item_pos].implicit.attrib_id = -1;
+	Inventories_On_Field[item_pos].implicit.attrib_val = 0;
+	Inventories_On_Field[item_pos].implicit.attrib_tier = 0;
+	Inventories_On_Field[item_pos].implicit.attrib_extra = 0;
+	
+	Inventories_On_Field[item_pos].attrib_count = 0;
+	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
 	return res;
 }
 
@@ -249,7 +310,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 
 		case BODYARMOR_GUNSLINGER:
 			special_roll = PPOWER_CANROLLPHYS;
-			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 22.5, PPOWER_CANROLLPHYS, item_tier, 1.25);
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_CANROLLPHYS, item_tier, 1.25);
 		break;
 		case BODYARMOR_OCCULT:
 			special_roll = PPOWER_CANROLLOCCULT;
@@ -275,7 +336,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 120, PPOWER_CYBER, item_tier, 80);
 		break;
 		case BODYARMOR_DUELIST:
-			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 25.0, PPOWER_HITSCANPROTECT, item_tier, 1.75);
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 22.5, PPOWER_HITSCANPROTECT, item_tier, 1.75);
 		break;
 		case BODYARMOR_NECRO:
 			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, PPOWER_SPIKES, item_tier, 75);
@@ -362,12 +423,48 @@ int RollBootInfo(int item_pos, int item_tier, int pnum) {
 	return armor_type;
 }
 
+int RollHelmInfo(int item_pos, int item_tier, int pnum, int type = -1) {
+	// roll random attributes for the charm
+	int i = 0, roll;
+	int armor_type = ConstructHelmDataOnField(item_pos, item_tier, type);
+	int count = random(1, MAX_HELM_ATTRIB_DEFAULT);
+	int special_roll = 0;
+
+	Inventories_On_Field[item_pos].item_image = IIMG_HLM_1 + armor_type;
+	// implicits that come along with the item always
+	switch(armor_type) {
+		case HELMS_LICH:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 50, PPOWER_PETCAP, item_tier, 20);
+		break;
+		case HELMS_WARRIOR:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, PPOWER_MELEEDAMAGE, item_tier, 40);
+		break;
+		case HELMS_SYNTHMETAL:
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 10.0, PPOWER_SYNTHMETALMASK, item_tier, 1.25);
+		break;
+	}
+
+	while(i < count) {
+		do {
+			roll = PickRandomAttribute(DND_ITEM_HELM, special_roll);
+		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		AddAttributeToFieldItem(item_pos, roll, pnum, count);
+		++i;
+	}
+
+	return armor_type;
+}
+
 str GetArmorDropClass(int type) {
 	return StrParam(s:"ArmorDrop_", d:type);
 }
 
 str GetBootDropClass(int type) {
 	return StrParam(s:"BootDrop_", d:type);
+}
+
+str GetHelmDropClass(int type) {
+	return StrParam(s:"HelmDrop_", d:type);
 }
 
 int GetArmorID(int pnum = -1) {
@@ -382,6 +479,16 @@ int GetArmorID(int pnum = -1) {
 
 int GetActorArmorID(int tid) {
 	return GetArmorID(tid - P_TIDSTART);
+}
+
+int GetHelmID(int pnum = -1) {
+	if(pnum == -1)
+		pnum = PlayerNumber();
+
+	if(Items_Used[pnum][HELM_INDEX].item_type == DND_ITEM_NULL)
+		return -1;
+
+	return Items_Used[pnum][HELM_INDEX].item_subtype;
 }
 
 bool ActorHasNoArmor(int tid) {
@@ -442,7 +549,6 @@ str GetBootInventoryTag(int subt) {
 str GetHelmInventoryTag(int subt) {
 	return StrParam(l:StrParam(s:"DND_HELM", d:subt + 1));
 }
-
 
 Script "DnD Armor Item Pickup" (int sp) {
     if((sp & 0xFFFF) == 255)

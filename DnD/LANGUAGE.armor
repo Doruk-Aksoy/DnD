@@ -35,6 +35,11 @@ DND_BOOT9		=		"Leather Boots";
 DND_BOOT10		=		"Snakeskin Boots";
 DND_BOOT11		=		"Drakeskin Boots";
 
+// helms
+DND_HELM1		=		"Lich Skull";
+DND_HELM2		=		"Warrior's Helm";
+DND_HELM3		=		"Synth-metal Mask";
+
 // armor implicits
 RAVAGER_BONUS			=		"\cd50%\c- more damage and \cd25%\c- damage reduction during killing sprees";
 KNIGHT_BONUS			=		"\cd50%\c- reduced damage from melee attacks. If a melee weapon is held extra \cd40%\c- protection is bestowed";
@@ -56,3 +61,6 @@ LESS_OVERHEAT			=		"\cd20%\c- less overheat gained";
 REDUCED_POISONTAKEN		=		"\cd+10%\c- less poison damage taken";
 REDUCED_FIRETAKEN		=		"\cd+10%\c- less fire damage taken";
 REDUCED_SELFDMG			=		"\cd25%\c- less self damage taken";
+INCREASED_PETCAP		=		"\cd+1\c- to pet cap";
+INCREASED_MELEE			=		"\cd+25%\c- melee damage and \cd15%\c- melee range";
+SYNTHMETAL_MASK			=		"\cd75%\c- reduced vision impairment";
