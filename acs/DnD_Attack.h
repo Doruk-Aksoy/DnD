@@ -85,7 +85,7 @@ int Scan_to_WeaponID(int scan_id) {
 }
 
 // This function will create a projectile with given angles, pitch, direction vector, speed, xy dist and zdist
-void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int velocity, int vPos, int flags = 0) {
+void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, int velocity, int vPos, int flags = 0) {
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good
 	int g = (flags & DND_ATF_USEGRAVITY) ? 800.0 : 0;
 	
@@ -99,8 +99,8 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 	
 	SetActivator(p_helper_tid);
 	
-	// make the proj itself
-	SpawnProjectile(0, projectile, angle, 0, 0, g, TEMPORARY_ATTACK_TID);
+	// make the proj itself -- needs byte angle here
+	SpawnProjectile(0, projectile, angle >> 8, 0, 0, g, TEMPORARY_ATTACK_TID);
 	
 	// clear used tid
 	Thing_ChangeTID(p_helper_tid, 0);
@@ -109,8 +109,6 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
 	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
 	SetActorVelocity(TEMPORARY_ATTACK_TID, vec3[velocity].x, vec3[velocity].y, vec3[velocity].z, 0, 0);
-
-	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_TARGETTID, owner);
 	
 	// remove NOGRAVITY
 	if(flags & DND_ATF_USEGRAVITY)
@@ -120,6 +118,10 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 
 	// this is the line that makes the owner the true owner
 	SetPointer(AAPTR_TARGET, owner);
+	SetActorProperty(0, APROP_TARGETTID, owner);
+
+	// this is needed so that reflecting works
+	SetActorProperty(0, APROP_SPEED, spd << 16);
 	
 	Thing_ChangeTID(TEMPORARY_ATTACK_TID, 0);
 	
@@ -225,7 +227,7 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 			vec3[vProj].y = spd * FixedMul(sin(proj_ang), cosp);
 			vec3[vProj].z = -sin(p) * spd;
 			
-			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, vProj, vPos, flags);
+			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, spd, vProj, vPos, flags);
 		}
 	}
 	else {
@@ -267,7 +269,7 @@ void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int c
 			vec3[vProj].y = spd * FixedMul(sin(proj_ang), cosp);
 			vec3[vProj].z = -sin(p) * spd;
 			
-			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, vProj, vPos, flags);
+			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, spd, vProj, vPos, flags);
 		}
 	}
 	else {
@@ -441,7 +443,7 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, ProjectileInfo[proj_id].spd_range);
 		
-		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, vFireDir, vPos, flags);
+		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, ProjectileInfo[proj_id].spd_range, vFireDir, vPos, flags);
 		
 		FreeVec2(proj_ang_vec);
 		
@@ -525,7 +527,7 @@ void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, i
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, speed);
 		
-		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, vFireDir, vPos, flags);
+		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, speed, vFireDir, vPos, flags);
 		
 		FreeVec2(proj_ang_vec);
 		

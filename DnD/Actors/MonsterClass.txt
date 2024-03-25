@@ -368,6 +368,7 @@ Actor EliteReflectingShield {
 	+NOGRAVITY
 	+NOCLIP
 	+CLIENTSIDEONLY
+	+NOINTERACTION
 	const float ai = 12.0;
 	var int user_angle;
 	States {

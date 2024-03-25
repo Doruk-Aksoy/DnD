@@ -779,33 +779,6 @@ void HandleOverloadEffects(int pnum, int victim) {
 	}
 }
 
-int GetResistPenetration(int pnum, int category) {
-	switch(category) {
-		case DND_DAMAGECATEGORY_BULLET:
-		case DND_DAMAGECATEGORY_MELEE:
-		return GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
-		case DND_DAMAGECATEGORY_ENERGY:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
-		case DND_DAMAGECATEGORY_EXPLOSIVES:
-		return GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
-		case DND_DAMAGECATEGORY_OCCULT:
-		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
-
-		case DND_DAMAGECATEGORY_FIRE:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
-		case DND_DAMAGECATEGORY_ICE:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_ICE);
-		case DND_DAMAGECATEGORY_LIGHTNING:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
-		case DND_DAMAGECATEGORY_POISON:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_POISON);
-
-		case DND_DAMAGECATEGORY_SOUL:
-		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT) + GetPlayerAttributeValue(pnum, INV_EX_SOULWEPSPEN);
-	}
-	return 0;
-}
-
 // tid, mon_id, weaken %
 Script "DnD Occult Weaken" (int victim, int mon_id) {
 	SetActivator(victim);
@@ -3150,6 +3123,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
 		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT" && arg2 != "MagicalRedLeash";
+
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		if(CheckFlag(0, "RIPPER"))
 			isRipper = true;
@@ -3177,7 +3151,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		
 			// if victim was a monster, check for infight situation
 			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
-			// printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
+			//printbold(s:GetActorProperty(victim, APROP_SPECIES), s: " ", s:GetActorProperty(shooter, APROP_SPECIES));
 			if
 			(
 				// added condition for friendlies
@@ -3256,9 +3230,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// store damage before reductions to apply to armor later
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 
-				// 90% less => 1/10th
+				// 50% less by default
 				if(isReflected)
-					dmg /= 10;
+					dmg /= 2;
 				
 				// finally apply player armor
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);

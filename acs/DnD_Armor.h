@@ -314,7 +314,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 		case BODYARMOR_OCCULT:
 			special_roll = PPOWER_CANROLLOCCULT;
-			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 80, PPOWER_CANROLLOCCULT, item_tier, 60);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 80, PPOWER_CANROLLOCCULT, item_tier, 30);
 		break;
 		case BODYARMOR_DEMO:
 			special_roll = PPOWER_CANROLLEXP;
@@ -322,7 +322,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 		case BODYARMOR_ENERGY:
 			special_roll = PPOWER_CANROLLENERGY;
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, PPOWER_CANROLLENERGY, item_tier, 60);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 80, PPOWER_CANROLLENERGY, item_tier, 30);
 		break;
 		case BODYARMOR_ELEMENTAL:
 			special_roll = PPOWER_CANROLLELEMENTAL;
@@ -330,16 +330,16 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 
 		case BODYARMOR_MONOLITH:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 50);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 40);
 		break;
 		case BODYARMOR_CYBER:
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 120, PPOWER_CYBER, item_tier, 80);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 120, PPOWER_CYBER, item_tier, 40);
 		break;
 		case BODYARMOR_DUELIST:
-			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 22.5, PPOWER_HITSCANPROTECT, item_tier, 1.75);
+			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_HITSCANPROTECT, item_tier, 1.75);
 		break;
 		case BODYARMOR_NECRO:
-			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, PPOWER_SPIKES, item_tier, 75);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, PPOWER_SPIKES, item_tier, 60);
 		break;
 		case BODYARMOR_KNIGHT:
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, PPOWER_KNIGHTMELEEBONUS, item_tier, 100);
@@ -349,10 +349,10 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 		break;
 
 		case BODYARMOR_SYNTHMETAL:
-			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 180, PPOWER_LOWERREFLECT, item_tier, 100);
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 180, PPOWER_LOWERREFLECT, item_tier, 80);
 		break;
 		case BODYARMOR_LIGHTNINGCOIL:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, PPOWER_LIGHTNINGABSORB, item_tier, 50);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, PPOWER_LIGHTNINGABSORB, item_tier, 25);
 		break;
 	}
 
@@ -578,7 +578,7 @@ Script "DnD Armor Message" (int id, int type) CLIENTSIDE {
 		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ARMOR", s:": \c[Y5]", l:GetHelmInventoryTag(id), s:"!\c-"));
 }
 
-Script "DnD Drop Random Basic Armor" (int higher_tier) {
+Script "DnD Drop Random Basic Armor" (int higher_tier, int dont_remove) {
 	// wait for the setup phase to finish
 	while(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
 		Delay(const:TICRATE);
@@ -592,7 +592,8 @@ Script "DnD Drop Random Basic Armor" (int higher_tier) {
 
 	Delay(const:TICRATE);
 
-	Thing_Remove(0);
+	if(!dont_remove)
+		Thing_Remove(0);
 }
 
 #endif

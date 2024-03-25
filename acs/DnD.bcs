@@ -1820,6 +1820,8 @@ Script "DnD Update TID CS" (int tid) CLIENTSIDE {
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	GiveMonsterTID(ActivatorTID());
+
+	GiveInventory("MakeReflective", 1);
 	
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 	//Make sure mob gets to right amount of hp at this point
@@ -5535,7 +5537,9 @@ Script 68 (int x) NET {
 			SpawnHelm(0, 0);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
-			SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
+			//SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 5);
+			//SpawnSpecificOrbForAll(DND_ORB_REPENT, 5);
+			//SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);

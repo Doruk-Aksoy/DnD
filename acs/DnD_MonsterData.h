@@ -29,12 +29,12 @@ int GetMonsterHPScaling(int m_id, int level) {
 	return res;
 }
 
-int GetMonsterDMGScaling(int m_id, int level) {
+int GetMonsterDMGScaling(int m_id, int level, bool forShow = false) {
 	// over the old formula of 4x, this provides 500% damage at lvl 100 instead of 400%
 	int res = level * level / 25 + level;
 	
 	// unique bosses have additional damage multiplier per level -- x^2 * 0.01667 + x
-	if(IsUniqueBossMonster(m_id))
+	if(!forShow && IsUniqueBossMonster(m_id))
 		res = res * (100 + (level * level) / 60 + level) / 100;
 
 	int cvs = GetCVar("dnd_monster_dmgscalepercent");

@@ -235,6 +235,7 @@ DND_MENU_RES_ICE		=	"Ice Resist";
 DND_MENU_RES_LGHT		=	"Lightning Resist";
 DND_MENU_RES_POIS		=	"Poison Resist";
 DND_MENU_RES_REFL		=	"Reflection Resist";
+DND_MENU_PENETRATION	=	"Penetration";
 
 // accessories
 ACCTX_T0				=	"Wisdom Talisman";

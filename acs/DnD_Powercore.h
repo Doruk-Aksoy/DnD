@@ -59,11 +59,11 @@ int RollPowercoreInfo(int item_pos, int item_tier, int pnum) {
 		break;
 		case PCORE_GOLD:
 			Inventories_On_Field[item_pos].item_image = IIMG_CORE_2;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 20, PPOWER_ESHIELDBLOCKALL, item_tier, 10);
+			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 20, PPOWER_ESHIELDBLOCKALL, item_tier, 7);
 		break;
 		case PCORE_MOLYBDENUM:
 			Inventories_On_Field[item_pos].item_image = IIMG_CORE_3;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 50, PPOWER_ESHIELDBLOCKALL, item_tier, 25);
+			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 30, PPOWER_ESHIELDBLOCKALL, item_tier, 10);
 		break;
 	}
 	

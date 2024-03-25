@@ -311,7 +311,7 @@ IATTR_T63 			= "increased chance to freeze for ice attacks";
 IATTR_T64 			= "increased chill effectiveness";
 IATTR_T65 			= "reduced enemy chill threshold";
 	
-IATTR_T66 			= "increased chance to ignite for fire atttacks";
+IATTR_T66 			= "increased chance to ignite for fire attacks";
 IATTR_T67 			= "increased ignite damage";
 IATTR_T68 			= "increased ignite duration";
 	

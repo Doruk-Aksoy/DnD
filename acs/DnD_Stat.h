@@ -261,8 +261,8 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 }
 
 int GetPlayerEstimatedArmorProtect(int pnum, int cap) {
-	int base_dmg = DND_ESTIMATED_AVG_DAMAGE * (100 + GetMonsterDMGScaling(0, GetActorStat(pnum + P_TIDSTART, STAT_LVL))) / 100;
-	return DoArmorRatingEffect(base_dmg, cap) * 100 / base_dmg;
+	int base_dmg = DND_ESTIMATED_AVG_DAMAGE * (100 + GetMonsterDMGScaling(0, GetActorStat(pnum + P_TIDSTART, STAT_LVL), true)) / 100;
+	return 100 - DoArmorRatingEffect(base_dmg, cap) * 100 / base_dmg;
 }
 
 void GiveStat(int stat_id, int amt) {
@@ -1033,8 +1033,9 @@ int MapDamageCategoryToFlatBonus(int pnum, int talent) {
 
 int MapDamageCategoryToPercentBonus(int pnum, int talent) {
 	switch(talent) {
-		case DND_DAMAGECATEGORY_BULLET:
 		case DND_DAMAGECATEGORY_MELEE:
+		return GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE) + (GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_DMGINC;
+		case DND_DAMAGECATEGORY_BULLET:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE);
 		case DND_DAMAGECATEGORY_OCCULT:
 		return GetPlayerAttributeValue(pnum, INV_PERCENTMAGIC_DAMAGE);

@@ -224,7 +224,7 @@ Actor MegaSphere2 : CustomInventory {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, -2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, -2, 1)
 		SpawnLoop:
 			MEGA AAAAAABBBBBBCCCCCCDDDDDD 1 Bright A_SpawnItemEx("MegaSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
@@ -244,7 +244,7 @@ Actor UberSphere : CustomInventory {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Dropping Item")
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, -3)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Drop Random Basic Armor", 0, -3, 1)
 		SpawnLoop:
 			CARN AAAAABBBBBCCCCCDDDDD 1 Bright A_SpawnItemEx("UberSphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		loop

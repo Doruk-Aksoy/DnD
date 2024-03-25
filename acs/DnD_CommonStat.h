@@ -764,9 +764,31 @@ void HandleClassPerks() {
 	}
 }
 
-void HandleBerserkerRoar(int tid) {
-	GiveActorInventory(tid, "Berserker_NoRoar", 1);
-	ACS_NamedExecuteAlways("DnD Berserker Roar", 0, tid);
+int GetResistPenetration(int pnum, int category) {
+	switch(category) {
+		case DND_DAMAGECATEGORY_BULLET:
+		case DND_DAMAGECATEGORY_MELEE:
+		return GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
+		case DND_DAMAGECATEGORY_ENERGY:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
+		case DND_DAMAGECATEGORY_EXPLOSIVES:
+		return GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
+		case DND_DAMAGECATEGORY_OCCULT:
+		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
+
+		case DND_DAMAGECATEGORY_FIRE:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
+		case DND_DAMAGECATEGORY_ICE:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_ICE);
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
+		case DND_DAMAGECATEGORY_POISON:
+		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_POISON);
+
+		case DND_DAMAGECATEGORY_SOUL:
+		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT) + GetPlayerAttributeValue(pnum, INV_EX_SOULWEPSPEN);
+	}
+	return 0;
 }
 
 #endif

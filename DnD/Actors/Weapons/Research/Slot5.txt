@@ -520,12 +520,12 @@ Actor HeavyGrenade : DnD_ExplosiveBase {
 		ContinueFromExplosion:
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		PelletLoop:
-			TNT1 A 0 A_JumpIf(user_boomcount == steps, "Finish")
+			TNT1 A 0 A_JumpIf(user_boomcount >= steps, "Finish")
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel", 0, 0, user_boomcount * stepsize, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_SetUserVar("user_boomcount", user_boomcount + 1)
 		Loop
 		Crit:
-			TNT1 A 0 A_JumpIf(user_boomcount == steps, "Finish")
+			TNT1 A 0 A_JumpIf(user_boomcount >= steps, "Finish")
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_Crit", 0, 0, user_boomcount * stepsize, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_SetUserVar("user_boomcount", user_boomcount + 1)
 		Loop

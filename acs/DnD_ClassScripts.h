@@ -110,6 +110,11 @@ Script "DnD Hobo Frenzy Timer" (void) {
     CalculatePlayerAccuracy(PlayerNumber());
 }
 
+void HandleBerserkerRoar(int tid) {
+	GiveActorInventory(tid, "Berserker_NoRoar", 1);
+	ACS_NamedExecuteAlways("DnD Berserker Roar", 0, tid);
+}
+
 Script "DnD Berserker Perk25" (void) {
 	while(CheckInventory("Berserker_DamageTimer")) {
 		delay(const:1);

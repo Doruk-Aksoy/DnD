@@ -130,7 +130,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 				res = temp < UNIQUE_BEGIN;
 
 				// mod count > half case
-				res = res && Max(2, 1 + GetMaxItemAffixes(temp, PlayerInventoryList[pnum][extra].item_subtype) / 2);
+				res = res && PlayerInventoryList[pnum][extra].attrib_count >= Max(2, 1 + GetMaxItemAffixes(temp, PlayerInventoryList[pnum][extra].item_subtype) / 2);
 
 				// fracture case
 				for(i = 0; res && i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
@@ -1109,6 +1109,8 @@ void RevertLastOrbEffect() {
 		case DND_ORB_BRUTE:
 		case DND_ORB_JAGGED:
 		case DND_ORB_SAVAGERY:
+		case DND_ORB_ELEVATION:
+		case DND_ORB_HOLLOW:
 			RestoreItemAttribsFromUsedOrb(pnum);
 		break;
 		case DND_ORB_ALCHEMIST:
@@ -1122,16 +1124,6 @@ void RevertLastOrbEffect() {
 			i = TakeOrbFromPlayer(Player_MostRecent_Orb[pnum].values[0] / 100, Player_MostRecent_Orb[pnum].values[1]);
 			if(i)
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, Player_MostRecent_Orb[pnum].values[0] % 100, i);
-		break;
-		case DND_ORB_ELEVATION:
-		case DND_ORB_HOLLOW:
-			temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
-			PlayerInventoryList[pnum][temp].attrib_count = Player_MostRecent_Orb[pnum].values[0];
-			for(i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-				PlayerInventoryList[pnum][temp].attributes[i].attrib_id = Player_MostRecent_Orb[pnum].values[2 * i + 1];
-				PlayerInventoryList[pnum][temp].attributes[i].attrib_val = Player_MostRecent_Orb[pnum].values[2 * i + 2];
-			}
-			SyncItemAttributes(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		break;
 		case DND_ORB_PHANTASMAL:
 			temp = Player_MostRecent_Orb[pnum].values[0];

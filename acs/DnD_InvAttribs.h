@@ -1050,13 +1050,13 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_FLATPROLIF].attrib_level_modifier = 0;
 	ItemModTable[INV_CHANCE_FLATPROLIF].tags = INV_ATTR_TAG_ELEMENTAL;
 
-	ItemModTable[INV_SHIELD_INCREASE].attrib_low = 3;
-	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 10;
+	ItemModTable[INV_SHIELD_INCREASE].attrib_low = 2;
+	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 5;
 	ItemModTable[INV_SHIELD_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_low = 1;
-	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 6;
+	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 9;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 

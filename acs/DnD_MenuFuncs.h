@@ -5010,9 +5010,25 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
+			// get the pens of 4 elements here
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_FIRE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_ELEMENTAL, 0, 0, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				++k;
+			}
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_ICE);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				++k;
+			}
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_LIGHTNING);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				++k;
+			}
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_POISON);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
 				++k;
 			}
 			// pen block ends

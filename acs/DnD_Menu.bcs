@@ -133,7 +133,7 @@ Script "DnD Menu Reset on Enter CS" (void) CLIENTSIDE {
 }
 
 Script "DnD Sync Shop Stock" (int pnum, int itemid, int val) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
+	if(ConsolePlayerNumber() != pnum)
 		Terminate;
 	ShopStockRemaining[pnum][itemid] = val;
 }

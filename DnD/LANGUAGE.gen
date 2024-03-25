@@ -80,7 +80,11 @@ DND_TALENT2								= "Ballistic";
 DND_TALENT3								= "Energy";
 DND_TALENT4								= "Explosive";
 DND_TALENT5								= "Occult";
-DND_TALENT6								= "Elemental";
+
+DND_TALENT6								= "Fire";
+DND_TALENT7								= "Ice";
+DND_TALENT8								= "Lightning";
+DND_TALENT9								= "Poison";
 
 DND_DAMAGEBONUS							= "damage bonus";
 DND_DAMAGE								= "damage";
