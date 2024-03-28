@@ -820,11 +820,13 @@ int RollItemLevel() {
 	return pavg + random((-pavg + 1) / 2, ITEMLEVEL_VARIANCE_HIGHER);
 }
 
-int CheckItemAttribute(int pnum, int item_pos, int attrib_index, int source, int count) {
+// attrib_id is the raw attribute, like INV_INCHP etc. not an index in the item!
+int CheckItemAttribute(int pnum, int item_pos, int attrib_id, int source, int count) {
 	int i;
-	for(i = 0; i < count; ++i)
-		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_pos, i, source) == attrib_index)
+	for(i = 0; i < count; ++i) {
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_pos, i, source) == attrib_id)
 			return i;
+	}
 	return -1;
 }
 
@@ -1475,7 +1477,7 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 			SetFont("LDTITINS");
 			HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 			by += 24.0;
-			img_off = 96.2;
+			img_off = 96.2 - 32.0 * isOutsideSource;
 		}
 		else {
 			SetFont("LDTITINF");
@@ -2419,7 +2421,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		case INV_CORR_DROPCHANCE:
 			IncPlayerModValue(pnum, INV_DROPCHANCE_INCREASE, aval, noSync);
 		break;
-		case INV_CORR_PERCENTSTAT:
+		case INV_CORR_PERCENTSTATS:
 			IncPlayerModValue(pnum, atype, aval, noSync);
 
 			// for str
@@ -2696,6 +2698,10 @@ bool IsImplicitException(int imp, int rolled_attr) {
 	return false;
 }
 
+bool IsItemBaseException(int type, int subtype, int attr_id) {
+	return attr_id == INV_CYBERNETIC && (type == DND_ITEM_POWERCORE || (type == DND_ITEM_BODYARMOR && subtype == BODYARMOR_CYBER));
+}
+
 int GetHighestModTierOnItem(int pnum, int item_pos) {
 	int count = PlayerInventoryList[pnum][item_pos].attrib_count;
 	int t = 0;
@@ -2706,9 +2712,10 @@ int GetHighestModTierOnItem(int pnum, int item_pos) {
 }
 
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
-int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int special_roll_rule = 0, int implicit_id = -1) {
+int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1) {
 	int bias = Timer() & 0xFFFF;
 	int val;
+	int craftable_id = DND_CRAFTABLEID_CHARM;
 
 	if(item_type == DND_ITEM_CHARM) {
 		// unrestricted picking
@@ -2719,7 +2726,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int special_roll_rule = 
 			val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
 	}
 	else {
-		item_type = MapItemTypeToCraftableID(item_type);
+		craftable_id = MapItemTypeToCraftableID(item_type);
 
 		// find a random valid tag for this item
 		int tag;
@@ -2730,38 +2737,39 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int special_roll_rule = 
 					tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
 
 				// check rule exceptions -- compare vs charms for "cant roll" condition, charms can roll anything
-				if(AttributeTagGroupCount[tag][item_type] < AttributeTagGroupCount[tag][DND_CRAFTABLEID_CHARM]) {
+				if(AttributeTagGroupCount[tag][craftable_id] < AttributeTagGroupCount[tag][DND_CRAFTABLEID_CHARM]) {
 					// check potential special rolls
 					if(CanAllowModRollSpecial(tag, special_roll_rule)) {
 						// charms can roll everything possible, so we switch it to that, and then let it pick from that category
-						item_type = DND_CRAFTABLEID_CHARM;
+						craftable_id = DND_CRAFTABLEID_CHARM;
 						break;
 					}
 				}
 				// we check for "0" here because, if the above doesnt make it reroll into a wider pool, and if theres non-zero, that means we still get valid stuff here
-			} while(!AttributeTagGroupCount[tag][item_type]);
+			} while(!AttributeTagGroupCount[tag][craftable_id]);
 
 			// finally roll the attrib at random from the group
-			val = random(bias, AttributeTagGroupCount[tag][item_type] + bias) - bias;
+			val = random(bias, AttributeTagGroupCount[tag][craftable_id] + bias) - bias;
 			if(val < 0)
-				val = random(0, AttributeTagGroupCount[tag][item_type]);
-			val = AttributeTagGroups[tag][item_type][val];
+				val = random(0, AttributeTagGroupCount[tag][craftable_id]);
+			val = AttributeTagGroups[tag][craftable_id][val];
 			// finally check for implicit exception => Ex: Don't roll EShield on Armor base items!
-		} while(IsImplicitException(implicit_id, val));
+		} while(IsItemBaseException(item_type, item_subtype, val) || IsImplicitException(implicit_id, val));
 	}
 	return val;
 }
 
 void AssignAttributes(int pnum, int item_pos, int itype, int attr_count) {
 	int special_roll = 0;
-	if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && itype == DND_ITEM_BODYARMOR) {
+	int isubt = PlayerInventoryList[pnum][item_pos].item_subtype;
+	if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1) {
 		special_roll = PlayerInventoryList[pnum][item_pos].implicit.attrib_extra;
 	}
 	
 	int i = 0, roll;
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute(itype, special_roll, PlayerInventoryList[pnum][item_pos].implicit.attrib_id);
+			roll = PickRandomAttribute(itype, isubt, special_roll, PlayerInventoryList[pnum][item_pos].implicit.attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) != -1);
 		AddAttributeToItem(pnum, item_pos, roll);
 		++i;
@@ -2810,11 +2818,11 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 
 	if(itype == DND_ITEM_CHARM) {
 		craftable_type = DND_CRAFTABLEID_CHARM;
-		rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
+		rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
 
 		// if this isn't already present on the item in question
 		if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
-			AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
+			AddAttributeToItem(pnum, item_pos, rand_attr);
 			--attr_count;
 		}
 	}
@@ -2825,7 +2833,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 		if(!AttributeTagGroupCount[tag_id][craftable_type]) {
 			if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
 				craftable_type = DND_CRAFTABLEID_CHARM;
-				rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
+				rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
 			}
 			else {
 				// rest of the mods, we can't fit a guaranteed attribute here
@@ -2835,13 +2843,13 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 		}
 		else {
 			// we have an attribute of this type fitting, good, go ahead
-			rand_attr = random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1);
+			rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
 			//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
 		}
 
 		if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
-			//printbold(s:"guaranteed add ", d:AttributeTagGroups[tag_id][craftable_type][rand_attr]);
-			AddAttributeToItem(pnum, item_pos, AttributeTagGroups[tag_id][craftable_type][rand_attr]);
+			//printbold(s:"guaranteed add ", d:rand_attr);
+			AddAttributeToItem(pnum, item_pos, rand_attr);
 			--attr_count;
 		}
 	}

@@ -197,7 +197,7 @@ enum {
 	INV_CORR_WEAPONCRITDMG,
 	INV_CORR_SPEED,
 	INV_CORR_DROPCHANCE,
-	INV_CORR_PERCENTSTAT,
+	INV_CORR_PERCENTSTATS,
 	INV_CORR_WEAPONPCTDMG,
 	INV_CORR_WEAPONPOISONPCT,
 	INV_CORR_WEAPONFORCEPAIN,
@@ -447,11 +447,6 @@ int GetExtraForMod(int mod) {
 			// pick one from a weapon the player owns
 			res = PickRandomOwnedWeaponID();
 		break;
-
-		// extra is the stat id for these --- file header issues, just keep these at 0 and 5... hopefully nothing breaks :)
-		case INV_CORR_PERCENTSTAT:
-			res = random(0, 5);
-		break;
 	}
 	return res;
 }
@@ -580,14 +575,14 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	
-	ItemModTable[INV_EXPGAIN_INCREASE].attrib_low = 0.05;
-	ItemModTable[INV_EXPGAIN_INCREASE].attrib_high = 0.09;
-	ItemModTable[INV_EXPGAIN_INCREASE].attrib_level_modifier = 0.05;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_low = 0.02;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_high = 0.04;
+	ItemModTable[INV_EXPGAIN_INCREASE].attrib_level_modifier = 0.03;
 	ItemModTable[INV_EXPGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_low = 0.05;
-	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_high = 0.09;
-	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_level_modifier = 0.05;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_low = 0.02;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_high = 0.04;
+	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_level_modifier = 0.03;
 	ItemModTable[INV_CREDITGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_low = 0.025;
@@ -886,7 +881,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SLOWEFFECT].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_CHILLTHRESHOLD].attrib_low = 1;
-	ItemModTable[INV_CHILLTHRESHOLD].attrib_high = 5;
+	ItemModTable[INV_CHILLTHRESHOLD].attrib_high = 4;
 	ItemModTable[INV_CHILLTHRESHOLD].attrib_level_modifier = 0;
 	ItemModTable[INV_CHILLTHRESHOLD].tags = INV_ATTR_TAG_ELEMENTAL;
 	
@@ -926,7 +921,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CYBERNETIC].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_MELEERANGE].attrib_low = 2;
-	ItemModTable[INV_MELEERANGE].attrib_high = 6;
+	ItemModTable[INV_MELEERANGE].attrib_high = 10;
 	ItemModTable[INV_MELEERANGE].attrib_level_modifier = 0;
 	ItemModTable[INV_MELEERANGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_MELEE;
 	
@@ -1148,10 +1143,10 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_DROPCHANCE].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_DROPCHANCE].tags = INV_ATTR_TAG_UTILITY;
 
-	ItemModTable[INV_CORR_PERCENTSTAT].attrib_low = 10;
-	ItemModTable[INV_CORR_PERCENTSTAT].attrib_high = 33;
-	ItemModTable[INV_CORR_PERCENTSTAT].attrib_level_modifier = 0;
-	ItemModTable[INV_CORR_PERCENTSTAT].tags = INV_ATTR_TAG_STAT;
+	ItemModTable[INV_CORR_PERCENTSTATS].attrib_low = 10;
+	ItemModTable[INV_CORR_PERCENTSTATS].attrib_high = 33;
+	ItemModTable[INV_CORR_PERCENTSTATS].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_PERCENTSTATS].tags = INV_ATTR_TAG_STAT;
 
 	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_low = 1;
 	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_high = 5;
@@ -1282,19 +1277,21 @@ int GetModTierRangeMapper(int attr, int lvl) {
 #define DND_LARGECHARM_ATTRFACTOR 25
 
 // Add other item properties related to item quality here
-int GetCharmAttributeFactor(int item_type, int item_subtype) {
-	if(item_type != DND_ITEM_CHARM)
+int GetItemAttributeFactor(int item_type, int item_subtype) {
+	if(item_type != DND_ITEM_CHARM && item_type != DND_ITEM_POWERCORE)
 		return 1;
 	
-	if(item_subtype == DND_CHARM_LARGE)
-		return 25;
-	else if(item_subtype == DND_CHARM_SMALL)
-		return -50;
-	return 0;
+	if(item_type == DND_ITEM_CHARM) {
+		if(item_subtype == DND_CHARM_LARGE)
+			return 25;
+		else if(item_subtype == DND_CHARM_SMALL)
+			return -50;
+	}
+	return -33;
 }
 
-int GetCharmAttributeFactorVisual(int item_type, int item_subtype) {
-	int base = GetCharmAttributeFactor(item_type, item_subtype);
+int GetITemAttributeFactorVisual(int item_type, int item_subtype) {
+	int base = GetItemAttributeFactor(item_type, item_subtype);
 
 	return base;
 }
@@ -1324,7 +1321,7 @@ int RollAttributeValue(int attr, int tier, bool isWellRolled, int item_type, int
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 	int temp;
 	
-	int f = GetCharmAttributeFactor(item_type, item_subtype);
+	int f = GetItemAttributeFactor(item_type, item_subtype);
 	
 	// the + 0.0005 is so the edge rolls can be achieved
 	if(!isWellRolled) {
@@ -1359,7 +1356,7 @@ str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 
 	// visually change the attribute values depending on item scale factors
-	int f = GetCharmAttributeFactor(item_type, item_subtype);
+	int f = GetItemAttributeFactor(item_type, item_subtype);
 	
 	if(!trunc_factor) {
 		return StrParam(
@@ -1471,7 +1468,7 @@ str GetArmorImplicitExtraText(str text, int extra) {
 	else if(extra & PPOWER_LIGHTNINGABSORB)
 		text = StrParam(s:text, s:"\n", l:"LIGHTNING_ABSORB");
 	else if(extra & PPOWER_CYBER)
-		text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS", s:"\n", l:"IATTR_T72");
+		text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS", s:"\n\c[R5]", l:"IATTR_T72");
 	else if(extra & PPOWER_CANROLLPHYS)
 		text = StrParam(s:text, s:"\n", l:"CANROLL_PHYS");
 	else if(extra & PPOWER_CANROLLOCCULT)
@@ -2068,6 +2065,8 @@ int MapItemTypeToCraftableID(int type) {
 		return DND_CRAFTABLEID_BOOT;
 		case DND_ITEM_POWERCORE:
 		return DND_CRAFTABLEID_POWERCORE;
+		case DND_ITEM_HELM:
+		return DND_CRAFTABLEID_HELM;
 	}
 	return DND_CRAFTABLEID_CHARM;
 }

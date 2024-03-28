@@ -7,6 +7,8 @@
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 20 // 20% per level
 
+#define DND_MONSTER_RESIST_LEVELS 25
+
 // note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
 // so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
 int GetMonsterHPScaling(int m_id, int level) {
@@ -924,33 +926,37 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON) {
 
 void InitMonsterResists(int m_id) {
 	int temp = 0;
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] = 	MonsterProperties[m_id].trait_list[DND_BULLET_RESIST] * DND_RESIST_FACTOR + 
-																	MonsterProperties[m_id].trait_list[DND_BULLET_IMMUNE] * DND_IMMUNITY_FACTOR;
-	// can be changed later, bullet and melee is just "phys" atm
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_MELEE] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET];
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] =	-MonsterProperties[m_id].trait_list[DND_ENERGY_WEAKNESS] * DND_WEAKNESS_FACTOR + 
+	int bonus = MonsterProperties[m_id].level / DND_MONSTER_RESIST_LEVELS;
+
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] = 	MonsterProperties[m_id].trait_list[DND_BULLET_RESIST] * DND_RESIST_FACTOR + bonus +
+																	MonsterProperties[m_id].trait_list[DND_BULLET_IMMUNE] * DND_IMMUNITY_FACTOR;
+
+	// can be changed later, bullet and melee is just "phys" atm
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_MELEE] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] + bonus;
+
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] =	-MonsterProperties[m_id].trait_list[DND_ENERGY_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus +
 																	MonsterProperties[m_id].trait_list[DND_ENERGY_RESIST] * DND_RESIST_FACTOR + 
 																	MonsterProperties[m_id].trait_list[DND_ENERGY_IMMUNE] * DND_IMMUNITY_FACTOR;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] =	-MonsterProperties[m_id].trait_list[DND_MAGIC_WEAKNESS] * DND_WEAKNESS_FACTOR + 
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] =	-MonsterProperties[m_id].trait_list[DND_MAGIC_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus + 
 																	MonsterProperties[m_id].trait_list[DND_MAGIC_RESIST] * DND_RESIST_FACTOR + 
 																	MonsterProperties[m_id].trait_list[DND_MAGIC_IMMUNE] * DND_IMMUNITY_FACTOR;
 	// this is common to elemental stuff
-	temp =	-MonsterProperties[m_id].trait_list[DND_ELEMENTAL_WEAKNESS] * DND_WEAKNESS_FACTOR + 
+	temp =	-MonsterProperties[m_id].trait_list[DND_ELEMENTAL_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus +
 			MonsterProperties[m_id].trait_list[DND_ELEMENTAL_RESIST] * DND_RESIST_FACTOR + 
 			MonsterProperties[m_id].trait_list[DND_ELEMENTAL_IMMUNE] * DND_IMMUNITY_FACTOR;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] =	-MonsterProperties[m_id].trait_list[DND_FIRE_WEAKNESS] * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = -MonsterProperties[m_id].trait_list[DND_FIRE_WEAKNESS] * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] =	-MonsterProperties[m_id].trait_list[DND_ICE_WEAKNESS] * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = -MonsterProperties[m_id].trait_list[DND_ICE_WEAKNESS] * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
 
 	// these two dont have their own weakness category yet...
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = temp;
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = temp;
 
 	// immune for expl is the radius dmg component, none is not even direct hits etc.
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = 	MonsterProperties[m_id].trait_list[DND_EXPLOSIVE_RESIST] * DND_RESIST_FACTOR + 
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = 	MonsterProperties[m_id].trait_list[DND_EXPLOSIVE_RESIST] * DND_RESIST_FACTOR + bonus +
 																		MonsterProperties[m_id].trait_list[DND_EXPLOSIVE_NONE] * DND_IMMUNITY_FACTOR;
 
 	// soul is same as magic for now
@@ -974,6 +980,11 @@ void InitMonsterResists(int m_id) {
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] -= DND_SPECIFICELEWEAKNESS_FACTOR;
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = DND_IMMUNITY_FACTOR;
 	}
+
+	// do a pass on all categories to clamp them
+	for(int i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END ; ++i)
+		if(MonsterProperties[m_id].resists[i] > DND_IMMUNITY_FACTOR)
+			MonsterProperties[m_id].resists[i] = DND_IMMUNITY_FACTOR;
 }
 
 // this is only used in revive of monsters by itself

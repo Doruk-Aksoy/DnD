@@ -1195,7 +1195,8 @@ int GetPoisonTicrate(int pnum) {
 }
 
 #define DND_BASE_CHILL_SLOW 0.1 // 10% per stack
-#define DND_BASE_CHILL_DAMAGETHRESHOLD 10 // 10% of the monster's health
+#define DND_BASE_CHILL_DAMAGETHRESHOLD 20 // 20% of the monster's health
+#define DBD_CHILL_HARDTHRESHOLD 2
 #define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
 int GetChillEffect(int pnum, int stacks) {
 	// call with 1 stack to get "per stack" value
@@ -1208,7 +1209,7 @@ int GetChillEffect(int pnum, int stacks) {
 }
 
 int GetChillThreshold(int pnum, int stacks) {
-	return (DND_BASE_CHILL_DAMAGETHRESHOLD * (100 + GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100) * stacks;
+	return Clamp_Between((DND_BASE_CHILL_DAMAGETHRESHOLD * (100 - GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100) * stacks, DBD_CHILL_HARDTHRESHOLD, 100);
 }
 
 int GetFreezeChance(int pnum, int stacks) {

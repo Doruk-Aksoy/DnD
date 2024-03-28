@@ -4231,8 +4231,9 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 	EnableBoxWithPoints(p, 3, 334.0, 68.0, 250.0, 60.0);
 
 	// we have three total boxes
+	int i;
 	int id_offset = 7;
-	for(int i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
+	for(i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
 		str borderpic = "SCHNOR";
 		int thisboxid = MBOX_1 + i;
 		bool isHovered = boxid == thisboxid && !CheckInventory("DnD_InventoryView");
@@ -4249,7 +4250,7 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 2 * thisboxid - id_offset, CR_WHITE, hudx, hudy, 0.0, 0.0);
 			
 			if(isHovered)
-				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
+				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, pnum, HUDMAX_X, HUDMAX_Y);
 		}
 		else {
 			SetFont("ORBBAK");
@@ -4414,7 +4415,9 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 	// load rectangles
 	if(!k || CheckInventory("DnD_RefreshPane")) {
 		ResetInventoryPane(p);
+
 		LoadCraftingView(p);
+
 		EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID - 1, CRAFTING_PAGEARROWL_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWL_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
 	
 		// these were lingering

@@ -448,9 +448,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 256.1, 160.0, 0.0);
 				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 256.1, 176.0, 0.0);
 				// draw bonus stat acquired
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 320.1, 144.0, 0.0);
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 320.1, 160.0, 0.0);
-				HudMessage(s:"(+ \cd", d:GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 320.1, 176.0, 0.0);
+				HudMessage(s:"(\cd", d:GetStat(STAT_STR), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 320.1, 144.0, 0.0);
+				HudMessage(s:"(\cd", d:GetStat(STAT_DEX), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 320.1, 160.0, 0.0);
+				HudMessage(s:"(\cd", d:GetStat(STAT_INT), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 320.1, 176.0, 0.0);
 				
 				if(boxid != MAINBOX_NONE && boxid <= MBOX_3) {
 					SetHudClipRect(184, 208, 256, 64, 256);

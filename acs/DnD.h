@@ -658,7 +658,7 @@ void SpawnResearchId(int id) {
 
 void SpawnAccessory(int pnum) {
 	int id;
-	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) {
+	if(isSoftorHardcore()) {
 		do {
 			id = random(1, MAX_ACCESSORY);
 		} while(id == DND_REPLACE_THIS_ACCESSORY);

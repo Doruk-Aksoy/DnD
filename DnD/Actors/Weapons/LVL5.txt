@@ -1498,8 +1498,8 @@ Actor HammerNoThruActors : DnD_Activator {
 }
 
 Actor HammerThrown : DnD_BaseProjectile {
-	Radius 8
-	Height 16
+	Radius 5
+	Height 10
 	Speed 36
 	Scale 1.5
 	BounceType "Hexen"

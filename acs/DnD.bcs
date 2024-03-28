@@ -5537,8 +5537,8 @@ Script 68 (int x) NET {
 			SpawnHelm(0, 0);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
-			//SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 5);
-			//SpawnSpecificOrbForAll(DND_ORB_REPENT, 5);
+			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
+			//SpawnSpecificOrbForAll(DND_ORB_FORTITUDE, 5);
 			//SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
