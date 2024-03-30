@@ -14,8 +14,10 @@ Actor NewBulletPuff : BulletPuff {
 }
 
 Actor NoPuff {
+	Species "Player"
 	+CLIENTSIDEONLY
 	+NOINTERACTION
+	+THRUSPECIES
 	States {
 		Spawn:
 			TNT1 A 1

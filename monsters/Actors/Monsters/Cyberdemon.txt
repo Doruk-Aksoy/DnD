@@ -2820,6 +2820,7 @@ Actor SorcBallProjectileBase {
 	Speed 8
 	Height 10
 	Radius 5
+	Damage (1)
 	+FULLVOLDEATH
 	+CANBOUNCEWATER
 	+NOWALLBOUNCESND

@@ -760,7 +760,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("Credit", GetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc));
 	
 	// load class perks
-	HandleClassPerks();
+	HandleClassPerks(pnum + P_TIDSTART);
 	
 	// make sure starting char code doesn't run
 	SetInventory("ReflectCount", 0);

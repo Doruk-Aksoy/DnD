@@ -1821,8 +1821,6 @@ Script "DnD Update TID CS" (int tid) CLIENTSIDE {
 Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	GiveMonsterTID(ActivatorTID());
 
-	GiveInventory("MakeReflective", 1);
-	
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 	//Make sure mob gets to right amount of hp at this point
 	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
@@ -2428,23 +2426,24 @@ Script "DnD Ankh Checker" (void) {
 
 Script "DnD Player Levelup Check" (void) {
 	int pnum = PlayerNumber();
-	int prevlvl = GetStat(STAT_LVL), exptemp;
+	int tid = pnum + P_TIDSTART;
+	int prevlvl = GetActorStat(tid, STAT_LVL), exptemp;
 	int currlvl;
 
 	// -1 because initial level is 1
 	// we need to check for the current up-to-date level, not previous level here!!
-	while((currlvl = GetStat(STAT_LVL)) < MAXLEVELS && GetStat(STAT_EXP) >= LevelCurve[currlvl - 1]) {
-		exptemp = GetStat(STAT_EXP) - LevelCurve[currlvl - 1];
+	while((currlvl = GetActorStat(tid, STAT_LVL)) < MAXLEVELS && GetActorStat(tid, STAT_EXP) >= LevelCurve[currlvl - 1]) {
+		exptemp = GetActorStat(tid, STAT_EXP) - LevelCurve[currlvl - 1];
 		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
-			GiveInventory("PerkPoint", 1);
+			GiveActorInventory(tid, "PerkPoint", 1);
 			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
-			GiveInventory("PerkedUp", 1);
+			GiveActorInventory(tid, "PerkedUp", 1);
 			ACS_NamedExecuteAlways("DnD Levelup Log", 0, 1);
 		}
 
-		GiveInventory("Level", 1);
-		SetInventory("Exp", exptemp);
-		GiveInventory("AttributePoint", ATTRIB_PER_LEVEL);
+		GiveActorInventory(tid, "Level", 1);
+		SetActorInventory(tid, "Exp", exptemp);
+		GiveActorInventory(tid, "AttributePoint", ATTRIB_PER_LEVEL);
 		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
 		
 		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
@@ -2453,27 +2452,27 @@ Script "DnD Player Levelup Check" (void) {
 		Delay(const:1);
 
 		// don't keep checking if player suffers a terrible fate
-		if(!PlayerInGame(pnum) || !IsAlive())
+		if(!PlayerInGame(pnum) || !IsActorAlive(tid))
 			Terminate;
 	}
 
-	currlvl = GetStat(STAT_LVL) - prevlvl;
+	currlvl = GetActorStat(tid, STAT_LVL) - prevlvl;
 
 	if(currlvl) {
 		LocalAmbientSound("RPG/LevelUp", 127);
-		GiveInventory("LevelUpEffectSpawner", 1);
-		GiveInventory("LeveledUp", 1);
+		GiveActorInventory(tid, "LevelUpEffectSpawner", 1);
+		GiveActorInventory(tid, "LeveledUp", 1);
 		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
-		if(GetStat(STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
+		if(GetActorStat(tid, STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
 			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
 			
 		// sync level cap exp
-		CalculateExpRatio();
+		CalculatePlayerExpRatio(tid);
 		// heal on level up flag is on
 		if(GetCVar("dnd_healonlevelup"))
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
 		
-		currlvl = GetStat(STAT_LVL);
+		currlvl = GetActorStat(tid, STAT_LVL);
 		// player just leveled and got their perks? check if so
 		if
 		(
@@ -2482,7 +2481,7 @@ Script "DnD Player Levelup Check" (void) {
 			(prevlvl < DND_CLASSPERK3_LEVEL && currlvl >= DND_CLASSPERK3_LEVEL)
 		)
 		{
-			HandleClassPerks();
+			HandleClassPerks(tid);
 			
 			// this is done as new perks might increase some damage factors
 			ForcePlayerDamageCaching(pnum);

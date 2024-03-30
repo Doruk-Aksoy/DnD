@@ -485,7 +485,7 @@ void RestoreRPGStat (int statflag) {
 	HandleResearchBonuses();
 	
 	if(!(statflag & RES_NOCLASSPERK))
-		HandleClassPerks();
+		HandleClassPerks(ActivatorTID());
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
@@ -553,74 +553,74 @@ void HandleResearchBonuses() {
 }
 
 // Give powerups and stuff of the classes if they satisfy their perk things
-void HandleClassPerks() {
-	int lvl = CheckInventory("Level");
-	int class = CheckInventory("DnD_Character") - 1; // we use 0 based
+void HandleClassPerks(int tid) {
+	int lvl = CheckActorInventory(tid, "Level");
+	int class = CheckActorInventory(tid, "DnD_Character") - 1; // we use 0 based
 	if(lvl >= 5) {
 		// 1st perk
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
-				GiveInventory("Doomguy_Perk5", 1);
-				TakeInventory("Marine_Perk5", 1);
-				TakeInventory("Hobo_Perk5", 1);
-				TakeInventory("Punisher_Perk5", 1);
-				TakeInventory("Wanderer_Perk5", 1);
-				TakeInventory("Cyborg_Perk5", 1);
-				TakeInventory("Berserker_Perk5", 1);
+				GiveActorInventory(tid, "Doomguy_Perk5", 1);
+				TakeActorInventory(tid, "Marine_Perk5", 1);
+				TakeActorInventory(tid, "Hobo_Perk5", 1);
+				TakeActorInventory(tid, "Punisher_Perk5", 1);
+				TakeActorInventory(tid, "Wanderer_Perk5", 1);
+				TakeActorInventory(tid, "Cyborg_Perk5", 1);
+				TakeActorInventory(tid, "Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_MARINE:
-				GiveInventory("Marine_Perk5", 1);
-				TakeInventory("Doomguy_Perk5", 1);
-				TakeInventory("Hobo_Perk5", 1);
-				TakeInventory("Punisher_Perk5", 1);
-				TakeInventory("Wanderer_Perk5", 1);
-				TakeInventory("Cyborg_Perk5", 1);
-				TakeInventory("Berserker_Perk5", 1);
+				GiveActorInventory(tid, "Marine_Perk5", 1);
+				TakeActorInventory(tid, "Doomguy_Perk5", 1);
+				TakeActorInventory(tid, "Hobo_Perk5", 1);
+				TakeActorInventory(tid, "Punisher_Perk5", 1);
+				TakeActorInventory(tid, "Wanderer_Perk5", 1);
+				TakeActorInventory(tid, "Cyborg_Perk5", 1);
+				TakeActorInventory(tid, "Berserker_Perk5", 1);
 			break;			
 			case DND_PLAYER_HOBO:
-				GiveInventory("Hobo_Perk5", 1);
-				TakeInventory("Doomguy_Perk5", 1);
-				TakeInventory("Marine_Perk5", 1);
-				TakeInventory("Punisher_Perk5", 1);
-				TakeInventory("Wanderer_Perk5", 1);
-				TakeInventory("Cyborg_Perk5", 1);
-				TakeInventory("Berserker_Perk5", 1);
+				GiveActorInventory(tid, "Hobo_Perk5", 1);
+				TakeActorInventory(tid, "Doomguy_Perk5", 1);
+				TakeActorInventory(tid, "Marine_Perk5", 1);
+				TakeActorInventory(tid, "Punisher_Perk5", 1);
+				TakeActorInventory(tid, "Wanderer_Perk5", 1);
+				TakeActorInventory(tid, "Cyborg_Perk5", 1);
+				TakeActorInventory(tid, "Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
-				GiveInventory("Punisher_Perk5", 1);
-				TakeInventory("Doomguy_Perk5", 1);
-				TakeInventory("Marine_Perk5", 1);
-				TakeInventory("Hobo_Perk5", 1);
-				TakeInventory("Wanderer_Perk5", 1);
-				TakeInventory("Cyborg_Perk5", 1);
-				TakeInventory("Berserker_Perk5", 1);
+				GiveActorInventory(tid, "Punisher_Perk5", 1);
+				TakeActorInventory(tid, "Doomguy_Perk5", 1);
+				TakeActorInventory(tid, "Marine_Perk5", 1);
+				TakeActorInventory(tid, "Hobo_Perk5", 1);
+				TakeActorInventory(tid, "Wanderer_Perk5", 1);
+				TakeActorInventory(tid, "Cyborg_Perk5", 1);
+				TakeActorInventory(tid, "Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_WANDERER:
-				GiveInventory("Wanderer_Perk5", 1);
-				TakeInventory("Doomguy_Perk5", 1);
-				TakeInventory("Marine_Perk5", 1);
-				TakeInventory("Hobo_Perk5", 1);
-				TakeInventory("Punisher_Perk5", 1);
-				TakeInventory("Cyborg_Perk5", 1);
-				TakeInventory("Berserker_Perk5", 1);
+				GiveActorInventory(tid, "Wanderer_Perk5", 1);
+				TakeActorInventory(tid, "Doomguy_Perk5", 1);
+				TakeActorInventory(tid, "Marine_Perk5", 1);
+				TakeActorInventory(tid, "Hobo_Perk5", 1);
+				TakeActorInventory(tid, "Punisher_Perk5", 1);
+				TakeActorInventory(tid, "Cyborg_Perk5", 1);
+				TakeActorInventory(tid, "Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_CYBORG:
-				GiveInventory("Cyborg_Perk5", 1);
-				TakeInventory("Doomguy_Perk5", 1);
-				TakeInventory("Marine_Perk5", 1);
-				TakeInventory("Hobo_Perk5", 1);
-				TakeInventory("Punisher_Perk5", 1);
-				TakeInventory("Wanderer_Perk5", 1);
-				TakeInventory("Berserker_Perk5", 1);
+				GiveActorInventory(tid, "Cyborg_Perk5", 1);
+				TakeActorInventory(tid, "Doomguy_Perk5", 1);
+				TakeActorInventory(tid, "Marine_Perk5", 1);
+				TakeActorInventory(tid, "Hobo_Perk5", 1);
+				TakeActorInventory(tid, "Punisher_Perk5", 1);
+				TakeActorInventory(tid, "Wanderer_Perk5", 1);
+				TakeActorInventory(tid, "Berserker_Perk5", 1);
 			break;
 			case DND_PLAYER_BERSERKER:
-				GiveInventory("Berserker_Perk5", 1);
-				TakeInventory("Doomguy_Perk5", 1);
-				TakeInventory("Marine_Perk5", 1);
-				TakeInventory("Hobo_Perk5", 1);
-				TakeInventory("Punisher_Perk5", 1);
-				TakeInventory("Wanderer_Perk5", 1);
-				TakeInventory("Cyborg_Perk5", 1);
+				GiveActorInventory(tid, "Berserker_Perk5", 1);
+				TakeActorInventory(tid, "Doomguy_Perk5", 1);
+				TakeActorInventory(tid, "Marine_Perk5", 1);
+				TakeActorInventory(tid, "Hobo_Perk5", 1);
+				TakeActorInventory(tid, "Punisher_Perk5", 1);
+				TakeActorInventory(tid, "Wanderer_Perk5", 1);
+				TakeActorInventory(tid, "Cyborg_Perk5", 1);
 			break;
 		}
 	}
@@ -629,67 +629,67 @@ void HandleClassPerks() {
 		// 2nd perk
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
-				GiveInventory("Doomguy_Perk25", 1);
-				TakeInventory("Marine_Perk25", 1);
-				TakeInventory("Hobo_Perk25", 1);
-				TakeInventory("Punisher_Perk25", 1);
-				TakeInventory("Wanderer_Perk25", 1);
-				TakeInventory("Cyborg_Perk25", 1);
-				TakeInventory("Berserker_Perk25", 1);
+				GiveActorInventory(tid, "Doomguy_Perk25", 1);
+				TakeActorInventory(tid, "Marine_Perk25", 1);
+				TakeActorInventory(tid, "Hobo_Perk25", 1);
+				TakeActorInventory(tid, "Punisher_Perk25", 1);
+				TakeActorInventory(tid, "Wanderer_Perk25", 1);
+				TakeActorInventory(tid, "Cyborg_Perk25", 1);
+				TakeActorInventory(tid, "Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_MARINE:
-				GiveInventory("Marine_Perk25", 1);
-				TakeInventory("Doomguy_Perk25", 1);
-				TakeInventory("Hobo_Perk25", 1);
-				TakeInventory("Punisher_Perk25", 1);
-				TakeInventory("Wanderer_Perk25", 1);
-				TakeInventory("Cyborg_Perk25", 1);
-				TakeInventory("Berserker_Perk25", 1);
+				GiveActorInventory(tid, "Marine_Perk25", 1);
+				TakeActorInventory(tid, "Doomguy_Perk25", 1);
+				TakeActorInventory(tid, "Hobo_Perk25", 1);
+				TakeActorInventory(tid, "Punisher_Perk25", 1);
+				TakeActorInventory(tid, "Wanderer_Perk25", 1);
+				TakeActorInventory(tid, "Cyborg_Perk25", 1);
+				TakeActorInventory(tid, "Berserker_Perk25", 1);
 			break;			
 			case DND_PLAYER_HOBO:
-				GiveInventory("Hobo_Perk25", 1);
-				TakeInventory("Doomguy_Perk25", 1);
-				TakeInventory("Marine_Perk25", 1);
-				TakeInventory("Punisher_Perk25", 1);
-				TakeInventory("Wanderer_Perk25", 1);
-				TakeInventory("Cyborg_Perk25", 1);
-				TakeInventory("Berserker_Perk25", 1);
+				GiveActorInventory(tid, "Hobo_Perk25", 1);
+				TakeActorInventory(tid, "Doomguy_Perk25", 1);
+				TakeActorInventory(tid, "Marine_Perk25", 1);
+				TakeActorInventory(tid, "Punisher_Perk25", 1);
+				TakeActorInventory(tid, "Wanderer_Perk25", 1);
+				TakeActorInventory(tid, "Cyborg_Perk25", 1);
+				TakeActorInventory(tid, "Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
-				GiveInventory("Punisher_Perk25", 1);
-				TakeInventory("Doomguy_Perk25", 1);
-				TakeInventory("Marine_Perk25", 1);
-				TakeInventory("Hobo_Perk25", 1);
-				TakeInventory("Wanderer_Perk25", 1);
-				TakeInventory("Cyborg_Perk25", 1);
-				TakeInventory("Berserker_Perk25", 1);
+				GiveActorInventory(tid, "Punisher_Perk25", 1);
+				TakeActorInventory(tid, "Doomguy_Perk25", 1);
+				TakeActorInventory(tid, "Marine_Perk25", 1);
+				TakeActorInventory(tid, "Hobo_Perk25", 1);
+				TakeActorInventory(tid, "Wanderer_Perk25", 1);
+				TakeActorInventory(tid, "Cyborg_Perk25", 1);
+				TakeActorInventory(tid, "Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_WANDERER:
-				GiveInventory("Wanderer_Perk25", 1);
-				TakeInventory("Doomguy_Perk25", 1);
-				TakeInventory("Marine_Perk25", 1);
-				TakeInventory("Hobo_Perk25", 1);
-				TakeInventory("Punisher_Perk25", 1);
-				TakeInventory("Cyborg_Perk25", 1);
-				TakeInventory("Berserker_Perk25", 1);
+				GiveActorInventory(tid, "Wanderer_Perk25", 1);
+				TakeActorInventory(tid, "Doomguy_Perk25", 1);
+				TakeActorInventory(tid, "Marine_Perk25", 1);
+				TakeActorInventory(tid, "Hobo_Perk25", 1);
+				TakeActorInventory(tid, "Punisher_Perk25", 1);
+				TakeActorInventory(tid, "Cyborg_Perk25", 1);
+				TakeActorInventory(tid, "Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_CYBORG:
-				GiveInventory("Cyborg_Perk25", 1);
-				TakeInventory("Doomguy_Perk25", 1);
-				TakeInventory("Marine_Perk25", 1);
-				TakeInventory("Hobo_Perk25", 1);
-				TakeInventory("Punisher_Perk25", 1);
-				TakeInventory("Wanderer_Perk25", 1);
-				TakeInventory("Berserker_Perk25", 1);
+				GiveActorInventory(tid, "Cyborg_Perk25", 1);
+				TakeActorInventory(tid, "Doomguy_Perk25", 1);
+				TakeActorInventory(tid, "Marine_Perk25", 1);
+				TakeActorInventory(tid, "Hobo_Perk25", 1);
+				TakeActorInventory(tid, "Punisher_Perk25", 1);
+				TakeActorInventory(tid, "Wanderer_Perk25", 1);
+				TakeActorInventory(tid, "Berserker_Perk25", 1);
 			break;
 			case DND_PLAYER_BERSERKER:
-				GiveInventory("Berserker_Perk25", 1);
-				TakeInventory("Doomguy_Perk25", 1);
-				TakeInventory("Marine_Perk25", 1);
-				TakeInventory("Hobo_Perk25", 1);
-				TakeInventory("Punisher_Perk25", 1);
-				TakeInventory("Wanderer_Perk25", 1);
-				TakeInventory("Cyborg_Perk25", 1);
+				GiveActorInventory(tid, "Berserker_Perk25", 1);
+				TakeActorInventory(tid, "Doomguy_Perk25", 1);
+				TakeActorInventory(tid, "Marine_Perk25", 1);
+				TakeActorInventory(tid, "Hobo_Perk25", 1);
+				TakeActorInventory(tid, "Punisher_Perk25", 1);
+				TakeActorInventory(tid, "Wanderer_Perk25", 1);
+				TakeActorInventory(tid, "Cyborg_Perk25", 1);
 			break;
 		}
 	}
@@ -698,67 +698,67 @@ void HandleClassPerks() {
 		// 3rd perk
 		switch(class) {
 			case DND_PLAYER_DOOMGUY:
-				GiveInventory("Doomguy_Perk50", 1);
-				TakeInventory("Marine_Perk50", 1);
-				TakeInventory("Hobo_Perk50", 1);
-				TakeInventory("Punisher_Perk50", 1);
-				TakeInventory("Wanderer_Perk50", 1);
-				TakeInventory("Cyborg_Perk50", 1);
-				TakeInventory("Berserker_Perk50", 1);
+				GiveActorInventory(tid, "Doomguy_Perk50", 1);
+				TakeActorInventory(tid, "Marine_Perk50", 1);
+				TakeActorInventory(tid, "Hobo_Perk50", 1);
+				TakeActorInventory(tid, "Punisher_Perk50", 1);
+				TakeActorInventory(tid, "Wanderer_Perk50", 1);
+				TakeActorInventory(tid, "Cyborg_Perk50", 1);
+				TakeActorInventory(tid, "Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_MARINE:
-				GiveInventory("Marine_Perk50", 1);
-				TakeInventory("Doomguy_Perk50", 1);
-				TakeInventory("Hobo_Perk50", 1);
-				TakeInventory("Punisher_Perk50", 1);
-				TakeInventory("Wanderer_Perk50", 1);
-				TakeInventory("Cyborg_Perk50", 1);
-				TakeInventory("Berserker_Perk50", 1);
+				GiveActorInventory(tid, "Marine_Perk50", 1);
+				TakeActorInventory(tid, "Doomguy_Perk50", 1);
+				TakeActorInventory(tid, "Hobo_Perk50", 1);
+				TakeActorInventory(tid, "Punisher_Perk50", 1);
+				TakeActorInventory(tid, "Wanderer_Perk50", 1);
+				TakeActorInventory(tid, "Cyborg_Perk50", 1);
+				TakeActorInventory(tid, "Berserker_Perk50", 1);
 			break;			
 			case DND_PLAYER_HOBO:
-				GiveInventory("Hobo_Perk50", 1);
-				TakeInventory("Doomguy_Perk50", 1);
-				TakeInventory("Marine_Perk50", 1);
-				TakeInventory("Punisher_Perk50", 1);
-				TakeInventory("Wanderer_Perk50", 1);
-				TakeInventory("Cyborg_Perk50", 1);
-				TakeInventory("Berserker_Perk50", 1);
+				GiveActorInventory(tid, "Hobo_Perk50", 1);
+				TakeActorInventory(tid, "Doomguy_Perk50", 1);
+				TakeActorInventory(tid, "Marine_Perk50", 1);
+				TakeActorInventory(tid, "Punisher_Perk50", 1);
+				TakeActorInventory(tid, "Wanderer_Perk50", 1);
+				TakeActorInventory(tid, "Cyborg_Perk50", 1);
+				TakeActorInventory(tid, "Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_PUNISHER:
-				GiveInventory("Punisher_Perk50", 1);
-				TakeInventory("Doomguy_Perk50", 1);
-				TakeInventory("Marine_Perk50", 1);
-				TakeInventory("Hobo_Perk50", 1);
-				TakeInventory("Wanderer_Perk50", 1);
-				TakeInventory("Cyborg_Perk50", 1);
-				TakeInventory("Berserker_Perk50", 1);
+				GiveActorInventory(tid, "Punisher_Perk50", 1);
+				TakeActorInventory(tid, "Doomguy_Perk50", 1);
+				TakeActorInventory(tid, "Marine_Perk50", 1);
+				TakeActorInventory(tid, "Hobo_Perk50", 1);
+				TakeActorInventory(tid, "Wanderer_Perk50", 1);
+				TakeActorInventory(tid, "Cyborg_Perk50", 1);
+				TakeActorInventory(tid, "Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_WANDERER:
-				GiveInventory("Wanderer_Perk50", 1);
-				TakeInventory("Doomguy_Perk50", 1);
-				TakeInventory("Marine_Perk50", 1);
-				TakeInventory("Hobo_Perk50", 1);
-				TakeInventory("Punisher_Perk50", 1);
-				TakeInventory("Cyborg_Perk50", 1);
-				TakeInventory("Berserker_Perk50", 1);
+				GiveActorInventory(tid, "Wanderer_Perk50", 1);
+				TakeActorInventory(tid, "Doomguy_Perk50", 1);
+				TakeActorInventory(tid, "Marine_Perk50", 1);
+				TakeActorInventory(tid, "Hobo_Perk50", 1);
+				TakeActorInventory(tid, "Punisher_Perk50", 1);
+				TakeActorInventory(tid, "Cyborg_Perk50", 1);
+				TakeActorInventory(tid, "Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_CYBORG:
-				GiveInventory("Cyborg_Perk50", 1);
-				TakeInventory("Doomguy_Perk50", 1);
-				TakeInventory("Marine_Perk50", 1);
-				TakeInventory("Hobo_Perk50", 1);
-				TakeInventory("Punisher_Perk50", 1);
-				TakeInventory("Wanderer_Perk50", 1);
-				TakeInventory("Berserker_Perk50", 1);
+				GiveActorInventory(tid, "Cyborg_Perk50", 1);
+				TakeActorInventory(tid, "Doomguy_Perk50", 1);
+				TakeActorInventory(tid, "Marine_Perk50", 1);
+				TakeActorInventory(tid, "Hobo_Perk50", 1);
+				TakeActorInventory(tid, "Punisher_Perk50", 1);
+				TakeActorInventory(tid, "Wanderer_Perk50", 1);
+				TakeActorInventory(tid, "Berserker_Perk50", 1);
 			break;
 			case DND_PLAYER_BERSERKER:
-				GiveInventory("Berserker_Perk50", 1);
-				TakeInventory("Doomguy_Perk50", 1);
-				TakeInventory("Marine_Perk50", 1);
-				TakeInventory("Hobo_Perk50", 1);
-				TakeInventory("Punisher_Perk50", 1);
-				TakeInventory("Wanderer_Perk50", 1);
-				TakeInventory("Cyborg_Perk50", 1);
+				GiveActorInventory(tid, "Berserker_Perk50", 1);
+				TakeActorInventory(tid, "Doomguy_Perk50", 1);
+				TakeActorInventory(tid, "Marine_Perk50", 1);
+				TakeActorInventory(tid, "Hobo_Perk50", 1);
+				TakeActorInventory(tid, "Punisher_Perk50", 1);
+				TakeActorInventory(tid, "Wanderer_Perk50", 1);
+				TakeActorInventory(tid, "Cyborg_Perk50", 1);
 			break;
 		}
 	}

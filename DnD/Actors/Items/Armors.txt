@@ -447,6 +447,11 @@ Actor ArmorDrop_7 : ArmorDrop {
 		Spawn:
 			AR14 A 0
 		Goto SpawnInit
+		
+		SpawnLoop:
+		Idle:
+			AR14 AAABBBCCCDDDEEE 1 A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 

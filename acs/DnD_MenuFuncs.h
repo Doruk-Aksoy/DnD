@@ -3179,6 +3179,8 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 }
 
 void PlayItemDropSound(int type, bool use_activator_sound) {
+	type &= 0xFFFF;
+
 	str snd = "Items/Drop";
 	if(type == DND_ITEM_BODYARMOR)
 		snd = "Items/ArmorEquip";
@@ -4290,8 +4292,8 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, int item_type, int item_source) {
 	int mx, my;
 	
-	mx = HUDMAX_XF - (x & MMASK) + 16.1; 
-	my = HUDMAX_YF - (y & MMASK) + 16.1; 
+	mx = HUDMAX_XF - (x & MMASK) + 16.1;
+	my = HUDMAX_YF - (y & MMASK) + 16.1;
 
 	// to force them to appear in window
 	if(mx > INVENTORYINFO_NORMALVIEW_WRAPX)
@@ -4892,29 +4894,6 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 		return index - SHOP_FIRSTAMMOSPECIAL_INDEX;
 	// keep this return structure as is, if the top loop finds nothing silently return 0
 	return 0;
-}
-
-void ResetShopStock(int pnum) {
-	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
-	for(int j = 0; j < MAXSHOPITEMS; ++j) {
-		// ammo has different stock method -- half of initial capacity
-		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
-			temp = GetAmmoSlotAndIndexFromShop(j);
-			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
-				// overflow fix
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
-				int ovf_temp = INT_MAX / ammo_bonus;
-				if(ShopStockRemaining[pnum][j] > ovf_temp)
-					ShopStockRemaining[pnum][j] = ovf_temp;
-				else
-					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
-			}
-			else
-				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
-		}
-		else
-			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
-	}
 }
 
 // not sure how to group these for other places, their calculations arent exactly done in straightforward fashion so calculating as they come makes sense

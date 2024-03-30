@@ -519,6 +519,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
+
+					// special rail attack stuff
+					// check if circle attack, fire in circle otherwise
+					if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE))
+						Do_Railgun_Attack("MagnumPuff_RailHelper", count);
+					else
+						GiveInventory("MagnumPuff_RailHelper_Circle", 1);
 				break;
 				case 1:
 					count = 10;
@@ -572,6 +579,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
+
+					// special rail attack stuff
+					// check if circle attack, fire in circle otherwise
+					if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE))
+						Do_Railgun_Attack("MagnumPuff_RailHelper", count);
+					else
+						GiveInventory("MagnumPuff_RailHelper_Circle", 1);
 				break;
 				case 1:
 					count = 10;
@@ -766,6 +780,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
+
+					// special rail attack stuff
+					// check if circle attack, fire in circle otherwise
+					if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE))
+						Do_Railgun_Attack("MagnumPuff_RailHelper", count);
+					else
+						GiveInventory("MagnumPuff_RailHelper_Circle", 1);
 				break;
 				case 1:
 					count = 10;
@@ -1868,6 +1889,11 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				sp_y = sp_y * 5 / 4;
 			else
 				sp_y = 1.8;
+
+			// dont shoot as many as the pellet count, but less
+			if(count > 1)
+				count = count * 2 / 3;
+
 			Do_Projectile_Attack(owner, pnum, DND_PROJ_INSTABILITY, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
 		}
 		else

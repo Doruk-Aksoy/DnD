@@ -1468,6 +1468,8 @@ Actor HammerSeeker : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("HammerSeekDelay", 1, "DoNothing")
 			TNT1 A 0 A_SeekerMissile(45, 45, SMF_CURSPEED | SMF_PRECISE | SMF_LOOK)
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 1, "Clear", AAPTR_TRACER)
+			TNT1 A 0 A_CheckFlag("FRIENDLY", "Clear", AAPTR_TRACER)
 			TNT1 A 0 A_JumpIfCloser(800, "DoNothing")
 		Goto ReturnToOwner
 		DoNothing:
@@ -1475,6 +1477,9 @@ Actor HammerSeeker : DnD_Activator {
 		Stop
 		ReturnToOwner:
 			TNT1 A 0 A_GiveToTarget("HammerReturnSignal", 1)
+		Stop
+		Clear:
+			TNT1 A 0 A_RearrangePointers(AAPTR_DEFAULT, AAPTR_DEFAULT, AAPTR_NULL)
 		Stop
 	}
 }
@@ -1552,12 +1557,13 @@ Actor HammerThrown : DnD_BaseProjectile {
 		Bounce.Wall:
 			"####" "#" 0 A_SetUserVar("user_bcount", user_bcount + 1)
 			"####" "#" 0 A_JumpIf(user_bcount >= max_bounces, "Disappear")
-			"####" "#" 2 A_ChangeFlag("SEEKERMISSILE", 1)
+			"####" "#" 2
 		Goto SpawnStateLoop
 		Bounce.Actor:
 			"####" "#" 0 A_SetUserVar("user_lifetime", 0)
 			"####" "#" 0 A_GiveInventory("HammerSeekDelay", 1)
 			"####" "#" 0 A_GiveInventory("DnD_Boolean", 1)
+			"####" "#" 0 A_ChangeFlag("SEEKERMISSILE", 1)
 			"####" "#" 0 A_SetUserVar("user_bcount", user_bcount + 1)
 			"####" "#" 0 A_PlaySound("Hammer/BounceOffActor", CHAN_5)
 			"####" "#" 0 Radius_Quake(4,3,0,1,0)

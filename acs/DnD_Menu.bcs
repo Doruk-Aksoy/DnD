@@ -115,21 +115,61 @@ Script "DnD Transmute Orb Sync" (int pnum, int id, int val) CLIENTSIDE {
 }
 
 Script "DnD Menu Reset on Enter" ENTER {
-	ResetShopStock(PlayerNumber());
-	ACS_NamedExecuteAlways("DnD Menu Reset on Enter CS", 0);
+	int pnum = PlayerNumber();
+	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
+	for(int j = 0; j < MAXSHOPITEMS; ++j) {
+		// ammo has different stock method -- half of initial capacity
+		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
+			temp = GetAmmoSlotAndIndexFromShop(j);
+			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
+				// overflow fix
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
+				int ovf_temp = INT_MAX / ammo_bonus;
+				if(ShopStockRemaining[pnum][j] > ovf_temp)
+					ShopStockRemaining[pnum][j] = ovf_temp;
+				else
+					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
+			}
+			else
+				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
+		}
+		else
+			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
+		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, ShopStockRemaining[pnum][j]);
+		
+		// just to balance the load a bit and not overwhelm
+		if(!(j % 10))
+			Delay(const:1);
+	}
 }
 
 // So database can run this
 Script "DnD Menu Reset Forced" (void) {
-	ResetShopStock(PlayerNumber());
-	ACS_NamedExecuteAlways("DnD Menu Reset on Enter CS", 0);
-}
+	int pnum = PlayerNumber();
+	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
+	for(int j = 0; j < MAXSHOPITEMS; ++j) {
+		// ammo has different stock method -- half of initial capacity
+		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
+			temp = GetAmmoSlotAndIndexFromShop(j);
+			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
+				// overflow fix
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
+				int ovf_temp = INT_MAX / ammo_bonus;
+				if(ShopStockRemaining[pnum][j] > ovf_temp)
+					ShopStockRemaining[pnum][j] = ovf_temp;
+				else
+					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
+			}
+			else
+				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
+		}
+		else
+			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
+		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, ShopStockRemaining[pnum][j]);
 
-Script "DnD Menu Reset on Enter CS" (void) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-	// this is needed to sync them between the client & server
-	ResetShopStock(PlayerNumber());
+		if(!(j % 10))
+			Delay(const:1);
+	}
 }
 
 Script "DnD Sync Shop Stock" (int pnum, int itemid, int val) CLIENTSIDE {

@@ -2049,7 +2049,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category);
 
 	if(flags & DMG_WDMG_ESHIELDSCALE)
-		dmg += CheckInventory("EShieldAmount") / 10; // 10%
+		dmg += CheckInventory("EShieldAmount") / 20; // 5%
 	
 	// attribute bonus
 	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
