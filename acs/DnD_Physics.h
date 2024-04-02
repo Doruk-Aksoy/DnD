@@ -5,8 +5,8 @@
 #define DND_DMGPUSH_MASSCAP 32768
 
 void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeRipperHack = false) {
-	// if not to be pushed, ignore
-	if(CheckFlag(victim, "NODAMAGETHRUST"))
+	// if not to be pushed, ignore -- but push players by their own self dmg!
+	if(CheckFlag(victim, "NODAMAGETHRUST") && !IsPlayer(victim))
 		return;
 
 	// get push vector

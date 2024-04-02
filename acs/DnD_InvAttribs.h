@@ -920,7 +920,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CYBERNETIC].attrib_level_modifier = 1;
 	ItemModTable[INV_CYBERNETIC].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_MELEERANGE].attrib_low = 2;
+	ItemModTable[INV_MELEERANGE].attrib_low = 5;
 	ItemModTable[INV_MELEERANGE].attrib_high = 10;
 	ItemModTable[INV_MELEERANGE].attrib_level_modifier = 0;
 	ItemModTable[INV_MELEERANGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_MELEE;
@@ -1273,6 +1273,7 @@ int GetModTierRangeMapper(int attr, int lvl) {
 #define ITEM_MODRANGE_LOW 0
 #define ITEM_MODRANGE_HIGH 1
 
+#define DND_POWERCORE_ATTRFACTOR -33
 #define DND_SMALLCHARM_ATTRFACTOR -50
 #define DND_LARGECHARM_ATTRFACTOR 25
 
@@ -1283,11 +1284,11 @@ int GetItemAttributeFactor(int item_type, int item_subtype) {
 	
 	if(item_type == DND_ITEM_CHARM) {
 		if(item_subtype == DND_CHARM_LARGE)
-			return 25;
+			return DND_LARGECHARM_ATTRFACTOR;
 		else if(item_subtype == DND_CHARM_SMALL)
-			return -50;
+			return DND_SMALLCHARM_ATTRFACTOR;
 	}
-	return -33;
+	return DND_POWERCORE_ATTRFACTOR;
 }
 
 int GetITemAttributeFactorVisual(int item_type, int item_subtype) {

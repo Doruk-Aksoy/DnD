@@ -25,7 +25,7 @@
 #define DND_DISASSEMBLE_IMPLICIT_PERCENT 33
 #define DND_DISASSEMBLE_TIER_PERCENT 25
 #define DND_BASE_DISASSEMBLE_CHANCE 25 // 25%
-#define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 10 // 20%
+#define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 5 // 5%
 #define DND_BASE_FRACTURE_DISASSEMBLE_CHANCE 3
 #define DND_BASE_CORRUPT_DISASSEMBLE_CHANCE 5
 #define DND_BASE_ILVL_YIELD 10
@@ -2630,8 +2630,11 @@ int ScourItem(int pnum, int item_pos) {
 		// is this fractured
 		if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured) {
 			// if fractured mods are on top, ordered, do not erase or do anything
-			if(frac_id == i)
+			if(frac_id == i) {
+				// increment this too because we are technically moving over it!
+				++frac_id;
 				continue;
+			}
 			// move the fractured mod to the beginning
 			PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val;
 			PlayerInventoryList[pnum][item_pos].attributes[frac_id].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
@@ -3111,6 +3114,10 @@ int GetDissassembleChance(int pnum, int item_pos) {
 	
 	if(yields > 0xFFFF)
 		yields = 0xFFFF;
+
+	// limit it
+	if(chance > 100)
+		chance = 100;
 
 	return (chance << 16) + yields;
 }

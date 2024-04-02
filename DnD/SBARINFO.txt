@@ -949,7 +949,7 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
 			}
 			
-			IsSelected "ResPlasma3" {
+			IsSelected "ResPlasma3", "Upgraded BFG 9000" {
 				drawimage "H_ARFW01", -185, -74;
 				drawbar "H_BRFILR", "H_BRFBGR", ammo2, horizontal, reverse, -182, -71;
 				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
@@ -974,7 +974,7 @@ statusbar normal, fullscreenoffsets {
 			}
 
 			IsSelected not "Upgraded Plasma Rifle" {
-				IsSelected not "ResBfg1" {
+				IsSelected not "ResBfg1", "Upgraded BFG 9000" {
 					IsSelected not "ResRL3", "ResPlasma3" {
 						IsSelected not "Desolator" {
 							IsSelected not " Machine Gun ", "ResMG1" {
@@ -1009,7 +1009,7 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
 			}
 			
-			IsSelected "ResPlasma3" {
+			IsSelected "ResPlasma3", "Upgraded BFG 9000" {
 				drawimage "H_BRFRMX", -185, -74;
 				drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
 				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo2, -189, -73;
@@ -1023,7 +1023,7 @@ statusbar normal, fullscreenoffsets {
 			
 			// not inverse bar
 			IsSelected not "Upgraded Plasma Rifle" {
-				IsSelected not "ResBfg1" {
+				IsSelected not "ResBfg1", "Upgraded BFG 9000" {
 					IsSelected not "ResRL3", "ResPlasma3" {
 						IsSelected not "Desolator" {
 							drawimage "H_ARFW01", -185, -74;

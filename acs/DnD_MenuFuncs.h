@@ -4917,9 +4917,9 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// melee range
-			val = GetMeleeRangeIncrease(pnum + P_TIDSTART);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_MELEERANGE, 0, 0, val), s:"\n");
+			val = GetPlayerMeleeRange(pnum + P_TIDSTART, 100.0);
+			if(val != 100.0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetFixedRepresentation(val, false), s:"%\n");
 				++k;
 			}
 

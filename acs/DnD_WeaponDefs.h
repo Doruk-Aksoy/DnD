@@ -8,6 +8,8 @@
 
 #define LESS_OVERHEAT_FACTOR 20
 
+#define THUNDERSTAFF_SELFDMG_DIST 160.0
+
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 // Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
@@ -906,7 +908,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_name1 = "Cell";
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_VOIDCANNON].icon = "WEPICO96";
-	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_use1 = 25;
 	Weapons_Data[DND_WEAPON_VOIDCANNON].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_VOIDCANNON].properties = WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
 	Weapons_Data[DND_WEAPON_VOIDCANNON].attunement[STAT_STR] = 0.04;
@@ -1079,11 +1081,11 @@ void SetupWeaponData() {
 	
 	Weapons_Data[DND_WEAPON_BFG32768].name = "Upgraded BFG 9000";
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_name1 = "Cell";
-	Weapons_Data[DND_WEAPON_BFG32768].ammo_name2 = "";
+	Weapons_Data[DND_WEAPON_BFG32768].ammo_name2 = "BFG32768Overheat";
 	Weapons_Data[DND_WEAPON_BFG32768].icon = "WEPICO65";
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_use1 = 75;
 	Weapons_Data[DND_WEAPON_BFG32768].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_BFG32768].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH;
+	Weapons_Data[DND_WEAPON_BFG32768].properties = WPROP_IGNORESHIELD | WPROP_NOREFLECT | WPROP_TECH | WPROP_OVERHEAT;
 	Weapons_Data[DND_WEAPON_BFG32768].attunement[STAT_STR] = 0.025;
 	Weapons_Data[DND_WEAPON_BFG32768].attunement[STAT_DEX] = 0.01;
 	Weapons_Data[DND_WEAPON_BFG32768].attunement[STAT_INT] = 0.015;
@@ -1432,17 +1434,19 @@ enum {
 	DND_OVERHEAT_SHOCKER,
 	DND_OVERHEAT_FREEZER,
 	DND_OVERHEAT_NUCLEARPR,
+	DND_OVERHEAT_BFG32768,
 	DND_OVERHEAT_ION,
 	DND_OVERHEAT_REBOUNDER,
 	DND_OVERHEAT_DESOLATOR,
 	DND_OVERHEAT_DEATHRAY
 };
 
-#define MAXOVERHEATWEPS DND_OVERHEAT_DEATHRAY + 1
+#define MAXOVERHEATWEPS (DND_OVERHEAT_DEATHRAY + 1)
 str WeaponOverheatItems[MAXOVERHEATWEPS] = {
 	"ShockerOverheat",
 	"FreezerOverheat",
 	"PlasmaOverheat",
+	"BFG32768Overheat",
 	"IonOverheat",
 	"RebounderOverheat",
 	"DesolatorOverheat",

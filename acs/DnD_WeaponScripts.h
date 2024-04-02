@@ -507,12 +507,12 @@ Script "DND Thunderstaff Lightning" (void) {
 	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0, 0);
 	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	int scan_amt = 0;
+	int adist;
 	
 	for(int mn = 0; scan_amt < DND_THUNDERSTAFF_LIMIT && mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
-			//SpawnForced("ThunderstaffExp", GetActorX(i), GetActorY(i), GetActorFloorZ(i) + 16.0, DND_THUNDERSTAFF_DAMAGERTID);
 			
 			 if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 				actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
@@ -521,13 +521,21 @@ Script "DND Thunderstaff Lightning" (void) {
 			
 			// take the range checker
 			TakeActorInventory(i, "ThunderStrike", 1);
-			
-			SetActivator(DND_THUNDERSTAFF_DAMAGERTID);
-			SetPointer(AAPTR_TARGET, this);
-			SetActorProperty(DND_THUNDERSTAFF_DAMAGERTID, APROP_TARGETTID, this);
-			Thing_ChangeTID(DND_THUNDERSTAFF_DAMAGERTID, 0);
-			SetActivator(this);
-			
+
+			// prox hurt player based on distance to monster
+			if(isActorAlive(this) && (adist = AproxDistance(GetActorX(0) - GetActorX(i), GetActorY(0) - GetActorY(i))) <= THUNDERSTAFF_SELFDMG_DIST) {
+				// reduce base damage from a really high number to a rather tolerable one -- base is 750...
+				int self_dmg = (dmg / 4) * ((THUNDERSTAFF_SELFDMG_DIST - adist) >> 16) / (THUNDERSTAFF_SELFDMG_DIST >> 16);
+				
+				// push with some greater force
+				HandleDamagePush(self_dmg * 4, GetActorX(i), GetActorY(i), GetActorZ(i), this);
+
+				// handle player's self explosion resists here
+				self_dmg = HandlePlayerSelfDamage(pnum, self_dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0);
+
+				Thing_Damage2(this, self_dmg, DamageTypeList[DND_DAMAGETYPE_LIGHTNING]);
+			}
+
 			++scan_amt;
 		}
 	}
@@ -879,7 +887,8 @@ Script "DnD Update Melee ReactionTime" (int base) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(IsPlayer(owner)) {
 		//printbold(d:base * (100 + GetMeleeRangeIncrease(owner)) / 100);
-		SetActorProperty(0, APROP_REACTIONTIME, base * (100 + GetMeleeRangeIncrease(owner)) / 100);
+		base = GetPlayerMeleeRange(owner - P_TIDSTART, base << 16) >> 16;
+		SetActorProperty(0, APROP_REACTIONTIME, base);
 	}
 	SetResultValue(0);
 }
@@ -888,11 +897,9 @@ Script "DnD Get Melee Range Increase" (int safety_for_inv) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int val = 0;
 	if(IsPlayer(owner)) {
-		val = GetMeleeRangeIncrease(owner);
+		val = GetPlayerMeleeRange(owner- P_TIDSTART, 100.0) >> 16;
 		if(safety_for_inv)
 			val = Clamp_Between(100 - val, 1, 100);
-		else
-			val += 100;
 	}
 	SetResultValue(val);
 }
@@ -926,7 +933,7 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int dmg_type, int flags, int wep
 
 	// range inc
 	if(IsMeleeWeapon(wepid))
-		jump_dist = jump_dist * (100 + GetMeleeRangeIncrease(owner)) / 100;
+		jump_dist = GetPlayerMeleeRange(pnum, jump_dist);
 
 	SetActivatorToTarget(0);
 

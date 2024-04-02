@@ -13,6 +13,11 @@ Actor CharmDrop : InventoryBase {
 		Spawn:
 			IBAG A 0
 		Goto SpawnInit
+		
+		SpawnLoop:
+		Idle:
+			IBAG AAAAAAAAAAAAAAAABBBBBBBB 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
 	}
 }
 
@@ -24,7 +29,7 @@ Actor UniqueCharmDrop : InventoryBase {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+			UBAG AAAAAAAAAAAAAAAABBBBBBBB 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }

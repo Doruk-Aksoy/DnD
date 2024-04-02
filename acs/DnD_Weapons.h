@@ -1494,6 +1494,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_BFG32768:
 			use_default = true;
 			proj_id = DND_PROJ_BFG32768;
+
+			GiveOverheat(pnum, "BFG32768Overheat", 34, DND_WEAPON_BFG32768);
 		break;
 		case DND_WEAPON_DEVASTATOR:
 			if(!(isAltFire & DND_ATK_SECONDARY)) {

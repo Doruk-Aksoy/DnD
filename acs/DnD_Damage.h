@@ -960,7 +960,7 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 	if(CheckActorInventory(enemy_tid, "HunterTalismanDebuff"))
 		dmg -= dmg / DND_HUNTERTALISMAN_NERF;
 		
-	// 25%
+	// 10%
 	if(CheckActorInventory(p_tid, "Invulnerable_Better"))
 		dmg /= DND_INVULSPHERE_FACTOR;
 	
@@ -1129,13 +1129,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	//printbold(s:"res calc");
 	temp = dmg;
 	dmg = FactorResists(source, victim, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
-	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
-	if(dmg > temp)
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
-	else if(dmg < temp / 4)
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
-	else if(dmg < temp)
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
@@ -1151,6 +1144,20 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		}
 	}
 
+	// hit beeps and stuff
+	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
+	extra = 0;
+	if(dmg > temp)
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
+	else if(dmg < temp / 4) {
+		extra |= DND_DAMAGETICFLAG_LESSENED;
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+	}
+	else if(dmg < temp) {
+		extra |= DND_DAMAGETICFLAG_LESSENED;
+		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
+	}
+
 	// damage number handling - NO MORE DAMAGE FIDDLING FROM BELOW HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
 	// printbold(s:"apply ", d:dmg, s: " of type ", s:s_damagetype, s: " pnum: ", d:pnum);
@@ -1158,15 +1165,15 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	temp = victim - DND_MONSTERTID_BEGIN;
 	
 	// extra represents the flag list of damageticflag
-	extra = (!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
-			(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
-			(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
-			(!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
-			(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
-			(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
-			(no_ignite_stack * DND_DAMAGETICFLAG_NOIGNITESTACK)									|
-			(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
-			(!!((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)) * DND_DAMAGETICFLAG_DOT);
+	extra |= 	(!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
+				(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
+				(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
+				(!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
+				(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
+				(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
+				(no_ignite_stack * DND_DAMAGETICFLAG_NOIGNITESTACK)									|
+				(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
+				(!!((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)) * DND_DAMAGETICFLAG_DOT);
 	
 	// we send particular damage types in that can cause certain status effects like chill, freeze etc.
 	if(damage_type == DND_DAMAGETYPE_ICE)
@@ -1312,7 +1319,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				SetActivator(owner);
 			
 				// push with some greater force
-				HandleDamagePush(final_dmg * 4, px, py, pz, 0);
+				HandleDamagePush(final_dmg * 4, px, py, pz, owner);
 				
 				//printbold(s:"before ", d:final_dmg);
 
@@ -2312,6 +2319,10 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 		SetActorProperty(DND_DAMAGENUMBER_TID, APROP_SCALEX, 1.25);
 		SetActorProperty(DND_DAMAGENUMBER_TID, APROP_SCALEY, 1.25);
 		Thing_SetTranslation(DND_DAMAGENUMBER_TID, DND_CRIT_TRANSLATION);
+	}
+	else if(flags & DND_DAMAGETICFLAG_LESSENED) {
+		// apply the gray translation
+		Thing_SetTranslation(DND_DAMAGENUMBER_TID, DND_RESIST_TRANSLATION);
 	}
 	
 	Thing_ChangeTID(DND_DAMAGENUMBER_TID, 0);
@@ -3318,6 +3329,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				GiveActorInventory(victim, "DnD_Hit_Cooldown", 1);
 			}
 
+			dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
 			//GiveInventory("DnD_DamageReceived", dmg);

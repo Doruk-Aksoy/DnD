@@ -1399,7 +1399,7 @@ Actor TheHammer : Weapon {
 			TNT1 A 0 A_TakeInventory("HammerReturnSignal", 1)
 			FHMR G 2 Bright Offset(5, 150) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HAMMER, DND_ATK_SECONDARY, DND_AMMOSLOT_ROCKET | (AMMO_HAMMER << 16), 0)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
-			FHMR G 1 Bright Offset(5, 150) Radius_Quake(4,3,0,1,0)
+			FHMR G 1 Bright Offset(5, 150) //Radius_Quake(4,3,0,1,0)
 			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "FireAmmo")
 		FireNoAmmo:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
@@ -1470,9 +1470,6 @@ Actor HammerSeeker : DnD_Activator {
 			TNT1 A 0 A_SeekerMissile(45, 45, SMF_CURSPEED | SMF_PRECISE | SMF_LOOK)
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 1, "Clear", AAPTR_TRACER)
 			TNT1 A 0 A_CheckFlag("FRIENDLY", "Clear", AAPTR_TRACER)
-			TNT1 A 0 A_JumpIfCloser(800, "DoNothing")
-		Goto ReturnToOwner
-		DoNothing:
 			TNT1 A 0
 		Stop
 		ReturnToOwner:
@@ -1513,6 +1510,7 @@ Actor HammerThrown : DnD_BaseProjectile {
 	WallBounceFactor 0.925
 	var int user_bcount;
 	var int user_lifetime;
+	var int user_returndist;
 	const int DND_HAMMER_CRITBOUNCES = 4;
 	const int max_lifetime = 10;
 	const int max_bounces = 8;
@@ -1525,8 +1523,11 @@ Actor HammerThrown : DnD_BaseProjectile {
 	+FOILINVUL
 	+BOUNCEONACTORS
 	States {
+	TNT1 A 0 A_JumpIfCloser(800, "DoNothing")
+	
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_bcount", 0)
+			TNT1 A 0 A_SetUserVar("user_returndist", ACS_NamedExecuteWithResult("DnD Get Melee Range Increase", 900, 1))
 			TNT1 A 0 A_GiveInventory("DnD_ActorWorking", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Hammer Speed Limiter", 0, 40, 20)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Sync Hack Immediate", x, y, z)

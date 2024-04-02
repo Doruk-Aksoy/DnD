@@ -1244,6 +1244,13 @@ Actor ShockerOverheat : Ammo {
 	+IGNORESKILL
 }
 
+Actor BFG32768Overheat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
 Actor IonOverHeat : Ammo {
 	inventory.amount 1
 	inventory.maxamount 100

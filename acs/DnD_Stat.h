@@ -789,7 +789,7 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE);
 }
 
-int GetCritChance(int pnum, int victim, int wepid) {
+int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 	int chance = GetBaseCritChance(pnum);
 	// add other flat crit bonuses here
 	if(wepid != -1)
@@ -798,10 +798,14 @@ int GetCritChance(int pnum, int victim, int wepid) {
 	// monster related bonuses
 	//if(victim != -1)
 	
-
 	// add percent bonuses here
 	if(chance)
-		chance = FixedMul(chance, 1.0 + GetPercentCritChanceIncrease(pnum, wepid));
+		chance = FixedMul(
+			chance, 
+			1.0 + 
+			GetPercentCritChanceIncrease(pnum, wepid) +
+			(!!isLightning) * GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING)
+		);
 
 	return chance;
 }
@@ -818,10 +822,7 @@ bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noT
 		return false;
 
 	bool res = false;
-	int chance = GetCritChance(pnum, victim, wepid);
-	
-	if(isLightning)
-		chance = FixedMul(chance, 1.0 + GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING));
+	int chance = GetCritChance(pnum, victim, wepid, isLightning);
 		
 	//printbold(s:"running crit chance: ", f:chance);
 	
@@ -1072,7 +1073,7 @@ int GetPlayerMeleeRange(int pnum, int range) {
 		range, 
 		1.0 + 
 		(GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_RANGEINC + 
-		0.1 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
+		0.01 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
 	);
 }
 
@@ -1137,11 +1138,6 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 		cap = 1;
 	
 	return cap;
-}
-
-int GetMeleeRangeIncrease(int tid) {
-	return 	GetPlayerAttributeValue(tid - P_TIDSTART, INV_MELEERANGE) +
-			GetActorStat(tid, STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC;
 }
 
 // returns true if monster isn't ailment immune, or we can bypass it

@@ -210,6 +210,7 @@ Script "DnD On Map Load" OPEN {
 	// empty translation
 	CreateTranslation(DND_NO_TRANSLATION);
 	CreateTranslation(DND_CRIT_TRANSLATION, 160:160=175:175);
+	CreateTranslation(DND_RESIST_TRANSLATION, 160:160=82:82);
 	
 	// init vars
 	ResetSharedVariables();
@@ -4102,12 +4103,6 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 	SetResultValue(RetrieveWeaponDamage(PlayerNumber(), wepid, dmgid, damage_category, flags, isSpecial, proj_crit));
 }
 
-/*Script "DnD Get Melee Range Increase" (int use_target) {
-	if(use_target)
-		SetActivatorToTarget(0);
-	SetResultValue(GetPlayerMeleeRange(PlayerNumber()));
-}*/
-
 // Used mainly for non-weapons (like artifacts, spells and so on)
 // uses WDMG flags
 Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
@@ -5536,8 +5531,8 @@ Script 68 (int x) NET {
 			SpawnHelm(0, 0);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
+			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
 			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
-			//SpawnSpecificOrbForAll(DND_ORB_FORTITUDE, 5);
 			//SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);

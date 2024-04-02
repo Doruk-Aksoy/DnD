@@ -22,10 +22,10 @@ Actor ResBFG1 : Weapon {
 		Stop
 		Ready:
 			RW04 A 1 A_WeaponReady(WRF_NOSWITCH)
-		ReadyLoop:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_ION, 2 | (3 << 16))
-			RW04 AAAAAAAAA 1 A_WeaponReady
+		ReadyLoop:
+			RW04 A 1 A_WeaponReady
 		Loop
 		Deselect:
 			TNT1 A 0 A_StopSound(7)
@@ -219,8 +219,6 @@ Actor IonCooldownGiver : DnD_Activator {
 Actor IonAttackCount : Inventory {
 	inventory.maxamount 3
 }
-
-
 
 Actor IonShooter : DnD_Activator {
 	States {
@@ -509,7 +507,7 @@ Actor BallLightning : DnD_ExplosiveBase {
 			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 0, 0, 160)
 		
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_THUNDERSTAFF << 16), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSLOT7))
-			TNT1 A 0 A_SetUserVar("user_expradius", 96)
+			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
 			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_LIGHTNING | (DND_WEAPON_THUNDERSTAFF << 16))
