@@ -893,6 +893,18 @@ Script "DND On Kill" KILL {
 			}
 		}
 	}
+
+	// crusader helm check
+	if(IsMagicOrUndead() && HasPlayerPowerSet(target - P_TIDSTART, PPOWER_UNDEADRECOVERES) && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
+		i = temp * CRUSADER_ESPCT / 100;
+		if(i < 1)
+			i = 1;
+
+		if(CheckActorInventory(target, "EShieldAmount") < temp - i)
+			AddActorEnergyShield(target, i);
+		else
+			SetActorEnergyShield(target, temp);
+	}
 	
 	// if marked by talisman
 	i = CheckInventory("HunterTalismanMarkBool");
@@ -5531,7 +5543,7 @@ Script 68 (int x) NET {
 			SpawnHelm(0, 0);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
-			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
+			//SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
 			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
 			//SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;

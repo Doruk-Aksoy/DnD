@@ -37,9 +37,9 @@
 
 #define MAX_POWERCORE_ATTRIB_DEFAULT 2
 
-#define MAXSTACKS_ORB 128
-#define MAXSTACKS_CKEY 32
-#define MAXSTACKS_TOKEN 30
+#define MAXSTACKS_ORB 512
+#define MAXSTACKS_CKEY 128
+#define MAXSTACKS_TOKEN 128
 
 #define HUD_DII_FIELD_MULT 10
 
@@ -185,6 +185,11 @@ enum {
 	IIMG_HLM_1,
 	IIMG_HLM_2,
 	IIMG_HLM_3,
+	IIMG_HLM_4,
+	IIMG_HLM_5,
+	IIMG_HLM_6,
+	IIMG_HLM_7,
+	IIMG_HLM_8,
 
 	// powercores
 	IIMG_CORE_1,
@@ -218,7 +223,7 @@ enum {
 #define ITEM_IMAGE_BOOT_END IIMG_BOO_11
 
 #define ITEM_IMAGE_HELM_BEGIN IIMG_HLM_1
-#define ITEM_IMAGE_HELM_END IIMG_HLM_3
+#define ITEM_IMAGE_HELM_END IIMG_HLM_8
 
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
@@ -998,17 +1003,18 @@ bool IsFreeSpot(int pnum, int itempos, int emptypos, int itemsource = DND_SYNC_I
 			if(!rowStart && !(bid % 9))
 				return false;
 
-			// if not empty and it's not us
+			// if not empty and it's not us -- the "if its not us" part only matters if the sources are the same
+			// because only then it shouldn't overlap, if sources are different different topboxids are irrelevant!
 			tb = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, emptysource);
-			if(tb && tb - 1 != temp)
+			if(tb && (itemsource != emptysource || tb - 1 != temp))
 				return false;
 		}
 	}
 	return true;
 }
 
-bool IsValidBox(int beg, int off) {
-	return beg + off < MAX_INVENTORY_BOXES && beg + off >= 0;
+bool IsValidBox(int beg) {
+	return beg < MAX_INVENTORY_BOXES && beg >= 0;
 }
 
 bool IsSourceInventoryView(int source) {
@@ -1282,12 +1288,37 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 	SyncItemData_Special(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
+bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, int ioffset) {
+	bool res = false;
+
+	// scan from vertical positions to horizontal first to find a good spot
+	int tpbid = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid, -1, isource) - 1;
+	int try_pos = -1;
+	int i, j;
+	for(j = 0; !res && j < MAXINVENTORYBLOCKS_VERT; ++j) {
+		for(i = 0; !res && i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
+			try_pos = j + i * MAXINVENTORYBLOCKS_VERT;
+			if(IsFreeSpot(pnum, tpbid, try_pos, isource, ssource)) {
+				// move item to here now
+				MoveItemTrade(pnum, tpbid, try_pos, isource, ssource);
+				res = true;
+			}
+		}
+	}
+
+	return res;
+}
+
+// auto dump functionality
+
 // this is made specifically for trade view, the one above is optimized for normal inventory
 // also used for moving items from one source to another, ie. inventory to stash etc.
 void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int emptysource) {
 	int tb = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itempos, -1, itemsource) - 1;
 	int offset = tb - itempos;
 	
+	//printbold(s:"will move tbid ", d:tb, s: " offset ", d:offset, s:" to loc: ", d:emptypos, s: "isrc: ", d:itemsource, s: " esrc: ", d:emptysource);
+
 	int i, j, bid;
 	
 	int w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, tb, -1, itemsource);
@@ -2302,8 +2333,8 @@ void HandleAttributeExtra(int pnum, int aextra, int powerset, bool remove, bool 
 		if(!remove)
 			aextra = GetPlayerAttributeValue(pnum, powerset) | aextra;
 		else
-			aextra = GetPlayerAttributeValue(pnum, powerset) & ~(1 << aextra);
-
+			aextra = GetPlayerAttributeValue(pnum, powerset) & ~aextra;
+		
 		SetPlayerModValue(pnum, powerset, aextra, noSync);
 	}
 }
@@ -2328,8 +2359,10 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			aval /= FACTOR_FIXED_RESOLUTION; // our scale to lower it down from integer mult
 		}
 
-		aextra *= temp;
-		aextra /= 100;
+		if(!IsAttributeExtraException(atype)) {
+			aextra *= temp;
+			aextra /= 100;
+		}
 	}
 
 	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source);

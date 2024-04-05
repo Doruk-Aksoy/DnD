@@ -226,7 +226,7 @@ int GetActorStat(int tid, int stat_id) {
 
 int GetPlayerEnergyShieldCap(int pnum) {
 	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
-	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + GetStat(STAT_INT) / 2)) / 100;
+	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + GetActorStat(pnum + P_TIDSTART, STAT_INT) / 2)) / 100;
 	return base;
 }
 
@@ -792,8 +792,12 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 	int chance = GetBaseCritChance(pnum);
 	// add other flat crit bonuses here
-	if(wepid != -1)
+	if(wepid != -1) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_WEP].val;
+
+		// precision bonus from tactical helm if any
+		chance += (HasPlayerPowerset(pnum, PPOWER_PRECISIONCRIT) && IsPrecisionWeapon(wepid)) * TACHELM_CRITBONUS;
+	}
 
 	// monster related bonuses
 	//if(victim != -1)

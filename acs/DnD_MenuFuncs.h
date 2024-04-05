@@ -2842,13 +2842,13 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	}
 
 	// gray inventory chunks
-	if(IsValidBox(bid, boff) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CURSORON)
+	if(IsValidBox(bid) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CURSORON)
 		SetFont("LDTBOXS");
 	else if(InventoryBoxLit[bid + boff] == BOXLIT_STATE_BAD)
 		SetFont("LDTBOXN");
 	else if(CheckActorInventory(pnum + P_TIDSTART, "DnD_Trade_Confirmed"))
 		SetFont("LDTBOXCN");
-	else if(IsValidBox(bid, boff) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CLICK)
+	else if(IsValidBox(bid) && InventoryBoxLit[bid + boff] == BOXLIT_STATE_CLICK)
 		SetFont("LDTBOXC");
 	else if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source))) {
 		// if lvl requirement is satisfied draw them normal -- topbox is +1 of actual index
@@ -2969,8 +2969,9 @@ void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, in
 				idx = boxid + s + p * MAXINVENTORYBLOCKS_VERT;
 				
 				// if this id isn't occupied by another item and its color scheme, color it
-				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, idx, -1, source) - 1 == -1)
+				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, idx, -1, source) - 1 == -1) {
 					InventoryBoxLit[idx] = BOXLIT_STATE_CURSORON;
+				}
 				else
 					InventoryBoxLit[idx] = BOXLIT_STATE_BAD;
 			}
@@ -3038,8 +3039,9 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 		wt = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, topboxid, -1, source);
 		// all boxes in range of this should be highlighted
 		for(p = 0; p < ht; ++p) {
-			for(s = 0; s < wt; ++s)
+			for(s = 0; s < wt; ++s) {
 				InventoryBoxLit[topboxid + s + p * MAXINVENTORYBLOCKS_VERT + offset] = BOXLIT_STATE_CURSORON;
+			}
 		}
 	}
 	
@@ -3182,7 +3184,7 @@ void PlayItemDropSound(int type, bool use_activator_sound) {
 	type &= 0xFFFF;
 
 	str snd = "Items/Drop";
-	if(type == DND_ITEM_BODYARMOR)
+	if(type == DND_ITEM_BODYARMOR || type == DND_ITEM_BOOT || type == DND_ITEM_HELM)
 		snd = "Items/ArmorEquip";
 	else if(type == DND_ITEM_POWERCORE)
 		snd = "Items/PowercoreDrop";
@@ -3604,8 +3606,31 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 				if(!CheckInventory("DnD_Trade_Confirmed") && !CheckInventory("DnD_Trade_CancelButtonPress")) {
 					// we pressed a box, and we didn't confirm trade yet
 					// normal clicking functionality on inventory view
-					if(!CheckInventory("DnD_SelectedInventoryBox"))
-						SetInventory("DnD_SelectedInventoryBox", boxid);
+					if(!CheckInventory("DnD_SelectedInventoryBox")) {
+						// jump click is to auto-dump hovered item to stash or vice versa
+						if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) {
+							if(boxid > 2 * MAX_INVENTORY_BOXES) {
+								isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+								ioffset = 2 * MAX_INVENTORY_BOXES;
+
+								ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
+								soffset = MAX_INVENTORY_BOXES;
+							}
+							else {
+								isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
+								ioffset = MAX_INVENTORY_BOXES;
+
+								ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+								soffset = 2 * MAX_INVENTORY_BOXES;
+							}
+
+							// auto move code -- returns success if it could move
+							if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
+								AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource, ioffset);
+						}
+						else
+							SetInventory("DnD_SelectedInventoryBox", boxid);
+					}
 					else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
 						int epos, ipos;
 						// i is for current click, s for previous selection
@@ -3793,8 +3818,8 @@ void HandleStashView(int boxid) {
 	}
 	
 	SetFont("SMALLFONT");
-	HudMessage(s:"\c[W3]", l:"DND_MENU_HEAD_STASH"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 2, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
-	HudMessage(s:"\c[W3]", l:"DND_MENU_INVENTORY"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 3, CR_WHITE, 452.4, 270.0, 0.0, 0.0);
+	HudMessage(s:"\c[W3]", l:"DND_MENU_HEAD_STASH"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 4, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
+	HudMessage(s:"\c[W3]", l:"DND_MENU_INVENTORY"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 452.4, 270.0, 0.0, 0.0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
@@ -3828,9 +3853,30 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 		}
 		else if(!sel_box && boxid < STASHBUTTON_BOXID_START) {
 			//printbold(s:"set selected box to ", d:boxid);
-			SetInventory("DnD_SelectedInventoryBox", boxid);
 			LocalAmbientSound("RPG/MenuChoose", 127);
 			SetInventory("DnD_PlayerPreviousPage", CheckInventory("DnD_PlayerCurrentPage"));
+
+			// strafe click is to auto-dump hovered item to stash or vice versa
+			if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) {
+				if(boxid > MAX_INVENTORY_BOXES) {
+					isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+					ioffset = MAX_INVENTORY_BOXES;
+
+					ssource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
+				}
+				else {
+					isource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
+
+					ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+					soffset = MAX_INVENTORY_BOXES;
+				}
+
+				// auto move code -- returns success if it could move
+				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
+					AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource, ioffset);
+			}
+			else
+				SetInventory("DnD_SelectedInventoryBox", boxid);
 		}
 		else if(boxid != sel_box) {
 			if(boxid >= STASHBUTTON_BOXID_START) {

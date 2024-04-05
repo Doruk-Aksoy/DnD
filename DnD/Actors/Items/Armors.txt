@@ -661,3 +661,43 @@ Actor HelmDrop_2 : ArmorDrop {
 		Goto SpawnInit
 	}
 }
+
+Actor HelmDrop_3 : ArmorDrop {
+	States {
+		Spawn:
+			HELM D 0
+		Goto SpawnInit
+	}
+}
+
+Actor HelmDrop_4 : ArmorDrop {
+	States {
+		Spawn:
+			HELM E 0
+		Goto SpawnInit
+	}
+}
+
+Actor HelmDrop_5 : ArmorDrop {
+	States {
+		Spawn:
+			HELM F 0
+		Goto SpawnInit
+	}
+}
+
+Actor HelmDrop_6 : ArmorDrop {
+	States {
+		Spawn:
+			HELM G 0
+		Goto SpawnInit
+	}
+}
+
+Actor HelmDrop_7 : ArmorDrop {
+	States {
+		Spawn:
+			HELM H 0
+		Goto SpawnInit
+	}
+}

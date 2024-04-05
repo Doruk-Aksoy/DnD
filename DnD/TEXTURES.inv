@@ -47,7 +47,7 @@ Graphic "ARWICO5", 31, 33
 	Patch "ARICO5", 0, 0
 }
 
-Graphic "ARWICO6", 32, 29
+Graphic "ARWICO6", 33, 21
 {
 	XScale 0.500
 	YScale 0.500
@@ -143,4 +143,39 @@ Graphic "HLMICO2", 28, 18
 	XScale 0.750
 	YScale 0.750
 	Patch "HLMICO2", 2, 2
+}
+
+Graphic "HLMICO4", 28, 26
+{
+	XScale 0.750
+	YScale 0.750
+	Patch "HLMICO4", 2, 2
+}
+
+Graphic "HLMICO5", 18, 21
+{
+	XScale 0.6
+	YScale 0.6
+	Patch "HLMICO5", 2, 2
+}
+
+Graphic "HLMICO6", 20, 25
+{
+	XScale 0.750
+	YScale 0.750
+	Patch "HLMICO6", 2, 2
+}
+
+Graphic "HLMICO7", 18, 23
+{
+	XScale 0.6
+	YScale 0.6
+	Patch "HLMICO7", 2, 2
+}
+
+Graphic "HLMICO8", 17, 26
+{
+	XScale 0.750
+	YScale 0.750
+	Patch "HLMICO8", 2, 2
 }

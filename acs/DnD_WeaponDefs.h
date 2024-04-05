@@ -1637,6 +1637,10 @@ bool IsMeleeWeapon(int wepid) {
 	return false;
 }
 
+bool IsPrecisionWeapon(int wepid) {
+	return Weapons_Data[wepid].properties & WPROP_PRECISION;
+}
+
 int IsUsingMeleeWeapon() {
 	return CheckWeapon(Weapons_Data[DND_WEAPON_FIST].name) || 
 		   CheckWeapon(Weapons_Data[DND_WEAPON_CHAINSAW].name) || 

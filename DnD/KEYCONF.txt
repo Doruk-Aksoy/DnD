@@ -29,6 +29,8 @@ AddKeySection "DnD Keys" DNDKEYS
 	Alias upgs "Puke 900"
 	AddMenuKey "DnD Inventory" inv
 	Alias inv "pukename \"DnD Open Inventory\""
+	AddMenuKey "DnD Stash" stash
+	Alias stash "pukename \"DnD Open Stash\""
 	AddMenuKey "DnD Dash" dashuse
 	Alias dashuse "Puke 997"
 	AddMenuKey "Toggle Weapon Tip Boxes" tips

@@ -1423,7 +1423,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		
 	int actor_flags = ScanActorFlags();
 		
-	if(flags & DND_DAMAGEFLAG_FOILINVUL) {
+	if((flags & DND_DAMAGEFLAG_FOILINVUL) || (HasPlayerPowerSet(owner - P_TIDSTART, PPOWER_MELEEIGNORESHIELD) && (IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)))) {
 		actor_flags |= DND_ACTORFLAG_FOILINVUL;
 		flags ^= DND_DAMAGEFLAG_FOILINVUL;
 	}
@@ -2156,6 +2156,9 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	if(damage_type != DND_DAMAGETYPE_LIGHTNING && CheckActorInventory(victim_tid, "DnD_OverloadTimer"))
 		more_dmg = more_dmg * (100 + DND_BASE_OVERLOADBUFF + CheckActorInventory(victim_tid, "DnD_OverloadDamage")) / 100;
 	
+	if(IsMonsterIdBoss(MonsterProperties[victim_data].id) && HasPlayerPowerSet(pnum, PPOWER_BOSSTAKEMOREDMG))
+		more_dmg = more_dmg * (100 + PREDATOR_DMG_BONUS) / 100;
+
 	// additional damage vs frozen enemies modifier
 	if(CheckActorInventory(victim_tid, "DnD_FreezeTimer") && (temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA)))
 		more_dmg = more_dmg * (100 + ConvertFixedFactorToInt(temp)) / 100;
@@ -2889,12 +2892,14 @@ int GetArmorRatingEffect(int dmg, int armor_id, bool isArmorPiercing) {
 int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
 	bool isPoison = dmg_string == "PoisonDOT";
+	int factor = 0.0;
+	int to_take = 0;
 
 	// poison is not negated by armor
 	if(armor_id != -1 && !isPoison) {
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
 		// dmg here is the one to be dealt to the player's health pool
-		int factor = 0.0;
+		factor = 0.0;
 
 		// apply armor effect on this damage
 		dmg = GetArmorRatingEffect(dmg, armor_id, isArmorPiercing);
@@ -2928,21 +2933,42 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 
 	// energy shield reduction
 	temp = CheckInventory("EShieldAmount");
-	if(temp && ((GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & PPOWER_ESHIELDBLOCKALL) || (!isPoison && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)))) {
+	factor = GetEShieldMagicAbsorbValue(pnum);
+	if(temp) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
-		// lightning coil absorbs 80%
-		if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
-			dmg /= 5;
-		dmg -= temp;
+		if(isPoison || (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)) {
+			// no ways to prevent this type of damage, return raw dmg
+			if(!HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL) && !factor)
+				return dmg;
+		}
+		else
+			factor = 100;
 
+		// lightning coil absorbs 80% by itself, so 20% of the damage will go through
+		if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
+			factor += LIGHTNINGCOIL_ABSORBFACTOR;
+
+		// force clamp
+		if(factor > 100)
+			factor = 100;
+
+		// only this much is prevented
+		to_take = temp * factor / 100;
+		if(to_take < 1)
+			to_take = 1;
+		dmg -= to_take;
+
+		// completely absorbed by our shield, so just reduce our shield amount
 		if(dmg < 0) {
-			// completely absorbed by our shield, so set our shield to -dmg
-			SetEnergyShield(-dmg);
+			TakeEnergyShield(to_take + dmg);
 			dmg = 0;
 			LocalAmbientSound("EShield/Hit", 127);
 		}
+		else if(to_take < temp) {
+			TakeEnergyShield(to_take);
+			LocalAmbientSound("EShield/Hit", 127);
+		}
 		else {
-			// fully depleted if dmg >= shield, we couldnt reduce it
 			SetEnergyShield(0);
 			LocalAmbientSound("EShield/Break", 127);
 		}

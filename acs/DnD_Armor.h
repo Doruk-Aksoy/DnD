@@ -46,6 +46,11 @@ enum {
 	HELMS_LICH = 0,
 	HELMS_WARRIOR,
 	HELMS_SYNTHMETAL,
+	HELMS_KNIGHT,
+	HELMS_PREDATOR,
+	HELMS_CRUSADER,
+	HELMS_TACTICAL,
+	HELMS_ROBE
 };
 #define BODYARMORS_BEGIN BODYARMOR_GREEN
 #define BODYARMORS_REGULAREND BODYARMOR_RAVAGER
@@ -55,7 +60,7 @@ enum {
 #define BOOTS_END BOOTS_DRAKESKIN
 
 #define HELMS_BEGIN HELMS_LICH
-#define HELMS_END HELMS_SYNTHMETAL
+#define HELMS_END HELMS_ROBE
 
 enum {
 	ARMWEIGHT_GREEN = 20,
@@ -124,15 +129,25 @@ int BootDropWeights[BOOTS_END + 1] = {
 };
 
 enum {
-	HELMWEIGHT_LICH = 25,
-	HELMWEIGHT_WARRIOR = 50,
-	HELMWEIGHT_SYNTH = 100
+	HELMWEIGHT_LICH = 12,
+	HELMWEIGHT_WARRIOR = 24,
+	HELMWEIGHT_SYNTH = 48,
+	HELMWEIGHT_KNIGHT = 60,
+	HELMWEIGHT_PREDATOR = 68,
+	HELMWEIGHT_CRUSADER = 76,
+	HELMWEIGHT_TACTICAL = 90,
+	HELMWEIGHT_ROBE = 100
 };
 
 int HelmDropWeights[HELMS_END + 1] = {
 	HELMWEIGHT_LICH,
 	HELMWEIGHT_WARRIOR,
-	HELMWEIGHT_SYNTH
+	HELMWEIGHT_SYNTH,
+	HELMWEIGHT_KNIGHT,
+	HELMWEIGHT_PREDATOR,
+	HELMWEIGHT_CRUSADER,
+	HELMWEIGHT_TACTICAL,
+	HELMWEIGHT_ROBE
 };
 
 #define DND_BODYARMOR_BASEWIDTH 2
@@ -144,8 +159,14 @@ int HelmDropWeights[HELMS_END + 1] = {
 #define DND_HELM_BASEWIDTH 1
 #define DND_HELM_BASEHEIGHT 1
 
+#define LIGHTNINGCOIL_ABSORBFACTOR 80
+
 #define WARRIORHELM_RANGEINC 0.15
 #define WARRIORHELM_DMGINC 25
+#define CRUSADER_ESPCT 1
+#define PREDATOR_DMG_BONUS 10 // 10%
+#define TACHELM_CRITBONUS 0.05 // 5% flat
+#define SAGE_ABSORB_VALUE 10
 
 #define MAX_HELM_ATTRIB_DEFAULT 4
 #define MAX_BOOT_ATTRIB_DEFAULT 4
@@ -434,13 +455,28 @@ int RollHelmInfo(int item_pos, int item_tier, int pnum, int type = -1) {
 	// implicits that come along with the item always
 	switch(armor_type) {
 		case HELMS_LICH:
-			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 50, PPOWER_PETCAP, item_tier, 20);
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 45, PPOWER_PETCAP, item_tier, 18);
 		break;
 		case HELMS_WARRIOR:
 			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, PPOWER_MELEEDAMAGE, item_tier, 40);
 		break;
 		case HELMS_SYNTHMETAL:
 			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 10.0, PPOWER_SYNTHMETALMASK, item_tier, 1.25);
+		break;
+		case HELMS_KNIGHT:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 75, PPOWER_MELEEIGNORESHIELD, item_tier, 40);
+		break;
+		case HELMS_PREDATOR:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, PPOWER_BOSSTAKEMOREDMG, item_tier, 30);
+		break;
+		case HELMS_CRUSADER:
+			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 55, PPOWER_UNDEADRECOVERES, item_tier, 25);
+		break;
+		case HELMS_TACTICAL:
+			GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 72, PPOWER_PRECISIONCRIT, item_tier, 24);
+		break;
+		case HELMS_ROBE:
+			GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 35, PPOWER_ESHIELDABSORB, item_tier, 15);
 		break;
 	}
 
@@ -508,9 +544,19 @@ void SetEnergyShield(int val) {
 	SetInventory("EShieldAmountVisual", val);
 }
 
+void SetActorEnergyShield(int tid, int val) {
+	SetActorInventory(tid, "EShieldAmount", val);
+	SetActorInventory(tid, "EShieldAmountVisual", val);
+}
+
 void AddEnergyShield(int val) {
 	GiveInventory("EShieldAmount", val);
 	GiveInventory("EShieldAmountVisual", val);
+}
+
+void AddActorEnergyShield(int tid, int val) {
+	GiveActorInventory(tid, "EShieldAmount", val);
+	GiveActorInventory(tid, "EShieldAmountVisual", val);
 }
 
 void TakeEnergyShield(int val) {
@@ -520,6 +566,11 @@ void TakeEnergyShield(int val) {
 
 void UpdateEnergyShieldVisual(int val) {
 	SetAmmoCapacity("EShieldAmountVisual", val);
+}
+
+// Absorb value for magic or poison attacks
+int GetEShieldMagicAbsorbValue(int pnum) {
+	return HasPlayerPowerset(pnum, PPOWER_ESHIELDABSORB) * SAGE_ABSORB_VALUE;
 }
 
 int GetMitigationChance(int pnum) {

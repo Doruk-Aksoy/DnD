@@ -39,6 +39,11 @@ DND_BOOT11		=		"Drakeskin Boots";
 DND_HELM1		=		"Lich Skull";
 DND_HELM2		=		"Warrior's Helm";
 DND_HELM3		=		"Synth-metal Mask";
+DND_HELM4		=		"Knight's Helm";
+DND_HELM5		=		"Predator Helm";
+DND_HELM6		=		"Crusader Helm";
+DND_HELM7		=		"Tactical Helm";
+DND_HELM8		=		"Sage's Hood";
 
 // armor implicits
 RAVAGER_BONUS			=		"\cd50%\c- more damage and \cd25%\c- damage reduction during killing sprees";
@@ -64,3 +69,8 @@ REDUCED_SELFDMG			=		"\cd25%\c- less self damage taken";
 INCREASED_PETCAP		=		"\cd+1\c- to pet cap";
 INCREASED_MELEE			=		"\cd+25%\c- melee damage and \cd15%\c- melee range";
 SYNTHMETAL_MASK			=		"\cd75%\c- reduced vision impairment";
+MELEE_IGNORESHIELD		=		"Melee hits can ignore shields";
+BOSSES_TAKEMOREDMG		=		"Deal \cd+10%\c- more damage to bosses";
+UNDEAD_RECOVERES		=		"Killing magical or undead enemies recover 1% of energy shield";
+PRECISION_CRIT			=		"Precision weapons have \cd+0.5%\c- to crit chance";
+ESHIELD_MAGICABSORB		=		"Energy shield absorbs \cd+10%\c- of magic damage";

@@ -287,14 +287,20 @@ enum {
 	PPOWER_REDUCEDSELFDMG				=	0b100000000000000000000,
 	PPOWER_PETCAP						=	0b1000000000000000000000,
 	PPOWER_MELEEDAMAGE					=	0b10000000000000000000000,
-	PPOWER_SYNTHMETALMASK				=	0b100000000000000000000000
+	PPOWER_SYNTHMETALMASK				=	0b100000000000000000000000,
+	PPOWER_MELEEIGNORESHIELD			=	0b1000000000000000000000000,
+	PPOWER_BOSSTAKEMOREDMG				=	0b10000000000000000000000000,
+	PPOWER_UNDEADRECOVERES				=	0b100000000000000000000000000,
+	PPOWER_PRECISIONCRIT				=	0b1000000000000000000000000000,
+	PPOWER_ESHIELDABSORB				=	0b10000000000000000000000000000,
 };
 
 #define REDUCED_SELF_DMG_FACTOR 25 // 25%
 #define OVERHEAT_DISS_FACTOR 25 // 25%
 
 bool HasPlayerPowerset(int pnum, int power) {
-	return GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & (1 << power);
+	// powers are already bitfields here!
+	return GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & power;
 }
 
 // attributes below last_inv (normal rollables) are exotic
@@ -452,7 +458,6 @@ int GetExtraForMod(int mod) {
 }
 
 void SetPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
-	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
 	PlayerModValues[pnum][mod] = val;
 	
 	if(!noSync)
@@ -1504,6 +1509,16 @@ str GetArmorImplicitExtraText(str text, int extra) {
 		text = StrParam(s:text, s:"\n", l:"INCREASED_MELEE");
 	else if(extra & PPOWER_SYNTHMETALMASK)
 		text = StrParam(s:text, s:"\n", l:"SYNTHMETAL_MASK");
+	else if(extra & PPOWER_MELEEIGNORESHIELD)
+		text = StrParam(s:text, s:"\n", l:"MELEE_IGNORESHIELD");
+	else if(extra & PPOWER_BOSSTAKEMOREDMG)
+		text = StrParam(s:text, s:"\n", l:"BOSSES_TAKEMOREDMG");
+	else if(extra & PPOWER_UNDEADRECOVERES)
+		text = StrParam(s:text, s:"\n", l:"UNDEAD_RECOVERES");
+	else if(extra & PPOWER_PRECISIONCRIT)
+		text = StrParam(s:text, s:"\n", l:"PRECISION_CRIT");
+	else if(extra & PPOWER_ESHIELDABSORB)
+		text = StrParam(s:text, s:"\n", l:"ESHIELD_MAGICABSORB");
 	return text;
 }
 
