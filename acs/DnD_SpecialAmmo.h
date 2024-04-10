@@ -48,7 +48,7 @@ ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS_FOR_SHOP] = {
 pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {
 	{ { 18, 0, 0 }, { 6, 0, 0 }, { 3, 0, 0 } },
 	{ { 30, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
-	{ { 20, 0, 0 }, { 10, 0, 0 }, { -1, -1, -1 } },
+	{ { 20, 0, 0 }, { 12, 0, 0 }, { -1, -1, -1 } },
 	{ { 2, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	{ { 300, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	

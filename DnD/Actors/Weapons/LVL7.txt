@@ -365,20 +365,20 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 			DEVA A 0 A_JumpIfInventory("DevastatorAmmo", 60, "GoAlt")
 		Goto FailAlt
 		GoAlt:
-			// 52 tics => 1.5 secs
-			DEVA A 1 Offset(0, 31) A_GiveInventory("DnD_DevastatorSlowGiver", 1)
-			DEVA A 1 Offset(0, 30) A_PlayWeaponSound("weapons/bigcharge")
-			DEVA A 1 Offset(0, 28)
-			DEVA A 1 Offset(0, 26)
+			// 66 tics => 1.5 secs
+			DEVA A 2 Offset(0, 31) A_GiveInventory("DnD_DevastatorSlowGiver", 1)
+			DEVA A 2 Offset(0, 30) A_PlayWeaponSound("weapons/bigcharge")
+			DEVA A 2 Offset(0, 28)
+			DEVA A 2 Offset(0, 26)
 			DEVA A 2 Offset(0, 25)
-			DEVA A 1 Offset(0, 26)
-			DEVA A 1 Offset(0, 27)
-			DEVA A 1 Offset(0, 29)
-			DEVA A 1 Offset(0, 31)
-			DEVA A 1 Offset(0, 34)
-			DEVA A 1 Offset(0, 37)
-			DEVA A 1 Offset(0, 41)
-			DEVA A 5 Offset(0, 44)
+			DEVA A 2 Offset(0, 26)
+			DEVA A 2 Offset(0, 27)
+			DEVA A 2 Offset(0, 29)
+			DEVA A 2 Offset(0, 31)
+			DEVA A 2 Offset(0, 34)
+			DEVA A 2 Offset(0, 37)
+			DEVA A 2 Offset(0, 41)
+			DEVA A 8 Offset(0, 44)
 			// 15 so far, we need 37 for up then down then up for settle
 			DEVA A 1 Offset(0, 43)
 			DEVA A 1 Offset(0, 42)
@@ -494,8 +494,8 @@ Actor DnD_DevastatorSlowGiver : DnD_Activator {
 }
 
 Actor DnD_DevastatorSlower : PowerSpeed {
-	Speed 0.33
-	powerup.duration 82
+	Speed 0.15
+	powerup.duration 104
 }
 
 Actor DevastatorTurn : DnD_Boolean { }
@@ -538,41 +538,27 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 	}
 }
 
-Actor DevastatorRocket_NR : DevastatorRocket {
-	+DONTREFLECT
+Actor DevastatorRocket_LessRange : DevastatorRocket {
+	ReactionTime 12
+	States {
+		SpawnState:
+			TNT1 A 0 A_SpawnItem("DevastatorSmoke")
+			DEVM A 2 Bright A_Countdown
+		Loop
+	}
 }
 
 Actor DevastatorRocket_GhostHitter : DevastatorRocket {
 	-THRUGHOST
 }
 
-Actor DevastatorRocket_GhostHitter_NR : DevastatorRocket_NR {
-	-THRUGHOST
-}
-
-Actor DevastatorShooter1_Alt : DnD_Activator {
+Actor DevastatorRocket_LessRange_GhostHitter : DevastatorRocket {
+	ReactionTime 10
 	States {
-		Use:
-			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_NR", frandom(-1.6, 0.0) * (1.0 - accuracy * accuracy_factor), 1, -12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_GhostHitter_NR", frandom(-1.6, 0.0) * (1.0 - accuracy * accuracy_factor), 1, -12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
-		Stop
-	}
-}
-
-Actor DevastatorShooter2_Alt : DnD_Activator {
-	States {
-		Use:
-			//TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 5)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Player WeaponPower Check", DND_WEAPON_DEVASTATOR, DND_WEP_POWER_GHOSTHIT), "GhostHitter")
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_NR", frandom(0.0, 1.6) * (1.0 - accuracy * accuracy_factor), 1, 12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
-		Stop
-		GhostHitter:
-			TNT1 A 0 A_FireCustomMissile("DevastatorRocket_GhostHitter_NR", frandom(0.0, 1.6) * (1.0 - accuracy * accuracy_factor), 1, 12, 0, 0, frandom(-0.825, 0.825) * (1.0 - accuracy * accuracy_factor))
-		Stop
+		SpawnState:
+			TNT1 A 0 A_SpawnItem("DevastatorSmoke")
+			DEVM A 2 Bright A_Countdown
+		Loop
 	}
 }
 
@@ -1834,10 +1820,10 @@ ACTOR "Death Ray" : Weapon
 		Loop
 		Ready: 
 			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
-		ReadyLoop:
-			TNT1 A 0 A_PlayWeaponSound("Deathray/Loop")
+			TNT1 A 0 A_PlaySound("Deathray/Loop", CHAN_WEAPON, 1.0, 1)
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_DEATHRAY, 10 | (17 << 16))
+		ReadyLoop:
 			ERWE AABBCCDDAABBCCDDAABBCCDD 1 A_WeaponReady
 		Loop
 		Deselect:
@@ -1845,6 +1831,7 @@ ACTOR "Death Ray" : Weapon
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 		DeselectLoop:
 			ERWE E 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1858,7 +1845,7 @@ ACTOR "Death Ray" : Weapon
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 450, 0, DND_WEAPON_DEATHRAY)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 150, 0, DND_WEAPON_DEATHRAY)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 400, 0, DND_WEAPON_DEATHRAY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 550, 0, DND_WEAPON_DEATHRAY)
 		SelectLoop:
 			ERWE E 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -1943,9 +1930,10 @@ Actor DeathrayPuff {
 	+BLOODLESSIMPACT
 	+PUFFGETSOWNER
 	+SKYEXPLODE
+	-NONETID
 	States {
 		Spawn:
-			TNT1 A 3 NoDelay ACS_NamedExecuteAlways("DnD DeathRay Marker TID")
+			TNT1 A 5 NoDelay ACS_NamedExecuteAlways("DnD DeathRay Marker TID")
 		Stop
 	}
 }

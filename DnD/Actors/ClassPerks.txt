@@ -216,6 +216,11 @@ Actor Berserker_Perk25_CD : PowerDamage {
 
 Actor Berserker_Perk50 : DnD_Boolean { }
 Actor Berserker_HitTracker : DnD_Info { }
+Actor Berserker_Perk50_HitCounter : DnD_Info { }
+Actor Berserker_Perk50_HitCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
 Actor Berserker_HitTimer : Inventory {
 	inventory.maxamount 70
 }

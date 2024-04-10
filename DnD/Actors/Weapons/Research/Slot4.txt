@@ -283,7 +283,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Fire")
 		Goto FireCont
 		FireCont:
-			RIOT B 1 Bright A_GiveInventory("RiotgunShooter1", 1)
+			RIOT B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			RIOT B 0 A_AlertMonsters
 			RIOT C 1 Bright A_SetPitch(pitch - 0.05) 
 			RIOT D 1 A_SetPitch(pitch - 0.1) 
@@ -305,7 +305,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "Finish")
 		Goto Reload
 		Nitro_Fire:
-			RIO2 B 1 Bright A_GiveInventory("RiotgunShooter1", 1)
+			RIO2 B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			RIO2 B 0 A_AlertMonsters
 			RIO2 C 1 Bright A_SetPitch(pitch - 0.05) 
 			RIO2 D 1 A_SetPitch(pitch - 0.1) 
@@ -327,7 +327,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "Finish_Nitro")
 		Goto Reload
 		Explo_Fire:
-			RIO3 B 1 Bright A_GiveInventory("RiotgunShooter1", 1)
+			RIO3 B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			RIO3 B 0 A_AlertMonsters
 			RIO3 C 1 Bright A_SetPitch(pitch - 0.05) 
 			RIO3 D 1 A_SetPitch(pitch - 0.1) 
@@ -370,7 +370,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Fire2")
 		Goto FireCont2
 		FireCont2:
-			RIOT H 2 Bright A_GiveInventory("RiotgunShooter2", 1)
+			RIOT H 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			TNT1 A 0 A_AlertMonsters
 			RIOT D 0 A_SpawnItemEx("RiotGunCasingSpawner",cos(-pitch)*30-8,11,25+sin(-pitch)*30)
 			RIOT G 1 offset(7, 39) A_SetPitch(pitch - 0.15) 
@@ -379,7 +379,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "Cont2")
 		Goto Reload2
 		Nitro_Fire2:
-			RIO2 G 2 Bright A_GiveInventory("RiotgunShooter2", 1)
+			RIO2 G 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			TNT1 A 0 A_AlertMonsters
 			RIOT D 0 A_SpawnItemEx("RiotgunCasingSpawner_Nitro",cos(-pitch)*30-8,11,25+sin(-pitch)*30)
 			RIO2 F 1 offset(7, 39) A_SetPitch(pitch - 0.15) 
@@ -388,7 +388,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "Cont2_Nitro")
 		Goto Reload2
 		Explo_Fire2:
-			RIO3 G 2 Bright A_GiveInventory("RiotgunShooter2", 1)
+			RIO3 G 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			TNT1 A 0 A_AlertMonsters
 			RIO3 D 0 A_SpawnItemEx("RiotgunCasingSpawner_Explo",cos(-pitch)*30-8,11,25+sin(-pitch)*30)
 			RIO3 F 1 offset(7, 39) A_SetPitch(pitch - 0.15) 
@@ -828,44 +828,6 @@ Actor RiotgunAltCooldown : PowerDamage {
 	damagefactor "normal", 1.0
 }
 
-Actor RiotgunShooter1 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo")
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro")
-
-			TNT1 A 0 A_playWeaponsound("weapons/RiotgunFire")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
-		Stop
-
-		Nitro:
-			TNT1 A 0 A_GiveInventory("NitroShellShooter_Riot", 1)
-		Stop
-		Explo:
-			TNT1 A 0 A_GiveInventory("ExploShellShooter_Riot", 1)
-		Stop
-	}
-}
-
-Actor RiotgunShooter2 : DnD_Activator {
-	States {
-		Use:
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo")
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro")
-
-			TNT1 A 0 A_playWeaponsound("weapons/RiotgunFire")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
-		Stop
-
-		Nitro:
-			TNT1 A 0 A_GiveInventory("NitroShellShooter_Riot", 1)
-		Stop
-		Explo:
-			TNT1 A 0 A_GiveInventory("ExploShellShooter_Riot", 1)
-		Stop
-	}
-}
-
 Actor RiotgunPuff : DnD_BasePuff {
 	States {
 		Init:
@@ -974,51 +936,6 @@ Actor RiotgunCasing_Explo : RiotgunCasing {
 	Translation "0:255=%[0.00,0.00,0.00]:[1.14,1.14,1.14]"
 }
 
-// Riot shooters
-Actor NitroShellShooter_Riot : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, 1)
-			TNT1 A 0 A_PlayWeaponSound("Shells/Nitro")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("NitroShell", 1)
-			TNT1 A 0 A_TakeInventory("RiotgunClip", 1)
-		NoTake:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 7))
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_JumpIfInventory("RiotgunFireMode", 1, "Inaccurate")
-			TNT1 A 0 A_FireBullets(riot_spreadx * (1.0 - accuracy * accuracy_factor), riot_spready * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "NitroShellPuff", FBF_NORANDOM)
-		Goto CheckMode
-		Inaccurate:
-			TNT1 A 0 A_FireBullets(riot_spreadx2 * (1.0 - accuracy * accuracy_factor), riot_spready2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "NitroShellPuff", FBF_NORANDOM)
-		Goto CheckMode
-
-		CheckMode:
-			TNT1 A 0 A_JumpIfInventory("NitroShell", 1, "Nothing")
-			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_RIOTSHELL) // 0 is shell position
-			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
-			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_RIOTSHELL)
-		Stop
-		Nothing:
-			TNT1 A 0
-		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_SetArg(4, Args[2])
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "NitroShellPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
-			TNT1 A 0
-		Stop
-	}
-}
-
 Actor NitroShellPuff : DnD_BasePuff {
 	Scale 0.35
 	States {
@@ -1047,45 +964,31 @@ Actor NitroShellPuff : DnD_BasePuff {
 	}
 }
 
-Actor ExploShellShooter_Riot : DnD_Activator {
+Actor NitroshellHandler : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_SHELL, AMMO_EXSHELL, 1)
-			TNT1 A 0 A_PlayWeaponSound("Shells/Explo")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("ExplodingShell", 1)
-			TNT1 A 0 A_TakeInventory("RiotgunClip", 1)
-		NoTake:
-			TNT1 A 0 A_SetArg(DND_ARG_SHOTGUNPELLETS, ACS_NamedExecuteWithResult("DnD Pellet Count", 7))
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_PELLETSFIRECIRCLE), "FireCircle")
-			TNT1 A 0 A_JumpIfInventory("RiotgunFireMode", 1, "Inaccurate")
-			TNT1 A 0 A_FireBullets(riot_spreadx * (1.0 - accuracy * accuracy_factor), riot_spready * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "ExplodingShellPuff", FBF_NORANDOM)
-		Goto CheckMode
-		Inaccurate:
-			TNT1 A 0 A_FireBullets(riot_spreadx2 * (1.0 - accuracy * accuracy_factor), riot_spready2 * (1.0 - accuracy * accuracy_factor), Args[DND_ARG_SHOTGUNPELLETS], 0, "ExplodingShellPuff", FBF_NORANDOM)
-		Goto CheckMode
-
-		CheckMode:
-			TNT1 A 0 A_JumpIfInventory("ExplodingShell", 1, "Nothing")
+			TNT1 A 0 A_JumpIfInventory("NitroShell", 1, "Nothing")
 			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_RIOTSHELL) // 0 is shell position
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, -1)
 			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
 			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_RIOTSHELL)
 		Stop
 		Nothing:
 			TNT1 A 0
 		Stop
-		
-		FireCircle:
-			TNT1 A 0 A_SetArg(2, Args[DND_ARG_SHOTGUNPELLETS])
-			TNT1 A 0 A_SetArg(4, Args[2])
-		LoopStart:
-			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
-		Goto Finish
-		LoopContinue:
-			TNT1 A 0 A_FireBullets((360.0 / Args[2]) * Args[4], 0, -1, 0, "ExplodingShellPuff", FBF_NORANDOM | FBF_EXPLICITANGLE)
-			TNT1 A 0 A_SetArg(4, Args[4] - 1)
-		Goto LoopStart
-		Finish:
+	}
+}
+
+Actor ExplosiveShellHandler_Riot : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ExplodingShell", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_RIOTSHELL) // 0 is shell position
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, -1)
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_RIOTSHELL)
+		Stop
+		Nothing:
 			TNT1 A 0
 		Stop
 	}

@@ -546,6 +546,84 @@ Script "DND Thunder Range" (void) {
 	SetResultValue(DND_THUNDERSTAFF_BASERANGE + DND_THUNDER_RADIUSPERCOUNT * CheckInventory("ThunderRangeCounter") + 16);
 }
 
+Script "DnD DeathRay Marker TID" (void) {
+	Thing_ChangeTID(0, GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART + DEATHRAY_MARKER_TID);
+}
+
+Script "DnD DeathRay Laser Aim" (int adj) {
+	int p_actor = GetActorProperty(0, APROP_TARGETTID);
+	int target = p_actor - P_TIDSTART + DEATHRAY_MARKER_TID;
+	if(!ThingCount(T_NONE, target))
+		Terminate;
+	int xdiff = GetActorX(target) - GetActorX(0);
+	int ydiff = GetActorY(target) - GetActorY(0);
+	int angle = VectorAngle(xdiff, ydiff);
+	int pitch = VectorPitch(0, target, xdiff, ydiff, adj);
+	
+	// make the proj itself
+	
+	SpawnProjectile(0, "DeathRayLaser", angle, 0, 0, 0, TEMPORARY_ATTACK_TID);
+	
+	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
+	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
+	SetActorVelocity(TEMPORARY_ATTACK_TID, FixedMul(cos(angle), cos(pitch)) * 512, FixedMul(sin(angle), cos(pitch)) * 512, sin(-pitch) * 512, 0, 0);
+	
+	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_TARGETTID, p_actor);
+	
+	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_ACCURACY, GetActorProperty(0, APROP_ACCURACY));
+	SetUserVariable(TEMPORARY_ATTACK_TID, "user_x", GetActorX(0));
+	SetUserVariable(TEMPORARY_ATTACK_TID, "user_y", GetActorY(0));
+	SetUserVariable(TEMPORARY_ATTACK_TID, "user_z", GetActorZ(0));
+	
+	SetActivator(TEMPORARY_ATTACK_TID);
+
+	// this is the line that makes the owner the true owner
+	SetPointer(AAPTR_TARGET, p_actor);
+	
+	Thing_ChangeTID(TEMPORARY_ATTACK_TID, 0);
+}
+
+Script "DnD Deathray Laser Trail" (int density, int grX, int grY, int grZ) CLIENTSIDE {
+	int oX = GetActorX(0);
+	int oY = GetActorY(0);
+	int oZ = GetActorZ(0);
+
+    int vX;  int vY;   int vZ;
+    int nX;  int nY;   int nZ;
+    int bX;  int bY;   int bZ;
+    int magnitude;
+    int pointCount;
+    int pointOffset;
+	
+    //grX <<= 16;
+    //grY <<= 16;
+    //grZ <<= 16;
+	
+    vX   = grX - oX;
+	vY   = grY - oY;
+	vZ   = grZ - oZ;
+	
+    magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
+    pointCount  = magnitude / density;
+    pointOffset = magnitude - (pointCount * density);
+
+    if (magnitude != 0) {
+        nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
+
+        int i; int j;
+        for (i = 1; i < pointCount; i++) {
+            j = (i * density) + pointOffset;
+            bX = (nX * j) + oX;
+            bY = (nY * j) + oY;
+            bZ = (nZ * j) + oZ;
+
+            Spawn("DeathRayLaserTrail", bX, bY, bZ);
+        }
+    }
+	
+	SetResultValue(0);
+}
+
 Script "DND HeavyGL Check" (int x, int y, int z) {
 	int res = 1;
 	if (!(GetActorZ(0) - GetActorFloorZ(0) > 4.0))
@@ -672,7 +750,10 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_dmg) {
 	//bool projcrit = victim >> 17;
 	victim &= 0xFFFF;
-	int m = Clamp_Between(GetActorProperty(victim, APROP_MASS) / (5 * damage / base_dmg), 16, 4096);
+	int m = GetActorProperty(victim, APROP_MASS);
+	if(m < INT_MAX / damage * base_dmg)
+		m = m * base_dmg / damage;
+	m = Clamp_Between(m / 12, 16, 4096);
 	bool was_flying = CheckFlag(victim, "NOGRAVITY");
 	
 	GiveActorInventory(victim, "AllowFlight", 1);

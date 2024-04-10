@@ -294,12 +294,14 @@ Script "DnD On Death" DEATH {
 				// reset on death
 				ResetHardcoreStuff(pnum);
 				
-				BeginDBTransaction();
-				
-				WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
-				ResetPlayerActivities(pnum, false);
+				if(PlayerIsLoggedIn(pnum)) {
+					BeginDBTransaction();
+					
+					WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
+					ResetPlayerActivities(pnum, false);
 
-				EndDBTransaction();
+					EndDBTransaction();
+				}
 			}
 			else if(i == DND_MODE_SOFTCORE) {
 				// decrease player gained exp
@@ -336,6 +338,10 @@ Script "DnD On Death" DEATH {
 	SetInventory("MadeChoice", 0);
 	SetInventory("DnD_PopupId", 0);
 	SetInventory("Punisher_Perk50_Counter", 0); // reset earned bonuses on death
+	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
+	SetInventory("Marine_DamageReduction_Timer", 0);
+	SetInventory("Marine_Perk50_Cooldown", 0);
+	SetInventory("Berserker_Perk50_HitCounter", 0);
 	
 	TakeInventory("DnD_ShowPopup", 1);
 	TakeInventory("DnD_ShowSellPopup", 1);
@@ -949,7 +955,7 @@ Script "DND On Kill" KILL {
 		ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
 	}
 	else if(CheckInventory("Hobo_ShotgunFrenzyTimer"))
-		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE);
+		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
 	
 	// research track
 	if(IsBossTID(this) && CheckResearchStatus(RES_IMP1) == RES_NA) {
@@ -1055,6 +1061,8 @@ Script 832 (void) {
 	// for perks now
 	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
 		TakeStat(i, GetStat(i));
+
+	UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
 		
 	// not sure why this is here but it was before so I'll keep it for now
 	SetAmmoCapacity("StoredMedkit", DND_BASE_HEALTH);
@@ -4291,6 +4299,8 @@ Script "DnD Give Research - Regular" (int res_id, int fancy) {
 Script "DnD Orb Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
+	ActivatorSound("Items/OrbPick", 127);
+	GiveInventory("OrbSoundPlayer", 1);
 	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_ORB", s:": \c[Y5]", l:GetInventoryTag(id + ORBS_BEGIN), s:"!\c-"));
 }
 
@@ -4298,6 +4308,7 @@ Script "DnD Token Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	ActivatorSound("Items/TokenPick", 127);
+	GiveInventory("TokenSoundPlayer", 1);
 	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_TOKEN", s:": \c[Y5]", l:GetInventoryTag(id + TOKEN_BEGIN), s:"!\c-"));
 }
 
@@ -4497,6 +4508,8 @@ Script "DnD Preview Item" (int sp, int target) CLIENTSIDE {
 Script "DnD Chestkey Message" (int id) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
+	ActivatorSound("Items/ChestKey", 127);
+	GiveInventory("ChestkeySoundPlayer", 1);
 	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_BONUS", s:": \c[Y5]", l:GetInventoryTag(id + CHESTKEY_BEGIN), s:"!\c-"));
 }
 
@@ -4570,83 +4583,6 @@ Script "DnD Warmaster Rage" (void) {
 
 Script "DnD Get Aspect For Inventory View" (void) CLIENTSIDE {
 	SetResultValue(ScreenResOffsets[2]);
-}
-
-Script "DnD DeathRay Marker TID" (void) {
-	Thing_ChangeTID(0, GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART + DEATHRAY_MARKER_TID);
-}
-
-Script "DnD DeathRay Laser Aim" (int adj) {
-	int p_actor = GetActorProperty(0, APROP_TARGETTID);
-	int target = p_actor - P_TIDSTART + DEATHRAY_MARKER_TID;
-	if(!ThingCount(T_NONE, target))
-		terminate;
-	int xdiff = GetActorX(target) - GetActorX(0);
-	int ydiff = GetActorY(target) - GetActorY(0);
-	int angle = VectorAngle(xdiff, ydiff);
-	int pitch = VectorPitch(0, target, xdiff, ydiff, adj);
-	
-	// make the proj itself
-	SpawnProjectile(0, "DeathRayLaser", angle, 0, 0, 0, TEMPORARY_ATTACK_TID);
-	
-	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
-	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
-	SetActorVelocity(TEMPORARY_ATTACK_TID, FixedMul(cos(angle), cos(pitch)) * 512, FixedMul(sin(angle), cos(pitch)) * 512, sin(-pitch) * 512, 0, 0);
-	
-	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_TARGETTID, p_actor);
-	
-	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_ACCURACY, GetActorProperty(0, APROP_ACCURACY));
-	SetUserVariable(TEMPORARY_ATTACK_TID, "user_x", GetActorX(0));
-	SetUserVariable(TEMPORARY_ATTACK_TID, "user_y", GetActorY(0));
-	SetUserVariable(TEMPORARY_ATTACK_TID, "user_z", GetActorZ(0));
-	
-	SetActivator(TEMPORARY_ATTACK_TID);
-
-	// this is the line that makes the owner the true owner
-	SetPointer(AAPTR_TARGET, p_actor);
-	
-	Thing_ChangeTID(TEMPORARY_ATTACK_TID, 0);
-}
-
-Script "DnD Deathray Laser Trail" (int density, int grX, int grY, int grZ) CLIENTSIDE {
-	int oX = GetActorX(0);
-	int oY = GetActorY(0);
-	int oZ = GetActorZ(0);
-
-    int vX;  int vY;   int vZ;
-    int nX;  int nY;   int nZ;
-    int bX;  int bY;   int bZ;
-    int magnitude;
-    int pointCount;
-    int pointOffset;
-	
-    //grX <<= 16;
-    //grY <<= 16;
-    //grZ <<= 16;
-	
-    vX   = grX - oX;
-	vY   = grY - oY;
-	vZ   = grZ - oZ;
-	
-    magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
-    pointCount  = magnitude / density;
-    pointOffset = magnitude - (pointCount * density);
-
-    if (magnitude != 0) {
-        nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
-
-        int i; int j;
-        for (i = 1; i < pointCount; i++) {
-            j = (i * density) + pointOffset;
-            bX = (nX * j) + oX;
-            bY = (nY * j) + oY;
-            bZ = (nZ * j) + oZ;
-
-            Spawn("DeathRayLaserTrail", bX, bY, bZ);
-        }
-    }
-	
-	SetResultValue(0);
 }
 
 Script "DnD Force Sync Player Bonuses" (void) {
@@ -5099,7 +5035,7 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
 	int pnum = owner - P_TIDSTART;
 	int wepid = CheckActorInventory(owner, "DnD_WeaponID");
-	
+
 	// store owner
 	SetActorProperty(0, APROP_SCORE, owner);
 	SetUserVariable(0, "user_wepid", wepid);

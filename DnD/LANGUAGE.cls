@@ -47,7 +47,7 @@ CLASS2_TEXT				= "Can't tie him, a loose cannon. He'll do whatever he god damn p
 
 CLASS2_PERK1			= "Shotgun weapons have 25% discount.";
 CLASS2_PERK2			= "Shotguns have 25% resist penetration, and have 50% more pellets.";
-CLASS2_PERK3			= "Hitting the same enemy with any shotgun more than 3 times within 10 seconds triggers \ciShotgun Frenzy\c-, if not already frenzied. During this, shotguns don't consume any ammo for 12 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
+CLASS2_PERK3			= "Hitting the same enemy with any shotgun more than 3 times within 10 seconds triggers 'Shotgun Frenzy', if not already frenzied. During this, shotguns don't consume any ammo for 12 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
 
 // Punisher
 
@@ -60,7 +60,7 @@ CLASS3_TEXT				= "Was a chill guy, until the fateful day his wife died and his d
 						  "Ever since, he hasn't been the same, it's as if something ticked in him and he became the greatest murder machine...";
 
 CLASS3_PERK1			= "Being on a killing spree gives 10% movement speed as well as 10% of current weapon's ammo capacity for starting the spree.";
-CLASS3_PERK2			= "At the end of at least the \ckMerciless\c- killing spree, heal for 24% plus 8% per spree of your max health.";
+CLASS3_PERK2			= "At the end of at least the 'Merciless' killing spree, heal for 24% plus 8% per spree of your max health.";
 CLASS3_PERK3			= "Every 10 kills you get increases your damage by 4% for that map. Caps at 400%.";
 
 // Wanderer

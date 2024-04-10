@@ -801,12 +801,15 @@ enum {
 #define DND_CREDITGAIN_FACTOR 3 // divides the regular gain by 3
 
 int GetMonsterLevelDroprateBonus(int lvl) {
-	// piecewise function so the early 25 levels increase sharper, then mid 25 are slower and the later 25 are a bit sharper again
-	if(lvl <= 25)
+	// piecewise function so the early 25 levels increase sharper, then slow down but reach to a sweet spot of x2.5
+	/*if(lvl <= 25)
 		return 4 * lvl;
 	else if(lvl <= 50)
 		return lvl * lvl / 100 + 3 * lvl + 19;
-	return lvl * lvl / 150 + 184;
+	return lvl * lvl / 150 + 184;*/
+	if(lvl <= 25)
+		return 4 * lvl;
+	return 2 * lvl + 50;
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {

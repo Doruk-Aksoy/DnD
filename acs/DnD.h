@@ -1345,10 +1345,13 @@ void ClearLingeringBuffs() {
 	SetInventory("Berserker_HitTracker", 0);
 	SetInventory("Berserker_HitTimer", 0);
 	SetInventory("Berserker_NoRoar", 0);
+	SetInventory("Berserker_Perk50_HitCounter", 0);
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
 	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
+
+	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 
 	SetInventory("Marine_DamageReduction_Timer", 0);
 	SetInventory("Marine_Perk50_DamageDealt", 0);
@@ -1542,14 +1545,14 @@ void HandleEndOfLevelRewards(int pnum) {
 		GiveInventory("LevelToken", 1);
 		StatListOpened[pnum] = 0;
 		
-		temp = (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
-
-		GiveInventory("Budget", temp);
-		GiveInventory("RoundsSurvived", 1);
-
-		//Log(s:"give budget ", d:temp);
+		// check if the map had at least 1 monster in it... so people don't cheese stupid "skip maps"...
+		if(GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) {
+			temp = (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
+			GiveInventory("Budget", temp);
+			ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
+		}
 		
-		ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
+		GiveInventory("RoundsSurvived", 1);
 	}
 	// Check quests
 	if(active_quest_id != -1)

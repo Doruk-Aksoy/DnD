@@ -1136,11 +1136,37 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				sp_x = 7.2;
 				sp_y = 7.2;
 			}
-			
-			if(!(flags & DND_ATF_NOAMMOTAKE)) {
-				HandleAmmoGainChance(DND_AMMOSLOT_CLIP, AMMO_RIOT, Weapons_Data[wepid].ammo_use1, owner);
-				TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+
+			switch(CheckInventory("SpecialAmmoMode_4")) {
+				case AMMO_NITROGENSHELL:
+					proj_id = DND_PROJ_NITROSHELL;
+					
+					if(!(flags & DND_ATF_NOAMMOTAKE)) {
+						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, Weapons_Data[wepid].ammo_use1, owner);
+						TakeInventory(SpecialAmmoInfo_Str[SSAM_NITROSHELL][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+					}
+					PlaySound(owner, "Shells/Nitro", CHAN_5);
+					ammo_handler = "NitroshellHandler";
+				break;
+				case AMMO_EXPLOSIVESHELL:
+					proj_id = DND_PROJ_RIOTEXPLOSIVE;
+					
+					if(!(flags & DND_ATF_NOAMMOTAKE)) {
+						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_EXSHELL, Weapons_Data[wepid].ammo_use1, owner);
+						TakeInventory(AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name, Weapons_Data[wepid].ammo_use1);
+					}
+					PlaySound(owner, "Shells/Explo", CHAN_5);
+					ammo_handler = "ExplosiveShellHandler_Riot";
+				break;
+				case 0:
+				case AMMO_RIOTSHELL:
+					if(!(flags & DND_ATF_NOAMMOTAKE)) {
+						HandleAmmoGainChance(DND_AMMOSLOT_CLIP, AMMO_RIOT, Weapons_Data[wepid].ammo_use1, owner);
+						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+					}
+				break;
 			}
+			PlaySound(owner, "weapons/RiotgunFire", CHAN_WEAPON);
 		break;
 		case DND_WEAPON_ACIDRIFLE:
 			use_default = true;
@@ -1518,13 +1544,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				for(sp_y = 0; sp_y < 5; ++sp_y) {
 					for(sp_x = 0; sp_x < 3; ++sp_x) {
 						vec3[offset_vec].y = -12.0;
-						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_NR", wepid, 3, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 3, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
 						Delay(const:1);
 					}
 					
 					for(sp_x = 0; sp_x < 3; ++sp_x) {
 						vec3[offset_vec].y = 12.0;
-						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_NR", wepid, 1, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 1, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
 						Delay(const:1);
 					}
 					Delay(const:1);
@@ -1585,7 +1611,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_id = DND_PROJ_IONCANNON;
 			sp_x = 7.2;
 			sp_y = 5.6;
-			GiveOverheat(pnum, "IonOverheat", 2, DND_WEAPON_IONCANNON);
+			GiveOverheat(pnum, "IonOverheat", 1, DND_WEAPON_IONCANNON);
 		break;
 		case DND_WEAPON_THUNDERSTAFF:
 			if(!(isAltFire & DND_ATK_SECONDARY)) {

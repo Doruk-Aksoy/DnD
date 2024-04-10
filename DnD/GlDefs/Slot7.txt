@@ -43,11 +43,11 @@ object DevastatorRocket_GhostHitter {
 	frame DEVM { light Devastator }
 }
 
-object DevastatorRocket_NR {
+object DevastatorRocket_LessRange {
 	frame DEVM { light Devastator }
 }
 
-object DevastatorRocket_GhostHitter_NR {
+object DevastatorRocket_LessRange_GhostHitter {
 	frame DEVM { light Devastator }
 }
 

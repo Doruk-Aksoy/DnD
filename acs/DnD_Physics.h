@@ -55,7 +55,7 @@ void PushPlayerAway(int tid, int mtid, int f_xy, int f_z, bool z_AlwaysUp = fals
 	
 	// push power is scaled with monster level by 5% per level -- one would need at least 125 * 100 = 12,500 knockback resist to be immune to this vs a monster of lvl 1
 	// vs a monster of level 100 you'd need 125 * 500 = 725,000 knockback resist
-	int m = 100 + 4 * MonsterProperties[mtid - DND_MONSTERTID_BEGIN].level - GetActorProperty(tid, APROP_MASS) / 125;
+	int m = 100 + 2 * MonsterProperties[mtid - DND_MONSTERTID_BEGIN].level - GetActorProperty(tid, APROP_MASS) / 125;
 	if(m < 0)
 		m = 0;
 	

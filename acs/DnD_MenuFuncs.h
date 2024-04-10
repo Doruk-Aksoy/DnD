@@ -438,6 +438,10 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-16, 0);
 		break;
 
+		case MENU_SHOP_AMMO_SPECIAL1:
+			redraw = ListenScroll(-24, 0);
+		break;
+
 		case MENU_STAT2_DEFENSE:
 			redraw = ListenScroll(ScrollPos.y - 8, 0);
 		break;
@@ -1025,7 +1029,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 				DrawWeaponIconCorner(itemid);
 			}
 			else if(objectflag & OBJ_AMMO) {
-				SetHudClipRect(192, 224, 256, 64, 256);
+				SetHudClipRect(184, 244, 256, 36, 256);
 				DrawAmmoExplanation(itemid);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
@@ -3626,7 +3630,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 
 							// auto move code -- returns success if it could move
 							if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
-								AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource, ioffset);
+								AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource);
 						}
 						else
 							SetInventory("DnD_SelectedInventoryBox", boxid);
@@ -3873,7 +3877,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 
 				// auto move code -- returns success if it could move
 				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
-					AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource, ioffset);
+					AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource);
 			}
 			else
 				SetInventory("DnD_SelectedInventoryBox", boxid);
@@ -5266,10 +5270,10 @@ void DrawPlayerStats(int pnum, int category) {
 				// clamp it on display, the math stuff behind the scenes doesn't need an extra if statement
 				if(val > 100.0)
 					val = 100.0;
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" \c-", l:"IATTR_T102", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:"% \c-", l:"IATTR_T102", s:"\n");
 				++k;
 
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:" \c-", l:"IATTR_T103", s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:"% \c-", l:"IATTR_T103", s:"\n");
 				++k;
 			}
 

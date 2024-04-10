@@ -83,6 +83,7 @@ enum {
 	DND_PROJ_MPPB_3,
 	DND_PROJ_TEMPLARMG,
 	DND_PROJ_RIOTGUN,
+	DND_PROJ_RIOTEXPLOSIVE,
 	DND_PROJ_ACIDBULLET,
 	DND_PROJ_ACIDSTAKE,
 	DND_PROJ_FUSIONBLASTER,
@@ -397,6 +398,10 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_RIOTGUN].name = "RiotgunPuff";
 	ProjectileInfo[DND_PROJ_RIOTGUN].flags = DND_PROJ_HITSCAN;
 	ProjectileInfo[DND_PROJ_RIOTGUN].spd_range = HITSCAN_RANGE_DEFAULT;
+
+	ProjectileInfo[DND_PROJ_RIOTEXPLOSIVE].name = "ExplodingShellPuff";
+	ProjectileInfo[DND_PROJ_RIOTEXPLOSIVE].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_RIOTEXPLOSIVE].spd_range = HITSCAN_RANGE_DEFAULT;
 	
 	ProjectileInfo[DND_PROJ_ACIDBULLET].name = "AcidPuff";
 	ProjectileInfo[DND_PROJ_ACIDBULLET].flags = DND_PROJ_HITSCAN;

@@ -2460,7 +2460,7 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 			"####" "#" 0 A_CustomMissile("SorcBall1Projectile", 90, 0, 0, CMF_AIMDIRECTION)
 			"####" "#" 0 A_CustomMissile("SorcBall2Projectile", 90, 0, 60, CMF_AIMDIRECTION)
 			"####" "#" 0 A_CustomMissile("SorcBall3Projectile", 90, 0, 120, CMF_AIMDIRECTION)
-		Goto Super::Death.Emerald
+		Goto Super::Death.Ice
    }
 }
 

@@ -19,7 +19,7 @@ Actor AffluenceCounter : Inventory {
 Actor OrbSoundPlayer : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_PlaySound("Items/OrbPick", 7)
+			//TNT1 A 0 A_PlaySound("Items/OrbPick", 7)
 			TNT1 A 0 A_SetBlend("45 99 45", 0.6, 17)
 		Stop
 	}

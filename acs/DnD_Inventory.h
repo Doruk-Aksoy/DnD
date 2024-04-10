@@ -1288,19 +1288,64 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 	SyncItemData_Special(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
-bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, int ioffset) {
+bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = false) {
 	bool res = false;
 
-	// scan from vertical positions to horizontal first to find a good spot
 	int tpbid = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid, -1, isource) - 1;
-	int try_pos = -1;
 	int i, j;
+	int try_pos = -1;
+
+	// if this is a stacked item, scan the destination for any of this item to add on top, if we can
+	// reduce stack count if we couldn't, and if we could, we're done
+	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, tpbid, -1, isource);
+	int isubtype = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, tpbid, -1, isource);
+	int maxstacks = GetStackValue(itype), istacks = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, tpbid, -1, isource);
+	int stype;
+	if(IsStackedItem(itype)) {
+		for(j = 0; !res && j < MAXINVENTORYBLOCKS_VERT; ++j) {
+			for(i = 0; !res && i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
+				try_pos = j + i * MAXINVENTORYBLOCKS_VERT;
+				// check destination for same item to potentially put it onto it
+				stype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, try_pos, -1, ssource);
+				if
+				(
+					stype == itype &&
+					GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, try_pos, -1, ssource) == isubtype
+				) 
+				{
+					// move stacks of what we got to this one and end the operation
+					// check if we have reached max, if we did, then we must proceed further below
+					stype = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, try_pos, -1, ssource);
+					if(stype + istacks <= maxstacks) {
+						SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, try_pos, -1, stype + istacks, ssource);
+						SyncItemStack(pnum, try_pos, ssource);
+						FreeItem(pnum, tpbid, isource, false);
+						return true;
+					}
+					else {
+						// set target one to max, and ours max - what we had
+						SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, try_pos, -1, maxstacks, ssource);
+						SyncItemStack(pnum, try_pos, ssource);
+
+						// dont sync this, we'll move it later anyways then the real sync will occur
+						SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, tpbid, -1, istacks - (maxstacks - stype), isource);
+						res = true;
+					}
+				}
+			}
+		}
+	}
+
+	// if res was true before, make it false on the stacked item case for 2nd condition occuring
+	res = false;
+
+	// scan from vertical positions to horizontal first to find a good spot
 	for(j = 0; !res && j < MAXINVENTORYBLOCKS_VERT; ++j) {
 		for(i = 0; !res && i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 			try_pos = j + i * MAXINVENTORYBLOCKS_VERT;
 			if(IsFreeSpot(pnum, tpbid, try_pos, isource, ssource)) {
 				// move item to here now
-				MoveItemTrade(pnum, tpbid, try_pos, isource, ssource);
+				MoveItemTrade(pnum, tpbid, try_pos, isource, ssource, noSync);
 				res = true;
 			}
 		}
@@ -1309,11 +1354,75 @@ bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, int ioffset) {
 	return res;
 }
 
-// auto dump functionality
+// auto dump functionality from inventory of player to stash
+void AutoDumpItems(int pnum) {
+	// for each item the player has, attempt to AutoMoveItem them to stash
+	// first store item ids in an array, sorted from biggest to shortest (biggest first in list)
+	static bool marked_tbids[MAX_INVENTORY_BOXES];
+
+	int i, j, k, count = 0;
+
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		marked_tbids[i] = false;
+		ItemMoveList[pnum][i].dest_pos = -1;
+	}
+
+	// ItemMoveList contains topboxids of items to be moved in order of largest to smallest size occupying (w * h)
+	// insert sorted
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL && !marked_tbids[i]) {
+			k = 0;
+			j = 0;
+			while(ItemMoveList[pnum][k].dest_pos != -1) {
+				if(ItemMoveList[pnum][k].width * ItemMoveList[pnum][k].height < PlayerInventoryList[pnum][i].width * PlayerInventoryList[pnum][i].height) {
+					// need to shift items right starting from k
+					j = 1;
+					break;
+				}
+				++k;
+			}
+
+			// add it here, but check if this current location is actually occupied!
+			if(j) {
+				// shift then add to where k is
+				//printbold(s:"shifting item at ", d:k, s: " right");
+				for(j = count - 1; j >= k; --j) {
+					//printbold(s:"move ", d:j, s: " to ", d:j + 1, s: " item dest_pos: ", d:ItemMoveList[pnum][j + 1].dest_pos, s: " to ", d:ItemMoveList[pnum][j].dest_pos);
+					ItemMoveList[pnum][j + 1].dest_pos = ItemMoveList[pnum][j].dest_pos;
+					ItemMoveList[pnum][j + 1].width = ItemMoveList[pnum][j].width;
+					ItemMoveList[pnum][j + 1].height = ItemMoveList[pnum][j].height;
+				}
+			}
+
+			// add here
+			//printbold(s:"insert to movelist ", d:k, s: " item at ", d:i, s:" w and h: ", d:PlayerInventoryList[pnum][i].width, s: " ", d:PlayerInventoryList[pnum][i].height);
+			ItemMoveList[pnum][k].dest_pos = PlayerInventoryList[pnum][i].topleftboxid;
+			ItemMoveList[pnum][k].width = PlayerInventoryList[pnum][i].width;
+			ItemMoveList[pnum][k].height = PlayerInventoryList[pnum][i].height;
+
+			++count;
+
+			// mark them for quick checks so we dont keep checking these
+			for(k = 0; k < PlayerInventoryList[pnum][i].width; ++k) 
+				for(j = 0; j < PlayerInventoryList[pnum][i].height; ++j)
+					marked_tbids[i + k  + j * MAXINVENTORYBLOCKS_VERT] = true;
+		}
+	}
+
+	//printbold(s:"count of items to move: ", d:count);
+
+	// we formed the list of items to be send to stash, sorted wrt size, now just send them over
+	for(i = 0; i < count; ++i) {
+		//printbold(s:"item: ", d:i, s: " w and h: ", d:ItemMoveList[pnum][i].width, s: " ", d:ItemMoveList[pnum][i].height, s:" move item pos: ", d:ItemMoveList[pnum][i].dest_pos - 1);
+		AutoMoveItem(pnum, ItemMoveList[pnum][i].dest_pos - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16));
+	}
+
+	// sync entire inventory and stash after success
+}
 
 // this is made specifically for trade view, the one above is optimized for normal inventory
 // also used for moving items from one source to another, ie. inventory to stash etc.
-void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int emptysource) {
+void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int emptysource, bool noSync = false) {
 	int tb = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itempos, -1, itemsource) - 1;
 	int offset = tb - itempos;
 	
@@ -1396,7 +1505,8 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 	if(Player_MostRecent_Orb[pnum].p_tempwep == itempos && itemsource == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)
 		Player_MostRecent_Orb[pnum].p_tempwep = 0;
 	
-	SyncItemData_Special(pnum, temp, emptysource);
+	if(!noSync)
+		SyncItemData_Special(pnum, temp, emptysource);
 }
 
 // this simply carries an item from another player's place to another, like moveitem but has player inputs
@@ -1784,18 +1894,12 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 }
 
 void StackedItemPickupCS(int item_index, int type) {
-	if(type == DND_STACKEDITEM_ORB) {
+	if(type == DND_STACKEDITEM_ORB)
 		ACS_NamedExecuteAlways("DnD Orb Message", 0, Inventories_On_Field[item_index].item_subtype);
-		GiveInventory("OrbSoundPlayer", 1);
-	}
-	else if(type == DND_STACKEDITEM_CHESTKEY) {
+	else if(type == DND_STACKEDITEM_CHESTKEY)
 		ACS_NamedExecuteAlways("DnD Chestkey Message", 0, Inventories_On_Field[item_index].item_subtype);
-		GiveInventory("ChestkeySoundPlayer", 1);
-	}
-	else if(type == DND_STACKEDITEM_TOKEN) {
+	else if(type == DND_STACKEDITEM_TOKEN)
 		ACS_NamedExecuteAlways("DnD Token Message", 0, Inventories_On_Field[item_index].item_subtype);
-		GiveInventory("TokenSoundPlayer", 1);
-	}
 }
 
 // move this from field to player's inventory
@@ -2206,6 +2310,8 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 						SetActorProperty(0, APROP_HEALTH, temp);
 				}
 			}
+
+			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
 			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval, noSync);
@@ -2296,6 +2402,10 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 						SetActorProperty(0, APROP_HEALTH, temp);
 				}
 			}
+		break;
+		case INV_STAT_INTELLECT:
+			IncPlayerModValue(pnum, atype, aval, noSync);
+			HandleEShieldChange(pnum, remove);
 		break;
 
 		case INV_SHIELD_INCREASE:
@@ -2409,9 +2519,9 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		case INV_IMP_INCSHIELD:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
 
-			HandleEShieldChange(pnum, remove);
-
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+
+			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMIT:
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, aval, noSync);
@@ -2421,17 +2531,17 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
 
-			HandleEShieldChange(pnum, remove);
-
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+
+			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMITSHIELD:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_SHIELD_TO_MIT_RATIO), noSync);
 
-			HandleEShieldChange(pnum, remove);
-
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+			
+			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMITARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
@@ -2440,8 +2550,9 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		break;
 		case INV_IMP_POWERCORE:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
-			HandleEShieldChange(pnum, remove);
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+			
+			HandleEShieldChange(pnum, remove);
 		break;
 
 
@@ -2472,6 +2583,8 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 						SetActorProperty(0, APROP_HEALTH, temp);
 				}
 			}
+
+			HandleEShieldChange(pnum, remove);
 		break;
 
 		// weapon mods

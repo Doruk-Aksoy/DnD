@@ -2008,6 +2008,14 @@ Script "DnD Open Stash" (void) NET {
 	ACS_ExecuteAlways(900, 0, MENU_LOAD_STASH, 2);
 }
 
+Script "DnD Dump to Stash" (void) NET {
+	if(!CheckInventory("DnD_DumpCooldown") && CheckInventory("DnD_StashView")) {
+		AutoDumpItems(PlayerNumber());
+		GiveInventory("DnD_DumpCooldown", 1);
+		GiveInventory("DnD_RefreshRequest", 1);
+	}
+}
+
 #ifdef ISAPRILFIRST
 Script "DnD NFT Announce" (int pnum, int id) CLIENTSIDE {
 	AmbientSound("CoolNFT", 127);

@@ -16,7 +16,7 @@ Actor TokenBase : InventoryBase {
 Actor TokenSoundPlayer : CustomInventory {
 	States {
 		Pickup:
-			TNT1 A 0 A_PlaySound("Items/TokenPick")
+			//TNT1 A 0 A_PlaySound("Items/TokenPick")
 			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
 		Stop
 	}

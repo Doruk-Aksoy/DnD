@@ -1301,9 +1301,11 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// if not sedrin staff, immediately check
 		// if sedrin staff and if we have armor, both are false so no damage to us
 		if(wepid != DND_WEAPON_SEDRINSTAFF || ActorHasNoArmor(owner)) {
+			GiveInventory("DnD_Hit_CombatTimer", 1);
+
 			// if this flag is in place, do half damage within half radius
 			if(flags & DND_DAMAGEFLAG_HALFDMGSELF)
-				final_dmg = ScaleExplosionToDistance(owner, dmg / 2, radius / 2, fullradius / 2, px, py, pz, proj_r);
+				final_dmg = ScaleExplosionToDistance(owner, dmg / 3, radius / 3, fullradius / 3, px, py, pz, proj_r);
 			else
 				final_dmg = ScaleExplosionToDistance(owner, dmg, radius, fullradius, px, py, pz, proj_r);
 			
@@ -1412,6 +1414,7 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 
 void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false) {
 	int px, py, pz;
+	int ang, pitch;
 	bool victim_IsMonster = IsMonster(victim);
 
 	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
@@ -1422,6 +1425,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
 		
 	int actor_flags = ScanActorFlags();
+	int temp;
 		
 	if((flags & DND_DAMAGEFLAG_FOILINVUL) || (HasPlayerPowerSet(owner - P_TIDSTART, PPOWER_MELEEIGNORESHIELD) && (IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)))) {
 		actor_flags |= DND_ACTORFLAG_FOILINVUL;
@@ -1439,7 +1443,6 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			// if actor died before the rest of the pellets can take effect, fire corresponding bullet attacks from behind this monster
 			// calculate a pitch and angle to fire it from this guy
 			// get vector from player to puff
-			int ang, pitch;
 			
 			px = GetActorX(0) - GetActorX(owner);
 			py = GetActorY(0) - GetActorY(owner);
@@ -1493,28 +1496,43 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	// true if wepid is negative (misc damage sources like armors etc.) or if we used a spell
 	bool wep_neg = wepid < 0 || (flags & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO));
 	
-	if(!wep_neg) {
-		// printbold(d:owner, s: " ", d:victim);
-		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
-			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-			// printbold(s:"actor got crit confirm");
-		}
+	// printbold(d:owner, s: " ", d:victim);
+	if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
+		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+		// printbold(s:"actor got crit confirm");
+	}
 
+	if(!wep_neg) {
 		// berserker perk50 dmg increase portion and other melee increases
 		if((IsMeleeWeapon(wepid) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
 			if(CheckActorInventory(owner, "Berserker_Perk50")) {
 				SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-				if((px = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+				if
+				(
+					!CheckActorInventory(owner, "Berserker_Perk50_HitCooldown") &&
+					(ang = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS && 
+					(pitch = CheckActorInventory(owner, "Berserker_Perk50_HitCounter")) < DND_BERSERKER_PERK50_MAXHITS
+				)
+				{
 					GiveActorInventory(owner, "Berserker_HitTracker", 1);
-					if(!px)
+
+					GiveActorInventory(owner, "Berserker_Perk50_HitCounter", 1);
+					if(pitch + 1 >= DND_BERSERKER_PERK50_MAXHITS) {
+						// now that we hit cooldown time, reset the counter
+						GiveActorInventory(owner, "Berserker_Perk50_HitCooldown", 1);
+						SetActorInventory(owner, "Berserker_Perk50_HitCounter", 0);
+					}
+
+					if(!ang)
 						ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
 				}
-				if(px + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+
+				if(ang + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
 					if(!CheckActorInventory(owner, "Berserker_NoRoar"))
 						HandleBerserkerRoar(owner);
 					GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
 				}
-				dmg = dmg * (100 + (px + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
+				dmg = dmg * (100 + (ang + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
 			}
 			
 			dmg = dmg * (100 + GetActorAttributeValue(owner, INV_MELEEDAMAGE)) / 100;
@@ -1586,8 +1604,14 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	if(!victim || !owner)
 		Terminate;
 
-	if(wepid == -1)
-		wepid = GetUserVariable(0, "user_wepid");
+	if(wepid == -1) {
+		// if hitscan we can use the current weapon, its immediate
+		// note: temporary fix until the ordering of things can be fixed: use inventory if user variable was not set in time for this part! This should be fixed later asap!
+		if((flags & DND_DAMAGEFLAG_ISHITSCAN) || !GetUserVariable(0, "user_wepid"))
+			wepid = CheckActorInventory(owner, "DnD_WeaponID");
+		else
+			wepid = GetUserVariable(0, "user_wepid");
+	}
 	
 	// add 1 flip sign, damage functions require wepid to be non-negative, if they are we will know they need to use spell index
 	if(flags & DND_DAMAGEFLAG_ISSPELL)
@@ -3350,6 +3374,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things, we run additional stuff that isnt handled by that here, like resists and armor
 			pnum = PlayerNumber();
 			
+			GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
+
 			if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
 				OnPlayerHit(victim, pnum, shooter, false);
 				GiveActorInventory(victim, "DnD_Hit_Cooldown", 1);

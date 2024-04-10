@@ -458,8 +458,14 @@ void GiveActorCredit(int tid, int amt) {
 }
 
 void ConsumeAttributePointOn(int stat, int amt) {
+	int pnum = PlayerNumber();
+
 	GiveStat(stat, amt);
-	UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, -amt, 0);
+	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, -amt, 0);
+
+	if(stat == STAT_INT)
+		UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
+
 	TakeInventory("AttributePoint", amt);
 }
 

@@ -1258,16 +1258,16 @@ void DrawAmmoExplanation(int itemid) {
 	if(ammo_ref < 65536) {
 		// exception for "no weapon specified"
 		if(itemid <= SHOP_AMMO_CELL || itemid >= SHOP_AMMO_FLECHETTE)
-			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
+			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1); HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1 + (1.0 * ScrollPos.x), 0.0, 0.0);
 		else
-			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref), s:"\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0);
+			HudMessage(s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ", l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref), s:"\c-."; HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1 + (1.0 * ScrollPos.x), 0.0, 0.0);
 	}
 	else
 		HudMessage(
 			s:"\cd*\c- ", l:"DND_MENU_GIVES", s:" \cf", d:GetAmmoToGive(itemid), s:"\c- ",
 			l:StrParam(s:"DND_MENU_AMMOTEXT", d:ammo_id + 1), s: " ", 
 			l:"DND_MENU_FOR", s:"\cd", l:GetWeaponTag(ammo_ref & 0xFFFF), s:"\c-", l:"DND_MENU_AND", s:"\cd", l:GetWeaponTag(ammo_ref >> 16), s:"\c-."; 
-			HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1, 0.0, 0.0
+			HUDMSG_PLAIN, RPGMENUITEMID - 40, CR_WHITE, 192.1, 248.1 + (1.0 * ScrollPos.x), 0.0, 0.0
 		);
 }
 

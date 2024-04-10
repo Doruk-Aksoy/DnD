@@ -627,3 +627,8 @@ Actor DnD_HealOnMissingCD : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration -3
 }
+
+Actor DnD_DumpCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 54
+}

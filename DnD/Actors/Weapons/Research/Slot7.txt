@@ -42,8 +42,8 @@ Actor ResBFG1 : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
 			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_IONCANNON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 125, 0, DND_WEAPON_IONCANNON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 100, 0, DND_WEAPON_IONCANNON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 160, 0, DND_WEAPON_IONCANNON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 144, 0, DND_WEAPON_IONCANNON)
 	    SelectLoop:
 			RW04 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -358,7 +358,7 @@ Actor ResBFG2 : Weapon {
 			APOF D 1 Bright Offset(0, 63)
 			APOF E 1 Bright Offset(0, 64)
 			APOF E 1 Bright Offset(0, 65)
-			APOF BCD 2 Bright Offset(0, 66)
+			APOF BCDBCDBCDBCD 2 Bright Offset(0, 66)
 			APOF CC 1 Bright Offset(0, 65)
 			APOF DD 1 Bright Offset(0, 59)
 			APOF B 1 Bright Offset(0, 52)
@@ -417,7 +417,7 @@ Actor ResBFG2 : Weapon {
 			APOF A 1 Offset(0, 65)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Thunderstaff Lightning", 0)
 		ContinueAltAnim:
-			APOF A 16 A_TakeInventory("ThunderRangeCounter", 0)
+			APOF A 35 A_TakeInventory("ThunderRangeCounter", 0)
 			APOF AAA 1 Offset(0, 59)
 			APOF AA 1 Offset(0, 52)
 			APOF A 1 Offset(0, 44)

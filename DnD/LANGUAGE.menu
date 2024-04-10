@@ -358,14 +358,14 @@ DND_MENU_AMMOTEXT40		=	"incinerator shells";
 DND_MENU_AMMOTEXT41		=	"mana";
 DND_MENU_AMMOTEXT42		=	"hammer";
 	
-DND_MENU_AMMOTEXT43		=	"flechette shells. \cuPhysical damage.";
-DND_MENU_AMMOTEXT44		=	"magnum shells. \cuPhysical damage.";
-DND_MENU_AMMOTEXT45		=	"electric shells. \cvLightning damage.";
-DND_MENU_AMMOTEXT46		=	"nitrogen shells. \cnIce damage.";
-DND_MENU_AMMOTEXT47		=	"slug shells. \cuPhysical damage.";
+DND_MENU_AMMOTEXT43		=	"flechette shells. 18 direct hit damage, each pellet splits into 3-6 damage flechettes that ignore shields. \cuPhysical damage.";
+DND_MENU_AMMOTEXT44		=	"magnum shells. 30 direct hit damage and goes through enemies. \cuPhysical damage.";
+DND_MENU_AMMOTEXT45		=	"electric shells. 20 direct hit damage with 12 damage zaps in a 48 unit radius 5 times. \cvLightning damage.";
+DND_MENU_AMMOTEXT46		=	"nitrogen shells. 15 direct hit damage with 2 constant damage as it travels. \cnIce damage.";
+DND_MENU_AMMOTEXT47		=	"slug shells. 300 direct hit damage. Ignores shields. \cuPhysical damage.";
 	
-DND_MENU_AMMOTEXT48		=	"sonic grenades. \ciExplosion\c- and \chEnergy damage.";
-DND_MENU_AMMOTEXT49		=	"high-ex grenades. \ciExplosion damage.";
+DND_MENU_AMMOTEXT48		=	"sonic grenades. 144 direct hit damage, 72 area damage in 160 unit radius, repeating 12 times. Ignores shields. \ciExplosion\c- and \chEnergy damage.";
+DND_MENU_AMMOTEXT49		=	"high-ex grenades. 288 direct hit damage, 288 area damage in 256 unit radius. Explodes to shrapnels dealing 16-128 damage. Can't hit ghosts. \ciExplosion damage.";
 
 // artifacts
 DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";
@@ -461,7 +461,7 @@ DND_MENU_GLOBALCRITMULT	=	"global critical strike multiplier";
 DND_MENU_DROPCHANCE		=	"increased drop chance";
 DND_MENU_AMMOCAPS		=	"increased ammo caps";
 DND_MENU_SLOTDMG		=	"damage bonus to slot";
-DND_MENU_SELFEXPDMG		=	"less damage taken from self damage";
+DND_MENU_SELFEXPDMG		=	"less self damage";
 
 DND_MENU_STATUS				=	"Status";
 DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";

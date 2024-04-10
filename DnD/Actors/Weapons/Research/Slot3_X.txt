@@ -668,7 +668,7 @@ actor HadesShot : DnD_BaseFastProjectile {
 	MissileHeight 8
 	Alpha 1.0
 	Decal "DoomImpScorch"
-	DropItem "WussyHadesPellet" 255
+	/*DropItem "WussyHadesPellet" 255
 	DropItem "WussyHadesPellet" 255
 	DropItem "WussyHadesPellet" 255
 	DropItem "WussyHadesPellet" 255
@@ -678,7 +678,7 @@ actor HadesShot : DnD_BaseFastProjectile {
 	DropItem "WussyHadesPellet" 40
 	DropItem "WussyHadesPellet" 40
 	DropItem "WussyHadesPellet" 40
-	DropItem "WussyHadesPellet" 40
+	DropItem "WussyHadesPellet" 40*/
 	States {
 		SpawnState:
 			//TNT1 A 0 A_RearrangePointers(AAPTR_MASTER, AAPTR_DEFAULT, AAPTR_DEFAULT)
