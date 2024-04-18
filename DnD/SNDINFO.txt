@@ -1,6 +1,10 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Blind/Normal			BLINDNRM
+Blind/Heavy				BLINDHEV
+Blind/Petrified			PETRIFY
+
 Sickle/GhostRes			SICKSOUL
 Sickle/Ghost			SICKGHST
 

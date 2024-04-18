@@ -358,25 +358,12 @@ enum {
 	DND_REDARMOR_CONTRIB = -36
 };
 
-enum {
-	DND_VERYEASY,
-	DND_EASY,
-	DND_MEDIUM,
-	DND_HARD,
-	DND_VERYHARD
-};
-
-enum {
-	DND_VERYEASY_LIMIT = 300,
-	DND_EASY_LIMIT = 500,
-	DND_MEDIUM_LIMIT = 800,
-	DND_HARD_LIMIT = 1250,
-	DND_VERYHARD_LIMIT = 1800
-};
+#define DND_MAPDIFF_TIERVAL 250
+#define DND_MAXMAPDIFF 9
 
 // 5 Tiers: 0 -> Very Easy, 1 -> Easy, 2 -> Medium, 3 -> Hard and 4 -> Very Hard.
 void CalculateMapDifficulty() {
-	int factor = 0;
+int factor = 0;
 	// yes this is ugly but it won't ever change, no new spawners will come etc so why not :)
 	factor += ThingCountName("ZombiemanSpawner", 0) * DND_ZOMBIE_CONTRIB;
 	factor += ThingCountName("ShotgunguySpawner", 0) * DND_SHOTGUNNER_CONTRIB;
@@ -411,18 +398,11 @@ void CalculateMapDifficulty() {
 	factor += ThingCountName("YellowArmor2", 0) * DND_YELLOWARMOR_CONTRIB;
 	factor += ThingCountName("NewBlueArmor2", 0) * DND_BLUEARMOR_CONTRIB;
 	factor += ThingCountName("TheRedArmor2", 0) * DND_REDARMOR_CONTRIB;
-	if(factor >= DND_VERYHARD_LIMIT)
-		MapDifficulty = DND_VERYHARD;
-	else if(factor >= DND_HARD_LIMIT)
-		MapDifficulty = DND_HARD;
-	else if(factor >= DND_MEDIUM_LIMIT)
-		MapDifficulty = DND_MEDIUM;
-	else if(factor >= DND_EASY_LIMIT)
-		MapDifficulty = DND_EASY;
-	else
-		MapDifficulty = DND_VERYEASY;
 	
-	SetInventory("MapDifficultyClientside", MapDifficulty);
+	// get the value
+	MapDifficulty = factor / DND_MAPDIFF_TIERVAL;
+	if(MapDifficulty > DND_MAXMAPDIFF)
+		MapDifficulty = DND_MAXMAPDIFF;
 }
 
 int CalculateBonus(int bonustype, int mdifficulty) {
@@ -474,7 +454,7 @@ void DistributeBonus(int bonustype) {
 		bval = CalculateBonus(BONUS_KILL, MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
-				temp = GetActorStat(i + P_TIDSTART, STAT_LVLEXP) * bval / 100;
+				temp = GetActorLevelExperience(i + P_TIDSTART) * bval / 100;
 				GiveActorInventory(i + P_TIDSTART, "DnD_KillBonusShower", 1);
 				GiveActorExp(i + P_TIDSTART, temp);
 			}
@@ -484,7 +464,7 @@ void DistributeBonus(int bonustype) {
 		bval = CalculateBonus(BONUS_ITEM, MapDifficulty);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
-				temp = GetActorStat(i + P_TIDSTART, STAT_LVLCRED) * bval / 100;
+				temp = GetActorLevelCredits(i + P_TIDSTART) * bval / 100;
 				GiveActorInventory(i + P_TIDSTART, "DnD_ItemBonusShower", 1);
 				GiveActorCredit(i + P_TIDSTART, bval);
 			}
@@ -679,7 +659,8 @@ void UpdateLevelChestLimit() {
 		Hard = 24
 		Very Hard = 35
 	*/
-	CurrentLevelData[LEVELDATA_MAXCHESTS] = MAX_BASE_CHESTCOUNT + (1 << MapDifficulty) + 5 * MapDifficulty / 2;
+	// the numbers above are different now that we have a different difficulty scale from 0-9 instead of 0-4
+	CurrentLevelData[LEVELDATA_MAXCHESTS] = MAX_BASE_CHESTCOUNT + 5 * MapDifficulty / 2;
 }
 
 void HandleChestSpawn(int chance_penalty) {
@@ -1547,7 +1528,7 @@ void HandleEndOfLevelRewards(int pnum) {
 		
 		// check if the map had at least 1 monster in it... so people don't cheese stupid "skip maps"...
 		if(GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) {
-			temp = (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
+			temp = 2 * (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
 			GiveInventory("Budget", temp);
 			ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
 		}

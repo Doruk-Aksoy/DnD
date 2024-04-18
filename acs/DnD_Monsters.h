@@ -6,11 +6,20 @@
 #include "DnD_MonsterData.h"
 #include "DnD_SpecialTrails.h"
 
+#define DND_BASE_AURA_RADIUS 30 // radius of a Demon is 30
+
+#define DND_BLIND_ANGLETHRESHOLD 0.7
+enum {
+	DND_BLIND_LIGHT,
+	DND_BLIND_HEAVY,
+	DND_BLIND_PETRIFY
+};
+
 #define AVATAR_SOUL_COUNT 10
 
 #define WAIT_MAX 18 // approx 2.5 seconds of flight max for jumping monsters (or lands on object and gets stuck, this is to unstuck it)
 
-#define ZEALOT_SHIELD_TIME 4 * 35
+#define ZEALOT_SHIELD_TIME (4 * TICRATE)
 
 #define DARKLICH_WARP_RANDMAX 160
 #define DARKLICH_WARP_VELZMAX 12.0

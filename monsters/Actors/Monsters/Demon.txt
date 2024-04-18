@@ -1604,3 +1604,178 @@ Actor PurebredGhost_D : PurebredGhost_A {
 		goto Super::SpawnLoop
 	}
 }
+
+ACTOR Sabreclaw : DnD_BaseMeleeMonster { 
+    Health 0x7FFFFFFF
+	GibHealth -50
+    Speed 16
+    Height 56
+    Radius 20
+    Mass 640
+    PainChance 96
+	MeleeRange 56
+    REACTIONTIME 8
+    SeeSound "Saberclaw/sight"
+    PainSound "Saberclaw/pain"
+    DeathSound "Saberclaw/death"
+    ActiveSound "Saberclaw/active"
+    Attacksound "Saberclaw/melee"
+    HitObituary "%o was cut to pieces by a Sabreclaw." 
+	Species "Demon"
+	Tag "Sabreclaw"
+	var int user_dash;
+	const int dash_lim = 3;
+	const float v = 36;
+	+NOBLOOD
+	+ISMONSTER
+	+DONTHURTSPECIES
+	+NOINFIGHTING
+    States { 
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_SABRECLAW)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+
+		Idle:
+			CLNK AB 10 A_Look
+		Loop 
+		SeeState:
+			CLNK AB 3 Fast A_Chase
+			TNT1 A 0 A_GiveInventory("SabreclawDashDecider", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Blink")
+			CLNK CD 3 Fast A_Chase
+		Goto See
+		MeleeState: 
+			CLNK E 4 Fast A_FaceTarget
+			CLNK F 3 Fast A_FaceTarget
+			CLNK G 5 Fast A_CustomMeleeAttack(random(14, 18), "Saberclaw/melee", "Saberclaw/melee")
+		Goto See
+		Blink:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_CustomMissile("ClinkDashMarker", 44, 20)
+			TNT1 A 0 A_PlaySound("Saberclaw/sight", CHAN_5)
+			TNT1 A 0 A_SetUserVar("user_dash", 0)
+			CLNK EEEEEEEE 4 Fast A_FaceTarget(0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Face Target (Pitch)")
+			TNT1 A 0 A_PlaySound("Saberclaw/melee", CHAN_5)
+		BlinkLoop:
+			TNT1 A 0 A_SetUserVar("user_dash", user_dash + 1)
+			TNT1 A 0 A_ChangeVelocity(v * cos(angle), v * sin(angle), v / 3 * sin(-pitch), CVF_REPLACE)
+			TNT1 A 0 A_CustomMissile("ClinkDashDamager", 32)
+			CLNK G 1 A_SpawnItemEx("ClinkAfterImage")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Is Actor Stuck")
+			CLNK G 1
+			TNT1 A 0 A_CustomMissile("ClinkDashDamager", 32)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Face Target (Pitch)")
+			CLNK G 1 A_SpawnItemEx("ClinkAfterImage")
+			TNT1 A 0 A_ChangeVelocity(v * cos(angle), v * sin(angle), v / 3 * sin(-pitch), CVF_REPLACE)
+			CLNK G 1 A_SpawnItemEx("ClinkAfterImage")
+			TNT1 A 0 A_CustomMissile("ClinkDashDamager", 32)
+			CLNK GG 1 A_SpawnItemEx("ClinkAfterImage")
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "BlinkFinish")
+			TNT1 A 0 A_JumpIf(user_dash == dash_lim, "BlinkFinish")
+		Loop
+		BlinkFinish:
+			TNT1 A 0 A_Stop
+			CLNK G 12 Fast A_TakeInventory("DnD_Boolean", 1)
+		Goto See
+		PainState:
+			CLNK H 3 Fast A_GiveInventory("BlindCancelledSignal", 1)
+			CLNK H 3 Fast A_Pain
+		Goto See
+		XDeathState:
+		DeathState: 
+			CLNK IJ 5
+			CLNK K 4 A_Scream
+			CLNK L 4 A_NoBlocking
+			CLNK MN 4
+			CLNK O -1
+		Stop
+		RaiseState: 
+			CLNK NMLKJI 4 
+		Goto See
+    } 
+}
+
+Actor SabreclawDashDecider : DnD_Activator {
+	States {
+		Pickup:
+			// check sight, distance and rng
+			TNT1 A 0 A_Jump(192, "Nothing")
+			TNT1 A 0 A_JumpIfCloser(320, "CheckSight")
+		Stop
+		CheckSight:
+			TNT1 A 0 A_CheckSight("Nothing")
+		CanDash:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+// waits 32 tics
+Actor ClinkDashMarker {
+	Renderstyle Add
+	Scale 0.75
+	Translation "0:255=%[0.00,0.00,0.00]:[1.18,1.18,1.18]"
+	const int t = 8;
+	const float s = 0.75 / 16;
+	var int user_count;
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count >= t, "Finish")
+			R075 P 2 Fast Bright A_Warp(AAPTR_TARGET, 16, 20, 44, 0, WARPF_INTERPOLATE)
+			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Finish")
+			TNT1 A 0 A_SetScale(scalex - s, scaley - s)
+			R075 P 2 Fast Bright A_Warp(AAPTR_TARGET, 16, 20, 44, 0, WARPF_INTERPOLATE)
+			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Finish")
+			TNT1 A 0 A_SetScale(scalex - s, scaley - s)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			TNT1 A 1
+		Stop
+		Fade:
+			R075 P 1 Fast A_FadeOut(0.1)
+		Wait
+	}
+}
+
+Actor ClinkDashDamager {
+	PROJECTILE
+	Speed 36
+	Height 28
+	Radius 8
+	Damage (15)
+	DamageType "Physical"
+	Stamina 1
+	Scale 0.9
+	+PIERCEARMOR
+	+BLOODLESSIMPACT
+	+NODAMAGETHRUST
+	+MTHRUSPECIES
+	States {
+		Spawn:
+			TNT1 A 3
+		Stop
+	}
+}
+
+Actor ClinkAfterImage {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Renderstyle Translucent
+	Alpha 0.9
+	States {
+		Spawn:
+			CLNK G 1 A_FadeOut(0.0875)
+		Loop
+	}
+}

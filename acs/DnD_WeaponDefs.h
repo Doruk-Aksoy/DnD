@@ -644,7 +644,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HADES].icon = "WEPICO30";
 	Weapons_Data[DND_WEAPON_HADES].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HADES].ammo_use2 = 2;
-	Weapons_Data[DND_WEAPON_HADES].properties = WPROP_RIPPER | WPROP_CANTHITGHOST | WPROP_SHOTGUN;
+	Weapons_Data[DND_WEAPON_HADES].properties = WPROP_CANTHITGHOST | WPROP_SHOTGUN;
 	Weapons_Data[DND_WEAPON_HADES].attunement[STAT_STR] = 0.02;
 	Weapons_Data[DND_WEAPON_HADES].attunement[STAT_DEX] = 0.03;
 	
@@ -1653,6 +1653,14 @@ int IsUsingMeleeWeapon() {
 		   CheckWeapon(Weapons_Data[DND_WEAPON_SOULRENDER].name) ||
 		   CheckWeapon(Weapons_Data[DND_WEAPON_HAMMER].name) ||
 		   CheckWeapon(Weapons_Data[DND_WEAPON_AXE].name);
+}
+
+bool IsSoulDroppingWeapon(int wepid) {
+	switch(wepid) {
+		case DND_WEAPON_INFERNOSWORD:
+		return true;
+	}
+	return false;
 }
 
 void DoWeaponTip(int curweap) {

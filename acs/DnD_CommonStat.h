@@ -11,6 +11,9 @@
 #define DND_EXP_ADJUST_LEVELFACTOR 0.9
 
 #define DND_SHIFTBITS_FOR_SLOTFROMFLAG 13 // 8192 must return 0 to us
+
+#define DND_SYNTHMASK_EFFECT 4
+
 enum {
 	DND_WDMG_USETARGET = 1,
 	DND_WDMG_ISOCCULT = 2,
@@ -107,6 +110,7 @@ enum {
 #define BASE_WISDOM_GAIN 10
 #define BASE_GREED_GAIN 10
 #define PERK_MEDICBONUS 10 // percent
+#define PERK_MEDIC_ESBONUS 2 // percent
 #define PERK_MEDICSTOREBONUS 15
 #define DND_SAVAGERY_BONUS 20 // percent
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
@@ -158,7 +162,27 @@ global int 1: StatListOpened[MAXPLAYERS];
 global int 4: MapDifficulty;
 
 str GetMapDifficultyLabel(int id) {
-	return StrParam(s:"DND_MAPDIFF", d:id + 1);
+	str col = "\cd";
+	switch(id) {
+		case 3:
+		case 4:
+			col = "\c[Y5]";
+		break;
+		case 5:
+		case 6:
+			col = "\ck";
+		break;
+		case 7:
+		case 8:
+			col = "\ci";
+		break;
+		case 9:
+		case 10:
+			col = "\cg";
+		break;
+	}
+
+	return StrParam(l:"DND_MAPDIFF", s:" - ", s:col, d:id + 1);
 }
 
 enum {
@@ -487,6 +511,13 @@ void RestoreRPGStat (int statflag) {
 	
 	if(!(statflag & RES_NOCLASSPERK))
 		HandleClassPerks(ActivatorTID());
+
+	TakeInventory("IsBlinded", 1);
+}
+
+bool HasPlayerPowerset(int pnum, int power) {
+	// powers are already bitfields here!
+	return GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & power;
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {

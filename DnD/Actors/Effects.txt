@@ -2276,17 +2276,17 @@ ACTOR SmokeTrail {
 	RenderStyle "Add"
 	Alpha 0.6
 	Gravity 0.005
+	+NOINTERACTION
 	-BLOCKEDBYSOLIDACTORS
 	-VISIBILITYPULSE
 	-NOGRAVITY
-	+CORPSE
 	+CLIENTSIDEONLY
 	+BRIGHT
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
 		SpawnLoop:
-			HLFC ABCB 1 A_FadeOut(0.05)
+			HLFC ABCB 1 A_FadeOut(0.075)
 		Loop
 		Crash:
 		Stop

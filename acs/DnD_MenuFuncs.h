@@ -41,7 +41,7 @@ void ClearTempItemInventory() {
 
 // includes left right shortcuts
 // works clientside
-void ListenInput(int listenflag, int condx_min, int condx_max) {
+void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page = -1) {
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
 	int obpress = GetPlayerInput(-1, INPUT_OLDBUTTONS);
 	int curposx = CheckInventory("MenuPosX");
@@ -55,7 +55,17 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 				p = IsButtonHeld(bpress, GetMovementButton(MVMT_BT_LEFT)) && !CheckInventory("Menu_LRCooldown");
 			if(p) {
 				if(curposx > condx_min) {
-					TakeInventory("MenuPosX", 1);
+					if(!(listenflag & LISTEN_SKIPKNOWNRES))
+						TakeInventory("MenuPosX", 1);
+					else {
+						// skip as far ahead as we are able
+						do {
+							--curposx;
+						} while(curposx > 0 && ResearchInfo[curr_res_page][curposx].res_id != -1 && CheckResearchStatus(ResearchInfo[curr_res_page][curposx].res_id) == RES_DONE);
+						
+						if(CheckResearchStatus(ResearchInfo[curr_res_page][curposx].res_id) != RES_DONE)
+							SetInventory("MenuPosX", curposx);
+					}
 					LocalAmbientSound("RPG/MenuMove", 127);
 					GiveInventory("Menu_LRCooldown", 1);
 				}
@@ -75,7 +85,17 @@ void ListenInput(int listenflag, int condx_min, int condx_max) {
 				p = IsButtonHeld(bpress, GetMovementButton(MVMT_BT_RIGHT)) && !CheckInventory("Menu_LRCooldown");
 			if(p) {
 				if(curposx < condx_max) {
-					GiveInventory("MenuPosX", 1);
+					if(!(listenflag & LISTEN_SKIPKNOWNRES))
+						GiveInventory("MenuPosX", 1);
+					else {
+						// skip as far ahead as we are able
+						do {
+							++curposx;
+						} while(ResearchInfo[curr_res_page][curposx].res_id != -1 && curposx < condx_max && CheckResearchStatus(ResearchInfo[curr_res_page][curposx].res_id) == RES_DONE);
+						// no change if we can't move further
+						if(ResearchInfo[curr_res_page][curposx].res_id != -1)
+							SetInventory("MenuPosX", curposx);
+					}
 					LocalAmbientSound("RPG/MenuMove", 127);
 					GiveInventory("Menu_LRCooldown", 1);
 				}
@@ -252,7 +272,7 @@ void DrawPerkText(int boxid) {
 				toShow = StrParam(s:"\cd* \ci+", s:GetFixedRepresentation(DND_LUCK_GAIN, true), s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 		}
-		if(GetStat(perk) == DND_PERK_MAX)
+		if(GetPerk(perk) == DND_PERK_MAX)
 			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:": \cd", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
 		else
 			toShow = StrParam(s:toShow, s:"\n\c[Y5]", l:"DND_MENU_MASTERY", s:" (", l:"DND_MENU_MASTERY_COND", s:"): \cu", l:StrParam(s:"DND_MENU_PERKMASTERY", d:boxid));
@@ -2856,7 +2876,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 		SetFont("LDTBOXC");
 	else if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source))) {
 		// if lvl requirement is satisfied draw them normal -- topbox is +1 of actual index
-		if(GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, temp - 1, -1, source) <= GetStat(STAT_LVL))
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, temp - 1, -1, source) <= GetLevel())
 			SetFont("LDTBOXO");
 		else
 			SetFont("LDTBOXR");
@@ -4921,12 +4941,8 @@ void GetInputOnMenuPage(int opt) {
 		ListenInput(0, 0, 0);
 	else if(opt == MENU_RESEARCH || opt == MENU_RESEARCH_GUNS)
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
-	else if(opt >= SHOP_RESPAGE_BEGIN && opt <= SHOP_RESPAGE_END) {
-		if(ResearchInfo[opt - SHOP_RESPAGE_BEGIN][CheckInventory("MenuPosX") + 1].res_id != -1)
-			ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR, 0, MAX_RESEARCHES - 1);
-		else
-			ListenInput(LISTEN_LEFT | LISTEN_FASTLR, 0, MAX_RESEARCHES - 1);
-	}
+	else if(opt >= SHOP_RESPAGE_BEGIN && opt <= SHOP_RESPAGE_END)
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR | LISTEN_SKIPKNOWNRES, 0, MAX_RESEARCHES - 1, opt - SHOP_RESPAGE_BEGIN);
 	else
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
 }
@@ -5473,7 +5489,6 @@ void DrawPlayerStats(int pnum, int category) {
 	// --------------------------------------
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
-	
 	if(GetCVar("survival")) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 120, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 121, CR_WHITE, 190.1, 260.1, 0.0, 0.0);

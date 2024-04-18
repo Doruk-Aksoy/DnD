@@ -7,6 +7,19 @@ enum {
 	DND_MWEIGHT_EPIC = 275,
 };
 
+enum {
+	DND_BLIND_LIGHT,
+	DND_BLIND_HEAVY,
+	DND_BLIND_PETRIFY
+};
+
+Actor IsBlinded : DnD_Boolean { }
+
+Actor BlindCancelledSignal : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 7
+}
+
 Actor DnD_BaseMonster {
 	GibHealth -150
 	+USEKILLSCRIPTS
@@ -19,6 +32,7 @@ Actor DnD_BaseMonster {
 	+CANPASS
 	-SHOOTABLE
 	-SOLID
+	+THRUACTORS
 	+USEDAMAGEEVENTSCRIPT
 	
 	// NoPain versions
@@ -89,6 +103,7 @@ Actor DnD_BaseMonster {
 		Wait
 		
 		Pain:
+			"####" "#" 0 A_GiveInventory("BlindCancelledSignal", 1)
 			"####" "#" 0 A_Jump(256, "PainState")
 			"####" "#" 35
 		Wait
@@ -345,6 +360,7 @@ Actor DnD_MonsterSetupDone : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_ChangeFlag("SHOOTABLE", 1)
 			TNT1 A 0 A_ChangeFlag("SOLID", 1)
+			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
 		Stop
 	}
 }

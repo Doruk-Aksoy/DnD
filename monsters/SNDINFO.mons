@@ -1,5 +1,21 @@
 weapons/smg DSSMG
 
+Ophidian/See				SNKSIT
+Ophidian/Pain				SNKPAI
+Ophidian/Act				SNKACT
+Ophidian/Die				SNKDTH
+
+Dragon/See					DRAGSIT1
+Dragon/Die					DRAGDIE2
+Dragon/Pain					DRAGPN2
+Dragon/Wing					DRAGWING
+
+Saberclaw/sight				CLKSIT
+Saberclaw/pain				CLKPAI
+Saberclaw/death				CLKDTH
+Saberclaw/active			CLKACT
+Saberclaw/melee				CLKATK
+
 Putrefier/pain 				STPGRDPN
 Putrefier/death 			STPGRDTH
 Putrefier/active 			STPGRACT
@@ -458,7 +474,9 @@ Lich/IceCurse	 LICICEC
 Lich/Heal		 LICBONE
 Lich/PoisonCurse LICDEFL
 Lich/EnergyCurse LICSLOW
+
 Lich/VisionDim	 LICDARKN
+$rolloff Lich/VisionDim 512 2048
 
 ThrustSpikeRaise        spike3
 ThrustSpikeLower        spike2

@@ -1225,7 +1225,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	// monster or w.e we shot at died
 	if(!isActorAlive(victim)) {
 		// give this for non-magic seal weapons (seals their souls...)
-		if(damage_type != DND_DAMAGETYPE_MAGICSEAL && IsOccultDamage(damage_type))
+		if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || IsSoulDroppingWeapon(wepid)))
 			GiveActorInventory(victim, "MagicCausedDeath", 1);
 	
 		if(CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
@@ -1278,6 +1278,7 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		
 	int actor_flags = ScanActorFlags();
 	bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
+	bool isNoPushing = CheckFlag(0, "NODAMAGETHRUST");
 	
 	int px = GetActorX(0), py = GetActorY(0), pz = GetActorZ(0);
 	// printbold(s:"Explosion owner: ", d:owner);
@@ -1320,8 +1321,9 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 				// set activator to us for damage credit -- we no longer need projectile itself here
 				SetActivator(owner);
 			
-				// push with some greater force
-				HandleDamagePush(final_dmg * 4, px, py, pz, owner);
+				// push with some greater force only if its pushing by default
+				if(!isNoPushing)
+					HandleDamagePush(final_dmg * 4, px, py, pz, owner);
 				
 				//printbold(s:"before ", d:final_dmg);
 
@@ -2263,7 +2265,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	if(IsActorAlive(victim_tid)) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
 			HandleChillEffects(pnum, victim_tid);
-		else if(flags & DND_DAMAGETICFLAG_FIRE)
+		else if(flags & DND_DAMAGETICFLAG_FIRE || flags & DND_DAMAGETICFLAG_ADDEDIGNITE) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
 			HandleOverloadEffects(pnum, victim_tid);
@@ -2964,6 +2966,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 			// no ways to prevent this type of damage, return raw dmg
 			if(!HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL) && !factor)
 				return dmg;
+			factor += !!(HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL)) * 100;
 		}
 		else
 			factor = 100;
@@ -3209,6 +3212,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
 		if(IsMonster(shooter)) {
 			m_id = shooter - DND_MONSTERTID_BEGIN;
+			isArmorPiercing |= MonsterProperties[m_id].trait_list[DND_PIERCE];
 		
 			// if victim was a monster, check for infight situation
 			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE

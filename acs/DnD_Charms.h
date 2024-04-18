@@ -125,6 +125,13 @@ void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
 	}
 }
 
+void SpawnCharmForAll(int rarity_boost) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && !PlayerIsSpectator(i))
+			SpawnCharm(i, rarity_boost);
+	}
+}
+
 void ResetPlayerCharmsUsed(int pnum) {
 	for(int i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
 		if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)

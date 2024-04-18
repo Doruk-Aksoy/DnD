@@ -1,0 +1,23 @@
+Model CrippleAuraFX {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "CRIPPLE.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA A 0 3
+}
+
+Model ViolentAuraFX {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "VIOLENT.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA A 0 3
+}

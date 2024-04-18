@@ -40,8 +40,6 @@
 #define BLOODRUNE_LIFESTEAL_AMT 30.0
 #define BLOODRUNE_LIFESTEAL_AMT2 45.0
 
-#define DND_SYNTHMASK_EFFECT 4
-
 // we multiply by 100 in calc
 #define DND_DAMAGERESIST_FACTOR 10000
 #define DND_BASE_DAMAGERESISTCAP 75.0
@@ -78,7 +76,7 @@ global bool 9: PlayerDatabaseState[MAXPLAYERS][MAX_PLAYER_DBSTATES];
 //global bool 10: TransactionMade;
 
 int GetExpLimit() {
-	return LevelCurve[GetStat(STAT_LVL) - 1];
+	return LevelCurve[GetLevel() - 1];
 }
 
 int GetExpLimit_Level(int lvl) {
@@ -179,6 +177,15 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 		GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
 		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 	}
+
+	if(HasMasteredPerk(STAT_MED)) {
+		bonus = GetPlayerEnergyShieldCap(PlayerNumber());
+		amt = toGive * PERK_MEDIC_ESBONUS / 100;
+		if(amt && CheckInventory("EShieldAmount") < bonus)
+			AddEnergyShield(amt);
+		else
+			SetEnergyShield(bonus);
+	}
 	
 	HandleHealDependencyCheck();
 }
@@ -196,22 +203,50 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 #define DND_SYNTHMETAL_LIGHTNINGNERF 50
 #define DND_LIGHTNINGCOIL_SPECIAL 85 // 85%
 
-bool IsWearingSpecialtyArmor() {
-	int armor_id = GetArmorID();
-	switch(armor_id) {
-		case BODYARMOR_GUNSLINGER:
-		case BODYARMOR_OCCULT:
-		case BODYARMOR_DEMO:
-		case BODYARMOR_ENERGY:
-		case BODYARMOR_ELEMENTAL:
-		return true;
-	}
-	return false;
-}
 #define ARMOR_INTEGER_FACTOR 1000
 
-int GetStat(int stat_id) {
+/*int GetStat(int stat_id) {
 	return CheckInventory(StatData[stat_id]);
+}*/
+
+/*int GetActorStat(int tid, int stat_id) {
+	return CheckActorInventory(tid, StatData[stat_id]);
+}*/
+
+int GetLevel() {
+	return CheckInventory(StatData[STAT_LVL]);
+}
+
+int GetActorLevel(int tid) {
+	return CheckActorInventory(tid, StatData[STAT_LVL]);
+}
+
+int GetExperience() {
+	return CheckInventory(StatData[STAT_EXP]);
+}
+
+int GetActorExperience(int tid) {
+	return CheckActorInventory(tid, StatData[STAT_EXP]);
+}
+
+int GetActorCredits(int tid) {
+	return CheckActorInventory(tid, StatData[STAT_CRED]);
+}
+
+int GetActorLevelExperience(int tid) {
+	return CheckActorInventory(tid, StatData[STAT_LVLEXP]);
+}
+
+int GetActorLevelCredits(int tid) {
+	return CheckActorInventory(tid, StatData[STAT_LVLCRED]);
+}
+
+int GetPerk(int attr) {
+	return CheckInventory(StatData[attr]);
+}
+
+int GetActorPerk(int tid, int attr) {
+	return CheckActorInventory(tid, StatData[attr]);
 }
 
 str GetStatLabel(int id) {
@@ -220,13 +255,9 @@ str GetStatLabel(int id) {
 	return StrParam(s:"DND_STAT", d:id + 1);
 }
 
-int GetActorStat(int tid, int stat_id) {
-	return CheckActorInventory(tid, StatData[stat_id]);
-}
-
 int GetPlayerEnergyShieldCap(int pnum) {
 	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
-	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + GetActorStat(pnum + P_TIDSTART, STAT_INT) / 2)) / 100;
+	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + GetActorIntellect(pnum + P_TIDSTART) / 2)) / 100;
 	return base;
 }
 
@@ -261,7 +292,7 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 }
 
 int GetPlayerEstimatedArmorProtect(int pnum, int cap) {
-	int base_dmg = DND_ESTIMATED_AVG_DAMAGE * (100 + GetMonsterDMGScaling(0, GetActorStat(pnum + P_TIDSTART, STAT_LVL), true)) / 100;
+	int base_dmg = DND_ESTIMATED_AVG_DAMAGE * (100 + GetMonsterDMGScaling(0, GetActorLevel(pnum + P_TIDSTART), true)) / 100;
 	return 100 - DoArmorRatingEffect(base_dmg, cap) * 100 / base_dmg;
 }
 
@@ -305,11 +336,11 @@ void TakeStat(int stat_id, int amt) {
 }
 
 bool HasMasteredPerk(int stat) {
-	return GetStat(stat) == DND_PERK_MAX;
+	return GetPerk(stat) == DND_PERK_MAX;
 }
 
 bool HasActorMasteredPerk(int tid, int stat) {
-	return GetActorStat(tid, stat) == DND_PERK_MAX;
+	return GetActorPerk(tid, stat) == DND_PERK_MAX;
 }
 
 bool CheckPlayerLuckDuplicator(int pnum) {
@@ -329,7 +360,7 @@ void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thru
 }
 
 bool CheckWellRolled(int pnum) {
-	return random(0, 1.0) <= DND_LUCK_GAIN * GetActorStat(pnum + P_TIDSTART, STAT_LUCK) / 3;
+	return random(0, 1.0) <= DND_LUCK_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_LUCK) / 3;
 }
 
 void CalculateExpRatio() {
@@ -403,7 +434,7 @@ int GetPlayerGreedBonus(int pnum, int tid) {
 
 int RewardActorExp(int tid, int amt) {
 	// if player is >= lvl 80, they only get 25% of the experience -- if too slow precalc and store in an array later
-	int tmp = GetActorStat(tid, STAT_LVL);
+	int tmp = GetActorLevel(tid);
 	if(tmp >= DND_EXP_ADJUST_LEVEL)
 		amt = amt * ((fpow(DND_EXP_ADJUST_LEVELFACTOR, tmp - DND_EXP_ADJUST_LEVEL + 1) * 100) >> 16) / 100;
 
@@ -558,7 +589,7 @@ int Calculate_Perks() {
 
 // this is used in drop rates, weapons proc chances etc.
 int GetPlayerLuck(int pnum, int outcome_val = DND_LUCK_GAIN) {
-	return outcome_val * CheckActorInventory(pnum + P_TIDSTART, "Perk_Luck") + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
+	return outcome_val * GetActorPerk(pnum + P_TIDSTART, STAT_LUCK) + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
 }
 
 bool RunLuckBasedChance(int pnum, int base, int outcome_val = DND_LUCK_GAIN) {
@@ -1083,7 +1114,7 @@ int GetPlayerMeleeRange(int pnum, int range) {
 		range, 
 		1.0 + 
 		(GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_RANGEINC + 
-		0.01 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
+		0.01 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
 	);
 }
 
@@ -1250,13 +1281,13 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 		dexterity += DND_SHARPSHOOTER_MASTERY_BONUS;
 
 	// 1.0 is 100%, we get stuff like 0.03 here for 3% etc.
-	int statOf = GetStat(STAT_STR) * strength + GetStat(STAT_DEX) * dexterity + GetStat(STAT_INT) * intellect;
+	int statOf = GetStrength() * strength + GetDexterity() * dexterity + GetIntellect() * intellect;
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)
-		statOf = (statOf + (GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE) << 16) / 100) * (100 + GetStat(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
+		statOf = (statOf + (GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE) << 16) / 100) * (100 + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
 	else
-		statOf = (statOf * (100 + GetStat(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC)) / 100;
+		statOf = (statOf * (100 + GetPerk(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC)) / 100;
 
 	statOf = (statOf * 100) >> 16;
 

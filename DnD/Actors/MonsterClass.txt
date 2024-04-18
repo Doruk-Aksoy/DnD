@@ -301,7 +301,8 @@ Actor CrippleSlower : DnD_Activator {
 Actor CrippleSlowPower : PowerSpeed {
 	Speed 0.5
 	Powerup.Duration 35
-	Powerup.Color "99 66 00"
+	//Powerup.Color "99 66 00"
+	//+INVENTORY.NOSCREENBLINK
 }
 
 Actor RuinationStacks : Inventory {

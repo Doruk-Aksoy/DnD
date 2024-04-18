@@ -217,7 +217,7 @@ DND_MENU_PERKMASTERY2	=	"Melee damage and range increase also applies to project
 DND_MENU_PERKMASTERY3	=	"Armor rating effect increases by 20%.";
 DND_MENU_PERKMASTERY4	=	"Gain experience from kills regardless of the killer or the range limit.";
 DND_MENU_PERKMASTERY5	=	"Gain credit from kills regardless of the killer or the range limit.";
-DND_MENU_PERKMASTERY6	=	"Convert 10% of healing pickups to extra armor.";
+DND_MENU_PERKMASTERY6	=	"Convert 2% of healing pickups to energy shield.";
 DND_MENU_PERKMASTERY7	=	"Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.";
 DND_MENU_PERKMASTERY8	=	"Every 7th hit you land within four seconds is a guaranteed critical strike.";
 DND_MENU_PERKMASTERY9	=	"100% to crit multiplier if you haven't dealt a critical strike in 5 seconds.";
@@ -276,7 +276,7 @@ ACCTX_C8				=	"80% less non-melee damage.";
 
 ACCTX_T9				=	"Hand of Artemis";
 ACCTX_P9				=	"Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.";
-ACCTX_C9				=	"Regular weapons do 66% less damage. Super weapons do 90% less damage instead.";
+ACCTX_C9				=	"Regular weapons do 66% less damage. Super weapons do 90% less damage instead. Slot 8 weapons can't fire.";
 
 ACCTX_T10				=	"Scroll of Agamotto";
 ACCTX_P10				=	"Do 100% more damage while standing still.";

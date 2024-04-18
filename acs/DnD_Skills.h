@@ -95,7 +95,7 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 		case DND_SPELL_ICESHIELD:
 			ActivatorSound("Spell/IceShieldCast", 127);
 			temp = TEMPORARY_SPELL_TID + PlayerNumber();
-			temp2 = ICESHIELD_HEALTHBASE + GetActorStat(this, STAT_LVL) * ICESHIELD_HEALTH_PER_LEVEL + GetActorIntellect(this) * ICESHIELD_HEALTH_PER_INT;
+			temp2 = ICESHIELD_HEALTHBASE + GetActorLevel(this) * ICESHIELD_HEALTH_PER_LEVEL + GetIntellect() * ICESHIELD_HEALTH_PER_INT;
 			bufftimer = ICESHIELD_BASE_DURATION + GetIntellect() * ICESHIELD_DURATION_PER_INT;
 			
 			/*if(CheckInventory("Wanderer_Perk50")) {

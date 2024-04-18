@@ -720,6 +720,12 @@ void LoadPlayerStash(int pnum, str pacc) {
 	SyncAllClientsideVariables(pnum);
 }
 
+Script "DnD Sync Player Class" (int pnum, int ctype) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	SetUserCVar(pnum, "dnd_playerclass", ctype);
+}
+
 // Loads from database and gives necessary items
 void LoadPlayerData(int pnum, int char_id) {
 	// assumes all checks have been performed before reaching this function
@@ -729,6 +735,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	// set player class to what they initially chose -- CAREFUL ITS NOT CHARACTERID ITS CHARACTER!!! FORMER IS DATABASE ID
 	temp = GetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc);
 	SetInventory("DnD_Character", temp);
+
+	ACS_NamedExecuteAlways("DnD Sync Player Class", 0, pnum, temp - 1);
 	
 	// force an update on the player sprite immediately!
 	ACS_NamedExecuteWithResult("DnD Player Mugshot Class Update", temp - 1);

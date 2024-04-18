@@ -84,6 +84,12 @@ int Scan_to_WeaponID(int scan_id) {
 	return ret;
 }
 
+// needed to make current reflect systems work properly
+Script "DnD Readjust Speed" (int spd) {
+	SetActorProperty(0, APROP_SPEED, spd << 16);
+	SetResultValue(0);
+}
+
 // This function will create a projectile with given angles, pitch, direction vector, speed, xy dist and zdist
 void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, int velocity, int vPos, int flags = 0) {
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good

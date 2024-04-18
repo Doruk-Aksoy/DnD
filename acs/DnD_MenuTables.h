@@ -219,7 +219,8 @@ enum {
    LISTEN_LEFT = 1,
    LISTEN_RIGHT = 2,
    LISTEN_SCROLL = 4,
-   LISTEN_FASTLR = 8
+   LISTEN_FASTLR = 8,
+   LISTEN_SKIPKNOWNRES = 16
 };
 
 // Object definitions for shop

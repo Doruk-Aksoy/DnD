@@ -514,15 +514,19 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
 	int w, h;
+
+	int temp = item_index;
+	if(IsSourceInventoryView(item_source))
+		temp = GetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, item_source) - 1;
 	
 	// extended check for potential player source change
 	if(source_player == -1) {
-		w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
-		h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+		w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, temp, -1, item_source);
+		h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
 	}
 	else {
-		w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, item_index, -1, item_source);
-		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, item_index, -1, item_source);
+		w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, temp, -1, item_source);
+		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
 	}
 	
 	bool unfit = false;
@@ -532,10 +536,16 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
 			// if width matches, try height from here on then and if unfit, restart at a new coordinate
 			unfit = false;
+			bool rowStart = !(i % MAXINVENTORYBLOCKS_VERT);
 			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
 				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
 					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
-					if(bid >= MAX_INVENTORY_BOXES || GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, dest_source) != DND_ITEM_NULL)
+					if
+					(
+						bid >= MAX_INVENTORY_BOXES || 
+						(!rowStart && !(bid % 9)) ||
+						GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, dest_source) != DND_ITEM_NULL
+					)
 						unfit = true;
 				}
 			}
@@ -726,7 +736,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		return POPUP_CHARMMISMATCH;
 		
 	// too high level
-	if(PlayerInventoryList[pnum][item_index].item_level > GetStat(STAT_LVL))
+	if(PlayerInventoryList[pnum][item_index].item_level > GetLevel())
 		return POPUP_ITEMLVLTOOHIGH;
 		
 	// no duplicate uniques
@@ -1355,7 +1365,7 @@ bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = f
 }
 
 // auto dump functionality from inventory of player to stash
-void AutoDumpItems(int pnum) {
+void AutoDumpItems(int pnum, int orbsOnly = 0) {
 	// for each item the player has, attempt to AutoMoveItem them to stash
 	// first store item ids in an array, sorted from biggest to shortest (biggest first in list)
 	static bool marked_tbids[MAX_INVENTORY_BOXES];
@@ -1370,7 +1380,7 @@ void AutoDumpItems(int pnum) {
 	// ItemMoveList contains topboxids of items to be moved in order of largest to smallest size occupying (w * h)
 	// insert sorted
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL && !marked_tbids[i]) {
+		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL && (!orbsOnly || PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB) && !marked_tbids[i]) {
 			k = 0;
 			j = 0;
 			while(ItemMoveList[pnum][k].dest_pos != -1) {
@@ -1728,7 +1738,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		
-		val = GetStat(STAT_LVL) < lvl ? CR_RED : CR_WHITE;
+		val = GetLevel() < lvl ? CR_RED : CR_WHITE;
 		HudMessage(l:"DND_LEVEL_HEADER", s:": ", d:lvl; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 4, val, GetIntegerBits(bx - HUD_ITEMBAK_XF / 2 - 36.0) + 0.1, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
@@ -3246,7 +3256,7 @@ int GetDissassembleChance(int pnum, int item_pos) {
 	// give more chance to succeed if we have the research related to it too
 	bool hasResearch = CheckResearchStatus(RES_MOLECULARREC);
 	int chance = 	DND_BASE_DISASSEMBLE_CHANCE + 
-					DND_BASE_DISASSEMBLE_CHANCE_PERLUCK * GetStat(STAT_LUCK) +
+					DND_BASE_DISASSEMBLE_CHANCE_PERLUCK * GetPerk(STAT_LUCK) +
 					hasResearch * DND_DISASS_CHANCEBONUS_RESEARCH;
 
 	// 10% of ilvl + 25% of avg mod tier + 3% flat per fractured mod and 5% if corrupted to fail

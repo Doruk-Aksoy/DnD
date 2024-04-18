@@ -244,6 +244,7 @@ enum {
 	MONSTER_EARTHGOLEM,
 	MONSTER_RAVAGER,
 	MONSTER_PUREBREDDEMON,
+	MONSTER_SABRECLAW,
 	
 	// Spectre
 	MONSTER_LURKER,
@@ -371,6 +372,7 @@ enum {
 	MONSTER_CHAINGUNCOMMANDO,
 	MONSTER_LEGIONNAIRE,
 	MONSTER_MANTICORE,
+	MONSTER_OPHIDIAN,
 	
 	// ArchVile
 	MONSTER_DIABLOIST,
@@ -404,6 +406,7 @@ enum {
 	MONSTER_THANATOS,
 	MONSTER_AVATAR,
 	MONSTER_CERBERUS,
+	MONSTER_DEATHWYVERN,
 	
 	MONSTER_DREAMINGGOD,
 	MONSTER_TORRASQUE,
@@ -465,7 +468,7 @@ enum {
 #define DND_CUSTOM_IMP_END MONSTER_ROACH
 
 #define DND_CUSTOM_DEMON_BEGIN MONSTER_BLOODDEMON
-#define DND_CUSTOM_DEMON_END MONSTER_PUREBREDDEMON
+#define DND_CUSTOM_DEMON_END MONSTER_SABRECLAW
 
 #define DND_CUSTOM_SPECTRE_BEGIN MONSTER_LURKER
 #define DND_CUSTOM_SPECTRE_END MONSTER_NIGHTMAREDEMON
@@ -492,7 +495,7 @@ enum {
 #define DND_CUSTOM_FATSO_END MONSTER_GOLDGOLEM
 
 #define DND_CUSTOM_ARACHNO_BEGIN MONSTER_FUSIONSPIDER
-#define DND_CUSTOM_ARACHNO_END MONSTER_MANTICORE
+#define DND_CUSTOM_ARACHNO_END MONSTER_OPHIDIAN
 
 #define DND_CUSTOM_VILE_BEGIN MONSTER_DIABLOIST
 #define DND_CUSTOM_VILE_END MONSTER_FLESHWIZARD
@@ -501,7 +504,7 @@ enum {
 #define DND_CUSTOM_SM_END MONSTER_DARKLICH
 
 #define DND_CUSTOM_CYBER_BEGIN MONSTER_CARDINAL
-#define DND_CUSTOM_CYBER_END MONSTER_CERBERUS
+#define DND_CUSTOM_CYBER_END MONSTER_DEATHWYVERN
 
 #define DND_UNIQUE_ZOMBIEMAN_BEGIN MONSTER_TERON
 #define DND_UNIQUE_ZOMBIEMAN_END MONSTER_TERON
@@ -896,6 +899,10 @@ void HandlePreInitTraits(int mid, int id) {
 		GiveInventory("Repel_Script_Run", 1);
 	if(MonsterProperties[mid].trait_list[DND_CRIPPLE])
 		GiveInventory("Cripple_Script_Run", 1);
+	if(MonsterProperties[mid].trait_list[DND_VIOLENTRETALIATION]) {
+		GiveInventory("ViolentAuraSpawner", 1);
+		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_VIOLENTRETALIATION);
+	}
 }
 
 // this is put as a seperate function because 
@@ -1014,7 +1021,7 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	MonsterProperties[tid].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
 	MonsterProperties[tid].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
 		
-	if(monsterid >= LEGENDARY_START)
+	if(isLegendaryMonster(monsterid))
 		MonsterProperties[tid].trait_list[DND_LEGENDARY] |= true;
 	
 	// check for weaknesses and monster not having any kind of resist to this type
@@ -1189,6 +1196,10 @@ bool IsMonsterIdBoss(int id) {
 
 bool IsUniqueMonster(int id) {
 	return id >= DND_UNIQUEMONSTER_BEGIN && id < MONSTER_CUSTOM;
+}
+
+bool isLegendaryMonster(int id) {
+	return id >= LEGENDARY_START && id <= LEGENDARY_END;
 }
 
 // to be specifically used as sole boss encounters, not randomly spawning boss monster to replace another enemy -- these have their own hp bar code
@@ -1613,6 +1624,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_RAVAGER].flags = DND_MTYPE_DEMON_POW;	
 	MonsterData[MONSTER_PUREBREDDEMON].health = 275;
 	MonsterData[MONSTER_PUREBREDDEMON].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_SABRECLAW].health = 200;
+	MonsterData[MONSTER_SABRECLAW].flags = DND_MTYPE_MAGICAL_POW;
 	
 	// spectre
 	MonsterData[MONSTER_LURKER].health = 160;
@@ -1847,6 +1860,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_LEGIONNAIRE].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
 	MonsterData[MONSTER_MANTICORE].health = 650;
 	MonsterData[MONSTER_MANTICORE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_OPHIDIAN].health = 700;
+	MonsterData[MONSTER_OPHIDIAN].flags = DND_MTYPE_MAGICAL_POW;
 
 	// vile
 	MonsterData[MONSTER_DIABLOIST].health = 850;
@@ -1907,6 +1922,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_AVATAR].flags = DND_MTYPE_MAGICAL_POW;
 	MonsterData[MONSTER_CERBERUS].health = 6000;
 	MonsterData[MONSTER_CERBERUS].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DEATHWYVERN].health = 3500;
+	MonsterData[MONSTER_DEATHWYVERN].flags = DND_MTYPE_UNDEAD_POW;
 
 	// legendaries
 	MonsterData[MONSTER_DREAMINGGOD].health = 20000;
@@ -1989,6 +2006,9 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_EARTHGOLEM].trait_list[DND_DEATH] = true;
 	MonsterData[MONSTER_EARTHGOLEM].trait_list[DND_EARTHCREATURE] = true;
 	MonsterData[MONSTER_PUREBREDDEMON].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_SABRECLAW].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_SABRECLAW].trait_list[DND_PIERCE] = true;
+	MonsterData[MONSTER_SABRECLAW].trait_list[DND_BULLET_RESIST] = true;
 	
 	// spectre
 	MonsterData[MONSTER_NIGHTMAREDEMON].trait_list[DND_MOBILITY] = true;
@@ -2163,6 +2183,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_VORE].trait_list[DND_ELEMENTAL_RESIST] = true;
 	MonsterData[MONSTER_CHAINGUNCOMMANDO].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_LEGIONNAIRE].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_OPHIDIAN].trait_list[DND_FIRECREATURE] = true;
 	
 	// vile
 	MonsterData[MONSTER_DIABLOIST].trait_list[DND_FIRECREATURE] = true;
@@ -2238,6 +2259,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_THANATOS].trait_list[DND_EXPLOSIVE_NONE] = true;
 	MonsterData[MONSTER_CERBERUS].trait_list[DND_MAGIC_IMMUNE] = true;
 	MonsterData[MONSTER_CERBERUS].trait_list[DND_RAGE] = true;
+	MonsterData[MONSTER_DEATHWYVERN].trait_list[DND_POISON] = true;
 	
 	// legendary monsters
 	MonsterData[MONSTER_DREAMINGGOD].trait_list[DND_MAGIC_IMMUNE] = true;
@@ -2373,6 +2395,7 @@ void SetupMonsterWeights() {
 	Monster_Weights[MONSTERCLASS_DEMON][id++] = DND_MWEIGHT_VERYRARE;
 	Monster_Weights[MONSTERCLASS_DEMON][id++] = DND_MWEIGHT_VERYRARE;
 	Monster_Weights[MONSTERCLASS_DEMON][id++] = DND_MWEIGHT_EPIC;
+	Monster_Weights[MONSTERCLASS_DEMON][id++] = DND_MWEIGHT_RARE1;
 	Monster_Weights[MONSTERCLASS_DEMON][id++] = DND_MWEIGHT_ENDMARKER;
 
 	id = 0;
@@ -2517,6 +2540,7 @@ void SetupMonsterWeights() {
 	Monster_Weights[MONSTERCLASS_ARACHNOTRON][id++] = DND_MWEIGHT_RARE1;
 	Monster_Weights[MONSTERCLASS_ARACHNOTRON][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_ARACHNOTRON][id++] = DND_MWEIGHT_VERYRARE;
+	Monster_Weights[MONSTERCLASS_ARACHNOTRON][id++] = DND_MWEIGHT_RARE1;
 	Monster_Weights[MONSTERCLASS_ARACHNOTRON][id++] = DND_MWEIGHT_ENDMARKER;
 
 	id = 0;
@@ -2554,6 +2578,7 @@ void SetupMonsterWeights() {
 	Monster_Weights[MONSTERCLASS_CYBERDEMON][id++] = DND_MWEIGHT_EPIC;
 	Monster_Weights[MONSTERCLASS_CYBERDEMON][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_CYBERDEMON][id++] = DND_MWEIGHT_EPIC;
+	Monster_Weights[MONSTERCLASS_CYBERDEMON][id++] = DND_MWEIGHT_VERYRARE;
 	Monster_Weights[MONSTERCLASS_CYBERDEMON][id++] = DND_MWEIGHT_ENDMARKER;
 
 	id = 0;

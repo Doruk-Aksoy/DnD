@@ -224,6 +224,10 @@ void SetEliteFlag(int f, bool updateCS) {
 		case DND_CRIPPLE:
 			GiveInventory("Cripple_Script_Run", 1);
 		break;
+		case DND_VIOLENTRETALIATION:
+			GiveInventory("ViolentAuraSpawner", 1);
+			ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_VIOLENTRETALIATION);
+		break;
 	}
 	
 	MonsterProperties[this].trait_list[f] = true;
@@ -231,6 +235,17 @@ void SetEliteFlag(int f, bool updateCS) {
 	// sync to client too
 	if(updateCS)
 		ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", f, -1, -1, -1);
+}
+
+Script "DnD Aura Giver CS" (int trait) CLIENTSIDE {
+	switch(trait) {
+		case DND_CRIPPLE:
+			GiveInventory("CrippleAuraSpawner", 1);
+		break;
+		case DND_VIOLENTRETALIATION:
+			GiveInventory("ViolentAuraSpawner", 1);
+		break;
+	}
 }
 
 // check if the given flag conforms to the cvars we declared

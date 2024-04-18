@@ -305,8 +305,8 @@ Script "DnD On Death" DEATH {
 			}
 			else if(i == DND_MODE_SOFTCORE) {
 				// decrease player gained exp
-				int exp = GetStat(STAT_EXP);
-				int lvl = GetStat(STAT_LVL);
+				int exp = GetExperience();
+				int lvl = GetLevel();
 				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, INT_MAX), 0);
 				HandlePlayerDataSave(pnum, false, i);
 			}
@@ -571,6 +571,10 @@ Script "DnD Blend Start" (int blend_id) CLIENTSIDE {
 }
 
 Script "DnD Hit Blend" (int blend_id) {
+	// temporary fix to hit blends causing blinds to end
+	if(CheckInventory("IsBlinded"))
+		Terminate;
+
 	int pnum = PlayerNumber();
 	
 	// player got hurt, but wait till we get OK for next tic to have accumulated the damage
@@ -742,10 +746,12 @@ Script "DnD On Revive CS" (void) CLIENTSIDE {
 // Make sure clients are aware too
 Script "DND On Kill CS" KILL CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
+	GiveInventory("BlindCancelledSignal", 1);
 }
 
 Script "DnD On Kill Forced CS" (void) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
+	GiveInventory("BlindCancelledSignal", 1);
 }
 
 // accepts similar flags to explosion actors
@@ -761,7 +767,7 @@ Script "DnD Scale Non Weapon Damage" (int damage, int damage_type, int flags) {
 
 Script "DnD Check Elite Clear" (void) CLIENTSIDE {
 	SetActivatorToTarget(0);
-	//printbold(d:ActivatorTID());
+	//printbold(d:ActivatorTID(), s: " ", s:GetActorClass(0));
 	SetResultValue(!ActivatorTID() || CheckInventory("Mo_Died") || GetActorProperty(0, APROP_HEALTH) <= 0);
 }
 
@@ -778,6 +784,7 @@ Script "DND On Kill" KILL {
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	
 	GiveInventory("Mo_Died", 1);
+	GiveInventory("BlindCancelledSignal", 1);
 	TakeInventory("DnD_CullSuccess", 1);
 
 	int target = GetActorProperty(0, APROP_TARGETTID), temp;
@@ -815,7 +822,7 @@ Script "DND On Kill" KILL {
 	if
 	(
 		(killerWasntPlayer && !CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED]) || 
-		!IsActorAlive(target) || !GetActorStat(target, STAT_LVL)
+		!IsActorAlive(target) || !GetActorLevel(target)
 	)
 		Terminate;
 		
@@ -889,7 +896,7 @@ Script "DND On Kill" KILL {
 	
 	// Legendary Kill Item
 	int i;
-	if(MonsterProperties[m_id].id >= LEGENDARY_START) {
+	if(isLegendaryMonster(MonsterProperties[m_id].id)) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 				UpdateLegendaryKill(i, MonsterProperties[m_id].id - LEGENDARY_START);
@@ -898,6 +905,19 @@ Script "DND On Kill" KILL {
 					CompleteQuest(i + P_TIDSTART, active_quest_id);
 			}
 		}
+
+		// spawn guaranteed rewards
+		SpawnOrbForAll(1);
+
+		i = random(0, 1.0);
+		if(i < SILVERCHEST_DROPWEIGHT)
+			SpawnDropAtActor(this, "DNDSilverChest", 0, 0, 0, 0);
+		else if(i < GOLDCHEST_DROPWEIGHT)
+			SpawnDropAtActor(this, "DNDGoldChest", 0, 0, 0, 0);
+		else
+			SpawnDropAtActor(this, "DNDBronzeChest", 0, 0, 0, 0);
+
+		SpawnCharmForAll(MonsterProperties[m_id].rarity_boost);
 	}
 
 	// crusader helm check
@@ -1056,11 +1076,11 @@ Script 832 (void) {
 	// update activity for the taken stats! Fixes leftover stats bug
 	int i;
 	for(i = DND_ATTRIB_BEGIN; i <= DND_ATTRIB_END; ++i)
-		TakeStat(i, GetStat(i));
+		TakeStat(i, GetPerk(i));
 		
 	// for perks now
 	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
-		TakeStat(i, GetStat(i));
+		TakeStat(i, GetPerk(i));
 
 	UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
 		
@@ -2448,13 +2468,13 @@ Script "DnD Ankh Checker" (void) {
 Script "DnD Player Levelup Check" (void) {
 	int pnum = PlayerNumber();
 	int tid = pnum + P_TIDSTART;
-	int prevlvl = GetActorStat(tid, STAT_LVL), exptemp;
+	int prevlvl = GetActorLevel(tid), exptemp;
 	int currlvl;
 
 	// -1 because initial level is 1
 	// we need to check for the current up-to-date level, not previous level here!!
-	while((currlvl = GetActorStat(tid, STAT_LVL)) < MAXLEVELS && GetActorStat(tid, STAT_EXP) >= LevelCurve[currlvl - 1]) {
-		exptemp = GetActorStat(tid, STAT_EXP) - LevelCurve[currlvl - 1];
+	while((currlvl = GetActorLevel(tid)) < MAXLEVELS && GetActorExperience(tid) >= LevelCurve[currlvl - 1]) {
+		exptemp = GetActorExperience(tid) - LevelCurve[currlvl - 1];
 		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
 			GiveActorInventory(tid, "PerkPoint", 1);
 			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
@@ -2477,15 +2497,15 @@ Script "DnD Player Levelup Check" (void) {
 			Terminate;
 	}
 
-	currlvl = GetActorStat(tid, STAT_LVL) - prevlvl;
+	currlvl = GetActorLevel(tid) - prevlvl;
 
 	if(currlvl) {
 		LocalAmbientSound("RPG/LevelUp", 127);
 		GiveActorInventory(tid, "LevelUpEffectSpawner", 1);
 		GiveActorInventory(tid, "LeveledUp", 1);
 		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
-		if(GetActorStat(tid, STAT_LVL) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
-			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetStat(STAT_LVL);
+		if(GetActorLevel(tid) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
+			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetActorLevel(tid);
 			
 		// sync level cap exp
 		CalculatePlayerExpRatio(tid);
@@ -2493,7 +2513,7 @@ Script "DnD Player Levelup Check" (void) {
 		if(GetCVar("dnd_healonlevelup"))
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 0);
 		
-		currlvl = GetActorStat(tid, STAT_LVL);
+		currlvl = GetActorLevel(tid);
 		// player just leveled and got their perks? check if so
 		if
 		(
@@ -2514,7 +2534,7 @@ Script "DnD Player Levelup Check" (void) {
 			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
 	}
 	
-	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
+	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetActorExperience(tid), 0);
 }
 
 // Weapon tip display
@@ -3106,7 +3126,6 @@ Script "DnD Player Setup" ENTER {
 	// now everyone has this, no need to buy
 	GiveInventory("Ability_MonsterInfo", 1);
 	CleanPetStuff();
-	//SetInventory("MapDifficultyClientside", MapDifficulty); //Already to be set somewhere else.
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
 	SetInventory("DnD_BoughtArmor", 0);
 	int pnum = PlayerNumber(), curlvl, i = 0;
@@ -3147,7 +3166,7 @@ Script "DnD Player Setup" ENTER {
 		}
 		else {
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
-			UpdateActivity(pnum, DND_ACTIVITY_EXP, GetStat(STAT_EXP), 0);
+			UpdateActivity(pnum, DND_ACTIVITY_EXP, GetExperience(), 0);
 		}
 		
 		// 0 means they are ready
@@ -3207,7 +3226,7 @@ Script "DnD Player Setup" ENTER {
 		Delay(const:10);
 	
 	if(PlayerInGame(pnum)) {
-		curlvl = GetStat(STAT_LVL);
+		curlvl = GetLevel();
 		PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] += curlvl;
 		PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] += curlvl;
 		++PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
@@ -3297,6 +3316,8 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("QuestCompletionToken", 0);
 	if(isHardcore() && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
+
+	SetInventory("MapDifficultyClientside", MapDifficulty);
 	
 	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
 	// for zombie quest to work
@@ -4135,10 +4156,13 @@ Script "DnD Give Energy Shield" (int val) {
 	int cap = GetPlayerEnergyShieldCap(PlayerNumber());
 	if(cap) {
 		val = val * cap / 100;
-		GiveInventory("EShieldAmount", val);
+		if(CheckInventory("EShieldAmount") < cap - val)
+			AddEnergyShield(val);
+		else
+			SetEnergyShield(cap);
 	}
 	else if(CheckInventory("EShieldAmount") < DND_ESHIELD_NONE_BASE)
-		GiveInventory("EShieldAmount", 1);
+		AddEnergyShield(1);
 	
 }
 
@@ -4859,7 +4883,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_PERKALLOCATION", s:" -------\n--------------------------------\n");
 		for(i = 0; i < DND_MAX_PERKS; ++i)
-			Log(s:"\c[Y5]", l:GetStatLabel(DND_PERK_BEGIN + i), s:": \c-", d:GetStat(DND_PERK_BEGIN + i));
+			Log(s:"\c[Y5]", l:GetStatLabel(DND_PERK_BEGIN + i), s:": \c-", d:GetPerk(DND_PERK_BEGIN + i));
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_MENU_ACCESSORIES", s:" -------\n--------------------------------\n");
 		for(j = 0, i = 0; i < MAX_ACCESSORY && j < 2; ++i) {
@@ -5132,6 +5156,8 @@ Script "DnD Repel" (void) {
 Script "DnD Cripple" (void) {
 	int r = GetActorProperty(0, APROP_RADIUS) + 16.0;
 	int p_tid;
+
+	ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_CRIPPLE);
 	
 	while(isAlive()) {
 		Delay(const:CRIPPLE_REFRESH_RATE);
@@ -5501,9 +5527,9 @@ Script 68 (int x) NET {
 			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
 		}
 		else if(x == 422) {
-			printbold(s:"giving ", d:2000000 + GetStat(STAT_EXP) / 2, s: " exp");
-			GiveExp(2000000 + GetStat(STAT_EXP) / 2);
-			printbold(s:"current exp: ", d:GetStat(STAT_EXP));
+			printbold(s:"giving ", d:2000000 + GetPerk(STAT_EXP) / 2, s: " exp");
+			GiveExp(2000000 + GetPerk(STAT_EXP) / 2);
+			printbold(s:"current exp: ", d:GetPerk(STAT_EXP));
 		}
 		else if(x == 450) {
 			GiveInventory("PerkPoint", 10);

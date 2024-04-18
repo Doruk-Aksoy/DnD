@@ -699,13 +699,13 @@ int DrawHoveredPlayerData() {
 				
 				// exp
 				HudMessage(
-					s:"\cd", l:"DND_STAT16", s:": \c-", d:GetActorStat(tid, STAT_EXP), s:" / ", d:LevelCurve[GetActorStat(tid, STAT_LVL) - 1];
+					s:"\cd", l:"DND_STAT16", s:": \c-", d:GetActorExperience(tid), s:" / ", d:LevelCurve[GetActorLevel(tid) - 1];
 					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_EXP, CR_WHITE, mx, my + 48.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 
 				// credit
 				HudMessage(
-					s:"\cd", l:"DND_STAT19", s:": \c-", d:GetActorStat(tid, STAT_CRED);
+					s:"\cd", l:"DND_STAT19", s:": \c-", d:GetActorCredits(tid);
 					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_CREDIT, CR_WHITE, mx, my + 64.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 			}

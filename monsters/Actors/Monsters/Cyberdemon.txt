@@ -3904,3 +3904,184 @@ actor CerberusShot {
 		stop
 	}
 }
+
+ACTOR DeathWyvern : DnD_BaseRangedBoss {
+	Health 0x7FFFFFFF
+	PainChance 128
+	Speed 15
+	Height 80
+	Radius 24
+	Mass 2048
+	PainChance 8
+	Species "Cyber"
+	+NOGRAVITY
+	+FLOAT
+	+BOSS
+	+ISMONSTER
+	+MISSILEMORE
+	+QUICKTORETALIATE
+    +NOGRAVITY
+    +FLOAT
+	SeeSound "Dragon/See"
+	PainSound "Dragon/Pain"
+	DeathSound "Dragoon/Die"
+	ActiveSound "Dragon/See"
+	Obituary "%o couldn't withstand the toxicity of a Death Wyvern."
+	BloodColor "10 A5 10"
+	Tag "Death Wyvern"
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_DEATHWYVERN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	
+		Idle:
+			DRAG D 10 A_Look
+		Loop
+		SeeState:
+			DRAG AAA 2 Fast A_Chase
+			TNT1 A 0 A_Playsound("Dragon/Wing", CHAN_5)
+			DRAG BBBCCCDDDCCCBBB 2 Fast A_Chase
+		Goto See
+		PainState:
+			DRAG F 10 Fast A_Pain
+		Goto See
+		MissileState:
+			TNT1 A 0 A_GiveInventory("WyvernGlideDecider", 1)
+			TNT1 A 0 A_FaceTarget
+			DRAG E 3 Fast A_GiveInventory("WyvernGlider", 1)
+			DRAG E 5 Fast A_CustomMissile("WyvernPoisonBlast", 32)
+			TNT1 A 0 A_FaceTarget
+			DRAG E 3 Fast A_GiveInventory("WyvernGlider", 1)
+			DRAG E 5 Fast A_CustomMissile("WyvernPoisonBlast", 32)
+			TNT1 A 0 A_FaceTarget
+			DRAG E 3 Fast A_GiveInventory("WyvernGlider", 1)
+			TNT1 A 0 A_ScaleVelocity(0.25)
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			DRAG E 5 Fast A_CustomMissile("WyvernPoisonBlast", 32)
+		Goto See
+		XDeathState:
+		DeathState:
+			DRAG G 5 A_Scream
+			DRAG H 4 A_NoBlocking
+			TNT1 A 0 A_KillMaster
+			DRAG I 4 ACS_NamedExecuteAlways("DnD Check Corpse Landing")
+			DRAG J 4
+		Wait
+		CorpseLand:
+			DRAG KL 5
+			DRAG M -1
+		Stop
+	}
+}
+
+ACTOR WyvernPoisonBlast {
+	Speed 32
+	Radius 12
+	Height 10
+	Damage (random(10, 12) * 5)
+	DamageType "Poison"
+	Stamina 128
+	Projectile
+	RenderStyle Add
+	SeeSound "MageStaffFire"
+	DeathSound "Weapons/glahit"
+	var int user_a;
+
+	States {
+		Spawn:
+			D2FX ABCDEF 4 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_Explode(64, 96, 0, 0, 32)
+			D5FX GHI 4 Bright
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
+			TNT1 A 0 A_SetUserVar("user_a", random(0, 360))
+			TNT1 A 0 A_SpawnItemEx("WyvernPostBlast", 64 * cos(user_a), 64 * sin(user_a), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+		2:
+			TNT1 A 0 A_SetUserVar("user_a", random(0, 360))
+			TNT1 A 0 A_SpawnItemEx("WyvernPostBlast", 64 * cos(user_a), 64 * sin(user_a), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+		3:
+			TNT1 A 0 A_SetUserVar("user_a", random(0, 360))
+			TNT1 A 0 A_SpawnItemEx("WyvernPostBlast", 64 * cos(user_a), 64 * sin(user_a), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+		4:
+			TNT1 A 0 A_SpawnItemEx("GreenSmallFlash_Smaller")
+			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner")
+			TNT1 A 0 A_SetUserVar("user_a", random(0, 360))
+			TNT1 A 0 A_SpawnItemEx("WyvernPostBlast", 64 * cos(user_a), 64 * sin(user_a), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SetUserVar("user_a", random(0, 360))
+			D5FX J 4 Bright A_SpawnItemEx("WyvernPostBlast", 64 * cos(user_a), 64 * sin(user_a), 0, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			D5FX KL 3 Bright
+		Stop
+	}
+}
+
+Actor WyvernPostBlast {
+	Projectile
+	+THRUACTORS
+	Height 1
+	Radius 1
+	DamageType "Poison"
+	Stamina 128
+	Scale 0.75
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4", "5", "6")
+		1:
+			TNT1 A 16
+		Goto GoOff
+		2:
+			TNT1 A 28
+		Goto GoOff
+		3:
+			TNT1 A 40
+		Goto GoOff
+		4:
+			TNT1 A 52
+		Goto GoOff
+		5:
+			TNT1 A 64
+		Goto GoOff
+		6:
+			TNT1 A 76
+		Goto GoOff
+		GoOff:
+			TNT1 A 0 A_SpawnItemEx("GreenSmallFlash_Smaller")
+			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner")
+			TNT1 A 0 A_PlaySound("Weapons/glahit")
+			D5FX GH 4 Bright
+			TNT1 A 0 A_Explode(64, 96, 0, 0, 32)
+			D5FX IJ 4 Bright
+			D5FX KL 3 Bright
+		Stop
+	}
+}
+
+Actor WyvernGlider : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(128, "Nothing")
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Other")
+			TNT1 A 0 A_ChangeVelocity(9 * cos(angle + 90), 9 * sin(angle + 90), velz, CVF_REPLACE)
+		Stop
+		Other:
+			TNT1 A 0 A_ChangeVelocity(9 * cos(angle - 90), 9 * sin(angle - 90), velz, CVF_REPLACE)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor WyvernGlideDecider : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(128, "Other")
+		Stop
+		Other:
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+		Stop
+	}
+}

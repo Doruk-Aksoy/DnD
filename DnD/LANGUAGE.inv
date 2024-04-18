@@ -374,6 +374,8 @@ IATTR_T109			= "ice resist penetration";
 IATTR_T110			= "lightning resist penetration";
 IATTR_T111			= "poison resist penetration";
 
+IATTR_T112			= "energy shield magic absorb";
+
 // corrupt implicits
 
 IATTR_TC1			= "Increased weapon damage to";

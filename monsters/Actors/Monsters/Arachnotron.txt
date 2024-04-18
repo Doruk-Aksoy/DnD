@@ -1258,3 +1258,143 @@ Actor ManticoreExp : BaseExplosionDamage {
 		Stop
 	}
 }
+
+ACTOR Ophidian : DnD_BaseRangedMonster {
+	OBITUARY "%o was rattled by an Ophidian."
+	Health 0x7FFFFFFF
+	Radius 32
+	Height 64
+	Mass 768
+	Speed 9
+	Scale 1.125
+	PainChance 64
+	SEESOUND "Ophidian/See"
+	PainSound "Ophidian/Pain"
+	DEATHSOUND "Ophidian/Die"
+	ACTIVESOUND "Ophidian/Act"
+	Species "Spider"
+	Tag "Ophidian"
+	+ISMONSTER
+	+DONTRIP
+	+DONTHURTSPECIES
+	+MissileMore
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_OPHIDIAN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+
+		Idle:
+			OPHI AB 10 A_Look
+		Loop
+		SeeState:
+			OPHI AABBCCDD 2 Fast A_Chase
+		Goto See
+		MissileState:
+			TNT1 A 0 A_JumpIfInventory("DnD_BlindCastCooldown", 1, "MissileGo")
+			TNT1 A 0 A_Jump(72, "Blind")
+		MissileGo:
+			TNT1 A 0 A_PlaySound("Weapons/SunStaffCharge", CHAN_5)
+			TNT1 A 0 A_CustomMissile("OphidianDamageMarker", 44, -8)
+			OPHI FFFFF 5 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Weapons/SunStaffFire", CHAN_5)
+			OPHI F 8 Fast A_CustomMissile("OphidianBeam", 40, -8)
+			TNT1 A 0 A_Jump(128, "Finish")
+			OPHI F 5 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Weapons/SunStaffFire", CHAN_5)
+			OPHI F 8 Fast A_CustomMissile("OphidianBeam", 40, -8)
+			TNT1 A 0 A_Jump(128, "Finish")
+			OPHI F 5 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Weapons/SunStaffFire", CHAN_5)
+			OPHI F 8 Fast A_CustomMissile("OphidianBeam", 40, -8)
+		Goto See
+		Finish:
+			OPHI F 2 Fast
+		Goto See
+		Blind:
+			TNT1 A 0 A_JumpIfCloser(480, "BlindCont")
+		Goto MissileGo
+		BlindCont:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Create Blind FX", 0, DND_BLIND_HEAVY, 480)
+			OPHI F 32 Fast Bright A_FaceTarget
+			TNT1 A 0 A_GiveInventory("DnD_BlindCastCooldown", 1)
+			OPHI F 8 Fast Bright ACS_NamedExecuteWithResult("DnD Monster Blind Cast", 105 | (DND_BLIND_HEAVY << 16), 8 | (96 << 8) | (108 << 16), 100, 480)
+		Goto MissileGo
+		PainState:
+			TNT1 A 0 A_GiveInventory("BlindCancelledSignal", 1)
+			OPHI E 3 Fast ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS")
+			OPHI E 3 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			OPHI G 5 A_Scream
+			OPHI H 5 A_NoBlocking
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			OPHI IJKLMNO 5
+			OPHI P -1 A_KillMaster
+		Stop
+		RaiseState:
+			OPHI PONMLKJIHG 4
+		Goto See
+	}
+}
+
+Actor OphidianDamageMarker {
+	Renderstyle Add
+	Scale 0.5
+	Translation "112:127=%[0.00,0.00,0.00]:[1.73,1.14,0.54]"
+	const int t = 6;
+	const float s = 0.5 / 12;
+	var int user_count;
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count >= t, "Finish")
+			R075 P 2 Fast Bright A_Warp(AAPTR_TARGET, 16, -8, 44, 0, WARPF_INTERPOLATE)
+			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Finish")
+			TNT1 A 0 A_SetScale(scalex - s, scaley - s)
+			R075 P 2 Fast Bright A_Warp(AAPTR_TARGET, 16, -8, 44, 0, WARPF_INTERPOLATE)
+			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Finish")
+			TNT1 A 0 A_SetScale(scalex - s, scaley - s)
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			TNT1 A 1
+		Stop
+		Fade:
+			R075 P 1 Fast A_FadeOut(0.1)
+		Wait
+	}
+}
+
+Actor OphidianBeam : DnD_BaseProjectile {
+	Radius 4
+	Height 8
+	Speed 40
+	Damage (24)
+	Decal "PlasmaScorchLower"
+	+FORCEXYBILLBOARD
+	+BLOODSPLATTER
+	Renderstyle Add
+	Alpha 0.90
+	Scale 0.875
+	DeathSound "Weapons/SunbeamHit"
+	DamageType "MagicalFire"
+	Stamina 40
+	States {
+		SpawnState:
+			FX01 A 1 Bright A_SpawnItemEx("SunBeamDamagerTrailSpawner", 0, 0, 8)
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AA 0 A_SpawnItemEx("SunRay", 0, 0, 15, 8, 0, Random(4, 16), Random(0, 360), 160, 0)
+			TNT1 A 0 A_Explode(32, 64, 0)
+			TNT1 A 8 A_SpawnItem("SunBeamExplosionFX")
+		Stop
+	}
+}

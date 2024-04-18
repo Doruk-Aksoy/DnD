@@ -8,6 +8,11 @@
 
 // Monster stuff
 
+Script "DnD Face Target (Pitch)" (void) {
+	int target = GetActorProperty(0, APROP_TARGETTID);
+	SetActorPitch(0, PitchToFace_Height(0, target));
+}
+
 Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 	int res = 0;
 	switch(type) {
@@ -77,6 +82,25 @@ Script 960 (int type) {
 		}
 		GiveInventory("ZealotUnsetReflection", 1);
 	}
+}
+
+Script "DnD Is Actor Stuck" (void) {
+	int px = GetActorX(0);
+	int py = GetActorY(0);
+	int pz = GetActorZ(0);
+
+	int count = 0;
+
+	// 2 checks to be safe
+	do {
+		++count;
+		Delay(const:1);
+	} while(isAlive() && count < 4 && px == GetActorX(0) && py == GetActorY(0) && pz == GetActorZ(0));
+
+	if(count > 2)
+		GiveInventory("DnD_Boolean", 1);
+
+	SetResultValue(count > 2);
 }
 
 Script "DnD Monster Leap" (void) {
@@ -185,6 +209,112 @@ Script 972 (int type) { // script for Lich Slow
 			if(GetActorProperty(P_TIDSTART + i, APROP_HEALTH) > 0)
 				GiveActorInventory(P_TIDSTART + i, "DnD_Curse_LichVisionDim", 1);
 		}
+	}
+}
+
+// run this on pain state of monsters that can blind!
+Script "DnD Monster Blind Cancel CS" (void) CLIENTSIDE {
+	GiveInventory("BlindCancelledSignal", 1);
+}
+
+// type is encoded in duration after the first 16 bits
+// intensity is 0-100 with percentage base, rgb is rgb encoded in 8 bit packets
+// distance is how far away from the monster we allow the blind to affect the players
+Script "DnD Monster Blind Cast" (int duration, int rgb, int intensity, int distance) {
+	// create the blinding eye actor depending on severity
+	int b = rgb & 0xFF;
+	int g  = (rgb >> 8) & 0xFF;
+	int r = rgb >> 16;
+
+	int type = duration >> 16;
+	duration &= 0xFFFF;
+
+	distance <<= 16;
+
+	intensity = (intensity << 16) / 100;
+	if(intensity > 1.0)
+		intensity = 1.0;
+
+	GiveInventory("BlindCancelledSignal", 1);
+	ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS");
+
+	int this = ActivatorTID();
+
+	// the activator becomes the player to blind themselves or petrify themselves
+	SetActivatorToTarget(0);
+	int target = ActivatorTID();
+	// early termination conditions -- check for angle diff between actors to see if one is looking at the other last
+	if(!ActivatorTID() || !isAlive() || !IsPlayer(target) || fdistance(this, target) > distance || !IsActorFacing(target, this, DND_BLIND_ANGLETHRESHOLD))
+		Terminate;
+
+	if(HasPlayerPowerset(target - P_TIDSTART, PPOWER_SYNTHMETALMASK))
+		intensity /= DND_SYNTHMASK_EFFECT;
+
+	switch(type) {
+		case DND_BLIND_LIGHT:
+			if(!CheckInventory("IsBlinded")) {
+				GiveInventory("IsBlinded", 1);
+				FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / TICRATE);
+				Delay(duration);
+				TakeInventory("IsBlinded", 1);
+			}
+		break;
+		case DND_BLIND_PETRIFY:
+			// set petrification status --- totally frozen player
+			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+			PlaySound(0, "Blind/Petrified", CHAN_7, 1.0);
+		case DND_BLIND_HEAVY:
+			// heavy blind comes up front so we can take it even if spammed
+			FadeTo(r, g, b, intensity, 1);
+
+			// dont spam range fade though
+			if(!CheckInventory("IsBlinded")) {
+				GiveInventory("IsBlinded", 1);
+				Delay(duration);
+				FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / (4 * TICRATE));
+				Delay(duration / 4);
+				TakeInventory("IsBlinded", 1);
+
+				if(type == DND_BLIND_PETRIFY)
+					SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+			}
+		break;
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {
+	int this = ActivatorTID();
+	str actor = "";
+	switch(type) {
+		case DND_BLIND_LIGHT:
+			PlaySound(0, "Blind/Normal", CHAN_6, 1.0);
+			GiveInventory("DnD_NormalBlindSpawner", 1);
+			actor = "NormalBlindFX";
+		break;
+		case DND_BLIND_HEAVY:
+			PlaySound(0, "Blind/Heavy", CHAN_6, 1.0);
+			GiveInventory("DnD_HeavyBlindSpawner", 1);
+			actor = "HeavyBlindFX";
+		break;
+		case DND_BLIND_PETRIFY:
+			PlaySound(0, "Lich/VisionDim", CHAN_6, 1.0);
+			GiveInventory("DnD_PetrifySpawner", 1);
+			actor = "PetrifyBlindFX";
+		break;
+	}
+
+	// create circle fx around this with r = dist
+	for(int i = 0; i < 24; ++i) {
+		SpawnForced(actor, GetActorX(this), GetActorY(this), GetActorZ(this), DND_BLINDFX_TID);
+		SetActivator(DND_BLINDFX_TID);
+		SetActorAngle(0, (i + 1) * 1.0 / 24);
+		SetPointer(AAPTR_TARGET, this);
+		SetActorProperty(0, APROP_MASS, distance);
+		SetActorProperty(0, APROP_TARGETTID, this);
+		SetActivator(this);
+		Thing_ChangeTID(DND_BLINDFX_TID, 0);
 	}
 }
 
@@ -1233,4 +1363,15 @@ Script "DnD Monster Push All Players" (int dist, int f_xy) {
 Script "DnD Init Monster Data" (int rarity) {
 	SetActorProperty(0, APROP_SCORE, rarity);
 	SetResultValue(0);
+}
+
+Script "DnD Aura Scale to Match" (void) CLIENTSIDE {
+	// update scale of this to match the scale of the monster its attached to
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int r = GetActorProperty(owner, APROP_RADIUS);
+
+	int s = FixedMul(GetActorProperty(0, APROP_SCALEX), r / DND_BASE_AURA_RADIUS);
+
+	SetActorProperty(0, APROP_SCALEX, s);
+	SetActorProperty(0, APROP_SCALEY, s);
 }

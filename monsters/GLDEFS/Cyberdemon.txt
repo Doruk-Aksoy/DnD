@@ -3028,3 +3028,58 @@ Object CerberusShot {
 	frame LLSXI { light CerberusLight10 }
 	frame LLSXJ { light CerberusLight11 }
 }
+
+FlickerLight WyvernShotLight1
+{
+	Color 0.2 0.875 0.2
+	Size 40
+	SecondarySize 52
+	chance 0.33
+}
+
+FlickerLight WyvernShotLight2
+{
+	Color 0.2 0.875 0.2
+	Size 56
+	SecondarySize 72
+	chance 0.5
+}
+
+FlickerLight WyvernShotLight3
+{
+	Color 0.2 0.875 0.2
+	Size 30
+	SecondarySize 48
+	chance 0.5
+}
+
+FlickerLight WyvernShotLight4
+{
+	Color 0.2 0.875 0.2
+	Size 16
+	SecondarySize 24
+	chance 0.5
+}
+
+Object WyvernPoisonBlast {
+	Frame D2FXA { light WyvernShotLight1 }
+	Frame D2FXB { light WyvernShotLight1 }
+	Frame D2FXC { light WyvernShotLight1 }
+	Frame D2FXD { light WyvernShotLight1 }
+	Frame D2FXE { light WyvernShotLight1 }
+	Frame D2FXF { light WyvernShotLight1 }
+	
+	Frame D5FXG { light WyvernShotLight2 }
+	Frame D5FXH { light WyvernShotLight2 }
+	Frame D5FXI { light WyvernShotLight1 }
+	Frame D5FXJ { light WyvernShotLight3 }
+	Frame D5FXK { light WyvernShotLight4 }
+}
+
+Object WyvernPostBlast {	
+	Frame D5FXG { light WyvernShotLight2 }
+	Frame D5FXH { light WyvernShotLight2 }
+	Frame D5FXI { light WyvernShotLight1 }
+	Frame D5FXJ { light WyvernShotLight3 }
+	Frame D5FXK { light WyvernShotLight4 }
+}

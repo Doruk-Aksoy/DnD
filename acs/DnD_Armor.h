@@ -5,7 +5,7 @@
 #define DND_MIT_BASE 50.0 // 50%
 #define DND_MIT_MAXEFFECT 90.0
 
-#define BASE_ARMOR_FACTOR 6
+#define BASE_ARMOR_FACTOR 8
 
 enum {
     // body armors
@@ -354,7 +354,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 			GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 40);
 		break;
 		case BODYARMOR_CYBER:
-			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 120, PPOWER_CYBER, item_tier, 40);
+			GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 100, PPOWER_CYBER, item_tier, 40);
 		break;
 		case BODYARMOR_DUELIST:
 			GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_HITSCANPROTECT, item_tier, 1.75);
@@ -570,7 +570,7 @@ void UpdateEnergyShieldVisual(int val) {
 
 // Absorb value for magic or poison attacks
 int GetEShieldMagicAbsorbValue(int pnum) {
-	return HasPlayerPowerset(pnum, PPOWER_ESHIELDABSORB) * SAGE_ABSORB_VALUE;
+	return HasPlayerPowerset(pnum, PPOWER_ESHIELDABSORB) * SAGE_ABSORB_VALUE + GetPlayerAttributeValue(pnum, INV_ESHIELD_ABSORB);
 }
 
 int GetMitigationChance(int pnum) {

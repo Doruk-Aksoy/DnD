@@ -189,6 +189,8 @@ enum {
 	INV_PEN_ICE,
 	INV_PEN_LIGHTNING,
 	INV_PEN_POISON,
+
+	INV_ESHIELD_ABSORB,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -298,14 +300,9 @@ enum {
 #define REDUCED_SELF_DMG_FACTOR 25 // 25%
 #define OVERHEAT_DISS_FACTOR 25 // 25%
 
-bool HasPlayerPowerset(int pnum, int power) {
-	// powers are already bitfields here!
-	return GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & power;
-}
-
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_PEN_POISON
+#define LAST_INV_ATTRIBUTE INV_ESHIELD_ABSORB
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -987,7 +984,7 @@ void SetupInventoryAttributeTable() {
 	
 	ItemModTable[INV_ADDEDMAXRESIST].attrib_low = 0.25;
 	ItemModTable[INV_ADDEDMAXRESIST].attrib_high = 0.5;
-	ItemModTable[INV_ADDEDMAXRESIST].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDEDMAXRESIST].attrib_level_modifier = 0.26;
 	ItemModTable[INV_ADDEDMAXRESIST].tags = INV_ATTR_TAG_DEFENSE;
 	
 	ItemModTable[INV_REGENRATE].attrib_low = 5;
@@ -1017,7 +1014,7 @@ void SetupInventoryAttributeTable() {
 	
 	ItemModTable[INV_OVERLOAD_DURATION].attrib_low = 0.1;
 	ItemModTable[INV_OVERLOAD_DURATION].attrib_high = 0.5;
-	ItemModTable[INV_OVERLOAD_DURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_OVERLOAD_DURATION].attrib_level_modifier = 0.5;
 	ItemModTable[INV_OVERLOAD_DURATION].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_IGNITE_PROLIFCHANCE].attrib_low = 5;
@@ -1050,8 +1047,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_FLATPROLIF].attrib_level_modifier = 0;
 	ItemModTable[INV_CHANCE_FLATPROLIF].tags = INV_ATTR_TAG_ELEMENTAL;
 
-	ItemModTable[INV_SHIELD_INCREASE].attrib_low = 2;
-	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 5;
+	ItemModTable[INV_SHIELD_INCREASE].attrib_low = 1;
+	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 4;
 	ItemModTable[INV_SHIELD_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
@@ -1070,14 +1067,14 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE;
 
-	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.35;
-	ItemModTable[INV_MIT_INCREASE].attrib_high = 0.75;
-	ItemModTable[INV_MIT_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.4;
+	ItemModTable[INV_MIT_INCREASE].attrib_high = 0.9;
+	ItemModTable[INV_MIT_INCREASE].attrib_level_modifier = 0.6;
 	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.1;
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.25;
-	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0.16;
 	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_low = 8;
@@ -1119,6 +1116,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PEN_POISON].attrib_high = 5;
 	ItemModTable[INV_PEN_POISON].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_POISON].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_ESHIELD_ABSORB].attrib_low = 1;
+	ItemModTable[INV_ESHIELD_ABSORB].attrib_high = 4;
+	ItemModTable[INV_ESHIELD_ABSORB].attrib_level_modifier = 0;
+	ItemModTable[INV_ESHIELD_ABSORB].tags = INV_ATTR_TAG_DEFENSE;
 
 	/////////////////////////
 	// corrupted implicits //

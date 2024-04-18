@@ -132,3 +132,13 @@ Model TerminatorBullet {
    PITCHFROMMOMENTUM
    FrameIndex TRAC A 0 0
 }
+
+Model OphidianBeam
+{
+   Path "Models/Tracers"
+   Model 0 "tracer.md3"
+   Skin 0 "tracer4.png"
+   Scale 1.0 1.0 1.0
+   PITCHFROMMOMENTUM
+   FrameIndex FX01 A 0 0
+}

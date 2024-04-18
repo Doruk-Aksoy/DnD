@@ -207,7 +207,7 @@ Actor CriticalHit : PowerDamage {
 }
 
 Actor MapDifficultyClientside : Inventory {
-	inventory.maxamount 4
+	inventory.maxamount 100
 }
 
 Actor LeveledUp : PowerDamage {
