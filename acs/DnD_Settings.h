@@ -4,9 +4,10 @@
 // Hardcore Info
 #define DND_HARDCORE_INVALID 0
 #define DND_HARDCORE_VALID 1
-#define MAXFLAGS 29
+#define MAXFLAGS 30
 str FlagCheckList[MAXFLAGS] = {
 	"sv_maxlives",
+	"sv_maxclientsperip",
 	"sv_coop_damagefactor",
 	"sv_cheats",
 	"sv_fastweapons",
@@ -40,6 +41,7 @@ str FlagCheckList[MAXFLAGS] = {
 #define DND_HARDCORE_MAXLIVES 1
 int FlagAcceptedValues[MAXFLAGS] = {
 	DND_HARDCORE_MAXLIVES,
+	1,
 	1.0,
 	
 	// sv_cheats

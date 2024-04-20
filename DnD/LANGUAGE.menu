@@ -212,7 +212,7 @@ DND_MENU_PERKTEXT10		=	"more drop chance and 5% chance to have better outcomes."
 
 DND_MENU_MASTERY		=	"Mastery";
 DND_MENU_MASTERY_COND	=	"Requires 10 points";
-DND_MENU_PERKMASTERY1	=	"Dexterity gives 6% damage per point instead of 5% for attunement.";
+DND_MENU_PERKMASTERY1	=	"Dexterity has an additional 1% scaling for attunement.";
 DND_MENU_PERKMASTERY2	=	"Melee damage and range increase also applies to projectiles fired from melee weapons.";
 DND_MENU_PERKMASTERY3	=	"Armor rating effect increases by 20%.";
 DND_MENU_PERKMASTERY4	=	"Gain experience from kills regardless of the killer or the range limit.";

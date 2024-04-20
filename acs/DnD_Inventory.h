@@ -3006,7 +3006,12 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 			//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
 		}
 
-		if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
+		if
+		(
+			CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1 &&
+			!IsItemBaseException(itype, PlayerInventoryList[pnum][item_pos].item_subtype, rand_attr)
+		)
+		{
 			//printbold(s:"guaranteed add ", d:rand_attr);
 			AddAttributeToItem(pnum, item_pos, rand_attr);
 			--attr_count;

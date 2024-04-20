@@ -504,14 +504,14 @@ enum {
 global int 21: MonsterCategoryData[][2];
 
 void PickQuest() {
-	if(GetCVar("dnd_enable_quests") && PlayerCount()) {
+	/*if(GetCVar("dnd_enable_quests") && PlayerCount()) {
 		if(GetCVar("dnd_quest_avglevel") <= (PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / PlayerCount()) && random(1, 100) <= Clamp_Between(GetCVar("dnd_quest_chance"), 1, 100)) {
 			do {
 				active_quest_id = random(0, MAX_QUESTS - 1);
 			} while(!IsValidQuest(active_quest_id));
 		}
 	}
-	else
+	else*/
 		active_quest_id = -1;
 	Quest_Pick_Done = 1;
 }

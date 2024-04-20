@@ -67,7 +67,7 @@ Script 900 (int opt, int showInv) NET {
 		// a little extra check for singleplayer case
 		if(CheckInventory("DnD_IntermissionState"))
 			Terminate;
-		
+
 		if
 		(
 			GameType() == GAME_SINGLE_PLAYER ||

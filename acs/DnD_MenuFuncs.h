@@ -603,13 +603,10 @@ void DrawArtifactIconCorner(int boxid) {
 // curopt is the pageid
 void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 	static int ypos = 0;
-	bool mode = 0;
 	bool isWepPage = IsWeaponPage(curopt);
+
 	// pull down = 1
-	if(isWepPage)
-		mode = 1;
-		
-	if(mode) {
+	if(isWepPage) {
 		if(ypos < 22)
 			++ypos;
 	}

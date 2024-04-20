@@ -892,7 +892,7 @@ Actor TchernoSoul {
 	Renderstyle Add
 	Alpha 0.1
 	Speed 5
-	Damage (5) 
+	Damage (40) 
 	DamageType "MagicalBlue"
 	Stamina 8
 	BounceType Hexen

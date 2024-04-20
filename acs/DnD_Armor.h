@@ -306,8 +306,6 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 	int i = 0, roll;
 	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers);
 
-	//armor_type = BODYARMOR_CYBER;
-
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
 	int special_roll = 0;
 
@@ -379,7 +377,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, special_roll);
+			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, armor_type, special_roll);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -435,7 +433,7 @@ int RollBootInfo(int item_pos, int item_tier, int pnum) {
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_BOOT, special_roll);
+			roll = PickRandomAttribute(DND_ITEM_BOOT, armor_type, special_roll);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -482,7 +480,7 @@ int RollHelmInfo(int item_pos, int item_tier, int pnum, int type = -1) {
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_HELM, special_roll);
+			roll = PickRandomAttribute(DND_ITEM_HELM, armor_type, special_roll);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -534,7 +532,7 @@ bool ActorHasNoArmor(int tid) {
 }
 
 int DoArmorRatingEffect(int dmg, int rating) {
-	// you will need 5 times the damage to gain half reduction
+	// you will need 7 times the damage to gain half reduction
 	int dmg_f = BASE_ARMOR_FACTOR - HasMasteredPerk(STAT_END);
 	return dmg - (dmg * rating) / (rating + dmg_f * dmg);
 }

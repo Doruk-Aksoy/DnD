@@ -4512,8 +4512,7 @@ Actor EryxiaFreezerChecker : DnD_Activator {
 Actor EryxiaBullet {
 	Projectile
 	var int user_count;
-	
-	Damage ((random(8, 9) - user_count))
+	Damage ((random(10, 12) - user_count))
 	DamageType "IceEryxia"
 	Stamina 64
 	Deathsound "Weapons/NG2HitWall"
@@ -4521,6 +4520,7 @@ Actor EryxiaBullet {
 	Height 12
 	Radius 6
 	Renderstyle Translucent
+	+PIERCEARMOR
 	+RIPPER
 	+DONTBLAST
 	States {

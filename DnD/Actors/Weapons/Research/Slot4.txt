@@ -1277,7 +1277,7 @@ Actor AcidRiflePoisonCloud : DnD_ExplosiveBase {
 	Scale 0.15
 	States {
 		SpawnState: 
-			DB58 ABCDEFGHIJKLMNOP 1 A_SetScale(scalex + 0.04, scaley + 0.04)
+			DB58 ABCDEFGHIJKLMNOP 1 A_SetScale(scalex + 0.075, scaley + 0.075)
 			TNT1 A 0 A_Stop
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_ACIDRIFLE << 16), DND_DAMAGECATEGORY_POISON, DND_USETARGET | DND_ISSLOT4 | DND_ISDOT))

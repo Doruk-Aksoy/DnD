@@ -19,5 +19,5 @@ Model ViolentAuraFX {
 	ROTATING
 	//DONTCULLBACKFACES
 	
-	FrameIndex AURA A 0 3
+	FrameIndex AURA B 0 3
 }

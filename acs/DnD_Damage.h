@@ -1300,8 +1300,8 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// we are the owner here at this point, we can use 0 for ourselves
 		// sedrin staff armor check
 		// if not sedrin staff, immediately check
-		// if sedrin staff and if we have armor, both are false so no damage to us
-		if(wepid != DND_WEAPON_SEDRINSTAFF || ActorHasNoArmor(owner)) {
+		// if sedrin staff and if we have body armor, both are false so no damage to us
+		if(wepid != DND_WEAPON_SEDRINSTAFF || GetArmorID(pnum) < 0) {
 			GiveInventory("DnD_Hit_CombatTimer", 1);
 
 			// if this flag is in place, do half damage within half radius
@@ -1351,10 +1351,13 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		if
 		(
 			(CheckFlag(mon_id, "NORADIUSDMG") && !CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG)) ||
-			(CheckFlag(mon_id, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))	||
-			(wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(mon_id))
+			(CheckFlag(mon_id, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))
 		)
 			continue;
+
+		// 10% dmg to these enemies only
+		if(wepid == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(mon_id))
+			final_dmg /= 10;
 
 		final_dmg = ScaleExplosionToDistance(mon_id, dmg, radius, fullradius, px, py, pz, proj_r);
 		
@@ -2896,7 +2899,7 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	return dmg;
 }
 
-int GetArmorRatingEffect(int dmg, int armor_id, bool isArmorPiercing) {
+int GetArmorRatingEffect(int dmg, int armor_id, int dmg_data, bool isArmorPiercing) {
 	int pnum = PlayerNumber();
 	int rating = GetPlayerArmor(pnum);
 
@@ -2908,9 +2911,12 @@ int GetArmorRatingEffect(int dmg, int armor_id, bool isArmorPiercing) {
 			rating -= rating * pnum * DND_RUINATION_REDUCE_PER_STACK / 100;
 	}
 
-	// rating is treated as 50% instead of 100% if monster is armor piercing
+	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)
+		rating /= 5;
+
+	// rating is treated as 40% instead of 100% if monster is armor piercing
 	if(isArmorPiercing)
-		rating >>= 1;
+		rating = rating * 2 / 5;
 
 	return DoArmorRatingEffect(dmg, rating);
 }
@@ -2928,7 +2934,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		factor = 0.0;
 
 		// apply armor effect on this damage
-		dmg = GetArmorRatingEffect(dmg, armor_id, isArmorPiercing);
+		dmg = GetArmorRatingEffect(dmg, armor_id, dmg_data, isArmorPiercing);
 		
 		// special armor cases: Knight gives more reduction if using melee weapon, Duelist negates all hitscan 100% at cost of armor
 		if(armor_id == BODYARMOR_KNIGHT && IsUsingMeleeWeapon())

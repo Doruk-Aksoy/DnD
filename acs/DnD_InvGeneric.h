@@ -5,6 +5,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
     int c = CreateItemSpot();
 	if(c != -1) {
         int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
+
         // depending on armor type rolled, spawn its appropriate actor
         SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 

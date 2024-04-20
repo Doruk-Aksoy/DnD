@@ -206,11 +206,11 @@ WEPTIP_5_6 		= "Fires grenades doing 128 on impact and 128 in a 128 unit radius.
 WEPTIP_5_7 		= "Launches a ball of ice that does 150 damage on impact. After some time it'll stop and explode doing 150 damage in 176 unit radius, releasing many ice particles around each doing 3-9 damage, ripping through enemies. They also explode and do 36 damage in 64 unit radius. Can \cgoverheat\c-.";
 WEPTIP_5_8 		= "Distorts gravity around 256 units on impact, stunning, pulling and lifting enemies into the air. After a brief delay or using altfire, enemies will be slammed dealing 400 damage and 15% more for every 64 units off the ground. \cfIgnores shields\c-.";
 
-WEPTIP_5_9 		= "Creates a black hole doing 100 damage when it goes through enemies. On impact with a surface, hardened skin enemy or alt fire press, the projectile is detonated for 300 damage. Does 180 damage afterwards over time. Drags enemies towards it at all times. \cfIgnores shields\c-.";
+WEPTIP_5_9 		= "Creates a black hole doing 100 damage when it goes through enemies. On impact with a surface, hardened skin enemy or alt fire press, the projectile is detonated for 300 damage. Does 180 damage afterwards through 7 tics. Drags enemies towards it at all times. \cfIgnores shields\c-.";
 WEPTIP_5_10 	= "Mercury Launcher fires accelerating and heat seeking mercury missiles doing 256 - 320 damage on hit and 192 damage in a 160 unit radius over 2 seconds. Can't hit \cughosts.";
 WEPTIP_5_11 	= "The UAC Rotary Grenade Launcher does 384 damage on impact and 192 damage on a 192 unit radius. Can't hit \cughosts";
 WEPTIP_5_12 	= "Top of the food chain for rockets. Shoots two homing rockets each doing 192 damage both on impact and explosion. Can't hit \cughosts.";
-WEPTIP_5_13 	= "Sends irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls exploding for half damage in half the radius. Ineffective versus robotic enemies. Does no self damage if you have armor. Explosions inflict \cqpoison\c-.";
+WEPTIP_5_13 	= "Sends irradiating energy balls dealing 75-100 damage on impact and 96 damage in a 128 unit radius. Splits into 6 smaller balls exploding for half damage in half the radius. Ineffective versus robotic enemies. Does no self damage if you have body armor. Explosions inflict \cqpoison\c-.";
 	 
 WEPTIP_6_0 		= "Best friend of the trigger happy. Can be \cdreplaced.";
 WEPTIP_6_1 		= "Improved with a nuclear reactor, does 36 - 60 on hit and 10 - 30 explosion damage in a 48 unit radius. Can \cgoverheat\c-. Does self damage.";
