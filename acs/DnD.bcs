@@ -3245,8 +3245,6 @@ Script "DnD Player Setup" ENTER {
 		// wait for monsters to appear
 		Delay(17 * (DND_MAX_MONSTERDELAY + 2));
 	}
-
-	SetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
 	
 	UnfreezePlayer();
 	
@@ -3282,6 +3280,8 @@ Script "DnD Player Setup" ENTER {
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
 		Delay(const:7);
+
+	SetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
 		
 	// this is here as a precaution for taltos effect removal in case player has decided to remove it before a map ended
 	DecideAccessories();
@@ -3753,6 +3753,11 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 		Delay(rchrg);
 	}
 
+	// check it again just in case
+	cap = GetPlayerEnergyShieldCap(pnum);
+	if(!cap)
+		Terminate;
+
 	ACS_NamedExecuteAlways("DnD Energy Shield FX", 0, cap, pnum);
 
 	// we can start the recovery now, but we still have to check if we enter combat etc.
@@ -3822,6 +3827,7 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 	}
 
 	StopSound(0, CHAN_6);
+	HudMessage(s:"A";  HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_RIGHT_ID, CR_WHITE, GetIntegerBits(x - 88 * pct / 100) + 0.1, y, 0.1, 0.25, a);
 
 	GiveInventory("EShieldBlend", 1);
 }

@@ -454,22 +454,30 @@ int GetExtraForMod(int mod) {
 	return res;
 }
 
-void SetPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
+void SetPlayerModValue(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
 	PlayerModValues[pnum][mod] = val;
 	
-	if(!noSync)
-		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+	if(!noSync) {
+		if(!needDelay)
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+		else
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync (Special)", pnum, mod, PlayerModValues[pnum][mod]);
+	}
 }
 
-void SetPlayerModExtra(int pnum, int mod, int val, bool noSync = false) {
+void SetPlayerModExtra(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
 	PlayerModExtras[pnum][mod] = val;
 	
-	if(!noSync)
-		ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
+	if(!noSync) {
+		if(!needDelay)
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
+		else
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync (Special)", pnum, mod, PlayerModExtras[pnum][mod]);
+	}
 }
 
-void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
+void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
@@ -491,12 +499,16 @@ void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false) {
 		else
 			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], -val) - 1.0;
 	}
-	
-	if(!noSync)
-		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+
+	if(!noSync) {
+		if(!needDelay)
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+		else
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync (Special)", pnum, mod, PlayerModValues[pnum][mod]);
+	}
 }
 
-void IncPlayerModExtra(int pnum, int mod, int val, bool noSync = false) {
+void IncPlayerModExtra(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
@@ -519,8 +531,12 @@ void IncPlayerModExtra(int pnum, int mod, int val, bool noSync = false) {
 			PlayerModExtras[pnum][mod] = CancelMultiplicativeFactors(PlayerModExtras[pnum][mod], -val) - 1.0;
 	}
 	
-	if(!noSync)
-		ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
+	if(!noSync) {
+		if(!needDelay)
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
+		else
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync (Special)", pnum, mod, PlayerModExtras[pnum][mod]);
+	}
 }
 
 void ResetPlayerModList(int pnum) {

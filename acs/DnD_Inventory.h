@@ -772,14 +772,12 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		return POPUP_CANTPUTONBODYARMOR;
 
 	// proceed to equip the item now
-	// request damage cache recalculation
-	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
 	
 	// this means we must swap items
 	if(Items_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
 		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
 		SwapItems(pnum, use_id, item_index, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, false, false, true);
 	}
 	else {
 		// just zero the stuff in inventory, and copy them into items used
@@ -816,6 +814,10 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		SyncItemData(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, -1, -1);
 		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 	}
+
+	// request damage cache recalculation
+	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+
 	return -1;
 }
 
@@ -2165,7 +2167,7 @@ enum {
 	REQ_SYNC_ACC = 1
 };
 
-int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic, bool noSync = false) {
+int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic, bool noSync = false, bool needDelay = false) {
 	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
 	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, aindex, source);
@@ -2232,13 +2234,13 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 	
 		// first cases with exceptions to our generic formula
 		case INV_MAGAZINE_INCREASE:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			// add onto the base capacities, not current capacities
 			for(i = 0; i < MAX_MAGAZINES; ++i)
 				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + GetPlayerAttributeValue(pnum, atype))) / 100);
 		break;
 		case INV_EXPLOSION_RADIUS:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
 		break;
 		
@@ -2246,7 +2248,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_ACCURACY_INCREASE:
 		case INV_ESS_OMNISIGHT:
 		case INV_ESS_OMNISIGHT2:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			sync_required = REQ_SYNC_ACC;
 		break;
 		
@@ -2257,12 +2259,12 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 
 		// things that have EXTRA field used!
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
-			IncPlayerModValue(pnum, atype, aval, noSync);
-			IncPlayerModExtra(pnum, atype, aextra, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+			IncPlayerModExtra(pnum, atype, aextra, noSync, needDelay);
 		break;
 
 		case INV_EX_KNOCKBACK_IMMUNITY:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			UpdatePlayerKnockbackResist();
 		break;
 		case INV_EX_FACTOR_SMALLCHARM:
@@ -2274,7 +2276,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
 				
 				// now give the item and re-apply
-				IncPlayerModValue(pnum, atype, aval, true);
+				IncPlayerModValue(pnum, atype, aval, true, needDelay);
 								
 				for(i = 0; i < 4; ++i)
 					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
@@ -2290,7 +2292,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
 										
 				// little note: aval can be negative if we are removing, so just + is enough to subtract it
-				IncPlayerModValue(pnum, atype, aval, true);
+				IncPlayerModValue(pnum, atype, aval, true, needDelay);
 								
 				// reapply with this gone
 				for(i = 0; i < 4; ++i)
@@ -2303,7 +2305,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
-				IncPlayerModValue(pnum, i, aval, noSync);
+				IncPlayerModValue(pnum, i, aval, noSync, needDelay);
 			
 			// for str
 			UpdatePlayerKnockbackResist();
@@ -2324,7 +2326,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
-			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval, noSync, needDelay);
 			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
 			if(remove) {
 				temp = GetSpawnHealth();
@@ -2356,10 +2358,10 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		break;
 		case INV_EX_FLATDMG_ALL:
 			for(i = INV_FLATPHYS_DAMAGE; i <= INV_FLATELEM_DAMAGE; ++i)
-				IncPlayerModValue(pnum, i, aval, noSync);
+				IncPlayerModValue(pnum, i, aval, noSync, needDelay);
 		break;
 		case INV_EX_ABILITY_RALLY:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			if(PlayerModValues[pnum][atype])
 				GiveInventory("CastRally", 1);
 			else
@@ -2369,7 +2371,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_HPPERCENT_INCREASE:
 			temp = GetSpawnHealth();
 			i = GetActorProperty(0, APROP_HEALTH) - temp;
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			if(remove) {
 				if(GetActorProperty(0, APROP_HEALTH) > temp) {
 					// set health to new cap, add the extra to player
@@ -2382,23 +2384,23 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		break;
 		
 		case INV_SPEED_INCREASE:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		break;
 		case INV_AMMOCAP_INCREASE:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			// make sure to update ammo caps
 			SetAllAmmoCapacities();
 		break;
 		case INV_EX_CURSEIMMUNITY:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			if(PlayerModValues[pnum][atype])
 				GiveInventory("CurseImmunity", 1);
 			else
 				HandleCurseImmunityRemoval();
 		break;
 		case INV_STAT_STRENGTH:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			UpdatePlayerKnockbackResist();
 
 			temp = GetSpawnHealth();
@@ -2414,20 +2416,20 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			}
 		break;
 		case INV_STAT_INTELLECT:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			HandleEShieldChange(pnum, remove);
 		break;
 
 		case INV_SHIELD_INCREASE:
 		case INV_PERCENTSHIELD_INCREASE:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 
 			HandleEShieldChange(pnum, remove);
 		break;
 		
 		// anything that fits our generic formula
 		default:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 		break;
 	}
 
@@ -2448,18 +2450,18 @@ bool IsAttributeExtraException(int attr) {
 	return false;
 }
 
-void HandleAttributeExtra(int pnum, int aextra, int powerset, bool remove, bool noSync = false) {
+void HandleAttributeExtra(int pnum, int aextra, int powerset, bool remove, bool noSync = false, bool needDelay = false) {
 	if(aextra) {
 		if(!remove)
 			aextra = GetPlayerAttributeValue(pnum, powerset) | aextra;
 		else
 			aextra = GetPlayerAttributeValue(pnum, powerset) & ~aextra;
 		
-		SetPlayerModValue(pnum, powerset, aextra, noSync);
+		SetPlayerModValue(pnum, powerset, aextra, noSync, needDelay);
 	}
 }
 
-void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool has_cybernetic, bool noSync = false) {
+void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool has_cybernetic, bool noSync = false, bool needDelay = false) {
 	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source);
 	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, -1, source);
 	int asubtype = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source);
@@ -2523,31 +2525,31 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 	switch(atype) {
 		// standard implicits
 		case INV_IMP_INCARMOR:
-			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync, needDelay);
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
 		case INV_IMP_INCSHIELD:
-			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
 
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMIT:
-			IncPlayerModValue(pnum, INV_MIT_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_MIT_INCREASE, aval, noSync, needDelay);
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
 		case INV_IMP_INCARMORSHIELD:
-			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
-			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync, needDelay);
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
 
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMITSHIELD:
-			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
-			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_SHIELD_TO_MIT_RATIO), noSync);
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
+			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_SHIELD_TO_MIT_RATIO), noSync, needDelay);
 
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 			
@@ -2555,11 +2557,11 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		break;
 		case INV_IMP_INCMITARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
-			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_ARMOR_TO_MIT_RATIO), noSync);
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_ARMOR_TO_MIT_RATIO), noSync, needDelay);
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
 		break;
 		case INV_IMP_POWERCORE:
-			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
 			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 			
 			HandleEShieldChange(pnum, remove);
@@ -2569,14 +2571,14 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		// corrupted implicits
 		// non-weapon mods
 		case INV_CORR_SPEED:
-			IncPlayerModValue(pnum, INV_SPEED_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_SPEED_INCREASE, aval, noSync, needDelay);
 			SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		break;
 		case INV_CORR_DROPCHANCE:
-			IncPlayerModValue(pnum, INV_DROPCHANCE_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_DROPCHANCE_INCREASE, aval, noSync, needDelay);
 		break;
 		case INV_CORR_PERCENTSTATS:
-			IncPlayerModValue(pnum, atype, aval, noSync);
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 
 			// for str
 			UpdatePlayerKnockbackResist();
@@ -2626,7 +2628,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 }
 
 // Applies item stats to player -- can remove or add
-void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false, bool noSync = false) {
+void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false, bool noSync = false, bool needDelay = false) {
 	int ac = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	
 	// check cybernetic and put it as bool
@@ -2645,9 +2647,9 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 
 	int sync_required = 0;
 	for(i = 0; i < ac; ++i)
-		sync_required |= ProcessItemFeature(pnum, item_index, source, i, remove, has_cybernetic, noSync);
+		sync_required |= ProcessItemFeature(pnum, item_index, source, i, remove, has_cybernetic, noSync, needDelay);
 
-	ProcessItemImplicit(pnum, item_index, source, remove, has_cybernetic, noSync);
+	ProcessItemImplicit(pnum, item_index, source, remove, has_cybernetic, noSync, needDelay);
 }
 
 int GetCraftableItemCount() {
