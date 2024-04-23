@@ -3695,12 +3695,12 @@ Script "DnD Periodic Regeneration" ENTER {
 		if(isAlive()) {
 			if(CheckInventory("Ability_Regeneration") && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 				cur = GetActorProperty(0, APROP_HEALTH);
-				// if we got the quest, our lim is half our cap, otherwise 1/3rd the cap
+				// if we got the quest, our lim is half our cap, otherwise 25% the cap
 				lim = GetSpawnHealth();
 				if(IsQuestComplete(this, QUEST_HPOVER50))
 					lim /= 2;
 				else
-					lim /= 3;
+					lim /= 4;
 				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
 				amt = lim * DND_REGEN_PERCENT / 100;
 				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
@@ -4162,6 +4162,8 @@ Script "DnD Give Energy Shield" (int val) {
 	int cap = GetPlayerEnergyShieldCap(PlayerNumber());
 	if(cap) {
 		val = val * cap / 100;
+		if(!val)
+			val = 1;
 		if(CheckInventory("EShieldAmount") < cap - val)
 			AddEnergyShield(val);
 		else
@@ -5513,7 +5515,7 @@ Script 68 (int x) NET {
 			SpawnOrbForAll(1, random(40, 120));
 			//SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
 			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
-			//SpawnCharmWithMods_ForAll(INV_SELFDMG_RESIST, INV_DAMAGEPERCENT_MORE);
+			//SpawnCharmWithMods_ForAll(INV_IGNITE_PROLIFRANGE);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);

@@ -730,7 +730,6 @@ bool IsPlayerInventoryItemUnique(int pnum, int pos) {
 
 int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target_type) {
 	int i, j;
-	
 	// type mismatch, popup
 	if(item_type == DND_ITEM_CHARM && target_type != PlayerInventoryList[pnum][item_index].item_subtype)
 		return POPUP_CHARMMISMATCH;
@@ -770,7 +769,6 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 
 	if(item_type == DND_ITEM_BODYARMOR && GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR))
 		return POPUP_CANTPUTONBODYARMOR;
-
 	// proceed to equip the item now
 	
 	// this means we must swap items
@@ -1051,7 +1049,7 @@ bool CanSwapItems(int pnum, int ipos1, int ipos2, int offset1, int offset2, int 
 			bid = ipos1 + offset2 + j + i * MAXINVENTORYBLOCKS_VERT;
 			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
 				return false;
-			if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source1) - 1 != tb1 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source1) != DND_ITEM_NULL)
+			if(IsSourceInventoryView(source1) && GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source1) - 1 != tb1 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source1) != DND_ITEM_NULL)
 				return false;
 		}
 	}
@@ -1063,7 +1061,7 @@ bool CanSwapItems(int pnum, int ipos1, int ipos2, int offset1, int offset2, int 
 			bid = ipos2 + offset1 + j + i * MAXINVENTORYBLOCKS_VERT;
 			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
 				return false;
-			if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source2) - 1 != tb2 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source2) != DND_ITEM_NULL)
+			if(IsSourceInventoryView(source2) && GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source2) - 1 != tb2 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source2) != DND_ITEM_NULL)
 				return false;
 		}
 	}
@@ -1181,7 +1179,6 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 		}
 	}
 	else if(CanSwapItems(pnum, ipos1, ipos2, offset1, offset2, source1, source2)) {
-		//printbold(s:"can swap");
 		MoveItemToTemporary(pnum, ipos1 + offset1, 0, source1);
 		MoveItemToTemporary(pnum, ipos2 + offset2, 1, source2);
 		
@@ -3286,7 +3283,7 @@ int GetDissassembleChance(int pnum, int item_pos) {
 }
 
 void DisassembleItem(int pnum, int item_pos, int price, int chance) {
-	TakeInventory("Credit", price);
+	TakeCredit(price);
 	// give more chance to succeed if we have the research related to it too
 	int yield = chance & 0xFFFF;
 	chance >>= 16;

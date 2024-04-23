@@ -1211,7 +1211,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_name2 = "SawedoffCounter";
 	Weapons_Data[DND_WEAPON_SAWEDOFF].icon = "WEPICO76";
 	Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_SAWEDOFF].properties = WPROP_SHOTGUN;
 	Weapons_Data[DND_WEAPON_SAWEDOFF].attunement[STAT_STR] = 0.01;
 	Weapons_Data[DND_WEAPON_SAWEDOFF].attunement[STAT_DEX] = 0.04;

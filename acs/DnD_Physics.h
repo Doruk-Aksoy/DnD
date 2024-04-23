@@ -10,7 +10,6 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeR
 		return;
 
 	// get push vector
-	int dx, dy, dz;
 	int m = GetActorProperty(victim, APROP_MASS) / 2;
 	if(m > DND_DMGPUSH_MASSCAP)
 		m = DND_DMGPUSH_MASSCAP;
@@ -18,34 +17,34 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeR
 		m = 1;
 	
 	if(!oneTimeRipperHack) {
-		dx =  GetActorX(victim) - ox;
-		dy =  GetActorY(victim) - oy;
-		dz =  GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0 - oz;
+		ox =  GetActorX(victim) - ox;
+		oy =  GetActorY(victim) - oy;
+		oz =  GetActorZ(victim) + GetActorProperty(victim, APROP_HEIGHT) / 2 + 8.0 - oz;
 	}
-	else {
+	/*else {
 		dx = ox;
 		dy = oy;
 		dz = oz;
-	}
+	}*/
 	
-	int len = magnitudeThree(dx >> 16, dy >> 16, dz >> 16);
+	int len = magnitudeThree(ox >> 16, oy >> 16, oz >> 16);
 	if(!len)
 		len = 1;
 		
-	dx /= len;
-	dy /= len;
-	dz /= len;
+	ox /= len;
+	oy /= len;
+	oz /= len;
 	
-	dx *= dmg;		dx /= m;
-	dy *= dmg;		dy /= m;
-	dz *= dmg;		dz /= m;
+	ox *= dmg;		ox /= m;
+	oy *= dmg;		oy /= m;
+	oz *= dmg;		oz /= m;
 	
 	//printbold(s:"impulse: ", d:dmg, s:", force vector: ", f:dx, s:" ", f:dy, s: " ", f:dz);
-	dx = Clamp_Between(dx, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
-	dy = Clamp_Between(dy, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
-	dz = Clamp_Between(dz, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
+	ox = Clamp_Between(ox, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
+	oy = Clamp_Between(oy, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
+	oz = Clamp_Between(oz, -DND_DMGPUSH_CAP, DND_DMGPUSH_CAP);
 	
-	SetActorVelocity(victim, dx, dy, dz, true, false);
+	SetActorVelocity(victim, ox, oy, oz, true, false);
 }
 
 // player tid, monster tid, force on xy, force on z

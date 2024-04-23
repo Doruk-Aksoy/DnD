@@ -1715,12 +1715,15 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			proj_id = DND_PROJ_SAWEDOFF;
 			
+			// force set to be the counter
+			ammo_type = Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_name2;
+			
 			count = 10;
 			sp_x = 3.6;
 			sp_y = 2.8;
 			
 			// altfire fires both shells at double spread
-			if(isAltFire & DND_ATK_OTHER_DIR) {
+			if(isAltFire & DND_ATK_SECONDARY) {
 				count <<= 1;
 				sp_x <<= 1;
 				sp_y <<= 1;

@@ -403,7 +403,7 @@ DND_MENU_ABLTAG7		=	"Heart Seeking";
 DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death 5% of the time. Can use as a temporary weapon.";
 
 DND_MENU_ABLTAG8		=	"Regeneration";
-DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal till 20 plus twice your vitality every second. Getting hurt delays the timer.";
+DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal over time until 25% of your health cap. Getting hurt pauses this.";
 
 DND_MENU_ABLTAG9		=	"Temporal Mastery";
 DND_MENU_ABLHELPTEXT9	=	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";

@@ -23,6 +23,8 @@
 
 #define DND_EXPLOSION_FLAGVARIABLE "user_flags"
 
+#define DND_ADDEDIGNITE_FACTOR 50 // 50%
+
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
 
 #define DND_MONSTER_POISONPERCENT 20 // 20% of damage taken from a hit is dealt as poison damage again over the duration
@@ -415,6 +417,11 @@ int BigNumberFormula(int dmg, int f) {
 	dmg += wepid + temp;
 
 	return dmg;
+}
+
+// for now does nothing per weapon, later add new corruptions perhaps
+int GetPlayerIgniteAddedDmg(int pnum, int wepid, int added_dmg) {
+	return added_dmg * DND_ADDEDIGNITE_FACTOR / 100;
 }
 
 // Factors in generic DOT percentages to a base damage, use for weapons that do DOT on their own!
@@ -2024,7 +2031,7 @@ Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
 
 void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	// in order for this to work we must have less health than our cap
-	if(GetActorProperty(0, APROP_HEALTH) >= GetSpawnHealth())
+	if(GetActorProperty(0, APROP_HEALTH) >= GetSpawnHealth() || !dmg)
 		return;
 		
 	int taltos = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
@@ -2269,7 +2276,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		if(flags & DND_DAMAGETICFLAG_ICE)
 			HandleChillEffects(pnum, victim_tid);
 		else if(flags & DND_DAMAGETICFLAG_FIRE || flags & DND_DAMAGETICFLAG_ADDEDIGNITE) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
-			HandleIgniteEffects(pnum, victim_tid, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
+			HandleIgniteEffects(pnum, victim_tid, wepid, flags, GetPlayerIgniteAddedDmg(pnum, wepid, PlayerDamageTicData[pnum][victim_data]));
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
 			HandleOverloadEffects(pnum, victim_tid);
 		
@@ -2523,7 +2530,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		next_dmg += inc_by;
 		
 		// x 5
-		Delay(const:7);		
+		Delay(const:7);
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
 	
 	// find N closest targets to victim for igniting
@@ -2535,6 +2542,8 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		int prolif_dist = GetIgniteProlifRange(pnum);
 		int prolif_count = GetIgniteProlifCount(pnum);
 		
+		// clear ignite prolif from subsequent ignites from this monster jumping, we don't want that, too laggy
+		ign_flags ^= DND_IGNITEFLAG_CANPROLIF;
 		next_dmg = 0; // used as temp variable
 		inc_by = 0; // same as above
 		dmg_tic_buff = 0; // same as above...
@@ -2565,7 +2574,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 						// less, so that means we are in-between things
 						// push everything for insertion
 						// this is needed to move in 0 index shifts
-						if(inc_by == DND_MAX_IGNITEPROLIFS)
+						if(inc_by == prolif_count)
 							--inc_by;
 						
 						for(k = inc_by; k > j; --k) {
@@ -2588,7 +2597,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		// we have things to prolif to
 		if(dmg_tic_buff) {
 			//printbold(s:"begin prolif");
-			for(i = 0, j = 0; i < DND_MAX_IGNITEPROLIFS; ++i) {
+			for(i = 0, j = 0; i < prolif_count; ++i) {
 				if(tlist[pnum][i].tid) {
 					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
 					// check if target was ignited already, if not ignite if so replace timer
@@ -3282,7 +3291,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// hate shard reflection
 				if(CheckActorInventory(victim, "HateCheck")) {
 					// this is needed for kill credit
-					if(GetActorProperty(shooter, APROP_HEALTH) < dmg)
+					if(GetActorProperty(shooter, APROP_HEALTH) <= dmg)
 						GiveActorInventory(shooter, "MonsterKilledByPlayer", 1);
 					Thing_Damage2(shooter, dmg, "Reflection");
 					ACS_NamedExecuteWithResult("DnD Damage Numbers", shooter, dmg, 0);

@@ -115,7 +115,7 @@ enum {
 #define DND_SAVAGERY_BONUS 20 // percent
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
 #define DND_MUNITION_GAIN 10
-#define DND_LUCK_GAIN 0.15 // 15% multiplicative luck
+#define DND_LUCK_GAIN 0.1 // 10% multiplicative luck
 #define DND_LUCK_OUTCOME_GAIN 0.05
 
 #define DND_SHARPSHOOTER_MASTERY_BONUS 0.01

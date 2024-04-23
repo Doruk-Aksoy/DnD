@@ -423,6 +423,8 @@ bool IsFixedPointMod(int mod) {
 		case INV_LIFESTEAL:
 		case INV_LIFESTEAL_DAMAGE:
 
+		case INV_IGNITE_PROLIFRANGE:
+
 		case INV_MIT_INCREASE:
 		case INV_MITEFFECT_INCREASE:
 
@@ -1043,9 +1045,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_IGNITE_PROLIFCOUNT].attrib_level_modifier = 1;
 	ItemModTable[INV_IGNITE_PROLIFCOUNT].tags = INV_ATTR_TAG_ELEMENTAL;
 	
-	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_low = 5;
-	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_high = 14;
-	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_level_modifier = 0;
+	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_low = 0.05;
+	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_high = 0.14;
+	ItemModTable[INV_IGNITE_PROLIFRANGE].attrib_level_modifier = 0.10;
 	ItemModTable[INV_IGNITE_PROLIFRANGE].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_low = 5;
@@ -1722,6 +1724,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_BLOCKERS_MOREDMG:
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL_DAMAGE:
+		case INV_IGNITE_PROLIFRANGE:
 			if(showDetailedMods) {
 				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)

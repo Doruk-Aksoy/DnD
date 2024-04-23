@@ -130,7 +130,7 @@ int GetMonsterClassBonus(int class) {
 		return 35 | (30 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 20 | (25 << 16);
+		return 20 | (22 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
 		return 75 | (48 << 16);
