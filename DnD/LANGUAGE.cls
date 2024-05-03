@@ -87,7 +87,7 @@ CLASS5_MUGSHOT			= "CYGEVL0";
 CLASS5_TEXT				= "Finest specimen from the Russian laboratories, the Cyborg is employed when all negotiations have failed. "
 						  "The last thing many see is the cold metallic enforcer's visage, before they perish.";
 
-CLASS5_PERK1			= "Cybernetic equipments are 30% more effective.";
+CLASS5_PERK1			= "Cybernetic equipments are 33% more effective.";
 CLASS5_PERK2			= "Can make use of Power Cores in the equipment slot.";
 CLASS5_PERK3			= "Tech weapons build instability stacks on enemy direct hits, granting +2 flat damage per stack up to 10 stacks. At max stacks, your tech weapons may fire additional energy particles. Stacks last 5 seconds. 50% chance to have energy shield recovery start immediately after losing max stacks.";
 

@@ -434,9 +434,10 @@ void FreeSpot(int pnum, int item_index, int source) {
 
 // move this from field to player's inventory
 int HandleInventoryPickup(int item_index) {
-	int pcharm_index = GetFreeSpotForItem(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-	CopyItemFromFieldToPlayer(item_index, PlayerNumber(), pcharm_index);
-	GiveInventory("DnD_RefreshRequest", 1);
+	int pnum = PlayerNumber();
+	int pcharm_index = GetFreeSpotForItem(item_index, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	CopyItemFromFieldToPlayer(item_index, pnum, pcharm_index);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 	return pcharm_index;
 }
 
@@ -1039,29 +1040,45 @@ bool CanSwapItems(int pnum, int ipos1, int ipos2, int offset1, int offset2, int 
 	int i, j;
 	int w1, w2, h1, h2;
 	int bid = 0, tb1, tb2;
+
+	// these hold 64 box spots (45 only needed but still) to make sure we are good on the overlapping areas
+	int overlap1 = 0, overlap2 = 0;
+	bool rowStart = false;
 	// from ipos2 to ipos1
 	tb1 = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos1, -1, source1) - 1;
 	tb2 = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos2, -1, source2) - 1;
 	w2 = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, tb2, -1, source2);
 	h2 = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, tb2, -1, source2);
+				
+	rowStart = !(((ipos1 + offset2)) % MAXINVENTORYBLOCKS_VERT);
 	for(i = 0; i < h2; ++i) {
 		for(j = 0; j < w2; ++j) {
 			bid = ipos1 + offset2 + j + i * MAXINVENTORYBLOCKS_VERT;
-			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
+			if(bid >= MAX_INVENTORY_BOXES || bid < 0 || (!rowStart && !(bid % 9)))
 				return false;
 			if(IsSourceInventoryView(source1) && GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source1) - 1 != tb1 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source1) != DND_ITEM_NULL)
 				return false;
+
+			if(bid < 32)
+				overlap1 |= 1 << bid;
+			else
+				overlap2 |= 1 << (bid - 32);
 		}
 	}
 	// from ipos1 to ipos2
 	w1 = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, tb1, -1, source1);
 	h1 = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, tb1, -1, source1);
+	rowStart = !(((ipos2 + offset1)) % MAXINVENTORYBLOCKS_VERT);
 	for(i = 0; i < h1; ++i) {
 		for(j = 0; j < w1; ++j) {
 			bid = ipos2 + offset1 + j + i * MAXINVENTORYBLOCKS_VERT;
-			if(bid >= MAX_INVENTORY_BOXES || bid < 0)
+			if(bid >= MAX_INVENTORY_BOXES || bid < 0 || (!rowStart && !(bid % 9)))
 				return false;
 			if(IsSourceInventoryView(source2) && GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source2) - 1 != tb2 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source2) != DND_ITEM_NULL)
+				return false;
+
+			// check potential overlaps now -- can only happen if same source
+			if(source1 == source2 && ((bid < 32 && (overlap1 & (1 << bid))) || (overlap2 & (1 << (bid - 32)))))
 				return false;
 		}
 	}
@@ -1456,7 +1473,7 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 			for(j = 0; j < w; ++j) {
 				bid = tb + j + i * MAXINVENTORYBLOCKS_VERT;
 				if(!InventoryBoxContainsPoint(bid, temp, w, h)) {
-					if(tb + j + i * MAXINVENTORYBLOCKS_VERT < 32)
+					if(bid < 32)
 						set1 |= 1 << (bid);
 					else
 						set2 |= 1 << (bid - 32);
@@ -1915,11 +1932,12 @@ void StackedItemPickupCS(int item_index, int type) {
 int HandleStackedPickup(int item_index, int type) {
 	// make sure this item actually gets placed on top of an item that has some stack, if any
 	// print message first, if its moved to inv it's gone from there
+	int pnum = PlayerNumber();
 	StackedItemPickupCS(item_index, type);
 	
-	int porb_index = GetFreeSpotForItemWithStack(item_index, PlayerNumber(), DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-	GiveInventory("DnD_RefreshRequest", 1);
-	return CopyItemFromFieldToPlayer(item_index, PlayerNumber(), porb_index, type);
+	int porb_index = GetFreeSpotForItemWithStack(item_index, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	return CopyItemFromFieldToPlayer(item_index, pnum, porb_index, type);
 }
 
 // checks players inventory for the given item precisely with its subtype matching
@@ -2212,13 +2230,10 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 	
 	// cybernetic check
 	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
-		aval *= DND_CYBERNETIC_FACTOR_MUL;
-		aval /= DND_CYBERNETIC_FACTOR_DIV;
+		aval += aval / DND_CYBERNETIC_FACTOR;
 
-		if(!IsAttributeExtraException(atype)) {
-			aextra *= DND_CYBERNETIC_FACTOR_MUL;
-			aextra /= DND_CYBERNETIC_FACTOR_DIV;
-		}
+		if(!IsAttributeExtraException(atype))
+			aextra += aextra /= DND_CYBERNETIC_FACTOR;
 	}
 	
 	if(remove)
@@ -2447,6 +2462,16 @@ bool IsAttributeExtraException(int attr) {
 	return false;
 }
 
+bool ItemIsCybernetic(int pnum, int item_index, int attrib_count, int source) {
+	for(int i = 0; i < attrib_count; ++i) {
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, i, source) == INV_CYBERNETIC) {
+			return true;
+		}
+	}
+
+	return GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source) == INV_CORR_CYBERNETIC;
+}
+
 void HandleAttributeExtra(int pnum, int aextra, int powerset, bool remove, bool noSync = false, bool needDelay = false) {
 	if(aextra) {
 		if(!remove)
@@ -2507,13 +2532,10 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 	
 	// cybernetic check
 	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
-		aval *= DND_CYBERNETIC_FACTOR_MUL;
-		aval /= DND_CYBERNETIC_FACTOR_DIV;
+		aval += aval / DND_CYBERNETIC_FACTOR;
 
-		if(!IsAttributeExtraException(atype)) {
-			aextra *= DND_CYBERNETIC_FACTOR_MUL;
-			aextra /= DND_CYBERNETIC_FACTOR_DIV;
-		}
+		if(!IsAttributeExtraException(atype))
+			aextra += aextra / DND_CYBERNETIC_FACTOR;
 	}
 	
 	if(remove)
@@ -2559,7 +2581,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		break;
 		case INV_IMP_POWERCORE:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
+			IncPlayerModValue(pnum, INV_ESHIELD_ABSORB, aextra, noSync, needDelay);
 			
 			HandleEShieldChange(pnum, remove);
 		break;
@@ -2629,14 +2651,8 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	int ac = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	
 	// check cybernetic and put it as bool
-	bool has_cybernetic = false;
+	bool has_cybernetic = ItemIsCybernetic(pnum, item_index, ac, source);
 	int i = 0;
-	for(i = 0; i < ac; ++i) {
-		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, i, source) == INV_CYBERNETIC) {
-			has_cybernetic = true;
-			break;
-		}
-	}
 
 	// power cores are inherently cybernetic
 	i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source);
@@ -2677,6 +2693,32 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_tier = a_tier;
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_extra = a_extra;
 	PlayerInventoryList[pnum][item_pos].attributes[temp].fractured = a_fracture;
+
+	// use for checking ilvl diff
+	a_tier *= CHARM_ATTRIBLEVEL_SEPERATOR;
+
+	if(PlayerInventoryList[pnum][item_pos].item_level < a_tier + CHARM_ATTRIBLEVEL_SEPERATOR / 2) {
+		temp = ((a_tier - PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+		if(temp <= 0)
+			temp = 1;
+
+		PlayerInventoryList[pnum][item_pos].item_level += temp * random(3 * MAX_CHARM_AFFIXTIERS / 4, MAX_CHARM_AFFIXTIERS);
+		if(PlayerInventoryList[pnum][item_pos].item_level > MAX_ITEM_LEVEL)
+			PlayerInventoryList[pnum][item_pos].item_level = MAX_ITEM_LEVEL;
+	}
+
+	CheckAttribEffects(pnum, item_pos, a_id, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+}
+
+void CheckAttribEffects(int pnum, int item_pos, int attrib, int source) {
+	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_pos, -1, source);
+	if(itype == DND_ITEM_CHARM && attrib == INV_CYBERNETIC) {
+		// check quality and zero it if its non-zero
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_pos, -1, source) > 0) {
+			SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_pos, -1, 0, source);
+			SyncItemQuality(pnum, item_pos, source);
+		}
+	}
 }
 
 // can only add attributes to items that are about to be created ie. on field dropped from monster
@@ -2707,6 +2749,7 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 			Inventories_On_Field[item_pos].item_subtype
 		);
 	}
+	CheckAttribEffects(pnum, item_pos, attrib, DND_SYNC_ITEMSOURCE_FIELD);
 }
 
 // adds attribute to existing item in player inventory
@@ -2732,6 +2775,9 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 		PlayerInventoryList[pnum][item_pos].item_type,
 		PlayerInventoryList[pnum][item_pos].item_subtype
 	);
+
+	// if attribute is CYBERNETIC, make sure it resets quality of the item to 0 in case its a charm
+	CheckAttribEffects(pnum, item_pos, attrib, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
 void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
@@ -3283,6 +3329,7 @@ int GetDissassembleChance(int pnum, int item_pos) {
 }
 
 void DisassembleItem(int pnum, int item_pos, int price, int chance) {
+	GiveInventory("DnD_CantSalvage", 1);
 	TakeCredit(price);
 	// give more chance to succeed if we have the research related to it too
 	int yield = chance & 0xFFFF;
@@ -3317,6 +3364,7 @@ void DisassembleItem(int pnum, int item_pos, int price, int chance) {
 	GiveInventory("DnD_CleanCraftingRequest", 1);
 	GiveInventory("DnD_RefreshPane", 1);
 	GiveInventory("DnD_CursorDataClearRequest", 1);
+	TakeInventory("DnD_CantSalvage", 1);
 }
 
 Script "DnD Disassemble CS" (int result) CLIENTSIDE {

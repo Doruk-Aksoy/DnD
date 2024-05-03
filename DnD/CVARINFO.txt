@@ -33,7 +33,6 @@ server noarchive bool dnd_firstbackpackold = false;
 server noarchive bool dnd_playercount_scales_monsters = true;
 server noarchive bool dnd_fullshare = true;
 server noarchive bool dnd_monsterlevel_behind = false;
-server noarchive bool dnd_credit_drops = true;
 server noarchive bool dnd_gainonlyinrange = false;
 server noarchive bool dnd_allresearchesfound = false;
 server noarchive bool dnd_disablelevelbonus = false;

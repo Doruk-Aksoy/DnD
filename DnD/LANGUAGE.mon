@@ -94,8 +94,17 @@ DND_EMOD_REPEL					= "\cqRepel\c-";
 DND_EMOD_PHANTASM				= "\cqPhantasm\c-";
 DND_EMOD_CRIPPLE				= "\cvCripple\c-";
 DND_EMOD_RUINATION				= "\cgRuination\c-";
-DND_EMOD_ETHEREAL				= "\cmEthereal\c-";
-	
+DND_EMOD_NUCLEAR				= "\cqNuclear\c-";
+DND_EMOD_SILENT					= "\cvSilent\c-";
+DND_EMOD_OSMIUM					= "\cqOsmium Imbued\c-";
+DND_EMOD_PHASING				= "\cqPhasing\c-";
+DND_EMOD_OTHERWORLDGRIP			= "\cgOtherworldy Grip\c-";
+DND_EMOD_THUNDERSTRUCK			= "\cgThunderstruck\c-";
+DND_EMOD_TEMPORALBUBBLE			= "\cqTemporal Bubble\c-";
+DND_EMOD_BLACKOUT				= "\cvBlackout\c-";
+DND_EMOD_ENSHROUDED				= "\cvEnshrouded\c-";
+
+DND_EMOD_ETHEREAL				= "\cmEthereal\c-";	
 DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";			DND_EMOD_MARKOFCHAOS_NOCOL	= "Mark of Chaos";
 	
 DND_EMOD_LEGENDARY				= "\ciLegendary\c-";				DND_EMOD_LEGENDARY_LONG		= "Legendary Monster";

@@ -1924,16 +1924,18 @@ Actor DeathrayCooldown : PowerDamage {
 }
 
 Actor DeathrayPuff {
+	Height 4
+	Radius 2
 	+ALWAYSPUFF
 	+PUFFONACTORS
-	+NOINTERACTION
 	+BLOODLESSIMPACT
 	+PUFFGETSOWNER
 	+SKYEXPLODE
 	-NONETID
 	States {
 		Spawn:
-			TNT1 A 5 NoDelay ACS_NamedExecuteAlways("DnD DeathRay Marker TID")
+			TNT1 AAAAAA 0
+			TNT1 A 5 ACS_NamedExecuteAlways("DnD DeathRay Marker TID")
 		Stop
 	}
 }

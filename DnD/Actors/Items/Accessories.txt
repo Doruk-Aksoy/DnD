@@ -382,7 +382,8 @@ Actor ChangeReflect : DnD_Activator {
 	States {
 		Use:
 			TNT1 A 0 A_PlaySound("Reflection/Off", 5)
-			TNT1 A 0 A_JumpIfInventory("Invulnerable_Better", 1, "JustUnreflect")
+			// this invul doesnt do anything other than protect so
+			//TNT1 A 0 A_JumpIfInventory("Invulnerable_Better", 1, "JustUnreflect")
 			TNT1 A 0 A_UnsetReflectiveInvulnerable
 		Stop
 		JustUnreflect:

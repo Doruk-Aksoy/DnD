@@ -36,6 +36,7 @@ Actor DnD_Player : PlayerPawn {
 	Player.StartItem "StartOnly"
 	Player.StartItem "NoRewardsGiven"
 	Player.StartItem "SetMyLives"
+	Player.StartItem "DnD_CountdownProtection"
 	
 	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
 	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt

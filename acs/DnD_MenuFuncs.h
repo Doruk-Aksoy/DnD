@@ -471,8 +471,10 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(ScrollPos.y, 0);
 		break;
 		case MENU_STAT2_QUESTBONUSES:
-		case MENU_HELP_MMODS_IMMUNITY:
 			redraw = ListenScroll(-128, 0);
+		break;
+		case MENU_HELP_MMODS_IMMUNITY:
+			redraw = ListenScroll(-144, 0);
 		break;
 		case MENU_HELP_CHARACTER:
 		case MENU_HELP_MMODS_RESIST:
@@ -482,7 +484,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-128, 0);
 		break;
 		case MENU_HELP_MMODS_UTILITY:
-			redraw = ListenScroll(-192, 0);
+			redraw = ListenScroll(-208, 0);
 		break;
 		case MENU_HELP_LEGMONS:
 			temp = 0;
@@ -496,14 +498,16 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-48, 0);
 		break;
 		case MENU_HELP_WEAPONPROPS:
-		case MENU_HELP_MMODS_AGGRESSIVE:
 			redraw = ListenScroll(-144, 0);
+		break;
+		case MENU_HELP_MMODS_AGGRESSIVE:
+			redraw = ListenScroll(-176, 0);
 		break;
 		case MENU_HELP_ORBS:
 			redraw = ListenScroll(-320, 0);
 		break;
 		case MENU_HELP_MMODS_DEFENSIVE:
-			redraw = ListenScroll(-224, 0);
+			redraw = ListenScroll(-272, 0);
 		break;
 		
 		// weapon pages -- this part is ugly I know, at this time I couldnt find a better solution :P
@@ -694,7 +698,7 @@ void ShowLegendaryMonsterIcon(int id, int j) {
 void ShowBobby() {
 	SetHudSize(1280, 864, 1);
 	SetFont("BBYSNC");
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 69, CR_WHITE, 848.4, 140.1, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 848.4, 140.1, 0.0, 0.0);
 	SetFont("SMALLFONT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -738,7 +742,7 @@ int ShopScale(int amount, int id) {
 	return 1;
 }
 
-int GetShopPrice (int id, int priceflag) {
+int GetShopPrice (int id, int priceflag = 0) {
 	int res = 0, chr = 0, shop_scale = Clamp_Between(GetCVar("dnd_shop_scale"), 1, SHOP_SCALE_MAX);
 	if(id < MAXSHOPITEMS)
 		res = ShopInfo[id][SHOPINFO_PRICE] * shop_scale;
@@ -776,13 +780,13 @@ bool CanResearch(int respage, int posx) {
 }
 
 // returns 0 for buy being possible, read end of function for other details
-int CanTrade (int id, int tradeflag, int price) {
-	int credit = CheckInventory("Credit"), res = 0, type = 0;
+int CanTrade (int pnum, int id, int tradeflag, int price) {
+	int credit = GetPlayerCredit(pnum), res = 0, type = 0;
 	// enough credits - maxed on the item - I own this thing already - out of stock
 	bool cond1 = 0, cond2 = 0, cond3 = 1, cond4 = 1;
 	
 	if(!price)
-		price = GetShopPrice(id, PRICE_CHARISMAREDUCE);
+		price = GetShopPrice(id);
 		
 	cond1 = credit >= price;
 		
@@ -878,8 +882,8 @@ void DrawToggledLabel(str label, bool language_lookup, int afterlabel, int boxid
 	}
 }
 
-void DrawCredits(int y_off = 0) {
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMSUBID, CR_WHITE, 264.1, 64.0 + y_off, 0.0, 0.0);
+void DrawCredits(int pnum, int y_off = 0) {
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUITEMSUBID, CR_WHITE, 264.1, 64.0 + y_off, 0.0, 0.0);
 }
 
 void DrawBudget() {
@@ -932,7 +936,7 @@ void DrawShopItemTag(str weptype, str toshow, int id, int objflag, int onposy) {
 // By default, if insufficient credits occur, it will be gray.
 // of it's kind. For example, there are 2 weapons that replace the shotgun. You can have only one, so you set this flag, and set choicename to P_Slot3Replaced. One of the two will be
 // red if the other is bought. The item that is bought will be green.
-void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int offcolor, int oncolor, str choicename, int choicecount, int choicecolor, bool redraw = false) {
+void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectflag, int offcolor, int oncolor, str choicename, int choicecount, int choicecolor, bool redraw = false) {
 	// first of all check research (assuming the player can't own this item without having it researched)
 	int res_state = 1;
 	if(objectflag & OBJ_RESEARCH) {
@@ -957,12 +961,12 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 		int price = 0;
 		
 		if(!(objectflag & OBJ_AMMO))
-			price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+			price = GetShopPrice(itemid);
 		else
-			price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
+			price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW);
 		
 		bool sellstate = false;
-		bool price_vs_credit = price > CheckInventory("Credit");
+		bool price_vs_credit = price > GetPlayerCredit(pnum);
 		bool nostock = ShopStockRemaining[PlayerNumber()][itemid] <= 0;
 		
 		if(objectflag & OBJ_RESEARCH && !res_state) {
@@ -1031,7 +1035,7 @@ void DrawToggledImage(int itemid, int boxid, int onposy, int objectflag, int off
 			// this part could be grouped into just deciding on a string to use, but I want to keep variable amount low here (already a lot)
 			if(objectflag & OBJ_WEP) {
 				if(sellstate)
-					HudMessage(s:"\c[M1]--> ", l:"DND_MENU_SELLSFOR", s:":\c- $", d:GetShopPrice(itemid, 0) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
+					HudMessage(s:"\c[M1]--> ", l:"DND_MENU_SELLSFOR", s:":\c- $", d:GetShopPrice(itemid) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
 				// stock
 				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256);
@@ -1130,7 +1134,7 @@ int GetBulkPriceForAmmo(int itemid) {
 	int temp = 0, count = 0;
 	str ammo = AmmoInfo[id & 0xFFFF][id >> 16].name;
 	if(CheckInventory(ammo) < GetAmmoCapacity(ammo)) {
-		int price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
+		int price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW);
 		temp = GetAmmoToGive(itemid);
 		count = (GetAmmoCapacity(ammo) - CheckInventory(ammo)) / temp;
 		id = price * count;
@@ -1163,11 +1167,11 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 					
 					// now consider money and other things as factors
 					if(!(tradeflag & TRADE_AMMO))
-						price = GetShopPrice(itemid, PRICE_CHARISMAREDUCE);
+						price = GetShopPrice(itemid);
 					else
-						price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
+						price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW);
 						
-					buystatus = CanTrade(itemid, tradeflag, price);
+					buystatus = CanTrade(pnum, itemid, tradeflag, price);
 					if(!buystatus) {
 						// consider researches before handing out
 						TakeCredit(price);
@@ -1211,7 +1215,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 		itemid = low + posy;
 		if(itemid <= high) {
 			if(!CheckInventory("DnD_SellConfirm")) { // confirmation screen did not pop
-				buystatus = CanTrade(itemid, TRADE_SELL, 0);
+				buystatus = CanTrade(pnum, itemid, TRADE_SELL, 0);
 				if(buystatus) {
 					LocalAmbientSound("RPG/MenuSellConfirm", 127);
 					ShowPopup(posy + 1, true, itemid);
@@ -1223,7 +1227,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 			else {
 				// activepopupbox holds the boxid
 				itemid = low + CheckInventory("ActivePopupBox") - 1;
-				price = GetShopPrice(itemid, 0) / 2;
+				price = GetShopPrice(itemid) / 2;
 				TakeInventory("DnD_SellConfirm", 1);
 				TakeInventory("DnD_PopupSell", 1);
 				TakeInventory("DnD_ShowSellPopup", 1);
@@ -1239,7 +1243,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				TakeInventory(GetItemName(itemid), 1);
 				
 				// reset buffs of weapon
-				GiveInventory("Credit", price);
+				GiveCredit(price);
 				ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
 			}
 		}
@@ -1256,40 +1260,41 @@ void DrawHighLightBar (int posy, int framecounter) {
 	)
 	{
 		drawstate = posy == MAINBOX_STATS;
-		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0);
 	}
 	else if(posy == MAINBOX_STATS)
-		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0);
 	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_STATS"; HUDMSG_PLAIN, RPGMENULISTID, -1, 96.0, 168.0, 0.0);
 
 	drawstate |= 2;
 	if(
 		CheckInventory("PerkPoint") && 
 		!(framecounter % 2) &&
-	   !((CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Endurance") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Wisdom") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Greed") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Medic") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Munitionist") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Deadliness") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Savagery") == DND_PERK_MAX) &&
-		(CheckInventory("Perk_Luck") == DND_PERK_MAX))
+	    !(
+			(CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Endurance") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Wisdom") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Greed") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Medic") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Munitionist") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Deadliness") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Savagery") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_Luck") == DND_PERK_MAX)
+		)
 	)
 	{
 		drawstate |= (posy == MAINBOX_PERK) * 4;
-		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+		HudMessage(s:"\c[B3]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0);
 	}
+	else if(posy == MAINBOX_PERK)
+		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0);
 	else
-		if(posy == MAINBOX_PERK)
-		HudMessage(s:"\c[B1]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
-	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_SIDE_PERKS"; HUDMSG_PLAIN, RPGMENULISTID - 1, -1, 96.0, 186.0, 0.0);
 
 
 	if(posy == MAINBOX_NONE)
-		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0, 0.0);
+		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0);
 	else if(posy < FIRST_CLICKABLE_BOXID) {
 		--posy;
 		int yadd = 0;
@@ -1303,10 +1308,10 @@ void DrawHighLightBar (int posy, int framecounter) {
 			SetFont("BARHIGHL");
 		else
 			SetFont("BARHIGH");
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1 + 1.0 * yadd, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1 + 1.0 * yadd, 0.0);
 	}
 	else
-		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0, 0.0);
+		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0);
 	// restore default
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	SetFont("SMALLFONT");
@@ -1343,14 +1348,14 @@ void DrawFrequentRedrawItems(int curopt, int pnum) {
 	}
 }
 
-void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, bool isSpecialAmmo) {
+void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool givefull, bool isSpecialAmmo) {
 	if(!CheckItemRequirements(shop_index, RES_DONE, GetItemFlags(shop_index))) {
 		// not done, so we can't give this
 		ShowNeedResearchPopup();
 	}
 	else {
-		int price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
-		int buystatus = CanTrade(shop_index, TRADE_BUY, price);
+		int price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW);
+		int buystatus = CanTrade(pnum, shop_index, TRADE_BUY, price);
 		
 		if(!buystatus) {
 			int amt = GetAmmoToGive(shop_index), count = 1;
@@ -1364,9 +1369,9 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 				else
 					count += (GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME])) / amt;
 				price = price * count;
-				if(price > CheckInventory("Credit")) {
-					count = CheckInventory("Credit") / GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
-					price = count * GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE);
+				if(price > GetPlayerCredit(pnum)) {
+					count = GetPlayerCredit(pnum) / GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW);
+					price = count * GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW);
 					amt *= count;
 				}
 				else {
@@ -1378,14 +1383,14 @@ void HandleAmmoPurchase(int slot, int itemid, int shop_index, bool givefull, boo
 						buystatus = GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - (CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) + amt);
 					if(buystatus) {
 						amt += buystatus;
-						price += Max(buystatus * GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE) / GetAmmoToGive(shop_index), 1);
+						price += Max(buystatus * GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW) / GetAmmoToGive(shop_index), 1);
 					}
 				}
 			}
 			if(amt > ShopStockRemaining[PlayerNumber()][shop_index]) {
 				// rebalance the amount so we don't go in debt...
 				amt = ShopStockRemaining[PlayerNumber()][shop_index];
-				price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW | PRICE_CHARISMAREDUCE) * amt / GetAmmoToGive(shop_index);
+				price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW) * amt / GetAmmoToGive(shop_index);
 			}
 			
 			// we're OK now
@@ -2450,7 +2455,7 @@ void HandleButtonClick(int boxid) {
 }
 
 // opt is menu page, multipage is for when one option can lead to multiple weapon pages
-void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scrollamt, int total_boxes, bool redraw) {
+void HandleWeaponPageDraw(int pnum, int opt, int multipage, int slotid, int boxid, int scrollamt, int total_boxes, bool redraw) {
 	int begin = GetWeaponBeginIndexFromOption(opt);
 	int end = GetWeaponEndIndexFromOption(opt);
 
@@ -2473,14 +2478,14 @@ void HandleWeaponPageDraw(int opt, int multipage, int slotid, int boxid, int scr
 		HudMessage(s:"--- ", l:"DND_MENU_SLOT", s:" ", d:slotid, s:" (", d:multipage, s:") ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 	else
 		HudMessage(s:"--- ", l:"DND_MENU_SLOT", s:" ", d:slotid, s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 	
 	for(int i = begin; i <= end; ++i)
-		DrawToggledImage(i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, GetWeaponCondition(i), 1, CR_RED, redraw);
+		DrawToggledImage(pnum, i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, GetWeaponCondition(i), 1, CR_RED, redraw);
 }
 
 // These except ammo indexes, true ammo indexes (dnd_ammo.h) not menu relative
-void HandleAmmoPageDraw(int boxid, int slot, int multipage, int start_index, int end_index, bool specialammo) {
+void HandleAmmoPageDraw(int pnum, int boxid, int slot, int multipage, int start_index, int end_index, bool specialammo) {
 	int shopindex = 0;
 	int i;
 	
@@ -2498,19 +2503,19 @@ void HandleAmmoPageDraw(int boxid, int slot, int multipage, int start_index, int
 	else
 		HudMessage(s:"--- ", l:"DND_MENU_SPECIALAMMO", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 	
-	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
+	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 
 	if(!specialammo) {
 		for(i = start_index; i <= end_index; ++i) {
 			shopindex = MenuAmmoIndexMap[slot][i];
-			DrawToggledImage(shopindex, boxid, i - start_index, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+			DrawToggledImage(pnum, shopindex, boxid, i - start_index, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 		}
 		DrawAmmoIconCorner(slot, boxid, boxid + start_index - 1, false);
 	}
 	else {
 		for(i = 0; i < MAX_SPECIAL_AMMOS_FOR_SHOP; ++i) {
 			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
-			DrawToggledImage(shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+			DrawToggledImage(pnum, shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 		}
 		DrawAmmoIconCorner(-1, boxid, -1, true);
 	}
@@ -2573,11 +2578,11 @@ void HandleAmmoPageInput(int pnum, int slot, int boxid, int begin_index, int pag
 	
 	if(HasLeftClicked(pnum)) {
 		if(boxid != MAINBOX_NONE)
-			HandleAmmoPurchase(slot, boxid + begin_index - 1, id, false, IsSpecialAmmo);
+			HandleAmmoPurchase(pnum, slot, boxid + begin_index - 1, id, false, IsSpecialAmmo);
 		ClearPlayerInput(pnum, true);
 	} // ammos have alternate functionality for sell
 	else if(HasRightClicked(pnum) && boxid != MAINBOX_NONE) {
-		HandleAmmoPurchase(slot, boxid + begin_index - 1, id, true, IsSpecialAmmo);
+		HandleAmmoPurchase(pnum, slot, boxid + begin_index - 1, id, true, IsSpecialAmmo);
 		ClearPlayerInput(pnum, true);
 	}
 	
@@ -2599,97 +2604,94 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 	int status = CheckResearchStatus(ResearchInfo[page][posx].res_id);
 	int budget = CheckInventory("Budget");
 
-	HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESPAN", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+	HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESPAN", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0);
 	
-	DrawCredits(-8.0);
+	DrawCredits(pnum, -8.0);
 
 	if(posx)
-		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
-	else
-		DeleteText(RPGMENUPAGEID - 1);
+		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0);
+
 	if(ResearchInfo[page][posx + 1].res_id != -1)
-		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
-	else
-		DeleteText(RPGMENUPAGEID);
+		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0);
 
 	if(budget)
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 72.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:budget, s:"\cjK"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 72.0, 0.0);
 	else
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 72.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$0"; HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 72.0, 0.0);
 	
 	// adjust x offset on 2nd hudmsg based on length of status for future language compat
 	if(status == RES_NA) {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 264.1, 116.1, 0.0);
 		SetHudClipRect(324, 108, 128, 32, 128);
-		HudMessage(l:"DND_MENU_RESEARCH_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_RESEARCH_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 324.1, 116.1, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESBLAK");
 	}
 	else if(status == RES_KNOWN) {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 264.1, 116.1, 0.0);
 		SetHudClipRect(324, 108, 128, 32, 128);
-		HudMessage(l:"DND_MENU_RESEARCH_FOUND"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_RESEARCH_FOUND"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 324.1, 116.1, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESFOUND");
 	}
 	else {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 264.1, 116.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_STATUS", s:": "; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 264.1, 116.1, 0.0);
 		SetHudClipRect(324, 108, 128, 32, 128);
-		HudMessage(l:"DND_MENU_RESEARCH_DONE"; HUDMSG_PLAIN, RPGMENUITEMID - 17, CR_WHITE, 324.1, 116.1, 0.0, 0.0);
+		HudMessage(l:"DND_MENU_RESEARCH_DONE"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 324.1, 116.1, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetFont("RESDONE");
 	}
 	
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 96.0, 0.0);
 
 	bool no_drop = ResearchFlags[ResearchInfo[page][posx].res_id].res_flags & RESF_NODROP;
 	if(no_drop && status == RES_NA) {
 		SetFont("RESNONE");
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 199.1, 96.0, 0.0);
 		
 		SetFont("SMALLFONT");
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 264.1, 88.0, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 264.1, 104.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 264.1, 88.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 264.1, 104.0, 0.0);
 	}
 	else {
 		SetFont(GetResearchIcon(page, posx));
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_WHITE, 199.1, 96.0, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 199.1, 96.0, 0.0);
 		
 		SetFont("SMALLFONT");
 		
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 264.1, 88.0, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- $", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 264.1, 104.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 264.1, 88.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- $", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 264.1, 104.0, 0.0);
 		
 		SetHudClipRect(192, 144, 256, 96, 256);
-		HudMessage(l:GetResearchDescription(ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 152.1, 0.0, 0.0);
+		HudMessage(l:GetResearchDescription(ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 152.1, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
 
-	DrawBoxText("DND_MENU_RESEARCH", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMIDEND + 2, 192.1, 232.0, "\c[B1]", "\c[Y5]");
+	DrawBoxText("DND_MENU_RESEARCH", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 8, 192.1, 232.0, "\c[B1]", "\c[Y5]");
 
 	// if hovering on invest option, show the investment cost to the user
 	if(status == RES_NA) {
 		// no drop ones can't be clicked on either way so color them black
 		if(!no_drop) {
-			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[Y5]");
+			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 9, 392.1, 232.0, "\c[B1]", "\c[Y5]");
 		
 			// show the invested % chance to drop if it can drop
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", s:GetFixedRepresentation(GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id, true), false), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 18, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", s:GetFixedRepresentation(GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id, true), false), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
 		}
 		else
-			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[G8]");
+			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 11, 392.1, 232.0, "\c[B1]", "\c[G8]");
 			
 		if(boxid == MBOX_2) {
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj", d:GetInvestmentCost(pnum, page, posx, ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 19, CR_WHITE, 440.2, 236.1, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj", d:GetInvestmentCost(pnum, page, posx, ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 440.2, 236.1, 0.0, 0.0);
 			SetHudClipRect(184, 244, 256, 36, 256);
-			HudMessage(s:"\cd*\c- ", l:"DND_INVESTMENT_EXPLANATION"; HUDMSG_PLAIN, RPGMENUITEMID - 20, CR_WHITE, 184.1, 248.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
+			HudMessage(s:"\cd*\c- ", l:"DND_INVESTMENT_EXPLANATION"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 184.1, 248.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
 		}
-		else
-			DeleteTextRange(RPGMENUITEMID - 20, RPGMENUITEMID - 19);
+		//else
+		//	DeleteTextRange(RPGMENUITEMID - 13, RPGMENUITEMID - 12);
 	}
 	else
-		DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 21, 392.1, 232.0, "\c[B1]", "\c[G8]");
+		DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 14, 392.1, 232.0, "\c[B1]", "\c[G8]");
 }
 
 int GetInvestmentCost(int pnum, int page, int menu_res_id, int res_id) {
@@ -2735,7 +2737,7 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 			}
 			else {
 				int resid = ResearchInfo[page][curposx].res_id;
-				int credit = CheckInventory("Credit");
+				int credit = GetPlayerCredit(pnum);
 				int cost = GetInvestmentCost(pnum, page, curposx, resid);
 				if(credit < cost) {
 					// not enough credits
@@ -2880,7 +2882,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	}
 	else
 		SetFont("LDTBOX");
-	HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - 1, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * skip, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * skip, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - 1, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * skip, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * skip, 0.0);
 }
 
 void DrawInventoryInfo(int pnum) {
@@ -3034,6 +3036,7 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 				PlayerCursorData.itemDragInfo.topboxid = temp;
 				PlayerCursorData.itemDragInfo.source = source;
 				PlayerCursorData.itemDragInfo.click_box = boxid - 1 - offset;
+				//Log(s:"click box ", d:boxid - 1 - offset, s: " tpbxid ", d:temp);
 			}
 		}
 		else if(((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_STASH && CheckInventory("DnD_PlayerPreviousPage") == CheckInventory("DnD_PlayerCurrentPage")) || (source & 0xFFFF) != DND_SYNC_ITEMSOURCE_STASH)
@@ -3061,6 +3064,7 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 		// all boxes in range of this should be highlighted
 		for(p = 0; p < ht; ++p) {
 			for(s = 0; s < wt; ++s) {
+				//printbold(s:"hl ", d:topboxid + s + p * MAXINVENTORYBLOCKS_VERT + offset);
 				InventoryBoxLit[topboxid + s + p * MAXINVENTORYBLOCKS_VERT + offset] = BOXLIT_STATE_CURSORON;
 			}
 		}
@@ -3500,7 +3504,7 @@ void HandleInventoryViewTrade(int boxid) {
 // Just takes care of backend trade details
 void CancelTrade(int pnum) {
 	int tid = pnum + P_TIDSTART;
-	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 	GiveActorInventory(tid, "DnD_CleanTradeviewRequest", 1);
 	TakeActorInventory(tid, "InTradeView", 1);
 	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
@@ -3566,8 +3570,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					// we pressed confirm button, make us confirm it and refresh other player's view
 					GiveInventory("DnD_Trade_Confirmed", 1);
 					GiveInventory("DnD_Trade_ConfirmButtonPress", 1);
-					GiveInventory("DnD_RefreshRequest", 1);
-					GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+					ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+					ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 						
 					// if other side's confirmation is set, check for item space
 					if(CheckActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed")) {
@@ -3592,15 +3596,15 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							if(!ok_from_tradee) {
 								SetActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 0);
 								ShowActorPopup(bid, POPUP_NOSPACEFORTRADE, false, 0);
-								GiveInventory("DnD_RefreshRequest", 1);
-								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+								ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 							}
 							else {
 								SetInventory("DnD_Trade_Confirmed", 0);
 								// show popup for not enough space
 								ShowPopup(POPUP_NOSPACEFORTRADE, false, 0);
-								GiveInventory("DnD_RefreshRequest", 1);
-								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+								ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 							}
 						}
 					}
@@ -3609,10 +3613,11 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					// cancel confirmation
 					TakeInventory("DnD_Trade_Confirmed", 1);
 					TakeInventory("DnD_TradeSpaceFit", 1);
-					GiveInventory("DnD_RefreshRequest", 1);
 					TakeActorInventory(bid + P_TIDSTART, "DnD_Trade_Confirmed", 1);
 					TakeActorInventory(bid + P_TIDSTART, "DnD_TradeSpaceFit", 1);
-					GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+
+					ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+					ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 				}
 				LocalAmbientSound("RPG/MenuChoose", 127);
 			}
@@ -3690,12 +3695,12 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 								*/
 								if(IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
 									MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
-									GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+									ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 								}
 							}
 							else {
 								SwapItems(pnum, boxid - 1 - ioffset, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, isource, ssource, false);
-								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 							}
 						}
 						else {
@@ -3719,7 +3724,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							// make sure we aren't both empty slots
 							if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
 								MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
-								GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 							}
 						}
 						SetInventory("DnD_SelectedInventoryBox", 0);
@@ -3750,8 +3755,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 				}
 
 				// make sure changes are reflected dynamically
-				GiveInventory("DnD_RefreshRequest", 1);
-				GiveActorInventory(bid + P_TIDSTART, "DnD_RefreshRequest", 1);
+				ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+				ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 			}
 		}
 	}
@@ -3780,15 +3785,21 @@ void DrawDraggedItem(int pnum) {
 	SetFont(GetItemImage(PlayerCursorData.itemDragged, true));
 
 	int scale = 1;
-	if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemDragInfo.topboxid, -1, PlayerCursorData.itemDragInfo.source) == DND_ITEM_BODYARMOR)
+	int sx = PlayerCursorData.itemDragInfo.size_x;
+	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemDragInfo.topboxid, -1, PlayerCursorData.itemDragInfo.source);
+
+	// adjust to be in center of cursor
+	if(itype == DND_ITEM_BODYARMOR)
 		scale = 0;
+	else if(itype == DND_ITEM_BOOT)
+		sx = 1;
 	
 	if(PlayerCursorData.itemDraggedStashSize) {
 		SetHudSize(HUDMAX_X_STASH, HUDMAX_Y_STASH, 1);
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((PlayerCursorData.posx * 3 / 2) & MMASK) - 16.0 * scale * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF_STASH - ((PlayerCursorData.posy * 3 / 2) & MMASK), 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF_STASH - ((PlayerCursorData.posx * 3 / 2) & MMASK) - 16.0 * scale * (sx - 1) + 0.4, HUDMAX_YF_STASH - ((PlayerCursorData.posy * 3 / 2) & MMASK), 0.0, 0.0);
 	}
 	else
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (PlayerCursorData.posx & MMASK) - 16.0 * scale * (PlayerCursorData.itemDragInfo.size_x - 1) + 0.4, HUDMAX_YF - (PlayerCursorData.posy & MMASK), 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID + 1, CR_WHITE, HUDMAX_XF - (PlayerCursorData.posx & MMASK) - 16.0 * scale * (sx - 1) + 0.4, HUDMAX_YF - (PlayerCursorData.posy & MMASK), 0.0, 0.0);
 }
 
 void HandleStashView(int boxid) {
@@ -4218,7 +4229,7 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 		if(mcount > MAX_CRAFTING_ITEMBOXES) {
 			if(mcount - MAX_CRAFTING_ITEMBOXES * (page + 1) > 0) {
 				EnableBoxWithPoints(p, CRAFTING_PAGEARROW_ID, CRAFTING_PAGEARROWR_X, CRAFTING_PAGEARROWL_Y, CRAFTING_PAGEARROWR_X - CRAFTING_PAGEARROW_XSIZE, CRAFTING_PAGEARROWL_Y - CRAFTING_PAGEARROW_YSIZE);
-				DrawBoxText("=>", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 4, 340.1, 288.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("=>", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID + 1, RPGMENUID - 1, 340.1, 288.0, "\c[B1]", "\c[Y5]");
 			}
 			else
 				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID);
@@ -4525,7 +4536,7 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 
 		// draw player credits on top right corner
 		SetFont("SMALLFONT");
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_TRANSMUTING) {
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 3, 16.1, 288.0, "\c[B1]", "\c[Y5]");
@@ -4533,7 +4544,7 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 		
 		// draw player credits on top right corner
 		SetFont("SMALLFONT");
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:CheckInventory("Credit"); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
 	}
 	SetFont("SMALLFONT");
 }
@@ -4671,6 +4682,8 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				}
 				else if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
 					if(!CheckInventory("DnD_SellConfirm")) {
+						if(CheckInventory("DnD_CantSalvage"))
+							return;
 						// scavenge, ask user in the form of a popup to confirm
 						SetInventory("DnD_ItemCursorMsg", GetDissassembleChance(pnum, curitemeindex));
 						SetInventory("DnD_ItemPriceTemp", DisassembleItem_Price(pnum, curitemeindex));
@@ -4681,8 +4694,11 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						GiveInventory("DnD_SellConfirm", 1);
 					}
 					else {
+						if(CheckInventory("DnD_CantSalvage"))
+							return;
+
 						int price = CheckInventory("DnD_ItemPriceTemp"); 
-						if(CheckInventory("Credit") >= price) {
+						if(GetPlayerCredit(pnum) >= price) {
 							DisassembleItem(pnum, CheckInventory("DnD_ItemSelectTemp"), price, CheckInventory("DnD_ItemCursorMsg"));
 							TakeInventory("DnD_SellConfirm", 1);
 							ClearTempItemInventory();
@@ -4778,7 +4794,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 				}
 				else if(boxid == MBOX_4 && (recipe = IsValidTransmuteRecipe(pnum)) != -1) {
 					// check credit
-					if(CheckInventory("Credit") < DND_TRANSMUTE_COST) {
+					if(GetPlayerCredit(pnum) < DND_TRANSMUTE_COST) {
 						ShowPopup(POPUP_NOFUNDS, false, 0);
 						return;
 					}
@@ -4829,7 +4845,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 							ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, recipe, 1);
 						}
 
-						TakeInventory("Credit", DND_TRANSMUTE_COST);
+						TakeCredit(DND_TRANSMUTE_COST);
 						GiveInventory("DnD_CleanCraftingRequest", 1);
 						LocalAmbientSound("Items/SuccessDisassemble", 108);
 
@@ -5303,6 +5319,12 @@ void DrawPlayerStats(int pnum, int category) {
 				val = GetPlayerEnergyShieldRecoveryRate(pnum, i);
 				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ESHIELDRECOVERY", s:"\n");
 				++k;
+
+				val = GetEShieldMagicAbsorbValue(pnum);
+				if(val > 100)
+					val = 100;
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"% \c-", l:"DND_ESHIELDABSORB", s:"\n");
+				++k;
 			}
 			
 			// inc damage taken
@@ -5487,13 +5509,13 @@ void DrawPlayerStats(int pnum, int category) {
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
 	if(GetCVar("survival")) {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 120, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 121, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 122, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
 	}
 	else {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 121, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 122, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 	}
 	
 	if(k > 12)

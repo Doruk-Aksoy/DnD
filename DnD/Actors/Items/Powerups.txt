@@ -209,7 +209,7 @@ Actor SoulSphere2 : CustomInventory replaces SoulSphere
 		Stop
 		Failed:
 			TNT1 A 0
-		Fail
+		Stop
   }
 }
 

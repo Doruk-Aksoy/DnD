@@ -226,7 +226,7 @@ Script "DnD On Map Load" OPEN {
 	// wait just in case for the level to really begin
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
-		
+
 	CalculateMapDifficulty();
 	UpdateLevelChestLimit();
 
@@ -239,6 +239,20 @@ Script "DnD On Map Load" OPEN {
 		PickQuest();
 
 	SetupCVarTracking();
+
+	if(isHardcore()) {
+		++VisitedMapData[DND_VOTESKIPS];
+		Log(s:"Visit map data ", d:VisitedMapData[DND_VOTESKIPS]);
+		isMapLootPenalty |= VisitedMapData[DND_VOTESKIPS] > DND_VOTESKIP_LIMIT;
+
+		if(isMapLootPenalty)
+			Log(s:"Map voteskipped more than once! Loot is being reduced!");
+		else {
+			// check if map is visited already
+			str curmap = StrParam(n:PRINTNAME_LEVEL);
+			InsertMapVisited(curmap);
+		}
+	}
 
 	// commented out for now!
 	//NPC_Setup();
@@ -294,7 +308,7 @@ Script "DnD On Death" DEATH {
 				// reset on death
 				ResetHardcoreStuff(pnum);
 				
-				if(PlayerIsLoggedIn(pnum)) {
+				if(PlayerIsLoggedIn(pnum) && GetGameModeState() == GAMESTATE_INPROGRESS) {
 					BeginDBTransaction();
 					
 					WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
@@ -305,7 +319,7 @@ Script "DnD On Death" DEATH {
 			}
 			else if(i == DND_MODE_SOFTCORE) {
 				// decrease player gained exp
-				int exp = GetExperience();
+				int exp = GetPlayerExp(pnum);
 				int lvl = GetLevel();
 				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, INT_MAX), 0);
 				HandlePlayerDataSave(pnum, false, i);
@@ -363,7 +377,9 @@ Script "DnD On Death" DEATH {
 	Thing_ChangeTID(0, 0);
 	
 	Delay(const:5);
-	PlayerLoaded[pnum] = 0;
+
+	if(PlayerLoaded[pnum] && !GetPlayerLivesLeft(pnum))
+		PlayerLoaded[pnum] = 0;
 }
 
 Script "DnD Portable Kit Script" (void) {
@@ -746,12 +762,10 @@ Script "DnD On Revive CS" (void) CLIENTSIDE {
 // Make sure clients are aware too
 Script "DND On Kill CS" KILL CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
-	GiveInventory("BlindCancelledSignal", 1);
 }
 
 Script "DnD On Kill Forced CS" (void) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
-	GiveInventory("BlindCancelledSignal", 1);
 }
 
 // accepts similar flags to explosion actors
@@ -776,7 +790,7 @@ Script "DND On Kill" KILL {
 	int this = ActivatorTID();
 	
 	// pet check -- pets dont have anything going for them beyond here
-	if(IsPet(this)) {
+	if(IsPet(this) || GetGamemodeState() != GAMESTATE_INPROGRESS) {
 		Thing_ChangeTID(this, 0);
 		Terminate;
 	}
@@ -784,10 +798,12 @@ Script "DND On Kill" KILL {
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	
 	GiveInventory("Mo_Died", 1);
-	GiveInventory("BlindCancelledSignal", 1);
 	TakeInventory("DnD_CullSuccess", 1);
 
 	int target = GetActorProperty(0, APROP_TARGETTID), temp;
+
+	if(HasTrait(m_id, DND_ENSHROUDED))
+		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_ENSHROUDED, 1);
 
 	// don't continue if monster is revived or summoned
 	if(HasTrait(m_id, DND_SUMMONED) || HasTrait(m_id, DND_REVIVED)) {
@@ -832,14 +848,8 @@ Script "DND On Kill" KILL {
 	// remove freeze and chill timers
 	SetInventory("DnD_ChillStacks", 0);
 	SetInventory("DnD_FreezeTimer", 0);
-	
-	if(MonsterProperties[m_id].trait_list[DND_REBIRTH]) {
-		GiveInventory("DnD_RebirthItem", 1);
-		MonsterProperties[m_id].trait_list[DND_REBIRTH] = false;
-	}
-	
-	if(MonsterProperties[m_id].trait_list[DND_SUBORDINATE])
-		HandleSubordinateSpawn(this, m_id);
+
+	ACS_NamedExecuteAlways("DnD Monster Death Effects", 0, this, m_id);
 		
 	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
 		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
@@ -853,9 +863,6 @@ Script "DND On Kill" KILL {
 	
 	if(IsUniqueMonster(MonsterProperties[m_id].id))
 		HandleUniqueDeath(target, MonsterProperties[m_id].id);
-		
-	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
-		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 
 	// if nodrop is on don't bother with here
 	if(!MonsterProperties[m_id].trait_list[DND_NODROPS]) {
@@ -1020,6 +1027,27 @@ Script "DND On Kill" KILL {
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, temp);
 		}
 	}
+}
+
+Script "DnD Monster Death Effects" (int this, int m_id) {
+	Delay(const:1);
+
+	if(CheckInventory("DnD_DeathEffectBlock"))
+		Terminate;
+
+	if(MonsterProperties[m_id].trait_list[DND_NUCLEAR])
+		ACS_NamedExecuteAlways("DnD Monster Nuclear Explosion", 0, this);
+	
+	if(MonsterProperties[m_id].trait_list[DND_REBIRTH]) {
+		GiveInventory("DnD_RebirthItem", 1);
+		MonsterProperties[m_id].trait_list[DND_REBIRTH] = false;
+	}
+	
+	if(MonsterProperties[m_id].trait_list[DND_SUBORDINATE])
+		HandleSubordinateSpawn(this, m_id);
+
+	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
+		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 }
 
 Script "DnD Monster RIP" (int tid) {
@@ -1877,7 +1905,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	LoadMonsterTraits(m_id, monsterid);
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
-	
+
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
 		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
@@ -1887,7 +1915,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 		if(!pcount)
 			pcount = 1;
-			
+
 		maxhp = ScaleMonster(this, m_id, pcount, realhp, isSummoned);
 	}
 	else {
@@ -2465,16 +2493,17 @@ Script "DnD Ankh Checker" (void) {
 	}
 }
 
-Script "DnD Player Levelup Check" (void) {
+Script "DnD Player Levelup Check" (int tid) {
+	SetActivator(tid);
+	
 	int pnum = PlayerNumber();
-	int tid = pnum + P_TIDSTART;
 	int prevlvl = GetActorLevel(tid), exptemp;
 	int currlvl;
 
 	// -1 because initial level is 1
 	// we need to check for the current up-to-date level, not previous level here!!
-	while((currlvl = GetActorLevel(tid)) < MAXLEVELS && GetActorExperience(tid) >= LevelCurve[currlvl - 1]) {
-		exptemp = GetActorExperience(tid) - LevelCurve[currlvl - 1];
+	while((currlvl = GetActorLevel(tid)) < MAXLEVELS && GetPlayerExp(pnum) >= LevelCurve[currlvl - 1]) {
+		exptemp = GetPlayerExp(pnum) - LevelCurve[currlvl - 1];
 		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
 			GiveActorInventory(tid, "PerkPoint", 1);
 			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
@@ -2483,7 +2512,7 @@ Script "DnD Player Levelup Check" (void) {
 		}
 
 		GiveActorInventory(tid, "Level", 1);
-		SetActorInventory(tid, "Exp", exptemp);
+		SetPlayerExp(pnum, exptemp);
 		GiveActorInventory(tid, "AttributePoint", ATTRIB_PER_LEVEL);
 		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
 		
@@ -2534,7 +2563,7 @@ Script "DnD Player Levelup Check" (void) {
 			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
 	}
 	
-	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetActorExperience(tid), 0);
+	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetPlayerExp(pnum), 0);
 }
 
 // Weapon tip display
@@ -3111,8 +3140,6 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_SpreeTimer", 0);
 	SetInventory("DnD_SpreeCountdownRunning", 0);
 	SetInventory("DnD_MultikillCounter", 0);
-	SetInventory("LevelExp", 0);
-	SetInventory("LevelCredit", 0);
 	TakeInventory("EShieldCharging", 1);
 	
 	ResetMugstate();
@@ -3166,7 +3193,7 @@ Script "DnD Player Setup" ENTER {
 		}
 		else {
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
-			UpdateActivity(pnum, DND_ACTIVITY_EXP, GetExperience(), 0);
+			UpdateActivity(pnum, DND_ACTIVITY_EXP, GetPlayerExp(pnum), 0);
 		}
 		
 		// 0 means they are ready
@@ -3298,7 +3325,7 @@ Script "DnD Player Setup" ENTER {
 		SetupUndo(SETUP_STATE1, SETUP_MAPCHANGED);
 	
 	TakeInventory("QuestWasPicked", 1); // helps sync clientside variable Quest_Pick_Done
-	while(!Quest_Pick_Done)
+	/*while(!Quest_Pick_Done)
 		Delay(const:10);
 		
 	GiveInventory("QuestWasPicked", 1);
@@ -3311,9 +3338,9 @@ Script "DnD Player Setup" ENTER {
 		
 	while(CheckInventory("TipBoxOpen"))
 		Delay(const:17);
-		
 	// give some time for completion thing to get through
 	SetInventory("QuestCompletionToken", 0);
+	*/
 	if(isHardcore() && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 
@@ -3325,6 +3352,21 @@ Script "DnD Player Setup" ENTER {
 	TakeInventory("ParsingData", 1);
 	if(GetCVar("dnd_mode") <= DND_MODE_SOFTCORE)
 		ACS_NamedExecuteAlways("DnD Ankh Checker", 0);
+
+	// wait till the loading phase is over fully
+	while(GetGamemodeState() != GAMESTATE_INPROGRESS)
+		Delay(const:HALF_TICRATE);
+
+	if(isMapLootPenalty)
+		ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0);
+
+	TakeInventory("DnD_CountdownProtection", 1);
+}
+
+Script "DnD Loot Penalty Text" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	Log(s:"\cgWARNING!\c- \ckLoot is reduced due to repeating maps or callvote changes!");
 }
 
 Script "DnD Force Sync Player Global Data" (void) {
@@ -3362,9 +3404,6 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 
 	NamedRequestScriptPuke("DnD Temp Ignore Toggle", cpnum, GetCVar("dnd_ignoretempweps"));
-	
-	// Set the ammo capacity
-	// SetAmmoCapacity("ExpVisual", LevelCurve[CheckInventory("Level") - 1]);
 }
 
 // A generic checker function
@@ -4796,7 +4835,8 @@ Script "DnD On Artifact Use" (void) {
 
 // This doesn't trigger when a monster is continuously attacking, their stuff is manually added unfortunately
 Script "DnD On Monster Attack" (void) {
-	int m_id = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	int this = ActivatorTID();
+	int m_id = this - DND_MONSTERTID_BEGIN;
 	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
 		// check monster size category -- small, medium or big
 		int size = GetMonsterSizeType(MonsterProperties[m_id].id);
@@ -4812,7 +4852,226 @@ Script "DnD On Monster Attack" (void) {
 			break;
 		}
 	}
+
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	// summon the grabby hands under the player the monster is targeting
+	if
+	(
+		MonsterProperties[m_id].trait_list[DND_OTHERWORLDGRIP] && 
+		random(1, 100) <= DND_OTHERWORLDGRIP_CHANCE && !CheckInventory("OtherworldGripCooldown") &&
+		isPlayer(target) && fdistance(this, target) <= OTHERWORLD_GRIP_DIST
+	)
+	{
+		GiveInventory("OtherworldGripCooldown", 1);
+		ACS_NamedExecuteAlways("DnD Otherwordly Grip", 0, this, target);
+	}
 }
+
+Script "DnD Otherwordly Grip Dirts" (int ox, int oy, int oz) CLIENTSIDE {
+	// ox, oy, oz are center coords
+	SpawnForced(
+		"OtherwordlyGripDirt",
+		ox + random(-OTHERWORLD_GRIP_RADIUS / 2, OTHERWORLD_GRIP_RADIUS / 2),
+		oy + random(-OTHERWORLD_GRIP_RADIUS / 2, OTHERWORLD_GRIP_RADIUS / 2),
+		oz
+	);
+
+	SpawnForced(
+		"OtherwordlyGripDirt",
+		ox + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+		oy + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+		oz
+	);
+
+	if(random(0, 1)) {
+		SpawnForced(
+			"OtherwordlyGripDirt",
+			ox + random(-OTHERWORLD_GRIP_RADIUS / 2, OTHERWORLD_GRIP_RADIUS / 2),
+			oy + random(-OTHERWORLD_GRIP_RADIUS / 2, OTHERWORLD_GRIP_RADIUS / 2),
+			oz
+		);
+	}
+
+	if(random(0, 1)) {
+		SpawnForced(
+			"OtherwordlyGripDirt",
+			ox + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+			oy + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+			oz
+		);
+	}
+}
+
+Script "DnD Otherwordly Grip" (int monster_tid, int player_tid) {
+	int ox, oy, oz;
+	int count = 0;
+
+	// telegraph the area
+	PlaySound(player_tid, "OtherworldGripBegin", CHAN_7 | 4096, 1.0);
+	PlaySound(player_tid, "OtherworldGripBegin", CHAN_7 | 4096, 1.0);
+	PlaySound(player_tid, "OtherworldGripBegin", CHAN_7 | 4096, 1.0);
+	for(count = 0; count < TICRATE; ++count) {
+		ox = GetActorX(player_tid);
+		oy = GetActorY(player_tid);
+		oz = GetActorZ(player_tid);
+		ACS_NamedExecuteAlways("DnD Otherwordly Grip Dirts", 0, ox, oy, oz);
+		Delay(random(2, 4));
+	}
+	StopSound(player_tid, CHAN_7);
+
+	// create the hands over time in this area
+	count = 0;
+	while(count < OTHERWORLD_GRIP_HANDTIME && isActorAlive(monster_tid)) {
+		// spawn hands
+		SpawnForced(
+			"OtherwordlyGripHand",
+			ox + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+			oy + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+			oz,
+			DND_OTHERWORDLYGRIP_TID
+		);
+		SetActivator(DND_OTHERWORDLYGRIP_TID);
+		SetPointer(AAPTR_TARGET, monster_tid);
+		SetActorProperty(0, APROP_TARGETTID, monster_tid);
+		SetActorPosition(0, GetActorX(0), GetActorY(0), GetActorFloorZ(0), 0);
+		Thing_ChangeTID(DND_OTHERWORDLYGRIP_TID, 0);
+		SetActivator(monster_tid);
+
+		if(random(0, 1)) {
+			SpawnForced(
+				"OtherwordlyGripHand",
+				ox + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+				oy + random(-OTHERWORLD_GRIP_RADIUS, OTHERWORLD_GRIP_RADIUS),
+				oz,
+				DND_OTHERWORDLYGRIP_TID
+			);
+			SetActivator(DND_OTHERWORDLYGRIP_TID);
+			SetPointer(AAPTR_TARGET, monster_tid);
+			SetActorProperty(0, APROP_TARGETTID, monster_tid);
+			SetActorPosition(0, GetActorX(0), GetActorY(0), GetActorFloorZ(0), 0);
+			Thing_ChangeTID(DND_OTHERWORDLYGRIP_TID, 0);
+			SetActivator(monster_tid);
+		}
+
+		if(random(0, 1)) {
+			SpawnForced(
+				"OtherwordlyGripHand",
+				ox + random(-OTHERWORLD_GRIP_RADIUS / 2, OTHERWORLD_GRIP_RADIUS / 2),
+				oy + random(-OTHERWORLD_GRIP_RADIUS / 2, OTHERWORLD_GRIP_RADIUS / 2),
+				oz,
+				DND_OTHERWORDLYGRIP_TID
+			);
+			SetActivator(DND_OTHERWORDLYGRIP_TID);
+			SetPointer(AAPTR_TARGET, monster_tid);
+			SetActorProperty(0, APROP_TARGETTID, monster_tid);
+			SetActorPosition(0, GetActorX(0), GetActorY(0), GetActorFloorZ(0), 0);
+			Thing_ChangeTID(DND_OTHERWORDLYGRIP_TID, 0);
+			SetActivator(monster_tid);
+		}
+
+		if(random(0, 2)) {
+			SpawnForced(
+				"OtherwordlyGripHand",
+				ox + random(-OTHERWORLD_GRIP_RADIUS / 4, OTHERWORLD_GRIP_RADIUS / 4),
+				oy + random(-OTHERWORLD_GRIP_RADIUS / 4, OTHERWORLD_GRIP_RADIUS / 4),
+				oz,
+				DND_OTHERWORDLYGRIP_TID
+			);
+			SetActivator(DND_OTHERWORDLYGRIP_TID);
+			SetPointer(AAPTR_TARGET, monster_tid);
+			SetActorProperty(0, APROP_TARGETTID, monster_tid);
+			SetActorPosition(0, GetActorX(0), GetActorY(0), GetActorFloorZ(0), 0);
+			Thing_ChangeTID(DND_OTHERWORDLYGRIP_TID, 0);
+			SetActivator(monster_tid);
+		}
+
+		if(random(0, 1)) {
+			SpawnForced(
+				"OtherwordlyGripHand",
+				ox + random(-OTHERWORLD_GRIP_RADIUS / 8, OTHERWORLD_GRIP_RADIUS / 8),
+				oy + random(-OTHERWORLD_GRIP_RADIUS / 8, OTHERWORLD_GRIP_RADIUS / 8),
+				oz,
+				DND_OTHERWORDLYGRIP_TID
+			);
+			SetActivator(DND_OTHERWORDLYGRIP_TID);
+			SetPointer(AAPTR_TARGET, monster_tid);
+			SetActorProperty(0, APROP_TARGETTID, monster_tid);
+			SetActorPosition(0, GetActorX(0), GetActorY(0), GetActorFloorZ(0), 0);
+			Thing_ChangeTID(DND_OTHERWORDLYGRIP_TID, 0);
+			SetActivator(monster_tid);
+		}
+
+		++count;
+		Delay(const:3);
+	}
+ }
+
+ Script "DnD Thunderstruck" (int mon_tid) {
+	// player's tid acquired early on
+	int player_tid = ActivatorTID();
+	SetActivator(mon_tid);
+
+	SpawnForced("ThunderstruckLightning", GetActorX(player_tid) + random(-16, 16), GetActorY(player_tid) + random(-16, 16), GetActorZ(player_tid), DND_THUNDERSTRUCK_TID);
+	SetActivator(DND_THUNDERSTRUCK_TID);
+	SetPointer(AAPTR_TARGET, mon_tid);
+	SetActorProperty(0, APROP_TARGETTID, mon_tid);
+	Thing_ChangeTID(DND_THUNDERSTRUCK_TID, 0);
+	SetActivator(mon_tid);
+ }
+
+ Script "DnD Temporal Bubble Ticker" (int mon_tid, int m_id) {
+	SetActivator(mon_tid);
+	ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_TEMPORALBUBBLE, 1);
+
+	while(IsAlive() && CheckInventory("TemporalBubbleCooldown"))
+		Delay(const:TICRATE);
+
+	if(isAlive())
+		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_TEMPORALBUBBLE);
+ }
+
+ Script "DnD Blackout" (int victim) CLIENTSIDE {
+	SetActivator(victim);
+
+	int pnum = victim - P_TIDSTART;
+
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	int d = DND_BLACKOUT_TIME;
+	if(GetHelmID() == HELMS_SYNTHMETAL)
+		d /= DND_SYNTHMASK_EFFECT;
+
+	if(CheckInventory("BlackoutTimer"))
+		SetInventory("BlackoutTimer", d);
+	else {
+		SetInventory("BlackoutTimer", d);
+
+		SetHudsize(800, 600, 0);
+		SetFont("NEARSEE");
+		HudMessage(s:"A";  HUDMSG_PLAIN | HUDMSG_ALPHA, BLACKOUT_ID, CR_WHITE, 400.4, 300.0, 2.0, 1.0);
+
+		d = 2 * TICRATE;
+		if(GetHelmID() == HELMS_SYNTHMETAL)
+			d /= DND_SYNTHMASK_EFFECT;
+
+		Delay(d);
+
+		int a = 1.0;
+		int i = 0;
+		while(isAlive() && (i = CheckInventory("BlackoutTimer"))) {
+			SetHudsize(800, 600, 0);
+			SetFont("NEARSEE");
+			HudMessage(s:"A";  HUDMSG_PLAIN | HUDMSG_ALPHA, BLACKOUT_ID, CR_WHITE, 400.4, 300.0, 0.75, a);
+			Delay(const:1);
+			a = sin(0.25 * i / DND_BLACKOUT_TIME);
+			TakeInventory("BlackoutTimer", 1);
+		}
+
+		HudMessage(s:""; HUDMSG_PLAIN, BLACKOUT_ID, 0, 0, 0, 0.01);
+	}
+ }
 
 Script "DnD Face Tracer" (void) {
 	int target = GetActorProperty(0, APROP_TRACERTID);
@@ -5159,6 +5418,44 @@ Script "DnD Repel" (void) {
 			}
 		}
 	}
+}
+
+Script "DnD Phasing CS" (void) {
+	SpawnForced("WhiteParticleSpawner", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorProperty(0, APROP_HEIGHT) / 2, 0);
+}
+
+Script "DnD Phasing" (void) {
+	int a, m_id = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	SetActorProperty(0, APROP_RENDERSTYLE, STYLE_TRANSLUCENT);
+	a = GetActorProperty(0, APROP_ALPHA);
+	While(isAlive() && !CheckFlag(0, "GHOST")) {
+		Delay(TICRATE * random(1, 5));
+
+		// if somehow already ghost here, kill the script, it acquired this through other means
+		if(!isAlive() || CheckFlag(0, "GHOST") || MonsterProperties[m_id].trait_list[DND_GHOST])
+			break;
+
+		// make ghost
+		GiveInventory("MakeGhost", 1);
+		PlaySound(0, "PhaseIn", CHAN_AUTO, 1.0);
+		ACS_NamedExecuteAlways("DnD Phasing CS", 0);
+		a = GetActorProperty(0, APROP_ALPHA);
+		if(a > 0.5)
+			SetActorProperty(0, APROP_ALPHA, 0.5);
+
+		Delay(TICRATE * random(1, 5));
+
+		if(!isAlive() || CheckFlag(0, "GHOST") || MonsterProperties[m_id].trait_list[DND_GHOST])
+			break;
+
+		// unmake ghost
+		GiveInventory("UnMakeGhost", 1);
+		PlaySound(0, "PhaseOut", CHAN_AUTO, 1.0);
+		ACS_NamedExecuteAlways("DnD Phasing CS", 0);
+		SetActorProperty(0, APROP_ALPHA, a);
+	}
+	GiveInventory("UnMakeGhost", 1);
+	SetActorProperty(0, APROP_ALPHA, a);
 }
 
 Script "DnD Cripple" (void) {
@@ -5533,11 +5830,6 @@ Script 68 (int x) NET {
 			/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 			SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
-		}
-		else if(x == 422) {
-			printbold(s:"giving ", d:2000000 + GetPerk(STAT_EXP) / 2, s: " exp");
-			GiveExp(2000000 + GetPerk(STAT_EXP) / 2);
-			printbold(s:"current exp: ", d:GetPerk(STAT_EXP));
 		}
 		else if(x == 450) {
 			GiveInventory("PerkPoint", 10);

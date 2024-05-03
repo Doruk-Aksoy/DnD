@@ -33,12 +33,32 @@ typedef struct {
 	int attribute_change[DND_MAX_ATTRIBUTES];
 	int free_perks;
 	int free_attributes;
+
+	// these are not related to active things that are saved but they are forever kept while players are in the server
+	int total_exp;
 	
 	int char_id;
 	int stash_pages;
 } player_activity_T;
 
 global player_activity_T 18: PlayerActivities[MAXPLAYERS];
+
+void SetPlayerExp(int pnum, int val) {
+	PlayerActivities[pnum].total_exp = val;
+}
+
+int GetPlayerExp(int pnum) {
+	return PlayerActivities[pnum].total_exp;
+}
+
+void AddPlayerExp(int pnum, int val) {
+	PlayerActivities[pnum].total_exp += val;
+}
+
+Script "DnD Sync Player Exp" (int pnum, int val) CLIENTSIDE {
+	PlayerActivities[pnum].total_exp = val;
+	SetResultValue(0);
+}
 
 // copy stored characters into a string
 str RecoverPlayerAccountName(int pnum) {
@@ -114,65 +134,6 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 		case DND_ACTIVITY_ATTRIBUTEPOINT:
 			PlayerActivities[pnum].free_attributes += val;
 		break;
-		
-		/*case DND_ACTIVITY_ORB_HPFLAT:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_flat_bonus += val;
-		break;
-		case DND_ACTIVITY_ORB_HPPERCENT:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_percent_bonus += val;
-		break;
-		case DND_ACTIVITY_ORB_ARMORFLAT:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_flat_bonus += val;
-		break;
-		case DND_ACTIVITY_ORB_ARMORPERCENT:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_percent_bonus += val;
-		break;
-		case DND_ACTIVITY_ORB_GREED:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.greed_percent_bonus += val;
-		break;
-		case DND_ACTIVITY_ORB_WISDOM:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.wisdom_percent_bonus += val;
-		break;
-		case DND_ACTIVITY_ORB_SPEED:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.speed_bonus += val;
-		break;
-		case DND_ACTIVITY_ORB_DROPCHANCE:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.drop_chance += val;
-		break;
-		case DND_ACTIVITY_ORB_HOLDING:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.holding += val;
-		break;
-		case DND_ACTIVITY_ORB_DAMAGETYPE:
-			PlayerActivities[pnum].orb_change.orb_stat_bonuses.damage_type_bonus[extra] += val;
-		break;
-		
-		case DND_ACTIVITY_ORB_WEAPONENCHANT:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].quality += val;
-			//if(extra == DND_WEAPON_PLASMARIFLE)
-			//	printbold(s:"update to activity: ", d:PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].quality, s: " +", d:val, s:" to wep: ", d:extra);
-		break;
-		case DND_ACTIVITY_ORB_WEAPONBONUS_DAMAGE:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_DMG].val += val;
-		break;
-		case DND_ACTIVITY_ORB_WEAPONBONUS_CRIT:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRIT].val += val;
-		break;
-		case DND_ACTIVITY_ORB_WEAPONBONUS_CRITDAMAGE:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITDMG].val += val;
-		break;
-		case DND_ACTIVITY_ORB_WEAPONBONUS_CRITPERCENT:
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_CRITPERCENT].val += val;
-		break;
-		case DND_ACTIVITY_ORB_WEAPONBONUS_POWERSET1:
-			if(!overwrite) {
-				if(!removeBit)
-					PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val |= val;
-				else
-					PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val &= ~(1 << (-val));
-			}
-			else
-				PlayerActivities[pnum].orb_change.weapon_stat_bonuses[extra].wep_mods[WEP_MOD_POWERSET1].val = val;
-		break;*/
 	}
 }
 
@@ -198,27 +159,6 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 		PlayerActivities[pnum].perk_change[i] = 0;
 	for(i = 0; i < DND_MAX_ATTRIBUTES; ++i)
 		PlayerActivities[pnum].attribute_change[i] = 0;
-		
-	/*PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_flat_bonus = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_flat_bonus = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.hp_percent_bonus = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.armor_percent_bonus = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.greed_percent_bonus = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.wisdom_percent_bonus = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.speed_bonus = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.drop_chance = 0;
-	PlayerActivities[pnum].orb_change.orb_stat_bonuses.holding = 0;
-
-	for(i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
-		PlayerActivities[pnum].orb_change.orb_stat_bonuses.damage_type_bonus[i] = 0;
-
-	for(i = 0; i < MAXWEPS; ++i) {
-		PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality = 0;
-		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].wep_mods[j].val = 0;
-			PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].wep_mods[j].tier = 0;
-		}
-	}*/
 }
 
 #endif

@@ -36,16 +36,11 @@ Actor DnD_CharacterID : DnD_Info { }
 
 Actor DnD_NPC_Meet : DnD_Info { }
 
-Actor Exp : Ammo {
-	inventory.amount 1
-	inventory.maxamount 0x7FFFFFFF
-	+IGNORESKILL
-}
-
 Actor ExpVisual : Ammo {
 	inventory.amount 1
 	inventory.maxamount 1000
 	+IGNORESKILL
+	+NONETID // see if this causes any problems later
 }
 
 Actor SpreeXP : Inventory {
@@ -65,12 +60,6 @@ Actor LevelExpCap : Ammo {
 	+IGNORESKILL
 }
 
-Actor LevelExp : Ammo {
-	inventory.amount 1
-	inventory.maxamount 0x7FFFFFFF
-	+IGNORESKILL
-}
-
 Actor Credit : Ammo {
 	inventory.amount 1
 	inventory.maxamount 0x7FFFFFFF
@@ -80,12 +69,6 @@ Actor Credit : Ammo {
 Actor Budget : Ammo {
 	inventory.amount 1
 	inventory.maxamount 1000
-	+IGNORESKILL
-}
-
-Actor LevelCredit : Ammo {
-	inventory.amount 1
-	inventory.maxamount 0x7FFFFFFF
 	+IGNORESKILL
 }
 
@@ -191,14 +174,6 @@ Actor Perk_Luck : Ammo {
 	inventory.amount 1
 	inventory.maxamount 10
 	+IGNORESKILL
-}
-
-Actor LevelUpChecker : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player Levelup Check")
-		Stop
-	}
 }
 
 Actor CriticalHit : PowerDamage {
@@ -468,11 +443,6 @@ Actor DnD_RefreshPane : PowerProtection {
 	powerup.duration 3
 }
 
-Actor DnD_RefreshRequest : PowerProtection {
-	damagefactor "normal", 1.0
-	powerup.duration 3
-}
-
 // Two bitsets
 Actor DnD_TradeEngaged_1 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
@@ -632,3 +602,7 @@ Actor DnD_DumpCooldown : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration 54
 }
+
+Actor DnD_CountdownProtection : DnD_Boolean { }
+
+Actor DnD_CantSalvage : DnD_Boolean { }

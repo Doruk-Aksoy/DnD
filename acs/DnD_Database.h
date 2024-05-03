@@ -412,7 +412,7 @@ void SavePlayerData(int pnum, int char_id) {
 	}
 	
 	// save exp, credit and level (when loading give expvisual, amt = exp % levelcurve[level])
-	temp = CheckActorInventory(tid, "Exp");
+	temp = GetPlayerExp(pnum);
 	// send temp over
 	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, temp);
 	
@@ -758,7 +758,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	
 	// read exp
 	temp = GetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc);
-	SetInventory("Exp", temp);
+	SetPlayerExp(pnum, temp);
 	CalculateExpRatio();
 	
 	// immediately update exp, because this is 0 initially and people could lose exp potentially

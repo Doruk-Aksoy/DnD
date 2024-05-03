@@ -1,3 +1,8 @@
+Actor OtherworldSlow : PowerSpeed {
+	Speed 0.33
+	powerup.duration 70
+}
+
 Actor FleshWizardSlow1 : PowerSpeed {
 	Speed 0.75
 	Powerup.duration -2

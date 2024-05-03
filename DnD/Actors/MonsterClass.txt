@@ -22,6 +22,14 @@ Actor MakeGhost : DnD_Activator {
 	}
 }
 
+Actor UnMakeGhost : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("GHOST", 0)
+		Stop
+	}
+}
+
 Actor MakeReflective : DnD_Activator {
 	States {
 		Pickup:
@@ -283,6 +291,14 @@ Actor Cripple_Script_Run : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Cripple")
+		Stop
+	}
+}
+
+Actor Phasing_Script_Run : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Phasing")
 		Stop
 	}
 }

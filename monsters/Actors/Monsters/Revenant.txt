@@ -417,20 +417,29 @@ Actor CadaverExp : BaseExplosionDamage {
 	}
 }
 
-ACTOR CadaverRocket : HomRocket1 {
+ACTOR CadaverRocket {
 	Speed 20
 	Damage (8 * random(1, 8))
 	DamageType "Explosive"
 	Stamina 4
-	-THRUSPECIES
+	PROJECTILE
+	Radius 8
+	Height 11
 	+SEEKERMISSILE
+	+SCREENSEEKER
+	+Rockettrail
 	+THRUGHOST
+	+FORCEXYBILLBOARD
+	+EXPLODEONWATER
+	+DONTBLAST
+	+FORCERADIUSDMG
+	DeathSound "weapons/heavyrlexp"
 	SeeSound "weapons/heavyrlfire"
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_Jump(128, "Homing")
-		Normal:
+		Regular:
 			TNT1 A 0 Bright A_CustomMissile("MissileTrail",Random(0,2),Random(-2,2))
 			HMIS A 2 Bright A_CustomMissile("ProjectileTrailParticleOrange",Random(0,2),Random(-2,2))
 		Loop	

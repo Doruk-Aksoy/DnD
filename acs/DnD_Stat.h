@@ -88,7 +88,7 @@ str GetTalentTag(int id) {
 }
 
 #define DND_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
-str StatData[STAT_LVLCRED + 1] = {
+str StatData[STAT_LVL + 1] = {
 	"PSTAT_Strength",
 	"PSTAT_Dexterity",
 	"PSTAT_Intellect",
@@ -104,11 +104,7 @@ str StatData[STAT_LVLCRED + 1] = {
 	"Perk_Savagery",
 	"Perk_Luck",
 	
-	"Exp",
-	"LevelExp",
-	"Level",
-	"Credit",
-	"LevelCredit",
+	"Level"
 };
 
 void HandleHealDependencyCheck() {
@@ -221,24 +217,12 @@ int GetActorLevel(int tid) {
 	return CheckActorInventory(tid, StatData[STAT_LVL]);
 }
 
-int GetExperience() {
-	return CheckInventory(StatData[STAT_EXP]);
-}
-
-int GetActorExperience(int tid) {
-	return CheckActorInventory(tid, StatData[STAT_EXP]);
-}
-
-int GetActorCredits(int tid) {
-	return CheckActorInventory(tid, StatData[STAT_CRED]);
-}
-
 int GetActorLevelExperience(int tid) {
-	return CheckActorInventory(tid, StatData[STAT_LVLEXP]);
+	return PlayerDataInLevel[tid - P_TIDSTART].levelexp;
 }
 
 int GetActorLevelCredits(int tid) {
-	return CheckActorInventory(tid, StatData[STAT_LVLCRED]);
+	return PlayerDataInLevel[tid - P_TIDSTART].levelcredit;
 }
 
 int GetPerk(int attr) {
@@ -278,8 +262,7 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	int res = cap * bonus;
 
 	if(bonus > 1 && CheckInventory("Cyborg_Perk5")) {
-		res *= DND_CYBERNETIC_FACTOR_MUL;
-		res /= DND_CYBERNETIC_FACTOR_DIV;
+		res += res / DND_CYBERNETIC_FACTOR;
 	}
 
 	if(pct != 100)
@@ -367,38 +350,40 @@ void CalculateExpRatio() {
 	int lvl = CheckInventory("Level");
 	int cap = GetExpLimit_Level(lvl);
 	if(lvl > 50)
-		SetInventory("ExpVisual", (1000 * FixedDiv(CheckInventory("Exp"), cap)) >> 16);
+		SetInventory("ExpVisual", (1000 * FixedDiv(GetPlayerExp(PlayerNumber()), cap)) >> 16);
 	else
-		SetInventory("ExpVisual", 1000 * CheckInventory("Exp") / cap);
+		SetInventory("ExpVisual", 1000 * GetPlayerExp(PlayerNumber()) / cap);
 }
 
 void CalculatePlayerExpRatio(int tid) {
 	int lvl = CheckActorInventory(tid, "Level");
 	int cap = GetExpLimit_Level(lvl);
 	if(lvl > 50)
-		SetActorInventory(tid, "ExpVisual", (1000 * FixedDiv(CheckActorInventory(tid, "Exp"), cap)) >> 16);
+		SetActorInventory(tid, "ExpVisual", (1000 * FixedDiv(GetPlayerExp(tid - P_TIDSTART), cap)) >> 16);
 	else
-		SetActorInventory(tid, "ExpVisual", 1000 * CheckActorInventory(tid, "Exp") / cap);
+		SetActorInventory(tid, "ExpVisual", 1000 * GetPlayerExp(tid - P_TIDSTART) / cap);
 }
 
 void GiveExp(int amt, bool resetSpree = false) {
-	GiveInventory("Exp", amt);
+	int pnum = PlayerNumber();
+	AddPlayerExp(pnum, amt);
 
 	if(!resetSpree)
 		GiveInventory("SpreeXP", amt);
 	else
 		SetInventory("SpreeXP", 0);
 
-	GiveInventory("LevelExp", amt);
-	ACS_NamedExecuteAlways("DnD Player Levelup Check", 0);
+	PlayerDataInLevel[pnum].levelexp += amt;
+	ACS_NamedExecuteAlways("DnD Player Levelup Check", 0, ActivatorTID());
 	CalculateExpRatio();
 }
 
 void GiveActorExp(int tid, int amt) {
-	GiveActorInventory(tid, "Exp", amt);
+	int pnum = tid - P_TIDSTART;
+	AddPlayerExp(pnum, amt);
 	GiveActorInventory(tid, "SpreeXP", amt);
-	GiveActorInventory(tid, "LevelExp", amt);
-	GiveActorInventory(tid, "LevelUpChecker", 1);
+	PlayerDataInLevel[pnum].levelexp += amt;
+	ACS_NamedExecuteAlways("DnD Player Levelup Check", 0, tid);
 	CalculatePlayerExpRatio(tid);
 }
 
@@ -450,42 +435,47 @@ int RewardActorCredit(int tid, int amt) {
 }
 
 void GiveCredit(int amt) {
+	int pnum = PlayerNumber();
 	GiveInventory("Credit", amt);
-	GiveInventory("LevelCredit", amt);
-	GiveInventory("DnD_RefreshRequest", 1);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 	GiveInventory("DnD_MoneySpentQuest", amt);
-	UpdateActivity(PlayerNumber(), DND_ACTIVITY_CREDIT, amt, 0);
+	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
 }
 
 void TakeCredit(int amt) {
+	int pnum = PlayerNumber();
 	TakeInventory("Credit", amt);
-	GiveInventory("DnD_RefreshRequest", 1);
-	UpdateActivity(PlayerNumber(), DND_ACTIVITY_CREDIT, -amt, 0);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, -amt, 0);
 }
 
 void GiveBudget(int amt) {
 	GiveInventory("Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
-	GiveInventory("DnD_RefreshRequest", 1);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, amt, 0);
 }
 
 void TakeBudget(int amt) {
 	TakeInventory("Budget", amt);
-	GiveInventory("DnD_RefreshRequest", 1);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, -amt, 0);
 }
 
 void GiveActorBudget(int tid, int amt) {
 	GiveActorInventory(tid, "Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
-	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, tid - P_TIDSTART, 1);
 	UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_BUDGET, amt, 0);
 }
 
 void GiveActorCredit(int tid, int amt) {
+	int pnum = tid - P_TIDSTART;
 	GiveActorInventory(tid, "Credit", amt);
-	GiveActorInventory(tid, "LevelCredit", amt);
-	GiveActorInventory(tid, "DnD_RefreshRequest", 1);
-	UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_CREDIT, amt, 0);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
+}
+
+int GetPlayerCredit(int pnum) {
+	return CheckActorInventory(pnum + P_TIDSTART, "Credit");
 }
 
 void ConsumeAttributePointOn(int stat, int amt) {
@@ -610,6 +600,11 @@ int GetDropChance(int pnum) {
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
+
+	// chances reduced to 25%
+	if(isMapLootPenalty)
+		base /= MAPLOOTPENALITY_FACTOR;
+
 	return base;
 }
 
@@ -790,14 +785,14 @@ void BreakTradesBetween(int pnum) {
 				if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32)) {
 					SetActorInventory(tid, "DnD_TradeEngaged_2", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32));
 					// fixes disconnect on trade having players name still there bug
-					GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+					ACS_NamedExecuteAlways("DnD Refresh Request", 0, tid - P_TIDSTART, 1);
 					TakeActorInventory(tid, "InTradeView", 1);
 				}
 			}
 			else if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum)) {
 				SetActorInventory(tid, "DnD_TradeEngaged_1", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum));
 				// fixes disconnect on trade having players name still there bug
-				GiveActorInventory(tid, "DnD_RefreshRequest", 1);
+				ACS_NamedExecuteAlways("DnD Refresh Request", 0, tid - P_TIDSTART, 1);
 				TakeActorInventory(tid, "InTradeView", 1);
 			}
 		}
@@ -947,6 +942,13 @@ int GetCritModifier(int pnum, int victim, int wepid) {
 		base += DND_SAVAGERY_BONUS;
 		GiveInventory("DnD_SavageryMasteryTimer", 1);
 	}
+
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_OSMIUM])
+		base -= DND_OSMIUM_REDUCTION;
+
+	// damage is returned as it is if its 100, makes no sense for it to be less than 100 (it'd actually lower damage for critting...)
+	if(base < 100)
+		base = 100;
 	
 	return base;
 }
@@ -967,8 +969,8 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
 		res += DND_QUEST_ENERGYBONUS;
 				
 	// stuff that do ---- removed orb bonus from here
-	if(wepid != -1)
-		res -= (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
+	//if(wepid != -1)
+	//	res -= (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
 	return res;
 }
 

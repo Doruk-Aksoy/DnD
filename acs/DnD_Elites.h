@@ -10,6 +10,8 @@
 #define DND_ELITE_FX_DENSITY 8
 #define MAX_ELITE_FX_WAIT 60
 #define DND_ELITE_FX_TID 900
+#define DND_NUCLEAR_EXPLOSION_FACTOR 10
+#define DND_NUCLEAR_MINDMG 100
 
 // linear scale, returns the old 15% at level 40 and returns 25% at level 80. Returns 30% at level 100.
 int GetEliteHealthScale(int level) {
@@ -20,14 +22,14 @@ int GetEliteHealthScale(int level) {
 #define DND_ELITE_MIN_INCREMENT 33 // per level add 0.33
 #define DND_ELITE_RESOLUTION_SCALE 100
 
-#define DND_ELITE_THIEFRATE 15
+#define DND_ELITE_THIEFRATE 25
 #define DND_VIOLENTRETALIATION_CHANCE 50
 #define DND_HEXFUSION_CHANCE 33
 
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 40
+#define MAX_ROLLABLE_TRAITS 49
 
 #include "DnD_EliteInfo.h"
 
@@ -79,7 +81,16 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][2] = {
 	{ DND_REPEL, 36 },
 	{ DND_PHANTASM, 36 },
 	{ DND_CRIPPLE, 40 },
-	{ DND_RUINATION, 40 }
+	{ DND_RUINATION, 40 },
+	{ DND_NUCLEAR, 40 },
+	{ DND_SILENT, 40 },
+	{ DND_OSMIUM, 50 },
+	{ DND_PHASING, 33 },
+	{ DND_OTHERWORLDGRIP, 50 },
+	{ DND_THUNDERSTRUCK, 45 },
+	{ DND_TEMPORALBUBBLE, 50 },
+	{ DND_BLACKOUT, 40 },
+	{ DND_ENSHROUDED, 50 }
 };
 
 int GetEliteBonusDamage(int m_id) {
@@ -225,8 +236,20 @@ void SetEliteFlag(int f, bool updateCS) {
 			GiveInventory("Cripple_Script_Run", 1);
 		break;
 		case DND_VIOLENTRETALIATION:
-			GiveInventory("ViolentAuraSpawner", 1);
 			ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_VIOLENTRETALIATION);
+		break;
+		case DND_SILENT:
+			SetActorProperty(0, APROP_ACTIVESOUND, "NullSound");
+			SetActorProperty(0, APROP_SEESOUND, "NullSound");
+		break;
+		case DND_PHASING:
+			GiveInventory("Phasing_Script_Run", 1);
+		break;
+		case DND_TEMPORALBUBBLE:
+			ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_TEMPORALBUBBLE);
+		break;
+		case DND_ENSHROUDED:
+			ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_ENSHROUDED);
 		break;
 	}
 	
@@ -237,13 +260,33 @@ void SetEliteFlag(int f, bool updateCS) {
 		ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", f, -1, -1, -1);
 }
 
-Script "DnD Aura Giver CS" (int trait) CLIENTSIDE {
+Script "DnD Aura Giver CS" (int trait, int extra) CLIENTSIDE {
 	switch(trait) {
 		case DND_CRIPPLE:
 			GiveInventory("CrippleAuraSpawner", 1);
 		break;
 		case DND_VIOLENTRETALIATION:
 			GiveInventory("ViolentAuraSpawner", 1);
+		break;
+		case DND_TEMPORALBUBBLE:
+			if(!extra)
+				GiveInventory("TemporalBubbleSpawner", 1);
+			else
+				GiveInventory("TemporalBubbleCooldown", 1);
+		break;
+		case DND_ENSHROUDED:
+			if(!extra) {
+				GiveInventory("EnshroudFXSpawner", 1);
+				SetActorProperty(0, APROP_RENDERSTYLE, STYLE_TranslucentStencil);
+				SetActorProperty(0, APROP_STENCILCOLOR, 0x555555);
+
+				if(GetActorProperty(0, APROP_ALPHA) == 1.0)
+					SetActorProperty(0, APROP_ALPHA, 0.5);
+			}
+			else {
+				SetActorProperty(0, APROP_ALPHA, 1.0);
+				SetActorProperty(0, APROP_RENDERSTYLE, STYLE_NORMAL);
+			}
 		break;
 	}
 }
@@ -271,6 +314,7 @@ bool HasTraitExceptions(int m_id, int trait) {
 			(t == DND_ENERGY_RESIST && HasTrait(i, DND_ENERGY_IMMUNE)) 						|| 
 			(t == DND_MAGIC_RESIST && HasTrait(i, DND_MAGIC_IMMUNE)) 						|| 
 			(t == DND_ELEMENTAL_RESIST && HasTrait(i, DND_ELEMENTAL_IMMUNE))				||
+			(t == DND_PHASING && HasTrait(i, DND_GHOST))									||
 			(t == DND_REBIRTH && (HasTrait(i, DND_SUMMONED) || HasTrait(i, DND_REVIVED)));
 }
 
@@ -325,6 +369,18 @@ void DecideEliteTraits(int m_id, int count) {
 
 	// Run the elite special fx script on this monster
 	ACS_NamedExecuteAlways("DND Elite Special FX", 0);
+}
+
+Script "DnD Monster Nuclear Explosion" (int this) {
+	int hpdamage = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_NUCLEAR_EXPLOSION_FACTOR;
+	if(hpdamage < DND_NUCLEAR_MINDMG)
+		hpdamage = DND_NUCLEAR_MINDMG;
+	
+	SpawnForced("MonsterNuclearExplosion", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, DND_NUCLEAREXP_TID);
+	SetActorProperty(DND_NUCLEAREXP_TID, APROP_MASS, hpdamage);
+	SetActivator(DND_NUCLEAREXP_TID);
+	SetPointer(AAPTR_TARGET, this);
+	Thing_ChangeTID(DND_NUCLEAREXP_TID, 0);
 }
 
 #endif

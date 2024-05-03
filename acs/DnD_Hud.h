@@ -100,7 +100,8 @@ enum {
 	
 	HUD_GRAPHIC_ID = 2600,
 
-	ESHIELD_LEFT_ID = 2700,
+	BLACKOUT_ID = 2699,
+	ESHIELD_LEFT_ID,
 	ESHIELD_RIGHT_ID,
 
 	PLAYER_MUGSHOTID = 2800
@@ -167,7 +168,6 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 #define MAX_CRAFTING_MATERIALBOXES 12
 
 void CleanInventoryInfo(int id_begin = RPGMENUINVENTORYID) {
-	// log(s:"cleaning up!");
 	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 

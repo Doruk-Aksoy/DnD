@@ -2950,33 +2950,44 @@ Actor GolgothOrangeSoul {
 	const int circle1_count = 5;
 	const int circle2_count = 8;
 	const int circle3_count = 12;
-	var int user_count;
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_count", 0)
+			TNT1 A 0
 			MOMP JJJJJJJJJJJJJJJ 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
 		Circle1:
-			TNT1 A 0 A_JumpIf(user_count == circle1_count, "C1Finish")
-			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 2 * sprd * sin(360 * user_count / circle1_count), sprd * cos(360 * user_count / circle1_count), 0, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-		Loop
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 2 * sprd * sin(0), sprd * cos(0), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 2 * sprd * sin(360 / circle1_count), sprd * cos(360 / circle1_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 2 * sprd * sin(360 * 2 / circle1_count), sprd * cos(360 * 2 / circle1_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 2 * sprd * sin(360 * 3 / circle1_count), sprd * cos(360 * 3 / circle1_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 2 * sprd * sin(360 * 4 / circle1_count), sprd * cos(360 * 4 / circle1_count), 0, SXF_TRANSFERPOINTERS)
 		C1Finish:
-			TNT1 A 0 A_SetUserVar("user_count", 0)
 			MOMP JJJJJJJJJJJJJJJ 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
 		Circle2:
-			TNT1 A 0 A_JumpIf(user_count == circle2_count, "C2Finish")
-			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * user_count / circle2_count), 1.5 * sprd * cos(360 * user_count / circle2_count), 0, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(0), 1.5 * sprd * cos(0), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 / circle2_count), 1.5 * sprd * cos(360 / circle2_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * 2 / circle2_count), 1.5 * sprd * cos(360 * 2 / circle2_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * 3 / circle2_count), 1.5 * sprd * cos(360 * 3 / circle2_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * 4 / circle2_count), 1.5 * sprd * cos(360 * 4 / circle2_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * 5 / circle2_count), 1.5 * sprd * cos(360 * 5 / circle2_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * 6 / circle2_count), 1.5 * sprd * cos(360 * 6 / circle2_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 4 * sprd * sin(360 * 7 / circle2_count), 1.5 * sprd * cos(360 * 7 / circle2_count), 0, SXF_TRANSFERPOINTERS)
 		Loop
 		C2Finish:
-			TNT1 A 0 A_SetUserVar("user_count", 0)
 			MOMP JJJJJJJJJJJJJJJ 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
 		Circle3:
-			TNT1 A 0 A_JumpIf(user_count == circle3_count, "C3Finish")
-			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * user_count / circle3_count), 3 * sprd * cos(360 * user_count / circle3_count), 0, SXF_TRANSFERPOINTERS)
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-		Loop
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(0), 3 * sprd * cos(0), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 / circle3_count), 3 * sprd * cos(360 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 2 / circle3_count), 3 * sprd * cos(360 * 2 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 3 / circle3_count), 3 * sprd * cos(360 * 3 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 4 / circle3_count), 3 * sprd * cos(360 * 4 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 5 / circle3_count), 3 * sprd * cos(360 * 5 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 6 / circle3_count), 3 * sprd * cos(360 * 6 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 7 / circle3_count), 3 * sprd * cos(360 * 7 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 8 / circle3_count), 3 * sprd * cos(360 * 8 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 9 / circle3_count), 3 * sprd * cos(360 * 9 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 10 / circle3_count), 3 * sprd * cos(360 * 10 / circle3_count), 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("GolgothFireBall", 0, 0, 0, fspeed, 6 * sprd * sin(360 * 11 / circle3_count), 3 * sprd * cos(360 * 11 / circle3_count), 0, SXF_TRANSFERPOINTERS)
 		C3Finish:
 			MOMP J 1 Bright A_SpawnItem("GolgothOrangeSoulTrail")
 		Loop

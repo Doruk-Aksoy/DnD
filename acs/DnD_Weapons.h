@@ -59,6 +59,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		ammo_type = Weapons_Data[wepid].ammo_name1;
 		ammo_take_amt = Weapons_Data[wepid].ammo_use1;
 	}
+
+	// 2.5 factor
+	if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
+		ammo_take_amt = ammo_take_amt * 5 / 2;
 	
 	if(ammo_slot != DND_AMMOSLOT_SPECIAL)
 		GiveInventory("DnD_UsedNonSpecial", 1);
@@ -757,12 +761,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			count = 16;
 			sp_x = 7.0;
 			sp_y = 5.2;
-			
 			switch(CheckInventory("SpecialAmmoMode_3")) {
-				case 3:
+				case AMMO_SLUGSHELL:
 					count = 1;
 					proj_id = DND_PROJ_SLUGSHELL;
-					
+					sp_x = 1.0;
+					sp_y = 0.5;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
 						TakeInventory(SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -770,7 +774,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					PlaySound(owner, "Shells/Slug", CHAN_5);
 					ammo_handler = "SlugShellHandler";
 				break;
-				case 2:
+				case AMMO_PIERCING:
 					count = 10;
 					proj_id = DND_PROJ_MAGNUMSHELL;
 					
@@ -788,7 +792,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					else
 						GiveInventory("MagnumPuff_RailHelper_Circle", 1);
 				break;
-				case 1:
+				case AMMO_FLECHETTE:
 					count = 10;
 					proj_id = DND_PROJ_FLECHETTE;
 					
@@ -1354,6 +1358,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_VOIDCANNON:
 			use_default = true;
 			proj_id = DND_PROJ_VOIDCANNON;
+			GiveOverheat(pnum, "VoidCannonOverheat", 20, DND_WEAPON_VOIDCANNON);
 		break;
 		
 		// SLOT 6

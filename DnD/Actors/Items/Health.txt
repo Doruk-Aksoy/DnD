@@ -115,7 +115,7 @@ Actor NewHealthBonus : CustomInventory replaces HealthBonus {
 		Stop
 		Failed:
 			TNT1 A 0
-		Fail
+		Stop
   }
 }
 

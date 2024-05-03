@@ -203,6 +203,7 @@ enum {
 	INV_CORR_WEAPONPCTDMG,
 	INV_CORR_WEAPONPOISONPCT,
 	INV_CORR_WEAPONFORCEPAIN,
+	INV_CORR_CYBERNETIC,
 
 	// implicits -- add new ones below here
 	INV_IMP_INCARMOR = IMPLICIT_ATTRIB_ID_BEGIN,
@@ -311,7 +312,7 @@ enum {
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
-#define LAST_CORRUPT_IMPLICIT INV_CORR_WEAPONFORCEPAIN
+#define LAST_CORRUPT_IMPLICIT INV_CORR_CYBERNETIC
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
 #define LAST_REGULAR_IMPLICIT INV_IMP_POWERCORE
@@ -807,17 +808,17 @@ void SetupInventoryAttributeTable() {
 	
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_DMGREDUCE_REFL].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_REFL].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_REFL].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_REFL].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PEN_PHYSICAL].attrib_low = 1;
@@ -967,37 +968,37 @@ void SetupInventoryAttributeTable() {
 	
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_EXPLOSION].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_DMGREDUCE_FIRE].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_FIRE].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_FIRE].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_FIRE].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_FIRE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_ICE].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ICE].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_ICE].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_ICE].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_ICE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_POISON].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_POISON].attrib_high = 4.0;
-	ItemModTable[INV_DMGREDUCE_POISON].attrib_level_modifier = 0;
+	ItemModTable[INV_DMGREDUCE_POISON].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_POISON].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_ADDEDMAXRESIST].attrib_low = 0.25;
@@ -1188,6 +1189,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_WEAPONFORCEPAIN].tags = INV_ATTR_TAG_UTILITY;
 
+	ItemModTable[INV_CORR_CYBERNETIC].attrib_low = 1;
+	ItemModTable[INV_CORR_CYBERNETIC].attrib_high = 1;
+	ItemModTable[INV_CORR_CYBERNETIC].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_CYBERNETIC].tags = INV_ATTR_TAG_UTILITY;
+
 	///////////////////////
 	// regular implicits //
 	///////////////////////
@@ -1298,7 +1304,7 @@ int GetModTierRangeMapper(int attr, int lvl) {
 #define ITEM_MODRANGE_LOW 0
 #define ITEM_MODRANGE_HIGH 1
 
-#define DND_POWERCORE_ATTRFACTOR -33
+#define DND_POWERCORE_ATTRFACTOR -50
 #define DND_SMALLCHARM_ATTRFACTOR -50
 #define DND_LARGECHARM_ATTRFACTOR 25
 
@@ -1566,6 +1572,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 	
 	switch(attr) {
 		case INV_CYBERNETIC:
+		case INV_CORR_CYBERNETIC:
 			if(!isFractured)
 				col_tag = "\c[R5]";
 			return StrParam(s:col_tag, l:text);
@@ -1696,7 +1703,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_POWERCORE:
-			text = StrParam(l:text, s: "\n", s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n", l:"IATTR_T72");
+			text = StrParam(s:"+ ", s:col_tag, d:extra, s:"%", s:no_tag, l:text, s: "\n", s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n", l:"IATTR_T72");
 		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
@@ -1706,10 +1713,15 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_CORR_DROPCHANCE:
 		case INV_CORR_SPEED:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text
-				);
+				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text);
 			}
 			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
+
+		case INV_CORR_PERCENTSTATS:
+			if(showDetailedMods) {
+				return StrParam(s:"+ ", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:"%", s:no_tag, l:text);
+			}
+			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text);
 
 		// fixed point stuff
 		case INV_EXPGAIN_INCREASE:

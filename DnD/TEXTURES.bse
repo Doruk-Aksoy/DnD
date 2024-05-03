@@ -2000,4 +2000,621 @@ Sprite "X079H0", 128, 128
 	}
 }
 
+//=============================================================
+//=============================================================
+ 
+// Smoke variations
+ 
+//=============================================================
+//=============================================================
+sprite X039A0, 200,200
+{
+        Offset 91,80
+        patch X038A0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039B0, 200,200
+{
+        Offset 85,80
+        patch X038B0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039C0, 200,200
+{
+        Offset 84,80
+        patch X038C0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039D0, 200,200
+{
+        Offset 84,80
+        patch X038D0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039E0, 200,200
+{
+        Offset 88,80
+        patch X038E0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039F0, 200,200
+{
+        Offset 79,80
+        patch X038F0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039G0, 200,200
+{
+        Offset 89,84
+        patch X038G0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039H0, 200,200
+{
+        Offset 83,84
+        patch X038H0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039I0, 200,200
+{
+        Offset 86,84
+        patch X038I0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039J0, 200,200
+{
+        Offset 84,84
+        patch X038J0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039K0, 200,200
+{
+        Offset 90,84
+        patch X038K0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039L0, 200,200
+{
+        Offset 79,84
+        patch X038L0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039M0, 200,200
+{
+        Offset 90,91
+        patch X038M0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039N0, 200,200
+{
+        Offset 83,91
+        patch X038N0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+sprite X039O0, 200,200
+{
+        Offset 84,91
+        patch X038O0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039P0, 200,200
+{
+        Offset 88,91
+        patch X038P0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039Q0, 200,200
+{
+        Offset 79,117
+        patch X038Q0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039R0, 200,200
+{
+        Offset 66,113
+        patch X038R0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039S0, 200,200
+{
+        Offset 91,99
+        patch X038S0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039T0, 200,200
+{
+        Offset 80,98
+        patch X038T0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039U0, 200,200
+{
+        Offset 87,97
+        patch X038U0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039V0, 200,200
+{
+        Offset 69,90
+        patch X038V0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039W0, 200,200
+{
+        Offset 91,92
+        patch X038W0, 0,0
+        {
+                Rotate 90
+        }
+}
+sprite X039X0, 200,200
+{
+        Offset 80,90
+        patch X038X0, 0,0
+        {
+                Rotate 90
+        }
+}
+ 
+//--------------------------------------------
+//      180 degree rotation
+sprite X040A0, 200,200
+{
+        Offset 91,80
+        patch X038A0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040B0, 200,200
+{
+        Offset 85,80
+        patch X038B0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040C0, 200,200
+{
+        Offset 84,80
+        patch X038C0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040D0, 200,200
+{
+        Offset 84,80
+        patch X038D0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040E0, 200,200
+{
+        Offset 88,80
+        patch X038E0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040F0, 200,200
+{
+        Offset 79,80
+        patch X038F0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040G0, 200,200
+{
+        Offset 89,84
+        patch X038G0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040H0, 200,200
+{
+        Offset 83,84
+        patch X038H0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040I0, 200,200
+{
+        Offset 86,84
+        patch X038I0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040J0, 200,200
+{
+        Offset 84,84
+        patch X038J0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040K0, 200,200
+{
+        Offset 90,84
+        patch X038K0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040L0, 200,200
+{
+        Offset 79,84
+        patch X038L0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040M0, 200,200
+{
+        Offset 90,91
+        patch X038M0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040N0, 200,200
+{
+        Offset 83,91
+        patch X038N0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+sprite X040O0, 200,200
+{
+        Offset 84,91
+        patch X038O0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040P0, 200,200
+{
+        Offset 88,91
+        patch X038P0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040Q0, 200,200
+{
+        Offset 79,117
+        patch X038Q0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040R0, 200,200
+{
+        Offset 66,113
+        patch X038R0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040S0, 200,200
+{
+        Offset 91,99
+        patch X038S0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040T0, 200,200
+{
+        Offset 80,98
+        patch X038T0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040U0, 200,200
+{
+        Offset 87,97
+        patch X038U0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040V0, 200,200
+{
+        Offset 69,90
+        patch X038V0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040W0, 200,200
+{
+        Offset 91,92
+        patch X038W0, 0,0
+        {
+                Rotate 180
+        }
+}
+sprite X040X0, 200,200
+{
+        Offset 80,90
+        patch X038X0, 0,0
+        {
+                Rotate 180
+        }
+}
+ 
+//--------------------------------------------
+//      270 degree rotation
+sprite X041A0, 200,200
+{
+        Offset 91,80
+        patch X038A0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041B0, 200,200
+{
+        Offset 85,80
+        patch X038B0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041C0, 200,200
+{
+        Offset 84,80
+        patch X038C0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041D0, 200,200
+{
+        Offset 84,80
+        patch X038D0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041E0, 200,200
+{
+        Offset 88,80
+        patch X038E0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041F0, 200,200
+{
+        Offset 79,80
+        patch X038F0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041G0, 200,200
+{
+        Offset 89,84
+        patch X038G0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041H0, 200,200
+{
+        Offset 83,84
+        patch X038H0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041I0, 200,200
+{
+        Offset 86,84
+        patch X038I0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041J0, 200,200
+{
+        Offset 84,84
+        patch X038J0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041K0, 200,200
+{
+        Offset 90,84
+        patch X038K0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041L0, 200,200
+{
+        Offset 79,84
+        patch X038L0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041M0, 200,200
+{
+        Offset 90,91
+        patch X038M0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041N0, 200,200
+{
+        Offset 83,91
+        patch X038N0, 0,0
+        {
+                Rotate -90
+        }
+}
+ 
+sprite X041O0, 200,200
+{
+        Offset 84,91
+        patch X038O0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041P0, 200,200
+{
+        Offset 88,91
+        patch X038P0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041Q0, 200,200
+{
+        Offset 79,117
+        patch X038Q0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041R0, 200,200
+{
+        Offset 66,113
+        patch X038R0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041S0, 200,200
+{
+        Offset 91,99
+        patch X038S0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041T0, 200,200
+{
+        Offset 80,98
+        patch X038T0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041U0, 200,200
+{
+        Offset 87,97
+        patch X038U0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041V0, 200,200
+{
+        Offset 69,90
+        patch X038V0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041W0, 200,200
+{
+        Offset 91,92
+        patch X038W0, 0,0
+        {
+                Rotate -90
+        }
+}
+sprite X041X0, 200,200
+{
+        Offset 80,90
+        patch X038X0, 0,0
+        {
+                Rotate -90
+        }
+}
+
 // End of texture definitions

@@ -26,6 +26,7 @@
 #define DND_ADDEDIGNITE_FACTOR 50 // 50%
 
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
+#define DND_MONSTER_PERCENTDAMAGEBASE_LOW 2 // 2%
 
 #define DND_MONSTER_POISONPERCENT 20 // 20% of damage taken from a hit is dealt as poison damage again over the duration
 #define DND_MONSTER_POISONDOT_MINTIME 2
@@ -76,6 +77,8 @@ enum {
 	DND_DAMAGETYPEFLAG_POISON = 128,
 	DND_DAMAGETYPEFLAG_LIGHTNING = 256,
 	DND_DAMAGETYPEFLAG_PERCENTHP = 512,
+	DND_DAMAGETYPEFLAG_SPELL = 1024,
+	DND_DAMAGETYPEFLAG_PERCENTHP_LOW = 2048,
 };
 
 enum {
@@ -1066,6 +1069,13 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
 			return;
 		}
+	}
+
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_TEMPORALBUBBLE] && !CheckActorInventory(victim, "TemporalBubbleCooldown")) {
+		GiveActorInventory(victim, "TemporalBubbleCooldown", 1);
+		PlaySound(victim, "TemporalBubble/Pop", CHAN_7, 1.0);
+		ACS_NamedExecuteAlways("DnD Temporal Bubble Ticker", 0, victim, victim - DND_MONSTERTID_BEGIN);
+		return;
 	}
 
 	// check if the damage is to be dealt without any reductions from resistances or immunities
@@ -2280,9 +2290,15 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
 			HandleOverloadEffects(pnum, victim_tid);
 		
-		// frozen monsters cant retaliate		
-		if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(ox, "DnD_FreezeTimer"))
-			GiveActorInventory(victim_tid, "DnD_ViolentRetaliationItem", 1);
+		// frozen monsters cant retaliate	
+		if(!CheckActorInventory(ox, "DnD_FreezeTimer")) {
+			if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE)
+				GiveActorInventory(victim_tid, "DnD_ViolentRetaliationItem", 1);
+			if(MonsterProperties[victim_data].trait_list[DND_THUNDERSTRUCK] && !CheckInventory("ThunderstruckCooldown")) {
+				ACS_NamedExecuteAlways("DnD Thunderstruck", 0, victim_tid);
+				GiveInventory("ThunderstruckCooldown", 1);
+			}
+		}
 		GiveActorInventory(victim_tid, "DnD_HurtToken", 1);
 
 		// actor is alive, we can tag with shotgun for hobo perk 50
@@ -3037,7 +3053,10 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg
 				SetActorProperty(monster_tid, APROP_HEALTH, MonsterProperties[m_id].maxhp);
 			ACS_NamedExecuteAlways("DnD Vampirism FX CS", 0, monster_tid);
 		}
-	}	
+	}
+
+	if(MonsterProperties[m_id].trait_list[DND_BLACKOUT] && isPlayer(victim))
+		ACS_NamedExecuteAlways("DnD Blackout", 0, victim);
 }
 
 int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int dmg_data, int flags) {
@@ -3081,12 +3100,21 @@ int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int d
 
 int HandlePercentDamageFromEnemy(int victim, int dmg, int dmg_data) {
 	// check inflictor momentarily
-	if(!(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) || CheckActorInventory(victim, "DnD_PercentDamageHalt"))
+	if((!(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) && !(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP_LOW)) || CheckActorInventory(victim, "DnD_PercentDamageHalt"))
 		return 0;
 	
-	GiveActorInventory(victim, "DnD_PercentDamageHalt", 1);
+	int pct = DND_MONSTER_PERCENTDAMAGEBASE_LOW;
+	// big pct damage has a halt check here
+	if(dmg_data & DND_DAMAGETYPEFLAG_PERCENTHP) {
+		GiveActorInventory(victim, "DnD_PercentDamageHalt", 1);
+		pct = DND_MONSTER_PERCENTDAMAGEBASE;
+	}
 
-	return (GetActorProperty(victim, APROP_HEALTH) * DND_MONSTER_PERCENTDAMAGEBASE) / 100;
+	int res = (GetActorProperty(victim, APROP_HEALTH) * pct) / 100;
+	if(res < 0)
+		res = 1;
+
+	return res;
 }
 
 int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
@@ -3278,6 +3306,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// if this was a player, factor their resists in
 			// resists of player now will factor in after we've calculated the damage accurately
 			if(IsPlayer(victim)) {
+				if(CheckActorInventory(victim, "DnD_CountdownProtection")) {
+					SetResultValue(0);
+					Terminate;
+				}
+
 				pnum = victim - P_TIDSTART;
 
 				// out of combat hit timer, 3 seconds
@@ -3389,6 +3422,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			Terminate;
 		}
 		else if(!IsMonster(victim)) {
+			if(CheckActorInventory(victim, "DnD_CountdownProtection")) {
+				SetResultValue(0);
+				Terminate;
+			}
+
 			// the above check was necessary
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things, we run additional stuff that isnt handled by that here, like resists and armor
 			pnum = PlayerNumber();

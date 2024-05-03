@@ -239,35 +239,34 @@ str GetMugshotGraphic(str mugstr) {
 }
 
 void HandleMugshotState(int width, int height, str mugstr, int xoffset, int aspect) {
-	// get mugshot frame and offset
-	str mugframe = GetMugshotGraphic(mugstr);
-	
-	//if(GetActorProperty(0, APROP_HEALTH) <= 0)
-	//	Log(s:mugframe);
-	
-	width = ((HUD_MUGSIZEX * width / 800) * FixedDiv(1.0, aspect)) >> 16;
-	height = ((HUD_MUGSIZEY * height / 600) * FixedDiv(1.0, ASPECT_4_3)) >> 16;
-		
-	SetFont(mugframe);
-	SetHudSize(width, height, true);
-
-	// in case of rounding errors we need to properly get rid of the other parts...
-	xoffset += GetHudLeft(width) << 16;
-	xoffset &= 0xFFFF0000;
-	
-	if(xoffset < 0)
-		xoffset += 0.6;
-	else {
-		xoffset += 0.40001;
-	}
-	
-	//Log(f:xoffset);
-	
 	// > 10 means theres no point for mugshot
-	if(GetCVar("screenblocks") > 10)
-		HudMessage(s:""; HUDMSG_PLAIN | HUDMSG_NOTWITHFULLMAP, PLAYER_MUGSHOTID, CR_UNTRANSLATED, xoffset, (height << 16) - 22.0, 0.0);
-	else
+	if(GetCVar("screenblocks") > 10 || CheckInventory("ShowingMenu"))
+		HudMessage(s:""; HUDMSG_PLAIN | HUDMSG_NOTWITHFULLMAP, PLAYER_MUGSHOTID, CR_UNTRANSLATED, 0, 0, 0.1);
+	else {
+		// get mugshot frame and offset
+		str mugframe = GetMugshotGraphic(mugstr);
+		
+		//if(GetActorProperty(0, APROP_HEALTH) <= 0)
+		//	Log(s:mugframe);
+		
+		width = ((HUD_MUGSIZEX * width / 800) * FixedDiv(1.0, aspect)) >> 16;
+		height = ((HUD_MUGSIZEY * height / 600) * FixedDiv(1.0, ASPECT_4_3)) >> 16;
+			
+		SetFont(mugframe);
+		SetHudSize(width, height, true);
+
+		// in case of rounding errors we need to properly get rid of the other parts...
+		xoffset += GetHudLeft(width) << 16;
+		xoffset &= 0xFFFF0000;
+		
+		if(xoffset < 0)
+			xoffset += 0.6;
+		else
+			xoffset += 0.40001;
+		
+		//Log(f:xoffset);
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_NOTWITHFULLMAP, PLAYER_MUGSHOTID, CR_UNTRANSLATED, xoffset, (height << 16) - 22.0, 0.0);
+	}
 }
 
 Script "DnD Player Mugshot" (void) CLIENTSIDE {

@@ -79,7 +79,7 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	1
 };
 
-#define MAXDNDFLAGS 51
+#define MAXDNDFLAGS 50
 str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monsterbars",
 	"dnd_monsterscale",
@@ -94,7 +94,6 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_playercount_scales_monsters",
 	"dnd_fullshare",
 	"dnd_monsterlevel_behind",
-	"dnd_credit_drops",
 	"dnd_gainonlyinrange",
 	"dnd_allresearchesfound",
 	"dnd_disablelevelbonus",
@@ -156,7 +155,6 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	1,
 	1,
 	0,
-	1,
 	1,
 	0,
 	0,

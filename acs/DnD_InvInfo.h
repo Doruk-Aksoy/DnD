@@ -9,10 +9,10 @@
 // only orbs and tokens
 #define MAX_CRAFTITEMTYPES 2
 
-#define DND_CYBERNETIC_FACTOR_MUL 13 // +30% = x1.3
-#define DND_CYBERNETIC_FACTOR_DIV 10
+#define DND_CYBERNETIC_FACTOR 3 // 33%
 
 #define DND_MAX_ITEM_QUALITY 25
+#define DND_MAX_CHARM_QUALITY 25
 
 // for hybrid armor implicits
 #define DND_ARMOR_TO_MIT_RATIO 25 // armor mit or shield mit implicits will only give this factor of the rating provided as mitigation %

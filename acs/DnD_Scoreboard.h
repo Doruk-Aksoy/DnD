@@ -200,6 +200,9 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 					if(isActorAlive(i + P_TIDSTART))
 						HandleEndOfLevelRewards(i);
 
+					// sync scoreboard data here
+					ACS_NamedExecuteWithResult("DnD Sync Player Exp", i, GetPlayerExp(i));
+
 					ACS_NamedExecuteWithResult("DnD Scoreboard Input Loop", i);
 				}
 			}
@@ -226,6 +229,10 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 				
 			// level end confirmed here, submit db transactions
 			SaveAllPlayerData();
+
+			// reduce the skips
+			if(isHardCore() && VisitedMapData[DND_VOTESKIPS] > 0)
+				VisitedMapData[DND_VOTESKIPS] = VisitedMapData[DND_VOTESKIPS] - 1 - (VisitedMapData[DND_VOTESKIPS] > 1);
 			
 			if(!isSecretExit)
 				Exit_Normal(0);
@@ -699,13 +706,13 @@ int DrawHoveredPlayerData() {
 				
 				// exp
 				HudMessage(
-					s:"\cd", l:"DND_STAT16", s:": \c-", d:GetActorExperience(tid), s:" / ", d:LevelCurve[GetActorLevel(tid) - 1];
+					s:"\cd", l:"DND_STAT16", s:": \c-", d:GetPlayerExp(pnum), s:" / ", d:LevelCurve[GetActorLevel(tid) - 1];
 					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_EXP, CR_WHITE, mx, my + 48.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 
 				// credit
 				HudMessage(
-					s:"\cd", l:"DND_STAT19", s:": \c-", d:GetActorCredits(tid);
+					s:"\cd", l:"DND_STAT19", s:": \c-", d:GetPlayerCredit(pnum);
 					HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVER_CREDIT, CR_WHITE, mx, my + 64.0, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 				);
 			}

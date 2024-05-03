@@ -1276,6 +1276,7 @@ Actor TheHammer : Weapon {
 	Weapon.BobRangeX 0.325
 	Tag "$WEP_5_4_TAG"
 	+WEAPON.NOAUTOAIM
+	+WEAPON.NOALERT
 	States {
 		Spawn:
 			TNT1 A -1
@@ -1380,6 +1381,7 @@ Actor TheHammer : Weapon {
 			TNT1 A 0 A_Refire("HammerHeld")
 			TNT1 A 0 A_PlayWeaponSound("Hammer/Throw")
 			FHMR E 1 Bright Offset(25, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HAMMER, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE)
+			TNT1 A 0 A_AlertMonsters
 			FHMR E 1 Bright Offset(19, 35)
 			FHMR E 1 Bright Offset(13, 39)
 			FHMR F 1 Bright Offset(10, 35)
@@ -1526,8 +1528,6 @@ Actor HammerThrown : DnD_BaseProjectile {
 	+FOILINVUL
 	+BOUNCEONACTORS
 	States {
-	TNT1 A 0 A_JumpIfCloser(800, "DoNothing")
-	
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_bcount", 0)
 			TNT1 A 0 A_SetUserVar("user_returndist", ACS_NamedExecuteWithResult("DnD Get Melee Range Increase", 900, 1))

@@ -138,10 +138,10 @@ Script "DnD Save Player Activities" (int pnum, int reset) {
 	// hard reset -- disconnected
 	if(reset)
 		BulkResetPlayerData(pnum);
-	else
+	else {
 		ResetPlayerActivities(pnum, false);
-	
-	PlayerLoaded[pnum] = 0;
+		PlayerLoaded[pnum] = 0;
+	}
 	
 	SetResultValue(0);
 }

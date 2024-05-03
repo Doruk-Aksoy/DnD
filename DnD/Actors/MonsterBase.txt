@@ -161,6 +161,7 @@ Actor DnD_BaseMonster {
 			"####" "#" 0 A_StopSound(CHAN_ITEM)
 			"####" "#" 0 A_Stop
 			"####" "#" 0 A_ChangeFlag("NOGRAVITY", 1)
+			"####" "#" 0 A_GiveInventory("DnD_DeathEffectBlock", 1)
 			"####" "#" 0 A_ChangeFlag("NOCLIP", 1) // this is needed so monsters with crash state do not cancel out of this one
 			"####" "#" 0 A_SpawnItemEx("DemonSealKanji", 0, 0, height / 3, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
 			"####" "#" 0 A_SpawnItemEx("DemonSealWhoosh2", 0,0,6, 0,0,0, 0, SXF_NOCHECKPOSITION)
@@ -194,6 +195,7 @@ Actor DnD_BaseMonster {
 			"####" "#" 0 A_NoBlocking
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Emerald Death")
 			"####" "#" 0 A_KillMaster
+			"####" "#" 0 A_GiveInventory("DnD_DeathEffectBlock", 1)
 			"####" "######" 1  A_SetScale (scalex * 1.03, scaley * 0.97)
 			"####" "#####" 1 A_SetScale (scalex * 1.03, scaley * 0.95)
 			"####" "######" 1 A_SetScale (scalex * 1.03, scaley * 0.93)
@@ -219,6 +221,7 @@ Actor DnD_BaseMonster {
 Actor DnD_IceDeathToken : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_GiveInventory("DnD_DeathEffectBlock", 1)
 			TNT1 A 0 A_CheckFlag("BOSSDEATH", "DoBossDeath")
 		FreezeChunks:
 			TNT1 A 0 A_PlaySound("misc/icebreak", CHAN_BODY)
@@ -229,6 +232,8 @@ Actor DnD_IceDeathToken : DnD_Activator {
 		Goto FreezeChunks
 	}
 }
+
+Actor DnD_DeathEffectBlock : DnD_Boolean { }
 
 // inherit melee if monster can ONLY do melee
 Actor DnD_BaseMeleeMonster_NoRes : DnD_BaseMonster {

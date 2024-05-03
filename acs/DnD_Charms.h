@@ -18,6 +18,9 @@ str GetCharmTypeName(int id) {
 
 // returns type of charm as result
 int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
+	if(charm_tier > GetCVar("dnd_maxmonsterlevel"))
+		charm_tier = GetCVar("dnd_maxmonsterlevel");
+
 	int res = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 	Inventories_On_Field[charm_pos].item_level = charm_tier;
 	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack

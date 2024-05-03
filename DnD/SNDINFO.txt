@@ -1,6 +1,26 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+TemporalBubble/Pop		BUBLPOP
+
+Thunderstruck/Buildup	TSTRUCKB
+
+OtherworldGripBegin		OTGBEGIN
+$limit OtherworldGripBegin 0
+OtherwordlyGrip1		OTGRIP1
+OtherwordlyGrip2		OTGRIP2
+OtherwordlyGrip3		OTGRIP3
+OtherwordlyGrip4		OTGRIP4
+$random OtherwordlyGrip { OtherwordlyGrip1 OtherwordlyGrip2 OtherwordlyGrip3 OtherwordlyGrip4 }
+
+PhaseIn					PHS_IN
+PhaseOut				PHS_OUT
+
+NuclearCountdown		NUCLCNT
+NuclearExplosion		NUCLEXP
+$rolloff NuclearCountdown 768 2048
+$rolloff NuclearExplosion 768 2048
+
 Blind/Normal			BLINDNRM
 Blind/Heavy				BLINDHEV
 Blind/Petrified			PETRIFY

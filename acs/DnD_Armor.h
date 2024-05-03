@@ -212,6 +212,9 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
 	else if(tiers < 0)
 		res = -tiers;
 
+	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
+		item_tier = GetCVar("dnd_maxmonsterlevel");
+
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;
 	Inventories_On_Field[item_pos].item_type = DND_ITEM_BODYARMOR;
@@ -243,6 +246,9 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
 			res = i;
 			break;
 		}
+
+	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
+		item_tier = GetCVar("dnd_maxmonsterlevel");
 
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;
@@ -280,6 +286,9 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 	}
 	else
 		res = helm;
+
+	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
+		item_tier = GetCVar("dnd_maxmonsterlevel");
 
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;

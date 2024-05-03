@@ -1285,3 +1285,10 @@ Actor DeathRayOverheat : Ammo {
 	Inventory.Icon "STTPRCNT"
 	+IGNORESKILL
 }
+
+Actor VoidCannonOverheat : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}

@@ -5765,7 +5765,7 @@ Actor AbaxothChargeAfterImage {
 
 Actor AbaxothChargeExp : BaseExplosionDamage {
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
-	DamageType "Physical"
+	DamageType "Melee"
 	Stamina 1
 	States {
 		Spawn:

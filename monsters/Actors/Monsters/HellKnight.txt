@@ -405,10 +405,14 @@ Actor HellsFury : DnD_BaseHybridMonster {
 			HFRY T 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 		Goto See
 		Missile2:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Create Blind FX", 0, DND_BLIND_HEAVY, 384)
 			HFRY P 8 Fast A_FaceTarget
-			HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, -45)
-			HFRY Q 0 A_CustomMissile("SoulHarvesterBall", 60, 0, 0)
-			HFRY Q 8 Fast A_CustomMissile("SoulHarvesterBall", 60, 0, 45)
+			TNT1 A 0 A_CustomMissile("SoulHarvesterBall", 60, 0, -45)
+			TNT1 A 0 A_CustomMissile("SoulHarvesterBall", 60, 0, 0)
+			TNT1 A 0 A_CustomMissile("SoulHarvesterBall", 60, 0, 45)
+			HFRY Q 24 Fast A_FaceTarget
+			TNT1 A 0 A_GiveInventory("DnD_BlindCastCooldown", 1)
+			HFRY Q 2 Fast ACS_NamedExecuteWithResult("DnD Monster Blind Cast", 105 | (DND_BLIND_HEAVY << 16), (144 << 8) | (144 << 16), 100, 384)
 			HFRY Q 0 A_Jump(192, "Combo")
 		Goto See
 		Combo:
@@ -426,12 +430,13 @@ Actor HellsFury : DnD_BaseHybridMonster {
 			HFRY G 8 Fast A_CustomComboAttack("HellsFuryBall", 32, 11 * random(1, 8), "baron/melee")
 		Goto See
 		PainState:
-			HFRY H 2 Fast
+			HFRY H 2 Fast ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS")
 			HFRY H 2 Fast A_Pain
 		Goto See
 		XDeathState:
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		DeathState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS")
 			HFRY I 8 A_Scream
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx("HellsFurySkull", 0, 0, 60, 5, 0, 0, 10 * random(-2, 2), 128)
@@ -690,7 +695,7 @@ Actor WarlordOfHell : DnD_BaseHybridMonster {
 	Species "HK"
 	+ISMONSTER
 	+NoRadiusDmg
-	Obituary "%o was extingished by the warlord of hell." 
+	Obituary "%o was extinguished by the warlord of hell." 
 	SeeSound "warlord/sight" 
 	PainSound "warlord/pain" 
 	DeathSound "warlord/death" 

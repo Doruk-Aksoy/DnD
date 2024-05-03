@@ -387,6 +387,7 @@ IATTR_TC6			= "increased stats";
 IATTR_TC7			= "enemy health as extra damage to";
 IATTR_TC8			= "of damage dealt as poison to";
 IATTR_TC9			= "forces pain";
+IATTR_TC10			= "CYBERNETIC";
 
 // regular implicits
 IATTR_TI1			= "to armor";
@@ -395,7 +396,7 @@ IATTR_TI3			= "to armor and energy shield";
 IATTR_TI4			= "to mitigation chance";
 IATTR_TI5			= "to armor and";
 IATTR_TI6			= "to energy shield and";
-IATTR_TI7			= "Energy shield blocks all damage";
+IATTR_TI7			= "energy shield magic absorb";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

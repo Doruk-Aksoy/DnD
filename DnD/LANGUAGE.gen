@@ -234,6 +234,7 @@ DND_ESTREDUCTION							=	"estimated attack damage reduction";
 DND_ESHIELDIS								=	"Energy shield";
 DND_ESHIELDDELAY							=	"s energy shield recharge delay";
 DND_ESHIELDRECOVERY							=	"energy shield recovery rate";
+DND_ESHIELDABSORB							=	"energy shield magic absorption";
 DND_KNOCKBACKIMMUNE							=	"Knockback Immune";
 DND_CHANCETOEXPREPEAT						=	"chance for explosives to repeat";
 DND_EXPERIENCEGAIN							=	"experience gain";

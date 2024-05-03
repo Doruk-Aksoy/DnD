@@ -502,21 +502,23 @@ DND_MENU_MMOD_IMM7		=	"Monster is immune to poison effects.";
 DND_MENU_MMOD_IMM8		=	"Monster is immune to chill and freeze.";
 DND_MENU_MMOD_IMM9		=	"Monster is immune to ignite.";
 DND_MENU_MMOD_IMM10		=	"Monster is immune to overloading.";
-DND_MENU_MMOD_IMM11		=	"Monster can only be harmed by occult damage.";
+DND_MENU_MMOD_IMM11		=	"Monster is resistant to all except occult damage.";
 
 // agressive group
 DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";
-DND_MENU_MMOD_AGG2		=	"Monster has attacks that ignores armor efficiency.";
+DND_MENU_MMOD_AGG2		=	"Monster has attacks treat armor at 40% of its value.";
 DND_MENU_MMOD_AGG3		=	"Monster uses ranged attacks more often and is fearless.";
 DND_MENU_MMOD_AGG4		=	"Monster is twice as fast.";
 DND_MENU_MMOD_AGG5		=	"Monster reacts to whoever hits it immediately.";
 DND_MENU_MMOD_AGG6		=	"Monster deals 35% increased damage.";
 DND_MENU_MMOD_AGG7		=	"Monster has homing attacks.";
-DND_MENU_MMOD_AGG8		=	"Monster ignores armor efficiency of player with every attack.";
+DND_MENU_MMOD_AGG8		=	"Monster treats armor as 40% its original value with every attack.";
 DND_MENU_MMOD_AGG9		=	"Monster has 50% chance to throw explosive projectiles when hurt.";
 DND_MENU_MMOD_AGG10		=	"Never infights with any other monster, and monsters do not target it for infights.";
 DND_MENU_MMOD_AGG11		=	"Monster heals for 10% of the damage it deals to you.";
 DND_MENU_MMOD_AGG12		=	"Monster hits build ruination stacks. Each stack reduces armor by 5%, whereas at 7 stacks (max) your armor is reduced by 75%. Stacks each last 3 seconds.";
+DND_MENU_MMOD_AGG13		=	"Monster has a chance to summon slowing hands underneath players on attacking, slowing them by 66% and dealing 2% of their health as magic damage.";
+DND_MENU_MMOD_AGG14		=	"Upon hurting the monster, thunder strikes at your location after a certain delay, dealing massive damage.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";
@@ -536,7 +538,11 @@ DND_MENU_MMOD_DEF14		=	"Monster has a third of its maximum health as a shield. T
 DND_MENU_MMOD_DEF15		=	"Upon death, a monster of the same class with the highest rarity will spawn.";
 DND_MENU_MMOD_DEF16		=	"Monster pushes players away from it when they come close, once every 3 seconds.";
 DND_MENU_MMOD_DEF17		=	"Monster summons an invulnerable phantasm on death that slowly chases you for 20 seconds.";
-	
+DND_MENU_MMOD_DEF18		=	"Monster explodes into a catastrophic explosion on death for 10% of its maximum health or 100 damage, whichever is higher, after a considerable delay.";
+DND_MENU_MMOD_DEF19		=	"Monster takes 150% reduced damage from critical strikes.";
+DND_MENU_MMOD_DEF20		=	"Monster phases in and out of reality, becoming ghostly randomly.";
+DND_MENU_MMOD_DEF21		=	"Monster has a bubble that negates damage from the first hit once every 20 seconds.";
+
 // utility group
 DND_MENU_MMOD_UTI1		=	"Monster can curse the player.";
 DND_MENU_MMOD_UTI2		=	"Monster has a chance to raise from the dead.";
@@ -548,10 +554,13 @@ DND_MENU_MMOD_UTI7		=	"Monster feels no pain.";
 DND_MENU_MMOD_UTI8		=	"Monster belongs to a player and is friendly.";
 DND_MENU_MMOD_UTI9		=	"Monster is summoned by another and gives nothing on kill.";
 DND_MENU_MMOD_UTI10		=	"Monster is resurrected and doesn't give anything on kill.";
-DND_MENU_MMOD_UTI11		=	"Monster has 33% chance to steal 15% of current weapon's ammo from you with attacks.";
+DND_MENU_MMOD_UTI11		=	"Monster has 33% chance to steal 25% of current weapon's ammo from you with attacks.";
 DND_MENU_MMOD_UTI12		=	"Monster attacks have 33% chance to inflict a random curse.";
 DND_MENU_MMOD_UTI13		=	"Monster attacks will briefly stop your movement.";
 DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
+DND_MENU_MMOD_UTI15		=	"Monster makes no alert or active sound.";
+DND_MENU_MMOD_UTI16		=	"Monster's attacks to cause blackouts, only letting players see a small area around for four seconds, fading out in two seconds.";
+DND_MENU_MMOD_UTI17		=	"Monster is shrouded in smoke and is harder to see.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";

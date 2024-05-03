@@ -7,7 +7,11 @@
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 20 // 20% per level
 
-#define DND_MONSTER_RESIST_LEVELS 25
+#define DND_MONSTER_RESIST_LEVELS 30
+
+#define ETHEREAL_RESIST 33
+
+#define MONSTER_RES_PER_THRESHOLD 20
 
 // note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
 // so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
@@ -899,10 +903,16 @@ void HandlePreInitTraits(int mid, int id) {
 		GiveInventory("Repel_Script_Run", 1);
 	if(MonsterProperties[mid].trait_list[DND_CRIPPLE])
 		GiveInventory("Cripple_Script_Run", 1);
+	if(MonsterProperties[mid].trait_list[DND_PHASING])
+		GiveInventory("Phasing_Script_Run", 1);
 	if(MonsterProperties[mid].trait_list[DND_VIOLENTRETALIATION]) {
 		GiveInventory("ViolentAuraSpawner", 1);
 		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_VIOLENTRETALIATION);
 	}
+	if(MonsterProperties[mid].trait_list[DND_TEMPORALBUBBLE])
+		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_TEMPORALBUBBLE);
+	if(MonsterProperties[mid].trait_list[DND_ENSHROUDED])
+		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_ENSHROUDED);
 }
 
 // this is put as a seperate function because 
@@ -937,9 +947,12 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON) {
 void InitMonsterResists(int m_id) {
 	int temp = 0;
 
-	int bonus = MonsterProperties[m_id].level / DND_MONSTER_RESIST_LEVELS;
+	int bonus = MONSTER_RES_PER_THRESHOLD * (MonsterProperties[m_id].level / DND_MONSTER_RESIST_LEVELS);
+
+	bool isEthereal = MonsterProperties[m_id].trait_list[DND_ETHEREAL];
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] = 	MonsterProperties[m_id].trait_list[DND_BULLET_RESIST] * DND_RESIST_FACTOR + bonus +
+																	isEthereal * ETHEREAL_RESIST +
 																	MonsterProperties[m_id].trait_list[DND_BULLET_IMMUNE] * DND_IMMUNITY_FACTOR;
 
 	// can be changed later, bullet and melee is just "phys" atm
@@ -947,6 +960,7 @@ void InitMonsterResists(int m_id) {
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] =	-MonsterProperties[m_id].trait_list[DND_ENERGY_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus +
 																	MonsterProperties[m_id].trait_list[DND_ENERGY_RESIST] * DND_RESIST_FACTOR + 
+																	isEthereal * ETHEREAL_RESIST +
 																	MonsterProperties[m_id].trait_list[DND_ENERGY_IMMUNE] * DND_IMMUNITY_FACTOR;
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] =	-MonsterProperties[m_id].trait_list[DND_MAGIC_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus + 
@@ -955,6 +969,7 @@ void InitMonsterResists(int m_id) {
 	// this is common to elemental stuff
 	temp =	-MonsterProperties[m_id].trait_list[DND_ELEMENTAL_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus +
 			MonsterProperties[m_id].trait_list[DND_ELEMENTAL_RESIST] * DND_RESIST_FACTOR + 
+			isEthereal * ETHEREAL_RESIST +
 			MonsterProperties[m_id].trait_list[DND_ELEMENTAL_IMMUNE] * DND_IMMUNITY_FACTOR;
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = -MonsterProperties[m_id].trait_list[DND_FIRE_WEAKNESS] * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
@@ -967,6 +982,7 @@ void InitMonsterResists(int m_id) {
 
 	// immune for expl is the radius dmg component, none is not even direct hits etc.
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = 	MonsterProperties[m_id].trait_list[DND_EXPLOSIVE_RESIST] * DND_RESIST_FACTOR + bonus +
+																		isEthereal * ETHEREAL_RESIST +
 																		MonsterProperties[m_id].trait_list[DND_EXPLOSIVE_NONE] * DND_IMMUNITY_FACTOR;
 
 	// soul is same as magic for now
@@ -993,8 +1009,8 @@ void InitMonsterResists(int m_id) {
 
 	// do a pass on all categories to clamp them
 	for(int i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END ; ++i)
-		if(MonsterProperties[m_id].resists[i] > DND_IMMUNITY_FACTOR)
-			MonsterProperties[m_id].resists[i] = DND_IMMUNITY_FACTOR;
+		if(MonsterProperties[m_id].resists[i] > DND_IMMUNITY_FACTOR + bonus)
+			MonsterProperties[m_id].resists[i] = DND_IMMUNITY_FACTOR + bonus;
 }
 
 // this is only used in revive of monsters by itself
@@ -2260,6 +2276,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_CERBERUS].trait_list[DND_MAGIC_IMMUNE] = true;
 	MonsterData[MONSTER_CERBERUS].trait_list[DND_RAGE] = true;
 	MonsterData[MONSTER_DEATHWYVERN].trait_list[DND_POISON] = true;
+	MonsterData[MONSTER_DEATHWYVERN].trait_list[DND_MOBILITY] = true;
 	
 	// legendary monsters
 	MonsterData[MONSTER_DREAMINGGOD].trait_list[DND_MAGIC_IMMUNE] = true;

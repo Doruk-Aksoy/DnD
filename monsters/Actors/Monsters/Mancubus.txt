@@ -102,7 +102,7 @@ Actor CorpulentExp : BaseExplosionDamage {
 	}
 }
 
-ACTOR Ripper1Corpulent : Ripper1 {
+ACTOR Ripper1Corpulent {
 	Radius 8
 	Height 8
 	Speed 28

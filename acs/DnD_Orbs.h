@@ -14,6 +14,8 @@
 #define AFFLUENCE_MAX 4 // x16
 #define AFFLUENCE_MULT 2
 
+#define DND_ORB_SIN_REPENTCHANCE 0.33
+
 // this is server side only, clients aren't even aware of the values here so we can put as many stuff as needed...
 // because zan doesn't sync variables to clients unless told to do (sdee dnd_sync.h for it)
 
@@ -192,7 +194,10 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			}
 		break;
 		case DND_ORB_ALCHEMIST:
-			res = (extratype & 0xFFFF) == DND_ITEM_CHARM && PlayerInventoryList[pnum][extra].quality < DND_MAX_ITEM_QUALITY;
+			res = (extratype & 0xFFFF) == DND_ITEM_CHARM && PlayerInventoryList[pnum][extra].quality < DND_MAX_CHARM_QUALITY;
+
+			// check if item has cybernetic -- it shouldn't have it!
+			res &= !ItemIsCybernetic(pnum, extra, PlayerInventoryList[pnum][extra].attrib_count, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		break;
 		case DND_ORB_EVOKER:
 			// won't work on uniques
@@ -214,6 +219,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			// and we have at least an attribute on both to be taking
 			res = 	PlayerInventoryList[pnum][extra].item_type == PlayerInventoryList[pnum][extratype].item_type && 
 					PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && PlayerInventoryList[pnum][extratype].item_type < UNIQUE_BEGIN &&
+					(PlayerInventoryList[pnum][extra].item_type != DND_ITEM_CHARM || (PlayerInventoryList[pnum][extra].item_subtype == PlayerInventoryList[pnum][extratype].item_subtype)) &&
 					(PlayerInventoryList[pnum][extra].attrib_count && PlayerInventoryList[pnum][extratype].attrib_count);
 		break;
 	}
@@ -707,8 +713,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SaveUsedItemAttribs(pnum, extra);
 
 			PlayerInventoryList[pnum][extra].quality += affluence;
-			if(PlayerInventoryList[pnum][extra].quality > DND_MAX_ITEM_QUALITY)
-				PlayerInventoryList[pnum][extra].quality = DND_MAX_ITEM_QUALITY;
+			if(PlayerInventoryList[pnum][extra].quality > DND_MAX_CHARM_QUALITY)
+				PlayerInventoryList[pnum][extra].quality = DND_MAX_CHARM_QUALITY;
 			
 			SyncItemQuality(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -816,11 +822,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			
 			// will pick anywhere from half of max affix count of a charm to max affix count + 1
 			// if we don't have at least half of affix count of item on total sum of mods, we'll pick between 1 and the sum instead
-			affluence = GetMaxItemAffixes(PlayerInventoryList[pnum][extra2].item_type, PlayerInventoryList[pnum][extra2].item_subtype);
-			if(temp < affluence / 2)
+			x = GetMaxItemAffixes(PlayerInventoryList[pnum][extra2].item_type, PlayerInventoryList[pnum][extra2].item_subtype);
+			if(temp < x / 2)
 				s = random(1, temp);
 			else
-				s = random(affluence / 2, Min(affluence + 1, temp));
+				s = random(x / 2, Min(x + 1, temp));
 			
 			/*printbold(
 				s:"start picking ", d:s, s: " attribs with ", d:temp, s: " unique attributes (random from ",
@@ -867,7 +873,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// we are going to assimilate the first one into second, so the first one is destroyed
 			// and make sure the extra2 item has no attributes left anymore
 			FreeItem(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
-			ScourItem(pnum, extra2);
+			s = ScourItem(pnum, extra2);
+
+			// if whatever fractures this had plus however many we wanna add is bigger than its max affix + 1, set it to that
+			if(temp + s > x + 1)
+				temp = x + 1 - s;
 			
 			// copy the attributes into extra2
 			for(i = 0; i < temp && TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT] != -1; ++i) {
@@ -941,6 +951,9 @@ int TakeOrbFromPlayer(int otype, int amt) {
 	
 	if(res == amt)
 		return res;
+
+	// reduce remaining
+	amt -= res;
 	
 	// now check player stash if we couldn't find enough
 	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages") && res < amt; ++i) {
@@ -1090,13 +1103,13 @@ void RevertLastOrbEffect() {
 			temp = Player_MostRecent_Orb[pnum].values[0];
 			SetPlayerWeaponQuality(pnum, temp, GetPlayerWeaponQuality(pnum, temp) - Player_MostRecent_Orb[pnum].values[1]);
 			SyncClientsideVariable_WeaponProperties(pnum, temp);
+			SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 		break;
 		case DND_ORB_PRISMATIC:
 		case DND_ORB_PROSPERITY:
 		case DND_ORB_FORTITUDE:
 		case DND_ORB_TINKERER:
 		case DND_ORB_VIOLENCE:
-		case DND_ORB_SIN:
 		case DND_ORB_DESTRUCTION:
 		case DND_ORB_REFINEMENT:
 		case DND_ORB_SCULPTING:
@@ -1112,26 +1125,41 @@ void RevertLastOrbEffect() {
 		case DND_ORB_ELEVATION:
 		case DND_ORB_HOLLOW:
 			RestoreItemAttribsFromUsedOrb(pnum);
+			SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
+		break;
+		case DND_ORB_SIN:
+			if(RunLuckBasedChance(pnum, DND_ORB_SIN_REPENTCHANCE, DND_LUCK_OUTCOME_GAIN)) {
+				RestoreItemAttribsFromUsedOrb(pnum);
+				SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
+			}
+			else
+				SetInventory("OrbResult", 0x7FFFFFFF);
 		break;
 		case DND_ORB_ALCHEMIST:
 			RestoreItemQualityFromUsedOrb(pnum);
+			SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 		break;
 		case DND_ORB_AFFLUENCE:
 			TakeInventory("AffluenceCounter", 1);
+			SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 		break;
 		case DND_ORB_CALAMITY:
 			// find out how many this player does really have left, and give back that many (will give none if you used up all!)
 			i = TakeOrbFromPlayer(Player_MostRecent_Orb[pnum].values[0] / 100, Player_MostRecent_Orb[pnum].values[1]);
-			if(i)
+			if(i) {
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, Player_MostRecent_Orb[pnum].values[0] % 100, i);
+				SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
+			}
+			else
+				SetInventory("OrbResult", 0x7FFFFFFF);
 		break;
 		case DND_ORB_PHANTASMAL:
 			temp = Player_MostRecent_Orb[pnum].values[0];
 			SetWeaponModPowerset(pnum, temp, WEP_POWER_GHOSTHIT, false, WMOD_WEP);
 			SyncClientsideVariable_WeaponMods(pnum, temp);
+			SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 		break;
 	}
-	SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 	ResetMostRecentOrb(pnum);
 }
 

@@ -22,6 +22,10 @@ int ConstructPowercoreDataOnField(int item_pos, int item_tier) {
     else
         res = PCORE_MOLYBDENUM;
 
+
+	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
+		item_tier = GetCVar("dnd_maxmonsterlevel");
+
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;
 	Inventories_On_Field[item_pos].item_type = DND_ITEM_POWERCORE;
@@ -54,15 +58,15 @@ int RollPowercoreInfo(int item_pos, int item_tier, int pnum) {
 	switch(core_type) {
 		case PCORE_COPPER:
 			Inventories_On_Field[item_pos].item_image = IIMG_CORE_1;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 10, PPOWER_ESHIELDBLOCKALL, item_tier, 5);
+			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 10, 25, item_tier, 5);
 		break;
 		case PCORE_GOLD:
 			Inventories_On_Field[item_pos].item_image = IIMG_CORE_2;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 20, PPOWER_ESHIELDBLOCKALL, item_tier, 7);
+			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 20, 20, item_tier, 7);
 		break;
 		case PCORE_MOLYBDENUM:
 			Inventories_On_Field[item_pos].item_image = IIMG_CORE_3;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 30, PPOWER_ESHIELDBLOCKALL, item_tier, 10);
+			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 30, 15, item_tier, 10);
 		break;
 	}
 	

@@ -302,9 +302,10 @@ bool UniqueMonsterAvailability[MAX_MONSTER_CATEGORIES] = { 0 };
 
 void Reset_RPGInfo (int resetflags) {
 	int i;
+	int pnum = PlayerNumber();
 	if(resetflags & RESET_LEVEL) {
-		SetInventory("Exp", 0);
-		SetInventory("LevelExp", 0);
+		SetPlayerExp(pnum, 0);
+		PlayerDataInLevel[PlayerNumber()].levelexp = 0;
 		SetInventory("Level", 1);
 	}
 	
@@ -399,9 +400,9 @@ int factor = 0;
 	factor += ThingCountName("NewBlueArmor2", 0) * DND_BLUEARMOR_CONTRIB;
 	factor += ThingCountName("TheRedArmor2", 0) * DND_REDARMOR_CONTRIB;
 	
-	// get the value
+	// get the value -- <0 in case it overflows... somehow.. lol
 	MapDifficulty = factor / DND_MAPDIFF_TIERVAL;
-	if(MapDifficulty > DND_MAXMAPDIFF)
+	if(MapDifficulty > DND_MAXMAPDIFF || MapDifficulty < 0)
 		MapDifficulty = DND_MAXMAPDIFF;
 }
 
@@ -541,71 +542,6 @@ void CheckMapExitQuest(int pnum, int qid) {
 	}
 }
 
-str GetCreditDropperName(int id, bool isElite) {
-	str res = "";
-	switch(id) {
-		case 0:
-			res = "LargeCreditDropper";
-		break;
-		case 1:
-			res = "MediumCreditDropper";
-		break;
-		case 2:
-			res = "SmallCreditDropper";
-		break;
-	}
-	
-	if(isElite)
-		return StrParam(s:res, s:"_Elite");
-	return res;
-}
-
-#define CREDITDROP_THRESHOLD 0
-#define CREDITDROP_CHANCE 1
-#define MAXCREDITDROPS 3
-int GetCreditDropData(int id, int which) {
-	int res = 0;
-	
-	switch(id) {
-		case 0:
-			if(!which)
-				res = 7500;
-			else
-				res = 0.025;
-		break;
-		case 1:
-			if(!which)
-				res = 2500;
-			else
-				res = 0.075;
-		break;
-		case 2:
-			if(!which)
-				res = 1000;
-			else
-				res = 0.15;
-		break;
-	}
-	
-	return res;
-}
-
-void HandleCashDrops(int m_id, int pnum) {
-	int drop_boost = MonsterProperties[m_id].droprate;
-	for(int i = 0; i < MAXCREDITDROPS; ++i) {
-		// apply simple monster hp scaling code here to scale threshold with player levels
-		int threshold = GetCreditDropData(i, CREDITDROP_THRESHOLD) * (100 + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * Clamp_Between(GetCVar("dnd_monster_hpscalepercent"), 1, 100)) / 100;
-		if(MonsterProperties[m_id].maxhp >= threshold) {
-			if(!RunDefaultDropChance(pnum, GetCreditDropData(i, CREDITDROP_CHANCE) * drop_boost / 100))
-				continue;
-			GiveInventory(GetCreditDropperName(i, MonsterProperties[m_id].isElite), 1);
-			if(CheckPlayerLuckDuplicator(pnum))
-				GiveInventory(GetCreditDropperName(i, MonsterProperties[m_id].isElite), 1);
-			break;
-		}
-	}
-}
-
 // 0 means they are ready
 bool PlayersNotReadyForHardcore() {
 	int players_notready = 0;
@@ -685,6 +621,9 @@ void HandleChestSpawn(int chance_penalty) {
 }
 
 void HandleChestDrops(int ctype) {
+	if(isMapLootPenalty)
+		return;
+
 	// the tid of player who opened the chest
 	int tid = GetActorProperty(0, APROP_TARGETTID);
 	int pnum = tid - P_TIDSTART;
@@ -878,6 +817,11 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 			}
 		}
 	}
+
+	if(isMapLootPenalty) {
+		exptemp /= MAPLOOTPENALITY_FACTOR;
+		credtemp /= MAPLOOTPENALITY_FACTOR;
+	}
 	
 	// now give target his stuff (if expshare or creditshare, one of them was not on the target would not receive it in the loop)
 	expscale = RewardActorExp(target, exptemp);
@@ -914,6 +858,11 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 	else {
 		exptemp *= expscale;
 		credtemp *= creditscale;
+	}
+
+	if(isMapLootPenalty) {
+		exptemp /= MAPLOOTPENALITY_FACTOR;
+		credtemp /= MAPLOOTPENALITY_FACTOR;
 	}
 	
 	// from here on out the scale variables and pcount are useless
@@ -960,13 +909,6 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	int pnum = target - P_TIDSTART;
 	int temp;
 	int p_chance = GetDropChance(pnum);
-
-	// Handle all drops here
-	// drop coins if there should be
-	if(GetCVar("dnd_credit_drops")) {
-		// calculate chance of getting credit drops, more chance if monster is an elite and if player has quest
-		HandleCashDrops(m_id, pnum);
-	}
 	
 	// ammo specialty drop
 	if(HasActorMasteredPerk(target, STAT_MUN) && RunPrecalcDropChance(p_chance, DND_MUNITION_MASTERY_CHANCE, m_id, DND_MON_RNG_1))
@@ -1073,7 +1015,7 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 	// ensure minions use master's level -- do so only if its summoned, boss tier monsters have tids on the spawners that can mess this up during mapload!!!
 	if(GetActorProperty(0, APROP_MASTERTID) && isSummoned)
 		level = MonsterProperties[GetActorProperty(0, APROP_MASTERTID) - DND_MONSTERTID_BEGIN].level;
-	if(GetCVar("dnd_randomize_levels")) {
+	else if(GetCVar("dnd_randomize_levels")) {
 		if(!IsUniqueBossMonster(m_id)) {
 			low = Clamp_Between(GetCVar("dnd_monsterlevel_low"), 0, 50);
 			high = Clamp_Between(GetCVar("dnd_monsterlevel_high"), 0, 50);
@@ -1454,7 +1396,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 	if(game_mode == -1)
 		game_mode = GetCVar("dnd_mode");
 		
-	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE))
+	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || GetGameModeState() != GAMESTATE_INPROGRESS)
 		return;
 		
 	if(!isDisconnect) {
