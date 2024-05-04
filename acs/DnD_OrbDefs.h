@@ -4,6 +4,7 @@
 #define DND_MAX_ORB_REROLL_ATTEMPTS 100
 #define DND_POTENCY_CHANCE 0.33
 
+// SELF NOTE: when we have more than 32 orbs, make sure to add an extra int to flags in material counting code in Inventory!!! GetNextUniqueCraftingMaterial and CountCraftingMaterials
 enum {
 	DND_ORB_ENHANCE,
 	DND_ORB_CORRUPT,

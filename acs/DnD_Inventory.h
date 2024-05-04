@@ -205,6 +205,21 @@ enum {
 };
 #define MAX_ITEM_IMAGES (IIMG_TOKEN_GUNSMITH + 1)
 
+enum {
+	DND_TOKEN_ARMORER,
+	DND_TOKEN_GUNSMITH
+};
+#define DND_MAX_TOKEN_KINDS (DND_TOKEN_GUNSMITH + 1)
+
+// first bunch are orbs, the next are tokens
+#define MAX_UNIQUE_CRAFTING_TYPES (DND_MAX_ORB_KINDS + DND_MAX_TOKEN_KINDS)
+int UniqueCraftingItemList[MAX_UNIQUE_CRAFTING_TYPES];
+
+void ResetUniqueCraftingItemList() {
+	for(int i = 0; i < MAX_UNIQUE_CRAFTING_TYPES; ++i)
+		UniqueCraftingItemList[i] = -1;
+}
+
 #define DND_SMALLCHARM_IMAGEBEGIN IIMG_SC_1
 #define DND_SMALLCHARM_IMAGEEND IIMG_SC_3
 #define DND_MEDIUMCHARM_IMAGEBEGIN IIMG_MC_1
@@ -2061,20 +2076,19 @@ bool IsInventoryCorrupted(int pnum, int item_id) {
 }
 
 // will count crafting materials the player has currently in their inventory
+// this populates an array of fixed order crafting materials for use
 int CountCraftingMaterials(bool countTokens) {
 	int pnum = PlayerNumber();
 	int res = 0;
-	int unique_orbs = 0;
-	int unique_tokens = 0;
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
-			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
+			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && UniqueCraftingItemList[PlayerInventoryList[pnum][i].item_subtype] == -1) {
 				++res;
-				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
+				UniqueCraftingItemList[PlayerInventoryList[pnum][i].item_subtype] = i;
 			}
-			else if(countTokens && PlayerInventoryList[pnum][i].item_type == DND_ITEM_TOKEN && !IsSet(unique_tokens, PlayerInventoryList[pnum][i].item_subtype)) {
+			else if(countTokens && PlayerInventoryList[pnum][i].item_type == DND_ITEM_TOKEN && UniqueCraftingItemList[DND_MAX_ORB_KINDS + PlayerInventoryList[pnum][i].item_subtype] == -1) {
 				++res;
-				unique_tokens = SetBit(unique_tokens, PlayerInventoryList[pnum][i].item_subtype);
+				UniqueCraftingItemList[DND_MAX_ORB_KINDS + PlayerInventoryList[pnum][i].item_subtype] = i;
 			}
 		}
 	}
@@ -2084,42 +2098,20 @@ int CountCraftingMaterials(bool countTokens) {
 // problem is this: say 8 orbs 5 elixirs, first page draws 12, next page requires next current is 12
 // but this counts per item type, and per item type count will never make it to 12...
 // soln: just count everything regardless, level order in inventory
-int GetNextUniqueCraftingMaterial(int current, bool returnTokens) {
+int GetNextUniqueCraftableMaterial(int current, bool countTokens) {
 	int pnum = PlayerNumber();
-	int res = 0, i;
-	int unique_orbs = 0;
-	int unique_tokens = 0;
-	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(IsCraftingItem(PlayerInventoryList[pnum][i].item_type)) {
-			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && !IsSet(unique_orbs, PlayerInventoryList[pnum][i].item_subtype)) {
-				++res;
-				unique_orbs = SetBit(unique_orbs, PlayerInventoryList[pnum][i].item_subtype);
-			}
-			else if(returnTokens && PlayerInventoryList[pnum][i].item_type == DND_ITEM_TOKEN && !IsSet(unique_tokens, PlayerInventoryList[pnum][i].item_subtype)) {
-				++res;
-				unique_tokens = SetBit(unique_tokens, PlayerInventoryList[pnum][i].item_subtype);
-			}
+	int res = 0;
+	int lim = DND_MAX_ORB_KINDS + countTokens * DND_MAX_TOKEN_KINDS;
+	for(int i = 0; i < lim; ++i) {
+		if(UniqueCraftingItemList[i] != -1) {
+			++res;
 			// return the item's index
 			if(res > current)
-				return i;
+				return UniqueCraftingItemList[i];
 		}
 	}
 	return -1;
 }
-
-/*int GetNextUniqueCraftableMaterial(int current) {
-	int pnum = PlayerNumber();
-	int res = 0, i;
-	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(IsCraftableItem(PlayerInventoryList[pnum][i].item_type) && PlayerInventoryList[pnum][i].height) {
-			++res;
-			// return the item's index
-			if(res > current)
-				return i;
-		}
-	}
-	return -1;
-}*/
 
 int GetTotalStackOfMaterial(int itemid) {
 	int pnum = PlayerNumber();

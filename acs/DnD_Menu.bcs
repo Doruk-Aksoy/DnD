@@ -299,6 +299,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 		}
 		else {
+			ResetUniqueCraftingItemList();
 			boxid = GetTriggeredBoxOnCraftingPane(InventoryPane, PlayerCursorData.posx, PlayerCursorData.posy);
 			if(CheckInventory("DnD_InventoryView") || CheckInventory("InTradeView") || CheckInventory("DnD_StashView"))
 				mainboxid = MAINBOX_NONE;

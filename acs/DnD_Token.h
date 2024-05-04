@@ -1,11 +1,6 @@
 #ifndef DND_TOKENINFO_IN
 #define DND_TOKENINFO_IN
 
-enum {
-	DND_TOKEN_ARMORER,
-	DND_TOKEN_GUNSMITH
-};
-
 bool CanUseToken(int token_type, int item_id, int item_type) {
     bool res = false;
     int pnum = PlayerNumber();

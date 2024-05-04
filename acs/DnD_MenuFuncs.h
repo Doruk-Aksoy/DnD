@@ -4050,7 +4050,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 		//for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
 			// by holds currently visited unique item's order, it's unique to each item type so we reset it, we don't reset i
 			for(by = 0; i < MAX_CRAFTING_MATERIALBOXES && i < mcount - MAX_CRAFTING_MATERIALBOXES * page; ++i, ++by) {
-				tx = GetNextUniqueCraftingMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, IsCraftingPageForTokens(curopt));
+				tx = GetNextUniqueCraftableMaterial(by + MAX_CRAFTING_MATERIALBOXES * page, IsCraftingPageForTokens(curopt));
 				if(tx != -1) {
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
