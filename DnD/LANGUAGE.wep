@@ -138,6 +138,11 @@ DND_WEPPROP_9		=	"Inflicts Poison";
 DND_WEPPROP_10		=	"Tech Weapon";
 DND_WEPPROP_11		=	"Shotgun";
 DND_WEPPROP_12		=	"Precision Weapon";
+DND_WEPPROP_13		=	"Handgun";
+DND_WEPPROP_14		=	"Automatic Weapon";
+DND_WEPPROP_15		=	"Artillery Weapon";
+DND_WEPPROP_16		=	"Magical Weapon";
+DND_WEPPROP_17		=	"Melee Weapon";
 
 // TIPS
 
@@ -258,4 +263,4 @@ WEPTIP_9_12 	= "Ripper fires penetrating rounds in a 14.2 and 7.6 spread each do
 DND_WEPMOD_PERCENTDMG		=	"of monster health as damage on hits";
 DND_WEPMOD_POISONHITS		=	"of damage dealt on hits does additional poison damage";
 DND_WEPMOD_CHANCEFORCEPAIN	=	"chance to force pain on hits";
-DND_WEPMOD_POW_GHOSTHIT		=	"Weapon can hit ghosts, but deals 33% less damage.";
+DND_WEPMOD_POW_GHOSTHIT		=	"Weapon can hit ghosts, but consumes x2.5 more ammo.";

@@ -256,16 +256,17 @@ IATTR_T18 			= "increased explosive attack damage";
 IATTR_T19 			= "increased occult attack damage";
 IATTR_T20 			= "increased elemental attack damage";
 	
-IATTR_T21 			= "slot 1 weapon damage";
-IATTR_T22 			= "slot 2 weapon damage";
-IATTR_T23 			= "slot 3 weapon damage";
-IATTR_T24 			= "slot 4 weapon damage";
-IATTR_T25 			= "slot 5 weapon damage";
-IATTR_T26 			= "slot 6 weapon damage";
-IATTR_T27 			= "slot 7 weapon damage";
-IATTR_T28 			= "slot 8 weapon damage";
-IATTR_T29 			= "temporary weapon damage";
-	
+IATTR_T21 			= "increased handgun damage";
+IATTR_T22 			= "increased shotgun damage";
+IATTR_T23 			= "increased automatic weapon damage";
+IATTR_T24 			= "increased artillery damage";
+IATTR_T25 			= "increased precision weapon damage";
+
+IATTR_T26 			= "to handgun attack damage";
+IATTR_T27 			= "to shotgun attack damage";
+IATTR_T28 			= "to automatic weapon attack damage";
+IATTR_T29 			= "to artillery attack damage";
+
 IATTR_T30 			= "more pellets";
 	
 IATTR_T31 			= "increased explosion radius";
@@ -376,6 +377,12 @@ IATTR_T111			= "poison resist penetration";
 
 IATTR_T112			= "energy shield magic absorb";
 
+IATTR_T113			= "to tech weapon attack damage";
+IATTR_T114			= "to precision weapon attack damage";
+IATTR_T115			= "increased tech weapon damage";
+
+IATTR_T116			= "reduced overheated gained";
+
 // corrupt implicits
 
 IATTR_TC1			= "Increased weapon damage to";
@@ -420,7 +427,7 @@ IATTR_TX4 			= "to all attributes";
 IATTR_TX5 			= "to be healed for ";
 IATTR_TX6 			= "increased lightning damage";
 IATTR_TX7 			= "increased crit chance to lightning attacks";
-IATTR_TX8 			= "increased damage to shotguns";
+IATTR_TX8 			= "PLACEHOLDER";
 IATTR_TX9 			= "Double Health Cap";
 IATTR_TX10 			= "Gain 1% increased physical damage every ";
 IATTR_TX11 			= "Can't use body armor";

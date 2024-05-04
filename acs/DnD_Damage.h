@@ -34,9 +34,6 @@
 
 #define OCCULT_WEAKEN_DURATION 2
 
-#define RESIST_BOOST_FROM_BOOTS 5 // 5%
-#define DMGREDUCE_BOOST_FROM_BOOTS 10 // 10%
-
 #define DND_CORRUPTORB_DMGREDUCE 75 // /4 => 75% reduced dmg
 
 enum {
@@ -306,14 +303,13 @@ void UnlockPlayerCritState(int pnum, int wepid) {
 
 // All resists uniformly follow same factors
 int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
-	int temp = GetPlayerAttributeValue(pnum, res_attribute) + bonus;
+	int temp = GetPlayerAttributeValue(pnum, res_attribute) + bonus + DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS);
 	if(!temp)
 		return dmg;
 	
 	// roll damage up
 	temp = ApplyResistCap(pnum, temp) + 0.05;
 	
-	//return ApplyDamageFactor_Safe(dmg, DND_DAMAGERESIST_FACTOR - ((temp * 100) >> 16), DND_DAMAGERESIST_FACTOR);
 	return dmg * ((100.0 - temp) >> 16) / 100;
 }
 
@@ -532,7 +528,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int flags, int isSpecial) {
 	// we don't cache special ammo damage
 	int dmg = 0;
-	int temp;
+	int temp,  pct_tmp = 0;
 	int tid = pnum + P_TIDSTART;
 	// get the damage
 	if(!isSpecial)
@@ -568,6 +564,37 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		
 		if(flags & DND_WDMG_ISDOT)
 			temp += GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
+
+		// special weapon type checks
+		if(IsTechWeapon(wepid)) {
+			temp += GetPlayerAttributeValue(pnum, INV_FLAT_TECH);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_TECH_PERCENT);
+		}
+
+		if(IsHandgun(wepid)) {
+			temp += GetPlayerAttributeValue(pnum, INV_FLAT_HANDGUN);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_HANDGUN_PERCENT);
+		}
+
+		if(IsBoomstick(wepid)) {
+			temp += GetPlayerAttributeValue(pnum, INV_FLAT_SHOTGUN);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_SHOTGUN_PERCENT) + GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
+		}
+
+		if(IsAutomaticWeapon(wepid)) {
+			temp += GetPlayerAttributeValue(pnum, INV_FLAT_AUTOMATIC);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_AUTOMATIC_PERCENT);
+		}
+
+		if(IsPrecisionWeapon(wepid)) {
+			temp += GetPlayerAttributeValue(pnum, INV_FLAT_PRECISION);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_PRECISION_PERCENT);
+		}
+
+		if(IsArtilleryWeapon(wepid)) {
+			temp += GetPlayerAttributeValue(pnum, INV_FLAT_ARTILLERY);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_ARTILLERY_PERCENT);
+		}
 		
 		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
 		
@@ -584,26 +611,16 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		}
 			
 		// finally apply damage type or percentage bonuses
-		// last one is for ghost hit power, we reduce its power by a factor
-		temp = GetPlayerPercentDamage(pnum, wepid, damage_category);
+		// last one is for ghost hit power, we reduce its power by a factor -- add the top pct values from above to here too
+		temp = GetPlayerPercentDamage(pnum, wepid, damage_category) + pct_tmp;
 		if(damage_category != DND_DAMAGECATEGORY_MELEE && is_melee_mastery_exception)
 			temp += GetPlayerPercentDamage(pnum, wepid, DND_DAMAGECATEGORY_MELEE);
-		if(temp)
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		
-		// slot damage bonuses
-		temp = GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + GetWeaponSlotFromFlag(flags));
 		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
 		// special damage increase attributes -- usually obtained by means of charms
 		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
 		if(temp && IsWeaponLightningType(wepid))
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		
-		// shotgun damage bonus
-		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
-		if(flags & DND_WDMG_ISBOOMSTICK)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 			
 		// apply flat health to damage conversion if player has any

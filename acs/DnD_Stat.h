@@ -657,6 +657,9 @@ void DecideAccessories() {
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_TALTOSRING)) {
 		GiveInventory("TaltosEffect", 1);
 		GiveInventory("TaltosUp", 1);
+
+		if(CheckInventory("EShieldAmount"))
+			SetInventory("EShieldAmount", 0);
 	}
 	else {
 		// take the ghost portion away as well if unequipped so people can't cheese and are stuck with no healing
@@ -1313,8 +1316,8 @@ int GetMaxResistCap(int pnum) {
 int ApplyResistCap(int pnum, int res, int cap = 0) {
 	// these are in fixed point, so we gotta convert them later
 	if(cap)
-		return Clamp_Between(res, 0, cap);
-	return Clamp_Between(res, 0, GetMaxResistCap(pnum));
+		return Clamp_Between(res, -500.0, cap);
+	return Clamp_Between(res, -500.0, GetMaxResistCap(pnum));
 }
 
 int GetExplosiveRepeatChance(int pnum) {

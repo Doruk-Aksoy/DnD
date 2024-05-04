@@ -536,14 +536,19 @@ int GetHelmID(int pnum = -1) {
 
 bool ActorHasNoArmor(int tid) {
 	int pnum = tid - P_TIDSTART;
-
 	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][BOOT_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][HELM_INDEX].item_type == DND_ITEM_NULL;
 }
 
 int DoArmorRatingEffect(int dmg, int rating) {
-	// you will need 7 times the damage to gain half reduction
+	// you will need 8 times the damage to gain half reduction
 	int dmg_f = BASE_ARMOR_FACTOR - HasMasteredPerk(STAT_END);
-	return dmg - (dmg * rating) / (rating + dmg_f * dmg);
+	dmg_f = dmg - (dmg * rating) / (rating + dmg_f * dmg);
+
+	// minimum 15% of damage will be taken always
+	rating = 3 * dmg / 20;
+	if(dmg_f < rating)
+		dmg_f = rating;
+	return dmg_f;
 }
 
 void SetEnergyShield(int val) {

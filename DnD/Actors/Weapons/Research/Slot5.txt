@@ -1150,6 +1150,7 @@ Actor GravdisDunk : PowerProtection {
 	powerup.duration 10
 }
 
+Actor GravdisImmunity : DnD_Boolean { }
 Actor GravdisCanAlt : DnD_Boolean { }
 Actor GravdisToken : DnD_Boolean { }
 

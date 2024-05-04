@@ -552,7 +552,7 @@ Actor DevastatorRocket_GhostHitter : DevastatorRocket {
 	-THRUGHOST
 }
 
-Actor DevastatorRocket_LessRange_GhostHitter : DevastatorRocket {
+Actor DevastatorRocket_LessRange_GhostHitter : DevastatorRocket_GhostHitter {
 	ReactionTime 10
 	States {
 		SpawnState:

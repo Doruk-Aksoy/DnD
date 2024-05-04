@@ -58,7 +58,7 @@ DND_ORBTEXT27		=	"Reforges the item, adding at least one \cvdamage\c- modifier."
 DND_ORB_MON1		=	"Hollow Orb";
 DND_ORB_MONTEXT1	=	"Adds an extra random attribute to a non-unique charm even if it's at its limit, adding at most one additional over limit. The attribute is well-rolled.";
 DND_ORB_MON2		=	"Phantasmal Orb";
-DND_ORB_MONTEXT2	=	"Grants used weapon ability to hit ghosts but increases ammo consumption by x2.5.";
+DND_ORB_MONTEXT2	=	"Grants used weapon ability to hit ghosts but increases ammo consumption by \cgx2.5\c-.";
 DND_ORB_MON3		=	"Assimilation Orb";
 DND_ORB_MONTEXT3	=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled, but amount of mods may be less than sum of both. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
 

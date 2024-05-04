@@ -498,7 +498,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-48, 0);
 		break;
 		case MENU_HELP_WEAPONPROPS:
-			redraw = ListenScroll(-144, 0);
+			redraw = ListenScroll(-256, 0);
 		break;
 		case MENU_HELP_MMODS_AGGRESSIVE:
 			redraw = ListenScroll(-176, 0);
@@ -662,8 +662,16 @@ void ShowWeaponPropertyIcon(int id) {
 		offset = -16.0;
 	else if(id == 6 || id == 9)
 		offset = -8.0;
+	else if(id == 11)
+		offset = -24.0;
+	else if(id == 14 || id == 16)
+		offset = -20.0;
+	else if(id == 15)
+		offset = -36.0;
+	else if(id > 11)
+		offset = -16.0;
 	
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id - 1, CR_WHITE, 436.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos.x, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_WEAPON_PROPERTIES - id - 1, CR_WHITE, 444.1, 76.1 + offset + 104.0 * id + 6.0 * ScrollPos.x, 0.0, 0.0);
 }
 
 void ShowOrbIcon(int id, int offset) {
@@ -4975,12 +4983,26 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 	return 0;
 }
 
+int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
+	int val = GetPlayerAttributeValue(pnum, res) + reduce;
+	switch(res) {
+		case INV_DMGREDUCE_MAGIC:
+			val += HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;
+		break;
+		case INV_DMGREDUCE_ENERGY:
+			val += HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
+		break;
+	}
+	return ApplyResistCap(pnum, val, cap);
+}
+
 // not sure how to group these for other places, their calculations arent exactly done in straightforward fashion so calculating as they come makes sense
 void DrawPlayerStats(int pnum, int category) {
 	int val;
 	int k = 0;
 	int tid = pnum + P_TIDSTART;
 	int i;
+	int temp;
 	
 	// sum of y and height should = 248
 	SetHudClipRect(192, 52, 256, 196, 256);
@@ -4998,7 +5020,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// melee range
 			val = GetPlayerMeleeRange(pnum + P_TIDSTART, 100.0);
 			if(val != 100.0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetFixedRepresentation(val, false), s:"%\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:"%\c- ", l:"DND_MELEERANGE", s:"\n");
 				++k;
 			}
 
@@ -5111,17 +5133,6 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			// end block
 			
-			
-			// weapon slot % block
-			for(i = 0; i < MAX_WEAPON_SLOTS; ++i) {
-				val = GetPlayerAttributeValue(pnum, INV_SLOT1_DAMAGE + i);
-				if(val) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_SLOTDMG", s:" ", d:i + 1, s:"\n");
-					++k;
-				}
-			}
-			// end block
-			
 			// blocking mons take % more
 			val = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
 			if(val) {
@@ -5137,6 +5148,79 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 		}
 		else if(category == DRAW_STAT_OFFENSE2) {
+			// wep type specific bonuses flat and %
+			val = GetPlayerAttributeValue(pnum, INV_HANDGUN_PERCENT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_HANDGUN_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_HANDGUN);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_HANDGUN_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_SHOTGUN_PERCENT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOTGUN_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_SHOTGUN);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_SHOTGUN, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_AUTOMATIC_PERCENT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AUTOMATIC_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_AUTOMATIC);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_AUTOMATIC, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_ARTILLERY_PERCENT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_ARTILLERY_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_ARTILLERY);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_ARTILLERY, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_PRECISION_PERCENT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PRECISION_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_PRECISION);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_PRECISION, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_TECH_PERCENT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_TECH_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_TECH);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_TECH, 0, 0, val), s:"\n");
+				++k;
+			}
+
 			// generic things like dot multi, dot %
 			val = GetPlayerAttributeValue(pnum, INV_DOTMULTI);
 			if(val) {
@@ -5362,48 +5446,49 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			i = GetMaxResistCap(pnum);
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ELE", s:"\n");
+			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS);
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ELEM, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ELE", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_PHYS), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ENERGY), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ENRG", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ENERGY, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ENRG", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_MAGIC), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_MAGC", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_MAGIC, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_MAGC", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_EXPL", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_EXPLOSION, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_EXPL", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_HITSCAN), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_HTSC", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_HITSCAN, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_HTSC", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_FIRE), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_FIRE", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_FIRE, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_FIRE", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ICE), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ICE", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ICE, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ICE", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_LIGHTNING), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_LGHT", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_LIGHTNING, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_LGHT", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_POISON), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_POIS", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_POISON, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_POIS", s:"\n");
 			++k;
 			
-			val = ApplyResistCap(pnum, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_REFL), i);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_REFL", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_REFL, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_REFL", s:"\n");
 			++k;
 			// dmg reduction block ends
 		}
@@ -5469,7 +5554,14 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
-			
+
+			// reduced overheat
+			val = HasPlayerPowerset(pnum, PPOWER_LESSOVERHEAT) * LESS_OVERHEAT_FACTOR + GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCED_OVERHEAT, 0, 0, val), s:"\n");
+				++k;
+			}
+
 			// exp bonus
 			val = GetPlayerWisdomBonus(pnum, tid);
 			if(val) {

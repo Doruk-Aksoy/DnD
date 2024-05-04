@@ -239,3 +239,4 @@ DND_KNOCKBACKIMMUNE							=	"Knockback Immune";
 DND_CHANCETOEXPREPEAT						=	"chance for explosives to repeat";
 DND_EXPERIENCEGAIN							=	"experience gain";
 DND_CREDITGAIN								=	"credit gain";
+DND_MELEERANGE								=	"melee range";

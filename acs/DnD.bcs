@@ -3763,7 +3763,7 @@ Script "DnD Periodic Regeneration" ENTER {
 
 			// energy shield regeneration
 			amt = GetPlayerEnergyShieldCap(pnum);
-			if(amt && !CheckInventory("EShieldCharging") && !CheckInventory("DnD_Hit_CombatTimer") && CheckInventory("EShieldAmount") < amt)
+			if(amt && !CheckInventory("EShieldCharging") && !CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("TaltosUp") && CheckInventory("EShieldAmount") < amt)
 				ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, amt, pnum);
 		}
 		Delay(const:TICRATE);
@@ -3813,7 +3813,7 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 			Terminate;
 		}
 
-		if(!GetAmmoCapacity("EShieldAmountVisual")) {
+		if(!GetAmmoCapacity("EShieldAmountVisual") || CheckInventory("TaltosUp")) {
 			SetEnergyShield(0);
 			TakeInventory("EShieldCharging", 1);
 			Terminate;
@@ -3837,7 +3837,7 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 
 	PlaySound(0, "EShield/Begin", CHAN_6, 1.0);
 
-	while(isAlive() && !CheckInventory("DnD_Hit_CombatTimer") && (amt = CheckInventory("EShieldAmount")) < cap) {
+	while(isAlive() && !CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("TaltosUp") && (amt = CheckInventory("EShieldAmount")) < cap) {
 		// get how far off we are from completion to adjust position and alpha
 		int pct = 0;
 		if(amt < 65536) {
@@ -5810,6 +5810,7 @@ Script 68 (int x) NET {
 			SpawnHelm(0, 0);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
+			//IncPlayerModValue(0, INV_MELEERANGE, 250);
 			//SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
 			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
 			//SpawnCharmWithMods_ForAll(INV_IGNITE_PROLIFRANGE);

@@ -306,6 +306,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0", proj_id, 0.0, 0.0, flags, 12.0);
 					break;
 					case 1:
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0x4", proj_id, 0.0, 0.0, flags, 36.0);
+					break;
 					case 12:
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0x4", proj_id, 0.0, 0.0, flags, 36.0);
 						Do_Projectile_Attack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
@@ -1529,9 +1531,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			GiveOverheat(pnum, "BFG32768Overheat", 34, DND_WEAPON_BFG32768);
 		break;
 		case DND_WEAPON_DEVASTATOR:
+			proj_id = DND_PROJ_DEVASTATOR;
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				use_default = true;
-				proj_id = DND_PROJ_DEVASTATOR;
 				count = 5;
 				sp_x = 4.8;
 				sp_y = 2.8;
@@ -1549,13 +1551,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				for(sp_y = 0; sp_y < 5; ++sp_y) {
 					for(sp_x = 0; sp_x < 3; ++sp_x) {
 						vec3[offset_vec].y = -12.0;
-						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 3, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 3, 32, angle_vec, offset_vec, 1.6, 0.825, 0, proj_id);
 						Delay(const:1);
 					}
 					
 					for(sp_x = 0; sp_x < 3; ++sp_x) {
 						vec3[offset_vec].y = 12.0;
-						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 1, 32, angle_vec, offset_vec, 1.6, 0.825, 0);
+						Do_Projectile_Attack_Named(owner, pnum, "DevastatorRocket_LessRange", wepid, 1, 32, angle_vec, offset_vec, 1.6, 0.825, 0, proj_id);
 						Delay(const:1);
 					}
 					Delay(const:1);

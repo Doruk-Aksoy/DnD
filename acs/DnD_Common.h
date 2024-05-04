@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 
@@ -22,6 +22,12 @@
 #define HALF_TICRATE 17
 
 #define DND_BASE_HEALTH 100
+
+#define DND_MONSTER_RESIST_LEVELS 30
+#define DND_PLAYER_RESIST_REDUCE -25.0
+
+#define RESIST_BOOST_FROM_BOOTS 5 // 5%
+#define DMGREDUCE_BOOST_FROM_BOOTS 10 // 10%
 
 // moved here for better access everywhere, was necessary for monster resists
 enum {

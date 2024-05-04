@@ -33,7 +33,7 @@ enum {
 	WPROP_MAGIC = 32768,
 	WPROP_MELEE = 65536
 };
-#define MAX_WEAPON_PROPERTIES 12
+#define MAX_WEAPON_PROPERTIES 17
 
 str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
 	"WNOGHST",
@@ -47,7 +47,12 @@ str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
 	"WOPOIS",
 	"WOTECH",
 	"WSHOTKUN",
-	"WPRECIS"
+	"WPRECIS",
+	"WHANDGN",
+	"WOAUTOM",
+	"WOARTILL",
+	"WOMAGIC",
+	"WOMELEE"
 };
 
 enum {
@@ -1764,11 +1769,12 @@ void GiveOverheat(int pnum, str item, int amt, int wepid) {
 	if((Weapons_Data[wepid].properties & WPROP_TECH) && CheckInventory("Cyborg_Perk5"))
 		amt -= amt * 3 / 10;
 
-	if(HasPlayerPowerset(pnum, PPOWER_LESSOVERHEAT))
-		amt = amt * (100 - LESS_OVERHEAT_FACTOR) / 100;
+	int reduce = HasPlayerPowerset(pnum, PPOWER_LESSOVERHEAT) * LESS_OVERHEAT_FACTOR + GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
+	if(reduce)
+		amt = amt * (100 - reduce) / 100;
 
 	// let players attain maximum overheat reduction
-	if(amt)
+	if(amt > 0)
 		GiveInventory(item, amt);
 }
 

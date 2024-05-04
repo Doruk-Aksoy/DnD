@@ -690,7 +690,7 @@ Script "DnD Gravdis Thrust" (int pull_count, int force) {
 	while(j) {
 		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 			int i = UsedMonsterTIDs[mn];
-			if(CheckActorInventory(i, "GravdisDebuff") && isActorAlive(i)) {
+			if(CheckActorInventory(i, "GravdisDebuff") && isActorAlive(i) && !CheckActorInventory(i, "GravdisImmunity")) {
 				// get angle to face and thrust it towards this
 				int fx = x - GetActorX(i);
 				int fy = y - GetActorY(i);
@@ -715,7 +715,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		// to be affected by gravdis debuff
-		if(CheckActorInventory(i, "GravdisToken") && IsActorAlive(i)) {
+		if(CheckActorInventory(i, "GravdisToken") && IsActorAlive(i) && !CheckActorInventory(i, "GravdisImmunity")) {
 			TakeActorInventory(i, "GravdisToken", 1);
 			
 			m_id = MonsterProperties[i - DND_MONSTERTID_BEGIN].id;
