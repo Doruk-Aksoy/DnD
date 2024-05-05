@@ -5808,6 +5808,7 @@ Script 68 (int x) NET {
 			SpawnPowercore(0, true);
 			SpawnBoot(0, 0);
 			SpawnHelm(0, 0);
+			SetPlayerModValue(0, INV_AMMOGAIN_CHANCE, 100);
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(40, 120));
 			//IncPlayerModValue(0, INV_MELEERANGE, 250);

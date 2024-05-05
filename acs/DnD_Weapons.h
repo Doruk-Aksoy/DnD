@@ -17,7 +17,10 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 			GiveInventory(SpecialAmmoInfo_Str[ammo][AMMOINFO_NAME], amount);
 		}
 		else if(slot == DND_AMMOSLOT_TEMPORARY) {
-			GiveInventory(TemporaryWeaponData[ammo][TEMPWEP_AMMO], amount);
+			if(ammo != DND_TEMPWEP_SAWEDOFF)
+				GiveInventory(TemporaryWeaponData[ammo][TEMPWEP_AMMO], amount);
+			else
+				GiveInventory("SawedoffCounter", amount);
 			if(ammo == DND_TEMPWEP_SOULRENDER)
 				GiveInventory("BladeCharge", 100);
 		}

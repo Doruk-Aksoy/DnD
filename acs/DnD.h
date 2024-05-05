@@ -1395,8 +1395,10 @@ void CheckEOL(bool isSpectate, int game_mode = -1) {
 void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -1) {
 	if(game_mode == -1)
 		game_mode = GetCVar("dnd_mode");
-		
-	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || GetGameModeState() != GAMESTATE_INPROGRESS)
+
+	// the last check needs it to see if players are left because if the last player quits then it's not in progress anymore anyway...
+	int gstate = GetGameModeState();
+	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || (gstate != GAMESTATE_WAITFORPLAYERS && gstate != GAMESTATE_INPROGRESS))
 		return;
 		
 	if(!isDisconnect) {
@@ -1418,7 +1420,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 	else if(PlayerLoaded[pnum]) {
 		BeginDBTransaction();
 		
-		//Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);
+		Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);
 		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
 		
 		// resets player activites already
