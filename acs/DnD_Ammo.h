@@ -409,18 +409,23 @@ str ClipAmmoTypes[MAXCLIPAMMOTYPES] = {
 };
 
 // gets you the percentage to increase by
-int GetAmmoCapIncrease() {
+int GetAmmoCapIncrease(int pnum) {
 	int bpcount = CheckInventory("BackpackCounter");
-	return (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE)))) / 100;
+	bpcount = (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE)))) / 100;
+
+	int temp = GetPlayerAttributeValue(pnum, INV_EX_REDUCEDAMMOCAP);
+	if(temp)
+		bpcount = bpcount * (100 - temp) / 100;
+	return bpcount;
 }
 
 bool IsBackpackLimitReached() {
 	return CheckInventory("BackpackCounter") >= DND_MAX_BACKPACK;
 }
 
-void SetAllAmmoCapacities() {
+void SetAllAmmoCapacities(int pnum) {
 	// last slot is for souls, we don't increase it here
-	int factor = GetAmmoCapIncrease();
+	int factor = GetAmmoCapIncrease(pnum);
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
 		int temp = GetAmmoSlotMaxIndex(i);
 		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity; ++j)

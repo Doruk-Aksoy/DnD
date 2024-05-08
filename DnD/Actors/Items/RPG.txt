@@ -595,7 +595,7 @@ Actor NFT_Token : DnD_Info { }
 
 Actor DnD_HealOnMissingCD : PowerProtection {
 	damagefactor "normal", 1.0
-	powerup.duration -3
+	powerup.duration -5
 }
 
 Actor DnD_DumpCooldown : PowerProtection {

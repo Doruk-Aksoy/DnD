@@ -1,6 +1,28 @@
 #ifndef DND_WEAPON_SC_IN
 #define DND_WEAPON_SC_IN
 
+// 0 is ammo1, 1 is ammo2
+// returns 1 if it can fire
+Script "DnD Can Fire Weapon" (int wepid, int ammo_which) {
+	bool res = false;
+	int pnum = PlayerNumber();
+
+	if(!CheckInventory("ArtemisCheck")) {
+		int amt = Weapons_Data[wepid].ammo_use1;
+		str ammo = Weapons_Data[wepid].ammo_name1;
+		if(ammo_which) {
+			ammo = Weapons_Data[wepid].ammo_name2;
+			amt = Weapons_Data[wepid].ammo_use2;
+		}
+
+		if(!res && ammo != "")
+			res = CheckInventory(ammo) >= amt * (100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE)) / 100;
+	}
+	else
+		res = true;
+	SetResultValue(res);
+}
+
 Script "DnD Overheat Reduction" (int index, int rate) {
 	int d = rate >> 16;
 	rate &= 0x0000FFFF;

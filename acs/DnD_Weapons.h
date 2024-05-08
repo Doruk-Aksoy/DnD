@@ -29,6 +29,12 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 	}
 }
 
+void TakeAmmoFromPlayer(int pnum, str ammo, int amt) {
+	int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
+	amt = amt * consumption_rate / 100;
+	TakeInventory(ammo, amt);
+}
+
 // we get weapon id, primary or alt and flags only
 // ammo_slot >> 16 contains subslot, first 16 contains main slot
 Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
@@ -146,7 +152,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				
 				// dont make the delay cause ammo from being taken late
 				ammo_take_amt = max(1, (ammo_take_amt * sp_x) / 100);
-				TakeInventory(ammo_type, ammo_take_amt);
+				TakeAmmoFromPlayer(pnum, ammo_type, ammo_take_amt);
 				flags |= DND_ATF_NOAMMOTAKE;
 				
 				// angle increments of 4 degrees, start from -32 deg
@@ -512,7 +518,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Shock", CHAN_5);
 					PlaySound(owner, "Shells/Shock2", CHAN_7);
@@ -524,7 +530,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -542,7 +548,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -553,7 +559,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "weapons/sgun1fire", CHAN_WEAPON);
 				break;
@@ -572,7 +578,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Shock", CHAN_5);
 					PlaySound(owner, "Shells/Shock2", CHAN_7);
@@ -584,7 +590,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -602,7 +608,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -613,7 +619,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "weapons/shotgunfirenew", CHAN_WEAPON);
 				break;
@@ -774,7 +780,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					sp_y = 0.5;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Slug", CHAN_5);
 					ammo_handler = "SlugShellHandler";
@@ -785,7 +791,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -803,7 +809,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -814,7 +820,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Deadlock/Fire", CHAN_WEAPON);
 				break;
@@ -1152,7 +1158,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(SpecialAmmoInfo_Str[SSAM_NITROSHELL][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_NITROSHELL][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Nitro", CHAN_5);
 					ammo_handler = "NitroshellHandler";
@@ -1162,7 +1168,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_EXSHELL, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name, Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name, Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Explo", CHAN_5);
 					ammo_handler = "ExplosiveShellHandler_Riot";
@@ -1171,7 +1177,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case AMMO_RIOTSHELL:
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_CLIP, AMMO_RIOT, Weapons_Data[wepid].ammo_use1, owner);
-						TakeInventory(Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
 					}
 				break;
 			}
@@ -1351,7 +1357,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!(isAltFire & DND_ATK_OTHER_DIR))
 				GiveOverheat(pnum, "FreezerOverheat", 5, DND_WEAPON_FREEZER);
 			else {
-				GiveOverheat(pnum, "FreezerOverheat", 10, DND_WEAPON_FREEZER);
+				GiveOverheat(pnum, "FreezerOverheat", 15, DND_WEAPON_FREEZER);
 				sp_x = 2.0;
 				sp_y = 2.0;
 			}
@@ -1775,8 +1781,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_HELLFORGE_2;
 				
 				// dont make the delay cause ammo from being taken late
-				TakeInventory(ammo_type, ammo_take_amt);
-				flags |= DND_ATF_NOAMMOTAKE;
+				if(!(flags & DND_ATF_NOAMMOTAKE)) {
+					TakeAmmoFromPlayer(pnum, ammo_type, ammo_take_amt);
+					flags |= DND_ATF_NOAMMOTAKE;
+				}
 				
 				// fires with 1 tic delay 11 times
 				for(count = 0; count < 11; ++count) {
@@ -1881,7 +1889,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	
 	// take away ammo if each shot isn't using ammo and we don't have the "no ammo take" flag
 	if(!(flags & DND_ATF_NOAMMOTAKE) && ammo_type != "") {
-		TakeInventory(ammo_type, ammo_take_amt);
+		TakeAmmoFromPlayer(pnum, ammo_type, ammo_take_amt);
 		
 		// ammo has been taken, handlers should check for running out of ammo here
 		if(ammo_handler != "")

@@ -367,6 +367,11 @@ int GetStrength() {
 	return (CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
+int GetUnity() {
+	int pnum = PlayerNumber();
+	return (CheckInventory("PSTAT_Strength") + CheckInventory("PSTAT_Dexterity") + CheckInventory("PSTAT_Intellect")) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+}
+
 int GetPetCap() {
 	return BASE_PET_CAP + HasPlayerPowerset(PlayerNumber(), PPOWER_PETCAP);
 }
@@ -419,7 +424,12 @@ int CalculateHealthCapBonuses(int pnum) {
 // returns player max health
 int GetSpawnHealth() {
 	int pnum = PlayerNumber();
-	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + DND_HP_PER_STR * GetStrength();
+
+	int str_bonus = 0;
+	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
+		str_bonus = DND_HP_PER_STR * GetStrength();
+
+	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
 	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
 				   // GetStrength() * DND_STR_CAPINCREASE 										+
@@ -464,11 +474,14 @@ void HandleCurseImmunityRemoval() {
 }
 
 void UpdatePlayerKnockbackResist() {
-	if(CheckUniquePropertyOnPlayer(PlayerNumber(), PUP_KNOCKBACKIMMUNE))
+	int pnum = PlayerNumber();
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_KNOCKBACKIMMUNE))
 		SetActorProperty(0, APROP_MASS, INT_MAX);
 	else {
-		int strgth = GetStrength();
-		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + strgth * DND_STR_KNOCKBACK_GAIN + GetPlayerAttributeValue(PlayerNumber(), INV_KNOCKBACK_RESIST));
+		int strgth = 0;
+		if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
+			strgth = GetStrength() * DND_STR_KNOCKBACK_GAIN;
+		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + strgth + GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST));
 	}
 }
 
@@ -517,7 +530,7 @@ void RestoreRPGStat (int statflag) {
 
 bool HasPlayerPowerset(int pnum, int power) {
 	// powers are already bitfields here!
-	return GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & power;
+	return !!(GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1) & power);
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {

@@ -5,39 +5,38 @@
 #define UNIQUE_BITS 16
 #define UNIQUE_BEGIN 65535
 
+#define REKINDLE_REDUCE 33
+
+#define DND_DEADEYE_BONUS 1
+#define DND_DEADEYE_BONUSF 0.01
+#define DND_DEADEYE_PLUSPER 20
+#define DND_DEADEYE_MINUSPER 45
+
+#define DND_UNITY_DIVISOR 10
+
 str GetUniqueItemName(int id) {
 	return StrParam(s:"DND_UNIQUE", d:id + 1);
 }
 
 #define MAX_UNIQUE_WEIGHT 1000
-// chances -- no longer valid -- need to come up with some weighted formula later
-/*
-15
-15
-4
-6
-6
-13
-9
-8
-6
-6
-8
-4
-*/
+
 int UniqueItemDropWeight[MAX_UNIQUE_ITEMS] = {
-	150,
-	300,
-	340,
-	400,
-	460,
-	590,
+	130,
+	220,
+	260,
+	320,
+	380,
+	510,
+	600,
 	680,
-	760,
+	710,
+	745,
+	770,
 	800,
-	825,
 	850,
 	880,
+	900,
+	920,
 	960,
 	1000
 };
@@ -311,6 +310,72 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_high = 1;
 	UniqueItemList[id].rolls[1].attrib_low = 20;
 	UniqueItemList[id].rolls[1].attrib_high = 50;
+	id = UITEM_REKINDLEDSPARKS;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 1;
+	UniqueItemList[id].item_image = IIMG_UCHRM_15;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
+	UniqueItemList[id].item_level = 45;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_id_list[0] = INV_ESS_KRULL;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_SECONDEXPBONUS;
+	UniqueItemList[id].rolls[0].attrib_low = 10;
+	UniqueItemList[id].rolls[0].attrib_high = 25;
+	UniqueItemList[id].rolls[1].attrib_low = 15;
+	UniqueItemList[id].rolls[1].attrib_high = 40;
+	id = UITEM_DEADEYEGLARE;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UCHRM_16;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
+	UniqueItemList[id].item_level = 40;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_id_list[0] = INV_ESS_OMNISIGHT2;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_DEADEYEBONUS;
+	UniqueItemList[id].rolls[0].attrib_low = 15;
+	UniqueItemList[id].rolls[0].attrib_high = 36;
+	UniqueItemList[id].rolls[1].attrib_low = 1;
+	UniqueItemList[id].rolls[1].attrib_high = 1;
+	id = UITEM_UNITY;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 3;
+	UniqueItemList[id].item_image = IIMG_UCHRM_17;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
+	UniqueItemList[id].item_level = 50;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 4;
+	UniqueItemList[id].attrib_id_list[0] = INV_EX_UNITY;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_UNITY_RES_BONUS;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_UNITY_PEN_BONUS;
+	UniqueItemList[id].attrib_id_list[3] = INV_EX_UNITY_NOBONUS;
+	UniqueItemList[id].rolls[0].attrib_low = 1;
+	UniqueItemList[id].rolls[0].attrib_high = 1;
+	UniqueItemList[id].rolls[1].attrib_low = 1;
+	UniqueItemList[id].rolls[1].attrib_high = 2;
+	UniqueItemList[id].rolls[2].attrib_low = 1;
+	UniqueItemList[id].rolls[2].attrib_high = 2;
+	UniqueItemList[id].rolls[3].attrib_low = 1;
+	UniqueItemList[id].rolls[3].attrib_high = 1;
+	id = UITEM_MINDFORGE;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UCHRM_18;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
+	UniqueItemList[id].item_level = 35;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 2;
+	UniqueItemList[id].attrib_id_list[0] = INV_STAT_INTELLECT;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_INTBONUSTOMELEE;
+	UniqueItemList[id].rolls[0].attrib_low = 10;
+	UniqueItemList[id].rolls[0].attrib_high = 40;
+	UniqueItemList[id].rolls[1].attrib_low = 1.5;
+	UniqueItemList[id].rolls[1].attrib_high = 2.5;
 }
 
 // These are necessary to sync the global variables + unique data

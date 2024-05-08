@@ -241,16 +241,20 @@ Script "DnD On Map Load" OPEN {
 	SetupCVarTracking();
 
 	if(isHardcore()) {
-		++VisitedMapData[DND_VOTESKIPS];
-		Log(s:"Visit map data ", d:VisitedMapData[DND_VOTESKIPS]);
-		isMapLootPenalty |= VisitedMapData[DND_VOTESKIPS] > DND_VOTESKIP_LIMIT;
+		str curmap = StrParam(n:PRINTNAME_LEVEL);
 
-		if(isMapLootPenalty)
-			Log(s:"Map voteskipped more than once! Loot is being reduced!");
-		else {
-			// check if map is visited already
-			str curmap = StrParam(n:PRINTNAME_LEVEL);
-			InsertMapVisited(curmap);
+		// only do these if these aren't lobby maps we changed to!
+		if(!IsLobbyMap(curmap)) {
+			++VisitedMapData[DND_VOTESKIPS];
+			Log(s:"Visit map data ", d:VisitedMapData[DND_VOTESKIPS]);
+			isMapLootPenalty |= VisitedMapData[DND_VOTESKIPS] > DND_VOTESKIP_LIMIT;
+
+			if(isMapLootPenalty)
+				Log(s:"Map voteskipped more than once! Loot is being reduced!");
+			else {
+				// check if map is visited already
+				InsertMapVisited(curmap);
+			}
 		}
 	}
 
@@ -3593,7 +3597,7 @@ Script 996 (int type, int id) {
 			//Respect the max backpack amount
 			SetInventory("BackpackCounter", Min(CheckInventory("BackpackCounter") + add_backpack_amount, DND_MAX_BACKPACK));
 
-			SetAllAmmoCapacities();
+			SetAllAmmoCapacities(PlayerNumber());
 			//ACS_ExecuteAlways(993, 0, 1); //Why did this call script 993?
 		}
 		int i,j;
@@ -4916,9 +4920,11 @@ Script "DnD Otherwordly Grip" (int monster_tid, int player_tid) {
 		oy = GetActorY(player_tid);
 		oz = GetActorZ(player_tid);
 		ACS_NamedExecuteAlways("DnD Otherwordly Grip Dirts", 0, ox, oy, oz);
-		Delay(random(2, 4));
+		Delay(random(2, 5));
 	}
 	StopSound(player_tid, CHAN_7);
+
+	Delay(const:HALF_TICRATE);
 
 	// create the hands over time in this area
 	count = 0;
@@ -5808,13 +5814,15 @@ Script 68 (int x) NET {
 			SpawnPowercore(0, true);
 			SpawnBoot(0, 0);
 			SpawnHelm(0, 0);
-			SetPlayerModValue(0, INV_AMMOGAIN_CHANCE, 100);
 			//SpawnToken(0, true);
-			SpawnOrbForAll(1, random(40, 120));
-			//IncPlayerModValue(0, INV_MELEERANGE, 250);
+			SpawnOrbForAll(1, random(300, 500));
+			SpawnChestKey(0);
+			IncPlayerModValue(0, INV_ESS_KRULL, 50);
+			//IncPlayerModValue(0, INV_LIFESTEAL, 0.875);
+			//IncPlayerModValue(0, INV_ACCURACY_INCREASE, 500);
 			//SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
 			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
-			//SpawnCharmWithMods_ForAll(INV_IGNITE_PROLIFRANGE);
+			//SpawnCharmWithMods_ForAll(INV_LIFESTEAL);
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);

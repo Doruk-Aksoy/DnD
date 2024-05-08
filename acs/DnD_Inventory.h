@@ -112,6 +112,10 @@ enum {
 	IIMG_UCHRM_12,
 	IIMG_UCHRM_13,
 	IIMG_UCHRM_14,
+	IIMG_UCHRM_15,
+	IIMG_UCHRM_16,
+	IIMG_UCHRM_17,
+	IIMG_UCHRM_18,
 	
 	IIMG_ORB_1,
 	IIMG_ORB_2,
@@ -245,7 +249,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_POWERCORE_BEGIN IIMG_CORE_1
 
 #define ITEM_IMAGE_CHARM_END IIMG_LC_3
-#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_14
+#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_18
 #define ITEM_IMAGE_ORB_END IIMG_ORB_27
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_3
 #define ITEM_IMAGE_POWERCORE_END IIMG_CORE_3
@@ -786,11 +790,11 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	if(item_type == DND_ITEM_BODYARMOR && GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR))
 		return POPUP_CANTPUTONBODYARMOR;
 	// proceed to equip the item now
-	
+
 	// this means we must swap items
 	if(Items_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
 		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
-		SwapItems(pnum, use_id, item_index, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		SwapItems(pnum, use_id, item_index, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, true);
 		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, false, false, true);
 	}
 	else {
@@ -1071,6 +1075,7 @@ bool CanSwapItems(int pnum, int ipos1, int ipos2, int offset1, int offset2, int 
 			bid = ipos1 + offset2 + j + i * MAXINVENTORYBLOCKS_VERT;
 			if(bid >= MAX_INVENTORY_BOXES || bid < 0 || (!rowStart && !(bid % 9)))
 				return false;
+
 			if(IsSourceInventoryView(source1) && GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source1) - 1 != tb1 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source1) != DND_ITEM_NULL)
 				return false;
 
@@ -1080,6 +1085,7 @@ bool CanSwapItems(int pnum, int ipos1, int ipos2, int offset1, int offset2, int 
 				overlap2 |= 1 << (bid - 32);
 		}
 	}
+
 	// from ipos1 to ipos2
 	w1 = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, tb1, -1, source1);
 	h1 = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, tb1, -1, source1);
@@ -1089,6 +1095,7 @@ bool CanSwapItems(int pnum, int ipos1, int ipos2, int offset1, int offset2, int 
 			bid = ipos2 + offset1 + j + i * MAXINVENTORYBLOCKS_VERT;
 			if(bid >= MAX_INVENTORY_BOXES || bid < 0 || (!rowStart && !(bid % 9)))
 				return false;
+
 			if(IsSourceInventoryView(source2) && GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source2) - 1 != tb2 && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, bid, -1, source2) != DND_ITEM_NULL)
 				return false;
 
@@ -1172,7 +1179,7 @@ void CopyItemFromTemporary(int player_index, int item_index, int temp_pos, int s
 }
 
 // for swapping items -- assumes neither are null
-void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool dontSync) {
+void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool dontSync, bool forcedSwap = false) {
 	// check if there's enough space
 	// find if there is some sort of offset we must take care of, this matters only if we are swapping in inventory
 	int offset1 = 0, offset2 = 0;
@@ -1181,8 +1188,6 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 		offset1 = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos1, -1, source1) - 1 - ipos1;
 	if(IsSourceInventoryView(source2))
 		offset2 = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos2, -1, source2) - 1 - ipos2;
-		
-	//printbold(s:"item positions: ", d:ipos1, s: ", ", d:ipos2, s:" -- offsets: ", d:offset1, s: ", ", d:offset2);
 		
 	// if both items are stack items and are of same types, add stack on top of the other
 	h1p = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, source1);
@@ -1210,7 +1215,7 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 			SyncItemStack(pnum, ipos2 + offset2, source2);
 		}
 	}
-	else if(CanSwapItems(pnum, ipos1, ipos2, offset1, offset2, source1, source2)) {
+	else if(forcedSwap || CanSwapItems(pnum, ipos1, ipos2, offset1, offset2, source1, source2)) {
 		MoveItemToTemporary(pnum, ipos1 + offset1, 0, source1);
 		MoveItemToTemporary(pnum, ipos2 + offset2, 1, source2);
 		
@@ -1363,7 +1368,7 @@ bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = f
 						FreeItem(pnum, tpbid, isource, false);
 						return true;
 					}
-					else {
+					else if(stype != maxstacks) {
 						// set target one to max, and ours max - what we had
 						SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, try_pos, -1, maxstacks, ssource);
 						SyncItemStack(pnum, try_pos, ssource);
@@ -2394,7 +2399,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_AMMOCAP_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			// make sure to update ammo caps
-			SetAllAmmoCapacities();
+			SetAllAmmoCapacities(pnum);
 		break;
 		case INV_EX_CURSEIMMUNITY:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
@@ -2428,6 +2433,34 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_PERCENTSHIELD_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 
+			HandleEShieldChange(pnum, remove);
+		break;
+
+		case INV_EX_REDUCEDAMMOCAP:
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+			SetAllAmmoCapacities(pnum);
+		break;
+
+		case INV_EX_UNITY:
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+
+			// for str
+			UpdatePlayerKnockbackResist();
+
+			// for str
+			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
+			if(remove) {
+				temp = GetSpawnHealth();
+				if(GetActorProperty(0, APROP_HEALTH) > temp) {
+					// set health to new cap, add the extra to player
+					if(i > 0)
+						SetActorProperty(0, APROP_HEALTH, temp + i);
+					else
+						SetActorProperty(0, APROP_HEALTH, temp);
+				}
+			}
+
+			// for int
 			HandleEShieldChange(pnum, remove);
 		break;
 		
@@ -2607,6 +2640,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 				}
 			}
 
+			// for int
 			HandleEShieldChange(pnum, remove);
 		break;
 
@@ -3071,7 +3105,7 @@ void MakeUnique(int item_pos, int item_type, int pnum) {
 	#ifdef ISDEBUGBUILD
 		int bias = Timer() & 0xFFFF;
 		i = random(bias, bias + MAX_UNIQUE_ITEMS - 1) - bias;
-	//i = UITEM_ANCIENTGEMSTONE;
+		//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 	#endif
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, item_type, pnum);

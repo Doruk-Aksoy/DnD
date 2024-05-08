@@ -564,7 +564,7 @@ DND_MENU_MMOD_UTI12		=	"Monster attacks have 33% chance to inflict a random curs
 DND_MENU_MMOD_UTI13		=	"Monster attacks will briefly stop your movement.";
 DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
 DND_MENU_MMOD_UTI15		=	"Monster makes no alert or active sound.";
-DND_MENU_MMOD_UTI16		=	"Monster's attacks to cause blackouts, only letting players see a small area around for four seconds, fading out in two seconds.";
+DND_MENU_MMOD_UTI16		=	"Monster's attacks cause blackouts, only letting players see a small area around for four seconds, fading out in two seconds.";
 DND_MENU_MMOD_UTI17		=	"Monster is shrouded in smoke and is harder to see.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";

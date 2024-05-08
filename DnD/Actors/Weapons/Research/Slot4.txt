@@ -1267,7 +1267,7 @@ Actor AcidRifleCloudFX {
 
 Actor AcidRiflePoisonCloud : DnD_ExplosiveBase {
     Radius 24 
-    Height 6 
+    Height 6
 	+THRUACTORS
 	+DONTSPLASH
 	+FORCERADIUSDMG

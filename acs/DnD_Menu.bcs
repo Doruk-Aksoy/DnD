@@ -124,7 +124,7 @@ Script "DnD Transmute Orb Sync" (int pnum, int id, int val) CLIENTSIDE {
 
 Script "DnD Menu Reset on Enter" ENTER {
 	int pnum = PlayerNumber();
-	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
+	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
 		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
@@ -154,7 +154,7 @@ Script "DnD Menu Reset on Enter" ENTER {
 // So database can run this
 Script "DnD Menu Reset Forced" (void) {
 	int pnum = PlayerNumber();
-	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease();
+	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
 		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
@@ -504,13 +504,27 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"\c[Y5]", l:"DND_ATTRIBUTEPTS", s:": \c-", d:CheckInventory("AttributePoint"); HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 128.0, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
-				DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 144.0);
-				DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 160.0);
-				DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 176.0);
 				// draw values seperately so they align
-				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Strength"); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 256.1, 144.0, 0.0);
-				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 256.1, 160.0, 0.0);
-				HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 256.1, 176.0, 0.0);
+				if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY)) {
+					DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 144.0);
+					DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 160.0);
+					DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 176.0);
+
+					HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Strength"); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 256.1, 144.0, 0.0);
+					HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Dexterity"); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 256.1, 160.0, 0.0);
+					HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 256.1, 176.0, 0.0);
+				}
+				else {
+					DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 144.0);
+					DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 160.0);
+					DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 176.0);
+					HudMessage(l:"UNITY", s:":"; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_GOLD, 192.1, 192.0, 0.0);
+
+					HudMessage(d:0; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 256.1, 144.0, 0.0);
+					HudMessage(d:0; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 256.1, 160.0, 0.0);
+					HudMessage(d:0; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 256.1, 176.0, 0.0);
+					HudMessage(d:GetUnity(); HUDMSG_PLAIN, RPGMENUITEMID - 16, CR_WHITE, 256.1, 192.0, 0.0);
+				}
 				// draw bonus stat acquired
 				HudMessage(s:"(\cd", d:GetStrength(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 320.1, 144.0, 0.0);
 				HudMessage(s:"(\cd", d:GetDexterity(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 320.1, 160.0, 0.0);
@@ -1441,6 +1455,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				if(CheckInventory("DnD_InventoryView")) {
 					TakeInventory("DnD_InventoryView", 1);
 					GiveInventory("DnD_CleanInventoryRequest", 1);
+					SetInventory("DnD_SelectedInventoryBox", 0);
+					SetInventory("DnD_SelectedCharmBox", 0);
 				}
 				else
 					UpdateMenuPosition(MENU_LOAD);

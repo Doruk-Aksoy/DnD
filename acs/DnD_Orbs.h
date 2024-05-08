@@ -1235,7 +1235,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 			Log(s:"\cj", l:"DND_ORBUSETEXT10", s:"\cj!");
 		break;
 		case DND_ORB_VIOLENCE:
-			Log(s:"\cj", l:"DND_ORBUSETEXT11A", s:"\cj!");
+			Log(s:"\cj", l:"DND_ORBUSETEXT11", s:"\cj!");
 		break;
 		case DND_ORB_SIN:
 			if(val != 0x7FFFFFFF)

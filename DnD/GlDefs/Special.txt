@@ -1,3 +1,62 @@
+flickerlight NuclearExpLight1 {
+	color 1.0 0.875 0.0
+	size 40
+	secondarysize 72
+	chance 0.666
+}
+
+flickerlight NuclearExpLight2 {
+	color 1.0 0.875 0.0
+	size 60
+	secondarysize 90
+	chance 0.666
+}
+
+flickerlight NuclearExpLight3 {
+	color 1.0 0.875 0.0
+	size 80
+	secondarysize 110
+	chance 0.666
+}
+
+flickerlight NuclearExpLight4 {
+	color 1.0 0.875 0.0
+	size 110
+	secondarysize 150
+	chance 0.666
+}
+
+flickerlight NuclearExpLight5 {
+	color 1.0 0.875 0.0
+	size 140
+	secondarysize 170
+	chance 0.666
+}
+
+object NuclearExplosionFX {
+	frame BIGBA { light NuclearExpLight1 }
+	frame BIGBB { light NuclearExpLight1 }
+	frame BIGBC { light NuclearExpLight1 }
+	frame BIGBD { light NuclearExpLight2 }
+	frame BIGBE { light NuclearExpLight2 }
+	frame BIGBF { light NuclearExpLight3 }
+	frame BIGBG { light NuclearExpLight3 }
+	frame BIGBH { light NuclearExpLight3 }
+	frame BIGBI { light NuclearExpLight3 }
+	frame BIGBJ { light NuclearExpLight3 }
+	frame BIGBK { light NuclearExpLight4 }
+	frame BIGBL { light NuclearExpLight4 }
+	frame BIGBM { light NuclearExpLight4 }
+	frame BIGBN { light NuclearExpLight4 }
+	frame BIGBO { light NuclearExpLight4 }
+	frame BIGBP { light NuclearExpLight4 }
+	frame BIGBQ { light NuclearExpLight5 }
+	frame BIGBR { light NuclearExpLight5 }
+	frame BIGBS { light NuclearExpLight5 }
+	frame BIGBT { light NuclearExpLight5 }
+	frame BIGBU { light NuclearExpLight5 }
+}
+
 flickerlight2 ShockLight
 {
 	color 0.8 0.2 0.8

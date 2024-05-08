@@ -303,7 +303,12 @@ void UnlockPlayerCritState(int pnum, int wepid) {
 
 // All resists uniformly follow same factors
 int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
-	int temp = GetPlayerAttributeValue(pnum, res_attribute) + bonus + DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS);
+	int unity = 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
+	int temp = 	GetPlayerAttributeValue(pnum, res_attribute) + 
+				bonus + 
+				GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) +
+				unity +
+				DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS);
 	if(!temp)
 		return dmg;
 	
@@ -578,7 +583,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 
 		if(IsBoomstick(wepid)) {
 			temp += GetPlayerAttributeValue(pnum, INV_FLAT_SHOTGUN);
-			pct_tmp += GetPlayerAttributeValue(pnum, INV_SHOTGUN_PERCENT) + GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_SHOTGUNS);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_SHOTGUN_PERCENT);
 		}
 
 		if(IsAutomaticWeapon(wepid)) {
@@ -594,6 +599,11 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		if(IsArtilleryWeapon(wepid)) {
 			temp += GetPlayerAttributeValue(pnum, INV_FLAT_ARTILLERY);
 			pct_tmp += GetPlayerAttributeValue(pnum, INV_ARTILLERY_PERCENT);
+		}
+
+		if(IsMagicalWeapon(wepid)) {
+			temp += GetPlayerAttributeValue(pnum, INV_FLAT_MAGIC);
+			pct_tmp += GetPlayerAttributeValue(pnum, INV_MAGIC_PERCENT);
 		}
 		
 		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
@@ -837,7 +847,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type, flags);
 	int pnum = PlayerNumber();
-	int pen = GetResistPenetration(pnum, damage_category);
+	int pen = GetResistPenetration(pnum, damage_category) + GetPlayerAttributeValue(pnum, INV_EX_UNITY_PEN_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
 	// added crit ignore res modifier here from below
@@ -1423,6 +1433,18 @@ Script "DnD Do Explosion Damage" (int dmg, int radius, int fullradius, int damag
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	if(!isPlayer(owner))
 		owner = GetActorProperty(0, APROP_SCORE);
+
+	int temp = 0;
+	if(!CheckInventory("DnD_ExplosionRepeated") && GetPlayerAttributeValue(owner - P_TIDSTART, INV_EX_SECONDEXPBONUS)) {
+		// reduced first
+		temp = 100 - REKINDLE_REDUCE;
+		dmg = dmg * temp / 100;
+		radius = radius * temp / 100;
+		fullradius = fullradius * temp / 100;
+
+		SetActorProperty(0, APROP_SCALEX, GetActorProperty(0, APROP_SCALEX) * temp / 100);
+		SetActorProperty(0, APROP_SCALEY, GetActorProperty(0, APROP_SCALEY) * temp / 100);
+	}
 	
 	// we embed weapon id into damage_type << 16
 	DoExplosionDamage(owner, dmg, radius, fullradius, damage_type & 0xFFFF, damage_type >> 16, flags);
@@ -2080,7 +2102,7 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 			taltos *= dmg;
 			taltos >>= 16;
 		}
-				
+
 		//printbold(s:"to be given ", d:taltos);
 		
 		// no longer accept 1 point of lifesteal
@@ -2779,6 +2801,19 @@ Script "DnD Check Explosion Repeat" (void) {
 	// if explosion did not repeat and we have chance for it to repeat, go for it
 	if(!CheckInventory("DnD_ExplosionRepeated") && random(1, 100) <= GetExplosiveRepeatChance(pnum)) {
 		GiveInventory("DnD_ExplosionRepeated", 1);
+
+		// check rekindled sparks
+		res = GetPlayerAttributeValue(pnum, INV_EX_SECONDEXPBONUS);
+		if(res) {
+			res += 100;
+			SetUserVariable(0, "user_expdmg", GetUserVariable(0, "user_expdmg") * res / 100);
+			SetUserVariable(0, "user_expradius", GetUserVariable(0, "user_expradius") * res / 100);
+			SetUserVariable(0, "user_fullexpradius", GetUserVariable(0, "user_fullexpradius") * res / 100);
+
+			SetActorProperty(0, APROP_SCALEX, GetActorProperty(0, APROP_SCALEX) * res / 100);
+			SetActorProperty(0, APROP_SCALEY, GetActorProperty(0, APROP_SCALEY) * res / 100);
+		}
+
 		res = 1;
 	}
 	
@@ -3363,6 +3398,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// 50% less by default
 				if(isReflected)
 					dmg /= 2;
+
+				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 				
 				// finally apply player armor
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);
@@ -3375,8 +3412,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				temp = CheckInventory("Berserker_DamageTracker");
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
-					
-				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 				
 				// damage amplifications
 				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;

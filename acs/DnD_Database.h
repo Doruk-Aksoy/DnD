@@ -924,7 +924,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	DecideAccessories();
 	
 	// set all ammo capacities first
-	SetAllAmmoCapacities();
+	SetAllAmmoCapacities(pnum);
 	
 	// read each ammo count
 	int slot_tmp;

@@ -241,7 +241,12 @@ str GetStatLabel(int id) {
 
 int GetPlayerEnergyShieldCap(int pnum) {
 	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
-	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + GetActorIntellect(pnum + P_TIDSTART) / 2)) / 100;
+	
+	int int_bonus = 0;
+	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
+		int_bonus = GetActorIntellect(pnum + P_TIDSTART) / 2;
+
+	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + int_bonus)) / 100;
 	return base;
 }
 
@@ -838,14 +843,12 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 	//if(victim != -1)
 	
 	// add percent bonuses here
-	if(chance)
-		chance = FixedMul(
-			chance, 
-			1.0 + 
-			GetPercentCritChanceIncrease(pnum, wepid) +
-			(!!isLightning) * GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING)
-		);
+	int pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid) + (!!isLightning) * GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING);
+	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS))
+		pct_bonus += DND_DEADEYE_BONUSF * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
 
+	if(chance)
+		chance = FixedMul(chance, pct_bonus);
 	return chance;
 }
 
@@ -907,8 +910,10 @@ int ConfirmedCritFactor(int pnum, int victim, int dmg, int wepid = -1) {
 
 // this one doesnt depend on a weapon, its used as it is in the menu etc.
 int GetIndependentCritModifier(int pnum) {
-	return DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + 
-			GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
+	int base = DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
+	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS))
+		base -= DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
+	return base;
 }
 
 int GetBaseCritModifier(int pnum, int wepid) {
@@ -970,6 +975,11 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
 				
 	if(damage_category == DND_DAMAGECATEGORY_ENERGY && IsQuestComplete(0, QUEST_ONLYENERGY))
 		res += DND_QUEST_ENERGYBONUS;
+
+	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS)) {
+		// add accuracy as % bonus dmg
+		res += DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
+	}
 				
 	// stuff that do ---- removed orb bonus from here
 	//if(wepid != -1)
@@ -1165,8 +1175,9 @@ int GetPoisonDOTDamage(int pnum, int base_poison) {
 
 #define DND_BASE_LIFESTEALCAP 20
 int GetLifestealCap(int pnum) {
-	// avoid recalculating over and over if possible
-	int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
+	// avoid recalculating over and over if possible -- changed from the above because if this gets to this point the GetSpawnHealth function has ran once
+	//int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
+	int hp_cap = CheckInventory("PlayerHealthCap");
 	return Clamp_Between((hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP))) / 100, 1, hp_cap);
 }
 
@@ -1287,7 +1298,17 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 		dexterity += DND_SHARPSHOOTER_MASTERY_BONUS;
 
 	// 1.0 is 100%, we get stuff like 0.03 here for 3% etc.
-	int statOf = GetStrength() * strength + GetDexterity() * dexterity + GetIntellect() * intellect;
+	int statOf = GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE);
+	if(isMelee && statOf) {
+		intellect += FixedMul(statOf, strength);
+		strength = 0;
+	}
+
+	statOf = 0;
+	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
+		statOf = GetStrength() * strength + GetDexterity() * dexterity + GetIntellect() * intellect;
+	else
+		statOf = GetUnity() * (strength + dexterity + intellect);
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)

@@ -221,10 +221,14 @@ enum {
 	// S - + 5 - 10 flat damage to damage over time effects, 50 - 100% increased damage over time duration
 	UITEM_PAINMASTER,
 	// M - Crit chance is lucky, Critical hits have 20 - 35% chance to ignore all resists
-	UITEM_VOIDEMBLEM
+	UITEM_VOIDEMBLEM,
+	UITEM_REKINDLEDSPARKS,
+	UITEM_DEADEYEGLARE,
+	UITEM_UNITY,
+	UITEM_MINDFORGE
 };
 
-#define LAST_UNIQUE_ITEM UITEM_VOIDEMBLEM
+#define LAST_UNIQUE_ITEM UITEM_MINDFORGE
 #define MAX_UNIQUE_ITEMS (LAST_UNIQUE_ITEM + 1)
 
 // this is used to construct items

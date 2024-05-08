@@ -5446,7 +5446,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			i = GetMaxResistCap(pnum);
-			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS);
+			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS) + 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ELEM, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ELE", s:"\n");
 			++k;
@@ -5542,7 +5542,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// ammo cap inc
-			val = GetAmmoCapIncrease() - 100;
+			val = GetAmmoCapIncrease(pnum) - 100;
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_AMMOCAPS", s:"\n");
 				++k;
@@ -5588,7 +5588,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// shop stock
-			val = (GetAmmoCapIncrease() - 100) * (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100;
+			val = (GetAmmoCapIncrease(pnum) - 100) * (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100;
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, 0, 0, val), s:"\n");
 				++k;

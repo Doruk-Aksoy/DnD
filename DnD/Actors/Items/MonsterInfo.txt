@@ -495,7 +495,7 @@ Actor MonsterNuclearExplosion {
 	+DONTREFLECT
 	const float r = 96.0;
 	const float s = 0.33;
-	const float sr = 0.45;
+	const float sr = 0.4;
 	var int user_d;
 	Height 2
 	Radius 1
@@ -621,15 +621,16 @@ Actor ThunderstruckCooldown : PowerProtection {
 
 Actor ThunderstruckLightning {
 	Renderstyle Add
-	Alpha 0.01
+	Alpha 0.4
 	Height 1
 	Radius 1
 	Damage 0
 	Stamina 256
 	PROJECTILE
+	const float fx_r = 72.0;
 	const float r = 32.0;
 	const float v = 5.0;
-	const float a = 0.25;
+	const float a = 0.15;
 	+PIERCEARMOR
 	+THRUACTORS
 	+DONTBLAST
@@ -639,7 +640,115 @@ Actor ThunderstruckLightning {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 A_PlaySound("Thunderstruck/Buildup")
+			TNT1 A 0 A_PlaySound("Thunderstruck/Buildup", CHAN_5)
+			TNT1 A 0 A_Jump(128, "B", "C", "D", "E", "F")
+			UP27 A 0
+		Goto Anim
+		B:
+			UP27 B 0
+		Goto Anim
+		C:
+			UP27 C 0
+		Goto Anim
+		D:
+			UP27 D 0
+		Goto Anim
+		E:
+			UP27 E 0
+		Goto Anim
+		F:
+			UP27 F 0
+		Goto Anim
+		Anim:
+			"####" "######" 0 A_SpawnItemEx("ThunderstruckLightning_Telegraph", frandom(-fx_r, fx_r), frandom(-fx_r, fx_r))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "###" 1 A_FadeIn(0.4)
+			"####" "#####" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			"####" "########" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			"####" "#########" 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			"####" "##############" 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			"####" "#" 0 A_Explode(random(8, 12) * 20, 192, 0)
+			"####" "#" 0 A_PlaySound("Abaxoth/Thunder")
+			"####" "###########" 1 A_FadeOut(0.05)
+		Stop
+	}
+}
+
+Actor ThunderstruckLightning_Telegraph {
+	Alpha 0.4
+	Scale 0.666
+	Translation "0:255=%[0.00,0.00,0.00]:[0.375,0.575,0.875]"
+	const float a = 0.15;
+	Renderstyle Add
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_PlaySound("Thunderstruck/Buildup", CHAN_5)
 			TNT1 A 0 A_Jump(128, "B", "C", "D", "E", "F")
 			UP27 A 0
 		Goto Anim
@@ -660,60 +769,70 @@ Actor ThunderstruckLightning {
 		Goto Anim
 		Anim:
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeIn(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
+			"####" "#" 3
 			"####" "#" 0 A_FadeOut(a)
-			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
-			"####" "###" 1 A_FadeIn(0.375)
-			"####" "#####" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
-			"####" "########" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
-			"####" "#########" 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
-			"####" "##############" 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
-			"####" "#" 0 A_Explode(random(8, 16) * 30, 255, 0)
-			"####" "#" 0 A_PlaySound("Abaxoth/Thunder")
+			"####" "#" 3
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3
+			"####" "#" 0 A_FadeIn(a)
+			"####" "#" 3
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3
+			"####" "#" 0 A_FadeOut(a)
+			"####" "#" 3
+			"####" "###" 1 A_FadeIn(0.4)
 			"####" "###########" 1 A_FadeOut(0.05)
 		Stop
 	}

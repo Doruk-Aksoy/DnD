@@ -105,6 +105,12 @@ int ConvertFixedToPrecise(int x) {
 }
 
 Str GetFixedRepresentation(int val, bool isPercentage) {
+	str isNeg = "";
+	if(val < 0) {
+		isNeg = "-";
+		val = -val;
+	}
+	
 	val = ConvertFixedToPrecise(val);
 	
 	if(isPercentage)
@@ -112,15 +118,15 @@ Str GetFixedRepresentation(int val, bool isPercentage) {
 	
 	if(val > 1000) {
 		if((val / 10) % 10)
-			return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
+			return StrParam(s:isNeg, d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
+		return StrParam(s:isNeg, d:val / 1000, s:".", d:(val / 100) % 10);
 	}
 		
 	if(val % 10)
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10, d:val % 10);
+		return StrParam(s:isNeg, d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10, d:val % 10);
 	if((val / 10) % 10)
-		return StrParam(d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
-	return StrParam(d:val / 1000, s:".", d:(val / 100) % 10);
+		return StrParam(s:isNeg, d:val / 1000, s:".", d:(val / 100) % 10, d:(val / 10) % 10);
+	return StrParam(s:isNeg, d:val / 1000, s:".", d:(val / 100) % 10);
 }
 
 int CancelMultiplicativeFactors(int f1, int f2) {

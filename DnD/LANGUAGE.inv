@@ -72,6 +72,10 @@ DND_UCIMG11			=	"UCHRM11";
 DND_UCIMG12			=	"UCHRM12";
 DND_UCIMG13			=	"UCHRM13";
 DND_UCIMG14			=	"UCHRM14";
+DND_UCIMG15			=	"UCHRM15";
+DND_UCIMG16			=	"UCHRM16";
+DND_UCIMG17			=	"UCHRM17";
+DND_UCIMG18			=	"UCHRM18";
 	
 // orbs
 DND_OIMG1			=	"ORB1D0";
@@ -230,6 +234,10 @@ DND_UNIQUE11			=	"Eye of the Beholder";
 DND_UNIQUE12			=	"Dead King's Banner";
 DND_UNIQUE13			=	"Pain Master";
 DND_UNIQUE14			=	"Void Emblem";
+DND_UNIQUE15			=	"Rekindled Sparks";
+DND_UNIQUE16			=	"Deadeye's Glare";
+DND_UNIQUE17			=	"Unity";
+DND_UNIQUE18			=	"Mindforge";
 
 // inventory attribute table
 IATTR_T0 			= "Health";
@@ -247,13 +255,13 @@ IATTR_T10 			= "magazine size";
 IATTR_T11 			= "to physical attack damage";
 IATTR_T12 			= "to energy attack damage";
 IATTR_T13 			= "to explosive attack damage";
-IATTR_T14 			= "to occult attack damage";
+IATTR_T14 			= "to magic attack damage";
 IATTR_T15 			= "to elemental attack damage";
 	
 IATTR_T16 			= "increased physical attack damage";
 IATTR_T17 			= "increased energy attack damage";
 IATTR_T18 			= "increased explosive attack damage";
-IATTR_T19 			= "increased occult attack damage";
+IATTR_T19 			= "increased magic attack damage";
 IATTR_T20 			= "increased elemental attack damage";
 	
 IATTR_T21 			= "increased handgun damage";
@@ -327,7 +335,7 @@ IATTR_T71 			= "more damage amplification for overload";
 	
 IATTR_T72 			= "CYBERNETIC";
 IATTR_T73 			= "increased melee range";
-IATTR_T74			= "increased melee damage";
+IATTR_T74			= "increased melee weapon damage";
 IATTR_T75			= "damage over time multiplier";
 IATTR_T76			= "increased damage over time";
 
@@ -380,8 +388,11 @@ IATTR_T112			= "energy shield magic absorb";
 IATTR_T113			= "to tech weapon attack damage";
 IATTR_T114			= "to precision weapon attack damage";
 IATTR_T115			= "increased tech weapon damage";
+IATTR_T116			= "to magic weapon attack damage";
+IATTR_T117			= "increased magic weapon damage";
 
-IATTR_T116			= "reduced overheated gained";
+IATTR_T118			= "reduced overheated gained";
+IATTR_T119			= "to all resistances";
 
 // corrupt implicits
 
@@ -413,7 +424,7 @@ IATTR_TE4 			= " increased accuracy rating";
 IATTR_TE5 			= "Ignite damage increases for each tic by ";
 IATTR_TE6 			= " chance for attacks to ignore shields";
 IATTR_TE7 			= "Poison damage tics twice as fast";
-IATTR_TE8 			= " chance for explosive attacks to trigger again";
+IATTR_TE8 			= " chance for Slot 5 explosions to trigger again";
 IATTR_TE9 			= "Homing projectiles can't be reflected";
 IATTR_TE10 			= "Magical attacks reduce enemy magic resistance by ";
 IATTR_TE11 			= "Frozen enemies take ";
@@ -427,7 +438,7 @@ IATTR_TX4 			= "to all attributes";
 IATTR_TX5 			= "to be healed for ";
 IATTR_TX6 			= "increased lightning damage";
 IATTR_TX7 			= "increased crit chance to lightning attacks";
-IATTR_TX8 			= "PLACEHOLDER";
+IATTR_TX8 			= "Explosives that trigger again have ";	IATTR_TX8B = "more damage and radius";		IATTR_TX8S = "Your initial explosions have \cg25%\c- less damage and radius";
 IATTR_TX9 			= "Double Health Cap";
 IATTR_TX10 			= "Gain 1% increased physical damage every ";
 IATTR_TX11 			= "Can't use body armor";
@@ -452,6 +463,15 @@ IATTR_TX29			= "Can only use";					IATTR_TX29_2S		= "small charm";	IATTR_TX29_2	
 IATTR_TX30			= "damage to shotguns per shotgun owned";
 IATTR_TX31			= "less effect of healing";
 IATTR_TX32			= "Soul weapons penetrate";
+IATTR_TX33			= "Gain \cd1%\c- increased damage per 20 accuracy rating"; IATTR_TX33A = "Gain \cd1%\c- increased crit chance per 20 accuracy rating"; IATTR_TX33B = "Lose \cg1%\c- crit damage per 50 accuracy rating";
+IATTR_TX34			= "Gain \cd2%\c- more damage per \cg1%\c- missing ammo on current weapon";
+IATTR_TX35			= "Weapons consume";				IATTR_TX35S = "increased ammo";
+IATTR_TX36			= "less ammo capacities";
+IATTR_TX37			= "Your main attributes are transformed to \cfUnity\c-";	IATTR_TX_UNITY = "Per 10 unity, gain";	UNITY = "Unity";
+IATTR_TX38			= "damage resistance to every damage type";
+IATTR_TX39			= "resist penetration to every damage type";
+IATTR_TX40			= "\cgYour main attributes other than \cfUnity\cg grant no bonuses";
+IATTR_TX41			= "Intellect provides damage bonus to all melee weapons at";	IATTR_TX41S = "the attunement of Strength"; IATTR_TX41B = "\cgStrength provides no bonus to melee weapons\c-";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";
