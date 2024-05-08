@@ -367,9 +367,22 @@ int GetStrength() {
 	return (CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
+// this sets player's unity item to cache it so we don't request it over and over in intense calculations
+void CalculateUnity(int pnum) {
+	SetInventory("PSTAT_Unity",
+		(
+			CheckInventory("PSTAT_Strength") + 
+			GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH) +
+			CheckInventory("PSTAT_Dexterity") + 
+			GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY) +
+			CheckInventory("PSTAT_Intellect") +
+			GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)
+		) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100
+	);
+}
+
 int GetUnity() {
-	int pnum = PlayerNumber();
-	return (CheckInventory("PSTAT_Strength") + CheckInventory("PSTAT_Dexterity") + CheckInventory("PSTAT_Intellect")) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+	return CheckInventory("PSTAT_Unity");
 }
 
 int GetPetCap() {

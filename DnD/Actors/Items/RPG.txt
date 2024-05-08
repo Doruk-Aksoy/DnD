@@ -116,6 +116,12 @@ Actor PSTAT_Intellect : Ammo {
 	+IGNORESKILL
 }
 
+Actor PSTAT_Unity : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	+IGNORESKILL
+}
+
 Actor Perk_Sharpshooting : Ammo {
 	inventory.amount 1
 	inventory.maxamount 10

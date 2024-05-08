@@ -2333,6 +2333,7 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			}
 
 			HandleEShieldChange(pnum, remove);
+			CalculateUnity(pnum);
 		break;
 		case INV_EX_DOUBLE_HEALTHCAP:
 			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval, noSync, needDelay);
@@ -2423,10 +2424,16 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 						SetActorProperty(0, APROP_HEALTH, temp);
 				}
 			}
+			CalculateUnity(pnum);
+		break;
+		case INV_STAT_DEXTERITY:
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+			CalculateUnity(pnum);
 		break;
 		case INV_STAT_INTELLECT:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			HandleEShieldChange(pnum, remove);
+			CalculateUnity(pnum);
 		break;
 
 		case INV_SHIELD_INCREASE:
@@ -2642,6 +2649,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 
 			// for int
 			HandleEShieldChange(pnum, remove);
+			CalculateUnity(pnum);
 		break;
 
 		// weapon mods
