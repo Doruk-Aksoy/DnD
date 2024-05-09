@@ -34,6 +34,16 @@ DND_MENU_ERROR			=	"Error";
 DND_MENU_CONFIRM		=	"Confirm";
 DND_MENU_DASH			=	"Dash";
 
+DND_MENU_AUTOPICK_FILTER	=	"Autopick: ";
+DND_MENU_FILTER_0			=	"\cjNothing";
+DND_MENU_FILTER_1			=	"\cjStackables";
+DND_MENU_FILTER_2			=	"\cjCharms";
+DND_MENU_FILTER_3			=	"\cjStackables / Charms";
+DND_MENU_FILTER_4			=	"\cjArmors";
+DND_MENU_FILTER_5			=	"\cjStackables / Armors";
+DND_MENU_FILTER_6			=	"\cjCharms / Armors";
+DND_MENU_FILTER_7			=	"\cjAll inventory";
+
 DND_MENU_CANCEL			=	"Cancel";
 DND_MENU_YOUROFFERING	=	"Your Offering";
 DND_MENU_YOURINV		=	"Your Inventory";
@@ -396,25 +406,25 @@ DND_MENU_ABLTAG3		=	"Mobility";
 DND_MENU_ABLHELPTEXT3	=	"You can dash to dodge attacks (bind a button under controls).";
 
 DND_MENU_ABLTAG4		=	"Arcanery";
-DND_MENU_ABLHELPTEXT4	=	"Artifact power increases by 50%.";
+DND_MENU_ABLHELPTEXT4	=	"Artifact power increases by \cd50%\c-.";
 
 DND_MENU_ABLTAG5		=	"Toxicology";
-DND_MENU_ABLHELPTEXT5	=	"\c[R5]CYBERNETIC \cj- You take 33% less poison damage.";
+DND_MENU_ABLHELPTEXT5	=	"\c[R5]CYBERNETIC \cj- You take \d33%\c- less poison damage.";
 
 DND_MENU_ABLTAG6		=	"Demolitions";
-DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you 50% less.";
+DND_MENU_ABLHELPTEXT6	=	"\c[R5]CYBERNETIC \cj- Your explosives hurt you \cd50%\c- less.";
 
 DND_MENU_ABLTAG7		=	"Heart Seeking";
-DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death 5% of the time. Can use as a temporary weapon.";
+DND_MENU_ABLHELPTEXT7	=	"Demons drop their hearts on death \cd5%\c- of the time. Can use as a temporary weapon.";
 
 DND_MENU_ABLTAG8		=	"Regeneration";
-DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal over time until 25% of your health cap. Getting hurt pauses this.";
+DND_MENU_ABLHELPTEXT8	=	"\c[R5]CYBERNETIC \cj- Heal over time until \cd25%\c- of your health cap. Getting hurt pauses this.";
 
 DND_MENU_ABLTAG9		=	"Temporal Mastery";
-DND_MENU_ABLHELPTEXT9	=	"Temporary weapons give 50% more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";
+DND_MENU_ABLHELPTEXT9	=	"Temporary weapons give \cd50%\c- more ammo, and at the beginning of each map gain a fully loaded random temporary weapon.";
 
 DND_MENU_ABLTAG10		=	"Soul Stealing";
-DND_MENU_ABLHELPTEXT10	=	"Demons drop souls when killed with an occult weapon.";
+DND_MENU_ABLHELPTEXT10	=	"Demons have an extra \cd2%\c- chance to drop their souls on death.";
 
 DND_MENU_ABLHELPTEXT11	=	"Toggles dashing.";
 

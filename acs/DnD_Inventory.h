@@ -116,6 +116,64 @@ enum {
 	IIMG_UCHRM_16,
 	IIMG_UCHRM_17,
 	IIMG_UCHRM_18,
+
+	IIMG_UCORE_1,
+	IIMG_UCORE_R2,
+	IIMG_UCORE_R3,
+	IIMG_UCORE_R4,
+	IIMG_UCORE_R5,
+	IIMG_UCORE_R6,
+
+	IIMG_UBODY_R1,
+	IIMG_UBODY_R2,
+	IIMG_UBODY_R3,
+	IIMG_UBODY_R4,
+	IIMG_UBODY_R5,
+	IIMG_UBODY_R6,
+	IIMG_UBODY_R7,
+	IIMG_UBODY_R8,
+	IIMG_UBODY_R9,
+	IIMG_UBODY_R10,
+	IIMG_UBODY_R11,
+	IIMG_UBODY_R12,
+	IIMG_UBODY_R13,
+	IIMG_UBODY_R14,
+	IIMG_UBODY_R15,
+	IIMG_UBODY_R16,
+
+	IIMG_UBOOT_R1,
+	IIMG_UBOOT_R2,
+	IIMG_UBOOT_R3,
+	IIMG_UBOOT_R4,
+	IIMG_UBOOT_R5,
+	IIMG_UBOOT_R6,
+	IIMG_UBOOT_R7,
+	IIMG_UBOOT_R8,
+	IIMG_UBOOT_R9,
+	IIMG_UBOOT_R10,
+	IIMG_UBOOT_R11,
+	IIMG_UBOOT_R12,
+	IIMG_UBOOT_R13,
+	IIMG_UBOOT_R14,
+	IIMG_UBOOT_R15,
+	IIMG_UBOOT_R16,
+
+	IIMG_UHELM_R1,
+	IIMG_UHELM_R2,
+	IIMG_UHELM_R3,
+	IIMG_UHELM_R4,
+	IIMG_UHELM_R5,
+	IIMG_UHELM_R6,
+	IIMG_UHELM_R7,
+	IIMG_UHELM_R8,
+	IIMG_UHELM_R9,
+	IIMG_UHELM_R10,
+	IIMG_UHELM_R11,
+	IIMG_UHELM_R12,
+	IIMG_UHELM_R13,
+	IIMG_UHELM_R14,
+	IIMG_UHELM_R15,
+	IIMG_UHELM_R16,
 	
 	IIMG_ORB_1,
 	IIMG_ORB_2,
@@ -199,6 +257,7 @@ enum {
 	IIMG_CORE_1,
 	IIMG_CORE_2,
 	IIMG_CORE_3,
+	IIMG_CORE_4,
 	
 	IIMG_CKEY_1,
 	IIMG_CKEY_2,
@@ -244,17 +303,22 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_HELM_BEGIN IIMG_HLM_1
 #define ITEM_IMAGE_HELM_END IIMG_HLM_8
 
-#define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
 #define ITEM_IMAGE_POWERCORE_BEGIN IIMG_CORE_1
 
 #define ITEM_IMAGE_CHARM_END IIMG_LC_3
-#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_18
 #define ITEM_IMAGE_ORB_END IIMG_ORB_27
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_3
-#define ITEM_IMAGE_POWERCORE_END IIMG_CORE_3
+#define ITEM_IMAGE_POWERCORE_END IIMG_CORE_4
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
 #define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_GUNSMITH
+
+// uniques
+#define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
+#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_18
+
+#define ITEM_IMAGE_UCORE_BEGIN IIMG_UCORE_1
+#define ITEM_IMAGE_UCORE_END IIMG_UCORE_1
 
 #include "DnD_Armor.h"
 #include "DnD_Powercore.h"
@@ -271,6 +335,10 @@ str GetItemImage(int id, bool wide = false) {
 	else if(id <= ITEM_IMAGE_UCHARM_END) {
 		img_prefix = "UC";
 		suffix = id - ITEM_IMAGE_UCHARM_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_UCORE_BEGIN) {
+		img_prefix = "UCOR";
+		suffix = id - ITEM_IMAGE_UCORE_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_ORB_END) {
 		img_prefix = "O";
@@ -1740,38 +1808,25 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		
 		if(itype == DND_ITEM_CHARM) {
 			temp = GetItemTier(lvl);
-			HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; 
+			HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetItemTagName(DND_ITEM_CHARM, isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
-		else if(itype == DND_ITEM_BODYARMOR) {
-			HudMessage(s:"\c[Y5]", s:GetArmorInventoryTag(isubt); 
+		else if(itype <= UNIQUE_BEGIN) {
+			
+			HudMessage(s:"\c[Y5]", s:GetItemTagName(itype, isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
-		else if(itype == DND_ITEM_BOOT) {
-			HudMessage(s:"\c[Y5]", s:GetBootInventoryTag(isubt); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
-		}
-		else if(itype == DND_ITEM_HELM) {
-			HudMessage(s:"\c[Y5]", s:GetHelmInventoryTag(isubt); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
-		}
-		else if(itype == DND_ITEM_POWERCORE) {
-			HudMessage(s:"\c[Y5]", s:GetPowercoreInventoryTag(isubt); 
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
-			);
-		}
-		else if(itype > UNIQUE_BEGIN) {
+		else {
+			// unique item case
 			temp = itype & 0xFFFF;
 			itype >>= UNIQUE_BITS;
 			--itype;
 			isUnique = true;
 
-			HudMessage(s:"\c[A1]", l:GetUniqueItemName(itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
-			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(isubt), s:" ", l:"DND_ITEM_CHARM"; HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:"\c[A1]", l:GetUniqueItemName(temp, itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
+			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, isubt); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		
 		val = GetLevel() < lvl ? CR_RED : CR_WHITE;
@@ -2617,6 +2672,17 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			
 			HandleEShieldChange(pnum, remove);
 		break;
+		case INV_IMP_UNSTABLECORE:
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
+			if(!remove)
+				GiveInventory("EShieldBlowChance", aextra);
+			else
+				TakeInventory("EShieldBlowChance", aextra);
+
+			HandleAttributeExtra(pnum, PPOWER_ESHIELDEXPLODE, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
+
+			HandleEShieldChange(pnum, remove);
+		break;
 
 
 		// corrupted implicits
@@ -3102,33 +3168,55 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 }
 
 // this doesn't consider the item_type yet!
-void MakeUnique(int item_pos, int item_type, int pnum) {
-	int i;
-	if(GetCVar("dnd_ignore_dropweights"))
-		i = random(0, MAX_UNIQUE_ITEMS - 1);
+int MakeUnique(int item_pos, int item_type, int pnum) {
+	int i, beg, end;
+
+	switch(item_type) {
+		case DND_ITEM_CHARM:
+			beg = UNIQUE_CHARM_BEGIN;
+			end = UNIQUE_CHARM_END;
+		break;
+		case DND_ITEM_POWERCORE:
+			beg = UNIQUE_POWERCORE_BEGIN;
+			end = UNIQUE_POWERCORE_END;
+		break;
+		default:
+			beg = 0;
+			end = UNIQUE_CHARM_END;
+		break;
+	}
+
+	if(GetCVar("dnd_ignore_dropweights")) {
+		i = random(beg, end);
+	}
 	else {
 		int roll = random(1, MAX_UNIQUE_WEIGHT);
-		for(i = 0; i < MAX_UNIQUE_ITEMS && roll > UniqueItemDropWeight[i]; ++i);
+		for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
 	}
+
 	#ifdef ISDEBUGBUILD
 		int bias = Timer() & 0xFFFF;
-		i = random(bias, bias + MAX_UNIQUE_ITEMS - 1) - bias;
+		i = random(bias + beg, bias + end) - bias;
 		//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 	#endif
 	// i is the unique id
-	ConstructUniqueOnField(item_pos, i, item_type, pnum);
+	ConstructUniqueOnField(item_pos, i, pnum);
+	return i;
 }
 
-void ConstructUniqueOnField(int fieldpos, int unique_id, int item_type, int pnum) {
+void ConstructUniqueOnField(int fieldpos, int unique_id, int pnum) {
 	Inventories_On_Field[fieldpos].width = UniqueItemList[unique_id].width;
 	Inventories_On_Field[fieldpos].height = UniqueItemList[unique_id].height;
 	Inventories_On_Field[fieldpos].item_type = UniqueItemList[unique_id].item_type;
-	Inventories_On_Field[fieldpos].item_subtype = UniqueItemList[unique_id].item_subtype;
 	Inventories_On_Field[fieldpos].item_image = UniqueItemList[unique_id].item_image;
+	Inventories_On_Field[fieldpos].item_subtype = UniqueItemList[unique_id].item_subtype;
 	Inventories_On_Field[fieldpos].item_level = UniqueItemList[unique_id].item_level;
 	Inventories_On_Field[fieldpos].item_stack = UniqueItemList[unique_id].item_stack;
 	Inventories_On_Field[fieldpos].attrib_count = UniqueItemList[unique_id].attrib_count;
 	Inventories_On_Field[fieldpos].topleftboxid = 0;
+
+	// this can set images sometimes, so just moved item_image below here
+	SetupItemImplicit(fieldpos, Inventories_On_Field[fieldpos].item_type & 0xFFFF, Inventories_On_Field[fieldpos].item_subtype, Inventories_On_Field[fieldpos].item_level);
 
 	Inventories_On_Field[fieldpos].corrupted = 0;
 	Inventories_On_Field[fieldpos].quality = 0;

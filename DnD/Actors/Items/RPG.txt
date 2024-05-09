@@ -612,3 +612,19 @@ Actor DnD_DumpCooldown : PowerProtection {
 Actor DnD_CountdownProtection : DnD_Boolean { }
 
 Actor DnD_CantSalvage : DnD_Boolean { }
+
+Actor EShieldBlowChance : Ammo {
+	inventory.amount 1
+	inventory.maxamount 0x7FFFFFFF
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}
+
+Actor PlayerPickupFilter : Ammo {
+	inventory.amount 1
+	inventory.maxamount 255
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 0
+	+IGNORESKILL
+}

@@ -16,6 +16,12 @@
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
 
+enum {
+	ITEMFILTER_STACKABLE = 1,
+	ITEMFILTER_CHARM = 2,
+	ITEMFILTER_ARMOR = 4
+};
+
 #define DND_EXP_BASEFACTOR 4
 #define DND_CREDIT_BASEFACTOR 5
 #define DND_RESEARCH_MAX_CHANCE 1.0
@@ -212,6 +218,7 @@ enum {
 #define DND_RESIST_TRANSLATION 72
 
 #define DND_SOULAMMO_DROPRATE 0.03 // 3% chance
+#define DND_SOULAMMO_STEALERUPGRADE 0.02 // 2% more chance
 #define DND_SOULAMMO_SMALLCHANCE 75
 
 #define DND_BOSSCHEST_DROPRATE 0.33 // 33% chance
@@ -955,10 +962,16 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	#endif
 	
 	// soul ammo drop -- considers ability - soulstealer as well
-	if(
-		(CanDropSoulAmmoTID(tid) && RunPrecalcDropChance(p_chance, DND_SOULAMMO_DROPRATE * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_4)) ||
-		(IsMonsterIdDemon(m_id) && (CheckActorInventory(target, "Ability_SoulStealer") && CheckActorInventory(tid, "MagicCausedDeath")))
-	  )
+	if
+	(
+		CanDropSoulAmmoTID(tid) && 
+		RunPrecalcDropChance(
+			p_chance, 
+			(1 + CheckActorInventory(tid, "MagicCausedDeath")) * (DND_SOULAMMO_DROPRATE + DND_SOULAMMO_STEALERUPGRADE * CheckActorInventory(target, "Ability_SoulStealer")) * MonsterProperties[m_id].droprate / 100, 
+			m_id, 
+			DND_MON_RNG_4
+		)
+	)
 	{
 		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE)
 			SpawnPlayerDrop(pnum, "SoulsDrop", 24.0, 16, 0, 0);

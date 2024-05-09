@@ -76,6 +76,9 @@ DND_UCIMG15			=	"UCHRM15";
 DND_UCIMG16			=	"UCHRM16";
 DND_UCIMG17			=	"UCHRM17";
 DND_UCIMG18			=	"UCHRM18";
+
+// unique cores
+DND_UCORIMG1		=	"UCORE01";
 	
 // orbs
 DND_OIMG1			=	"ORB1D0";
@@ -160,6 +163,7 @@ DND_HLIMG8			=	"HLMICO8";
 DND_PCIMG1			=	"PCORE01";
 DND_PCIMG2			=	"PCORE02";
 DND_PCIMG3			=	"PCORE03";
+DND_PCIMG4			=	"PCORE04";
 	
 DND_KIMG1			=	"SBKGA0";
 DND_KIMG2			=	"SBKGB0";
@@ -217,7 +221,8 @@ DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mod
 
 DND_PCORE1			=	"Copper Powercore";
 DND_PCORE2			=	"Gold Powercore";
-DND_PCORE3			=	"Molybdenum Powercore";
+DND_PCORE3			=	"Unstable Powercore";
+DND_PCORE4			=	"Molybdenum Powercore";
 
 // unique item names
 DND_UNIQUE1				=	"Elemental Bulwark";
@@ -238,6 +243,9 @@ DND_UNIQUE15			=	"Rekindled Sparks";
 DND_UNIQUE16			=	"Deadeye's Glare";
 DND_UNIQUE17			=	"Unity";
 DND_UNIQUE18			=	"Mindforge";
+
+// unique power cores
+DND_UCORE_NAME1			=	"The Tesseract";
 
 // inventory attribute table
 IATTR_T0 			= "Health";
@@ -395,7 +403,6 @@ IATTR_T118			= "reduced overheated gained";
 IATTR_T119			= "to all resistances";
 
 // corrupt implicits
-
 IATTR_TC1			= "Increased weapon damage to";
 IATTR_TC2			= "Increased crit chance to";
 IATTR_TC3			= "Increased crit damage to";
@@ -415,6 +422,7 @@ IATTR_TI4			= "to mitigation chance";
 IATTR_TI5			= "to armor and";
 IATTR_TI6			= "to energy shield and";
 IATTR_TI7			= "energy shield magic absorb";
+IATTR_TI8			= "chance for energy shield to explode for";		IATTR_TI8S = "of it in a 256 unit radius";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
@@ -463,7 +471,7 @@ IATTR_TX29			= "Can only use";					IATTR_TX29_2S		= "small charm";	IATTR_TX29_2	
 IATTR_TX30			= "damage to shotguns per shotgun owned";
 IATTR_TX31			= "less effect of healing";
 IATTR_TX32			= "Soul weapons penetrate";
-IATTR_TX33			= "Gain \cd1%\c- increased damage per 20 accuracy rating"; IATTR_TX33A = "Gain \cd1%\c- increased crit chance per 20 accuracy rating"; IATTR_TX33B = "Lose \cg1%\c- crit damage per 50 accuracy rating";
+IATTR_TX33			= "Gain \cd1%\c- increased damage per 20 accuracy rating"; IATTR_TX33A = "Gain \cd1%\c- increased crit chance per 20 accuracy rating"; IATTR_TX33B = "Lose \cg1%\c- crit damage per 45 accuracy rating";
 IATTR_TX34			= "Gain \cd2%\c- more damage per \cg1%\c- missing ammo on current weapon";
 IATTR_TX35			= "Weapons consume";				IATTR_TX35S = "increased ammo";
 IATTR_TX36			= "less ammo capacities";
@@ -472,6 +480,10 @@ IATTR_TX38			= "damage resistance to every damage type";
 IATTR_TX39			= "resist penetration to every damage type";
 IATTR_TX40			= "\cgYour main attributes other than \cfUnity\cg grant no bonuses";
 IATTR_TX41			= "Intellect provides damage bonus to all melee weapons at";	IATTR_TX41S = "the attunement of Strength"; IATTR_TX41B = "\cgStrength provides no bonus to melee weapons\c-";
+IATTR_TX42			= "chance to immediately start recovering energy shield on depletion";
+IATTR_TX43			= "Energy shield recharge is not interrupted by damage";
+IATTR_TX44			= "The energy shield explosion deals"; IATTR_TX44S = "of your health as added damage";	
+IATTR_TX45			= "Energy shield recovery also takes"; IATTR_TX45S = "of the amount from health";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

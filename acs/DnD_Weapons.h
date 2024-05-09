@@ -1928,6 +1928,11 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 
 	if(flags & DND_ATF_INSTABILITY) {
 		GiveInventory("Cyborg_Instability_CD", 1);
+
+		// dont shoot as many as the pellet count, but less
+		if(count > 1)
+			count = count * 2 / 3;
+
 		if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE) || !(flags & DND_ATF_CANFIRECIRCLE)) {
 			if(sp_x)
 				sp_x = sp_x * 5 / 4;
@@ -1938,10 +1943,6 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				sp_y = sp_y * 5 / 4;
 			else
 				sp_y = 1.8;
-
-			// dont shoot as many as the pellet count, but less
-			if(count > 1)
-				count = count * 2 / 3;
 
 			Do_Projectile_Attack(owner, pnum, DND_PROJ_INSTABILITY, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
 		}

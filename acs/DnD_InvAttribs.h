@@ -40,6 +40,9 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
 
 //#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF
 
+#define UNSTABLE_DMG_PCT 25 // 25%
+#define UNSTABLE_PROC_PCT 0.05 // 5%
+
 // these two imply we have 1000 regular charm mods potentially, 1000 essence and unlimited unique mods
 // reason we have these generous ranges is so when a new mod is added, database resets do not need to happen
 #define CORRUPT_ATTRIB_ID_BEGIN 1000
@@ -223,6 +226,7 @@ enum {
 	INV_IMP_INCMITARMOR,
 	INV_IMP_INCMITSHIELD,
 	INV_IMP_POWERCORE,
+	INV_IMP_UNSTABLECORE,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
@@ -281,6 +285,10 @@ enum {
 	INV_EX_UNITY_PEN_BONUS,
 	INV_EX_UNITY_NOBONUS,
 	INV_EX_INTBONUSTOMELEE,
+	INV_EX_STARTESONDEPLETE,
+	INV_EX_ESCHARGE_DMGNOINTERRUPT,
+	INV_EX_ESEXPLOSIONHPDMG,
+	INV_EX_ESCHARGE_USEHP,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -315,6 +323,7 @@ enum {
 	PPOWER_UNDEADRECOVERES				=	0b100000000000000000000000000,
 	PPOWER_PRECISIONCRIT				=	0b1000000000000000000000000000,
 	PPOWER_ESHIELDABSORB				=	0b10000000000000000000000000000,
+	PPOWER_ESHIELDEXPLODE				=	0b100000000000000000000000000000,
 };
 
 #define REDUCED_SELF_DMG_FACTOR 25 // 25%
@@ -334,7 +343,7 @@ enum {
 #define LAST_CORRUPT_IMPLICIT INV_CORR_CYBERNETIC
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_POWERCORE
+#define LAST_REGULAR_IMPLICIT INV_IMP_UNSTABLECORE
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -1101,8 +1110,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].tags = INV_ATTR_TAG_DEFENSE;
 
-	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_low = 2;
-	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_high = 7;
+	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_low = 5;
+	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_high = 10;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE;
 
@@ -1286,6 +1295,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_IMP_POWERCORE].attrib_high = -1;
 	ItemModTable[INV_IMP_POWERCORE].attrib_level_modifier = 0;
 	ItemModTable[INV_IMP_POWERCORE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_IMP_UNSTABLECORE].attrib_low = 100000;
+	ItemModTable[INV_IMP_UNSTABLECORE].attrib_high = -1;
+	ItemModTable[INV_IMP_UNSTABLECORE].attrib_level_modifier = 0;
+	ItemModTable[INV_IMP_UNSTABLECORE].tags = INV_ATTR_TAG_DEFENSE;
 
 	///////////////////////////////
 	// essences from here on out //
@@ -1806,7 +1820,14 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_POWERCORE:
-			text = StrParam(s:"+ ", s:col_tag, d:extra, s:"%", s:no_tag, l:text, s: "\n", s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n", l:"IATTR_T72");
+			text = StrParam(s:"+ ", s:col_tag, d:extra, s:"%", s:no_tag, l:text, s: "\n", s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\c[R5]", l:"IATTR_T72");
+		return text;
+		case INV_IMP_UNSTABLECORE:
+			text = StrParam(
+				s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\cd",
+				s:GetFixedRepresentation(extra, true), s:"%\c-", s:no_tag, l:text, s:" \cd", d:UNSTABLE_DMG_PCT, s:"%\c- ", l:"IATTR_TI8S", s:"\n\c[R5]",
+				l:"IATTR_T72"
+			);
 		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
@@ -2044,7 +2065,16 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			if(showDetailedMods)
 				return StrParam(l:"IATTR_TX_UNITY", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX39", s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:"IATTR_TX_UNITY", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX39");
-		
+
+		case INV_EX_ESEXPLOSIONHPDMG:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX44", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX44S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX44", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX44S");
+		case INV_EX_ESCHARGE_USEHP:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX45", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX45S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX45", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX45S");
+
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:
 		case INV_EX_DOUBLE_HEALTHCAP:
@@ -2059,6 +2089,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_DAMAGPERMISSINGAMMO:
 		case INV_EX_UNITY:
 		case INV_EX_UNITY_NOBONUS:
+		case INV_EX_ESCHARGE_DMGNOINTERRUPT:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:text);

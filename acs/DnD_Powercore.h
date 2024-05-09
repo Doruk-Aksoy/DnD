@@ -4,10 +4,11 @@
 enum {
     PCORE_COPPER,
     PCORE_GOLD,
+	PCORE_UNSTABLE,
     PCORE_MOLYBDENUM,
 };
 #define POWERCORES_BEGIN PCORE_COPPER
-#define POWERCORES_END PCORE_GOLD
+#define POWERCORES_END PCORE_MOLYBDENUM
 
 #define MAX_POWERCORE_ATTRIBS 2
 
@@ -15,11 +16,13 @@ int ConstructPowercoreDataOnField(int item_pos, int item_tier) {
     // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
 	int res, i;
 	res = random(1, 100);
-    if(res <= 50)
+    if(res <= 35)
         res = PCORE_COPPER;
-    else if(res <= 90)
+    else if(res <= 75)
         res = PCORE_GOLD;
-    else
+    else if(res <= 90)
+		res = PCORE_UNSTABLE;
+	else
         res = PCORE_MOLYBDENUM;
 
 
@@ -53,22 +56,10 @@ int RollPowercoreInfo(int item_pos, int item_tier, int pnum) {
 	int core_type = ConstructPowercoreDataOnField(item_pos, item_tier);
 	int count = random(1, MAX_POWERCORE_ATTRIBS);
 	int special_roll = 0;
-	
-	// implicits that come along with the item always
-	switch(core_type) {
-		case PCORE_COPPER:
-			Inventories_On_Field[item_pos].item_image = IIMG_CORE_1;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 10, 25, item_tier, 5);
-		break;
-		case PCORE_GOLD:
-			Inventories_On_Field[item_pos].item_image = IIMG_CORE_2;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 20, 20, item_tier, 7);
-		break;
-		case PCORE_MOLYBDENUM:
-			Inventories_On_Field[item_pos].item_image = IIMG_CORE_3;
-			GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 30, 15, item_tier, 10);
-		break;
-	}
+
+	Inventories_On_Field[item_pos].item_image = IIMG_CORE_1 + core_type;
+
+	SetupItemImplicit(item_pos, DND_ITEM_POWERCORE, core_type, item_tier);
 	
 	while(i < count) {
 		do {
@@ -83,10 +74,6 @@ int RollPowercoreInfo(int item_pos, int item_tier, int pnum) {
 
 str GetPowercoreDropClass(int type) {
 	return StrParam(s:"PowercoreDrop_", d:type);
-}
-
-str GetPowercoreInventoryTag(int subt) {
-	return StrParam(l:StrParam(s:"DND_PCORE", d:subt + 1));
 }
 
 Script "DnD Powercore Item Pickup" (int sp) {
@@ -107,10 +94,10 @@ Script "DnD Powercore Message" (int id, int type) CLIENTSIDE {
 
 	if(type > UNIQUE_BEGIN) {
 		type = (type >> UNIQUE_BITS) - 1;
-		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetUniqueItemName(type), s:"!\c-"));
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetUniqueItemName(DND_ITEM_POWERCORE, type), s:"!\c-"));
 	}
 	else
-		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetPowercoreInventoryTag(id), s:"!\c-"));
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetItemTagName(DND_ITEM_POWERCORE, id), s:"!\c-"));
 }
 
 #endif

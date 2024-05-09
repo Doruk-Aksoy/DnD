@@ -930,11 +930,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_HELPTEXT8", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 176.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_HELPTEXT9", DND_LANGUAGE_LOOKUP, boxid, MBOX_9, RPGMENUITEMID - 8, 192.1, 192.0, "\c[B1]", "\c[Y5]");
 				
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_AVGMONLEVEL", s:": \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 228.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_AVGMONLEVEL", s:": \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 212.0, 0.0, 0.0);
 				str mapinfo = "DND_MENU_DISABLED";
 				if(CheckInventory("ShowMapInfo"))
 					mapinfo = "DND_MENU_ENABLED";
-				DrawBoxText(StrParam(l:"DND_MENU_MAPINFO", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 244.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText(StrParam(l:"DND_MENU_MAPINFO", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_10, RPGMENUITEMID - 10, 192.1, 228.0, "\c[B1]", "\c[Y5]");
 				if(CheckInventory("SetMapInfo")) {
 					SetCVar("dnd_showmapinfo", !GetCVar("dnd_showmapinfo"));
 					SetInventory("ShowMapInfo", !CheckInventory("ShowMapInfo"));
@@ -944,7 +944,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				mapinfo = "DND_MENU_DISABLED";
 				if(GetCVar("dnd_detailedmods"))
 					mapinfo = "DND_MENU_ENABLED";
-				DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_11, RPGMENUITEMID - 11, 192.1, 260.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText(StrParam(l:"DND_MENU_MODTIERS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_11, RPGMENUITEMID - 11, 192.1, 244.0, "\c[B1]", "\c[Y5]");
 				if(CheckInventory("SetModTierInfo"))
 					SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
 
@@ -952,9 +952,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				mapinfo = "DND_MENU_DISABLED";
 				if(GetCVar("dnd_ignoretempweps"))
 					mapinfo = "DND_MENU_ENABLED";
-				DrawBoxText(StrParam(l:"DND_MENU_IGNORETEMPS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_12, RPGMENUITEMID - 12, 192.1, 276.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText(StrParam(l:"DND_MENU_IGNORETEMPS", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_12, RPGMENUITEMID - 12, 192.1, 260.0, "\c[B1]", "\c[Y5]");
 				if(CheckInventory("SetTempWepIgnore"))
 					SetCVar("dnd_ignoretempweps", !GetCVar("dnd_ignoretempweps"));
+
+				i = GetCVar("dnd_pickup_filter");
+				mapinfo = StrParam(s:"DND_MENU_FILTER_", d:i);
+				DrawBoxText(StrParam(l:"DND_MENU_AUTOPICK_FILTER", l:mapinfo), DND_NOLOOKUP, boxid, MBOX_13, RPGMENUITEMID - 13, 192.1, 276.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_HELP_CHARACTER) {
 				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT1", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1810,6 +1814,11 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					temp = -1;
 				}
+				else if(boxid == MBOX_13) {
+					ACS_NamedExecuteWithResult("DnD Filter Click", pnum, 0, 0, 0);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					temp = -1;
+				}
 				if(boxid != MAINBOX_NONE && temp != -1)
 					UpdateMenuPosition(temp);
 			}
@@ -2063,6 +2072,22 @@ Script "DnD Dump to Stash" (int orbsOnly) NET {
 		GiveInventory("DnD_DumpCooldown", 1);
 		ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
 	}
+}
+
+Script "DnD Filter Click" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	int f = GetCVar("dnd_pickup_filter");
+	++f;
+	if(f > 7)
+		f = 0;
+	SetCVar("dnd_pickup_filter", f);
+	NamedRequestScriptPuke("DND Set Pickup Filter", pnum, f);
+	SetResultValue(0);
+}
+
+Script "DND Set Pickup Filter" (int pnum, int val) NET {
+	SetActorInventory(pnum + P_TIDSTART, "PlayerPickupFilter", val);
 }
 
 #ifdef ISAPRILFIRST

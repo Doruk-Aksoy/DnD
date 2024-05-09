@@ -377,6 +377,11 @@ Actor DnD_WaitNextItemPick : PowerDamage {
 	powerup.duration 15
 }
 
+Actor AutoPickCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 21
+}
+
 Actor DnD_PlayerViewsItem : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 9

@@ -355,6 +355,7 @@ Script "DnD On Death" DEATH {
 	SetInventory("MenuPosX", 0);
 	SetInventory("MadeChoice", 0);
 	SetInventory("DnD_PopupId", 0);
+	TakeInventory("EShieldChargeNow", 1);
 	SetInventory("Punisher_Perk50_Counter", 0); // reset earned bonuses on death
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 	SetInventory("Marine_DamageReduction_Timer", 0);
@@ -3408,6 +3409,7 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 
 	NamedRequestScriptPuke("DnD Temp Ignore Toggle", cpnum, GetCVar("dnd_ignoretempweps"));
+	NamedRequestScriptPuke("DND Set Pickup Filter", cpnum, GetCVar("dnd_pickup_filter"));
 }
 
 // A generic checker function
@@ -3766,8 +3768,8 @@ Script "DnD Periodic Regeneration" ENTER {
 			}
 
 			// energy shield regeneration
-			amt = GetPlayerEnergyShieldCap(pnum);
-			if(amt && !CheckInventory("EShieldCharging") && !CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("TaltosUp") && CheckInventory("EShieldAmount") < amt)
+			amt = CanRegenEShield(pnum);
+			if(amt)
 				ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, amt, pnum);
 		}
 		Delay(const:TICRATE);
@@ -3788,7 +3790,7 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 		++count;
 
 		// if we died, or if we are in combat AND we don't have "can charge right now!" or we have no eshield at this time
-		if(!isAlive() || (CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("EShieldChargeNow")) || !GetAmmoCapacity("EShieldAmountVisual")) {
+		if(!isAlive() || (CheckInventory("DnD_Hit_CombatTimer") && !GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) && !CheckInventory("EShieldChargeNow")) || !GetAmmoCapacity("EShieldAmountVisual")) {
 			TakeInventory("EShieldCharging", 1);
 			Terminate;
 		}
@@ -3805,21 +3807,43 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 
 	// we can start the recovery now, but we still have to check if we enter combat etc.
 	rchrg = GetPlayerEnergyShieldRecoveryRate(pnum, cap);
+	if((count = GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_USEHP))) {
+		// take life from player now
+		count = rchrg * count / 100;
+		if(count <= 0)
+			count = 1;
+	}
+	else
+		count = 0;
 
 	while(isAlive() && CheckInventory("EShieldAmount") < cap) {
 		AddEnergyShield(rchrg);
+		if(count) {
+			// take life -- do not damage, we aren't triggering on hit effects!
+			if(GetActorProperty(0, APROP_HEALTH) - count > 0)
+				SetActorProperty(0, APROP_HEALTH, GetActorProperty(0, APROP_HEALTH) - count);
+			else {
+				GiveInventory("DnD_Hit_CombatTimer", 1);
+				TakeInventory("EShieldChargeNow", 1);
+				TakeInventory("EShieldCharging", 1);
+				LocalAmbientSound("EShield/Finish", 127);
+				Terminate;
+			}
+		}
 
 		if(CheckInventory("EShieldAmount") >= cap)
 			SetEnergyShield(cap);
 		
-		if(CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("EShieldChargeNow")) {
+		if(CheckInventory("DnD_Hit_CombatTimer") && !GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) && !CheckInventory("EShieldChargeNow")) {
 			TakeInventory("EShieldCharging", 1);
+			TakeInventory("EShieldChargeNow", 1);
 			Terminate;
 		}
 
 		if(!GetAmmoCapacity("EShieldAmountVisual") || CheckInventory("TaltosUp")) {
 			SetEnergyShield(0);
 			TakeInventory("EShieldCharging", 1);
+			TakeInventory("EShieldChargeNow", 1);
 			Terminate;
 		}
 
@@ -3829,6 +3853,7 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 	if(isAlive()) {
 		TakeInventory("EShieldCharging", 1);
 		LocalAmbientSound("EShield/Finish", 127);
+		TakeInventory("EShieldChargeNow", 1);
 	}
 }
 
@@ -3841,7 +3866,14 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 
 	PlaySound(0, "EShield/Begin", CHAN_6, 1.0);
 
-	while(isAlive() && !CheckInventory("DnD_Hit_CombatTimer") && !CheckInventory("TaltosUp") && (amt = CheckInventory("EShieldAmount")) < cap) {
+	while
+	(
+		isAlive() && 
+		CheckInventory("EShieldCharging") &&
+		!CheckInventory("TaltosUp") && 
+		(amt = CheckInventory("EShieldAmount")) < cap
+	)
+	{
 		// get how far off we are from completion to adjust position and alpha
 		int pct = 0;
 		if(amt < 65536) {
@@ -4506,10 +4538,10 @@ Script "DnD Charm Message" (int id, int type) CLIENTSIDE {
 		Terminate;
 	if(type > UNIQUE_BEGIN) {
 		type = (type >> UNIQUE_BITS) - 1;
-		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_CHARM", s:": \c[Y5]", l:GetUniqueItemName(type), s:"!\c-"));
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_CHARM", s:": \c[Y5]", l:GetUniqueItemName(DND_ITEM_CHARM, type), s:"!\c-"));
 	}
 	else
-		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_CHARM", s:": \c[Y5]", l:GetCharmTypeName(id), s:"!\c-"));
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_CHARM", s:": \c[Y5]", l:GetItemTagName(DND_ITEM_CHARM, id), s:"!\c-"));
 }
 
 Script "DnD Charm Pickup" (int sp) {
@@ -4530,16 +4562,33 @@ Script "DnD Player Has Spot For Item" (int sp) {
 		else
 			SetActivator((sp & 0xFFFF) + P_TIDSTART);
 		//if (!CheckInventory("CanLoad")) { //BUG: This check is needed to prevent grabbing items before loading char, but had to comment because of extreme lag.
-			bool res = CheckInventory("DnD_PressedUse") && !CheckInventory("DnD_WaitNextItemPick");
+			int filter = CheckInventory("PlayerPickupFilter");
+			int ipos = sp >> 16;
+			bool res = !CheckInventory("DnD_WaitNextItemPick");
+
+			if
+			(
+				!CheckInventory("AutoPickCooldown") &&
+					(((filter & ITEMFILTER_STACKABLE) && Inventories_On_Field[ipos].item_stack) ||
+					((filter & ITEMFILTER_CHARM) && (Inventories_On_Field[ipos].item_type & 0xFFFF) == DND_ITEM_CHARM) ||
+					(filter & ITEMFILTER_ARMOR) && (IsArmorTypeItem(Inventories_On_Field[ipos].item_type & 0xFFFF)))
+			)
+			{
+				// actually do nothing here as res will only need to check for waiting item pick cooldown, rather than pressing use
+				GiveInventory("AutoPickCooldown", 1);
+			}
+			else
+				res &= CheckInventory("DnD_PressedUse");
+
 			if(res) {
 				GiveInventory("DnD_WaitNextItemPick", 1);
 
 				int pnum = PlayerNumber();
 				bool spot = false;
-				if(Inventories_On_Field[sp >> 16].item_stack)
-					spot = GetFreeSpotForItemWithStack(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false) != -1;
+				if(Inventories_On_Field[ipos].item_stack)
+					spot = GetFreeSpotForItemWithStack(ipos, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false) != -1;
 				else
-					spot = GetFreeSpotForItem(sp >> 16, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != -1;
+					spot = GetFreeSpotForItem(ipos, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != -1;
 				
 				if(!spot && res) {
 					// clientside warning sound and text
@@ -5182,17 +5231,25 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 			if(itype != DND_ITEM_NULL) {
 				if(itype == DND_ITEM_CHARM) {
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
-					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)), s:" ", l:"DND_ITEM_CHARM");
+					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetItemTagName(DND_ITEM_CHARM, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 					for(j = 0; j < temp; ++j)
 						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED), itype, isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
 				}
-				else if(itype > UNIQUE_BEGIN) {
+				else if(itype <= UNIQUE_BEGIN) {
+					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
+					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:GetItemTagName(itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
+					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+					for(j = 0; j < temp; ++j)
+						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED), itype, isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
+				}
+				else {
+					// unique case
 					temp = itype & 0xFFFF;
 					itype >>= UNIQUE_BITS;
 					--itype;
 					// itype holds unique position, temp is the actual item type
-					Log(s:"\c[A1]", l:GetUniqueItemName(itype), s:"\c- - \c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetCharmTypeName(GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)), s:" ", l:"DND_ITEM_CHARM");
+					Log(s:"\c[A1]", l:GetUniqueItemName(temp, itype), s:"\c- - \c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
 					cnt = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 					// itype will count the skipped properties (the helper attributes)
 					itype = 0;

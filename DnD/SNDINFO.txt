@@ -1,6 +1,8 @@
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+UnstableExplosion		UNSTEXPL
+
 TemporalBubble/Pop		BUBLPOP
 
 Thunderstruck/Buildup	TSTRUCKB
@@ -65,8 +67,10 @@ Mitigation/Success		MITSUCCS
 
 EShield/Hit				ESHLDHIT
 EShield/Break			ESHLDBRK
+$limit EShield/Break	1
 EShield/Begin			ESHLDBGN
 EShield/Finish			ESHLDFIN
+$limit EShield/Finish	1
 
 Items/ArmorEquip		ARMEQUI
 

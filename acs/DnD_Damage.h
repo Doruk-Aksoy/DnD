@@ -3081,6 +3081,12 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		else {
 			SetEnergyShield(0);
 			LocalAmbientSound("EShield/Break", 127);
+
+			temp = GetPlayerAttributeValue(pnum, INV_EX_STARTESONDEPLETE);
+			if(temp && random(1, 100) <= temp && (to_take = CanRegenEShield(pnum))) {
+				GiveInventory("EShieldChargeNow", 1);
+				ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, to_take, pnum);
+			}
 		}
 	}
 	
@@ -3176,6 +3182,8 @@ int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
 }
 
 void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
+	int m_id, val;
+
 	if(CheckActorInventory(this, "HateCheck") && target != this && isMonster)
 		GiveActorInventory(target, "HateWeakness", 1);
 	
@@ -3189,6 +3197,36 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 		// 25% chance
 		GiveActorInventory(this, "LightningCoilShooter", 1);
 		GiveActorInventory(this, "LightningCoilCooldown", 1);
+	}
+
+	// check unstable power core
+	if(HasPlayerPowerset(pnum, PPOWER_ESHIELDEXPLODE) && (m_id = CheckInventory("EShieldAmount")) && RunLuckBasedChance(pnum, CheckInventory("EShieldBlowChance"), DND_LUCK_OUTCOME_GAIN / 2)) {
+		// explode for this amount now
+		SpawnForced("UnstableExplosion", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorViewHeight(this) / 2, DND_UNSTABLEEXP_TID);
+		SetActivator(DND_UNSTABLEEXP_TID);
+		SetActorProperty(0, APROP_MASS, 256);
+		//  damage scales from 25% to 50% depending on player's eshield %
+		// if has % hp contribution mod, include it to base dmg too!
+		val = GetPlayerAttributeValue(pnum, INV_EX_ESEXPLOSIONHPDMG);
+		if(val) {
+			m_id += GetActorProperty(this, APROP_HEALTH) * val / 100;
+			SetActorProperty(0, APROP_HEALTH, 2);
+		}
+
+		SetActorProperty(0, APROP_SCORE, m_id * (UNSTABLE_DMG_PCT + UNSTABLE_DMG_PCT * GetPlayerEnergyShieldPercent(pnum) / 100) / 100);
+		SetActorProperty(0, APROP_TARGETTID, this);
+		SetPointer(AAPTR_TARGET, this);
+		SetActivator(this);
+
+		// take away all ES
+		SetEnergyShield(0);
+
+		// depletion check
+		temp = GetPlayerAttributeValue(pnum, INV_EX_STARTESONDEPLETE);
+		if(temp && random(1, 100) <= temp && (m_id = CanRegenEShield(pnum))) {
+			GiveInventory("EShieldChargeNow", 1);
+			ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, m_id, pnum);
+		}
 	}
 	
 	// player heal on hit check -- target is 0 if we are the target, but the extra check in there is for safety
@@ -3221,7 +3259,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 		return;
 	
 	// monster might be thief, check it
-	int m_id = target - DND_MONSTERTID_BEGIN;
+	m_id = target - DND_MONSTERTID_BEGIN;
 	if(MonsterProperties[m_id].trait_list[DND_THIEF]) {
 		// get current weapon's ammo and steal it if possible
 		temp = random(0, 1);

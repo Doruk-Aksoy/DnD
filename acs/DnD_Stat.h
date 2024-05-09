@@ -16,6 +16,7 @@
 #define DND_HARDCORE_DROPRATEBONUS 0.15
 
 #define ESHIELD_RECHARGEDELAY_BASE (10 * TICRATE) // base time is 10 seconds
+#define ESHIELD_MIN_TIME 7
 #define ESHIELD_RECOVERYRATE_TICS 1
 #define DND_ESHIELD_NONE_BASE 50
 
@@ -250,11 +251,15 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	return base;
 }
 
+int GetPlayerEnergyShieldPercent(int pnum) {
+	return 100 * CheckInventory("EShieldAmount") / GetPlayerEnergyShieldCap(pnum);
+}
+
 int GetPlayerEnergyShieldRechargeDelay(int pnum) {
 	int res = ESHIELD_RECHARGEDELAY_BASE;
-	res = res * (100 - GetPlayerAttributeValue(pnum, INV_SHIELD_RECHARGEDELAY)) / 100;
-	if(res < TICRATE)
-		res = TICRATE;
+	res = res * 100 / (100 + GetPlayerAttributeValue(pnum, INV_SHIELD_RECHARGEDELAY));
+	if(res < ESHIELD_MIN_TIME)
+		res = ESHIELD_MIN_TIME;
 	return res;
 }
 
@@ -277,6 +282,36 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	if(!res)
 		res = 1;
 	return res;
+}
+
+// Returns 0 if player can't regen yet, otherwise returns player's eshield cap
+int CanRegenEShield(int pnum) {
+	int cap = GetPlayerEnergyShieldCap(pnum);
+	if
+	(
+		cap &&
+		CheckInventory("EShieldAmount") < cap &&
+		!CheckInventory("EShieldCharging") &&
+		(GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) || !CheckInventory("DnD_Hit_CombatTimer")) &&
+		!CheckInventory("TaltosUp")
+	)
+	{
+		// finally consider the special condition that this could be from tesseract
+		int tmp = GetPlayerEnergyShieldRecoveryRate(pnum, cap);
+		int use_hp = GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_USEHP);
+		if(use_hp) {
+			// take life from player now
+			use_hp = tmp * use_hp / 100;
+			if(use_hp <= 0)
+				use_hp = 1;
+
+			// player can't afford to regen, ignore
+			if(GetActorProperty(0, APROP_HEALTH) - use_hp <= 0)
+				return 0;
+		}
+		return cap;
+	}
+	return 0;
 }
 
 int GetPlayerEstimatedArmorProtect(int pnum, int cap) {

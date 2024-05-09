@@ -1,8 +1,8 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
-#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
+#define ISDEBUGBUILD
+//#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 
 // string tables should always follow icon + name if they have both
@@ -221,6 +221,7 @@ enum {
 	DND_ICECHUNK_TID,
 	DND_BLINDFX_TID,
 	DND_NUCLEAREXP_TID,
+	DND_UNSTABLEEXP_TID,
 	DND_TEMP_PLAYERPROJTID,
 	
 	// we allocate each player proj tid to their own pnum

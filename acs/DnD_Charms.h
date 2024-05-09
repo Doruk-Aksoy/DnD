@@ -12,10 +12,6 @@
 
 #define DND_CHARM_SIZEFACTOR 4 // 25%
 
-str GetCharmTypeName(int id) {
-	return StrParam(s:"DND_CHARMTYPE", d:id + 1);
-}
-
 // returns type of charm as result
 int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	if(charm_tier > GetCVar("dnd_maxmonsterlevel"))
