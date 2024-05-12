@@ -3,11 +3,21 @@
 
 void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false) {
     int c = CreateItemSpot();
+	int id = 0;
 	if(c != -1) {
         int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
 
-        // depending on armor type rolled, spawn its appropriate actor
-        SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		#ifndef ISDEBUGBUILD
+			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
+		#else
+			if(random(0,1))
+		#endif
+		{
+			id = MakeUnique(c, DND_ITEM_BODYARMOR, pnum);
+			SpawnDrop(StrParam(s:"UniqueArmor_", d:id - UNIQUE_BODYARMOR_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		}
+		else
+			SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
@@ -66,14 +76,13 @@ void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVel
 	int id = 0;
 	if(c != -1) {
 		#ifndef ISDEBUGBUILD
-			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
+			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
 		#else
 			if(random(0,1))
 		#endif
 		{
 			id = MakeUnique(c, DND_ITEM_POWERCORE, pnum);
 			SpawnDrop(StrParam(s:"PowercoreDrop_Unique", d:id - UNIQUE_POWERCORE_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
-			Log(s:"spawning ", s:StrParam(s:"PowercoreDrop_Unique", d:id - UNIQUE_POWERCORE_BEGIN));
 		}
 		else
 			SpawnDrop(GetPowercoreDropClass(RollPowercoreInfo(c, RollItemLevel(), pnum)), 24.0, 16, pnum + 1, c, noRandomVelXY);

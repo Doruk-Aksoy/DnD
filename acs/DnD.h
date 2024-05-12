@@ -1287,6 +1287,8 @@ void ClearLingeringBuffs() {
 	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
 
+	SetInventory("Marine_Perk50_DamageTaken", 0);
+
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 
 	SetInventory("Marine_DamageReduction_Timer", 0);

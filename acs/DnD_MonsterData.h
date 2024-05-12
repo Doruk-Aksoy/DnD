@@ -9,18 +9,18 @@
 
 #define ETHEREAL_RESIST 33
 
-#define MONSTER_RES_PER_THRESHOLD 20
+#define MONSTER_RES_PER_THRESHOLD 25
 
 // note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
 // so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
 int GetMonsterHPScaling(int m_id, int level) {
-	// new formula: x^2 * 0.33 + 5x, when x >= 25, where x is level - 1.
-	// else 0.125 x^2 + 0.21 x, when x < 25, which allows for much slower scaling at <25
+	// new formula: 0.42x^2 + x, where x is level - 1.
+	// else 0.38x^2 + 2x, which allows for much slower scaling at <25 and sharper from 25 onwards
 	int res = 0;
 	if(level < 25)
-		res = 5 * level * level / 4 + 21 * level / 10;
+		res = 21 * level * level / 50 + level;
 	else
-		res = (33 * level * level) / 100 + 5 * level;
+		res = (38 * level * level) / 100 + 2 * level;
 	
 	// big bosses have higher scaling than other monsters -- since we reach much higher values than before I decided to go ahead and reduce the big boss scaling here
 	if(IsUniqueBossMonster(m_id))
@@ -944,21 +944,19 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON) {
 
 void InitMonsterResists(int m_id) {
 	int temp = 0;
-
 	int bonus = MONSTER_RES_PER_THRESHOLD * (MonsterProperties[m_id].level / DND_MONSTER_RESIST_LEVELS);
-
-	bool isEthereal = MonsterProperties[m_id].trait_list[DND_ETHEREAL];
+	int etherealBonus = MonsterProperties[m_id].trait_list[DND_ETHEREAL] * ETHEREAL_RESIST;
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] = 	MonsterProperties[m_id].trait_list[DND_BULLET_RESIST] * DND_RESIST_FACTOR + bonus +
-																	isEthereal * ETHEREAL_RESIST +
+																	etherealBonus +
 																	MonsterProperties[m_id].trait_list[DND_BULLET_IMMUNE] * DND_IMMUNITY_FACTOR;
 
 	// can be changed later, bullet and melee is just "phys" atm
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_MELEE] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] + bonus;
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_MELEE] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET];
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] =	-MonsterProperties[m_id].trait_list[DND_ENERGY_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus +
 																	MonsterProperties[m_id].trait_list[DND_ENERGY_RESIST] * DND_RESIST_FACTOR + 
-																	isEthereal * ETHEREAL_RESIST +
+																	etherealBonus +
 																	MonsterProperties[m_id].trait_list[DND_ENERGY_IMMUNE] * DND_IMMUNITY_FACTOR;
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] =	-MonsterProperties[m_id].trait_list[DND_MAGIC_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus + 
@@ -967,7 +965,7 @@ void InitMonsterResists(int m_id) {
 	// this is common to elemental stuff
 	temp =	-MonsterProperties[m_id].trait_list[DND_ELEMENTAL_WEAKNESS] * DND_WEAKNESS_FACTOR + bonus +
 			MonsterProperties[m_id].trait_list[DND_ELEMENTAL_RESIST] * DND_RESIST_FACTOR + 
-			isEthereal * ETHEREAL_RESIST +
+			etherealBonus +
 			MonsterProperties[m_id].trait_list[DND_ELEMENTAL_IMMUNE] * DND_IMMUNITY_FACTOR;
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = -MonsterProperties[m_id].trait_list[DND_FIRE_WEAKNESS] * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
@@ -980,7 +978,7 @@ void InitMonsterResists(int m_id) {
 
 	// immune for expl is the radius dmg component, none is not even direct hits etc.
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = 	MonsterProperties[m_id].trait_list[DND_EXPLOSIVE_RESIST] * DND_RESIST_FACTOR + bonus +
-																		isEthereal * ETHEREAL_RESIST +
+																		etherealBonus +
 																		MonsterProperties[m_id].trait_list[DND_EXPLOSIVE_NONE] * DND_IMMUNITY_FACTOR;
 
 	// soul is same as magic for now
@@ -988,27 +986,27 @@ void InitMonsterResists(int m_id) {
 
 	// creature type bonuses -- only one type allowed per creature
 	if(MonsterProperties[m_id].trait_list[DND_ICECREATURE]) {
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = DND_IMMUNITY_FACTOR;
+		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = DND_IMMUNITY_FACTOR + bonus;
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] -= DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 	else if(MonsterProperties[m_id].trait_list[DND_FIRECREATURE]) {
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = DND_IMMUNITY_FACTOR;
+		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = DND_IMMUNITY_FACTOR + bonus;
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] -= DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 	else if(MonsterProperties[m_id].trait_list[DND_STONECREATURE]) {
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] += DND_RESIST_FACTOR;
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] -= DND_SPECIFICELEWEAKNESS_FACTOR;
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = DND_IMMUNITY_FACTOR;
+		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = DND_IMMUNITY_FACTOR + bonus;
 	}
 	else if(MonsterProperties[m_id].trait_list[DND_EARTHCREATURE]) {
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] -= DND_SPECIFICELEWEAKNESS_FACTOR;
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = DND_IMMUNITY_FACTOR;
+		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = DND_IMMUNITY_FACTOR + bonus;
 	}
 
 	// do a pass on all categories to clamp them
-	for(int i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END ; ++i)
-		if(MonsterProperties[m_id].resists[i] > DND_IMMUNITY_FACTOR + bonus)
-			MonsterProperties[m_id].resists[i] = DND_IMMUNITY_FACTOR + bonus;
+	for(temp = DND_DAMAGECATEGORY_BEGIN; temp <= DND_DAMAGECATEGORY_SOUL ; ++temp)
+		if(MonsterProperties[m_id].resists[temp] > DND_IMMUNITY_FACTOR + bonus)
+			MonsterProperties[m_id].resists[temp] = DND_IMMUNITY_FACTOR + bonus;
 }
 
 // this is only used in revive of monsters by itself
@@ -1034,9 +1032,8 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	MonsterProperties[tid].trait_list[DND_HARDENED_SKIN] 			|= CheckFlag(0, "DONTRIP");
 	MonsterProperties[tid].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
 	MonsterProperties[tid].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
-		
-	if(isLegendaryMonster(monsterid))
-		MonsterProperties[tid].trait_list[DND_LEGENDARY] |= true;
+
+	MonsterProperties[tid].trait_list[DND_LEGENDARY] = isLegendaryMonster(monsterid);
 	
 	// check for weaknesses and monster not having any kind of resist to this type
 	// if magical or undead, give it silver weakness (this is common no exceptions)
@@ -2606,6 +2603,14 @@ Script "DnD Setup Monster Data" OPEN {
 		SetupMonsterData();
 		Delay(const:10);
 		SetupMonsterWeights();
+		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
+	}
+}
+
+Script "DnD Setup Monster Data CS" OPEN CLIENTSIDE {
+	if(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS)) {
+		Delay(const:15);
+		SetupMonsterData();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
 }

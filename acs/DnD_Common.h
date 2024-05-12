@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 
@@ -23,7 +23,8 @@
 
 #define DND_BASE_HEALTH 100
 
-#define DND_MONSTER_RESIST_LEVELS 30
+#define DND_PLAYER_WEAKEN_LEVELS 30
+#define DND_MONSTER_RESIST_LEVELS 40
 #define DND_PLAYER_RESIST_REDUCE -25.0
 
 #define RESIST_BOOST_FROM_BOOTS 5.0 // 5%
@@ -299,12 +300,13 @@ bool isMapLootPenalty = false;
 enum {
 	DND_VISITCOUNT,
 	DND_VOTESKIPS,
+	DND_FAILEDMAP,
 };
 // can voteskip only once before loot affects badly -- reason this is 2 is because each time we enter a map we add 1 in OPEN script, if we beat the map legitimately its reduced by 1
 // but if we voteskip from the map we got, then this'll be 2 and then we are in trouble until we beat maps legitimately again -- once we legit beat maps if our skip was > 1 we reduce it by 2
 #define DND_VOTESKIP_LIMIT 2
 
-global int 53: VisitedMapData[2];
+global int 53: VisitedMapData[3];
 global str 56: MapsVisited[MAX_MAPS_RECORDED];
 
 // We hold record of maps visited so far, in case they keep getting voted over and over, they linger here and affect loot drops negatively to incentivize people playing other maps

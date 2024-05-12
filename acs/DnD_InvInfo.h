@@ -240,7 +240,7 @@ enum {
 	UITEM_PCORE_RES8,
 
 	// add new body armors here
-	UITEM_BODY_RESERVED1,
+	UITEM_PROTOSHELL,
 	UITEM_BODY_RESERVED2,
 	UITEM_BODY_RESERVED3,
 	UITEM_BODY_RESERVED4,
@@ -300,8 +300,10 @@ enum {
 #define UNIQUE_POWERCORE_BEGIN UITEM_TESSERACT
 #define UNIQUE_POWERCORE_END UITEM_TESSERACT
 
-#define LAST_UNIQUE_ITEM UITEM_MINDFORGE
-#define MAX_UNIQUE_ITEMS (LAST_UNIQUE_ITEM + 1)
+#define UNIQUE_BODYARMOR_BEGIN UITEM_PROTOSHELL
+#define UNIQUE_BODYARMOR_END UITEM_PROTOSHELL
+
+#define UNIQUE_HELM_END UITEM_HELM_RESERVED16
 
 // this is used to construct items
 typedef struct it_con {
@@ -318,6 +320,7 @@ typedef struct it_con {
 	inv_attrib_T rolls[MAX_ITEM_ATTRIBUTES];		// contains roll information of the attributes (level modifier isn't used here)
 } inventory_constructor_T;
 
+#define MAX_UNIQUE_ITEMS (UNIQUE_HELM_END - UNIQUE_CHARM_BEGIN + 1)
 global inventory_constructor_T 63: UniqueItemList[MAX_UNIQUE_ITEMS];
 
 #endif

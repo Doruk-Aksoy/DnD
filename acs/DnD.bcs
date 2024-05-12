@@ -240,7 +240,7 @@ Script "DnD On Map Load" OPEN {
 
 	SetupCVarTracking();
 
-	if(isHardcore()) {
+	if(isHardcore() && !VisitedMapData[DND_FAILEDMAP]) {
 		str curmap = StrParam(n:PRINTNAME_LEVEL);
 
 		// only do these if these aren't lobby maps we changed to!
@@ -257,6 +257,8 @@ Script "DnD On Map Load" OPEN {
 			}
 		}
 	}
+
+	VisitedMapData[DND_FAILEDMAP] = false;
 
 	// commented out for now!
 	//NPC_Setup();
@@ -355,6 +357,7 @@ Script "DnD On Death" DEATH {
 	SetInventory("MenuPosX", 0);
 	SetInventory("MadeChoice", 0);
 	SetInventory("DnD_PopupId", 0);
+	TakeInventory("EShieldCharging", 1);
 	TakeInventory("EShieldChargeNow", 1);
 	SetInventory("Punisher_Perk50_Counter", 0); // reset earned bonuses on death
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
@@ -385,6 +388,8 @@ Script "DnD On Death" DEATH {
 
 	if(PlayerLoaded[pnum] && !GetPlayerLivesLeft(pnum))
 		PlayerLoaded[pnum] = 0;
+
+	VisitedMapData[DND_FAILEDMAP] = GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE;
 }
 
 Script "DnD Portable Kit Script" (void) {
@@ -1128,6 +1133,8 @@ Script 832 (void) {
 	// update activities for unspent attrib and perk points
 	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, statpts, 0);
 	UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, perkpts, 0);
+
+	CalculateUnity(pnum);
 }
 
 // Weapon pickup checks, bulkiness armor check and agamotto check
@@ -3104,6 +3111,11 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	
 	ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID]);
 	ACS_NamedExecuteAlways("DnD Menu Icon Force Remove", 0, pnum + DND_MENUFLOATYICON_TID);
+
+	ResetPlayerInfo(pnum);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
 }
 
 // End of level checks
@@ -3159,7 +3171,6 @@ Script "DnD Player Setup" ENTER {
 	GiveInventory("Ability_MonsterInfo", 1);
 	CleanPetStuff();
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
-	SetInventory("DnD_BoughtArmor", 0);
 	int pnum = PlayerNumber(), curlvl, i = 0;
 	int temp = 0;
 	bool wait_other_players = false;
@@ -3818,6 +3829,9 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 
 	while(isAlive() && CheckInventory("EShieldAmount") < cap) {
 		AddEnergyShield(rchrg);
+		if(CheckInventory("EShieldAmount") >= cap)
+			SetEnergyShield(cap);
+
 		if(count) {
 			// take life -- do not damage, we aren't triggering on hit effects!
 			if(GetActorProperty(0, APROP_HEALTH) - count > 0)
@@ -3830,9 +3844,6 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 				Terminate;
 			}
 		}
-
-		if(CheckInventory("EShieldAmount") >= cap)
-			SetEnergyShield(cap);
 		
 		if(CheckInventory("DnD_Hit_CombatTimer") && !GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) && !CheckInventory("EShieldChargeNow")) {
 			TakeInventory("EShieldCharging", 1);
@@ -5508,7 +5519,7 @@ Script "DnD Phasing" (void) {
 
 		Delay(TICRATE * random(1, 5));
 
-		if(!isAlive() || CheckFlag(0, "GHOST") || MonsterProperties[m_id].trait_list[DND_GHOST])
+		if(!isAlive())
 			break;
 
 		// unmake ghost
@@ -5874,7 +5885,7 @@ Script 68 (int x) NET {
 			//SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
-			IncPlayerModValue(0, INV_ESS_KRULL, 50);
+			//IncPlayerModValue(0, INV_ESS_KRULL, 50);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 0.875);
 			//IncPlayerModValue(0, INV_ACCURACY_INCREASE, 500);
 			//SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);

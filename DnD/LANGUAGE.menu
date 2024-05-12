@@ -211,7 +211,7 @@ DND_MENU_ATTR_SHORT3 	=	"\c[INT]INT\c-";
 DND_MENU_ATTUNED		=	"Attuned";
 
 DND_MENU_ATTRTEXT1		=	"Increases \cqKnockback Resist\c- by 50 and \cgmaximum life\c- by 2.";
-DND_MENU_ATTRTEXT2		=	"Increases \cdMitigation Chance\c- by 0.075%.";
+DND_MENU_ATTRTEXT2		=	"Increases \cdMitigation Chance\c- by 0.0875%.";
 DND_MENU_ATTRTEXT3		=	"Increases \cvEnergy Shield\c- by 1% per 2 points and improves spells.";
 
 DND_MENU_PERKTEXT1		=	"more ranged damage.";

@@ -308,7 +308,7 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 				bonus + 
 				GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) +
 				unity +
-				DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS);
+				DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS);
 	if(!temp)
 		return dmg;
 	
@@ -847,7 +847,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type, flags);
 	int pnum = PlayerNumber();
-	int pen = GetResistPenetration(pnum, damage_category) + GetPlayerAttributeValue(pnum, INV_EX_UNITY_PEN_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
+	int pen = GetResistPenetration(pnum, damage_category);
 	
 	// if doomguy perk 50 is there and this is a monster, ignore res
 	// added crit ignore res modifier here from below
@@ -1109,7 +1109,6 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	forced_full |= 	(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
 					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckUniquePropertyOnPlayer(pnum, PUP_SPELLSDOFULL))					||
 					(IsOccultDamage(damage_type) && IsQuestComplete(0, QUEST_KILLDREAMINGGOD))									||
-					(IsEnergyDamage(damage_type) && CheckInventory("Cyborg_Perk50")) 											||
 					(IsExplosionDamage(damage_type) && CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))			||
 					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL));
 	
@@ -3464,6 +3463,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					//GiveInventory("DnD_DamageReceived", dmg);
 					PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 					PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
+
+					if(CheckInventory("Marine_Perk50"))
+						GiveInventory("Marine_Perk50_DamageTaken", dmg);
 					
 					// mugshot hook
 					ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);
@@ -3534,6 +3536,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			//GiveInventory("DnD_DamageReceived", dmg);
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
+
+			if(CheckInventory("Marine_Perk50"))
+				GiveInventory("Marine_Perk50_DamageTaken", dmg);
 			
 			// mugshot hook
 			ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);

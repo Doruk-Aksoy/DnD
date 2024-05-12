@@ -67,6 +67,7 @@ Actor Marine_Perk50_Cooldown : DnD_Info {
 }
 
 Actor Marine_Perk50_DamageDealt : DnD_Info { }
+Actor Marine_Perk50_DamageTaken : DnD_Info { }
 
 Actor Hobo_Perk5 : DnD_Boolean { }
 

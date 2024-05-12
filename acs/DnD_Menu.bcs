@@ -1301,7 +1301,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					stat_id = boxid - 1 + DND_ATTRIB_BEGIN;
 					stat_pt = GetPerk(stat_id);
 				
-					ConsumeAttributePointOn(stat_id, temp);
+					ConsumeAttributePointOn(pnum, stat_id, temp);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 				}

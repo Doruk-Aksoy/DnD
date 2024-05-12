@@ -2,16 +2,25 @@
 #define DND_CLASS_SC_IN
 
 Script "DnD Marine Perk 50 Checker" (void) {
-    int prev_hp;
-    int cur_hp;
+	int max_hp;
+	bool proc;
+	int counter;
+	static int i = 0;
+	++i;
     while(isAlive()) {
-        prev_hp = GetActorProperty(0, APROP_HEALTH);
-        Delay(const:TICRATE);
-        cur_hp = GetActorProperty(0, APROP_HEALTH);
+		// prev hp recorded 2 seconds ago
+		max_hp = GetSpawnHealth();
+		counter = 0;
+		proc = false;
+		do {
+			Delay(const:2);
+			proc = CheckInventory("Marine_Perk50_DamageTaken") >= Max(1, max_hp * 2 / 5);
+		} while(!proc && ++counter < MARINE_PROC_WINDOW);
 
-        // if hp difference in the second is > half of our health cap, we can trigger
-        int max_hp = GetSpawnHealth();
-        if(prev_hp - cur_hp >= max_hp / 2) {
+        // if hp difference in the second is > 40% of our health cap, we can trigger
+		SetInventory("Marine_Perk50_DamageTaken", 0);
+        
+        if(proc) {
             SetInventory("Marine_DamageReduction_Timer", DND_MARINE_DMGREDUCE_TIMER);
 
             ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
@@ -22,9 +31,9 @@ Script "DnD Marine Perk 50 Checker" (void) {
             } while(isAlive() && CheckInventory("Marine_DamageReduction_Timer"));
 
             // per 500 give hp
-            cur_hp = CheckInventory("Marine_Perk50_DamageDealt") / DND_MARINE_PERK50_HPPER;
-            if(cur_hp) {
-                HandleHealthPickup(cur_hp, 0, 0);
+            max_hp = CheckInventory("Marine_Perk50_DamageDealt") / DND_MARINE_PERK50_HPPER;
+            if(max_hp) {
+                HandleHealthPickup(max_hp, 0, 0);
                 // fx
                 Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
                 LocalAmbientSound("Items/fieldkit", 127);

@@ -70,7 +70,6 @@ Actor DnD_UseOnlyPistol : DnD_Boolean { }
 
 Actor DnD_UseNoShotgun : DnD_Boolean { }
 
-Actor DnD_BoughtArmor : DnD_Boolean { }
 Actor DnD_ShotUndead : DnD_Boolean { }
 
 Actor DnD_UsedSuperWeapon : DnD_Boolean { }

@@ -5070,25 +5070,25 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			
 			// pen block begins
-			val = GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_BULLET);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_PHYSICAL, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_ENERGY);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_ENERGY, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_EXPLOSIVES);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_EXPLOSIVE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
+			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_OCCULT);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_OCCULT, 0, 0, val), s:"\n");
 				++k;
@@ -5447,7 +5447,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			i = GetMaxResistCap(pnum);
-			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_MONSTER_RESIST_LEVELS) + 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
+			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS) + 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ELEM, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ELE", s:"\n");
 			++k;

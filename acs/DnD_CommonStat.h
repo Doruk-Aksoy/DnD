@@ -14,6 +14,8 @@
 
 #define DND_SYNTHMASK_EFFECT 4
 
+#define DND_UNITY_DIVISOR 10
+
 enum {
 	DND_WDMG_USETARGET = 1,
 	DND_WDMG_ISOCCULT = 2,
@@ -367,18 +369,22 @@ int GetStrength() {
 	return (CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
+int GetActorStrength(int tid) {
+	int pnum = tid - P_TIDSTART;
+	return (CheckActorInventory(tid, "PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+}
+
 // this sets player's unity item to cache it so we don't request it over and over in intense calculations
 void CalculateUnity(int pnum) {
-	SetInventory("PSTAT_Unity",
-		(
+	int val = (
 			CheckInventory("PSTAT_Strength") + 
 			GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH) +
 			CheckInventory("PSTAT_Dexterity") + 
 			GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY) +
 			CheckInventory("PSTAT_Intellect") +
 			GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)
-		) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100
-	);
+		) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+	SetInventory("PSTAT_Unity", val);
 }
 
 int GetUnity() {
@@ -423,6 +429,20 @@ int GetResearchHealthBonuses() {
 	return res;
 }
 
+int GetActorResearchHealthBonuses(int tid) {
+	int res = BIO_HP_ADD_1 * (CheckActorResearchStatus(tid, RES_BIO1) == RES_DONE);
+	res += BIO_HP_ADD_2 * (CheckActorResearchStatus(tid, RES_BIO2) == RES_DONE);
+	res += BIO_HP_ADD_3 * (CheckActorResearchStatus(tid, RES_BIO3) == RES_DONE);
+	
+	// cyborg's bonus
+	if(CheckActorInventory(tid, "Cyborg_Perk50")) {
+		res *= DND_CYBORG_CYBER_MULT;
+		res /= DND_CYBORG_CYBER_DIV;
+	}
+
+	return res;
+}
+
 int GetMissingHealth() {
 	return GetSpawnHealth() - GetActorProperty(0, APROP_HEALTH);
 }
@@ -435,8 +455,13 @@ int CalculateHealthCapBonuses(int pnum) {
 }
 
 // returns player max health
-int GetSpawnHealth() {
+int GetSpawnHealth(bool bypassEShieldCheck = false) {
 	int pnum = PlayerNumber();
+
+	if(!bypassEShieldCheck && GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE)) {
+		SetInventory("PlayerHealthCap", 1);
+		return 1;
+	}
 
 	int str_bonus = 0;
 	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
@@ -455,7 +480,36 @@ int GetSpawnHealth() {
 		res >>= 1;
 	if(res < DND_BASE_HEALTH)
 		res = DND_BASE_HEALTH;
-	SetInventory("PlayerHealthCap", res);
+	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
+	SetInventory("PlayerHealthCap", !GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE) ? res : 1);
+	return res;
+}
+
+int GetPlayerSpawnHealth(int pnum, bool bypassEShieldCheck = false) {
+	int tid = pnum + P_TIDSTART;
+	if(!bypassEShieldCheck && GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE)) {
+		SetActorInventory(pnum + P_TIDSTART, "PlayerHealthCap", 1);
+		return 1;
+	}
+
+	int str_bonus = 0;
+	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
+		str_bonus = DND_HP_PER_STR * GetActorStrength(tid);
+
+	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
+	// consider percent bonuses from here on
+	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
+				   CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST 			+
+				   GetActorResearchHealthBonuses(tid) 										+
+				   GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
+	// player bonus + % research bonus
+	res += (res * percent) / 100;
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_ANGELICANKH))
+		res >>= 1;
+	if(res < DND_BASE_HEALTH)
+		res = DND_BASE_HEALTH;
+	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
+	SetActorInventory(tid, "PlayerHealthCap", !GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE) ? res : 1);
 	return res;
 }
 
@@ -823,30 +877,43 @@ void HandleClassPerks(int tid) {
 }
 
 int GetResistPenetration(int pnum, int category) {
+	int val = 0;
 	switch(category) {
 		case DND_DAMAGECATEGORY_BULLET:
 		case DND_DAMAGECATEGORY_MELEE:
-		return GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_PHYSICAL);
+		break;
 		case DND_DAMAGECATEGORY_ENERGY:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
+		break;
 		case DND_DAMAGECATEGORY_EXPLOSIVES:
-		return GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
+		break;
 		case DND_DAMAGECATEGORY_OCCULT:
-		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);
+		break;
 
 		case DND_DAMAGECATEGORY_FIRE:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
+		break;
 		case DND_DAMAGECATEGORY_ICE:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_ICE);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_ICE);
+		break;
 		case DND_DAMAGECATEGORY_LIGHTNING:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
+		break;
 		case DND_DAMAGECATEGORY_POISON:
-		return GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_POISON);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_POISON);
+		break;
 
 		case DND_DAMAGECATEGORY_SOUL:
-		return GetPlayerAttributeValue(pnum, INV_PEN_OCCULT) + GetPlayerAttributeValue(pnum, INV_EX_SOULWEPSPEN);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_OCCULT) + GetPlayerAttributeValue(pnum, INV_EX_SOULWEPSPEN);
+		break;
 	}
-	return 0;
+
+	val += GetPlayerAttributeValue(pnum, INV_EX_UNITY_PEN_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
+
+	return val;
 }
 
 #endif

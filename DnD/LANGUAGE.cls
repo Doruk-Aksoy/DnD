@@ -33,7 +33,7 @@ CLASS1_TEXT				= "Marine has been through a lot, military complexes, other dimen
 
 CLASS1_PERK1			= "Your explosives do 25% less self damage. Explosive projectiles can't be reflected";
 CLASS1_PERK2			= "Enemy explosives deal 33% less damage. Explosives ignore radius damage immunity.";
-CLASS1_PERK3			= "Losing 50% of your health in the span of a second makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
+CLASS1_PERK3			= "Losing 40% of your health in the span of a two seconds makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
 
 // Hobo
 

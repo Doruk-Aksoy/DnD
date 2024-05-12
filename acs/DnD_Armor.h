@@ -1,7 +1,7 @@
 #ifndef DND_ARMOR_IN
 #define DND_ARMOR_IN
 
-#define DND_MIT_PER_DEX 0.075
+#define DND_MIT_PER_DEX 0.0875
 #define DND_MIT_BASE 50.0 // 50%
 #define DND_MIT_MAXEFFECT 90.0
 
@@ -459,6 +459,8 @@ void UpdateEnergyShieldVisual(int val) {
 
 // Absorb value for magic or poison attacks
 int GetEShieldMagicAbsorbValue(int pnum) {
+	if(GetPlayerAttributeValue(pnum, INV_EX_ESHIELDFULLABSORB))
+		return 100;
 	return HasPlayerPowerset(pnum, PPOWER_ESHIELDABSORB) * SAGE_ABSORB_VALUE + GetPlayerAttributeValue(pnum, INV_ESHIELD_ABSORB);
 }
 

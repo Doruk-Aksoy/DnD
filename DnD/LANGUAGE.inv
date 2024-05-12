@@ -79,6 +79,9 @@ DND_UCIMG18			=	"UCHRM18";
 
 // unique cores
 DND_UCORIMG1		=	"UCORE01";
+
+// unique body armors
+DND_UARMIMG1		=	"UARM1";
 	
 // orbs
 DND_OIMG1			=	"ORB1D0";
@@ -246,6 +249,9 @@ DND_UNIQUE18			=	"Mindforge";
 
 // unique power cores
 DND_UCORE_NAME1			=	"The Tesseract";
+
+// unique body armors
+DND_UARM_NAME1			=	"Protoshell";
 
 // inventory attribute table
 IATTR_T0 			= "Health";
@@ -484,6 +490,9 @@ IATTR_TX42			= "chance to immediately start recovering energy shield on depletio
 IATTR_TX43			= "Energy shield recharge is not interrupted by damage";
 IATTR_TX44			= "The energy shield explosion deals"; IATTR_TX44S = "of your health as added damage";	
 IATTR_TX45			= "Energy shield recovery also takes"; IATTR_TX45S = "of the amount from health";
+IATTR_TX46			= "Increases and reductions to health instead apply to energy shield at"; IATTR_TX46S = "of their value";
+IATTR_TX47			= "Energy shield is fully effective against all damage";
+IATTR_TX48			= "\cgYour health cap is always 1";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

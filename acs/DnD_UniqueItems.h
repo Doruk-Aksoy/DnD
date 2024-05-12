@@ -2,6 +2,7 @@
 #define DND_UNIQUE_IN
 
 #define UNIQUE_DROPCHANCE 0.05
+#define UNIQUE_ARMOR_DROPCHANCE 0.0275
 #define UNIQUE_BITS 16
 #define UNIQUE_BEGIN 65535
 
@@ -12,8 +13,6 @@
 #define DND_DEADEYE_PLUSPER 20
 #define DND_DEADEYE_MINUSPER 45
 
-#define DND_UNITY_DIVISOR 10
-
 str GetUniqueItemName(int itype, int id) {
 	switch(itype) {
 		case DND_ITEM_CHARM:
@@ -21,6 +20,9 @@ str GetUniqueItemName(int itype, int id) {
 
 		case DND_ITEM_POWERCORE:
 		return StrParam(s:"DND_UCORE_NAME", d:id - UNIQUE_POWERCORE_BEGIN + 1);
+
+		case DND_ITEM_BODYARMOR:
+		return StrParam(s:"DND_UARM_NAME", d:id - UNIQUE_BODYARMOR_BEGIN + 1);
 	}
 	return "NULL";
 }
@@ -404,6 +406,30 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_high = 10;
 	UniqueItemList[id].rolls[3].attrib_low = 20;
 	UniqueItemList[id].rolls[3].attrib_high = 50;
+
+	// body armors
+	id = UITEM_PROTOSHELL;
+	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].width = 2;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UBODY_1;
+	UniqueItemList[id].item_type = DND_ITEM_BODYARMOR | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = BODYARMOR_CYBER;
+	UniqueItemList[id].item_level = 50;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 4;
+	UniqueItemList[id].attrib_id_list[0] = INV_EX_HPTOESHIELD;
+	UniqueItemList[id].attrib_id_list[1] = INV_SHIELD_RECOVERYRATE;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_ESHIELDFULLABSORB;
+	UniqueItemList[id].attrib_id_list[3] = INV_EX_HEALTHATONE;
+	UniqueItemList[id].rolls[0].attrib_low = 15;
+	UniqueItemList[id].rolls[0].attrib_high = 30;
+	UniqueItemList[id].rolls[1].attrib_low = 100;
+	UniqueItemList[id].rolls[1].attrib_high = 100;
+	UniqueItemList[id].rolls[2].attrib_low = 1;
+	UniqueItemList[id].rolls[2].attrib_high = 1;
+	UniqueItemList[id].rolls[3].attrib_low = 1;
+	UniqueItemList[id].rolls[3].attrib_high = 1;
 }
 
 // These are necessary to sync the global variables + unique data

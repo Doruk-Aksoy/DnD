@@ -127,7 +127,13 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 		SetActivatorToTarget(0);
 	int curhp = GetActorProperty(0, APROP_HEALTH);
 	int healthcap = GetSpawnHealth();
-	int bonus = GetHealingBonuses(PlayerNumber());
+	int pnum = PlayerNumber();
+
+	// dont bother
+	if(GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE))
+		return;
+
+	int bonus = GetHealingBonuses(pnum);
 	// holds the old amt
 	int toGive = amt, base = amt;
 	// the percentage of spawn health is amt to be given
@@ -247,6 +253,10 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
 		int_bonus = GetActorIntellect(pnum + P_TIDSTART) / 2;
 
+	int hp_bonus = GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD);
+	if(hp_bonus)
+		base += GetPlayerSpawnHealth(pnum, true) * hp_bonus / 100;
+
 	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + int_bonus)) / 100;
 	return base;
 }
@@ -276,8 +286,8 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	}
 
 	if(pct != 100)
-		res = res * (100 + GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE)) / 100;
-	res /= 1000;
+		res = res * pct / 100;
+	res /= 333;
 
 	if(!res)
 		res = 1;
@@ -518,9 +528,7 @@ int GetPlayerCredit(int pnum) {
 	return CheckActorInventory(pnum + P_TIDSTART, "Credit");
 }
 
-void ConsumeAttributePointOn(int stat, int amt) {
-	int pnum = PlayerNumber();
-
+void ConsumeAttributePointOn(int pnum, int stat, int amt) {
 	GiveStat(stat, amt);
 	UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, -amt, 0);
 
@@ -528,6 +536,8 @@ void ConsumeAttributePointOn(int stat, int amt) {
 		UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
 
 	TakeInventory("AttributePoint", amt);
+
+	CalculateUnity(pnum);
 }
 
 void ConsumePerkPointOn(int perk, int amt) {
@@ -1208,7 +1218,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison) {
 	return dmg;
 }
 
-#define DND_BASE_LIFESTEALCAP 20
+#define DND_BASE_LIFESTEALCAP 33
 int GetLifestealCap(int pnum) {
 	// avoid recalculating over and over if possible -- changed from the above because if this gets to this point the GetSpawnHealth function has ran once
 	//int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
@@ -1216,7 +1226,7 @@ int GetLifestealCap(int pnum) {
 	return Clamp_Between((hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP))) / 100, 1, hp_cap);
 }
 
-#define DND_BASE_LIFESTEALRATE 20
+#define DND_BASE_LIFESTEALRATE 25
 int GetLifestealRate(int pnum) {
 	return DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE)) / 100;
 }

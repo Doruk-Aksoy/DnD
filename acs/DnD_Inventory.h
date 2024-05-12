@@ -124,7 +124,7 @@ enum {
 	IIMG_UCORE_R5,
 	IIMG_UCORE_R6,
 
-	IIMG_UBODY_R1,
+	IIMG_UBODY_1,
 	IIMG_UBODY_R2,
 	IIMG_UBODY_R3,
 	IIMG_UBODY_R4,
@@ -320,6 +320,9 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_UCORE_BEGIN IIMG_UCORE_1
 #define ITEM_IMAGE_UCORE_END IIMG_UCORE_1
 
+#define ITEM_IMAGE_UBODYARM_BEGIN IIMG_UBODY_1
+#define ITEM_IMAGE_UBODYARM_END IIMG_UBODY_1
+
 #include "DnD_Armor.h"
 #include "DnD_Powercore.h"
 #include "DnD_InvGeneric.h"
@@ -339,6 +342,10 @@ str GetItemImage(int id, bool wide = false) {
 	else if(id <= ITEM_IMAGE_UCORE_BEGIN) {
 		img_prefix = "UCOR";
 		suffix = id - ITEM_IMAGE_UCORE_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_UBODYARM_BEGIN) {
+		img_prefix = "UARM";
+		suffix = id - ITEM_IMAGE_UBODYARM_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_ORB_END) {
 		img_prefix = "O";
@@ -2503,6 +2510,11 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			SetAllAmmoCapacities(pnum);
 		break;
 
+		case INV_EX_HEALTHATONE:
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+			SetActorProperty(0, APROP_HEALTH, 1);
+		break;
+
 		case INV_EX_UNITY:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 
@@ -3180,6 +3192,10 @@ int MakeUnique(int item_pos, int item_type, int pnum) {
 			beg = UNIQUE_POWERCORE_BEGIN;
 			end = UNIQUE_POWERCORE_END;
 		break;
+		case DND_ITEM_BODYARMOR:
+			beg = UNIQUE_BODYARMOR_BEGIN;
+			end = UNIQUE_BODYARMOR_BEGIN;
+		break;
 		default:
 			beg = 0;
 			end = UNIQUE_CHARM_END;
@@ -3195,9 +3211,11 @@ int MakeUnique(int item_pos, int item_type, int pnum) {
 	}
 
 	#ifdef ISDEBUGBUILD
-		int bias = Timer() & 0xFFFF;
-		i = random(bias + beg, bias + end) - bias;
-		//i = random(UITEM_UNITY, UITEM_MINDFORGE);
+		if(item_type == DND_ITEM_CHARM) {
+			int bias = Timer() & 0xFFFF;
+			i = random(bias + beg, bias + end) - bias;
+			i = random(UITEM_UNITY, UITEM_MINDFORGE);
+		}
 	#endif
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, pnum);

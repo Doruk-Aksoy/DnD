@@ -545,6 +545,14 @@ Actor ArmorDrop_16 : ArmorDrop {
 	}
 }
 
+Actor UniqueArmor_0 : ArmorDrop {
+	States {
+		Spawn:
+			UAR0 A 0
+		Goto SpawnInit
+	}
+}
+
 // BOOTS
 
 Actor BootDrop_0 : ArmorDrop {

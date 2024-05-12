@@ -289,6 +289,9 @@ enum {
 	INV_EX_ESCHARGE_DMGNOINTERRUPT,
 	INV_EX_ESEXPLOSIONHPDMG,
 	INV_EX_ESCHARGE_USEHP,
+	INV_EX_HPTOESHIELD,
+	INV_EX_ESHIELDFULLABSORB,
+	INV_EX_HEALTHATONE,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -2075,6 +2078,11 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 				return StrParam(l:"IATTR_TX45", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX45S", s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:"IATTR_TX45", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX45S");
 
+		case INV_EX_HPTOESHIELD:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX46", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX46S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX46", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX46S");
+
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:
 		case INV_EX_DOUBLE_HEALTHCAP:
@@ -2090,6 +2098,8 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_UNITY:
 		case INV_EX_UNITY_NOBONUS:
 		case INV_EX_ESCHARGE_DMGNOINTERRUPT:
+		case INV_EX_HEALTHATONE:
+		case INV_EX_ESHIELDFULLABSORB:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:text);
