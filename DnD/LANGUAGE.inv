@@ -428,7 +428,7 @@ IATTR_TI4			= "to mitigation chance";
 IATTR_TI5			= "to armor and";
 IATTR_TI6			= "to energy shield and";
 IATTR_TI7			= "energy shield magic absorb";
-IATTR_TI8			= "chance for energy shield to explode for";		IATTR_TI8S = "of it in a 256 unit radius";
+IATTR_TI8			= "chance on hit for energy shield to explode for";		IATTR_TI8S = "of it in a 256 unit radius";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

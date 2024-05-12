@@ -1093,7 +1093,11 @@ void ResetPlayerInfo(int pnum) {
 	//ResetOrbData(pnum);
 	ResetPlayerModList(pnum);
 	ResetInvestments(pnum);
+
 	SyncAllClientsideVariables(pnum);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
 }
 
 void ResetHardcoreStuff(int pnum) {
@@ -1102,7 +1106,7 @@ void ResetHardcoreStuff(int pnum) {
 	BreakTradesBetween(pnum);
 	// may join later, sync everything
 	if(PlayerIsSpectator(pnum)) {
-		SyncAllClientsideVariables(pnum);
+		//SyncAllClientsideVariables(pnum);
 		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);

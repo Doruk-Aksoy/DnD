@@ -3111,11 +3111,6 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	
 	ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID]);
 	ACS_NamedExecuteAlways("DnD Menu Icon Force Remove", 0, pnum + DND_MENUFLOATYICON_TID);
-
-	ResetPlayerInfo(pnum);
-	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
-	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
 }
 
 // End of level checks

@@ -534,7 +534,7 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 17 A_SpawnItem("DevastatorExplosion")
-		Goto FinishExplosion
+		Stop
 	}
 }
 
