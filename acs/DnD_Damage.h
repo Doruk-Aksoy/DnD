@@ -2883,19 +2883,15 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	// ELEMENTAL DAMAGE BLOCK BEGINS
 	// we can only have 1 element attributed to one damage type at a time
 	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_FIRE);
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_FIRE, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
 
 		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDFIRETAKEN))
 			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
 	}
-	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ICE);
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
-	}
+	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE)
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ICE, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
 	else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_LIGHTNING);
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_LIGHTNING, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
 
 		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDLIGHTNINGTAKEN))
 			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
@@ -2910,9 +2906,8 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
 		
 		// reduced poison damage taken
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_POISON);
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ELEM);
-		
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_POISON, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
+
 		// toxicology ability
 		if(CheckInventory("Ability_AntiPoison")) {
 			if(!CheckInventory("Cyborg_Perk25"))

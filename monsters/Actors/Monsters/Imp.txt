@@ -24,8 +24,8 @@ actor STDarkImp : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			DRKS AB 10 A_Look
+		IdleState:
+			DRKS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DRKS AABBCCDD 3 Fast A_Chase
@@ -136,8 +136,8 @@ actor NamiDarkImp : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			DRKI AB 10 A_Look
+		IdleState:
+			DRKI AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DRKI AABBCCDD 3 Fast A_Chase
@@ -240,8 +240,8 @@ actor VoidDarkImp : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			DRKV AB 10 A_Look
+		IdleState:
+			DRKV AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DRKV AABBCCDD 3 Fast A_Chase
@@ -396,8 +396,8 @@ actor NetherDarkImp : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			DRKV AB 10 A_Look
+		IdleState:
+			DRKV AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DRKV AABBCCDD 3 Fast A_Chase
@@ -565,8 +565,8 @@ Actor ImpAbomination : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			TRO5 AB 10 A_Look
+		IdleState:
+			TRO5 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TRO5 AABBCCDD 3 Fast A_Chase
@@ -630,8 +630,8 @@ Actor STImp : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_STIMP)
 		Goto SpawnSetup
 
-		Idle:
-			TRO3 AB 10 A_Look
+		IdleState:
+			TRO3 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TRO3 AABBCCDD 3 Fast A_Chase
@@ -727,8 +727,8 @@ Actor VoidImp : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_VOIDIMP)
 		Goto SpawnSetup
 	
-		Idle:
-			TRO4 AB 10 A_Look
+		IdleState:
+			TRO4 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TRO4 AABBCCDD 3 Fast A_Chase
@@ -830,8 +830,8 @@ actor SoulHarvester : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_SOULHARVESTER)
 		Goto SpawnSetup
 	
-		Idle:
-			SLHV AB 10 A_Look
+		IdleState:
+			SLHV AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SLHV AABBCCDD 3 Fast A_Chase
@@ -956,8 +956,8 @@ actor PyroImp : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			PRIM AB 10 A_Look
+		IdleState:
+			PRIM AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			PRIM AABBCCDD 3 Fast A_Chase
@@ -1179,8 +1179,8 @@ actor Devil : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
-		Idle:
-			TRO2 AB 10 A_Look
+		IdleState:
+			TRO2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TRO2 AABBCCDD 3 Fast A_Chase
@@ -1259,8 +1259,8 @@ actor Devil2 : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			TRO6 AB 8 A_Look
+		IdleState:
+			TRO6 AB 8 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TRO6 AABBCCDD 2 Fast A_Chase
@@ -1413,8 +1413,8 @@ actor Vulgar : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			VULG AB 10 A_Look
+		IdleState:
+			VULG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			VULG AABBCCDD 3 Fast A_Chase
@@ -1512,8 +1512,8 @@ Actor UndeadMage : DnD_ArchVileBase {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			CMYS AB 10 A_Look
+		IdleState:
+			CMYS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_JumpIfHealthLower(30, "NoRaiseState")
@@ -1634,8 +1634,8 @@ Actor ReaverRobot : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
-		Idle:
-			5TRF A 7 A_Look
+		IdleState:
+			5TRF A 7 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			5TRF BBCC 3 Fast A_Chase
@@ -1761,8 +1761,8 @@ ACTOR Shadow : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			TROX A 5 A_Look
+		IdleState:
+			TROX A 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TROX AAA 1 Fast A_Chase
@@ -1965,10 +1965,10 @@ Actor Roach : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
+		IdleState:
 			TNT1 A 0 A_TakeInventory("MonsterRegenPause", 1)
 		IdleLoop:
-			ROAC AA 3 Fast A_Look
+			ROAC AA 3 Fast A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_TakeInventory("MonsterRegenPause", 1)

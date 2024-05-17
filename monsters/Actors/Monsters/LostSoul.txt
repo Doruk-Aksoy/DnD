@@ -24,8 +24,8 @@ ACTOR BabyCaco : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			CACB A 10 A_Look
+		IdleState:
+			CACB A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			CACB A 3 Fast A_Chase
@@ -120,8 +120,8 @@ Actor Fleshspawn : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			FLSP AB 8 A_Look
+		IdleState:
+			FLSP AB 8 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			FLSP AABB 2 Fast A_Chase
@@ -365,8 +365,8 @@ ACTOR ESoul : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			ETHS ABCD 10 bright A_Look
+		IdleState:
+			ETHS ABCD 10 bright A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			ETHS AABBCCDD 3 Fast bright A_Chase 
@@ -468,8 +468,8 @@ Actor GuardianCube : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			CUBE A 10 A_Look 
+		IdleState:
+			CUBE A 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			CUBE ABC 5 Fast A_Chase
@@ -579,10 +579,10 @@ Actor ForgottenOne : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
+		IdleState:
 			FRGO A 0 Bright
 			FRGO A 0 Bright A_ChangeFlag("FloatBob", 1)
-			FRGO AAAAAABBBBBB 1 Bright A_Look
+			FRGO AAAAAABBBBBB 1 Bright A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			FRGO A 0 A_ChangeFlag("FloatBob", 1)
@@ -647,8 +647,8 @@ ACTOR Watcher : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
-		Idle:
-			WATC A 10 A_Look 
+		IdleState:
+			WATC A 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			WATC A 3 Fast A_Chase

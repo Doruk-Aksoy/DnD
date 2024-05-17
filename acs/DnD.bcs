@@ -314,11 +314,13 @@ Script "DnD On Death" DEATH {
 				// reset on death
 				ResetHardcoreStuff(pnum);
 				
-				if(PlayerIsLoggedIn(pnum) && GetGameModeState() == GAMESTATE_INPROGRESS) {
+				if(PlayerIsLoggedIn(pnum) && GetGameModeState() >= GAMESTATE_INPROGRESS) {
 					BeginDBTransaction();
 					
 					WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
 					ResetPlayerActivities(pnum, false);
+
+					PlayerLoaded[pnum] = 0;
 
 					EndDBTransaction();
 				}
@@ -384,10 +386,11 @@ Script "DnD On Death" DEATH {
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	Thing_ChangeTID(0, 0);
 	
-	Delay(const:5);
+	// we moved this to HandlePlayerDataSave and above
+	//if(PlayerLoaded[pnum] && !GetPlayerLivesLeft(pnum))
+	//	PlayerLoaded[pnum] = 0;
 
-	if(PlayerLoaded[pnum] && !GetPlayerLivesLeft(pnum))
-		PlayerLoaded[pnum] = 0;
+	Delay(const:5);
 
 	VisitedMapData[DND_FAILEDMAP] = GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE;
 }
@@ -806,6 +809,8 @@ Script "DND On Kill" KILL {
 	}
 	
 	int m_id = this - DND_MONSTERTID_BEGIN;
+
+	MonsterProperties[m_id].isIdle = false;
 	
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
@@ -858,6 +863,9 @@ Script "DND On Kill" KILL {
 	// remove freeze and chill timers
 	SetInventory("DnD_ChillStacks", 0);
 	SetInventory("DnD_FreezeTimer", 0);
+
+	if(IsBlindCastingMonster(m_id))
+		ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS");
 
 	ACS_NamedExecuteAlways("DnD Monster Death Effects", 0, this, m_id);
 		
@@ -1918,6 +1926,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
 
+	//GiveInventory("Phasing_Script_Run", 1);
+	//MonsterProperties[m_id].trait_list[DND_PHASING] = true;
+
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
 		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
@@ -2119,7 +2130,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	CheckUniqueBossPossibility(this, m_id);
 	
 	GiveInventory("DnD_MonsterSetupDone", 1);
-	
+
 	SetResultValue(0);
 }
 
@@ -2515,6 +2526,10 @@ Script "DnD Player Levelup Check" (int tid) {
 	// -1 because initial level is 1
 	// we need to check for the current up-to-date level, not previous level here!!
 	while((currlvl = GetActorLevel(tid)) < MAXLEVELS && GetPlayerExp(pnum) >= LevelCurve[currlvl - 1]) {
+		// don't keep checking if player suffers a terrible fate
+		if(!PlayerInGame(pnum) || !IsActorAlive(tid))
+			Terminate;
+
 		exptemp = GetPlayerExp(pnum) - LevelCurve[currlvl - 1];
 		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
 			GiveActorInventory(tid, "PerkPoint", 1);
@@ -2532,10 +2547,6 @@ Script "DnD Player Levelup Check" (int tid) {
 		UpdateActivity(pnum, DND_ACTIVITY_LEVEL, 1, 0);
 
 		Delay(const:1);
-
-		// don't keep checking if player suffers a terrible fate
-		if(!PlayerInGame(pnum) || !IsActorAlive(tid))
-			Terminate;
 	}
 
 	currlvl = GetActorLevel(tid) - prevlvl;
@@ -3372,6 +3383,21 @@ Script "DnD Player Setup" ENTER {
 		ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0);
 
 	TakeInventory("DnD_CountdownProtection", 1);
+}
+
+Script "DnD Can Look Around" (void) {
+	int res = IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
+	SetResultValue(res);
+}
+
+Script "DnD Monster Idle" (void) {
+	int tid = ActivatorTID();
+	MonsterProperties[tid - DND_MONSTERTID_BEGIN].isIdle = true;
+}
+
+Script "DnD Monster Active" (void) {
+	int tid = ActivatorTID();
+	MonsterProperties[tid - DND_MONSTERTID_BEGIN].isIdle = false;
 }
 
 Script "DnD Loot Penalty Text" (void) CLIENTSIDE {
@@ -4242,6 +4268,9 @@ Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 Script "DnD Give Energy Shield" (int val) {
 	int cap = GetPlayerEnergyShieldCap(PlayerNumber());
 	if(cap) {
+		// still assume this as minimum
+		if(cap < DND_ESHIELD_NONE_BASE)
+			cap = DND_ESHIELD_NONE_BASE;
 		val = val * cap / 100;
 		if(!val)
 			val = 1;
@@ -5498,6 +5527,10 @@ Script "DnD Phasing" (void) {
 	SetActorProperty(0, APROP_RENDERSTYLE, STYLE_TRANSLUCENT);
 	a = GetActorProperty(0, APROP_ALPHA);
 	While(isAlive() && !CheckFlag(0, "GHOST")) {
+		// wait while idle
+		while(MonsterProperties[m_id].isIdle)
+			Delay(const:TICRATE);
+
 		Delay(TICRATE * random(1, 5));
 
 		// if somehow already ghost here, kill the script, it acquired this through other means
@@ -5851,7 +5884,7 @@ Script "test" (void) {
 Script 68 (int x) NET {
 	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode
 	#ifdef ISDEBUGBUILD
-		if(!isSoftorHardcore() && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
+		//if(!isSoftorHardcore() && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
 	{
 		int i;
 		if(x < MAX_RESEARCHES) {
@@ -5877,7 +5910,7 @@ Script 68 (int x) NET {
 			SpawnPowercore(0, true);
 			SpawnBoot(0, 0);
 			SpawnHelm(0, 0);
-			//SpawnToken(0, true);
+			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
 			//IncPlayerModValue(0, INV_ESS_KRULL, 50);

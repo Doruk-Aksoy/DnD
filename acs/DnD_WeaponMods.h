@@ -40,7 +40,7 @@ int GetPlayerWeaponModVal(int pnum, int wepid, int wepmod) {
 str GetWeaponModText(int val, int id, int extra_bit = 0) {
 	switch(id) {
 		case WEP_MOD_CRIT:
-			return StrParam(s:"\c[Y5]* \c[Q9]", f:ftrunc(val * 100), s:"% ", l:"IATTR_T37");
+			return StrParam(s:"\c[Y5]* \c[Q9]", s:GetFixedRepresentation(val, true), s:"% ", l:"IATTR_T37");
 		case WEP_MOD_CRITDMG:
 			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T39");
 		case WEP_MOD_CRITPERCENT:

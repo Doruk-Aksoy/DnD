@@ -60,7 +60,7 @@ enum {
 #define DND_LICHARM_BUFF 25 // 25% more damage
 
 #define DND_SIGIL_BUFF 100 // x2
-#define DND_SIGIL_NERF 99999 // x0 => complete negation of damage
+#define DND_SIGIL_NERF 100 // x0 => complete negation of damage
 
 #define DND_HUNTERTALISMAN_NERF 3 // 1 / 3 -- this is subtracted
 

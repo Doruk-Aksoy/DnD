@@ -23,8 +23,8 @@ Actor Corpulent : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			FAT2 AAAAAAAAAABBBBBBBBBB 1 A_Look
+		IdleState:
+			FAT2 AB 8 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			FAT2 ABCDEF 6 Fast A_Chase
@@ -186,8 +186,8 @@ Actor Daedabus : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
-		Idle:
-			DAED AB 15 A_Look
+		IdleState:
+			DAED AB 15 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DAED AABBCCDDEEFF 4 Fast A_Chase
@@ -313,8 +313,8 @@ actor IceFatso : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_ICEFATSO)
 		Goto SpawnSetup
 	
-		Idle:
-			FATT AB 15 A_Look
+		IdleState:
+			FATT AB 15 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			FATT AABBCCDDEEFF 4 A_Chase
@@ -433,8 +433,8 @@ Actor Mafibus : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			MFBS AAAAAAAAAAAAAAABBBBBBBBBBBBBBB 1 A_Look
+		IdleState:
+			MFBS AAAAAAAAAAAAAAABBBBBBBBBBBBBBB 1 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			MFBS A 0 A_TakeInventory("MafibusChecker", 3)
@@ -585,8 +585,8 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			HPAL AB 10 A_Look 
+		IdleState:
+			HPAL AB 10 A_GiveInventory("DnD_SightChecker", 1) 
         Loop 
 		SeeState:
 		   TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
@@ -904,8 +904,8 @@ actor Gamon : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
-		Idle:
-			VEST AB 10 A_Look
+		IdleState:
+			VEST AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
@@ -1079,8 +1079,8 @@ Actor Mephisto : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
-		Idle:
-			MMDR A 6 A_Look
+		IdleState:
+			MMDR A 6 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			MMDR ABCD 4 Fast A_Chase
@@ -1227,8 +1227,8 @@ Actor Abomination : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			HFAT AB 15 A_Look
+		IdleState:
+			HFAT AB 15 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			HFAT AABBCCDDEEFF 4 Fast A_Chase
@@ -1419,8 +1419,8 @@ Actor GoldGolem : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			GOL4 A 10 A_Look
+		IdleState:
+			GOL4 A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			GOL4 AA 2 Fast A_Chase
@@ -1596,10 +1596,10 @@ ACTOR Redeemer : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
+		IdleState:
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 		IdleLoop:
-			13RF Q 10 A_Look
+			13RF Q 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)

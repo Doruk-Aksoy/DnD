@@ -26,8 +26,8 @@ Actor Demolisher : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			DEMO AB 10 A_Look 
+		IdleState:
+			DEMO AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			DEMO A 3 Fast A_Metal 
@@ -175,9 +175,9 @@ ACTOR Arachnophyte : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
+		IdleState:
 			APYT A 0 A_PlaySound("arachnophyte/engine")
-			APYT ABABAB 4 A_Look
+			APYT ABABAB 4 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			APYT A 0 A_PlaySound("arachnophyte/engine")
@@ -281,8 +281,8 @@ actor PsionicQueen : DnD_BaseHybridBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			ARNQ A 1 A_Look
+		IdleState:
+			ARNQ A 1 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ARNQ A 2 Fast A_Chase
@@ -558,8 +558,8 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			LMDA AB 10 A_Look
+		IdleState:
+			LMDA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			LMDA AABBCCDD 3 Fast A_Chase
@@ -728,8 +728,8 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	
-		Idle:
-			GLIC A 1 A_Look
+		IdleState:
+			GLIC A 1 A_GiveInventory("DnD_SightChecker", 1)
 			GLIC A 3 A_SpawnItemEx("GoldLichGlitter", random(-32,32), random(-32,32), random(8,104),0,0,0, 0,0, 0)
 		Loop
 		SeeState:
@@ -1041,8 +1041,8 @@ ACTOR FakeGoldlich : Goldlich {
 			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
 		Goto SpawnSetup
 	
-		Idle:
-			GLIC A 10 A_Look
+		IdleState:
+			GLIC A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			GLIC A 1 A_Chase
@@ -1104,8 +1104,8 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			ILIC A 5 A_Look
+		IdleState:
+			ILIC A 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ILIC A 3 Fast A_Chase
@@ -1204,7 +1204,6 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 		Goto See
 		XDeathState:
 		DeathState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS")
 			TNT1 A 0 A_Scream
 			ILIC PPPP 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)  
 			TNT1 A 0 A_NoBlocking
@@ -1599,7 +1598,7 @@ Actor LichTurret {
 	Obituary "%o was mesmerized by the gaze of an Iron Lich."
 	States {
 		Spawn:
-			STAR G 2 Bright A_Look
+			STAR G 2 Bright A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		See:
 			TNT1 A 0 A_JumpIf(10 == user_count, "Death")
@@ -1646,8 +1645,8 @@ Actor SpiderOverlord : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			NMAS AB 10 A_Look
+		IdleState:
+			NMAS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
@@ -1791,8 +1790,8 @@ actor DarkLich : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			DLCH A 3 A_Look
+		IdleState:
+			DLCH A 3 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DLCH A 3 Fast A_Chase

@@ -22,8 +22,8 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	
-		Idle:
-			DPOS AB 10 A_Look
+		IdleState:
+			DPOS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DPOS AABBCCDD 3 Fast A_Chase
@@ -100,8 +100,8 @@ Actor ChaingunMajor : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			CPS2 AB 10 A_Look
+		IdleState:
+			CPS2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			CPS2 AABBCCDD 3 Fast A_Chase
@@ -172,8 +172,8 @@ actor ZSec : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			ZSEC E 1 A_Look
+		IdleState:
+			ZSEC E 1 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			ZSEC A 0 A_TakeInventory("ZSecCharge", 1)
@@ -328,8 +328,8 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			ZSP2 AAAAAAAAAABBBBBBBBBB 1 A_Look
+		IdleState:
+			ZSP2 AAAAAAAAAABBBBBBBBBB 1 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ZSP2 ABCD 3 A_Chase
@@ -401,8 +401,8 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			QZOM AB 10 A_Look
+		IdleState:
+			QZOM AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			QZOM AABBCCDD 4 A_Chase
@@ -500,8 +500,8 @@ actor UndeadInitiate : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			1102 A 10 A_Look
+		IdleState:
+			1102 A 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			1102 A 0 A_Jump (32, "Run")
@@ -582,8 +582,8 @@ Actor MrRobot : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
-		Idle:
-			MROB A 4 A_Look
+		IdleState:
+			MROB A 4 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_Jump(96, "Sprint")
@@ -711,8 +711,8 @@ Actor MachinegunGuy : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
-		Idle:
-			EASS AB 10 A_Look
+		IdleState:
+			EASS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			EASS AABBCCDD 3 Fast A_Chase
@@ -778,8 +778,8 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			ZMAY AB 10 A_Look
+		IdleState:
+			ZMAY AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ZMAY AABBCCDD 4 Fast A_Chase
@@ -878,8 +878,8 @@ Actor Berserkerguy : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
-		Idle:
-			CGOS AB 10 A_Look
+		IdleState:
+			CGOS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "See2")

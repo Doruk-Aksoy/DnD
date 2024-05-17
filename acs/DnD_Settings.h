@@ -41,7 +41,13 @@ str FlagCheckList[MAXFLAGS] = {
 #define DND_HARDCORE_MAXLIVES 1
 int FlagAcceptedValues[MAXFLAGS] = {
 	DND_HARDCORE_MAXLIVES,
+	
+	#ifdef ISDEBUGBUILD
+	2,
+	#else
 	1,
+	#endif
+
 	1.0,
 	
 	// sv_cheats

@@ -26,8 +26,8 @@ ACTOR TorturedSoul : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_TORTUREDSOUL)
 		Goto SpawnSetup
 		
-		Idle:
-			TORT AB 10 A_Look 
+		IdleState:
+			TORT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState:
 			TORT AABBCC 3 Fast A_Chase 
@@ -160,8 +160,8 @@ ACTOR Defiler : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			PAIN AB 10 A_Look
+		IdleState:
+			PAIN AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			PAIN AABBCC 2 Fast A_Chase
@@ -322,8 +322,8 @@ Actor Helemental : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			HELE A 10 A_Look
+		IdleState:
+			HELE A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			HELE A 0 A_SetShootable
@@ -575,8 +575,8 @@ ACTOR HS : DnD_BaseMeleeMonster {
 			TNT1 A 0 A_SetArg(4, DND_HADESSPHERE)
 		Goto SpawnSetup
 
-		Idle:
-			TNT1 A 8 Bright A_Look      
+		IdleState:
+			TNT1 A 8 Bright A_GiveInventory("DnD_SightChecker", 1)      
 		Loop
 		SeeState:
 			HADE EFGH 4 Fast Bright
@@ -638,7 +638,7 @@ Actor HS_NoExp : HS {
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Goto SpawnSetup
 		
-		Idle:
+		IdleState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
 		Goto Super::Idle
 		GoAttack:
@@ -704,8 +704,8 @@ actor DESentinel : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
-		Idle:
-			SENT A 10 A_Look
+		IdleState:
+			SENT A 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			SENT A 3 Fast A_Chase
@@ -899,8 +899,8 @@ ACTOR BloodLich : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			BLCH A 10 A_Look
+		IdleState:
+			BLCH A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			BLCH A 4 Fast A_Chase
@@ -1088,8 +1088,8 @@ ACTOR ShadowDisciple : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			DISC AB 10 A_Look 
+		IdleState:
+			DISC AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			DISC AAABBB 2 Fast A_Chase
@@ -1342,8 +1342,8 @@ Actor HellArbiter : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			ARBT AB 5 A_Look
+		IdleState:
+			ARBT AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ARBT AABB 4 Fast A_Chase

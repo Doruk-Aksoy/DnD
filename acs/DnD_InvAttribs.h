@@ -1390,6 +1390,7 @@ int GetItemAttributeFactor(int item_type, int item_subtype) {
 			return DND_LARGECHARM_ATTRFACTOR;
 		else if(item_subtype == DND_CHARM_SMALL)
 			return DND_SMALLCHARM_ATTRFACTOR;
+		return 0;
 	}
 	return DND_POWERCORE_ATTRFACTOR;
 }

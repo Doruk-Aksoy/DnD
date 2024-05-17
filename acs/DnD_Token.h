@@ -7,6 +7,8 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
 
     switch(token_type) {
         case DND_TOKEN_ARMORER:
+            if(item_type > UNIQUE_BEGIN)
+                item_type &= 0xFFFF;
             res = (item_type == DND_ITEM_BODYARMOR || item_type == DND_ITEM_BOOT || item_type == DND_ITEM_HELM || item_type == DND_ITEM_POWERCORE) && PlayerInventoryList[pnum][item_id].quality < DND_MAX_ITEM_QUALITY;
         break;
         case DND_TOKEN_GUNSMITH:

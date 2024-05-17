@@ -20,8 +20,8 @@ Actor ZombieMan2 : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_ZOMBIEMANID)
 		Goto SpawnSetup
 		
-		Idle:
-			ZHRF AB 10 A_Look
+		IdleState:
+			ZHRF AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ZHRF AABBCCDD 4 Fast A_Chase
@@ -111,8 +111,8 @@ Actor Shotgunguy2 : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_SHOTGUNNERID)
 		Goto SpawnSetup
 
-		Idle:
-			ZSSH AB 10 A_Look
+		IdleState:
+			ZSSH AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ZSSH AABBCCDD 3 Fast A_Chase
@@ -178,8 +178,8 @@ Actor Chaingunguy2 : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_CHAINGUNGUYID)
 		Goto SpawnSetup
 
-		Idle:
-			ZCCH AB 10 Fast A_Look
+		IdleState:
+			ZCCH AB 10 Fast A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ZCCH AABBCCDD 3 Fast A_Chase
@@ -248,8 +248,8 @@ Actor Demon2x : DnD_BaseMeleeMonster {
 			TNT1 A 0 A_SetArg(4, DND_DEMONID)
 		Goto SpawnSetup
 		
-		Idle:
-			SARG AB 10 A_Look
+		IdleState:
+			SARG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SARG AABBCCDD 2 Fast A_Chase
@@ -319,8 +319,8 @@ Actor DoomImp2 : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_IMPID)
 		Goto SpawnSetup
 
-		Idle:
-			IMP0 AB 10 Fast A_Look
+		IdleState:
+			IMP0 AB 10 Fast A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			IMP0 AABBCCDD 3 Fast A_Chase
@@ -428,8 +428,8 @@ Actor LostSoul2 : DnD_BaseRangedMonster {
 			SKUL A 0 A_SetArg(4, DND_LOSTSOULID)
 		Goto SpawnSetup
 		
-		Idle:
-			SKUL AB 6 Bright A_Look
+		IdleState:
+			SKUL AB 6 Bright A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		
 		SeeState:
@@ -469,7 +469,7 @@ Actor LostSoulNoExp : LostSoul2 {
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Goto SpawnSetup
 		
-		Idle:
+		IdleState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
 		Goto Super::Idle
 		GoAttack:
@@ -508,8 +508,8 @@ Actor CacoDemon2 : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_CACODEMONID)
 		Goto SpawnSetup
 	 
-		Idle:
-			HEAD A 10 A_Look
+		IdleState:
+			HEAD A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			HEAD A 3 Fast A_Chase
@@ -584,8 +584,8 @@ Actor PainElemental2 : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_PAINELEMENTALID)
 		Goto SpawnSetup
 
-		Idle:
-			PAIN A 10 A_Look
+		IdleState:
+			PAIN A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			PAIN AABBCC 3 Fast A_Chase
@@ -644,8 +644,8 @@ Actor Revenant2 : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_REVENANTID)
 		Goto SpawnSetup
 
-		Idle:
-			SKEL AB 10 A_Look
+		IdleState:
+			SKEL AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SKEL AABBCCDDEEFF 2 A_Chase
@@ -739,8 +739,8 @@ Actor HellKnight2 : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_HELLKNIGHTID)
 		Goto SpawnSetup
 		
-		Idle:
-			BOS2 AB 10 A_Look
+		IdleState:
+			BOS2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			BOS2 AABBCCDD 3 Fast A_Chase
@@ -814,8 +814,8 @@ Actor BaronOfHell2 : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_BARONID)
 		Goto SpawnSetup
 
-		Idle:
-			BOSS AB 10 A_Look
+		IdleState:
+			BOSS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			BOSS AABBCCDD 3 A_Chase
@@ -870,8 +870,8 @@ Actor Mancubus2 : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_FATSOID)
 		Goto SpawnSetup
 	
-		Idle:
-			FATT AB 15 A_Look
+		IdleState:
+			FATT AB 15 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			FATT AABBCCDDEEFF 4 A_Chase
@@ -951,8 +951,8 @@ Actor Arachno2 : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_ARACHNOTRONID)
 		Goto SpawnSetup
 	
-		Idle:
-			BSPI AB 10 A_Look
+		IdleState:
+			BSPI AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeStateSkip")
@@ -1037,8 +1037,8 @@ Actor ArchVile2 : DnD_ArchVileBase {
 			TNT1 A 0 A_SetArg(4, DND_ARCHVILEID)
 		Goto SpawnSetup
 		
-		Idle:
-			VILE AB 10 A_Look
+		IdleState:
+			VILE AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			VILE AABBCCDDEEFF 2 A_VileChase
@@ -1103,8 +1103,8 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss {
 			TNT1 A 0 A_SetArg(4, DND_SPIDERMASTERMINDID)
 		Goto SpawnSetup
 		
-		Idle:
-			SPID AB 10 A_Look
+		IdleState:
+			SPID AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
@@ -1239,8 +1239,8 @@ Actor Cyberdemon2 : DnD_BaseRangedBoss {
 			TNT1 A 0 A_SetArg(4, DND_CYBERDEMONID)
 		Goto SpawnSetup
 		
-		Idle:
-			CYBR AB 10 A_Look
+		IdleState:
+			CYBR AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			CYBR A 3 A_Hoof
@@ -1343,8 +1343,8 @@ Actor WolfensteinSS2 : DnD_BaseRangedMonster {
 		Goto SpawnSetup
 		
 
-		Idle:
-			SSWV AB 10 A_Look
+		IdleState:
+			SSWV AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SSWV AABBCCDD 3 A_Chase
@@ -1442,8 +1442,8 @@ Actor ReiverGhost : DnD_ArchVileBase {
 			TNT1 A 0 A_SetArg(4, DND_WRAITH)
 		Goto SpawnSetup
 		
-		Idle:
-			WRTH A 4 A_Look
+		IdleState:
+			WRTH A 4 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		
 		SeeState:
@@ -1521,7 +1521,7 @@ Actor ReiverGhost_NoExp : ReiverGhost {
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		Goto SpawnSetup
 	
-		Idle:
+		IdleState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
 		Goto Super::Idle
 		GoAttack:
@@ -1537,10 +1537,10 @@ Actor ReiverGhost_NoExp_NoSolid : ReiverGhost_NoExp {
 	-SOLID
 	
 	States {
-		Idle:
+		IdleState:
 			TNT1 A 0 A_ChangeFlag("SOLID", 0)
 		IdleLoop:
-			WRTH A 4 A_Look
+			WRTH A 4 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 	}
 }
@@ -1634,7 +1634,7 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_SetArg(4, DND_PHANTASM)
 		Goto SpawnSetup
 		
-		Idle:
+		IdleState:
 			TNT1 A 0 A_UnsetSolid
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "IdleLoop")
 			TNT1 A 0 A_PlaySound("Phantasm/Rise", CHAN_VOICE)
@@ -1643,7 +1643,7 @@ Actor Phantasm : DnD_BaseHybridMonster_NoRes {
 			PHNT EEEEEEE 2 A_FadeIn(0.125)
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 		IdleLoop:
-			PHNT A 2 A_Look
+			PHNT A 2 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		
 		SeeState:

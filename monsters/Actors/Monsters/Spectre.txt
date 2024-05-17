@@ -26,8 +26,8 @@ Actor Lurker : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_LURKER)
 		Goto SpawnSetup
 		
-		Idle:
-			SAR2 AB 10 A_Look
+		IdleState:
+			SAR2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SAR2 AABBCCDD 2 Fast A_Chase
@@ -97,8 +97,8 @@ Actor FlameDemonGhost : FlameDemon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			SARG AB 8 A_Look
+		IdleState:
+			SARG AB 8 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SARG AABBCCDD 2 Fast A_Chase
@@ -155,8 +155,8 @@ ACTOR NightmareSpectre : DnD_BaseMeleeMonster {
 			TNT1 A 0 A_SetArg(4, DND_NIGHTMAREDEMON)
 		Goto SpawnSetup
 
-		Idle:
-			SARG AB 8 A_Look
+		IdleState:
+			SARG AB 8 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SARG AABBCCDD 2 Fast A_Chase
@@ -214,8 +214,8 @@ Actor Gravedigger : DnD_BaseMeleeMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			SARG AB 10 A_Look
+		IdleState:
+			SARG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SARG AABBCCDD 2 Fast A_Chase
@@ -274,8 +274,8 @@ Actor Devourer : DnD_BaseMeleeMonster {
 			TNT1 A 0 A_SetArg(4, DND_DEVOURER)
 		Goto SpawnSetup
 		
-		Idle:
-			SARG AB 10 A_Look
+		IdleState:
+			SARG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SARG AABBCCDD 2 Fast A_Chase
@@ -335,8 +335,8 @@ Actor SoulEaterGhost : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 		
-		Idle:
-			SOEA AB 10 A_Look
+		IdleState:
+			SOEA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SOEA AABBCCDD 2 Fast A_Chase
@@ -399,8 +399,8 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			SOEA AB 10 A_Look
+		IdleState:
+			SOEA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
@@ -511,10 +511,10 @@ Actor RavagerGhost : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			SAR3 A 10 A_Look
+		IdleState:
+			SAR3 A 10 A_GiveInventory("DnD_SightChecker", 1)
 			SAR3 A 0 A_SpawnItemEX("RavagerTrailA") 
-			SAR3 B 10 A_Look
+			SAR3 B 10 A_GiveInventory("DnD_SightChecker", 1)
 			SAR3 B 0 A_SpawnItemEX("RavagerTrailB") 
 		Loop 
 		SeeState: 

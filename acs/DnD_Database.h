@@ -367,21 +367,8 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, temp);
 	
 	// save perks (use 4 bits per perk, max is 10 for a perk)
-	temp = CheckActorInventory(tid, "Perk_Sharpshooting");
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Brutality")) << 4;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Endurance")) << 8;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Wisdom")) << 12;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Greed")) << 16;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Medic")) << 20;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Munitionist")) << 24;
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Deadliness")) << 28;
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, temp);
-	
-	// save perks - 2
-	temp = CheckActorInventory(tid, "Perk_Savagery");
-	temp |= (0xF & CheckActorInventory(tid, "Perk_Luck")) << 4;
-	SetDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc, temp);
+	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, GetActorPerk(tid, i));
 	
 	// save health and armor
 	temp = GetActorProperty(tid, APROP_HEALTH);
@@ -570,35 +557,9 @@ void SavePlayerActivities(int pnum, int char_id) {
 	temp = PlayerActivities[pnum].attribute_change[STAT_INT];
 	IncrementDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, temp);
 	
-	// save perks (use 4 bits per perk, max is 10 for a perk so it saves the first 8 perks packed into 4 bits)
-	i = STAT_SHRP - DND_PERK_BEGIN;
-	temp = PlayerActivities[pnum].perk_change[i];
-	//printbold(s:"perk ", d:i, s: " change: ", d:temp);
-	for(j = 0; j < 7; ++j) {
-		vt = PlayerActivities[pnum].perk_change[++i];
-		//printbold(s:"perk ", d:i, s: " change: ", d:vt);
-		if(vt < 0)
-			temp -= (-vt) << ((j + 1) * 4);
-		else
-			temp += vt << ((j + 1) * 4);
-	}
-	// send temp over
-	IncrementDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, temp);
-	
-	// save perks - 2 -- send the leftovers, as long as we have <= 16 perks we're fine here
-	// -1 is because we always set the initial value to the previous one we left at, so the first batch saved 8 perks and is waiting at 9th
-	// 9th and 10th need to be saved, our initial is 9 we need 10th saved so max perks - 9 = 1, loop will run once for 10 perks
-	temp = PlayerActivities[pnum].perk_change[++i];
-	//printbold(s:"2nd loop perk ", d:i, s: " change: ", d:temp);
-	for(j = 0; j < DND_MAX_PERKS - 9; ++j) {
-		vt = PlayerActivities[pnum].perk_change[++i];
-		//printbold(s:"perk ", d:i, s: " change: ", d:vt);
-		if(vt < 0)
-			temp -= (-vt) << ((j + 1) * 4);
-		else
-			temp += vt << ((j + 1) * 4);
-	}
-	IncrementDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc, temp);
+	// save perks
+	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
+		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, PlayerActivities[pnum].perk_change[i - DND_PERK_BEGIN]);
 	
 	for(i = 0; i < MAXWEPS; ++i) {
 		// check mods
@@ -886,29 +847,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc);
 	SetInventory("BackpackCounter", temp);
 	
-	// read perks - 1
-	temp = GetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc);
-	SetInventory("Perk_Sharpshooting", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Brutality", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Endurance", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Wisdom", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Greed", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Medic", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Munitionist", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Deadliness", temp & 0xF);
-	
-	// read perks - 2
-	temp = GetDBEntry(GetCharField(DND_DB_PERKS2, char_id), pacc);
-	SetInventory("Perk_Savagery", temp & 0xF);
-	temp >>= 4;
-	SetInventory("Perk_Luck", temp & 0xF);
+	// read perks
+	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
+		SetPerk(i, GetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc));
 	
 	// read health
 	temp = GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc);
@@ -1098,6 +1039,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	#endif
 	
 	//printbold(s:"finish load");
+	Log(s:"Loaded player ", n:pnum + 1, s:"'s data.");
 }
 
 void load_char(int pnum, int char_id) {
@@ -1202,7 +1144,10 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_STATS_DEX, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
+
+	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, 0);
+
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, 0);
 	
@@ -1323,11 +1268,6 @@ int check_transfer_char(int pnum, int char_id) {
 	return DND_LOGIN_CHARTRANSFERRED;
 }
 
-void BulkResetPlayerData(int pnum) {
-	ResetPlayerInfo(pnum);
-	ResetPlayerActivities(pnum, true);
-}
-
 void SaveDefaultPlayer(int pnum, int char_id) {
 	Log(s:"Saving default player for ", n:pnum + 1, s:".");
 
@@ -1348,7 +1288,10 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_STATS_DEX, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_STATS_INT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BACKPACKS, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_PERKS, char_id), pacc, 0);
+
+	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, 0);
+
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(tid, "DnD_Character"));
 	

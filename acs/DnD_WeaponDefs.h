@@ -775,7 +775,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_name1 = "IncineratorAmmo";
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_name2 = "IncineratorStacks";
 	Weapons_Data[DND_WEAPON_INCINERATOR].icon = "WEPICO94";
-	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_INCINERATOR].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_INCINERATOR].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_SELFDMG | WPROP_NOREFLECT | WPROP_TECH | WPROP_SHOTGUN;
 	Weapons_Data[DND_WEAPON_INCINERATOR].attunement[STAT_STR] = 0.015;

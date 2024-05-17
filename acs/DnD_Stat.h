@@ -236,6 +236,10 @@ int GetPerk(int attr) {
 	return CheckInventory(StatData[attr]);
 }
 
+void SetPerk(int attr, int val) {
+	SetInventory(StatData[attr], val);
+}
+
 int GetActorPerk(int tid, int attr) {
 	return CheckActorInventory(tid, StatData[attr]);
 }
@@ -1095,9 +1099,9 @@ void ResetPlayerInfo(int pnum) {
 	ResetInvestments(pnum);
 
 	SyncAllClientsideVariables(pnum);
-	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+	/*SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);
+	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);*/
 }
 
 void ResetHardcoreStuff(int pnum) {

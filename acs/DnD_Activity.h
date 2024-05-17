@@ -140,6 +140,7 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 void ResetPlayerActivities(int pnum, bool hardReset) {
 	int i, j;
 	PlayerActivities[pnum].exp = 0;
+	PlayerActivities[pnum].total_exp = 0;
 	PlayerActivities[pnum].credit = 0;
 	PlayerActivities[pnum].budget = 0;
 	PlayerActivities[pnum].level = 0;

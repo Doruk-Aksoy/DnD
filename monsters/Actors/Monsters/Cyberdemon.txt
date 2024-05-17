@@ -28,8 +28,8 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			CARD AB 4 Bright A_Look
+		IdleState:
+			CARD AB 4 Bright A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			CARD A 0 A_ChangeFlag("NOPAIN", 0)
@@ -360,8 +360,8 @@ ACTOR TerminatorX : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			TERM AB 10 A_Look 
+		IdleState:
+			TERM AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState:
 			TERM A 1 A_Playsound("Terminator/terstepA")
@@ -706,8 +706,8 @@ Actor Thamuz : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
-		Idle:
-			CYBR A 10 A_Look
+		IdleState:
+			CYBR A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
@@ -1134,8 +1134,8 @@ actor Azazel : DnD_BaseHybridBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			AZEW A 5 A_Look
+		IdleState:
+			AZEW A 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			AZEW AABB 3 Fast A_Chase
@@ -1684,8 +1684,8 @@ ACTOR HellsmithX : DnD_BaseHybridBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
-		Idle:
-			BSMT AB 10 A_Look 
+		IdleState:
+			BSMT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			BSMT A 0 A_ChangeFlag("NOBLOOD", 0)
@@ -2334,9 +2334,9 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
+		IdleState:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Setup", 0)
-			AVAT AB 10 A_Look 
+			AVAT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
@@ -3317,8 +3317,8 @@ Actor Thanatos : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	
-		Idle:
-			4NNI AB 10 A_Look 
+		IdleState:
+			4NNI AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			4NNI A 3 Fast A_Playsound ("monster/annhoof")
@@ -3661,13 +3661,13 @@ actor Cerberus : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	
-		Idle:
+		IdleState:
 			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "Idle2")
 			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
-			CERB A 14 A_Look
+			CERB A 14 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		Idle2:
-			CERB N 14 A_Look
+			CERB N 14 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "See2")
@@ -3935,8 +3935,8 @@ ACTOR DeathWyvern : DnD_BaseRangedBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
-		Idle:
-			DRAG D 10 A_Look
+		IdleState:
+			DRAG D 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DRAG AAA 2 Fast A_Chase

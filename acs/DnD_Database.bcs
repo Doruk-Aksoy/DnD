@@ -55,7 +55,8 @@ Script 1003 (int char_id) NET {
 		int tid = pnum + P_TIDSTART;
 		str pacc = GetPlayerAccountName(pnum);
 		
-		BulkResetPlayerData(pnum);
+		ResetPlayerInfo(pnum);
+		ResetPlayerActivities(pnum, true);
 
 		// save default data for this character -- we do this to prevent overlap and stacking from death/spec related to player activity save on a pre-existing char
 		BeginDBTransaction();
@@ -136,8 +137,10 @@ Script "DnD Save Player Activities" (int pnum, int reset) {
 	}
 	
 	// hard reset -- disconnected
-	if(reset)
-		BulkResetPlayerData(pnum);
+	if(reset) {
+		ResetPlayerInfo(pnum);
+		ResetPlayerActivities(pnum, true);
+	}
 	else {
 		ResetPlayerActivities(pnum, false);
 		PlayerLoaded[pnum] = 0;

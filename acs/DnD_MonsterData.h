@@ -71,6 +71,7 @@ typedef struct {
 	int rng_vals[DND_MAX_MONSTER_PRECALC_RNG];		// precalculated rng outcomes
 	bool isElite;
 	bool hasTrait;									// used by clients mostly -- do we have traits
+	bool isIdle;									// monster is idle
 	int resists[MAX_DAMAGE_CATEGORIES];				// resists of the monster
 	bool trait_list[MAX_MONSTER_TRAITS_STORED]; 	// 1 if that trait is on, 0 if not
 } mo_prop_T;
@@ -620,6 +621,16 @@ int GetMonsterSizeType(int id) {
 			return DND_MONSTERSIZE_MEDIUM;
 		return DND_MONSTERSIZE_BIG;
 	}
+}
+
+bool IsBlindCastingMonster(int m_id) {
+	switch(m_id) {
+		case MONSTER_HELLSFURY:
+		case MONSTER_OPHIDIAN:
+		case MONSTER_IRONLICH:
+		return true;
+	}
+	return false;
 }
 
 // this is the single source that gives the monsters their proper class protections

@@ -1982,8 +1982,16 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 	// copy now
 	CopyItemToField(c, player_index, pitem_index, source);
 	str droptype = "CharmDrop";
-	if(itype > UNIQUE_BEGIN)
-		droptype = "UniqueCharmDrop";
+	if(itype > UNIQUE_BEGIN) {
+		int utype = (itype >> 16) - 1;
+		itype &= 0xFFFF;
+		if(itype == DND_ITEM_CHARM)
+			droptype = "UniqueCharmDrop";
+		else if(itype == DND_ITEM_BODYARMOR)
+			droptype = StrParam(s:"UniqueArmor_", d:utype - UNIQUE_BODYARMOR_BEGIN);
+		else if(itype == DND_ITEM_POWERCORE)
+			droptype = StrParam(s:"PowercoreDrop_Unique", d:utype - UNIQUE_POWERCORE_BEGIN);
+	}
 	else if(itype == DND_ITEM_ORB)
 		droptype = GetInventoryName(stype + ORBS_BEGIN);
 	else if(itype == DND_ITEM_CHESTKEY)
@@ -2809,8 +2817,9 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 	// use for checking ilvl diff
 	a_tier *= CHARM_ATTRIBLEVEL_SEPERATOR;
 
-	if(PlayerInventoryList[pnum][item_pos].item_level < a_tier + CHARM_ATTRIBLEVEL_SEPERATOR / 2) {
-		temp = ((a_tier - PlayerInventoryList[pnum][item_pos].item_level) / CHARM_ATTRIBLEVEL_SEPERATOR);
+	temp = a_tier - PlayerInventoryList[pnum][item_pos].item_level;
+	if(temp > CHARM_ATTRIBLEVEL_SEPERATOR / 2) {
+		temp /= CHARM_ATTRIBLEVEL_SEPERATOR;
 		if(temp <= 0)
 			temp = 1;
 

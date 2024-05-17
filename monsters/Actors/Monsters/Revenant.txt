@@ -25,8 +25,8 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_INCARNATE)
 		Goto SpawnSetup
 
-		Idle:
-			INCA AB 10 A_Look
+		IdleState:
+			INCA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			INCA AABBCCDDEEFF 2 Fast A_Chase
@@ -118,7 +118,7 @@ Actor Incarnate_Pretender : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_SetArg(4, DND_INCARNATE)
 		Goto SpawnSetup
 
-		Idle:
+		IdleState:
 			TNT1 A 0 A_UnSetSolid
 			TNT1 A 0 A_UnSetShootable
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_REVIVED, -1, -1, -1)
@@ -137,7 +137,7 @@ Actor Incarnate_Pretender : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_SetShootable
 			INCA PONML 4
 		SeekEnemy:
-			INCA AB 10 A_Look
+			INCA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			INCA AABBCCDDEEFF 2 Fast A_Chase
@@ -235,8 +235,8 @@ ACTOR BeamRevenant : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
-		Idle:
-			RASK AB 10 A_Look
+		IdleState:
+			RASK AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			RASK AAABBBCCCDDDEEEFFF 2 Fast A_Chase
@@ -357,8 +357,8 @@ ACTOR Cadaver : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			RASK AB 10 A_Look
+		IdleState:
+			RASK AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			RASK AABBCCDDEEFF 2 Fast A_Chase
@@ -542,8 +542,8 @@ actor Widowmaker : DnD_BaseHybridMonster  {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			WDMK AB 10 A_Look
+		IdleState:
+			WDMK AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			WDMK ABCD 4 Fast A_Chase
@@ -1139,8 +1139,8 @@ ACTOR AxeKnight : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			XNIG AB 10 A_Look
+		IdleState:
+			XNIG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			XNIG ABCD 4 Fast A_Chase
@@ -1291,9 +1291,9 @@ Actor Yeti : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
+		IdleState:
 			YETI A 0 ACS_NamedExecuteAlways("DnD Wendigo Wisp Spawn", 0, 0, 25)
-			YETI A 10 A_Look
+			YETI A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 	    SeeState:
 			YETI A 4 Fast A_Chase
@@ -1532,8 +1532,8 @@ Actor SludgeGiant : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			SLDM H 5 A_Look
+		IdleState:
+			SLDM H 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_SetTranslucent(1.0)
@@ -1626,8 +1626,8 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_SLUDGEGIANT2)
 		Goto SpawnSetup
 
-		Idle:
-			SLDM H 5 A_Look
+		IdleState:
+			SLDM H 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_SetTranslucent(1.0)
@@ -1735,8 +1735,8 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SetArg(4, DND_SLUDGEGIANT3)
 		Goto SpawnSetup
 	
-		Idle:
-			SLDM H 5 A_Look
+		IdleState:
+			SLDM H 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_SetTranslucent(1.0)
@@ -1808,8 +1808,8 @@ Actor DarkServant : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			DSON AB 10 A_Look
+		IdleState:
+			DSON AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DSON A 3 Fast A_Chase
@@ -2017,8 +2017,8 @@ Actor Crawler : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			GDMN AA 10 A_Look
+		IdleState:
+			GDMN AA 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			GDMN ABCD 4 Fast A_Chase
@@ -2224,12 +2224,12 @@ ACTOR Draugr : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
+		IdleState:
 			// in case player dies while this guy was fading
 			TNT1 A 0 A_SetShootable
 			TNT1 A 0 A_SetTranslucent(1.0)
 		IdleLoop:
-			SKE2 AB 10 A_Look
+			SKE2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_SetShootable
@@ -2492,8 +2492,8 @@ Actor CyborgSoldier : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			NLBG AB 10 A_Look
+		IdleState:
+			NLBG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			NLBG AA 4 A_Chase

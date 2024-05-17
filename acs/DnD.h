@@ -1413,34 +1413,46 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 
 	// the last check needs it to see if players are left because if the last player quits then it's not in progress anymore anyway...
 	int gstate = GetGameModeState();
-	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || (gstate != GAMESTATE_WAITFORPLAYERS && gstate != GAMESTATE_INPROGRESS))
+	/*Log(
+		d:!isSoftorHardcore(),
+		s:" ",
+		d:(game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE),
+		s:" ",
+		d:(gstate != GAMESTATE_WAITFORPLAYERS && gstate != GAMESTATE_INPROGRESS),
+		s:" gstate is ", d:gstate
+	);*/
+	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || gstate == GAMESTATE_COUNTDOWN || !PlayerLoaded[pnum])
 		return;
+
+	PlayerLoaded[pnum] = 0;
 		
 	if(!isDisconnect) {
 		if(PlayerIsLoggedIn(pnum) && PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) {
 			BeginDBTransaction();
 
 			if(PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE]) {
+				Log(s:"Transferring player data.");
 				WipeoutPlayerData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
 				SetActorInventory(pnum + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID"));
 				PlayerActivities[pnum].char_id = CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID");
 				PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 			}
 
+			Log(s:"Save player ", d:pnum, s: " activites on death for char id ", d:PlayerActivities[pnum].char_id);
 			SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
 			ResetPlayerActivities(pnum, false);
 			EndDBTransaction();
 		}
 	}
-	else if(PlayerLoaded[pnum]) {
+	else {
 		BeginDBTransaction();
 		
 		Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);
 		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
 		
 		// resets player activites already
-		BulkResetPlayerData(pnum);
-		PlayerLoaded[pnum] = 0;
+		ResetPlayerInfo(pnum);
+		ResetPlayerActivities(pnum, true);
 		EndDBTransaction();
 	}
 }

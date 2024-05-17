@@ -21,8 +21,8 @@ ACTOR FusionSpider : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_FUSIONSPIDER)
 		Goto SpawnSetup
 	
-		Idle:
-			FSPI AB 10 A_Look
+		IdleState:
+			FSPI AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeSkip")
@@ -146,9 +146,9 @@ ACTOR HellforgeSpider : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
-		Idle:
+		IdleState:
 			TNT1 A 0 A_TakeInventory("MultiShot", 99)
-			ESPD AB 10 A_Look
+			ESPD AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_TakeInventory("MultiShot", 99)
@@ -277,8 +277,8 @@ ACTOR RailArachnotron : DnD_BaseRangedMonster {
 			TNT1 A 0 A_SetArg(4, DND_RAILARACHNOTRON)
 		Goto SpawnSetup
 		
-		Idle:
-			RSPI AB 10 A_Look
+		IdleState:
+			RSPI AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeSkip")
@@ -365,8 +365,8 @@ ACTOR BabyDemolisher : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			MSPI A 10 A_Look
+		IdleState:
+			MSPI A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_Jump(64, "Rush")
@@ -582,8 +582,8 @@ Actor Vore : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 		
-		Idle:
-			VORE D 10 A_Look
+		IdleState:
+			VORE D 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			VORE AA 3 Fast A_Chase
@@ -775,8 +775,8 @@ Actor ChaingunCommando : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			CPSX AB 10 A_Look
+		IdleState:
+			CPSX AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			CPSX ABCD 4 Fast A_Chase
@@ -867,8 +867,8 @@ Actor ChaingunGeneral : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 		
-		Idle:
-			ECMI AB 10 A_Look
+		IdleState:
+			ECMI AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			ECMI ABCD 5 Fast A_Chase
@@ -970,8 +970,8 @@ Actor Legionnaire : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			LEGN A 10 A_Look
+		IdleState:
+			LEGN A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			LEGN BC 3 Fast A_Chase
@@ -1150,8 +1150,8 @@ ACTOR Manticore : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			DNET AB 10 A_Look
+		IdleState:
+			DNET AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			DNET AABB 4 A_Chase
@@ -1284,8 +1284,8 @@ ACTOR Ophidian : DnD_BaseRangedMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			OPHI AB 10 A_Look
+		IdleState:
+			OPHI AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			OPHI AABBCCDD 2 Fast A_Chase
@@ -1327,7 +1327,6 @@ ACTOR Ophidian : DnD_BaseRangedMonster {
 		XDeathState:
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 		DeathState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS")
 			OPHI G 5 A_Scream
 			OPHI H 5 A_NoBlocking
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)

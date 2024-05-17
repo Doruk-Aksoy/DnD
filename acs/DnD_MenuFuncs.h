@@ -4072,14 +4072,12 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 					else
 						SetFont("CRFBX_N2");
 					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
-					if(tx != -1) {
-						SetFont(GetItemImage(PlayerInventoryList[pnum][tx].item_image));
-						HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
-						bx = GetTotalStackOfMaterial(tx);
-						if(bx > 0) {
-							SetFont("SMALLFONT");
-							HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0);
-						}
+					SetFont(GetItemImage(PlayerInventoryList[pnum][tx].item_image));
+					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
+					bx = GetTotalStackOfMaterial(tx);
+					if(bx > 0) {
+						SetFont("SMALLFONT");
+						HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0);
 					}
 				}
 				else
@@ -4212,8 +4210,6 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK2;
 				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS2;
 				SetFont("CRFBX_H");
-
-
 			}
 			else if(boxid - 1 == i) {
 				UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum);
@@ -4689,43 +4685,45 @@ void HandleCraftingInputs(int boxid, int curopt) {
 						}
 					}
 				}
-				else if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
-					if(!CheckInventory("DnD_SellConfirm")) {
-						if(CheckInventory("DnD_CantSalvage"))
-							return;
-						// scavenge, ask user in the form of a popup to confirm
-						SetInventory("DnD_ItemCursorMsg", GetDissassembleChance(pnum, curitemeindex));
-						SetInventory("DnD_ItemPriceTemp", DisassembleItem_Price(pnum, curitemeindex));
-						SetInventory("DnD_ItemSelectTemp", curitemeindex);
-						ShowNotif(POPUP_SCAVENGECONFIRM, 0, CheckInventory("DnD_ItemPriceTemp"));
-						LocalAmbientSound("RPG/MenuSellConfirm", 127);
-						SetInventory("DnD_SelectedInventoryBox", boxid);
-						GiveInventory("DnD_SellConfirm", 1);
-					}
-					else {
-						if(CheckInventory("DnD_CantSalvage"))
-							return;
-
-						int price = CheckInventory("DnD_ItemPriceTemp"); 
-						if(GetPlayerCredit(pnum) >= price) {
-							DisassembleItem(pnum, CheckInventory("DnD_ItemSelectTemp"), price, CheckInventory("DnD_ItemCursorMsg"));
-							TakeInventory("DnD_SellConfirm", 1);
-							ClearTempItemInventory();
-							SetInventory("DnD_SelectedInventoryBox", 0);
-							ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+				else if(curopt == MENU_LOAD_CRAFTING_INVENTORY) {
+					if(boxid > 0 && boxid <= MAX_CRAFTING_ITEMBOXES) {
+						if(!CheckInventory("DnD_SellConfirm")) {
+							if(CheckInventory("DnD_CantSalvage"))
+								return;
+							// scavenge, ask user in the form of a popup to confirm
+							SetInventory("DnD_ItemCursorMsg", GetDissassembleChance(pnum, curitemeindex));
+							SetInventory("DnD_ItemPriceTemp", DisassembleItem_Price(pnum, curitemeindex));
+							SetInventory("DnD_ItemSelectTemp", curitemeindex);
+							ShowNotif(POPUP_SCAVENGECONFIRM, 0, CheckInventory("DnD_ItemPriceTemp"));
+							LocalAmbientSound("RPG/MenuSellConfirm", 127);
+							SetInventory("DnD_SelectedInventoryBox", boxid);
+							GiveInventory("DnD_SellConfirm", 1);
 						}
 						else {
-							TakeInventory("DnD_SellConfirm", 1);
-							ClearTempItemInventory();
-							SetInventory("DnD_SelectedInventoryBox", 0);
-							ShowPopup(POPUP_NOFUNDS, false, 0);
+							if(CheckInventory("DnD_CantSalvage"))
+								return;
+
+							int price = CheckInventory("DnD_ItemPriceTemp"); 
+							if(GetPlayerCredit(pnum) >= price) {
+								DisassembleItem(pnum, CheckInventory("DnD_ItemSelectTemp"), price, CheckInventory("DnD_ItemCursorMsg"));
+								TakeInventory("DnD_SellConfirm", 1);
+								ClearTempItemInventory();
+								SetInventory("DnD_SelectedInventoryBox", 0);
+								ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+							}
+							else {
+								TakeInventory("DnD_SellConfirm", 1);
+								ClearTempItemInventory();
+								SetInventory("DnD_SelectedInventoryBox", 0);
+								ShowPopup(POPUP_NOFUNDS, false, 0);
+							}
 						}
 					}
-				}
-				else if(CheckInventory("DnD_SellConfirm")) {
-					TakeInventory("DnD_SellConfirm", 1);
-					ClearTempItemInventory();
-					ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+					else if(CheckInventory("DnD_SellConfirm")) {
+						TakeInventory("DnD_SellConfirm", 1);
+						ClearTempItemInventory();
+						ACS_NamedExecuteAlways("DnD Menu Sell Popup Clear", 0);
+					}
 				}
 			}
 		}
@@ -4992,6 +4990,12 @@ int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
 		break;
 		case INV_DMGREDUCE_ENERGY:
 			val += HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
+		break;
+		case INV_DMGREDUCE_FIRE:
+		case INV_DMGREDUCE_ICE:
+		case INV_DMGREDUCE_POISON:
+		case INV_DMGREDUCE_LIGHTNING:
+			val += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 		break;
 	}
 	return ApplyResistCap(pnum, val, cap);
@@ -5448,10 +5452,6 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			i = GetMaxResistCap(pnum);
 			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS) + 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ELEM, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ELE", s:"\n");
-			++k;
-			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;

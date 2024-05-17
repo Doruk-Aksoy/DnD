@@ -26,8 +26,8 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			DIAB AB 10 A_Look 
+		IdleState:
+			DIAB AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			DIAB AABBCCDDEEFF 2 Fast A_Chase 
@@ -544,8 +544,8 @@ ACTOR DeathVile : DnD_ArchVileBase {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
-		Idle:
-			WILE AB 10 A_Look
+		IdleState:
+			WILE AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			WILE AABBCCDDEEFF 2 Fast A_VileChase
@@ -626,8 +626,8 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			HIER AC 10 A_Look 
+		IdleState:
+			HIER AC 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState:
 			HIER AABBAACCDDCC 4 Fast A_Chase
@@ -946,8 +946,8 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			DKNT AB 10 A_Look 
+		IdleState:
+			DKNT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeState2")
@@ -1311,8 +1311,8 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-			DKNT AB 10 A_Look 
+		IdleState:
+			DKNT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeState2")
@@ -1723,9 +1723,9 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
-		Idle:
+		IdleState:
 			TNT1 A 0 A_TakeInventory("NoDrop", 1)
-			UNDP A 10 A_Look
+			UNDP A 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			TNT1 A 0 A_TakeInventory("NoDrop", 1)
@@ -1824,8 +1824,8 @@ Actor UndeadSpirit : DnD_ArchVilePassiveBase {
 			TNT1 A 0 A_SetArg(4, DND_UNDEADPRIESTGHOST)
 		Goto SpawnSetup
 
-		Idle:
-			BDSP AB 10 A_Look 
+		IdleState:
+			BDSP AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
 			BDSP A 3 A_Wander
@@ -1941,8 +1941,8 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			GURU AB 10 A_Look 
+		IdleState:
+			GURU AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState:
 			GURU AABBCCDD 3 Fast A_Chase
@@ -2236,11 +2236,11 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
-		Idle:
+		IdleState:
 			TNT1 A 0 A_SetShootable
 			TNT1 A 0 A_SetTranslucent(1.0, 0)
 		IdleLoop:
-			RSON AB 10 A_Look
+			RSON AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			RSON A 3 Fast A_Chase
@@ -2564,8 +2564,8 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
-		Idle:
-			LMWZ E 10 A_Look
+		IdleState:
+			LMWZ E 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			LMWZ EEE 4 Fast A_Chase

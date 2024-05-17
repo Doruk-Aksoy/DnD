@@ -22,8 +22,8 @@ ACTOR BloodDemonClone : DnD_BaseMeleeMonster {
 			TNT1 A 0 A_SetArg(4, DND_BLOODDEMON)
 		Goto SpawnSetup
 
-		Idle:
-			SRG2 AB 10 A_Look
+		IdleState:
+			SRG2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop 
 		SeeState:
 			SRG2 A 0 A_PlaySound("blooddemon/walk")
@@ -101,8 +101,8 @@ Actor Bloodfiend : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			SAR2 AB 10 A_Look
+		IdleState:
+			SAR2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SAR2 AABBCCDD 2 Fast A_Chase
@@ -210,8 +210,8 @@ Actor Ravager : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
-		Idle:
-			SAR3 AB 10 A_Look
+		IdleState:
+			SAR3 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SAR3 AABBCCDD 2 Fast A_Chase
@@ -303,8 +303,8 @@ ACTOR CyberFiend : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			CYFN AB 10 A_Look
+		IdleState:
+			CYFN AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop 
 		SeeState:
 			CYFN A 0 A_PlaySound("CyberFiend/walk")
@@ -521,8 +521,8 @@ ACTOR FlameDemon : DnD_BaseMeleeMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
-		Idle:
-			SARG AB 8 A_Look
+		IdleState:
+			SARG AB 8 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SARG AABBCCDD 2 Fast A_Chase
@@ -576,8 +576,8 @@ ACTOR StoneImp : DnD_BaseMeleeMonster {
 			TNT1 A 0 A_SetArg(4, DND_STONEIMP)
 		Goto SpawnSetup
 	
-		Idle:
-			GIMP AB 10 A_Look
+		IdleState:
+			GIMP AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			GIMP AABBCCDD 3 Fast A_Chase
@@ -635,8 +635,8 @@ actor StoneDemon : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
-		Idle:
-			STON AB 10 A_Look
+		IdleState:
+			STON AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			STON AABBCCDD 2 Fast A_Chase
@@ -735,8 +735,8 @@ Actor SoulEater : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			SOEA AB 10 A_Look
+		IdleState:
+			SOEA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			SOEA AABBCCDD 2 Fast A_Chase
@@ -813,8 +813,8 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			BBRT AB 10 A_Look
+		IdleState:
+			BBRT AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			BBRT AABB 3 Fast A_Chase
@@ -905,8 +905,8 @@ actor Scavenger : DnD_ArchVileHybridBase {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			VULG AB 10 A_Look
+		IdleState:
+			VULG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("ScavengerCounter", 0, "NoRaise")
@@ -1007,8 +1007,8 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
-		Idle:
-			SOEA AB 10 A_Look
+		IdleState:
+			SOEA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			TNT1 A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
@@ -1247,8 +1247,8 @@ actor Satyr : DnD_BaseMeleeMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
-		Idle:
-			STYR AB 10 A_Look
+		IdleState:
+			STYR AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			STYR AABBCCDD 3 Fast A_Chase
@@ -1322,8 +1322,8 @@ Actor EarthGolem : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
-		Idle:
-		   GOL1 AB 10 A_Look
+		IdleState:
+		   GOL1 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 	    Loop 
 		SeeState:
 			GOL1 AABBCCDD 2 Fast A_Chase
@@ -1440,8 +1440,8 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
-		Idle:
-			BBRQ AB 10 A_Look
+		IdleState:
+			BBRQ AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop 
 		SeeState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
@@ -1636,8 +1636,8 @@ ACTOR Sabreclaw : DnD_BaseMeleeMonster {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
-		Idle:
-			CLNK AB 10 A_Look
+		IdleState:
+			CLNK AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop 
 		SeeState:
 			CLNK AB 3 Fast A_Chase
