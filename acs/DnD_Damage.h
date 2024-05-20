@@ -309,6 +309,11 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 				GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) +
 				unity +
 				DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS);
+
+	unity = GetPlayerAttributeValue(pnum, INV_EX_RESPERESHIELD);
+	if(unity)
+		temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / unity);
+
 	if(!temp)
 		return dmg;
 	
@@ -3056,6 +3061,11 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		if(factor > 100)
 			factor = 100;
 
+		// only block this much if this is on
+		to_take = GetPlayerAttributeValue(pnum, INV_EX_ESHIELDONLYBLOCKPCT);
+		if(to_take)
+			factor = to_take;
+
 		// only this much is prevented
 		to_take = temp * factor / 100;
 		if(to_take < 1)
@@ -3459,7 +3469,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 					PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
 
-					if(CheckInventory("Marine_Perk50"))
+					if(CheckInventory("Marine_Perk50") && !CheckInventory("Marine_Perk50_Cooldown"))
 						GiveInventory("Marine_Perk50_DamageTaken", dmg);
 					
 					// mugshot hook
@@ -3532,7 +3542,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
 
-			if(CheckInventory("Marine_Perk50"))
+			if(CheckInventory("Marine_Perk50") && !CheckInventory("Marine_Perk50_Cooldown"))
 				GiveInventory("Marine_Perk50_DamageTaken", dmg);
 			
 			// mugshot hook

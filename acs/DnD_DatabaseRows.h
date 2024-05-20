@@ -41,6 +41,9 @@
 #define DND_DB_ORBRECIPETRACKER_1 "DnD_OrbRecipe_1"
 #define DND_DB_ORBRECIPETRACKER_2 "DnD_OrbRecipe_2"
 
+#define DND_DB_VOTESKIPS "DnD_Voteskips"
+#define DND_DB_TRACKEDMAP "DnD_TrackedMap_"
+
 #define DND_DB_KILLTRACKER "DnD_LifetimeKills"
 #define DND_DB_KILLTRACKER_MILLION "DnD_LifetimeKills_Mil"
 #define DND_DB_KILLTRACKER_BILLION "DnD_LifetimeKills_Bil"

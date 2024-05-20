@@ -628,12 +628,10 @@ void HandleChestSpawn(int chance_penalty) {
 }
 
 void HandleChestDrops(int ctype) {
-	if(isMapLootPenalty)
-		return;
-
 	// the tid of player who opened the chest
 	int tid = GetActorProperty(0, APROP_TARGETTID);
 	int pnum = tid - P_TIDSTART;
+
 	if(ctype == DND_CHESTTYPE_BRONZE) {
 		SpawnOrbForAll(random(1, 3));
 		if(RunDefaultDropChance(pnum, 0.5))
@@ -824,11 +822,6 @@ void HandleCreditExp_Regular(int this, int target, int m_id) {
 			}
 		}
 	}
-
-	if(isMapLootPenalty) {
-		exptemp /= MAPLOOTPENALITY_FACTOR;
-		credtemp /= MAPLOOTPENALITY_FACTOR;
-	}
 	
 	// now give target his stuff (if expshare or creditshare, one of them was not on the target would not receive it in the loop)
 	expscale = RewardActorExp(target, exptemp);
@@ -867,11 +860,6 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 		credtemp *= creditscale;
 	}
 
-	if(isMapLootPenalty) {
-		exptemp /= MAPLOOTPENALITY_FACTOR;
-		credtemp /= MAPLOOTPENALITY_FACTOR;
-	}
-	
 	// from here on out the scale variables and pcount are useless
 	pcount = GetCVar("dnd_gainrange");
 	expshare = 0;
@@ -1287,13 +1275,12 @@ void ClearLingeringBuffs() {
 	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
 
-	SetInventory("Marine_Perk50_DamageTaken", 0);
-
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 
 	SetInventory("Marine_DamageReduction_Timer", 0);
 	SetInventory("Marine_Perk50_DamageDealt", 0);
 	SetInventory("Marine_Perk50_Cooldown", 0);
+	SetInventory("Marine_Perk50_DamageTaken", 0);
 
 	SetInventory("Cyborg_InstabilityStack", 0);
 	SetInventory("Cyborg_Instability_Timer", 0);

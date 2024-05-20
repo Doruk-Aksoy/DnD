@@ -13,6 +13,8 @@
 #define DND_DEADEYE_PLUSPER 20
 #define DND_DEADEYE_MINUSPER 45
 
+#define DND_RES_PER_PRISMGUARD 0.5
+
 str GetUniqueItemName(int itype, int id) {
 	switch(itype) {
 		case DND_ITEM_CHARM:
@@ -409,7 +411,7 @@ void SetupUniqueItems() {
 
 	// body armors
 	id = UITEM_PROTOSHELL;
-	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].weight = 600;
 	UniqueItemList[id].width = 2;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UBODY_1;
@@ -430,6 +432,28 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_high = 1;
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
+	id = UITEM_PRISMGUARD;
+	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].width = 2;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UBODY_2;
+	UniqueItemList[id].item_type = DND_ITEM_BODYARMOR | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = BODYARMOR_MONOLITH;
+	UniqueItemList[id].item_level = 56;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 4;
+	UniqueItemList[id].attrib_id_list[0] = INV_KNOCKBACK_RESIST;
+	UniqueItemList[id].attrib_id_list[1] = INV_HP_INCREASE;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_RESPERESHIELD;
+	UniqueItemList[id].attrib_id_list[3] = INV_EX_ESHIELDONLYBLOCKPCT;
+	UniqueItemList[id].rolls[0].attrib_low = 1000;
+	UniqueItemList[id].rolls[0].attrib_high = 2000;
+	UniqueItemList[id].rolls[1].attrib_low = 30;
+	UniqueItemList[id].rolls[1].attrib_high = 100;
+	UniqueItemList[id].rolls[2].attrib_low = 10;
+	UniqueItemList[id].rolls[2].attrib_high = 20;
+	UniqueItemList[id].rolls[3].attrib_low = 20;
+	UniqueItemList[id].rolls[3].attrib_high = 20;
 }
 
 // These are necessary to sync the global variables + unique data

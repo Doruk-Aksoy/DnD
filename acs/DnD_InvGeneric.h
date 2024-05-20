@@ -130,8 +130,11 @@ void SpawnItemForAll(int type, int repeats = 1) {
 
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
-			if(PlayerInGame(j) && !PlayerIsSpectator(j))
+			if(PlayerInGame(j) && !PlayerIsSpectator(j)) {
+				if(PlayerActivities[j].loot_penalty)
+					continue;
 				f(j, 0, 0, 0);
+			}
 		}
 	}
 }

@@ -240,26 +240,6 @@ Script "DnD On Map Load" OPEN {
 
 	SetupCVarTracking();
 
-	if(isHardcore() && !VisitedMapData[DND_FAILEDMAP]) {
-		str curmap = StrParam(n:PRINTNAME_LEVEL);
-
-		// only do these if these aren't lobby maps we changed to!
-		if(!IsLobbyMap(curmap)) {
-			++VisitedMapData[DND_VOTESKIPS];
-			Log(s:"Visit map data ", d:VisitedMapData[DND_VOTESKIPS]);
-			isMapLootPenalty |= VisitedMapData[DND_VOTESKIPS] > DND_VOTESKIP_LIMIT;
-
-			if(isMapLootPenalty)
-				Log(s:"Map voteskipped more than once! Loot is being reduced!");
-			else {
-				// check if map is visited already
-				InsertMapVisited(curmap);
-			}
-		}
-	}
-
-	VisitedMapData[DND_FAILEDMAP] = false;
-
 	// commented out for now!
 	//NPC_Setup();
 }
@@ -391,8 +371,6 @@ Script "DnD On Death" DEATH {
 	//	PlayerLoaded[pnum] = 0;
 
 	Delay(const:5);
-
-	VisitedMapData[DND_FAILEDMAP] = GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE;
 }
 
 Script "DnD Portable Kit Script" (void) {
@@ -3075,6 +3053,8 @@ Script "DnD On Respawn" RESPAWN {
 	// for properly setting up taltos translucency when spawn protection is on
 	while(PlayerIsInvulnerable())
 		Delay(const:5);
+
+	SetActorProperty(0, APROP_HEALTH, GetSpawnHealth());
 		
 	ResetMugstate(true);
 		
@@ -3379,8 +3359,29 @@ Script "DnD Player Setup" ENTER {
 	while(GetGamemodeState() != GAMESTATE_INPROGRESS)
 		Delay(const:HALF_TICRATE);
 
-	if(isMapLootPenalty)
-		ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0);
+	if(isHardcore()) {
+		str curmap = StrParam(n:PRINTNAME_LEVEL);
+
+		// only do these if these aren't lobby maps we changed to!
+		if(!IsLobbyMap(curmap) && !GetCVar("dnd_ignorelootpenalty")) {
+			// reset this before recalculating
+			PlayerActivities[pnum].loot_penalty = 0;
+			
+			++PlayerActivities[pnum].vote_skips;
+			Log(s:"Visit map data ", d:PlayerActivities[pnum].vote_skips);
+
+			// check if map is visited already
+			InsertMapVisited(pnum, curmap);
+
+			if(!PlayerActivities[pnum].loot_penalty && PlayerActivities[pnum].vote_skips > DND_VOTESKIP_LIMIT) {
+				PlayerActivities[pnum].loot_penalty = 1;
+				Log(s:"Map voteskipped more than once! Loot is being reduced!");
+			}
+
+			if(PlayerActivities[pnum].loot_penalty)
+				ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0);
+		}
+	}
 
 	TakeInventory("DnD_CountdownProtection", 1);
 }
@@ -5913,6 +5914,10 @@ Script 68 (int x) NET {
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
+			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);*/
 			//IncPlayerModValue(0, INV_ESS_KRULL, 50);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 0.875);
 			//IncPlayerModValue(0, INV_ACCURACY_INCREASE, 500);

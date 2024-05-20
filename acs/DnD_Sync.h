@@ -691,7 +691,9 @@ Script "DND Clientside Item Syncer Field" (int var, int to, int extra) CLIENTSID
 }
 
 Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) CLIENTSIDE {
-	int pnum = PlayerNumber();
+	int pnum = wepid >> 16;
+	wepid &= 0xFFFF;
+
 	int source = mod >> 16;
 	mod &= 0xFFFF;
 	
@@ -704,16 +706,15 @@ Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) 
 }
 
 // add more things from wep_info_T in WeaponsDef here later
-Script "DnD Clientside Weapon Property Sync" (int wepid, int prop, int val) CLIENTSIDE {
+Script "DnD Clientside Weapon Property Sync" (int wepid, int pnum, int prop, int val) CLIENTSIDE {
 	// do a switch-case for properties here
-	int pnum = PlayerNumber();
 	Player_Weapon_Infos[pnum][wepid].quality = val;
 	SetResultValue(0);
 }
 
 void SyncClientsideVariable_WeaponProperties(int pnum, int wepid) {
 	// do a for loop for all properties we might add here to wep_info_T
-	ACS_NamedExecuteWithResult("DnD Clientside Weapon Property Sync", wepid, 0, Player_Weapon_Infos[pnum][wepid].quality);
+	ACS_NamedExecuteWithResult("DnD Clientside Weapon Property Sync", wepid, pnum, 0, Player_Weapon_Infos[pnum][wepid].quality);
 }
 
 void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
@@ -721,7 +722,7 @@ void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
 		for(int j = 0; j < DND_MAX_WEAPONMODSOURCES; ++j)
 			ACS_NamedExecuteWithResult(
 				"DND Clientside Weapon Mod Sync", 
-				wepid, 
+				wepid | (pnum << 16), 
 				i | (j << 16), 
 				Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].val,
 				Player_Weapon_Infos[pnum][wepid].wep_mods[i][j].tier

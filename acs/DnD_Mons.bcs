@@ -59,6 +59,34 @@ Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 	SetResultValue(res);
 }
 
+Script "DnD Avatar Ball Flare" (int type) CLIENTSIDE {
+	if(type == 3) {
+		GiveInventory("DnD_Boolean", 1);
+		Terminate;
+	}
+
+	str actor;
+	switch(type) {
+		case 0:
+			actor = "SorcBallFlare_Red";
+		break;
+		case 1:
+			actor = "SorcBallFlare_Blue";
+		break;
+		case 2:
+			actor = "SorcBallFlare_Yellow";
+		break;
+	}
+
+	Thing_ChangeTID(0, DND_AVATAR_CUBEPROJ_TID);
+	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0), DND_AVATAR_CUBEFLARE_TID);
+	SetActivator(DND_AVATAR_CUBEFLARE_TID);
+	SetPointer(AAPTR_TARGET, DND_AVATAR_CUBEPROJ_TID);
+	Thing_ChangeTID(0, 0);
+	SetActivator(DND_AVATAR_CUBEPROJ_TID);
+	Thing_ChangeTID(0, 0);
+}
+
 Script "DnD Zealot Shield" (int tid) CLIENTSIDE {
 	Spawn("ZealotShield", GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, ZEALOT_SHIELD_TID);
 	SetActivator(ZEALOT_SHIELD_TID);

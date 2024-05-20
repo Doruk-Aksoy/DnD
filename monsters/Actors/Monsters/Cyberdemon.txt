@@ -138,7 +138,7 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 			CARD A 0 A_SetTranslucent(1.0, 0)
 		Goto Missile4
 		PainState: 
-			CARD A 4 Fast Bright
+			CARD M 6 Fast Bright
 			CARD A 0 A_Pain
 			CARD A 0 A_SpawnDebris("MetalScrap")
 			CARD A 0 A_Jump(192, "Retaliate")
@@ -2836,14 +2836,177 @@ Actor SorcBallProjectileBase {
 	Stamina 8
 }
 
+Actor SorcBallFlare_Red {
+	Renderstyle Add
+	Alpha 0.75
+	Scale 0.25
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeOut(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeOut(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeOut(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeOut(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeOut(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeIn(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeIn(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeIn(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeIn(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_FadeIn(0.075)
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+		Loop
+		Fade:
+			"####" "#" 1 A_FadeOut(0.025)
+		Wait
+	}
+}
+
+Actor SorcBallFlare_Blue : SorcBallFlare_Red {
+	States {
+		Spawn:
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeOut(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeOut(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeOut(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeOut(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeOut(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeIn(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeIn(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeIn(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeIn(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_FadeIn(0.075)
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+		Loop
+	}
+}
+
+Actor SorcBallFlare_Yellow : SorcBallFlare_Red {
+	States {
+		Spawn:
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeOut(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeOut(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeOut(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeOut(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeOut(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeIn(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeIn(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeIn(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeIn(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_FadeIn(0.075)
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+		Loop
+	}
+}
+
 Actor SorcBall1Projectile : SorcBallProjectileBase {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 0)
 		SpawnLoop:
 			SBMP ABCDEFGHIJKLMNOP 2 Bright
 		Loop
 		Death:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 3)
 			TNT1 AA 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 0 A_ChangeFlag("NOBOUNCESOUND", 1)
 			SBS4 D 5 Bright A_Explode(192, 192, 0)
@@ -2857,10 +3020,12 @@ Actor SorcBall2Projectile : SorcBallProjectileBase {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 1)
 		SpawnLoop:
 			SBMB ABCDEFGHIJKLMNOP 2 Bright
 		Loop
 		Death:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 3)
 			TNT1 AA 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 0 A_ChangeFlag("NOBOUNCESOUND", 1)
 			SBS3 D 5 Bright A_Explode(192, 192, 0)
@@ -2874,10 +3039,12 @@ Actor SorcBall3Projectile : SorcBallProjectileBase {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 2)
 		SpawnLoop:
 			SBMG ABCDEFGHIJKLMNOP 2 Bright
 		Loop
 		Death:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 3)
 			TNT1 AA 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 0 A_ChangeFlag("NOBOUNCESOUND", 1)
 			SBS2 D 5 Bright A_Explode(192, 192, 0)

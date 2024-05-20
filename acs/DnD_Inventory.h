@@ -125,7 +125,7 @@ enum {
 	IIMG_UCORE_R6,
 
 	IIMG_UBODY_1,
-	IIMG_UBODY_R2,
+	IIMG_UBODY_2,
 	IIMG_UBODY_R3,
 	IIMG_UBODY_R4,
 	IIMG_UBODY_R5,
@@ -321,7 +321,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_UCORE_END IIMG_UCORE_1
 
 #define ITEM_IMAGE_UBODYARM_BEGIN IIMG_UBODY_1
-#define ITEM_IMAGE_UBODYARM_END IIMG_UBODY_1
+#define ITEM_IMAGE_UBODYARM_END IIMG_UBODY_2
 
 #include "DnD_Armor.h"
 #include "DnD_Powercore.h"
@@ -339,11 +339,11 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "UC";
 		suffix = id - ITEM_IMAGE_UCHARM_BEGIN + 1;
 	}
-	else if(id <= ITEM_IMAGE_UCORE_BEGIN) {
+	else if(id <= ITEM_IMAGE_UCORE_END) {
 		img_prefix = "UCOR";
 		suffix = id - ITEM_IMAGE_UCORE_BEGIN + 1;
 	}
-	else if(id <= ITEM_IMAGE_UBODYARM_BEGIN) {
+	else if(id <= ITEM_IMAGE_UBODYARM_END) {
 		img_prefix = "UARM";
 		suffix = id - ITEM_IMAGE_UBODYARM_BEGIN + 1;
 	}
@@ -3203,7 +3203,7 @@ int MakeUnique(int item_pos, int item_type, int pnum) {
 		break;
 		case DND_ITEM_BODYARMOR:
 			beg = UNIQUE_BODYARMOR_BEGIN;
-			end = UNIQUE_BODYARMOR_BEGIN;
+			end = UNIQUE_BODYARMOR_END;
 		break;
 		default:
 			beg = 0;

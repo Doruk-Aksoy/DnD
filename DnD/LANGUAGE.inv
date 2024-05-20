@@ -82,6 +82,8 @@ DND_UCORIMG1		=	"UCORE01";
 
 // unique body armors
 DND_UARMIMG1		=	"UARM1";
+DND_UARMIMG2		=	"UARM2";
+DND_UARMIMG3		=	"UARM3";
 	
 // orbs
 DND_OIMG1			=	"ORB1D0";
@@ -252,6 +254,8 @@ DND_UCORE_NAME1			=	"The Tesseract";
 
 // unique body armors
 DND_UARM_NAME1			=	"Protoshell";
+DND_UARM_NAME2			=	"Prismguard";
+DND_UARM_NAME3			=	"Baron's Den";
 
 // inventory attribute table
 IATTR_T0 			= "Health";
@@ -493,6 +497,8 @@ IATTR_TX45			= "Energy shield recovery also takes"; IATTR_TX45S = "of the amount
 IATTR_TX46			= "Increases and reductions to health instead apply to energy shield at"; IATTR_TX46S = "of their value";
 IATTR_TX47			= "Energy shield is fully effective against all damage";
 IATTR_TX48			= "\cgYour health cap is always 1";
+IATTR_TX49			= "For every"; IATTR_TX49S = "energy shield, gain 0.5% to all resists";
+IATTR_TX50			= "\cgEnergy shield only blocks 20% of the damage\c-";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

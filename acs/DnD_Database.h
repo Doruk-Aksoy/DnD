@@ -619,6 +619,10 @@ void SavePlayerActivities(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills"));
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Millions"));
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Billions"));
+
+	SetDBEntry(DND_DB_VOTESKIPS, pacc, PlayerActivities[pnum].vote_skips);
+	for(i = 0; i < MAX_MAPS_RECORDED; ++i)
+		SetDBEntryString(StrParam(s:DND_DB_TRACKEDMAP, d:i), pacc, PlayerActivities[pnum].visited_maps[i]);
 	
 	Log(s:"Saving player ", n:pnum + 1, s:"'s activities.");
 }
@@ -1032,6 +1036,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("DnD_LifeTimeKills", GetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc));
 	SetInventory("DnD_LifeTimeKills_Millions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc));
 	SetInventory("DnD_LifeTimeKills_Billions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc));
+
+	PlayerActivities[pnum].vote_skips = GetDBEntry(DND_DB_VOTESKIPS, pacc);
+	for(i = 0; i < MAX_MAPS_RECORDED; ++i)
+		PlayerActivities[pnum].visited_maps[i] = GetDBEntryString(StrParam(s:DND_DB_TRACKEDMAP, d:i), pacc);
 	
 	#ifdef ISAPRILFIRST
 		// load nft
@@ -1376,7 +1384,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, 0);
-	
+
 	#ifdef ISAPRILFIRST
 		// load nft
 		SetDBEntry(GetCharField(DND_DB_NFT, char_id), pacc, 0);

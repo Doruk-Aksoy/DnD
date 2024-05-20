@@ -5452,6 +5452,10 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			i = GetMaxResistCap(pnum);
 			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS) + 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
+			val = GetPlayerAttributeValue(pnum, INV_EX_RESPERESHIELD);
+			if(val)
+				temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / val);
+			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;

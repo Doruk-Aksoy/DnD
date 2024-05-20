@@ -266,7 +266,10 @@ int GetPlayerEnergyShieldCap(int pnum) {
 }
 
 int GetPlayerEnergyShieldPercent(int pnum) {
-	return 100 * CheckInventory("EShieldAmount") / GetPlayerEnergyShieldCap(pnum);
+	int cap = GetPlayerEnergyShieldCap(pnum);
+	if(!cap)
+		return 0;
+	return 100 * CheckInventory("EShieldAmount") / cap;
 }
 
 int GetPlayerEnergyShieldRechargeDelay(int pnum) {
@@ -478,12 +481,20 @@ int RewardActorExp(int tid, int amt) {
 		amt = amt * ((fpow(DND_EXP_ADJUST_LEVELFACTOR, tmp - DND_EXP_ADJUST_LEVEL + 1) * 100) >> 16) / 100;
 
 	amt = amt * GetPlayerWisdomBonus(tid - P_TIDSTART, tid) / 100;
+
+	if(PlayerActivities[tid - P_TIDSTART].loot_penalty)
+		amt /= MAPLOOTPENALITY_FACTOR;
+
 	GiveActorExp(tid, amt);
 	return amt;
 }
 
 int RewardActorCredit(int tid, int amt) {
 	amt = amt * GetPlayerGreedBonus(tid - P_TIDSTART, tid) / 100;
+
+	if(PlayerActivities[tid - P_TIDSTART].loot_penalty)
+		amt /= MAPLOOTPENALITY_FACTOR;
+
 	GiveActorCredit(tid, amt);
 	return amt;
 }
@@ -656,7 +667,7 @@ int GetDropChance(int pnum) {
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 
 	// chances reduced to 25%
-	if(isMapLootPenalty)
+	if(PlayerActivities[pnum].loot_penalty)
 		base /= MAPLOOTPENALITY_FACTOR;
 
 	return base;

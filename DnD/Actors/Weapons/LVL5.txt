@@ -945,7 +945,6 @@ ACTOR HomRocket1 : DnD_ExplosiveBase {
 	Speed 32
 	DeathSound "weapons/heavyrlexp"
 	+SeekerMissile
-	+SCREENSEEKER
 	+Rockettrail
 	+THRUGHOST
 	+FORCEXYBILLBOARD

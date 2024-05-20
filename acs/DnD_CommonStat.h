@@ -518,7 +518,7 @@ int GetHealthPercent() {
 	if(!hp_pct)
 		hp_pct = 100;
 	else {
-		hp_pct = (GetActorProperty(0, APROP_HEALTH) * 100) / CheckInventory("PlayerHealthCap");
+		hp_pct = (GetActorProperty(0, APROP_HEALTH) * 100) / hp_pct;
 		if(hp_pct > 100)
 			hp_pct = 100;
 	}

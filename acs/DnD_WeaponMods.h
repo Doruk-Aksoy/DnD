@@ -44,7 +44,7 @@ str GetWeaponModText(int val, int id, int extra_bit = 0) {
 		case WEP_MOD_CRITDMG:
 			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T39");
 		case WEP_MOD_CRITPERCENT:
-			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T38");
+			return StrParam(s:"\c[Y5]* \c[Q9]", s:GetFixedRepresentation(val, true), s:"% ", l:"IATTR_T38");
 		case WEP_MOD_DMG:
 			if(val > 0)
 				return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T41");

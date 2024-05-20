@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 
@@ -198,6 +198,8 @@ enum {
 	DND_CHAOSMARKFX_TID,
 	DND_OTHERWORDLYGRIP_TID,
 	DND_THUNDERSTRUCK_TID,
+	DND_AVATAR_CUBEPROJ_TID,
+	DND_AVATAR_CUBEFLARE_TID,
 	DND_SHOTGUNPUFF_REMOVETID,
 	
 	// 64 player temp tid range
@@ -293,49 +295,17 @@ bool isHardcore() {
 global bool 6: PlayerLoaded[MAXPLAYERS];
 global bool 7: PlayerDied[MAXPLAYERS];
 
-#define MAX_MAPS_RECORDED 4
 #define MAPLOOTPENALITY_FACTOR 4
-bool isMapLootPenalty = false;
 
-enum {
-	DND_VISITCOUNT,
-	DND_VOTESKIPS,
-	DND_FAILEDMAP,
-};
-// can voteskip only once before loot affects badly -- reason this is 2 is because each time we enter a map we add 1 in OPEN script, if we beat the map legitimately its reduced by 1
+// can voteskip only twice before loot affects badly -- reason this is 2 + 1 is because each time we enter a map we add 1, if we beat the map legitimately its reduced by 1
 // but if we voteskip from the map we got, then this'll be 2 and then we are in trouble until we beat maps legitimately again -- once we legit beat maps if our skip was > 1 we reduce it by 2
 #define DND_VOTESKIP_LIMIT 2
-
-global int 53: VisitedMapData[3];
-global str 56: MapsVisited[MAX_MAPS_RECORDED];
+#define MAX_MAPS_RECORDED 4
 
 // We hold record of maps visited so far, in case they keep getting voted over and over, they linger here and affect loot drops negatively to incentivize people playing other maps
 // When a map is entered, we check our list if we have the map then we add it to our list, so if its the 2nd time visiting we limit loot, once a map is properly 
 bool IsLobbyMap(str mapname) {
 	return !StrCmp(mapname, "VR") || !StrCmp(mapname, "HUBMAP");
-}
-
-void InsertMapVisited(str mapname) {
-	// check if this map occurs on the list, dont fill it up otherwise
-	int i;
-	for(i = 0; i < VisitedMapData[DND_VISITCOUNT]; ++i) {
-		if(!StrCmp(MapsVisited[i], mapname)) {
-			isMapLootPenalty = true;
-			Log(s:"Map repeated: ", s:mapname, s:"! Loot is being reduced!");
-			return;
-		}
-	}
-
-	if(VisitedMapData[DND_VISITCOUNT] < MAX_MAPS_RECORDED) {
-		MapsVisited[VisitedMapData[DND_VISITCOUNT]] = mapname;
-		++VisitedMapData[DND_VISITCOUNT];
-	}
-	else {
-		// replace oldest by shifting each data back towards id 0 and putting the newest one on top
-		for(i = 0; i < MAX_MAPS_RECORDED - 1; ++i)
-			MapsVisited[i] = MapsVisited[i + 1];
-		MapsVisited[MAX_MAPS_RECORDED - 1] = mapname;
-	}
 }
 
 // used for aux stuff -- 16 unique sections

@@ -34,6 +34,10 @@ typedef struct {
 	int free_perks;
 	int free_attributes;
 
+	int loot_penalty;
+	int vote_skips;
+	str visited_maps[MAX_MAPS_RECORDED];
+
 	// these are not related to active things that are saved but they are forever kept while players are in the server
 	int total_exp;
 	
@@ -160,6 +164,35 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 		PlayerActivities[pnum].perk_change[i] = 0;
 	for(i = 0; i < DND_MAX_ATTRIBUTES; ++i)
 		PlayerActivities[pnum].attribute_change[i] = 0;
+}
+
+void InsertMapVisited(int pnum, str mapname) {
+	// check if this map occurs on the list, dont fill it up otherwise
+	int i;
+	str s;
+
+	//Log(s:"check maplist");
+	//for(i = 0; i < MAX_MAPS_RECORDED; ++i)
+	//	Log(s:PlayerActivities[pnum].visited_maps[i]);
+
+	for(i = 0; i < MAX_MAPS_RECORDED; ++i) {
+		s = PlayerActivities[pnum].visited_maps[i];
+		// i hope people dont name their maps 1 Letter... or number...
+		if(StrLen(s) > 1 && !StrCmp(s, mapname)) {
+			PlayerActivities[pnum].loot_penalty = 1;
+			Log(s:"Map repeated: ", s:mapname, s:"! Loot is being reduced!");
+			return;
+		}
+	}
+
+	// shift all to right and insert newest to id 0
+	for(i = MAX_MAPS_RECORDED - 1; i > 0; --i)
+		PlayerActivities[pnum].visited_maps[i] = PlayerActivities[pnum].visited_maps[i - 1];
+	PlayerActivities[pnum].visited_maps[0] = mapname;
+
+	//Log(s:"current list");
+	//for(i = 0; i < MAX_MAPS_RECORDED; ++i)
+	//	Log(s:PlayerActivities[pnum].visited_maps[i]);
 }
 
 #endif

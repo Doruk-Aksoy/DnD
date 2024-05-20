@@ -94,11 +94,14 @@ bool PlayerTriggeredExit(int pnum) {
 }
 
 void MarkPlayerAsExited(int pnum) {
+	// only increment this once
+	if(!PlayerTriggeredExit(pnum))
+		++ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT];
+	
 	if(pnum > 31)
 		ScoreboardData[DND_SCBRD_PLAYEREXITED2] = SetBit(ScoreboardData[DND_SCBRD_PLAYEREXITED2], pnum - 32);
 	else
 		ScoreboardData[DND_SCBRD_PLAYEREXITED1] = SetBit(ScoreboardData[DND_SCBRD_PLAYEREXITED1], pnum);
-	++ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT];
 }
 
 void UnmarkPlayerAsExited(int pnum) {
@@ -107,12 +110,6 @@ void UnmarkPlayerAsExited(int pnum) {
 	else
 		ScoreboardData[DND_SCBRD_PLAYEREXITED1] = ClearBit(ScoreboardData[DND_SCBRD_PLAYEREXITED1], pnum);
 	--ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT];
-}
-
-bool PlayerHasClicked(int pnum) {
-	if(pnum > 31)
-		return IsSet(ScoreboardData[DND_SCBRD_PLAYEREXITED2], pnum - 32);
-	return IsSet(ScoreboardData[DND_SCBRD_PLAYEREXITED1], pnum);
 }
 
 // serverside
@@ -189,7 +186,7 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			GiveInventory("MenuFreeze", 1);
 			SetPlayerProperty(1, 1, PROP_TOTALLYFROZEN);
 			SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
-			
+
 			// make all players run this input loop
 			for(i = 0; i < MAXPLAYERS; ++i) {
 				if(PlayerInGame(i)) {
@@ -204,6 +201,10 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 					ACS_NamedExecuteWithResult("DnD Sync Player Exp", i, GetPlayerExp(i));
 
 					ACS_NamedExecuteWithResult("DnD Scoreboard Input Loop", i);
+
+					// reduce the skips
+					if(isHardCore() && PlayerActivities[i].vote_skips > 0)
+						PlayerActivities[i].vote_skips = PlayerActivities[i].vote_skips - 1 - (PlayerActivities[i].vote_skips > 1);
 				}
 			}
 			
@@ -229,10 +230,6 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 				
 			// level end confirmed here, submit db transactions
 			SaveAllPlayerData();
-
-			// reduce the skips
-			if(isHardCore() && VisitedMapData[DND_VOTESKIPS] > 0)
-				VisitedMapData[DND_VOTESKIPS] = VisitedMapData[DND_VOTESKIPS] - 1 - (VisitedMapData[DND_VOTESKIPS] > 1);
 			
 			if(!isSecretExit)
 				Exit_Normal(0);
@@ -248,7 +245,7 @@ Script "DnD Scoreboard Input Loop" (int pnum) {
 	// delay is needed because switch exits would be skipped
 	Delay(const:17);
 	while(true) {
-		if(!PlayerHasClicked(pnum) && !(GetPlayerInput(pnum, INPUT_OLDBUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK)) && (GetPlayerInput(pnum, INPUT_BUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK))) {
+		if(!PlayerTriggeredExit(pnum) && !(GetPlayerInput(pnum, INPUT_OLDBUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK)) && (GetPlayerInput(pnum, INPUT_BUTTONS) & (BT_ATTACK | BT_USE | BT_ALTATTACK))) {
 			MarkPlayerAsExited(pnum);
 			GiveInventory("DnD_ScoreboardTick", 1);
 			

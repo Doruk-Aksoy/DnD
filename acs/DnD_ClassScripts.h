@@ -47,6 +47,8 @@ Script "DnD Marine Perk 50 Checker" (void) {
                 Delay(const:1);
                 TakeInventory("Marine_Perk50_Cooldown", 1);
             } while(isAlive() && CheckInventory("Marine_Perk50_Cooldown"));
+
+			SetInventory("Marine_Perk50_DamageTaken", 0);
         }
     }
 }

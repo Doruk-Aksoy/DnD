@@ -44,6 +44,7 @@ server noarchive bool dnd_enable_limiteditems = true;
 server noarchive bool dnd_no_immunity = false;
 server noarchive bool dnd_no_reflect = false;
 server noarchive bool dnd_ignore_dropweights = false;
+server noarchive bool dnd_ignorelootpenalty = false;
 
 server noarchive int dnd_mode = 0;
 
