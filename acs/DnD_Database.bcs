@@ -128,7 +128,7 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 
 // This is specifically called as a terminal script on a player's run, NEVER IN THE MIDDLE!
 // This is here to save player's activities in a level that should be saved regardless of end of map
-Script "DnD Save Player Activities" (int pnum, int reset) {
+/*Script "DnD Save Player Activities" (int pnum, int reset) {
 	// save player's activities only if they have loaded a character in a soft/hardcore mode
 	if(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE && PlayerLoaded[pnum]) {
 		BeginDBTransaction();
@@ -147,7 +147,7 @@ Script "DnD Save Player Activities" (int pnum, int reset) {
 	}
 	
 	SetResultValue(0);
-}
+}*/
 
 Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {
 	SavePlayerItem(pnum_char & 0xFFFF, pnum_char >> 16, itemid, source);

@@ -114,6 +114,7 @@ DND_STAT20								= "Level Credit";
 DND_LEVEL_HEADER						= "L";
 
 DND_TOREADY								= "to Ready Up!";
+DND_SAFETOSAVE							= "Player Data Saved!";
 
 DND_SPREETEXT1							= "Cruel";
 DND_SPREETEXT2							= "Merciless";

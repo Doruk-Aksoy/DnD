@@ -20,6 +20,7 @@ int GetPlayerWeaponQuality(int pnum, int wep) {
 
 void SetPlayerWeaponQuality(int pnum, int wep, int val) {
 	Player_Weapon_Infos[pnum][wep].quality = val;
+	Player_Weapon_Infos[pnum][wep].needs_save = true;
 }
 
 // gives a particular powerset to the weapon
@@ -28,6 +29,7 @@ void SetWeaponModPowerset(int pnum, int wepid, int powerset, bool val, int sourc
 		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1][source].val |= 1 << powerset;
 	else
 		Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_POWERSET1][source].val &= ~(1 << powerset);
+	Player_Weapon_Infos[pnum][wepid].needs_save = true;
 }
 
 // This will always return the sum of all sources, as the "net" value for use in calculations

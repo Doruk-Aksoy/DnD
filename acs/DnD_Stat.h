@@ -1428,7 +1428,7 @@ int GetSelfExplosiveResist(int pnum) {
 		base = FixedMul(base, (100 - DND_MARINE_SELFEXPLOSIVEREDUCE) * 1.0 / 100);
 	
 	// get player selfdmg res
-	int temp = (GetPlayerAttributeValue(pnum, INV_SELFDMG_RESIST) << 16) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION);
+	int temp = (GetPlayerAttributeValue(pnum, INV_SELFDMG_RESIST) << 16);// + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_EXPLOSION);
 
 	// roll damage up
 	if(temp) {

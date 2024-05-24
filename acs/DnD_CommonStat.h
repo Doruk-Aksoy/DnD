@@ -49,6 +49,14 @@ enum {
 };
 
 enum {
+	DND_AILMENT_IGNITE = 1,
+	DND_AILMENT_CHILL = 2,
+	DND_AILMENT_FREEZE = 4,
+	DND_AILMENT_POISON = 8,
+	DND_AILMENT_OVERLOAD = 16
+};
+
+enum {
 	DND_DAMAGEFLAG_USEMASTER 			= 			0b1,
 	DND_DAMAGEFLAG_ISSHOTGUN 			= 			0b10,
 	DND_DAMAGEFLAG_CULL 				= 			0b100,
@@ -914,6 +922,26 @@ int GetResistPenetration(int pnum, int category) {
 	val += GetPlayerAttributeValue(pnum, INV_EX_UNITY_PEN_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
 
 	return val;
+}
+
+void RemoveMonsterAilment(int tid, int ailment) {
+	int prev = CheckActorInventory(tid, "DnD_AilmentToken");
+	SetActorInventory(tid, "DnD_AilmentToken", prev & ~ailment);
+}
+
+void AddMonsterAilment(int tid, int ailment) {
+	int prev = CheckActorInventory(tid, "DnD_AilmentToken");
+	SetActorInventory(tid, "DnD_AilmentToken", prev | ailment);
+}
+
+int CountMonsterAilments(int tid) {
+	int count = 0;
+	int val = CheckActorInventory(tid, "DnD_AilmentToken");
+	while(val) {
+		++count;
+		val >>= 1;
+	}
+	return count;
 }
 
 #endif

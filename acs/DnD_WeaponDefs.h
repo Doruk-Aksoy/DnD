@@ -201,6 +201,7 @@ enum {
 typedef struct {
 	int quality;
 	wep_mod_T wep_mods[MAX_WEP_MODS][DND_MAX_WEAPONMODSOURCES];
+	bool needs_save; // whether this should be written to db or not
 } wep_info_T;
 
 global wep_info_T 2: Player_Weapon_Infos[MAXPLAYERS][MAXWEPS];
@@ -1472,6 +1473,7 @@ void ResetAllWeaponMods(int pnum) {
 	int i, j;
 	for(j = 0; j < MAXWEPS; ++j) {
 		Player_Weapon_Infos[pnum][j].quality = 0;
+		Player_Weapon_Infos[pnum][j].needs_save = false;
 		for(i = 0; i < MAX_WEP_MODS; ++i) {
 			Player_Weapon_Infos[pnum][j].wep_mods[i][WMOD_ITEMS].tier = 0;
 			Player_Weapon_Infos[pnum][j].wep_mods[i][WMOD_ITEMS].val = 0;

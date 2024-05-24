@@ -144,7 +144,6 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 void ResetPlayerActivities(int pnum, bool hardReset) {
 	int i, j;
 	PlayerActivities[pnum].exp = 0;
-	PlayerActivities[pnum].total_exp = 0;
 	PlayerActivities[pnum].credit = 0;
 	PlayerActivities[pnum].budget = 0;
 	PlayerActivities[pnum].level = 0;
@@ -155,6 +154,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 		// only if someone quits or spectates should the hard reset be resetting these
 		PlayerActivities[pnum].char_id = 0;
 		PlayerActivities[pnum].stash_pages = 0;
+		PlayerActivities[pnum].total_exp = 0; // DONT CHANGE THIS THING'S LOCATION!
 		
 		for(i = 0; i < MAX_ACCOUNTNAME_LEN; ++i)
 			PlayerActivities[pnum].player_account[i] = 0;

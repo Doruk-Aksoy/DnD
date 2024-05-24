@@ -1399,8 +1399,10 @@ void SpawnOrbForAll(int repeats, int stack = 1) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j))
+#ifndef ISDEBUGBUILD
 				if(PlayerActivities[j].loot_penalty)
 					continue;
+#endif
 				SpawnOrb(j, false, false, stack);
 		}
 	}

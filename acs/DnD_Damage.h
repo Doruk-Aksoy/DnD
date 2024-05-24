@@ -122,7 +122,7 @@ bool IsBulletDamage(int damage_type) {
 }
 
 bool IsExplosionDamage(int damage_type) {
-	return damage_type == DND_DAMAGETYPE_ENERGYEXPLOSION || damage_type == DND_DAMAGETYPE_OCCULTEXPLOSION || damage_type == DND_DAMAGETYPE_EXPLOSIVES;
+	return damage_type == DND_DAMAGETYPE_ENERGYEXPLOSION || damage_type == DND_DAMAGETYPE_EXPLOSIVES;
 }
 
 bool IsEnergyDamage(int damage_type) {
@@ -898,15 +898,7 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 	}
 
 	// debuffs to reduce flat
-	if(CheckInventory("Wanderer_Perk25")) {
-		resist -= 	(
-						(!!CheckActorInventory(victim, "DnD_IgniteTimer")) + 
-						(!!CheckActorInventory(victim, "DnD_PoisonStacks")) +
-						(!!CheckActorInventory(victim, "DnD_ChillStacks")) +
-						(!!CheckActorInventory(victim, "DnD_FreezeTimer")) +
-						(!!CheckActorInventory(victim, "DnD_OverloadTimer"))
-					) * DND_WANDERER_RESREDUCE;
-	}
+	resist -= CountMonsterAilments(victim) * DND_WANDERER_RESREDUCE;
 
 	//printbold(s:"new res ", d:resist);
 
@@ -1520,7 +1512,10 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			// by now we have ang and pitch ready, store player's previous positions, angle and pitch and move player there to fire
 			str puff = GetActorClass(0);
 			Thing_ChangeTID(0, flags);
-			
+
+			// fail safe for crashing
+			Thing_Destroy(victim, 0, 0);
+
 			// player is now in charge of firing the puff
 			SetActivator(owner);
 			
@@ -1538,6 +1533,10 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 			// return to puff to early cancel, no need to do damage calculation for this particular pellet anymore
 			SetActivator(flags);
 			Thing_Remove(flags);
+
+			// added this as a recent change, since normally at the end of this properly the activator would be owner
+			SetActivator(owner);
+
 			SetResultValue(0);
 			return;
 		}
@@ -2442,6 +2441,9 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		trigger_tic /= 2;
 
 	dmg = GetPoisonDOTDamage(pnum, dmg);
+
+	if(CheckActorInventory(source, "Wanderer_Perk25"))
+		AddMonsterAilment(victim, DND_AILMENT_POISON);
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
@@ -2454,6 +2456,10 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		counter += DND_POISON_CHECKRATE;
 		Delay(const:DND_POISON_TICCHECK);
 	}
+
+	if(CheckActorInventory(source, "Wanderer_Perk25"))
+		RemoveMonsterAilment(victim, DND_AILMENT_POISON);
+
 	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
 	SetResultValue(0);
 }
@@ -2474,6 +2480,9 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	// revoke monster's extra fast flag if it has it
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
 		GiveActorInventory(victim, "UnMakeFaster", 1);
+
+	if(CheckInventory("Wanderer_Perk25"))
+		AddMonsterAilment(victim, DND_AILMENT_CHILL);
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
@@ -2488,6 +2497,9 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	// retain super fast property after chill ends
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
 		GiveActorInventory(victim, "MakeFaster", 1);
+
+	if(CheckInventory("Wanderer_Perk25"))
+		RemoveMonsterAilment(victim, DND_AILMENT_CHILL);
 }
 
 Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {
@@ -2512,6 +2524,9 @@ Script "DnD Monster Freeze" (int victim) {
 	bool hasNoPain = MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_NOPAIN];
 	
 	GiveActorInventory(victim, "MakeNoPain", 1);
+
+	if(CheckInventory("Wanderer_Perk25"))
+		AddMonsterAilment(victim, DND_AILMENT_FREEZE);
 	
 	// actor flags dont get changed properly this way for some reason
 	//printbold(s:"actor flag: ", d:CheckFlag(victim, "NOPAIN"));
@@ -2523,6 +2538,9 @@ Script "DnD Monster Freeze" (int victim) {
 		TakeActorInventory(victim, "DnD_FreezeTimer", 1);
 		tics = (tics + 1) % 4;
 	}
+
+	if(CheckInventory("Wanderer_Perk25"))
+		RemoveMonsterAilment(victim, DND_AILMENT_FREEZE);
 	
 	// remove frozen nopain thing if monster didnt have it before
 	if(!hasNoPain)
@@ -2577,6 +2595,9 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	
 	// this is the value we will use to set the ignite timers on proliferated targets, if any
 	int ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
+
+	if(CheckActorInventory(source, "Wanderer_Perk25"))
+		AddMonsterAilment(victim, DND_AILMENT_IGNITE);
 	
 	do {	
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
@@ -2679,6 +2700,9 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 			}
 		}
 	}
+
+	if(CheckActorInventory(source, "Wanderer_Perk25"))
+		RemoveMonsterAilment(victim, DND_AILMENT_IGNITE);
 	
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);
 
@@ -2701,10 +2725,14 @@ Script "DnD Monster Ignite FX" (int tid) CLIENTSIDE {
 }
 
 Script "DnD Monster Overload" (int victim) {
+	int source = ActivatorTID();
 	// we dont have any player involvement here so
 	SetActivator(victim);
 	
 	PlaySound(0, "Overload/Loop", CHAN_ITEM, 1.0, true);
+
+	if(CheckActorInventory(source, "Wanderer_Perk25"))
+		AddMonsterAilment(victim, DND_AILMENT_OVERLOAD);
 	
 	while(CheckInventory("DnD_OverloadTimer")) {
 		if(!ActivatorTID())
@@ -2715,6 +2743,9 @@ Script "DnD Monster Overload" (int victim) {
 		Delay(const:DND_BASE_OVERLOADTICK);
 		GiveInventory("Overload_SoundStopper", 1);
 	}
+
+	if(CheckActorInventory(source, "Wanderer_Perk25"))
+		RemoveMonsterAilment(victim, DND_AILMENT_OVERLOAD);
 
 	// remove accumulated damage
 	SetInventory("DnD_OverloadDamage", 0);

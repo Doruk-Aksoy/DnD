@@ -9,8 +9,9 @@ enum {
 	DND_SCBRD_ALIVEPLAYERCOUNT,
 	DND_SCBRD_SPECPLAYERCOUNT,
 	DND_SCBRD_DEADPLAYERCOUNT,
+	DND_SCBRD_SAFETOSAVE
 };
-#define MAX_SCOREBOARD_DATA (DND_SCBRD_DEADPLAYERCOUNT + 1)
+#define MAX_SCOREBOARD_DATA (DND_SCBRD_SAFETOSAVE + 1)
 
 #define MAX_INTERMISSION_SONGS 4
 #define MAX_INTERMISSION_PLAYERS_SHOWN 29 // we can fit 29 players currently
@@ -222,14 +223,18 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			ScoreboardData[DND_SCBRD_PLAYEREXITED1] = 0;
 			ScoreboardData[DND_SCBRD_PLAYEREXITED2] = 0;
 			ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] = 0;
+
+			// level end confirmed here, submit db transactions
+			if(isSoftorHardcore()) {
+				SaveAllPlayerData();
+				Delay(const:HALF_TICRATE);
+				ACS_NamedExecuteAlways("DnD Safe To Save Hint", 0);
+			}
 			
 			// timer -- waits until times up or everyones clicked
 			democracy = ScoreboardData[DND_SCBRD_TIMER] * TICRATE;
 			while(democracy-- && ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] < GetActivePlayerCount())
 				Delay(const:1);
-				
-			// level end confirmed here, submit db transactions
-			SaveAllPlayerData();
 			
 			if(!isSecretExit)
 				Exit_Normal(0);
@@ -238,6 +243,10 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			Delay(1);
 		}
 	}
+}
+
+Script "DnD Safe To Save Hint" (void) CLIENTSIDE {
+	ScoreboardData[DND_SCBRD_SAFETOSAVE] = 1;
 }
 
 Script "DnD Scoreboard Input Loop" (int pnum) {
@@ -441,7 +450,7 @@ Script "DnD Scoreboard Display" (int time, int total_mons) CLIENTSIDE {
 	// map name in center of bg image --- make these fall into place here
 	SetFont("INTERFONT");
 	HudMessage(
-		s:"\cj", n:PRINTNAME_LEVEL, s:": \cf", n:PRINTNAME_LEVELNAME, s:"\n\n\c[M3]", l:"DND_COMPLETED";
+		s:"\cj", n:PRINTNAME_LEVEL, s:": \cf", n:PRINTNAME_LEVELNAME, s:"\n\c[M3]", l:"DND_COMPLETED";
 		HUDMSG_PLAIN, DND_SCBRDID_MAPCOMPLETE, CR_GOLD,
 		240.4, 360.1, 0
 	);
@@ -802,10 +811,19 @@ Script "DnD Scoreboard Loop" (int time, int total_mons) CLIENTSIDE {
 		// display press key to continue text
 		SetFont("INTERFONT");
 		SetHudSize(640, 480, 1);
-		HudMessage(
-			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:"\c[L7], \ci", k:"+attack", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
-			HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 424.1, 0.0, abs(sin(alpha * 1.0 / 360))
-		);
+
+		if(!ScoreboardData[DND_SCBRD_SAFETOSAVE]) {
+			HudMessage(
+				s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:"\c[L7], \ci", k:"+attack", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
+				HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 408.1, 0.0, abs(sin(alpha * 1.0 / 360))
+			);
+		}
+		else {
+			HudMessage(
+				s:"\cd", l:"DND_SAFETOSAVE", s:"\n\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:"\c[L7], \ci", k:"+attack", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+altattack", s: " \c[L7]", l:"DND_TOREADY", s:"!";
+				HUDMSG_PLAIN | HUDMSG_ALPHA, DND_SCBRDID_CONTINUE, -1, 240.4, 408.1, 0.0, abs(sin(alpha * 1.0 / 360))
+			);
+		}
 
 		--tics;
 		

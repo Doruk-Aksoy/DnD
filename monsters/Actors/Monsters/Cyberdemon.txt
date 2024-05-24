@@ -2840,6 +2840,7 @@ Actor SorcBallFlare_Red {
 	Renderstyle Add
 	Alpha 0.75
 	Scale 0.25
+	ReactionTime 30
 	+NOINTERACTION
 	+CLIENTSIDEONLY
 	States {
@@ -2888,7 +2889,9 @@ Actor SorcBallFlare_Red {
 			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
 			FLAR A 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			FLAR A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR A 0 A_CountDown
 		Loop
+		Death:
 		Fade:
 			"####" "#" 1 A_FadeOut(0.025)
 		Wait
@@ -2942,6 +2945,7 @@ Actor SorcBallFlare_Blue : SorcBallFlare_Red {
 			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
 			FLAR B 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			FLAR B 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR B 0 A_CountDown
 		Loop
 	}
 }
@@ -2993,6 +2997,7 @@ Actor SorcBallFlare_Yellow : SorcBallFlare_Red {
 			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
 			FLAR E 1 A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			FLAR E 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			FLAR E 0 A_CountDown
 		Loop
 	}
 }

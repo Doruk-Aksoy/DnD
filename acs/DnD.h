@@ -1412,24 +1412,25 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 		return;
 
 	PlayerLoaded[pnum] = 0;
+
+	if(!PlayerIsLoggedIn(pnum) || !PlayerDatabaseState[pnum][PLAYER_SAVESTATE])
+		return;
 		
 	if(!isDisconnect) {
-		if(PlayerIsLoggedIn(pnum) && PlayerDatabaseState[pnum][PLAYER_SAVESTATE]) {
-			BeginDBTransaction();
+		BeginDBTransaction();
 
-			if(PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE]) {
-				Log(s:"Transferring player data.");
-				WipeoutPlayerData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
-				SetActorInventory(pnum + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID"));
-				PlayerActivities[pnum].char_id = CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID");
-				PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
-			}
-
-			Log(s:"Save player ", d:pnum, s: " activites on death for char id ", d:PlayerActivities[pnum].char_id);
-			SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
-			ResetPlayerActivities(pnum, false);
-			EndDBTransaction();
+		if(PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE]) {
+			Log(s:"Transferring player data.");
+			WipeoutPlayerData(pnum, CheckActorInventory(pnum + P_TIDSTART, "DnD_CharacterID"));
+			SetActorInventory(pnum + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID"));
+			PlayerActivities[pnum].char_id = CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID");
+			PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 		}
+
+		Log(s:"Save player ", d:pnum, s: " activites on death for char id ", d:PlayerActivities[pnum].char_id);
+		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
+		ResetPlayerActivities(pnum, false);
+		EndDBTransaction();
 	}
 	else {
 		BeginDBTransaction();
@@ -1441,35 +1442,34 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 		ResetPlayerInfo(pnum);
 		ResetPlayerActivities(pnum, true);
 		EndDBTransaction();
+
+		PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
 	}
 }
 
 void SaveAllPlayerData() {
-	//Log(s:"Save all player data executed.");
-	if(isSoftorHardcore()) {
-		Log(s:"Database save mode confirmed.");
-		BeginDBTransaction();
-		for(int i = 0; i < MAXPLAYERS; ++i) {
-			// don't save peoples stuff while they are in load period
-			//Log(d:i,s:": ",d:PlayerInGame(i), s:" " ,d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), s:" ", d:PlayerDatabaseState[i][PLAYER_SAVESTATE]);
-			if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerDatabaseState[i][PLAYER_SAVESTATE]) {
-				if (PlayerIsLoggedIn(i)) {
-					// if transfer requested, wipeout old one and move to new one
-					if(PlayerDatabaseState[i][PLAYER_TRANSFERSTATE]) {
-						WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
-						SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
-						PlayerDatabaseState[i][PLAYER_TRANSFERSTATE] = false;
-					}
-					SavePlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
-					ResetPlayerActivities(i, false); // reset this player's activities for the map, no need for them to be stored anymore
-					PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
-					Log(s:"Saving player ", n:i + 1, s:"'s data.");
+	Log(s:"Database save mode confirmed.");
+	BeginDBTransaction();
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		// don't save peoples stuff while they are in load period
+		//Log(d:i,s:": ",d:PlayerInGame(i), s:" " ,d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), s:" ", d:PlayerDatabaseState[i][PLAYER_SAVESTATE]);
+		if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerDatabaseState[i][PLAYER_SAVESTATE]) {
+			if (PlayerIsLoggedIn(i)) {
+				// if transfer requested, wipeout old one and move to new one
+				if(PlayerDatabaseState[i][PLAYER_TRANSFERSTATE]) {
+					WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+					SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
+					PlayerDatabaseState[i][PLAYER_TRANSFERSTATE] = false;
 				}
-				PlayerDatabaseState[i][PLAYER_SAVESTATE] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
+				SavePlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+				ResetPlayerActivities(i, false); // reset this player's activities for the map, no need for them to be stored anymore
+				PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
+				Log(s:"Saving player ", n:i + 1, s:"'s data.");
 			}
+			PlayerDatabaseState[i][PLAYER_SAVESTATE] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
 		}
-		EndDBTransaction();
 	}
+	EndDBTransaction();
 }
 
 void HandleEndOfLevelRewards(int pnum) {

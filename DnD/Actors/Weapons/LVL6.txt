@@ -885,6 +885,7 @@ Actor NailExplosion : DnD_ExplosiveBase {
 	+THRUACTORS
 	+FOILINVUL
 	+FORCERADIUSDMG
+	+THRUGHOST
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -901,7 +902,15 @@ Actor NailExplosion : DnD_ExplosiveBase {
 	}
 }
 
+Actor NailExplosion_GhostHitter : NailExplosion {
+	-THRUGHOST
+}
+
 Actor NailExplosion_Crit : NailExplosion {
+	Accuracy 69
+}
+
+Actor NailExplosion_GhostHitter_Crit : NailExplosion_GhostHitter {
 	Accuracy 69
 }
 
@@ -964,31 +973,31 @@ Actor LavaNailProjectile_GhostHitter : LavaNailProjectile {
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		Crit:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
+			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop

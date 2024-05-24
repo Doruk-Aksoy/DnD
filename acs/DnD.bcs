@@ -296,7 +296,11 @@ Script "DnD On Death" DEATH {
 				
 				if(PlayerIsLoggedIn(pnum) && GetGameModeState() >= GAMESTATE_INPROGRESS) {
 					BeginDBTransaction();
-					
+
+					// reduce to not increment from joining
+					--PlayerActivities[pnum].vote_skips;
+					SetDBEntry(DND_DB_VOTESKIPS, GetPlayerAccountName(pnum), PlayerActivities[pnum].vote_skips);
+
 					WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
 					ResetPlayerActivities(pnum, false);
 
@@ -310,6 +314,10 @@ Script "DnD On Death" DEATH {
 				int exp = GetPlayerExp(pnum);
 				int lvl = GetLevel();
 				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, INT_MAX), 0);
+
+				// reduce to not increment from joining
+				--PlayerActivities[pnum].vote_skips;
+
 				HandlePlayerDataSave(pnum, false, i);
 			}
 			else
@@ -691,6 +699,7 @@ Script "DND Mugshot Grin" (void) CLIENTSIDE {
 }
 
 Script "DND On Revive" (void) {
+	SetInventory("DnD_AilmentToken", 0);
 	TakeInventory("Mo_Died", 1);
 	TakeInventory("MonsterKilledByPlayer", 1);
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
@@ -842,7 +851,7 @@ Script "DND On Kill" KILL {
 	SetInventory("DnD_ChillStacks", 0);
 	SetInventory("DnD_FreezeTimer", 0);
 
-	if(IsBlindCastingMonster(m_id))
+	if(IsBlindCastingMonster(MonsterProperties[m_id].id))
 		ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS");
 
 	ACS_NamedExecuteAlways("DnD Monster Death Effects", 0, this, m_id);
@@ -1904,8 +1913,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
 
-	//GiveInventory("Phasing_Script_Run", 1);
-	//MonsterProperties[m_id].trait_list[DND_PHASING] = true;
+	//MonsterProperties[m_id].trait_list[DND_REBIRTH] = true;
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -3081,7 +3089,6 @@ Script 988 (int wepslot, int type) {
 Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	//Just to make sure a rare lvl 1 char load bug doesn't happen
 	//Log(s:"player left ", d:pnum);
-	PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
 	PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 
 	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
@@ -3095,6 +3102,9 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// save accumulated stats when player leaves
 	// things saved are in DnD_Activity.h
 	HandlePlayerDataSave(pnum, true);
+
+	// this moved here so the above function has prio, not sure if it has any other implications but its good for it to be here regardless
+	PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
 	CheckEOL(true);
 	
 	//ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, true);
@@ -3195,7 +3205,7 @@ Script "DnD Player Setup" ENTER {
 		}
 		else {
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
-			UpdateActivity(pnum, DND_ACTIVITY_EXP, GetPlayerExp(pnum), 0);
+			//UpdateActivity(pnum, DND_ACTIVITY_EXP, GetPlayerExp(pnum), 0);
 		}
 		
 		// 0 means they are ready
@@ -4418,6 +4428,10 @@ Script "DnD Talisman Mark" (void) CLIENTSIDE {
 }
 
 Script "DnD Chest Dropping Item" (int chance_penalty) {
+	// after the initial spawning this will be checked to not spawn a chest again
+	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+		Terminate;
+
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
 	// additional delay for the map difficulty calculator
@@ -4683,14 +4697,6 @@ Script "DnD Try Open Chestkey" (int keytype) {
 		}
 	}
 	SetResultValue(res != -1);
-}
-
-Script "DnD Pellet Count" (int base, int flags) {
-	if(flags & DND_WDMG_USETARGET)
-		SetactivatorToTarget(0);
-	
-	int pnum = PlayerNumber();
-	SetResultValue(GetPelletCount(pnum, base)); 
 }
 
 Script "DnD Explosion Radius Retrieve" (int flags) {
@@ -5914,6 +5920,7 @@ Script 68 (int x) NET {
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
+			//IncPlayerModValue(0, INV_PELLET_INCREASE, 0.5);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

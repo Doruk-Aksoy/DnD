@@ -502,21 +502,23 @@ void SavePlayerData(int pnum, int char_id) {
 	// save player's weapon mods
 	temp = 0;
 	for(i = 0; i < MAXWEPS; ++i) {
+		if(!Player_Weapon_Infos[pnum][i].needs_save)
+			continue;
+		Player_Weapon_Infos[pnum][i].needs_save = false;
+
 		// check mods
 		// enhancement orbs used
 		temp = Player_Weapon_Infos[pnum][i].quality;
-		if(temp)
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
 			for(int k = 0; k < DND_MAX_WEAPONMODSOURCES; ++k) {
 				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][k].tier;
-				if(temp)
-					SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
+
 				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][k].val;
-				if(temp)
-					SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
 			}
 		}
 	}
@@ -562,22 +564,22 @@ void SavePlayerActivities(int pnum, int char_id) {
 		IncrementDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, PlayerActivities[pnum].perk_change[i - DND_PERK_BEGIN]);
 	
 	for(i = 0; i < MAXWEPS; ++i) {
+		if(!Player_Weapon_Infos[pnum][i].needs_save)
+			continue;
+		Player_Weapon_Infos[pnum][i].needs_save = false;
+
 		// check mods
 		// enhancement orbs used
-		// orb bonus
-		//IncrementDBEntry(StrParam(s:GetCharField(DND_DB_ORBWEAPONQUALITY, char_id), d:i), pacc, PlayerActivities[pnum].orb_change.weapon_stat_bonuses[i].quality);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, Player_Weapon_Infos[pnum][i].quality);
 
 		// rest of the mods for the weapon
-		if(CheckActorInventory(tid, Weapons_Data[i].name)) {
-			for(j = 0; j < MAX_WEP_MODS; ++j) {
-				for(vt = 0; vt < DND_MAX_WEAPONMODSOURCES; ++vt) {
-					temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].tier;
-					if(temp)
-						SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
-					temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].val;
-					if(temp)
-						SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
-				}
+		for(j = 0; j < MAX_WEP_MODS; ++j) {
+			for(vt = 0; vt < DND_MAX_WEAPONMODSOURCES; ++vt) {
+				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].tier;
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
+				
+				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].val;
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
 			}
 		}
 	}
@@ -694,7 +696,7 @@ Script "DnD Sync Player Class" (int pnum, int ctype) CLIENTSIDE {
 // Loads from database and gives necessary items
 void LoadPlayerData(int pnum, int char_id) {
 	// assumes all checks have been performed before reaching this function
-	int i = 0, j = 0, h, w, temp;
+	int i = 0, j = 0, h, w, temp, weptmp;
 	str pacc = GetPlayerAccountName(pnum);
 	
 	// set player class to what they initially chose -- CAREFUL ITS NOT CHARACTERID ITS CHARACTER!!! FORMER IS DATABASE ID
@@ -832,8 +834,25 @@ void LoadPlayerData(int pnum, int char_id) {
 		j = i / 32;
 		if(IsSet(temp, i - 32 * j)) {
 			GiveInventory(Weapons_Data[i].name, 1);
+
+			// load mod data and stuff of weapon owned
+			weptmp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc);
+			Player_Weapon_Infos[pnum][i].quality = weptmp & 0xFF;
+			
+			// rest of the mods for the weapon
+			for(w = 0; w < MAX_WEP_MODS; ++w) {
+				for(h = 0; h < DND_MAX_WEAPONMODSOURCES; ++h) {
+					weptmp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:w, s:"_Weapon", d:i, s:"_", d:h), pacc);
+					Player_Weapon_Infos[pnum][i].wep_mods[w][h].tier = weptmp;
+
+					weptmp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:w, s:"_Weapon", d:i, s:"_", d:h), pacc);
+					Player_Weapon_Infos[pnum][i].wep_mods[w][h].val = weptmp;
+				}
+			}
 		}
-		if(j != (i + 1) / 32 || i == MAXWEPS - 1) { // ie. our j changed
+
+		// ie. our j changed
+		if(j != (i + 1) / 32 || i == MAXWEPS - 1) {
 			// update bitset
 			temp = GetDBEntry(GetCharField(StrParam(s:DND_DB_WEAPONINT, d:j + 2), char_id), pacc);
 			//Log(s:"read wep bitset: ", d:j + 2, s: " ", d:temp);
@@ -988,29 +1007,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	for(i = 0; i < MAX_WEPCONDITION_CHECKERS; ++i)
 		if(IsSet(temp, i))
 			GiveInventory(WeaponConditionCheckers[i], 1);
-	
-	
-	// load player's weapon mods
-	for(i = 0; i < MAXWEPS; ++i) {
-		// check mods
-		// enhancement orbs used
-		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc);
-		Player_Weapon_Infos[pnum][i].quality = temp & 0xFF;
-		
-		// rest of the mods for the weapon
-		if(CheckInventory(Weapons_Data[i].name)) {
-			for(j = 0; j < MAX_WEP_MODS; ++j) {
-				for(h = 0; h < DND_MAX_WEAPONMODSOURCES; ++h) {
-					temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:h), pacc);
-					if(temp)
-						Player_Weapon_Infos[pnum][i].wep_mods[j][h].tier = temp;
-					temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_VAL, char_id), d:j, s:"_Weapon", d:i, s:"_", d:h), pacc);
-					if(temp)
-						Player_Weapon_Infos[pnum][i].wep_mods[j][h].val = temp;
-				}
-			}
-		}
-	}
 	
 	// load stored medkit
 	temp = GetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc);

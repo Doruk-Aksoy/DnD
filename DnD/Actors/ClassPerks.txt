@@ -151,6 +151,10 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 	}
 }
 
+Actor DnD_AilmentToken : DnD_Info {
+	inventory.maxamount 64
+}
+
 Actor Cyborg_Perk5 : DnD_Boolean { }
 Actor Cyborg_Perk25 : DnD_Boolean { }
 Actor Cyborg_Perk50 : DnD_Boolean { }

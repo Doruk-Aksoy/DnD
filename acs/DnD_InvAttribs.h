@@ -1765,6 +1765,16 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_FLAT_TECH:
 		case INV_FLAT_MAGIC:
 
+		case INV_PEN_ELEMENTAL:
+		case INV_PEN_ENERGY:
+		case INV_PEN_EXPLOSIVE:
+		case INV_PEN_PHYSICAL:
+		case INV_PEN_OCCULT:
+		case INV_PEN_FIRE:
+		case INV_PEN_ICE:
+		case INV_PEN_LIGHTNING:
+		case INV_PEN_POISON:
+
 		case INV_REGENCAP_INCREASE:
 		case INV_KNOCKBACK_RESIST:
 		case INV_ACCURACY_INCREASE:
@@ -2096,8 +2106,8 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 
 		case INV_EX_RESPERESHIELD:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX49S");
+				return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX49S");
 
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:

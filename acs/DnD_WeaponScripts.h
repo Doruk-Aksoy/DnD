@@ -1,6 +1,14 @@
 #ifndef DND_WEAPON_SC_IN
 #define DND_WEAPON_SC_IN
 
+Script "DnD Pellet Count" (int base, int flags) {
+	if(flags & DND_WDMG_USETARGET)
+		SetactivatorToTarget(0);
+	
+	int pnum = PlayerNumber();
+	SetResultValue(GetPelletCount(pnum, base)); 
+}
+
 // 0 is ammo1, 1 is ammo2
 // returns 1 if it can fire
 Script "DnD Can Fire Weapon" (int wepid, int ammo_which) {

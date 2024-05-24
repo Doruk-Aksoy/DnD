@@ -180,7 +180,7 @@ ACTOR RadSuit2 : Radsuit replaces Radsuit
 	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Radsuit\c-"
 	States {
 		Spawn:
-		    TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
 			TNT1 A 0 ACS_NamedExecuteAlways("Dnd Pickup Setup")
 		SpawnIdle:
 			SUIT A 1 Bright A_SpawnItemEx("InvulnerabilitySphereFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)

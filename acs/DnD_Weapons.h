@@ -659,8 +659,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			// check if circle attack, fire in circle otherwise
 			if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
 				// this weapon fires half pellets as railgun, half as hitscan -- so we tuck it at the end
-				Do_Hitscan_Attack(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, sp_x, sp_y, flags);
-				Do_Railgun_Attack("HeavySSG_RailHelper", count);
+				count = GetPelletCount(pnum, count * 2);
+				Do_Hitscan_Attack(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count / 2, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, sp_x, sp_y, flags);
+				Do_Railgun_Attack("HeavySSG_RailHelper", count / 2);
 			}
 			else {
 				GiveInventory("HeavySSG_RailHelper_Circle", 1);

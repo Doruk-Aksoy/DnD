@@ -47,7 +47,7 @@ void ApplyGunsmithToken(int pnum, int wepid) {
 	Player_Weapon_Infos[pnum][wepid].quality = 0;
 
     // zero only the ghost hitting power -- remove weapon affecting sources for this, as the orb affecting this is the "phantasmal" orb applied onto the weapon directly!
-    SetWeaponModPowerset(pnum, wepid, WEP_POWER_GHOSTHIT, 0, 1);
+    SetWeaponModPowerset(pnum, wepid, WEP_POWER_GHOSTHIT, 0, WMOD_WEP);
 }
 
 void HandleTokenUse(int pnum, int token_type, int item_id) {
