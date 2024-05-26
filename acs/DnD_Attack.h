@@ -136,7 +136,7 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 }
 
 // same with projectile above but fires a hitscan attack instead
-void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int pitch, int range, int vPos) {
+void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int pitch, int range, int vPos, int dmg = 0) {
 	// create a helper actor to manipulate spawn pos that will act on our behalf
 	SpawnForced(
 		"ProjectileHelper",
@@ -149,13 +149,13 @@ void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int p
 	SetActivator(p_helper_tid);
 	SetActorProperty(p_helper_tid, APROP_TARGETTID, owner);
 	SetPointer(AAPTR_TARGET, owner);
-	
+
 	// make the proj itself
 	LineAttack(
 		owner,
 		angle,
 		pitch,
-		0,
+		dmg,
 		projectile,
 		"None",
 		range,
@@ -205,7 +205,7 @@ void CreateMinion(int owner, str actor, int start_vels, int vPos, int unique_tid
 	}
 }
 
-void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, int spd, int flags) {
+void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, int spd, int flags, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
@@ -243,17 +243,20 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 			spd = 2048.0;
 		else
 			spd <<= 16;
+
+		if(hitscan_id != -1)
+			hitscan_id = HitscanDamageData[hitscan_id];
 		
 		for(i = 0; i < count; ++i) {
 			proj_ang = (a + (1.0 / count) * i) % 1.0;
-			CreateHitscan(owner, p_helper_tid, proj_name, proj_ang, p, spd, vPos);
+			CreateHitscan(owner, p_helper_tid, proj_name, proj_ang, p, spd, vPos, hitscan_id);
 		}
 	}
 	
 	FreeVec3(vPos);
 }
 
-void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int count, int spd, int flags) {
+void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int count, int spd, int flags, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
@@ -285,11 +288,14 @@ void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int c
 			spd = 2048.0;
 		else
 			spd <<= 16;
+
+		if(hitscan_id != -1)
+			hitscan_id = HitscanDamageData[hitscan_id];
 		
 		for(i = 0; i < count; ++i) {
 			proj_ang = (a + (1.0 / count) * i) % 1.0;
 
-			CreateHitscan(owner, p_helper_tid, proj_name, proj_ang, p, spd, vPos);
+			CreateHitscan(owner, p_helper_tid, proj_name, proj_ang, p, spd, vPos, hitscan_id);
 		}
 	}
 	
@@ -297,7 +303,7 @@ void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int c
 }
 
 // Does a hitscan attack, depending on special weapon behavior it can fire additional things --- we check for those using wepid, proj_id and flags
-void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, int range, int spread_x, int spread_y, int flags) {
+void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, int range, int spread_x, int spread_y, int flags, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = GetActorPitch(owner);
@@ -320,12 +326,16 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	
 	if(ProjectileInfo[proj_id].flags & DND_PROJ_MELEEBONUSES)
 		range = GetPlayerMeleeRange(pnum, range);
+
+	// hitscan_id now holds dmg from here on
+	if(hitscan_id != -1)
+		hitscan_id = HitscanDamageData[hitscan_id];
 	
 	for(int i = 0; i < count; ++i) {
 		// use conical spread
 		int vtemp = BulletAngle(a, p, sp_x, sp_y);
 		
-		CreateHitscan(owner, p_helper_tid, proj_name, vec2[vtemp].x, vec2[vtemp].y, range, vPos);
+		CreateHitscan(owner, p_helper_tid, proj_name, vec2[vtemp].x, vec2[vtemp].y, range, vPos, hitscan_id);
 		
 		//printbold(f:vec2[vtemp].x, s: " ", f:vec2[vtemp].y, s: " ", s:proj_name, s: " ", f:range);
 		
@@ -335,7 +345,7 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	FreeVec3(vPos);
 }
 
-void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, int proj_id = 0) {
+void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, int proj_id = 0, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = GetActorPitch(owner);
@@ -352,12 +362,15 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, (1.0 - ACCURACY_FACTOR * acc)));
+
+	if(hitscan_id != -1)
+		hitscan_id = HitscanDamageData[hitscan_id];
 	
 	for(int i = 0; i < count; ++i) {
 		// use conical spread
 		int vtemp = BulletAngle(a, p, sp_x, sp_y);
 		
-		CreateHitscan(owner, p_helper_tid, proj_name, vec2[vtemp].x, vec2[vtemp].y, range, vPos);
+		CreateHitscan(owner, p_helper_tid, proj_name, vec2[vtemp].x, vec2[vtemp].y, range, vPos, hitscan_id);
 		
 		//printbold(f:vec2[vtemp].x, s: " ", f:vec2[vtemp].y, s: " ", s:proj_name, s: " ", f:range);
 		
@@ -577,7 +590,7 @@ void Do_Minion_Summon(int owner, str actor, int offset_vec, int speed = 0, int u
 	FreeVec3(velocity);
 }
 
-void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, int proj_id, int angle_offset, int pitch_offset, int flags, int range_offset = 0) {
+void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, int proj_id, int angle_offset, int pitch_offset, int flags, int range_offset = 0, int hitscan_id = -1) {
 	// just like before, we fire hitscans in player's facing direction +- spread depending on the frame
 	int range = GetPlayerMeleeRange(pnum, ProjectileInfo[proj_id].spd_range + range_offset);
 	
@@ -594,8 +607,11 @@ void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, i
 	// vector of owner pos
 	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 9.0);
 	
+	if(hitscan_id != -1)
+		hitscan_id = HitscanDamageData[hitscan_id];
+
 	for(int i = 0; i < count; ++i)
-		CreateHitscan(owner, p_helper_tid, proj_name, a, p, range, vPos);
+		CreateHitscan(owner, p_helper_tid, proj_name, a, p, range, vPos, hitscan_id);
 	
 	FreeVec3(vPos);
 }

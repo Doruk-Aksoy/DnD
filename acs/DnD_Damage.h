@@ -3,6 +3,7 @@
 
 #include "DnD_Poison.h"
 #include "DnD_Physics.h"
+#include "DnD_AttackInfo.h"
 
 #define DND_CRIT_TOKEN 69
 
@@ -122,7 +123,7 @@ bool IsBulletDamage(int damage_type) {
 }
 
 bool IsExplosionDamage(int damage_type) {
-	return damage_type == DND_DAMAGETYPE_ENERGYEXPLOSION || damage_type == DND_DAMAGETYPE_EXPLOSIVES;
+	return damage_type == DND_DAMAGETYPE_EXPLOSIVES;
 }
 
 bool IsEnergyDamage(int damage_type) {
@@ -448,7 +449,7 @@ int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
 }
 
 // set pointers appropriately beforehand!
-int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial, bool proj_crit) {
+int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial) {
 	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
 	// add +1 because flechette is id 0
 	if(isSpecial) {
@@ -884,8 +885,8 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 		pct_val += DND_THUNDERAXE_WEAKENPCT * (!!CheckActorInventory(victim, "ThunderAxeWeakenTimer"));
 	}
 
-	if((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk25"))
-		pct_val += DND_HOBO_RESISTPCT;
+	//if((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk25"))
+	//	pct_val += DND_HOBO_RESISTPCT;
 	
 	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
 		pct_val += DND_DOOMGUY_RESISTPCT;
@@ -1069,15 +1070,11 @@ void HandleTargetPicking(int montid) {
 // returns the filtered, reduced etc. damage when factoring in all resists or weaknesses ie. this is the final damage the actor will take
 // This is strictly for player doing damage to other monsters or shootables!
 // All damage factors here are applied in the "more" method, ie. multiplicative
-void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid, int flags, int ox, int oy, int oz, int actor_flags, bool wep_neg = false, bool oneTimeRipperHack = false) {
+int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid, int flags, int ox, int oy, int oz, int actor_flags, bool wep_neg = false, bool oneTimeRipperHack = false) {
 	str s_damagetype = DamageTypeList[damage_type];
 	bool forced_full = false;
 	bool no_ignite_stack = flags & DND_DAMAGEFLAG_NOIGNITESTACK;
 	int temp;
-	
-	// if not player sourced, return
-	if(!isPlayer(source))
-		return;
 	
 	int pnum = source - P_TIDSTART;
 
@@ -1091,7 +1088,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		// we have 0 chance or we have chance but it didn't roll in our favor
 		if(!temp || temp < random(1, 100)) {
 			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
-			return;
+			return 0;
 		}
 	}
 
@@ -1099,7 +1096,7 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 		GiveActorInventory(victim, "TemporalBubbleCooldown", 1);
 		PlaySound(victim, "TemporalBubble/Pop", CHAN_7, 1.0);
 		ACS_NamedExecuteAlways("DnD Temporal Bubble Ticker", 0, victim, victim - DND_MONSTERTID_BEGIN);
-		return;
+		return 0;
 	}
 
 	// check if the damage is to be dealt without any reductions from resistances or immunities
@@ -1248,15 +1245,13 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
 		// if self cull is in effect simply destroy it otherwise return from here
 		GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
-		Thing_Damage2(victim, GetActorProperty(victim, APROP_HEALTH) * 2, s_damagetype);
-		return;
+		dmg = GetActorProperty(victim, APROP_HEALTH) * 2;
 	}
 	
 	if(dmg > 0) {
 		// give this token early to prevent order of events getting mixed up
 		if(GetActorProperty(victim, APROP_HEALTH) <= dmg)
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
-		Thing_Damage2(victim, dmg, s_damagetype);
 
 		if(isActorAlive(victim) && CheckInventory("Doomguy_Perk50") && IsMonsterIdDemon(victim - DND_MONSTERTID_BEGIN))
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
@@ -1282,6 +1277,8 @@ void HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepi
 			}
 		}
 	}
+
+	return dmg;
 }
 
 int ScaleExplosionToDistance(int mon_id, int dmg, int radius, int fullradius, int ox, int oy, int oz, int proj_r) {
@@ -1390,7 +1387,11 @@ void DoExplosionDamage(int owner, int dmg, int radius, int fullradius, int damag
 		// if enemy has NORADIUSDMG and we don't have resist ignore on explosives and we don't have forceradiusdmg on attack itself
 		if
 		(
-			(CheckFlag(mon_id, "NORADIUSDMG") && !CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG)) ||
+			(
+				CheckFlag(mon_id, "NORADIUSDMG") && 
+				!CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG) && !CheckInventory("Marine_Perk25")
+			) 
+			|| 
 			(CheckFlag(mon_id, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))
 		)
 			continue;
@@ -1470,7 +1471,7 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 }
 
 void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false) {
-	int px, py, pz;
+/*	int px, py, pz;
 	int ang, pitch;
 	bool victim_IsMonster = IsMonster(victim);
 
@@ -1480,19 +1481,6 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 	// spawn special blood particles attached to monsters
 	if((flags & DND_DAMAGEFLAG_ISHITSCAN) && CheckFlag(victim, "NOBLOOD") && victim_IsMonster && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_STONECREATURE])
 		ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
-		
-	int actor_flags = ScanActorFlags();
-	int temp;
-		
-	if((flags & DND_DAMAGEFLAG_FOILINVUL) || (HasPlayerPowerSet(owner - P_TIDSTART, PPOWER_MELEEIGNORESHIELD) && (IsMeleeDamage(damage_type) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)))) {
-		actor_flags |= DND_ACTORFLAG_FOILINVUL;
-		flags ^= DND_DAMAGEFLAG_FOILINVUL;
-	}
-	
-	if(flags & DND_DAMAGEFLAG_COUNTSASMELEE) {
-		actor_flags |= DND_ACTORFLAG_COUNTSASMELEE;
-		flags ^= DND_DAMAGEFLAG_COUNTSASMELEE;
-	}
 
 	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
 		// prevents melee hits from acting like railguns!
@@ -1632,7 +1620,7 @@ void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int fla
 		}
 		else // just deal damage to the shootable
 			Thing_Damage2(victim, dmg, "Normal");
-	}
+	}*/
 }
 
 // we check with if statement here now just in case we add more flags in the future, the check below is to ensure we bypass script execution
@@ -3346,7 +3334,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	int pnum;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
-		
+		int shooter = -1;
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
@@ -3356,14 +3344,28 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int inflictor_class = GetActorClass(0);
 		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT" && arg2 != "MagicalRedLeash";
 
+		int ox = GetActorX(0);
+		int oy = GetActorY(0);
+		int oz = GetActorZ(0);
+
+		int actor_flags = ScanActorFlags();
+		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
+			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			// printbold(s:"actor got crit confirm");
+		}
+
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		if(CheckFlag(0, "RIPPER"))
 			isRipper = true;
+
+		if(dmg_data & DND_DAMAGEFLAG_USEMASTER)
+			shooter = GetActorProperty(0, APROP_SCORE);
 		
 		// set activator to owner of this projectile for certain crediting
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
-		int shooter = ActivatorTID();
-		
+		if(shooter == -1)
+			shooter = ActivatorTID();
+
 		// if the inflictor had no damage data for some reason, try to look it up from the monster
 		if(!dmg_data)
 			dmg_data = GetActorProperty(0, APROP_STAMINA);
@@ -3372,6 +3374,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// set the activator to us now
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		int victim = ActivatorTID();
+		int factor = 0;
 		
 		dmg = arg1;
 		
@@ -3401,8 +3404,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				Terminate;
 			}
 
-			int factor = 0;
-			
 			// dont scale reflected damage by this
 			// special bonuses
 			factor += 	!isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
@@ -3525,6 +3526,72 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			
 			//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
 			SetResultValue(dmg);
+		}
+		else if(IsPlayer(shooter) && !IsPlayer(victim)) {
+			// PLAYER HURTING MONSTERS CODE HERE
+			// extract the encoded damage data, and proceed
+			// stamina contains any special flags we might need
+			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
+				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+
+				// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
+				inflictor_class = arg1;
+				arg1 = GetUserVariable(0, "user_expdmg");
+				dmg_data |= GetUserVariable(0, "user_expflags");
+			}
+			
+			SetActivator(shooter);
+			// wepid
+			m_id = arg1 & ATK_WID_MASK;
+			arg1 >>= ATK_CACHE_SHIFT;
+
+			// dmg cache id
+			dmg = arg1 & ATK_CACHE_MASK;
+			arg1 >>= ATK_DTYPE_SHIFT;
+
+			// dmg type
+			temp = arg1 & ATK_DTYPE_MASK;
+			arg1 >>= ATK_DPCT_SHIFT;
+
+			// % adjustment factor
+			factor = arg1 & ATK_DPCT_MASK;
+
+			// add special ammo support here
+			dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, 0);
+
+			// setup the flags and factor
+			if(factor != 100)
+				dmg = dmg * factor / 100;
+
+			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
+				dmg = dmg * inflictor_class / 100;
+				if(!dmg) {
+					SetResultValue(0);
+					Terminate;
+				}
+			}
+
+			if((dmg_data & DND_DAMAGEFLAG_FOILINVUL) || (HasPlayerPowerSet(pnum, PPOWER_MELEEIGNORESHIELD) && (IsMeleeDamage(temp) || (dmg_data & DND_DAMAGEFLAG_COUNTSASMELEE)))) {
+				actor_flags |= DND_ACTORFLAG_FOILINVUL;
+				dmg_data ^= DND_DAMAGEFLAG_FOILINVUL;
+			}
+			
+			if(dmg_data & DND_DAMAGEFLAG_COUNTSASMELEE) {
+				actor_flags |= DND_ACTORFLAG_COUNTSASMELEE;
+				dmg_data ^= DND_DAMAGEFLAG_COUNTSASMELEE;
+			}
+
+			if(victim) {
+				SetResultValue(
+					HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, 0, 0, 0, actor_flags, dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0)
+				);
+				Terminate;
+			}
+			else {
+				// simply deal the extracted damage, nothing to be done -- support for non-mod monsters and objects
+				SetResultValue(dmg);
+				Terminate;
+			}
 		}
 		else if(IsPlayer(shooter) && IsPlayer(victim) && shooter != victim) {
 			// if victim is a player, and shooter is also a player and its not us, make sure they take no damage! YOU NEVER KNOW!!

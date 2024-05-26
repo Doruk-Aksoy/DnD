@@ -132,7 +132,6 @@ enum {
 	DND_DMGID_5,
 	DND_DMGID_6,
 	DND_DMGID_7,
-	DND_DMGID_8
 };
 
 Actor DnD_WeaponID : DnD_Info { }

@@ -100,16 +100,9 @@ ACTOR " Super Shotgun " : Weapon
 }
 
 Actor SSGPuff : DnD_BasePuff {
+	Stamina 4096
+
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SUPERSHOTGUN << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SUPERSHOTGUN)
-		Goto DoDamage
-		AfterDamage:
-			TNT1 A 1
-		Stop
 		HitNoBlood:
 		Goto Crash
 	}
@@ -261,12 +254,16 @@ ACTOR "Upgraded Super Shotgun" : Weapon
   }
 }
 
-//ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYSUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), 0)
-
 Actor HeavySSG_RailHelper : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_RailAttack(0,0,0,"None","None",RGF_SILENT,0,"HSSGPuff_Rail", 9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), 384)
+			TNT1 A 0 A_RailAttack(
+				DND_WEAPON_HEAVYSUPERSHOTGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT),
+				0,0,"None","None",RGF_SILENT,0,"HSSGPuff_Rail", 9.6 * (1.0 - accuracy * accuracy_factor), 5.8 * (1.0 - accuracy * accuracy_factor), 384
+			)
 		Stop
 	}
 }
@@ -275,6 +272,12 @@ Actor HeavySSG_RailHelper_Circle : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_SetArg(2, ACS_NamedExecuteWithResult("DnD Pellet Count", 28) / 2)
+			TNT1 A 0 A_SetArg(3,
+				DND_WEAPON_HEAVYSUPERSHOTGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetArg(4, Args[2])
 		LoopStart:
 			TNT1 A 0 A_JumpIf(Args[4], "LoopContinue")
@@ -294,14 +297,10 @@ Actor HeavySSG_RailHelper_Circle : DnD_Activator {
 }
 
 Actor HSSGPuff_Rail : DnD_BaseRailPuff {
+	Stamina 4096
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYSUPERSHOTGUN << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_HEAVYSUPERSHOTGUN)
-		Goto DoDamage
-		AfterDamage:
+		Spawn:
+			TNT1 AAAA 0
 			TNT1 A 1
 		Stop
 		Crash:
@@ -316,16 +315,9 @@ Actor HSSGPuff_Rail : DnD_BaseRailPuff {
 }
 
 Actor HSSGPuff : DnD_BasePuff {
+	Stamina 4096
+
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HEAVYSUPERSHOTGUN << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_HEAVYSUPERSHOTGUN)
-		Goto DoDamage
-		AfterDamage:
-			TNT1 A 1
-		Stop
 		HitNoBlood:
 		Goto Crash
 	}
@@ -506,16 +498,8 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
 }
 
 Actor ErasusPuff : DnD_BasePuff {
+	Stamina 4096
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_ERASUS << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_ERASUS)
-		Goto DoDamage
-		AfterDamage:
-			TNT1 A 1
-		Stop
 		HitNoBlood:
 		Goto Crash
 	}
@@ -683,6 +667,14 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 	Height 16
 	Scale 1.15
 	ReactionTime 20
+	
+	Damage (
+		DND_WEAPON_HELLSMAW |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	States {
 		SpawnState:
 			HLML A 1 Bright A_SpawnItemEx("HellsMawRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)
@@ -694,11 +686,15 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 		ContinueDying:
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 A 0 A_Stop
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HELLSMAW << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_HELLSMAW |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULTEXPLOSION << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_HELLSMAW << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		Goto DoExplosionDamage
 		Split:
 			TNT1 A 0 A_PlaySound("weapons/grenadexpl")
@@ -710,7 +706,6 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 		Goto ContinueDying
 		
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HELLSMAW << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_HELLSMAW)
 		Crash:
 			TNT1 A 0 A_SetTranslucent(0.85, 1)
 			TNT1 A 0 A_PlaySound("Vindicator/FlakExp")
@@ -719,10 +714,15 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			
 			TNT1 A 0 A_SetUserVar("user_flags", 0)
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HELLSMAW << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_HELLSMAW |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULTEXPLOSION << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 64 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_HELLSMAW << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			HLML B 3 Bright 
@@ -761,24 +761,35 @@ Actor HellsMawRocketTrail {
 Actor HellsMawMiniRocket : HellsMawRocket {
 	ReactionTime 20
 	DeathSound "weapons/maceex"
+	
+	Damage(
+		DND_WEAPON_HELLSMAW |
+		(DND_DMGID_2 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+THRUGHOST
 	States {
 		SpawnState:
 			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
 			TNT1 A 0 A_CountDown
 		loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HELLSMAW << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_HELLSMAW)
 		Death:
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_SetTranslucent(0.8,1)
 			TNT1 AAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_HELLSMAW << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_HELLSMAW |
+				(DND_DMGID_3 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULTEXPLOSION << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_DAMAGEFLAG_BLASTSELF << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			HLML L 3 Bright
@@ -942,15 +953,10 @@ actor ExplosiveSpark {
 
 Actor WhiteDeathPuff : DnD_BasePuff {
 	Decal "Scorch"
+	Stamina 4096
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DnD Weapon Damage Retrieve",  DND_DMGID_0 | (DND_WEAPON_SILVERGUN << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SILVERGUN)
-			TNT1 A 0 
-		Goto DoDamage
-		AfterDamage:
+		Spawn:
+			TNT1 AAAA 0
 			TNT1 A 15 A_CustomMissile("ExplodingPuff", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 		Stop
 		Crash:
@@ -972,11 +978,15 @@ Actor ExplodingPuff : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			DKSX M 2
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SILVERGUN << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_SILVERGUN |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_EXPLOSIVES << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF | DND_DAMAGEFLAG_ISSHOTGUN)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_EXPLOSIVES | (DND_WEAPON_SILVERGUN << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF | DND_DAMAGEFLAG_ISSHOTGUN)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DKSX M 1
@@ -1097,6 +1107,14 @@ Actor SlayerHook : DnD_ExplosiveBase {
 	var int user_count;
 	SeeSound "weapons/slayergo"
 	Species "Player"
+	
+	Damage(
+		DND_WEAPON_SLAYER |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+THRUSPECIES
 	+RIPPER
 	+DONTBLAST
@@ -1105,70 +1123,24 @@ Actor SlayerHook : DnD_ExplosiveBase {
 	+NOTARGETSWITCH
 	States {
 		SpawnState:
-			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			TNT1 A 0 A_JumpIf(user_count == 3, "ReturnSpin")
 			TNT1 A 0 A_PlaySound("weapons/slayerspin", CHAN_BODY)
 			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
 			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
 			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
 			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
-		Loop
-		Crit:
-			TNT1 A 0 A_JumpIf(user_count == 3, "ReturnSpin")
-			TNT1 A 0 A_PlaySound("weapons/slayerspin", CHAN_BODY)
-			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
@@ -1180,8 +1152,6 @@ Actor SlayerHook : DnD_ExplosiveBase {
 		CritReturn:
 			TNT1 A 1 A_CustomMissile("ReturnSlayerHook_Crit", 0, 0, 0, CMF_TRACKOWNER)
 		Stop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SLAYER << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_SLAYER)
 		Death:
 		Explode:
 			TNT1 A 0 A_Stop
@@ -1191,11 +1161,15 @@ Actor SlayerHook : DnD_ExplosiveBase {
 			TNT1 A 0 A_SpawnItemEx("SlayerExplosionFX", 0, 0, 0, 0, 0, 1, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 			TNT1 A 0 A_SetArg(0, 2)
 		Again:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SLAYER << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg",
+				DND_WEAPON_SLAYER |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULTEXPLOSION << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 108 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTEXPLOSION | (DND_WEAPON_SLAYER << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 			TNT1 A 1
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
@@ -1219,49 +1193,33 @@ Actor ReturnSlayerHook : SlayerHook {
 			TNT1 A 0 A_PlaySound("weapons/slayerspin", CHAN_BODY)
 			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
 			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
 			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
 			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
 			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
 			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_FaceTarget
 			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
 			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
 			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
 			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
 			TNT1 A 0 A_CountDown
@@ -1275,82 +1233,6 @@ Actor ReturnSlayerHook : SlayerHook {
 }
 
 Actor ReturnSlayerHook_Crit : ReturnSlayerHook {
-	Accuracy 69
-	States {
-		SpawnState:
-			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 A_PlaySound("weapons/slayerspin", CHAN_BODY)
-			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP A 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
-			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP B 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
-			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP C 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 A_ChangeVelocity(32 * cos(angle), 32 * sin(angle), velz, CVF_REPLACE)
-			TNT1 A 0 A_JumpIfCloser(72, "Vanish")
-			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_CustomMissile("SlayerHook_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			IREP D 1 A_JumpIfInTargetInventory("SlayerBack", 1, "Explode")
-			TNT1 A 0 A_SpawnItem("SlayerHookTrail")
-			TNT1 A 0 A_CountDown
-		Loop
-	}
-}
-
-Actor SlayerHook_Damager : DnD_BaseProjectile {
-	Radius 6
-	Height 12
-	Speed 20
-	Species "Player"
-	+THRUSPECIES
-	States {
-		SpawnState:
-			TNT1 A 1
-		Stop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SLAYER << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISOCCULT | DND_ISSLOT3), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_SLAYER)
-		Death:
-			TNT1 A 1
-		Stop
-	}
-}
-
-Actor SlayerHook_Damager_Crit : SlayerHook_Damager {
 	Accuracy 69
 }
 
@@ -1511,15 +1393,21 @@ Actor ThunderAxeThrown : DnD_BaseFastProjectile {
 	Height 12
 	Renderstyle Add
 	Alpha 1.0
-	var int user_dmg;
 	var int user_mrange;
+	
+	Damage(
+		DND_WEAPON_AXE |
+		(DND_DMGID_1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+DONTREFLECT
 	+RIPPER
 	States {
 		SpawnState:
 			// this 1 here is for safety on inverse calc as the range increase will be 100 - r on the A_FadeOut, can't have it go to 0 now
 			TNT1 A 0 A_SetUserVar("user_mrange", ACS_NamedExecuteWithResult("DnD Get Melee Range Increase", 1))
-			TNT1 A 0 A_SetUserVar("user_dmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_AXE << 16), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSLOT3))
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", user_dmg, DND_DAMAGETYPE_LIGHTNING, 0, DND_WEAPON_AXE)
 			THAX A 1 Bright
 		SpawnStateLoop:
@@ -1527,7 +1415,6 @@ Actor ThunderAxeThrown : DnD_BaseFastProjectile {
 		Loop
 		XDeath:
 			"####" "#" 0 A_PlaySound("Axe/HitBleeding", CHAN_5)
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", user_dmg, DND_DAMAGETYPE_LIGHTNING, 0, DND_WEAPON_AXE)
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD One Time Ripper Fix", user_dmg, DND_DAMAGETYPE_LIGHTNING, 0, DND_WEAPON_AXE)
 			FAXE STUVWX 3 Bright
 		Stop
@@ -1579,11 +1466,14 @@ Actor ThunderAxeExplosion : DnD_ExplosiveBase {
 		SpawnState:
 			FAXE R 3 Bright
 		Death:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_AXE << 16), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_AXE |
+				(DND_DMGID_2 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 80 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_LIGHTNING | (DND_WEAPON_AXE << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
@@ -1598,16 +1488,25 @@ Actor ThunderAxePuff : DnD_BasePuff {
 	SeeSound "Axe/HitBleeding"
 	Alpha 0.925
 	Renderstyle Add
+	
+	Stamina 4096
+	
 	+FOILINVUL
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_AXE << 16), DND_DAMAGECATEGORY_MELEE, DND_USETARGET | DND_ISSLOT3))
+		HitNoBlood:
+		Spawn:
+			TNT1 AAAA 0
+			
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, 
+				DND_WEAPON_AXE |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
 			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
 			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_AXE)
-		Goto DoDamage
-		HitNoBlood:
-		AfterDamage:
+			
 			TNT1 A 0 A_SpawnItemEx("BladeHitFX")
 			TNT1 A 0 Radius_Quake(5, 8, 0, 2, 0)
 			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
@@ -1628,14 +1527,12 @@ Actor ThunderAxePuff_NoMana : DnD_BasePuff {
 	SeeSound "weapons/swinghit"
 	Alpha 0.8
 	Scale 0.75
+	
+	Stamina 4096
+	
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_AXE << 16), DND_DAMAGECATEGORY_MELEE, DND_USETARGET | DND_ISSLOT3) / 2)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_MELEE)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_AXE)
-		Goto DoDamage
-		AfterDamage:
+		Spawn:
+			TNT1 AAAA 0
 			TNT1 A 0 A_SpawnItemEx("BladeHitFX")
 			VFX2 A 4 Radius_Quake(3, 4, 0, 2, 0)
 			VFX2 BCDE 4

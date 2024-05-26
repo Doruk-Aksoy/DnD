@@ -327,22 +327,19 @@ Actor ResSSG2 : Weapon {
 Actor ShockerPuff : DnD_BasePuff {
 	Scale 0.68
 	RenderStyle "Add"
+	
+	Stamina 4096
+	
 	+FORCEPAIN
 	+FOILINVUL
 	+NOEXTREMEDEATH
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_SHOCKER << 16), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_SHOCKER)
-		Goto DoDamage
-		AfterDamage:
-			EVA6 ABCDEFGH 2 Bright A_FadeOut(0.075)
-		Stop
+		Spawn:
 		Crash:
 		HitNoBlood:
-		Goto AfterDamage
+			TNT1 AAAA 0
+			EVA6 ABCDEFGH 2 Bright A_FadeOut(0.075)
+		Stop
 	}
 }
 
@@ -355,11 +352,14 @@ Actor ShockerAreaDamager : DnD_ExplosiveBase {
 		SpawnState:
 			TNT1 A 1 A_SetArg(0, 6)
 		Again:
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_SHOCKER << 16), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_SHOCKER |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 108)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISSHOTGUN)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_SHOCKER << 16))
 			TNT1 A 1
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
@@ -595,15 +595,12 @@ Actor ResSSG3 : Weapon {
 }
 
 Actor HadesPuff : DnD_BasePuff {
+	Stamina 266240
+
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_HADES << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISBOOMSTICK | DND_ISSLOT3))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISSHOTGUN | DND_DAMAGEFLAG_ISHITSCAN | DND_DAMAGEFLAG_ADDEDIGNITE)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_HADES)
-		Goto DoDamage
-		AfterDamage:
+		Spawn:
 		HitNoBlood:
+			TNT1 AAAA 0
 			TNT1 AAA 0 A_SpawnItemEx("BigPuffFX_Main", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
 			TNT1 AA 0 A_SpawnItemEx("BigPuffFX_Flash", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE, 0)
 			TNT1 A 1
@@ -665,6 +662,16 @@ actor HadesShot : DnD_BaseFastProjectile {
 	MissileHeight 8
 	Alpha 1.0
 	Decal "DoomImpScorch"
+	
+	Damage(
+		DND_WEAPON_HADES |
+		(DND_DMGID_2 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
+	Stamina 262144
+	
 	States {
 		SpawnState:
 			//TNT1 A 0 A_RearrangePointers(AAPTR_MASTER, AAPTR_DEFAULT, AAPTR_DEFAULT)
@@ -894,8 +901,6 @@ actor HadesShot : DnD_BaseFastProjectile {
 			TNT1 A 0 A_TakeFromTarget("HadesBurstFired", 1)
 			TNT1 A 0 A_JumpIfInventory("HadesOnlyDieOnce",1,"Death2")
 			TNT1 A 0 A_PlaySound("imp/shotx",0)
-			
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_HADES << 16), DND_DAMAGECATEGORY_FIRE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_ADDEDIGNITE, DND_WEAPON_HADES)
 			TNT1 A 1 A_NoBlocking
 		stop
 		Death2:
@@ -953,6 +958,16 @@ actor HadesPellet : DnD_BaseProjectile {
 	BounceCount 4
 	BounceFactor 0.2
 	WallBounceFactor 0.2
+	
+	Damage(
+		DND_WEAPON_HADES |
+		(DND_DMGID_1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
+	Stamina 262144
+	
 	+BRIGHT
 	-NOGRAVITY
 	+NODAMAGETHRUST
@@ -980,8 +995,6 @@ actor HadesPellet : DnD_BaseProjectile {
 			TNT1 A 0 A_ChangeFlag("CORPSE", 1)
 			TNT1 A 0 A_ChangeFlag("RIPPER", 0)
 		Goto SpawnState
-		Xdeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_HADES << 16), DND_DAMAGECATEGORY_FIRE, DND_ISBOOMSTICK | DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_ADDEDIGNITE, DND_WEAPON_HADES)
 		Crash:
 			TNT1 A 0 A_PlaySound("Hades/FireFX",0)
 			TNT1 A 8 A_SpawnItemEx("SmokeTrail",random(-2,2),random(-2,2),0,0,0,1,Random(-180,180),SXF_NOCHECKPOSITION)
@@ -1319,7 +1332,12 @@ Actor Crossbow_PullLevel : Ammo {
 
 Actor CrossbowBolt_1 : DnD_BaseProjectile {
 	Speed 64
-	Damage (0)
+	Damage (
+		DND_WEAPON_CROSSBOW |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
 	Radius 5
 	Height 10
 	DeathSound "Crossbow/Hit"
@@ -1328,8 +1346,6 @@ Actor CrossbowBolt_1 : DnD_BaseProjectile {
 		SpawnState:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ BCDEFG 2
@@ -1339,7 +1355,12 @@ Actor CrossbowBolt_1 : DnD_BaseProjectile {
 
 Actor CrossbowBolt_2 : DnD_BaseFastProjectile {
 	Speed 80
-	Damage (1)
+	Damage (
+		DND_WEAPON_CROSSBOW |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+		(150 << DPCT_SHIFT)
+	)
 	Radius 4
 	Height 8
 	DeathSound "weapons/swingwall"
@@ -1352,8 +1373,6 @@ Actor CrossbowBolt_2 : DnD_BaseFastProjectile {
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 		Death:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper Fix", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
@@ -1364,6 +1383,12 @@ Actor CrossbowBolt_2 : DnD_BaseFastProjectile {
 
 Actor CrossbowBolt_3 : CrossbowBolt_2 {
 	Speed 120
+	Damage (
+		DND_WEAPON_CROSSBOW |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+		(200 << DPCT_SHIFT)
+	)
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
@@ -1371,8 +1396,6 @@ Actor CrossbowBolt_3 : CrossbowBolt_2 {
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 		Death:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper Fix", 2 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
@@ -1383,6 +1406,12 @@ Actor CrossbowBolt_3 : CrossbowBolt_2 {
 
 Actor CrossbowBolt_4 : CrossbowBolt_2 {
 	Speed 160
+	Damage (
+		DND_WEAPON_CROSSBOW |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+		(250 << DPCT_SHIFT)
+	)
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", 5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
@@ -1390,8 +1419,6 @@ Actor CrossbowBolt_4 : CrossbowBolt_2 {
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 		Death:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper Fix", 5 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3) / 2, DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
@@ -1402,6 +1429,12 @@ Actor CrossbowBolt_4 : CrossbowBolt_2 {
 
 Actor CrossbowBolt_5 : CrossbowBolt_2 {
 	Speed 200
+	Damage (
+		DND_WEAPON_CROSSBOW |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+		(300 << DPCT_SHIFT)
+	)
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
@@ -1409,8 +1442,6 @@ Actor CrossbowBolt_5 : CrossbowBolt_2 {
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 		Death:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper Fix", 3 * ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_PHYSICAL, 0, DND_WEAPON_CROSSBOW)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
@@ -1463,11 +1494,15 @@ Actor Crossbow_Explosion : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 1 A_PlaySound("Crossbow/Explode")
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_CROSSBOW << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT3))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_CROSSBOW |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 128)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_EXTRATOUNDEAD)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT | (DND_WEAPON_CROSSBOW << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_EXTRATOUNDEAD)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 AAAAAA 0 A_SpawnItemEx("Crossbow_SilverParticle", 0, 0, -16, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))

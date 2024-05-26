@@ -51,9 +51,11 @@ enum {
 	DND_DAMAGETYPEFLAG_PERCENTHP_LOW = 2048,
 };
 
+const int DND_DAMAGEFLAG_ISSHOTGUN = 2;
+
 enum {
 	DND_DAMAGEFLAG_USEMASTER = 1,
-	DND_DAMAGEFLAG_ISSHOTGUN = 2,
+	DND_DAMAGEFLAG_ISRADIUSDMG = 2,							// use our radius damage dist scale routine
 	DND_DAMAGEFLAG_CULL = 4,
 	DND_DAMAGEFLAG_ISDAMAGEOVERTIME = 8,
 	DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE = 16,				// damage bonus stored in user_tics, added on top flat
@@ -71,10 +73,11 @@ enum {
 	DND_DAMAGEFLAG_ISSPELL = 65536,
 	DND_DAMAGEFLAG_ISSPECIALAMMO = 131072,
 	DND_DAMAGEFLAG_ADDEDIGNITE = 262144,					// does guaranteed ignite and this damage is contribued on top of the base ignite dmg
+	DND_DAMAGEFLAG_COUNTSASMAGIC = 524288,
 	
-	DND_DAMAGEFLAG_COUNTSASMELEE = 524288,
-	DND_DAMAGEFLAG_SOULATTACK = 1048576,
-	DND_DAMAGEFLAG_LOSEDAMAGEPERHIT = 2097152,				// loses 10% damage per enemy hit, least it'll do is 30% damage on subsequent enemies
+	DND_DAMAGEFLAG_COUNTSASMELEE = 1048576,
+	DND_DAMAGEFLAG_SOULATTACK = 2097152,
+	DND_DAMAGEFLAG_LOSEDAMAGEPERHIT = 4194304,				// loses 10% damage per enemy hit, least it'll do is 30% damage on subsequent enemies
 };
 
 enum {

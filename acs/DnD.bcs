@@ -4265,7 +4265,7 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 		Terminate;
 	}
 
-	SetResultValue(RetrieveWeaponDamage(PlayerNumber(), wepid, dmgid, damage_category, flags, isSpecial, proj_crit));
+	SetResultValue(RetrieveWeaponDamage(PlayerNumber(), wepid, dmgid, damage_category, flags, isSpecial));
 }
 
 // Used mainly for non-weapons (like artifacts, spells and so on)

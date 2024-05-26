@@ -7,7 +7,9 @@ enum {
 	DND_DMGID_2,
 	DND_DMGID_3,
 	DND_DMGID_4,
-	DND_DMGID_5
+	DND_DMGID_5,
+	DND_DMGID_6,
+	DND_DMGID_7,
 };
 
 typedef struct pdmg {
@@ -16,6 +18,6 @@ typedef struct pdmg {
 	int dmg_high;
 } pdmg_T;
 
-#define MAX_CACHE_ELEMENTS (DND_DMGID_5 + 1)
+#define MAX_CACHE_ELEMENTS (DND_DMGID_7 + 1)
 
 #endif

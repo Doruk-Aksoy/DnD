@@ -83,6 +83,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	int angle_vec = GetVec2();		// negative is left, positive is right
 	int offset_vec = GetVec3();
 	bool use_default = false;		// default behavior
+	int hitscan_id = -1;
 
 	// check for cyborg instability
 	flags |= (IsTechWeapon(wepid) && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY && !CheckInventory("Cyborg_Instability_CD") && RunLuckBasedChance(pnum, DND_CYBORG_INSTABILITY_CHANCE, DND_LUCK_OUTCOME_GAIN)) * DND_ATF_INSTABILITY;
@@ -97,18 +98,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			sp_x = 0;
 			SetInventory("FistSide", !CheckInventory("FistSide"));
 			proj_name_alt = ProjectileInfo[proj_id].name;
-			if(CheckInventory("PowerStrength"))
-				proj_name_alt = "FistPuffX";
+			hitscan_id = DND_HITSCAN_FIST;
 		break;
 		case DND_WEAPON_CHAINSAW:
 			use_default = true;
 			proj_id = DND_PROJ_CHAINSAW;
 			proj_name_alt = ProjectileInfo[proj_id].name;
+			hitscan_id = DND_HITSCAN_CHAINSAW;
 		break;
 		case DND_WEAPON_DOUBLECHAINSAW:
 			use_default = true;
 			count = 2;
 			proj_id = DND_PROJ_DOUBLECHAINSAW;
+			hitscan_id = DND_HITSCAN_DCHAINSAW;
 			if(isAltFire & DND_ATK_OTHER_DIR)
 				proj_name_alt = "DChainsawPuff_NoSound";
 			else
@@ -117,8 +119,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_SICKLE:
 			use_default = true;
 			proj_id = DND_PROJ_SICKLE;
+			hitscan_id = DND_HITSCAN_SICKLE;
 			if(isAltFire & DND_ATK_SECONDARY) {
 				proj_name_alt = "SicklePuff_X";
+				hitscan_id = DND_HITSCAN_SICKLEX;
 				if(isAltFire & DND_ATK_OTHER_DIR)
 					Do_Projectile_Attack_Named(owner, pnum, "SickleGhostwave", wepid, 1, 48, angle_vec, offset_vec, 0, 0, flags);
 			}
@@ -130,6 +134,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				proj_id = DND_PROJ_EXCALIBAT;
 				proj_name_alt = ProjectileInfo[proj_id].name;
+				hitscan_id = DND_HITSCAN_EXCALIBAT;
 				
 				switch(CheckInventory("DnD_Weapon_FrameChecker")) {
 					case 0:
@@ -172,24 +177,28 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_KATANA:
 			use_default = false;
 			proj_id = DND_PROJ_KATANA;
-			
+			hitscan_id = DND_HITSCAN_KATANA;
 			// regular primary sheathe -- IaiSlashNormal
 			if(!isAltFire) {
 				switch(CheckInventory("DnD_Weapon_FrameChecker")) {
 					case 0:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 24.0, 12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 16.0, 8.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 24.0, 12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 1:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 0.0, 0.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 2:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -16.0, -8.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 3:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -24.0, -12.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -24.0, -12.0, flags, 0, hitscan_id);
 					break;
 				}
 			}
@@ -197,19 +206,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				// left slash -- LeftSlashNormal
 				switch(CheckInventory("DnD_Weapon_FrameChecker")) {
 					case 0:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -24.0, -12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -16.0, -8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -24.0, -12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 1:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 0.0, 0.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 2:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 16.0, 8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 3:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags, 0, hitscan_id);
 					break;
 				}
 			}
@@ -217,19 +226,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				// right slash -- RightSlashNormal
 					switch(CheckInventory("DnD_Weapon_FrameChecker")) {
 					case 0:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 24.0, -12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 16.0, -8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 24.0, -12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 1:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 2:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -16.0, 8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 3:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -24.0, 12.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -24.0, 12.0, flags, 0, hitscan_id);
 					break;
 				}
 			}
@@ -237,70 +246,76 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				// altfire -- ContinueAltFire
 				switch(CheckInventory("DnD_Weapon_FrameChecker")) {
 					case 0:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 24.0, 12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 16.0, 8.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 24.0, 12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 1:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 0.0, 0.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 2:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -16.0, -8.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 3:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -24.0, -12.0, flags);
+						hitscan_id = DND_HITSCAN_KATANAREGULAR;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -24.0, -12.0, flags, 0, hitscan_id);
 					break;
 					
 					// shooter 9-12
 					case 4:
 					case 12:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 24.0, -12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 16.0, -8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 24.0, -12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 5:
 					case 13:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 6:
 					case 14:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -16.0, 8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 7:
 					case 15:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -24.0, 12.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -24.0, 12.0, flags, 0, hitscan_id);
 					break;
 					
 					// shooter 5-8
 					case 8:
 					case 16:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -24.0, -12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -16.0, -8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -24.0, -12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 9:
 					case 17:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 0.0, 0.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 10:
 					case 18:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 16.0, 8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 11:
 					case 19:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags, 0, hitscan_id);
 					break;
 					
 					// 13 - 14 - 13 shooters
 					case 20:
 					case 22:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0", proj_id, 0.0, 0.0, flags, 12.0);
+						hitscan_id = DND_HITSCAN_KATANAID0;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags, 12.0, hitscan_id);
 					break;
 					case 21:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0x4", proj_id, 0.0, 0.0, flags, 36.0);
+						hitscan_id = DND_HITSCAN_KATANAID4;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags, 36.0, hitscan_id);
 						Do_Projectile_Attack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					break;
 				}
@@ -312,46 +327,49 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					case 2:
 					case 11:
 					case 13:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0", proj_id, 0.0, 0.0, flags, 12.0);
+						hitscan_id = DND_HITSCAN_KATANAID0;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0", proj_id, 0.0, 0.0, flags, 12.0, hitscan_id);
 					break;
 					case 1:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0x4", proj_id, 0.0, 0.0, flags, 36.0);
+						hitscan_id = DND_HITSCAN_KATANAID4;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0x4", proj_id, 0.0, 0.0, flags, 36.0, hitscan_id);
 					break;
 					case 12:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0x4", proj_id, 0.0, 0.0, flags, 36.0);
+						hitscan_id = DND_HITSCAN_KATANAID4;
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff_Id0x4", proj_id, 0.0, 0.0, flags, 36.0, hitscan_id);
 						Do_Projectile_Attack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					break;
 					
 					case 3:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 24.0, -12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 16.0, -8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 24.0, -12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 4:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 5:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -16.0, 8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 6:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -24.0, 12.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -24.0, 12.0, flags, 0, hitscan_id);
 					break;
 					
 					case 7:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -24.0, -12.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -16.0, -8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -24.0, -12.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -16.0, -8.0, flags, 0, hitscan_id);
 					break;
 					case 8:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -8.0, -4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 0.0, 0.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, -8.0, -4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 					break;
 					case 9:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 8.0, 4.0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 16.0, 8.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 8.0, 4.0, flags, 0, hitscan_id);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 16.0, 8.0, flags, 0, hitscan_id);
 					break;
 					case 10:
-						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags, 0, hitscan_id);
 					break;
 				}
 			}
@@ -362,30 +380,30 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			switch(CheckInventory("DnD_Weapon_FrameChecker")) {
 				case 0:
 					if(isAltFire & DND_ATK_OTHER_DIR)
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff_NoArmor", proj_id, 16.0, 5.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff_NoArmor", proj_id, 16.0, 5.0, flags, 0, DND_HITSCAN_DUSKBLADE);
 					else {
 						// fire the slashing projectile
 						Do_Projectile_Attack(owner, pnum, DND_PROJ_DUSKBLADE2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff2", proj_id, 16.0, 5.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 16.0, 5.0, flags, 0, DND_HITSCAN_DUSKBLADE2);
 					}
 				break;
 				case 1:
 					if(isAltFire & DND_ATK_SECONDARY)
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff2", proj_id, 8.0, 1.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 8.0, 1.0, flags, 0, DND_HITSCAN_DUSKBLADE2);
 					else
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 8.0, 1.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 8.0, 1.0, flags, 0, DND_HITSCAN_DUSKBLADE);
 				break;
 				case 2:
 					if(isAltFire & DND_ATK_SECONDARY)
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff2", proj_id, 0.0, -4.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 0.0, -4.0, flags, 0, DND_HITSCAN_DUSKBLADE2);
 					else
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 0.0, -4.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 0.0, -4.0, flags, 0, DND_HITSCAN_DUSKBLADE);
 				break;
 				case 3:
 					if(isAltFire & DND_ATK_OTHER_DIR)
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff_NoArmor", proj_id, -8.0, -9.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff_NoArmor", proj_id, -8.0, -9.0, flags, 0, DND_HITSCAN_DUSKBLADE);
 					else
-						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff2", proj_id, -8.0, -9.0, flags);
+						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, -8.0, -9.0, flags, 0, DND_HITSCAN_DUSKBLADE2);
 				break;
 			}
 		break;
@@ -393,7 +411,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = false;
 			if(isAltFire & DND_ATK_PRIMARY) {
 				proj_id = DND_PROJ_INFERNOSWORD1;
-				Do_Melee_Attack(owner, pnum, wepid, 1, "InfernoSwordPuff", proj_id, -24.0 + 12.0 * CheckInventory("DnD_Weapon_FrameChecker"), 0.0, flags);
+				Do_Melee_Attack(owner, pnum, wepid, 1, "InfernoSwordPuff", proj_id, -24.0 + 12.0 * CheckInventory("DnD_Weapon_FrameChecker"), 0.0, flags, 0, DND_HITSCAN_INFERNOSWORD);
 			}
 			else {
 				proj_id = DND_PROJ_INFERNOSWORD2;
@@ -421,23 +439,30 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_PISTOL:
 			proj_id = DND_PROJ_PISTOL;
 			use_default = true;
+			hitscan_id = DND_HITSCAN_PISTOL;
 			sp_x = 0.5;
 		break;
 		case DND_WEAPON_AKIMBOPISTOL:
 			proj_id = DND_PROJ_AKIMBO;
+			hitscan_id = DND_HITSCAN_AKIMBO;
 			use_default = true;
 			sp_x = 3.5;
 			sp_y = 2.5;
 		break;
 		case DND_WEAPON_MAGNUM:
 			proj_id = DND_PROJ_MAGNUMREVOLVER;
+			hitscan_id = DND_HITSCAN_MAGNUM;
 			use_default = true;
 			sp_x = 0.1;
 			sp_y = 0.1;
+
+			// this was missing from before
+			Do_Railgun_Attack("Magnum_RailHelper", 1);
 		break;
 		case DND_WEAPON_LASERPISTOL:
 			proj_id = DND_PROJ_LASERPISTOL;
 			use_default = true;
+			hitscan_id = DND_HITSCAN_LASERPISTOL;
 			sp_x = 2.0;
 			sp_y = 1.25;
 		break;
@@ -490,6 +515,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			use_default = true;
 			proj_id = DND_PROJ_ASSAULTRIFLE;
+			hitscan_id = DND_HITSCAN_ASSAULTRIFLE;
 		break;
 		case DND_WEAPON_VIPERSTAFF:
 			if(isAltFire & DND_ATK_SECONDARY) {
@@ -556,7 +582,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 0:
 					count = 10;
 					proj_id = DND_PROJ_SHOTGUN;
-					
+					hitscan_id = DND_HITSCAN_SHOTGUN;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
@@ -616,7 +642,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 0:
 					count = 15;
 					proj_id = DND_PROJ_PURIFIER;
-					
+					hitscan_id = DND_HITSCAN_PURIFIER;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
@@ -627,6 +653,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		break;
 		case DND_WEAPON_KILLSTORM:
 			proj_id = DND_PROJ_KILLSTORM;
+			hitscan_id = DND_HITSCAN_KILLSTORM;
 			use_default = true;
 			count = 12;
 			sp_x = 9.6;
@@ -636,6 +663,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				proj_id = DND_PROJ_EMERALDMAIN;
+				hitscan_id = DND_HITSCAN_EMERALD;
 				count = 5;
 				sp_x = 6.0;
 				sp_y = 4.5;
@@ -645,6 +673,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		break;
 		case DND_WEAPON_SUPERSHOTGUN:
 			proj_id = DND_PROJ_SSG;
+			hitscan_id = DND_HITSCAN_SSG;
 			use_default = true;
 			count = 20;
 			sp_x = 11.2;
@@ -652,6 +681,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		break;
 		case DND_WEAPON_HEAVYSUPERSHOTGUN:
 			use_default = false;
+			hitscan_id = DND_HITSCAN_HEAVYSSG;
 			count = 14;
 			sp_x = 9.6;
 			sp_y = 5.8;
@@ -672,7 +702,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_ERASUS:
 			proj_id = DND_PROJ_ERASUS;
 			use_default = true;
-			
+			hitscan_id = DND_HITSCAN_ERASUS;
 			// use other dir to make it different from primary vs alt, and alt to use the magazine not main ammo pool
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				count = 18;
@@ -732,14 +762,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_AXETHROWN;
 			else {
 				proj_id = DND_PROJ_AXEMELEE;
-				if(!(isAltFire & DND_ATK_OTHER_DIR))
+				if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 					proj_name_alt = ProjectileInfo[DND_PROJ_AXEMELEE].name;
-				else
+					hitscan_id = DND_HITSCAN_AXE;
+				}
+				else {
 					proj_name_alt = "ThunderAxePuff_NoMana";
+					hitscan_id = DND_HITSCAN_AXE_NOMANA;
+				}
 			}
 		break;
 		case DND_WEAPON_SILVERGUN:
 			proj_id = DND_PROJ_WHITEDEATH;
+			hitscan_id = DND_HITSCAN_WHITEDEATH;
 			use_default = true;
 			count = 10;
 			sp_x = 6.4;
@@ -818,7 +853,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 0:
 					count = 16;
 					proj_id = DND_PROJ_DEADLOCK;
-					
+					hitscan_id = DND_HITSCAN_DEADLOCK;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
@@ -841,14 +876,17 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				// primary
 				proj_id = DND_PROJ_WHEELOFTORMENT_1;
+				hitscan_id = DND_HITSCAN_WHEEL1;
 			}
 			else if(isAltFire & DND_ATK_OTHER_DIR) {
 				// special 3rd proj that gives ammo
 				proj_id = DND_PROJ_WHEELOFTORMENT_3;
+				hitscan_id = DND_HITSCAN_WHEEL2;
 			}
 			else {
 				// 2nd proj
 				proj_id = DND_PROJ_WHEELOFTORMENT_2;
+				hitscan_id = DND_HITSCAN_WHEEL2;
 			}
 		break;
 		case DND_WEAPON_CHARONBLASTER:
@@ -873,13 +911,16 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				
 				switch(sp_x) {
 					case 0:
-						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff_1", wepid, 1, 768.0, 0, 0, 0);
+						hitscan_id = DND_HITSCAN_CHARON1;
+						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff", wepid, 1, 768.0, 0, 0, 0);
 					break;
 					case 1:
-						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff_2", wepid, 1, 768.0, 0, 0, 0);
+						hitscan_id = DND_HITSCAN_CHARON2;
+						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff", wepid, 1, 768.0, 0, 0, 0);
 					break;
 					case 2:
-						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff_3", wepid, 1, 768.0, 0, 0, 0);
+						hitscan_id = DND_HITSCAN_CHARON3;
+						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff", wepid, 1, 768.0, 0, 0, 0);
 					break;
 				}
 				
@@ -934,6 +975,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			// altfire fires an AoE but we dont need direction on that to be precise really, so it just fires pellets
 			count = 18;
 			proj_id = DND_PROJ_SHOCKER;
+			hitscan_id = DND_HITSCAN_SHOCKER;
 			use_default = true;
 			sp_x = 8.4;
 			sp_y = 6.2;
@@ -943,6 +985,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				proj_id = DND_PROJ_HADES;
+				hitscan_id = DND_HITSCAN_HADES;
 				count = 15;
 				sp_x = 11.6;
 				sp_y = 9.0;
@@ -981,6 +1024,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				proj_id = DND_PROJ_MACHINEGUN;
+				hitscan_id = DND_HITSCAN_MACHINEGUN;
 				sp_x = 2.4;
 				sp_y = 1.6;
 			}
@@ -1009,7 +1053,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_HEAVYMACHINEGUN:
 			use_default = true;
 			proj_id = DND_PROJ_HEAVYMACHINEGUN;
-			
+			hitscan_id = DND_HITSCAN_HEAVYMACHINEGUN;
 			if(!CheckInventory("WeaponZoom")) {
 				sp_x = 4.0;
 				sp_y = 2.0;
@@ -1022,6 +1066,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_LEADSPITTER:
 			use_default = true;
 			proj_id = DND_PROJ_LEADSPITTER;
+			hitscan_id = DND_HITSCAN_LEADSPITTER;
 			count = 2;
 			sp_x = 7.2;
 			sp_y = 5.2;
@@ -1043,6 +1088,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_DESOLATOR:
 			use_default = true;
 			proj_id = DND_PROJ_DESOLATOR;
+			hitscan_id = DND_HITSCAN_DESOLATOR;
 			sp_x = 8.4;
 			sp_y = 6.2;
 
@@ -1051,6 +1097,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_MINIGUN:
 			use_default = true;
 			proj_id = DND_PROJ_MINIGUN;
+			hitscan_id = DND_HITSCAN_MINIGUN;
 			count = 2; // actually fires 2 bullets for high bpm
 			sp_x = 10.5;
 			sp_y = 5.25;
@@ -1113,6 +1160,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			// regular bullets
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				proj_id = DND_PROJ_TEMPLARMG;
+				hitscan_id = DND_HITSCAN_TEMPLARMG;
 				sp_x = 4.4;
 				sp_y = 2.8;
 			}
@@ -1176,6 +1224,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				break;
 				case 0:
 				case AMMO_RIOTSHELL:
+					hitscan_id = DND_HITSCAN_RIOTGUN;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_CLIP, AMMO_RIOT, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
@@ -1274,6 +1323,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_VINDICATOR:
 			use_default = true;
 			proj_id = DND_PROJ_VINDICATOR;
+			hitscan_id = DND_HITSCAN_VINDICATOR;
 			count = 10;
 			
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
@@ -1292,6 +1342,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_HAMMER;
 			else {
 				proj_id = DND_PROJ_HAMMERMELEE;
+				hitscan_id = DND_HITSCAN_HAMMER;
 				proj_name_alt = ProjectileInfo[DND_PROJ_HAMMERMELEE].name;
 			}
 		break;
@@ -1840,8 +1891,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					DND_DMGID_0, 
 					DND_DAMAGECATEGORY_OCCULT, 
 					DND_WDMG_ISSLOT9, 
-					false, 
-					CheckInventory("DnD_CritToken") || GetPlayerWeaponCritState(pnum, DND_WEAPON_DEMONHEART)
+					false
 				), 
 				DND_DAMAGETYPE_OCCULT, 
 				90 | (DND_SCANNER_HEART << 16), 
@@ -1915,15 +1965,15 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE) || !(flags & DND_ATF_CANFIRECIRCLE)) {
 			// projectile, hitscan or melee: Check and do their corresponding attack function
 			if(ProjectileInfo[proj_id].flags & DND_PROJ_HITSCAN)
-				Do_Hitscan_Attack(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, sp_x, sp_y, flags);
+				Do_Hitscan_Attack(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, sp_x, sp_y, flags, hitscan_id);
 			else if(!(ProjectileInfo[proj_id].flags & DND_PROJ_MELEE))
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
 			else // melee left as the sole option, not hitscan or proj
-				Do_Melee_Attack(owner, pnum, wepid, count, proj_name_alt, proj_id, sp_x, sp_y, flags);
+				Do_Melee_Attack(owner, pnum, wepid, count, proj_name_alt, proj_id, sp_x, sp_y, flags, 0, hitscan_id);
 		}
 		else {
 			// let circle attack decide what kind of attack we need to do on its own
-			Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
+			Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags, hitscan_id);
 		}
 	}
 
@@ -1962,6 +2012,8 @@ Script "DnD Load Weapon Information" OPEN {
 		SetupProjectileData();
 		Delay(const:5);
 		SetupWeaponData();
+		Delay(const:5);
+		SetupHitscanData();
 		Delay(const:5);
 		SetupAmmoInfos();
 		SetupComplete(SETUP_STATE1, SETUP_WEAPONDATA);

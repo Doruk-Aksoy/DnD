@@ -1,6 +1,11 @@
 #ifndef DND_WEAPON_SC_IN
 #define DND_WEAPON_SC_IN
 
+Script "DnD Prep Explosion" (void) {
+	SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_ISRADIUSDMG);
+	SetResultValue(0);
+}
+
 Script "DnD Pellet Count" (int base, int flags) {
 	if(flags & DND_WDMG_USETARGET)
 		SetactivatorToTarget(0);
@@ -468,7 +473,7 @@ Script "DND Thunderstaff Bolts" (void) {
 		
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0, 0);
+		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0);
 
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid) {
@@ -534,7 +539,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int pnum = PlayerNumber();
-	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0, 0);
+	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0);
 	int actor_flags = DND_ACTORFLAG_NOPUSH;
 	int scan_amt = 0;
 	int adist;
@@ -739,7 +744,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 	bool proj_crit = !ActivatorTID() && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int i, m_id;
-	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, DND_WDMG_USETARGET | DND_WDMG_ISSLOT5, 0, proj_crit);
+	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, DND_WDMG_USETARGET | DND_WDMG_ISSLOT5, 0);
 	bool got_one = false;
 	
 	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {

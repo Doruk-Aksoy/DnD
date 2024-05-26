@@ -118,7 +118,7 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 	
 	var int user_dmg;
 	
-	States {
+	/*States {
 		SpawnState:
 			TNT1 A 0
 		Death:
@@ -148,7 +148,7 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 			"####" C 2 Bright
 			"####" DEFGHIJKLM 2 Bright
 		Stop
-	}
+	}*/
 }
 
 Actor DnD_AilmentToken : DnD_Info {
