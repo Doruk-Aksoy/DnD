@@ -335,8 +335,9 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 		int i;
 		for(i = 0; !terminated && i < time_lim; ++i) {
 			// flat dot damage added after stacks are multiplied, because otherwise it's too overpowered...
-			if(isActorAlive(victim))
-				HandleDamageDeal(owner, victim, calc_dmg, DND_DAMAGETYPE_OCCULT, DND_WEAPON_DARKLANCE, DND_DAMAGEFLAG_ISDAMAGEOVERTIME, -1, -1, -1, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL);
+			int tmp_dmg;
+			if(isActorAlive(victim) && (tmp_dmg = HandleDamageDeal(owner, victim, calc_dmg, DND_DAMAGETYPE_OCCULT, DND_WEAPON_DARKLANCE, DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_NOPUSH, -1, -1, -1, DND_ACTORFLAG_FOILINVUL)) > 0)
+				Thing_Damage2(victim, tmp_dmg, "SkipHandle");
 			else
 				terminated = true;
 			
@@ -484,8 +485,10 @@ Script "DND Thunderstaff Bolts" (void) {
 				if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 					actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
 				
-				HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, px, py, pz, actor_flags);
-				
+				mn = HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, px, py, pz, actor_flags);
+				if(mn > 0)
+					Thing_Damage2(tlist[pnum][i].tid, mn, "SkipHandle");
+
 				dist = tcount;
 			}
 		}
@@ -540,7 +543,7 @@ Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int pnum = PlayerNumber();
 	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0);
-	int actor_flags = DND_ACTORFLAG_NOPUSH;
+	int actor_flags = 0;
 	int scan_amt = 0;
 	int adist;
 	
@@ -551,8 +554,10 @@ Script "DND Thunderstaff Lightning" (void) {
 			
 			 if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 				actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
-			
-			HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0, 0, 0, actor_flags);
+
+			adist = HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, actor_flags);
+			if(adist)
+				Thing_Damage2(i, adist, "SkipHandle");
 			
 			// take the range checker
 			TakeActorInventory(i, "ThunderStrike", 1);
@@ -568,7 +573,7 @@ Script "DND Thunderstaff Lightning" (void) {
 				// handle player's self explosion resists here
 				self_dmg = HandlePlayerSelfDamage(pnum, self_dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, 0);
 
-				Thing_Damage2(this, self_dmg, DamageTypeList[DND_DAMAGETYPE_LIGHTNING]);
+				Thing_Damage2(this, self_dmg, "SkipHandle");
 			}
 
 			++scan_amt;
@@ -850,7 +855,11 @@ Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_d
 	// apply the damage
 	int height_factor = (GRAVDIS_HEIGHT_FACTOR * height / GRAVDIS_HEIGHTADD_PER) >> 16;
 	SetActivator(dmg_source);
-	HandleImpactDamage(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_DAMAGEFLAG_FOILINVUL, DND_WEAPON_GRAVDIS, false);
+
+	damage = HandleDamageDeal(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_WEAPON_GRAVDIS, DND_DAMAGEFLAG_FOILINVUL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, 0);
+	if(damage > 0)
+		Thing_Damage2(victim, damage, "SkipHandle");
+
 	ACS_NamedExecuteWithResult("DnD Gravdis FX Spawner", victim, 1);
 	
 	SetResultValue(0);
@@ -1079,7 +1088,11 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int dmg_type, int flags, int wep
 		ACS_NamedExecuteAlways("DnD Overload Zap FX", 0, this, victim);
 
 		// dmg
-		HandleImpactDamage(owner, victim, dmg, dmg_type, flags, wepid);
+		mn = HandleDamageDeal(owner, victim, dmg, dmg_type, wepid, flags, 0, 0, 0, ScanActorFlags());
+		if(mn > 0) {
+			Thing_Damage2(victim, mn, "SkipHandle");
+		}
+
 		PlaySound(victim, "Spell/LightningSpearBounce", CHAN_WEAPON, 1.0);
 
 		// new origin and reduced damage per bounce by 10% (for now, we can make it configurable later)

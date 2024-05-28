@@ -541,7 +541,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 3:
 					count = 10;
 					proj_id = DND_PROJ_ELECTRICSHELL;
-					
+					hitscan_id = DND_HITSCAN_SHOCKSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -553,7 +553,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 2:
 					count = 10;
 					proj_id = DND_PROJ_MAGNUMSHELL;
-					
+
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -571,7 +571,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 1:
 					count = 10;
 					proj_id = DND_PROJ_FLECHETTE;
-					
+					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -601,7 +601,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 3:
 					count = 10;
 					proj_id = DND_PROJ_ELECTRICSHELL;
-					
+					hitscan_id = DND_HITSCAN_SHOCKSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -631,7 +631,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case 1:
 					count = 10;
 					proj_id = DND_PROJ_FLECHETTE;
-					
+					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -814,6 +814,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_SLUGSHELL;
 					sp_x = 1.0;
 					sp_y = 0.5;
+					hitscan_id = DND_HITSCAN_SLUGSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -842,7 +843,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case AMMO_FLECHETTE:
 					count = 10;
 					proj_id = DND_PROJ_FLECHETTE;
-					
+					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -1204,7 +1205,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			switch(CheckInventory("SpecialAmmoMode_4")) {
 				case AMMO_NITROGENSHELL:
 					proj_id = DND_PROJ_NITROSHELL;
-					
+					hitscan_id = DND_HITSCAN_RIOTGUN_NITRO;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, SpecialAmmoInfo_Str[SSAM_NITROSHELL][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -1214,7 +1215,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				break;
 				case AMMO_EXPLOSIVESHELL:
 					proj_id = DND_PROJ_RIOTEXPLOSIVE;
-					
+					hitscan_id = DND_HITSCAN_RIOTGUN_EXPSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_EXSHELL, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name, Weapons_Data[wepid].ammo_use1);
@@ -1496,10 +1497,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				sp_x = 7.2;
 				sp_y = 4.8;
+				hitscan_id = DND_HITSCAN_RHINO;
 			}
 			else if(isAltFire & DND_ATK_SECONDARY) {
 				sp_x = 0.75;
 				sp_y = 0.75;
+				hitscan_id = DND_HITSCAN_RHINO;
 			}
 			else {
 				// only heavy grenades
@@ -1677,6 +1680,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_IONCANNON:
 			use_default = true;
 			proj_id = DND_PROJ_IONCANNON;
+			hitscan_id = DND_HITSCAN_ION;
 			sp_x = 7.2;
 			sp_y = 5.6;
 			GiveOverheat(pnum, "IonOverheat", 1, DND_WEAPON_IONCANNON);
@@ -1782,7 +1786,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_SAWEDOFF:
 			use_default = true;
 			proj_id = DND_PROJ_SAWEDOFF;
-			
+			hitscan_id = DND_HITSCAN_SAWEDOFF;
 			// force set to be the counter
 			ammo_type = Weapons_Data[DND_WEAPON_SAWEDOFF].ammo_name2;
 			
@@ -1802,16 +1806,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(isAltFire & DND_ATK_PRIMARY) {
 				// regular
 				proj_id = DND_PROJ_SOULRENDER1;
+				hitscan_id = DND_HITSCAN_SOULRENDER1;
 				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff1", proj_id, 0.0, 0.0, flags);
 			}
 			else if(isAltFire & DND_ATK_OTHER_DIR) {
 				// drain attack
 				proj_id = DND_PROJ_SOULRENDER1;
+				hitscan_id = DND_HITSCAN_SOULRENDER2;
 				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff2", proj_id, 0.0, 0.0, flags);
 			}
 			else {
 				// slash attack
 				proj_id = DND_PROJ_SOULRENDER2;
+				hitscan_id = DND_HITSCAN_SOULRENDER3;
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 				proj_id = DND_PROJ_SOULRENDER1;
 				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff3", proj_id, 0.0, 0.0, flags);
@@ -1820,6 +1827,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_SMG:
 			use_default = true;
 			proj_id = DND_PROJ_SMG;
+			hitscan_id = DND_HITSCAN_SMG;
 			sp_x = 8.0;
 			sp_y = 1.2;
 		break;
@@ -1849,6 +1857,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				proj_id = DND_PROJ_SPINE_1;
+				hitscan_id = DND_HITSCAN_BLOODFIEND;
 				sp_x = 9.0;
 				sp_y = 9.0;
 				count = 20;
@@ -1922,6 +1931,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_BERETTAS:
 			use_default = true;
 			proj_id = DND_PROJ_BERETTA;
+			hitscan_id = DND_HITSCAN_BERETTA;
 			sp_x = 3.2;
 			sp_y = 2.4;
 		break;

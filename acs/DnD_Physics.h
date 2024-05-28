@@ -10,7 +10,7 @@ void HandleDamagePush(int dmg, int ox, int oy, int oz, int victim, bool oneTimeR
 		return;
 
 	// get push vector
-	int m = GetActorProperty(victim, APROP_MASS) / 2;
+	int m = GetActorProperty(victim, APROP_MASS) / 4;
 	if(m > DND_DMGPUSH_MASSCAP)
 		m = DND_DMGPUSH_MASSCAP;
 	else if(!m)

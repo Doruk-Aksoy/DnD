@@ -453,8 +453,7 @@ int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, in
 	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
 	// add +1 because flechette is id 0
 	if(isSpecial) {
-		isSpecial = dmgid + 1;
-		dmgid = wepid;
+		isSpecial = wepid + 1;
 		wepid = CheckInventory("DnD_WeaponID");
 	}
 	
@@ -1202,7 +1201,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	temp = victim - DND_MONSTERTID_BEGIN;
 	
 	// extra represents the flag list of damageticflag
-	extra |= 	(!(actor_flags & DND_ACTORFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
+	extra |= 	(!(flags & DND_DAMAGEFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
 				(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
 				(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
 				(!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
@@ -2123,11 +2122,13 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 	int pnum = PlayerNumber();
 	int pct_bonus = 0;
 	bool isSpell = flags & DND_WDMG_ISSPELL;
-	if(isSpell) {
+
+	// spell damage is now stored as raw value in the dmg
+	/*if(isSpell) {
 		// we take id of spell from the table as input, then read its damage
 		temp2 = dmg;
 		dmg = SpellDamageTable[dmg].dmg;
-	}
+	}*/
 	
 	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category);
 
@@ -2171,10 +2172,10 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 	if((flags & DMG_WDMG_ISARTIFACT) && IsQuestcomplete(0, QUEST_USENOARTIFACT))
 		dmg = dmg * (100 + DND_QUEST_ARTIBONUS) / 100;
 	
-	if(isSpell) {
+	/*if(isSpell) {
 		if(SpellDamageTable[temp2].dmg_low)
 			dmg *= random(SpellDamageTable[temp2].dmg_low, SpellDamageTable[temp2].dmg_high);
-	}
+	}*/
 	
 	//printbold(s:"scaled player damage ", d:dmg);
 	return dmg;
@@ -2435,7 +2436,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
-			HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME);
+			HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME);
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
 			
 			// go up to the next threshold for next tic etc.
@@ -2587,10 +2588,10 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	if(CheckActorInventory(source, "Wanderer_Perk25"))
 		AddMonsterAilment(victim, DND_AILMENT_IGNITE);
 	
-	do {	
+	do {
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
-		HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK, 0, 0, 0, DND_ACTORFLAG_NOPUSH | DND_ACTORFLAG_ISDAMAGEOVERTIME);
+		HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME);
 		//if(random(0, 1))
 		//	GiveActorInventory(victim, "DnD_IgniteFXSpawner", 1);
 		
@@ -3325,7 +3326,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
 	// this causes A_KillChildren etc. to actually work...
-	if(arg2 == "Perish" || arg2 == "Special_NoPain") {
+	if(arg2 == "Perish" || arg2 == "Special_NoPain" || arg2 == "SkipHandle") {
 		SetResultValue(arg1);
 		Terminate;
 	}
@@ -3534,6 +3535,22 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
 				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 
+				// explosions do not hit monsters under these conditions
+				if(!CheckFlag(victim, "SHOOTABLE") || (CheckFlag(victim, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))) {
+					SetResultValue(0);
+					Terminate;
+				}
+
+				// if enemy has NORADIUSDMG and we don't have resist ignore on explosives and we don't have forceradiusdmg on attack itself
+				/*if
+				(
+					(
+						CheckFlag(mon_id, "NORADIUSDMG") && 
+						!CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG) && !CheckInventory("Marine_Perk25")
+					) 
+				)
+					continue;*/
+
 				// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
 				inflictor_class = arg1;
 				arg1 = GetUserVariable(0, "user_expdmg");
@@ -3541,27 +3558,35 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 			
 			SetActivator(shooter);
-			// wepid
-			m_id = arg1 & ATK_WID_MASK;
-			arg1 >>= ATK_CACHE_SHIFT;
 
-			// dmg cache id
-			dmg = arg1 & ATK_CACHE_MASK;
-			arg1 >>= ATK_DTYPE_SHIFT;
+			// spells get raw damage in here, they don't encode weapon data or anything
+			if(!(dmg_data & DND_DAMAGEFLAG_ISSPELL)) {
+				// wepid
+				m_id = arg1 & ATK_WID_MASK;
+				arg1 >>= ATK_CACHE_SHIFT;
 
-			// dmg type
-			temp = arg1 & ATK_DTYPE_MASK;
-			arg1 >>= ATK_DPCT_SHIFT;
+				// dmg cache id
+				dmg = arg1 & ATK_CACHE_MASK;
+				arg1 >>= ATK_DTYPE_SHIFT;
 
-			// % adjustment factor
-			factor = arg1 & ATK_DPCT_MASK;
+				// dmg type
+				temp = arg1 & ATK_DTYPE_MASK;
+				arg1 >>= ATK_DPCT_SHIFT;
 
-			// add special ammo support here
-			dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, 0);
+				// % adjustment factor
+				factor = arg1 & ATK_DPCT_MASK;
 
-			// setup the flags and factor
-			if(factor != 100)
-				dmg = dmg * factor / 100;
+				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+
+				// setup the flags and factor
+				if(factor != 100)
+					dmg = dmg * factor / 100;			
+			}
+			else {
+				// first 16 bits is spell damage, next is damage type
+				dmg = arg1 & 0xFFFF;
+				temp = arg1 >> 16;
+			}
 
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
 				dmg = dmg * inflictor_class / 100;
@@ -3583,7 +3608,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			if(victim) {
 				SetResultValue(
-					HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, 0, 0, 0, actor_flags, dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0)
+					HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0)
 				);
 				Terminate;
 			}
@@ -3625,7 +3650,55 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// the above check was necessary
 			// hurt self -- handleplayerselfdamage is ran in explosion side of things, we run additional stuff that isnt handled by that here, like resists and armor
 			pnum = PlayerNumber();
-			
+
+			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
+				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+
+				// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
+				inflictor_class = arg1;
+				arg1 = GetUserVariable(0, "user_expdmg");
+				dmg_data |= GetUserVariable(0, "user_expflags");
+
+				// not meant to be hurting self
+				if(!(dmg_data & DND_DAMAGEFLAG_BLASTSELF)) {
+					SetResultValue(0);
+					Terminate;
+				}
+			}
+
+			// wepid
+			m_id = arg1 & ATK_WID_MASK;
+			arg1 >>= ATK_CACHE_SHIFT;
+
+			// dmg cache id
+			dmg = arg1 & ATK_CACHE_MASK;
+			arg1 >>= ATK_DTYPE_SHIFT;
+
+			// dmg type
+			temp = arg1 & ATK_DTYPE_MASK;
+			arg1 >>= ATK_DPCT_SHIFT;
+
+			// % adjustment factor
+			factor = arg1 & ATK_DPCT_MASK;
+
+			dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+
+			// setup the flags and factor
+			if(factor != 100)
+				dmg = dmg * factor / 100;
+
+			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
+				dmg = dmg * inflictor_class / 100;
+				if(!dmg) {
+					SetResultValue(0);
+					Terminate;
+				}
+			}
+
+			// a third to self
+			if(dmg_data & DND_DAMAGEFLAG_HALFDMGSELF)
+				dmg /= 3;
+
 			GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 
 			if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {

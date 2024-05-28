@@ -60,6 +60,7 @@ Actor DnD_BasePuff {
 	+PUFFONACTORS
 	+HITTRACER
 	+MTHRUSPECIES
+	+NODAMAGETHRUST
 	+NOGRAVITY
 	Height 1
 	Radius 1
@@ -91,6 +92,7 @@ Actor DnD_BaseRailPuff {
 	Radius 1
 	+ALWAYSPUFF
 	+PUFFGETSOWNER
+	+NODAMAGETHRUST
 	+PUFFONACTORS
 	+HITTRACER
 	+MTHRUSPECIES
@@ -133,6 +135,7 @@ Actor DnD_BaseProjectile {
 	PROJECTILE
 	+HITTRACER
 	+MTHRUSPECIES
+	+NODAMAGETHRUST
 	+DONTBLAST
 	Damage 0
 	
@@ -163,6 +166,7 @@ Actor DnD_BaseFastProjectile : FastProjectile {
 	+HITTRACER
 	+MTHRUSPECIES
 	+DONTBLAST
+	+NODAMAGETHRUST
 	Damage 0
 	
 	var int user_hitcount;
@@ -191,6 +195,7 @@ Actor DnD_ExplosiveBase {
 	Damage 0
 	+HITTRACER
 	+MTHRUSPECIES
+	+NODAMAGETHRUST
 	+DONTBLAST
 	
 	var int user_count;
@@ -228,6 +233,7 @@ Actor DnD_ExplosiveBase_ForPets {
 	PROJECTILE
 	+HITTRACER
 	+MTHRUSPECIES
+	+NODAMAGETHRUST
 	+DONTBLAST
 	
 	var int user_expdmg;

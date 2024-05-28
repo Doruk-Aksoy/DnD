@@ -425,12 +425,17 @@ Actor PlasmaBallX : DnD_BaseProjectile {
 	SeeSound "weapons/plasmaf"
 	DeathSound "weapons/plasmax"
 	
+	Damage(
+		DND_WEAPON_PLASMARIFLE |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	States {
 		SpawnState:
 			PLSS AAABBB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMARIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_PLASMARIFLE)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			PLSE ABCDE 4 Bright
@@ -449,21 +454,31 @@ Actor NewPlasmaBall : DnD_ExplosiveBase {
 	Renderstyle Add
 	Scale 0.15
 	Deathsound "weapons/plasmahit"
+	
+	Damage(
+		DND_WEAPON_NUCLEARPLASMARIFLE |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			BFLR AB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NUCLEARPLASMARIFLE << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_NUCLEARPLASMARIFLE)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NUCLEARPLASMARIFLE << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_NUCLEARPLASMARIFLE |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 48)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGYEXPLOSION | (DND_WEAPON_NUCLEARPLASMARIFLE << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 5 A_SpawnItem("NewPlasmaExplosion")
@@ -601,7 +616,13 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 Actor TurelShooter1 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_RailAttack(0, 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff1", 0, 0, 1024, 27, 3.5, 1.0, "TurelParticle", 4)
+			TNT1 A 0 A_RailAttack(
+				DND_WEAPON_TURELCANNON |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT),
+				0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff1", 0, 0, 1024, 27, 3.5, 1.0, "TurelParticle", 4
+			)
 		Stop
 	}
 }
@@ -609,7 +630,13 @@ Actor TurelShooter1 : DnD_Activator {
 Actor TurelShooter2 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_RailAttack(0, 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff1", 6.4 * (1.0 - accuracy * accuracy_factor), 3.2 * (1.0 - accuracy * accuracy_factor), 1024, 27, 3.5, 1.0, "TurelParticle", 4)
+			TNT1 A 0 A_RailAttack(
+				DND_WEAPON_TURELCANNON |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT),
+				0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 64, "TurelPuff1", 6.4 * (1.0 - accuracy * accuracy_factor), 3.2 * (1.0 - accuracy * accuracy_factor), 1024, 27, 3.5, 1.0, "TurelParticle", 4
+			)
 		Stop
 	}
 }
@@ -617,7 +644,13 @@ Actor TurelShooter2 : DnD_Activator {
 Actor TurelShooter3 : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_RailAttack(0, 0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff2", 0, 0, 1576, 27, 3.5, 1.0, "TurelParticle", 4)
+			TNT1 A 0 A_RailAttack(
+				DND_WEAPON_TURELCANNON |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT), 
+				0, 1, "", "", RGF_SILENT | RGF_FULLBRIGHT, 0, "TurelPuff2", 0, 0, 1576, 27, 3.5, 1.0, "TurelParticle", 4
+			)
 		Stop
 	}
 }
@@ -628,16 +661,14 @@ Actor TurelPuff1 : DnD_BaseRailPuff {
 	Renderstyle Add
 	Alpha 0.75
 	Scale 0.8
+	
+	Stamina 4198400
+	
 	+FORCEXYBILLBOARD
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_TURELCANNON << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN | DND_DAMAGEFLAG_LOSEDAMAGEPERHIT)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_TURELCANNON)
-		Goto DoDamage
-		AfterDamage:
+		Spawn:
 		Crash:
+			TNT1 AAAA 0
 			LTNG AABBCCDDEEFFGG 1 Bright A_FadeOut(0.05)
 		Stop
 		HitNoBlood:
@@ -646,14 +677,7 @@ Actor TurelPuff1 : DnD_BaseRailPuff {
 }
 
 Actor TurelPuff2 : TurelPuff1 {
-	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_TURELCANNON << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_ENERGY)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_TURELCANNON)
-		Goto DoDamage
-	}
+	Stamina 4096
 }
 
 Actor TurelParticle {
@@ -774,6 +798,14 @@ Actor NailProjectile : DnD_BaseProjectile {
 	Height 4
 	Speed 40
 	Scale 0.5
+	
+	Damage(
+		DND_WEAPON_NAILGUN |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+RIPPER
 	+MTHRUSPECIES
 	+BloodSplatter
@@ -785,31 +817,9 @@ Actor NailProjectile : DnD_BaseProjectile {
 	Decal "BulletChip"
 	States {
 		SpawnState:
-			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
-		SpawnLoop:
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			NAIL AAAA 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
-		Crit:
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
-		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ A 0 A_PlaySound("Weapons/NailRic")
@@ -818,66 +828,8 @@ Actor NailProjectile : DnD_BaseProjectile {
 	}
 }
 
-Actor NailProj_Damager : DnD_BaseProjectile {
-	Radius 3
-	Height 4
-	Speed 32
-	Species "Player"
-	+THRUSPECIES
-	+NODAMAGETHRUST
-	+THRUGHOST
-	States {
-		SpawnState:
-			TNT1 A 1
-		Stop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
-		Death:
-			TNT1 A 1
-		Stop
-	}
-}
-
-Actor NailProj_Damager_Crit : NailProj_Damager {
-	Accuracy 69
-}
-
 Actor NailProjectile_GhostHitter : NailProjectile {
 	-THRUGHOST
-	States {
-		SpawnState:
-			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
-		SpawnLoop:
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
-		Loop
-		Crit:
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			NAIL A 1 A_SpawnItemEx("NailBlur", 0, 0, 0, 1, 0, 0, 180, 128)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
-		Loop
-	}
-}
-
-Actor NailProj_Damager_GhostHitter : NailProj_Damager {
-	-THRUGHOST
-}
-
-Actor NailProj_Damager_GhostHitter_Crit : NailProj_Damager_GhostHitter {
-	Accuracy 69
 }
 
 Actor NailExplosion : DnD_ExplosiveBase {
@@ -891,10 +843,14 @@ Actor NailExplosion : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 1
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_NAILGUN |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULTFIRE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 32)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTFIRE | (DND_WEAPON_NAILGUN << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1
@@ -922,36 +878,26 @@ Actor LavaNailProjectile : NailProjectile {
 		SpawnLoop:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		Crit:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_NAILGUN << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_NAILGUN)
 	    Death:
 			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "CritExp")
@@ -974,31 +920,23 @@ Actor LavaNailProjectile_GhostHitter : LavaNailProjectile {
 		SpawnLoop:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		Crit:
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			NAI2 A 1 Bright A_SpawnItemEx("NailBlur2", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_CustomMissile("NailExplosion_GhostHitter_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
-			TNT1 A 0 A_CustomMissile("NailProj_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 	}
@@ -1183,6 +1121,14 @@ ACTOR BasiliskBall : DnD_BaseFastProjectile {
 	Speed 96
 	RenderStyle ADD
 	PROJECTILE
+	
+	Damage(
+		DND_WEAPON_BASILISK |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULTFIRE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+FOILINVUL
 	+FORCEXYBILLBOARD
 	+MTHRUSPECIES
@@ -1193,8 +1139,6 @@ ACTOR BasiliskBall : DnD_BaseFastProjectile {
 		SpawnState:
 			BMIS A -1 Bright
 		Stop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			IMFX QRSTUVW 3 Bright
@@ -1209,25 +1153,35 @@ ACTOR BasiliskBall2 : DnD_ExplosiveBase {
 	SeeSound "weapons/basiliskfire2"
 	DeathSound "weapons/basiliskexpl2"
 	Species "Player"
+	
+	Damage(
+		DND_WEAPON_BASILISK |
+		(DND_DMGID_1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULTFIRE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+FOILINVUL
 	+FORCERADIUSDMG
 	States {
 		SpawnState:
 			BASF AB 3 Bright A_SpawnItemEx("BasiliskPuff",0,0,0,0,0,0,0,8)
 		loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
 		Death:
 			TNT1 A 0 A_SetTranslucent(0.85, 1)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SpawnItemEx("YellowParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_BASILISK |
+				(DND_DMGID_2 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULTFIRE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 96)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTFIRE | (DND_WEAPON_BASILISK << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			BASF C 3 Bright
@@ -1256,6 +1210,14 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 	Radius 3
 	Height 5
 	DeathSound "weapons/basiliskexpl3"
+	
+	Damage(
+		DND_WEAPON_BASILISK |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULTFIRE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+THRUACTORS
 	+FOILINVUL
 	+FORCERADIUSDMG
@@ -1266,8 +1228,6 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 		SpawnLoop:
 			HIB1 AB 3 Bright
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULTFIRE, 0, DND_WEAPON_BASILISK)
 		Death:
 			TNT1 A 0 A_SetTranslucent(0.75,1)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
@@ -1275,10 +1235,14 @@ ACTOR BasiliskBall3 : BasiliskBall2 {
 			TNT1 A 0 A_SpawnItemEx ("SunFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			TNT1 A 0 A_SetDamageType("MagicFireExp")
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_3 | (DND_WEAPON_BASILISK << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_BASILISK |
+				(DND_DMGID_3 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULTFIRE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 32)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULTFIRE | (DND_DAMAGEFLAG_BLASTSELF << 16))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			HIB1 C 3 Bright
@@ -1412,13 +1376,19 @@ Actor FrostFangShard : DnD_BaseProjectile {
 	Scale 0.75
 	RenderStyle Translucent
 	Alpha 0.8
+	
+	Damage(
+		DND_WEAPON_FROSTFANG |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+THRUGHOST
 	States {
 		SpawnState:
 			FFSD AAABBBCCC 1 Bright A_SpawnItemEx("FrostFangFog", -(MomX/1.4), -(MomY/1.4), (MomZ/1.4*-1), (MomX/1.4), (MomY/1.4), (MomZ/1.4), -Angle, 138)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FFSD DEFGH 5 Bright
 		Stop
@@ -1436,8 +1406,6 @@ Actor FrostFangShard_Glowing : FrostFangShard {
 		Spawn:
 			FX39 HIJ 3 Bright
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FX39 DEFG 3 Bright
 		Stop
@@ -1470,6 +1438,14 @@ Actor FrostFangBall : DnD_BaseProjectile {
 	Projectile
 	DeathSound "FrostFang/Hit2"
 	ReactionTime 45
+	
+	Damage(
+		DND_WEAPON_FROSTFANG |
+		(DND_DMGID_1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	var int user_count;
 	states {
 		SpawnState:
@@ -1477,7 +1453,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 AAA 1 Bright A_CustomMissile("FrostFangBall_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 AAA 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1490,7 +1466,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 BBB 1 Bright A_CustomMissile("FrostFangBall_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 BBB 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1503,7 +1479,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 CCC 1 Bright A_CustomMissile("FrostFangBall_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 CCC 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1518,7 +1494,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 		Loop
 		Crit:
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 AAA 1 Bright A_CustomMissile("FrostFangBall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 AAA 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_Crit", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_Crit", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1531,7 +1507,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 BBB 1 Bright A_CustomMissile("FrostFangBall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 BBB 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_Crit", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_Crit", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1544,7 +1520,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 CCC 1 Bright A_CustomMissile("FrostFangBall_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 CCC 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_Crit", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_Crit", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1557,36 +1533,10 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
 		Death:
 			FFBL CDEFG 4 Bright
 		Stop
 	}
-}
-
-Actor FrostFangBall_Damager : DnD_BaseProjectile {
-	Radius 10
-	Height 16
-	Speed 16
-	Species "Player"
-	+THRUSPECIES
-	+NOBLOOD
-	+THRUGHOST
-	States {
-		SpawnState:
-			TNT1 A 1
-		Stop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FROSTFANG << 16), DND_DAMAGECATEGORY_ICE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ICE, 0, DND_WEAPON_FROSTFANG)
-		Death:
-			TNT1 A 1
-		Stop
-	}
-}
-
-Actor FrostFangBall_Damager_Crit : FrostFangBall_Damager {
-	Accuracy 69
 }
 
 Actor FrostFangBall_GhostHitter : FrostFangBall {
@@ -1597,7 +1547,7 @@ Actor FrostFangBall_GhostHitter : FrostFangBall {
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 AAA 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 AAA 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1610,7 +1560,7 @@ Actor FrostFangBall_GhostHitter : FrostFangBall {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 BBB 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 BBB 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1623,7 +1573,7 @@ Actor FrostFangBall_GhostHitter : FrostFangBall {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 CCC 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 CCC 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1638,7 +1588,7 @@ Actor FrostFangBall_GhostHitter : FrostFangBall {
 		Loop
 		Crit:
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 AAA 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 AAA 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter_Crit", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter_Crit", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1651,7 +1601,7 @@ Actor FrostFangBall_GhostHitter : FrostFangBall {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 BBB 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 BBB 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter_Crit", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter_Crit", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1664,7 +1614,7 @@ Actor FrostFangBall_GhostHitter : FrostFangBall {
 			TNT1 A 0 A_Countdown
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 0, 0, 0, Random(1, 2), 0, Random(-1, 1), Random(-30, 30), 128)
-			FX39 CCC 1 Bright A_CustomMissile("FrostFangBall_Damager_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			FX39 CCC 1 Bright
 			TNT1 A 0 A_SpawnItemEx("FrostFangBallParticle", 0, 0, 0, Random(3, 4), 0, Random(-0.5, 0.5), Random(-15, 15), 128)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter_Crit", 0, 0, user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 			TNT1 A 0 A_CustomMissile("FrostFangShard_Glowing_GhostHitter_Crit", 0, 0, 45 + user_count * 5.0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
@@ -1678,14 +1628,6 @@ Actor FrostFangBall_GhostHitter : FrostFangBall {
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 	}
-}
-
-Actor FrostFangBall_Damager_GhostHitter : FrostFangBall_Damager {
-	-THRUGHOST
-}
-
-Actor FrostFangBall_Damager_GhostHitter_Crit : FrostFangBall_Damager_GhostHitter {
-	Accuracy 69
 }
 
 Actor FrostFangBallParticle {
@@ -2016,16 +1958,9 @@ Actor RhinoZoomed : DnD_Boolean { }
 Actor HadFullEmptyClip : DnD_Boolean { }
 
 Actor RhinoPuff : DnD_BasePuff {
+	Stamina 4096
+
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_RHINORIFLE << 16), DND_DAMAGECATEGORY_BULLET, DND_USETARGET | DND_ISSLOT6))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_PHYSICAL)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_RHINORIFLE)
-		Goto DoDamage
-		AfterDamage:
-			TNT1 A 1
-		Stop
 		HitNoBlood:
 		Goto Crash
 	}

@@ -134,10 +134,14 @@ Actor FTExplosion1 : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 1 A_SetUserVar("user_count", 23)
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_FLAMETHROWER |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 		ExplosionLoop:
 			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		Goto DoExplosionDamage
@@ -164,10 +168,14 @@ Actor FTExplosion1_NoSelf : FTExplosion1 {
 			TNT1 A 0
 		Death:
 			TNT1 A 1 A_SetUserVar("user_count", 23)
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_FLAMETHROWER |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 		ExplosionLoop:
 			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		Goto DoExplosionDamage
@@ -201,10 +209,14 @@ Actor FTExplosion2 : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 1 A_SetUserVar("user_count", 70)
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_FLAMETHROWER |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE | (DND_WEAPON_FLAMETHROWER << 16))
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		ExplosionLoop:
 			TNT1 A 1
@@ -226,6 +238,16 @@ Actor FTFire : DnD_BaseProjectile {
 	Scale 0.67
 	SeeSound "Flamethrower/Fire"
 	DeathSound "Flamethrower/Hit"
+	
+	Damage(
+		DND_WEAPON_FLAMETHROWER |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
+	Stamina 262144
+	
 	+MTHRUSPECIES
 	States {
 		SpawnState:
@@ -235,8 +257,6 @@ Actor FTFire : DnD_BaseProjectile {
 			TNT1 A 0 A_LowGravity
 			FRFX EFGHIJKLMNO 2 bright
 		Stop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_FLAMETHROWER << 16), DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_FIRE, DND_DAMAGEFLAG_ADDEDIGNITE, DND_WEAPON_FLAMETHROWER)
 		Death:
 			FRFX HIJ 2 bright
 			TNT1 A 0 A_CustomMissile("DropFire", 0, 0, 0, CMF_TRACKOWNER)
@@ -461,7 +481,12 @@ Actor ResPlasma2 : Weapon {
 Actor LGShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_RailAttack(0, 4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "NoPuff",0,0,512,0,18,0,"D4LGTrail")
+			TNT1 A 0 A_RailAttack(
+				DND_WEAPON_LIGHTNINGGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT), 
+				4, 1, None, None, RGF_SILENT|RGF_NOPIERCING, 32, "LGPuffSEX",0,0,512,0,18,0,"D4LGTrail")
 		Stop
 	}
 }
@@ -469,8 +494,20 @@ Actor LGShooter : DnD_Activator {
 Actor LGAltShooter : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_RailAttack(0,4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"NoPuff",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
-			TNT1 A 0 A_RailAttack(0,4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"NoPuff",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail")
+			TNT1 A 0 A_RailAttack(
+				DND_WEAPON_LIGHTNINGGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT), 
+				4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail"
+			)
+			TNT1 A 0 A_RailAttack(
+				DND_WEAPON_LIGHTNINGGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT), 
+				4,0,None,None,RGF_EXPLICITANGLE | RGF_SILENT|RGF_NOPIERCING,256,"LGAltPuff_NoPain",frandom(-12.0, 12.0) * (1.0 - accuracy * accuracy_factor),frandom(-5.5, 5.5) * (1.0 - accuracy * accuracy_factor),384,0,9.0,0,"LGAltTrail"
+			)
 		Stop
 	}
 }
@@ -480,19 +517,12 @@ Actor LGPuffSEX : DnD_BaseRailPuff {
 	Radius 2
 	+THRUSPECIES
 	States {
-		Init:
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE, ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_LIGHTNINGGUN << 16), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSLOT6))
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_LIGHTNINGGUN)
-		Goto DoDamage
-		AfterDamage:
-			TNT1 A 1 A_SpawnItemEx("LGPuffEffect", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
-		Stop
+		Spawn:
 		Crash:
 		HitNoBlood:
-			TNT1 A 0
-		Goto AfterDamage
+			TNT1 AAAA 0
+			TNT1 A 1 A_SpawnItemEx("LGPuffEffect", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
+		Stop
 	}
 }
 
@@ -692,13 +722,19 @@ Actor RebounderProjectile : DnD_BaseProjectile {
 	Renderstyle Add
 	Alpha 0.85
 	Deathsound "Rebounder/Hit"
+	
+	Damage(
+		DND_WEAPON_REBOUNDER |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+DONTREFLECT
 	States {
 		SpawnState:
 			REBP A 1 Bright A_SpawnItemEx("RebounderTrail")
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_SpawnItem("RebounderHitFX")
 		Stop
@@ -711,8 +747,6 @@ Actor RebounderProjectile_Crit : RebounderProjectile {
 
 Actor RebounderProjectileB1 : RebounderProjectile {
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectile", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -730,8 +764,6 @@ Actor RebounderProjectileB1 : RebounderProjectile {
 Actor RebounderProjectileB1_Crit : RebounderProjectileB1 {
 	Accuracy 69
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_CustomMissile("RebounderProjectile_Crit", 0, 4, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectile_Crit", 0, -4, -90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -742,8 +774,6 @@ Actor RebounderProjectileB1_Crit : RebounderProjectileB1 {
 
 Actor RebounderProjectileB2 : RebounderProjectile {
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB1", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -761,8 +791,6 @@ Actor RebounderProjectileB2 : RebounderProjectile {
 Actor RebounderProjectileB2_Crit : RebounderProjectileB2 {
 	Accuracy 69
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_Crit", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB1_Crit", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -773,8 +801,6 @@ Actor RebounderProjectileB2_Crit : RebounderProjectileB2 {
 
 Actor RebounderProjectileB3 : RebounderProjectile {
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB2", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -792,8 +818,6 @@ Actor RebounderProjectileB3 : RebounderProjectile {
 Actor RebounderProjectileB3_Crit : RebounderProjectileB3 {
 	Accuracy 69
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_Crit", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB2_Crit", 0, -4, -90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -804,8 +828,6 @@ Actor RebounderProjectileB3_Crit : RebounderProjectileB3 {
 
 Actor RebounderProjectileB4 : RebounderProjectile {
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 0 A_CustomMissile("RebounderProjectileB3", 0, 4, 90 + frandom(-10, 10), CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -874,6 +896,14 @@ Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 	Renderstyle Add
 	Alpha 0.85
 	Deathsound "Rebounder/Hit"
+	
+	Damage(
+		DND_WEAPON_REBOUNDER |
+		(DND_DMGID_1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+DONTREFLECT
 	+FOILINVUL
 	var int user_count;
@@ -881,8 +911,6 @@ Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 		SpawnState:
 			REBP A 1 Bright A_SpawnItemEx("RebounderTrail2")
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_REBOUNDER)
 		Death:
 			TNT1 A 0 A_SpawnItem("RebounderHitFX2")
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Hit Monster Trait Check", DND_ISBLOCKING), "BigExplosion")
@@ -901,9 +929,13 @@ Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 			TNT1 A 0 A_PlaySound("Rebounder/AltHit", 7)
 			TNT1 A 0 A_SpawnItemEx("RebounderHitFX3")
 			
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_REBOUNDER << 16), DND_DAMAGECATEGORY_EXPLOSIVES, DND_USETARGET | DND_ISSLOT6))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_REBOUNDER |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGY | (DND_WEAPON_REBOUNDER << 16))
 			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 		ExplosionLoop:
 			TNT1 A 1
@@ -1194,6 +1226,14 @@ Actor DarkLanceProjectile : DnD_BaseFastProjectile {
 	Renderstyle Add
 	Scale 0.275
 	DeathSound "weapons/firex5_l"
+	
+	Damage(
+		DND_WEAPON_DARKLANCE |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+THRUACTORS
 	States {
 		SpawnState:
@@ -1201,8 +1241,6 @@ Actor DarkLanceProjectile : DnD_BaseFastProjectile {
 		SpawnLoop:
 			OGLP F 1 Bright
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_DARKLANCE << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT6), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_DARKLANCE)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SetScale(1.0, 1.0)
@@ -1217,6 +1255,16 @@ Actor DarkLanceShredder : DnD_BaseProjectile {
 	Radius 16
 	RenderStyle Add
 	DeathSound "DarkLance/AltHit"
+	
+	Damage(
+		DND_WEAPON_DARKLANCE |
+		(DND_DMGID_1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
+	Stamina 8
+	
 	+DONTREFLECT
 	States {
 		SpawnState:

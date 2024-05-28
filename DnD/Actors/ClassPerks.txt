@@ -117,8 +117,9 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 	+THRUACTORS
 	
 	var int user_dmg;
+	var int user_damagetype;
 	
-	/*States {
+	States {
 		SpawnState:
 			TNT1 A 0
 		Death:
@@ -137,8 +138,8 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 			FXPB A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ICE)
 		Goto DoDmg
 		DoDmg:
-			"####" A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_ISSPELL)
-			"####" A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DnD Scale Non Weapon Damage", user_dmg, user_damagetype, user_flags))
+			"####" A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_ISSPELL)
+			"####" A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DnD Scale Non Weapon Damage", user_dmg, user_damagetype, user_expflags))
 			"####" A 0 A_SetUserVar("user_expradius", 128)
 			"####" A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 		Goto DoExplosionDamage
@@ -148,7 +149,7 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 			"####" C 2 Bright
 			"####" DEFGHIJKLM 2 Bright
 		Stop
-	}*/
+	}
 }
 
 Actor DnD_AilmentToken : DnD_Info {

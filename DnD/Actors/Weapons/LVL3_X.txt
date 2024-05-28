@@ -986,7 +986,7 @@ Actor ExplodingPuff : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF | DND_DAMAGEFLAG_ISSHOTGUN)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DKSX M 1
@@ -1272,7 +1272,7 @@ Actor TheAxe : Weapon {
 			FAXE FGH 3 Bright A_WeaponReady
 		Loop
 		Deselect:
-			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "DeselectAmmo")
 			TNT1 A 0 A_JumpIfInventory("AxeMana", 1, "DeselectAmmo")
 		DeselectNoAmmo:
@@ -1408,19 +1408,16 @@ Actor ThunderAxeThrown : DnD_BaseFastProjectile {
 		SpawnState:
 			// this 1 here is for safety on inverse calc as the range increase will be 100 - r on the A_FadeOut, can't have it go to 0 now
 			TNT1 A 0 A_SetUserVar("user_mrange", ACS_NamedExecuteWithResult("DnD Get Melee Range Increase", 1))
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", user_dmg, DND_DAMAGETYPE_LIGHTNING, 0, DND_WEAPON_AXE)
 			THAX A 1 Bright
 		SpawnStateLoop:
 			THAX ABCDEFGH 2 Bright A_FadeOut(0.0875 * user_mrange / 100)
 		Loop
 		XDeath:
 			"####" "#" 0 A_PlaySound("Axe/HitBleeding", CHAN_5)
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD One Time Ripper Fix", user_dmg, DND_DAMAGETYPE_LIGHTNING, 0, DND_WEAPON_AXE)
 			FAXE STUVWX 3 Bright
 		Stop
 		Crash:
 			"####" "#" 0 A_PlaySound("Axe/HitWall", CHAN_5)
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD One Time Ripper Fix", user_dmg, DND_DAMAGETYPE_LIGHTNING, 0, DND_WEAPON_AXE)
 			FAXE STUVWX 3 Bright
 		Stop
 		Death:

@@ -135,7 +135,7 @@ str SpellInfo[MAX_SPELLS][3] = {
 
 int GetSpellPoisonFactor(int spell_id) {
 	if(spell_id == DND_SPELL_POISONNOVA)
-		return SpellDamageTable[DND_SPELLDAMAGE_POISONNOVADOT].dmg * random(SpellDamageTable[DND_SPELLDAMAGE_POISONNOVADOT].dmg_low, SpellDamageTable[DND_SPELLDAMAGE_POISONNOVADOT].dmg_high);
+		return 20 * random(5, 8);
 	return 0;
 }
 
