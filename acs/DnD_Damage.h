@@ -449,6 +449,7 @@ int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
 }
 
 // set pointers appropriately beforehand!
+// uses DND_DAMAGEFLAG for flags
 int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial) {
 	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
 	// add +1 because flechette is id 0
@@ -559,20 +560,20 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	else // no rng, so just set it to temp
 		dmg = temp;
 
-	bool is_melee_mastery_exception = (IsMeleeWeapon(wepid) || (flags & DND_WDMG_ISMELEE)) && HasMasteredPerk(STAT_BRUT);
+	bool is_melee_mastery_exception = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGEFLAG_COUNTSASMELEE)) && HasMasteredPerk(STAT_BRUT);
 
 	// only store scaling factors here for later use, no modifying damage in this block
 	// damage modifications are done at the end
 	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid)) {
 		// add potential shotgun flat damage
-		temp = (!!(flags & DND_WDMG_ISBOOMSTICK)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
+		temp = (!!IsBoomstick(wepid)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
 		// add flat damage bonus mapping talent name to flat bonus type
 		temp += MapDamageCategoryToFlatBonus(pnum, damage_category);
 		
 		ClearCache(pnum, wepid, dmgid);
 		
-		if(flags & DND_WDMG_ISDOT)
+		if(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			temp += GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 
 		// special weapon type checks
@@ -644,7 +645,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 			InsertCacheFactor(pnum, wepid, dmgid, GetFlatHealthDamageFactor(temp), true);
 			
 		// factor dot % increase if this is a dot attack
-		if(flags & DND_WDMG_ISDOT)
+		if(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			InsertCacheFactor(pnum, wepid, dmgid, GetPlayerAttributeValue(pnum, INV_INCREASEDDOT), true);
 			
 		// check for quest % increases
@@ -658,15 +659,15 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses	
 		// is occult (add demon bane bonus)
-		if(flags & DND_WDMG_ISOCCULT || damage_category == DND_DAMAGECATEGORY_OCCULT)
+		if(flags & DND_DAMAGEFLAG_COUNTSASMAGIC || damage_category == DND_DAMAGECATEGORY_OCCULT)
 			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE)), false);
 		
 		// these HOPEFULLY dont have anything in common... yet?
-		if(flags & DND_WDMG_ISPISTOL) // gunslinger affected
+		if(IsHandgun(wepid)) // gunslinger affected
 			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SLOT2BONUS * IsQuestComplete(tid, QUEST_ONLYPISTOLWEAPONS), false);
-		else if(flags & DND_WDMG_ISBOOMSTICK) // shotgun affected
+		else if(IsBoomstick(wepid)) // shotgun affected
 			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SLOT3BONUS * IsQuestComplete(tid, QUEST_NOSHOTGUNS), false);
-		else if(flags & DND_WDMG_ISSUPER) // super weapon affected
+		else if(IsSuperWeapon(wepid)) // super weapon affected
 			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SUPERGAIN * IsQuestComplete(tid, QUEST_NOSUPERWEAPONS), false);
 		
 		// add other multiplicative factors below
@@ -698,7 +699,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	
 	// isSpecial isn't used or kept track of below here, so re-use
 	// 66% effectiveness of damage scaling on tracer -- dmgid is 1 on tracers
-	isSpecial = (flags & DND_WDMG_ISSUPER) && (wepid == DND_WEAPON_BFG32768 || DND_WEAPON_BFG6000) && dmgid == 1;
+	isSpecial = (IsSuperWeapon(wepid)) && (wepid == DND_WEAPON_BFG32768 || DND_WEAPON_BFG6000) && dmgid == 1;
 	if(isSpecial) {
 		temp *= 2;
 		temp /= 3;
@@ -847,7 +848,7 @@ int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category,
 	return dmg * factor / 100;
 }
 
-int FactorResists(int source, int victim, int dmg, int damage_type, int actor_flags, int flags, bool forced_full, bool wep_neg = false) {
+int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, int actor_flags, int flags, bool forced_full, bool wep_neg = false) {
 	// check penetration stuff on source -- set it accordingly to damage type being checked down below
 	int mon_id = victim - DND_MONSTERTID_BEGIN;
 	int damage_category = GetDamageCategory(damage_type, flags);
@@ -884,8 +885,8 @@ int FactorResists(int source, int victim, int dmg, int damage_type, int actor_fl
 		pct_val += DND_THUNDERAXE_WEAKENPCT * (!!CheckActorInventory(victim, "ThunderAxeWeakenTimer"));
 	}
 
-	//if((flags & DND_DAMAGEFLAG_ISSHOTGUN) && CheckInventory("Hobo_Perk25"))
-	//	pct_val += DND_HOBO_RESISTPCT;
+	if(IsBoomstick(wepid) && CheckInventory("Hobo_Perk25"))
+		pct_val += DND_HOBO_RESISTPCT;
 	
 	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
 		pct_val += DND_DOOMGUY_RESISTPCT;
@@ -1164,7 +1165,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// FINALIZED DAMAGE WILL BE BELOW, AFTER RESISTS!
 	//printbold(s:"res calc");
 	temp = dmg;
-	dmg = FactorResists(source, victim, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
+	dmg = FactorResists(source, victim, wepid, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
@@ -1469,186 +1470,33 @@ Script "DnD Crossbow Explosion" (int this, int target) {
 	SetResultValue(0);
 }
 
-void HandleImpactDamage(int owner, int victim, int dmg, int damage_type, int flags, int wepid, bool oneTimeRipperHack = false) {
-/*	int px, py, pz;
-	int ang, pitch;
-	bool victim_IsMonster = IsMonster(victim);
-
-	if(flags & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
-		dmg += GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
-		
-	// spawn special blood particles attached to monsters
-	if((flags & DND_DAMAGEFLAG_ISHITSCAN) && CheckFlag(victim, "NOBLOOD") && victim_IsMonster && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_STONECREATURE])
-		ACS_NamedExecuteWithResult("DnD Spawn Bloodtype", DND_SPECIALBLOOD_STONE);
-
-	if(flags & DND_DAMAGEFLAG_ISHITSCAN) {
-		// prevents melee hits from acting like railguns!
-		if(!isActorAlive(victim) && !IsMeleeDamage(damage_type)) {
-			// if actor died before the rest of the pellets can take effect, fire corresponding bullet attacks from behind this monster
-			// calculate a pitch and angle to fire it from this guy
-			// get vector from player to puff
-			
-			px = GetActorX(0) - GetActorX(owner);
-			py = GetActorY(0) - GetActorY(owner);
-			pz = GetActorZ(0) - GetActorZ(owner) - DND_PLAYER_HITSCAN_Z;
-			ang = VectorAngle(px, py);
-			flags = AproxDistance(px, py);
-			pitch = -VectorAngle(flags >> 8, pz >> 8);
-			flags = DND_SHOTGUNPUFF_REMOVETID + owner - P_TIDSTART; // tid of shell puffs to remove
-
-			// by now we have ang and pitch ready, store player's previous positions, angle and pitch and move player there to fire
-			str puff = GetActorClass(0);
-			Thing_ChangeTID(0, flags);
-
-			// fail safe for crashing
-			Thing_Destroy(victim, 0, 0);
-
-			// player is now in charge of firing the puff
-			SetActivator(owner);
-			
-			px = GetActorX(0);
-			py = GetActorY(0);
-			pz = GetActorZ(0);
-			
-			// move past this monster along this angle
-			SetActorPosition(0, px + cos(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), py + sin(ang) * (GetActorProperty(victim, APROP_RADIUS) >> 16), pz + pitch * (GetActorProperty(victim, APROP_RADIUS) >> 16), 0);
-			
-			LineAttack(0, ang, pitch, 0, puff, DamageTypeList[damage_type], 2048.0, FHF_NORANDOMPUFFZ);
-			
-			SetActorPosition(0, px, py, pz, 0);
-			
-			// return to puff to early cancel, no need to do damage calculation for this particular pellet anymore
-			SetActivator(flags);
-			Thing_Remove(flags);
-
-			// added this as a recent change, since normally at the end of this properly the activator would be owner
-			SetActivator(owner);
-
-			SetResultValue(0);
-			return;
-		}
-		else {
-			px = GetActorX(owner);
-			py = GetActorY(owner);
-			pz = GetActorZ(owner) + GetActorProperty(owner, APROP_HEIGHT) / 2 + 8.0;
-		}
-	}
-	else if(!oneTimeRipperHack) {
-		px = GetActorX(0);
-		py = GetActorY(0);
-		pz = GetActorZ(0);
-	}
-	else {
-		px = GetActorVelX(0);
-		py = GetActorVelY(0);
-		pz = GetActorVelZ(0);
-	}
-	
-	// true if wepid is negative (misc damage sources like armors etc.) or if we used a spell
-	bool wep_neg = wepid < 0 || (flags & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO));
-	
-	// printbold(d:owner, s: " ", d:victim);
-	if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
-		actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
-		// printbold(s:"actor got crit confirm");
-	}
-
-	if(!wep_neg) {
-		// berserker perk50 dmg increase portion and other melee increases
-		if((IsMeleeWeapon(wepid) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
-			if(CheckActorInventory(owner, "Berserker_Perk50")) {
-				SetActorInventory(owner, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-				if
-				(
-					!CheckActorInventory(owner, "Berserker_Perk50_HitCooldown") &&
-					(ang = CheckActorInventory(owner, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS && 
-					(pitch = CheckActorInventory(owner, "Berserker_Perk50_HitCounter")) < DND_BERSERKER_PERK50_MAXHITS
-				)
-				{
-					GiveActorInventory(owner, "Berserker_HitTracker", 1);
-
-					GiveActorInventory(owner, "Berserker_Perk50_HitCounter", 1);
-					if(pitch + 1 >= DND_BERSERKER_PERK50_MAXHITS) {
-						// now that we hit cooldown time, reset the counter
-						GiveActorInventory(owner, "Berserker_Perk50_HitCooldown", 1);
-						SetActorInventory(owner, "Berserker_Perk50_HitCounter", 0);
-					}
-
-					if(!ang)
-						ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, owner);
-				}
-
-				if(ang + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-					if(!CheckActorInventory(owner, "Berserker_NoRoar"))
-						HandleBerserkerRoar(owner);
-					GiveActorInventory(owner, "Berserker_Perk50_Speed", 1);
-				}
-				dmg = dmg * (100 + (ang + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
-			}
-			
-			dmg = dmg * (100 + GetActorAttributeValue(owner, INV_MELEEDAMAGE)) / 100;
-		}
-		
-		// Flayer magic or undead check
-		if(wepid == DND_WEAPON_CROSSBOW && victim_IsMonster && IsActorMagicOrUndead(victim))
-			ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, owner);
-	}
-	
-	SetActivator(owner);
-	
-	//printbold(d:dmg, s: " to ", d:victim);
-	if(owner && victim) {
-		if(victim_IsMonster) {
-			HandleDamageDeal(owner, victim, dmg, damage_type, wepid, flags, px, py, pz, actor_flags, wep_neg, oneTimeRipperHack);
-
-			// cyobrg perk50 -- given after damage is dealt
-			if(!wep_neg && CheckInventory("Cyborg_Perk50") && IsTechWeapon(wepid)) {
-				px = CheckInventory("Cyborg_InstabilityStack");
-				
-				SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER);
-				if(!px)
-					ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
-				else if(px == DND_MAXCYBORG_INSTABILITY - 1 && !CheckInventory("Cyborg_NoAnim")) {
-					// we check -1 above because we'll give 1 already
-					PlaySound(owner, "Cyborg/Unstable", CHAN_BODY, 1.0);
-					GiveInventory("Cyborg_NoAnim", 1);
-					ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
-				}
-				GiveInventory("Cyborg_InstabilityStack", 1);
-			}
-		}
-		else // just deal damage to the shootable
-			Thing_Damage2(victim, dmg, "Normal");
-	}*/
-}
-
 // we check with if statement here now just in case we add more flags in the future, the check below is to ensure we bypass script execution
 Script "DnD Adjust Impact Damage" (int flags, int dmg, int owner) {
-	if(flags & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT) {
-		int dummy_tid = TEMPORARY_DATADUMMY_TID + owner - P_TIDSTART;
-		if(!CheckActorInventory(owner, "DnD_DummySpawned")) {
-			//printbold(s:"make dummy");
-			GiveActorInventory(owner, "DnD_DummySpawned", 1);
-			SpawnForced("DnD_DataDummy", 0, 0, 0, dummy_tid);
-			SetActivator(dummy_tid);
-			SetPointer(AAPTR_TARGET, owner);
-		}
-		
-		int hitcount = GetUserVariable(dummy_tid, "user_hitcount");
-		if(hitcount != DND_MAX_DAMAGELOSEHITS) {
-			dmg = dmg * (100 - DND_DAMAGELOST_PERCENT * hitcount) / 100;
-			if(dmg < 1)
-				dmg = 1;
-			
-			++hitcount;
-			SetUserVariable(dummy_tid, "user_hitcount", hitcount);
-			//printbold(s:"hitc ", d:hitcount);
-		}
+	//if(flags & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT) {
+	int dummy_tid = TEMPORARY_DATADUMMY_TID + owner - P_TIDSTART;
+	if(!CheckActorInventory(owner, "DnD_DummySpawned")) {
+		//printbold(s:"make dummy");
+		GiveActorInventory(owner, "DnD_DummySpawned", 1);
+		SpawnForced("DnD_DataDummy", 0, 0, 0, dummy_tid);
+		SetActivator(dummy_tid);
+		SetPointer(AAPTR_TARGET, owner);
 	}
+	
+	int hitcount = GetUserVariable(dummy_tid, "user_hitcount");
+	if(hitcount != DND_MAX_DAMAGELOSEHITS) {
+		dmg = dmg * (100 - DND_DAMAGELOST_PERCENT * hitcount) / 100;
+		if(dmg < 1)
+			dmg = 1;
+		
+		++hitcount;
+		SetUserVariable(dummy_tid, "user_hitcount", hitcount);
+		//printbold(s:"hitc ", d:hitcount);
+	}
+	//}
 	SetResultValue(dmg);
 }
 
-Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
+/*Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int victim = GetActorProperty(0, APROP_TRACERTID);
 
@@ -1674,6 +1522,7 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
 	}
 	else {
+		// move this to damage code too
 		if(flags & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT)
 			dmg = ACS_NamedExecuteWithResult("DnD Adjust Impact Damage", flags, dmg, owner);
 	
@@ -1684,17 +1533,17 @@ Script "DnD Do Impact Damage" (int dmg, int damage_type, int flags, int wepid) {
 	HandleOnHitEffects(owner);
 	
 	SetResultValue(0);
-}
+}*/
 
 // has embedded data -- this needs to be a script because the script this gets called in can't have the activator pointer manipulated
-Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int wepid) {
+/*Script "DnD Do Impact Damage Ripper" (int dmg, int damage_type, int flags, int wepid) {
 	//printbold(s:"FUCKING HURT ", d:damage_type >> DAMAGE_TYPE_SHIFT);
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	HandleImpactDamage(owner, damage_type >> DAMAGE_TYPE_SHIFT, dmg, damage_type & DAMAGE_TYPE_MASK, flags, wepid, true);
 	HandleOnHitEffects(owner);
 	
 	SetResultValue(0);
-}
+}*/
 
 void HandleRipperHitSound(int tid, int owner, int wepid) {
 	switch(wepid) {
@@ -2830,7 +2679,15 @@ Script "DnD Check Explosion Repeat" (void) {
 		res = GetPlayerAttributeValue(pnum, INV_EX_SECONDEXPBONUS);
 		if(res) {
 			res += 100;
-			SetUserVariable(0, "user_expdmg", GetUserVariable(0, "user_expdmg") * res / 100);
+
+			// we embed a damage factor into this, so we can scale that and reput it
+			int temp = GetUserVariable(0, "user_expdmg");
+			int factor = temp >> DPCT_SHIFT;
+			temp &= BITMASK_NOFACTOR;
+
+			factor = factor * res / 100;
+
+			SetUserVariable(0, "user_expdmg", temp | (factor << DPCT_SHIFT));
 			SetUserVariable(0, "user_expradius", GetUserVariable(0, "user_expradius") * res / 100);
 			SetUserVariable(0, "user_fullexpradius", GetUserVariable(0, "user_fullexpradius") * res / 100);
 
@@ -3348,12 +3205,16 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int ox = GetActorX(0);
 		int oy = GetActorY(0);
 		int oz = GetActorZ(0);
+		int factor = 0;
 
 		int actor_flags = ScanActorFlags();
 		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
 			// printbold(s:"actor got crit confirm");
 		}
+
+		if(dmg_data & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
+			factor = GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
 
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		if(CheckFlag(0, "RIPPER"))
@@ -3375,7 +3236,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// set the activator to us now
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		int victim = ActivatorTID();
-		int factor = 0;
 		
 		dmg = arg1;
 		
@@ -3407,7 +3267,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			// dont scale reflected damage by this
 			// special bonuses
-			factor += 	!isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
+			factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
 				
 			dmg = dmg * (100 + factor) / 100;
 			
@@ -3541,16 +3401,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					Terminate;
 				}
 
-				// if enemy has NORADIUSDMG and we don't have resist ignore on explosives and we don't have forceradiusdmg on attack itself
-				/*if
-				(
-					(
-						CheckFlag(mon_id, "NORADIUSDMG") && 
-						!CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) && !(actor_flags & DND_ACTORFLAG_FORCERADIUSDMG) && !CheckInventory("Marine_Perk25")
-					) 
-				)
-					continue;*/
-
 				// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
 				inflictor_class = arg1;
 				arg1 = GetUserVariable(0, "user_expdmg");
@@ -3558,6 +3408,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 			
 			SetActivator(shooter);
+
+			pnum = shooter - P_TIDSTART;
 
 			// spells get raw damage in here, they don't encode weapon data or anything
 			if(!(dmg_data & DND_DAMAGEFLAG_ISSPELL)) {
@@ -3573,10 +3425,20 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				temp = arg1 & ATK_DTYPE_MASK;
 				arg1 >>= ATK_DPCT_SHIFT;
 
-				// % adjustment factor
-				factor = arg1 & ATK_DPCT_MASK;
+				// weapon check for sedrin staff
+				if(m_id == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
+					ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+					SetResultValue(0);
+					Terminate;
+				}
 
 				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+				dmg += factor; // depending on distance increasing damage modifier this can be non-zero
+				// % adjustment factor -- extract after the flat addition to reuse variables
+				factor = arg1 & ATK_DPCT_MASK;
+
+				if(dmg_data & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT)
+					dmg = ACS_NamedExecuteWithResult("DnD Adjust Impact Damage", dmg_data, dmg, shooter);
 
 				// setup the flags and factor
 				if(factor != 100)
@@ -3585,6 +3447,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			else {
 				// first 16 bits is spell damage, next is damage type
 				dmg = arg1 & 0xFFFF;
+				dmg += factor; // depending on distance increasing damage modifier this can be non-zero
+
 				temp = arg1 >> 16;
 			}
 
@@ -3606,16 +3470,76 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg_data ^= DND_DAMAGEFLAG_COUNTSASMELEE;
 			}
 
+			// Class effects here -- isArmorPiercing holds if wepid is negative or not
+			isArmorPiercing = (m_id < 0 || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)));
+			if(!isArmorPiercing) {
+				// berserker perk50 dmg increase portion and other melee increases
+				if((IsMeleeWeapon(m_id) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
+					if(CheckInventory("Berserker_Perk50")) {
+						SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+						if
+						(
+							!CheckInventory("Berserker_Perk50_HitCooldown") &&
+							(factor = CheckInventory("Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS && 
+							(inflictor_class = CheckInventory("Berserker_Perk50_HitCounter")) < DND_BERSERKER_PERK50_MAXHITS
+						)
+						{
+							GiveInventory("Berserker_HitTracker", 1);
+
+							GiveInventory("Berserker_Perk50_HitCounter", 1);
+							if(inflictor_class + 1 >= DND_BERSERKER_PERK50_MAXHITS) {
+								// now that we hit cooldown time, reset the counter
+								GiveInventory("Berserker_Perk50_HitCooldown", 1);
+								SetInventory("Berserker_Perk50_HitCounter", 0);
+							}
+
+							if(!factor)
+								ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, shooter);
+						}
+
+						if(factor + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+							if(!CheckInventory("Berserker_NoRoar"))
+								HandleBerserkerRoar(shooter);
+							GiveInventory("Berserker_Perk50_Speed", 1);
+						}
+						dmg = dmg * (100 + (factor + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
+					}
+					
+					dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) / 100;
+				}
+				
+				// Flayer magic or undead check
+				if(m_id == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
+					ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, shooter);
+			}
+
+			// cyborg perk50
+			if(!isArmorPiercing && CheckInventory("Cyborg_Perk50") && IsTechWeapon(m_id)) {
+				factor = CheckInventory("Cyborg_InstabilityStack");
+				
+				SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER);
+				if(!factor)
+					ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
+				else if(factor == DND_MAXCYBORG_INSTABILITY - 1 && !CheckInventory("Cyborg_NoAnim")) {
+					// we check -1 above because we'll give 1 already
+					PlaySound(shooter, "Cyborg/Unstable", CHAN_BODY, 1.0);
+					GiveInventory("Cyborg_NoAnim", 1);
+					ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
+				}
+				GiveInventory("Cyborg_InstabilityStack", 1);
+			}
+
+			// finally dealing the damage
 			if(victim) {
 				SetResultValue(
 					HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0)
 				);
-				Terminate;
+				HandleOnHitEffects(shooter);
 			}
 			else {
 				// simply deal the extracted damage, nothing to be done -- support for non-mod monsters and objects
 				SetResultValue(dmg);
-				Terminate;
+				HandleOnHitEffects(shooter);
 			}
 		}
 		else if(IsPlayer(shooter) && IsPlayer(victim) && shooter != victim) {
@@ -3718,7 +3642,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			
 			// mugshot hook
 			ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);
-			
+
+			if(!(dmg_data & DND_DAMAGEFLAG_NOPUSH))
+				HandleDamagePush(dmg * 4, ox, oy, oz, shooter);
 			SetResultValue(dmg);
 		}
 	}

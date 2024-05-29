@@ -3223,7 +3223,8 @@ int MakeUnique(int item_pos, int item_type, int pnum) {
 		if(item_type == DND_ITEM_CHARM) {
 			int bias = Timer() & 0xFFFF;
 			i = random(bias + beg, bias + end) - bias;
-			i = random(UITEM_UNITY, UITEM_MINDFORGE);
+			i = UITEM_REKINDLEDSPARKS;
+			//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 		}
 	#endif
 	// i is the unique id

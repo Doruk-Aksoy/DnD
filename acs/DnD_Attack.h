@@ -647,7 +647,8 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 	
 	// printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
 	// pick tracer_count closest enemies
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	int mn;
+	for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(owner, i);
@@ -711,7 +712,9 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 				else
 					temp = dmg;
 				
-				HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, wepid, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
+				mn = HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, wepid, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
+				if(mn > 0)
+					Thing_Damage2(tlist[pnum][i].tid, mn, "SkipHandle");
 				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
 				
 				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);

@@ -9,6 +9,8 @@
 #define DTYPE_SHIFT 12
 #define DPCT_SHIFT 17
 
+#define BITMASK_NOFACTOR 0x1FFFF
+
 #define ATK_WID_MASK (0x1FF)
 #define ATK_CACHE_MASK (0x7)
 #define ATK_DTYPE_MASK (0x1F)

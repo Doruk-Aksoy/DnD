@@ -4269,7 +4269,6 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 }
 
 // Used mainly for non-weapons (like artifacts, spells and so on)
-// uses WDMG flags
 Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
 	AdjustDamageRetrievePointers(flags, true);
 	dmg = HandleNonWeaponDamageScale(dmg, damage_category, flags);
@@ -5452,7 +5451,7 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 		GiveInventory("ApplyNoReflect", 1);
 	}
 	
-	if(CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) || CheckInventory("Marine_Perk25"))
 		GiveInventory("ApplyForceRadiusDMG", 1);
 		
 	SetResultValue(0);
