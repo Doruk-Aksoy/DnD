@@ -1388,12 +1388,13 @@ Actor TheAxe : Weapon {
 
 Actor ThunderAxeThrown : DnD_BaseFastProjectile {
 	Speed 80
-	Damage (1)
 	Radius 4
 	Height 12
 	Renderstyle Add
 	Alpha 1.0
+	
 	var int user_mrange;
+	var int user_expdmg;
 	
 	Damage(
 		DND_WEAPON_AXE |
@@ -1402,11 +1403,19 @@ Actor ThunderAxeThrown : DnD_BaseFastProjectile {
 		(100 << DPCT_SHIFT)
 	)
 	
+	Stamina 32768
+	
 	+DONTREFLECT
 	+RIPPER
 	States {
 		SpawnState:
 			// this 1 here is for safety on inverse calc as the range increase will be 100 - r on the A_FadeOut, can't have it go to 0 now
+			TNT1 A 0 A_SetUserVar("user_expdmg",
+				DND_WEAPON_AXE |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_mrange", ACS_NamedExecuteWithResult("DnD Get Melee Range Increase", 1))
 			THAX A 1 Bright
 		SpawnStateLoop:
@@ -1498,17 +1507,14 @@ Actor ThunderAxePuff : DnD_BasePuff {
 				DND_WEAPON_AXE |
 				(DND_DMGID_0 << CACHE_SHIFT) |
 				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
-				(100 << DPCT_SHIFT)
+				(150 << DPCT_SHIFT)
 			)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGETYPE, DND_DAMAGETYPE_LIGHTNING)
-			TNT1 A 0 A_SetArg(DND_ARG_DAMAGEFLAGS, DND_DAMAGEFLAG_ISHITSCAN)
-			TNT1 A 0 A_SetArg(DND_ARG_WEAPONID, DND_WEAPON_AXE)
 			
 			TNT1 A 0 A_SpawnItemEx("BladeHitFX")
 			TNT1 A 0 Radius_Quake(5, 8, 0, 2, 0)
 			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
 			FAXE R 3 Bright ACS_NamedExecuteWithResult("DnD Puff Take Ammo", DND_WEAPON_AXE, 1, DND_AMMOSLOT_SHELL | (AMMO_AXE << 16), 0)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Chain Lightning (Weapon)", 1.5 * Args[DND_ARG_DAMAGE], Args[DND_ARG_DAMAGETYPE] | (5 << 16), Args[DND_ARG_DAMAGEFLAGS], Args[DND_ARG_WEAPONID] | (160 << 16))
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Chain Lightning (Weapon)", Args[DND_ARG_DAMAGE], 5, DND_DAMAGEFLAG_ISHITSCAN, 160)
 			TNT1 A 0 A_SpawnDebris("PlasmaSparkFX")
 			FAXE STUVWX 3 Bright
 		Stop

@@ -204,6 +204,7 @@ enum {
 
 	INV_REDUCED_OVERHEAT,
 	INV_DMGREDUCE_ALL,
+	INV_ITEMRARITY,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -336,7 +337,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_REDUCED_OVERHEAT
+#define LAST_INV_ATTRIBUTE INV_ITEMRARITY
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -1209,6 +1210,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ALL].attrib_high = 2.5;
 	ItemModTable[INV_DMGREDUCE_ALL].attrib_level_modifier = 1.5;
 	ItemModTable[INV_DMGREDUCE_ALL].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_ITEMRARITY].attrib_low = 0.015;
+	ItemModTable[INV_ITEMRARITY].attrib_high = 0.035;
+	ItemModTable[INV_ITEMRARITY].attrib_level_modifier = 0;
+	ItemModTable[INV_ITEMRARITY].tags = INV_ATTR_TAG_UTILITY;
 	
 	/////////////////////////
 	// corrupted implicits //
@@ -1875,6 +1881,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_EXPGAIN_INCREASE:
 		case INV_CREDITGAIN_INCREASE:
 		case INV_DROPCHANCE_INCREASE:
+		case INV_ITEMRARITY:
 		case INV_LUCK_INCREASE:
 		case INV_SPEED_INCREASE:
 		case INV_PELLET_INCREASE:

@@ -411,6 +411,7 @@ IATTR_T117			= "increased magic weapon damage";
 
 IATTR_T118			= "reduced overheated gained";
 IATTR_T119			= "to all resistances";
+IATTR_T120			= "to item rarity";
 
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";

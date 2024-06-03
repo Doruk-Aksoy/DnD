@@ -2603,16 +2603,10 @@ Actor MPPB_Projectile2 : MPPB_Projectile1 {
 	+BLOODLESSIMPACT
 	+RIPPER
 	+THRUGHOST
-	States {
-		SpawnState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_MPPB << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT4), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_MPPB)
-		Goto Super::SpawnState
-		
-		Death:
-			XPSG FFF 1 Bright Light("MPPB_Light2") A_FadeTo (0, 0.1, 1)
-			XPSG GGG 1 Bright Light("MPPB_Light3") A_FadeTo (0, 0.1, 1)
-		Stop
-	}
+	
+	Stamina 32768
+	
+	var int user_ripperid;
 }
 
 Actor MPPB_Projectile2_GhostHitter : MPPB_Projectile2 {

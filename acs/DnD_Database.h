@@ -172,7 +172,9 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_LEVEL), pacc, PlayerStashList[pnum][i][j].item_level);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc, PlayerStashList[pnum][i][j].item_stack);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc, PlayerStashList[pnum][i][j].attrib_count);
-					
+
+					//printbold(s:"write stack: ", d:i, s: " ", d:j, s: " ", d:PlayerStashList[pnum][i][j].item_stack);
+
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), pacc, PlayerStashList[pnum][i][j].corrupted);
 					SetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_QUALITY), pacc, PlayerStashList[pnum][i][j].quality);
 
@@ -547,7 +549,6 @@ void SavePlayerActivities(int pnum, int char_id) {
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
 	int temp; //DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = RecoverPlayerAccountName(pnum);
-	//Log(s:"player ", d:pnum, s: " account name ", s:pacc);
 
 	temp = 0;
 	temp = PlayerActivities[pnum].attribute_change[STAT_STR];
@@ -632,6 +633,7 @@ void SavePlayerActivities(int pnum, int char_id) {
 void LoadPlayerStash(int pnum, str pacc) {
 	int temp, w, h, i, j;
 	ResetPlayerStash(pnum);
+
 	// load stash
 	temp = GetDBEntry(DND_DB_STASH_PAGES, pacc);
 	SetInventory("DnD_PlayerInventoryPages", temp);
@@ -654,6 +656,8 @@ void LoadPlayerStash(int pnum, str pacc) {
 				PlayerStashList[pnum][i][j].item_stack = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_STACK), pacc);
 				PlayerStashList[pnum][i][j].attrib_count = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBCOUNT), pacc);
 				
+				//printbold(s:"load stack: ", d:i, s: " ", d:j, s: " ", d:PlayerStashList[pnum][i][j].item_stack);
+
 				PlayerStashList[pnum][i][j].corrupted = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_CORRUPTED), pacc);
 				PlayerStashList[pnum][i][j].quality = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_QUALITY), pacc);
 				
@@ -1221,7 +1225,9 @@ void WipeoutPlayerData(int pnum, int cid) {
 	
 	WipeoutPlayerInventory(pnum, pacc, char_id);
 	WipeoutPlayerUsedItems(pnum, pacc, char_id);
-	// we don't reset the stash, we're merciful xD
+
+	// we don't reset the stash, we're merciful xD --- HOWEVER we are saving the state of the stash to prevent exploits :)
+	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_STASH);
 	
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, 0);
@@ -1236,6 +1242,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 void create_char(int pnum, int char_id) {
 	SetInventory("DnD_CharacterID", char_id);
 	PlayerActivities[pnum].char_id = char_id;
+	StrCpy(PlayerActivities[pnum].player_account, GetPlayerAccountName(pnum));
 	PlayerLoaded[pnum] = 1;
 	SetInventory("CanLoad", 0); //Let create char end loading timer
 }

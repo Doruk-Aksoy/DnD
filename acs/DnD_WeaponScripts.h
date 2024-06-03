@@ -16,24 +16,108 @@ Script "DnD Pellet Count" (int base, int flags) {
 
 // 0 is ammo1, 1 is ammo2
 // returns 1 if it can fire
-Script "DnD Can Fire Weapon" (int wepid, int ammo_which) {
+Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flags) {
 	bool res = false;
 	int pnum = PlayerNumber();
 
 	if(!CheckInventory("ArtemisCheck")) {
 		int amt = Weapons_Data[wepid].ammo_use1;
 		str ammo = Weapons_Data[wepid].ammo_name1;
-		if(ammo_which) {
-			ammo = Weapons_Data[wepid].ammo_name2;
-			amt = Weapons_Data[wepid].ammo_use2;
+
+		switch(wepid) {
+			case DND_WEAPON_AKIMBOPISTOL:
+				if(ammo_which)
+					ammo = "AkimboClipRight";
+				else
+					ammo = "AkimboClipLeft";
+			break;
+
+			// modify this to allow reload checking?
+			case DND_WEAPON_SHOTGUN:
+				toGive = "ShellSize_8N";
+				toTake = GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME);
+				base = GetAmmoCapacity("ShellSize_8N");
+			break;
+
+			default:
+				if(ammo_which) {
+					ammo = Weapons_Data[wepid].ammo_name2;
+					amt = Weapons_Data[wepid].ammo_use2;
+				}
+			break;
 		}
 
-		if(!res && ammo != "")
-			res = CheckInventory(ammo) >= amt * (100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE)) / 100;
+		amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE)) / 100;
+		if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
+			amt = amt * 5 / 2;
+
+		if(base_mult) // non-zero
+			amt *= base_mult;
+		
+		if(ammo != "")
+			res = CheckInventory(ammo) >= amt;
+		else
+			res = true;
 	}
 	else
 		res = true;
+
+	if(flags & DND_CFW_ALTFIRECHECK) {
+		if(IsMeleeWeapon(wepid))
+			res &= CheckInventory("Ability_Kick");
+	}
+
 	SetResultValue(res);
+}
+
+Script "DnD Take Ammo From Weapon" (int wepid, int ammo_which, int amt) {
+	int pnum = PlayerNumber();
+
+	if(!CheckInventory("ArtemisCheck")) {
+		str ammo = Weapons_Data[wepid].ammo_name1;
+
+		switch(wepid) {
+			default:
+				if(ammo_which)
+					ammo = Weapons_Data[wepid].ammo_name2;
+			break;
+		}
+
+		TakeAmmoFromPlayer(pnum, wepid, ammo, amt);
+	}
+}
+
+Script "DnD Handle Reload" (int wepid, int extra, int flags) {
+	str toTake = "";
+	str toGive = "";
+
+	int pnum = PlayerNumber();
+	int base = 0;
+
+	switch(wepid) {
+		case DND_WEAPON_AKIMBOPISTOL:
+			toTake = "Clip";
+			base = GetAmmoCapacity("AkimboClipLeft");
+			if(!extra)
+				toGive = "AkimboClipLeft";
+			else
+				toGive = "AkimboClipRight";
+		break;
+		case DND_WEAPON_ASSAULTRIFLE:
+			toTake = "Clip";
+			toGive = "MGClip5";
+			base = GetAmmoCapacity("MGClip5");
+		break;
+	}
+
+	int tmp = CheckInventory(toGive);
+	int amt = base - tmp;
+	
+	if(CheckInventory(toTake) < base)
+		GiveInventory(toGive, CheckInventory(toTake));
+	else
+		GiveInventory(toGive, amt);
+	TakeAmmoFromPlayer(pnum, wepid, toTake, amt);
 }
 
 Script "DnD Overheat Reduction" (int index, int rate) {
@@ -324,6 +408,9 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 		// the affliction does 15 ticks, each stack provides 1% more damage. 15 * (50 * (100 + stacks) / 100) = 1500 max damage default at max stacks 
 		if(!stacks)
 			stacks = CheckInventory("LanceBuffer");
+
+		if(!dmg)
+			dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_DARKLANCE, DND_DMGID_1, DND_DAMAGECATEGORY_OCCULT, DND_DAMAGEFLAG_ISDAMAGEOVERTIME, 0);
 		
 		// apply stacks and dot multi
 		int calc_dmg = dmg * (100 + stacks) / 100;
@@ -474,7 +561,7 @@ Script "DND Thunderstaff Bolts" (void) {
 		
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0);
+		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, 0, 0);
 
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid) {
@@ -542,7 +629,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int pnum = PlayerNumber();
-	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, DND_WDMG_ISSLOT7, 0);
+	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, 0, 0);
 	int actor_flags = 0;
 	int scan_amt = 0;
 	int adist;
@@ -749,7 +836,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 	bool proj_crit = !ActivatorTID() && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int i, m_id;
-	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, DND_WDMG_USETARGET | DND_WDMG_ISSLOT5, 0);
+	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, 0, 0);
 	bool got_one = false;
 	
 	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
@@ -1039,9 +1126,7 @@ Script "DnD Thunder Axe Weaken" (void) {
 	SetResultValue(0);
 }
 
-Script "DnD Chain Lightning (Weapon)" (int dmg, int dmg_type, int flags, int wepid) {
-	int zap_count = dmg_type >> 16;
-	int jump_dist = wepid & 0xFFFF0000;
+Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int jump_dist) {
 	int i, mn;
 
 	int this = GetActorProperty(0, APROP_TRACERTID);
@@ -1051,12 +1136,25 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int dmg_type, int flags, int wep
 		Terminate;
 	
 	int pnum = owner - P_TIDSTART;
-	int min_dmg = dmg / 10;
-	
-	dmg_type &= 0xFFFF;
-	wepid &= 0xFFFF;
+	int wepid = dmg & ATK_WID_MASK;
+	dmg >>= ATK_CACHE_SHIFT;
+
+	i = dmg & ATK_CACHE_MASK;
+	dmg >>= ATK_DTYPE_SHIFT;
+
+	int dmg_type = dmg & ATK_DTYPE_MASK;
+	dmg >>= ATK_DPCT_SHIFT;
+
+	int factor = dmg & ATK_DPCT_MASK;
+
+	dmg = RetrieveWeaponDamage(pnum, wepid, i, GetDamageCategory(dmg_type, flags), flags, 0);
+	int min_dmg = dmg / 10; // 10% of dmg
+
+	if(factor != 100)
+		dmg = dmg * factor / 100;
 
 	// range inc
+	jump_dist <<= 16;
 	if(IsMeleeWeapon(wepid))
 		jump_dist = GetPlayerMeleeRange(pnum, jump_dist);
 

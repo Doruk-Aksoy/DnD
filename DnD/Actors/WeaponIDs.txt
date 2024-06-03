@@ -186,3 +186,12 @@ enum {
 	DND_LIGHTNINGDAMAGE = 134217728,*/
 	DND_ISDOT = 268435456
 };
+
+enum {
+	DND_CFW_ALTFIRECHECK = 1,
+};
+
+Actor DnD_RemoveLockOn : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 25
+}

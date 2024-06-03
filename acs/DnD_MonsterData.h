@@ -2060,6 +2060,7 @@ void SetupMonsterData() {
 	// caco
 	MonsterData[MONSTER_CACOLICH].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_DEATHWHISPERER].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_DEATHWHISPERER].trait_list[DND_POISON] = true;
 	MonsterData[MONSTER_DEATHWHISPERER].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_EARTHLICH].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_EARTHLICH].trait_list[DND_EARTHCREATURE] = true;

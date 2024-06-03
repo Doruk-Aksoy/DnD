@@ -16,4 +16,11 @@
 #define ATK_DTYPE_MASK (0x1F)
 #define ATK_DPCT_MASK (0x3FF)
 
+#define SPELL_DMG_SHIFT 16
+#define SPELL_DTYPE_SHIFT 5
+
+#define SPELLDMG_MASK (0xFFFF)
+#define SPELLDTYPE_MASK (0x1F)
+#define SPELLID_MASK (0x3FF)
+
 #endif

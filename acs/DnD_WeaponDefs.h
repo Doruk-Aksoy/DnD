@@ -12,6 +12,10 @@
 
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
+enum {
+	DND_CFW_ALTFIRECHECK = 1,
+};
+
 // Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
 enum {
 	WPROP_NONE,
@@ -382,7 +386,7 @@ void SetupWeaponData() {
 	
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].name = "ResMelee1";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name1 = "Souls";
-	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name2 = "";
+	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name2 = "Souls";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].icon = "WEPICO6";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use2 = 5;
@@ -395,7 +399,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_name2 = "Souls";
 	Weapons_Data[DND_WEAPON_DUSKBLADE].icon = "WEPICO7";
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use1 = 0;
-	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use2 = 11;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].properties = WPROP_MELEE | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement[STAT_STR] = 0.02;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement[STAT_DEX] = 0.01;
@@ -403,7 +407,7 @@ void SetupWeaponData() {
 	
 	Weapons_Data[DND_WEAPON_SICKLE].name = "Sickle";
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_name1 = "Souls";
-	Weapons_Data[DND_WEAPON_SICKLE].ammo_name2 = "";
+	Weapons_Data[DND_WEAPON_SICKLE].ammo_name2 = "Souls";
 	Weapons_Data[DND_WEAPON_SICKLE].icon = "WEPICO8";
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use2 = 10;
@@ -436,7 +440,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_name1 = "Clip";
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_name2 = "BulletSize_6";
 	Weapons_Data[DND_WEAPON_MAGNUM].icon = "WEPICO11";
-	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use1 = 0;
+	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use1 = 6;
 	Weapons_Data[DND_WEAPON_MAGNUM].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_MAGNUM].properties = WPROP_IGNORESHIELD | WPROP_PRECISION | WPROP_HANDGUN;
 	Weapons_Data[DND_WEAPON_MAGNUM].attunement[STAT_STR] = 0.01;
@@ -467,7 +471,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].icon = "WEPICO14";
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_VIPERSTAFF].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_VIPERSTAFF].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].properties = WPROP_IGNORESHIELD | WPROP_POISON | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].attunement[STAT_DEX] = 0.01;
 	Weapons_Data[DND_WEAPON_VIPERSTAFF].attunement[STAT_INT] = 0.04;
@@ -1105,7 +1109,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_name1 = "DevastatorAmmo";
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_DEVASTATOR].icon = "WEPICO66";
-	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use1 = 5;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].ammo_use2 = 60;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_CANTHITGHOST | WPROP_NOREFLECT | WPROP_TECH | WPROP_ARTILLERY;
 	Weapons_Data[DND_WEAPON_DEVASTATOR].attunement[STAT_STR] = 0.025;

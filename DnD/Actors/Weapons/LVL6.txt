@@ -662,7 +662,7 @@ Actor TurelPuff1 : DnD_BaseRailPuff {
 	Alpha 0.75
 	Scale 0.8
 	
-	Stamina 8392704
+	Stamina 536875008
 	
 	+FORCEXYBILLBOARD
 	States {

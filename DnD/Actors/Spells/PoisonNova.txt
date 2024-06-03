@@ -35,19 +35,35 @@ Actor PoisonNovaProjectile : DnD_BaseProjectile {
 	RenderStyle Add
 	Alpha 1.0
 	DeathSound "imp/shotx"
-	var int user_r;
-	var int user_h;
+	
+	var int user_ripperid;
+	var int user_expdmg;
+	
+	Stamina 98304
+	
 	+BLOODLESSIMPACT
 	+DONTREFLECT
 	+THRUACTORS
 	States {
 		SpawnState:
-			TNT1 A 0 A_SetUserVar("user_r", 16)
-			TNT1 A 0 A_SetUserVar("user_h", 32)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", ACS_NamedExecuteWithResult("DND Player Damage Scale", DND_SPELLDAMAGE_POISONNOVA, DND_DAMAGECATEGORY_POISON, DND_USETARGET | DND_ISSPELL), DND_DAMAGETYPE_POISON, DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_INFLICTPOISON | DND_DAMAGEFLAG_SIMULATERIPPER, DND_SPELL_POISONNOVA)
+			TNT1 A 0 A_SetUserVar("user_expdmg",
+				ACS_NamedExecuteWithResult("DND Player Damage Scale", 120, DND_DAMAGECATEGORY_POISON, DND_USETARGET | DND_ISSPELL) |
+				(DND_DAMAGETYPE_POISON << SPELL_DMG_SHIFT) |
+				(DND_SPELL_POISONNOVA << SPELL_ID_SHIFT)
+			)
 		SpawnLoop:
-			S001 AAA 1 Bright A_SpawnItem("PoisonNovaTrail")
-			S001 BBB 1 Bright A_SpawnItem("PoisonNovaTrail")
+			S001 A 1 Bright A_SpawnItem("PoisonNovaTrail")
+			TNT1 A 0 A_Explode(user_expdmg, 32, 0)
+			S001 A 1 Bright A_SpawnItem("PoisonNovaTrail")
+			TNT1 A 0 A_Explode(user_expdmg, 32, 0)
+			S001 A 1 Bright A_SpawnItem("PoisonNovaTrail")
+			TNT1 A 0 A_Explode(user_expdmg, 32, 0)
+			S001 B 1 Bright A_SpawnItem("PoisonNovaTrail")
+			TNT1 A 0 A_Explode(user_expdmg, 32, 0)
+			S001 B 1 Bright A_SpawnItem("PoisonNovaTrail")
+			TNT1 A 0 A_Explode(user_expdmg, 32, 0)
+			S001 B 1 Bright A_SpawnItem("PoisonNovaTrail")
+			TNT1 A 0 A_Explode(user_expdmg, 32, 0)
 		Loop
 		Death:
 			S001 CDE 3 Bright

@@ -50,7 +50,8 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 	
 	Damage(
 		ACS_NamedExecuteWithResult("DND Player Damage Scale", 15 * random(4, 6), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL) |
-		DND_DAMAGETYPE_LIGHTNING << 16
+		(DND_DAMAGETYPE_LIGHTNING << SPELL_DMG_SHIFT) |
+		(DND_SPELL_LIGHTNINGSPEAR << SPELL_ID_SHIFT)
 	)
 	
 	Stamina 65536
@@ -121,7 +122,8 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 			
 			"####" "#" 0 A_SetUserVar("user_expdmg", 
 				ACS_NamedExecuteWithResult("DND Player Damage Scale", 45, DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL) |
-				DND_DAMAGETYPE_LIGHTNING
+				(DND_DAMAGETYPE_LIGHTNING << SPELL_DMG_SHIFT) |
+				(DND_SPELL_LIGHTNINGSPEAR << SPELL_ID_SHIFT)
 			)
 			"####" "#" 0 A_SetUserVar("user_expradius", 72)
 			"####" "#" 0 A_SetUserVar("user_fullexpradius", 0)

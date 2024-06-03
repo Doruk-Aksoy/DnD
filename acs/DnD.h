@@ -10,7 +10,6 @@
 #include "DnD_Skills.h"
 #include "DnD_Settings.h"
 #include "DnD_ClassMenu.h"
-#include "DnD_Explosion.h"
 #include "DnD_Mugshot.h"
 #include "DnD_Research.h"
 #include "DnD_Statistics.h"
@@ -1403,10 +1402,7 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 	/*Log(
 		d:!isSoftorHardcore(),
 		s:" ",
-		d:(game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE),
-		s:" ",
-		d:(gstate != GAMESTATE_WAITFORPLAYERS && gstate != GAMESTATE_INPROGRESS),
-		s:" gstate is ", d:gstate
+		d:PlayerLoaded[pnum]
 	);*/
 	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || gstate == GAMESTATE_COUNTDOWN || !PlayerLoaded[pnum])
 		return;
@@ -1417,6 +1413,8 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 		return;
 		
 	if(!isDisconnect) {
+		Log(s:"Save player ", d:pnum, s: " activites on death for char id ", d:PlayerActivities[pnum].char_id);
+
 		BeginDBTransaction();
 
 		if(PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE]) {
@@ -1426,23 +1424,22 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 			PlayerActivities[pnum].char_id = CheckActorInventory(pnum + P_TIDSTART, "DnD_TransfCharacterID");
 			PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 		}
-
-		Log(s:"Save player ", d:pnum, s: " activites on death for char id ", d:PlayerActivities[pnum].char_id);
+		
 		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
 		ResetPlayerActivities(pnum, false);
 		EndDBTransaction();
 	}
 	else {
-		BeginDBTransaction();
-		
 		Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);
+
+		BeginDBTransaction();
 		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
-		
+		EndDBTransaction();
+
 		// resets player activites already
 		ResetPlayerInfo(pnum);
 		ResetPlayerActivities(pnum, true);
-		EndDBTransaction();
-
+		
 		PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
 	}
 }

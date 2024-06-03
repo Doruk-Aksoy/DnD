@@ -628,3 +628,8 @@ Actor PlayerPickupFilter : Ammo {
 	ammo.backpackmaxamount 0
 	+IGNORESKILL
 }
+
+Actor DnD_AutoDumpCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 4
+}

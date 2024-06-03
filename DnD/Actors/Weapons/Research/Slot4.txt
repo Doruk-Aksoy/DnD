@@ -1922,11 +1922,13 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 	+BLOODLESSIMPACT
 	+DONTREFLECT
 	+FORCERADIUSDMG
-	var int user_tmp;
+	
+	Stamina 32768
+	
+	var int user_ripperid;
 	
 	States {
 		SpawnState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD One Time Ripper", user_tmp, DND_DAMAGETYPE_FIRE, 0, DND_WEAPON_INCINERATOR)
 			DRGP AAAABBBBCCCC 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")
 		SpawnLoop:
 			DRGP DDDDDDDEEEEEEE 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")

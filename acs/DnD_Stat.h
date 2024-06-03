@@ -673,6 +673,19 @@ int GetDropChance(int pnum) {
 	return base;
 }
 
+int GetPlayerItemRarity(int pnum) {
+	int base = 1.0;
+
+	base += GetPlayerAttributeValue(pnum, INV_ITEMRARITY);
+
+	// more chance for rarity -- only at half
+	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum) / 2);
+	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
+		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
+
+	return base;
+}
+
 bool RunDefaultDropChance(int pnum, int basechance) {
 	return RunDropChance(pnum, basechance, 0, 1.0);
 }
@@ -684,6 +697,10 @@ bool RunPrecalcDropChance(int p_chance, int basechance, int m_id, int rng_id) {
 bool RunDropChance(int pnum, int basechance, int low, int high) {
 	//printbold(s:"dc ", f:GetDropChance(pnum), s: " x ", f:basechance, s: " = ", f:FixedMul(GetDropChance(pnum), basechance));
 	return FixedMul(GetDropChance(pnum), basechance) >= random(low, high);
+}
+
+bool RunDefaultRarityChance(int pnum, int basechance) {
+	return FixedMul(GetPlayerItemRarity(pnum), basechance) >= random(0.0, 1.0);
 }
 
 void DecideAccessories() {

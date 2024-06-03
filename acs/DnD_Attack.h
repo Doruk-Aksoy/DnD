@@ -18,8 +18,7 @@ enum {
 	DND_ATF_USEGRAVITY 				= 0b10000,
 	DND_ATF_ISHITSCAN				= 0b100000,				// treated as hitscan for named attacks
 	DND_ATF_NOHELPER				= 0b1000000,			// dont create helper actor to adjust position of attacks
-	DND_ATF_WIDESWING				= 0b10000000,			// melee wide swing attack
-
+	DND_ATF_TRACERPICKER			= 0b10000000,			// melee wide swing attack
 
 	DND_ATF_INSTABILITY				= 0b100000000000000000000000000000,
 	DND_ATF_NOINSTABILITY			= 0b1000000000000000000000000000000
@@ -91,7 +90,7 @@ Script "DnD Readjust Speed" (int spd) {
 }
 
 // This function will create a projectile with given angles, pitch, direction vector, speed, xy dist and zdist
-void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, int velocity, int vPos, int flags = 0) {
+int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, int velocity, int vPos, int flags = 0, int extra = 0, int extra2 = 0) {
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good
 	int g = (flags & DND_ATF_USEGRAVITY) ? 800.0 : 0;
 	
@@ -126,6 +125,24 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 	SetPointer(AAPTR_TARGET, owner);
 	SetActorProperty(0, APROP_TARGETTID, owner);
 
+	if(flags & DND_ATF_TRACERPICKER) {
+		// only pick if we have no previous recollection of another target
+		if(!(extra2 & 0xFFFF)) {
+			g = HandleTracerPicking(owner, extra2 & 0xFFFF0000, extra & 0xFFFF, extra >> 16);
+			if(g) {
+				SetPointer(AAPTR_TRACER, g);
+				SetActorProperty(0, APROP_TRACERTID, g);
+			}
+		}
+		else {
+			// we have a target from a previous call of this, use that instead
+			SetPointer(AAPTR_TRACER, extra2 & 0xFFFF);
+			SetActorProperty(0, APROP_TRACERTID, extra2 & 0xFFFF);
+		}
+	}
+	else
+		g = 0;
+
 	// this is needed so that reflecting works
 	SetActorProperty(0, APROP_SPEED, spd << 16);
 	
@@ -133,6 +150,8 @@ void CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, in
 	
 	// return script ownership back to owner
 	SetActivator(owner);
+
+	return g;
 }
 
 // same with projectile above but fires a hitscan attack instead
@@ -390,7 +409,7 @@ void Do_Railgun_Attack(str rail_helper, int count) {
 // Does a projectile attack, depending on special weapon behavior it can fire additional things --- we check for those using wepid, proj_id and flags
 // angle_vec is (angle, pitch) offsets
 // offset_vec is (x,y,z) offsets of the projectile to fire
-void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags) {
+int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, int extra = 0, int extra2 = 0) {
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
 	
 	// ghost power check
@@ -449,7 +468,8 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, (1.0 - ACCURACY_FACTOR * acc)));
-	
+	acc = 0;
+
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile
 		int vFireDir = BulletAngleVec3(a, p, vDir, sp_x, sp_y);
@@ -462,8 +482,10 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, ProjectileInfo[proj_id].spd_range);
 		
-		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, ProjectileInfo[proj_id].spd_range, vFireDir, vPos, flags);
-		
+		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, ProjectileInfo[proj_id].spd_range, vFireDir, vPos, flags, extra, extra2);
+		if(spread_x && !acc)
+			acc = spread_x;
+
 		FreeVec2(proj_ang_vec);
 		
 		FreeVec3(vFireDir);
@@ -473,9 +495,11 @@ void Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count
 	FreeVec3(vUp);
 	FreeVec3(vDir);
 	FreeVec3(vRight);
+
+	return acc;
 }
 
-void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, int proj_id = 0) {
+int Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, int proj_id = 0, int extra = 0, int extra2 = 0) {
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
 	
 	// ghost power check
@@ -546,8 +570,10 @@ void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, i
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, speed);
 		
-		CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, speed, vFireDir, vPos, flags);
-		
+		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, speed, vFireDir, vPos, flags, extra, extra2);
+		if(spread_x && !acc)
+			acc = spread_x;
+
 		FreeVec2(proj_ang_vec);
 		
 		FreeVec3(vFireDir);
@@ -557,6 +583,8 @@ void Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, i
 	FreeVec3(vUp);
 	FreeVec3(vDir);
 	FreeVec3(vRight);
+
+	return acc;
 }
 
 // takes DND_MF_XXX not the ATF! This is a minion summon!

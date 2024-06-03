@@ -3643,7 +3643,7 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					// normal clicking functionality on inventory view
 					if(!CheckInventory("DnD_SelectedInventoryBox")) {
 						// jump click is to auto-dump hovered item to stash or vice versa
-						if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) {
+						if((GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) && !CheckInventory("DnD_AutoDumpCooldown")) {
 							if(boxid > 2 * MAX_INVENTORY_BOXES) {
 								isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
 								ioffset = 2 * MAX_INVENTORY_BOXES;
@@ -3660,8 +3660,14 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							}
 
 							// auto move code -- returns success if it could move
-							if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
-								AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource);
+							if
+							(
+								GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL &&
+								AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource)
+							)
+							{
+								GiveInventory("DnD_AutoDumpCooldown", 1);
+							}
 						}
 						else
 							SetInventory("DnD_SelectedInventoryBox", boxid);
@@ -5503,6 +5509,12 @@ void DrawPlayerStats(int pnum, int category) {
 			val = (GetDropChance(pnum) - 1.0);
 			if(val > 1.0) {
 				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
+				++k;
+			}
+
+			val = (GetPlayerItemRarity(pnum) - 1.0);
+			if(val > 1.0) {
+				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_RARITY", s:"\n");
 				++k;
 			}
 			

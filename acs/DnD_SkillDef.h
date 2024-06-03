@@ -95,6 +95,7 @@ typedef struct {
 #define SPELL_COOLDOWN 0
 #define SPELL_FLAGS 1
 #define SPELL_DAMAGE_INDEX 2
+// form this into a function later
 int SpellData[MAX_SPELLS][4] = {
 	{ RALLY_COOLDOWN, 		0 },
 	{ 0, 					DND_SPELLFLAG_ELEMENTAL },
@@ -103,21 +104,10 @@ int SpellData[MAX_SPELLS][4] = {
 	{ 0, 					DND_SPELLFLAG_ELEMENTAL }
 };
 
-// the 2 numbers at the end are scaling factors picked randomly, so range is dmg * random(low, high)
-pdmg_T SpellDamageTable[MAX_DAMAGING_SPELLS] = {
-	{ 120, 0, 0 },
-	{ 20, 5, 8 },
-	
-	{ 24, 0, 0 },
-	{ 256, 0, 0 },
-	
-	{ 15, 4, 6 },
-	{ 45, 0, 0 }
-};
-
 #define SPELL_NAME 0
 #define SPELL_COOLDOWNITEM 1
 #define SPELL_COOLDOWNCOUNTER 2
+// put these in a global array later
 str SpellInfo[MAX_SPELLS][3] = {
 	{ "Rally", 					"RallyCooldown", 					"RallyCooldownCounter" },
 	{ "PoisonNova", 			"PoisonNovaCooldown", 				"PoisonNovaCooldownCounter" },

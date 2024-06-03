@@ -332,8 +332,8 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.6
 	Weapon.AmmoGive 0
-	Weapon.AmmoUse1 1
-	Weapon.AmmoUse2 1
+	Weapon.AmmoUse1 5
+	Weapon.AmmoUse2 60
 	-NOAUTOFIRE
 	+WEAPON.NOAUTOAIM
 	States {

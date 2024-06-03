@@ -158,7 +158,8 @@ Actor MoltenBoulder_RollDamager : DnD_ExplosiveBase {
 			TNT1 A 1
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				ACS_NamedExecuteWithResult("DND Player Damage Scale", 24, DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSPELL) |
-				DND_DAMAGETYPE_FIRE << 16
+				(DND_DAMAGETYPE_FIRE << SPELL_DMG_SHIFT) |
+				(DND_SPELL_MOLTENBOULDER << SPELL_ID_SHIFT)
 			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_expradius", 96)
@@ -179,7 +180,8 @@ Actor MoltenBoulder_BumpDamager : MoltenBoulder_RollDamager {
 			TNT1 A 1
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				ACS_NamedExecuteWithResult("DND Player Damage Scale", 256, DND_DAMAGECATEGORY_FIRE, DND_USETARGET | DND_ISSPELL) |
-				DND_DAMAGETYPE_FIRE << 16
+				(DND_DAMAGETYPE_FIRE << SPELL_DMG_SHIFT) |
+				(DND_SPELL_MOLTENBOULDER << SPELL_ID_SHIFT)
 			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_expradius", 192)

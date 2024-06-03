@@ -23,7 +23,11 @@ bool SpawnedChests = 0;
 void RollChestkeyInfo(int item_pos, int keytype, bool onField) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = 1;
-	Inventories_On_Field[item_pos].item_stack = 1; // orbs have default stack of 1
+#ifdef ISDEBUGBUILD
+	Inventories_On_Field[item_pos].item_stack = 100; 
+#else
+	Inventories_On_Field[item_pos].item_stack = 1;
+#endif
 	Inventories_On_Field[item_pos].item_type = DND_ITEM_CHESTKEY;
 	Inventories_On_Field[item_pos].item_subtype = keytype;
 	Inventories_On_Field[item_pos].width = 1;

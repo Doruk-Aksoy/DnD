@@ -3710,13 +3710,6 @@ Script 998 (int wepnum, int side, int extra) {
 		base = GetAmmoCapacity("MGClip");
 		totake = "MGClip";
 	}
-	else if(wepnum == 1) {
-		base = GetAmmoCapacity("AkimboClipLeft");
-		if(!side)
-			totake = "AkimboClipLeft";
-		else
-			totake = "AkimboClipRight";
-	}
 	else if(wepnum == 2) {
 		base = GetAmmoCapacity("MGClip2");
 		totake = "MGClip2";
@@ -5919,7 +5912,9 @@ Script 68 (int x) NET {
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
-			//IncPlayerModValue(0, INV_PELLET_INCREASE, 0.5);
+			SpawnCharmWithMods_ForAll(INV_ITEMRARITY);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_PHANTASMAL, true);
+			//IncPlayerModValue(0, INV_ESS_HARKIMONDE, 50);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
