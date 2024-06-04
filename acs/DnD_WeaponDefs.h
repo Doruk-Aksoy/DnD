@@ -14,6 +14,7 @@ int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 enum {
 	DND_CFW_ALTFIRECHECK = 1,
+	DND_CFW_HOLDFIREORRELOADCHECK = 2
 };
 
 // Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this

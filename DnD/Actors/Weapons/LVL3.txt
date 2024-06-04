@@ -46,8 +46,8 @@ Actor " Shotgun " : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SHOTGUN, 1), "ContinueFire")
-			SGN1 A 3 A_WeaponReady(WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SHOTGUN, 0), "ContinueFire")
+			SGN1 A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto Reload
 		ContinueFire:
 			SGN1 BB 1 Bright
@@ -78,7 +78,7 @@ Actor " Shotgun " : Weapon {
 		Reload:
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFast")
 			TNT1 A 0 A_JumpIfInventory("ShellSize_8N", 0, "NoAction")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10), "ContinueReload")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SHOTGUN, 1), "ContinueReload")
 			SGN1 A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto NoAction
 		ContinueReload:
@@ -87,7 +87,7 @@ Actor " Shotgun " : Weapon {
 			SGN1 MLK 3
 		ContinueReloadChecks:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_8N", 0, "RiseUp")
-			SGN1 K 2 A_JumpIf(ACS_ExecuteWithResult(994, 10), "ContinueReloadAgain")
+			SGN1 K 2 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SHOTGUN, 1), "ContinueReloadAgain")
 		Goto RiseUp
 		ContinueReloadAgain:
 			SGN1 K 1 Offset(0, 33)
@@ -129,7 +129,7 @@ Actor " Shotgun " : Weapon {
 
 		ReloadFast:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_8N", 0, "NoAction")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10), "ContinueReloadFast")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SHOTGUN, 1), "ContinueReloadFast")
 			SGN1 A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto NoAction
 		ContinueReloadFast:
@@ -140,7 +140,7 @@ Actor " Shotgun " : Weapon {
 			SGN1 K 1
 		ContinueReloadChecksFast:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_8N", 0, "RiseUpFast")
-			SGN1 K 2 A_JumpIf(ACS_ExecuteWithResult(994, 10), "ContinueReloadAgainFast")
+			SGN1 K 2 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SHOTGUN, 1), "ContinueReloadAgainFast")
 		Goto RiseUp
 		ContinueReloadAgainFast:
 			SGN1 K 1 Offset(0, 35)
@@ -279,8 +279,8 @@ Actor "Upgraded Shotgun" : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueFire")
-			TNT1 A 0 A_JumpIfInventory("ShellSize_8", 1, "ContinueFire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_PURIFIER, 0), "ContinueFire")
+			SGN2 A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto Reload
 		ContinueFire:
 			TNT1 A 0 A_JumpIfInventory("Reloading", 1, "LowerWeapon")
@@ -308,7 +308,7 @@ Actor "Upgraded Shotgun" : Weapon {
 			SGN2 JKL 3 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*24, 7, 40+(sin(-pitch)*20),0,0,2,0,0,0)
 			SGN2 K 3
 			// check if user is holding fire, and has enough ammo to reload when they have no ammo OR they are pressing reload button and wish to proceed early
-			SGN2 J 3 A_JumpIf(ACS_ExecuteWithResult(994, 10, 1, 1), "GoHereFromFire")
+			SGN2 J 3 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_PURIFIER, 1, 0, DND_CFW_HOLDFIREORRELOADCHECK), "GoHereFromFire")
 			SGN2 I 3
 			SGN2 HG 1
 			SGN2 A 1 A_ReFire("Fire")
@@ -321,7 +321,7 @@ Actor "Upgraded Shotgun" : Weapon {
 			SGN2 A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
 			TNT1 A 0 A_JumpIfInventory("ShellSize_8", 0, "Ready")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 1), "ContinueAltFire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_PURIFIER, 1), "ContinueAltFire")
 			SGN2 A 2 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto Ready
 		ContinueAltFire:
@@ -345,7 +345,7 @@ Actor "Upgraded Shotgun" : Weapon {
 			TNT1 A 0 A_GiveInventory("ShellSize_8", 1)
 			SGN2 XY 1
 			SGN2 Z 2 A_WeaponReady(WRF_NOBOB | WRF_NOSWITCH | WRF_NOSECONDARY)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 1), "AltFireLoop")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_PURIFIER, 1), "AltFireLoop")
 			SGN2 Z 2 A_WeaponReady(WRF_NOBOB | WRF_NOSWITCH | WRF_NOSECONDARY)
 		Goto CockNLoad
 		NoHack:
@@ -364,7 +364,7 @@ Actor "Upgraded Shotgun" : Weapon {
 
 		ReloadFaster:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_8", 0, "Ready")
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 1), "ContinueAltFire2")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_PURIFIER, 1), "ContinueAltFire2")
 			SGN2 A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueAltFire2:
@@ -386,7 +386,7 @@ Actor "Upgraded Shotgun" : Weapon {
 			TNT1 A 0 A_GiveInventory("ShellSize_8", 1)
 			SGN2 XY 1
 			SGN2 Z 1 A_WeaponReady(WRF_NOBOB | WRF_NOSWITCH | WRF_NOSECONDARY)
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 10, 1), "AltFireLoop2")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_PURIFIER, 1), "AltFireLoop2")
 			SGN2 Z 2 A_WeaponReady(WRF_NOBOB | WRF_NOSWITCH | WRF_NOSECONDARY)
 		Goto CockNLoad2
 		NoHack2:
@@ -501,10 +501,10 @@ ACTOR "Upgraded Shotgun2" : Weapon
     UASG A 1 A_Raise
 	TNT1 A 0 A_Raise
     Loop
-  Fire:
-	  TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueFire")
-	  TNT1 A 0 A_JumpIfInventory("ShellSize_10", 1, "ContinueFire")
-  Goto Reload
+	Fire:
+		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_KILLSTORM, 1), "ContinueFire")
+		UASG A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+	Goto Reload
   ContinueFire:
 	UASG BC 1 Bright
 	TNT1 A 0 A_PlayWeaponSound("weapons/autosgfire")
@@ -523,11 +523,10 @@ ACTOR "Upgraded Shotgun2" : Weapon
 	UASG A 2 A_Refire
     Goto Ready
   Reload:
-    TNT1 A 0 A_JumpIfInventory("Shell", 1, "ContinueCheck")
+	TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_KILLSTORM, 0), "ContinueCheck")
 	UASG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
   Goto Ready
   ContinueCheck:
-	TNT1 A 0 A_JumpIfInventory("ShellSize_10", 0, "NoReload")
 	TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
   DoReload:
 	UASG I 4
@@ -535,15 +534,7 @@ ACTOR "Upgraded Shotgun2" : Weapon
 	UASG KL 2
 	UASG M 2 A_PlaySound("weapons/autosgopen", 6)
 	UASG N 32
-  ReloadLoop:
-	TNT1 A 0 A_JumpIfInventory("Shell", 1, "ContinueReload")
-  Goto FinishReload
-  ContinueReload:
-    TNT1 A 0 A_JumpIfInventory("ShellSize_10", 0, "FinishReload")
-    TNT1 A 0 A_TakeInventory("Shell", 1)
-	TNT1 A 0 A_GiveInventory("ShellSize_10", 1)
-  Goto ReloadLoop
-  FinishReload:
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_KILLSTORM)
 	UASG M 2
 	TNT1 A 0 A_PlaySound("weapons/autosgload", 6)
 	UASG L 1 Offset(0, 28)
@@ -561,15 +552,7 @@ ACTOR "Upgraded Shotgun2" : Weapon
 	UASG KL 1
 	UASG M 1 A_PlaySound("weapons/autosgopen", 6)
 	UASG N 16
-  ReloadLoopFaster:
-	TNT1 A 0 A_JumpIfInventory("Shell", 1, "ContinueReloadFaster")
-  Goto FinishReloadFaster
-  ContinueReloadFaster:
-    TNT1 A 0 A_JumpIfInventory("ShellSize_10", 0, "FinishReloadFaster")
-    TNT1 A 0 A_TakeInventory("Shell", 1)
-	TNT1 A 0 A_GiveInventory("ShellSize_10", 1)
-  Goto ReloadLoopFaster
-  FinishReloadFaster:
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_KILLSTORM)
 	UASG M 2
 	TNT1 A 0 A_PlaySound("weapons/autosgload", 6)
 	UASG L 1 Offset(0, 28)
@@ -643,6 +626,10 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_EMERALDWAND, 0), "FireConfirmed")
+			JADE A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		FireConfirmed:
 			JADE B 1 Bright Offset(0, 48)
 			TNT1 A 0 A_PlaySound("EmeraldWand/Fire")
 			TNT1 AAAAA 0 A_FireCustomMissile("GreenTracer", frandom(-6, 6),0,0,0,0, frandom(-4.25, 4.25))
@@ -664,11 +651,11 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 			JADE A 1 Offset(0, 33)
 		goto ready
 		AltFire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAlt")
-			TNT1 A 0 A_JumpIfInventory("EmeraldMana", 8, "ContinueAlt")
-		Goto Nothing
-		ContinueAlt:
 			TNT1 A 0 A_JumpIfInventory("EmeraldRainCooldown", 1, "Nothing")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_EMERALDWAND, 1), "AltFireConfirmed")
+			JADE A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		AltFireConfirmed:
 			JADE B 1 Bright Offset(0, 48)
 			TNT1 A 0 A_PlaySound("EmeraldWand/Alt")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_EMERALDWAND, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_EMERALDMANA << 16), 0)
@@ -688,7 +675,7 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 			JADE A 18 A_WeaponReady(WRF_NOSECONDARY | WRF_NOSWITCH)
 		goto ready
 		Nothing:
-			JADE A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			JADE A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 	}
 }

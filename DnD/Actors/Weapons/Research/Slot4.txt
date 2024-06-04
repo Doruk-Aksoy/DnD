@@ -45,10 +45,10 @@ Actor ResMG1 : Chaingun {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_GRENADE, "FireGrenade")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide")
-			TNT1 A 0 A_JumpIfInventory("MGClip4", 1, "FireDecide")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_TEMPLARMG, 1), "FireConfirmed")
+			RW03 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
-		FireDecide:
+		FireConfirmed:
 			TNT1 A 0 A_Jump(256, "Fire1", "Fire2")
 		Fire1:
 			RW03 D 1 Bright A_AlertMonsters
@@ -78,11 +78,11 @@ Actor ResMG1 : Chaingun {
 			RW03 A 2	
 		Goto Ready
 		Reload:
-			TNT1 A 0 A_JumpIfInventory("Clip", 1, "ContinueReload")
+			TNT1 A 0 A_JumpIfInventory("MGClip4", 0, "Failed")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_TEMPLARMG, 0), "ContinueReload")
 			RW03 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
-			TNT1 A 0 A_JumpIfInventory("MGClip4", 0, "Failed")
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
 			RW03 GHIJ 2
 			TNT1 A 0 A_PlayWeaponSound("Templar/Out")
@@ -92,7 +92,7 @@ Actor ResMG1 : Chaingun {
 			RW03 O 20
 			RW03 PQRS 2
 			TNT1 A 0 A_PlayWeaponSound("Templar/In")
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 3)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_TEMPLARMG)
 			RW03 TUVWYZ 2
 			RW03 A 2
 		Goto Ready
@@ -108,7 +108,7 @@ Actor ResMG1 : Chaingun {
 			RW03 O 10
 			RW03 PQRS 1
 			TNT1 A 0 A_PlayWeaponSound("Templar/In")
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 3)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_TEMPLARMG)
 			RW03 TUVWYZ 1
 			RW03 A 1
 		Goto Ready

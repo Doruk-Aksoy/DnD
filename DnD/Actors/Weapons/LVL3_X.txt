@@ -2,7 +2,7 @@
 ACTOR " Super Shotgun " : Weapon
 {
   Weapon.SelectionOrder 650
-  Weapon.AmmoUse 2
+  Weapon.AmmoUse 0
   Weapon.AmmoGive 0
   Weapon.AmmoType "Shell"
   Weapon.SlotNumber 3
@@ -37,41 +37,45 @@ ACTOR " Super Shotgun " : Weapon
     SHT1 A 1 A_Raise
 	TNT1 A 0 A_Raise
     Loop
-  Fire:
-	SHT1 BC 1 Bright
-	SHT2 M 0 A_PlayWeaponSound("weapons/ssgfire")
-	TNT1 A 0 A_GunFlash
-	TNT1 AAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
-	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), DND_ATF_CANFIRECIRCLE)
-	SHT1 D 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch - 10.0)
-	SHT1 E 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 2.0)
-	SHT1 G 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 2.0)
-	SHT1 H 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 2.0)
-	SHT1 I 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
-	SHT1 JJ 1 A_SetPitch(pitch + 2.0)
-	TNT1 A 0 A_CheckReload
-	TNT1 A 0 A_JumpIFInventory("Ability_Reloader", 1, "ReloadFaster")
-	SHT1 KLM 2
-	SHT1 N 2
-	SHT1 ML 2
-	SHT1 KP 2 
-	SHT1 Q 1 A_PlaySound("weapons/ssgopen")
-	SHT1 RST 2
-	TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*24,-8,31+(sin(-pitch)*36),0,-1*random(5, 8), random(0, 1),0,0,0)		
-    SHT1 UV 2
-	SHT1 WX 1
-	SHT1 YZ 2
-	SHX1 A 1 A_PlaySound("weapons/ssgload")
-	SHX1 BCD 2
-	SHX1 E 1 A_PlaySound("weapons/ssgclose")
-	SHX1 FG 1
-	SHX1 HI 2
-	SHT1 A 3 A_Refire
+	Fire:
+		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SUPERSHOTGUN, 0), "FireConfirmed")
+		SHT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+	Goto Ready
+	FireConfirmed:
+		SHT1 BC 1 Bright
+		SHT2 M 0 A_PlayWeaponSound("weapons/ssgfire")
+		TNT1 A 0 A_GunFlash
+		TNT1 AAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+		TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), DND_ATF_CANFIRECIRCLE)
+		SHT1 D 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch - 10.0)
+		SHT1 E 1 Bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 2.0)
+		SHT1 G 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 2.0)
+		SHT1 H 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 2.0)
+		SHT1 I 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(-6, 6),30+(sin(-pitch)*20),0,0,2,0,0,0)
+		SHT1 JJ 1 A_SetPitch(pitch + 2.0)
+		TNT1 A 0 A_CheckReload
+		TNT1 A 0 A_JumpIFInventory("Ability_Reloader", 1, "ReloadFaster")
+		SHT1 KLM 2
+		SHT1 N 2
+		SHT1 ML 2
+		SHT1 KP 2 
+		SHT1 Q 1 A_PlaySound("weapons/ssgopen")
+		SHT1 RST 2
+		TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*24,-8,31+(sin(-pitch)*36),0,-1*random(5, 8), random(0, 1),0,0,0)		
+		SHT1 UV 2
+		SHT1 WX 1
+		SHT1 YZ 2
+		SHX1 A 1 A_PlaySound("weapons/ssgload")
+		SHX1 BCD 2
+		SHX1 E 1 A_PlaySound("weapons/ssgclose")
+		SHX1 FG 1
+		SHX1 HI 2
+		SHT1 A 3 A_Refire
     Goto Ready
   ReloadFaster:
 	SHT1 JKLM 1
@@ -111,7 +115,7 @@ Actor SSGPuff : DnD_BasePuff {
 ACTOR "Upgraded Super Shotgun" : Weapon
 {
   Weapon.SelectionOrder 650
-  Weapon.AmmoUse 2
+  Weapon.AmmoUse 0
   Weapon.AmmoGive 0
   Weapon.AmmoType "Shell"
   Weapon.SlotNumber 3
@@ -146,6 +150,10 @@ ACTOR "Upgraded Super Shotgun" : Weapon
 	TNT1 A 0 A_Raise
     Loop
 	Fire:
+		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HEAVYSUPERSHOTGUN, 0), "FireConfirmed")
+		SHT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+	Goto Ready
+	FireConfirmed:
 		SSGG A 1
 		TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "FireFaster")
 		SSGF A 1 Bright
@@ -363,38 +371,38 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
 	TNT1 A 0 A_Raise
     Loop
   Fire:
-	  TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueFire")
-	  TNT1 A 0 A_JumpIfInventory("ShellSize_2", 1, "ContinueFire")
-  Goto Reload
-  ContinueFire:
-	ERAF AAB 1 Bright
-	TNT1 A 0 A_PlayWeaponSound("weapons/erasfire")
-	TNT1 A 0 A_GunFlash
-	TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
-	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 7, 32 * (1 + sin(-pitch)), 2, 0, 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ERASUS, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_2 << 16), DND_ATF_CANFIRECIRCLE)
-    TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	ERAF B 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch - 6.0)
-	ERAF C 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 1.0)
-	ERAF C 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 1.0)
-	ER2F C 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 1.0)
-	ER2F D 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 1.0)
-	ER2F E 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 1.0)
-	ER2F F 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	TNT1 A 0 A_SetPitch(pitch + 1.0)
-	ER2F F 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	ER2F DC 2 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
-	ER2F B 3
-	TNT1 A 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*28, 22,34+(sin(-pitch)*36),0,random(5, 8), random(0, 1),0,0,0)
-	ER2F A 4 A_JumpIfInventory("Shell", 1, "CheckNormalReload")
-	TNT1 A 0 A_Refire
-	ERAG A 6
+		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ERASUS, 1), "FireConfirmed")
+		ERAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+	Goto Ready
+	FireConfirmed:
+		ERAF AAB 1 Bright
+		TNT1 A 0 A_PlayWeaponSound("weapons/erasfire")
+		TNT1 A 0 A_GunFlash
+		TNT1 AAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+		TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 7, 32 * (1 + sin(-pitch)), 2, 0, 1)
+		TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ERASUS, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_SHELLSIZE_2 << 16), DND_ATF_CANFIRECIRCLE)
+		TNT1 A 0 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		ERAF B 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch - 6.0)
+		ERAF C 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(7, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		ERAF C 1 bright A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		ER2F C 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		ER2F D 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(8, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		ER2F E 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		ER2F F 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		TNT1 A 0 A_SetPitch(pitch + 1.0)
+		ER2F F 1 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		ER2F DC 2 A_SpawnItemEx ("SHOTGUNSMOKE", cos(-pitch)*36, random(9, 12), 36+(sin(-pitch)*20),0,0,2,0,0,0)
+		ER2F B 3
+		TNT1 A 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*28, 22,34+(sin(-pitch)*36),0,random(5, 8), random(0, 1),0,0,0)
+		ER2F A 4 A_JumpIfInventory("Shell", 1, "CheckNormalReload")
+		TNT1 A 0 A_Refire
+		ERAG A 6
 	Goto Ready
 	CheckNormalReload:
 	TNT1 A 0 A_JumpIfInventory("ShellSize_2", 1, "FinishFiring")
@@ -428,25 +436,22 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
 	CheckAltReload:
 	TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
     Goto Reload
-  AltFire:
-    TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "BurstFire")
-	TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "BurstFire")
-	ERAG A 1
+	
+	AltFire:
+		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ERASUS, 1, 2), "BurstFire")
+		ERAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+	Goto Reload
   Reload:
-    TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "NoAction")
+    TNT1 A 0 A_JumpIfInventory("ShellSize_2", 0, "NoAction")
+	TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ERASUS, 0), "ReallyReload")
+	ERAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+  Goto Ready
+  ReallyReload:
 	TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
 	ERAG C 3
 	ERAR AB 2
 	TNT1 A 0 A_PlaySound("weapons/erascock", 6)
-  ReloadLoop:
-	TNT1 A 0 A_JumpIfInventory("Shell", 1, "ContinueReload")
-  Goto FinishReload
-  ContinueReload:
-    TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "FinishReload")
-    TNT1 A 0 A_TakeInventory("Shell", 1)
-	TNT1 A 0 A_GiveInventory("ShellSize_2", 1)
-  Goto ReloadLoop
-  FinishReload:
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_ERASUS)
 	ERAR CD 1
 	ERAR E 2
 	ERAR F 6
@@ -470,15 +475,7 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
 	ERAG C 2
 	ERAR AB 1
 	TNT1 A 0 A_PlaySound("weapons/erascock", 6)
-  ReloadLoopFast:
-	TNT1 A 0 A_JumpIfInventory("Shell", 1, "ContinueReloadFaster")
-  Goto FinishReloadFaster
-  ContinueReloadFaster:
-    TNT1 A 0 A_JumpIfInventory("ShellSize_2", 2, "FinishReloadFaster")
-    TNT1 A 0 A_TakeInventory("Shell", 1)
-	TNT1 A 0 A_GiveInventory("ShellSize_2", 1)
-  Goto ReloadLoopFast
-  FinishReloadFaster:
+	TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_ERASUS)
 	ERAR CE 1
 	ERAR F 3
 	ERAR ECBA 1
@@ -558,13 +555,16 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "LFire")
+			HLMW A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
 		LFire:
 			HLMW P 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ContinueLeftFire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ContinueLeftFire")
         Goto LIdle
 		ContinueLeftFire:
 			HLMW P 3 A_WeaponReady(WRF_NOFIRE)
-			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ReallyLeftFire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ReallyLeftFire")
 		Goto LIdle
 		ReallyLeftFire:
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 7)
@@ -614,11 +614,11 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 
 		RFire:
 			HLMW Q 1
-			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ContinueRightFire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ContinueRightFire")
 		Goto RIdle
 		ContinueRightFire:
 			HLMW Q 3
-			TNT1 A 0 A_JumpIfInventory("HellsMawAmmo", 1, "ReallyRightFire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ReallyRightFire")
 		Goto RIdle
 		ReallyRightFire:
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 6)
@@ -844,7 +844,7 @@ Actor "Silver Gun" : Weapon
   Inventory.PickupSound "weapons/pickup"
   inventory.pickupmessage "You got the silver gun!"
   weapon.ammotype "ExplodingShell"
-  weapon.ammouse 1
+  weapon.ammouse 0
   weapon.ammogive 4
   DamageType "Explosives"
   +INVENTORY.UNDROPPABLE
@@ -878,6 +878,10 @@ Actor "Silver Gun" : Weapon
 	TNT1 A 0 A_Raise
     Loop
   Fire:
+  		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SILVERGUN, 0), "FireConfirmed")
+		EXSG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+	  Goto Ready
+  FireConfirmed:
 	  EXSG B 1
       EXSG E 0 A_GunFlash
       EXSG CD 1 Bright
@@ -1002,7 +1006,7 @@ ACTOR Slayer : Weapon {
 	Inventory.PickupMessage "You got the Slayer!"
 	Obituary "%o was torn apart by %k's Slayer."
 	Weapon.AmmoType "SlayerAmmo"
-	Weapon.AmmoUse 1
+	Weapon.AmmoUse 0
 	Weapon.AmmoGive 4
 	Weapon.SlotNumber 3
 	Weapon.SelectionOrder 666
@@ -1036,6 +1040,10 @@ ACTOR Slayer : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SLAYER, 0), "FireConfirmed")
+			IREG BBBCCCDDDEEEFFFGGG 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		FireConfirmed:
 			IREG H 2 Bright Offset(0, 32)
 			TNT1 A 0 A_GunFlash
 			IREG H 2 Bright Offset(0, 35) A_PlayWeaponSound("weapons/slayerfire")
@@ -1266,7 +1274,7 @@ Actor TheAxe : Weapon {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ReadyAmmo")
 			TNT1 A 0 A_JumpIfInventory("AxeMana", 1, "ReadyAmmo")
 		ReadyNoAmmo:
-			FAXE A 1 A_WeaponReady
+			FAXE A 1 A_WeaponReady(WRF_NOSECONDARY)
 		Goto Ready
 		ReadyAmmo:
 			FAXE FGH 3 Bright A_WeaponReady
@@ -1321,8 +1329,8 @@ Actor TheAxe : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireMana")
-			TNT1 A 0 A_JumpIfInventory("AxeMana", 1, "FireMana")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 0), "FireMana")
+			FAXE A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto FireNoMana
 		FireMana:
 			FAXE N 4 Bright Offset(15, 32) A_PlayWeaponSound("Axe/Miss")
@@ -1332,12 +1340,16 @@ Actor TheAxe : Weapon {
 			FAXE P 2 Bright Offset(-25, 90)
 			FAXE Q 1 Bright Offset(15, 32)
 			FAXE Q 2 Bright Offset(10, 54)
-			FAXE Q 7 Bright Offset(10, 150)
-			FAXE G 1 Bright Offset(0, 60) A_ReFire
-			FAXE G 1 Bright Offset(0, 52)
-			FAXE G 1 Bright Offset(0, 44)
-			FAXE H 1 Bright Offset(0, 36)
-			FAXE H 1 Bright
+			FAXE Q 6 Bright Offset(10, 150)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 0), "RiseUpMana")
+		Goto RiseUpNoMana
+		RiseUpMana:
+			FAXE Q 1 Bright Offset(10, 150)
+			FAXE G 1 Bright Offset(-1, 60) A_ReFire("FireMana")
+			FAXE G 1 Bright Offset(-1, 52)
+			FAXE G 1 Bright Offset(-1, 44)
+			FAXE H 1 Bright Offset(-1, 36)
+			FAXE H 1 Bright Offset(-1, 32)
 		Goto Ready
 		FireNoMana:
 			FAXE B 4 Offset(15, 32) A_PlayWeaponSound("Axe/Miss")
@@ -1347,41 +1359,52 @@ Actor TheAxe : Weapon {
 			FAXE D 2 Offset(-25, 90)
 			FAXE E 1 Offset(15, 32)
 			FAXE E 2 Offset(10, 54)
-			FAXE E 7 Offset(10, 150)
-			FAXE A 1 Offset(0, 60) A_ReFire
-			FAXE A 1 Offset(0, 52)
-			FAXE A 1 Offset(0, 44)
-			FAXE A 1 Offset(0, 36)
-			FAXE A 1
+			FAXE E 6 Offset(10, 150)
+		RiseUpNoMana:
+			FAXE E 1 Offset(10, 150)
+			FAXE A 1 Offset(-1, 60) A_ReFire("FireNoMana")
+			FAXE A 1 Offset(-1, 52)
+			FAXE A 1 Offset(-1, 44)
+			FAXE A 1 Offset(-1, 36)
+			FAXE A 1 Offset(-1, 32)
 		Goto Ready
 		
 		
 		AltFire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ThrowAxe")
-			TNT1 A 0 A_JumpIfInventory("AxeMana", 3, "ThrowAxe")
-			TNT1 A 0 A_JumpIfInventory("AxeMana", 1, "NoThrowMana")
-			FAXE A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 1, 0, DND_CFW_ALTFIRECHECK), "ThrowAxe")
+			FAXE FGH 3 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ThrowAxe:
-			TNT1 A 0 A_JumpIFInventory("Ability_Kick", 1, "ContinueThrow")
-		Goto NoThrowMana
-		ContinueThrow:
-			FAXE N 4 Offset(15, 32) A_PlayWeaponSound("Axe/Throw")
-			FAXE O 3 Offset(15, 32)
-			FAXE P 2 Offset(15, 32)
-			FAXE P 1 Offset(-5, 70) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_AXE, DND_ATK_SECONDARY, 0)
-			FAXE P 2 Offset(-25, 90)
-			FAXE Q 1 Offset(15, 32)
-			FAXE Q 2 Offset(10, 54)
-			FAXE Q 7 Offset(10, 150)
-			FAXE A 1 Offset(0, 60) A_ReFire
-			FAXE A 1 Offset(0, 52)
-			FAXE A 1 Offset(0, 44)
-			FAXE A 1 Offset(0, 36)
-			FAXE A 1
+			FAXE N 4 Bright Offset(15, 32) A_PlayWeaponSound("Axe/Throw")
+			FAXE O 3 Bright Offset(15, 32)
+			FAXE P 2 Bright Offset(15, 32)
+			FAXE P 1 Bright Offset(-5, 70) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_AXE, DND_ATK_SECONDARY, 0)
+			FAXE P 2 Bright Offset(-25, 90)
+			FAXE Q 1 Bright Offset(15, 32)
+			FAXE Q 2 Bright Offset(10, 54)
+			FAXE Q 5 Bright Offset(10, 150)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 0), "RiseUpManaAlt")
+		Goto RiseUpNoMana
+		RiseUpManaAlt:
+			FAXE Q 1 Bright Offset(10, 150)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 1), "ThrowAxeRise")
+			FAXE Q 1 Bright Offset(10, 150)
+		Goto NoThrowManaRise
+		ThrowAxeRise:
+			FAXE Q 1 Bright Offset(10, 150)
+			FAXE G 1 Bright Offset(-1, 60) A_ReFire("ThrowAxe")
+			FAXE G 1 Bright Offset(-1, 52)
+			FAXE G 1 Bright Offset(-1, 44)
+			FAXE H 1 Bright Offset(-1, 36)
+			FAXE H 1 Bright	Offset(-1, 32)
 		Goto Ready
-		NoThrowMana:
-			FAXE FGH 3 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		NoThrowManaRise:
+			FAXE Q 1 Bright Offset(10, 150)
+			FAXE G 1 Bright Offset(-1, 60)
+			FAXE G 1 Bright Offset(-1, 52)
+			FAXE G 1 Bright Offset(-1, 44)
+			FAXE H 1 Bright Offset(-1, 36)
+			FAXE H 1 Bright	Offset(-1, 32)
 		Goto Ready
 	}
 }

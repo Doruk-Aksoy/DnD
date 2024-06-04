@@ -189,6 +189,7 @@ enum {
 
 enum {
 	DND_CFW_ALTFIRECHECK = 1,
+	DND_CFW_HOLDFIREORRELOADCHECK = 2
 };
 
 Actor DnD_RemoveLockOn : PowerDamage {

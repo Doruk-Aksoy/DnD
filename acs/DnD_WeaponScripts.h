@@ -17,7 +17,7 @@ Script "DnD Pellet Count" (int base, int flags) {
 // 0 is ammo1, 1 is ammo2
 // returns 1 if it can fire
 Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flags) {
-	bool res = false;
+	bool res = true;
 	int pnum = PlayerNumber();
 
 	if(!CheckInventory("ArtemisCheck")) {
@@ -34,14 +34,65 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 
 			// modify this to allow reload checking?
 			case DND_WEAPON_SHOTGUN:
-				toGive = "ShellSize_8N";
-				toTake = GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME);
-				base = GetAmmoCapacity("ShellSize_8N");
+				ammo = "ShellSize_8N";
+				if(ammo_which) {
+					// early cancel as this part doesnt necessarily need to check for anything beyond, we already consume more when we shoot
+					SetResultValue(CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo));
+					Terminate;
+				}
+			break;
+			case DND_WEAPON_PURIFIER:
+				ammo = "ShellSize_8";
+				if(ammo_which) {
+					// early cancel as this part doesnt necessarily need to check for anything beyond, we already consume more when we shoot
+					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo);
+					if(flags & DND_CFW_HOLDFIREORRELOADCHECK) {
+						amt = GetPlayerInput(-1, INPUT_BUTTONS);
+						res &= (!CheckInventory(ammo) && (amt & BT_ATTACK)) || (amt & BT_RELOAD);
+					}
+
+					SetResultValue(res);
+					Terminate;
+				}
+			break;
+			case DND_WEAPON_DEADLOCK:
+				ammo = "ShellSize_12";
+				if(ammo_which) {
+					// early cancel as this part doesnt necessarily need to check for anything beyond, we already consume more when we shoot
+					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo);
+					SetResultValue(res);
+					Terminate;
+				}
+			break;
+			case DND_WEAPON_SHOCKER:
+				if(!ammo_which) {
+					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || CheckInventory("ShockerOverheat") <= 80;
+				}
+				else
+					res &= CheckInventory("ShockerOverheat") >= 10;
+			break;
+			case DND_WEAPON_HADES:
+				if(ammo_which == 1)
+					ammo = "Shellsize_16";
+				else if(ammo_which == 2) {
+					ammo = "Shellsize_16";
+					res &= !CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstCooldown");
+				}
+			break;
+
+			case DND_WEAPON_DESOLATOR:
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || !CheckInventory("DesolatorCooldown");
+			break;
+
+			case DND_WEAPON_MPPB:
+				if(ammo_which)
+					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 			break;
 
 			default:
 				if(ammo_which) {
-					ammo = Weapons_Data[wepid].ammo_name2;
+					if(Weapons_Data[wepid].ammo_name2 != "")
+						ammo = Weapons_Data[wepid].ammo_name2;
 					amt = Weapons_Data[wepid].ammo_use2;
 				}
 			break;
@@ -55,12 +106,8 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 			amt *= base_mult;
 		
 		if(ammo != "")
-			res = CheckInventory(ammo) >= amt;
-		else
-			res = true;
+			res &= CheckInventory(ammo) >= amt;
 	}
-	else
-		res = true;
 
 	if(flags & DND_CFW_ALTFIRECHECK) {
 		if(IsMeleeWeapon(wepid))
@@ -107,6 +154,55 @@ Script "DnD Handle Reload" (int wepid, int extra, int flags) {
 			toTake = "Clip";
 			toGive = "MGClip5";
 			base = GetAmmoCapacity("MGClip5");
+		break;
+
+		case DND_WEAPON_KILLSTORM:
+			toTake = "Shell";
+			toGive = "ShellSize_10";
+			base = GetAmmoCapacity("ShellSize_10");
+		break;
+
+		case DND_WEAPON_ERASUS:
+			toTake = "Shell";
+			toGive = "ShellSize_2";
+			base = GetAmmoCapacity("ShellSize_2");
+		break;
+		case DND_WEAPON_PLASMACANNON:
+			toTake = "PCanAmmo";
+			toGive = "PCanClip";
+			base = GetAmmoCapacity("PCanClip");
+		break;
+		case DND_WEAPON_HADES:
+			toTake = "HadesAmmo";
+			toGive = "Shellsize_16";
+			base = GetAmmoCapacity("Shellsize_16");
+		break;
+
+		case DND_WEAPON_MACHINEGUN:
+			toTake = "Clip";
+			toGive = "MGClip";
+			base = GetAmmoCapacity("MGClip");
+		break;
+		case DND_WEAPON_HEAVYMACHINEGUN:
+			toTake = "Clip";
+			toGive = "MGClip2";
+			base = GetAmmoCapacity("MGClip2");
+		break;
+		case DND_WEAPON_LEADSPITTER:
+			toTake = "Clip";
+			toGive = "MGClip3";
+			base = GetAmmoCapacity("MGClip3");
+		break;
+		case DND_WEAPON_TEMPLARMG:
+			toTake = "Clip";
+			toGive = "MGClip4";
+			base = GetAmmoCapacity("MGClip4");
+		break;
+
+		case DND_WEAPON_VINDICATOR:
+			toTake = "FlakShell";
+			toGive = "ShellSize_18";
+			base = GetAmmoCapacity("ShellSize_18");
 		break;
 	}
 
