@@ -707,8 +707,7 @@ Actor "Grenade Launcher" : RocketLauncher {
       Loop
    Fire:
 	  TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_5X", AMMO_40MMSONIC, "ContinueFire")
-	  TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueFire")
-	  TNT1 A 0 A_JumpIfInventory("Grenades", 1, "ContinueFire")
+	  TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_GRENADELAUNCHER, 0), "ContinueFire")
 	  NGLN A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
    Goto Ready
    ContinueFire:
@@ -790,26 +789,30 @@ Actor "Upgraded Grenade Launcher" : RocketLauncher
       RTGL A 1 A_Raise
 	  TNT1 A 0 A_Raise
       Loop
-   Fire:
-      RTGL BC 1 Bright A_GunFlash
-	  TNT1 A 0 A_PlayWeaponSound("weapons/glauncherfiren")
-	  TNT1 A 0 Radius_Quake(4,3,0,1,0)
-      RTGL D 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ROTARYGRENADELAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_GRENADE << 16), 0)
-	  RTGL EF 1 Bright
-	  TNT1 A 0 A_CheckReload
-	  RTGL G 1
-	  TNT1 A 0 A_PlaySound("weapons/glauncherload")
-      RTGL GHH 1
-	  RTGL IJ 5
-	  RTGL K 2
-      RTGL A 5 A_Refire
-      Goto Ready
-   Flash:
-      TNT1 A 3 A_Light1
-      TNT1 A 4 A_Light2
-      TNT1 A 3 A_Light1
-      TNT1 A 2 A_Light0
-      stop
+		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ROTARYGRENADELAUNCHER, 0), "FireConfirmed")
+			RTGL A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		FireConfirmed:
+			RTGL BC 1 Bright A_GunFlash
+			TNT1 A 0 A_PlayWeaponSound("weapons/glauncherfiren")
+			TNT1 A 0 Radius_Quake(4,3,0,1,0)
+			RTGL D 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ROTARYGRENADELAUNCHER, DND_ATK_PRIMARY, DND_AMMOSLOT_ROCKET | (AMMO_GRENADE << 16), 0)
+			RTGL EF 1 Bright
+			TNT1 A 0 A_CheckReload
+			RTGL G 1
+			TNT1 A 0 A_PlaySound("weapons/glauncherload")
+			RTGL GHH 1
+			RTGL IJ 5
+			RTGL K 2
+			RTGL A 5 A_Refire
+		Goto Ready
+		Flash:
+			TNT1 A 3 A_Light1
+			TNT1 A 4 A_Light2
+			TNT1 A 3 A_Light1
+			TNT1 A 2 A_Light0
+		stop
    }
 }
 
@@ -961,6 +964,10 @@ ACTOR "Heavy Missile Launcher" : Weapon
 	  TNT1 A 0 A_Raise
       Loop
    Fire:
+   		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HEAVYMISSILELAUNCHER, 0), "FireConfirmed")
+		MLNG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+	  Goto Ready
+   FireConfirmed:
       MLNG A 4
       MLNG D 0 Bright A_GunFlash
       MLNG D 4 Bright
@@ -972,6 +979,10 @@ ACTOR "Heavy Missile Launcher" : Weapon
       MLNG A 2 A_Refire  
       Goto Ready
    AltFire:
+		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HEAVYMISSILELAUNCHER, 0), "AltFireConfirmed")
+		MLNG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+	  Goto Ready
+   AltFireConfirmed:
       MLNG A 4
       MLNG D 0 Bright A_GunFlash
       MLNG D 4 Bright
@@ -1066,8 +1077,8 @@ ACTOR "Sedrin Staff" : Weapon {
 	Weapon.AmmoType "SedrinAmmo"
 	Weapon.AmmoType2 "SedrinAmmo"
 	Weapon.AmmoGive 5
-	Weapon.AmmoUse1 1
-	Weapon.AmmoUse2 1
+	Weapon.AmmoUse1 0
+	Weapon.AmmoUse2 0
 	Weapon.Slotnumber 5
 	Weapon.SelectionOrder 1000
 	+INVENTORY.UNDROPPABLE
@@ -1122,8 +1133,10 @@ ACTOR "Sedrin Staff" : Weapon {
 		Goto Ready
 
 		Fire:
-			TNT1 A 0 A_JumpIfInventory ("SedrinAmmo", 1, 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SEDRINSTAFF, 0), "FireConfirmed")
+			ARO2 AABBCCDDEEFF 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Dryfire
+		FireConfirmed:
 			AROK RSD 1
 			AROK EFG 2
 			TNT1 A 0 A_GunFlash ("Flash")
@@ -1150,6 +1163,10 @@ ACTOR "Sedrin Staff" : Weapon {
 		Goto Ready
 		
 		AltFire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SEDRINSTAFF, 0), "AltFireConfirmed")
+			ARO2 AABBCCDDEEFF 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Dryfire
+		AltFireConfirmed:
 			AROK RSD 1
 			AROK EFG 2
 			TNT1 A 0 A_GunFlash ("Flash")
@@ -1441,13 +1458,11 @@ Actor TheHammer : Weapon {
 			FHMR B 1 Bright A_Raise
 			TNT1 A 0 A_Raise
 		Loop
-		NoAmmo:
+		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HAMMER, 0), "FireConfirmed")
 			FHMR HH 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ReadyNoAmmo
-		Fire:
-			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "ContinueFire")
-		Goto NoAmmo
-		ContinueFire:
+		FireConfirmed:
 			FHMR D 1 Bright Offset(1, 32) ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", 1, 2)
 			FHMR D 1 Bright Offset(4, 27)
 			FHMR D 1 Bright Offset(9, 20)

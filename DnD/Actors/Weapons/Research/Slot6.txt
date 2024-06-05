@@ -42,10 +42,10 @@ Actor ResPlasma1 : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireContinue")
-			TNT1 A 0 A_JumpIfInventory("FuelClip", 1, "FireContinue")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FLAMETHROWER, 1), "FireConfirmed")
+			RW05 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
-		FireContinue:
+		FireConfirmed:
 			RW05 B 1 Bright A_AlertMonsters
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FLAMETHROWER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_FUELCLIP), 0)
 			RW05 B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FLAMETHROWER, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_FUELCLIP), DND_ATF_NOAMMOTAKE)
@@ -59,8 +59,8 @@ Actor ResPlasma1 : Weapon {
 			RW05 A 2	
 		Goto Ready
 		Reload:
-			TNT1 A 0 A_JumpIfInventory("Fuel", 1, "ContinueReload")
-			RW05 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FLAMETHROWER, 0), "ContinueReload")
+			RW05 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
 			TNT1 A 0 A_JumpIfInventory("FuelClip", 0, "Failed")
@@ -71,15 +71,7 @@ Actor ResPlasma1 : Weapon {
 			TNT1 A 0 A_FireCustomMissile("FlameThrowerFuelTankDrop", frandom(-12.0, 12.0), 0, 0, 0)
 			RW05 LMNO 3
 			RW05 P 18
-		ReloadLoop:
-			TNT1 A 0 A_JumpIfInventory("FuelClip", 0, "ReloadFinish")
-			TNT1 A 0 A_JumpIfInventory("Fuel", 1, "ReloadGive")
-		Goto ReloadFinish
-		ReloadGive:
-			TNT1 A 0 A_TakeInventory("Fuel", 1)
-			TNT1 A 0 A_GiveInventory("FuelClip", 1)
-		Goto ReloadLoop
-		ReloadFinish:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_FLAMETHROWER)
 			TNT1 A 0 A_PlayWeaponSound("FlameThrower/In")
 			RW05 Q 4
 			RW05 RSTU 4
@@ -97,15 +89,7 @@ Actor ResPlasma1 : Weapon {
 			RW05 LM 1
 			RW05 NO 2
 			RW05 P 9
-		ReloadLoopFast:
-			TNT1 A 0 A_JumpIfInventory("FuelClip", 0, "ReloadFinishFast")
-			TNT1 A 0 A_JumpIfInventory("Fuel", 1, "ReloadGiveFast")
-		Goto ReloadFinishFast
-		ReloadGiveFast:
-			TNT1 A 0 A_TakeInventory("Fuel", 1)
-			TNT1 A 0 A_GiveInventory("FuelClip", 1)
-		Goto ReloadLoopFast
-		ReloadFinishFast:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_FLAMETHROWER)
 			TNT1 A 0 A_PlayWeaponSound("FlameThrower/In")
 			RW05 Q 2
 			RW05 RSTU 2
@@ -371,7 +355,7 @@ Actor ResPlasma2 : Weapon {
 	Weapon.AmmoType1 "LightningCell"
 	Weapon.AmmoType2 "LightningStacks"
 	Weapon.AmmoUse2 0
-	Weapon.AmmoUse1 1
+	Weapon.AmmoUse1 0
 	Weapon.AmmoGive1 60
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
@@ -411,6 +395,10 @@ Actor ResPlasma2 : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_LIGHTNINGGUN, 0), "FireConfirmed")
+			LGNI AABBCC 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		FireConfirmed:
 			TNT1 A 0 A_PlaySound("LightningGun/Fire", CHAN_WEAPON, 1, 1)
 			TNT1 A 0 A_PlaySound("LightningGun/Loop", 7, 0.5, 1)
 		HoldPt1:
@@ -418,6 +406,10 @@ Actor ResPlasma2 : Weapon {
 			LGNF A 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), 0)
 			LGNF B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), DND_ATF_NOAMMOTAKE)
 			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_LIGHTNINGGUN, 0), "HoldCheck2")
+			LGNF A 2
+		Goto EndHold
+		HoldCheck2:
 			LGNF A 2 A_ReFire("HoldPt2")		//it has 2 stages of fire, to be able to do the "quick tap"
 		Goto EndHold
 		HoldPt2:
@@ -425,6 +417,10 @@ Actor ResPlasma2 : Weapon {
 			LGNF C 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), 0)
 			LGNF A 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), DND_ATF_NOAMMOTAKE)
 			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_LIGHTNINGGUN, 0), "HoldCheck3")
+			LGNF B 2
+		Goto EndHold
+		HoldCheck3:
 			LGNI B 2 A_ReFire("HoldPt3")
 		Goto EndHold
 		HoldPt3:
@@ -432,6 +428,10 @@ Actor ResPlasma2 : Weapon {
 			LGNF B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), 0)
 			LGNF C 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_LIGHTNINGGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_LIGHTNING << 16), DND_ATF_NOAMMOTAKE)
 			TNT1 A 0 A_GiveInventory("LightningStacks", 1)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_LIGHTNINGGUN, 0), "HoldCheck4")
+			LGNF C 2
+		Goto EndHold
+		HoldCheck4:
 			LGNI C 2 A_ReFire("HoldPt1")
 		Goto EndHold
 		EndHold:
@@ -441,8 +441,7 @@ Actor ResPlasma2 : Weapon {
 			LGNI A 1 A_PlaySound("LightningGun/FireEnd", CHAN_WEAPON)
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAlt")
-			TNT1 A 0 A_JumpIfInventory("LightningCell", 3, "ContinueAlt")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_LIGHTNINGGUN, 0, 3), "ContinueAlt")
 			TNT1 A 0 A_TakeInventory("LightningStacks", 5)
 			LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSECONDARY)
 		Goto Ready
@@ -451,9 +450,8 @@ Actor ResPlasma2 : Weapon {
 			LGNG B 3
 		Goto AlternateHold
 		AlternateHold:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueHold")
-			TNT1 A 0 A_JumpIfInventory("LightningCell", 3, "ContinueHold")
-			LGNG B 1
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_LIGHTNINGGUN, 0, 3), "ContinueHold")
+			LGNG B 2
 		Goto AltEndHold
 		ContinueHold:
 			TNT1 A 0 A_GunFlash			
@@ -624,7 +622,7 @@ Actor ResPlasma3 : Weapon {
 	Weapon.AmmoGive 0
 	Weapon.AmmoType1 "Cell"
 	Weapon.AmmoType2 "RebounderOverheat"
-	Weapon.AmmoUse1 1
+	Weapon.AmmoUse1 0
 	Weapon.AmmoUse2 0
 	Tag "$WEP_6_6_TAG"
 	+WEAPON.NOAUTOAIM
@@ -659,10 +657,10 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "FireContinue")
-			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 98, "Nothing")
-		FireContinue:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_REBOUNDER, 0), "FireConfirmed")
+			DGAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		FireConfirmed:
 			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
 			DGAF A 1 Bright
 			TNT1 A 0 A_PlayWeaponSound("Rebounder/Fire")
@@ -673,15 +671,10 @@ Actor ResPlasma3 : Weapon {
 			DGAF BCDEFG 1
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Quest Check", QUEST_KILLGODSLAYER), "AltFireAmmoCheck")
-			TNT1 A 0 A_JumpIfInventory("RebounderCooldown", 1, "Nothing")
-			TNT1 A 0 A_JumpIfInventory("RebounderOverheat", 83, "Nothing")
-		AltFireAmmoCheck:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "AltFireCont")
-			TNT1 A 0 A_JumpIfInventory("Cell", 20, "AltFireCont")
-			DGAG A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_REBOUNDER, 1), "AltFireConfirmed")
+			DGAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
-		AltFireCont:
+		AltFireConfirmed:
 			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
 			DGXF A 2 Bright
 			TNT1 A 0 A_PlayWeaponSound("Rebounder/AltFire")
@@ -979,7 +972,7 @@ Actor "ResPlasma4" : Weapon {
 	Weapon.AmmoType1 "DemonBlood"
 	Weapon.AmmoType2 "LanceStacks"
 	Weapon.AmmoUse2 0
-	Weapon.AmmoUse1 1
+	Weapon.AmmoUse1 0
 	Weapon.AmmoGive1 10
 	+INVENTORY.UNDROPPABLE
 	Tag "$WEP_6_7_TAG"
@@ -1033,6 +1026,16 @@ Actor "ResPlasma4" : Weapon {
 		Loop
 		
 		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DARKLANCE, 0), "FireConfirmed")
+			RW10 W 0 A_JumpIfInventory("LanceStacks", lance_lvl_4, "NoFiring")
+			RW10 V 0 A_JumpIfInventory("LanceStacks", lance_lvl_3, "NoFiring")
+			RW10 U 0 A_JumpIfInventory("LanceStacks", lance_lvl_2, "NoFiring")
+			RW10 T 0 A_JumpIfInventory("LanceStacks", lance_lvl_1, "NoFiring")
+			RW10 A 0
+		NoFiring:
+			"####" "#" 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		FireConfirmed:
 			TNT1 A 0 A_PlayWeaponSound("Darklance/Charge")
 			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_4, "Level4")
 			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_3, "Level3")

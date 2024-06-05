@@ -267,13 +267,21 @@ actor ResMG2 : Weapon {
 		
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("RiotGunFireMode", 1, "Fire2")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide")
-			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "FireDecide")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Ready2b")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Ready2b")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 1, 0, DND_CFW_DONTCHECKEQUALITY), "FireConfirmed")
+			RIOT A 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
-		FireDecide:
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Fire")
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Fire")
-		Goto FireCont
+		Nitro_Ready2b:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 1, 0, DND_CFW_DONTCHECKEQUALITY), "Nitro_Fire")
+			RIO2 A 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload
+		Explo_Ready2b:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 1, 0, DND_CFW_DONTCHECKEQUALITY), "Explo_Fire")
+			RIO3 A 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload
+		
+		FireConfirmed:
 		FireCont:
 			RIOT B 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			RIOT B 0 A_AlertMonsters
@@ -343,24 +351,34 @@ actor ResMG2 : Weapon {
 		
 		
 		Finish:
-			RIOT A 2 A_Refire("FireCont")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 2, 0, DND_CFW_DONTCHECKEQUALITY), "FireCont")
+			RIOT A 2
 		Goto Ready
 		Finish_Nitro:
-			RIO2 A 2 A_Refire("Nitro_Fire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 2, 0, DND_CFW_DONTCHECKEQUALITY), "Nitro_Fire")
+			RIO2 A 2
 		Goto Ready
 		Finish_Explo:
-			RIO3 A 2 A_Refire("Explo_Fire")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 2, 0, DND_CFW_DONTCHECKEQUALITY), "Explo_Fire")
+			RIO3 A 2
 		Goto Ready
 		
 
 		Fire2:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide2")
-			TNT1 A 0 A_JumpIfInventory("RiotgunClip", 1, "FireDecide2")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Ready3")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Ready3")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 1, 0, DND_CFW_DONTCHECKEQUALITY), "FireConfirmed2")
+			RIOT G 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload2
-		FireDecide2:
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Fire2")
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Fire2")
-		Goto FireCont2
+		Nitro_Ready3:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 1, 0, DND_CFW_DONTCHECKEQUALITY), "Nitro_Fire2")
+			RIO2 F 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload2
+		Explo_Ready3:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 1, 0, DND_CFW_DONTCHECKEQUALITY), "Explo_Fire2")
+			RIO3 F 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload2
+		FireConfirmed2:
 		FireCont2:
 			RIOT H 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_RIOTCANNON, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_RIOTGUNCLIP << 16), DND_ATF_CANFIRECIRCLE)
 			TNT1 A 0 A_AlertMonsters
@@ -391,13 +409,16 @@ actor ResMG2 : Weapon {
 		
 		
 		Cont2:
-			RIOT G 1 A_Refire("FireCont2")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 2, 0, DND_CFW_DONTCHECKEQUALITY), "FireCont2")
+			RIOT G 1
 		Goto Ready
 		Cont2_Nitro:
-			RIO2 F 1 A_Refire("Nitro_Fire2")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 2, 0, DND_CFW_DONTCHECKEQUALITY), "Nitro_Fire2")
+			RIO2 F 1
 		Goto Ready
 		Cont2_Explo:
-			RIO3 F 1 A_Refire("Explo_Fire2")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 2, 0, DND_CFW_DONTCHECKEQUALITY), "Explo_Fire2")
+			RIO3 F 1
 		Goto Ready
 		
 		
@@ -407,15 +428,15 @@ actor ResMG2 : Weapon {
 			// put frame names here
 			RIO3 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Reload")
 			RIO2 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Reload")
-			RIOT A 0
+			RIOT A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 0), "ContinueReload")
 		Goto ContinueReload
 		Nitro_Reload:
-			RIO2 A 0 A_JumpIfInventory("NitroShell", 1, "ContinueReload_Nitro")
-			RIO2 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			RIO2 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 4), "ContinueReload_Nitro")
+			RIO2 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ModeSwitch
 		Explo_Reload:
-			RIO3 A 0 A_JumpIfInventory("ExplodingShell", 1, "ContinueReload_Explo")
-			RIO3 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			RIO3 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 3), "ContinueReload_Explo")
+			RIO3 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ModeSwitch
 		
 		
@@ -435,7 +456,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster1")
 			RIOT A 16 offset (0, 71)
 		ContinueRest1:
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 4, 1, AMMO_RIOTSHELL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 0, DND_RWF_NOTAKEAMMO)
 			RIOT A 1 offset(0, 62)
 			RIOT A 1 offset(0, 44)
 			RIOT A 1 offset(0, 35)
@@ -463,7 +484,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster2")
 			RIO2 A 16 offset (0, 71)
 		ContinueRest2:
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 4, 1, AMMO_NITROGENSHELL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 2, DND_RWF_NOTAKEAMMO)
 			RIO2 A 1 offset(0, 62)
 			RIO2 A 1 offset(0, 44)
 			RIO2 A 1 offset(0, 35)
@@ -491,7 +512,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster3")
 			RIO3 A 16 offset (0, 71)
 		ContinueRest3:
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 4, 1, AMMO_EXPLOSIVESHELL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 1, DND_RWF_NOTAKEAMMO)
 			RIO3 A 1 offset(0, 62)
 			RIO3 A 1 offset(0, 44)
 			RIO3 A 1 offset(0, 35)
@@ -507,7 +528,7 @@ actor ResMG2 : Weapon {
 		Reload2:
 			RIO3 F 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Reload2")
 			RIO2 F 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Reload2")
-			RIOT G 0
+			RIOT G 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 0), "ContinueReload2")
 		Goto ContinueReload2
 		ContinueReload2:
 			"####" "#" 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -525,7 +546,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFasterAlt1")
 			RIOT G 16 offset(1, 71)
 		ContinueRestAlt1:
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 4, 1, AMMO_RIOTSHELL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 0, DND_RWF_NOTAKEAMMO)
 			RIOT G 1 offset(1, 62)
 			RIOT G 1 offset(1, 44)
 			RIOT G 1 offset(1, 35)
@@ -538,7 +559,7 @@ actor ResMG2 : Weapon {
 		Goto ContinueRestAlt1
 		// ------------------------------
 		Nitro_Reload2:
-			RIO2 F 0 A_JumpIfInventory("NitroShell", 1, "Nitro_ContinueReload2")
+			RIO2 F 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 4), "Nitro_ContinueReload2")
 		Goto Nitro_Failed2
 		Nitro_ContinueReload2:
 			"####" "#" 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -556,7 +577,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFasterAlt2")
 			RIO2 F 16 offset(1, 71)
 		ContinueRestAlt2:
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 4, 1, AMMO_NITROGENSHELL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 2, DND_RWF_NOTAKEAMMO)
 			RIO2 F 1 offset(1, 62)
 			RIO2 F 1 offset(1, 44)
 			RIO2 F 1 offset(1, 35)
@@ -569,7 +590,7 @@ actor ResMG2 : Weapon {
 		Goto ContinueRestAlt2
 		// ------------------------------
 		Explo_Reload2:
-			RIO3 F 0 A_JumpIfInventory("ExplodingShell", 1, "Explo_ContinueReload2")
+			RIO3 F 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RIOTCANNON, 3), "Explo_ContinueReload2")
 		Goto Explo_Failed2
 		Explo_ContinueReload2:
 			"####" "#" 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -587,7 +608,7 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFasterAlt3")
 			RIO3 F 16 offset(1, 71)
 		ContinueRestAlt3:
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 4, 1, AMMO_EXPLOSIVESHELL)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 1, DND_RWF_NOTAKEAMMO)
 			RIO3 F 1 offset(1, 62)
 			RIO3 F 1 offset(1, 44)
 			RIO3 F 1 offset(1, 35)
@@ -1065,10 +1086,10 @@ Actor ResMG3 : Chaingun {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide")
-			TNT1 A 0 A_JumpIfInventory("AcidClip", 1, "FireDecide")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ACIDRIFLE, 0), "FireConfirmed")
+			RIF1 ABC 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
-		FireDecide:
+		FireConfirmed:
 			TNT1 A 0 A_JumpIfInventory("AcidAnim", 2, "Fire3")
 			TNT1 A 0 A_JumpIfInventory("AcidAnim", 1, "Fire2")
 		Fire1:
@@ -1113,11 +1134,11 @@ Actor ResMG3 : Chaingun {
 			RIF1 C 2 A_Refire("Fire")
 		Goto Ready
 		Reload:
-			TNT1 A 0 A_JumpIfInventory("AcidAmmo", 1, "ContinueReload")
-			RIF1 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("AcidClip", 0, "Failed")TNT1 A 0 A_JumpIfInventory("AcidClip", 0, "Failed")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ACIDRIFLE, 2), "ContinueReload")
+			RIF1 ABC 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
-			TNT1 A 0 A_JumpIfInventory("AcidClip", 0, "Failed")
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
 			RIF1 B 2
 			TNT1 A 0 A_PlayWeaponSound("AcidRifle/Out")
@@ -1136,7 +1157,7 @@ Actor ResMG3 : Chaingun {
 			RIF1 BC 2
 		Goto Ready
 		Failed:
-			RIF1 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			RIF1 ABC 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ReloadFaster:
 			RIF1 B 1
@@ -1162,11 +1183,9 @@ Actor ResMG3 : Chaingun {
 		  stop
 		  
 		Altfire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAltFire")
-			TNT1 A 0 A_JumpIfInventory("AcidClip", 8, "ContinueAltfire")
-			TNT1 A 0 A_JumpIfInventory("AcidAmmo", 1, "Reload")
-			RIF1 A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
-		Goto Ready
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ACIDRIFLE, 1), "ContinueAltFire")
+			RIF1 ABC 2 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+		Goto Reload
 		ContinueAltFire:
 			RIF2 D 3 A_PlayWeaponSound("AcidRifle/BoltFire")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ACIDRIFLE, DND_ATK_SECONDARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_MAGAZINE | (DND_MAGAZINE_ACIDCLIP << 16), 0)
@@ -1270,7 +1289,7 @@ Actor AcidRiflePoisonCloud : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 96)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_flags", DND_DAMAGEFLAG_INFLICTPOISON | DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_INFLICTPOISON | DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			TNT1 A 0 A_SpawnItemEx("AcidRifleCloudFX")
 			TNT1 A 0 A_SetArg(0, 39)
 		ExplosionLoop:
@@ -1421,10 +1440,10 @@ Actor ResMG4 : Weapon {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("FusionAttackCounter", 0, "FireEnd")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "FireDecide")
-			TNT1 A 0 A_JumpIfInventory("MGClip6", 1, "FireDecide")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FUSIONBLASTER, 0), "FireConfirmed")
+			FUSF B 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
-		FireDecide:
+		FireConfirmed:
 			TNT1 A 0 A_TakeInventory("FusionWeaponHeight", 0)
 			TNT1 A 0 A_Jump(256, "Fire1", "Fire2", "Fire3", "Fire4", "Fire5", "Fire6")
 		Fire1:
@@ -1519,11 +1538,11 @@ Actor ResMG4 : Weapon {
 		Goto Ready
 		
 		Reload:
-			TNT1 A 0 A_JumpIfInventory("FusionCell", 1, "ContinueReload")
-			FUSF B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("MGClip6", 0, "Failed")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FUSIONBLASTER, 2), "ContinueReload")
+			FUSF B 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
-			TNT1 A 0 A_JumpIfInventory("MGClip6", 0, "Failed")
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
 			FUSG A 4
 			FUSG B 3
@@ -1535,7 +1554,7 @@ Actor ResMG4 : Weapon {
 			FUSG F 2 Offset(1, 30)
 			TNT1 A 0 A_PlayWeaponSound("FusionBlaster/In")
 			FUSG F 3 Offset(3, 27)
-			TNT1 A 0 ACS_ExecuteAlways(998, 0, 6)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_FUSIONBLASTER)
 			FUSG ED 3
 			FUSG C 2
 			FUSG BA 1
@@ -1569,11 +1588,9 @@ Actor ResMG4 : Weapon {
 		stop
 		
 		Altfire:
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueAlt")
-			TNT1 A 0 A_JumpIfInventory("MGClip6", 20, "ContinueAlt")
-			TNT1 A 0 A_JumpIfInventory("FusionCell", 1, "Reload")
-			FUSF B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FUSIONBLASTER, 1), "ContinueAlt")
+			FUSF B 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Reload
 		ContinueAlt:
 			FUSG B 3
 			FUSG B 0 A_AlertMonsters
@@ -1843,6 +1860,10 @@ ACTOR ResMG5 : Weapon {
 		Loop
 
 		Fire:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_INCINERATOR, 0), "FireConfirmed")
+			COLT A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto Ready
+		FireConfirmed:
 			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 0, "Reload")
 			RW09 B 1 Bright A_SetPitch (pitch - 1.6)
 			RW09 B 1 Bright A_SetPitch (pitch - 1.1)

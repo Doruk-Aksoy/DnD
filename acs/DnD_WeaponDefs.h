@@ -14,7 +14,12 @@ int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 enum {
 	DND_CFW_ALTFIRECHECK = 1,
-	DND_CFW_HOLDFIREORRELOADCHECK = 2
+	DND_CFW_HOLDFIREORRELOADCHECK = 2,
+	DND_CFW_DONTCHECKEQUALITY = 4
+};
+
+enum {
+	DND_RWF_NOTAKEAMMO = 1,
 };
 
 // Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
@@ -750,7 +755,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RIOTCANNON].ammo_name2 = "RiotgunClip";
 	Weapons_Data[DND_WEAPON_RIOTCANNON].icon = "WEPICO38";
 	Weapons_Data[DND_WEAPON_RIOTCANNON].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_RIOTCANNON].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_RIOTCANNON].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_RIOTCANNON].properties = WPROP_ALTAMMO | WPROP_SHOTGUN | WPROP_AUTOMATIC;
 	Weapons_Data[DND_WEAPON_RIOTCANNON].attunement[STAT_STR] = 0.015;
 	Weapons_Data[DND_WEAPON_RIOTCANNON].attunement[STAT_DEX] = 0.035;
@@ -1173,7 +1178,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_name1 = "IonAmmo";
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_name2 = "DeathrayOverheat";
 	Weapons_Data[DND_WEAPON_DEATHRAY].icon = "WEPICO88";
-	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use1 = 6;
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DEATHRAY].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_TECH | WPROP_PRECISION;
 	Weapons_Data[DND_WEAPON_DEATHRAY].attunement[STAT_INT] = 0.015;

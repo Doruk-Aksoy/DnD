@@ -89,6 +89,76 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 			break;
 
+			case DND_WEAPON_RIOTCANNON:
+				if(ammo_which == 1) {
+					ammo = Weapons_Data[wepid].ammo_name2;
+					amt = Weapons_Data[wepid].ammo_use2;
+				}
+				else if(ammo_which == 2) {
+					ammo = Weapons_Data[wepid].ammo_name2;
+					amt = Weapons_Data[wepid].ammo_use2;
+					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+				}
+				else if(ammo_which == 3) {
+					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory("RiotgunClip");
+					SetResultValue(res);
+					Terminate;
+				}
+				else if(ammo_which == 4) {
+					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory("RiotgunClip");
+					SetResultValue(res);
+					Terminate;
+				}
+			break;
+			case DND_WEAPON_ACIDRIFLE:
+				if(ammo_which != 2) {
+					// m1 and m2 both need to check the clip
+					ammo = Weapons_Data[wepid].ammo_name2;
+				}
+				else if(ammo_which == 2)
+					ammo = Weapons_Data[wepid].ammo_name1;
+			break;
+			case DND_WEAPON_FUSIONBLASTER:
+				ammo = Weapons_Data[wepid].ammo_name2;
+				if(ammo_which == 2)
+					ammo = Weapons_Data[wepid].ammo_name1;
+			break;
+
+			case DND_WEAPON_FREEZER:
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("FreezerCooldown") && CheckInventory("FreezerOverheat") < 100);
+				if(ammo_which == 1)
+					amt /= 2;
+			break;
+			case DND_WEAPON_VOIDCANNON:
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("VoidCannonCooldown") && CheckInventory("VoidCannonOverHeat") < 81);
+			break;
+
+			case DND_WEAPON_NUCLEARPLASMARIFLE:
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("PlasmaOverheatCooldown") && CheckInventory("PlasmaOverheat") < 100);
+			break;
+			case DND_WEAPON_REBOUNDER:
+				if(ammo_which == 1) {
+					amt = Weapons_Data[wepid].ammo_use2;
+					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 83);
+				}
+				else
+					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 98);
+			break;
+			case DND_WEAPON_BASILISK:
+				if(ammo_which == 1)
+					amt = 8;
+			break;
+
+			case DND_WEAPON_BFG32768:
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("BFG32768Cooldown") && CheckInventory("BFG32768Overheat") < 100);
+			break;
+			case DND_WEAPON_DEATHRAY:
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DeathRayCooldown") && CheckInventory("DeathRayOverheat") < 100);
+			break;
+			case DND_WEAPON_IONCANNON:
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("IonCooldown") && CheckInventory("IonOverheat") < 100);
+			break;
+
 			default:
 				if(ammo_which) {
 					if(Weapons_Data[wepid].ammo_name2 != "")
@@ -106,7 +176,7 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 			amt *= base_mult;
 		
 		if(ammo != "")
-			res &= CheckInventory(ammo) >= amt;
+			res &= ((flags & DND_CFW_DONTCHECKEQUALITY) && CheckInventory(ammo) > amt) || CheckInventory(ammo) >= amt;
 	}
 
 	if(flags & DND_CFW_ALTFIRECHECK) {
@@ -198,11 +268,38 @@ Script "DnD Handle Reload" (int wepid, int extra, int flags) {
 			toGive = "MGClip4";
 			base = GetAmmoCapacity("MGClip4");
 		break;
+		case DND_WEAPON_RIOTCANNON:
+			if(!extra)
+				toTake = "RiotgunShell";
+			else if(extra == 1)
+				toTake = "ExplodingShell";
+			else
+				toTake = "NitroShell";
+			toGive = "RiotgunClip";
+			base = GetAmmoCapacity("RiotgunClip");
+		break;
+		case DND_WEAPON_FUSIONBLASTER:
+			toTake = "FusionCell";
+			toGive = "MGClip6";
+			base = GetAmmoCapacity("MGClip6");
+		break;
 
 		case DND_WEAPON_VINDICATOR:
 			toTake = "FlakShell";
 			toGive = "ShellSize_18";
 			base = GetAmmoCapacity("ShellSize_18");
+		break;
+
+		case DND_WEAPON_RHINORIFLE:
+			toTake = "Clip";
+			toGive = "MGClip7";
+			base = GetAmmoCapacity("MGClip7");
+		break;
+
+		case DND_WEAPON_FLAMETHROWER:
+			toTake = "Fuel";
+			toGive = "FuelClip";
+			base = GetAmmoCapacity("FuelClip");
 		break;
 	}
 
@@ -213,7 +310,9 @@ Script "DnD Handle Reload" (int wepid, int extra, int flags) {
 		GiveInventory(toGive, CheckInventory(toTake));
 	else
 		GiveInventory(toGive, amt);
-	TakeAmmoFromPlayer(pnum, wepid, toTake, amt);
+
+	if(!(flags & DND_RWF_NOTAKEAMMO))
+		TakeAmmoFromPlayer(pnum, wepid, toTake, amt);
 }
 
 Script "DnD Overheat Reduction" (int index, int rate) {
