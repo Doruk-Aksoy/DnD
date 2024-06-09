@@ -26,8 +26,6 @@ Actor " Pistol " : Pistol
 		Loop
 	  Select:
 		TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
-		TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-		TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_PISTOL)
 		TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_PISTOL)
 	  SelectLoop:
 		COLT A 1 A_Raise
@@ -115,8 +113,6 @@ Actor " Akimbo Pistols " : Pistol {
 		Loop
 		Select:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_AKIMBOPISTOL)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 30, 0, DND_WEAPON_AKIMBOPISTOL)
 		SelectLoop:
 			PS2G A 1 A_Raise
@@ -393,8 +389,6 @@ Actor Magnum : Weapon {
 		Loop
 		Select:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_MAGNUM)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 25, 4 | (6 << 16), DND_WEAPON_MAGNUM)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 50, 0, DND_WEAPON_MAGNUM)
 		SelectLoop:
@@ -563,8 +557,6 @@ Actor "Laser Pistol" : Weapon {
 		Select:
 			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_LASERPISTOL)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 5, 3 | (6 << 16), DND_WEAPON_LASERPISTOL)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 10, 3 | (6 << 16), DND_WEAPON_LASERPISTOL)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 15, 3 | (6 << 16), DND_WEAPON_LASERPISTOL)
@@ -841,8 +833,6 @@ ACTOR ScatterGun : Weapon
       Loop  
    Select:
 	  TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
-	  TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-	  TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_SCATTERGUN)
 	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 5, 2 | (4 << 16), DND_WEAPON_SCATTERGUN)
 	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 3, 2 | (4 << 16), DND_WEAPON_SCATTERGUN)
    SelectLoop:
@@ -1045,8 +1035,6 @@ Actor RubyWand : Weapon {
 		Loop
 		Select:
 			  TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
-			  TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			  TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_RUBYWAND)
 			  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 5, 3 | (6 << 16), DND_WEAPON_RUBYWAND)
 			  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 25, 0, DND_WEAPON_RUBYWAND)
 			  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 8, 4 | (8 << 16), DND_WEAPON_RUBYWAND)

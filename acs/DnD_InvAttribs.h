@@ -295,6 +295,8 @@ enum {
 	INV_EX_HEALTHATONE,
 	INV_EX_RESPERESHIELD,
 	INV_EX_ESHIELDONLYBLOCKPCT,
+	INV_EX_REFILLAMMOONMELEEKILL,
+	INV_EX_SWAPFROMMELEECRIT,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -2115,6 +2117,15 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			if(showDetailedMods)
 				return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX49S");
+
+		case INV_EX_REFILLAMMOONMELEEKILL:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX51", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX51", s:"\c[Q9] ", d:val1, s:"%");
+		case INV_EX_SWAPFROMMELEECRIT:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX52", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX52S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX52", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:"IATTR_TX52S");
 
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:

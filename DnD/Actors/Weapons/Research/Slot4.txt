@@ -33,8 +33,6 @@ Actor ResMG1 : Chaingun {
 		Loop
 		Select:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_TEMPLARMG)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 20, 0, DND_WEAPON_TEMPLARMG)
 			// compat with GL
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 128, 0, DND_WEAPON_TEMPLARMG)
@@ -244,8 +242,6 @@ actor ResMG2 : Weapon {
 		
 		Select:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_RIOTCANNON)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 12, 0, DND_WEAPON_RIOTCANNON)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 15, 0, DND_WEAPON_RIOTCANNON)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 8, 4 | (6 << 16), DND_WEAPON_RIOTCANNON)
@@ -1075,8 +1071,6 @@ Actor ResMG3 : Chaingun {
 		Loop
 		Select:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_ACIDRIFLE)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 18, 0, DND_WEAPON_ACIDRIFLE)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 5, 2 | (3 << 16), DND_WEAPON_ACIDRIFLE)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 10, 4 | (6 << 16), DND_WEAPON_ACIDRIFLE)
@@ -1429,8 +1423,6 @@ Actor ResMG4 : Weapon {
 		Select:
 			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_FUSIONBLASTER)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 30, 0, DND_WEAPON_FUSIONBLASTER)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 200, 0, DND_WEAPON_FUSIONBLASTER)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 6, 0, DND_WEAPON_FUSIONBLASTER)
@@ -1843,8 +1835,6 @@ ACTOR ResMG5 : Weapon {
 
 		Select:
 		    TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_INCINERATOR)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 16, 0, DND_WEAPON_INCINERATOR)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 5, 16 | (18 << 16), DND_WEAPON_INCINERATOR)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 80, 0, DND_WEAPON_INCINERATOR)
@@ -1861,7 +1851,7 @@ ACTOR ResMG5 : Weapon {
 
 		Fire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_INCINERATOR, 0), "FireConfirmed")
-			COLT A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			RW09 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
 			TNT1 A 0 A_JumpIfInventory("IncineratorStacks", 0, "Reload")

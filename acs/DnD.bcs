@@ -1017,6 +1017,10 @@ Script "DND On Kill" KILL {
 		GiveInventory("HunterTalismanHealFXSpawner", 1);
 		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_HUNTERTALISMAN_HEALFACTOR);
 	}
+
+	i = GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_REFILLAMMOONMELEEKILL);
+	if(i && IsUsingMeleeWeapon())
+		GiveOwnedWeaponsAmmo(i);
 	
 	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_ONKILL_HEALMISSING);
 	if(temp) {
@@ -4237,7 +4241,20 @@ Script "DND Quest Complete" (int isFail) CLIENTSIDE {
 Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) {
 	int pnum = PlayerNumber();
 	// we recalc accuracy in case a particular weapon has bonuses to it
-	CalculatePlayerAccuracy(pnum, wepid);
+	if(!CheckInventory("DnD_WeaponSwapCheck")) {
+		GiveInventory("DnD_WeaponSwapCheck", 1);
+		
+		// weapon swap related things can go here
+		// we have access to the old/previous weapon at this point until below SetInventory
+		if(GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT) && IsMeleeWeapon(CheckInventory("DnD_WeaponID")))
+			GiveInventory("DnD_SwappedFromMelee", 1);
+
+		// we are now committed to this weapon
+		SetInventory("DnD_WeaponID", wepid);
+		
+		CalculatePlayerAccuracy(pnum, wepid);
+	}
+
 	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand);
 	SetResultValue(0);
 }

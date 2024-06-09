@@ -81,9 +81,14 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 			break;
 
 			case DND_WEAPON_DESOLATOR:
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || !CheckInventory("DesolatorCooldown");
+				if(ammo_which)
+					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DesolatorCooldown") && CheckInventory("DesolatorOverheat") < 100);
 			break;
-
+			case DND_WEAPON_MINIGUN:
+				if(ammo_which)
+					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+			break;
 			case DND_WEAPON_MPPB:
 				if(ammo_which)
 					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
@@ -136,6 +141,12 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 			case DND_WEAPON_NUCLEARPLASMARIFLE:
 				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("PlasmaOverheatCooldown") && CheckInventory("PlasmaOverheat") < 100);
 			break;
+			case DND_WEAPON_FROSTFANG:
+				if(ammo_which == 1)
+					amt = Weapons_Data[wepid].ammo_use2;
+				else if(ammo_which == 2)
+					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+			break;
 			case DND_WEAPON_REBOUNDER:
 				if(ammo_which == 1) {
 					amt = Weapons_Data[wepid].ammo_use2;
@@ -150,6 +161,8 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 			break;
 
 			case DND_WEAPON_BFG32768:
+				if(ammo_which == 1)
+					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("BFG32768Cooldown") && CheckInventory("BFG32768Overheat") < 100);
 			break;
 			case DND_WEAPON_DEATHRAY:
@@ -157,6 +170,22 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 			break;
 			case DND_WEAPON_IONCANNON:
 				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("IonCooldown") && CheckInventory("IonOverheat") < 100);
+			break;
+
+			case DND_WEAPON_SAWEDOFF:
+				if(ammo_which == 1) {
+					amt = Weapons_Data[wepid].ammo_use1;
+					ammo = Weapons_Data[wepid].ammo_name2;
+				}
+			break;
+			case DND_WEAPON_DARKGLOVES:
+				if(ammo_which == 1) {
+					if(Weapons_Data[wepid].ammo_name2 != "")
+						ammo = Weapons_Data[wepid].ammo_name2;
+					amt = Weapons_Data[wepid].ammo_use2;
+				}
+				else if(ammo_which == 2)
+					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 			break;
 
 			default:
@@ -178,6 +207,8 @@ Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flag
 		if(ammo != "")
 			res &= ((flags & DND_CFW_DONTCHECKEQUALITY) && CheckInventory(ammo) > amt) || CheckInventory(ammo) >= amt;
 	}
+	else if(IsSlot8Weapon(wepid) || wepid == DND_WEAPON_DEMONHEART)
+		res = false;
 
 	if(flags & DND_CFW_ALTFIRECHECK) {
 		if(IsMeleeWeapon(wepid))
@@ -300,6 +331,12 @@ Script "DnD Handle Reload" (int wepid, int extra, int flags) {
 			toTake = "Fuel";
 			toGive = "FuelClip";
 			base = GetAmmoCapacity("FuelClip");
+		break;
+
+		case DND_WEAPON_SAWEDOFF:
+			toTake = "SawedoffShell";
+			toGive = "SawedoffCounter";
+			base = GetAmmoCapacity("SawedoffCounter");
 		break;
 	}
 

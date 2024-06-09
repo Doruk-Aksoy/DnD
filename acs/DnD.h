@@ -1426,8 +1426,9 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 		}
 		
 		SavePlayerActivities(pnum, PlayerActivities[pnum].char_id);
-		ResetPlayerActivities(pnum, false);
 		EndDBTransaction();
+		
+		ResetPlayerActivities(pnum, false);
 	}
 	else {
 		Log(s:"Save player ", d:pnum, s: " activites on disconnect for char id ", d:PlayerActivities[pnum].char_id);

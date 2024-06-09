@@ -116,6 +116,7 @@ enum {
 	IIMG_UCHRM_16,
 	IIMG_UCHRM_17,
 	IIMG_UCHRM_18,
+	IIMG_UCHRM_19,
 
 	IIMG_UCORE_1,
 	IIMG_UCORE_R2,
@@ -315,7 +316,7 @@ void ResetUniqueCraftingItemList() {
 
 // uniques
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
-#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_18
+#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_19
 
 #define ITEM_IMAGE_UCORE_BEGIN IIMG_UCORE_1
 #define ITEM_IMAGE_UCORE_END IIMG_UCORE_1
@@ -3223,7 +3224,7 @@ int MakeUnique(int item_pos, int item_type, int pnum) {
 		if(item_type == DND_ITEM_CHARM) {
 			int bias = Timer() & 0xFFFF;
 			i = random(bias + beg, bias + end) - bias;
-			i = UITEM_REKINDLEDSPARKS;
+			i = UITEM_SLAYERSPECIAL;
 			//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 		}
 	#endif

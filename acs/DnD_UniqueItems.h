@@ -35,7 +35,7 @@ str GetUniqueItemName(int itype, int id) {
 void SetupUniqueItems() {
 	// construct unique list to copy from
 	int id = UITEM_ELEMENTALBULWARK;
-	UniqueItemList[id].weight = 130;
+	UniqueItemList[id].weight = 125;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_1;
@@ -54,7 +54,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 2;
 	UniqueItemList[id].rolls[2].attrib_high = 5;
 	id = UITEM_IRONBARK;
-	UniqueItemList[id].weight = 220;
+	UniqueItemList[id].weight = 210;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
 	UniqueItemList[id].item_image = IIMG_UCHRM_2;
@@ -79,7 +79,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[4].attrib_low = 1;
 	UniqueItemList[id].rolls[4].attrib_high = 1;
 	id = UITEM_WELLOFPOWER;
-	UniqueItemList[id].weight = 260;
+	UniqueItemList[id].weight = 250;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
 	UniqueItemList[id].item_image = IIMG_UCHRM_3;
@@ -98,7 +98,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 3;
 	id = UITEM_ANCIENTGEMSTONE;
-	UniqueItemList[id].weight = 320;
+	UniqueItemList[id].weight = 300;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCHRM_4;
@@ -116,7 +116,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_low = 6; // heal %
 	UniqueItemList[id].rolls[1].attrib_high = 10;
 	id = UITEM_DEATHSPARK;
-	UniqueItemList[id].weight = 380;
+	UniqueItemList[id].weight = 360;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCHRM_5;
@@ -132,7 +132,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_low = 0.5;
 	UniqueItemList[id].rolls[1].attrib_high = 1.25;
 	id = UITEM_SHELLSHOCK;
-	UniqueItemList[id].weight = 510;
+	UniqueItemList[id].weight = 480;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCHRM_6;
@@ -151,7 +151,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 3;
 	id = UITEM_OAKHEART;
-	UniqueItemList[id].weight = 600;
+	UniqueItemList[id].weight = 570;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_7;
@@ -173,7 +173,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[3].attrib_low = 75;
 	UniqueItemList[id].rolls[3].attrib_high = 50;
 	id = UITEM_PELLETSTORM;
-	UniqueItemList[id].weight = 680;
+	UniqueItemList[id].weight = 650;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_8;
@@ -195,7 +195,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
 	id = UITEM_GRAVECALLER;
-	UniqueItemList[id].weight = 710;
+	UniqueItemList[id].weight = 680;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
 	UniqueItemList[id].item_image = IIMG_UCHRM_9;
@@ -217,7 +217,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[3].attrib_low = 25;
 	UniqueItemList[id].rolls[3].attrib_high = 50;
 	id = UITEM_ESSENCEEATER;
-	UniqueItemList[id].weight = 745;
+	UniqueItemList[id].weight = 715;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_10;
@@ -236,7 +236,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 5;
 	id = UITEM_EYEBEHOLDER;
-	UniqueItemList[id].weight = 770;
+	UniqueItemList[id].weight = 740;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCHRM_11;
@@ -255,7 +255,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 1;
 	id = UITEM_DEADKINGBANNER;
-	UniqueItemList[id].weight = 800;
+	UniqueItemList[id].weight = 770;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
 	UniqueItemList[id].item_image = IIMG_UCHRM_12;
@@ -280,7 +280,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[4].attrib_low = 1;
 	UniqueItemList[id].rolls[4].attrib_high = 1;
 	id = UITEM_PAINMASTER;
-	UniqueItemList[id].weight = 850;
+	UniqueItemList[id].weight = 820;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCHRM_13;
@@ -299,7 +299,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 30;
 	UniqueItemList[id].rolls[2].attrib_high = 50;
 	id = UITEM_VOIDEMBLEM;
-	UniqueItemList[id].weight = 880;
+	UniqueItemList[id].weight = 850;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_14;
@@ -315,7 +315,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_low = 20;
 	UniqueItemList[id].rolls[1].attrib_high = 50;
 	id = UITEM_REKINDLEDSPARKS;
-	UniqueItemList[id].weight = 900;
+	UniqueItemList[id].weight = 870;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCHRM_15;
@@ -331,7 +331,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_low = 15;
 	UniqueItemList[id].rolls[1].attrib_high = 40;
 	id = UITEM_DEADEYEGLARE;
-	UniqueItemList[id].weight = 940;
+	UniqueItemList[id].weight = 910;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_16;
@@ -347,7 +347,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_low = 1;
 	UniqueItemList[id].rolls[1].attrib_high = 1;
 	id = UITEM_UNITY;
-	UniqueItemList[id].weight = 960;
+	UniqueItemList[id].weight = 930;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
 	UniqueItemList[id].item_image = IIMG_UCHRM_17;
@@ -369,7 +369,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
 	id = UITEM_MINDFORGE;
-	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].weight = 970;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_18;
@@ -384,6 +384,25 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_high = 40;
 	UniqueItemList[id].rolls[1].attrib_low = 1.5;
 	UniqueItemList[id].rolls[1].attrib_high = 2.5;
+	id = UITEM_SLAYERSPECIAL;
+	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 1;
+	UniqueItemList[id].item_image = IIMG_UCHRM_19;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
+	UniqueItemList[id].item_level = 18;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 3;
+	UniqueItemList[id].attrib_id_list[0] = INV_EX_REFILLAMMOONMELEEKILL;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_SWAPFROMMELEECRIT;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_ALLSTATS;
+	UniqueItemList[id].rolls[0].attrib_low = 5;
+	UniqueItemList[id].rolls[0].attrib_high = 10;
+	UniqueItemList[id].rolls[1].attrib_low = 0.35;
+	UniqueItemList[id].rolls[1].attrib_high = 1.0;
+	UniqueItemList[id].rolls[2].attrib_low = 1;
+	UniqueItemList[id].rolls[2].attrib_high = 5;
 
 	// powercores
 	id = UITEM_TESSERACT;
@@ -453,7 +472,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 10;
 	UniqueItemList[id].rolls[2].attrib_high = 20;
 	UniqueItemList[id].rolls[3].attrib_low = 20;
-	UniqueItemList[id].rolls[3].attrib_high = 20;
+	UniqueItemList[id].rolls[3].attrib_high = 33;
 }
 
 // These are necessary to sync the global variables + unique data

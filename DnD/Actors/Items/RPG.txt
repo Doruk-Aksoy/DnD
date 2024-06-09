@@ -633,3 +633,8 @@ Actor DnD_AutoDumpCooldown : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration 4
 }
+
+Actor DnD_SwappedFromMelee : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}

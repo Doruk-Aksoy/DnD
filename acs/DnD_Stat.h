@@ -903,7 +903,8 @@ int GetBaseCritChance(int pnum) {
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
 	return 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
 			Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
-			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE);
+			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) +
+			CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT);
 }
 
 int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {

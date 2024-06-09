@@ -580,3 +580,8 @@ Actor DnD_ResurrectMonster : DnD_Activator {
 		Stop
 	}
 }
+
+Actor DnD_WeaponSwapCheck : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}

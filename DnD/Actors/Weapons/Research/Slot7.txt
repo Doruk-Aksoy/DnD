@@ -40,8 +40,6 @@ Actor ResBFG1 : Weapon {
 			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_IONCANNON)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 160, 0, DND_WEAPON_IONCANNON)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 144, 0, DND_WEAPON_IONCANNON)
 	    SelectLoop:
@@ -64,13 +62,13 @@ Actor ResBFG1 : Weapon {
 			RW04 D 3
 			TNT1 A 0 A_PlaySound("IonCannon/SpinLoop", 7, 1.0, 1)
 		FireLoop:
+			TNT1 A 0 A_JumpIfInventory("IonAttackCount", 3, "Fire4")
+			TNT1 A 0 A_JumpIfInventory("IonAttackCount", 2, "Fire3")
+			TNT1 A 0 A_JumpIfInventory("IonAttackCount", 1, "Fire2")
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_IONCANNON, 0), "FireCont1")
 			RW04 A 1
 		Goto WindDown4
 		FireCont1:
-			TNT1 A 0 A_JumpIfInventory("IonAttackCount", 3, "Fire4")
-			TNT1 A 0 A_JumpIfInventory("IonAttackCount", 2, "Fire3")
-			TNT1 A 0 A_JumpIfInventory("IonAttackCount", 1, "Fire2")
 			RW04 E 3 Bright A_GiveInventory("IonShooter", 1)
 			RW04 F 2 Bright A_GiveInventory("IonShooter", 1)
 			RW04 C 2
@@ -341,8 +339,6 @@ Actor ResBFG2 : Weapon {
 		Select:
 			TNT1 A 0 A_GiveInventory("P_GrayFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
-			TNT1 A 0 A_TakeInventory("DnD_WeaponID", 0x7FFFFFFF)
-			TNT1 A 0 A_GiveInventory("DnD_WeaponID", DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 50, 5 | (10 << 16), DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 100, 0, DND_WEAPON_THUNDERSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 250, 0, DND_WEAPON_THUNDERSTAFF)

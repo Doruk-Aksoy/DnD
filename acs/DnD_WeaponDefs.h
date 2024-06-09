@@ -1262,7 +1262,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].ammo_name2 = "IronBalls";
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].icon = "WEPICO79";
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_HELLFORGECANNON].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_HELLFORGECANNON].ammo_use2 = 3;
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].properties = WPROP_RIPPER | WPROP_IGNORESHIELD | WPROP_ARTILLERY | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].attunement[STAT_STR] = 0.025;
 	Weapons_Data[DND_WEAPON_HELLFORGECANNON].attunement[STAT_INT] = 0.025;
@@ -1412,6 +1412,10 @@ bool IsSoulWeapon(int wepid) {
 
 bool IsSuperWeapon(int wepid) {
 	return wepid >= FIRST_SLOT7_WEAPON && wepid <= LAST_SLOT8_WEAPON;
+}
+
+bool IsSlot8Weapon(int wepid) {
+	return wepid >= FIRST_SLOT8_WEAPON;
 }
 
 #define WEPCHECK_SLOT1 "P_Slot1Replaced"
@@ -1788,6 +1792,26 @@ void GiveOverheat(int pnum, str item, int amt, int wepid) {
 	// let players attain maximum overheat reduction
 	if(amt > 0)
 		GiveInventory(item, amt);
+}
+
+// TODO: If this ends up lagging the server, store player owned weapons in a specific array per weapon slot and pull data from there
+void GiveOwnedWeaponsAmmo(int pct) {
+	for(int i = 0; i < MAXWEPS; ++i) {
+		if(!IsMeleeWeapon(i) && CheckInventory(Weapons_Data[i].name)) {
+			str ammo = Weapons_Data[i].ammo_name1;
+			int amt = 0;
+			if(ammo != "") {
+				amt = GetAmmoCapacity(ammo) * pct / 100;
+				GiveInventory(ammo, amt);
+			}
+			
+			ammo = Weapons_Data[i].ammo_name2;
+			if(ammo != "") {
+				amt = GetAmmoCapacity(ammo) * pct / 100;
+				GiveInventory(ammo, amt);
+			}
+		}
+	}
 }
 
 #endif

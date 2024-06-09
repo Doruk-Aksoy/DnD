@@ -690,7 +690,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		
 		//printbold(s:"pre-scale: ", d:temp);
 	}
-	
+
 	// Get the cached flat dmg and factor and apply them both
 	temp = GetCachedPlayerFlatDamage(pnum, wepid, dmgid);
 	range = CheckActorInventory(tid, "Cyborg_InstabilityStack");
@@ -699,7 +699,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	
 	// isSpecial isn't used or kept track of below here, so re-use
 	// 66% effectiveness of damage scaling on tracer -- dmgid is 1 on tracers
-	isSpecial = (IsSuperWeapon(wepid)) && (wepid == DND_WEAPON_BFG32768 || DND_WEAPON_BFG6000) && dmgid == 1;
+	isSpecial = (IsSuperWeapon(wepid)) && (wepid == DND_WEAPON_BFG32768 || wepid == DND_WEAPON_BFG6000) && dmgid == 1;
 	if(isSpecial) {
 		temp *= 2;
 		temp /= 3;
@@ -729,8 +729,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// beyond this point wepid doesnt matter so use that instead
 		dmg = INT_MAX;//BigNumberFormula(dmg, temp);
 	}
-	
-	//printbold(d:dmg);
 	
 	return dmg;
 }
@@ -2373,7 +2371,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 			factor = to_take;
 
 		// only this much is prevented
-		to_take = temp * factor / 100;
+		to_take = dmg * factor / 100;
 		if(to_take < 1)
 			to_take = 1;
 		dmg -= to_take;
@@ -2662,6 +2660,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		if(arg2 == "Melee")
+			shooter = ActivatorTID(); // apparently the damagesource is 0 under melee case for some reason...
 		//printbold(s:GetactorClass(0), s:" inflicts damage ", d:GetActorProperty(0, APROP_DAMAGE), s: " ", d:arg1, s:" type ", s:arg2);
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
@@ -2685,9 +2685,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		isRipper = CheckFlag(0, "RIPPER");
 
-		if(dmg_data & DND_DAMAGEFLAG_USEMASTER)
+		// this flag shares the same value as a damagetype for monsters, so we need to seperate it
+		if((shooter == -1 || !IsMonster(shooter)) && dmg_data & DND_DAMAGEFLAG_USEMASTER)
 			shooter = GetActorProperty(0, APROP_SCORE);
-		
+
 		// set activator to owner of this projectile for certain crediting
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
 		if(shooter == -1)
@@ -2711,7 +2712,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		dmg = arg1;
 		
 		// printbold(s:"do dmg from inflictor class ", s:inflictor_class, s: " isReflected? ", d:isReflected, s: " ", d:dmg_data);
-		
+
 		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
 		if(IsMonster(shooter)) {
 			m_id = shooter - DND_MONSTERTID_BEGIN;
@@ -2739,9 +2740,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// dont scale reflected damage by this
 			// special bonuses
 			factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
-				
-			dmg = dmg * (100 + factor) / 100;
 			
+			dmg = dmg * (100 + factor) / 100;
+
 			// elite damage bonus is multiplicative
 			if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
 				dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
@@ -2920,6 +2921,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+
 				dmg += factor; // depending on distance increasing damage modifier this can be non-zero
 				// % adjustment factor -- extract after the flat addition to reuse variables
 				factor = arg1 & ATK_DPCT_MASK;
@@ -3062,6 +3064,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		else if(!IsMonster(victim)) {
 			if(CheckActorInventory(victim, "DnD_CountdownProtection")) {
 				SetResultValue(0);
+				Terminate;
+			}
+
+			// exception for map related hazards
+			if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Telefrag" || arg2 == "Suicide" || arg2 == "InstantDeath" || arg2 == "Exit") {
+				SetResultValue(arg1);
+				PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = arg1;
 				Terminate;
 			}
 

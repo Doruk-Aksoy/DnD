@@ -76,7 +76,7 @@ DND_UCIMG15			=	"UCHRM15";
 DND_UCIMG16			=	"UCHRM16";
 DND_UCIMG17			=	"UCHRM17";
 DND_UCIMG18			=	"UCHRM18";
-
+DND_UCIMG19			=	"UCHRM19";
 // unique cores
 DND_UCORIMG1		=	"UCORE01";
 
@@ -248,6 +248,7 @@ DND_UNIQUE15			=	"Rekindled Sparks";
 DND_UNIQUE16			=	"Deadeye's Glare";
 DND_UNIQUE17			=	"Unity";
 DND_UNIQUE18			=	"Mindforge";
+DND_UNIQUE19			=	"Slayer Special - by Lawrence";
 
 // unique power cores
 DND_UCORE_NAME1			=	"The Tesseract";
@@ -500,6 +501,8 @@ IATTR_TX47			= "Energy shield is fully effective against all damage";
 IATTR_TX48			= "\cgYour health cap is always 1";
 IATTR_TX49			= "For every"; IATTR_TX49S = "energy shield, gain 0.5% to all resists";
 IATTR_TX50			= "\cgEnergy shield only blocks 20% of the damage\c-";
+IATTR_TX51			= "Melee kills refill other owned weapons' ammo by";
+IATTR_TX52			= "Swapping from a melee weapon grants"; IATTR_TX52S = "increased crit chance for 3 seconds.";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

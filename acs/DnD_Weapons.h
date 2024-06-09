@@ -1828,13 +1828,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				// regular
 				proj_id = DND_PROJ_SOULRENDER1;
 				hitscan_id = DND_HITSCAN_SOULRENDER1;
-				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff1", proj_id, 0.0, 0.0, flags);
+				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff1", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 			}
 			else if(isAltFire & DND_ATK_OTHER_DIR) {
 				// drain attack
 				proj_id = DND_PROJ_SOULRENDER1;
 				hitscan_id = DND_HITSCAN_SOULRENDER2;
-				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff2", proj_id, 0.0, 0.0, flags);
+				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff2", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 			}
 			else {
 				// slash attack
@@ -1842,7 +1842,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				hitscan_id = DND_HITSCAN_SOULRENDER3;
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 				proj_id = DND_PROJ_SOULRENDER1;
-				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff3", proj_id, 0.0, 0.0, flags);
+				Do_Melee_Attack(owner, pnum, wepid, 1, "BladePuff3", proj_id, 0.0, 0.0, flags, 0, hitscan_id);
 			}
 		break;
 		case DND_WEAPON_SMG:
