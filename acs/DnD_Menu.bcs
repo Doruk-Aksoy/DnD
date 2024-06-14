@@ -529,6 +529,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"(\cd", d:GetStrength(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 320.1, 144.0, 0.0);
 				HudMessage(s:"(\cd", d:GetDexterity(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 320.1, 160.0, 0.0);
 				HudMessage(s:"(\cd", d:GetIntellect(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 320.1, 176.0, 0.0);
+
+				HudMessage(s:"\c[Y5]Loot Penalty: \c-", d:PlayerActivities[pnum].vote_skips; HUDMSG_PLAIN, RPGMENUITEMID - 15, CR_WHITE, 192.1, 208.1, 0.0, 0.0);
 				
 				if(boxid != MAINBOX_NONE && boxid <= MBOX_3) {
 					SetHudClipRect(184, 208, 256, 64, 256);

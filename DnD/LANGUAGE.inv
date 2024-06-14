@@ -248,7 +248,7 @@ DND_UNIQUE15			=	"Rekindled Sparks";
 DND_UNIQUE16			=	"Deadeye's Glare";
 DND_UNIQUE17			=	"Unity";
 DND_UNIQUE18			=	"Mindforge";
-DND_UNIQUE19			=	"Slayer Special - by Lawrence";
+DND_UNIQUE19			=	"Slayer Special";
 
 // unique power cores
 DND_UCORE_NAME1			=	"The Tesseract";
@@ -490,7 +490,7 @@ IATTR_TX36			= "less ammo capacities";
 IATTR_TX37			= "Your main attributes are transformed to \cfUnity\c-";	IATTR_TX_UNITY = "Per 10 unity, gain";	UNITY = "Unity";
 IATTR_TX38			= "damage resistance to every damage type";
 IATTR_TX39			= "resist penetration to every damage type";
-IATTR_TX40			= "\cgYour main attributes other than \cfUnity\cg grant no bonuses";
+IATTR_TX40			= "\c[D4]Your main attributes other than \cfUnity\c[D4] grant no bonuses";
 IATTR_TX41			= "Intellect provides damage bonus to all melee weapons at";	IATTR_TX41S = "the attunement of Strength"; IATTR_TX41B = "\cgStrength provides no bonus to melee weapons\c-";
 IATTR_TX42			= "chance to immediately start recovering energy shield on depletion";
 IATTR_TX43			= "Energy shield recharge is not interrupted by damage";
@@ -498,11 +498,13 @@ IATTR_TX44			= "The energy shield explosion deals"; IATTR_TX44S = "of your healt
 IATTR_TX45			= "Energy shield recovery also takes"; IATTR_TX45S = "of the amount from health";
 IATTR_TX46			= "Increases and reductions to health instead apply to energy shield at"; IATTR_TX46S = "of their value";
 IATTR_TX47			= "Energy shield is fully effective against all damage";
-IATTR_TX48			= "\cgYour health cap is always 1";
-IATTR_TX49			= "For every"; IATTR_TX49S = "energy shield, gain 0.5% to all resists";
-IATTR_TX50			= "\cgEnergy shield only blocks 20% of the damage\c-";
+IATTR_TX48			= "\c[D4]Your health cap is always 1";
+IATTR_TX49			= "For every"; IATTR_TX49S = "energy shield, gain \cd0.5%\c- to all resists";
+IATTR_TX50			= "\c[D4]Energy shield is only"; IATTR_TX50S = "\c[D4]effective against damage";
 IATTR_TX51			= "Melee kills refill other owned weapons' ammo by";
-IATTR_TX52			= "Swapping from a melee weapon grants"; IATTR_TX52S = "increased crit chance for 3 seconds.";
+IATTR_TX52			= "Swapping from a melee weapon grants"; IATTR_TX52S = "increased crit chance for 3 seconds";
+IATTR_TX53			= "of the damage you take from hits of your lowest resistance is dealt as \cuphysical damage\c- over \cd5\c- seconds instead";
+IATTR_TX54			= "Killing demons builds stacks of \cgDaemonic Barrier\c-, up to \cd10\c-. For each stack, completely negate a damage over time effect tic. Stacks last \cd15\c- seconds";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

@@ -2687,7 +2687,7 @@ Actor RoarCooldown : PowerProtection {
 
 Actor WarmasterProtect : PowerProtection {
 	powerup.duration -5
-	damagefactor "normal", 0.75
+	damagefactor "normal", 1.0
 }
 
 Actor WarmasterDeflectFX {

@@ -1361,6 +1361,11 @@ statusbar normal, fullscreenoffsets {
 		else
 			drawimage "RUIN_1", -88, -264;
 	}
+	
+	InInventory DaemonicBarrier, 1 {
+		drawimage "DBARRIER", -64, -152;
+		drawnumber 2, NCNormalFont, NCWhiteC, DaemonicBarrier, alignment(center), -8, -100;
+	}
 }
 
 statusbar automap { }

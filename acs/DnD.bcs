@@ -275,6 +275,7 @@ Script "DND Check Hardcore Softcore" OPEN {
 // Basically shut the menu down
 Script "DnD On Death" DEATH {
 	int i, pnum = PlayerNumber();
+	int temp;
 	PlayerDied[pnum] += 1;
 	
 	// if SP, fix mugshot
@@ -295,18 +296,19 @@ Script "DnD On Death" DEATH {
 				ResetHardcoreStuff(pnum);
 				
 				if(PlayerIsLoggedIn(pnum) && GetGameModeState() >= GAMESTATE_INPROGRESS) {
+					temp = CheckInventory("DnD_CharacterID");
+					--PlayerActivities[pnum].vote_skips;
+
 					BeginDBTransaction();
 
 					// reduce to not increment from joining
-					--PlayerActivities[pnum].vote_skips;
-					SetDBEntry(DND_DB_VOTESKIPS, GetPlayerAccountName(pnum), PlayerActivities[pnum].vote_skips);
-
-					WipeoutPlayerData(pnum, CheckInventory("DnD_CharacterID"));
-					ResetPlayerActivities(pnum, false);
-
+					SetDBEntry(GetCharField(DND_DB_VOTESKIPS, temp), GetPlayerAccountName(pnum), PlayerActivities[pnum].vote_skips);
+					WipeoutPlayerData(pnum, temp);
 					PlayerLoaded[pnum] = 0;
 
 					EndDBTransaction();
+
+					ResetPlayerActivities(pnum, false);
 				}
 			}
 			else if(i == DND_MODE_SOFTCORE) {
@@ -892,11 +894,22 @@ Script "DND On Kill" KILL {
 	}
 	SetInventory("DnD_OverloadTimer", 0);
 
+	bool is_demon = IsDemon();
+
 	// Demon Bane check
-	if(active_quest_id == QUEST_KILL10BOSSES && IsDemon()) {
-		GiveActorInventory(target, "DnD_BossKillQuest_Counter", 1);
-		if(!IsQuestComplete(target, QUEST_KILL10BOSSES) && CheckActorInventory(target, "DnD_BossKillQuest_Counter") == DND_QUEST_BOSSKILLER_REQ)
-			CompleteQuest(target, QUEST_KILL10BOSSES);
+	if(is_demon) {
+		if(active_quest_id == QUEST_KILL10BOSSES) {
+			GiveActorInventory(target, "DnD_BossKillQuest_Counter", 1);
+			if(!IsQuestComplete(target, QUEST_KILL10BOSSES) && CheckActorInventory(target, "DnD_BossKillQuest_Counter") == DND_QUEST_BOSSKILLER_REQ)
+				CompleteQuest(target, QUEST_KILL10BOSSES);
+		}
+
+		if(GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_DEMONBARRIERS)) {
+			GiveActorInventory(target, "DaemonicBarrier", 1);
+			if(!CheckActorInventory(target, "DaemonicBarrierTimer"))
+				ACS_NamedExecuteAlways("DnD Demon Barrier Timeout", 0, target);
+			GiveActorInventory(target, "DaemonicBarrierTimer", 1);
+		}
 	}
 	
 	// Elite Slayer check
@@ -971,7 +984,7 @@ Script "DND On Kill" KILL {
 	if
 	(
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
-		(CheckInventory("Doomguy_Perk50") && IsDemon()) ||
+		(CheckInventory("Doomguy_Perk50") && is_demon) ||
 		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
@@ -1069,6 +1082,13 @@ Script "DnD Monster RIP" (int tid) {
 		Delay(const:1);
 	}
 	Thing_Remove(tid);
+}
+
+Script "DnD Demon Barrier Timeout" (int p_tid) {
+	SetActivator(p_tid);
+	while(isAlive() && CheckInventory("DaemonicBarrierTimer"))
+		Delay(const:HALF_TICRATE);
+	SetInventory("DaemonicBarrier", 0);
 }
 
 Script "DND Show Kill Digits" (int tid, int exp, int credit) CLIENTSIDE {
@@ -3393,7 +3413,7 @@ Script "DnD Player Setup" ENTER {
 			}
 
 			if(PlayerActivities[pnum].loot_penalty)
-				ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0);
+				ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0, pnum, PlayerActivities[pnum].vote_skips);
 		}
 	}
 
@@ -3415,10 +3435,12 @@ Script "DnD Monster Active" (void) {
 	MonsterProperties[tid - DND_MONSTERTID_BEGIN].isIdle = false;
 }
 
-Script "DnD Loot Penalty Text" (void) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
+Script "DnD Loot Penalty Text" (int pnum, int val) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
 		Terminate;
-	Log(s:"\cgWARNING!\c- \ckLoot is reduced due to repeating maps or callvote changes!");
+	if(val)
+		Log(s:"\cgWARNING!\c- \ckLoot is reduced due to repeating maps or callvote changes!");
+	PlayerActivities[pnum].vote_skips = val;
 }
 
 Script "DnD Force Sync Player Global Data" (void) {

@@ -77,6 +77,7 @@ enum {
 	DND_DAMAGETYPEFLAG_PERCENTHP = 512,
 	DND_DAMAGETYPEFLAG_SPELL = 1024,
 	DND_DAMAGETYPEFLAG_PERCENTHP_LOW = 2048,
+	DND_DAMAGETYPEFLAG_DOT = 4096,
 };
 
 enum {
@@ -108,7 +109,6 @@ int MonsterDamageTypeToDamageCategory(int d) {
 
 	return DND_DAMAGECATEGORY_MELEE;
 }
-
 
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
 #define DAMAGE_TYPE_SHIFT 5
@@ -322,6 +322,35 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 	temp = ApplyResistCap(pnum, temp) + 0.05;
 	
 	return dmg * ((100.0 - temp) >> 16) / 100;
+}
+
+int GetLowestResist(int pnum) {
+	static int res_ids[9][2] = { 
+		{ INV_DMGREDUCE_PHYS, DND_DAMAGETYPEFLAG_PHYSICAL },
+		{ INV_DMGREDUCE_HITSCAN, DND_DAMAGETYPEFLAG_HITSCAN },
+		{ INV_DMGREDUCE_EXPLOSION, DND_DAMAGETYPEFLAG_EXPLOSIVE },
+		{ INV_DMGREDUCE_MAGIC, DND_DAMAGETYPEFLAG_MAGICAL },
+		{ INV_DMGREDUCE_ENERGY, DND_DAMAGETYPEFLAG_ENERGY },
+		{ INV_DMGREDUCE_FIRE, DND_DAMAGETYPEFLAG_FIRE },
+		{ INV_DMGREDUCE_ICE, DND_DAMAGETYPEFLAG_ICE },
+		{ INV_DMGREDUCE_LIGHTNING, DND_DAMAGETYPEFLAG_LIGHTNING },
+		{ INV_DMGREDUCE_POISON, DND_DAMAGETYPEFLAG_POISON }
+	};
+
+	int val = INT_MAX;
+	int min_type = 0;
+	for(int i = 0; i < 9; ++i) {
+		int temp = GetPlayerAttributeValue(pnum, res_ids[i][0]);
+		if(val >= temp) {
+			// not yet established, reset
+			if(val != temp)
+				min_type = 0;
+			val = temp;
+			min_type |= res_ids[i][1];
+		}
+	}
+
+	return min_type;
 }
 
 bool AdjustDamageRetrievePointers(int flags, bool crit_check = false, int wepid = -1) {
@@ -2168,6 +2197,8 @@ int HandleCursePlayerResistEffects(int dmg) {
 int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected, str inflictor_class) {
 	int temp = 0;
 	int dot_temp;
+
+	bool isDot = IsDamageStringDOT(dmg_string) || (dmg_data & DND_DAMAGETYPEFLAG_DOT);
 	
 	if(isHardcore())
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_HARDCORE_DEBUFF);
@@ -2233,7 +2264,12 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 				dot_temp = 1;
 			// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
 			// random damage of 10% to 12% of it is applied below
-			RegisterPoisonDamage(random(dot_temp, (dot_temp * 6) / 5), random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME), inflictor_class);
+			RegisterDoTDamage(
+				random(dot_temp, (dot_temp * 6) / 5), 
+				random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME),
+				DND_DAMAGETYPEFLAG_POISON, 
+				inflictor_class
+			);
 		}
 	}
 	// ELEMENTAL DAMAGE BLOCK ENDS
@@ -2275,6 +2311,22 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
 	if(temp)
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
+
+	// find player's lowest resist
+	dot_temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGELOWESTTAKENASPHYS);
+	if(dot_temp && !isDot && (GetLowestResist(pnum) & dmg_data)) {
+		// create new dot instance of phys damage to player making sure to only get a portion of it as DoT
+		dot_temp = dmg * dot_temp / 100;
+		if(!dot_temp)
+			dot_temp = 1;
+
+		// this is the "instead" part of the "DoT", the rest
+		dmg -= dot_temp;
+		if(dmg < 1)
+			dmg = 1;
+
+		RegisterDoTDamage(dot_temp, 5, DND_DAMAGETYPEFLAG_PHYSICAL, inflictor_class);
+	}
 	
 	return dmg;
 }
@@ -2301,14 +2353,18 @@ int GetArmorRatingEffect(int dmg, int armor_id, int dmg_data, bool isArmorPierci
 	return DoArmorRatingEffect(dmg, rating);
 }
 
+bool IsDamageStringDOT(str s) {
+	return s == "PoisonDOT" || s == "PhysicalDOT";
+}
+
 int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
-	bool isPoison = dmg_string == "PoisonDOT";
+	bool is_dot = IsDamageStringDOT(dmg_string);
 	int factor = 0.0;
 	int to_take = 0;
 
-	// poison is not negated by armor
-	if(armor_id != -1 && !isPoison) {
+	// DoT is not negated by armor
+	if(armor_id != -1 && !is_dot) {
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
 		// dmg here is the one to be dealt to the player's health pool
 		factor = 0.0;
@@ -2337,7 +2393,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 
 	// mitigation -- poison goes through as well
 	int temp;
-	if(!isPoison && CouldMitigateDamage(pnum)) {
+	if(!is_dot && CouldMitigateDamage(pnum)) {
 		temp = GetMitigationEffect(pnum);
 		dmg = dmg * ((100.0 - temp) >> 16) / 100;
 		LocalAmbientSound("Mitigation/Success", 96);
@@ -2348,7 +2404,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	factor = GetEShieldMagicAbsorbValue(pnum);
 	if(temp) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
-		if(isPoison || (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)) {
+		if(is_dot || (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)) {
 			// no ways to prevent this type of damage, return raw dmg
 			if(!HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL) && !factor)
 				return dmg;
@@ -3025,6 +3081,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				GiveInventory("Cyborg_InstabilityStack", 1);
 			}
 
+			// 25% less damage taken
+			if(CheckActorInventory(victim, "WarmasterProtect"))
+				dmg = 3 * dmg / 4;
+ 
 			// finally dealing the damage
 			if(victim) {
 				SetResultValue(

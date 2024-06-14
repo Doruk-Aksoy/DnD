@@ -297,6 +297,8 @@ enum {
 	INV_EX_ESHIELDONLYBLOCKPCT,
 	INV_EX_REFILLAMMOONMELEEKILL,
 	INV_EX_SWAPFROMMELEECRIT,
+	INV_EX_DAMAGELOWESTTAKENASPHYS,
+	INV_EX_DEMONBARRIERS,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -2117,6 +2119,10 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			if(showDetailedMods)
 				return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX49S");
+		case INV_EX_ESHIELDONLYBLOCKPCT:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX50", s:"\cg ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\cg%\c- ", l:"IATTR_TX50S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX50", s:"\cg ", d:val1, s:"%\c- ", l:"IATTR_TX50S");
 
 		case INV_EX_REFILLAMMOONMELEEKILL:
 			if(showDetailedMods)
@@ -2144,7 +2150,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_ESCHARGE_DMGNOINTERRUPT:
 		case INV_EX_HEALTHATONE:
 		case INV_EX_ESHIELDFULLABSORB:
-		case INV_EX_ESHIELDONLYBLOCKPCT:
+		case INV_EX_DEMONBARRIERS:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:text);

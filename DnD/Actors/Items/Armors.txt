@@ -569,6 +569,19 @@ Actor UniqueArmor_2 : ArmorDrop {
 	}
 }
 
+Actor DaemonicBarrier : Ammo {
+	inventory.amount 1
+	inventory.maxamount 10
+	ammo.backpackmaxamount 10
+	ammo.backpackamount 0
+	+INVENTORY.IGNORESKILL
+}
+
+Actor DaemonicBarrierTimer : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -15
+}
+
 // BOOTS
 
 Actor BootDrop_0 : ArmorDrop {

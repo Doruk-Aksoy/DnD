@@ -1286,6 +1286,9 @@ void ClearLingeringBuffs() {
 	SetInventory("Cyborg_NoAnim", 0);
 	SetInventory("EShieldChargeNow", 0);
 
+	SetInventory("DaemonicBarrier", 0);
+	SetInventory("DaemonicBarrierTimer", 0);
+
 	// rework this when we add persistent pets
 	SetInventory("PetCounter", 0);
 	

@@ -116,6 +116,8 @@ DND_LEVEL_HEADER						= "L";
 DND_TOREADY								= "to Ready Up!";
 DND_SAFETOSAVE							= "Player Data Saved!";
 
+DND_MADE_BY								= "Made by";
+
 DND_SPREETEXT1							= "Cruel";
 DND_SPREETEXT2							= "Merciless";
 DND_SPREETEXT3							= "Crushing";

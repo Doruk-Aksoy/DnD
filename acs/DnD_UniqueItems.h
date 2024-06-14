@@ -29,6 +29,16 @@ str GetUniqueItemName(int itype, int id) {
 	return "NULL";
 }
 
+str GetUniqueCreatorName(int itype, int id) {
+	str res = "";
+	switch(itype) {
+		case DND_ITEM_CHARM:
+			if(id == UITEM_SLAYERSPECIAL)
+				return "Lawrence";
+	}
+	return res;
+}
+
 #define MAX_UNIQUE_WEIGHT 1000
 
 // initializes all uniques
@@ -430,7 +440,7 @@ void SetupUniqueItems() {
 
 	// body armors
 	id = UITEM_PROTOSHELL;
-	UniqueItemList[id].weight = 600;
+	UniqueItemList[id].weight = 500;
 	UniqueItemList[id].width = 2;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UBODY_1;
@@ -445,14 +455,14 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[3] = INV_EX_HEALTHATONE;
 	UniqueItemList[id].rolls[0].attrib_low = 15;
 	UniqueItemList[id].rolls[0].attrib_high = 30;
-	UniqueItemList[id].rolls[1].attrib_low = 100;
-	UniqueItemList[id].rolls[1].attrib_high = 100;
+	UniqueItemList[id].rolls[1].attrib_low = 75;
+	UniqueItemList[id].rolls[1].attrib_high = 125;
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 1;
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
 	id = UITEM_PRISMGUARD;
-	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].weight = 750;
 	UniqueItemList[id].width = 2;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UBODY_2;
@@ -473,6 +483,32 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_high = 20;
 	UniqueItemList[id].rolls[3].attrib_low = 20;
 	UniqueItemList[id].rolls[3].attrib_high = 33;
+	id = UITEM_BARONSDEN;
+	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].width = 2;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UBODY_3;
+	UniqueItemList[id].item_type = DND_ITEM_BODYARMOR | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = BODYARMOR_BLUE;
+	UniqueItemList[id].item_level = 58;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 5;
+	UniqueItemList[id].attrib_id_list[0] = INV_ARMORPERCENT_INCREASE;
+	UniqueItemList[id].attrib_id_list[1] = INV_HP_INCREASE;
+	UniqueItemList[id].attrib_id_list[2] = INV_DMGREDUCE_PHYS;
+	UniqueItemList[id].attrib_id_list[3] = INV_EX_DAMAGELOWESTTAKENASPHYS;
+	UniqueItemList[id].attrib_id_list[4] = INV_EX_DEMONBARRIERS;
+	UniqueItemList[id].rolls[0].attrib_low = 30;
+	UniqueItemList[id].rolls[0].attrib_high = 75;
+	UniqueItemList[id].rolls[1].attrib_low = 60;
+	UniqueItemList[id].rolls[1].attrib_high = 125;
+	UniqueItemList[id].rolls[2].attrib_low = 15.0;
+	UniqueItemList[id].rolls[2].attrib_high = 35.0;
+	UniqueItemList[id].rolls[3].attrib_low = 10;
+	UniqueItemList[id].rolls[3].attrib_high = 33;
+	UniqueItemList[id].rolls[4].attrib_low = 1;
+	UniqueItemList[id].rolls[4].attrib_high = 1;
+
 }
 
 // These are necessary to sync the global variables + unique data

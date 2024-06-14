@@ -155,7 +155,13 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 		PlayerActivities[pnum].char_id = 0;
 		PlayerActivities[pnum].stash_pages = 0;
 		PlayerActivities[pnum].total_exp = 0; // DONT CHANGE THIS THING'S LOCATION!
-		
+
+		PlayerActivities[pnum].vote_skips = 0;
+		for(i = 0; i < MAX_MAPS_RECORDED; ++i)
+			PlayerActivities[pnum].visited_maps[i] = "";
+
+		ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0, pnum, 0);
+
 		for(i = 0; i < MAX_ACCOUNTNAME_LEN; ++i)
 			PlayerActivities[pnum].player_account[i] = 0;
 	}

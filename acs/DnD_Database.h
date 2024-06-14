@@ -623,9 +623,9 @@ void SavePlayerActivities(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Millions"));
 	SetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc, CheckActorInventory(tid, "DnD_LifeTimeKills_Billions"));
 
-	SetDBEntry(DND_DB_VOTESKIPS, pacc, PlayerActivities[pnum].vote_skips);
+	SetDBEntry(GetCharField(DND_DB_VOTESKIPS, char_id), pacc, PlayerActivities[pnum].vote_skips);
 	for(i = 0; i < MAX_MAPS_RECORDED; ++i)
-		SetDBEntryString(StrParam(s:DND_DB_TRACKEDMAP, d:i), pacc, PlayerActivities[pnum].visited_maps[i]);
+		SetDBEntryString(GetCharField(StrParam(s:DND_DB_TRACKEDMAP, d:i), char_id), pacc, PlayerActivities[pnum].visited_maps[i]);
 	
 	Log(s:"Saving player ", n:pnum + 1, s:"'s activities.");
 }
@@ -1037,9 +1037,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	SetInventory("DnD_LifeTimeKills_Millions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_MILLION, char_id), pacc));
 	SetInventory("DnD_LifeTimeKills_Billions", GetDBEntry(GetCharField(DND_DB_KILLTRACKER_BILLION, char_id), pacc));
 
-	PlayerActivities[pnum].vote_skips = GetDBEntry(DND_DB_VOTESKIPS, pacc);
+	PlayerActivities[pnum].vote_skips = GetDBEntry(GetCharField(DND_DB_VOTESKIPS, char_id), pacc);
 	for(i = 0; i < MAX_MAPS_RECORDED; ++i)
-		PlayerActivities[pnum].visited_maps[i] = GetDBEntryString(StrParam(s:DND_DB_TRACKEDMAP, d:i), pacc);
+		PlayerActivities[pnum].visited_maps[i] = GetDBEntryString(GetCharField(StrParam(s:DND_DB_TRACKEDMAP, d:i), char_id), pacc);
 	
 	#ifdef ISAPRILFIRST
 		// load nft
@@ -1190,6 +1190,10 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);
+
+	SetDBEntry(GetCharField(DND_DB_VOTESKIPS, char_id), pacc, 0);
+	for(i = 0; i < MAX_MAPS_RECORDED; ++i)
+		SetDBEntryString(GetCharField(StrParam(s:DND_DB_TRACKEDMAP, d:i), char_id), pacc, "");
 	
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_RESEARCH_DONE, char_id), d:i + 1), pacc, 0);

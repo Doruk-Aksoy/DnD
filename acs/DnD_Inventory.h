@@ -127,7 +127,7 @@ enum {
 
 	IIMG_UBODY_1,
 	IIMG_UBODY_2,
-	IIMG_UBODY_R3,
+	IIMG_UBODY_3,
 	IIMG_UBODY_R4,
 	IIMG_UBODY_R5,
 	IIMG_UBODY_R6,
@@ -322,7 +322,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_UCORE_END IIMG_UCORE_1
 
 #define ITEM_IMAGE_UBODYARM_BEGIN IIMG_UBODY_1
-#define ITEM_IMAGE_UBODYARM_END IIMG_UBODY_2
+#define ITEM_IMAGE_UBODYARM_END IIMG_UBODY_3
 
 #include "DnD_Armor.h"
 #include "DnD_Powercore.h"
@@ -1790,6 +1790,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	bool isUnique = false;
 
 	str tmp_text;
+	str unique_creator = "";
 	
 	// potential delete of quality in case we hover over an item that doesn't have it, we don't want it lingering!
 	DeleteText(id_begin - id_mult * MAX_INVENTORY_BOXES - 18);
@@ -1833,6 +1834,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			--itype;
 			isUnique = true;
 
+			unique_creator = GetUniqueCreatorName(temp, itype);
 			HudMessage(s:"\c[A1]", l:GetUniqueItemName(temp, itype); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2, CR_WHITE, bx, by, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 			HudMessage(s:"\c[D1]", l:"DND_ITEM_UNIQUE", s:" ", l:GetItemTagName(temp, isubt); HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 3, CR_WHITE, bx, by + 8.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
@@ -1924,6 +1926,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	}
 
 	// corrupted label and seperator
+	tmp_text = "";
 	if(GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, topboxid, -1, source)) {
 		SetFont("IMPSEPRC");
 		HudMessage(s:"A"; 
@@ -1931,8 +1934,16 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		);
 
 		SetFont("SMALLFONT");
+		tmp_text = "\cgCORRUPTED";
+	}
+
+	if(unique_creator != "") {
+		tmp_text = StrParam(l:"DND_MADE_BY", s:": \cd", s:unique_creator, s:"\n", s:tmp_text);
+	}
+
+	if(tmp_text != "") {
 		HudMessage(
-			s:"\cgCORRUPTED"; 
+			s:tmp_text; 
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 9 - attr_count, CR_WHITE, bx, by + 16.0 + 12.0 * attr_count + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
@@ -3224,7 +3235,7 @@ int MakeUnique(int item_pos, int item_type, int pnum) {
 		if(item_type == DND_ITEM_CHARM) {
 			int bias = Timer() & 0xFFFF;
 			i = random(bias + beg, bias + end) - bias;
-			i = UITEM_SLAYERSPECIAL;
+			//i = UITEM_SLAYERSPECIAL;
 			//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 		}
 	#endif

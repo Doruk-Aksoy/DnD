@@ -145,6 +145,13 @@ Graphic "UARM2", 41, 31
 	Patch "UARM2", 0, 0
 }
 
+Graphic "UARM3", 42, 30
+{
+	XScale 0.625
+	YScale 0.625
+	Patch "UARM3", 0, 0
+}
+
 Graphic "HLMICO1", 25, 25
 {
 	XScale 0.750
