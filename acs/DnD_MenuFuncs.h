@@ -4989,7 +4989,7 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 }
 
 int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
-	int val = GetPlayerAttributeValue(pnum, res) + reduce;
+	int val = GetPlayerAttributeValue(pnum, res) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) + reduce;
 	switch(res) {
 		case INV_DMGREDUCE_MAGIC:
 			val += HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;

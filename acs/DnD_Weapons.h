@@ -29,6 +29,15 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 	}
 }
 
+bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
+	int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
+	amt = amt * consumption_rate / 100;
+	if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
+		amt = amt * 5 / 2;
+
+	return ((flags & DND_CFW_DONTCHECKEQUALITY) && CheckInventory(ammo) > amt) || CheckInventory(ammo) >= amt;
+}
+
 void TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt) {
 	int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
 	amt = amt * consumption_rate / 100;

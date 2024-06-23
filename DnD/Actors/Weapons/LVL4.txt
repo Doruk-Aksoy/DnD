@@ -44,8 +44,8 @@ Actor " Machine gun " : Weapon
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_GRENADE, "FireGrenade")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_MACHINEGUN, 1), "FireConfirmed")
-			DMGG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
+			DMGG A 3
 		Goto Warned
 		FireConfirmed:
 			DMGF A 2 Bright A_GunFlash("FlashNorm")
@@ -57,8 +57,7 @@ Actor " Machine gun " : Weapon
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing",cos(pitch)*28,4,32+(sin(-pitch)*20),0,8,random(4,10),0,0,0)
 			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,0,36+(sin(-pitch)*20),frandom(-0.5, 0.5), frandom(-0.75, 0.75), 2,0,0,0)
 			DMGF B 2 Bright A_GunFlash("FlashLower")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "Continue2nd")
-			TNT1 A 0 A_JumpIfInventory("MGClip", 1, "Continue2nd")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "Continue2nd")
 			DMGG B 2 A_GunFlash("FlashLower")
 		Goto Warned
 		Continue2nd:
@@ -82,7 +81,7 @@ Actor " Machine gun " : Weapon
 			TNT1 A 0 A_GiveInventory("WarnTimer", 1)
 		Reload:
 			TNT1 A 0 A_JumpIfInventory("MGClip", 0, "Failed")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_MACHINEGUN, 0), "ContinueReload")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
 		NoWarn:
 			TNT1 A 0 A_GunFlash("FlashNormLightless", GFF_NOEXTCHANGE)
 			DMGG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -591,7 +590,7 @@ Actor "Upgraded Machine Gun" : Chaingun
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HEAVYMACHINEGUN, 1), "FireConfirmed")
-			SMG2 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			SMG2 A 3
 		Goto Reload
 		FireConfirmed:
 			TNT1 A 0 A_Jump(256, "Fire1", "Fire2")
@@ -743,7 +742,7 @@ Actor "Upgraded Machine Gun2" : Weapon {
       	Loop
 	Fire:
 		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_LEADSPITTER, 1), "FireConfirmed")
-		QUAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		QUAG A 3
 	Goto Reload
 	FireConfirmed:
 		QUAG A 0 A_PlaySound("Leadspitter/fireloop", CHAN_WEAPON, 1.0, 1)
@@ -2184,7 +2183,7 @@ Actor "Ebony Cannon" : Weapon {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_EBONYCANNON, 0), "FireConfirmed")
-			WMAU A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+			WMAU A 3
 		Goto Ready
 		FireConfirmed:
 			TNT1 A 0 A_JumpIfInventory("EbonyOverheat", 0, "CoolOff")
@@ -2215,7 +2214,7 @@ Actor "Ebony Cannon" : Weapon {
 		Goto Ready
 		AltFire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_EBONYCANNON, 0), "AltFireConfirmed")
-			WMAU A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+			WMAU A 3
 		Goto Ready
 		AltFireConfirmed:
 			WMAU L 3 Bright A_PlaySoundEx("weapons/ebonyalt", CHAN_WEAPON)

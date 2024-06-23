@@ -497,7 +497,7 @@ ACTOR "Upgraded Shotgun2" : Weapon
     Loop
 	Fire:
 		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_KILLSTORM, 1), "ContinueFire")
-		UASG A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+		UASG A 3
 	Goto Reload
   ContinueFire:
 	UASG BC 1 Bright

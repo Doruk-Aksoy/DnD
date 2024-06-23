@@ -432,7 +432,7 @@ Actor ResSSG3 : Weapon {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HADES, 1), "FireConfirmed")
-			STRG A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+			STRG A 3
 		Goto Reload
 		FireConfirmed:
 			STRG F 1 Bright Offset(4, 39)
@@ -458,7 +458,7 @@ Actor ResSSG3 : Weapon {
 		Goto Ready
 		AltFire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HADES, 2), "AltFireConfirmed")
-			STRG A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
+			STRG A 3
 		Goto Reload
 		AltFireConfirmed:
 			STRG F 1 Bright Offset(4, 39)

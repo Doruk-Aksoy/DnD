@@ -2722,7 +2722,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
-		bool isReflected = inflictor_class == "None" && arg2 != "PoisonDOT" && arg2 != "MagicalRedLeash";
+		bool isReflected = inflictor_class == "None" && !IsDamageStringDOT(arg2) && arg2 != "MagicalRedLeash";
 
 		int ox = GetActorX(0);
 		int oy = GetActorY(0);
@@ -2741,15 +2741,17 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		isRipper = CheckFlag(0, "RIPPER");
 
-		// this flag shares the same value as a damagetype for monsters, so we need to seperate it
-		if((shooter == -1 || !IsMonster(shooter)) && dmg_data & DND_DAMAGEFLAG_USEMASTER)
-			shooter = GetActorProperty(0, APROP_SCORE);
-
 		// set activator to owner of this projectile for certain crediting
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
 		if(shooter == -1)
 			shooter = ActivatorTID();
 
+		// this flag shares the same value as a damagetype for monsters, so we need to seperate it
+		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		if((shooter == -1 || shooter == 0) && !IsMonster(shooter) && dmg_data & DND_DAMAGEFLAG_USEMASTER)
+			shooter = GetActorProperty(0, APROP_SCORE);
+
+		SetActivator(0, AAPTR_DAMAGE_SOURCE);
 		if(dmg_data & DND_DAMAGEFLAG_ISHITSCAN) {
 			ox = GetActorX(shooter);
 			oy = GetActorY(shooter);
@@ -2796,7 +2798,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// dont scale reflected damage by this
 			// special bonuses
 			factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
-			
+
 			dmg = dmg * (100 + factor) / 100;
 
 			// elite damage bonus is multiplicative

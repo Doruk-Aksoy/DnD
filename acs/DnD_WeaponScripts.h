@@ -16,206 +16,223 @@ Script "DnD Pellet Count" (int base, int flags) {
 
 // 0 is ammo1, 1 is ammo2
 // returns 1 if it can fire
-Script "DnD Can Fire Weapon" (int wepid, int ammo_which, int base_mult, int flags) {
-	bool res = true;
+// int wepid, int ammo_which, int base_mult, int flags
+Script "DnD Can Fire Weapon" (int wepid) {
 	int pnum = PlayerNumber();
 
-	if(!CheckInventory("ArtemisCheck")) {
-		int amt = Weapons_Data[wepid].ammo_use1;
-		str ammo = Weapons_Data[wepid].ammo_name1;
+	while(IsAlive() && !CheckInventory("ResetCanFireLoop")) {
+		int flags = CheckInventory("DnD_FiringFlags");
+		bool canFire = false;
+		bool canAltFire = false;
+		bool canReload = false;
 
-		switch(wepid) {
-			case DND_WEAPON_AKIMBOPISTOL:
-				if(ammo_which)
-					ammo = "AkimboClipRight";
-				else
-					ammo = "AkimboClipLeft";
-			break;
+		if(!CheckInventory("ArtemisCheck")) {
+			int amt1 = Weapons_Data[wepid].ammo_use1;
+			str ammo1 = Weapons_Data[wepid].ammo_name1;
 
-			// modify this to allow reload checking?
-			case DND_WEAPON_SHOTGUN:
-				ammo = "ShellSize_8N";
-				if(ammo_which) {
-					// early cancel as this part doesnt necessarily need to check for anything beyond, we already consume more when we shoot
-					SetResultValue(CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo));
-					Terminate;
-				}
-			break;
-			case DND_WEAPON_PURIFIER:
-				ammo = "ShellSize_8";
-				if(ammo_which) {
-					// early cancel as this part doesnt necessarily need to check for anything beyond, we already consume more when we shoot
-					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo);
+			int amt2 = Weapons_Data[wepid].ammo_use2;
+			str ammo2 = Weapons_Data[wepid].ammo_name2;
+
+			switch(wepid) {
+				case DND_WEAPON_AKIMBOPISTOL:
+					if(CheckInventory("AkimboFireMode") == 3)
+						ammo2 = "AkimboClipRight";
+					else
+						ammo2 = "AkimboClipLeft";
+
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
+					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+				break;
+
+				// modify this to allow reload checking?
+				case DND_WEAPON_SHOTGUN:
+				case DND_WEAPON_PURIFIER:
+				case DND_WEAPON_DEADLOCK:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
+					canReload = CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo2);
 					if(flags & DND_CFW_HOLDFIREORRELOADCHECK) {
-						amt = GetPlayerInput(-1, INPUT_BUTTONS);
-						res &= (!CheckInventory(ammo) && (amt & BT_ATTACK)) || (amt & BT_RELOAD);
+						amt1 = GetPlayerInput(-1, INPUT_BUTTONS);
+						canReload &= (!CheckInventory(ammo2) && (amt1 & BT_ATTACK)) || (amt1 & BT_RELOAD);
 					}
+				break;
+				case DND_WEAPON_SHOCKER:
+					// reusing ammo variable here
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire = canAltFire && (IsQuestComplete(0, QUEST_KILLGODSLAYER) || CheckInventory("ShockerOverheat") <= 80);
+					
+					canAltFire &= CheckInventory("ShockerOverheat") >= 10;
+				break;
+				case DND_WEAPON_HADES:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
+					canAltFire = canFire && !CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstCooldown");
+					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+				break;
 
-					SetResultValue(res);
-					Terminate;
-				}
-			break;
-			case DND_WEAPON_DEADLOCK:
-				ammo = "ShellSize_12";
-				if(ammo_which) {
-					// early cancel as this part doesnt necessarily need to check for anything beyond, we already consume more when we shoot
-					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo);
-					SetResultValue(res);
-					Terminate;
-				}
-			break;
-			case DND_WEAPON_SHOCKER:
-				if(!ammo_which) {
-					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || CheckInventory("ShockerOverheat") <= 80;
-				}
-				else
-					res &= CheckInventory("ShockerOverheat") >= 10;
-			break;
-			case DND_WEAPON_HADES:
-				if(ammo_which == 1)
-					ammo = "Shellsize_16";
-				else if(ammo_which == 2) {
-					ammo = "Shellsize_16";
-					res &= !CheckInventory("HadesBurstFired") && !CheckInventory("HadesBurstCooldown");
-				}
-			break;
+				case DND_WEAPON_DESOLATOR:
+					//if(ammo_which)
+					//	res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DesolatorCooldown") && CheckInventory("DesolatorOverheat") < 100);
+				break;
+				/*case DND_WEAPON_MINIGUN:
+					if(ammo_which)
+						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+				break;
+				case DND_WEAPON_MPPB:
+					if(ammo_which)
+						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+				break;*/
 
-			case DND_WEAPON_DESOLATOR:
-				if(ammo_which)
-					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DesolatorCooldown") && CheckInventory("DesolatorOverheat") < 100);
-			break;
-			case DND_WEAPON_MINIGUN:
-				if(ammo_which)
-					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-			break;
-			case DND_WEAPON_MPPB:
-				if(ammo_which)
-					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-			break;
+				case DND_WEAPON_RIOTCANNON:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
+					canReload = CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory(ammo2);
 
-			case DND_WEAPON_RIOTCANNON:
-				if(ammo_which == 1) {
-					ammo = Weapons_Data[wepid].ammo_name2;
-					amt = Weapons_Data[wepid].ammo_use2;
-				}
-				else if(ammo_which == 2) {
-					ammo = Weapons_Data[wepid].ammo_name2;
-					amt = Weapons_Data[wepid].ammo_use2;
-					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-				}
-				else if(ammo_which == 3) {
-					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory("RiotgunClip");
-					SetResultValue(res);
-					Terminate;
-				}
-				else if(ammo_which == 4) {
-					res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory("RiotgunClip");
-					SetResultValue(res);
-					Terminate;
-				}
-			break;
-			case DND_WEAPON_ACIDRIFLE:
-				if(ammo_which != 2) {
-					// m1 and m2 both need to check the clip
-					ammo = Weapons_Data[wepid].ammo_name2;
-				}
-				else if(ammo_which == 2)
-					ammo = Weapons_Data[wepid].ammo_name1;
-			break;
-			case DND_WEAPON_FUSIONBLASTER:
-				ammo = Weapons_Data[wepid].ammo_name2;
-				if(ammo_which == 2)
-					ammo = Weapons_Data[wepid].ammo_name1;
-			break;
-
-			case DND_WEAPON_FREEZER:
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("FreezerCooldown") && CheckInventory("FreezerOverheat") < 100);
-				if(ammo_which == 1)
-					amt /= 2;
-			break;
-			case DND_WEAPON_VOIDCANNON:
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("VoidCannonCooldown") && CheckInventory("VoidCannonOverHeat") < 81);
-			break;
-
-			case DND_WEAPON_NUCLEARPLASMARIFLE:
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("PlasmaOverheatCooldown") && CheckInventory("PlasmaOverheat") < 100);
-			break;
-			case DND_WEAPON_FROSTFANG:
-				if(ammo_which == 1)
-					amt = Weapons_Data[wepid].ammo_use2;
-				else if(ammo_which == 2)
-					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-			break;
-			case DND_WEAPON_REBOUNDER:
-				if(ammo_which == 1) {
-					amt = Weapons_Data[wepid].ammo_use2;
-					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 83);
-				}
-				else
-					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 98);
-			break;
-			case DND_WEAPON_BASILISK:
-				if(ammo_which == 1)
-					amt = 8;
-			break;
-
-			case DND_WEAPON_BFG32768:
-				if(ammo_which == 1)
-					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("BFG32768Cooldown") && CheckInventory("BFG32768Overheat") < 100);
-			break;
-			case DND_WEAPON_DEATHRAY:
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DeathRayCooldown") && CheckInventory("DeathRayOverheat") < 100);
-			break;
-			case DND_WEAPON_IONCANNON:
-				res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("IonCooldown") && CheckInventory("IonOverheat") < 100);
-			break;
-
-			case DND_WEAPON_SAWEDOFF:
-				if(ammo_which == 1) {
-					amt = Weapons_Data[wepid].ammo_use1;
-					ammo = Weapons_Data[wepid].ammo_name2;
-				}
-			break;
-			case DND_WEAPON_DARKGLOVES:
-				if(ammo_which == 1) {
-					if(Weapons_Data[wepid].ammo_name2 != "")
+					/*if(ammo_which == 1) {
 						ammo = Weapons_Data[wepid].ammo_name2;
-					amt = Weapons_Data[wepid].ammo_use2;
-				}
-				else if(ammo_which == 2)
-					res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-			break;
-
-			default:
-				if(ammo_which) {
-					if(Weapons_Data[wepid].ammo_name2 != "")
+						amt = Weapons_Data[wepid].ammo_use2;
+					}
+					else if(ammo_which == 2) {
 						ammo = Weapons_Data[wepid].ammo_name2;
-					amt = Weapons_Data[wepid].ammo_use2;
-				}
-			break;
+						amt = Weapons_Data[wepid].ammo_use2;
+						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+					}
+					else if(ammo_which == 3) {
+						res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory("RiotgunClip");
+						SetResultValue(res);
+						Terminate;
+					}
+					else if(ammo_which == 4) {
+						res &= CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory("RiotgunClip");
+						SetResultValue(res);
+						Terminate;
+					}*/
+				break;
+
+				// standard weapons with no special alt fire that use the ammos, which can reload with mags
+				case DND_WEAPON_MACHINEGUN:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
+					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+				break;
+
+				// weapons with different cost altfires, that have clips and use the main ammo as means to reload
+				case DND_WEAPON_ACIDRIFLE:
+				case DND_WEAPON_FUSIONBLASTER:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+				break;
+
+				case DND_WEAPON_FREEZER:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("FreezerCooldown") && CheckInventory("FreezerOverheat") < 100);
+					//if(ammo_which == 1)
+					//	amt /= 2;
+				break;
+				case DND_WEAPON_VOIDCANNON:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("VoidCannonCooldown") && CheckInventory("VoidCannonOverHeat") < 81);
+				break;
+
+				case DND_WEAPON_NUCLEARPLASMARIFLE:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("PlasmaOverheatCooldown") && CheckInventory("PlasmaOverheat") < 100);
+				break;
+				case DND_WEAPON_FROSTFANG:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 5, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
+
+					/*if(ammo_which == 1)
+						amt = Weapons_Data[wepid].ammo_use2;
+					else if(ammo_which == 2)
+						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;*/
+				break;
+				case DND_WEAPON_REBOUNDER:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 98);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
+					canAltFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 83);
+				break;
+				case DND_WEAPON_BASILISK:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
+				break;
+
+				case DND_WEAPON_BFG32768:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("BFG32768Cooldown") && CheckInventory("BFG32768Overheat") < 100);
+					/*if(ammo_which == 1)
+						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("BFG32768Cooldown") && CheckInventory("BFG32768Overheat") < 100);*/
+				break;
+				case DND_WEAPON_DEATHRAY:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DeathRayCooldown") && CheckInventory("DeathRayOverheat") < 100);
+				break;
+				case DND_WEAPON_IONCANNON:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("IonCooldown") && CheckInventory("IonOverheat") < 100);
+				break;
+
+				case DND_WEAPON_SAWEDOFF:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+				break;
+				case DND_WEAPON_DARKGLOVES:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
+
+					/*if(ammo_which == 1) {
+						if(Weapons_Data[wepid].ammo_name2 != "")
+							ammo = Weapons_Data[wepid].ammo_name2;
+						amt = Weapons_Data[wepid].ammo_use2;
+					}
+					else if(ammo_which == 2)
+						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;*/
+				break;
+
+				default:
+					canFire = ammo1 != "" && CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = ammo2 != "" && CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+				break;
+			}
+		}
+		else if(IsSlot8Weapon(wepid) || wepid == DND_WEAPON_DEMONHEART) {
+			canFire = false;
+			canAltFire = false;
+			canReload = false;
+		}
+		else {
+			canFire = true;
+			canAltFire = true;
+			canReload = true;
 		}
 
-		amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE)) / 100;
-		if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
-			amt = amt * 5 / 2;
+		if(flags & DND_CFW_ALTFIRECHECK) {
+			if(IsMeleeWeapon(wepid))
+				canAltFire &= CheckInventory("Ability_Kick");
+		}
 
-		if(base_mult) // non-zero
-			amt *= base_mult;
-		
-		if(ammo != "")
-			res &= ((flags & DND_CFW_DONTCHECKEQUALITY) && CheckInventory(ammo) > amt) || CheckInventory(ammo) >= amt;
+		// these inventories get checked in weapon code
+		if(canFire)
+			GiveInventory("DnD_CanFire", 1);
+		else
+			TakeInventory("DnD_CanFire", 1);
+
+		if(canAltFire)
+			GiveInventory("DnD_CanAltFire", 1);
+		else
+			TakeInventory("DnD_CanAltFire", 1);
+
+		if(canReload)
+			GiveInventory("DnD_CanReload", 1);
+		else
+			TakeInventory("DnD_CanReload", 1);
+
+		Delay(const:1);
 	}
-	else if(IsSlot8Weapon(wepid) || wepid == DND_WEAPON_DEMONHEART)
-		res = false;
 
-	if(flags & DND_CFW_ALTFIRECHECK) {
-		if(IsMeleeWeapon(wepid))
-			res &= CheckInventory("Ability_Kick");
-	}
-
-	SetResultValue(res);
+	TakeInventory("ResetCanFireLoop", 1);
 }
 
 Script "DnD Take Ammo From Weapon" (int wepid, int ammo_which, int amt) {

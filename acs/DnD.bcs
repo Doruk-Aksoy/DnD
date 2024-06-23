@@ -3393,6 +3393,8 @@ Script "DnD Player Setup" ENTER {
 	while(GetGamemodeState() != GAMESTATE_INPROGRESS)
 		Delay(const:HALF_TICRATE);
 
+	ACS_NamedExecuteAlways("DnD Can Fire Weapon", 0, pnum);
+
 	if(isHardcore()) {
 		str curmap = StrParam(n:PRINTNAME_LEVEL);
 
@@ -4275,6 +4277,11 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 		SetInventory("DnD_WeaponID", wepid);
 		
 		CalculatePlayerAccuracy(pnum, wepid);
+
+		// can fire check loop
+		GiveInventory("ResetCanFireLoop", 1);
+		Delay(const:2);
+		ACS_NamedExecuteAlways("DnD Can Fire Weapon", 0, wepid);
 	}
 
 	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand);

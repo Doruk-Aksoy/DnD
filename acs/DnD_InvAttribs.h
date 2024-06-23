@@ -1924,6 +1924,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_DMGREDUCE_LIGHTNING:
 		case INV_DMGREDUCE_ICE:
 		case INV_DMGREDUCE_POISON:
+		case INV_DMGREDUCE_ALL:
 		case INV_ADDEDMAXRESIST:
 		case INV_OVERLOAD_DURATION:
 		case INV_LIFESTEAL:
