@@ -9,7 +9,7 @@
 #define DND_ATK_SECONDARY 2
 #define DND_ATK_OTHER_DIR 4
 
-#define ACCURACY_FACTOR 0.00001
+#define ACCURACY_FACTOR 0.00001875
 enum {
 	DND_ATF_NOAMMOTAKE 				= 0b1,					// does not take ammo
 	DND_ATF_NOATTACKTRIGGER 		= 0b10,					// does not run attack check code ---- use for things that make multi proj attacks that are different proj
@@ -337,11 +337,13 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	// vector of owner pos
 	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
+	printbold(s:"acc ", d:acc, s: " ", f:1.0 - ACCURACY_FACTOR * acc, s: " ", f:ACCURACY_FACTOR);
+	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
 	
-	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
-	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, (1.0 - ACCURACY_FACTOR * acc)));
+	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
+	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 	
-	//printbold(f:sp_x, s: " ", f:sp_y);
+	printbold(f:sp_x, s: " ", f:sp_y);
 	
 	if(ProjectileInfo[proj_id].flags & DND_PROJ_MELEEBONUSES)
 		range = GetPlayerMeleeRange(pnum, range);
@@ -378,9 +380,10 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 	// vector of owner pos
 	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
+	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
 	
-	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
-	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, (1.0 - ACCURACY_FACTOR * acc)));
+	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
+	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 
 	if(hitscan_id != -1)
 		hitscan_id = HitscanDamageData[hitscan_id];
@@ -466,8 +469,10 @@ int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count,
 	FreeVec3(vTemp);
 	
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
-	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, (1.0 - ACCURACY_FACTOR * acc)));
+	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
+	
+	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
+	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 	acc = 0;
 
 	for(int i = 0; i < count; ++i) {
@@ -555,8 +560,10 @@ int Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, in
 	FreeVec3(vTemp);
 	
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, (1.0 - ACCURACY_FACTOR * acc)));
-	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, (1.0 - ACCURACY_FACTOR * acc)));
+	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
+	
+	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
+	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 	
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile

@@ -44,7 +44,7 @@ Actor ResShotgun1 : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEADLOCK, 0), "ContinueFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueFire")
 			RW01 A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		Goto Reload
 		ContinueFire:
@@ -100,20 +100,20 @@ Actor ResShotgun1 : Weapon {
 		Reload:
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFast")
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "NoAction")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEADLOCK, 1), "ContinueReload")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
 			RW01 A 2 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		NoAction:
 			RW01 A 1 A_WeaponReady(WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUp")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEADLOCK, 1), "ReloadBegin")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ReloadBegin")
 			RW01 A 2
 		Goto RiseUp
 		
 		ReloadChecks:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUp")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEADLOCK, 1), "ReloadInsert")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ReloadInsert")
 		Goto RiseUp
 		
 		ReloadBegin:
@@ -156,20 +156,20 @@ Actor ResShotgun1 : Weapon {
 		
 		ReloadFast:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "NoAction")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEADLOCK, 1), "ContinueReloadFast")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReloadFast")
 			RW01 A 2 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 		NoAction:
 			RW01 A 1 A_WeaponReady(WRF_NOSWITCH)
 		Goto Ready
 		ContinueReloadFast:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUpFast")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEADLOCK, 1), "ReloadBeginFast")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ReloadBeginFast")
 			RW01 A 2
 		Goto RiseUpFast
 		
 		ReloadChecksFast:
 			TNT1 A 0 A_JumpIfInventory("ShellSize_12", 0, "RiseUpFast")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEADLOCK, 1), "ReloadInsertFast")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ReloadInsertFast")
 		Goto RiseUp
 		
 		ReloadBeginFast:
@@ -310,7 +310,7 @@ Actor ResShotgun2 : Weapon {
 			BOWG AAABBBCCCDDDCCCBBB 1 Bright A_WeaponReady
 			Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_NITROGENCROSSBOW, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			BOWG AAABBBCCCDDDCCCBBB 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -347,7 +347,7 @@ Actor ResShotgun2 : Weapon {
 			Goto Ready
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("CryoBowCooldown", 1, "Failed")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_NITROGENCROSSBOW, 1), "AltFireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			BOWG AAABBBCCCDDDCCCBBB 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		AltFireConfirmed:
@@ -836,7 +836,7 @@ Actor ResShotgun3 : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_WHEELOFTORMENT, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			WOPG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -1080,6 +1080,7 @@ ACTOR ResShotgun4 : Weapon {
 			TNT1 A 0 A_GiveInventory("P_PurpleFire", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 6, 10 | (12 << 16), DND_WEAPON_CHARONBLASTER)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 2, 5 | (8 << 16), DND_WEAPON_CHARONBLASTER)
+			TNT1 A 0 A_TakeInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Homing Lock-on Draw", 0, 360, 250, 894)
 		SelectLoop:
 			RW08 A 1 A_Raise
@@ -1109,7 +1110,7 @@ ACTOR ResShotgun4 : Weapon {
 		Loop
 
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_CHARONBLASTER, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			RW08 A 3
 		Goto Ready
 		FireConfirmed:
@@ -1126,7 +1127,7 @@ ACTOR ResShotgun4 : Weapon {
 		Goto FireEnd
 		
 		AltFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_CHARONBLASTER, 1), "AltFireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			RW08 A 3
 		Goto Ready
 		AltFireConfirmed:

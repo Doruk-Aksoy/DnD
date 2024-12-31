@@ -921,7 +921,16 @@ int RollItemLevel() {
 	if(!res)
 		res = 1;
 	
-	// return average player level, +- some value
+	// return average player level, +- some value -- 33% chance to just roll something between min player level and max player level regardless
+	// if that 33% chance rolls then there's a 50-50 chance that it'll be either min - max level players or something much closer to lower lvl player
+	if(!random(0, 2)) {
+		if(random(0, 1))
+			return random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL]);
+		res = random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] + 2 * ITEMLEVEL_VARIANCE_HIGHER);
+		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
+		return res;
+	}
+
 	int pavg = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / res;
 	if(pavg > 2 * ITEMLEVEL_VARIANCE_LOWER) {
 		res = pavg + random(-ITEMLEVEL_VARIANCE_LOWER, ITEMLEVEL_VARIANCE_HIGHER);

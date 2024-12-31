@@ -38,7 +38,7 @@ Actor "Plasma Rifle" : PlasmaRifle
 	  TNT1 A 0 A_Raise
       Loop
    Fire:
-		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_PLASMARIFLE, 0), "FireConfirmed")
+		TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 		NRAI A 3
 	Goto Ready
 	FireConfirmed:
@@ -137,7 +137,7 @@ Actor "Upgraded Plasma Rifle" : PlasmaRifle {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_NUCLEARPLASMARIFLE, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			QNPL A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Beep
 		FireConfirmed:
@@ -529,8 +529,8 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 	Weapon.BobRangeY 0.35
 	Weapon.BobRangeX 0.6
 	Weapon.AmmoGive 0
-	Weapon.AmmoUse1 2
-	Weapon.AmmoUse2 2
+	Weapon.AmmoUse1 0
+	Weapon.AmmoUse2 0
 	Weapon.AmmoType1 "Cell"
 	Weapon.AmmoType2 "Cell"
 	Tag "$WEP_6_2_TAG"
@@ -560,7 +560,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_TURELCANNON, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			TURL A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -575,7 +575,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TURL A 3 A_Refire
 		Goto Ready
 		Hold:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_TURELCANNON, 0), "HoldConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "HoldConfirmed")
 			TURL A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		HoldConfirmed:
@@ -590,7 +590,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TURL A 3 A_Refire
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_TURELCANNON, 0), "AltFireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			TURL A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		AltFireConfirmed:
@@ -721,7 +721,7 @@ Actor "Nailgun" : Weapon {
 	Weapon.AmmoType2 "NailgunAmmo"
 	Weapon.AmmoGive 15
 	Weapon.Ammouse 0
-	Weapon.AmmoUse2 2
+	Weapon.AmmoUse2 0
     Inventory.PickupSound "weapons/pickup"
     Inventory.PickupMessage "You got the nailgun!"
 	Obituary "%o was nailed by %k's nailgun."
@@ -754,7 +754,7 @@ Actor "Nailgun" : Weapon {
 			TNT1 A 0 A_Raise		
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_NAILGUN, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			DNLG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -777,7 +777,7 @@ Actor "Nailgun" : Weapon {
 			DNLG J 3 A_Refire
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_NAILGUN, 1), "AltFireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			DNLG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		AltFireConfirmed:
@@ -991,11 +991,11 @@ ACTOR Basilisk : Weapon {
 	Obituary "%k toasted %o with the basilisk."
 	Weapon.AmmoType1 "BasiliskAmmo"
 	Weapon.AmmoType2 "LoadedBasilisk"
-	Weapon.AmmoUse2 1
+	Weapon.AmmoUse2 0
 	Weapon.AmmoGive 25
 	Weapon.SelectionOrder 375
 	Weapon.SlotNumber 6
-	Weapon.AmmoUse1 1
+	Weapon.AmmoUse1 0
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.4
@@ -1027,7 +1027,7 @@ ACTOR Basilisk : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_BASILISK, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			BASG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -1069,7 +1069,7 @@ ACTOR Basilisk : Weapon {
 		AltFire:
 		Reload:
 			TNT1 A 0 A_JumpIfInventory("LoadedBasilisk", 0, "Full")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_BASILISK, 1), "LoadConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "LoadConfirmed")
 			BASG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		LoadConfirmed:
@@ -1083,7 +1083,7 @@ ACTOR Basilisk : Weapon {
 			TNT1 A 0 A_PlaySound("weapons/basiliskload", 6)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_CELL, AMMO_LAVA, 8)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "NoTake")
-			TNT1 A 0 A_TakeInventory("BasiliskAmmo", 8)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Take Ammo From Weapon", 0, DND_WEAPON_BASILISK, 0, 8)
 		NoTake:
 			TNT1 A 0 A_GiveInventory("LoadedBasilisk", 1)
 			BASG A 2 Offset(32, 44)
@@ -1325,7 +1325,7 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 			TNT1 A 0 A_lower
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FROSTFANG, 0, 5), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			FSTF B 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -1333,6 +1333,12 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 			FSTF C 4
 			FSTF D 5
 		Hold:
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "HoldContinue")
+			FSTF D 2
+			FSTF C 4 Offset(1, 33)
+			FSTF B 3 Offset(1, 33)
+		Goto Ready
+		HoldContinue:
 			TNT1 A 0 A_PlayWeaponSound("FrostFang/Fire1")
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
 			TNT1 A 0 A_SpawnItemEx("FrostFangFog2", 16, 0, 32, 0.5, 0, frandom(-0.5, 0.5), frandom(-50, 50), 128)
@@ -1346,12 +1352,12 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 			FSTF D 2 Offset(0, 36)
 			FSTF D 2 Offset(0, 34)
 			FSTF D 2 Offset(1, 32)
-			FSTF D 3 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FROSTFANG, 2, 5), "Hold")
+			FSTF D 3 A_Refire
 			FSTF C 4 Offset(1, 33)
 			FSTF B 3 Offset(1, 33)
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_FROSTFANG, 1, 0), "AltFireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			FSTF B 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		AltFireConfirmed:
@@ -1732,7 +1738,7 @@ Actor RhinoRifle : Weapon
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("RhinoZoomed", 1, "FireZoomed")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_6", AMMO_GRENADE, "FireGrenade")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RHINORIFLE, 1), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			MARG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
 		FireConfirmed:
@@ -1750,7 +1756,7 @@ Actor RhinoRifle : Weapon
 			MARG A 1 A_Refire
 		Goto Ready
 		FireZoomed:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RHINORIFLE, 1), "FireZoomConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireZoomConfirmed")
 			MAZG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto UnzoomReload
 		FireZoomConfirmed:
@@ -1769,7 +1775,7 @@ Actor RhinoRifle : Weapon
 		Goto Ready
 		
 		Reload:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RHINORIFLE, 0), "ContinueReload")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Weapon Can Switch Mode", AMMO_TYPE_ONLYBIGNADE, SPWEP_SLOT6), "DoModeSwitch")
 			MARG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready

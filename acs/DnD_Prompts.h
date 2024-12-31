@@ -407,4 +407,332 @@ Script "DnD NPC Artifact Pickup" (void) {
 	NPC_States[DND_NPC_DARKWANDERER].time += 45 + 15 * MapDifficulty;
 }
 
+Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+		
+	// draw the background once
+	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+	SetFont("THORM1");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 400.0, 160.0, 0.0, 0.0);
+	SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+	SetFont("PROMPT");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID, -1, 480.0, 320.0, 0.0, 0.0);
+
+	// draw greetings text
+	SetFont("SMALLFONT");
+	SetHudClipRect(160, 128, 532, 600, 532);
+	
+	menu_pane_T& CurrentPane = GetPane();
+	ResetPane(CurrentPane);
+	
+	// vote state isnt concluded
+	bool voting_ongoing = n_state != NPC_STATE_VOTE_DECLINE && n_state != NPC_STATE_VOTE_ACCEPT;
+	int yOff = 384.0;
+	
+	if(first_time) {
+		if(n_state != NPC_STATE_VOTE_ACCEPT) {
+			HudMessage(
+				l:GetPromptText(DW_GREET_FIRST_TIME1), 
+				s:"\n\n", l:GetPromptText(DW_GREET_FIRST_TIME2), 
+				s:"\n\n", l:GetPromptText(DW_GREET_FIRST_TIME3),
+				s:"\n\n\c[Y5]---------------------------------------\n\n",
+				s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n", l:GetPromptText(DW_CHALLENGE_BEGIN + offer_id - 1);
+				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+			);
+		}
+		else {
+			HudMessage(
+				l:GetPromptText(DW_GREET_FIRST_TIME1), 
+				s:"\n\n", l:GetPromptText(DW_GREET_FIRST_TIME2), 
+				s:"\n\n", l:GetPromptText(DW_GREET_FIRST_TIME3),
+				s:"\n\n\c[Y5]---------------------------------------\n\n",
+				s:"\c[W3]", l:"DND_CHALLENGE", s:" - \cd", l:"DND_ACCEPTED", s:"\c[W3]:\n\n", l:GetPromptText(DW_CHALLENGE_BEGIN + offer_id - 1);
+				HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+			);
+
+		}
+		if(voting_ongoing) {
+			AddBoxToPane_Points(CurrentPane, 340.0, 132.0, 300.0, 124.0);
+			AddBoxToPane_Points(CurrentPane, 260.0, 132.0, 220.0, 124.0);
+		}
+	}
+	else if(n_state != NPC_STATE_VOTE_ACCEPT) {
+		HudMessage(
+			l:GetPromptText(CheckInventory("ReceivedDialogID")),
+			s:"\n\n\c[Y5]---------------------------------------\n\n",
+			s:"\c[W3]", l:"DND_CHALLENGE", s:":\n\n", l:GetPromptText(DW_CHALLENGE_BEGIN + offer_id - 1);
+			HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+		);
+		
+		if(voting_ongoing) {
+			AddBoxToPane_Points(CurrentPane, 340.0, 196.0, 300.0, 188.0);
+			AddBoxToPane_Points(CurrentPane, 260.0, 196.0, 220.0, 188.0);
+		}
+		
+		yOff = 256.0;
+	}
+	else {
+		HudMessage(
+			s:"\c[W3]", l:"DND_CHALLENGE", s:" - \cd", l:"DND_ACCEPTED", s:"\c[W3]:\n\n", l:GetPromptText(DW_CHALLENGE_BEGIN + offer_id - 1);
+			HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 160.1, 128.1, 0.0, 0.0
+		);
+		
+		yOff = 192.0;
+	}
+
+	PlayerCursorData.posx = HUDMAX_XF / 2;
+	PlayerCursorData.posy = HUDMAX_YF / 2;
+
+	int boxid = MAINBOX_NONE, boxid_prev = MAINBOX_NONE;
+	int i, j, k;
+	int pnum = PlayerNumber();
+	bool sendInput = false;
+	while(CheckInventory("ShowingPrompt") && !CheckInventory("ShowingMenu")) {
+		// cursor handling
+		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
+		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
+		
+		SetHudClipRect(0, 0, 0, 0);
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		DrawCursor();
+		SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+		
+		// button id recognition
+		boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy);
+		if(boxid != boxid_prev && boxid != MAINBOX_NONE)
+			LocalAmbientSound("RPG/MenuMove", 127);
+			
+		boxid_prev = boxid;
+		
+		// accept
+		if(voting_ongoing) {
+			SetFont("SMALLFONT");
+			if(CheckInventory("NPC_Offer_Accepted")) {
+				HudMessage(l:"DND_ACCEPT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_GREEN, 320.4, yOff, 0.0, 0.0);
+				SetFont("TRADBTNC");
+			}
+			else if(boxid == MBOX_1) {
+				HudMessage(s:"\c[M3]", l:"DND_ACCEPT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 320.4, yOff, 0.0, 0.0);
+				SetFont("TRADBTNH");
+			}
+			else {
+				HudMessage(s:"\c[Y5]", l:"DND_ACCEPT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 320.4, yOff, 0.0, 0.0);
+				SetFont("TRADBTN");
+			}
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 320.4, yOff, 0.0, 0.0);
+			
+			// decline
+			SetFont("SMALLFONT");
+			if(CheckInventory("NPC_Offer_Declined")) {
+				HudMessage(l:"DND_DECLINE"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_GREEN, 480.4, yOff, 0.0, 0.0);
+				SetFont("TRADBTNC");
+			}
+			else if(boxid == MBOX_2) {
+				HudMessage(s:"\c[M3]", l:"DND_DECLINE"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 480.4, yOff, 0.0, 0.0);
+				SetFont("TRADBTNH");
+			}
+			else {
+				HudMessage(s:"\c[Y5]", l:"DND_DECLINE"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 480.4, yOff, 0.0, 0.0);
+				SetFont("TRADBTN");
+			}
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 480.4, yOff, 0.0, 0.0);
+			
+			// draw people voting yes and no here
+			j = 0;
+			k = 0;
+			SetFont("SMALLFONT");
+			for(i = 0; i < MAXPLAYERS; ++i) {
+				if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == 1) {
+					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 5 - j - k, CR_UNTRANSLATED, 320.4, yOff + 16.0 * (j + 1), 0.0, 0.0);
+					++j;
+				}
+				else if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == -1) {
+					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 5 - j - k, CR_UNTRANSLATED, 480.4, yOff + 16.0 * (k + 1), 0.0, 0.0);
+					++j;
+				}
+			}
+		}
+		
+		// check inputs
+		ListenNPCInput();
+		sendInput = CheckInventory("MenuInput") != 0;
+		if(sendInput) {
+			// server gets a few extra info in boxid
+			if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
+				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+			i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
+			// guarantee nonzero input
+			if(i) {
+				//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+				NamedRequestScriptPuke("DND Server Box Receive - NPC", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+			}
+		}
+		
+		Delay(const:1);
+		
+		// retry ack
+		if(!CheckInventory("DND_ACK")) {
+			if(sendInput) {
+				GiveInventory("DND_ACKLoop", 1);
+				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
+				//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK - NPC", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+			}
+		}
+		else {
+			sendInput = false;
+			SetInventory("MenuInput", 0);
+			//Log(s:"reset input data");
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
+		}
+	}
+}
+
+Script "DnD Retry Sending UntiL ACK - NPC" (int payload1, int payload2, int npc_id) CLIENTSIDE {
+	if(!payload1 || CheckInventory("DND_ACKLoop"))
+		Terminate;
+	while(!CheckInventory("DnD_ACK")) {
+		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
+		//Log(s:"trying to send prev item ", d:payload2 >> 16);
+		NamedRequestScriptPuke("DND Server Box Receive - NPC", payload1, payload2, npc_id);
+		Delay(const:1);
+	}
+	TakeInventory("DND_ACKLoop", 1);
+}
+
+Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
+	// don't let garbage data slip in
+	if(!pnum)
+		Terminate;
+	int temp = pnum >> 16;
+	pnum &= 0xFFFF;
+		
+	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
+		SetActivator(pnum + P_TIDSTART);
+		MenuInputData[pnum][DND_MENUINPUT_DELAY] = DND_MENU_INPUTDELAYTICS;
+		MenuInputData[pnum][DND_MENUINPUT] = temp;
+		GiveInventory("DND_ACK", 1);
+		
+		if(temp == DND_MENUINPUT_USEBUTTON) {
+			// force close the menu for us
+			ClosePrompt();
+		}
+		else if(boxid != MAINBOX_NONE) {
+			if(boxid == MBOX_1) {
+				// in case of accept, declare a vote and wait majority or if only player in game, skip this phase
+				ACS_NamedExecuteWithResult("DnD NPC Vote Register", 1, npc_id, pnum);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				GiveInventory("NPC_Offer_Accepted", 1);
+				TakeInventory("NPC_Offer_Declined", 1);
+			}
+			else if(boxid == MBOX_2) {
+				// decline -- mark our vote as a no, wait for voting to conclude optionally
+				ACS_NamedExecuteWithResult("DnD NPC Vote Register", -1, npc_id, pnum);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				GiveInventory("NPC_Offer_Declined", 1);
+				TakeInventory("NPC_Offer_Accepted", 1);
+			}
+		}
+		
+		ClearPlayerInput(pnum, true);
+		
+		Delay(const:DND_MENU_INPUTDELAYTICS);
+		MenuInputData[pnum][DND_MENUINPUT_DELAY] = 0;
+	}
+}
+
+Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
+	if(!NPC_States[npc_id].voting) {
+		NPC_States[npc_id].voting = true;
+		NPC_States[npc_id].n_state = NPC_STATE_VOTE_ONGOING;
+		ACS_NamedExecuteWithResult("DnD NPC Voting", npc_id);
+	}
+	
+	// register vote
+	NPC_States[npc_id].vote_count += vote;
+	NPC_States[npc_id].voters[pnum] = vote;
+		
+	// check if majority is met -- if our (yes vote count) - (current player count / 2) > 0 that means we can skip further checks, we have majority
+	int majority = PlayerCount() / 2 + (PlayerCount() > 1 && (PlayerCount() & 1));
+	int curr = NPC_States[npc_id].vote_count - majority;
+	int i;
+	if(curr > 0) {
+		// settle the vote as majority voting yes
+		SetFont("BIGFONT");
+		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
+		HudMessageBold(l:"DND_VOTEPASSED", s:"!"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_GREEN, 240.4, 16.0, 1.0, 1.0);
+		
+		ConcludeVoting(npc_id, NPC_STATE_VOTE_ACCEPT);
+		
+		// handle npc completion
+		while(!SpawnedChests)
+			Delay(const:10);
+		HandleNPC(npc_id);
+	}
+	else {
+		// check if majority actually declined instead of accepted, so we can close voting early
+		curr = 0;
+		for(i = 0; i < MAXPLAYERS; ++i) {
+			if(NPC_States[npc_id].voters[i])
+				++curr;
+		}
+		// conclude voting
+		if(curr >= majority) {
+			HudMessageBold(s:""; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 1.0, 0.0);
+			SetFont("BIGFONT");
+			SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
+			HudMessageBold(l:"DND_VOTEFAILED", s:"!"; HUDMSG_FADEOUT, RPGMENUHELPCORNERID, CR_RED, 240.4, 16.0, 1.0, 1.0);
+			ConcludeVoting(npc_id, NPC_STATE_VOTE_DECLINE);
+		}
+		else
+			ACS_NamedExecuteWithResult("DnD NPC Vote Sync", pnum, vote, npc_id);
+	}
+}
+
+Script "DnD Close Prompt Delayed" (int pnum, int npc_id) {
+	NPC_States[npc_id].voters[pnum] = 0;
+	Delay(const:17);
+	ClosePrompt();
+}
+
+Script "DnD NPC Voting" (int npc_id) {
+	// this is the timer, when this runs out and a majority is not found, we auto decline
+	int time = DND_VOTE_TIME * TICRATE;
+	while(time > 0 && NPC_States[npc_id].voting) {
+		// display the timer to everyone for vote countdown
+		SetFont("BIGFONT");
+		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
+		HudMessageBold(d:time / TICRATE, s:" ", l:"DND_TOVOTE", s:"!"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 2.0, 0.0);
+		
+		Delay(const:1);
+		--time;
+	}
+	
+	if(NPC_States[npc_id].n_state == NPC_STATE_VOTE_ONGOING) {
+		HudMessageBold(s:""; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 1.0, 0.0);
+		SetFont("BIGFONT");
+		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
+		HudMessageBold(l:"DND_VOTEFAILED", s:"!"; HUDMSG_FADEOUT, RPGMENUHELPCORNERID, CR_RED, 240.4, 16.0, 1.0, 1.0);
+		
+		ConcludeVoting(npc_id, NPC_STATE_VOTE_DECLINE);
+	}
+}
+
+Script "DnD NPC Vote Sync" (int pnum, int vote, int npc_id) CLIENTSIDE {
+	if(pnum == -1) {
+		// reset
+		NPC_States[npc_id].vote_count = 0;
+		for(int i = 0; i < MAXPLAYERS; ++i)
+			NPC_States[npc_id].voters[pnum] = 0;
+	}
+	else {
+		// update
+		NPC_States[npc_id].vote_count += vote;
+		NPC_States[npc_id].voters[pnum] = vote;
+	}
+	SetResultValue(0);
+}
+
 #endif

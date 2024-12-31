@@ -114,6 +114,7 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 	Height 1
 	Radius 1
 	Speed 0
+	Stamina 2097152
 	+THRUACTORS
 	
 	var int user_dmg;
@@ -124,22 +125,23 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 			TNT1 A 0
 		Death:
 			TNT1 A 1 A_PlaySound("WandererExplosion")
+			TNT1 A 0 A_SetArg(0, ACS_NamedExecuteWithResult("DnD Scale Non Weapon Damage", user_dmg, user_damagetype, user_expflags))
 			TNT1 A 0 A_Jump(256, "Fire", "Poison", "Lightning", "Ice")
 		Fire:
-			FXPO A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_FIRE)
+			FXPO A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_FIRE << 16))
 		Goto DoDmg
 		Poison:
-			FXPG A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_POISON)
+			FXPG A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_POISON << 16))
 		Goto DoDmg
 		Lightning:
-			FXPY A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_LIGHTNING)
+			FXPY A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_LIGHTNING << 16))
 		Goto DoDmg
 		Ice:
-			FXPB A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ICE)
+			FXPB A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_ICE << 16))
 		Goto DoDmg
 		DoDmg:
 			"####" A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_ISSPELL)
-			"####" A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DnD Scale Non Weapon Damage", user_dmg, user_damagetype, user_expflags))
+			"####" A 0 A_SetUserVar("user_expdmg", Args[0])
 			"####" A 0 A_SetUserVar("user_expradius", 128)
 			"####" A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 		Goto DoExplosionDamage
@@ -184,6 +186,14 @@ Actor InstabilityBlast : DnD_BaseProjectile {
 	Alpha 1.0
 	Decal "InstabilityDecal"
 	DeathSound "Instability/Hit"
+	
+	Damage(
+		ACS_NamedExecuteWithResult("DND Player Damage Scale", random(4, 64), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DMG_ESHIELDSCALE) |
+		(DND_DAMAGETYPE_ENERGY << 16)
+	)
+	
+	Stamina 2098176
+	
 	+FOILINVUL
 	+RANDOMIZE
 	+DONTREFLECT
@@ -193,14 +203,6 @@ Actor InstabilityBlast : DnD_BaseProjectile {
 		SpawnStateLoop:
 			CYP0 ABCDEFGHIJ 1 Bright
 		Loop
-		XDeath: 
-			TNT1 A 0 ACS_NamedExecuteWithResult(
-				"DnD Do Impact Damage",
-				ACS_NamedExecuteWithResult("DND Player Damage Scale", random(4, 64), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DMG_ESHIELDSCALE),
-				DND_DAMAGETYPE_ENERGY,
-				DND_DAMAGEFLAG_DOFULLDAMAGE,
-				-1
-			)
 		Death:
 			TNT1 A 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 			CYP0 KLMNOPQRSTUVW 1 Bright

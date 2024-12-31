@@ -40,6 +40,9 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define MILLION_MINUS_ONE 999999
 #define THOUSAND_MINUS_ONE 999
 
+#define TIPBOX_TOPLEN 70.0
+#define TIPBOX_MIDLEN 39.0
+
 typedef struct coord {
 	int x;
 	int y;

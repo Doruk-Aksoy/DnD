@@ -725,9 +725,6 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				count = 36;
 				sp_x = 14.8;
 				sp_y = 10.2;
-				
-				// take twice ammo for altfire
-				ammo_take_amt <<= 1;
 			}
 		break;
 		case DND_WEAPON_HELLSMAW:
@@ -1463,16 +1460,15 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				GiveInventory("PlasmaOverheatCooldown", 1);
 		break;
 		case DND_WEAPON_TURELCANNON:
+			use_default = false;
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				if(isAltFire & DND_ATK_OTHER_DIR)
 					Do_Railgun_Attack("TurelShooter2", 1);
 				else
 					Do_Railgun_Attack("TurelShooter1", 1);
 			}
-			else {
+			else
 				Do_Railgun_Attack("TurelShooter3", 1);
-				ammo_take_amt <<= 1; // double ammo on this one
-			}
 		break;
 		case DND_WEAPON_NAILGUN:
 			use_default = true;
@@ -1505,6 +1501,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_BASILISK_2;
 				sp_x = 3.25;
 				sp_y = 2.75;
+
+				// ammo for this was already taken during loading of weapon
+				flags |= DND_ATF_NOAMMOTAKE;
 			}
 		break;
 		case DND_WEAPON_FROSTFANG:

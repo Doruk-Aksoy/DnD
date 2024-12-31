@@ -36,7 +36,7 @@ Actor "BFG 9000" : BFG9000
 			TNT1 A 0 A_Raise
 			Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_BFG6000, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			PRDC A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -110,7 +110,7 @@ Actor "Upgraded BFG 9000" : BFG9000
 			TNT1 A 0 A_Raise
 			Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_BFG32768, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			DBFG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -127,7 +127,7 @@ Actor "Upgraded BFG 9000" : BFG9000
 			DBFF B 2 Bright 
 			DBFG CDA 2 Bright
 			DBFG A 14
-			DBFG A 19 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_BFG32768, 1), "FireConfirmed")
+			DBFG A 19 A_Refire
 			Goto Ready			
 		Flash:
 			TNT1 A 5 Bright A_Light1
@@ -357,7 +357,7 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 			TNT1 A 0 A_Raise
 			Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEVASTATOR, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			DEVA A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -382,7 +382,7 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 			DEVA A 3 A_Refire
 			Goto Ready
 		Altfire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEVASTATOR, 1), "AltFireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			DEVA A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		AltFireConfirmed:
@@ -663,7 +663,7 @@ ACTOR MFG : BFG9000 {
 			NBFG A 1 A_WeaponReady
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_MFG, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			NBFG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -1136,7 +1136,7 @@ ACTOR "Rail Gun" : Weapon {
 		Fire:
 			RAIG A 0 A_JumpIfInventory("Railgun_Charge", 2, "Level3")
 			RAIG A 0 A_JumpIfInventory("Railgun_Charge", 1, "Level2")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RAILGUN, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			RAIG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -1186,8 +1186,7 @@ ACTOR "Rail Gun" : Weapon {
 		Goto Ready
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("Railgun_Charge", 2, "NoMore")
-			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueCharge")
-			TNT1 A 0 A_JumpIfInventory("Cell", 8, "ContinueCharge")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "ContinueCharge")
 			RAIG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueCharge:
@@ -1396,7 +1395,7 @@ Actor "Gauss Rifle" : Weapon {
 			TNT1 A 0 A_JumpIfInventory("GaussZoom", 3, "FireZoom3")
 			TNT1 A 0 A_JumpIfInventory("GaussZoom", 2, "FireZoom2")
 			TNT1 A 0 A_JumpIfInventory("GaussZoom", 1, "FireZoom1")
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_GAUSSRIFLE, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			GAUS A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed:
@@ -1429,7 +1428,7 @@ Actor "Gauss Rifle" : Weapon {
 			GAUS A 5
 		  Goto Ready
 	   FireZoom1:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_GAUSSRIFLE, 0), "FireConfirmed1")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed1")
 			GAUS Y 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed1:
@@ -1463,7 +1462,7 @@ Actor "Gauss Rifle" : Weapon {
 			GAUS Y 5 Offset(0, 32)
 		  Goto Ready
 	   FireZoom2:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_GAUSSRIFLE, 0), "FireConfirmed2")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed2")
 			GAUS X 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed2:
@@ -1496,7 +1495,7 @@ Actor "Gauss Rifle" : Weapon {
 			GAUS X 5 Offset(0, 32)
 		  Goto Ready
 	   FireZoom3:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_GAUSSRIFLE, 0), "FireConfirmed3")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed3")
 			GAUS W 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		FireConfirmed3:
@@ -1891,7 +1890,7 @@ ACTOR "Death Ray" : Weapon
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_DEATHRAY, 0), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			ERWE ABCD 2 A_WeaponReady(WRF_NOFIRE)
 			ERWE ABCDABCD 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready

@@ -43,6 +43,10 @@ Script "DnD Can Fire Weapon" (int wepid) {
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
 					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
+				case DND_WEAPON_SCATTERGUN:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 3, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+				break;
 
 				// modify this to allow reload checking?
 				case DND_WEAPON_SHOTGUN:
@@ -68,20 +72,26 @@ Script "DnD Can Fire Weapon" (int wepid) {
 					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
 
+				// special case where weapons use same ammo to check for reload and fire
+				case DND_WEAPON_HEAVYSUPERSHOTGUN:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canReload = canFire;
+				break;
+
 				case DND_WEAPON_DESOLATOR:
 					//if(ammo_which)
 					//	res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DesolatorCooldown") && CheckInventory("DesolatorOverheat") < 100);
 				break;
-				/*case DND_WEAPON_MINIGUN:
-					if(ammo_which)
-						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+				case DND_WEAPON_MINIGUN:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 5, flags);
+					canAltFire = canFire && GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 				break;
 				case DND_WEAPON_MPPB:
-					if(ammo_which)
-						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-				break;*/
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = canFire && GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+				break;
 
 				case DND_WEAPON_RIOTCANNON:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
@@ -109,24 +119,39 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				break;
 
 				// standard weapons with no special alt fire that use the ammos, which can reload with mags
+				case DND_WEAPON_ASSAULTRIFLE:
+				case DND_WEAPON_MAGNUM:
+				case DND_WEAPON_PLASMACANNON:
 				case DND_WEAPON_MACHINEGUN:
+				case DND_WEAPON_HEAVYMACHINEGUN:
+				case DND_WEAPON_LEADSPITTER:
+				case DND_WEAPON_TEMPLARMG:
+				case DND_WEAPON_VINDICATOR:
+				case DND_WEAPON_RHINORIFLE:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
 					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
 
 				// weapons with different cost altfires, that have clips and use the main ammo as means to reload
+				case DND_WEAPON_ERASUS:
 				case DND_WEAPON_ACIDRIFLE:
 				case DND_WEAPON_FUSIONBLASTER:
+				case DND_WEAPON_FLAMETHROWER:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
 					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
 
+				case DND_WEAPON_HEAVYGL:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 + 1, flags);
+				break;
 				case DND_WEAPON_FREEZER:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("FreezerCooldown") && CheckInventory("FreezerOverheat") < 100);
-					//if(ammo_which == 1)
-					//	amt /= 2;
+					canAltFire = IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("FreezerCooldown") && CheckInventory("FreezerOverheat") < 100);
+					canFire &= canAltFire;
+					
+					canAltFire &= CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 / 2, flags);
 				break;
 				case DND_WEAPON_VOIDCANNON:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
@@ -140,11 +165,10 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				case DND_WEAPON_FROSTFANG:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 5, flags);
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
-
-					/*if(ammo_which == 1)
-						amt = Weapons_Data[wepid].ammo_use2;
-					else if(ammo_which == 2)
-						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;*/
+				break;
+				case DND_WEAPON_LIGHTNINGGUN:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 3, flags);
 				break;
 				case DND_WEAPON_REBOUNDER:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
@@ -153,7 +177,7 @@ Script "DnD Can Fire Weapon" (int wepid) {
 					canAltFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 83);
 				break;
 				case DND_WEAPON_BASILISK:
-					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags) || CheckInventory("LoadedBasilisk");
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
 				break;
 
@@ -170,7 +194,11 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				break;
 				case DND_WEAPON_IONCANNON:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("IonCooldown") && CheckInventory("IonOverheat") < 100);
+					canAltFire = canFire && GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+				break;
+				case DND_WEAPON_RAILGUN:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
 				break;
 
 				case DND_WEAPON_SAWEDOFF:
@@ -181,19 +209,14 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				case DND_WEAPON_DARKGLOVES:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
-
-					/*if(ammo_which == 1) {
-						if(Weapons_Data[wepid].ammo_name2 != "")
-							ammo = Weapons_Data[wepid].ammo_name2;
-						amt = Weapons_Data[wepid].ammo_use2;
-					}
-					else if(ammo_which == 2)
-						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;*/
 				break;
 
 				default:
 					canFire = ammo1 != "" && CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canAltFire = ammo2 != "" && CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+
+					if(ammo2 == "")
+						ammo2 = ammo1;
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
 				break;
 			}
 		}

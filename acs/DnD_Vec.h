@@ -111,7 +111,7 @@ void RotateVector2(int v, int angle) {
 	int c = cos(angle);
 	int s = sin(angle);
 	
-	int xtemp = vec3[v].x;
+	int xtemp = vec2[v].x;
 	vec2[v].x = FixedMul(c, vec2[v].x) - FixedMul(s, vec2[v].y);
 	vec2[v].y = FixedMul(s, xtemp) + FixedMul(c, vec2[v].y);
 }
@@ -121,7 +121,7 @@ int RotateVector2C(int v, int angle) {
 	int c = cos(angle);
 	int s = sin(angle);
 	
-	int xtemp = vec3[res].x;
+	int xtemp = vec2[res].x;
 	vec2[res].x = FixedMul(c, vec2[res].x) - FixedMul(s, vec2[res].y);
 	vec2[res].y = FixedMul(s, xtemp) + FixedMul(c, vec2[res].y);
 	return res;
@@ -129,9 +129,9 @@ int RotateVector2C(int v, int angle) {
 
 // gets a vector that points to a target
 int Vec2To(int target_tid) {
-	int res = GetVec3();
-	vec3[res].x = GetActorX(target_tid) - GetActorX(0);
-	vec3[res].y = GetActorY(target_tid) - GetActorY(0);
+	int res = GetVec2();
+	vec2[res].x = GetActorX(target_tid) - GetActorX(0);
+	vec2[res].y = GetActorY(target_tid) - GetActorY(0);
 	return res;
 }
 

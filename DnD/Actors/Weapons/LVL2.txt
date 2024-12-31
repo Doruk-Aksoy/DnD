@@ -135,7 +135,7 @@ Actor " Akimbo Pistols " : Pistol {
 			//PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
 		RightFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AKIMBOPISTOL, 1), "ContinueRightFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueRightFire")
 			PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto CheckLeft
 		ContinueRightFire:
@@ -152,7 +152,7 @@ Actor " Akimbo Pistols " : Pistol {
 			TNT1 A 0 A_Refire
 		Goto Ready
 		LeftFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AKIMBOPISTOL, 0), "ContinueLeftFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueLeftFire")
 			PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto CheckRight
 		ContinueLeftFire:
@@ -168,7 +168,7 @@ Actor " Akimbo Pistols " : Pistol {
 			TNT1 A 0 A_Refire
 		Goto Ready
 		Reload:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(994, 1, 1), "ContinueReload")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
 			PS2G A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueReload:
@@ -398,7 +398,7 @@ Actor Magnum : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_MAGNUM, 1), "ContinueFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueFire")
 			REVO A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ContinueFire:
@@ -439,7 +439,7 @@ Actor Magnum : Weapon {
 			REVO A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		Reload:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_MAGNUM, 0), "CheckReload")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "CheckReload")
 			REVO A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		CheckReload:
@@ -453,7 +453,7 @@ Actor Magnum : Weapon {
 			TNT1 A 0 A_PlaySound("weapons/magnumout", 6)
 			TNT1 A 5
 		ReloadLoop:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_MAGNUM, 0), "ContinueReload")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
 		Goto FinishReload
 		ContinueReload:
 			TNT1 A 1
@@ -842,7 +842,7 @@ ACTOR ScatterGun : Weapon
 	  TNT1 A 0 A_Raise
       Loop 
   Fire:
-  		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SCATTERGUN, 0, 3), "FireConfirmed")
+  		TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 		SPRP A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
   Goto Ready
   FireConfirmed:
@@ -874,7 +874,7 @@ ACTOR ScatterGun : Weapon
 	  SPRP A 1 A_ReFire
       Goto Ready  	  
   AltFire:
-	TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SCATTERGUN, 0), "AltFireConfirmed")
+	TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 	SPRP A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
   Goto Ready
   AltFireConfirmed:
@@ -1046,7 +1046,7 @@ Actor RubyWand : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RUBYWAND, 0, 3), "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			WAND A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 	  Goto Fire2
 	  FireConfirmed:
@@ -1084,7 +1084,7 @@ Actor RubyWand : Weapon {
 			WAND A 1 Offset(0, 33)
 		Goto Ready
 		AltFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_RUBYWAND, 1), "AltFireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			WAND A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		AltFireConfirmed:

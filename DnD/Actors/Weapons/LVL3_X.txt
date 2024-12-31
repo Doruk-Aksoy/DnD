@@ -36,7 +36,7 @@ ACTOR " Super Shotgun " : Weapon
 	TNT1 A 0 A_Raise
     Loop
 	Fire:
-		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SUPERSHOTGUN, 0), "FireConfirmed")
+		TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 		SHT1 A 3
 	Goto Ready
 	FireConfirmed:
@@ -146,7 +146,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon
 	TNT1 A 0 A_Raise
     Loop
 	Fire:
-		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HEAVYSUPERSHOTGUN, 0), "FireConfirmed")
+		TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 		SHT1 A 3
 	Goto Ready
 	FireConfirmed:
@@ -181,8 +181,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon
 		SSGF E 1
 		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
 		SSGF F 1
-		TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueReload")
-		TNT1 A 0 A_JumpIfInventory("Shell", 2, "ContinueReload")
+		TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
 	Goto NoLoad
 	ContinueReload:
 		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 11, 36 * (1 + sin(-pitch)), 2, 0, 1)
@@ -225,8 +224,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon
 		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 34 * (1 + sin(-pitch)), 2, 0, 1)
 		SSGF E 1
 		TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
-		TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ContinueReloadFast")
-		TNT1 A 0 A_JumpIfInventory("Shell", 2, "ContinueReloadFast")
+		TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReloadFast")
 	Goto NoLoad
 	ContinueReloadFast:
 		SSGF F 1
@@ -365,7 +363,7 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
 	TNT1 A 0 A_Raise
     Loop
   Fire:
-		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ERASUS, 1), "FireConfirmed")
+		TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 		ERAG A 3
 	Goto Ready
 	FireConfirmed:
@@ -432,12 +430,12 @@ ACTOR "Upgraded Super Shotgun2" : Weapon
     Goto Reload
 	
 	AltFire:
-		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ERASUS, 1, 2), "BurstFire")
+		TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "BurstFire")
 		ERAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 	Goto Reload
   Reload:
     TNT1 A 0 A_JumpIfInventory("ShellSize_2", 0, "NoAction")
-	TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_ERASUS, 0), "ReallyReload")
+	TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1,  "ReallyReload")
 	ERAG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
   Goto Ready
   ReallyReload:
@@ -547,16 +545,16 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "LFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "LFire")
 			HLMW A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		LFire:
 			HLMW P 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ContinueLeftFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueLeftFire")
         Goto LIdle
 		ContinueLeftFire:
 			HLMW P 3 A_WeaponReady(WRF_NOFIRE)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ReallyLeftFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ReallyLeftFire")
 		Goto LIdle
 		ReallyLeftFire:
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 7)
@@ -606,11 +604,11 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 
 		RFire:
 			HLMW Q 1
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ContinueRightFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueRightFire")
 		Goto RIdle
 		ContinueRightFire:
 			HLMW Q 3
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_HELLSMAW, 0), "ReallyRightFire")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ReallyRightFire")
 		Goto RIdle
 		ReallyRightFire:
 			TNT1 A 0 A_PlaySound("HellsMaw/Fire", 6)
@@ -868,7 +866,7 @@ Actor "Silver Gun" : Weapon
 	TNT1 A 0 A_Raise
     Loop
   Fire:
-  		TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_SILVERGUN, 0), "FireConfirmed")
+  		TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 		EXSG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 	  Goto Ready
   FireConfirmed:
@@ -1260,7 +1258,7 @@ Actor TheAxe : Weapon {
 		Stop
 		Ready:
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ReadyAmmo")
-			TNT1 A 0 A_JumpIfInventory("AxeMana", 1, "ReadyAmmo")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ReadyAmmo")
 		ReadyNoAmmo:
 			FAXE A 1 A_WeaponReady(WRF_NOSECONDARY)
 		Goto Ready
@@ -1270,7 +1268,7 @@ Actor TheAxe : Weapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "DeselectAmmo")
-			TNT1 A 0 A_JumpIfInventory("AxeMana", 1, "DeselectAmmo")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "DeselectAmmo")
 		DeselectNoAmmo:
 			FAXE A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1295,7 +1293,7 @@ Actor TheAxe : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 125, 0, DND_WEAPON_AXE)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 100, 0, DND_WEAPON_AXE)
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "SelectLoop")
-			TNT1 A 0 A_JumpIfInventory("AxeMana", 1, "SelectLoop")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "SelectLoop")
 		SelectNoAmmo:
 			FAXE A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -1315,7 +1313,7 @@ Actor TheAxe : Weapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 0), "FireMana")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireMana")
 			FAXE A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto FireNoMana
 		FireMana:
@@ -1327,7 +1325,7 @@ Actor TheAxe : Weapon {
 			FAXE Q 1 Bright Offset(15, 32)
 			FAXE Q 2 Bright Offset(10, 54)
 			FAXE Q 6 Bright Offset(10, 150)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 0), "RiseUpMana")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "RiseUpMana")
 		Goto RiseUpNoMana
 		RiseUpMana:
 			FAXE Q 1 Bright Offset(10, 150)
@@ -1357,7 +1355,7 @@ Actor TheAxe : Weapon {
 		
 		
 		AltFire:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 1, 0, DND_CFW_ALTFIRECHECK), "ThrowAxe")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "ThrowAxe")
 			FAXE FGH 3 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ThrowAxe:
@@ -1369,11 +1367,11 @@ Actor TheAxe : Weapon {
 			FAXE Q 1 Bright Offset(15, 32)
 			FAXE Q 2 Bright Offset(10, 54)
 			FAXE Q 5 Bright Offset(10, 150)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 0), "RiseUpManaAlt")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "RiseUpManaAlt")
 		Goto RiseUpNoMana
 		RiseUpManaAlt:
 			FAXE Q 1 Bright Offset(10, 150)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_AXE, 1), "ThrowAxeRise")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ThrowAxeRise")
 			FAXE Q 1 Bright Offset(10, 150)
 		Goto NoThrowManaRise
 		ThrowAxeRise:

@@ -2577,7 +2577,12 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 			SetActorProperty(0, APROP_HEALTH, 2);
 		}
 
-		SetActorProperty(0, APROP_SCORE, m_id * (UNSTABLE_DMG_PCT + UNSTABLE_DMG_PCT * GetPlayerEnergyShieldPercent(pnum) / 100) / 100);
+		m_id = m_id * (UNSTABLE_DMG_PCT + UNSTABLE_DMG_PCT * GetPlayerEnergyShieldPercent(pnum) / 100) / 100;
+		m_id &= 0xFFFF; // limit to 65536
+		// encode damage type
+		m_id |= DND_DAMAGETYPE_ENERGY << 16;
+
+		SetActorProperty(0, APROP_SCORE, m_id);
 		SetActorProperty(0, APROP_TARGETTID, this);
 		SetPointer(AAPTR_TARGET, this);
 		SetActivator(this);
@@ -2958,7 +2963,25 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			pnum = shooter - P_TIDSTART;
 
 			// spells get raw damage in here, they don't encode weapon data or anything
-			if(!(dmg_data & DND_DAMAGEFLAG_ISSPELL)) {
+			if(dmg_data & DND_DAMAGEFLAG_NONWEAPON) {
+				// non-weapon sources that aren't spells
+				dmg = arg1 & 0xFFFF; // dmg
+				temp = arg1 >> 16; // dmg_type
+				m_id = -1;
+			}
+			else if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {
+				// first 16 bits is spell damage, next is damage type and last is spell id
+				dmg = arg1 & SPELLDMG_MASK;
+				dmg += factor; // depending on distance increasing damage modifier this can be non-zero
+
+				arg1 >>= SPELL_DMG_SHIFT;
+				temp = arg1 & SPELLDTYPE_MASK;
+
+				arg1 >>= SPELL_DTYPE_SHIFT;
+				m_id = arg1 & SPELLID_MASK;
+			}
+			else {
+				// regular weapon dmg
 				// wepid
 				m_id = arg1 & ATK_WID_MASK;
 				arg1 >>= ATK_CACHE_SHIFT;
@@ -2990,17 +3013,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// setup the flags and factor
 				if(factor != 100)
 					dmg = dmg * factor / 100;
-			}
-			else {
-				// first 16 bits is spell damage, next is damage type and last is spell id
-				dmg = arg1 & SPELLDMG_MASK;
-				dmg += factor; // depending on distance increasing damage modifier this can be non-zero
-
-				 arg1 >>= SPELL_DMG_SHIFT;
-				temp = arg1 & SPELLDTYPE_MASK;
-
-				arg1 >>= SPELL_DTYPE_SHIFT;
-				m_id = arg1 & SPELLID_MASK;
 			}
 
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {

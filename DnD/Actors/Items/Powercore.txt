@@ -65,6 +65,9 @@ Actor UnstableExplosion : DnD_ExplosiveBase {
 	Radius 1
 	Alpha 0.975
 	Scale 1.15
+	
+	Stamina 2097152
+	
 	Renderstyle Add
 	+THRUACTORS
 	+FORCERADIUSDMG
@@ -78,8 +81,7 @@ Actor UnstableExplosion : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expdmg", score)
 			TNT1 A 0 A_SetUserVar("user_expradius", mass * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_flags", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_ENERGY)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			PLNS F 2

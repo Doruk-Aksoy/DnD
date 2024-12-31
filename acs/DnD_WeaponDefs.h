@@ -611,7 +611,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_name2 = "ShellSize_2";
 	Weapons_Data[DND_WEAPON_ERASUS].icon = "WEPICO26";
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_ERASUS].ammo_use2 = 1;
+	Weapons_Data[DND_WEAPON_ERASUS].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_ERASUS].properties = WPROP_SHOTGUN;
 	Weapons_Data[DND_WEAPON_ERASUS].attunement[STAT_STR] = 0.02;
 	Weapons_Data[DND_WEAPON_ERASUS].attunement[STAT_DEX] = 0.03;
@@ -1001,7 +1001,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_TURELCANNON].icon = "WEPICO56";
 	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use1 = 2;
-	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_TURELCANNON].ammo_use2 = 4;
 	Weapons_Data[DND_WEAPON_TURELCANNON].properties = WPROP_RIPPER | WPROP_TECH | WPROP_AUTOMATIC;
 	Weapons_Data[DND_WEAPON_TURELCANNON].attunement[STAT_STR] = 0.01;
 	Weapons_Data[DND_WEAPON_TURELCANNON].attunement[STAT_DEX] = 0.03;
@@ -1083,7 +1083,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_BASILISK].ammo_name2 = "LoadedBasilisk";
 	Weapons_Data[DND_WEAPON_BASILISK].icon = "WEPICO63";
 	Weapons_Data[DND_WEAPON_BASILISK].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_BASILISK].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_BASILISK].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_BASILISK].properties = WPROP_IGNORESHIELD | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_BASILISK].attunement[STAT_STR] = 0.025;
 	Weapons_Data[DND_WEAPON_BASILISK].attunement[STAT_INT] = 0.025;
@@ -1169,7 +1169,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_RAILGUN].icon = "WEPICO71";
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_RAILGUN].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_TECH | WPROP_PRECISION;
 	Weapons_Data[DND_WEAPON_RAILGUN].attunement[STAT_STR] = 0.01;
 	Weapons_Data[DND_WEAPON_RAILGUN].attunement[STAT_DEX] = 0.04;
