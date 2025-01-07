@@ -140,7 +140,7 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 			FXPB A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_ICE << 16))
 		Goto DoDmg
 		DoDmg:
-			"####" A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_ISSPELL)
+			"####" A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NONWEAPON)
 			"####" A 0 A_SetUserVar("user_expdmg", Args[0])
 			"####" A 0 A_SetUserVar("user_expradius", 128)
 			"####" A 0 A_SetUserVar("user_fullexpradius", user_expradius)

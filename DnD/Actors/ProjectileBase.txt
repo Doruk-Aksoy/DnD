@@ -25,13 +25,6 @@ enum {
 	DND_PULLF_REVERSEDIR = 2
 };
 
-const int CACHE_SHIFT = 9;
-const int DTYPE_SHIFT = 12;
-const int DPCT_SHIFT = 17;
-
-const int SPELL_DMG_SHIFT = 16;
-const int SPELL_ID_SHIFT = 21;
-
 Actor DnD_ShotgunDamageHolder : DnD_Info { }
 Actor DnD_PoisonStacks : DnD_Info { }
 Actor DnD_ChillStacks: DnD_Info { }

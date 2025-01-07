@@ -1187,7 +1187,7 @@ void SetupWeaponData() {
 	// SLOT 8
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].name = "Death Staff";
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_name1 = "Souls";
-	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_name2 = "Souls";
+	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].icon = "WEPICO72";
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use2 = 9;
@@ -1197,7 +1197,7 @@ void SetupWeaponData() {
 	
 	Weapons_Data[DND_WEAPON_RAZORFANG].name = "Razorfang";
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_name1 = "Souls";
-	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_name2 = "Souls";
+	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_RAZORFANG].icon = "WEPICO73";
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_use2 = 4;
@@ -1207,7 +1207,7 @@ void SetupWeaponData() {
 	
 	Weapons_Data[DND_WEAPON_SUNSTAFF].name = "Sun Staff";
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_name1 = "Souls";
-	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_name2 = "Souls";
+	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_SUNSTAFF].icon = "WEPICO74";
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_use2 = 5;
@@ -1464,20 +1464,24 @@ enum {
 	DND_OVERHEAT_REBOUNDER,
 	DND_OVERHEAT_DESOLATOR,
 	DND_OVERHEAT_DEATHRAY,
-	DND_OVERHEAT_VOIDCANNON
+	DND_OVERHEAT_VOIDCANNON,
+
+	DND_OVERHEAT_LAST
 };
 
-#define MAXOVERHEATWEPS (DND_OVERHEAT_VOIDCANNON + 1)
-str WeaponOverheatItems[MAXOVERHEATWEPS] = {
-	"ShockerOverheat",
-	"FreezerOverheat",
-	"PlasmaOverheat",
-	"BFG32768Overheat",
-	"IonOverheat",
-	"RebounderOverheat",
-	"DesolatorOverheat",
-	"DeathRayOverheat",
-	"VoidCannonOverheat"
+#define WEAPON_OVERHEATID 0
+#define WEAPON_OVERHEATCOOLDOWNID 1
+#define MAXOVERHEATWEPS DND_OVERHEAT_LAST
+str WeaponOverheatItems[MAXOVERHEATWEPS][MAXOVERHEATWEPS] = {
+	{ "ShockerOverheat", "" },
+	{ "FreezerOverheat", "FreezerCooldown" },
+	{ "PlasmaOverheat", "PlasmaOverheatCooldown" },
+	{ "BFG32768Overheat", "BFG32768Cooldown" },
+	{ "IonOverheat", "IonCooldown" },
+	{ "RebounderOverheat", "RebounderCooldown" },
+	{ "DesolatorOverheat", "DesolatorCooldown" },
+	{ "DeathRayOverheat", "DeathrayCooldown" },
+	{ "VoidCannonOverheat", "VoidCannonCooldown" }
 };
 
 // 32 overheat weapons supported
@@ -1546,7 +1550,7 @@ bool CheckSlotWeapon(int slot) {
 	return false;
 }
 
-int GetWeaponPosFromTable() {
+int GetCurrentWeaponID() {
 	return CheckInventory("DnD_WeaponID");
 }
 
@@ -1792,6 +1796,22 @@ void GiveOverheat(int pnum, str item, int amt, int wepid) {
 	// let players attain maximum overheat reduction
 	if(amt > 0)
 		GiveInventory(item, amt);
+}
+
+void HandleOverheating(int pnum, str overheatPercentItem, str overheatCooldownItem) {
+	if(CheckInventory(overheatPercentItem) >= 100)
+		GiveInventory(overheatCooldownItem, 1);
+}
+
+bool HasRunningOverheatCooldown(int p_tid) {
+	for(int i = 0; i < MAXOVERHEATWEPS; ++i)
+		if(WeaponOverheatItems[i][WEAPON_OVERHEATCOOLDOWNID] != "" && CheckActorInventory(p_tid, WeaponOverheatItems[i][WEAPON_OVERHEATCOOLDOWNID]))
+			return true;
+	return false;
+}
+
+bool CanWeaponOverheat(int id) {
+	return Weapons_Data[id].properties & WPROP_OVERHEAT;
 }
 
 // TODO: If this ends up lagging the server, store player owned weapons in a specific array per weapon slot and pull data from there

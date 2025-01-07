@@ -321,10 +321,13 @@ Actor VortexBlade : DnD_ExplosiveBase {
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_count", 0)
-			TNT1 A 0 A_SetUserVar("user_expdmg", ACS_NamedExecuteWithResult("DND Player Damage Scale", 40, DND_DAMAGECATEGORY_MELEE, DND_ISARTIFACT | DND_USETARGET))
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				ACS_NamedExecuteWithResult("DND Player Damage Scale", 40, DND_DAMAGECATEGORY_MELEE, DND_ISARTIFACT | DND_USETARGET) |
+				(DND_DAMAGETYPE_OCCULT << DMGTYPE_SHIFT)
+			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 18 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_damagetype", DND_DAMAGETYPE_OCCULT)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NONWEAPON)
 		ExplosionLoopA:
 			SHFL A 3
 		Goto DoExplosionDamage

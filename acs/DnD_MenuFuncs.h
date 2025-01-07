@@ -470,9 +470,6 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_STAT2_UTILITY:
 			redraw = ListenScroll(ScrollPos.y, 0);
 		break;
-		case MENU_STAT2_QUESTBONUSES:
-			redraw = ListenScroll(-128, 0);
-		break;
 		case MENU_HELP_MMODS_IMMUNITY:
 			redraw = ListenScroll(-144, 0);
 		break;
@@ -812,7 +809,7 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 	
 	if(tradeflag & TRADE_BUY) {
 		if(type == TYPE_AMMO) { // ammo
-			cond2 = (CheckInventory(item) < GetAmmoCapacity(item));
+			cond2 = (CheckInventory(item) < GetAmmoCapacity(item)) && !GetPlayerAttributeValue(pnum, INV_EX_CANNOTPICKAMMO);
 			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
@@ -1519,7 +1516,6 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 108.0, 222.0 }, // off
 			{ 289.0, 213.0, 108.0, 206.0 }, // def
 			{ 289.0, 197.0, 108.0, 190.0 }, // uti
-			{ 289.0, 181.0, 108.0, 174.0 }, // quest
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
@@ -1540,11 +1536,6 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ -1, -1, -1, -1 }
 		},
 		// stat uti
-		{
-			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
-			{ -1, -1, -1, -1 }
-		},
-		// stat quest
 		{
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
@@ -2922,14 +2913,11 @@ void DrawInventoryInfo(int pnum) {
 				my = INVENTORYINFO_TRADEVIEW_WRAPY + 0.1;
 		}
 		
+		int bg_x = mx;
+		int bg_y = my;
+
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		int attr_count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-		bool lessThanFour = attr_count + (GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource) != -1) < 4;
-		if(lessThanFour)
-			SetFont("LDTITINS");
-		else
-			SetFont("LDTITINF");
-		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, 0.75);
 
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		if(stack) {
@@ -2945,8 +2933,15 @@ void DrawInventoryInfo(int pnum) {
 		mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
 		my = GetIntegerBits(3 * my / 2) + 20.1;
 		
-		SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9);
-		DrawInventoryText(PlayerCursorData.itemHovered, PlayerCursorData.itemHoveredSource, pnum, mx, my, itype, isubt, RPGMENUINVENTORYID, HUD_DII_MULT, attr_count);
+		SetHudClipRect(12 + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
+		DrawInventoryText(
+			PlayerCursorData.itemHovered,
+			PlayerCursorData.itemHoveredSource, 
+			pnum, mx, my, itype, isubt, RPGMENUINVENTORYID, HUD_DII_MULT, 
+			HUDMAX_X, HUDMAX_Y, 
+			bg_x, bg_y,
+			attr_count
+		);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y, 1);
 	}
@@ -4389,21 +4384,12 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 		mx = INVENTORYINFO_NORMALVIEW_WRAPX + 0.1;
 	if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
 		my = INVENTORYINFO_NORMALVIEW_WRAPY + 0.1;
+
+	int bg_x = mx;
+	int bg_y = my;
 		
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-	int attr_count = 0;
-	
-	if(item_type != DND_ITEM_WEAPON) {
-		attr_count = GetItemSyncValue(pn, DND_SYNC_ITEMSATTRIBCOUNT, item_id, -1, item_source);
-		bool lessThanFour = attr_count + (GetItemSyncValue(pn, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_id, -1, item_source) != -1) < 4;
-		if(lessThanFour)
-			SetFont("LDTITINS");
-		else
-			SetFont("LDTITINF");
-	}
-	else
-		SetFont("LDTITINF");
-	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, CR_WHITE, mx, my, 0.0, 0.75);
+	int attr_count = GetItemSyncValue(pn, DND_SYNC_ITEMSATTRIBCOUNT, item_id, -1, item_source);
 	
 	if(GetStackValue(item_type) && item_source) {
 		SetFont("SMALLFONT");
@@ -4432,14 +4418,14 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
 	my = GetIntegerBits(3 * my / 2) + 20.1;
 	
-	SetHudClipRect(15 + (prev_x >> 16), 15 + (prev_y >> 16), 4 * HUD_ITEMBAK_X / 3 + 9, 288, 4 * HUD_ITEMBAK_X / 3 + 9);
-	DrawCraftingInventoryText(item_type, item_id, item_source, pn, id_begin, mx, my, attr_count);
+	SetHudClipRect(12 + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
+	DrawCraftingInventoryText(item_type, item_id, item_source, pn, id_begin, mx, my, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count);
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
 // extra1 is topboxid for items, extra2 works as source for inventory related things (used charms vs player inventory etc.)
-void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int id_begin, int mx, int my, int attr_count) {
+void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int id_begin, int mx, int my, int hx, int hy, int bg_x, int bg_y, int attr_count) {
 	if(itype == DND_ITEM_WEAPON) {
 		int j, temp;
 		j = PlayerNumber();
@@ -4496,7 +4482,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		HudMessage(s:modText; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx, my + 40.0, 0.0, 0.0);
 	}
 	else // draw using our established drawing routine
-		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), id_begin, HUD_DII_MULT, attr_count);
+		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count);
 }
 
 void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, int k) {

@@ -1,4 +1,8 @@
-const int WID_SHIFT = 9;
-const int CACHE_SHIFT = WID_SHIFT; // weapon id is 9 bits so we shift 9
-const int DTYPE_SHIFT = CACHE_SHIFT + 3; // 3 bits for cache ids
-const int DPCT_SHIFT = DTYPE_SHIFT + 5; // 5 bits for damage type info they aren't bits!
+const int DMGTYPE_SHIFT = 16;
+
+const int CACHE_SHIFT = 9;
+const int DTYPE_SHIFT = 12;
+const int DPCT_SHIFT = 17;
+
+const int SPELL_DMG_SHIFT = 16;
+const int SPELL_ID_SHIFT = 21;

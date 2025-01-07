@@ -216,9 +216,11 @@ enum {
 #define DND_CRIT_TRANSLATION 71
 #define DND_RESIST_TRANSLATION 72
 
-#define DND_SOULAMMO_DROPRATE 0.03 // 3% chance
-#define DND_SOULAMMO_STEALERUPGRADE 0.02 // 2% more chance
+#define DND_SOULAMMO_DROPRATE 0.045 // 4.5% chance
+#define DND_SOULAMMO_STEALERUPGRADE 0.025 // 2.5% more chance
 #define DND_SOULAMMO_SMALLCHANCE 75
+
+#define DND_LEGENDARY_ITEMDROPRATE 0.1 // 10%
 
 #define DND_BOSSCHEST_DROPRATE 0.33 // 33% chance
 
@@ -688,6 +690,7 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			// for orbs
 			int bits = 0;
 			int p_chance = GetDropChance(i);
+			int j;
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1)) {
 				SpawnOrb(i, true);
@@ -727,8 +730,12 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 				bits |= DND_LOOTBIT_CHESTKEY;
 			}
 
+			j = MonsterProperties[m_id].id;
+			if(isLegendaryMonster(j) && RunPrecalcDropChance(p_chance, DND_LEGENDARY_ITEMDROPRATE, m_id, DND_MON_RNG_1))
+				HandleLegendaryMonsterDrop(j, i);
+
 			// luck mastery check for inventory items --- they need special handling
-			for(int j = 0; j < DND_MAX_LOOTBITS; ++j) {
+			for(j = 0; j < DND_MAX_LOOTBITS; ++j) {
 				if(IsSet(bits, j) && CheckPlayerLuckDuplicator(i)) {
 					switch(j) {
 						case DND_LOOT_ORB:
@@ -760,6 +767,29 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			}
 		}
 	}
+}
+
+void HandleLegendaryMonsterDrop(int leg_mon_id, int pnum) {
+	int unique_id = -1;
+	switch(leg_mon_id) {
+		case MONSTER_DREAMINGGOD:
+			unique_id = UITEM_DREAMINGGODIRE;
+		break;
+		case MONSTER_TORRASQUE:
+			unique_id = UITEM_STEELBARK;
+		break;
+		case MONSTER_MORDECQAI:
+			unique_id = UITEM_ELEMENTALHARMONY;
+		break;
+		case MONSTER_GODSLAYER:
+			unique_id = UITEM_HEATBREAKER;
+		break;
+		case MONSTER_GOLGOTH:
+			unique_id = UITEM_THORNVEIN;
+		break;
+	}
+	int c = CreateItemSpot();
+	MakeUnique(c, unique_id, pnum);
 }
 
 void HandleCreditExp_Regular(int this, int target, int m_id) {
@@ -1073,7 +1103,7 @@ void ActivateKillingSpree() {
 			// punisher perks
 			if(CheckInventory("Punisher_Perk5")) {
 				if(!CheckInventory("Punisher_Perk5_MoveSpeed")) {
-					int wepid = CheckInventory("DnD_WeaponID");
+					int wepid = GetCurrentWeaponID();
 					if(GetSlotOfWeapon(wepid) != 9) {
 						if(Weapons_Data[wepid].ammo_name1 != "" && Weapons_Data[wepid].ammo_name1 != "Souls") {
 							GiveInventory(Weapons_Data[wepid].ammo_name1, GetAmmoCapacity(Weapons_Data[wepid].ammo_name1) / 10);

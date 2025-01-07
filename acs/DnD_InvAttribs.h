@@ -299,6 +299,17 @@ enum {
 	INV_EX_SWAPFROMMELEECRIT,
 	INV_EX_DAMAGELOWESTTAKENASPHYS,
 	INV_EX_DEMONBARRIERS,
+	INV_EX_SOULPICKUPSINFAMMO,
+	INV_EX_SOULPICKUPSONLYAMMO,
+	INV_EX_STREXTRABONUSTOMELEE,
+	INV_EX_ELEPENHARMONY,
+	INV_EX_CANFIREOVERHEATED,
+	INV_EX_CANTFIRENONOVERHEAT,
+	INV_EX_MOREDMGPEROVERHEAT,
+	INV_EX_LESSDMGTAKENMAXOVERHEAT,
+	INV_EX_WEAPONSUSEHEALTH,
+	INV_EX_CANNOTPICKAMMO,
+	INV_EX_AMMOCOSTMULTIPLIER,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -905,8 +916,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLAT_POISONDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_POISONDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 	
-	ItemModTable[INV_LIFESTEAL].attrib_low = 0.05;
-	ItemModTable[INV_LIFESTEAL].attrib_high = 0.125;
+	ItemModTable[INV_LIFESTEAL].attrib_low = 0.125;
+	ItemModTable[INV_LIFESTEAL].attrib_high = 0.375;
 	ItemModTable[INV_LIFESTEAL].attrib_level_modifier = 0;
 	ItemModTable[INV_LIFESTEAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
@@ -1961,6 +1972,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 	return "";
 }
 
+// this definitely needs some better cleaning up for sure... in the future
 str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
@@ -2055,6 +2067,16 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			}
 			return StrParam(s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
 
+		// float factor that isnt a percentage by representation, but has % at the end
+		case INV_EX_MOREDMGPEROVERHEAT:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false), s:"%\c- ", l:text,
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, false), s:"%\c- ", l:text);
+
 		case INV_EX_INTBONUSTOMELEE:
 			if(showDetailedMods) {
 				return StrParam(
@@ -2134,6 +2156,26 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 				return StrParam(l:"IATTR_TX52", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX52S", s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:"IATTR_TX52", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:"IATTR_TX52S");
 
+		case INV_EX_SOULPICKUPSINFAMMO:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX55", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX55S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX55", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX55S");
+
+		case INV_EX_SOULPICKUPSONLYAMMO:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX56", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX56S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX56", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX56S");
+
+		case INV_EX_STREXTRABONUSTOMELEE:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX57S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:"\c- ", l:"IATTR_TX57S");
+
+		case INV_EX_LESSDMGTAKENMAXOVERHEAT:
+			if(showDetailedMods)
+				return StrParam(l:"IATTR_TX62", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX62S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX62", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX62S");
+
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:
 		case INV_EX_DOUBLE_HEALTHCAP:
@@ -2152,6 +2194,9 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_HEALTHATONE:
 		case INV_EX_ESHIELDFULLABSORB:
 		case INV_EX_DEMONBARRIERS:
+		case INV_EX_ELEPENHARMONY:
+		case INV_EX_CANFIREOVERHEATED:
+		case INV_EX_WEAPONSUSEHEALTH:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:text);
@@ -2177,6 +2222,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_FLATDMG_ALL:
 		case INV_EX_FLATDOT:
 		case INV_EX_FLATPERSHOTGUNOWNED:
+		case INV_EX_AMMOCOSTMULTIPLIER:
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
@@ -2209,6 +2255,8 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			
 		// single text negative effects
 		case INV_EX_FORBID_ARMOR:
+		case INV_EX_CANNOTPICKAMMO:
+		case INV_EX_CANTFIRENONOVERHEAT:
 			if(showDetailedMods) {
 				return StrParam(s:"\c[D4]", l:text, s:"\c- - ", s:GetModTierText(tier, extra));
 			}

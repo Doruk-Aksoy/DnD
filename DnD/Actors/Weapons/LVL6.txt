@@ -39,7 +39,7 @@ Actor "Plasma Rifle" : PlasmaRifle
       Loop
    Fire:
 		TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
-		NRAI A 3
+		NRAI Y 3
 	Goto Ready
 	FireConfirmed:
       TNT1 A 0 A_Jump(256, "Fire1", "Fire2", "Fire3", "Fire4")

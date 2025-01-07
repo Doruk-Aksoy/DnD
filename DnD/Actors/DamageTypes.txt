@@ -36,6 +36,7 @@ enum {
 };
 
 // the following are used to encode hints on the damage type for projectiles with some special flags using Stamina property
+// for monsters!
 enum {
 	DND_DAMAGETYPEFLAG_PHYSICAL = 1,
 	DND_DAMAGETYPEFLAG_HITSCAN = 2,

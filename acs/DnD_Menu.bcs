@@ -544,7 +544,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					SetHudClipRect(0, 0, 0, 0, 0);
 				}
 				
-				DrawBoxText("=>", DND_NOLOOKUP, boxid, MBOX_7, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("=>", DND_NOLOOKUP, boxid, MBOX_4, RPGMENUPAGEID, 436.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_GAINS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -552,7 +552,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_GAIN_OFFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_GAIN_DEFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_GAIN_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_GAIN_QUEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
 
 				if(GetCVar("survival")) {
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
@@ -564,7 +563,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 				}
 
-				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_5, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_4, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2_OFFENSE1) {
 				HudMessage(s:"--- ", l:"DND_MENU_GAIN_OFFENSE", s:" #1 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -593,19 +592,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				DrawPlayerStats(pnum, DRAW_STAT_UTILITY);
 
-				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
-			}
-			else if(curopt == MENU_STAT2_QUESTBONUSES) {
-				toshow = "";
-				HudMessage(s:"--- ", l:"DND_MENU_HEAD_QUESTBON", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
-				for(i = 0; i < MAX_QUESTS; ++i) {
-					if(IsQuestComplete(0, i))
-						toshow = StrParam(s:toshow, s:"\cf*\c- ", l:GetQuestLabel(i, QUEST_REW), s:"\n\n");
-				}
-				SetHudClipRect(192, 52, 256, 196, 256); // 48 because 64 is begin, text one line len is 16, 48 is max allowed lines, 16 x 3.
-				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 64.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
-				SetHudClipRect(0, 0, 0, 0, 0);
-			
 				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_PERK) {
@@ -1297,7 +1283,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		if(curopt == MENU_STAT1) { // stat screen
 			ACS_NamedExecuteWithResult("DnD Sync Player Exp", pnum, GetPlayerExp(pnum));
 			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_7)
+				if(boxid == MBOX_4)
 					UpdateMenuPosition(MENU_STAT2);
 				else if(CheckInventory("AttributePoint") && boxid != MAINBOX_NONE) { // tried to level stat, so you must have some attrib point
 					// here we check if option was left click or right click, right click consumes whatever we can on the given selection
@@ -1321,7 +1307,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		}
 		else if(curopt == MENU_STAT2) {
 			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_5)
+				if(boxid == MBOX_4)
 					UpdateMenuPosition(MENU_STAT1);
 				else if(boxid == MBOX_1)
 					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
@@ -1331,27 +1317,41 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			else if(HasPressedLeft(pnum))
 				UpdateMenuPosition(MENU_STAT1);
 		}
-		else if(curopt >= MENU_STAT2_OFFENSE1 && curopt <= MENU_STAT2_QUESTBONUSES) {
-			if(HasPressedLeft(pnum)) {
-				if(curopt == MENU_STAT2_OFFENSE2)
-					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+		else if(curopt == MENU_STAT2_OFFENSE1) {
+			if(HasPlayerClicked(pnum)) {
+				if(boxid == MBOX_1)
+					UpdateMenuPosition(MENU_STAT2);
 				else
+					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
+			}
+			else if(HasPressedLeft(pnum))
+				UpdateMenuPosition(MENU_STAT2);
+			else if(HasPressedRight(pnum))
+				UpdateMenuPosition(MENU_STAT2_OFFENSE2);
+		}
+		else if(curopt == MENU_STAT2_OFFENSE2) {
+			if(HasPlayerClicked(pnum)) {
+				if(boxid == MBOX_1)
+					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+			}
+			else if(HasPressedLeft(pnum))
+				UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+		}
+		else if(curopt == MENU_STAT2_DEFENSE) {
+			if(HasPlayerClicked(pnum)) {
+				if(boxid == MBOX_1)
 					UpdateMenuPosition(MENU_STAT2);
 			}
-			else if(HasPressedRight(pnum)) {
-				if(curopt == MENU_STAT2_OFFENSE1)
-					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
+			else if(HasPressedLeft(pnum))
+				UpdateMenuPosition(MENU_STAT2);
+		}
+		else if(curopt == MENU_STAT2_UTILITY) {
+			if(HasPlayerClicked(pnum)) {
+				if(boxid == MBOX_1)
+					UpdateMenuPosition(MENU_STAT2);
 			}
-			else if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_1) {
-					if(curopt == MENU_STAT2_OFFENSE2)
-						UpdateMenuPosition(MENU_STAT2_OFFENSE1);
-					else
-						UpdateMenuPosition(MENU_STAT2);
-				}
-				else if(curopt == MENU_STAT2_OFFENSE1 && boxid == MBOX_2)
-					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
-			}
+			else if(HasPressedLeft(pnum))
+				UpdateMenuPosition(MENU_STAT2);
 		}
 		else if(curopt == MENU_PERK) {
 			if(HasPlayerClicked(pnum)) {

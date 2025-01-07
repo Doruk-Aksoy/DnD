@@ -442,7 +442,12 @@ void SetAllAmmoCapacitiesToDefault() {
 	}
 }
 
+// returns true if you CANT pickup
 bool CheckAmmoPickup(int slot, bool simple) {
+	int pnum = PlayerNumber();
+	if(GetPlayerAttributeValue(pnum, INV_EX_CANNOTPICKAMMO))
+		return true;
+
 	bool res = CheckInventory(AmmoInfo[slot][0].name) >= GetAmmoCapacity(AmmoInfo[slot][0].name);
 	if(!simple) {
 		// start from 1, we already included 0 above
@@ -476,8 +481,8 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 		amt = GetAmmoContainerValue(slot, 0); // large pack
 		if (basic_kind == 2)
 			amt /= 5; // small pack
-		if (basic_kind == 1)
-			amt /= 2; // dropped pack (clip only)
+		else if (basic_kind == 1)
+			amt /= 10; // dropped pack (clip only)
 		GiveAmmo(amt, slot, 0);
 	}
 	else {

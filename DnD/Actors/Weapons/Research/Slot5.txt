@@ -797,7 +797,6 @@ Actor ResRL3 : Weapon {
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
 			TNT1 A 0 A_Recoil(3)
 		NoRecoil:
-			TNT1 A 0 A_GiveInventory("FreezerCooldownGiver", 1)
 			FRZC DCBA 2 A_SetPitch (pitch + 0.5)
 			FRZC A 5 A_ReFire
 			FRZC A 16 A_WeaponReady(WRF_NOFIRE)
@@ -816,7 +815,6 @@ Actor ResRL3 : Weapon {
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
 			FRZC D 0 A_Recoil(3)
 		NoRecoilHold:
-			TNT1 A 0 A_GiveInventory("FreezerCooldownGiver", 1)
 			FRZC DCBA 2 A_SetPitch (pitch+0.50)
 			FRZC A 3 A_ReFire
 			FRZC A 16 A_WeaponReady(WRF_NOFIRE)
@@ -833,17 +831,6 @@ Actor ResRL3 : Weapon {
 Actor FreezerCooldown : PowerDamage {
 	powerup.duration 88
 	damagefactor "normal", 1.0
-}
-
-Actor FreezerCooldownGiver : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIfInventory("FreezerOverHeat", 0, "Give")
-		Stop
-		Give:
-			TNT1 A 0 A_GiveInventory("FreezerCooldown", 1)
-		Stop
-	}
 }
 
 Actor FreezeBallTrail {
@@ -1525,7 +1512,6 @@ Actor ResRL5 : Weapon {
 			RW07 S 1 Bright Offset(0, 56)
 			RW07 T 1 Bright Offset(0, 58)
 			RW07 T 2 Bright Offset(0, 60)
-			TNT1 A 0 A_GiveInventory("VoidCannonCooldownGiver", 1)
 			RW07 U 1 Offset(0, 58)
 			RW07 U 1 Offset(0, 54)
 			RW07 U 1 Offset(0, 48)
@@ -1544,17 +1530,6 @@ Actor ResRL5 : Weapon {
 Actor VoidCannonCooldown : PowerDamage {
 	powerup.duration 105
 	damagefactor "normal", 1.0
-}
-
-Actor VoidCannonCooldownGiver : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIfInventory("VoidCannonOverHeat", 0, "Give")
-		Stop
-		Give:
-			TNT1 A 0 A_GiveInventory("VoidCannonCooldown", 1)
-		Stop
-	}
 }
 
 Actor VoidDetonation : PowerProtection {

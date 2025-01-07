@@ -1265,15 +1265,18 @@ int GetLifestealCap(int pnum) {
 
 #define DND_BASE_LIFESTEALRATE 25
 int GetLifestealRate(int pnum) {
-	return DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE)) / 100;
+	// don't return any faster than 1 tic
+	return max(1, DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE)) / 100);
 }
 
-#define DND_BASE_LIFERECOVERY 1 // 1% of healthcap
+#define DND_BASE_LIFERECOVERY 0.01 // 1% of healthcap
 int GetLifestealLifeRecovery(int pnum, int cap) {
 	// avoid recalculating over and over if possible
-	cap = cap * DND_BASE_LIFERECOVERY / 100;
+	//cap = cap * DND_BASE_LIFERECOVERY / 100;
+	cap = cap * DND_BASE_LIFERECOVERY;
 	cap = cap * (100 + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY)) / 100;
-	if(!cap)
+	cap >>= 16;
+	if(cap <= 0)
 		cap = 1;
 	
 	return cap;
@@ -1380,10 +1383,16 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 		dexterity += DND_SHARPSHOOTER_MASTERY_BONUS;
 
 	// 1.0 is 100%, we get stuff like 0.03 here for 3% etc.
-	int statOf = GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE);
-	if(isMelee && statOf) {
-		intellect += FixedMul(statOf, strength);
-		strength = 0;
+	int statOf = 0;
+	if(isMelee) {
+		// steelbark bonus potentially checked here
+		strength += GetPlayerAttributeValue(pnum, INV_EX_STREXTRABONUSTOMELEE);
+
+		statOf = GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE);
+		if(statOf) {
+			intellect += FixedMul(statOf, strength);
+			strength = 0;
+		}
 	}
 
 	statOf = 0;

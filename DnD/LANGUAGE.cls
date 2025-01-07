@@ -3,6 +3,7 @@
 // little note: leftimg, rightimg and mugshot DONT NEED TRANSLATING, i know, but at least this way I know they are in memory and not on stack
 
 CLASS_SELECT			= "SELECT YOUR CHARACTER";
+CLASS_LOAD				= "LOAD YOUR CHARACTER";
 CLASS_TOSELECT			= "to select";
 CLASS_TOCLOSE			= "to close";
 CLASS_PRESS				= "Press";

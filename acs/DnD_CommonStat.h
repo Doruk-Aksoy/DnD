@@ -905,16 +905,64 @@ int GetResistPenetration(int pnum, int category) {
 		break;
 
 		case DND_DAMAGECATEGORY_FIRE:
-			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_ELEPENHARMONY))
+				val = max(val, 
+						max(
+							GetPlayerAttributeValue(pnum, INV_PEN_ICE),
+							max(
+								GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING),
+								GetPlayerAttributeValue(pnum, INV_PEN_POISON)
+							)
+						)
+				);
+			val += GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
 		break;
 		case DND_DAMAGECATEGORY_ICE:
-			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_ICE);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_ICE);
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_ELEPENHARMONY))
+				val = max(val, 
+						max(
+							GetPlayerAttributeValue(pnum, INV_PEN_FIRE),
+							max(
+								GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING),
+								GetPlayerAttributeValue(pnum, INV_PEN_POISON)
+							)
+						)
+				);
+			val += GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
 		break;
 		case DND_DAMAGECATEGORY_LIGHTNING:
-			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_ELEPENHARMONY))
+				val = max(val, 
+						max(
+							GetPlayerAttributeValue(pnum, INV_PEN_ICE),
+							max(
+								GetPlayerAttributeValue(pnum, INV_PEN_FIRE),
+								GetPlayerAttributeValue(pnum, INV_PEN_POISON)
+							)
+						)
+				);
+			val += GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
 		break;
 		case DND_DAMAGECATEGORY_POISON:
-			val = GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL) + GetPlayerAttributeValue(pnum, INV_PEN_POISON);
+			val = GetPlayerAttributeValue(pnum, INV_PEN_POISON);
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_ELEPENHARMONY))
+				val = max(val, 
+						max(
+							GetPlayerAttributeValue(pnum, INV_PEN_ICE),
+							max(
+								GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING),
+								GetPlayerAttributeValue(pnum, INV_PEN_FIRE)
+							)
+						)
+				);
+			val += GetPlayerAttributeValue(pnum, INV_PEN_ELEMENTAL);
 		break;
 
 		case DND_DAMAGECATEGORY_SOUL:

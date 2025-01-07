@@ -191,19 +191,22 @@ Script "DnD Class Select Arrow Press" (int mode) CLIENTSIDE {
 	SetUserCVar(cpnum, "dnd_classmenu_button", bn);
 }
 
-Script "DnD Class Select Screen" (void) CLIENTSIDE {
+Script "DnD Class Select Screen" (int mode) CLIENTSIDE {
 	int cpnum = ConsolePlayerNumber();
 	
 	SetHUDSize(600, 450, 1);
 	SetFont("BIGFONT");
-	HudMessage(s:"\cj", l:"CLASS_SELECT"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 80.0, 0.0);
-	
+	if(!mode)
+		HudMessage(s:"\cj", l:"CLASS_SELECT"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 80.0, 0.0);
+	else
+		HudMessage(s:"\cj", l:"CLASS_LOAD"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 80.0, 0.0);
+		
 	SetHUDSize(320, 240, 1);
 	setFont("DNDCHRSL");
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 160.0, 120.0, 0.0);
 }
 
-Script "DnD Class Select Animated" (int doDelay) CLIENTSIDE {
+Script "DnD Class Select Animated" (int mode) CLIENTSIDE {
 	int cpnum = ConsolePlayerNumber();
 	bool larr_inc = false, rarr_inc = false;
 	int larr_timer = 0, rarr_timer = 0;
@@ -319,6 +322,40 @@ Script "DnD Class Select Cleanup" (void) CLIENTSIDE {
 	HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 0, 0, 1.0);
 	for(int i = 0; i < DND_CLASSMENU_IDCOUNT; ++i)
 		HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + i, -1, 0, 0, 1.0);
+}
+
+void RunClassLoadScripts() {
+	ACS_NamedExecuteAlways("DnD Class Select Screen", 0, 1);
+	ACS_NamedExecuteAlways("DnD Class Select Animated", 0, 1);
+	ACS_NamedExecuteAlways("DnD Character Load Inputs", 0);
+}
+
+Script "DnD Character Load Inputs" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+	PlayerCursorData.posx = HUDMAX_XF / 2;
+	PlayerCursorData.posy = HUDMAX_YF / 2;
+
+	int boxid = MAINBOX_NONE, boxid_prev = MAINBOX_NONE;
+	int i, j, k;
+	int pnum = PlayerNumber();
+	bool sendInput = false;
+
+	menu_pane_T& CurrentPane = GetPane();
+	ResetPane(CurrentPane);
+
+	while(CheckInventory("ShowingPrompt")) {
+		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
+		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
+
+		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+		DrawCursor();
+
+		Delay(const:1);
+	}
+
+	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
 }
 
 #endif

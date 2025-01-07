@@ -43,6 +43,11 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define TIPBOX_TOPLEN 70.0
 #define TIPBOX_MIDLEN 39.0
 
+#define ITEMINFOBG_TOPLEN 17.0
+#define ITEMINFOBG_MIDLEN 16.0
+#define ITEMINFOBG_MAXMIDS 12
+#define ITEMINFO_CLIPWIDTH 360
+
 typedef struct coord {
 	int x;
 	int y;
@@ -171,7 +176,7 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 #define MAX_CRAFTING_MATERIALBOXES 12
 
 void CleanInventoryInfo(int id_begin = RPGMENUINVENTORYID) {
-	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20 - ITEMINFOBG_MAXMIDS, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 
 // cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
@@ -386,10 +391,11 @@ void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
 #define HUDTEXTMAX_XF 720.0
 #define HUDTEXTMAX_YF 480.0
 
-#define HUD_ITEMBAK_X 209
+#define HUD_ITEMBAK_X 212
 #define HUD_ITEMBAK_Y 168
-#define HUD_ITEMBAK_XF 209.0
+#define HUD_ITEMBAK_XF 212.0
 #define HUD_ITEMBAK_YF 168.0
+#define HUD_ITEMBAK_WIDTH (4 * HUD_ITEMBAK_X / 3 + 16)
 
 // stash hud
 #define HUDMAX_X_STASH (HUDMAX_X * 3 / 2)

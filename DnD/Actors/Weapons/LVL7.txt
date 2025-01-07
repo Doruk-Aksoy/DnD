@@ -123,7 +123,6 @@ Actor "Upgraded BFG 9000" : BFG9000
 			DBFC JJ 1 Bright Radius_Quake(6,2,0,1,0)
 			TNT1 A 0 Radius_Quake(12,4,0,1,0)
 			DBFF A 2 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BFG32768, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), DND_ATF_NOAMMOGAINCHECK)
-			TNT1 A 0 A_GiveInventory("BFG32768CooldownGiver", 1)
 			DBFF B 2 Bright 
 			DBFG CDA 2 Bright
 			DBFG A 14
@@ -148,17 +147,6 @@ Actor "Upgraded BFG 9000" : BFG9000
 Actor BFG32768Cooldown : PowerDamage {
 	powerup.duration -5
 	damagefactor "normal", 1.0
-}
-
-Actor BFG32768CooldownGiver : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIfInventory("BFG32768Overheat", 0, "Give")
-		Stop
-		Give:
-			TNT1 A 0 A_GiveInventory("BFG32768Cooldown", 1)
-		Stop
-	}
 }
 
 Actor BFGExtra2 {
@@ -1929,11 +1917,8 @@ ACTOR "Death Ray" : Weapon
 			ERWE E 1 Offset(0, 40)
 			ERWE E 1 Offset(0, 37)
 			ERWE E 1 Offset(0, 34)
-			TNT1 A 0 A_JumpIfInventory("DeathRayOverheat", 0, "Overheat")
 			ERWE E 1 Offset(0, 33)
 		Goto Ready
-		Overheat:
-			TNT1 A 0 A_GiveInventory("DeathRayCooldown", 1)
 		NoAction:
 			ERWE E 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
@@ -1959,7 +1944,7 @@ Actor DeathRayTrigger : PowerProtection {
 }
 
 Actor DeathrayCooldown : PowerDamage {
-	powerup.duration 87
+	powerup.duration 100
 	damagefactor "normal", 1.0
 }
 

@@ -1322,9 +1322,11 @@ bool IsMonsterCategoryResurrectable(int id) {
 // all demon barons, fatsos or arachnos or bosses that are demons can drop a soul ammo
 bool CanDropSoulAmmoTID(int tid) {
 	int mid = MonsterProperties[tid - DND_MONSTERTID_BEGIN].id;
-	return (mid == MONSTER_BARON || (mid >= DND_CUSTOM_BARON_BEGIN && mid <= DND_CUSTOM_BARON_END) || 
+	return (mid == MONSTER_HELLKNIGHT || (mid >= DND_CUSTOM_HK_BEGIN && mid <= DND_CUSTOM_HK_END) ||
+			mid == MONSTER_BARON || (mid >= DND_CUSTOM_BARON_BEGIN && mid <= DND_CUSTOM_BARON_END) || 
 			mid == MONSTER_FATSO || (mid >= DND_CUSTOM_FATSO_BEGIN && mid <= DND_CUSTOM_FATSO_END) ||
 			mid == MONSTER_SPIDER || (mid >= DND_CUSTOM_ARACHNO_BEGIN && mid <= DND_CUSTOM_ARACHNO_END) ||
+			mid == MONSTER_VILE || (mid >= DND_CUSTOM_VILE_BEGIN && mid <= DND_CUSTOM_VILE_END) ||
 			isBoss()) && (MonsterData[mid].flags & DND_MTYPE_DEMON_POW);
 }
 

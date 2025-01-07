@@ -661,7 +661,6 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke2", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_REBOUNDER, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
-			TNT1 A 0 A_GiveInventory("RebounderCooldownGiver", 1)
 			DGAF BCDEFG 1
 		Goto Ready
 		AltFire:
@@ -675,7 +674,6 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 3, 34 * (1 + sin(-pitch)), 0, 0, 1)
 			TNT1 A 0 A_SpawnItemEx ("PlasmaSmoke2", cos(-pitch) * 25, 4, 35 + (sin(-pitch)*20),0,0,0,0,0,0)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_REBOUNDER, DND_ATK_SECONDARY, DND_AMMOSLOT_CELL | (AMMO_CELL << 16), 0)
-			TNT1 A 0 A_GiveInventory("RebounderCooldownGiver", 1)
 			DGXF B 1
 			TNT1 A 0 A_SetPitch(pitch - 5.0)
 			DGXF CDEF 1 A_SetPitch(pitch + 0.5)
@@ -854,17 +852,6 @@ Actor RebounderHitFX {
 		Spawn:
 			REBP BC 3 Bright
 			REBP DEF 2 Bright
-		Stop
-	}
-}
-
-Actor RebounderCooldownGiver : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIfInventory("RebounderOverHeat", 0, "Give")
-		Stop
-		Give:
-			TNT1 A 0 A_GiveInventory("RebounderCooldown", 1)
 		Stop
 	}
 }

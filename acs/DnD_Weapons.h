@@ -31,19 +31,35 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 
 bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 	int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
-	amt = amt * consumption_rate / 100;
+	int mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
+	if(!mult)
+		mult = 1;
+
+	amt = amt * consumption_rate * mult / 100;
 	if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
 		amt = amt * 5 / 2;
 
-	return ((flags & DND_CFW_DONTCHECKEQUALITY) && CheckInventory(ammo) > amt) || CheckInventory(ammo) >= amt;
+	if(!GetPlayerAttributeValue(pnum, INV_EX_WEAPONSUSEHEALTH))
+		mult = CheckInventory(ammo);
+	else
+		mult = GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH);
+	return ((flags & DND_CFW_DONTCHECKEQUALITY) && mult > amt) || mult >= amt;
 }
 
 void TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt) {
 	int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
-	amt = amt * consumption_rate / 100;
+	int mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
+	if(!mult)
+		mult = 1;
+
+	amt = amt * consumption_rate * mult / 100;
 	if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
 		amt = amt * 5 / 2;
-	TakeInventory(ammo, amt);
+
+	if(!GetPlayerAttributeValue(pnum, INV_EX_WEAPONSUSEHEALTH))
+		TakeInventory(ammo, amt);
+	else if(!CheckActorInventory(pnum + P_TIDSTART, "Invulnerable_Better")) // we let the invul bypass this
+		Thing_Damage2(pnum + P_TIDSTART, amt, "SkipHandle");
 }
 
 // we get weapon id, primary or alt and flags only
@@ -53,7 +69,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	int pnum = PlayerNumber();
 
 	// hobo perk 50 lets you bypass ammo consumption on shotguns
-	if(IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS) || (IsBoomstick(wepid) && CheckInventory("Hobo_ShotgunFrenzyTimer")))
+	// also has the dreaming god's ire check here
+	if
+	(
+		(IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS) || (IsBoomstick(wepid) && CheckInventory("Hobo_ShotgunFrenzyTimer"))) ||
+		(IsSoulWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_EX_SOULPICKUPSINFAMMO) && CheckInventory("SoulPickupInfinityTimer"))
+	)
 		flags |= DND_ATF_NOAMMOTAKE;
 	
 	int ammo_sub_slot = ammo_slot >> 16;
@@ -1109,6 +1130,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			sp_y = 6.2;
 
 			GiveOverheat(pnum, "DesolatorOverheat", 2, DND_WEAPON_DESOLATOR);
+			HandleOverheating(pnum, "DesolatorOverheat", "DesolatorCooldown");
 		break;
 		case DND_WEAPON_MINIGUN:
 			use_default = true;
@@ -1429,10 +1451,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_FREEZER:
 			use_default = true;
 			proj_id = DND_PROJ_FREEZER;
-			if(!(isAltFire & DND_ATK_OTHER_DIR))
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				GiveOverheat(pnum, "FreezerOverheat", 5, DND_WEAPON_FREEZER);
+				HandleOverheating(pnum, "FreezerOverheat", "FreezerCooldown");
+			}
 			else {
 				GiveOverheat(pnum, "FreezerOverheat", 15, DND_WEAPON_FREEZER);
+				HandleOverheating(pnum, "FreezerOverheat", "FreezerCooldown");
 				sp_x = 2.0;
 				sp_y = 2.0;
 			}
@@ -1445,6 +1470,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			proj_id = DND_PROJ_VOIDCANNON;
 			GiveOverheat(pnum, "VoidCannonOverheat", 20, DND_WEAPON_VOIDCANNON);
+			HandleOverheating(pnum, "VoidCannonOverheat", "VoidCannonCooldown");
 		break;
 		
 		// SLOT 6
@@ -1456,8 +1482,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			proj_id = DND_PROJ_NUCLEARPLASMA;
 			GiveOverheat(pnum, "PlasmaOverheat", 2, DND_WEAPON_NUCLEARPLASMARIFLE);
-			if(CheckInventory("PlasmaOverheat") == 100)
-				GiveInventory("PlasmaOverheatCooldown", 1);
+			HandleOverheating(pnum, "PlasmaOverheat", "PlasmaOverheatCooldown");
 		break;
 		case DND_WEAPON_TURELCANNON:
 			use_default = false;
@@ -1568,6 +1593,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			vec3[offset_vec].z = 5.0; // 32 + 9 = 41, we assume 36 so 5.0
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
 				GiveOverheat(pnum, "RebounderOverheat", 3, DND_WEAPON_REBOUNDER);
+				HandleOverheating(pnum, "RebounderOverheat", "RebounderCooldown");
 				count = CheckInventory("RebounderOverheat");
 				// every 15 adds 1 up to 60, then its capped
 				if(count < 15)
@@ -1580,6 +1606,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				// secondary of rebounder is in the array for HUD, we still use cells here
 				ammo_type = Weapons_Data[wepid].ammo_name1;
 				GiveOverheat(pnum, "RebounderOverheat", 10, DND_WEAPON_REBOUNDER);
+				HandleOverheating(pnum, "RebounderOverheat", "RebounderCooldown");
 				Do_Projectile_Attack_Named(owner, pnum, "RebounderProjectileAlt", wepid, 1, 48, angle_vec, offset_vec, 0, 0, 0);
 			}
 		break;
@@ -1617,6 +1644,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_id = DND_PROJ_BFG32768;
 
 			GiveOverheat(pnum, "BFG32768Overheat", 34, DND_WEAPON_BFG32768);
+			HandleOverheating(pnum, "BFG32768Overheat", "BFG32768Cooldown");
 		break;
 		case DND_WEAPON_DEVASTATOR:
 			proj_id = DND_PROJ_DEVASTATOR;
@@ -1700,6 +1728,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = true;
 			proj_id = DND_PROJ_DEATHRAY;
 			GiveOverheat(pnum, "DeathRayOverheat", 40, DND_WEAPON_DEATHRAY);
+			HandleOverheating(pnum, "DeathRayOverheat", "DeathrayCooldown");
 		break;
 		case DND_WEAPON_IONCANNON:
 			use_default = true;
@@ -1708,6 +1737,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			sp_x = 7.2;
 			sp_y = 5.6;
 			GiveOverheat(pnum, "IonOverheat", 1, DND_WEAPON_IONCANNON);
+			HandleOverheating(pnum, "IonOverheat", "IonCooldown");
 		break;
 		case DND_WEAPON_THUNDERSTAFF:
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
@@ -1729,6 +1759,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_DEATHSTAFF;
 			}
 			else if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
+				use_default = false;
+
 				Do_Projectile_Attack_Named(owner, pnum, "HellfireLinkC", wepid, 1, 24, angle_vec, offset_vec, 0, 0, 0);
 				Do_Projectile_Attack_Named(owner, pnum, "HellfireLinkF", wepid, 1, 24, angle_vec, offset_vec, 0, 0, 0);
 			
@@ -1742,6 +1774,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			else {
 				// can fire circle, do so
+				use_default = false;
 				count = GetPelletCount(pnum, 3);
 				Do_Attack_Circle_Named(owner, pnum, "HellfireLinkC", wepid, count, 24, 0);
 				Do_Attack_Circle_Named(owner, pnum, "HellfireLinkF", wepid, count, 24, 0);

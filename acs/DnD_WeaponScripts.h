@@ -20,11 +20,18 @@ Script "DnD Pellet Count" (int base, int flags) {
 Script "DnD Can Fire Weapon" (int wepid) {
 	int pnum = PlayerNumber();
 
+	//int pc = 0;
 	while(IsAlive() && !CheckInventory("ResetCanFireLoop")) {
+		//pc = (pc + 1) % 10;
+		//if(!pc)
+		//	printbold(s:"loop running on ", d:wepid);
+
 		int flags = CheckInventory("DnD_FiringFlags");
 		bool canFire = false;
 		bool canAltFire = false;
 		bool canReload = false;
+		bool isOverheatingWeapon = false;
+		bool hasOverheatCooldown = false;
 
 		if(!CheckInventory("ArtemisCheck")) {
 			int amt1 = Weapons_Data[wepid].ammo_use1;
@@ -62,9 +69,11 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				case DND_WEAPON_SHOCKER:
 					// reusing ammo variable here
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire = canAltFire && (IsQuestComplete(0, QUEST_KILLGODSLAYER) || CheckInventory("ShockerOverheat") <= 80);
+					canFire = canAltFire && (GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || CheckInventory("ShockerOverheat") <= 80);
 					
 					canAltFire &= CheckInventory("ShockerOverheat") >= 10;
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_HADES:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
@@ -82,7 +91,11 @@ Script "DnD Can Fire Weapon" (int wepid) {
 					//if(ammo_which)
 					//	res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DesolatorCooldown") && CheckInventory("DesolatorOverheat") < 100);
+					hasOverheatCooldown = CheckInventory("DesolatorCooldown");
+
+					canFire &= GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("DesolatorOverheat") < 100);
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_MINIGUN:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 5, flags);
@@ -148,19 +161,31 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				break;
 				case DND_WEAPON_FREEZER:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canAltFire = IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("FreezerCooldown") && CheckInventory("FreezerOverheat") < 100);
+					hasOverheatCooldown = CheckInventory("FreezerCooldown");
+					
+					canAltFire = GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("FreezerOverheat") < 100);
 					canFire &= canAltFire;
 					
 					canAltFire &= CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 / 2, flags);
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_VOIDCANNON:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("VoidCannonCooldown") && CheckInventory("VoidCannonOverHeat") < 81);
+					hasOverheatCooldown = CheckInventory("VoidCannonCooldown");
+
+					canFire &= GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("VoidCannonOverHeat") < 81);
+
+					isOverheatingWeapon = true;
 				break;
 
 				case DND_WEAPON_NUCLEARPLASMARIFLE:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("PlasmaOverheatCooldown") && CheckInventory("PlasmaOverheat") < 100);
+					hasOverheatCooldown = CheckInventory("PlasmaOverheatCooldown");
+
+					canFire &= GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("PlasmaOverheat") < 100);
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_FROSTFANG:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 5, flags);
@@ -172,9 +197,14 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				break;
 				case DND_WEAPON_REBOUNDER:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 98);
+					hasOverheatCooldown = CheckInventory("RebounderCooldown");
+					isOverheatingWeapon = GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED);
+
+					canFire &= isOverheatingWeapon || (!hasOverheatCooldown && CheckInventory("RebounderOverheat") < 98);
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
-					canAltFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("RebounderCooldown") && CheckInventory("RebounderOverheat") < 83);
+					canAltFire &= isOverheatingWeapon || (!hasOverheatCooldown && CheckInventory("RebounderOverheat") < 83);
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_BASILISK:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags) || CheckInventory("LoadedBasilisk");
@@ -183,18 +213,28 @@ Script "DnD Can Fire Weapon" (int wepid) {
 
 				case DND_WEAPON_BFG32768:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("BFG32768Cooldown") && CheckInventory("BFG32768Overheat") < 100);
-					/*if(ammo_which == 1)
-						res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
-					res &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("BFG32768Cooldown") && CheckInventory("BFG32768Overheat") < 100);*/
+					hasOverheatCooldown = CheckInventory("BFG32768Cooldown");
+
+					canFire &= GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("BFG32768Overheat") < 100);
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_DEATHRAY:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canFire &= IsQuestComplete(0, QUEST_KILLGODSLAYER) || (!CheckInventory("DeathRayCooldown") && CheckInventory("DeathRayOverheat") < 100);
+					hasOverheatCooldown = CheckInventory("DeathRayCooldown");
+
+					canFire &= GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("DeathRayOverheat") < 100);
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_IONCANNON:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					hasOverheatCooldown = CheckInventory("IonCooldown");
+
+					canFire &= GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("IonOverheat") < 100);
 					canAltFire = canFire && GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+
+					isOverheatingWeapon = true;
 				break;
 				case DND_WEAPON_RAILGUN:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
@@ -231,10 +271,14 @@ Script "DnD Can Fire Weapon" (int wepid) {
 			canReload = true;
 		}
 
-		if(flags & DND_CFW_ALTFIRECHECK) {
-			if(IsMeleeWeapon(wepid))
-				canAltFire &= CheckInventory("Ability_Kick");
+		if(!isOverheatingWeapon && GetPlayerAttributeValue(pnum, INV_EX_CANTFIRENONOVERHEAT) && HasRunningOverheatCooldown(pnum + P_TIDSTART)) {
+			// can't fire weapons that dont overheat if there's overheat cooldown active if the HeatBreaker charm is equipped
+			canFire = false;
+			canAltFire = false;
 		}
+
+		if((flags & DND_CFW_ALTFIRECHECK) && IsMeleeWeapon(wepid))
+			canAltFire &= CheckInventory("Ability_Kick");
 
 		// these inventories get checked in weapon code
 		if(canFire)
@@ -256,6 +300,7 @@ Script "DnD Can Fire Weapon" (int wepid) {
 	}
 
 	TakeInventory("ResetCanFireLoop", 1);
+	SetResultValue(0);
 }
 
 Script "DnD Take Ammo From Weapon" (int wepid, int ammo_which, int amt) {
@@ -411,11 +456,11 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 	}
 
 	// prevent multiple copies, also dont keep this busy if we got no overheat bonus
-	if(!IsSet(PlayerRunsOverheat[pnum], index) && !IsQuestComplete(0, QUEST_KILLGODSLAYER)) {
+	if(!IsSet(PlayerRunsOverheat[pnum], index)) {
 		PlayerRunsOverheat[pnum] = SetBit(PlayerRunsOverheat[pnum], index);
-		while(CheckInventory(WeaponOverheatItems[index])) {
+		while(CheckInventory(WeaponOverheatItems[index][WEAPON_OVERHEATID])) {
 			if(CheckInventory("DnD_OverheatCanReduce"))
-				TakeInventory(WeaponOverheatItems[index], rate);
+				TakeInventory(WeaponOverheatItems[index][WEAPON_OVERHEATID], rate);
 			Delay(d);
 		}
 		PlayerRunsOverheat[pnum] = ClearBit(PlayerRunsOverheat[pnum], index);

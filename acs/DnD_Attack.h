@@ -337,13 +337,10 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	// vector of owner pos
 	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	printbold(s:"acc ", d:acc, s: " ", f:1.0 - ACCURACY_FACTOR * acc, s: " ", f:ACCURACY_FACTOR);
 	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
-	
-	printbold(f:sp_x, s: " ", f:sp_y);
 	
 	if(ProjectileInfo[proj_id].flags & DND_PROJ_MELEEBONUSES)
 		range = GetPlayerMeleeRange(pnum, range);

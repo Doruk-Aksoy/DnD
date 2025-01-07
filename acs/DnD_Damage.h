@@ -2306,6 +2306,12 @@ int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool is
 	// marine perk 50 -- 50% reduction
 	if(CheckInventory("Marine_DamageReduction_Timer"))
 		dmg /= 2;
+
+	// overheat unique charm
+	temp = GetPlayerAttributeValue(pnum, INV_EX_LESSDMGTAKENMAXOVERHEAT);
+	if(temp && HasRunningOverheatCooldown(pnum + P_TIDSTART)) {
+		dmg = dmg * (100 - temp) / 100;
+	}
 	
 	// ALL DAMAGE AMPLIFYING EFFECTS COME LAST!
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
@@ -2906,6 +2912,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				// these are on monsters only, dont have much to do with us beyond this point
 				HandleMonsterDamageModChecks(m_id, shooter, victim, dmg);
+
+				// final check, if damage is less than 10% of it, cap it at 10%
+				temp = arg1 / 10;
+				if(dmg < temp)
+					dmg = temp;
 			}
 			else {
 				temp = GetActorProperty(shooter, APROP_MASTERTID);
@@ -3036,6 +3047,16 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			if(isArmorPiercing)
 				HandleRipperHitSound(victim, shooter, m_id);
 
+			// damage boost on overheating things
+			// factor variable isnt used below for anything saved prior so we can use it too
+			isArmorPiercing = GetPlayerAttributeValue(pnum, INV_EX_MOREDMGPEROVERHEAT);
+			factor = GetCurrentWeaponID();
+			if(isArmorPiercing && CanWeaponOverheat(factor)) {
+				// add the extra damage as "more" on top --- ammo2 is always the overheat on overheating weapons
+				factor = CheckInventory(Weapons_Data[factor].ammo_name2);
+				dmg = dmg * (((100.0 + isArmorPiercing * factor) >> 16)) / 100;
+			}
+
 			// Class effects here -- isArmorPiercing holds if wepid is negative or not
 			isArmorPiercing = (m_id < 0 || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)));
 			if(!isArmorPiercing) {
@@ -3101,9 +3122,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
  
 			// finally dealing the damage
 			if(victim) {
-				SetResultValue(
-					HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0)
-				);
+				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0);
+				if(dmg < 0)
+					dmg = 0;
+				SetResultValue(dmg);
 				HandleOnHitEffects(shooter);
 			}
 			else {

@@ -408,6 +408,7 @@ Actor Souls : Ammo
 	ammo.backpackmaxamount 75
 	inventory.icon "AMM3A0"
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 1\c-"
+	+IGNORESKILL
 	States
 	{
 		Spawn:

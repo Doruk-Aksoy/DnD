@@ -21,6 +21,7 @@ const int SPECIAL_FX_TID = 2147483647;
 
 #include "Actors/ProjectileBase.txt"
 
+#include "Actors/AttackIDs.txt"
 #include "Actors/WeaponIDs.txt"
 #include "Actors/Items/Weapons.txt"
 

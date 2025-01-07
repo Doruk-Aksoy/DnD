@@ -638,3 +638,15 @@ Actor DnD_SwappedFromMelee : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration -3
 }
+
+Actor SoulPickupInfinityPrevention : Ammo {
+	inventory.amount 1
+	inventory.maxamount 31
+	+IGNORESKILL
+}
+
+Actor SoulPickupInfinityTimer : Ammo {
+	inventory.amount 1
+	inventory.maxamount 65536
+	+IGNORESKILL
+}

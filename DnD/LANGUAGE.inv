@@ -77,6 +77,11 @@ DND_UCIMG16			=	"UCHRM16";
 DND_UCIMG17			=	"UCHRM17";
 DND_UCIMG18			=	"UCHRM18";
 DND_UCIMG19			=	"UCHRM19";
+DND_UCIMG20			=	"UCHRM20";
+DND_UCIMG21			=	"UCHRM21";
+DND_UCIMG22			=	"UCHRM22";
+DND_UCIMG23			=	"UCHRM23";
+DND_UCIMG24			=	"UCHRM24";
 // unique cores
 DND_UCORIMG1		=	"UCORE01";
 
@@ -229,7 +234,7 @@ DND_PCORE2			=	"Gold Powercore";
 DND_PCORE3			=	"Unstable Powercore";
 DND_PCORE4			=	"Molybdenum Powercore";
 
-// unique item names
+// unique item names -- charms
 DND_UNIQUE1				=	"Elemental Bulwark";
 DND_UNIQUE2				=	"Ironbark";
 DND_UNIQUE3				=	"Well of Power";
@@ -249,6 +254,11 @@ DND_UNIQUE16			=	"Deadeye's Glare";
 DND_UNIQUE17			=	"Unity";
 DND_UNIQUE18			=	"Mindforge";
 DND_UNIQUE19			=	"Slayer Special";
+DND_UNIQUE20			=	"Elemental Harmony";
+DND_UNIQUE21			=	"Steelbark";
+DND_UNIQUE22			=	"Dreaming God's Ire";
+DND_UNIQUE23			=	"Heatbreaker";
+DND_UNIQUE24			=	"Thornvein";
 
 // unique power cores
 DND_UCORE_NAME1			=	"The Tesseract";
@@ -266,16 +276,16 @@ IATTR_T3 			= "Armor";
 IATTR_T4 			= "more exp gain";
 IATTR_T5 			= "more credit gain";
 IATTR_T6 			= "increased chance to find loot";
-IATTR_T7 			= "to luck";
+IATTR_T7 			= "luck";
 IATTR_T8 			= "increased ammo capacities";
 IATTR_T9 			= "movement speed";
 IATTR_T10 			= "magazine size";
 	
-IATTR_T11 			= "to physical attack damage";
-IATTR_T12 			= "to energy attack damage";
-IATTR_T13 			= "to explosive attack damage";
-IATTR_T14 			= "to magic attack damage";
-IATTR_T15 			= "to elemental attack damage";
+IATTR_T11 			= "physical attack damage";
+IATTR_T12 			= "energy attack damage";
+IATTR_T13 			= "explosive attack damage";
+IATTR_T14 			= "magic attack damage";
+IATTR_T15 			= "elemental attack damage";
 	
 IATTR_T16 			= "increased physical attack damage";
 IATTR_T17 			= "increased energy attack damage";
@@ -289,10 +299,10 @@ IATTR_T23 			= "increased automatic weapon damage";
 IATTR_T24 			= "increased artillery damage";
 IATTR_T25 			= "increased precision weapon damage";
 
-IATTR_T26 			= "to handgun attack damage";
-IATTR_T27 			= "to shotgun attack damage";
-IATTR_T28 			= "to automatic weapon attack damage";
-IATTR_T29 			= "to artillery attack damage";
+IATTR_T26 			= "handgun attack damage";
+IATTR_T27 			= "shotgun attack damage";
+IATTR_T28 			= "automatic weapon attack damage";
+IATTR_T29 			= "artillery attack damage";
 
 IATTR_T30 			= "more pellets";
 	
@@ -305,7 +315,7 @@ IATTR_T35 			= "increased shop stock";
 	
 IATTR_T36 			= "regeneration cap";
 	
-IATTR_T37 			= "to crit chance";
+IATTR_T37 			= "crit chance";
 IATTR_T38 			= "increased crit chance";
 IATTR_T39 			= "additional crit multiplier";
 	
@@ -317,9 +327,9 @@ IATTR_T43 			= "strength";
 IATTR_T44 			= "dexterity";
 IATTR_T45 			= "intellect";
 	
-IATTR_T46 			= "reduced elemental damage taken";
-IATTR_T47 			= "reduced physical damage taken";
-IATTR_T48 			= "reduced reflected damage taken";
+IATTR_T46 			= "all elemental resists";
+IATTR_T47 			= "physical resist";
+IATTR_T48 			= "reflect resist";
 	
 IATTR_T49 			= "physical resist penetration";
 IATTR_T50 			= "energy resist penetration";
@@ -327,10 +337,10 @@ IATTR_T51 			= "explosive resist penetration";
 IATTR_T52 			= "occult resist penetration";
 IATTR_T53 			= "elemental resist penetration";
 	
-IATTR_T54 			= "to fire damage";
-IATTR_T55 			= "to ice damage";
-IATTR_T56 			= "to lightning damage";
-IATTR_T57 			= "to poison damage";
+IATTR_T54 			= "fire damage";
+IATTR_T55 			= "ice damage";
+IATTR_T56 			= "lightning damage";
+IATTR_T57 			= "poison damage";
 	
 IATTR_T58 			= "lifesteal";
 	
@@ -348,9 +358,9 @@ IATTR_T66 			= "increased chance to ignite for fire attacks";
 IATTR_T67 			= "increased ignite damage";
 IATTR_T68 			= "increased ignite duration";
 	
-IATTR_T69 			= "increased chance to overload for lightning attacks";
-IATTR_T70 			= "additional overload reflections on overload kills";
-IATTR_T71 			= "more damage amplification for overload";
+IATTR_T69 			= "increased chance to overload";
+IATTR_T70 			= "additional overload reflections";
+IATTR_T71 			= "more overload magnitude";
 	
 IATTR_T72 			= "CYBERNETIC";
 IATTR_T73 			= "increased melee range";
@@ -358,16 +368,16 @@ IATTR_T74			= "increased melee weapon damage";
 IATTR_T75			= "damage over time multiplier";
 IATTR_T76			= "increased damage over time";
 
-IATTR_T77			= "reduced hitscan damage taken";
-IATTR_T78			= "reduced energy damage taken";
-IATTR_T79			= "reduced explosion damage taken";
-IATTR_T80			= "reduced magic damage taken";
-IATTR_T81			= "reduced fire damage taken";
-IATTR_T82			= "reduced ice damage taken";
-IATTR_T83			= "reduced lightning damage taken";
-IATTR_T84			= "reduced poison damage taken";
+IATTR_T77			= "hitscan resist";
+IATTR_T78			= "energy resist";
+IATTR_T79			= "explosion resist";
+IATTR_T80			= "magic resist";
+IATTR_T81			= "fire resist";
+IATTR_T82			= "ice resist";
+IATTR_T83			= "lightning resist";
+IATTR_T84			= "poison resist";
 
-IATTR_T85			= "to maximum damage resist cap";
+IATTR_T85			= "maximum damage resist cap";
 IATTR_T86			= "increased regeneration rate";
 
 IATTR_T87			= "increased lifesteal rate";
@@ -378,14 +388,14 @@ IATTR_T90			= "more damage while lifestealing";
 IATTR_T91			= "seconds to overload duration";
 
 IATTR_T92			= "increased ignite proliferation chance";
-IATTR_T93			= "to max ignite proliferation";
+IATTR_T93			= "max ignite proliferation";
 IATTR_T94			= "increased ignite proliferation range";
 
 IATTR_T95			= "chance to ignore ailment immunities";
-IATTR_T96			= "to ignite chance";
-IATTR_T97			= "to ignite proliferation chance";
+IATTR_T96			= "ignite chance";
+IATTR_T97			= "ignite proliferation chance";
 
-IATTR_T98			= "to energy shield";
+IATTR_T98			= "energy shield";
 IATTR_T99			= "increased energy shield";
 IATTR_T100			= "increased energy shield recovery rate";
 IATTR_T101			= "faster start of energy shield recharge";
@@ -404,15 +414,15 @@ IATTR_T111			= "poison resist penetration";
 
 IATTR_T112			= "energy shield magic absorb";
 
-IATTR_T113			= "to tech weapon attack damage";
-IATTR_T114			= "to precision weapon attack damage";
+IATTR_T113			= "tech weapon attack damage";
+IATTR_T114			= "precision weapon attack damage";
 IATTR_T115			= "increased tech weapon damage";
-IATTR_T116			= "to magic weapon attack damage";
+IATTR_T116			= "magic weapon attack damage";
 IATTR_T117			= "increased magic weapon damage";
 
 IATTR_T118			= "reduced overheated gained";
-IATTR_T119			= "to all resistances";
-IATTR_T120			= "to item rarity";
+IATTR_T119			= "all resists";
+IATTR_T120			= "item rarity";
 
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";
@@ -427,19 +437,19 @@ IATTR_TC9			= "forces pain";
 IATTR_TC10			= "CYBERNETIC";
 
 // regular implicits
-IATTR_TI1			= "to armor";
-IATTR_TI2			= "to energy shield";
-IATTR_TI3			= "to armor and energy shield";
-IATTR_TI4			= "to mitigation chance";
-IATTR_TI5			= "to armor and";
-IATTR_TI6			= "to energy shield and";
+IATTR_TI1			= "armor";
+IATTR_TI2			= "energy shield";
+IATTR_TI3			= "armor and energy shield";
+IATTR_TI4			= "mitigation chance";
+IATTR_TI5			= "armor and";
+IATTR_TI6			= "energy shield and";
 IATTR_TI7			= "energy shield magic absorb";
 IATTR_TI8			= "chance on hit for energy shield to explode for";		IATTR_TI8S = "of it in a 256 unit radius";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
 IATTR_TE2 			= "Soul weapons penetrate ";
-IATTR_TE3 			= " to accuracy rating";
+IATTR_TE3 			= " accuracy rating";
 IATTR_TE4 			= " increased accuracy rating";
 IATTR_TE5 			= "Ignite damage increases for each tic by ";
 IATTR_TE6 			= " chance for attacks to ignore shields";
@@ -505,6 +515,18 @@ IATTR_TX51			= "Melee kills refill other owned weapons' ammo by";
 IATTR_TX52			= "Swapping from a melee weapon grants"; IATTR_TX52S = "increased crit chance for 3 seconds";
 IATTR_TX53			= "of the damage you take from hits of your lowest resistance is dealt as \cuphysical damage\c- over \cd5\c- seconds instead";
 IATTR_TX54			= "Killing demons builds stacks of \cgDaemonic Barrier\c-, up to \cd10\c-. For each stack, completely negate a damage over time effect tic. Stacks last \cd15\c- seconds";
+IATTR_TX55			= "Soul ammo instead makes soul weapons not use ammo for"; IATTR_TX55S = "seconds";
+IATTR_TX56			= "The next"; IATTR_TX56S = "souls picked up only give ammo";
+IATTR_TX57			= "Strength has extra"; IATTR_TX57S = "attunement for melee weapons";
+IATTR_TX58			= "Your fire/ice/lightning/poison penetration is equal to the highest of the four";
+IATTR_TX59			= "Overheating weapons can fire while overheated";
+IATTR_TX60			= "Can't fire weapons that don't overheat while a weapon has overheated";
+IATTR_TX61			= "more damage to overheating weapons per overheat percent";
+IATTR_TX62			= "Take"; IATTR_TX62S = "less damage while on max overheat on a weapon";
+IATTR_TX63			= "Weapons use health instead of ammo";
+IATTR_TX64			= "Cannot pick up or buy ammo";
+IATTR_TX65			= "ammo cost multiplier";
+
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";
