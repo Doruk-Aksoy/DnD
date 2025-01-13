@@ -2885,8 +2885,13 @@ Script "DnD Player Setup" ENTER {
 	if(isSoftorHardcore() && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
 		GiveInventory("P_Frozen", 1);
 		GiveInventory("DontAttack", 1);
+		
 		while(GetGameModeState() == GAMESTATE_COUNTDOWN)
 			Delay(const:17);
+
+		// run the gui after game countdown
+		RunClassLoadScripts();
+
 		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 		SetPlayerProperty(0, 2, PROP_INVULNERABILITY);
 
@@ -2900,14 +2905,14 @@ Script "DnD Player Setup" ENTER {
 			
 			// the above reset actual items of player, the below resets variables used to denote inventories and such
 			ResetPlayerInfo(pnum);
-			
-			ACS_NamedExecuteAlways("DnD Created Chars Display", 0, pnum);
-			ACS_NamedExecuteAlways("DND Hardcore Timer", 0);
 		}
 		else {
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
 			//UpdateActivity(pnum, DND_ACTIVITY_EXP, GetPlayerExp(pnum), 0);
 		}
+
+		if(PlayerIsLoggedIn(pnum))
+			ACS_NamedExecuteWithResult("DnD Character Data Display Store", pnum);
 		
 		// 0 means they are ready
 		int players_not_ready = PlayersNotReadyForHardcore();
@@ -2915,8 +2920,10 @@ Script "DnD Player Setup" ENTER {
 		temp = Clamp_Between(GetCVar("dnd_loadtime"), DND_HARDCORE_LOADTIME, 100) << 1;
 		while(players_not_ready && i < temp && PlayerInGame(pnum)) {
 			//Update logged in status to client as needed by hardcode timer.
-			if (CheckInventory("PlayerIsLoggedIn") != PlayerIsLoggedIn(pnum))
+			if (CheckInventory("PlayerIsLoggedIn") != PlayerIsLoggedIn(pnum)) {
 				SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum));
+				ACS_NamedExecuteWithResult("DnD Character Data Display Store", pnum);
+			}
 			// we loaded, reduce on wait time
 			if(!CheckInventory("CanLoad")) {
 				PlayerCanLoad[pnum] = 0;
@@ -3140,6 +3147,8 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 
 	if(cpnum != PlayerNumber())
 		Terminate;
+
+	ResetLoadedPlayerDisplayData();
 
 	int status = GetCVar("dnd_dashstatus");
 	NamedRequestScriptPuke("DnD User CVAR Status Receive", status);

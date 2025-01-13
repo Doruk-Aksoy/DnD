@@ -10,8 +10,6 @@
 #include "DnD_Orbs.h"
 #include "DnD_ClassMenu.h"
 
-#define DND_MAX_CHARS 5
-
 enum {
 	DND_LOGIN_NOCHAR,
 	DND_LOGIN_CREATECHAROK,
@@ -51,10 +49,6 @@ void FinishDBTransaction() {
 void RestoreResearchItems() {
 	if(CheckResearchStatus(RES_DOUBLESPECIALCAP) == RES_DONE)
 		DoubleSpecialAmmoCapacity();
-}
-
-str GetCharField(str fname, int char_id) {
-	return StrParam(s:"C", d:char_id, s:"_", s:fname);
 }
 
 void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {

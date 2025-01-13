@@ -1498,6 +1498,13 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 			Terminate;
 
 		int victim = zap_tids[pnum][random(0, cur_count - 1)];
+		if(!victim) {
+			// try to pick one more time, and if it still yields 0, ignore this instance
+			victim = zap_tids[pnum][random(0, cur_count - 1)];
+			// if victim is somehow 0, terminate
+			if(!victim)
+				Terminate;
+		}
 
 		// fx
 		ACS_NamedExecuteAlways("DnD Overload Zap FX", 0, this, victim);

@@ -17,6 +17,8 @@
 #define FACTOR_FIXED_RESOLUTION 1000
 
 #define MAXPLAYERS 64
+#define MAXPLAYERS_BITS 6 // 6 bits needed to store 0-63
+#define MAXPLAYERS_MASK 0x3F
 #define TICRATE 35
 #define TICRATE_F 35.0
 #define HALF_TICRATE 17
@@ -855,6 +857,13 @@ int HandleTracerPicking(int owner, int lock_on_range, int width, int height, boo
 	}
 
 	return result;
+}
+
+// moved these here due to co-dependency
+#define DND_MAX_CHARS 5
+
+str GetCharField(str fname, int char_id) {
+	return StrParam(s:"C", d:char_id, s:"_", s:fname);
 }
 
 #endif

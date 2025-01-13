@@ -2893,6 +2893,8 @@ void DrawInventoryInfo(int pnum) {
 		
 	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 	if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource) != DND_ITEM_NULL) {
+		DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18 - ITEMINFOBG_MAXMIDS, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+
 		int isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		
 		mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1;

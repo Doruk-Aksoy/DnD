@@ -74,6 +74,9 @@ enum {
 	RPGMENUPAGEID = 120,
 	RPGMENUHIGHLIGHTID,
 
+	// this is used as basis for the character select menu id
+	RPGMENUCHARSELID = 800,
+
 	RPGMENUINVENTORYID = 849,
 	
 	RPGMENUCLICKEDID = 1749,
@@ -574,7 +577,7 @@ void DrawCursor() {
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
 	
-	//printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
+	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy);
 
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 0.1, HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }
