@@ -251,6 +251,10 @@ Actor DnD_SecondSelectedBox : Inventory {
 	inventory.maxamount 255
 }
 
+Actor DnD_PlayersNotReady_Sync : Inventory {
+	inventory.maxamount 64
+}
+
 Actor DnD_UsedTwoItemRequirementMaterial : DnD_Boolean { }
 
 Actor Ability_Kick : DnD_Boolean { }

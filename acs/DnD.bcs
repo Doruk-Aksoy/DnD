@@ -2916,6 +2916,7 @@ Script "DnD Player Setup" ENTER {
 		
 		// 0 means they are ready
 		int players_not_ready = PlayersNotReadyForHardcore();
+		SetInventory("DnD_PlayersNotReady_Sync", players_not_ready);
 		i = 0;
 		temp = Clamp_Between(GetCVar("dnd_loadtime"), DND_HARDCORE_LOADTIME, 100) << 1;
 		while(players_not_ready && i < temp && PlayerInGame(pnum)) {
@@ -2929,15 +2930,17 @@ Script "DnD Player Setup" ENTER {
 				PlayerCanLoad[pnum] = 0;
 				// message the players to wait for an amount of players to ready up (also update not ready count)
 				players_not_ready = PlayersNotReadyForHardcore();
-				if (players_not_ready > 0) //This is actually possible, even here!
-					ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0, players_not_ready);
+				SetInventory("DnD_PlayersNotReady_Sync", players_not_ready);
+				//if (players_not_ready > 0) //This is actually possible, even here!
+				//	ACS_NamedExecuteAlways("DND Wait For Other Players Message", 0, players_not_ready);
 			}
 			++i;
-			if ((i == temp) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad"))
+			if ((i == temp) && PlayerIsLoggedIn(pnum) && CheckInventory("CanLoad")) {
 				if (ACS_NamedExecuteWithResult("DnD Load Character Check", pnum, 0) == 11) //DND_CHARLOADED
 					ACS_ExecuteAlways(1001,0,0);
 				else if (ACS_NamedExecuteWithResult("DnD Create Character Check", pnum, 0) == 1) //DND_LOGIN_CREATECHAROK
 					ACS_ExecuteAlways(1003,0,0);
+			}
 			Delay(const:TICRATE / 2);
 		}
 	}
@@ -2946,7 +2949,10 @@ Script "DnD Player Setup" ENTER {
 		PlayerCanLoad[pnum] = 0;
 		Terminate;
 	}
+	SetInventory("DnD_PlayersNotReady_Sync", 0);
 	SetInventory("PlayersNotReady", 0);
+	SetInventory("DnD_SelectedCharmBox", 0); // class menu uses this now
+	SetInventory("DnD_SelectedInventoryBox", 0); // also this
 	
 	++DnD_StateChecker[DND_STATECHECK_PLAYERJOIN];
 	
@@ -4058,33 +4064,6 @@ Script "DnD Timed Monster" (int time, int isPet) {
 	else
 		Thing_Damage2(0, GetActorProperty(0, APROP_HEALTH) * 3, "Perish");
 	SetResultValue(0);
-}
-
-Script "DND Hardcore Timer" (void) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-	SetFont("BIGFONT");
-	SetHudSize(640, 480, 0);
-	int lim = Clamp_Between(GetCVar("dnd_loadtime"), DND_HARDCORE_LOADTIME, 100) << 1;
-	for(int i = 0; i < lim && PlayerInGame(PlayerNumber()) && CheckInventory("CanLoad"); ++i) {
-		if (CheckInventory("PlayerIsLoggedIn"))
-			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:lim / 2 - i / 2, s:"\c- ", l:"DND_TEXT_LOADCHARWARNING"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
-		else
-			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:lim / 2 - i / 2, s:"\c- ", l:"DND_TEXT_LOADLOGINWARNING"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
-
-		Delay(const:TICRATE / 2);
-	}
-}
-
-Script "DND Wait For Other Players Message" (int players_not_ready) CLIENTSIDE {
-	if(ConsolePlayerNumber() != PlayerNumber())
-		Terminate;
-	SetFont("BIGFONT");
-	SetHudSize(640, 480, 0);
-	if (players_not_ready == 1)
-		HudMessage(l:"DND_TEXT_WAITINGFOR", s:" \cd", d:players_not_ready, s:"\c- ", l:"DND_TEXT_PLAYERTOLOAD"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
-	else
-		HudMessage(l:"DND_TEXT_WAITINGFOR", s:" \cd", d:players_not_ready, s:"\c- ", l:"DND_TEXT_PLAYERSTOLOAD"; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.4, 240.0, 0);
 }
 
 Script "DND Hardcore Monster Message" (void) CLIENTSIDE {

@@ -1,6 +1,7 @@
 [enu default]
 
 DND_HEALTH								= "Health";
+DND_FREE_SLOT							= "FREE SLOT";
 
 DND_PICKUP_HEALTH						= "Health pickup";
 DND_PICKUP_DEMONESSENCE					= "Demon Essence.";

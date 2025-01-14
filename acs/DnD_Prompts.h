@@ -555,7 +555,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 		}
 		
 		// check inputs
-		ListenNPCInput();
+		ListenMouseInput();
 		sendInput = CheckInventory("MenuInput") != 0;
 		if(sendInput) {
 			// server gets a few extra info in boxid

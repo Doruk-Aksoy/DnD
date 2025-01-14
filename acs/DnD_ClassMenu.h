@@ -7,6 +7,9 @@
 #define DND_CLASSMENU_BUTTON_DELAY 4
 #define DND_MAX_CHARACTERSEL_ITEMS 24
 
+// NOTE: DnD_SelectedInventoryBox is used to tell the system player wants to "overwrite" the slot, ie. setchar call
+// DnD_SelectedCharmBox is used to load a picked character as-is
+
 enum {
 	DND_CLASSMENU_LEFTBUTTON_BIT = 0b0001,
 	DND_CLASSMENU_RIGHTBUTTON_BIT = 0b0010
@@ -375,22 +378,32 @@ Script "DnD Character Select Animated" (void) CLIENTSIDE {
 	int select_alpha = 0;
 	int lim = TICRATE * Clamp_Between(GetCVar("dnd_loadtime"), DND_HARDCORE_LOADTIME, 100);
 	int counter = 0;
+	int temp;
 	
-	while(counter < lim && PlayerInGame(pnum) && CheckInventory("CanLoad")) {
+	while(counter < lim && PlayerInGame(pnum)) {
 		SetHudSize(600, 450, 1);
 		SetFont("SMALLFONT");
 		
 		// display press w.e keys text
 		HudMessage(
-			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s:" \c[L7]", l:"DND_OR", s:" \ci", k:"+attack", s: " \c[L7]", l:"CLASS_TOSELECT", s:"!",
-			s:"\n\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+altattack", s:" \c[L7]", l:"CLASS_TOCLOSE", s:"!";
+			s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+attack", s: " \c[L7]", l:"CLASS_TOSELECT", s:"!",
+			s:"\n\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+altattack", s:" \c[L7]", l:"CLASS_OVERWRITE", s:"!";
 			HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUCHARSELID - 4, -1, 300.4, 368.1, 0.0, abs(sin(select_alpha * 1.0 / 360))
 		);
-
+		
 		SetFont("BIGFONT");
 		SetHudSize(960, 720, 0);
-		SetHudClipRect(120, 500, 640, 120, 640);
-		if (CheckInventory("PlayerIsLoggedIn"))
+		SetHudClipRect(80, 480, 800, 400, 800);
+		temp = CheckInventory("DnD_PlayersNotReady_Sync");
+		if(!CheckInventory("CanLoad")) {
+			if(temp > 1)
+				HudMessage(l:"DND_TEXT_WAITINGFOR", s:" \cd", d:temp, s:"\c- ", l:"DND_TEXT_PLAYERSTOLOAD"; HUDMSG_PLAIN, RPGMENUCHARSELID - 5, CR_RED, 480.4, 580.2, 0);
+			else if(temp == 1)
+				HudMessage(l:"DND_TEXT_WAITINGFOR", s:" \cd", d:temp, s:"\c- ", l:"DND_TEXT_PLAYERTOLOAD"; HUDMSG_PLAIN, RPGMENUCHARSELID - 5, CR_RED, 480.4, 580.2, 0);
+			else
+				break;
+		}
+		else if (CheckInventory("PlayerIsLoggedIn"))
 			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:(lim - counter) / TICRATE, s:"\c- ", l:"DND_TEXT_LOADCHARWARNING"; HUDMSG_PLAIN, RPGMENUCHARSELID - 5, CR_RED, 480.4, 580.2, 0);
 		else
 			HudMessage(l:"DND_TEXT_YOUHAVE", s:" \cd", d:(lim - counter) / TICRATE, s:"\c- ", l:"DND_TEXT_LOADLOGINWARNING"; HUDMSG_PLAIN, RPGMENUCHARSELID - 5, CR_RED, 480.4, 580.2, 0);
@@ -403,8 +416,24 @@ Script "DnD Character Select Animated" (void) CLIENTSIDE {
 
 		// button timers
 		SetHudSize(600, 450, 1);
-		SetFont("TRADBTN");
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCHARSELID - 6, CR_WHITE, 300.2, 300.1, 0);
+		int boxid = CheckInventory("ActivePopupBox");
+		if(boxid == MBOX_1) {
+			SetFont("SMALLFONT");
+			HudMessage(s:"\c[M3]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
+			SetFont("TRADBTNH");
+		}
+		else if(!CheckInventory("DnD_SelectedCharmBox") && !CheckInventory("DnD_SelectedInventoryBox")) {
+			// no click allowed unless player selected something prior
+			SetFont("SMALLFONT");
+			HudMessage(s:"\cm", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
+			SetFont("TRADBTNC");
+		}
+		else {
+			SetFont("SMALLFONT");
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
+			SetFont("TRADBTN");
+		}
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCHARSELID - 6, CR_WHITE, 300.4, 300.1, 0);
 	}
 }
 
@@ -418,7 +447,7 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 	PlayerCursorData.posy = HUDMAX_YF / 2;
 
 	int boxid = MAINBOX_NONE, boxid_prev = MAINBOX_NONE;
-	int i, j, k;
+	int i, j;
 	bool sendInput = false;
 	int class_id;
 
@@ -426,7 +455,7 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 
 	menu_pane_T& CurrentPane = GetPane();
 	ResetPane(CurrentPane);
-	AddBoxToPane_Points(CurrentPane, 1, 1, 1, 1);
+	AddBoxToPane_Points(CurrentPane, 272.0, 108.0, 210.0, 96.0);
 
 	while(PlayerInGame(pnum) && CheckInventory("PlayersNotReady")) {
 		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(cpnum, INPUT_YAW), MOUSE_INPUT_X);
@@ -443,20 +472,52 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 		boxid_prev = boxid;
 		SetInventory("ActivePopupBox", boxid);
 
+		// check inputs
+		ListenMouseInput();
+		sendInput = CheckInventory("MenuInput") != 0;
+		if(sendInput) {
+			// server gets a few extra info in boxid
+			if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
+				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+			i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
+			// guarantee nonzero input
+			if(i) {
+				//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+				NamedRequestScriptPuke("DND Server Box Receive - CharLoad", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD]);
+			}
+		}
+		
 		Delay(const:1);
+		
+		// retry ack
+		if(!CheckInventory("DND_ACK")) {
+			if(sendInput) {
+				GiveInventory("DND_ACKLoop", 1);
+				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK - CharLoad", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD]);
+			}
+		}
+		else {
+			sendInput = false;
+			SetInventory("MenuInput", 0);
+			//Log(s:"reset input data");
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
+		}
 		
 		if(!draw_character_info && CheckInventory("PlayerIsLoggedIn")) {
 			j = 0;
 			for(i = 0; i < DND_MAX_CHARS; ++i) {
+				AddBoxToPane_Points(CurrentPane, 404.0, 161.0 - 11.0 * i, 240.0, 155.0 - 11.0 * i);
+
 				class_id = LoadedPlayerData[i].classid;
 				if(class_id) {
 					if(!j)
 						DrawCharacterLoadInfo(i);
-					draw_character_info = true;
-					AddBoxToPane_Points(CurrentPane, 404.0, 161.0 - 11.0 * j, 240.0, 155.0 - 11.0 * j);
 					++j;
 				}
 			}
+			// put here since if player was logged in but they had no characters, it'd spam the screen infinitely adding points
+			draw_character_info = true;
 		}
 
 		if(draw_character_info)
@@ -466,6 +527,87 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 	SetInventory("ActivePopupBox", 0);
 
 	ACS_NamedExecuteAlways("DnD Character Select Cleanup", 0);
+}
+
+Script "DnD Retry Sending UntiL ACK - CharLoad" (int payload1, int payload2) CLIENTSIDE {
+	if(!payload1 || CheckInventory("DND_ACKLoop"))
+		Terminate;
+	while(!CheckInventory("DnD_ACK")) {
+		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
+		//Log(s:"trying to send prev item ", d:payload2 >> 16);
+		NamedRequestScriptPuke("DND Server Box Receive - CharLoad", payload1, payload2);
+		Delay(const:1);
+	}
+	TakeInventory("DND_ACKLoop", 1);
+}
+
+Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
+	// don't let garbage data slip in
+	if(!pnum)
+		Terminate;
+	int temp = pnum >> 16;
+	pnum &= 0xFFFF;
+
+	if(!CheckInventory("CanLoad"))
+		Terminate;
+		
+	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
+		SetActivator(pnum + P_TIDSTART);
+		MenuInputData[pnum][DND_MENUINPUT_DELAY] = DND_MENU_INPUTDELAYTICS;
+		MenuInputData[pnum][DND_MENUINPUT] = temp;
+		GiveInventory("DND_ACK", 1);
+		
+		if(HasLeftClicked(pnum)) {
+			if(boxid == MBOX_1) { 
+				// confirmation box
+				// we only allow clicks here to register if player clicked a character id prior
+				int loadExistingOrCreate = CheckInventory("DnD_SelectedCharmBox");
+				int replaceExisting = CheckInventory("DnD_SelectedInventoryBox");
+				str pacc = GetPlayerAccountName(pnum);
+				
+				if(loadExistingOrCreate || replaceExisting) {
+					// proceed with confirmation, call the related functions to load this player
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					
+					if(loadExistingOrCreate) {
+						// if we have a character there, load it
+						if(GetDBEntry(GetCharField(DND_DB_CLASSID, loadExistingOrCreate - 2), pacc)) {
+							loadExistingOrCreate = ACS_NamedExecuteWithResult("DnD Load Char", loadExistingOrCreate - 2);
+						}
+						else {
+							// setchar to this instead and create fresh
+							loadExistingOrCreate = ACS_NamedExecuteWithResult("DnD Set Char", loadExistingOrCreate - 2);
+						}
+					}
+					else {
+						// setchar to this instead and create fresh
+						temp = ACS_NamedExecuteWithResult("DnD Set Char", replaceExisting - 2);
+						if(temp != DND_LOGIN_CREATECHAROK)
+							temp = ACS_NamedExecuteWithResult("DnD Load Char", replaceExisting - 2);
+					}
+				}
+			}
+			else if(boxid != MAINBOX_NONE) {
+				// any character select box, ie. Char 2 etc.
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				SetInventory("DnD_SelectedCharmBox", boxid);
+				SetInventory("DnD_SelectedInventoryBox", 0);
+			}
+		}
+		else if(HasRightClicked(pnum)) {
+			// right click is to overwrite an existing character -- dont let this be CONFIRM box
+			if(boxid > MBOX_1) {
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				SetInventory("DnD_SelectedInventoryBox", boxid);
+				SetInventory("DnD_SelectedCharmBox", 0);
+			}
+		}
+		
+		ClearPlayerInput(pnum, true);
+		
+		Delay(const:DND_MENU_INPUTDELAYTICS);
+		MenuInputData[pnum][DND_MENUINPUT_DELAY] = 0;
+	}
 }
 
 Script "DnD Character Data Display Store" (int pnum) {
@@ -540,7 +682,7 @@ void DrawCharacterLoadInfo(int char_id) {
 	SetHUDSize(600, 450, 1);
 	SetFont("SMALLFONT");
 	
-	int id = 7;
+	int id = 8;
 
 	HudMessage(
 		s:"\c[J7]", l:"DND_STAT18", s: " \cd", d:LoadedPlayerData[char_id].level, s:"\c[J7] ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); 
@@ -554,10 +696,10 @@ void DrawCharacterLoadInfo(int char_id) {
 	HudMessage(s:"\c[J7]", l:"DND_HEALTH", s:": \cj", d:LoadedPlayerData[char_id].hp; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 160.1, 0.0);
 	++id;
 	
-	HudMessage(s:"\c[J7]", l:"DND_STAT19", s:": \cj", d:LoadedPlayerData[char_id].credit; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 176.1, 0.0);
+	HudMessage(s:"\c[J7]", l:"DND_STAT19", s:": \cj$", d:LoadedPlayerData[char_id].credit; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 176.1, 0.0);
 	++id;
 	
-	HudMessage(s:"\c[J7]", l:"DND_MENU_BUDGET", s:": \cj", d:LoadedPlayerData[char_id].budget; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 192.1, 0.0);
+	HudMessage(s:"\c[J7]", l:"DND_MENU_BUDGET", s:": \cj$", d:LoadedPlayerData[char_id].budget; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 192.1, 0.0);
 	++id;
 
 	// show the class images -- offsets aligned
@@ -568,30 +710,55 @@ void DrawCharacterLoadInfo(int char_id) {
 void DrawAllCharactersLoadInfo(int boxid) {
 	SetHUDSize(600, 450, 1);
 	SetFont("SMALLFONT");
-	int count = 0;
-	int id = 13;
+	int id = 14;
+	int color_id = -1;
+	int temp;
 	str col = "\c[J7]";
 	str sel_text = "";
 	for(int i = 0; i < DND_MAX_CHARS; ++i) {
-		if(LoadedPlayerData[i].classid) {
-			// - 2 because -1 is the 1st button box
-			if(boxid - 2 == count) {
-				col = "\c[B1]";
-				sel_text = " \cf<==";
+		if((temp = CheckInventory("DnD_SelectedInventoryBox")) && i == temp - 2) {
+			if(LoadedPlayerData[i].classid) {
+				col = "\cv";
+				sel_text = " \cg<== WILL REPLACE";
+				color_id = CR_RED;
 			}
 			else {
-				col = "\c[J7]";
-				sel_text = "";
+				col = "\cd";
+				sel_text = " \cd<==";
+				color_id = CR_GREEN;
 			}
+		}
+		else if((temp = CheckInventory("DnD_SelectedCharmBox")) && i == temp - 2) {
+			col = "\cd";
+			sel_text = " \cd<==";
+			color_id = CR_GREEN;
+		}
+		else if(boxid - 2 == i) {
+			// - 2 because -1 is the 1st button box
+			col = "\c[B1]";
+			sel_text = " \cf<==";
+			color_id = CR_GREEN;
+		}
+		else {
+			col = "\c[J7]";
+			sel_text = "";
+			color_id = -1;
+		}
 
+		if(LoadedPlayerData[i].classid) {
 			str cprefix = StrParam(s:"CLASS", d:LoadedPlayerData[i].classid - 1);
 			HudMessage(
 				s:col, l:"DND_MENU_SLOT", s:" ", d:i, s:". \cj", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME), s: " ", s:col, s:"- Level: \cd", d:LoadedPlayerData[i].level, s:sel_text; 
-				HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 96.1, 224.1 + 16.0 * count, 0.0
+				HUDMSG_PLAIN, RPGMENUCHARSELID - id, color_id, 96.1, 224.1 + 16.0 * i, 0.0
 			);
-			++id;
-			++count;
 		}
+		else {
+			HudMessage(
+				s:col, l:"DND_FREE_SLOT", s:": ", d:i, s:sel_text; 
+				HUDMSG_PLAIN, RPGMENUCHARSELID - id, color_id, 96.1, 224.1 + 16.0 * i, 0.0
+			);
+		}
+		++id;
 	}
 }
 

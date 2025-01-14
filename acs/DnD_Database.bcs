@@ -36,19 +36,28 @@ Script "DnD Load Character Check" (int pnum, int char_id) {
 	SetResultValue(check_load_char(pnum, char_id));	
 }
 
-Script 1001 (int char_id) NET {
-	int pnum = PlayerNumber();
+int load_char_proc(int pnum, int char_id) {
 	int result = check_load_char(pnum, char_id);
 	if (result == DND_CHARLOADED) load_char(pnum, char_id);
 	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
+	return result;
+}
+
+Script 1001 (int char_id) NET {
+	int pnum = PlayerNumber();
+	load_char_proc(pnum, char_id);
+}
+
+Script "DnD Load Char" (int char_id) {
+	int pnum = PlayerNumber();
+	SetResultValue(load_char_proc(pnum, char_id));
 }
 
 Script "DnD Create Character Check" (int pnum, int char_id) {
 	SetResultValue(check_create_char(pnum, char_id));	
 }
 
-Script 1003 (int char_id) NET {
-	int pnum = PlayerNumber();
+int set_char_proc(int pnum, int char_id) {
 	int result = check_create_char(pnum, char_id);
 	if (result == DND_LOGIN_CREATECHAROK) {
 		// reset whatever gibberish the player might have had
@@ -71,6 +80,17 @@ Script 1003 (int char_id) NET {
 		EndDBTransaction();
 	}
 	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
+	return result;
+}
+
+Script 1003 (int char_id) NET {
+	int pnum = PlayerNumber();
+	set_char_proc(pnum, char_id);
+}
+
+Script "DnD Set Char" (int char_id) {
+	int pnum = PlayerNumber();
+	SetResultValue(set_char_proc(pnum, char_id));
 }
 
 Script 1005 (int char_id) NET {

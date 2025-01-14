@@ -555,7 +555,7 @@ bool PlayersNotReadyForHardcore() {
 	int players_notready = 0;
 	for(int i = 0; i < MAXPLAYERS; ++i)
 		if (PlayerInGame(i) && PlayerCanLoad[i])
-			players_notready++;
+			++players_notready;
 	return players_notready;
 }
 
