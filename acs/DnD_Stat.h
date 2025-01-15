@@ -198,9 +198,9 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 #define DND_KNIGHT_MELEEREDUCE 50
 #define DND_KNIGHTARMOR_MELEEWEP_BONUS 0.4
 
-#define DND_RAVAGER_FACTOR 3
-#define DND_RAVAGER_REDUCE 4
-#define DND_RAVAGER_DMGBONUS 50
+#define DND_RAVAGER_FACTOR 17
+#define DND_RAVAGER_REDUCE 20
+#define DND_RAVAGER_DMGBONUS 25
 
 #define DND_SYNTHMETAL_HITSCANBUFF 50 // 50%
 #define DND_SYNTHMETAL_LIGHTNINGNERF 50
@@ -1089,8 +1089,8 @@ void RecalculatePlayerLevelInfo() {
 void ResetPlayerItems(int pnum) {
 	// reset weapons
 	// take all weapons
-	int i;
-	for(i = 0; i < MAXWEPS; ++i)
+	int i; // start from 1, skip fists
+	for(i = 1; i < MAXWEPS; ++i)
 		TakeInventory(Weapons_Data[i].name, 1);
 	for(i = 1; i <= 9; ++i)
 		TakeInventory(StrParam(s:"H_WeaponSlot", d:i), 1);

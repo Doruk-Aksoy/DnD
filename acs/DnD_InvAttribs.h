@@ -345,7 +345,44 @@ enum {
 	PPOWER_PRECISIONCRIT				=	0b1000000000000000000000000000,
 	PPOWER_ESHIELDABSORB				=	0b10000000000000000000000000000,
 	PPOWER_ESHIELDEXPLODE				=	0b100000000000000000000000000000,
+	PPOWER_MAXQUALITYHIGH				=	0b1000000000000000000000000000000,
 };
+
+enum {
+	PPOWER_ID_RAVAGER = 0,
+	PPOWER_ID_CYBER,
+	PPOWER_ID_LIGHTNINGABSORB,
+	PPOWER_ID_KNIGHTMELEEBONUS,
+	PPOWER_ID_HITSCANPROTECT,
+	PPOWER_ID_SPIKES,
+	PPOWER_ID_CANROLLPHYS,
+	PPOWER_ID_CANROLLOCCULT,
+	PPOWER_ID_CANROLLEXP,
+	PPOWER_ID_CANROLLENERGY,
+	PPOWER_ID_CANROLLELEMENTAL,
+	PPOWER_ID_LOWERREFLECT,
+	PPOWER_ID_ESHIELDBLOCKALL,
+	PPOWER_ID_INCMAGICRES,
+	PPOWER_ID_INCENERGYRES,
+	PPOWER_ID_REDUCEDLIGHTNINGTAKEN,
+	PPOWER_ID_OVERHEATGOFAST,
+	PPOWER_ID_LESSOVERHEAT,
+	PPOWER_ID_REDUCEDPOISONTAKEN,
+	PPOWER_ID_REDUCEDFIRETAKEN,
+	PPOWER_ID_REDUCEDSELFDMG,
+	PPOWER_ID_PETCAP,
+	PPOWER_ID_MELEEDAMAGE,
+	PPOWER_ID_SYNTHMETALMASK,
+	PPOWER_ID_MELEEIGNORESHIELD,
+	PPOWER_ID_BOSSTAKEMOREDMG,
+	PPOWER_ID_UNDEADRECOVERES,
+	PPOWER_ID_PRECISIONCRIT,
+	PPOWER_ID_ESHIELDABSORB,
+	PPOWER_ID_ESHIELDEXPLODE,
+	PPOWER_ID_MAXQUALITYHIGH
+};
+#define PPOWER_ID_FIRST PPOWER_ID_RAVAGER
+#define PPOWER_ID_LAST PPOWER_ID_MAXQUALITYHIGH
 
 #define REDUCED_SELF_DMG_FACTOR 25 // 25%
 #define OVERHEAT_DISS_FACTOR 25 // 25%
@@ -362,6 +399,7 @@ enum {
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
 #define LAST_CORRUPT_IMPLICIT INV_CORR_CYBERNETIC
+#define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
 #define LAST_REGULAR_IMPLICIT INV_IMP_UNSTABLECORE
@@ -1585,62 +1623,15 @@ str GetInventoryAttributeText(int attr) {
 
 // Note to self: Just construct a global array with these strings prebuilt for these attributes later... this is getting out of hand real bad
 str GetArmorImplicitExtraText(str text, int extra) {
-	if(extra & PPOWER_RAVAGER)
-		text = StrParam(s:text, s:"\n", l:"RAVAGER_BONUS");
-	else if(extra & PPOWER_KNIGHTMELEEBONUS)
-		text = StrParam(s:text, s:"\n", l:"KNIGHT_BONUS");
-	else if(extra & PPOWER_HITSCANPROTECT)
-		text = StrParam(s:text, s:"\n", l:"HITSCAN_PROTECT");
-	else if(extra & PPOWER_SPIKES)
-		text = StrParam(s:text, s:"\n", l:"SPIKES_ON_HIT");
-	else if(extra & PPOWER_LIGHTNINGABSORB)
-		text = StrParam(s:text, s:"\n", l:"LIGHTNING_ABSORB");
-	else if(extra & PPOWER_CYBER)
-		text = StrParam(s:text, s:"\n", l:"CYBER_ARMOR_BONUS", s:"\n\c[R5]", l:"IATTR_T72");
-	else if(extra & PPOWER_CANROLLPHYS)
-		text = StrParam(s:text, s:"\n", l:"CANROLL_PHYS");
-	else if(extra & PPOWER_CANROLLOCCULT)
-		text = StrParam(s:text, s:"\n", l:"CANROLL_OCCULT");
-	else if(extra & PPOWER_CANROLLEXP)
-		text = StrParam(s:text, s:"\n", l:"CANROLL_EXP");
-	else if(extra & PPOWER_CANROLLENERGY)
-		text = StrParam(s:text, s:"\n", l:"CANROLL_ENERGY");
-	else if(extra & PPOWER_CANROLLELEMENTAL)
-		text = StrParam(s:text, s:"\n", l:"CANROLL_ELEMENTAL");
-	else if(extra & PPOWER_LOWERREFLECT)
-		text = StrParam(s:text, s:"\n", l:"LOWER_REFLECT");
-	else if(extra & PPOWER_INCMAGICRES)
-		text = StrParam(s:text, s:"\n", l:"INC_MAGICRES");
-	else if(extra & PPOWER_INCENERGYRES)
-		text = StrParam(s:text, s:"\n", l:"INC_ENERGYRES");
-	else if(extra & PPOWER_REDUCEDLIGHTNINGTAKEN)
-		text = StrParam(s:text, s:"\n", l:"REDUCED_LIGHTNINGTAKEN");
-	else if(extra & PPOWER_OVERHEATGOFAST)
-		text = StrParam(s:text, s:"\n", l:"OVERHEAT_GOFAST");
-	else if(extra & PPOWER_LESSOVERHEAT)
-		text = StrParam(s:text, s:"\n", l:"LESS_OVERHEAT");
-	else if(extra & PPOWER_REDUCEDPOISONTAKEN)
-		text = StrParam(s:text, s:"\n", l:"REDUCED_POISONTAKEN");
-	else if(extra & PPOWER_REDUCEDFIRETAKEN)
-		text = StrParam(s:text, s:"\n", l:"REDUCED_FIRETAKEN");
-	else if(extra & PPOWER_REDUCEDSELFDMG)
-		text = StrParam(s:text, s:"\n", l:"REDUCED_SELFDMG");
-	else if(extra & PPOWER_PETCAP)
-		text = StrParam(s:text, s:"\n", l:"INCREASED_PETCAP");
-	else if(extra & PPOWER_MELEEDAMAGE)
-		text = StrParam(s:text, s:"\n", l:"INCREASED_MELEE");
-	else if(extra & PPOWER_SYNTHMETALMASK)
-		text = StrParam(s:text, s:"\n", l:"SYNTHMETAL_MASK");
-	else if(extra & PPOWER_MELEEIGNORESHIELD)
-		text = StrParam(s:text, s:"\n", l:"MELEE_IGNORESHIELD");
-	else if(extra & PPOWER_BOSSTAKEMOREDMG)
-		text = StrParam(s:text, s:"\n", l:"BOSSES_TAKEMOREDMG");
-	else if(extra & PPOWER_UNDEADRECOVERES)
-		text = StrParam(s:text, s:"\n", l:"UNDEAD_RECOVERES");
-	else if(extra & PPOWER_PRECISIONCRIT)
-		text = StrParam(s:text, s:"\n", l:"PRECISION_CRIT");
-	else if(extra & PPOWER_ESHIELDABSORB)
-		text = StrParam(s:text, s:"\n", l:"ESHIELD_MAGICABSORB");
+	for(int i = PPOWER_ID_FIRST; i <= PPOWER_ID_LAST; ++i) {
+		if(extra & (1 << i)) {
+			str label = StrParam(s:"PPOWTEXT", d:i + 1);
+			// cyber armor has different special rule
+			if(i != PPOWER_ID_CYBER)
+				return StrParam(s:text, s:"\n", l:label);
+			return StrParam(s:text, s:"\n", l:label, s:"\n\c[R5]", l:"IATTR_T72");
+		}
+	}
 	return text;
 }
 

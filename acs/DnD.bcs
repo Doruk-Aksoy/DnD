@@ -241,7 +241,9 @@ Script "DnD On Map Load" OPEN {
 	SetupCVarTracking();
 
 	// commented out for now!
+#ifdef ISDEBUGBUILD
 	NPC_Setup();
+#endif
 }
 
 Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {

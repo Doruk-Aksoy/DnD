@@ -1,11 +1,11 @@
 #ifndef DND_INV_GEN_IN
 #define DND_INV_GEN_IN
 
-void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false) {
+void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	int id = 0;
 	if(c != -1) {
-        int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers);
+        int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers, extra);
 
 		// tiers need to be 0 for it to be monster drops
 		#ifndef ISDEBUGBUILD
@@ -25,7 +25,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 	}
 }
 
-void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
+void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	if(c != -1) {
         int type = RollBootInfo(c, RollItemLevel(), pnum);
@@ -37,7 +37,7 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 	}
 }
 
-void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY = false) {
+void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	if(c != -1) {
         int type = RollHelmInfo(c, RollItemLevel(), pnum, pre_id);
@@ -50,7 +50,7 @@ void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY =
 }
 
 // monsters dropping charms
-void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
+void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
@@ -72,7 +72,15 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY =
 	}
 }
 
-void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false) {
+void SpawnUniqueCharm(int pnum, int charm_id, bool noRandomVelXY = false) {
+	int c = CreateItemSpot();
+	MakeUnique(c, DND_ITEM_CHARM, pnum, charm_id);
+	SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
+	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+	ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
+}
+
+void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	int id = 0;
 	if(c != -1) {
@@ -92,7 +100,7 @@ void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVel
 	}
 }
 
-void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0, bool noRandomVelXY = false) {
+void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0, bool noRandomVelXY = false, int extra = -1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
@@ -109,7 +117,7 @@ void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0, bool noRandomVelXY =
 }
 
 void SpawnItemForAll(int type, int repeats = 1) {
-    void function(int, int, int, bool)& f = SpawnArmor;
+    void function(int, int, int, bool, int)& f = SpawnArmor;
     switch(type) {
         case DND_ITEM_CHARM:
             f = SpawnCharm;
@@ -133,7 +141,7 @@ void SpawnItemForAll(int type, int repeats = 1) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j)) {
 				if(PlayerActivities[j].loot_penalty)
 					continue;
-				f(j, 0, 0, 0);
+				f(j, 0, 0, 0, -1);
 			}
 		}
 	}
@@ -217,6 +225,9 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				break;
 				case BODYARMOR_RAVAGER:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_RAVAGER, item_tier, 80);
+				break;
+				case BODYARMOR_TANGLEDRIBCAGE:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 35, PPOWER_MAXQUALITYHIGH, item_tier, 10);
 				break;
 
 				case BODYARMOR_SYNTHMETAL:

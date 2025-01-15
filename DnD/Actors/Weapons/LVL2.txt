@@ -16,9 +16,6 @@ Actor " Pistol " : Pistol
 	States
 	{
 	  Ready:
-		// this is here as a countermeasure to fresh spawn with pistol not being able to fire -- hopefully wont happen with other weapons, as starting loadout doesnt run Select state for whatever fucking reason
-		TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_PISTOL)
-	  ReadyLoop:
 		COLT A 1 A_WeaponReady
 		Loop
 	  Deselect:

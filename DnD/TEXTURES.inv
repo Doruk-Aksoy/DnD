@@ -117,18 +117,23 @@ Graphic "ARWICO15", 39, 26
 	Patch "ARICO15", 0, 0
 }
 
-Graphic "ARWICO16", 49, 41
+Graphic "ARWICO16", 56, 56
+{
+	Patch "ARICO18", 0, 0
+}
+
+Graphic "ARWICO17", 49, 41
 {
 	XScale 0.875
 	YScale 0.875
-	Patch "ARICO16", 0, 0
+	Patch "ARICO17", 0, 0
 }
 
-Graphic "ARWICO17", 27, 26
+Graphic "ARWICO18", 27, 26
 {
 	XScale 0.500
 	YScale 0.500
-	Patch "ARICO17", 0, 0
+	Patch "ARICO18", 0, 0
 }
 
 Graphic "UARM1", 32, 26

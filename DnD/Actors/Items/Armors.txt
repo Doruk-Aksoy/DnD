@@ -528,6 +528,15 @@ Actor ArmorDrop_14 : ArmorDrop {
 }
 
 Actor ArmorDrop_15 : ArmorDrop {
+	Scale 0.5
+	States {
+		Spawn:
+			ARM9 B 0
+		Goto SpawnInit
+	}
+}
+
+Actor ArmorDrop_16 : ArmorDrop {
 	Scale 0.75
 	States {
 		Spawn:
@@ -536,7 +545,7 @@ Actor ArmorDrop_15 : ArmorDrop {
 	}
 }
 
-Actor ArmorDrop_16 : ArmorDrop {
+Actor ArmorDrop_17 : ArmorDrop {
 	Scale 0.75
 	States {
 		Spawn:

@@ -7,6 +7,8 @@
 
 #define BASE_ARMOR_FACTOR 8
 
+#define ARMOR_TANGLED_DROPLVL 40
+
 enum {
     // body armors
     BODYARMOR_GREEN, // 20%
@@ -26,6 +28,7 @@ enum {
 	BODYARMOR_NECRO, // 3%
 	BODYARMOR_KNIGHT, // 3%
 	BODYARMOR_RAVAGER, // 4%
+	BODYARMOR_TANGLEDRIBCAGE, // 1%
 
 	// special drops, can't randomly appear
 	BODYARMOR_SYNTHMETAL,
@@ -53,7 +56,7 @@ enum {
 	HELMS_ROBE
 };
 #define BODYARMORS_BEGIN BODYARMOR_GREEN
-#define BODYARMORS_REGULAREND BODYARMOR_RAVAGER
+#define BODYARMORS_REGULAREND BODYARMOR_TANGLEDRIBCAGE
 #define BODYARMORS_END BODYARMOR_LIGHTNINGCOIL
 
 #define BOOTS_BEGIN BOOTS_SILVER
@@ -63,23 +66,24 @@ enum {
 #define HELMS_END HELMS_ROBE
 
 enum {
-	ARMWEIGHT_GREEN = 20,
-	ARMWEIGHT_YELLOW = 35,
-	ARMWEIGHT_BLUE = 45,
-	ARMWEIGHT_RED = 50,
+	ARMWEIGHT_GREEN = 19,
+	ARMWEIGHT_YELLOW = 34,
+	ARMWEIGHT_BLUE = 44,
+	ARMWEIGHT_RED = 49,
 
-	ARMWEIGHT_GUNSLINGER = 56,
-	ARMWEIGHT_OCCULT = 62,
-	ARMWEIGHT_DEMO = 68,
-	ARMWEIGHT_ENERGY = 74,
-	ARMWEIGHT_ELEMENTAL = 80,
+	ARMWEIGHT_GUNSLINGER = 55,
+	ARMWEIGHT_OCCULT = 61,
+	ARMWEIGHT_DEMO = 67,
+	ARMWEIGHT_ENERGY = 73,
+	ARMWEIGHT_ELEMENTAL = 79,
 
-	ARMWEIGHT_MONOLITH = 81,
-	ARMWEIGHT_CYBER = 85,
-	ARMWEIGHT_DUELIST = 90,
-	ARMWEIGHT_NECRO = 93,
-	ARMWEIGHT_KNIGHT = 96,
-	ARMWEIGHT_RAVAGER = 100
+	ARMWEIGHT_MONOLITH = 80,
+	ARMWEIGHT_CYBER = 84,
+	ARMWEIGHT_DUELIST = 89,
+	ARMWEIGHT_NECRO = 92,
+	ARMWEIGHT_KNIGHT = 95,
+	ARMWEIGHT_RAVAGER = 99,
+	ARMWEIGHT_TANGLEDRIBCAGE = 100
 };
 
 int ArmorDropWeights[BODYARMORS_REGULAREND + 1] = {
@@ -99,7 +103,8 @@ int ArmorDropWeights[BODYARMORS_REGULAREND + 1] = {
 	ARMWEIGHT_DUELIST,
 	ARMWEIGHT_NECRO,
 	ARMWEIGHT_KNIGHT,
-	ARMWEIGHT_RAVAGER
+	ARMWEIGHT_RAVAGER,
+	ARMWEIGHT_TANGLEDRIBCAGE
 };
 
 enum {
@@ -172,19 +177,28 @@ int HelmDropWeights[HELMS_END + 1] = {
 #define MAX_BOOT_ATTRIB_DEFAULT 4
 #define MAX_ARMOR_ATTRIB_DEFAULT 6
 
-// returns type of charm as result
-int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0) {
+// returns type of armor as result, extra holds m_id
+int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int extra = -1) {
     // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
 	int res, i;
 	if(!tiers) {
 		// pick with some weight here -- <= here for index, size is that +1
 		res = random(1, 100);
-		for(i = 0; i <= BODYARMORS_REGULAREND; ++i)
+		for(i = 0; i <= BODYARMORS_REGULAREND; ++i) {
 			if(res <= ArmorDropWeights[i]) {
+				if(i == BODYARMOR_TANGLEDRIBCAGE && MonsterProperties[extra].level < ARMOR_TANGLED_DROPLVL) {
+					// repeat if this happened
+					res = random(1, 100);
+					i = -1;
+					continue;
+				}
 				res = i;
 				break;
 			}
-		//res = BODYARMOR_CYBER;
+		}
+#ifdef ISDEBUGBUILD
+		res = BODYARMOR_TANGLEDRIBCAGE;
+#endif
 	}
 	else if(tiers == 1) {
 		res = random(0, 2);
@@ -310,10 +324,11 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 	return res;
 }
 
-int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0) {
+// extra holds m_id
+int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0, int extra = -1) {
 	// roll random attributes for the charm
 	int i = 0, roll;
-	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers);
+	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers, extra);
 	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
 	
 	Inventories_On_Field[item_pos].item_image = IIMG_ARM_1 + armor_type;
@@ -459,7 +474,7 @@ void UpdateEnergyShieldVisual(int val) {
 
 // Absorb value for magic or poison attacks
 int GetEShieldMagicAbsorbValue(int pnum) {
-	if(GetPlayerAttributeValue(pnum, INV_EX_ESHIELDFULLABSORB))
+	if(GetPlayerAttributeValue(pnum, INV_EX_ESHIELDFULLABSORB) || HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL))
 		return 100;
 	return HasPlayerPowerset(pnum, PPOWER_ESHIELDABSORB) * SAGE_ABSORB_VALUE + GetPlayerAttributeValue(pnum, INV_ESHIELD_ABSORB);
 }

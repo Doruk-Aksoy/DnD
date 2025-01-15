@@ -592,6 +592,7 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedCharmBox", boxid);
 				SetInventory("DnD_SelectedInventoryBox", 0);
+				ACS_NamedExecuteAlways("DnD Character Data Display On Click", 0, boxid - 2);
 			}
 		}
 		else if(HasRightClicked(pnum)) {
@@ -600,6 +601,7 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedInventoryBox", boxid);
 				SetInventory("DnD_SelectedCharmBox", 0);
+				ACS_NamedExecuteAlways("DnD Character Data Display On Click", 0, boxid - 2);
 			}
 		}
 		
@@ -608,6 +610,12 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 		Delay(const:DND_MENU_INPUTDELAYTICS);
 		MenuInputData[pnum][DND_MENUINPUT_DELAY] = 0;
 	}
+}
+
+Script "DnD Character Data Display On Click" (int char_id) CLIENTSIDE {
+	if(PlayerNumber() != ConsolePlayerNumber())
+		Terminate;
+	DrawCharacterLoadInfo(char_id);
 }
 
 Script "DnD Character Data Display Store" (int pnum) {
@@ -675,36 +683,58 @@ Script "DnD Character Data Display Sync - 2" (int payload, int budget) CLIENTSID
 }
 
 void DrawCharacterLoadInfo(int char_id) {
-	int ctype = LoadedPlayerData[char_id].classid - 1;
-
-	str cprefix = StrParam(s:"CLASS", d:ctype);
-
+	int id = 8;
 	SetHUDSize(600, 450, 1);
 	SetFont("SMALLFONT");
-	
-	int id = 8;
+	if(LoadedPlayerData[char_id].classid) {
+		int ctype = LoadedPlayerData[char_id].classid - 1;
 
-	HudMessage(
-		s:"\c[J7]", l:"DND_STAT18", s: " \cd", d:LoadedPlayerData[char_id].level, s:"\c[J7] ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); 
-		HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 300.4, 96.1, 0.0
-	);
-	++id;
+		str cprefix = StrParam(s:"CLASS", d:ctype);
+		
+		HudMessage(
+			s:"\c[J7]", l:"DND_MENU_SLOT", s:" \cd", d:char_id, s:"\n\c[J7]", l:"DND_STAT18", s: " \cd", d:LoadedPlayerData[char_id].level, s:"\c[J7] ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); 
+			HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 300.4, 96.1, 0.0
+		);
+		++id;
 
-	HudMessage(s:"\c[J7]", l:"DND_STAT16", s:": \cd", d:LoadedPlayerData[char_id].exp, s:"\c[J7] / \cd", d:GetExpLimit_Level(LoadedPlayerData[char_id].level); HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 144.1, 0.0);
-	++id;
+		HudMessage(s:"\c[J7]", l:"DND_STAT16", s:": \cd", d:LoadedPlayerData[char_id].exp, s:"\c[J7] / \cd", d:GetExpLimit_Level(LoadedPlayerData[char_id].level); HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 144.1, 0.0);
+		++id;
 
-	HudMessage(s:"\c[J7]", l:"DND_HEALTH", s:": \cj", d:LoadedPlayerData[char_id].hp; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 160.1, 0.0);
-	++id;
-	
-	HudMessage(s:"\c[J7]", l:"DND_STAT19", s:": \cj$", d:LoadedPlayerData[char_id].credit; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 176.1, 0.0);
-	++id;
-	
-	HudMessage(s:"\c[J7]", l:"DND_MENU_BUDGET", s:": \cj$", d:LoadedPlayerData[char_id].budget; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 192.1, 0.0);
-	++id;
+		HudMessage(s:"\c[J7]", l:"DND_HEALTH", s:": \cd", d:LoadedPlayerData[char_id].hp; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 160.1, 0.0);
+		++id;
+		
+		HudMessage(s:"\c[J7]", l:"DND_STAT19", s:": \cd$", d:LoadedPlayerData[char_id].credit; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 176.1, 0.0);
+		++id;
+		
+		HudMessage(s:"\c[J7]", l:"DND_MENU_BUDGET", s:": \cd$", d:LoadedPlayerData[char_id].budget; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 192.1, 0.0);
+		++id;
 
-	// show the class images -- offsets aligned
-	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_MUGSHOT)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 281.4 + GetIntegerBits(GetMugshotXOffset(ctype)), 112.1, 0.0);
+		// show the class images -- offsets aligned
+		SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_MUGSHOT)));
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 281.4 + GetIntegerBits(GetMugshotXOffset(ctype)), 112.1, 0.0);
+	}
+	else {
+		HudMessage(
+			s:"\c[J7]", l:"DND_MENU_SLOT", s:" \cd", d:char_id, s:"\n\c[J7]", l:"DND_STAT18", s: " \cjN/A"; 
+			HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 300.4, 96.1, 0.0
+		);
+		++id;
+
+		HudMessage(s:"\c[J7]", l:"DND_STAT16", s:": \cJN/A"; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 144.1, 0.0);
+		++id;
+
+		HudMessage(s:"\c[J7]", l:"DND_HEALTH", s:": \cjN/A"; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 160.1, 0.0);
+		++id;
+		
+		HudMessage(s:"\c[J7]", l:"DND_STAT19", s:": \cjN/A"; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 176.1, 0.0);
+		++id;
+		
+		HudMessage(s:"\c[J7]", l:"DND_MENU_BUDGET", s:": \cjN/A"; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 224.1, 192.1, 0.0);
+		++id;
+
+		// show the class images -- offsets aligned
+		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUCHARSELID - id, -1, 281.4, 112.1, 0.0);
+	}
 }
 
 void DrawAllCharactersLoadInfo(int boxid) {

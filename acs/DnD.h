@@ -183,9 +183,6 @@ enum {
 
 #define DND_MAX_MONSTERDELAY 8
 
-#define DND_CYBERNETICARMOR_AMOUNT 300
-#define DND_RAVAGERARMOR_AMOUNT 250
-
 #define DND_HEALTHEXPSCALE 5
 #define DND_HEALTHCREDITSCALE 10
 #define DND_HEALTHCREDITAFTER50SCALE 5
@@ -747,7 +744,7 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 						case DND_LOOT_ARMOR:
 							tmp = random(1, 100);
 							if(tmp <= 33)
-								SpawnArmor(i, rarity_boost, 0);
+								SpawnArmor(i, rarity_boost, 0, false, m_id);
 							else if(tmp <= 66)
 								SpawnBoot(i, rarity_boost);
 							else
@@ -788,8 +785,7 @@ void HandleLegendaryMonsterDrop(int leg_mon_id, int pnum) {
 			unique_id = UITEM_THORNVEIN;
 		break;
 	}
-	int c = CreateItemSpot();
-	MakeUnique(c, unique_id, pnum);
+	SpawnUniqueCharm(pnum, unique_id);
 }
 
 void HandleCreditExp_Regular(int this, int target, int m_id) {

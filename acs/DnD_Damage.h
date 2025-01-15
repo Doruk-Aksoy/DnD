@@ -2390,7 +2390,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		// armor reduced factor amount of damage, this is what the player will take as damage
 		dmg = ApplyDamageFactor_Safe(dmg, ARMOR_INTEGER_FACTOR - factor, ARMOR_INTEGER_FACTOR);
 		
-		// if we have ravager armor and on killing spree, reduce damage to 3/4 (25% reduced)
+		// if we have ravager armor and on killing spree, reduce damage to 17/20 (15% reduced)
 		if(armor_id == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
 			dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_FACTOR, DND_RAVAGER_REDUCE);
 		else if(armor_id == BODYARMOR_KNIGHT && dmg_string == "Melee") // apply special reductions offered by certain armors
@@ -2412,9 +2412,11 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
 		if(is_dot || (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)) {
 			// no ways to prevent this type of damage, return raw dmg
-			if(!HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL) && !factor)
+			if(!factor)
 				return dmg;
-			factor += !!(HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL)) * 100;
+			/*if(!HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL) && !factor)
+				return dmg;
+			factor += !!(HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL)) * 100;*/
 		}
 		else
 			factor = 100;

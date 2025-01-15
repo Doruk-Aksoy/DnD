@@ -27,6 +27,7 @@ Actor DnD_Player : PlayerPawn {
 	Player.ColorRange 112, 127
 	Player.DisplayName "DnDPlayer"
 	
+	Player.StartItem " Fists "
 	Player.StartItem "DnD_PlayerInventoryPages", 1
 	Player.StartItem "DnD_PlayerCurrentPage", 1
 	Player.StartItem "HPNormal"

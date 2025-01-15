@@ -235,6 +235,7 @@ enum {
 
 	IIMG_ARM_16,
 	IIMG_ARM_17,
+	IIMG_ARM_18,
 
 	// boots
 	IIMG_BOO_1,
@@ -301,7 +302,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_ARMORER
 
 #define ITEM_IMAGE_ARMOR_BEGIN IIMG_ARM_1
-#define ITEM_IMAGE_ARMOR_END IIMG_ARM_17
+#define ITEM_IMAGE_ARMOR_END IIMG_ARM_18
 
 #define ITEM_IMAGE_BOOT_BEGIN IIMG_BOO_1
 #define ITEM_IMAGE_BOOT_END IIMG_BOO_11
@@ -1893,7 +1894,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 				id_begin - id_mult * MAX_INVENTORY_BOXES - 5 - ITEMINFOBG_MAXMIDS, CR_WHITE, bx, by + 10.0 + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
-			temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 10);
+			temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 6); // was 10
 			yoff = 10.0 + 8.0 * temp;
 			lines_count += max(1, temp);
 		}
@@ -2960,18 +2961,38 @@ void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int ti
 	}
 }
 
-void GiveCorruptedImplicit(int pnum, int item_pos) {
-	int corr_mod = random(FIRST_CORRUPT_IMPLICIT, LAST_CORRUPT_IMPLICIT);
-	int extra = GetExtraForMod(corr_mod);
+void GiveCorruptionEffect(int pnum, int item_pos) {
+	// pick between random effects to corruption implicits, with equal weight, and decide from there
+	// roll between 0 to MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1
+	// if > than MAX_CORRUPTION_WEIRD_OUTCOMES subtract it to get corrupt implicit
+	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);
+	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
+		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
+		int extra = GetExtraForMod(corr_mod);
 
-	if(extra != -1)
-		PlayerInventoryList[pnum][item_pos].implicit.attrib_extra = extra;
+		if(extra != -1)
+			PlayerInventoryList[pnum][item_pos].implicit.attrib_extra = extra;
 
-	PlayerInventoryList[pnum][item_pos].implicit.attrib_id = corr_mod;
-	PlayerInventoryList[pnum][item_pos].implicit.attrib_tier = 0;
+		PlayerInventoryList[pnum][item_pos].implicit.attrib_id = corr_mod;
+		PlayerInventoryList[pnum][item_pos].implicit.attrib_tier = 0;
 
-	// roll the value for this now
-	PlayerInventoryList[pnum][item_pos].implicit.attrib_val = random(ItemModTable[corr_mod].attrib_low, ItemModTable[corr_mod].attrib_high);
+		// roll the value for this now
+		PlayerInventoryList[pnum][item_pos].implicit.attrib_val = random(ItemModTable[corr_mod].attrib_low, ItemModTable[corr_mod].attrib_high);
+
+		return;
+	}
+
+	// we are within the initial [0, MAX_CORRUPTION_WEIRD_OUTCOMES) range so we can apply the customized change here
+
+	switch(corr_outcome) {
+		case DND_CORR_OUTCOME_QUALITY:
+			// don't let it hit negative
+			PlayerInventoryList[pnum][item_pos].quality += random(-DND_QUALITY_CORRUPTION_CHANGE, DND_QUALITY_CORRUPTION_CHANGE);
+			if(PlayerInventoryList[pnum][item_pos].quality < 0)
+				PlayerInventoryList[pnum][item_pos].quality = 0;
+			SyncItemQuality(pnum, item_pos, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		break;
+	}
 }
 
 int GetItemFracturedModCount(int pnum, int item_pos) {
@@ -3229,7 +3250,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	AssignAttributes(pnum, item_pos, itype, attr_count);
 }
 
-int MakeUnique(int item_pos, int item_type, int pnum) {
+int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 	int i, beg, end;
 
 	switch(item_type) {
@@ -3251,24 +3272,29 @@ int MakeUnique(int item_pos, int item_type, int pnum) {
 		break;
 	}
 
-	if(GetCVar("dnd_ignore_dropweights")) {
-		i = random(beg, end);
-	}
-	else {
-		int roll = random(1, MAX_UNIQUE_WEIGHT);
-		for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
-	}
-
-	#ifdef ISDEBUGBUILD
-		if(item_type == DND_ITEM_CHARM) {
-			end = UNIQUE_CHARM_END;
-			int bias = Timer() & 0xFFFF;
-			i = random(bias + beg, bias + end) - bias;
-			//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-			i = UITEM_UNITY;
-			//i = random(UITEM_UNITY, UITEM_MINDFORGE);
+	if(unique_id == -1) {
+		if(GetCVar("dnd_ignore_dropweights")) {
+			i = random(beg, end);
 		}
-	#endif
+		else {
+			int roll = random(1, MAX_UNIQUE_WEIGHT);
+			for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
+		}
+
+		#ifdef ISDEBUGBUILD
+			if(item_type == DND_ITEM_CHARM) {
+				end = UNIQUE_CHARM_END;
+				int bias = Timer() & 0xFFFF;
+				i = random(bias + beg, bias + end) - bias;
+				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
+				//i = UITEM_UNITY;
+				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
+			}
+		#endif
+	}
+	else
+		i = unique_id;
+
 	// i is the unique id
 	ConstructUniqueOnField(item_pos, i, pnum);
 	return i;
@@ -3571,6 +3597,12 @@ Script "DnD Disassemble CS" (int result) CLIENTSIDE {
 		Log(s:"\c[Y5]", l:"DND_DISASS", s:": \cg", l:"DND_DISASS_LOSS");
 		LocalAmbientSound("Items/FailDisassemble", 127);
 	}
+}
+
+bool GetItemMaxQuality(int pnum, int item_index) {
+	if(PlayerInventoryList[pnum][item_index].implicit.attrib_extra & PPOWER_MAXQUALITYHIGH)
+		return 2 * DND_MAX_CHARM_QUALITY;
+	return DND_MAX_CHARM_QUALITY;
 }
 
 #include "DnD_Token.h"

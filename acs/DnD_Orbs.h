@@ -194,7 +194,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			}
 		break;
 		case DND_ORB_ALCHEMIST:
-			res = (extratype & 0xFFFF) == DND_ITEM_CHARM && PlayerInventoryList[pnum][extra].quality < DND_MAX_CHARM_QUALITY;
+			res = (extratype & 0xFFFF) == DND_ITEM_CHARM && PlayerInventoryList[pnum][extra].quality < GetItemMaxQuality(pnum, extra);
 
 			// check if item has cybernetic -- it shouldn't have it!
 			res &= !ItemIsCybernetic(pnum, extra, PlayerInventoryList[pnum][extra].attrib_count, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -389,7 +389,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			}
 			else {
-				GiveCorruptedImplicit(pnum, extra);
+				GiveCorruptionEffect(pnum, extra);
 				SetInventory("OrbResult", DND_CORRUPT_SUCCESS);
 				SyncItemImplicits(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			}
@@ -718,8 +718,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SaveUsedItemAttribs(pnum, extra);
 
 			PlayerInventoryList[pnum][extra].quality += affluence;
-			if(PlayerInventoryList[pnum][extra].quality > DND_MAX_CHARM_QUALITY)
-				PlayerInventoryList[pnum][extra].quality = DND_MAX_CHARM_QUALITY;
+			prev = GetItemMaxQuality(pnum, extra);
+			if(PlayerInventoryList[pnum][extra].quality > prev)
+				PlayerInventoryList[pnum][extra].quality = prev;
 			
 			SyncItemQuality(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
