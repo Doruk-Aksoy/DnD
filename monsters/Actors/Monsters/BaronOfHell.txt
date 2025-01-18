@@ -126,6 +126,7 @@ Actor LavaDemonSmoke : msxgen_smoke {
 actor phoenixFX3 {
 	seesound "weapons/phoenixpowshoot"
 	damage (random(1, 8))
+	Accuracy 150
 	DamageType "Fire"
 	Stamina 32
 	Speed 20
@@ -156,6 +157,7 @@ Actor VolcanoBlast2 {
 	Speed 2
 	Damage (2 * random(1, 8))
 	Damagetype "Fire"
+	Accuracy 133
 	Stamina 32
 	Gravity 0.125
 	PROJECTILE
@@ -189,6 +191,7 @@ Actor VolcanoTBlast2 {
 	Speed 3
 	Damage (random(1, 8))
 	Damagetype "Fire"
+	Accuracy 133
 	Stamina 32
 	Gravity 0.125
 	PROJECTILE

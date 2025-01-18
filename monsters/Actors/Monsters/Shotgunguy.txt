@@ -15,6 +15,7 @@ ACTOR SSGZombie : DnD_BaseRangedMonster {
 	DropItem "SuperShotgunPickup_Drop"
 	Tag "SSG Zombie"
 	Decal Bulletchip
+	Accuracy 30
 	+ISMONSTER
 	states {
 		SetInfo:
@@ -85,6 +86,7 @@ Actor ZSpecOpsShotgun : DnD_BaseRangedMonster {
 	Decal BulletChip
 	DropItem "ShotgunPickup_Drop"
 	Tag "ZSpec Shotgunner"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -150,6 +152,7 @@ ACTOR LOSShotgunGuy : DnD_BaseRangedMonster {
 	Obituary "$OB_SHOTGUY"
 	+ISMONSTER
 	Mass 100
+	Accuracy 30
 	Speed 8
 	States {
 		SetInfo:
@@ -239,6 +242,7 @@ ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster {
 	Obituary "%o was shot by a Super Shotgun Sergeant."  
 	DropItem "SuperShotgunPickup_Drop"
 	Tag "Armored SSG Zombie"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -322,6 +326,7 @@ actor SawedOffShotgunGuy : DnD_BaseRangedMonster {
 	decal "bulletchip"
 	DropItem "SawedoffPickup"
 	Tag "Sawedoff Zombie"
+	Accuracy 30
 	+ISMONSTER
 	states {
 		SetInfo:
@@ -391,6 +396,7 @@ actor SawedOffShotgunGuy2 : DnD_BaseRangedMonster {
 	deathsound "shotguy/death"
 	activesound "shotguy/active"
 	Tag "Sawedoff Zombie"
+	Accuracy 30
 	+ISMONSTER
 	states {
 		SetInfo:
@@ -456,6 +462,7 @@ Actor QuakeZombieShotgun : DnD_BaseRangedMonster {
     PainSound "QuakeZombie/pain"
     DeathSound "QuakeZombie/die"
     ActiveSound "SSGUNER/idle"
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -524,6 +531,7 @@ actor UndeadRogue : DnD_BaseHybridMonster {
 	ActiveSound "UndeadInitiate/Act"
 	painsound "UndeadInitiate/Pain"
 	deathsound "UndeadInitiate/Death"
+	Accuracy 30
 	+ISMONSTER
 	+NODROPOFF
 	states {

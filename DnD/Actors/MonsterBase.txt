@@ -94,6 +94,8 @@ Actor DnD_BaseMonster {
 	
 	Painchance "SoulType_ForcePain", 256
 	
+	Accuracy 40 // level 40 fully completes default damage scale ramp for most monsters now
+	
 	var int user_spawnheight;
 	
 	States {
@@ -356,6 +358,7 @@ Actor DnD_ArchVileHybridBase : DnD_BaseHybridMonster_NoRes {
 Actor DnD_BaseMeleeBoss : DnD_BaseMeleeMonster_NoRes {
 	Stamina 1
 	GibHealth -500
+	Accuracy 50
 	+NEVERRESPAWN
 	+NOFEAR
 }
@@ -363,6 +366,7 @@ Actor DnD_BaseMeleeBoss : DnD_BaseMeleeMonster_NoRes {
 // inherit ranged if monster can ONLY do ranged and is a boss
 Actor DnD_BaseRangedBoss : DnD_BaseRangedMonster_NoRes {
 	GibHealth -200
+	Accuracy 50
 	+NEVERRESPAWN
 	+NOFEAR
 }
@@ -371,6 +375,7 @@ Actor DnD_BaseRangedBoss : DnD_BaseRangedMonster_NoRes {
 Actor DnD_BaseHybridBoss : DnD_BaseHybridMonster_NoRes {
 	Stamina 1
 	GibHealth -200
+	Accuracy 50
 	+NEVERRESPAWN
 	+NOFEAR
 }

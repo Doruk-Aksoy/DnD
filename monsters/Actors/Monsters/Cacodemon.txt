@@ -371,6 +371,7 @@ Actor EarthLichSpike {
 	+DONTBLAST
 	Speed 28
 	Damage (random(8,12))
+	Accuracy 133
 	DamageType "Physical"
 	Stamina 1
 	Radius 6
@@ -808,6 +809,7 @@ ACTOR GrellBall {
 	Height 16
 	Speed 20
 	Damage (4 * random(1, 8))
+	Accuracy 133
 	+DONTBLAST
 	+THRUGHOST
 	DamageType "Poison"
@@ -968,6 +970,7 @@ ACTOR AcolyteShot {
 	Height 16
 	Speed 10
 	Damage (2 * random(1, 8))
+	Accuracy 133
 	RENDERSTYLE ADD
 	ALPHA 0.72
 	Scale 0.85
@@ -1140,6 +1143,7 @@ ACTOR GuardShot : CacodemonBall {
 	Height 6
 	Speed 18
 	Damage (4 * random(1, 8))
+	Accuracy 133
 	DamageType "Magical"
 	Stamina 8
 	ALPHA 0.85

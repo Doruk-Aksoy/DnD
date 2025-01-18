@@ -15,6 +15,7 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster {
 	DropItem "MachinegunPickup_Drop"
 	DropItem "MachinegunPickup_Drop"
 	Tag "Double Chaingunner"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -74,6 +75,7 @@ Actor DoubleChaingunner : DnD_BaseRangedMonster {
 
 Actor MajorBullet : ZombieBullet {
 	Damage (random(1, 5) * 4)
+	Accuracy 133
 }
 
 Actor ChaingunMajor : DnD_BaseRangedMonster {
@@ -93,6 +95,7 @@ Actor ChaingunMajor : DnD_BaseRangedMonster {
 	Height 56
 	Speed 8
 	ActiveSound "chainguy/active"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -163,6 +166,7 @@ actor ZSec : DnD_BaseRangedMonster {
 	activesound "zsec/active"
 	DropItem "MachinegunPickup_Drop"
 	Tag "ZSec"
+	Accuracy 30
 	+ISMONSTER
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -278,6 +282,7 @@ Actor ZSecGrenade {
 	height 8
 	speed 20
 	damage (10)
+	Accuracy 133
 	DamageType "Explosive"
 	Stamina 4
 	seesound "ZSec/bounce"
@@ -321,6 +326,7 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 	Decal BulletChip
 	DropItem "MachinegunPickup_Drop"
 	Tag "ZSpec MG"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -394,6 +400,7 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster {
     PainSound "QuakeZombie/pain"
     DeathSound "QuakeZombie/die"
     ActiveSound "SSGUNER/idle"
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -458,6 +465,7 @@ Actor EnforcerPlasma2 : EnforcerPlasma {
 	Radius 4
 	RenderStyle Add
 	Damage (2 * random(3,6))
+	Accuracy 133
 	Alpha 0.8
 	Scale 0.25
 	Speed 40
@@ -492,6 +500,7 @@ actor UndeadInitiate : DnD_BaseHybridMonster {
 	ActiveSound "UndeadInitiate/Act"
 	painsound "UndeadInitiate/Pain"
 	deathsound "UndeadInitiate/Death"
+	Accuracy 30
 	+ISMONSTER
 	+NODROPOFF
 	states {
@@ -574,6 +583,7 @@ Actor MrRobot : DnD_BaseRangedMonster {
 	ActiveSound "Robodude/act"
 	DropItem "LaserPickup"
 	Tag "Robot Guard"
+	Accuracy 30
 	+ISMONSTER
 	+NOBLOOD
 	States {
@@ -645,6 +655,7 @@ Actor EnforcerPlasma3 : EnforcerPlasma2 {
 	DamageType "Energy"
 	Stamina 16
 	Speed 48
+	Accuracy 133
 	+PIERCEARMOR
 }
 
@@ -704,6 +715,7 @@ Actor MachinegunGuy : DnD_BaseRangedMonster {
 	AttackSound "Weapons/MGFireSoft"
 	Obituary "$OB_CHAINGUY"
 	DropItem "MachinegunPickup_Drop"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -771,6 +783,7 @@ ACTOR PlasmaZombie : DnD_BaseRangedMonster {
     ActiveSound "grunt/active"
     Obituary "%o got burned by a plasma zombie."
     DropItem "PlasmaBolterPickup"
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -836,6 +849,7 @@ Actor ZombiePlasma : PlasmaBallX {
 	Alpha 0.75
 	Decal "PlasmaScorchX"
 	Damage(15)
+	Accuracy 133
 	DamageType "Energy"
 	Stamina 16
 	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.05,2.00]", "4:4=4:4", "224:229=224:229"
@@ -871,6 +885,7 @@ Actor Berserkerguy : DnD_BaseRangedMonster {
 	ActiveSound "FancyZombie/Idle"
 	DropItem "RipperCannonPickup"
 	Tag "Berserk Chaingunner"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:

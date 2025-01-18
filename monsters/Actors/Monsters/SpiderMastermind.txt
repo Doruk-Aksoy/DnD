@@ -108,6 +108,7 @@ Actor Demolisher : DnD_BaseRangedBoss {
 Actor BigSpiderBullet : ZombieBullet {
 	DamageType "Physical"
 	Stamina 3
+	Accuracy 175
 }
 
 Actor BFGBallDemolisher : BFGBall2 {
@@ -219,6 +220,7 @@ Actor PhyteBullet : ZombieBullet {
 	Damage (random(2, 3) * 4)
 	DamageType "Physical"
 	Stamina 3
+	Accuracy 175
 	States {
 		Death:
 		XDeath:
@@ -243,6 +245,7 @@ Actor PhyteBullet : ZombieBullet {
 Actor ArachnophyteExp1 : BaseExplosionDamage {
 	DamageType "Explosive"
 	Stamina 4
+	Accuracy 133
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -670,6 +673,7 @@ ACTOR BulletPierce {
 	speed 44
 	damage (3 * random(1, 8))
 	DamageType "Physical"
+	Accuracy 133
 	Stamina 1
 	Scale 1.15
 	seesound "angeltracer/explode"
@@ -920,6 +924,7 @@ ACTOR GoldLichBounce {
 	Height 12
 	Speed 22
 	Damage (5 * random(2,4))
+	Accuracy 133
 	DamageType "MagicalDark"
 	Stamina 8
 	Projectile
@@ -1567,6 +1572,7 @@ Actor IronLichSmallEnergy2 {
 	Renderstyle Add
 	Alpha 0.75
 	Damage (4 * random(1, 8))
+	Accuracy 133
 	DamageType "EnergyYellow"
 	Stamina 16
 	Speed 32
@@ -1741,6 +1747,7 @@ ACTOR SpiderOverlordMissile : SentGmissile {
 	DamageType "MagicalGreen"
 	Stamina 8
 	Damage (4 * random(1, 8))
+	Accuracy 150
 	Scale 0.5
 	+SEEKERMISSILE
 	+PIERCEARMOR

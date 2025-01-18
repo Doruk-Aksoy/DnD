@@ -771,6 +771,7 @@ ACTOR PaladinBall {
 	Height 8
 	Speed 18
 	Damage (8 * random(2, 4))
+	Accuracy 133
 	DamageType "MagicalArmorCorrupt"
 	Stamina 8
 	Projectile
@@ -1051,6 +1052,7 @@ ACTOR Sorcerer2FXSpark2 : Sorcerer2FXSpark {
 
 Actor MephistoBullet : ZombieBullet {
 	Damage (random(3,5) * 2)
+	Accuracy 133
 }
 
 Actor Mephisto : DnD_BaseRangedMonster {
@@ -1525,6 +1527,7 @@ Actor GoldGolemLaser {
 	Height 6
 	Speed 36
 	Damage (random(5, 12))
+	Accuracy 133
 	RenderStyle Add
 	Alpha 0.5
 	Scale 0.6
@@ -1786,6 +1789,7 @@ ACTOR RedeemerFlame {
 Actor RedeemerFlameExplosion : BaseExplosionDamage {
 	DamageType "Fire"
 	Stamina 32
+	Accuracy 150
 	+NODAMAGETHRUST
 	States {
 		Spawn:

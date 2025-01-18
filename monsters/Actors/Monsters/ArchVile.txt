@@ -253,6 +253,7 @@ ACTOR DFlare {
 	Damage (4 * random(1, 8))
 	RenderStyle Add
 	DamageType "MagicalFire"
+	Accuracy 133
 	Stamina 40
 	Alpha 0.85
 	Projectile
@@ -1089,6 +1090,7 @@ ACTOR DKDart {
 	Speed 24
 	Damage (random(15,25))
 	DamageType "MagicalFire"
+	Accuracy 133
 	Stamina 40
 	ExplosionDamage 32
 	ExplosionRadius 64
@@ -1162,6 +1164,7 @@ ACTOR DKBall {
 	Speed 15
 	Damage (random(10,15))
 	DamageType "Magical"
+	Accuracy 133
 	Stamina 8
 	PROJECTILE
 	SeeSound "monster/dkball"
@@ -1462,6 +1465,7 @@ ACTOR SwordSlash {
 	Speed 16
 	Damage (random(4, 6))
 	DamageType "MagicalBlue"
+	Accuracy 133
 	Stamina 8
 	PROJECTILE
 	RenderStyle Add
@@ -2016,6 +2020,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 
 Actor GuruExplosion1 : BaseExplosionDamage {
 	DamageType "MagicalFire"
+	Accuracy 133
 	Stamina 40
 	Obituary "%o was incinerated by a Guru."
 	+NODAMAGETHRUST
@@ -2028,6 +2033,7 @@ Actor GuruExplosion1 : BaseExplosionDamage {
 }
 
 Actor GuruExplosion2 : GuruExplosion1 {
+	Accuracy 133
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2044,6 +2050,7 @@ Actor GuruPacifier {
 	Renderstyle Add
 	Damage (3 * random(1, 8))
 	DamageType "MagicalFire"
+	Accuracy 133
 	Stamina 40
 	SeeSound "Guru/Fire"
 	DeathSound "imp/shotx"
@@ -2068,6 +2075,7 @@ Actor GuruSmallProjectile : GuruPacifier {
 	Height 8
 	Scale 0.75
 	Damage (2 * random(1, 8))
+	Accuracy 133
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

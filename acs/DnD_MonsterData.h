@@ -7,6 +7,8 @@
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 20 // 20% per level
 
+#define DND_DEFAULT_MONSTERDMG_SCALING_FACTOR 120
+
 #define ETHEREAL_RESIST 33
 
 #define MONSTER_RES_PER_THRESHOLD 25
@@ -25,25 +27,30 @@ int GetMonsterHPScaling(int m_id, int level) {
 	// big bosses have higher scaling than other monsters -- since we reach much higher values than before I decided to go ahead and reduce the big boss scaling here
 	if(IsUniqueBossMonster(m_id))
 		res *= 1 + (level / 33);
-
-	int cvs = GetCVar("dnd_monster_hpscalepercent");
-	if(cvs)
-		res = res * (100 + cvs) / 100;
 		
 	return res;
 }
 
-int GetMonsterDMGScaling(int m_id, int level, bool forShow = false) {
+int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_factor = 0, int scaling_ramp = 0) {
 	// over the old formula of 4x, this provides 500% damage at lvl 100 instead of 400%
-	int res = level * level / 25 + level;
+	// edit: iterating over the improvement on previous versions, making the game harder -- divisor was 25 instead of 10
+	int res = level * level / 10 + level;
+
+	// scaling factor contribution
+	if(scaling_ramp) {
+		// assign default scaling factor for melee things... monster's accuracy can exist, but not the melee hit's
+		// in those cases the factor and ramp can be the same value too, prevent that
+		// it will also assign a default of 1.2 for projectiles that dont have one when the monster has a ramp value attached
+		if(!scaling_factor || scaling_factor == scaling_ramp)
+			scaling_factor = DND_DEFAULT_MONSTERDMG_SCALING_FACTOR;
+		if(level < scaling_ramp)
+			scaling_factor = scaling_factor * level / scaling_ramp;
+		res = res * (100 + scaling_factor) / 100;
+	}
 	
 	// unique bosses have additional damage multiplier per level -- x^2 * 0.01667 + x
 	if(!forShow && IsUniqueBossMonster(m_id))
 		res = res * (100 + (level * level) / 60 + level) / 100;
-
-	int cvs = GetCVar("dnd_monster_dmgscalepercent");
-	if(cvs)
-		res = res * (100 + cvs) / 100;
 	
 	return res;
 }

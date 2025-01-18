@@ -199,6 +199,7 @@ ACTOR DIPuff {
 	RENDERSTYLE Add
 	DamageType "Magical"
 	Stamina 8
+	Accuracy 133
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -841,6 +842,7 @@ actor widowmaker_slugshot : FastProjectile {
 	Height 5  
 	Mass 1
 	Damage ((10 + (5*random(0,3))))
+	Accuracy 125
 	alpha 1
 	Speed 64
 	RenderStyle ADD
@@ -1683,6 +1685,7 @@ Actor SludgeMissile {
 	Height 8
 	Scale 0.65
 	Damage (8)
+	Accuracy 133
 	ProjectileKickBack 8
 	DamageType "Poison"
 	Stamina 128

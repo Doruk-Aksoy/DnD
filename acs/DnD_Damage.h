@@ -2721,6 +2721,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		Terminate;
 	}
 
+	// in monster shooting player case, temp holds accuracy stored in the projectile!
 	int temp, dmg, m_id;
 	int pnum;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
@@ -2743,7 +2744,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int factor = 0;
 
 		int actor_flags = ScanActorFlags();
-		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN) {
+		temp = GetActorProperty(0, APROP_ACCURACY);
+		if(temp == DND_CRIT_TOKEN) {
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
 			// printbold(s:"actor got crit confirm");
 		}
@@ -2810,7 +2812,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			// dont scale reflected damage by this
 			// special bonuses
-			factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level) + MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
+			factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
+									   MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
 
 			dmg = dmg * (100 + factor) / 100;
 

@@ -599,6 +599,7 @@ Actor TerminatorBullet : UndeadInitiateBullet {
 	DamageType "Physical"
 	Stamina 1
 	Damage (15)
+	Accuracy 133
 	States {
 		Death:
 			TPUF A 2 Bright

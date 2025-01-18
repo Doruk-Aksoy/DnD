@@ -116,6 +116,7 @@ Actor BloodSatyrMissile {
 	Radius 4
 	Height 8
 	Damage (random(2, 16))
+	Accuracy 133
 	+NODAMAGETHRUST
 	DamageType "MagicalRed"
 	Stamina 8
@@ -456,6 +457,7 @@ Actor HellsFuryBall {
 	Height 8
 	Speed 14
 	Damage (8 * random(1, 8))
+	Accuracy 133
 	+DONTBLAST
 	DamageType "MagicalRed"
 	Stamina 8
@@ -622,6 +624,7 @@ Actor ArchonComet {
 	Height 12
 	Speed 24
 	Damage (6 * random(1, 8))
+	Accuracy 133
 	DamageType "MagicalGreen"
 	Stamina 8
 	Scale 1.0
@@ -1149,6 +1152,7 @@ ACTOR KFireBall {
 	Speed 18
 	Damage (random(6, 16))
 	DamageType "MagicalFire"
+	Accuracy 133
 	Stamina 40
 	PROJECTILE
 	SeeSound "monster/dkball"
@@ -1463,6 +1467,7 @@ Actor CyborgPlasma1 {
 	Alpha 0.875
 	Damage (4 * random(1, 8))
 	DamageType "EnergyCyan"
+	Accuracy 133
 	Stamina 16
 	Speed 30
 	+FORCEXYBILLBOARD
@@ -1488,6 +1493,7 @@ Actor CyborgPlasma2 {
 	Speed 24
 	Damage (5 * random(5, 8))
 	DamageType "EnergyVoid"
+	Accuracy 133
 	Stamina 16
 	Scale 1.0
 	Alpha 0.9
@@ -2003,6 +2009,7 @@ Actor CrystalSpike {
 	Speed 24
 	Damage (random(6, 10))
 	DamageType "Ice"
+	Accuracy 133
 	Stamina 64
 	Radius 6
 	Height 10
@@ -2303,6 +2310,7 @@ ACTOR PutrefierBullet : FastProjectile {
 	Radius 1
 	Height 2
 	Damage (random(6, 8))
+	Accuracy 133
 	DamageType "Poison"
 	Stamina 128
 	Speed 128

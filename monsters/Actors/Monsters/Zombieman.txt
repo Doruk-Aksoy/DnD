@@ -13,6 +13,7 @@ Actor ZombieManGray : DnD_BaseRangedMonster {
 	ActiveSound "grunt/active"
 	Obituary "$OB_ZOMBIE" // "%o was killed by a zombieman."
 	Mass 100
+	Accuracy 30
 	Tag "Zombieman"
 	+ISMONSTER
 	States {
@@ -65,6 +66,7 @@ Actor ZombieManGray : DnD_BaseRangedMonster {
 
 Actor RangerBullet : ZombieBullet {
 	Damage (random(1,5) * 2)
+	Accuracy 133
 }
 
 actor FormerRanger : DnD_BaseRangedMonster {
@@ -85,6 +87,7 @@ actor FormerRanger : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip", 128
 	Tag "Zombie Ranger"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -163,6 +166,7 @@ actor FormerRanger : DnD_BaseRangedMonster {
 
 Actor SMGZombieBullet : ZombieBullet {
 	Damage (random(1,3) * 2)
+	Accuracy 133
 }
 
 ACTOR SMGGuy : DnD_BaseRangedMonster {
@@ -181,6 +185,7 @@ ACTOR SMGGuy : DnD_BaseRangedMonster {
 	DeathSound "grunt/death"
 	ActiveSound "grunt/active"
 	AttackSound "weapons/smg"
+	Accuracy 30
 	+ISMONSTER
 	Mass 100
 	States {
@@ -234,6 +239,7 @@ ACTOR SMGGuy : DnD_BaseRangedMonster {
 
 Actor RapidFireBullet : ZombieBullet {
 	Damage (random(1,3) * 3)
+	Accuracy 133
 }
 
 ACTOR RapidFireTrooper : DnD_BaseRangedMonster {
@@ -251,6 +257,7 @@ ACTOR RapidFireTrooper : DnD_BaseRangedMonster {
 	ActiveSound "grunt/active"
 	Obituary "%o was surprised by the zombie's weaponry." 
 	Tag "Rapid Fire Zombie"
+	Accuracy 30
 	+ISMONSTER
 	Decal BulletChip
 	States { 
@@ -321,6 +328,7 @@ ACTOR ZombieMarine : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
     Decal Bulletchip
 	Tag "Zombie Marine"
+	Accuracy 30
 	+ISMONSTER
     states {
 		SetInfo:
@@ -387,6 +395,7 @@ ACTOR LOSZombieMan : DnD_BaseRangedMonster {
 	ActiveSound "grunt/active"
 	Obituary "$OB_ZOMBIE" // "%o was killed by a zombieman."
 	Mass 100
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -449,6 +458,7 @@ ACTOR PistolZombie : DnD_BaseRangedMonster {
     Obituary "%o was killed by a zombieman."
 	DropItem "DroppedClip"
 	Tag "Pistol Zombie"
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -515,6 +525,7 @@ ACTOR QuakeZombie : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip"
 	Tag "Enforcer"
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -576,6 +587,7 @@ ACTOR QuakeZombie : DnD_BaseRangedMonster {
 
 Actor UndeadInitiateBullet : ZombieBullet {
 	Damage (random(1,3) * 4)
+	Accuracy 133
 }
 
 actor UndeadHunter : DnD_BaseHybridMonster {
@@ -595,6 +607,7 @@ actor UndeadHunter : DnD_BaseHybridMonster {
 	painsound "UndeadInitiate/Pain"
 	deathsound "UndeadInitiate/Death"
 	Tag "Undead Hunter"
+	Accuracy 30
 	+ISMONSTER
 	+NODROPOFF
 	states {
@@ -678,6 +691,7 @@ actor Prophet : DnD_BaseRangedMonster {
 	DropItem "DroppedClip"
 	DropItem "DroppedClip", 128
 	Tag "Prophet"
+	Accuracy 30
 	+ISMONSTER
 	+GHOST
 	states {

@@ -74,7 +74,8 @@ ACTOR FusionShot {
 	Radius 10
 	Height 10
 	Speed 18
-	Damage (5 * random(1, 8))  
+	Damage (5 * random(1, 8))
+	Accuracy 133
 	DamageType "EnergyVoid"
 	Stamina 16
 	Scale 1.0
@@ -336,6 +337,7 @@ Actor ArachnoPuff : BulletPuff {
 Actor ArachnoBullet : ZombieBullet {
 	Damage (random(1, 4) * 3)
 	DamageType "Physical"
+	Accuracy 133
 	Stamina 1
 }
 
@@ -511,6 +513,7 @@ ACTOR BabyDemoGhostF : BabyDemoGhostA {
 ACTOR BabyDemoBall : FusionShot {
 	Speed 25
 	Damage (4 * random(1, 8))
+	Accuracy 133
 	DamageType "EnergyGreen"
 	Stamina 16
 	SeeSound "weapons/plasmaf"
@@ -708,6 +711,7 @@ Actor CommandoBullet1 : ZombieBullet {
 	Damage (random(1, 5) * 3)
 	DamageType "Physical"
 	Stamina 1
+	Accuracy 133
 }
 
 Actor CommandoExplosion : BaseExplosionDamage {
@@ -726,6 +730,7 @@ Actor CommandoBullet2 : ZombieBullet {
 	Damage (random(1, 5) * 4)
 	DamageType "Physical"
 	Stamina 1
+	Accuracy 133
 	States {
 		Death:
 		XDeath:
@@ -913,6 +918,7 @@ Actor ChaingunGeneral : DnD_BaseRangedMonster {
 
 Actor NailProjectileWeak {
 	Damage (7)
+	Accuracy 133
 	Speed 36
 	DamageType "Physical"
 	Stamina 1
@@ -1035,6 +1041,7 @@ Actor LegionnaireBash {
 	DamageType "Melee"
 	Stamina 1
 	damage (5 * random(1, 2))
+	Accuracy 133
 	deathsound "weapons/vblhit"
 	PROJECTILE
 	+HITTRACER
@@ -1072,6 +1079,7 @@ Actor LegionnaireMissile {
 	Radius 6
 	Height 12
 	Damage (5 * random(2, 6))
+	Accuracy 133
 	DamageType "EnergyRed"
 	Stamina 16
 	SeeSound "Legionnaire/Fire"

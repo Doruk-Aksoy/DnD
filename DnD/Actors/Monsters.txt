@@ -14,6 +14,7 @@ Actor ZombieMan2 : DnD_BaseRangedMonster {
 	Obituary "$OB_ZOMBIE" // "%o was killed by a zombieman."
 	Mass 100
 	Tag "Zombieman"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -81,7 +82,8 @@ Actor ZombieMan2 : DnD_BaseRangedMonster {
 Actor ZombieMan3 : Zombieman2 replaces Zombieman { }
 
 Actor ZombieBullet : ProjBullet {
-	Damage (random(1,5) * 3)
+	Damage (random(1, 5) * 3)
+	Accuracy 133 // 1.33 scaling factor
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -104,6 +106,7 @@ Actor Shotgunguy2 : DnD_BaseRangedMonster {
 	Obituary "$OB_SHOTGUY"
 	Mass 100
 	Speed 8
+	Accuracy 30
 	Tag "Shotgunner"
 	+ISMONSTER
 	States {
@@ -172,6 +175,7 @@ Actor Chaingunguy2 : DnD_BaseRangedMonster {
 	Obituary "$OB_CHAINGUY"
 	DropItem "MachinegunPickup_Drop"
 	Tag "Chaingunner"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -502,6 +506,7 @@ Actor CacoDemon2 : DnD_BaseHybridMonster {
 	ActiveSound "caco/active"
 	Obituary "$OB_CACO"
 	HitObituary "$OB_CACOHIT"
+	Accuracy 50
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -774,6 +779,7 @@ Actor HellKnight2 : DnD_BaseHybridMonster {
 Actor Baronball2 : BaronBall replaces BaronBall
 {
 	Damage (8 * random(1, 8))
+	Accuracy 133
 	DamageType "FireGreen"
 	Stamina 32
 	Decal "BaronScorch"
@@ -996,6 +1002,7 @@ Actor ArachnotronPlasma2 : ArachnotronPlasma replaces ArachnotronPlasma
 	Damage (5 * random(1, 8))
 	DamageType "EnergyYellow"
 	Stamina 16
+	Accuracy 133
 	+DONTBLAST
 	States {
 		Spawn:
@@ -1190,6 +1197,7 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss {
 }
 
 Actor SpiderMBullet : ZombieBullet {
+	Accuracy 150
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

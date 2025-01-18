@@ -856,6 +856,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 Actor BruteExplosion1 : BaseExplosionDamage {
 	DamageType "Explosive"
 	Stamina 4
+	Accuracy 150
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -869,6 +870,7 @@ Actor BruteExplosion1 : BaseExplosionDamage {
 Actor BruteExplosion2 : BaseExplosionDamage {
 	DamageType "Explosive"
 	Stamina 4
+	Accuracy 150
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

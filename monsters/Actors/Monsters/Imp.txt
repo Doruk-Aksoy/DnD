@@ -17,6 +17,7 @@ actor STDarkImp : DnD_BaseHybridMonster {
 	+DONTHURTSPECIES
 	PainSound "Imp/Pain"
 	Tag "Dark Imp"
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -128,6 +129,7 @@ actor NamiDarkImp : DnD_BaseHybridMonster {
     HitObituary "%o was touched by a dark imp."
 	Species "Imp"
 	Tag "Dark Imp"
+	Accuracy 30
 	+ISMONSTER
 	+DONTHURTSPECIES
     States {
@@ -184,6 +186,7 @@ actor DarkSeeker {
     Speed 9
     Damage (3 * random(1, 8))
 	DamageType "MagicalVoid"
+	Accuracy 30
 	Stamina 8
     +SEEKERMISSILE
 	+DONTBLAST
@@ -232,6 +235,7 @@ actor VoidDarkImp : DnD_BaseHybridMonster {
     HitObituary "%o was touched by a dark imp."
 	Species "Imp"
 	Tag "Void Dark Imp"
+	Accuracy 30
 	+ISMONSTER
 	+DONTHURTSPECIES
     States {
@@ -388,6 +392,7 @@ actor NetherDarkImp : DnD_BaseHybridMonster {
 	Species "Imp"
 	BloodColor "Green"
 	Tag "Nether Dark Imp"
+	Accuracy 30
 	+ISMONSTER
 	+DONTHURTSPECIES
     States {
@@ -558,6 +563,7 @@ Actor ImpAbomination : DnD_BaseHybridMonster {
 	HitObituary "$OB_IMPHIT"
 	Obituary "$OB_IMP"
 	PainSound "Imp/Pain"
+	Accuracy 30
 	+ISMONSTER
 	States {
 		SetInfo:
@@ -624,6 +630,7 @@ Actor STImp : DnD_BaseHybridMonster {
 	Tag "Imp"
 	Species "Imp"
 	Mass 100
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -721,6 +728,7 @@ Actor VoidImp : DnD_BaseHybridMonster {
 	Tag "Imp"
 	Species "Imp"
 	Mass 100
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -823,6 +831,7 @@ actor SoulHarvester : DnD_BaseHybridMonster {
 	BloodColor "66 66 66"
 	Species "Imp"
 	Tag "Soul Harvester"
+	Accuracy 30
 	+ISMONSTER
 	+DONTHURTSPECIES
     States {
@@ -883,6 +892,7 @@ actor SoulHarvesterBall {
     Damage (2 * random(1, 8))
 	DamageType "Magical"
 	Stamina 8
+	Accuracy 133
     +SEEKERMISSILE
 	+DONTBLAST
     PROJECTILE
@@ -949,6 +959,7 @@ actor PyroImp : DnD_BaseHybridMonster {
     HitObituary "%o was cut open by a pyro imp."
 	Species "Imp"
 	Tag "Pyro Imp"
+	Accuracy 30
 	+ISMONSTER
     States {
 		SetInfo:
@@ -1172,6 +1183,7 @@ actor Devil : DnD_BaseHybridMonster {
 	activesound "monster/dvlact"
 	Tag "Devil"
 	Species "Imp"
+	Accuracy 30
 	+ISMONSTER
 	states {
 		SetInfo:
@@ -1252,6 +1264,7 @@ actor Devil2 : DnD_BaseHybridMonster {
 	activesound "monster/dvlact"
 	Tag "Devil"
 	Species "Imp"
+	Accuracy 30
 	+ISMONSTER
 	states {
 		SetInfo:
@@ -1328,6 +1341,7 @@ actor Devil2Ball {
     Speed 24
     Damage (3 * random(4, 8))
 	DamageType "Fire"
+	Accuracy 133
 	Stamina 4
     PROJECTILE
 	+DONTBLAST
@@ -1406,6 +1420,7 @@ actor Vulgar : DnD_BaseHybridMonster {
 	activesound "monster/vulact"
 	Tag "Vulgar"
 	Species "Imp"
+	Accuracy 30
 	+ISMONSTER
 	states {
 		SetInfo:
@@ -1503,6 +1518,7 @@ Actor UndeadMage : DnD_ArchVileBase {
 	Species "Imp"
 	+DONTHURTSPECIES
 	Tag "Undead Mage"
+	Accuracy 30
 	+NODAMAGETHRUST
 	+NODROPOFF
 	+ISMONSTER
@@ -1625,6 +1641,7 @@ Actor ReaverRobot : DnD_BaseHybridMonster {
 	HitObituary "%o was gutted by a Reaver."
 	Species "Imp"
 	Tag "Reaver"
+	Accuracy 30
 	+ISMONSTER
 	+DONTHURTSPECIES
 	+NOBLOOD
@@ -1688,6 +1705,7 @@ Actor ReaverShot {
 	Projectile
 	Damage (random(5, 7))
 	DamageType "Physical"
+	Accuracy 133
 	Stamina 1
 	Scale 0.5
 	States {
@@ -1752,6 +1770,7 @@ ACTOR Shadow : DnD_BaseRangedMonster {
 	MissileType ShadowBallX
 	Species "Imp"
 	Tag "Shadow"
+	Accuracy 30
 	+ISMONSTER
 	+DONTHURTSPECIES
 	+GHOST
@@ -1854,6 +1873,7 @@ ACTOR ShadowBallX {
 	Speed 20
 	Damage (4 * random(1, 8))
 	DamageType "Magical"
+	Accuracy 133
 	Stamina 8
 	Projectile
 	+RANDOMIZE
@@ -1956,6 +1976,7 @@ Actor Roach : DnD_BaseHybridMonster {
 	Obituary "%o was poisoned by a Roach."
 	Scale 1.1
 	Tag "Roach"
+	Accuracy 30
 	Species "Imp"
 	+ISMONSTER
 	States {

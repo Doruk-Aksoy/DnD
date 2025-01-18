@@ -332,7 +332,7 @@ int CanRegenEShield(int pnum) {
 }
 
 int GetPlayerEstimatedArmorProtect(int pnum, int cap) {
-	int base_dmg = DND_ESTIMATED_AVG_DAMAGE * (100 + GetMonsterDMGScaling(0, GetActorLevel(pnum + P_TIDSTART), true)) / 100;
+	int base_dmg = DND_ESTIMATED_AVG_DAMAGE * (100 + GetMonsterDMGScaling(0, GetActorLevel(pnum + P_TIDSTART), true, DND_DEFAULT_MONSTERDMG_SCALING_FACTOR, 40)) / 100;
 	return 100 - DoArmorRatingEffect(base_dmg, cap) * 100 / base_dmg;
 }
 
