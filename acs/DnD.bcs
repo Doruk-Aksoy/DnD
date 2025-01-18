@@ -435,10 +435,10 @@ Script "DnD Weapon Input Handler" (int wepid) {
 	int pnum = PlayerNumber();
 
 	// prevents bug related to map change + Select state of weapons, causing multiple scripts to run many times
-	if(IsSetupComplete(SETUP_STATE1, SETUP_MAPCHANGED))
+	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
 		Terminate;
 
-	printbold(s:"run input handler for ", d:wepid);
+	//printbold(s:"run input handler for ", d:wepid);
 	switch(wepid) {
 		case DND_WEAPON_HELLSMAW:
 			while(PlayerInGame(pnum) && CheckInventory("DnD_WeaponID") == wepid) {
@@ -719,7 +719,7 @@ Script "DND On Revive" (void) {
 		SetEliteFlag(DND_REVIVED, true); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		// Reapply the elite FX.
 		if (MonsterProperties[id].isElite)
-			ACS_NamedExecuteAlways("DND Elite Special FX", 0);
+			ACS_NamedExecuteAlways("DND Elite Special FX", 0, this);
 		//printbold(s:"Monster id: ",d:MonsterProperties[id].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
 		int maxhp = MonsterProperties[id].maxhp;
@@ -731,7 +731,7 @@ Script "DND On Revive" (void) {
 		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
 			Thing_Damage2(this, GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
 
-		HandleSpecialTraits(this, MonsterProperties[id].id);
+		HandleSpecialTraits(this, MonsterProperties[id].id, true);
 	}
 	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
@@ -1599,6 +1599,7 @@ Script "DnD Update TID CS" (int tid) CLIENTSIDE {
 Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	GiveMonsterTID(ActivatorTID());
 
+	//printbold(s:"Monster ", s:GetActorClass(0), s:" id ", d:ActivatorTID());
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 	//Make sure mob gets to right amount of hp at this point
 	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
@@ -2820,6 +2821,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 Script "DnD On Unloading" UNLOADING {
 	int tid;
 	SetupComplete(SETUP_STATE1, SETUP_MAPCHANGED);
+	SetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
 	BreakAllTrades();
@@ -2873,6 +2875,7 @@ Script "DnD Player Setup" ENTER {
 	int pnum = PlayerNumber(), curlvl, i = 0;
 	int temp = 0;
 	bool wait_other_players = false;
+	str curmap;
 	SetInventory("PlayersNotReady", PlayerCount());
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	GiveInventory("ParsingData", 1);
@@ -2994,7 +2997,9 @@ Script "DnD Player Setup" ENTER {
 	ClearQuestCheckers();
 	
 	PostPlayerLoadRoutine(pnum);
-	
+
+	SetupUndo(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
+
 	if(isSoftorHardcore()) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
 		// wait for monsters to appear
@@ -3088,7 +3093,7 @@ Script "DnD Player Setup" ENTER {
 	//ACS_NamedExecuteAlways("DnD Can Fire Weapon", 0, pnum);
 
 	if(isHardcore()) {
-		str curmap = StrParam(n:PRINTNAME_LEVEL);
+		curmap = StrParam(n:PRINTNAME_LEVEL);
 
 		// only do these if these aren't lobby maps we changed to!
 		if(!IsLobbyMap(curmap) && !GetCVar("dnd_ignorelootpenalty")) {
@@ -3155,8 +3160,6 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 
 	if(cpnum != PlayerNumber())
 		Terminate;
-
-	ResetLoadedPlayerDisplayData();
 
 	int status = GetCVar("dnd_dashstatus");
 	NamedRequestScriptPuke("DnD User CVAR Status Receive", status);
@@ -3712,9 +3715,9 @@ Script "DND Riotgun Decide" (void) {
 		SetInventory("RiotgunReloadModeDecide", 1); // reload
 }
 
-Script "DND Elite Special FX" (void) CLIENTSIDE {
+Script "DND Elite Special FX" (int tid) CLIENTSIDE {
 	// non-zero hopefully
-	if(ActivatorTID())
+	if(tid)
 		GiveInventory("EliteFXRunner", 1);
 }
 
@@ -3960,7 +3963,7 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 	int pnum = PlayerNumber();
 
 	// prevents bug related to map change + Select state of weapons, causing multiple scripts to run many times
-	if(IsSetupComplete(SETUP_STATE1, SETUP_MAPCHANGED))
+	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
 		Terminate;
 
 	// we recalc accuracy in case a particular weapon has bonuses to it
@@ -3999,9 +4002,11 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 		GiveInventory("ResetCanFireLoop", 1);
 		Delay(const:2);
 		TakeInventory("ResetCanFireLoop", 1);
+		//printbold(s:"run can fire loop");
 		ACS_NamedExecuteWithResult("DnD Can Fire Weapon", wepid);
 	}
 
+	//printbold(s:"cached id and wep ", d:dmg_id, s:" ", d: wepid);
 	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand);
 	SetResultValue(0);
 }

@@ -19,15 +19,6 @@ ACTOR "Death Staff" : Weapon {
 			LICS Y -1
 			Stop
 		Ready: 
-			LICS A 1 A_WeaponReady 
-			Loop 
-		Deselect: 
-			TNT1 A 0 A_TakeInventory("P_PurpleFire", 1)
-			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
-			LICS A 1 A_Lower 
-			TNT1 A 0 A_Lower
-			Loop 
-		Select: 
 			TNT1 A 0 A_GiveInventory("P_PurpleFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
@@ -36,14 +27,23 @@ ACTOR "Death Staff" : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 8, 16 | (24 << 16), DND_WEAPON_DEATHSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 1, 6 | (12 << 16), DND_WEAPON_DEATHSTAFF)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_4, 1, 0, DND_WEAPON_DEATHSTAFF)
-		SelectLoop:
+		ReadyLoop:
+			LICS A 1 A_WeaponReady 
+		Loop 
+		Deselect: 
+			TNT1 A 0 A_TakeInventory("P_PurpleFire", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
+			LICS A 1 A_Lower 
+			TNT1 A 0 A_Lower
+		Loop 
+		Select: 
 			LICS A 1 A_Raise
 			TNT1 A 0 A_Raise
-			Loop 
+		Loop 
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			LICS A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			LICS BCD 4 Bright
 			TNT1 A 0 A_PlayWeaponSound ("weapons/deathstfire")
@@ -51,11 +51,11 @@ ACTOR "Death Staff" : Weapon {
 			TNT1 A 0 Radius_Quake(4,2,0,1,0)
 			LICS E 4 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEATHSTAFF, DND_ATK_PRIMARY, DND_AMMOSLOT_SOULS | (AMMO_SOUL << 16), DND_ATF_NOAMMOGAINCHECK)
 			LICS DCBA 4 Bright
-			Goto Ready
+		Goto ReadyLoop
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			LICS A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		AltFireConfirmed:
 			LICS F 1 
 			TNT1 A 0 A_PlayWeaponSound ("weapons/deathstfire2")
@@ -68,11 +68,11 @@ ACTOR "Death Staff" : Weapon {
 			LICS V 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEATHSTAFF, DND_ATK_SECONDARY, DND_AMMOSLOT_SOULS | (AMMO_SOUL << 16), DND_ATF_CANFIRECIRCLE | DND_ATF_NOAMMOGAINCHECK)
 			LICS E 3 Bright
 			LICS DCBA 4 Bright
-			Goto Ready
+		Goto ReadyLoop
 		Flash:
 			TNT1 A 3 A_Light2
 			TNT1 A 3 A_Light0
-			Goto LightDone
+		Goto LightDone
 	}
 }
 
@@ -505,6 +505,14 @@ ACTOR Razorfang : Weapon {
 			WRAZ A -1
 		Loop
 		Ready:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 12, 4 | (6 << 16), DND_WEAPON_RAZORFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 2, 6 | (9 << 16), DND_WEAPON_RAZORFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 1, 16 | (20 << 16), DND_WEAPON_RAZORFANG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 64, 0, DND_WEAPON_RAZORFANG)
+		ReadyLoopInit:
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
 		ReadyLoop:
@@ -527,30 +535,22 @@ ACTOR Razorfang : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
-			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 12, 4 | (6 << 16), DND_WEAPON_RAZORFANG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 2, 6 | (9 << 16), DND_WEAPON_RAZORFANG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 1, 16 | (20 << 16), DND_WEAPON_RAZORFANG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 64, 0, DND_WEAPON_RAZORFANG)
-		SelectLoop:
 			RAZG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
 		DisabledFiring:
 			RAZG A 0 A_JumpIfInventory("RazorCount",1, "DisabledFiring2")
 			RAZG B 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoopInit
 		DisabledFiring2:
 			RAZG H 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoopInit
 		Fire:
 			RAZG E 0 A_JumpIfInventory("RazorCount", 1, "Secondary")
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			RAZG B 3 A_WeaponReady(WRF_NOFIRE)
 			RAZG CDEFG 3 A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoopInit
 		FireConfirmed:
 			RAZG L 1 A_Playsound("weapons/boltfi")
 			RAZX AB 2
@@ -562,12 +562,12 @@ ACTOR Razorfang : Weapon {
 			RAZX H 1 Bright
 			RAZX IJ 2 Bright
 			RAZG A 4
-		Goto Ready
+		Goto ReadyLoopInit
 		Secondary:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			RAZG H 3 A_WeaponReady(WRF_NOFIRE)
 			RAZG IJKJI 3 A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoopInit
 		AltFireConfirmed:
 			RAZG N 1 A_Playsound("weapons/boltf2")
 			RAZX KL 2
@@ -591,7 +591,7 @@ ACTOR Razorfang : Weapon {
 			RAZG A 0 A_TakeInventory("RazorCount",1)
 			RAZG A 2 A_PlaySound("door/flsd1a")
 			RAZG KJIH 4
-		Goto Ready
+		Goto ReadyLoopInit
 		Flash:
 			TNT1 A 4 A_Light2
 			TNT1 A 4 A_Light0
@@ -772,12 +772,6 @@ Actor "Sun Staff" : Weapon {
 			LTBR A -1 Bright
 		Stop
 		Select:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 64, 0, DND_WEAPON_SUNSTAFF)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_SUNSTAFF)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 36, 0, DND_WEAPON_SUNSTAFF)
-		SelectLoop:
 			LTBR M 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -793,6 +787,12 @@ Actor "Sun Staff" : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 64, 0, DND_WEAPON_SUNSTAFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_SUNSTAFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 36, 0, DND_WEAPON_SUNSTAFF)
+		ReadyLoop:
 			LTBR M 4 A_JumpIfInventory("Souls", 1, "FullReady")
 		Goto Ready2
 		FullReady:
@@ -809,7 +809,7 @@ Actor "Sun Staff" : Weapon {
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			LTBR BB 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			LTBR CCDDEE 2 A_weaponReady(WRF_NOFIRE)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			LTBR B 1 Bright
 			TNT1 A 0 A_PlayWeaponSound("Weapons/SunStaffFire") 
@@ -856,14 +856,14 @@ Actor "Sun Staff" : Weapon {
 		Loop
 		Ready2:
 			LTBR M 0 A_StopSoundEx("SoundSlot7")
-			LTBR M 0 A_JumpIfInventory("Souls", 1, "Ready")
+			LTBR M 0 A_JumpIfInventory("Souls", 1, "ReadyLoop")
 			LTBR M 1 A_WeaponReady
 		Loop
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			LTBR BB 2 A_WeaponReady(WRF_NOFIRE)
 			LTBR CCDDEE 2 A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready + 5
+		Goto ReadyCheckAnim
 		AltFireConfirmed:
 			TNT1 A 0 A_PlayWeaponSound("Weapons/SunStaffCharge")
 			LTBR BCDEBCDEBCDEBCD 2 Bright
@@ -1175,6 +1175,12 @@ Actor "Soul Reaver" : Weapon {
 			SREA Z -1
 		Stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("P_GrayFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 6, 4 | (6 << 16), DND_WEAPON_SOULREAVER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 128, 0, DND_WEAPON_SOULREAVER)
+		ReadyLoop:
 			SREA A 1 A_WeaponReady
 		Loop
 		Deselect:
@@ -1184,12 +1190,6 @@ Actor "Soul Reaver" : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
-			TNT1 A 0 A_GiveInventory("P_GrayFire", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot8", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 6, 4 | (6 << 16), DND_WEAPON_SOULREAVER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 128, 0, DND_WEAPON_SOULREAVER)
-	    SelectLoop:
 			SREA A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1197,7 +1197,7 @@ Actor "Soul Reaver" : Weapon {
 			SREA A 1 A_JumpIfInventory("SphereMade", 2, "NoMoreSphere")
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			SREA A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			TNT1 A 0 A_PlaySound("Weapons/SReaverBegin", 6, 0.6)
 			SREA CDEFGHIJ 4 Bright
@@ -1210,7 +1210,7 @@ Actor "Soul Reaver" : Weapon {
 			TNT1 A 0 A_GiveInventory("SphereMade", 1)
 			SREA OP 5 Bright
 			SREA B 4
-		Goto Ready
+		Goto ReadyLoop
 		Hold:
 			TNT1 A 0 A_GiveInventory("SoulReaverLooper", 1)
 			SREA KLMN 2 Bright A_SpawnItemEx("SoulReaverDeflect", 0, 48, 32)
@@ -1223,14 +1223,14 @@ Actor "Soul Reaver" : Weapon {
 			TNT1 A 0 A_GiveInventory("SphereMade", 1)
 			SREA OP 5 Bright
 			SREA B 4
-		Goto Ready
+		Goto ReadyLoop
 		Flash:
 			TNT1 A 8 A_LightInverse
 			TNT1 A 3 A_Light0
 		Goto LightDone
 		NoMoreSphere:
 			SREA A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 	}
 }
 

@@ -197,7 +197,7 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 			}
 		}
 #ifdef ISDEBUGBUILD
-		res = BODYARMOR_TANGLEDRIBCAGE;
+		res = random(BODYARMORS_BEGIN, BODYARMORS_END);
 #endif
 	}
 	else if(tiers == 1) {
@@ -531,7 +531,7 @@ Script "DnD Drop Random Basic Armor" (int higher_tier, int dont_remove) {
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i) && IsActorAlive(i + P_TIDSTART))
-			SpawnArmor(i, true, higher_tier, true);
+			SpawnArmor(i, 0, higher_tier, true);
 	}
 
 	Delay(const:TICRATE);

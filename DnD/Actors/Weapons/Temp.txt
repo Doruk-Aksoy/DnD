@@ -51,11 +51,15 @@ Actor Sawedoff : Weapon {
 			TSWN A 1 Offset(0, 56)
 			TSWN A 1 Offset(0, 48)
 			TSWN A 1 Offset(0, 40)
-		Goto Ready
+		Goto ReadyLoop
 		Spawn:
 			TSWP A -1
 		stop
 		Ready:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SAWEDOFF)
+		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			TNT1 A 0 A_JumpIfInventory("SawedoffShell", 1, "NoRemove")
 			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "NoRemove")
@@ -63,7 +67,7 @@ Actor Sawedoff : Weapon {
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			TSWN A 1 A_WeaponReady(WRF_ALLOWRELOAD)
-		Goto Ready
+		Goto ReadyLoop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -72,10 +76,7 @@ Actor Sawedoff : Weapon {
 			TNT1 A 0 A_Lower
 		loop
 		Select:
-			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SAWEDOFF)
 		SelectLoop:
 			TSWN A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -86,7 +87,7 @@ Actor Sawedoff : Weapon {
 			TSWN A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "Keep")
 			TSWN A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			TSW1 A 1 Bright
 			TNT1 A 0 A_GunFlash
@@ -104,7 +105,7 @@ Actor Sawedoff : Weapon {
 			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 1, "Nothing")
 		FireEnd:
 			TNT1 A 0 A_JumpIfInventory("SawedOffShell", 1, "Keep")
-		Goto Ready
+		Goto ReadyLoop
 		Keep:
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster")
 			TSWN KLM 2
@@ -115,7 +116,7 @@ Actor Sawedoff : Weapon {
 			TSWN TUVX 1
 			TSWN MLK 2
 			TSWN A 1 A_ReFire	
-		Goto Ready
+		Goto ReadyLoop
 		ReloadFaster:
 			TSWN KLM 1
 			TNT1 AA 0 A_SpawnItemEx ("shotguncasing",cos(-pitch)*36,8,26+(sin(-pitch)*36),cos(-pitch)*0,random(5, 8), random(0, 1),0,0,0)
@@ -125,7 +126,7 @@ Actor Sawedoff : Weapon {
 			TSWN TUVX 1
 			TSWN MLK 1
 			TSWN A 1 A_ReFire	
-		Goto Ready
+		Goto ReadyLoop
 		Reload:
 			TNT1 A 0 A_JumpIfInventory("SawedoffCounter", 2, "Nothing")
 			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "Keep")
@@ -133,14 +134,14 @@ Actor Sawedoff : Weapon {
 		Goto Keep
 		Nothing:
 			TSWN A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		AltFire:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			TSWN A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			TSWN A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		AltFireConfirmed:
 			TSWN B 1 Bright
 			TNT1 A 0 A_GunFlash
@@ -246,259 +247,258 @@ Actor SawedOffPickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR "Soul Render" : Weapon
-{
-   Inventory.PickupMessage "You got the Soul Render!"
-   Obituary "%k sliced and diced %o to pieces."
-   Weapon.AmmoType "BladeHits"
-   Weapon.SelectionOrder 6666
-   +WEAPON.AXEBLOOD
-   +AMMO_OPTIONAL
-   +ALT_AMMO_OPTIONAL
-   +WEAPON.NOALERT
-   Weapon.AmmoUse 0
-   Weapon.AmmoGive 0
-   Weapon.AmmoType "BladeHits"
-   Weapon.AmmoType2 "BladeCharge"
-   Weapon.AmmoGive2 0
-   Weapon.AmmoUse2 0
-   Weapon.Slotnumber 9
-   AttackSound "weapons/vblhit"
-   +INVENTORY.UNDROPPABLE
-    Weapon.BobStyle InverseSmooth
-    Weapon.BobSpeed 2.1
-    Weapon.BobRangeY 0.4
-    Weapon.BobRangeX 0.7
+ACTOR "Soul Render" : Weapon {
+	Inventory.PickupMessage "You got the Soul Render!"
+	Obituary "%k sliced and diced %o to pieces."
+	Weapon.AmmoType "BladeHits"
+	Weapon.SelectionOrder 6666
+	+WEAPON.AXEBLOOD
+	+AMMO_OPTIONAL
+	+ALT_AMMO_OPTIONAL
+	+WEAPON.NOALERT
+	Weapon.AmmoUse 0
+	Weapon.AmmoGive 0
+	Weapon.AmmoType "BladeHits"
+	Weapon.AmmoType2 "BladeCharge"
+	Weapon.AmmoGive2 0
+	Weapon.AmmoUse2 0
+	Weapon.Slotnumber 9
+	AttackSound "weapons/vblhit"
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.1
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.7
 	Tag "$WEP_9_1_TAG"
 	+WEAPON.NOAUTOAIM
-   States
-   {
-   Spawn:
-      WVBL A -1 Bright
-      Stop
-  Remove:
-      VBLG A 1 Offset(0, 40)
-	  VBLG A 1 Offset(0, 48)
-	  VBLG A 1 Offset(0, 56)
-	  VBLG A 1 Offset(0, 64)
-	  VBLG A 1 Offset(0, 72)
-	  VBLG A 1 Offset(0, 80)
-	  VBLG A 1 Offset(0, 88)
-	  TNT1 A 0 A_JumpIfInventory("BladeHits", 1, "RiseBack") 
-	  VBLG A 1 Offset(0, 96)
-	  TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-      TNT1 A 0 A_TakeInventory("BladeCharge", 100)
-	  TNT1 A 0 A_TakeInventory("BladeHits", 0)
-	  TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-	  TNT1 A 0 A_TakeInventory("Soul Render", 1)
-	  TNT1 A 1
-      Stop
-	RiseBack:
-		VBLG A 1 Offset(0, 88)
-		VBLG A 1 Offset(0, 80)
-		VBLG A 1 Offset(0, 72)
-		VBLG A 1 Offset(0, 64)
-		VBLG A 1 Offset(0, 56)
-		VBLG A 1 Offset(0, 48)
-		VBLG A 1 Offset(0, 40)
-    Goto Ready
-   Ready:
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      TNT1 A 0 A_JumpIfInventory("BladeHits", 1, "NoRemove")
-	Goto Remove
-	NoRemove:
-	  TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "ChargeReady")
-	  TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainReady")
-      VBLG A 1 A_WeaponReady
-	Goto Ready
-   DrainReady:
-      TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      VB2G A 1 Bright A_WeaponReady
-      TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      VB2G A 1 Bright A_WeaponReady
-      TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      VB2G A 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB2G B 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB2G B 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB2G B 1 Bright A_WeaponReady
-      Loop
-   ChargeReady:
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      VB3G A 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      VB3G A 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      VB3G A 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB3G B 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB3G B 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB3G B 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB3G C 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB3G C 1 Bright A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  VB3G C 1 Bright A_WeaponReady
-      Loop
-   Deselect:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-   DeselectLoop:
-      VBLG A 1 A_Lower
-	  TNT1 A 0 A_Lower
-      Loop
-   Select:
-	  TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 40, 3 | (4 << 16), DND_WEAPON_SOULRENDER)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 40, 6 | (8 << 16), DND_WEAPON_SOULRENDER)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 20, 1 | (8 << 16), DND_WEAPON_SOULRENDER)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 75, 0, DND_WEAPON_SOULRENDER)
-	SelectLoop:
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-      VBLG A 1 A_Raise
-	  TNT1 A 0 A_Raise
-      Loop
-   Fire:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
-	  VBLG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-   Goto Ready
-   FireCheckInvis:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
-	  TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-   Goto ContFireCheckInvis
-   FireConfirmed:
-      // This fixes the A_Refire not making you go to Ready for the removal of the weapon
-      TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Fire2")
-	  TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainFire")
-      VBLG B 3 A_AlertMonsters
-      VBLG C 1 A_PlayWeaponSound("weapons/hamswg")
-	  VBLX AB 1
-      VBLG D 1 
-	  VBLX CD 1
-	  TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
-	  TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
-      TNT1 A 0 A_SetInvulnerable
-      VBLG E 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE)
-	  VBLX EF 1
-      VBLG F 1 
-	  VBLX GH 1
-	  TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
-	  TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
-      TNT1 A 0  A_UnSetInvulnerable
-      VBLG G 3 
-      TNT1 A 4 
-      TNT1 A 0 A_ReFire("FireCheckInvis")
-    ContFireCheckInvis:
-      VBLG A 1 Offset (0,80)
-      VBLG A 1 Offset (0,72)
-      VBLG A 1 Offset (0,64)
-      VBLG A 1 Offset (0,56)
-      VBLG A 1 Offset (0,48)
-	  VBLG A 1 Offset (0,40)
-      Goto Ready
-   Fire2CheckInvis:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "Fire2")
-	  TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-   Goto ContFire2CheckInvis
-   Fire2:
-      VB3G D 3 Bright A_AlertMonsters
-      VB3G E 1 Bright A_PlayWeaponSound("weapons/vblswg")
-	  VB3X AB 1 Bright
-      VB3G F 1 Bright
-	  VB3X CD 1 Bright
-	  TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
-	  TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
-      TNT1 A 0 A_SetInvulnerable
-	  TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_BLADEHITS, 15)
-	  TNT1 A 0 A_TakeInventory("BladeHits", 15)
-	  TNT1 A 0 A_TakeInventory("BladeCharge", 100)
-	  TNT1 A 0 Radius_Quake(6,6,0,1,0)
-      VB3G G 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
-	  VB3X EF 1 Bright
-      VB3G H 1 Bright 
-	  VB3X GH 1 Bright
-	  TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
-	  TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
-      TNT1 A 0 A_UnSetInvulnerable
-      VB3G I 3 Bright
-      TNT1 A 4
-      TNT1 A 0 A_ReFire("Fire2CheckInvis")
-	ContFire2CheckInvis:
-	  TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "RaiseFlame")
-	  TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "RaiseDrain")
-      VBLG A 1 Offset (0,80)
-      VBLG A 1 Offset (0,72)
-      VBLG A 1 Offset (0,64)
-      VBLG A 1 Offset (0,56)
-      VBLG A 1 Offset (0,48)
-	  VBLG A 1 Offset (0,40)
-      Goto Ready
-   AltFire:
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "TakeDrain")
-	  TNT1 A 0 A_GiveInventory("DrainMode", 1)
-	  TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Ready") //Skip regular/green if charge is at 100%
-	  VB2G AB 3 Bright
-   Goto Ready
-   TakeDrain:
-	  TNT1 A 0 A_TakeInventory("DrainMode", 1)
-	  TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Ready") //Skip regular/green if charge is at 100%
-	  VBLG A 6
-   Goto Ready
-   DrainCheckInvis:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "DrainFire")
-	  TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-   Goto ContDrainCheckInvis
-   DrainFire:
-      TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Fire2")
-      VB2G C 3 Bright A_AlertMonsters
-      VB2G D 1 Bright A_PlayWeaponSound("weapons/hamswg")
-	  VB2X AB 1 Bright
-      VB2G E 1 Bright 
-	  VB2X CD 1 Bright
-	  TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
-	  TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
-      TNT1 A 0 A_SetInvulnerable
-      VB2G F 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_OTHER_DIR, 0, DND_ATF_NOAMMOTAKE)
-	  VB2X EF 1 Bright
-      VB2G G 1 Bright 
-	  VB2X GH 1 Bright
-	  TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
-	  TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
-      TNT1 A 0 A_UnSetInvulnerable
-      VB2G H 3 Bright 
-      TNT1 A 4
-      TNT1 A 0 A_ReFire("DrainCheckInvis")
-	ContDrainCheckInvis:
-	  TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "RaiseFlame")
-   RaiseDrain:
-      VB2G A 1 Bright Offset (0,80)
-      VB2G B 1 Bright Offset (0,72)
-      VB2G A 1 Bright Offset (0,64)
-      VB2G B 1 Bright Offset (0,56)
-      VB2G A 1 Bright Offset (0,48)
-	  VB2G B 1 Bright Offset (0,40)
-      Goto Ready
-   RaiseFlame:
-      VB3G B 1 Bright Offset (0,80)
-      VB3G B 1 Bright Offset (0,72)
-      VB3G B 1 Bright Offset (0,64)
-      VB3G C 1 Bright Offset (0,56)
-      VB3G C 1 Bright Offset (0,48)
-	  VB3G C 1 Bright Offset (0,40)  
-      Goto Ready
-   }
+	States {
+		Spawn:
+			WVBL A -1 Bright
+		Stop
+		Remove:
+			VBLG A 1 Offset(0, 40)
+			VBLG A 1 Offset(0, 48)
+			VBLG A 1 Offset(0, 56)
+			VBLG A 1 Offset(0, 64)
+			VBLG A 1 Offset(0, 72)
+			VBLG A 1 Offset(0, 80)
+			VBLG A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("BladeHits", 1, "RiseBack") 
+			VBLG A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("BladeCharge", 100)
+			TNT1 A 0 A_TakeInventory("BladeHits", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("Soul Render", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			VBLG A 1 Offset(0, 88)
+			VBLG A 1 Offset(0, 80)
+			VBLG A 1 Offset(0, 72)
+			VBLG A 1 Offset(0, 64)
+			VBLG A 1 Offset(0, 56)
+			VBLG A 1 Offset(0, 48)
+			VBLG A 1 Offset(0, 40)
+		Goto ReadyLoop
+		Ready:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 40, 3 | (4 << 16), DND_WEAPON_SOULRENDER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 40, 6 | (8 << 16), DND_WEAPON_SOULRENDER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 20, 1 | (8 << 16), DND_WEAPON_SOULRENDER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 75, 0, DND_WEAPON_SOULRENDER)
+		ReadyLoop:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			TNT1 A 0 A_JumpIfInventory("BladeHits", 1, "NoRemove")
+		Goto Remove
+		NoRemove:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "ChargeReady")
+			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainReady")
+			VBLG A 1 A_WeaponReady
+		Goto ReadyLoop
+		DrainReady:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB2G A 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB2G A 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB2G A 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB2G B 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB2G B 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB2G B 1 Bright A_WeaponReady
+		Loop
+		ChargeReady:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G A 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G A 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G A 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G B 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G B 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G B 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G C 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G C 1 Bright A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			VB3G C 1 Bright A_WeaponReady
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+		DeselectLoop:
+			VBLG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+		SelectLoop:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			VBLG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
+			VBLG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto ReadyLoop
+		FireCheckInvis:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
+			TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto ContFireCheckInvis
+		FireConfirmed:
+			// This fixes the A_Refire not making you go to Ready for the removal of the weapon
+			TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Fire2")
+			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainFire")
+			VBLG B 3 A_AlertMonsters
+			VBLG C 1 A_PlayWeaponSound("weapons/hamswg")
+			VBLX AB 1
+			VBLG D 1 
+			VBLX CD 1
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			VBLG E 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE)
+			VBLX EF 1
+			VBLG F 1 
+			VBLX GH 1
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0  A_UnSetInvulnerable
+			VBLG G 3 
+			TNT1 A 4 
+			TNT1 A 0 A_ReFire("FireCheckInvis")
+			ContFireCheckInvis:
+			VBLG A 1 Offset (0,80)
+			VBLG A 1 Offset (0,72)
+			VBLG A 1 Offset (0,64)
+			VBLG A 1 Offset (0,56)
+			VBLG A 1 Offset (0,48)
+			VBLG A 1 Offset (0,40)
+		Goto ReadyLoop
+		Fire2CheckInvis:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "Fire2")
+			TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto ContFire2CheckInvis
+		Fire2:
+			VB3G D 3 Bright A_AlertMonsters
+			VB3G E 1 Bright A_PlayWeaponSound("weapons/vblswg")
+			VB3X AB 1 Bright
+			VB3G F 1 Bright
+			VB3X CD 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Ammo Gain Chance", 0, DND_AMMOSLOT_TEMPORARY, DND_TEMPAMMO_BLADEHITS, 15)
+			TNT1 A 0 A_TakeInventory("BladeHits", 15)
+			TNT1 A 0 A_TakeInventory("BladeCharge", 100)
+			TNT1 A 0 Radius_Quake(6,6,0,1,0)
+			VB3G G 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
+			VB3X EF 1 Bright
+			VB3G H 1 Bright 
+			VB3X GH 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_UnSetInvulnerable
+			VB3G I 3 Bright
+			TNT1 A 4
+			TNT1 A 0 A_ReFire("Fire2CheckInvis")
+			ContFire2CheckInvis:
+			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "RaiseFlame")
+			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "RaiseDrain")
+			VBLG A 1 Offset (0,80)
+			VBLG A 1 Offset (0,72)
+			VBLG A 1 Offset (0,64)
+			VBLG A 1 Offset (0,56)
+			VBLG A 1 Offset (0,48)
+			VBLG A 1 Offset (0,40)
+		Goto ReadyLoop
+		AltFire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "TakeDrain")
+			TNT1 A 0 A_GiveInventory("DrainMode", 1)
+			TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"ReadyLoop") //Skip regular/green if charge is at 100%
+			VB2G AB 3 Bright
+		Goto ReadyLoop
+		TakeDrain:
+			TNT1 A 0 A_TakeInventory("DrainMode", 1)
+			TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"ReadyLoop") //Skip regular/green if charge is at 100%
+			VBLG A 6
+		Goto ReadyLoop
+		DrainCheckInvis:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "DrainFire")
+			TNT1 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto ContDrainCheckInvis
+		DrainFire:
+			TNT1 A 0 A_JumpIfInventory("BladeCharge",100,"Fire2")
+			VB2G C 3 Bright A_AlertMonsters
+			VB2G D 1 Bright A_PlayWeaponSound("weapons/hamswg")
+			VB2X AB 1 Bright
+			VB2G E 1 Bright 
+			VB2X CD 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_SetInvulnerable
+			VB2G F 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SOULRENDER, DND_ATK_OTHER_DIR, 0, DND_ATF_NOAMMOTAKE)
+			VB2X EF 1 Bright
+			VB2G G 1 Bright 
+			VB2X GH 1 Bright
+			TNT1 A 0 A_JumpIfInventory("PowerInvulnerable", 1, 3)
+			TNT1 A 0 A_JumpIfInventory("ShieldPowerupGiver", 1, 2)
+			TNT1 A 0 A_UnSetInvulnerable
+			VB2G H 3 Bright 
+			TNT1 A 4
+			TNT1 A 0 A_ReFire("DrainCheckInvis")
+		ContDrainCheckInvis:
+			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "RaiseFlame")
+		RaiseDrain:
+			VB2G A 1 Bright Offset (0,80)
+			VB2G B 1 Bright Offset (0,72)
+			VB2G A 1 Bright Offset (0,64)
+			VB2G B 1 Bright Offset (0,56)
+			VB2G A 1 Bright Offset (0,48)
+			VB2G B 1 Bright Offset (0,40)
+		Goto ReadyLoop
+		RaiseFlame:
+			VB3G B 1 Bright Offset (0,80)
+			VB3G B 1 Bright Offset (0,72)
+			VB3G B 1 Bright Offset (0,64)
+			VB3G C 1 Bright Offset (0,56)
+			VB3G C 1 Bright Offset (0,48)
+			VB3G C 1 Bright Offset (0,40)  
+		Goto ReadyLoop
+	}
 }
 
 Actor DrainMode : DND_Boolean { }
@@ -820,101 +820,100 @@ Actor SoulRenderPickup_D : DND_DroppedItem {
 	}
 }
 
-actor "SMG" : Weapon
-{
-  Weapon.SelectionOrder 6666
-  Weapon.Slotnumber 9
-  Weapon.AmmoUse 0
-  Weapon.AmmoGive 0
-  Scale 0.65
-  Weapon.AmmoType "SmgAmmo"
-  Obituary  "%o was blasted by %k's smg"
-  Inventory.PickupMessage "Picked up an smg"
-  +AMMO_OPTIONAL
-  Scale 0.65
-  +INVENTORY.UNDROPPABLE
-  Decal "BulletChip"
-  Weapon.BobStyle InverseSmooth
-  Weapon.BobSpeed 2.0
-  Weapon.BobRangeY 0.3
-  Weapon.BobRangeX 0.6
-  Tag "$WEP_9_2_TAG"
-  +WEAPON.NOAUTOAIM
-  States
-  {
-  Remove:
-    NAMG A 1 Offset(0, 40)
-	NAMG A 1 Offset(0, 48)
-	NAMG A 1 Offset(0, 56)
-	NAMG A 1 Offset(0, 64)
-	NAMG A 1 Offset(0, 72)
-	NAMG A 1 Offset(0, 80)
-	NAMG A 1 Offset(0, 88)
-	TNT1 A 0 A_JumpIfInventory("SMGAmmo", 1, "RiseBack")
-	NAMG A 1 Offset(0, 96)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-	TNT1 A 0 A_TakeInventory("SMGAmmo", 0)
-	TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-    TNT1 A 0 A_TakeInventory("SMG", 1)
-	TNT1 A 1
-  Stop
-  RiseBack:
-    NAMG A 1 Offset(0, 88)
-	NAMG A 1 Offset(0, 80)
-	NAMG A 1 Offset(0, 72)
-	NAMG A 1 Offset(0, 64)
-	NAMG A 1 Offset(0, 56)
-	NAMG A 1 Offset(0, 48)
-	NAMG A 1 Offset(0, 40)
-  Goto Ready
-  Ready:
-	TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-    TNT1 A 0 A_JumpIfInventory("SMGAmmo", 1, "NoRemove")
-  Goto Remove
-  NoRemove:
-	TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-    NAMG A 1 A_WeaponReady
-    Goto Ready
-  Deselect:
-    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-    TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-    NAMG A 1 A_Lower
-	TNT1 A 0 A_Lower
-	Loop
-  Select:
-    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-    TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SMG)
-SelectLoop:
-	NAMG A 1 A_Raise
-	TNT1 A 0 A_Raise
-    Loop
-  Fire:
-	TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-    TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
-	NAMG A 1
-  Goto Ready
-  FireConfirmed:
-    NAMG A 1 Bright
-	TNT1 A 0 A_PlaySound("weapons/smg")
-	TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-8.0, 8.0), 0, 0, frandom(-1.2, 1.2))
-	TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 6, 32 * (1 + sin(-pitch)), 2, 0, 1)
-    NAUZ Z 1 bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SMG, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_SMGAMMO << 16), 0)
-  FireEnd:
-    TNT1 A 0 A_GunFlash
-	TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,5,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
-    NAUZ X 1 bright A_SpawnItemEx ("pistolcasing",cos(pitch)*20,8,32+(sin(pitch)*20),0,8,random(4,8),0,0,0)
-	NAMG A 1 A_Refire
-	Goto Ready
-  Flash:
-	TNT1 A 2 Bright A_Light1
-	TNT1 A 2 Bright A_Light0
-  Stop  
-  Spawn:
-    MPPU A -1
-    Stop
-  }
+actor "SMG" : Weapon {
+	Weapon.SelectionOrder 6666
+	Weapon.Slotnumber 9
+	Weapon.AmmoUse 0
+	Weapon.AmmoGive 0
+	Scale 0.65
+	Weapon.AmmoType "SmgAmmo"
+	Obituary  "%o was blasted by %k's smg"
+	Inventory.PickupMessage "Picked up an smg"
+	+AMMO_OPTIONAL
+	Scale 0.65
+	+INVENTORY.UNDROPPABLE
+	Decal "BulletChip"
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.0
+	Weapon.BobRangeY 0.3
+	Weapon.BobRangeX 0.6
+	Tag "$WEP_9_2_TAG"
+	+WEAPON.NOAUTOAIM
+	States {
+		Remove:
+			NAMG A 1 Offset(0, 40)
+			NAMG A 1 Offset(0, 48)
+			NAMG A 1 Offset(0, 56)
+			NAMG A 1 Offset(0, 64)
+			NAMG A 1 Offset(0, 72)
+			NAMG A 1 Offset(0, 80)
+			NAMG A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("SMGAmmo", 1, "RiseBack")
+			NAMG A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("SMGAmmo", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("SMG", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			NAMG A 1 Offset(0, 88)
+			NAMG A 1 Offset(0, 80)
+			NAMG A 1 Offset(0, 72)
+			NAMG A 1 Offset(0, 64)
+			NAMG A 1 Offset(0, 56)
+			NAMG A 1 Offset(0, 48)
+			NAMG A 1 Offset(0, 40)
+		Goto ReadyLoop
+		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 15, 0, DND_WEAPON_SMG)
+		ReadyLoop:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			TNT1 A 0 A_JumpIfInventory("SMGAmmo", 1, "NoRemove")
+		Goto Remove
+		NoRemove:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			NAMG A 1 A_WeaponReady
+		Goto ReadyLoop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			NAMG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+		SelectLoop:
+			NAMG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
+			NAMG A 1
+		Goto ReadyLoop
+		FireConfirmed:
+			NAMG A 1 Bright
+			TNT1 A 0 A_PlaySound("weapons/smg")
+			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-8.0, 8.0), 0, 0, frandom(-1.2, 1.2))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 6, 32 * (1 + sin(-pitch)), 2, 0, 1)
+			NAUZ Z 1 bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_SMG, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_SMGAMMO << 16), 0)
+		FireEnd:
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_SpawnItemEx ("chaingunsmoke",cos(-pitch)*20,5,36+(sin(-pitch)*20),cos(-pitch)*0,0,2,0,0,0)
+			NAUZ X 1 bright A_SpawnItemEx ("pistolcasing",cos(pitch)*20,8,32+(sin(pitch)*20),0,8,random(4,8),0,0,0)
+			NAMG A 1 A_Refire
+		Goto ReadyLoop
+		Flash:
+			TNT1 A 2 Bright A_Light1
+			TNT1 A 2 Bright A_Light0
+		Stop  
+		Spawn:
+			MPPU A -1
+		Stop
+	}
 }
 
 Actor SMGPuff : DnD_BasePuff {
@@ -997,83 +996,82 @@ Actor SMGPickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR "Hellforge Cannon" : Weapon
-{	
-   Inventory.PickupMessage "You got the Hellforge Cannon!"
-   Obituary "%k ripped %o apart with a hellforge Cannon."
-   Weapon.AmmoType "IronBalls"
-   Weapon.AmmoGive 0
-   Weapon.SelectionOrder 6666
-   Weapon.AmmoUse 0
-   Weapon.SlotNumber 9
-   +AMMO_OPTIONAL
-   +INVENTORY.UNDROPPABLE
-    Weapon.BobStyle InverseSmooth
-    Weapon.BobSpeed 1.6
-    Weapon.BobRangeY 0.5
-    Weapon.BobRangeX 0.9
+ACTOR "Hellforge Cannon" : Weapon {	
+	Inventory.PickupMessage "You got the Hellforge Cannon!"
+	Obituary "%k ripped %o apart with a hellforge Cannon."
+	Weapon.AmmoType "IronBalls"
+	Weapon.AmmoGive 0
+	Weapon.SelectionOrder 6666
+	Weapon.AmmoUse 0
+	Weapon.SlotNumber 9
+	+AMMO_OPTIONAL
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.6
+	Weapon.BobRangeY 0.5
+	Weapon.BobRangeX 0.9
 	Tag "$WEP_9_3_TAG"
 	+WEAPON.NOAUTOAIM
-   States
-   {
-  Remove:
-    HFCA A 1 Offset(0, 40)
-	HFCA A 1 Offset(0, 48)
-	HFCA A 1 Offset(0, 56)
-	HFCA A 1 Offset(0, 64)
-	HFCA A 1 Offset(0, 72)
-	HFCA A 1 Offset(0, 80)
-	HFCA A 1 Offset(0, 88)
-	TNT1 A 0 A_JumpIfInventory("IronBalls", 1, "RiseBack")
-	HFCA A 1 Offset(0, 96)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-	TNT1 A 0 A_TakeInventory("IronBalls", 0)
-	TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-    TNT1 A 0 A_TakeInventory("Hellforge Cannon", 1)
-	TNT1 A 1
-  Stop
-  RiseBack:
-    HFCA A 1 Offset(0, 88)
-	HFCA A 1 Offset(0, 80)
-	HFCA A 1 Offset(0, 72)
-	HFCA A 1 Offset(0, 64)
-	HFCA A 1 Offset(0, 56)
-	HFCA A 1 Offset(0, 48)
-	HFCA A 1 Offset(0, 40)
-  Goto Ready
-  Ready:
-	TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-    TNT1 A 0 A_JumpIfInventory("IronBalls", 1, "NoRemove")
-  Goto Remove
-  NoRemove:
-	TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-    HFCA A 1 A_WeaponReady
-    Goto Ready
-   Spawn:
-      WHFC A -1 Bright
-      Stop
-   Deselect:
-	  TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-      HFCA A 1 A_Lower
-	  TNT1 A 0 A_Lower
-      Loop
-   Select:
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-      TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 10, 1 | (8 << 16), DND_WEAPON_HELLFORGECANNON)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 64, 0, DND_WEAPON_HELLFORGECANNON)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 1, 3 | (6 << 16), DND_WEAPON_HELLFORGECANNON)
-	SelectLoop:
-      HFCA A 1 A_Raise
-	  TNT1 A 0 A_Raise
-      Loop
+	States {
+		Remove:
+			HFCA A 1 Offset(0, 40)
+			HFCA A 1 Offset(0, 48)
+			HFCA A 1 Offset(0, 56)
+			HFCA A 1 Offset(0, 64)
+			HFCA A 1 Offset(0, 72)
+			HFCA A 1 Offset(0, 80)
+			HFCA A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("IronBalls", 1, "RiseBack")
+			HFCA A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("IronBalls", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("Hellforge Cannon", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			HFCA A 1 Offset(0, 88)
+			HFCA A 1 Offset(0, 80)
+			HFCA A 1 Offset(0, 72)
+			HFCA A 1 Offset(0, 64)
+			HFCA A 1 Offset(0, 56)
+			HFCA A 1 Offset(0, 48)
+			HFCA A 1 Offset(0, 40)
+		Goto ReadyLoop
+		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 10, 1 | (8 << 16), DND_WEAPON_HELLFORGECANNON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 64, 0, DND_WEAPON_HELLFORGECANNON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 1, 3 | (6 << 16), DND_WEAPON_HELLFORGECANNON)
+		ReadyLoop:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			TNT1 A 0 A_JumpIfInventory("IronBalls", 1, "NoRemove")
+		Goto Remove
+		NoRemove:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			HFCA A 1 A_WeaponReady
+		Goto ReadyLoop
+		Spawn:
+			WHFC A -1 Bright
+		Stop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			HFCA A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+		SelectLoop:
+			HFCA A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
 		Fire:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			HFCA A 1
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			HFCA DE 2 Bright
 			HFCA F 1 Bright
@@ -1085,12 +1083,12 @@ ACTOR "Hellforge Cannon" : Weapon
 			HFCA JKL 1
 			HFCA MNO 2
 			HFCA A 5 A_ReFire
-		Goto Ready
+		Goto ReadyLoop
 		AltFire:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			HFCA A 1
-		Goto Ready
+		Goto ReadyLoop
 		AltFireConfirmed:
 			HFCA DE 2 Bright
 			HFCA F 1 Bright
@@ -1112,8 +1110,8 @@ ACTOR "Hellforge Cannon" : Weapon
 			HFCA JKL 1
 			HFCA MNO 2
 			HFCA A 5 A_ReFire   
-		Goto Ready
-   }
+		Goto ReadyLoop
+	}
 }
 
 ACTOR Ripper1 : DnD_ExplosiveBase {
@@ -1312,163 +1310,162 @@ Actor HellForgePickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR "Bloodfiend Spine" : Weapon
-{	
-   Obituary "%k splattered %o with his Bloodfiend spine."
-   Weapon.AmmoType "BloodAmmo"
-   Weapon.Slotnumber 9
-   Weapon.AmmoGive 0
-   Weapon.SelectionOrder 6666
-   Weapon.AmmoUse 0
-   +INVENTORY.UNDROPPABLE
-  Weapon.BobStyle InverseSmooth
-  Weapon.BobSpeed 1.6
-  Weapon.BobRangeY 0.6
-  Weapon.BobRangeX 0.9
-  Tag "$WEP_9_4_TAG"
-  +WEAPON.NOAUTOAIM
-   States
-   {
-  Remove:
-    GORG A 1 Offset(0, 40)
-	GORG A 1 Offset(0, 48)
-	GORG A 1 Offset(0, 56)
-	GORG A 1 Offset(0, 64)
-	GORG A 1 Offset(0, 72)
-	GORG A 1 Offset(0, 80)
-	GORG A 1 Offset(0, 88)
-	TNT1 A 0 A_JumpIfInventory("BloodAmmo", 1, "RiseBack")
-	GORG A 1 Offset(0, 96)
-	TNT1 A 0 A_TakeInventory("P_RedFire", 1)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-	TNT1 A 0 A_TakeInventory("BloodAmmo", 0)
-	TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-    TNT1 A 0 A_TakeInventory("Bloodfiend Spine", 1)
-	TNT1 A 1
-  Stop
-  RiseBack:
-    GORG A 1 Offset(0, 88)
-	GORG A 1 Offset(0, 80)
-	GORG A 1 Offset(0, 72)
-	GORG A 1 Offset(0, 64)
-	GORG A 1 Offset(0, 56)
-	GORG A 1 Offset(0, 48)
-	GORG A 1 Offset(0, 40)
-  Goto Ready
-  Ready:
-    TNT1 A 0 A_JumpIfInventory("BloodAmmo", 1, "NoRemove")
-  Goto Remove
-  NoRemove:
-      GORG A 0 A_JumpIfInventory("GoreMode", 1, "ReadyAlt")
-	  TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-      GORG A 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG B 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG C 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG D 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG A 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG B 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG C 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG D 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG A 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG B 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG C 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG D 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG A 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG B 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG C 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG D 4 A_weaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-    Goto Ready
-   ReadyAlt:
-	  TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-      GORG K 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG L 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG M 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  GORG N 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      Loop	
-   Spawn:
-      WGOR A -1
-      Stop
-   Deselect:
-      TNT1 A 0 A_TakeInventory("P_RedFire", 1)
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-      GORG A 1 A_Lower
-	  TNT1 A 0 A_Lower
-      Loop
-   Select:
-      TNT1 A 0 A_GiveInventory("P_RedFire", 1)
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-      TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, 16 | (32 << 16), DND_WEAPON_BLOODFIENDSPINE)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 36, 0, DND_WEAPON_BLOODFIENDSPINE)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 5, 1 | (3 << 16), DND_WEAPON_BLOODFIENDSPINE)
-	SelectLoop:
-      GORG A 1 A_Raise
-	  TNT1 A 0 A_Raise
-      Loop
-   Fire:
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  GORG E 0 A_JumpIfInventory("GoreMode",1,"Check")
-	  TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "FireConfirmed")
-      GORG A 1
-   Goto Ready
-   FireConfirmed:
-      GORG E 2 Bright A_PlayWeaponSound("weapons/gorfi1")
-      GORG F 3 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BLOODFIENDSPINE, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_BLOODAMMO << 16), 0)
-      GORG GH 2 Bright
-      GORG A 1
-      GORG A 0 A_Refire
-      Goto Ready
-   Check:
-      TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "AltFireConfirmed")
-	  GORG L 1
-      Goto AltFire
-	AltFireConfirmed:
-      TNT1 A 0 A_GunFlash
-      GORG O 1 Bright A_PlayWeaponSound("weapons/gorfi2")
-	  TNT1 A 0 Radius_Quake(3, 3, 0, 1, 0)
-      GORG O 3 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BLOODFIENDSPINE, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_BLOODAMMO << 16), DND_ATF_CANFIRECIRCLE)
-   Continue:
-      GORG PQR 3 Bright
-      GORG I 5 A_PlaySound("weapons/gorsuc")
-      GORG JK 5
-      GORG KLMNKLMN 3
-      GORG I 0 A_Refire
-      Goto Ready
-   AltFire:
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_JumpIfInventory("GoreMode",1,"ChangeMode")
-      TNT1 A 0 A_GiveInventory("GoreMode",1)
-      GORG I 5 A_PlaySound("weapons/gorsuc")
-      GORG JK 5
-      Goto Ready
-   ChangeMode:
-      TNT1 A 0 A_TakeInventory("GoreMode",1)
-      GORG L 5 A_PlaySound("weapons/gorsuc")
-      GORG KJI 5
-      Goto Ready
-   }
+ACTOR "Bloodfiend Spine" : Weapon {
+	Obituary "%k splattered %o with his Bloodfiend spine."
+	Weapon.AmmoType "BloodAmmo"
+	Weapon.Slotnumber 9
+	Weapon.AmmoGive 0
+	Weapon.SelectionOrder 6666
+	Weapon.AmmoUse 0
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.6
+	Weapon.BobRangeY 0.6
+	Weapon.BobRangeX 0.9
+	Tag "$WEP_9_4_TAG"
+	+WEAPON.NOAUTOAIM
+	States {
+		Remove:
+			GORG A 1 Offset(0, 40)
+			GORG A 1 Offset(0, 48)
+			GORG A 1 Offset(0, 56)
+			GORG A 1 Offset(0, 64)
+			GORG A 1 Offset(0, 72)
+			GORG A 1 Offset(0, 80)
+			GORG A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("BloodAmmo", 1, "RiseBack")
+			GORG A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("BloodAmmo", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("Bloodfiend Spine", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			GORG A 1 Offset(0, 88)
+			GORG A 1 Offset(0, 80)
+			GORG A 1 Offset(0, 72)
+			GORG A 1 Offset(0, 64)
+			GORG A 1 Offset(0, 56)
+			GORG A 1 Offset(0, 48)
+			GORG A 1 Offset(0, 40)
+		Goto ReadyLoop
+		Ready:
+			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, 16 | (32 << 16), DND_WEAPON_BLOODFIENDSPINE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 36, 0, DND_WEAPON_BLOODFIENDSPINE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 5, 1 | (3 << 16), DND_WEAPON_BLOODFIENDSPINE)
+		ReadyLoop:
+			TNT1 A 0 A_JumpIfInventory("BloodAmmo", 1, "NoRemove")
+		Goto Remove
+		NoRemove:
+			GORG A 0 A_JumpIfInventory("GoreMode", 1, "ReadyAlt")
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			GORG A 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG B 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG C 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG D 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG A 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG B 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG C 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG D 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG A 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG B 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG C 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG D 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG A 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG B 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG C 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG D 4 A_weaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+		Goto ReadyLoop
+		ReadyAlt:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			GORG K 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG L 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG M 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			GORG N 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+		Loop	
+		Spawn:
+			WGOR A -1
+		Stop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			GORG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+		SelectLoop:
+			GORG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			GORG E 0 A_JumpIfInventory("GoreMode",1,"Check")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "FireConfirmed")
+			GORG A 1
+		Goto ReadyLoop
+		FireConfirmed:
+			GORG E 2 Bright A_PlayWeaponSound("weapons/gorfi1")
+			GORG F 3 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BLOODFIENDSPINE, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_BLOODAMMO << 16), 0)
+			GORG GH 2 Bright
+			GORG A 1
+			GORG A 0 A_Refire
+		Goto ReadyLoop
+		Check:
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "AltFireConfirmed")
+			GORG L 1
+		Goto AltFire
+		AltFireConfirmed:
+			TNT1 A 0 A_GunFlash
+			GORG O 1 Bright A_PlayWeaponSound("weapons/gorfi2")
+			TNT1 A 0 Radius_Quake(3, 3, 0, 1, 0)
+			GORG O 3 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_BLOODFIENDSPINE, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_BLOODAMMO << 16), DND_ATF_CANFIRECIRCLE)
+		Continue:
+			GORG PQR 3 Bright
+			GORG I 5 A_PlaySound("weapons/gorsuc")
+			GORG JK 5
+			GORG KLMNKLMN 3
+			GORG I 0 A_Refire
+		Goto ReadyLoop
+		AltFire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("GoreMode",1,"ChangeMode")
+			TNT1 A 0 A_GiveInventory("GoreMode",1)
+			GORG I 5 A_PlaySound("weapons/gorsuc")
+			GORG JK 5
+		Goto ReadyLoop
+		ChangeMode:
+			TNT1 A 0 A_TakeInventory("GoreMode",1)
+			GORG L 5 A_PlaySound("weapons/gorsuc")
+			GORG KJI 5
+		Goto ReadyLoop
+	}
 }
 
 Actor BloodFX : DnD_BasePuff {
@@ -1641,120 +1638,119 @@ Actor SpinePickup_D : DND_DroppedItem {
 	}
 }
 
-actor "Enforcer Rifle" : Weapon
-{
-  Weapon.SelectionOrder 6666
-  Weapon.Slotnumber 9
-  Weapon.AmmoUse 0
-  Weapon.AmmoGive 0
-  Scale 0.65
-  Weapon.AmmoType "LaserAmmo"
-  Obituary  "%o was lasered by %k's Enforcer Rifle"
-  Inventory.PickupMessage "Picked up an Enforcer Rifle"
-  +AMMO_OPTIONAL
-  XScale 0.7
-  YScale 0.8  
-  +INVENTORY.UNDROPPABLE
-  Weapon.BobStyle InverseSmooth
-  Weapon.BobSpeed 2.1
-  Weapon.BobRangeY 0.4
-  Weapon.BobRangeX 0.7
-  Tag "$WEP_9_5_TAG"
-  +WEAPON.NOAUTOAIM
-  States
-  {
-  Remove:
-    ENRI A 1 Offset(0, 40)
-	ENRI A 1 Offset(0, 48)
-	ENRI A 1 Offset(0, 56)
-	ENRI A 1 Offset(0, 64)
-	ENRI A 1 Offset(0, 72)
-	ENRI A 1 Offset(0, 80)
-	ENRI A 1 Offset(0, 88)
-	TNT1 A 0 A_JumpIfInventory("LaserAmmo", 1, "RiseBack")
-	ENRI A 1 Offset(0, 96)
-	TNT1 A 0 A_TakeInventory("P_RedFire", 1)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-	TNT1 A 0 A_TakeInventory("LaserAmmo", 0)
-	TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-    TNT1 A 0 A_TakeInventory("Enforcer Rifle", 1)
-	TNT1 A 1
-  Stop
-  RiseBack:
-    ENRI A 1 Offset(0, 88)
-	ENRI A 1 Offset(0, 80)
-	ENRI A 1 Offset(0, 72)
-	ENRI A 1 Offset(0, 64)
-	ENRI A 1 Offset(0, 56)
-	ENRI A 1 Offset(0, 48)
-	ENRI A 1 Offset(0, 40)
-  Goto Ready
-  Ready:
-	TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-    TNT1 A 0 A_JumpIfInventory("LaserAmmo", 1, "NoRemove")
-  Goto Remove
-  NoRemove:
-    TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-    ENRI A 1 A_WeaponReady
-    Goto Ready
-  Deselect: 
-    TNT1 A 0 A_TakeInventory("P_RedFire", 1)
-    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-    TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-	TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
-    ENRI A 1 A_Lower
-	TNT1 A 0 A_Lower
-	Loop
-  Select:
-    TNT1 A 0 A_GiveInventory("P_RedFire", 1)
-	TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-    TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-	TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 5, 4 | (9 << 16), DND_WEAPON_ENFORCERRIFLE)
-SelectLoop:
-	ENRI A 1 A_Raise
-	TNT1 A 0 A_Raise
-    Loop
-  Fire:
-    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-    TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
-	ENRI A 1
-  Goto Ready
-  FireConfirmed:
-    ENRI A 1 Bright
-    ENRI BC 1 bright
-	TNT1 A 0 A_PlayWeaponSound("Enforcer/Fire")
-	TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 2, 36 * (1 + sin(-pitch)), 2, 0, 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ENFORCERRIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_LASERAMMO << 16), 0)
-	TNT1 A 0 A_GunFlash
-    ENRI DE 1 bright
-	ENRI MN 1 Bright
-	ENRI A 2 A_ReFire
-  Goto Ready
-  AltFire:
-    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-    TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
-	ENRI A 1
-  Goto Ready
-  AltFireConfirmed:
-    ENRI BFG 1 Bright
-	TNT1 A 0 A_PlayWeaponSound("Enforcer/Fire")
-	TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 4, 34 * (1 + sin(-pitch)), 2, 0, 1)
-	TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ENFORCERRIFLE, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_LASERAMMO << 16), 0)
-	TNT1 A 0 A_GunFlash
-    ENRI HIJ 1 Bright
-	ENRI KLMN 1
-	ENRI A 2 A_ReFire
-  Goto Ready
-  Flash:
-	TNT1 A 2 A_Light1
-	TNT1 A 2 A_Light0
-	Goto LightDone
-  Spawn:
-    ENRP A -1
-    Stop
-  }
+actor "Enforcer Rifle" : Weapon {
+	Weapon.SelectionOrder 6666
+	Weapon.Slotnumber 9
+	Weapon.AmmoUse 0
+	Weapon.AmmoGive 0
+	Scale 0.65
+	Weapon.AmmoType "LaserAmmo"
+	Obituary  "%o was lasered by %k's Enforcer Rifle"
+	Inventory.PickupMessage "Picked up an Enforcer Rifle"
+	+AMMO_OPTIONAL
+	XScale 0.7
+	YScale 0.8  
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 2.1
+	Weapon.BobRangeY 0.4
+	Weapon.BobRangeX 0.7
+	Tag "$WEP_9_5_TAG"
+	+WEAPON.NOAUTOAIM
+	States {
+		Remove:
+			ENRI A 1 Offset(0, 40)
+			ENRI A 1 Offset(0, 48)
+			ENRI A 1 Offset(0, 56)
+			ENRI A 1 Offset(0, 64)
+			ENRI A 1 Offset(0, 72)
+			ENRI A 1 Offset(0, 80)
+			ENRI A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("LaserAmmo", 1, "RiseBack")
+			ENRI A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("LaserAmmo", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("Enforcer Rifle", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			ENRI A 1 Offset(0, 88)
+			ENRI A 1 Offset(0, 80)
+			ENRI A 1 Offset(0, 72)
+			ENRI A 1 Offset(0, 64)
+			ENRI A 1 Offset(0, 56)
+			ENRI A 1 Offset(0, 48)
+			ENRI A 1 Offset(0, 40)
+		Goto ReadyLoop
+		Ready:
+			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 5, 4 | (9 << 16), DND_WEAPON_ENFORCERRIFLE)
+		ReadyLoop:
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			TNT1 A 0 A_JumpIfInventory("LaserAmmo", 1, "NoRemove")
+		Goto Remove
+		NoRemove:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			ENRI A 1 A_WeaponReady
+		Goto ReadyLoop
+		Deselect: 
+			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			ENRI A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+		SelectLoop:
+			ENRI A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
+			ENRI A 1
+		Goto ReadyLoop
+		FireConfirmed:
+			ENRI A 1 Bright
+			ENRI BC 1 bright
+			TNT1 A 0 A_PlayWeaponSound("Enforcer/Fire")
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 2, 36 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ENFORCERRIFLE, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_LASERAMMO << 16), 0)
+			TNT1 A 0 A_GunFlash
+			ENRI DE 1 bright
+			ENRI MN 1 Bright
+			ENRI A 2 A_ReFire
+		Goto ReadyLoop
+		AltFire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
+			ENRI A 1
+		Goto ReadyLoop
+		AltFireConfirmed:
+			ENRI BFG 1 Bright
+			TNT1 A 0 A_PlayWeaponSound("Enforcer/Fire")
+			TNT1 A 0 A_SpawnItemEx("GunSmoke", 18 * cos(-pitch), 4, 34 * (1 + sin(-pitch)), 2, 0, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ENFORCERRIFLE, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_LASERAMMO << 16), 0)
+			TNT1 A 0 A_GunFlash
+			ENRI HIJ 1 Bright
+			ENRI KLMN 1
+			ENRI A 2 A_ReFire
+		Goto ReadyLoop
+		Flash:
+			TNT1 A 2 A_Light1
+			TNT1 A 2 A_Light0
+		Goto LightDone
+		Spawn:
+			ENRP A -1
+		Stop
+	}
 }
 
 Actor EnforcerPlasma : DnD_BaseProjectile {
@@ -1874,170 +1870,169 @@ Actor LaserPickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR Venom : Weapon
-{
-   Obituary "%o was poisoned to the core by %k's Venom."
-   Weapon.AmmoType "VenomAmmo"
-   Weapon.AmmoGive 0
-   Weapon.SelectionOrder 6666
-   Weapon.AmmoUse 0
-   Weapon.Slotnumber 9
-   Scale 0.67
-   +INVENTORY.UNDROPPABLE
-  Weapon.BobStyle InverseSmooth
-  Weapon.BobSpeed 1.6
-  Weapon.BobRangeY 0.6
-  Weapon.BobRangeX 0.9
-  Tag "$WEP_9_6_TAG"
-  +WEAPON.NOAUTOAIM
-   States
-   {
-  Remove:
-    SHRG A 1 Offset(0, 40)
-	SHRG A 1 Offset(0, 48)
-	SHRG A 1 Offset(0, 56)
-	SHRG A 1 Offset(0, 64)
-	SHRG A 1 Offset(0, 72)
-	SHRG A 1 Offset(0, 80)
-	SHRG A 1 Offset(0, 88)
-	TNT1 A 0 A_JumpIfInventory("VenomAmmo", 1, "RiseBack")
-	SHRG A 1 Offset(0, 96)
-	TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
-	TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-	TNT1 A 0 A_TakeInventory("VenomAmmo", 0)
-	TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-    TNT1 A 0 A_TakeInventory("Venom", 1)
-	TNT1 A 1
-  Stop
-  RiseBack:
-    SHRG A 1 Offset(0, 88)
-	SHRG A 1 Offset(0, 80)
-	SHRG A 1 Offset(0, 72)
-	SHRG A 1 Offset(0, 64)
-	SHRG A 1 Offset(0, 56)
-	SHRG A 1 Offset(0, 48)
-	SHRG A 1 Offset(0, 40)
-  Goto Ready
-  Ready:
-    TNT1 A 0 A_JumpIfInventory("VenomAmmo", 1, "NoRemove")
-  Goto Remove
-   Spawn:
-      WSHD A -1
-      Stop
-   NoRemove:
-	  TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-      SHRG A 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG B 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG C 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG B 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG A 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG A 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG A 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG A 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-	  SHRG A 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG A 1 A_PlaySound("weapons/wiggl1")
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG A 3 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG D 5 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG D 1 A_Playsound("weapons/wiggl2")
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG E 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG A 1 A_PlaySound("weapons/wiggl1")
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG A 3 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG D 5 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG D 1 A_Playsound("weapons/wiggl2")
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      SHRG E 4 A_WeaponReady
-	  TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-      goto ready
-   Deselect:
-      TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
-      SHRG A 1 A_Lower
-	  TNT1 A 0 A_Lower
-      Loop
-   Select:
-      TNT1 A 0 A_GiveInventory("P_GreenFire", 1)
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-	  TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-      TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, 3 | (5 << 16), DND_WEAPON_VENOM)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 5, 1 | (3 << 16), DND_WEAPON_VENOM)
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 6, 0, DND_WEAPON_VENOM)
-	SelectLoop:
-      SHRG A 1 A_Raise
-	  TNT1 A 0 A_Raise
-      Loop
-   Fire:
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
-	  SHRG A 1
-   Goto Ready
-   FireConfirmed:
-      SHRG C 2 Bright
-      TNT1 A 0 A_GunFlash
-      SHRG F 1 Bright A_PlayWeaponSound("weapons/crabfi")
-      SHRG F 1 Bright
-	  SHRX AB 2 Bright
-      SHRG G 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_VENOM, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_VENOMAMMO << 16), DND_ATF_CANFIRECIRCLE)
-	  SHRX CD 1 Bright
-	  SHRG H 1 Bright
-	  SHRX EFGH 1 Bright
-	  SHRG CBA 4 Bright
-      SHRG A 1 A_PlaySound("weapons/wiggl1")
-      SHRG AD 3
-      SHRG D 1 A_Playsound("weapons/wiggl2")
-      SHRG E 3
-      SHRG A 2 A_ReFire
-      Goto Ready
-   AltFire:
-      TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
-      TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
-	  SHRG A 1
-   Goto Ready
-   AltFireConfirmed:   
-      SHRG C 2 Bright
-      TNT1 A 0 A_GunFlash
-      SHRG F 1 Bright A_PlayWeaponSound("weapons/crabf2")
-      SHRG F 1 Bright
-	  SHRX AB 2 Bright
-	  TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_VENOM, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_VENOMAMMO << 16), DND_ATF_CANFIRECIRCLE)
-      SHRG G 1 Bright A_SetPitch(pitch - 8.0)
-	  SHRX CD 1 Bright A_SetPitch(pitch + 1.0)
-	  SHRG H 1 Bright A_SetPitch(pitch + 1.0)
-	  SHRX EFGH 1 Bright A_SetPitch(pitch + 1.0)
-	  SHRG C 1 Bright A_SetPitch(pitch + 1.0)
-	  SHRG C 3 Bright
-	  SHRG BA 4 Bright
-      SHRG A 1 A_PlaySound("weapons/wiggl1")
-      SHRG AD 4
-      SHRG D 1 A_Playsound("weapons/wiggl2")
-      SHRG E 4
-      SHRG A 7 A_ReFire   
-      Goto Ready
-   Flash:
-      TNT1 A 5 bright A_Light1
-      TNT1 A 5 bright A_Light2
-      TNT1 A 5 bright A_Light1
-      TNT1 A 1 bright A_Light0
-      stop
-   }
+ACTOR Venom : Weapon {
+	Obituary "%o was poisoned to the core by %k's Venom."
+	Weapon.AmmoType "VenomAmmo"
+	Weapon.AmmoGive 0
+	Weapon.SelectionOrder 6666
+	Weapon.AmmoUse 0
+	Weapon.Slotnumber 9
+	Scale 0.67
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.6
+	Weapon.BobRangeY 0.6
+	Weapon.BobRangeX 0.9
+	Tag "$WEP_9_6_TAG"
+	+WEAPON.NOAUTOAIM
+	States {
+		Remove:
+			SHRG A 1 Offset(0, 40)
+			SHRG A 1 Offset(0, 48)
+			SHRG A 1 Offset(0, 56)
+			SHRG A 1 Offset(0, 64)
+			SHRG A 1 Offset(0, 72)
+			SHRG A 1 Offset(0, 80)
+			SHRG A 1 Offset(0, 88)
+			TNT1 A 0 A_JumpIfInventory("VenomAmmo", 1, "RiseBack")
+			SHRG A 1 Offset(0, 96)
+			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+			TNT1 A 0 A_TakeInventory("VenomAmmo", 0)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_TakeInventory("Venom", 1)
+			TNT1 A 1
+		Stop
+		RiseBack:
+			SHRG A 1 Offset(0, 88)
+			SHRG A 1 Offset(0, 80)
+			SHRG A 1 Offset(0, 72)
+			SHRG A 1 Offset(0, 64)
+			SHRG A 1 Offset(0, 56)
+			SHRG A 1 Offset(0, 48)
+			SHRG A 1 Offset(0, 40)
+		Goto ReadyLoop
+		Ready:
+			TNT1 A 0 A_GiveInventory("P_GreenFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 1, 3 | (5 << 16), DND_WEAPON_VENOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 5, 1 | (3 << 16), DND_WEAPON_VENOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 6, 0, DND_WEAPON_VENOM)
+		ReadyLoop:
+			TNT1 A 0 A_JumpIfInventory("VenomAmmo", 1, "NoRemove")
+		Goto Remove
+		Spawn:
+			WSHD A -1
+		Stop
+		NoRemove:
+			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
+			SHRG A 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG B 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG C 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG B 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 1 A_PlaySound("weapons/wiggl1")
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 3 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG D 5 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG D 1 A_Playsound("weapons/wiggl2")
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG E 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 1 A_PlaySound("weapons/wiggl1")
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 3 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG D 5 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG D 1 A_Playsound("weapons/wiggl2")
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG E 4 A_WeaponReady
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+		goto ReadyLoop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			SHRG A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
+		SelectLoop:
+			SHRG A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
+			SHRG A 1
+		Goto ReadyLoop
+		FireConfirmed:
+			SHRG C 2 Bright
+			TNT1 A 0 A_GunFlash
+			SHRG F 1 Bright A_PlayWeaponSound("weapons/crabfi")
+			SHRG F 1 Bright
+			SHRX AB 2 Bright
+			SHRG G 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_VENOM, DND_ATK_PRIMARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_VENOMAMMO << 16), DND_ATF_CANFIRECIRCLE)
+			SHRX CD 1 Bright
+			SHRG H 1 Bright
+			SHRX EFGH 1 Bright
+			SHRG CBA 4 Bright
+			SHRG A 1 A_PlaySound("weapons/wiggl1")
+			SHRG AD 3
+			SHRG D 1 A_Playsound("weapons/wiggl2")
+			SHRG E 3
+			SHRG A 2 A_ReFire
+		Goto ReadyLoop
+		AltFire:
+			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
+			SHRG A 1
+		Goto ReadyLoop
+		AltFireConfirmed:   
+			SHRG C 2 Bright
+			TNT1 A 0 A_GunFlash
+			SHRG F 1 Bright A_PlayWeaponSound("weapons/crabf2")
+			SHRG F 1 Bright
+			SHRX AB 2 Bright
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_VENOM, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_VENOMAMMO << 16), DND_ATF_CANFIRECIRCLE)
+			SHRG G 1 Bright A_SetPitch(pitch - 8.0)
+			SHRX CD 1 Bright A_SetPitch(pitch + 1.0)
+			SHRG H 1 Bright A_SetPitch(pitch + 1.0)
+			SHRX EFGH 1 Bright A_SetPitch(pitch + 1.0)
+			SHRG C 1 Bright A_SetPitch(pitch + 1.0)
+			SHRG C 3 Bright
+			SHRG BA 4 Bright
+			SHRG A 1 A_PlaySound("weapons/wiggl1")
+			SHRG AD 4
+			SHRG D 1 A_Playsound("weapons/wiggl2")
+			SHRG E 4
+			SHRG A 7 A_ReFire   
+		Goto ReadyLoop
+		Flash:
+			TNT1 A 5 bright A_Light1
+			TNT1 A 5 bright A_Light2
+			TNT1 A 5 bright A_Light1
+			TNT1 A 1 bright A_Light0
+		stop
+	}
 }
 
 ACTOR Barbshot : DnD_BaseProjectile {
@@ -2302,8 +2297,12 @@ ACTOR "Demon Heart" : Weapon {
 			HRTG A 1 Offset(0, 56)
 			HRTG A 1 Offset(0, 48)
 			HRTG A 1 Offset(0, 40)
-		Goto Ready
+		Goto ReadyLoop
 		Ready:
+		    TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 32, 28 | (36 << 16), DND_WEAPON_DEMONHEART)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_DEMONHEART)
+		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("HeartAmmo", 1, "NoRemove")
 		Goto Remove
 		NoRemove:
@@ -2390,9 +2389,6 @@ ACTOR "Demon Heart" : Weapon {
 		Select:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-		    TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 32, 28 | (36 << 16), DND_WEAPON_DEMONHEART)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_DEMONHEART)
 	    SelectLoop:
 			HRTG A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -2400,7 +2396,7 @@ ACTOR "Demon Heart" : Weapon {
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			HRTG A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			HRTG C 1 Offset(0, 33)
@@ -2436,7 +2432,7 @@ ACTOR "Demon Heart" : Weapon {
 			HRTG D 1 Offset(0, 32)
 			HRTG C 6
 			HRTG A 3
-		Goto Ready
+		Goto ReadyLoop
 	}
 }
 
@@ -2480,7 +2476,7 @@ Actor HeartAttackPuff : DnD_ExplosiveBase {
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 2 A_SetUserVar("user_count", user_count - 1)
-			TNT1 A 0 A_SetUserVar("user_expdmg", 7 * user_expdmg / 8)
+			TNT1 A 0 A_SetUserVar("user_expdmg", (user_expdmg & BITMASK_NOFACTOR) | (((user_expdmg >> DPCT_SHIFT) * 0.875) << DPCT_SHIFT))
 			TNT1 A 0 A_SetUserVar("user_expradius", 6 * user_expradius / 5)
 			TNT1 A 1 A_JumpIf(user_count > 0, "ExplosionLoop")
 		Stop
@@ -2608,18 +2604,22 @@ Actor DarkServantGloves : Weapon {
 			GAU3 A 1 Offset(0, 56)
 			GAU3 A 1 Offset(0, 48)
 			GAU3 A 1 Offset(0, 40)
-		Goto Ready
+		Goto ReadyLoop
 		Spawn:
 			WGT3 A -1
 		stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 10, 6 | (9 << 16), DND_WEAPON_DARKGLOVES)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_DARKGLOVES)
+		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			TNT1 A 0 A_JumpIfInventory("DarkServantEnergy", 1, "NoRemove")
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			GAU3 A 1 A_WeaponReady
-		Goto Ready
+		Goto ReadyLoop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -2629,9 +2629,6 @@ Actor DarkServantGloves : Weapon {
 		Select:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 10, 6 | (9 << 16), DND_WEAPON_DARKGLOVES)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_DARKGLOVES)
 	    SelectLoop:
 			GAU3 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -2652,7 +2649,7 @@ Actor DarkServantGloves : Weapon {
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueRight")
 			GAU3 H 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_PlayWeaponSound("weapons/gauntletsrip")
-		Goto Ready
+		Goto ReadyLoop
 		ContinueRight:
 			GAU3 I 2
 			GAU3 J 1 BRIGHT
@@ -2661,14 +2658,14 @@ Actor DarkServantGloves : Weapon {
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireCheck")
 			GAU3 A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_PlayWeaponSound("weapons/gauntletsrip")
-		Goto Ready
+		Goto ReadyLoop
 		FireCheck:
 			GAU3 A 2 A_Refire("FireFast")
-		Goto Ready
+		Goto ReadyLoop
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			GAU3 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		AltFireConfirmed:
 			GAU4 A 3 Bright A_PlayWeaponSound("weapons/gauntletscharge")
 			GAU4 BCAB 3 BRIGHT
@@ -2676,7 +2673,7 @@ Actor DarkServantGloves : Weapon {
 			GAU4 EFGHI 3 BRIGHT
 			GAU4 J 3 BRIGHT ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DARKGLOVES, DND_ATK_SECONDARY, DND_AMMOSLOT_TEMPORARY | (DND_TEMPAMMO_DARKSERVANTENERGY << 16), 0)
 			GAU4 KLM 3
-		Goto Ready
+		Goto ReadyLoop
 		
 		Flash:
 			TNT1 A 4 bright A_Light1
@@ -2924,12 +2921,10 @@ Actor Nailgun2 : Weapon {
 			NLCG A 1 Offset(0, 56)
 			NLCG A 1 Offset(0, 48)
 			NLCG A 1 Offset(0, 40)
-		Goto Ready
+		Goto ReadyLoop
 		Select:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 4, 4 | (8 << 16), DND_WEAPON_HEAVYNAILGUN)
 	    SelectLoop:
 			TNT1 A 0 A_raise
 			NLCG A 1 A_Raise
@@ -2941,6 +2936,9 @@ Actor Nailgun2 : Weapon {
 			NLCG A 1 A_Lower
 		Loop
 		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 4, 4 | (8 << 16), DND_WEAPON_HEAVYNAILGUN)
+		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			TNT1 A 0 A_JumpIfInventory("BigNail", 1, "NoRemove")
 			NLCG A 1 A_WeaponReady
@@ -2948,7 +2946,7 @@ Actor Nailgun2 : Weapon {
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			NLCG A 1 A_WeaponReady
-		Goto Ready
+		Goto ReadyLoop
 		Fire:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
@@ -2972,7 +2970,7 @@ Actor Nailgun2 : Weapon {
 			NLCG B 3 A_Refire
 			NLCG C 3 A_Refire
 			NLCG D 3 A_Refire
-		Goto Ready
+		Goto ReadyLoop
 	}
 }
 
@@ -3184,15 +3182,18 @@ Actor Berettas : Weapon {
 			PAKM A 1 Offset(0, 56)
 			PAKM A 1 Offset(0, 48)
 			PAKM A 1 Offset(0, 40)
-		Goto Ready
+		Goto ReadyLoop
 		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 10, 0, DND_WEAPON_BERETTAS)
+		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			TNT1 A 0 A_JumpIfInventory("BerettaAmmo", 1, "NoRemove")
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			PAKM A 1 A_WeaponReady
-		Goto Ready
+		Goto ReadyLoop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -3203,8 +3204,6 @@ Actor Berettas : Weapon {
 		Select:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 10, 0, DND_WEAPON_BERETTAS)
 		SelectLoop:
 			PAKM A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -3213,7 +3212,7 @@ Actor Berettas : Weapon {
 			PAKM A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			PAKM A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 		Hold:
 			TNT1 A 0 A_PlaySound("Weapons/BerettaFire", 6)
@@ -3237,7 +3236,7 @@ Actor Berettas : Weapon {
 		Goto Remove
 		Keep:
 			PAKM A 2 A_Refire
-		Goto Ready
+		Goto ReadyLoop
 	}
 }
 
@@ -3364,15 +3363,21 @@ actor "Plasma Bolter" : Weapon {
 			PBL9 A 1 Offset(0, 56)
 			PBL9 A 1 Offset(0, 48)
 			PBL9 A 1 Offset(0, 40)
-		Goto Ready
+		Goto ReadyLoop
 		Ready:
+			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 8, 3 | (5 << 16), DND_WEAPON_PLASMABOLTER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 35, 0, DND_WEAPON_PLASMABOLTER)
+		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			TNT1 A 0 A_JumpIfInventory("PlasmaBolterAmmo", 1, "NoRemove")
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			PBL9 AAABBBCCC 1 A_WeaponReady
-		Goto Ready
+		Goto ReadyLoop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -3383,13 +3388,8 @@ actor "Plasma Bolter" : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
-			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 8, 3 | (5 << 16), DND_WEAPON_PLASMABOLTER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 35, 0, DND_WEAPON_PLASMABOLTER)
 		SelectLoop:
 			PBL9 E 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -3398,7 +3398,7 @@ actor "Plasma Bolter" : Weapon {
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			PBL9 D 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			PBL9 F 1 Bright Offset(0, 32)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaBolter/Fire")
@@ -3414,12 +3414,12 @@ actor "Plasma Bolter" : Weapon {
 			PBL9 D 1 Offset(0, 36)
 			PBL9 D 1 Offset(0, 34)
 			PBL9 D 2 Offset(0, 32) A_ReFire
-		Goto Ready
+		Goto ReadyLoop
 		AltFire:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			PBL9 D 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		AltFireConfirmed:
 			PBL9 F 1 Bright Offset(0, 32)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaBolter/Fire")
@@ -3435,7 +3435,7 @@ actor "Plasma Bolter" : Weapon {
 			PBL9 D 1 Offset(0, 36)
 			PBL9 D 1 Offset(0, 34)
 			PBL9 D 9 Offset(0, 32) A_ReFire
-		Goto Ready
+		Goto ReadyLoop
 		Flash:
 			TNT1 A 2 A_Light1
 			TNT1 A 2 A_Light0
@@ -3684,15 +3684,18 @@ actor "Ripper Cannon" : Weapon {
 			TWP0 A 1 Offset(0, 56)
 			TWP0 A 1 Offset(0, 48)
 			TWP0 A 1 Offset(0, 40)
-		Goto Ready
+		Goto ReadyLoop
 		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 25, 0, DND_WEAPON_RIPPERCANNON)
+		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			TNT1 A 0 A_JumpIfInventory("RipperCannonAmmo", 1, "NoRemove")
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			TWP0 A 1 A_WeaponReady
-		Goto Ready
+		Goto ReadyLoop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -3702,8 +3705,6 @@ actor "Ripper Cannon" : Weapon {
 		Select:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 25, 0, DND_WEAPON_RIPPERCANNON)
 		SelectLoop:
 			TWP0 A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -3712,7 +3713,7 @@ actor "Ripper Cannon" : Weapon {
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			TWP0 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*20,10,32+(sin(pitch)*20),0,8,random(4,8),0,0,0)
 			TNT1 A 0 A_PlaySound("Weapons/RipperFire")
@@ -3748,11 +3749,11 @@ actor "Ripper Cannon" : Weapon {
 		FireEnd:
 		    TWP0 F 3
 			TWP0 G 2
-		Goto Ready
+		Goto ReadyLoop
 		CheckRefire:
 			TNT1 A 0
 			TNT1 A 0 A_Refire
-		Goto Ready
+		Goto ReadyLoop
 		Flash:
 			TNT1 A 3 Bright A_Light1
 			TNT1 A 3 Bright A_Light0

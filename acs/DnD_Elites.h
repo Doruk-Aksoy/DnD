@@ -368,7 +368,7 @@ void DecideEliteTraits(int m_id, int count) {
 	}
 
 	// Run the elite special fx script on this monster
-	ACS_NamedExecuteAlways("DND Elite Special FX", 0);
+	ACS_NamedExecuteAlways("DND Elite Special FX", 0, this);
 }
 
 Script "DnD Monster Nuclear Explosion" (int this) {

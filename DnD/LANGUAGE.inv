@@ -384,7 +384,7 @@ IATTR_T86			= "increased regeneration rate";
 IATTR_T87			= "increased lifesteal rate";
 IATTR_T88			= "increased life recovery from lifesteal";
 IATTR_T89			= "increased lifesteal cap";
-IATTR_T90			= "more damage while lifestealing";
+IATTR_T90			= "more damage while leeching";
 
 IATTR_T91			= "seconds to overload duration";
 

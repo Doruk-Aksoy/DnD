@@ -8,8 +8,7 @@
 #define CACHE_SHIFT 9
 #define DTYPE_SHIFT 12
 #define DPCT_SHIFT 17
-
-#define BITMASK_NOFACTOR 0x1FFFF
+#define BITMASK_NOFACTOR (0x1FFFF) // depends on DPCT_SHIFT, 17 1s
 
 #define ATK_WID_MASK (0x1FF)
 #define ATK_CACHE_MASK (0x7)

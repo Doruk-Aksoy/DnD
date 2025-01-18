@@ -182,6 +182,8 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 		if(proceed || forcedExit) {
 			// start the timer in the above function too, then after it expires / all players are ready we can exit
 			ScoreboardData[DND_SCBRD_TIMER] = Clamp_Between(GetCVar("dnd_exit_timer"), 5, 30);
+
+			SetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
 			
 			// freeze monsters / players during this time
 			GiveInventory("MenuFreeze", 1);

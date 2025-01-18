@@ -25,17 +25,6 @@ typedef struct {
 } loaded_pdata_T;
 loaded_pdata_T LoadedPlayerData[DND_MAX_CHARS]; // this is going to be used clientside only, no need for other players to be aware of its value so we can store it on each player's own client
 
-void ResetLoadedPlayerDisplayData() {
-	for(int i = 0; i < DND_MAX_CHARS; ++i) {
-		LoadedPlayerData[i].classid = 0;
-		LoadedPlayerData[i].level = 0;
-		LoadedPlayerData[i].exp = 0;
-		LoadedPlayerData[i].hp = 0;
-		LoadedPlayerData[i].credit = 0;
-		LoadedPlayerData[i].budget = 0;
-	}
-}
-
 enum {
 	DND_CLASSMENU_SELECTID = 1,
 	DND_CLASSMENU_CLASSID,
@@ -516,6 +505,7 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 					++j;
 				}
 			}
+
 			// put here since if player was logged in but they had no characters, it'd spam the screen infinitely adding points
 			draw_character_info = true;
 		}
@@ -631,6 +621,8 @@ Script "DnD Character Data Display Store" (int pnum) {
 			int credit = GetDBEntry(GetCharField(DND_DB_CREDIT, i), pacc);
 			int budget = GetDBEntry(GetCharField(DND_DB_BUDGET, i), pacc);
 
+			//Log(s:"send data - charid and classid level exp hp credit ", d:i, s: " ", d:class_id, s: " ", d:level, s: " ", d:exp, s: " ", d:hp, s: " ", d:credit);
+
 			ACS_NamedExecuteWithResult(
 				"DnD Character Data Display Sync - 1", 
 				pnum | (class_id << MAXPLAYERS_BITS) | (level << 10) | (i << 17),
@@ -645,6 +637,8 @@ Script "DnD Character Data Display Store" (int pnum) {
 				budget
 			);
 		}
+		else
+			ACS_NamedExecuteWithResult("DnD Character Data Display Sync - NULL", pnum, i);
 	}
 	
 	SetResultValue(0);
@@ -659,6 +653,8 @@ Script "DnD Character Data Display Sync - 1" (int payload, int exp, int hp, int 
 	int class_id = (payload >> MAXPLAYERS_BITS) & 0xF;
 	int level = (payload >> (MAXPLAYERS_BITS + 4)) & 0x7F;
 	int char_id = (payload >> (MAXPLAYERS_BITS + 11));
+
+	//Log(s:"sync charid and classid level exp hp credit ", d:char_id, s: " ", d:class_id, s: " ", d:level, s: " ", d:exp, s: " ", d:hp, s: " ", d:credit);
 
 	LoadedPlayerData[char_id].classid = class_id;
 	LoadedPlayerData[char_id].exp = exp;
@@ -677,7 +673,23 @@ Script "DnD Character Data Display Sync - 2" (int payload, int budget) CLIENTSID
 
 	int char_id = (payload >> (MAXPLAYERS_BITS + 11));
 
+	//Log(s:"sync charid part2 ", d:char_id);
+
 	LoadedPlayerData[char_id].budget = budget;
+
+	SetResultValue(0);
+}
+
+Script "DnD Character Data Display Sync - NULL" (int pnum, int char_id) CLIENTSIDE {
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+
+	LoadedPlayerData[char_id].classid = 0;
+	LoadedPlayerData[char_id].level = 0;
+	LoadedPlayerData[char_id].exp = 0;
+	LoadedPlayerData[char_id].hp = 0;
+	LoadedPlayerData[char_id].credit = 0;
+	LoadedPlayerData[char_id].budget = 0;
 
 	SetResultValue(0);
 }

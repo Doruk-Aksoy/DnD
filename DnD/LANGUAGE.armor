@@ -48,11 +48,11 @@ DND_HELM8		=		"Sage's Hood";
 
 // armor implicits
 PPOWTEXT1			=		"\cd25%\c- more damage and \cd15%\c- damage reduction during killing sprees";
-PPOWTEXT2			=		"\cd50%\c- reduced damage from melee attacks. If a melee weapon is held extra \cd40%\c- protection is bestowed";
-PPOWTEXT3			=		"Extra \cd75%\c- hitscan resistance";
-PPOWTEXT4			=		"\cd33%\c- chance on hit to fire a nova of spikes";
-PPOWTEXT5			=		"\cd80%\c- of lightning damage taken absorbed as energy shield. \cd25%\c- chance to release a lightning bolt towards an enemy on hit";
-PPOWTEXT6			=		"Double energy shield recovery rate";
+PPOWTEXT2			=		"Double energy shield recovery rate";
+PPOWTEXT3			=		"\cd80%\c- of lightning damage taken absorbed as energy shield. \cd25%\c- chance to release a lightning bolt towards an enemy on hit";
+PPOWTEXT4			=		"\cd50%\c- reduced damage from melee attacks. If a melee weapon is held extra \cd40%\c- protection is bestowed";
+PPOWTEXT5			=		"Extra \cd75%\c- hitscan resistance";
+PPOWTEXT6			=		"\cd33%\c- chance on hit to fire a nova of spikes";
 PPOWTEXT7			=		"Can roll all \cdphysical\c- modifiers";
 PPOWTEXT8			=		"Can roll all \cdmagic\c- modifiers";
 PPOWTEXT9			=		"Can roll all \cdexplosive\c- modifiers";

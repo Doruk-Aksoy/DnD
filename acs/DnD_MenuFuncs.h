@@ -1242,6 +1242,13 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				totake = GetWeaponToTake(itemid);
 				if(StrCmp(totake, ""))
 					GiveInventory(totake, 1);
+
+				// if you sell a weapon that has lock-on, it lingers because deselect state doesnt trigger apparently
+				if(IsHomingHudWeapon(GetCurrentWeaponID())) {
+					GiveInventory("DnD_RemoveLockOn", 1);
+					ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0);
+				}
+
 				// this works on weapon table ids, so map it there to use
 				ResetWeaponStats(ShopTableIdToWeaponTableId(itemid));
 				TakeInventory(GetWeaponCondition(itemid), 1);

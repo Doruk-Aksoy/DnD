@@ -1741,7 +1741,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		if(counter >= trigger_tic) {
 			temp = HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME);
 			if(temp > 0)
-				Thing_Damage2(victim, temp, "SkipHandle");
+				Thing_Damage2(victim, temp, "Special_NoPain");
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
 			
 			// go up to the next threshold for next tic etc.
@@ -2917,6 +2917,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				// final check, if damage is less than 10% of it, cap it at 10%
 				temp = arg1 / 10;
+				if(temp <= 0)
+					temp = 1;
+
 				if(dmg < temp)
 					dmg = temp;
 			}

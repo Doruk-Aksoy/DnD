@@ -21,8 +21,8 @@ Script "DnD Can Fire Weapon" (int wepid) {
 	int pnum = PlayerNumber();
 
 	//int pc = 0;
-	while(IsAlive() && !CheckInventory("ResetCanFireLoop")) {
-		//pc = (pc + 1) % 10;
+	while(IsAlive() && !CheckInventory("ResetCanFireLoop") && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
+		//pc = (pc + 1) % 15;
 		//if(!pc)
 		//	printbold(s:"loop running on ", d:wepid);
 
@@ -132,8 +132,13 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				break;
 
 				// standard weapons with no special alt fire that use the ammos, which can reload with mags
-				case DND_WEAPON_ASSAULTRIFLE:
 				case DND_WEAPON_MAGNUM:
+					// magnum case is different					
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+				break;
+				case DND_WEAPON_ASSAULTRIFLE:
+				case DND_WEAPON_KILLSTORM:
 				case DND_WEAPON_PLASMACANNON:
 				case DND_WEAPON_MACHINEGUN:
 				case DND_WEAPON_HEAVYMACHINEGUN:

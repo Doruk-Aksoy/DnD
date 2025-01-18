@@ -741,12 +741,15 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				count = 18;
 				sp_x = 9.0;
 				sp_y = 6.4;
+				ammo_take_amt = Weapons_Data[DND_WEAPON_ERASUS].ammo_use1;
 			}
 			else {
 				count = 36;
 				sp_x = 14.8;
 				sp_y = 10.2;
+				ammo_take_amt = Weapons_Data[DND_WEAPON_ERASUS].ammo_use2;
 			}
+			ammo_type = "ShellSize_2";
 		break;
 		case DND_WEAPON_HELLSMAW:
 			use_default = false;

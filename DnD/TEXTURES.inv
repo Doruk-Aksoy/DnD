@@ -119,7 +119,7 @@ Graphic "ARWICO15", 39, 26
 
 Graphic "ARWICO16", 56, 56
 {
-	Patch "ARICO18", 0, 0
+	Patch "ARICO16", 0, 0
 }
 
 Graphic "ARWICO17", 49, 41

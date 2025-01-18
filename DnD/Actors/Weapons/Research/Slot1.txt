@@ -19,6 +19,12 @@ Actor ResMelee1 : Weapon {
 			FBM1 X -1 
 		Stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 60, 0, DND_WEAPON_INFERNOSWORD)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_INFERNOSWORD)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 20, 2 | (4 << 16), DND_WEAPON_INFERNOSWORD)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 8, 8 | (10 << 16), DND_WEAPON_INFERNOSWORD)
+		ReadyLoop:
 			FBM1 ABC 4 Bright A_WeaponReady
 		Loop
 		Deselect:
@@ -28,12 +34,7 @@ Actor ResMelee1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check (Melee)")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 60, 0, DND_WEAPON_INFERNOSWORD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 48, 0, DND_WEAPON_INFERNOSWORD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 20, 2 | (4 << 16), DND_WEAPON_INFERNOSWORD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 8, 8 | (10 << 16), DND_WEAPON_INFERNOSWORD)
 		SelectLoop:
 			FBM1 C 1 Bright A_Raise
 			TNT1 A 0 A_Raise
@@ -57,7 +58,7 @@ Actor ResMelee1 : Weapon {
 		Altfire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "ContinueAltFire")
 			FBM1 AAAABBBBCCCC 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		ContinueAltFire:
 			FBM1 D 2 Bright Offset(0, 32)
 			FBM1 E 2 Bright Offset(0, 32) A_AlertMonsters
@@ -78,7 +79,7 @@ Actor ResMelee1 : Weapon {
 			FBM1 C 1 Bright Offset(32, 94)
 			FBM1 C 1 Bright Offset(14, 62)
 			FBM1 A 1 Bright Offset(-3, 32)
-		Goto Ready
+		Goto ReadyLoop
 	}
 }
 

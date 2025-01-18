@@ -925,7 +925,7 @@ void HandlePreInitTraits(int mid, int id) {
 }
 
 // this is put as a seperate function because 
-void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON) {
+void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, bool isRevived = false) {
 	if(MonsterProperties[m_id].trait_list[DND_FORTIFIED]) {
 		// full fortify exceptions
 		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
@@ -933,6 +933,10 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON) {
 		else
 			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp);
 	}
+
+	// don't do anything past this point if revived, there is no need, the data for these is already stored
+	if(isRevived)
+		return;
 	
 	// calculate the gains multiplier -- this is the safest place to do as most of monster data is now known by this point, like level etc.
 	// all unique monsters have highest possible rarity
@@ -1021,9 +1025,9 @@ void InitMonsterResists(int m_id) {
 }
 
 // this is only used in revive of monsters by itself
-void HandleSpecialTraits(int mid, int id) {
+void HandleSpecialTraits(int mid, int id, bool isRevived = false) {
 	HandlePreInitTraits(mid, id);
-	HandlePostInitTraits(mid, id);
+	HandlePostInitTraits(mid, id, -1, isRevived); // this had no params, I don't think sending -1 here will be much of a problem
 }
 
 void LoadMonsterTraits(int tid, int monsterid) {

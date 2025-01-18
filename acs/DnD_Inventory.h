@@ -232,8 +232,8 @@ enum {
 	IIMG_ARM_13,
 	IIMG_ARM_14,
 	IIMG_ARM_15,
-
 	IIMG_ARM_16,
+	
 	IIMG_ARM_17,
 	IIMG_ARM_18,
 
@@ -1966,7 +1966,7 @@ void DrawItemInfoBackground(int hudid_begin, int hx, int hy, int bg_posx, int bg
 	// finally draw the background -- use hx and hy to set hudsize
 	SetHudSize(hx, hy, 1);
 	// per amount of this many lines, get a new midsection in
-	int midcount = 1 + ((lines_count * 0.5125) >> 16);
+	int midcount = 1 + ((lines_count * 0.525) >> 16);
 
 	SetFont("LDTITTOP");
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, bg_posx, bg_posy, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
@@ -3267,7 +3267,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 			end = UNIQUE_BODYARMOR_END;
 		break;
 		default:
-			beg = 0;
+			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_END;
 		break;
 	}

@@ -21,6 +21,12 @@ Actor ResBFG1 : Weapon {
 			RW04 X -1
 		Stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
+			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 160, 0, DND_WEAPON_IONCANNON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 144, 0, DND_WEAPON_IONCANNON)
+		ReadyLoopInit:
 			RW04 A 1 A_WeaponReady(WRF_NOSWITCH)
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_ION, 2 | (3 << 16))
@@ -37,19 +43,13 @@ Actor ResBFG1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
-			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
-			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 160, 0, DND_WEAPON_IONCANNON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 144, 0, DND_WEAPON_IONCANNON)
-	    SelectLoop:
 			RW04 A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			RW04 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoopInit
 		FireConfirmed:
 			RW04 A 1
 			TNT1 A 0 A_TakeInventory("DnD_OverheatCanReduce", 1)
@@ -129,7 +129,7 @@ Actor ResBFG1 : Weapon {
 			RW04 C 10 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 			TNT1 A 0 A_TakeInventory("IonOverheat", 2)
 			RW04 D 11 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
-		Goto Ready
+		Goto ReadyLoopInit
 		WindDown2:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 A_StopSound(7)
@@ -153,7 +153,7 @@ Actor ResBFG1 : Weapon {
 			RW04 C 11 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 			TNT1 A 0 A_TakeInventory("IonOverheat", 2)
 			RW04 D 12 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
-		Goto Ready
+		Goto ReadyLoopInit
 		WindDown3:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 A_StopSound(7)
@@ -173,7 +173,7 @@ Actor ResBFG1 : Weapon {
 			RW04 D 9 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 			TNT1 A 0 A_TakeInventory("IonOverheat", 2)
 			RW04 A 10 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
-		Goto Ready
+		Goto ReadyLoopInit
 		WindDown4:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 A_StopSound(7)
@@ -193,11 +193,11 @@ Actor ResBFG1 : Weapon {
 			RW04 C 9 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 			TNT1 A 0 A_TakeInventory("IonOverheat", 2)
 			RW04 D 10 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
-		Goto Ready
+		Goto ReadyLoopInit
 		NoAction:
 			RW04 A 3 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 			TNT1 A 0 A_TakeInventory("IonOverheat", 2)
-		Goto Ready
+		Goto ReadyLoopInit
 		Flash:
 		  TNT1 A 4 A_Light1
 		  TNT1 A 3 A_Light2
@@ -309,6 +309,13 @@ Actor ResBFG2 : Weapon {
 			APOP A -1
 		Stop
 		Ready:
+			TNT1 A 0 A_GiveInventory("P_GrayFire", 1)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 50, 5 | (10 << 16), DND_WEAPON_THUNDERSTAFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 100, 0, DND_WEAPON_THUNDERSTAFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 250, 0, DND_WEAPON_THUNDERSTAFF)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 750, 0, DND_WEAPON_THUNDERSTAFF)
+		ReadyLoop:
 			APOF BB 1 Bright A_WeaponReady
 			TNT1 A 0 A_PlaySound("ThunderStaff/Loop", 7, 1.0, 1)
 			APOF CCDDEE 1 Bright A_WeaponReady
@@ -322,13 +329,6 @@ Actor ResBFG2 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
-			TNT1 A 0 A_GiveInventory("P_GrayFire", 1)
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 50, 5 | (10 << 16), DND_WEAPON_THUNDERSTAFF)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 100, 0, DND_WEAPON_THUNDERSTAFF)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 250, 0, DND_WEAPON_THUNDERSTAFF)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 750, 0, DND_WEAPON_THUNDERSTAFF)
-		SelectLoop:
 			APOF A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -337,7 +337,7 @@ Actor ResBFG2 : Weapon {
 			APOF B 2 Bright A_WeaponReady(WRF_NOFIRE)
 			TNT1 A 0 A_PlaySound("ThunderStaff/Loop", 7, 1.0, 1)
 			APOF CDE 2 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		FireConfirmed:
 			APOF A 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_THUNDERSTAFF, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_THUNDER << 16), DND_ATF_NOAMMOGAINCHECK)
 			TNT1 A 0 A_PlayWeaponSound("ThunderStaff/Fire")
@@ -368,27 +368,27 @@ Actor ResBFG2 : Weapon {
 			APOF D 2 Bright A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_Refire
 			APOF E 2 Bright A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		DoNothing:
 			TNT1 A 0 A_JumpIfInventory("ThunderHoldFrames", 2, "DoNothing_3")
 			TNT1 A 0 A_JumpIfInventory("ThunderHoldFrames", 1, "DoNothing_2")
 			TNT1 A 0 A_GiveInventory("ThunderHoldFrames", 1)
 			APOF C 2 Bright A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		DoNothing_2:
 			TNT1 A 0 A_GiveInventory("ThunderHoldFrames", 1)
 			APOF D 2 Bright A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		DoNothing_3:
 			TNT1 A 0 A_TakeInventory("ThunderHoldFrames", 2)
 			APOF B 2 Bright A_weaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			APOF B 2 Bright A_WeaponReady(WRF_NOFIRE)
 			TNT1 A 0 A_PlaySound("ThunderStaff/Loop", 7, 1.0, 1)
 			APOF CDE 2 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 		AltFireConfirmed:
 			TNT1 A 0 A_TakeInventory("ThunderStopRing", 1)
 			APOF A 1 ACS_NamedExecuteAlways("DND Thunder Ring", 0, 128)
@@ -425,7 +425,7 @@ Actor ResBFG2 : Weapon {
 			APOF A 1 Offset(0, 33)
 			APOF BCD 2 Bright Offset(0, 32) A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			APOF BCDBCDBCD 2 Bright A_WeaponReady(WRF_NOSECONDARY | WRF_NOSWITCH)
-		Goto Ready
+		Goto ReadyLoop
 	}
 }
 

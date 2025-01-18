@@ -41,7 +41,10 @@ enum {
 	WPROP_AUTOMATIC = 8192,
 	WPROP_ARTILLERY = 16384,
 	WPROP_MAGIC = 32768,
-	WPROP_MELEE = 65536
+	WPROP_MELEE = 65536,
+
+	// properties that aren't shown yet but used internally
+	WPROP_HOMINGSCREEN = 131072
 };
 #define MAX_WEAPON_PROPERTIES 17
 
@@ -581,7 +584,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].icon = "WEPICO93";
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_CHARONBLASTER].properties =  WPROP_TECH;
+	Weapons_Data[DND_WEAPON_CHARONBLASTER].properties =  WPROP_TECH | WPROP_HOMINGSCREEN;
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].attunement[STAT_INT] = 0.015;
 	Weapons_Data[DND_WEAPON_CHARONBLASTER].attunement[STAT_DEX] = 0.035;
 	
@@ -765,7 +768,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_name2 = "AcidClip";
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].icon = "WEPICO39";
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use2 = 8;
+	Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use2 = 16;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].properties = WPROP_POISON | WPROP_TECH | WPROP_AUTOMATIC;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].attunement[STAT_STR] = 0.01;
 	Weapons_Data[DND_WEAPON_ACIDRIFLE].attunement[STAT_DEX] = 0.03;
@@ -941,7 +944,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].icon = "WEPICO46";
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_ARTILLERY;
+	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_ARTILLERY | WPROP_HOMINGSCREEN;
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].attunement[STAT_STR] = 0.02;
 	Weapons_Data[DND_WEAPON_MERCURYLAUNCHER].attunement[STAT_DEX] = 0.03;
 	
@@ -961,7 +964,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].icon = "WEPICO53";
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use1 = 2;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_TECH | WPROP_ARTILLERY;
+	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG | WPROP_TECH | WPROP_ARTILLERY | WPROP_HOMINGSCREEN;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].attunement[STAT_STR] = 0.04;
 	Weapons_Data[DND_WEAPON_HEAVYMISSILELAUNCHER].attunement[STAT_DEX] = 0.01;
 	
@@ -1201,7 +1204,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RAZORFANG].icon = "WEPICO73";
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RAZORFANG].ammo_use2 = 4;
-	Weapons_Data[DND_WEAPON_RAZORFANG].properties = WPROP_RIPPER;
+	Weapons_Data[DND_WEAPON_RAZORFANG].properties = WPROP_RIPPER | WPROP_HOMINGSCREEN;
 	Weapons_Data[DND_WEAPON_RAZORFANG].attunement[STAT_DEX] = 0.015;
 	Weapons_Data[DND_WEAPON_RAZORFANG].attunement[STAT_INT] = 0.035;
 	
@@ -1755,8 +1758,12 @@ bool IsMagicalWeapon(int wepid) {
 }
 
 int IsUsingMeleeWeapon() {
-	int curwepid = CheckInventory("DnD_WeaponID");
-	return Weapons_Data[DND_WEAPON_FIST].properties & WPROP_MELEE;
+	int curwepid = GetCurrentWeaponID();
+	return Weapons_Data[curwepid].properties & WPROP_MELEE;
+}
+
+bool IsHomingHudWeapon(int wepid) {
+	return Weapons_Data[wepid].properties & WPROP_HOMINGSCREEN;
 }
 
 str GetWeaponTipText(int wepid) {

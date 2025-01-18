@@ -218,6 +218,11 @@ Script 971 (int speed) {
 
 Script 972 (int type) { // script for Lich Slow
 	int i;
+
+	// assumption is that the player is the target of these so if this is not a player terminate
+	if(!IsPlayer(ActivatorTID()))
+		Terminate;
+
 	if(!type) {
 		for(i = 0; i < 5; i++) {
 			SlowPlayer(0.22 * i, 0, 0);
