@@ -1438,13 +1438,15 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 		dmg += CheckInventory("EShieldAmount") / 20; // 5%
 	
 	// attribute bonus
-	bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
-	if(isMelee)
-		pct_bonus += HandleStatBonus(pnum, DND_STAT_ATTUNEMENT_GAIN, 0, 0, isMelee);
-	else if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
-		pct_bonus += HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, isMelee);
-	else
-		pct_bonus += HandleStatBonus(pnum, 0, DND_STAT_ATTUNEMENT_GAIN, 0, isMelee);
+	if(!(flags & DND_WDMG_ISDOT)) {
+		bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
+		if(isMelee)
+			pct_bonus += HandleStatBonus(pnum, DND_STAT_ATTUNEMENT_GAIN, 0, 0, isMelee);
+		else if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
+			pct_bonus += HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, isMelee);
+		else
+			pct_bonus += HandleStatBonus(pnum, 0, DND_STAT_ATTUNEMENT_GAIN, 0, isMelee);
+	}
 		
 	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
 		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
@@ -1618,7 +1620,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	if(IsActorAlive(victim_tid)) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
 			HandleChillEffects(pnum, victim_tid);
-		else if(flags & DND_DAMAGETICFLAG_FIRE || flags & DND_DAMAGETICFLAG_ADDEDIGNITE) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
+		else if((flags & DND_DAMAGETICFLAG_FIRE) || (flags & DND_DAMAGETICFLAG_ADDEDIGNITE)) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, flags, GetPlayerIgniteAddedDmg(pnum, wepid, PlayerDamageTicData[pnum][victim_data]));
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
 			HandleOverloadEffects(pnum, victim_tid);
@@ -1882,7 +1884,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	int dmg = GetFireDOTDamage(pnum, added_dmg);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 	
-	dmg = HandleNonWeaponDamageScale(dmg, DND_DAMAGECATEGORY_FIRE, 0);
+	dmg = HandleNonWeaponDamageScale(dmg, DND_DAMAGECATEGORY_FIRE, DND_WDMG_ISDOT);
 	
 	int next_dmg = dmg;
 	int inc_by = dmg * dmg_tic_buff / 100;

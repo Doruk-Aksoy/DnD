@@ -1372,7 +1372,7 @@ Actor TheHammer : Weapon {
 		ReadyNoAmmo:
 			TNT1 A 0 A_JumpIfInventory("HammerFetched", 1, "Fetch")
 			FHMR H 1 A_WeaponReady
-		Goto Ready
+		Goto ReadyLoop
 		Fetch:
 			TNT1 A 0 A_TakeInventory("HammerFetched", 1)
 			TNT1 A 0 A_TakeInventory("HammerReturnSignal", 1)
@@ -1471,16 +1471,21 @@ Actor TheHammer : Weapon {
 			FHMR G 1 Bright Offset(-37, 95)
 			FHMR G 1 Bright Offset(-50, 120)
 			TNT1 A 0 A_JumpIfInventory("HammerThrowStrength", 0, "ThrowHammer")
-			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "FireAmmo")
 		Goto FireNoAmmo
 		ThrowHammer:
 			FHMR G 1 Offset(5, 150)
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "ReallyThrowHammer")
+			FHMR G 1 Bright Offset(5, 150)
+		Goto FinishReallyThrowHammer
+		ReallyThrowHammer:
 			TNT1 A 0 A_GiveInventory("HammerRecallCooldown", 1)
 			TNT1 A 0 A_TakeInventory("HammerReturnSignal", 1)
-			FHMR G 2 Bright Offset(5, 150) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HAMMER, DND_ATK_SECONDARY, DND_AMMOSLOT_ROCKET | (AMMO_HAMMER << 16), 0)
+			FHMR G 1 Bright Offset(5, 150) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HAMMER, DND_ATK_SECONDARY, DND_AMMOSLOT_ROCKET | (AMMO_HAMMER << 16), 0)
+		FinishReallyThrowHammer:
+			FHMR G 1 Bright Offset(5, 150)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
 			FHMR G 1 Bright Offset(5, 150) //Radius_Quake(4,3,0,1,0)
-			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "FireAmmo")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "FireAmmo")
 		FireNoAmmo:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
 			TNT1 A 0 A_TakeInventory("HammerThrowStrength", 0)
@@ -1492,7 +1497,7 @@ Actor TheHammer : Weapon {
 			FHMR H 1 Offset(0, 67)
 			FHMR H 1 Offset(0, 52)
 			FHMR H 1 Offset(0, 39)
-		Goto Ready
+		Goto ReadyLoop
 		FireAmmo:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Speed Slowdown", -1, -1)
 			TNT1 A 0 A_TakeInventory("HammerThrowStrength", 0)

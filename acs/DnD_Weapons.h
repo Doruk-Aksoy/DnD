@@ -43,6 +43,7 @@ bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0
 		mult = CheckInventory(ammo);
 	else
 		mult = GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH);
+	//printbold(s:ammo, s: " ", d:mult, s: " ", d:amt);
 	return ((flags & DND_CFW_DONTCHECKEQUALITY) && mult > amt) || mult >= amt;
 }
 
