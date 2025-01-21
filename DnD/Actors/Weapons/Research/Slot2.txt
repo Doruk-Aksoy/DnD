@@ -41,6 +41,8 @@ Actor ResPistol1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_ASSAULTRIFLE)
+		SelectLoop:
 			4AFG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -210,6 +212,8 @@ Actor ResPistol2 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_VIPERSTAFF)
+		SelectLoop:
 			C_H_ Z 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -268,7 +272,7 @@ Actor ResPistol2 : Weapon {
 			C_H_ U 1 Offset(-4, 32)
 		Goto LoopReady
 		CheckAmmo:
-			C_H_ G 1 offset(0, 26) A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_VIPERSTAFF, 0), "ContinueHold")
+			C_H_ G 1 offset(0, 26) A_JumpIfInventory("DnD_CanFire", 1, "ContinueHold")
 		Goto FinishNorm
 		
 		
@@ -308,7 +312,7 @@ Actor ResPistol2 : Weapon {
 			C_H_ U 1 Offset(-4, 32)
 		Goto LoopReady
 		CheckAltAmmo:
-			C_H_ G 1 offset(0, 26) A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Fire Weapon", DND_WEAPON_VIPERSTAFF, 0), "RefireAlt")
+			C_H_ G 1 offset(0, 26) A_JumpIfInventory("DnD_CanFire", 1, "RefireAlt")
 		Goto FinishAlt
 	}
 }

@@ -43,6 +43,8 @@ Actor ResBFG1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_IONCANNON)
+		SelectLoop:
 			RW04 A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -329,6 +331,8 @@ Actor ResBFG2 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_THUNDERSTAFF)
+		SelectLoop:
 			APOF A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop

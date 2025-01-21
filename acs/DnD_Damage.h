@@ -29,7 +29,7 @@
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
 #define DND_MONSTER_PERCENTDAMAGEBASE_LOW 2 // 2%
 
-#define DND_MONSTER_POISONPERCENT 20 // 20% of damage taken from a hit is dealt as poison damage again over the duration
+#define DND_MONSTER_POISONPERCENT 25 // 25% of damage taken from a hit is dealt as poison damage again over the duration
 #define DND_MONSTER_POISONDOT_MINTIME 2
 #define DND_MONSTER_POISONDOT_MAXTIME 5
 
@@ -2196,7 +2196,7 @@ int HandleCursePlayerResistEffects(int dmg) {
 
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
-int HandlePlayerResists(int pnum, int dmg, int dmg_string, int dmg_data, bool isReflected, str inflictor_class) {
+int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool isReflected, str inflictor_class) {
 	int temp = 0;
 	int dot_temp;
 
@@ -2369,7 +2369,6 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	int armor_id = GetArmorID();
 	bool is_dot = IsDamageStringDOT(dmg_string);
 	int factor = 0.0;
-	int to_take = 0;
 
 	// DoT is not negated by armor
 	if(armor_id != -1 && !is_dot) {
@@ -2406,10 +2405,17 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		dmg = dmg * ((100.0 - temp) >> 16) / 100;
 		LocalAmbientSound("Mitigation/Success", 96);
 	}
+	
+	return dmg;
+}
 
-	// energy shield reduction
-	temp = CheckInventory("EShieldAmount");
-	factor = GetEShieldMagicAbsorbValue(pnum);
+// energy shield reduction
+int ApplyPlayerEnergyShield(int pnum, int dmg, str dmg_string, int dmg_data) {
+	int temp = CheckInventory("EShieldAmount");
+	int factor = GetEShieldMagicAbsorbValue(pnum);
+	bool is_dot = IsDamageStringDOT(dmg_string);
+	int armor_id = GetArmorID();
+	int to_take = 0;
 	if(temp) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
 		if(is_dot || (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)) {
@@ -2463,7 +2469,6 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 			}
 		}
 	}
-	
 	return dmg;
 }
 
@@ -2744,6 +2749,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int oy = GetActorY(0);
 		int oz = GetActorZ(0);
 		int factor = 0;
+		int dist_damage_bonus = 0;
 
 		int actor_flags = ScanActorFlags();
 		temp = GetActorProperty(0, APROP_ACCURACY);
@@ -2753,7 +2759,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		}
 
 		if(dmg_data & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
-			factor = GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
+			dist_damage_bonus = GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
 
 		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		isRipper = CheckFlag(0, "RIPPER");
@@ -2812,31 +2818,34 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				Terminate;
 			}
 
-			// dont scale reflected damage by this
-			// special bonuses
-			factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
-									   MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
+			// DoT shouldn't double dip
+			if(!IsDamageStringDOT(arg2)) {
+				// dont scale reflected damage by this
+				// special bonuses
+				factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
+										MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
 
-			dmg = dmg * (100 + factor) / 100;
+				dmg = dmg * (100 + factor) / 100;
 
-			// elite damage bonus is multiplicative
-			if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
-				dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
-				
-			// chaos mark is multiplicative
-			factor = 100 + CHAOSMARK_DAMAGEBUFF;
-			if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]/* && dmg < INT_MAX / factor*/)
-				dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
-				
+				// elite damage bonus is multiplicative
+				if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
+					dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
+					
+				// chaos mark is multiplicative
+				factor = 100 + CHAOSMARK_DAMAGEBUFF;
+				if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]/* && dmg < INT_MAX / factor*/)
+					dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
+					
+				// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
+				dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);
+			}
+
 			if(isRipper)
 				dmg >>= 1;
 				
 			// halved by demon sealer effect if any
 			if(CheckActorInventory(shooter, "DemonSealDamageDebuff"))
 				dmg >>= 1;
-				
-			// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
-			dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);
 
 			// if this was a player, factor their resists in
 			// resists of player now will factor in after we've calculated the damage accurately
@@ -2896,6 +2905,17 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
 				
+				// final check, if damage is less than 10% of it, cap it at 10%
+				temp = arg1 / 10;
+				if(temp <= 0)
+					temp = 1;
+
+				if(dmg < temp)
+					dmg = temp;
+
+				// the real final check vs eshield
+				dmg = ApplyPlayerEnergyShield(pnum, dmg, dmg_data, arg2);
+
 				// damage amplifications
 				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;
 				if(temp > 100)
@@ -2919,14 +2939,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				// these are on monsters only, dont have much to do with us beyond this point
 				HandleMonsterDamageModChecks(m_id, shooter, victim, dmg);
-
-				// final check, if damage is less than 10% of it, cap it at 10%
-				temp = arg1 / 10;
-				if(temp <= 0)
-					temp = 1;
-
-				if(dmg < temp)
-					dmg = temp;
 			}
 			else {
 				temp = GetActorProperty(shooter, APROP_MASTERTID);
@@ -2948,6 +2960,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// PLAYER HURTING MONSTERS CODE HERE
 			// extract the encoded damage data, and proceed
 			// stamina contains any special flags we might need
+			// variable swap here to fix a bug with radius damage projectiles that also rip once
+			factor = arg1;
 			SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 			if(dmg_data & DND_DAMAGEFLAG_RIPSONCE) {
 				// insert victim to a temporary array and check if it exists in there before continuing
@@ -2974,7 +2988,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
-				inflictor_class = arg1;
+				inflictor_class = factor;
 				arg1 = GetUserVariable(0, "user_expdmg");
 				dmg_data |= GetUserVariable(0, "user_expflags");
 			}
@@ -2993,7 +3007,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			else if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {
 				// first 16 bits is spell damage, next is damage type and last is spell id
 				dmg = arg1 & SPELLDMG_MASK;
-				dmg += factor; // depending on distance increasing damage modifier this can be non-zero
+				dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
 
 				arg1 >>= SPELL_DMG_SHIFT;
 				temp = arg1 & SPELLDTYPE_MASK;
@@ -3022,9 +3036,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					Terminate;
 				}
 
+				//printbold(d:dmg, s: " ", d:m_id, s: " ", d:temp, s: " ", d:arg1);
+
 				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
 
-				dmg += factor; // depending on distance increasing damage modifier this can be non-zero
+				dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
 				// % adjustment factor -- extract after the flat addition to reuse variables
 				factor = arg1 & ATK_DPCT_MASK;
 
@@ -3037,6 +3053,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
+				//printbold(d:dmg, s: " ", d:inflictor_class, s:" ", d:dmg * inflictor_class / 100);
 				dmg = dmg * inflictor_class / 100;
 				if(!dmg) {
 					SetResultValue(0);
@@ -3244,6 +3261,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
+			dmg = ApplyPlayerEnergyShield(pnum, dmg, dmg_data, arg2);
 			//GiveInventory("DnD_DamageReceived", dmg);
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);

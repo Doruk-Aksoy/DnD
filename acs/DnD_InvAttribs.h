@@ -897,12 +897,12 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL;
+	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_DMGREDUCE_REFL].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_REFL].attrib_high = 5.0;
@@ -1057,37 +1057,37 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_EXPLOSION].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_EXPLOSIVE;
+	ItemModTable[INV_DMGREDUCE_EXPLOSION].tags = INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT;
+	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_DMGREDUCE_FIRE].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_FIRE].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_FIRE].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_FIRE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_DMGREDUCE_FIRE].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_ICE].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ICE].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_ICE].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_ICE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_DMGREDUCE_ICE].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_LIGHTNING].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_DMGREDUCE_LIGHTNING].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_POISON].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_POISON].attrib_high = 5.0;
 	ItemModTable[INV_DMGREDUCE_POISON].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_POISON].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_DMGREDUCE_POISON].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_ADDEDMAXRESIST].attrib_low = 0.25;
 	ItemModTable[INV_ADDEDMAXRESIST].attrib_high = 0.5;

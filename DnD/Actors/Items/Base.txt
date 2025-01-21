@@ -589,5 +589,4 @@ Actor DnD_WeaponSwapCheck : PowerDamage {
 Actor DnD_CanFire : DnD_Boolean { }
 Actor DnD_CanAltFire : DnD_Boolean { }
 Actor DnD_CanReload : DnD_Boolean { }
-Actor ResetCanFireLoop : DnD_Boolean { }
 Actor DnD_FiringFlags : DnD_Info { }

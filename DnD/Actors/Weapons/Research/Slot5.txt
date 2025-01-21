@@ -32,6 +32,7 @@ Actor "Upgraded Rocket Launcher2" : RocketLauncher {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_MERCURYLAUNCHER)
 			TNT1 A 0 A_TakeInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Homing Lock-on Draw", 0, 192, 192, 1536)
 	    SelectLoop:
@@ -196,6 +197,8 @@ Actor ResRL1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_METEORLAUNCHER)
+		SelectLoop:
 			RW06 A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -455,6 +458,8 @@ ACTOR ResRL2 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_HEAVYGL)
+		SelectLoop:
 			GLAU A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -777,6 +782,8 @@ Actor ResRL3 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_FREEZER)
+		SelectLoop:
 			FRZC A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1062,6 +1069,8 @@ Actor ResRL4 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_GRAVDIS)
+		SelectLoop:
 			BRSG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1488,6 +1497,8 @@ Actor ResRL5 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_VOIDCANNON)
+		SelectLoop:
 			RW07 A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1690,6 +1701,8 @@ Actor VoidMissileExploder : DnD_ExplosiveBase {
 	+FOILINVUL
 	States {
 		SpawnState:
+		XDeath:
+		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_VOIDCANNON |
 				(DND_DMGID_2 << CACHE_SHIFT) |
@@ -1699,8 +1712,6 @@ Actor VoidMissileExploder : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expradius", 300 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 4)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
-		XDeath:
-		Death:
 		Repeat:
 			TNT1 AAAAAAAA 0 A_SpawnItemEx("WhiteBallParticle_Void", frandom(-16, 16), frandom(-16, 16), 0, frandom(-2.5, 2.5), frandom(-2.5, 2.5), frandom(-2.5, 2.5))
 			TNT1 A 1

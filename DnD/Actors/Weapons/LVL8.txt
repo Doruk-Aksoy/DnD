@@ -36,7 +36,9 @@ ACTOR "Death Staff" : Weapon {
 			LICS A 1 A_Lower 
 			TNT1 A 0 A_Lower
 		Loop 
-		Select: 
+		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_DEATHSTAFF)
+		SelectLoop:
 			LICS A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop 
@@ -535,6 +537,8 @@ ACTOR Razorfang : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_RAZORFANG)
+		SelectLoop:
 			RAZG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -772,6 +776,8 @@ Actor "Sun Staff" : Weapon {
 			LTBR A -1 Bright
 		Stop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_SUNSTAFF)
+		SelectLoop:
 			LTBR M 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1190,6 +1196,8 @@ Actor "Soul Reaver" : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_SOULREAVER)
+		SelectLoop:
 			SREA A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop

@@ -40,6 +40,8 @@ Actor ResShotgun1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_DEADLOCK)
+		SelectLoop:
 			RW01 A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -297,6 +299,8 @@ Actor ResShotgun2 : Weapon {
 			TNT1 A 0 A_Lower
 			Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_NITROGENCROSSBOW)
+		SelectLoop:
 			BOWG A 1 Bright A_Raise
 			TNT1 A 0 A_Raise
 			Loop
@@ -832,6 +836,8 @@ Actor ResShotgun3 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_WHEELOFTORMENT)
+		SelectLoop:
 			WOPG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1080,6 +1086,7 @@ ACTOR ResShotgun4 : Weapon {
 		Loop
 
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_CHARONBLASTER)
 			TNT1 A 0 A_TakeInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Homing Lock-on Draw", 0, 360, 250, 894)
 		SelectLoop:

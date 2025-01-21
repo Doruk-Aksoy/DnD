@@ -32,6 +32,8 @@ Actor "Plasma Rifle" : PlasmaRifle {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_PLASMARIFLE)
+		SelectLoop:
 			NRAI Y 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -131,6 +133,8 @@ Actor "Upgraded Plasma Rifle" : PlasmaRifle {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_NUCLEARPLASMARIFLE)
+		SelectLoop:
 			QNPL A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -554,6 +558,8 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_TURELCANNON)
+		SelectLoop:
 			TURL A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -747,6 +753,8 @@ Actor "Nailgun" : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_NAILGUN)
+		SelectLoop:
 			DNLG A 1 A_Raise
 			TNT1 A 0 A_Raise		
 		Loop
@@ -1020,6 +1028,8 @@ ACTOR Basilisk : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_BASILISK)
+		SelectLoop:
 			BASG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1311,6 +1321,8 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 			FSTF CCCCCCCC 1 A_WeaponReady
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_FROSTFANG)
+		SelectLoop:
 			FSTF B 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1728,6 +1740,8 @@ Actor RhinoRifle : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_RHINORIFLE)
+		SelectLoop:
 			MARG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop

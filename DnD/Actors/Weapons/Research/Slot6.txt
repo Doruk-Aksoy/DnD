@@ -36,6 +36,8 @@ Actor ResPlasma1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_FLAMETHROWER)
+		SelectLoop:
 			RW05 A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -387,6 +389,8 @@ Actor ResPlasma2 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_LIGHTNINGGUN)
+		SelectLoop:
 			LGNI A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -647,6 +651,8 @@ Actor ResPlasma3 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_REBOUNDER)
+		SelectLoop:
 			DGAG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1000,6 +1006,8 @@ Actor "ResPlasma4" : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_DARKLANCE)
+		SelectLoop:
 			RW10 A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop

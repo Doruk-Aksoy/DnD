@@ -17,16 +17,18 @@ Script "DnD Pellet Count" (int base, int flags) {
 // 0 is ammo1, 1 is ammo2
 // returns 1 if it can fire
 // int wepid, int ammo_which, int base_mult, int flags
-Script "DnD Can Fire Weapon" (int wepid) {
+Script "DnD Can Fire Weapon" (void) {
 	int pnum = PlayerNumber();
 
 	//int pc = 0;
-	while(IsAlive() && !CheckInventory("ResetCanFireLoop") && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
+	while(IsAlive() && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
+		int wepid = GetCurrentWeaponID();
+
 		//pc = (pc + 1) % 15;
 		//if(!pc)
 		//	printbold(s:"loop running on ", d:wepid);
 
-		int flags = CheckInventory("DnD_FiringFlags");
+		int flags = 0;
 		bool canFire = false;
 		bool canAltFire = false;
 		bool canReload = false;
@@ -55,9 +57,9 @@ Script "DnD Can Fire Weapon" (int wepid) {
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
 
-				// modify this to allow reload checking?
-				case DND_WEAPON_SHOTGUN:
 				case DND_WEAPON_PURIFIER:
+					flags |= CheckInventory("DnD_FiringFlags");
+				case DND_WEAPON_SHOTGUN:
 				case DND_WEAPON_DEADLOCK:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
 					canReload = CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_3"), AMMOINFO_NAME)) > CheckInventory(ammo2);
@@ -107,6 +109,7 @@ Script "DnD Can Fire Weapon" (int wepid) {
 				break;
 
 				case DND_WEAPON_RIOTCANNON:
+					flags = DND_CFW_DONTCHECKEQUALITY;
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
 					canReload = CheckInventory(GetSpecialAmmoString(CheckInventory("SpecialAmmoMode_4"), AMMOINFO_NAME)) > CheckInventory(ammo2);
 
@@ -256,6 +259,12 @@ Script "DnD Can Fire Weapon" (int wepid) {
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
 				break;
 
+				case DND_WEAPON_SICKLE:
+				case DND_WEAPON_EXCALIBAT:
+				case DND_WEAPON_DUSKBLADE:
+				case DND_WEAPON_INFERNOSWORD:
+				case DND_WEAPON_AXE:
+					flags = DND_CFW_ALTFIRECHECK;
 				default:
 					canFire = ammo1 != "" && CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 
@@ -304,7 +313,11 @@ Script "DnD Can Fire Weapon" (int wepid) {
 		Delay(const:1);
 	}
 
-	TakeInventory("ResetCanFireLoop", 1);
+	SetResultValue(0);
+}
+
+Script "DnD Weapon Select" (int wepid) {
+	SetInventory("DnD_WeaponID", wepid);
 	SetResultValue(0);
 }
 

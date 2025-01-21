@@ -934,8 +934,8 @@ Script "DND On Kill" KILL {
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 				UpdateLegendaryKill(i, MonsterProperties[m_id].id - LEGENDARY_START);
 				
-				if(active_quest_id - DND_LEGQUEST_START == MonsterProperties[m_id].id - LEGENDARY_START)
-					CompleteQuest(i + P_TIDSTART, active_quest_id);
+				//if(active_quest_id - DND_LEGQUEST_START == MonsterProperties[m_id].id - LEGENDARY_START)
+				//	CompleteQuest(i + P_TIDSTART, active_quest_id);
 			}
 		}
 
@@ -2858,7 +2858,6 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_SpreeCountdownRunning", 0);
 	SetInventory("DnD_MultikillCounter", 0);
 	TakeInventory("EShieldCharging", 1);
-	GiveInventory("ResetCanFireLoop", 1);
 	
 	ResetMugstate();
 	
@@ -3007,6 +3006,7 @@ Script "DnD Player Setup" ENTER {
 	}
 	
 	UnfreezePlayer();
+	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
 	
 	// if map changed, reset accessory stuff
 	if(IsSetupComplete(SETUP_STATE1, SETUP_MAPCHANGED)) {
@@ -3967,8 +3967,10 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 		Terminate;
 
 	// we recalc accuracy in case a particular weapon has bonuses to it
+	bool firingLoopRun = false;
 	if(!CheckInventory("DnD_WeaponSwapCheck")) {
 		GiveInventory("DnD_WeaponSwapCheck", 1);
+		firingLoopRun = true;
 		
 		// weapon swap related things can go here
 		// we have access to the old/previous weapon at this point until below SetInventory
@@ -3979,36 +3981,11 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 		SetInventory("DnD_WeaponID", wepid);
 		
 		CalculatePlayerAccuracy(pnum, wepid);
-
-		// can fire check loop
-
-		switch(wepid) {
-			case DND_WEAPON_PURIFIER:
-				SetInventory("DnD_FiringFlags", DND_CFW_HOLDFIREORRELOADCHECK);
-			break;
-			case DND_WEAPON_DUSKBLADE:
-			case DND_WEAPON_INFERNOSWORD:
-			case DND_WEAPON_AXE:
-			//case DND_WEAPON_HAMMER: -- removed hammer
-				SetInventory("DnD_FiringFlags", DND_CFW_ALTFIRECHECK);
-			break;
-			case DND_WEAPON_RIOTCANNON:
-				SetInventory("DnD_FiringFlags", DND_CFW_DONTCHECKEQUALITY);
-			break;
-			default:
-				SetInventory("DnD_FiringFlags", 0);
-			break;
-		}
-
-		GiveInventory("ResetCanFireLoop", 1);
-		Delay(const:2);
-		TakeInventory("ResetCanFireLoop", 1);
-		//printbold(s:"run can fire loop");
-		ACS_NamedExecuteWithResult("DnD Can Fire Weapon", wepid);
 	}
 
 	//printbold(s:"cached id and wep ", d:dmg_id, s:" ", d: wepid);
 	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand);
+	
 	SetResultValue(0);
 }
 

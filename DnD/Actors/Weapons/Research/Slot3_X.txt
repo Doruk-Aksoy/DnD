@@ -43,6 +43,8 @@ Actor ResSSG1 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_PLASMACANNON)
+		SelectLoop:
 			RW02 X 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -200,6 +202,8 @@ Actor ResSSG2 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_SHOCKER)
+		SelectLoop:
 			WSON A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -427,6 +431,8 @@ Actor ResSSG3 : Weapon {
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_HADES)
+		SelectLoop:
 			STRG A 1 A_Raise
 			TNT1 A 0 A_Raise
 		Loop
@@ -1164,6 +1170,7 @@ Actor ResSSG4 : Weapon {
 		Loop
 		
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_CROSSBOW)
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "AmmoSelect")
 		Select_NoAmmo:
 			CBOW K 1 A_Raise

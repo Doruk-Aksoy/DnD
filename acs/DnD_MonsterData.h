@@ -33,8 +33,8 @@ int GetMonsterHPScaling(int m_id, int level) {
 
 int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_factor = 0, int scaling_ramp = 0) {
 	// over the old formula of 4x, this provides 500% damage at lvl 100 instead of 400%
-	// edit: iterating over the improvement on previous versions, making the game harder -- divisor was 25 instead of 10
-	int res = level * level / 10 + level;
+	// edit: iterating over the improvement on previous versions, making the game harder -- divisor was 25 instead of 10 -- 10 was too high, trying 20
+	int res = level * level / 20 + level;
 
 	// scaling factor contribution
 	if(scaling_ramp) {
@@ -125,49 +125,49 @@ global int 54: Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS];
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 10 | (15 << 16);
+		return 15 | (15 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 15 | (20 << 16);
+		return 22 | (20 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 24 | (28 << 16);
+		return 33 | (28 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 32 | (30 << 16);
+		return 40 | (30 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 35 | (30 << 16);
+		return 45 | (30 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 20 | (22 << 16);
+		return 27 | (22 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 75 | (48 << 16);
+		return 85 | (48 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 90 | (56 << 16);
+		return 100 | (56 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 40 | (20 << 16);
+		return 42 | (20 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 55 | (36 << 16);
+		return 62 | (36 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 80 | (48 << 16);
+		return 95 | (48 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 135 | (72 << 16);
+		return 150 | (72 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 130 | (72 << 16);
+		return 145 | (72 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 120 | (72 << 16);
+		return 135 | (72 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 150 | (90 << 16);
+		return 165 | (90 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
 		return 1000 | (115 << 16);
@@ -176,7 +176,7 @@ int GetMonsterClassBonus(int class) {
 		return 1750 | (125 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
-		return 15 | (15 << 16);
+		return 20 | (15 << 16);
 	}
 	
 	return 1;
@@ -829,10 +829,12 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 		return 4 * lvl;
 	else if(lvl <= 50)
 		return lvl * lvl / 100 + 3 * lvl + 19;
-	return lvl * lvl / 150 + 184;*/
+	return lvl * lvl / 150 + 184;
 	if(lvl <= 25)
 		return 4 * lvl;
-	return 2 * lvl + 50;
+	return 2 * lvl + 50;*/
+	// new formula to ensure a sharp curve earlier levels then settle down
+	return 900 * lvl / (100 + 3 * lvl);
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {
@@ -897,7 +899,7 @@ void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
 		MonsterProperties[m_id].droprate = GetMonsterDropBonus(drop_base, MonsterProperties[m_id].level, rarity, MonsterProperties[m_id].isElite);
 		//printbold(s:"droprate % inc for ", s:GetActorClass(0), s: " of level ", d:MonsterProperties[m_id].level, s: " is ", d:MonsterProperties[m_id].droprate);
 		
-		MonsterProperties[m_id].rarity_boost = MonsterProperties[m_id].droprate / 2;
+		MonsterProperties[m_id].rarity_boost = MonsterProperties[m_id].droprate / 3; // was 2
 	}
 	else {
 		// since rarity for us doesnt make sense as a multiplier here we just return the amplified percentage
@@ -954,7 +956,7 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 			rarity = DND_MWEIGHT_EPIC;
 	}
 		
-	//printbold(s:"rarity ", d:rarity, s: " ", d:MonsterProperties[m_id].class, s: " ", d:MonsterProperties[m_id].id);
+	//printbold(s:GetActorClass(0), s:" rarity ", d:rarity, s: " ", d:MonsterProperties[m_id].class, s: " ", d:MonsterProperties[m_id].id);
 	
 	MonsterProperties[m_id].rarity = rarity;
 	

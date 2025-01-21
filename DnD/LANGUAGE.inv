@@ -507,7 +507,7 @@ IATTR_TX42			= "chance to immediately start recovering energy shield on depletio
 IATTR_TX43			= "Energy shield recharge is not interrupted by damage";
 IATTR_TX44			= "The energy shield explosion deals"; IATTR_TX44S = "of your health as added damage";	
 IATTR_TX45			= "Energy shield recovery also takes"; IATTR_TX45S = "of the amount from health";
-IATTR_TX46			= "Increases and reductions to health instead apply to energy shield at"; IATTR_TX46S = "of their value";
+IATTR_TX46			= "Modifiers to health instead apply to energy shield at"; IATTR_TX46S = "of their value";
 IATTR_TX47			= "Energy shield is fully effective against all damage";
 IATTR_TX48			= "\c[D4]Your health cap is always 1";
 IATTR_TX49			= "For every"; IATTR_TX49S = "energy shield, gain \cd0.5%\c- to all resists";
