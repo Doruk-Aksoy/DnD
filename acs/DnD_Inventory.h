@@ -2357,8 +2357,8 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_MAGAZINE_INCREASE:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			// add onto the base capacities, not current capacities
-			for(i = 0; i < MAX_MAGAZINES; ++i)
-				SetAmmoCapacity(WeaponMagazineList[i], (WeaponMagazineCaps[i] * (100 + GetPlayerAttributeValue(pnum, atype))) / 100);
+			for(i = 0; i < DND_MAX_MAGAZINES; ++i)
+				SetAmmoCapacity(WeaponMagazineList[i], GetMagazineCap(pnum, i));
 		break;
 		case INV_EXPLOSION_RADIUS:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);

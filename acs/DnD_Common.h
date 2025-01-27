@@ -12,6 +12,9 @@
 #define CHAOSMARK_DAMAGEBUFF 50
 
 #define MAXLEVELS 100
+#define DND_EXP_ADJUST_LEVEL 60
+#define DND_EXP_ADJUST_LEVELFACTOR 0.975
+
 #define DND_MAX_MONSTERLVL MAXLEVELS
 
 #define FACTOR_FIXED_RESOLUTION 1000
@@ -272,6 +275,8 @@ enum {
 	SETUP_PLAYERDATAFINISHED,
 	SETUP_WEAPONDATA,
 	SETUP_PLAYERINFO_MINMAXLEVELS,
+	SETUP_CLEANINGMONSTERTIDS,
+	SETUP_GLOBALCONSTANTSETUPS
 };
 global int 55: SetupStates[2];
 
@@ -417,7 +422,7 @@ int active_quest_id = -1;
 int DnD_TID_Counter[4] = { 0, 0, 0, 0 };
 
 // holds the monster tids that are in use -- arbitrary order
-int UsedMonsterTIDs[DND_MAX_MONSTERS];
+global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
 
 // Turned this to global to allow outside access for modders
 #define PLAYERLEVELINFO_LEVEL 0
@@ -858,6 +863,22 @@ int HandleTracerPicking(int owner, int lock_on_range, int width, int height, boo
 	}
 
 	return result;
+}
+
+enum {
+	DND_CONSTANT_EXPCURVE,
+
+	DND_MAX_CONSTANTS
+};
+global int 51: DnD_Constants[DND_MAX_CONSTANTS][256];
+
+void Build_Constants() {
+	// the exp curve is assuming level DND_EXP_ADJUST_LEVEL and above as the value, but the array is 0 - (100 - DND_EXP_ADJUST_LEVEL) range
+	int i = 0;
+	for(; i <= MAXLEVELS - DND_EXP_ADJUST_LEVEL; ++i) {
+		DnD_Constants[DND_CONSTANT_EXPCURVE][i] = fpow(DND_EXP_ADJUST_LEVELFACTOR, i + 1);
+		//Log(d:i, s: " => ", f:DnD_Constants[DND_CONSTANT_EXPCURVE][i]);
+	}
 }
 
 // moved these here due to co-dependency

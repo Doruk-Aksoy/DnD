@@ -715,6 +715,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		break;
 		case DND_WEAPON_HEAVYSUPERSHOTGUN:
 			use_default = false;
+			proj_id = DND_PROJ_HEAVYSSG;
 			hitscan_id = DND_HITSCAN_HEAVYSSG;
 			count = 14;
 			sp_x = 9.6;
@@ -724,13 +725,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
 				// this weapon fires half pellets as railgun, half as hitscan -- so we tuck it at the end
 				count = GetPelletCount(pnum, count * 2);
-				Do_Hitscan_Attack(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count / 2, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, sp_x, sp_y, flags);
+				Do_Hitscan_Attack(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count / 2, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, sp_x, sp_y, flags, hitscan_id);
 				Do_Railgun_Attack("HeavySSG_RailHelper", count / 2);
 			}
 			else {
 				GiveInventory("HeavySSG_RailHelper_Circle", 1);
 				count = GetPelletCount(pnum, count);
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, flags);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, flags, hitscan_id);
 			}
 		break;
 		case DND_WEAPON_ERASUS:

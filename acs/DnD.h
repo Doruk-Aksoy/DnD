@@ -24,7 +24,6 @@ enum {
 #define DND_EXP_BASEFACTOR 4
 #define DND_CREDIT_BASEFACTOR 5
 #define DND_RESEARCH_MAX_CHANCE 1.0
-#define DND_RESEARCH_DROPMULT 3
 
 void SetupCVarTracking() {
 	CVarValues[DND_CVAR_RESEARCHDROPRATE] = Clamp_Between(GetCVar("dnd_researchdroprate"), 0.0, DND_RESEARCH_MAX_CHANCE);
@@ -134,10 +133,6 @@ enum {
 #define DND_PAINBLEND_MAXALPHA 75 // 75%
 
 #define PERK_GAIN_RATE 5
-
-#define BASEPISTCLIP 12
-#define BASEMGCLIP 50
-#define BASEHMGCLIP 60
 
 #define DND_EXPBAR_SIZEX 132
 
@@ -727,8 +722,9 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 				bits |= DND_LOOTBIT_CHESTKEY;
 			}
 
+			// made this not tied to player's droprate
 			j = MonsterProperties[m_id].id;
-			if(isLegendaryMonster(j) && RunPrecalcDropChance(p_chance, DND_LEGENDARY_ITEMDROPRATE, m_id, DND_MON_RNG_1))
+			if(isLegendaryMonster(j) && random(0, 1.0) <= DND_LEGENDARY_ITEMDROPRATE)
 				HandleLegendaryMonsterDrop(j, i);
 
 			// luck mastery check for inventory items --- they need special handling
@@ -938,9 +934,9 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	if(!GetCVar("dnd_allresearchesfound")) {
 		// make it less likely to drop
 		// addone is the chance here (reusing old variables)
-		temp = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
+		// note: this doesnt seem to be contributing towards anything...
+		//temp = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
 
-		
 		if(GetCVar("dnd_ignore_dropweights") || RunPrecalcDropChance(p_chance, CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_2))
 			SpawnResearch(pnum);
 	}

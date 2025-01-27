@@ -93,7 +93,7 @@ Script "DnD Hobo Frenzy Anim" (void) CLIENTSIDE {
     height = GetIntegerBits(height);
 
 	int anim_count = 0;
-    for(int i = 0; IsAlive() && CheckInventory("Hobo_ShotgunFrenzyTimer"); ++i) {
+    for(int i = 0; IsAlive() && i < 72 * 3; ++i) {
         int a = abs(sin(1.0 * (i % 72) / 72));
         if(a > 0.6)
             a = 0.6;
@@ -226,6 +226,12 @@ Script "DnD Cyborg Instability Timer" (void) {
 	SetInventory("Cyborg_NoAnim", 0);
 	SetInventory("Cyborg_InstabilityStack", 0);
 	LocalAmbientSound("Instability/End", 127);
+
+	// 50% chance to insta start es regen
+	if(RunLuckBasedChance(PlayerNumber(), 0.5)) {
+		SetInventory("DnD_Hit_CombatTimer", 0);
+		GiveInventory("EShieldChargeNow", 1);
+	}
 }
 
 Script "DnD Cyborg Visor Anim" (void) CLIENTSIDE {

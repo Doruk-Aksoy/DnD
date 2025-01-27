@@ -173,7 +173,7 @@ int GetMonsterClassBonus(int class) {
 		return 1000 | (115 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1750 | (125 << 16);
+		return 1350 | (125 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
 		return 20 | (15 << 16);
@@ -834,7 +834,7 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 		return 4 * lvl;
 	return 2 * lvl + 50;*/
 	// new formula to ensure a sharp curve earlier levels then settle down
-	return 900 * lvl / (100 + 3 * lvl);
+	return 900 / (100 / lvl + 3);
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {

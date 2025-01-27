@@ -2559,19 +2559,25 @@ ACTOR StoneBitsSmall {
 		Spawn:
 			TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB")
 		SpawnA:
-			TNT1 A 0 A_Jump(256, 1, 2, 3, 4)
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
 			STB1 AAAA 10 A_FadeOut(0.25)
 		Stop
+		2:
 			STB1 BBBB 10 A_FadeOut(0.25)
 		Stop
+		3:
 			STB1 CCCC 10 A_FadeOut(0.25)
 		Stop
+		4:
 			STB1 DDDD 10 A_FadeOut(0.25)
 		Stop
 		SpawnB:
-			TNT1 A 0 A_Jump(256, 1, 2)
+			TNT1 A 0 A_Jump(256, "1b", "2b")
+		1b:
 			STB2 AAAA 10 A_FadeOut(0.25)
 		Stop
+		2b:
 			STB2 BBBB 10 A_FadeOut(0.25)
 		Stop
 	}
@@ -2587,29 +2593,39 @@ ACTOR StoneBitsMedium {
 		Spawn:
 			TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB", "SpawnC")
 		SpawnA:
-			TNT1 A 0 A_Jump(256, 1, 2, 3, 4)
+			TNT1 A 0 A_Jump(256, "1", "2", "3", "4")
+		1:
 			STB1 A 10
 		Goto Fade
+		2:
 			STB1 B 10
 		Goto Fade
+		3:
 			STB1 C 10
 		Goto Fade
+		4:
 			STB1 D 10
 		Goto Fade
 		SpawnB:
-			TNT1 A 0 A_Jump(256, 1, 2)
+			TNT1 A 0 A_Jump(256, "1b", "2b")
+		1b:
 			STB2 A 10
 		Goto Fade
+		2b:
 			STB2 B 10
 		Goto Fade
 		SpawnC:
-			TNT1 A 0 A_Jump(256, 1, 2, 3, 4)
+			TNT1 A 0 A_Jump(256, "1c", "2c", "3c", "4c")
+		1c:
 			STB3 A 10
 		Goto Fade
+		2c:
 			STB3 B 10
 		Goto Fade
+		3c:
 			STB3 C 10
 		Goto Fade
+		4c:
 			STB3 D 10
 		Goto Fade
 		Fade:
@@ -2628,29 +2644,39 @@ ACTOR StoneBitsLarge {
 		Spawn:
 			TNT1 AA 0 A_Jump(256, "SpawnB", "SpawnC", "SpawnD")
 		SpawnB:
-			TNT1 A 0 A_Jump(256, 1, 2)
+			TNT1 A 0 A_Jump(256, "1", "2")
+		1:
 			STB2 A 10
 		Goto Fade
+		2:
 			STB2 B 10
 		Goto Fade
 		SpawnC:
-			TNT1 A 0 A_Jump(256, 1, 2, 3, 4)
+			TNT1 A 0 A_Jump(256, "1c", "2c", "3c", "4c")
+		1c:
 			STB3 A 10
 		Goto Fade
+		2c:
 			STB3 B 10
 		Goto Fade
+		3c:
 			STB3 C 10
 		Goto Fade
+		4c:
 			STB3 D 10
 		Goto Fade
 		SpawnD:
-			TNT1 A 0 A_Jump(256, 1, 2, 3, 4)
+			TNT1 A 0 A_Jump(256, "1d", "2d", "3d", "4d")
+		1d:
 			STB4 A 10
 		Goto Fade
+		2d:
 			STB4 B 10
 		Goto Fade
+		3d:
 			STB4 C 10
 		Goto Fade
+		4d:
 			STB4 D 10
 		Goto Fade
 		Fade:

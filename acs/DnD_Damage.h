@@ -2202,8 +2202,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 
 	bool isDot = IsDamageStringDOT(dmg_string) || (dmg_data & DND_DAMAGETYPEFLAG_DOT);
 	
-	if(isHardcore())
-		dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_HARDCORE_DEBUFF);
+	//if(isHardcore())
+	//	dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_HARDCORE_DEBUFF);
 	
 	dmg = HandleCursePlayerResistEffects(dmg);
 	
@@ -2914,7 +2914,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = temp;
 
 				// the real final check vs eshield
-				dmg = ApplyPlayerEnergyShield(pnum, dmg, dmg_data, arg2);
+				dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, dmg_data);
 
 				// damage amplifications
 				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;
@@ -3039,6 +3039,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				//printbold(d:dmg, s: " ", d:m_id, s: " ", d:temp, s: " ", d:arg1);
 
 				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+
+				//printbold(s:"retrieved dmg ", d:dmg);
 
 				dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
 				// % adjustment factor -- extract after the flat addition to reuse variables
@@ -3192,7 +3194,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			// exception for map related hazards
 			if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Telefrag" || arg2 == "Suicide" || arg2 == "InstantDeath" || arg2 == "Exit") {
-				SetResultValue(arg1);
+				// apply eshield to these only
+				if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning")
+					dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, 0);
+				GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
+				SetResultValue(dmg);
 				PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = arg1;
 				Terminate;
 			}
@@ -3261,7 +3267,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
-			dmg = ApplyPlayerEnergyShield(pnum, dmg, dmg_data, arg2);
+			dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, dmg_data);
 			//GiveInventory("DnD_DamageReceived", dmg);
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);

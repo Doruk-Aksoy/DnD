@@ -640,7 +640,7 @@ Actor HS_NoExp : HS {
 		
 		IdleState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
-		Goto Super::Idle
+		Goto Super::IdleState
 		GoAttack:
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
 			TNT1 A 0 A_FaceTarget
@@ -969,6 +969,7 @@ ACTOR FireBreath {
 	Speed 12
 	Damage (3 * random(1,2))
 	DamageType "MagicalFire"
+	Accuracy 150
 	Stamina 40
 	Alpha 0.2
 	PROJECTILE

@@ -1052,7 +1052,8 @@ ACTOR FakeGoldlich : Goldlich {
 		SeeState:
 			GLIC A 1 A_Chase
 			GLIC A 3 A_SpawnItemEx("GoldLichGlitter", random(-24,24), random(-24,24), random(-8,72),0,0,0, 0,0, 0)
-		Loop
+		Goto See
+		MeleeState:
 		MissileState:
 			GLIC A 5 A_FaceTarget
 			GLIC B 20 A_FaceTarget

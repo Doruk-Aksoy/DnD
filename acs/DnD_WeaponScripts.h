@@ -50,7 +50,11 @@ Script "DnD Can Fire Weapon" (void) {
 						ammo2 = "AkimboClipLeft";
 
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
-					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+
+					amt2 = GetMagazineCap(pnum, DND_MAG_AKIMBOLEFT);
+
+					canReload = (CheckInventory(WeaponMagazineList[DND_MAG_AKIMBOLEFT]) < amt2 || CheckInventory(WeaponMagazineList[DND_MAG_AKIMBORIGHT]) < amt2) &&
+								CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
 				case DND_WEAPON_SCATTERGUN:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 * 3, flags);

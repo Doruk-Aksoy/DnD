@@ -669,9 +669,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// check how many ilvls this should jump now
 			temp = prev - x;
 			if(temp > 0) {
-				// clear difference here, so adjust ilvl accordingly by +7-10 ilvls
+				// clear difference here, so adjust ilvl accordingly by +8-10 ilvls
 				for(s = 0; s < temp; ++s)
-					PlayerInventoryList[pnum][extra].item_level += random(3 * MAX_CHARM_AFFIXTIERS / 4, MAX_CHARM_AFFIXTIERS);
+					PlayerInventoryList[pnum][extra].item_level += random(4 * MAX_CHARM_AFFIXTIERS / 5, MAX_CHARM_AFFIXTIERS);
 				if(PlayerInventoryList[pnum][extra].item_level > MAX_ITEM_LEVEL)
 					PlayerInventoryList[pnum][extra].item_level = MAX_ITEM_LEVEL;
 			}

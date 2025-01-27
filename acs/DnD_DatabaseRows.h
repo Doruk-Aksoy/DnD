@@ -25,6 +25,7 @@ enum {
 #define DND_DB_BACKPACKS "DND_Backpacks"
 #define DND_DB_PERK "DND_PlayerPerk_"
 #define DND_DB_HEALTH "DND_PlayerHealth"
+#define DND_DB_ESHIELD "DnD_PlayerEShield"
 #define DND_DB_AMMO "DND_PlayerAmmo_"
 #define DND_DB_SPECIALAMMO "DND_PlayerSpecialAmmo_"
 #define DND_DB_TEMPAMMO "DND_PlayerTemporaryAmmo"

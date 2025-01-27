@@ -2533,7 +2533,9 @@ Actor CyborgSoldier : DnD_BaseHybridMonster {
       		NLBG E 2 BRIGHT A_FaceTarget
       		NLBG E 0 A_PlaySound("weapons/nailfire")
       		NLBG F 3 BRIGHT A_CustomMissile("NailProjectileWeak", 40, 8, frandom(6, -6), 0, 1)
+			TNT1 A 0 A_Jump(16, "StopFiring")
 			TNT1 A 0 A_JumpIfCloser(256, "KeepFiring")
+		StopFiring:
       		NLBG E 2 BRIGHT
 		Goto See
 		Scattershot:

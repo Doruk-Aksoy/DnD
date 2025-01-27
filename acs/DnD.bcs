@@ -227,6 +227,22 @@ Script "DnD On Map Load" OPEN {
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
 
+	// reset used TIDs
+	i = 0;
+	//Log(s:"check start cond ", d:UsedMonsterTIDs[i], s: " ", d:DND_MONSTERTID_BEGIN);
+	while(UsedMonsterTIDs[i] >= DND_MONSTERTID_BEGIN) {
+		//Log(s:"clear id ", d:i);
+		UsedMonsterTIDs[i] = 0;
+		++i;
+	}
+
+	SetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+
+	if(!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS)) {
+		Build_Constants();
+		SetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS);
+	}
+
 	CalculateMapDifficulty();
 	UpdateLevelChestLimit();
 
@@ -720,7 +736,7 @@ Script "DND On Revive" (void) {
 		// Reapply the elite FX.
 		if (MonsterProperties[id].isElite)
 			ACS_NamedExecuteAlways("DND Elite Special FX", 0, this);
-		//printbold(s:"Monster id: ",d:MonsterProperties[id].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
+		//Log(s:"Monster id: ",d:MonsterProperties[id].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
 		int maxhp = MonsterProperties[id].maxhp;
 		int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
@@ -733,7 +749,7 @@ Script "DND On Revive" (void) {
 
 		HandleSpecialTraits(this, MonsterProperties[id].id, true);
 	}
-	//printbold(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
+	//Log(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
 
 	// check if we are revived by a player now, set it up and stuff if so
@@ -1833,6 +1849,9 @@ Script "DnD Monster Spawner" (int category) {
     // count and initialization
 	int i = 0;
 
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
+		Delay(const:5);
+
 	while(!IsSetupComplete(SETUP_STATE1, SETUP_MONSTERS))
 		Delay(const:HALF_TICRATE);
 
@@ -2822,6 +2841,7 @@ Script "DnD On Unloading" UNLOADING {
 	int tid;
 	SetupComplete(SETUP_STATE1, SETUP_MAPCHANGED);
 	SetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
+	SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
 	BreakAllTrades();

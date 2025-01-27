@@ -351,7 +351,7 @@ Actor AkimboShooter_L : DND_Activator {
 }
 
 Actor AkimboPistolPuff : DnD_BasePuff {
-	Stamina 4096
+	Stamina 6144
 	
 	States {
 		HitNoBlood:

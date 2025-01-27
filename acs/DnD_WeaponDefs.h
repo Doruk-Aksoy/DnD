@@ -265,8 +265,36 @@ enum {
 };
 
 // keep here for now for ammo save chance
-#define MAX_MAGAZINES 24
-str WeaponMagazineList[MAX_MAGAZINES] = {
+enum {
+	DND_MAG_SAWEDOFF,
+	DND_MAG_AKIMBOLEFT,
+	DND_MAG_AKIMBORIGHT,
+	DND_MAG_BULLET6,
+	DND_MAG_SHELL2,
+	DND_MAG_SHELL8,
+	DND_MAG_SHELL8N,
+	DND_MAG_SHELL10,
+	DND_MAG_SHELL12,
+	DND_MAG_SHELL16,
+	DND_MAG_SHELL18,
+	DND_MAG_MGCLIP,
+	DND_MAG_MGCLIP2,
+	DND_MAG_MGCLIP3,
+	DND_MAG_MGCLIP4,
+	DND_MAG_MGCLIP5,
+	DND_MAG_MGCLIP6,
+	DND_MAG_MGCLIP7,
+	DND_MAG_LOADEDBASILISK,
+	DND_MAG_PCAN,
+	DND_MAG_RIOTGUN,
+	DND_MAG_ACIDGUN,
+	DND_MAG_HEAVYGL,
+	DND_MAG_FUEL,
+
+	DND_MAX_MAGAZINES
+};
+
+str WeaponMagazineList[DND_MAX_MAGAZINES] = {
 	"SawedoffCounter",
 	"AkimboClipLeft",
 	"AkimboClipRight",
@@ -294,7 +322,7 @@ str WeaponMagazineList[MAX_MAGAZINES] = {
 };
 
 // Used for base when increasing these using magazine cap increase
-int WeaponMagazineCaps[MAX_MAGAZINES] = {
+int WeaponMagazineCaps[DND_MAX_MAGAZINES] = {
 	2,
 	12,
 	12,
@@ -320,6 +348,10 @@ int WeaponMagazineCaps[MAX_MAGAZINES] = {
 	3,
 	75
 };
+
+int GetMagazineCap(int pnum, int mag_id) {
+	return WeaponMagazineCaps[mag_id] * (100 + GetPlayerAttributeValue(pnum, INV_MAGAZINE_INCREASE)) / 100;
+}
 
 #include "DnD_TempWeps.h"
 
@@ -616,8 +648,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ERASUS].ammo_use2 = 2;
 	Weapons_Data[DND_WEAPON_ERASUS].properties = WPROP_SHOTGUN;
-	Weapons_Data[DND_WEAPON_ERASUS].attunement[STAT_STR] = 0.02;
-	Weapons_Data[DND_WEAPON_ERASUS].attunement[STAT_DEX] = 0.03;
+	Weapons_Data[DND_WEAPON_ERASUS].attunement[STAT_STR] = 0.03;
+	Weapons_Data[DND_WEAPON_ERASUS].attunement[STAT_DEX] = 0.02;
 	
 	Weapons_Data[DND_WEAPON_HELLSMAW].name = "Upgraded Super Shotgun3";
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_name1 = "HellsMawAmmo";
@@ -975,8 +1007,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SEDRINSTAFF].properties = WPROP_SELFDMG | WPROP_POISON | WPROP_MAGIC | WPROP_ARTILLERY;
-	Weapons_Data[DND_WEAPON_SEDRINSTAFF].attunement[STAT_DEX] = 0.035;
-	Weapons_Data[DND_WEAPON_SEDRINSTAFF].attunement[STAT_INT] = 0.015;
+	Weapons_Data[DND_WEAPON_SEDRINSTAFF].attunement[STAT_DEX] = 0.025;
+	Weapons_Data[DND_WEAPON_SEDRINSTAFF].attunement[STAT_INT] = 0.025;
 	
 	// SLOT 6
 	Weapons_Data[DND_WEAPON_PLASMARIFLE].name = "Plasma Rifle";

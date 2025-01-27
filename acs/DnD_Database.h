@@ -350,9 +350,13 @@ void SavePlayerData(int pnum, int char_id) {
 	for(i = DND_PERK_BEGIN; i <= DND_PERK_END; ++i)
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, GetActorPerk(tid, i));
 	
-	// save health and armor
+	// save health
 	temp = GetActorProperty(tid, APROP_HEALTH);
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, temp);
+
+	// save eshield
+	temp = CheckInventory("EShieldAmount");
+	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, temp);
 	
 	// save ammo counts
 	int slot_tmp;
@@ -860,6 +864,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc);
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
 	SetActorProperty(0, APROP_HEALTH, (temp & 0xFFFF) ? temp & 0xFFFF : DND_BASE_HEALTH);
+
+	// read eshield
+	temp = GetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc);
+	SetInventory("EShieldAmount", temp);
 	
 	// read accessories
 	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);
@@ -1135,6 +1143,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, 0);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, 0);
 	
 	// reset ammo counts
@@ -1286,6 +1295,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_PERK, char_id), d:i), pacc, 0);
 
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, 100); // base health
+	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(tid, "DnD_Character"));
 	
 	// reset ammo counts
