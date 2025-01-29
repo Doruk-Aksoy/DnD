@@ -2743,7 +2743,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		// printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
-		bool isReflected = inflictor_class == "None" && !IsDamageStringDOT(arg2) && arg2 != "MagicalRedLeash";
 
 		int ox = GetActorX(0);
 		int oy = GetActorY(0);
@@ -2766,13 +2765,23 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 		// set activator to owner of this projectile for certain crediting
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
-		if(shooter == -1)
+		if(shooter == -1) {
+			//printbold(s:"this ? ", d:ActivatorTID(), s: " ", s:GetActorClass(ActivatorTID()));
 			shooter = ActivatorTID();
+		}
 
 		// this flag shares the same value as a damagetype for monsters, so we need to seperate it
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		if((shooter == -1 || shooter == 0) && !IsMonster(shooter) && dmg_data & DND_DAMAGEFLAG_USEMASTER)
+		if((shooter == -1 || shooter == 0) && !IsMonster(shooter) && dmg_data & DND_DAMAGEFLAG_USEMASTER) {
+			//printbold(s:"take shooter as ", d:GetActorProperty(0, APROP_SCORE));
 			shooter = GetActorProperty(0, APROP_SCORE);
+		}
+
+		// if whatever fired this is a monster but original owner was player, it's reflected
+		//printbold(s:"reflect check ", s:GetActorClass(shooter), s: " vs ", s:GetActorclass(GetActorProperty(0, APROP_SCORE)));
+		int isReflected = 0;
+		if(IsMonster(shooter) && IsPlayer(GetActorProperty(0, APROP_SCORE)))
+			isReflected = GetActorProperty(0, APROP_SCORE);
 
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
 		if(dmg_data & DND_DAMAGEFLAG_ISHITSCAN) {
@@ -2821,23 +2830,62 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// DoT shouldn't double dip
 			if(!IsDamageStringDOT(arg2)) {
 				// dont scale reflected damage by this
-				// special bonuses
-				factor += !isReflected * ((MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
-										MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS);
+				//printbold(s:"here?? ", d:isReflected);
+				if(!isReflected) {
+					// special bonuses
+					factor += 	(MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
+								MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
 
-				dmg = dmg * (100 + factor) / 100;
+					dmg = dmg * (100 + factor) / 100;
 
-				// elite damage bonus is multiplicative
-				if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
-					dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
-					
-				// chaos mark is multiplicative
-				factor = 100 + CHAOSMARK_DAMAGEBUFF;
-				if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]/* && dmg < INT_MAX / factor*/)
-					dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
-					
-				// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
-				dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);
+					// elite damage bonus is multiplicative
+					if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
+						dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
+						
+					// chaos mark is multiplicative
+					factor = 100 + CHAOSMARK_DAMAGEBUFF;
+					if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]/* && dmg < INT_MAX / factor*/)
+						dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
+						
+					// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
+					dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);
+				}
+				else {
+					// unpack regular weapon dmg from reflect
+					// wepid
+					pnum = isReflected - P_TIDSTART;
+					if(PlayerInGame(pnum)) {
+						// only come here if player is alive at the time, so no trolling others
+						isReflected = arg1;
+						factor = isReflected & ATK_WID_MASK;
+						isReflected >>= ATK_CACHE_SHIFT;
+
+						// dmg cache id
+						dmg = isReflected & ATK_CACHE_MASK;
+						isReflected >>= ATK_DTYPE_SHIFT;
+
+						// dmg type
+						temp = isReflected & ATK_DTYPE_MASK;
+						isReflected >>= ATK_DPCT_SHIFT;
+
+						//printbold(s:"pnum reflected: ", d:pnum, s: " ", d:dmg, s: " ", d:factor, s: " ", d:temp, s: " ", d:arg1);
+
+						SetActivator(pnum + P_TIDSTART);
+						dmg = RetrieveWeaponDamage(pnum, factor, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+						SetActivator(shooter);
+
+						// set it to the damage for comparison below
+						// since monster damage doesnt encode its value into damage, it works without this
+						// but player damage has encoded stuff, so we need it updated here
+						arg1 = dmg;
+
+						// 50% less by default
+						dmg /= 2;
+
+						factor = 0;
+					}
+					isReflected = true;
+				}
 			}
 
 			if(isRipper)
@@ -2886,13 +2934,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
-
-				// 50% less by default
-				if(isReflected)
-					dmg /= 2;
-
 				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
-				
 				// finally apply player armor
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);
 					
