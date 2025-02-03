@@ -119,7 +119,7 @@ Actor BloodSatyrMissile {
 	Accuracy 133
 	+NODAMAGETHRUST
 	DamageType "MagicalRed"
-	Stamina 8
+	Stamina 1073741832
 	SeeSound "BloodSatyr/Fire"
 	DeathSound "ClericCStaffHitThing"
 	Obituary "%o was drained of all life by a blood satyr."
@@ -157,7 +157,7 @@ Actor SatyrMissile : BaronBall {
 	Speed 22
 	Damage (4*random(3,7))
 	DamageType "MagicalYellow"
-	Stamina 8
+	Stamina 1073741832
 	Scale 0.75
 	RenderStyle Add
 	Translation "193:201=160:167", "202:208=165:168"
@@ -269,7 +269,7 @@ Actor HellWarriorBall {
 	Damage (8 * random(1, 8))
 	+DONTBLAST
 	DamageType "MagicalYellow"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	RenderStyle Add
 	Alpha 0.7
@@ -313,7 +313,7 @@ Actor HellWarriorBall2 {
 	Damage (2 * random(1, 8))
 	+DONTBLAST
 	DamageType "MagicalYellow"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	RenderStyle Add
 	+Randomize
@@ -460,7 +460,7 @@ Actor HellsFuryBall {
 	Accuracy 133
 	+DONTBLAST
 	DamageType "MagicalRed"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	RenderStyle Add
 	Alpha 0.7
@@ -626,7 +626,7 @@ Actor ArchonComet {
 	Damage (6 * random(1, 8))
 	Accuracy 133
 	DamageType "MagicalGreen"
-	Stamina 8
+	Stamina 1073741832
 	Scale 1.0
 	Projectile
 	+ThruGhost
@@ -781,7 +781,7 @@ Actor WarlordOfHellBall {
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	Damagetype "FireBlue"
-	Stamina 8
+	Stamina 1073741832
 	Decal BaronScorch
 	Translation "111:123=197:207", "124:127=242:245"
 	+DONTBLAST
@@ -950,7 +950,7 @@ ACTOR ShadowBeast_BallFire {
 	Height 6
 	Damage (2 * random(1, 8))
 	DamageType "FireGreen"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	+SPAWNSOUNDSOURCE
 	+RIPPER
@@ -978,7 +978,7 @@ ACTOR ShadowBeast_Ball1 {
 	Height 6
 	Damage (5*random(2,5))
 	DamageType "FireGreen"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	+SPAWNSOUNDSOURCE
 	+DONTBLAST
@@ -1008,7 +1008,7 @@ ACTOR ShadowBeast_Ball2 {
 	Height 6
 	Damage (2 * random(1, 8))
 	Damagetype "FireGreen"
-	Stamina 8
+	Stamina 1073741832
 	Speed 16
 	PROJECTILE
 	+Randomize
@@ -1037,7 +1037,7 @@ ACTOR ShadowBeast_Ball3 {
 	Height 6
 	Damage (5 * random(1, 8))
 	DamageType "FireGreen"
-	Stamina 8
+	Stamina 1073741832
 	Speed 20
 	PROJECTILE
 	+DONTBLAST
@@ -1153,7 +1153,7 @@ ACTOR KFireBall {
 	Damage (random(6, 16))
 	DamageType "MagicalFire"
 	Accuracy 133
-	Stamina 40
+	Stamina 1073741864
 	PROJECTILE
 	SeeSound "monster/dkball"
 	+DONTBLAST
@@ -1303,6 +1303,7 @@ Actor SkullWizardPush {
 	PROJECTILE
 	+HITTRACER
 	+SEEKERMISSILE
+	+DONTREFLECT
 	+DONTBLAST
 	+THRUGHOST
 	States {
@@ -1322,6 +1323,7 @@ Actor SkullWizardProjectile {
     +SEEKERMISSILE
 	+NoDamageThrust
 	+DONTBLAST
+	+DONTREFLECT
 	Damagetype "MagicalFire"
 	Stamina 40
     Speed 16
@@ -1468,7 +1470,7 @@ Actor CyborgPlasma1 {
 	Damage (4 * random(1, 8))
 	DamageType "EnergyCyan"
 	Accuracy 133
-	Stamina 16
+	Stamina 1073741840
 	Speed 30
 	+FORCEXYBILLBOARD
 	+DONTBLAST
@@ -1494,7 +1496,7 @@ Actor CyborgPlasma2 {
 	Damage (5 * random(5, 8))
 	DamageType "EnergyVoid"
 	Accuracy 133
-	Stamina 16
+	Stamina 1073741840
 	Scale 1.0
 	Alpha 0.9
 	RENDERSTYLE Add
@@ -1632,7 +1634,7 @@ Actor ChaosSerpentFireball {
 	PROJECTILE
 	Damage (5 * random(4, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	SeeSound "Beast/Attack"
 	DeathSound "weapons/phoenixhit"
 	+DONTBLAST
@@ -1829,6 +1831,7 @@ Actor MoonSatyrMeteor {
 	Damage (50)
 	DamageType "Magical"
 	Stamina 8
+	+DONTREFLECT
 	+NODAMAGETHRUST
 	Deathsound "MoonSatyr/MeteorExplode"
 	Scale 1.75
@@ -2010,7 +2013,7 @@ Actor CrystalSpike {
 	Damage (random(6, 10))
 	DamageType "Ice"
 	Accuracy 133
-	Stamina 64
+	Stamina 1073741888
 	Radius 6
 	Height 10
 	Alpha 0.8
@@ -2040,6 +2043,7 @@ Actor CrystalGolemBash {
 	deathsound "weapons/vblhit"
 	PROJECTILE
 	+HITTRACER
+	+DONTREFLECT
 	+SEEKERMISSILE
 	+DONTBLAST
 	States {
@@ -2142,7 +2146,7 @@ Actor GladiatorFireBall {
 	PROJECTILE
 	Damage (5 * random(4, 6))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	DeathSound "weapons/phoenixhit"
 	Scale 0.85
 	+DONTBLAST
@@ -2312,7 +2316,7 @@ ACTOR PutrefierBullet : FastProjectile {
 	Damage (random(6, 8))
 	Accuracy 133
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	Speed 128
 	Scale 0.1
 	RenderStyle Add

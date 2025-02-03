@@ -1019,6 +1019,7 @@ Actor DemonSealCard : DnD_BaseProjectile {
 		(DND_DAMAGETYPE_MAGICSEAL << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "MagicSealing"
 	
 	Stamina 4
 	
@@ -1205,6 +1206,7 @@ Actor DemonSealTrap {
 Actor DemonSealExplosion : DnD_ExplosiveBase {
 	DamageType "MagicSealing"
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	+FOILINVUL
@@ -1556,6 +1558,7 @@ Actor DesolatorPuff : DnD_BasePuff {
 
 Actor DesolatorExplosion : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+FORCERADIUSDMG
 	States {
 		SpawnState:
@@ -2248,6 +2251,7 @@ Actor EbonyBalls : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	Gravity 0.6
 	BounceCount 4
 	Speed 36
@@ -2585,6 +2589,7 @@ Actor MPPB_Projectile2_GhostHitter : MPPB_Projectile2 {
 
 Actor MPPB_Projectile3 : DnD_ExplosiveBase {
 	Speed 60
+	Stamina 4194304
 	Radius 5
 	Height 10
 	Renderstyle Add

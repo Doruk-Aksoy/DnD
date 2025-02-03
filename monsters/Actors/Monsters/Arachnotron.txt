@@ -77,7 +77,7 @@ ACTOR FusionShot {
 	Damage (5 * random(1, 8))
 	Accuracy 133
 	DamageType "EnergyVoid"
-	Stamina 16
+	Stamina 1073741840
 	Scale 1.0
 	RENDERSTYLE Add
 	SEESOUND "fusionspid/see" 
@@ -230,7 +230,7 @@ ACTOR HFSpiderShot {
 	Speed 36
 	Damage (random(15,30))
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 1073741832
 	Scale 1.0   
 	RENDERSTYLE Add
 	SEESOUND "HFSpid/See" 
@@ -338,7 +338,7 @@ Actor ArachnoBullet : ZombieBullet {
 	Damage (random(1, 4) * 3)
 	DamageType "Physical"
 	Accuracy 133
-	Stamina 1
+	Stamina 1073741825
 }
 
 ACTOR BabyDemolisher : DnD_BaseRangedMonster {
@@ -515,7 +515,7 @@ ACTOR BabyDemoBall : FusionShot {
 	Damage (4 * random(1, 8))
 	Accuracy 133
 	DamageType "EnergyGreen"
-	Stamina 16
+	Stamina 1073741840
 	SeeSound "weapons/plasmaf"
 	DeathSound "weapons/plasmax"
 	States {
@@ -643,7 +643,7 @@ Actor VoreFirepod {
 	FastSpeed 24
 	Damage (Random(20, 40))
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	+SeekerMissile
 	+DONTBLAST
@@ -710,7 +710,7 @@ Actor VoreFirepodTrail {
 Actor CommandoBullet1 : ZombieBullet {
 	Damage (random(1, 5) * 3)
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Accuracy 133
 }
 
@@ -729,7 +729,7 @@ Actor CommandoExplosion : BaseExplosionDamage {
 Actor CommandoBullet2 : ZombieBullet {
 	Damage (random(1, 5) * 4)
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Accuracy 133
 	States {
 		Death:
@@ -921,7 +921,7 @@ Actor NailProjectileWeak {
 	Accuracy 133
 	Speed 36
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Radius 3
 	Height 4
 	Speed 40
@@ -1047,6 +1047,7 @@ Actor LegionnaireBash {
 	+HITTRACER
 	+SEEKERMISSILE
 	+DONTBLAST
+	+DONTREFLECT
 	States {
 		spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1081,13 +1082,14 @@ Actor LegionnaireMissile {
 	Damage (5 * random(2, 6))
 	Accuracy 133
 	DamageType "EnergyRed"
-	Stamina 16
+	Stamina 1073741840
 	SeeSound "Legionnaire/Fire"
 	DeathSound "Legionnaire/Hit"
 	Renderstyle Add
 	Alpha 0.9
 	Scale 0.4
 	PROJECTILE
+	+DONTREFLECT
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1231,7 +1233,7 @@ Actor ManticoreRocket {
 	PROJECTILE
 	Damage (4 * random(4, 5))
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 1073741832
 	SeeSound "weapons/devastatorfire"
 	Deathsound "Weapons/DevastatorExpl"
 	Speed 28
@@ -1387,12 +1389,13 @@ Actor OphidianBeam : DnD_BaseProjectile {
 	Decal "PlasmaScorchLower"
 	+FORCEXYBILLBOARD
 	+BLOODSPLATTER
+	+DONTREFLECT
 	Renderstyle Add
 	Alpha 0.90
 	Scale 0.875
 	DeathSound "Weapons/SunbeamHit"
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	States {
 		SpawnState:
 			FX01 A 1 Bright A_SpawnItemEx("SunBeamDamagerTrailSpawner", 0, 0, 8)

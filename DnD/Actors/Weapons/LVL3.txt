@@ -692,6 +692,7 @@ Actor EmeraldPuff : DnD_BasePuff {
 	Scale 0.5
 	
 	Stamina 4096
+	DamageType "Emerald"
 	
 	+THRUGHOST
 	+BLOODLESSIMPACT
@@ -722,6 +723,7 @@ Actor EmeraldRainer : DnD_BaseProjectile {
 		(DND_DAMAGETYPE_EMERALD << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "Emerald"
 	
 	+NODAMAGETHRUST
 	+THRUGHOST
@@ -824,6 +826,7 @@ Actor EmeraldRain : DnD_BaseProjectile {
 		(DND_DAMAGETYPE_EMERALD << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "Emerald"
 	
 	+NODAMAGETHRUST
 	+THRUGHOST
@@ -934,6 +937,7 @@ Actor EmeraldDeathActor : DnD_ExplosiveBase {
 	Speed 0
 	Renderstyle "Add"
 	Alpha 1.0
+	Stamina 4194304
 	+THRUACTORS
 	+THRUGHOST
 	+FORCERADIUSDMG

@@ -82,7 +82,7 @@ actor TorturedSoulBall {
     Speed 20 
     Damage (5 * random(1, 8)) 
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
     PROJECTILE 
 	+DONTBLAST
     RENDERSTYLE ADD 
@@ -106,7 +106,7 @@ actor TorturedSoulPoison {
     Speed 5 
     Damage (random(1, 8)) 
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	BounceType Hexen
 	+THRUGHOST
     +RIPPER 
@@ -228,7 +228,7 @@ ACTOR DefilerBall {
     Speed 8
     Damage (2 * random(1, 8))
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	DeathSound "imp/shotx"
 	ReactionTime 35
     +SEEKERMISSILE
@@ -260,7 +260,7 @@ ACTOR DefilerShot  {
     Speed 16
     Damage (10 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	+DONTBLAST
     PROJECTILE
 	RENDERSTYLE ADD
@@ -443,6 +443,7 @@ Actor HadesBall : CacodemonBall {
 	Stamina 256
 	Speed 15
 	Alpha 0.80
+	+DONTREFLECT
 	+ThruGhost
 	+ForceXYBillboard
 	SeeSound "Monster/hadtel"
@@ -498,6 +499,7 @@ Actor HadesBolt {
 	YScale 4.0
 	XScale 2.0
 	ReactionTime 35
+	+DONTREFLECT
 	+FloorHugger
 	+HexenBounce
 	+Ripper
@@ -531,6 +533,7 @@ Actor HadesBolt2 : CacodemonBall {
 	RenderStyle None
 	DamageType "LightningRed"
 	Stamina 256
+	+DONTREFLECT
 	+ThruActors
 	SeeSound "Monster/hadtel"
 	DeathSound "Monster/hadsit"
@@ -658,6 +661,7 @@ ACTOR HSBoom {
 	Stamina 4
 	Alpha 0.90
 	PROJECTILE
+	+DONTREFLECT
 	+DONTBLAST
 	RENDERSTYLE ADD
 	DONTHURTSHOOTER
@@ -776,7 +780,7 @@ ACTOR SentGmissile {
 	Speed 24
 	Damage (6 * random(1, 8))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	RenderStyle ADD
 	Alpha 0.75
 	PROJECTILE
@@ -821,6 +825,7 @@ ACTOR SentRmissile {
 	RenderStyle ADD
 	Alpha 0.85
 	PROJECTILE
+	+DONTREFLECT
 	+FORCEXYBILLBOARD
 	+DONTBLAST
 	Seesound "weapons/bigbrn"
@@ -973,6 +978,7 @@ ACTOR FireBreath {
 	Stamina 40
 	Alpha 0.2
 	PROJECTILE
+	+DONTREFLECT
 	-NOBLOCKMAP
 	-ACTIVATEIMPACT
 	-ACTIVATEPCROSS
@@ -1014,6 +1020,7 @@ ACTOR BloodLichFireball {
 	DamageType "MagicalFire"
 	Stamina 40
 	DeathSound "MageStaffExplode"
+	+DONTREFLECT
 	+DONTBLAST
 	States {
 		Spawn:
@@ -1039,6 +1046,7 @@ ACTOR CurseSpell {
 	+BLOODLESSIMPACT
 	+DONTBLAST
 	+HITTRACER
+	+DONTREFLECT
 	RenderStyle Add
 	Damage (random(1, 8))
 	DamageType "Magical"
@@ -1234,7 +1242,7 @@ ACTOR DiscipleShot1 {
 	Speed 15
 	Damage (random(6, 12))
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	RENDERSTYLE ADD
 	ALPHA 0.67
 	PROJECTILE
@@ -1259,7 +1267,7 @@ ACTOR DiscipleShot2 {
 	Speed 15
 	Damage (6 * random(1, 8))
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	RENDERSTYLE ADD
 	ALPHA 0.67
 	PROJECTILE
@@ -1426,7 +1434,7 @@ Actor ArbiterFireball {
 	Damage (5 * random(1, 8))
 	+DONTBLAST
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Projectile
 	RenderStyle Add
 	Alpha 0.85
@@ -1472,7 +1480,7 @@ Actor ArbiterSeeker {
 	Scale 0.9
 	Damage (6 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Speed 24
 	SeeSound "Kjaroch/Missile2"
 	DeathSound "redballbdeth"

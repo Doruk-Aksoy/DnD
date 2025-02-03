@@ -52,9 +52,9 @@ typedef struct {
 	int count;
 } comp_count_pair_T;
 
-typedef struct {
+struct orb_recipe_T {
 	comp_count_pair_T components[MAX_TRANSMUTE_BOXES];
-} orb_recipe_T;
+};
 
 #define DND_RANDOM_TAGGED_ORB_TRANSMUTE 420
 

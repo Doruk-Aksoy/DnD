@@ -65,7 +65,7 @@ ACTOR BabyCacoBall {
 	FastSpeed 10
 	Damage (2 * random(1, 8))
 	DamageType "Energy"
-	Stamina 16
+	Stamina 1073741840
 	Projectile 
 	+DONTBLAST
 	+RANDOMIZE
@@ -206,7 +206,7 @@ Actor FleshSpawnGibs {
 Actor Fleshspawnball {
 	Damage (2 * random(1, 8))
 	Damagetype "Energy"
-	Stamina 16
+	Stamina 1073741840
 	Speed 10
 	Radius 3
 	Height 5
@@ -407,7 +407,7 @@ ACTOR ShadowBall {
 	Speed 12
 	Damage (3 * random(1, 8))
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	+DONTBLAST
 	+RANDOMIZE
@@ -523,6 +523,7 @@ Actor CubeShot {
 	Alpha 0.85
 	Projectile
 	+ThruGhost
+	+DONTREFLECT
 	Seesound "weapons/firsfi"
 	DeathSound "weapons/maceex"
 	Obituary "%o got fried by a Guardian Cube."
@@ -688,7 +689,7 @@ ACTOR WatcherShot {
 	Speed 20
 	Damage (3 * random(1, 8))
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	RENDERSTYLE ADD
 	ALPHA 0.67
 	PROJECTILE

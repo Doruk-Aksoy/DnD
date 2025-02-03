@@ -169,6 +169,14 @@ void SetVec3XYZ(int v, int x, int y, int z) {
 	vec3[v].z = z;
 }
 
+int GetVec3Z(int v) {
+	return vec3[v].z;
+}
+
+void SetVec3Z(int v, int z) {
+	vec3[v].z = z;
+}
+
 void AddVec3(int v1, int v2) {
 	vec3[v1].x += vec3[v2].x;
 	vec3[v1].y += vec3[v2].y;
@@ -280,7 +288,7 @@ int Vec3To_Pos(int target_tid, int xd, int yd, int zd) {
 	int res = GetVec3(
 		GetActorX(target_tid) - xd,
 		GetActorY(target_tid) - yd,
-		GetActorZ(target_tid) + GetActorProperty(target_tid, APROP_HEIGHT) / 2 - zd
+		GetActorZ(target_tid) + GetActorViewHeight(target_tid) - zd
 	);
 	return res;
 }

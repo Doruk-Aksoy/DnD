@@ -319,6 +319,7 @@ Actor ShockerPuff : DnD_BasePuff {
 
 Actor ShockerAreaDamager : DnD_ExplosiveBase {
 	Speed 16
+	Stamina 4194304
 	+THRUACTORS
 	+FOILINVUL
 	+FORCERADIUSDMG
@@ -1463,6 +1464,7 @@ Actor Crossbow_Explosion : DnD_ExplosiveBase {
 	Height 1
 	Radius 1
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	var int user_dmg;

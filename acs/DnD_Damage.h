@@ -78,6 +78,8 @@ enum {
 	DND_DAMAGETYPEFLAG_SPELL = 1024,
 	DND_DAMAGETYPEFLAG_PERCENTHP_LOW = 2048,
 	DND_DAMAGETYPEFLAG_DOT = 4096,
+
+	DND_DAMAGETYPEFLAG_REFLECTABLE = 1073741824
 };
 
 enum {
@@ -963,7 +965,7 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 	if(!(IsMeleeDamage(damage_type) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_HATESHARD))
 		more_bonus = more_bonus * (100 - DND_HATESHARD_REDUCTION) / 100;
 	
-	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS)) {
+	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_HANDARTEMIS) && wepid >= 0) {
 		if(IsSuperWeapon(wepid))
 			more_bonus = more_bonus * (100 - DND_ARTEMIS_REDUCE_SUPER) / 100;
 		else
@@ -1192,7 +1194,8 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// FINALIZED DAMAGE WILL BE BELOW, AFTER RESISTS!
 	//printbold(s:"res calc");
 	temp = dmg;
-	dmg = FactorResists(source, victim, wepid, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
+	if(!wep_neg)
+		dmg = FactorResists(source, victim, wepid, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
@@ -1287,7 +1290,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// monster or w.e we shot at died
 	if(!isActorAlive(victim)) {
 		// give this for non-magic seal weapons (seals their souls...)
-		if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || IsSoulDroppingWeapon(wepid)))
+		if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || (!wep_neg && IsSoulDroppingWeapon(wepid))))
 			GiveActorInventory(victim, "MagicCausedDeath", 1);
 	
 		if(CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
@@ -1497,7 +1500,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 
 	int victim_tid = victim_data + DND_MONSTERTID_BEGIN;
 	int temp;
-	
+
 	Delay(const:1);
 
 	/*
@@ -1557,7 +1560,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
 	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
 	// plus we get to adjust the push factor and other things before they affect the monster proper here
-	bool isHoboPowerApplicable = IsBoomstick(wepid) && CheckInventory("Hobo_Perk50");
+	bool isHoboPowerApplicable = wepid >= 0 && IsBoomstick(wepid) && CheckInventory("Hobo_Perk50");
 	if(isHoboPowerApplicable && CheckInventory("Hobo_ShotgunFrenzyTimer")) {
 		temp = fdistance_delta(ox - GetActorX(victim_tid), oy - GetActorY(victim_tid), oz - GetActorZ(victim_tid));
 		temp -= FixedMul(GetActorProperty(victim_tid, APROP_RADIUS) + DND_PLAYER_RADIUS, 1.207);
@@ -1594,7 +1597,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	// deal the damage difference between the crit and original on top, like hobo thing -- note use of Special_NoPain
 	if(PlayerDamageTicData[pnum][victim_data] > prev_dmg)
 		Thing_Damage2(victim_tid, PlayerDamageTicData[pnum][victim_data] - prev_dmg, "Special_NoPain");
-	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) // we have reduced the overall damage instead, heal for the difference instead
+	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) // we have reduced the overall damage instead, heal for the difference instead -- hope we dont need HealThing here...
 		SetActorProperty(victim_tid, APROP_HEALTH, GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTicData[pnum][victim_data]);
 
 	/*
@@ -1609,6 +1612,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
 		HandleDamagePush(2 * PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_tid, wep_neg & 2);
 	
+	// has wepid non neg
 	if(!(wep_neg & 1)) {
 		// check if player has lifesteal, if they do reward some hp back
 		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS] && !(flags & DND_DAMAGETICFLAG_DOT))
@@ -1741,7 +1745,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
-			temp = HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME);
+			temp = HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME, wepid < 0);
 			if(temp > 0)
 				Thing_Damage2(victim, temp, "Special_NoPain");
 			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
@@ -2720,6 +2724,68 @@ bool HandleRipperHit(int shooter, int victim) {
 	return true;
 }
 
+// should this projectile reflect back? -- takes dmg_data as flags
+// 0 is yes, 1 is no
+bool CheckReflect(int owner, int pnum, int flags) {
+	//printbold(d:(flags & DND_DAMAGEFLAG_ISEXPLOSIVE), s: " ", d:CheckActorInventory(owner, "Marine_Perk5"));
+	return 	CheckFlag(0, "DONTREFLECT") || CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT, CheckFlag(0, "SEEKERMISSILE"), CheckFlag(0, "SCREENSEEKER")) ||
+			((flags & DND_DAMAGEFLAG_ISEXPLOSIVE) && CheckActorInventory(owner, "Marine_Perk5"));
+}
+
+// shooter is who fired initially and victim is the tid of the actor that got hit that'll now own the projectile
+void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int dmg_data, int spd, bool useGravity, int hit_x, int hit_y, int hit_z) {
+	int pnum = shooter - P_TIDSTART;
+
+	// the hit location
+	int v_Pos = GetVec3(hit_x, hit_y, hit_z);
+
+	// velocity vector will be randomized ie. towards the shooter but with some randomness
+	int v_Vel = Vec3To_Pos(shooter, hit_x, hit_y, hit_z);
+	ToUnitVec3(v_Vel);
+	ScaleVec3(v_Vel, spd);
+	SetVec3Z(v_Vel, FixedMul(GetVec3Z(v_Vel), random(0.75, 1.25)));
+	RotateVector3(v_Vel, ANG_TO_DOOM(random(-45.0, 45.0)));
+
+	int wid, dmg, dtype;
+	if(IsPlayer(shooter)) {
+		// wepid
+		wid = encoded_data & ATK_WID_MASK;
+		encoded_data >>= ATK_CACHE_SHIFT;
+
+		// dmg cache id
+		dmg = encoded_data & ATK_CACHE_MASK;
+		encoded_data >>= ATK_DTYPE_SHIFT;
+
+		// dmg type
+		dtype = encoded_data & ATK_DTYPE_MASK;
+		encoded_data >>= ATK_DPCT_SHIFT;
+
+		SetActivator(shooter);
+		dmg = RetrieveWeaponDamage(pnum, wid, dmg, GetDamageCategory(dtype, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+	}
+	else {
+		dmg = encoded_data;
+	}
+	SetActivator(victim);
+
+	dtype = DND_ATF_DAMAGEINEXTRA | (useGravity ? DND_ATF_USEGRAVITY : 0);
+
+	CreateProjectile(
+		victim,
+		PROJECTILE_HELPER_TID + pnum,
+		proj_name,
+		AngleOfVector3(v_Vel),
+		0, // pitch doesn't matter for this
+		spd >> 16,
+		v_Vel,
+		v_Pos,
+		dtype,
+		dmg
+	);
+	FreeVec3(v_Pos);
+	FreeVec3(v_Vel);
+}
+
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
 	// this causes A_KillChildren etc. to actually work...
@@ -2734,6 +2800,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		bool isRipper = false;
 		int shooter = -1;
+
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
+		int victim = ActivatorTID();
+
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
@@ -2741,7 +2811,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			shooter = ActivatorTID(); // apparently the damagesource is 0 under melee case for some reason...
 		//printbold(s:GetactorClass(0), s:" inflicts damage ", d:GetActorProperty(0, APROP_DAMAGE), s: " ", d:arg1, s:" type ", s:arg2);
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
-		// printbold(s:"dmg flag: ", d:dmg_data);
+		//printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
 
 		int ox = GetActorX(0);
@@ -2760,7 +2830,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		if(dmg_data & DND_DAMAGEFLAG_DISTANCEGIVESDAMAGE)
 			dist_damage_bonus = GetUserVariable(0, DND_DISTANCEDAMAGE_VARIABLE);
 
-		bool isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
+		int isArmorPiercing = CheckFlag(0, "PIERCEARMOR");
 		isRipper = CheckFlag(0, "RIPPER");
 
 		// set activator to owner of this projectile for certain crediting
@@ -2778,10 +2848,42 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		}
 
 		// if whatever fired this is a monster but original owner was player, it's reflected
-		//printbold(s:"reflect check ", s:GetActorClass(shooter), s: " vs ", s:GetActorclass(GetActorProperty(0, APROP_SCORE)));
-		int isReflected = 0;
-		if(IsMonster(shooter) && IsPlayer(GetActorProperty(0, APROP_SCORE)))
-			isReflected = GetActorProperty(0, APROP_SCORE);
+		int isReflected = GetActorProperty(0, APROP_SCORE);
+		if
+		(
+			(
+				IsPlayer(shooter) && 
+				IsMonster(victim) && 
+				!(dmg_data & DND_DAMAGEFLAG_ISHITSCAN) && 
+				!(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) && 
+				HasTrait(victim - DND_MONSTERTID_BEGIN, DND_REFLECTIVE) &&
+				!CheckReflect(shooter, shooter - P_TIDSTART, dmg_data)
+			) ||
+			(
+				IsMonster(shooter) &&
+				IsPlayer(victim) &&
+				(dmg_data & DND_DAMAGETYPEFLAG_REFLECTABLE) &&
+				!CheckFlag(0, "DONTREFLECT") &&
+				CheckActorInventory(victim, "ReflectiveState")
+			)
+		)
+		{
+			// fire back at player the same thing that hurt the player
+			Thing_ChangeTID(0, AUX_PROJ_TID + shooter - P_TIDSTART);
+
+			isArmorPiercing = GetActorProperty(0, APROP_SPEED);
+			isRipper = !CheckFlag(0, "NOGRAVITY");
+			factor = GetActorClass(0);
+
+			SetActivator(0, AAPTR_DAMAGE_TARGET);
+
+			// handle reflection firing projectile code
+			HandleReflect(shooter, ActivatorTID(), factor, arg1, dmg_data, isArmorPiercing, isRipper, ox, oy, oz);
+
+			Thing_Remove(AUX_PROJ_TID + shooter - P_TIDSTART);
+			SetResultValue(0);
+			Terminate;
+		}
 
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
 		if(dmg_data & DND_DAMAGEFLAG_ISHITSCAN) {
@@ -2797,11 +2899,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 		// set the activator to us now
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
-		int victim = ActivatorTID();
 		
 		dmg = arg1;
-		
-		// printbold(s:"do dmg from inflictor class ", s:inflictor_class, s: " isReflected? ", d:isReflected, s: " ", d:dmg_data);
 
 		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
 		if(IsMonster(shooter)) {
@@ -2829,9 +2928,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			// DoT shouldn't double dip
 			if(!IsDamageStringDOT(arg2)) {
-				// dont scale reflected damage by this
+				// dont scale reflected damage by this -- reflected damage will have score property as damage of proj, if it's not a player tid its reflected
 				//printbold(s:"here?? ", d:isReflected);
-				if(!isReflected) {
+				if(!isReflected || IsPlayer(isReflected)) {
 					// special bonuses
 					factor += 	(MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
 								MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
@@ -2851,39 +2950,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);
 				}
 				else {
-					// unpack regular weapon dmg from reflect
-					// wepid
-					pnum = isReflected - P_TIDSTART;
-					if(PlayerInGame(pnum)) {
-						// only come here if player is alive at the time, so no trolling others
-						isReflected = arg1;
-						factor = isReflected & ATK_WID_MASK;
-						isReflected >>= ATK_CACHE_SHIFT;
-
-						// dmg cache id
-						dmg = isReflected & ATK_CACHE_MASK;
-						isReflected >>= ATK_DTYPE_SHIFT;
-
-						// dmg type
-						temp = isReflected & ATK_DTYPE_MASK;
-						isReflected >>= ATK_DPCT_SHIFT;
-
-						//printbold(s:"pnum reflected: ", d:pnum, s: " ", d:dmg, s: " ", d:factor, s: " ", d:temp, s: " ", d:arg1);
-
-						SetActivator(pnum + P_TIDSTART);
-						dmg = RetrieveWeaponDamage(pnum, factor, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
-						SetActivator(shooter);
-
-						// set it to the damage for comparison below
-						// since monster damage doesnt encode its value into damage, it works without this
-						// but player damage has encoded stuff, so we need it updated here
-						arg1 = dmg;
-
-						// 50% less by default
-						dmg /= 2;
-
-						factor = 0;
-					}
+					// unpack regular weapon dmg from isReflected variable
+					//printbold(s:"reflected damage ", d:isReflected);
+					arg1 = isReflected / 2;
+					dmg = arg1;
+					arg2 = "Reflection";
 					isReflected = true;
 				}
 			}
@@ -3003,188 +3074,195 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// extract the encoded damage data, and proceed
 			// stamina contains any special flags we might need
 			// variable swap here to fix a bug with radius damage projectiles that also rip once
-			factor = arg1;
-			SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-			if(dmg_data & DND_DAMAGEFLAG_RIPSONCE) {
-				// insert victim to a temporary array and check if it exists in there before continuing
-				// this marks that we had a ripper case that we need to handle later that we hit, we havent got access to weapon id at this point so we cant know until later
-				if(!HandleRipperHit(shooter, victim)) {
-					isArmorPiercing = true;
+			if(!isReflected || IsPlayer(isReflected)) {
+				factor = arg1;
+				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+				if(dmg_data & DND_DAMAGEFLAG_RIPSONCE) {
+					// insert victim to a temporary array and check if it exists in there before continuing
+					// this marks that we had a ripper case that we need to handle later that we hit, we havent got access to weapon id at this point so we cant know until later
+					if(!HandleRipperHit(shooter, victim)) {
+						isArmorPiercing = true;
 
-					// we really care about this if the ripper hits like this, not explosion portion at all
-					if((temp = GetUserVariable(0, "user_expdmg")))
-						arg1 = temp;
+						// we really care about this if the ripper hits like this, not explosion portion at all
+						if((temp = GetUserVariable(0, "user_expdmg")))
+							arg1 = temp;
+					}
+					else {
+						// ignore this event
+						SetResultValue(0);
+						Terminate;
+					}
+				}
+
+				if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
+					// explosions do not hit monsters under these conditions
+					if(!CheckFlag(victim, "SHOOTABLE") || (CheckFlag(victim, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))) {
+						SetResultValue(0);
+						Terminate;
+					}
+
+					// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
+					inflictor_class = factor;
+					arg1 = GetUserVariable(0, "user_expdmg");
+					dmg_data |= GetUserVariable(0, "user_expflags");
+				}
+				
+				SetActivator(shooter);
+
+				pnum = shooter - P_TIDSTART;
+
+				// spells get raw damage in here, they don't encode weapon data or anything
+				if(dmg_data & DND_DAMAGEFLAG_NONWEAPON) {
+					// non-weapon sources that aren't spells
+					dmg = arg1 & 0xFFFF; // dmg
+					temp = arg1 >> 16; // dmg_type
+					m_id = -1;
+				}
+				else if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {
+					// first 16 bits is spell damage, next is damage type and last is spell id
+					dmg = arg1 & SPELLDMG_MASK;
+					dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
+
+					arg1 >>= SPELL_DMG_SHIFT;
+					temp = arg1 & SPELLDTYPE_MASK;
+
+					arg1 >>= SPELL_DTYPE_SHIFT;
+					m_id = arg1 & SPELLID_MASK;
 				}
 				else {
-					// ignore this event
-					SetResultValue(0);
-					Terminate;
-				}
-			}
+					// regular weapon dmg
+					// wepid
+					m_id = arg1 & ATK_WID_MASK;
+					arg1 >>= ATK_CACHE_SHIFT;
 
-			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
-				// explosions do not hit monsters under these conditions
-				if(!CheckFlag(victim, "SHOOTABLE") || (CheckFlag(victim, "GHOST") && (actor_flags & DND_ACTORFLAG_THRUGHOST))) {
-					SetResultValue(0);
-					Terminate;
-				}
+					// dmg cache id
+					dmg = arg1 & ATK_CACHE_MASK;
+					arg1 >>= ATK_DTYPE_SHIFT;
 
-				// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
-				inflictor_class = factor;
-				arg1 = GetUserVariable(0, "user_expdmg");
-				dmg_data |= GetUserVariable(0, "user_expflags");
-			}
-			
-			SetActivator(shooter);
+					// dmg type
+					temp = arg1 & ATK_DTYPE_MASK;
+					arg1 >>= ATK_DPCT_SHIFT;
 
-			pnum = shooter - P_TIDSTART;
+					// weapon check for sedrin staff
+					if(m_id == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
+						ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+						SetResultValue(0);
+						Terminate;
+					}
 
-			// spells get raw damage in here, they don't encode weapon data or anything
-			if(dmg_data & DND_DAMAGEFLAG_NONWEAPON) {
-				// non-weapon sources that aren't spells
-				dmg = arg1 & 0xFFFF; // dmg
-				temp = arg1 >> 16; // dmg_type
-				m_id = -1;
-			}
-			else if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {
-				// first 16 bits is spell damage, next is damage type and last is spell id
-				dmg = arg1 & SPELLDMG_MASK;
-				dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
+					//printbold(d:dmg, s: " ", d:m_id, s: " ", d:temp, s: " ", d:arg1);
 
-				arg1 >>= SPELL_DMG_SHIFT;
-				temp = arg1 & SPELLDTYPE_MASK;
+					dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
 
-				arg1 >>= SPELL_DTYPE_SHIFT;
-				m_id = arg1 & SPELLID_MASK;
-			}
-			else {
-				// regular weapon dmg
-				// wepid
-				m_id = arg1 & ATK_WID_MASK;
-				arg1 >>= ATK_CACHE_SHIFT;
+					//printbold(s:"retrieved dmg ", d:dmg);
 
-				// dmg cache id
-				dmg = arg1 & ATK_CACHE_MASK;
-				arg1 >>= ATK_DTYPE_SHIFT;
+					dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
+					// % adjustment factor -- extract after the flat addition to reuse variables
+					factor = arg1 & ATK_DPCT_MASK;
 
-				// dmg type
-				temp = arg1 & ATK_DTYPE_MASK;
-				arg1 >>= ATK_DPCT_SHIFT;
+					if(dmg_data & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT)
+						dmg = ACS_NamedExecuteWithResult("DnD Adjust Impact Damage", dmg_data, dmg, shooter);
 
-				// weapon check for sedrin staff
-				if(m_id == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
-					ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
-					SetResultValue(0);
-					Terminate;
+					// setup the flags and factor
+					if(factor != 100)
+						dmg = dmg * factor / 100;
 				}
 
-				//printbold(d:dmg, s: " ", d:m_id, s: " ", d:temp, s: " ", d:arg1);
-
-				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
-
-				//printbold(s:"retrieved dmg ", d:dmg);
-
-				dmg += dist_damage_bonus; // depending on distance increasing damage modifier this can be non-zero
-				// % adjustment factor -- extract after the flat addition to reuse variables
-				factor = arg1 & ATK_DPCT_MASK;
-
-				if(dmg_data & DND_DAMAGEFLAG_LOSEDAMAGEPERHIT)
-					dmg = ACS_NamedExecuteWithResult("DnD Adjust Impact Damage", dmg_data, dmg, shooter);
-
-				// setup the flags and factor
-				if(factor != 100)
-					dmg = dmg * factor / 100;
-			}
-
-			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
-				//printbold(d:dmg, s: " ", d:inflictor_class, s:" ", d:dmg * inflictor_class / 100);
-				dmg = dmg * inflictor_class / 100;
-				if(!dmg) {
-					SetResultValue(0);
-					Terminate;
+				if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
+					//printbold(d:dmg, s: " ", d:inflictor_class, s:" ", d:dmg * inflictor_class / 100);
+					dmg = dmg * inflictor_class / 100;
+					if(!dmg) {
+						SetResultValue(0);
+						Terminate;
+					}
 				}
-			}
 
-			if((dmg_data & DND_DAMAGEFLAG_FOILINVUL) || (HasPlayerPowerSet(pnum, PPOWER_MELEEIGNORESHIELD) && (IsMeleeDamage(temp) || (dmg_data & DND_DAMAGEFLAG_COUNTSASMELEE)))) {
-				actor_flags |= DND_ACTORFLAG_FOILINVUL;
-				dmg_data ^= DND_DAMAGEFLAG_FOILINVUL;
-			}
-			
-			if(dmg_data & DND_DAMAGEFLAG_COUNTSASMELEE) {
-				actor_flags |= DND_ACTORFLAG_COUNTSASMELEE;
-				dmg_data ^= DND_DAMAGEFLAG_COUNTSASMELEE;
-			}
+				if((dmg_data & DND_DAMAGEFLAG_FOILINVUL) || (HasPlayerPowerSet(pnum, PPOWER_MELEEIGNORESHIELD) && (IsMeleeDamage(temp) || (dmg_data & DND_DAMAGEFLAG_COUNTSASMELEE)))) {
+					actor_flags |= DND_ACTORFLAG_FOILINVUL;
+					dmg_data ^= DND_DAMAGEFLAG_FOILINVUL;
+				}
+				
+				if(dmg_data & DND_DAMAGEFLAG_COUNTSASMELEE) {
+					actor_flags |= DND_ACTORFLAG_COUNTSASMELEE;
+					dmg_data ^= DND_DAMAGEFLAG_COUNTSASMELEE;
+				}
 
-			if(isArmorPiercing)
-				HandleRipperHitSound(victim, shooter, m_id);
+				if(isArmorPiercing)
+					HandleRipperHitSound(victim, shooter, m_id);
 
-			// damage boost on overheating things
-			// factor variable isnt used below for anything saved prior so we can use it too
-			isArmorPiercing = GetPlayerAttributeValue(pnum, INV_EX_MOREDMGPEROVERHEAT);
-			factor = GetCurrentWeaponID();
-			if(isArmorPiercing && CanWeaponOverheat(factor)) {
-				// add the extra damage as "more" on top --- ammo2 is always the overheat on overheating weapons
-				factor = CheckInventory(Weapons_Data[factor].ammo_name2);
-				dmg = dmg * (((100.0 + isArmorPiercing * factor) >> 16)) / 100;
-			}
+				// damage boost on overheating things
+				// factor variable isnt used below for anything saved prior so we can use it too
+				isArmorPiercing = GetPlayerAttributeValue(pnum, INV_EX_MOREDMGPEROVERHEAT);
+				factor = GetCurrentWeaponID();
+				if(isArmorPiercing && CanWeaponOverheat(factor)) {
+					// add the extra damage as "more" on top --- ammo2 is always the overheat on overheating weapons
+					factor = CheckInventory(Weapons_Data[factor].ammo_name2);
+					dmg = dmg * (((100.0 + isArmorPiercing * factor) >> 16)) / 100;
+				}
 
-			// Class effects here -- isArmorPiercing holds if wepid is negative or not
-			isArmorPiercing = (m_id < 0 || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)));
-			if(!isArmorPiercing) {
-				// berserker perk50 dmg increase portion and other melee increases
-				if((IsMeleeWeapon(m_id) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
-					if(CheckInventory("Berserker_Perk50")) {
-						SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-						if
-						(
-							!CheckInventory("Berserker_Perk50_HitCooldown") &&
-							(factor = CheckInventory("Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS && 
-							(inflictor_class = CheckInventory("Berserker_Perk50_HitCounter")) < DND_BERSERKER_PERK50_MAXHITS
-						)
-						{
-							GiveInventory("Berserker_HitTracker", 1);
+				// Class effects here -- isArmorPiercing holds if wepid is negative or not
+				isArmorPiercing = (m_id < 0 || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)));
+				if(!isArmorPiercing) {
+					// berserker perk50 dmg increase portion and other melee increases
+					if((IsMeleeWeapon(m_id) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
+						if(CheckInventory("Berserker_Perk50")) {
+							SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+							if
+							(
+								!CheckInventory("Berserker_Perk50_HitCooldown") &&
+								(factor = CheckInventory("Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS && 
+								(inflictor_class = CheckInventory("Berserker_Perk50_HitCounter")) < DND_BERSERKER_PERK50_MAXHITS
+							)
+							{
+								GiveInventory("Berserker_HitTracker", 1);
 
-							GiveInventory("Berserker_Perk50_HitCounter", 1);
-							if(inflictor_class + 1 >= DND_BERSERKER_PERK50_MAXHITS) {
-								// now that we hit cooldown time, reset the counter
-								GiveInventory("Berserker_Perk50_HitCooldown", 1);
-								SetInventory("Berserker_Perk50_HitCounter", 0);
+								GiveInventory("Berserker_Perk50_HitCounter", 1);
+								if(inflictor_class + 1 >= DND_BERSERKER_PERK50_MAXHITS) {
+									// now that we hit cooldown time, reset the counter
+									GiveInventory("Berserker_Perk50_HitCooldown", 1);
+									SetInventory("Berserker_Perk50_HitCounter", 0);
+								}
+
+								if(!factor)
+									ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, shooter);
 							}
 
-							if(!factor)
-								ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, shooter);
+							if(factor + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+								if(!CheckInventory("Berserker_NoRoar"))
+									HandleBerserkerRoar(shooter);
+								GiveInventory("Berserker_Perk50_Speed", 1);
+							}
+							dmg = dmg * (100 + (factor + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
 						}
-
-						if(factor + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-							if(!CheckInventory("Berserker_NoRoar"))
-								HandleBerserkerRoar(shooter);
-							GiveInventory("Berserker_Perk50_Speed", 1);
-						}
-						dmg = dmg * (100 + (factor + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
+						
+						dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) / 100;
 					}
 					
-					dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) / 100;
+					// Flayer magic or undead check
+					if(m_id == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
+						ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, shooter);
 				}
-				
-				// Flayer magic or undead check
-				if(m_id == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
-					ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, shooter);
-			}
 
-			// cyborg perk50
-			if(!isArmorPiercing && CheckInventory("Cyborg_Perk50") && IsTechWeapon(m_id)) {
-				factor = CheckInventory("Cyborg_InstabilityStack");
-				
-				SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER);
-				if(!factor)
-					ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
-				else if(factor == DND_MAXCYBORG_INSTABILITY - 1 && !CheckInventory("Cyborg_NoAnim")) {
-					// we check -1 above because we'll give 1 already
-					PlaySound(shooter, "Cyborg/Unstable", CHAN_BODY, 1.0);
-					GiveInventory("Cyborg_NoAnim", 1);
-					ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
+				// cyborg perk50
+				if(!isArmorPiercing && CheckInventory("Cyborg_Perk50") && IsTechWeapon(m_id)) {
+					factor = CheckInventory("Cyborg_InstabilityStack");
+					
+					SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER);
+					if(!factor)
+						ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
+					else if(factor == DND_MAXCYBORG_INSTABILITY - 1 && !CheckInventory("Cyborg_NoAnim")) {
+						// we check -1 above because we'll give 1 already
+						PlaySound(shooter, "Cyborg/Unstable", CHAN_BODY, 1.0);
+						GiveInventory("Cyborg_NoAnim", 1);
+						ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
+					}
+					GiveInventory("Cyborg_InstabilityStack", 1);
 				}
-				GiveInventory("Cyborg_InstabilityStack", 1);
+			}
+			else {
+				SetActivator(shooter);
+				m_id = -1;
+				dmg = isReflected;
 			}
 
 			// 25% less damage taken
@@ -3193,9 +3271,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
  
 			// finally dealing the damage
 			if(victim) {
-				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0);
+				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0);
 				if(dmg < 0)
 					dmg = 0;
+
 				SetResultValue(dmg);
 				HandleOnHitEffects(shooter);
 			}

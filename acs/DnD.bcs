@@ -5184,12 +5184,16 @@ Script "DnD Play Taunt Sound" (int pclass) CLIENTSIDE {
 
 Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
+	if(!IsPlayer(owner)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
 	int pnum = owner - P_TIDSTART;
 	int wepid = CheckActorInventory(owner, "DnD_WeaponID");
 
 	// store owner
 	SetActorProperty(0, APROP_SCORE, owner);
-	SetUserVariable(0, "user_wepid", wepid);
 	
 	// hack for crit store on burst fire projectiles -- they call this on their initialization phase so at this point we should be able to check the wepid
 	if((wepid != -1 && GetPlayerWeaponCritState(pnum, wepid)) || CheckActorInventory(owner, "DnD_CritToken"))
@@ -5197,19 +5201,9 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	
 	if(CheckActorInventory(owner, "NetherCheck"))
 		GiveInventory("ApplyNetherMaskBuff", 1);
-
-	if
-	(
-		CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT, CheckFlag(0, "SEEKERMISSILE"), CheckFlag(0, "SCREENSEEKER")) ||
-		(isExplosive && CheckActorInventory(owner, "Marine_Perk5"))
-	)
-	{
-		GiveInventory("ApplyNoReflect", 1);
-	}
 	
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) || CheckInventory("Marine_Perk25"))
 		GiveInventory("ApplyForceRadiusDMG", 1);
-		
 	SetResultValue(0);
 }
 

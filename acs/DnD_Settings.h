@@ -200,7 +200,7 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	24,
 	5,
 	0.01,
-	0.0025,
+	0.005,
 	
 	0,
 	0

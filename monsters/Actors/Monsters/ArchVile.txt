@@ -172,9 +172,10 @@ Actor DFire {
 	Speed 0
 	RenderStyle Add
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
 	ALPHA 1.00
+	+DONTREFLECT
 	+NoGravity
 	+SeekerMissile
 	+NoTarget
@@ -254,9 +255,10 @@ ACTOR DFlare {
 	RenderStyle Add
 	DamageType "MagicalFire"
 	Accuracy 133
-	Stamina 40
+	Stamina 1073741864
 	Alpha 0.85
 	Projectile
+	+DONTREFLECT
 	+ThruGhost
 	+DONTBLAST
 	Obituary "%o was set ablaze by a Diabloist."
@@ -282,12 +284,12 @@ Actor DMissile : FastProjectile {
 	Radius 14
 	Damage (24)
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	MissileType "DMissileTrail"
 	+ThruGhost
 	+DONTBLAST
 	+INVISIBLE
-	
+	+DONTREFLECT
 	const float r = 32.0;
 	
 	States {
@@ -345,7 +347,7 @@ Actor DTracer {
 	ReactionTime 96
 	Damage (4 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	RenderStyle Add
 	Alpha 0.67
 	Projectile
@@ -353,6 +355,7 @@ Actor DTracer {
 	+FloorHugger
 	+ThruGhost
 	+DONTBLAST
+	+DONTREFLECT
 	-NoGravity
 	Obituary "%o got was set ablaze by a Diabloist."
 	Seesound "weapons/diasht"
@@ -444,10 +447,11 @@ Actor DMissileCircle {
 	-ACTIVATEIMPACT
 	+THRUACTORS
 	-ACTIVATEPCROSS
+	+DONTREFLECT
 	RenderStyle "Add"
 	DeathSound "ClericFlameCircle"
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	+ThruGhost
 	+DONTBLAST
 	
@@ -785,7 +789,7 @@ Actor HieroBall1 : BaronBall {
 	Speed 20
 	Damage (6 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	+ThruGhost
 	+ForceXYBillBoard
 	Decal RevenantScorch
@@ -814,7 +818,7 @@ Actor HieroBall2 {
 	Renderstyle Add
 	Damage (4 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	PROJECTILE
 	+ThruGhost
 	+SEEKERMISSILE
@@ -865,6 +869,7 @@ Actor CurseBall : BaronBall {
 	+NoDamageThrust
 	+SeekerMissile
 	+DONTBLAST
+	+DONTREFLECT
 	Alpha 0.90
 	SeeSound "monster/curse1"
 	DeathSound "monster/curse2"
@@ -1226,7 +1231,7 @@ ACTOR DKSword {
 	}
 }
 
-	ACTOR DKShield { 
+ACTOR DKShield { 
 	Radius 8
 	Height 8
 	Speed 1
@@ -1433,6 +1438,7 @@ Actor HorshackerMelee {
 	Stamina 1
 	+DONTBLAST
 	+THRUSPECIES
+	+DONTREFLECT
 	Species "AV"
 	DeathSound "monster/dknhit"
 	Speed 48
@@ -1472,6 +1478,7 @@ ACTOR SwordSlash {
 	Alpha 0.75
 	DontHurtShooter
 	+RIPPER
+	+DONTREFLECT
 	+CANNOTPUSH
 	+NODAMAGETHRUST
 	+DONTBLAST
@@ -2055,6 +2062,7 @@ Actor GuruPacifier {
 	SeeSound "Guru/Fire"
 	DeathSound "imp/shotx"
 	+HITTRACER
+	+DONTREFLECT
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2213,6 +2221,7 @@ Actor FireVileDamage : DnD_FakeDamager {
 	Damage (random(1,8))
 	Speed 32
 	+FLOORHUGGER
+	
 }
 
 Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
@@ -2497,6 +2506,7 @@ Actor DarkZealotLightning {
 	Damage (5 * random(2, 3))
 	+PIERCEARMOR
 	+NODAMAGETHRUST
+	+DONTREFLECT
 	DamageType "LightningRed"
 	Stamina 256
 	SeeSound "DarkServant/Lightning"
@@ -2714,6 +2724,7 @@ Actor FleshWizardMissile {
 	+HITTRACER
 	+SEEKERMISSILE
 	+NODAMAGETHRUST
+	+DONTREFLECT
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

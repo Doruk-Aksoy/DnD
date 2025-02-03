@@ -284,7 +284,7 @@ Actor ZSecGrenade {
 	damage (10)
 	Accuracy 133
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 1073741832
 	seesound "ZSec/bounce"
 	PROJECTILE
 	+DONTBLAST
@@ -471,6 +471,7 @@ Actor EnforcerPlasma2 : EnforcerPlasma {
 	Speed 40
 	DeathSound "Enforcer/Hit"
 	+FOILINVUL
+	+DONTREFLECT
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -851,7 +852,7 @@ Actor ZombiePlasma : PlasmaBallX {
 	Damage(15)
 	Accuracy 133
 	DamageType "Energy"
-	Stamina 16
+	Stamina 1073741840
 	Translation "0:255=%[0.00,0.00,0.00]:[1.05,1.05,2.00]", "4:4=4:4", "224:229=224:229"
 	SeeSound "weapons/plasmaf"
 	DeathSound "weapons/plasmax"

@@ -86,6 +86,7 @@ Actor ResMelee1 : Weapon {
 
 Actor InfernoExplosion : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	States {
 		SpawnState:
@@ -150,6 +151,7 @@ Actor InfernoSwordPuff : DnD_BasePuff {
 
 Actor InfernoExplosion_Debuff : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	States {
 		SpawnState:
@@ -177,6 +179,7 @@ Actor InfernoSwordPuff_GhostHitter : InfernoSwordPuff {
 
 Actor InfernoProjExplosion2 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	States {
@@ -221,7 +224,7 @@ Actor InfernoSwordMissile_1 : DnD_ExplosiveBase {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 268435456
+	Stamina 272629760
 	
 	+THRUGHOST
 	States {

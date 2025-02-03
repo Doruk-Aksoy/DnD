@@ -694,7 +694,7 @@ Actor ExcalibatBall : DnD_ExplosiveBase {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 268435456
+	Stamina 272629760
 	
 	+EXTREMEDEATH
 	+FOILINVUL

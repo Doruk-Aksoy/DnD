@@ -1219,6 +1219,7 @@ Actor AcidPuff : DnD_BasePuff {
 
 Actor AcidPuffExplosion : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	States {
@@ -1264,6 +1265,7 @@ Actor AcidRifleCloudFX {
 Actor AcidRiflePoisonCloud : DnD_ExplosiveBase {
     Radius 24 
     Height 6
+	Stamina 4194304
 	+THRUACTORS
 	+DONTSPLASH
 	+FORCERADIUSDMG
@@ -1300,6 +1302,7 @@ Actor AcidRiflePoisonCloud : DnD_ExplosiveBase {
 
 Actor AcidBoltExploder : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	States {
 		SpawnState:
@@ -1939,7 +1942,7 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 	+DONTREFLECT
 	+FORCERADIUSDMG
 	
-	Stamina 32768
+	Stamina 4227072
 	
 	var int user_ripperid;
 	
@@ -1997,6 +2000,7 @@ Actor IncineratorProjectile2 : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+FOILINVUL
 	+DONTREFLECT

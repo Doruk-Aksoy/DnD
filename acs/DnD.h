@@ -936,7 +936,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		// addone is the chance here (reusing old variables)
 		// note: this doesnt seem to be contributing towards anything...
 		//temp = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
-
+		//printbold(f:CVarValues[DND_CVAR_RESEARCHDROPRATE], s:" ", d:MonsterProperties[m_id].droprate, s:" ", f:CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100);
 		if(GetCVar("dnd_ignore_dropweights") || RunPrecalcDropChance(p_chance, CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_2))
 			SpawnResearch(pnum);
 	}

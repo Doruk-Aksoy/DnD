@@ -85,4 +85,4 @@ server noarchive int dnd_monster_rewardscalepercent = 5;
 server noarchive float dnd_uniquemonster_spawnchance = 0.01; // 0 - 1.0 is 0 to 100% percent
 
 server noarchive float dnd_monster_variation_factor = 1.5;
-server noarchive float dnd_researchdroprate = 0.00249;
+server noarchive float dnd_researchdroprate = 0.005;

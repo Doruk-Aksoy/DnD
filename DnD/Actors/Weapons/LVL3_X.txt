@@ -666,6 +666,7 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	States {
 		SpawnState:
@@ -961,6 +962,7 @@ Actor WhiteDeathPuff : DnD_BasePuff {
 
 Actor ExplodingPuff : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	Renderstyle "Add"
 	Alpha 0.85
 	Scale 0.55
@@ -1112,6 +1114,7 @@ Actor SlayerHook : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+THRUSPECIES
 	+RIPPER
@@ -1476,6 +1479,8 @@ Actor ThunderAxeExplosion : DnD_ExplosiveBase {
 	Renderstyle Add
 	Alpha 0.9
 	Scale 1.5
+	
+	Stamina 4194304
 	+NOINTERACTION
 	+FORCERADIUSDMG
 	+FOILINVUL

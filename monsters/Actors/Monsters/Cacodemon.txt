@@ -162,7 +162,7 @@ ACTOR CacoLichBall {
     Speed 12
     Damage (7 * random(1, 8))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	PROJECTILE
 	+SEEKERMISSILE
 	+DONTBLAST
@@ -192,7 +192,7 @@ ACTOR CacoLichFlameFar {
 	Speed 30
 	Damage (4 * random(1, 4))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	PROJECTILE
 	+DONTBLAST
 	RENDERSTYLE ADD
@@ -215,7 +215,7 @@ ACTOR CacoLichFlame {
 	Speed 28
 	Damage (random(1, 4))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	PROJECTILE
 	+DONTBLAST
 	RENDERSTYLE ADD
@@ -373,7 +373,7 @@ Actor EarthLichSpike {
 	Damage (random(8,12))
 	Accuracy 133
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Radius 6
 	Height 10
 	Alpha 0.8
@@ -412,7 +412,7 @@ Actor EarthLichRock {
 	Speed 22
 	Damage (5*random(4,6))
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Radius 10
 	Height 14
 	Alpha 0.8
@@ -610,7 +610,7 @@ ACTOR Lavaball {
 	Speed 15
 	Damage (6 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	SpawnID 250
 	Scale 1.0
 	PROJECTILE
@@ -707,7 +707,7 @@ ACTOR WeakenerBall {
 	Damage (4 * random(1, 8))
 	+DONTBLAST
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	RenderStyle Add
 	Alpha 0.8
@@ -813,7 +813,7 @@ ACTOR GrellBall {
 	+DONTBLAST
 	+THRUGHOST
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	Renderstyle Add
 	Alpha 0.67
 	Projectile
@@ -978,7 +978,7 @@ ACTOR AcolyteShot {
 	+DONTBLAST
 	+SEEKERMISSILE
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	SeeSound "monster/acosht"
 	DeathSound "monster/acohit"
 	Decal "BishopScorch"
@@ -1148,6 +1148,7 @@ ACTOR GuardShot : CacodemonBall {
 	Stamina 8
 	ALPHA 0.85
 	+FORCEXYBILLBOARD
+	+DONTREFLECT
 	Seesound "none"
 	deathsound "weapons/maceex"
 	Obituary "%o was fried by a Guardian."
@@ -1283,7 +1284,7 @@ Actor WickedShot {
 	Damage (8 * random(3, 5))
 	RenderStyle Add
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	Alpha 0.67
 	Projectile
 	+ThruGhost

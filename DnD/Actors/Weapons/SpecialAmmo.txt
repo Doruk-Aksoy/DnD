@@ -98,6 +98,7 @@ Actor FlechetteShot : DnD_BaseProjectile {
 	+BRIGHT
 	RenderStyle Add
 	Gravity 0.75
+	+DONTREFLECT
 	-NOGRAVITY
 	+FOILINVUL
 	+THRUACTORS
@@ -154,6 +155,7 @@ ACTOR FlechetteSpark : DnD_BaseProjectile {
 	-NOGRAVITY
 	+DROPOFF 
 	+THRUACTORS
+	+DONTREFLECT
 	RenderStyle Add
 	States {
 		SpawnState:
@@ -197,6 +199,7 @@ Actor FlechetteDamager : DnD_BaseProjectile {
 	
 	+PAINLESS
 	+FOILINVUL
+	+DONTREFLECT
 	States {
 		SpawnState:
 			TNT1 A 1
@@ -365,6 +368,7 @@ Actor ShockDamager : DnD_ExplosiveBase {
 	Speed 0
 	Height 1
 	Radius 1
+	Stamina 4325376
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -515,7 +519,7 @@ Actor NormalGrenade_Special : DnD_ExplosiveBase {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 131072
+	Stamina 4325376
 	
 	States {
 		SpawnState:
@@ -595,7 +599,7 @@ Actor HEGrenadeX : DnD_ExplosiveBase {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 131072
+	Stamina 4325376
 	
 	+THRUGHOST
 	+EXPLODEONWATER
@@ -713,7 +717,7 @@ Actor HEGrenadeTrails : DnD_ExplosiveBase {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 131072
+	Stamina 4325376
 	
 	+DOOMBOUNCE
 	States {
@@ -818,6 +822,7 @@ Actor SonicGrenadeExplosion : DnD_ExplosiveBase {
 	+THRUACTORS
 	+FOILINVUL
 	const int lim = 12;
+	Stamina 4325376
 	States {
 		SpawnState:
 			TNT1 A 0

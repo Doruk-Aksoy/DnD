@@ -38,6 +38,14 @@ Actor MakeReflective : DnD_Activator {
 	}
 }
 
+Actor TakeReflective : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("REFLECTIVE", 0)
+		Stop
+	}
+}
+
 Actor MakeAggressive : DnD_Activator {
 	States {
 		Pickup:

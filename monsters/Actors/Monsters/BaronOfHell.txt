@@ -128,7 +128,7 @@ actor phoenixFX3 {
 	damage (random(1, 8))
 	Accuracy 150
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Speed 20
 	Projectile
 	Radius 6
@@ -158,7 +158,7 @@ Actor VolcanoBlast2 {
 	Damage (2 * random(1, 8))
 	Damagetype "Fire"
 	Accuracy 133
-	Stamina 32
+	Stamina 1073741856
 	Gravity 0.125
 	PROJECTILE
 	+NOBLOCKMAP
@@ -192,7 +192,7 @@ Actor VolcanoTBlast2 {
 	Damage (random(1, 8))
 	Damagetype "Fire"
 	Accuracy 133
-	Stamina 32
+	Stamina 1073741856
 	Gravity 0.125
 	PROJECTILE
 	-NOGRAVITY
@@ -233,7 +233,7 @@ actor BeastBall2 : Volcanoblast2 {
 	seesound "lavdatk"
 	deathsound "weapons/phoenixhit"
 	damagetype "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Projectile
 	states {
 		Spawn:
@@ -513,7 +513,7 @@ Actor BruiserMissile {
 	Speed 28
 	Damage (10 * random(1, 8))
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 1073741828
 	Scale 1.0
 	SpawnID 251
 	Projectile
@@ -663,7 +663,7 @@ Actor BruiserBall {
 	Speed 18
 	Damage (10 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Projectile
 	+Randomize
 	+DONTBLAST
@@ -693,7 +693,7 @@ Actor BruiserBall2 {
 	Speed 10
 	Damage (6 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Projectile
 	+Randomize
 	+DONTBLAST
@@ -726,6 +726,7 @@ Actor BruiserFireSpawner {
 	+FloorHugger
 	+BloodlessImpact
 	+DONTBLAST
+	+DONTREFLECT
 	Projectile
 	MissileType BruiserFire
 	Missileheight 0
@@ -771,7 +772,7 @@ Actor BruiserFire {
 	Speed 0
 	Damage (12 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Projectile
 	RenderStyle Add
 	Alpha 0.9
@@ -962,6 +963,7 @@ Actor WraithFX12 {
 	Stamina 40
 	Projectile
 	+FLOORCLIP
+	+DONTREFLECT
 	SeeSound "WraithMissileFire"
 	DeathSound "bormereth/missilesimpledeath"
 	Scale 0.85
@@ -1065,6 +1067,7 @@ Actor PossEttFireBall {
 	+SEEKERMISSILE
 	+DONTBLAST
 	+FLOORCLIP
+	+DONTREFLECT
 	SeeSound "bormereth/missile2fired"
 	DeathSound "bormereth/missile2death"
 	DamageType "MagicalFire"
@@ -1414,7 +1417,7 @@ Actor BeastFireBall {
 	PROJECTILE
 	Damage (5*random(4, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	DeathSound "weapons/phoenixhit"
 	+DONTBLAST
 	States {
@@ -1464,7 +1467,7 @@ Actor BeastFlame {
 	Scale 0.75
 	Damage (5*random(1,2))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	DeathSound "weapons/phoenixhit"
 	+DONTBLAST
 	States {
@@ -1563,7 +1566,7 @@ Actor CyberdemonRocketWeakExplosion : BaseExplosionDamage {
 
 Actor CyberdemonRocketWeak : CyberdemonRocket {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 1073741828
 	Damage (6 * random(5, 8))
 	Obituary "%o was sent to the pits of hell by a Barbatos."
 	Scale 0.85
@@ -1808,7 +1811,7 @@ Actor KjarochBall1Trail {
 Actor KjarochBall1 : BaronBall2 {
 	Damage (5 * random(4, 6))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	Decal "BaronScorch"
 	States {
 		Spawn:
@@ -1872,7 +1875,7 @@ Actor KjarochBall2Explosion : BaseExplosionDamage {
 Actor KjarochBall2Pieces {
 	Damage (2)
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	PROJECTILE
 	Speed 16
 	Height 8
@@ -1896,7 +1899,7 @@ Actor KjarochGroundFlames {
 	Speed 20
 	Damage (4 * random(3, 6))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	Scale 1.3
 	+FloorHugger
 	+DONTBLAST
@@ -2061,8 +2064,6 @@ Actor MagmaSerpent : DnD_BaseHybridMonster {
 		Goto See
 	}
 }
-
-
 
 ACTOR MagmaChunk1 : DemonChunk {
 	+CLIENTSIDEONLY
@@ -2279,7 +2280,7 @@ Actor DreadSkull {
 	PROJECTILE
 	Damage (12)
 	DamageType "MagicalFire"
-	Stamina 8
+	Stamina 1073741832
 	+NODAMAGETHRUST
 	+PIERCEARMOR
 	+DONTBLAST
@@ -2426,7 +2427,7 @@ Actor MagmaGolemNade {
 	PROJECTILE
 	Damage (25)
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	Speed 20
 	Height 18
 	Radius 9
@@ -2947,6 +2948,7 @@ actor JudicatorBash {
 	deathsound "weapons/vblhit"
 	PROJECTILE
 	+HITTRACER
+	+DONTREFLECT
 	+SEEKERMISSILE
 	+DONTBLAST
 	States {

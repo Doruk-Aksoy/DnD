@@ -149,7 +149,7 @@ Actor Bloodshot {
 	Speed 20
 	Damage (2 * random(1, 6))
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Projectile
 	RenderStyle Translucent
 	Alpha 0.80
@@ -384,7 +384,7 @@ ACTOR Puke1 {
 	Speed 16
 	Damage (3 * random(1, 8))
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	bouncefactor 0.8 
 	bouncecount 8 
 	+DOOMBOUNCE
@@ -690,7 +690,7 @@ actor StoneDemonBoulder {
 	VSpeed 3
 	Damage (random(4, 7))
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -773,7 +773,7 @@ Actor SoulEater : DnD_BaseHybridMonster {
 Actor SoulEaterProj : MummyFX1 {
 	Damage (random(8, 24))
 	DamageType "MagicalYellow"
-	Stamina 8
+	Stamina 1073741832
 	Speed 12
 	
 	States {
@@ -960,7 +960,7 @@ Actor ScavengerBall {
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	Damagetype "FireBlue"
-	Stamina 4
+	Stamina 1073741828
 	Decal BaronScorch
 	Translation "111:123=197:207", "124:127=242:245"
 	+DONTBLAST
@@ -1211,6 +1211,7 @@ Actor DemonFlightAtk {
 	DamageType "Physical"
 	Stamina 1
 	+DONTBLAST
+	+DONTREFLECT
 	+THRUSPECIES
 	Species "Demon"
 	Speed 56
@@ -1376,7 +1377,7 @@ Actor EarthGolemShot : VulgarShot {
 	Speed 18
 	Damage (5 * random(2, 4))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1394,7 +1395,7 @@ Actor EarthGolemShot : VulgarShot {
 Actor EarthGolemPieces {
 	Damage (1)
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	PROJECTILE
 	Speed 16
 	Height 8
@@ -1760,6 +1761,7 @@ Actor ClinkDashDamager {
 	Stamina 1
 	Scale 0.9
 	+PIERCEARMOR
+	+DONTREFLECT
 	+BLOODLESSIMPACT
 	+NODAMAGETHRUST
 	+MTHRUSPECIES

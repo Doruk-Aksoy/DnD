@@ -260,6 +260,7 @@ Actor BFGBallUpgraded : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+RANDOMIZE
 	+DONTREFLECT
@@ -525,6 +526,7 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_EXPLOSIVES << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+THRUGHOST
 	+FOILINVUL
@@ -769,6 +771,7 @@ ACTOR DNBFGBall : DnD_BaseProjectile {
 
 Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+FORCERADIUSDMG
 	+THRUACTORS
 	var int user_count;
@@ -808,6 +811,7 @@ Actor DNBFGBallExp1_Crit : DNBFGBallExp1 {
 
 Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+FORCERADIUSDMG
 	+THRUACTORS
 	var int user_count;
@@ -1716,6 +1720,7 @@ Actor GaussZoom : Inventory {
 
 Actor GaussExplosion1 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+EXTREMEDEATH
 	+FORCERADIUSDMG
 	+NODAMAGETHRUST
@@ -1991,6 +1996,7 @@ Actor DeathRayProjectile : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+FORCERADIUSDMG
 	States {
@@ -2087,6 +2093,7 @@ ACTOR DeathRayLaserExplode {
 
 Actor DeathRayExp : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	+FOILINVUL

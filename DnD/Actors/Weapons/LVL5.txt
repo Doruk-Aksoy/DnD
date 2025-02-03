@@ -153,6 +153,7 @@ Actor RocketX : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_EXPLOSIVES << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+DONTBLAST
 	+THRUGHOST
@@ -491,6 +492,7 @@ Actor FlakShellPuff_GhostHitter : FlakShellPuff {
 
 Actor FlakShellExplosion : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	States {
 		SpawnState:
@@ -589,6 +591,7 @@ Actor FlakProjectile_GhostHitter_Crit : FlakProjectile_Crit {
 
 Actor FlakProjectileExplosion1 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	Renderstyle "Add"
 	Alpha 0.925
 	Scale 0.35
@@ -828,6 +831,7 @@ Actor NormalGrenade : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_EXPLOSIVES << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+DONTBLAST
 	+EXPLODEONWATER
@@ -1011,6 +1015,7 @@ ACTOR HomRocket1 : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_EXPLOSIVES << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+SeekerMissile
 	+Rockettrail
@@ -1221,7 +1226,7 @@ Actor SedrinProjectile : DnD_ExplosiveBase {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 128
+	Stamina 4194432
 	
 	+FORCERADIUSDMG
 	States {
@@ -1716,6 +1721,7 @@ Actor HammerExplosion : DnD_ExplosiveBase {
 	Renderstyle Add
 	Alpha 0.9
 	Scale 1.5
+	Stamina 4194304
 	+NOINTERACTION
 	+FORCERADIUSDMG
 	+FOILINVUL
@@ -1748,6 +1754,7 @@ Actor HammerExplosion_Crit : DnD_ExplosiveBase {
 	Renderstyle Add
 	Alpha 0.9
 	Scale 0.8
+	Stamina 4194304
 	+FOILINVUL
 	+FORCERADIUSDMG
 	+NOINTERACTION

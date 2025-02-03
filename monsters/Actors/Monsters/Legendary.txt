@@ -295,6 +295,7 @@ Actor DreamerStomp {
 	+BLOODLESSIMPACT
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+DONTREFLECT
 	Radius 1
 	Height 1
 	Damage 0
@@ -340,6 +341,7 @@ Actor DreamerDamager {
 	Radius 1
 	DamageType "FireDreamer"
 	Stamina 32
+	+DONTREFLECT
 	+NOGRAVITY
 	States {
 		Spawn:
@@ -603,6 +605,7 @@ Actor SplitParticle1 {
 	RenderStyle Add
 	Alpha 0.8
 	Scale 0.65
+	+DONTREFLECT
 	+DONTBLAST
 	+DONTSPLASH
 	States {
@@ -1204,6 +1207,7 @@ actor TorrasqueBash : PaladinBash {
 	damage (12 * random(2, 4))
 	deathsound "weapons/vblhit"
 	PROJECTILE
+	+DONTREFLECT
 	+SEEKERMISSILE
 	+DONTBLAST
 	States {
@@ -1335,7 +1339,7 @@ Actor TorrasqueMace {
 	PROJECTILE
 	Damage (50)
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Speed 28
 	Height 10
 	Radius 5
@@ -1377,6 +1381,7 @@ Actor TorrasqueGrabber {
 	SeeSound "Torrasque/HookGo"
 	DamageType "PhysicalSnare"
 	Stamina 1
+	+DONTREFLECT
 	States {
 		Spawn:
 			OCLW A 1 
@@ -1574,6 +1579,7 @@ Actor MordecqaiStomp {
 	+BLOODLESSIMPACT
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+DONTREFLECT
 	Radius 1
 	Height 1
 	Damage 0
@@ -1605,6 +1611,7 @@ Actor MordecqaiFlame {
 	+THRUACTORS
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+DONTREFLECT
 	obituary "%o was reduced to ashes by Mordecqai."
 	renderstyle Add
 	alpha 0.5
@@ -1635,7 +1642,7 @@ Actor MordecqaiSeeker {
 	PROJECTILE
 	Damage (15)
 	DamageType "MagicalGray"
-	Stamina 8
+	Stamina 1073741832
 	Speed 20
 	Height 12
 	Radius 6
@@ -1705,6 +1712,7 @@ Actor MordecqaiLightning {
 	Alpha 0.875
 	BounceType "Hexen"
 	BounceCount 5
+	+DONTREFLECT
 	+THRUACTORS
 	+NODAMAGETHRUST
 	+DONTBLAST
@@ -1779,6 +1787,7 @@ Actor MordecqaiSmallBall {
 	DamageType "Lightning"
 	Stamina 256
 	PROJECTILE
+	+DONTREFLECT
 	-NOGRAVITY
 	+DONTBLAST
 	Scale 0.425
@@ -2101,6 +2110,7 @@ Actor GodSlayerStomp {
 	+BLOODLESSIMPACT
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+DONTREFLECT
 	Radius 1
 	Height 1
 	Damage 0
@@ -2178,7 +2188,7 @@ Actor GodSlayerBulletExp : BaseExplosionDamage {
 Actor GodSlayerBullet : ZombieBullet {
 	Damage (random(3, 4) * 5)
 	DamageType "PhysicalBullet"
-	Stamina 1
+	Stamina 1073741825
 	States {
 		Death:
 		XDeath:
@@ -2209,6 +2219,7 @@ Actor InquisitorCharge {
 	DamageType "Physical"
 	Stamina 1
 	MaxStepHeight 28
+	+DONTREFLECT
 	+BLOODLESSIMPACT
 	+DONTBLAST
 	+STEPMISSILE
@@ -2239,7 +2250,7 @@ Actor InquisitorChargeSilent : InquisitorCharge {
 Actor InquisitorShot2 : InquisitorShot {
 	Damage (75)
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 1073741828
 	Speed 28
 	SeeSound "GodSlayer/Grenade"
 	DeathSound "GodSlayer/GrenadeExp"
@@ -2359,7 +2370,7 @@ Actor InquisitorPulse : MaulerTorpedo {
 	+NODAMAGETHRUST
 	+DONTBLAST
 	DamageType "EnergyGreen"
-	Stamina 16
+	Stamina 1073741840
 	DeathSound "GodSlayer/Torpedo"
 	States {
 		Spawn:
@@ -2512,7 +2523,7 @@ Actor MaulerTorpedoWaveInq : MaulerTorpedoWave {
 	+DONTBLAST
 	Damage (15 * random(2, 3))
 	DamageType "EnergyGreen"
-	Stamina 16
+	Stamina 1073741840
 	DeathSound "GodSlayer/PulseHit"
 }
 
@@ -2918,7 +2929,7 @@ Actor GolgothMeteor {
 	Radius 8
 	Damage(80)
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	seesound "lavdatk"
 	DeathSound "Golgoth/MeteorExplode"
 	+DONTBLAST
@@ -2942,7 +2953,7 @@ Actor GolgothOrangeSoul {
 	Alpha 1.0
 	Damage(100)
 	DamageType "MagicalOrange"
-	Stamina 8
+	Stamina 1073741832
 	SeeSound "H2SkullWizard/Fire"
     DeathSound "H2SkullWizard/Hit"
 	const int fspeed = 20;
@@ -3066,6 +3077,7 @@ Actor GolgothFlames {
 	Stamina 32
 	SeeSound "Flamethrower/Fire"
 	DeathSound "Flamethrower/Hit"
+	+DONTREFLECT
 	+RIPPER
 	+BLOODLESSIMPACT
 	+DONTBLAST
@@ -3093,7 +3105,7 @@ ACTOR GolgothFireBall {
 	Height 16
 	Damage (16)
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	SeeSound "weapons/basiliskfire2"
 	DeathSound "weapons/basiliskexpl2"
 	Species "Player"

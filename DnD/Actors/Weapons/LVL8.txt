@@ -92,6 +92,7 @@ ACTOR VolcanoFireball5 : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_SOUL << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+DONTSPLASH
 	States {
@@ -168,6 +169,7 @@ ACTOR VolcanoFireball6 : DnD_BaseProjectile {
 
 Actor VolcanoFireball6Exp : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	States {
 		SpawnState:
@@ -304,6 +306,7 @@ Actor HellFireLinkF : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_SOUL << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+NODAMAGETHRUST
 	+FOILINVUL
@@ -427,6 +430,7 @@ Actor HellFireLinkCR : HellFireLinkCL {
 
 Actor HellFireTrailFExp : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	var int user_count;
 	States {
@@ -1005,6 +1009,7 @@ ACTOR LightBeamSmoke {
 
 Actor SunBurstExp : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	States {
@@ -1307,6 +1312,7 @@ Actor SoulReaverSphere : DnD_BaseProjectile {
 
 Actor SoulReaverExp1 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+FOILINVUL
 	+THRUACTORS
 	+FORCERADIUSDMG
@@ -1329,6 +1335,7 @@ Actor SoulReaverExp1 : DnD_ExplosiveBase {
 
 Actor SoulReaverExp2 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+FOILINVUL
 	+THRUACTORS
 	+EXTREMEDEATH

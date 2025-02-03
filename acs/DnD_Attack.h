@@ -18,7 +18,8 @@ enum {
 	DND_ATF_USEGRAVITY 				= 0b10000,
 	DND_ATF_ISHITSCAN				= 0b100000,				// treated as hitscan for named attacks
 	DND_ATF_NOHELPER				= 0b1000000,			// dont create helper actor to adjust position of attacks
-	DND_ATF_TRACERPICKER			= 0b10000000,			// melee wide swing attack
+	DND_ATF_TRACERPICKER			= 0b10000000,			// homing target picking
+	DND_ATF_DAMAGEINEXTRA			= 0b100000000,			// damage stored in extra field
 
 	DND_ATF_INSTABILITY				= 0b100000000000000000000000000000,
 	DND_ATF_NOINSTABILITY			= 0b1000000000000000000000000000000
@@ -94,21 +95,31 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good
 	int g = (flags & DND_ATF_USEGRAVITY) ? 800.0 : 0;
 	
-	SpawnForced(
-		"ProjectileHelper",
-		vec3[vPos].x,
-		vec3[vPos].y,
-		vec3[vPos].z,
-		p_helper_tid
-	);
-	
-	SetActivator(p_helper_tid);
-	
-	// make the proj itself -- needs byte angle here
-	SpawnProjectile(0, projectile, angle >> 8, 0, 0, g, TEMPORARY_ATTACK_TID);
-	
-	// clear used tid
-	Thing_ChangeTID(p_helper_tid, 0);
+	// if monster uses this, don't use helper, move the monster instead
+	if(!(flags & DND_ATF_DAMAGEINEXTRA)) {
+		SpawnForced(
+			"ProjectileHelper",
+			vec3[vPos].x,
+			vec3[vPos].y,
+			vec3[vPos].z,
+			p_helper_tid
+		);
+		
+		SetActivator(p_helper_tid);
+		
+		// make the proj itself -- needs byte angle here
+		SpawnProjectile(0, projectile, angle >> 8, 0, 0, g, TEMPORARY_ATTACK_TID);
+		
+		// clear used tid
+		Thing_ChangeTID(p_helper_tid, 0);
+	}
+	else {
+		p_helper_tid = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner));
+		SetActorPosition(owner, vec3[vPos].x, vec3[vPos].y, vec3[vPos].z, false);
+		SetActivator(owner);
+		SpawnProjectile(0, projectile, angle >> 8, 0, 0, g, TEMPORARY_ATTACK_TID);
+		SetActorPosition(owner, vec3[p_helper_tid].x, vec3[p_helper_tid].y, vec3[p_helper_tid].z, false);
+	}
 
 	// manipulate newly spawned projectiles
 	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
@@ -124,6 +135,11 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	// this is the line that makes the owner the true owner
 	SetPointer(AAPTR_TARGET, owner);
 	SetActorProperty(0, APROP_TARGETTID, owner);
+
+	if(flags & DND_ATF_DAMAGEINEXTRA) {
+		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_DAMAGE, extra);
+		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_SCORE, extra); // if its not player tid thats monster's damage
+	}
 
 	if(flags & DND_ATF_TRACERPICKER) {
 		// only pick if we have no previous recollection of another target

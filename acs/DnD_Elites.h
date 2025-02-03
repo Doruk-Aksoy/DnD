@@ -200,9 +200,6 @@ void SetEliteFlag(int f, bool updateCS) {
 		case DND_HARDENED_SKIN:
 			GiveInventory("MakeHardenedSkin", 1);
 		break;
-		case DND_REFLECTIVE:
-			GiveInventory("MakeReflective", 1);
-		break;
 		case DND_AGGRESSIVE:
 			GiveInventory("MakeAggressive", 1);
 		break;

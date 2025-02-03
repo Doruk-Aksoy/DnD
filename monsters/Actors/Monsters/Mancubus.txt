@@ -108,7 +108,7 @@ ACTOR Ripper1Corpulent {
 	Speed 28
 	Damage (8*random(2,4))
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	PROJECTILE
 	+FORCEXYBILLBOARD
 	+FORCERADIUSDMG
@@ -143,7 +143,7 @@ ACTOR Ripper2Corpulent {
 	Damage (2)
 	DeathSound "weapons/firex2"
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	PROJECTILE
 	+RIPPER
 	+FORCEXYBILLBOARD
@@ -251,7 +251,7 @@ ACTOR DaedFire : FatShot {
 	Speed 22
 	Damage (random(48, 96))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	PROJECTILE
 	RENDERSTYLE ADD
 	ALPHA 0.96
@@ -364,7 +364,7 @@ actor IceFatBall {
 	+DONTBLAST
 	+THRUGHOST
 	DamageType "Ice"
-	Stamina 64
+	Stamina 1073741888
 	RenderStyle Add
 	Alpha 1
 	Projectile
@@ -523,7 +523,7 @@ Actor MafibusBall {
 	DeathSound "Mafibus/Hit"
 	Decal Scorch
 	damagetype "Fire"
-	Stamina 32
+	Stamina 1073741856
 	+DONTBLAST
 	States {
 		Spawn:
@@ -778,6 +778,7 @@ ACTOR PaladinBall {
 	RenderStyle Add
 	Alpha 0.67
 	+SeekerMissile
+	+DONTREFLECT
 	+FORCEXYBILLBOARD
 	+DONTBLAST
 	SeeSound "weapons/boltfi"
@@ -810,6 +811,7 @@ actor PaladinBash {
 	damage (5 * random(1, 2))
 	deathsound "weapons/vblhit"
 	PROJECTILE
+	+DONTREFLECT
 	+HITTRACER
 	+SEEKERMISSILE
 	+DONTBLAST
@@ -1003,6 +1005,7 @@ actor GamonBolt {
 	DeathSound "Veste/Hit"
 	Decal "BaronScorch"
 	Projectile
+	+DONTREFLECT
 	+PIERCEARMOR
 	states {
 		Spawn:
@@ -1165,7 +1168,7 @@ Actor MephistoPlasma {
 	Alpha 0.9
 	Damage (6 * random(1, 8))
 	DamageType "Energy"
-	Stamina 16
+	Stamina 1073741840
 	Scale 0.9
 	DeathSound "Mephisto/PlasmaHit"
 	States {
@@ -1336,7 +1339,7 @@ Actor AbominationShot1 {
 	Height 10
 	Damage (5 * random(4, 6))
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 1073741832
 	DeathSound "weapons/basiliskexpl3"
 	+DONTBLAST
 	+PIERCEARMOR
@@ -1365,7 +1368,7 @@ ACTOR AbominationShot2 {
 	Damage (5 * random(1, 2))
 	RenderStyle ADD
 	Damagetype "MagicalVoid"
-	Stamina 8
+	Stamina 1073741832
 	PROJECTILE
 	+PIERCEARMOR
 	+THRUGHOST
@@ -1538,7 +1541,7 @@ Actor GoldGolemLaser {
 	+DONTBLAST
 	+NODAMAGETHRUST
 	Damagetype "MagicalGreen"
-	Stamina 8
+	Stamina 1073741832
 	States {
 		Spawn:
 			G3PJ A 0
@@ -1760,6 +1763,7 @@ ACTOR RedeemerFlame {
 	+THRUACTORS
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+DONTREFLECT
 	obituary "%o was reduced to ashes by a Redeemer."
 	renderstyle Add
 	alpha 0.5

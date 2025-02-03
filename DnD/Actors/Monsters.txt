@@ -84,6 +84,7 @@ Actor ZombieMan3 : Zombieman2 replaces Zombieman { }
 Actor ZombieBullet : ProjBullet {
 	Damage (random(1, 5) * 3)
 	Accuracy 133 // 1.33 scaling factor
+	Stamina 1073741824
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -384,7 +385,7 @@ Actor DoomImpBall2 : DoomImpBall replaces DoomImpBall
 {
 	Damage (3 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32 // fire
+	Stamina 1073741856 // fire
 	+DONTBLAST
 	Decal "DoomImpScorch"
 	States {
@@ -550,7 +551,7 @@ Actor CacoBall : Cacodemonball replaces Cacodemonball {
 	Damage (5 * random(1, 8))
 	+DONTBLAST
 	DamageType "Energy"
-	Stamina 16
+	Stamina 1073741840
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Pierce Check")
@@ -1001,7 +1002,7 @@ Actor ArachnotronPlasma2 : ArachnotronPlasma replaces ArachnotronPlasma
 {
 	Damage (5 * random(1, 8))
 	DamageType "EnergyYellow"
-	Stamina 16
+	Stamina 1073741840
 	Accuracy 133
 	+DONTBLAST
 	States {

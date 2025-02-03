@@ -110,6 +110,7 @@ Actor ResPlasma1 : Weapon {
 // damage is the same
 Actor FTExplosion1 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+NODAMAGETHRUST
 	var int user_count;
@@ -185,6 +186,7 @@ Actor FTExplosion1_NoSelf : FTExplosion1 {
 // uses radius 32, same damage
 Actor FTExplosion2 : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+NODAMAGETHRUST
 	var int user_count;
@@ -883,6 +885,7 @@ Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+DONTREFLECT
 	+FOILINVUL

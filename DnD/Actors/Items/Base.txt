@@ -210,6 +210,7 @@ Actor DnD_FakeDamager {
 	PROJECTILE
 	+DONTBLAST
 	+MTHRUSPECIES
+	+DONTREFLECT
 	States {
 		Spawn:
 			TNT1 A 1
@@ -232,6 +233,7 @@ Actor BaseExplosionDamage // this is necessary, calling A_Explode in actor can c
 	+NOGRAVITY
 	+THRUACTORS
 	+DONTSPLASH
+	+DONTREFLECT
 	-TELESTOMP
 	States
 	{

@@ -107,7 +107,7 @@ Actor Demolisher : DnD_BaseRangedBoss {
 
 Actor BigSpiderBullet : ZombieBullet {
 	DamageType "Physical"
-	Stamina 3
+	Stamina 1073741827
 	Accuracy 175
 }
 
@@ -120,7 +120,7 @@ Actor BFGBallDemolisher : BFGBall2 {
 	Projectile
 	Damage (100 * random(1, 8))
 	DamageType "EnergyGreen"
-	Stamina 16
+	Stamina 1073741840
 	DeathSound "weapons/bfgx"
 	+RANDOMIZE
 	+DONTREFLECT
@@ -219,7 +219,7 @@ ACTOR Arachnophyte : DnD_BaseRangedBoss {
 Actor PhyteBullet : ZombieBullet {
 	Damage (random(2, 3) * 4)
 	DamageType "Physical"
-	Stamina 3
+	Stamina 1073741827
 	Accuracy 175
 	States {
 		Death:
@@ -404,6 +404,7 @@ actor QueenPlasmaBlast {
 	scale 0.75
 	+BLOODLESSIMPACT
 	+NOEXTREMEDEATH
+	+DONTREFLECT
 	+DONTBLAST
 	+PIERCEARMOR
 	RenderStyle Add
@@ -466,6 +467,7 @@ ACTOR QueenBFG {
 	DamageType "MagicalVoid"
 	Stamina 8
 	PROJECTILE
+	+DONTREFLECT
 	+SEEKERMISSILE
 	+DONTBLAST
 	+PIERCEARMOR
@@ -631,7 +633,7 @@ ACTOR PipeBomb {
 	Speed 32
 	Damage (6 * random(1, 8))
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Scale 1.25
 	Seesound "pipebomb/fire"
 	Deathsound "pipebomb/explode"
@@ -674,7 +676,7 @@ ACTOR BulletPierce {
 	damage (3 * random(1, 8))
 	DamageType "Physical"
 	Accuracy 133
-	Stamina 1
+	Stamina 1073741825
 	Scale 1.15
 	seesound "angeltracer/explode"
 	deathsound "angeltracer/explode"
@@ -926,7 +928,7 @@ ACTOR GoldLichBounce {
 	Damage (5 * random(2,4))
 	Accuracy 133
 	DamageType "MagicalDark"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	+NOGRAVITY
 	+WINDTHRUST  
@@ -988,7 +990,7 @@ ACTOR GoldLichFire {
 	Speed 16
 	Damage (5 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	Projectile
 	Alpha 0.85
 	DeathSound "weapons/phoenixhit"
@@ -1225,12 +1227,12 @@ Actor IronLichGreenAttack : SentGmissile {
 	Speed 36
 	Damage (8 * random(1, 8))
 	DamageType "MagicalGreen"
-	Stamina 8
+	Stamina 1073741832
 }
 
 Actor VolcanoTBlast2Lich : VolcanoTBlast2 {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1242,7 +1244,7 @@ Actor IronLichFireAttack : beastball2 {
 	Speed 28
 	Damage (12 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	Scale 1.25
 	States {
 		Spawn:
@@ -1284,7 +1286,7 @@ Actor IronLichIceAttack {
 	PROJECTILE
 	Damage (8 * random(1, 8))
 	DamageType "Ice"
-	Stamina 64
+	Stamina 1073741888
 	Speed 32
 	Alpha 0.8
 	Scale 1.25
@@ -1323,7 +1325,7 @@ ACTOR IronLichIceShard {
 	Speed 10
 	Damage (3 * random(1, 8))
 	DamageType "Ice"
-	Stamina 64
+	Stamina 1073741888
 	Scale 1.25
 	Projectile
 	Gravity 0.3
@@ -1426,6 +1428,7 @@ Actor IronLichDarkness {
 	Renderstyle Add
 	Alpha 0.85
 	PROJECTILE
+	+DONTREFLECT
 	+PIERCEARMOR
 	+SEEKERMISSILE
 	+DONTBLAST
@@ -1464,7 +1467,7 @@ Actor IronLichEnergyAttack {
 	PROJECTILE
 	Damage (6 * random(1, 8))
 	DamageType "EnergyYellow"
-	Stamina 16
+	Stamina 1073741840
 	Height 12
 	Radius 6
 	+DOOMBOUNCE
@@ -1502,7 +1505,7 @@ Actor IronLichSmallEnergy {
 	Alpha 0.75
 	Damage (2 * random(1, 8))
 	DamageType "EnergyYellow"
-	Stamina 16
+	Stamina 1073741840
 	Speed 8
 	+DONTBLAST
 	States {
@@ -1575,7 +1578,7 @@ Actor IronLichSmallEnergy2 {
 	Damage (4 * random(1, 8))
 	Accuracy 133
 	DamageType "EnergyYellow"
-	Stamina 16
+	Stamina 1073741840
 	Speed 32
 	Species "Spider2"
 	+THRUSPECIES
@@ -1750,6 +1753,7 @@ ACTOR SpiderOverlordMissile : SentGmissile {
 	Damage (4 * random(1, 8))
 	Accuracy 150
 	Scale 0.5
+	+DONTREFLECT
 	+SEEKERMISSILE
 	+PIERCEARMOR
 	States {
@@ -2098,6 +2102,7 @@ Actor DarkLichVortex {
 	DeathSound "DarkLich/VortexHit"
 	Species "Spider2"
 	+BLOODLESSIMPACT
+	+DONTREFLECT
 	+NODAMAGETHRUST
 	States {
 		Spawn:
@@ -2169,6 +2174,7 @@ ACTOR DarkLichHomingBall {
 	Damage (random(15, 30))
 	Species "Spider2"
 	+NODAMAGETHRUST
+	+DONTREFLECT
 	+SEEKERMISSILE
 	+SCREENSEEKER
 	States {

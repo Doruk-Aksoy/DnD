@@ -196,7 +196,7 @@ ACTOR Cardinal_Rocket {
 	Speed 28
 	Damage (20 * random(1, 8))
 	DamageType "ExplosiveGreen"
-	Stamina 4
+	Stamina 1073741832
 	Projectile
 	+DONTBLAST
 	+RANDOMIZE
@@ -253,7 +253,7 @@ ACTOR FireT {
 actor DeathBall : BaronBall2 {
 	Damage (8 * random(1, 8))
 	DamageType "MagicalGreen"
-	Stamina 8
+	Stamina 1073741832
 	+SEEKERMISSILE 
 	scale .7
 	Speed 32
@@ -296,7 +296,7 @@ ACTOR CardinalPlasma {
 	Speed 24
 	Damage (10 * random(1, 8))
 	DamageType "MagicalGreen"
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	+FLOATBOB
 	+DONTBLAST
@@ -462,6 +462,7 @@ ACTOR TerminatorBlaster {
 	alpha 0.85
 	+DONTBLAST
 	+THRUGHOST
+	+DONTREFLECT
 	SeeSound "monster/brufir"
 	DeathSound "weapons/hellex"
 	DONTHURTSHOOTER
@@ -492,6 +493,7 @@ actor Redstar {
     Scale 0.6
     +SEEKERMISSILE
 	+DONTBLAST
+	+DONTREFLECT
     PROJECTILE
     RENDERSTYLE ADD
     ALPHA 0.8
@@ -518,7 +520,7 @@ actor Redgrenade {
     Speed 24
     Damage (5 * random(1, 8))
 	DamageType "EnergyRed"
-	Stamina 16
+	Stamina 1073741840
     PROJECTILE
     +DoomBounce
     -NoGravity
@@ -597,7 +599,7 @@ actor Grenadeblast {
 
 Actor TerminatorBullet : UndeadInitiateBullet {
 	DamageType "Physical"
-	Stamina 1
+	Stamina 1073741825
 	Damage (15)
 	Accuracy 133
 	States {
@@ -899,7 +901,7 @@ Actor DCBMiss1 {
 	Speed 16
 	Damage (16 * random(4, 8))
 	DamageType "MagicalPoison"
-	Stamina 136
+	Stamina 1073741960
 	Projectile
 	+SeekerMissile
 	+ExtremeDeath
@@ -996,7 +998,7 @@ Actor DCBMiss2 {
 	Damage (12 * random(3, 8)) 
 	+DONTBLAST
 	DamageType "MagicalPoison"
-	Stamina 136
+	Stamina 1073741960
 	RenderStyle Add
 	Projectile
 	SeeSound "q2weapon/rocketlauncherfire"
@@ -1023,7 +1025,7 @@ Actor DCBMiss3 {
 	Speed 8
 	Damage 0
 	DamageType "MagicalPoison"
-	Stamina 136
+	Stamina 1073741960
 	Scale 2
 	RenderStyle Add
 	+BloodLessImpact
@@ -1061,7 +1063,7 @@ Actor DCBMiss3M {
 	Speed 28
 	Damage (15 * random(4, 8))
 	DamageType "MagicalPoison"
-	Stamina 136
+	Stamina 1073741960
 	Scale 1.3
 	+FloorHugger
 	+DONTBLAST
@@ -1277,6 +1279,7 @@ actor SLGroundFire {
 	Scale 0.4
 	+FLOORHUGGER
 	+DONTBLAST
+	+DONTREFLECT
 	SeeSound "groundfirestart"
 	RenderStyle Add
 	DamageType "Magical"
@@ -1383,6 +1386,7 @@ Actor SatyrLordMissile1 {
 	Damage (19 * random(1, 8))
 	DamageType "MagicalRed"
 	Stamina 8
+	+DONTREFLECT
 	Scale 0.65
 	RenderStyle Add
 	SeeSound "redballbsee"
@@ -1437,7 +1441,7 @@ Actor SatyrLordMissile2 {
 	Alpha 0.75
 	PROJECTILE
 	DamageType "MagicalGray"
-	Stamina 8
+	Stamina 1073741832
 	+SEEKERMISSILE
 	+DONTBLAST
 	seesound "whiteballbsee"
@@ -1517,7 +1521,7 @@ Actor SatyrLordMissileDual1Real {
 	RenderStyle Add
 	Damage (12 * random(4, 8))
 	DamageType "MagicalRed"
-	Stamina 8
+	Stamina 1073741832
 	Radius 6
 	height 12
 	SeeSound "redballssee"
@@ -1603,7 +1607,7 @@ Actor SatyrLordMissileDual2Real {
 	Radius 6
 	Damage (16 * random(4, 8))
 	DamageType "MagicalGray"
-	Stamina 8
+	Stamina 1073741832
 	Scale 0.8
 	RenderStyle Add
 	Alpha 0.75
@@ -2131,6 +2135,7 @@ ACTOR STracer {
 	-NOGRAVITY
 	+DONTSPLASH
 	+DONTBLAST
+	+DONTREFLECT
 	Seesound "weapons/diasht"
 	DeathSound "weapons/firex3"   
 	States {
@@ -2223,7 +2228,7 @@ ACTOR Hellshot2 {
 	PROJECTILE
 	RENDERSTYLE ADD
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	ALPHA 0.95
 	DeathSound "weapons/hellex"
 	DONTHURTSHOOTER
@@ -2828,6 +2833,7 @@ Actor SorcBallProjectileBase {
 	-NOGRAVITY
     -ACTIVATEIMPACT
     -ACTIVATEPCROSS
+	+DONTREFLECT
 	Gravity 0.075
 	BounceType Hexen
 	BounceCount 5
@@ -3069,6 +3075,7 @@ Actor RedLiteInBetween {
 	Damage (random(9, 16))
 	DamageType "MagicalLightningRed"
 	Stamina 264
+	+DONTREFLECT
 	+THRUGHOST
 	+DONTBLAST
 	DeathSound "Avatar/BoltHit"
@@ -3286,7 +3293,7 @@ ACTOR AvaFireBall {
 	Speed 24
 	Damage (7 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 1073741864
 	ExplosionDamage 12
 	ExplosionRadius 40
 	PROJECTILE
@@ -3319,7 +3326,7 @@ Actor AvatarIceJet {
 	Speed 20
 	Damage (random(8, 16))
 	DamageType "MagicalIce"
-	Stamina 72
+	Stamina 1073741896
 	PROJECTILE
 	+RIPPER
 	+BLOODLESSIMPACT
@@ -3355,6 +3362,7 @@ ACTOR HolyMissile2 {
 	+SEEKERMISSILE
 	+THRUSPECIES
 	+DONTBLAST
+	+DONTREFLECT
 	RENDERSTYLE ADD
 	ALPHA 0.7
 	MissileType HolyMissileTrail
@@ -3607,7 +3615,7 @@ ACTOR ThanatosRocket {
 	Speed 20
 	Damage (100)
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 1073741828
 	PROJECTILE
 	DeathSound "weapons/heavyrlexp"
 	+SeekerMissile
@@ -3770,7 +3778,7 @@ Actor ThanatosMiniRocket {
 	Speed 22
 	Damage (32)
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 1073741828
 	SeeSound "weapons/devastatorfire"
 	DeathSound "Weapons/DevastatorExpl"
 	Height 8
@@ -4052,7 +4060,7 @@ actor CerberusShot {
 	speed 24
 	damage (10 * random(8, 10))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
 	renderstyle Add
 	Scale 0.75
 	seesound "Cerberus/Fire"
@@ -4154,7 +4162,7 @@ ACTOR WyvernPoisonBlast {
 	Height 10
 	Damage (random(10, 12) * 5)
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	Projectile
 	RenderStyle Add
 	SeeSound "MageStaffFire"

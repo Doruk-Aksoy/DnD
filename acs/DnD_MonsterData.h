@@ -125,58 +125,58 @@ global int 54: Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS];
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 15 | (15 << 16);
+		return 15 | (16 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 22 | (20 << 16);
+		return 22 | (21 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 33 | (28 << 16);
+		return 33 | (30 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 40 | (30 << 16);
+		return 40 | (33 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 45 | (30 << 16);
+		return 45 | (35 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 27 | (22 << 16);
+		return 27 | (25 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 85 | (48 << 16);
+		return 85 | (50 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 100 | (56 << 16);
+		return 100 | (60 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 42 | (20 << 16);
+		return 42 | (24 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 62 | (36 << 16);
+		return 62 | (40 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 95 | (48 << 16);
+		return 95 | (52 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 150 | (72 << 16);
+		return 150 | (75 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 145 | (72 << 16);
+		return 145 | (75 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 135 | (72 << 16);
+		return 135 | (75 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 165 | (90 << 16);
+		return 165 | (96 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 1000 | (115 << 16);
+		return 1000 | (120 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
 		return 1350 | (125 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
-		return 20 | (15 << 16);
+		return 20 | (18 << 16);
 	}
 	
 	return 1;
@@ -834,7 +834,7 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 		return 4 * lvl;
 	return 2 * lvl + 50;*/
 	// new formula to ensure a sharp curve earlier levels then settle down
-	return 900 / (100 / lvl + 3);
+	return 1000 / (100 / lvl + 3);
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {
@@ -1057,6 +1057,8 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	MonsterProperties[tid].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
 	MonsterProperties[tid].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
 
+	GiveInventory("TakeReflective", 1);
+
 	MonsterProperties[tid].trait_list[DND_LEGENDARY] = isLegendaryMonster(monsterid);
 	
 	// check for weaknesses and monster not having any kind of resist to this type
@@ -1093,6 +1095,8 @@ void LoadCustomMonsterTraits(int m_id, int mon_type, int traits, int traits2, in
 	MonsterProperties[m_id].trait_list[DND_HARDENED_SKIN] 			|= CheckFlag(0, "DONTRIP");
 	MonsterProperties[m_id].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
 	MonsterProperties[m_id].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
+
+	GiveInventory("TakeReflective", 1);
 
 	if(traits != -1)
 		MonsterProperties[m_id].trait_list[traits] = true;

@@ -77,6 +77,7 @@ Actor MercurySmoke : RocketSmoke {
 
 Actor MercuryExplosion : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	const int max_exp = 8;
 	States {
@@ -266,6 +267,7 @@ Actor MeteorMissileSplit_1 : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 		(50 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	-NOGRAVITY
 	States {
@@ -376,6 +378,7 @@ Actor MeteorMissile : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+FOILINVUL
 	States {
@@ -542,6 +545,7 @@ Actor HeavyGrenade : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_EXPLOSIVES << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+BOUNCEONWALLS
 	+BOUNCEONFLOORS
@@ -899,6 +903,8 @@ Actor FreezeBall : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "P_Ice"
+	Stamina 4194304
 	
 	+NODAMAGETHRUST
 	+MTHRUSPECIES
@@ -932,7 +938,6 @@ Actor FreezeBall : DnD_ExplosiveBase {
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			FRZX D 1 Bright A_SpawnItemEx("FreezeBallBigBoom", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
-			TNT1 A 0 A_Explode(1, user_expradius, 0, 0, user_fullexpradius)
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 4 
 			TNT1 AAAAAA 0 A_CustomMissile("FreezeBallSmall", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER, frandom(-180, 180))
@@ -945,7 +950,6 @@ Actor FreezeBall : DnD_ExplosiveBase {
 			TNT1 A 3
 		Goto FinishExplosion
 		Crit:
-			TNT1 A 0 A_Explode(1, user_expradius, 0, 0, user_fullexpradius)
 			TNT1 A 4 
 			TNT1 AAAAAA 0 A_CustomMissile("FreezeBallSmall_Crit", 0, 0, frandom(0, 360), CMF_AIMDIRECTION | CMF_TRACKOWNER, frandom(-180, 180))
 			TNT1 A 5
@@ -996,6 +1000,8 @@ Actor FreezeBallSmall : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "P_Ice"
+	Stamina 4194304
 	
 	+NODAMAGETHRUST
 	+RIPPER
@@ -1022,7 +1028,6 @@ Actor FreezeBallSmall : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 4)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
-			TNT1 A 0 A_Explode(1, user_expradius, 0, 0, user_fullexpradius)
 			FRZX FGHI 2 Bright
 		Stop
 	}
@@ -1567,7 +1572,7 @@ Actor VoidMissile : DnD_ExplosiveBase {
 	var int user_inc;
 	const float r = 100;
 	
-	Stamina 32768
+	Stamina 4227072
 	
 	var int user_ripperid;
 	
@@ -1696,6 +1701,7 @@ Actor VoidMissileExploder : DnD_ExplosiveBase {
 	Height 1
 	Radius 1
 	ReactionTime 7
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	+FOILINVUL

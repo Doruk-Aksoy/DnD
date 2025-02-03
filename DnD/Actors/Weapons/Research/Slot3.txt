@@ -431,12 +431,12 @@ Actor CryobowRailHelper_2 : DnD_Activator {
 
 Actor CryoBowPuff : DnD_BaseRailPuff {
 	Stamina 4096
-
+	DamageType "P_Ice"
 	States {
 		Crash:
 		Melee:
 		HitNoBlood:
-			TNT1 A 1
+			TNT1 A 2
 		Stop
 	}
 }
@@ -483,7 +483,6 @@ Actor CryoPuff_FX {
 		Spawn:
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 1
-			TNT1 A 0 A_Explode(1, 128, 0, 0)
 			BXPL AAAAAAAA 0 A_SpawnItemEx("CryoPrimarySmoke", 0, 0, 0, random(10, 30)*0.1, 0, random(0, 10)*0.1, random(1,360), SXF_CLIENTSIDE|SXF_NOCHECKPOSITION)
 			BXPL AAAA 0 A_SpawnItemEx("CryoPrimarySmoke2", 0, 0, 0, random(10, 30)*0.04, 0, random(0, 10)*0.04, random(1,360), SXF_CLIENTSIDE|SXF_NOCHECKPOSITION,64)
 			TNT1 A 1
@@ -493,18 +492,19 @@ Actor CryoPuff_FX {
 
 Actor CryoPuffAlt : DnD_BasePuff {
 	Species "Player"
-	DamageType "Ice"
 	// no ice damage because it should shatter things
 	+NODAMAGETHRUST
 	+ALWAYSPUFF
+	+NOBLOOD
 	States {
-		Init:
+		Spawn:
+			TNT1 A 0
 		HitNoBlood:
 		Crash:
 		Death:
 			TNT1 A 0 A_JumpIfInTargetInventory("DnD_CritToken", 1, "Crit")
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
-			TNT1 A 1 A_Explode(1, 128, 0)
+			TNT1 A 1
 			TNT1 A 0 A_PlaySound("weapons/cryobowalt", 5)
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("CryoWind", 10, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -550,7 +550,7 @@ Actor CryoPuffAlt : DnD_BasePuff {
 		Stop
 		Crit:
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
-			TNT1 A 1 A_Explode(1, 128, 0)
+			TNT1 A 1
 			TNT1 A 0 A_PlaySound("weapons/cryobowalt", 5)
 			TNT1 A 0 A_CustomMissile("CryoWind_Crit", 10, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("CryoWind_Crit", 10, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
@@ -619,6 +619,7 @@ Actor CryoWind : DnD_BaseProjectile {
 	Alpha 0.9
 	Renderstyle Add
 	BounceType "Hexen"
+	DamageType "P_Ice"
 	var int user_count;
 	const int spd = 15;
 	+THRUACTORS
@@ -782,6 +783,7 @@ Actor CryoWind_Damager : DnD_BaseProjectile {
 		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "P_Ice"
 	
 	+PAINLESS
 	+BLOODLESSIMPACT
@@ -912,6 +914,7 @@ Actor BloodFX2A : DnD_BasePuff {
 
 Actor WoTExploder : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FORCERADIUSDMG
 	States {
@@ -1255,6 +1258,7 @@ Actor CharonDamagingPuff1 : DnD_BasePuff {
 }
 
 Actor CharonDamagingPuff2 : CharonDamagingPuff1 {
+	DamageType "P_Ice"
 	States {
 		Spawn:
 		Crash:

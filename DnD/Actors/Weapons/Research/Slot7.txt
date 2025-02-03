@@ -260,6 +260,7 @@ Actor IonPuff_GhostHitter : IonPuff {
 
 Actor IonExplosion : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+EXTREMEDEATH
 	+FORCERADIUSDMG
 	+NODAMAGETHRUST
@@ -477,6 +478,7 @@ Actor BallLightning : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	States {
 		SpawnState:

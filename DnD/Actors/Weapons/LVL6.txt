@@ -464,6 +464,7 @@ Actor NewPlasmaBall : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+FORCERADIUSDMG
 	States {
@@ -856,6 +857,7 @@ Actor NailProjectile_GhostHitter : NailProjectile {
 
 Actor NailExplosion : DnD_ExplosiveBase {
 	Speed 0
+	Stamina 4194304
 	+THRUACTORS
 	+FOILINVUL
 	+FORCERADIUSDMG
@@ -1184,6 +1186,7 @@ ACTOR BasiliskBall2 : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_OCCULTFIRE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	Stamina 4194304
 	
 	+FOILINVUL
 	+FORCERADIUSDMG
@@ -1416,6 +1419,7 @@ Actor FrostFangShard : DnD_BaseProjectile {
 		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "P_Ice"
 	
 	+THRUGHOST
 	States {
@@ -1478,6 +1482,7 @@ Actor FrostFangBall : DnD_BaseProjectile {
 		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	DamageType "P_Ice"
 	
 	var int user_count;
 	states {

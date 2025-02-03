@@ -73,7 +73,7 @@ actor DarkFast {
     Speed 18
     Damage (3 * random(1, 8))
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 1073741832
     PROJECTILE
 	+DONTBLAST
     RENDERSTYLE ADD
@@ -187,7 +187,7 @@ actor DarkSeeker {
     Damage (3 * random(1, 8))
 	DamageType "MagicalVoid"
 	Accuracy 30
-	Stamina 8
+	Stamina 1073741832
     +SEEKERMISSILE
 	+DONTBLAST
     PROJECTILE
@@ -307,7 +307,7 @@ actor DarkNormal {
     Speed 9
     Damage (3 * random(1, 8))
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 1073741832
     PROJECTILE
 	+DONTBLAST
     RENDERSTYLE ADD
@@ -336,7 +336,7 @@ actor DarkStrong {
     Speed 9
     Damage (6 * random(1, 8))
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 1073741832
     PROJECTILE
 	+DONTBLAST
     RENDERSTYLE ADD
@@ -456,7 +456,7 @@ actor InfernoBall {
     Speed 20
     Damage (6 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
     PROJECTILE
 	+DONTBLAST
     RENDERSTYLE ADD
@@ -495,6 +495,7 @@ actor NetherLightning {
 	DamageType "Lightning"
 	Stamina 256
     PROJECTILE
+	+DONTREFLECT
     +RIPPER
 	+DONTBLAST
     RENDERSTYLE ADD
@@ -686,7 +687,7 @@ Actor SmallImpBall {
 	FastSpeed 20
     Damage (2 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
     Scale .75
     PROJECTILE
 	+DONTBLAST
@@ -788,7 +789,7 @@ Actor LargeImpBall {
     FastSpeed 20
     Damage (5 * random(1, 8))
 	DamageType "Fire"
-	Stamina 32
+	Stamina 1073741856
     PROJECTILE
 	+DONTBLAST
     +RANDOMIZE
@@ -891,7 +892,7 @@ actor SoulHarvesterBall {
     Speed 9
     Damage (2 * random(1, 8))
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	Accuracy 133
     +SEEKERMISSILE
 	+DONTBLAST
@@ -1024,7 +1025,7 @@ Actor PyroImpExp1 : BaseExplosionDamage {
 actor PyroImpBall : DoomImpBall2 {
 	renderstyle Add
 	DamageType "Fire"
-	Stamina 4
+	Stamina 1073741828
 	Obituary "%o was burned by a pyro imp."
 	+RANDOMIZE
 	+LOWGRAVITY
@@ -1342,7 +1343,7 @@ actor Devil2Ball {
     Damage (3 * random(4, 8))
 	DamageType "Fire"
 	Accuracy 133
-	Stamina 4
+	Stamina 1073741828
     PROJECTILE
 	+DONTBLAST
     RENDERSTYLE ADD
@@ -1481,7 +1482,7 @@ ACTOR VulgarShot {
 	Speed 10
 	Damage (4 * random(1, 8))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	RENDERSTYLE ADD
 	ALPHA 0.67
 	PROJECTILE
@@ -1606,7 +1607,7 @@ ACTOR CultMysticShot {
 	Height 4
 	Damage (Random(4, 8))
 	DamageType "Magical"
-	Stamina 8
+	Stamina 1073741832
 	PROJECTILE
 	+NoDamageThrust
 	+ThruGhost
@@ -1706,7 +1707,7 @@ Actor ReaverShot {
 	Damage (random(5, 7))
 	DamageType "Physical"
 	Accuracy 133
-	Stamina 1
+	Stamina 1073741825
 	Scale 0.5
 	States {
 		Spawn:
@@ -1874,7 +1875,7 @@ ACTOR ShadowBallX {
 	Damage (4 * random(1, 8))
 	DamageType "Magical"
 	Accuracy 133
-	Stamina 8
+	Stamina 1073741832
 	Projectile
 	+RANDOMIZE
 	RenderStyle "ADD"
@@ -2046,7 +2047,7 @@ Actor RoachExp : BaseExplosionDamage {
 Actor RoachBall : DoomImpBall {
 	Damage (Random(5, 8))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 1073741952
 	Height 5
 	Radius 3
 	Scale 0.6

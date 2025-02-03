@@ -1200,8 +1200,7 @@ Actor RubyCircleFlame : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
-	
-	Stamina 0
+	Stamina 4194304
 	
 	+THRUGHOST
 	+FORCERADIUSDMG
