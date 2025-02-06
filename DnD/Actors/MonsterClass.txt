@@ -389,6 +389,8 @@ Actor DnD_ViolentRetaliationItem : DnD_Activator {
 }
 
 Actor EliteReflectingShield {
+    Radius 2
+    Height 2
 	+MISSILE
 	+NOGRAVITY
 	+NOCLIP
@@ -411,6 +413,16 @@ Actor EliteReflectingShield {
 		Stop
 		Remove:
 			TNT1 A 1
+		Stop
+	}
+}
+
+Actor ReflectiveFXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_CustomMissile("EliteReflectingShield", 32, 0, 0, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("EliteReflectingShield", 32, 0, 120, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("EliteReflectingShield", 32, 0, 240, CMF_AIMDIRECTION)
 		Stop
 	}
 }

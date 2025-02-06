@@ -2809,7 +2809,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 		if(arg2 == "Melee")
 			shooter = ActivatorTID(); // apparently the damagesource is 0 under melee case for some reason...
-		//printbold(s:GetactorClass(0), s:" inflicts damage ", d:GetActorProperty(0, APROP_DAMAGE), s: " ", d:arg1, s:" type ", s:arg2);
+		//printbold(s:GetactorClass(0), s:" inflicts damage ", d:arg1, s:" type ", s:arg2);
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
 		//printbold(s:"dmg flag: ", d:dmg_data);
 		int inflictor_class = GetActorClass(0);
@@ -2899,6 +2899,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 		// set the activator to us now
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
+		//printbold(s:"Victim is ", s:GetActorClass(0));
 		
 		dmg = arg1;
 
@@ -3102,6 +3103,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					}
 
 					// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
+					//printbold(s:inflictor_class, s: " aoe dmg ", d:GetUserVariable(0, "user_expdmg"), s: " factor ", d:factor);
 					inflictor_class = factor;
 					arg1 = GetUserVariable(0, "user_expdmg");
 					dmg_data |= GetUserVariable(0, "user_expflags");

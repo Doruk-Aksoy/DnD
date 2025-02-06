@@ -81,6 +81,16 @@ actor Lavademon : DnD_BaseHybridMonster {
 		RaiseState:
 			LAVD XWVUTS 6
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -414,6 +424,16 @@ ACTOR LordofHeresy : DnD_BaseHybridMonster {
 		RaiseState:
 			LOHS ONMLKJI 5 
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
     } 
 }
 
@@ -492,6 +512,16 @@ Actor Cybruiser : DnD_BaseHybridMonster {
 		RaiseState:
 			CRUS SRQONMLK 6
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -654,6 +684,16 @@ Actor BruiserDemon : DnD_BaseHybridMonster {
 			BRUD VUTSRQ 2
 			BRUD PONMLKJIHGFEDCBA 2 Bright
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -937,6 +977,16 @@ ACTOR Bormereth : DnD_BaseHybridMonster {
 		RaiseState:
 			BORM QPONMLKJI 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
     }
 }
 
@@ -1405,6 +1455,16 @@ ACTOR BloodSeeker : DnD_BaseHybridMonster {
 			BDE2 YXWVUT 6
 			BDE2 SR 8
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1549,6 +1609,16 @@ Actor Barbatos : DnD_BaseHybridMonster {
 		RaiseState:
 			CYBR ONMLKJIH 4
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1685,6 +1755,16 @@ Actor ShadowWizard : DnD_BaseHybridMonster {
 			SHWZ MLKJIH 5 Bright
 			SHWZ G 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1790,6 +1870,16 @@ ACTOR Kjaroch : DnD_BaseHybridMonster {
 		RaiseState:
 			LOHS ONMLKJI 8
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -2062,6 +2152,16 @@ Actor MagmaSerpent : DnD_BaseHybridMonster {
 		RaiseState:
 			RDMN PONMLKJIH 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -2267,6 +2367,16 @@ Actor DreadKnight : DnD_BaseHybridMonster {
 			KNGT NOPQ 5
 			KNGT R -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -2394,6 +2504,16 @@ Actor MagmaGolem : DnD_BaseHybridMonster {
 		RaiseState: 
 		   GOL2 ONMLKJI 3
 		Goto See 
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
     } 
 }
 
@@ -2658,6 +2778,16 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
 			BOSX O 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, DND_REFLECTIVE, -1, -1)
 			BOSX ONMLKJI 4 
 		Goto See 
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
     }
 }
 
@@ -2930,6 +3060,16 @@ actor Judicator : DnD_BaseHybridMonster {
 			JUIC NMLKJ 2
 			JUIC IH 3
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 

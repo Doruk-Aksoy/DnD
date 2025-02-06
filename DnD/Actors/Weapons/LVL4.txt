@@ -1207,12 +1207,15 @@ Actor DemonSealExplosion : DnD_ExplosiveBase {
 	DamageType "MagicSealing"
 	Speed 0
 	Stamina 4194304
+	ReactionTime 1
 	+THRUACTORS
 	+FORCERADIUSDMG
 	+FOILINVUL
 	States {
 		SpawnState:
 			TNT1 A 1
+			TNT1 A 1 A_Countdown
+		Stop
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_DEMONSEALER |
@@ -1560,6 +1563,7 @@ Actor DesolatorExplosion : DnD_ExplosiveBase {
 	Speed 0
 	Stamina 4194304
 	+FORCERADIUSDMG
+	+THRUACTORS
 	States {
 		SpawnState:
 			TNT1 A 0

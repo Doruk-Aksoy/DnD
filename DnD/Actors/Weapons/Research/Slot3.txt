@@ -436,7 +436,7 @@ Actor CryoBowPuff : DnD_BaseRailPuff {
 		Crash:
 		Melee:
 		HitNoBlood:
-			TNT1 A 2
+			TNT1 A 5
 		Stop
 	}
 }

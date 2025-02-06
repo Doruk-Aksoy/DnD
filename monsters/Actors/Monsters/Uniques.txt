@@ -3152,6 +3152,16 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 			UE11 UVWXY 5
 			UE11 Z -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -3449,6 +3459,16 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 			UE12 NOPQRS 8 Bright
 			UE12 T -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -3544,7 +3564,17 @@ Actor KrullMiniRocketExp : BaseExplosionDamage {
 	}
 }
 
-Actor KrullMiniRocket_Split : HellsMawMiniRocket {
+Actor KrullMiniRocket_Split {
+	ReactionTime 20
+	DeathSound "weapons/maceex"
+	Speed 35
+	Radius 8
+	Height 16
+	Scale 1.15
+	Damage(20)
+	Projectile
+	Stamina 1073741828
+	+THRUGHOST
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3553,6 +3583,14 @@ Actor KrullMiniRocket_Split : HellsMawMiniRocket {
 			HLML G 1 Bright A_SpawnItemEx("HellsMawMiniRocketTrail", 0, 0, 0, 0, 0, 0, 0, 8)	  
 			TNT1 A 0 A_CountDown
 		loop
+		Death:
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SetTranslucent(0.8,1)
+			TNT1 AAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
+			HLML L 3 Bright
+			HLML MNOPQR 3 Bright 
+		stop
 	}
 }
 
@@ -3667,6 +3705,16 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes {
 			UE14 LMNO 5
 			UE14 P -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -4387,6 +4435,16 @@ Actor Eryxia : DnD_BaseRangedBoss {
 			UE13 R 5 Bright
 			UE13 S -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -5004,6 +5062,16 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			UP23 PQRS 8 
 			UP23 T -1  A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 

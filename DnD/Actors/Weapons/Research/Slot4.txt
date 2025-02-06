@@ -1928,6 +1928,7 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 	Scale 0.8
 	Deathsound "CharonBlaster/Hit"
 	Gravity 0.875
+	ReactionTime 1
 	
 	Damage(
 		DND_WEAPON_INCINERATOR |
@@ -1967,9 +1968,10 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 			DRGP E 3 Bright
 		Stop
 		Expire:
-			TNT1 A 0 A_Stop
-			TNT1 A 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
-		Goto Death
+			DRGP E 0 A_Stop
+			DRGP E 0 A_ChangeVelocity(0, 0, 0, CVF_REPLACE)
+			DRGP E 2 Bright A_CountDown
+		Stop
 	}
 }
 

@@ -1,7 +1,7 @@
 #ifndef DND_ARMOR_IN
 #define DND_ARMOR_IN
 
-#define DND_MIT_PER_DEX 0.0875
+#define DND_MIT_PER_DEX 0.2
 #define DND_MIT_BASE 50.0 // 50%
 #define DND_MIT_MAXEFFECT 90.0
 
@@ -489,7 +489,7 @@ int GetMitigationChance(int pnum) {
 
 bool CouldMitigateDamage(int pnum) {
 	//Log(f:random(1.0, 100.0), s: " vs ", f:GetMitigationChance(pnum));
-	return random(1.0, 100.0) <= GetMitigationChance(pnum);
+	return random(0.0, 100.0) <= GetMitigationChance(pnum);
 }
 
 int GetMitigationEffect(int pnum) {

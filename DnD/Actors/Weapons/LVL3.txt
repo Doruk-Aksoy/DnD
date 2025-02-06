@@ -938,12 +938,14 @@ Actor EmeraldDeathActor : DnD_ExplosiveBase {
 	Renderstyle "Add"
 	Alpha 1.0
 	Stamina 4194304
+	ReactionTime 1
 	+THRUACTORS
 	+THRUGHOST
 	+FORCERADIUSDMG
 	States {
 		SpawnState:
-			TNT1 A 0
+			TNT1 A 1 A_Countdown
+		Stop
 		Death:
 			TNT1 A 0 A_SetUserVar("user_expdmg",
 				DND_WEAPON_EMERALDWAND |

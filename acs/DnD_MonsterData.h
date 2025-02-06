@@ -931,6 +931,9 @@ void HandlePreInitTraits(int mid, int id) {
 		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_TEMPORALBUBBLE);
 	if(MonsterProperties[mid].trait_list[DND_ENSHROUDED])
 		ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_ENSHROUDED);
+
+	if(MonsterProperties[mid].trait_list[DND_REFLECTIVE])
+		ACS_NamedExecuteAlways("DND Elite Special FX", 0, mid, DND_ELITEFX_REFLECT);
 }
 
 // this is put as a seperate function because 

@@ -87,6 +87,16 @@ Actor Corpulent : DnD_BaseRangedMonster {
 		RaiseState:
 			FAT2 SRQPONMLK 6
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -232,6 +242,16 @@ Actor Daedabus : DnD_BaseRangedMonster {
 		RaiseState:
 			DAED RQPONMLK 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -352,6 +372,16 @@ actor IceFatso : DnD_BaseRangedMonster {
 			FATT R 5
 			FATT QPONMLK 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -508,6 +538,16 @@ Actor Mafibus : DnD_BaseRangedMonster {
 		RaiseState:
 			MFBS TSRQPONMLK 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
    }
 }
 
@@ -689,6 +729,16 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 			HPAL W 5 A_KillChildren("Perish")
 			HPAL VUTSRQ 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	} 
 }
 
@@ -969,6 +1019,16 @@ actor Gamon : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Gamon Shifter")
 			VEST JIHG 8
 		goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1145,6 +1205,16 @@ Actor Mephisto : DnD_BaseRangedMonster {
 		RaiseState:
 			FAT2 SRQPONMLK 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1315,6 +1385,16 @@ Actor Abomination : DnD_BaseRangedMonster {
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
 			DA7D RQPONMLKJ 4
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
    }
 }
 
@@ -1522,6 +1602,16 @@ Actor GoldGolem : DnD_BaseHybridMonster {
 			GOL4 WVUTSRQPONMLKJ 3
 			GOL4 I 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1687,6 +1777,16 @@ ACTOR Redeemer : DnD_BaseHybridMonster {
 			13RF H 5
 			13RF G 3
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 

@@ -248,6 +248,9 @@ void SetEliteFlag(int f, bool updateCS) {
 		case DND_ENSHROUDED:
 			ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_ENSHROUDED);
 		break;
+		case DND_REFLECTIVE:
+			ACS_NamedExecuteAlways("DND Elite Special FX", 0, this, DND_ELITEFX_REFLECT);
+		break;
 	}
 	
 	MonsterProperties[this].trait_list[f] = true;

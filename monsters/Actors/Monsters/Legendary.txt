@@ -139,6 +139,16 @@ Actor DreamingGod : DnD_BaseRangedBoss {
 			TCHR NOPQ 7
 			TCHR Q -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1195,6 +1205,16 @@ Actor Torrasque : DnD_BaseHybridBoss {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			DNB2 Q -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1569,6 +1589,16 @@ Actor Mordecqai : DnD_BaseRangedBoss {
 			MORD NOP 4
 			MORD Q -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -2058,6 +2088,16 @@ Actor GodSlayer : DnD_BaseRangedBoss {
 			TNT1 AAAAAAAAAAAAAA 0 A_TossGib
 			TNT1 A 0 A_CustomMissile("InquisitorBigExplosion", 0, 0, 0)
         Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -2815,6 +2855,16 @@ Actor Golgoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			MOMD T -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 

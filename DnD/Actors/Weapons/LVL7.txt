@@ -1724,6 +1724,7 @@ Actor GaussExplosion1 : DnD_ExplosiveBase {
 	+EXTREMEDEATH
 	+FORCERADIUSDMG
 	+NODAMAGETHRUST
+	+THRUACTORS
 	States {
 		SpawnState:
 			TNT1 A 0

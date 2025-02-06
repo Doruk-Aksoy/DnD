@@ -774,6 +774,16 @@ Actor HellKnight2 : DnD_BaseHybridMonster {
 			BOS2 O 8
 			BOS2 NMLKJI 8
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -913,6 +923,16 @@ Actor Mancubus2 : DnD_BaseRangedMonster {
 			FATT R 5
 			FATT QPONMLK 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -995,6 +1015,16 @@ Actor Arachno2 : DnD_BaseRangedMonster {
 			BSPI P 5 A_TakeInventory("DnD_Boolean", 1)
 			BSPI ONMLKJ 5
 		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 
@@ -1194,6 +1224,16 @@ Actor SpiderMastermind2 : DnD_BaseRangedBoss {
 			SPID S 5
 			SPID S -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}	
 }
 
@@ -1292,6 +1332,16 @@ Actor Cyberdemon2 : DnD_BaseRangedBoss {
 			CYBR P 5
 			CYBR P -1 A_KillMaster
 		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}	
 }
 

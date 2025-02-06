@@ -3735,10 +3735,18 @@ Script "DND Riotgun Decide" (void) {
 		SetInventory("RiotgunReloadModeDecide", 1); // reload
 }
 
-Script "DND Elite Special FX" (int tid) CLIENTSIDE {
+Script "DND Elite Special FX" (int tid, int which) CLIENTSIDE {
 	// non-zero hopefully
-	if(tid)
-		GiveInventory("EliteFXRunner", 1);
+	if(tid) {
+		switch(which) {
+			case DND_ELITEFX_REFLECT:
+				GiveInventory("ReflectiveFXSpawner", 1);
+			break;
+			default:
+				GiveInventory("EliteFXRunner", 1);
+			break;
+		}
+	}
 }
 
 Script "DnD Align Elite FX" (void) CLIENTSIDE {

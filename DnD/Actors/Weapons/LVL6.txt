@@ -861,7 +861,6 @@ Actor NailExplosion : DnD_ExplosiveBase {
 	+THRUACTORS
 	+FOILINVUL
 	+FORCERADIUSDMG
-	+THRUGHOST
 	States {
 		SpawnState:
 			TNT1 A 0
