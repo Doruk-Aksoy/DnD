@@ -855,8 +855,6 @@ Actor EmeraldRain_Crit : EmeraldRain {
 Actor EmeraldRainer_GhostHitter : EmeraldRainer {
 	-THRUGHOST
 	States {
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_1 | (DND_WEAPON_EMERALDWAND << 16), DND_DAMAGECATEGORY_POISON, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_EMERALD, 0, DND_WEAPON_EMERALDWAND)
 		Death:
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_PlaySound("EmeraldWand/Rain")

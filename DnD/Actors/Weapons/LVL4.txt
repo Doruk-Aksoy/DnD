@@ -2327,35 +2327,6 @@ Actor EbonyPellets : DnD_BaseProjectile {
 }
 
 Actor EbonyPellets_Crit : EbonyPellets {
-	States {
-		SpawnState:
-			TNT1 A 0 ThrustThingZ(0, 8 * random(2, 4), 0, 0)
-			MAPF AAA 1 Bright A_CustomMissile("EbonyPellet_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		SpawnLoop:
-			MAPF BBCC 1 Bright A_CustomMissile("EbonyPellet_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Loop
-	}
-}
-
-Actor EbonyPellet_Damager : DnD_BaseProjectile {
-	Radius 2
-	Height 4
-	Speed 18
-	Species "Player"
-	+THRUSPECIES
-	States {
-		SpawnState:
-			TNT1 A 1
-		Stop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_2 | (DND_WEAPON_EBONYCANNON << 16), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISSLOT4), DND_DAMAGETYPE_OCCULT, 0, DND_WEAPON_EBONYCANNON)
-		Death:
-			TNT1 A 1
-		Stop
-	}
-}
-
-Actor EbonyPellet_Damager_Crit : EbonyPellet_Damager {
 	Accuracy 69
 }
 

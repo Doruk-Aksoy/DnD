@@ -4037,9 +4037,22 @@ Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) 
 }
 
 // Used mainly for non-weapons (like artifacts, spells and so on)
-Script "DND Player Damage Scale" (int dmg, int damage_category, int flags) {
+// send order for attn: first 8 => str, 2nd 8 => dex, 3rd 8 => int
+Script "DND Player Damage Scale" (int dmg, int damage_category, int flags, int attunements) {
 	AdjustDamageRetrievePointers(flags, true);
-	dmg = HandleNonWeaponDamageScale(dmg, damage_category, flags);
+
+	int str_scaling = 1.0 * (attunements & ATTUNEMENT_MASK) / 100;
+	int dex_scaling = 1.0 * ((attunements >> DEX_ATTUNE_BITS) & ATTUNEMENT_MASK) / 100;
+	int int_scaling = 1.0 * ((attunements >> INT_ATTUNE_BITS) & ATTUNEMENT_MASK) / 100;
+
+	dmg = HandleNonWeaponDamageScale(
+		dmg, 
+		damage_category,
+		flags,
+		str_scaling,
+		dex_scaling,
+		int_scaling
+	);
 	SetResultValue(dmg);
 }
 

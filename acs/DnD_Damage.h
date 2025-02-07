@@ -1422,7 +1422,8 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	}
 }
 
-int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
+// str_att, dex_att and int_att must assume 0.01 to be 1%!
+int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_att = 0,  int dex_att = 0, int int_att = 0) {
 	int temp, temp2;
 	int pnum = PlayerNumber();
 	int pct_bonus = 0;
@@ -1440,17 +1441,18 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags) {
 	if(flags & DMG_WDMG_ESHIELDSCALE)
 		dmg += CheckInventory("EShieldAmount") / 20; // 5%
 	
-	// attribute bonus
+	// attribute bonus only applied if not DOT
 	if(!(flags & DND_WDMG_ISDOT)) {
 		bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
 		if(isMelee)
-			pct_bonus += HandleStatBonus(pnum, DND_STAT_ATTUNEMENT_GAIN, 0, 0, isMelee);
+			str_att = !str_att ? DND_STAT_ATTUNEMENT_GAIN : str_att;
 		else if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT || isSpell)
-			pct_bonus += HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, isMelee);
-		else
-			pct_bonus += HandleStatBonus(pnum, 0, DND_STAT_ATTUNEMENT_GAIN, 0, isMelee);
+			int_att = !int_att ? DND_STAT_ATTUNEMENT_GAIN : int_att;
+		else if(!dex_att)
+			dex_att = DND_STAT_ATTUNEMENT_GAIN;
+		pct_bonus += HandleStatBonus(pnum, str_att, dex_att, int_att, isMelee);
 	}
-		
+	
 	if((flags & DND_WDMG_ISOCCULT) || damage_category == DND_DAMAGECATEGORY_OCCULT) // is occult (add demon bane bonus)
 		dmg = dmg * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 		
@@ -3116,8 +3118,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// spells get raw damage in here, they don't encode weapon data or anything
 				if(dmg_data & DND_DAMAGEFLAG_NONWEAPON) {
 					// non-weapon sources that aren't spells
-					dmg = arg1 & 0xFFFF; // dmg
-					temp = arg1 >> 16; // dmg_type
+					dmg = arg1 & NONWEP_DMG_MASK; // dmg
+					temp = arg1 >> NONWEP_DMG_SHIFT; // dmg_type
 					m_id = -1;
 				}
 				else if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {

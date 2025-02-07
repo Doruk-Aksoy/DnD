@@ -1450,7 +1450,7 @@ bool IsSuperWeapon(int wepid) {
 }
 
 bool IsSlot8Weapon(int wepid) {
-	return wepid >= FIRST_SLOT8_WEAPON;
+	return wepid >= FIRST_SLOT8_WEAPON && wepid <= LAST_SLOT8_WEAPON;
 }
 
 #define WEPCHECK_SLOT1 "P_Slot1Replaced"

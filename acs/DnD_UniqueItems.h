@@ -630,6 +630,8 @@ void SetupUniqueItems() {
 // These are necessary to sync the global variables + unique data
 Script "DnD Load Inventory Attributes" OPEN {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
+		SetupArmorDropWeights();
+		Delay(const:2);
 		SetupInventoryAttributeTable();
 		Delay(const:2);
 		SetupInventoryTagGroups();
@@ -641,6 +643,8 @@ Script "DnD Load Inventory Attributes" OPEN {
 
 Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
+		SetupArmorDropWeights();
+		Delay(const:2);
 		SetupInventoryAttributeTable();
 		Delay(const:2);
 		SetupUniqueItems();

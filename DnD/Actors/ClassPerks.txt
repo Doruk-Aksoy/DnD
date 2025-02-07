@@ -128,16 +128,16 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetArg(0, ACS_NamedExecuteWithResult("DnD Scale Non Weapon Damage", user_dmg, user_damagetype, user_expflags))
 			TNT1 A 0 A_Jump(256, "Fire", "Poison", "Lightning", "Ice")
 		Fire:
-			FXPO A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_FIRE << 16))
+			FXPO A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_FIRE << NONWEP_DMG_SHIFT))
 		Goto DoDmg
 		Poison:
-			FXPG A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_POISON << 16))
+			FXPG A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_POISON << NONWEP_DMG_SHIFT))
 		Goto DoDmg
 		Lightning:
-			FXPY A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_LIGHTNING << 16))
+			FXPY A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_LIGHTNING << NONWEP_DMG_SHIFT))
 		Goto DoDmg
 		Ice:
-			FXPB A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_ICE << 16))
+			FXPB A 0 A_SetArg(0, Args[0] | (DND_DAMAGETYPE_ICE << NONWEP_DMG_SHIFT))
 		Goto DoDmg
 		DoDmg:
 			"####" A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NONWEAPON)
@@ -188,8 +188,13 @@ Actor InstabilityBlast : DnD_BaseProjectile {
 	DeathSound "Instability/Hit"
 	
 	Damage(
-		ACS_NamedExecuteWithResult("DND Player Damage Scale", random(4, 64), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DMG_ESHIELDSCALE) |
-		(DND_DAMAGETYPE_ENERGY << 16)
+		ACS_NamedExecuteWithResult(
+			"DND Player Damage Scale", 
+			random(4, 64), 
+			DND_DAMAGECATEGORY_ENERGY, 
+			DND_USETARGET | DMG_ESHIELDSCALE,
+			(20 << DEX_ATTUNE_BITS) | (30 << INT_ATTUNE_BITS)
+		) | (DND_DAMAGETYPE_ENERGY << NONWEP_DMG_SHIFT)
 	)
 	
 	Stamina 2098176

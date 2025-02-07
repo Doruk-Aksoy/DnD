@@ -139,14 +139,20 @@ Actor PlasmaCannonBall : DnD_BaseProjectile {
 	Scale 0.85
 	DeathSound "PlasmaCannon/Hit"
 	Decal "Scorch"
+	
+	Damage(
+		DND_WEAPON_PLASMACANNON |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
 	+DONTREFLECT
 	+FOILINVUL
 	States {
 		SpawnState:
 			NPSB ABCDEFGHIJKL 1 Bright
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Weapon Damage Retrieve", DND_DMGID_0 | (DND_WEAPON_PLASMACANNON << 16), DND_DAMAGECATEGORY_ENERGY, DND_USETARGET | DND_ISSLOT3), DND_DAMAGETYPE_ENERGY, 0, DND_WEAPON_PLASMACANNON)
 		Death:
 			PLNS ABCDEFGHIJKLMNOP 1 Bright A_FadeOut(0.025)
 		Stop

@@ -89,6 +89,17 @@ Actor NecroSpike : DnD_BaseProjectile {
 	SeeSound "Armors/NecroShard"
 	DeathSound "Armors/NecroShardHit"
 	Species "Player"
+	
+	Damage(
+		ACS_NamedExecuteWithResult(
+			"DND Player Damage Scale", 
+			8 * random(6, 8), 
+			DND_DAMAGECATEGORY_OCCULT, 
+			DND_USETARGET | DND_ISMELEE,
+			(25) | (25 << INT_ATTUNE_BITS)
+		) | (DND_DAMAGETYPE_OCCULT << NONWEP_DMG_SHIFT)
+	)
+	
 	+THRUSPECIES
 	+FOILINVUL
 	+DONTREFLECT
@@ -96,8 +107,6 @@ Actor NecroSpike : DnD_BaseProjectile {
 		SpawnState:
 			WBON A 1
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Player Damage Scale", 8 * random(6, 8), DND_DAMAGECATEGORY_OCCULT, DND_USETARGET | DND_ISMELEE), DND_DAMAGETYPE_OCCULT, 0, -1)
 		Death:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			HHPF ABCDEF 3
@@ -145,6 +154,17 @@ Actor LightningCoilBolt : DnD_BaseProjectile {
 	Species "Player"
 	const float r = 12.0;
 	const float v = 2.0;
+	
+	Damage(
+		ACS_NamedExecuteWithResult(
+			"DND Player Damage Scale", 
+			300, 
+			DND_DAMAGECATEGORY_LIGHTNING, 
+			DND_USETARGET,
+			(50 << INT_ATTUNE_BITS)
+		) | (DND_DAMAGETYPE_LIGHTNING << NONWEP_DMG_SHIFT)
+	)
+	
 	+THRUSPECIES
 	+FOILINVUL
 	+DONTREFLECT
@@ -175,8 +195,6 @@ Actor LightningCoilBolt : DnD_BaseProjectile {
 			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailC", -20)
 			TNT1 A 0 A_SpawnItemEx("AbaxothThunderbolt_TrailC", -40)
 		Loop
-		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Do Impact Damage", ACS_NamedExecuteWithResult("DND Player Damage Scale", 300, DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET), DND_DAMAGETYPE_LIGHTNING, 0, -1)
 		Death:
 			MORZ AAA 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)
 			MORZ BBB 1 Light("AbaxothLightning2") A_SetScale(scalex - 0.06, scaley - 0.06)

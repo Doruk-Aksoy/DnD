@@ -290,7 +290,7 @@ ACCTX_P8				=	"Reflect damage back to enemies. Attackers take 50% more damage fo
 ACCTX_C8				=	"80% less non-melee damage.";
 
 ACCTX_T9				=	"Hand of Artemis";
-ACCTX_P9				=	"Your weapons do not require any ammo. Does not affect \cstemporary\c- weapons.";
+ACCTX_P9				=	"Your weapons do not require any ammo.";
 ACCTX_C9				=	"Regular weapons do 66% less damage. Super weapons do 90% less damage instead. Slot 8 weapons can't fire.";
 
 ACCTX_T10				=	"Scroll of Agamotto";
