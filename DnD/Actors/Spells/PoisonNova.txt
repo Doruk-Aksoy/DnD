@@ -35,8 +35,7 @@ Actor PoisonNovaProjectile : DnD_BaseProjectile {
 	RenderStyle Add
 	Alpha 1.0
 	DeathSound "imp/shotx"
-	
-	var int user_ripperid;
+
 	var int user_expdmg;
 	
 	Stamina 98304

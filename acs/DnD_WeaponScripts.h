@@ -1550,4 +1550,25 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 	}
 }
 
+Script "DnD Set Projectile RipCount" (int amt) {
+	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
+	if(!IsPlayer(owner)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	int pnum = owner - P_TIDSTART;
+
+	if(!GetPlayerAttributeValue(pnum, INV_EX_RIPPERSRIPALL))
+		amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_RIPCOUNT)) / 100;
+	else
+		amt = MAX_RIPCOUNT;
+
+	if(GetPlayerAttributeValue(pnum, INV_EX_RIPPERSONETIMEONLY))
+		SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+
+	SetInventory("DnD_RipLimit", amt);
+	SetResultValue(0);
+}
+
 #endif

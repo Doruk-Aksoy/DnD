@@ -412,8 +412,7 @@ Actor SickleGhostwave : DnD_BaseProjectile {
 	SeeSound "Sickle/Ghost"
 	
 	Stamina 268468224
-	
-	var int user_ripperid;
+
 	var int user_expdmg;
 	
 	+BLOODLESSIMPACT
@@ -421,6 +420,7 @@ Actor SickleGhostwave : DnD_BaseProjectile {
 	+DONTREFLECT
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_SICKLE |
 				(DND_DMGID_2 << CACHE_SHIFT) |
@@ -1210,7 +1210,6 @@ Actor KatanaShockWave : DnD_BaseProjectile {
 	Stamina 134250512
 	
 	var int user_tics;
-	var int user_ripperid;				// one time / special rippers need this
 	var int user_expdmg;				// bigger collision box imitating rippers need this
 	
 	// simulate ripper of r = 24, h = 64
@@ -1220,6 +1219,7 @@ Actor KatanaShockWave : DnD_BaseProjectile {
 	+RIPPER
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			TNT1 A 0 A_SetUserVar("user_tics", 0)
 			TNT1 A 0 A_SetUserVar("user_expdmg",
 				DND_WEAPON_KATANA |

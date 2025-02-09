@@ -118,10 +118,13 @@ enum {
 	IIMG_UCHRM_18,
 	IIMG_UCHRM_19,
 	IIMG_UCHRM_20,
-	IIMG_UCHRM_21,
-	IIMG_UCHRM_22,
-	IIMG_UCHRM_23,
-	IIMG_UCHRM_24,
+
+	// drop only charms
+	IIMG_UDCHRM_1,
+	IIMG_UDCHRM_2,
+	IIMG_UDCHRM_3,
+	IIMG_UDCHRM_4,
+	IIMG_UDCHRM_5,
 
 	IIMG_UCORE_1,
 	IIMG_UCORE_R2,
@@ -322,7 +325,10 @@ void ResetUniqueCraftingItemList() {
 
 // uniques
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
-#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_24
+#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_20
+
+#define ITEM_IMAGE_DROPONLY_UCHARM_BEGIN IIMG_UDCHRM_1
+#define ITEM_IMAGE_DROPONLY_UCHARM_END IIMG_UDCHRM_5
 
 #define ITEM_IMAGE_UCORE_BEGIN IIMG_UCORE_1
 #define ITEM_IMAGE_UCORE_END IIMG_UCORE_1
@@ -345,6 +351,10 @@ str GetItemImage(int id, bool wide = false) {
 	else if(id <= ITEM_IMAGE_UCHARM_END) {
 		img_prefix = "UC";
 		suffix = id - ITEM_IMAGE_UCHARM_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_DROPONLY_UCHARM_END) {
+		img_prefix = "UDC";
+		suffix = id - ITEM_IMAGE_DROPONLY_UCHARM_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_UCORE_END) {
 		img_prefix = "UCOR";
@@ -3283,11 +3293,17 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 
 		#ifdef ISDEBUGBUILD
 			if(item_type == DND_ITEM_CHARM) {
-				end = UNIQUE_CHARM_END;
+				if(random(0, 1))
+					end = UNIQUE_CHARM_REGULARDROP_END;
+				else {
+					beg = UNIQUE_CHARM_DROPONLY_BEGIN;
+					end = UNIQUE_CHARM_END;
+				}
+				
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				//i = UITEM_UNITY;
+				//i = UITEM_DRAGONFANG;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

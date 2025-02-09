@@ -5512,6 +5512,19 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_RARITY", s:"\n");
 				++k;
 			}
+
+			// ripper block
+			val = GetPlayerAttributeValue(pnum, INV_RIPCOUNT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_RIPCOUNT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_RIPDAMAGE);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_RIPDAMAGE, 0, 0, val), s:"\n");
+				++k;
+			}
 			
 			// lifesteal block begins
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);

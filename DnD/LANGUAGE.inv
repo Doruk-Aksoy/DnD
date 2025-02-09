@@ -78,10 +78,13 @@ DND_UCIMG17			=	"UCHRM17";
 DND_UCIMG18			=	"UCHRM18";
 DND_UCIMG19			=	"UCHRM19";
 DND_UCIMG20			=	"UCHRM20";
-DND_UCIMG21			=	"UCHRM21";
-DND_UCIMG22			=	"UCHRM22";
-DND_UCIMG23			=	"UCHRM23";
-DND_UCIMG24			=	"UCHRM24";
+
+DND_UDCIMG1			=	"UDCHRM1";
+DND_UDCIMG2			=	"UDCHRM2";
+DND_UDCIMG3			=	"UDCHRM3";
+DND_UDCIMG4			=	"UDCHRM4";
+DND_UDCIMG5			=	"UDCHRM5";
+
 // unique cores
 DND_UCORIMG1		=	"UCORE01";
 
@@ -255,11 +258,13 @@ DND_UNIQUE16			=	"Deadeye's Glare";
 DND_UNIQUE17			=	"Unity";
 DND_UNIQUE18			=	"Mindforge";
 DND_UNIQUE19			=	"Slayer Special";
-DND_UNIQUE20			=	"Elemental Harmony";
-DND_UNIQUE21			=	"Steelbark";
-DND_UNIQUE22			=	"Dreaming God's Ire";
-DND_UNIQUE23			=	"Heatbreaker";
-DND_UNIQUE24			=	"Thornvein";
+DND_UNIQUE20			=	"Deathwing's Fang";
+
+DND_DROP_UNIQUE1		=	"Elemental Harmony";
+DND_DROP_UNIQUE2		=	"Steelbark";
+DND_DROP_UNIQUE3		=	"Dreaming God's Ire";
+DND_DROP_UNIQUE4		=	"Heatbreaker";
+DND_DROP_UNIQUE5		=	"Thornvein";
 
 // unique power cores
 DND_UCORE_NAME1			=	"The Tesseract";
@@ -425,6 +430,9 @@ IATTR_T118			= "reduced overheated gained";
 IATTR_T119			= "all resists";
 IATTR_T120			= "item rarity";
 
+IATTR_T121			= "increased ripcount";
+IATTR_T122			= "more damage per rip";
+
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";
 IATTR_TC2			= "Increased crit chance to";
@@ -527,7 +535,8 @@ IATTR_TX62			= "Take"; IATTR_TX62S = "less damage while on max overheat on a wea
 IATTR_TX63			= "Weapons use health instead of ammo";
 IATTR_TX64			= "Cannot pick up or buy ammo";
 IATTR_TX65			= "ammo cost multiplier";
-
+IATTR_TX66			= "rippers only rip a target once";
+IATTR_TX67			= "rippers can penetrate all targets";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

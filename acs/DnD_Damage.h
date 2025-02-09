@@ -37,6 +37,8 @@
 
 #define DND_CORRUPTORB_DMGREDUCE 75 // /4 => 75% reduced dmg
 
+#define MAX_RIPCOUNT 4096
+
 enum {
 	DND_DAMAGETYPE_MELEE,
 	DND_DAMAGETYPE_MELEEOCCULT,
@@ -2697,7 +2699,7 @@ bool HandleRipperHit(int shooter, int victim) {
 	int i;
 
 	// reset ripper hit array
-	int ripper_id = GetUserVariable(0, "user_ripperid");
+	int ripper_id = CheckInventory("DnD_RipperId");
 	if(!ripper_id) {
 		ripper_count = (ripper_count + 1) % MAX_RIPPERS_ACTIVE;
 		ripper_id = ripper_count;
@@ -2705,7 +2707,7 @@ bool HandleRipperHit(int shooter, int victim) {
 		for(i = 0; i < MAX_RIPPER_HITS_STORED; ++i)
 			ripper_hits[ripper_id][i] = -1;
 
-		SetUserVariable(0, "user_ripperid", ripper_id);
+		SetInventory("DnD_RipperId", ripper_id);
 	}
 
 	bool found = false;
@@ -3272,6 +3274,22 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// 25% less damage taken
 			if(CheckActorInventory(victim, "WarmasterProtect"))
 				dmg = 3 * dmg / 4;
+
+			if(isRipper) {
+				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+				isArmorPiercing = ActivatorTID();
+				if(isArmorPiercing != shooter) {
+					GiveInventory("DnD_RipCount", 1);
+					isReflected = CheckInventory("DnD_RipCount");
+					isArmorPiercing = CheckInventory("DnD_RipLimit");
+					// if we reach ripcount and we aren't a "super ripper"
+					if(isArmorPiercing != MAX_RIPCOUNT && (MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HARDENED_SKIN] || isReflected >= isArmorPiercing))
+						GiveInventory("TakeRipperAway", 1);
+					isArmorPiercing = GetPlayerAttributeValue(pnum, INV_RIPDAMAGE);
+					dmg = dmg * (100 + isArmorPiercing * isReflected) / 100;
+				}
+				SetActivator(shooter);
+			}
  
 			// finally dealing the damage
 			if(victim) {

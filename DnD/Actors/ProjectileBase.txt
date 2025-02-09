@@ -1,3 +1,5 @@
+const int MAX_RIPCOUNT = 4096;
+
 enum {
 	DND_ATF_NOAMMOTAKE = 1,						// does not take ammo
 	DND_ATF_NOATTACKTRIGGER = 2,				// does not run attack check code ---- use for things that make multi proj attacks that are different proj
@@ -347,5 +349,17 @@ Actor HitboxParticle2 : HitboxParticle {
 		spawn:
 			SPRK T 70
 		stop
+	}
+}
+
+Actor DnD_RipCount : DnD_Info { }
+Actor DnD_RipLimit : DnD_Info { }
+Actor DnD_RipperId : DnD_Info { }
+
+Actor TakeRipperAway : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("RIPPER", 0)
+		Stop
 	}
 }

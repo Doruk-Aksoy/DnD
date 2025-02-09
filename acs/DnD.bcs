@@ -5706,7 +5706,7 @@ Script 68 (int x) NET {
 			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
-			//SpawnCharmWithMods_ForAll(INV_FLAT_FIREDMG, INV_IGNITEDMG, INV_INCREASEDDOT);
+			//SpawnCharmWithMods_ForAll(INV_RIPDAMAGE, INV_RIPCOUNT);
 			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);
 			/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

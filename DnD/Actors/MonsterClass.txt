@@ -38,10 +38,11 @@ Actor MakeReflective : DnD_Activator {
 	}
 }
 
-Actor TakeReflective : DnD_Activator {
+Actor TakeReplacedFlags : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_ChangeFlag("REFLECTIVE", 0)
+			TNT1 A 0 A_ChangeFlag("DONTRIP", 0)
 		Stop
 	}
 }

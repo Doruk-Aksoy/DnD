@@ -205,6 +205,8 @@ enum {
 	INV_REDUCED_OVERHEAT,
 	INV_DMGREDUCE_ALL,
 	INV_ITEMRARITY,
+	INV_RIPCOUNT,
+	INV_RIPDAMAGE,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -310,6 +312,8 @@ enum {
 	INV_EX_WEAPONSUSEHEALTH,
 	INV_EX_CANNOTPICKAMMO,
 	INV_EX_AMMOCOSTMULTIPLIER,
+	INV_EX_RIPPERSONETIMEONLY,
+	INV_EX_RIPPERSRIPALL,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -389,7 +393,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_ITEMRARITY
+#define LAST_INV_ATTRIBUTE INV_RIPDAMAGE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -1268,6 +1272,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ITEMRARITY].attrib_high = 0.035;
 	ItemModTable[INV_ITEMRARITY].attrib_level_modifier = 0;
 	ItemModTable[INV_ITEMRARITY].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_RIPCOUNT].attrib_low = 2;
+	ItemModTable[INV_RIPCOUNT].attrib_high = 7;
+	ItemModTable[INV_RIPCOUNT].attrib_level_modifier = 0;
+	ItemModTable[INV_RIPCOUNT].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_RIPDAMAGE].attrib_low = 2;
+	ItemModTable[INV_RIPDAMAGE].attrib_high = 5;
+	ItemModTable[INV_RIPDAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_RIPDAMAGE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
 	/////////////////////////
 	// corrupted implicits //
@@ -2188,6 +2202,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_ELEPENHARMONY:
 		case INV_EX_CANFIREOVERHEATED:
 		case INV_EX_WEAPONSUSEHEALTH:
+		case INV_EX_RIPPERSRIPALL:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:text);
@@ -2237,6 +2252,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
+		case INV_EX_RIPPERSONETIMEONLY:
 			if(showDetailedMods) {
 				return StrParam(s:"+ \c[D4]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)

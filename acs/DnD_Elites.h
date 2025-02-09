@@ -197,9 +197,6 @@ void SetEliteFlag(int f, bool updateCS) {
 			SetActorProperty(0, APROP_RENDERSTYLE, STYLE_TRANSLUCENT);
 			SetActorProperty(0, APROP_ALPHA, 0.5);
 		break;
-		case DND_HARDENED_SKIN:
-			GiveInventory("MakeHardenedSkin", 1);
-		break;
 		case DND_AGGRESSIVE:
 			GiveInventory("MakeAggressive", 1);
 		break;

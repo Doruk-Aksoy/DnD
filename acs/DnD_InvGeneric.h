@@ -57,7 +57,7 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY =
 		#ifndef ISDEBUGBUILD
 			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
 		#else
-			if(random(0,1))
+			if(random(0,2))
 		#endif
 		{
 			MakeUnique(c, DND_ITEM_CHARM, pnum);

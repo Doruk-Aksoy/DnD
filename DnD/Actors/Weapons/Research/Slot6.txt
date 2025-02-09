@@ -1221,8 +1221,7 @@ Actor DarkLanceProjectile : DnD_BaseFastProjectile {
 	DeathSound "weapons/firex5_l"
 	
 	Stamina 32768
-	
-	var int user_ripperid;
+
 	var int user_expdmg;
 	
 	Damage(
@@ -1236,6 +1235,7 @@ Actor DarkLanceProjectile : DnD_BaseFastProjectile {
 	+BLOODLESSIMPACT
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 20)
 			TNT1 A 0 A_SetUserVar("user_expdmg",
 				DND_WEAPON_DARKLANCE |
 				(DND_DMGID_0 << CACHE_SHIFT) |

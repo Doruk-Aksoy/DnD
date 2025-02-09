@@ -547,6 +547,7 @@ ACTOR BladeSlash : DnD_BaseProjectile {
 	+DONTREFLECT
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Update Melee ReactionTime", 15)
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
@@ -1192,6 +1193,8 @@ ACTOR Ripper2 : DnD_BaseProjectile {
 	DeathSound "weapons/firex2"
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 5)
+		SpawnLoop:
 			RIP2 AAABBB 1 Bright A_SpawnItemEx("Ripper2Trail")
 		loop
 		Death:
@@ -2061,6 +2064,7 @@ ACTOR Barbshot : DnD_BaseProjectile {
 	DeathSound "weapons/crabex"
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 		SpawnLoop:
 			SBRD A 1 Bright A_SpawnItemEx("Barbtrail",0,0,0,0,0,0,0,8)
@@ -3051,6 +3055,8 @@ Actor BigNailProj : DnD_BaseProjectile {
 	Decal BulletChip
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
+		SpawnLoop:
 			NLPJ A 1 A_SpawnItemEx("NailBigBlur", 0, 0, 0, 1, 0, 0, 180, 128)
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
@@ -3536,6 +3542,7 @@ Actor PlasmaBolterProj2 : PlasmaBolterProj {
 	+RIPPER
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 16)
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 		SpawnLoop:
 			PBL9 II 1 Bright

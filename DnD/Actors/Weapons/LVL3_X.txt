@@ -1124,6 +1124,7 @@ Actor SlayerHook : DnD_ExplosiveBase {
 	+NOTARGETSWITCH
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
 		SpawnLoop:
 			TNT1 A 0 A_JumpIf(user_count == 3, "ReturnSpin")
 			TNT1 A 0 A_PlaySound("weapons/slayerspin", CHAN_BODY)
@@ -1425,6 +1426,7 @@ Actor ThunderAxeThrown : DnD_BaseFastProjectile {
 	+RIPPER
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 5)
 			// this 1 here is for safety on inverse calc as the range increase will be 100 - r on the A_FadeOut, can't have it go to 0 now
 			TNT1 A 0 A_SetUserVar("user_expdmg",
 				DND_WEAPON_AXE |

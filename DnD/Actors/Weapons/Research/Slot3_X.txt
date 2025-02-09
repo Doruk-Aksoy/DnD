@@ -1349,12 +1349,11 @@ Actor CrossbowBolt_2 : DnD_BaseFastProjectile {
 	
 	Stamina 32768
 	
-	var int user_ripperid;
-	
 	+DONTREFLECT
 	+RIPPER
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
@@ -1378,6 +1377,7 @@ Actor CrossbowBolt_3 : CrossbowBolt_2 {
 	
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
@@ -1401,6 +1401,7 @@ Actor CrossbowBolt_4 : CrossbowBolt_2 {
 	
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
@@ -1424,6 +1425,7 @@ Actor CrossbowBolt_5 : CrossbowBolt_2 {
 	
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		SpawnStateLoop:
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)

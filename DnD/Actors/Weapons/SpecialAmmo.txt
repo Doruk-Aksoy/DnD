@@ -901,6 +901,8 @@ Actor NitroWind : DnD_BaseProjectile {
 	+THRUACTORS
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
+		SpawnLoop:
 			RF34 J 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 0 A_FadeOut(0.05)
 			RF34 K 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)

@@ -1060,7 +1060,7 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	MonsterProperties[tid].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
 	MonsterProperties[tid].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
 
-	GiveInventory("TakeReflective", 1);
+	GiveInventory("TakeReplacedFlags", 1);
 
 	MonsterProperties[tid].trait_list[DND_LEGENDARY] = isLegendaryMonster(monsterid);
 	
@@ -1099,7 +1099,7 @@ void LoadCustomMonsterTraits(int m_id, int mon_type, int traits, int traits2, in
 	MonsterProperties[m_id].trait_list[DND_NOPAIN] 					|= CheckFlag(0, "NOPAIN");
 	MonsterProperties[m_id].trait_list[DND_REFLECTIVE] 				|= CheckFlag(0, "REFLECTIVE");
 
-	GiveInventory("TakeReflective", 1);
+	GiveInventory("TakeReplacedFlags", 1);
 
 	if(traits != -1)
 		MonsterProperties[m_id].trait_list[traits] = true;

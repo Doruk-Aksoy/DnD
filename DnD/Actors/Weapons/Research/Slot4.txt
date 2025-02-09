@@ -1806,6 +1806,7 @@ Actor FusionBlasterGrenadeRipper : DnD_BaseProjectile {
     ALPHA 0.8
     States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
 			FUG7 AABBCCDDEEFFGGHHIIJJKK 1 Bright
         stop
 		Death:
@@ -1945,10 +1946,9 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 	
 	Stamina 4227072
 	
-	var int user_ripperid;
-	
 	States {
 		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
 			DRGP AAAABBBBCCCC 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")
 		SpawnLoop:
 			DRGP DDDDDDDEEEEEEE 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")

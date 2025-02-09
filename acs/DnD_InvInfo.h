@@ -201,50 +201,37 @@ str GetInventoryText(int id) {
 // Putting the uniques enum here due to dependency issues
 // s, m and g indicate charm type
 enum {
-	// M - 50% increased armor cap, 10-25% reduced elemental damage taken, 2-5% chance of casting a random elemental spell while firing
 	UITEM_ELEMENTALBULWARK,
-	// G - 5-30 flat physical damage, 10-25 bulkiness, 10-25% reduced physical damage taken, 75-200 regen cap, knockback immunity
 	UITEM_IRONBARK,
-	// G - Doubles effects of all small charms
 	UITEM_WELLOFPOWER,
-	// S - 5-10 to all stats, 3-5% chance to be healed for 6-10% of your missing health on being hit
 	UITEM_ANCIENTGEMSTONE,
-	// S - 5-45% increased lightning damage, Lightning type attacks always crit
 	UITEM_DEATHSPARK,
-	// S - 25-50% increased pellets, Shotgun type weapons deal 40-75% more damage
 	UITEM_SHELLSHOCK,
-	// M - Your health cap is doubled, Can't use armor, Gain 1% phys damage increase every 75 - 50 max health
 	UITEM_OAKHEART,
-	// M - 50-100% more pellets, 150-250% slot 3 damage, Pellets fire in a circle around you regardless of accuracy
 	UITEM_PELLETSTORM,
-	// G - 15-25 Intellect, Slain enemies have 5-15% chance to raise a zombie (Max 5, Lasts 8 + INT / 10 seconds), Damage taken is shared between all summoned creatures, Take 50-25% more damage
 	UITEM_GRAVECALLER,
-	// M - 6-12% speed, 3-10 flat damage to all attacks, Killing enemies heals for 1-5% missing health 
 	UITEM_ESSENCEEATER,
-	// S - Soul type weapons do full damage and can hit ghosts, Soul pickups give 50-100% more ammo, Spells do irreducible damage
 	UITEM_EYEBEHOLDER,
-	// G - 250-425 health cap, 250-425 armor cap, 4 - 15 to all stats, Gives item that grants 35-75% damage and 8-18% speed for 8 seconds (20 sec cd, stats depend on level), Slain enemies rest in peace
 	UITEM_DEADKINGBANNER,
-	// S - + 5 - 10 flat damage to damage over time effects, 50 - 100% increased damage over time duration
 	UITEM_PAINMASTER,
-	// M - Crit chance is lucky, Critical hits have 20 - 35% chance to ignore all resists
 	UITEM_VOIDEMBLEM,
 	UITEM_REKINDLEDSPARKS,
 	UITEM_DEADEYEGLARE,
 	UITEM_UNITY,
 	UITEM_MINDFORGE,
 	UITEM_SLAYERSPECIAL,
+	UITEM_DRAGONFANG,
 	// add new unique charms above to the general drop pool
 
 	// specific monster drop unique charms below
-	UITEM_ELEMENTALHARMONY,
+	UITEM_ELEMENTALHARMONY = 128,
 	UITEM_STEELBARK,
 	UITEM_DREAMINGGODIRE,
 	UITEM_HEATBREAKER,
 	UITEM_THORNVEIN,
 
 	// add new powercores here
-	UITEM_TESSERACT = 128,
+	UITEM_TESSERACT = 256,
 	UITEM_PCORE_RES1,
 	UITEM_PCORE_RES2,
 	UITEM_PCORE_RES3,
@@ -255,7 +242,7 @@ enum {
 	UITEM_PCORE_RES8,
 
 	// add new body armors here
-	UITEM_PROTOSHELL = 200,
+	UITEM_PROTOSHELL = 384,
 	UITEM_PRISMGUARD,
 	UITEM_BARONSDEN,
 	UITEM_BODY_RESERVED4,
@@ -273,7 +260,7 @@ enum {
 	UITEM_BODY_RESERVED16,
 
 	// add new boots here
-	UITEM_BOOT_RESERVED1 = 300,
+	UITEM_BOOT_RESERVED1 = 512,
 	UITEM_BOOT_RESERVED2,
 	UITEM_BOOT_RESERVED3,
 	UITEM_BOOT_RESERVED4,
@@ -291,7 +278,7 @@ enum {
 	UITEM_BOOT_RESERVED16,
 
 	// add new helms here
-	UITEM_HELM_RESERVED1 = 400,
+	UITEM_HELM_RESERVED1 = 640,
 	UITEM_HELM_RESERVED2,
 	UITEM_HELM_RESERVED3,
 	UITEM_HELM_RESERVED4,
@@ -311,7 +298,8 @@ enum {
 
 #define UNIQUE_CHARM_BEGIN UITEM_ELEMENTALBULWARK
 #define UNIQUE_CHARM_END UITEM_DREAMINGGODIRE
-#define UNIQUE_CHARM_REGULARDROP_END UITEM_SLAYERSPECIAL
+#define UNIQUE_CHARM_REGULARDROP_END UITEM_DRAGONFANG
+#define UNIQUE_CHARM_DROPONLY_BEGIN UITEM_ELEMENTALHARMONY
 
 #define UNIQUE_POWERCORE_BEGIN UITEM_TESSERACT
 #define UNIQUE_POWERCORE_END UITEM_TESSERACT

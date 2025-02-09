@@ -18,7 +18,9 @@
 str GetUniqueItemName(int itype, int id) {
 	switch(itype) {
 		case DND_ITEM_CHARM:
-		return StrParam(s:"DND_UNIQUE", d:id + 1);
+		if(id < UNIQUE_CHARM_DROPONLY_BEGIN)
+			return StrParam(s:"DND_UNIQUE", d:id + 1);
+		return StrParam(s:"DND_DROP_UNIQUE", d:id - UNIQUE_CHARM_DROPONLY_BEGIN + 1);
 
 		case DND_ITEM_POWERCORE:
 		return StrParam(s:"DND_UCORE_NAME", d:id - UNIQUE_POWERCORE_BEGIN + 1);
@@ -413,6 +415,28 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_high = 1.0;
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 5;
+	id = UITEM_DRAGONFANG;
+	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UCHRM_20;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
+	UniqueItemList[id].item_level = 36;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 4;
+	UniqueItemList[id].attrib_id_list[0] = INV_DMGREDUCE_ALL;
+	UniqueItemList[id].attrib_id_list[1] = INV_FLAT_AUTOMATIC;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_RIPPERSRIPALL;
+	UniqueItemList[id].attrib_id_list[3] = INV_EX_RIPPERSONETIMEONLY;
+	UniqueItemList[id].rolls[0].attrib_low = 5.0;
+	UniqueItemList[id].rolls[0].attrib_high = 10.0;
+	UniqueItemList[id].rolls[1].attrib_low = 1;
+	UniqueItemList[id].rolls[1].attrib_high = 10;
+	UniqueItemList[id].rolls[2].attrib_low = 1;
+	UniqueItemList[id].rolls[2].attrib_high = 1;
+	UniqueItemList[id].rolls[3].attrib_low = 1;
+	UniqueItemList[id].rolls[3].attrib_high = 1;
 
 	// ADD GENERAL DROP POOL UNIQUE CHARMS ABOVE
 	// DROP ONLY UNIQUE CHARMS
@@ -420,7 +444,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_20;
+	UniqueItemList[id].item_image = IIMG_UDCHRM_1;
 	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
 	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
 	UniqueItemList[id].item_level = 33;
@@ -439,7 +463,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 3;
-	UniqueItemList[id].item_image = IIMG_UCHRM_21;
+	UniqueItemList[id].item_image = IIMG_UDCHRM_2;
 	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
 	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
 	UniqueItemList[id].item_level = 36;
@@ -464,7 +488,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_22;
+	UniqueItemList[id].item_image = IIMG_UDCHRM_3;
 	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
 	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
 	UniqueItemList[id].item_level = 40;
@@ -486,7 +510,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_23;
+	UniqueItemList[id].item_image = IIMG_UDCHRM_4;
 	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
 	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
 	UniqueItemList[id].item_level = 38;
@@ -508,7 +532,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_24;
+	UniqueItemList[id].item_image = IIMG_UDCHRM_5;
 	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
 	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
 	UniqueItemList[id].item_level = 40;
