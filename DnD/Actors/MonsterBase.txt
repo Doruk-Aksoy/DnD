@@ -94,6 +94,8 @@ Actor DnD_BaseMonster {
 	
 	Painchance "SoulType_ForcePain", 256
 	
+	PainChance "ForcedPainBypass", 256
+	
 	Accuracy 40 // level 40 fully completes default damage scale ramp for most monsters now
 	
 	var int user_spawnheight;

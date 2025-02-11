@@ -442,7 +442,7 @@ IATTR_TC5			= "more chance to find loot";
 IATTR_TC6			= "increased stats";
 IATTR_TC7			= "enemy health as extra damage to";
 IATTR_TC8			= "of damage dealt as poison to";
-IATTR_TC9			= "forces pain";
+IATTR_TC9			= "chance to force pain";
 IATTR_TC10			= "CYBERNETIC";
 
 // regular implicits

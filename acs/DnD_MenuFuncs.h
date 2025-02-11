@@ -4409,11 +4409,11 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	int prev_y;
 	
 	// show item details -- dont draw charm icons (saves space)
-	if(item_type == DND_ITEM_WEAPON) {
+	/*if(item_type == DND_ITEM_WEAPON) {
 		SetFont(Weapons_Data[item_id].icon);	
 		HudMessage(s:"A"; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my, 0.0);
 	}
-	/*else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM && PlayerCursorData.itemHoveredType < UNIQUE_BEGIN) {
+	else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM && PlayerCursorData.itemHoveredType < UNIQUE_BEGIN) {
 		// dont draw charm images here
 		SetFont(Item_Images[PlayerInventoryList[pn][PlayerCursorData.itemHovered].item_image]);
 		HudMessage(s:"A"; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my + 16.0, 0.0);
@@ -4441,7 +4441,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		my += 24.0;
 		
 		SetFont("SMALLFONT");
-		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3, CR_WHITE, mx, my + 24.0, 0.0, 0.0);
+		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 24.0, 0.0, 0.0);
 		
 		str modText = "";
 		temp = GetPlayerWeaponQuality(j, extra1);
@@ -4461,7 +4461,8 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 			if(temp)
 				modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_CRITPERCENT), s:"\n");
 		}
-		
+
+		// itype isnt used from here on
 		temp = GetBaseCritModifier(j, extra1);
 		if(temp != DND_BASE_CRITMODIFIER)
 			modText = StrParam(s:modText, s:GetWeaponModText(temp - DND_BASE_CRITMODIFIER, WEP_MOD_CRITDMG), s:"\n");
@@ -4488,7 +4489,9 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 				modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_POWERSET1, temp), s:"\n");
 		}
 		
-		HudMessage(s:modText; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4, CR_WHITE, mx, my + 40.0, 0.0, 0.0);
+		HudMessage(s:modText; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 8.0, 0.0, 0.0);
+
+		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, CountNewLinesInText(modText, NEXT_LINE_LEN_ATTR + 8));
 	}
 	else // draw using our established drawing routine
 		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count);

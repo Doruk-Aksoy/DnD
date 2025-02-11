@@ -355,7 +355,7 @@ void SavePlayerData(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_HEALTH, char_id), pacc, temp);
 
 	// save eshield
-	temp = CheckInventory("EShieldAmount");
+	temp = CheckActorInventory(tid, "EShieldAmount");
 	SetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc, temp);
 	
 	// save ammo counts

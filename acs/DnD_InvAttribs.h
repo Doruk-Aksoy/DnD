@@ -1278,8 +1278,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_RIPCOUNT].attrib_level_modifier = 0;
 	ItemModTable[INV_RIPCOUNT].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 
-	ItemModTable[INV_RIPDAMAGE].attrib_low = 2;
-	ItemModTable[INV_RIPDAMAGE].attrib_high = 5;
+	ItemModTable[INV_RIPDAMAGE].attrib_low = 1;
+	ItemModTable[INV_RIPDAMAGE].attrib_high = 4;
 	ItemModTable[INV_RIPDAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_RIPDAMAGE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
@@ -1327,7 +1327,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_WEAPONPOISONPCT].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_low = 1;
-	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_high = 1;
+	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_high = 20;
 	ItemModTable[INV_CORR_WEAPONFORCEPAIN].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_WEAPONFORCEPAIN].tags = INV_ATTR_TAG_UTILITY;
 
@@ -1872,7 +1872,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
-			return StrParam(l:GetWeaponTag(extra), s: " ", l:text);
+			return StrParam(l:GetWeaponTag(extra), s:" ", l:"DND_HAS", s:col_tag, s: " ", d:val, s:"% ", s:no_tag, l:text);
 
 		// fixed point corrupted
 		case INV_CORR_DROPCHANCE:

@@ -306,6 +306,11 @@ void UnlockPlayerCritState(int pnum, int wepid) {
 	PlayerDamageCritLock[wepid][0] &= ~(1 << pnum);
 }
 
+void HandleMonsterDeathConfirm(int tid, int dmg) {
+	if(GetActorProperty(tid, APROP_HEALTH) <= dmg)
+		GiveActorInventory(tid, "MonsterKilledByPlayer", 1);
+}
+
 // All resists uniformly follow same factors
 int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 	int unity = 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
@@ -1140,19 +1145,21 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	int extra = 0;
 	int poison_factor = 0;
 	
-	// pain checks
-	if(actor_flags & DND_ACTORFLAG_PAINLESS)
+	// pain checks -- they dont do anything anymore because we dont deal damage here, we just send it outside
+	/*if(actor_flags & DND_ACTORFLAG_PAINLESS)
 		s_damagetype = StrParam(s:s_damagetype, s:"_NoPain");
 	else if(actor_flags & DND_ACTORFLAG_FORCEPAIN)
-		s_damagetype = StrParam(s:s_damagetype, s:"_ForcePain");
+		s_damagetype = StrParam(s:s_damagetype, s:"_ForcePain");*/
 	
 	// extra property checks moved here
 	// WE CHECK FOR CRITS HERE, EITHER WEAPON OR SPELL! THE FINAL STEP BEFORE RESISTS
 	if(!wep_neg) {
 		// chance to force pain
 		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_FORCEPAINCHANCE);
-		if(extra && extra > random(1, 100))
-			actor_flags |= DND_ACTORFLAG_FORCEPAIN;
+		if(extra && extra >= random(1, 100)) {
+			HandleMonsterDeathConfirm(victim, 1);
+			Thing_Damage2(victim, 1, "ForcedPainBypass");
+		}
 		
 		// poison on hit with % dmg
 		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
@@ -1282,34 +1289,32 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	
 	if(dmg > 0) {
 		// give this token early to prevent order of events getting mixed up
-		if(GetActorProperty(victim, APROP_HEALTH) <= dmg)
+		// is victim dead from this damage?
+		if(GetActorProperty(victim, APROP_HEALTH) <= dmg) {
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 
-		if(isActorAlive(victim) && CheckInventory("Doomguy_Perk50") && IsMonsterIdDemon(victim - DND_MONSTERTID_BEGIN))
+			// give this for non-magic seal weapons (seals their souls...)
+			if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || (!wep_neg && IsSoulDroppingWeapon(wepid))))
+				GiveActorInventory(victim, "MagicCausedDeath", 1);
+
+			if(CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
+				SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+				if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+					GiveActorInventory(source, "Berserker_HitTracker", 1);
+					if(!temp)
+						ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, source);
+				}
+				if(temp + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+					if(!CheckActorInventory(source, "Berserker_NoRoar"))
+						HandleBerserkerRoar(source);
+					GiveActorInventory(source, "Berserker_Perk50_Speed", 1);
+				}
+			}
+		}
+		else if(CheckInventory("Doomguy_Perk50") && IsMonsterIdDemon(victim - DND_MONSTERTID_BEGIN))
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
 	}
 	
-	// monster or w.e we shot at died
-	if(!isActorAlive(victim)) {
-		// give this for non-magic seal weapons (seals their souls...)
-		if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || (!wep_neg && IsSoulDroppingWeapon(wepid))))
-			GiveActorInventory(victim, "MagicCausedDeath", 1);
-	
-		if(CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
-			SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-			if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
-				GiveActorInventory(source, "Berserker_HitTracker", 1);
-				if(!temp)
-					ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, source);
-			}
-			if(temp + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
-				if(!CheckActorInventory(source, "Berserker_NoRoar"))
-					HandleBerserkerRoar(source);
-				GiveActorInventory(source, "Berserker_Perk50_Speed", 1);
-			}
-		}
-	}
-
 	return dmg;
 }
 
@@ -1599,10 +1604,15 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	//printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTicData[pnum][victim_data], s: " ", d:more_dmg);
 
 	// deal the damage difference between the crit and original on top, like hobo thing -- note use of Special_NoPain
-	if(PlayerDamageTicData[pnum][victim_data] > prev_dmg)
-		Thing_Damage2(victim_tid, PlayerDamageTicData[pnum][victim_data] - prev_dmg, "Special_NoPain");
+	if(PlayerDamageTicData[pnum][victim_data] > prev_dmg) {
+		prev_dmg = PlayerDamageTicData[pnum][victim_data] - prev_dmg;
+		HandleMonsterDeathConfirm(victim_tid, prev_dmg);
+		Thing_Damage2(victim_tid, prev_dmg, "Special_NoPain");
+	}
 	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) // we have reduced the overall damage instead, heal for the difference instead -- hope we dont need HealThing here...
 		SetActorProperty(victim_tid, APROP_HEALTH, GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTicData[pnum][victim_data]);
+
+	// prev_dmg is unused from here below
 
 	/*
 		DMG ALTERING ENDS BY HERE! NO MORE! FINALIZED!
@@ -2216,8 +2226,12 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	dmg = HandleCursePlayerResistEffects(dmg);
 	
 	// reflection becomes its own thing not affected by other damage type functions, so we can immediately return here
-	if(isReflected)
+	if(isReflected) {
+		// 90% reduction
+		if(HasPlayerPowerSet(pnum, PPOWER_LOWERREFLECT))
+			dmg = dmg / 10;
 		return ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_REFL);
+	}
 	
 	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_PHYS);
@@ -2766,13 +2780,14 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 
 		SetActivator(shooter);
 		dmg = RetrieveWeaponDamage(pnum, wid, dmg, GetDamageCategory(dtype, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+		//printbold(s:"retrieved dmg ", d:dmg);
 	}
 	else {
 		dmg = encoded_data;
 	}
 	SetActivator(victim);
 
-	dtype = DND_ATF_DAMAGEINEXTRA | (useGravity ? DND_ATF_USEGRAVITY : 0);
+	dtype = DND_ATF_DAMAGEINEXTRA | DND_ATF_ISREFLECTED | (useGravity ? DND_ATF_USEGRAVITY : 0);
 
 	CreateProjectile(
 		victim,
@@ -2784,7 +2799,8 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 		v_Vel,
 		v_Pos,
 		dtype,
-		dmg
+		dmg,
+		dmg_data
 	);
 	FreeVec3(v_Pos);
 	FreeVec3(v_Vel);
@@ -2793,7 +2809,7 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// arg1 contains damage, arg2 contains damage type as a string
 	// this causes A_KillChildren etc. to actually work...
-	if(arg2 == "Perish" || arg2 == "Special_NoPain" || arg2 == "SkipHandle") {
+	if(arg2 == "Perish" || arg2 == "Special_NoPain" || arg2 == "SkipHandle" || arg2 == "ForcedPainBypass") {
 		SetResultValue(arg1);
 		Terminate;
 	}
@@ -2882,6 +2898,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetActivator(0, AAPTR_DAMAGE_TARGET);
 
 			// handle reflection firing projectile code
+			if(isPlayer(shooter))
+				dmg_data |= DND_DAMAGEFLAG_ISREFLECTED;
 			HandleReflect(shooter, ActivatorTID(), factor, arg1, dmg_data, isArmorPiercing, isRipper, ox, oy, oz);
 
 			Thing_Remove(AUX_PROJ_TID + shooter - P_TIDSTART);
@@ -2934,8 +2952,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// DoT shouldn't double dip
 			if(!IsDamageStringDOT(arg2)) {
 				// dont scale reflected damage by this -- reflected damage will have score property as damage of proj, if it's not a player tid its reflected
-				//printbold(s:"here?? ", d:isReflected);
-				if(!isReflected || IsPlayer(isReflected)) {
+				//printbold(s:"here?? ", d:isReflected, s: " ", d:dmg_data & DND_DAMAGEFLAG_ISREFLECTED);
+				if(!(dmg_data & DND_DAMAGEFLAG_ISREFLECTED) && (!isReflected || IsMonster(shooter))) {
 					// special bonuses
 					factor += 	(MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
 								MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
@@ -2956,10 +2974,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 				else {
 					// unpack regular weapon dmg from isReflected variable
-					//printbold(s:"reflected damage ", d:isReflected);
 					arg1 = isReflected / 2;
 					dmg = arg1;
 					arg2 = "Reflection";
+					//printbold(s:"player reflected damage ", d:dmg);
 					isReflected = true;
 				}
 			}
@@ -2992,8 +3010,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// hate shard reflection
 				if(CheckActorInventory(victim, "HateCheck")) {
 					// this is needed for kill credit
-					if(GetActorProperty(shooter, APROP_HEALTH) <= dmg)
-						GiveActorInventory(shooter, "MonsterKilledByPlayer", 1);
+					HandleMonsterDeathConfirm(shooter, dmg);
 					Thing_Damage2(shooter, dmg, "Reflection");
 					ACS_NamedExecuteWithResult("DnD Damage Numbers", shooter, dmg, 0);
 				}
@@ -3071,7 +3088,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 			}
 			
-			//printbold(s:"old dmg ", d:arg1, s: " new dmg: ", d:dmg);
 			SetResultValue(dmg);
 		}
 		else if(IsPlayer(shooter) && !IsPlayer(victim)) {
@@ -3079,7 +3095,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// extract the encoded damage data, and proceed
 			// stamina contains any special flags we might need
 			// variable swap here to fix a bug with radius damage projectiles that also rip once
-			if(!isReflected || IsPlayer(isReflected)) {
+			if(!(dmg_data & DND_DAMAGEFLAG_ISREFLECTED) && (!isReflected || IsPlayer(isReflected))) {
 				factor = arg1;
 				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 				if(dmg_data & DND_DAMAGEFLAG_RIPSONCE) {
@@ -3408,7 +3424,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 
 			dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
-			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
+			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, !!isReflected || (dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG), inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
 			dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, dmg_data);
 			//GiveInventory("DnD_DamageReceived", dmg);

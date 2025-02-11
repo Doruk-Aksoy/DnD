@@ -94,12 +94,15 @@ Script "DnD Can Fire Weapon" (void) {
 				break;
 
 				case DND_WEAPON_DESOLATOR:
-					//if(ammo_which)
-					//	res &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
+					flags |= CheckInventory("DnD_FiringFlags");
+
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 					hasOverheatCooldown = CheckInventory("DesolatorCooldown");
 
 					canFire &= GetPlayerAttributeValue(pnum, INV_EX_CANFIREOVERHEATED) || (!hasOverheatCooldown && CheckInventory("DesolatorOverheat") < 100);
+
+					if(flags & DND_CFW_HOLDFIREORRELOADCHECK)
+						canFire &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 
 					isOverheatingWeapon = true;
 				break;

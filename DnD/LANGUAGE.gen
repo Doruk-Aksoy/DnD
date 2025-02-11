@@ -1,5 +1,7 @@
 [enu default]
 
+DND_HAS									= "has";
+
 DND_HEALTH								= "Health";
 DND_FREE_SLOT							= "FREE SLOT";
 

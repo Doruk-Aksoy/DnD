@@ -863,11 +863,7 @@ Script "DND On Kill" KILL {
 	
 	// only work if you can determine target as a player and if the player is alive
 	// if player has no level data don't process anything as it's somehow bad state to work with
-	if
-	(
-		(killerWasntPlayer && !CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED]) || 
-		!IsActorAlive(target) || !GetActorLevel(target)
-	)
+	if(!IsActorAlive(target) || !GetActorLevel(target))
 		Terminate;
 		
 	// if theres cooldown item, reduce by a second here
@@ -899,7 +895,7 @@ Script "DND On Kill" KILL {
 	if(!MonsterProperties[m_id].trait_list[DND_NODROPS]) {
 		if(!killerWasntPlayer)
 			HandleCreditExp_Regular(this, target, m_id);
-		else {
+		else if(!CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED]) {
 			HandleCreditExp_MasteryCheck(this, target, m_id);
 			Terminate;
 		}
@@ -1632,7 +1628,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
 
-	//MonsterProperties[m_id].trait_list[DND_REBIRTH] = true;
+	//MonsterProperties[m_id].trait_list[DND_SUBORDINATE] = true;
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -5691,8 +5687,8 @@ Script 68 (int x) NET {
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
 			SpawnCharmWithMods_ForAll(INV_STAT_DEXTERITY);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			//IncPlayerModValue(0, INV_ESS_HARKIMONDE, 50);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, false, 300);
+			IncPlayerModValue(0, INV_ESS_KRULL, 50);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

@@ -319,6 +319,9 @@ Script "DnD Monster Blind Cast" (int duration, int rgb, int intensity, int dista
 
 Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {
 	int this = ActivatorTID();
+	if(!IsMonster(this) || !IsAlive())
+		Terminate;
+
 	str actor = "";
 	switch(type) {
 		case DND_BLIND_LIGHT:
@@ -340,14 +343,15 @@ Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {
 
 	// create circle fx around this with r = dist
 	for(int i = 0; i < 24; ++i) {
-		SpawnForced(actor, GetActorX(this), GetActorY(this), GetActorZ(this), DND_BLINDFX_TID);
-		SetActivator(DND_BLINDFX_TID);
-		SetActorAngle(0, (i + 1) * 1.0 / 24);
-		SetPointer(AAPTR_TARGET, this);
-		SetActorProperty(0, APROP_MASS, distance);
-		SetActorProperty(0, APROP_TARGETTID, this);
-		SetActivator(this);
-		Thing_ChangeTID(DND_BLINDFX_TID, 0);
+		if(SpawnForced(actor, GetActorX(this), GetActorY(this), GetActorZ(this), DND_BLINDFX_TID)) {
+			SetActivator(DND_BLINDFX_TID);
+			SetActorAngle(0, (i + 1) * 1.0 / 24);
+			SetPointer(AAPTR_TARGET, this);
+			SetActorProperty(0, APROP_MASS, distance);
+			SetActorProperty(0, APROP_TARGETTID, this);
+			//SetActivator(this);
+			Thing_ChangeTID(DND_BLINDFX_TID, 0);
+		}
 	}
 }
 

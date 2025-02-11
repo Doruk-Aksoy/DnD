@@ -1358,7 +1358,6 @@ int GetMonsterRarity(int monster_id) {
 	int r = GetActorProperty(monster_id + DND_MONSTERTID_BEGIN, APROP_SCORE);
 	if(!r)
 		return DND_MWEIGHT_COMMON;
-		
 	return r;
 }
 

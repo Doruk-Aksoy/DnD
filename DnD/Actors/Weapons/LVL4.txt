@@ -1494,6 +1494,8 @@ Actor Desolator : Weapon {
 		Refire_N:
 			DES4 I 1
 		FireLoop:
+			TNT1 A 0 A_TakeInventory("DnD_FiringFlags", 0)
+			TNT1 A 0 A_GiveInventory("DnD_FiringFlags", DND_CFW_HOLDFIREORRELOADCHECK)
 			DES4 J 1 Bright
 			TNT1 A 0 A_PlaySound("Desolator/Fire", 6, 0.825)
 			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
@@ -1512,6 +1514,7 @@ Actor Desolator : Weapon {
 			DES4 OO 3 A_JumpIfInventory("DnD_CanFire", 1, "Refire_N")
 			DES4 PP 3 A_JumpIfInventory("DnD_CanFire", 1,"Refire_P")
 			DES4 P 1
+			TNT1 A 0 A_TakeInventory("DnD_FiringFlags", 0)
 			DES4 Q 8
 		Goto ReadyLoop
 		Nothing:

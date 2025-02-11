@@ -480,12 +480,12 @@ void GiveMonsterTID(int base_tid) {
 	}
 	temp = DnD_TID_Counter[DND_TID_MONSTER];
 	UsedMonsterTIDs[DnD_TID_Counter[DND_TID_MONSTER]++] = base_tid;
-	ACS_NamedExecuteAlways("DnD Update Monster TID CS", 0, temp, base_tid);
+	ACS_NamedExecuteAlways("DnD Update Monster TID CS", 0, temp, base_tid, DnD_TID_Counter[DND_TID_MONSTER]);
 }
 
-Script "DnD Update Monster TID CS" (int id, int val) CLIENTSIDE {
+Script "DnD Update Monster TID CS" (int id, int val, int newcount) CLIENTSIDE {
 	UsedMonsterTIDs[id] = val;
-	++DnD_TID_Counter[DND_TID_MONSTER];
+	DnD_TID_Counter[DND_TID_MONSTER] = newcount;
 }
 
 void GivePetTID(int master_tid) {

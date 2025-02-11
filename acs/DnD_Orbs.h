@@ -1414,10 +1414,10 @@ void SpawnOrbForAll(int repeats, int stack = 1) {
 	}
 }
 
-void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false) {
+void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false, int stack = 1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		RollOrbInfo(c, id, true);
+		RollOrbInfo(c, id, true, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(id + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if(sound)
@@ -1428,7 +1428,7 @@ void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false) {
 	}
 }
 
-void SpawnSpecificOrbForAll(int id, int repeats) {
+void SpawnSpecificOrbForAll(int id, int repeats, int stack = 1) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j))

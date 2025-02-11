@@ -20,6 +20,7 @@ enum {
 	DND_ATF_NOHELPER				= 0b1000000,			// dont create helper actor to adjust position of attacks
 	DND_ATF_TRACERPICKER			= 0b10000000,			// homing target picking
 	DND_ATF_DAMAGEINEXTRA			= 0b100000000,			// damage stored in extra field
+	DND_ATF_ISREFLECTED				= 0b1000000000,			// reflected proj
 
 	DND_ATF_INSTABILITY				= 0b100000000000000000000000000000,
 	DND_ATF_NOINSTABILITY			= 0b1000000000000000000000000000000
@@ -140,6 +141,9 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_DAMAGE, extra);
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_SCORE, extra); // if its not player tid thats monster's damage
 	}
+
+	if(flags & DND_ATF_ISREFLECTED)
+		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STAMINA, extra2);
 
 	if(flags & DND_ATF_TRACERPICKER) {
 		// only pick if we have no previous recollection of another target

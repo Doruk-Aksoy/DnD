@@ -622,6 +622,7 @@ Actor CryoWind : DnD_BaseProjectile {
 	DamageType "P_Ice"
 	var int user_count;
 	const int spd = 15;
+	+DONTREFLECT
 	+THRUACTORS
 	+BLOODLESSIMPACT
 	+CANBOUNCEWATER
@@ -784,7 +785,7 @@ Actor CryoWind_Damager : DnD_BaseProjectile {
 		(100 << DPCT_SHIFT)
 	)
 	DamageType "P_Ice"
-	
+	+DONTREFLECT
 	+PAINLESS
 	+BLOODLESSIMPACT
 	States {

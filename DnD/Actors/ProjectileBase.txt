@@ -216,7 +216,7 @@ Actor DnD_ExplosiveBase {
 			"####" "#" 35 A_Jump(256, "ContinueFromExplosion")
 		Wait
 		FinishExplosion:
-			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Explosion Repeat"), "ExplodeRepeat")
+			"####" "#" 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Explosion Repeat"), "ExplodeRepeat")
 		Stop
 		ExplodeRepeat:
 			// resets timers so explosions that depend on those dont mess up when repeating

@@ -794,6 +794,7 @@ Actor SonicGrenade : DnD_BaseProjectile {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_SetScale(1.275, 1.275)
 		Booming:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			CAPX D 1 A_CustomMissile("SonicGrenadeExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		ExplosionLoop:
@@ -848,7 +849,7 @@ Actor SonicGrenadeExplosion : DnD_ExplosiveBase {
 			TNT1 A 1 A_SetUserVar("user_count", user_count + 1)
 			TNT1 A 1 A_JumpIf(user_count < lim, "ExplosionLoop")
 			TNT1 A 15
-		Goto FinishExplosion
+		Stop // this is done deliberately, dont touch it
 	}
 }
 
@@ -899,6 +900,7 @@ Actor NitroWind : DnD_BaseProjectile {
 	+NODAMAGETHRUST
 	+PAINLESS
 	+THRUACTORS
+	+DONTREFLECT
 	States {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
@@ -991,7 +993,7 @@ Actor NitroWind_Damager : DnD_BaseProjectile {
 	)
 	
 	Stamina 131072
-	
+	+DONTREFLECT
 	+PAINLESS
 	+NODAMAGETHRUST
 	+BLOODLESSIMPACT

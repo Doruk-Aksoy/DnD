@@ -128,6 +128,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			SetInventory("FistSide", !CheckInventory("FistSide"));
 			proj_name_alt = ProjectileInfo[proj_id].name;
 			hitscan_id = DND_HITSCAN_FIST;
+			if(CheckInventory("PowerStrength"))
+				hitscan_id = DND_HITSCAN_FIST2;
 		break;
 		case DND_WEAPON_CHAINSAW:
 			use_default = true;
