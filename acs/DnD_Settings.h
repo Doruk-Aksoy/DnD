@@ -39,6 +39,7 @@ str FlagCheckList[MAXFLAGS] = {
 };
 
 #define DND_HARDCORE_MAXLIVES 1
+#define DND_SOFTCORE_MAXLIVES 2
 int FlagAcceptedValues[MAXFLAGS] = {
 	DND_HARDCORE_MAXLIVES,
 	
@@ -225,6 +226,9 @@ int CheckHardcoreSettings() {
 #endif
 		for(i = 0; i < MAXFLAGS; ++i) {
 			if(GetCVar(FlagCheckList[i]) != FlagAcceptedValues[i]) {
+				// sv_maxlives is allowed to be 2 for softcore
+				if(!i && GetCVar("dnd_mode") == DND_MODE_SOFTCORE && GetCVar(FlagCheckList[i]) == DND_SOFTCORE_MAXLIVES)
+					continue;
 				Log(s:"\"", s:FlagCheckList[i], s:"\" should be set to ", d:FlagAcceptedValues[i], s:" for \cghardcore\c- or \cdsoftcore\c- modes to work! It is set to: ", d:GetCVar(FlagCheckList[i]));
 				errno = DND_HARDCORE_INVALID;
 			}

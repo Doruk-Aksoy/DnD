@@ -36,9 +36,28 @@ Script "DnD Load Character Check" (int pnum, int char_id) {
 	SetResultValue(check_load_char(pnum, char_id));	
 }
 
+Script "DnD Load Character With Reset" (int pnum, int char_id) {
+	// moved here from enter script, should only run if player is about to load anyway -- NOOO acsd sync
+	ResetPlayerItems(pnum);
+	// the above reset actual items of player, the below resets variables used to denote inventories and such
+	ResetPlayerInfo(pnum);
+
+	Delay(const:5);
+
+	load_char(pnum, char_id);
+
+	SetResultValue(0);
+}
+
 int load_char_proc(int pnum, int char_id) {
 	int result = check_load_char(pnum, char_id);
-	if (result == DND_CHARLOADED) load_char(pnum, char_id);
+	if (result == DND_CHARLOADED) {
+		// load with reset if softcore because we skip the reset earlier in enter script
+		if(!isHardcore())
+			ACS_NamedExecuteWithResult("DnD Load Character With Reset", pnum, char_id);
+		else
+			load_char(pnum, char_id);
+	}
 	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
 	return result;
 }

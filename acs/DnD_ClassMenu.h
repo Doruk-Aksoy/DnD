@@ -329,12 +329,18 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 }
 
 Script "DnD Class Select Cleanup" (void) CLIENTSIDE {
+	if(PlayerNumber() != ConsolePlayerNumber())
+		Terminate;
+	
 	HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 0, 0, 1.0);
 	for(int i = 0; i < DND_CLASSMENU_IDCOUNT; ++i)
 		HudMessage(s:""; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID + i, -1, 0, 0, 1.0);
 }
 
 Script "DnD Character Select Cleanup" (void) CLIENTSIDE {
+	if(PlayerNumber() != ConsolePlayerNumber())
+		Terminate;
+
 	for(int i = 0; i < DND_MAX_CHARACTERSEL_ITEMS; ++i)
 		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUCHARSELID - i, -1, 0, 0, 1.0);
 }
@@ -610,8 +616,15 @@ Script "DnD Character Data Display On Click" (int char_id) CLIENTSIDE {
 
 Script "DnD Character Data Display Store" (int pnum) {
 	// fill in the display array since player logged in and sync it with client
+	int i;
+	if(!PlayerIsLoggedIn(pnum)) {
+		for(i = 0; i < DND_MAX_CHARS; ++i)
+			ACS_NamedExecuteWithResult("DnD Character Data Display Sync - NULL", pnum, i);
+		Terminate;
+	}
+	
 	str pacc = GetPlayerAccountName(pnum);
-	for(int i = 0; i < DND_MAX_CHARS; ++i) {
+	for(i = 0; i < DND_MAX_CHARS; ++i) {
 		int class_id = GetDBEntry(GetCharField(DND_DB_CLASSID, i), pacc);
 		// player has a character on this char id with the classid = class_id, so store it for display now
 		if(class_id) {

@@ -1269,6 +1269,7 @@ Actor RailgunShooter3 : DnD_Activator {
 }
 
 Actor RailgunPuff : DnD_BaseRailPuff {
+	Stamina 4096
 	+FOILINVUL
 	States {
 		Spawn:

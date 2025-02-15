@@ -103,6 +103,7 @@ Actor NewHealthBonus : CustomInventory replaces HealthBonus {
 	inventory.pickupsound "items/pickup"
 	inventory.pickupmessage "\ccHealth pickup : \c[Y5]Health Bonus x 1\c-"
     +COUNTITEM
+	+INVENTORY.BIGPOWERUP
     States
     {
 		Spawn:

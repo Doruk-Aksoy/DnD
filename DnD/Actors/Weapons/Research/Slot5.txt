@@ -285,8 +285,6 @@ Actor MeteorMissileSplit_1 : DnD_ExplosiveBase {
 		Death:
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0)
 			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 1)
-			TNT1 AAAAA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
-			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
 			
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_METEORLAUNCHER |
@@ -299,6 +297,8 @@ Actor MeteorMissileSplit_1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmokeSmall", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
 			TNT1 AAAAAAAAAAA 0 A_SpawnItemEx("MeteorMissileSplit_2", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
 			RW6F IJKL 3 Bright
 		Stop
@@ -386,13 +386,6 @@ Actor MeteorMissile : DnD_ExplosiveBase {
 			RW6G AABBCCDD 2 A_SpawnItem("MeteorMissileTrail")
 		Loop
 		Death:
-			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
-			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
-			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
-			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
-			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
-			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
-		
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_METEORLAUNCHER |
 				(DND_DMGID_1 << CACHE_SHIFT) |
@@ -404,6 +397,12 @@ Actor MeteorMissile : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_SpawnItemEx ("ExplosionFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 360))
+			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 0 A_SpawnItemEx("MeteorMissile_HitFX")
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 AAAAA 0 A_SpawnItemEx("MeteorMissileSplit_1", 0, 0, 0, frandom(-projvel, projvel), frandom(-projvel, projvel), frandom(0, projvel), 0, SXF_TRANSFERPOINTERS)
@@ -926,7 +925,6 @@ Actor FreezeBall : DnD_ExplosiveBase {
 			TNT1 A 0 A_Stop
 			TNT1 A 0 A_SetScale(1.25)
 			FRZX D 3 Bright
-			TNT1 A 0 A_PlaySound("Freezer/Ambience")
 			
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_FREEZER |
@@ -938,6 +936,7 @@ Actor FreezeBall : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius * 0.364)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_PlaySound("Freezer/Ambience")
 			FRZX D 1 Bright A_SpawnItemEx("FreezeBallBigBoom", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
 			TNT1 A 4 
@@ -1683,7 +1682,6 @@ Actor VoidMissile : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_inc", user_inc * 0.95)
 			TNT1 A 0 A_PlaySound("VoidWeapon/Explode")
 			R044 JJKKLLMMNNOO 1 Bright A_SetScale(scalex - 0.3, scaley - 0.3)
-			TNT1 A 0 A_PlaySound("VoidWeapon/BigBoom", CHAN_ITEM)
 			
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_VOIDCANNON |
@@ -1696,6 +1694,7 @@ Actor VoidMissile : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
+			TNT1 A 0 A_PlaySound("VoidWeapon/BigBoom", CHAN_ITEM)
 			TNT1 A 0 A_SetScale(1.8, 1.8)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Pull Towards Self", user_f * 8, user_rad * 2, DND_PULLF_CANPULLDEAD | DND_PULLF_REVERSEDIR)
 			TNT1 A 0 A_SpawnItemEx("GrayFlare")

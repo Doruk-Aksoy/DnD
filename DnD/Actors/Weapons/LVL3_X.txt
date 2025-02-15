@@ -706,7 +706,6 @@ Actor HellsMawRocket : DnD_ExplosiveBase {
 			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke_Small", 0, 0, random(0, 360), 2, random(0, 180))
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 			
-			TNT1 A 0 A_SetUserVar("user_flags", 0)
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				DND_WEAPON_HELLSMAW |
 				(DND_DMGID_1 << CACHE_SHIFT) |

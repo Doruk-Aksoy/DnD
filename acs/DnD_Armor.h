@@ -547,7 +547,7 @@ Script "DnD Armor Message" (int id, int type) CLIENTSIDE {
 
 Script "DnD Drop Random Basic Armor" (int higher_tier, int dont_remove) {
 	// wait for the setup phase to finish
-	while(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+	while(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS) || IsSetupComplete(SETUP_STATE1 , SETUP_PLAYERDATAFINISHED))
 		Delay(const:TICRATE);
 
 	Delay(const:HALF_TICRATE);

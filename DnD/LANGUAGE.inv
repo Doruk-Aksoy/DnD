@@ -432,6 +432,8 @@ IATTR_T120			= "item rarity";
 
 IATTR_T121			= "increased ripcount";
 IATTR_T122			= "more damage per rip";
+IATTR_T123			= "increased lock-on area";
+IATTR_T124			= "increased lock-on range";
 
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";

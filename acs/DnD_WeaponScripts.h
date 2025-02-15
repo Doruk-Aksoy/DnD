@@ -1574,4 +1574,164 @@ Script "DnD Set Projectile RipCount" (int amt) {
 	SetResultValue(0);
 }
 
+#define LOCKON_LINE_LEN 54.0
+#define LOCKON_HUD_X 1024
+#define LOCKON_HUD_Y 768
+#define LOCKON_HUD_XHALF (LOCKON_HUD_X / 2)
+#define LOCKON_HUD_YHALF (LOCKON_HUD_Y / 2)
+
+#define LOCKON_HUD_XHALF_F ((LOCKON_HUD_XHALF) << 16)
+#define LOCKON_HUD_YHALF_F ((LOCKON_HUD_YHALF) << 16)
+
+#define LOCKON_HUD_XF 1024.0
+#define LOCKON_HUD_YF 768.0
+
+enum {
+	LOCKON_ID_DOWN = 2750,
+	LOCKON_ID_UP,
+	LOCKON_ID_MARKER,
+};
+
+int HandleTracerPicking(int owner, int lock_on_range, int width, int height, bool check_for_sight = true, bool draw_gfx = false, bool no_scale_wh = false) {
+	// we will map the range of fcs to angles, and use the angletoface as a measure of determining if the target would fall into our fov
+	// pitch comes to play in determining height
+	// picks best candidate that is closest to us
+	//printbold(s:"target pick");
+	
+	int result = 0;
+	int cur_dist = INT_MAX;
+
+	int x, y;
+	int draw_x, draw_y;
+
+	int vang;
+	int angle_to_face, pitch;
+	int dist;
+	
+	//we want to divide by 2 here
+	width >>= 1;
+	height >>= 1;
+
+	if(!no_scale_wh) {
+		vang = owner - P_TIDSTART;
+		width = FixedMul(width, 1.0 + (GetPlayerAttributeValue(vang, INV_LOCKONAREA) << 16) / 100);
+		height = FixedMul(height, 1.0 + (GetPlayerAttributeValue(vang, INV_LOCKONAREA) << 16) / 100);
+		lock_on_range = FixedMul(lock_on_range, 1.0 + (GetPlayerAttributeValue(vang, INV_LOCKONRANGE) << 16) / 100);
+	}
+
+	//Log(s:"width height range ", f:width, s: " ", f:height, s: " ", f:lock_on_range);
+
+	for(int i = 0; i < DnD_TID_Counter[DND_TID_MONSTER]; ++i) {
+		int tid = UsedMonsterTIDs[i];
+		if(!isActorAlive(tid))
+			continue;
+		
+		// if we are in angle threshold of view
+		x = GetActorX(tid) - GetActorX(owner);
+		y = GetActorY(tid) - GetActorY(owner);
+		
+		vang = VectorAngle(x, y);
+		angle_to_face = normalize360(vang - GetActorAngle(owner));
+		
+		dist = 1;
+		// approx distance
+		if(((vang + 0.125) % 0.5) > 0.25)
+			dist = FixedDiv(y, sin(vang));
+		else
+			dist = FixedDiv(x, cos(vang));
+		pitch = GetActorPitch(owner);
+		if
+		(
+			(angle_to_face < 0.2 || angle_to_face > 0.8) && 
+			dist < lock_on_range && dist < cur_dist &&
+			pitch >= -0.5 && pitch <= 0.5
+		)
+		{
+			// get the angle we make to face the actor and correct it to pixel ratio of doom (1.2)
+			pitch = VectorAngle(dist, GetActorZ(tid) + GetActorProperty(tid, APROP_HEIGHT) / 2 - (GetActorZ(owner) + GetActorViewHeight(owner)));
+			pitch = normalize360(pitch + GetActorPitch(owner));
+	
+			x = LOCKON_HUD_XHALF - (LOCKON_HUD_XHALF * FixedDiv(sin(angle_to_face), cos(angle_to_face))) >> 16;
+			y = LOCKON_HUD_YHALF - (LOCKON_HUD_XHALF * FixedDiv(sin(pitch), cos(pitch))) >> 16;
+			
+			if(x <= width && x >= -width && y <= height && y >= -height && (!check_for_sight || CheckSight(owner, tid, 0))) {
+				result = tid;
+				cur_dist = dist;
+
+				draw_x = x;
+				draw_y = y;
+			}
+		}
+	}
+
+	if(result && draw_gfx) {
+		SetHudSize(LOCKON_HUD_X, LOCKON_HUD_Y, 1);
+		SetFont("HOMMARK");
+		HudMessage(s:"A"; HUDMSG_PLAIN, LOCKON_ID_MARKER, CR_UNTRANSLATED, LOCKON_HUD_XHALF_F + (draw_x << 16), LOCKON_HUD_YHALF_F + (draw_y << 16), 0.5);
+	}
+
+	return result;
+}
+
+Script "DnD Homing Lock-on Draw" (int width, int height, int range) CLIENTSIDE {
+	int pnum = PlayerNumber();
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	width = width * (100 + GetPlayerAttributeValue(pnum, INV_LOCKONAREA)) / 100;
+	height = height * (100 + GetPlayerAttributeValue(pnum, INV_LOCKONAREA)) / 100;
+	range = range * (100 + GetPlayerAttributeValue(pnum, INV_LOCKONRANGE)) / 100;
+
+	range <<= 16;
+
+	int this = ActivatorTID();
+
+	int r = 1.0 * LOCKON_HUD_Y / LOCKON_HUD_X;
+	while(isAlive() && !CheckInventory("DnD_RemoveLockOn")) {
+		int w = Clamp_Between(((width / 2) * r) & 0xFFFF0000, 0, (GetHudRight(getcvar("vid_defwidth") - (LOCKON_LINE_LEN >> 16)) << 16) / 2);
+		int h = Clamp_Between(((height / 2) * r) & 0xFFFF0000, 0, LOCKON_HUD_YF / 2 - (FixedMul(LOCKON_LINE_LEN, r) & 0xFFFF0000));
+	
+		SetHudSize(LOCKON_HUD_X, LOCKON_HUD_Y, 1);
+		// left corner
+		SetFont("100pxD");
+		HudMessage(
+			s:"A";
+			HUDMSG_PLAIN,
+			LOCKON_ID_DOWN,
+			CR_UNTRANSLATED,
+			LOCKON_HUD_XF / 2 - w,
+			LOCKON_HUD_YF / 2 + h,
+			0
+		);
+		
+		// right corner
+		SetFont("100pxU");
+		HudMessage(
+			s:"A";
+			HUDMSG_PLAIN,
+			LOCKON_ID_UP,
+			CR_UNTRANSLATED,
+			LOCKON_HUD_XF / 2 + w,
+			LOCKON_HUD_YF / 2 - h,
+			0
+		);
+
+		// run this on server-side instead periodically and check an inventory item
+		if(!HandleTracerPicking(this, range, width, height, true, true, true))
+			HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_MARKER, 0, 0, 0, 0.01);
+
+		Delay(const:6);
+	}
+	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_DOWN, 0, 0, 0, 0.01);
+	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_UP, 0, 0, 0, 0.01);
+}
+
+Script "DnD Clear Homing Lock-on" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_DOWN, 0, 0, 0, 0.01);
+	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_UP, 0, 0, 0, 0.01);
+	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_MARKER, 0, 0, 0, 0.01);
+}
+
 #endif

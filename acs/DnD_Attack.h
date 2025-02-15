@@ -148,7 +148,7 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	if(flags & DND_ATF_TRACERPICKER) {
 		// only pick if we have no previous recollection of another target
 		if(!(extra2 & 0xFFFF)) {
-			g = HandleTracerPicking(owner, extra2 & 0xFFFF0000, extra & 0xFFFF, extra >> 16);
+			g = HandleTracerPicking(owner, extra2, extra & 0xFFFF, extra >> 16);
 			if(g) {
 				SetPointer(AAPTR_TRACER, g);
 				SetActorProperty(0, APROP_TRACERTID, g);

@@ -21,6 +21,7 @@ Actor BackpackCounter : Ammo
 Actor NewInfrared : Infrared replaces Infrared {
 	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Infrared!\c-"
 	inventory.pickupsound "items/infraredpick"
+	+INVENTORY.BIGPOWERUP
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
@@ -87,6 +88,7 @@ Actor BackpackPickMSG : CustomInventory {
 Actor NewAllMap : CustomInventory replaces Allmap {
     inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Area Map!\c-"
 	inventory.pickupsound "items/allmap"
+	+INVENTORY.BIGPOWERUP
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Chest Dropping Item")
@@ -120,6 +122,7 @@ Actor EvilSphere : Powerupgiver replaces BlurSphere
  +AUTOACTIVATE
  +INVENTORY.ALWAYSPICKUP
  +COUNTITEM
+ +INVENTORY.BIGPOWERUP
  States
  {
 	Spawn:
@@ -135,6 +138,7 @@ ACTOR NewBerserk : CustomInventory replaces Berserk
 {
   +COUNTITEM
   +INVENTORY.ALWAYSPICKUP
+  +INVENTORY.BIGPOWERUP
   inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Berserk!\c-"
   Inventory.PickupSound "misc/p_pkup"
   States
@@ -165,6 +169,7 @@ Actor InvulnerabilitySphere2 : InvulnerabilitySphere replaces InvulnerabilitySph
 	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Protection 90%!\c-"
 	Powerup.Type "Invulnerable_Better"
 	Powerup.Color "2F 2F 2F", 0.475
+	+INVENTORY.BIGPOWERUP
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")
@@ -194,6 +199,7 @@ Actor SoulSphere2 : CustomInventory replaces SoulSphere
 	inventory.pickupsound "items/soulsphere"
     SpawnID 25
     +COUNTITEM
+	+INVENTORY.BIGPOWERUP
     inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Soulsphere! 100 health!\c-"
     States
     {
@@ -219,6 +225,7 @@ Actor MegaSphere2 : CustomInventory {
 	SpawnID 132
 	+COUNTITEM
 	+INVENTORY.ALWAYSPICKUP
+	+INVENTORY.BIGPOWERUP
 	inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Megasphere! 200% health!\c-"
 	States {
 		Spawn:
@@ -240,6 +247,7 @@ Actor UberSphere : CustomInventory {
 	+COUNTITEM
 	+INVENTORY.AUTOACTIVATE
 	+INVENTORY.ALWAYSPICKUP
+	+INVENTORY.BIGPOWERUP
 	states {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("Dnd Pickup Setup")

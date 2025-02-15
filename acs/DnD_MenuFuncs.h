@@ -5528,6 +5528,19 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_RIPDAMAGE, 0, 0, val), s:"\n");
 				++k;
 			}
+
+			// lock-on block
+			val = GetPlayerAttributeValue(pnum, INV_LOCKONAREA);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LOCKONAREA, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_LOCKONRANGE);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LOCKONRANGE, 0, 0, val), s:"\n");
+				++k;
+			}
 			
 			// lifesteal block begins
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);

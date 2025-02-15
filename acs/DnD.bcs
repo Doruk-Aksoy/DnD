@@ -229,6 +229,7 @@ Script "DnD On Map Load" OPEN {
 
 	// reset used TIDs
 	i = 0;
+	Delay(const:7);
 	//Log(s:"check start cond ", d:UsedMonsterTIDs[i], s: " ", d:DND_MONSTERTID_BEGIN);
 	while(UsedMonsterTIDs[i] >= DND_MONSTERTID_BEGIN) {
 		//Log(s:"clear id ", d:i);
@@ -1639,7 +1640,6 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 		if(!pcount)
 			pcount = 1;
-
 		maxhp = ScaleMonster(this, m_id, pcount, realhp, isSummoned);
 	}
 	else {
@@ -2788,6 +2788,7 @@ Script "DnD On Respawn" RESPAWN {
 		GiveInventory("TaltosEffect", 1);
 		
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
+	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
 }
 
 Script 988 (int wepslot, int type) {
@@ -2848,7 +2849,8 @@ Script "DnD On Unloading" UNLOADING {
 
 // Enter level checks
 Script "DnD Player Setup" ENTER {
-	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
+	int pnum = PlayerNumber();
+	Thing_ChangeTID(0, P_TIDSTART + pnum);
 
 	// if its sp and we dont have DnD_Character non-zero, bring up class menu and freeze us
 	if(GameType() == GAME_SINGLE_PLAYER && !CheckInventory("DnD_Character")) {
@@ -2887,7 +2889,7 @@ Script "DnD Player Setup" ENTER {
 	GiveInventory("Ability_MonsterInfo", 1);
 	CleanPetStuff();
 	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
-	int pnum = PlayerNumber(), curlvl, i = 0;
+	int curlvl, i = 0;
 	int temp = 0;
 	bool wait_other_players = false;
 	str curmap;
@@ -2921,10 +2923,12 @@ Script "DnD Player Setup" ENTER {
 			PlayerCanLoad[pnum] = 1;
 			SetInventory("CanLoad", 1);
 			
-			ResetPlayerItems(pnum);
-			
-			// the above reset actual items of player, the below resets variables used to denote inventories and such
-			ResetPlayerInfo(pnum);
+			// this is so the previous reset between maps for unlogged players is retained in hardcore
+			if(isHardcore()) {
+				ResetPlayerItems(pnum);
+				// the above reset actual items of player, the below resets variables used to denote inventories and such
+				ResetPlayerInfo(pnum);
+			}
 		}
 		else {
 			PlayerCanLoad[pnum] = 0; //it's in else part, because loop might end early otherwise.
@@ -3987,7 +3991,8 @@ Script "DND Weapon Damage Cache" (int dmg_id, int dmg, int dmg_rand, int wepid) 
 	int pnum = PlayerNumber();
 
 	// prevents bug related to map change + Select state of weapons, causing multiple scripts to run many times
-	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
+	// if player is not logging in doesnt matter
+	if(PlayerIsLoggedIn(pnum) && IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
 		Terminate;
 
 	// we recalc accuracy in case a particular weapon has bonuses to it
@@ -5688,7 +5693,8 @@ Script 68 (int x) NET {
 			SpawnChestKey(0);
 			SpawnCharmWithMods_ForAll(INV_STAT_DEXTERITY);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, false, 300);
-			IncPlayerModValue(0, INV_ESS_KRULL, 50);
+			//IncPlayerModValue(0, INV_LOCKONRANGE, 50);
+			//IncPlayerModValue(0, INV_LOCKONAREA, 50);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

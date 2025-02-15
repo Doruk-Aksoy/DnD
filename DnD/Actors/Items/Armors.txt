@@ -5,6 +5,7 @@ Actor NewArmorBonus : CustomInventory replaces ArmorBonus {
 	inventory.pickupmessage "\ccArmor pickup  : \c[Y5]Armor Bonus x 1\c-"
 	inventory.pickupsound "items/armorbonus"
 	+COUNTITEM
+	+INVENTORY.BIGPOWERUP
 	States {
 		Spawn:
 			BON2 ABCDCB 4

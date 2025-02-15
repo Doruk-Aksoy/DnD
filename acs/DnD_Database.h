@@ -1045,6 +1045,7 @@ void load_char(int pnum, int char_id) {
 	
 	PlayerLoaded[pnum] = 1;
 	SetInventory("CanLoad", 0);
+
 	LoadPlayerData(pnum, char_id);
 }
 

@@ -2806,18 +2806,22 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 	FreeVec3(v_Vel);
 }
 
-Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
-	// arg1 contains damage, arg2 contains damage type as a string
-	// this causes A_KillChildren etc. to actually work...
-	if(arg2 == "Perish" || arg2 == "Special_NoPain" || arg2 == "SkipHandle" || arg2 == "ForcedPainBypass") {
-		SetResultValue(arg1);
-		Terminate;
-	}
+bool IsDamageEventException(str dt) {
+	return dt == "Suicide" || dt == "Telefrag" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass" || dt == "InstantDeath";
+}
 
+Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// in monster shooting player case, temp holds accuracy stored in the projectile!
 	int temp, dmg, m_id;
 	int pnum;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
+		// arg1 contains damage, arg2 contains damage type as a string
+		// this causes A_KillChildren etc. to actually work...
+		if(IsDamageEventException(arg2)) {
+			SetResultValue(arg1);
+			Terminate;
+		}
+
 		bool isRipper = false;
 		int shooter = -1;
 
@@ -3383,26 +3387,34 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			SetActivator(shooter);
 
-			// wepid
-			m_id = arg1 & ATK_WID_MASK;
-			arg1 >>= ATK_CACHE_SHIFT;
+			if(!(dmg_data & DND_DAMAGEFLAG_NONWEAPON)) {
+				// wepid
+				m_id = arg1 & ATK_WID_MASK;
+				arg1 >>= ATK_CACHE_SHIFT;
 
-			// dmg cache id
-			dmg = arg1 & ATK_CACHE_MASK;
-			arg1 >>= ATK_DTYPE_SHIFT;
+				// dmg cache id
+				dmg = arg1 & ATK_CACHE_MASK;
+				arg1 >>= ATK_DTYPE_SHIFT;
 
-			// dmg type
-			temp = arg1 & ATK_DTYPE_MASK;
-			arg1 >>= ATK_DPCT_SHIFT;
+				// dmg type
+				temp = arg1 & ATK_DTYPE_MASK;
+				arg1 >>= ATK_DPCT_SHIFT;
 
-			// % adjustment factor
-			factor = arg1 & ATK_DPCT_MASK;
+				// % adjustment factor
+				factor = arg1 & ATK_DPCT_MASK;
 
-			dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
 
-			// setup the flags and factor
-			if(factor != 100)
-				dmg = dmg * factor / 100;
+				// setup the flags and factor
+				if(factor != 100)
+					dmg = dmg * factor / 100;
+			}
+			else {
+				// non-weapon sources that aren't spells
+				dmg = arg1 & NONWEP_DMG_MASK; // dmg
+				temp = arg1 >> NONWEP_DMG_SHIFT; // dmg_type
+				m_id = -1;
+			}
 
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
 				dmg = dmg * inflictor_class / 100;

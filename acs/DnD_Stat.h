@@ -1070,6 +1070,7 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
 
 void RecalculatePlayerLevelInfo() {
 	PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] = 0;
+	PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] = 0;
 	PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = INT_MAX;
 	PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = INT_MIN;
 	PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] = 0;

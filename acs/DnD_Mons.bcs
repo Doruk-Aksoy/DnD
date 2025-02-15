@@ -251,7 +251,7 @@ Script "DnD Monster Blind Cancel CS" (void) CLIENTSIDE {
 }
 
 // type is encoded in duration after the first 16 bits
-// intensity is 0-100 with percentage base, rgb is rgb encoded in 8 bit packets
+// intensity is 0-100 with percentage base, rgb is rgb encoded in 8 bit packets with bgr order
 // distance is how far away from the monster we allow the blind to affect the players
 Script "DnD Monster Blind Cast" (int duration, int rgb, int intensity, int distance) {
 	// create the blinding eye actor depending on severity

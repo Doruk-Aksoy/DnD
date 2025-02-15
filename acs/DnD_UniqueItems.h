@@ -655,11 +655,11 @@ void SetupUniqueItems() {
 Script "DnD Load Inventory Attributes" OPEN {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
 		SetupArmorDropWeights();
-		Delay(const:2);
+		Delay(const:10);
 		SetupInventoryAttributeTable();
-		Delay(const:2);
+		Delay(const:10);
 		SetupInventoryTagGroups();
-		Delay(const:2);
+		Delay(const:10);
 		SetupUniqueItems();
 		SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
 	}
@@ -668,9 +668,9 @@ Script "DnD Load Inventory Attributes" OPEN {
 Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
 		SetupArmorDropWeights();
-		Delay(const:2);
+		Delay(const:10);
 		SetupInventoryAttributeTable();
-		Delay(const:2);
+		Delay(const:10);
 		SetupUniqueItems();
 		SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
 	}

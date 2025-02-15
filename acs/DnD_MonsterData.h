@@ -2634,7 +2634,7 @@ void SetupMonsterWeights() {
 Script "DnD Setup Monster Data" OPEN {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS)) {
 		SetupMonsterData();
-		Delay(const:10);
+		Delay(const:15);
 		SetupMonsterWeights();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
@@ -2642,7 +2642,7 @@ Script "DnD Setup Monster Data" OPEN {
 
 Script "DnD Setup Monster Data CS" OPEN CLIENTSIDE {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS)) {
-		Delay(const:15);
+		Delay(const:20);
 		SetupMonsterData();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}

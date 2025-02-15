@@ -205,8 +205,11 @@ enum {
 	INV_REDUCED_OVERHEAT,
 	INV_DMGREDUCE_ALL,
 	INV_ITEMRARITY,
+
 	INV_RIPCOUNT,
 	INV_RIPDAMAGE,
+	INV_LOCKONAREA,
+	INV_LOCKONRANGE,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -1273,8 +1276,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ITEMRARITY].attrib_level_modifier = 0;
 	ItemModTable[INV_ITEMRARITY].tags = INV_ATTR_TAG_UTILITY;
 
-	ItemModTable[INV_RIPCOUNT].attrib_low = 2;
-	ItemModTable[INV_RIPCOUNT].attrib_high = 7;
+	ItemModTable[INV_RIPCOUNT].attrib_low = 5;
+	ItemModTable[INV_RIPCOUNT].attrib_high = 15;
 	ItemModTable[INV_RIPCOUNT].attrib_level_modifier = 0;
 	ItemModTable[INV_RIPCOUNT].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 
@@ -1282,6 +1285,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_RIPDAMAGE].attrib_high = 4;
 	ItemModTable[INV_RIPDAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_RIPDAMAGE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_LOCKONAREA].attrib_low = 5;
+	ItemModTable[INV_LOCKONAREA].attrib_high = 10;
+	ItemModTable[INV_LOCKONAREA].attrib_level_modifier = 0;
+	ItemModTable[INV_LOCKONAREA].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_LOCKONRANGE].attrib_low = 5;
+	ItemModTable[INV_LOCKONRANGE].attrib_high = 10;
+	ItemModTable[INV_LOCKONRANGE].attrib_level_modifier = 0;
+	ItemModTable[INV_LOCKONRANGE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
 	/////////////////////////
 	// corrupted implicits //

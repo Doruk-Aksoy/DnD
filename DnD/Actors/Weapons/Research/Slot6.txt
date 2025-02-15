@@ -515,6 +515,7 @@ Actor LGAltShooter : DnD_Activator {
 Actor LGPuffSEX : DnD_BaseRailPuff {
 	Height 4
 	Radius 2
+	Stamina 4096
 	+THRUSPECIES
 	States {
 		Spawn:

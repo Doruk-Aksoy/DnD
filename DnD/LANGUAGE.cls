@@ -16,11 +16,11 @@ CLASS0_NAME				= "Doomguy";
 CLASS0_LEFTIMG			= "P1_LIMG";
 CLASS0_RIGHTIMG			= "P1_RIMG";
 CLASS0_MUGSHOT			= "STFEVL0";
-CLASS0_TEXT				= "The original hero. Mean, tough and ready to kick ass of the demon menace! "
+CLASS0_TEXT				= "The original hero. Mean, tough and ready to kick the ass of the demon menace! "
 						  "Milennia of experience fighting demons has certainly taken its toll on him however...";
 
 CLASS0_PERK1			= "Damage taken from demons is reduced by 10%.";
-CLASS0_PERK2			= "Demons have 5% chance to drop their essence. Anyone can pick these to heal for 1% of enemy max health and gain 18% more damage for 5 seconds.";
+CLASS0_PERK2			= "Demons have 5% chance to drop their essence on kill. Anyone can pick these to heal for 1% of enemy max health and gain 18% more damage for 5 seconds.";
 CLASS0_PERK3			= "Your attacks reduce resists of demons by 33% for 5 seconds. Slain demons rest in peace.";
 
 // Marine
