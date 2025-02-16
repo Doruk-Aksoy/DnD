@@ -685,13 +685,13 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			int j;
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1)) {
-				SpawnOrb(i, true);
+				SpawnOrb(i, true, false, 1 + random(0, MonsterProperties[m_id].level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 				bits |= DND_LOOTBIT_ORB;
 			}
 
 			// for tokens -- same likelihood to drop as orbs
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2)) {
-				SpawnToken(i);
+				SpawnToken(i, 1 + random(0, MonsterProperties[m_id].level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 				bits |= DND_LOOTBIT_TOKEN;
 			}
 
@@ -1201,7 +1201,7 @@ bool IsEliteException(int m_id, int monster_type) {
 			monster_type == MONSTER_PHANTASM || monster_type == MONSTER_WRAITH || monster_type == MONSTER_HADESSPHERE || monster_type == MONSTER_UNDEADPRIESTGHOST;
 }
 
-void HandleUniqueDeath(int p_actor, int unique_id) {
+void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 	int pnum = p_actor - P_TIDSTART;
 	switch(unique_id) {
 		case MONSTER_TERON:
@@ -1230,7 +1230,7 @@ void HandleUniqueDeath(int p_actor, int unique_id) {
 		break;
 		case MONSTER_HOLLOWSHELL:
 			// hollow orb: adds an extra mod to a non-unique charm even if it's at its limit (at most +1 of its current limit)
-			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1);
+			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 		break;
 		case MONSTER_OMNISIGHT:
 			// omnisight influence: large accuracy, % increased accuracy rating
@@ -1242,7 +1242,7 @@ void HandleUniqueDeath(int p_actor, int unique_id) {
 		break;
 		case MONSTER_ONIMUZ:
 			// Phantasmal Orb: grants used weapon ability to hit ghosts but do 25% less damage overall.
-			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
+			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 		break;
 		case MONSTER_HARKIMONDE:
 			// harkimonde influence: Attacks have chance to ignore shields.
@@ -1270,7 +1270,7 @@ void HandleUniqueDeath(int p_actor, int unique_id) {
 		break;
 		case MONSTER_ABAXOTH:
 			// Assimilation Orb: Assimilates a chosen charm into another, merging them unpredictably, randomly taking modifiers from both charms. Can have up to 1 additional modifier.
-			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
+			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 		break;
 	}
 }

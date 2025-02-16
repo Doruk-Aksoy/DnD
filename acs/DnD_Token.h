@@ -24,14 +24,14 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
     return res;
 }
 
-void RollTokenInfo(int item_pos, int token_type, bool onField) {
+void RollTokenInfo(int item_pos, int token_type, bool onField, int stack = 1) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = 1;
 	
 #ifdef ISDEBUGBUILD
 	Inventories_On_Field[item_pos].item_stack = 100;
 #else
-	Inventories_On_Field[item_pos].item_stack = 1; // stackables have default stack of 1
+	Inventories_On_Field[item_pos].item_stack = stack; // stackables have default stack of 1
 #endif
 
 	Inventories_On_Field[item_pos].item_type = DND_ITEM_TOKEN;

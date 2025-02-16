@@ -1,0 +1,1 @@
+- A perk to make berserk apply to all melee weapons at % value (high tier perk)

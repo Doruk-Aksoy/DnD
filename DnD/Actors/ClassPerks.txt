@@ -5,7 +5,7 @@ Actor Doomguy_Perk25 : DnD_Boolean { }
 Actor Doomguy_Perk25_Damage : PowerDamage {
 	damagefactor "normal", 1.0
 	Powerup.Color "DF 11 11", 0.2
-	powerup.duration -5
+	powerup.duration -10
 }
 
 Actor Doomguy_Perk50 : DnD_Boolean { }

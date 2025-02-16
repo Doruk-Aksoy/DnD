@@ -4,7 +4,7 @@
 // Hardcore Info
 #define DND_HARDCORE_INVALID 0
 #define DND_HARDCORE_VALID 1
-#define MAXFLAGS 30
+#define MAXFLAGS 31
 str FlagCheckList[MAXFLAGS] = {
 	"sv_maxlives",
 	"sv_maxclientsperip",
@@ -35,7 +35,8 @@ str FlagCheckList[MAXFLAGS] = {
 	"sv_itemrespawn",
 	"sv_deadplayerscankeepinventory",
 	"Compat_ClientsSendFullButtonInfo",
-	"Survival"
+	"Survival",
+	"sv_smartaim"
 };
 
 #define DND_HARDCORE_MAXLIVES 1
@@ -83,7 +84,8 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	1,
 	0,
 	1,
-	1
+	1,
+	2
 };
 
 #define MAXDNDFLAGS 49

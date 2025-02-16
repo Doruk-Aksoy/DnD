@@ -17,8 +17,7 @@ Actor "BFG 9000" : BFG9000 {
 			TNT1 A 0 A_GiveInventory("P_GreenFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 100, 1 | (8 << 16), DND_WEAPON_BFG6000)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 2000, 0, DND_WEAPON_BFG6000)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_BFG6000)
 		ReadyLoop:
 			PRDC A 1 A_WeaponReady
 		Loop
@@ -87,9 +86,7 @@ Actor "Upgraded BFG 9000" : BFG9000 {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 150, 4 | (6 << 16), DND_WEAPON_BFG32768)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 2500, 0, DND_WEAPON_BFG32768)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 224, 0, DND_WEAPON_BFG32768)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_BFG32768)
 		ReadyLoopInit:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_BFG32768, 5 | (17 << 16))
@@ -331,8 +328,7 @@ Actor Devastator : BFG9000 { // upgraded bfg 9000-2
 		Ready:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 8, 8 | (10 << 16), DND_WEAPON_DEVASTATOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 64, 0, DND_WEAPON_DEVASTATOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DEVASTATOR)
 		ReadyLoop:
 			DEVA A 1 A_WeaponReady
 		Loop
@@ -649,10 +645,7 @@ ACTOR MFG : BFG9000 {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_giveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 425, 0, DND_WEAPON_MFG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 200, 0, DND_WEAPON_MFG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 32, 0, DND_WEAPON_MFG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_3, 128, 0, DND_WEAPON_MFG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_MFG)
 		ReadyLoop:
 			NBFG A 1 A_WeaponReady
 		Loop
@@ -1110,9 +1103,7 @@ ACTOR "Rail Gun" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 80, 0, DND_WEAPON_RAILGUN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 160, 0, DND_WEAPON_RAILGUN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 240, 0, DND_WEAPON_RAILGUN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_RAILGUN)
 		ReadyLoop:
 			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
 			RAIG A 2 A_WeaponReady
@@ -1359,8 +1350,7 @@ Actor "Gauss Rifle" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 200, 0, DND_WEAPON_GAUSSRIFLE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 96, 0, DND_WEAPON_GAUSSRIFLE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_GAUSSRIFLE)
 		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("GaussZoom", 3, "Zoom3")
 			TNT1 A 0 A_JumpIfInventory("GaussZoom", 2, "Zoom2")
@@ -1867,9 +1857,7 @@ ACTOR "Death Ray" : Weapon
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_0, 450, 0, DND_WEAPON_DEATHRAY)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_1, 150, 0, DND_WEAPON_DEATHRAY)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_DMGID_2, 550, 0, DND_WEAPON_DEATHRAY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DEATHRAY)
 		ReadyLoopInit:
 			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
 			TNT1 A 0 A_PlaySound("Deathray/Loop", CHAN_WEAPON, 1.0, 1)

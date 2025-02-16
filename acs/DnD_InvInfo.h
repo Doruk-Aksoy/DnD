@@ -15,8 +15,8 @@
 #define DND_MAX_CHARM_QUALITY 25
 
 // for hybrid armor implicits
-#define DND_ARMOR_TO_MIT_RATIO 25 // armor mit or shield mit implicits will only give this factor of the rating provided as mitigation %
-#define DND_SHIELD_TO_MIT_RATIO 15 // same as above but for es
+#define DND_ARMOR_TO_MIT_RATIO 20 // armor mit or shield mit implicits will only give this factor of the rating provided as mitigation %
+#define DND_SHIELD_TO_MIT_RATIO 12 // same as above but for es
 
 enum {
 	DND_CORR_OUTCOME_QUALITY,

@@ -100,7 +100,7 @@ void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVel
 	}
 }
 
-void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0, bool noRandomVelXY = false, int extra = -1) {
+void SpawnToken(int pnum, int stack = 0, int unused2 = 0, bool noRandomVelXY = false, int extra = -1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		// c is the index on the field now
@@ -108,8 +108,11 @@ void SpawnToken(int pnum, int unused1 = 0, int unused2 = 0, bool noRandomVelXY =
 		int i = 0, w = random(1, MAX_TOKEN_WEIGHT);
 		
 		for(; i < MAX_TOKENS && TokenWeights[i] < w; ++i);
+
+		if(!stack)
+			stack = 1;
 		
-		RollTokenInfo(c, i, true);
+		RollTokenInfo(c, i, true, stack);
 		SpawnDrop( GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_TOKEN);
@@ -189,7 +192,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 
 				case BODYARMOR_GUNSLINGER:
 					special_roll = PPOWER_CANROLLPHYS;
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_CANROLLPHYS, item_tier, 1.25);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_CANROLLPHYS, item_tier, 1.75);
 				break;
 				case BODYARMOR_OCCULT:
 					special_roll = PPOWER_CANROLLOCCULT;
@@ -215,7 +218,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 100, PPOWER_CYBER, item_tier, 40);
 				break;
 				case BODYARMOR_DUELIST:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_HITSCANPROTECT, item_tier, 1.75);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_HITSCANPROTECT, item_tier, 2.25);
 				break;
 				case BODYARMOR_NECRO:
 					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, PPOWER_SPIKES, item_tier, 60);
@@ -263,13 +266,13 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 45, 0, item_tier, 25);
 				break;
 				case BOOTS_FUSION:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 18, PPOWER_LESSOVERHEAT, item_tier, 8);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 20, PPOWER_LESSOVERHEAT, item_tier, 8);
 				break;
 				case BOOTS_LEATHER:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 7.5, 0, item_tier, 0.5);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 8.0, 0, item_tier, 1.0);
 				break;
 				case BOOTS_SNAKESKIN:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.0, PPOWER_REDUCEDPOISONTAKEN, item_tier, 0.5);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.5, PPOWER_REDUCEDPOISONTAKEN, item_tier, 1.0);
 				break;
 				case BOOTS_DRAKESKIN:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, PPOWER_REDUCEDFIRETAKEN, item_tier, 10);
@@ -286,7 +289,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, PPOWER_MELEEDAMAGE, item_tier, 40);
 				break;
 				case HELMS_SYNTHMETAL:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 10.0, PPOWER_SYNTHMETALMASK, item_tier, 1.25);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 10.0, PPOWER_SYNTHMETALMASK, item_tier, 1.75);
 				break;
 				case HELMS_KNIGHT:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 75, PPOWER_MELEEIGNORESHIELD, item_tier, 40);
@@ -301,7 +304,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 72, PPOWER_PRECISIONCRIT, item_tier, 24);
 				break;
 				case HELMS_ROBE:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 35, PPOWER_ESHIELDABSORB, item_tier, 15);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 36, PPOWER_ESHIELDABSORB, item_tier, 16);
 				break;
 			}
 		break;

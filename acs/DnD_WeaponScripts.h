@@ -323,6 +323,466 @@ Script "DnD Can Fire Weapon" (void) {
 	SetResultValue(0);
 }
 
+void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid) {
+	// we recalc accuracy in case a particular weapon has bonuses to it
+	bool firingLoopRun = false;
+	if(!CheckInventory("DnD_WeaponSwapCheck")) {
+		GiveInventory("DnD_WeaponSwapCheck", 1);
+		firingLoopRun = true;
+		
+		// weapon swap related things can go here
+		// we have access to the old/previous weapon at this point until below SetInventory
+		if(GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT) && IsMeleeWeapon(CheckInventory("DnD_WeaponID")))
+			GiveInventory("DnD_SwappedFromMelee", 1);
+
+		// we are now committed to this weapon
+		SetInventory("DnD_WeaponID", wepid);
+		
+		CalculatePlayerAccuracy(pnum, wepid);
+	}
+
+	//printbold(s:"cached id and wep ", d:dmg_id, s:" ", d: wepid);
+	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand);
+}
+
+Script "DnD Weapon Damage Cache" (int wepid) {
+	int pnum = PlayerNumber();
+
+	if(PlayerIsLoggedIn(pnum) && IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
+		Terminate;
+
+	switch(wepid) {
+		case DND_WEAPON_FIST:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 10, 1 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 15, 12 | (16 << 16), wepid);
+		break;
+		case DND_WEAPON_CHAINSAW:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 5 | (10 << 16), wepid);
+		break;
+		case DND_WEAPON_DOUBLECHAINSAW:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 5 | (10 << 16), wepid);
+		break;
+		case DND_WEAPON_KATANA:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 12, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 80, 0, wepid);
+		break;
+		case DND_WEAPON_EXCALIBAT:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 25, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 128, 0, wepid);
+		break;
+		case DND_WEAPON_INFERNOSWORD:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 60, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 48, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 20, 2 | (4 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 8, 8 | (10 << 16), wepid);
+		break;
+		case DND_WEAPON_DUSKBLADE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 96, 0, wepid);
+		break;
+		case DND_WEAPON_SICKLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 8 | (12 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 5, 15 | (18 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 80, 0, wepid);
+		break;
+		
+		case DND_WEAPON_PISTOL:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+		break;
+		case DND_WEAPON_AKIMBOPISTOL:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 30, 0, wepid);
+		break;
+		case DND_WEAPON_MAGNUM:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 50, 0, wepid);
+		break;
+		case DND_WEAPON_LASERPISTOL:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 3 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 3 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 15, 3 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 20, 3 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_4, 25, 3 | (6 << 16), wepid);
+		break;
+		case DND_WEAPON_RUBYWAND:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 3 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 25, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 8, 4 | (8 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 24, 0, wepid);
+		break;
+		case DND_WEAPON_ASSAULTRIFLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 30, 0, wepid);
+		break;
+		case DND_WEAPON_VIPERSTAFF:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 40, 3 | (5 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 15 | (25 << 16), wepid);
+		break;
+		case DND_WEAPON_SCATTERGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (4 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 3, 2 | (4 << 16), wepid);
+		break;
+		
+		case DND_WEAPON_SHOTGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (3 << 16), wepid);
+		break;
+		case DND_WEAPON_PURIFIER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+		break;
+		case DND_WEAPON_KILLSTORM:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
+		break;
+		case DND_WEAPON_EMERALDWAND:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 150, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 8, 1 | (4 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 50, 0, wepid);
+		break;
+		case DND_WEAPON_DEADLOCK:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+		break;
+		case DND_WEAPON_NITROGENCROSSBOW:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 210, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 75, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 5, 0, wepid);
+		break;
+		case DND_WEAPON_WHEELOFTORMENT:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 160, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 192, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 10, 1 | (2 << 16), wepid);
+		break;
+		case DND_WEAPON_CHARONBLASTER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 6, 10 | (12 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 2, 5 | (8 << 16), wepid);
+		break;
+		
+		case DND_WEAPON_SUPERSHOTGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (3 << 16), wepid);
+		break;
+		case DND_WEAPON_HEAVYSUPERSHOTGUN:
+		case DND_WEAPON_ERASUS:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+		break;
+		case DND_WEAPON_HELLSMAW:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 75, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 45, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 30, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 25, 0, wepid);
+		break;
+		case DND_WEAPON_AXE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 6 | (9 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 125, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 100, 0, wepid);
+		break;
+		case DND_WEAPON_PLASMACANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 40, 0, wepid);
+		break;
+		case DND_WEAPON_SHOCKER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 4 | (5 << 16), wepid);
+		break;
+		case DND_WEAPON_HADES:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 2 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 18, 0, wepid);
+		break;
+		case DND_WEAPON_CROSSBOW:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 400, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 200, 0, wepid);
+		break;
+		
+		case DND_WEAPON_SILVERGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 8, 4 | (6 << 16), wepid);
+		break;
+		case DND_WEAPON_SLAYER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 10, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 50, 0, wepid);
+		break;
+		
+		case DND_WEAPON_MACHINEGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 3 | (4 << 16), wepid);
+		break;
+		case DND_WEAPON_HEAVYMACHINEGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 0, wepid);
+		break;
+		case DND_WEAPON_LEADSPITTER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 16, 0, wepid);
+		break;
+		case DND_WEAPON_DEMONSEALER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 150, 0, wepid);
+		break;
+		case DND_WEAPON_TEMPLARMG:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
+			// compat with gl
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 128, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 80, 0, wepid);
+		break;
+		case DND_WEAPON_RIOTCANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 12, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 15, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 8, 4 | (6 << 16), wepid);
+		break;
+		case DND_WEAPON_ACIDRIFLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 5, 2 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 10, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 96, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_4, 3, 1 | (2 << 16), wepid);
+		break;
+		case DND_WEAPON_FUSIONBLASTER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 30, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 200, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 6, 0, wepid);
+		break;
+		case DND_WEAPON_INCINERATOR:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 16, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 5, 16 | (18 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 80, 0, wepid);
+		break;
+		
+		case DND_WEAPON_DESOLATOR:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 150, 0, wepid);
+		break;
+		case DND_WEAPON_MINIGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 4 | (7 << 16), wepid);
+		break;
+		case DND_WEAPON_EBONYCANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 96, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 8, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 1, 4 | (8 << 16), wepid);
+		break;
+		case DND_WEAPON_MPPB:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 7, 6 | (8 << 16), wepid);
+		break;
+		
+		case DND_WEAPON_ROCKETLAUNCHER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 45, 2 | (4 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 128, 0, wepid);
+		break;
+		case DND_WEAPON_TORPEDOLAUNCHER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 15 | (20 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 224, 0, wepid);
+		break;
+		case DND_WEAPON_GRENADELAUNCHER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 128, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 80, 0, wepid);
+		break;
+		case DND_WEAPON_VINDICATOR:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 12, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 16, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 20, 0, wepid);
+		break;
+		case DND_WEAPON_HAMMER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 3 | (5 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 96, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 180, 0, wepid);
+		break;
+		case DND_WEAPON_METEORLAUNCHER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 200, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 192, 0, wepid);
+		break;
+		case DND_WEAPON_HEAVYGL:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 128, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 6, 1 | (3 << 16), wepid);
+		break;
+		case DND_WEAPON_FREEZER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 150, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 3, 1 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 36, 0, wepid);
+		break;
+		case DND_WEAPON_GRAVDIS:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 400, 0, wepid);
+		break;
+		case DND_WEAPON_VOIDCANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 100, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 300, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 30, 0, wepid);
+		break;
+		case DND_WEAPON_MERCURYLAUNCHER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 16, 16 | (20 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 24, 0, wepid);
+		break;
+		case DND_WEAPON_ROTARYGRENADELAUNCHER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 192, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 384, 0, wepid);
+		break;
+		case DND_WEAPON_HEAVYMISSILELAUNCHER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 192, 0, wepid);
+		break;
+		case DND_WEAPON_SEDRINSTAFF:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 15 | (20 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 96, 0, wepid);
+		break;
+		
+		case DND_WEAPON_PLASMARIFLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 4 | (8 << 16), wepid);
+		break;
+		case DND_WEAPON_NUCLEARPLASMARIFLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 6, 6 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 1 | (3 << 16), wepid);
+		break;
+		case DND_WEAPON_TURELCANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 80, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 135, 0, wepid);
+		break;
+		case DND_WEAPON_FROSTFANG:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 3 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 3, 2 | (3 << 16), wepid);
+		break;
+		case DND_WEAPON_FLAMETHROWER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 1 | (4 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 2, 0, wepid);
+		break;
+		case DND_WEAPON_LIGHTNINGGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 7 | (10 << 16), wepid);
+		break;
+		case DND_WEAPON_REBOUNDER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 35, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 150, 0, wepid);
+		break;
+		case DND_WEAPON_DARKLANCE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 50, 0, wepid);
+		break;
+		case DND_WEAPON_RHINORIFLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 75, 0, wepid);
+		break;
+		case DND_WEAPON_NAILGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 13 | (21 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 20, 0, wepid);
+		break;
+		case DND_WEAPON_BASILISK:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 6, 3 | (8 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 12, 6 | (12 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 96, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 32, 0, wepid);
+		break;
+		
+		case DND_WEAPON_BFG6000:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 100, 1 | (8 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 2000, 0, wepid);
+		break;
+		case DND_WEAPON_BFG32768:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 150, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 2500, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 224, 0, wepid);
+		break;
+		case DND_WEAPON_DEVASTATOR:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 8, 8 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 64, 0, wepid);
+		break;
+		case DND_WEAPON_MFG:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 425, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 200, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 32, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 128, 0, wepid);
+		break;
+		case DND_WEAPON_IONCANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 160, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 144, 0, wepid);
+		break;
+		case DND_WEAPON_THUNDERSTAFF:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 50, 5 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 100, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 250, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 750, 0, wepid);
+		break;
+		case DND_WEAPON_GAUSSRIFLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 200, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 96, 0, wepid);
+		break;
+		case DND_WEAPON_RAILGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 80, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 160, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 240, 0, wepid);
+		break;
+		case DND_WEAPON_DEATHRAY:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 450, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 150, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 550, 0, wepid);
+		break;
+		
+		case DND_WEAPON_DEATHSTAFF:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 128, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 200, 2 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 8, 16 | (24 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 1, 6 | (12 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_4, 1, 0, wepid);
+		break;
+		case DND_WEAPON_RAZORFANG:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 12, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 2, 6 | (9 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 1, 16 | (20 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 64, 0, wepid);
+		break;
+		case DND_WEAPON_SUNSTAFF:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 64, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 48, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 36, 0, wepid);
+		break;
+		case DND_WEAPON_SOULREAVER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 6, 4 | (6 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 128, 0, wepid);
+		break;
+		
+		case DND_WEAPON_SAWEDOFF:
+		case DND_WEAPON_SMG:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+		break;
+		case DND_WEAPON_SOULRENDER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 40, 3 | (4 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 40, 6 | (8 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 20, 1 | (8 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 75, 0, wepid);
+		break;
+		case DND_WEAPON_HELLFORGECANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 10, 1 | (8 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 64, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 1, 3 | (6 << 16), wepid);
+		break;
+		case DND_WEAPON_BLOODFIENDSPINE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 16 | (32 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 36, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 5, 1 | (3 << 16), wepid);
+		break;
+		case DND_WEAPON_ENFORCERRIFLE:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 4 | (9 << 16), wepid);
+		break;
+		case DND_WEAPON_VENOM:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 3 | (5 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 5, 1 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 6, 0, wepid);
+		break;
+		case DND_WEAPON_DEMONHEART:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 32, 28 | (36 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 48, 0, wepid);
+		break;
+		case DND_WEAPON_DARKGLOVES:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 10, 6 | (9 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 48, 0, wepid);
+		break;
+		case DND_WEAPON_HEAVYNAILGUN:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 4 | (8 << 16), wepid);
+		break;
+		case DND_WEAPON_BERETTAS:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 10, 0, wepid);
+		break;
+		case DND_WEAPON_PLASMABOLTER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 8, 3 | (5 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 35, 0, wepid);
+		break;
+		case DND_WEAPON_RIPPERCANNON:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 0, wepid);
+		break;
+	}
+
+	SetResultValue(0);
+}
+
 Script "DnD Weapon Select" (int wepid) {
 	SetInventory("DnD_WeaponID", wepid);
 	SetResultValue(0);

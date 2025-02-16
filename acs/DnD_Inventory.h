@@ -20,10 +20,10 @@
 #define INVENTORY_HOLDTIME 0.5
 #define INVENTORY_FADETIME 0.5
 
-#define DND_BASE_DISASSEMBLE_COST 500
-#define DND_DISASSEMBLE_LEVEL_PERCENT 20
-#define DND_DISASSEMBLE_IMPLICIT_PERCENT 33
-#define DND_DISASSEMBLE_TIER_PERCENT 25
+#define DND_BASE_DISASSEMBLE_COST 350
+#define DND_DISASSEMBLE_LEVEL_PERCENT 15
+#define DND_DISASSEMBLE_IMPLICIT_PERCENT 25
+#define DND_DISASSEMBLE_TIER_PERCENT 20
 #define DND_BASE_DISASSEMBLE_CHANCE 25 // 25%
 #define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 5 // 5%
 #define DND_BASE_FRACTURE_DISASSEMBLE_CHANCE 3
@@ -433,6 +433,7 @@ int CreateItemSpot() {
 	//Naive but very fast: Will just replace old item if index goes back to it - have a bigger array to prevent the negative effect.
 	//Just having a loop here creates an error so avoid looping at all costs.
 	//Remember, the floor gets cleared on a new map, so most likely the older items are useless for the players anyways, except on 4k mob slaugher maps.
+	// Note: This table for free items index must be zero'd at the end of every map... otherwise we will try to give index to something already on field next map...
 	if ((++PointerIndexTable[PTR_FREEITEMWORLD]) >= MAX_INVENTORIES_ON_FIELD)
 		PointerIndexTable[PTR_FREEITEMWORLD] = 0;
 		

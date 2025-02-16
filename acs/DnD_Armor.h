@@ -360,7 +360,7 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0, int extr
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, armor_type, special_roll);
+			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, armor_type, special_roll, Inventories_On_Field[item_pos].implicit.attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -382,7 +382,7 @@ int RollBootInfo(int item_pos, int item_tier, int pnum) {
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_BOOT, armor_type, special_roll);
+			roll = PickRandomAttribute(DND_ITEM_BOOT, armor_type, special_roll, Inventories_On_Field[item_pos].implicit.attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -404,7 +404,7 @@ int RollHelmInfo(int item_pos, int item_tier, int pnum, int type = -1) {
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_HELM, armor_type, special_roll);
+			roll = PickRandomAttribute(DND_ITEM_HELM, armor_type, special_roll, Inventories_On_Field[item_pos].implicit.attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;

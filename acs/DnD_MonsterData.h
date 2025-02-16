@@ -125,55 +125,55 @@ global int 54: Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS];
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 15 | (16 << 16);
+		return 10 | (16 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 22 | (21 << 16);
+		return 15 | (21 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 33 | (30 << 16);
+		return 24 | (30 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 40 | (33 << 16);
+		return 32 | (33 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 45 | (35 << 16);
+		return 35 | (35 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 27 | (25 << 16);
+		return 20 | (25 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 85 | (50 << 16);
+		return 75 | (50 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 100 | (60 << 16);
+		return 90 | (60 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 42 | (24 << 16);
+		return 40 | (24 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 62 | (40 << 16);
+		return 55 | (40 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 95 | (52 << 16);
+		return 80 | (52 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 150 | (75 << 16);
-		
-		case MONSTERCLASS_FATSO:
-		return 145 | (75 << 16);
-		
-		case MONSTERCLASS_ARACHNOTRON:
 		return 135 | (75 << 16);
 		
+		case MONSTERCLASS_FATSO:
+		return 130 | (75 << 16);
+		
+		case MONSTERCLASS_ARACHNOTRON:
+		return 120 | (75 << 16);
+		
 		case MONSTERCLASS_ARCHVILE:
-		return 165 | (96 << 16);
+		return 150 | (96 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 1000 | (120 << 16);
+		return 1000 | (125 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1350 | (125 << 16);
+		return 1350 | (135 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
 		return 20 | (18 << 16);

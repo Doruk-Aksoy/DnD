@@ -1424,7 +1424,7 @@ void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false, int s
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
 			
 		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnSpecificOrb(pnum, id, sound, true);
+			SpawnSpecificOrb(pnum, id, sound, true, stack);
 	}
 }
 
@@ -1432,7 +1432,7 @@ void SpawnSpecificOrbForAll(int id, int repeats, int stack = 1) {
 	for(int k = 0; k < repeats; ++k) {
 		for(int j = 0; j < MAXPLAYERS; ++j) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j))
-				SpawnSpecificOrb(j, id, false);
+				SpawnSpecificOrb(j, id, false, false, stack);
 		}
 	}
 }
