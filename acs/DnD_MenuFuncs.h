@@ -84,7 +84,7 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 			else
 				p = IsButtonHeld(bpress, GetMovementButton(MVMT_BT_RIGHT)) && !CheckInventory("Menu_LRCooldown");
 			if(p) {
-				if(curposx < condx_max) {
+				if(curposx + 1 < condx_max && ResearchInfo[curr_res_page][curposx + 1].res_id != -1) {
 					if(!(listenflag & LISTEN_SKIPKNOWNRES))
 						GiveInventory("MenuPosX", 1);
 					else {
@@ -293,7 +293,7 @@ void DrawDamageTypes(int req_id, int constraint, int flags) {
 				++j;
 			}
 		}
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 	}
 }
 
@@ -569,7 +569,7 @@ void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 108.4, 84.0, 0.0, 0.0);
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 	}
 	else
 		DeleteText(RPGMENUHELPCORNERID);
@@ -582,7 +582,7 @@ void DrawWeaponIconCorner(int itemid) {
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 96.4, 48.0, 0.0, 0.0);
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		
 		// draw damage types as well
 		DrawDamageTypes(itemid, RES_KNOWN, WeaponDrawInfo[itemid].flags);
@@ -595,7 +595,7 @@ void DrawArtifactIconCorner(int boxid) {
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUHELPCORNERID, CR_CYAN, 92.1, 56.1, 0.0, 0.0);
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 	}
 	else
 		DeleteText(RPGMENUHELPCORNERID);
@@ -625,7 +625,7 @@ void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 			DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
 	}
 	
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void ClearInfoPanel() {
@@ -637,7 +637,7 @@ void ShowWeaponIcon(int wep, int i, int k) {
 	SetHudSize(640, 480, 1);
 	SetFont(Weapons_Data[wep].icon);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - DND_MENU_LOADOUTWEPITEMS * i - 5, CR_WHITE, 280.1, 126.1 + 72.0 * i + 24.0 * k + 6.0 * ScrollPos.x, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
@@ -645,7 +645,7 @@ void ShowDamageTypeIcon(int dmg) {
 	SetHudSize(640, 480, 1);
 	SetFont(DamageTypeIcons[dmg]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_DAMAGE_TYPES - 1 - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos.x, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
@@ -674,7 +674,7 @@ void ShowWeaponPropertyIcon(int id) {
 void ShowOrbIcon(int id, int offset) {
 	SetFont(GetItemImage(id + ITEM_IMAGE_ORB_BEGIN));
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_ORBS - id - 2, CR_WHITE, 237.4, 172.1 + 8.0 * ScrollPos.x + offset, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void ShowLegendaryMonsterIcon(int id, int j) {
@@ -697,14 +697,14 @@ void ShowLegendaryMonsterIcon(int id, int j) {
 	}
 	
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * id - 1, CR_WHITE, 256.4, 56.1 + 144.0 * j + 4.0 * ScrollPos.x, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void ShowBobby() {
 	SetHudSize(1280, 864, 1);
 	SetFont("BBYSNC");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 848.4, 140.1, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
@@ -722,7 +722,7 @@ void ShowAccessoryIcon(int acc, int i) {
 	SetHudSize(640, 480, 1);
 	SetFont(AccessoryInfo[acc][ACCESSORY_ICON]);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * i - 2, CR_WHITE, 421.4, 75.1 + 48.0 * i, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
@@ -1264,7 +1264,7 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 
 void DrawHighLightBar (int posy, int framecounter) {
 	int drawstate = 0;
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	if(
 		CheckInventory("AttributePoint") && 
@@ -1326,7 +1326,7 @@ void DrawHighLightBar (int posy, int framecounter) {
 		HudMessage(s:""; HUDMSG_PLAIN, RPGMENUHIGHLIGHTID, -1, 47.1, 99.1, 0.0);
 	// restore default
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void DrawFrequentRedrawItems(int curopt, int pnum) {
@@ -1352,7 +1352,7 @@ void DrawFrequentRedrawItems(int curopt, int pnum) {
 			int x = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.0;
 			int y = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 24.0;
 			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-			SetFont("SMALLFONT");
+			SetFont("NMENUFNT");
 			SetHudClipRect((x >> 16) - 8, (y >> 16) - 8, 96, 64, 96);
 			HudMessage(s:text; HUDMSG_PLAIN, RPGMENUCURSORID + 1, -1, x + 0.1, y + 0.1, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
@@ -2656,7 +2656,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 		SetFont("RESNONE");
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 199.1, 96.0, 0.0);
 		
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 264.1, 88.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- ", l:"DND_MENU_NA"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 264.1, 104.0, 0.0);
 	}
@@ -2664,7 +2664,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 		SetFont(GetResearchIcon(page, posx));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 199.1, 96.0, 0.0);
 		
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 264.1, 88.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- $", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 264.1, 104.0, 0.0);
@@ -2763,7 +2763,7 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 				}
 			}
 		}
-		ClearPlayerInput(pnum, false);
+		ClearPlayerInput(pnum, true);
 	}
 }
 
@@ -2790,7 +2790,7 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	}
 	SetFont(charmborderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) {
@@ -2829,7 +2829,7 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 	else
 		SetFont("ARMSELB");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void DrawInventoryExploreIcon(int boxid, int thisboxid, int id, int x, int y) {
@@ -2837,7 +2837,7 @@ void DrawInventoryExploreIcon(int boxid, int thisboxid, int id, int x, int y) {
 	if(boxid == thisboxid && !CheckInventory("DnD_InventoryView")) // don't highlight in inventory view
 		SetFont("ICOGSML");
 	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_CYAN, x, y, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int basey, int skip, int idbase, int source, int pnum, int boff, int itemskipx, int itemskipy) {
@@ -2860,7 +2860,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	
 		temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, bid, -1, source);
 		if(temp) {
-			SetFont("SMALLFONT");
+			SetFont("NMENUFNT");
 			HudMessage(d:temp; HUDMSG_PLAIN, idbase - bid - boff - 2 * MAX_INVENTORY_BOXES - 2, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * itemskipx + 14.2, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * itemskipy + 8.0, 0.0, 0.0);
 		}
 		else
@@ -2930,7 +2930,7 @@ void DrawInventoryInfo(int pnum) {
 
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		if(stack) {
-			SetFont("SMALLFONT");
+			SetFont("NMENUFNT");
 			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, GetIntegerBits(mx + HUD_ITEMBAK_XF - 9.0) + 0.2, my + 15.0, 0);
 		}
 		
@@ -3105,7 +3105,7 @@ void HandleInventoryView(int boxid) {
 		}
 	}
 	
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 // This is mainly used for stack editing
@@ -3460,7 +3460,7 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	SetFont("TRADEBAR");
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 7, CR_WHITE, 110.4, 160.0, 0.0, 0.0);
 	
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	--boxid;
 	if(CheckInventory("DnD_Trade_ConfirmButtonPress"))
 		HudMessage(s:"\cd", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 10, CR_WHITE, 52.4, 160.0, 0.0, 0.0);
@@ -3501,7 +3501,7 @@ void HandleInventoryViewTrade(int boxid) {
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 1, CR_WHITE, 0.1, 120.0, 0.0, 0.0);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 2, CR_WHITE, 0.1, 360.0, 0.0, 0.0);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3, CR_WHITE, 364.1, 260.0, 0.0, 0.0);
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	HudMessage(n:GetTradee() + 1, s:"\c[W3]", l:"DND_MENU_THEIROFFER"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 4, CR_WHITE, 160.4, 30.0, 0.0, 0.0);
 	HudMessage(s:"\c[W3]", l:"DND_MENU_YOUROFFERING"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 160.4, 270.0, 0.0, 0.0);
 	HudMessage(s:"\c[W3]", l:"DND_MENU_YOURINV"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 6, CR_WHITE, 528.4, 170.0, 0.0, 0.0);
@@ -3510,7 +3510,7 @@ void HandleInventoryViewTrade(int boxid) {
 	
 	PlayerCursorData.itemDraggedStashSize = true;
 	
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
 
@@ -3864,11 +3864,11 @@ void HandleStashView(int boxid) {
 			color = CR_CYAN;
 		}
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2 * i, CR_WHITE, 388.4 + 15.0 * i, 210.0, 0.0, 0.0);
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		HudMessage(d:i + 1; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 1 - 2 * i, color, 388.4 + 15.0 * i, 210.0, 0.0, 0.0);
 	}
 	
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 	HudMessage(s:"\c[W3]", l:"DND_MENU_HEAD_STASH"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 4, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
 	HudMessage(s:"\c[W3]", l:"DND_MENU_INVENTORY"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 452.4, 270.0, 0.0, 0.0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -4086,7 +4086,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
 					bx = GetTotalStackOfMaterial(tx);
 					if(bx > 0) {
-						SetFont("SMALLFONT");
+						SetFont("NMENUFNT");
 						HudMessage(d:bx; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_WHITE, 412.0 + 44.0 * (i % 2), 80.0 + 36.0 * (i / 2), 0.0);
 					}
 				}
@@ -4094,7 +4094,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 					break;
 			}
 		//}
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		HudMessage(s:"P", d:page + 1; HUDMSG_PLAIN, RPGMENUID - MATERIALARROW_HUDID - 2, CR_WHITE, 430.4, 284.0, 0.0);
 		// draw next page button and enable it for use
 		if(mcount > MAX_CRAFTING_MATERIALBOXES) {
@@ -4113,7 +4113,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 				DisableBoxInPane(p, MATERIALARROW_ID);
 		}
 	}
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
@@ -4165,7 +4165,7 @@ void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 				++j;
 			}
 		}
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		// draw next page button and enable it for use
 		if(mcount > MAX_CRAFTING_ITEMBOXES) {
 			if(mcount - MAX_CRAFTING_ITEMBOXES * (page + 1) > 0) {
@@ -4176,7 +4176,7 @@ void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID + 1);
 		}
 	}
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
@@ -4239,7 +4239,7 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 		
 		PlayerCursorData.clickNeedsReset = click_reset;
 		
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		// draw next page button and enable it for use
 		if(mcount > MAX_CRAFTING_ITEMBOXES) {
 			if(mcount - MAX_CRAFTING_ITEMBOXES * (page + 1) > 0) {
@@ -4250,7 +4250,7 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 				DisableBoxInPane(p, CRAFTING_PAGEARROW_ID);
 		}
 	}
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void ResetTransmutingData(int pnum) {
@@ -4361,7 +4361,7 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 		SetFont("ORBMBK");
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
 
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 7, 188.4, 256.0, "\c[B1]", "\c[G8]");
 	}
 	else {
@@ -4375,11 +4375,11 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
 
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 5, 188.4, 256.0, "\c[B1]", "\c[Y5]");
 	}
 
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, int item_type, int item_source) {
@@ -4401,7 +4401,7 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	int attr_count = GetItemSyncValue(pn, DND_SYNC_ITEMSATTRIBCOUNT, item_id, -1, item_source);
 	
 	if(GetStackValue(item_type) && item_source) {
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		HudMessage(d:GetTotalStackOfMaterial(item_id); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0.0);
 	}
 	
@@ -4440,7 +4440,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		j = PlayerNumber();
 		my += 24.0;
 		
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		HudMessage(s:"\c[R5]", l:GetWeaponTag(extra1), s:":\c- \c[Y5]", l:"DND_MENU_SLOT", s:" - ", d:GetGameSlotOfWeapon(extra1); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 3 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 24.0, 0.0, 0.0);
 		
 		str modText = "";
@@ -4544,7 +4544,7 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 		HandleCraftingInventoryDraw(pnum, p, boxid, k);
 
 		// draw player credits on top right corner
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
 	}
 	else if(curopt == MENU_LOAD_CRAFTING_TRANSMUTING) {
@@ -4552,10 +4552,10 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 		HandleTransmutingDraw(pnum, p, boxid, k);
 		
 		// draw player credits on top right corner
-		SetFont("SMALLFONT");
+		SetFont("NMENUFNT");
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUID - 4, CR_WHITE, 372.1, 10.0, 0.0, 0.0);
 	}
-	SetFont("SMALLFONT");
+	SetFont("NMENUFNT");
 }
 
 // serverside -- input function
@@ -4966,7 +4966,7 @@ void GetInputOnMenuPage(int opt) {
 	else if(opt == MENU_RESEARCH || opt == MENU_RESEARCH_GUNS)
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
 	else if(opt >= SHOP_RESPAGE_BEGIN && opt <= SHOP_RESPAGE_END)
-		ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR | LISTEN_SKIPKNOWNRES, 0, MAX_RESEARCHES - 1, opt - SHOP_RESPAGE_BEGIN);
+		ListenInput(LISTEN_LEFT | LISTEN_RIGHT | LISTEN_FASTLR | LISTEN_SKIPKNOWNRES, 0, MENU_MAXRES_PERPAGE, opt - SHOP_RESPAGE_BEGIN);
 	else
 		ListenInput(LISTEN_LEFT | LISTEN_RIGHT, 0, 0);
 }
@@ -5791,7 +5791,7 @@ void HandleNFTDrawing(int boxid) {
 			SetHudSize(2576, 1960, 1);
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 68, CR_WHITE, 532.0, 444.0, 0.0, 0.0);
 			
-			SetFont("SMALLFONT");
+			SetFont("NMENUFNT");
 			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		}
 	}

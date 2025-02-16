@@ -79,3 +79,8 @@ Interfont
 {
 	Template DN13D%03d
 }
+
+NSMOLFNT
+{
+  Template DNSMR%03d
+}

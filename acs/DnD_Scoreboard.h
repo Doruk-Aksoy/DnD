@@ -669,7 +669,7 @@ int DrawHoveredPlayerData() {
 			my = y_wrap + 0.1;
 		HudMessage(s:"A"; HUDMSG_FADEOUT | HUDMSG_ALPHA, DND_SCBRDID_HOVERBG, CR_WHITE, mx, my, SCOREBOARD_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		
-		SetFont("SMALLFONT");
+		SetFont("NSMOLFNT");
 		
 		// text adjustment
 		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);

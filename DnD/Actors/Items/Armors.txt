@@ -90,6 +90,7 @@ Actor NecroSpike : DnD_BaseProjectile {
 	SeeSound "Armors/NecroShard"
 	DeathSound "Armors/NecroShardHit"
 	Species "Player"
+	Stamina 2097152
 	
 	Damage(
 		ACS_NamedExecuteWithResult(
@@ -155,6 +156,7 @@ Actor LightningCoilBolt : DnD_BaseProjectile {
 	Species "Player"
 	const float r = 12.0;
 	const float v = 2.0;
+	Stamina 2097152
 	
 	Damage(
 		ACS_NamedExecuteWithResult(

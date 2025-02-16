@@ -128,7 +128,7 @@ void HandleBerserkerRoar(int tid) {
 
 Script "DnD Berserker Perk25" (void) {
 	while(CheckInventory("Berserker_DamageTimer")) {
-		delay(const:1);
+		Delay(const:1);
 		TakeInventory("Berserker_DamageTimer", 1);
 	}
 	

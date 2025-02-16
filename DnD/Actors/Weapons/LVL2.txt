@@ -1,4 +1,4 @@
-Actor " Pistol " : Pistol {
+Actor " Pistol " : DnDWeapon {
 	Weapon.SlotNumber 2
 	Weapon.AmmoGive 0
 	Weapon.SelectionOrder 2700
@@ -17,7 +17,7 @@ Actor " Pistol " : Pistol {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_PISTOL)
 		ReadyLoop:
-			COLT A 1 A_WeaponReady
+			COLT A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)

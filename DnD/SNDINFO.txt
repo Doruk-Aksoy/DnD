@@ -1,3 +1,5 @@
+$pitchshiftrange 2
+
 NullSound				dsempty
 weapons/firex2          dsfirex2
 

@@ -208,7 +208,7 @@ Script "DnD Class Select Arrow Press" (int mode) CLIENTSIDE {
 
 Script "DnD Class Select Screen" (void) CLIENTSIDE {
 	SetHUDSize(600, 450, 1);
-	SetFont("BIGFONT");
+	SetFont("DBIGFONT");
 	HudMessage(s:"\cj", l:"CLASS_SELECT"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 80.0, 0.0);
 		
 	SetHUDSize(320, 240, 1);
@@ -251,7 +251,7 @@ Script "DnD Class Select Animated" (void) CLIENTSIDE {
 		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_RIGHTID, -1, 284.0, 66.0, 0.0);
 		
 		SetHudSize(600, 450, 1);
-		SetFont("SMALLFONT");
+		SetFont("NSMOLFNT");
 		
 		// display press w.e keys text
 		HudMessage(
@@ -288,7 +288,7 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	str cprefix = StrParam(s:"CLASS", d:ctype);
 
 	SetHUDSize(600, 450, 1);
-	SetFont("SMALLFONT");
+	SetFont("NSMOLFNT");
 	SetHudClipRect(100, 84, 384, 384, 336);
 	
 	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
@@ -350,7 +350,7 @@ Script "DnD Character Select Screen" (void) CLIENTSIDE {
 		Terminate;
 	
 	SetHUDSize(600, 450, 1);
-	SetFont("BIGFONT");
+	SetFont("DBIGFONT");
 	HudMessage(s:"\cj", l:"CLASS_LOAD"; HUDMSG_PLAIN, RPGMENUCHARSELID - 1, -1, 300.0, 80.0, 0.0);
 		
 	SetHUDSize(320, 240, 1);
@@ -377,7 +377,7 @@ Script "DnD Character Select Animated" (void) CLIENTSIDE {
 	
 	while(counter < lim && PlayerInGame(pnum)) {
 		SetHudSize(600, 450, 1);
-		SetFont("SMALLFONT");
+		SetFont("NSMOLFNT");
 		
 		// display press w.e keys text
 		HudMessage(
@@ -386,7 +386,7 @@ Script "DnD Character Select Animated" (void) CLIENTSIDE {
 			HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUCHARSELID - 4, -1, 300.4, 368.1, 0.0, abs(sin(select_alpha * 1.0 / 360))
 		);
 		
-		SetFont("BIGFONT");
+		SetFont("DBIGFONT");
 		SetHudSize(960, 720, 0);
 		SetHudClipRect(80, 480, 800, 400, 800);
 		temp = CheckInventory("DnD_PlayersNotReady_Sync");
@@ -413,18 +413,18 @@ Script "DnD Character Select Animated" (void) CLIENTSIDE {
 		SetHudSize(600, 450, 1);
 		int boxid = CheckInventory("ActivePopupBox");
 		if(boxid == MBOX_1) {
-			SetFont("SMALLFONT");
+			SetFont("NSMOLFNT");
 			HudMessage(s:"\c[M3]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
 			SetFont("TRADBTNH");
 		}
 		else if(!CheckInventory("DnD_SelectedCharmBox") && !CheckInventory("DnD_SelectedInventoryBox")) {
 			// no click allowed unless player selected something prior
-			SetFont("SMALLFONT");
+			SetFont("NSMOLFNT");
 			HudMessage(s:"\cm", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
 			SetFont("TRADBTNC");
 		}
 		else {
-			SetFont("SMALLFONT");
+			SetFont("NSMOLFNT");
 			HudMessage(s:"\c[Y5]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
 			SetFont("TRADBTN");
 		}
@@ -710,7 +710,7 @@ Script "DnD Character Data Display Sync - NULL" (int pnum, int char_id) CLIENTSI
 void DrawCharacterLoadInfo(int char_id) {
 	int id = 8;
 	SetHUDSize(600, 450, 1);
-	SetFont("SMALLFONT");
+	SetFont("NSMOLFNT");
 	if(LoadedPlayerData[char_id].classid) {
 		int ctype = LoadedPlayerData[char_id].classid - 1;
 
@@ -764,7 +764,7 @@ void DrawCharacterLoadInfo(int char_id) {
 
 void DrawAllCharactersLoadInfo(int boxid) {
 	SetHUDSize(600, 450, 1);
-	SetFont("SMALLFONT");
+	SetFont("NSMOLFNT");
 	int id = 14;
 	int color_id = -1;
 	int temp;

@@ -1784,7 +1784,7 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		);
 		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, topboxid, -1, source);
 		if(stack) {
-			SetFont("SMALLFONT");
+			SetFont("NSMOLFNT");
 			HudMessage(d:stack; HUDMSG_PLAIN | HUDMSG_FADEOUT, RPGMENUINVENTORYID - HUD_DII_FIELD_MULT * MAX_INVENTORY_BOXES - 14 - ITEMINFOBG_MAXMIDS, CR_GREEN, bx + GetIntegerBits(HUD_ITEMBAK_XF / 2) - 7.2, by + 24.0, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 		}
 		
@@ -1817,7 +1817,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	// potential delete of quality in case we hover over an item that doesn't have it, we don't want it lingering!
 	DeleteText(id_begin - id_mult * MAX_INVENTORY_BOXES - 18);
 
-	SetFont("SMALLFONT");
+	SetFont("NSMOLFNT");
 	if(IsStackedItem(itype)) {
 		temp = isubt + GetInventoryInfoOffset(itype);
 		tmp_text = StrParam(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n\n", l:GetInventoryText(temp));
@@ -1920,7 +1920,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 
 		by += 8.0;
 
-		SetFont("SMALLFONT");
+		SetFont("NSMOLFNT");
 		tmp_text = "";
 		for(j = 0; j < attr_count; ++j) {
 			temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
@@ -3062,12 +3062,14 @@ bool CanAllowModRollSpecial(int tag, int special_roll_rule) {
 }
 
 bool IsImplicitException(int imp, int rolled_attr) {
+	//printbold(s:"implicit ", d:imp, s: " rolled ", d:rolled_attr, s: " BAD: ", d:INV_MIT_INCREASE, s: ", ", d:INV_MITEFFECT_INCREASE, s:", ", d:INV_SHIELD_INCREASE, s:", ", d:INV_SHIELD_RECHARGEDELAY, s: ", ", d:INV_SHIELD_RECOVERYRATE);
 	switch(imp) {
 		// don't let eshield modifiers roll on armor base items etc.
 		case INV_IMP_INCARMOR:
 		return 	rolled_attr == INV_SHIELD_INCREASE || 
 				rolled_attr == INV_SHIELD_RECHARGEDELAY || 
 				rolled_attr == INV_SHIELD_RECOVERYRATE ||
+				rolled_attr == INV_ESHIELD_ABSORB ||
 				rolled_attr == INV_MIT_INCREASE ||
 				rolled_attr == INV_MITEFFECT_INCREASE;
 		case INV_IMP_INCSHIELD:
@@ -3079,6 +3081,7 @@ bool IsImplicitException(int imp, int rolled_attr) {
 		return 	rolled_attr == INV_SHIELD_INCREASE || 
 				rolled_attr == INV_SHIELD_RECHARGEDELAY || 
 				rolled_attr == INV_SHIELD_RECOVERYRATE ||
+				rolled_attr == INV_ESHIELD_ABSORB ||
 				rolled_attr == INV_ARMOR_INCREASE ||
 				rolled_attr == INV_ARMORPERCENT_INCREASE;
 
@@ -3227,34 +3230,40 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	else {
 		craftable_type = MapItemTypeToCraftableID(itype);
 
-		// if no attributes of this type are allowed, but we have some special roll, include it and try again
-		if(!AttributeTagGroupCount[tag_id][craftable_type]) {
-			if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
-				craftable_type = DND_CRAFTABLEID_CHARM;
-				rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+		min_count = 5;
+		do {
+			// if no attributes of this type are allowed, but we have some special roll, include it and try again
+			if(!AttributeTagGroupCount[tag_id][craftable_type]) {
+				if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
+					craftable_type = DND_CRAFTABLEID_CHARM;
+					rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+				}
+				else {
+					// rest of the mods, we can't fit a guaranteed attribute here
+					AssignAttributes(pnum, item_pos, itype, attr_count);
+					return;
+				}
 			}
 			else {
-				// rest of the mods, we can't fit a guaranteed attribute here
-				AssignAttributes(pnum, item_pos, itype, attr_count);
-				return;
+				// we have an attribute of this type fitting, good, go ahead
+				rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+				//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
 			}
-		}
-		else {
-			// we have an attribute of this type fitting, good, go ahead
-			rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
-			//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
-		}
 
-		if
-		(
-			CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1 &&
-			!IsItemBaseException(itype, PlayerInventoryList[pnum][item_pos].item_subtype, rand_attr)
-		)
-		{
-			//printbold(s:"guaranteed add ", d:rand_attr);
-			AddAttributeToItem(pnum, item_pos, rand_attr);
-			--attr_count;
-		}
+			if
+			(
+				CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1 &&
+				!IsItemBaseException(itype, PlayerInventoryList[pnum][item_pos].item_subtype, rand_attr) &&
+				!IsImplicitException(PlayerInventoryList[pnum][item_pos].implicit.attrib_id, rand_attr)
+			)
+			{
+				//printbold(s:"guaranteed add ", d:rand_attr);
+				AddAttributeToItem(pnum, item_pos, rand_attr);
+				--attr_count;
+				break;
+			}
+			--min_count;
+		} while(min_count);
 	}
 
 	// rest of the mods

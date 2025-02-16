@@ -359,7 +359,7 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 			color = CR_YELLOW;
 			
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
-		SetFont("BIGFONT");
+		SetFont("DBIGFONT");
 		HudMessageBold(
 			s:TimeZeroPadding(NPC_States[DND_NPC_DARKWANDERER].time / 60), d:NPC_States[DND_NPC_DARKWANDERER].time / 60, 
 			s:" : ", 
@@ -378,7 +378,7 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 	
 	if(!NPC_States[DND_NPC_DARKWANDERER].offer_progress && NPC_States[DND_NPC_DARKWANDERER].time) {
 		// success
-		SetFont("BIGFONT");
+		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
 		HudMessageBold(s:"WELL DONE!"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_GREEN, 240.4, 16.0, 1.0, 1.0);
 		AmbientSound("DarkWanderer/ChallengeWin", 127);
@@ -392,7 +392,7 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 	}
 	else {
 		// fail, this means either we have progress left or there is no time, but we know theres no time from the loop above so...
-		SetFont("BIGFONT");
+		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
 		HudMessageBold(s:"YOU FAILED!"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_RED, 240.4, 16.0, 1.0, 1.0);
 		AmbientSound("DarkWanderer/ChallengeFail", 127);
@@ -660,7 +660,7 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 	int i;
 	if(curr > 0) {
 		// settle the vote as majority voting yes
-		SetFont("BIGFONT");
+		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
 		HudMessageBold(l:"DND_VOTEPASSED", s:"!"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_GREEN, 240.4, 16.0, 1.0, 1.0);
 		
@@ -681,7 +681,7 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 		// conclude voting
 		if(curr >= majority) {
 			HudMessageBold(s:""; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 1.0, 0.0);
-			SetFont("BIGFONT");
+			SetFont("DBIGFONT");
 			SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
 			HudMessageBold(l:"DND_VOTEFAILED", s:"!"; HUDMSG_FADEOUT, RPGMENUHELPCORNERID, CR_RED, 240.4, 16.0, 1.0, 1.0);
 			ConcludeVoting(npc_id, NPC_STATE_VOTE_DECLINE);
@@ -702,7 +702,7 @@ Script "DnD NPC Voting" (int npc_id) {
 	int time = DND_VOTE_TIME * TICRATE;
 	while(time > 0 && NPC_States[npc_id].voting) {
 		// display the timer to everyone for vote countdown
-		SetFont("BIGFONT");
+		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
 		HudMessageBold(d:time / TICRATE, s:" ", l:"DND_TOVOTE", s:"!"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 2.0, 0.0);
 		
@@ -712,7 +712,7 @@ Script "DnD NPC Voting" (int npc_id) {
 	
 	if(NPC_States[npc_id].n_state == NPC_STATE_VOTE_ONGOING) {
 		HudMessageBold(s:""; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 1.0, 0.0);
-		SetFont("BIGFONT");
+		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
 		HudMessageBold(l:"DND_VOTEFAILED", s:"!"; HUDMSG_FADEOUT, RPGMENUHELPCORNERID, CR_RED, 240.4, 16.0, 1.0, 1.0);
 		

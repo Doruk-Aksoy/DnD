@@ -832,46 +832,45 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	str barGraphic = "";
 	str fortGraphic = "";
 	int i, j;
-	
-	SetHudSize(800, 600, 0);
-	SetFont(GetMonsterTypeIcon(GetMonsterType(monid, mon_tid)));	
-	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 270.0, 27.0, MONSTERINFO_HOLDTIME);
-	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 540.0, 27.0, MONSTERINFO_HOLDTIME);
-	
-	// inner text
+
 	SetFont ("MONFONT");
-	
+	SetHudSize(800, 600, 0);
+
 	// do the hp drawing in-place to save usage of strparam spam
-	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", s:GetIntegerCommaView(monhp), s:" / ", s:GetIntegerCommaView(mmaxhp); HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.0, 27.0, MONSTERINFO_HOLDTIME);
+	HudMessage(l:"DND_STAT18_SHORT", s:": ", i:monlevel, s:"  ", s:GetIntegerCommaView(monhp), s:" / ", s:GetIntegerCommaView(mmaxhp); HUDMSG_FADEOUT, MONSTER_TEXTID, CR_WHITE, 400.4, 27.0, MONSTERINFO_HOLDTIME);
 	
 	bool is_unique = 0;
 	bool mon_isPet = IsPet(mon_tid);
 	
+	// draw the name of the monster
+	SetHudSize(900, 600, 0);
 	if(!mon_isPet) {
 		is_unique = IsUniqueMonster(monid);
 		str prefix = "";
 		if(CheckInventory("TargetIsElite"))
 			prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
 		if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
-			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 454.4, 10.0, MONSTERINFO_HOLDTIME);
 		else if(is_unique)
-			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 454.4, 10.0, MONSTERINFO_HOLDTIME);
 		else if(IsMonsterIdBoss(monid))
-			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_ORANGE, 454.4, 10.0, MONSTERINFO_HOLDTIME);
 		else
-			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 454.4, 10.0, MONSTERINFO_HOLDTIME);
 	}
 	else
-		HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 404.4, 10.0, MONSTERINFO_HOLDTIME);
+		HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_WHITE, 454.4, 10.0, MONSTERINFO_HOLDTIME);
 	
+	// Draw the main bar graphic and background
 	// made this way to reduce variable dependancy and if statement use
+	SetHudSize(720, 600, 0);
 	DeleteTextRange(MONSTER_BARFILLID, MONSTER_BARFILLOVERLAY4);
 	if(CheckInventory("TargetHealthBarColor")) {
 		if(!is_unique)
 			SetFont("MNRHPBAR");
 		else
 			SetFont("MNUHPBAR");
-		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
+		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 360.4, 27.0, MONSTERINFO_HOLDTIME);
 		
 		if(monhp) {
 			// clamp to 100 on certain monsters' overheal abilities (Warmaster for example)
@@ -884,28 +883,28 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 				j = (fortify_amt * 100) / mmaxhp;
 				j <<= 1;
 				
-				SetHudClipRect(305, 17, j, 18, j);
+				SetHudClipRect(265, 17, j, 18, j);
 				SetFont("FILLFORT");
-				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
 				
 				if(i > 0) {
-					SetHudClipRect(305, 17, i, 18, i);
+					SetHudClipRect(265, 17, i, 18, i);
 					SetFont("FILLCRIT");
-					HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+					HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
 				}
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(i > 0) {
-				SetHudClipRect(305, 17, i, 18, i);
+				SetHudClipRect(265, 17, i, 18, i);
 				SetFont("FILLCRIT");
-				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 		}
 	}
 	else {
 		SetFont("MNGHPBAR");
-		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.0, 27.0, MONSTERINFO_HOLDTIME);
+		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 360.4, 28.0, MONSTERINFO_HOLDTIME);
 		
 		i = (monhp * 100 / mmaxhp);
 		if(i > 100)
@@ -913,12 +912,17 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 		i <<= 1;
 		
 		if(i > 0) {
-			SetHudClipRect(305, 17, i, 18, i);
+			SetHudClipRect(265, 17, i, 18, i);
 			SetFont("FILLNORM");
-			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 305.1, 27.0, MONSTERINFO_HOLDTIME);
+			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
 			SetHudClipRect(0, 0, 0, 0, 0);
 		}
 	}
+
+	SetHudSize(800, 600, 0);
+	SetFont(GetMonsterTypeIcon(GetMonsterType(monid, mon_tid)));	
+	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID, CR_UNTRANSLATED, 250.0, 27.0, MONSTERINFO_HOLDTIME);
+	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_TYPEICONID_RIGHT, CR_UNTRANSLATED, 561.0, 27.0, MONSTERINFO_HOLDTIME);
 
 	i = j = 0;
 	// show monster traits

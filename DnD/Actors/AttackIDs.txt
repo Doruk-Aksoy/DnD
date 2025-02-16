@@ -8,7 +8,7 @@ const int BITMASK_NOFACTOR = 0xFFFFF; // depends on DPCT_SHIFT
 const int SPELL_DMG_SHIFT = 16;
 const int SPELL_ID_SHIFT = 21;
 
-const int NONWEP_DMG_SHIFT = 27;
+const int NONWEP_DMG_SHIFT = 25;
 
 const int DEX_ATTUNE_BITS = 8; // 256 is enough to store 0-100% attunement -- 5 for example implies 0.05 in fixed
 const int INT_ATTUNE_BITS = 16;

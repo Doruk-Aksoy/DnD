@@ -426,7 +426,7 @@ IATTR_T115			= "increased tech weapon damage";
 IATTR_T116			= "magic weapon attack damage";
 IATTR_T117			= "increased magic weapon damage";
 
-IATTR_T118			= "reduced overheated gained";
+IATTR_T118			= "reduced overheat gained";
 IATTR_T119			= "all resists";
 IATTR_T120			= "item rarity";
 

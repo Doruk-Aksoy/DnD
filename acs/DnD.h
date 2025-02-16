@@ -428,7 +428,7 @@ int CalculateBonus(int bonustype, int mdifficulty) {
 void ShowBonusMessage(int bonustype, int y) {
 	int bval = CalculateBonus(bonustype, CheckInventory("MapDifficultyClientside"));
 	SetHudSize(800, 600, 1);
-	SetFont("BIGFONT");
+	SetFont("DBIGFONT");
 	switch(bonustype) {
 		case BONUS_KILL:
 			LocalAmbientSound("RPG/KillBonus", 127);
@@ -1284,6 +1284,7 @@ int GetAveragePlayerLevel() {
 
 void ClearLingeringBuffs() {
 	SetInventory("AllMapOnlyOnce", 0);
+	SetInventory("Punisher_Perk5_MoveSpeed", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
 	SetInventory("Berserker_DamageTracker", 0);
 	SetInventory("Berserker_DamageTimer", 0);
