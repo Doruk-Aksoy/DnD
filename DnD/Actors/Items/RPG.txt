@@ -418,8 +418,12 @@ Actor KillSpreeOn : DnD_Boolean { }
 
 Actor DnD_SpreeCountdownRunning : DnD_Boolean { }
 
-Actor DnD_SpreeTimer : Inventory {
+Actor DnD_SpreeTimer : Ammo {
+	inventory.amount 1
 	inventory.maxamount 140 // 4 * 35
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 140 // 4 * 35
+	+IGNORESKILL
 }
 
 Actor DnD_MultikillCounter : Inventory {

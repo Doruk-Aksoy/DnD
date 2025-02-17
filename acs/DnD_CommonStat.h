@@ -13,6 +13,9 @@
 
 #define DND_UNITY_DIVISOR 10
 
+#define DND_SPREE_AMOUNT (4 * TICRATE) // 4 * 35
+#define DND_SPREE_PER 10
+
 enum {
 	DND_WDMG_USETARGET = 1,
 	DND_WDMG_ISOCCULT = 2,

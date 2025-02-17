@@ -311,9 +311,6 @@ Script "DnD On Death" DEATH {
 			// things saved are in DnD_Activity.h
 			i = GetCVar("dnd_mode");
 			if(i == DND_MODE_HARDCORE) {
-				// reset on death
-				ResetHardcoreStuff(pnum);
-				
 				if(PlayerIsLoggedIn(pnum) && GetGameModeState() >= GAMESTATE_INPROGRESS) {
 					temp = CheckInventory("DnD_CharacterID");
 					--PlayerActivities[pnum].vote_skips;
@@ -329,6 +326,8 @@ Script "DnD On Death" DEATH {
 
 					ResetPlayerActivities(pnum, false);
 				}
+				// reset on death
+				ResetHardcoreStuff(pnum);
 			}
 			else if(i == DND_MODE_SOFTCORE) {
 				// decrease player gained exp
@@ -653,7 +652,7 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 		Delay(3);
 	}
 	SetFont("MONFONT");
-	HudMessage(s:"\ci", l:GetSpreeText(mult), s:"!\c- \cix", f:mult * 0.25, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
+	HudMessage(s:"\ci", l:GetSpreeText(mult), s:"!\c- \cix", f:mult * DND_SPREE_BASE_F, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
 	HudMessage(l:"DND_TEXT_GAINEDEXTRA", s:" \cf", d:reward, s: "\c- ", l:"DND_STAT16", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT2ID, CR_WHITE, 240.4, 328.0, 2.0, 1.0, 1.0);
 }
 
@@ -717,6 +716,7 @@ Script "DnD Killing Spree Timer" (void) {
 		// spree ended
 		TakeInventory("Punisher_Perk5_MoveSpeed", 1);
 	}
+	SetInventory("DnD_SpreeTimer", 0);
 }
 
 Script "DND Mugshot Grin" (void) CLIENTSIDE {
@@ -3117,7 +3117,7 @@ Script "DnD Player Setup" ENTER {
 		Delay(const:HALF_TICRATE);
 
 	//ACS_NamedExecuteAlways("DnD Can Fire Weapon", 0, pnum);
-
+#ifndef SKIP_DB_SETTINGS
 	if(isHardcore()) {
 		curmap = StrParam(n:PRINTNAME_LEVEL);
 
@@ -3141,7 +3141,7 @@ Script "DnD Player Setup" ENTER {
 				ACS_NamedExecuteAlways("DnD Loot Penalty Text", 0, pnum, PlayerActivities[pnum].vote_skips);
 		}
 	}
-
+#endif
 	TakeInventory("DnD_CountdownProtection", 1);
 }
 
@@ -5663,12 +5663,11 @@ Script 68 (int x) NET {
 			SpawnBoot(0, 0);
 			SpawnHelm(0, 0);
 			SpawnToken(0, true);
-			//SpawnOrbForAll(1, random(300, 500));
+			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
-			//SpawnCharmWithMods_ForAll(INV_STAT_DEXTERITY);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_FORTITUDE, true, false, 300);
-			SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
-			//IncPlayerModValue(0, INV_LOCKONRANGE, 50);
+			//SpawnCharmWithMods_ForAll(INV_INCKILLINGSPREE);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_AFFLUENCE, true, false, 300);
+			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			//IncPlayerModValue(0, INV_LOCKONAREA, 50);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

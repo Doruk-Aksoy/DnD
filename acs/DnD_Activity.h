@@ -153,7 +153,7 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 	if(hardReset) {
 		// only if someone quits or spectates should the hard reset be resetting these
 		PlayerActivities[pnum].char_id = 0;
-		PlayerActivities[pnum].stash_pages = 0;
+		PlayerActivities[pnum].stash_pages = DND_BASE_STASH_PAGES;
 		PlayerActivities[pnum].total_exp = 0; // DONT CHANGE THIS THING'S LOCATION!
 
 		PlayerActivities[pnum].vote_skips = 0;

@@ -2525,6 +2525,11 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			// make sure to update ammo caps
 			SetAllAmmoCapacities(pnum);
 		break;
+		case INV_INCKILLINGSPREE:
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+			// make sure to update ammo caps
+			SetAmmoCapacity("DnD_SpreeTimer", DND_SPREE_AMOUNT * (100 + PlayerModValues[pnum][INV_INCKILLINGSPREE]) / 100);
+		break;
 		case INV_EX_CURSEIMMUNITY:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			if(PlayerModValues[pnum][atype])
@@ -3203,7 +3208,7 @@ void RemoveAttributeFromItem(int pnum, int item_id, int to_remove) {
 }
 
 // Gives an attribute of a tag group guaranteed, and completely reforges the attribs
-void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
+void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluence = 1) {
 	int itype = PlayerInventoryList[pnum][item_pos].item_type;
 	int craftable_type;
 	
@@ -3217,54 +3222,63 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id) {
 	if(attr_count <= 0)
 		return;
 
-	if(itype == DND_ITEM_CHARM) {
-		craftable_type = DND_CRAFTABLEID_CHARM;
-		rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+	// cap at 2
+	int max_tries = 30;
+	if(affluence > 2)
+		affluence = 2;
 
-		// if this isn't already present on the item in question
-		if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
-			AddAttributeToItem(pnum, item_pos, rand_attr);
-			--attr_count;
-		}
-	}
-	else {
-		craftable_type = MapItemTypeToCraftableID(itype);
+	do {
+		if(itype == DND_ITEM_CHARM) {
+			craftable_type = DND_CRAFTABLEID_CHARM;
+			rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
 
-		min_count = 5;
-		do {
-			// if no attributes of this type are allowed, but we have some special roll, include it and try again
-			if(!AttributeTagGroupCount[tag_id][craftable_type]) {
-				if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
-					craftable_type = DND_CRAFTABLEID_CHARM;
-					rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
-				}
-				else {
-					// rest of the mods, we can't fit a guaranteed attribute here
-					AssignAttributes(pnum, item_pos, itype, attr_count);
-					return;
-				}
-			}
-			else {
-				// we have an attribute of this type fitting, good, go ahead
-				rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
-				//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
-			}
-
-			if
-			(
-				CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1 &&
-				!IsItemBaseException(itype, PlayerInventoryList[pnum][item_pos].item_subtype, rand_attr) &&
-				!IsImplicitException(PlayerInventoryList[pnum][item_pos].implicit.attrib_id, rand_attr)
-			)
-			{
-				//printbold(s:"guaranteed add ", d:rand_attr);
+			// if this isn't already present on the item in question
+			if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
 				AddAttributeToItem(pnum, item_pos, rand_attr);
 				--attr_count;
-				break;
+				--affluence;
 			}
-			--min_count;
-		} while(min_count);
-	}
+		}
+		else {
+			craftable_type = MapItemTypeToCraftableID(itype);
+
+			min_count = 5;
+			do {
+				// if no attributes of this type are allowed, but we have some special roll, include it and try again
+				if(!AttributeTagGroupCount[tag_id][craftable_type]) {
+					if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
+						craftable_type = DND_CRAFTABLEID_CHARM;
+						rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+					}
+					else {
+						// rest of the mods, we can't fit a guaranteed attribute here
+						AssignAttributes(pnum, item_pos, itype, attr_count);
+						return;
+					}
+				}
+				else {
+					// we have an attribute of this type fitting, good, go ahead
+					rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+					//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
+				}
+
+				if
+				(
+					CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1 &&
+					!IsItemBaseException(itype, PlayerInventoryList[pnum][item_pos].item_subtype, rand_attr) &&
+					!IsImplicitException(PlayerInventoryList[pnum][item_pos].implicit.attrib_id, rand_attr)
+				)
+				{
+					//printbold(s:"guaranteed add ", d:rand_attr);
+					AddAttributeToItem(pnum, item_pos, rand_attr);
+					--attr_count;
+					--affluence;
+					break;
+				}
+				--min_count;
+			} while(min_count);
+		}
+	} while(affluence > 0 && max_tries-- > 0);
 
 	// rest of the mods
 	AssignAttributes(pnum, item_pos, itype, attr_count);

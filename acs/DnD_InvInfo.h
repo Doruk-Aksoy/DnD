@@ -6,6 +6,8 @@
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
 
+#define DND_BASE_STASH_PAGES 4
+
 // only orbs and tokens
 #define MAX_CRAFTITEMTYPES 2
 

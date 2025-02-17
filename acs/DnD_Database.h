@@ -137,6 +137,8 @@ void SavePlayerInventoryStuff(int pnum, int char_id, str pacc, int flags) {
 	
 	if(flags & DND_PINVFLAGS_STASH) {
 		// save state of player's stash (this is shared between all accounts so no charfield)
+		if(PlayerActivities[pnum].stash_pages < DND_BASE_STASH_PAGES)
+			PlayerActivities[pnum].stash_pages = DND_BASE_STASH_PAGES;
 		SetDBEntry(DND_DB_STASH_PAGES, pacc, PlayerActivities[pnum].stash_pages);
 		for(i = 0; i < PlayerActivities[pnum].stash_pages; ++i) {
 			for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
@@ -620,10 +622,10 @@ void LoadPlayerStash(int pnum, str pacc) {
 	temp = GetDBEntry(DND_DB_STASH_PAGES, pacc);
 	SetInventory("DnD_PlayerInventoryPages", temp);
 	PlayerActivities[pnum].stash_pages = temp;
-	// keep base amount at 1
+	// keep base amount at 4
 	if(!temp) {
-		GiveInventory("DnD_PlayerInventoryPages", 1);
-		PlayerActivities[pnum].stash_pages = 1;
+		GiveInventory("DnD_PlayerInventoryPages", DND_BASE_STASH_PAGES);
+		PlayerActivities[pnum].stash_pages = DND_BASE_STASH_PAGES;
 	}
 	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages"); ++i) {
 		for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {

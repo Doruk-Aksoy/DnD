@@ -721,7 +721,7 @@ Actor HeavyGrenade_GhostHitter : HeavyGrenade {
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter", 0, 0, 288, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter", 0, 0, 312, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter", 0, 0, 336, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
-		Loop
+		Goto Finish
 		Crit:
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter_Crit", 0, 0, 24, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
@@ -738,7 +738,7 @@ Actor HeavyGrenade_GhostHitter : HeavyGrenade {
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter_Crit", 0, 0, 288, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter_Crit", 0, 0, 312, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
 			TNT1 A 0 A_CustomMissile("HeavyGrenadeShrapnel_GhostHitter_Crit", 0, 0, 336, CMF_TRACKOWNER | CMF_AIMDIRECTION, 135)
-		Loop
+		Goto Finish
 		Finish:
 			HGRN JKLMNOPQRST 2 Bright
 		Goto FinishExplosion

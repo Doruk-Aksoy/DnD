@@ -1118,12 +1118,15 @@ void ResetPlayerItems(int pnum) {
 }				
 
 // resets all info (bearings, loadouts, etc.)
-void ResetPlayerInfo(int pnum) {
+void ResetPlayerInfo(int pnum, bool resetStash = true) {
 	// reset player items
 	ResetPlayerInventory(pnum);
 	ResetPlayerCharmsUsed(pnum);
 	ResetTradeViewList(pnum);
-	ResetPlayerStash(pnum);
+
+	if(resetStash)
+		ResetPlayerStash(pnum);
+	
 	// reset weapon mod variable
 	ResetAllWeaponMods(pnum);
 	ResetMostRecentOrb(pnum);
@@ -1137,8 +1140,8 @@ void ResetPlayerInfo(int pnum) {
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_STASH);*/
 }
 
-void ResetHardcoreStuff(int pnum) {
-	ResetPlayerInfo(pnum);
+void ResetHardcoreStuff(int pnum, bool resetStash = false) {
+	ResetPlayerInfo(pnum, resetStash);
 	RecalculatePlayerLevelInfo();
 	BreakTradesBetween(pnum);
 	// may join later, sync everything

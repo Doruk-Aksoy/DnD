@@ -434,6 +434,7 @@ IATTR_T121			= "increased ripcount";
 IATTR_T122			= "more damage per rip";
 IATTR_T123			= "increased lock-on area";
 IATTR_T124			= "increased lock-on range";
+IATTR_T125			= "increased killing spree duration";
 
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";

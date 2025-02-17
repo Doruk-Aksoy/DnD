@@ -398,9 +398,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ELEMENTAL_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ELEMENTAL_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -435,9 +433,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_LIFE_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_LIFE_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -446,9 +442,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_DEFENSE_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_DEFENSE_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -493,9 +487,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_CRIT_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_CRIT_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -504,9 +496,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ATTACK_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ATTACK_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -526,9 +516,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_EXPLOSIVE_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_EXPLOSIVE_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -537,9 +525,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_UTILITY_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_UTILITY_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -612,9 +598,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_OCCULT_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_OCCULT_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -623,9 +607,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_STAT_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_STAT_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -684,9 +666,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ENERGY_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ENERGY_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -695,9 +675,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_MELEE_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_MELEE_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -706,9 +684,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_PHYSICAL_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_PHYSICAL_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -780,9 +756,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 				
-			s = affluence;
-			for(res = 0; res < s; ++res)
-				ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_DAMAGE_ID);
+			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_DAMAGE_ID, affluence);
 			
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);

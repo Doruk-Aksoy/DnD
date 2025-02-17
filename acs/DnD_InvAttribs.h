@@ -210,6 +210,7 @@ enum {
 	INV_RIPDAMAGE,
 	INV_LOCKONAREA,
 	INV_LOCKONRANGE,
+	INV_INCKILLINGSPREE,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -396,7 +397,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_RIPDAMAGE
+#define LAST_INV_ATTRIBUTE INV_INCKILLINGSPREE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -1295,6 +1296,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_LOCKONRANGE].attrib_high = 10;
 	ItemModTable[INV_LOCKONRANGE].attrib_level_modifier = 0;
 	ItemModTable[INV_LOCKONRANGE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INCKILLINGSPREE].attrib_low = 5;
+	ItemModTable[INV_INCKILLINGSPREE].attrib_high = 15;
+	ItemModTable[INV_INCKILLINGSPREE].attrib_level_modifier = 0;
+	ItemModTable[INV_INCKILLINGSPREE].tags = INV_ATTR_TAG_UTILITY;
 	
 	/////////////////////////
 	// corrupted implicits //

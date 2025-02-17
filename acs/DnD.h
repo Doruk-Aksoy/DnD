@@ -166,11 +166,10 @@ enum {
 
 #define DND_BUDGET_BASE 3
 #define DND_MAX_SHARE 4
-#define DND_SPREE_AMOUNT 4 * TICRATE // 4 * 35
-#define DND_SPREE_PER 10
 #define DND_HALF_SPREE_PER (DND_SPREE_PER / 2)
 #define DND_SPREE_TRIGGER (DND_SPREE_PER - 1) // -1 because current monster killed doesn't count
 #define DND_SPREE_BASE 10 // 10%, this is dividing the exp
+#define DND_SPREE_BASE_F (DND_SPREE_BASE * 1.0 / 100)
 #define DND_SPECIALAMMO_TEXTID 6001
 #define DND_SPREE_BLOODID 6000
 #define DND_SPREE_TEXT1ID 5999
@@ -1116,7 +1115,7 @@ void ActivateKillingSpree() {
 		}
 	}
 	// give spree counter
-	GiveInventory("DnD_SpreeTimer", DND_SPREE_AMOUNT);
+	SetInventory("DnD_SpreeTimer", GetAmmoCapacity("DnD_SpreeTimer"));
 }
 
 void ResetPlayerScriptChecks() {

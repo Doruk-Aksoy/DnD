@@ -10,7 +10,7 @@ statusbar normal, fullscreenoffsets {
 	// KillSpree Meter
 	InInventory KillSpreeOn {
 		InInventory not ShowMapInfo {
-			InInventory DnD_SpreeTimer {
+			InInventory DnD_SpreeTimer, 1 {
 				drawimage "SPREEBAK", 11, -205;
 				drawimage "SPREEBAR", 5, -209;
 				drawbar "SPREEREF", "sPREERED", DnD_SpreeTimer, vertical, 14, -202;
@@ -53,7 +53,7 @@ statusbar normal, fullscreenoffsets {
 			}
 		}
 		InInventory ShowMapInfo {
-			InInventory DnD_SpreeTimer {
+			InInventory DnD_SpreeTimer, 1 {
 				drawimage "SPREEBAK", 131, -181;
 				drawimage "SPREEBAR", 125, -185;
 				drawbar "SPREEREF", "sPREERED", DnD_SpreeTimer, vertical, 134, -178;
