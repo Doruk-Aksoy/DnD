@@ -191,7 +191,7 @@ Actor InstabilityBlast : DnD_BaseProjectile {
 	Damage(
 		ACS_NamedExecuteWithResult(
 			"DND Player Damage Scale", 
-			random(4, 64), 
+			random(4, 32), 
 			DND_DAMAGECATEGORY_ENERGY, 
 			DND_USETARGET | DMG_ESHIELDSCALE,
 			(20 << DEX_ATTUNE_BITS) | (30 << INT_ATTUNE_BITS)

@@ -29,7 +29,7 @@
 #define DND_MONSTER_PERCENTDAMAGEBASE 10 // 10%
 #define DND_MONSTER_PERCENTDAMAGEBASE_LOW 2 // 2%
 
-#define DND_MONSTER_POISONPERCENT 25 // 25% of damage taken from a hit is dealt as poison damage again over the duration
+#define DND_MONSTER_POISONPERCENT 33 // 33% of damage taken from a hit is dealt as poison damage again over the duration
 #define DND_MONSTER_POISONDOT_MINTIME 2
 #define DND_MONSTER_POISONDOT_MAXTIME 5
 
@@ -1446,7 +1446,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category);
 
 	if(flags & DMG_WDMG_ESHIELDSCALE)
-		dmg += CheckInventory("EShieldAmount") / 20; // 5%
+		dmg += CheckInventory("EShieldAmount") / 25; // 4%
 	
 	// attribute bonus only applied if not DOT
 	if(!(flags & DND_WDMG_ISDOT)) {
@@ -1689,13 +1689,14 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber() || !GetCVar("dnd_dmgnum"))
 		Terminate;
-	
-	// if dmg is more than 9999 show using K instead
-	int dmg_temp = dmg;
-	
-	bool show_k = dmg > 9999;
+
+	bool show_k = dmg > 9999 && dmg < 500'000;
+	bool show_m = dmg >= 500'000;
 	if(show_k)
 		dmg /= 1000;
+	else if(show_m) {
+		dmg /= 10000;
+	}
 	
 	int digit_pos = 1;
 	int r = GetActorProperty(tid, APROP_RADIUS) / 2;
@@ -1711,14 +1712,35 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 		
 	// Log(f:x, s: " ", f:y, s: " ", f:z);
 	
-	while(dmg > 0) {
-		SpawnForced(StrParam(s:"Digit", d:digit_pos, s:"Num", d:dmg % 10), x, y, z, DND_DAMAGENUMBER_TID);
-		dmg /= 10;
-		++digit_pos;
+	if(!show_m) {
+		while(dmg > 0) {
+			SpawnForced(StrParam(s:"Digit", d:digit_pos, s:"Num", d:dmg % 10), x, y, z, DND_DAMAGENUMBER_TID);
+			dmg /= 10;
+			++digit_pos;
+		}
+	}
+	else {
+		// millions show dot to make it smaller looking
+		while(dmg > 0) {
+			if(digit_pos < 3)
+				SpawnForced(StrParam(s:"Digit", d:digit_pos, s:"Num", d:dmg % 10), x, y, z, DND_DAMAGENUMBER_TID);
+			else
+				SpawnForced(StrParam(s:"DigitDot", d:digit_pos, s:"Num", d:dmg % 10), x, y, z, DND_DAMAGENUMBER_TID);
+			dmg /= 10;
+			++digit_pos;
+
+			if(digit_pos == 3)
+				SpawnForced(StrParam(s:"Digit", d:digit_pos, s:"Dot"), x, y, z, DND_DAMAGENUMBER_TID);
+		}
+		// if not zero we print it anyway so
+		if(!dmg && digit_pos == 3)
+			SpawnForced(StrParam(s:"Digit", d:4, s:"Num", d:0), x, y, z, DND_DAMAGENUMBER_TID);
 	}
 	
 	if(show_k)
 		SpawnForced("ThousandSymbol", x, y, z, DND_DAMAGENUMBER_TID);
+	else if(show_m)
+		SpawnForced("MillionSymbol", x, y, z, DND_DAMAGENUMBER_TID);
 	
 	SetActorVelocity(DND_DAMAGENUMBER_TID, random(-0.5, 0.5), random(-0.5, 0.5), random(0.0, 0.5), false, false);
 	
@@ -3264,8 +3286,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) / 100;
 					}
 					
-					// Flayer magic or undead check
-					if(m_id == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim))
+					// Flayer magic or undead check -- explosive flag check to prevent it from calling itself
+					if(m_id == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim) && !(dmg_data & DND_DAMAGEFLAG_ISEXPLOSIVE))
 						ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, shooter);
 				}
 
@@ -3346,6 +3368,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// if we have dmg_data, currently it can only come from monster projectile
 			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
 			ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, 0);
+			/*if(dmg < 0)
+			m_id = montid - DND_MONSTERTID_BEGIN;
+					SetInventory("TargetMaximumHealth", MonsterProperties[m_id].maxhp);*/
+
 			SetResultValue(dmg);
 			Terminate;
 		}

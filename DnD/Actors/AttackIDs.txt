@@ -5,8 +5,8 @@ const int DTYPE_SHIFT = 15;
 const int DPCT_SHIFT = 20;
 const int BITMASK_NOFACTOR = 0xFFFFF; // depends on DPCT_SHIFT
 
-const int SPELL_DMG_SHIFT = 16;
-const int SPELL_ID_SHIFT = 21;
+const int SPELL_DMG_SHIFT = 19;
+const int SPELL_ID_SHIFT = 24;
 
 const int NONWEP_DMG_SHIFT = 25;
 

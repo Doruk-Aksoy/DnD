@@ -918,22 +918,22 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_REFL].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PEN_PHYSICAL].attrib_low = 1;
-	ItemModTable[INV_PEN_PHYSICAL].attrib_high = 3;
+	ItemModTable[INV_PEN_PHYSICAL].attrib_high = 5;
 	ItemModTable[INV_PEN_PHYSICAL].attrib_level_modifier = 0;
-	ItemModTable[INV_PEN_PHYSICAL].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_PHYSICAL;
+	ItemModTable[INV_PEN_PHYSICAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_PEN_ENERGY].attrib_low = 1;
-	ItemModTable[INV_PEN_ENERGY].attrib_high = 3;
+	ItemModTable[INV_PEN_ENERGY].attrib_high = 5;
 	ItemModTable[INV_PEN_ENERGY].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_ENERGY].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_PEN_EXPLOSIVE].attrib_low = 1;
-	ItemModTable[INV_PEN_EXPLOSIVE].attrib_high = 3;
+	ItemModTable[INV_PEN_EXPLOSIVE].attrib_high = 5;
 	ItemModTable[INV_PEN_EXPLOSIVE].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_EXPLOSIVE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PEN_OCCULT].attrib_low = 1;
-	ItemModTable[INV_PEN_OCCULT].attrib_high = 3;
+	ItemModTable[INV_PEN_OCCULT].attrib_high = 5;
 	ItemModTable[INV_PEN_OCCULT].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_OCCULT].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT;
 	
@@ -1546,6 +1546,12 @@ int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
 	return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
 }
 
+int RollUniqueAttributeExtra(int unique_id, int attr, bool isWellRolled) {
+	if(!isWellRolled)
+		return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
+	return random((UniqueItemList[unique_id].rolls[attr].attrib_extra_low + UniqueItemList[unique_id].rolls[attr].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
+}
+
 str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
 	if(extra != -1)
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
@@ -1696,10 +1702,19 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 	}
 	
 	switch(attr) {
-		case INV_CYBERNETIC:
 		case INV_CORR_CYBERNETIC:
 			if(!isFractured)
 				col_tag = "\c[R5]";
+			return StrParam(s:col_tag, l:text);
+
+		case INV_CYBERNETIC:
+			if(!isFractured)
+				col_tag = "\c[R5]";
+			if(showDetailedMods) {
+				return StrParam(
+					s:col_tag, l:text, s:no_tag, s:"- ", s:GetModTierText(tier, extra)
+				);
+			}
 			return StrParam(s:col_tag, l:text);
 			
 		// essences with specific writing
@@ -1734,6 +1749,11 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_ESS_VAAJ:
 		case INV_ESS_LESHRAC:
 		case INV_ESS_THORAX:
+			if(showDetailedMods) {
+				return StrParam(
+					s:ess_tag, l:text, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+				);
+			}
 			return StrParam(s:ess_tag, l:text);
 			
 		// essences with percentages in them
@@ -2192,8 +2212,8 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 
 		case INV_EX_STREXTRABONUSTOMELEE:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX57S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:"\c- ", l:"IATTR_TX57S");
+				return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c- ", l:"IATTR_TX57S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, false), s:"\c- ", l:"IATTR_TX57S");
 
 		case INV_EX_LESSDMGTAKENMAXOVERHEAT:
 			if(showDetailedMods)

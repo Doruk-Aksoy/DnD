@@ -234,7 +234,7 @@ Actor Slot3AmmoContainer : CustomInventory {
 }
 
 Actor Slot3AmmoBigSpawner : RandomSpawner replaces ShellBox {
-	DropItem "NewShellBox", 255, 16
+	DropItem "NewShellBox", 255, 12
 	DropItem "Slot3AmmoContainer", 255, 8
 }
 
@@ -260,7 +260,7 @@ Actor Slot4AmmoContainer : Slot3AmmoContainer {
 
 Actor Slot4AmmoBigSpawner : Randomspawner replaces ClipBox
 {
-	DropItem "NewClipbox", 255, 16
+	DropItem "NewClipbox", 255, 12
 	DropItem "Slot4AmmoContainer", 255, 8
 }
 
@@ -328,7 +328,7 @@ Actor Slot5AmmoContainer : Slot3AmmoContainer
 
 Actor Slot5AmmoBigSpawner : Randomspawner replaces RocketBox
 {
-	DropItem "RocketBox2", 255, 16
+	DropItem "RocketBox2", 255, 12
 	DropItem "Slot5AmmoContainer", 255, 8
 }
 
@@ -396,7 +396,7 @@ Actor Slot6AmmoContainer : Slot3AmmoContainer {
 
 Actor Slot6AmmoBigSpawner : Randomspawner replaces Cellpack
 {
-	DropItem "Cellpack2", 255, 16
+	DropItem "Cellpack2", 255, 12
 	DropItem "Slot6AmmoContainer", 255, 8
 }
 

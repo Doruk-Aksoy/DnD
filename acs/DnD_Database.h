@@ -870,6 +870,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read eshield
 	temp = GetDBEntry(GetCharField(DND_DB_ESHIELD, char_id), pacc);
 	SetInventory("EShieldAmount", temp);
+	HandleEShieldChange(pnum, false);
 	
 	// read accessories
 	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);

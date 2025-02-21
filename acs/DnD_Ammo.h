@@ -428,8 +428,11 @@ void SetAllAmmoCapacities(int pnum) {
 	int factor = GetAmmoCapIncrease(pnum);
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
 		int temp = GetAmmoSlotMaxIndex(i);
-		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity; ++j)
-			SetAmmoCapacity(AmmoInfo[i][j].name, (AmmoInfo[i][j].initial_capacity * factor) / 100);
+		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity; ++j) {
+			// dont change hammer cap
+			if(i != DND_AMMOSLOT_ROCKET || j != AMMO_HAMMER)
+				SetAmmoCapacity(AmmoInfo[i][j].name, (AmmoInfo[i][j].initial_capacity * factor) / 100);
+		}
 	}
 }
 

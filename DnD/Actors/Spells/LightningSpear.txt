@@ -33,7 +33,7 @@ Actor LightningSpearFrameSetter : DnD_Activator {
 	}
 }
 
-Actor LightningSpearProjectile : DnD_ExplosiveBase {
+Actor LightningSpearProjectile : DnD_BaseProjectile {
 	PROJECTILE
 	DamageType "Lightning"
 	Scale 0.65
@@ -49,9 +49,10 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 	ReactionTime 105
 	
 	Damage(
-		ACS_NamedExecuteWithResult("DND Player Damage Scale", 15 * random(4, 6), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL) |
-		(DND_DAMAGETYPE_LIGHTNING << SPELL_DMG_SHIFT) |
-		(DND_SPELL_LIGHTNINGSPEAR << SPELL_ID_SHIFT)
+		ACS_NamedExecuteWithResult(
+			"DND Player Damage Scale", 15 * random(4, 6), DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL,
+			(50 << INT_ATTUNE_BITS)
+		) | (DND_DAMAGETYPE_LIGHTNING << SPELL_DMG_SHIFT) | (DND_SPELL_LIGHTNINGSPEAR << SPELL_ID_SHIFT)
 	)
 	
 	Stamina 65536
@@ -118,18 +119,7 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 		Bounce.Floor:
 		Bounce.Ceiling:
 		Bounce.Wall:
-			"####" "#" 0 A_PlaySound("Spell/LightningSpearBounce")
-			
-			"####" "#" 0 A_SetUserVar("user_expdmg", 
-				ACS_NamedExecuteWithResult("DND Player Damage Scale", 45, DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL) |
-				(DND_DAMAGETYPE_LIGHTNING << SPELL_DMG_SHIFT) |
-				(DND_SPELL_LIGHTNINGSPEAR << SPELL_ID_SHIFT)
-			)
-			"####" "#" 0 A_SetUserVar("user_expradius", 72)
-			"####" "#" 0 A_SetUserVar("user_fullexpradius", 0)
-			"####" "#" 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_ISSPELL)
-		Goto DoExplosionDamage
-		ContinueFromExplosion:
+			"####" "#" 0 A_CustomMissile("LightningSpearExplosion", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			"####" "############" 0 A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(-2.0, 2.0),frandom(-2.0, 2.0),frandom(-2.0, 2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION)
 			"####" "#" 0 A_SpawnItemEx ("PlasmaFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
 		Goto Move
@@ -159,15 +149,44 @@ Actor LightningSpearProjectile : DnD_ExplosiveBase {
 
 Actor LightningSpearProjectile_NoRepeat : LightningSpearProjectile {
 	Damage(
-		ACS_NamedExecuteWithResult("DND Player Damage Scale", 45, DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL) |
-		DND_DAMAGETYPE_LIGHTNING << 16
+		ACS_NamedExecuteWithResult("DND Player Damage Scale", 45, DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL, (50 << INT_ATTUNE_BITS)) |
+		(DND_DAMAGETYPE_LIGHTNING << SPELL_DMG_SHIFT) |
+		(DND_SPELL_LIGHTNINGSPEAR << SPELL_ID_SHIFT)
 	)
 
 	States {
 		Xdeath:
 		Crash:
+			TNT1 AAAAA 0 A_SpawnItemEx("ZapPuff", Random(-16, 16), Random(-16, 16), Random(-16, 16), 0, 0, 0, 0, 160) 
+			S003 ABCDEF 2 Light("LightningSpearLight") Bright
+		Stop
+	}
+}
+
+Actor LightningSpearExplosion : DnD_ExplosiveBase {
+	Speed 0
+	Stamina 65536
+	
+	+FORCEPAIN
+	+THRUACTORS
+	States {
+		SpawnState:
 			TNT1 A 0
-		Goto Death
+		Death:
+			TNT1 A 0 A_PlaySound("Spell/LightningSpearBounce")
+			
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				ACS_NamedExecuteWithResult("DND Player Damage Scale", 45, DND_DAMAGECATEGORY_LIGHTNING, DND_USETARGET | DND_ISSPELL, (50 << INT_ATTUNE_BITS)) |
+				(DND_DAMAGETYPE_LIGHTNING << SPELL_DMG_SHIFT) |
+				(DND_SPELL_LIGHTNINGSPEAR << SPELL_ID_SHIFT)
+			)
+			TNT1 A 0 A_SetUserVar("user_expradius", 72)
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_ISSPELL)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 1
+		Stop
 	}
 }
 

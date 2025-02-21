@@ -1328,7 +1328,7 @@ statusbar normal, fullscreenoffsets {
 	}
 
 	// berserker display
-	InInventory Berserker_DamageTracker {
+	InInventory Berserker_DamageTimer, 1 {
 		drawbar "BERSICO1", "BERSICB1", Berserker_DamageTimer, vertical, -152, -200;
 		drawnumber 2, NCNormalFont, NCWhiteC, Berserker_DamageTracker, alignment(center), -122, -144;
 	}

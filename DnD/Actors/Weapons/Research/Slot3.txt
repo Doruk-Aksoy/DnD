@@ -487,6 +487,7 @@ Actor CryoPuff_FX {
 
 Actor CryoPuffAlt : DnD_BasePuff {
 	Species "Player"
+	DamageType "P_Ice"
 	// no ice damage because it should shatter things
 	+NODAMAGETHRUST
 	+ALWAYSPUFF
@@ -770,7 +771,6 @@ Actor CryoWind_Crit : CryoWind {
 Actor CryoWind_Damager : DnD_BaseProjectile {
 	Radius 10
 	Height 20
-	DamageType "Ice"
 	Speed 1
 	
 	Damage(

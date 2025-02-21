@@ -14,7 +14,7 @@
 #define AFFLUENCE_MAX 4 // x16
 #define AFFLUENCE_MULT 2
 
-#define DND_ORB_SIN_REPENTCHANCE 0.33
+#define DND_ORB_SIN_REPENTCHANCE 0.4
 
 // this is server side only, clients aren't even aware of the values here so we can put as many stuff as needed...
 // because zan doesn't sync variables to clients unless told to do (sdee dnd_sync.h for it)
@@ -539,8 +539,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				// handle unique random roll case
 				temp = (PlayerInventoryList[pnum][extra].item_type >> UNIQUE_BITS) - 1;
 				for(res = 0; res < s; ++res) {
-					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i)
+					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
 						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollUniqueAttributeValue(temp, i, CheckWellRolled(pnum));
+						if(PlayerInventoryList[pnum][extra].attributes[i].attrib_extra)
+							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = RollUniqueAttributeExtra(temp, i, CheckWellRolled(pnum));
+					}
 				}
 			}
 			else {
@@ -651,9 +654,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// check how many ilvls this should jump now
 			temp = prev - x;
 			if(temp > 0) {
-				// clear difference here, so adjust ilvl accordingly by +8-10 ilvls
+				// clear difference here, so adjust ilvl accordingly by +6-10 ilvls
 				for(s = 0; s < temp; ++s)
-					PlayerInventoryList[pnum][extra].item_level += random(4 * MAX_CHARM_AFFIXTIERS / 5, MAX_CHARM_AFFIXTIERS);
+					PlayerInventoryList[pnum][extra].item_level += random(3 * MAX_CHARM_AFFIXTIERS / 5, MAX_CHARM_AFFIXTIERS);
 				if(PlayerInventoryList[pnum][extra].item_level > MAX_ITEM_LEVEL)
 					PlayerInventoryList[pnum][extra].item_level = MAX_ITEM_LEVEL;
 			}

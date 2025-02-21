@@ -58,7 +58,7 @@ int load_char_proc(int pnum, int char_id) {
 		else
 			load_char(pnum, char_id);
 	}
-	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
+	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id, CheckInventory("Level"));
 	return result;
 }
 
@@ -98,7 +98,7 @@ int set_char_proc(int pnum, int char_id) {
 
 		EndDBTransaction();
 	}
-	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
+	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id, CheckInventory("Level"));
 	return result;
 }
 
@@ -116,10 +116,10 @@ Script 1005 (int char_id) NET {
 	int pnum = PlayerNumber();
 	int result = check_transfer_char(pnum, char_id);
 	if ((result == DND_LOGIN_CHARTRANSFERRED) || (result == DND_LOGIN_TRANSFSAMESLOT)) transfer_char(pnum, char_id);
-	ACS_NamedExecuteAlways("DnD Login Message", 0, pnum, result, char_id);
+	ACS_NamedExecuteAlways("DnD Login Message", pnum, result, char_id, CheckInventory("Level"));
 }
 
-Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
+Script "DnD Login Message" (int pnum, int msg_no, int extra, int level) CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum && msg_no != DND_CHARLOADED)
 		Terminate;
 	switch(msg_no) {
@@ -157,7 +157,7 @@ Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 			Log(l:"TRANSFER CHAR: Character will remain at the current slot", s:" \cd", d:extra, s:"\c- ", l:"DND_DBERR11B");
 		break;
 		case DND_CHARLOADED:
-			Log(n:0, s:" ", l:"DND_DBERR12", s:" (", l:"DND_STAT18", s:" ", d:CheckActorInventory(P_TIDSTART + pnum, "Level"), s:")!");
+			Log(n:0, s:" ", l:"DND_DBERR12", s:" (", l:"DND_STAT18", s:" ", d:level, s:")!");
 		break;
 		case DND_LOGIN_CHARTRANSFERRED:
 			Log(l:"DND_DBERR13A", s:" \cd", d:extra, s:"\c- ", l:"DND_DBERR13B");

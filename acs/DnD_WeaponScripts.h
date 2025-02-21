@@ -141,6 +141,14 @@ Script "DnD Can Fire Weapon" (void) {
 					}*/
 				break;
 
+				// weapons that require only ammo1 to fire both primary and alt
+				case DND_WEAPON_THUNDERSTAFF:
+				case DND_WEAPON_RAILGUN:
+				case DND_WEAPON_DARKGLOVES:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
+				break;
+
 				// standard weapons with no special alt fire that use the ammos, which can reload with mags
 				case DND_WEAPON_MAGNUM:
 					// magnum case is different					
@@ -251,19 +259,11 @@ Script "DnD Can Fire Weapon" (void) {
 
 					isOverheatingWeapon = true;
 				break;
-				case DND_WEAPON_RAILGUN:
-					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
-				break;
 
 				case DND_WEAPON_SAWEDOFF:
 					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt1, flags);
 					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
 					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-				break;
-				case DND_WEAPON_DARKGLOVES:
-					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
 				break;
 
 				case DND_WEAPON_SICKLE:
@@ -365,7 +365,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		case DND_WEAPON_KATANA:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 12, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_2, 80, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 160, 0, wepid);
 		break;
 		case DND_WEAPON_EXCALIBAT:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 4 | (6 << 16), wepid);

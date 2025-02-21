@@ -237,6 +237,8 @@ Script "DnD On Map Load" OPEN {
 		++i;
 	}
 
+	SetupEliteModWeights();
+
 	SetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 
 	if(!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS)) {
@@ -652,7 +654,7 @@ Script "DND Killing Spree End" (int spree, int mult, int reward) CLIENTSIDE {
 		Delay(3);
 	}
 	SetFont("MONFONT");
-	HudMessage(s:"\ci", l:GetSpreeText(mult), s:"!\c- \cix", f:mult * DND_SPREE_BASE_F, s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
+	HudMessage(s:"\ci", l:GetSpreeText(mult), s:"!\c- \cix", s:GetFixedRepresentation(mult * DND_SPREE_BASE_F, false), s:"\c- ", l:"DND_TEXT_BONUS", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT1ID, CR_WHITE, 240.4, 320.0, 2.0, 1.0, 1.0);
 	HudMessage(l:"DND_TEXT_GAINEDEXTRA", s:" \cf", d:reward, s: "\c- ", l:"DND_STAT16", s:"!"; HUDMSG_FADEINOUT, DND_SPREE_TEXT2ID, CR_WHITE, 240.4, 328.0, 2.0, 1.0, 1.0);
 }
 
@@ -1182,57 +1184,61 @@ Script 832 (void) {
 // Weapon pickup checks, bulkiness armor check and agamotto check
 Script "DnD Periodic Checks" ENTER {
 	int temp;
-	while(isAlive()) {
-		// Agamotto check
-		if(CheckInventory("AgamottoCheck")) {
-			int input = GetPlayerInput(-1, INPUT_BUTTONS);
-			if((input & (BT_FORWARD | BT_BACK | BT_MOVELEFT | BT_MOVERIGHT)) || abs(GetActorVelX(0)) > 1.0 || abs(GetActorVelY(0)) > 1.0 || abs(GetActorVelZ(0)) > 1.0) {
-				if(!CheckInventory("AgamottoDefense")) {
-					GiveInventory("AgamottoDefense", 1);
-					TakeInventory("AgamottoOffense", 1);
+	int pnum = PlayerNumber();
+	while(PlayerInGame(pnum) && !PlayerIsSpectator(pnum)) {
+		while(isAlive()) {
+			// Agamotto check
+			if(CheckInventory("AgamottoCheck")) {
+				int input = GetPlayerInput(-1, INPUT_BUTTONS);
+				if((input & (BT_FORWARD | BT_BACK | BT_MOVELEFT | BT_MOVERIGHT)) || abs(GetActorVelX(0)) > 1.0 || abs(GetActorVelY(0)) > 1.0 || abs(GetActorVelZ(0)) > 1.0) {
+					if(!CheckInventory("AgamottoDefense")) {
+						GiveInventory("AgamottoDefense", 1);
+						TakeInventory("AgamottoOffense", 1);
+					}
+				}
+				else if(!CheckInventory("AgamottoOffense")) {
+					TakeInventory("AgamottoDefense", 1);
+					GiveInventory("AgamottoOffense", 1);
 				}
 			}
-			else if(!CheckInventory("AgamottoOffense")) {
+			else {
 				TakeInventory("AgamottoDefense", 1);
-				GiveInventory("AgamottoOffense", 1);
+				TakeInventory("AgamottoOffense", 1);
 			}
-		}
-		else {
-			TakeInventory("AgamottoDefense", 1);
-			TakeInventory("AgamottoOffense", 1);
-		}
-		
-		// Sigil Check
-		if(CheckInventory("SigilCheck")) {
-			// give item only if there is no sigil powerup currently on player
-			if(HasNoSigilPower()) {
-				switch(CheckInventory("SigilCheck")) {
-					case 1: // fire
-						GiveInventory("ElementPower_Fire", 1);
-					break;
-					case 2:
-						GiveInventory("ElementPower_Ice", 1);
-					break;
-					case 3:
-						GiveInventory("ElementPower_Lightning", 1);
-					break;
-					case 4:
-						GiveInventory("ElementPower_Earth", 1);
-					break;
+			
+			// Sigil Check
+			if(CheckInventory("SigilCheck")) {
+				// give item only if there is no sigil powerup currently on player
+				if(HasNoSigilPower()) {
+					switch(CheckInventory("SigilCheck")) {
+						case 1: // fire
+							GiveInventory("ElementPower_Fire", 1);
+						break;
+						case 2:
+							GiveInventory("ElementPower_Ice", 1);
+						break;
+						case 3:
+							GiveInventory("ElementPower_Lightning", 1);
+						break;
+						case 4:
+							GiveInventory("ElementPower_Earth", 1);
+						break;
+					}
+					SetInventory("SigilCheck", (CheckInventory("SigilCheck") % 4) + 1);
 				}
-				SetInventory("SigilCheck", (CheckInventory("SigilCheck") % 4) + 1);
 			}
-		}
-		
-		// for cautious quest
-		if(active_quest_id == QUEST_HPOVER50 && GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
-			GiveInventory("DnD_HealthLess50", 1);
+			
+			// for cautious quest
+			/*if(active_quest_id == QUEST_HPOVER50 && GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
+				GiveInventory("DnD_HealthLess50", 1);
 
-		if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
-			CompleteQuest(ActivatorTID(), QUEST_SPEND25K);
-		
-		// this used to be 7, but I reduced frequency, hopefully nothing was too dependent on this
-		Delay(const:10);
+			if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
+				CompleteQuest(ActivatorTID(), QUEST_SPEND25K);*/
+			
+			// this used to be 7, but I reduced frequency, hopefully nothing was too dependent on this
+			Delay(const:10);
+		}
+		Delay(const:HALF_TICRATE);
 	}
 }
 
@@ -1606,10 +1612,6 @@ Script "DnD Setup Shootable" (void) {
 		GiveShootableTID();
 }
 
-Script "DnD Update TID CS" (int tid) CLIENTSIDE {
-	Thing_ChangeTID(0, tid);
-}
-
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	GiveMonsterTID(ActivatorTID());
@@ -1621,9 +1623,6 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	if(!pcount)
 		pcount = 1;
-		
-	// this is necessary to fix a bug
-	ACS_NamedExecuteWithResult("DnD Update TID CS", this);
 	
 	MonsterProperties[m_id].id = monsterid;
 	
@@ -1631,7 +1630,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
 
-	//MonsterProperties[m_id].trait_list[DND_SUBORDINATE] = true;
+	//MonsterProperties[m_id].trait_list[DND_VIOLENTRETALIATION] = true;
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -1652,11 +1651,15 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	}
 
 	// run elite checks
+/*#ifdef ISDEBUGBUILD
+	if(1)
+#else*/
 	if(
 		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																	&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
 		!IsUniqueMonster(monsterid)
 	)
+//#endif
 	{
 		MonsterProperties[m_id].isElite = true;
 		
@@ -3031,7 +3034,9 @@ Script "DnD Player Setup" ENTER {
 	}
 	
 	UnfreezePlayer();
-	ACS_NamedExecuteWithResult("DnD Weapon Damage Cache", GetCurrentWeaponID());
+	curlvl = GetCurrentWeaponID();
+	ACS_NamedExecuteWithResult("DnD Weapon Damage Cache", curlvl);
+	ACS_NamedExecuteAlways("DnD Weapon Input Handler", 0, curlvl);
 	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
 	
 	// if map changed, reset accessory stuff
@@ -3759,7 +3764,10 @@ Script "DnD Align Elite FX" (void) CLIENTSIDE {
 	int tid = GetActorProperty(0, APROP_TARGETTID);
 	if(tid) {
 		SetActorProperty(0, APROP_MASS, GetActorProperty(tid, APROP_HEIGHT) >> 17);
-		SetActorProperty(0, APROP_SCORE, GetActorProperty(tid, APROP_RADIUS) >> 16);
+		int s = (GetActorProperty(tid, APROP_RADIUS) >> 16);
+		if(s > 32)
+			s -= 4;
+		SetActorProperty(0, APROP_SCORE, s);
 	}
 }
 
@@ -4028,6 +4036,7 @@ Script "DND Player Damage Scale" (int dmg, int damage_category, int flags, int a
 		dex_scaling,
 		int_scaling
 	);
+
 	SetResultValue(dmg);
 }
 
@@ -4305,10 +4314,11 @@ Script "DnD Emerald Death" (void) {
 	int this = ActivatorTID();
 	SetActivatorToTarget(0);
 	int target = ActivatorTID();
-	Spawn("EmeraldDeathActor", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, target + DND_EMERALD_TIDADD);
-	SetActivator(target + DND_EMERALD_TIDADD);
-	SetPointer(AAPTR_TARGET, target);
-	Thing_ChangeTID(0, 0);
+	if(Spawn("EmeraldDeathActor", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) / 2, target + DND_EMERALD_TIDADD)) {
+		SetActivator(target + DND_EMERALD_TIDADD);
+		SetPointer(AAPTR_TARGET, target);
+		Thing_ChangeTID(0, 0);
+	}
 }
 
 Script "DnD Charm Message" (int id, int type) CLIENTSIDE {
@@ -4971,6 +4981,8 @@ Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
 			else // clear because we died
 				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 		}
+		else if(reset)
+			HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
 		if(tmp < DND_PUNISHER_DMG_MAX) {
 			tmp = DND_PUNISHER_PERK3_KILLCOUNT - tmp % DND_PUNISHER_PERK3_KILLCOUNT;
 			HudMessage(l:"DND_KILL", s:" \c[I7]", d:tmp, s:"\c- ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
@@ -5198,7 +5210,7 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	if(CheckActorInventory(owner, "NetherCheck"))
 		GiveInventory("ApplyNetherMaskBuff", 1);
 	
-	if(CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) || CheckInventory("Marine_Perk25"))
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) || CheckActorInventory(owner, "Marine_Perk25"))
 		GiveInventory("ApplyForceRadiusDMG", 1);
 	SetResultValue(0);
 }
@@ -5424,11 +5436,12 @@ Script "DnD Kanji Explosion" (int x, int y, int z) {
 	int owner = ActivatorTID();
 	int tid = KANJI_TRAPEXP_TID + PlayerNumber();
 	
-	SpawnForced("DemonSealExplosion", x, y, z, tid);
-	SetActivator(tid);
-	Thing_ChangeTID(0, 0);
-	SetActorProperty(0, APROP_TARGETTID, owner);
-	SetPointer(AAPTR_TARGET, owner);
+	if(SpawnForced("DemonSealExplosion", x, y, z, tid)) {
+		SetActivator(tid);
+		Thing_ChangeTID(0, 0);
+		SetActorProperty(0, APROP_TARGETTID, owner);
+		SetPointer(AAPTR_TARGET, owner);
+	}
 	
 	SetResultValue(0);
 }
@@ -5517,7 +5530,7 @@ Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
 	
 	if(tier >= 1) {
 		// guaranteed charm drop from anything above medium, and a potential chest drop
-		SpawnItemForAll(DND_ITEM_CHARM, 1);
+		SpawnItemForAll(DND_ITEM_CHARM, 1, boss_tid - DND_MONSTERTID_BEGIN);
 		
 		// 33% chance to spawn a chest as well
 		if(RunDefaultDropChance(target - P_TIDSTART, DND_BOSSCHEST_DROPRATE)) {
@@ -5665,10 +5678,11 @@ Script 68 (int x) NET {
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
-			//SpawnCharmWithMods_ForAll(INV_INCKILLINGSPREE);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_AFFLUENCE, true, false, 300);
+			//SpawnCharmWithMods_ForAll(INV_CYBERNETIC, INV_AMMOGAIN_CHANCE);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_AFFLUENCE, true, false, 300);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_FORTITUDE, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
-			//IncPlayerModValue(0, INV_LOCKONAREA, 50);
+			//IncPlayerModValue(0, INV_ESHIELD_ABSORB, 25);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

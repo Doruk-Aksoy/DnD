@@ -46,7 +46,7 @@ Actor PoisonNovaProjectile : DnD_BaseProjectile {
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_expdmg",
-				ACS_NamedExecuteWithResult("DND Player Damage Scale", 120, DND_DAMAGECATEGORY_POISON, DND_USETARGET | DND_ISSPELL) |
+				ACS_NamedExecuteWithResult("DND Player Damage Scale", 120, DND_DAMAGECATEGORY_POISON, DND_USETARGET | DND_ISSPELL, (50 << INT_ATTUNE_BITS)) |
 				(DND_DAMAGETYPE_POISON << SPELL_DMG_SHIFT) |
 				(DND_SPELL_POISONNOVA << SPELL_ID_SHIFT)
 			)

@@ -834,7 +834,7 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 		return 4 * lvl;
 	return 2 * lvl + 50;*/
 	// new formula to ensure a sharp curve earlier levels then settle down
-	return 1000 / (100 / lvl + 3);
+	return 900 / (100 / lvl + 3);
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {

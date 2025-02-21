@@ -8,11 +8,11 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
         int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers, extra);
 
 		// tiers need to be 0 for it to be monster drops
-		#ifndef ISDEBUGBUILD
-			if(!tiers && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)))
-		#else
-			if(random(0,1))
-		#endif
+//#ifndef ISDEBUGBUILD
+		if(!tiers && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)))
+//#else
+		//if(random(0,1))
+//#endif
 		{
 			id = MakeUnique(c, DND_ITEM_BODYARMOR, pnum);
 			SpawnDrop(StrParam(s:"UniqueArmor_", d:id - UNIQUE_BODYARMOR_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
@@ -119,7 +119,7 @@ void SpawnToken(int pnum, int stack = 0, int unused2 = 0, bool noRandomVelXY = f
 	}
 }
 
-void SpawnItemForAll(int type, int repeats = 1) {
+void SpawnItemForAll(int type, int repeats = 1, int extra = -1) {
     void function(int, int, int, bool, int)& f = SpawnArmor;
     switch(type) {
         case DND_ITEM_CHARM:
@@ -144,7 +144,7 @@ void SpawnItemForAll(int type, int repeats = 1) {
 			if(PlayerInGame(j) && !PlayerIsSpectator(j)) {
 				if(PlayerActivities[j].loot_penalty)
 					continue;
-				f(j, 0, 0, 0, -1);
+				f(j, 0, 0, 0, extra);
 			}
 		}
 	}

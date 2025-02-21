@@ -932,7 +932,7 @@ Actor SunPuff : DnD_BaseRailPuff {
 	Alpha 0.85
 	Renderstyle Translucent
 	
-	Stamina 2101248
+	Stamina 4096
 	
 	+BLOODLESSIMPACT
 	+FOILINVUL

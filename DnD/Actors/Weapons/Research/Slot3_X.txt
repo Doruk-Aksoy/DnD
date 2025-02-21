@@ -1369,7 +1369,6 @@ Actor CrossbowBolt_3 : CrossbowBolt_2 {
 		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 		(200 << DPCT_SHIFT)
 	)
-	Stamina 32768
 	
 	States {
 		SpawnState:
@@ -1393,7 +1392,6 @@ Actor CrossbowBolt_4 : CrossbowBolt_2 {
 		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 		(250 << DPCT_SHIFT)
 	)
-	Stamina 32768
 	
 	States {
 		SpawnState:
@@ -1417,7 +1415,6 @@ Actor CrossbowBolt_5 : CrossbowBolt_2 {
 		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 		(300 << DPCT_SHIFT)
 	)
-	Stamina 32768
 	
 	States {
 		SpawnState:

@@ -431,7 +431,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].icon = "WEPICO6";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use2 = 5;
-	Weapons_Data[DND_WEAPON_INFERNOSWORD].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_MAGIC;
+	Weapons_Data[DND_WEAPON_INFERNOSWORD].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_MAGIC | WPROP_SELFDMG;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].attunement[STAT_STR] = 0.03;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].attunement[STAT_INT] = 0.02;
 	
@@ -503,7 +503,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].icon = "WEPICO13";
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].ammo_use2 = 1;
-	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].properties =  WPROP_PRECISION | WPROP_HANDGUN;
+	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].properties =  WPROP_PRECISION | WPROP_AUTOMATIC;
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].attunement[STAT_STR] = 0.01;
 	Weapons_Data[DND_WEAPON_ASSAULTRIFLE].attunement[STAT_DEX] = 0.04;
 	
@@ -524,8 +524,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RUBYWAND].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_RUBYWAND].ammo_use2 = 7;
 	Weapons_Data[DND_WEAPON_RUBYWAND].properties = WPROP_CANTHITGHOST | WPROP_MAGIC;
-	Weapons_Data[DND_WEAPON_RUBYWAND].attunement[STAT_DEX] = 0.01;
-	Weapons_Data[DND_WEAPON_RUBYWAND].attunement[STAT_INT] = 0.04;
+	Weapons_Data[DND_WEAPON_RUBYWAND].attunement[STAT_INT] = 0.05;
 	
 	Weapons_Data[DND_WEAPON_SCATTERGUN].name = "ScatterGun";
 	Weapons_Data[DND_WEAPON_SCATTERGUN].ammo_name1 = "Clip";
@@ -576,8 +575,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_EMERALDWAND].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_EMERALDWAND].properties = WPROP_CANTHITGHOST | WPROP_POISON | WPROP_MAGIC;
-	Weapons_Data[DND_WEAPON_EMERALDWAND].attunement[STAT_INT] = 0.03;
-	Weapons_Data[DND_WEAPON_EMERALDWAND].attunement[STAT_DEX] = 0.02;
+	Weapons_Data[DND_WEAPON_EMERALDWAND].attunement[STAT_INT] = 0.05;
 	
 	Weapons_Data[DND_WEAPON_DEADLOCK].name = "ResShotgun1";
 	Weapons_Data[DND_WEAPON_DEADLOCK].ammo_name1 = "Shell";
@@ -659,8 +657,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_HELLSMAW].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_HELLSMAW].properties = WPROP_CANTHITGHOST | WPROP_SELFDMG;
 	Weapons_Data[DND_WEAPON_HELLSMAW].attunement[STAT_STR] = 0.01;
-	Weapons_Data[DND_WEAPON_HELLSMAW].attunement[STAT_DEX] = 0.01;
-	Weapons_Data[DND_WEAPON_HELLSMAW].attunement[STAT_INT] = 0.03;
+	Weapons_Data[DND_WEAPON_HELLSMAW].attunement[STAT_INT] = 0.04;
 
 	Weapons_Data[DND_WEAPON_AXE].name = "TheAxe";
 	Weapons_Data[DND_WEAPON_AXE].ammo_name1 = "AxeMana";
@@ -1196,8 +1193,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_GAUSSRIFLE].properties = WPROP_SELFDMG | WPROP_IGNORESHIELD | WPROP_TECH | WPROP_PRECISION;
-	Weapons_Data[DND_WEAPON_GAUSSRIFLE].attunement[STAT_INT] = 0.01;
-	Weapons_Data[DND_WEAPON_GAUSSRIFLE].attunement[STAT_DEX] = 0.04;
+	Weapons_Data[DND_WEAPON_GAUSSRIFLE].attunement[STAT_DEX] = 0.035;
+	Weapons_Data[DND_WEAPON_GAUSSRIFLE].attunement[STAT_INT] = 0.015;
 	
 	Weapons_Data[DND_WEAPON_RAILGUN].name = "Rail gun";
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_name1 = "Cell";
@@ -1207,7 +1204,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RAILGUN].ammo_use2 = 8;
 	Weapons_Data[DND_WEAPON_RAILGUN].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_TECH | WPROP_PRECISION;
 	Weapons_Data[DND_WEAPON_RAILGUN].attunement[STAT_STR] = 0.01;
-	Weapons_Data[DND_WEAPON_RAILGUN].attunement[STAT_DEX] = 0.04;
+	Weapons_Data[DND_WEAPON_RAILGUN].attunement[STAT_DEX] = 0.03;
+	Weapons_Data[DND_WEAPON_RAILGUN].attunement[STAT_INT] = 0.01;
 	
 	Weapons_Data[DND_WEAPON_DEATHRAY].name = "Death Ray";
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_name1 = "IonAmmo";
@@ -1216,8 +1214,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use1 = 6;
 	Weapons_Data[DND_WEAPON_DEATHRAY].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_DEATHRAY].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_TECH | WPROP_PRECISION;
-	Weapons_Data[DND_WEAPON_DEATHRAY].attunement[STAT_INT] = 0.015;
-	Weapons_Data[DND_WEAPON_DEATHRAY].attunement[STAT_DEX] = 0.035;
+	Weapons_Data[DND_WEAPON_DEATHRAY].attunement[STAT_DEX] = 0.015;
+	Weapons_Data[DND_WEAPON_DEATHRAY].attunement[STAT_INT] = 0.035;
 	
 	// SLOT 8
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].name = "Death Staff";

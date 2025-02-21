@@ -625,22 +625,22 @@ void HandleChestDrops(int ctype) {
 	int pnum = tid - P_TIDSTART;
 
 	if(ctype == DND_CHESTTYPE_BRONZE) {
-		SpawnOrbForAll(random(1, 3));
+		SpawnOrbForAll(random(1, 3), 1 + random(1, 5) / 5);
 		if(RunDefaultDropChance(pnum, 0.5))
 			SpawnItemForAll(DND_ITEM_TOKEN);
 	}
 	else if(ctype == DND_CHESTTYPE_SILVER) {
-		SpawnOrbForAll(random(3, 5));
+		SpawnOrbForAll(random(3, 5), 1 + random(1, 10) / 4);
 		if(RunDefaultDropChance(pnum, 0.75))
 			SpawnItemForAll(DND_ITEM_TOKEN);
 		if(RunDefaultDropChance(pnum, 0.5))
 			SpawnItemForAll(DND_ITEM_POWERCORE);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
-		SpawnOrbForAll(random(5, 8));
+		SpawnOrbForAll(random(5, 8), 1 + random(1, 10) / 2);
 		SpawnItemForAll(DND_ITEM_TOKEN);
 		SpawnItemForAll(DND_ITEM_POWERCORE);
-		SpawnItemForAll(DND_ITEM_BODYARMOR);
+		SpawnItemForAll(DND_ITEM_BODYARMOR, 1, random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL]));
 	}
 	
 	// common to all chests, an extra orb can drop with 33% chance and another with 20%
@@ -694,11 +694,15 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 				bits |= DND_LOOTBIT_TOKEN;
 			}
 
+#ifdef ISDEBUGBUILD
+			SpawnArmor(i, rarity_boost, 0);
+#endif
+
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
 				// boot and body armor chance is equal
 				tmp = random(1, 100);
 				if(tmp <= 33)
-					SpawnArmor(i, rarity_boost, 0);
+					SpawnArmor(i, rarity_boost, 0, false, m_id);
 				else if(tmp <= 66)
 					SpawnBoot(i, rarity_boost);
 				else
@@ -964,8 +968,8 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	
 	#ifdef ISDEBUGBUILD
 		//SpawnElixir(0);
-		SpawnCharm(0, true);
-		SpawnOrb(0, true);
+		//SpawnCharm(0, true);
+		//SpawnOrb(0, true);
 		//SpawnToken(0, true);
 	#endif
 	
@@ -1229,7 +1233,7 @@ void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 		break;
 		case MONSTER_HOLLOWSHELL:
 			// hollow orb: adds an extra mod to a non-unique charm even if it's at its limit (at most +1 of its current limit)
-			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 		break;
 		case MONSTER_OMNISIGHT:
 			// omnisight influence: large accuracy, % increased accuracy rating
@@ -1241,7 +1245,7 @@ void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 		break;
 		case MONSTER_ONIMUZ:
 			// Phantasmal Orb: grants used weapon ability to hit ghosts but do 25% less damage overall.
-			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 		break;
 		case MONSTER_HARKIMONDE:
 			// harkimonde influence: Attacks have chance to ignore shields.
@@ -1269,7 +1273,7 @@ void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 		break;
 		case MONSTER_ABAXOTH:
 			// Assimilation Orb: Assimilates a chosen charm into another, merging them unpredictably, randomly taking modifiers from both charms. Can have up to 1 additional modifier.
-			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
 		break;
 	}
 }

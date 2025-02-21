@@ -4,6 +4,7 @@
 //#define ISDEBUGBUILD
 #define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
+#define HELPER_MESSAGES_ON
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0
@@ -486,6 +487,9 @@ void GiveMonsterTID(int base_tid) {
 Script "DnD Update Monster TID CS" (int id, int val, int newcount) CLIENTSIDE {
 	UsedMonsterTIDs[id] = val;
 	DnD_TID_Counter[DND_TID_MONSTER] = newcount;
+
+	// this is necessary to fix a bug
+	Thing_ChangeTID(0, val);
 }
 
 void GivePetTID(int master_tid) {

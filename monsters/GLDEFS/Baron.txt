@@ -2509,6 +2509,11 @@ object VolcanoTBlast2
     frame VFBL { light VOLCANOBALL1 }
 }
 
+object VolcanoTBlast_Fast
+{
+    frame VFBL { light VOLCANOBALL1 }
+}
+
 flickerlight PHOENIXFLAME
 {
     color 0.7 0.4 0.0
@@ -2596,30 +2601,6 @@ object BeastBall2
 }
 
 object MagmaGolemNade
-{
-	frame VFBLA { light VOLCANOBALL1 }
-	frame VFBLB { light VOLCANOBALL2 }
-    frame XPL1A { light TIMEBOMB_X1 }
-    frame XPL1B { light TIMEBOMB_X2 }
-    frame XPL1C { light TIMEBOMB_X3 }
-    frame XPL1D { light TIMEBOMB_X4 }
-    frame XPL1E { light TIMEBOMB_X5 }
-    frame XPL1F { light TIMEBOMB_X5 }
-}
-
-object MagmaGolemNade_2
-{
-	frame VFBLA { light VOLCANOBALL1 }
-	frame VFBLB { light VOLCANOBALL2 }
-    frame XPL1A { light TIMEBOMB_X1 }
-    frame XPL1B { light TIMEBOMB_X2 }
-    frame XPL1C { light TIMEBOMB_X3 }
-    frame XPL1D { light TIMEBOMB_X4 }
-    frame XPL1E { light TIMEBOMB_X5 }
-    frame XPL1F { light TIMEBOMB_X5 }
-}
-
-object MagmaGolemNade_3
 {
 	frame VFBLA { light VOLCANOBALL1 }
 	frame VFBLB { light VOLCANOBALL2 }

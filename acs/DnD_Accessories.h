@@ -53,8 +53,7 @@ enum {
 
 #define DND_AGAMOTTO_DEFENSE 14 // 14/10 is 1.4 => 40% more damage
 #define DND_AGAMOTTO_DEFENSE_FACTOR 10
-#define DND_AGAMOTTO_OFFENSE 2 // 100% more damage => x2
-#define DND_AGAMOTTO_OFFENSE_FACTOR 1
+#define DND_AGAMOTTO_OFFENSE 100 // 100% more damage => x2
 
 #define DND_LICHARM_NERF 90 // 90% reduced damage
 #define DND_LICHARM_BUFF 25 // 25% more damage

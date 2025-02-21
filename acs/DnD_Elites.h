@@ -36,62 +36,71 @@ int GetEliteHealthScale(int level) {
 // these are powers, not actual values
 #define ELITETRAIT_ID 0
 #define ELITETRAIT_LVLREQ 1
-int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][2] = {
-	{ DND_EXPLOSIVE_RESIST, 0 },
-	{ DND_BULLET_RESIST, 0 },
-	{ DND_ENERGY_RESIST, 0 },
-	{ DND_MAGIC_RESIST, 0 },
-	{ DND_ELEMENTAL_RESIST, 0 },
+#define ELITETRAIT_WEIGHT 2
+int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
+	{ DND_EXPLOSIVE_RESIST, 0, 250 },
+	{ DND_BULLET_RESIST, 0, 250 },
+	{ DND_ENERGY_RESIST, 0, 250 },
+	{ DND_MAGIC_RESIST, 0, 250 },
+	{ DND_ELEMENTAL_RESIST, 0, 250 },
 	
-	{ DND_EXPLOSIVE_IMMUNE, 36 },
-	{ DND_EXPLOSIVE_NONE, 36 },
-	{ DND_BULLET_IMMUNE, 36 },
-	{ DND_ENERGY_IMMUNE, 36 },
-	{ DND_MAGIC_IMMUNE, 36 },
-	{ DND_ELEMENTAL_IMMUNE, 36 },
+	{ DND_EXPLOSIVE_IMMUNE, 36, 125 },
+	{ DND_EXPLOSIVE_NONE, 36, 125 },
+	{ DND_BULLET_IMMUNE, 36, 125 },
+	{ DND_ENERGY_IMMUNE, 36, 125 },
+	{ DND_MAGIC_IMMUNE, 36, 125 },
+	{ DND_ELEMENTAL_IMMUNE, 36, 125 },
 	
-	{ DND_GHOST, 0 },
-	{ DND_HARDENED_SKIN, 0 },
-	{ DND_REFLECTIVE, 40 },
-	{ DND_AGGRESSIVE, 0 },
-	{ DND_EXTRAFAST, 30 },
+	{ DND_GHOST, 0, 200 },
+	{ DND_HARDENED_SKIN, 0, 250 },
+	{ DND_REFLECTIVE, 40, 75 },
+	{ DND_AGGRESSIVE, 0, 375 },
+	{ DND_EXTRAFAST, 30, 150 },
 	
-	{ DND_FASTREACTION, 0 },
-	{ DND_NOPAIN, 0 },
-	{ DND_EXTRASTRONG, 0 },
-	{ DND_VITAL, 0 },
-	{ DND_ARMORPEN, 30 },
+	{ DND_FASTREACTION, 0, 500 },
+	{ DND_NOPAIN, 0, 250 },
+	{ DND_EXTRASTRONG, 0, 250 },
+	{ DND_VITAL, 0, 300 },
+	{ DND_ARMORPEN, 30, 200 },
 	
-	{ DND_BLOODLESS, 0 },
-	{ DND_VIOLENTRETALIATION, 40 },
-	{ DND_THIEF, 0 },
-	{ DND_HEXFUSION, 36 },
-	{ DND_REBIRTH, 0 },
-	{ DND_VENOMANCER, 0 },
-	{ DND_FRIGID, 0 },
-	{ DND_SCORCHED, 0 },
-	{ DND_INSULATED, 0 },
-	{ DND_REJUVENATING, 30 },
+	{ DND_BLOODLESS, 0, 325 },
+	{ DND_VIOLENTRETALIATION, 40, 180 },
+	{ DND_THIEF, 0, 200 },
+	{ DND_HEXFUSION, 36, 150 },
+	{ DND_REBIRTH, 0, 100 },
+	{ DND_VENOMANCER, 0, 400 },
+	{ DND_FRIGID, 0, 400 },
+	{ DND_SCORCHED, 0, 400 },
+	{ DND_INSULATED, 0, 400 },
+	{ DND_REJUVENATING, 30, 175 },
 	
-	{ DND_HATRED, 0 },
-	{ DND_SHOCKER, 40 },
-	{ DND_VAMPIRISM, 0 },
-	{ DND_FORTIFIED, 30 },
-	{ DND_SUBORDINATE, 30 },
-	{ DND_REPEL, 36 },
-	{ DND_PHANTASM, 36 },
-	{ DND_CRIPPLE, 40 },
-	{ DND_RUINATION, 40 },
-	{ DND_NUCLEAR, 40 },
-	{ DND_SILENT, 40 },
-	{ DND_OSMIUM, 50 },
-	{ DND_PHASING, 33 },
-	{ DND_OTHERWORLDGRIP, 50 },
-	{ DND_THUNDERSTRUCK, 45 },
-	{ DND_TEMPORALBUBBLE, 50 },
-	{ DND_BLACKOUT, 40 },
-	{ DND_ENSHROUDED, 50 }
+	{ DND_HATRED, 0, 350 },
+	{ DND_SHOCKER, 40, 200 },
+	{ DND_VAMPIRISM, 0, 300 },
+	{ DND_FORTIFIED, 30, 250 },
+	{ DND_SUBORDINATE, 30, 150 },
+	{ DND_REPEL, 36, 125 },
+	{ DND_PHANTASM, 36, 100 },
+	{ DND_CRIPPLE, 40, 185 },
+	{ DND_RUINATION, 40, 185 },
+	{ DND_NUCLEAR, 40, 75 },
+	{ DND_SILENT, 40, 200 },
+	{ DND_OSMIUM, 50, 250 },
+	{ DND_PHASING, 33, 200 },
+	{ DND_OTHERWORLDGRIP, 50, 100 },
+	{ DND_THUNDERSTRUCK, 45, 100 },
+	{ DND_TEMPORALBUBBLE, 50, 175 },
+	{ DND_BLACKOUT, 40, 175 },
+	{ DND_ENSHROUDED, 50, 150 }
 };
+
+void SetupEliteModWeights() {
+	// max id holds weight sum
+	// cascade weights
+	for(int i = 0; i < MAX_ROLLABLE_TRAITS - 1; ++i) {
+		EliteTraitNumbers[i + 1][ELITETRAIT_WEIGHT] += EliteTraitNumbers[i][ELITETRAIT_WEIGHT];
+	}
+}
 
 int GetEliteBonusDamage(int m_id) {
 	// at level 100 this yields 125%, at level 0 13% and at level 50 44%
@@ -104,7 +113,22 @@ bool HasTrait(int id, int trait_index) {
 }
 
 int GetRandomEliteTrait() {
-	return random(0, MAX_ROLLABLE_TRAITS - 1);
+	int l = 0, h = MAX_ROLLABLE_TRAITS - 1;
+	int w = random(0, EliteTraitNumbers[h][ELITETRAIT_WEIGHT]);
+	// binary search to find a bit faster than linear... it'll matter with how many monsters can be elites...
+	//Log(s:"rolled ", d:w);
+	while(l <= h) {
+		int m = l + (h - l) / 2;
+		//Log(s:"try ", d:EliteTraitNumbers[m][ELITETRAIT_WEIGHT], s: " < ", d:w, s: " ", d: EliteTraitNumbers[m + 1][ELITETRAIT_WEIGHT]);
+		if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w && w <= EliteTraitNumbers[m + 1][ELITETRAIT_WEIGHT])
+			return m;
+		else if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w)
+			l = m + 1;
+		else
+			h = m - 1;
+	}
+	// shouldn't reach here ever
+	return 0;
 }
 
 bool RollEliteChance() {
@@ -312,6 +336,7 @@ bool HasTraitExceptions(int m_id, int trait) {
 			(t == DND_MAGIC_RESIST && HasTrait(i, DND_MAGIC_IMMUNE)) 						|| 
 			(t == DND_ELEMENTAL_RESIST && HasTrait(i, DND_ELEMENTAL_IMMUNE))				||
 			(t == DND_PHASING && HasTrait(i, DND_GHOST))									||
+			(t == DND_GHOST && HasTrait(i, DND_PHASING))									||
 			(t == DND_REBIRTH && (HasTrait(i, DND_SUMMONED) || HasTrait(i, DND_REVIVED)));
 }
 

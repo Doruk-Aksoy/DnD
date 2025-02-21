@@ -4,6 +4,7 @@ Actor " Pistol " : DnDWeapon {
 	Weapon.SelectionOrder 2700
 	attacksound ""
 	Decal "BulletChip"
+	Weapon.AmmoType "Clip"
 	+INVENTORY.UNDROPPABLE
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 2.1
@@ -132,7 +133,7 @@ Actor " Akimbo Pistols " : Pistol {
 			TNT1 A 0 A_GiveInventory("AkimboFireMode", ACS_ExecuteWithResult(994, 1))
 			TNT1 A 0 A_JumpIfInventory("AkimboFireMode", 3, "RightFire")
 			TNT1 A 0 A_JumpIfInventory("AkimboFireMode", 2, "LeftFire")
-			//PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			PS2G A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload
 		RightFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueRightFire")
@@ -145,11 +146,12 @@ Actor " Akimbo Pistols " : Pistol {
 			TNT1 A 0 A_GiveInventory("AkimboShooter_R", 1)
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*22,10,31+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
 			PS2G B 2 bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			PS2G C 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			PS2G D 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_GiveInventory("FireLeft", 1)
 			TNT1 A 0 A_TakeInventory("AkimboFireMode", 0)
+			PS2G C 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			PS2G D 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_Refire
+			PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ReadyLoop
 		LeftFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueLeftFire")
@@ -161,11 +163,12 @@ Actor " Akimbo Pistols " : Pistol {
 			TNT1 A 0 A_GiveInventory("AkimboShooter_L", 1)
 			TNT1 A 0 A_SpawnItemEx ("pistolcasing",cos(pitch)*22,-10,31+(sin(-pitch)*20),0,8,random(4,8),0,0,0)
 			PS2G E 2 bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			PS2G F 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			PS2G G 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_TakeInventory("FireLeft", 1)
 			TNT1 A 0 A_TakeInventory("AkimboFireMode", 0)
+			PS2G F 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			PS2G G 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_Refire
+			PS2G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ReadyLoop
 		Reload:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")

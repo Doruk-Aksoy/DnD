@@ -11,6 +11,7 @@ Actor DnDWeapon : Weapon {
 	Obituary "%o was killed by %k."
 	Weapon.SelectionOrder 999000
 	Weapon.AmmoUse 0
+	Weapon.AmmoGive 0
 	States {
 		Spawn:
 			TNT1 A -1

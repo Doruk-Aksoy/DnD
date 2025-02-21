@@ -1149,12 +1149,13 @@ ACTOR "Rail Gun" : Weapon {
 			RAI2 L 1 Bright A_GunFlash
 			TNT1 A 0 Radius_Quake(6,2,0,1,0)
 			TNT1 A 0 A_PlayWeaponSound("weapons/newrailfire")
-			RAI2 M 1 Bright A_SetPitch(pitch - 5.0)
-			RAI2 N 1 Bright A_SetPitch(pitch + 0.5)
+			RAI2 M 1 Bright 
+			RAI2 N 1 Bright A_SetPitch(pitch - 5.0)
 			RAI2 FFO 1 Bright A_SetPitch(pitch + 0.5)
 			RAIG ZZ 1  A_SetPitch(pitch + 0.5)
 			RLOA ABCC 1 A_SetPitch(pitch + 0.5)
-			RLOA CDEFEDCBA 1
+			RLOA C 1 A_SetPitch(pitch + 0.5)
+			RLOA DEFEDCBA 1
 			RAIG A 3
 		Goto ReadyLoop
 		Level3:
@@ -1165,12 +1166,13 @@ ACTOR "Rail Gun" : Weapon {
 			RAI3 L 1 Bright A_GunFlash
 			TNT1 A 0 Radius_Quake(12,4,0,1,0)
 			TNT1 A 0 A_PlayWeaponSound("weapons/newrailfire")
-			RAI3 M 1 Bright A_SetPitch(pitch - 12.0)
-			RAI3 N 1 Bright A_SetPitch(pitch + 0.75)
+			RAI3 M 1 Bright
+			RAI3 N 1 Bright A_SetPitch(pitch - 12.0)
 			RAI3 FFO 1 Bright A_SetPitch(pitch + 0.75)
 			RAIG ZZ 1 A_SetPitch(pitch + 0.75)
 			RLOA ABCDEF 1 A_SetPitch(pitch + 0.75)
-			RLOA EDCBA 1
+			RLOA E 1 A_SetPitch(pitch + 0.75)
+			RLOA DCBA 1
 			RAIG A 3
 		Goto ReadyLoop
 		AltFire:
@@ -1282,15 +1284,17 @@ ACTOR RedRayTrail
     +NODAMAGETHRUST
 	+DONTBLAST
 	+DONTREFLECT
+	+CLIENTSIDEONLY
     Height 1
 	Radius 1
 	Alpha 0.85
-	Scale 1.75
+	Scale 1.5
 	Renderstyle Add
 	States
 	{
 		Spawn:
-			TNT1 A 0
+			TNT1 A 2 NoDelay ThrustThing(angle * 256 / 360, 36, 1, 0)
+			TNT1 A 0 A_Stop
 			NFX3 ABCD 2 Bright
 		Stop
 	}
@@ -1301,6 +1305,8 @@ ACTOR BlueRayTrail : RedRayTrail
 	States
 	{
 		Spawn:
+			TNT1 A 2 NoDelay ThrustThing(angle * 256 / 360, 36, 1, 0)
+			TNT1 A 0 A_Stop
 			NFX3 EFGH 2 Bright
 		Stop
 	}
@@ -1311,6 +1317,8 @@ ACTOR BlueRayTrail_Test : RedRayTrail
 	States
 	{
 		Spawn:
+			TNT1 A 2 NoDelay ThrustThing(angle * 256 / 360, 36, 1, 0)
+			TNT1 A 0 A_Stop
 			NFX3 E 2 Bright
 		Stop
 	}
@@ -1321,6 +1329,8 @@ ACTOR YellowRayTrail : RedRayTrail
 	States
 	{
 		Spawn:
+			TNT1 A 2 NoDelay ThrustThing(angle * 256 / 360, 36, 1, 0)
+			TNT1 A 0 A_Stop
 			NFX3 IJKL 2 Bright
 		Stop
 	}
@@ -1816,17 +1826,17 @@ Actor GaussFX1 {
 
 Actor GaussFX2 : GaussFX1 {
 	Alpha 0.75
-	Scale 0.25
+	Scale 0.05
 }
 
 Actor GaussFX3 : GaussFX1 {
 	Alpha 0.875
-	Scale 0.3
+	Scale 0.05
 }
 
 Actor GaussFX4 : GaussFX1 {
 	Alpha 1.0
-	Scale 0.35
+	Scale 0.05
 }
 
 // sprites by s3ntey

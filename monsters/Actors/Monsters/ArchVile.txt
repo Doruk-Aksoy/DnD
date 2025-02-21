@@ -130,7 +130,7 @@ Actor DiabloExp1 : BaseExplosionDamage {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
-			TNT1 A 1 A_Explode(3, 32, 0)
+			TNT1 A 1 
 		Stop
 	}
 }
@@ -172,7 +172,7 @@ Actor DFire {
 	Speed 0
 	RenderStyle Add
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 40
 	Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
 	ALPHA 1.00
 	+DONTREFLECT
@@ -185,63 +185,63 @@ Actor DFire {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			FIRE A 2 Bright A_StartFire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			TNT1 A 0 Bright A_Explode(3, 32, 0)
 			FIRE B 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			TNT1 A 0 Bright A_Explode(3, 32, 0)
 			FIRE A 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			TNT1 A 0 Bright A_Explode(3, 32, 0)
 			FIRE B 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			TNT1 A 0 Bright A_Explode(3, 32, 0)
 			FIRE C 2 Bright A_FireCrackle
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			TNT1 A 0 Bright A_Explode(3, 32, 0)
 			FIRE B 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE C 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE B 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE C 2 Bright A_Fire 
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE D 2 Bright A_Fire 
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE C 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE D 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE C 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE D 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE E 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE D 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE E 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp2")
+			TNT1 A 0 Bright A_Explode(4, 32, 0)
 			FIRE D 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			TNT1 A 0 Bright A_Explode(3, 32, 0)
 			FIRE E 2 Bright A_FireCrackle
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp1")
+			TNT1 A 0 Bright A_Explode(3, 32, 0)
 			FIRE F 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
+			TNT1 A 0 Bright A_Explode(2, 32, 0)
 			FIRE E 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
+			TNT1 A 0 Bright A_Explode(2, 32, 0)
 			FIRE F 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp3")
+			TNT1 A 0 Bright A_Explode(2, 32, 0)
 			FIRE E 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			TNT1 A 0 Bright A_Explode(1, 32, 0)
 			FIRE F 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			TNT1 A 0 Bright A_Explode(1, 32, 0)
 			FIRE G 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			TNT1 A 0 Bright A_Explode(1, 32, 0)
 			FIRE H 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			TNT1 A 0 Bright A_Explode(1, 32, 0)
 			FIRE G 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			TNT1 A 0 Bright A_Explode(1, 32, 0)
 			FIRE H 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			TNT1 A 0 Bright A_Explode(1, 32, 0)
 			FIRE G 2 Bright A_Fire
-			TNT1 A 0 Bright A_SpawnItem("DiabloExp4")
+			TNT1 A 0 Bright A_Explode(1, 32, 0)
 			FIRE H 2 Bright A_Fire
 		Stop
 	}

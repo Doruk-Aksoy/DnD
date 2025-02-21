@@ -95,6 +95,7 @@ Actor DnD_BaseRailPuff {
 	+HITTRACER
 	+MTHRUSPECIES
 	+NOGRAVITY
+	+THRUSPECIES
 	
 	var int user_hitcount;
 	

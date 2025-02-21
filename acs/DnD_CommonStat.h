@@ -115,7 +115,7 @@ enum {
 
 #define DND_BASEARMOR_DROP 0.00875
 #define DND_BASE_CHARMRATE 0.0125
-#define DND_BASE_POWERCORERATE 0.001
+#define DND_BASE_POWERCORERATE 0.0033
 
 #define DND_BASE_PLAYERSPEED 1.0
 #define DND_HP_PER_STR 2
@@ -480,7 +480,7 @@ int GetSpawnHealth(bool bypassEShieldCheck = false) {
 	}
 
 	int str_bonus = 0;
-	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
+	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY) && !GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE))
 		str_bonus = DND_HP_PER_STR * GetStrength();
 
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + str_bonus;

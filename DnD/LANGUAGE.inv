@@ -340,7 +340,7 @@ IATTR_T48 			= "reflect resist";
 IATTR_T49 			= "physical resist penetration";
 IATTR_T50 			= "energy resist penetration";
 IATTR_T51 			= "explosive resist penetration";
-IATTR_T52 			= "occult resist penetration";
+IATTR_T52 			= "magic resist penetration";
 IATTR_T53 			= "elemental resist penetration";
 	
 IATTR_T54 			= "fire damage";
@@ -513,7 +513,7 @@ IATTR_TX37			= "Your main attributes are transformed to \cfUnity\c-";	IATTR_TX_U
 IATTR_TX38			= "damage resistance to every damage type";
 IATTR_TX39			= "resist penetration to every damage type";
 IATTR_TX40			= "\c[D4]Your main attributes other than \cfUnity\c[D4] grant no bonuses";
-IATTR_TX41			= "Intellect provides damage bonus to all melee weapons at";	IATTR_TX41S = "the attunement of Strength"; IATTR_TX41B = "\cgStrength provides no bonus to melee weapons\c-";
+IATTR_TX41			= "Intellect provides damage bonus to all melee weapons at";	IATTR_TX41S = "the attunement of Strength"; IATTR_TX41B = "\cgStrength provides no bonuses\c-";
 IATTR_TX42			= "chance to immediately start recovering energy shield on depletion";
 IATTR_TX43			= "Energy shield recharge is not interrupted by damage";
 IATTR_TX44			= "The energy shield explosion deals"; IATTR_TX44S = "of your health as added damage";	

@@ -5567,6 +5567,13 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			// lifesteal block ends
+
+			// killing spree
+			val = GetPlayerAttributeValue(pnum, INV_INCKILLINGSPREE);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INCKILLINGSPREE, 0, 0, val), s:"\n");
+				++k;
+			}
 			
 			// ammo gain chance
 			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE);

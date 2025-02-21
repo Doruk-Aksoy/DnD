@@ -439,7 +439,7 @@ int CreateItemSpot() {
 		
 	// clear properties of this item before creating it -- fixes garbage data leftovers
 	RemoveItemFromWorld(PointerIndexTable[PTR_FREEITEMWORLD]);
-		
+	
 	return PointerIndexTable[PTR_FREEITEMWORLD];
 }
 
@@ -1953,7 +1953,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		}
 
 		if(unique_creator != "") {
-			tmp_text = StrParam(s:tmp_text, s:"\n", l:"DND_MADE_BY", s:": \cd", s:unique_creator);
+			tmp_text = StrParam(s:tmp_text, s:"\n\n", l:"DND_MADE_BY", s:": \cd", s:unique_creator);
 			++lines_count;
 		}
 
@@ -1963,7 +1963,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - ITEMINFOBG_MAXMIDS, CR_WHITE, bx, by + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
-		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 8);
+		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 16);
 		yoff += 8.0 * temp;
 		lines_count += max(1, temp);
 	}
@@ -3066,40 +3066,41 @@ bool CanAllowModRollSpecial(int tag, int special_roll_rule) {
 			(tag == INV_ATTR_TAG_ENERGY_ID && (special_roll_rule & PPOWER_CANROLLENERGY));
 }
 
+bool IsArmorAttributeException(int rolled_attr) {
+	return 	rolled_attr == INV_ARMOR_INCREASE || 
+			rolled_attr == INV_ARMORPERCENT_INCREASE;
+}
+
+bool IsEnergyShieldAttributeException(int rolled_attr) {
+	return 	rolled_attr == INV_SHIELD_INCREASE || 
+			rolled_attr == INV_SHIELD_RECHARGEDELAY || 
+			rolled_attr == INV_SHIELD_RECOVERYRATE ||
+			rolled_attr == INV_ESHIELD_ABSORB ||
+			rolled_attr == INV_PERCENTSHIELD_INCREASE;
+}
+
+bool IsMitigationAttributeException(int rolled_attr) {
+	return 	rolled_attr == INV_MIT_INCREASE ||
+			rolled_attr == INV_MITEFFECT_INCREASE;
+}
+
 bool IsImplicitException(int imp, int rolled_attr) {
 	//printbold(s:"implicit ", d:imp, s: " rolled ", d:rolled_attr, s: " BAD: ", d:INV_MIT_INCREASE, s: ", ", d:INV_MITEFFECT_INCREASE, s:", ", d:INV_SHIELD_INCREASE, s:", ", d:INV_SHIELD_RECHARGEDELAY, s: ", ", d:INV_SHIELD_RECOVERYRATE);
 	switch(imp) {
 		// don't let eshield modifiers roll on armor base items etc.
 		case INV_IMP_INCARMOR:
-		return 	rolled_attr == INV_SHIELD_INCREASE || 
-				rolled_attr == INV_SHIELD_RECHARGEDELAY || 
-				rolled_attr == INV_SHIELD_RECOVERYRATE ||
-				rolled_attr == INV_ESHIELD_ABSORB ||
-				rolled_attr == INV_MIT_INCREASE ||
-				rolled_attr == INV_MITEFFECT_INCREASE;
+		return IsEnergyShieldAttributeException(rolled_attr) || IsMitigationAttributeException(rolled_attr);
 		case INV_IMP_INCSHIELD:
-		return 	rolled_attr == INV_ARMOR_INCREASE || 
-				rolled_attr == INV_ARMORPERCENT_INCREASE || 
-				rolled_attr == INV_MIT_INCREASE ||
-				rolled_attr == INV_MITEFFECT_INCREASE;
+		return IsArmorAttributeException(rolled_attr) || IsMitigationAttributeException(rolled_attr);
 		case INV_IMP_INCMIT:
-		return 	rolled_attr == INV_SHIELD_INCREASE || 
-				rolled_attr == INV_SHIELD_RECHARGEDELAY || 
-				rolled_attr == INV_SHIELD_RECOVERYRATE ||
-				rolled_attr == INV_ESHIELD_ABSORB ||
-				rolled_attr == INV_ARMOR_INCREASE ||
-				rolled_attr == INV_ARMORPERCENT_INCREASE;
+		return IsEnergyShieldAttributeException(rolled_attr) || IsArmorAttributeException(rolled_attr);
 
 		case INV_IMP_INCARMORSHIELD:
-		return 	rolled_attr == INV_MIT_INCREASE ||
-				rolled_attr == INV_MITEFFECT_INCREASE;
+		return IsMitigationAttributeException(rolled_attr);
 		case INV_IMP_INCMITSHIELD:
-		return 	rolled_attr == INV_ARMOR_INCREASE ||
-				rolled_attr == INV_ARMORPERCENT_INCREASE;
+		return IsArmorAttributeException(rolled_attr);
 		case INV_IMP_INCMITARMOR:
-		return 	rolled_attr == INV_SHIELD_INCREASE ||
-				rolled_attr == INV_SHIELD_RECHARGEDELAY ||
-				rolled_attr == INV_SHIELD_RECOVERYRATE;
+		return IsEnergyShieldAttributeException(rolled_attr);
 	}
 	return false;
 }
@@ -3278,7 +3279,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 				--min_count;
 			} while(min_count);
 		}
-	} while(affluence > 0 && max_tries-- > 0);
+	} while(affluence > 0 && attr_count > 0 && max_tries-- > 0);
 
 	// rest of the mods
 	AssignAttributes(pnum, item_pos, itype, attr_count);
@@ -3327,7 +3328,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				//i = UITEM_DRAGONFANG;
+				//i = UITEM_ANCIENTGEMSTONE;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

@@ -23,6 +23,16 @@ Actor ThousandSymbol : DigitBase {
 	} 
 }
 
+Actor MillionSymbol : DigitBase {
+	States { 
+		Spawn:
+			D1N0 M 10 BRIGHT
+		SpawnLoop:
+			D1N0 M 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
+	} 
+}
+
 Actor CashSymbol : DigitBase {
 	States { 
 		Spawn:
@@ -39,6 +49,16 @@ Actor ExpSymbol : DigitBase {
 			D1N0 E 10 BRIGHT
 		SpawnLoop:
 			D1N0 E 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
+	} 
+}
+
+actor Digit1Dot : DigitBase { 
+	States { 
+		Spawn:
+			D1N0 D 10 BRIGHT
+		SpawnLoop:
+			D1N0 D 1 BRIGHT A_Fadeout(0.015) 
 		Goto Spawn + 1 
 	} 
 }
@@ -142,6 +162,16 @@ actor Digit1Num9 : DigitBase {
 	} 
 }
 
+actor Digit2Dot : DigitBase { 
+	States { 
+		Spawn:
+			D2N0 D 10 BRIGHT
+		SpawnLoop:
+			D2N0 D 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
+	} 
+}
+
 actor Digit2Num0 : DigitBase { 
 	States { 
 		Spawn: 
@@ -239,6 +269,16 @@ actor Digit2Num9 : DigitBase {
 		SpawnLoop: 
 			D2N9 A 1 BRIGHT A_Fadeout(0.015) 
 		loop 
+	} 
+}
+
+actor Digit3Dot : DigitBase { 
+	States { 
+		Spawn:
+			D3N0 D 10 BRIGHT
+		SpawnLoop:
+			D3N0 D 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
 	} 
 }
 
@@ -342,6 +382,16 @@ actor Digit3Num9 : DigitBase {
 	} 
 }
 
+actor Digit4Dot : DigitBase { 
+	States { 
+		Spawn:
+			D4N0 D 10 BRIGHT
+		SpawnLoop:
+			D4N0 D 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
+	} 
+}
+
 actor Digit4Num0 : DigitBase { 
 	States { 
 		Spawn: 
@@ -439,6 +489,16 @@ actor Digit4Num9 : DigitBase {
 		SpawnLoop: 
 			D4N9 A 1 BRIGHT A_Fadeout(0.015) 
 		loop 
+	} 
+}
+
+actor Digit5Dot : DigitBase { 
+	States { 
+		Spawn:
+			D5N0 D 10 BRIGHT
+		SpawnLoop:
+			D5N0 D 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
 	} 
 }
 
@@ -542,6 +602,16 @@ actor Digit5Num9 : DigitBase {
 	} 
 }
 
+actor Digit6Dot : DigitBase { 
+	States { 
+		Spawn:
+			D6N0 D 10 BRIGHT
+		SpawnLoop:
+			D6N0 D 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
+	} 
+}
+
 actor Digit6Num1 : DigitBase { 
 	States { 
 		Spawn: 
@@ -629,6 +699,16 @@ actor Digit6Num9 : DigitBase {
 		SpawnLoop: 
 			D6N9 A 1 BRIGHT A_Fadeout(0.015) 
 		loop 
+	} 
+}
+
+actor Digit7Dot : DigitBase { 
+	States { 
+		Spawn:
+			D7N0 D 10 BRIGHT
+		SpawnLoop:
+			D7N0 D 1 BRIGHT A_Fadeout(0.015) 
+		Goto Spawn + 1 
 	} 
 }
 
@@ -788,6 +868,486 @@ actor Digit7Plus : DigitBase {
 			D7NP A 10 BRIGHT 
 		SpawnLoop: 
 			D7NP A 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num0 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N0 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N0 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num1 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N1 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N1 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num2 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N2 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N2 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num3 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N3 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N3 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num4 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N4 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N4 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num5 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N5 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N5 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num6 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N6 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N6 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num7 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N7 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N7 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num8 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N8 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N8 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot3Num9 : DigitBase { 
+	States { 
+		Spawn: 
+			D3N9 B 10 BRIGHT 
+		SpawnLoop: 
+			D3N9 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num0 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N0 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N0 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num1 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N1 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N1 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num2 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N2 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N2 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num3 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N3 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N3 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num4 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N4 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N4 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num5 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N5 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N5 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num6 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N6 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N6 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num7 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N7 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N7 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num8 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N8 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N8 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot4Num9 : DigitBase { 
+	States { 
+		Spawn: 
+			D4N9 B 10 BRIGHT 
+		SpawnLoop: 
+			D4N9 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num0 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N0 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N0 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num1 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N1 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N1 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num2 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N2 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N2 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num3 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N3 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N3 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num4 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N4 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N4 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num5 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N5 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N5 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num6 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N6 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N6 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num7 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N7 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N7 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num8 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N8 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N8 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot5Num9 : DigitBase { 
+	States { 
+		Spawn: 
+			D5N9 B 10 BRIGHT 
+		SpawnLoop: 
+			D5N9 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num1 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N1 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N1 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num2 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N2 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N2 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num3 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N3 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N3 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num4 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N4 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N4 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num5 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N5 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N5 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num6 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N6 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N6 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num7 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N7 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N7 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num8 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N8 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N8 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot6Num9 : DigitBase { 
+	States { 
+		Spawn: 
+			D6N9 B 10 BRIGHT 
+		SpawnLoop: 
+			D6N9 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num1 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N1 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N1 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num2 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N2 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N2 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num3 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N3 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N3 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num4 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N4 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N4 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num5 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N5 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N5 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num6 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N6 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N6 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num7 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N7 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N7 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num8 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N8 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N8 B 1 BRIGHT A_Fadeout(0.015) 
+		loop 
+	} 
+}
+
+actor DigitDot7Num9 : DigitBase { 
+	States { 
+		Spawn: 
+			D7N9 B 10 BRIGHT 
+		SpawnLoop: 
+			D7N9 B 1 BRIGHT A_Fadeout(0.015) 
 		loop 
 	} 
 }
