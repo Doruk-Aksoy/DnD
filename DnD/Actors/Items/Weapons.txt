@@ -18,19 +18,67 @@ Actor DnDWeapon : Weapon {
 		Stop
 		
 		Zoom:
-			"####" "#" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH) 
-			"####" "#" 0 A_GunFlash("QuickPunch", GFF_NOEXTCHANGE)
-			"####" "#" 17 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH) 
+			"####" "#" 0 A_JumpIfCloser(129, "ExecutionCheck")
+			// zandronum safety
+		WaitForReady:
+			"####" "#" 0 A_Jump(256,"Ready")
+			"####" "####" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 35 A_Jump(256,"Ready")
+		Wait
+		ExecutionCheck:
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Execution"), "DoExecution")
+		Goto WaitForReady
+		
+		DoExecution:
+			"####" "#" 0 A_CustomPunch(200000, 1, 0, "ExecutionPuff", 128)
+			"####" "#" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 0 A_JumpIfInventory("Doomguy_ValidExecute", 1, "ContinueExecute") 
+		Goto WaitForReady
+		ContinueExecute:
+			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 0 A_TakeInventory("Doomguy_ValidExecute", 1)
+			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "###" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_DOOMGUYPUNCH)
+			"####" "#" 0 A_GunFlash("PunchExecute", GFF_NOEXTCHANGE)
+			"####" "#" 11 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			// zandronum safety
 			"####" "#" 0 A_Jump(256,"Ready")
 			"####" "####" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 35 A_Jump(256,"Ready")
 		Wait
-		QuickPunch:
+		PunchExecute:
 			TNT1 A 0 A_PlaySound("weapons/fistmiss")
+			TNT1 A 5
+			TNT1 A 2 A_PlaySound("Weapons/fisthit")
+			TNT1 A 8
+			/*TNT1 A 0 A_PlaySound("weapons/fistmiss")
 			GK00 ABCDE 1
-			GK00 FG 2
-			GK00 HIJKLM 1
+			GK00 F 2 A_PlaySound("Weapons/fisthit")
+			GK00 G 2
+			GK00 HIJKLM 1*/
+		Stop
+	}
+}
+
+Actor ExecutionPuff {
+	DamageType "Execution"
+	+NOINTERACTION
+	+PUFFGETSOWNER
+	+PUFFONACTORS
+	+ALWAYSPUFF
+	+NOTIMEFREEZE
+	+BLOODLESSIMPACT
+	+NOEXTREMEDEATH
+	Obituary "%o was gloriously humiliated by %k."
+	States {
+		Spawn:
+			TNT1 AAAAA 1
 		Stop
 	}
 }

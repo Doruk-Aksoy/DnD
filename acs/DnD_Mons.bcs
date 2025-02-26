@@ -1035,14 +1035,14 @@ Script "DnD Thorax Lob" (int yoffset, int zoffset) {
 	// nx = xoff * cos + yoff * sin
 	// ny = xoff * sin - yoff * cos
 	SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
-	SpawnProjectile(0, "ThoraxFireBall", proj_angle >> 8, spd, velz * 8, 800, THORAX_PROJ_TID);
+	SpawnProjectile(0, "ThoraxFireBall", proj_angle >> 8, spd, velz * 8, 800, UNIQUE_MON_AUX_TID);
 	// modify z of this, sometimes actors are too tall
-	SetActorPosition(THORAX_PROJ_TID, GetActorX(THORAX_PROJ_TID), GetActorY(THORAX_PROJ_TID), GetActorZ(0) + zoffset, 0);
+	SetActorPosition(UNIQUE_MON_AUX_TID, GetActorX(UNIQUE_MON_AUX_TID), GetActorY(UNIQUE_MON_AUX_TID), GetActorZ(0) + zoffset, 0);
 	SetActorPosition(0, px, py, GetActorZ(0), 0);
-	SetActivator(THORAX_PROJ_TID);
+	SetActivator(UNIQUE_MON_AUX_TID);
 	// Keep target as owner
 	SetPointer(AAPTR_TARGET, curtid);
-	Thing_ChangeTID(THORAX_PROJ_TID, 0);
+	Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 	SetActivator(curtid);
 	
 	SetResultValue(0);
@@ -1081,14 +1081,14 @@ Script "DnD Eryxia Lob" (int yoffset, int zoffset) {
 		// nx = xoff * cos + yoff * sin
 		// ny = xoff * sin - yoff * cos
 		SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
-		SpawnProjectile(0, "EryxiaLob", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, ERYXIA_PROJ_TID);
+		SpawnProjectile(0, "EryxiaLob", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, UNIQUE_MON_AUX_TID);
 		// modify z of this, sometimes actors are too tall
-		SetActorPosition(ERYXIA_PROJ_TID, GetActorX(ERYXIA_PROJ_TID), GetActorY(ERYXIA_PROJ_TID), GetActorZ(0) + zoffset, 0);
+		SetActorPosition(UNIQUE_MON_AUX_TID, GetActorX(UNIQUE_MON_AUX_TID), GetActorY(UNIQUE_MON_AUX_TID), GetActorZ(0) + zoffset, 0);
 		SetActorPosition(0, px, py, GetActorZ(0), 0);
-		SetActivator(ERYXIA_PROJ_TID);
+		SetActivator(UNIQUE_MON_AUX_TID);
 		// Keep target as owner
 		SetPointer(AAPTR_TARGET, curtid);
-		Thing_ChangeTID(ERYXIA_PROJ_TID, 0);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 		SetActivator(curtid);
 		Delay(const:ERYXIA_SALVO_DELAY);
 	}
@@ -1138,7 +1138,7 @@ Script "DnD Zravog Slam FX" (int target, int dtime) CLIENTSIDE {
 	dtime *= TICRATE;
 	
 	// there is a guarantee that only one of the unique monsters will be in a map at a time, so this is fine
-	SpawnForced("ZravogSlamSoundPlayer", GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, ZRAVOG_SOUNDTID);
+	SpawnForced("ZravogSlamSoundPlayer", GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, ZRAVOG_SOUND_TID);
 	
 	while(count < dtime && !abort) {
 		// create fx and align them
@@ -1157,11 +1157,11 @@ Script "DnD Zravog Slam FX" (int target, int dtime) CLIENTSIDE {
 		++count;
 		
 		abort = CheckInventory("DnD_Boolean");
-		SetActorPosition(ZRAVOG_SOUNDTID, GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, 0);
+		SetActorPosition(ZRAVOG_SOUND_TID, GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, 0);
 	}
 	
 	if(abort) {
-		Thing_Remove(ZRAVOG_SOUNDTID);
+		Thing_Remove(ZRAVOG_SOUND_TID);
 		Terminate;
 	}
 	
@@ -1194,11 +1194,11 @@ Script "DnD Zravog Slam FX" (int target, int dtime) CLIENTSIDE {
 		++count;
 		
 		abort = CheckInventory("DnD_Boolean");
-		SetActorPosition(ZRAVOG_SOUNDTID, tx, ty, tz + 64.0, 0);
+		SetActorPosition(ZRAVOG_SOUND_TID, tx, ty, tz + 64.0, 0);
 	}
 	
 	if(abort) {
-		Thing_Remove(ZRAVOG_SOUNDTID);
+		Thing_Remove(ZRAVOG_SOUND_TID);
 		Terminate;
 	}
 	
@@ -1220,13 +1220,13 @@ Script "DnD Zravog Slam FX" (int target, int dtime) CLIENTSIDE {
 		++count;
 		
 		abort = CheckInventory("DnD_Boolean");
-		SetActorPosition(ZRAVOG_SOUNDTID, tx, ty, tz + 64.0, 0);
+		SetActorPosition(ZRAVOG_SOUND_TID, tx, ty, tz + 64.0, 0);
 	}
 	
 	if(abort)
 		Terminate;
 		
-	Thing_Remove(ZRAVOG_SOUNDTID);
+	Thing_Remove(ZRAVOG_SOUND_TID);
 	// hit smoke
 	for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i)
 		SpawnForced("ZravogSlamSmoke", tx + random(-16.0, 16.0), ty + random(-16.0, 16.0), nz, 0);
@@ -1274,23 +1274,23 @@ Script "DnD Abaxoth Thunderbolt FX" (void) CLIENTSIDE {
 		if(!(count % 4))
 			abort = CheckInventory("DnD_Boolean");
 			
-		if(!(count % ABAXOTH_THUNDER_HEALFREQ) && SpawnForced("AbaxothThunderFX", GetActorX(0), GetActorY(0), GetActorZ(0), ABAXOTH_THUNDERFXTID)) {
+		if(!(count % ABAXOTH_THUNDER_HEALFREQ) && SpawnForced("AbaxothThunderFX", GetActorX(0), GetActorY(0), GetActorZ(0), UNIQUE_MON_AUX_TID)) {
 			// scale appropriately
 			zdiff = GetActorCeilingZ(0) - GetActorZ(0);
 			if(zdiff >= ABAXOTH_THUNDER_Y) {
 				zdiff = FixedDiv(zdiff, ABAXOTH_THUNDER_Y);
-				SetActorProperty(ABAXOTH_THUNDERFXTID, APROP_SCALEY, zdiff);
-				Thing_ChangeTID(ABAXOTH_THUNDERFXTID, 0);
+				SetActorProperty(UNIQUE_MON_AUX_TID, APROP_SCALEY, zdiff);
+				Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 			}
 		}
 		
-		if((count & 1) && SpawnForced("AbaxothThunderFX_Thin", GetActorX(0) + random(-40.0, 40.0), GetActorY(0) + random(-40.0, 40.0), GetActorZ(0), ABAXOTH_THUNDERFXTID)) {
+		if((count & 1) && SpawnForced("AbaxothThunderFX_Thin", GetActorX(0) + random(-40.0, 40.0), GetActorY(0) + random(-40.0, 40.0), GetActorZ(0), UNIQUE_MON_AUX_TID)) {
 			// scale appropriately
 			zdiff = GetActorCeilingZ(0) - GetActorZ(0);
 			if(zdiff >= ABAXOTH_THUNDER_Y2) {
 				zdiff = FixedDiv(zdiff, ABAXOTH_THUNDER_Y2);
-				SetActorProperty(ABAXOTH_THUNDERFXTID, APROP_SCALEY, zdiff);
-				Thing_ChangeTID(ABAXOTH_THUNDERFXTID, 0);
+				SetActorProperty(UNIQUE_MON_AUX_TID, APROP_SCALEY, zdiff);
+				Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 			}
 		}
 			
@@ -1331,10 +1331,10 @@ Script "DnD Abaxoth Thunder Shield Proc FX" (void) CLIENTSIDE {
 	
 	SpawnForced("AbaxothThunderProcFX_Spawner", GetActorX(0), GetActorY(0), GetActorZ(0));
 	
-	if(SpawnForced("AbaxothThunderProcFX", GetActorX(0), GetActorY(0), GetActorZ(0) + 72.0, ABAXOTH_THUNDERFX3TID)) {
-		SetActivator(ABAXOTH_THUNDERFX3TID);
+	if(SpawnForced("AbaxothThunderProcFX", GetActorX(0), GetActorY(0), GetActorZ(0) + 72.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
 		SetPointer(AAPTR_TARGET, this);
-		Thing_ChangeTID(ABAXOTH_THUNDERFX3TID, 0);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 	}
 	
 	SetResultValue(0);
@@ -1343,24 +1343,24 @@ Script "DnD Abaxoth Thunder Shield Proc FX" (void) CLIENTSIDE {
 Script "DnD Abaxoth Thunder Shield - CS" (void) CLIENTSIDE {
 	int this = ActivatorTID();
 	
-	if(SpawnForced("AbaxothThunderShieldFX_1", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, ABAXOTH_THUNDERFX2TID)) {
-		SetActivator(ABAXOTH_THUNDERFX2TID);
+	if(SpawnForced("AbaxothThunderShieldFX_1", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
 		SetPointer(AAPTR_TARGET, this);
-		Thing_ChangeTID(ABAXOTH_THUNDERFX2TID, 0);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 	}
 	
 	SetActivator(this);
 	
-	if(SpawnForced("AbaxothThunderShieldFX_2", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, ABAXOTH_THUNDERFX2TID)) {
-		SetActivator(ABAXOTH_THUNDERFX2TID);
+	if(SpawnForced("AbaxothThunderShieldFX_2", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
 		SetPointer(AAPTR_TARGET, this);
-		Thing_ChangeTID(ABAXOTH_THUNDERFX2TID, 0);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 	}
 	
-	if(SpawnForced("AbaxothThunderShieldFX_3", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, ABAXOTH_THUNDERFX2TID)) {
-		SetActivator(ABAXOTH_THUNDERFX2TID);
+	if(SpawnForced("AbaxothThunderShieldFX_3", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
 		SetPointer(AAPTR_TARGET, this);
-		Thing_ChangeTID(ABAXOTH_THUNDERFX2TID, 0);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
 	}
 	
 	SetResultValue(0);

@@ -77,8 +77,8 @@ ACTOR DNDBronzeChest {
 		DropContent:
 			SUBX B 5 A_PlaySound("Chest/Open")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Opened", 0, DND_CHESTTYPE_BRONZE)
-			TNT1 AAAAA 0 A_SpawnItemEx("SmallCreditSpawner")
-			TNT1 AAA 0 A_SpawnItemEx("SmallCreditSpawner_Elite")
+			//TNT1 AAAAA 0 A_SpawnItemEx("SmallCreditSpawner")
+			//TNT1 AAA 0 A_SpawnItemEx("SmallCreditSpawner_Elite")
 			TNT1 A 0 A_SpawnItemEx("BudgetDropper_Low")
 			SUBX B -1
 		Stop
@@ -100,8 +100,8 @@ ACTOR DNDSilverChest : DNDBronzeChest {
 		DropContent:
 			SUBX D 5 A_PlaySound("Chest/Open")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Opened", 0, DND_CHESTTYPE_SILVER)
-			TNT1 AAAAA 0 A_SpawnItemEx("MediumCreditSpawner")
-			TNT1 AAA 0 A_SpawnItemEx("MediumCreditSpawner_Elite")
+			//TNT1 AAAAA 0 A_SpawnItemEx("MediumCreditSpawner")
+			//TNT1 AAA 0 A_SpawnItemEx("MediumCreditSpawner_Elite")
 			TNT1 A 0 A_SpawnItemEx("BudgetDropper_Medium")
 			TNT1 A 0 A_GiveInventory("ChestResearchDropper", 1)
 			SUBX D -1
@@ -124,7 +124,7 @@ ACTOR DNDGoldChest : DNDBronzeChest {
 		DropContent:
 			SUBX F 5 A_PlaySound("Chest/Open")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Chest Opened", 0, DND_CHESTTYPE_GOLD)
-			TNT1 AAAAAA 0 A_SpawnItemEx("LargeCreditSpawner_Elite")
+			//TNT1 AAAAAA 0 A_SpawnItemEx("LargeCreditSpawner_Elite")
 			TNT1 A 0 A_SpawnItemEx("BudgetDropper_High")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Drop Research")
 			SUBX F -1

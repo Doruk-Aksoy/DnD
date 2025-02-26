@@ -555,3 +555,60 @@ Actor OrbOfSavagery : OrbDrop {
 		Loop
 	}
 }
+
+Actor OrbOfWinter : OrbDrop {
+	States {
+		Spawn:
+			ORB5 O 0 Bright
+		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB5 O 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfVoltaic : OrbDrop {
+	States {
+		Spawn:
+			ORB6 D 0 Bright
+		Goto Super::SpawnInit
+		SpawnLoop:
+		Idle:
+			ORB6 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfVile : OrbDrop {
+	States {
+		Spawn:
+			ORB5 Q 0 Bright
+		Goto SpawnInit
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
+		SpawnLoop:
+		Idle:
+			ORB5 QQQRRRSSSTTTSSSRRR 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfEmbers : OrbDrop {
+	States {
+		Spawn:
+			ORB5 U 0 Bright
+		Goto SpawnInit
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
+		SpawnLoop:
+		Idle:
+			ORB5 UUUVVVWWWXXXYYYZZZ 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB6 AAABBB 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}

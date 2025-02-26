@@ -1,5 +1,5 @@
 // Sprites by Mike12
-Actor " Shotgun " : Weapon {
+Actor " Shotgun " : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.AmmoGive 0
@@ -31,7 +31,7 @@ Actor " Shotgun " : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SHOTGUN)
 		ReadyLoop:
-			SGN1 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			SGN1 A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		loop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
@@ -234,7 +234,7 @@ Actor ShotgunCasingSpawner : DnD_Activator {
 }
 
 // Sprites by PisstePank
-Actor "Upgraded Shotgun" : Weapon {
+Actor "Upgraded Shotgun" : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.SlotNumber 3
@@ -265,7 +265,7 @@ Actor "Upgraded Shotgun" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_PURIFIER)
 		ReadyLoop:
-			SGN2 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			SGN2 A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		loop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
@@ -466,7 +466,7 @@ Actor PurifierCasingSpawner : DnD_Activator {
 	}
 }
 
-ACTOR "Upgraded Shotgun2" : Weapon {
+ACTOR "Upgraded Shotgun2" : DnDWeapon {
 	Weapon.SelectionOrder 400
 	Weapon.AmmoUse1 0
 	Weapon.AmmoUse2 0
@@ -490,7 +490,7 @@ ACTOR "Upgraded Shotgun2" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_KILLSTORM)
 		ReadyLoop:
-			UASG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			UASG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
@@ -588,7 +588,7 @@ Actor KillstormPuff : DnD_BasePuff {
 	}
 }
 
-ACTOR "Upgraded Shotgun3" : Weapon {
+ACTOR "Upgraded Shotgun3" : DnDWeapon {
 	Weapon.AmmoType "EmeraldMana"
 	Weapon.AmmoGive 12
 	Weapon.SelectionOrder 1200
@@ -611,7 +611,7 @@ ACTOR "Upgraded Shotgun3" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_EMERALDWAND)
 		ReadyLoop:
-			JADE A 1 A_WeaponReady
+			JADE A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)

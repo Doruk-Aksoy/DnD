@@ -1025,7 +1025,7 @@ statusbar normal, fullscreenoffsets {
 			IsSelected not "Upgraded Plasma Rifle" {
 				IsSelected not "ResBfg1", "Upgraded BFG 9000" {
 					IsSelected not "ResRL3", "ResPlasma3" {
-						IsSelected not "Desolator" {
+						IsSelected not "Desolator", "Sickle" {
 							drawimage "H_ARFW01", -185, -74;
 							drawbar "H_BRFILR", "H_BRFBGR", ammo2, horizontal, reverse, -182, -71;
 							drawnumber 5, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
@@ -1154,10 +1154,19 @@ statusbar normal, fullscreenoffsets {
 				}
 			}
 			
-			IsSelected not " Akimbo Pistols ", "Grenade Launcher" {
+			// this one has only this ammo so its in center
+			IsSelected "Sickle" {
 				drawimage "H_BRFRMX", -185, -61;
-				drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
-				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+				drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+			}
+			
+			IsSelected not " Akimbo Pistols ", "Grenade Launcher" {
+				IsSelected not "Sickle" {
+					drawimage "H_BRFRMX", -185, -61;
+					drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
+					drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+				}
 			}
         }
 
@@ -1220,10 +1229,19 @@ statusbar normal, fullscreenoffsets {
 				}
 			}
 			
+			// this one has only this ammo so its in center
+			IsSelected "Sickle" {
+				drawimage "H_BRFRMX", -185, -61;
+				drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+			}
+			
 			IsSelected not " Akimbo Pistols ", "Grenade Launcher" {
-				drawimage "H_ARFW01", -185, -61;
-				drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
-				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+				IsSelected not "Sickle" { 
+					drawimage "H_ARFW01", -185, -61;
+					drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
+					drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+				}
 			}
         }
       }

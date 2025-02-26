@@ -1,5 +1,5 @@
 // Sprites by Eriance
-Actor ResMelee1 : Weapon {
+Actor ResMelee1 : DnDWeapon {
 	Scale 0.8
 	Weapon.SlotNumber 1
 	Weapon.SelectionOrder 1600
@@ -22,7 +22,7 @@ Actor ResMelee1 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_INFERNOSWORD)
 		ReadyLoop:
-			FBM1 ABC 4 Bright A_WeaponReady
+			FBM1 ABC 4 Bright A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)

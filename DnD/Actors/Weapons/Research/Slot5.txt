@@ -1,5 +1,5 @@
 // Sprites by Eriance
-Actor "Upgraded Rocket Launcher2" : RocketLauncher {	
+Actor "Upgraded Rocket Launcher2" : DnDWeapon {	
 	Weapon.Slotnumber 5
 	Inventory.PickupSound "weapons/pickup"
 	+INVENTORY.UNDROPPABLE
@@ -19,7 +19,7 @@ Actor "Upgraded Rocket Launcher2" : RocketLauncher {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_MERCURYLAUNCHER)
 		ReadyLoop:
-			MERC A 1 A_WeaponReady
+			MERC A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
@@ -159,7 +159,7 @@ Actor MercuryRocket_GhostHitter : MercuryRocket {
 	-THRUGHOST
 }
 
-Actor ResRL1 : Weapon {
+Actor ResRL1 : DnDWeapon {
 	Weapon.SelectionOrder 2400
 	Weapon.SlotNumber 5
     Inventory.PickupSound "weapons/pickup"
@@ -185,10 +185,10 @@ Actor ResRL1 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_METEORLAUNCHER)
 		ReadyLoop:
-			RW06 AAABBBCCCDDD 1 A_WeaponReady
-			RW06 EEEEE 5 A_WeaponReady
-			RW06 DDDCCCBBB 1 A_WeaponReady
-			RW06 AAAA 5 A_WeaponReady
+			RW06 AAABBBCCCDDD 1 A_WeaponReady(WRF_ALLOWZOOM)
+			RW06 EEEEE 5 A_WeaponReady(WRF_ALLOWZOOM)
+			RW06 DDDCCCBBB 1 A_WeaponReady(WRF_ALLOWZOOM)
+			RW06 AAAA 5 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
@@ -427,7 +427,7 @@ Actor MeteorMissile_HitFX {
 	}
 }
 
-ACTOR ResRL2 : Weapon {
+ACTOR ResRL2 : DnDWeapon {
 	//$Category Weapons
 	Weapon.SelectionOrder 2400
 	Weapon.AmmoUse1 0
@@ -448,7 +448,7 @@ ACTOR ResRL2 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_HEAVYGL)
 		ReadyLoop:
-			GLAU A 1 A_WeaponReady
+			GLAU A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
@@ -753,7 +753,7 @@ Actor HeavyGrenadeShrapnel_GhostHitter_Crit : HeavyGrenadeShrapnel_GhostHitter {
 	Accuracy 69
 }
 
-Actor ResRL3 : Weapon {
+Actor ResRL3 : DnDWeapon {
 	Weapon.AmmoUse 0
 	Weapon.AmmoGive 0
 	Weapon.AmmoType1 "EverIce"
@@ -780,7 +780,7 @@ Actor ResRL3 : Weapon {
 		ReadyLoop:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_FREEZER, 5 | (7 << 16))
-			FRZC AAAAAAAAA 1 A_WeaponReady
+			FRZC AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
@@ -1052,7 +1052,7 @@ Actor FreezeBallSmall_Crit : FreezeBallSmall {
 	Accuracy 69
 }
 
-Actor ResRL4 : Weapon {
+Actor ResRL4 : DnDWeapon {
 	Weapon.SelectionOrder 2400
 	Weapon.SlotNumber 5
     Inventory.PickupSound "weapons/pickup"
@@ -1079,7 +1079,7 @@ Actor ResRL4 : Weapon {
 		ReadyLoopInit:
 			BRSG A 0 A_PlaySound("Gravdis/Idle", CHAN_WEAPON, 0.8, 1)
 		ReadyLoop:
-			BRSG BCDEFGHIJKLMNOPQRSTU 2 A_WeaponReady
+			BRSG BCDEFGHIJKLMNOPQRSTU 2 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
@@ -1469,7 +1469,7 @@ Actor GravdisSpinnyParticle {
 }
 
 // Pickup by SoloSpaghetti, weapon by Charch
-Actor ResRL5 : Weapon {
+Actor ResRL5 : DnDWeapon {
 	Weapon.SelectionOrder 1600
 	Weapon.SlotNumber 5
     Inventory.PickupSound "weapons/pickup"
@@ -1504,7 +1504,7 @@ Actor ResRL5 : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_VOIDCANNON, 5 | (17 << 16))
 		ReadyLoop:
-			RW07 FGHIJKLMNO 2 A_WeaponReady
+			RW07 FGHIJKLMNO 2 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)

@@ -410,9 +410,10 @@ void SavePlayerData(int pnum, int char_id) {
 	
 	// save unspent attribute/perk points
 	temp = CheckActorInventory(tid, "AttributePoint");
-	temp |= (0x7FF & CheckActorInventory(tid, "PerkPoint")) << 11;
-	// send temp over
-	SetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, temp);
+	SetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, temp);
+
+	temp = CheckActorInventory(tid, "PerkPoint");
+	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, temp);
 	
 	// save accessories and artifacts
 	temp = 0;
@@ -590,12 +591,9 @@ void SavePlayerActivities(int pnum, int char_id) {
 	temp = PlayerActivities[pnum].free_attributes;
 	vt = PlayerActivities[pnum].free_perks;
 	//printbold(s:"free attrib perk ", d:temp, s: " ", d:vt);
-	if(vt < 0)
-		temp -= (-vt) << 11;
-	else
-		temp += vt << 11;
-	// send temp over
-	IncrementDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, temp);
+	// send data over
+	IncrementDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, temp);
+	IncrementDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, vt);
 	
 	// save player inventory state (might have been affected by an orb)
 	// save singular items that have their ids noted by activities instead in here
@@ -914,10 +912,10 @@ void LoadPlayerData(int pnum, int char_id) {
 	
 	// read unspent attribute/perk points
 	// added: Update player activity to prevent it going from negative
-	temp = GetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc);
-	SetInventory("AttributePoint", temp & 0x7FF);
-	temp >>= 11;
-	SetInventory("PerkPoint", temp & 0x7FF);
+	temp = GetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc);
+	SetInventory("AttributePoint", temp);
+	temp = GetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc);
+	SetInventory("PerkPoint", temp);
 
 	temp = GetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc);
 	// read artifacts
@@ -1173,7 +1171,8 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, 1);
 	SetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
@@ -1334,7 +1333,8 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, 1);
 	SetDBEntry(GetCharField(DND_DB_ABILITY, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_ATTRIBUTEPERK, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);

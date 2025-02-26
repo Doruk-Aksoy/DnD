@@ -131,20 +131,24 @@ void ResetCursorDragData() {
 	PlayerCursorData.itemDragInfo.click_box = -1;
 }
 
-void ResetCursorHoverData() {
-	// cleanup anything that is potentially shown by cursor hovering here
-	CleanInventoryInfo();
-
+void resetCursorHoverProc() {
 	PlayerCursorData.itemHovered = -1;
 	PlayerCursorData.itemHoveredType = 0;
 	PlayerCursorData.itemHoveredSource = 0;
 	PlayerCursorData.itemHoveredDim.x = 0;
 	PlayerCursorData.itemHoveredDim.y = 0;
+	PlayerCursorData.itemHoveredOffset = 0;
 	PlayerCursorData.owner_pnum = -1;
 	PlayerCursorData.hoverNeedsReset = false;
 }
 
-void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, int dimx = 0, int dimy = 0) {
+void ResetCursorHoverData() {
+	// cleanup anything that is potentially shown by cursor hovering here
+	CleanInventoryInfo();
+	resetCursorHoverProc();
+}
+
+void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, int offset, int dimx = 0, int dimy = 0) {
 	if(PlayerCursorData.itemHovered != itemid)
 		CleanInventoryInfo();
 	
@@ -153,7 +157,15 @@ void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, in
 	PlayerCursorData.itemHoveredType = itemtype;
 	PlayerCursorData.itemHoveredDim.x = dimx;
 	PlayerCursorData.itemHoveredDim.y = dimy;
+	PlayerCursorData.itemHoveredOffset = offset;
 	PlayerCursorData.owner_pnum = owner_p;
+}
+
+void resetCursorClickProc() {
+	PlayerCursorData.itemClicked = -1;
+	PlayerCursorData.itemClickedPos.x = -1;
+	PlayerCursorData.itemClickedPos.y = -1;
+	PlayerCursorData.clickNeedsReset = false;
 }
 
 void ResetCursorClickData() {
@@ -161,10 +173,7 @@ void ResetCursorClickData() {
 	
 	TakeInventory("DnD_CursorDataClearRequest", 1);
 
-	PlayerCursorData.itemClicked = -1;
-	PlayerCursorData.itemClickedPos.x = -1;
-	PlayerCursorData.itemClickedPos.y = -1;
-	PlayerCursorData.clickNeedsReset = false;
+	resetCursorClickProc();
 }
 
 void UpdateCursorClickData(int itemid, int source, int itemtype, int clickx = -1, int clicky = -1) {
@@ -2786,7 +2795,7 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
-			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
+			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, 0, HUDMAX_X, HUDMAX_Y);
 	}
 	SetFont(charmborderpic);
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
@@ -2801,7 +2810,7 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
-			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, HUDMAX_X, HUDMAX_Y);
+			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, 0, HUDMAX_X, HUDMAX_Y);
 	}
 	else {
 		switch(armor_slot) {
@@ -3063,7 +3072,7 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 		// highlight the current box we hovered on
 		InventoryBoxLit[boxid - 1] = BOXLIT_STATE_CURSORON;
 		if(topboxid != -1)
-			UpdateCursorHoverData(topboxid, source, 0, pnum, dimx, dimy);
+			UpdateCursorHoverData(topboxid, source, 0, pnum, offset, dimx, dimy);
 		else {
 			if(PlayerCursorData.itemHovered != -1)
 				PlayerCursorData.hoverNeedsReset = true;
@@ -4065,7 +4074,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 				if(tx != -1) {
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
-						UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum);
+						UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum, 0);
 
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
@@ -4145,7 +4154,7 @@ void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 			if(CheckInventory(Weapons_Data[i].name)) {
 				if(boxid - 1 == j) {
 					//Log(s:"update item boxlit ", d:i);
-					UpdateCursorHoverData(i, 0, DND_ITEM_WEAPON, pnum);
+					UpdateCursorHoverData(i, 0, DND_ITEM_WEAPON, 0, pnum, 0);
 					
 					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 					MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= i << DND_MENU_ITEMSAVEBITS1;
@@ -4222,7 +4231,7 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k
 				SetFont("CRFBX_H");
 			}
 			else if(boxid - 1 == i) {
-				UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum);
+				UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum, 0);
 				
 				//Log(s:"update cur item inv ", d:tx);
 				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
@@ -4311,8 +4320,19 @@ int IsValidTransmuteRecipe(int pnum) {
 				orb_counts[DND_ORB_HEXES] || orb_counts[DND_ORB_GROWTH] || orb_counts[DND_ORB_CRACKLING] ||
 				orb_counts[DND_ORB_BRUTE] || orb_counts[DND_ORB_JAGGED] || orb_counts[DND_ORB_SAVAGERY] || orb_counts[DND_ORB_PROSPERITY]
 			)
-		)
+		) 
+		{
 			res = DND_RANDOM_TAGGED_ORB_TRANSMUTE; // random tagged orb
+		}
+		else if // use XOR to see if an odd amount of orbs are there
+		(
+			overall_count == 3 && (
+				(orb_counts[DND_ORB_WINTER] == 1) + (orb_counts[DND_ORB_VOLTAIC] == 1) + (orb_counts[DND_ORB_VILE] == 1) + (orb_counts[DND_ORB_EMBERS] == 1) == overall_count
+			)
+		)
+		{
+			res = DND_ELEMENTAL_TO_PRISMATIC;
+		}
 	}
 
 	return res;
@@ -4345,7 +4365,7 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 2 * thisboxid - id_offset, CR_WHITE, hudx, hudy, 0.0, 0.0);
 			
 			if(isHovered)
-				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, pnum, HUDMAX_X, HUDMAX_Y);
+				UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, pnum, 0, HUDMAX_X, HUDMAX_Y);
 		}
 		else {
 			SetFont("ORBBAK");
@@ -4368,9 +4388,11 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 		SetFont("ORBMBKG");
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
 
-		if(recipe_out != DND_RANDOM_TAGGED_ORB_TRANSMUTE)
+		if(recipe_out != DND_RANDOM_TAGGED_ORB_TRANSMUTE && recipe_out != DND_ELEMENTAL_TO_PRISMATIC)
 			SetFont(GetItemImage(ITEM_IMAGE_ORB_BEGIN + recipe_out));
-		else
+		else if(recipe_out == DND_ELEMENTAL_TO_PRISMATIC)
+			SetFont(GetItemImage(ITEM_IMAGE_ORB_BEGIN + DND_ORB_PRISMATIC));
+		else // random tagged orb
 			SetFont("ORBBAKQ");
 
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
@@ -4847,9 +4869,13 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 						if(oid_3 != -1)
 							TakeOrbFromPlayer_NoStash(pnum, oid_3, oamt_3);
 
-						if(recipe != DND_RANDOM_TAGGED_ORB_TRANSMUTE) {
+						if(recipe != DND_RANDOM_TAGGED_ORB_TRANSMUTE && recipe != DND_ELEMENTAL_TO_PRISMATIC) {
 							ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, recipe, 1);
 							MarkOrbRecipeComplete(recipe);
+						}
+						else if(recipe == DND_ELEMENTAL_TO_PRISMATIC) {
+							ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_PRISMATIC, 1);
+							MarkOrbRecipeComplete(DND_ORB_PRISMATIC);
 						}
 						else {
 							recipe = PickRandomTaggedOrb();

@@ -5,7 +5,7 @@ DND_ORBTEXT1		=	"Allows the user to improve the quality of the currently selecte
 DND_ORB2			=	"Orb of Corruption";
 DND_ORBTEXT2		=	"This orb can do many things. Half the time it'll do nothing. More often than not it'll do something bad. However it can do some awesome things as well... Dare to find out? Corrupted items \cgcan't be modified\c-!";
 DND_ORB3			=	"Prismatic Orb";
-DND_ORBTEXT3		=	"Reforges the item, adding at least one \cvelemental\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
+DND_ORBTEXT3		=	"Reforges the item, adding at least one \cvelemental\c- modifier which is well-rolled. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
 DND_ORB4			=	"Orb of Repentance";
 DND_ORBTEXT4		=	"Allows you to undo the effects of the most recently used orb.";
 DND_ORB5			=	"Orb of Affluence";
@@ -54,6 +54,14 @@ DND_ORB26			=	"Evoker's Orb";
 DND_ORBTEXT26		=	"Extracts the highest tier modifier as an orb that guarantees that modifier type, \cgdestroying the item\c- in the process.";
 DND_ORB27			=	"Orb of Savagery";
 DND_ORBTEXT27		=	"Reforges the item, adding at least one \cvdamage\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
+DND_ORB28			=	"Orb of Winter";
+DND_ORBTEXT28		=	"Reforges the item, adding at least one \cvice\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
+DND_ORB29			=	"Voltaic Orb";
+DND_ORBTEXT29		=	"Reforges the item, adding at least one \cvlightning\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
+DND_ORB30			=	"Vile Orb";
+DND_ORBTEXT30		=	"Reforges the item, adding at least one \cvpoison\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
+DND_ORB31			=	"Orb of Embers";
+DND_ORBTEXT31		=	"Reforges the item, adding at least one \cvfire\c- modifier. \c[Y5]Orb of Affluence\c- can be used once to add at least two modifiers instead.";
 
 DND_ORB_MON1		=	"Hollow Orb";
 DND_ORB_MONTEXT1	=	"Adds an extra random attribute to a non-unique charm even if it's at its limit, adding at most one additional over limit. The attribute is well-rolled.";
@@ -153,3 +161,8 @@ DND_ORBUSETEXT28	=	"Alchemist's Orb increases the quality of your item by";
 DND_ORBUSETEXT29	=	"Evoker's Orb extracts the potential from this item, giving"; DND_ORBUSETEXT29B = "orb"; DND_ORBUSETEXT29BS = "orbs";
 
 DND_ORBUSETEXT30	=	"Orb of Savagery reforges the item, guaranteeing a \cvdamage\c- modifier";
+
+DND_ORBUSETEXT31	=	"Orb of Winter reforges the item, guaranteeing a \cvice\c- modifier";
+DND_ORBUSETEXT32	=	"Voltaic Orb reforges the item, guaranteeing a \cvlightning\c- modifier";
+DND_ORBUSETEXT33	=	"Vile Orb reforges the item, guaranteeing a \cvpoison\c- modifier";
+DND_ORBUSETEXT34	=	"Orb of Embers reforges the item, guaranteeing a \cvfire\c- modifier";

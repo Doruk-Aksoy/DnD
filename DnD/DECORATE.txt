@@ -12,6 +12,7 @@ const int SPECIAL_FX_TID = 2147483647;
 		* Player Projectiles: Store information on a guaranteed crit. Key is 69.
 */
 
+#include "Actors/HudAnims.txt"
 #include "Actors/DamageTypes.txt"
 #include "Actors/Items/Base.txt"
 #include "Actors/Items/Keys.txt"

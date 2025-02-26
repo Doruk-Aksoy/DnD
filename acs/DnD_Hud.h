@@ -13,8 +13,8 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define INVENTORYINFO_NORMALVIEW_WRAPX 272.0
 #define INVENTORYINFO_NORMALVIEW_WRAPY 152.0
 
-#define INVENTORYINFO_TRADEVIEW_WRAPX 272.0
-#define INVENTORYINFO_TRADEVIEW_WRAPY 152.0
+#define INVENTORYINFO_TRADEVIEW_WRAPX 304.0
+#define INVENTORYINFO_TRADEVIEW_WRAPY 200.0
 
 #define NEXT_LINE_LEN 35
 #define NEXT_LINE_LEN_ATTR 30
@@ -112,6 +112,7 @@ enum {
 	HUD_GRAPHIC_ID = 2600,
 
 	BLACKOUT_ID = 2699,
+	HUDANIMATED_ID,
 	ESHIELD_LEFT_ID,
 	ESHIELD_RIGHT_ID,
 
@@ -176,7 +177,7 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 #define CRAFTING_IMAGE_COUNT 4
 #define MATERIALBOX_OFFSET (MAX_CRAFTING_ITEMBOXES * CRAFTING_IMAGE_COUNT - 7)
 
-#define MAX_CRAFTING_MATERIALBOXES 12
+#define MAX_CRAFTING_MATERIALBOXES 4//12
 
 void CleanInventoryInfo(int id_begin = RPGMENUINVENTORYID) {
 	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20 - ITEMINFOBG_MAXMIDS, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
@@ -458,6 +459,7 @@ typedef struct cursor {
 	int itemHovered;			// spot of the item in player's inventory, or weapon's id
 	int itemHoveredType;		// is this an orb, etc. or a weapon
 	int itemHoveredSource;		// for inventory stuff, player inventory, stash etc.
+	int itemHoveredOffset;		// offset for boxid
 	vec2_T itemHoveredDim;		// dim for draving things
 	bool hoverNeedsReset;		// need reset on hover data
 	
@@ -544,6 +546,32 @@ void ClearPlayerInput(int pnum, bool cleanLR) {
 	MenuInputData[pnum][DND_MENUINPUT] = 0;
 	if(cleanLR)
 		MenuInputData[pnum][DND_MENUINPUT_LRPOS] = 0;
+}
+
+void ClearMenuLeftovers(int pnum) {
+	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+	TakeInventory("P_Frozen", 1);
+	StatListOpened[pnum] = 0;
+	SetInventory("ShowingMenu", 0);
+	SetInventory("MenuOption", 5);
+	SetInventory("DnD_PlayerItemIndex", 0);
+	SetInventory("DnD_PlayerPrevItemIndex", 0);
+	SetInventory("DnD_PopupId", 0);
+	SetInventory("DnD_SelectedCharmBox", 0);
+	SetInventory("DnD_ItemSelectTemp", 0);
+	SetInventory("DnD_SelectedInventoryBox", 0);
+	SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
+	SetInventory("DnD_Crafting_MaterialPage", 0);
+	SetInventory("DnD_Crafting_ItemPage", 0);
+	SetInventory("DnD_Trade_Confirmed", 0);
+	SetInventory("DnD_TradeSpaceFit", 0);
+	TakeInventory("DnD_InventoryView", 1);
+	TakeInventory("DnD_StashView", 1);
+	TakeInventory("InTradeView", 1);
+	TakeInventory("DnD_ShowPopup", 1);
+	TakeInventory("DnD_ShowSellPopup", 1);
+	TakeInventory("DnD_SellConfirm", 1);
+	ClearPlayerInput(pnum, true);
 }
 
 int GetCursorPos(int input, int mt) {
@@ -1094,5 +1122,7 @@ Script "DnD Unique Boss Bar Draw SpecOnly" (int tid, int diedNoLives) CLIENTSIDE
 	
 	BossBarDrawnForPlayer[cpn] = false;
 }
+
+#include "DnD_HudAnims.h"
 
 #endif

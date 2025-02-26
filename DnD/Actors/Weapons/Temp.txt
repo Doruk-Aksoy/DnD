@@ -1,6 +1,6 @@
 Actor DnD_NoTempPickup : DnD_Boolean { }
 
-Actor Sawedoff : Weapon {
+Actor Sawedoff : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.SlotNumber 9
@@ -66,7 +66,7 @@ Actor Sawedoff : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			TSWN A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			TSWN A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Goto ReadyLoop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -248,7 +248,7 @@ Actor SawedOffPickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR "Soul Render" : Weapon {
+ACTOR "Soul Render" : DnDWeapon {
 	Inventory.PickupMessage "You got the Soul Render!"
 	Obituary "%k sliced and diced %o to pieces."
 	Weapon.AmmoType "BladeHits"
@@ -312,41 +312,41 @@ ACTOR "Soul Render" : Weapon {
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_JumpIfInventory("BladeCharge", 100, "ChargeReady")
 			TNT1 A 0 A_JumpIfInventory("DrainMode", 1, "DrainReady")
-			VBLG A 1 A_WeaponReady
+			VBLG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		DrainReady:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB2G A 1 Bright A_WeaponReady
+			VB2G A 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB2G A 1 Bright A_WeaponReady
+			VB2G A 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB2G A 1 Bright A_WeaponReady
+			VB2G A 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB2G B 1 Bright A_WeaponReady
+			VB2G B 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB2G B 1 Bright A_WeaponReady
+			VB2G B 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB2G B 1 Bright A_WeaponReady
+			VB2G B 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		ChargeReady:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G A 1 Bright A_WeaponReady
+			VB3G A 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G A 1 Bright A_WeaponReady
+			VB3G A 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G A 1 Bright A_WeaponReady
+			VB3G A 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G B 1 Bright A_WeaponReady
+			VB3G B 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G B 1 Bright A_WeaponReady
+			VB3G B 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G B 1 Bright A_WeaponReady
+			VB3G B 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G C 1 Bright A_WeaponReady
+			VB3G C 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G C 1 Bright A_WeaponReady
+			VB3G C 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			VB3G C 1 Bright A_WeaponReady
+			VB3G C 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -820,7 +820,7 @@ Actor SoulRenderPickup_D : DND_DroppedItem {
 	}
 }
 
-actor "SMG" : Weapon {
+actor "SMG" : DnDWeapon {
 	Weapon.SelectionOrder 6666
 	Weapon.Slotnumber 9
 	Weapon.AmmoUse 0
@@ -874,7 +874,7 @@ actor "SMG" : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			NAMG A 1 A_WeaponReady
+			NAMG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -997,7 +997,7 @@ Actor SMGPickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR "Hellforge Cannon" : Weapon {	
+ACTOR "Hellforge Cannon" : DnDWeapon {	
 	Inventory.PickupMessage "You got the Hellforge Cannon!"
 	Obituary "%k ripped %o apart with a hellforge Cannon."
 	Weapon.AmmoType "IronBalls"
@@ -1048,7 +1048,7 @@ ACTOR "Hellforge Cannon" : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			HFCA A 1 A_WeaponReady
+			HFCA A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Spawn:
 			WHFC A -1 Bright
@@ -1310,7 +1310,7 @@ Actor HellForgePickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR "Bloodfiend Spine" : Weapon {
+ACTOR "Bloodfiend Spine" : DnDWeapon {
 	Obituary "%k splattered %o with his Bloodfiend spine."
 	Weapon.AmmoType "BloodAmmo"
 	Weapon.Slotnumber 9
@@ -1360,48 +1360,48 @@ ACTOR "Bloodfiend Spine" : Weapon {
 		NoRemove:
 			GORG A 0 A_JumpIfInventory("GoreMode", 1, "ReadyAlt")
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			GORG A 4 A_weaponReady
+			GORG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG B 4 A_weaponReady
+			GORG B 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG C 4 A_weaponReady
+			GORG C 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG D 4 A_weaponReady
+			GORG D 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG A 4 A_weaponReady
+			GORG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG B 4 A_weaponReady
+			GORG B 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG C 4 A_weaponReady
+			GORG C 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG D 4 A_weaponReady
+			GORG D 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG A 4 A_weaponReady
+			GORG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG B 4 A_weaponReady
+			GORG B 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG C 4 A_weaponReady
+			GORG C 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG D 4 A_weaponReady
+			GORG D 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG A 4 A_weaponReady
+			GORG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG B 4 A_weaponReady
+			GORG B 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG C 4 A_weaponReady
+			GORG C 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG D 4 A_weaponReady
+			GORG D 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 		Goto ReadyLoop
 		ReadyAlt:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			GORG K 4 A_WeaponReady
+			GORG K 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG L 4 A_WeaponReady
+			GORG L 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG M 4 A_WeaponReady
+			GORG M 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			GORG N 4 A_WeaponReady
+			GORG N 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 		Loop	
 		Spawn:
@@ -1637,7 +1637,7 @@ Actor SpinePickup_D : DND_DroppedItem {
 	}
 }
 
-actor "Enforcer Rifle" : Weapon {
+actor "Enforcer Rifle" : DnDWeapon {
 	Weapon.SelectionOrder 6666
 	Weapon.Slotnumber 9
 	Weapon.AmmoUse 0
@@ -1694,7 +1694,7 @@ actor "Enforcer Rifle" : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			ENRI A 1 A_WeaponReady
+			ENRI A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
@@ -1870,7 +1870,7 @@ Actor LaserPickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR Venom : Weapon {
+ACTOR Venom : DnDWeapon {
 	Obituary "%o was poisoned to the core by %k's Venom."
 	Weapon.AmmoType "VenomAmmo"
 	Weapon.AmmoGive 0
@@ -1924,43 +1924,43 @@ ACTOR Venom : Weapon {
 		Stop
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			SHRG A 4 A_WeaponReady
+			SHRG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG B 4 A_WeaponReady
+			SHRG B 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG C 4 A_WeaponReady
+			SHRG C 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG B 4 A_WeaponReady
+			SHRG B 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 4 A_WeaponReady
+			SHRG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 4 A_WeaponReady
+			SHRG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 4 A_WeaponReady
+			SHRG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 4 A_WeaponReady
+			SHRG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 4 A_WeaponReady
-			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 1 A_PlaySound("weapons/wiggl1")
-			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 3 A_WeaponReady
-			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG D 5 A_WeaponReady
-			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG D 1 A_Playsound("weapons/wiggl2")
-			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG E 4 A_WeaponReady
+			SHRG A 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			SHRG A 1 A_PlaySound("weapons/wiggl1")
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG A 3 A_WeaponReady
+			SHRG A 3 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG D 5 A_WeaponReady
+			SHRG D 5 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			SHRG D 1 A_Playsound("weapons/wiggl2")
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			SHRG E 4 A_WeaponReady
+			SHRG E 4 A_WeaponReady(WRF_ALLOWZOOM)
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 1 A_PlaySound("weapons/wiggl1")
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG A 3 A_WeaponReady(WRF_ALLOWZOOM)
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG D 5 A_WeaponReady(WRF_ALLOWZOOM)
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG D 1 A_Playsound("weapons/wiggl2")
+			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
+			SHRG E 4 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 		goto ReadyLoop
 		Deselect:
@@ -2256,7 +2256,7 @@ Actor VenomPickup_D : DND_DroppedItem {
 	}
 }
 
-ACTOR "Demon Heart" : Weapon {	
+ACTOR "Demon Heart" : DnDWeapon {	
 	Obituary "%o drained all of %k's blood."
 	Weapon.AmmoType "HeartAmmo"
 	Weapon.AmmoGive 0
@@ -2307,77 +2307,77 @@ ACTOR "Demon Heart" : Weapon {
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_PlayWeaponSound("Weapons/HeartBeat")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG A 1 A_WeaponReady
+			HRTG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
-			HRTG B 1 A_WeaponReady
+			HRTG B 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 		    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -2556,7 +2556,7 @@ Actor DemonHeartPickup_D : DND_DroppedItem {
 	}
 }
 
-Actor DarkServantGloves : Weapon {
+Actor DarkServantGloves : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.SlotNumber 9
@@ -2617,7 +2617,7 @@ Actor DarkServantGloves : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			GAU3 A 1 A_WeaponReady
+			GAU3 A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -2872,7 +2872,7 @@ Actor DarkServantGlovesPickup_D : DND_DroppedItem {
 	}
 }
 
-Actor Nailgun2 : Weapon {
+Actor Nailgun2 : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.SlotNumber 9
@@ -2942,11 +2942,11 @@ Actor Nailgun2 : Weapon {
 		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 			TNT1 A 0 A_JumpIfInventory("BigNail", 1, "NoRemove")
-			NLCG A 1 A_WeaponReady
+			NLCG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			NLCG A 1 A_WeaponReady
+			NLCG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Fire:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -3136,7 +3136,7 @@ Actor Nailgun2Pickup_D : DND_DroppedItem {
 }
 
 
-Actor Berettas : Weapon {
+Actor Berettas : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.SlotNumber 9
@@ -3195,7 +3195,7 @@ Actor Berettas : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			PAKM A 1 A_WeaponReady
+			PAKM A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
@@ -3325,7 +3325,7 @@ Actor BerettasPickup_D : DND_DroppedItem {
 	}
 }
 
-actor "Plasma Bolter" : Weapon {
+actor "Plasma Bolter" : DnDWeapon {
 	Weapon.SelectionOrder 6666
 	Weapon.Slotnumber 9
 	Weapon.AmmoUse 0
@@ -3379,7 +3379,7 @@ actor "Plasma Bolter" : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			PBL9 AAABBBCCC 1 A_WeaponReady
+			PBL9 AAABBBCCC 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
@@ -3645,7 +3645,7 @@ Actor PlasmaBolterPickup_D : DND_DroppedItem {
 	}
 }
 
-actor "Ripper Cannon" : Weapon {
+actor "Ripper Cannon" : DnDWeapon {
 	Weapon.SelectionOrder 6666
 	Weapon.Slotnumber 9
 	Weapon.AmmoUse 0
@@ -3699,7 +3699,7 @@ actor "Ripper Cannon" : Weapon {
 		Goto Remove
 		NoRemove:
 			TNT1 A 0 A_GiveInventory("TempWeaponReady", 1)
-			TWP0 A 1 A_WeaponReady
+			TWP0 A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)

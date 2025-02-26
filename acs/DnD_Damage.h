@@ -81,6 +81,7 @@ enum {
 	DND_DAMAGETYPEFLAG_PERCENTHP_LOW = 2048,
 	DND_DAMAGETYPEFLAG_DOT = 4096,
 
+	DND_DAMAGETYPEFLAG_USEMASTER = 536870912,
 	DND_DAMAGETYPEFLAG_REFLECTABLE = 1073741824
 };
 
@@ -1044,7 +1045,7 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	int more_bonus = 100;
 
 	// little orbs he drops
-	if(CheckInventory("Doomguy_Perk25_Damage"))
+	if(CheckInventory("Doomguy_Perk25_Damage") || CheckInventory("Doomguy_Perk25_Damage_Execute"))
 		more_bonus = more_bonus * (100 + DND_DOOMGUY_DMGBONUS) / 100;
 
 	// 25% reduction, so 3 / 4
@@ -1281,10 +1282,18 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	HandleTargetPicking(victim);
 	
 	// cull checks
-	if((flags & DND_DAMAGEFLAG_CULL) && CheckCullRange(source, victim, dmg)) {
-		// if self cull is in effect simply destroy it otherwise return from here
-		GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
-		dmg = GetActorProperty(victim, APROP_HEALTH) * 2;
+	if(CheckCullRange(source, victim, dmg)) {
+		if((flags & DND_DAMAGEFLAG_CULL)) {
+			// if self cull is in effect simply destroy it otherwise return from here
+			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
+			dmg = GetActorProperty(victim, APROP_HEALTH) * 2;
+		}
+		else if(CheckActorInventory(source, "Doomguy_Perk5") && GetActorProperty(victim, APROP_HEALTH) > dmg) {
+			if(!CheckActorInventory(victim, "Doomguy_CanExecute"))
+				ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", source, victim);
+
+			GiveActorInventory(victim, "Doomguy_CanExecute", 1);
+		}
 	}
 	
 	if(dmg > 0) {
@@ -1292,6 +1301,9 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		// is victim dead from this damage?
 		if(GetActorProperty(victim, APROP_HEALTH) <= dmg) {
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
+
+			if(actor_flags & DND_ACTORFLAG_DROPSOUL)
+				GiveActorInventory(victim, "BookofDeadCausedDeath", 1);
 
 			// give this for non-magic seal weapons (seals their souls...)
 			if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || (!wep_neg && IsSoulDroppingWeapon(wepid))))
@@ -2395,8 +2407,15 @@ int GetArmorRatingEffect(int dmg, int armor_id, int dmg_data, bool isArmorPierci
 			rating -= rating * pnum * DND_RUINATION_REDUCE_PER_STACK / 100;
 	}
 
-	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)
-		rating /= 5;
+	// DONT USE armor_id below here!!
+	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
+		// armor_id stores negation factor
+		armor_id = GetPlayerAttributeValue(pnum, INV_MAGIC_NEGATION);
+		if(armor_id > 100)
+			armor_id = 100;
+		armor_id = BASE_ARMOR_MAGIC_EFFECT * (100 - armor_id) / 100;
+		rating = rating * (100 - armor_id) / 100;
+	}
 
 	// rating is treated as 40% instead of 100% if monster is armor piercing
 	if(isArmorPiercing)
@@ -2829,7 +2848,16 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 }
 
 bool IsDamageEventException(str dt) {
-	return dt == "Suicide" || dt == "Telefrag" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass" || dt == "InstantDeath";
+	// special doomguy order of events check here
+	if(dt == "Execution") {
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
+		GiveInventory("Doomguy_ValidExecute", 1);
+		GiveInventory("MonsterKilledByPlayer", 1);
+		return true;
+	}
+	
+	return 	dt == "Suicide" || dt == "Telefrag" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass" || 
+			dt == "InstantDeath";
 }
 
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
@@ -2883,12 +2911,15 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		SetActivator(0, AAPTR_DAMAGE_SOURCE);
 		if(shooter == -1) {
 			//printbold(s:"this ? ", d:ActivatorTID(), s: " ", s:GetActorClass(ActivatorTID()));
-			shooter = ActivatorTID();
+			if(!(dmg_data & DND_DAMAGETYPEFLAG_USEMASTER) || GetActorProperty(0, APROP_SPECIES) != "Spider2")
+				shooter = ActivatorTID();
+			else
+				shooter = GetActorProperty(0, APROP_MASTERTID);
 		}
 
 		// this flag shares the same value as a damagetype for monsters, so we need to seperate it
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		if((shooter == -1 || shooter == 0) && !IsMonster(shooter) && dmg_data & DND_DAMAGEFLAG_USEMASTER) {
+		if((shooter == -1 || shooter == 0) && !IsMonster(shooter) && (dmg_data & DND_DAMAGEFLAG_USEMASTER)) {
 			//printbold(s:"take shooter as ", d:GetActorProperty(0, APROP_SCORE));
 			shooter = GetActorProperty(0, APROP_SCORE);
 		}
@@ -3056,15 +3087,15 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 				// finally apply player armor
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);
-					
-				// doomguy demon reduction
-				if(IsMonsterIdDemon(m_id) && CheckInventory("Doomguy_Perk5"))
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT);
 
 				// berserker damage reduction
-				temp = CheckInventory("Berserker_DamageTracker");
+				temp = CheckActorInventory(victim, "Berserker_DamageTracker");
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
+
+				// doomguy damage reduction
+				if(CheckActorInventory(victim, "Doomguy_Perk5") && CheckActorInventory(shooter, "Doomguy_CanExecute"))
+					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT);
 				
 				// final check, if damage is less than 10% of it, cap it at 10%
 				temp = arg1 / 10;
@@ -3339,6 +3370,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(dmg < 0)
 					dmg = 0;
 
+				// failsafe
+				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {
+					Log(s:"Monster hp overflow on ", s:GetActorClass(victim), s: " with player weaponid and dmg", d:m_id, s: " <> ", d:dmg);
+					SetActorProperty(victim, APROP_HEALTH, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp);
+				}
+
 				SetResultValue(dmg);
 				HandleOnHitEffects(shooter);
 			}
@@ -3368,9 +3405,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// if we have dmg_data, currently it can only come from monster projectile
 			SetActivator(GetActorProperty(shooter, APROP_MASTERTID));
 			ACS_NamedExecuteWithResult("DnD Damage Numbers", victim, dmg, 0);
-			/*if(dmg < 0)
-			m_id = montid - DND_MONSTERTID_BEGIN;
-					SetInventory("TargetMaximumHealth", MonsterProperties[m_id].maxhp);*/
+
+			// failsafe
+			if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp)
+				SetActorProperty(victim, APROP_HEALTH, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp);
 
 			SetResultValue(dmg);
 			Terminate;

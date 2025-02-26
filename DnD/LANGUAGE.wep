@@ -153,7 +153,7 @@ WEPTIP_0_3 		= "Unsheathing does 140 damage, normal firing does 84. Altfire allo
 WEPTIP_0_4 		= "Does 80 - 120 damage per swing. Melee does triple damage against undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability.";
 WEPTIP_0_5 		= "60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire throws 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Combo melee with altfire to ignite enemies. Altfire requires Melee Expertise ability.";
 WEPTIP_0_6 		= "Does 100 - 400 damage per swing depending on how long you hold. Alt fire makes you shoot ripping slashes doing 24 damage in a 104 unit radius, run 15% faster but can't change weapons. Alt fire requires Melee Expertise ability.";
-WEPTIP_0_7 		= "Sickle deals 40 - 60 damage 3 times. Slain enemies have 25% chance to be raised as minions temporarily. Alt fire deals irreducable 75 - 90 damage 3 times and spawns a ghost dealing 80 damage that has 50% chance to raise enemies. Altfire requires Melee Expertise ability.";
+WEPTIP_0_7 		= "Sickle deals 40 - 60 damage 3 times. Slain enemies have 66% chance to be raised as minions temporarily. Alt fire sends a ghost dealing 80 damage that has 66% chance to raise enemies with 10 second cooldown. Melee kills reduce this cooldown by 20%. Altfire requires Melee Expertise ability.";
 
 WEPTIP_1_0 		= "Your trustworthy Colt45, been with you since the start. Does 15 damage in a 0.5 spread. Can be \cdreplaced.";
 WEPTIP_1_1 		= "Akimbo longslides. Does 30 damage per shot firing silver bullets in a 3.5 by 2.5 spread.";
@@ -194,7 +194,7 @@ WEPTIP_4_4 		= "Templar fires silver bullets doing 20 damage in a 4.4 by 2.8 spr
 WEPTIP_4_5 		= "Fires 7 pellets doing 12 damage in a 3.6 by 3.6 spread. Alt fire makes it full auto, but twice as inaccurate. Can use \cialternate\c- ammo. Reload when full to use other ammo.";
 WEPTIP_4_6 		= "Fires acid rounds doing 18 damage on hit and 10-15 damage in a 48 unit radius. Alt fire shoots a bolt that sticks to enemies, detonating after 3 seconds for 96 damage and release toxic cloud doing 3-6 damage in 96 unit radius. Inflicts \cqpoison.";
 WEPTIP_4_7 		= "Fires in bursts of 5 each doing 30 damage in a 6.8 by 4.2 spread. Altfire shoots a fusion grenade doing 200 damage and releasing rippers doing 6 damage around. Attacks do more damage with more distance. \cfIgnores shields.\c-";
-WEPTIP_4_8 		= "Burns enemies with 12 projectiles each dealing 16 damage going through enemies and in a 48 unit radius on impact. Every four shots two lava balls are fired dealing 80-90 damage on impact and 80 damage in 96 unit radius. Lava balls \cfignore shields\c-.";
+WEPTIP_4_8 		= "Burns enemies with 12 projectiles each dealing 20-24 damage going through enemies and in a 48 unit radius on impact. Every four shots two lava balls are fired dealing 120-160 damage on impact and 128 damage in 96 unit radius. Lava balls \cfignore shields\c-.";
 
 WEPTIP_4_9 		= "Desolator fires highly toxic rounds doing 30 damage. Subsequent hits make enemies take 10% more damage from elemental attacks, maximum 5 stacks. At max stacks, rounds cause a toxic explosion doing 80 damage in 128 unit radius. Inflicts \cqpoison.";
 WEPTIP_4_10 	= "Stronger, faster and better than ever! Poor accuracy, shoots tracers that do 16 - 28 damage each. Alt fire to spin. Can't hit \cughosts.";
@@ -235,7 +235,7 @@ WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on 
 WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 64 radius damage in 96 units. Altfire charges up a barrage over 1.5 seconds to fire for a second up to 60 missiles that \cucannot be reflected.\c- Barrage slows user by 66%.";
 WEPTIP_7_3 		= "Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields\c- and has limited range.";
 WEPTIP_7_4 		= "Fires ionized energy doing 160 impact and 144 area damage in 160 unit radius, halving over two more explosions in both radius and damage.";
-WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 100 damage in 420 units. On impact deals 250-500 and 250 radius damage in 128 units. Altfire zaps all enemies in range for 750 damage, \cfignoring shields.";
+WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 100 damage in 420 units. On impact deals 250-500 and 250 radius damage in 128 units. Altfire zaps all enemies in range for 650 damage, \cfignoring shields.";
 
 WEPTIP_7_6 		= "Gauss Rifle fires a magnetic pulse dealing 200 direct hit damage and 96 radius damage in a 128 unit radius. Alt fire zooms, amplifying the damage for each zoom.";
 WEPTIP_7_7 		= "This baby can rip through concrete with ease. Each shot does multiples of 400. Alt fire charges up the next shot up to 2 times.";

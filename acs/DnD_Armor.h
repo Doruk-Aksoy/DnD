@@ -6,6 +6,7 @@
 #define DND_MIT_MAXEFFECT 90.0
 
 #define BASE_ARMOR_FACTOR 8
+#define BASE_ARMOR_MAGIC_EFFECT 80 // 80% REDUCED effect, so really the effect is 20%
 
 #define ARMOR_TANGLED_DROPLVL 40
 
@@ -221,6 +222,7 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 		}
 #ifdef ISDEBUGBUILD
 		res = random(BODYARMORS_BEGIN, BODYARMORS_END);
+		//res = BODYARMOR_TANGLEDRIBCAGE;
 #endif
 	}
 	else if(tiers == 1) {
@@ -499,7 +501,7 @@ void UpdateEnergyShieldVisual(int val) {
 int GetEShieldMagicAbsorbValue(int pnum) {
 	if(GetPlayerAttributeValue(pnum, INV_EX_ESHIELDFULLABSORB) || HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL))
 		return 100;
-	return HasPlayerPowerset(pnum, PPOWER_ESHIELDABSORB) * SAGE_ABSORB_VALUE + GetPlayerAttributeValue(pnum, INV_ESHIELD_ABSORB);
+	return HasPlayerPowerset(pnum, PPOWER_MAGICNEGATION) * SAGE_ABSORB_VALUE + GetPlayerAttributeValue(pnum, INV_MAGIC_NEGATION);
 }
 
 int GetMitigationChance(int pnum) {

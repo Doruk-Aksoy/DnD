@@ -2979,6 +2979,18 @@ Actor HarkimondeFlameTracer {
 		SpawnLoop:
 			TNT1 A 1 Bright A_SeekerMissile(12, 12)
 			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_JumpIfTracerCloser(80, "NoHoming")
+			TNT1 A 1 Bright A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_JumpIfTracerCloser(80, "NoHoming")
+			TNT1 A 1 Bright A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_Countdown
+			TNT1 A 0 A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 A_JumpIfTracerCloser(80, "NoHoming")
+		Loop
+		NoHoming:
+			TNT1 A 1 Bright
+			TNT1 A 0 A_Countdown
 			TNT1 A 1 Bright A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)
 			TNT1 A 0 A_Countdown
 			TNT1 A 1 Bright A_CustomMissile("Harkimonde_BoomTrail", 0, 0, 0, CMF_TRACKOWNER)

@@ -35,37 +35,42 @@ typedef struct {
 global orb_info_T 3: Player_MostRecent_Orb[MAXPLAYERS];
 
 int OrbDropWeights[MAX_ORBS] = {
-	60, // 6%
-	84, // 2.4%
-	129, // 4.5%
-	147, // 1.8%
-	172, // 2.5%
+	45, // 4.5%
+	65, // 2%
+	95, // 3%
+	113, // 1.8%
+	137, // 2.4%
 
-	202, // 3%
-	247, // 4.5%
-	272, // 2.5%
-	302, // 3%
-	347, // 4.5%
+	162, // 2.5%
+	197, // 3.5%
+	222, // 2.5%
+	252, // 3%
+	282, // 3%
 
-	392, // 4.5%
-	410, // 1.8%
-	455, // 4.5%
+	317, // 3.5%
+	335, // 1.8%
+	370, // 3.5%
+	405, // 3.5%
+	455, // 5%
+
 	490, // 3.5%
-	540, // 5%
+	525, // 3.5%
+	575, // 5%
+	610, // 3.5%
+	645, // 3.5%
 
-	580, // 4%
-	615, // 3.5%
-	675, // 6%
-	720, // 4.5%
-	756, // 3.6%
+	670, // 2.5%
+	705, // 3.5%
+	740, // 3.5%
+	775, // 3.5%
+	800, // 2.5%
 
-	781, // 2.5%
-	826, // 4.5%
-	871, // 4.5%
-	916, // 4.5%
-	940, // 2.4%
-	
-	965, // 2.5%
+	825, // 2.5%
+	860, // 3.5%
+
+	895, // 3.5%
+	930, // 3.5%
+	965, // 3.5%
 	1000, // 3.5%
 
 	// drops only from specific monster
@@ -158,6 +163,10 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_BRUTE:
 		case DND_ORB_JAGGED:
 		case DND_ORB_SAVAGERY:
+		case DND_ORB_WINTER:
+		case DND_ORB_VOLTAIC:
+		case DND_ORB_VILE:
+		case DND_ORB_EMBERS:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// don't let this be used on a unique
 				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
@@ -333,6 +342,15 @@ void RestoreItemQualityFromUsedOrb(int pnum) {
 	SyncItemQuality(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
+void HandleTaggedModGive(int pnum, int extra, int tag, int affluence, bool well_rolled = false) {
+	SaveUsedItemAttribs(pnum, extra);
+				
+	ReforgeWithOneTagGuaranteed(pnum, extra, tag, affluence, well_rolled);
+	
+	SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	SetInventory("OrbResult", extra);
+}
+
 void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	int res = -1;
 	int temp;
@@ -395,13 +413,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			}
 		break;
 		case DND_ORB_PRISMATIC:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ELEMENTAL_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_ELEMENTAL_ID, affluence, true);
 		break;
 		case DND_ORB_REPENT:
 			RevertLastOrbEffect();
@@ -430,22 +442,10 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			Player_MostRecent_Orb[pnum].values[1] = i;
 		break;
 		case DND_ORB_PROSPERITY:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_LIFE_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_LIFE_ID, affluence);
 		break;
 		case DND_ORB_FORTITUDE:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_DEFENSE_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_DEFENSE_ID, affluence);
 		break;
 		case DND_ORB_NULLIFICATION:
 			// save
@@ -484,13 +484,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", extra);
 		break;
 		case DND_ORB_DESTRUCTION:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_CRIT_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_CRIT_ID, affluence);
 		break;
 		case DND_ORB_VIOLENCE:
 			// save
@@ -513,22 +507,10 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", extra);
 		break;
 		case DND_ORB_TREMORS:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_EXPLOSIVE_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_EXPLOSIVE_ID, affluence);
 		break;
 		case DND_ORB_TINKERER:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_UTILITY_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_UTILITY_ID, affluence);
 		break;
 		case DND_ORB_REFINEMENT:
 			// save
@@ -598,22 +580,10 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", extra);
 		break;
 		case DND_ORB_HEXES:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_OCCULT_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_OCCULT_ID, affluence);
 		break;
 		case DND_ORB_GROWTH:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_STAT_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_STAT_ID, affluence);
 		break;
 		case DND_ORB_POTENCY:
 			res = 0;
@@ -666,31 +636,13 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", res);
 		break;
 		case DND_ORB_CRACKLING:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ENERGY_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_ENERGY_ID, affluence);
 		break;
 		case DND_ORB_BRUTE:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_MELEE_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_MELEE_ID, affluence);
 		break;
 		case DND_ORB_JAGGED:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_PHYSICAL_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_PHYSICAL_ID, affluence);
 		break;
 		case DND_ORB_ALCHEMIST:
 			// save
@@ -732,8 +684,20 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_FORTITUDE, affluence);
 			if(s & INV_ATTR_TAG_UTILITY)
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_TINKERER, affluence);
-			if(s & INV_ATTR_TAG_ELEMENTAL)
-				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_PRISMATIC, affluence);
+			if(s & INV_ATTR_TAG_ELEMENTAL) {
+				if(!random(0, 4))
+					ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_PRISMATIC, affluence);
+				else {
+					if(s & INV_ATTR_TAG_ICE)
+						ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_WINTER, affluence);
+					else if(s & INV_ATTR_TAG_LIGHTNING)
+						ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_VOLTAIC, affluence);
+					else if(s & INV_ATTR_TAG_POISON)
+						ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_VILE, affluence);
+					else
+						ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_EMBERS, affluence);
+				}
+			}
 			if(s & INV_ATTR_TAG_EXPLOSIVE)
 				ACS_NamedExecuteAlways("DnD Give Orb Delayed", 0, DND_ORB_TREMORS, affluence);
 			if(s & INV_ATTR_TAG_OCCULT)
@@ -756,14 +720,21 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", 1);
 		break;
 		case DND_ORB_SAVAGERY:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_DAMAGE_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_DAMAGE_ID, affluence);
 		break;
+		case DND_ORB_WINTER:
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_ICE_ID, affluence);
+		break;
+		case DND_ORB_VOLTAIC:
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_LIGHTNING_ID, affluence);
+		break;
+		case DND_ORB_VILE:
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_POISON_ID, affluence);
+		break;
+		case DND_ORB_EMBERS:
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_FIRE_ID, affluence);
+		break;
+
 
 		case DND_ORB_HOLLOW:
 			HandleAddRandomMod(pnum, extra, 1, true);
@@ -1105,6 +1076,10 @@ void RevertLastOrbEffect() {
 		case DND_ORB_BRUTE:
 		case DND_ORB_JAGGED:
 		case DND_ORB_SAVAGERY:
+		case DND_ORB_WINTER:
+		case DND_ORB_VOLTAIC:
+		case DND_ORB_VILE:
+		case DND_ORB_EMBERS:
 		case DND_ORB_ELEVATION:
 		case DND_ORB_HOLLOW:
 			RestoreItemAttribsFromUsedOrb(pnum);
@@ -1300,6 +1275,18 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 		case DND_ORB_SAVAGERY:
 			Log(s:"\cj", l:"DND_ORBUSETEXT30", s:"\cj!");
 		break;
+		case DND_ORB_WINTER:
+			Log(s:"\cj", l:"DND_ORBUSETEXT31", s:"\cj!");
+		break;
+		case DND_ORB_VOLTAIC:
+			Log(s:"\cj", l:"DND_ORBUSETEXT32", s:"\cj!");
+		break;
+		case DND_ORB_VILE:
+			Log(s:"\cj", l:"DND_ORBUSETEXT33", s:"\cj!");
+		break;
+		case DND_ORB_EMBERS:
+			Log(s:"\cj", l:"DND_ORBUSETEXT34", s:"\cj!");
+		break;
 
 		case DND_ORB_HOLLOW:
 			if(val != 0x7FFFFFFF) {
@@ -1379,13 +1366,13 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 }
 
 void SpawnOrbForAll(int repeats, int stack = 1) {
-	for(int k = 0; k < repeats; ++k) {
-		for(int j = 0; j < MAXPLAYERS; ++j) {
-			if(PlayerInGame(j) && !PlayerIsSpectator(j))
+	for(int j = 0; j < MAXPLAYERS; ++j) {
+		if(PlayerInGame(j) && !PlayerIsSpectator(j)) {
 #ifndef ISDEBUGBUILD
-				if(PlayerActivities[j].loot_penalty)
-					continue;
+			if(PlayerActivities[j].loot_penalty)
+				continue;
 #endif
+			for(int k = 0; k < repeats; ++k)
 				SpawnOrb(j, false, false, stack);
 		}
 	}

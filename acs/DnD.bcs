@@ -207,10 +207,17 @@ Script "DnD Clientside Open" OPEN CLIENTSIDE {
 }
 
 Script "DnD On Map Load" OPEN {
+	// when it increments in createitem func, it'll be forced to be 0
+	PointerIndexTable[PTR_FREEITEMWORLD] = MAX_INVENTORIES_ON_FIELD;
+
+	//Log(d:DND_TEMP_PROJTID);
+	//Log(d:DRAUGR_TEMP_FX);
+	
 	// empty translation
 	CreateTranslation(DND_NO_TRANSLATION);
 	CreateTranslation(DND_CRIT_TRANSLATION, 160:160=175:175);
 	CreateTranslation(DND_RESIST_TRANSLATION, 160:160=82:82);
+	CreateTranslation(DND_EXECUTE_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[1.62,1.12,0.43]);
 	
 	// init vars
 	ResetSharedVariables();
@@ -732,6 +739,7 @@ Script "DND On Revive" (void) {
 	SetInventory("DnD_AilmentToken", 0);
 	TakeInventory("Mo_Died", 1);
 	TakeInventory("MonsterKilledByPlayer", 1);
+	TakeInventory("Doomguy_CanExecute", 1);
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
 	int this = ActivatorTID();
 	int id = this - DND_MONSTERTID_BEGIN;
@@ -834,8 +842,7 @@ Script "DND On Kill" KILL {
 	
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
-	TakeInventory("Doomguy_CanExecute", 1);
-
+	
 	int target = GetActorProperty(0, APROP_TARGETTID), temp;
 
 	if(HasTrait(m_id, DND_ENSHROUDED))
@@ -849,7 +856,9 @@ Script "DND On Kill" KILL {
 			TakeActorInventory(temp, "PetCounter", 1);
 			//printbold(s:"take pet total: ", d:CheckActorInventory(temp, "PetCounter"));
 		}
-			
+		else
+			HandleDoomguyExecute(target, this);
+
 		Terminate;
 	}
 	
@@ -876,6 +885,8 @@ Script "DND On Kill" KILL {
 		
 	// if theres cooldown item, reduce by a second here
 	TakeActorInventory(target, "Marine_Perk50_Cooldown", TICRATE);
+
+	HandleDoomguyExecute(target, this);
 
 	// remove freeze and chill timers
 	SetInventory("DnD_ChillStacks", 0);
@@ -1595,7 +1606,7 @@ script 922 (int actor_num, int radius, int totalactors) {
 	 SetActivatorToTarget(0);
 	 int owner = ActivatorTID();
 	 // the below arrangement ensures each and every actor gets a unique TID relative to the owner's tid
-	 int newtid =  REFLECTFXTID + ((owner % 100) + 1) * totalactors + actor_num;
+	 int newtid =  REFLECTFXTID + ((owner % MAXPLAYERS) + 1) * totalactors + actor_num;
 	 Thing_ChangeTID(REFLECTFXTID, newtid);
 	 
 	 int cx = radius * cos(angle) + GetActorX(owner);
@@ -2034,7 +2045,7 @@ Script 973 (int mode) { // Avatar tid / targeter
 // Form the blade vortex
 Script 974 (int radius) {
 	int tid = ActivatorTID(); // Owner TID
-	int newtid = tid + VORTEXTIDSTART + 16 * ((tid + 1) % 100);
+	int newtid = tid + VORTEXTIDSTART + 16 * ((tid + 1) % MAXPLAYERS);
 	
 	for(int m = 0; m < 16; m++)
 		Thing_Remove(newtid + m);
@@ -2061,7 +2072,7 @@ Script 974 (int radius) {
 Script 975 (int tid, int pang, int radius) {
 	// Create the phase
 	int angadd = 0;
-	int bladetid = tid + VORTEXTIDSTART + 16 * ((tid + 1) % 100);
+	int bladetid = tid + VORTEXTIDSTART + 16 * ((tid + 1) % MAXPLAYERS);
 	str tocheck = "VortexTimer";
 	if(CheckInventory("Ability_Arcanery"))
 		tocheck = "VortexTimer2";
@@ -2785,6 +2796,9 @@ Script "DnD On Respawn" RESPAWN {
 	while(PlayerIsInvulnerable())
 		Delay(const:5);
 
+	// in case it wasn't complete due to a bug
+	SetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
+
 	SetActorProperty(0, APROP_HEALTH, GetSpawnHealth());
 		
 	ResetMugstate(true);
@@ -2847,9 +2861,6 @@ Script "DnD On Unloading" UNLOADING {
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
 	BreakAllTrades();
-
-	// when it increments in createitem func, it'll be forced to be 0
-	PointerIndexTable[PTR_FREEITEMWORLD] = MAX_INVENTORIES_ON_FIELD;
 	
 	DungeonBossData[BOSSDATA_TID] = 0;
 	ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
@@ -2859,6 +2870,9 @@ Script "DnD On Unloading" UNLOADING {
 Script "DnD Player Setup" ENTER {
 	int pnum = PlayerNumber();
 	Thing_ChangeTID(0, P_TIDSTART + pnum);
+
+	if(StatListOpened[pnum])
+		ClearMenuLeftovers(pnum);
 
 	// if its sp and we dont have DnD_Character non-zero, bring up class menu and freeze us
 	if(GameType() == GAME_SINGLE_PLAYER && !CheckInventory("DnD_Character")) {
@@ -3762,6 +3776,8 @@ Script "DND Elite Special FX" (int tid, int which) CLIENTSIDE {
 
 Script "DnD Align Elite FX" (void) CLIENTSIDE {
 	int tid = GetActorProperty(0, APROP_TARGETTID);
+	if(isPlayer(tid))
+		Terminate;
 	if(tid) {
 		SetActorProperty(0, APROP_MASS, GetActorProperty(tid, APROP_HEIGHT) >> 17);
 		int s = (GetActorProperty(tid, APROP_RADIUS) >> 16);
@@ -4426,6 +4442,9 @@ Script "DnD Chestkey Message" (int id) CLIENTSIDE {
 }
 
 Script "DnD Try Open Chestkey" (int keytype) {
+#ifdef ISDEBUGBUILD
+	SetResultValue(1);
+#else
 	int res = -1;
 	if ((GetGameModeState() == GAMESTATE_INPROGRESS) && (!CheckActorInventory(GetActorProperty(0, APROP_TARGETTID), "CanLoad"))) {
 		res = CheckPlayerInventoryList(GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
@@ -4435,6 +4454,7 @@ Script "DnD Try Open Chestkey" (int keytype) {
 		}
 	}
 	SetResultValue(res != -1);
+#endif
 }
 
 Script "DnD Explosion Radius Retrieve" (int flags) {
@@ -5635,16 +5655,14 @@ Script 70 (void) NET {
 	CalculateExpRatio();
 }*/
 
-Script "Print Loc" (void) {
+/*Script "Print Loc" (void) {
 	printbold(f:GetActorX(0), s: " ", f:GetActorY(0), s: " ", f:GetActorZ(0));
 	SetResultValue(0);
 }
 
-#ifdef ISDEBUGBUILD
 Script "test" (void) {
 	printbold(s:"yes");
-}
-#endif
+}*/
 
 Script 68 (int x) NET {
 	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode
@@ -5679,7 +5697,9 @@ Script 68 (int x) NET {
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_CYBERNETIC, INV_AMMOGAIN_CHANCE);
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_AFFLUENCE, true, false, 300);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_WINTER, true, false, 300);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_EMBERS, true, false, 300);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_VILE, true, false, 300);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_FORTITUDE, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			//IncPlayerModValue(0, INV_ESHIELD_ABSORB, 25);

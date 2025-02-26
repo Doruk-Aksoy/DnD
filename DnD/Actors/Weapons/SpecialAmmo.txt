@@ -184,7 +184,7 @@ Actor FlechetteSpark_Crit : FlechetteSpark {
 }
 
 Actor FlechetteDamager : DnD_BaseProjectile {
-	Radius 4
+	Radius 2
 	Height 4
 	Speed 8
 	
@@ -195,7 +195,7 @@ Actor FlechetteDamager : DnD_BaseProjectile {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 132096
+	Stamina 131072
 	
 	+PAINLESS
 	+FOILINVUL
@@ -222,7 +222,7 @@ ACTOR FlechetteDamagerTiny : FlechetteDamager {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 132096
+	Stamina 131072
 
    +NODAMAGETHRUST
    +PAINLESS

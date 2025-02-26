@@ -1,0 +1,3 @@
+enum {
+	DND_ANIM_DOOMGUYPUNCH
+};

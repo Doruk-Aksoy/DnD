@@ -104,8 +104,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_DMGINCREASE_TAKEN;
 	UniqueItemList[id].attrib_id_list[2] = INV_EX_LIMITEDSMALLCHARMS;
 	UniqueItemList[id].rolls[0].attrib_low = 1250; // will be divided by 100 after mult (1.25 to 2)
-	UniqueItemList[id].rolls[0].attrib_high = 1800;
-	UniqueItemList[id].rolls[1].attrib_low = 25;
+	UniqueItemList[id].rolls[0].attrib_high = 2250;
+	UniqueItemList[id].rolls[1].attrib_low = 10;
 	UniqueItemList[id].rolls[1].attrib_high = 40;
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 3;

@@ -1,5 +1,6 @@
 Actor Doomguy_Perk5 : DnD_Boolean { }
 Actor Doomguy_CanExecute : DnD_Boolean { }
+Actor Doomguy_ValidExecute : DnD_Boolean { }
 
 Actor Doomguy_Perk25 : DnD_Boolean { }
 
@@ -7,6 +8,12 @@ Actor Doomguy_Perk25_Damage : PowerDamage {
 	damagefactor "normal", 1.0
 	Powerup.Color "DF 11 11", 0.2
 	powerup.duration -10
+}
+
+Actor Doomguy_Perk25_Damage_Execute : PowerDamage {
+	damagefactor "normal", 1.0
+	Powerup.Color "DF 11 11", 0.2
+	powerup.duration -20
 }
 
 Actor Doomguy_Perk50 : DnD_Boolean { }

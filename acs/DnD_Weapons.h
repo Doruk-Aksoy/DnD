@@ -853,8 +853,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					sp_y = 0.5;
 					hitscan_id = DND_HITSCAN_SLUGSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
-						TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SLUG, Weapons_Data[wepid].ammo_use1, owner);
+						TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SLUG][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
 					}
 					PlaySound(owner, "Shells/Slug", CHAN_5);
 					ammo_handler = "SlugShellHandler";
@@ -1828,7 +1828,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = false;
 			
 			if(!(isAltFire & DND_ATK_SECONDARY)) {
-				if(CheckInventory("BeamCounter") == 3) {
+				if(CheckInventory("BeamCounter") == 2) {
 					SetInventory("BeamCounter", 0);
 					flags ^= DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER;
 				}

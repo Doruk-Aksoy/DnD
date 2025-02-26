@@ -447,11 +447,11 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DUSKBLADE].attunement[STAT_INT] = 0.02;
 	
 	Weapons_Data[DND_WEAPON_SICKLE].name = "Sickle";
-	Weapons_Data[DND_WEAPON_SICKLE].ammo_name1 = "Souls";
-	Weapons_Data[DND_WEAPON_SICKLE].ammo_name2 = "Souls";
+	Weapons_Data[DND_WEAPON_SICKLE].ammo_name1 = "SickleCooldown";
+	Weapons_Data[DND_WEAPON_SICKLE].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_SICKLE].icon = "WEPICO8";
 	Weapons_Data[DND_WEAPON_SICKLE].ammo_use1 = 0;
-	Weapons_Data[DND_WEAPON_SICKLE].ammo_use2 = 10;
+	Weapons_Data[DND_WEAPON_SICKLE].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SICKLE].properties = WPROP_IRREDUCIBLE | WPROP_MELEE | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_SICKLE].attunement[STAT_STR] = 0.015;
 	Weapons_Data[DND_WEAPON_SICKLE].attunement[STAT_DEX] = 0.01;
@@ -1222,8 +1222,8 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_name1 = "Souls";
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].icon = "WEPICO72";
-	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use1 = 1;
-	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use2 = 9;
+	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use1 = 4;
+	Weapons_Data[DND_WEAPON_DEATHSTAFF].ammo_use2 = 10;
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].properties = WPROP_IGNORESHIELD | WPROP_SELFDMG | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].attunement[STAT_STR] = 0.015;
 	Weapons_Data[DND_WEAPON_DEATHSTAFF].attunement[STAT_INT] = 0.035;
@@ -1244,7 +1244,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SUNSTAFF].icon = "WEPICO74";
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_SUNSTAFF].ammo_use2 = 5;
-	Weapons_Data[DND_WEAPON_SUNSTAFF].properties = WPROP_IGNORESHIELD | WPROP_RIPPER | WPROP_MAGIC;
+	Weapons_Data[DND_WEAPON_SUNSTAFF].properties = WPROP_RIPPER | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_SUNSTAFF].attunement[STAT_DEX] = 0.01;
 	Weapons_Data[DND_WEAPON_SUNSTAFF].attunement[STAT_INT] = 0.04;
 	

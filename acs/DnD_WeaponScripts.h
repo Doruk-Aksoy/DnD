@@ -43,6 +43,10 @@ Script "DnD Can Fire Weapon" (void) {
 			str ammo2 = Weapons_Data[wepid].ammo_name2;
 
 			switch(wepid) {
+				case DND_WEAPON_SICKLE:
+					canAltFire = !CheckInventory("SickleCooldown");
+				break;
+
 				case DND_WEAPON_AKIMBOPISTOL:
 					if(CheckInventory("AkimboFireMode") == 3)
 						ammo2 = "AkimboClipRight";
@@ -266,7 +270,6 @@ Script "DnD Can Fire Weapon" (void) {
 					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
 
-				case DND_WEAPON_SICKLE:
 				case DND_WEAPON_EXCALIBAT:
 				case DND_WEAPON_DUSKBLADE:
 				case DND_WEAPON_INFERNOSWORD:
@@ -365,7 +368,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		case DND_WEAPON_KATANA:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 12, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_2, 160, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 125, 0, wepid);
 		break;
 		case DND_WEAPON_EXCALIBAT:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 4 | (6 << 16), wepid);
@@ -537,9 +540,9 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 6, 0, wepid);
 		break;
 		case DND_WEAPON_INCINERATOR:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 16, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 5, 16 | (18 << 16), wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_2, 80, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 5 | (7 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 12 | (16 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 128, 0, wepid);
 		break;
 		
 		case DND_WEAPON_DESOLATOR:
@@ -689,7 +692,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 50, 5 | (10 << 16), wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 100, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 250, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_3, 750, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 650, 0, wepid);
 		break;
 		case DND_WEAPON_GAUSSRIFLE:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 200, 0, wepid);
@@ -720,7 +723,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_3, 64, 0, wepid);
 		break;
 		case DND_WEAPON_SUNSTAFF:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 64, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 50, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 48, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 36, 0, wepid);
 		break;
@@ -952,6 +955,19 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 	}
 }
 
+Script "DnD Sickle Cooldown" (void) {
+	if(!CheckInventory("SickleCooldown")) {
+		SetInventory("SickleCooldown", 100);
+
+		while(isAlive() && CheckInventory("SickleCooldown")) {
+			Delay(const:7);
+			TakeInventory("SickleCooldown", 2);
+		}
+
+		SetInventory("SickleCooldown", 0);
+	}
+}
+
 Script "DnD Sickle Check Res" (int base) {
 	int res = 0;
 	int hit = GetActorProperty(0, APROP_TRACERTID);
@@ -960,6 +976,7 @@ Script "DnD Sickle Check Res" (int base) {
 		SetActivatorToTarget(0);
 		base = (base << 16) / 100;
 		res = RunLuckBasedChance(PlayerNumber(), base, DND_LUCK_OUTCOME_GAIN);
+		TakeInventory("SickleCooldown", 20);
 	}
 
 	SetResultValue(res);
@@ -1390,7 +1407,7 @@ Script "DND ThunderStaff FX Spawn" (int target) CLIENTSIDE {
 
 Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 	int tid = ActivatorTID(), i; // Owner TID
-	int newtid = tid + DND_THUNDER_RING_TIDSTART + 32 * ((tid + 1) % 100);
+	int newtid = tid + DND_THUNDER_RING_TIDSTART + 32 * ((tid + 1) % MAXPLAYERS);
 	
 	for(i = 0; i < 32; ++i)
 		Thing_Remove(newtid + i);
@@ -1477,6 +1494,7 @@ Script "DND Thunder Range" (void) {
 
 Script "DnD DeathRay Marker TID" (void) {
 	Thing_ChangeTID(0, GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART + DEATHRAY_MARKER_TID);
+	SetResultValue(0);
 }
 
 Script "DnD DeathRay Laser Aim" (int adj) {
@@ -1495,7 +1513,7 @@ Script "DnD DeathRay Laser Aim" (int adj) {
 	
 	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
 	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
-	SetActorVelocity(TEMPORARY_ATTACK_TID, FixedMul(cos(angle), cos(pitch)) * 512, FixedMul(sin(angle), cos(pitch)) * 512, sin(-pitch) * 512, 0, 0);
+	SetActorVelocity(TEMPORARY_ATTACK_TID, FixedMul(cos(angle), cos(pitch)) * 640, FixedMul(sin(angle), cos(pitch)) * 640, sin(-pitch) * 640, 0, 0);
 	
 	SetActorProperty(TEMPORARY_ATTACK_TID, APROP_TARGETTID, p_actor);
 	

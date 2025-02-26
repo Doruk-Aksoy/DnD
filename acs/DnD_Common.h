@@ -4,7 +4,7 @@
 //#define ISDEBUGBUILD
 #define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
-#define HELPER_MESSAGES_ON
+//#define HELPER_MESSAGES_ON
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0
@@ -29,7 +29,7 @@
 
 #define DND_BASE_HEALTH 100
 
-#define DND_PLAYER_WEAKEN_LEVELS 30
+#define DND_PLAYER_WEAKEN_LEVELS 40
 #define DND_MONSTER_RESIST_LEVELS 40
 #define DND_PLAYER_RESIST_REDUCE -25.0
 
@@ -69,7 +69,7 @@ enum {
 
 #define DND_VIEWCHECK_DENSITY 8
 
-#define DND_MONSTERBONUS_PERLVL 15 // 15% increase per level on gains granted by monsters
+#define DND_MONSTERBONUS_PERLVL 20 // 20% increase per level on gains granted by monsters
 
 enum {
 	DND_PLAYER_DOOMGUY,
@@ -112,6 +112,7 @@ enum {
 #define DND_MAX_MONSTERS 12800
 
 #define DND_MAX_TEMP_PROJ 200
+#define DND_MAX_TEMP_PROJ_SMALL 32
 #define DND_EMERALD_TIDADD 100
 #define DND_TEMPORARY_TIDADD 200
 #define DND_AVATAR_CUBESKIP 6000
@@ -167,9 +168,16 @@ enum {
 	// temporary proj tid for use with scripts firing custom proj
 	// also skips emerald death tid add
 	DND_TEMP_PROJTID = P_TIDSTART + MAXPLAYERS + DND_TEMPORARY_TIDADD,
+
+	// 16 * (tid + 1) % 100
+	VORTEXTIDSTART = DND_TEMP_PROJTID + 4096,
+	// reflection accessory, 3 spawns with player tid so 3 * maxplayers
+	REFLECTFXTID = VORTEXTIDSTART + 192,
 	
 	// draugr teleport fx
-	DRAUGR_TEMP_FX = DND_TEMP_PROJTID + DND_MAX_TEMP_PROJ,
+	DRAUGR_TEMP_FX = REFLECTFXTID + DND_MAX_TEMP_PROJ,
+
+	ZRAVOG_SOUND_TID,
 	
 	// 64 player temp tid range
 	TEMPORARY_PET_TID,
@@ -235,7 +243,7 @@ enum {
 	DND_TEMP_PLAYERPROJTID,
 	
 	// we allocate each player proj tid to their own pnum
-	DND_THUNDER_RING_TIDSTART = DND_TEMP_PLAYERPROJTID + MAXPLAYERS,
+	DND_THUNDER_RING_TIDSTART = DND_TEMP_PLAYERPROJTID + 32 * MAXPLAYERS,
 	
 	// allocate enough room for max 4 hammers per player... idk why but why not
 	DND_TALISMAN_MARK = DND_THUNDER_RING_TIDSTART + THUNDERSTAFF_RING_SKIP,
@@ -338,7 +346,7 @@ enum {
 	DND_ACTORFLAG_FOILINVUL				=			0b1,
 	DND_ACTORFLAG_FORCEPAIN				=			0b10,
 	DND_ACTORFLAG_PAINLESS				=			0b100,
-	//DND_ACTORFLAG_NOPUSH				=			0b1000,
+	DND_ACTORFLAG_DROPSOUL				=			0b1000,
 	DND_ACTORFLAG_CONFIRMEDCRIT			=			0b10000,
 	DND_ACTORFLAG_COUNTSASMELEE			=			0b100000,
 	DND_ACTORFLAG_THRUGHOST				=			0b1000000,
@@ -350,7 +358,6 @@ int ScanActorFlags() {
 	return 	CheckFlag(0, "FOILINVUL") * DND_ACTORFLAG_FOILINVUL				|
 			CheckFlag(0, "FORCEPAIN") * DND_ACTORFLAG_FORCEPAIN				|
 			CheckFlag(0, "PAINLESS") * DND_ACTORFLAG_PAINLESS				|
-			//CheckFlag(0, "NODAMAGETHRUST") * DND_ACTORFLAG_NOPUSH			|
 			CheckFlag(0, "THRUGHOST") * DND_ACTORFLAG_THRUGHOST				|
 			CheckFlag(0, "FORCERADIUSDMG") * DND_ACTORFLAG_FORCERADIUSDMG;
 }

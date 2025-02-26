@@ -1,5 +1,6 @@
 // this contains the base puffstate that is common to most of the puffs when they hit a wall
 Actor NewBulletPuff : BulletPuff {
+	Stamina 4096
 	+CLIENTSIDEONLY
 	States {
 		Spawn:
@@ -15,6 +16,7 @@ Actor NewBulletPuff : BulletPuff {
 
 Actor NoPuff {
 	Species "Player"
+	Stamina 4096
 	+CLIENTSIDEONLY
 	+NOINTERACTION
 	+THRUSPECIES

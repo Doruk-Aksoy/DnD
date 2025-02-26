@@ -294,19 +294,12 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
 
 	str toShow = StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT));
-	HudMessage(s:"\cj", s:toShow; HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, -1, 128.1, 184.1, 0.0);
-	int len = GetRawLength(toShow) & 0xFFFF;
-	
+
 	// perks
-	toShow = StrParam(s:"+ L5: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1));
-	HudMessage(s:toShow; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK5ID, CR_GREEN, 128.1, 192.1 + 8.0 * (len / 35), 0.0);
-	len += GetRawLength(toShow) & 0xFFFF;
-
-	toShow = StrParam(s:"+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2));
-	HudMessage(s:toShow; HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK25ID, CR_ORANGE, 128.1, 208.1 + 8.0 * (len / 36), 0.0);
-	len += GetRawLength(toShow) & 0xFFFF;
-
-	HudMessage(s:"+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3); HUDMSG_PLAIN, DND_CLASSMENU_CLASSPERK50ID, CR_RED, 128.1, 224.1 + 8.0 * (len / 36), 0.0);
+	toShow = StrParam(s:toShow, s:"\n\n", s:"\cd+ L5: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1));
+	toShow = StrParam(s:toShow, s:"\n\n", s:"\ci+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2));
+	toShow = StrParam(s:toShow, s:"\n\n", s:"\cg+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3));
+	HudMessage(s:toshow; HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, CR_WHITE, 128.1, 184.1, 0.0);
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
 	
@@ -414,18 +407,18 @@ Script "DnD Character Select Animated" (void) CLIENTSIDE {
 		int boxid = CheckInventory("ActivePopupBox");
 		if(boxid == MBOX_1) {
 			SetFont("NSMOLFNT");
-			HudMessage(s:"\c[M3]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
+			HudMessage(s:"\c[M3]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 309.0, 0);
 			SetFont("TRADBTNH");
 		}
 		else if(!CheckInventory("DnD_SelectedCharmBox") && !CheckInventory("DnD_SelectedInventoryBox")) {
 			// no click allowed unless player selected something prior
 			SetFont("NSMOLFNT");
-			HudMessage(s:"\cm", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
+			HudMessage(s:"\cm", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 309.0, 0);
 			SetFont("TRADBTNC");
 		}
 		else {
 			SetFont("NSMOLFNT");
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 308.0, 0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_CONFIRM"; HUDMSG_PLAIN, RPGMENUCHARSELID - 7, CR_WHITE, 300.4, 309.0, 0);
 			SetFont("TRADBTN");
 		}
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCHARSELID - 6, CR_WHITE, 300.4, 300.1, 0);
@@ -526,7 +519,7 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 }
 
 Script "DnD Retry Sending UntiL ACK - CharLoad" (int payload1, int payload2) CLIENTSIDE {
-	if(!payload1 || CheckInventory("DND_ACKLoop"))
+	if(!payload1 || CheckInventory("DND_ACKLoop") || ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	while(!CheckInventory("DnD_ACK")) {
 		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);

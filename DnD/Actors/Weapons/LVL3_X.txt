@@ -1,5 +1,5 @@
 // Sprites by Eriance
-ACTOR " Super Shotgun " : Weapon {
+ACTOR " Super Shotgun " : DnDWeapon {
 	Weapon.SelectionOrder 650
 	Weapon.AmmoUse 0
 	Weapon.AmmoGive 0
@@ -22,7 +22,7 @@ ACTOR " Super Shotgun " : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SUPERSHOTGUN)
 		ReadyLoop:
-			SHT1 A 1 A_WeaponReady
+			SHT1 A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
@@ -110,7 +110,7 @@ Actor SSGPuff : DnD_BasePuff {
 	}
 }
 
-ACTOR "Upgraded Super Shotgun" : Weapon {
+ACTOR "Upgraded Super Shotgun" : DnDWeapon {
 	Weapon.SelectionOrder 650
 	Weapon.AmmoUse 0
 	Weapon.AmmoGive 0
@@ -132,7 +132,7 @@ ACTOR "Upgraded Super Shotgun" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_HEAVYSUPERSHOTGUN)
 		ReadyLoop:
-			SSGG A 1 A_WeaponReady
+			SSGG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
@@ -325,7 +325,7 @@ Actor HSSGPuff : DnD_BasePuff {
 	}
 }
 
-ACTOR "Upgraded Super Shotgun2" : Weapon {
+ACTOR "Upgraded Super Shotgun2" : DnDWeapon {
 	Weapon.SelectionOrder 400
 	Weapon.AmmoUse1 0
 	Weapon.AmmoUse2 0
@@ -349,7 +349,7 @@ ACTOR "Upgraded Super Shotgun2" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ERASUS)
 		ReadyLoop:
-			ERAG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			ERAG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
@@ -494,7 +494,7 @@ Actor ErasusPuff : DnD_BasePuff {
 	}
 }
 
-Actor "Upgraded Super Shotgun3" : Weapon {
+Actor "Upgraded Super Shotgun3" : DnDWeapon {
 	Weapon.SlotNumber 3
 	weapon.selectionorder 1600
 	weapon.kickback 100
@@ -521,7 +521,7 @@ Actor "Upgraded Super Shotgun3" : Weapon {
 			TNT1 A 0 A_TakeInventory("SynthFireFix", 1)
 			HLMW P 1 A_GunFlash("Flash", GFF_NOEXTCHANGE)
 		LIdle:
-			HLMW P 1 A_WeaponReady
+			HLMW P 1 A_WeaponReady(WRF_ALLOWZOOM)
 			TNT1 A 0 A_JumpIfInventory("HellsMawSynthFireLeft", 1, "LFire")
 			TNT1 A 0 A_JumpIfInventory("HellsMawFiringRight", 1, "LightLeft")
 			TNT1 A 0 A_JumpIfInventory("SynthFireFix", 1, "ReadyLoop")
@@ -822,7 +822,7 @@ Actor HellsMawMiniRocketTrail : HellsMawRocketTrail {
 }
 
 // An exploding shotgun, idk where the graphics come from
-Actor "Silver Gun" : Weapon {
+Actor "Silver Gun" : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.SlotNumber 3
@@ -850,7 +850,7 @@ Actor "Silver Gun" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SILVERGUN)
 		ReadyLoop:
-			EXSG A 1 A_WeaponReady
+			EXSG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		loop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
@@ -989,7 +989,7 @@ Actor ExplodingPuff : DnD_ExplosiveBase {
 	}
 }
 
-ACTOR Slayer : Weapon {	
+ACTOR Slayer : DnDWeapon {	
 	Inventory.PickupMessage "You got the Slayer!"
 	Obituary "%o was torn apart by %k's Slayer."
 	Weapon.AmmoType "SlayerAmmo"
@@ -1012,7 +1012,7 @@ ACTOR Slayer : Weapon {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Input Handler", 0, DND_WEAPON_SLAYER)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SLAYER)
 		ReadyLoop:
-			IREG BCDEFG 3 A_WeaponReady
+			IREG BCDEFG 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
@@ -1237,7 +1237,7 @@ Actor SlayerTimer : PowerProtection {
 	powerup.duration 3
 }
 
-Actor TheAxe : Weapon {
+Actor TheAxe : DnDWeapon {
 	Inventory.PickupSound "weapons/pickup"
 	Inventory.PickupMessage "You got the Axe!"
 	Obituary "%o couldn't dodge %k's missiles."
@@ -1265,10 +1265,10 @@ Actor TheAxe : Weapon {
 			TNT1 A 0 A_JumpIfInventory("ArtemisCheck", 1, "ReadyAmmo")
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ReadyAmmo")
 		ReadyNoAmmo:
-			FAXE A 1 A_WeaponReady(WRF_NOSECONDARY)
+			FAXE A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_NOSECONDARY)
 		Goto ReadyLoop
 		ReadyAmmo:
-			FAXE FGH 3 Bright A_WeaponReady
+			FAXE FGH 3 Bright A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)

@@ -125,58 +125,58 @@ global int 54: Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS];
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 10 | (16 << 16);
+		return 8 | (16 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 15 | (21 << 16);
+		return 12 | (21 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 24 | (30 << 16);
+		return 20 | (30 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 32 | (33 << 16);
+		return 26 | (33 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 35 | (35 << 16);
+		return 28 | (35 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 20 | (25 << 16);
+		return 16 | (25 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 75 | (50 << 16);
+		return 60 | (50 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 90 | (60 << 16);
+		return 72 | (60 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 40 | (24 << 16);
+		return 32 | (24 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 55 | (40 << 16);
+		return 44 | (40 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 80 | (52 << 16);
+		return 64 | (52 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 135 | (75 << 16);
+		return 108 | (75 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 130 | (75 << 16);
+		return 104 | (75 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 120 | (75 << 16);
+		return 96 | (75 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 150 | (96 << 16);
+		return 120 | (96 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 1000 | (125 << 16);
+		return 800 | (125 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1350 | (135 << 16);
+		return 1080 | (135 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
-		return 20 | (18 << 16);
+		return 16 | (18 << 16);
 	}
 	
 	return 1;
@@ -820,7 +820,7 @@ enum {
 	DND_MWEIGHT_ENDMARKER = -1
 };
 
-#define DND_ELITE_GAINBONUS 25 // 25%
+#define DND_ELITE_GAINBONUS 30 // 30%
 #define DND_CREDITGAIN_FACTOR 3 // divides the regular gain by 3
 
 int GetMonsterLevelDroprateBonus(int lvl) {
@@ -834,7 +834,7 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 		return 4 * lvl;
 	return 2 * lvl + 50;*/
 	// new formula to ensure a sharp curve earlier levels then settle down
-	return 900 / (100 / lvl + 3);
+	return FixedDiv(600.0, (80.0 / lvl + 3.0)) >> 16;
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {
@@ -877,7 +877,7 @@ void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
 	int base = 0;
 	int drop_base = 0;
 	
-	// per lvl we get base 15%, then 25% per lvl if monster is elite
+	// per lvl we get base 20%, and 30% per lvl if monster is elite
 	int pct = 	100 + (MonsterProperties[m_id].level - 1) * (DND_MONSTERBONUS_PERLVL + DND_ELITE_GAINBONUS * MonsterProperties[m_id].isElite);
 	//printbold(s:"pct: ", d:pct);
 	
@@ -941,7 +941,7 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 	if(MonsterProperties[m_id].trait_list[DND_FORTIFIED]) {
 		// full fortify exceptions
 		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
-			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * DND_FORTIFY_AMOUNT / 10);
+			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * DND_FORTIFY_AMOUNT / 100);
 		else
 			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp);
 	}
@@ -2380,6 +2380,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_PIERCE] = true;
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_AGGRESSIVE] = true;
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_MAGIC_RESIST] = true;
 }
 
 void SetupMonsterWeights() {

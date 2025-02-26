@@ -1,4 +1,4 @@
-Actor ResPistol1 : Weapon {
+Actor ResPistol1 : DnDWeapon {
 	Weapon.SelectionOrder 1000
 	Weapon.SlotNumber 2
     Inventory.PickupSound "weapons/pickup"
@@ -28,10 +28,10 @@ Actor ResPistol1 : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ASSAULTRIFLE)
 		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("WeaponZoom", 1, "ReadyZoom")
-			4AFG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			4AFG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		ReadyZoom:
-			4A2G A 1 A_WeaponReady(WRF_ALLOWRELOAD | WRF_ALLOWZOOM)
+			4A2G A 1 A_WeaponReady(WRF_ALLOWRELOAD)
 		Goto ReadyLoop
 		Deselect:
 		    TNT1 A 0 A_TakeInventory("WeaponZoom", 1)
@@ -183,7 +183,7 @@ Actor AssaultRiflePuff : DnD_BasePuff {
 	}
 }
 
-Actor ResPistol2 : Weapon {
+Actor ResPistol2 : DnDWeapon {
 	Weapon.SelectionOrder 1000
 	Weapon.SlotNumber 2
     Inventory.PickupSound "weapons/pickup"
@@ -233,7 +233,7 @@ Actor ResPistol2 : Weapon {
 			C_H_ OYXW 4 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
 		Goto LoopReady
 		LoopReady:
-			C_H_ V 1 A_WeaponReady
+			C_H_ V 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "ContinueFire")

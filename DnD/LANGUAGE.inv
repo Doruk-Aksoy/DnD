@@ -32,6 +32,10 @@ DND_ORBN24			=	"OrbofJagged";
 DND_ORBN25			=	"OrbofAlchemist";
 DND_ORBN26			=	"OrbofEvoker";
 DND_ORBN27			=	"OrbofSavagery";
+DND_ORBN28			=	"OrbofWinter";
+DND_ORBN29			=	"OrbofVoltaic";
+DND_ORBN30			=	"OrbofVile";
+DND_ORBN31			=	"OrbofEmbers";
 
 // monster specific orb drops
 DND_ORBNM1			=	"OrbofHollow";
@@ -121,6 +125,10 @@ DND_OIMG24			=	"ORB5E0";
 DND_OIMG25			=	"ORB5G0";
 DND_OIMG26			=	"ORB5L0";
 DND_OIMG27			=	"ORB5N0";
+DND_OIMG28			=	"ORB5P0";
+DND_OIMG29			=	"ORB6E0";
+DND_OIMG30			=	"ORB6F0";
+DND_OIMG31			=	"ORB6C0";
 
 DND_MOIMG1			=	"ORB3Q0";
 DND_MOIMG2			=	"ORB3Z0";
@@ -418,7 +426,7 @@ IATTR_T109			= "ice resist penetration";
 IATTR_T110			= "lightning resist penetration";
 IATTR_T111			= "poison resist penetration";
 
-IATTR_T112			= "energy shield magic absorb";
+IATTR_T112			= "magic negation";
 
 IATTR_T113			= "tech weapon attack damage";
 IATTR_T114			= "precision weapon attack damage";
@@ -455,8 +463,9 @@ IATTR_TI3			= "armor and energy shield";
 IATTR_TI4			= "mitigation chance";
 IATTR_TI5			= "armor and";
 IATTR_TI6			= "energy shield and";
-IATTR_TI7			= "energy shield magic absorb";
+IATTR_TI7			= "magic negation";
 IATTR_TI8			= "chance on hit for energy shield to explode for";		IATTR_TI8S = "of it in a 256 unit radius";
+IATTR_TI9			= "armor and energy shield,";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";

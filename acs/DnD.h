@@ -154,12 +154,6 @@ enum {
 #define SURVIVETEXTID2 7010
 #define SURVIVEBAKID 7011
 
-#define VORTEXTIDSTART 10000
-#define RAILINITTID 2000
-#define RAILTIDADD 500
-
-#define REFLECTFXTID 9000
-
 #define INTERVENTION_DURATION TICRATE * 8
 
 #define DND_EMERALD_TRANSLATIONID 7000
@@ -194,8 +188,6 @@ enum {
 
 #define AGAMOTTO_MOVE_WINDOW 1 << 16
 
-#define TEMP_TID 999999
-
 #define DND_MAX_DIGITLEN 7
 
 #define DND_BOSS_SOULGIVE 4
@@ -206,6 +198,7 @@ enum {
 #define DND_NO_TRANSLATION 70
 #define DND_CRIT_TRANSLATION 71
 #define DND_RESIST_TRANSLATION 72
+#define DND_EXECUTE_TRANSLATION 75
 
 #define DND_SOULAMMO_DROPRATE 0.045 // 4.5% chance
 #define DND_SOULAMMO_STEALERUPGRADE 0.025 // 2.5% more chance
@@ -642,12 +635,26 @@ void HandleChestDrops(int ctype) {
 		SpawnItemForAll(DND_ITEM_POWERCORE);
 		SpawnItemForAll(DND_ITEM_BODYARMOR, 1, random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL]));
 	}
+
+	// tid used as value here for credit
+	tid = random(1000, 2000) * (2 * GetCVar("dnd_mode") + 1) * (ctype + 1);
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+			GiveActorCredit(i, tid);
+		}
+	}
 	
 	// common to all chests, an extra orb can drop with 33% chance and another with 20%
 	if(RunDefaultDropChance(pnum, 0.33))
 		SpawnOrbForAll(1);
 	if(RunDefaultDropChance(pnum, 0.2))
 		SpawnOrbForAll(1);
+}
+
+Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber() || !PlayerInGame(ConsolePlayerNumber()) || !amt)
+		Terminate;
+	Log(s:"\ccCredit pickup : \c[Y5]", d:amt, s:" credits.");
 }
 
 enum {
@@ -1002,7 +1009,10 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 		GiveActorInventory(target, "DnD_ShotUndead", 1);
 		
 	if(CheckActorInventory(tid, "BookofDeadCausedDeath")) {
-		GiveActorInventory(target, "Souls", (1 + DND_BOSS_SOULGIVE * IsBossTID(tid)) * (100 + GetPlayerAttributeValue(pnum, INV_EX_PICKUPS_MORESOUL)) / 100);
+		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE)
+			SpawnPlayerDrop(pnum, "SoulsDrop", 24.0, 16, 0, 0);
+		else
+			SpawnPlayerDrop(pnum, "LargeSoulsDrop", 24.0, 16, 0, 0);
 		Spawn("SoulEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
 		TakeActorInventory(tid, "BookofDeadCausedDeath", 1);
 	}

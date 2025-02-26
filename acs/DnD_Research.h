@@ -164,12 +164,12 @@ void SpawnResearch(int pnum, bool noRepeat = false) {
 	// This works with the percentages acting as their individual weights. It's not 100% fair, because if we roll 9, it'll pick leftmost id research.
 	// Most fair method would be putting equal chance researches into their bins. However putting multiple investments into different researches is a bad strategy.
 	// Therefore it's not important to worry about that kind of solution here.
-	int weight_acc = random(1, 100);
+	int weight_acc = random(1, 1000);
 	int invest_acc = 0;
 	int drop_rate = 0;
 	for(i = 0; i < MAX_RESEARCHES; ++i) {
 		if(ResearchInvestments[pnum][i]) {
-			drop_rate = GetResearchDropRate(pnum, i);
+			drop_rate = GetResearchDropRate(pnum, i) * 10;
 			invest_acc += drop_rate;
 			if(weight_acc <= invest_acc) {
 				temp = i;

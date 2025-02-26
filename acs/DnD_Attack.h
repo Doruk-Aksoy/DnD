@@ -741,6 +741,9 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 		int actor_flags = ScanActorFlags();
 		if(GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN)
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+
+		if(scan_id == DND_SCANNER_BOOK)
+			actor_flags |= DND_ACTORFLAG_DROPSOUL;
 		
 		// damage credit
 		SetActivator(owner);

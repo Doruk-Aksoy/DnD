@@ -96,6 +96,8 @@ Actor DnD_BaseMonster {
 	
 	PainChance "ForcedPainBypass", 256
 	
+	PainChance "Execution", 256
+	
 	Accuracy 40 // level 40 fully completes default damage scale ramp for most monsters now
 	
 	var int user_spawnheight;
@@ -172,10 +174,6 @@ Actor DnD_BaseMonster {
 		/*
 		Damage types from spells and stuff affecting monsters go here
 		*/
-		Death.BookOfTheDead:
-			"####" "#" 0 A_GiveInventory("BookofDeadCausedDeath", 1)
-		Goto Death
-		
 		Death.MagicSealing:
 			"####" "#" 0 A_StopSound(CHAN_ITEM)
 			"####" "#" 0 A_Stop
@@ -232,6 +230,17 @@ Actor DnD_BaseMonster {
 			"----" "#" 1 A_GiveInventory("DnD_IceDeathToken", 1)
 			TNT1 A 5
 		Stop
+		
+		Death.Execution:
+			"####" "#" 0 A_GiveToTarget("Doomguy_ValidExecute", 1)
+			"####" "#" 0 A_ChangeFlag("SOLID", 0)
+			"####" "#" 0 A_ChangeFlag("SHOOTABLE", 0)
+			"####" "#" 0 A_Stop
+			"####" "########" 1 A_Warp(AAPTR_TARGET, -50, 0, 0, 180, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE) 
+			"####" "#" 0 A_Quake(4, 4, 0, 128, "")
+			"####" "#" 0 ThrustThing(angle * 256 / 360 + 128, 16, 0, 0)
+			"####" "#" 1 ThrustThingZ(0, 12, 0, 1)
+		Goto Death
 	}
 }
 

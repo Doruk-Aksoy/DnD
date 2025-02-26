@@ -30,29 +30,7 @@ Script 900 (int opt, int showInv) NET {
 
 	int pnum = PlayerNumber();
 	if(StatListOpened[pnum]) {
-		SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
-		TakeInventory("P_Frozen", 1);
-		StatListOpened[pnum] = 0;
-		SetInventory("ShowingMenu", 0);
-		SetInventory("MenuOption", 5);
-		SetInventory("DnD_PlayerItemIndex", 0);
-		SetInventory("DnD_PlayerPrevItemIndex", 0);
-		SetInventory("DnD_PopupId", 0);
-		SetInventory("DnD_SelectedCharmBox", 0);
-		SetInventory("DnD_ItemSelectTemp", 0);
-		SetInventory("DnD_SelectedInventoryBox", 0);
-		SetInventory("DnD_UsedTwoItemRequirementMaterial", 0);
-		SetInventory("DnD_Crafting_MaterialPage", 0);
-		SetInventory("DnD_Crafting_ItemPage", 0);
-		SetInventory("DnD_Trade_Confirmed", 0);
-		SetInventory("DnD_TradeSpaceFit", 0);
-		TakeInventory("DnD_InventoryView", 1);
-		TakeInventory("DnD_StashView", 1);
-		TakeInventory("InTradeView", 1);
-		TakeInventory("DnD_ShowPopup", 1);
-		TakeInventory("DnD_ShowSellPopup", 1);
-		TakeInventory("DnD_SellConfirm", 1);
-		ClearPlayerInput(pnum, true);
+		ClearMenuLeftovers(pnum);
 		DecideAccessories();
 		//SetInventory("MenuPosY", 5);
 		LocalAmbientSound("RPG/MenuClose", 127);
@@ -232,19 +210,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	auto InventoryPane = GetInventoryPane();
 	
 	// initialize cursor data
-	PlayerCursorData.itemHovered = -1;
-	PlayerCursorData.itemHoveredType = 0;
-	PlayerCursorData.itemHoveredSource = 0;
-	PlayerCursorData.itemHoveredDim.x = 0;
-	PlayerCursorData.itemHoveredDim.y = 0;
-	PlayerCursorData.owner_pnum = -1;
+	resetCursorHoverProc();
 	
 	ResetCursorDragData();
 
-	PlayerCursorData.itemClicked = -1;
-	PlayerCursorData.itemClickedPos.x = -1;
-	PlayerCursorData.itemClickedPos.y = -1;
-	PlayerCursorData.clickNeedsReset = false;
+	resetCursorClickProc();
 
 	PlayerCursorData.posx = HUDMAX_XF / 2;
 	PlayerCursorData.posy = HUDMAX_YF / 2;
@@ -317,7 +287,15 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					if(!CheckInventory("DnD_InventoryView") && !CheckInventory("InTradeView") && !CheckInventory("DnD_StashView"))
 						LocalAmbientSound("RPG/MenuMove", 127);
 				}
-				redraw = true;
+
+				if
+				(
+					PlayerCursorData.itemHovered == -1 || 
+					PlayerCursorData.itemHovered != GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid - 1 - PlayerCursorData.itemHoveredOffset, -1, PlayerCursorData.itemHoveredSource) - 1
+				)
+				{
+					redraw = true;
+				}
 			}
 		}
 		
@@ -383,8 +361,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
 				ResetCursorHoverData();
 			else {
-				if(PlayerCursorData.itemHoveredDim.x)
+				if(PlayerCursorData.itemHoveredDim.x) {
 					DrawInventoryInfo(PlayerCursorData.owner_pnum);
+				}
 				else {
 					DrawCraftingInventoryInfo(
 						PlayerCursorData.owner_pnum,
@@ -440,6 +419,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		// MENU DRAWING ROUTINE FROM HERE BELOW //
 		//////////////////////////////////////////
 		if(redraw || CheckInventory("DnD_RefreshPane") || PlayerDataInLevel[pnum].refresh_request) {
+			//Log(s:"redraw");
 			str toshow = "";
 			int j = 0, k = 0, temp;
 			
@@ -1178,9 +1158,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_HEAD_SHOP"; HUDMSG_PLAIN, RPGMENULISTID - 3, -1, 96.0, 221.0, 0.0);
 				
 				if(mainboxid == MAINBOX_RESEARCH)
-					HudMessage(s:"\c[B1]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0);
+					HudMessage(s:"\c[B1]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 97.0, 251.0, 0.0);
 				else
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 96.0, 251.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_RESEARCH"; HUDMSG_PLAIN, RPGMENULISTID - 6, -1, 97.0, 251.0, 0.0);
 				
 				if(mainboxid == MAINBOX_ABILITY)
 					HudMessage(s:"\c[B1]", l:"DND_MENU_HEAD_ABILITIES"; HUDMSG_PLAIN, RPGMENULISTID - 4, -1, 96.0, 269.0, 0.0);

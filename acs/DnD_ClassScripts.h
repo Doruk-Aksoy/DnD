@@ -1,6 +1,56 @@
 #ifndef DND_CLASS_SC_IN
 #define DND_CLASS_SC_IN
 
+Script "DnD Check Execution" (void) {
+	int this = ActivatorTID();
+	SetActivatorToTarget(0);
+	int tid = ActivatorTID();
+	SetActivator(this);
+	SetResultValue(tid && !!CheckActorInventory(tid, "Doomguy_CanExecute"));
+}
+
+// monster is assumed activator of this function
+void HandleDoomguyExecute(int ptid, int mon_tid) {
+	if(CheckActorInventory(ptid, "Doomguy_Perk5") && CheckInventory("Doomguy_CanExecute")) {
+		if(CheckInventory("Doomguy_ValidExecute")) {
+			TakeInventory("Doomguy_CanExecute", 1);
+			TakeInventory("Doomguy_ValidExecute", 1);
+
+			int hp_to_give = GetPlayerSpawnHealth(ptid - P_TIDSTART) * DND_DOOMGUY_PERK5HEAL / 100;
+			
+			// give extra health to player
+			if(CheckActorInventory(ptid, "Doomguy_Perk25")) {
+				// give the better damage boost
+				GiveActorInventory(ptid, "Doomguy_Perk25_Damage_Execute", 1);
+				GiveActorInventory(ptid, "Doomguy_DemonSoul_PickMsg", 1);
+
+				int temp = MonsterProperties[mon_tid - DND_MONSTERTID_BEGIN].maxhp;
+				temp = Clamp_Between(temp / DND_DOOMGUY_HEALDIV, 1, DND_DOOMGUY_MAXHEAL);
+				hp_to_give += temp;
+			}
+
+			// heal
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, hp_to_give, 0, 1);
+		}
+		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", ptid, mon_tid, 1);
+	}
+}
+
+Script "DnD Doomguy Execute Translation" (int ptid, int mon_tid, int mode) CLIENTSIDE {
+	if(ConsolePlayerNumber() != ptid - P_TIDSTART)
+		Terminate;
+
+	if(!mode) {
+		Thing_SetTranslation(mon_tid, DND_EXECUTE_TRANSLATION);
+		GiveActorInventory(mon_tid, "Doomguy_CanExecute", 1);
+	}
+	else {
+		Thing_SetTranslation(mon_tid, DND_NO_TRANSLATION);
+		TakeActorInventory(mon_tid, "Doomguy_CanExecute", 1);
+	}
+	SetResultValue(0);
+}
+
 Script "DnD Marine Perk 50 Checker" (void) {
 	int max_hp;
 	bool proc;

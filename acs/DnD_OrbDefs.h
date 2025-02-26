@@ -39,6 +39,11 @@ enum {
 	DND_ORB_EVOKER,
 	DND_ORB_SAVAGERY,
 
+	DND_ORB_WINTER,
+	DND_ORB_VOLTAIC,
+	DND_ORB_VILE,
+	DND_ORB_EMBERS,
+
 	// unique drops from specific monsters
 	DND_ORB_HOLLOW,
 	DND_ORB_PHANTASMAL,
@@ -57,6 +62,7 @@ struct orb_recipe_T {
 };
 
 #define DND_RANDOM_TAGGED_ORB_TRANSMUTE 420
+#define DND_ELEMENTAL_TO_PRISMATIC 421
 
 orb_recipe_T& GetOrbRecipe(int orb_type) {
 	static orb_recipe_T recipe;
@@ -187,10 +193,10 @@ int PickLowTierOrb() {
 }
 
 int PickMidTierOrb() {
-	int o = random(0, 13);
+	int o = random(0, 16);
 	switch(o) {
 		case 0:
-			o = DND_ORB_PRISMATIC;
+			o = DND_ORB_WINTER;
 		break;
 		case 1:
 			o = DND_ORB_DESTRUCTION;
@@ -231,6 +237,15 @@ int PickMidTierOrb() {
 		case 13:
 			o = DND_ORB_SAVAGERY;
 		break;
+		case 14:
+			o = DND_ORB_VOLTAIC;
+		break;
+		case 15:
+			o = DND_ORB_VILE;
+		break;
+		case 16:
+			o = DND_ORB_EMBERS;
+		break;
 	}
 	return o;
 }
@@ -269,7 +284,7 @@ int PickHighTierOrb() {
 }
 
 int PickRandomTaggedOrb() {
-	int o = random(0, 12);
+	int o = random(0, 16);
 	switch(o) {
 		case 0:
 			o = DND_ORB_PRISMATIC;
@@ -309,6 +324,18 @@ int PickRandomTaggedOrb() {
 		break;
 		case 12:
 			o = DND_ORB_SAVAGERY;
+		break;
+		case 13:
+			o = DND_ORB_WINTER;
+		break;
+		case 14:
+			o = DND_ORB_VOLTAIC;
+		break;
+		case 15:
+			o = DND_ORB_VILE;
+		break;
+		case 16:
+			o = DND_ORB_EMBERS;
 		break;
 	}
 	return o;

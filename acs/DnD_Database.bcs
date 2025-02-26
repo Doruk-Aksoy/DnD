@@ -58,7 +58,7 @@ int load_char_proc(int pnum, int char_id) {
 		else
 			load_char(pnum, char_id);
 	}
-	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id, CheckInventory("Level"));
+	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id);
 	return result;
 }
 
@@ -98,7 +98,7 @@ int set_char_proc(int pnum, int char_id) {
 
 		EndDBTransaction();
 	}
-	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id, CheckInventory("Level"));
+	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id);
 	return result;
 }
 
@@ -116,12 +116,16 @@ Script 1005 (int char_id) NET {
 	int pnum = PlayerNumber();
 	int result = check_transfer_char(pnum, char_id);
 	if ((result == DND_LOGIN_CHARTRANSFERRED) || (result == DND_LOGIN_TRANSFSAMESLOT)) transfer_char(pnum, char_id);
-	ACS_NamedExecuteAlways("DnD Login Message", pnum, result, char_id, CheckInventory("Level"));
+	ACS_NamedExecuteAlways("DnD Login Message", pnum, result, char_id);
 }
 
-Script "DnD Login Message" (int pnum, int msg_no, int extra, int level) CLIENTSIDE {
+Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum && msg_no != DND_CHARLOADED)
 		Terminate;
+
+	Delay(const:HALF_TICRATE);
+
+	int level = CheckInventory("Level");
 	switch(msg_no) {
 		case DND_LOGIN_NOCHAR:
 			Log(s:"\cg", l:"DND_DBERR1A", s:" 0 - ", d:DND_MAX_CHARS-1, s:" ", l:"DND_DBERR1B");

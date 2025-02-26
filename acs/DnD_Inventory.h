@@ -89,16 +89,16 @@ enum {
 	IIMG_SC_2,
 	IIMG_SC_3,
 	
-	IIMG_MC_1,
+	IIMG_MC_1 = 20,
 	IIMG_MC_2,
 	IIMG_MC_3,
 	
-	IIMG_LC_1,
+	IIMG_LC_1 = 40,
 	IIMG_LC_2,
 	IIMG_LC_3,
 	
 	// unique charm images
-	IIMG_UCHRM_1,
+	IIMG_UCHRM_1 = 60,
 	IIMG_UCHRM_2,
 	IIMG_UCHRM_3,
 	IIMG_UCHRM_4,
@@ -120,20 +120,20 @@ enum {
 	IIMG_UCHRM_20,
 
 	// drop only charms
-	IIMG_UDCHRM_1,
+	IIMG_UDCHRM_1 = 400,
 	IIMG_UDCHRM_2,
 	IIMG_UDCHRM_3,
 	IIMG_UDCHRM_4,
 	IIMG_UDCHRM_5,
 
-	IIMG_UCORE_1,
+	IIMG_UCORE_1 = 600,
 	IIMG_UCORE_R2,
 	IIMG_UCORE_R3,
 	IIMG_UCORE_R4,
 	IIMG_UCORE_R5,
 	IIMG_UCORE_R6,
 
-	IIMG_UBODY_1,
+	IIMG_UBODY_1 = 700,
 	IIMG_UBODY_2,
 	IIMG_UBODY_3,
 	IIMG_UBODY_R4,
@@ -150,7 +150,7 @@ enum {
 	IIMG_UBODY_R15,
 	IIMG_UBODY_R16,
 
-	IIMG_UBOOT_R1,
+	IIMG_UBOOT_R1 = 1000,
 	IIMG_UBOOT_R2,
 	IIMG_UBOOT_R3,
 	IIMG_UBOOT_R4,
@@ -167,7 +167,7 @@ enum {
 	IIMG_UBOOT_R15,
 	IIMG_UBOOT_R16,
 
-	IIMG_UHELM_R1,
+	IIMG_UHELM_R1 = 1300,
 	IIMG_UHELM_R2,
 	IIMG_UHELM_R3,
 	IIMG_UHELM_R4,
@@ -184,7 +184,7 @@ enum {
 	IIMG_UHELM_R15,
 	IIMG_UHELM_R16,
 	
-	IIMG_ORB_1,
+	IIMG_ORB_1 = 1500,
 	IIMG_ORB_2,
 	IIMG_ORB_3,
 	IIMG_ORB_4,
@@ -211,14 +211,18 @@ enum {
 	IIMG_ORB_25,
 	IIMG_ORB_26,
 	IIMG_ORB_27,
+	IIMG_ORB_28,
+	IIMG_ORB_29,
+	IIMG_ORB_30,
+	IIMG_ORB_31,
 
 	// monster specific orb drops
-	IIMG_MORB_1,
+	IIMG_MORB_1 = 1640,
 	IIMG_MORB_2,
 	IIMG_MORB_3,
 
 	// armor
-	IIMG_ARM_1,
+	IIMG_ARM_1 = 1800,
 	IIMG_ARM_2,
 	IIMG_ARM_3,
 	IIMG_ARM_4,
@@ -241,7 +245,7 @@ enum {
 	IIMG_ARM_18,
 
 	// boots
-	IIMG_BOO_1,
+	IIMG_BOO_1 = 2000,
 	IIMG_BOO_2,
 	IIMG_BOO_3,
 	IIMG_BOO_4,
@@ -254,7 +258,7 @@ enum {
 	IIMG_BOO_11,
 	
 	// helm
-	IIMG_HLM_1,
+	IIMG_HLM_1 = 2200,
 	IIMG_HLM_2,
 	IIMG_HLM_3,
 	IIMG_HLM_4,
@@ -264,16 +268,16 @@ enum {
 	IIMG_HLM_8,
 
 	// powercores
-	IIMG_CORE_1,
+	IIMG_CORE_1 = 2400,
 	IIMG_CORE_2,
 	IIMG_CORE_3,
 	IIMG_CORE_4,
 	
-	IIMG_CKEY_1,
+	IIMG_CKEY_1 = 2600,
 	IIMG_CKEY_2,
 	IIMG_CKEY_3,
 	
-	IIMG_TOKEN_ARMORER,
+	IIMG_TOKEN_ARMORER = 2800,
 	IIMG_TOKEN_GUNSMITH
 };
 #define MAX_ITEM_IMAGES (IIMG_TOKEN_GUNSMITH + 1)
@@ -317,7 +321,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_POWERCORE_BEGIN IIMG_CORE_1
 
 #define ITEM_IMAGE_CHARM_END IIMG_LC_3
-#define ITEM_IMAGE_ORB_END IIMG_ORB_27
+#define ITEM_IMAGE_ORB_END IIMG_ORB_31
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_3
 #define ITEM_IMAGE_POWERCORE_END IIMG_CORE_4
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
@@ -346,7 +350,13 @@ str GetItemImage(int id, bool wide = false) {
 	int suffix = 0;
 	if(id <= ITEM_IMAGE_CHARM_END) {
 		img_prefix = "C";
-		suffix = id + 1;
+
+		if(id <= DND_LARGECHARM_IMAGEEND)
+			suffix = id - DND_LARGECHARM_IMAGEBEGIN + 1;
+		else if(id <= DND_MEDIUMCHARM_IMAGEEND)
+			suffix = id - DND_MEDIUMCHARM_IMAGEBEGIN + 1;
+		else
+			suffix = id + 1;
 	}
 	else if(id <= ITEM_IMAGE_UCHARM_END) {
 		img_prefix = "UC";
@@ -1064,7 +1074,8 @@ bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, i
 		SyncItemData(player_index, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, wtemp, htemp);
 	}
 	// the leftover spot is a null item
-	FreeItem(-1, fieldpos, DND_SYNC_ITEMSOURCE_FIELD, false);
+	RemoveItemFromWorld(fieldpos);
+	//FreeItem(-1, fieldpos, DND_SYNC_ITEMSOURCE_FIELD, false);
 	return true;
 }
 
@@ -1963,7 +1974,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - ITEMINFOBG_MAXMIDS, CR_WHITE, bx, by + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
-		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 16);
+		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 10);
 		yoff += 8.0 * temp;
 		lines_count += max(1, temp);
 	}
@@ -2108,9 +2119,8 @@ bool UsePlayerItem(int pnum, int item_index, bool countTokens) {
 		}
 		FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 		GiveInventory("DnD_CleanCraftingRequest", 1);
-		// if this is freed, we might have to auto-adjust the player's page -- need exact equality here
-		int mcount = CountCraftingMaterials(countTokens);
-		if(mcount == MAX_CRAFTING_MATERIALBOXES * CheckInventory("DnD_Crafting_MaterialPage"))
+		// if this is freed, we might have to auto-adjust the player's page -- if theres nothing left on this page go back
+		if(!CountCraftingMaterials(countTokens))
 			TakeInventory("DnD_Crafting_MaterialPage", 1);
 		return true;
 	}
@@ -2255,39 +2265,16 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 		// do all exceptions in here
 		case DND_ITEM_ORB:
 			switch(isubtype) {
-				case DND_ORB_ENHANCE:
-				case DND_ORB_REFINEMENT:
-				case DND_ORB_PRISMATIC:
-				case DND_ORB_CORRUPT:
-				case DND_ORB_DESTRUCTION:
-				case DND_ORB_VIOLENCE:
-				case DND_ORB_FORTITUDE:
-				case DND_ORB_PROSPERITY:
-				case DND_ORB_TINKERER:
-				case DND_ORB_SIN:
-				case DND_ORB_SCULPTING:
-				case DND_ORB_ELEVATION:
-				case DND_ORB_HOLLOW:
-				case DND_ORB_PHANTASMAL:
-				case DND_ORB_NULLIFICATION:
-				case DND_ORB_TURMOIL:
-				case DND_ORB_TREMORS:
-				case DND_ORB_HEXES:
-				case DND_ORB_GROWTH:
-				case DND_ORB_POTENCY:
-				case DND_ORB_CRACKLING:
-				case DND_ORB_BRUTE:
-				case DND_ORB_JAGGED:
-				case DND_ORB_ALCHEMIST:
-				case DND_ORB_EVOKER:
-				case DND_ORB_SAVAGERY:
-				return false;
+				case DND_ORB_REPENT:
+				case DND_ORB_AFFLUENCE:
+				case DND_ORB_CALAMITY:
+				return true;
 			}
-		break;
+		return false;
 		case DND_ITEM_TOKEN:
 		return false;
 	}
-	return true;
+	return false;
 }
 
 void HandleEShieldChange(int pnum, bool remove) {
@@ -2621,6 +2608,7 @@ bool IsAttributeExtraException(int attr) {
 		case INV_IMP_INCMIT:
 		case INV_IMP_INCMITARMOR:
 		case INV_IMP_INCMITSHIELD:
+		case INV_IMP_INCMITARMORSHIELD:
 		case INV_IMP_POWERCORE:
 		return true;
 	}
@@ -2746,7 +2734,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 		break;
 		case INV_IMP_POWERCORE:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
-			IncPlayerModValue(pnum, INV_ESHIELD_ABSORB, aextra, noSync, needDelay);
+			IncPlayerModValue(pnum, INV_MAGIC_NEGATION, aextra, noSync, needDelay);
 			
 			HandleEShieldChange(pnum, remove);
 		break;
@@ -2760,6 +2748,12 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool
 			HandleAttributeExtra(pnum, PPOWER_ESHIELDEXPLODE, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
 
 			HandleEShieldChange(pnum, remove);
+		break;
+		case INV_IMP_INCMITARMORSHIELD:
+			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
+			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
+			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_ARMOR_TO_MIT_RATIO), noSync, needDelay);
+			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
 		break;
 
 
@@ -3075,7 +3069,6 @@ bool IsEnergyShieldAttributeException(int rolled_attr) {
 	return 	rolled_attr == INV_SHIELD_INCREASE || 
 			rolled_attr == INV_SHIELD_RECHARGEDELAY || 
 			rolled_attr == INV_SHIELD_RECOVERYRATE ||
-			rolled_attr == INV_ESHIELD_ABSORB ||
 			rolled_attr == INV_PERCENTSHIELD_INCREASE;
 }
 
@@ -3209,7 +3202,7 @@ void RemoveAttributeFromItem(int pnum, int item_id, int to_remove) {
 }
 
 // Gives an attribute of a tag group guaranteed, and completely reforges the attribs
-void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluence = 1) {
+void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluence = 1, bool isWellRolled = false) {
 	int itype = PlayerInventoryList[pnum][item_pos].item_type;
 	int craftable_type;
 	
@@ -3235,18 +3228,23 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 
 			// if this isn't already present on the item in question
 			if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
-				AddAttributeToItem(pnum, item_pos, rand_attr);
+				AddAttributeToItem(pnum, item_pos, rand_attr, isWellRolled);
 				--attr_count;
 				--affluence;
 			}
 		}
 		else {
 			craftable_type = MapItemTypeToCraftableID(itype);
-
 			min_count = 5;
+
 			do {
+				// pick an attribute if we have non-zero count, otherwise keep it at -1
+				rand_attr = -1;
+				if(AttributeTagGroupCount[tag_id][craftable_type])
+					rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+
 				// if no attributes of this type are allowed, but we have some special roll, include it and try again
-				if(!AttributeTagGroupCount[tag_id][craftable_type]) {
+				if(rand_attr == -1 || IsAttributeArmorException(tag_id, rand_attr, craftable_type)) {
 					if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
 						craftable_type = DND_CRAFTABLEID_CHARM;
 						rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
@@ -3257,11 +3255,6 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 						return;
 					}
 				}
-				else {
-					// we have an attribute of this type fitting, good, go ahead
-					rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
-					//printbold(s:"rand attr: ", d:rand_attr, s: " out of ", d:AttributeTagGroupCount[tag_id][craftable_type]);
-				}
 
 				if
 				(
@@ -3271,7 +3264,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 				)
 				{
 					//printbold(s:"guaranteed add ", d:rand_attr);
-					AddAttributeToItem(pnum, item_pos, rand_attr);
+					AddAttributeToItem(pnum, item_pos, rand_attr, isWellRolled);
 					--attr_count;
 					--affluence;
 					break;
@@ -3328,7 +3321,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				//i = UITEM_ANCIENTGEMSTONE;
+				i = UITEM_UNITY;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

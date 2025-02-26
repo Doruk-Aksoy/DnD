@@ -1,4 +1,4 @@
-Actor ResMG1 : Chaingun {
+Actor ResMG1 : DnDWeapon {
 	Weapon.SelectionOrder 720
 	Weapon.SlotNumber 4
     Inventory.PickupSound "weapons/pickup"
@@ -27,7 +27,7 @@ Actor ResMG1 : Chaingun {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_TEMPLARMG)
 		ReadyLoop:
-			RW03 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RW03 A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
@@ -171,7 +171,7 @@ Actor TemplarMGPuff : DnD_BasePuff {
 	}
 }
 
-actor ResMG2 : Weapon { 
+actor ResMG2 : DnDWeapon { 
 	weapon.selectionorder 720
 	weapon.slotnumber 4
 	+WEAPON.NOALERT
@@ -201,13 +201,13 @@ actor ResMG2 : Weapon {
 			RIOT A 0 A_JumpIfInventory("RiotGunFireMode", 1, "Ready2")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Ready")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Ready")
-			RIOT A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RIOT A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Nitro_Ready:
-			RIO2 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RIO2 A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Explo_Ready:
-			RIO3 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RIO3 A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		
 		
@@ -215,13 +215,13 @@ actor ResMG2 : Weapon {
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_EXPLOSIVESHELL, "Explo_Ready2")
 			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_NITROGENSHELL, "Nitro_Ready2")
 		Ready2Norm:
-			RIOT G 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RIOT G 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Nitro_Ready2:
-			RIO2 F 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RIO2 F 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Explo_Ready2:
-			RIO3 F 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RIO3 F 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		
 		
@@ -1029,7 +1029,7 @@ Actor ExplodingPuff_Riotgun : ExplodingPuff {
 	}
 }
 
-Actor ResMG3 : Chaingun {
+Actor ResMG3 : DnDWeapon {
 	Weapon.SelectionOrder 720
 	Weapon.SlotNumber 4
     Inventory.PickupSound "weapons/pickup"
@@ -1058,7 +1058,7 @@ Actor ResMG3 : Chaingun {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ACIDRIFLE)
 		ReadyLoop:
-			RIF1 ABC 2 A_WeaponReady(WRF_ALLOWRELOAD)
+			RIF1 ABC 2 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
@@ -1382,7 +1382,7 @@ Actor FusionWeaponHeight : Inventory {
 	inventory.maxamount 5
 }
 
-Actor ResMG4 : Weapon {
+Actor ResMG4 : DnDWeapon {
 	Weapon.SelectionOrder 800
 	Weapon.SlotNumber 4
     Inventory.PickupSound "weapons/pickup"
@@ -1412,7 +1412,7 @@ Actor ResMG4 : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_FUSIONBLASTER)
 		ReadyLoop:
-			FUSF B 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			FUSF B 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
@@ -1808,7 +1808,7 @@ Actor FusionBlasterGrenadeRipper_Crit : FusionBlasterGrenadeRipper {
 	Accuracy 69
 }
 
-ACTOR ResMG5 : Weapon {
+ACTOR ResMG5 : DnDWeapon {
 	Weapon.AmmoType1 "IncineratorAmmo"
 	Weapon.AmmoUse1 2
 	Weapon.AmmoGive1 16
@@ -1829,7 +1829,7 @@ ACTOR ResMG5 : Weapon {
 		    TNT1 A 0 A_GiveInventory("H_WeaponSlot4", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_INCINERATOR)
 		ReadyLoop:
-			RW09 A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RW09 A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 
 		Select:
@@ -1935,7 +1935,7 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 	
 	States {
 		SpawnState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 16)
 			DRGP AAAABBBBCCCC 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")
 		SpawnLoop:
 			DRGP DDDDDDDEEEEEEE 1 Bright A_SpawnItemEx("IncineratorProjectile1_Trail")
@@ -1949,7 +1949,7 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 48)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DRGP E 3 Bright

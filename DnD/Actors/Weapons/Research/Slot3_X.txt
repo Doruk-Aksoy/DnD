@@ -1,4 +1,4 @@
-Actor ResSSG1 : Weapon {
+Actor ResSSG1 : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.AmmoGive 0
@@ -33,7 +33,7 @@ Actor ResSSG1 : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_PLASMACANNON)
 		ReadyLoop:
-			RW02 X 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			RW02 X 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		loop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
@@ -159,7 +159,7 @@ Actor PlasmaCannonBall : DnD_BaseProjectile {
 	}
 }
 
-Actor ResSSG2 : Weapon {
+Actor ResSSG2 : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.AmmoGive 0
@@ -196,7 +196,7 @@ Actor ResSSG2 : Weapon {
 		ReadyLoop:
 			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_SHOCKER, 2 | (3 << 16))
-			WSON AAAAAAAAA 1 A_WeaponReady
+			WSON AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
@@ -399,7 +399,7 @@ Actor ShockerSmokes {
 	}
 }
 
-Actor ResSSG3 : Weapon {
+Actor ResSSG3 : DnDWeapon {
 	Weapon.AmmoGive1 8
 	Weapon.AmmoGive2 0
 	Weapon.SlotNumber 3
@@ -426,7 +426,7 @@ Actor ResSSG3 : Weapon {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Input Handler", 0, DND_WEAPON_HADES)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_HADES)
 		ReadyLoop:
-			STRG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			STRG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		loop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
@@ -1087,7 +1087,7 @@ Actor HadesPellet_GhostHitter_Crit : HadesPellet_GhostHitter {
 }
 
 // Sprites by ETTINGRINDER
-Actor ResSSG4 : Weapon {
+Actor ResSSG4 : DnDWeapon {
 	radius 20
 	height 16
 	Weapon.AmmoGive 0
@@ -1117,26 +1117,26 @@ Actor ResSSG4 : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_CROSSBOW)
 		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("FlayerAmmo", 1, "AmmoReady")
-			CBOW K 3 A_WeaponReady(WRF_NOFIRE)
+			CBOW K 3 A_WeaponReady(WRF_ALLOWZOOM | WRF_NOFIRE)
 		Loop
 		AmmoReady:
 			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "Ready_4")
 			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "Ready_3")
 			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "Ready_2")
 			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "Ready_1")
-			CBOW A 3 A_WeaponReady
+			CBOW A 3 A_WeaponReady(WRF_ALLOWZOOM)
 		loop
 		Ready_1:
-			CBOW G 3 A_WeaponReady
+			CBOW G 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Ready_2:
-			CBOW H 3 A_WeaponReady
+			CBOW H 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Ready_3:
-			CBOW I 3 A_WeaponReady
+			CBOW I 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Ready_4:
-			CBOW J 3 A_WeaponReady
+			CBOW J 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		
 		Deselect:

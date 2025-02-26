@@ -1,5 +1,5 @@
 // Actor code by TheUltimateDoomer, sprites by Eriance, modified by TheUltimateDoomer and me
-ACTOR "Death Staff" : Weapon {  
+ACTOR "Death Staff" : DnDWeapon {  
 	Weapon.SelectionOrder 666  
 	Weapon.AmmoType "Souls" 
 	Weapon.AmmoGive 15
@@ -24,7 +24,7 @@ ACTOR "Death Staff" : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DEATHSTAFF)
 		ReadyLoop:
-			LICS A 1 A_WeaponReady 
+			LICS A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop 
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("P_PurpleFire", 1)
@@ -488,7 +488,7 @@ Actor HellFireTrailC : HellFireTrailF
   }	
 }
 
-ACTOR Razorfang : Weapon {
+ACTOR Razorfang : DnDWeapon {
 	Inventory.PickupSound "misc/haha"
 	Inventory.PickupMessage "You got the Razorfang."
 	Obituary "%o was torn apart by %k's Razorfang."
@@ -518,13 +518,13 @@ ACTOR Razorfang : Weapon {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
 		ReadyLoop:
 			RAZG A 0 A_JumpIfInventory("RazorCount", 1, "ReadyHoming")
-			RAZG BCDEFG 3 A_weaponReady
+			RAZG BCDEFG 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		ReadyHoming:
 			TNT1 A 0 A_TakeInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Homing Lock-on Draw", 0, 480, 480, 160)
 		ReadyHomingLoop:
-			RAZG HIJKJI 3 A_WeaponReady
+			RAZG HIJKJI 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
@@ -757,7 +757,7 @@ ACTOR RazorCount : Ammo {
      Ammo.BackpackMaxAmount 1
 }
 
-Actor "Sun Staff" : Weapon {
+Actor "Sun Staff" : DnDWeapon {
 	Inventory.PickupSound "weapons/pickup"
 	Inventory.PickupMessage "Picked up the Sun Staff."
 	Obituary "%o was seared by %k."
@@ -808,7 +808,7 @@ Actor "Sun Staff" : Weapon {
 		Goto Ready2
 		Part2:
 			TNT1 A 0 A_StopSoundEx("SoundSlot7")
-			LTBR BBBBCCCCDDDDEEEE 1 Bright A_WeaponReady
+			LTBR BBBBCCCCDDDDEEEE 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyCheckAnim
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
@@ -862,7 +862,7 @@ Actor "Sun Staff" : Weapon {
 		Ready2:
 			LTBR M 0 A_StopSoundEx("SoundSlot7")
 			LTBR M 0 A_JumpIfInventory("Souls", 1, "ReadyLoop")
-			LTBR M 1 A_WeaponReady
+			LTBR M 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		AltFire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
@@ -897,7 +897,7 @@ Actor "Sun Staff" : Weapon {
 }
 
 Actor BeamCounter : Inventory {
-	inventory.maxamount 3
+	inventory.maxamount 2
 }
 
 Actor SunShooter : DnD_Activator {
@@ -931,11 +931,9 @@ Actor SunPuff : DnD_BaseRailPuff {
 	Radius 4
 	Alpha 0.85
 	Renderstyle Translucent
-	
-	Stamina 4096
-	
+	Stamina 4096	
 	+BLOODLESSIMPACT
-	+FOILINVUL
+
 	States {
 		Spawn:
 		Crash:
@@ -1161,7 +1159,7 @@ Actor SunShooter_Alt : DnD_Activator {
 	}
 }
 
-Actor "Soul Reaver" : Weapon {
+Actor "Soul Reaver" : DnDWeapon {
 	Inventory.PickupSound "weapons/pickup"
 	Inventory.PickupMessage "Picked up the Soul Reaver."
 	Obituary "%o's soul was twisted by %k."
@@ -1186,7 +1184,7 @@ Actor "Soul Reaver" : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SOULREAVER)
 		ReadyLoop:
-			SREA A 1 A_WeaponReady
+			SREA A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("P_GrayFire", 1)

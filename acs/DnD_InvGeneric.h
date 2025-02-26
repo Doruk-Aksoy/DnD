@@ -230,7 +230,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_RAVAGER, item_tier, 80);
 				break;
 				case BODYARMOR_TANGLEDRIBCAGE:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 35, PPOWER_MAXQUALITYHIGH, item_tier, 10);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITARMORSHIELD, 35, PPOWER_MAXQUALITYHIGH, item_tier, 10);
 				break;
 
 				case BODYARMOR_SYNTHMETAL:
@@ -304,7 +304,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 72, PPOWER_PRECISIONCRIT, item_tier, 24);
 				break;
 				case HELMS_ROBE:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 36, PPOWER_ESHIELDABSORB, item_tier, 16);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 36, PPOWER_MAGICNEGATION, item_tier, 16);
 				break;
 			}
 		break;

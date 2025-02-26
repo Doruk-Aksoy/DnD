@@ -1,5 +1,5 @@
 // Sprites by Eriance
-Actor "Plasma Rifle" : PlasmaRifle {
+Actor "Plasma Rifle" : DnDWeapon {
 	Weapon.Slotnumber 6
 	Weapon.SelectionOrder 300
 	+INVENTORY.UNDROPPABLE
@@ -21,7 +21,7 @@ Actor "Plasma Rifle" : PlasmaRifle {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_PLASMARIFLE)
 		ReadyLoop:
-			NRAI Y 3 A_WeaponReady
+			NRAI Y 3 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
@@ -522,7 +522,7 @@ Actor NewPlasmaExplosion {
 	}
 }
 
-Actor "Upgraded Plasma Rifle2" : Weapon {
+Actor "Upgraded Plasma Rifle2" : DnDWeapon {
     Weapon.Slotnumber 6
     Weapon.SelectionOrder 300
     +INVENTORY.UNDROPPABLE
@@ -547,7 +547,7 @@ Actor "Upgraded Plasma Rifle2" : Weapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_TURELCANNON)
 		ReadyLoop:
-			TURL A 1 A_WeaponReady
+			TURL A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
@@ -717,7 +717,7 @@ Actor TurelParticle {
 
 Actor NailCounter : DND_Boolean { }
 
-Actor "Nailgun" : Weapon {
+Actor "Nailgun" : DnDWeapon {
 	Weapon.Slotnumber 6
 	Weapon.SelectionOrder 315
 	Weapon.AmmoType "NailgunAmmo"
@@ -743,7 +743,7 @@ Actor "Nailgun" : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_NAILGUN)
 		ReadyLoop:
-			DNLG A 1 A_weaponReady
+			DNLG A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
@@ -991,7 +991,7 @@ Actor NailBlur2 : NailBlur {
 	}
 }
 
-ACTOR Basilisk : Weapon {
+ACTOR Basilisk : DnDWeapon {
 	Inventory.PickupMessage "You got the basilisk!"
 	Obituary "%k toasted %o with the basilisk."
 	Weapon.AmmoType1 "BasiliskAmmo"
@@ -1017,7 +1017,7 @@ ACTOR Basilisk : Weapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_BASILISK)
 		ReadyLoop:
-			BASG A 3 A_WeaponReady(WRF_ALLOWRELOAD)
+			BASG A 3 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
@@ -1290,7 +1290,7 @@ ACTOR BasiliskPuff {
    }
 }
 
-Actor "Upgraded Plasma Rifle3" : Weapon {
+Actor "Upgraded Plasma Rifle3" : DnDWeapon {
    Weapon.Slotnumber 6
    Weapon.SelectionOrder 300
    +INVENTORY.UNDROPPABLE
@@ -1310,12 +1310,12 @@ Actor "Upgraded Plasma Rifle3" : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_FROSTFANG)
 		ReadyLoop:
 			FSTF B 0 A_Jump(1, "Glow")
-			FSTF B 1 A_WeaponReady
+			FSTF B 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Glow:
-			FSTF CCCCCCCCCC 1 A_WeaponReady
-			FSTF CCCCCCCCC 1 A_WeaponReady
-			FSTF CCCCCCCC 1 A_WeaponReady
+			FSTF CCCCCCCCCC 1 A_WeaponReady(WRF_ALLOWZOOM)
+			FSTF CCCCCCCCC 1 A_WeaponReady(WRF_ALLOWZOOM)
+			FSTF CCCCCCCC 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Select:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_FROSTFANG)
@@ -1697,7 +1697,7 @@ Actor FrostFangFog2 : FrostFangBallParticle {
 	}
 }
 
-Actor RhinoRifle : Weapon {
+Actor RhinoRifle : DnDWeapon {
 	Weapon.SelectionOrder 400
 	Weapon.SlotNumber 6
     Inventory.PickupSound "weapons/pickup"
@@ -1726,10 +1726,10 @@ Actor RhinoRifle : Weapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_RHINORIFLE)
 		ReadyLoop:
 			TNT1 A 0 A_JumpIfInventory("RhinoZoomed", 1, "ReadyZoomed")
-			MARG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			MARG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		ReadyZoomed:
-			MAZG A 1 A_WeaponReady(WRF_ALLOWRELOAD)
+			MAZG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_JumpIfInventory("RhinoZoomed", 1, "UnZoomDeselect")
