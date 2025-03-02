@@ -20,8 +20,8 @@ CLASS0_TEXT				= "The original hero. Mean, tough and ready to kick the ass of th
 						  "Milennia of experience fighting demons has certainly taken its toll on him however...    ";
 
 CLASS0_PERK1			= "Enemies within cull range (15% health by default) can be executed by pressing '+zoom' key to heal for 15% of maximum health. If an enemy can be executed, they'll do 90% less damage to you.";
-CLASS0_PERK2			= "Demons have 5% chance to drop their essence on kill. Anyone can pick these to heal for 1% of enemy max health and gain 25% more damage for 10 seconds. If an enemy is executed, you get the full benefits with damage bonus for 20 seconds instead.";
-CLASS0_PERK3			= "Your attacks reduce resists of demons by 33% for 5 seconds. Slain demons rest in peace.";
+CLASS0_PERK2			= "Demons have 5% chance to drop their essence on kill. Anyone can pick these to heal for 1% of enemy max health (can overheal up to 50%) and gain 25% more damage for 10 seconds. If an enemy is executed, you get the full benefits with damage bonus for 20 seconds instead.";
+CLASS0_PERK3			= "Your attacks reduce resists of enemies by 33% for 5 seconds. Slain demons rest in peace.";
 
 // Marine
 

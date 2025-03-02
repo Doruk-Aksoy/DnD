@@ -30,14 +30,16 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 			}
 
 			// heal
-			ACS_NamedExecuteAlways("DnD Health Pickup", 0, hp_to_give, 0, 1);
+			ACS_NamedExecuteAlways("DnD Health Pickup", 0, hp_to_give, 6, 1);
 		}
-		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", ptid, mon_tid, 1);
+		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", mon_tid, 1, MonsterProperties[mon_tid - DND_MONSTERTID_BEGIN].id);
 	}
 }
 
-Script "DnD Doomguy Execute Translation" (int ptid, int mon_tid, int mode) CLIENTSIDE {
-	if(ConsolePlayerNumber() != ptid - P_TIDSTART)
+Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIENTSIDE {
+	// if this guy isnt doomguy, terminate
+	//Log(d:ConsolePlayerNumber() + P_TIDSTART, s:" ", d:CheckActorInventory(ConsolePlayerNumber() + P_TIDSTART, "Doomguy_Perk5"));
+	if(!CheckActorInventory(ConsolePlayerNumber() + P_TIDSTART, "Doomguy_Perk5"))
 		Terminate;
 
 	if(!mode) {
@@ -45,7 +47,95 @@ Script "DnD Doomguy Execute Translation" (int ptid, int mon_tid, int mode) CLIEN
 		GiveActorInventory(mon_tid, "Doomguy_CanExecute", 1);
 	}
 	else {
-		Thing_SetTranslation(mon_tid, DND_NO_TRANSLATION);
+		switch(m_id) {
+			case MONSTER_ZOMBIEQUAKE2:
+				Thing_SetTranslation(mon_tid, DND_QUAKEZOMBIESG_TRANSLATION);
+			break;
+
+			case MONSTER_ZOMBIESMG:
+				Thing_SetTranslation(mon_tid, DND_SMGGUY_TRANSLATION);
+			break;
+			case MONSTER_ZOMBIEQUAKE3:
+				Thing_SetTranslation(mon_tid, DND_QUAKEZOMBIECG_TRANSLATION);
+			break;
+
+			case MONSTER_NETHERDARKIMP:
+				Thing_SetTranslation(mon_tid, DND_NETHERDARKIMP_TRANSLATION);
+			break;
+
+			case MONSTER_FLAMEDEMON:
+				Thing_SetTranslation(mon_tid, DND_FLAMEDEMON_TRANSLATION);
+			break;
+			case MONSTER_SCAVENGER:
+				Thing_SetTranslation(mon_tid, DND_SCAVENGER_TRANSLATION);
+			break;
+			case MONSTER_NHUMCIGN:
+				Thing_SetTranslation(mon_tid, DND_NHUMCIGN_TRANSLATION);
+			break;
+			case MONSTER_NIGHTMAREDEMON:
+				Thing_SetTranslation(mon_tid, DND_NIGHTMARESPECTRE_TRANSLATION);
+			break;
+			case MONSTER_GRAVEDIGGER:
+				Thing_SetTranslation(mon_tid, DND_GRAVEDIGGER_TRANSLATION);
+			break;
+			case MONSTER_DEVOURER:
+				Thing_SetTranslation(mon_tid, DND_DEVOURER_TRANSLATION);
+			break;
+			case MONSTER_RAVAGER:
+				if(GetActorClass(mon_tid) == "RavagerGhost")
+					Thing_SetTranslation(mon_tid, TRANSLATION_ICE);
+				else
+					Thing_SetTranslation(mon_tid, DND_NO_TRANSLATION);
+			break;
+
+			case MONSTER_ENHANCEDCACO:
+				Thing_SetTranslation(mon_tid, DND_ENHANCEDCACO_TRANSLATION);
+			break;
+
+			case MONSTER_DEFILER:
+				Thing_SetTranslation(mon_tid, DND_DEFILER_TRANSLATION);
+			break;
+
+			case MONSTER_ICEFATSO:
+				Thing_SetTranslation(mon_tid, DND_ICEFATSO_TRANSLATION);
+			break;
+
+			case MONSTER_CADAVER:
+				Thing_SetTranslation(mon_tid, DND_CADAVER_TRANSLATION);
+			break;
+
+			case MONSTER_DREADKNIGHT:
+				Thing_SetTranslation(mon_tid, DND_DREADKNIGHT_TRANSLATION);
+			break;
+
+			case MONSTER_BLOODSATYR:
+				Thing_SetTranslation(mon_tid, DND_BLOODSATYR_TRANSLATION);
+			break;
+			case MONSTER_MOONSATYR:
+				Thing_SetTranslation(mon_tid, DND_MOONSATYR_TRANSLATION);
+			break;
+			case MONSTER_WARLORD:
+				Thing_SetTranslation(mon_tid, DND_WARLORDHELL_TRANSLATION);
+			break;
+			case MONSTER_LORDOFHERESY:
+				Thing_SetTranslation(mon_tid, DND_LORDHERESY_TRANSLATION);
+			break;
+			case MONSTER_BARBATOS:
+				Thing_SetTranslation(mon_tid, DND_BARBATOS_TRANSLATION);
+			break;
+			case MONSTER_KJAROCH:
+				Thing_SetTranslation(mon_tid, DND_KJAROCH_TRANSLATION);
+			break;
+
+			case MONSTER_HORSHACKER:
+				Thing_SetTranslation(mon_tid, DND_HORSHACKER_TRANSLATION);
+			break;
+
+			default:
+				Thing_SetTranslation(mon_tid, DND_NO_TRANSLATION);
+			break;
+		}
+		
 		TakeActorInventory(mon_tid, "Doomguy_CanExecute", 1);
 	}
 	SetResultValue(0);

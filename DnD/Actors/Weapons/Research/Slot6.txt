@@ -12,7 +12,7 @@ Actor ResPlasma1 : DnDWeapon {
 	+WEAPON.NOALERT
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_6_4_TAG"
+	Tag "$WEP_6_5_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.8
 	Weapon.BobRangeY 0.5
@@ -357,7 +357,7 @@ Actor ResPlasma2 : DnDWeapon {
 	Weapon.AmmoGive1 60
 	AttackSound ""
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_6_5_TAG"
+	Tag "$WEP_6_6_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.0
 	Weapon.BobRangeY 0.5
@@ -625,7 +625,7 @@ Actor ResPlasma3 : DnDWeapon {
 	Weapon.AmmoType2 "RebounderOverheat"
 	Weapon.AmmoUse1 0
 	Weapon.AmmoUse2 0
-	Tag "$WEP_6_6_TAG"
+	Tag "$WEP_6_7_TAG"
 	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
@@ -963,7 +963,7 @@ Actor "ResPlasma4" : DnDWeapon {
 	Weapon.AmmoUse1 0
 	Weapon.AmmoGive1 10
 	+INVENTORY.UNDROPPABLE
-	Tag "$WEP_6_7_TAG"
+	Tag "$WEP_6_8_TAG"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.4

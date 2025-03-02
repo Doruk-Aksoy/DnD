@@ -49,17 +49,17 @@ DND_TOKENN2			=	"GunsmithToken";
 // Inventory images
 
 // charms
-DND_CIMG1			=	"SCHRM1";
-DND_CIMG2			=	"SCHRM2";
-DND_CIMG3			=	"SCHRM3";
+DND_CSIMG1			=	"SCHRM1";
+DND_CSIMG2			=	"SCHRM2";
+DND_CSIMG3			=	"SCHRM3";
 	
-DND_CIMG4			=	"MCHRM1";
-DND_CIMG5			=	"MCHRM2";
-DND_CIMG6			=	"MCHRM3";
+DND_CMIMG1			=	"MCHRM1";
+DND_CMIMG2			=	"MCHRM2";
+DND_CMIMG3			=	"MCHRM3";
 
-DND_CIMG7			=	"LCHRM1";
-DND_CIMG8			=	"LCHRM2";
-DND_CIMG9			=	"LCHRM3";
+DND_CGIMG1			=	"LCHRM1";
+DND_CGIMG2			=	"LCHRM2";
+DND_CGIMG3			=	"LCHRM3";
 	
 // unique charms
 DND_UCIMG1			=	"UCHRM1";
@@ -345,11 +345,11 @@ IATTR_T46 			= "all elemental resists";
 IATTR_T47 			= "physical resist";
 IATTR_T48 			= "reflect resist";
 	
-IATTR_T49 			= "physical resist penetration";
-IATTR_T50 			= "energy resist penetration";
-IATTR_T51 			= "explosive resist penetration";
-IATTR_T52 			= "magic resist penetration";
-IATTR_T53 			= "elemental resist penetration";
+IATTR_T49 			= "physical pierce";
+IATTR_T50 			= "energy pierce";
+IATTR_T51 			= "explosive pierce";
+IATTR_T52 			= "magic pierce";
+IATTR_T53 			= "elemental pierce";
 	
 IATTR_T54 			= "fire damage";
 IATTR_T55 			= "ice damage";
@@ -421,10 +421,10 @@ IATTR_T105			= "increased ice damage";
 IATTR_T106			= "increased poison damage";
 IATTR_T107			= "increased lightning damage";
 
-IATTR_T108			= "fire resist penetration";
-IATTR_T109			= "ice resist penetration";
-IATTR_T110			= "lightning resist penetration";
-IATTR_T111			= "poison resist penetration";
+IATTR_T108			= "fire pierce";
+IATTR_T109			= "ice pierce";
+IATTR_T110			= "lightning pierce";
+IATTR_T111			= "poison pierce";
 
 IATTR_T112			= "magic negation";
 
@@ -469,7 +469,7 @@ IATTR_TI9			= "armor and energy shield,";
 
 // essences
 IATTR_TE1 			= "Explosion damage ignores enemy resistances";
-IATTR_TE2 			= "Soul weapons penetrate ";
+IATTR_TE2 			= "Soul weapons pierce ";
 IATTR_TE3 			= " accuracy rating";
 IATTR_TE4 			= " increased accuracy rating";
 IATTR_TE5 			= "Ignite damage increases for each tic by ";
@@ -513,14 +513,14 @@ IATTR_TX28 			= "Curse Immunity";
 IATTR_TX29			= "Can only use";					IATTR_TX29_2S		= "small charm";	IATTR_TX29_2		= "small charms";
 IATTR_TX30			= "damage to shotguns per shotgun owned";
 IATTR_TX31			= "less effect of healing";
-IATTR_TX32			= "Soul weapons penetrate";
+IATTR_TX32			= "Soul weapons pierce";
 IATTR_TX33			= "Gain \cd1%\c- increased damage per 20 accuracy rating"; IATTR_TX33A = "Gain \cd1%\c- increased crit chance per 20 accuracy rating"; IATTR_TX33B = "Lose \cg1%\c- crit damage per 45 accuracy rating";
 IATTR_TX34			= "Gain \cd2%\c- more damage per \cg1%\c- missing ammo on current weapon";
 IATTR_TX35			= "Weapons consume";				IATTR_TX35S = "increased ammo";
 IATTR_TX36			= "less ammo capacities";
 IATTR_TX37			= "Your main attributes are transformed to \cfUnity\c-";	IATTR_TX_UNITY = "Per 10 unity, gain";	UNITY = "Unity";
 IATTR_TX38			= "damage resistance to every damage type";
-IATTR_TX39			= "resist penetration to every damage type";
+IATTR_TX39			= "resist pierce to every damage type";
 IATTR_TX40			= "\c[D4]Your main attributes other than \cfUnity\c[D4] grant no bonuses";
 IATTR_TX41			= "Intellect provides damage bonus to all melee weapons at";	IATTR_TX41S = "the attunement of Strength"; IATTR_TX41B = "\cgStrength provides no bonuses\c-";
 IATTR_TX42			= "chance to immediately start recovering energy shield on depletion";
@@ -539,7 +539,7 @@ IATTR_TX54			= "Killing demons builds stacks of \cgDaemonic Barrier\c-, up to \c
 IATTR_TX55			= "Soul ammo instead makes soul weapons not use ammo for"; IATTR_TX55S = "seconds";
 IATTR_TX56			= "The next"; IATTR_TX56S = "souls picked up only give ammo";
 IATTR_TX57			= "Strength has extra"; IATTR_TX57S = "attunement for melee weapons";
-IATTR_TX58			= "Your fire/ice/lightning/poison penetration is equal to the highest of the four";
+IATTR_TX58			= "Your fire/ice/lightning/poison pierce is equal to the highest of the four";
 IATTR_TX59			= "Overheating weapons can fire while overheated";
 IATTR_TX60			= "Can't fire weapons that don't overheat while a weapon has overheated";
 IATTR_TX61			= "more damage to overheating weapons per overheat percent";

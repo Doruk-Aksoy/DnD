@@ -3,6 +3,7 @@ Actor "Upgraded Rocket Launcher2" : DnDWeapon {
 	Weapon.Slotnumber 5
 	Inventory.PickupSound "weapons/pickup"
 	+INVENTORY.UNDROPPABLE
+	Weapon.AmmoType "RocketAmmo"
 	Tag "$WEP_5_10_TAG"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 1.6

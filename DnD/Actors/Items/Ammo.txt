@@ -1015,6 +1015,15 @@ Actor AxeMana : Ammo {
 	+IGNORESKILL
 }
 
+Actor SniperRounds : Ammo {
+	inventory.amount 8
+	inventory.maxamount 40
+	inventory.icon "SNIAMM"
+	ammo.backpackamount 8
+	ammo.backpackmaxamount 40
+	+IGNORESKILL
+}
+
 //////////////////////////////
 //      TEMPORARY AMMO      //
 //////////////////////////////

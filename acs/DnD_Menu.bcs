@@ -787,8 +787,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HandleAmmoPageDraw(pnum, boxid, DND_AMMOSLOT_SHELL, -1, AMMOSLOT_SHELL2_BEGIN, AMMOSLOT_SHELL2_END, false);
 			else if(curopt == MENU_SHOP_AMMO_3)
 				HandleAmmoPageDraw(pnum, boxid, DND_AMMOSLOT_ROCKET, 0, AMMOSLOT_ROCKET_BEGIN, AMMOSLOT_ROCKET_END, false);
-			else if(curopt == MENU_SHOP_AMMO_4)
-				HandleAmmoPageDraw(pnum, boxid, DND_AMMOSLOT_CELL, 0, AMMOSLOT_CELL_BEGIN, AMMOSLOT_CELL_END, false);
+			else if(curopt == MENU_SHOP_AMMO_4_1)
+				HandleAmmoPageDraw(pnum, boxid, DND_AMMOSLOT_CELL, 1, AMMOSLOT_CELL_BEGIN, AMMOSLOT_CELL_END, false);
+			else if(curopt == MENU_SHOP_AMMO_4_2)
+				HandleAmmoPageDraw(pnum, boxid, DND_AMMOSLOT_CELL, -1, AMMOSLOT_CELL2_BEGIN, AMMOSLOT_CELL2_END, false);
 			else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
 				HandleAmmoPageDraw(pnum, boxid, -1, 0, -1, -1, true);
 			else if(curopt == MENU_SHOP_ABILITY_1) {
@@ -1653,7 +1655,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 						UpdateMenuPosition(MENU_SHOP_AMMO_3);
 					break;
 					case 4:
-						UpdateMenuPosition(MENU_SHOP_AMMO_4);
+						UpdateMenuPosition(MENU_SHOP_AMMO_4_1);
 					break;
 					case 5:
 						UpdateMenuPosition(MENU_SHOP_AMMO_SPECIAL1);
@@ -1673,8 +1675,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL2_BEGIN, MENU_SHOP_AMMO_2, -1, false);
 		else if(curopt == MENU_SHOP_AMMO_3)
 			HandleAmmoPageInput(pnum, DND_AMMOSLOT_ROCKET, boxid, AMMOSLOT_ROCKET_BEGIN, -1, -1, false);
-		else if(curopt == MENU_SHOP_AMMO_4)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL_BEGIN, -1, -1, false);
+		else if(curopt == MENU_SHOP_AMMO_4_1)
+			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL_BEGIN, -1, MENU_SHOP_AMMO_4_2, false);
+		else if(curopt == MENU_SHOP_AMMO_4_2)
+			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL2_BEGIN, MENU_SHOP_AMMO_4_1, -1, false);
 		else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
 			HandleAmmoPageInput(pnum, -1, boxid, 0, -1, -1, true);
 		else if(curopt == MENU_SHOP_ABILITY_1) {

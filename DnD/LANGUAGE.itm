@@ -47,13 +47,14 @@ DND_AMMO_2_8		=	"Prometheus' Hammer";
 DND_AMMO_3_0		=	"Cells";
 DND_AMMO_3_1		=	"Devastator Rockets";
 DND_AMMO_3_2		=	"Ever Ice";
-DND_AMMO_3_3		=	"Fuel Tank";
-DND_AMMO_3_4		=	"Lightning Cells";
-DND_AMMO_3_5		=	"Nails";
-DND_AMMO_3_6		=	"Lava Cells";
-DND_AMMO_3_7		=	"Ion Cell";
-DND_AMMO_3_8		=	"Thunder Mana";
-DND_AMMO_3_9		=	"Gauss Rounds";
+DND_AMMO_3_3		=	"Sniper Rounds";
+DND_AMMO_3_4		=	"Fuel Tank";
+DND_AMMO_3_5		=	"Lightning Cells";
+DND_AMMO_3_6		=	"Nails";
+DND_AMMO_3_7		=	"Lava Cells";
+DND_AMMO_3_8		=	"Ion Cell";
+DND_AMMO_3_9		=	"Thunder Mana";
+DND_AMMO_3_10		=	"Gauss Rounds";
 
 DND_AMMO_SOULS		=	"Souls";
 

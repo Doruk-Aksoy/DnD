@@ -8,6 +8,9 @@
 
 #define LESS_OVERHEAT_FACTOR 20
 
+#define SNIPER_CRIT_MAX 100
+#define SNIPER_CRIT_BOOST_PER (0.75 / SNIPER_CRIT_MAX)
+
 #define THUNDERSTAFF_SELFDMG_DIST 160.0
 
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
@@ -144,11 +147,12 @@ enum {
 	DND_WEAPON_NUCLEARPLASMARIFLE,
 	DND_WEAPON_TURELCANNON,
 	DND_WEAPON_FROSTFANG,
+	DND_WEAPON_SNIPER,
 	DND_WEAPON_FLAMETHROWER,
 	DND_WEAPON_LIGHTNINGGUN,
 	DND_WEAPON_REBOUNDER,
+
 	DND_WEAPON_DARKLANCE,
-	
 	DND_WEAPON_RHINORIFLE,
 	DND_WEAPON_NAILGUN,
 	DND_WEAPON_BASILISK,
@@ -1048,6 +1052,16 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_FROSTFANG].properties = WPROP_RIPPER | WPROP_CANTHITGHOST | WPROP_MAGIC;
 	Weapons_Data[DND_WEAPON_FROSTFANG].attunement[STAT_DEX] = 0.01;
 	Weapons_Data[DND_WEAPON_FROSTFANG].attunement[STAT_INT] = 0.04;
+
+	Weapons_Data[DND_WEAPON_SNIPER].name = "Upgraded Plasma Rifle4";
+	Weapons_Data[DND_WEAPON_SNIPER].ammo_name1 = "SniperRounds";
+	Weapons_Data[DND_WEAPON_SNIPER].ammo_name2 = "SniperZoomTimer";
+	Weapons_Data[DND_WEAPON_SNIPER].icon = "WEPIC100";
+	Weapons_Data[DND_WEAPON_SNIPER].ammo_use1 = 1;
+	Weapons_Data[DND_WEAPON_SNIPER].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_SNIPER].properties = WPROP_IGNORESHIELD | WPROP_TECH | WPROP_PRECISION;
+	Weapons_Data[DND_WEAPON_SNIPER].attunement[STAT_STR] = 0.02;
+	Weapons_Data[DND_WEAPON_SNIPER].attunement[STAT_DEX] = 0.03;
 	
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].name = "ResPlasma1";
 	Weapons_Data[DND_WEAPON_FLAMETHROWER].ammo_name1 = "Fuel";

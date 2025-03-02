@@ -349,12 +349,14 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 4000,  1,		1 },
 		{ 4500,  1,		1 },
 		{ 6500,  1,		1 },
+		{ 5250,  1,     1 },
 		{ 4800,  1,		1 },
         { 5250,  1,		1 },
 		{ 6000,  1,		1 },
-		{ 7500,	 1,		1 },
+		
 		
 		// 6 - 2
+		{ 7500,	 1,		1 },
 		{ 7000,  1,		1 },
 		{ 5000,  1,		1 },
 		{ 5500,  1,		1 },
@@ -427,6 +429,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 
 		{ 110,		1,		-1 },
 		{ 250,		1,		-1 },
+		{ 125,		1,		-1 },
 		
 		// Special Ammunition
 		{ 400,	    1, 		-1 },
@@ -553,12 +556,13 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
+		{ -1, -1, -1 },
 		{ RES_SLOT6UPG1, -1, -1 },
 		{ RES_SLOT6UPG2, -1, -1 },
 		{ RES_SLOT6UPG3, -1, -1 },
-		{ RES_SLOT6UPG4, -1, -1 },
 		
 	// wep slot 6 - 2
+		{ RES_SLOT6UPG4, -1, -1 },
 		{ RES_SLOT6LUXURY, -1, -1 },
 		{ RES_SLOT6LUXURY, -1, -1 },
 		{ RES_SLOT6LUXURY, -1, -1 },
@@ -628,6 +632,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 		{ RES_SLOT4UPG5, -1, -1 },
 
 	// ammo 5
+		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
 		
@@ -904,6 +909,7 @@ int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	DTYPE_ENERGY,
 	DTYPE_ENERGY,
 	DTYPE_ICE,
+	DTYPE_PHYSICAL,
 	DTYPE_FIRE,
 	DTYPE_LIGHTNING,
 	DTYPE_ENERGY,
@@ -1009,6 +1015,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	{ OBJ_WEP,												SHOP_WEP_NUCLEARPL		},
 	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_TUREL			},
 	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_FROSTFANG		},
+	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_SNIPER         },
 	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESPL1			},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL2			},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL3			},
@@ -1101,6 +1108,7 @@ int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
 		SHOP_AMMO_CELL,
 		SHOP_AMMO_DEVASTATOR,
 		SHOP_AMMO_EVERICE,
+		SHOP_AMMO_SNIPER,
 		SHOP_AMMO_FUEL,
 		SHOP_AMMO_LG,
 		SHOP_AMMO_NAIL,
@@ -1174,6 +1182,7 @@ struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
 
 	{ OBJ_AMMO,													SHOP_AMMO_AXEMANA			},
 	{ OBJ_AMMO,													SHOP_AMMO_HAMMER			},
+	{ OBJ_AMMO,													SHOP_AMMO_SNIPER			},
 	
 	// special ammos
 	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
@@ -1235,6 +1244,7 @@ int AmmoCounts[MAXSHOPAMMOS][2] = {
 	{ 8, DND_WEAPON_INCINERATOR },
 	{ 6, DND_WEAPON_AXE },
 	{ 1, DND_WEAPON_HAMMER },
+	{ 8, DND_WEAPON_SNIPER },
 	
 	// special
 	{ 8, -1 },

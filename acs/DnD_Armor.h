@@ -461,10 +461,10 @@ int DoArmorRatingEffect(int dmg, int rating) {
 	int dmg_f = BASE_ARMOR_FACTOR - HasMasteredPerk(STAT_END);
 	dmg_f = dmg - (dmg * rating) / (rating + dmg_f * dmg);
 
-	// minimum 15% of damage will be taken always
-	rating = 3 * dmg / 20;
+	// minimum 15% of damage will be taken always -- handled outside now
+	/*rating = 3 * dmg / 20;
 	if(dmg_f < rating)
-		dmg_f = rating;
+		dmg_f = rating;*/
 	return dmg_f;
 }
 

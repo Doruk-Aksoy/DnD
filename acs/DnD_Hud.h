@@ -177,7 +177,7 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 #define CRAFTING_IMAGE_COUNT 4
 #define MATERIALBOX_OFFSET (MAX_CRAFTING_ITEMBOXES * CRAFTING_IMAGE_COUNT - 7)
 
-#define MAX_CRAFTING_MATERIALBOXES 4//12
+#define MAX_CRAFTING_MATERIALBOXES 12
 
 void CleanInventoryInfo(int id_begin = RPGMENUINVENTORYID) {
 	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20 - ITEMINFOBG_MAXMIDS, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);

@@ -1,5 +1,6 @@
 Actor Doomguy_Perk5 : DnD_Boolean { }
 Actor Doomguy_CanExecute : DnD_Boolean { }
+Actor Doomguy_ChangedColor : DnD_Boolean { }
 Actor Doomguy_ValidExecute : DnD_Boolean { }
 
 Actor Doomguy_Perk25 : DnD_Boolean { }

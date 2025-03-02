@@ -142,7 +142,10 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 	amt = amt * (100 + bonus) / 100;
 	
 	// health bonus
-	if(isspecial == 5) {
+	if(isspecial == 6) { // x1.5 overheal
+		toGive = healthcap * 3 / 2 - curhp;
+	}
+	else if(isspecial == 5) {
 		// fixed to always go up to x2 health cap
 		toGive = healthcap * 2 - curhp;
 	}
@@ -920,11 +923,16 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 		chance += (HasPlayerPowerset(pnum, PPOWER_PRECISIONCRIT) && IsPrecisionWeapon(wepid)) * TACHELM_CRITBONUS;
 	}
 
+	// more player crit chance bonuses, only on sniper rifle currently
+	int pct_bonus = CheckInventory("SniperZoomTimer");
+	if(pct_bonus)
+		chance = FixedMul(chance, 1.0 + pct_bonus * SNIPER_CRIT_BOOST_PER);
+
 	// monster related bonuses
 	//if(victim != -1)
 	
 	// add percent bonuses here
-	int pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid) + (!!isLightning) * GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING);
+	pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid) + (!!isLightning) * GetPlayerAttributeValue(pnum, INV_EX_MORECRIT_LIGHTNING);
 	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS))
 		pct_bonus += DND_DEADEYE_BONUSF * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
 

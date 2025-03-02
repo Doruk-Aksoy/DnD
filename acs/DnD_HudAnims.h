@@ -2,7 +2,8 @@
 #define HUDANIM_IN
 
 enum {
-    DND_ANIM_DOOMGUYPUNCH
+    DND_ANIM_DOOMGUYPUNCH,
+    DND_ANIM_DOOMGUYKICK
 };
 
 Script "DnD Hud Animation" (int anim_id) CLIENTSIDE {
@@ -71,6 +72,84 @@ Script "DnD Hud Animation" (int anim_id) CLIENTSIDE {
                 }
                 SetFont(toShow);
                 HudMessage(s:"A"; HUDMSG_PLAIN, HUDANIMATED_ID, CR_WHITE, animx + 100.4, animy + 36.1, 1.0);
+                Delay(const:1);
+            }
+        break;
+        case DND_ANIM_DOOMGUYKICK:
+            hudx = 320;
+            hudy = 200;
+            SetHudsize(hudx, hudy, 0);
+            frame_count = 15;
+            animx = GetHudLeft(hudx) << 16;
+
+            for(; frame_id < frame_count; ++frame_id) {
+                switch(frame_id) {
+                    case 0:
+                        toShow = "DGKICK0";
+                        animx -= 1.0;
+                        animy -= 10.0;
+                    break;
+                    case 1:
+                        toShow = "DGKICK1";
+                        animx -= 2.0;
+                        animy -= 11.0;
+                    break;
+                    case 2:
+                        toShow = "DGKICK2";
+                        animx -= 4.0;
+                        animy -= 10.0;
+                    break;
+                    case 3:
+                    case 4:
+                        toShow = "DGKICK3";
+                        animx -= 5.0;
+                        animy -= 11.0;
+                    break;
+                    case 5:
+                    case 6:
+                        toShow = "DGKICK4";
+                        animx -= 5.0;
+                        animy -= 3.0;
+                    break;
+                    case 7:
+                        toShow = "DGKICK4";
+                        animx += 3.0;
+                        animy += 2.0;
+                    break;
+                    case 8:
+                        toShow = "DGKICK4";
+                        animx += 1.0;
+                        animy += 1.0;
+                    break;
+                    case 9:
+                    case 10:
+                        toShow = "DGKICK3";
+                        animx += 5.0;
+                        animy += 2.0;
+                    break;
+                    case 11:
+                        toShow = "DGKICK2";
+                        animx += 7.0;
+                        animy += 3.0;
+                    break;
+                    case 12:
+                        toShow = "DGKICK1";
+                        animx += 6.0;
+                        animy += 7.0;
+                    break;
+                    case 13:
+                        toShow = "DGKICK0";
+                        animx += 5.0;
+                        animy += 9.0;
+                    break;
+                    case 14:
+                        toShow = "DGKICK0";
+                        animx += 4.0;
+                        animy += 11.0;
+                    break;
+                }
+                SetFont(toShow);
+                HudMessage(s:"A"; HUDMSG_PLAIN, HUDANIMATED_ID, CR_WHITE, animx + 276.0, animy + 196.0, 1.0);
                 Delay(const:1);
             }
         break;

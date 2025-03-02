@@ -3,6 +3,7 @@
 
 void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
+	//Log(s:"alloc armor id: ", d:c, s: " for player: ", d:pnum);
 	int id = 0;
 	if(c != -1) {
         int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers, extra);
@@ -57,7 +58,7 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY =
 		#ifndef ISDEBUGBUILD
 			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
 		#else
-			if(random(0,2))
+			if(!random(0,3))
 		#endif
 		{
 			MakeUnique(c, DND_ITEM_CHARM, pnum);

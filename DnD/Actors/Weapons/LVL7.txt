@@ -5,6 +5,7 @@ Actor "BFG 9000" : DnDWeapon {
 	+INVENTORY.UNDROPPABLE
 	inventory.pickupmessage "\ccWeapon pickup: \c[Y5]BFG 6000"
 	Tag "$WEP_7_0_TAG"
+	Weapon.AmmoType "Cell"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 2.1
 	Weapon.BobRangeY 0.4
@@ -320,8 +321,8 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 	Weapon.BobRangeY 0.3
 	Weapon.BobRangeX 0.6
 	Weapon.AmmoGive 0
-	Weapon.AmmoUse1 5
-	Weapon.AmmoUse2 60
+	Weapon.AmmoUse1 0
+	Weapon.AmmoUse2 0
 	-NOAUTOFIRE
 	+WEAPON.NOAUTOAIM
 	States {
@@ -615,11 +616,12 @@ ACTOR MFG : DnDWeapon {
 	Weapon.SelectionOrder 6500
 	Inventory.PickupMessage "You got the Destruction Generator!"
 	Tag "$WEP_7_3_TAG"
+	Weapon.AmmoType "Cell"
 	Weapon.BobStyle InverseSmooth
 	Weapon.BobSpeed 1.6
 	Weapon.BobRangeY 0.35
 	Weapon.BobRangeX 0.6
-	Weapon.AmmoUse 60
+	Weapon.AmmoUse 0
 	Weapon.AmmoGive 0
 	+WEAPON.NOAUTOAIM
 	States {
@@ -1076,7 +1078,7 @@ ACTOR "Rail Gun" : DnDWeapon {
 	Obituary "%o was railed by %k."
 	Weapon.AmmoType "Cell"
 	Weapon.AmmoGive 40
-	Weapon.AmmoUse 8
+	Weapon.AmmoUse 0
 	Weapon.SlotNumber 7
 	+INVENTORY.UNDROPPABLE
 	+NOAUTOAIM

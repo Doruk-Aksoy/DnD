@@ -22,6 +22,8 @@ enum {
 };
 
 #define DND_EXP_BASEFACTOR 4
+#define DND_CREDITGAIN_FACTOR 1 // divides the regular gain by 2 -- was 2, now 1, goes up by 1
+#define DND_CREDITGAIN_PERLEVELREDUCE 10 // every 10 levels we reduce the gain
 #define DND_CREDIT_BASEFACTOR 5
 #define DND_RESEARCH_MAX_CHANCE 1.0
 
@@ -194,11 +196,6 @@ enum {
 
 #define RIP_FADE_TIMER 20
 #define RIP_MONSTER_FADE_DELAY 3 * TICRATE
-
-#define DND_NO_TRANSLATION 70
-#define DND_CRIT_TRANSLATION 71
-#define DND_RESIST_TRANSLATION 72
-#define DND_EXECUTE_TRANSLATION 75
 
 #define DND_SOULAMMO_DROPRATE 0.045 // 4.5% chance
 #define DND_SOULAMMO_STEALERUPGRADE 0.025 // 2.5% more chance
@@ -794,13 +791,17 @@ void HandleLegendaryMonsterDrop(int leg_mon_id, int pnum) {
 	SpawnUniqueCharm(pnum, unique_id);
 }
 
+int ApplyCreditFactor(int p_tid, int exp_base) {
+	return exp_base / (DND_CREDITGAIN_FACTOR + CheckActorInventory(p_tid, "Level") / DND_CREDITGAIN_PERLEVELREDUCE);
+}
+
 void HandleCreditExp_Regular(int this, int target, int m_id) {
 	int expshare = GetCVar("dnd_sharexp");
 	int creditshare = GetCVar("dnd_sharecredit");
 	
     // decide how exp/credit base is calculated
 	int exptemp = MonsterProperties[m_id].gain;
-	int credtemp = exptemp / DND_CREDITGAIN_FACTOR;
+	int credtemp = ApplyCreditFactor(target, exptemp);
     int pnum = 0, i = MonsterProperties[m_id].level;
 	
 	if(credtemp < DND_MIN_CREDIT)
@@ -867,7 +868,7 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 	
     // decide how exp/credit base is calculated
 	int exptemp = MonsterProperties[m_id].gain;
-	int credtemp = exptemp / DND_CREDITGAIN_FACTOR;
+	int credtemp = ApplyCreditFactor(target, exptemp);;
     int pnum = 0, i = MonsterProperties[m_id].level;
 	
 	if(credtemp < DND_MIN_CREDIT)
@@ -1296,6 +1297,7 @@ int GetAveragePlayerLevel() {
 }
 
 void ClearLingeringBuffs() {
+	TakeInventory("MenuFreeze", 1);
 	SetInventory("AllMapOnlyOnce", 0);
 	SetInventory("Punisher_Perk5_MoveSpeed", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
@@ -1331,6 +1333,9 @@ void ClearLingeringBuffs() {
 	// some buffs from spells, that arent powerups
 	SetInventory("Rally_DamageBuff", 0);
 	
+	// some buffs from weapons
+	SetInventory("SniperZoomTimer", 0);
+
 	// debuffs
 	SetInventory("RuinationStacks", 0);
 }
@@ -1533,6 +1538,83 @@ void HandleEndOfLevelRewards(int pnum) {
 	// Check quests
 	if(active_quest_id != -1)
 		CheckMapExitQuest(pnum, active_quest_id);
+}
+
+enum {
+	DND_NO_TRANSLATION = 70,
+	DND_CRIT_TRANSLATION,
+	DND_RESIST_TRANSLATION,
+
+	DND_EXECUTE_TRANSLATION = 75,
+
+	DND_QUAKEZOMBIESG_TRANSLATION,
+
+	DND_SMGGUY_TRANSLATION,
+	DND_QUAKEZOMBIECG_TRANSLATION,
+
+	DND_NETHERDARKIMP_TRANSLATION,
+
+	DND_FLAMEDEMON_TRANSLATION,
+	DND_SCAVENGER_TRANSLATION,
+	DND_NHUMCIGN_TRANSLATION,
+	DND_NIGHTMARESPECTRE_TRANSLATION,
+	DND_GRAVEDIGGER_TRANSLATION,
+	DND_DEVOURER_TRANSLATION,
+
+	DND_ENHANCEDCACO_TRANSLATION,
+
+	DND_DEFILER_TRANSLATION,
+
+	DND_CADAVER_TRANSLATION,
+
+	DND_ICEFATSO_TRANSLATION,
+
+	DND_DREADKNIGHT_TRANSLATION,
+	DND_BLOODSATYR_TRANSLATION,
+	DND_MOONSATYR_TRANSLATION,
+	DND_WARLORDHELL_TRANSLATION,
+	DND_LORDHERESY_TRANSLATION,
+	DND_BARBATOS_TRANSLATION,
+	DND_KJAROCH_TRANSLATION,
+
+	DND_HORSHACKER_TRANSLATION
+};
+
+// to do: when acs and zandronum support TRNSLATE lump, move this crap there
+void CreateMonsterTranslationTables() {
+	// ravagerghost translation is Ice
+	CreateTranslation(DND_QUAKEZOMBIESG_TRANSLATION, 128:143=25:40, 236:239=41:47);
+	
+	CreateTranslation(DND_SMGGUY_TRANSLATION, 112:127=[146,67,51]:[7,0,0]);
+	CreateTranslation(DND_QUAKEZOMBIECG_TRANSLATION, 236:239=108:111, 128:143=92:107);
+	
+	CreateTranslation(DND_NETHERDARKIMP_TRANSLATION, 16:49=112:122, 48:51=112:113, 160:167=112:119, 168:191=114:120, 197:206=160:166, 208:223=116:117, 232:235=116:119, 248:254=115:121);
+	
+	CreateTranslation(DND_FLAMEDEMON_TRANSLATION, 16:39=101:111, 40:47=5:8, 79:79=8:8, 190:191=7:8, 210:223=87:100, 224:224=161:161);
+	CreateTranslation(DND_SCAVENGER_TRANSLATION, 1:2=[2,2,1]:[1,1,1], 7:8=0:0, 9:12=[18,14,12]:[3,2,2], 15:15=[5,4,3]:[5,4,3], 78:78=[12,9,8]:[12,9,8], 127:131=[1,1,1]:[165,133,111], 152:159=[124,94,73]:[24,20,17]);
+	CreateTranslation(DND_NHUMCIGN_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[1.17,0.10,1.29], 0:47=0:47, 80:127=80:127, 152:235=152:235, 240:255=240:255);
+	CreateTranslation(DND_NIGHTMARESPECTRE_TRANSLATION, 16:31=199:207, 32:47=240:247, 79:79=247:247, 80:111=96:111, 190:191=246:247, 210:223=194:199);
+	CreateTranslation(DND_GRAVEDIGGER_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[0.64,0.55,1.02], 0:15=0:15, 48:78=48:78, 80:111=80:111, 160:189=160:189, 224:231=224:231);
+	CreateTranslation(DND_DEVOURER_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[0.52,0.45,0.34], 48:78=48:78, 80:111=80:111, 160:189=160:189, 224:235=224:235);
+	
+	CreateTranslation(DND_WARLORDHELL_TRANSLATION, 1:2=8:0, 13:15=5:7, 48:64=90:110, 64:70=109:112, 70:83=5:10, 110:123=196:207, 80:111=80:111, 124:127=242:245, 128:141=102:111, 143:149=104:114, 142:143=5:5, 148:151=5:7);
+	CreateTranslation(DND_BLOODSATYR_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[1.10,0.13,0.13], 3:8=3:8, 16:47=16:47, 80:111=80:111, 168:191=168:191);
+	
+	CreateTranslation(DND_ENHANCEDCACO_TRANSLATION, 9:12=190:190, 16:31=88:103, 32:39=104:109, 40:47=110:111, 112:116=173:175, 117:127=176:191, 166:166=14:14, 167:167=79:79, 168:175=80:103, 176:187=106:111, 188:189=5:5, 190:191=6:6, 192:207=168:191, 223:223=14:14, 235:235=107:107, 240:246=191:191);
+
+	CreateTranslation(DND_DEFILER_TRANSLATION, 1:2=7:8, 9:12=7:7, 13:14=2:2, 15:15=7:7, 63:77=0:3, 48:63=72:79, 64:67=238:239, 77:79=7:8, 128:134=110:112, 134:136=5:5, 137:140=1:1, 141:142=6:2, 143:143=2:2, 144:151=79:79, 149:151=1:2, 152:159=7:8, 236:237=1:2, 238:239=7:8);
+
+	CreateTranslation(DND_CADAVER_TRANSLATION, 1:2=0:0, 4:4=89:89, 13:15=5:7, 16:47=112:127, 16:20=106:110, 48:76=103:111, 48:48=90:90, 77:79=5:5, 80:108=90:111, 109:111=5:5, 131:167=5:8, 128:141=101:111, 144:149=107:111, 152:159=101:111, 160:167=118:123, 169:191=112:127, 168:170=89:97, 192:207=88:111, 209:223=117:122, 208:210=89:93, 224:224=89:89, 225:235=113:127, 236:239=5:5, 248:249=117:117);
+
+	CreateTranslation(DND_ICEFATSO_TRANSLATION, 1:2=109:110, 13:15=107:109, 17:18=87:88, 48:53=4:4, 53:79=80:106, 112:125=192:202, 128:143=90:111, 144:151=100:107, 209:213=81:89, 236:239=107:109);
+	
+	CreateTranslation(DND_MOONSATYR_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[1.12,1.20,1.57], 3:8=3:8, 16:47=16:47, 80:111=80:111, 168:191=168:191);
+	CreateTranslation(DND_BARBATOS_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[0.76,0.67,0.50], 0:47=0:47, 80:111=80:111, 160:191=160:191, 208:235=208:235);
+	CreateTranslation(DND_DREADKNIGHT_TRANSLATION, 3:3=40:40, 80:111=%[0.00,0.00,0.00]:[1.43,0.31,0.31]);
+	CreateTranslation(DND_LORDHERESY_TRANSLATION, 16:43=52:77, 33:33=220:220, 34:37=[155,91,19]:[155,91,19], 38:40=[135,67,7]:[135,67,7], 41:43=[115,43,0]:[115,43,0], 44:48=237:239, 190:191=238:238);
+	CreateTranslation(DND_KJAROCH_TRANSLATION, 0:47=[202,102,121]:[0,0,0], 0:12=0:12, 13:15=1:2, 48:72=102:111, 73:79=6:8, 79:79=8:8, 137:141=110:112, 141:143=5:5, 144:150=109:109, 151:164=6:110, 190:191=[4,2,2]:[0,0,0]);
+
+	CreateTranslation(DND_HORSHACKER_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[0.28,0.88,1.98], 80:111=80:111, 0:15=0:15, 128:159=128:159, 48:79=48:79, 160:167=160:167, 208:239=208:239, 249:249=249:249);
 }
 
 // registers a unique boss to clientside, can be used to reset it as well

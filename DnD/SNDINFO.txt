@@ -3,6 +3,9 @@ $pitchshiftrange 2
 NullSound				dsempty
 weapons/firex2          dsfirex2
 
+Sniper/Fire				SNIPFIRE
+Sniper/Zoom				SNIPZOOM
+
 UnstableExplosion		UNSTEXPL
 
 TemporalBubble/Pop		BUBLPOP

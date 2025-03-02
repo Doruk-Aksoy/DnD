@@ -349,14 +349,18 @@ str GetItemImage(int id, bool wide = false) {
 	str img_prefix = "";
 	int suffix = 0;
 	if(id <= ITEM_IMAGE_CHARM_END) {
-		img_prefix = "C";
-
-		if(id <= DND_LARGECHARM_IMAGEEND)
+		if(id >= DND_LARGECHARM_IMAGEBEGIN) {
 			suffix = id - DND_LARGECHARM_IMAGEBEGIN + 1;
-		else if(id <= DND_MEDIUMCHARM_IMAGEEND)
+			img_prefix = "CG";
+		}
+		else if(id >= DND_MEDIUMCHARM_IMAGEBEGIN) {
 			suffix = id - DND_MEDIUMCHARM_IMAGEBEGIN + 1;
-		else
+			img_prefix = "CM";
+		}
+		else {
 			suffix = id + 1;
+			img_prefix = "CS";
+		}
 	}
 	else if(id <= ITEM_IMAGE_UCHARM_END) {
 		img_prefix = "UC";
@@ -444,16 +448,19 @@ int CreateItemSpot() {
 	//Just having a loop here creates an error so avoid looping at all costs.
 	//Remember, the floor gets cleared on a new map, so most likely the older items are useless for the players anyways, except on 4k mob slaugher maps.
 	// Note: This table for free items index must be zero'd at the end of every map... otherwise we will try to give index to something already on field next map...
+	//Log(s:"curr index: ", d:PointerIndexTable[PTR_FREEITEMWORLD]);
 	if ((++PointerIndexTable[PTR_FREEITEMWORLD]) >= MAX_INVENTORIES_ON_FIELD)
 		PointerIndexTable[PTR_FREEITEMWORLD] = 0;
 		
 	// clear properties of this item before creating it -- fixes garbage data leftovers
+	//Log(s:"clear id ", d:PointerIndexTable[PTR_FREEITEMWORLD]);
 	RemoveItemFromWorld(PointerIndexTable[PTR_FREEITEMWORLD]);
-	
+	//Log(s:"use id ", d:PointerIndexTable[PTR_FREEITEMWORLD]);
 	return PointerIndexTable[PTR_FREEITEMWORLD];
 }
 
 void RemoveItemFromWorld(int fieldpos) {
+	//Log(s:"remove item id ", d:fieldpos);
 	Inventories_On_Field[fieldpos].width = 1;
 	Inventories_On_Field[fieldpos].height = 1;
 	Inventories_On_Field[fieldpos].item_type = DND_ITEM_NULL;
@@ -481,6 +488,8 @@ void RemoveItemFromWorld(int fieldpos) {
 
 // Deletes an item, essentially
 void FreeItem(int pnum, int item_index, int source, bool dontSync) {
+	//if(source == DND_SYNC_ITEMSOURCE_FIELD)
+	//	Log(s:"free item id ", d:item_index);
 	int i, j;
 	int temp;
 	int wtemp = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, item_index, -1, source);
@@ -3432,13 +3441,12 @@ void ResetTradeViewList(int pnum) {
 	}
 }
 
-void ResetFieldInventory() {
+/*void ResetFieldInventory() {
 	for(int i = 0; i < MAX_INVENTORIES_ON_FIELD; ++i) {
 		Inventories_On_Field[i].item_type = DND_ITEM_NULL;
 		Inventories_On_Field[i].width = 0;
 		Inventories_On_Field[i].height = 0;
 		Inventories_On_Field[i].item_image = 0;
-		Inventories_On_Field[i].item_type = DND_ITEM_NULL;
 		Inventories_On_Field[i].item_subtype = 0;
 		Inventories_On_Field[i].item_level = 0;
 		Inventories_On_Field[i].item_stack = 0;
@@ -3460,7 +3468,7 @@ void ResetFieldInventory() {
 		}
 		Inventories_On_Field[i].attrib_count = 0;
 	}
-}
+}*/
 
 void ResetPlayerStash(int pnum) {
 	for(int p = 0; p < MAX_EXTRA_INVENTORY_PAGES; ++p) {

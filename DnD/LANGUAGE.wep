@@ -87,14 +87,15 @@ WEP_6_0_TAG 			= 			"Plasma Rifle";
 WEP_6_1_TAG 			= 			"Nuclear Plasma Rifle";
 WEP_6_2_TAG 			= 			"Particle Cannon";
 WEP_6_3_TAG 			= 			"Frost Fang";
-WEP_6_4_TAG 			= 			"Flamethrower";
-WEP_6_5_TAG 			= 			"Lightning Gun";
-WEP_6_6_TAG 			= 			"Rebounder";
-WEP_6_7_TAG 			= 			"Dark Lance";
-	 
-WEP_6_8_TAG 			= 			"Rhino Assault Rifle";
-WEP_6_9_TAG 			= 			"Nail Gun";
-WEP_6_10_TAG 			= 			"Basilisk";
+WEP_6_4_TAG				=			"Anti-Personnel Rifle";
+WEP_6_5_TAG 			= 			"Flamethrower";
+WEP_6_6_TAG 			= 			"Lightning Gun";
+WEP_6_7_TAG 			= 			"Rebounder";
+
+WEP_6_8_TAG 			= 			"Dark Lance";
+WEP_6_9_TAG 			= 			"Rhino Assault Rifle";
+WEP_6_10_TAG 			= 			"Nail Gun";
+WEP_6_11_TAG 			= 			"Basilisk";
 	 
 WEP_7_0_TAG 			= 			"BFG 6000";
 WEP_7_1_TAG 			= 			"BFG 32768";
@@ -157,7 +158,7 @@ WEPTIP_0_7 		= "Sickle deals 40 - 60 damage 3 times. Slain enemies have 66% chan
 
 WEPTIP_1_0 		= "Your trustworthy Colt45, been with you since the start. Does 15 damage in a 0.5 spread. Can be \cdreplaced.";
 WEPTIP_1_1 		= "Akimbo longslides. Does 30 damage per shot firing silver bullets in a 3.5 by 2.5 spread.";
-WEPTIP_1_2 		= "Magnum is a true classic, shooting bullets each doing 150 - 225 damage. Has a capacity of 6. 50 damage from bullet rip through enemies.";
+WEPTIP_1_2 		= "Magnum is a true classic, shooting bullets each doing 150 - 200 damage. Has a capacity of 6. 50 damage from bullet rip through enemies.";
 WEPTIP_1_3 		= "Laser Pistol is the fresh invention of UAC. Shoots lasers doing 15 - 30 damage in a 2.0 by 1.25 spread. Alt fire charges to do up to a x5 damage rail. Doesn't use ammo.";
 WEPTIP_1_4 		= "Casts 3 flames doing 10-40 damage each. Alt fire casts a flame circle at most 384 units away doing 25 initial damage and creating 8 flames doing 32-64 damage on hit and 24 radius damage in 24 units.";
 WEPTIP_1_5 		= "Assault Rifle does 30 damage per bullet in a 3.6 by 2.4 spread. Magazine capacity of 31. Alt fire zooms, allowing more precise shots.";
@@ -221,14 +222,15 @@ WEPTIP_6_0 		= "Best friend of the trigger happy. Can be \cdreplaced.";
 WEPTIP_6_1 		= "Improved with a nuclear reactor, does 36 - 60 on hit and 10 - 30 energy damage in a 48 unit radius. Can \cgoverheat\c-. Does self damage.";
 WEPTIP_6_2 		= "Particle Cannon fires highly ionized particles doing 80 damage ripping through everything. Continuous fire is less accurate and does less damage to subsequent enemies. Has a range of 1024 units. Altfire fires focused shots with no damage penalty that go up to 1576 units for 135 damage.";
 WEPTIP_6_3 		= "Launches 5 ice shards doing 15 - 30 damage in a 7.5 by 7.5 spread. Alt fire launches a glacial orb launching ice shards all around with itself doing 6-9 damage and rips through enemies. Can't hit \cughosts.";
-WEPTIP_6_4 		= "Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.";
-WEPTIP_6_5 		= "UAC offers this shockingly deadly weapon that can shoot lightning doing 7-10 damage. Alt fire shoots forked lightning. Keep firing to do 2% more damage per stack. Stacks additively.";
-WEPTIP_6_6 		= "Fires projectiles doing 35 damage. For every 15 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.";
-WEPTIP_6_7 		= "Fire lances that penetrate all targets dealing 25 damage each. The lance grows stronger the more it deals damage. Altfire uses all stacks to curse an enemy, dealing 50 damage + 1% more damage per stack every 0.2 seconds for 3 seconds. The curse bounces to nearby enemies, \cfignoring shields.";
+WEPTIP_6_4		= "Fires armor piercing rounds that do 350-400 damage. Altfire to scope, getting more precise and deadlier shots with additional chance to critical strike the longer you stay scoped up to 75% more. \cfIgnores shields.";
+WEPTIP_6_5 		= "Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.";
+WEPTIP_6_6 		= "UAC offers this shockingly deadly weapon that can shoot lightning doing 7-10 damage. Alt fire shoots forked lightning. Keep firing to do 2% more damage per stack. Stacks additively.";
+WEPTIP_6_7 		= "Fires projectiles doing 35 damage. For every 15 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.";
+WEPTIP_6_8 		= "Fire lances that penetrate all targets dealing 25 damage each. The lance grows stronger the more it deals damage. Altfire uses all stacks to curse an enemy, dealing 50 damage + 1% more damage per stack every 0.2 seconds for 3 seconds. The curse bounces to nearby enemies, \cfignoring shields.";
 	 
-WEPTIP_6_8 		= "Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 spread. Alt fire zooms, allowing for higher precision but loss of rapid fire. Can use \cialternate\c- ammo. Reload when full to use other ammo.";
-WEPTIP_6_9 		= "An interesting demonic artifact shooting nails. Each nail does 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.\c- Can't hit \cughosts.";
-WEPTIP_6_10 	= "Basilisk is said to be the ancient weapon of hell's most elite warriors. If not loaded, shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage. \cf Ignores shields.";
+WEPTIP_6_9 		= "Rhino AR fires heavy rounds dealing 75 damage in a 7.2 by 4.8 spread. Alt fire zooms, allowing for higher precision but loss of rapid fire. Can use \cialternate\c- ammo. Reload when full to use other ammo.";
+WEPTIP_6_10 	= "An interesting demonic artifact shooting nails. Each nail does 13 - 21 damage and rips through. Alt fire shoots explosive lava nails that \cfignores shields.\c- Can't hit \cughosts.";
+WEPTIP_6_11 	= "Basilisk is said to be the ancient weapon of hell's most elite warriors. If not loaded, shoots fire balls doing 18 - 48 damage. If loaded, shoots meteors doing 72 - 144 on impact and 96 explosion damage. \cfIgnores shields.";
 	 
 WEPTIP_7_0 		= "BFG 6000, an older model but still capable. Can be \cdreplaced. \cfIgnores shields.";
 WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on impact and 224 damage in a 160 unit radius.";

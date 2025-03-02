@@ -69,12 +69,14 @@ enum {
 	AMMO_CELL = 0,
 	AMMO_DEVASTATOR,
 	AMMO_EVERICE,
+	AMMO_SNIPER,
 	AMMO_FUEL,
 	AMMO_LIGHTNING,
 	AMMO_NAIL,
 	AMMO_LAVA,
 	AMMO_ION,
 	AMMO_THUNDER,
+
 	AMMO_GAUSS,
 	
 	// category 6 (soul weapons -- only 1 ammo type here)
@@ -97,7 +99,11 @@ enum {
 #define AMMOSLOT_ROCKET_END AMMO_HAMMER
 
 #define AMMOSLOT_CELL_BEGIN AMMO_CELL
-#define AMMOSLOT_CELL_END AMMO_GAUSS
+#define AMMOSLOT_CELL_END AMMO_THUNDER
+
+#define AMMOSLOT_CELL2_BEGIN AMMO_GAUSS
+#define AMMOSLOT_CELL2_END AMMO_GAUSS
+#define AMMOSLOT_CELL2_REALEND AMMO_GAUSS
 
 int GetAmmoSlotMaxIndex(int ammo_slot) {
 	int res = 1;
@@ -113,7 +119,7 @@ int GetAmmoSlotMaxIndex(int ammo_slot) {
 			res = AMMOSLOT_ROCKET_END + 1;
 		break;
 		case DND_AMMOSLOT_CELL:
-			res = AMMOSLOT_CELL_END + 1;
+			res = AMMOSLOT_CELL2_REALEND + 1;
 		break;
 	}
 
@@ -275,6 +281,10 @@ void SetupAmmoInfos() {
 	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_EVERICE].initial_capacity = 240;
 	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_EVERICE].icon = "EICEAM1";
 	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_EVERICE].name = "EverIce";
+
+	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_SNIPER].initial_capacity = 40;
+	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_SNIPER].icon = "SNIAMM";
+	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_SNIPER].name = "SniperRounds";
 
 	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_FUEL].initial_capacity = 250;
 	AmmoInfo[DND_AMMOSLOT_CELL][AMMO_FUEL].icon = "FUAMA0";

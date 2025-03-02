@@ -116,6 +116,7 @@ enum {
 	DND_PROJ_BASILISK_2,
 	DND_PROJ_FROSTFANG_1,
 	DND_PROJ_FROSTFANG_2,
+	DND_PROJ_SNIPER,
 	DND_PROJ_RHINO,
 	DND_PROJ_DARKLANCE_SHRED,
 	DND_PROJ_FLAMETHROWER,
@@ -491,6 +492,8 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_HAMMERMELEE].name = "BigHammerPuff";
 	ProjectileInfo[DND_PROJ_HAMMERMELEE].flags = DND_PROJ_MELEE;
 	ProjectileInfo[DND_PROJ_HAMMERMELEE].spd_range = 108.0;
+
+	// SLOT 6
 	
 	ProjectileInfo[DND_PROJ_PLASMA].name = "PlasmaBallX";
 	ProjectileInfo[DND_PROJ_PLASMA].flags = 0;
@@ -527,6 +530,10 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_FROSTFANG_2].name = "FrostFangBall";
 	ProjectileInfo[DND_PROJ_FROSTFANG_2].flags = DND_PROJ_HASGHOSTHITTER;
 	ProjectileInfo[DND_PROJ_FROSTFANG_2].spd_range = 8;
+
+	ProjectileInfo[DND_PROJ_SNIPER].name = "SniperPuff";
+	ProjectileInfo[DND_PROJ_SNIPER].flags = DND_PROJ_HITSCAN;
+	ProjectileInfo[DND_PROJ_SNIPER].spd_range = HITSCAN_RANGE_DEFAULT;
 	
 	ProjectileInfo[DND_PROJ_RHINO].name = "RhinoPuff";
 	ProjectileInfo[DND_PROJ_RHINO].flags = DND_PROJ_HITSCAN;
@@ -540,6 +547,7 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_DARKLANCE_SHRED].flags = 0;
 	ProjectileInfo[DND_PROJ_DARKLANCE_SHRED].spd_range = 45;
 	
+	// SLOT 7
 	ProjectileInfo[DND_PROJ_BFG6000].name = "BFGBall2";
 	ProjectileInfo[DND_PROJ_BFG6000].flags = 0;
 	ProjectileInfo[DND_PROJ_BFG6000].spd_range = 25;
@@ -548,7 +556,6 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_BFG32768].flags = 0;
 	ProjectileInfo[DND_PROJ_BFG32768].spd_range = 25;
 
-	// SLOT 7
 	ProjectileInfo[DND_PROJ_DEVASTATOR].name = "DevastatorRocket";
 	ProjectileInfo[DND_PROJ_DEVASTATOR].flags = DND_PROJ_HASGHOSTHITTER;
 	ProjectileInfo[DND_PROJ_DEVASTATOR].spd_range = 32;
@@ -733,6 +740,7 @@ enum {
 	DND_HITSCAN_VINDICATOR,
 	DND_HITSCAN_HAMMER,
 
+	DND_HITSCAN_SNIPER,
 	DND_HITSCAN_RHINO,
 
 	DND_HITSCAN_ION,
@@ -1033,6 +1041,12 @@ void SetupHitscanData() {
 		DND_WEAPON_HAMMER |
 		(DND_DMGID_2 << CACHE_SHIFT) |
 		(DND_DAMAGETYPE_MELEE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT);
+
+	HitscanDamageData[DND_HITSCAN_SNIPER] = 
+		DND_WEAPON_SNIPER |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT);
 
 	HitscanDamageData[DND_HITSCAN_RHINO] = 

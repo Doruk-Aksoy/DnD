@@ -244,6 +244,8 @@ Script "DnD On Map Load" OPEN {
 		++i;
 	}
 
+	CreateMonsterTranslationTables();
+
 	SetupEliteModWeights();
 
 	SetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
@@ -740,6 +742,7 @@ Script "DND On Revive" (void) {
 	TakeInventory("Mo_Died", 1);
 	TakeInventory("MonsterKilledByPlayer", 1);
 	TakeInventory("Doomguy_CanExecute", 1);
+	TakeInventory("Doomguy_ChangedColor", 1);
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
 	int this = ActivatorTID();
 	int id = this - DND_MONSTERTID_BEGIN;
@@ -842,6 +845,11 @@ Script "DND On Kill" KILL {
 	
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
+
+	if(CheckInventory("Doomguy_ChangedColor")) {
+		TakeInventory("Doomguy_ChangedColor", 1);
+		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", this, 1, MonsterProperties[m_id].id);
+	}
 	
 	int target = GetActorProperty(0, APROP_TARGETTID), temp;
 
@@ -2421,6 +2429,11 @@ Script "DnD Bonus Message Show" (int bonustype) CLIENTSIDE {
 Script "DnD Monster Scanner Picker" (void) {
 	int this = ActivatorTID();
 	while(isActorAlive(this)) {
+		if(CheckActorInventory(this, "ShowingMenu")) {
+			Delay(const:3);
+			continue;
+		}
+
 		SetActivatorToTarget(this);
 		
 		int montid = ActivatorTID();
@@ -2767,6 +2780,7 @@ Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
+	ClearLingeringBuffs();
 	SetInventory("PlayerIsLeeching", 0);
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
@@ -4963,7 +4977,7 @@ Script "DnD Doomguy Soul Pickup" (int val) {
 	val = Clamp_Between(val / DND_DOOMGUY_HEALDIV, 1, DND_DOOMGUY_MAXHEAL);
 	// setactivatortotarget is SHIT
 	SetActivator(0, AAPTR_TARGET);
-	ACS_NamedExecuteAlways("DnD Health Pickup", 0, val, 0, 0);
+	ACS_NamedExecuteAlways("DnD Health Pickup", 0, val, 6, 0);
 }
 
 Script "DnD Init Shared Translation" (void) {
@@ -5157,9 +5171,12 @@ Script "DnD Tcherno Corpse Explode Gib Giver" (int i) CLIENTSIDE {
 	GiveActorInventory(i, "TchernoCorpseExploder_Gibber", 1);
 }
 
-Script "DnD Item Linger Check" (int sp) {
+Script "DnD Item Linger Check" (void) {
+	if(CheckInventory("DnD_NoLingerCheck"))
+		Terminate;
+
 	int counter = 0;
-	sp >>= 16;
+	int sp = GetActorProperty(0, APROP_MASS) >> 16;
 	while(counter < DND_ITEM_LINGER_TIME) {
 		++counter;
 		Delay(const:TICRATE);
@@ -5697,9 +5714,6 @@ Script 68 (int x) NET {
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_CYBERNETIC, INV_AMMOGAIN_CHANCE);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_WINTER, true, false, 300);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_EMBERS, true, false, 300);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_VILE, true, false, 300);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_FORTITUDE, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			//IncPlayerModValue(0, INV_ESHIELD_ABSORB, 25);
@@ -5751,6 +5765,10 @@ Script 68 (int x) NET {
 			IncPlayerModValue(PlayerNumber(), INV_ESS_OMNISIGHT2, 10);
 			CalculatePlayerAccuracy(PlayerNumber());
 		}
+		else if(x == 599)
+			ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_DOOMGUYPUNCH);
+		else if(x == 600)
+			ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_DOOMGUYKICK);
 		else if(x == 666)
 			ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
 		else if(x == 667)

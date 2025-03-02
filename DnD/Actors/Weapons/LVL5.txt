@@ -7,6 +7,7 @@ Actor "Rocket Launcher" : DnDWeapon {
     Weapon.BobSpeed 1.6
     Weapon.BobRangeY 0.5
     Weapon.BobRangeX 0.9
+	Weapon.AmmoType "RocketAmmo"
 	Weapon.AmmoUse 0
 	Weapon.AmmoGive 0
 	Tag "$WEP_5_0_TAG"
@@ -55,6 +56,7 @@ Actor "Rocket Launcher" : DnDWeapon {
 
 Actor "Upgraded Rocket Launcher" : DnDWeapon {	
 	Weapon.Slotnumber 5
+	Weapon.AmmoType "RocketAmmo"
 	Inventory.PickupSound "weapons/pickup"
 	+INVENTORY.UNDROPPABLE
 	Tag "$WEP_5_1_TAG"

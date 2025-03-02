@@ -125,52 +125,52 @@ global int 54: Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS];
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 8 | (16 << 16);
+		return 6 | (15 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 12 | (21 << 16);
+		return 9 | (20 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 20 | (30 << 16);
+		return 15 | (28 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 26 | (33 << 16);
+		return 21 | (32 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 28 | (35 << 16);
+		return 24 | (35 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 16 | (25 << 16);
+		return 12 | (24 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 60 | (50 << 16);
+		return 45 | (50 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 72 | (60 << 16);
+		return 54 | (60 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 32 | (24 << 16);
+		return 24 | (24 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 44 | (40 << 16);
+		return 33 | (40 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 64 | (52 << 16);
+		return 48 | (52 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 108 | (75 << 16);
+		return 81 | (75 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 104 | (75 << 16);
+		return 76 | (75 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 96 | (75 << 16);
+		return 72 | (75 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 120 | (96 << 16);
+		return 90 | (96 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 800 | (125 << 16);
+		return 600 | (125 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
 		return 1080 | (135 << 16);
@@ -821,7 +821,6 @@ enum {
 };
 
 #define DND_ELITE_GAINBONUS 30 // 30%
-#define DND_CREDITGAIN_FACTOR 3 // divides the regular gain by 3
 
 int GetMonsterLevelDroprateBonus(int lvl) {
 	// piecewise function so the early 25 levels increase sharper, then slow down but reach to a sweet spot of x2.5

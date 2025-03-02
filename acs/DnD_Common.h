@@ -694,6 +694,8 @@ void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecia
 	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0) + zoffset, DND_DROP_TID);
 	if(!noRandomVelXY)
 		ThrustThing(random(0, 255), random(3, 6), 0, DND_DROP_TID);
+	else
+		GiveActorInventory(DND_DROP_TID, "DnD_NoLingerCheck", 1);
 	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
 	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
 	Thing_ChangeTID(DND_DROP_TID, 0);

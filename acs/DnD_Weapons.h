@@ -1547,6 +1547,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			else
 				proj_id = DND_PROJ_FROSTFANG_2;
 		break;
+		case DND_WEAPON_SNIPER:
+			use_default = true;
+			proj_id = DND_PROJ_SNIPER;
+			hitscan_id = DND_HITSCAN_SNIPER;
+			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
+				sp_x = 5.4;
+				sp_y = 3.6;
+			}
+			else {
+				sp_x = 0.0;
+				sp_y = 0.0;
+			}
+		break;
 		case DND_WEAPON_RHINORIFLE:
 			use_default = true;
 			proj_id = DND_PROJ_RHINO;

@@ -146,6 +146,7 @@ Script "DnD Can Fire Weapon" (void) {
 				break;
 
 				// weapons that require only ammo1 to fire both primary and alt
+				case DND_WEAPON_SNIPER:
 				case DND_WEAPON_THUNDERSTAFF:
 				case DND_WEAPON_RAILGUN:
 				case DND_WEAPON_DARKGLOVES:
@@ -635,6 +636,9 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		case DND_WEAPON_FROSTFANG:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 3 | (6 << 16), wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 3, 2 | (3 << 16), wepid);
+		break;
+		case DND_WEAPON_SNIPER:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 10, 35 | (40 << 16), wepid);
 		break;
 		case DND_WEAPON_FLAMETHROWER:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 1 | (4 << 16), wepid);

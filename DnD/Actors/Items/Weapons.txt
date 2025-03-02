@@ -18,19 +18,22 @@ Actor DnDWeapon : Weapon {
 		Stop
 		
 		Zoom:
-			"####" "#" 0 A_JumpIfCloser(129, "ExecutionCheck")
+			"####" "#" 0 A_JumpIfInventory("Doomguy_Perk5", 1, "CanCheckExecution")
 			// zandronum safety
 		WaitForReady:
-			"####" "#" 0 A_Jump(256,"Ready")
-			"####" "####" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 35 A_Jump(256,"Ready")
+			"####" "#" 0 A_Jump(256, "Ready")
+			"####" "###" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 35 A_Jump(256, "Ready")
 		Wait
+		CanCheckExecution:
+			"####" "#" 0 A_JumpIfCloser(130, "ExecutionCheck")
+		Goto WaitForReady
 		ExecutionCheck:
 			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Execution"), "DoExecution")
 		Goto WaitForReady
 		
 		DoExecution:
-			"####" "#" 0 A_CustomPunch(200000, 1, 0, "ExecutionPuff", 128)
+			"####" "#" 0 A_CustomPunch(200000, 1, 0, "ExecutionPuff", 130)
 			"####" "#" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 0 A_JumpIfInventory("Doomguy_ValidExecute", 1, "ContinueExecute") 
 		Goto WaitForReady
@@ -40,18 +43,28 @@ Actor DnDWeapon : Weapon {
 			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "###" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 0 A_Jump(256, "Anim_Punch", "Anim_Kick")
+		Anim_Punch:
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_DOOMGUYPUNCH)
 			"####" "#" 0 A_GunFlash("PunchExecute", GFF_NOEXTCHANGE)
-			"####" "#" 11 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 12 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-			// zandronum safety
-			"####" "#" 0 A_Jump(256,"Ready")
-			"####" "####" 1 A_WeaponReady(WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 35 A_Jump(256,"Ready")
-		Wait
+			"####" "#" 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto WaitForReady
+		Anim_Kick:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_DOOMGUYKICK)
+			"####" "#" 0 A_GunFlash("KickExecute", GFF_NOEXTCHANGE)
+			"####" "#" 12 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto WaitForReady
+		
 		PunchExecute:
 			TNT1 A 0 A_PlaySound("weapons/fistmiss")
 			TNT1 A 5
@@ -63,11 +76,17 @@ Actor DnDWeapon : Weapon {
 			GK00 G 2
 			GK00 HIJKLM 1*/
 		Stop
+		KickExecute:
+			TNT1 A 0 A_PlaySound("Weapons/KickSwing")
+			TNT1 A 4
+			TNT1 A 11 A_PlaySound("Weapons/fisthit")
+		Stop
 	}
 }
 
 Actor ExecutionPuff {
 	DamageType "Execution"
+	Species "Player"
 	+NOINTERACTION
 	+PUFFGETSOWNER
 	+PUFFONACTORS
@@ -75,6 +94,8 @@ Actor ExecutionPuff {
 	+NOTIMEFREEZE
 	+BLOODLESSIMPACT
 	+NOEXTREMEDEATH
+	+THRUSPECIES
+	+MTHRUSPECIES
 	Obituary "%o was gloriously humiliated by %k."
 	States {
 		Spawn:

@@ -131,7 +131,7 @@ void ResetCursorDragData() {
 	PlayerCursorData.itemDragInfo.click_box = -1;
 }
 
-void resetCursorHoverProc() {
+void ResetCursorHoverProc() {
 	PlayerCursorData.itemHovered = -1;
 	PlayerCursorData.itemHoveredType = 0;
 	PlayerCursorData.itemHoveredSource = 0;
@@ -145,7 +145,7 @@ void resetCursorHoverProc() {
 void ResetCursorHoverData() {
 	// cleanup anything that is potentially shown by cursor hovering here
 	CleanInventoryInfo();
-	resetCursorHoverProc();
+	ResetCursorHoverProc();
 }
 
 void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, int offset, int dimx = 0, int dimy = 0) {
@@ -1818,6 +1818,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 181.0, 120.0, 175.0 }, // w5
 			{ 289.0, 165.0, 120.0, 159.0 }, // w6
 			{ 289.0, 149.0, 120.0, 143.0 }, // w7
+			{ 289.0, 133.0, 120.0, 127.0 }, // w8
 			{ 45.0, 280.0, 45.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
@@ -1910,7 +1911,7 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 117.0, 96.0, 109.0 }, // w9
 			{ -1, -1, -1, -1 }
 		},
-		// ammo 4
+		// ammo 4 - 1
 		{
 			{ 289.0, 245.0, 96.0, 237.0 }, // w1
 			{ 289.0, 229.0, 96.0, 221.0 }, // w2
@@ -1922,6 +1923,20 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 133.0, 96.0, 125.0 }, // w8
 			{ 289.0, 117.0, 96.0, 109.0 }, // w9
 			{ 289.0, 101.0, 96.0, 93.0 }, // w10
+			{ -1, -1, -1, -1 }
+		},
+		// ammo 4 - 2
+		{
+			{ 289.0, 245.0, 96.0, 237.0 }, // w1
+			/*{ 289.0, 229.0, 96.0, 221.0 }, // w2
+			{ 289.0, 213.0, 96.0, 205.0 }, // w3
+			{ 289.0, 197.0, 96.0, 189.0 }, // w4
+			{ 289.0, 181.0, 96.0, 173.0 }, // w5
+			{ 289.0, 165.0, 96.0, 157.0 }, // w6
+			{ 289.0, 149.0, 96.0, 141.0 }, // w7
+			{ 289.0, 133.0, 96.0, 125.0 }, // w8
+			{ 289.0, 117.0, 96.0, 109.0 }, // w9
+			{ 289.0, 101.0, 96.0, 93.0 }, // w10*/
 			{ -1, -1, -1, -1 }
 		},
 		// ammo special

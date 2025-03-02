@@ -372,15 +372,16 @@ DND_MENU_AMMOTEXT39		=	"batteries";
 DND_MENU_AMMOTEXT40		=	"incinerator shells";
 DND_MENU_AMMOTEXT41		=	"mana";
 DND_MENU_AMMOTEXT42		=	"hammer";
+DND_MENU_AMMOTEXT43		=	"sniper rounds";
 	
-DND_MENU_AMMOTEXT43		=	"flechette shells. 18 direct hit damage, each pellet splits into 3-6 damage flechettes that ignore shields. \cuPhysical damage.";
-DND_MENU_AMMOTEXT44		=	"magnum shells. 30 direct hit damage and goes through enemies. \cuPhysical damage.";
-DND_MENU_AMMOTEXT45		=	"electric shells. 20 direct hit damage with 12 damage zaps in a 48 unit radius 5 times. \cvLightning damage.";
-DND_MENU_AMMOTEXT46		=	"nitrogen shells. 15 direct hit damage with 2 constant damage as it travels. \cnIce damage.";
-DND_MENU_AMMOTEXT47		=	"slug shells. 300 direct hit damage. Ignores shields. \cuPhysical damage.";
-	
-DND_MENU_AMMOTEXT48		=	"sonic grenades. 144 direct hit damage, 72 area damage in 160 unit radius, repeating 12 times. Ignores shields. \ciExplosion\c- and \chEnergy damage.";
-DND_MENU_AMMOTEXT49		=	"high-ex grenades. 288 direct hit damage, 288 area damage in 256 unit radius. Explodes to shrapnels dealing 16-128 damage. Can't hit ghosts. \ciExplosion damage.";
+DND_MENU_AMMOTEXT44		=	"flechette shells. 18 direct hit damage, each pellet splits into 3-6 damage flechettes that ignore shields. \cuPhysical damage.";
+DND_MENU_AMMOTEXT45		=	"magnum shells. 30 direct hit damage and goes through enemies. \cuPhysical damage.";
+DND_MENU_AMMOTEXT46		=	"electric shells. 20 direct hit damage with 12 damage zaps in a 48 unit radius 5 times. \cvLightning damage.";
+DND_MENU_AMMOTEXT47		=	"nitrogen shells. 15 direct hit damage with 2 constant damage as it travels. \cnIce damage.";
+DND_MENU_AMMOTEXT48		=	"slug shells. 300 direct hit damage. Ignores shields. \cuPhysical damage.";
+
+DND_MENU_AMMOTEXT49		=	"sonic grenades. 144 direct hit damage, 72 area damage in 160 unit radius, repeating 12 times. Ignores shields. \ciExplosion\c- and \chEnergy damage.";
+DND_MENU_AMMOTEXT50		=	"high-ex grenades. 288 direct hit damage, 288 area damage in 256 unit radius. Explodes to shrapnels dealing 16-128 damage. Can't hit ghosts. \ciExplosion damage.";
 
 // artifacts
 DND_MENU_ARTHELPTEXT1	=	"Portable medikits, can carry 3.";

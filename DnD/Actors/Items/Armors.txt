@@ -252,6 +252,8 @@ Actor ArmorSoundPlayer : CustomInventory {
 	}
 }
 
+Actor DnD_NoLingerCheck : DnD_Boolean { }
+
 Actor ArmorDrop : InventoryBase {
 	Renderstyle Translucent
 	Alpha 1.0

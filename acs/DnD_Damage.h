@@ -1288,12 +1288,8 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 			dmg = GetActorProperty(victim, APROP_HEALTH) * 2;
 		}
-		else if(CheckActorInventory(source, "Doomguy_Perk5") && GetActorProperty(victim, APROP_HEALTH) > dmg) {
-			if(!CheckActorInventory(victim, "Doomguy_CanExecute"))
-				ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", source, victim);
-
+		else 
 			GiveActorInventory(victim, "Doomguy_CanExecute", 1);
-		}
 	}
 	
 	if(dmg > 0) {
@@ -1323,7 +1319,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 				}
 			}
 		}
-		else if(CheckInventory("Doomguy_Perk50") && IsMonsterIdDemon(victim - DND_MONSTERTID_BEGIN))
+		else if(CheckInventory("Doomguy_Perk50"))
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
 	}
 	
@@ -1680,6 +1676,11 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 				CalculatePlayerAccuracy(pnum);
 				ACS_NamedExecuteAlways("DnD Hobo Frenzy Timer", 0);
 			}
+		}
+
+		if(!CheckActorInventory(victim_tid, "Doomguy_ChangedColor") && CheckActorInventory(victim_tid, "Doomguy_CanExecute")) {
+			GiveActorInventory(victim_tid, "Doomguy_ChangedColor", 1);
+			ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", victim_tid);
 		}
 	}
 
