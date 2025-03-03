@@ -1270,6 +1270,18 @@ int GetPoisonDOTDamage(int pnum, int base_poison) {
 	return dmg;
 }
 
+int GetLifesteal(int pnum) {
+	int base = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
+
+	if(CheckInventory("Punisher_Perk25")) {
+		// spree * 2 => merciless
+		int bonus = Clamp_Between(CheckInventory("DnD_MultiKillCounter") / DND_SPREE_PER - 1, 0, DND_PUNISHER_MAXLIFESTEALTIMES);
+		base += bonus * DND_PUNISHER_LIFESTEALRATE;
+	}
+
+	return base;
+}
+
 #define DND_BASE_LIFESTEALCAP 33
 int GetLifestealCap(int pnum) {
 	// avoid recalculating over and over if possible -- changed from the above because if this gets to this point the GetSpawnHealth function has ran once

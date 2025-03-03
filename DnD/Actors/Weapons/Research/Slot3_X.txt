@@ -194,8 +194,8 @@ Actor ResSSG2 : DnDWeapon {
 		ReadyLoopInit:
 			WSON A 1 A_WeaponReady(WRF_NOSWITCH)
 		ReadyLoop:
-			TNT1 A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_SHOCKER, 2 | (3 << 16))
+			WSON A 0 A_GiveInventory("DnD_OverheatCanReduce", 1)
+			WSON A 0 ACS_NamedExecuteAlways("DnD Overheat Reduction", 0, DND_OVERHEAT_SHOCKER, 2 | (3 << 16))
 			WSON AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
@@ -1116,14 +1116,14 @@ Actor ResSSG4 : DnDWeapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_CROSSBOW)
 		ReadyLoop:
-			TNT1 A 0 A_JumpIfInventory("FlayerAmmo", 1, "AmmoReady")
+			CBOW A 0 A_JumpIfInventory("FlayerAmmo", 1, "AmmoReady")
 			CBOW K 3 A_WeaponReady(WRF_ALLOWZOOM | WRF_NOFIRE)
 		Loop
 		AmmoReady:
-			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "Ready_4")
-			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "Ready_3")
-			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "Ready_2")
-			TNT1 A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "Ready_1")
+			CBOW A 0 A_JumpIfInventory("Crossbow_PullLevel", 4, "Ready_4")
+			CBOW A 0 A_JumpIfInventory("Crossbow_PullLevel", 3, "Ready_3")
+			CBOW A 0 A_JumpIfInventory("Crossbow_PullLevel", 2, "Ready_2")
+			CBOW A 0 A_JumpIfInventory("Crossbow_PullLevel", 1, "Ready_1")
 			CBOW A 3 A_WeaponReady(WRF_ALLOWZOOM)
 		loop
 		Ready_1:

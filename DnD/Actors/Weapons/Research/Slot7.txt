@@ -318,7 +318,7 @@ Actor ResBFG2 : DnDWeapon {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_THUNDERSTAFF)
 		ReadyLoop:
 			APOF BB 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_PlaySound("ThunderStaff/Loop", 7, 1.0, 1)
+			APOF C 0 A_PlaySound("ThunderStaff/Loop", 7, 1.0, 1)
 			APOF CCDDEE 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:

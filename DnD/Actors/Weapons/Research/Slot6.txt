@@ -374,9 +374,9 @@ Actor ResPlasma2 : DnDWeapon {
 		ReadyLoopInit:
 			TNT1 A 0 A_StopSound(7)
 		ReadyLoop:
-			TNT1 A 0 A_StopSound(7)
+			LGNI A 0 A_StopSound(7)
 			LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
-			TNT1 A 0 A_TakeInventory("LightningStacks", 5)
+			LGNI A 0 A_TakeInventory("LightningStacks", 5)
 		Loop
 		Deselect:
 			TNT1 A 0 A_StopSound(7)
@@ -979,10 +979,10 @@ Actor "ResPlasma4" : DnDWeapon {
 			TNT1 A 0 A_GiveInventory("P_GrayFire", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DARKLANCE)
 		ReadyLoop:
-			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_4, "Level4_Ready")
-			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_3, "Level3_Ready")
-			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_2, "Level2_Ready")
-			TNT1 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_1, "Level1_Ready")
+			RW10 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_4, "Level4_Ready")
+			RW10 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_3, "Level3_Ready")
+			RW10 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_2, "Level2_Ready")
+			RW10 A 0 A_JumpIfInventory("LanceStacks", lance_lvl_1, "Level1_Ready")
 			RW10 A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Level4_Ready:

@@ -91,6 +91,10 @@ typedef struct it {
 
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
+
+	// unsynced data
+	bool isDirty;									// textID is outdated, needs to be updated
+	int textID;										// holds the whole text created by StrParams so we avoid rebuilding it
 } inventory_T;
 
 // The following are seperated to fitting categories, they are used this way in many places
@@ -156,11 +160,12 @@ enum {
 
 #define CHESTKEY_END DND_ISUBT_CHESTTYPE_GOLD
 #define ORBS_END DND_ISUBT_ORB_30
+#define MAX_DROPPABLE_ORBS (ORBS_END + 1)
 #define MONSTER_ORBS_END DND_ISUBT_MORB_2
 #define TOKEN_END DND_ISUBT_TOKEN_GUNSMITH
 
 #define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)
-#define MAX_ORBS (MONSTER_ORBS_END - ORBS_BEGIN + 1) // notice the monster drops were below regular and we use their index as final here
+#define MAX_ORBS ((MONSTER_ORBS_END - MONSTER_ORBS_BEGIN + 1) + (ORBS_END - ORBS_BEGIN + 1)) // notice the monster drops were below regular and we use their index as final here
 #define MAX_TOKENS (TOKEN_END - TOKEN_BEGIN + 1)
 
 int TokenWeights[MAX_TOKENS] = {

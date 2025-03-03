@@ -355,7 +355,11 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
 	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
+	int vPos = GetVec3(
+		GetActorX(owner), 
+		GetActorY(owner), 
+		GetActorZ(owner) + GetActorViewHeight(owner) - 5.0
+	);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
 	

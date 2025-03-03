@@ -106,12 +106,13 @@ Actor InventoryBase : DnD_DroppedItem {
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
 			"####" "#" 1 Bright
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
+			"####" "#" 0 Bright
 			"####" "#" 1 Bright A_Jump(256, "SpawnLoop")
 		Wait
 		
 		SpawnLoop:
 		Idle:
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		See:

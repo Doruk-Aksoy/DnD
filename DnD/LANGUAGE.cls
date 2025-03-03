@@ -62,7 +62,7 @@ CLASS3_TEXT				= "Was a chill guy, until the fateful day his wife died and his d
 						  "Ever since, he hasn't been the same, it's as if something ticked in him and he became the greatest murder machine...";
 
 CLASS3_PERK1			= "Being on a killing spree gives 10% movement speed as well as 10% of current weapon's ammo capacity for starting the spree.";
-CLASS3_PERK2			= "At the end of at least the 'Merciless' killing spree, heal for 24% plus 8% per spree of your max health.";
+CLASS3_PERK2			= "During the 'Merciless' killing spree and onwards, gain 2% lifesteal per tier up to 20% total.";
 CLASS3_PERK3			= "Every 10 kills you get increases your damage by 4% for that map. Caps at 400%.";
 
 // Wanderer

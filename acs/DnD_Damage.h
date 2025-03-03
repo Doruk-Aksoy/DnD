@@ -1396,7 +1396,7 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	int taltos = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
 	int brune_1 = CheckInventory("FakeBloodPower");
 	int brune_2 = CheckInventory("FakeBloodPowerBetter");
-	int cap = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
+	int cap = GetLifesteal(pnum);
 	if(cap || taltos || brune_1 || brune_2) {
 		taltos = cap + taltos * DND_TALTOS_LIFESTEAL + brune_1 * BLOODRUNE_LIFESTEAL_AMT + brune_2 * BLOODRUNE_LIFESTEAL_AMT2;
 		

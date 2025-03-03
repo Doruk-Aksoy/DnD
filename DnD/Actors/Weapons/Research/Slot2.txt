@@ -27,7 +27,7 @@ Actor ResPistol1 : DnDWeapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ASSAULTRIFLE)
 		ReadyLoop:
-			TNT1 A 0 A_JumpIfInventory("WeaponZoom", 1, "ReadyZoom")
+			4AFG A 0 A_JumpIfInventory("WeaponZoom", 1, "ReadyZoom")
 			4AFG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		ReadyZoom:
@@ -224,7 +224,7 @@ Actor ResPistol2 : DnDWeapon {
 		ReadyLoop:
 			C_H_ Z 3 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
 			C_H_ L 1 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
-			TNT1 A 0 A_Playsound("ViperStaff/Scream", CHAN_WEAPON)
+			C_H_ L 0 A_Playsound("ViperStaff/Scream", CHAN_WEAPON)
 			C_H_ L 2 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE) 
 			C_H_ M 1 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
 			C_H_ M 2 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)	

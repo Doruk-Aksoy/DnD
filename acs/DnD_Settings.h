@@ -46,6 +46,8 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	
 	#ifdef ISDEBUGBUILD
 	2,
+	#elif defined SKIP_DB_SETTINGS
+	2,
 	#else
 	1,
 	#endif

@@ -487,13 +487,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_CRIT_ID, affluence);
 		break;
 		case DND_ORB_VIOLENCE:
-			// save
-			SaveUsedItemAttribs(pnum, extra);
-				
-			ReforgeWithOneTagGuaranteed(pnum, extra, INV_ATTR_TAG_ATTACK_ID, affluence);
-			
-			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("OrbResult", extra);
+			HandleTaggedModGive(pnum, extra, INV_ATTR_TAG_ATTACK_ID, affluence);
 		break;
 		case DND_ORB_SIN:
 			// save
@@ -502,6 +496,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// pick random attribute to fracture
 			s = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
 			PlayerInventoryList[pnum][extra].attributes[s].fractured = true;
+			PlayerInventoryList[pnum][extra].isDirty = true;
 		
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -546,6 +541,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					}
 				}
 			}
+			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
 		break;
@@ -632,6 +628,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			}
 
 			// sync at end all at once
+			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", res);
 		break;
@@ -653,6 +650,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			if(PlayerInventoryList[pnum][extra].quality > prev)
 				PlayerInventoryList[pnum][extra].quality = prev;
 			
+			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemQuality(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
 		break;
@@ -851,6 +849,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			}
 			
 			// finally, sync it
+			PlayerInventoryList[pnum][extra2].isDirty = true;
 			SyncItemData(pnum, extra2, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][extra2].width, PlayerInventoryList[pnum][extra2].height);
 			GiveInventory("DnD_CleanCraftingRequest", 1);
 			GiveInventory("DnD_RefreshPane", 1);
@@ -1122,11 +1121,11 @@ void RevertLastOrbEffect() {
 }
 
 // picks a random orb
-int PickRandomOrb() {
+int PickRandomOrb(bool doExceptionCheck = false) {
 	int i;
 	do {
-		i = random(DND_ORB_ENHANCE, MAX_ORBS - 1);
-	} while(IsOrbDropException(i));
+		i = random(DND_ORB_ENHANCE, DND_MAX_ORB_KINDS - 1);
+	} while(doExceptionCheck && IsOrbDropException(i));
 	return i;
 }
 
@@ -1341,14 +1340,14 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 		int i;
 		
 #ifdef ISDEBUGBUILD
-		i = random(0, MAX_ORBS - 1);
+		i = PickRandomOrb();
 #else
 	do {
 		int w = random(1, ORB_MAXWEIGHT);
 		if(GetCVar("dnd_ignore_dropweights"))
-			i = random(0, MAX_ORBS - 1);
+			i = PickRandomOrb(true);
 		else
-			for(i = 0; i < MAX_ORBS && OrbDropWeights[i] < w; ++i);
+			for(i = 0; i < MAX_DROPPABLE_ORBS && OrbDropWeights[i] < w; ++i);
 	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now

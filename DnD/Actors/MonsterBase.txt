@@ -32,6 +32,18 @@ Actor DnD_SightChecker : DnD_Activator {
 	}
 }
 
+Actor DnD_WanderChecker : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Can Wander Around"), "Nothing")
+			TNT1 A 0 A_Wander
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
 Actor DnD_BaseMonster {
 	GibHealth -150
 	+USEKILLSCRIPTS

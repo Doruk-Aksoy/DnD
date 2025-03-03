@@ -3179,6 +3179,12 @@ Script "DnD Player Setup" ENTER {
 }
 
 Script "DnD Can Look Around" (void) {
+	// add blind effects and manipulation of distance here
+	int res = IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
+	SetResultValue(res);
+}
+
+Script "DnD Can Wander Around" (void) {
 	int res = IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
 	SetResultValue(res);
 }

@@ -13,8 +13,8 @@ Actor " Fists " : DnDWeapon
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Damage Cache", DND_WEAPON_FIST)
+			PUNK A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			PUNK A 0 ACS_NamedExecuteWithResult("DnD Weapon Damage Cache", DND_WEAPON_FIST)
 		ReadyLoop:
 			PUNK A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
@@ -116,10 +116,10 @@ ACTOR " Chainsaw " : DnDWeapon {
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_CHAINSAW)
+			SAWG C 0 A_GiveInventory("H_WeaponSlot1", 1)
+			SAWG C 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_CHAINSAW)
 		ReadyLoop:
-			TNT1 A 0 A_PlayWeaponSound("weapons/sawidle")
+			SAWG C 0 A_PlayWeaponSound("weapons/sawidle")
 			SAWG CD 4 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
@@ -196,10 +196,10 @@ ACTOR "Upgraded Chainsaw" : DnDWeapon {
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DOUBLECHAINSAW)
+			SAW2 C 0 A_GiveInventory("H_WeaponSlot1", 1)
+			SAW2 C 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DOUBLECHAINSAW)
 		ReadyLoop:
-			TNT1 A 0 A_PlaySound("weapons/sawidle2", CHAN_WEAPON, 0.6)
+			SAW2 C 0 A_PlaySound("weapons/sawidle2", CHAN_WEAPON, 0.6)
 			SAW2 CD 4 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
@@ -276,8 +276,8 @@ ACTOR Sickle : DnDWeapon {
 			TNT1 A 0 A_lower
 		Loop
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SICKLE)
+			SCKL A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			SCKL A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_SICKLE)
 		ReadyLoop:
 			SCKL A 1 Offset(0, 32) A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
@@ -516,27 +516,27 @@ ACTOR Excalibat : DnDWeapon {
 			TNT1 A 0 A_lower
 		Loop
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_EXCALIBAT)
+			EXCL A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			EXCL A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_EXCALIBAT)
 		ReadyLoop:
 			EXCL A 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL A 0 A_Jump(16, "Blink")
 			EXCL B 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL B 0 A_Jump(16, "Blink")
 			EXCL C 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL C 0 A_Jump(16, "Blink")
 			EXCL D 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL D 0 A_Jump(16, "Blink")
 			EXCL E 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(128, "LookAround")
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL E 0 A_Jump(128, "LookAround")
+			EXCL E 0 A_Jump(16, "Blink")
 		ContinueReady:
 			EXCL D 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL D 0 A_Jump(16, "Blink")
 			EXCL C 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL C 0 A_Jump(16, "Blink")
 			EXCL B 6 A_WeaponReady(WRF_ALLOWZOOM)
-			TNT1 A 0 A_Jump(16, "Blink")
+			EXCL B 0 A_Jump(16, "Blink")
 		goto ReadyLoop
 		LookAround:
 			TNT1 A 0 A_Jump(128, "LookAround2")
@@ -1302,10 +1302,10 @@ Actor "Dusk Blade" : DnDWeapon {
 			VORP X -1 
 		Stop
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DUSKBLADE)
+			VORP A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			VORP A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DUSKBLADE)
 		ReadyLoop:
-			TNT1 A 0 A_JumpIfInventory("DuskMode", 1, "DuskReady")
+			VORP A 0 A_JumpIfInventory("DuskMode", 1, "DuskReady")
 			VORP A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		DuskReady:
