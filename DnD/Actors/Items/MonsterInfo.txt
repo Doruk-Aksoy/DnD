@@ -613,6 +613,22 @@ Actor ThunderstruckCooldown : PowerProtection {
 	powerup.duration -10
 }
 
+Actor Thunderstruck_Thunder {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	translation "80:111=192:207"
+	Renderstyle Add
+	Alpha 0.2
+	Scale 1.25
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Berserker/Thunder")
+			THND AAAA 1 Bright A_FadeIn(0.2)
+			THND AAAA 2 Bright A_FadeOut(0.2)
+		Stop
+	}     	
+}
+
 Actor ThunderstruckLightning {
 	Renderstyle Add
 	Alpha 0.4
@@ -621,10 +637,10 @@ Actor ThunderstruckLightning {
 	Damage 0
 	Stamina 256
 	PROJECTILE
-	const float fx_r = 72.0;
+	const float fx_r = 80.0;
 	const float r = 32.0;
 	const float v = 5.0;
-	const float a = 0.15;
+	const float a = 0.1875;
 	+PIERCEARMOR
 	+THRUACTORS
 	+DONTBLAST
@@ -654,7 +670,7 @@ Actor ThunderstruckLightning {
 			UP27 F 0
 		Goto Anim
 		Anim:
-			"####" "######" 0 A_SpawnItemEx("ThunderstruckLightning_Telegraph", frandom(-fx_r, fx_r), frandom(-fx_r, fx_r))
+			"####" "########" 0 A_SpawnItemEx("ThunderstruckLightning_Telegraph", frandom(-fx_r, fx_r), frandom(-fx_r, fx_r))
 			"####" "#" 0 A_FadeIn(a)
 			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
 			"####" "#" 0 A_FadeIn(a)
@@ -720,6 +736,7 @@ Actor ThunderstruckLightning {
 			"####" "#" 0 A_FadeOut(a)
 			"####" "#" 3 A_SpawnItemEx("ThunderstruckVFX", frandom(-r, r), frandom(-r, r), frandom(2, 8), frandom(-v, v), frandom(-v, v), frandom(0.5, v / 2))
 			"####" "###" 1 A_FadeIn(0.4)
+			"####" "#" 0 A_SpawnItemEx("Thunderstruck_Thunder")
 			"####" "#####" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
 			"####" "########" 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
 			"####" "#########" 0 A_CustomMissile ("ExplosionParticleHeavy", 0, 0, random (0, 360), 2, random (0, 180))
@@ -735,7 +752,7 @@ Actor ThunderstruckLightning_Telegraph {
 	Alpha 0.4
 	Scale 0.666
 	Translation "0:255=%[0.00,0.00,0.00]:[0.375,0.575,0.875]"
-	const float a = 0.15;
+	const float a = 0.1875;
 	Renderstyle Add
 	+CLIENTSIDEONLY
 	+NOINTERACTION

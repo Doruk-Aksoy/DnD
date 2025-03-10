@@ -316,6 +316,7 @@ void SavePlayerData(int pnum, int char_id) {
 	str pacc = GetPlayerAccountName(pnum);
 	
 	// save class id -- the character class they use!
+	Log(s:"Save => char_id: ", d:char_id, s: " Character Class: ", d:CheckActorInventory(tid, "DnD_Character"),s :" pacc: ", s:pacc);
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(tid, "DnD_Character"));
 	
 	// save weapons
@@ -535,7 +536,6 @@ void SavePlayerActivities(int pnum, int char_id) {
 	int temp; //DnD_CharacterID defaults to 1 if no cmds are used.
 	str pacc = RecoverPlayerAccountName(pnum);
 
-	temp = 0;
 	temp = PlayerActivities[pnum].attribute_change[STAT_STR];
 	IncrementDBEntry(GetCharField(DND_DB_STATS_STR, char_id), pacc, temp);
 

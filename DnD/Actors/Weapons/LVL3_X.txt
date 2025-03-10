@@ -147,41 +147,41 @@ ACTOR "Upgraded Super Shotgun" : DnDWeapon {
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
-			SHT1 A 3
+			SSGG A 3
 		Goto ReadyLoop
 		FireConfirmed:
 			SSGG A 1
-			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "FireFaster")
+			SSGG A 0 A_JumpIfInventory("Ability_Reloader", 1, "FireFaster")
 			SSGF A 1 Bright
-			TNT1 A 0 A_PlayWeaponSound("weapons/hunssgfire")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYSUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), DND_ATF_CANFIRECIRCLE)
-			TNT1 A 0 A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 AAAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 A 0 
-			TNT1 A 0 A_ZoomFactor(0.985,ZOOM_NOSCALETURNING)
+			SSGF A 0 A_PlayWeaponSound("weapons/hunssgfire")
+			SSGF A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_HEAVYSUPERSHOTGUN, DND_ATK_PRIMARY, DND_AMMOSLOT_SHELL | (AMMO_SHELL << 16), DND_ATF_CANFIRECIRCLE)
+			SSGF A 0 A_SpawnItemEx("GunSmoke", 24 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGF AAAAAAAAAA 0 A_FireCustomMissile("SGTracer", frandom(-6, 6), 0, 0, frandom(-6, 6))
+			SSGF A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 8, 32 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGF A 0 
+			SSGF A 0 A_ZoomFactor(0.985,ZOOM_NOSCALETURNING)
 			SSGF A 1 Bright A_GunFlash
-			TNT1 A 0 A_SetPitch(pitch - 4.0, SPF_INTERPOLATE)
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGF A 0 A_SetPitch(pitch - 4.0, SPF_INTERPOLATE)
+			SSGF A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
 			SSGX B 1
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 A 0 A_SetPitch(pitch + 1.0)
-			TNT1 A 0 A_ZoomFactor(1,ZOOM_NOSCALETURNING)
+			SSGX B 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGX B 0 A_SetPitch(pitch + 1.0)
+			SSGX B 0 A_ZoomFactor(1,ZOOM_NOSCALETURNING)
 			SSGX C 1
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			SSGX C 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGX C 0 A_SetPitch(pitch + 1.0)
 			SSGX D 1
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
-			TNT1 A 0 A_SetPitch(pitch + 1.0)
+			SSGX D 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 9, 33 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGX D 0 A_SetPitch(pitch + 1.0)
 			SSGF C 1
-			TNT1 A 0 A_SetPitch(pitch + 1.0)
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGF C 0 A_SetPitch(pitch + 1.0)
+			SSGF C 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
 			SSGF D 1
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 34 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGF D 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 34 * (1 + sin(-pitch)), 2, 0, 1)
 			SSGF E 1
-			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
+			SSGF E 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 10, 35 * (1 + sin(-pitch)), 2, 0, 1)
 			SSGF F 1
-			TNT1 A 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
+			SSGF F 0 A_JumpIfInventory("DnD_CanReload", 1, "ContinueReload")
 		Goto NoLoad
 		ContinueReload:
 			TNT1 A 0 A_SpawnItemEx("SHOTGUNSMOKE", 18 * cos(-pitch), 11, 36 * (1 + sin(-pitch)), 2, 0, 1)

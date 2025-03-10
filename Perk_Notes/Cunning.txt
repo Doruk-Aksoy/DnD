@@ -1,0 +1,1 @@
+- some perk to negate poison when picking stimpack/medkit or using portable medkit

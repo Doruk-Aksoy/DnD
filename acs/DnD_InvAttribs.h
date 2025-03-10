@@ -40,7 +40,7 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
 
 //#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF
 
-#define UNSTABLE_DMG_PCT 25 // 25%
+#define UNSTABLE_DMG_MULT 5 // x5 of chance as damage
 #define UNSTABLE_PROC_PCT 0.05 // 5%
 
 // these two imply we have 1000 regular charm mods potentially, 1000 essence and unlimited unique mods
@@ -882,8 +882,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CRITDAMAGE_INCREASE].tags = INV_ATTR_TAG_CRIT;
 	
 	ItemModTable[INV_KNOCKBACK_RESIST].attrib_low = 50;
-	ItemModTable[INV_KNOCKBACK_RESIST].attrib_high = 100;
-	ItemModTable[INV_KNOCKBACK_RESIST].attrib_level_modifier = 100;
+	ItemModTable[INV_KNOCKBACK_RESIST].attrib_high = 500;
+	ItemModTable[INV_KNOCKBACK_RESIST].attrib_level_modifier = 0;
 	ItemModTable[INV_KNOCKBACK_RESIST].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_DAMAGEPERCENT_MORE].attrib_low = 0.01;
@@ -1919,7 +1919,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_UNSTABLECORE:
 			text = StrParam(
 				s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\cd",
-				s:GetFixedRepresentation(extra, true), s:"%\c-", s:no_tag, l:text, s:" \cd", d:UNSTABLE_DMG_PCT, s:"%\c- ", l:"IATTR_TI8S", s:"\n\c[R5]",
+				s:GetFixedRepresentation(extra, true), s:"%\c-", s:no_tag, l:text, s:" \cd", s:GetFixedRepresentation(extra * UNSTABLE_DMG_MULT, true), s:"%\c- ", l:"IATTR_TI8S", s:"\n\c[R5]",
 				l:"IATTR_T72"
 			);
 		return text;

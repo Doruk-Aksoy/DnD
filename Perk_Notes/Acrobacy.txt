@@ -1,0 +1,67 @@
+- Tactical Dash (3)
+	* Unlocks short range dash with 6 seconds cooldown. (Very similar to current dash)
+	+ 10% reduced cooldown.
+	
+- Kinetic Pads (3)
+	* After dashing, take 5% less damage until dash is available.
+	+ 2.5% less damage bonus
+	- Tactical Dash (1)
+	
+- Swift Reflexes (3)
+	* The next melee attack you do after dashing within 4 seconds does 10% more damage.
+	+ 5% damage bonus
+	- Tactical Dash (1)
+	
+- Enhanced Joints (1) [5]
+	* Dash range increases by 15%.
+	- Tactical Dash (1)
+	
+- Evasive Maneuvers (3) [9]
+	* Dashing grants 5% chance to avoid taking damage from direct hits for 3 seconds.
+	+ 0.5 second buff duration, 2.5% chance to avoid
+	- Tactical Dash (1), Enhanced Joints (1)
+	
+- Crash Course (3) [9]
+	* Dashing into an enemy stuns them for 1.5 seconds and deals 300 (+Knockback Resist + 0.025 STR + 0.025 DEX) damage.
+	+ 0.25 second stun duration.
+	- Tactical Dash (1), Kinetic Pads (1)
+	
+- Unending Rush (1) [12]
+	* Killing an enemy within the second of dashing refreshes dash cooldown.
+	- Crash Course (1)
+
+=================================================
+
+- Thumper (3)
+	* Landing from a great height creates a small shockwave around you dealing 100 (0.05 STR) physical damage in 160 unit radius.
+	+ 25% increased damage and radius.
+	
+- Head Start (3)
+	* Gain a 10% movement speed bonus for 3 seconds after landing from a great height.
+	+ 2.5% movement speed and 0.5 second duration
+	- Thumper (1)
+	
+- All-shaking Presence (3) [5]
+	* Enemies hurt by Thumper take 10% increased damage for 5 seconds.
+	+ 1 second debuff duration
+	- Thumper (1)
+	
+- Adrenaline (1) [9]
+	* Regenerate 10% of your health after killing an enemy affected by All-shaking Presence, occuring only once every 10 seconds.
+	- All-shaking Presence (1)
+	
+=================================================
+
+- Augmented Footpads (3)
+	* Gain 2% movement speed.
+	+ 1% movement speed.
+
+- Tailwind (3)
+	* Running past other players grants 10% movement speed with a 10 second cooldown.
+	+ -1 to cooldown.
+	- Augmented Footpads (1)
+	
+- Nimbleness (3) [5]
+	* Gain 1% mitigation chance for every 3 seconds you've run without pause, up to 25%. Lose all bonus on stopping.
+	+ +0.5 mitigation chance.
+	- Augmented Footpads (1)

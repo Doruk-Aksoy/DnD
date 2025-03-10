@@ -457,6 +457,8 @@ Actor DnD_RefreshPane : PowerProtection {
 	powerup.duration 3
 }
 
+Actor DnD_AssumedDirty : DnD_Boolean { }
+
 // Two bitsets
 Actor DnD_TradeEngaged_1 : Inventory {
 	inventory.maxamount 0x7FFFFFFF

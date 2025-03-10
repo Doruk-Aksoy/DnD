@@ -21,7 +21,7 @@ CLASS0_TEXT				= "The original hero. Mean, tough and ready to kick the ass of th
 
 CLASS0_PERK1			= "Enemies within cull range (15% health by default) can be executed by pressing '+zoom' key to heal for 15% of maximum health. If an enemy can be executed, they'll do 90% less damage to you.";
 CLASS0_PERK2			= "Demons have 5% chance to drop their essence on kill. Anyone can pick these to heal for 1% of enemy max health (can overheal up to 50%) and gain 25% more damage for 10 seconds. If an enemy is executed, you get the full benefits with damage bonus for 20 seconds instead.";
-CLASS0_PERK3			= "Your attacks reduce resists of enemies by 33% for 5 seconds. Slain demons rest in peace.";
+CLASS0_PERK3			= "Your attacks reduce resists of enemies by 33% for 5 seconds. Slain enemies rest in peace.";
 
 // Marine
 
@@ -49,7 +49,7 @@ CLASS2_TEXT				= "Can't tie him, a loose cannon. He'll do whatever he god damn p
 
 CLASS2_PERK1			= "Shotgun weapons have 25% discount.";
 CLASS2_PERK2			= "Shotguns have 25% resist penetration, and have 50% more pellets.";
-CLASS2_PERK3			= "Hitting the same enemy with any shotgun more than 3 times within 10 seconds triggers 'Shotgun Frenzy', if not already frenzied. During this, shotguns don't consume any ammo for 12 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
+CLASS2_PERK3			= "Hitting the same enemy with any shotgun's standard ammo more than 3 times within 10 seconds triggers 'Shotgun Frenzy', if not already frenzied. During this, shotguns don't consume any ammo for 12 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
 
 // Punisher
 
@@ -62,7 +62,7 @@ CLASS3_TEXT				= "Was a chill guy, until the fateful day his wife died and his d
 						  "Ever since, he hasn't been the same, it's as if something ticked in him and he became the greatest murder machine...";
 
 CLASS3_PERK1			= "Being on a killing spree gives 10% movement speed as well as 10% of current weapon's ammo capacity for starting the spree.";
-CLASS3_PERK2			= "During the 'Merciless' killing spree and onwards, gain 2% lifesteal per tier up to 20% total.";
+CLASS3_PERK2			= "During the 'Merciless' killing spree and onwards, gain 2% lifesteal and 10% increased life recovery from lifesteal per tier up to 20% and 100% respectively.";
 CLASS3_PERK3			= "Every 10 kills you get increases your damage by 4% for that map. Caps at 400%.";
 
 // Wanderer

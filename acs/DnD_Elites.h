@@ -83,7 +83,7 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 	{ DND_PHANTASM, 36, 100 },
 	{ DND_CRIPPLE, 40, 185 },
 	{ DND_RUINATION, 40, 185 },
-	{ DND_NUCLEAR, 40, 75 },
+	{ DND_NUCLEAR, 40, 50 },
 	{ DND_SILENT, 40, 200 },
 	{ DND_OSMIUM, 50, 250 },
 	{ DND_PHASING, 33, 200 },
@@ -95,7 +95,6 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 };
 
 void SetupEliteModWeights() {
-	// max id holds weight sum
 	// cascade weights
 	for(int i = 0; i < MAX_ROLLABLE_TRAITS - 1; ++i) {
 		EliteTraitNumbers[i + 1][ELITETRAIT_WEIGHT] += EliteTraitNumbers[i][ELITETRAIT_WEIGHT];
@@ -120,14 +119,20 @@ int GetRandomEliteTrait() {
 	while(l <= h) {
 		int m = l + (h - l) / 2;
 		//Log(s:"try ", d:EliteTraitNumbers[m][ELITETRAIT_WEIGHT], s: " < ", d:w, s: " ", d: EliteTraitNumbers[m + 1][ELITETRAIT_WEIGHT]);
-		if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w && w <= EliteTraitNumbers[m + 1][ELITETRAIT_WEIGHT])
-			return m;
-		else if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w)
+		if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w && w <= EliteTraitNumbers[m + 1][ELITETRAIT_WEIGHT]) {
+			//Log(s:"picked ", d:m, s:" elite mod: ", d:EliteTraitNumbers[m][ELITETRAIT_ID]);
+			return m + 1;
+		}
+		else if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w) {
 			l = m + 1;
-		else
+			//Log(s:"left up to ", d:l);
+		}
+		else {
 			h = m - 1;
+			//Log(s:"right down to ", d:h);
+		}
 	}
-	// shouldn't reach here ever
+	// shouldn't reach here ever unless it picked 0th element
 	return 0;
 }
 
@@ -273,7 +278,12 @@ void SetEliteFlag(int f, bool updateCS) {
 			ACS_NamedExecuteAlways("DND Elite Special FX", 0, this, DND_ELITEFX_REFLECT);
 		break;
 	}
-	
+
+/*#ifdef ISDEBUGBUILD
+	if(f == DND_NUCLEAR)
+		++test_counter;
+#endif*/
+
 	MonsterProperties[this].trait_list[f] = true;
 	
 	// sync to client too

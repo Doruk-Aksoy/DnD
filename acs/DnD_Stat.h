@@ -1300,8 +1300,16 @@ int GetLifestealRate(int pnum) {
 int GetLifestealLifeRecovery(int pnum, int cap) {
 	// avoid recalculating over and over if possible
 	//cap = cap * DND_BASE_LIFERECOVERY / 100;
+	int bonus = 0;
 	cap = cap * DND_BASE_LIFERECOVERY;
-	cap = cap * (100 + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY)) / 100;
+
+	if(CheckInventory("Punisher_Perk25")) {
+		// spree * 2 => merciless
+		bonus = Clamp_Between(CheckInventory("DnD_MultiKillCounter") / DND_SPREE_PER - 1, 0, DND_PUNISHER_MAXLIFESTEALTIMES);
+		bonus += bonus * DND_PUNISHER_RECOVERY;
+	}
+
+	cap = cap * (100 + bonus + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY)) / 100;
 	cap >>= 16;
 	if(cap <= 0)
 		cap = 1;
@@ -1411,16 +1419,20 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 
 	// 1.0 is 100%, we get stuff like 0.03 here for 3% etc.
 	int statOf = 0;
+	int hasStrToIntConversion = GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE);
 	if(isMelee) {
 		// steelbark bonus potentially checked here
 		strength += GetPlayerAttributeValue(pnum, INV_EX_STREXTRABONUSTOMELEE);
 
-		statOf = GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE);
+		statOf = hasStrToIntConversion;
 		if(statOf) {
 			intellect += FixedMul(statOf, strength);
 			strength = 0;
 		}
 	}
+
+	if(hasStrToIntConversion)
+		strength = 0;
 
 	statOf = 0;
 	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))

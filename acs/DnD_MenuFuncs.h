@@ -4080,6 +4080,13 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 				by = ty - 32.0;
 				EnableBoxWithPoints(p, i + MATERIALBOX_OFFSET_BOXID, tx, ty, bx, by);
 			}
+
+			// clear the previously displayed material boxes potentially
+			for(i = 0; i < MAX_CRAFTING_MATERIALBOXES; ++i) {
+				HudMessage(s:""; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0, 72.0, 0.0);
+				HudMessage(s:""; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0, 72.0, 0.0);
+				HudMessage(s:""; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 2, CR_CYAN, 404.0, 72.0, 0.0);
+			}
 		}
 		i = 0;
 		//for(ty = 0; ty < MAX_CRAFTITEMTYPES; ++ty) {
@@ -4558,10 +4565,11 @@ void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, in
 			// transmuting box
 			EnableBoxWithPoints(p, CRAFTING_TRANSMUTING_BOXID, 455.0, 260.0, 310.0, 253.0);
 		}
+
+		HandleMaterialDraw(p, boxid, curopt, k);
 	}
 	
 	// CleanInventoryInfo();
-	HandleMaterialDraw(p, boxid, curopt, k);
 	if(curopt == MENU_LOAD_CRAFTING) {
 		DrawBoxText("<=", DND_NOLOOKUP, boxid, CRAFTING_PAGEARROW_ID, RPGMENUID - 6, 16.1, 288.0, "\c[B1]", "\c[Y5]");
 		DrawBoxText("DND_MENU_WEPCRAFT", DND_LANGUAGE_LOOKUP, boxid, CRAFTING_WEAPON_BOXID + 1, RPGMENUID - 3, 24.1, 32.0, "\c[B1]", "\c[Y5]");
@@ -5546,14 +5554,14 @@ void DrawPlayerStats(int pnum, int category) {
 			// utility
 			// drop chance
 			val = (GetDropChance(pnum) - 1.0);
-			if(val > 1.0) {
+			if(val > 0.0) {
 				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
 				++k;
 			}
 
 			val = (GetPlayerItemRarity(pnum) - 1.0);
-			if(val > 1.0) {
-				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_RARITY", s:"\n");
+			if(val > 0.0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_RARITY", s:"\n");
 				++k;
 			}
 

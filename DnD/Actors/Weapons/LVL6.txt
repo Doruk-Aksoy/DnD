@@ -81,8 +81,12 @@ Actor "Plasma Rifle" : DnDWeapon {
 }
 
 // Sprites by Eriance -- edited version taken from Yholl's Doom RPG Arsenal
-Actor "Upgraded Plasma Rifle" : PlasmaRifle {	
+Actor "Upgraded Plasma Rifle" : DnDWeapon {	
 	Weapon.Slotnumber 6
+	Weapon.SelectionOrder 800
+	Weapon.AmmoUse 0
+	Weapon.AmmoGive 0
+	Weapon.AmmoType "Cell"
 	Weapon.AmmoType2 "PlasmaOverheat"
 	Tag "$WEP_6_1_TAG"
 	+INVENTORY.UNDROPPABLE

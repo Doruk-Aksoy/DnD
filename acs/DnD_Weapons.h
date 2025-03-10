@@ -1552,8 +1552,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_id = DND_PROJ_SNIPER;
 			hitscan_id = DND_HITSCAN_SNIPER;
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
-				sp_x = 5.4;
-				sp_y = 3.6;
+				sp_x = 10.8;
+				sp_y = 7.2;
 			}
 			else {
 				sp_x = 0.0;

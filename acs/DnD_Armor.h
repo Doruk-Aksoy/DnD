@@ -458,13 +458,8 @@ bool ActorHasNoArmor(int tid) {
 
 int DoArmorRatingEffect(int dmg, int rating) {
 	// you will need 8 times the damage to gain half reduction
-	int dmg_f = BASE_ARMOR_FACTOR - HasMasteredPerk(STAT_END);
+	int dmg_f = BASE_ARMOR_FACTOR;
 	dmg_f = dmg - (dmg * rating) / (rating + dmg_f * dmg);
-
-	// minimum 15% of damage will be taken always -- handled outside now
-	/*rating = 3 * dmg / 20;
-	if(dmg_f < rating)
-		dmg_f = rating;*/
 	return dmg_f;
 }
 

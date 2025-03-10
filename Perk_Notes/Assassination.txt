@@ -1,0 +1,58 @@
+- Backstab (3)
+	* Hitting enemies while their back is turned gives grants +2% to crit chance.
+	+ 1% crit chance.
+
+- Deadliness (3)
+	* Attacks gain 1% crit chance.
+	+ 1.5% crit chance.
+
+- Preparation (1) [3]
+	* Gain 50% increased crit chance if you haven't landed a critical hit in the last 5 seconds.
+	- Backstab (1) OR Deadliness (1)
+	
+- Big Game Hunter (3) [3]
+	* 10% crit multiplier against boss enemies.
+	+ 15% added crit multiplier.
+	- Backstab (1) OR Deadliness (1)
+
+- Bane of Legends (1) [9]
+	* +5% to crit chance and 30% to crit multiplier against elites and uniques.
+	
+- Opening Salvo (3) [12]
+	* Enemies at full life are 15% more susceptible to crits.
+	+ +5% to the crit chance bonus.
+
+- Eradication (1) [12]
+	* Enemies that die to a crit don't trigger on-death effects.
+
+==============================================
+
+- Quick Getaway (3)
+	* Landing a crit gives 5% movement speed for 3 seconds.
+	+ 1% movement speed bonus.
+	
+- Master of Shadows (3)
+	* Standing in dark areas grant 25% increased crit chance.
+	+ 25% crit chance bonus.
+
+- Planned Execution (1) [5]
+	* Precision weapons have +5% to crit chance.
+	- Quick Getaway (1) OR Master of Shadows (1)
+	
+- Steady Shot (3) [5]
+	* Standing still grants +10% to crit multiplier for each second, up to 100%.
+	+ 5% to crit multiplier bonus.
+	- Quick Getaway (1) OR Master of Shadows (1)
+	
+- Pressure Points (3) [8]
+	* Your critical strikes expose weakness of enemies for 5 seconds, making them take 10% more damage from the damage type the crit was from.
+	+ +2.5% damage increase.
+	- Quick Getaway (1) OR Master of Shadows (1)
+	
+- Mercy Kill (3) [12]
+	* Enemies on low life are 15% more susceptible to crits.
+	+ 5% to the crit chance bonus.
+	
+- Dance with Death (3) [12]
+	* 20% chance to gain Elusive on crit. (Elusive grants 30% movement speed and 25% chance to avoid damage from hits, rapidly decaying from 100% effect to 0%. Can't gain Elusive until it wears off)
+	+ 2.5% chance to gain Elusive.

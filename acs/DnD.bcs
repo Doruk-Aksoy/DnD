@@ -1028,7 +1028,7 @@ Script "DND On Kill" KILL {
 	if
 	(
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
-		(CheckInventory("Doomguy_Perk50") && is_demon) ||
+		CheckInventory("Doomguy_Perk50") ||
 		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
@@ -1670,9 +1670,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	}
 
 	// run elite checks
-/*#ifdef ISDEBUGBUILD
-	if(1)
-#else*/
+//#ifdef ISDEBUGBUILD
+//	if(1)
+//#else
 	if(
 		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																	&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
@@ -2777,7 +2777,8 @@ Script 986 (int wepnum, int type) {
 }
 
 Script "DnD On Respawn" RESPAWN {
-	Thing_ChangeTID(0, P_TIDSTART + PlayerNumber());
+	int pnum = PlayerNumber();
+	Thing_ChangeTID(0, P_TIDSTART + pnum);
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
 	ClearLingeringBuffs();
@@ -2822,6 +2823,8 @@ Script "DnD On Respawn" RESPAWN {
 		
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
+
+	ConditionalCalculateUnity(pnum);
 }
 
 Script 988 (int wepslot, int type) {
@@ -3145,6 +3148,8 @@ Script "DnD Player Setup" ENTER {
 	if(GetCVar("dnd_mode") <= DND_MODE_SOFTCORE)
 		ACS_NamedExecuteAlways("DnD Ankh Checker", 0);
 
+	ConditionalCalculateUnity(pnum);
+
 	// wait till the loading phase is over fully
 	while(GetGamemodeState() != GAMESTATE_INPROGRESS)
 		Delay(const:HALF_TICRATE);
@@ -3176,6 +3181,11 @@ Script "DnD Player Setup" ENTER {
 	}
 #endif
 	TakeInventory("DnD_CountdownProtection", 1);
+
+/*#ifdef ISDEBUGBUILD
+	Delay(10*TICRATE);
+	Log(s:"nuclear count: ", d:test_counter);
+#endif*/
 }
 
 Script "DnD Can Look Around" (void) {
@@ -3697,7 +3707,8 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 		isAlive() && 
 		CheckInventory("EShieldCharging") &&
 		!CheckInventory("TaltosUp") && 
-		(amt = CheckInventory("EShieldAmount")) < cap
+		(amt = CheckInventory("EShieldAmount")) < cap &&
+		!CheckInventory("DnD_IntermissionState")
 	)
 	{
 		// get how far off we are from completion to adjust position and alpha
@@ -3728,7 +3739,10 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 	}
 
 	StopSound(0, CHAN_6);
-	//HudMessage(s:"A";  HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_RIGHT_ID, CR_WHITE, GetIntegerBits(x - 88 * pct / 100) + 0.1, y, 0.1, 0.25, a);
+
+	// insta clean if in scoreboard when this happens
+	if(CheckInventory("DnD_IntermissionState"))
+		HudMessage(s:"";  HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, ESHIELD_RIGHT_ID, CR_WHITE, GetIntegerBits(x - 88 * pct / 100) + 0.1, y, 0.1, 0.25, a);
 
 	GiveInventory("EShieldBlend", 1);
 }
@@ -4910,6 +4924,10 @@ Script "DnD Otherwordly Grip" (int monster_tid, int player_tid) {
 	int player_tid = ActivatorTID();
 	SetActivator(mon_tid);
 
+	// don't spawn if there's no LOS
+	if(!CheckSight(mon_tid, player_tid, 0))
+		Terminate;
+
 	SpawnForced("ThunderstruckLightning", GetActorX(player_tid) + random(-16, 16), GetActorY(player_tid) + random(-16, 16), GetActorZ(player_tid), DND_THUNDERSTRUCK_TID);
 	SetActivator(DND_THUNDERSTRUCK_TID);
 	SetPointer(AAPTR_TARGET, mon_tid);
@@ -5183,7 +5201,8 @@ Script "DnD Item Linger Check" (void) {
 
 	int counter = 0;
 	int sp = GetActorProperty(0, APROP_MASS) >> 16;
-	while(counter < DND_ITEM_LINGER_TIME) {
+	int linger_time = Clamp_Between(GetCVar("dnd_lingertime"), 1, 65535);
+	while(counter < linger_time) {
 		++counter;
 		Delay(const:TICRATE);
 		// if this is picked up, terminate early
@@ -5648,6 +5667,7 @@ Script 1007 (void) NET CLIENTSIDE {
 	
 	// so the toggle is changed on the menu if you press it while in help page for some reason... you are weird if you do this!
 	GiveInventory("DnD_RefreshPane", 1);
+	GiveInventory("DnD_AssumedDirty", 1);
 }
 
 Script 1691 (int tag, int mode) {
@@ -5698,9 +5718,10 @@ Script 68 (int x) NET {
 			CompleteResearch(x);
 		}
 		else if(x == 32768) {
+
 			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
 			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
-			SpawnSpecificOrbForAll(DND_ORB_SCULPTING, 4);
+			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1);
 		}
 		else if(x == 400) {
 			GiveInventory("Punisher_Perk50_Counter", 125);
@@ -5720,7 +5741,7 @@ Script 68 (int x) NET {
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_CYBERNETIC, INV_AMMOGAIN_CHANCE);
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_FORTITUDE, true, false, 300);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			//IncPlayerModValue(0, INV_ESHIELD_ABSORB, 25);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

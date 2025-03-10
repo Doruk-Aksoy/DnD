@@ -819,7 +819,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 		Loop
 		SeeState:
 			BBRT AABB 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Bruty/walk")
+			BBRT C 0 A_PlaySound("Bruty/walk")
 			BBRT CCDD 3 Fast A_Chase
 			BBRT D 0 A_PlaySound("Bruty/walk")
 		Goto See
@@ -839,10 +839,10 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 			BBRT F 15 A_Scream
 			TNT1 A 0 A_NoBlocking
 			BBRT G 8 A_Fall
-			TNT1 A 0 A_SpawnItem("BruteExplosion1",0,32)
+			TNT1 A 0 A_CustomMissile("BruteExplosion1", 32)
 		Goto End
 		Death.SelfExplosion:
-			TNT1 A 0 A_SpawnItem("BruteExplosion2",0,32)
+			TNT1 A 0 A_CustomMissile("BruteExplosion2", 32)
 			TNT1 A 0 A_NoBlocking
 			BBRT G 8 A_Fall
 		End:
@@ -912,7 +912,7 @@ actor Scavenger : DnD_ArchVileHybridBase {
 			VULG AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
-			TNT1 A 0 A_JumpIfInventory("ScavengerCounter", 0, "NoRaise")
+			VULG A 0 A_JumpIfInventory("ScavengerCounter", 0, "NoRaise")
 			VULG AABBCCDD 3 Fast A_VileChase
 		Goto See
 		NoRaise:
@@ -1014,42 +1014,42 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 			SOEA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
-			TNT1 A 0 A_GiveInventory("NhumHealthCheck", 1)
+			SOEA A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
+			SOEA A 0 A_GiveInventory("NhumHealthCheck", 1)
 			SOEA AA 2 Fast A_Chase
-			TNT1 A 0 A_GiveInventory("NhumHealthCheck", 1)
+			SOEA B 0 A_GiveInventory("NhumHealthCheck", 1)
 			SOEA B 2 Fast A_Chase
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA B 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA B 2 Fast A_Chase
-			TNT1 A 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
-			TNT1 A 0 A_GiveInventory("NhumHealthCheck", 1)
+			SOEA C 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
+			SOEA C 0 A_GiveInventory("NhumHealthCheck", 1)
 			SOEA C 2 Fast A_Chase
-			TNT1 A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
+			SOEA C 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
 			SOEA C 2 Fast A_Chase
 			SOEA D 2 Fast A_Chase
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA D 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA D 2 Fast A_Chase
 			SOEA D 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
 		Goto See
 		AngrySee:
 			SOEA AA 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXA")
+			SOEA A 0 A_SpawnItem("NhumWalkFXA")
 			SOEA AA 1 Fast A_Chase
-			TNT1 A 0 A_SpawnItem("NhumWalkFXA")
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA A 0 A_SpawnItem("NhumWalkFXA")
+			SOEA A 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA BB 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXB")
+			SOEA B 0 A_SpawnItem("NhumWalkFXB")
 			SOEA BB 1 Fast A_Chase
-			TNT1 A 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
-			TNT1 A 0 A_SpawnItem("NhumWalkFXB")
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA B 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
+			SOEA B 0 A_SpawnItem("NhumWalkFXB")
+			SOEA B 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA CC 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXC")
-			TNT1 A 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
+			SOEA C 0 A_SpawnItem("NhumWalkFXC")
+			SOEA C 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
 			SOEA CC 1 Fast A_Chase
-			TNT1 A 0 A_SpawnItem("NhumWalkFXC")
+			SOEA D 0 A_SpawnItem("NhumWalkFXC")
 			SOEA DD 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXD")
+			SOEA D 0 A_SpawnItem("NhumWalkFXD")
 			SOEA DD 1 Fast A_Chase
 			SOEA D 0 A_SpawnItem("NhumWalkFXD")
 		Goto See
@@ -1448,8 +1448,8 @@ ACTOR PurebredDemon : DnD_BaseHybridMonster {
 			BBRQ AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop 
 		SeeState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
-			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			BBRQ A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING)
+			BBRQ A 0 A_ChangeFlag("NOBLOOD", 0)
 		SeeLoop:
 			BBRQ A 3 Fast A_Chase
 			BBRQ A 2 Fast A_Chase
@@ -1645,8 +1645,8 @@ ACTOR Sabreclaw : DnD_BaseMeleeMonster {
 		Loop 
 		SeeState:
 			CLNK AB 3 Fast A_Chase
-			TNT1 A 0 A_GiveInventory("SabreclawDashDecider", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Blink")
+			CLNK A 0 A_GiveInventory("SabreclawDashDecider", 1)
+			CLNK A 0 A_JumpIfInventory("DnD_Boolean", 1, "Blink")
 			CLNK CD 3 Fast A_Chase
 		Goto See
 		MeleeState: 

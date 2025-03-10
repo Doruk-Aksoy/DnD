@@ -216,7 +216,7 @@ DND_MENU_ATTRTEXT3		=	"Increases \cvEnergy Shield\c- by 1% per 2 points and impr
 
 DND_MENU_PERKTEXT1		=	"more ranged damage.";
 DND_MENU_PERKTEXT2		=	"more melee damage";			DND_MENU_PERKTEXT2_CONT 	=	"increased melee range.";
-DND_MENU_PERKTEXT3		=	"reduced damage taken.";
+DND_MENU_PERKTEXT3		=	"DOES NOTHING DO NOT USE!";//"reduced damage taken.";
 DND_MENU_PERKTEXT4		=	"increased exp gain.";
 DND_MENU_PERKTEXT5		=	"increased credit gain.";
 DND_MENU_PERKTEXT6		=	"increased effect of healing.";
@@ -229,7 +229,7 @@ DND_MENU_MASTERY		=	"Mastery";
 DND_MENU_MASTERY_COND	=	"Requires 10 points";
 DND_MENU_PERKMASTERY1	=	"Dexterity has an additional 1% scaling for attunement.";
 DND_MENU_PERKMASTERY2	=	"Melee damage and range increase also applies to projectiles fired from melee weapons.";
-DND_MENU_PERKMASTERY3	=	"Armor rating effect increases by 20%.";
+DND_MENU_PERKMASTERY3	=	"DOES NOTHING DO NOT USE!";//"Armor rating effect increases by 20%.";
 DND_MENU_PERKMASTERY4	=	"Gain experience from kills regardless of the killer or the range limit.";
 DND_MENU_PERKMASTERY5	=	"Gain credit from kills regardless of the killer or the range limit.";
 DND_MENU_PERKMASTERY6	=	"Convert 2% of healing pickups to energy shield.";
@@ -250,7 +250,7 @@ DND_MENU_RES_ICE		=	"Ice Resist";
 DND_MENU_RES_LGHT		=	"Lightning Resist";
 DND_MENU_RES_POIS		=	"Poison Resist";
 DND_MENU_RES_REFL		=	"Reflection Resist";
-DND_MENU_PENETRATION	=	"Penetration";
+DND_MENU_PENETRATION	=	"Pierce";
 
 // accessories
 ACCTX_T0				=	"Wisdom Talisman";

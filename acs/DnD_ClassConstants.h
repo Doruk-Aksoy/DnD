@@ -24,6 +24,7 @@
 #define DND_HOBO_SHOTGUNDISTMOREDMG 100 // 100% more dmg
 #define DND_HOBO_PERK50_RARITYBONUS 5
 
+#define DND_PUNISHER_RECOVERY 10 // 10%
 #define DND_PUNISHER_LIFESTEALRATE 2.0
 #define DND_PUNISHER_MAXLIFESTEALTIMES 10
 
@@ -48,5 +49,13 @@
 #define DND_BERSERKER_PERK50_TIMER 70 // 14 x 5 = 70 => 2 seconds
 #define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
 #define DND_BERSERKER_PERK50_MAXHITS 5
+
+void CheckDoomguyExecuteReversal(int this) {
+	if(CheckActorInventory(this, "Doomguy_ChangedColor")) {
+		TakeActorInventory(this, "Doomguy_ChangedColor", 1);
+		TakeActorInventory(this, "Doomguy_ValidExecute", 1);
+		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", this, 1, MonsterProperties[this - DND_MONSTERTID_BEGIN].id);
+	}
+}
 
 #endif

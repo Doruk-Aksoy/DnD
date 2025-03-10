@@ -620,14 +620,14 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			UE04 D 5 A_GiveInventory("DnD_WanderChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
+			UE04 A 0 A_GiveInventory("DnD_Info", 1)
 			UE04 AA 2 A_Chase
 		SeeTeleportSkip:
-			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
+			UE04 B 0 A_GiveInventory("DnD_Info", 1)
 			UE04 BB 2 A_Chase
-			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
+			UE04 C 0 A_GiveInventory("DnD_Info", 1)
 			UE04 CC 2 A_Chase
-			TNT1 A 0 A_TakeInventory("DnD_Info", 1)
+			UE04 D 0 A_TakeInventory("DnD_Info", 1)
 			UE04 DD 2 A_Chase
 		Goto See
 		MissileState:
@@ -865,29 +865,29 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 			UE05 D 5 Fast A_GiveInventory("DnD_WanderChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_SetUserVar("user_ang", random(0, 360))
-			TNT1 A 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX1")
+			UE05 A 0 A_SetUserVar("user_ang", random(0, 360))
+			UE05 A 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
+			UE05 A 0 A_SpawnItemEx("SSrath_MoveFX1")
 			UE05 A 2 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX1")
+			UE05 A 0 A_SpawnItemEx("SSrath_MoveFX1")
 			UE05 A 2 Fast A_Chase
-			TNT1 A 0 A_SetUserVar("user_ang", random(0, 360))
-			TNT1 A 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX2")
+			UE05 B 0 A_SetUserVar("user_ang", random(0, 360))
+			UE05 B 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
+			UE05 B 0 A_SpawnItemEx("SSrath_MoveFX2")
 			UE05 B 2 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX2")
+			UE05 B 0 A_SpawnItemEx("SSrath_MoveFX2")
 			UE05 B 2 Fast A_Chase
-			TNT1 A 0 A_SetUserVar("user_ang", random(0, 360))
-			TNT1 A 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX3")
+			UE05 C 0 A_SetUserVar("user_ang", random(0, 360))
+			UE05 C 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
+			UE05 C 0 A_SpawnItemEx("SSrath_MoveFX3")
 			UE05 C 2 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX3")
-			TNT1 A 0 A_SetUserVar("user_ang", random(0, 360))
-			TNT1 A 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
+			UE05 C 0 A_SpawnItemEx("SSrath_MoveFX3")
+			UE05 C 0 A_SetUserVar("user_ang", random(0, 360))
+			UE05 C 0 A_SpawnItemEx("SSrath_FakeImage", 0, 0, 0, 12 * cos(user_ang), 12 * sin(user_ang))
 			UE05 C 2 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX4")
+			UE05 D 0 A_SpawnItemEx("SSrath_MoveFX4")
 			UE05 D 2 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("SSrath_MoveFX4")
+			UE05 D 0 A_SpawnItemEx("SSrath_MoveFX4")
 			UE05 D 2 Fast A_Chase
 		Goto See
 		MissileState:
@@ -2537,17 +2537,17 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 		Loop
 		
 		SeeState:
-			TNT1 A 0 A_Chase
-			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 A 0 A_Chase
+			UE08 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 A 3 Fast A_SpawnItemEx("OnimuzProjection_TrailA")
-			TNT1 A 0 A_Chase
-			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 B 0 A_Chase
+			UE08 B 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 B 3 Fast A_SpawnItemEx("OnimuzProjection_TrailB")
-			TNT1 A 0 A_Chase
-			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 C 0 A_Chase
+			UE08 C 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 C 3 Fast A_SpawnItemEx("OnimuzProjection_TrailC")
-			TNT1 A 0 A_Chase
-			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
+			UE08 D 0 A_Chase
+			UE08 D 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 D 3 Fast A_SpawnItemEx("OnimuzProjection_TrailD")
 		Goto See
 
@@ -2731,8 +2731,8 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
+			UE09 A 0 A_ChangeFlag("NOBLOOD", 0)
+			UE09 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			UE09 AABBCCDD 2 Fast A_Chase
 		Goto See
 		MeleeState:
@@ -4298,11 +4298,11 @@ Actor Eryxia : DnD_BaseRangedBoss {
 			UE13 ABB 3 Fast A_Chase
 			UE13 C 3 Fast
 			UE13 C 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Eryxia/walk",4,1,0,ATTN_IDLE)
+			UE13 D 0 A_PlaySound("Eryxia/walk",4,1,0,ATTN_IDLE)
 			UE13 DD 3 Fast A_Chase
 			UE13 E 3 Fast
 			UE13 E 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Eryxia/walk",4,1,0,ATTN_IDLE)
+			UE13 F 0 A_PlaySound("Eryxia/walk",4,1,0,ATTN_IDLE)
 			UE13 FF 3 Fast A_Chase
 		Goto See
 		Rush:
@@ -4818,6 +4818,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 	const float vel_charge = 28.0;
 	const int laser_t = 60;
 	var int user_count;
+	MinMissileChance 128
 	+ISMONSTER
 	+MISSILEMORE
 	+MISSILEEVENMORE
@@ -4845,13 +4846,13 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
+			UE16 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 			UE16 A 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Abaxoth/Walk")
+			UE16 A 0 A_PlaySound("Abaxoth/Walk")
 			UE16 A 3 Fast A_Chase
 			UE16 BB 3 Fast A_Chase
 			UE16 C 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Abaxoth/Walk")
+			UE16 C 0 A_PlaySound("Abaxoth/Walk")
 			UE16 C 3 Fast A_Chase
 			UE16 DD 3 Fast A_Chase
 		Goto See

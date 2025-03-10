@@ -412,7 +412,7 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "T";
 		suffix = id - ITEM_IMAGE_TOKEN_BEGIN + 1;
 	}
-	//Log(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
+	//Log(l:StrParam(d:id, s:" ==>", s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 	return StrParam(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 }
 
@@ -1973,7 +1973,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		by += 8.0;
 
 		// optimization for the potentially busy section with strparam spam
-		if(GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, source)) {
+		if(GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, source) || CheckInventory("DnD_AssumedDirty")) {
 			tmp_text = "";
 			for(j = 0; j < attr_count; ++j) {
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
@@ -2012,6 +2012,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 
 			SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, 0, source);
 			SetItemSyncValue(pnum, DND_SYNC_TEXTID, topboxid, -1, tmp_text, source);
+			TakeInventory("DnD_AssumedDirty", 1);
 		}
 		else
 			tmp_text = GetItemSyncValue(pnum, DND_SYNC_TEXTID, topboxid, -1, source);
@@ -2023,7 +2024,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - ITEMINFOBG_MAXMIDS, CR_WHITE, bx, by + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
-		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 10);
+		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 15);
 		yoff += 8.0 * temp;
 		lines_count += max(1, temp);
 	}
@@ -2197,6 +2198,7 @@ void UsePlayerItem_Count(int pnum, int item_index, int count) {
 		SyncItemStack(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	else {
 		FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
+		GiveInventory("DnD_RefreshPane", 1);
 	}
 }
 
@@ -2207,6 +2209,7 @@ void UsePlayerStashItem_Count(int pnum, int page, int item_index, int count) {
 		SyncItemStack(pnum, item_index, DND_SYNC_ITEMSOURCE_STASH | (page << 16));
 	else
 		FreeItem(pnum, item_index, DND_SYNC_ITEMSOURCE_STASH | (page << 16), false);
+		GiveInventory("DnD_RefreshPane", 1);
 }
 
 // a safeguard pretty much for use player item
@@ -2496,20 +2499,6 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 
 			HandleEShieldChange(pnum, remove);
 			CalculateUnity(pnum);
-		break;
-		case INV_EX_DOUBLE_HEALTHCAP:
-			IncPlayerModValue(pnum, INV_HPPERCENT_INCREASE, aval, noSync, needDelay);
-			i = GetActorProperty(0, APROP_HEALTH) - GetSpawnHealth();
-			if(remove) {
-				temp = GetSpawnHealth();
-				if(GetActorProperty(0, APROP_HEALTH) > temp) {
-					// set health to new cap, add the extra to player
-					if(i > 0)
-						SetActorProperty(0, APROP_HEALTH, temp + i);
-					else
-						SetActorProperty(0, APROP_HEALTH, temp);
-				}
-			}
 		break;
 		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			// first check all sources, see if they contain this and are lower than this source
@@ -2901,12 +2890,11 @@ int GetItemTierRoll(int lvl, bool isWellRolled) {
 	// 10% chance to roll a tier up or down -- if well rolled 20%
 	if(!random(0, 9 - 5 * isWellRolled))
 		++lvl;
-	else if(!random(0, 9 - 5 * isWellRolled))
-		--lvl;
+	else // 0-1 do nothing, 2-3 is -1, 4-5 is -2 => if well rolled has only 33% chance for the tier to be a downgrade
+		lvl -= random(0, 5 - 3 * isWellRolled) / 2;
 
 	// clamp just in case
-	if(lvl > MAX_CHARM_AFFIXTIERS)
-		lvl = MAX_CHARM_AFFIXTIERS;
+	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
 	return lvl;
 }
 
@@ -2958,8 +2946,6 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 		
 		lvl = GetItemTierRoll(lvl, makeWellRolled);
 
-		// force within bounds
-		lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
 		Inventories_On_Field[item_pos].attributes[temp].attrib_tier = lvl;
 		Inventories_On_Field[item_pos].attributes[temp].attrib_id = attrib;
 		Inventories_On_Field[item_pos].attributes[temp].fractured = false;
@@ -2985,8 +2971,6 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 	// 10% chance to roll a tier up or down for the modifier on the charm
 	lvl = GetItemTierRoll(lvl, isWellRolled);
 	
-	// force within bounds
-	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_tier = lvl;
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_id = attrib;
 	PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_extra = 0; // set this to 0, if the rollattributevalue needs to assign the extra it will

@@ -14,6 +14,8 @@
 #define DND_TRANSMUTE_COST 5000
 int TransmuteOrbs[MAXPLAYERS][MAX_TRANSMUTE_BOXES]; // holds topboxid from inventories
 
+#define DND_MENU_BASEAMMOSTOCK 50
+
 // Box definitions for clickables
 // 7 images on menu leftmost bar
 #define MAX_MAIN_BOXES 10

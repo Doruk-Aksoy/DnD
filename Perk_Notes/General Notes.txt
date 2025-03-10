@@ -1,0 +1,19 @@
+- Perks can have 3 maximum points put to them, but not all will have 3
+- They can unlock other perks when sufficient points put into them
+- Gain a perk point every 2 levels
+- Gain a perk point as reward for completing a dungeon (for future)
+
+
+=== LEGEND ===
+
+- <Perk Name> (<Max points>) [<Max points spent in category to unlock if specified>]
+	* <Description>
+	+ <Per point invested gives>
+	- <Required Perk Names>
+	
+================================== -> Seperation of category in tree
+
+
+
+Low Life: Less than or equal to 50% health.
+Full Life: At maximum health.

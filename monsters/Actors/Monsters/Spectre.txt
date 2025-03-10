@@ -403,44 +403,44 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster {
 			SOEA AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
-			TNT1 A 0 A_GiveInventory("NhumHealthCheck", 1)
+			SOEA A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
+			SOEA A 0 A_GiveInventory("NhumHealthCheck", 1)
 			SOEA AA 2 Fast A_Chase
-			TNT1 A 0 A_GiveInventory("NhumHealthCheck", 1)
+			SOEA B 0 A_GiveInventory("NhumHealthCheck", 1)
 			SOEA B 2 Fast A_Chase
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA B 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA B 2 Fast A_Chase
-			TNT1 A 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
-			TNT1 A 0 A_GiveInventory("NhumHealthCheck", 1)
+			SOEA C 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
+			SOEA C 0 A_GiveInventory("NhumHealthCheck", 1)
 			SOEA C 2 Fast A_Chase
-			TNT1 A 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
+			SOEA C 0 A_JumpIfInventory("NhumAngry", 1, "AngrySee")
 			SOEA C 2 Fast A_Chase
 			SOEA D 2 Fast A_Chase
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA D 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA D 2 Fast A_Chase
-			TNT1 A 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
+			SOEA D 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
 		Goto See
 		AngrySee:
 			SOEA AA 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXA")
+			SOEA A 0 A_SpawnItem("NhumWalkFXA")
 			SOEA AA 1 Fast A_Chase
-			TNT1 A 0 A_SpawnItem("NhumWalkFXA")
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA A 0 A_SpawnItem("NhumWalkFXA")
+			SOEA A 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA BB 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXB")
+			SOEA B 0 A_SpawnItem("NhumWalkFXB")
 			SOEA BB 1 Fast A_Chase
-			TNT1 A 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
-			TNT1 A 0 A_SpawnItem("NhumWalkFXB")
-			TNT1 A 0 A_GiveInventory("DemonJumpCheck", 1)
+			SOEA B 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
+			SOEA B 0 A_SpawnItem("NhumWalkFXB")
+			SOEA B 0 A_GiveInventory("DemonJumpCheck", 1)
 			SOEA CC 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXC")
-			TNT1 A 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
+			SOEA C 0 A_SpawnItem("NhumWalkFXC")
+			SOEA C 0 A_JumpIfInventory("DemonGoJump", 1, "MissileGo")
 			SOEA CC 1 Fast A_Chase
-			TNT1 A 0 A_SpawnItem("NhumWalkFXC")
+			SOEA C 0 A_SpawnItem("NhumWalkFXC")
 			SOEA DD 1 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
-			TNT1 A 0 A_SpawnItem("NhumWalkFXD")
+			SOEA D 0 A_SpawnItem("NhumWalkFXD")
 			SOEA DD 1 Fast A_Chase
-			TNT1 A 0 A_SpawnItem("NhumWalkFXD")
+			SOEA D 0 A_SpawnItem("NhumWalkFXD")
 		Goto See
 		MeleeState:
 			SOEA E 5 Fast A_FaceTarget

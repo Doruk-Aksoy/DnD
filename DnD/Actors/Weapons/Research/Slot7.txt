@@ -290,7 +290,7 @@ Actor IonExplosion : DnD_ExplosiveBase {
 	}
 }
 
-const int thunderbolt_range = 420;
+const int thunderbolt_range = 360;
 
 Actor ResBFG2 : DnDWeapon {
 	Weapon.SelectionOrder 900

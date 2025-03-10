@@ -2198,7 +2198,6 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_JUDICATOR].trait_list[DND_BULLET_IMMUNE] = true;
 	MonsterData[MONSTER_WARMASTER].trait_list[DND_HEAL] = true;
 	MonsterData[MONSTER_WARMASTER].trait_list[DND_RAGE] = true;
-	MonsterData[MONSTER_WARMASTER].trait_list[DND_REFLECTIVE] = true;
 	
 	// fatty
 	MonsterData[MONSTER_CORPULENT].trait_list[DND_ELEMENTAL_WEAKNESS] = true;

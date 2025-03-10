@@ -117,7 +117,7 @@ enum {
 #define DND_BASE_CHARMRATE 0.01875
 #define DND_BASE_POWERCORERATE 0.004
 
-#define DND_BASE_PLAYERSPEED 1.0
+#define DND_BASE_PLAYERSPEED 0.9
 #define DND_HP_PER_STR 2
 #define DND_HP_PER_LVL 5
 
@@ -139,7 +139,7 @@ enum {
 #define DND_SHARPSHOOTER_MASTERY_BONUS 0.01
 
 #define DND_STR_KNOCKBACK_GAIN 50
-#define DND_BASE_PLAYER_MASS 100
+#define DND_BASE_PLAYER_MASS 250
 
 #define DND_BASE_ARMOR_SHOW 100
 #define DND_BASE_ARMOR 200
@@ -403,6 +403,11 @@ void CalculateUnity(int pnum) {
 	SetInventory("PSTAT_Unity", val);
 }
 
+void ConditionalCalculateUnity(int pnum) {
+	if(GetPlayerAttributeValue(pnum, INV_EX_UNITY))
+		CalculateUnity(pnum);
+}
+
 int GetUnity() {
 	return CheckInventory("PSTAT_Unity");
 }
@@ -494,6 +499,10 @@ int GetSpawnHealth(bool bypassEShieldCheck = false) {
 	res += (res * percent) / 100;
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH))
 		res >>= 1;
+
+	if(GetPlayerAttributeValue(pnum, INV_EX_DOUBLE_HEALTHCAP))
+		res <<= 1;
+
 	if(res < DND_BASE_HEALTH)
 		res = DND_BASE_HEALTH;
 	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
@@ -998,6 +1007,14 @@ int CountMonsterAilments(int tid) {
 		val >>= 1;
 	}
 	return count;
+}
+
+void HealMonster(int mid, int amount) {
+	int hp = GetActorProperty(0, APROP_HEALTH);
+	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
+	SetActorProperty(0, APROP_HEALTH, hp + amount);
+
+	CheckDoomguyExecuteReversal(mid + DND_MONSTERTID_BEGIN);
 }
 
 #endif

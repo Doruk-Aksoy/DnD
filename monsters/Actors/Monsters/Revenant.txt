@@ -1539,7 +1539,7 @@ Actor SludgeGiant : DnD_BaseHybridMonster {
 			SLDM H 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_SetTranslucent(1.0)
+			SLDM A 0 A_SetTranslucent(1.0)
 			SLDM ABCD 4 Fast A_Chase
 		Goto See
 		MeleeState:
@@ -1633,7 +1633,7 @@ Actor SludgeGiantSplit : DnD_BaseHybridMonster {
 			SLDM H 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_SetTranslucent(1.0)
+			SLDM A 0 A_SetTranslucent(1.0)
 			SLDM ABCD 4 Fast A_Chase
 		Goto See
 		MeleeState:
@@ -1743,7 +1743,7 @@ Actor SludgeGiantSplitFinal : DnD_BaseHybridMonster {
 			SLDM H 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_SetTranslucent(1.0)
+			SLDM A 0 A_SetTranslucent(1.0)
 			SLDM ABCD 4 Fast A_Chase
 		Goto See
 		MeleeState:
@@ -2238,7 +2238,7 @@ ACTOR Draugr : DnD_BaseHybridMonster {
 			SKE2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_SetShootable
+			SKE2 A 0 A_SetShootable
 			SKE2 AABBCCDDEEFF 2 Fast A_Chase
 		Goto See
 		MeleeState:

@@ -992,8 +992,11 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 			PlayerInventoryList[pnum][i].width = 1;
 			PlayerInventoryList[pnum][i].height = 1;
 			PlayerInventoryList[pnum][i].attrib_count = 0;
-			PlayerInventoryList[pnum][i].item_image = ITEM_IMAGE_ORB_BEGIN + otype;
+			PlayerInventoryList[pnum][i].item_image = GetOrbItemImage(otype);
 			PlayerInventoryList[pnum][i].topleftboxid = i + 1;
+
+			PlayerInventoryList[pnum][i].isDirty = true;
+
 			if(amt - res < j - PlayerInventoryList[pnum][i].item_stack) {
 				PlayerInventoryList[pnum][i].item_stack += amt - res;
 				res = amt;
@@ -1019,8 +1022,10 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 					PlayerStashList[pnum][i][j].width = 1;
 					PlayerStashList[pnum][i][j].height = 1;
 					PlayerStashList[pnum][i][j].attrib_count = 0;
-					PlayerStashList[pnum][i][j].item_image = ITEM_IMAGE_ORB_BEGIN + otype;
+					PlayerStashList[pnum][i][j].item_image = GetOrbItemImage(otype);
 					PlayerStashList[pnum][i][j].topleftboxid = j + 1;
+
+					PlayerStashList[pnum][i][j].isDirty = true;
 					
 					if(amt - res < GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack) {
 						PlayerStashList[pnum][i][j].item_stack += amt - res;
@@ -1046,6 +1051,8 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 			}
 		}
 	}
+
+	GiveInventory("DnD_RefreshPane", 1);
 }
 
 void RevertLastOrbEffect() {
@@ -1122,7 +1129,7 @@ void RevertLastOrbEffect() {
 
 // picks a random orb
 int PickRandomOrb(bool doExceptionCheck = false) {
-	int i;
+	int i = DND_ORB_ENHANCE;
 	do {
 		i = random(DND_ORB_ENHANCE, DND_MAX_ORB_KINDS - 1);
 	} while(doExceptionCheck && IsOrbDropException(i));
@@ -1334,6 +1341,11 @@ bool IsOrbDropException(int orb_id) {
 	return false;
 }
 
+int GetOrbDropStack(int monster_level) {
+	monster_level = random(0, monster_level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD);
+	return 1 + monster_level;
+}
+
 void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
@@ -1400,6 +1412,13 @@ void SpawnSpecificOrbForAll(int id, int repeats, int stack = 1) {
 	}
 }
 
+int GetOrbItemImage(int orbtype) {
+	// monster drop only ones have different image range
+	if(orbtype < DND_ORB_HOLLOW)
+		return ITEM_IMAGE_ORB_BEGIN + orbtype;
+	return ITEM_IMAGE_MONSTERORB_BEGIN + orbtype - DND_MON_DROP_ORB_BEGIN;
+}
+
 void RollOrbInfo(int item_pos, int orbtype, bool onField, int stack = 1) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = 1;
@@ -1409,7 +1428,8 @@ void RollOrbInfo(int item_pos, int orbtype, bool onField, int stack = 1) {
 	Inventories_On_Field[item_pos].width = 1;
 	Inventories_On_Field[item_pos].height = 1;
 	Inventories_On_Field[item_pos].attrib_count = 0;
-	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_ORB_BEGIN + orbtype;
+
+	Inventories_On_Field[item_pos].item_image = GetOrbItemImage(orbtype);
 }
 
 Script "DnD Give Orb Delayed" (int type, int amt) {

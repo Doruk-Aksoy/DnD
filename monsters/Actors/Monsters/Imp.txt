@@ -1533,7 +1533,7 @@ Actor UndeadMage : DnD_ArchVileBase {
 			CMYS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_JumpIfHealthLower(30, "NoRaiseState")
+			CMYS A 0 A_JumpIfHealthLower(30, "NoRaiseState")
 			CMYS AABBCCDD 3 Fast A_VileChase
 		Goto See
 		NoRaiseState:
@@ -1657,11 +1657,11 @@ Actor ReaverRobot : DnD_BaseHybridMonster {
 		Loop
 		SeeState:
 			5TRF BBCC 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
+			5TRF D 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
 			5TRF DDEE 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
+			5TRF D 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
 			5TRF DDCC 3 Fast A_Chase
-			TNT1 A 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
+			5TRF B 0 A_PlaySound("Reaver/Walk", CHAN_BODY)
 		Loop
 		MeleeState:
 			TNT1 A 0 A_PlaySound("reaver/melee", 5)
@@ -1993,7 +1993,7 @@ Actor Roach : DnD_BaseHybridMonster {
 			ROAC AA 3 Fast A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_TakeInventory("MonsterRegenPause", 1)
+			ROAC B 0 A_TakeInventory("MonsterRegenPause", 1)
 			ROAC BBCCDDEE 2 Fast A_Chase
 		Goto See
 		MeleeState:

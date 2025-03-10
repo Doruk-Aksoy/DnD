@@ -2,6 +2,11 @@
 #define DND_COMMON_IN
 
 //#define ISDEBUGBUILD
+
+#ifdef ISDEBUGBUILD
+int test_counter = 0;
+#endif
+
 #define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 //#define HELPER_MESSAGES_ON
@@ -215,12 +220,7 @@ enum {
 	DND_THUNDERSTRUCK_TID,
 	DND_AVATAR_CUBEPROJ_TID,
 	DND_AVATAR_CUBEFLARE_TID,
-	DND_SHOTGUNPUFF_REMOVETID,
-	
-	// 64 player temp tid range
-	DND_SHOTGUNPUFF_TID,
-	
-	ZEALOT_SHIELD_TID = DND_SHOTGUNPUFF_TID + MAXPLAYERS,
+	ZEALOT_SHIELD_TID,
 	
 	AVATAR_SOUL_TID,
 	
@@ -563,12 +563,6 @@ int AngleToFace(int this, int to) {
 	int x = GetActorX(to) - GetActorX(this);
 	int y = GetActorY(to) - GetActorY(this);
 	return VectorAngle(x, y);
-}
-
-void HealMonster(int mid, int amount) {
-	int hp = GetActorProperty(0, APROP_HEALTH);
-	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
-	SetActorProperty(0, APROP_HEALTH, hp + amount);
 }
 
 int PitchToFace(int m1, int m2) {

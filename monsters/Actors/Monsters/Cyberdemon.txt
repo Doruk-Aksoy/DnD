@@ -32,7 +32,6 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 			CARD AB 4 Bright A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			CARD A 0 A_ChangeFlag("NOPAIN", 0)
 			CARD AABBAABBAABB 2 Fast Bright A_Chase 
 		Goto See
 		MissileState:
@@ -90,7 +89,8 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 			CARD C 4 Fast Bright A_FaceTarget
 			CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
 			CARD C 4 Fast Bright A_FaceTarget
-			CARD D 5 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+			CARD D 4 Fast Bright A_CustomMissile("Cardinal_Rocket", 72, -30, 0)
+			CARD D 1 Fast Bright A_ChangeFlag("NOPAIN", 0)
 		Goto See
 		Retaliate:
 			CARD A 0 A_ChangeFlag("NOPAIN", 1)
@@ -173,7 +173,7 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 		Death.P_Ice:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Ice
-   } 
+	}
 }
 
 Actor CardinalImage {
@@ -294,7 +294,6 @@ ACTOR BallTail {
 	States {
 		Spawn:
 			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 Thing_ChangeTid(0,390)
 			BAL7 AB 2 A_fadeout(0.05)
 		loop
 	}
@@ -321,7 +320,6 @@ ACTOR CardinalPlasma {
 		Loop
 		Death:
 			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 Thing_ChangeTid(0,390)
 			CRTA J 2 A_fadeout(0.05)
 		Stop
 	}
@@ -335,7 +333,6 @@ ACTOR plasmaTail {
 	States {
 		Spawn:
 			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 Thing_ChangeTid(0,390)
 			CRTA IHGFEDCBABCDEFGHIJ 2 BRIGHT A_fadeout(0.05)
 		loop
 	}
@@ -733,21 +730,21 @@ Actor Thamuz : DnD_BaseRangedBoss {
 			CYBR A 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
+			CYBR A 0 A_ChangeFlag("NOBLOOD", 0)
 			CYBR A 3 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("DarkCyberGhostA",0,0,0,0,0,0,0,128)
+			CYBR A 0 A_SpawnItemEx("DarkCyberGhostA",0,0,0,0,0,0,0,128)
 			CYBR A 3 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("DarkCyberGhostA",0,0,0,0,0,0,0,128)
+			CYBR A 0 A_SpawnItemEx("DarkCyberGhostA",0,0,0,0,0,0,0,128)
 			CYBR B 3 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("DarkCyberGhostB",0,0,0,0,0,0,0,128)
+			CYBR B 0 A_SpawnItemEx("DarkCyberGhostB",0,0,0,0,0,0,0,128)
 			CYBR B 3 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("DarkCyberGhostB",0,0,0,0,0,0,0,128)
+			CYBR B 0 A_SpawnItemEx("DarkCyberGhostB",0,0,0,0,0,0,0,128)
 			CYBR C 3 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("DarkCyberGhostC",0,0,0,0,0,0,0,128)
+			CYBR C 0 A_SpawnItemEx("DarkCyberGhostC",0,0,0,0,0,0,0,128)
 			CYBR C 3 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("DarkCyberGhostC",0,0,0,0,0,0,0,128)
+			CYBR D 0 A_SpawnItemEx("DarkCyberGhostC",0,0,0,0,0,0,0,128)
 			CYBR D 3 Fast A_Chase
-			TNT1 A 0 A_SpawnItemEx("DarkCyberGhostD",0,0,0,0,0,0,0,128)
+			CYBR D 0 A_SpawnItemEx("DarkCyberGhostD",0,0,0,0,0,0,0,128)
 			CYBR D 3 Fast A_Chase
 			CYBR D 0 A_SpawnItemEx("DarkCyberGhostD",0,0,0,0,0,0,0,128)
 			CYBR D 0 A_PlaySoundEx("Hectebus/Step", "SoundSlot7", 0)
@@ -1172,7 +1169,7 @@ actor Azazel : DnD_BaseHybridBoss {
 		Loop
 		SeeState:
 			AZEW AABB 3 Fast A_Chase
-			TNT1 D 0 A_PlaySoundEx("Hectebus/Step", "SoundSlot7", 0)
+			AZEW C 0 A_PlaySoundEx("Hectebus/Step", "SoundSlot7", 0)
 			AZEW CCDD 3 Fast A_Chase
 			AZEW D 0 A_PlaySoundEx("Hectebus/Step", "SoundSlot7", 0)
 		Goto See
@@ -2395,7 +2392,7 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 			AVAT AB 10 A_GiveInventory("DnD_SightChecker", 1) 
 		Loop 
 		SeeState: 
-			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
+			AVAT A 0 A_ChangeFlag("NOPAIN", 0)
 			AVAT AABBCCDD 3 Fast A_Chase 
 		Goto See 
 		MissileState:
@@ -3914,8 +3911,8 @@ actor Cerberus : DnD_BaseRangedBoss {
 			CERB N 14 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
-			TNT1 A 0 A_JumpIfInventory("LowerThanHp", 1, "See2")
-			TNT1 A 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
+			CERB B 0 A_JumpIfInventory("LowerThanHp", 1, "See2")
+			CERB B 0 A_JumpIfHealthLower(ACS_ExecuteWithResult(961, 7) / 2, "PainX")
 		SeeGo:
 			CERB B 2 Fast A_Chase
 			CERB B 2 Fast A_Chase("", "", CHF_NOPLAYACTIVE)
@@ -4194,7 +4191,7 @@ ACTOR DeathWyvern : DnD_BaseRangedBoss {
 		Loop
 		SeeState:
 			DRAG AAA 2 Fast A_Chase
-			TNT1 A 0 A_Playsound("Dragon/Wing", CHAN_5)
+			DRAG A 0 A_Playsound("Dragon/Wing", CHAN_5)
 			DRAG BBBCCCDDDCCCBBB 2 Fast A_Chase
 		Goto See
 		PainState:
@@ -4288,29 +4285,65 @@ Actor WyvernPostBlast {
 	Radius 1
 	DamageType "Poison"
 	Stamina 128
-	Scale 0.75
+	Scale 0.0875
+	const float starget = 0.875;
+	var int user_scount;
+	var int user_starg;
 	States {
 		Spawn:
 			TNT1 A 0
+			TNT1 A 0 A_SetUserVar("user_scount", 0)
 			TNT1 A 0 A_Jump(256, "1", "2", "3", "4", "5", "6")
 		1:
-			TNT1 A 16
-		Goto GoOff
+			TNT1 A 0 A_SetUserVar("user_starg", 16)
+		Goto Telegraph
 		2:
-			TNT1 A 28
-		Goto GoOff
+			TNT1 A 0 A_SetUserVar("user_starg", 28)
+		Goto Telegraph
 		3:
-			TNT1 A 40
-		Goto GoOff
+			TNT1 A 0 A_SetUserVar("user_starg", 40)
+		Goto Telegraph
 		4:
-			TNT1 A 52
-		Goto GoOff
+			TNT1 A 0 A_SetUserVar("user_starg", 52)
+		Goto Telegraph
 		5:
-			TNT1 A 64
-		Goto GoOff
+			TNT1 A 0 A_SetUserVar("user_starg", 64)
+		Goto Telegraph
 		6:
-			TNT1 A 76
-		Goto GoOff
+			TNT1 A 0 A_SetUserVar("user_starg", 76)
+		Goto Telegraph
+		Telegraph:
+			D5FX G 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX G 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX G 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX G 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX G 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX H 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX H 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX H 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX H 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+			D5FX H 1 Bright A_SetScale(starget * (user_scount + 1) / user_starg)
+			TNT1 A 0 A_SetUserVar("user_scount", user_scount + 1)
+			TNT1 A 0 A_JumpIf(user_scount >= user_starg, "GoOff")
+		Loop
 		GoOff:
 			TNT1 A 0 A_SpawnItemEx("GreenSmallFlash_Smaller")
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner")

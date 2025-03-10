@@ -109,7 +109,7 @@ Script "DnD Menu Reset on Enter" ENTER {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
 				int ovf_temp = INT_MAX / ammo_bonus;
 				if(ShopStockRemaining[pnum][j] > ovf_temp)
 					ShopStockRemaining[pnum][j] = ovf_temp;
@@ -139,7 +139,7 @@ Script "DnD Menu Reset Forced" (void) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
 				int ovf_temp = INT_MAX / ammo_bonus;
 				if(ShopStockRemaining[pnum][j] > ovf_temp)
 					ShopStockRemaining[pnum][j] = ovf_temp;

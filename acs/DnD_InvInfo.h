@@ -182,8 +182,8 @@ str GetInventoryName(int inv) {
 		label = StrParam(s:"DND_KEYN", d:inv + 1);
 	else if(inv <= ORBS_END)
 		label = StrParam(s:"DND_ORBN", d:inv + 1 - ORBS_BEGIN);
-	else if(inv <= MONSTER_ORBS_END)
-		label = StrParam(s:"DND_ORBNM", d:inv + 1 - MONSTER_ORBS_BEGIN);
+	else if(inv > ORBS_END && inv < MONSTER_ORBS_BEGIN)
+		label = StrParam(s:"DND_ORBNM", d:inv - ORBS_END);
 	else
 		label = StrParam(s:"DND_TOKENN", d:inv + 1 - TOKEN_BEGIN);
 	return StrParam(l:label);
@@ -196,8 +196,8 @@ str GetInventoryTag(int id) {
 		return StrParam(s:"DND_CHESTKEY", d:id - CHESTKEY_BEGIN + 1);
 	if(id <= ORBS_END)
 		return StrParam(s:"DND_ORB", d:id - ORBS_BEGIN + 1);
-	if(id <= MONSTER_ORBS_END)
-		return StrParam(s:"DND_ORB_MON", d:id - MONSTER_ORBS_BEGIN + 1);
+	if(id < MONSTER_ORBS_BEGIN)
+		return StrParam(s:"DND_ORB_MON", d:id - ORBS_END);
 	return StrParam(s:"DND_TOKEN", d:id - TOKEN_BEGIN + 1);
 }
 
@@ -206,8 +206,8 @@ str GetInventoryText(int id) {
 		return StrParam(s:"DND_CHESTKEYTEXT", d:id - CHESTKEY_BEGIN + 1);
 	if(id <= ORBS_END)
 		return StrParam(s:"DND_ORBTEXT", d:id - ORBS_BEGIN + 1);
-	if(id <= MONSTER_ORBS_END)
-		return StrParam(s:"DND_ORB_MONTEXT", d:id - MONSTER_ORBS_BEGIN + 1);
+	if(id < MONSTER_ORBS_BEGIN)
+		return StrParam(s:"DND_ORB_MONTEXT", d:id - ORBS_END);
 	return StrParam(s:"DND_TOKENTEXT", d:id - TOKEN_BEGIN + 1);
 }
 

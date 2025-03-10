@@ -1593,7 +1593,7 @@ Actor IronLichFireTracer {
 		SpawnLoop:
 			TNT1 A 0 A_JumpIf(user_count == 12, "Die")
 			TNT1 A 5 A_Fire
-			TNT1 AAA 0 A_CustomMissile("IronLichFireSky", 192, random(-48, 48))
+			TNT1 AAA 0 A_CustomMissile("IronLichFireSky", 192, random(-48, 48), random(0, 360), CMF_AIMDIRECTION)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		Die:
@@ -1720,7 +1720,7 @@ Actor SpiderOverlord : DnD_BaseRangedBoss {
 			NMAS AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			NMAS A 0 A_TakeInventory("DnD_Boolean", 1)
 			NMAS A 3 Fast A_Metal
 			NMAS ABB 3 Fast A_Chase
 			NMAS C 3 Fast A_Metal

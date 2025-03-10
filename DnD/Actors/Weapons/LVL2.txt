@@ -83,7 +83,7 @@ Actor PistolPuff : DnD_BasePuff {
 }
 
 // Sprites by mik57
-Actor " Akimbo Pistols " : Pistol {
+Actor " Akimbo Pistols " : DnDWeapon {
 	Weapon.SlotNumber 2
 	Weapon.AmmoGive 0
 	Weapon.AmmoUse1 0

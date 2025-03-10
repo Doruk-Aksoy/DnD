@@ -145,6 +145,12 @@ Script "DnD Can Fire Weapon" (void) {
 					}*/
 				break;
 
+				// weapons that have ammo check requirement on ammo2 to fire m1, and ammo1 is morely internal either cosmetic to weapon mechanics or something else
+				case DND_WEAPON_HAMMER:
+					canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+				break;
+
 				// weapons that require only ammo1 to fire both primary and alt
 				case DND_WEAPON_SNIPER:
 				case DND_WEAPON_THUNDERSTAFF:
@@ -645,7 +651,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 2, 0, wepid);
 		break;
 		case DND_WEAPON_LIGHTNINGGUN:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 7 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 1 | (10 << 16), wepid);
 		break;
 		case DND_WEAPON_REBOUNDER:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 35, 0, wepid);
@@ -679,8 +685,8 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 224, 0, wepid);
 		break;
 		case DND_WEAPON_DEVASTATOR:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 8, 8 | (10 << 16), wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 64, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 6, 8 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 48, 0, wepid);
 		break;
 		case DND_WEAPON_MFG:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 425, 0, wepid);
@@ -694,9 +700,9 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		case DND_WEAPON_THUNDERSTAFF:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 50, 5 | (10 << 16), wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 100, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 1, 20 | (80 << 16), wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 250, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_3, 650, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 50, 5 | (15 << 16), wepid);
 		break;
 		case DND_WEAPON_GAUSSRIFLE:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 200, 0, wepid);

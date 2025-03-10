@@ -1283,13 +1283,16 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	
 	// cull checks
 	if(CheckCullRange(source, victim, dmg)) {
+		//printbold(s:"can cull");
 		if((flags & DND_DAMAGEFLAG_CULL)) {
 			// if self cull is in effect simply destroy it otherwise return from here
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 			dmg = GetActorProperty(victim, APROP_HEALTH) * 2;
 		}
-		else 
+		else {
+			//printbold(s:"color change");
 			GiveActorInventory(victim, "Doomguy_CanExecute", 1);
+		}
 	}
 	
 	if(dmg > 0) {
@@ -1554,7 +1557,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		more_dmg = more_dmg * (100 + ConvertFixedFactorToInt(temp)) / 100;
 	
 	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
-	if(damage_type != DND_DAMAGETYPE_LIGHTNING && CheckActorInventory(victim_tid, "DnD_OverloadTimer"))
+	if(CheckActorInventory(victim_tid, "DnD_OverloadTimer"))
 		more_dmg = more_dmg * (100 + DND_BASE_OVERLOADBUFF + CheckActorInventory(victim_tid, "DnD_OverloadDamage")) / 100;
 	
 	if(IsMonsterIdBoss(MonsterProperties[victim_data].id) && HasPlayerPowerSet(pnum, PPOWER_BOSSTAKEMOREDMG))
@@ -2552,6 +2555,9 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg
 				SetActorProperty(monster_tid, APROP_HEALTH, GetActorProperty(monster_tid, APROP_HEALTH) + hp);
 			else
 				SetActorProperty(monster_tid, APROP_HEALTH, MonsterProperties[m_id].maxhp);
+
+			CheckDoomguyExecuteReversal(monster_tid);
+
 			ACS_NamedExecuteAlways("DnD Vampirism FX CS", 0, monster_tid);
 		}
 	}
@@ -2643,7 +2649,8 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 	}
 
 	// check unstable power core
-	if(HasPlayerPowerset(pnum, PPOWER_ESHIELDEXPLODE) && (m_id = CheckInventory("EShieldAmount")) && RunLuckBasedChance(pnum, CheckInventory("EShieldBlowChance"), DND_LUCK_OUTCOME_GAIN / 2)) {
+	temp = CheckInventory("EShieldBlowChance");
+	if(HasPlayerPowerset(pnum, PPOWER_ESHIELDEXPLODE) && (m_id = CheckInventory("EShieldAmount")) && RunLuckBasedChance(pnum, temp, DND_LUCK_OUTCOME_GAIN / 2)) {
 		// explode for this amount now
 		SpawnForced("UnstableExplosion", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorViewHeight(this) / 2, DND_UNSTABLEEXP_TID);
 		SetActivator(DND_UNSTABLEEXP_TID);
@@ -2656,12 +2663,13 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 			SetActorProperty(0, APROP_HEALTH, 2);
 		}
 
-		m_id = m_id * (UNSTABLE_DMG_PCT + UNSTABLE_DMG_PCT * GetPlayerEnergyShieldPercent(pnum) / 100) / 100;
-		m_id &= 0xFFFF; // limit to 65536
+		m_id = m_id * ((UNSTABLE_DMG_MULT * temp * 100) >> 16) / 100;
+		printbold(d:m_id);
+		m_id &= NONWEP_DMG_MASK; // limit to 65536
 		// encode damage type
-		m_id |= DND_DAMAGETYPE_ENERGY << 16;
+		m_id |= DND_DAMAGETYPE_ENERGY << NONWEP_DMG_SHIFT;
 
-		SetActorProperty(0, APROP_SCORE, m_id);
+		SetUserVariable(0, "user_expdmg", m_id);
 		SetActorProperty(0, APROP_TARGETTID, this);
 		SetPointer(AAPTR_TARGET, this);
 		SetActivator(this);
@@ -2882,7 +2890,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
-		if(arg2 == "Melee")
+		if(arg2 == "Melee" && !GetActorProperty(0, APROP_TARGETTID))
 			shooter = ActivatorTID(); // apparently the damagesource is 0 under melee case for some reason...
 		//printbold(s:GetactorClass(0), s:" inflicts damage ", d:arg1, s:" type ", s:arg2);
 		int dmg_data = GetActorProperty(0, APROP_STAMINA);
@@ -3073,14 +3081,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					ACS_NamedExecuteWithResult("DnD Damage Numbers", shooter, dmg, 0);
 				}
 				
-				temp = CheckInventory("Perk_Endurance");
+				/*temp = CheckInventory("Perk_Endurance");
 				if(temp) {
-					// 1000 because integer factor is 35 => to make 3.5% we scale by 10
-					//if(dmg < INT_MAX / 1000)
-						dmg = dmg * (1000 - temp * ENDURANCE_RES_INTEGER) / 1000;
-					/*else
-						dmg = (dmg / 1000) * (1000 - temp * ENDURANCE_RES_INTEGER);*/
-				}
+					dmg = dmg * (1000 - temp * ENDURANCE_RES_INTEGER) / 1000;
+				}*/
 				
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later
@@ -3155,6 +3159,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// variable swap here to fix a bug with radius damage projectiles that also rip once
 			if(!(dmg_data & DND_DAMAGEFLAG_ISREFLECTED) && (!isReflected || IsPlayer(isReflected))) {
 				factor = arg1;
+				//printbold(s:"factor = ", d:arg1);
 				SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 				if(dmg_data & DND_DAMAGEFLAG_RIPSONCE) {
 					// insert victim to a temporary array and check if it exists in there before continuing
@@ -3197,6 +3202,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = arg1 & NONWEP_DMG_MASK; // dmg
 					temp = arg1 >> NONWEP_DMG_SHIFT; // dmg_type
 					m_id = -1;
+
+					//printbold(s:"dmg = ", d:dmg, s: " flags = ", d:temp);
 				}
 				else if(dmg_data & DND_DAMAGEFLAG_ISSPELL) {
 					// first 16 bits is spell damage, next is damage type and last is spell id
@@ -3373,7 +3380,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				// failsafe
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {
-					Log(s:"Monster hp overflow on ", s:GetActorClass(victim), s: " with player weaponid and dmg", d:m_id, s: " <> ", d:dmg);
+					Log(
+						s:"Monster hp overflow on ", s:GetActorClass(victim), s:" hp: ", d:GetActorProperty(victim, APROP_HEALTH), s:" / ", d:MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, 
+						s: " with player weaponid and dmg: ", d:m_id, s: " <> ", d:dmg
+					);
 					SetActorProperty(victim, APROP_HEALTH, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp);
 				}
 

@@ -319,7 +319,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 20, 20, item_tier, 7);
 				break;
 				case PCORE_UNSTABLE:
-					GiveImplicitToField(item_pos, INV_IMP_UNSTABLECORE, 15, 0.05 + 0.015 * item_tier / MAX_CHARM_AFFIXTIERS, item_tier, 8);
+					GiveImplicitToField(item_pos, INV_IMP_UNSTABLECORE, 15, 0.05 + 0.0275 * item_tier / MAX_CHARM_AFFIXTIERS, item_tier, 8);
 				break;
 				case PCORE_MOLYBDENUM:
 					GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 30, 15, item_tier, 10);

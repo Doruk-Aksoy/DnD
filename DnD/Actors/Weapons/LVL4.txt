@@ -538,7 +538,7 @@ Actor MGPuff : DnD_BasePuff {
 	}
 }
 
-Actor "Upgraded Machine Gun" : Chaingun {
+Actor "Upgraded Machine Gun" : DnDWeapon {
 	Weapon.SelectionOrder 720
 	Weapon.SlotNumber 4
     Inventory.PickupSound "weapons/pickup"
@@ -1658,7 +1658,7 @@ Actor DesolatorScriptRunning : Inventory {
 }
 
 // Sprites / most of decorate by DoomNukem
-actor " Minigun " : Chaingun {
+actor " Minigun " : DnDWeapon {
 	Weapon.AmmoUse 0
 	Weapon.AmmoGive 40
 	Weapon.AmmoType "Clip"

@@ -224,7 +224,7 @@ WEPTIP_6_2 		= "Particle Cannon fires highly ionized particles doing 80 damage r
 WEPTIP_6_3 		= "Launches 5 ice shards doing 15 - 30 damage in a 7.5 by 7.5 spread. Alt fire launches a glacial orb launching ice shards all around with itself doing 6-9 damage and rips through enemies. Can't hit \cughosts.";
 WEPTIP_6_4		= "Fires armor piercing rounds that do 350-400 damage. Altfire to scope, getting more precise and deadlier shots with additional chance to critical strike the longer you stay scoped up to 75% more. \cfIgnores shields.";
 WEPTIP_6_5 		= "Flamethrower does what it says and throws flames doing 1 - 8 damage. When they hit, they leave a trail of flame doing 5 damage every 2 tics. Fuel size of 75.";
-WEPTIP_6_6 		= "UAC offers this shockingly deadly weapon that can shoot lightning doing 7-10 damage. Alt fire shoots forked lightning. Keep firing to do 2% more damage per stack. Stacks additively.";
+WEPTIP_6_6 		= "UAC offers this shockingly deadly weapon that can shoot lightning doing 1-10 damage. Alt fire shoots forked lightning. Keep firing to do 2% more damage per stack. Stacks additively.";
 WEPTIP_6_7 		= "Fires projectiles doing 35 damage. For every 15 point mark on your overheat, each hit rebounds to 2 other projectiles. Altfire shoots a special projectile doing 600 damage in 256 radius to enemies with \cuHardened Skin\c- or \cfShield\c-.";
 WEPTIP_6_8 		= "Fire lances that penetrate all targets dealing 25 damage each. The lance grows stronger the more it deals damage. Altfire uses all stacks to curse an enemy, dealing 50 damage + 1% more damage per stack every 0.2 seconds for 3 seconds. The curse bounces to nearby enemies, \cfignoring shields.";
 	 
@@ -237,7 +237,7 @@ WEPTIP_7_1 		= "The newest BFG model 32768, devastates with 600 - 900 damage on 
 WEPTIP_7_2 		= "Devastator launches five mini rockets each doing 64 to 80 with 64 radius damage in 96 units. Altfire charges up a barrage over 1.5 seconds to fire for a second up to 60 missiles that \cucannot be reflected.\c- Barrage slows user by 66%.";
 WEPTIP_7_3 		= "Fires a destructive orb doing 425 damage on impact and 448 damage in a 768 unit radius. Creates 6 smaller explosions doing 200 damage on impact and 192 damage in a 256 unit radius. Does self damage. Main orb \cfignores shields\c- and has limited range.";
 WEPTIP_7_4 		= "Fires ionized energy doing 160 impact and 144 area damage in 160 unit radius, halving over two more explosions in both radius and damage.";
-WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 100 damage in 420 units. On impact deals 250-500 and 250 radius damage in 128 units. Altfire zaps all enemies in range for 650 damage, \cfignoring shields.";
+WEPTIP_7_5 		= "Summons a lightning ball that zaps 5 nearest enemies for 20-80 damage in 360 units. On impact deals 250-500 and 250 radius damage in 128 units. Altfire zaps all enemies in range for 250-650 damage, \cfignoring shields.";
 
 WEPTIP_7_6 		= "Gauss Rifle fires a magnetic pulse dealing 200 direct hit damage and 96 radius damage in a 128 unit radius. Alt fire zooms, amplifying the damage for each zoom.";
 WEPTIP_7_7 		= "This baby can rip through concrete with ease. Each shot does multiples of 400. Alt fire charges up the next shot up to 2 times.";

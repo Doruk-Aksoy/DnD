@@ -69,27 +69,27 @@ Actor OrbofCorruption : OrbDrop {
 		Idle:
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 			"####" "#" 0 A_SetTranslucent(0.75)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.675)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.6)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.525)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 			"####" "#" 0 A_SetTranslucent(0.45)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.375)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.45)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.525)
 			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 			"####" "#" 0 A_SetTranslucent(0.6)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.675)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.75)
-			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			"####" "#" 1 Bright
 			"####" "#" 0 A_SetTranslucent(0.825)
 		Loop
 		
@@ -110,7 +110,7 @@ Actor PrismaticOrb : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB1 FFFGGGHHHEEE 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB1 FGHE 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -130,7 +130,7 @@ Actor OrbofRepentance : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB1 UUUVVVWWWXXXTTT 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB1 UVWXT 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -150,7 +150,7 @@ Actor OrbofAffluence : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB2 XXXYYYZZZYYYXXXWWW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 XYZYXW 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -170,7 +170,7 @@ Actor OrbofCalamity : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB1 KKKLLLMMMJJJ 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB1 KLMJ 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -190,7 +190,7 @@ Actor OrbofProsperity : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB1 PPPQQQRRROOO 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB1 PQRO 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -210,7 +210,7 @@ Actor OrbofNullification : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB2 GGGHHHIIIFFF 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 GHIF 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -230,7 +230,7 @@ Actor OrbofDestruction : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB3 CCCDDDCCCBBB 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 CDCB 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -250,7 +250,7 @@ Actor OrbofViolence : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB2 LLLMMMNNNKKK 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 LMNK 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -270,7 +270,12 @@ Actor OrbofFortitude : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB2 QQRRSSTTUUPP 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 Q 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 QRR 1 Bright
+			ORB2 S 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 STT 1 Bright
+			ORB2 U 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 UPP 1 Bright
 		Loop
 		
 		PickupSuccess:
@@ -290,7 +295,7 @@ Actor OrbofSin : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB2 BBBCCCDDDAAA 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB2 BCDA 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -306,7 +311,7 @@ Actor OrbofTremors : OrbDrop {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB3 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 F 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -318,7 +323,7 @@ Actor OrbofTinkerer : OrbDrop {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB3 H 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 H 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -330,7 +335,7 @@ Actor OrbofRefinement : OrbDrop {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB3 J 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 J 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -342,7 +347,7 @@ Actor OrbofSculpting : OrbDrop {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB3 L 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 L 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -354,7 +359,7 @@ Actor OrbofElevation : OrbDrop {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB3 N 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 N 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -366,7 +371,7 @@ Actor OrbofHollow : OrbDrop {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB3 P 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 P 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -382,16 +387,16 @@ Actor OrbofPhantasmal : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB3 TTTTTTTTTTTTTTTTTTTTTTTTT 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 UU 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 VV 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 WW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 XX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 YYYYYYYYY 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 XX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 WW 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 VV 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB3 UU 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 TTTTTT 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 U 2 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 V 2 Bright
+			ORB3 W 2 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 X 2 Bright
+			ORB3 YY 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 X 2 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 W 2 
+			ORB3 V 2 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 U 2
 		Loop
 		
 		PickupSuccess:
@@ -407,7 +412,7 @@ Actor OrbofAssimilation : OrbDrop {
 		Goto SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB3 R 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB3 R 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -419,7 +424,7 @@ Actor OrbOfTurmoil : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB4 A 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB4 A 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -435,7 +440,7 @@ Actor OrbofHexes : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB4 EEEFFFGGGHHH 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB4 EFGH 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -451,7 +456,7 @@ Actor OrbOfGrowth : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB4 C 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB4 C 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -467,7 +472,7 @@ Actor OrbOfPotency : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB4 JJJKKKLLLMMMNNNOOOPPPQQQPPPOOONNNMMMLLLKKKJJJ 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB4 JKLMNOPQPONMLKJ 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -487,7 +492,7 @@ Actor OrbofCrackling : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB4 SSSTTTUUUVVVWWWXXXYYYZZZVVVWWWXXX 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB4 STUVWXYZVWX 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 		
 		PickupSuccess:
@@ -503,7 +508,7 @@ Actor OrbOfBrute : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB5 B 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 B 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -515,7 +520,7 @@ Actor OrbOfJagged : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB5 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 D 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -527,7 +532,7 @@ Actor OrbOfAlchemist : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB5 F 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 F 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -539,7 +544,7 @@ Actor OrbOfEvoker : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB5 HHHIIIJJJKKK 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 HIJK 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -551,7 +556,7 @@ Actor OrbOfSavagery : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB5 M 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 M 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -563,7 +568,7 @@ Actor OrbOfWinter : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB5 O 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 O 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -575,7 +580,7 @@ Actor OrbOfVoltaic : OrbDrop {
 		Goto Super::SpawnInit
 		SpawnLoop:
 		Idle:
-			ORB6 D 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB6 D 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -591,7 +596,7 @@ Actor OrbOfVile : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB5 QQQRRRSSSTTTSSSRRR 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 QRSTSR 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -607,8 +612,8 @@ Actor OrbOfEmbers : OrbDrop {
 			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
 		SpawnLoop:
 		Idle:
-			ORB5 UUUVVVWWWXXXYYYZZZ 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ORB6 AAABBB 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB5 UVWXYZ 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ORB6 AB 3 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }

@@ -206,7 +206,7 @@ Actor InstabilityBlast : DnD_BaseProjectile {
 		) | (DND_DAMAGETYPE_ENERGY << NONWEP_DMG_SHIFT)
 	)
 	
-	Stamina 2098176
+	Stamina 2097152
 	
 	+FOILINVUL
 	+RANDOMIZE

@@ -23,7 +23,7 @@ enum {
 
 #define DND_EXP_BASEFACTOR 4
 #define DND_CREDITGAIN_FACTOR 1 // divides the regular gain by 2 -- was 2, now 1, goes up by 1
-#define DND_CREDITGAIN_PERLEVELREDUCE 10 // every 10 levels we reduce the gain
+#define DND_CREDITGAIN_PERLEVELREDUCE 15 // every 15 levels we reduce the gain
 #define DND_CREDIT_BASEFACTOR 5
 #define DND_RESEARCH_MAX_CHANCE 1.0
 
@@ -201,11 +201,9 @@ enum {
 #define DND_SOULAMMO_STEALERUPGRADE 0.025 // 2.5% more chance
 #define DND_SOULAMMO_SMALLCHANCE 75
 
-#define DND_LEGENDARY_ITEMDROPRATE 0.1 // 10%
+#define DND_LEGENDARY_ITEMDROPRATE 0.2 // 20%
 
 #define DND_BOSSCHEST_DROPRATE 0.33 // 33% chance
-
-#define DND_ITEM_LINGER_TIME 120
 
 #define DND_MARINE_SELFRESIST 25 // 25%
 
@@ -688,13 +686,13 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			int j;
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1)) {
-				SpawnOrb(i, true, false, 1 + random(0, MonsterProperties[m_id].level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+				SpawnOrb(i, true, false, GetOrbDropStack(MonsterProperties[m_id].level));
 				bits |= DND_LOOTBIT_ORB;
 			}
 
 			// for tokens -- same likelihood to drop as orbs
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2)) {
-				SpawnToken(i, 1 + random(0, MonsterProperties[m_id].level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+				SpawnToken(i, GetOrbDropStack(MonsterProperties[m_id].level));
 				bits |= DND_LOOTBIT_TOKEN;
 			}
 
@@ -1225,66 +1223,79 @@ void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 			SpawnForced("BudgetDropper_Medium", GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0);
 		break;
 		case MONSTER_GANT:
-			SpawnArmor(pnum, 0, -BODYARMOR_SYNTHMETAL);
+			if(!random(0, 2))
+				SpawnArmor(pnum, 0, -BODYARMOR_SYNTHMETAL);
 		break;
 		case MONSTER_BRONN:
-			SpawnHelm(pnum, 0, HELMS_SYNTHMETAL);
+			if(!random(0, 2))
+				SpawnHelm(pnum, 0, HELMS_SYNTHMETAL);
 		break;
 		case MONSTER_VAAJ:
 			// drops vaaj influenced charm: explosives ignore resists mod guaranteed
-			SpawnCharmWithMods_ForAll(INV_ESS_VAAJ);
+			if(!random(0, 4))
+				SpawnCharmWithMods_ForAll(INV_ESS_VAAJ);
 		break;
 		case MONSTER_REMUS:
 			// drops armor and gives research for it: lightning coil - super lightning protection, 300, 40% damage reduction. When hurt fires lightning bolts.
-			SpawnArmor(pnum, 0, -BODYARMOR_LIGHTNINGCOIL);
+			if(!random(0, 2))
+				SpawnArmor(pnum, 0, -BODYARMOR_LIGHTNINGCOIL);
 		break;
 		case MONSTER_SSRATH:
 			// ssrath influence: soul type weapons penetrate % magic resistance
-			SpawnCharmWithMods_ForAll(INV_ESS_SSRATH);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_SSRATH);
 		break;
 		case MONSTER_HOLLOWSHELL:
 			// hollow orb: adds an extra mod to a non-unique charm even if it's at its limit (at most +1 of its current limit)
-			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1, GetOrbDropStack(level));
 		break;
 		case MONSTER_OMNISIGHT:
 			// omnisight influence: large accuracy, % increased accuracy rating
-			SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_OMNISIGHT, INV_ESS_OMNISIGHT2);
 		break;
 		case MONSTER_CHEGOVAX:
 			// chegovax influence: Ignite damage on enemies increases every tic %
-			SpawnCharmWithMods_ForAll(INV_ESS_CHEGOVAX);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_CHEGOVAX);
 		break;
 		case MONSTER_ONIMUZ:
 			// Phantasmal Orb: grants used weapon ability to hit ghosts but do 25% less damage overall.
-			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1, GetOrbDropStack(level));
 		break;
 		case MONSTER_HARKIMONDE:
 			// harkimonde influence: Attacks have chance to ignore shields.
-			SpawnCharmWithMods_ForAll(INV_ESS_HARKIMONDE);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_HARKIMONDE);
 		break;
 		case MONSTER_LESHRAC:
 			// leshrac influence: poison damage tics twice as fast
-			SpawnCharmWithMods_ForAll(INV_ESS_LESHRAC);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_LESHRAC);
 		break;
 		case MONSTER_KRULL:
 			// krull influence: % chance explosives trigger a second time
-			SpawnCharmWithMods_ForAll(INV_ESS_KRULL);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_KRULL);
 		break;
 		case MONSTER_THORAX:
 			// thorax influence: Homing projectiles can't be reflected.
-			SpawnCharmWithMods_ForAll(INV_ESS_THORAX);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_THORAX);
 		break;
 		case MONSTER_ZRAVOG:
 			// zravog influence: Occult attacks reduce enemy magic resistance by 2-5% per hit for 3 seconds, up to 5 stacks.
-			SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 		break;
 		case MONSTER_ERYXIA:
 			// eryxia influence: Frozen enemies take % increased ice damage.
-			SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);
+			if(!random(0, 2))
+				SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);
 		break;
 		case MONSTER_ABAXOTH:
 			// Assimilation Orb: Assimilates a chosen charm into another, merging them unpredictably, randomly taking modifiers from both charms. Can have up to 1 additional modifier.
-			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1, 1 + random(0, level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD));
+			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1, GetOrbDropStack(level));
 		break;
 	}
 }
@@ -1494,19 +1505,21 @@ void SaveAllPlayerData() {
 	BeginDBTransaction();
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// don't save peoples stuff while they are in load period
-		//Log(d:i,s:": ",d:PlayerInGame(i), s:" " ,d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), s:" ", d:PlayerDatabaseState[i][PLAYER_SAVESTATE]);
-		if(PlayerInGame(i) && !CheckActorInventory(i + P_TIDSTART, "CanLoad") && PlayerDatabaseState[i][PLAYER_SAVESTATE]) {
+		//Log(d:i, s:" ", n:i + 1, s:": ",d:PlayerInGame(i), s:" " ,d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), s:" ", d:PlayerDatabaseState[i][PLAYER_SAVESTATE]);
+		int ptid = i + P_TIDSTART;
+		if(PlayerInGame(i) && IsActorAlive(ptid) && !CheckActorInventory(ptid, "CanLoad") && PlayerDatabaseState[i][PLAYER_SAVESTATE]) {
 			if (PlayerIsLoggedIn(i)) {
 				// if transfer requested, wipeout old one and move to new one
 				if(PlayerDatabaseState[i][PLAYER_TRANSFERSTATE]) {
-					WipeoutPlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
-					SetActorInventory(i + P_TIDSTART, "DnD_CharacterID", CheckActorInventory(i + P_TIDSTART, "DnD_TransfCharacterID"));
+					WipeoutPlayerData(i, CheckActorInventory(ptid, "DnD_CharacterID"));
+					SetActorInventory(ptid, "DnD_CharacterID", CheckActorInventory(ptid, "DnD_TransfCharacterID"));
 					PlayerDatabaseState[i][PLAYER_TRANSFERSTATE] = false;
 				}
-				SavePlayerData(i, CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+				//Log(s:"char id save on ", d:CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
+				SavePlayerData(i, CheckActorInventory(ptid, "DnD_CharacterID"));
 				ResetPlayerActivities(i, false); // reset this player's activities for the map, no need for them to be stored anymore
 				PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
-				Log(s:"Saving player ", n:i + 1, s:"'s data.");
+				Log(s:"Saving player ", n:i + 1, s:"'s data on character id ", d:CheckActorInventory(ptid, "DnD_CharacterID"), s: ".");
 			}
 			PlayerDatabaseState[i][PLAYER_SAVESTATE] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.
 		}

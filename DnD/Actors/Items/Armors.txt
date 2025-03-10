@@ -473,7 +473,7 @@ Actor ArmorDrop_7 : ArmorDrop {
 		
 		SpawnLoop:
 		Idle:
-			AR14 AAABBBCCCDDDEEE 1 A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			AR14 ABCDE 3 A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -486,10 +486,7 @@ Actor ArmorDrop_8 : ArmorDrop {
 		
 		SpawnLoop:
 		Idle:
-			ARM4 AAAA 1 Light("THEREDARMOR1") Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ARM4 BBBB 1 Light("THEREDARMOR1") Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ARM4 CCCC 1 Light("THEREDARMOR1") Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ARM4 BBBB 1 Light("THEREDARMOR1") Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ARM4 ABCB 4 Light("THEREDARMOR1") Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
@@ -510,10 +507,7 @@ Actor ArmorDrop_10 : ArmorDrop {
 		
 		SpawnLoop:
 		Idle:
-			ARM4 DDDD 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ARM4 EEEE 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ARM4 FFFF 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
-			ARM4 GGGG 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+			ARM4 DEFG 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
 		Loop
 	}
 }
