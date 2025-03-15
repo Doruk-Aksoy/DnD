@@ -531,8 +531,6 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		case DND_WEAPON_RIOTCANNON:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 12, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 15, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_2, 8, 4 | (6 << 16), wepid);
 		break;
 		case DND_WEAPON_ACIDRIFLE:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
@@ -553,8 +551,8 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		
 		case DND_WEAPON_DESOLATOR:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 150, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 25 | (30 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 15 | (20 << 16), wepid);
 		break;
 		case DND_WEAPON_MINIGUN:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 4 | (7 << 16), wepid);

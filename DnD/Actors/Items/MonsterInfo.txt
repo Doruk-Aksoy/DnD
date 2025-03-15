@@ -186,7 +186,7 @@ Actor DnD_AttachedFXBase {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 2 ACS_NamedExecuteAlways("DnD Align Elite FX")
+			TNT1 A 2
 			TNT1 A 35 A_Jump(256, "SpawnLoop")
 		Wait
 		Disappear:
@@ -214,7 +214,6 @@ Actor EliteSpecialFX : DnD_AttachedFXBase {
 			TNT1 A 0 A_FadeOut(f)
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeOut(f)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Fade")
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeOut(f)
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
@@ -223,7 +222,6 @@ Actor EliteSpecialFX : DnD_AttachedFXBase {
 			TNT1 A 0 A_FadeOut(f)
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeOut(f)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Fade")
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeIn(f)
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
@@ -232,7 +230,6 @@ Actor EliteSpecialFX : DnD_AttachedFXBase {
 			TNT1 A 0 A_FadeIn(f)
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeIn(f)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Fade")
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeIn(f)
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
@@ -241,7 +238,6 @@ Actor EliteSpecialFX : DnD_AttachedFXBase {
 			TNT1 A 0 A_FadeIn(f)
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeIn(f)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Fade")
 		Loop
 		Death:
 		Fade:
@@ -253,23 +249,11 @@ Actor EliteSpecialFX : DnD_AttachedFXBase {
 	}
 }
 
-Actor EliteFXRunner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 0, CMF_AIMDIRECTION)
-			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 90, CMF_AIMDIRECTION)
-			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 180, CMF_AIMDIRECTION)
-			TNT1 A 0 A_CustomMissile("EliteSpecialFX", 32, 0, 270, CMF_AIMDIRECTION)
-		Stop
-	}
-}
-
 Actor DnD_PetIcon : DnD_AttachedFXBase {
 	Scale 0.4
 	States {
 		SpawnLoop:
             AMIN AAA 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 		Loop
 		Death:
 		Remove:
@@ -278,32 +262,20 @@ Actor DnD_PetIcon : DnD_AttachedFXBase {
 	}
 }
 
-Actor DnD_PetEffectSpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_CustomMissile("DnD_PetIcon", 32, 0, 0, CMF_AIMDIRECTION)
-		Stop
-	}
-}
-
 Actor DnD_BlindIcon : DnD_AttachedFXBase {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 ACS_NamedExecuteAlways("DnD Align Elite FX")
+			TNT1 A 1
 			TNT1 A 1 A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 		SpawnLoop:
             ESYM EEEE 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM FFFF 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM GGGG 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM HHHH 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
 		Death:
@@ -315,42 +287,22 @@ Actor DnD_BlindIcon : DnD_AttachedFXBase {
 	}
 }
 
-Actor DnD_NormalBlindSpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_CustomMissile("DnD_BlindIcon", 32, 0, 0, CMF_AIMDIRECTION)
-		Stop
-	}
-}
-
 Actor DnD_BlindIcon_Heavy : DnD_BlindIcon {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 ACS_NamedExecuteAlways("DnD Align Elite FX")
+			TNT1 A 1
 			TNT1 A 1 A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 		SpawnLoop:
             ESYM IIII 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM JJJJ 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM KKKK 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM LLLL 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
-	}
-}
-
-Actor DnD_HeavyBlindSpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_CustomMissile("DnD_BlindIcon_Heavy", 32, 0, 0, CMF_AIMDIRECTION)
-		Stop
 	}
 }
 
@@ -358,30 +310,18 @@ Actor DnD_BlindIcon_Petrify : DnD_BlindIcon {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1 ACS_NamedExecuteAlways("DnD Align Elite FX")
+			TNT1 A 1
 			TNT1 A 1 A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 		SpawnLoop:
             ESYM AAAA 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM BBBB 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM CCCC 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 			ESYM DDDD 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass * 2, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
-	}
-}
-
-Actor DnD_PetrifySpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_CustomMissile("DnD_BlindIcon_Petrify", 32, 0, 0, CMF_AIMDIRECTION)
-		Stop
 	}
 }
 
@@ -443,17 +383,8 @@ Actor CrippleAuraFX : DnD_AttachedFXBase {
 		SpawnLoop:
 			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Aura Scale to Match")
 		RealLoop:
-			AURA AAAA 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
+			AURA A 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
-	}
-}
-
-Actor CrippleAuraSpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_CustomMissile("CrippleAuraFX", 0, 0, 0, CMF_AIMDIRECTION)
-		Stop
 	}
 }
 
@@ -465,8 +396,7 @@ Actor ViolentAuraFX : DnD_AttachedFXBase {
 		SpawnLoop:
 			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Aura Scale to Match")
 		RealLoop:
-			AURA BBBB 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
+			AURA B 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
 		Loop
 	}
 }
@@ -904,19 +834,10 @@ Actor TemporalBubbleFX : DnD_AttachedFXBase {
 			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Aura Scale to Match")
 		RealLoop:
 			TBUB AAAA 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 			TNT1 A 0 A_JumpIfInTargetInventory("TemporalBubbleCooldown", 1, "Pop")
 		Loop
 		Pop:
 			TBUB AAAAA 1 A_FadeOut(0.2)
-		Stop
-	}
-}
-
-Actor TemporalBubbleSpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_CustomMissile("TemporalBubbleFX", 0, 0, 0, CMF_AIMDIRECTION)
 		Stop
 	}
 }
@@ -1048,15 +969,6 @@ Actor EnshroudFX : DnD_AttachedFXBase {
 			"####" "#" 1 ACS_NamedExecuteWithResult("DnD Aura Scale to Match")
 		FollowAround:
             "####" "####" 1 Bright A_Warp(AAPTR_TARGET, user_x, user_y, user_z, user_a, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
-			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Elite Clear"), "Disappear")
 		Loop
-	}
-}
-
-Actor EnshroudFXSpawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 AAAAAAA 0 A_CustomMissile("EnshroudFX", 0, 0, 0, CMF_AIMDIRECTION)
-		Stop
 	}
 }

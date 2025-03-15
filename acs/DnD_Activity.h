@@ -33,6 +33,7 @@ typedef struct {
 	int attribute_change[DND_MAX_ATTRIBUTES];
 	int free_perks;
 	int free_attributes;
+	int discarded_weapons;
 
 	int loot_penalty;
 	int vote_skips;
@@ -85,32 +86,10 @@ enum {
 	DND_ACTIVITY_ATTRIBUTE,
 	DND_ACTIVITY_PERKPOINT,
 	DND_ACTIVITY_ATTRIBUTEPOINT,
-	
-	// same order as in dnd_orbs.h
-	DND_ACTIVITY_ORB_HPFLAT,
-	DND_ACTIVITY_ORB_ARMORFLAT,
-	
-	DND_ACTIVITY_ORB_HPPERCENT,
-	DND_ACTIVITY_ORB_ARMORPERCENT,
-	
-	DND_ACTIVITY_ORB_GREED,
-	DND_ACTIVITY_ORB_WISDOM,
-	
-	DND_ACTIVITY_ORB_SPEED,
-	DND_ACTIVITY_ORB_DROPCHANCE,
-	DND_ACTIVITY_ORB_HOLDING,
-	DND_ACTIVITY_ORB_DAMAGETYPE,
-	
-	DND_ACTIVITY_ORB_WEAPONENCHANT,
-	DND_ACTIVITY_ORB_WEAPONBONUS_CRIT,
-	DND_ACTIVITY_ORB_WEAPONBONUS_CRITDAMAGE,
-	DND_ACTIVITY_ORB_WEAPONBONUS_CRITPERCENT,
-	DND_ACTIVITY_ORB_WEAPONBONUS_DAMAGE,
-	DND_ACTIVITY_ORB_WEAPONBONUS_POWERSET1
+	DND_ACTIVITY_WEAPONDISCARD
 };
-#define MAP_ORB_TO_ACTIVITY (DND_ACTIVITY_ORB_HPFLAT - DND_ACTIVITY_EXP)
 
-void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite = false, bool removeBit = false) {
+void UpdateActivity(int pnum, int activity, int val, int extra) {
 	switch(activity) {
 		case DND_ACTIVITY_EXP:
 			PlayerActivities[pnum].exp = val;
@@ -138,7 +117,33 @@ void UpdateActivity(int pnum, int activity, int val, int extra, bool overwrite =
 		case DND_ACTIVITY_ATTRIBUTEPOINT:
 			PlayerActivities[pnum].free_attributes += val;
 		break;
+		case DND_ACTIVITY_WEAPONDISCARD:
+			// expects 1 to slotmax + 1, not 0 based
+			if(val < 0) {
+				val = -val;
+				--val;
+				PlayerActivities[pnum].discarded_weapons &= ~(1 << val);
+			}
+			else {
+				--val;
+				PlayerActivities[pnum].discarded_weapons |= (1 << val);
+			}
+			// we want to sync this one to the client
+			printbold(s:"disc val ", d:PlayerActivities[pnum].discarded_weapons);
+			ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
+		break;
 	}
+}
+
+Script "DnD Player Weapon Discard Sync" (int pnum, int val) CLIENTSIDE {
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+	PlayerActivities[pnum].discarded_weapons = val;
+	SetResultValue(0);
+}
+
+bool HasPlayerDiscardedSlot(int pnum, int slot) {
+	return PlayerActivities[pnum].discarded_weapons & (1 << slot);
 }
 
 void ResetPlayerActivities(int pnum, bool hardReset) {
@@ -153,6 +158,8 @@ void ResetPlayerActivities(int pnum, bool hardReset) {
 	if(hardReset) {
 		// only if someone quits or spectates should the hard reset be resetting these
 		PlayerActivities[pnum].char_id = 0;
+		PlayerActivities[pnum].discarded_weapons = 0;
+		ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, 0);
 		PlayerActivities[pnum].stash_pages = DND_BASE_STASH_PAGES;
 		PlayerActivities[pnum].total_exp = 0; // DONT CHANGE THIS THING'S LOCATION!
 

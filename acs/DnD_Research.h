@@ -193,8 +193,9 @@ void SpawnResearch(int pnum, bool noRepeat = false) {
 	
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		for(i = 0; i < MAXPLAYERS; ++i) {
+			drop_rate = i + P_TIDSTART;
 			// spawn this only if this isn't already found by the player
-			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(temp))
+			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckActorResearchStatus(drop_rate, temp))
 				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp);
 		}
 	}

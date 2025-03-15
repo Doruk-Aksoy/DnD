@@ -10,6 +10,7 @@ enum {
 	SSAM_SHOCK,
 	SSAM_NITROSHELL,
 	SSAM_SLUG,
+	SSAM_EXSHELL,
 	// add below this
 	
 	SSAM_40MM, // this is ignored for shop
@@ -29,6 +30,7 @@ str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS_FOR_SHOP][2] = {
 	{	"SAM2A0",			"ElectricShell"			},
 	{	"SAM4A0",         	"NitroShell"			},
 	{	"SAM5A0",			"SlugShell"				},
+	{ 	"ESHAB0",			"ExplodingShell"		},
 	
 	{	"GAM1A0",			"A40MMSonicGrenade"		},
 	{	"GAM2A0",			"A40MMHEGrenade"		}
@@ -49,8 +51,9 @@ pdmg_T DamageValues[MAX_SPECIAL_AMMOS][MAX_SPECIALAMMO_DAMAGEINDEX] = {
 	{ { 18, 0, 0 }, { 6, 0, 0 }, { 3, 0, 0 } },
 	{ { 30, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
 	{ { 20, 0, 0 }, { 12, 0, 0 }, { -1, -1, -1 } },
-	{ { 2, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
+	{ { 12, 0, 0 }, { 2, 0, 0 }, { -1, -1, -1 } },
 	{ { 300, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },
+	{ { 15, 0, 0 }, { 8, 4, 6 }, { -1, -1, -1} },
 	
 	{ { 128, 0, 0 }, { 80, 0, 0 }, { -1, -1, -1 } }, // we don't ignore grenade here
 	{ { 144, 0, 0 }, { -1, -1, -1 }, { -1, -1, -1 } },

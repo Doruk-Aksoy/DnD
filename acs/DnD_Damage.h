@@ -1204,8 +1204,8 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// FINALIZED DAMAGE WILL BE BELOW, AFTER RESISTS!
 	//printbold(s:"res calc");
 	temp = dmg;
-	if(!wep_neg)
-		dmg = FactorResists(source, victim, wepid, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
+	//if(!wep_neg)
+	dmg = FactorResists(source, victim, wepid, dmg, damage_type, actor_flags, flags, forced_full, wep_neg);
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
@@ -1580,7 +1580,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
 	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
 	// plus we get to adjust the push factor and other things before they affect the monster proper here
-	bool isHoboPowerApplicable = wepid >= 0 && IsBoomstick(wepid) && CheckInventory("Hobo_Perk50");
+	bool isHoboPowerApplicable = !(wep_neg & 1) && wepid >= 0 && IsBoomstick(wepid) && CheckInventory("Hobo_Perk50");
 	if(isHoboPowerApplicable && CheckInventory("Hobo_ShotgunFrenzyTimer")) {
 		temp = fdistance_delta(ox - GetActorX(victim_tid), oy - GetActorY(victim_tid), oz - GetActorZ(victim_tid));
 		temp -= FixedMul(GetActorProperty(victim_tid, APROP_RADIUS) + DND_PLAYER_RADIUS, 1.207);
@@ -3333,7 +3333,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// cyborg perk50
 				if(!isArmorPiercing && CheckInventory("Cyborg_Perk50") && IsTechWeapon(m_id)) {
 					factor = CheckInventory("Cyborg_InstabilityStack");
-					
+
 					SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER);
 					if(!factor)
 						ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
@@ -3343,7 +3343,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						GiveInventory("Cyborg_NoAnim", 1);
 						ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
 					}
-					GiveInventory("Cyborg_InstabilityStack", 1);
+
+					if(!CheckInventory("Cyborg_Instability_StackGainCD")) {
+						GiveInventory("Cyborg_InstabilityStack", 1);
+						GiveInventory("Cyborg_Instability_StackGainCD", 1);
+					}
 				}
 			}
 			else {
@@ -3374,7 +3378,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
  
 			// finally dealing the damage
 			if(victim) {
-				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO), 0);
+				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)), 0);
 				if(dmg < 0)
 					dmg = 0;
 

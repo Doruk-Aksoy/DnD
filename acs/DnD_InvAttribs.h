@@ -319,6 +319,7 @@ enum {
 	INV_EX_AMMOCOSTMULTIPLIER,
 	INV_EX_RIPPERSONETIMEONLY,
 	INV_EX_RIPPERSRIPALL,
+	INV_EX_MIRROROTHERMEDIUM,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -762,52 +763,52 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLATELEM_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTPHYS_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTEXP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTELEM_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL;
 
 	ItemModTable[INV_HANDGUN_PERCENT].attrib_low = 3;
-	ItemModTable[INV_HANDGUN_PERCENT].attrib_high = 10;
+	ItemModTable[INV_HANDGUN_PERCENT].attrib_high = 12;
 	ItemModTable[INV_HANDGUN_PERCENT].attrib_level_modifier = 0;
 	ItemModTable[INV_HANDGUN_PERCENT].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_SHOTGUN_PERCENT].attrib_low = 3;
-	ItemModTable[INV_SHOTGUN_PERCENT].attrib_high = 10;
+	ItemModTable[INV_SHOTGUN_PERCENT].attrib_high = 12;
 	ItemModTable[INV_SHOTGUN_PERCENT].attrib_level_modifier = 0;
 	ItemModTable[INV_SHOTGUN_PERCENT].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_AUTOMATIC_PERCENT].attrib_low = 3;
-	ItemModTable[INV_AUTOMATIC_PERCENT].attrib_high = 10;
+	ItemModTable[INV_AUTOMATIC_PERCENT].attrib_high = 12;
 	ItemModTable[INV_AUTOMATIC_PERCENT].attrib_level_modifier = 0;
 	ItemModTable[INV_AUTOMATIC_PERCENT].tags = INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_ARTILLERY_PERCENT].attrib_low = 3;
-	ItemModTable[INV_ARTILLERY_PERCENT].attrib_high = 10;
+	ItemModTable[INV_ARTILLERY_PERCENT].attrib_high = 12;
 	ItemModTable[INV_ARTILLERY_PERCENT].attrib_level_modifier = 0;
 	ItemModTable[INV_ARTILLERY_PERCENT].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PRECISION_PERCENT].attrib_low = 3;
-	ItemModTable[INV_PRECISION_PERCENT].attrib_high = 10;
+	ItemModTable[INV_PRECISION_PERCENT].attrib_high = 12;
 	ItemModTable[INV_PRECISION_PERCENT].attrib_level_modifier = 0;
 	ItemModTable[INV_PRECISION_PERCENT].tags = INV_ATTR_TAG_DAMAGE;
 	
@@ -927,22 +928,22 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_REFL].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PEN_PHYSICAL].attrib_low = 1;
-	ItemModTable[INV_PEN_PHYSICAL].attrib_high = 5;
+	ItemModTable[INV_PEN_PHYSICAL].attrib_high = 4;
 	ItemModTable[INV_PEN_PHYSICAL].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_PHYSICAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_PEN_ENERGY].attrib_low = 1;
-	ItemModTable[INV_PEN_ENERGY].attrib_high = 5;
+	ItemModTable[INV_PEN_ENERGY].attrib_high = 4;
 	ItemModTable[INV_PEN_ENERGY].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_ENERGY].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_PEN_EXPLOSIVE].attrib_low = 1;
-	ItemModTable[INV_PEN_EXPLOSIVE].attrib_high = 5;
+	ItemModTable[INV_PEN_EXPLOSIVE].attrib_high = 4;
 	ItemModTable[INV_PEN_EXPLOSIVE].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_EXPLOSIVE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PEN_OCCULT].attrib_low = 1;
-	ItemModTable[INV_PEN_OCCULT].attrib_high = 5;
+	ItemModTable[INV_PEN_OCCULT].attrib_high = 4;
 	ItemModTable[INV_PEN_OCCULT].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_OCCULT].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_OCCULT;
 	
@@ -1052,7 +1053,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MELEERANGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_MELEE;
 	
 	ItemModTable[INV_MELEEDAMAGE].attrib_low = 5;
-	ItemModTable[INV_MELEEDAMAGE].attrib_high = 12;
+	ItemModTable[INV_MELEEDAMAGE].attrib_high = 15;
 	ItemModTable[INV_MELEEDAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_MELEEDAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_MELEE;
 	
@@ -1202,42 +1203,42 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTFIRE_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
 
 	ItemModTable[INV_PERCENTICE_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTICE_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTICE_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTICE_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTICE_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
 
 	ItemModTable[INV_PERCENTPOISON_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTPOISON_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTPOISON_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTPOISON_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTPOISON_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
 
 	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].attrib_high = 12;
+	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].attrib_high = 15;
 	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTLIGHTNING_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
 
 	ItemModTable[INV_PEN_FIRE].attrib_low = 1;
-	ItemModTable[INV_PEN_FIRE].attrib_high = 5;
+	ItemModTable[INV_PEN_FIRE].attrib_high = 4;
 	ItemModTable[INV_PEN_FIRE].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_FIRE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
 
 	ItemModTable[INV_PEN_ICE].attrib_low = 1;
-	ItemModTable[INV_PEN_ICE].attrib_high = 5;
+	ItemModTable[INV_PEN_ICE].attrib_high = 4;
 	ItemModTable[INV_PEN_ICE].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_ICE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
 
 	ItemModTable[INV_PEN_LIGHTNING].attrib_low = 1;
-	ItemModTable[INV_PEN_LIGHTNING].attrib_high = 5;
+	ItemModTable[INV_PEN_LIGHTNING].attrib_high = 4;
 	ItemModTable[INV_PEN_LIGHTNING].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_LIGHTNING].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
 
 	ItemModTable[INV_PEN_POISON].attrib_low = 1;
-	ItemModTable[INV_PEN_POISON].attrib_high = 5;
+	ItemModTable[INV_PEN_POISON].attrib_high = 4;
 	ItemModTable[INV_PEN_POISON].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_POISON].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
 
@@ -1257,7 +1258,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLAT_PRECISION].tags = INV_ATTR_TAG_ATTACK;
 
 	ItemModTable[INV_TECH_PERCENT].attrib_low = 3;
-	ItemModTable[INV_TECH_PERCENT].attrib_high = 10;
+	ItemModTable[INV_TECH_PERCENT].attrib_high = 12;
 	ItemModTable[INV_TECH_PERCENT].attrib_level_modifier = 0;
 	ItemModTable[INV_TECH_PERCENT].tags = INV_ATTR_TAG_DAMAGE;
 
@@ -1267,7 +1268,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLAT_MAGIC].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_OCCULT;
 
 	ItemModTable[INV_MAGIC_PERCENT].attrib_low = 3;
-	ItemModTable[INV_MAGIC_PERCENT].attrib_high = 10;
+	ItemModTable[INV_MAGIC_PERCENT].attrib_high = 12;
 	ItemModTable[INV_MAGIC_PERCENT].attrib_level_modifier = 0;
 	ItemModTable[INV_MAGIC_PERCENT].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_OCCULT;
 
@@ -1475,7 +1476,7 @@ void SetupInventoryAttributeTable() {
 int GetModTierRangeMapper(int attr, int lvl) {
 	int val = 0;
 	if(!ItemModTable[attr].attrib_level_modifier)
-		val = (ItemModTable[attr].attrib_high - ItemModTable[attr].attrib_low) * lvl;
+		val = (ItemModTable[attr].attrib_high - ItemModTable[attr].attrib_low + 1) * lvl;
 	else
 		val = (ItemModTable[attr].attrib_level_modifier * lvl);
 	return val;
@@ -2261,6 +2262,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_CANFIREOVERHEATED:
 		case INV_EX_WEAPONSUSEHEALTH:
 		case INV_EX_RIPPERSRIPALL:
+		case INV_EX_MIRROROTHERMEDIUM:
 			if(showDetailedMods)
 				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:text);

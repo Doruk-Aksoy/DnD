@@ -186,6 +186,11 @@ Actor Cyborg_Instability_CD : PowerProtection {
 	powerup.duration 5
 }
 
+Actor Cyborg_Instability_StackGainCD : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
 Actor InstabilityBlast : DnD_BaseProjectile {
 	Radius 6
 	Height 12

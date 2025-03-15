@@ -118,6 +118,7 @@ enum {
 	IIMG_UCHRM_18,
 	IIMG_UCHRM_19,
 	IIMG_UCHRM_20,
+	IIMG_UCHRM_21,
 
 	// drop only charms
 	IIMG_UDCHRM_1 = 400,
@@ -329,7 +330,7 @@ void ResetUniqueCraftingItemList() {
 
 // uniques
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
-#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_20
+#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_21
 
 #define ITEM_IMAGE_DROPONLY_UCHARM_BEGIN IIMG_UDCHRM_1
 #define ITEM_IMAGE_DROPONLY_UCHARM_END IIMG_UDCHRM_5
@@ -2323,6 +2324,7 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 				case DND_ORB_REPENT:
 				case DND_ORB_AFFLUENCE:
 				case DND_ORB_CALAMITY:
+				case DND_ORB_ASSIMILATION:
 				return true;
 			}
 		return false;
@@ -2344,62 +2346,40 @@ enum {
 	REQ_SYNC_ACC = 1
 };
 
-int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, bool has_cybernetic, bool noSync = false, bool needDelay = false) {
+int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, int multiplier = 100, bool noSync = false, bool needDelay = false) {
 	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
 	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
 	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, aindex, source);
-	int asubtype = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, aindex, source);
 	int i, temp;
 	int sync_required = 0;
 	int cap;
-	
-	// Well of power factor
-	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
-	if(temp && asubtype == DND_CHARM_SMALL) {
-		// don't multiply first in case of fixed point attributes, these are big numbers
-		if(aval > 100 * FACTOR_FIXED_RESOLUTION) {
-			aval /= FACTOR_FIXED_RESOLUTION;
-			aval *= temp;
-		}
-		else {
-			aval *= temp;
-			aval /= FACTOR_FIXED_RESOLUTION; // our scale to lower it down from integer mult
-		}
 
-		aextra *= temp;
-		aextra /= FACTOR_FIXED_RESOLUTION;
-	}
-
-	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source);
-	if(temp) {
-		// percent based
-		temp += 100;
-		// don't multiply first in case of fixed point attributes, these are big numbers
-		if(aval > 100000) {
+	if(multiplier != 100) {
+		if(aval > INT_MAX / multiplier) {
 			aval /= 100;
-			aval *= temp;
+			aval *= multiplier;
 		}
 		else {
-			aval *= temp;
+			aval *= multiplier;
 			aval /= 100;
 		}
 
 		if(!IsAttributeExtraException(atype)) {
-			aextra *= temp;
-			aextra /= 100;
+			if(aextra > 100000) {
+				aextra /= 100;
+				aextra *= multiplier;
+			}
+			else {
+				aextra *= multiplier;
+				aextra /= 100;
+			}
 		}
 	}
 	
-	// cybernetic check
-	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
-		aval += aval / DND_CYBERNETIC_FACTOR;
-
-		if(!IsAttributeExtraException(atype))
-			aextra += aextra /= DND_CYBERNETIC_FACTOR;
-	}
-	
-	if(remove)
+	if(remove) {
 		aval = -aval;
+		aextra = -aextra;
+	}
 	
 	switch(atype) {
 		// this is handled differently
@@ -2476,6 +2456,33 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 				// sync all at once for well of power
 				SyncPlayerItemMods(pnum);
 			}
+		break;
+		case INV_EX_MIRROROTHERMEDIUM:
+			// reapply the other medium charm
+			// find the index of the other medium charm
+			temp = -1;
+			for(i = 0; i < 2; ++i) {
+				if
+				(
+					Items_Used[pnum][i + MEDIUMCHARM_INDEX1].item_type != DND_ITEM_NULL &&
+					(Items_Used[pnum][i + MEDIUMCHARM_INDEX1].item_type >> 16) - 1 != UITEM_MIRROROFETERNITY
+				)
+				{
+					// this holds the other charm's index
+					temp = i + MEDIUMCHARM_INDEX1;
+					break;
+				}
+			}
+
+			// we got a valid index
+			if(temp != -1) {
+				ApplyItemFeatures(pnum, temp, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
+				IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+				ApplyItemFeatures(pnum, temp, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD, true);
+				SyncPlayerItemMods(pnum);
+			}
+			else // just give the thing now otherwise
+				IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 		break;
 		case INV_EX_ALLSTATS:
 			for(i = INV_STAT_STRENGTH; i <= INV_STAT_INTELLECT; ++i)
@@ -2677,63 +2684,38 @@ void HandleAttributeExtra(int pnum, int aextra, int powerset, bool remove, bool 
 	}
 }
 
-void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, bool has_cybernetic, bool noSync = false, bool needDelay = false) {
+void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, int multiplier = 100, bool noSync = false, bool needDelay = false) {
 	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source);
 	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, -1, source);
-	int asubtype = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source);
 	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, source);
-	int i, cap;
+	int i, temp;
 
-	// Well of power factor
-	int temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
-	if(temp && asubtype == DND_CHARM_SMALL) {
-		// don't multiply first in case of fixed point attributes, these are big numbers
-		if(aval > 100 * FACTOR_FIXED_RESOLUTION) {
-			aval /= FACTOR_FIXED_RESOLUTION;
-			aval *= temp;
-		}
-		else {
-			aval *= temp;
-			aval /= FACTOR_FIXED_RESOLUTION; // our scale to lower it down from integer mult
-		}
-
-		if(!IsAttributeExtraException(atype)) {
-			aextra *= temp;
-			aextra /= 100;
-		}
-	}
-
-	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source);
-	if(temp) {
-		// percent based
-		temp += 100;
-		// don't multiply first in case of fixed point attributes, these are big numbers
-		if(aval > 100000) {
+	if(multiplier != 100) {
+		if(aval > INT_MAX / multiplier) {
 			aval /= 100;
-			aval *= temp;
+			aval *= multiplier;
 		}
 		else {
-			aval *= temp;
+			aval *= multiplier;
 			aval /= 100;
 		}
 
-		// don't scale extras of these, they are either bitflags or something that shouldn't change like this
 		if(!IsAttributeExtraException(atype)) {
-			aextra *= temp;
-			aextra /= 100;
+			if(aextra > 100000) {
+				aextra /= 100;
+				aextra *= multiplier;
+			}
+			else {
+				aextra *= multiplier;
+				aextra /= 100;
+			}
 		}
 	}
 	
-	// cybernetic check
-	if(has_cybernetic && CheckInventory("Cyborg_Perk5")) {
-		aval += aval / DND_CYBERNETIC_FACTOR;
-
-		if(!IsAttributeExtraException(atype))
-			aextra += aextra / DND_CYBERNETIC_FACTOR;
-	}
-	
-	if(remove)
+	if(remove) {
 		aval = -aval;
+		aextra = -aextra;
+	}
 
 	switch(atype) {
 		// standard implicits
@@ -2871,11 +2853,41 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source);
 	has_cybernetic |= i == INV_IMP_POWERCORE || (GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, source) & PPOWER_CYBER);
 
+	int multiplier = 100;
+
+	// Well of power factor
+	int temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
+	if(temp && GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source) == DND_CHARM_SMALL)
+		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
+
+	// if player has mirror of eternity and this is a medium charm that is NOT the mirror, multiply magnitude by 2
+	if
+	(
+		GetPlayerAttributeValue(pnum, INV_EX_MIRROROTHERMEDIUM) && 
+		(Items_Used[pnum][item_index].item_type & 0xFFFF) == DND_ITEM_CHARM &&
+		Items_Used[pnum][item_index].item_subtype == DND_CHARM_MEDIUM &&
+		(Items_Used[pnum][item_index].item_type >> 16) - 1 != UITEM_MIRROROFETERNITY
+	)
+	{
+		multiplier *= 2;
+	}
+
+	// quality check
+	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source);
+	if(temp) {
+		// quality is percent based
+		multiplier = multiplier * (temp + 100) / 100;
+	}
+	
+	// cybernetic check
+	if(has_cybernetic && CheckInventory("Cyborg_Perk5"))
+		multiplier = multiplier * (DND_CYBERNETIC_FACTOR + 100) / 100;
+
 	int sync_required = 0;
 	for(i = 0; i < ac; ++i)
-		sync_required |= ProcessItemFeature(pnum, item_index, source, i, remove, has_cybernetic, noSync, needDelay);
+		sync_required |= ProcessItemFeature(pnum, item_index, source, i, remove, multiplier, noSync, needDelay);
 
-	ProcessItemImplicit(pnum, item_index, source, remove, has_cybernetic, noSync, needDelay);
+	ProcessItemImplicit(pnum, item_index, source, remove, multiplier, noSync, needDelay);
 }
 
 int GetCraftableItemCount() {
@@ -3364,7 +3376,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_UNITY;
+				i = UITEM_SHELLSHOCK;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

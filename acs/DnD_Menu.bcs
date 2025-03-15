@@ -360,7 +360,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(PlayerCursorData.itemHovered != -1/* && (PlayerCursorData.itemClicked == -1 || CheckInventory("DnD_UsedTwoItemRequirementMaterial"))*/) {
 			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
 				ResetCursorHoverData();
-			else {
+			else if(curopt != MENU_LOAD_CRAFTING_TRANSMUTING || boxid >= MATERIALBOX_OFFSET_BOXID){
 				if(PlayerCursorData.itemHoveredDim.x) {
 					DrawInventoryInfo(PlayerCursorData.owner_pnum);
 				}
@@ -591,9 +591,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_INVENTORY", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_STASH", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_EQUIPMENTS", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_CRAFTING", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_ACCESSORIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_TRADING", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_WEAPONDISCARD", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_CRAFTING", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_ACCESSORIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_TRADING", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 8, 192.1, 208.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_LOAD1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ITEMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
@@ -637,6 +638,24 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 28, CR_CYAN, 236.4, 32.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 29, CR_CYAN, 396.4, 32.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_LOAD_WEAPONDISCARD) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_DISCARD", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				for(i = 1; i <= 9; ++i) {
+					if(HasPlayerDiscardedSlot(pnum, i - 1)) {
+						DrawBoxText(
+							StrParam(s:"DND_MENU_ENABLE_WEP", d:i), 
+							DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + i - 1, RPGMENUITEMID - 1 - i, 192.1, 64.0 + i * 16.0, "\c[B1]", "\c[Y5]"
+						);
+					}
+					else {
+						DrawBoxText(
+							StrParam(s:"DND_MENU_DISCARD_WEP", d:i), 
+							DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + i - 1, RPGMENUITEMID - 1 - i, 192.1, 64.0 + i * 16.0, "\c[B1]", "\c[Y5]"
+						);
+					}
+				}
 			}
 			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON || curopt == MENU_LOAD_CRAFTING_TRANSMUTING) {
 				SetHudSize(384, 200, 1);
@@ -1227,6 +1246,8 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 		
 		curopt = CheckInventory("MenuOption");
 		GiveInventory("DND_ACK", 1);
+
+		// leftmost panel clicked
 		if(mainboxid != MAINBOX_NONE) {
 			if(HasLeftClicked(pnum)) {
 				TakeInventory("DnD_InventoryView", 1);
@@ -1249,602 +1270,615 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					UpdateMenuPosition(MENU_HELP);
 			}
 		}
-		
-		if(CheckInventory("DnD_SellConfirm") && HasLeftClicked(pnum)) {
-			TakeInventory("DnD_SellConfirm", 1);
-			// clean the sell popup
-			SetInventory("DnD_PopupID", 0);
-			SetInventory("DnD_PopupSell", 0);
-			SetInventory("DnD_ShowPopup", 0);
-			SetInventory("DnD_ShowSellPopup", 0);
-			SetInventory("DnD_PopupID", 0);
-			SetInventory("ActivePopupBox", 0);
-			boxid = MAINBOX_NONE;
-		}
-		
-		if(curopt == MENU_STAT1) { // stat screen
-			ACS_NamedExecuteWithResult("DnD Sync Player Exp", pnum, GetPlayerExp(pnum));
-			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_4)
-					UpdateMenuPosition(MENU_STAT2);
-				else if(CheckInventory("AttributePoint") && boxid != MAINBOX_NONE) { // tried to level stat, so you must have some attrib point
-					// here we check if option was left click or right click, right click consumes whatever we can on the given selection
-					if(HasLeftClicked(pnum))
-						temp = 1;
-					else
-						temp = CheckInventory("AttributePoint");
-						
-					stat_id = boxid - 1 + DND_ATTRIB_BEGIN;
-					stat_pt = GetPerk(stat_id);
-				
-					ConsumeAttributePointOn(pnum, stat_id, temp);
-					LocalAmbientSound("RPG/MenuChoose", 127);
-					ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
-				}
-			}
-			else if(HasPressedLeft(pnum))
-				ReturnToMain();
-			else if(HasPressedRight(pnum))
-				UpdateMenuPosition(MENU_STAT2);
-		}
-		else if(curopt == MENU_STAT2) {
-			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_4)
-					UpdateMenuPosition(MENU_STAT1);
-				else if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
-				else if(boxid != MAINBOX_NONE) // skip offense page 2
-					UpdateMenuPosition(boxid - MBOX_1 + MENU_STAT2 + 2);
-			}
-			else if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_STAT1);
-		}
-		else if(curopt == MENU_STAT2_OFFENSE1) {
-			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_STAT2);
-				else
-					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
-			}
-			else if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_STAT2);
-			else if(HasPressedRight(pnum))
-				UpdateMenuPosition(MENU_STAT2_OFFENSE2);
-		}
-		else if(curopt == MENU_STAT2_OFFENSE2) {
-			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
-			}
-			else if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_STAT2_OFFENSE1);
-		}
-		else if(curopt == MENU_STAT2_DEFENSE) {
-			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_STAT2);
-			}
-			else if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_STAT2);
-		}
-		else if(curopt == MENU_STAT2_UTILITY) {
-			if(HasPlayerClicked(pnum)) {
-				if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_STAT2);
-			}
-			else if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_STAT2);
-		}
-		else if(curopt == MENU_PERK) {
-			if(HasPlayerClicked(pnum)) {
-				if(CheckInventory("PerkPoint") && boxid != MAINBOX_NONE) { // tried to level perk, so you must have some perk point
-					// same check as above
-					stat_id = boxid - 1 + DND_PERK_BEGIN;
-					stat_pt = GetPerk(stat_id);
-					if(HasLeftClicked(pnum))
-						temp = 1;
-					else
-						temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - stat_pt);
-					
-					if(stat_pt < DND_PERK_MAX) {
-						ConsumePerkPointOn(stat_id, temp);
-						LocalAmbientSound("RPG/MenuChoose", 127);
-						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
-					}					
-				}
-			}
-			if(HasPressedLeft(pnum))
-				ReturnToMain();
-		}
-		else if(curopt == MENU_LOAD) {
-			// prevents having something clicked previously in crafting altering something else
-			SetInventory("DnD_SelectedInventoryBox", 0);
-			if(HasLeftClicked(pnum)) {
-				if(boxid > 0) {
-					if(boxid == MBOX_7)
-						UpdateMenuPosition(MENU_LOAD_TRADE1);
-					else if(boxid == MBOX_6)
-						UpdateMenuPosition(MENU_LOAD_ACC1);
-					else {
-						if(MENU_LOAD + boxid == MENU_LOAD_INVENTORY)
-							GiveInventory("DnD_InventoryView", 1);
-						else if(MENU_LOAD + boxid == MENU_LOAD_STASH)
-							GiveInventory("DnD_StashView", 1);
-						UpdateMenuPosition(MENU_LOAD + boxid);
-					}
-				}
-			}
-			if(HasPressedLeft(pnum))
-				ReturnToMain();
-		}
-		else if(curopt == MENU_LOAD1) {
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_LOAD);
-		}
-		else if(curopt == MENU_LOAD_INVENTORY) {
-			if(HasPlayerClicked(pnum)) {
-				// handles clicking outside
-				// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
-				if(HasLeftClicked(pnum) && boxid == MAINBOX_NONE) {
-					if(!CheckInventory("DnD_SelectedInventoryBox")) {
-						TakeInventory("DnD_InventoryView", 1);
-						SetInventory("DnD_SelectedCharmBox", 0);
-						GiveInventory("DnD_CleanInventoryRequest", 1);
-						if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
-							UpdateMenuPosition_NoSound(MENU_LOAD);
-						else
-							LocalAmbientSound("RPG/MenuClose", 127);
-					}
-					else if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)
-						SetInventory("DnD_SelectedInventoryBox", 0);
-				}
-				HandleInventoryViewClicks(pnum, boxid, temp);
-			}
-			if(HasPressedLeft(pnum)) {
-				TakeInventory("DnD_InventoryView", 1);
-				GiveInventory("DnD_CleanInventoryRequest", 1);
-				UpdateMenuPosition(MENU_LOAD);
-			}
-		}
-		else if(curopt == MENU_LOAD_STASH) {
-			if(HasPlayerClicked(pnum)) {
-				temp = MenuInputData[pnum][DND_MENUINPUT];
-				// handles clicking outside
-				// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
-				if(HasLeftClicked(pnum) && boxid == MAINBOX_NONE) {
-					if(!CheckInventory("DnD_SelectedInventoryBox")) {
-						TakeInventory("DnD_StashView", 1);
-						SetInventory("DnD_SelectedCharmBox", 0);
-						GiveInventory("DnD_CleanInventoryRequest", 1);
-						if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
-							UpdateMenuPosition_NoSound(MENU_LOAD);
-						else
-							LocalAmbientSound("RPG/MenuClose", 127);
-					}
-					else if
-					(
-						((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
-						(
-							(CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && 
-							(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerPreviousPage") - 1) << 16)) == DND_ITEM_NULL)
-						)
-					)
-					{
-						//printbold(s:"set to 0 before arrival on page ", d:CheckInventory("DnD_PlayerPreviousPage"));
-						SetInventory("DnD_SelectedInventoryBox", 0);
-					}
-				}
-				HandleStashViewClicks(pnum, boxid, temp);
-			}
-			if(HasPressedLeft(pnum)) {
-				TakeInventory("DnD_StashView", 1);
-				GiveInventory("DnD_CleanInventoryRequest", 1);
-				UpdateMenuPosition(MENU_LOAD);
-			}
-		}
-		else if(curopt == MENU_LOAD_CHARM) {
-			HandleItemPageInputs(pnum, boxid);
-			if(HasPressedLeft(pnum)) {
-				// skip the view if there was, otherwise move page back
-				if(CheckInventory("DnD_InventoryView")) {
-					TakeInventory("DnD_InventoryView", 1);
-					GiveInventory("DnD_CleanInventoryRequest", 1);
-					SetInventory("DnD_SelectedInventoryBox", 0);
-					SetInventory("DnD_SelectedCharmBox", 0);
-				}
-				else
-					UpdateMenuPosition(MENU_LOAD);
-			}
-		}
-		else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY)
-			HandleCraftingInputs(boxid, curopt);
-		else if(curopt == MENU_LOAD_CRAFTING_TRANSMUTING)
-			HandleTransmutingInputs(pnum, boxid);
-		else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
-			if(HasPlayerClicked(pnum)) {
-				if(boxid >= MBOX_1) {
-					// we need to find which player this box corresponds to
-					i = 0, temp = 0;
-					// how many we skip
-					j = MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE);
-					for(; i < MAXPLAYERS && temp < boxid + j; ++i)
-						if(PlayerInGame(i) && i != pnum)
-							++temp;
-					// i - 1 is the player number
-					--i;
-					// left click
-					if(HasLeftClicked(pnum)) {
-						if(!CheckInventory("DnD_Trade_Cooldown")) {
-							// we aren't in trade panel
-							if(!CheckInventory("InTradeView")) {
-								if(!IsTrading(pnum)) {
-									// handle trade protocol, initiate the request
-									if(!IsTrading(i)) {
-										if(!TradeMuteStatus(i, pnum)) {
-											EngageTrade(pnum, i);
-											SetActivator(i + P_TIDSTART);
-											ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_TRADEREQUEST, pnum, i + 1);
-											SetActivator(pnum + P_TIDSTART);
-											ACS_NamedExecuteAlways("DnD Trade Window", 0, pnum, false);
-											ACS_NamedExecuteAlways("DnD Trade Window", 0, i, true);
-											LocalAmbientSound("RPG/MenuChoose", 127);
-										}
-										else
-											ShowActorPopup(pnum, POPUP_YOUAREMUTED, false, 0);
-									}
-									else
-										ShowActorPopup(pnum, POPUP_TARGETISTRADING, false, 0);
-								}
-								else {
-									// trade accept window is given to the other party, who engaged this
-									if(IsTradingWith(pnum, i) && CheckInventory("DnD_TradeAcceptWindow")) {
-										if(!TradeMuteStatus(i, pnum)) {
-											// handle trade now, other party accepted
-											GiveInventory("InTradeView", 1);
-											GiveActorInventory(i + P_TIDSTART, "InTradeView", 1);
-											ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-											ACS_NamedExecuteAlways("DnD Refresh Request", 0, i, 1);
-											LocalAmbientSound("RPG/MenuChoose", 127);
-										}
-										else
-											ShowActorPopup(pnum, POPUP_YOUAREMUTED, false, 0);
-									}
-									else
-										ShowActorPopup(pnum, POPUP_TARGETISTRADING, false, 0);
-								}
-							}
-							else {
-								// we are in trade panel now, handle boxes accordingly
-								// give some time for the synchronization to settle in
-								HandleTradeViewButtonClicks(pnum, boxid);
-							}
-						}
-					}
-					else {
-						// right click mutes people
-						if(!CheckInventory("InTradeView")) {
-							ToggleMuteTrade(i);
-							LocalAmbientSound("RPG/MenuChoose", 127);
-						}
-						else
-							HandleTradeViewButtonClicks(pnum, boxid);
-					}
-				}
+		else {
+			if(CheckInventory("DnD_SellConfirm") && HasLeftClicked(pnum)) {
+				TakeInventory("DnD_SellConfirm", 1);
+				// clean the sell popup
+				SetInventory("DnD_PopupID", 0);
+				SetInventory("DnD_PopupSell", 0);
+				SetInventory("DnD_ShowPopup", 0);
+				SetInventory("DnD_ShowSellPopup", 0);
+				SetInventory("DnD_PopupID", 0);
+				SetInventory("ActivePopupBox", 0);
+				boxid = MAINBOX_NONE;
 			}
 			
-			// only allow these if we arent currently trading with anyone
-			if(!IsTrading(pnum)) {
-				if(HasPressedLeft(pnum)) {
-					if(curopt == MENU_FIRST_TRADE)
-						UpdateMenuPosition(MENU_LOAD);
-					else
-						UpdateMenuPosition(curopt - 1);
+			if(curopt == MENU_STAT1) { // stat screen
+				ACS_NamedExecuteWithResult("DnD Sync Player Exp", pnum, GetPlayerExp(pnum));
+				if(HasPlayerClicked(pnum)) {
+					if(boxid == MBOX_4)
+						UpdateMenuPosition(MENU_STAT2);
+					else if(CheckInventory("AttributePoint") && boxid != MAINBOX_NONE) { // tried to level stat, so you must have some attrib point
+						// here we check if option was left click or right click, right click consumes whatever we can on the given selection
+						if(HasLeftClicked(pnum))
+							temp = 1;
+						else
+							temp = CheckInventory("AttributePoint");
+							
+						stat_id = boxid - 1 + DND_ATTRIB_BEGIN;
+						stat_pt = GetPerk(stat_id);
+					
+						ConsumeAttributePointOn(pnum, stat_id, temp);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
+					}
 				}
-				else if(HasPressedRight(pnum)) {
-					if(curopt != MENU_LAST_TRADE && PlayerCount() > MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1))
-						UpdateMenuPosition(curopt + 1);
+				else if(HasPressedLeft(pnum))
+					ReturnToMain();
+				else if(HasPressedRight(pnum))
+					UpdateMenuPosition(MENU_STAT2);
+			}
+			else if(curopt == MENU_STAT2) {
+				if(HasPlayerClicked(pnum)) {
+					if(boxid == MBOX_4)
+						UpdateMenuPosition(MENU_STAT1);
+					else if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+					else if(boxid != MAINBOX_NONE) // skip offense page 2
+						UpdateMenuPosition(boxid - MBOX_1 + MENU_STAT2 + 2);
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_STAT1);
+			}
+			else if(curopt == MENU_STAT2_OFFENSE1) {
+				if(HasPlayerClicked(pnum)) {
+					if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_STAT2);
+					else
+						UpdateMenuPosition(MENU_STAT2_OFFENSE2);
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_STAT2);
+				else if(HasPressedRight(pnum))
+					UpdateMenuPosition(MENU_STAT2_OFFENSE2);
+			}
+			else if(curopt == MENU_STAT2_OFFENSE2) {
+				if(HasPlayerClicked(pnum)) {
+					if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
+			}
+			else if(curopt == MENU_STAT2_DEFENSE) {
+				if(HasPlayerClicked(pnum)) {
+					if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_STAT2);
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_STAT2);
+			}
+			else if(curopt == MENU_STAT2_UTILITY) {
+				if(HasPlayerClicked(pnum)) {
+					if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_STAT2);
+				}
+				else if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_STAT2);
+			}
+			else if(curopt == MENU_PERK) {
+				if(HasPlayerClicked(pnum)) {
+					if(CheckInventory("PerkPoint") && boxid != MAINBOX_NONE) { // tried to level perk, so you must have some perk point
+						// same check as above
+						stat_id = boxid - 1 + DND_PERK_BEGIN;
+						stat_pt = GetPerk(stat_id);
+						if(HasLeftClicked(pnum))
+							temp = 1;
+						else
+							temp = Min(CheckInventory("PerkPoint"), DND_PERK_MAX - stat_pt);
+						
+						if(stat_pt < DND_PERK_MAX) {
+							ConsumePerkPointOn(stat_id, temp);
+							LocalAmbientSound("RPG/MenuChoose", 127);
+							ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, PlayerNumber());
+						}					
+					}
+				}
+				if(HasPressedLeft(pnum))
+					ReturnToMain();
+			}
+			else if(curopt == MENU_LOAD) {
+				// prevents having something clicked previously in crafting altering something else
+				SetInventory("DnD_SelectedInventoryBox", 0);
+				if(HasLeftClicked(pnum)) {
+					if(boxid > 0) {
+						if(boxid == MBOX_8)
+							UpdateMenuPosition(MENU_LOAD_TRADE1);
+						else if(boxid == MBOX_7)
+							UpdateMenuPosition(MENU_LOAD_ACC1);
+						else {
+							if(MENU_LOAD + boxid == MENU_LOAD_INVENTORY)
+								GiveInventory("DnD_InventoryView", 1);
+							else if(MENU_LOAD + boxid == MENU_LOAD_STASH)
+								GiveInventory("DnD_StashView", 1);
+							UpdateMenuPosition(MENU_LOAD + boxid);
+						}
+					}
+				}
+				if(HasPressedLeft(pnum))
+					ReturnToMain();
+			}
+			else if(curopt == MENU_LOAD1) {
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_LOAD);
+			}
+			else if(curopt == MENU_LOAD_INVENTORY) {
+				if(HasPlayerClicked(pnum)) {
+					// handles clicking outside
+					// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
+					if(HasLeftClicked(pnum) && boxid == MAINBOX_NONE) {
+						if(!CheckInventory("DnD_SelectedInventoryBox")) {
+							TakeInventory("DnD_InventoryView", 1);
+							SetInventory("DnD_SelectedCharmBox", 0);
+							GiveInventory("DnD_CleanInventoryRequest", 1);
+							if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
+								UpdateMenuPosition_NoSound(MENU_LOAD);
+							else
+								LocalAmbientSound("RPG/MenuClose", 127);
+						}
+						else if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)
+							SetInventory("DnD_SelectedInventoryBox", 0);
+					}
+					HandleInventoryViewClicks(pnum, boxid, temp);
+				}
+				if(HasPressedLeft(pnum)) {
+					TakeInventory("DnD_InventoryView", 1);
+					GiveInventory("DnD_CleanInventoryRequest", 1);
+					UpdateMenuPosition(MENU_LOAD);
 				}
 			}
-		}
-		else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE) {
-					if(boxid == MBOX_6 && curopt != MENU_LAST_ACCESSORY_PAGE)
-						UpdateMenuPosition(curopt + 1);
-					else if(boxid == MBOX_7 || (curopt == MENU_LAST_ACCESSORY_PAGE && boxid == MBOX_3))
-						UpdateMenuPosition(curopt - 1);
-					else {
-						// i is the accessory to toggle
-						temp = boxid + ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE) - 1;
-						// I don't have this
-						if(!CheckInventory(AccessoryInfo[temp][ACCESSORY_NAME]))
-							ShowPopup(POPUP_ACCESSORYNOTFOUND, false, 0);
-						else if(IsAccessoryEquipped(0, 1 << temp)) { // I have and already equipped it
-							LocalAmbientSound("RPG/MenuChoose", 127);
-							UnequipAccessory(1 << temp);
+			else if(curopt == MENU_LOAD_STASH) {
+				if(HasPlayerClicked(pnum)) {
+					temp = MenuInputData[pnum][DND_MENUINPUT];
+					// handles clicking outside
+					// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
+					if(HasLeftClicked(pnum) && boxid == MAINBOX_NONE) {
+						if(!CheckInventory("DnD_SelectedInventoryBox")) {
+							TakeInventory("DnD_StashView", 1);
+							SetInventory("DnD_SelectedCharmBox", 0);
+							GiveInventory("DnD_CleanInventoryRequest", 1);
+							if(CheckInventory("MenuOption") == MENU_LOAD_INVENTORY || CheckInventory("MenuOption") == MENU_LOAD_STASH)
+								UpdateMenuPosition_NoSound(MENU_LOAD);
+							else
+								LocalAmbientSound("RPG/MenuClose", 127);
 						}
-						else if(!ReachedAccessoryLimit()) { // I don't have this, and didn't equip
-							LocalAmbientSound("RPG/MenuChoose", 127);
-							EquipAccessory(1 << temp);
+						else if
+						(
+							((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
+							(
+								(CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && 
+								(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerPreviousPage") - 1) << 16)) == DND_ITEM_NULL)
+							)
+						)
+						{
+							//printbold(s:"set to 0 before arrival on page ", d:CheckInventory("DnD_PlayerPreviousPage"));
+							SetInventory("DnD_SelectedInventoryBox", 0);
 						}
+					}
+					HandleStashViewClicks(pnum, boxid, temp);
+				}
+				if(HasPressedLeft(pnum)) {
+					TakeInventory("DnD_StashView", 1);
+					GiveInventory("DnD_CleanInventoryRequest", 1);
+					UpdateMenuPosition(MENU_LOAD);
+				}
+			}
+			else if(curopt == MENU_LOAD_CHARM) {
+				HandleItemPageInputs(pnum, boxid);
+				if(HasPressedLeft(pnum)) {
+					// skip the view if there was, otherwise move page back
+					if(CheckInventory("DnD_InventoryView")) {
+						TakeInventory("DnD_InventoryView", 1);
+						GiveInventory("DnD_CleanInventoryRequest", 1);
+						SetInventory("DnD_SelectedInventoryBox", 0);
+						SetInventory("DnD_SelectedCharmBox", 0);
+					}
+					else
+						UpdateMenuPosition(MENU_LOAD);
+				}
+			}
+			else if(curopt == MENU_LOAD_WEAPONDISCARD) {
+				if(HasPlayerClicked(pnum) && boxid != MAINBOX_NONE) {
+					temp = boxid;
+					if(HasPlayerDiscardedSlot(pnum, temp - 1))
+						temp = -temp;
+					UpdateActivity(pnum, DND_ACTIVITY_WEAPONDISCARD, temp, 0);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_LOAD);
+			}
+			else if(curopt >= MENU_LOAD_CRAFTING && curopt <= MENU_LOAD_CRAFTING_INVENTORY)
+				HandleCraftingInputs(boxid, curopt);
+			else if(curopt == MENU_LOAD_CRAFTING_TRANSMUTING)
+				HandleTransmutingInputs(pnum, boxid);
+			else if(curopt >= MENU_FIRST_TRADE && curopt <= MENU_LAST_TRADE) {
+				if(HasPlayerClicked(pnum)) {
+					if(boxid >= MBOX_1) {
+						// we need to find which player this box corresponds to
+						i = 0, temp = 0;
+						// how many we skip
+						j = MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE);
+						for(; i < MAXPLAYERS && temp < boxid + j; ++i)
+							if(PlayerInGame(i) && i != pnum)
+								++temp;
+						// i - 1 is the player number
+						--i;
+						// left click
+						if(HasLeftClicked(pnum)) {
+							if(!CheckInventory("DnD_Trade_Cooldown")) {
+								// we aren't in trade panel
+								if(!CheckInventory("InTradeView")) {
+									if(!IsTrading(pnum)) {
+										// handle trade protocol, initiate the request
+										if(!IsTrading(i)) {
+											if(!TradeMuteStatus(i, pnum)) {
+												EngageTrade(pnum, i);
+												SetActivator(i + P_TIDSTART);
+												ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_TRADEREQUEST, pnum, i + 1);
+												SetActivator(pnum + P_TIDSTART);
+												ACS_NamedExecuteAlways("DnD Trade Window", 0, pnum, false);
+												ACS_NamedExecuteAlways("DnD Trade Window", 0, i, true);
+												LocalAmbientSound("RPG/MenuChoose", 127);
+											}
+											else
+												ShowActorPopup(pnum, POPUP_YOUAREMUTED, false, 0);
+										}
+										else
+											ShowActorPopup(pnum, POPUP_TARGETISTRADING, false, 0);
+									}
+									else {
+										// trade accept window is given to the other party, who engaged this
+										if(IsTradingWith(pnum, i) && CheckInventory("DnD_TradeAcceptWindow")) {
+											if(!TradeMuteStatus(i, pnum)) {
+												// handle trade now, other party accepted
+												GiveInventory("InTradeView", 1);
+												GiveActorInventory(i + P_TIDSTART, "InTradeView", 1);
+												ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+												ACS_NamedExecuteAlways("DnD Refresh Request", 0, i, 1);
+												LocalAmbientSound("RPG/MenuChoose", 127);
+											}
+											else
+												ShowActorPopup(pnum, POPUP_YOUAREMUTED, false, 0);
+										}
+										else
+											ShowActorPopup(pnum, POPUP_TARGETISTRADING, false, 0);
+									}
+								}
+								else {
+									// we are in trade panel now, handle boxes accordingly
+									// give some time for the synchronization to settle in
+									HandleTradeViewButtonClicks(pnum, boxid);
+								}
+							}
+						}
+						else {
+							// right click mutes people
+							if(!CheckInventory("InTradeView")) {
+								ToggleMuteTrade(i);
+								LocalAmbientSound("RPG/MenuChoose", 127);
+							}
+							else
+								HandleTradeViewButtonClicks(pnum, boxid);
+						}
+					}
+				}
+				
+				// only allow these if we arent currently trading with anyone
+				if(!IsTrading(pnum)) {
+					if(HasPressedLeft(pnum)) {
+						if(curopt == MENU_FIRST_TRADE)
+							UpdateMenuPosition(MENU_LOAD);
 						else
-							ShowPopup(POPUP_MAXACCESSORYEQUIPPED, false, 0);
+							UpdateMenuPosition(curopt - 1);
+					}
+					else if(HasPressedRight(pnum)) {
+						if(curopt != MENU_LAST_TRADE && PlayerCount() > MENU_TRADE_PLAYERCOUNT * (curopt - MENU_FIRST_TRADE + 1))
+							UpdateMenuPosition(curopt + 1);
 					}
 				}
 			}
-			if(HasPressedLeft(pnum)) {
-				if(curopt != MENU_FIRST_ACCESSORY_PAGE)
-					UpdateMenuPosition(curopt - 1);
-				else
-					UpdateMenuPosition(MENU_LOAD);
-			}
-			else if(HasPressedRight(pnum)) {
-				if(curopt != MENU_LAST_ACCESSORY_PAGE)
-					UpdateMenuPosition(curopt + 1);
-			}
-		}
-		else if(curopt == MENU_SHOP) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid == MBOX_1)
-					temp = MENU_SHOP_WEAPON;
-				else if(boxid == MBOX_2)
-					temp = MENU_SHOP_AMMOSELECT;
-				else if(boxid == MBOX_3)
-					temp = MENU_SHOP_ABILITY_1;
-				else if(boxid == MBOX_4)
-					temp = MENU_SHOP_ARTIFACT_1;
-				else if(boxid == MBOX_5)
-					temp = MENU_SHOP_ACCOUNT;
-				#ifdef ISAPRILFIRST
-				else if(boxid == MBOX_6)
-					temp = MENU_SHOP_NFT;
-				#endif
-				else
-					temp = -1;
-				if(boxid != MAINBOX_NONE && temp != -1)
-					UpdateMenuPosition(temp);
-				
-			}
-			if(HasPressedLeft(pnum))
-				ReturnToMain();
-		}
-		else if(curopt == MENU_SHOP_WEAPON) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE && boxid < MBOX_9)
-					UpdateMenuPosition(GetWeaponPage(boxid));
-			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP);
-		}
-		else if(curopt == MENU_SHOP_WEAPON1)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON1_BEGIN, SHOP_WEAPON_SLOT1END, -1, -1);
-		else if(curopt == MENU_SHOP_WEAPON2)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON2_BEGIN, SHOP_WEAPON_SLOT2END, -1, -1);
-		else if(curopt == MENU_SHOP_WEAPON3_1)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON31_BEGIN, SHOP_WEAPON_SLOT31END, -1, MENU_SHOP_WEAPON3_2);
-		else if(curopt == MENU_SHOP_WEAPON3_2)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON32_BEGIN, SHOP_WEAPON_SLOT32END, MENU_SHOP_WEAPON3_1, MENU_SHOP_WEAPON3_3);
-		else if(curopt == MENU_SHOP_WEAPON3_3)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON33_BEGIN, SHOP_WEAPON_SLOT33END, MENU_SHOP_WEAPON3_2, -1);
-		else if(curopt == MENU_SHOP_WEAPON4_1)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON41_BEGIN, SHOP_WEAPON_SLOT41END, -1, MENU_SHOP_WEAPON4_2);
-		else if(curopt == MENU_SHOP_WEAPON4_2)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON42_BEGIN, SHOP_WEAPON_SLOT42END, MENU_SHOP_WEAPON4_1, -1);
-		else if(curopt == MENU_SHOP_WEAPON5_1)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON51_BEGIN, SHOP_WEAPON_SLOT51END, -1, MENU_SHOP_WEAPON5_2);
-		else if(curopt == MENU_SHOP_WEAPON5_2)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON52_BEGIN, SHOP_WEAPON_SLOT52END, MENU_SHOP_WEAPON5_1, -1);
-		else if(curopt == MENU_SHOP_WEAPON6_1)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON61_BEGIN, SHOP_WEAPON_SLOT61END, -1, MENU_SHOP_WEAPON6_2);
-		else if(curopt == MENU_SHOP_WEAPON6_2)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON62_BEGIN, SHOP_WEAPON_SLOT62END, MENU_SHOP_WEAPON6_1, -1);
-		else if(curopt == MENU_SHOP_WEAPON7)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON7_BEGIN, SHOP_WEAPON_SLOT7END, -1, -1);
-		else if(curopt == MENU_SHOP_WEAPON8)
-			HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON8_BEGIN, SHOP_WEAPON_SLOT8END, -1, -1);
-		else if(curopt == MENU_SHOP_AMMOSELECT) {
-			if(HasLeftClicked(pnum)) {
-				switch(boxid) {
-					case 1:
-						UpdateMenuPosition(MENU_SHOP_AMMO_1);
-					break;
-					case 2:
-						UpdateMenuPosition(MENU_SHOP_AMMO_2);
-					break;
-					case 3:
-						UpdateMenuPosition(MENU_SHOP_AMMO_3);
-					break;
-					case 4:
-						UpdateMenuPosition(MENU_SHOP_AMMO_4_1);
-					break;
-					case 5:
-						UpdateMenuPosition(MENU_SHOP_AMMO_SPECIAL1);
-					break;
+			else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid != MAINBOX_NONE) {
+						if(boxid == MBOX_6 && curopt != MENU_LAST_ACCESSORY_PAGE)
+							UpdateMenuPosition(curopt + 1);
+						else if(boxid == MBOX_7 || (curopt == MENU_LAST_ACCESSORY_PAGE && boxid == MBOX_3))
+							UpdateMenuPosition(curopt - 1);
+						else {
+							// i is the accessory to toggle
+							temp = boxid + ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE) - 1;
+							// I don't have this
+							if(!CheckInventory(AccessoryInfo[temp][ACCESSORY_NAME]))
+								ShowPopup(POPUP_ACCESSORYNOTFOUND, false, 0);
+							else if(IsAccessoryEquipped(0, 1 << temp)) { // I have and already equipped it
+								LocalAmbientSound("RPG/MenuChoose", 127);
+								UnequipAccessory(1 << temp);
+							}
+							else if(!ReachedAccessoryLimit()) { // I don't have this, and didn't equip
+								LocalAmbientSound("RPG/MenuChoose", 127);
+								EquipAccessory(1 << temp);
+							}
+							else
+								ShowPopup(POPUP_MAXACCESSORYEQUIPPED, false, 0);
+						}
+					}
+				}
+				if(HasPressedLeft(pnum)) {
+					if(curopt != MENU_FIRST_ACCESSORY_PAGE)
+						UpdateMenuPosition(curopt - 1);
+					else
+						UpdateMenuPosition(MENU_LOAD);
+				}
+				else if(HasPressedRight(pnum)) {
+					if(curopt != MENU_LAST_ACCESSORY_PAGE)
+						UpdateMenuPosition(curopt + 1);
 				}
 			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP);
-		}
-		else if(curopt == MENU_SHOP_AMMO_1)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CLIP, boxid, AMMOSLOT_CLIP_BEGIN, -1, MENU_SHOP_AMMO_1_2, false);
-		else if(curopt == MENU_SHOP_AMMO_1_2)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CLIP, boxid, AMMOSLOT_CLIP2_BEGIN, MENU_SHOP_AMMO_1, -1, false);
-		else if(curopt == MENU_SHOP_AMMO_2)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL_BEGIN, -1, MENU_SHOP_AMMO_2_2, false);
-		else if(curopt == MENU_SHOP_AMMO_2_2)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL2_BEGIN, MENU_SHOP_AMMO_2, -1, false);
-		else if(curopt == MENU_SHOP_AMMO_3)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_ROCKET, boxid, AMMOSLOT_ROCKET_BEGIN, -1, -1, false);
-		else if(curopt == MENU_SHOP_AMMO_4_1)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL_BEGIN, -1, MENU_SHOP_AMMO_4_2, false);
-		else if(curopt == MENU_SHOP_AMMO_4_2)
-			HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL2_BEGIN, MENU_SHOP_AMMO_4_1, -1, false);
-		else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
-			HandleAmmoPageInput(pnum, -1, boxid, 0, -1, -1, true);
-		else if(curopt == MENU_SHOP_ABILITY_1) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_ABILITY1_BEGIN, SHOP_ABILITY1_END, TRADE_BUY | TRADE_ABILITY, false);
+			else if(curopt == MENU_SHOP) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid == MBOX_1)
+						temp = MENU_SHOP_WEAPON;
+					else if(boxid == MBOX_2)
+						temp = MENU_SHOP_AMMOSELECT;
+					else if(boxid == MBOX_3)
+						temp = MENU_SHOP_ABILITY_1;
+					else if(boxid == MBOX_4)
+						temp = MENU_SHOP_ARTIFACT_1;
+					else if(boxid == MBOX_5)
+						temp = MENU_SHOP_ACCOUNT;
+					#ifdef ISAPRILFIRST
+					else if(boxid == MBOX_6)
+						temp = MENU_SHOP_NFT;
+					#endif
+					else
+						temp = -1;
+					if(boxid != MAINBOX_NONE && temp != -1)
+						UpdateMenuPosition(temp);
+					
+				}
+				if(HasPressedLeft(pnum))
+					ReturnToMain();
 			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP);
-			else if(HasPressedRight(pnum))
-				UpdateMenuPosition(MENU_SHOP_ABILITY_2);
-		}
-		else if(curopt == MENU_SHOP_ABILITY_2) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_ABILITY2_BEGIN, SHOP_LASTABILITY_INDEX, TRADE_BUY | TRADE_ABILITY, false);
+			else if(curopt == MENU_SHOP_WEAPON) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid != MAINBOX_NONE && boxid < MBOX_9)
+						UpdateMenuPosition(GetWeaponPage(boxid));
+				}
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SHOP);
 			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP_ABILITY_1);
-		}
-		else if(curopt == MENU_SHOP_ARTIFACT_1) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI1_INDEX, SHOP_ARTIFACT1_END, TRADE_BUY | TRADE_ARTIFACT, false);
+			else if(curopt == MENU_SHOP_WEAPON1)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON1_BEGIN, SHOP_WEAPON_SLOT1END, -1, -1);
+			else if(curopt == MENU_SHOP_WEAPON2)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON2_BEGIN, SHOP_WEAPON_SLOT2END, -1, -1);
+			else if(curopt == MENU_SHOP_WEAPON3_1)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON31_BEGIN, SHOP_WEAPON_SLOT31END, -1, MENU_SHOP_WEAPON3_2);
+			else if(curopt == MENU_SHOP_WEAPON3_2)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON32_BEGIN, SHOP_WEAPON_SLOT32END, MENU_SHOP_WEAPON3_1, MENU_SHOP_WEAPON3_3);
+			else if(curopt == MENU_SHOP_WEAPON3_3)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON33_BEGIN, SHOP_WEAPON_SLOT33END, MENU_SHOP_WEAPON3_2, -1);
+			else if(curopt == MENU_SHOP_WEAPON4_1)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON41_BEGIN, SHOP_WEAPON_SLOT41END, -1, MENU_SHOP_WEAPON4_2);
+			else if(curopt == MENU_SHOP_WEAPON4_2)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON42_BEGIN, SHOP_WEAPON_SLOT42END, MENU_SHOP_WEAPON4_1, -1);
+			else if(curopt == MENU_SHOP_WEAPON5_1)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON51_BEGIN, SHOP_WEAPON_SLOT51END, -1, MENU_SHOP_WEAPON5_2);
+			else if(curopt == MENU_SHOP_WEAPON5_2)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON52_BEGIN, SHOP_WEAPON_SLOT52END, MENU_SHOP_WEAPON5_1, -1);
+			else if(curopt == MENU_SHOP_WEAPON6_1)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON61_BEGIN, SHOP_WEAPON_SLOT61END, -1, MENU_SHOP_WEAPON6_2);
+			else if(curopt == MENU_SHOP_WEAPON6_2)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON62_BEGIN, SHOP_WEAPON_SLOT62END, MENU_SHOP_WEAPON6_1, -1);
+			else if(curopt == MENU_SHOP_WEAPON7)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON7_BEGIN, SHOP_WEAPON_SLOT7END, -1, -1);
+			else if(curopt == MENU_SHOP_WEAPON8)
+				HandleWeaponPageInput(pnum, boxid, SHOP_WEAPON8_BEGIN, SHOP_WEAPON_SLOT8END, -1, -1);
+			else if(curopt == MENU_SHOP_AMMOSELECT) {
+				if(HasLeftClicked(pnum)) {
+					switch(boxid) {
+						case 1:
+							UpdateMenuPosition(MENU_SHOP_AMMO_1);
+						break;
+						case 2:
+							UpdateMenuPosition(MENU_SHOP_AMMO_2);
+						break;
+						case 3:
+							UpdateMenuPosition(MENU_SHOP_AMMO_3);
+						break;
+						case 4:
+							UpdateMenuPosition(MENU_SHOP_AMMO_4_1);
+						break;
+						case 5:
+							UpdateMenuPosition(MENU_SHOP_AMMO_SPECIAL1);
+						break;
+					}
+				}
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SHOP);
 			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP);
-			else if(HasPressedRight(pnum))
-				UpdateMenuPosition(MENU_SHOP_ARTIFACT_2);
-		}
-		else if(curopt == MENU_SHOP_ARTIFACT_2) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI2_INDEX, SHOP_LASTARTI_INDEX, TRADE_BUY | TRADE_ARTIFACT, false);
+			else if(curopt == MENU_SHOP_AMMO_1)
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CLIP, boxid, AMMOSLOT_CLIP_BEGIN, -1, MENU_SHOP_AMMO_1_2, false);
+			else if(curopt == MENU_SHOP_AMMO_1_2)
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CLIP, boxid, AMMOSLOT_CLIP2_BEGIN, MENU_SHOP_AMMO_1, -1, false);
+			else if(curopt == MENU_SHOP_AMMO_2)
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL_BEGIN, -1, MENU_SHOP_AMMO_2_2, false);
+			else if(curopt == MENU_SHOP_AMMO_2_2)
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_SHELL, boxid, AMMOSLOT_SHELL2_BEGIN, MENU_SHOP_AMMO_2, -1, false);
+			else if(curopt == MENU_SHOP_AMMO_3)
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_ROCKET, boxid, AMMOSLOT_ROCKET_BEGIN, -1, -1, false);
+			else if(curopt == MENU_SHOP_AMMO_4_1)
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL_BEGIN, -1, MENU_SHOP_AMMO_4_2, false);
+			else if(curopt == MENU_SHOP_AMMO_4_2)
+				HandleAmmoPageInput(pnum, DND_AMMOSLOT_CELL, boxid, AMMOSLOT_CELL2_BEGIN, MENU_SHOP_AMMO_4_1, -1, false);
+			else if(curopt == MENU_SHOP_AMMO_SPECIAL1)
+				HandleAmmoPageInput(pnum, -1, boxid, 0, -1, -1, true);
+			else if(curopt == MENU_SHOP_ABILITY_1) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid != MAINBOX_NONE)
+						ProcessTrade(pnum, boxid - 1, SHOP_ABILITY1_BEGIN, SHOP_ABILITY1_END, TRADE_BUY | TRADE_ABILITY, false);
+				}
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SHOP);
+				else if(HasPressedRight(pnum))
+					UpdateMenuPosition(MENU_SHOP_ABILITY_2);
 			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP_ARTIFACT_1);
-		}
-		else if(curopt == MENU_SHOP_ACCOUNT) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid != MAINBOX_NONE)
-					ProcessTrade(pnum, boxid - 1, SHOP_ACCOUNT_BEGIN, SHOP_ACCOUNT_END, TRADE_BUY | TRADE_ACCOUNT, false);
+			else if(curopt == MENU_SHOP_ABILITY_2) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid != MAINBOX_NONE)
+						ProcessTrade(pnum, boxid - 1, SHOP_ABILITY2_BEGIN, SHOP_LASTABILITY_INDEX, TRADE_BUY | TRADE_ABILITY, false);
+				}
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SHOP_ABILITY_1);
 			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_SHOP);
-		}
-		else if(curopt == MENU_RESEARCH) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_RESEARCH_BODY);
-				else if(boxid == MBOX_2)
-					UpdateMenuPosition(MENU_RESEARCH_AMMO);
-				else if(boxid == MBOX_3)
-					UpdateMenuPosition(MENU_RESEARCH_GUNS);
-				else if(boxid == MBOX_4)
-					UpdateMenuPosition(MENU_RESEARCH_UTILITY);
-				else if(boxid == MBOX_5) {
+			else if(curopt == MENU_SHOP_ARTIFACT_1) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid != MAINBOX_NONE)
+						ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI1_INDEX, SHOP_ARTIFACT1_END, TRADE_BUY | TRADE_ARTIFACT, false);
+				}
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SHOP);
+				else if(HasPressedRight(pnum))
+					UpdateMenuPosition(MENU_SHOP_ARTIFACT_2);
+			}
+			else if(curopt == MENU_SHOP_ARTIFACT_2) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid != MAINBOX_NONE)
+						ProcessTrade(pnum, boxid - 1, SHOP_FIRSTARTI2_INDEX, SHOP_LASTARTI_INDEX, TRADE_BUY | TRADE_ARTIFACT, false);
+				}
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SHOP_ARTIFACT_1);
+			}
+			else if(curopt == MENU_SHOP_ACCOUNT) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid != MAINBOX_NONE)
+						ProcessTrade(pnum, boxid - 1, SHOP_ACCOUNT_BEGIN, SHOP_ACCOUNT_END, TRADE_BUY | TRADE_ACCOUNT, false);
+				}
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_SHOP);
+			}
+			else if(curopt == MENU_RESEARCH) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_RESEARCH_BODY);
+					else if(boxid == MBOX_2)
+						UpdateMenuPosition(MENU_RESEARCH_AMMO);
+					else if(boxid == MBOX_3)
+						UpdateMenuPosition(MENU_RESEARCH_GUNS);
+					else if(boxid == MBOX_4)
+						UpdateMenuPosition(MENU_RESEARCH_UTILITY);
+					else if(boxid == MBOX_5) {
+						// donate budget option, basically credit to budget conversion
+						// 10,000 credits => 1k budget
+						if(GetPlayerCredit(pnum) >= DND_BUDGET_CONVERSION_CREDIT) {
+							TakeCredit(DND_BUDGET_CONVERSION_CREDIT);
+							GiveInventory("Budget", 1);
+							LocalAmbientSound("RPG/MenuSell", 127);
+						}
+						else
+							ShowPopup(POPUP_NOFUNDS, false, 0);
+					}
+				}
+				else if(HasRightClicked(pnum) && boxid == MBOX_5) {
+					// x10
 					// donate budget option, basically credit to budget conversion
 					// 10,000 credits => 1k budget
-					if(GetPlayerCredit(pnum) >= DND_BUDGET_CONVERSION_CREDIT) {
-						TakeCredit(DND_BUDGET_CONVERSION_CREDIT);
-						GiveInventory("Budget", 1);
+					if(GetPlayerCredit(pnum) >= DND_BUDGET_CONVERSION_CREDIT * 10) {
+						TakeCredit(DND_BUDGET_CONVERSION_CREDIT * 10);
+						GiveInventory("Budget", 10);
 						LocalAmbientSound("RPG/MenuSell", 127);
 					}
 					else
 						ShowPopup(POPUP_NOFUNDS, false, 0);
 				}
+				if(HasPressedLeft(pnum))
+					ReturnToMain();
 			}
-			else if(HasRightClicked(pnum) && boxid == MBOX_5) {
-				// x10
-				// donate budget option, basically credit to budget conversion
-				// 10,000 credits => 1k budget
-				if(GetPlayerCredit(pnum) >= DND_BUDGET_CONVERSION_CREDIT * 10) {
-					TakeCredit(DND_BUDGET_CONVERSION_CREDIT * 10);
-					GiveInventory("Budget", 10);
-					LocalAmbientSound("RPG/MenuSell", 127);
+			else if(curopt == MENU_RESEARCH_GUNS) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid == MBOX_1)
+						UpdateMenuPosition(MENU_RESEARCH_SLOTGUNS);
+					if(boxid == MBOX_2)
+						UpdateMenuPosition(MENU_RESEARCH_LUXURYGUNS);
 				}
-				else
-					ShowPopup(POPUP_NOFUNDS, false, 0);
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_RESEARCH);
 			}
-			if(HasPressedLeft(pnum))
-				ReturnToMain();
-		}
-		else if(curopt == MENU_RESEARCH_GUNS) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid == MBOX_1)
-					UpdateMenuPosition(MENU_RESEARCH_SLOTGUNS);
-				if(boxid == MBOX_2)
-					UpdateMenuPosition(MENU_RESEARCH_LUXURYGUNS);
+			else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END) {
+				HandleResearchPageInput(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
 			}
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_RESEARCH);
-		}
-		else if(curopt >= SHOP_RESPAGE_BEGIN && curopt <= SHOP_RESPAGE_END) {
-			HandleResearchPageInput(pnum, curopt - SHOP_RESPAGE_BEGIN, boxid);
-		}
-		else if(curopt == MENU_ABILITY) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid == MBOX_1) {
-					SetInventory("DashDisabled", !CheckInventory("DashDisabled"));
-					ACS_NamedExecuteAlways("DnD Toggle User Dash", 0);
-					LocalAmbientSound("RPG/MenuChoose", 127);
+			else if(curopt == MENU_ABILITY) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid == MBOX_1) {
+						SetInventory("DashDisabled", !CheckInventory("DashDisabled"));
+						ACS_NamedExecuteAlways("DnD Toggle User Dash", 0);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+					}
 				}
+				if(HasPressedLeft(pnum))
+					ReturnToMain();
 			}
-			if(HasPressedLeft(pnum))
-				ReturnToMain();
-		}
-		else if(curopt == MENU_HELP) {
-			if(HasLeftClicked(pnum)) {
-				if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
-					temp = MENU_HELP_BEGIN + boxid - 1;
-				else if(boxid == MBOX_10) {
-					GiveInventory("SetMapInfo", 1);
-					LocalAmbientSound("RPG/MenuChoose", 127);
-					temp = -1;
+			else if(curopt == MENU_HELP) {
+				if(HasLeftClicked(pnum)) {
+					if(boxid >= MBOX_1 && boxid <= MENU_HELP_END - MENU_HELP_BEGIN + 1)
+						temp = MENU_HELP_BEGIN + boxid - 1;
+					else if(boxid == MBOX_10) {
+						GiveInventory("SetMapInfo", 1);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						temp = -1;
+					}
+					else if(boxid == MBOX_11) {
+						GiveInventory("SetModTierInfo", 1);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						temp = -1;
+					}
+					else if(boxid == MBOX_12) {
+						GiveInventory("SetTempWepIgnore", 1);
+						SetInventory("DnD_NoTempPickup", !CheckInventory("DnD_NoTempPickup"));
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						temp = -1;
+					}
+					else if(boxid == MBOX_13) {
+						ACS_NamedExecuteWithResult("DnD Filter Click", pnum, 0, 0, 0);
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						temp = -1;
+					}
+					if(boxid != MAINBOX_NONE && temp != -1)
+						UpdateMenuPosition(temp);
 				}
-				else if(boxid == MBOX_11) {
-					GiveInventory("SetModTierInfo", 1);
-					LocalAmbientSound("RPG/MenuChoose", 127);
-					temp = -1;
-				}
-				else if(boxid == MBOX_12) {
-					GiveInventory("SetTempWepIgnore", 1);
-					SetInventory("DnD_NoTempPickup", !CheckInventory("DnD_NoTempPickup"));
-					LocalAmbientSound("RPG/MenuChoose", 127);
-					temp = -1;
-				}
-				else if(boxid == MBOX_13) {
-					ACS_NamedExecuteWithResult("DnD Filter Click", pnum, 0, 0, 0);
-					LocalAmbientSound("RPG/MenuChoose", 127);
-					temp = -1;
-				}
-				if(boxid != MAINBOX_NONE && temp != -1)
-					UpdateMenuPosition(temp);
+				if(HasPressedLeft(pnum))
+					ReturnToMain();
 			}
-			if(HasPressedLeft(pnum))
-				ReturnToMain();
-		}
-		else if(curopt >= MENU_HELP_BEGIN && curopt <= MENU_HELP_END) {
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_HELP);
-			if(curopt == MENU_HELP_MMODS && HasLeftClicked(pnum) && boxid >= MBOX_1)
-				UpdateMenuPosition(MENU_HELP_MMODS_WEAKNESS + boxid - 1);
-		}
-		else if(curopt >= MENU_MMOD_HELP_BEGIN && curopt <= MENU_MMOD_HELP_END) {
-			if(HasPressedLeft(pnum))
-				UpdateMenuPosition(MENU_HELP_MMODS);
-		}
-		#ifdef ISAPRILFIRST
-		else if(curopt == MENU_SHOP_NFT) {
-			if(HasLeftClicked(pnum) && boxid != MAINBOX_NONE) {
-				// check if player has enough $$
-				if(GetPlayerCredit(pnum) >= NFT_COST) {
-					if(!IsSet(CheckInventory("NFT_Token"), boxid - 1)) {
-						TakeCredit(NFT_COST);
-						SetInventory("NFT_Token", SetBit(CheckInventory("NFT_Token"), boxid - 1));
-						ACS_NamedExecuteAlways("DnD NFT Announce", 0, pnum, boxid - 1);
+			else if(curopt >= MENU_HELP_BEGIN && curopt <= MENU_HELP_END) {
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_HELP);
+				if(curopt == MENU_HELP_MMODS && HasLeftClicked(pnum) && boxid >= MBOX_1)
+					UpdateMenuPosition(MENU_HELP_MMODS_WEAKNESS + boxid - 1);
+			}
+			else if(curopt >= MENU_MMOD_HELP_BEGIN && curopt <= MENU_MMOD_HELP_END) {
+				if(HasPressedLeft(pnum))
+					UpdateMenuPosition(MENU_HELP_MMODS);
+			}
+			#ifdef ISAPRILFIRST
+			else if(curopt == MENU_SHOP_NFT) {
+				if(HasLeftClicked(pnum) && boxid != MAINBOX_NONE) {
+					// check if player has enough $$
+					if(GetPlayerCredit(pnum) >= NFT_COST) {
+						if(!IsSet(CheckInventory("NFT_Token"), boxid - 1)) {
+							TakeCredit(NFT_COST);
+							SetInventory("NFT_Token", SetBit(CheckInventory("NFT_Token"), boxid - 1));
+							ACS_NamedExecuteAlways("DnD NFT Announce", 0, pnum, boxid - 1);
+						}
+						else
+							ShowPopup(POPUP_OWNNFT, false, 0);
 					}
 					else
-						ShowPopup(POPUP_OWNNFT, false, 0);
+						ShowPopup(POPUP_NOFUNDS, false, 0);
 				}
-				else
-					ShowPopup(POPUP_NOFUNDS, false, 0);
 			}
+			#endif
 		}
-		#endif
 		
 		ClearPlayerInput(pnum, true);
 		

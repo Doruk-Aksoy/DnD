@@ -674,7 +674,7 @@ Actor HunterTalismanFX {
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			// 16 frames
 		SpawnLoop:
-			TNT1 A 0 A_JumpIf(user_count == talisman_mark_timer * 2, "Fade")
+			TNT1 A 0 A_JumpIf(user_count == talisman_mark_timer * 2, "Disappear")
 			TNT1 A 0 A_Warp(AAPTR_TARGET, 0, 0, 48, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			DB04 J 1 A_SetTranslucent(1.0 * sin(22.5))
 			TNT1 A 0 A_Warp(AAPTR_TARGET, 0, 0, 48, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -691,7 +691,6 @@ Actor HunterTalismanFX {
 			DB04 P 1 A_SetTranslucent(1.0 * sin(157.5))
 			TNT1 A 0 A_Warp(AAPTR_TARGET, 0, 0, 48, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			DB04 Q 1 A_SetTranslucent(1.0 * sin(157.5))
-			TNT1 A 0 A_JumpIfInTargetInventory("Mo_Died", 1, "Fade")
 			TNT1 A 0 A_Warp(AAPTR_TARGET, 0, 0, 48, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			DB04 R 1 A_SetTranslucent(1.0 * sin(157.5))
 			TNT1 A 0 A_Warp(AAPTR_TARGET, 0, 0, 48, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
@@ -710,10 +709,9 @@ Actor HunterTalismanFX {
 			DB04 Y 1 A_SetTranslucent(1.0 * sin(360))
 			TNT1 A 0 A_Warp(AAPTR_TARGET, 0, 0, 48, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
 			DB04 Z 1 A_SetTranslucent(1.0 * sin(22.5))
-			TNT1 A 0 A_JumpIfInTargetInventory("Mo_Died", 1, "Fade")
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
-		Fade:
+		Disappear:
 			"####" "########" 1 A_FadeOut(0.1)
 		Stop
 	}

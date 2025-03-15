@@ -594,6 +594,9 @@ void SavePlayerActivities(int pnum, int char_id) {
 	// send data over
 	IncrementDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, temp);
 	IncrementDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, vt);
+
+	// save player weapon discards
+	SetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc, PlayerActivities[pnum].discarded_weapons);
 	
 	// save player inventory state (might have been affected by an orb)
 	// save singular items that have their ids noted by activities instead in here
@@ -879,7 +882,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc);
 	for(i = 0; i < MAX_ACCESSORY; ++i)
 		SetInventory(StrParam(s:"Accessory_", d:i + 1), !!(temp & (1 << i)));
-	// save active accessories
+	// read active accessories
 	SetInventory("Accessory_Index", GetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc));
 	DecideAccessories();
 	
@@ -971,6 +974,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	}
 	
 	HandleResearchBonuses();
+
+	// read discarded weapons
+	PlayerActivities[pnum].discarded_weapons = GetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc);
 	
 	// read research trackers
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)

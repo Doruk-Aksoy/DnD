@@ -750,7 +750,7 @@ Script "DND On Revive" (void) {
 		SetEliteFlag(DND_REVIVED, true); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		// Reapply the elite FX.
 		if (MonsterProperties[id].isElite)
-			ACS_NamedExecuteAlways("DND Elite Special FX", 0, this);
+			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this);
 		//Log(s:"Monster id: ",d:MonsterProperties[id].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
 		int maxhp = MonsterProperties[id].maxhp;
@@ -783,17 +783,12 @@ Script "DND On Revive" (void) {
 
 		// timer and follow setups
 		ACS_NamedExecuteWithResult("DnD Timed Monster", lifetime, 1);
-		ACS_NamedExecuteAlways("DnD Give Ally Pet Icon", 0);
+		ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ELITEFX_REFLECT);
 		// don't give this, they are solid and block the player
 		ACS_NamedExecuteAlways("DnD Pet Distance Move", 0);
 	}
 
 	GiveInventory("DnD_MonsterSetupDone", 1);
-}
-
-// so the icons are actually clientside
-Script "DnD Give Ally Pet Icon" (void) CLIENTSIDE {
-	GiveInventory("DnD_PetEffectSpawner", 1);
 }
 
 Script "DnD On Revive CS" (void) CLIENTSIDE {
@@ -803,10 +798,12 @@ Script "DnD On Revive CS" (void) CLIENTSIDE {
 // Make sure clients are aware too
 Script "DND On Kill CS" KILL CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
+	DisposeAttachments(ActivatorTID() - DND_MONSTERTID_BEGIN);
 }
 
 Script "DnD On Kill Forced CS" (void) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
+	DisposeAttachments(ActivatorTID() - DND_MONSTERTID_BEGIN);
 }
 
 // accepts similar flags to explosion actors
@@ -820,11 +817,11 @@ Script "DnD Scale Non Weapon Damage" (int damage, int damage_type, int flags) {
 	}
 }
 
-Script "DnD Check Elite Clear" (void) CLIENTSIDE {
+/*Script "DnD Check Elite Clear" (void) CLIENTSIDE {
 	SetActivatorToTarget(0);
 	//printbold(d:ActivatorTID(), s: " ", s:GetActorClass(0));
 	SetResultValue(!ActivatorTID() || CheckInventory("Mo_Died") || GetActorProperty(0, APROP_HEALTH) <= 0);
-}
+}*/
 
 // Used for exp and credit calculations
 Script "DND On Kill" KILL {
@@ -1691,8 +1688,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		MonsterProperties[m_id].maxhp = maxhp;
 		// roll more traits randomly
 		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
-		//printbold(s:"DecideEliteTraits: TID: ", d: ActivatorTID());
-		DecideEliteTraits(m_id, traitcount);
+		DecideEliteTraits(this, m_id, traitcount);
 		// Double Health
 		if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 			base = maxhp;
@@ -1803,7 +1799,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 		MonsterProperties[m_id].maxhp = maxhp;
 		// roll more traits randomly
 		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
-		DecideEliteTraits(m_id, traitcount);
+		DecideEliteTraits(this, m_id, traitcount);
 		// Double Health
 		if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 			base = maxhp;
@@ -3794,30 +3790,45 @@ Script "DND Riotgun Decide" (void) {
 		SetInventory("RiotgunReloadModeDecide", 1); // reload
 }
 
-Script "DND Elite Special FX" (int tid, int which) CLIENTSIDE {
+Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 	// non-zero hopefully
 	if(tid) {
+		int i;
+		int zoff = GetActorProperty(tid, APROP_HEIGHT) >> 1;
+		int xoff = GetActorProperty(tid, APROP_RADIUS);
+		if(xoff > 32.0)
+			xoff -= 4.0;
+
 		switch(which) {
 			case DND_ELITEFX_REFLECT:
-				GiveInventory("ReflectiveFXSpawner", 1);
+				for(i = 0; i < 3; ++i)
+					CreateMonsterAttachment(tid, "EliteReflectingShield", xoff, 0, zoff, i * 1.0 / 3);
 			break;
+			case DND_ELITEFX_CRIPPLEAURA:
+				CreateMonsterAttachment(tid, "CrippleAuraFX");
+			break;
+			case DND_ELITEFX_VIOLENTAURA:
+				CreateMonsterAttachment(tid, "ViolentAuraFX");
+			break;
+			case DND_ELITEFX_TEMPORALBUBBLE:
+				CreateMonsterAttachment(tid, "TemporalBubbleFX", 0, 0, zoff);
+			break;
+			case DND_ELITEFX_ENSHROUD:
+				for(i = 0; i < 7; ++i)
+					CreateMonsterAttachment(tid, "EnshroudFX", xoff, 0, zoff);
+			break;
+
+			case DND_ATTACHMENT_PETICON:
+				CreateMonsterAttachment(tid, "DnD_PetIcon", xoff, 0, zoff);
+			break;
+
+			// normal elite sparkles
 			default:
-				GiveInventory("EliteFXRunner", 1);
+				// spawn 3 with 120 degree increments on them
+				for(i = 0; i < 3; ++i)
+					CreateMonsterAttachment(tid, "EliteSpecialFX", xoff, 0, zoff, i * 1.0 / 3);
 			break;
 		}
-	}
-}
-
-Script "DnD Align Elite FX" (void) CLIENTSIDE {
-	int tid = GetActorProperty(0, APROP_TARGETTID);
-	if(isPlayer(tid))
-		Terminate;
-	if(tid) {
-		SetActorProperty(0, APROP_MASS, GetActorProperty(tid, APROP_HEIGHT) >> 17);
-		int s = (GetActorProperty(tid, APROP_RADIUS) >> 16);
-		if(s > 32)
-			s -= 4;
-		SetActorProperty(0, APROP_SCORE, s);
 	}
 }
 
@@ -4206,12 +4217,7 @@ Script "DnD Talisman Mark Timer" (int counter) {
 }
 
 Script "DnD Talisman Mark" (void) CLIENTSIDE {
-	int this = ActivatorTID();
-	Spawn("HunterTalismanFX", GetActorX(0), GetActorY(0), GetActorZ(0) + 48.0, DND_TALISMAN_MARK);
-	SetActivator(DND_TALISMAN_MARK);
-	SetPointer(AAPTR_TARGET, this);
-	SetActorProperty(0, APROP_TARGETTID, this);
-	Thing_ChangeTID(DND_TALISMAN_MARK, 0);
+	CreateMonsterAttachment(ActivatorTID(), "HunterTalismanFX", 0, 0, 48.0);
 }
 
 Script "DnD Chest Dropping Item" (int chance_penalty) {
@@ -4603,7 +4609,7 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	);
 
 	// pet icon
-	ACS_NamedExecuteAlways("DnD Give Ally Pet Icon", 0);
+	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ELITEFX_REFLECT);
 }
 
 Script "DnD Master Skill Info" (int skill_id) {
@@ -5395,8 +5401,8 @@ Script "DnD Cripple" (void) {
 	while(isAlive()) {
 		Delay(const:CRIPPLE_REFRESH_RATE);
 
-		// check all players to see if they are close to us
-		for(int i = 0; i < MAXPLAYERS; ++i) {
+		// check all players to see if they are close to us -- dont target players if we are friendly to them
+		for(int i = 0; !CheckFlag(0, "FRIENDLY") && i < MAXPLAYERS; ++i) {
 			p_tid = i + P_TIDSTART;
 			if(PlayerInGame(i) && isActorAlive(p_tid)) {
 				// 16.0 is player radius
@@ -5740,8 +5746,8 @@ Script 68 (int x) NET {
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
-			//SpawnCharmWithMods_ForAll(INV_CYBERNETIC, INV_AMMOGAIN_CHANCE);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, false, 300);
+			SpawnCharmWithMods_ForAll(INV_CYBERNETIC, INV_CHANCE_AILMENTIGNORE);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			//IncPlayerModValue(0, INV_ESHIELD_ABSORB, 25);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

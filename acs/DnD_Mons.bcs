@@ -327,16 +327,17 @@ Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {
 	switch(type) {
 		case DND_BLIND_LIGHT:
 			PlaySound(0, "Blind/Normal", CHAN_6, 1.0);
-			GiveInventory("DnD_NormalBlindSpawner", 1);
+			CreateMonsterAttachment(this, "DnD_BlindIcon");
 			actor = "NormalBlindFX";
 		break;
 		case DND_BLIND_HEAVY:
 			PlaySound(0, "Blind/Heavy", CHAN_6, 1.0);
-			GiveInventory("DnD_HeavyBlindSpawner", 1);
+			CreateMonsterAttachment(this, "DnD_BlindIcon_Heavy");
 			actor = "HeavyBlindFX";
 		break;
 		case DND_BLIND_PETRIFY:
 			PlaySound(0, "Lich/VisionDim", CHAN_6, 1.0);
+			CreateMonsterAttachment(this, "DnD_BlindIcon_Petrify");
 			GiveInventory("DnD_PetrifySpawner", 1);
 			actor = "PetrifyBlindFX";
 		break;

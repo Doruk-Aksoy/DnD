@@ -597,7 +597,6 @@ Actor BruiserDemon : DnD_BaseHybridMonster {
 	Speed 8
 	PainChance 15
 	+ISMONSTER
-	+LookAllAround
 	+MISSILEMORE
 	+MissileEvenMore
 	Species "HK"

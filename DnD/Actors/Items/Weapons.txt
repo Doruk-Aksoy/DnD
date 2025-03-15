@@ -95,6 +95,7 @@ Actor ExecutionPuff {
 	+NOEXTREMEDEATH
 	+THRUSPECIES
 	+MTHRUSPECIES
+	+FOILINVUL
 	Obituary "%o was gloriously humiliated by %k."
 	States {
 		Spawn:

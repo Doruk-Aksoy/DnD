@@ -989,6 +989,25 @@ int GetResistPenetration(int pnum, int category) {
 	return val;
 }
 
+// purely used for cosmetic reasons
+int GetHighestElePen(int pnum) {
+	// this is very awful code but it doesn't matter -- we also dont care about unity or all ele pen... as they all would have it anyways
+	int fpen = GetPlayerAttributeValue(pnum, INV_PEN_FIRE);
+	int lpen = GetPlayerAttributeValue(pnum, INV_PEN_LIGHTNING);
+	int ipen = GetPlayerAttributeValue(pnum, INV_PEN_ICE);
+	int ppen = GetPlayerAttributeValue(pnum, INV_PEN_POISON);
+
+	if(fpen > lpen && fpen > ipen && fpen > ppen)
+		return DND_DAMAGECATEGORY_FIRE;
+	if(ipen > lpen && ipen > fpen && ipen > ppen)
+		return DND_DAMAGECATEGORY_ICE;
+	if(lpen > ipen && lpen > fpen && lpen > ppen)
+		return DND_DAMAGECATEGORY_LIGHTNING;
+	if(ppen > lpen && ppen > fpen && ppen > ipen)
+		return DND_DAMAGECATEGORY_POISON;
+	return 0;
+}
+
 void RemoveMonsterAilment(int tid, int ailment) {
 	int prev = CheckActorInventory(tid, "DnD_AilmentToken");
 	SetActorInventory(tid, "DnD_AilmentToken", prev & ~ailment);

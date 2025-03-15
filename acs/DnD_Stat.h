@@ -1061,9 +1061,6 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
 	// stuff that dont depend on a wepid
 	int res = MapDamageCategoryToPercentBonus(pnum, damage_category);
-				
-	if(damage_category == DND_DAMAGECATEGORY_ENERGY && IsQuestComplete(0, QUEST_ONLYENERGY))
-		res += DND_QUEST_ENERGYBONUS;
 
 	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS)) {
 		// add accuracy as % bonus dmg
@@ -1239,7 +1236,7 @@ int GetFireDOTDamage(int pnum, int bonus = 0) {
 				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE) + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
@@ -1262,7 +1259,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison) {
 			GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON) + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
@@ -1437,8 +1434,8 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 	statOf = 0;
 	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
 		statOf = GetStrength() * strength + GetDexterity() * dexterity + GetIntellect() * intellect;
-	else
-		statOf = GetUnity() * (strength + dexterity + intellect);
+	else // unity provides no bonuses like this
+		statOf = 0;// GetUnity() * (strength + dexterity + intellect);
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)

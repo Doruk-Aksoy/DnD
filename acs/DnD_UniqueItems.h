@@ -375,13 +375,13 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_low = 1;
 	UniqueItemList[id].rolls[0].attrib_high = 1;
 	UniqueItemList[id].rolls[1].attrib_low = 1;
-	UniqueItemList[id].rolls[1].attrib_high = 2;
+	UniqueItemList[id].rolls[1].attrib_high = 5;
 	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 2;
+	UniqueItemList[id].rolls[2].attrib_high = 5;
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
 	id = UITEM_MINDFORGE;
-	UniqueItemList[id].weight = 970;
+	UniqueItemList[id].weight = 950;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_18;
@@ -397,7 +397,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_low = 1.5;
 	UniqueItemList[id].rolls[1].attrib_high = 2.5;
 	id = UITEM_SLAYERSPECIAL;
-	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].weight = 975;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCHRM_19;
@@ -416,7 +416,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_low = 1;
 	UniqueItemList[id].rolls[2].attrib_high = 5;
 	id = UITEM_DRAGONFANG;
-	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].weight = 995;
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 2;
 	UniqueItemList[id].item_image = IIMG_UCHRM_20;
@@ -437,6 +437,19 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[2].attrib_high = 1;
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
+	id = UITEM_MIRROROFETERNITY;
+	UniqueItemList[id].weight = 1000;
+	UniqueItemList[id].width = 1;
+	UniqueItemList[id].height = 2;
+	UniqueItemList[id].item_image = IIMG_UCHRM_21;
+	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
+	UniqueItemList[id].item_level = 40;
+	UniqueItemList[id].item_stack = 0;
+	UniqueItemList[id].attrib_count = 1;
+	UniqueItemList[id].attrib_id_list[0] = INV_EX_MIRROROTHERMEDIUM;
+	UniqueItemList[id].rolls[0].attrib_low = 1;
+	UniqueItemList[id].rolls[0].attrib_high = 1;
 
 	// ADD GENERAL DROP POOL UNIQUE CHARMS ABOVE
 	// DROP ONLY UNIQUE CHARMS

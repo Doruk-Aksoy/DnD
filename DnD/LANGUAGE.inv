@@ -82,6 +82,7 @@ DND_UCIMG17			=	"UCHRM17";
 DND_UCIMG18			=	"UCHRM18";
 DND_UCIMG19			=	"UCHRM19";
 DND_UCIMG20			=	"UCHRM20";
+DND_UCIMG21			=	"UCHRM21";
 
 DND_UDCIMG1			=	"UDCHRM1";
 DND_UDCIMG2			=	"UDCHRM2";
@@ -267,6 +268,7 @@ DND_UNIQUE17			=	"Unity";
 DND_UNIQUE18			=	"Mindforge";
 DND_UNIQUE19			=	"Slayer Special";
 DND_UNIQUE20			=	"Deathwing's Fang";
+DND_UNIQUE21 			=	"Mirror of Eternity";
 
 DND_DROP_UNIQUE1		=	"Elemental Harmony";
 DND_DROP_UNIQUE2		=	"Steelbark";
@@ -418,8 +420,8 @@ IATTR_T103			= "mitigation effect";
 
 IATTR_T104			= "increased fire damage";
 IATTR_T105			= "increased ice damage";
-IATTR_T106			= "increased poison damage";
-IATTR_T107			= "increased lightning damage";
+IATTR_T106			= "increased lightning damage";
+IATTR_T107			= "increased poison damage";
 
 IATTR_T108			= "fire pierce";
 IATTR_T109			= "ice pierce";
@@ -518,10 +520,10 @@ IATTR_TX33			= "Gain \cd1%\c- increased damage per 20 accuracy rating"; IATTR_TX
 IATTR_TX34			= "Gain \cd2%\c- more damage per \cg1%\c- missing ammo on current weapon";
 IATTR_TX35			= "Weapons consume";				IATTR_TX35S = "increased ammo";
 IATTR_TX36			= "less ammo capacities";
-IATTR_TX37			= "Your main attributes are transformed to \cfUnity\c-";	IATTR_TX_UNITY = "Per 10 unity, gain";	UNITY = "Unity";
+IATTR_TX37			= "Your main attributes are transformed to \cfUnity\c-";	IATTR_TX_UNITY = "Per 15 unity, gain";	UNITY = "Unity";
 IATTR_TX38			= "damage resistance to every damage type";
 IATTR_TX39			= "resist pierce to every damage type";
-IATTR_TX40			= "\c[D4]Your main attributes other than \cfUnity\c[D4] grant no bonuses";
+IATTR_TX40			= "\c[D4]Your main attributes other than \cfUnity\c[D4] grant nothing";
 IATTR_TX41			= "Intellect provides damage bonus to all melee weapons at";	IATTR_TX41S = "the attunement of Strength"; IATTR_TX41B = "\cgStrength has no effect on you\c-";
 IATTR_TX42			= "chance to immediately start recovering energy shield on depletion";
 IATTR_TX43			= "Energy shield recharge is not interrupted by damage";
@@ -549,6 +551,7 @@ IATTR_TX64			= "Cannot pick up or buy ammo";
 IATTR_TX65			= "ammo cost multiplier";
 IATTR_TX66			= "rippers only rip a target once";
 IATTR_TX67			= "rippers can penetrate all targets";
+IATTR_TX68			= "Reflects your other medium charm";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";

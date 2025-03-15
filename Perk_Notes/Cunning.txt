@@ -1,1 +1,2 @@
 - some perk to negate poison when picking stimpack/medkit or using portable medkit
+- a perk to make homing missiles have a chance to not lock on you

@@ -1,7 +1,7 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -115,6 +115,10 @@ enum {
 #define DND_EXP_HUDID_BACK 267
 
 #define DND_MAX_MONSTERS 12800
+#define DND_MAX_MONSTER_ATTACHMENTS 32
+
+// max 32, using an int as a bitfield
+global int 49: MonsterAttachmentUsed[DND_MAX_MONSTERS];
 
 #define DND_MAX_TEMP_PROJ 200
 #define DND_MAX_TEMP_PROJ_SMALL 32
@@ -245,10 +249,7 @@ enum {
 	// we allocate each player proj tid to their own pnum
 	DND_THUNDER_RING_TIDSTART = DND_TEMP_PLAYERPROJTID + 32 * MAXPLAYERS,
 	
-	// allocate enough room for max 4 hammers per player... idk why but why not
-	DND_TALISMAN_MARK = DND_THUNDER_RING_TIDSTART + THUNDERSTAFF_RING_SKIP,
-	
-	DND_SHOOTABLETID_BEGIN,
+	DND_SHOOTABLETID_BEGIN = DND_THUNDER_RING_TIDSTART + THUNDERSTAFF_RING_SKIP,
 	
 	// 64 player temp tid range
 	DND_WANDERER_EXP_TID = DND_SHOOTABLETID_BEGIN + MAX_SHOOTABLE_TIDS,
@@ -263,6 +264,10 @@ enum {
 	DND_PICKUPTID_BEGIN = DND_PETTID_BEGIN + MAX_PETS,
 	
 	DND_SUBORDINATE_TEMPTID = DND_PICKUPTID_BEGIN + MAX_PICKUPS,
+
+	// used for shit like elite sparkles or reflect shields that are attached to a monster
+	// DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS is the skip for next
+	DND_MONSTER_ATTACHMENT_TID_BEGIN,
 	
 	DND_DROP_TID = INT_MAX - 1,
 	SPECIAL_FX_TID

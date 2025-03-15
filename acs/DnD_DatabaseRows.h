@@ -59,6 +59,8 @@ enum {
 #define DND_DB_ORBRECIPETRACKER_1 "DnD_OrbRecipe_1"
 #define DND_DB_ORBRECIPETRACKER_2 "DnD_OrbRecipe_2"
 
+#define DND_DB_WEAPONDISCARDS "DnD_WepDiscards"
+
 #define DND_DB_VOTESKIPS "DnD_Voteskips"
 #define DND_DB_TRACKEDMAP "DnD_TrackedMap_"
 

@@ -1576,9 +1576,10 @@ rect_T& LoadRect(int menu_page, int id) {
 			{ 289.0, 213.0, 215.0, 206.0 }, // inventory
 			{ 289.0, 197.0, 243.0, 190.0 }, // stash
 			{ 289.0, 181.0, 200.0, 174.0 }, // equipments
-			{ 289.0, 165.0, 221.0, 158.0 }, // crafting
-			{ 289.0, 149.0, 196.0, 142.0 }, // accessories
-			{ 289.0, 133.0, 230.0, 126.0 }, // trading
+			{ 289.0, 165.0, 172.0, 158.0 }, // weapon discard
+			{ 289.0, 149.0, 221.0, 142.0 }, // crafting
+			{ 289.0, 133.0, 196.0, 126.0 }, // accessories
+			{ 289.0, 117.0, 230.0, 110.0 }, // trading
 			{ -1, -1, -1, -1 }
 		},
 		// loadout 1
@@ -1612,6 +1613,20 @@ rect_T& LoadRect(int menu_page, int id) {
 
 			// inv explore icon
 			{ 58.0, 66.0, 38.0, 48.0 },
+			{ -1, -1, -1, -1 }
+		},
+		// loadout for weapon discarding
+		{
+			// weapon slots 1 to 9 discarding, no slot 8! They are only purchasable from the shop so 1 2 3 (+1 for ssg) 4 5 6 7 9
+			{ 289.0, 245.0, 32.0, 238.0 },
+			{ 289.0, 229.0, 32.0, 222.0 },
+			{ 289.0, 213.0, 32.0, 206.0 },
+			{ 289.0, 197.0, 32.0, 190.0 },
+			{ 289.0, 181.0, 32.0, 174.0 },
+			{ 289.0, 165.0, 32.0, 158.0 },
+			{ 289.0, 149.0, 32.0, 142.0 },
+			{ 289.0, 133.0, 32.0, 126.0 },
+			{ 289.0, 117.0, 32.0, 110.0 },
 			{ -1, -1, -1, -1 }
 		},
 		// loadout for crafting
@@ -4410,16 +4425,35 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 		SetFont("ORBMBKG");
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
 
-		if(recipe_out != DND_RANDOM_TAGGED_ORB_TRANSMUTE && recipe_out != DND_ELEMENTAL_TO_PRISMATIC)
-			SetFont(GetItemImage(ITEM_IMAGE_ORB_BEGIN + recipe_out));
-		else if(recipe_out == DND_ELEMENTAL_TO_PRISMATIC)
+		if(recipe_out != DND_RANDOM_TAGGED_ORB_TRANSMUTE && recipe_out != DND_ELEMENTAL_TO_PRISMATIC) {
+			SetFont(
+				GetItemImage(
+					GetOrbItemImage(recipe_out)
+				)
+			);
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
+
+			SetFont("NMENUFNT");
+			recipe_out = ORBS_BEGIN + recipe_out;
+			HudMessage(s:"\c[Y5]", l:GetInventoryTag(recipe_out); HUDMSG_PLAIN, RPGMENUID - 16, CR_WHITE, 188.4, 180.0, 0.0, 0.0);
+		}
+		else if(recipe_out == DND_ELEMENTAL_TO_PRISMATIC) {
 			SetFont(GetItemImage(ITEM_IMAGE_ORB_BEGIN + DND_ORB_PRISMATIC));
-		else // random tagged orb
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
+
+			SetFont("NMENUFNT");
+			recipe_out = ORBS_BEGIN + DND_ORB_PRISMATIC;
+			HudMessage(s:"\c[Y5]", l:GetInventoryTag(recipe_out); HUDMSG_PLAIN, RPGMENUID - 16, CR_WHITE, 188.4, 180.0, 0.0, 0.0);
+		}
+		else {
+			// random tagged orb
 			SetFont("ORBBAKQ");
+			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
 
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 7, CR_WHITE, 188.4, 140.0, 0.0, 0.0);
+			SetFont("NMENUFNT");
+			HudMessage(s:"\c[Y5]", l:"DND_RANDOM_TAGGED_ORB"; HUDMSG_PLAIN, RPGMENUID - 16, CR_WHITE, 188.4, 180.0, 0.0, 0.0);
+		}
 
-		SetFont("NMENUFNT");
 		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 5, 188.4, 256.0, "\c[B1]", "\c[Y5]");
 	}
 
@@ -5152,24 +5186,37 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// get the pens of 4 elements here
+			i = GetPlayerAttributeValue(pnum, INV_EX_ELEPENHARMONY) ? GetHighestElePen(pnum) : 0;
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_FIRE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				if(i != DND_DAMAGECATEGORY_FIRE)
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				else
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_ICE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				if(i != DND_DAMAGECATEGORY_ICE)
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				else
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_LIGHTNING);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				if(i != DND_DAMAGECATEGORY_LIGHTNING)
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				else
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_POISON);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				if(i != DND_DAMAGECATEGORY_POISON)
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+				else
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
 				++k;
 			}
 			// pen block ends
@@ -5215,7 +5262,7 @@ void DrawPlayerStats(int pnum, int category) {
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_HANDGUN);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_HANDGUN_PERCENT, 0, 0, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_HANDGUN, 0, 0, val), s:"\n");
 				++k;
 			}
 
@@ -5276,6 +5323,18 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_TECH);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_TECH, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_MAGIC_PERCENT);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_MAGIC_PERCENT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_FLAT_MAGIC);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_MAGIC, 0, 0, val), s:"\n");
 				++k;
 			}
 

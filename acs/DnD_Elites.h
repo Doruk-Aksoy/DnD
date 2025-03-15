@@ -91,7 +91,7 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 	{ DND_THUNDERSTRUCK, 45, 100 },
 	{ DND_TEMPORALBUBBLE, 50, 175 },
 	{ DND_BLACKOUT, 40, 175 },
-	{ DND_ENSHROUDED, 50, 150 }
+	{ DND_ENSHROUDED, 30, 150 }
 };
 
 void SetupEliteModWeights() {
@@ -275,7 +275,7 @@ void SetEliteFlag(int f, bool updateCS) {
 			ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_ENSHROUDED);
 		break;
 		case DND_REFLECTIVE:
-			ACS_NamedExecuteAlways("DND Elite Special FX", 0, this, DND_ELITEFX_REFLECT);
+			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);
 		break;
 	}
 
@@ -292,22 +292,23 @@ void SetEliteFlag(int f, bool updateCS) {
 }
 
 Script "DnD Aura Giver CS" (int trait, int extra) CLIENTSIDE {
+	int tid = ActivatorTID();
 	switch(trait) {
 		case DND_CRIPPLE:
-			GiveInventory("CrippleAuraSpawner", 1);
+			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid, DND_ELITEFX_CRIPPLEAURA);
 		break;
 		case DND_VIOLENTRETALIATION:
-			GiveInventory("ViolentAuraSpawner", 1);
+			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid, DND_ELITEFX_VIOLENTAURA);
 		break;
 		case DND_TEMPORALBUBBLE:
 			if(!extra)
-				GiveInventory("TemporalBubbleSpawner", 1);
+				ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid, DND_ELITEFX_TEMPORALBUBBLE);
 			else
 				GiveInventory("TemporalBubbleCooldown", 1);
 		break;
 		case DND_ENSHROUDED:
 			if(!extra) {
-				GiveInventory("EnshroudFXSpawner", 1);
+				ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid, DND_ELITEFX_ENSHROUD);
 				SetActorProperty(0, APROP_RENDERSTYLE, STYLE_TranslucentStencil);
 				SetActorProperty(0, APROP_STENCILCOLOR, 0x555555);
 
@@ -386,12 +387,11 @@ int GetPetMonsterTraits(int monster_id, int segment) {
 	return ret;
 }
 
-void DecideEliteTraits(int m_id, int count) {
+void DecideEliteTraits(int tid, int m_id, int count) {
 	int tries = 0;
-	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	while(tries < MAX_ELITE_TRIES && count) {
 		int try_trait = GetRandomEliteTrait();
-		if(!HasTrait(this, EliteTraitNumbers[try_trait][ELITETRAIT_ID]) && !HasTraitExceptions(m_id, try_trait) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait][ELITETRAIT_ID])) {
+		if(!HasTrait(m_id, EliteTraitNumbers[try_trait][ELITETRAIT_ID]) && !HasTraitExceptions(m_id, try_trait) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait][ELITETRAIT_ID])) {
 			// dont give explosive immunity with resist etc
 			SetEliteFlag(EliteTraitNumbers[try_trait][ELITETRAIT_ID], false);
 			--count;
@@ -400,7 +400,7 @@ void DecideEliteTraits(int m_id, int count) {
 	}
 
 	// Run the elite special fx script on this monster
-	ACS_NamedExecuteAlways("DND Elite Special FX", 0, this);
+	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid);
 }
 
 Script "DnD Monster Nuclear Explosion" (int this) {

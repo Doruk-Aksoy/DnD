@@ -7,7 +7,11 @@
 
 void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 	// if hand of artemis is equipped don't run this
-	if(random(1, 100) <= GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE)) {
+	int curr_wep = GetCurrentWeaponID();
+	int chance = GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE);
+	chance += (IsBoomstick(curr_wep) && CheckInventory("Hobo_ShotgunFrenzyTimer")) * DND_HOBO_PERK50_CHANCE;
+
+	if(random(1, 100) <= chance) {
 		if(slot == DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(ClipAmmoTypes[ammo], amount);
 		else if(slot == DND_AMMOSLOT_SPECIAL) {
@@ -73,7 +77,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	// also has the dreaming god's ire check here
 	if
 	(
-		(IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS) || (IsBoomstick(wepid) && CheckInventory("Hobo_ShotgunFrenzyTimer"))) ||
+		(IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS)) ||
 		(IsSoulWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_EX_SOULPICKUPSINFAMMO) && CheckInventory("SoulPickupInfinityTimer"))
 	)
 		flags |= DND_ATF_NOAMMOTAKE;
@@ -1249,7 +1253,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			switch(CheckInventory("SpecialAmmoMode_4")) {
 				case AMMO_NITROGENSHELL:
 					proj_id = DND_PROJ_NITROSHELL;
-					hitscan_id = DND_HITSCAN_RIOTGUN_NITRO;
+					hitscan_id = DND_HITSCAN_NITRO;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_NITROSHELL][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
@@ -1258,8 +1262,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					ammo_handler = "NitroshellHandler";
 				break;
 				case AMMO_EXPLOSIVESHELL:
-					proj_id = DND_PROJ_RIOTEXPLOSIVE;
-					hitscan_id = DND_HITSCAN_RIOTGUN_EXPSHELL;
+					proj_id = DND_PROJ_EXSHELL;
+					hitscan_id = DND_HITSCAN_EXSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
 						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_EXSHELL, Weapons_Data[wepid].ammo_use1, owner);
 						TakeAmmoFromPlayer(pnum, wepid, AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name, Weapons_Data[wepid].ammo_use1);

@@ -33,6 +33,7 @@ enum {
 	SSAM_SHOCK,
 	SSAM_NITROSHELL,
 	SSAM_SLUG,
+	SSAM_EXSHELL,
 	
 	SSAM_40MM,
 	SSAM_40MMSONIC,
@@ -987,7 +988,7 @@ Actor NitroWind_Damager : DnD_BaseProjectile {
 	
 	Damage(
 		SSAM_NITROSHELL |
-		(0 << CACHE_SHIFT) |
+		(1 << CACHE_SHIFT) |
 		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
@@ -1009,6 +1010,60 @@ Actor NitroWind_Damager : DnD_BaseProjectile {
 
 Actor NitroWind_Damager_Crit : NitroWind_Damager {
 	Accuracy 69
+}
+
+Actor NitroShellPuff : DnD_BasePuff {
+	Scale 0.35
+	
+	Stamina 135168
+	
+	States {
+		Spawn:
+		Crash:
+		HitNoBlood:
+			TNT1 AAAA 0
+			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
+			TNT1 AA 0 A_CustomMissile("NitroWind", 0, 0, frandom(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, frandom(0, 360))
+		FinishAnim:
+			TNT1 A 0 A_PlaySound("Weapons/glahit")
+			D3FX GHI 4
+			D3FX JK 3
+			D3FX L 2
+		stop
+		Crit:
+			TNT1 AA 0 A_CustomMissile("NitroWind_Crit", 0, 0, frandom(0, 360), CMF_TRACKOWNER | CMF_AIMDIRECTION, frandom(0, 360))
+		Goto FinishAnim
+	}
+}
+
+Actor NitroshellHandler : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("NitroShell", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_RIOTSHELL) // 0 is shell position
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, -1)
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_RIOTSHELL)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor ExplosiveShellHandler_Riot : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("ExplodingShell", 1, "Nothing")
+			TNT1 A 0 ACS_ExecuteAlways(DND_SPECIALAMMOMSG_SCRIPT, 0, 1, AMMO_RIOTSHELL) // 0 is shell position
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, -1)
+			TNT1 A 0 A_TakeInventory("SpecialAmmoMode_4", 0)
+			TNT1 A 0 A_GiveInventory("SpecialAmmoMode_4", AMMO_RIOTSHELL)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
 }
 
 Actor SpecialAmmoMode_3 : Ammo {
