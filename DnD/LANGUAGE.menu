@@ -201,27 +201,27 @@ DND_MENU_WEPHELPTEXT15	=	"Weapon is a \cfartillery\c- weapon.";
 DND_MENU_WEPHELPTEXT16	=	"Weapon is a \ctmagical\c- weapon.";
 DND_MENU_WEPHELPTEXT17	=	"Weapon is a \cumelee\c- weapon.";
 
-DND_MENU_DISCARD_WEP1	=	"Discard slot 1";
-DND_MENU_DISCARD_WEP2	=	"Discard slot 2";
-DND_MENU_DISCARD_WEP3	=	"Discard slot 3";
-DND_MENU_DISCARD_WEP4	=	"Discard slot 3 - Super Shotguns";
-DND_MENU_DISCARD_WEP5	=	"Discard slot 4";
-DND_MENU_DISCARD_WEP6	=	"Discard slot 5";
-DND_MENU_DISCARD_WEP7	=	"Discard slot 6";
-DND_MENU_DISCARD_WEP8	=	"Discard slot 7";
-DND_MENU_DISCARD_WEP9	=	"Discard temporary weapons";
+DND_MENU_DISCARD_WEP1	=	"Discard: \cjSlot 1";
+DND_MENU_DISCARD_WEP2	=	"Discard: \cjSlot 2";
+DND_MENU_DISCARD_WEP3	=	"Discard: \cjSlot 3";
+DND_MENU_DISCARD_WEP4	=	"Discard: \cjSlot 3 - Super Shotguns";
+DND_MENU_DISCARD_WEP5	=	"Discard: \cjSlot 4";
+DND_MENU_DISCARD_WEP6	=	"Discard: \cjSlot 5";
+DND_MENU_DISCARD_WEP7	=	"Discard: \cjSlot 6";
+DND_MENU_DISCARD_WEP8	=	"Discard: \cjSlot 7";
+DND_MENU_DISCARD_WEP9	=	"Discard: \cjTemporary weapons";
 
-DND_MENU_ENABLE_WEP1	=	"Enable slot 1";
-DND_MENU_ENABLE_WEP2	=	"Enable slot 2";
-DND_MENU_ENABLE_WEP3	=	"Enable slot 3";
-DND_MENU_ENABLE_WEP4	=	"Enable slot 3 - Super Shotguns";
-DND_MENU_ENABLE_WEP5	=	"Enable slot 4";
-DND_MENU_ENABLE_WEP6	=	"Enable slot 5";
-DND_MENU_ENABLE_WEP7	=	"Enable slot 6";
-DND_MENU_ENABLE_WEP8	=	"Enable slot 7";
-DND_MENU_ENABLE_WEP9	=	"Enable temporary weapons";
+DND_MENU_ENABLE_WEP1	=	"Enable: \cjSlot 1";
+DND_MENU_ENABLE_WEP2	=	"Enable: \cjSlot 2";
+DND_MENU_ENABLE_WEP3	=	"Enable: \cjSlot 3";
+DND_MENU_ENABLE_WEP4	=	"Enable: \cjSlot 3 - Super Shotguns";
+DND_MENU_ENABLE_WEP5	=	"Enable: \cjSlot 4";
+DND_MENU_ENABLE_WEP6	=	"Enable: \cjSlot 5";
+DND_MENU_ENABLE_WEP7	=	"Enable: \cjSlot 6";
+DND_MENU_ENABLE_WEP8	=	"Enable: \cjSlot 7";
+DND_MENU_ENABLE_WEP9	=	"Enable: \cjTemporary weapons";
 
-DND_MENU_DISCARD_EXPLANATION = "You can discard or enable weapon slots here. Discarded weapons on the slot won't be picked up, and selling replaced weapons will also remove the vanilla equivalent."
+DND_MENU_DISCARD_EXPLANATION = "You can discard or enable weapon slots here. Discarded weapons on the slot won't be picked up, and the vanilla equivalent weapon will also be removed if you own it.";
 
 // yeah numbers here aren't the smartest because hypothetically if a balance change were to happen then all languages would need a change but it's too cumbersome to add numbers in between text \_(*__*)_/
 DND_MENU_ATTR1 			=	"\c[INT]Strength\c-";
@@ -524,28 +524,26 @@ DND_MENU_MMOD_WEAK5		=	"Monster takes 25% more damage from occult attacks.";
 DND_MENU_MMOD_WEAK6		=	"Monster takes 50% more damage from elemental attacks.";
 
 // resistance group
-DND_MENU_MMOD_RES1		=	"Monster takes 50% reduced damage from explosives.";
-DND_MENU_MMOD_RES2		=	"Monster takes 50% reduced damage from melee and ballistic attacks.";
-DND_MENU_MMOD_RES3		=	"Monster takes 50% reduced damage from energy attacks.";
-DND_MENU_MMOD_RES4		=	"Monster takes 50% reduced damage from occult attacks.";
-DND_MENU_MMOD_RES5		=	"Monster takes 50% reduced damage from elemental attacks.";
-DND_MENU_MMOD_RES6		=	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.";
-DND_MENU_MMOD_RES7		=	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.";
-DND_MENU_MMOD_RES8		=	"Monster is a being of stone, has ice weakness, fire resist, immunity to poison and lightning, and Hardened Skin.";
-DND_MENU_MMOD_RES9		=	"Monster is a being of earth, takes 50% more damage from lightning, but immune to poison attacks.";
+DND_MENU_MMOD_RES1		=	"Monster takes 50% reduced damage from melee and ballistic attacks.";
+DND_MENU_MMOD_RES2		=	"Monster takes 50% reduced damage from energy attacks.";
+DND_MENU_MMOD_RES3		=	"Monster takes 50% reduced damage from occult attacks.";
+DND_MENU_MMOD_RES4		=	"Monster takes 50% reduced damage from elemental attacks.";
+DND_MENU_MMOD_RES5		=	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.";
+DND_MENU_MMOD_RES6		=	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.";
+DND_MENU_MMOD_RES7		=	"Monster is a being of stone, has ice weakness, fire resist, immunity to poison and lightning, and Hardened Skin.";
+DND_MENU_MMOD_RES8		=	"Monster is a being of earth, takes 50% more damage from lightning, but immune to poison attacks.";
 
 // immunity group
-DND_MENU_MMOD_IMM1		=	"Monster is immune to radius damage from explosive attacks.";
-DND_MENU_MMOD_IMM2		=	"Monster is immune to explosives.";
-DND_MENU_MMOD_IMM3		=	"Monster is immune to any kind of melee or ballistic attack.";
-DND_MENU_MMOD_IMM4		=	"Monster is immune to energy attacks.";
-DND_MENU_MMOD_IMM5		=	"Monster is immune to occult attacks.";
-DND_MENU_MMOD_IMM6		=	"Monster is immune to elemental attacks.";
-DND_MENU_MMOD_IMM7		=	"Monster is immune to poison effects.";
-DND_MENU_MMOD_IMM8		=	"Monster is immune to chill and freeze.";
-DND_MENU_MMOD_IMM9		=	"Monster is immune to ignite.";
-DND_MENU_MMOD_IMM10		=	"Monster is immune to overloading.";
-DND_MENU_MMOD_IMM11		=	"Monster is resistant to all except occult damage.";
+DND_MENU_MMOD_IMM1		=	"Monster is immune to radius damage.";
+DND_MENU_MMOD_IMM2		=	"Monster is immune to any kind of melee or ballistic attack.";
+DND_MENU_MMOD_IMM3		=	"Monster is immune to energy attacks.";
+DND_MENU_MMOD_IMM4		=	"Monster is immune to occult attacks.";
+DND_MENU_MMOD_IMM5		=	"Monster is immune to elemental attacks.";
+DND_MENU_MMOD_IMM6		=	"Monster is immune to poison effects.";
+DND_MENU_MMOD_IMM7		=	"Monster is immune to chill and freeze.";
+DND_MENU_MMOD_IMM8		=	"Monster is immune to ignite.";
+DND_MENU_MMOD_IMM9		=	"Monster is immune to overloading.";
+DND_MENU_MMOD_IMM10		=	"Monster is resistant to all except occult damage.";
 
 // agressive group
 DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";

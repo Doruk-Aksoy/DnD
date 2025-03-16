@@ -495,9 +495,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					HudMessage(d:STAT_BASE + CheckInventory("PSTAT_Intellect"); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 256.1, 176.0, 0.0);
 
 					// draw bonus stat acquired
-					HudMessage(s:"(\cd", d:GetStrength(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 320.1, 144.0, 0.0);
-					HudMessage(s:"(\cd", d:GetDexterity(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 320.1, 160.0, 0.0);
-					HudMessage(s:"(\cd", d:GetIntellect(), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 320.1, 176.0, 0.0);
+					HudMessage(s:"(\cd", d:GetStrength(pnum), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 320.1, 144.0, 0.0);
+					HudMessage(s:"(\cd", d:GetDexterity(pnum), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 320.1, 160.0, 0.0);
+					HudMessage(s:"(\cd", d:GetIntellect(pnum), s:"\c-)"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 320.1, 176.0, 0.0);
 				}
 				else {
 					DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 144.0);
@@ -656,6 +656,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 						);
 					}
 				}
+
+				SetHudClipRect(184, 216, 256, 128, 256);
+				HudMessage(s:"\c[Y5]*\c- ", l:"DND_MENU_DISCARD_EXPLANATION"; HUDMSG_PLAIN, RPGMENUITEMID - 11, CR_WHITE, 192.1, 248.0, 0.0, 0.0);
+				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 			else if(curopt == MENU_LOAD_CRAFTING || curopt == MENU_LOAD_CRAFTING_INVENTORY || curopt == MENU_LOAD_CRAFTING_WEAPON || curopt == MENU_LOAD_CRAFTING_TRANSMUTING) {
 				SetHudSize(384, 200, 1);
@@ -1483,6 +1487,52 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					if(HasPlayerDiscardedSlot(pnum, temp - 1))
 						temp = -temp;
 					UpdateActivity(pnum, DND_ACTIVITY_WEAPONDISCARD, temp, 0);
+
+					if(temp > 0) {
+						switch(temp) {
+							case 1:
+								TakeInventory(Weapons_Data[DND_WEAPON_CHAINSAW].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_CHAINSAW].name))
+									TakeInventory("H_WeaponSlot1", 1);
+							break;
+							case 2:
+								TakeInventory(Weapons_Data[DND_WEAPON_PISTOL].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_PISTOL].name))
+									TakeInventory("H_WeaponSlot2", 1);
+							break;
+							case 3:
+								TakeInventory(Weapons_Data[DND_WEAPON_SHOTGUN].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_SHOTGUN].name))
+									TakeInventory("H_WeaponSlot3", 1);
+							break;
+							case 4:
+								TakeInventory(Weapons_Data[DND_WEAPON_SUPERSHOTGUN].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_SUPERSHOTGUN].name))
+									TakeInventory("H_WeaponSlot3X", 1);
+							break;
+							case 5:
+								TakeInventory(Weapons_Data[DND_WEAPON_MACHINEGUN].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_MACHINEGUN].name))
+									TakeInventory("H_WeaponSlot4", 1);
+							break;
+							case 6:
+								TakeInventory(Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_ROCKETLAUNCHER].name))
+									TakeInventory("H_WeaponSlot5", 1);
+							break;
+							case 7:
+								TakeInventory(Weapons_Data[DND_WEAPON_PLASMARIFLE].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_PLASMARIFLE].name))
+									TakeInventory("H_WeaponSlot6", 1);
+							break;
+							case 8:
+								TakeInventory(Weapons_Data[DND_WEAPON_BFG6000].name, 1);
+								if(CheckWeapon(Weapons_Data[DND_WEAPON_BFG6000].name))
+									TakeInventory("H_WeaponSlot7", 1);
+							break;
+						}
+					}
+
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
 

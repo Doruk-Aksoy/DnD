@@ -234,7 +234,7 @@ Actor Multishot : Inventory { inventory.maxamount 4 }
 
 Actor HellForgeSpiderExp : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 12
 	Obituary "%o was charred to smithereens by a Hellforge Spider"
 	States {
 		Spawn:
@@ -676,7 +676,7 @@ Actor Vore : DnD_BaseHybridMonster {
 
 Actor VoreExp : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 12
 	Obituary "%o was no match for an archon of hell."
 	States {
 		Spawn:
@@ -767,7 +767,7 @@ Actor CommandoBullet1 : ZombieBullet {
 Actor CommandoExplosion : BaseExplosionDamage {
 	Obituary "%o was torn to shreds by the chaingun commando."
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1323,7 +1323,7 @@ Actor ManticoreRocket {
 	PROJECTILE
 	Damage (4 * random(4, 5))
 	DamageType "Explosive"
-	Stamina 1073741832
+	Stamina 1073741833
 	SeeSound "weapons/devastatorfire"
 	Deathsound "Weapons/DevastatorExpl"
 	Speed 28
@@ -1349,7 +1349,7 @@ Actor ManticoreRocket {
 
 Actor ManticoreExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was blown away by a Manticore."
 	States {
 		Spawn:

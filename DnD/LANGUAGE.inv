@@ -299,13 +299,13 @@ IATTR_T10 			= "magazine size";
 	
 IATTR_T11 			= "physical attack damage";
 IATTR_T12 			= "energy attack damage";
-IATTR_T13 			= "explosive attack damage";
+IATTR_T13 			= "attack radius damage";
 IATTR_T14 			= "magic attack damage";
 IATTR_T15 			= "elemental attack damage";
 	
 IATTR_T16 			= "increased physical attack damage";
 IATTR_T17 			= "increased energy attack damage";
-IATTR_T18 			= "increased explosive attack damage";
+IATTR_T18 			= "increased attack radius damage";
 IATTR_T19 			= "increased magic attack damage";
 IATTR_T20 			= "increased elemental attack damage";
 	
@@ -322,7 +322,7 @@ IATTR_T29 			= "artillery attack damage";
 
 IATTR_T30 			= "more pellets";
 	
-IATTR_T31 			= "increased explosion radius";
+IATTR_T31 			= "increased weapon attack radius";
 IATTR_T32 			= "reduced self damage";
 	
 IATTR_T33 			= "chance to recover ammo from basic weapon attacks";
@@ -349,7 +349,7 @@ IATTR_T48 			= "reflect resist";
 	
 IATTR_T49 			= "physical pierce";
 IATTR_T50 			= "energy pierce";
-IATTR_T51 			= "explosive pierce";
+IATTR_T51 			= "chance to ignore radius damage immunity";
 IATTR_T52 			= "magic pierce";
 IATTR_T53 			= "elemental pierce";
 	
@@ -386,7 +386,7 @@ IATTR_T76			= "increased damage over time";
 
 IATTR_T77			= "hitscan resist";
 IATTR_T78			= "energy resist";
-IATTR_T79			= "explosion resist";
+IATTR_T79			= "increased knockback resist";
 IATTR_T80			= "magic resist";
 IATTR_T81			= "fire resist";
 IATTR_T82			= "ice resist";
@@ -470,7 +470,7 @@ IATTR_TI8			= "chance on hit for energy shield to explode for";		IATTR_TI8S = "o
 IATTR_TI9			= "armor and energy shield,";
 
 // essences
-IATTR_TE1 			= "Explosion damage ignores enemy resistances";
+IATTR_TE1 			= "Enemy radius damage immunity is ignored";
 IATTR_TE2 			= "Soul weapons pierce ";
 IATTR_TE3 			= " accuracy rating";
 IATTR_TE4 			= " increased accuracy rating";

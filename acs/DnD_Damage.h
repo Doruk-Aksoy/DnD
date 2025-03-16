@@ -46,7 +46,7 @@ enum {
 	DND_DAMAGETYPE_SILVERBULLET,
 	DND_DAMAGETYPE_ENERGY,
 	DND_DAMAGETYPE_ENERGYEXPLOSION,
-	DND_DAMAGETYPE_EXPLOSIVES,
+	//DND_DAMAGETYPE_EXPLOSIVES,
 	
 	// occult
 	DND_DAMAGETYPE_OCCULT,
@@ -69,7 +69,7 @@ enum {
 enum {
 	DND_DAMAGETYPEFLAG_PHYSICAL = 1,
 	DND_DAMAGETYPEFLAG_HITSCAN = 2,
-	DND_DAMAGETYPEFLAG_EXPLOSIVE = 4,
+	DND_DAMAGETYPEFLAG_EXPLOSIVE = 4, // is used as a hint to the game to treat it as radius damage, not explosive damage type
 	DND_DAMAGETYPEFLAG_MAGICAL = 8,
 	DND_DAMAGETYPEFLAG_ENERGY = 16,
 	DND_DAMAGETYPEFLAG_FIRE = 32,
@@ -109,9 +109,6 @@ int MonsterDamageTypeToDamageCategory(int d) {
 	if(d & DND_DAMAGETYPEFLAG_MAGICAL)
 		return DND_DAMAGECATEGORY_OCCULT;
 
-	if(d & DND_DAMAGECATEGORY_EXPLOSIVES)
-		return DND_DAMAGECATEGORY_EXPLOSIVES;
-
 	return DND_DAMAGECATEGORY_MELEE;
 }
 
@@ -125,10 +122,6 @@ bool IsMeleeDamage(int damage_type) {
 
 bool IsBulletDamage(int damage_type) {
 	return damage_type >= DND_DAMAGETYPE_PHYSICAL && damage_type <= DND_DAMAGETYPE_SILVERBULLET;
-}
-
-bool IsExplosionDamage(int damage_type) {
-	return damage_type == DND_DAMAGETYPE_EXPLOSIVES;
 }
 
 bool IsEnergyDamage(int damage_type) {
@@ -172,8 +165,6 @@ int GetDamageCategory(int damage_type, int flags) {
 		return DND_DAMAGECATEGORY_BULLET;
 	else if(IsMeleeDamage(damage_type) && damage_type != DND_DAMAGETYPE_MELEEOCCULT) // little note: while the weapon is melee and can benefit from melee bonuses, if it's occult damage type it'd be occult category
 		return DND_DAMAGECATEGORY_MELEE;
-	else if(damage_type == DND_DAMAGETYPE_EXPLOSIVES)
-		return DND_DAMAGECATEGORY_EXPLOSIVES;
 	else if(IsEnergyDamage(damage_type))
 		return DND_DAMAGECATEGORY_ENERGY;
 	else if(IsFireDamage(damage_type))
@@ -197,7 +188,7 @@ str DamageTypeList[MAX_DAMAGE_TYPES] = {
 	"BulletMagicX",
 	"Energy",
 	"EnergyExp",
-	"Explosives",
+
 	"Magic",
 	"MagicFire",
 	"Explosives_Magic",
@@ -338,7 +329,6 @@ int GetLowestResist(int pnum) {
 	static int res_ids[9][2] = { 
 		{ INV_DMGREDUCE_PHYS, DND_DAMAGETYPEFLAG_PHYSICAL },
 		{ INV_DMGREDUCE_HITSCAN, DND_DAMAGETYPEFLAG_HITSCAN },
-		{ INV_DMGREDUCE_EXPLOSION, DND_DAMAGETYPEFLAG_EXPLOSIVE },
 		{ INV_DMGREDUCE_MAGIC, DND_DAMAGETYPEFLAG_MAGICAL },
 		{ INV_DMGREDUCE_ENERGY, DND_DAMAGETYPEFLAG_ENERGY },
 		{ INV_DMGREDUCE_FIRE, DND_DAMAGETYPEFLAG_FIRE },
@@ -519,10 +509,10 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	int pnum = tid - P_TIDSTART;
 	
 	//printbold(s:"add ", d:MapDamageCategoryToFlatBonus(pnum, damage_category, damage_category_flags));
-	dmg += MapDamageCategoryToFlatBonus(pnum, damage_category);
+	dmg += MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
 	
 	// overall percentage bonuses -- this is basically ScaleCachedDamage but unwrapped, we need to rewrite these into a common function that just retrieves the overall bonus factor to multiply with!
-	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category);
+	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category, flags);
 	
 	// apply flat health to damage conversion if player has any
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
@@ -608,7 +598,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		temp = (!!IsBoomstick(wepid)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
 		// add flat damage bonus mapping talent name to flat bonus type
-		temp += MapDamageCategoryToFlatBonus(pnum, damage_category);
+		temp += MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
 		
 		ClearCache(pnum, wepid, dmgid);
 		
@@ -667,9 +657,9 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 			
 		// finally apply damage type or percentage bonuses
 		// last one is for ghost hit power, we reduce its power by a factor -- add the top pct values from above to here too
-		temp = GetPlayerPercentDamage(pnum, wepid, damage_category) + pct_tmp;
+		temp = GetPlayerPercentDamage(pnum, wepid, damage_category, flags) + pct_tmp;
 		if(damage_category != DND_DAMAGECATEGORY_MELEE && is_melee_mastery_exception)
-			temp += GetPlayerPercentDamage(pnum, wepid, DND_DAMAGECATEGORY_MELEE);
+			temp += GetPlayerPercentDamage(pnum, wepid, DND_DAMAGECATEGORY_MELEE, flags);
 		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
@@ -1139,10 +1129,8 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// check if the damage is to be dealt without any reductions from resistances or immunities
 	forced_full |= 	(flags & DND_DAMAGEFLAG_DOFULLDAMAGE)																		||
 					((flags & DND_DAMAGEFLAG_ISSPELL) && CheckUniquePropertyOnPlayer(pnum, PUP_SPELLSDOFULL))					||
-					(IsOccultDamage(damage_type) && IsQuestComplete(0, QUEST_KILLDREAMINGGOD))									||
-					(IsExplosionDamage(damage_type) && CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST))			||
 					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL));
-	
+					
 	int extra = 0;
 	int poison_factor = 0;
 	
@@ -1446,6 +1434,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	int pnum = PlayerNumber();
 	int pct_bonus = 0;
 	bool isSpell = flags & DND_WDMG_ISSPELL;
+	int dmg_flag_mapping = (flags & DND_WDMG_ISRADIUSDMG) ? DND_DAMAGEFLAG_ISRADIUSDMG : 0;
 
 	// spell damage is now stored as raw value in the dmg
 	/*if(isSpell) {
@@ -1454,7 +1443,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 		dmg = SpellDamageTable[dmg].dmg;
 	}*/
 	
-	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category);
+	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, dmg_flag_mapping);
 
 	if(flags & DMG_WDMG_ESHIELDSCALE)
 		dmg += CheckInventory("EShieldAmount") / 25; // 4%
@@ -1481,7 +1470,7 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
 		pct_bonus += GetFlatHealthDamageFactor(temp);
 	
-	temp = GetPlayerPercentDamage(pnum, -1, damage_category);
+	temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping);
 	if(temp/* && !isSpell*/)
 		pct_bonus += temp;
 
@@ -2342,9 +2331,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_EXPLOSIVEREDUCTION);
 			
 		// apply impact protection research
-		dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());	
-		
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_EXPLOSION);
+		dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());
 	}
 	
 	// energy sources
@@ -2577,8 +2564,8 @@ int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int d
 	// extract damage category from dmg_data stamina
 	int dmg_category = MonsterDamageTypeToDamageCategory(dmg_data);
 	
-	// revived monsters have half stat gain
-	dmg += MapDamageCategoryToFlatBonus(pnum, dmg_category);
+	// revived monsters have half stat gain -- flags for damage category things arent used for pets YET
+	dmg += MapDamageCategoryToFlatBonus(pnum, dmg_category, 0);
 	dmg = dmg * (100 + HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN / 2, true)) / 100;
 
 	if((dmg_category == DND_DAMAGECATEGORY_BULLET || dmg_category == DND_DAMAGECATEGORY_MELEE) && (temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH))) {
@@ -2586,7 +2573,7 @@ int HandlePetMonsterDamageScale(int this, int master, int victim, int dmg, int d
 		dmg = dmg * (100 + temp) / 100;
 	}
 
-	temp = MapDamageCategoryToPercentBonus(pnum, dmg_category);
+	temp = MapDamageCategoryToPercentBonus(pnum, dmg_category, 0);
 	if(temp)
 		dmg = dmg * (100 + temp) / 100;
 	

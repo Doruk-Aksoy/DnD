@@ -263,11 +263,53 @@ Actor ResearchModule_MP : DnD_DroppedItem {
 			RC01 B 0
 		SpawnInit:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_RESEARCH)
-			"####" "#" 16
+			"####" "#" 16 A_SetUserVar("user_magnettimer", 0)
 		SpawnLoop:
 			"####" "#" 1 A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
 			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+			"####" "#" 1
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+			"####" "#" 1
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+			"####" "#" 1
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
+			"####" "#" 1 A_LookEx(LOF_NOSOUNDCHECK, 0, magnet_dist, 0, 360, "Magnetize")
+			"####" "#" 0 A_SpawnItemEx("ResearchFX", random(-32, 32), random(-32, 32), random(0, 8), 0, 0, random(2,8), 0, SXF_CLIENTSIDE, 0)
 		Loop
+		ReturnSpawn:
+			"####" "#" 0 A_ChangeFlag("NOCLIP", 0)
+			"####" "#" 0 A_ChangeFlag("NOGRAVITY", 0)
+			"####" "#" 0 A_SetUserVar("user_magnettimer", 0)
+		Goto SpawnLoop
+		
+		Magnetize:
+			"####" "#" 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Special Match", DND_SPECIAL_RESEARCH), "MagnetizeReal")
+		Goto SpawnLoop
+		MagnetizeReal:
+			"####" "#" 0 A_ChangeFlag("NOCLIP", 1)
+			"####" "#" 0 A_ChangeFlag("NOGRAVITY", 1)
+		MagnetizeLoop:
+			"####" "#" 0 A_FaceTarget(10, 90)
+			"####" "#" 1 A_ChangeVelocity(cos(angle) * magnet_speed, sin(angle) * magnet_speed, sin(pitch) * magnet_speed, CVF_REPLACE)
+			"####" "#" 0 A_FaceTarget(10, 90)
+			"####" "#" 1 A_ChangeVelocity(cos(angle) * magnet_speed, sin(angle) * magnet_speed, sin(pitch) * magnet_speed, CVF_REPLACE)
+			"####" "#" 0 A_FaceTarget(10, 90)
+			"####" "#" 0 A_JumpIfCloser(32, "Pickup")
+			"####" "#" 1 A_ChangeVelocity(cos(angle) * magnet_speed, sin(angle) * magnet_speed, sin(pitch) * magnet_speed, CVF_REPLACE)
+			"####" "#" 0 A_FaceTarget(10, 90)
+			"####" "#" 1 A_ChangeVelocity(cos(angle) * magnet_speed, sin(angle) * magnet_speed, sin(pitch) * magnet_speed, CVF_REPLACE)
+			"####" "#" 0 A_FaceTarget(10, 90)
+			"####" "#" 0 A_SetUserVar("user_magnettimer", user_magnettimer + 1)
+			"####" "#" 1 A_ChangeVelocity(cos(angle) * magnet_speed, sin(angle) * magnet_speed, sin(pitch) * magnet_speed, CVF_REPLACE)
+			"####" "#" 0 A_FaceTarget(10, 90)
+			"####" "#" 0 A_JumpIfCloser(32, "Pickup")
+			"####" "#" 1 A_ChangeVelocity(cos(angle) * magnet_speed, sin(angle) * magnet_speed, sin(pitch) * magnet_speed, CVF_REPLACE)
+			"####" "#" 0 A_JumpIf(user_magnettimer >= mag_dist_time && ACS_NamedExecuteWithResult("DnD Check Item Collision"), "ReturnSpawn")
+			"####" "#" 0 A_JumpIf(user_magnettimer >= mag_dist_time, "ResetMagnetTime")
+		Loop
+		ResetMagnetTime:
+			"####" "#" 0 A_SetUserVar("user_magnettimer", 0)
+		Goto MagnetizeLoop
 		
 		See:
 		CheckPickup:

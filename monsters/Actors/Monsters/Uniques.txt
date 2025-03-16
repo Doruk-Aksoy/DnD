@@ -1107,7 +1107,7 @@ Actor SSrath_ScreamerExp {
 
 Actor SSrath_SoulExplosion : BaseExplosionDamage {
 	DamageType "MagicalGray"
-	Stamina 8
+	Stamina 12
 	Obituary "%o fell victim to Ssrath the Unseen."
 	Renderstyle Add
 	Scale 0.5
@@ -1221,7 +1221,7 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 
 Actor HollowShellGasExp : BaseExplosionDamage {
 	DamageType "Poison"
-	Stamina 128
+	Stamina 132
 	Obituary "%o fell victim to Hollowshell the Lost."
 	+NODAMAGETHRUST
 	States {
@@ -2013,7 +2013,7 @@ Actor OmniLightningBlastFX {
 
 Actor OmniLightningBlast : BaseExplosionDamage {
 	DamageType "LightningRed"
-	Stamina 256
+	Stamina 260
 	Obituary "%o fell victim to Omnisight the Beholder."
 	+FLOORHUGGER
 	States {
@@ -2323,7 +2323,7 @@ Actor Guardian_NoExp : Guardian {
 
 Actor ChegovaxExp1 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o fell victim to Chegovax the Overseer."
 	States {
 		Spawn:
@@ -3292,7 +3292,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 
 Actor Leshrac_MineExplosion : BaseExplosionDamage {
 	DamageType "PoisonPod"
-	Stamina 128
+	Stamina 132
 	Obituary "%o fell victim to Leshrac the Vile."
 	States {
 		Spawn:
@@ -3488,7 +3488,7 @@ Actor KrullRocket {
 	PROJECTILE
 	Damage (5 * random(7, 8))
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	Speed 30
 	Radius 8
 	Height 16
@@ -3529,7 +3529,7 @@ Actor KrullRocket {
 
 Actor KrullRocketExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o fell victim to Krull the Vicious."
 	States {
 		Spawn:
@@ -3543,7 +3543,7 @@ Actor KrullMiniRocket : KrullRocket {
 	Damage (5 * random(2, 3))
 	ReactionTime 20
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	DeathSound "weapons/maceex"
 	+THRUGHOST
 	States {
@@ -3566,7 +3566,7 @@ Actor KrullMiniRocket : KrullRocket {
 
 Actor KrullMiniRocketExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o fell victim to Krull the Vicious."
 	States {
 		Spawn:
@@ -3585,7 +3585,7 @@ Actor KrullMiniRocket_Split {
 	Scale 1.15
 	Damage(20)
 	Projectile
-	Stamina 1073741828
+	Stamina 1073741825
 	+THRUGHOST
 	States {
 		Spawn:
@@ -3788,7 +3788,7 @@ Actor ThoraxMissile_Homing : ThoraxMissile {
 
 Actor ThoraxMissileExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o fell victim to Thorax the Constrictor."
 	Alpha 0.875
 	Renderstyle Add
@@ -3880,7 +3880,7 @@ Actor ThoraxFireTrail {
 	BounceCount 6
 	Damage (10)
 	DamageType "Fire"
-	Stamina 4
+	Stamina 32
 	+DONTREFLECT
 	+PIERCEARMOR
 	States {
@@ -4140,7 +4140,7 @@ Actor ZravogSlamSmoke {
 Actor ZravogSlamDamager : BaseExplosionDamage {
 	Obituary "%o fell victim to Zravog the Archbishop."
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 12
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -5478,7 +5478,7 @@ Actor AbaxothTectonicSpawner {
 Actor AbaxothTectonicBoom_Small : BaseExplosionDamage {
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Renderstyle Add
 	const float v = 2.5;
 	Scale 0.375

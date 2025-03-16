@@ -123,7 +123,7 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes {
 
 Actor DiabloExp1 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was set ablaze by a Diabloist."
 	+NODAMAGETHRUST
 	States {
@@ -330,7 +330,7 @@ Actor DMissile : FastProjectile {
 
 Actor DiabloExp6 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was set ablaze by a Diabloist."
 	States {
 		Spawn:
@@ -775,7 +775,7 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 
 Actor HieroExp : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was hexed by a Hierophant."
 	States {
 		Spawn:
@@ -845,7 +845,7 @@ Actor HieroBall2 {
 
 Actor HieroExp2 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 12
 	Obituary "%o was hexed by a Hierophant."
 	States {
 		Spawn:
@@ -1079,7 +1079,7 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes {
 
 Actor DKExp1 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o thought he could kill a deathknight."
 	States {
 		Spawn:
@@ -1455,7 +1455,7 @@ Actor HorshackerMelee {
 
 Actor HorshackerExp1 : BaseExplosionDamage {
 	DamageType "MagicalBlue"
-	Stamina 8
+	Stamina 12
 	Obituary "%o was horshacked by the Horshacker."
 	States {
 		Spawn:
@@ -2028,7 +2028,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 Actor GuruExplosion1 : BaseExplosionDamage {
 	DamageType "MagicalFire"
 	Accuracy 133
-	Stamina 40
+	Stamina 44
 	Obituary "%o was incinerated by a Guru."
 	+NODAMAGETHRUST
 	States {
@@ -2394,13 +2394,13 @@ Actor DarkServantTrail2 {
 
 Actor HadesBoltExpZealot : BaseExplosionDamage {
 	DamageType "LightningRed"
-	Stamina 256
+	Stamina 260
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
 Actor HadesBoltExp2Zealot : BaseExplosionDamage {
 	DamageType "LightningRed"
-	Stamina 256
+	Stamina 260
 	Obituary "%o was tormented to death by a Dark Zealot."
 }
 
@@ -2689,7 +2689,7 @@ Actor FleshWizardMissileTrail {
 
 Actor FleshWizardExp : BaseExplosionDamage {
 	DamageType "MagicalRed"
-	Stamina 8
+	Stamina 12
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2700,7 +2700,7 @@ Actor FleshWizardExp : BaseExplosionDamage {
 
 Actor FleshWizardCorpseDamage : BaseExplosionDamage {
 	DamageType "MagicalSnare"
-	Stamina 8
+	Stamina 12
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

@@ -33,8 +33,8 @@ CLASS1_MUGSHOT			= "MAREVL0";
 CLASS1_TEXT				= "Marine has been through a lot, military complexes, other dimensions... "
 						  "All kinds of evil. And the kinds of evil he's seen, has made him a bit... different.";
 
-CLASS1_PERK1			= "Your explosives do 25% less self damage. Explosive projectiles can't be reflected";
-CLASS1_PERK2			= "Enemy explosives deal 33% less damage. Explosives ignore radius damage immunity.";
+CLASS1_PERK1			= "Your explosives do 25% less self damage. Your explosive projectiles can't be reflected";
+CLASS1_PERK2			= "Enemy radius damage deals 33% less damage. Your explosives ignore radius damage immunity.";
 CLASS1_PERK3			= "Losing 40% of your health in the span of a two seconds makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
 
 // Hobo
@@ -49,7 +49,7 @@ CLASS2_TEXT				= "Can't tie him, a loose cannon. He'll do whatever he god damn p
 
 CLASS2_PERK1			= "Shotgun weapons have 25% discount.";
 CLASS2_PERK2			= "Shotguns have 25% resist penetration, and have 50% more pellets.";
-CLASS2_PERK3			= "Hitting the same enemy with any shotgun's standard ammo more than 3 times within 10 seconds triggers 'Shotgun Frenzy', if not already frenzied. During this, shotguns have 50% chance to not use any ammo for 12 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
+CLASS2_PERK3			= "Hitting the same enemy with any shotgun's standard ammo more than 3 times within 10 seconds triggers 'Shotgun Frenzy', if not already frenzied. During this, shotguns have 30% chance to not use any ammo for 12 seconds, have 50% increased accuracy and gain up to 100% more damage depending on your distance to the enemy. Each kill extends the frenzy by 1 second up to a maximum of 20 seconds.";
 
 // Punisher
 

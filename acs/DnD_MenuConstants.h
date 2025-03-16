@@ -496,6 +496,34 @@ bool IsArtifactPage(int page) {
 	return page == MENU_SHOP_ARTIFACT_1 || page == MENU_SHOP_ARTIFACT_2;
 }
 
+#define SHOP_SLOT1_END SHOP_WEP_SICKLE
+#define SHOP_SLOT2_END SHOP_WEP_SCATTERPISTOL
+#define SHOP_SLOT3_END SHOP_WEP_RESSG4
+#define SHOP_SLOT3SSG_END SHOP_WEP_RESSSG4
+#define SHOP_SLOT4_END SHOP_WEP_RESMG5
+#define SHOP_SLOT5_END SHOP_WEP_RESRL5
+#define SHOP_SLOT6_END SHOP_WEP_RESPL4
+#define SHOP_SLOT7_END SHOP_WEP_RESBFG2
+int GetDiscardSlotFromShopWeapon(int id) {
+	if(id <= SHOP_SLOT1_END)
+		return 0;
+	if(id <= SHOP_SLOT2_END)
+		return 1;
+	if(id <= SHOP_SLOT3_END)
+		return 2;
+	if(id <= SHOP_SLOT3SSG_END)
+		return 3;
+	if(id <= SHOP_SLOT4_END)
+		return 4;
+	if(id <= SHOP_SLOT5_END)
+		return 5;
+	if(id <= SHOP_SLOT6_END)
+		return 6;
+	if(id <= SHOP_SLOT7_END)
+		return 7;
+	return -1;
+}
+
 #ifdef ISAPRILFIRST
 	#define MAX_NFTS 8
 	#define NFT_COST 1000000 // 1 million dollars!

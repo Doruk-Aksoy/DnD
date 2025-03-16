@@ -408,7 +408,7 @@ ACTOR Cadaver : DnD_BaseHybridMonster {
 
 Actor CadaverExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was blown to shit by a Cadaver."
 	States {
 		Spawn:
@@ -422,7 +422,7 @@ ACTOR CadaverRocket {
 	Speed 20
 	Damage (8 * random(1, 8))
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	PROJECTILE
 	Radius 8
 	Height 11
@@ -640,7 +640,7 @@ actor Widowmaker : DnD_BaseHybridMonster  {
 
 Actor WidowExplosion : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(40, 128, 0)
@@ -827,7 +827,7 @@ actor cslugtrail {
 
 Actor SlugExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was forced to become a widow thanks to a Widowmaker."
 	States {
 		Spawn:
@@ -1073,7 +1073,7 @@ ACTOR widowseekertrail {
 
 Actor SlugExp2 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was forced to become a widow thanks to a Widowmaker."
 	States {
 		Spawn:
@@ -1091,7 +1091,7 @@ actor widowmaker_seekMissile {
 	Speed 24
 	Damage (random(12,18))
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	PROJECTILE
 	+THRUGHOST
 	+SEEKERMISSILE

@@ -29,7 +29,7 @@ int GetEliteHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 49
+#define MAX_ROLLABLE_TRAITS 47
 
 #include "DnD_EliteInfo.h"
 
@@ -38,14 +38,12 @@ int GetEliteHealthScale(int level) {
 #define ELITETRAIT_LVLREQ 1
 #define ELITETRAIT_WEIGHT 2
 int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
-	{ DND_EXPLOSIVE_RESIST, 0, 250 },
 	{ DND_BULLET_RESIST, 0, 250 },
 	{ DND_ENERGY_RESIST, 0, 250 },
 	{ DND_MAGIC_RESIST, 0, 250 },
 	{ DND_ELEMENTAL_RESIST, 0, 250 },
 	
 	{ DND_EXPLOSIVE_IMMUNE, 36, 125 },
-	{ DND_EXPLOSIVE_NONE, 36, 125 },
 	{ DND_BULLET_IMMUNE, 36, 125 },
 	{ DND_ENERGY_IMMUNE, 36, 125 },
 	{ DND_MAGIC_IMMUNE, 36, 125 },
@@ -144,24 +142,8 @@ void SetEliteFlag(int f, bool updateCS) {
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	int i;
 	switch (f) {
-		case DND_EXPLOSIVE_RESIST:
-			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] < DND_RESIST_FACTOR)
-				MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = DND_RESIST_FACTOR;
-
-			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] < DND_RESIST_FACTOR)
-				MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = DND_RESIST_FACTOR;
-		break;
 		case DND_EXPLOSIVE_IMMUNE:
-			MonsterProperties[this].trait_list[DND_EXPLOSIVE_RESIST] = false;
 			GiveInventory("MakeExplosiveHighResist", 1);
-		break;
-		case DND_EXPLOSIVE_NONE:
-			MonsterProperties[this].trait_list[DND_EXPLOSIVE_RESIST] = false;
-			MonsterProperties[this].trait_list[DND_EXPLOSIVE_IMMUNE] = false;
-			GiveInventory("MakeExplosiveHighResist", 1);
-
-			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] < DND_IMMUNITY_FACTOR)
-				MonsterProperties[this].resists[DND_DAMAGECATEGORY_EXPLOSIVES] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_BULLET_RESIST:
 			GiveInventory("MakePhysicalResist", 1);
@@ -327,7 +309,7 @@ Script "DnD Aura Giver CS" (int trait, int extra) CLIENTSIDE {
 bool CheckEliteCvar(int t) {
 	bool res = 0;
 	if(GetCVar("dnd_no_immunity")) {
-		res = (t == DND_EXPLOSIVE_NONE) || (t == DND_BULLET_IMMUNE) || (t == DND_ENERGY_IMMUNE) || (t == DND_MAGIC_IMMUNE) || (t == DND_ELEMENTAL_IMMUNE);
+		res = (t == DND_BULLET_IMMUNE) || (t == DND_ENERGY_IMMUNE) || (t == DND_MAGIC_IMMUNE) || (t == DND_ELEMENTAL_IMMUNE);
 	}
 	if(GetCVar("dnd_no_reflect"))
 		res = (t == DND_REFLECTIVE);
@@ -340,8 +322,6 @@ bool HasTraitExceptions(int m_id, int trait) {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	return 	CheckEliteCvar(t) 																||
 			MonsterProperties[m_id].level < EliteTraitNumbers[trait][ELITETRAIT_LVLREQ]		||
-			(t == DND_EXPLOSIVE_RESIST && HasTrait(i, DND_EXPLOSIVE_IMMUNE)) 				|| 
-			(t == DND_EXPLOSIVE_IMMUNE && HasTrait(i, DND_EXPLOSIVE_NONE)) 					||
 			(t == DND_BULLET_RESIST && HasTrait(i, DND_BULLET_IMMUNE)) 						||
 			(t == DND_ENERGY_RESIST && HasTrait(i, DND_ENERGY_IMMUNE)) 						|| 
 			(t == DND_MAGIC_RESIST && HasTrait(i, DND_MAGIC_IMMUNE)) 						|| 
@@ -353,12 +333,12 @@ bool HasTraitExceptions(int m_id, int trait) {
 
 bool HasMaxImmunes() {
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	return 	HasTrait(i, DND_EXPLOSIVE_NONE) + HasTrait(i, DND_BULLET_IMMUNE) + HasTrait(i, DND_ENERGY_IMMUNE) + 
-			HasTrait(i, DND_MAGIC_IMMUNE) 	+ HasTrait(i, DND_ELEMENTAL_IMMUNE) >= DND_MAX_ELITEIMMUNITIES;
+	return 	HasTrait(i, DND_BULLET_IMMUNE) + HasTrait(i, DND_ENERGY_IMMUNE) + 
+			HasTrait(i, DND_MAGIC_IMMUNE) + HasTrait(i, DND_ELEMENTAL_IMMUNE) >= DND_MAX_ELITEIMMUNITIES;
 }
 
 bool IsImmunityFlag(int flag) {
-	return flag == DND_EXPLOSIVE_NONE || flag == DND_BULLET_IMMUNE || flag == DND_ENERGY_IMMUNE || flag == DND_MAGIC_IMMUNE || flag == DND_ELEMENTAL_IMMUNE;
+	return flag == DND_BULLET_IMMUNE || flag == DND_ENERGY_IMMUNE || flag == DND_MAGIC_IMMUNE || flag == DND_ELEMENTAL_IMMUNE;
 }
 
 bool CheckImmunityFlagStatus(int try_trait) {

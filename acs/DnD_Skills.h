@@ -45,7 +45,7 @@ int GetPetDamageFactor(int base, int master) {
 	base >>= 16;
 	switch(base) {
 		case MONSTER_PET_ZOMBIE:
-		return ZOMBIE_INT_DAMAGE_FACTOR * GetActorIntellect(master);
+		return GetIntellectEffect(master - P_TIDSTART, ZOMBIE_INT_DAMAGE_FACTOR);
 	}
 	return 0;
 }
@@ -59,14 +59,14 @@ void ResetAllSpellCooldowns() {
 // expects spell_id 1 more than what it really is --- decorate uses that style
 Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 	int spell_level, i, temp, temp2, this = ActivatorTID();
-	
+	int pnum = PlayerNumber();
 	//int spell = GetPlayerAllocatedSpell(spell_id);
 	str sptr1, sptr2, bufftimer = 0;
 	switch(spell_id) {
 		case DND_SPELL_RALLY:
 			ActivatorSound("Spell/RallyCast", 127);
-			spell_level = GetPlayerAttributeValue(PlayerNumber(), INV_EX_ABILITY_RALLY);
-			temp = RALLY_DISTANCE + GetIntellect() * RALLY_DIST_PER_INT;
+			spell_level = GetPlayerAttributeValue(pnum, INV_EX_ABILITY_RALLY);
+			temp = RALLY_DISTANCE + GetIntellectEffect(pnum, RALLY_DIST_PER_INT);
 			bufftimer = RALLY_DURATION * TICRATE;
 			/*if(CheckInventory("Wanderer_Perk50")) {
 				sptr1 = StrParam(s:"Rally_Damage_Wanderer_Lvl", d:spell_level);
@@ -95,8 +95,8 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 		case DND_SPELL_ICESHIELD:
 			ActivatorSound("Spell/IceShieldCast", 127);
 			temp = TEMPORARY_SPELL_TID + PlayerNumber();
-			temp2 = ICESHIELD_HEALTHBASE + GetActorLevel(this) * ICESHIELD_HEALTH_PER_LEVEL + GetIntellect() * ICESHIELD_HEALTH_PER_INT;
-			bufftimer = ICESHIELD_BASE_DURATION + GetIntellect() * ICESHIELD_DURATION_PER_INT;
+			temp2 = ICESHIELD_HEALTHBASE + GetActorLevel(this) * ICESHIELD_HEALTH_PER_LEVEL + GetIntellectEffect(pnum, ICESHIELD_HEALTH_PER_INT);
+			bufftimer = ICESHIELD_BASE_DURATION + GetIntellectEffect(pnum, ICESHIELD_DURATION_PER_INT);
 			
 			/*if(CheckInventory("Wanderer_Perk50")) {
 				temp2 += temp2 / DND_WANDERER_SPELLEFFICIENCY;
@@ -201,7 +201,8 @@ Script "DnD Boulder Hit Check" (void) {
 }
 
 Script "DnD LightningSpear Rip Retrieve" (void) {
-	int res = LIGHTNINGSPEAR_BASE_RIP + GetActorIntellect(GetActorProperty(0, APROP_TARGETTID)) / LIGHTNINGSPEAR_INT_FACTOR;
+	int pnum = GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART;
+	int res = LIGHTNINGSPEAR_BASE_RIP + GetIntellect(pnum) / LIGHTNINGSPEAR_INT_FACTOR;
 	SetResultValue(res);
 }
 

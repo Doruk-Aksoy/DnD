@@ -224,7 +224,7 @@ Actor VolcanoTBlast2 {
 
 Actor VolcanoExp : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	Obituary "%o was charred by a lavademon."
 	States
 	{
@@ -527,7 +527,7 @@ Actor Cybruiser : DnD_BaseHybridMonster {
 
 Actor CybrusExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was blown away by a Cybruiser."
 	States {
 		Spawn:
@@ -543,7 +543,7 @@ Actor BruiserMissile {
 	Speed 28
 	Damage (10 * random(1, 8))
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	Scale 1.0
 	SpawnID 251
 	Projectile
@@ -795,7 +795,7 @@ Actor BruiserBallTrail {
 
 Actor BruiserExp : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	Obituary "%o was slaughtered by a Bruiserdemon."
 	States {
 		Spawn:
@@ -1078,7 +1078,7 @@ Actor PossEttFakeFireBall {
 
 Actor BormerethExp : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was incinerated by the rage of Bormereth."
 	States {
 		Spawn:
@@ -1090,7 +1090,7 @@ Actor BormerethExp : BaseExplosionDamage {
 
 Actor BormerethPainExp : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was incinerated by the rage of Bormereth."
 	States
 	{
@@ -1497,7 +1497,7 @@ Actor BeastFireBall {
 
 Actor BeastExp1 : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	Obituary "%o was turned to crisps by a Bloodseeker."
 	States
 	{
@@ -1623,7 +1623,7 @@ Actor Barbatos : DnD_BaseHybridMonster {
 
 Actor CyberdemonRocketWeakExplosion : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was sent to the pits of hell by a Barbatos."
 	States {
 		Spawn:
@@ -1635,7 +1635,7 @@ Actor CyberdemonRocketWeakExplosion : BaseExplosionDamage {
 
 Actor CyberdemonRocketWeak : CyberdemonRocket {
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	Damage (6 * random(5, 8))
 	Obituary "%o was sent to the pits of hell by a Barbatos."
 	Scale 0.85
@@ -1951,7 +1951,7 @@ Actor KjarochBall2Trail {
 
 Actor KjarochBall2Explosion : BaseExplosionDamage {
 	DamageType "Poison"
-	Stamina 128
+	Stamina 132
 	Obituary  "%o was burned by the infernal flames of a Kjaroch."
 	States {
 		Spawn:
@@ -2014,7 +2014,7 @@ Actor KjarochGroundFlames {
 
 Actor KjarochGroundFlamesExplosion : BaseExplosionDamage {
 	DamageType "Poison"
-	Stamina 128
+	Stamina 132
 	Obituary  "%o was burned by the infernal flames of a Kjaroch."
 	States {
 		Spawn:
@@ -2518,7 +2518,7 @@ Actor MagmaGolem : DnD_BaseHybridMonster {
 
 Actor MagmaGolemExp : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(28, 96, 0)

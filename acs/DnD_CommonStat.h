@@ -11,7 +11,7 @@
 
 #define DND_SYNTHMASK_EFFECT 4
 
-#define DND_UNITY_DIVISOR 10
+#define DND_UNITY_DIVISOR 15
 
 #define DND_SPREE_AMOUNT (4 * TICRATE) // 4 * 35
 #define DND_SPREE_PER 10
@@ -41,8 +41,8 @@ enum {
 	DND_WDMG_ISSLOT9 = 2097152,
 	DND_WDMG_ISSPELL = 4194304,
 	DND_WDMG_USETARGETSMASTER = 8388608,
-	/*DND_WDMG_FIREDAMAGE = 16777216,
-	DND_WDMG_ICEDAMAGE = 33554432,
+	DND_WDMG_ISRADIUSDMG = 16777216,
+	/*DND_WDMG_ICEDAMAGE = 33554432,
 	DND_WDMG_POISONDAMAGE = 67108864,
 	DND_WDMG_LIGHTNINGDAMAGE = 134217728,*/
 	DND_WDMG_ISDOT = 268435456
@@ -210,7 +210,7 @@ enum {
 
 enum {
 	PUP_HOMINGNOREFLECT,
-	PUP_EXPLOSIVEIGNORERESIST,
+	PUP_IGNORERADIUSIMMUNITY,
 	PUP_SLAINENEMIESRIP,
 	PUP_FORBIDARMOR,
 	PUP_LUCKYCRITS,
@@ -231,8 +231,8 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		return (GetPlayerAttributeValue(pnum, INV_ESS_THORAX) && (extra1 | extra2));
 		
 		// +FORCERADIUSDMG can come from vaaj or marine
-		case PUP_EXPLOSIVEIGNORERESIST:
-		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ)/* || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk25")*/;
+		case PUP_IGNORERADIUSIMMUNITY:
+		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk25");
 		
 		case PUP_SLAINENEMIESRIP:
 		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP);
@@ -364,30 +364,50 @@ void SlowPlayer(int amt, int mode, int pnum) {
 		SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, GetPlayerSpeed(pnum) - amt);
 }
 
+// returns true if there are things that'd nullify effect of dexterity
+bool HasPlayerDexterityDisablers(int pnum) {
+	return GetPlayerAttributeValue(pnum, INV_EX_UNITY);
+}
+
 // These getters must be used when doing calculations based on benefit of these stats
-int GetDexterity() {
-	int pnum = PlayerNumber();
-	return (CheckInventory("PSTAT_Dexterity") + GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+int GetDexterity(int pnum) {
+	return (CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Dexterity") + GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
-int GetIntellect() {
-	int pnum = PlayerNumber();
-	return (CheckInventory("PSTAT_Intellect") + GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+int GetDexterityEffect(int pnum, int factor, int divisor = 1) {
+	if(!HasPlayerDexterityDisablers(pnum))
+		return GetDexterity(pnum) * factor / divisor;
+	return 0;
 }
 
-int GetActorIntellect(int tid) {
-	int pnum = tid - P_TIDSTART;
-	return (CheckActorInventory(tid, "PSTAT_Intellect") + GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+// returns true if there are things that'd nullify effect of int
+bool HasPlayerIntellectDisablers(int pnum) {
+	return GetPlayerAttributeValue(pnum, INV_EX_UNITY);
 }
 
-int GetStrength() {
-	int pnum = PlayerNumber();
-	return (CheckInventory("PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+int GetIntellect(int pnum) {
+	return (CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Intellect") + GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
-int GetActorStrength(int tid) {
-	int pnum = tid - P_TIDSTART;
-	return (CheckActorInventory(tid, "PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+int GetIntellectEffect(int pnum, int factor, int divisor = 1) {
+	if(!HasPlayerIntellectDisablers(pnum))
+		return GetIntellect(pnum) * factor / divisor;
+	return 0;
+}
+
+// returns true if there are things that'd nullify effect of strength
+bool HasPlayerStrengthDisablers(int pnum) {
+	return GetPlayerAttributeValue(pnum, INV_EX_UNITY) || GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE);
+}
+
+int GetStrength(int pnum) {
+	return (CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+}
+
+int GetStrengthEffect(int pnum, int factor, int divisor = 1) {
+	if(!HasPlayerStrengthDisablers(pnum))
+		return GetStrength(pnum) * factor / divisor;
+	return 0;
 }
 
 // this sets player's unity item to cache it so we don't request it over and over in intense calculations
@@ -484,14 +504,10 @@ int GetSpawnHealth(bool bypassEShieldCheck = false) {
 		return 1;
 	}
 
-	int str_bonus = 0;
-	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY) && !GetPlayerAttributeValue(pnum, INV_EX_INTBONUSTOMELEE))
-		str_bonus = DND_HP_PER_STR * GetStrength();
-
+	int str_bonus = GetSTrengthEffect(pnum, DND_HP_PER_STR);
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
 	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
-				   // GetStrength() * DND_STR_CAPINCREASE 										+
 				   CheckInventory("CelestialCheck") * CELESTIAL_BOOST 						+
 				   GetResearchHealthBonuses() 												+
 				   GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
@@ -519,7 +535,7 @@ int GetPlayerSpawnHealth(int pnum, bool bypassEShieldCheck = false) {
 
 	int str_bonus = 0;
 	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
-		str_bonus = DND_HP_PER_STR * GetActorStrength(tid);
+		str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
 
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
@@ -570,10 +586,14 @@ void UpdatePlayerKnockbackResist() {
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_KNOCKBACKIMMUNE))
 		SetActorProperty(0, APROP_MASS, INT_MAX);
 	else {
-		int strgth = 0;
-		if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
-			strgth = GetStrength() * DND_STR_KNOCKBACK_GAIN;
-		SetActorProperty(0, APROP_MASS, DND_BASE_PLAYER_MASS + strgth + GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST));
+		int val = GetStrengthEffect(pnum, DND_STR_KNOCKBACK_GAIN);
+		val += DND_BASE_PLAYER_MASS + GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
+
+		int pct = (100 + GetPlayerAttributeValue(pnum, INV_PERCENT_KNOCKBACKRESIST));
+		if(val < INT_MAX / pct)
+			val = val * pct / 100;
+
+		SetActorProperty(0, APROP_MASS, val);
 	}
 }
 
@@ -910,9 +930,6 @@ int GetResistPenetration(int pnum, int category) {
 		break;
 		case DND_DAMAGECATEGORY_ENERGY:
 			val = GetPlayerAttributeValue(pnum, INV_PEN_ENERGY);
-		break;
-		case DND_DAMAGECATEGORY_EXPLOSIVES:
-			val = GetPlayerAttributeValue(pnum, INV_PEN_EXPLOSIVE);
 		break;
 		case DND_DAMAGECATEGORY_OCCULT:
 			val = GetPlayerAttributeValue(pnum, INV_PEN_OCCULT);

@@ -112,6 +112,7 @@ Actor FTExplosion1 : DnD_ExplosiveBase {
 	Stamina 4194304
 	+THRUACTORS
 	+NODAMAGETHRUST
+	+DONTSPLASH
 	var int user_count;
 	States {
 		SpawnState:
@@ -188,6 +189,7 @@ Actor FTExplosion2 : DnD_ExplosiveBase {
 	Stamina 4194304
 	+THRUACTORS
 	+NODAMAGETHRUST
+	+DONTSPLASH
 	var int user_count;
 	States {
 		SpawnState:
@@ -234,6 +236,7 @@ Actor FTFire : DnD_BaseProjectile {
 	Stamina 262144
 	
 	+MTHRUSPECIES
+	+DONTSPLASH
 	States {
 		SpawnState:
 			TNT1 A 2
@@ -261,6 +264,7 @@ Actor DropFire : DnD_BaseProjectile {
 	+LowGravity
 	+NoExplodeFloor
 	+NoDamageThrust
+	+DONTSPLASH
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetScale(frandom(0.925, 1.0), frandom(0.925, 1.0))

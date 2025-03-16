@@ -250,11 +250,21 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 	// save
 	SaveUsedItemAttribs(pnum, item_index);
 	
+	int special_roll = 0;
+	if(PlayerInventoryList[pnum][item_index].implicit.attrib_id != -1) {
+		special_roll = PlayerInventoryList[pnum][item_index].implicit.attrib_extra;
+	}
+
 	for(int s = 0; s < aff && !finish; ++s) {
 		i = PlayerInventoryList[pnum][item_index].attrib_count;
 		// find an attribute that this item doesn't have
 		do {
-			temp = random(0, LAST_INV_ATTRIBUTE);
+			temp =  PickRandomAttribute(
+				PlayerInventoryList[pnum][item_index].item_type,
+				PlayerInventoryList[pnum][item_index].item_subtype, 
+				special_roll, 
+				PlayerInventoryList[pnum][item_index].implicit.attrib_id
+			);
 		} while(CheckItemAttribute(pnum, item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
 		
 		// if not well rolled by default, run the chance (orbs may force it, but sometimes they may not)

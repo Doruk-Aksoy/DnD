@@ -2220,4 +2220,10 @@ Script "DnD Clear Homing Lock-on" (void) CLIENTSIDE {
 	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_MARKER, 0, 0, 0, 0.01);
 }
 
+Script "DnD Check Weapon Discard" (int slot, int useTarget) {
+	if(useTarget)
+		SetActivatorToTarget(0);
+	SetResultValue(HasPlayerDiscardedSlot(PlayerNumber(), slot));
+}
+
 #endif

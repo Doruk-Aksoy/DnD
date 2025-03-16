@@ -190,7 +190,7 @@ Actor CardinalImage {
 
 Actor CardinalExp1 : BaseExplosionDamage {
 	DamageType "ExplosiveGreen"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was blessed by the dark cardinal."
 	States {
 		Spawn:
@@ -204,9 +204,9 @@ ACTOR Cardinal_Rocket {
 	Radius 11
 	Height 8
 	Speed 28
-	Damage (20 * random(1, 8))
+	Damage (20 * random(5, 8))
 	DamageType "ExplosiveGreen"
-	Stamina 1073741832
+	Stamina 1073741825
 	Projectile
 	+DONTBLAST
 	+RANDOMIZE
@@ -231,34 +231,7 @@ ACTOR Cardinal_Rocket {
 		Stop
 	}
 }
-//====================
-Actor CardinalExp2 : BaseExplosionDamage {
-	DamageType "ExplosiveGreen"
-	Stamina 4
-	Obituary "%o was blessed by the dark cardinal."
-	States {
-		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(24, 84, 0)
-		Stop
-	}
-}
 
-ACTOR FireT {
-	+NOBLOCKMAP
-	+NOTELEPORT
-	+NOGRAVITY
-	+DONTBLAST
-	RenderStyle Add
-	DamageType "MagicalGreen"
-	Stamina 8
-    Alpha 0.9
-	States {
-		Spawn:
-			FIRE ABCDEFGH 6 Bright A_SpawnItem("CardinalExp2")
-		Stop
-	}
-}
 //====================
 actor DeathBall : BaronBall2 {
 	Damage (8 * random(1, 8))
@@ -338,7 +311,7 @@ ACTOR plasmaTail {
 	}
 }
 
-ACTOR TerminatorX : DnD_BaseRangedBoss { 
+ACTOR TerminatorX : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
 	Radius 40
 	Height 110
@@ -467,13 +440,17 @@ Actor TerminatorExp1 : BaseExplosionDamage {
 	}
 }
 
+Actor TerminatorExp2 : TerminatorExp1 {
+	Stamina 20
+}
+
 ACTOR TerminatorBlaster {
 	Radius 8
 	Height 12
 	Speed 28
 	Damage (15 * random(4, 8))
 	DamageType "ExplosiveFire"
-	Stamina 36
+	Stamina 32
 	PROJECTILE
 	RENDERSTYLE ADD
 	alpha 0.85
@@ -556,7 +533,7 @@ actor Redgrenade {
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
-			STAR E 3 Bright A_SpawnItem("TerminatorExp1")
+			STAR E 3 Bright A_SpawnItem("TerminatorExp2")
 			TNT1 A 0 A_custommissile("grenadeblast",0,0,0,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
 			TNT1 A 0 A_custommissile("grenadeblast",0,0,20,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
 			TNT1 A 0 A_custommissile("grenadeblast",0,0,40,CMF_TRACKOWNER | CMF_AIMDIRECTION,0)
@@ -912,7 +889,7 @@ Actor DarkCyberGhostD : DarkCyberGhostA {
 
 Actor ThamuzExp1 : BaseExplosionDamage  {
 	DamageType "ExplosiveGreen"
-	Stamina 4
+	Stamina 20
 	Obituary "%o fell before Thamuz."
 	States {
 		Spawn:
@@ -1074,7 +1051,7 @@ Actor DCBMiss3 {
 
 Actor ThamuzExp2 : BaseExplosionDamage {
 	DamageType "MagicalGreen"
-	Stamina 8
+	Stamina 12
 	Obituary "%o fell before Thamuz."
 	States {
 		Spawn:
@@ -1298,7 +1275,7 @@ Actor AzazelBoom : msxBarrelboom1 {
 //*************************************************
 Actor AzazelExp1 : BaseExplosionDamage {
 	DamageType "Magical"
-	Stamina 8
+	Stamina 12
 	Obituary "%o was slaughtered by Azazel"
 	States {
 		Spawn:
@@ -1905,7 +1882,7 @@ ACTOR HellsmithX : DnD_BaseHybridBoss {
 Actor HellSmithChargeExp : BaseExplosionDamage {
 	Obituary "%o was trampled by a Hellsmith."
 	DamageType "Physical"
-	Stamina 1
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1993,7 +1970,7 @@ ACTOR PentaLine2 {
 
 Actor SmithExplosion1 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
@@ -2005,7 +1982,7 @@ Actor SmithExplosion1 : BaseExplosionDamage {
 
 Actor SmithExplosion2 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
@@ -2202,12 +2179,12 @@ ACTOR STracer {
 
 Actor SmithExplosion4 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(8, 4, 0)
+			TNT1 A 1 A_Explode(8, 8, 0)
 		Stop
 	}	
 }
@@ -2257,7 +2234,7 @@ ACTOR SmithHammer {
 
 Actor SmithExplosion5 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was blown up by a Hell Smith."
 	States {
 		Spawn:
@@ -2327,7 +2304,7 @@ ACTOR HellBoom {
 
 Actor SmithExplosion6 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 44
 	Obituary "%o was turned to crisps by a Bloodseeker."
 	States {
 		Spawn:
@@ -3660,7 +3637,7 @@ Actor Thanatos : DnD_BaseRangedBoss {
 
 Actor ThanatosExp1 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3722,7 +3699,7 @@ Actor CyberdemonRocket2 : CyberdemonRocket {
 
 Actor CyberdemonStomper : BaseExplosionDamage {
 	DamageType "PhysicalSlow"
-	Stamina 1
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3824,7 +3801,7 @@ Actor StompFX {
 
 Actor ThanatosExp2 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -4284,7 +4261,7 @@ Actor WyvernPostBlast {
 	Height 1
 	Radius 1
 	DamageType "Poison"
-	Stamina 128
+	Stamina 132
 	Scale 0.0875
 	const float starget = 0.875;
 	var int user_scount;

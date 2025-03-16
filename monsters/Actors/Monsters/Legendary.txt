@@ -289,7 +289,7 @@ Actor TFlyFX {
 
 Actor TchernobogExplosion : BaseExplosionDamage {
 	DamageType "MagicalBlue"
-	Stamina 8
+	Stamina 12
 	States {
 		Spawn:
 			TNT1 A 8 NoDelay A_Explode(192, 160, 0)
@@ -550,7 +550,7 @@ actor SplitParticleAfterLight {
 
 Actor SplitParticleExplosion : BaseExplosionDamage {
 	DamageType "MagicalBlue"
-	Stamina 8
+	Stamina 12
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(36, 96, 0)
@@ -951,7 +951,7 @@ Actor TchernoPortalCooldown : PowerDamage {
 
 Actor TchernoLightningExplosion : BaseExplosionDamage {
 	DamageType "Lightning"
-	Stamina 256
+	Stamina 260
 	+FORCERADIUSDMG
 	States {
 		Spawn:
@@ -1626,7 +1626,7 @@ Actor MordecqaiStomp {
 
 Actor MordecqaiFlameExplosion : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	+NODAMAGETHRUST
 	States {
 		Spawn:
@@ -1722,7 +1722,7 @@ Actor MordecqaiSeekerTrail {
 
 Actor MordecqaiLightningExp : BaseExplosionDamage {
 	DamageType "Lightning"
-	Stamina 256
+	Stamina 260
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(32, 96, 0, 0, 64)
@@ -2186,7 +2186,7 @@ Actor GodSlayerLandStomper : DnD_Activator {
 
 Actor InquisitorExplosion : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(64, 128, 0)
@@ -2196,7 +2196,7 @@ Actor InquisitorExplosion : BaseExplosionDamage {
 
 Actor InquisitorExplosion2 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(128, 192, 0, 1, 64)
@@ -2206,7 +2206,7 @@ Actor InquisitorExplosion2 : BaseExplosionDamage {
 
 Actor InquisitorExplosion3 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(64, 128, 0, 1, 32)
@@ -2216,7 +2216,7 @@ Actor InquisitorExplosion3 : BaseExplosionDamage {
 
 Actor GodSlayerBulletExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -3077,7 +3077,7 @@ Actor GolgothOrangeSoulTrail {
 
 Actor GolgothFireExp1 : BaseExplosionDamage {
 	Damagetype "Fire"
-	Stamina 32
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(12, 20)
@@ -3087,7 +3087,7 @@ Actor GolgothFireExp1 : BaseExplosionDamage {
 
 Actor GolgothFireExp2 : BaseExplosionDamage {
 	Damagetype "Fire"
-	Stamina 32
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(14, 32)
@@ -3097,7 +3097,7 @@ Actor GolgothFireExp2 : BaseExplosionDamage {
 
 Actor GolgothFireExp3 : BaseExplosionDamage {
 	Damagetype "Fire"
-	Stamina 32
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(16, 44)
@@ -3107,7 +3107,7 @@ Actor GolgothFireExp3 : BaseExplosionDamage {
 
 Actor GolgothFireExp4 : BaseExplosionDamage {
 	Damagetype "Fire"
-	Stamina 32
+	Stamina 36
 	States {
 		Spawn:
 			TNT1 A 1 NoDelay A_Explode(20, 56)

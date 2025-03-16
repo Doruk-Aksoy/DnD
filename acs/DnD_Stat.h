@@ -258,7 +258,7 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	
 	int int_bonus = 0;
 	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
-		int_bonus = GetActorIntellect(pnum + P_TIDSTART) / 2;
+		int_bonus = GetIntellect(pnum) / 2;
 
 	int hp_bonus = GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD);
 	if(hp_bonus)
@@ -627,7 +627,6 @@ int GetPlayerArmor(int pnum) {
 			DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE);
 	
 	amt += amt * inc / 100;
-	//amt += (amt * GetStrength() * DND_STR_CAPINCREASE) / DND_STR_CAPFACTOR;
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
 	amt += (amt * GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE)) / 100;
@@ -1058,9 +1057,9 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 	return IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1][WMOD_ITEMS].val, power) || IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1][WMOD_WEP].val, power);
 }
 
-int GetPlayerPercentDamage(int pnum, int wepid, int damage_category) {
+int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) {
 	// stuff that dont depend on a wepid
-	int res = MapDamageCategoryToPercentBonus(pnum, damage_category);
+	int res = MapDamageCategoryToPercentBonus(pnum, damage_category, flags);
 
 	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS)) {
 		// add accuracy as % bonus dmg
@@ -1158,53 +1157,74 @@ void ResetHardcoreStuff(int pnum, bool resetStash = false) {
 	}
 }
 
-int MapDamageCategoryToFlatBonus(int pnum, int talent) {
+int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
+	int base = 0;
+
+	if(flags & DND_DAMAGEFLAG_ISRADIUSDMG)
+		base += GetPlayerAttributeValue(pnum, INV_FLATRADIUS_DAMAGE);
+
 	switch(talent) {
 		case DND_DAMAGECATEGORY_BULLET:
 		case DND_DAMAGECATEGORY_MELEE:
-		return GetPlayerAttributeValue(pnum, INV_FLATPHYS_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_FLATPHYS_DAMAGE);
+		break;
 		case DND_DAMAGECATEGORY_OCCULT:
-		return GetPlayerAttributeValue(pnum, INV_FLATMAGIC_DAMAGE);
-		case DND_DAMAGECATEGORY_EXPLOSIVES:
-		return GetPlayerAttributeValue(pnum, INV_FLATEXP_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_FLATMAGIC_DAMAGE);
+		break;
 		case DND_DAMAGECATEGORY_ENERGY:
-		return GetPlayerAttributeValue(pnum, INV_FLATENERGY_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_FLATENERGY_DAMAGE);
+		break;
 
 		case DND_DAMAGECATEGORY_FIRE:
-		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
+			base += GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
+		break;
 		case DND_DAMAGECATEGORY_ICE:
-		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
+			base += GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
+		break;
 		case DND_DAMAGECATEGORY_LIGHTNING:
-		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
+			base += GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
+		break;
 		case DND_DAMAGECATEGORY_POISON:
-		return GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
+			base += GetPlayerAttributeValue(pnum, INV_FLATELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
+		break;
 	}
-	return 0;
+	return base;
 }
 
-int MapDamageCategoryToPercentBonus(int pnum, int talent) {
+int MapDamageCategoryToPercentBonus(int pnum, int talent, int flags) {
+	int base = 0;
+
+	if(flags & DND_DAMAGEFLAG_ISRADIUSDMG)
+		base += GetPlayerAttributeValue(pnum, INV_PERCENTRADIUS_DAMAGE);
+
 	switch(talent) {
 		case DND_DAMAGECATEGORY_MELEE:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE) + (GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_DMGINC;
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE) + (GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_DMGINC;
+		break;
 		case DND_DAMAGECATEGORY_BULLET:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE);
+		break;
 		case DND_DAMAGECATEGORY_OCCULT:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTMAGIC_DAMAGE);
-		case DND_DAMAGECATEGORY_EXPLOSIVES:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTEXP_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTMAGIC_DAMAGE);
+		break;
 		case DND_DAMAGECATEGORY_ENERGY:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTENERGY_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTENERGY_DAMAGE);
+		break;
 
 		case DND_DAMAGECATEGORY_FIRE:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTFIRE_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTFIRE_DAMAGE);
+		break;
 		case DND_DAMAGECATEGORY_ICE:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTICE_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTICE_DAMAGE);
+		break;
 		case DND_DAMAGECATEGORY_LIGHTNING:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTLIGHTNING_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTLIGHTNING_DAMAGE);
+		break;
 		case DND_DAMAGECATEGORY_POISON:
-		return GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTPOISON_DAMAGE);
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTELEM_DAMAGE) + GetPlayerAttributeValue(pnum, INV_PERCENTPOISON_DAMAGE);
+		break;
 	}
-	return 0;
+	return base;
 }
 
 int GetFlatHealthDamageFactor(int factor) {
@@ -1236,7 +1256,7 @@ int GetFireDOTDamage(int pnum, int bonus = 0) {
 				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE) + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
@@ -1259,7 +1279,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison) {
 			GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON) + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi
 	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
@@ -1431,11 +1451,7 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 	if(hasStrToIntConversion)
 		strength = 0;
 
-	statOf = 0;
-	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
-		statOf = GetStrength() * strength + GetDexterity() * dexterity + GetIntellect() * intellect;
-	else // unity provides no bonuses like this
-		statOf = 0;// GetUnity() * (strength + dexterity + intellect);
+	statOf = GetStrengthEffect(pnum, strength) + GetDexterityEffect(pnum, dexterity) + GetIntellectEffect(pnum, intellect);
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)

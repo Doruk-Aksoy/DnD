@@ -1012,7 +1012,7 @@ actor PyroImp : DnD_BaseHybridMonster {
 
 Actor PyroImpExp1 : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 4
+	Stamina 36
 	Obituary "%o was burned by a pyro imp."
 	States {
 		Spawn:
@@ -1091,7 +1091,7 @@ actor PyroImpBallFire : PyroImpFire {
 
 Actor PyroImpExp2 : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 4
+	Stamina 36
 	Obituary "%o was burned by a pyro imp."
 	States {
 		Spawn:
@@ -1135,7 +1135,7 @@ actor PyroImpBallFire2 {
 
 Actor PyroImpExp3 : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 4
+	Stamina 36
 	Obituary "%o was burned by a pyro imp."
 	States {
 		Spawn:
@@ -1744,6 +1744,7 @@ Actor ReaverExplosion : BaseExplosionDamage {
 	SeeSound "Reaver/Explode"
 	Scale 0.75
 	Speed 0
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2035,7 +2036,7 @@ Actor RoachExp : BaseExplosionDamage {
 	Obituary "%o was poisoned by a Roach."
 	Damage (Random(5, 8))
 	DamageType "Poison"
-	Stamina 128
+	Stamina 132
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

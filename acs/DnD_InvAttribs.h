@@ -65,13 +65,13 @@ enum {
 	
 	INV_FLATPHYS_DAMAGE,
 	INV_FLATENERGY_DAMAGE,
-	INV_FLATEXP_DAMAGE,
+	INV_FLATRADIUS_DAMAGE,
 	INV_FLATMAGIC_DAMAGE,
 	INV_FLATELEM_DAMAGE,
 	
 	INV_PERCENTPHYS_DAMAGE,
 	INV_PERCENTENERGY_DAMAGE,
-	INV_PERCENTEXP_DAMAGE,
+	INV_PERCENTRADIUS_DAMAGE,
 	INV_PERCENTMAGIC_DAMAGE,
 	INV_PERCENTELEM_DAMAGE,
 	
@@ -115,7 +115,7 @@ enum {
 	
 	INV_PEN_PHYSICAL,
 	INV_PEN_ENERGY,
-	INV_PEN_EXPLOSIVE,
+	INV_CHANCE_IGNORERADIUSIMMUNITY,
 	INV_PEN_OCCULT,
 	INV_PEN_ELEMENTAL,
 	
@@ -152,7 +152,7 @@ enum {
 	
 	INV_DMGREDUCE_HITSCAN,
 	INV_DMGREDUCE_ENERGY,
-	INV_DMGREDUCE_EXPLOSION,
+	INV_PERCENT_KNOCKBACKRESIST,
 	INV_DMGREDUCE_MAGIC,
 	INV_DMGREDUCE_FIRE,
 	INV_DMGREDUCE_ICE,
@@ -514,7 +514,6 @@ bool IsFixedPointMod(int mod) {
 		case INV_BLOCKERS_MOREDMG:
 		case INV_DMGREDUCE_ELEM:
 		case INV_DMGREDUCE_ENERGY:
-		case INV_DMGREDUCE_EXPLOSION:
 		case INV_DMGREDUCE_HITSCAN:
 		case INV_DMGREDUCE_PHYS:
 		case INV_DMGREDUCE_MAGIC:
@@ -747,10 +746,10 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLATENERGY_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ENERGY;
 	
-	ItemModTable[INV_FLATEXP_DAMAGE].attrib_low = 1;
-	ItemModTable[INV_FLATEXP_DAMAGE].attrib_high = 3;
-	ItemModTable[INV_FLATEXP_DAMAGE].attrib_level_modifier = 0;
-	ItemModTable[INV_FLATEXP_DAMAGE].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_EXPLOSIVE;
+	ItemModTable[INV_FLATRADIUS_DAMAGE].attrib_low = 1;
+	ItemModTable[INV_FLATRADIUS_DAMAGE].attrib_high = 2;
+	ItemModTable[INV_FLATRADIUS_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLATRADIUS_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_low = 1;
 	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_high = 3;
@@ -772,10 +771,10 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_PERCENTENERGY_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ENERGY;
 	
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_low = 5;
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_high = 15;
-	ItemModTable[INV_PERCENTEXP_DAMAGE].attrib_level_modifier = 0;
-	ItemModTable[INV_PERCENTEXP_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
+	ItemModTable[INV_PERCENTRADIUS_DAMAGE].attrib_low = 2;
+	ItemModTable[INV_PERCENTRADIUS_DAMAGE].attrib_high = 7;
+	ItemModTable[INV_PERCENTRADIUS_DAMAGE].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTRADIUS_DAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_low = 5;
 	ItemModTable[INV_PERCENTMAGIC_DAMAGE].attrib_high = 15;
@@ -937,10 +936,10 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PEN_ENERGY].attrib_level_modifier = 0;
 	ItemModTable[INV_PEN_ENERGY].tags = INV_ATTR_TAG_ATTACK	| INV_ATTR_TAG_ENERGY;
 	
-	ItemModTable[INV_PEN_EXPLOSIVE].attrib_low = 1;
-	ItemModTable[INV_PEN_EXPLOSIVE].attrib_high = 4;
-	ItemModTable[INV_PEN_EXPLOSIVE].attrib_level_modifier = 0;
-	ItemModTable[INV_PEN_EXPLOSIVE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
+	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].attrib_low = 1;
+	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].attrib_high = 5;
+	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].attrib_level_modifier = 0;
+	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_PEN_OCCULT].attrib_low = 1;
 	ItemModTable[INV_PEN_OCCULT].attrib_high = 4;
@@ -973,8 +972,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLAT_POISONDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
 	
 	ItemModTable[INV_LIFESTEAL].attrib_low = 0.125;
-	ItemModTable[INV_LIFESTEAL].attrib_high = 0.375;
-	ItemModTable[INV_LIFESTEAL].attrib_level_modifier = 0;
+	ItemModTable[INV_LIFESTEAL].attrib_high = 0.5;
+	ItemModTable[INV_LIFESTEAL].attrib_level_modifier = 0.375;
 	ItemModTable[INV_LIFESTEAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_POISON_TICRATE].attrib_low = 5;
@@ -1077,10 +1076,10 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 5.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_ENERGY;
 	
-	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_EXPLOSION].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_EXPLOSION].tags = INV_ATTR_TAG_EXPLOSIVE;
+	ItemModTable[INV_PERCENT_KNOCKBACKRESIST].attrib_low = 1;
+	ItemModTable[INV_PERCENT_KNOCKBACKRESIST].attrib_high = 10;
+	ItemModTable[INV_PERCENT_KNOCKBACKRESIST].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENT_KNOCKBACKRESIST].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 5.0;
@@ -1833,9 +1832,9 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		case INV_FLATPHYS_DAMAGE:
 		case INV_FLATENERGY_DAMAGE:
-		case INV_FLATEXP_DAMAGE:
 		case INV_FLATMAGIC_DAMAGE:
-		case INV_FLATELEM_DAMAGE:	
+		case INV_FLATELEM_DAMAGE:
+		case INV_FLATRADIUS_DAMAGE:
 
 		case INV_FLAT_ARTILLERY:
 		case INV_FLAT_AUTOMATIC:
@@ -1847,7 +1846,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		case INV_PEN_ELEMENTAL:
 		case INV_PEN_ENERGY:
-		case INV_PEN_EXPLOSIVE:
 		case INV_PEN_PHYSICAL:
 		case INV_PEN_OCCULT:
 		case INV_PEN_FIRE:
@@ -1992,7 +1990,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_DMGREDUCE_PHYS:
 		case INV_DMGREDUCE_REFL:
 		case INV_DMGREDUCE_ENERGY:
-		case INV_DMGREDUCE_EXPLOSION:
 		case INV_DMGREDUCE_HITSCAN:
 		case INV_DMGREDUCE_MAGIC:
 		case INV_DMGREDUCE_FIRE:
@@ -2355,7 +2352,7 @@ bool IsTagArmorException(int tag, int armor_type) {
 	return (tag & INV_ATTR_TAG_OCCULT);
 }
 
-bool IsAttributeArmorException(int tag, int attr, int armor_type) {
+bool IsAttributeArmorException(int attr, int armor_type) {
 	return IsTagArmorException(ItemModTable[attr].tags, armor_type);
 }
 

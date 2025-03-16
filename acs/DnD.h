@@ -1232,7 +1232,7 @@ void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 		break;
 		case MONSTER_VAAJ:
 			// drops vaaj influenced charm: explosives ignore resists mod guaranteed
-			if(!random(0, 4))
+			if(!random(0, 5))
 				SpawnCharmWithMods_ForAll(INV_ESS_VAAJ);
 		break;
 		case MONSTER_REMUS:

@@ -102,7 +102,7 @@ Actor Corpulent : DnD_BaseRangedMonster {
 
 Actor CorpulentExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o was cremated by a Corpulent."
 	States {
 		Spawn:
@@ -257,7 +257,7 @@ Actor Daedabus : DnD_BaseRangedMonster {
 
 Actor DaedExp : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	Obituary "%o was torched by a Daedabus."
 	States {
 		Spawn:
@@ -744,7 +744,7 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 
 Actor PaladinExplosion : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "A Paladin blew %o away."
 	States {
 		Spawn:
@@ -1220,7 +1220,7 @@ Actor Mephisto : DnD_BaseRangedMonster {
 
 Actor MephistoExp1 : BaseExplosionDamage {
 	DamageType "Energy"
-	Stamina 16
+	Stamina 20
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1400,7 +1400,7 @@ Actor Abomination : DnD_BaseRangedMonster {
 
 Actor AbominationExp : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 12
 	+PIERCEARMOR
 	States {
 		Spawn:
@@ -1892,7 +1892,7 @@ ACTOR RedeemerFlame {
 
 Actor RedeemerFlameExplosion : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	Accuracy 150
 	+NODAMAGETHRUST
 	States {

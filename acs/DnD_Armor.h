@@ -500,11 +500,7 @@ int GetEShieldMagicAbsorbValue(int pnum) {
 }
 
 int GetMitigationChance(int pnum) {
-	int dex_bonus = 0;
-	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
-		dex_bonus = GetDexterity() * DND_MIT_PER_DEX;
-
-	return dex_bonus + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
+	return GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
 }
 
 bool CouldMitigateDamage(int pnum) {

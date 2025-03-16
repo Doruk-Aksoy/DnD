@@ -68,6 +68,8 @@ actor DND_DroppedItem {
 	Health 0
 	Radius 1
 	Height 1
+	var int user_magnettimer;
+	const int mag_dist_time = 5;
 }
 
 Actor GrabbyHandIcon {
@@ -96,8 +98,21 @@ Actor GrabbyHandCooldown : PowerDamage {
 	powerup.duration 35
 }
 
+Actor DnD_ItemCollisionChecker {
+	Radius 20
+	Height 24
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 2
+		Stop
+	}
+}
+
 const int item_look_dist = 80;
 const int item_pickup_dist = 32;
+const float magnet_speed = 8;
+const int magnet_dist = 256;
 Actor InventoryBase : DnD_DroppedItem {
 	Radius 20
 	Height 24

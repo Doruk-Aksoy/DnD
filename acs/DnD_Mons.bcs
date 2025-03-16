@@ -24,7 +24,7 @@ Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 		break;
 		case 2:
 			TakeInventory("ArbiterFade", 1);
-			GiveInventory("ArbiterDead", 1);
+			GiveInventory("Mo_Died", 1);
 		break;
 		case 3:
 			TakeInventory("ArbiterFade", 1);
@@ -38,7 +38,7 @@ Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
 		break;
 		case 6:
 			SetActivatorToTarget(0);
-			res = CheckInventory("ArbiterDead");
+			res = CheckInventory("Mo_Died");
 		break;
 		case 7:
 			GiveInventory("AvatarAttack", 1);

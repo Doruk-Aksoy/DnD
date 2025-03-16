@@ -395,7 +395,7 @@ Actor EarthLichSpike {
 
 Actor EarthLichExp : BaseExplosionDamage {
 	DamageType "Physical"
-	Stamina 1
+	Stamina 5
     Obituary "%o was eliminated by an Earth Lich."
 	States {
 		Spawn:
@@ -594,7 +594,7 @@ ACTOR Inferno : DnD_BaseHybridMonster {
 
 Actor InfernoExp : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	Obituary "%o got incinerated by an inferno."
 	States {
 		Spawn:

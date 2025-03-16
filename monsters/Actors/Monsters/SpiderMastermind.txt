@@ -264,7 +264,7 @@ Actor PhyteBullet : ZombieBullet {
 
 Actor ArachnophyteExp1 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Accuracy 133
 	States {
 		Spawn:
@@ -480,7 +480,7 @@ actor QueenPainPlasmaBlast : QueenPlasmaBlast {
 
 Actor PsionicQueenExp1 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 12
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -658,7 +658,7 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 
 Actor AngelOfDeathExp1 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -962,7 +962,7 @@ ACTOR GoldLichMiniExplodes {
 
 Actor GoldLichExp1 : BaseExplosionDamage {
 	DamageType "MagicalDark"
-	Stamina 8
+	Stamina 12
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2039,7 +2039,7 @@ Actor DarkSpiritAttack {
 
 Actor DarkLichWarpDamager : BaseExplosionDamage {
 	DamageType "PhysicalTornado"
-	Stamina 1
+	Stamina 12
 	+NODAMAGETHRUST
 	+PIERCEARMOR
 	+FORCEPAIN
@@ -2056,7 +2056,7 @@ Actor DarkLichWarp {
 	Height 56
 	Damage (1)
 	DamageType "PhysicalTornado"
-	Stamina 1
+	Stamina 8
 	ReactionTime 7
 	BounceFactor 0.8
 	WallBounceFactor 0.8
@@ -2118,7 +2118,7 @@ Actor DarkLichWarp {
 
 Actor DarkLichVortexExp1 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 520
+	Stamina 524
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2129,7 +2129,7 @@ Actor DarkLichVortexExp1 : BaseExplosionDamage {
 
 Actor DarkLichVortexExp2 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 520
+	Stamina 524
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2140,7 +2140,7 @@ Actor DarkLichVortexExp2 : BaseExplosionDamage {
 
 Actor DarkLichVortexExp3 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 520
+	Stamina 524
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2151,7 +2151,7 @@ Actor DarkLichVortexExp3 : BaseExplosionDamage {
 
 Actor DarkLichVortexExp4 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 520
+	Stamina 524
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2162,7 +2162,7 @@ Actor DarkLichVortexExp4 : BaseExplosionDamage {
 
 Actor DarkLichVortexExp5 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 520
+	Stamina 524
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2234,7 +2234,7 @@ actor ArchWSpark {
 
 Actor DarkLichHomingBallExp : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 520
+	Stamina 524
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

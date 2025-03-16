@@ -284,7 +284,7 @@ Actor ZSecGrenade {
 	damage (10)
 	Accuracy 133
 	DamageType "Explosive"
-	Stamina 1073741832
+	Stamina 1073741825
 	seesound "ZSec/bounce"
 	PROJECTILE
 	+DONTBLAST

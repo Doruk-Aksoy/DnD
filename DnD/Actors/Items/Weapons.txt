@@ -113,6 +113,7 @@ Actor ChainsawPickup : CustomInventory replaces Chainsaw {
 			CSAW A -1
 		Stop
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 0), "NoPicking")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 0, 1), "WeaponStay")
 		Goto Success
 		Success:
@@ -131,6 +132,10 @@ Actor ChainsawPickup : CustomInventory replaces Chainsaw {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Tip Trigger", 0, DND_WEAPON_CHAINSAW)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
 		Fail
+		
+		NoPicking:
+			TNT1 A 0
+		Fail
 	}
 }
 
@@ -145,6 +150,7 @@ Actor ShotgunPickup : CustomInventory replaces Shotgun {
 			SGN1 Z -1
 		Stop
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 2), "GiveAmmo")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 2, 1), "WeaponStay")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 2, 0), "GiveAmmo")
 		Goto Success
@@ -180,7 +186,7 @@ Actor ShotgunPickup_Drop : ShotgunPickup {
 	+NEVERRESPAWN
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 2, 0), "GiveAmmo")
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 2, 0) || ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 2), "GiveAmmo")
 		Success:
 			TNT1 A 0 A_GiveInventory(" Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
@@ -206,6 +212,7 @@ Actor SuperShotgunPickup : CustomInventory replaces SuperShotgun {
 			SHS1 Z -1
 		Stop
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 3), "GiveAmmo")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 3, 1), "WeaponStay")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 3, 0), "GiveAmmo")
 		Goto Success
@@ -241,7 +248,7 @@ Actor SuperShotgunPickup_Drop : SuperShotgunPickup {
 	+NEVERRESPAWN
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 3, 0), "GiveAmmo")
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 3, 0) || ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 3), "GiveAmmo")
 		Success:
 			TNT1 A 0 A_GiveInventory(" Super Shotgun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
@@ -267,6 +274,7 @@ Actor MachinegunPickup : CustomInventory replaces Chaingun {
 			WASG A -1
 		Stop
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 4), "GiveAmmo")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 4, 1), "WeaponStay")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 4, 0), "GiveAmmo")
 		Goto Success
@@ -302,7 +310,7 @@ Actor MachinegunPickup_Drop : MachinegunPickup {
 	+NEVERRESPAWN
 	States {
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 4, 0), "GiveAmmo")
+			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 4, 0) || ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 4), "GiveAmmo")
 		Success:
 			TNT1 A 0 A_GiveInventory(" Machine gun ", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Mugshot Grin")
@@ -328,6 +336,7 @@ Actor RocketLauncherPickup : CustomInventory replaces RocketLauncher {
 			LAUN A -1
 		Stop
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 5), "GiveAmmo")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 5, 1), "WeaponStay")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 5, 0), "GiveAmmo")
 		Goto Success
@@ -368,6 +377,7 @@ Actor PlasmaRiflePickup : CustomInventory replaces PlasmaRifle {
 			NRAI E -1
 		Stop
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 6), "GiveAmmo")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 6, 1), "WeaponStay")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 6, 0), "GiveAmmo")
 		Goto Success
@@ -408,6 +418,7 @@ Actor BFGPickup : CustomInventory replaces BFG9000 {
 			PRDC X -1
 		Stop
 		Pickup:
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 7), "GiveAmmo")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 7, 1), "WeaponStay")
 			TNT1 A 0 A_JumpIf(ACS_ExecuteWithResult(988, 7, 0), "GiveAmmo")
 		Goto Success

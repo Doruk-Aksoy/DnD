@@ -22,14 +22,12 @@ DND_EMOD_ICEWEAKNESS			= "\cfIce Weakness\c-";
 DND_EMOD_MAGICWEAKNESS			= "\cfMagic Weakness\c-";
 DND_EMOD_ELEWEAKNESS			= "\cfElemental Weakness\c-";
 
-DND_EMOD_EXPRESIST				= "\cuExplosive Resist\c-";
 DND_EMOD_PHYSRESIST				= "\cuPhysical Resist\c-";
 DND_EMOD_ENERGYRESIST			= "\cuEnergy Resist\c-";
 DND_EMOD_MAGICRESIST			= "\cuMagic Resist\c-";
 DND_EMOD_ELERESIST				= "\cuElemental Resist\c-";
 
 DND_EMOD_HIGHEXPRESIST			= "\cmRadius Damage Immune\c-";
-DND_EMOD_EXPIMMUNE				= "\cmExplosive Immune\c-";
 DND_EMOD_PHYSIMMUNE				= "\cmPhysical Immune\c-";
 DND_EMOD_ENERGYIMMUNE			= "\cmEnergy Immune\c-";
 DND_EMOD_MAGICIMMUNE			= "\cmMagic Immune\c-";

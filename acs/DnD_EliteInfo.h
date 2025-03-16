@@ -55,7 +55,6 @@ enum {
 	DND_ELEMENTAL_WEAKNESS,
 	
 	// resists
-	DND_EXPLOSIVE_RESIST,
 	DND_BULLET_RESIST,
 	DND_ENERGY_RESIST,
 	DND_MAGIC_RESIST,
@@ -63,7 +62,6 @@ enum {
 	
 	// immune
 	DND_EXPLOSIVE_IMMUNE,
-	DND_EXPLOSIVE_NONE,
 	DND_BULLET_IMMUNE,
 	DND_ENERGY_IMMUNE,
 	DND_MAGIC_IMMUNE,
@@ -176,8 +174,6 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_ELEWEAKNESS";
 		
 		// resists
-		case DND_EXPLOSIVE_RESIST:
-		return "DND_EMOD_EXPRESIST";
 		case DND_BULLET_RESIST:
 		return "DND_EMOD_PHYSRESIST";
 		case DND_ENERGY_RESIST:
@@ -190,8 +186,6 @@ str GetMonsterTraitLabel(int id) {
 		// immune
 		case DND_EXPLOSIVE_IMMUNE:
 		return "DND_EMOD_HIGHEXPRESIST";
-		case DND_EXPLOSIVE_NONE:
-		return "DND_EMOD_EXPIMMUNE";
 		case DND_BULLET_IMMUNE:
 		return "DND_EMOD_PHYSIMMUNE";
 		case DND_ENERGY_IMMUNE:

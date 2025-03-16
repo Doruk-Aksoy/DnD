@@ -609,7 +609,7 @@ Actor ArchonOfHell : DnD_BaseHybridMonster {
 
 Actor ArchonExp : BaseExplosionDamage {
 	DamageType "MagicalGreen"
-	Stamina 8
+	Stamina 16
 	Obituary "%o was no match for an archon of hell."
 	States {
 		Spawn:
@@ -1815,7 +1815,7 @@ Actor MoonSatyrMeteorSpawner : BulletPuff {
 
 Actor MoonSatyrMeteorExplosion : BaseExplosionDamage {
 	DamageType "Magical"
-	Stamina 8
+	Stamina 16
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -2203,7 +2203,7 @@ Actor GladiatorExplosionFX {
 
 Actor GladiatorExp : BaseExplosionDamage {
 	DamageType "Fire"
-	Stamina 32
+	Stamina 36
 	Obituary "%o didn't expect trickery from a Gladiator."
 	States {
 		Spawn:

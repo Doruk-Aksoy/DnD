@@ -770,6 +770,7 @@ Script "DND On Revive" (void) {
 	// check if we are revived by a player now, set it up and stuff if so
 	int temp = GetActorProperty(this, APROP_MASTERTID);
 	if(IsPlayer(temp)) {
+		int pnum = temp - P_TIDSTART;
 		// set player related stuff here
 		GiveActorInventory(temp, "PetCounter", 1);
 		//printbold(s:"give pet counter total: ", d:CheckActorInventory(temp, "PetCounter"));
@@ -777,7 +778,7 @@ Script "DND On Revive" (void) {
 		SpawnForced("EnemyResSoul", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorProperty(0, APROP_HEIGHT) / 4);
 		PlaySound(0, "Sickle/GhostRes", CHAN_5, 1.0);
 
-		int lifetime = DND_SICKLE_RESTIME_BASE + GetActorIntellect(temp) / DND_SICKLE_RESTIME_FACTOR;
+		int lifetime = DND_SICKLE_RESTIME_BASE + GetIntellectEffect(pnum, 1, DND_SICKLE_RESTIME_FACTOR);
 
 		ACS_NamedExecuteWithResult("DnD Sync Hack Immediate", GetActorX(0), GetActorY(0), GetActorZ(0));
 
@@ -1478,14 +1479,10 @@ Script 918 (int type, int acc, int notarget) {
 		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 3");
 	}
 	else if(type == 4) { // dexterity
-		if(notarget)
-			SetActivator(0, AAPTR_TARGET);
-		res = GetDexterity();
+		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 4");
 	}
 	else if(type == 5) { // bulkiness
-		if(notarget)
-			SetActivator(0, AAPTR_TARGET);
-		res = CheckInventory("PSTAT_Bulkiness");
+		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 5");
 	}
 	else if(type == 6) { // gunslinger
 		Log(s:"ERROR: USING OBSOLETE SCRIPT 918 with type 6");
@@ -2819,6 +2816,7 @@ Script "DnD On Respawn" RESPAWN {
 		
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
+	ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
 
 	ConditionalCalculateUnity(pnum);
 }
@@ -3149,6 +3147,8 @@ Script "DnD Player Setup" ENTER {
 	// wait till the loading phase is over fully
 	while(GetGamemodeState() != GAMESTATE_INPROGRESS)
 		Delay(const:HALF_TICRATE);
+
+	ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
 
 	//ACS_NamedExecuteAlways("DnD Can Fire Weapon", 0, pnum);
 #ifndef SKIP_DB_SETTINGS
@@ -4569,6 +4569,7 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	
 	int base, add, level, temp, this = ActivatorTID();
 	int m_id = this - DND_PETTID_BEGIN;
+	int pnum = master - P_TIDSTART;
 	base = GetActorProperty(0, APROP_HEALTH);
 	
 	add = 0, level = CheckActorInventory(master, "Level");
@@ -4579,7 +4580,7 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 		add = base * add / 100;
 		
 		// flat int scaling to pets
-		add += SKILL_ZOMBIE_HP_PER_INT * GetActorIntellect(master);
+		add += GetIntellectEffect(pnum, SKILL_ZOMBIE_HP_PER_INT);
 
 		// add level factor to it
 		// first overflow check
@@ -4617,7 +4618,7 @@ Script "DnD Master Skill Info" (int skill_id) {
 	int master = GetActorProperty(0, APROP_MASTERTID);
 	switch(skill_id) {
 		case SKILLINFO_ZOMBIEPETTIMER:
-			res = SKILL_ZOMBIE_DURATION + GetActorIntellect(master) / ZOMBIE_INT_TIMER_FACTOR;
+			res = GetIntellectEffect(master - P_TIDSTART, SKILL_ZOMBIE_DURATION, ZOMBIE_INT_TIMER_FACTOR);
 		break;
 	}
 	SetResultValue(res);
@@ -4640,7 +4641,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	// now get player damage bonus stuff included
 	SetActivator(master);
 	int pnum = PlayerNumber();
-	res += MapDamageCategoryToFlatBonus(pnum, DND_DAMAGECATEGORY_OCCULT);
+	res += MapDamageCategoryToFlatBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
 	res = res * (100 + DND_DEMONBANE_GAIN * IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_DEMONBANE)) / 100;
 
 	// talent bonus
@@ -4654,7 +4655,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 		res = res * (100 + temp) / 100;
 	}
 		
-	temp = MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT);
+	temp = MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_OCCULT, 0);
 	if(temp)
 		res = res * (100 + temp) / 100;
 		
@@ -5070,7 +5071,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		//Log(s:"\cd", l:"IATTR_T1", s:": \c-", d:GetArmorAmount(), s: " / ", d:GetArmorCapFromID(GetArmorID()));
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_STATALLOCATION", s:" -------\n--------------------------------\n");
-		Log(s:"\c[Y5]", l:"DND_STAT1", s:": \c-", d:GetStrength(), s:"\n\c[Y5]", l:"DND_STAT2", s:": \c-", d:GetDexterity(), s:"\n\c[Y5]", l:"DND_STAT3", s:": \c-", d:GetIntellect());
+		Log(s:"\c[Y5]", l:"DND_STAT1", s:": \c-", d:GetStrength(pnum), s:"\n\c[Y5]", l:"DND_STAT2", s:": \c-", d:GetDexterity(pnum), s:"\n\c[Y5]", l:"DND_STAT3", s:": \c-", d:GetIntellect(pnum));
 		
 		Log(s:"\n--------------------------------\n------- ", l:"DND_PERKALLOCATION", s:" -------\n--------------------------------\n");
 		for(i = 0; i < DND_MAX_PERKS; ++i)
@@ -5278,7 +5279,7 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	if(CheckActorInventory(owner, "NetherCheck"))
 		GiveInventory("ApplyNetherMaskBuff", 1);
 	
-	if(CheckUniquePropertyOnPlayer(pnum, PUP_EXPLOSIVEIGNORERESIST) || CheckActorInventory(owner, "Marine_Perk25"))
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_IGNORERADIUSIMMUNITY) || (random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_IGNORERADIUSIMMUNITY)))
 		GiveInventory("ApplyForceRadiusDMG", 1);
 	SetResultValue(0);
 }
@@ -5786,6 +5787,8 @@ Script 68 (int x) NET {
 			GiveInventory("AttributePoint", 25);
 			UpdateActivity(PlayerNumber(), DND_ACTIVITY_ATTRIBUTEPOINT, 25, 0);
 		}
+		else if(x == 451)
+			SpawnDrop("ResearchModule_MP", 24.0, 16, 1, random(0, 50));
 		else if(x == 500) {
 			IncPlayerModValue(PlayerNumber(), INV_SHIELD_INCREASE, 1000, false);
 			IncPlayerModValue(PlayerNumber(), INV_SHIELD_RECHARGEDELAY, 100, false);

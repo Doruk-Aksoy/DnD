@@ -112,7 +112,7 @@ Actor ExtendedScanner : Scanner {
 
 Actor EvilSphere : Powerupgiver replaces BlurSphere
 {
- inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Evil Sphere! Monsters flee from you!\c-"
+ inventory.pickupmessage "\ccPowerup pickup: \c[Y5]Fear Sphere! Monsters flee from you!\c-"
  Powerup.Color GoldMap
  inventory.maxamount 0
  inventory.pickupsound "items/evilsphere"

@@ -486,6 +486,9 @@ void SavePlayerData(int pnum, int char_id) {
 		if(CheckActorInventory(tid, WeaponConditionCheckers[i]))
 			temp |= 1 << i;
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, temp);
+
+	// save player weapon discards
+	SetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc, PlayerActivities[pnum].discarded_weapons);
 	
 	// save player's weapon mods
 	temp = 0;
@@ -976,7 +979,7 @@ void LoadPlayerData(int pnum, int char_id) {
 	HandleResearchBonuses();
 
 	// read discarded weapons
-	PlayerActivities[pnum].discarded_weapons = GetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc);
+	UpdateActivity(pnum, DND_ACTIVITY_WEAPONDISCARD, GetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc), 1);
 	
 	// read research trackers
 	for(i = 0; i < MAX_RESEARCH_TRACKERS; ++i)

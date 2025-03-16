@@ -443,7 +443,7 @@ actor ResMG2 : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("RiotgunReloadModeDecide", 99)
 			RIOT A 1 offset(0, 68)
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster1")
-			RIOT A 16 offset (0, 71)
+			RIOT A 28 offset (0, 71)
 		ContinueRest1:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 0, DND_RWF_NOTAKEAMMO)
 			RIOT A 1 offset(0, 62)
@@ -454,7 +454,7 @@ actor ResMG2 : DnDWeapon {
 			TNT1 A 0 A_Refire("FireCont")
 		Goto ReadyLoop
 		ReloadFaster1:
-			RIOT A 6 Offset(0, 71)
+			RIOT A 14 Offset(0, 71)
 		Goto ContinueRest1
 		// ------------------------------
 		ContinueReload_Nitro:
@@ -471,7 +471,7 @@ actor ResMG2 : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("RiotgunReloadModeDecide", 99)
 			RIO2 A 1 offset(0, 68)
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster2")
-			RIO2 A 16 offset (0, 71)
+			RIO2 A 28 offset (0, 71)
 		ContinueRest2:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 2, DND_RWF_NOTAKEAMMO)
 			RIO2 A 1 offset(0, 62)
@@ -482,7 +482,7 @@ actor ResMG2 : DnDWeapon {
 			TNT1 A 0 A_Refire("Nitro_Fire")
 		Goto ReadyLoop
 		ReloadFaster2:
-			RIO2 A 6 Offset(0, 71)
+			RIO2 A 14 Offset(0, 71)
 		Goto ContinueRest2
 		// ------------------------------
 		ContinueReload_Explo:
@@ -499,7 +499,7 @@ actor ResMG2 : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("RiotgunReloadModeDecide", 99)
 			RIO3 A 1 offset(0, 68)
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "ReloadFaster3")
-			RIO3 A 16 offset (0, 71)
+			RIO3 A 28 offset (0, 71)
 		ContinueRest3:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_RIOTCANNON, 1, DND_RWF_NOTAKEAMMO)
 			RIO3 A 1 offset(0, 62)
@@ -510,7 +510,7 @@ actor ResMG2 : DnDWeapon {
 			TNT1 A 0 A_Refire("Explo_Fire")
 		Goto ReadyLoop
 		ReloadFaster3:
-			RIO3 A 6 Offset(0, 71)
+			RIO3 A 14 Offset(0, 71)
 		Goto ContinueRest3
 		
 		
@@ -959,7 +959,7 @@ Actor ExplodingPuff_Riotgun : ExplodingPuff {
 			TNT1 A 0 A_SetUserVar("user_expdmg", 
 				SSAM_EXSHELL |
 				(DND_DMGID_1 << CACHE_SHIFT) |
-				(DND_DAMAGETYPE_EXPLOSIVES << DTYPE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 				(100 << DPCT_SHIFT)
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))

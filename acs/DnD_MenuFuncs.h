@@ -315,8 +315,8 @@ int GetCritDamageDisplay(int pnum, int wep) {
 	return base;
 }*/
 
-int GetDamageTypeBonus(int pnum, int dtype) {
-	return MapDamageCategoryToPercentBonus(pnum, dtype);
+int GetDamageTypeBonus(int pnum, int dtype, int flags) {
+	return MapDamageCategoryToPercentBonus(pnum, dtype, flags);
 }
 
 int GetWeaponPage(int boxid) {
@@ -1248,8 +1248,11 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				TakeInventory("DnD_MoneySpentQuest", price);
 				SetInventory("DnD_PopupID", 0);
 				SetInventory("ActivePopupBox", 0);
+
+				// get slot of this weapon mapped to player discard
+				buystatus = GetDiscardSlotFromShopWeapon(itemid);
 				totake = GetWeaponToTake(itemid);
-				if(StrCmp(totake, ""))
+				if(StrCmp(totake, "") && !HasPlayerDiscardedSlot(pnum, buystatus))
 					GiveInventory(totake, 1);
 
 				// if you sell a weapon that has lock-on, it lingers because deselect state doesnt trigger apparently
@@ -5173,12 +5176,6 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_EXPLOSIVES);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_EXPLOSIVE, 0, 0, val), s:"\n");
-				++k;
-			}
-			
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_OCCULT);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_OCCULT, 0, 0, val), s:"\n");
@@ -5224,13 +5221,13 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			// flat and % dmg block
 			for(i = DND_DAMAGECATEGORY_BEGIN; i < DND_DAMAGECATEGORY_END; ++i) {
-				val = GetDamageTypeBonus(pnum, i);
+				val = GetDamageTypeBonus(pnum, i, 0);
 				if(val) {
 					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGEBONUS", s:"\n");
 					++k;
 				}
 				
-				val = MapDamageCategoryToFlatBonus(pnum, i);
+				val = MapDamageCategoryToFlatBonus(pnum, i, 0);
 				if(val) {
 					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"\c- to ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGE", s:"\n");
 					++k;
@@ -5571,6 +5568,10 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;
+
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_HITSCAN, i, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_HTSC", s:"\n");
+			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ENERGY, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ENRG", s:"\n");
@@ -5578,14 +5579,6 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_MAGIC, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_MAGC", s:"\n");
-			++k;
-			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_EXPLOSION, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_EXPL", s:"\n");
-			++k;
-			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_HITSCAN, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_HTSC", s:"\n");
 			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_FIRE, i, temp);

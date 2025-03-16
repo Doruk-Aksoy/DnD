@@ -119,17 +119,23 @@ void UpdateActivity(int pnum, int activity, int val, int extra) {
 		break;
 		case DND_ACTIVITY_WEAPONDISCARD:
 			// expects 1 to slotmax + 1, not 0 based
-			if(val < 0) {
-				val = -val;
-				--val;
-				PlayerActivities[pnum].discarded_weapons &= ~(1 << val);
+			if(!extra) {
+				// extra is 0 means we increment
+				if(val < 0) {
+					val = -val;
+					--val;
+					PlayerActivities[pnum].discarded_weapons &= ~(1 << val);
+				}
+				else {
+					--val;
+					PlayerActivities[pnum].discarded_weapons |= (1 << val);
+				}
 			}
 			else {
-				--val;
-				PlayerActivities[pnum].discarded_weapons |= (1 << val);
+				// just update it
+				PlayerActivities[pnum].discarded_weapons = val;
 			}
 			// we want to sync this one to the client
-			printbold(s:"disc val ", d:PlayerActivities[pnum].discarded_weapons);
 			ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
 		break;
 	}
@@ -143,6 +149,7 @@ Script "DnD Player Weapon Discard Sync" (int pnum, int val) CLIENTSIDE {
 }
 
 bool HasPlayerDiscardedSlot(int pnum, int slot) {
+	// expects 0 indexed
 	return PlayerActivities[pnum].discarded_weapons & (1 << slot);
 }
 

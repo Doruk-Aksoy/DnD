@@ -856,7 +856,7 @@ ACTOR BigBruty : DnD_BaseMeleeMonster_NoRes {
 
 Actor BruteExplosion1 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Accuracy 150
 	States {
 		Spawn:
@@ -870,7 +870,7 @@ Actor BruteExplosion1 : BaseExplosionDamage {
 
 Actor BruteExplosion2 : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Accuracy 150
 	States {
 		Spawn:
@@ -1092,7 +1092,7 @@ Actor Nhumcign : DnD_BaseMeleeMonster {
 
 Actor DemonLand : BaseExplosionDamage {
 	DamageType "Physical"
-	Stamina 1
+	Stamina 5
 	Obituary "%o was traumatized by a Nhumcign."
 	States {
 		Spawn:
@@ -1557,7 +1557,7 @@ ACTOR PurebredDemonArm {
 Actor PurebredChargeExp : BaseExplosionDamage {
 	Obituary "%o was charged by a Purebred Demon."
 	DamageType "Physical"
-	Stamina 1
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

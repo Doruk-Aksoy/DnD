@@ -10,8 +10,6 @@
 #define DND_ITEMMOD_REMOVE TRUE
 
 #define MAX_ITEM_LEVEL 100
-#define MAX_ITEM_AFFIXTIERS 4
-#define ITEM_TIER_SEPERATOR (100 / MAX_ITEM_AFFIXTIERS)
 
 #define DND_SYNC_ITEMBEGIN DND_SYNC_ITEMTOPLEFTBOX
 #define DND_SYNC_ITEMEND DND_SYNC_ITEMATTRIBUTES_TIER
@@ -891,7 +889,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		return POPUP_NOMORESMALLCHARMS;
 	
 	// or tried to put small charm when well of power is there and would exceed limit
-	if(target_type == DND_CHARM_SMALL && (i = GetPlayerAttributeValue(pnum, INV_EX_LIMITEDSMALLCHARMS)) && i == CountPlayerSmallCharms(pnum))
+	if(target_type == DND_CHARM_SMALL && (i = GetPlayerAttributeValue(pnum, INV_EX_LIMITEDSMALLCHARMS)) && i != MAX_SMALL_CHARMS_USED && i == CountPlayerSmallCharms(pnum))
 		return POPUP_NOMORESMALLCHARMS;
 
 	// if has forbid armor but has equipped body armor, don't allow that item to be put, and vice versa if has no armor and has forbid armor etc.
@@ -3299,7 +3297,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 					rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
 
 				// if no attributes of this type are allowed, but we have some special roll, include it and try again
-				if(rand_attr == -1 || IsAttributeArmorException(tag_id, rand_attr, craftable_type)) {
+				if(rand_attr == -1 || IsAttributeArmorException(rand_attr, craftable_type)) {
 					if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
 						craftable_type = DND_CRAFTABLEID_CHARM;
 						rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
@@ -3691,6 +3689,10 @@ bool GetItemMaxQuality(int pnum, int item_index) {
 	if(PlayerInventoryList[pnum][item_index].implicit.attrib_extra & PPOWER_MAXQUALITYHIGH)
 		return 2 * DND_MAX_CHARM_QUALITY;
 	return DND_MAX_CHARM_QUALITY;
+}
+
+Script "DnD Check Item Collision" (void) {
+	SetResultValue(Spawn("DnD_ItemCollisionChecker", GetActorX(0), GetActorY(0), GetActorZ(0)));
 }
 
 #include "DnD_Token.h"
