@@ -961,7 +961,7 @@ Actor ScavengerBall {
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	Damagetype "FireBlue"
-	Stamina 1073741828
+	Stamina 1073741832
 	Decal BaronScorch
 	Translation "111:123=197:207", "124:127=242:245"
 	+DONTBLAST
@@ -1757,7 +1757,7 @@ Actor ClinkDashDamager {
 	Speed 36
 	Height 28
 	Radius 8
-	Damage (15)
+	Damage (16)
 	DamageType "Physical"
 	Stamina 1
 	Scale 0.9

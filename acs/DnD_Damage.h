@@ -326,9 +326,8 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 }
 
 int GetLowestResist(int pnum) {
-	static int res_ids[9][2] = { 
+	static int res_ids[7][2] = { 
 		{ INV_DMGREDUCE_PHYS, DND_DAMAGETYPEFLAG_PHYSICAL },
-		{ INV_DMGREDUCE_HITSCAN, DND_DAMAGETYPEFLAG_HITSCAN },
 		{ INV_DMGREDUCE_MAGIC, DND_DAMAGETYPEFLAG_MAGICAL },
 		{ INV_DMGREDUCE_ENERGY, DND_DAMAGETYPEFLAG_ENERGY },
 		{ INV_DMGREDUCE_FIRE, DND_DAMAGETYPEFLAG_FIRE },
@@ -339,7 +338,7 @@ int GetLowestResist(int pnum) {
 
 	int val = INT_MAX;
 	int min_type = 0;
-	for(int i = 0; i < 9; ++i) {
+	for(int i = 0; i < 7; ++i) {
 		int temp = GetPlayerAttributeValue(pnum, res_ids[i][0]);
 		if(val >= temp) {
 			// not yet established, reset
@@ -2262,9 +2261,6 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	
 	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
 		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_PHYS);
-
-	if(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_HITSCAN);
 	
 	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
 		temp = HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;
@@ -3366,8 +3362,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// finally dealing the damage
 			if(victim) {
 				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)), 0);
-				if(dmg < 0)
-					dmg = 0;
 
 				// failsafe
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {
@@ -3377,6 +3371,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					);
 					SetActorProperty(victim, APROP_HEALTH, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp);
 				}
+
+				if(dmg < 0)
+					dmg = 0;
 
 				SetResultValue(dmg);
 				HandleOnHitEffects(shooter);

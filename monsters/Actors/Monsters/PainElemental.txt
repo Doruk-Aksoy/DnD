@@ -658,7 +658,7 @@ ACTOR HSBoom {
 	Speed 0
 	Damage 0
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 260
 	Alpha 0.90
 	PROJECTILE
 	+DONTREFLECT
@@ -805,7 +805,7 @@ ACTOR SentGmissile {
 
 Actor SentinelExp : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 12
+	Stamina 36
 	Obituary "%o was blasted away by a seninel."
 	States {
 		Spawn:
@@ -821,7 +821,7 @@ ACTOR SentRmissile {
 	Speed 20
 	Damage (15 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 8
+	Stamina 32
 	RenderStyle ADD
 	Alpha 0.85
 	PROJECTILE
@@ -975,7 +975,7 @@ ACTOR FireBreath {
 	Damage (3 * random(1,2))
 	DamageType "MagicalFire"
 	Accuracy 150
-	Stamina 40
+	Stamina 32
 	Alpha 0.2
 	PROJECTILE
 	+DONTREFLECT
@@ -1002,7 +1002,7 @@ ACTOR FireBreath {
 
 Actor BloodLichExp : BaseExplosionDamage {
 	DamageType "Magical"
-	Stamina 12
+	Stamina 36
 	Obituary "%o was reduced to a pile of ash by a Blood Lich."
 	States {
 		Spawn:
@@ -1018,7 +1018,7 @@ ACTOR BloodLichFireball {
 	Damage (4 * random(1, 8))
 	PROJECTILE
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	DeathSound "MageStaffExplode"
 	+DONTREFLECT
 	+DONTBLAST

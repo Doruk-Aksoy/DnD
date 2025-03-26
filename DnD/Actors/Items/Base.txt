@@ -443,6 +443,11 @@ Actor DND_ACK : PowerDamage {
 	powerup.duration 4
 }
 
+Actor DnD_RemoveBoxSignal : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -50
+}
+
 Actor DND_ACKLoop : DnD_Boolean { }
 
 Actor DnD_ActorWorking : DnD_Boolean { }

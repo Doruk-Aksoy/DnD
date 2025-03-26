@@ -1,6 +1,12 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
+#pragma pointer_space global 56
+
+#include "libbcs.bcs"
+
+#define SIZEOF_INT 4
+
 #define ISDEBUGBUILD
 
 #ifdef ISDEBUGBUILD
@@ -10,6 +16,11 @@ int test_counter = 0;
 #define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 //#define HELPER_MESSAGES_ON
+
+struct ValueComponent_T {
+	int additive;
+	int multiplicative;
+};
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0

@@ -11,7 +11,7 @@
 
 #define ETHEREAL_RESIST 33
 
-#define MONSTER_RES_PER_THRESHOLD 25
+#define MONSTER_RES_PER_THRESHOLD 30
 
 // note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
 // so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
@@ -121,62 +121,62 @@ enum {
 global int 54: Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS];
 
 // this is the base exp value you get for killing a monster of this class, where all bonuses will be applied to
-// shifted right by 16 it returns the droprate multiplier
+// shifted right by 16 it returns the base droprate multiplier that is applied to base droprates of charms, orbs etc.
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 6 | (15 << 16);
+		return 6 | (8 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 9 | (20 << 16);
+		return 9 | (12 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 15 | (28 << 16);
+		return 15 | (18 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 21 | (32 << 16);
+		return 21 | (22 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 24 | (35 << 16);
+		return 24 | (24 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 12 | (24 << 16);
+		return 12 | (16 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 45 | (50 << 16);
+		return 45 | (45 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
 		return 54 | (60 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 24 | (24 << 16);
+		return 24 | (16 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 33 | (40 << 16);
+		return 33 | (42 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 48 | (52 << 16);
+		return 48 | (56 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 81 | (75 << 16);
+		return 81 | (80 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 76 | (75 << 16);
+		return 76 | (80 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 72 | (75 << 16);
+		return 72 | (80 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 90 | (96 << 16);
+		return 90 | (100 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 600 | (125 << 16);
+		return 600 | (130 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1080 | (135 << 16);
+		return 1080 | (150 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
-		return 16 | (18 << 16);
+		return 16 | (15 << 16);
 	}
 	
 	return 1;
@@ -842,19 +842,19 @@ int GetMonsterRarityDroprateBonus(int rarity) {
 		return 0;
 		
 		case DND_MWEIGHT_UNCOMMON:
-		return 1;
+		return 15;
 		
 		case DND_MWEIGHT_RARE1:
-		return 2;
+		return 25;
 		
 		case DND_MWEIGHT_RARE2:
-		return 3;
+		return 35;
 		
 		case DND_MWEIGHT_VERYRARE:
-		return 4;
+		return 60;
 		
 		case DND_MWEIGHT_EPIC:
-		return 5;
+		return 100;
 	}
 	return 1;
 }
@@ -863,12 +863,13 @@ int GetMonsterRarityDroprateBonus(int rarity) {
 	Multiply the bonus with 1000 / rarity of monster to get a percentage
 	This is a linear, simple bonus added on top just because of the rarity of the monster. While rarity is important, the level matters more. However early on it should have a tiny impact still.
 */
-#define DND_DROPBONUS_FROM_RARITY 20
 #define DND_ELITEBONUS_FROM_RARITY 50
 int GetMonsterDropBonus(int drop_base, int level, int rarity, bool isElite) {
 	// first a 50% from elites as a multiplicative bonus, then the rest
-	return 	(drop_base * (100 + DND_ELITEBONUS_FROM_RARITY * isElite) / 100) * 
-			(100 + GetMonsterLevelDroprateBonus(level) + DND_DROPBONUS_FROM_RARITY * GetMonsterRarityDroprateBonus(rarity)) / 100;
+	drop_base = drop_base * (100 + DND_ELITEBONUS_FROM_RARITY * isElite) / 100;
+	drop_base = drop_base * (100 + GetMonsterLevelDroprateBonus(level)) / 100;
+	drop_base = drop_base * (100 + GetMonsterRarityDroprateBonus(rarity)) / 100;
+	return drop_base;
 }
 
 // you gain the returned value for exp, and third of that for credits -- rarity is monster rarity not item related rarity!
@@ -2006,9 +2007,9 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_THORAX].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
 	MonsterData[MONSTER_ZRAVOG].health = 1800;
 	MonsterData[MONSTER_ZRAVOG].flags = DND_MTYPE_MAGICAL_POW;
-	MonsterData[MONSTER_ERYXIA].health = 7500;
+	MonsterData[MONSTER_ERYXIA].health = 8000;
 	MonsterData[MONSTER_ERYXIA].flags = DND_MTYPE_DEMON_POW;
-	MonsterData[MONSTER_ABAXOTH].health = 8500;
+	MonsterData[MONSTER_ABAXOTH].health = 9000;
 	MonsterData[MONSTER_ABAXOTH].flags = DND_MTYPE_DEMON_POW;
 
 	// classics

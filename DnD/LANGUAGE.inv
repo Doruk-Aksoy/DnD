@@ -384,7 +384,7 @@ IATTR_T74			= "increased melee weapon damage";
 IATTR_T75			= "damage over time multiplier";
 IATTR_T76			= "increased damage over time";
 
-IATTR_T77			= "hitscan resist";
+IATTR_T77			= "projectile speed";
 IATTR_T78			= "energy resist";
 IATTR_T79			= "increased knockback resist";
 IATTR_T80			= "magic resist";

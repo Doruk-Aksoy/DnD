@@ -123,7 +123,7 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes {
 
 Actor DiabloExp1 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 44
+	Stamina 36
 	Obituary "%o was set ablaze by a Diabloist."
 	+NODAMAGETHRUST
 	States {
@@ -172,7 +172,7 @@ Actor DFire {
 	Speed 0
 	RenderStyle Add
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
 	ALPHA 1.00
 	+DONTREFLECT
@@ -255,7 +255,7 @@ ACTOR DFlare {
 	RenderStyle Add
 	DamageType "MagicalFire"
 	Accuracy 133
-	Stamina 1073741864
+	Stamina 1073741856
 	Alpha 0.85
 	Projectile
 	+DONTREFLECT
@@ -284,7 +284,7 @@ Actor DMissile : FastProjectile {
 	Radius 14
 	Damage (24)
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	MissileType "DMissileTrail"
 	+ThruGhost
 	+DONTBLAST
@@ -330,7 +330,7 @@ Actor DMissile : FastProjectile {
 
 Actor DiabloExp6 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 44
+	Stamina 36
 	Obituary "%o was set ablaze by a Diabloist."
 	States {
 		Spawn:
@@ -347,7 +347,7 @@ Actor DTracer {
 	ReactionTime 96
 	Damage (4 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	RenderStyle Add
 	Alpha 0.67
 	Projectile
@@ -393,7 +393,7 @@ Actor MFlareFX {
 
 Actor DiabloExp7 : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	Obituary "%o was set ablaze by a Diabloist."
 	States {
 		Spawn:
@@ -425,7 +425,7 @@ Actor DTracerPuff {
 Actor DMissileTrail {
 	RenderStyle Add
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	+ThruGhost
 	+DONTBLAST
 	+NOBLOCKMAP
@@ -451,7 +451,7 @@ Actor DMissileCircle {
 	RenderStyle "Add"
 	DeathSound "ClericFlameCircle"
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	+ThruGhost
 	+DONTBLAST
 	
@@ -775,7 +775,7 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 
 Actor HieroExp : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 44
+	Stamina 36
 	Obituary "%o was hexed by a Hierophant."
 	States {
 		Spawn:
@@ -789,7 +789,7 @@ Actor HieroBall1 : BaronBall {
 	Speed 20
 	Damage (6 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	+ThruGhost
 	+ForceXYBillBoard
 	Decal RevenantScorch
@@ -818,7 +818,7 @@ Actor HieroBall2 {
 	Renderstyle Add
 	Damage (4 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	PROJECTILE
 	+ThruGhost
 	+SEEKERMISSILE
@@ -845,7 +845,7 @@ Actor HieroBall2 {
 
 Actor HieroExp2 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 12
+	Stamina 36
 	Obituary "%o was hexed by a Hierophant."
 	States {
 		Spawn:
@@ -2028,7 +2028,7 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 Actor GuruExplosion1 : BaseExplosionDamage {
 	DamageType "MagicalFire"
 	Accuracy 133
-	Stamina 44
+	Stamina 36
 	Obituary "%o was incinerated by a Guru."
 	+NODAMAGETHRUST
 	States {
@@ -2058,7 +2058,7 @@ Actor GuruPacifier {
 	Damage (3 * random(1, 8))
 	DamageType "MagicalFire"
 	Accuracy 133
-	Stamina 40
+	Stamina 32
 	SeeSound "Guru/Fire"
 	DeathSound "imp/shotx"
 	+HITTRACER

@@ -207,8 +207,6 @@ enum {
 
 #define DND_MARINE_SELFRESIST 25 // 25%
 
-#define DND_WANDERER_EXP_DAMAGE 20 // 1 / 20 = 5%
-
 // RPG ELEMENTS END
 
 #define DefStepSound "Player/Move"
@@ -1307,7 +1305,7 @@ int GetAveragePlayerLevel() {
 	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / temp;
 }
 
-void ClearLingeringBuffs() {
+void ClearLingeringBuffs(int pnum) {
 	TakeInventory("MenuFreeze", 1);
 	SetInventory("AllMapOnlyOnce", 0);
 	SetInventory("Punisher_Perk5_MoveSpeed", 0);
@@ -1346,9 +1344,11 @@ void ClearLingeringBuffs() {
 	
 	// some buffs from weapons
 	SetInventory("SniperZoomTimer", 0);
+	SetInventory("DnD_HandgunMoreCritShots", 0);
 
 	// debuffs
 	SetInventory("RuinationStacks", 0);
+	ResetPlayerBuffs(pnum);
 }
 
 void SyncResearchInvestments(int pnum) {

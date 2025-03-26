@@ -28,6 +28,8 @@ Actor Hittable_Spell_Object {
 	+THRUSPECIES
 	+SHOOTABLE
 	
+	Damagefactor "PlayerExplosive", 0.0
+	
 	damagefactor "SoulType", 0.0
 	damagefactor "SoulTypeFull", 0.0
 	damagefactor "SoulTypeExp", 0.0

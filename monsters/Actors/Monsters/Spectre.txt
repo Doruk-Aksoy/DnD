@@ -580,6 +580,7 @@ Actor Bloodshot_Icey : Bloodshot {
 	Translation "Ice"
 	Alpha 0.75
 	Renderstyle Add
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -599,6 +600,7 @@ Actor Bloodshot_Grav_Icey : Bloodshot_Grav {
 	Translation "Ice"   
 	Alpha 0.75
 	Renderstyle Add
+	Stamina 8
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

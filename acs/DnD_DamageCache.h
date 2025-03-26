@@ -1,3 +1,4 @@
+
 #ifndef DND_DAMAGECACHE_IN
 #define DND_DAMAGECACHE_IN
 
@@ -15,32 +16,32 @@ typedef struct pdmg_cache {
 	int final_factor[MAXWEPS][MAX_CACHE_ELEMENTS];									// holds final factor we multiply with
 } pdmg_cache_T;
 
-pdmg_cache_T& GetPlayerDamageCache(int pnum) {
+pdmg_cache_T module& GetPlayerDamageCache(int pnum) {
 	static pdmg_cache_T cache[MAXPLAYERS];
 	return cache[pnum];
 }
 
 bool PlayerDamageNeedsCaching(int pnum, int wepid, int dmgid) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	return !cache.norecalculate[wepid][dmgid];
 }
 
 void ClearCache(int pnum, int wepid, int dmgid) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	cache.flat_values[wepid][dmgid] = 0;
 	cache.final_factor[wepid][dmgid] = 100;
 }
 
 // this guy gets called last, so we mark recalc stuff here
 void MarkCachingComplete(int pnum, int wepid, int dmgid) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	cache.norecalculate[wepid][dmgid] = true;
 	// clean the previously issued mass recalc request, since player fired now they might want to craft afterwards
 	cache.massRecalculationRequested = false;
 }
 
 void CachePlayerDamage(int pnum, int dmg, int wepid, int dmgid, int dmg_rand) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	
 	cache.damage_cache[wepid][dmgid].dmg = dmg;
 	cache.final_factor[wepid][dmgid] = dmg; // final_factor refers to dmg after all dmg calculation
@@ -50,14 +51,14 @@ void CachePlayerDamage(int pnum, int dmg, int wepid, int dmgid, int dmg_rand) {
 }
 
 void CachePlayerFlatDamage(int pnum, int dmg, int wepid, int dmgid) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	// not cached
 	if(!cache.norecalculate[wepid][dmgid])
 		cache.flat_values[wepid][dmgid] = dmg;
 }
 
 void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor, bool isAdditive) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	
 	// if 0, replace otherwise fixed mul
 	if(cache.final_factor[wepid][dmgid]) {
@@ -75,7 +76,7 @@ void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor, bool isAdditi
 
 // used for multiplicative item mods that are by default fixed point
 void InsertCacheFactor_Fixed(int pnum, int wepid, int dmgid, int factor) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	
 	// if 0, replace otherwise fixed mul
 	if(cache.final_factor[wepid][dmgid]) {
@@ -100,13 +101,13 @@ int GetCachedPlayerFactor(int pnum, int wepid, int dmgid) {
 }
 
 int GetCachedPlayerRandomRange(int pnum, int wepid, int dmgid) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	if(cache.damage_cache[wepid][dmgid].dmg_low && cache.damage_cache[wepid][dmgid].dmg_high)
 		return cache.damage_cache[wepid][dmgid].dmg_low | (cache.damage_cache[wepid][dmgid].dmg_high << 16);
 	return 1;
 }
 
-void ForceClearCache(pdmg_cache_T& cache, int pnum) {
+void ForceClearCache(pdmg_cache_T module& cache, int pnum) {
 	for(int i = 0; i < MAXWEPS; ++i) {
 		for(int j = 0; j < MAX_CACHE_ELEMENTS; ++j) {
 			cache.norecalculate[i][j] = false;
@@ -118,7 +119,7 @@ void ForceClearCache(pdmg_cache_T& cache, int pnum) {
 
 // forces player to recalculate the damage values
 void ForcePlayerDamageCaching(int pnum) {
-	pdmg_cache_T& cache = GetPlayerDamageCache(pnum);
+	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	// if a mass recalculation was issued, so we don't keep repeating this over and over if player is simply crafting
 	if(!cache.massRecalculationRequested) {
 		cache.massRecalculationRequested = true;

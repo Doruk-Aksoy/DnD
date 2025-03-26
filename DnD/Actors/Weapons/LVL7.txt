@@ -327,19 +327,24 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DEVASTATOR)
+			DEVA A 0 A_GiveInventory("H_WeaponSlot7", 1)
+			DEVA A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check")
+			DEVA A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_DEVASTATOR)
 		ReadyLoop:
+			DEVA A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, BTI_F_REMOVE)
+		RealReadyLoop:
 			DEVA A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, BTI_F_REMOVE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR2, BTI_F_REMOVE)
+		DeselectLoop:
 			DEVA A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
 		Select:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_DEVASTATOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, BTI_F_REMOVE)
 		SelectLoop:
 			DEVA A 1 A_Raise
 			TNT1 A 0 A_Raise
@@ -354,6 +359,7 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 			TNT1 A 0 A_GiveInventory("DevastatorTurn", 1)
 			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
 			TNT1 A 0 Radius_Quake(4,2,0,1,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEVASTATOR, DND_ATK_PRIMARY, DND_AMMOSLOT_CELL | (AMMO_DEVASTATOR << 16), DND_ATF_CANFIRECIRCLE | DND_ATF_NOAMMOGAINCHECK)
 			DEVA CD 1 Bright
 			DEVA EF 2
@@ -364,6 +370,7 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 			TNT1 A 0 A_TakeInventory("DevastatorTurn", 1)
 			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
 			TNT1 A 0 Radius_Quake(4,2,0,1,0)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_DEVASTATOR, DND_ATK_PRIMARY | DND_ATK_OTHER_DIR, DND_AMMOSLOT_CELL | (AMMO_DEVASTATOR << 16), DND_ATF_CANFIRECIRCLE | DND_ATF_NOAMMOGAINCHECK)
 			DEVA HI 1 Bright
 			DEVA JK 2
@@ -375,7 +382,7 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 		Goto ReadyLoop
 		AltFireConfirmed:
 			// 66 tics => 1.5 secs
-			DEVA A 2 Offset(0, 31) A_GiveInventory("DnD_DevastatorSlowGiver", 1)
+			DEVA A 2 Offset(0, 31) ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR2)
 			DEVA A 2 Offset(0, 30) A_PlayWeaponSound("weapons/bigcharge")
 			DEVA A 2 Offset(0, 28)
 			DEVA A 2 Offset(0, 26)
@@ -469,6 +476,7 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 			DEVA F 1
 			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
 			DEVA G 1 Bright A_GunFlash
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR2, BTI_F_REMOVE)
 			DEVA I 1 Bright
 			DEVA K 1
 			//--------------------
@@ -488,23 +496,6 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 			DEVA Z -1
 		Stop	
 	}
-}
-
-Actor DnD_DevastatorSlowGiver : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "NoRecoil")
-			TNT1 A 0 A_GiveInventory("DnD_DevastatorSlower", 1)
-		Stop
-		NoRecoil:
-			TNT1 A 0
-		Stop
-	}
-}
-
-Actor DnD_DevastatorSlower : PowerSpeed {
-	Speed 0.15
-	powerup.duration 104
 }
 
 Actor DevastatorTurn : DnD_Boolean { }

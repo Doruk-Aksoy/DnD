@@ -3374,7 +3374,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_SHELLSHOCK;
+				i = UITEM_SLAYERSPECIAL;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

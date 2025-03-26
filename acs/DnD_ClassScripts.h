@@ -11,12 +11,13 @@ Script "DnD Check Execution" (void) {
 
 // monster is assumed activator of this function
 void HandleDoomguyExecute(int ptid, int mon_tid) {
+	int pnum = ptid - P_TIDSTART;
 	if(CheckActorInventory(ptid, "Doomguy_Perk5") && CheckInventory("Doomguy_CanExecute")) {
 		if(CheckInventory("Doomguy_ValidExecute")) {
 			TakeInventory("Doomguy_CanExecute", 1);
 			TakeInventory("Doomguy_ValidExecute", 1);
 
-			int hp_to_give = GetPlayerSpawnHealth(ptid - P_TIDSTART) * DND_DOOMGUY_PERK5HEAL / 100;
+			int hp_to_give = GetPlayerSpawnHealth(pnum) * DND_DOOMGUY_PERK5HEAL / 100;
 			
 			// give extra health to player
 			if(CheckActorInventory(ptid, "Doomguy_Perk25")) {
@@ -31,6 +32,17 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 
 			// heal
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, hp_to_give, 6, 1);
+
+			// slayer special interaction
+			hp_to_give = GetPlayerAttributeValue(pnum, INV_EX_REFILLAMMOONMELEEKILL);
+			if(hp_to_give) {
+				SetActivator(ptid);
+				GiveOwnedWeaponsAmmo(hp_to_give);
+				SetActivator(mon_tid);
+			}
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT))
+				ACS_NamedExecuteAlways("DnD Swapped From Melee", 0, ptid);
 		}
 		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", mon_tid, 1, MonsterProperties[mon_tid - DND_MONSTERTID_BEGIN].id);
 	}

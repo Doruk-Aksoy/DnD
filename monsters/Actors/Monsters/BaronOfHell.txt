@@ -1009,7 +1009,7 @@ Actor WraithFX12 {
 	Mass 5
 	Damage (6 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	Projectile
 	+FLOORCLIP
 	+DONTREFLECT
@@ -1078,7 +1078,7 @@ Actor PossEttFakeFireBall {
 
 Actor BormerethExp : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 44
+	Stamina 36
 	Obituary "%o was incinerated by the rage of Bormereth."
 	States {
 		Spawn:
@@ -1090,7 +1090,7 @@ Actor BormerethExp : BaseExplosionDamage {
 
 Actor BormerethPainExp : BaseExplosionDamage {
 	DamageType "MagicalFire"
-	Stamina 44
+	Stamina 36
 	Obituary "%o was incinerated by the rage of Bormereth."
 	States
 	{
@@ -1120,7 +1120,7 @@ Actor PossEttFireBall {
 	SeeSound "bormereth/missile2fired"
 	DeathSound "bormereth/missile2death"
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	Decal DoomImpScorch
 	States {
 		Spawn:

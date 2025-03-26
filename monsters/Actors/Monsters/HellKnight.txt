@@ -269,7 +269,7 @@ Actor HellWarriorBall {
 	Damage (8 * random(1, 8))
 	+DONTBLAST
 	DamageType "MagicalYellow"
-	Stamina 1073741832
+	Stamina 1073741856
 	Projectile
 	RenderStyle Add
 	Alpha 0.7
@@ -312,7 +312,7 @@ Actor HellWarriorBall2 {
 	Speed 8
 	Damage (2 * random(1, 8))
 	+DONTBLAST
-	DamageType "MagicalYellow"
+	DamageType "MagicalGreen"
 	Stamina 1073741832
 	Projectile
 	RenderStyle Add
@@ -633,7 +633,6 @@ Actor ArchonComet {
 	+DONTBLAST
 	SeeSound "weapons/firbfi"
 	DeathSound "weapons/hellex"
-	DontHurtShooter
 	States {
 		Spawn: 
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -781,7 +780,7 @@ Actor WarlordOfHellBall {
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"
 	Damagetype "FireBlue"
-	Stamina 1073741832
+	Stamina 1073741856
 	Decal BaronScorch
 	Translation "111:123=197:207", "124:127=242:245"
 	+DONTBLAST
@@ -950,7 +949,7 @@ ACTOR ShadowBeast_BallFire {
 	Height 6
 	Damage (2 * random(1, 8))
 	DamageType "FireGreen"
-	Stamina 1073741832
+	Stamina 1073741856
 	Projectile
 	+SPAWNSOUNDSOURCE
 	+RIPPER
@@ -978,7 +977,7 @@ ACTOR ShadowBeast_Ball1 {
 	Height 6
 	Damage (5*random(2,5))
 	DamageType "FireGreen"
-	Stamina 1073741832
+	Stamina 1073741856
 	Projectile
 	+SPAWNSOUNDSOURCE
 	+DONTBLAST
@@ -1008,7 +1007,7 @@ ACTOR ShadowBeast_Ball2 {
 	Height 6
 	Damage (2 * random(1, 8))
 	Damagetype "FireGreen"
-	Stamina 1073741832
+	Stamina 1073741856
 	Speed 16
 	PROJECTILE
 	+Randomize
@@ -1037,7 +1036,7 @@ ACTOR ShadowBeast_Ball3 {
 	Height 6
 	Damage (5 * random(1, 8))
 	DamageType "FireGreen"
-	Stamina 1073741832
+	Stamina 1073741856
 	Speed 20
 	PROJECTILE
 	+DONTBLAST
@@ -1153,7 +1152,7 @@ ACTOR KFireBall {
 	Damage (random(6, 16))
 	DamageType "MagicalFire"
 	Accuracy 133
-	Stamina 1073741864
+	Stamina 1073741856
 	PROJECTILE
 	SeeSound "monster/dkball"
 	+DONTBLAST
@@ -1815,7 +1814,7 @@ Actor MoonSatyrMeteorSpawner : BulletPuff {
 
 Actor MoonSatyrMeteorExplosion : BaseExplosionDamage {
 	DamageType "Magical"
-	Stamina 16
+	Stamina 68
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1830,7 +1829,7 @@ Actor MoonSatyrMeteor {
 	Radius 4
 	Damage (50)
 	DamageType "Magical"
-	Stamina 8
+	Stamina 64
 	+DONTREFLECT
 	+NODAMAGETHRUST
 	Deathsound "MoonSatyr/MeteorExplode"

@@ -442,6 +442,7 @@ typedef struct rect {
 	int botright_x;
 	int botright_y;
 } rect_T;
+#define SIZEOF_RECT (SIZEOF_INT * 4)
 
 typedef struct idragdata {
 	int size_x;
@@ -477,21 +478,22 @@ typedef struct cursor {
 cursor_T PlayerCursorData;
 
 #define MAX_MENU_BOXES 20
-typedef struct mp {
+struct menu_pane_T {
 	rect_T MenuRectangles[MAX_MENU_BOXES];
 	int cursize;
-} menu_pane_T;
+};
 
-menu_pane_T& GetPane() {
+menu_pane_T module& GetPane() {
 	static menu_pane_T pane;
+	pane.cursize = 0;
 	return pane;
 }
 
-void ResetPane(menu_pane_T& p) {
+void ResetPane(menu_pane_T module& p) {
 	p.cursize = 0;
 }
 
-void AddBoxToPane_Points(menu_pane_T& p, int tx, int ty, int bx, int by) {
+void AddBoxToPane_Points(menu_pane_T module& p, int tx, int ty, int bx, int by) {
 	if(p.cursize < MAX_MENU_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = tx;
 		p.MenuRectangles[p.cursize].topleft_y = ty;
@@ -504,7 +506,7 @@ void AddBoxToPane_Points(menu_pane_T& p, int tx, int ty, int bx, int by) {
 }
 
 // since we use top left corner as 1:1, directions are changed
-bool point_in_box(rect_T? box, int mx, int my, int yoffset) {
+bool point_in_box(rect_T module& box, int mx, int my, int yoffset) {
 	return (mx <= box.topleft_x && mx >= box.botright_x && my <= box.topleft_y - yoffset && my >= box.botright_y - yoffset);
 }
 
@@ -512,7 +514,7 @@ bool point_in_points(int ux, int uy, int lx, int ly, int mx, int my, int yoffset
 	return (mx <= ux && mx >= lx && my <= uy - yoffset && my >= ly - yoffset);
 }
 
-int GetTriggeredBoxOnPane(menu_pane_T& p, int mx, int my, int xlim = 348.0, int ylim = 282.0) {
+int GetTriggeredBoxOnPane(menu_pane_T module& p, int mx, int my, int xlim = 348.0, int ylim = 282.0) {
 	if(mx >= xlim || my >= ylim)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {

@@ -480,7 +480,7 @@ actor QueenPainPlasmaBlast : QueenPlasmaBlast {
 
 Actor PsionicQueenExp1 : BaseExplosionDamage {
 	DamageType "MagicalVoid"
-	Stamina 12
+	Stamina 20
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -495,7 +495,7 @@ ACTOR QueenBFG {
 	Speed 20
 	Damage (15 * random(1, 8))
 	DamageType "MagicalVoid"
-	Stamina 8
+	Stamina 16
 	PROJECTILE
 	+DONTREFLECT
 	+SEEKERMISSILE
@@ -1040,7 +1040,7 @@ ACTOR GoldLichFire {
 	Speed 16
 	Damage (5 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	Projectile
 	Alpha 0.85
 	DeathSound "weapons/phoenixhit"
@@ -1292,7 +1292,7 @@ Actor IronLichGreenAttack : SentGmissile {
 
 Actor VolcanoTBlast2Lich : VolcanoTBlast2 {
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
@@ -1304,7 +1304,7 @@ Actor IronLichFireAttack : beastball2 {
 	Speed 28
 	Damage (12 * random(1, 8))
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	Scale 1.25
 	States {
 		Spawn:
@@ -2039,13 +2039,13 @@ Actor DarkSpiritAttack {
 
 Actor DarkLichWarpDamager : BaseExplosionDamage {
 	DamageType "PhysicalTornado"
-	Stamina 12
+	Stamina 1
 	+NODAMAGETHRUST
 	+PIERCEARMOR
 	+FORCEPAIN
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay A_Explode(4, 64, 0, 0, 24)
+			TNT1 A 1 NoDelay A_Explode(5, 64, 0, 0, 24)
 		Stop
 	}
 }

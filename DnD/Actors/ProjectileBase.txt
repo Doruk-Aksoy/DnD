@@ -191,6 +191,7 @@ Actor DnD_PuffTest : DnD_Activator {
 Actor DnD_ExplosiveBase {
 	PROJECTILE
 	Damage 0
+	DamageType "PlayerExplosive"
 	+HITTRACER
 	+MTHRUSPECIES
 	+NODAMAGETHRUST

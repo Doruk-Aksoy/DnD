@@ -789,6 +789,10 @@ Script "DND On Revive" (void) {
 		ACS_NamedExecuteAlways("DnD Pet Distance Move", 0);
 	}
 
+	// check if they were blocking and clear if they were
+	if(HasTrait(id, DND_ISBLOCKING))
+		ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1);
+
 	GiveInventory("DnD_MonsterSetupDone", 1);
 }
 
@@ -1558,11 +1562,15 @@ Script "DnD Remove Check Special" (int sp, int extra) CLIENTSIDE {
 	}
 }
 
-Script "DnD Player Speed Slowdown" (int mult, int div) {
-	if(mult == -1 && div == -1)
+Script "DnD Player Speed Slowdown" (int percent) {
+	if(!percent) {
+		if(!CheckInventory("ShowingMenu")) // don't break menu functionality
+			SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 		RestoreRPGStat(RES_PLAYERSPEED);
+	}
 	else {
-		SlowPlayer(1.0 * mult / div, 0, 0);
+		percent = ((percent << 16) / 100);
+		SlowPlayer(percent, 0, 0);
 	}
 	SetResultValue(0);
 }
@@ -2774,7 +2782,9 @@ Script "DnD On Respawn" RESPAWN {
 	Thing_ChangeTID(0, P_TIDSTART + pnum);
 	TakeInventory("PowerReflection", 1);
 	TakeInventory("DnD_PDead", 1);
-	ClearLingeringBuffs();
+
+	ClearLingeringBuffs(pnum);
+
 	SetInventory("PlayerIsLeeching", 0);
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
@@ -2912,7 +2922,7 @@ Script "DnD Player Setup" ENTER {
 	
 	ResetMugstate();
 	
-	ClearLingeringBuffs();
+	ClearLingeringBuffs(pnum);
 	
 	// statistics reset
 	SetInventory("DnD_Kills", 0);
@@ -3177,6 +3187,7 @@ Script "DnD Player Setup" ENTER {
 	}
 #endif
 	TakeInventory("DnD_CountdownProtection", 1);
+	TakeInventory("DnD_RemoveBoxSignal", 1);
 
 /*#ifdef ISDEBUGBUILD
 	Delay(10*TICRATE);
@@ -3434,7 +3445,7 @@ Script 996 (int type, int id) {
 			// give additional ones for db save
 			int add_backpack_amount = 1;
 			if(GetCVar("dnd_firstbackpackold"))
-				add_backpack_amount += 4;
+				add_backpack_amount += 8;
 			//Respect the max backpack amount
 			SetInventory("BackpackCounter", Min(CheckInventory("BackpackCounter") + add_backpack_amount, DND_MAX_BACKPACK));
 
@@ -5747,10 +5758,10 @@ Script 68 (int x) NET {
 			SpawnToken(0, true);
 			SpawnOrbForAll(1, random(300, 500));
 			SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_CYBERNETIC, INV_CHANCE_AILMENTIGNORE);
+			SpawnCharmWithMods_ForAll(INV_PROJSPEED);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
-			//IncPlayerModValue(0, INV_ESHIELD_ABSORB, 25);
+			IncPlayerModValue(0, INV_PROJSPEED, 0.25);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
@@ -5822,6 +5833,63 @@ Script 68 (int x) NET {
 	}
 	#endif
 }
+
+/*Script "DnD Buff Test" ENTER {
+	if(GetGameModeState() == GAMESTATE_COUNTDOWN)
+		Terminate;
+
+	int pnum = PlayerNumber();
+
+	Log(s:"starting speed factor ", f:GetPlayerSpeed(pnum));
+
+	Delay(105);
+
+	GivePlayerBuff(pnum, ActivatorTID(), BUFF_SLOW, 0.2, BUFF_F_PLAYERSOURCE); // 0
+
+	LogBuffList(pnum);
+	Delay(105);
+
+	GivePlayerBuff(pnum, ActivatorTID(), BUFF_SLOW, 0.2, BUFF_F_PLAYERSOURCE | BUFF_F_MORETYPE); // 1
+
+	LogBuffList(pnum);
+	Delay(105);
+
+	GivePlayerBuff(pnum, ActivatorTID(), BUFF_SLOW, 0.3, BUFF_F_PLAYERSOURCE); // 2
+	GivePlayerBuff(pnum, ActivatorTID(), BUFF_SLOW, 0.4, BUFF_F_PLAYERSOURCE); // 3
+
+	LogBuffList(pnum);
+	Delay(105);
+
+	RemoveBuff(pnum, 2);
+
+	LogBuffList(pnum);
+	Delay(105);
+
+	RemoveBuff(pnum, 0);
+
+	LogBuffList(pnum);
+	Delay(105);
+
+	GivePlayerBuff(pnum, ActivatorTID(), BUFF_SLOW, 0.4, BUFF_F_PLAYERSOURCE | BUFF_F_MORETYPE, 10);
+	GivePlayerBuff(pnum, ActivatorTID(), BUFF_SLOW, 0.2, BUFF_F_PLAYERSOURCE | BUFF_F_MORETYPE, 30);
+
+	LogBuffList(pnum);
+	Delay(TICRATE * 10 + 5);
+
+	LogBuffList(pnum);
+	Delay(TICRATE * 20 + 5);
+	LogBuffList(pnum);
+
+	Delay(105);
+
+	RemoveBuff(pnum, 1);
+	LogBuffList(pnum);
+
+	Delay(105);
+
+	RemoveBuff(pnum, 3);
+	LogBuffList(pnum);
+}*/
 
 // experiment to check how evenly distributed the random attributes are
 /*Script "Experiment" ENTER {

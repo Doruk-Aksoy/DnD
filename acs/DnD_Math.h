@@ -137,6 +137,10 @@ int CombineMultiplicativeFactors(int f1, int f2) {
 	return FixedMul(1.0 + f1, 1.0 + f2);
 }
 
+int CombineLessFactors(int f1, int f2) {
+	return FixedMul(f1, 1.0 - f2);
+}
+
 // converts a factor in fixed to a factor in int (equivalent) -- also used in below
 int ConvertFixedFactorToInt(int factor) {
 	return ((1.0 + factor) * 100) >> 16;

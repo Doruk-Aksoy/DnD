@@ -660,3 +660,8 @@ Actor SoulPickupInfinityTimer : Ammo {
 	inventory.maxamount 65536
 	+IGNORESKILL
 }
+
+Actor DnD_HandgunMoreCritShots : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -10
+}

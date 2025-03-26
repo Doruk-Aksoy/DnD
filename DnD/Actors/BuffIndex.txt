@@ -1,0 +1,15 @@
+enum {
+    BTI_KILLSTORM,
+    BTI_MINIGUN,
+    BTI_MPPB,
+    BTI_RIOTGUN,
+    BTI_RIOTGUN2,
+    BTI_HAMMER,
+    BTI_DEVASTATOR,
+    BTI_DEVASTATOR2
+};
+
+enum {
+    BTI_F_USETARGET         = 1,
+    BTI_F_REMOVE            = 2,
+};

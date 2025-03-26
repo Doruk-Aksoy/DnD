@@ -423,7 +423,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	SetFont("SMALLFONT");
 	SetHudClipRect(160, 128, 532, 600, 532);
 	
-	menu_pane_T& CurrentPane = GetPane();
+	menu_pane_T module& CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	
 	// vote state isnt concluded

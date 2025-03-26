@@ -423,7 +423,7 @@ Actor MonsterNuclearExplosion {
 	var int user_d;
 	Height 2
 	Radius 1
-	Stamina 4
+	Stamina 5
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay A_SpawnItemEx("NuclearExplosionFX")

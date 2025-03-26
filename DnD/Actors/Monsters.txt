@@ -550,8 +550,8 @@ Actor CacoDemon2 : DnD_BaseHybridMonster {
 Actor CacoBall : Cacodemonball replaces Cacodemonball {
 	Damage (5 * random(1, 8))
 	+DONTBLAST
-	DamageType "Energy"
-	Stamina 1073741840
+	DamageType "LightningRed"
+	Stamina 1073742080
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Pierce Check")
@@ -1347,7 +1347,7 @@ Actor Cyberdemon2 : DnD_BaseRangedBoss {
 
 Actor CyberdemonExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "$OB_CYBORG"
 	States {
 		Spawn:
@@ -1361,7 +1361,7 @@ Actor CyberdemonRocket : Rocket {
 	Decal "Scorch"
 	Damage (20 * random(1, 8))
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Speed 24
 	+THRUGHOST
 	+DONTBLAST

@@ -927,6 +927,10 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 	if(pct_bonus)
 		chance = FixedMul(chance, 1.0 + pct_bonus * SNIPER_CRIT_BOOST_PER);
 
+	pct_bonus = CheckInventory("DnD_HandgunMoreCritShots");
+	if(pct_bonus)
+		chance = FixedMul(chance, 1.0 + DND_HANDGUN_BUFFEDSHOT_PERCENT);
+
 	// monster related bonuses
 	//if(victim != -1)
 	

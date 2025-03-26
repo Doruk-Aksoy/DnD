@@ -339,6 +339,6 @@ typedef struct it_con {
 } inventory_constructor_T;
 
 #define MAX_UNIQUE_ITEMS (UNIQUE_HELM_END - UNIQUE_CHARM_BEGIN + 1)
-global inventory_constructor_T 63: UniqueItemList[MAX_UNIQUE_ITEMS];
+global inventory_constructor_T 53: UniqueItemList[MAX_UNIQUE_ITEMS];
 
 #endif

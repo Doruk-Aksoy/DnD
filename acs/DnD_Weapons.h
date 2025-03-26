@@ -1826,15 +1826,15 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			else if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
 				// fire three skulls
 				flags |= DND_ATF_TRACERPICKER;
-				sp_x = Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, flags, 0, 480 | (160 << 16), 768.0);
+				sp_x = Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, flags, 0, 480 | (256 << 16), 768.0);
 				vec2[angle_vec].x = -7.0;
 
 				if(!sp_x)
 					flags &= ~(1 << DND_ATF_TRACERPICKER);
 
-				Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, flags, 0, 480 | (160 << 16), 768.0 | sp_x);
+				Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, flags, 0, 480 | (256 << 16), 768.0 | sp_x);
 				vec2[angle_vec].x = 7.0;
-				Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, flags, 0, 480 | (160 << 16), 768.0 | sp_x);
+				Do_Projectile_Attack_Named(owner, pnum, "RazorSkull", wepid, 1, 25, angle_vec, offset_vec, 0, 0, flags, 0, 480 | (256 << 16), 768.0 | sp_x);
 			}
 			else {
 				count = GetPelletCount(pnum, 3);

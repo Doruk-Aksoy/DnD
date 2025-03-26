@@ -65,7 +65,7 @@ struct orb_recipe_T {
 #define DND_RANDOM_TAGGED_ORB_TRANSMUTE 420
 #define DND_ELEMENTAL_TO_PRISMATIC 421
 
-orb_recipe_T& GetOrbRecipe(int orb_type) {
+orb_recipe_T module& GetOrbRecipe(int orb_type) {
 	static orb_recipe_T recipe;
 
 	for(int i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {

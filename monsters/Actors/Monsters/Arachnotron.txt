@@ -1495,7 +1495,7 @@ Actor OphidianBeam : DnD_BaseProjectile {
 	Scale 0.875
 	DeathSound "Weapons/SunbeamHit"
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	States {
 		SpawnState:
 			FX01 A 1 Bright A_SpawnItemEx("SunBeamDamagerTrailSpawner", 0, 0, 8)

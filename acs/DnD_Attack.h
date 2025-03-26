@@ -125,6 +125,17 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	// manipulate newly spawned projectiles
 	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
 	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
+
+	if(isPlayer(owner) && (g = GetPlayerAttributeValue(owner - P_TIDSTART, INV_PROJSPEED))) {
+		g += 1.0;
+		if(g > 3.0)
+			g = 3.0;
+		vec3[velocity].x = FixedMul(vec3[velocity].x, g);
+		vec3[velocity].y = FixedMul(vec3[velocity].y, g);
+		vec3[velocity].z = FixedMul(vec3[velocity].z, g);
+		spd = FixedMul(spd, g);
+	}
+
 	SetActorVelocity(TEMPORARY_ATTACK_TID, vec3[velocity].x, vec3[velocity].y, vec3[velocity].z, 0, 0);
 	
 	// remove NOGRAVITY

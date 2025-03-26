@@ -1352,8 +1352,9 @@ bool IsOrbDropException(int orb_id) {
 }
 
 int GetOrbDropStack(int monster_level) {
+	// later make stacks larger on more common orbs instead using their weights
 	monster_level = random(0, monster_level / DND_MONSTER_ORBSTACK_LEVELTHRESHOLD);
-	return 1 + monster_level;
+	return 1 + monster_level / random(1, 3);
 }
 
 void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {

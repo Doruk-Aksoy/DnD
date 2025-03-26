@@ -441,7 +441,7 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 
 	bool draw_character_info = false;
 
-	menu_pane_T& CurrentPane = GetPane();
+	menu_pane_T module& CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	AddBoxToPane_Points(CurrentPane, 272.0, 108.0, 210.0, 96.0);
 
@@ -454,8 +454,13 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 
 		// button id recognition
 		boxid = GetTriggeredBoxOnPane(CurrentPane, PlayerCursorData.posx, PlayerCursorData.posy,  404.0);
-		if(boxid != boxid_prev && boxid != MAINBOX_NONE)
-			LocalAmbientSound("RPG/MenuMove", 127);
+		if(boxid != boxid_prev && boxid != MAINBOX_NONE) {
+			if(boxid == MBOX_1 && CheckInventory("DnD_RemoveBoxSignal")) {
+				boxid = MAINBOX_NONE;
+			}
+			else
+				LocalAmbientSound("RPG/MenuMove", 127);
+		}
 			
 		boxid_prev = boxid;
 		SetInventory("ActivePopupBox", boxid);
@@ -478,7 +483,13 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 		Delay(const:1);
 		
 		// retry ack
-		if(!CheckInventory("DND_ACK")) {
+		if(CheckInventory("DND_ACK")) {
+			SetInventory("MenuInput", 0);
+			//Log(s:"reset input data");
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
+		}
+		/*if(!CheckInventory("DND_ACK")) {
 			if(sendInput) {
 				GiveInventory("DND_ACKLoop", 1);
 				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK - CharLoad", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD]);
@@ -490,7 +501,7 @@ Script "DnD Character Load Inputs" (void) CLIENTSIDE {
 			//Log(s:"reset input data");
 			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
 			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
-		}
+		}*/
 		
 		if(!draw_character_info && CheckInventory("PlayerIsLoggedIn")) {
 			j = 0;
@@ -547,7 +558,7 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 		GiveInventory("DND_ACK", 1);
 		
 		if(HasLeftClicked(pnum)) {
-			if(boxid == MBOX_1) { 
+			if(boxid == MBOX_1 && !CheckInventory("DnD_RemoveBoxSignal")) { 
 				// confirmation box
 				// we only allow clicks here to register if player clicked a character id prior
 				int loadExistingOrCreate = CheckInventory("DnD_SelectedCharmBox");
@@ -567,12 +578,15 @@ Script "DND Server Box Receive - CharLoad" (int pnum, int boxid) NET {
 							// setchar to this instead and create fresh
 							loadExistingOrCreate = ACS_NamedExecuteWithResult("DnD Set Char", loadExistingOrCreate - 2);
 						}
+						GiveInventory("DnD_RemoveBoxSignal", 1);
 					}
 					else {
 						// setchar to this instead and create fresh
 						temp = ACS_NamedExecuteWithResult("DnD Set Char", replaceExisting - 2);
-						if(temp != DND_LOGIN_CREATECHAROK)
+						if(temp != DND_LOGIN_CREATECHAROK) {
 							temp = ACS_NamedExecuteWithResult("DnD Load Char", replaceExisting - 2);
+							GiveInventory("DnD_RemoveBoxSignal", 1);
+						}
 					}
 				}
 			}

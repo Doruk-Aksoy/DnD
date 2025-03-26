@@ -9,7 +9,7 @@ void SetPage(int option, bool useSound) {
 
 void UpdateMenuPosition(int option) {
 	if(CheckInventory("MenuOption") != option) {
-		menu_stack_T? stack = GetMenuStack(PlayerNumber());
+		menu_stack_T module& stack = GetMenuStack(PlayerNumber());
 		PushStack(PlayerNumber(), option);
 	}
 	GiveInventory("DnD_HighlightBlocker", 1);
@@ -18,7 +18,7 @@ void UpdateMenuPosition(int option) {
 
 void UpdateMenuPosition_NoSound(int option) {
 	if(CheckInventory("MenuOption") != option) {
-		menu_stack_T? stack = GetMenuStack(PlayerNumber());
+		menu_stack_T module& stack = GetMenuStack(PlayerNumber());
 		PushStack(PlayerNumber(), option);
 	}
 	SetPage(option, false);
@@ -297,7 +297,7 @@ void DrawDamageTypes(int req_id, int constraint, int flags) {
 		int j = 0;
 		for(int i = 0; i < MAX_DAMAGE_TYPES; ++i) {
 			if(IsSet(WeaponDamageTypes[req_id], i)) {
-				SetFont(DamageTypeIcons[i]);
+				SetFont(GetDamageTypeIcon(i));
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + j * 30.0 - 60.0 * (j > 1), 84.1 - 32.0 * (j > 1), 0.0, 0.0);
 				++j;
 			}
@@ -652,7 +652,7 @@ void ShowWeaponIcon(int wep, int i, int k) {
 
 void ShowDamageTypeIcon(int dmg) {
 	SetHudSize(640, 480, 1);
-	SetFont(DamageTypeIcons[dmg]);
+	SetFont(GetDamageTypeIcon(dmg));
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_DAMAGE_TYPES - 1 - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos.x, 0.0, 0.0);
 	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -1108,7 +1108,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 	}
 }
 
-void DrawAccessory(int id, int boxid, int page, menu_pane_T& CurrentPane) {
+void DrawAccessory(int id, int boxid, int page, menu_pane_T module& CurrentPane) {
 	int pos = id - ACCESSORY_PER_PAGE * (page - MENU_FIRST_ACCESSORY_PAGE);
 	if(CheckInventory(AccessoryInfo[id][ACCESSORY_NAME])) {
 		if(boxid == pos + 1) {
@@ -1432,25 +1432,25 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 	}
 }
 
-bool point_in_inventory_box(rect_T? box, int mx, int my) {
+bool point_in_inventory_box(rect_T module& box, int mx, int my) {
 	return (mx <= box.topleft_x && mx >= box.botright_x && my <= box.topleft_y && my >= box.botright_y);
 }
 
-menu_inventory_T& GetInventoryPane() {
+menu_inventory_T module& GetInventoryPane() {
 	static menu_inventory_T pane;
 	return pane;
 }
 
-void DisableBoxesInPane(menu_inventory_T& p, int beg, int end) {
+void DisableBoxesInPane(menu_inventory_T module& p, int beg, int end) {
 	for(int i = beg; i <= end; ++i)
 		p.MenuRectangles[i].topleft_x = -1;
 }
 
-void DisableBoxInPane(menu_inventory_T& p, int i) {
+void DisableBoxInPane(menu_inventory_T module& p, int i) {
 	p.MenuRectangles[i].topleft_x = -1;
 }
 
-void EnableBoxWithPoints(menu_inventory_T& p, int box, int tx, int ty, int bx, int by) {
+void EnableBoxWithPoints(menu_inventory_T module& p, int box, int tx, int ty, int bx, int by) {
 	//Log(d:box, s:" ", d:MAX_INVENTORY_BOXES);
 	p.MenuRectangles[box].topleft_x = tx;
 	p.MenuRectangles[box].topleft_y = ty;
@@ -1458,12 +1458,12 @@ void EnableBoxWithPoints(menu_inventory_T& p, int box, int tx, int ty, int bx, i
 	p.MenuRectangles[box].botright_y = by;
 }
 
-bool IsBoxEnabled(menu_inventory_T& p, int box) {
+bool IsBoxEnabled(menu_inventory_T module& p, int box) {
 	return p.MenuRectangles[box].topleft_x != -1;
 }
 
 // deepcopy to avoid accidental overriding
-void AddBoxToPane(menu_pane_T& p, rect_T& box) {
+void AddBoxToPane(menu_pane_T module& p, rect_T module& box) {
 	//Log(s:"add box ", d:p.cursize);
 	//if(p.cursize < MAX_MENU_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
@@ -1476,7 +1476,7 @@ void AddBoxToPane(menu_pane_T& p, rect_T& box) {
 		Log(s:"Menu box limit exceeded.");*/
 }
 
-void AddBoxToInventory(menu_inventory_T? p, rect_T& box) {
+void AddBoxToInventory(menu_inventory_T module& p, rect_T module& box) {
 	//Log(s:"add box inv ", d:p.cursize);
 	//if(p.cursize < MAX_INVENTORY_BOXES) {
 		p.MenuRectangles[p.cursize].topleft_x = box.topleft_x;
@@ -1489,15 +1489,15 @@ void AddBoxToInventory(menu_inventory_T? p, rect_T& box) {
 		Log(s:"Menu box limit exceeded.");*/
 }
 
-void ResetInventoryPane(menu_inventory_T& p) {
+void ResetInventoryPane(menu_inventory_T module& p) {
 	p.cursize = 0;
 }
 
-void SetPaneSize(menu_pane_T& p, int s) {
+void SetPaneSize(menu_pane_T module& p, int s) {
 	p.cursize = s;
 }
 
-rect_T& GetMainBox(int id) {
+rect_T module& GetMainBox(int id) {
 	static rect_T MainBoxList[MAX_MAIN_BOXES] = { 
 		{ 419.0, 159.0, 348.0, 147.0 },
 		{ 419.0, 141.0, 348.0, 129.0 },
@@ -1516,7 +1516,7 @@ rect_T& GetMainBox(int id) {
 	return MainBoxList[id];
 }
 
-rect_T& LoadRect(int menu_page, int id) {
+rect_T module& LoadRect(int menu_page, int id) {
 	static rect_T bp[MAX_MENU_BOXPAGES][MAX_MENU_BOXES] = {
 		// null
 		{
@@ -2171,7 +2171,7 @@ rect_T& LoadRect(int menu_page, int id) {
 }
 
 // specialized one for inventory view
-rect_T& LoadInventoryViewRect(int id) {
+rect_T module& LoadInventoryViewRect(int id) {
 	// this is the top left box, ie 0, 0
 	static rect_T bp[MAX_INVENTORY_BOXES];
 	
@@ -2189,7 +2189,7 @@ rect_T& LoadInventoryViewRect(int id) {
 	return bp[id];
 }
 
-rect_T& LoadStashViewRect(int id) {
+rect_T module& LoadStashViewRect(int id) {
 	// this is the top left box, ie 0, 0
 	// left and right boxes
 	static rect_T bp[2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES];
@@ -2223,7 +2223,7 @@ rect_T& LoadStashViewRect(int id) {
 	return bp[id];
 }
 
-rect_T& LoadTradeViewRect(int id) {
+rect_T module& LoadTradeViewRect(int id) {
 	// this is the top left box, ie 0, 0
 	// + 2 for confirm and cancel buttons
 	static rect_T bp[3 * MAX_INVENTORY_BOXES + 2];
@@ -2270,7 +2270,7 @@ rect_T& LoadTradeViewRect(int id) {
 	return bp[id];
 }
 
-rect_T& LoadCraftingViewRect(int id) {
+rect_T module& LoadCraftingViewRect(int id) {
 	// this is the top left box, ie 0, 0
 	static rect_T bp[MAX_CRAFTING_BOXES];
 	
@@ -2305,7 +2305,7 @@ rect_T& LoadCraftingViewRect(int id) {
 	return bp[id];
 }
 
-void LoadTradeView(menu_inventory_T& p) {
+void LoadTradeView(menu_inventory_T module& p) {
 	p.cursize = 0;
 	for(int i = 0; i < 3 * MAX_INVENTORY_BOXES + 2; ++i) {
 		auto r = LoadTradeViewRect(i);
@@ -2318,7 +2318,7 @@ void LoadTradeView(menu_inventory_T& p) {
 	}
 }
 
-void LoadInventoryView(menu_inventory_T& p) {
+void LoadInventoryView(menu_inventory_T module& p) {
 	p.cursize = 0;
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		auto r = LoadInventoryViewRect(i);
@@ -2331,7 +2331,7 @@ void LoadInventoryView(menu_inventory_T& p) {
 	}
 }
 
-void LoadStashView(menu_inventory_T& p) {
+void LoadStashView(menu_inventory_T module& p) {
 	p.cursize = 0;
 	for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES; ++i) {
 		auto r = LoadStashViewRect(i);
@@ -2344,7 +2344,7 @@ void LoadStashView(menu_inventory_T& p) {
 	}
 }
 
-void LoadCraftingView(menu_inventory_T& p) {
+void LoadCraftingView(menu_inventory_T module& p) {
 	p.cursize = 0;
 	for(int i = 0; i < MAX_CRAFTING_BOXES; ++i) {
 		auto r = LoadCraftingViewRect(i);
@@ -2353,7 +2353,7 @@ void LoadCraftingView(menu_inventory_T& p) {
 	}
 }
 
-void LoadPane(menu_pane_T& p, int menu_page) {
+void LoadPane(menu_pane_T module& p, int menu_page) {
 	p.cursize = 0;
 	for(int i = 0; i < MAX_MENU_BOXES; ++i) {
 		auto r = LoadRect(menu_page, i);
@@ -2366,7 +2366,7 @@ void LoadPane(menu_pane_T& p, int menu_page) {
 	}
 }
 
-int GetTriggeredBoxOnInventoryPane(menu_inventory_T& p, int mx, int my) {
+int GetTriggeredBoxOnInventoryPane(menu_inventory_T module& p, int mx, int my) {
 	if(mx >= 400.0 || my <= 64.0 || mx <= 82.0 || my >= 260.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
@@ -2376,7 +2376,7 @@ int GetTriggeredBoxOnInventoryPane(menu_inventory_T& p, int mx, int my) {
 	return MAINBOX_NONE;
 }
 
-int GetTriggeredBoxOnCraftingPane(menu_inventory_T& p, int mx, int my) {
+int GetTriggeredBoxOnCraftingPane(menu_inventory_T module& p, int mx, int my) {
 	if(mx >= 470.0 || my <= 24.0 || mx <= 4.0 || my >= 293.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
@@ -2387,7 +2387,7 @@ int GetTriggeredBoxOnCraftingPane(menu_inventory_T& p, int mx, int my) {
 	return MAINBOX_NONE;
 }
 
-int GetTriggeredBoxOnTradePane(menu_inventory_T& p, int mx, int my) {
+int GetTriggeredBoxOnTradePane(menu_inventory_T module& p, int mx, int my) {
 	if(mx >= 465.0 || mx <= 30.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
@@ -2397,7 +2397,7 @@ int GetTriggeredBoxOnTradePane(menu_inventory_T& p, int mx, int my) {
 	return MAINBOX_NONE;
 }
 
-int GetTriggeredBoxOnStashPane(menu_inventory_T& p, int mx, int my) {
+int GetTriggeredBoxOnStashPane(menu_inventory_T module& p, int mx, int my) {
 	if(mx >= 304.0 || my <= 27.0 || mx <= 68.0 || my >= 293.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
@@ -2455,13 +2455,13 @@ void HandleClickableButtonFrames() {
 			SetInventory(ButtonTimers[i], (CheckInventory(ButtonTimers[i]) + 1) % ButtonFrameCounts[i]);
 }
 
-menu_stack_T& GetMenuStack(int pnum) {
+menu_stack_T module& GetMenuStack(int pnum) {
 	static menu_stack_T stack[MAXPLAYERS];
 	return stack[pnum];
 }
 
 void FlushStack(int pnum) {
-	menu_stack_T? stack = GetMenuStack(pnum);
+	menu_stack_T module& stack = GetMenuStack(pnum);
 	for(int i = 0; i < MAX_STACK_ELEMS; ++i)
 		stack.stack_elems[i] = MENU_MAIN;
 	stack.cursize = 1;
@@ -2469,7 +2469,7 @@ void FlushStack(int pnum) {
 }
 
 void PushStack(int pnum, int val) {
-	menu_stack_T? stack = GetMenuStack(pnum);
+	menu_stack_T module& stack = GetMenuStack(pnum);
 	if(stack.cursize < MAX_STACK_ELEMS) {
 		stack.stack_elems[stack.cursize] = val;
 		stack.stackptr = stack.cursize++;
@@ -2488,7 +2488,7 @@ void HandleButtonClick(int boxid) {
 
 	// all other boxes now have some other behavior
 	// flush stack if return is pressed
-	menu_stack_T? stack = GetMenuStack(PlayerNumber());
+	menu_stack_T module& stack = GetMenuStack(PlayerNumber());
 	if(boxid == MAINBOX_RET) {
 		FlushStack(PlayerNumber());
 		ReturnToMain();
@@ -2815,12 +2815,12 @@ void ResetInventoryLitState(int beg, int end) {
 }
 
 void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) {
-	str charmborderpic = CharmBoxLabels[charm_type][boxid == thisboxid];
+	str charmborderpic = GetCharmBoxLabel(charm_type, boxid == thisboxid);
 	int pnum = PlayerNumber();
 	
 	// fixes background being lit on first row boxes
 	if(CheckInventory("DnD_InventoryView"))
-		charmborderpic = CharmBoxLabels[charm_type][0];
+		charmborderpic = GetCharmBoxLabel(charm_type, false);
 	
 	// if there is a charm here
 	if(Items_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
@@ -4080,7 +4080,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 	}
 }
 
-void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
+void HandleMaterialDraw(menu_inventory_T module& p, int boxid, int curopt, int k) {
 	int mcount = CountCraftingMaterials(IsCraftingPageForTokens(curopt));
 	int i;
 	int tx, ty, bx, by;
@@ -4165,7 +4165,7 @@ void HandleMaterialDraw(menu_inventory_T& p, int boxid, int curopt, int k) {
 	SetFont("NMENUFNT");
 }
 
-void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
+void HandleCraftingWeaponDraw(int pnum, menu_inventory_T module& p, int boxid, int k) {
 	int i, j = 0, mcount = GetWeaponCount();
 	int tx, ty, bx, by;
 	int prevclick = CheckInventory("DnD_SelectedInventoryBox") - 1;
@@ -4228,7 +4228,7 @@ void HandleCraftingWeaponDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
 	SetFont("NMENUFNT");
 }
 
-void HandleCraftingInventoryDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
+void HandleCraftingInventoryDraw(int pnum, menu_inventory_T module& p, int boxid, int k) {
 	int i, mcount = 0;
 	int tx, ty;
 	
@@ -4378,7 +4378,7 @@ int IsValidTransmuteRecipe(int pnum) {
 	return res;
 }
 
-void HandleTransmutingDraw(int pnum, menu_inventory_T& p, int boxid, int k) {
+void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int k) {
 	// first three are the 3 slots for orbs, 4th is transmute button
 	EnableBoxWithPoints(p, 0, 392.0, 148.0, 352.0, 108.0);
 	EnableBoxWithPoints(p, 1, 312.0, 276.0, 272.0, 236.0);
@@ -4578,7 +4578,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count);
 }
 
-void HandleCraftingView(int pnum, menu_inventory_T& p, int boxid, int curopt, int k) {
+void HandleCraftingView(int pnum, menu_inventory_T module& p, int boxid, int curopt, int k) {
 	int i;
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_MATERIALS"; HUDMSG_PLAIN, RPGMENUID - 2, CR_CYAN, 424.0, 32.0, 0.0, 0.0);
 	
@@ -5088,7 +5088,8 @@ int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
 			val += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 		break;
 	}
-	return ApplyResistCap(pnum, val, cap);
+	return val;
+	//return ApplyResistCap(pnum, val, cap);
 }
 
 // not sure how to group these for other places, their calculations arent exactly done in straightforward fashion so calculating as they come makes sense
@@ -5567,10 +5568,6 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, i, temp);
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
-			++k;
-
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_HITSCAN, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_HTSC", s:"\n");
 			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ENERGY, i, temp);

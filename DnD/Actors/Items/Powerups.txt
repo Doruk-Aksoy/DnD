@@ -12,9 +12,9 @@ Actor AllMapGiver : DnD_Activator {
 Actor BackpackCounter : Ammo
 {
 	inventory.amount 1
-	inventory.maxamount 55 //DND_MAX_BACKPACK
+	inventory.maxamount 30 //DND_MAX_BACKPACK
 	ammo.backpackamount 0
-	ammo.backpackmaxamount 55 //DND_MAX_BACKPACK
+	ammo.backpackmaxamount 30 //DND_MAX_BACKPACK
 	+IGNORESKILL
 }
 

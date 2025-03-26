@@ -36,31 +36,10 @@ traildef_T DnD_TrailDef[MAXTRAILACTORS] = {
 #define OVERLOAD_DENSITY 4
 #define OVERLOAD_TZ 36.0
 
-#define MAX_MEM_BLOCKS 128
-bool mem24_use[MAX_MEM_BLOCKS];
-// if you notice any glitches with lightning based attacks, this could be it and the reference needs to be put in a struct
-int mref;
-
-void FreeMem24(int i) {
-	mem24_use[i] = 0;
-}
-
-int[]& GetMem_24() {
-	static int mem[MAX_MEM_BLOCKS][24];
-	for(int i = 0; i < MAX_MEM_BLOCKS; ++i)
-		if(!mem24_use[i]) {
-			mem24_use[i] = 1;
-			mref = i;
-			return mem[i];
-		}
-	return mem[0];
-}
-
-void bubblesort(int[]& list) {
-   int left = lengthof(list);
-   while (left) {
+void bubblesort(int[]* list, int len) {
+   while (len) {
       int i = 0;
-      int k = left - 1;
+      int k = len - 1;
       while (i < k) {
          if (list[i] > list[i + 1]) {
             int temp = list[i + 1];
@@ -69,7 +48,7 @@ void bubblesort(int[]& list) {
          }
          ++i;
       }
-      --left;
+      --len;
    }
 }
 
@@ -109,13 +88,12 @@ void LineDraw(int actortype, int sx, int sy, int sz, int dx, int dy, int dz, int
 Script "DnD Overload Zap FX" (int source, int dest) CLIENTSIDE {
 	// first generate some points
 	int i;
-	auto points = GetMem_24();
-	int curmref = mref;
+	int[]* points = bcs::malloc(SIZEOF_INT * LIGHTNING_ATTACK_POINTS);
 	for(i = 0; i < LIGHTNING_ATTACK_POINTS; ++i)
 		points[i] = random(0, 1.0);
 	
 	// sort points
-	bubblesort(points);
+	bubblesort(points, LIGHTNING_ATTACK_POINTS);
 	
 	// we need to create the lightning-like fx from source to dest
 	int sr = GetActorProperty(source, APROP_RADIUS);
@@ -167,7 +145,7 @@ Script "DnD Overload Zap FX" (int source, int dest) CLIENTSIDE {
 		pz = dz;
 		prevdisp = disp;
 	}
-	FreeMem24(curmref);
+	bcs::free(points);
 	// last point
 	dx = GetActorX(dest);
 	dy = GetActorY(dest);

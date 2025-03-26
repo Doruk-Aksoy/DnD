@@ -110,7 +110,7 @@ enum {
 
 #define DND_ELITE_BASEDROP 0.0025 // same as below
 
-#define DND_ELITE_BASEDROP_ORB 0.0375
+#define DND_ELITE_BASEDROP_ORB 0.0275
 #define DND_MONSTER_ORBSTACK_LEVELTHRESHOLD 10
 
 #define DND_BASEARMOR_DROP 0.0125
@@ -118,6 +118,7 @@ enum {
 #define DND_BASE_POWERCORERATE 0.004
 
 #define DND_BASE_PLAYERSPEED 0.9
+#define DND_LOWEST_PLAYERSPEED 0.05
 #define DND_HP_PER_STR 2
 #define DND_HP_PER_LVL 5
 
@@ -282,7 +283,7 @@ Script "DnD Check Unique Player Property" (int prop) {
 
 #define MIN_CREDIT_GAIN 7
 #define MIN_EXP_GAIN 10
-#define ATTRIB_PER_LEVEL 3
+#define ATTRIB_PER_LEVEL 2
 #define NANOCAP 350
 
 #define DND_MONSTERHP_PLAYERSCALE 25
@@ -349,21 +350,6 @@ int GetPlayerSpeed(int pnum) {
 	return DND_BASE_PLAYERSPEED + GetBonusPlayerSpeed(pnum);
 }
 
-void SlowPlayer(int amt, int mode, int pnum) {
-	if(!pnum)
-		pnum = PlayerNumber();
-	// don't slow if player has gryphon boots
-	if(CheckActorInventory(P_TIDSTART + pnum, "GryphonCheck") && !(mode & SF_FREEZE))
-		return;
-	if(mode & SF_FREEZE) {
-		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
-		SetActorProperty(0, APROP_SPEED, 0.0);
-		GiveInventory("P_Frozen", 1);
-	}
-	else
-		SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, GetPlayerSpeed(pnum) - amt);
-}
-
 // returns true if there are things that'd nullify effect of dexterity
 bool HasPlayerDexterityDisablers(int pnum) {
 	return GetPlayerAttributeValue(pnum, INV_EX_UNITY);
@@ -411,6 +397,7 @@ int GetStrengthEffect(int pnum, int factor, int divisor = 1) {
 }
 
 // this sets player's unity item to cache it so we don't request it over and over in intense calculations
+// dont use the "geteffect" functions here as unity is concerned only with raw value of the stats themselves
 void CalculateUnity(int pnum) {
 	int val = (
 			CheckInventory("PSTAT_Strength") + 
@@ -1052,5 +1039,7 @@ void HealMonster(int mid, int amount) {
 
 	CheckDoomguyExecuteReversal(mid + DND_MONSTERTID_BEGIN);
 }
+
+#include "DnD_Buffs.h"
 
 #endif

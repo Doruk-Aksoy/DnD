@@ -487,6 +487,7 @@ Actor VaajBigBall {
 	Height 40
 	Radius 20
 	Scale 0.625
+	Stamina 8
 	DeathSound "Deathray/LaserExplode2"
 	+PIERCEARMOR
 	+FORCERADIUSDMG
@@ -1322,7 +1323,7 @@ Actor HollowShellFlames {
 	+NOINTERACTION
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
 		SpawnLoop:
 			UP18 ABCDEF 3 Bright
 		Stop
@@ -2259,7 +2260,7 @@ Actor ChegovaxFire {
 	Speed 35
 	Damage (18)
 	DamageType "MagicalFire"
-	Stamina 1073741864 // magic + fire
+	Stamina 1073741856
 	SeeSound "weapons/magic1"
 	DeathSound "weapons/firex4"
 	RENDERSTYLE ADD
@@ -2287,12 +2288,14 @@ ACTOR GuardianSpawner {
 	Height 56
 	Speed 25
 	Damage (random(6, 10) * 6)
+	Stamina 8
 	Alpha 0.90
 	+THRUGHOST   
 	+FORCEXYBILLBOARD
 	+SEEKERMISSILE
 	+DONTBLAST
 	-NOGRAVITY
+	+DONTREFLECT
 	Seesound "weapons/smlbrn"
 	DeathSound "vile/firecrkl"
 	Translation "112:127 = 176:191"
@@ -2594,6 +2597,10 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			UE08 LLLLLLL 2 A_FadeOut(0.1125)
 		Stop
 	}
+}
+
+Actor RedAxe2_Onimuz : RedAxe2 {
+	Damage (12 * random(2, 5))
 }
 
 Actor OnimuzProjection_Missile {
@@ -2958,7 +2965,7 @@ Actor HarkimondeFlameTracer {
 	ReactionTime 96
 	Damage (4 * random(5, 8))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	RenderStyle Add
 	Alpha 0.67
 	Projectile
@@ -3016,7 +3023,7 @@ Actor Harkimonde_BoomTrail {
 	Height 16
 	Damage ((16 - user_count))
 	DamageType "MagicalFire"
-	Stamina 40
+	Stamina 32
 	RenderStyle Add
 	Alpha 0.67
 	+DONTREFLECT
@@ -3746,7 +3753,7 @@ Actor ThoraxMissile {
 	Projectile
 	Damage (60)
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	Speed 28
 	Height 16
 	Radius 8
@@ -5936,7 +5943,7 @@ Actor AbaxothRailTrail {
 
 Actor AbaxothRocketExp : BaseExplosionDamage {
 	DamageType "Explosive"
-	Stamina 4
+	Stamina 5
 	Obituary "%o fell victim to Abaxoth the End of All That Is."
 	States {
 		Spawn:
@@ -5951,7 +5958,7 @@ Actor AbaxothRocket {
 	Speed 20
 	Damage (20)
 	DamageType "Explosive"
-	Stamina 1073741828
+	Stamina 1073741825
 	SeeSound "weapons/tp_fire"
 	DeathSound "weapons/heavyrlexp"
 	Height 10

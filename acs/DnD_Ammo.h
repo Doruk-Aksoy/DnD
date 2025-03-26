@@ -3,8 +3,8 @@
 
 #include "DnD_Stat.h"
 
-#define DND_MAX_BACKPACK 25
-#define DND_BACKPACK_RATIO 20
+#define DND_MAX_BACKPACK 30
+#define DND_BACKPACK_RATIO 10
 
 enum {
 	DND_AMMOSLOT_CLIP,

@@ -186,21 +186,6 @@ int ButtonFrameCounts[MAX_TIMED_BUTTONS] = { 3, 3, 3 };
 #define SHOP_MAXWEAPON_PAGES (MENU_SHOP_WEAPON8 - MENU_SHOP_WEAPON1 + 1)
 #define SHOP_MAXAMMO_PAGES (SHOP_LASTAMMO_PAGE - SHOP_FIRSTAMMO_PAGE + 1)
 
-int WeaponBeginIndexes[SHOP_MAXWEAPON_PAGES] = {
-	SHOP_WEAPON1_BEGIN,
-	SHOP_WEAPON2_BEGIN,
-	SHOP_WEAPON31_BEGIN,
-	SHOP_WEAPON32_BEGIN,
-	SHOP_WEAPON41_BEGIN,
-	SHOP_WEAPON42_BEGIN,
-	SHOP_WEAPON51_BEGIN,
-	SHOP_WEAPON52_BEGIN,
-	SHOP_WEAPON61_BEGIN,
-	SHOP_WEAPON62_BEGIN,
-	SHOP_WEAPON7_BEGIN,
-	SHOP_WEAPON8_BEGIN
-};
-
 // Holds the players' current maximum page visit indexes
 #ifndef ISAPRILFIRST
 	#define MENUMAXPAGES (MENU_ABILITY + 1)
@@ -818,17 +803,29 @@ enum {
 };
 
 #define MAX_DAMAGE_TYPES 9 // 64
-str DamageTypeIcons[MAX_DAMAGE_TYPES] = { 
-	"DT_PHYS",
-	"DT_MELE",
-	"DT_OCCU",
-	"DT_EXPL",
-	"DT_ENER",
-	"DT_FIRE",
-	"DT_ICE",
-	"DT_POIS",
-	"DT_LGHT"
-};
+str GetDamageTypeIcon(int dt) {
+	switch(dt) {
+		case DTYPE_PHYSICAL:
+		return "DT_PHYS";
+		case DTYPE_MELEE:
+		return "DT_MELE";
+		case DTYPE_OCCULT:
+		return "DT_OCCU";
+		case DTYPE_EXPLOSIVE:
+		return "DT_EXPL";
+		case DTYPE_ENERGY:
+		return "DT_ENER";
+		case DTYPE_FIRE:
+		return "DT_FIRE";
+		case DTYPE_ICE:
+		return "DT_ICE";
+		case DTYPE_POISON:
+		return "DT_POIS";
+		case DTYPE_LIGHTNING:
+		return "DT_LGHT";
+	}
+	return "DT_PHYS";
+}
 
 int WeaponDamageTypes[MAXSHOPWEAPONS] = {
 	// 1
@@ -1754,10 +1751,22 @@ int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
 	DND_LEGENDARY
 };
 
-str CharmBoxLabels[MAX_CHARM_TYPES][2] = {
-	{ "SCHNOR", "SCHSEL" },
-	{ "MCHNOR", "MCHSEL" },
-	{ "LCHNOR", "LCHSEL" }
-};
+str GetCharmBoxLabel(int charm_type, bool isSelected) {
+	switch(charm_type) {
+		case DND_CHARM_SMALL:
+			if(!isSelected)
+				return "SCHNOR";
+			return "SCHSEL";
+		case DND_CHARM_MEDIUM:
+			if(!isSelected)
+				return "MCHNOR";
+			return "MCHSEL";
+		case DND_CHARM_LARGE:
+			if(!isSelected)
+				return "LCHNOR";
+			return "LCHSEL";
+	}
+	return "SCHNOR";
+}
 
 #endif

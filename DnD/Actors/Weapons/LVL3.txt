@@ -487,13 +487,16 @@ ACTOR "Upgraded Shotgun2" : DnDWeapon {
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_KILLSTORM)
+			UASG A 0 A_GiveInventory("H_WeaponSlot3", 1)
 		ReadyLoop:
+			UASG A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_KILLSTORM)
+		RealReadyLoop:
 			UASG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_KILLSTORM, BTI_F_REMOVE)
+		DeselectLoop:
 			UASG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -531,8 +534,9 @@ ACTOR "Upgraded Shotgun2" : DnDWeapon {
 			UASG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ReadyLoop
 		ContinueCheck:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_KILLSTORM)
 			TNT1 A 0 A_JumpIfInventory("Ability_Reloader", 1, "DoReloadFaster")
-			DoReload:
+		DoReload:
 			UASG I 4
 			UASG J 3
 			UASG KL 2
@@ -540,6 +544,7 @@ ACTOR "Upgraded Shotgun2" : DnDWeapon {
 			UASG N 32
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_KILLSTORM)
 			UASG M 2
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_KILLSTORM, BTI_F_REMOVE)
 			TNT1 A 0 A_PlaySound("weapons/autosgload", 6)
 			UASG L 1 Offset(0, 28)
 			UASG L 1 Offset(0, 22)
@@ -558,6 +563,7 @@ ACTOR "Upgraded Shotgun2" : DnDWeapon {
 			UASG N 16
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_KILLSTORM)
 			UASG M 2
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_KILLSTORM, BTI_F_REMOVE)
 			TNT1 A 0 A_PlaySound("weapons/autosgload", 6)
 			UASG L 1 Offset(0, 28)
 			UASG L 1 Offset(0, 22)

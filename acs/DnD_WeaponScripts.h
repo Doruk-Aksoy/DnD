@@ -796,6 +796,14 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 
 Script "DnD Weapon Select" (int wepid) {
 	SetInventory("DnD_WeaponID", wepid);
+
+	int pnum = PlayerNumber();
+	if(IsHandgun(wepid) && HasPlayerPowerSet(pnum, PPOWER_HANDGUNMORECRIT)) {
+		GiveInventory("DnD_HandgunMoreCritShots", 1);
+	}
+	else
+		TakeInventory("DnD_HandgunMoreCritShots", 0);
+
 	SetResultValue(0);
 }
 
@@ -2224,6 +2232,11 @@ Script "DnD Check Weapon Discard" (int slot, int useTarget) {
 	if(useTarget)
 		SetActivatorToTarget(0);
 	SetResultValue(HasPlayerDiscardedSlot(PlayerNumber(), slot));
+}
+
+Script "DnD Swapped From Melee" (int ptid) {
+	Delay(const:HALF_TICRATE);
+	GiveActorInventory(ptid, "DnD_SwappedFromMelee", 1);
 }
 
 #endif

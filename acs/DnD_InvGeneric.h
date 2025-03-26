@@ -219,7 +219,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 100, PPOWER_CYBER, item_tier, 40);
 				break;
 				case BODYARMOR_DUELIST:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_HITSCANPROTECT, item_tier, 2.25);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_HANDGUNMORECRIT, item_tier, 2.25);
 				break;
 				case BODYARMOR_NECRO:
 					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, PPOWER_SPIKES, item_tier, 60);

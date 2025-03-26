@@ -1284,7 +1284,7 @@ Actor WickedShot {
 	Damage (8 * random(3, 5))
 	RenderStyle Add
 	DamageType "MagicalFire"
-	Stamina 1073741864
+	Stamina 1073741856
 	Alpha 0.67
 	Projectile
 	+ThruGhost

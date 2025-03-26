@@ -693,3 +693,13 @@ object Abaxoth {
 	frame UP23N { light AbaxothDeathLight8 }
 	frame UP23O { light AbaxothDeathLight9 }
 }
+
+object RedAxe2_Onimuz
+{
+    frame RAXEA { light REDAXE }
+    frame RAXEB { light REDAXE }
+
+    frame RAXEC { light REDAXE_X1 }
+    frame RAXED { light REDAXE_X2 }
+    frame RAXEE { light REDAXE_X3 }
+}

@@ -1059,7 +1059,7 @@ actor GamonBolt {
 	Speed 20
 	Damage (4 * random(3, 5))
 	DamageType "MagicalBlue"
-	Stamina 264
+	Stamina 256
 	RenderStyle Add
 	Alpha 0.9
 	DeathSound "Veste/Hit"
@@ -1091,7 +1091,7 @@ Actor GamonBoltFast : GamonBolt {
 
 Actor GamonPuff : BlasterPuff {
 	DamageType "MagicalBlue"
-	Stamina 264
+	Stamina 256
     +CLIENTSIDEONLY
     +ALWAYSPUFF
 	States {
@@ -1836,6 +1836,7 @@ ACTOR RedeemerRocket {
 	Speed 28
 	Height 16
 	Radius 8
+	Stamina 1
 	Decal "Scorch"
 	SeeSound "Redeemer/misl"
 	Deathsound "Redeemer/mislx"

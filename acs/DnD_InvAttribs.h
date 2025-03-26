@@ -150,7 +150,7 @@ enum {
 	INV_DOTMULTI,
 	INV_INCREASEDDOT,
 	
-	INV_DMGREDUCE_HITSCAN,
+	INV_PROJSPEED,
 	INV_DMGREDUCE_ENERGY,
 	INV_PERCENT_KNOCKBACKRESIST,
 	INV_DMGREDUCE_MAGIC,
@@ -329,7 +329,7 @@ enum {
 	PPOWER_CYBER 						= 	0b10,
 	PPOWER_LIGHTNINGABSORB				= 	0b100,
 	PPOWER_KNIGHTMELEEBONUS				= 	0b1000,
-	PPOWER_HITSCANPROTECT				=	0b10000,
+	PPOWER_HANDGUNMORECRIT				=	0b10000,
 	PPOWER_SPIKES						=	0b100000,
 	PPOWER_CANROLLPHYS					=	0b1000000,
 	PPOWER_CANROLLOCCULT				=	0b10000000,
@@ -512,9 +512,9 @@ bool IsFixedPointMod(int mod) {
 		case INV_CRITPERCENT_INCREASE:
 		case INV_DAMAGEPERCENT_MORE:
 		case INV_BLOCKERS_MOREDMG:
+		case INV_PROJSPEED:
 		case INV_DMGREDUCE_ELEM:
 		case INV_DMGREDUCE_ENERGY:
-		case INV_DMGREDUCE_HITSCAN:
 		case INV_DMGREDUCE_PHYS:
 		case INV_DMGREDUCE_MAGIC:
 		case INV_DMGREDUCE_FIRE:
@@ -1066,10 +1066,10 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INCREASEDDOT].attrib_level_modifier = 0;
 	ItemModTable[INV_INCREASEDDOT].tags = INV_ATTR_TAG_DAMAGE;
 	
-	ItemModTable[INV_DMGREDUCE_HITSCAN].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_HITSCAN].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_HITSCAN].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_HITSCAN].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_PROJSPEED].attrib_low = 0.01;
+	ItemModTable[INV_PROJSPEED].attrib_high = 0.03;
+	ItemModTable[INV_PROJSPEED].attrib_level_modifier = 0;
+	ItemModTable[INV_PROJSPEED].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 5.0;
@@ -1955,6 +1955,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text);
 
 		// fixed point stuff
+		case INV_PROJSPEED:
 		case INV_EXPGAIN_INCREASE:
 		case INV_CREDITGAIN_INCREASE:
 		case INV_DROPCHANCE_INCREASE:
@@ -1990,7 +1991,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_DMGREDUCE_PHYS:
 		case INV_DMGREDUCE_REFL:
 		case INV_DMGREDUCE_ENERGY:
-		case INV_DMGREDUCE_HITSCAN:
 		case INV_DMGREDUCE_MAGIC:
 		case INV_DMGREDUCE_FIRE:
 		case INV_DMGREDUCE_LIGHTNING:

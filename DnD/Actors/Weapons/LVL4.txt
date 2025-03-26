@@ -1683,7 +1683,7 @@ actor " Minigun " : DnDWeapon {
 		ReadyLoopInit:
 		    CHNG A 0
 			CHNG A 0 A_StopSound(5)
-			CHNG A 0 ACS_ExecuteAlways(920, 0, 1)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN, BTI_F_REMOVE)
 			CHNG A 0 A_TakeInventory("MinigunFiring", 1)
 			CHNG A 0 A_TakeInventory("MinigunCanCancel", 1)
 		ReadyLoop:
@@ -1692,7 +1692,7 @@ actor " Minigun " : DnDWeapon {
 		Deselect:
 			TNT1 A 0
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN, BTI_F_REMOVE)
 			TNT1 A 0 A_TakeInventory("MinigunFiring", 1)
 			TNT1 A 0 A_StopSound(1)
 			TNT1 A 0 A_StopSound(5)
@@ -1713,7 +1713,7 @@ actor " Minigun " : DnDWeapon {
 		FireConfirmed:
 			TNT1 A 0 A_JumpIFInventory("MinigunSpin", 1, "ToastMcFire")
 			CHNG A 0 A_PlaySound("Throttle/WindUp",5,0.8)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN)
 			TNT1 A 0 A_AlertMonsters
 			CHNG ABCDEFG 1
 			TNT1 A 0 A_GiveInventory("MinigunFiring", 1)
@@ -1721,7 +1721,7 @@ actor " Minigun " : DnDWeapon {
 		Goto ToastMcFire
 		ToastMcFire:
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Unique Player Property", PUP_KNOCKBACKIMMUNE), "ToastMcFireNoRecoil")
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN)
 			TNT1 A 0 A_TakeInventory("MinigunSpin", 1)
 			CHNF A 0 A_PlaySound("Throttle/Fire",CHAN_WEAPON,0.8,1)
 			CHNF A 0 A_PlaySound("Throttle/Add",5,0.9,1)
@@ -1821,7 +1821,7 @@ actor " Minigun " : DnDWeapon {
 		Goto WindDownAfterFire
 		
 		ToastMcFireNoRecoil: // copied here to reduce load on server with many if checks
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN, BTI_F_REMOVE)
 			TNT1 A 0 A_TakeInventory("MinigunSpin", 1)
 			CHNF A 0 A_PlaySound("Throttle/Fire",1,0.8,1)
 			CHNF A 0 A_PlaySound("Throttle/Add",5,0.9,1)
@@ -1967,7 +1967,7 @@ actor " Minigun " : DnDWeapon {
 			CHNG AB 1
 			CHNG C 1 A_JumpIfInventory("DnD_CanAltFire", 1, "ToastMcFire")
 			CHNG DE 1
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN, BTI_F_REMOVE)
 			CHNG FFGG 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOSWITCH)
 			CHNG A 1 A_JumpIfInventory("DnD_CanAltFire", 1, "FireConfirmed")
 			CHNG ABBC 1 A_WeaponReady(WRF_NOPRIMARY | WRF_NOSWITCH)
@@ -1996,7 +1996,7 @@ actor " Minigun " : DnDWeapon {
 		Goto ReadyLoopInit
 		WindDown:
 			CHNG A 0 A_StopSound(5)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN, BTI_F_REMOVE)
 			TNT1 A 0 A_TakeInventory("MinigunFiring", 1)
 			CHNG A 0 A_PlaySound("Throttle/WindDown",1,0.8)
 			CHNG A 1 A_JumpIfInventory("DnD_CanAltFire", 1, "ToastMcFire")
@@ -2029,7 +2029,7 @@ actor " Minigun " : DnDWeapon {
 			CHNG A 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
 			TNT1 A 0 A_JumpIfInventory("MinigunCanCancel", 1, "CancelMidSpin")
 			TNT1 A 0 A_PlaySound("Throttle/WindUp",5,0.8)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN)
 			TNT1 A 0 A_JumpIfInventory("MinigunSpin", 1, "HackedAltfire")
 			TNT1 A 0 A_AlertMonsters
 			CHNG BCDEFGACEGACEGACEGACEGACEG 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOFIRE)
@@ -2045,13 +2045,13 @@ actor " Minigun " : DnDWeapon {
 			TNT1 A 0 A_PlaySound("Throttle/Loop",5,0.8)
 			//TNT1 A 0 A_TakeInventory("MinigunSpin", 1)
 			TNT1 A 0 A_TakeInventory("MinigunFiring", 1)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN)
 			TNT1 A 0 A_AlertMonsters
 			CHNG ACEGACEGACEGACEGACEG 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOSECONDARY)
 			TNT1 A 0 A_Refire("HackedAltFire")
 		StopAlt:
 			TNT1 A 0 A_StopSound(5)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN, BTI_F_REMOVE)
 			CHNG A 0 A_PlaySound("Throttle/WindDown",1,0.8)
 			CHNG FFGGAABBCCCDDDEEEEFFFFGGGG 1 A_WeaponReady(WRF_NOSWITCH | WRF_NOSECONDARY)
 			TNT1 A 0 A_TakeInventory("MinigunSpin", 1)
@@ -2060,7 +2060,7 @@ actor " Minigun " : DnDWeapon {
 		Goto ReadyLoopInit
 		CancelMidSpin:
 			TNT1 A 0 A_TakeInventory("MinigunCanCancel", 1)
-			TNT1 A 0 ACS_ExecuteAlways(920, 0, 2)
+			CHNG A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MINIGUN)
 			TNT1 A 0 A_PlaySound("Throttle/Loop",5,0.8)
 			TNT1 A 0 A_AlertMonsters
 			CHNG ACEGACEGACEGACEGACEG 1 A_WeaponReady(WRF_NOBOB | WRF_NOSWITCH)
@@ -2395,6 +2395,8 @@ ACTOR MPPB : DnDWeapon {
 			MPPB A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			MPPB A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_MPPB)
 		ReadyLoop:
+			MPPB A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MPPB, BTI_F_REMOVE)
+		RealReadyLoop:
 			MPPB A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 
@@ -2405,6 +2407,7 @@ ACTOR MPPB : DnDWeapon {
 			"####" "#" 0 A_Raise
 		Loop
 		Deselect:
+			MPPB A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MPPB, BTI_F_REMOVE)
 			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
@@ -2443,6 +2446,7 @@ ACTOR MPPB : DnDWeapon {
 		Goto Winddown3
 		
 		Hold:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MPPB)
 			TNT1 A 0 A_PlaySound("MPPhotonBlaster/fireloop", CHAN_WEAPON, 1.0, true)
 		Hold0:
 			TNT1 A 0 A_AlertMonsters
@@ -2487,6 +2491,7 @@ ACTOR MPPB : DnDWeapon {
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "Winddown3")
 		Goto Winddown1
 		Winddown1:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_MPPB, BTI_F_REMOVE)
 			MPPB ABCD 2
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "Winddown2")
 		Goto Winddown0

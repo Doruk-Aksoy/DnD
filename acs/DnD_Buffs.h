@@ -1,0 +1,414 @@
+#ifndef DND_BUFFS_IN
+#define DND_BUFFS_IN
+
+// Has all sorts of generalized buff/debuff book keeping here
+
+// when giving durations to buffs based on seconds, make sure to accommodate for this here, a duration tic is lost every 7 tics, so
+// if a buff lasts for 10 seconds, its duration value should be 10 * 5 = 50, because 50 tic times each lasting 7 tics will result in 350 tics = 10 seconds
+#define DND_BUFF_TICKTIME 7
+#define DND_BUFF_TICK_SECOND_ADJUST(x) ((x) * (TICRATE / DND_BUFF_TICKTIME))
+
+enum {
+	BUFF_SLOW,
+	BUFF_HASTE,
+	BUFF_DAMAGETAKEN,
+	BUFF_DAMAGEREDUCE,
+
+	BUFF_TYPES_MAX
+};
+
+bool IsDetrimentalBuff(int buff_type) {
+	switch(buff_type) {
+		case BUFF_SLOW:
+		case BUFF_DAMAGETAKEN:
+		return true;
+	}
+	return false;
+}
+
+enum {
+	BUFF_F_MONSTERSOURCE 				= 0b1,
+	BUFF_F_PLAYERSOURCE 				= 0b10,
+	BUFF_F_WEAPONSOURCE					= 0b100,
+	BUFF_F_MORETYPE						= 0b1000, 						// multiplicative instead of additive
+	BUFF_F_TICKERREQUIRED 				= 0b10000,
+	BUFF_F_NODUPLICATE					= 0b100000,						// doesn't allow duplicates where source, type, flags and value are same
+	BUFF_F_NODUPLICATE_STRICT			= 0b1000000,					// doesn't allow duplicates from ANYTHING, can only have one, and strongest will overwrite it
+};
+#define BUFF_SOURCE_FLAGMASK (BUFF_F_WEAPONSOURCE | BUFF_F_PLAYERSOURCE | BUFF_F_MONSTERSOURCE)
+
+struct buff_T {
+	int source;			// source of this buff, we will never insert a buff of same type from same source multiple times, we'll replace weakest with this instead
+	
+	int type;			// type of buff
+	int value;			// value to be used for effect of the buff
+
+	int flags;			// holds flags for this buff, what kind of source, does it require ticker etc.
+	int duration;		// duration of buff
+
+	int next_id;		// next buff pointer
+};
+
+#define DND_BUFF_SOURCE_BITS 14 // 14 bits for source tids is enough with 16384
+#define DND_BUFF_FLAG_BITS 7 // 128 as max value of buff type, leaves 11 bits for extra info
+
+#define DND_BUFF_FLAG_SHIFT (DND_BUFF_SOURCE_BITS + DND_BUFF_FLAG_BITS)
+
+#define DND_MAX_PLAYER_BUFFS 128
+struct buffData_T {
+	int head;										// holds first buff index
+	buff_T buff_list[DND_MAX_PLAYER_BUFFS];			// unsorted buff list
+
+	int buff_count;									// how many buffs in list total at the moment
+	bool state;										// needs to be true to be good to use (fixes runaway script problems in weapons)
+
+	ValueComponent_T buff_net_values[BUFF_TYPES_MAX];
+};
+
+buffData_T module& GetPlayerBuffData(int pnum) {
+	static buffData_T buffs[MAXPLAYERS];
+	return buffs[pnum];
+}
+
+void ResetPlayerBuffs(int pnum) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	int i;
+
+	pbuffs.buff_count = 0;
+
+	// dummy node to make logic easier
+	pbuffs.head = 0;
+
+	for(i = 0; i < BUFF_TYPES_MAX; ++i) {
+		pbuffs.buff_net_values[i].additive = 0;
+		pbuffs.buff_net_values[i].multiplicative = 0.0;
+	}
+
+	for(i = 0; i < DND_MAX_PLAYER_BUFFS; ++i) {
+		pbuffs.buff_list[i].source = 0;
+		pbuffs.buff_list[i].next_id = -1;
+	}
+
+	pbuffs.state = true;
+
+	//Log(s:"reset buffs, head next: ", d:pbuffs.buff_list[pbuffs.head].next_id);
+	if(GetGameModeState() != GAMESTATE_COUNTDOWN)
+		ACS_NamedExecuteWithResult("DnD Buff Ticker", pnum);
+}
+
+bool IsPlayerBuffStateOK(int pnum) {
+	return GetPlayerBuffData(pnum).state;
+}
+
+void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	buff_T module& toHandle = pbuffs.buff_list[buff_index];
+
+	int type = toHandle.type;
+	int val = 1.0;
+
+	if(toHandle.flags & BUFF_F_MORETYPE) {
+		// go through all buffs for final result, as mathematically this could be irreversible (result was 0 on "less" multipliers)
+		int function(int, int)& factorizer = CombineMultiplicativeFactors;
+		if(IsDetrimentalBuff(type))
+			factorizer = CombineLessFactors;
+
+		int i = pbuffs.buff_list[pbuffs.head].next_id;
+		while(i != -1) {
+			if(pbuffs.buff_list[i].type == type && (pbuffs.buff_list[i].flags & BUFF_F_MORETYPE) && (!remove || i != buff_index))
+				val = factorizer(val, pbuffs.buff_list[i].value);
+			i = pbuffs.buff_list[i].next_id;
+		}
+
+		pbuffs.buff_net_values[type].multiplicative = val;
+
+		//Log(s:"multiplicative value: ", f:pbuffs.buff_net_values[type].multiplicative);
+	}
+	else {
+		val = toHandle.value;
+		if(remove)
+			val = -val;
+		pbuffs.buff_net_values[type].additive += val;
+		//Log(s:"additive value: ", f:pbuffs.buff_net_values[type].additive);
+	}
+}
+
+void HandleBuffApplication(int pnum, int buff_type) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	
+	int ptid = P_TIDSTART + pnum;
+	int base = 0;
+
+	switch(buff_type) {
+		case BUFF_SLOW:
+			// checks regarding having immunity to slowdowns can be done here
+			if(CheckActorInventory(ptid, "GryphonCheck"))
+				return;
+
+			// multiplicative here implies "less" movement speed, therefore if the positive value for example was 20% less speed, which would be 0.2 in the code, we'd really want 1.0 - 0.2 as the factor here
+			// which is 80% of your normal speed
+			base = GetPlayerSpeed(pnum) - pbuffs.buff_net_values[buff_type].additive;
+			if(base < DND_LOWEST_PLAYERSPEED)
+				base = DND_LOWEST_PLAYERSPEED;
+			else if(pbuffs.buff_net_values[buff_type].multiplicative != 0)
+				base = FixedMul(base, pbuffs.buff_net_values[buff_type].multiplicative);
+
+			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
+			Log(s:"New speed factor: ", f:base);
+		break;
+		case BUFF_HASTE:
+		break;
+		case BUFF_DAMAGETAKEN:
+		break;
+		case BUFF_DAMAGEREDUCE:
+		break;
+	}
+}
+
+// accepts in seconds for duration parameter
+void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, int bduration = 0) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+
+	int i = pbuffs.head;
+	int j = -1;
+	int found = 0;
+	// different search methodology if we have strictness on duplications
+	if(!(bflags & BUFF_F_NODUPLICATE_STRICT)) {
+		while(i != -1 && !found) {
+			// if same source and same type
+			if
+			(
+				pbuffs.buff_list[i].source == bsource && 
+				pbuffs.buff_list[i].type == btype &&
+				(pbuffs.buff_list[i].flags & BUFF_SOURCE_FLAGMASK) == (bflags & BUFF_SOURCE_FLAGMASK) &&
+				pbuffs.buff_list[i].value == bvalue &&
+				(pbuffs.buff_list[i].flags & BUFF_F_NODUPLICATE) && (bflags & BUFF_F_NODUPLICATE)
+			)
+			{
+				// if we don't care for duplicate, then don't even consider it
+				//Log(s:"found duplicate");
+				found = 1;
+
+				// refresh timer if any
+				if(pbuffs.buff_list[i].duration < bduration)
+					pbuffs.buff_list[i].duration = bduration;
+				break;
+			}
+
+			// if there is a gap, stop here, this guy's +1 is the gap we can immediately insert something to -- save this position into j once, and keep checking for duplicates just in case
+			//Log(s:"next id check? ", d:pbuffs.buff_list[i].next_id, s: " " , d:i+1);
+			if(j == -1 && pbuffs.buff_list[i].next_id != i + 1)
+				j = i;
+			i = pbuffs.buff_list[i].next_id;
+		}
+	}
+	else {
+		while(!found) {
+			// if type is same and also strict, we will compare immediately
+			if(pbuffs.buff_list[i].type == btype && (pbuffs.buff_list[i].flags & BUFF_F_NODUPLICATE_STRICT)) {
+				if(pbuffs.buff_list[i].value < bvalue) {
+					pbuffs.buff_list[i].value = bvalue;
+					pbuffs.buff_list[i].duration = bduration;
+
+					// transfer flags aand source if we are strict, this is the stronger
+					pbuffs.buff_list[i].flags = bflags;
+					pbuffs.buff_list[i].source = bsource;
+					found = 2;
+				}
+				else if(pbuffs.buff_list[i].value == bvalue && pbuffs.buff_list[i].duration < bduration) {
+					pbuffs.buff_list[i].duration = bduration;
+					// transfer flags aand source if we are strict, this is the stronger
+					pbuffs.buff_list[i].flags = bflags;
+					pbuffs.buff_list[i].source = bsource;
+				}
+				found = 1;
+			}
+
+			// if we have next, keep going otherwise stop as the last valid place
+			if(pbuffs.buff_list[i].next_id != -1 && i != DND_MAX_PLAYER_BUFFS - 1) {
+				// if there is a gap, stop here, this guy's +1 is the gap we can immediately insert something to
+				if(pbuffs.buff_list[i].next_id != i + 1)
+					break;
+				i = pbuffs.buff_list[i].next_id;
+			}
+			else
+				break;
+		}
+	}
+
+	// update the valid slot using j
+	if(j != -1)
+		i = j;
+
+	// insert to the array now since we couldn't find a duplicate
+	if(!found && i + 1 < DND_MAX_PLAYER_BUFFS) {
+		// i stops at the node that has next == -1, so i+1 is the place to add unless we reached max somehow already
+		// store the previous next of this guy
+		j = pbuffs.buff_list[i].next_id;
+		pbuffs.buff_list[i].next_id = i + 1;
+		//Log(s:"Prev node ", d:i, s:" and its next is now ", d:i + 1);
+
+		// current node is now the new node that needs to be set with proper data
+		if(bduration)
+			bflags |= BUFF_F_TICKERREQUIRED;
+
+		i = i + 1;
+		pbuffs.buff_list[i].source = bsource;
+		pbuffs.buff_list[i].value = bvalue;
+		pbuffs.buff_list[i].flags = bflags;
+		pbuffs.buff_list[i].type = btype;
+		pbuffs.buff_list[i].duration = DND_BUFF_TICK_SECOND_ADJUST(bduration);	
+
+		pbuffs.buff_list[i].next_id = j; // new next is the one that was next of previous
+		//Log(s:"New node ", d:i, s:" and its next is now ", d:j);
+
+		++pbuffs.buff_count;
+
+		found = 2;
+	}
+	
+	// handle the buff's effect as its a new buff or an update on it
+	if(found > 1) {
+		//Log(s:"add buff to index ", d:i);
+		HandleBuffValueComponent(pnum, i);
+		HandleBuffApplication(pnum, btype);
+	}
+}
+
+// Non-ticker buffs removal lies on the user
+Script "DnD Buff Ticker" (int pnum) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+
+	while(IsAlive() && !CheckInventory("DnD_IntermissionState")) {
+		int i = pbuffs.buff_list[pbuffs.head].next_id;
+		while(i != -1) {
+			int rem = -5;
+			if((pbuffs.buff_list[i].flags & BUFF_F_TICKERREQUIRED)) {
+				--pbuffs.buff_list[i].duration;
+				if(pbuffs.buff_list[i].duration <= 0)
+					rem = RemoveBuff(pnum, i - 1); // assumes +1 so this corrects it
+			}
+
+			if(rem == -5)
+				i = pbuffs.buff_list[i].next_id;
+			else
+				i = rem;
+			//Log(s:"tick next to ", d:i);
+		}
+
+		// buffs count down every 7 tics
+		//Log(s:"ticker tick");
+		Delay(const:DND_BUFF_TICKTIME);
+	}
+	SetResultValue(0);
+}
+
+// send 0 indexed, it'll add one since we have dummy node
+// returns the next node of the removed node
+int RemoveBuff(int pnum, int buff_index, int precalc_prev = -1) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+
+	++buff_index;
+	if(buff_index >= DND_MAX_PLAYER_BUFFS)
+		buff_index = DND_MAX_PLAYER_BUFFS - 1;
+
+	// reverse scan to find whose next we were --- if nobody's that means we were first element/only element
+	int prev = buff_index - 1;
+	bool validPrev = false;
+	if(precalc_prev == -1) {
+		while(prev >= 0 && !validPrev) {
+			if(pbuffs.buff_list[prev].next_id == buff_index)
+				validPrev = true;
+			else
+				--prev;
+		}
+	}
+	else {
+		validPrev = true;
+		prev = precalc_prev;
+	}
+
+	if(validPrev) {
+		pbuffs.buff_list[prev].next_id = pbuffs.buff_list[buff_index].next_id;
+		//Log(s:"setting prev's which is ", d:prev, s:" next to ", d:pbuffs.buff_list[buff_index].next_id);
+		prev = pbuffs.buff_list[buff_index].next_id;
+	}
+	else
+		prev = -1;
+
+	//Log(s:"buff value to remove ", d:pbuffs.buff_list[buff_index].value);
+
+	HandleBuffValueComponent(pnum, buff_index, true);
+	HandleBuffApplication(pnum, pbuffs.buff_list[buff_index].type);
+
+	pbuffs.buff_list[buff_index].source = 0;
+	pbuffs.buff_list[buff_index].type = 0;
+	pbuffs.buff_list[buff_index].flags = 0;
+	pbuffs.buff_list[buff_index].value = 0;
+	pbuffs.buff_list[buff_index].duration = 0;
+	pbuffs.buff_list[buff_index].next_id = -1;
+
+	//Log(s:"Removed buff index ", d:buff_index, s:" returning ", d:prev);
+
+	--pbuffs.buff_count;
+
+	// got nothing left, so make head's next -1
+	if(!pbuffs.buff_count)
+		pbuffs.buff_list[pbuffs.head].next_id = -1;
+
+	return prev;
+}
+
+void RemoveBuffMatching(int pnum, int bsource, int btype, int bvalue, int bflags) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	int i = pbuffs.buff_list[pbuffs.head].next_id;
+	int prev = pbuffs.head;
+	//Log(s:"remove buff start ", d:i);
+	while(i != -1) {
+		if
+		(
+			pbuffs.buff_list[i].source == bsource &&
+			pbuffs.buff_list[i].type == btype &&
+			pbuffs.buff_list[i].value == bvalue &&
+			pbuffs.buff_list[i].flags == bflags
+		)
+		{
+			// matched, remove -- map to 0 indexed here
+			RemoveBuff(pnum, i - 1, prev);
+			return;
+		}
+		prev = i;
+		i = pbuffs.buff_list[i].next_id;
+	}
+}
+
+void SlowPlayer(int amt, int mode, int pnum) {
+	if(!pnum)
+		pnum = PlayerNumber();
+	// don't slow if player has gryphon boots
+	if(CheckActorInventory(P_TIDSTART + pnum, "GryphonCheck") && !(mode & SF_FREEZE))
+		return;
+	if(mode & SF_FREEZE) {
+		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+		SetActorProperty(0, APROP_SPEED, 0.0);
+		GiveInventory("P_Frozen", 1);
+	}
+	else
+		SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, FixedMul(GetPlayerSpeed(pnum), amt));
+}
+
+void LogBuffList(int pnum) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	
+	int i =  pbuffs.buff_list[pbuffs.head].next_id;
+	int count = 0;
+	while(i != -1 && count < 8) {
+		Log(s:"Buff ", d:count + 1, s: "(", d:i, s:") -- Source: ", d:pbuffs.buff_list[i].source, s: " Type: ", d:pbuffs.buff_list[i].type, s:" Flags: ", d:pbuffs.buff_list[i].flags, s: " Value: ", d:pbuffs.buff_list[i].value, s:" Duration: ", d:pbuffs.buff_list[i].duration);
+		++count;
+		i = pbuffs.buff_list[i].next_id;
+	}
+}
+
+#include "DnD_BuffTable.h"
+
+#endif
