@@ -277,3 +277,19 @@ Glow
 	GATE4	
 	}
 }
+
+#include "GLDefs/Monsters/Zombies.txt"
+#include "GLDefs/Monsters/Imp.txt"
+#include "GLDefs/Monsters/Demon.txt"
+#include "GLDefs/Monsters/LostSoul.txt"
+#include "GLDefs/Monsters/Caco.txt"
+#include "GLDefs/Monsters/PainE.txt"
+#include "GLDefs/Monsters/Baron.txt"
+#include "GLDefs/Monsters/Fatso.txt"
+#include "GLDefs/Monsters/Revenant.txt"
+#include "GLDefs/Monsters/Spider.txt"
+#include "GLDefs/Monsters/Vile.txt"
+#include "GLDefs/Monsters/SpiderM.txt"
+#include "GLDefs/Monsters/Cyberdemon.txt"
+#include "GLDefs/Monsters/Legendary.txt"
+#include "GLDefs/Monsters/Uniques.txt"

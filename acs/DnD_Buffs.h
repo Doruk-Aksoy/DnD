@@ -4,8 +4,8 @@
 // Has all sorts of generalized buff/debuff book keeping here
 
 // when giving durations to buffs based on seconds, make sure to accommodate for this here, a duration tic is lost every 7 tics, so
-// if a buff lasts for 10 seconds, its duration value should be 10 * 5 = 50, because 50 tic times each lasting 7 tics will result in 350 tics = 10 seconds
-#define DND_BUFF_TICKTIME 7
+// if a buff lasts for 10 seconds, its duration value should be 10 * 7 = 70, because 70 tic times each lasting 5 tics will result in 350 tics = 10 seconds
+#define DND_BUFF_TICKTIME 5
 #define DND_BUFF_TICK_SECOND_ADJUST(x) ((x) * (TICRATE / DND_BUFF_TICKTIME))
 
 enum {
@@ -34,6 +34,8 @@ enum {
 	BUFF_F_TICKERREQUIRED 				= 0b10000,
 	BUFF_F_NODUPLICATE					= 0b100000,						// doesn't allow duplicates where source, type, flags and value are same
 	BUFF_F_NODUPLICATE_STRICT			= 0b1000000,					// doesn't allow duplicates from ANYTHING, can only have one, and strongest will overwrite it
+	BUFF_F_REPLACEMENTVALUE				= 0b10000000,					// same buff with different value attachment
+	BUFF_F_DURATIONINTICS				= 0b100000000,					// duration is in real tics
 };
 #define BUFF_SOURCE_FLAGMASK (BUFF_F_WEAPONSOURCE | BUFF_F_PLAYERSOURCE | BUFF_F_MONSTERSOURCE)
 
@@ -81,7 +83,7 @@ void ResetPlayerBuffs(int pnum) {
 
 	for(i = 0; i < BUFF_TYPES_MAX; ++i) {
 		pbuffs.buff_net_values[i].additive = 0;
-		pbuffs.buff_net_values[i].multiplicative = 0.0;
+		pbuffs.buff_net_values[i].multiplicative = 1.0;
 	}
 
 	for(i = 0; i < DND_MAX_PLAYER_BUFFS; ++i) {
@@ -115,8 +117,10 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 
 		int i = pbuffs.buff_list[pbuffs.head].next_id;
 		while(i != -1) {
-			if(pbuffs.buff_list[i].type == type && (pbuffs.buff_list[i].flags & BUFF_F_MORETYPE) && (!remove || i != buff_index))
+			if(pbuffs.buff_list[i].type == type && (pbuffs.buff_list[i].flags & BUFF_F_MORETYPE) && (!remove || i != buff_index)) {
 				val = factorizer(val, pbuffs.buff_list[i].value);
+				//Log(s:"factor ", f:pbuffs.buff_list[i].value);
+			}
 			i = pbuffs.buff_list[i].next_id;
 		}
 
@@ -150,7 +154,7 @@ void HandleBuffApplication(int pnum, int buff_type) {
 			base = GetPlayerSpeed(pnum) - pbuffs.buff_net_values[buff_type].additive;
 			if(base < DND_LOWEST_PLAYERSPEED)
 				base = DND_LOWEST_PLAYERSPEED;
-			else if(pbuffs.buff_net_values[buff_type].multiplicative != 0)
+			else if(pbuffs.buff_net_values[buff_type].multiplicative != 1.0) // default is 1.0 if theres none so nothing to worry about here
 				base = FixedMul(base, pbuffs.buff_net_values[buff_type].multiplicative);
 
 			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
@@ -166,7 +170,7 @@ void HandleBuffApplication(int pnum, int buff_type) {
 }
 
 // accepts in seconds for duration parameter
-void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, int bduration = 0) {
+void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, int bduration = 0, int breplacement = 0) {
 	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
 	int i = pbuffs.head;
@@ -187,11 +191,19 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 			{
 				// if we don't care for duplicate, then don't even consider it
 				//Log(s:"found duplicate");
-				found = 1;
+				
+				if(bflags & BUFF_F_REPLACEMENTVALUE) {
+					// if this is a thing, make sure we refactor the buff immediately
+					pbuffs.buff_list[i].value = breplacement;
+					found = 2;
+					break;
+				}
 
 				// refresh timer if any
 				if(pbuffs.buff_list[i].duration < bduration)
 					pbuffs.buff_list[i].duration = bduration;
+
+				found = 1;
 				break;
 			}
 
@@ -254,10 +266,23 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 
 		i = i + 1;
 		pbuffs.buff_list[i].source = bsource;
-		pbuffs.buff_list[i].value = bvalue;
+
+		// if there was a replacement but it wasn't found, add it as this buff
+		if(bflags & BUFF_F_REPLACEMENTVALUE) {
+			// if this is a thing, make sure we refactor the buff immediately
+			pbuffs.buff_list[i].value = breplacement;
+		}
+		else
+			pbuffs.buff_list[i].value = bvalue;
+		
 		pbuffs.buff_list[i].flags = bflags;
 		pbuffs.buff_list[i].type = btype;
-		pbuffs.buff_list[i].duration = DND_BUFF_TICK_SECOND_ADJUST(bduration);	
+
+		// dont adjust if this is meant to be in actual tics
+		if(!(bflags & BUFF_F_DURATIONINTICS))
+			pbuffs.buff_list[i].duration = DND_BUFF_TICK_SECOND_ADJUST(bduration);
+		else
+			pbuffs.buff_list[i].duration = bduration / DND_BUFF_TICKTIME;
 
 		pbuffs.buff_list[i].next_id = j; // new next is the one that was next of previous
 		//Log(s:"New node ", d:i, s:" and its next is now ", d:j);
@@ -269,7 +294,6 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 	
 	// handle the buff's effect as its a new buff or an update on it
 	if(found > 1) {
-		//Log(s:"add buff to index ", d:i);
 		HandleBuffValueComponent(pnum, i);
 		HandleBuffApplication(pnum, btype);
 	}
@@ -365,6 +389,7 @@ void RemoveBuffMatching(int pnum, int bsource, int btype, int bvalue, int bflags
 	int prev = pbuffs.head;
 	//Log(s:"remove buff start ", d:i);
 	while(i != -1) {
+		//Log(s:"comp val ", f:pbuffs.buff_list[i].value, s: " ", f:bvalue);
 		if
 		(
 			pbuffs.buff_list[i].source == bsource &&

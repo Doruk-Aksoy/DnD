@@ -2,7 +2,6 @@ Actor DnD_Curse_Base : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_JumpIfInventory("CurseImmunity", 1, "Immune")
-			TNT1 A 0 A_JumpIfInventory("Marine_Perk50", 1, "Immune")
 			TNT1 A 0 A_Jump(256, "Curse")
 		Stop
 		Immune:
@@ -48,11 +47,10 @@ Actor DnD_Curse_Paladin : DnD_Curse_Base {
 	}
 }
 
-Actor DnD_Curse_LichSlow : DnD_Curse_Base {
+Actor DnD_LichIceCurseBlend : DnD_Activator {
 	States {
-		Curse:
+		Pickup:
 			TNT1 A 0 A_PlaySound("Lich/IceCurse", 6)
-			TNT1 A 0 ACS_ExecuteAlways(972, 0, 0)
 			TNT1 A 0 A_SetBlend("D0 D6 FE", 0.8, 105)
 		Stop
 	}

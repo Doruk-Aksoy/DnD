@@ -14,6 +14,7 @@
 #include "DnD_Research.h"
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
+#include "DnD_Attachments.h"
 
 enum {
 	ITEMFILTER_STACKABLE = 1,

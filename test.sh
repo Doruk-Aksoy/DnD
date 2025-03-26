@@ -19,6 +19,5 @@ echo "
 Packing all files into pk7's..."
 
 7z u -t7z dnd.pk7 -uq0 ./DnD/* -mx=9 -ms=off >/dev/null
-7z u -t7z dnd_monsters.pk7 -uq0 ./monsters/* -mx=9 -ms=off >/dev/null
 
 echo "Done."

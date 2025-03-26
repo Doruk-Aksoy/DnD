@@ -128,9 +128,6 @@ enum {
 #define DND_MAX_MONSTERS 12800
 #define DND_MAX_MONSTER_ATTACHMENTS 32
 
-// max 32, using an int as a bitfield
-global int 49: MonsterAttachmentUsed[DND_MAX_MONSTERS];
-
 #define DND_MAX_TEMP_PROJ 200
 #define DND_MAX_TEMP_PROJ_SMALL 32
 #define DND_EMERALD_TIDADD 100

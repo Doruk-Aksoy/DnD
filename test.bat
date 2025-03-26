@@ -18,7 +18,6 @@ echo.
 echo Packing all files into pk3's...
 
 7z u -tzip dnd.pk3 -uq0 .\dnd\* -mx=9 >nul
-7z u -tzip dnd_monsters.pk3 -uq0 .\monsters\* -mx=9 >nul
 
 echo Done.
 @echo on

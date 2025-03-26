@@ -217,6 +217,21 @@ Script 971 (int speed) {
 	SetActorVelocity(0, velx, vely, 0, 0, 0);
 }
 
+Script "DnD Lich Slow Curse" (void) {
+	int ptid = GetActorProperty(0, APROP_TARGETTID);
+	if(IsPlayer(ptid) && !CheckUniquePropertyOnPlayer(ptid - P_TIDSTART, PUP_CURSEIMMUNITY)) {
+		GiveActorInventory(ptid, "DnD_LichIceCurseBlend", 1);
+		int i;
+		int val = 0;
+		for(i = 0; i < 5; i++) {
+			val = 20 * (i + 1);
+			ACS_NamedExecuteWithResult("DnD Player Buff", BTI_LICHICECURSE, BTI_F_USETARGET | BTI_F_USEINITIALSOURCE, val);
+			Delay(25);
+		}
+		ACS_NamedExecuteWithResult("DnD Player Buff", BTI_LICHICECURSE, BTI_F_REMOVE | BTI_F_USETARGET | BTI_F_USEINITIALSOURCE, val);
+	}
+}
+
 Script 972 (int type) { // script for Lich Slow
 	int i;
 
@@ -226,7 +241,7 @@ Script 972 (int type) { // script for Lich Slow
 
 	if(!type) {
 		for(i = 0; i < 5; i++) {
-			SlowPlayer(0.22 * i, 0, 0);
+			SlowPlayer(0.20 * (i + 1), 0, 0);
 			Delay(20);
 		}
 		RestoreRPGStat(RES_PLAYERSPEED);
@@ -324,21 +339,21 @@ Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {
 		Terminate;
 
 	str actor = "";
+	int zoff = GetActorProperty(0, APROP_HEIGHT) + 8.0;
 	switch(type) {
 		case DND_BLIND_LIGHT:
 			PlaySound(0, "Blind/Normal", CHAN_6, 1.0);
-			CreateMonsterAttachment(this, "DnD_BlindIcon");
+			CreateMonsterAttachment(this, "DnD_BlindIcon", 0, 0, zoff);
 			actor = "NormalBlindFX";
 		break;
 		case DND_BLIND_HEAVY:
 			PlaySound(0, "Blind/Heavy", CHAN_6, 1.0);
-			CreateMonsterAttachment(this, "DnD_BlindIcon_Heavy");
+			CreateMonsterAttachment(this, "DnD_BlindIcon_Heavy", 0, 0, zoff);
 			actor = "HeavyBlindFX";
 		break;
 		case DND_BLIND_PETRIFY:
 			PlaySound(0, "Lich/VisionDim", CHAN_6, 1.0);
-			CreateMonsterAttachment(this, "DnD_BlindIcon_Petrify");
-			GiveInventory("DnD_PetrifySpawner", 1);
+			CreateMonsterAttachment(this, "DnD_BlindIcon_Petrify", 0, 0, zoff);
 			actor = "PetrifyBlindFX";
 		break;
 	}

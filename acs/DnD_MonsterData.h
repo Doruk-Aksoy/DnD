@@ -3,6 +3,7 @@
 
 #include "DnD_Common.h"
 #include "DnD_EliteInfo.h"
+#include "DnD_Attachments.h"
 
 #define DND_CUSTOMMONSTER_ID 65536
 #define DND_MONSTERMASS_SCALE 20 // 20% per level
@@ -2622,51 +2623,6 @@ Script "DnD Setup Monster Data CS" OPEN CLIENTSIDE {
 		Delay(const:20);
 		SetupMonsterData();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
-	}
-}
-
-// do not send tid here, send monster id (tid - DND_MONSTERTID_BEGIN)
-void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0, int zoff = 0, int angle = 0) {
-	// base tid skip
-	int sfx_id = 0;
-	int m_id = tid - DND_MONSTERTID_BEGIN;
-	int temp = MonsterAttachmentUsed[m_id];
-	while(temp & 1) {
-		temp >>= 1;
-		++sfx_id;
-	}
-	MonsterAttachmentUsed[m_id] |= 1 << sfx_id;
-
-	// offset to tid
-	sfx_id += DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
-	//Log(s:"sfx tid: ", d:sfx_id, s: " for monster tid: ", d:tid);
-	SpawnForced(actor_name, GetActorX(tid) + xoff, GetActorY(tid) + yoff, GetActorZ(tid) + zoff, sfx_id, angle);
-
-	// setup the attachment
-	SetActivator(sfx_id);
-	SetPointer(AAPTR_TARGET, tid);
-	SetActorProperty(sfx_id, APROP_TARGETTID, tid);
-
-	// radius and other things
-	SetActorProperty(sfx_id, APROP_MASS, zoff >> 16);
-	SetActorProperty(sfx_id, APROP_SCORE, xoff >> 16);
-
-	SetActivator(tid);
-}
-
-// When a monster is killed this is called to do cleanup
-void DisposeAttachments(int m_id) {
-	// if theres any attachment
-	if(MonsterAttachmentUsed[m_id]) {
-		int count = 0;
-		int base = DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
-		while(MonsterAttachmentUsed[m_id]) {
-			if(MonsterAttachmentUsed[m_id] & 1)
-				SetActorState(count + base, "Disappear");
-
-			MonsterAttachmentUsed[m_id] >>= 1;
-			++count;
-		}
 	}
 }
 

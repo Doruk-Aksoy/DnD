@@ -784,7 +784,7 @@ Script "DND On Revive" (void) {
 
 		// timer and follow setups
 		ACS_NamedExecuteWithResult("DnD Timed Monster", lifetime, 1);
-		ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ELITEFX_REFLECT);
+		ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ATTACHMENT_PETICON);
 		// don't give this, they are solid and block the player
 		ACS_NamedExecuteAlways("DnD Pet Distance Move", 0);
 	}
@@ -3801,48 +3801,6 @@ Script "DND Riotgun Decide" (void) {
 		SetInventory("RiotgunReloadModeDecide", 1); // reload
 }
 
-Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
-	// non-zero hopefully
-	if(tid) {
-		int i;
-		int zoff = GetActorProperty(tid, APROP_HEIGHT) >> 1;
-		int xoff = GetActorProperty(tid, APROP_RADIUS);
-		if(xoff > 32.0)
-			xoff -= 4.0;
-
-		switch(which) {
-			case DND_ELITEFX_REFLECT:
-				for(i = 0; i < 3; ++i)
-					CreateMonsterAttachment(tid, "EliteReflectingShield", xoff, 0, zoff, i * 1.0 / 3);
-			break;
-			case DND_ELITEFX_CRIPPLEAURA:
-				CreateMonsterAttachment(tid, "CrippleAuraFX");
-			break;
-			case DND_ELITEFX_VIOLENTAURA:
-				CreateMonsterAttachment(tid, "ViolentAuraFX");
-			break;
-			case DND_ELITEFX_TEMPORALBUBBLE:
-				CreateMonsterAttachment(tid, "TemporalBubbleFX", 0, 0, zoff);
-			break;
-			case DND_ELITEFX_ENSHROUD:
-				for(i = 0; i < 7; ++i)
-					CreateMonsterAttachment(tid, "EnshroudFX", xoff, 0, zoff);
-			break;
-
-			case DND_ATTACHMENT_PETICON:
-				CreateMonsterAttachment(tid, "DnD_PetIcon", xoff, 0, zoff);
-			break;
-
-			// normal elite sparkles
-			default:
-				// spawn 3 with 120 degree increments on them
-				for(i = 0; i < 3; ++i)
-					CreateMonsterAttachment(tid, "EliteSpecialFX", xoff, 0, zoff, i * 1.0 / 3);
-			break;
-		}
-	}
-}
-
 Script 1000 (int isSoftcore) {
 	int i;
 	// casual mode has higher drop rates
@@ -4621,7 +4579,7 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	);
 
 	// pet icon
-	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ELITEFX_REFLECT);
+	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ATTACHMENT_PETICON);
 }
 
 Script "DnD Master Skill Info" (int skill_id) {
