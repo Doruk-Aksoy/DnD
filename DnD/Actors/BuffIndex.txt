@@ -5,6 +5,12 @@ enum {
     BTI_RIOTGUN,
     BTI_HAMMER,
     BTI_DEVASTATOR,
+
+    // add all curses below this one
+    BTI_GURU,
+	BTI_HIEROPHANT_SLOW,
+    BTI_HIEROPHANT_DAMAGETAKEN,
+    BTI_LICHICECURSE
 };
 
 enum {

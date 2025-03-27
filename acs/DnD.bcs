@@ -252,6 +252,7 @@ Script "DnD On Map Load" OPEN {
 
 	if(!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS)) {
 		Build_Constants();
+		//Alloc_BuffTable();
 		SetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS);
 	}
 

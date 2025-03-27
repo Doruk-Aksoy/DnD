@@ -40,10 +40,6 @@ ACTOR PowerHalfSpeed : PowerSpeed {
     Speed 0.5
 }
 
-Actor PowerLessDamage : PowerDamage {
-	DamageFactor "Normal", 1.0
-}
-
 Actor Stomp_Slower : PowerSpeed {
 	Speed 0.66
 	powerup.duration -4
@@ -86,14 +82,6 @@ ACTOR Cursed_Vile2 : PowerupGiver
     Inventory.MaxAmount 0
     Powerup.Type "PowerHalfProtection"
     Powerup.Duration -5
-}
-
-Actor Cursed_Vile3 : PowerupGiver {
-    -INVENTORY.INVBAR
-    +INVENTORY.AUTOACTIVATE
-    Inventory.MaxAmount 0
-    Powerup.Type "PowerLessDamage"
-    Powerup.Duration 70
 }
 
 Actor LegendaryWeaken : PowerupGiver {

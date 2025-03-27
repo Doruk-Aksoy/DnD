@@ -1031,6 +1031,7 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 // This function is responsible for handling all damage effects player has that affect their damage some way
 // ex: curses etc.
 int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 	int more_bonus = 100;
 
 	// little orbs he drops
@@ -1042,8 +1043,8 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 		more_bonus = more_bonus * 3 / 4;
 	
 	// 70% reduction, so 3 / 10
-	if(CheckInventory("PowerLessDamage"))
-		more_bonus = more_bonus * 3 / 10;
+	//if(CheckInventory("PowerLessDamage"))
+	//	more_bonus = more_bonus * 3 / 10;
 		
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
@@ -1076,6 +1077,9 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	// 30% more effectiveness
 	if(wepid >= 0 && CheckInventory("Cyborg_Perk5") && (Weapons_Data[wepid].properties & WPROP_TECH))
 		more_bonus = more_bonus * 13 / 10;
+
+	// damage less modifier in form of enfeeblement -- buff net values always hold fixed
+	more_bonus = (more_bonus * pbuffs.buff_net_values[BUFF_DAMAGEDEALT].multiplicative) >> 16;
 	
 	return more_bonus;
 }

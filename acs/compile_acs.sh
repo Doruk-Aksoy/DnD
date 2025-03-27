@@ -1,7 +1,6 @@
 #!/bin/bash
 
 mkdir -p ../DnD/acs
-mkdir -p ../monsters/acs
 
 echo "Compiling acs code... If errors pop up, they will show up below:
 ----------------------------------------------------------------

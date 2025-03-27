@@ -1,3 +1,14 @@
+enum {
+    DND_CURSE_GURU,
+	DND_CURSE_HIEROPHANT,
+    DND_CURSE_LICHICE
+};
+
+enum {
+    CURSE_F_OWNERISTARGET = 1,
+    CURSE_F_PLAYERISTRACER = 2
+};
+
 Actor DnD_Curse_Base : DnD_Activator {
 	States {
 		Pickup:
@@ -24,16 +35,8 @@ Actor DnD_Curse_Hierophant : DnD_Curse_Base {
 		Curse:
 			TNT1 A 0 A_GiveInventory("Cursed_Vile1",1)
 			TNT1 A 0 A_GiveInventory("Cursed_Vile2",1)
+			TNT1 A 0 A_SetBlend("88 16 88", 0.75, 175)
 			TNT1 A 0 A_PlaySound("CurseHit", CHAN_AUTO, 1.0, 0)
-		Stop
-	}
-}
-
-Actor DnD_Curse_Guru : DnD_Curse_Base {
-	States {
-		Curse:
-			TNT1 A 0 A_GiveInventory("Cursed_Vile3",1)
-			TNT1 A 0 A_SetBlend("66 66 66", 0.5, 70)
 		Stop
 	}
 }
@@ -43,15 +46,6 @@ Actor DnD_Curse_Paladin : DnD_Curse_Base {
 		Curse:
 			TNT1 A 0 A_TakeInventory("BasicArmor", 15)
 			TNT1 A 0 A_SetBlend("75 15 15", 0.5 / ACS_NamedExecuteWithResult("DnD Synth Mask Acquired"), 17)
-		Stop
-	}
-}
-
-Actor DnD_LichIceCurseBlend : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_PlaySound("Lich/IceCurse", 6)
-			TNT1 A 0 A_SetBlend("D0 D6 FE", 0.8, 105)
 		Stop
 	}
 }

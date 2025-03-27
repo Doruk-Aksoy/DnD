@@ -217,21 +217,6 @@ Script 971 (int speed) {
 	SetActorVelocity(0, velx, vely, 0, 0, 0);
 }
 
-Script "DnD Lich Slow Curse" (void) {
-	int ptid = GetActorProperty(0, APROP_TARGETTID);
-	if(IsPlayer(ptid) && !CheckUniquePropertyOnPlayer(ptid - P_TIDSTART, PUP_CURSEIMMUNITY)) {
-		GiveActorInventory(ptid, "DnD_LichIceCurseBlend", 1);
-		int i;
-		int val = 0;
-		for(i = 0; i < 5; i++) {
-			val = 20 * (i + 1);
-			ACS_NamedExecuteWithResult("DnD Player Buff", BTI_LICHICECURSE, BTI_F_USETARGET | BTI_F_USEINITIALSOURCE, val);
-			Delay(25);
-		}
-		ACS_NamedExecuteWithResult("DnD Player Buff", BTI_LICHICECURSE, BTI_F_REMOVE | BTI_F_USETARGET | BTI_F_USEINITIALSOURCE, val);
-	}
-}
-
 Script 972 (int type) { // script for Lich Slow
 	int i;
 

@@ -9,22 +9,12 @@
 #define DND_BUFF_TICK_SECOND_ADJUST(x) ((x) * (TICRATE / DND_BUFF_TICKTIME))
 
 enum {
-	BUFF_SLOW,
-	BUFF_HASTE,
+	BUFF_SPEED,
+	BUFF_DAMAGEDEALT,
 	BUFF_DAMAGETAKEN,
-	BUFF_DAMAGEREDUCE,
 
 	BUFF_TYPES_MAX
 };
-
-bool IsDetrimentalBuff(int buff_type) {
-	switch(buff_type) {
-		case BUFF_SLOW:
-		case BUFF_DAMAGETAKEN:
-		return true;
-	}
-	return false;
-}
 
 enum {
 	BUFF_F_MONSTERSOURCE 				= 0b1,
@@ -36,6 +26,8 @@ enum {
 	BUFF_F_NODUPLICATE_STRICT			= 0b1000000,					// doesn't allow duplicates from ANYTHING, can only have one, and strongest will overwrite it
 	BUFF_F_REPLACEMENTVALUE				= 0b10000000,					// same buff with different value attachment
 	BUFF_F_DURATIONINTICS				= 0b100000000,					// duration is in real tics
+	BUFF_F_UNIQUETOCLASS				= 0b1000000000,					// can only have one of this buff from this class (implied NODUPLICATE)
+	BUFF_F_DETRIMENTAL					= 0b10000000000,				// negative effects
 };
 #define BUFF_SOURCE_FLAGMASK (BUFF_F_WEAPONSOURCE | BUFF_F_PLAYERSOURCE | BUFF_F_MONSTERSOURCE)
 
@@ -111,8 +103,8 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 
 	if(toHandle.flags & BUFF_F_MORETYPE) {
 		// go through all buffs for final result, as mathematically this could be irreversible (result was 0 on "less" multipliers)
-		int function(int, int)& factorizer = CombineMultiplicativeFactors;
-		if(IsDetrimentalBuff(type))
+		int function(int, int)& factorizer = CombineMoreFactors;
+		if(toHandle.flags & BUFF_F_DETRIMENTAL)
 			factorizer = CombineLessFactors;
 
 		int i = pbuffs.buff_list[pbuffs.head].next_id;
@@ -144,29 +136,33 @@ void HandleBuffApplication(int pnum, int buff_type) {
 	int base = 0;
 
 	switch(buff_type) {
-		case BUFF_SLOW:
+		case BUFF_SPEED:
 			// checks regarding having immunity to slowdowns can be done here
 			if(CheckActorInventory(ptid, "GryphonCheck"))
 				return;
 
 			// multiplicative here implies "less" movement speed, therefore if the positive value for example was 20% less speed, which would be 0.2 in the code, we'd really want 1.0 - 0.2 as the factor here
 			// which is 80% of your normal speed
-			base = GetPlayerSpeed(pnum) - pbuffs.buff_net_values[buff_type].additive;
+			base = GetPlayerSpeed(pnum) + pbuffs.buff_net_values[buff_type].additive;
 			if(base < DND_LOWEST_PLAYERSPEED)
 				base = DND_LOWEST_PLAYERSPEED;
 			else if(pbuffs.buff_net_values[buff_type].multiplicative != 1.0) // default is 1.0 if theres none so nothing to worry about here
 				base = FixedMul(base, pbuffs.buff_net_values[buff_type].multiplicative);
 
 			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
-			Log(s:"New speed factor: ", f:base);
+			//Log(s:"New speed factor: ", f:base);
 		break;
-		case BUFF_HASTE:
+		case BUFF_DAMAGEDEALT:
 		break;
 		case BUFF_DAMAGETAKEN:
 		break;
-		case BUFF_DAMAGEREDUCE:
-		break;
 	}
+}
+
+int SetDuration(int bduration, bool tick_adjust) {
+	if(tick_adjust)
+		return bduration / DND_BUFF_TICKTIME;
+	return DND_BUFF_TICK_SECOND_ADJUST(bduration);
 }
 
 // accepts in seconds for duration parameter
@@ -182,11 +178,15 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 			// if same source and same type
 			if
 			(
-				pbuffs.buff_list[i].source == bsource && 
 				pbuffs.buff_list[i].type == btype &&
 				(pbuffs.buff_list[i].flags & BUFF_SOURCE_FLAGMASK) == (bflags & BUFF_SOURCE_FLAGMASK) &&
 				pbuffs.buff_list[i].value == bvalue &&
-				(pbuffs.buff_list[i].flags & BUFF_F_NODUPLICATE) && (bflags & BUFF_F_NODUPLICATE)
+				(
+					// no duplicate case checks for duplicate instances from same tid
+					// unique class checks for cases where tid may not be the same, but source actor name can be
+					((pbuffs.buff_list[i].flags & BUFF_F_NODUPLICATE) && (bflags & BUFF_F_NODUPLICATE) && pbuffs.buff_list[i].source == bsource) ||
+					((pbuffs.buff_list[i].flags & BUFF_F_UNIQUETOCLASS) && (bflags & BUFF_F_UNIQUETOCLASS) && GetActorClass(pbuffs.buff_list[i].source) == GetActorClass(bsource))
+				)
 			)
 			{
 				// if we don't care for duplicate, then don't even consider it
@@ -204,7 +204,7 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 					pbuffs.buff_list[i].duration = bduration;
 
 				found = 1;
-				break;
+				return;
 			}
 
 			// if there is a gap, stop here, this guy's +1 is the gap we can immediately insert something to -- save this position into j once, and keep checking for duplicates just in case
@@ -274,15 +274,12 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 		}
 		else
 			pbuffs.buff_list[i].value = bvalue;
-		
+
 		pbuffs.buff_list[i].flags = bflags;
 		pbuffs.buff_list[i].type = btype;
 
 		// dont adjust if this is meant to be in actual tics
-		if(!(bflags & BUFF_F_DURATIONINTICS))
-			pbuffs.buff_list[i].duration = DND_BUFF_TICK_SECOND_ADJUST(bduration);
-		else
-			pbuffs.buff_list[i].duration = bduration / DND_BUFF_TICKTIME;
+		pbuffs.buff_list[i].duration = bduration;
 
 		pbuffs.buff_list[i].next_id = j; // new next is the one that was next of previous
 		//Log(s:"New node ", d:i, s:" and its next is now ", d:j);

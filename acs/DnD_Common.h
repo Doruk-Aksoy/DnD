@@ -21,6 +21,7 @@ struct ValueComponent_T {
 	int additive;
 	int multiplicative;
 };
+#define SIZEOF_VALUECOMPONENT (SIZEOF_INT * 2)
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0

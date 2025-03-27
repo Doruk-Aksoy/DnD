@@ -2070,7 +2070,7 @@ Actor GuruPacifier {
 			GURP AB 3 Bright A_SpawnItem("GuruExplosion1")
 		Loop
 		XDeath:
-			TNT1 A 0 A_GiveInventory("DnD_Curse_Guru", 1, AAPTR_TRACER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_GURU, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
 		Death:
 			GURP CDEF 4 Bright
 		Stop

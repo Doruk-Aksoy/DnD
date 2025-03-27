@@ -1238,7 +1238,7 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 			ILIC A 0 A_JumpIfInventory("IronLichIceCurseCooldown", 1, "RedecideCurses")
 			ILIC A 0 A_GiveInventory("IronLichIceCurseCooldown", 1)
 			ILIC M 4 Fast Bright A_FaceTarget
-			ILIC M 0 ACS_NamedExecuteAlways("DnD Lich Slow Curse")
+			ILIC M 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_LICHICE, 0)
 			ILIC M 4 Fast Bright A_FaceTarget
 		Goto See
 		GreenCurse:

@@ -1064,15 +1064,17 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) {
 	// stuff that dont depend on a wepid
 	int res = MapDamageCategoryToPercentBonus(pnum, damage_category, flags);
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
 	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS)) {
 		// add accuracy as % bonus dmg
 		res += DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
 	}
-				
-	// stuff that do ---- removed orb bonus from here
-	//if(wepid != -1)
-	//	res -= (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) * WEP_POWER_GHOSTHIT_REDUCE);
+	
+	// buff sourced percent damage
+
+	res += pbuffs.buff_net_values[BUFF_DAMAGEDEALT].additive;
+
 	return res;
 }
 
