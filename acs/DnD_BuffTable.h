@@ -10,12 +10,29 @@ enum {
     BTI_DEVASTATOR,
 
     // add all curses below this one
+    BTI_OTHERWORDLYGRIP,
+
+    BTI_REDLICH,
+    BTI_PALADIN,
     BTI_GURU,
     BTI_HIEROPHANT_SLOW,
     BTI_HIEROPHANT_DAMAGETAKEN,
-    BTI_LICHICECURSE
+    BTI_FLESHWIZARD_SLOW1,
+    BTI_FLESHWIZARD_SLOW2,
+    BTI_FLESHWIZARD_WEAKEN,
+    BTI_FLESHWIZARD_SNARE,
+    BTI_STOMPSLOW,
+    BTI_LICHICECURSE,
+    BTI_LICHVISION,
+    BTI_LICHDEGEN,
+
+    BTI_SSRATHSTUN,
+    BTI_ERYXIASLOW,
+
+    BTI_TORRASQUE_SNARE,
+    BTI_GOLGOTH_SLOW,
+    BTI_GOLGOTH_WEAKEN
 };
-#define DND_CURSE_BEGIN BTI_GURU
 
 enum {
     BTI_F_USETARGET         = 0b1,
@@ -30,7 +47,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
 
     int bsource = 0;
     int btype = 0;
-    int bvalue = 0;
+    int bvalue = 0;                 // make sure to send negative values if they are detrimental effects (detrimental to the buff label)
     int bflags = 0;
     int bduration = 0;
 
@@ -48,29 +65,151 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         case BTI_RIOTGUN:
         case BTI_DEVASTATOR:
             btype = BUFF_SPEED;
-            bflags |= BUFF_F_WEAPONSOURCE | BUFF_F_NODUPLICATE | BUFF_F_DETRIMENTAL;
-            bvalue = 0.25;
+            bflags |= BUFF_F_WEAPONSOURCE | BUFF_F_NODUPLICATE;
+            bvalue = -0.25;
         break;
         case BTI_HAMMER:
             btype = BUFF_SPEED;
-            bflags |= BUFF_F_WEAPONSOURCE | BUFF_F_NODUPLICATE | BUFF_F_DETRIMENTAL;
-            bvalue = 0.5;
+            bflags |= BUFF_F_WEAPONSOURCE | BUFF_F_NODUPLICATE;
+            bvalue = -0.5;
         break;
 
         // curses
+        case BTI_OTHERWORDLYGRIP:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE;
+            bvalue = -0.67;
+            bduration = 2;
+            tic_duration = bduration * TICRATE;
+        break;
+
+        case BTI_REDLICH:
+            btype = BUFF_DAMAGETAKEN;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE;
+            bvalue = 0.5;
+            bduration = 30;
+            tic_duration = bduration * TICRATE;
+        break;
+        case BTI_PALADIN:
+            btype = BUFF_ARMORINCREASE;
+            bflags |= BUFF_F_MONSTERSOURCE;
+            bvalue = -0.1;
+            bduration = 10;
+            tic_duration = bduration * TICRATE;
+        break;
         case BTI_GURU:
             btype = BUFF_DAMAGEDEALT;
-            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DETRIMENTAL;
-            bvalue = 0.7; // 70% less
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE;
+            bvalue = -0.7; // 70% less
+            bduration = 3;
+            tic_duration = bduration * TICRATE;
+        break;
+        case BTI_HIEROPHANT_SLOW:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE;
+            bvalue = -0.5;
+            bduration = 5;
+        break;
+        case BTI_HIEROPHANT_DAMAGETAKEN:
+            // don't use detrimental here, as it'll flip damagetaken to be damagereduced
+            btype = BUFF_DAMAGETAKEN;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE;
+            bvalue = 0.5;
+            bduration = 5;
+            tic_duration = TICRATE * bduration + 10; // the last 10 helps clarify visual
+        break;
+        case BTI_FLESHWIZARD_SLOW1:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE;
+            bvalue = -0.25;
             bduration = 2;
+            tic_duration = bduration * TICRATE;
+        break;
+        case BTI_FLESHWIZARD_SLOW2:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -0.5;
+            bduration = 52;
+            tic_duration = bduration;
+        break;
+        case BTI_FLESHWIZARD_WEAKEN:
+            btype = BUFF_DAMAGEDEALT;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = -0.25;
+            bduration = 52;
+            tic_duration = bduration;
+        break;
+        case BTI_FLESHWIZARD_SNARE:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -1.0;
+            bduration = 17;
+            tic_duration = bduration;
+        break;
+        case BTI_STOMPSLOW:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE;
+            bvalue = -0.33;
+            bduration = 4;
             tic_duration = bduration * TICRATE;
         break;
         case BTI_LICHICECURSE:
             btype = BUFF_SPEED;
-            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_MORETYPE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS | BUFF_F_DETRIMENTAL;
-            bvalue = 0.2;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_MORETYPE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = -0.2;
             bduration = 35;
             tic_duration = 25 * 5; // the curse inflicts itself over 5 times of 25 tics so the blend should match
+        break;
+        case BTI_LICHVISION:
+            btype = BUFF_VISIONLOSS;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_MORETYPE;
+            bvalue = 1.0;
+            bduration = 2;
+            tic_duration = bduration * TICRATE + 8;
+        break;
+        case BTI_LICHDEGEN:
+            btype = BUFF_HEALTHREGEN;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE;
+            bvalue = -0.175;
+            bduration = 5;
+            tic_duration = bduration * TICRATE + 8;
+        break;
+
+        case BTI_SSRATHSTUN:
+            btype = BUFF_STUN;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -1.0; // -1 to make speed 0
+            bduration = 17;
+            tic_duration = bduration + 7;
+        break;
+        case BTI_ERYXIASLOW:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -0.33;
+            bduration = 56;
+            tic_duration = bduration + 8;
+        break;
+
+        case BTI_TORRASQUE_SNARE:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -1.0;
+            bduration = 45;
+            tic_duration = bduration;
+        break;
+        case BTI_GOLGOTH_SLOW:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = -0.5;
+            bduration = 8;
+            tic_duration = bduration;
+        break;
+        case BTI_GOLGOTH_WEAKEN:
+            btype = BUFF_DAMAGEDEALT;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS;
+            bvalue = -0.75;
+            bduration = 6;
+            tic_duration = bduration * TICRATE;
         break;
     }
 

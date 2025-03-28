@@ -975,8 +975,6 @@ void LoadPlayerData(int pnum, int char_id) {
 		if(ResearchInvestments[pnum][i])
 			ACS_NamedExecuteWithResult("DnD Menu Investment Sync", pnum, i, ResearchInvestments[pnum][i]);
 	}
-	
-	HandleResearchBonuses();
 
 	// read discarded weapons
 	UpdateActivity(pnum, DND_ACTIVITY_WEAPONDISCARD, GetDBEntry(GetCharField(DND_DB_WEAPONDISCARDS, char_id), pacc), 1);

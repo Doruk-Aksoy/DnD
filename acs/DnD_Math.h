@@ -137,11 +137,7 @@ int CombineMultiplicativeFactors(int f1, int f2) {
 	return FixedMul(1.0 + f1, 1.0 + f2);
 }
 
-int CombineLessFactors(int f1, int f2) {
-	return FixedMul(f1, 1.0 - f2);
-}
-
-int CombineMoreFactors(int f1, int f2) {
+int CombineFactors(int f1, int f2) {
 	return FixedMul(f1, 1.0 + f2);
 }
 

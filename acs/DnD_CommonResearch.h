@@ -81,9 +81,9 @@ enum {
 	RES_EXO1,
 	RES_EXO2,
 	RES_EXO3,
-	RES_IMP1,
-	RES_IMP2,
-	RES_IMP3,
+	//RES_IMP1,
+	//RES_IMP2,
+	//RES_IMP3,
 	
 	RES_STASHTAB
 };

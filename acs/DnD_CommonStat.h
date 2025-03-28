@@ -619,7 +619,6 @@ void RestoreRPGStat (int statflag) {
 	
 	// So the player respawns with his actual new max hp
 	SetActorProperty(0, APROP_SPAWNHEALTH, GetSpawnHealth());
-	HandleResearchBonuses();
 	
 	if(!(statflag & RES_NOCLASSPERK))
 		HandleClassPerks(ActivatorTID());
@@ -663,37 +662,6 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 	
 	// sync to clients
 	ACS_NamedExecuteAlways("DnD Sync Actor Property", 0, ActivatorTID(), APROP_ACCURACY, acc);
-}
-
-void HandleResearchBonuses() {
-	if(CheckResearchStatus(RES_IMP3) == RES_DONE) {
-		if(CheckInventory("Cyborg_Perk25")) {
-			GiveInventory("ImpactProtection_3_Cyborg", 1);
-			TakeInventory("ImpactProtection_2_Cyborg", 1);
-			TakeInventory("ImpactProtection_1_Cyborg", 1);
-		}
-		else {
-			GiveInventory("ImpactProtection_3", 1);
-			TakeInventory("ImpactProtection_2", 1);
-			TakeInventory("ImpactProtection_1", 1);
-		}
-	}
-	else if(CheckResearchStatus(RES_IMP2) == RES_DONE) {
-		if(CheckInventory("Cyborg_Perk25")) {
-			GiveInventory("ImpactProtection_2_Cyborg", 1);
-			TakeInventory("ImpactProtection_2_Cyborg", 1);
-		}
-		else {
-			GiveInventory("ImpactProtection_2", 1);
-			TakeInventory("ImpactProtection_1", 1);
-		}
-	}
-	else if(CheckResearchStatus(RES_IMP1) == RES_DONE) {
-		if(CheckInventory("Cyborg_Perk25"))
-			GiveInventory("ImpactProtection_1_Cyborg", 1);
-		else
-			GiveInventory("ImpactProtection_1", 1);
-	}
 }
 
 // Give powerups and stuff of the classes if they satisfy their perk things

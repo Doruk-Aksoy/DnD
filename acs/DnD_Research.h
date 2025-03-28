@@ -23,10 +23,10 @@ enum {
 	RES_REQID_BIO2,
 	RES_REQID_EXO1,
 	RES_REQID_EXO2,
-	RES_REQID_IMP1,
-	RES_REQID_IMP2
+	//RES_REQID_IMP1,
+	//RES_REQID_IMP2
 };
-#define LAST_RES_REQID RES_REQID_IMP2
+#define LAST_RES_REQID RES_REQID_EXO2
 
 typedef struct {
 	int res_flags;
@@ -114,9 +114,9 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
 	{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_EXO1 },
 	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_EXO2 },
 	{ RESF_NODROP, -1 },
-	{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_IMP1 },
+	/*{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_IMP1 },
 	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_IMP2 },
-	{ RESF_NODROP, -1},
+	{ RESF_NODROP, -1},*/
 	
 	{ 0, -1 },
 };
@@ -133,23 +133,23 @@ res_dependency_T ResearchDependencies[MAX_RES_REQID] = {
 	{RES_BIO3,			{RES_BIO2}},
 	{RES_EXO2,			{RES_EXO1}},
 	{RES_EXO3,			{RES_EXO2}},
-	{RES_IMP2,			{RES_IMP1}},
-	{RES_IMP3,			{RES_IMP2}},
+	//{RES_IMP2,			{RES_IMP1}},
+	//{RES_IMP3,			{RES_IMP2}},
 };
 
 enum {
 	RES_TRACKER_WHEEL,
 	RES_TRACKER_BIO1,
 	RES_TRACKER_EXO1,
-	RES_TRACKER_IMP1
+	//RES_TRACKER_IMP1
 };
 
-#define MAX_RESEARCH_TRACKERS RES_TRACKER_IMP1 + 1
+#define MAX_RESEARCH_TRACKERS (RES_TRACKER_EXO1 + 1)
 str ResearchTrackers[MAX_RESEARCH_TRACKERS] = {
 	"Research_Slot3Upgrade3_Tracker",
 	"Research_Body_Hp_1_Tracker",
-	"Research_Body_Ar_1_Tracker",
-	"Research_Body_Im_1_Tracker"
+	"Research_Body_Ar_1_Tracker"
+	//"Research_Body_Im_1_Tracker"
 };
 
 void SpawnResearch(int pnum, bool noRepeat = false) {

@@ -12,6 +12,10 @@ enum {
 	BUFF_SPEED,
 	BUFF_DAMAGEDEALT,
 	BUFF_DAMAGETAKEN,
+	BUFF_ARMORINCREASE,
+	BUFF_STUN,
+	BUFF_VISIONLOSS,
+	BUFF_HEALTHREGEN,
 
 	BUFF_TYPES_MAX
 };
@@ -27,7 +31,6 @@ enum {
 	BUFF_F_REPLACEMENTVALUE				= 0b10000000,					// same buff with different value attachment
 	BUFF_F_DURATIONINTICS				= 0b100000000,					// duration is in real tics
 	BUFF_F_UNIQUETOCLASS				= 0b1000000000,					// can only have one of this buff from this class (implied NODUPLICATE)
-	BUFF_F_DETRIMENTAL					= 0b10000000000,				// negative effects
 };
 #define BUFF_SOURCE_FLAGMASK (BUFF_F_WEAPONSOURCE | BUFF_F_PLAYERSOURCE | BUFF_F_MONSTERSOURCE)
 
@@ -48,7 +51,7 @@ struct buff_T {
 
 #define DND_BUFF_FLAG_SHIFT (DND_BUFF_SOURCE_BITS + DND_BUFF_FLAG_BITS)
 
-#define DND_MAX_PLAYER_BUFFS 128
+#define DND_MAX_PLAYER_BUFFS 64
 struct buffData_T {
 	int head;										// holds first buff index
 	buff_T buff_list[DND_MAX_PLAYER_BUFFS];			// unsorted buff list
@@ -103,14 +106,10 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 
 	if(toHandle.flags & BUFF_F_MORETYPE) {
 		// go through all buffs for final result, as mathematically this could be irreversible (result was 0 on "less" multipliers)
-		int function(int, int)& factorizer = CombineMoreFactors;
-		if(toHandle.flags & BUFF_F_DETRIMENTAL)
-			factorizer = CombineLessFactors;
-
 		int i = pbuffs.buff_list[pbuffs.head].next_id;
 		while(i != -1) {
 			if(pbuffs.buff_list[i].type == type && (pbuffs.buff_list[i].flags & BUFF_F_MORETYPE) && (!remove || i != buff_index)) {
-				val = factorizer(val, pbuffs.buff_list[i].value);
+				val = CombineFactors(val, pbuffs.buff_list[i].value);
 				//Log(s:"factor ", f:pbuffs.buff_list[i].value);
 			}
 			i = pbuffs.buff_list[i].next_id;
@@ -152,9 +151,10 @@ void HandleBuffApplication(int pnum, int buff_type) {
 			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
 			//Log(s:"New speed factor: ", f:base);
 		break;
-		case BUFF_DAMAGEDEALT:
-		break;
-		case BUFF_DAMAGETAKEN:
+		case BUFF_STUN:
+			base = GetPlayerSpeed(pnum);
+			base = FixedMul(base, pbuffs.buff_net_values[buff_type].multiplicative);
+			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
 		break;
 	}
 }

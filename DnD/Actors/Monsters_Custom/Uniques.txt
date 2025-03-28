@@ -838,8 +838,8 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 	Mass 1024
 	Tag "Ssrath the Unseen"
 	Species "Demon"
-	MeleeRange 72
-	MaxTargetRange 320
+	MeleeRange 144
+	MaxTargetRange 360
 	Scale 1.1
 	Renderstyle Translucent
 	BloodColor "17 99 14"
@@ -900,7 +900,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 		MeleeState:
 			TNT1 A 0 A_SetTranslucent(1.0)
 			TNT1 A 0 A_PlaySound("SSrath/Attack")
-			UE05 E 4 Fast A_FaceTarget
+			UE05 E 10 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMissile("SSrath_EyeBeam", 42)
 			UE05 F 5 Fast A_FaceTarget
 			TNT1 A 0 A_CustomMeleeAttack(32)
@@ -1072,7 +1072,7 @@ Actor SSrath_Screamer {
 	Stamina 8
 	SeeSound "SSrath/ScreamerGo"
 	DeathSound "Draugr/SeekerExplode"
-	Speed 20
+	Speed 22
 	Height 20
 	Radius 10
 	Renderstyle Add
@@ -4501,7 +4501,7 @@ Actor EryxiaWind {
 			RF34 JKLMNOPQRSTUVWX 5 A_FadeOut(0.05)
 		Loop
 		XDeath:
-			TNT1 A 0 A_GiveInventory("EryxiaSlower", 1, AAPTR_TRACER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_ERYXIASLOW, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
 		Death:
 			TNT1 A 1
 		Stop

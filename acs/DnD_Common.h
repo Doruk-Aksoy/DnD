@@ -51,7 +51,7 @@ struct ValueComponent_T {
 #define DND_PLAYER_RESIST_REDUCE -25.0
 
 #define RESIST_BOOST_FROM_BOOTS 5.0 // 5%
-#define DMGREDUCE_BOOST_FROM_BOOTS 10 // 10%
+#define DMGREDUCE_BOOST_FROM_BOOTS -0.1 // 10%
 
 // moved here for better access everywhere, was necessary for monster resists
 enum {
@@ -103,7 +103,6 @@ enum {
 #define DND_PLAYER_RADIUS_INT (DND_PLAYER_RADIUS >> 16)
 
 #define DND_MARINE_SELFEXPLOSIVEREDUCE 25
-#define DND_MARINE_EXPLOSIVEREDUCTION 33
 
 #define DND_HOBO_SHOTGUNBONUS 30
 #define DND_HOBO_SHOTGUNPELLETBONUS 0.5
@@ -119,7 +118,6 @@ enum {
 #define PUNISHERPERKID1 7010
 #define PUNISHERPERKID2 7011
 
-#define DND_WANDERER_POISONPERCENT 75
 #define DND_WANDERER_SPELLEFFICIENCY 4
 #define DND_WANDERER_COOLDOWNBONUS 4
 

@@ -175,14 +175,5 @@ RES_DESC56				= "\c[R5]CYBERNETIC \cj- Exoskeleton material is improved to be ma
 RES_LABEL57 			= "Exoskeleton - III";
 RES_DESC57				= "\c[R5]CYBERNETIC \cj- UAC found the ultimate material to create exoskeletons with. Increases armor capacity by a further 9%.";
 
-RES_LABEL58 			= "Impact Protection - I";
-RES_DESC58				= "\c[R5]CYBERNETIC \cj- After studying the hide of several Cyberdemons you have sent, we can improve your body to make you take 10% less damage from your explosive attacks.";
-
-RES_LABEL59 			= "Impact Protection - II";
-RES_DESC59				= "\c[R5]CYBERNETIC \cj- Studying further, we can now improve the previous enhancement to make you take 25% less damage from explosive attacks instead.";
-
-RES_LABEL60 			= "Impact Protection - III";
-RES_DESC60				= "\c[R5]CYBERNETIC \cj- Superior impact protection. Improves previous enhancement to make you take 40% less damage from your explosive attacks instead.";
-	
-RES_LABEL61 			= "Increased Stash Tabs";
-RES_DESC61				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";
+RES_LABEL58 			= "Increased Stash Tabs";
+RES_DESC58				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";

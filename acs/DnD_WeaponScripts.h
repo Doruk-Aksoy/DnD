@@ -23,6 +23,7 @@ Script "DnD Can Fire Weapon" (void) {
 	//int pc = 0;
 	while(IsAlive() && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
 		int wepid = GetCurrentWeaponID();
+		buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
 		//pc = (pc + 1) % 15;
 		//if(!pc)
@@ -310,6 +311,12 @@ Script "DnD Can Fire Weapon" (void) {
 
 		if((flags & DND_CFW_ALTFIRECHECK) && IsMeleeWeapon(wepid))
 			canAltFire &= CheckInventory("Ability_Kick");
+
+		if(pbuffs.buff_net_values[BUFF_STUN].multiplicative != 1.0) {
+			canFire = false;
+			canAltFire = false;
+			canReload = false;
+		}
 
 		// these inventories get checked in weapon code
 		if(canFire)

@@ -1050,14 +1050,14 @@ Script "DND On Kill" KILL {
 		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
 	
 	// research track
-	if(IsBossTID(this) && CheckResearchStatus(RES_IMP1) == RES_NA) {
+	/*if(IsBossTID(this) && CheckResearchStatus(RES_IMP1) == RES_NA) {
 		GiveInventory("Research_Body_Im_1_Tracker", 1);
 		if(CheckInventory("Research_Body_Im_1_Tracker") == GetAmmoCapacity("Research_Body_Im_1_Tracker")) {
 			GiveResearch(RES_IMP1, true);
 			// take these off so they don't take netid
 			TakeInventory("Research_Body_Im_1_Tracker", 65535);
 		}
-	}
+	}*/
 	
 	if(IsMonsterIdDemon(m_id) && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
@@ -1652,7 +1652,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
 
-	//MonsterProperties[m_id].trait_list[DND_VIOLENTRETALIATION] = true;
+	MonsterProperties[m_id].trait_list[DND_HEXFUSION] = true;
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -3582,17 +3582,23 @@ Script "DnD Periodic Regeneration" ENTER {
 	int cur, amt, lim, pnum = PlayerNumber(), this = ActivatorTID();
 	while(PlayerInGame(pnum)) {
 		if(isAlive()) {
-			if(CheckInventory("Ability_Regeneration") && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
+			buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+			int regen_amt = pbuffs.buff_net_values[BUFF_HEALTHREGEN].additive;
+
+			if(regen_amt > 0 && CheckInventory("Ability_Regeneration") && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 				cur = GetActorProperty(0, APROP_HEALTH);
 				// if we got the quest, our lim is half our cap, otherwise 25% the cap
-				lim = GetSpawnHealth();
-				if(IsQuestComplete(this, QUEST_HPOVER50))
-					lim /= 2;
-				else
-					lim /= 4;
+				regen_amt = (regen_amt * 100) >> 16;
+				lim = GetSpawnHealth() / 4;
 				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
-				amt = lim * DND_REGEN_PERCENT / 100;
+				amt = lim * (DND_REGEN_PERCENT + regen_amt) / 100;
 				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
+
+				regen_amt = pbuffs.buff_net_values[BUFF_HEALTHREGEN].multiplicative;
+				if(regen_amt != 1.0) {
+					regen_amt = (regen_amt * 100) >> 16;
+					amt = amt * regen_amt / 100;
+				}
 				
 				if(!amt)
 					amt = 1;

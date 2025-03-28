@@ -1331,15 +1331,6 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_EXO3, 7462, 120
 		},
 		{
-			RES_IMP1, 8006, 45
-		},
-		{
-			RES_IMP2, 8007, 75
-		},
-		{
-			RES_IMP3, 8008, 105
-		},
-		{
 			-1, -1, -1
 		}
 	},

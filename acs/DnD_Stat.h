@@ -46,7 +46,7 @@
 #define DND_BASE_DAMAGERESISTCAP 75.0
 #define DND_MAX_DAMAGERESISTCAP 90.0
 
-#define DND_TOXICOLOGY_REDUCE 33
+#define DND_TOXICOLOGY_REDUCE 0.33
 
 #define DND_MAX_PET_DAMAGESHARE 9
 
@@ -1494,18 +1494,6 @@ int GetExplosiveRepeatChance(int pnum) {
 	return GetPlayerAttributeValue(pnum, INV_ESS_KRULL);
 }
 
-int GetResearchResistBonuses() {
-	int res = IMP_RES_ADD_1 * (CheckResearchStatus(RES_IMP1) == RES_DONE);
-	res += IMP_RES_ADD_2 * (CheckResearchStatus(RES_IMP2) == RES_DONE);
-	res += IMP_RES_ADD_3 * (CheckResearchStatus(RES_IMP3) == RES_DONE);
-	
-	// cyborg's bonus
-	if(CheckInventory("Cyborg_Perk25"))
-		res += res * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
-
-	return res;
-}
-
 int GetSelfExplosiveResist(int pnum) {
 	int base = 1.0; // 100%
 	
@@ -1529,9 +1517,6 @@ int GetSelfExplosiveResist(int pnum) {
 		else
 			base = FixedMul(base, (100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV)) * 1.0 / 100);
 	}
-	
-	// apply impact protection research
-	base = FixedMul(base, (100 - GetResearchResistBonuses()) * 1.0 / 100);
 	
 	// golgoth quest
 	if(IsQuestComplete(0, QUEST_KILLGOLGOTH))

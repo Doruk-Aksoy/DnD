@@ -831,6 +831,7 @@ ACTOR PaladinBall {
 	+DONTREFLECT
 	+FORCEXYBILLBOARD
 	+DONTBLAST
+	+HITTRACER
 	SeeSound "weapons/boltfi"
 	DeathSound "weapons/glahit"
 	States {
@@ -846,6 +847,8 @@ ACTOR PaladinBall {
 			HPLB D 2 Bright A_SeekerMissile(2, 2)
 			HPLB D 0 Bright A_SpawnItemEx("PaladinBallTrail",0,0,0,0,0,0,0,128)
 		Loop
+		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_PALADIN, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
 		Death:
 			HPLB EFHIJ 3 Bright
 		Stop

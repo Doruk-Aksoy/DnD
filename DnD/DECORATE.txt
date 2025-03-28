@@ -61,11 +61,9 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Puffs.txt"
 #include "Actors/Misc.txt"
 #include "Actors/Gore.txt"
-#include "Actors/Debuffs.txt"
 #include "Actors/Player.txt"
 #include "Actors/ClassPerks.txt"
 #include "Actors/Decorations.txt"
-#include "Actors/Curses.txt"
 
 #include "Actors/Weapons/SpecialAmmo.txt"
 

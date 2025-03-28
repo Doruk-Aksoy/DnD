@@ -1169,35 +1169,13 @@ void HandleMonsterTemporaryWeaponDrop(int this, int id, int pnum, bool guarantee
 	}
 }
 
-void ApplyRandomCurse(int tid) {
+void ApplyRandomCurse(int player_tid, int monster_tid) {
 	// nasty rushed code here, clean up later with improved curse system
-	int curse_id = random(0, 7);
-	switch(curse_id) {
-		case 0:
-			GiveActorInventory(tid, "DnD_Curse_RedLich", 1);
-		break;
-		case 1:
-			GiveActorInventory(tid, "DnD_Curse_Hierophant", 1);
-		break;
-		case 2:
-			GiveActorInventory(tid, "DnD_Curse_Guru", 1);
-		break;
-		case 3:
-			GiveActorInventory(tid, "DnD_Curse_LichVisionDim", 1);
-		break;
-		case 4:
-			GiveActorInventory(tid, "DnD_Curse_LichSlow", 1);
-		break;
-		case 5:
-			GiveActorInventory(tid, "DnD_Curse_LichPoison", 1);
-		break;
-		case 6:
-			GiveActorInventory(tid, "DnD_Curse_Ensnare", 1);
-		break;
-		case 7:
-			GiveActorInventory(tid, "DnD_Curse_Paladin", 1);
-		break;
-	}
+	int curse_id = random(DND_CURSE_BEGIN, DND_CURSE_END);
+	int prev_activator = ActivatorTID();
+	SetActivator(monster_tid);
+	ACS_NamedExecuteWithResult("DnD Monster Curse", curse_id);
+	SetActivator(prev_activator);
 }
 
 void HandleRuination(int this, int target) {

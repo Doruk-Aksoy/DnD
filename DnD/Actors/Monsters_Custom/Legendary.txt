@@ -1402,16 +1402,18 @@ Actor TorrasqueGrabber {
 	DamageType "PhysicalSnare"
 	Stamina 1
 	+DONTREFLECT
+	+HITTRACER
 	States {
 		Spawn:
 			OCLW A 1 
 			TNT1 A 0 A_SpawnItem("TorrasqueGrabberTrail", 0, 2)
 		Loop
 		XDeath:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_TORRASQUE_SNARE, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
 			TNT1 A 0 A_PlaySound("Torrasque/HookHit")
 			OCLW A 1 A_TransferPointer(AAPTR_TARGET, AAPTR_DEFAULT, AAPTR_TARGET, AAPTR_TRACER) 
 			TNT1 A 0 A_GiveToTarget("TorrasqueGrabbed", 1)
-			OCLW A 1 ACS_NamedExecuteAlways("DND Torrasque Pull", 0, 12)
+			OCLW A 1 ACS_NamedExecuteAlways("DND Torrasque Pull", 0, 32)
 			OCLW A 1 A_SpawnDebris("NashGore_FlyingBlood")
 		Stop
 		Death:
@@ -2899,11 +2901,14 @@ Actor GolgothPuff {
 	+PUFFONACTORS
 	+NOGRAVITY
 	+NOBLOCKMAP
-	DamageType "MagicalSlow50"
+	+HITTRACER
+	DamageType "MagicalVoid"
 	Stamina 8
 	States {
 		Spawn:
-			TNT1 A 4
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_GOLGOTH_SLOW, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
+			TNT1 A 3
 		Stop
 	}
 }
@@ -2918,11 +2923,13 @@ Actor GolgothPuff_LaserFX : GolgothPuff {
 }
 
 Actor GolgothPuff2 : GolgothPuff {
-	DamageType "MagicalWeaken75"
+	DamageType "MagicalVoid"
 	Stamina 8
 	States {
 		Spawn:
-			TNT1 A 4
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_GOLGOTH_WEAKEN, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
+			TNT1 A 3
 		Stop
 	}
 }

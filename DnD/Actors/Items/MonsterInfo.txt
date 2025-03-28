@@ -496,8 +496,7 @@ Actor OtherworldGripDamager {
 			TNT1 A 4
 		Stop
 		XDeath:
-			TNT1 A 0 A_JumpIfInventory("GryphonCheck", 1, "Skip", AAPTR_TRACER)
-			TNT1 A 0 A_GiveInventory("OtherworldSlow", 1, AAPTR_TRACER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_OTHERWORDLYGRIP, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
 		Death:
 		Skip:
 			TNT1 A 1

@@ -1037,14 +1037,6 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	// little orbs he drops
 	if(CheckInventory("Doomguy_Perk25_Damage") || CheckInventory("Doomguy_Perk25_Damage_Execute"))
 		more_bonus = more_bonus * (100 + DND_DOOMGUY_DMGBONUS) / 100;
-
-	// 25% reduction, so 3 / 4
-	if(CheckInventory("FleshWizardWeaken"))
-		more_bonus = more_bonus * 3 / 4;
-	
-	// 70% reduction, so 3 / 10
-	//if(CheckInventory("PowerLessDamage"))
-	//	more_bonus = more_bonus * 3 / 10;
 		
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
@@ -2229,165 +2221,159 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 	return dmg;
 }
 
-// This function is responsible for handling all curse effects player has that affect their resistance in some way
-int HandleCursePlayerResistEffects(int dmg) {
-	// 50% amp, so 3 / 2
-	if(CheckInventory("PowerHalfProtection"))
-		dmg = ApplyDamageFactor_Safe(dmg, 3, 2);
-	
-	// 75% amp, so 7 / 4
-	if(CheckInventory("PowerWeaken75"))
-		dmg = ApplyDamageFactor_Safe(dmg, 7, 4);
-	
-	return dmg;
-}
-
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
 int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool isReflected, str inflictor_class) {
-	int temp = 0;
-	int dot_temp;
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+
+	int temp;
 
 	bool isDot = IsDamageStringDOT(dmg_string) || (dmg_data & DND_DAMAGETYPEFLAG_DOT);
-	
-	//if(isHardcore())
-	//	dmg = ApplyDamageFactor_Safe(dmg, 100 + DND_HARDCORE_DEBUFF);
-	
-	dmg = HandleCursePlayerResistEffects(dmg);
+
+	int add = pbuffs.buff_net_values[BUFF_DAMAGETAKEN].additive;
+	int mult = pbuffs.buff_net_values[BUFF_DAMAGETAKEN].multiplicative;
+	int res_to_apply = 0;
+	int res_bonus = 0;
 	
 	// reflection becomes its own thing not affected by other damage type functions, so we can immediately return here
 	if(isReflected) {
 		// 90% reduction
 		if(HasPlayerPowerSet(pnum, PPOWER_LOWERREFLECT))
-			dmg = dmg / 10;
-		return ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_REFL);
+			mult = CombineFactors(mult, -0.9);
+		res_to_apply = INV_DMGREDUCE_REFL;
 	}
-	
-	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_PHYS);
-	
-	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
-		temp = HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_MAGIC, temp);
+	else if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
+		res_to_apply = INV_DMGREDUCE_PHYS;
+	else if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
+		res_bonus += HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;
+		res_to_apply = INV_DMGREDUCE_MAGIC;
 	}
-	
-	// ELEMENTAL DAMAGE BLOCK BEGINS
-	// we can only have 1 element attributed to one damage type at a time
-	if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_FIRE, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
+	else if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
+		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
+		res_to_apply = INV_DMGREDUCE_FIRE;
 
 		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDFIRETAKEN))
-			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
+			mult = CombineFactors(mult, DMGREDUCE_BOOST_FROM_BOOTS);
 	}
-	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE)
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ICE, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
+	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
+		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
+		res_to_apply = INV_DMGREDUCE_ICE;
+	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_LIGHTNING, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
+		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
+		res_to_apply = INV_DMGREDUCE_LIGHTNING;
 
 		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDLIGHTNINGTAKEN))
-			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
+			mult = CombineFactors(mult, DMGREDUCE_BOOST_FROM_BOOTS);
 	}
 	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
 		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
 		// wanderer perk
-		if(CheckInventory("Wanderer_Perk5"))
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_WANDERER_POISONPERCENT);
+		add -= DND_WANDERER_POISONPERCENT;
 
 		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDPOISONTAKEN))
-			dmg = dmg * (100 - DMGREDUCE_BOOST_FROM_BOOTS) / 100;
+			mult = CombineFactors(mult, DMGREDUCE_BOOST_FROM_BOOTS);
 		
 		// reduced poison damage taken
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_POISON, GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM));
+		res_to_apply = INV_DMGREDUCE_POISON;
+		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 
 		// toxicology ability
 		if(CheckInventory("Ability_AntiPoison")) {
 			if(!CheckInventory("Cyborg_Perk25"))
-				dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_TOXICOLOGY_REDUCE);
+				add -= DND_TOXICOLOGY_REDUCE;
 			else
-				dmg = ApplyDamageFactor_Safe(dmg, 100 - (DND_TOXICOLOGY_REDUCE + DND_TOXICOLOGY_REDUCE * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV));
+				add -= CombineFactors(DND_TOXICOLOGY_REDUCE, DND_CYBORG_CYBERF);
 		}
-		
-		// check if we should apply poison here
-		// do not register more instances on poison dots
-		if(dmg && (dmg_data & DND_DAMAGETYPEFLAG_POISON)) {
-			dot_temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
-			if(!dot_temp)
-				dot_temp = 1;
-			// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
-			// random damage of 10% to 12% of it is applied below
-			RegisterDoTDamage(
-				random(dot_temp, (dot_temp * 6) / 5), 
-				random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME),
-				DND_DAMAGETYPEFLAG_POISON, 
-				inflictor_class
-			);
-		}
+	}
+	else if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
+		res_bonus += HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
+		res_to_apply = INV_DMGREDUCE_ENERGY;
 	}
 	// ELEMENTAL DAMAGE BLOCK ENDS
 	
 	// explosion sources
 	if(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) {
 		if(CheckInventory("Marine_Perk25"))
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_MARINE_EXPLOSIVEREDUCTION);
-			
-		// apply impact protection research
-		dmg = ApplyDamageFactor_Safe(dmg, 100 - GetResearchResistBonuses());
+			mult = CombineFactors(mult, DND_MARINE_EXPLOSIVEREDUCTION);
+	}
+
+	// marine perk 50 -- 50% reduction
+	if(CheckInventory("Marine_DamageReduction_Timer"))
+		mult = CombineFactors(mult, DND_MARINE_50REDUCTION);
+	
+	// overheat unique charm
+	temp = GetPlayerAttributeValue(pnum, INV_EX_LESSDMGTAKENMAXOVERHEAT);
+	if(temp && HasRunningOverheatCooldown(pnum + P_TIDSTART))
+		mult = CombineFactors(mult, -((temp << 16)) / 100);
+	
+	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
+	if(temp)
+		mult = CombineFactors(mult, (temp << 16) / 100);
+
+	// apply additive and multiplicative effects together now -- minimum 10% reduction
+	add = (add * 100) >> 16;
+	if(add < -90)
+		add = -90;
+	dmg = dmg * (100 + add) / 100;
+	if(mult != 1.0) {
+		mult = (mult * 100) >> 16;
+		dmg = dmg * mult / 100;
+	}
+
+	// finally include resists as their own multiplicative factor
+	dmg = ApplyPlayerResist(pnum, dmg, res_to_apply, res_bonus);
+
+	// find player's lowest resist
+	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGELOWESTTAKENASPHYS);
+	if(temp && !isDot && (GetLowestResist(pnum) & dmg_data)) {
+		// create new dot instance of phys damage to player making sure to only get a portion of it as DoT
+		temp = dmg * temp / 100;
+		if(!temp)
+		temp = 1;
+
+		// this is the "instead" part of the "DoT", the rest
+		dmg -= temp;
+		if(dmg < 1)
+			dmg = 1;
+
+		RegisterDoTDamage(temp, 5, DND_DAMAGETYPEFLAG_PHYSICAL, inflictor_class);
 	}
 	
-	// energy sources
-	if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
-		temp = HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_ENERGY, temp);
-	}
-	
-	// gravecaller unique mod
+	// gravecaller unique mod -- multiplicative so leave it last
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_PAINSHAREDWITHPETS)) {
 		// damage is shared between you and pets, therefore if you have 1 pet you take half
 		// you have 2 you get 1/3rd, which is what this'll do
 		temp = CheckInventory("PetCounter") + 1;
 		if(temp > DND_MAX_PET_DAMAGESHARE)
-			temp = DND_MAX_PET_DAMAGESHARE;
+		temp = DND_MAX_PET_DAMAGESHARE;
 		dmg /= temp;
 		
 		// distribute this damage to other pets
 	}
 
-	// marine perk 50 -- 50% reduction
-	if(CheckInventory("Marine_DamageReduction_Timer"))
-		dmg /= 2;
-
-	// overheat unique charm
-	temp = GetPlayerAttributeValue(pnum, INV_EX_LESSDMGTAKENMAXOVERHEAT);
-	if(temp && HasRunningOverheatCooldown(pnum + P_TIDSTART)) {
-		dmg = dmg * (100 - temp) / 100;
-	}
-	
-	// ALL DAMAGE AMPLIFYING EFFECTS COME LAST!
-	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
-	if(temp)
-		dmg = ApplyDamageFactor_Safe(dmg, 100 + temp);
-
-	// find player's lowest resist
-	dot_temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGELOWESTTAKENASPHYS);
-	if(dot_temp && !isDot && (GetLowestResist(pnum) & dmg_data)) {
-		// create new dot instance of phys damage to player making sure to only get a portion of it as DoT
-		dot_temp = dmg * dot_temp / 100;
-		if(!dot_temp)
-			dot_temp = 1;
-
-		// this is the "instead" part of the "DoT", the rest
-		dmg -= dot_temp;
-		if(dmg < 1)
-			dmg = 1;
-
-		RegisterDoTDamage(dot_temp, 5, DND_DAMAGETYPEFLAG_PHYSICAL, inflictor_class);
+	// final thing to check after damage reductions are applied, DoTs that scale off of the amount of damage
+	// check if we should apply poison here -- early application of multipliers here so the poison doesnt scale off of unreduced damage
+	// do not register more instances on poison dots
+	if(((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") && dmg) {
+		temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
+		if(!temp)
+		temp = 1;
+		// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
+		// random damage of 10% to 12% of it is applied below
+		RegisterDoTDamage(
+			random(temp, (temp * 6) / 5), 
+			random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME),
+			DND_DAMAGETYPEFLAG_POISON, 
+			inflictor_class
+		);
 	}
 	
 	return dmg;
 }
 
-int GetArmorRatingEffect(int dmg, int armor_id, int dmg_data, bool isArmorPiercing) {
-	int pnum = PlayerNumber();
+int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isArmorPiercing) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 	int rating = GetPlayerArmor(pnum);
 
 	if(CheckInventory("RuinationHardDebuff"))
@@ -2412,6 +2398,20 @@ int GetArmorRatingEffect(int dmg, int armor_id, int dmg_data, bool isArmorPierci
 	if(isArmorPiercing)
 		rating = rating * 2 / 5;
 
+	armor_id = pbuffs.buff_net_values[BUFF_ARMORINCREASE].additive;
+	if(armor_id) {
+		armor_id = (armor_id * 100) >> 16;
+		if(armor_id > -100)
+			armor_id = -100;
+		rating = rating * (100 + armor_id) / 100;
+	}
+
+	armor_id = pbuffs.buff_net_values[BUFF_ARMORINCREASE].multiplicative;
+	if(armor_id != 1.0) {
+		armor_id = (armor_id * 100) >> 16;
+		rating = rating * armor_id / 100;
+	}
+
 	return DoArmorRatingEffect(dmg, rating);
 }
 
@@ -2431,7 +2431,7 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		factor = 0.0;
 
 		// apply armor effect on this damage
-		dmg = GetArmorRatingEffect(dmg, armor_id, dmg_data, isArmorPiercing);
+		dmg = GetArmorRatingEffect(pnum, dmg, armor_id, dmg_data, isArmorPiercing);
 		
 		// special armor cases: Knight gives more reduction if using melee weapon, Duelist negates all hitscan 100% at cost of armor
 		if(armor_id == BODYARMOR_KNIGHT && IsUsingMeleeWeapon())
@@ -2739,7 +2739,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 
 	// the curse is applied if the player is not immune, the checks are delegated to curse items
 	if(MonsterProperties[m_id].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
-		ApplyRandomCurse(this);
+		ApplyRandomCurse(this, target);
 }
 
 bool HandleRipperHit(int shooter, int victim) {
@@ -3485,6 +3485,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
 				dmg = dmg * inflictor_class / 100;
+				dmg = HandlePlayerSelfDamage(pnum, dmg, temp, m_id, dmg_data, false);
 				if(!dmg) {
 					SetResultValue(0);
 					Terminate;
