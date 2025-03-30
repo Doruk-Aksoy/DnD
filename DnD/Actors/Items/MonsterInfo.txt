@@ -496,7 +496,7 @@ Actor OtherworldGripDamager {
 			TNT1 A 4
 		Stop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_OTHERWORDLYGRIP, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_OTHERWORDLYGRIP, DEBUFF_F_OWNERISTARGET | DEBUFF_F_PLAYERISTRACER)
 		Death:
 		Skip:
 			TNT1 A 1

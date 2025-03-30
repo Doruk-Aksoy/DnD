@@ -5598,6 +5598,19 @@ void DrawPlayerStats(int pnum, int category) {
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_REFL", s:"\n");
 			++k;
 			// dmg reduction block ends
+
+			// reduced curse things
+			val = GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCEDCURSEDURATION, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEEFFECT);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCEDCURSEEFFECT, 0, 0, val), s:"\n");
+				++k;
+			}
 		}
 		else {
 			// utility

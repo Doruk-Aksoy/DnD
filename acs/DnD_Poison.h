@@ -66,6 +66,10 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 
 	int dtype_int = duration >> 16;
 	duration &= 0xFFFF;
+
+	int victim = P_TIDSTART + pnum;
+	if(CheckActorInventory(victim, "Wanderer_Perk5"))
+		duration = duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
 	
 	// check if player has a poison source of this script running already
 	int i;
@@ -120,7 +124,6 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 		player_dot_damages[pnum].dot_list[pos].dmg_type = "PhysicalDOT";
 	
 	// start the damaging process
-	int victim = P_TIDSTART + pnum;
 	while(IsActorAlive(victim)) {
 		Delay(const:TICRATE);
 		

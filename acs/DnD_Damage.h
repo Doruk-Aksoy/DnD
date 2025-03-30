@@ -1045,9 +1045,9 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	if(CheckInventory("CorruptOrb_DamageReduction"))
 		more_bonus = more_bonus * (100 - DND_CORRUPTORB_DMGREDUCE) / 100;
 	
-	temp = CheckInventory("Punisher_Perk50_Counter") / DND_PUNISHER_PERK3_KILLCOUNT;
+	temp = CheckInventory("Punisher_Perk50_DamageBonus");
 	if(temp)
-		more_bonus = more_bonus * (100 + temp * DND_PUNISHER_DMGINC) / 100;
+		more_bonus = (more_bonus * (1.0 + temp)) >> 16;
 		
 	temp = CheckInventory("Rally_DamageBuff");
 	if(temp)
@@ -2268,9 +2268,6 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	}
 	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
 		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
-		// wanderer perk
-		add -= DND_WANDERER_POISONPERCENT;
-
 		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDPOISONTAKEN))
 			mult = CombineFactors(mult, DMGREDUCE_BOOST_FROM_BOOTS);
 		
@@ -2358,7 +2355,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if(((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") && dmg) {
 		temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
 		if(!temp)
-		temp = 1;
+			temp = 1;
 		// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
 		// random damage of 10% to 12% of it is applied below
 		RegisterDoTDamage(
@@ -3371,7 +3368,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {
 					Log(
 						s:"Monster hp overflow on ", s:GetActorClass(victim), s:" hp: ", d:GetActorProperty(victim, APROP_HEALTH), s:" / ", d:MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, 
-						s: " with player weaponid and dmg: ", d:m_id, s: " <> ", d:dmg
+						s: " with player weapon and dmg: ", s:Weapons_Data[m_id].name, s: " <> ", d:dmg
 					);
 					SetActorProperty(victim, APROP_HEALTH, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp);
 				}

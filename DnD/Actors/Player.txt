@@ -669,13 +669,13 @@ Actor DnD_Player : PlayerPawn {
 			"####" "#" 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
 		Goto PainCont
 		Pain.PhysicalSlow:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_STOMPSLOW, CURSE_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_STOMPSLOW, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		
 		
 		// Ice category
 		Pain.IceEryxia:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_ERYXIASLOW, CURSE_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_ERYXIASLOW, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		Pain.Ice:
 		Pain.MagicalIce:
@@ -746,10 +746,10 @@ Actor DnD_Player : PlayerPawn {
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_MEDIUMPURPLE)
 		Goto PainCont
 		Pain.MagicalRedLeash:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_FLESHWIZARD_WEAKEN, CURSE_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_FLESHWIZARD_WEAKEN, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		Pain.MagicalSnare:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_FLESHWIZARD_SNARE, CURSE_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_FLESHWIZARD_SNARE, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		Pain.FireDreamer:
 			"####" "#" 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
@@ -758,7 +758,7 @@ Actor DnD_Player : PlayerPawn {
 			"####" "#" 0 A_Stop
 		Goto PainCont
 		Pain.Magical_SSrath:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_SSRATHSTUN, CURSE_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_SSRATHSTUN, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		
 		

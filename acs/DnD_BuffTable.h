@@ -9,7 +9,7 @@ enum {
     BTI_HAMMER,
     BTI_DEVASTATOR,
 
-    // add all curses below this one
+    // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
 
     BTI_REDLICH,
@@ -33,11 +33,13 @@ enum {
     BTI_GOLGOTH_SLOW,
     BTI_GOLGOTH_WEAKEN
 };
+#define DND_BTI_DEBUFF_BEGIN BTI_OTHERWORDLYGRIP
 
 enum {
     BTI_F_USETARGET         = 0b1,
     BTI_F_REMOVE            = 0b10,
     BTI_F_USEINITIALSOURCE  = 0b100,
+    BTI_F_ISCURSE           = 0b1000,
 };
 
 // by default assumes the source of buff to be activator of the script calling this, initiator may not always be activator of script
@@ -215,6 +217,18 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
 
     bduration = SetDuration(bduration, bflags & BUFF_F_DURATIONINTICS);
 
+    if(script_flags & BTI_F_ISCURSE) {
+        bduration = bduration * (100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION)) / 100;
+        if(bduration <= 0)
+            return 0;
+        tic_duration = tic_duration * (100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION)) / 100;
+    }
+
+    if(buff_table_index >= DND_BTI_DEBUFF_BEGIN && CheckActorInventory(ptid, "Wanderer_Perk5")) {
+        bduration = bduration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
+        tic_duration = tic_duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
+    }
+
     if(!(script_flags & BTI_F_REMOVE)) {
         if(update) {
             // update with this if there is
@@ -247,7 +261,7 @@ Script "DnD Player Buff" (int buff_table_index, int script_flags, int update) {
     if(!IsPlayerBuffStateOK(pnum))
         Terminate;
 
-    HandlePlayerBuffAssignment(pnum, initiator, buff_table_index, update);
+    HandlePlayerBuffAssignment(pnum, initiator, buff_table_index, script_flags, update);
 
     SetResultValue(0);
 }

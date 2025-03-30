@@ -50,6 +50,7 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 
 Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIENTSIDE {
 	// if this guy isnt doomguy, terminate
+	// testing running it in any case to see if it helps fix the bug of these guys sometimes having their shit not taken away
 	//Log(d:ConsolePlayerNumber() + P_TIDSTART, s:" ", d:CheckActorInventory(ConsolePlayerNumber() + P_TIDSTART, "Doomguy_Perk5"));
 	if(!CheckActorInventory(ConsolePlayerNumber() + P_TIDSTART, "Doomguy_Perk5"))
 		Terminate;
@@ -438,6 +439,67 @@ Script "DnD Wanderer Explosions" (int this, int target) {
 	SetActivator(exptid);
 	SetPointer(AAPTR_TARGET, target);
 	Thing_ChangeTID(exptid, 0);
+}
+
+int GetPunisherTierRequirement(int tier, int cap = -1) {
+	static int punisher_tier_values[DND_MAX_PUNISHER_PERK50_TIERS];
+	if(cap != -1) {
+		// halved
+		cap <<= 15;
+
+		// initialization step -- we have to calculate a base value
+		if(cap > DND_MAX_PUNISHER_PERK50_CAP)
+			cap = DND_MAX_PUNISHER_PERK50_CAP;
+
+		// calculate the base value here
+		int f = FixedDiv(DND_PUNISHER_PERK50_BONUS_PER_TIER, fpow(DND_PUNISHER_PERK50_BONUS_PER_TIER + 1.0, DND_MAX_PUNISHER_PERK50_TIERS) - 1.0);
+		punisher_tier_values[0] = (FixedMul(cap, f)) & 0xFFFFF000;
+
+		//int sum = punisher_tier_values[0];
+		//Log(s:"Start punisher tier 0: ", f:punisher_tier_values[0], s:" initial score value was ", f:cap);
+		for(int i = 1; i < DND_MAX_PUNISHER_PERK50_TIERS; ++i) {
+			punisher_tier_values[i] = punisher_tier_values[i - 1] + (FixedMul(punisher_tier_values[0], fpow(1.0 + DND_PUNISHER_PERK50_BONUS_PER_TIER, i))) & 0xFFFFF000;
+			//sum += punisher_tier_values[i];
+			//Log(s:"Tier ", d:i, s:": ", f:punisher_tier_values[i], s: " running sum: ", f:sum);
+		}
+	}
+
+	return punisher_tier_values[tier];
+}
+
+int GetPunisherTierKillBonus(int m_id) {
+	static int factor_table[MAX_MONSTER_CATEGORIES] = {
+		DND_ZOMBIE_CONTRIB,
+		DND_SHOTGUNNER_CONTRIB,
+		DND_CHAINGUNNER_CONTRIB,
+		DND_DEMON_CONTRIB,
+		DND_DEMON_CONTRIB,
+		DND_IMP_CONTRIB,
+		DND_CACO_CONTRIB,
+		DND_PAIN_CONTRIB,
+		DND_SOUL_CONTRIB,
+		DND_REVENANT_CONTRIB,
+		DND_HELLKNIGHT_CONTRIB,
+		DND_BARON_CONTRIB,
+		DND_FATSO_CONTRIB,
+		DND_ARACHNO_CONTRIB,
+		DND_VILE_CONTRIB,
+		DND_SPIDERMASTERMIND_CONTRIB,
+		DND_CYBERDEMON_CONTRIB,
+		DND_SHOTGUNNER_CONTRIB
+	};
+
+	return (factor_table[MonsterProperties[m_id].class] << 16) & 0xFFFFF000;
+}
+
+// Get the tier from amount of item token
+int GetPunisherTier() {
+	int comp = CheckInventory("Punisher_Perk50_Counter");
+	for(int i = 0; i < DND_MAX_PUNISHER_PERK50_TIERS; ++i) {
+		if(comp < GetPunisherTierRequirement(i))
+			return i;
+	}
+	return DND_MAX_PUNISHER_PERK50_TIERS;
 }
 
 #endif

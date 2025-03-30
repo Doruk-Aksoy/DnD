@@ -1009,6 +1009,6 @@ void HealMonster(int mid, int amount) {
 }
 
 #include "DnD_Buffs.h"
-#include "DnD_Curses.h"
+#include "DnD_Debuffs.h"
 
 #endif

@@ -63,7 +63,7 @@ CLASS3_TEXT				= "Was a chill guy, until the fateful day his wife died and his d
 
 CLASS3_PERK1			= "Being on a killing spree gives 10% movement speed as well as 10% of current weapon's ammo capacity for starting the spree.";
 CLASS3_PERK2			= "During the 'Merciless' killing spree and onwards, gain 2% lifesteal and 10% increased life recovery from lifesteal per tier up to 20% and 100% respectively.";
-CLASS3_PERK3			= "Every 10 kills you get increases your damage by 4% for that map. Caps at 400%.";
+CLASS3_PERK3			= "Gain a stacking 6.015% more damage buff when you obtain enough points from kills, up to maxium 200% more damage. Gain 33% increased amount of points if you are in a killing spree.";
 
 // Wanderer
 
@@ -75,8 +75,8 @@ CLASS4_MUGSHOT			= "CRVEVL0";
 CLASS4_TEXT				= "The lone wolf, excels in being the only hero to clean up the menace. "
 						  "When he sets his gaze upon something, that thing hits the ground, lifeless.";
 
-CLASS4_PERK1			= "Poison damage taken reduced by 75%.";
-CLASS4_PERK2			= "Applying elemental ailments to enemies reduce their resists by 10 per different ailment on them.";
+CLASS4_PERK1			= "Debuffs on you last 25% less.";
+CLASS4_PERK2			= "Applying ailments to enemies reduce their resists by 10 per different ailment on them.";
 CLASS4_PERK3			= "Enemies killed by you have 25% chance to explode for 10% of their maximum health in a 160 unit radius with a random elemental damage. You can't be hurt by this damage.";
 
 // Cyborg

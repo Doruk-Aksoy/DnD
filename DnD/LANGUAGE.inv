@@ -445,6 +445,8 @@ IATTR_T122			= "more damage per rip";
 IATTR_T123			= "increased lock-on area";
 IATTR_T124			= "increased lock-on range";
 IATTR_T125			= "increased killing spree duration";
+IATTR_T126			= "reduced effect of curses on you";
+IATTR_T127			= "reduced duration of curses on you";
 
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";

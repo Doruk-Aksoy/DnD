@@ -307,50 +307,12 @@ int DnD_BonusMessageY(int bonustype) {
 	return res;
 }
 
-// Map Evaluation
-
-enum {
-	// Monsters
-	DND_ZOMBIE_CONTRIB = 3,
-	DND_SHOTGUNNER_CONTRIB = 4,
-	DND_CHAINGUNNER_CONTRIB = 5,
-	DND_IMP_CONTRIB = 4,
-	DND_DEMON_CONTRIB = 6,
-	DND_HELLKNIGHT_CONTRIB = 10,
-	DND_BARON_CONTRIB = 18,
-	DND_CACO_CONTRIB = 8,
-	DND_PAIN_CONTRIB = 12,
-	DND_SOUL_CONTRIB = 4,
-	DND_REVENANT_CONTRIB = 9,
-	DND_ARACHNO_CONTRIB = 16,
-	DND_VILE_CONTRIB = 20,
-	DND_FATSO_CONTRIB = 16,
-	DND_SPIDERMASTERMIND_CONTRIB = 45,
-	DND_CYBERDEMON_CONTRIB = 50,
-	DND_BOSSBRAIN_CONTRIB = 9000,
-	
-	// Items
-	DND_HEALTHBONUS_CONTRIB = -1,
-	DND_ARMORBONUS_CONTRIB = -1,
-	DND_STIM_CONTRIB = -6,
-	DND_MEDIKIT_CONTRIB = -12,
-	DND_BERSERK_CONTRIB = -30,
-	DND_INVUL_CONTRIB = -80,
-	DND_SOULSPHERE_CONTRIB = -30,
-	DND_MEGA_CONTRIB = -60,
-	DND_EVIL_CONTRIB = -20,
-	DND_GREENARMOR_CONTRIB = -12,
-	DND_YELLOWARMOR_CONTRIB = -18,
-	DND_BLUEARMOR_CONTRIB = -24,
-	DND_REDARMOR_CONTRIB = -36
-};
-
 #define DND_MAPDIFF_TIERVAL 250
 #define DND_MAXMAPDIFF 9
 
 // 5 Tiers: 0 -> Very Easy, 1 -> Easy, 2 -> Medium, 3 -> Hard and 4 -> Very Hard.
 void CalculateMapDifficulty() {
-int factor = 0;
+	int factor = 0;
 	// yes this is ugly but it won't ever change, no new spawners will come etc so why not :)
 	factor += ThingCountName("ZombiemanSpawner", 0) * DND_ZOMBIE_CONTRIB;
 	factor += ThingCountName("ShotgunguySpawner", 0) * DND_SHOTGUNNER_CONTRIB;
@@ -370,21 +332,30 @@ int factor = 0;
 	factor += ThingCountName("MastermindSpawner", 0) * DND_SPIDERMASTERMIND_CONTRIB;
 	factor += ThingCountName("CyberSpawner", 0) * DND_CYBERDEMON_CONTRIB;
 	factor += ThingCountName("BossBrain", 0) * DND_BOSSBRAIN_CONTRIB;
+
+	// to force initialization of punisher tier count on the map
+	GetPunisherTierRequirement(0, factor);
 	
 	factor += ThingCountName("InvulnerabilitySphere2", 0) * DND_INVUL_CONTRIB;
-	factor += ThingCountName("StimpackSpawner", 0) * DND_STIM_CONTRIB;
-	factor += ThingCountName("MedikitSpawner", 0) * DND_MEDIKIT_CONTRIB;
-	factor += ThingCountName("BonusReplacer", 0) * DND_HEALTHBONUS_CONTRIB;
-	factor += ThingCountName("BonusReplacer2", 0) * DND_ARMORBONUS_CONTRIB;
+
+	if(GameType() != GAME_SINGLE_PLAYER) {
+		factor += ThingCountName("Stimpack_MP", 0) * DND_STIM_CONTRIB;
+		factor += ThingCountName("Medikit_MP", 0) * DND_MEDIKIT_CONTRIB;
+	}
+	else {
+		factor += ThingCountName("Stimpack_SP", 0) * DND_STIM_CONTRIB;
+		factor += ThingCountName("Medikit_SP", 0) * DND_MEDIKIT_CONTRIB;
+	}
+	
+	factor += ThingCountName("NewHealthBonus", 0) * DND_HEALTHBONUS_CONTRIB;
+	factor += ThingCountName("NewArmorBonus", 0) * DND_ARMORBONUS_CONTRIB;
 	factor += ThingCountName("EvilSphere2", 0) * DND_EVIL_CONTRIB;
 	factor += ThingCountName("UberSphere2", 0) * DND_MEGA_CONTRIB;
 	factor += ThingCountName("SoulSphere3", 0) * DND_SOULSPHERE_CONTRIB;
 	factor += ThingCountName("MegaSphere3", 0) * DND_MEGA_CONTRIB;
-	factor += ThingCountName("Berserk2", 0) * DND_BERSERK_CONTRIB;
-	factor += ThingCountName("NewGreenArmor2", 0) * DND_GREENARMOR_CONTRIB;
-	factor += ThingCountName("YellowArmor2", 0) * DND_YELLOWARMOR_CONTRIB;
-	factor += ThingCountName("NewBlueArmor2", 0) * DND_BLUEARMOR_CONTRIB;
-	factor += ThingCountName("TheRedArmor2", 0) * DND_REDARMOR_CONTRIB;
+	factor += ThingCountName("NewBerserk", 0) * DND_BERSERK_CONTRIB;
+	factor += ThingCountName("ArmorDropper", 0) * DND_GREENARMOR_CONTRIB;
+	factor += ThingCountName("ArmorDropper_HighTier", 0) * DND_BLUEARMOR_CONTRIB;
 	
 	// get the value -- <0 in case it overflows... somehow.. lol
 	MapDifficulty = factor / DND_MAPDIFF_TIERVAL;
@@ -1171,10 +1142,16 @@ void HandleMonsterTemporaryWeaponDrop(int this, int id, int pnum, bool guarantee
 
 void ApplyRandomCurse(int player_tid, int monster_tid) {
 	// nasty rushed code here, clean up later with improved curse system
-	int curse_id = random(DND_CURSE_BEGIN, DND_CURSE_END);
+	int curse_id = 0;
+	int max_tries = 0;
+	do {
+		curse_id = random(DND_DEBUFF_BEGIN, DND_DEBUFF_END);
+		++max_tries;
+	} while(!IsCurse(curse_id) && max_tries < 20);
+
 	int prev_activator = ActivatorTID();
 	SetActivator(monster_tid);
-	ACS_NamedExecuteWithResult("DnD Monster Curse", curse_id);
+	ACS_NamedExecuteWithResult("DnD Give Debuff", curse_id);
 	SetActivator(prev_activator);
 }
 

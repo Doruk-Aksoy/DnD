@@ -403,7 +403,6 @@ Script "DnD On Death" DEATH {
 		active_quest_id = -1; // completely remove this quest from everyone now
 	}
 	
-	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
 	Thing_ChangeTID(0, 0);
 	
 	// we moved this to HandlePlayerDataSave and above
@@ -941,7 +940,7 @@ Script "DND On Kill" KILL {
 	}
 	SetInventory("DnD_OverloadTimer", 0);
 
-	bool is_demon = IsDemon();
+	int is_demon = IsDemon();
 
 	// Demon Bane check
 	if(is_demon) {
@@ -1042,11 +1041,27 @@ Script "DND On Kill" KILL {
 	// keep the kill tally
 	IncrementPlayerLifetimeKills();
 	
-	if(CheckInventory("Punisher_Perk50")) {
-		GiveInventory("Punisher_Perk50_Counter", 1);
-		ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, false);
+	is_demon = CheckInventory("Punisher_Perk50_Tiers");
+	if(CheckInventory("Punisher_Perk50") && is_demon < DND_MAX_PUNISHER_PERK50_TIERS) {
+		// in killing spree
+		if((CheckInventory("DnD_MultiKillCounter") + 1) / DND_SPREE_PER >= 1)
+			GiveInventory("Punisher_Perk50_Counter", (GetPunisherTierKillBonus(m_id) * DND_PUNISHER_PERK50_KSPREEBONUS_MULT / DND_PUNISHER_PERK50_KSPREEBONUS_DIV));
+		else
+			GiveInventory("Punisher_Perk50_Counter", GetPunisherTierKillBonus(m_id));
+
+		temp = GetPunisherTier();
+		if(temp < DND_MAX_PUNISHER_PERK50_TIERS) {
+			// tier up!
+			if(is_demon < temp) {
+				is_demon = FixedMul(DND_PUNISHER_PERK50_DAMAGEFACTOR, FixedDiv(fpow(1.0 + DND_PUNISHER_PERK50_BONUS_PER_TIER, temp) - 1.0, DND_PUNISHER_PERK50_BONUS_PER_TIER));
+				SetInventory("Punisher_Perk50_DamageBonus", is_demon);
+				SetInventory("Punisher_Perk50_Tiers", temp);
+			}
+			SetInventory("Punisher_Perk50_NextReq", GetPunisherTierRequirement(temp));
+		}
 	}
-	else if(CheckInventory("Hobo_ShotgunFrenzyTimer"))
+	
+	if(CheckInventory("Hobo_ShotgunFrenzyTimer"))
 		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
 	
 	// research track
@@ -2825,7 +2840,7 @@ Script "DnD On Respawn" RESPAWN {
 	if(CheckInventory("TaltosUp"))
 		GiveInventory("TaltosEffect", 1);
 		
-	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0, true);
+	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0);
 	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
 	ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
 
@@ -5006,31 +5021,37 @@ Script "DnD Budget Giver" (int amt) {
 	GiveBudget(amt);
 }
 
-Script "DnD Punisher Perk50 Display" (int reset) CLIENTSIDE {
-	if(PlayerNumber() != ConsolePlayerNumber() || !isPlayerClass(DND_PLAYER_PUNISHER))
+Script "DnD Punisher Perk50 Display" (void) CLIENTSIDE {
+	if(PlayerNumber() != ConsolePlayerNumber())
 		Terminate;
-	Delay(const:5);
+
+	while(!CheckInventory("Punisher_Perk50")) {
+		if(!IsAlive())
+			Terminate;
+		Delay(const:TICRATE);
+	}
+
 	int tmp = 0;
-	if(CheckInventory("Punisher_Perk50")) {
+	int pnum = PlayerNumber();
+	while(IsAlive() && PlayerInGame(pnum)) {
 		SetFont("OBJFONT");
 		SetHudSize(900, 600, 1);
 		int x = (GetHudRight(900) << 16) - 5.8;
+		int curr_tier = CheckInventory("Punisher_Perk50_Tiers");
 		tmp = CheckInventory("Punisher_Perk50_Counter");
-		if(tmp >= DND_PUNISHER_PERK3_KILLCOUNT) {
-			if(!reset)
-				HudMessage(s:"\c[I7]", s:GetFixedRepresentation(DND_PUNISHER_DMGINCF * (tmp / DND_PUNISHER_PERK3_KILLCOUNT) + 0.0005, true), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
-			else // clear because we died
-				HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
-		}
-		else if(reset)
-			HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
-		if(tmp < DND_PUNISHER_DMG_MAX) {
-			tmp = DND_PUNISHER_PERK3_KILLCOUNT - tmp % DND_PUNISHER_PERK3_KILLCOUNT;
-			HudMessage(l:"DND_KILL", s:" \c[I7]", d:tmp, s:"\c- ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
-		}
+		
+		HudMessage(l:"DND_CURRTIER", s:": \c[I7]", d:curr_tier, s:"\c- - \c[I7]", s:GetFixedRepresentation(CheckInventory("Punisher_Perk50_DamageBonus"), true), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
+		
+		int req = CheckInventory("Punisher_Perk50_NextReq");
+		if(curr_tier < DND_MAX_PUNISHER_PERK50_TIERS - 1)
+			HudMessage(l:"DND_OBTAIN", s:" \c[I7]", f:(req - tmp) & 0xFFFFF000, s:"\c- ", l:"DND_POINTS", s: " ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
 		else
 			HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
+		Delay(const:5);
 	}
+
+	HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
+	HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
 }
 
 Script 1006 (int pnum) NET CLIENTSIDE {

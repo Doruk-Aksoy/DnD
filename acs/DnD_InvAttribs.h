@@ -211,6 +211,8 @@ enum {
 	INV_LOCKONAREA,
 	INV_LOCKONRANGE,
 	INV_INCKILLINGSPREE,
+	INV_REDUCEDCURSEEFFECT,
+	INV_REDUCEDCURSEDURATION,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -399,7 +401,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_INCKILLINGSPREE
+#define LAST_INV_ATTRIBUTE INV_REDUCEDCURSEDURATION
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -1310,6 +1312,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INCKILLINGSPREE].attrib_high = 15;
 	ItemModTable[INV_INCKILLINGSPREE].attrib_level_modifier = 0;
 	ItemModTable[INV_INCKILLINGSPREE].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_REDUCEDCURSEEFFECT].attrib_low = 1;
+	ItemModTable[INV_REDUCEDCURSEEFFECT].attrib_high = 3;
+	ItemModTable[INV_REDUCEDCURSEEFFECT].attrib_level_modifier = 0;
+	ItemModTable[INV_REDUCEDCURSEEFFECT].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_REDUCEDCURSEDURATION].attrib_low = 1;
+	ItemModTable[INV_REDUCEDCURSEDURATION].attrib_high = 4;
+	ItemModTable[INV_REDUCEDCURSEDURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_REDUCEDCURSEDURATION].tags = INV_ATTR_TAG_UTILITY;
 	
 	/////////////////////////
 	// corrupted implicits //

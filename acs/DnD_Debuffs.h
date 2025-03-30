@@ -2,34 +2,55 @@
 #define DND_CURSES_IN
 
 enum {
-    DND_CURSE_OTHERWORDLYGRIP,
-    DND_CURSE_REDLICH,
-    DND_CURSE_PALADIN,
-    DND_CURSE_GURU,
-    DND_CURSE_HIEROPHANT,
-    DND_CURSE_FLESHWIZARD_SLOW,
-    DND_CURSE_FLESHWIZARD_WEAKEN,
-    DND_CURSE_FLESHWIZARD_SNARE,
-    DND_CURSE_STOMPSLOW,
-    DND_CURSE_LICHICE,
-    DND_CURSE_LICHVISION,
-    DND_CURSE_LICHDEGEN,
+    DND_DEBUFF_OTHERWORDLYGRIP,
 
-    DND_CURSE_SSRATHSTUN,
-    DND_CURSE_ERYXIASLOW,
+    DND_DEBUFF_REDLICH,
+    DND_DEBUFF_PALADIN,
+    DND_DEBUFF_GURU,
+    DND_DEBUFF_HIEROPHANT,
+    DND_DEBUFF_FLESHWIZARD_SLOW,
+    DND_DEBUFF_FLESHWIZARD_WEAKEN,
+    DND_DEBUFF_FLESHWIZARD_SNARE,
+    DND_DEBUFF_STOMPSLOW,
+    DND_DEBUFF_LICHICE,
+    DND_DEBUFF_LICHVISION,
+    DND_DEBUFF_LICHDEGEN,
 
-    DND_CURSE_TORRASQUE_SNARE,
-    DND_CURSE_GOLGOTH_SLOW,
-    DND_CURSE_GOLGOTH_WEAKEN
+    DND_DEBUFF_SSRATHSTUN,
+    DND_DEBUFF_ERYXIASLOW,
+
+    DND_DEBUFF_TORRASQUE_SNARE,
+    DND_DEBUFF_GOLGOTH_SLOW,
+    DND_DEBUFF_GOLGOTH_WEAKEN
 };
-#define DND_CURSE_BEGIN DND_CURSE_OTHERWORDLYGRIP
-#define DND_CURSE_END DND_CURSE_GOLGOTH_WEAKEN
+#define DND_DEBUFF_BEGIN DND_DEBUFF_OTHERWORDLYGRIP
+#define DND_DEBUFF_END DND_DEBUFF_GOLGOTH_WEAKEN
 
 enum {
-    CURSE_F_OWNERISTARGET = 1,
-    CURSE_F_PLAYERISTRACER = 2,
-    CURSE_F_PLAYERISACTIVATOR = 4,
+    DEBUFF_F_OWNERISTARGET = 1,
+    DEBUFF_F_PLAYERISTRACER = 2,
+    DEBUFF_F_PLAYERISACTIVATOR = 4,
 };
+
+bool IsCurse(int debuff_id) {
+    switch(debuff_id) {
+        case DND_DEBUFF_OTHERWORDLYGRIP:
+        case DND_DEBUFF_REDLICH:
+        case DND_DEBUFF_PALADIN:
+        case DND_DEBUFF_GURU:
+        case DND_DEBUFF_HIEROPHANT:
+        case DND_DEBUFF_FLESHWIZARD_SLOW:
+        case DND_DEBUFF_FLESHWIZARD_WEAKEN:
+        case DND_DEBUFF_FLESHWIZARD_SNARE:
+        case DND_DEBUFF_LICHICE:
+        case DND_DEBUFF_LICHVISION:
+        case DND_DEBUFF_LICHDEGEN:
+        case DND_DEBUFF_GOLGOTH_SLOW:
+        case DND_DEBUFF_GOLGOTH_WEAKEN:
+        return true;
+    }
+    return false;
+}
 
 void HandleCurseFade(int player_tid, int origin_tid, int r, int g, int b, int intensity, int duration, int curse_effect) {
     // curse has a color component attached
@@ -46,11 +67,11 @@ void HandleCurseFade(int player_tid, int origin_tid, int r, int g, int b, int in
 }
 
 // player is target, and owner is activator by default
-Script "DnD Monster Curse" (int curse_id, int curse_flags) {
+Script "DnD Give Debuff" (int debuff_id, int debuff_flags) {
     int player_tid = 0;
-    if(curse_flags & CURSE_F_PLAYERISTRACER)
+    if(debuff_flags & DEBUFF_F_PLAYERISTRACER)
         player_tid = GetActorProperty(0, APROP_TRACERTID);
-    else if(curse_flags & CURSE_F_PLAYERISACTIVATOR)
+    else if(debuff_flags & DEBUFF_F_PLAYERISACTIVATOR)
         player_tid = ActivatorTID();
     else
         player_tid = GetActorProperty(0, APROP_TARGETTID);
@@ -62,125 +83,135 @@ Script "DnD Monster Curse" (int curse_id, int curse_flags) {
     if(!IsPlayer(player_tid) || !IsPlayerBuffStateOK(pnum))
         Terminate;
 
-    if(curse_flags & CURSE_F_OWNERISTARGET)
+    if(debuff_flags & DEBUFF_F_OWNERISTARGET)
         SetActivatorToTarget(0);
 
-    int i, temp = 0;
+    int i;
     int this = ActivatorTID();
 
     //printbold(s:"isplayer ", d:IsPlayer(player_tid), s: " ", d:CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY));
 
-    int curse_effect = 100; // player's curse effect thing goes here
+    i = IsCurse(debuff_id);
+	if(!CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY) || !i) {
+        int curse_effect = 100;
+        int sc_flags = 0;
+        if(i) {
+            // player's curse effect thing goes here
+            curse_effect = curse_effect * (100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEEFFECT)) / 100;
+            if(curse_effect <= 0) {
+                SetResultValue(0);
+                Terminate;
+            }
+            sc_flags |= BTI_F_ISCURSE;
+        }
 
-	if(!CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY)) {
         int intensity = 0;
         int duration = 0;
         int r = 0, g = 0, b = 0;
         buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
-        switch(curse_id) {
-            case DND_CURSE_OTHERWORDLYGRIP:
-                HandlePlayerBuffAssignment(pnum, this, BTI_OTHERWORDLYGRIP);
+        switch(debuff_id) {
+            case DND_DEBUFF_OTHERWORDLYGRIP:
+                HandlePlayerBuffAssignment(pnum, this, BTI_OTHERWORDLYGRIP, sc_flags);
             break;
-            case DND_CURSE_REDLICH:
+            case DND_DEBUFF_REDLICH:
                 PlaySound(player_tid, "CurseHit", 6);
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_REDLICH);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_REDLICH, sc_flags);
                 intensity = 0.33;
                 r = 200;
                 g = 32;
                 b = 32;
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_PALADIN:               
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_PALADIN);
+            case DND_DEBUFF_PALADIN:               
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_PALADIN, sc_flags);
                 intensity = 0.5;
                 r = 117;
                 g = 21;
                 b = 21;
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_GURU:
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_GURU);
+            case DND_DEBUFF_GURU:
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_GURU, sc_flags);
                 intensity = 0.5;
                 r = 102;
                 g = 102;
                 b = 102;
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_HIEROPHANT:
+            case DND_DEBUFF_HIEROPHANT:
                 intensity = 0.75;
                 r = 136;
                 g = 22;
                 b = 136;
                 PlaySound(player_tid, "CurseHit", 6);
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_HIEROPHANT_DAMAGETAKEN);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_HIEROPHANT_DAMAGETAKEN, sc_flags);
                 HandlePlayerBuffAssignment(pnum, this, BTI_HIEROPHANT_SLOW);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_FLESHWIZARD_SLOW:
+            case DND_DEBUFF_FLESHWIZARD_SLOW:
                 intensity = 0.1875;
                 r = 176;
                 g = 33;
                 b = 33;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SLOW1);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SLOW1, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_FLESHWIZARD_WEAKEN:
+            case DND_DEBUFF_FLESHWIZARD_WEAKEN:
                 intensity = 0.1875;
                 r = 176;
                 g = 33;
                 b = 33;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_WEAKEN);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_WEAKEN, sc_flags);
                 HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SLOW2);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_FLESHWIZARD_SNARE:
+            case DND_DEBUFF_FLESHWIZARD_SNARE:
                 intensity = 0.1875;
                 r = 176;
                 g = 33;
                 b = 33;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SNARE);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SNARE, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_STOMPSLOW:
+            case DND_DEBUFF_STOMPSLOW:
                 intensity = 0.1875;
                 r = 68;
                 g = 68;
                 b = 68;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_STOMPSLOW);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_STOMPSLOW, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_LICHICE:
+            case DND_DEBUFF_LICHICE:
                 intensity = 0.8;
                 r = 208;
                 g = 214;
                 b = 254;
                 PlaySound(player_tid, "Lich/IceCurse", 6);
                 for(i = 0; i < 5; i++) {
-                    temp = -20 * (i + 1);
-                    duration = HandlePlayerBuffAssignment(pnum, this, BTI_LICHICECURSE, 0, temp);
+                    duration = HandlePlayerBuffAssignment(pnum, this, BTI_LICHICECURSE, sc_flags, -20 * (i + 1));
                     // only proc on first instance
                     if(!i)
                         HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
                     Delay(25 * curse_effect / 100);
                 }
-                HandlePlayerBuffAssignment(pnum, this, BTI_LICHICECURSE, BTI_F_REMOVE, temp);
+                HandlePlayerBuffAssignment(pnum, this, BTI_LICHICECURSE, BTI_F_REMOVE | sc_flags, -100);
             break;
-            case DND_CURSE_LICHVISION:
+            case DND_DEBUFF_LICHVISION:
                 intensity = 0.9;
                 r = 17;
                 g = 35;
                 b = 88;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_LICHVISION);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_LICHVISION, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_LICHDEGEN:
+            case DND_DEBUFF_LICHDEGEN:
                 intensity = 0.8;
                 r = 49;
                 g = 184;
                 b = 79;
                 PlaySound(0, "Lich/PoisonCurse", 6);
-                HandlePlayerBuffAssignment(pnum, this, BTI_LICHDEGEN);
+                HandlePlayerBuffAssignment(pnum, this, BTI_LICHDEGEN, sc_flags);
 
                 Delay(const:4);
                 r = pbuffs.buff_net_values[BUFF_HEALTHREGEN].additive;
@@ -201,45 +232,45 @@ Script "DnD Monster Curse" (int curse_id, int curse_flags) {
                 }
             break;
 
-            case DND_CURSE_SSRATHSTUN:
+            case DND_DEBUFF_SSRATHSTUN:
                 intensity = 0.2;
                 r = 100;
                 g = 100;
                 b = 18;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_SSRATHSTUN);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_SSRATHSTUN, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_ERYXIASLOW:
+            case DND_DEBUFF_ERYXIASLOW:
                 intensity = 0.2375;
                 r = 15;
                 g = 15;
                 b = 136;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_ERYXIASLOW);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_ERYXIASLOW, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
 
-            case DND_CURSE_TORRASQUE_SNARE:
+            case DND_DEBUFF_TORRASQUE_SNARE:
                 intensity = 0.15;
                 r = 64;
                 g = 64;
                 b = 64;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_TORRASQUE_SNARE);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_TORRASQUE_SNARE, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_GOLGOTH_SLOW:
+            case DND_DEBUFF_GOLGOTH_SLOW:
                 intensity = 0.275;
                 r = 96;
                 g = 21;
                 b = 69;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_GOLGOTH_SLOW);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_GOLGOTH_SLOW, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
-            case DND_CURSE_GOLGOTH_WEAKEN:
+            case DND_DEBUFF_GOLGOTH_WEAKEN:
                 intensity = 0.275;
                 r = 96;
                 g = 21;
                 b = 69;
-                duration = HandlePlayerBuffAssignment(pnum, this, BTI_GOLGOTH_WEAKEN);
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_GOLGOTH_WEAKEN, sc_flags);
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
         }

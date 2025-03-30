@@ -246,7 +246,7 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 			res = BODYARMOR_RED;
 		item_tier = PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL];
 		if(!item_tier || item_tier == INT_MAX)
-			item_tier = 1;
+			item_tier = 1 + random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] / 2, PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] - 1);
 	}
 	else if(tiers < 0)
 		res = -tiers;
@@ -358,7 +358,8 @@ int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0, int extr
 	
 	Inventories_On_Field[item_pos].item_image = IIMG_ARM_1 + armor_type;
 
-	int special_roll = SetupItemImplicit(item_pos, DND_ITEM_BODYARMOR, armor_type, item_tier);
+	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
+	int special_roll = SetupItemImplicit(item_pos, DND_ITEM_BODYARMOR, armor_type, Inventories_On_Field[item_pos].item_level);
 
 	while(i < count) {
 		do {

@@ -848,7 +848,7 @@ ACTOR PaladinBall {
 			HPLB D 0 Bright A_SpawnItemEx("PaladinBallTrail",0,0,0,0,0,0,0,128)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Curse", DND_CURSE_PALADIN, CURSE_F_OWNERISTARGET | CURSE_F_PLAYERISTRACER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_PALADIN, DEBUFF_F_OWNERISTARGET | DEBUFF_F_PLAYERISTRACER)
 		Death:
 			HPLB EFHIJ 3 Bright
 		Stop

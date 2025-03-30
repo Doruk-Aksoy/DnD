@@ -109,13 +109,23 @@ Actor Punisher_Perk25 : DnD_Boolean { }
 Actor Punisher_Perk50 : DnD_Boolean { }
 
 Actor Punisher_Perk50_Counter : Inventory {
-	inventory.maxamount 1000
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Punisher_Perk50_Tiers : Inventory {
+	inventory.maxamount 10
+}
+
+Actor Punisher_Perk50_DamageBonus : Inventory {
+	inventory.maxamount 0x7FFFFFFF
+}
+
+Actor Punisher_Perk50_NextReq : Inventory {
+	inventory.maxamount 0x7FFFFFFF
 }
 
 Actor Wanderer_Perk5 : DnD_Boolean { }
-
 Actor Wanderer_Perk25 : DnD_Boolean { }
-
 Actor Wanderer_Perk50 : DnD_Boolean { }
 
 Actor Wanderer_Explosion : DnD_ExplosiveBase {

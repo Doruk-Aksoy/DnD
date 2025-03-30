@@ -149,7 +149,7 @@ Actor InventoryBase : DnD_DroppedItem {
 		goto PickupFail
 
 		PickupFail:
-			"####" "#" 1 Bright
+			"####" "#" 1 Bright A_ClearTarget
 			"####" "#" 1 Bright A_Jump(256, "SpawnLoop")
 		Wait
 		

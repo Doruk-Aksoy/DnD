@@ -332,6 +332,17 @@ int pow (int x, int n) {
 	return y;
 }
 
+int nth_root(int num, int p) {	
+	int x = num / 2;
+	int dx = FixedDiv(FixedDiv(num, fpow(x, p - 1)) - x, num);
+	
+	while(dx >= EPSILON || dx <= -EPSILON){
+		x = x + dx;
+		dx = FixedDiv(FixedDiv(num, fpow(x, p - 1)) - x, num);
+	}
+	return x;
+}
+
 int abs (int x) {
 	if(x < 0)
 		return -x;

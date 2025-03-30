@@ -27,6 +27,8 @@ DND_COMPLETED							= "COMPLETED";
 DND_OR									= "or";
 DND_KILL								= "Kill";
 DND_FORBUFF								= "for buff";
+DND_CURRTIER							= "Current Tier";
+DND_OBTAIN								= "Obtain";
 DND_PLAYER								= "Player";
 DND_POINTS								= "points";
 
