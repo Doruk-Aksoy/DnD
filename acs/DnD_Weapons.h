@@ -956,15 +956,23 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			}
 			else {
 				sp_x = CheckInventory("CharonBeamCounter");
+				sp_y = CheckInventory("CharonBeamRepeatCounter");
 				
 				switch(sp_x) {
 					case 0:
 						hitscan_id = DND_HITSCAN_CHARON1;
-						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff1", wepid, 1, 768.0, 0, 0, 0, 0, hitscan_id);
+						if(sp_y != 2)
+							Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff1", wepid, 1, 768.0, 0, 0, 0, 0, hitscan_id);
+						else
+							Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff1_Thawer", wepid, 1, 768.0, 0, 0, 0, 0, hitscan_id);
+						GiveInventory("CharonBeamRepeatCounter", 1);
 					break;
 					case 1:
 						hitscan_id = DND_HITSCAN_CHARON2;
-						Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff2", wepid, 1, 768.0, 0, 0, 0, 0, hitscan_id);
+						if(sp_y != 2)
+							Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff2", wepid, 1, 768.0, 0, 0, 0, 0, hitscan_id);
+						else
+							Do_Hitscan_Attack_Named(owner, pnum, "CharonDamagingPuff2_Douser", wepid, 1, 768.0, 0, 0, 0, 0, hitscan_id);
 					break;
 					case 2:
 						hitscan_id = DND_HITSCAN_CHARON3;
@@ -973,9 +981,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				}
 				
 				GiveInventory("CharonBeamCounter", 1);
+
 				// we reset at every 3
 				if(sp_x == 2)
 					SetInventory("CharonBeamCounter", 0);
+				if(sp_y == 3)
+					SetInventory("CharonBeamRepeatCounter", 0);
 			}
 		break;
 		case DND_WEAPON_PLASMACANNON:

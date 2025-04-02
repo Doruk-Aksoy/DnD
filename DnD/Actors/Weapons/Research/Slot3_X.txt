@@ -850,12 +850,14 @@ actor HadesShot : DnD_BaseFastProjectile {
 		Loop
 
 		Death:
+			TNT1 A 0 A_GiveInventory("ApplyThawing", 1)
 			TNT1 A 0 A_TakeFromTarget("HadesBurstFired", 1)
 			TNT1 A 0 A_JumpIfInventory("HadesOnlyDieOnce",1,"Death2")
 			TNT1 A 0 A_PlaySound("imp/shotx",0)
 			TNT1 A 1 A_NoBlocking
 		stop
 		XDeath:
+			TNT1 A 0 A_GiveInventory("ApplyThawing", 1)
 			TNT1 A 0 A_TakeFromTarget("HadesBurstFired", 1)
 			TNT1 A 0 A_JumpIfInventory("HadesOnlyDieOnce",1,"Death2")
 			TNT1 A 0 A_PlaySound("imp/shotx",0)
@@ -868,6 +870,7 @@ actor HadesShot : DnD_BaseFastProjectile {
 		stop
 		RainingMen:
 			FX12 A 0
+			TNT1 A 0 A_GiveInventory("ApplyThawing", 1)
 			FX12 A 0 A_TakeFromTarget("MakeHadesBurst",1)
 			TNT1 A 0 A_TakeFromTarget("HadesBurstFired", 1)
 			FX12 AAAAA 0 A_SpawnItemEx("SmokeTrail",random(-33,-39),random(-4,4),random(-4,4),0,0,0,0,SXF_NOCHECKPOSITION)

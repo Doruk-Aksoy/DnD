@@ -1237,10 +1237,32 @@ int GetFlatHealthDamageFactor(int factor) {
 	return GetSpawnHealth() / factor;
 }
 
-#define DND_BASE_OVERLOADTICK 5
-#define DND_BASE_OVERLOADTIME (105 / DND_BASE_OVERLOADTICK) // 3 seconds -- 105 / 5
 int GetOverloadTime(int pnum) {
 	return (DND_BASE_OVERLOADTIME + ((GetPlayerAttributeValue(pnum, INV_OVERLOAD_DURATION) * TICRATE) >> 16)) / DND_BASE_OVERLOADTICK;
+}
+
+int GetMonsterOverloadChance(int m_id, int pnum) {
+	return DND_BASE_PLAYEROVERLOADCHANCE;
+}
+
+int GetMonsterOverloadTime(int m_id, int pnum) {
+	return DND_BASE_OVERLOADTIME_NOADJ;
+}
+
+#define DND_BLEED_CHANCE 25 // 25%
+
+int GetMonsterBleedChance(int m_id, int pnum) {
+	return DND_BLEED_CHANCE;
+}
+
+int GetMonsterBleedDamage(int dmg, int m_id, int pnum) {
+	// 10% of damage by default
+	return dmg / 10;
+}
+
+#define DND_BASE_BLEED_TIME 3
+int GetMonsterBleedDuration(int m_id, int pnum) {
+	return DND_BASE_BLEED_TIME;
 }
 
 // returns fixed point range
@@ -1393,7 +1415,7 @@ int GetPoisonTicrate(int pnum) {
 
 #define DND_BASE_CHILL_SLOW 0.1 // 10% per stack
 #define DND_BASE_CHILL_DAMAGETHRESHOLD 20 // 20% of the monster's health
-#define DBD_CHILL_HARDTHRESHOLD 2
+#define DND_CHILL_HARDTHRESHOLD 2
 #define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
 int GetChillEffect(int pnum, int stacks) {
 	// call with 1 stack to get "per stack" value
@@ -1406,11 +1428,22 @@ int GetChillEffect(int pnum, int stacks) {
 }
 
 int GetChillThreshold(int pnum, int stacks) {
-	return Clamp_Between((DND_BASE_CHILL_DAMAGETHRESHOLD * (100 - GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100) * stacks, DBD_CHILL_HARDTHRESHOLD, 100);
+	// chill threshold reducing is a good thing for player applying it to monsters
+	return Clamp_Between((DND_BASE_CHILL_DAMAGETHRESHOLD * (100 - GetPlayerAttributeValue(pnum, INV_CHILLTHRESHOLD)) / 100) * stacks, DND_CHILL_HARDTHRESHOLD, 100);
 }
 
 int GetFreezeChance(int pnum, int stacks) {
 	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + GetPlayerAttributeValue(pnum, INV_FREEZECHANCE)) / 100;
+}
+
+int GetMonsterChillThreshold(int m_id, int stacks) {
+	// for this, since monster applies to player, player's resistance to this should increase the threshold instead
+	// by default this is halved for players as well
+	return Clamp_Between(DND_BASE_CHILL_DAMAGETHRESHOLD * stacks, DND_CHILL_HARDTHRESHOLD, 100);
+}
+
+int GetMonsterFreezeChance(int m_id, int stacks) {
+	return DND_BASE_FREEZECHANCE_PERSTACK * 5 * stacks / 2;
 }
 
 int GetCritChance_Display(int pnum) {

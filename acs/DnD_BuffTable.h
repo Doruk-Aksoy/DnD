@@ -11,6 +11,9 @@ enum {
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
+    BTI_CHILL,
+    BTI_FREEZE,
+    BTI_OVERLOAD,
 
     BTI_REDLICH,
     BTI_PALADIN,
@@ -83,6 +86,28 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bvalue = -0.67;
             bduration = 2;
             tic_duration = bduration * TICRATE;
+        break;
+
+        case BTI_CHILL:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_ADDIFNODUPLICATE | BUFF_F_MORETYPE;
+            bvalue = -0.15;
+            bduration = 2;
+            tic_duration = bduration * TICRATE;
+        break;
+        case BTI_FREEZE:
+            btype = BUFF_STUN;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+            bvalue = -1.0;
+            bduration = 2;
+            tic_duration = bduration * TICRATE;
+        break;
+        case BTI_OVERLOAD:
+            btype = BUFF_DAMAGETAKEN;
+            bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = 0.21;
+            bduration = CheckActorInventory(ptid, "DnD_OverloadTimer");
+            tic_duration = bduration;
         break;
 
         case BTI_REDLICH:
@@ -216,6 +241,8 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
     }
 
     bduration = SetDuration(bduration, bflags & BUFF_F_DURATIONINTICS);
+    if(bduration)
+        bflags |= BUFF_F_TICKERREQUIRED;
 
     if(script_flags & BTI_F_ISCURSE) {
         bduration = bduration * (100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION)) / 100;
@@ -235,7 +262,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             update = update * 1.0 / 100;
             bflags |= BUFF_F_REPLACEMENTVALUE;
         }
-        GivePlayerBuff(pnum, bsource, btype, bvalue, bflags, bduration, update);
+        GivePlayerBuff(pnum, bsource, btype, buff_table_index, bvalue, bflags, bduration, update);
     }
     else {
         if(update) {
@@ -243,7 +270,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bvalue = update * 1.0 / 100;
             bflags |= BUFF_F_REPLACEMENTVALUE;
         }
-        RemoveBuffMatching(pnum, bsource, btype, bvalue, bflags);
+        RemoveBuffMatching(pnum, bsource, btype, buff_table_index, bvalue, bflags);
     }
 
     return tic_duration;

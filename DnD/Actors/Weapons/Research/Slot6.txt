@@ -246,6 +246,7 @@ Actor FTFire : DnD_BaseProjectile {
 			FRFX EFGHIJKLMNO 2 bright
 		Stop
 		Death:
+			TNT1 A 0 A_GiveInventory("ApplyThawing_LowChance", 1)
 			FRFX HIJ 2 bright
 			TNT1 A 0 A_CustomMissile("DropFire", 0, 0, 0, CMF_TRACKOWNER)
 			FRFX KLMNO 2 bright

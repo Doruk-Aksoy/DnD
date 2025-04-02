@@ -31,6 +31,7 @@ enum {
 	BUFF_F_REPLACEMENTVALUE				= 0b10000000,					// same buff with different value attachment
 	BUFF_F_DURATIONINTICS				= 0b100000000,					// duration is in real tics
 	BUFF_F_UNIQUETOCLASS				= 0b1000000000,					// can only have one of this buff from this class (implied NODUPLICATE)
+	BUFF_F_ADDIFNODUPLICATE				= 0b10000000000,				// adds value on top if BUFF_F_NODUPLICATE_STRICT is used instead of replace
 };
 #define BUFF_SOURCE_FLAGMASK (BUFF_F_WEAPONSOURCE | BUFF_F_PLAYERSOURCE | BUFF_F_MONSTERSOURCE)
 
@@ -38,6 +39,7 @@ struct buff_T {
 	int source;			// source of this buff, we will never insert a buff of same type from same source multiple times, we'll replace weakest with this instead
 	
 	int type;			// type of buff
+	int bt_index;		// buff table index
 	int value;			// value to be used for effect of the buff
 
 	int flags;			// holds flags for this buff, what kind of source, does it require ticker etc.
@@ -140,21 +142,24 @@ void HandleBuffApplication(int pnum, int buff_type) {
 			if(CheckActorInventory(ptid, "GryphonCheck"))
 				return;
 
+		case BUFF_STUN:
+
 			// multiplicative here implies "less" movement speed, therefore if the positive value for example was 20% less speed, which would be 0.2 in the code, we'd really want 1.0 - 0.2 as the factor here
 			// which is 80% of your normal speed
-			base = GetPlayerSpeed(pnum) + pbuffs.buff_net_values[buff_type].additive;
-			if(base < DND_LOWEST_PLAYERSPEED)
-				base = DND_LOWEST_PLAYERSPEED;
-			else if(pbuffs.buff_net_values[buff_type].multiplicative != 1.0) // default is 1.0 if theres none so nothing to worry about here
-				base = FixedMul(base, pbuffs.buff_net_values[buff_type].multiplicative);
+			base = GetPlayerSpeed(pnum) + pbuffs.buff_net_values[BUFF_SPEED].additive;
+			if(pbuffs.buff_net_values[BUFF_SPEED].multiplicative != 1.0) // default is 1.0 if theres none so nothing to worry about here
+				base = FixedMul(base, pbuffs.buff_net_values[BUFF_SPEED].multiplicative);
+
+			// ie. not stunned, go ahead
+			if(pbuffs.buff_net_values[BUFF_STUN].multiplicative == 1.0) {
+				if(base < DND_LOWEST_PLAYERSPEED)
+					base = DND_LOWEST_PLAYERSPEED;
+			}
+			else // since we have stun related things and this'll set movement to 0, might as well include it here -- plus fixes cases where player receives a slow while stunned still letting them move
+				base = FixedMul(base, pbuffs.buff_net_values[BUFF_STUN].multiplicative);
 
 			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
 			//Log(s:"New speed factor: ", f:base);
-		break;
-		case BUFF_STUN:
-			base = GetPlayerSpeed(pnum);
-			base = FixedMul(base, pbuffs.buff_net_values[buff_type].multiplicative);
-			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
 		break;
 	}
 }
@@ -166,7 +171,7 @@ int SetDuration(int bduration, bool tick_adjust) {
 }
 
 // accepts in seconds for duration parameter
-void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, int bduration = 0, int breplacement = 0) {
+void GivePlayerBuff(int pnum, int bsource, int btype, int bbt_index, int bvalue, int bflags, int bduration = 0, int breplacement = 0) {
 	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
 	int i = pbuffs.head;
@@ -215,17 +220,27 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 		}
 	}
 	else {
-		while(!found) {
+		while(i != -1 && !found) {
 			// if type is same and also strict, we will compare immediately
-			if(pbuffs.buff_list[i].type == btype && (pbuffs.buff_list[i].flags & BUFF_F_NODUPLICATE_STRICT)) {
-				if(pbuffs.buff_list[i].value < bvalue) {
+			// check for buff table index to determine uniqueness, as there can be multiple slows but of different sources of uniqueness (auras etc.)
+			if(pbuffs.buff_list[i].type == btype && pbuffs.buff_list[i].bt_index == bbt_index && (pbuffs.buff_list[i].flags & BUFF_F_NODUPLICATE_STRICT)) {
+				if(bflags & BUFF_F_ADDIFNODUPLICATE) {
+					// increase its value
+					//Log(s:"found duplicate, adding value ", f:bvalue);
+					pbuffs.buff_list[i].value += bvalue;
+					pbuffs.buff_list[i].duration = bduration;
+					found = 2;
+					break;
+				}
+				else if(pbuffs.buff_list[i].value < bvalue) {
 					pbuffs.buff_list[i].value = bvalue;
 					pbuffs.buff_list[i].duration = bduration;
 
-					// transfer flags aand source if we are strict, this is the stronger
+					// transfer flags and source if we are strict, this is the stronger
 					pbuffs.buff_list[i].flags = bflags;
 					pbuffs.buff_list[i].source = bsource;
 					found = 2;
+					break;
 				}
 				else if(pbuffs.buff_list[i].value == bvalue && pbuffs.buff_list[i].duration < bduration) {
 					pbuffs.buff_list[i].duration = bduration;
@@ -234,17 +249,14 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 					pbuffs.buff_list[i].source = bsource;
 				}
 				found = 1;
+				return;
 			}
 
-			// if we have next, keep going otherwise stop as the last valid place
-			if(pbuffs.buff_list[i].next_id != -1 && i != DND_MAX_PLAYER_BUFFS - 1) {
-				// if there is a gap, stop here, this guy's +1 is the gap we can immediately insert something to
-				if(pbuffs.buff_list[i].next_id != i + 1)
-					break;
-				i = pbuffs.buff_list[i].next_id;
-			}
-			else
-				break;
+			// if there is a gap, stop here, this guy's +1 is the gap we can immediately insert something to -- save this position into j once, and keep checking for duplicates just in case
+			//Log(s:"next id check? ", d:pbuffs.buff_list[i].next_id, s: " " , d:i+1);
+			if(j == -1 && pbuffs.buff_list[i].next_id != i + 1)
+				j = i;
+			i = pbuffs.buff_list[i].next_id;
 		}
 	}
 
@@ -261,9 +273,6 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 		//Log(s:"Prev node ", d:i, s:" and its next is now ", d:i + 1);
 
 		// current node is now the new node that needs to be set with proper data
-		if(bduration)
-			bflags |= BUFF_F_TICKERREQUIRED;
-
 		i = i + 1;
 		pbuffs.buff_list[i].source = bsource;
 
@@ -277,6 +286,7 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bvalue, int bflags, in
 
 		pbuffs.buff_list[i].flags = bflags;
 		pbuffs.buff_list[i].type = btype;
+		pbuffs.buff_list[i].bt_index = bbt_index;
 
 		// dont adjust if this is meant to be in actual tics
 		pbuffs.buff_list[i].duration = bduration;
@@ -306,8 +316,17 @@ Script "DnD Buff Ticker" (int pnum) {
 			int rem = -5;
 			if((pbuffs.buff_list[i].flags & BUFF_F_TICKERREQUIRED)) {
 				--pbuffs.buff_list[i].duration;
-				if(pbuffs.buff_list[i].duration <= 0)
+				//Log(d:i, s: ". ", d:pbuffs.buff_list[i].duration);
+				// either timed out or conditional removal in the form of thawing for chill & freeze on player
+				if
+				(
+					pbuffs.buff_list[i].duration <= 0 ||
+					((pbuffs.buff_list[i].bt_index == BTI_CHILL || pbuffs.buff_list[i].bt_index == BTI_FREEZE) && CheckInventory("DnD_ThawPlayer"))
+				)
+				{
 					rem = RemoveBuff(pnum, i - 1); // assumes +1 so this corrects it
+					//Log(s:"removed ", d:i, s: " next: ", d:rem);
+				}
 			}
 
 			if(rem == -5)
@@ -363,7 +382,8 @@ int RemoveBuff(int pnum, int buff_index, int precalc_prev = -1) {
 	HandleBuffApplication(pnum, pbuffs.buff_list[buff_index].type);
 
 	pbuffs.buff_list[buff_index].source = 0;
-	pbuffs.buff_list[buff_index].type = 0;
+	pbuffs.buff_list[buff_index].type = -1;
+	pbuffs.buff_list[buff_index].bt_index = -1;
 	pbuffs.buff_list[buff_index].flags = 0;
 	pbuffs.buff_list[buff_index].value = 0;
 	pbuffs.buff_list[buff_index].duration = 0;
@@ -380,7 +400,7 @@ int RemoveBuff(int pnum, int buff_index, int precalc_prev = -1) {
 	return prev;
 }
 
-void RemoveBuffMatching(int pnum, int bsource, int btype, int bvalue, int bflags) {
+void RemoveBuffMatching(int pnum, int bsource, int btype, int bbt_index, int bvalue, int bflags) {
 	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 	int i = pbuffs.buff_list[pbuffs.head].next_id;
 	int prev = pbuffs.head;
@@ -391,6 +411,7 @@ void RemoveBuffMatching(int pnum, int bsource, int btype, int bvalue, int bflags
 		(
 			pbuffs.buff_list[i].source == bsource &&
 			pbuffs.buff_list[i].type == btype &&
+			pbuffs.buff_list[i].bt_index == bbt_index &&
 			pbuffs.buff_list[i].value == bvalue &&
 			pbuffs.buff_list[i].flags == bflags
 		)
@@ -402,6 +423,20 @@ void RemoveBuffMatching(int pnum, int bsource, int btype, int bvalue, int bflags
 		prev = i;
 		i = pbuffs.buff_list[i].next_id;
 	}
+}
+
+// checks by buff table index, mostly should be used for strict no duplication cases
+bool HasPlayerBuff(int pnum, int bbt_index) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	int i = pbuffs.buff_list[pbuffs.head].next_id;
+	
+	while(i != -1) {
+		if(pbuffs.buff_list[i].bt_index == bbt_index)
+			return true;
+		i = pbuffs.buff_list[i].next_id;
+	}
+
+	return false;
 }
 
 void SlowPlayer(int amt, int mode, int pnum) {

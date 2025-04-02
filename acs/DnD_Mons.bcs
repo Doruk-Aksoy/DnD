@@ -217,35 +217,6 @@ Script 971 (int speed) {
 	SetActorVelocity(0, velx, vely, 0, 0, 0);
 }
 
-Script 972 (int type) { // script for Lich Slow
-	int i;
-
-	// assumption is that the player is the target of these so if this is not a player terminate
-	if(!IsPlayer(ActivatorTID()))
-		Terminate;
-
-	if(!type) {
-		for(i = 0; i < 5; i++) {
-			SlowPlayer(0.20 * (i + 1), 0, 0);
-			Delay(20);
-		}
-		RestoreRPGStat(RES_PLAYERSPEED);
-	}
-	else if(type == 1) {
-		for(i = 0; i < 5; i++) {
-			Thing_Damage(0, 4, MOD_POISON);
-			Delay(const:17);
-		}
-	}
-	else if(type == 2) {
-		AmbientSound("Lich/VisionDim", 127);
-		for(i = 0; i < MAXPLAYERS; i++) {
-			if(GetActorProperty(P_TIDSTART + i, APROP_HEALTH) > 0)
-				GiveActorInventory(P_TIDSTART + i, "DnD_Curse_LichVisionDim", 1);
-		}
-	}
-}
-
 // run this on pain state of monsters that can blind!
 Script "DnD Monster Blind Cancel CS" (void) CLIENTSIDE {
 	GiveInventory("BlindCancelledSignal", 1);

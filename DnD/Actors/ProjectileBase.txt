@@ -295,6 +295,44 @@ Actor ApplyNoReflect : DnD_Activator {
 	}
 }
 
+Actor DnD_DousePlayer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 54
+}
+
+Actor ApplyDousing : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_RadiusGive("DnD_DousePlayer", 48, RGF_PLAYERS, 1)
+		Stop
+	}
+}
+
+Actor DnD_ThawPlayer : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 54
+}
+
+Actor ApplyThawing : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_RadiusGive("DnD_ThawPlayer", 48, RGF_PLAYERS, 1)
+		Stop
+	}
+}
+
+Actor ApplyThawing_LowChance : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(216, "Nothing")
+			TNT1 A 0 A_RadiusGive("DnD_ThawPlayer", 48, RGF_PLAYERS, 1)
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
 Actor ApplyForceRadiusDMG : DnD_Activator {
 	States {
 		Pickup:

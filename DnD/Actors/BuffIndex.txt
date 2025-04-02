@@ -6,8 +6,11 @@ enum {
     BTI_HAMMER,
     BTI_DEVASTATOR,
 
-    // add all curses below this one
+    // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
+    BTI_CHILL,
+    BTI_FREEZE,
+    BTI_OVERLOAD,
 
     BTI_REDLICH,
     BTI_PALADIN,
@@ -18,8 +21,17 @@ enum {
     BTI_FLESHWIZARD_SLOW2,
     BTI_FLESHWIZARD_WEAKEN,
     BTI_FLESHWIZARD_SNARE,
-	BTI_STOMPSLOW,
-    BTI_LICHICECURSE
+    BTI_STOMPSLOW,
+    BTI_LICHICECURSE,
+    BTI_LICHVISION,
+    BTI_LICHDEGEN,
+
+    BTI_SSRATHSTUN,
+    BTI_ERYXIASLOW,
+
+    BTI_TORRASQUE_SNARE,
+    BTI_GOLGOTH_SLOW,
+    BTI_GOLGOTH_WEAKEN
 };
 
 enum {
@@ -30,6 +42,11 @@ enum {
 
 enum {
     DND_DEBUFF_OTHERWORDLYGRIP,
+
+    DND_DEBUFF_CHILL,
+    DND_DEBUFF_FREEZE,
+    DND_DDEBUFF_OVERLOAD,
+
     DND_DEBUFF_REDLICH,
     DND_DEBUFF_PALADIN,
     DND_DEBUFF_GURU,
@@ -55,3 +72,12 @@ enum {
     DEBUFF_F_PLAYERISTRACER = 2,
     DEBUFF_F_PLAYERISACTIVATOR = 4,
 };
+
+Actor DnD_ChillGainCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 7
+}
+
+Actor DnD_ChillFXRunning : DnD_Boolean { }
+Actor DnD_FreezeFXRunning : DnD_Boolean { }
+Actor DnD_OverloadFXRunning : DnD_Boolean { }

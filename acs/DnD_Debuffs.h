@@ -4,6 +4,10 @@
 enum {
     DND_DEBUFF_OTHERWORDLYGRIP,
 
+    DND_DEBUFF_CHILL,
+    DND_DEBUFF_FREEZE,
+    DND_DEBUFF_OVERLOAD,
+
     DND_DEBUFF_REDLICH,
     DND_DEBUFF_PALADIN,
     DND_DEBUFF_GURU,
@@ -114,6 +118,50 @@ Script "DnD Give Debuff" (int debuff_id, int debuff_flags) {
             case DND_DEBUFF_OTHERWORDLYGRIP:
                 HandlePlayerBuffAssignment(pnum, this, BTI_OTHERWORDLYGRIP, sc_flags);
             break;
+            case DND_DEBUFF_CHILL:
+                HandlePlayerBuffAssignment(pnum, this, BTI_CHILL, sc_flags);
+
+                if(!CheckActorInventory(player_tid, "DnD_ChillFXRunning")) {
+                    GiveActorInventory(player_tid, "DnD_ChillFXRunning", 1);
+                    while(HasPlayerBuff(pnum, BTI_CHILL)) {
+                        ACS_NamedExecuteAlways("DnD Monster Chill FX", 0, player_tid);
+                        Delay(const:TICRATE);
+                    }
+                    SetActorInventory(player_tid, "DnD_ChillStacks", 0);
+                    SetActorInventory(player_tid, "DnD_ChillFXRunning", 0);
+                }
+            break;
+            case DND_DEBUFF_FREEZE:
+                HandlePlayerBuffAssignment(pnum, this, BTI_FREEZE, sc_flags);
+                i = 0;
+                if(!CheckActorInventory(player_tid, "DnD_FreezeFXRunning")) {
+                    GiveActorInventory(player_tid, "DnD_FreezeFXRunning", 1);
+                    while(HasPlayerBuff(pnum, BTI_FREEZE)) {
+                        // create freeze fx and adjust it every 5 tics
+                        ACS_NamedExecuteWithResult("DnD Monster Freeze Adjust", player_tid, i, i >= 2, CheckActorInventory(player_tid, "DnD_FreezeTimer") == 1);
+                        Delay(const:5);
+                        TakeActorInventory(player_tid, "DnD_FreezeTimer", 1);
+                        i = (i + 1) % 4;
+                    }
+                    SetActorInventory(player_tid, "DnD_FreezeTimer", 0);
+                    SetActorInventory(player_tid, "DnD_FreezeFXRunning", 0);
+                }
+            break;
+            case DND_DEBUFF_OVERLOAD:
+                HandlePlayerBuffAssignment(pnum, this, BTI_OVERLOAD, sc_flags);
+                if(!CheckActorInventory(player_tid, "DnD_OverloadFXRunning")) {
+                    GiveActorInventory(player_tid, "DnD_OverloadFXRunning", 1);
+                    while(HasPlayerBuff(pnum, BTI_OVERLOAD)) {
+                        ACS_NamedExecuteWithResult("DnD Monster Overload Particles", player_tid);
+                        TakeActorInventory(player_tid, "DnD_OverloadTimer", 1);
+                        Delay(const:DND_BASE_OVERLOADTICK);
+                        GiveActorInventory(player_tid, "Overload_SoundStopper", 1);
+                    }
+                    SetActorInventory(player_tid, "DnD_OverloadTimer", 0);
+                    SetActorInventory(player_tid, "DnD_OverloadFXRunning", 0);
+                }
+            break;
+
             case DND_DEBUFF_REDLICH:
                 PlaySound(player_tid, "CurseHit", 6);
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_REDLICH, sc_flags);

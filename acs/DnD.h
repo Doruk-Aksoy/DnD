@@ -1304,6 +1304,9 @@ void ClearLingeringBuffs(int pnum) {
 
 	// debuffs
 	SetInventory("RuinationStacks", 0);
+	SetInventory("DnD_ChillFXRunning", 0);
+	SetInventory("DnD_FreezeFXRunning", 0);
+	SetInventory("DnD_OverloadFXRunning", 0);
 	ResetPlayerBuffs(pnum);
 }
 

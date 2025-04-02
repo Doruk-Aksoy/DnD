@@ -470,12 +470,16 @@ Actor CryoPrimarySmoke2 : CryoPrimarySmoke {
 	}
 }
 
-Actor CryoPuff_FX {
-	+PUFFGETSOWNER
-	+PUFFONACTORS
+Actor CryoPuff_FX : DnD_BasePuff {
+	+NOBLOOD
 	+ALWAYSPUFF
 	States {
 		Spawn:
+			TNT1 A 0
+		HitNoBlood:
+		Crash:
+		Death:
+			TNT1 A 0 A_GiveInventory("ApplyDousing", 1)
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 1
 			BXPL AAAAAAAA 0 A_SpawnItemEx("CryoPrimarySmoke", 0, 0, 0, random(10, 30)*0.1, 0, random(0, 10)*0.1, random(1,360), SXF_CLIENTSIDE|SXF_NOCHECKPOSITION)
@@ -498,6 +502,7 @@ Actor CryoPuffAlt : DnD_BasePuff {
 		HitNoBlood:
 		Crash:
 		Death:
+			TNT1 A 0 A_GiveInventory("ApplyDousing", 1)
 			TNT1 A 0 A_JumpIfInTargetInventory("DnD_CritToken", 1, "Crit")
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 1
@@ -1216,6 +1221,7 @@ ACTOR CharonBall : DnD_BaseProjectile {
 		XDeath:
 			TNT1 A 0 A_GiveToTarget("CharonStacks", 5)
 		Death:
+			TNT1 A 0 A_GiveInventory("ApplyThawing", 1)
 			TNT1 A 0 A_SetScale (1.0)
 			TNT1 A 0 A_PlaySound ("CharonBlaster/Hit", 7, 1, 0, 1.2)
 			CHBP C 3 Bright Light("CharonLightImpact1")
@@ -1251,6 +1257,25 @@ Actor CharonDamagingPuff1 : DnD_BasePuff {
 	}
 }
 
+Actor CharonDamagingPuff1_Thawer : CharonDamagingPuff1 {
+	States {
+		Spawn:
+		Crash:
+		Melee:
+		HitNoBlood:
+			TNT1 AAAA 0
+			TNT1 A 0 A_GiveInventory("ApplyThawing", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Charon Trail Spawner", x, y, z, (DND_TRAILACTOR_CHARON1 << 16) | ACS_NamedExecuteWithResult("DnD Get Target"))
+			CHBP C 1 Bright Light("CharonLightImpact1")
+			CHBP D 1 Bright Light("CharonLightImpact2")
+			CHBP E 1 Bright Light("CharonLightImpact3")
+			CHBP F 1 Bright Light("CharonLightImpact4")
+			CHBP G 1 Bright Light("CharonLightImpact5")
+			TNT1 A 5
+		Stop
+	}
+}
+
 Actor CharonDamagingPuff2 : CharonDamagingPuff1 {
 	DamageType "P_Ice"
 	States {
@@ -1259,6 +1284,25 @@ Actor CharonDamagingPuff2 : CharonDamagingPuff1 {
 		Melee:
 		HitNoBlood:
 			TNT1 AAAA 0
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Charon Trail Spawner", x, y, z, (DND_TRAILACTOR_CHARON2 << 16) | ACS_NamedExecuteWithResult("DnD Get Target"))
+			CHBP C 1 Bright Light("CharonLightImpact1")
+			CHBP D 1 Bright Light("CharonLightImpact2")
+			CHBP E 1 Bright Light("CharonLightImpact3")
+			CHBP F 1 Bright Light("CharonLightImpact4")
+			CHBP G 1 Bright Light("CharonLightImpact5")
+			TNT1 A 5
+		Stop
+	}
+}
+
+Actor CharonDamagingPuff2_Douser : CharonDamagingPuff2 {
+	States {
+		Spawn:
+		Crash:
+		Melee:
+		HitNoBlood:
+			TNT1 AAAA 0
+			TNT1 A 0 A_GiveInventory("ApplyDousing", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Charon Trail Spawner", x, y, z, (DND_TRAILACTOR_CHARON2 << 16) | ACS_NamedExecuteWithResult("DnD Get Target"))
 			CHBP C 1 Bright Light("CharonLightImpact1")
 			CHBP D 1 Bright Light("CharonLightImpact2")
@@ -1313,6 +1357,10 @@ Actor CharonStacks : Ammo {
 
 Actor CharonBeamCounter : DnD_Info {
 	inventory.maxamount 3
+}
+
+Actor CharonBeamRepeatCounter : DnD_Info {
+	inventory.maxamount 4
 }
 
 Actor CharonParticle_Orange {

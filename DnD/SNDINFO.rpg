@@ -3,6 +3,18 @@ Intermission2		INTER2
 Intermission3		INTER3
 Intermission4		INTER4
 
+Bleed/End1			BLEDEND1
+Bleed/End2			BLEDEND2
+Bleed/End3			BLEDEND3
+Bleed/End4			BLEDEND4
+$random Bleed/End { Bleed/End1 Bleed/End2 Bleed/End3 Bleed/End4 }
+
+Bleed/Loop1			BLEDLOP1
+Bleed/Loop2			BLEDLOP2
+Bleed/Loop3			BLEDLOP3
+Bleed/Loop4			BLEDLOP4
+$random Bleed/Loop { Bleed/Loop1 Bleed/Loop2 Bleed/Loop3 Bleed/Loop4 }
+
 Items/PowercoreEquip		PCOREPIC
 Items/PowercoreDrop			PCOREDRO
 

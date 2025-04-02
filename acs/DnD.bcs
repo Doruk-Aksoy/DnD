@@ -1667,7 +1667,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
 
-	MonsterProperties[m_id].trait_list[DND_HEXFUSION] = true;
+	//MonsterProperties[m_id].trait_list[DND_HEXFUSION] = true;
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -5714,6 +5714,7 @@ Script "test" (void) {
 Script 68 (int x) NET {
 	// this will activate if its not a debug build, which will check only allow use of this when its not a database saved mode
 	#ifdef ISDEBUGBUILD
+	int temp;
 		//if(!isSoftorHardcore() && (GetCVar("dnd_mode") == DND_MODE_NORMAL))
 	{
 		int i;
@@ -5733,6 +5734,23 @@ Script 68 (int x) NET {
 		}
 		else if(x == 401) {
 			SpawnResearch(0, true);
+		}
+		else if(x == 402) {
+			SetPointer(AAPTR_TARGET, 48);
+			RegisterDoTDamage(
+				10, 
+				4,
+				DND_DAMAGETYPEFLAG_FIRE, 
+				"DoomImp2"
+			);
+			Delay(const:TICRATE);
+			SetPointer(AAPTR_TARGET, 49);
+			RegisterDoTDamage(
+				15, 
+				4,
+				DND_DAMAGETYPEFLAG_FIRE, 
+				"DoomImp2"
+			);
 		}
 		else if(x == 420) {
 			SpawnCharm(0, true);

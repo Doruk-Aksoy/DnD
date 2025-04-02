@@ -1,7 +1,7 @@
 #ifndef DND_DAMAGE_IN
 #define DND_DAMAGE_IN
 
-#include "DnD_Poison.h"
+#include "DnD_DoT.h"
 #include "DnD_Physics.h"
 #include "DnD_AttackInfo.h"
 
@@ -36,6 +36,11 @@
 #define OCCULT_WEAKEN_DURATION 2
 
 #define DND_CORRUPTORB_DMGREDUCE 75 // /4 => 75% reduced dmg
+
+#define DND_MONSTER_BURN_PERCENT 20
+#define DND_PLAYER_BURNING_CHANCE 0.33
+#define DND_PLAYER_BURNING_MINTIME 4
+#define DND_PLAYER_BURNING_MAXTIME 8
 
 #define MAX_RIPCOUNT 4096
 
@@ -305,6 +310,7 @@ void HandleMonsterDeathConfirm(int tid, int dmg) {
 
 // All resists uniformly follow same factors
 int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
+	//printbold(s:"called resist check for ", d:dmg, s:" with res attr ", d:res_attribute);
 	int unity = 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
 	int temp = 	GetPlayerAttributeValue(pnum, res_attribute) + 
 				bonus + 
@@ -1896,7 +1902,11 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 	
 	// always face viewer
 	for(int i = 0; i < 6; ++i) {
-		int ang = AngleToFace(victim, ConsolePlayerNumber() + P_TIDSTART);
+		int ang = 0;
+		if(victim != ConsolePlayerNumber() + P_TIDSTART)
+			ang = AngleToFace(victim, ConsolePlayerNumber() + P_TIDSTART);
+		else
+			ang = GetActorAngle(victim);
 		SetActorPosition(0, GetActorX(victim) + 8 * cos(ang), GetActorY(victim) + 8 * sin(ang), GetActorZ(victim) + 16.0, 0);
 		if(!reverse)
 			SetActorProperty(0, APROP_ALPHA, 1.0 - (i + 5 * tics) * 0.025);
@@ -1937,7 +1947,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		AddMonsterAilment(victim, DND_AILMENT_IGNITE);
 	
 	do {
-		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim);
+		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2);
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
 		i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME);
 		if(i > 0)
@@ -2045,10 +2055,10 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	SetResultValue(0);
 }
 
-Script "DnD Monster Ignite FX" (int tid) CLIENTSIDE {
+Script "DnD Monster Ignite FX" (int tid, int amt) CLIENTSIDE {
 	SetActivator(tid);
 	
-	for(int i = 0; i < 2; ++i) {
+	for(int i = 0; i < amt; ++i) {
 		Delay(const:7);
 		
 		// if thing no longer exists, stop
@@ -2074,7 +2084,7 @@ Script "DnD Monster Overload" (int victim) {
 		if(!ActivatorTID())
 			Terminate;
 	
-		ACS_NamedExecuteWithResult("DnD Monster Overload Particles");
+		ACS_NamedExecuteWithResult("DnD Monster Overload Particles", victim);
 		TakeInventory("DnD_OverloadTimer", 1);
 		Delay(const:DND_BASE_OVERLOADTICK);
 		GiveInventory("Overload_SoundStopper", 1);
@@ -2090,11 +2100,11 @@ Script "DnD Monster Overload" (int victim) {
 	SetResultValue(0);
 }
 
-Script "DnD Monster Overload Particles" (void) CLIENTSIDE {
-	int r = GetActorProperty(0, APROP_RADIUS);
-	int h = GetActorProperty(0, APROP_HEIGHT);
+Script "DnD Monster Overload Particles" (int tid) CLIENTSIDE {
+	int r = GetActorProperty(tid, APROP_RADIUS);
+	int h = GetActorProperty(tid, APROP_HEIGHT);
 	for(int i = 0; i < 3; ++i) {
-		SpawnForced("OverloadZap_Particles", GetActorX(0) + random(-r, r) / 2, GetActorY(0) + random(-r, r) / 2, GetActorZ(0) + (random(16.0, h + 32.0)) / 2, 0);
+		SpawnForced("OverloadZap_Particles", GetActorX(tid) + random(-r, r) / 2, GetActorY(tid) + random(-r, r) / 2, GetActorZ(tid) + (random(16.0, h + 32.0)) / 2, 0);
 		Delay(random(1, 3));
 	}
 }
@@ -2223,7 +2233,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
-int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool isReflected, str inflictor_class) {
+int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool isReflected, str inflictor_class, int m_id = -1) {
 	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
 	int temp;
@@ -2352,18 +2362,73 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// final thing to check after damage reductions are applied, DoTs that scale off of the amount of damage
 	// check if we should apply poison here -- early application of multipliers here so the poison doesnt scale off of unreduced damage
 	// do not register more instances on poison dots
-	if(((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") && dmg) {
-		temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
-		if(!temp)
-			temp = 1;
-		// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
-		// random damage of 10% to 12% of it is applied below
-		RegisterDoTDamage(
-			random(temp, (temp * 6) / 5), 
-			random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME),
-			DND_DAMAGETYPEFLAG_POISON, 
-			inflictor_class
-		);
+	if(m_id != -1 && dmg) {
+		if((dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && random(1, 100) <= GetMonsterBleedChance(m_id, pnum)) {
+			temp = GetMonsterBleedDamage(dmg, m_id, pnum);
+			if(!temp)
+				temp = 1;
+			RegisterDoTDamage(
+				temp,
+				GetMonsterBleedDuration(m_id, pnum),
+				DND_DAMAGETYPEFLAG_PHYSICAL, 
+				inflictor_class
+			);
+		}
+		else if((dmg_data & DND_DAMAGETYPEFLAG_ICE)) {
+			// considerations for chill and freeze
+			res_to_apply = CheckInventory("PlayerHealthCap");
+			res_bonus = CheckInventory("DnD_ChillStacks");
+			
+			// if hpdiff >= threshold
+			if(res_to_apply - GetActorProperty(0, APROP_HEALTH) >= res_to_apply * GetMonsterChillThreshold(m_id, res_bonus + 1) / 100) {
+				// add a new stack of chill if applicable
+				if(!CheckInventory("DnD_ChillGainCooldown") && res_bonus < DND_BASE_CHILL_CAP) {
+					GiveInventory("DnD_ChillStacks", 1);
+					GiveInventory("DnD_ChillGainCooldown", 1);
+					
+					// give chill debuff
+					ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_CHILL, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+				}
+				
+				// freeze checks --- added freeze chance % increase -- unique boss is immune to freeze
+				res_to_apply = GetMonsterFreezeChance(m_id, CheckInventory("DnD_ChillStacks"));
+				if(random(1, 100) <= res_to_apply) {
+					res_bonus = DND_BASE_FREEZETIMER;
+					
+					// set freeze timer and run script
+					SetInventory("DnD_FreezeTimer", res_bonus);
+					ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_FREEZE, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+				}
+			}
+		}
+		else if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && random(1, 100) <= GetMonsterOverloadChance(m_id, pnum)) {
+			SetInventory("DnD_OverloadTimer", GetMonsterOverloadTime(m_id, pnum));
+			ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_OVERLOAD, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+		}
+		else if((dmg_data & DND_DAMAGETYPEFLAG_POISON)) {
+			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
+			if(!temp)
+				temp = 1;
+			// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
+			// random damage of 10% to 12% of it is applied below
+			RegisterDoTDamage(
+				random(temp, (temp * 6) / 5), 
+				random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME),
+				DND_DAMAGETYPEFLAG_POISON, 
+				inflictor_class
+			);
+		}
+		else if((dmg_data & DND_DAMAGETYPEFLAG_FIRE) && random(0, 1.0) < DND_PLAYER_BURNING_CHANCE) {
+			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_BURN_PERCENT);
+			if(!temp)
+				temp = 1;
+			RegisterDoTDamage(
+				temp, 
+				random(DND_PLAYER_BURNING_MINTIME, DND_PLAYER_BURNING_MAXTIME),
+				DND_DAMAGETYPEFLAG_FIRE, 
+				inflictor_class
+			);
+		}
 	}
 	
 	return dmg;
@@ -2413,7 +2478,7 @@ int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isA
 }
 
 bool IsDamageStringDOT(str s) {
-	return s == "PoisonDOT" || s == "PhysicalDOT";
+	return s == "PoisonDOT" || s == "FireDOT" || s == "PhysicalDOT";
 }
 
 int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
@@ -3072,7 +3137,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later
-				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class);
+				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class, m_id);
 				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 				// finally apply player armor
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);

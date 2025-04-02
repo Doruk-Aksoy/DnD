@@ -1970,6 +1970,7 @@ Actor IncineratorProjectile2 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SpawnItemEx("IncineratorProjectile2_Droplet", frandom(-3.6, 3.6), frandom(-3.6, 3.6), 0, frandom(-1, 1), frandom(-1, 1))
 		Loop
 		Death:
+			TNT1 A 0 A_GiveInventory("ApplyThawing", 1)
 			TNT1 A 0 A_SpawnItemEx("ExplosionFlareSmall")
 			TNT1 AAAAAAAAA 0 A_CustomMissile ("ExplosionParticleVeryFast", 0, 0, random (0, 360), 2, random (0, 360))
 		
