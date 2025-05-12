@@ -1,7 +1,6 @@
 #ifndef DND_CLASSMENU
 #define DND_CLASSMENU
 
-#include "DnD_Mugshot.h"
 #include "DnD_DatabaseRows.h"
 
 #define DND_CLASSMENU_BUTTON_DELAY 4
@@ -46,8 +45,36 @@ enum {
 #define DND_CLASSMENU_IDCOUNT (DND_CLASSMENU_CLASSCURSOR_RIGHTID + 1)
 #define DND_MAX_CLASSPERKS (DND_CLASSMENU_CLASSPERK50ID - DND_CLASSMENU_CLASSPERK5ID + 1)
 
+int GetMugshotXOffset(int pclass) {
+	switch(pclass) {
+		case DND_PLAYER_DOOMGUY:
+		return 12.0;
+		
+		case DND_PLAYER_MARINE:
+		return 17.0;
+		
+		case DND_PLAYER_HOBO:
+		return 12.0;
+		
+		case DND_PLAYER_PUNISHER:
+		return 12.0;
+		
+		case DND_PLAYER_WANDERER:
+		return 18.0;
+		
+		case DND_PLAYER_CYBORG:
+		return 12.0;
+		
+		case DND_PLAYER_BERSERKER:
+		return 21.0;
+
+		case DND_PLAYER_TRICKSTER:
+		return 18.0;
+	}
+	return 0;
+}
+
 enum {
-	DND_CLASS_LABEL_ACTOR,
 	DND_CLASS_LABEL_NAME,
 	DND_CLASS_LABEL_LEFTIMG,
 	DND_CLASS_LABEL_RIGHTIMG,
@@ -59,10 +86,7 @@ enum {
 };
 
 str GetClassLabel(str class_prefix, int label) {
-	switch(label) {
-		case DND_CLASS_LABEL_ACTOR:
-		return StrParam(s:class_prefix, s:"_ACTOR");
-		
+	switch(label) {		
 		case DND_CLASS_LABEL_NAME:
 		return StrParam(s:class_prefix, s:"_NAME");
 		
@@ -88,10 +112,6 @@ str GetClassLabel(str class_prefix, int label) {
 		return StrParam(s:class_prefix, s:"_PERK3");
 	}
 	return "";
-}
-
-str GetClassName(int id) {
-	return StrParam(s:"CLASS", d:id, s:"_NAME");
 }
 
 Script "DnD Class Select" (int isSinglePlayer) NET CLIENTSIDE {
@@ -185,6 +205,7 @@ Script "DnD Set Class" (int class_id, int cpnum) NET {
 
 	bool notSet = CheckActorInventory(tid, "DnD_Character") != class_id + 1;
 	SetActorInventory(tid, "DnD_Character", class_id + 1);
+	DoPreClassAdjustments();
 	
 	if(notSet)
 		SetActorState(tid, "Spawn");

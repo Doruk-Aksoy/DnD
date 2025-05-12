@@ -69,7 +69,7 @@ actor DND_DroppedItem {
 	Radius 1
 	Height 1
 	var int user_magnettimer;
-	const int mag_dist_time = 5;
+	const int mag_dist_time = 10;
 }
 
 Actor GrabbyHandIcon {
@@ -409,6 +409,19 @@ Actor InTradeView : DnD_Boolean { }
 
 Actor DnD_TradeAcceptWindow : DnD_Boolean { }
 
+Actor AuxProjectile {
+	Damage 0
+	Speed 0
+	+MISSILE
+	+NOCLIP
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 35
+		Stop
+	}
+}
+
 ACTOR ProjBullet : FastProjectile {
 	Radius 1
 	Height 1
@@ -428,10 +441,10 @@ ACTOR ProjBullet : FastProjectile {
 		Stop
 		Death:
 			TNT1 A 1
-			TNT1 A 1 A_SpawnItemEx("NewBulletPuff")
+			TNT1 A 4 A_SpawnItemEx("NewBulletPuff")
 		Stop
 		XDeath:
-			TNT1 A 1 A_SpawnItemEx("RealBlood", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
+			TNT1 A 4 A_SpawnItemEx("RealBlood", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
 		Stop
 	}
 }

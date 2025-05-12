@@ -602,6 +602,10 @@ DND_MENU_MMOD_UTI14		=	"Monster has an aura that slows nearby players by 50%.";
 DND_MENU_MMOD_UTI15		=	"Monster makes no alert or active sound.";
 DND_MENU_MMOD_UTI16		=	"Monster's attacks cause blackouts, only letting players see a small area around for four seconds, fading out in two seconds.";
 DND_MENU_MMOD_UTI17		=	"Monster is shrouded in smoke and is harder to see.";
+DND_MENU_MMOD_UTI18		=	"Monster's attacks can inflict poison.";
+DND_MENU_MMOD_UTI19		=	"Monster's attacks can inflict chill and freeze.";
+DND_MENU_MMOD_UTI20		=	"Monster's attacks can inflict ignite.";
+DND_MENU_MMOD_UTI21		=	"Monster's attacks can inflict overload.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";

@@ -85,10 +85,13 @@ enum {
 	DND_DAMAGETYPEFLAG_SPELL = 1024,
 	DND_DAMAGETYPEFLAG_PERCENTHP_LOW = 2048,
 	DND_DAMAGETYPEFLAG_DOT = 4096,
+	DND_DAMAGETYPEFLAG_ISBLEED = 8192,
 
 	DND_DAMAGETYPEFLAG_USEMASTER = 536870912,
 	DND_DAMAGETYPEFLAG_REFLECTABLE = 1073741824
 };
+
+#define DND_MONSTER_DAMAGECONVERSIONRATE 25 // 25%
 
 enum {
 	DND_IGNITEFLAG_CANPROLIF = 1,
@@ -774,7 +777,7 @@ bool CheckCullRange(int source, int victim, int dmg) {
 
 void HandleChillEffects(int pnum, int victim) {
 	// not ailment immune
-	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FRIGID)) {
+	if(CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_FROSTBLOOD)) {
 		// check health thresholds --- get missing health
 		int hpdiff = MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp - GetActorProperty(victim, APROP_HEALTH);
 		int stacks = CheckActorInventory(victim, "DnD_ChillStacks");
@@ -818,7 +821,7 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 	bool addedIgn = flags & DND_DAMAGETICFLAG_ADDEDIGNITE;
 	if
 	(
-		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_SCORCHED) &&
+		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
 		(addedIgn || CheckIgniteChance(pnum))
 	)
 	{
@@ -1198,7 +1201,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
-	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_VENOMANCER)) {
+	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_TOXICBLOOD)) {
 		// poison damage deals 10% of its damage per stack over 3 seconds
 		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
 			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
@@ -1844,6 +1847,23 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 		RemoveMonsterAilment(victim, DND_AILMENT_CHILL);
 }
 
+Script "DnD Bleed FX" (int tid) CLIENTSIDE {
+	SetActivator(tid);
+
+	int r = GetActorProperty(tid, APROP_RADIUS);
+	int h = GetActorProperty(tid, APROP_HEIGHT);
+
+	for(int i = 0; i < 5; ++i) {
+		Delay(const:2);
+		if(!isAlive())
+			Terminate;
+
+		SpawnForced("NashGore_Blood", GetActorX(0) + random(-r, r) / 2, GetActorY(0) + random(-r, r) / 2, GetActorZ(0) + (random(16.0, h + 32.0)) / 2, 0);
+
+		Delay(const:5);
+	}
+}
+
 Script "DnD Monster Chill FX" (int tid) CLIENTSIDE {
 	SetActivator(tid);
 	
@@ -2300,10 +2320,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// ELEMENTAL DAMAGE BLOCK ENDS
 	
 	// explosion sources
-	if(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) {
-		if(CheckInventory("Marine_Perk25"))
-			mult = CombineFactors(mult, DND_MARINE_EXPLOSIVEREDUCTION);
-	}
+	if((dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && CheckInventory("Marine_Perk25"))
+		mult = CombineFactors(mult, DND_MARINE_EXPLOSIVEREDUCTION);
 
 	// marine perk 50 -- 50% reduction
 	if(CheckInventory("Marine_DamageReduction_Timer"))
@@ -2344,7 +2362,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		if(dmg < 1)
 			dmg = 1;
 
-		RegisterDoTDamage(temp, 5, DND_DAMAGETYPEFLAG_PHYSICAL, inflictor_class);
+		if(m_id != -1)
+			RegisterDoTDamage(temp, 5, DND_DAMAGETYPEFLAG_PHYSICAL, m_id + DND_MONSTERTID_BEGIN, inflictor_class);
 	}
 	
 	// gravecaller unique mod -- multiplicative so leave it last
@@ -2353,28 +2372,30 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		// you have 2 you get 1/3rd, which is what this'll do
 		temp = CheckInventory("PetCounter") + 1;
 		if(temp > DND_MAX_PET_DAMAGESHARE)
-		temp = DND_MAX_PET_DAMAGESHARE;
+			temp = DND_MAX_PET_DAMAGESHARE;
 		dmg /= temp;
 		
 		// distribute this damage to other pets
 	}
 
-	// final thing to check after damage reductions are applied, DoTs that scale off of the amount of damage
-	// check if we should apply poison here -- early application of multipliers here so the poison doesnt scale off of unreduced damage
-	// do not register more instances on poison dots
-	if(m_id != -1 && dmg) {
-		if((dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && random(1, 100) <= GetMonsterBleedChance(m_id, pnum)) {
+	// final thing to check after damage reductions are applied, DoTs
+	// do not register more instances on dots from dots themselves as well
+	if(m_id != -1 && !isDot && dmg) {
+		if((dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && random(1, 100) <= GetMonsterBleedChance(m_id, pnum, dmg_string == "Melee", dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)) {
 			temp = GetMonsterBleedDamage(dmg, m_id, pnum);
 			if(!temp)
 				temp = 1;
+
 			RegisterDoTDamage(
 				temp,
 				GetMonsterBleedDuration(m_id, pnum),
-				DND_DAMAGETYPEFLAG_PHYSICAL, 
+				DND_DAMAGETYPEFLAG_PHYSICAL | DND_DAMAGETYPEFLAG_ISBLEED, 
+				m_id + DND_MONSTERTID_BEGIN,
 				inflictor_class
 			);
 		}
-		else if((dmg_data & DND_DAMAGETYPEFLAG_ICE)) {
+		
+		if((dmg_data & DND_DAMAGETYPEFLAG_ICE) || MonsterProperties[m_id].trait_list[DND_FRIGID]) {
 			// considerations for chill and freeze
 			res_to_apply = CheckInventory("PlayerHealthCap");
 			res_bonus = CheckInventory("DnD_ChillStacks");
@@ -2387,7 +2408,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 					GiveInventory("DnD_ChillGainCooldown", 1);
 					
 					// give chill debuff
-					ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_CHILL, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+					ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_CHILL, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
 				}
 				
 				// freeze checks --- added freeze chance % increase -- unique boss is immune to freeze
@@ -2397,28 +2418,31 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 					
 					// set freeze timer and run script
 					SetInventory("DnD_FreezeTimer", res_bonus);
-					ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_FREEZE, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+					ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_FREEZE, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
 				}
 			}
 		}
-		else if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && random(1, 100) <= GetMonsterOverloadChance(m_id, pnum)) {
+		
+		if(((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || MonsterProperties[m_id].trait_list[DND_VOLTAIC]) && random(1, 100) <= GetMonsterOverloadChance(m_id, pnum)) {
 			SetInventory("DnD_OverloadTimer", GetMonsterOverloadTime(m_id, pnum));
-			ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_OVERLOAD, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+			ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_OVERLOAD, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
 		}
-		else if((dmg_data & DND_DAMAGETYPEFLAG_POISON)) {
+		
+		if(((dmg_data & DND_DAMAGETYPEFLAG_POISON) || MonsterProperties[m_id].trait_list[DND_VENOMANCER])) {
 			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
 			if(!temp)
 				temp = 1;
-			// apply poison damage for 2 to 5 seconds worth 10% of the damage received from this hit
-			// random damage of 10% to 12% of it is applied below
+
 			RegisterDoTDamage(
-				random(temp, (temp * 6) / 5), 
+				temp, 
 				random(DND_MONSTER_POISONDOT_MINTIME, DND_MONSTER_POISONDOT_MAXTIME),
 				DND_DAMAGETYPEFLAG_POISON, 
+				m_id + DND_MONSTERTID_BEGIN,
 				inflictor_class
 			);
 		}
-		else if((dmg_data & DND_DAMAGETYPEFLAG_FIRE) && random(0, 1.0) < DND_PLAYER_BURNING_CHANCE) {
+		
+		if(((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || MonsterProperties[m_id].trait_list[DND_SCORCHED]) && random(0, 1.0) < DND_PLAYER_BURNING_CHANCE) {
 			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_BURN_PERCENT);
 			if(!temp)
 				temp = 1;
@@ -2426,6 +2450,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 				temp, 
 				random(DND_PLAYER_BURNING_MINTIME, DND_PLAYER_BURNING_MAXTIME),
 				DND_DAMAGETYPEFLAG_FIRE, 
+				m_id + DND_MONSTERTID_BEGIN,
 				inflictor_class
 			);
 		}
@@ -2478,7 +2503,7 @@ int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isA
 }
 
 bool IsDamageStringDOT(str s) {
-	return s == "PoisonDOT" || s == "FireDOT" || s == "PhysicalDOT";
+	return s == "PoisonDOT" || s == "FireDOT" || s == "BleedDOT" || s == "PhysicalDOT";
 }
 
 int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
@@ -2913,6 +2938,11 @@ bool IsDamageEventException(str dt) {
 		GiveInventory("MonsterKilledByPlayer", 1);
 		return true;
 	}
+	else if(dt == "NoRealDamage") {
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
+		HealThing(1);
+		return true;
+	}
 	
 	return 	dt == "Suicide" || dt == "Telefrag" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass" || 
 			dt == "InstantDeath";
@@ -3106,8 +3136,17 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			// if this was a player, factor their resists in
 			// resists of player now will factor in after we've calculated the damage accurately
+			// phasing also negates non-radius and hitscan damage
 			if(IsPlayer(victim)) {
-				if(CheckActorInventory(victim, "DnD_CountdownProtection")) {
+				if
+				(
+					CheckInventory("DnD_CountdownProtection") ||
+					(
+						!(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && !(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) && !IsDamageStringDOT(arg2) && !(dmg_data & DND_DAMAGETYPEFLAG_DOT)
+					) && 
+					HasPlayerBuff(pnum, BTI_PHASING)
+				)
+				{
 					SetResultValue(0);
 					Terminate;
 				}
@@ -3115,15 +3154,15 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				pnum = victim - P_TIDSTART;
 
 				// out of combat hit timer, 3 seconds
-				GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
+				GiveInventory("DnD_Hit_CombatTimer", 1);
 				
-				if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
+				if(!CheckInventory("DnD_Hit_Cooldown")) {
 					OnPlayerHit(victim, pnum, shooter, true);
-					GiveActorInventory(victim, "DnD_Hit_Cooldown", 1);
+					GiveInventory("DnD_Hit_Cooldown", 1);
 				}
 				
 				// hate shard reflection
-				if(CheckActorInventory(victim, "HateCheck")) {
+				if(CheckInventory("HateCheck")) {
 					// this is needed for kill credit
 					HandleMonsterDeathConfirm(shooter, dmg);
 					Thing_Damage2(shooter, dmg, "Reflection");
@@ -3143,12 +3182,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);
 
 				// berserker damage reduction
-				temp = CheckActorInventory(victim, "Berserker_DamageTracker");
+				temp = CheckInventory("Berserker_DamageTracker");
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
 
 				// doomguy damage reduction
-				if(CheckActorInventory(victim, "Doomguy_Perk5") && CheckActorInventory(shooter, "Doomguy_CanExecute"))
+				if(CheckInventory("Doomguy_Perk5") && CheckActorInventory(shooter, "Doomguy_CanExecute"))
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT);
 				
 				// final check, if damage is less than 10% of it, cap it at 10%
@@ -3179,8 +3218,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					if(CheckInventory("Marine_Perk50") && !CheckInventory("Marine_Perk50_Cooldown"))
 						GiveInventory("Marine_Perk50_DamageTaken", dmg);
 					
-					// mugshot hook
-					ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);
+					if(CheckInventory("Trickster_Perk50") && !CheckInventory("Trickster_ShadowCooldown") && GetActorProperty(0, APROP_HEALTH) - dmg <= CheckInventory("PlayerHealthCap") * DND_TRICKSTER_PERK50_THRESHOLD / 100)
+						HandleShadowClone(pnum, victim, shooter);
 				}
 
 				// these are on monsters only, dont have much to do with us beyond this point
@@ -3575,9 +3614,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 			if(CheckInventory("Marine_Perk50") && !CheckInventory("Marine_Perk50_Cooldown"))
 				GiveInventory("Marine_Perk50_DamageTaken", dmg);
-			
-			// mugshot hook
-			ACS_NamedExecuteWithResult("DnD Player MugshotData Ouchies", shooter, dmg);
 
 			if(!(dmg_data & DND_DAMAGEFLAG_NOPUSH))
 				HandleDamagePush(dmg * 4, ox, oy, oz, shooter);

@@ -298,3 +298,79 @@ Actor Berserker_ThunderFX_Spawner : DnD_Activator {
 		Stop
 	}
 }
+
+Actor Trickster_Perk5 : DnD_Boolean { }
+Actor Trickster_Perk25 : DnD_Boolean { }
+Actor Trickster_Perk50 : DnD_Boolean { }
+
+Actor Trickster_ShadowCooldown : DnD_Info {
+	inventory.maxamount 450 // 90 second cooldown, reduces every 7 tics
+}
+
+Actor TricksterShadowClone {
+	Species "Player"
+	Health 0x7FFFFFFF
+	DamageType "NoRealDamage"
+	Renderstyle Translucent
+	+FRIENDLY
+	+SHOOTABLE
+	+SOLID
+	+THRUSPECIES
+	+QUICKTORETALIATE
+	+NOPAIN
+	Radius 16
+	Height 56
+	Scale 0.63
+	Alpha 0.025
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SpawnItemEx("DissipationEffect")
+			TNT1 A 5 A_PlaySound("Trickster/Split")
+			ELEE A 1 A_GiveInventory("TricksterMover", 1)
+			ELEE AAA 1 A_FadeIn(0.05)
+			ELEE B 1 A_GiveInventory("TricksterMover", 1)
+			ELEE BBB 1 A_FadeIn(0.0625)
+			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
+			ELEE C 1 A_GiveInventory("TricksterMover", 1)
+			ELEE CCC 1 A_FadeIn(0.075)
+			ELEE D 1 A_GiveInventory("TricksterMover", 1)
+			ELEE DDD 1 A_FadeIn(0.09)
+			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
+			ELEE E 1 A_GiveInventory("TricksterMover", 1)
+			ELEE EEE 1 A_FadeIn(0.1)
+			ELEE F 4 A_GiveInventory("TricksterMover", 1)
+			ELEE FFF 1 A_FadeIn(0.1)
+			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Timed Monster", 15, 1)
+		Walk:
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover", 1)
+			TNT1 A 0 A_Jump(32, "Attack")
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover", 1)
+			TNT1 A 0 A_Jump(64, "Attack")
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover", 1)
+			TNT1 A 0 A_Jump(96, "Attack")
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover", 1)
+			TNT1 A 0 A_Jump(128, "Attack")
+		Loop
+		Attack:
+			// Emit taunters
+			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
+			ELEE JKL 4
+		Goto Walk
+		Remove:
+			TNT1 A 5 A_PlaySound("Trickster/Fade")
+			TNT1 A 0 A_SpawnItemEx("DissipationEffect")
+			TNT1 A 0 A_Stop
+			ELEE S 1 A_FadeOut(0.0875)
+		Wait
+	}
+}
+
+Actor TricksterMover : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_ChangeVelocity(8 * cos(angle), 8 * sin(angle), velz, CVF_REPLACE)
+		Stop
+	}
+}

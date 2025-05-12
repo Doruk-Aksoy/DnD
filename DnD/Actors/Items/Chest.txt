@@ -95,7 +95,6 @@ ACTOR DNDSilverChest : DNDBronzeChest {
 		Loop
 		Open:
 			TNT1 A 0 
-			TNT1 A 0 A_TakeFromTarget("SilverChestKey", 1)
 			SUBX C 3
 		DropContent:
 			SUBX D 5 A_PlaySound("Chest/Open")
@@ -119,7 +118,6 @@ ACTOR DNDGoldChest : DNDBronzeChest {
 		Loop
 		Open:
 			TNT1 A 0 
-			TNT1 A 0 A_TakeFromTarget("GoldChestKey", 1)
 			SUBX E 3
 		DropContent:
 			SUBX F 5 A_PlaySound("Chest/Open")
@@ -167,6 +165,46 @@ Actor GoldChestMsg : DnD_Activator {
 		Use:
 			TNT1 A 0 A_PlaySound("Chest/Locked")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Message Logger", 0, 5, CKEY_GOLD)
+		Stop
+	}
+}
+
+Actor LootChest {	
+	Height 32
+	Radius 16
+	Mass 0
+	Tag "Bronze Chest"
+	+USESPECIAL
+	Activation THINGSPEC_ThingTargets
+	States {
+		Spawn:
+			LBOX A 0
+			LBOX A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Try Open Lootbox"), "Open")
+			LBOX A 2 A_ClearTarget
+		Loop
+		Open:
+			LBOX A 3
+		DropContent:
+			LBOX B 5 A_PlaySound("Chest/Open")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Lootbox Opened", 0, -1)
+			LBOX B -1
+		Stop
+	}
+}
+
+Actor LootChest_ForPlayer : LootChest {
+	States {
+		Spawn:
+			LBOX A 0
+			LBOX A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Try Open Lootbox", mass - 1), "Open")
+			LBOX A 1 A_ClearTarget
+		Loop
+		Open:
+			LBOX A 3
+		DropContent:
+			LBOX B 5 A_PlaySound("Chest/Open")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Lootbox Opened", 0, mass - 1)
+			LBOX B -1
 		Stop
 	}
 }

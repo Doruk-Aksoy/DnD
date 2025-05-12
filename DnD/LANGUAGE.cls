@@ -11,7 +11,6 @@ CLASS_PRESS				= "Press";
 
 // Doomguy
 
-CLASS0_ACTOR 			= "TheDoomguy";
 CLASS0_NAME				= "Doomguy";
 CLASS0_LEFTIMG			= "P1_LIMG";
 CLASS0_RIGHTIMG			= "P1_RIMG";
@@ -25,7 +24,6 @@ CLASS0_PERK3			= "Your attacks reduce resists of enemies by 33% for 5 seconds. S
 
 // Marine
 
-CLASS1_ACTOR 			= "TheMarine";
 CLASS1_NAME				= "Marine";
 CLASS1_LEFTIMG			= "P2_LIMG";
 CLASS1_RIGHTIMG			= "P2_RIMG";
@@ -39,7 +37,6 @@ CLASS1_PERK3			= "Losing 40% of your health in the span of a two seconds makes y
 
 // Hobo
 
-CLASS2_ACTOR 			= "TheHobo";
 CLASS2_NAME				= "Hobo";
 CLASS2_LEFTIMG			= "P3_LIMG";
 CLASS2_RIGHTIMG			= "P3_RIMG";
@@ -53,7 +50,6 @@ CLASS2_PERK3			= "Hitting the same enemy with any shotgun's standard ammo more t
 
 // Punisher
 
-CLASS3_ACTOR 			= "ThePunisher";
 CLASS3_NAME				= "Punisher";
 CLASS3_LEFTIMG			= "P4_LIMG";
 CLASS3_RIGHTIMG			= "P4_RIMG";
@@ -67,7 +63,6 @@ CLASS3_PERK3			= "Gain a stacking 6.015% more damage buff when you obtain enough
 
 // Wanderer
 
-CLASS4_ACTOR 			= "TheWanderer";
 CLASS4_NAME				= "Wanderer";
 CLASS4_LEFTIMG			= "P5_LIMG";
 CLASS4_RIGHTIMG			= "P5_RIMG";
@@ -81,7 +76,6 @@ CLASS4_PERK3			= "Enemies killed by you have 25% chance to explode for 10% of th
 
 // Cyborg
 
-CLASS5_ACTOR 			= "TheCyborg";
 CLASS5_NAME				= "Cyborg";
 CLASS5_LEFTIMG			= "P6_LIMG";
 CLASS5_RIGHTIMG			= "P6_RIMG";
@@ -95,7 +89,6 @@ CLASS5_PERK3			= "Tech weapons build instability stacks on enemy direct hits, gr
 
 // Berserker
 
-CLASS6_ACTOR 			= "TheBerserker";
 CLASS6_NAME				= "Berserker";
 CLASS6_LEFTIMG			= "P7_LIMG";
 CLASS6_RIGHTIMG			= "P7_RIMG";
@@ -106,3 +99,15 @@ CLASS6_TEXT				= "Hailing from the mountains, his courage, bravery... recklessne
 CLASS6_PERK1			= "Can carry unlimited melee weapons. Can't buy any super weapon.";
 CLASS6_PERK2			= "Gain 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.3 seconds. Heal for 15% of max health at the end at max stacks.";
 CLASS6_PERK3			= "Melee hits or kills give 8% damage. Max 30 stacks. At max stacks, +30% movement speed and +50% crit damage. Lose a stack every 2 seconds off combat.";
+
+// Trickster
+
+CLASS7_NAME				= "Trickster";
+CLASS7_LEFTIMG			= "P8_LIMG";
+CLASS7_RIGHTIMG			= "P8_RIMG";
+CLASS7_MUGSHOT			= "ELENEVL0";
+
+CLASS7_TEXT				= "Not many know the origin of the Trickster, she wanders planes of existence in search of entertainment... Or so many assume, as she seems to relish every encounter. One thing is for sure, when she stops toying with her subjects her true form shows, and it's not pretty.";
+CLASS7_PERK1			= "Critical strike chance is increased by half of mitigation chance.";
+CLASS7_PERK2			= "10% chance to gain phasing on critical strike. (Phasing grants 3 seconds of projectile damage avoidance)";
+CLASS7_PERK3			= "When your health drops below 33%, create a shadow clone that runs towards the last enemy that hit you, distracting every enemy in its path by taunting them for 5 seconds. You are phasing when the shadow clone is first created. Cooldown of 90 seconds. Clone lasts 15 seconds.";

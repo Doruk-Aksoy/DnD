@@ -84,7 +84,7 @@ Actor ZombieMan3 : Zombieman2 replaces Zombieman { }
 Actor ZombieBullet : ProjBullet {
 	Damage (random(1, 5) * 3)
 	Accuracy 133 // 1.33 scaling factor
-	Stamina 1073741824
+	Stamina 1073741827
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")

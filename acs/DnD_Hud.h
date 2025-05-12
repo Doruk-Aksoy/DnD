@@ -110,13 +110,12 @@ enum {
 	MONSTER_TRAITID = 2400,
 	
 	HUD_GRAPHIC_ID = 2600,
+	HUD_GRAPHIC_ID_2,
 
 	BLACKOUT_ID = 2699,
 	HUDANIMATED_ID,
 	ESHIELD_LEFT_ID,
-	ESHIELD_RIGHT_ID,
-
-	PLAYER_MUGSHOTID = 2800
+	ESHIELD_RIGHT_ID
 };
 
 #define MAX_CYBORG_VISOR_FRAMES 39
@@ -1123,6 +1122,35 @@ Script "DnD Unique Boss Bar Draw SpecOnly" (int tid, int diedNoLives) CLIENTSIDE
 	}
 	
 	BossBarDrawnForPlayer[cpn] = false;
+}
+
+Script "DnD Phasing Anim" (int ptid) CLIENTSIDE {
+	int pnum = ptid - P_TIDSTART;
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	SetActivator(ptid);
+
+    LocalAmbientSound("Buff/Phasing", 127);
+    
+    int width = (800 * FixedDiv(1.0, ScreenResOffsets[SCREEN_ASPECT_RATIO])) >> 16;
+	int height = (450 * FixedDiv(1.0, ASPECT_4_3)) >> 16;
+
+    SetHudSize(width, height, 1);
+
+	width = (width << 15) + 0.4;
+	height <<= 15;
+    height = GetIntegerBits(height);
+
+	int i = 0;
+	while(IsAlive() && CheckInventory("DnD_HasPhasing")) {
+        int a = abs(sin(1.0 * (i % 52) / 52));
+		a = Clamp_Between(a, 0.1, 0.75);
+		SetFont("PHASING");
+	    HudMessage (s:"A"; HUDMSG_FADEINOUT | HUDMSG_ALPHA, HUD_GRAPHIC_ID_2, CR_UNTRANSLATED, width, height, 0.1, 0, 0.1, a);
+        Delay(const:1);
+		++i;
+    }
 }
 
 #include "DnD_HudAnims.h"

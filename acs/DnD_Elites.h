@@ -29,7 +29,7 @@ int GetEliteHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 47
+#define MAX_ROLLABLE_TRAITS 51
 
 #include "DnD_EliteInfo.h"
 
@@ -66,10 +66,10 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 	{ DND_THIEF, 0, 200 },
 	{ DND_HEXFUSION, 36, 150 },
 	{ DND_REBIRTH, 0, 100 },
-	{ DND_VENOMANCER, 0, 400 },
-	{ DND_FRIGID, 0, 400 },
-	{ DND_SCORCHED, 0, 400 },
-	{ DND_INSULATED, 0, 400 },
+	{ DND_VENOMANCER, 40, 200 },
+	{ DND_FRIGID, 40, 200 },
+	{ DND_SCORCHED, 40, 200 },
+	{ DND_VOLTAIC, 40, 200 },
 	{ DND_REJUVENATING, 30, 175 },
 	
 	{ DND_HATRED, 0, 350 },
@@ -89,7 +89,12 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 	{ DND_THUNDERSTRUCK, 45, 100 },
 	{ DND_TEMPORALBUBBLE, 50, 175 },
 	{ DND_BLACKOUT, 40, 175 },
-	{ DND_ENSHROUDED, 30, 150 }
+	{ DND_ENSHROUDED, 30, 150 },
+
+	{ DND_TOXICBLOOD, 0, 400 },
+	{ DND_FROSTBLOOD, 0, 400 },
+	{ DND_MOLTENBLOOD, 0, 400 },
+	{ DND_INSULATED, 0, 400 }
 };
 
 void SetupEliteModWeights() {

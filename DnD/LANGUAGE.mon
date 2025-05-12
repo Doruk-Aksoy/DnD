@@ -77,10 +77,10 @@ DND_EMOD_VIOLENTRET				= "\cgViolent Retaliation\c-";
 DND_EMOD_THIEF					= "\cvThief\c-";
 DND_EMOD_HEXFUSION				= "\cvHexfusion\c-";
 DND_EMOD_REBIRTH				= "\cqRebirth\c-";
-DND_EMOD_VENOMANCER				= "\cmVenomancer\c-";
-DND_EMOD_FRIGID					= "\cmFrigid\c-";
-DND_EMOD_SCORCHED				= "\cmScorched\c-";
-DND_EMOD_INSULATED				= "\cmInsulated\c-";
+DND_EMOD_VENOMANCER				= "\cvVenomancer\c-";
+DND_EMOD_FRIGID					= "\cvFrigid\c-";
+DND_EMOD_SCORCHED				= "\cvScorched\c-";
+DND_EMOD_VOLTAIC				= "\cvVoltaic\c-";
 DND_EMOD_REJUVENATE				= "\cqRejuvenating\c-";
 	
 DND_EMOD_HATRED					= "\cgHatred\c-";
@@ -101,6 +101,11 @@ DND_EMOD_THUNDERSTRUCK			= "\cgThunderstruck\c-";
 DND_EMOD_TEMPORALBUBBLE			= "\cqTemporal Bubble\c-";
 DND_EMOD_BLACKOUT				= "\cvBlackout\c-";
 DND_EMOD_ENSHROUDED				= "\cvEnshrouded\c-";
+
+DND_EMOD_TOXICBLOOD				= "\cmToxic Blood\c-";
+DND_EMOD_FROSTBLOOD				= "\cmFrost Blood\c-";
+DND_EMOD_MOLTENBLOOD			= "\cmMolten Blood\c-";
+DND_EMOD_INSULATED				= "\cmInsulated\c-";
 
 DND_EMOD_ETHEREAL				= "\cmEthereal\c-";	
 DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";			DND_EMOD_MARKOFCHAOS_NOCOL	= "Mark of Chaos";

@@ -1,1 +1,24 @@
 - A perk to make berserk apply to all melee weapons at % value (high tier perk)
+
+- Brutal Strikes (3)
+	* Every 6/5/4th melee hit on the same enemy deals 20% more damage.
+	
+- Cranium Bash (3)
+	* Blunt melee weapons have 3/6/9% chance to stun enemies for 1.5 seconds.
+	
+- Echoing Strikes (2) [3]
+	* Melee attacks have 12.5% chance to splash around for 50% of the damage.
+	+ 12.5% chance.
+	- Brutal Strikes (1) or Cranium Bash (1)
+	
+
+
+===============================
+
+- Deep Cuts (3)
+	* Slashing melee hits have 10% chance to inflict bleeding on hit.
+	+ 7.5% bleeding chance.
+	
+	
+
+===============================

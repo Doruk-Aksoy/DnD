@@ -41,11 +41,13 @@ enum {
 };
 
 enum {
+    DND_BUFF_PHASING,
+
     DND_DEBUFF_OTHERWORDLYGRIP,
 
     DND_DEBUFF_CHILL,
     DND_DEBUFF_FREEZE,
-    DND_DDEBUFF_OVERLOAD,
+    DND_DEBUFF_OVERLOAD,
 
     DND_DEBUFF_REDLICH,
     DND_DEBUFF_PALADIN,
@@ -81,3 +83,5 @@ Actor DnD_ChillGainCooldown : PowerProtection {
 Actor DnD_ChillFXRunning : DnD_Boolean { }
 Actor DnD_FreezeFXRunning : DnD_Boolean { }
 Actor DnD_OverloadFXRunning : DnD_Boolean { }
+
+Actor DnD_HasPhasing : DnD_Boolean { }

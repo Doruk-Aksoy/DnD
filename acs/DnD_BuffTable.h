@@ -9,6 +9,9 @@ enum {
     BTI_HAMMER,
     BTI_DEVASTATOR,
 
+    // all buffs below this one
+    BTI_PHASING,
+
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
     BTI_CHILL,
@@ -77,6 +80,15 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_SPEED;
             bflags |= BUFF_F_WEAPONSOURCE | BUFF_F_NODUPLICATE;
             bvalue = -0.5;
+        break;
+
+        // buffs
+        case BTI_PHASING:
+            btype = BUFF_PHASING;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS;
+            bvalue = 0.1;
+            bduration = 3;
+            tic_duration = bduration * TICRATE;
         break;
 
         // curses

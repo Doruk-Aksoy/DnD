@@ -502,4 +502,25 @@ int GetPunisherTier() {
 	return DND_MAX_PUNISHER_PERK50_TIERS;
 }
 
+void HandleShadowClone(int pnum, int victim, int shooter) {
+	GiveInventory("Trickster_ShadowCooldown", DND_TRICKSTER_PERK50_COOLDOWN);
+	ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
+	ACS_NamedExecuteAlways("Trickster Cooldown", 0);
+	SpawnForced("TricksterShadowClone", GetActorX(0), GetActorY(0), GetActorZ(0), DND_TRICKSTERCLONE_TID + pnum);
+	Thing_SetTranslation(DND_TRICKSTERCLONE_TID + pnum, -1);
+	SetActivator(DND_TRICKSTERCLONE_TID + pnum);
+	SetPointer(AAPTR_TARGET, shooter);
+	SetActorProperty(0, APROP_TARGETTID, shooter);
+	Thing_ChangeTID(DND_TRICKSTERCLONE_TID + pnum, 0);
+	SetActivator(victim);
+}
+
+Script "Trickster Cooldown" (void) {
+	while(IsAlive()) {
+		TakeInventory("Trickster_ShadowCooldown", 1);
+		Delay(DND_TRICKSTER_PERK50_DELAY);
+	}
+	SetInventory("Trickster_ShadowCooldown", 0);
+}
+
 #endif

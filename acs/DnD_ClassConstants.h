@@ -61,6 +61,20 @@
 #define DND_BERSERKER_PERK50_DMGINCREASE 8 // 8%
 #define DND_BERSERKER_PERK50_MAXHITS 5
 
+#define DND_TRICKSTER_SIZEX 0.6
+#define DND_TRICKSTER_SIZEY 0.6
+#define DND_TRICKSTER_PHASING_CHANCE 0.1 // 10%
+#define DND_TRICKSTER_PERK50_THRESHOLD 33 // 33%
+#define DND_TRICKSTER_PERK50_COOLDOWN 450 // 90 x 5
+#define DND_TRICKSTER_PERK50_DELAY 7
+
+void DoPreClassAdjustments() {
+	if(isPlayerClass(DND_PLAYER_TRICKSTER)) {
+		SetActorProperty(0, APROP_SCALEX, DND_TRICKSTER_SIZEX);
+		SetActorProperty(0, APROP_SCALEY, DND_TRICKSTER_SIZEY);
+	}
+}
+
 void CheckDoomguyExecuteReversal(int this) {
 	if(CheckActorInventory(this, "Doomguy_ChangedColor")) {
 		TakeActorInventory(this, "Doomguy_ChangedColor", 1);

@@ -76,7 +76,7 @@ DND_TEXT_SFXOFF							= "Special Effects Off";
 
 DND_TEXT_NOWUSING						= "Now using";
 
-DND_TEXT_MAPTOAST						= "The entire map is toast! You're fully healed!";
+DND_TEXT_MAPTOAST						= "The entire map is toast! You're awarded lootboxes!";
 
 DND_ATTRIBUTEPTS						= "Attribute Points";
 
@@ -145,6 +145,9 @@ DND_SPREETEXT17							= "Epic";
 DND_SPREETEXT18							= "Legendary";
 DND_SPREETEXT19							= "Godlike";
 DND_SPREETEXT20							= "HOLY SHIT";
+
+DND_NOTYOURCHEST						= "INFO:\c- \c[Y5]This chest doesn't belong to you!";
+DND_IT_BELONGS_TO						= "\c[Y5]It belongs to: ";
 
 DND_WARN_COMPATBUTTONS					= "\cgWARNING:\c- Please activate '\cdcompat_clientssendfullbuttoninfo\c-' in order to use the menu properly.";
 DND_WARN_WEAPONDROP						= "\cgWARNING:\c- Please deactivate '\cdsv_weapondrop\c-'. It breaks mod rules!";

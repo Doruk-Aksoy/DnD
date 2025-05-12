@@ -697,18 +697,11 @@ void LoadPlayerData(int pnum, int char_id) {
 	temp = GetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc);
 	SetInventory("DnD_Character", temp);
 
+	DoPreClassAdjustments();
+
 	ACS_NamedExecuteAlways("DnD Sync Player Class", 0, pnum, temp - 1);
-	
-	// force an update on the player sprite immediately!
-	ACS_NamedExecuteWithResult("DnD Player Mugshot Class Update", temp - 1);
+
 	SetActorState(0, "Spawn");
-	
-	/*int res = SetPlayerClass(
-		pnum, 
-		StrParam(l:GetClassLabel(StrParam(s:"CLASS", d:temp - 1), DND_CLASS_LABEL_ACTOR)),
-		true
-	);
-	*/
 	
 	// read level -- moved here due to dependency on class perks
 	temp = GetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc);

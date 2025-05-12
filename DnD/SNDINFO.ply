@@ -191,3 +191,26 @@ $playersound			TheBerserker		Male		*death			BERSDTH
 $playersound			TheBerserker		Male		*usefail		BERSUSE
 $playersound			TheBerserker		Male		*grunt			PLYLAND
 $playeralias			TheBerserker		Male		*taunt			BerserkerPlayer/Taunt*/
+
+Trickster/Death			ELENDTH
+Trickster/XDeath		ELENXDTH
+
+Trickster/Pain100_1		ELENPN1
+Trickster/Pain100_2		ELENPN2
+$random Trickster/Pain100 { Trickster/Pain100_1 Trickster/Pain100_2 }
+
+Trickster/Pain75		ELENPN3
+Trickster/Pain50		ELENPN4
+Trickster/Pain25		ELENPN5
+
+Trickster/Taunt1		ELENTNT1
+Trickster/Taunt2		ELENTNT2
+Trickster/Taunt3		ELENTNT3
+Trickster/Taunt4		ELENTNT4
+Trickster/Taunt5		ELENTNT5
+Trickster/Taunt6		ELENTNT6
+Trickster/Taunt7		ELENTNT7
+$random Trickster/Taunt { Trickster/Taunt1 Trickster/Taunt2 Trickster/Taunt3 Trickster/Taunt4 Trickster/Taunt5 Trickster/Taunt6 Trickster/Taunt7 }
+
+Trickster/Split			ELESPLIT
+Trickster/Fade			ELEFADE

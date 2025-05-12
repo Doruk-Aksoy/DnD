@@ -1,5 +1,13 @@
 #include "DnD_MenuTables.h"
 
+Script "DnD Refresh Request" (int pnum, int state) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+	
+	Delay(const:1);
+	GiveInventory("DnD_RefreshPane", 1);
+}
+
 void SetPage(int option, bool useSound) {
 	SetInventory("MenuUD", 0);
 	SetInventory("MenuOption", option);

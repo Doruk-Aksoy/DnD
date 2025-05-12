@@ -77,6 +77,14 @@ Chest/Locked		CHSTLOCK
 TradeRequest		TRADEREQ
 
 /*
+*********************
+******* BUFFS *******
+*********************
+*/
+
+Buff/Phasing		BFPHSNG
+
+/*
 ********************
 ****** SPELLS ******
 ********************

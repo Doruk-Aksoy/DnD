@@ -69,6 +69,8 @@ Actor DnD_Player : PlayerPawn {
 	Player.StartItem "ShellSize_16", 16
 	Player.StartItem "ShellSize_18", 18
 	
+	Damagefactor "NoRealDamage", 0
+	
 	+NOSKIN
 	+QUICKTORETALIATE
 	+NODAMAGETHRUST
@@ -88,6 +90,7 @@ Actor DnD_Player : PlayerPawn {
 			TNT1 A 5
 			TNT1 A 30 A_JumpIfInventory("DnD_Character", 1, 1)
 		SpawnDelaySkip:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "Spawn_Trickster")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "Spawn_Berserker")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "Spawn_Cyborg")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "Spawn_Wanderer")
@@ -115,6 +118,9 @@ Actor DnD_Player : PlayerPawn {
 		Spawn_Berserker:
 			BERP A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
 			BERP C -1
+		Spawn_Trickster:
+			ELEE A -1 A_JumpIfInventory("P_StepTaken", 1, 1)
+			ELEE F -1
 		Goto SpawnDelaySkip
 		
 		
@@ -124,6 +130,7 @@ Actor DnD_Player : PlayerPawn {
 		
 
 		See:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "See_Trickster")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "See_Berserker")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "See_Cyborg")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "See_Wanderer")
@@ -200,6 +207,16 @@ Actor DnD_Player : PlayerPawn {
 			BERP D 5 A_TakeInventory("P_StepTaken", 1)
 		Goto Spawn_Berserker
 		
+		See_Trickster:
+			ELEE A 0 A_JumpIfInventory("P_StepTaken", 1, "See2_Trickster")
+			ELEE AB 4
+			ELEE C 4 A_GiveInventory("P_StepTaken", 1)
+		Goto Spawn_Trickster
+		See2_Trickster:
+			ELEE DE 4
+			ELEE F 4 A_TakeInventory("P_StepTaken", 1)
+		Goto Spawn_Trickster
+		
 		
 		/*
 			MISSILE STATE
@@ -207,6 +224,7 @@ Actor DnD_Player : PlayerPawn {
 		
 		
 		Missile:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "Missile_Trickster")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "Missile_Berserker")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "Missile_Cyborg")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "Missile_Wanderer")
@@ -241,6 +259,10 @@ Actor DnD_Player : PlayerPawn {
 			BERP E 12 
 		Goto Spawn_Berserker
 		
+		Missile_Trickster:
+			ELEE T 12
+		Goto Spawn_Trickster
+		
 		
 		/*
 			MELEE STATE
@@ -248,159 +270,42 @@ Actor DnD_Player : PlayerPawn {
 		
 		
 		Melee:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "Melee_Trickster")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "Melee_Berserker")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "Melee_Cyborg")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "Melee_Wanderer")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 4, "Melee_Punisher")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 3, "Melee_Hobo")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 2, "Melee_Marine")
-		
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire")
 			DPLY F 6 BRIGHT
 		Goto Missile_Doomguy
-		PlasmaFire:
-			DPLP A 6 Bright
-		Goto Missile_Doomguy
-		GreenFire:
-			DPLP B 6 Bright
-		Goto Missile_Doomguy
-		RedFire:
-			DPLP C 6 Bright
-		Goto Missile_Doomguy
-		PurpleFire:
-			DPLP D 6 Bright
-		Goto Missile_Doomguy
-		GrayFire:
-			DPLP E 6 Bright
-		Goto Missile_Doomguy
-		
 		Melee_Marine:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Marine")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Marine")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Marine")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Marine")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Marine")
 			PLAY F 6 BRIGHT
-		Goto Missile_Marine
-		PlasmaFire_Marine:
-			PLYP A 6 Bright
-		Goto Missile_Marine
-		GreenFire_Marine:
-			PLYP B 6 Bright
-		Goto Missile_Marine
-		RedFire_Marine:
-			PLYP C 6 Bright
-		Goto Missile_Marine
-		PurpleFire_Marine:
-			PLYP D 6 Bright
-		Goto Missile_Marine
-		GrayFire_Marine:
-			PLYP E 6 Bright
 		Goto Missile_Marine
 		
 		Melee_Hobo:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Hobo")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Hobo")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Hobo")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Hobo")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Hobo")
 			PREN F 6 BRIGHT
-		Goto Missile_Hobo
-		PlasmaFire_Hobo:
-			PRNP A 6 Bright
-		Goto Missile_Hobo
-		GreenFire_Hobo:
-			PRNP B 6 Bright
-		Goto Missile_Hobo
-		RedFire_Hobo:
-			PRNP C 6 Bright
-		Goto Missile_Hobo
-		PurpleFire_Hobo:
-			PRNP D 6 Bright
-		Goto Missile_Hobo
-		GrayFire_Hobo:
-			PRNP E 6 Bright
 		Goto Missile_Hobo
 		
 		Melee_Punisher:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Punisher")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Punisher")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Punisher")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Punisher")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Punisher")
 			BLAZ F 6 BRIGHT
-		Goto Missile_Punisher
-		PlasmaFire_Punisher:
-			PPUN A 6 Bright
-		Goto Missile_Punisher
-		GreenFire_Punisher:
-			PPUN B 6 Bright
-		Goto Missile_Punisher
-		RedFire_Punisher:
-			PPUN C 6 Bright
-		Goto Missile_Punisher
-		PurpleFire_Punisher:
-			PPUN D 6 Bright
-		Goto Missile_Punisher
-		GrayFire_Punisher:
-			PPUN E 6 Bright
 		Goto Missile_Punisher
 		
 		Melee_Wanderer:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Wanderer")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Wanderer")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Wanderer")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Wanderer")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Wanderer")
 			MNK1 F 6 BRIGHT
-		Goto Missile_Wanderer
-		PlasmaFire_Wanderer:
-			MNKP A 6 Bright
-		Goto Missile_Wanderer
-		GreenFire_Wanderer:
-			MNKP B 6 Bright
-		Goto Missile_Wanderer
-		RedFire_Wanderer:
-			MNKP C 6 Bright
-		Goto Missile_Wanderer
-		PurpleFire_Wanderer:
-			MNKP D 6 Bright
-		Goto Missile_Wanderer
-		GrayFire_Wanderer:
-			MNKP E 6 Bright
 		Goto Missile_Wanderer
 		
 		Melee_Cyborg:
-			TNT1 A 0 A_JumpIfInventory("P_Grayfire", 1, "GrayFire_Cyborg")
-			TNT1 A 0 A_JumpIfInventory("P_PurpleFire", 1, "PurpleFire_Cyborg")
-			TNT1 A 0 A_JumpIfInventory("P_RedFire", 1, "RedFire_Cyborg")
-			TNT1 A 0 A_JumpIfInventory("P_GreenFire", 1, "GreenFire_Cyborg")
-			TNT1 A 0 A_JumpIfInventory("P_PlasmaFire", 1, "PlasmaFire_Cyborg")
 			PLY6 F 6 BRIGHT
-		Goto Missile_Cyborg
-		PlasmaFire_Cyborg:
-			PLZ6 A 6 Bright
-		Goto Missile_Cyborg
-		GreenFire_Cyborg:
-			PLZ6 B 6 Bright
-		Goto Missile_Cyborg
-		RedFire_Cyborg:
-			PLZ6 C 6 Bright
-		Goto Missile_Cyborg
-		PurpleFire_Cyborg:
-			PLZ6 D 6 Bright
-		Goto Missile_Cyborg
-		GrayFire_Cyborg:
-			PLZ6 E 6 Bright
 		Goto Missile_Cyborg
 		
 		Melee_Berserker:
 			BERP F 6 BRIGHT
 		Goto Missile_Berserker
+		
+		Melee_Trickster:
+			ELEE U 6 BRIGHT
+		Goto Missile_Trickster
 		
 		
 		/*
@@ -409,6 +314,7 @@ Actor DnD_Player : PlayerPawn {
 		
 		
 		PainAnim:
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "PainAnim_Trickster")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "PainAnim_Berserker")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "PainAnim_Cyborg")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "PainAnim_Wanderer")
@@ -449,6 +355,11 @@ Actor DnD_Player : PlayerPawn {
 			BERP G 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
 		Goto Spawn_Berserker
 		
+		PainAnim_Trickster:
+			ELEE S 4 
+			ELEE S 4 ACS_NamedExecuteAlways("DnD Player Pain Sound")
+		Goto Spawn_Trickster
+		
 		
 		/*
 			DEATH STATE
@@ -459,6 +370,7 @@ Actor DnD_Player : PlayerPawn {
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 1)
 		
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "DeathAnim_Trickster")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "DeathAnim_Berserker")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "DeathAnim_Cyborg")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "DeathAnim_Wanderer")
@@ -469,8 +381,8 @@ Actor DnD_Player : PlayerPawn {
 			DPLY H 10
 			DPLY I 10 ACS_NamedExecuteAlways("DnD Player Death Sound")
 			DPLY J 10 A_NoBlocking
-			DPLY K 10
-			DPLY L -1
+			DPLY KLM 10
+			DPLY N -1
 		Stop
 		
 		DeathAnim_Marine:
@@ -521,6 +433,14 @@ Actor DnD_Player : PlayerPawn {
 			BERP N -1
 		Stop
 		
+		DeathAnim_Trickster:
+			ELEE M 8
+			ELEE N 8 ACS_NamedExecuteAlways("DnD Player Death Sound")
+			ELEE O 8 A_NoBlocking
+			ELEE PQ 8
+			ELEE R -1
+		Stop
+		
 		
 		/*
 			XDEATH STATE
@@ -536,6 +456,7 @@ Actor DnD_Player : PlayerPawn {
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)	
 			
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "XDeathAnim_Trickster")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 7, "XDeathAnim_Berserker")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 6, "XDeathAnim_Cyborg")
 			TNT1 A 0 A_JumpIfInventory("DnD_Character", 5, "XDeathAnim_Wanderer")
@@ -619,6 +540,17 @@ Actor DnD_Player : PlayerPawn {
 			BERP W -1
 		Stop
 		
+		XDeathAnim_Trickster:
+			ELEE M 8
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			ELEE N 8 ACS_NamedExecuteAlways("DnD Player Death Sound", 0, 1)
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			ELEE O 8 A_NoBlocking
+			TNT1 A 0 A_SpawnItem("NashGore_GibGenerator",0,0,0,0)
+			ELEE PQ 8
+			ELEE R -1
+		Stop
+		
 		/*
 			GENERIC BURN STATE
 		*/
@@ -669,13 +601,13 @@ Actor DnD_Player : PlayerPawn {
 			"####" "#" 0 ACS_NamedExecuteAlways("DND Dark Lich Warp Shake", 0)
 		Goto PainCont
 		Pain.PhysicalSlow:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_STOMPSLOW, DEBUFF_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_STOMPSLOW, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		
 		
 		// Ice category
 		Pain.IceEryxia:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_ERYXIASLOW, DEBUFF_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_ERYXIASLOW, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		Pain.Ice:
 		Pain.MagicalIce:
@@ -746,10 +678,10 @@ Actor DnD_Player : PlayerPawn {
 			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Hit Blend", PAINBLEND_MEDIUMPURPLE)
 		Goto PainCont
 		Pain.MagicalRedLeash:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_FLESHWIZARD_WEAKEN, DEBUFF_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_FLESHWIZARD_WEAKEN, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		Pain.MagicalSnare:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_FLESHWIZARD_SNARE, DEBUFF_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_FLESHWIZARD_SNARE, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		Pain.FireDreamer:
 			"####" "#" 0 A_GiveInventory("DreamerBurnCount", random(1, 2))
@@ -758,7 +690,7 @@ Actor DnD_Player : PlayerPawn {
 			"####" "#" 0 A_Stop
 		Goto PainCont
 		Pain.Magical_SSrath:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_SSRATHSTUN, DEBUFF_F_PLAYERISACTIVATOR)
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_SSRATHSTUN, DEBUFF_F_PLAYERISACTIVATOR)
 		Goto PainCont
 		
 		

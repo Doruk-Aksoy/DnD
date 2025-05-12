@@ -16,6 +16,7 @@ enum {
 	BUFF_STUN,
 	BUFF_VISIONLOSS,
 	BUFF_HEALTHREGEN,
+	BUFF_PHASING,
 
 	BUFF_TYPES_MAX
 };
@@ -127,6 +128,15 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 			val = -val;
 		pbuffs.buff_net_values[type].additive += val;
 		//Log(s:"additive value: ", f:pbuffs.buff_net_values[type].additive);
+	}
+
+	if(!pbuffs.buff_net_values[type].additive && pbuffs.buff_net_values[type].multiplicative == 1.0) {
+		val = pnum + P_TIDSTART;
+		switch(type) {
+			case BUFF_PHASING:
+				TakeActorInventory(val, "DnD_HasPhasing", 1);
+			break;
+		}
 	}
 }
 

@@ -278,13 +278,21 @@ Script "DnD Can Fire Weapon" (void) {
 					canReload = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				break;
 
+				// melee weapons with no ammo requirements
+				case DND_WEAPON_FIST:
+				case DND_WEAPON_KATANA:
+				case DND_WEAPON_CHAINSAW:
+				case DND_WEAPON_DOUBLECHAINSAW:
+					canFire = true;
+					flags = DND_CFW_ALTFIRECHECK;
+				break;
 				case DND_WEAPON_EXCALIBAT:
 				case DND_WEAPON_DUSKBLADE:
 				case DND_WEAPON_INFERNOSWORD:
 				case DND_WEAPON_AXE:
 					flags = DND_CFW_ALTFIRECHECK;
 				default:
-					canFire = ammo1 != "" && CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
+					canFire = ammo1 == "" || CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 
 					if(ammo2 == "")
 						ammo2 = ammo1;

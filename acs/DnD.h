@@ -10,7 +10,6 @@
 #include "DnD_Skills.h"
 #include "DnD_Settings.h"
 #include "DnD_ClassMenu.h"
-#include "DnD_Mugshot.h"
 #include "DnD_Research.h"
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
@@ -80,6 +79,16 @@ void HandlePlayerPainSound(int pclass) {
 		case DND_PLAYER_BERSERKER:
 			PlaySound(0, "BerserkerPlayer/Pain", CHAN_BODY, 1.0);
 		break;
+		case DND_PLAYER_TRICKSTER:
+			if(hpratio <= 25)
+				PlaySound(0, "Trickster/Pain25", CHAN_BODY, 1.0);
+			else if(hpratio <= 50)
+				PlaySound(0, "Trickster/Pain50", CHAN_BODY, 1.0);
+			else if(hpratio <= 75)
+				PlaySound(0, "Trickster/Pain75", CHAN_BODY, 1.0);
+			else
+				PlaySound(0, "Trickster/Pain100", CHAN_BODY, 1.0);
+		break;
 	}
 }
 
@@ -109,6 +118,12 @@ void HandlePlayerDeathSound(int pclass, bool isXDeath) {
 		break;
 		case DND_PLAYER_BERSERKER:
 			snd = "Berserker/Die";
+		break;
+		case DND_PLAYER_TRICKSTER:
+			if(isXDeath)
+				snd = "Trickster/XDeath";
+			else
+				snd = "Trickster/Death";
 		break;
 	}
 	
@@ -443,13 +458,47 @@ void DistributeBonus(int bonustype) {
 			if(PlayerInGame(i) && isActorAlive(temp)) {
 				// getspawnhealth needs current activator, this wasn't using it
 				SetActivator(temp);
-				bval = GetSpawnHealth();
-				if(GetActorProperty(temp, APROP_HEALTH) < bval)
-					GiveInventory("HealthBonusX", bval - GetActorProperty(temp, APROP_HEALTH));
+				SpawnDrop("LootChest_ForPlayer", 0, 0, i + 1, 0);
 				GiveActorInventory(temp, "DnD_BonusBonusShower", 1);
 				SetActivator(-1);
 			}
 		}
+	}
+}
+
+void SpawnLootboxRewards(int i) {
+	int tmp;
+	if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
+		// for orbs
+		int plvl = GetActorLevel(i + P_TIDSTART);
+
+		if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE)
+			SpawnOrb(i, true, false, plvl);
+
+		// for tokens -- same likelihood to drop as orbs
+		if(random(0, 1.0) <= DND_LOOTBOX_TOKENDROPCHANCE)
+			SpawnToken(i, GetOrbDropStack(plvl));
+
+		if(random(0, 1.0) <= DND_LOOTBOX_ARMORDROPCHANCE) {
+			// boot and body armor chance is equal
+			tmp = random(1, 100);
+			if(tmp <= 25)
+				SpawnArmor(i, 0, 0, false);
+			else if(tmp <= 60)
+				SpawnBoot(i, 0);
+			else if(tmp <= 85)
+				SpawnHelm(i, 0);
+			else {
+				// class specific spawn -- check if this is the fitting class of the player later here
+				SpawnPowercore(i, 0);
+			}
+		}
+		else
+			SpawnCharm(i, 0);
+
+		
+		if(random(0, 1.0) <= DND_LOOTBOX_CHESTKEYDROPCHANCE)
+			SpawnChestKey(i);
 	}
 }
 
@@ -575,6 +624,8 @@ void HandleChestSpawn(int chance_penalty) {
 		else
 			SpawnDrop("DNDBronzeChest", 0, 0, 0, 0);
 	}
+	else if(r <= LOOTBOX_DROPWEIGHT / chance_penalty)
+		SpawnDrop("LootChest", 0, 0, 0, 0);
 }
 
 void HandleChestDrops(int ctype) {
@@ -1151,7 +1202,7 @@ void ApplyRandomCurse(int player_tid, int monster_tid) {
 
 	int prev_activator = ActivatorTID();
 	SetActivator(monster_tid);
-	ACS_NamedExecuteWithResult("DnD Give Debuff", curse_id);
+	ACS_NamedExecuteWithResult("DnD Give Buff", curse_id);
 	SetActivator(prev_activator);
 }
 

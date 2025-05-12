@@ -1062,7 +1062,7 @@ ACTOR CurseSpell {
 			CURS ABCDEF 3 Bright A_SeekerMissile(50,50)
 		Loop
 		XDeath:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Give Debuff", DND_DEBUFF_REDLICH, DEBUFF_F_OWNERISTARGET | DEBUFF_F_PLAYERISTRACER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_REDLICH, DEBUFF_F_OWNERISTARGET | DEBUFF_F_PLAYERISTRACER)
 		Death:
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 AAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))

@@ -108,6 +108,11 @@ str StatData[STAT_LVL + 1] = {
 	"Level"
 };
 
+bool IsPlayerMoving(int pnum, int ptid) {
+	int input = GetPlayerInput(pnum, INPUT_BUTTONS);
+	return (input & (BT_FORWARD | BT_BACK | BT_MOVELEFT | BT_MOVERIGHT)) || abs(GetActorVelX(ptid)) > 1.0 || abs(GetActorVelY(ptid)) > 1.0 || abs(GetActorVelZ(ptid)) > 1.0;
+}
+
 void HandleHealDependencyCheck() {
 	// Research dependencies
 	if(CheckInventory("Research_Body_Hp_1_Tracker") == GetAmmoCapacity("Research_Body_Hp_1_Tracker") && CheckResearchStatus(RES_BIO1) == RES_NA)
@@ -906,10 +911,15 @@ int GetBaseCritChance(int pnum) {
 }
 
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
-	return 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
-			Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
-			GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) +
-			CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT);
+	int val = 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
+				Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
+				GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) +
+				CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT);
+
+	if(CheckInventory("Trickster_Perk5"))
+		val += GetMitigationChance(pnum) / 2;
+
+	return val;
 }
 
 int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
@@ -980,6 +990,9 @@ bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noT
 			GiveInventory("VeilMarkTimer", 1);
 			ActivatorSound("VeilOfAssassin/Active", 97);
 		}
+
+		if(random(0, 1.0) <= DND_TRICKSTER_PHASING_CHANCE && !HasPlayerBuff(pnum, BTI_PHASING))
+			ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
 	}
 	
 	//printbold(s:"roll crit ", d:res);
@@ -1250,9 +1263,10 @@ int GetMonsterOverloadTime(int m_id, int pnum) {
 }
 
 #define DND_BLEED_CHANCE 25 // 25%
+#define DND_BLEED_MOVEMENT_MULTIPLIER 3 // x3 damage
 
-int GetMonsterBleedChance(int m_id, int pnum) {
-	return DND_BLEED_CHANCE;
+int GetMonsterBleedChance(int m_id, int pnum, bool isMelee, bool isHitscan) {
+	return DND_BLEED_CHANCE * (1 + isMelee) / (1 + 2 * isHitscan);
 }
 
 int GetMonsterBleedDamage(int dmg, int m_id, int pnum) {
@@ -1260,9 +1274,9 @@ int GetMonsterBleedDamage(int dmg, int m_id, int pnum) {
 	return dmg / 10;
 }
 
-#define DND_BASE_BLEED_TIME 3
+#define DND_BASE_BLEED_TIME 4
 int GetMonsterBleedDuration(int m_id, int pnum) {
-	return DND_BASE_BLEED_TIME;
+	return random(0, 3) + DND_BASE_BLEED_TIME;
 }
 
 // returns fixed point range

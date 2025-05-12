@@ -167,115 +167,113 @@ statusbar normal, fullscreenoffsets {
     // Health -------------------------------------------------------------------------------------------
 
     // Draw berserk icon instead of health icon if the berserk pack is in the inventory
-    InInventory PowerStrength { drawimage "H_ICNBSK", 74, -46; }
+    InInventory PowerStrength { drawimage "H_ICNBSK", 12, -46; }
 
     // Otherwise, draw the health icon instead
-    else { drawimage "H_ICNHP", 74, -46; }
+    else { drawimage "H_ICNHP", 12, -46; }
 
     InInventory HPOver100
     {
-      drawimage "H_BRFRMX", 93, -48;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -45;
-      drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 96, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 189, -47;
+      drawimage "H_BRFRMX", 31, -48;
+      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -45;
+      drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 34, -45;
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 127, -47;
     }
 
     InInventory HPNormal
     {
-      drawimage "H_BRFRMX", 93, -48;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 189, -47;
+      drawimage "H_BRFRMX", 31, -48;
+      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -45;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 127, -47;
     }
 
     InInventory HPBelow50
     {
-      drawimage "H_HPWG01", 93, -48;
-      drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 96, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 189, -47;
+      drawimage "H_HPWG01", 31, -48;
+      drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 34, -45;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 127, -47;
     }
 
     InInventory HPBelow25
     {
-      drawimage "H_HPFC01", 93, -48;
-      drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 96, -45;
-      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 189, -47;
+      drawimage "H_HPFC01", 31, -48;
+      drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 34, -45;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 127, -47;
     }
 
     // Armor --------------------------------------------------------------------------------------------
-
     // Icon
-	drawimage "H_ICNARR", 80, -68, center, 18, 18;
+	drawimage "H_ICNARR", 18, -71, center, 18, 18;
 
     // If armor is above 100, draw the bar overlay and counter in blue color,
     // and the bar frame in "normal" color
     InInventory ARMOver100
     {
-      drawimage "H_BRFRMX", 93, -74; // Bar frame
-	  drawimage "H_BRFILG", 96, -71; // Bar green
-      //drawbar "H_BRFILG", "H_BRFBGG", ammo EShieldAmountVisual, horizontal, 96, -71; // Bar
-      drawbar "H_BRFILB", "H_BRFBGB", ARMOverAmount, horizontal, 96, -71; // Bar (over 100)
-      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo EShieldAmount, alignment(left), 189, -73; // Counter
+      drawimage "H_BRFRMX", 31, -79; // Bar frame
+	  drawimage "H_BRFILG", 34, -76; // Bar green
+      drawbar "H_BRFILB", "H_BRFBGB", ARMOverAmount, horizontal, 34, -76; // Bar (over 100)
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, ammo EShieldAmount, alignment(left), 127, -78; // Counter
     }
 
     // If armor is in "good" state, draw the bar and counter in green color
     InInventory ARMNormal
     {
-      drawimage "H_BRFRMX", 93, -74;
-      drawbar "H_BRFILG", "H_BRFBGG", ammo EShieldAmountVisual, horizontal, 96, -71;
-      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo EShieldAmount, alignment(left), 189, -73;
+      drawimage "H_BRFRMX", 31, -79;
+      drawbar "H_BRFILG", "H_BRFBGG", ammo EShieldAmountVisual, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo EShieldAmount, alignment(left), 127, -78;
     }
 
     // If armor is in "warning" state, draw the bar and counter in yellow color
     InInventory ARMBelow50
     {
-      drawimage "H_BRFRMX", 93, -74;
-      drawbar "H_BRFILY", "H_BRFBGY", ammo EShieldAmountVisual, horizontal, 96, -71;
-      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo EShieldAmount, alignment(left), 189, -73;
+      drawimage "H_BRFRMX", 31, -79;
+      drawbar "H_BRFILY", "H_BRFBGY", ammo EShieldAmountVisual, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, ammo EShieldAmount, alignment(left), 127, -78;
     }
 
     // If armor is in "critical" state, draw the bar and counter in red color,
     // and the bar frame in glowing "normal"
     InInventory ARMBelow25
     {
-      drawimage "H_ARFW01", 93, -74;
-      drawbar "H_BRFILR", "H_BRFBGR", ammo EShieldAmountVisual, horizontal, 96, -71;
-      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo EShieldAmount, alignment(left), 189, -73;
+      drawimage "H_ARFW01", 31, -79;
+      drawbar "H_BRFILR", "H_BRFBGR", ammo EShieldAmountVisual, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, ammo EShieldAmount, alignment(left), 127, -78;
     }
   }
 
   // Otherwise, draw the health display alone in the middle of the background
   else
   {
-    InInventory PowerStrength { drawimage "H_ICNBSK", 74, -60; }
-    else { drawimage "H_ICNHP", 74, -60; }
+    InInventory PowerStrength { drawimage "H_ICNBSK", 12, -78; }
+    else { drawimage "H_ICNHP", 12, -78; }
 
     InInventory HPOver100
     {
-      drawimage "H_BRFRMX", 93, -61;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -58;
-      drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 96, -58;
-      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 189, -60;
+      drawimage "H_BRFRMX", 31, -79;
+      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -76;
+      drawbar "H_BRFILB", "H_BRFBGB", HPOverAmount, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCBlue, health, alignment(left), 127, -78;
     }
 
     InInventory HPNormal
     {
-      drawimage "H_BRFRMX", 93, -61;
-      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 96, -58;
-      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 189, -60;
+      drawimage "H_BRFRMX", 31, -79;
+      drawbar "H_BRFILG", "H_BRFBGG", health P_HealthCap, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCGreen, health, alignment(left), 127, -78;
     }
 
     InInventory HPBelow50
     {
-      drawimage "H_HPWG01", 93, -61;
-      drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 96, -58;
-      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 189, -60;
+      drawimage "H_HPWG01", 31, -79;
+      drawbar "H_BRFILY", "H_BRFBGY", health P_HealthCap, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCYellow, health, alignment(left), 127, -78;
     }
 
     InInventory HPBelow25
     {
-      drawimage "H_HPFC01", 93, -61;
-      drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 96, -58;
-      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 189, -60;
+      drawimage "H_HPFC01", 31, -79;
+      drawbar "H_BRFILR", "H_BRFBGR", health P_HealthCap, horizontal, 34, -76;
+      drawnumber 5, HUDFONT2_DOOM, NCRed, health, alignment(left), 127, -78;
     }
   }
 
@@ -1355,6 +1353,11 @@ statusbar normal, fullscreenoffsets {
 		drawbar "BERSICO2", "BERSICB2", Berserker_HitTimer, vertical, -88, -200;
 		drawnumber 2, NCNormalFont, NCWhiteC, Berserker_HitTracker, alignment(center), -58, -144;
 	}
+	
+	// trickster display
+	InInventory Trickster_ShadowCooldown {
+		drawbar "TCCDICO", "TCSPICO", Trickster_ShadowCooldown, vertical, -152, -200;
+	}
   
 	InInventory RuinationStacks, 1 {
 		InInventory RuinationStacks, 2 {
@@ -1396,50 +1399,4 @@ statusbar inventory // Standard bar overlay (ZDoom Addition)
 statusbar inventoryfullscreen // ZDoom HUD overlay.
 {
     drawinventorybar Doom, translucent, 7, INDEXFONT, 50, 170;
-}
-
-mugshot "Normal", health2
-{
-	ST00 30;
-	ST03 3;
-	ST04 11;
-	ST03 3;
-	ST00 20;
-	ST01 3;
-	ST02 8;
-	ST01 3;
-	ST00 5;
-	ST03 3;
-	ST04 15;
-	ST03 3;
-	ST00 40;
-	ST01 3;
-	ST02 11;
-	ST01 3;
-	ST00 50;
-	ST01 3;
-	ST02 14;
-	ST01 3;
-}
-
-mugshot "death"
-{
-	DEAD0 -1;
-}
-
-mugshot "xdeath"
-{
-	XDTH0 3;
-	XDTH1 2;
-	XDTH2 2;
-	XDTH3 2;
-	XDTH4 -1;
-}
-
-mugshot "GodAnimated"
-{
-	GOD0 40;
-	GOD1 3;
-	GOD2 6;
-	GOD1 3;
 }

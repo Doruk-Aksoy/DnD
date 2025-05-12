@@ -593,7 +593,7 @@ actor Grenadeblast {
 
 Actor TerminatorBullet : UndeadInitiateBullet {
 	DamageType "Physical"
-	Stamina 1073741825
+	Stamina 1073741827
 	Damage (15)
 	Accuracy 133
 	States {

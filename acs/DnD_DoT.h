@@ -75,10 +75,9 @@ void ClearDoTInstance(int pnum, int id) {
 	player_dot_damages.highest_ignite_index = cur_max_id;
 }
 
-void RegisterDoTDamage (int damage, int duration, int dmg_type, str inflictor) {
+void RegisterDoTDamage (int damage, int duration, int dmg_type, int owner, str inflictor) {
 	int this = PlayerNumber();
-	int target = GetActorProperty(0, APROP_TARGETTID);
-	ACS_NamedExecuteWithResult("DnD Player Receive DoT", damage | (this << 16), duration | (dmg_type << 16), target, inflictor);
+	ACS_NamedExecuteWithResult("DnD Player Receive DoT", damage | (this << 16), duration | (dmg_type << 16), owner, inflictor);
 }
 
 Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflictor) {
@@ -148,15 +147,18 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 	player_dot_damages.dot_list[pos].owner = owner;
 	player_dot_damages.dot_list[pos].inflictor = inflictor;
 
-	if(dtype_int == DND_DAMAGETYPEFLAG_POISON) {
+	if(dtype_int & DND_DAMAGETYPEFLAG_POISON) {
 		player_dot_damages.dot_list[pos].dmg_type = "PoisonDOT";
 		player_dot_damages.dot_list[pos].dmg = Max(dmg / duration, 1);
 	}
-	else if(dtype_int == DND_DAMAGETYPEFLAG_PHYSICAL) {
-		player_dot_damages.dot_list[pos].dmg_type = "PhysicalDOT";
+	else if(dtype_int & DND_DAMAGETYPEFLAG_PHYSICAL) {
+		if(dtype_int & DND_DAMAGETYPEFLAG_ISBLEED)
+			player_dot_damages.dot_list[pos].dmg_type = "BleedDOT";
+		else
+			player_dot_damages.dot_list[pos].dmg_type = "PhysicalDOT";
 		player_dot_damages.dot_list[pos].dmg = dmg;
 	}
-	else if(dtype_int == DND_DAMAGETYPEFLAG_FIRE) {
+	else if(dtype_int & DND_DAMAGETYPEFLAG_FIRE) {
 		// fire dot deals the percentage of the damage throughout each tic, not over a duration
 		player_dot_damages.dot_list[pos].dmg_type = "FireDOT";
 		player_dot_damages.dot_list[pos].dmg = dmg;
@@ -198,12 +200,38 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 			// only receive the damage from the highest ignite index
 			if(pos == player_dot_damages.highest_ignite_index) {
 				//printbold(s:" do damage ", d:player_dot_damages.dot_list[pos].dmg);
-				ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, random(2, 4));
+				ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, random(3, 5));
 				DealDOTDamage(player_dot_damages.dot_list[pos].owner, player_dot_damages.dot_list[pos].dmg, player_dot_damages.dot_list[pos].dmg_type);
 			}
 
 			--player_dot_damages.dot_list[pos].duration;
 		}
+	}
+	else if(player_dot_damages.dot_list[pos].dmg_type == "BleedDOT") {
+			PlaySound(victim, "Bleed/Loop", CHAN_7, 0.875, true);
+
+		while(IsActorAlive(victim)) {
+			Delay(const:HALF_TICRATE);
+			
+			if(!player_dot_damages.dot_list[pos].duration || CheckActorInventory(victim, "RemoveAilments")) {
+				ClearDoTInstance(pnum, pos);
+				break;
+			}
+
+			// spawn blood and stuff
+			ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim);
+
+			min = player_dot_damages.dot_list[pos].dmg;
+			if(IsPlayerMoving(pnum, victim))
+				min *= DND_BLEED_MOVEMENT_MULTIPLIER;
+			
+			//printbold(s:"damage from ", s:inflictor, s:" owned by ", d:owner, s:" amount: ", d:min);
+			DealDOTDamage(player_dot_damages.dot_list[pos].owner, min, player_dot_damages.dot_list[pos].dmg_type);
+			--player_dot_damages.dot_list[pos].duration;
+		}
+
+		StopSound(victim, CHAN_7);
+		PlaySound(victim, "Bleed/End", CHAN_7);
 	}
 	else {
 		while(IsActorAlive(victim)) {
@@ -220,6 +248,11 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 			//printbold(s:"damage from ", s:inflictor, s:" owned by ", d:owner);
 			DealDOTDamage(player_dot_damages.dot_list[pos].owner, player_dot_damages.dot_list[pos].dmg, player_dot_damages.dot_list[pos].dmg_type);
 			--player_dot_damages.dot_list[pos].duration;
+		}
+
+		if(player_dot_damages.dot_list[pos].dmg_type == "BleedDOT") {
+			StopSound(victim, CHAN_7);
+			PlaySound(victim, "Bleed/End", CHAN_7);
 		}
 	}
 	

@@ -105,7 +105,7 @@ enum {
 	DND_VENOMANCER,
 	DND_FRIGID,
 	DND_SCORCHED,
-	DND_INSULATED,
+	DND_VOLTAIC,
 	DND_REJUVENATING,
 	
 	DND_HATRED,
@@ -126,6 +126,11 @@ enum {
 	DND_TEMPORALBUBBLE,
 	DND_BLACKOUT,
 	DND_ENSHROUDED,
+
+	DND_TOXICBLOOD,
+	DND_FROSTBLOOD,
+	DND_MOLTENBLOOD,
+	DND_INSULATED,
 
 	// not rollable special
 	DND_ETHEREAL,
@@ -273,8 +278,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_FRIGID";
 		case DND_SCORCHED:
 		return "DND_EMOD_SCORCHED";
-		case DND_INSULATED:
-		return "DND_EMOD_INSULATED";
+		case DND_VOLTAIC:
+		return "DND_EMOD_VOLTAIC";
 		case DND_REJUVENATING:
 		return "DND_EMOD_REJUVENATE";
 		
@@ -314,6 +319,14 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_BLACKOUT";
 		case DND_ENSHROUDED:
 		return "DND_EMOD_ENSHROUDED";
+		case DND_TOXICBLOOD:
+		return "DND_EMOD_TOXICBLOOD";
+		case DND_FROSTBLOOD:
+		return "DND_EMOD_FROSTBLOOD";
+		case DND_MOLTENBLOOD:
+		return "DND_EMOD_MOLTENBLOOD";
+		case DND_INSULATED:
+		return "DND_EMOD_INSULATED";
 
 		case DND_ETHEREAL:
 		return "DND_EMOD_ETHEREAL";

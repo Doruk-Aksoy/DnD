@@ -95,9 +95,10 @@ enum {
 	DND_PLAYER_PUNISHER,
 	DND_PLAYER_WANDERER,
 	DND_PLAYER_CYBORG,
-	DND_PLAYER_BERSERKER
+	DND_PLAYER_BERSERKER,
+	DND_PLAYER_TRICKSTER
 };
-#define MAXPLAYERCLASSES (DND_PLAYER_BERSERKER + 1)
+#define MAXPLAYERCLASSES (DND_PLAYER_TRICKSTER + 1)
 
 #define DND_PLAYER_RADIUS 16.0
 #define DND_PLAYER_RADIUS_INT (DND_PLAYER_RADIUS >> 16)
@@ -258,8 +259,10 @@ enum {
 	
 	// 64 player temp tid range
 	DND_CROSSBOW_EXPLOSIONTID = DND_WANDERER_EXP_TID + MAXPLAYERS,
+
+	DND_TRICKSTERCLONE_TID = DND_CROSSBOW_EXPLOSIONTID + MAXPLAYERS,
 	
-	DND_NPC_TID = DND_CROSSBOW_EXPLOSIONTID + MAXPLAYERS,
+	DND_NPC_TID = DND_TRICKSTERCLONE_TID + MAXPLAYERS,
 	
 	DND_PETTID_BEGIN = DND_NPC_TID + MAX_NPCS,
 	
@@ -467,18 +470,8 @@ void ResetPlayerInformationLevel() {
 typedef struct {
 	int levelexp;
 	int levelcredit;
-	bool refresh_request;
 } pleveldata_T;
 pleveldata_T PlayerDataInLevel[MAXPLAYERS];
-
-Script "DnD Refresh Request" (int pnum, int state) CLIENTSIDE {
-	if(ConsolePlayerNumber() != pnum)
-		Terminate;
-	
-	PlayerDataInLevel[pnum].refresh_request = !!state;
-	Delay(const:3);
-	PlayerDataInLevel[pnum].refresh_request = false;
-}
 
 void GiveMonsterTID(int base_tid) {
 	int temp;

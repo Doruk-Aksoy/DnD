@@ -168,8 +168,6 @@ Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
 		
-	// clear mugshot
-	DeleteText(PLAYER_MUGSHOTID);
 	DeleteText(BLACKOUT_ID);
 		
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
@@ -418,7 +416,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		//////////////////////////////////////////
 		// MENU DRAWING ROUTINE FROM HERE BELOW //
 		//////////////////////////////////////////
-		if(redraw || CheckInventory("DnD_RefreshPane") || PlayerDataInLevel[pnum].refresh_request) {
+		if(redraw || CheckInventory("DnD_RefreshPane")) {
 			//Log(s:"redraw");
 			str toshow = "";
 			int j = 0, k = 0, temp;
