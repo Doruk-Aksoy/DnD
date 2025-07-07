@@ -17,6 +17,8 @@ enum {
 Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 	// non-zero hopefully
 	if(tid) {
+		Delay(const:1);
+
 		int i;
 		int zoff = GetActorProperty(tid, APROP_HEIGHT) >> 1;
 		int xoff = GetActorProperty(tid, APROP_RADIUS);
@@ -58,6 +60,15 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 	}
 }
 
+void InitAttachments(int m_id) {
+	MonsterAttachmentUsed[m_id] = 0;
+}
+
+Script "Dnd Init Monster Attachments" (int m_id) CLIENTSIDE {
+	InitAttachments(m_id);
+	SetResultValue(0);
+}
+
 // do not send tid here, send monster id (tid - DND_MONSTERTID_BEGIN)
 void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0, int zoff = 0, int angle = 0) {
 	// base tid skip
@@ -72,7 +83,7 @@ void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0
 
 	// offset to tid
 	sfx_id += DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
-	//Log(s:"sfx tid: ", d:sfx_id, s: " for monster tid: ", d:tid);
+	//Log(s:"sfx tid: ", d:sfx_id, s: " for monster tid: ", d:tid, s:" attachment used? ", d:MonsterAttachmentUsed[m_id], s: " ", d:m_id);
 	SpawnForced(actor_name, GetActorX(tid) + xoff, GetActorY(tid) + yoff, GetActorZ(tid) + zoff, sfx_id, angle);
 
 	// setup the attachment
@@ -90,6 +101,7 @@ void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0
 // When a monster is killed this is called to do cleanup
 void DisposeAttachments(int m_id) {
 	// if theres any attachment
+	//Log(s:" attachment used? ", d:MonsterAttachmentUsed[m_id], s: " ", d:m_id);
 	if(MonsterAttachmentUsed[m_id]) {
 		int count = 0;
 		int base = DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;

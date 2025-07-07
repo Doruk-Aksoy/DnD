@@ -712,7 +712,7 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
 		projection_angle = GetActorAngle(0);
 	
-	// printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id);
+	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id, s: " mon count: ", d:DnD_TID_Counter[DND_TID_MONSTER]);
 	// pick tracer_count closest enemies
 	int mn;
 	for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {

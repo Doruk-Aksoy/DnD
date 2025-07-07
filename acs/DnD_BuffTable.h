@@ -51,7 +51,7 @@ enum {
 // by default assumes the source of buff to be activator of the script calling this, initiator may not always be activator of script
 // returns duration for blends
 int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0) {
-    int ptid = ActivatorTID();
+    int ptid = pnum + P_TIDSTART;
 
     int bsource = 0;
     int btype = 0;

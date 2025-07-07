@@ -1553,8 +1553,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	if(CheckActorInventory(victim_tid, "DnD_OverloadTimer"))
 		more_dmg = more_dmg * (100 + DND_BASE_OVERLOADBUFF + CheckActorInventory(victim_tid, "DnD_OverloadDamage")) / 100;
 	
-	if(IsMonsterIdBoss(MonsterProperties[victim_data].id) && HasPlayerPowerSet(pnum, PPOWER_BOSSTAKEMOREDMG))
-		more_dmg = more_dmg * (100 + PREDATOR_DMG_BONUS) / 100;
+	if(IsMonsterIdBoss(MonsterProperties[victim_data].id) && (temp = GetPlayerAttributeValue(pnum, INV_IMP_MOREDAMAGETOBOSSES)))
+		more_dmg = more_dmg * (100 + temp) / 100;
 
 	// additional damage vs frozen enemies modifier
 	if(CheckActorInventory(victim_tid, "DnD_FreezeTimer") && (temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA)))
@@ -2127,6 +2127,8 @@ Script "DnD Monster Overload Particles" (int tid) CLIENTSIDE {
 		SpawnForced("OverloadZap_Particles", GetActorX(tid) + random(-r, r) / 2, GetActorY(tid) + random(-r, r) / 2, GetActorZ(tid) + (random(16.0, h + 32.0)) / 2, 0);
 		Delay(random(1, 3));
 	}
+
+	SetResultValue(0);
 }
 
 // this simply distributes the overload debuff, no more zapping special fx!!
@@ -2232,16 +2234,18 @@ Script "DnD Check Explosion Repeat" (void) {
 int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags, bool isArmorPiercing) {
 	dmg = dmg * ((GetSelfExplosiveResist(pnum) * 100) >> 16) / 100;
 
-	if(HasPlayerPowerset(pnum, PPOWER_REDUCEDSELFDMG))
-		dmg = dmg * (100 - REDUCED_SELF_DMG_FACTOR) / 100;
+	int tflag = GetPlayerAttributeValue(pnum, INV_IMP_LESSSELFDAMAGETAKEN);
+	if(tflag)
+		dmg = dmg * (100 - tflag) / 100;
 	
 	// apply accessory and other sources of damage -- convert to dmg tic flag due to the recent rewrite
-	int tflag = (!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
-				(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
-				(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
-				(!!(flags & DND_DAMAGEFLAG_NOIGNITESTACK) * DND_DAMAGETICFLAG_NOIGNITESTACK)		|
-				(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
-				(!!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT);
+	tflag = (!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
+			(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
+			(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
+			(!!(flags & DND_DAMAGEFLAG_NOIGNITESTACK) * DND_DAMAGETICFLAG_NOIGNITESTACK)		|
+			(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
+			(!!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT);
+
 	int amp = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg_type, wepid, tflag);
 	if(amp != 100)
 		dmg = ApplyDamageFactor_Safe(dmg, 100 + amp);
@@ -2274,16 +2278,15 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
 		res_to_apply = INV_DMGREDUCE_PHYS;
-	else if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
-		res_bonus += HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;
+	else if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)
 		res_to_apply = INV_DMGREDUCE_MAGIC;
-	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
 		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 		res_to_apply = INV_DMGREDUCE_FIRE;
 
-		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDFIRETAKEN))
-			mult = CombineFactors(mult, DMGREDUCE_BOOST_FROM_BOOTS);
+		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSFIRETAKEN);
+		if(temp)
+			mult = CombineFactors(mult, temp);
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
 		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
@@ -2293,13 +2296,15 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 		res_to_apply = INV_DMGREDUCE_LIGHTNING;
 
-		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDLIGHTNINGTAKEN))
-			mult = CombineFactors(mult, DMGREDUCE_BOOST_FROM_BOOTS);
+		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSLIGHTNINGTAKEN);
+		if(temp)
+			mult = CombineFactors(mult, temp);
 	}
 	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
 		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
-		if(HasPlayerPowerset(pnum, PPOWER_REDUCEDPOISONTAKEN))
-			mult = CombineFactors(mult, DMGREDUCE_BOOST_FROM_BOOTS);
+		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSPOISONTAKEN);
+		if(temp)
+			mult = CombineFactors(mult, temp);
 		
 		// reduced poison damage taken
 		res_to_apply = INV_DMGREDUCE_POISON;
@@ -2314,7 +2319,6 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		}
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
-		res_bonus += HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
 		res_to_apply = INV_DMGREDUCE_ENERGY;
 	}
 	// ELEMENTAL DAMAGE BLOCK ENDS
@@ -2389,7 +2393,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			RegisterDoTDamage(
 				temp,
 				GetMonsterBleedDuration(m_id, pnum),
-				DND_DAMAGETYPEFLAG_PHYSICAL | DND_DAMAGETYPEFLAG_ISBLEED, 
+				DND_DAMAGETYPEFLAG_PHYSICAL | DND_DAMAGETYPEFLAG_DOT | DND_DAMAGETYPEFLAG_ISBLEED, 
 				m_id + DND_MONSTERTID_BEGIN,
 				inflictor_class
 			);
@@ -2584,7 +2588,7 @@ int ApplyPlayerEnergyShield(int pnum, int dmg, str dmg_string, int dmg_data) {
 			factor = to_take;
 
 		// only this much is prevented
-		to_take = dmg * factor / 100;
+		to_take = Min(dmg * factor / 100, temp);
 		if(to_take < 1)
 			to_take = 1;
 		dmg -= to_take;
@@ -2704,27 +2708,27 @@ int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
 	return dmg;
 }
 
-void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
+void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = false) {
 	int m_id, val;
 
 	if(CheckActorInventory(this, "HateCheck") && target != this && isMonster)
 		GiveActorInventory(target, "HateWeakness", 1);
 	
 	// necro and lightning coil chance
-	int temp = GetActorArmorID(this);
-	if(temp == BODYARMOR_NECRO && !CheckActorInventory(this, "NecroSpikeCooldown") && !random(0, 2)) {
+	int temp = GetPlayerAttributeValue(pnum, INV_IMP_NECROARMOR);
+	if(temp && !CheckActorInventory(this, "NecroSpikeCooldown") && random(1, 100) <= temp) {
 		GiveActorInventory(this, "NecroSpikeShooter", 1);
 		GiveActorInventory(this, "NecroSpikeCooldown", 1);
 	}
-	else if(temp == BODYARMOR_LIGHTNINGCOIL && !CheckActorInventory(this, "LightningCoilCooldown") && !random(0, 3)) {
+	else if((temp = GetPlayerAttributeExtra(pnum, INV_IMP_ABSORBLIGHTNING)) && !CheckActorInventory(this, "LightningCoilCooldown") && random(1, 100) <= temp) {
 		// 25% chance
 		GiveActorInventory(this, "LightningCoilShooter", 1);
 		GiveActorInventory(this, "LightningCoilCooldown", 1);
 	}
 
 	// check unstable power core
-	temp = CheckInventory("EShieldBlowChance");
-	if(HasPlayerPowerset(pnum, PPOWER_ESHIELDEXPLODE) && (m_id = CheckInventory("EShieldAmount")) && RunLuckBasedChance(pnum, temp, DND_LUCK_OUTCOME_GAIN / 2)) {
+	temp = GetPlayerAttributeExtra(pnum, INV_IMP_UNSTABLECORE);
+	if(temp && (m_id = CheckInventory("EShieldAmount")) && RunLuckBasedChance(pnum, temp, DND_LUCK_OUTCOME_GAIN / 2)) {
 		// explode for this amount now
 		SpawnForced("UnstableExplosion", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorViewHeight(this) / 2, DND_UNSTABLEEXP_TID);
 		SetActivator(DND_UNSTABLEEXP_TID);
@@ -2790,43 +2794,47 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster) {
 	
 	// monster might be thief, check it
 	m_id = target - DND_MONSTERTID_BEGIN;
-	if(MonsterProperties[m_id].trait_list[DND_THIEF]) {
-		// get current weapon's ammo and steal it if possible
-		temp = random(0, 1);
-		str cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), temp);
-		
-		// if we picked no ammo, flip to check the other one using negation
-		if(cur_ammo == "")
-			cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), !temp);
-		
-		// if it's something we can take ammo from		
-		if(cur_ammo != "")
-			TakeActorInventory(this, cur_ammo, CheckActorInventory(this, cur_ammo) * DND_ELITE_THIEFRATE / 100);
-	}
-	
-	// shocker check
-	if(MonsterProperties[m_id].trait_list[DND_SHOCKER])
-		GiveActorInventory(this, "PlayerStopper", 1);
-	
-	// ruination check
-	if(MonsterProperties[m_id].trait_list[DND_RUINATION]) {
-		if(!CheckActorInventory(this, "RuinationStacks")) {
-			SetActivator(this);
+
+	// basic dot from monsters shouldn't apply these effects
+	if(!isDot) {
+		if(MonsterProperties[m_id].trait_list[DND_THIEF]) {
+			// get current weapon's ammo and steal it if possible
+			temp = random(0, 1);
+			str cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), temp);
 			
-			ACS_NamedExecuteAlways("DnD Ruination Ticker", 0);
+			// if we picked no ammo, flip to check the other one using negation
+			if(cur_ammo == "")
+				cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), !temp);
 			
-			// restore ptr
-			SetActivator(0, AAPTR_DAMAGE_TARGET);
+			// if it's something we can take ammo from		
+			if(cur_ammo != "")
+				TakeActorInventory(this, cur_ammo, CheckActorInventory(this, cur_ammo) * DND_ELITE_THIEFRATE / 100);
 		}
-		GiveActorInventory(this, "RuinationStacks", 1);
+		
+		// shocker check
+		if(MonsterProperties[m_id].trait_list[DND_SHOCKER])
+			GiveActorInventory(this, "PlayerStopper", 1);
+		
+		// ruination check
+		if(MonsterProperties[m_id].trait_list[DND_RUINATION]) {
+			if(!CheckActorInventory(this, "RuinationStacks")) {
+				SetActivator(this);
+				
+				ACS_NamedExecuteAlways("DnD Ruination Ticker", 0);
+				
+				// restore ptr
+				SetActivator(0, AAPTR_DAMAGE_TARGET);
+			}
+			GiveActorInventory(this, "RuinationStacks", 1);
 
-		if(CheckActorInventory(this, "RuinationStacks") == RUINATION_MAX_STACKS)
-			HandleRuination(this, target);
+			if(CheckActorInventory(this, "RuinationStacks") == RUINATION_MAX_STACKS)
+				HandleRuination(this, target);
+		}
+
+		// the curse is applied if the player is not immune, the checks are delegated to curse items
+		if(MonsterProperties[m_id].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
+			ApplyRandomCurse(this, target);
 	}
-
-	// the curse is applied if the player is not immune, the checks are delegated to curse items
-	if(MonsterProperties[m_id].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
-		ApplyRandomCurse(this, target);
 }
 
 bool HandleRipperHit(int shooter, int victim) {
@@ -3071,6 +3079,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		dmg = arg1;
 
 		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
+		bool isDot = false;
 		if(IsMonster(shooter)) {
 			m_id = shooter - DND_MONSTERTID_BEGIN;
 			isArmorPiercing |= MonsterProperties[m_id].trait_list[DND_PIERCE];
@@ -3095,7 +3104,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 
 			// DoT shouldn't double dip
-			if(!IsDamageStringDOT(arg2)) {
+			isDot = IsDamageStringDOT(arg2);
+			if(!isDot) {
 				// dont scale reflected damage by this -- reflected damage will have score property as damage of proj, if it's not a player tid its reflected
 				//printbold(s:"here?? ", d:isReflected, s: " ", d:dmg_data & DND_DAMAGEFLAG_ISREFLECTED);
 				if(!(dmg_data & DND_DAMAGEFLAG_ISREFLECTED) && (!isReflected || IsMonster(shooter))) {
@@ -3142,7 +3152,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				(
 					CheckInventory("DnD_CountdownProtection") ||
 					(
-						!(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && !(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) && !IsDamageStringDOT(arg2) && !(dmg_data & DND_DAMAGETYPEFLAG_DOT)
+						!(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && !(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) && !isDot && !(dmg_data & DND_DAMAGETYPEFLAG_DOT)
 					) && 
 					HasPlayerBuff(pnum, BTI_PHASING)
 				)
@@ -3157,7 +3167,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				GiveInventory("DnD_Hit_CombatTimer", 1);
 				
 				if(!CheckInventory("DnD_Hit_Cooldown")) {
-					OnPlayerHit(victim, pnum, shooter, true);
+					OnPlayerHit(victim, pnum, shooter, true, isDot);
 					GiveInventory("DnD_Hit_Cooldown", 1);
 				}
 				
@@ -3605,7 +3615,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 
 			dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
-			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, !!isReflected || (dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG), inflictor_class);
+			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, !!isReflected || (dmg_data & DND_DAMAGEFLAG_ISREFLECTED), inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
 			dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, dmg_data);
 			//GiveInventory("DnD_DamageReceived", dmg);

@@ -37,12 +37,39 @@ enum {
 	DND_ITEM_HELM,
 	DND_ITEM_BOOT,
 	DND_ITEM_BODYARMOR,
-	DND_ITEM_POWERCORE,
+
+	DND_ITEM_SPECIALTY_DOOMGUY,
+	DND_ITEM_SPECIALTY_MARINE,
+	DND_ITEM_SPECIALTY_HOBO,
+	DND_ITEM_SPECIALTY_PUNISHER,
+	DND_ITEM_SPECIALTY_WANDERER,
+	DND_ITEM_SPECIALTY_CYBORG,
+	DND_ITEM_SPECIALTY_BERSERKER,
+	DND_ITEM_SPECIALTY_TRICKSTER,
+
 	DND_ITEM_ORB,
 	DND_ITEM_CHESTKEY,
 	DND_ITEM_WEAPON,
 	DND_ITEM_TOKEN
 };
+
+#define FIRST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_DOOMGUY
+#define LAST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_TRICKSTER
+
+bool IsSpecialtyItemType(int type) {
+	switch(type) {
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		case DND_ITEM_SPECIALTY_MARINE:
+		case DND_ITEM_SPECIALTY_HOBO:
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		case DND_ITEM_SPECIALTY_WANDERER:
+		case DND_ITEM_SPECIALTY_CYBORG:
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		case DND_ITEM_SPECIALTY_TRICKSTER:
+		return true;
+	}
+	return false;
+}
 
 enum {
 	DND_STACKEDITEM_ORB,
@@ -55,9 +82,13 @@ enum {
 	DND_CRAFTABLEID_BODYARMOR,
 	DND_CRAFTABLEID_BOOT,
 	DND_CRAFTABLEID_HELM,
-	DND_CRAFTABLEID_POWERCORE
+
+	DND_CRAFTABLEID_SPECIALTY_GENERIC,		// no offensive mods
+	DND_CRAFTABLEID_SPECIALTY_WANDERER,		// allow all magical and elemental, no phys
+	DND_CRAFTABLEID_SPECIALTY_BERSERKER,	// allow all melee, no energy or explosive
+	DND_CRAFTABLEID_SPECIALTY_TRICKSTER		// allow no defense/life mods
 };
-#define MAX_CRAFTABLEITEMTYPES (DND_CRAFTABLEID_POWERCORE + 1)
+#define MAX_CRAFTABLEITEMTYPES (DND_CRAFTABLEID_SPECIALTY_TRICKSTER + 1)
 
 enum {
 	DND_CHARM_SMALL,
@@ -75,6 +106,9 @@ typedef struct {
 } attr_inf_T;
 #define ATTRIB_DATA_COUNT 5
 
+#define MAX_ITEM_IMPLICITS 3
+#define IMPLICIT_DATA_COUNT 4
+
 typedef struct it {
 	int width;										// width in inventory space
 	int height;										// height in inventory space
@@ -86,7 +120,7 @@ typedef struct it {
 	int topleftboxid;								// used to determine the owning pointer (-1 of this is the pointer)
 
 	bool corrupted;									// is the item corrupted?
-	attr_inf_T implicit;							// id of the implicit attribute -- can be a corrupted implicit too
+	attr_inf_T implicit[MAX_ITEM_IMPLICITS];		// list of implicits, in case of corruption only the very 1st implicit is replaced
 	int quality;
 
 	int attrib_count;								// count of attributes

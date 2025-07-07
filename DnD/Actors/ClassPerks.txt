@@ -341,7 +341,7 @@ Actor TricksterShadowClone {
 			ELEE F 4 A_GiveInventory("TricksterMover", 1)
 			ELEE FFF 1 A_FadeIn(0.1)
 			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Timed Monster", 15, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Timed Monster", 15)
 		Walk:
 			ELEE ABCDEF 4 A_GiveInventory("TricksterMover", 1)
 			TNT1 A 0 A_Jump(32, "Attack")

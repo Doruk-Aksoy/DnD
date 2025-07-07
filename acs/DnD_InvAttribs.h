@@ -237,6 +237,32 @@ enum {
 	INV_IMP_POWERCORE,
 	INV_IMP_UNSTABLECORE,
 	INV_IMP_INCMITARMORSHIELD,
+
+	INV_IMP_RAVAGER,					// ravager armor
+	INV_IMP_DOUBLEESHIELDRECOVERY,		// 
+	INV_IMP_ABSORBLIGHTNING,			// lightning coil
+	INV_IMP_KNIGHTARMOR,
+	INV_IMP_HANDGUNBONUS,
+	INV_IMP_NECROARMOR,
+	INV_IMP_CANROLL_PHYS,
+	INV_IMP_CANROLL_MAGIC,
+	INV_IMP_CANROLL_EXPLOSIVE,
+	INV_IMP_CANROLL_ENERGY,
+	INV_IMP_CANROLL_ELEMENTAL,
+	INV_IMP_HIGHREFLECTREDUCE,			// synth metal
+	INV_IMP_ESHIELDBLOCKSALL,
+	INV_IMP_LESSLIGHTNINGTAKEN,
+	INV_IMP_FASTEROVERHEATDISS,
+	INV_IMP_LESSPOISONTAKEN,
+	INV_IMP_LESSFIRETAKEN,
+	INV_IMP_LESSSELFDAMAGETAKEN,
+	INV_IMP_BONUSPETCAP,
+	INV_IMP_REDUCEDVISIONIMPAIR,		// synthmetal mask
+	INV_IMP_MELEEIGNORESSHIELDS,
+	INV_IMP_MOREDAMAGETOBOSSES,
+	INV_IMP_RECOVERESONUNDEADKILL,
+	INV_IMP_PRECISIONCRITBONUS,
+	INV_IMP_QUALITYCAPFIFTY,
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
@@ -327,77 +353,25 @@ enum {
 };
 
 enum {
-	PPOWER_RAVAGER 						= 	0b1,
-	PPOWER_CYBER 						= 	0b10,
-	PPOWER_LIGHTNINGABSORB				= 	0b100,
-	PPOWER_KNIGHTMELEEBONUS				= 	0b1000,
-	PPOWER_HANDGUNMORECRIT				=	0b10000,
-	PPOWER_SPIKES						=	0b100000,
-	PPOWER_CANROLLPHYS					=	0b1000000,
-	PPOWER_CANROLLOCCULT				=	0b10000000,
-	PPOWER_CANROLLEXP					=	0b100000000,
-	PPOWER_CANROLLENERGY				=	0b1000000000,
-	PPOWER_CANROLLELEMENTAL				=	0b10000000000,
-	PPOWER_LOWERREFLECT					=	0b100000000000,
-	PPOWER_ESHIELDBLOCKALL				=	0b1000000000000,
-	PPOWER_INCMAGICRES					=	0b10000000000000,
-	PPOWER_INCENERGYRES					=	0b100000000000000,
-	PPOWER_REDUCEDLIGHTNINGTAKEN		=	0b1000000000000000,
-	PPOWER_OVERHEATGOFAST				=	0b10000000000000000,
-	PPOWER_LESSOVERHEAT					=	0b100000000000000000,
-	PPOWER_REDUCEDPOISONTAKEN			=	0b1000000000000000000,
-	PPOWER_REDUCEDFIRETAKEN				=	0b10000000000000000000,
-	PPOWER_REDUCEDSELFDMG				=	0b100000000000000000000,
-	PPOWER_PETCAP						=	0b1000000000000000000000,
-	PPOWER_MELEEDAMAGE					=	0b10000000000000000000000,
-	PPOWER_SYNTHMETALMASK				=	0b100000000000000000000000,
-	PPOWER_MELEEIGNORESHIELD			=	0b1000000000000000000000000,
-	PPOWER_BOSSTAKEMOREDMG				=	0b10000000000000000000000000,
-	PPOWER_UNDEADRECOVERES				=	0b100000000000000000000000000,
-	PPOWER_PRECISIONCRIT				=	0b1000000000000000000000000000,
-	PPOWER_MAGICNEGATION				=	0b10000000000000000000000000000,
-	PPOWER_ESHIELDEXPLODE				=	0b100000000000000000000000000000,
-	PPOWER_MAXQUALITYHIGH				=	0b1000000000000000000000000000000,
+	PPOWER_CYBER 						= 	0b1,
+	PPOWER_ESHIELDBLOCKALL				=	0b100,
+	PPOWER_MELEEIGNORESHIELD			=	0b10000,
+	PPOWER_LOWERREFLECT					=	0b1000000
 };
 
-enum {
-	PPOWER_ID_RAVAGER = 0,
-	PPOWER_ID_CYBER,
-	PPOWER_ID_LIGHTNINGABSORB,
-	PPOWER_ID_KNIGHTMELEEBONUS,
-	PPOWER_ID_HITSCANPROTECT,
-	PPOWER_ID_SPIKES,
-	PPOWER_ID_CANROLLPHYS,
-	PPOWER_ID_CANROLLOCCULT,
-	PPOWER_ID_CANROLLEXP,
-	PPOWER_ID_CANROLLENERGY,
-	PPOWER_ID_CANROLLELEMENTAL,
-	PPOWER_ID_LOWERREFLECT,
-	PPOWER_ID_ESHIELDBLOCKALL,
-	PPOWER_ID_INCMAGICRES,
-	PPOWER_ID_INCENERGYRES,
-	PPOWER_ID_REDUCEDLIGHTNINGTAKEN,
-	PPOWER_ID_OVERHEATGOFAST,
-	PPOWER_ID_LESSOVERHEAT,
-	PPOWER_ID_REDUCEDPOISONTAKEN,
-	PPOWER_ID_REDUCEDFIRETAKEN,
-	PPOWER_ID_REDUCEDSELFDMG,
-	PPOWER_ID_PETCAP,
-	PPOWER_ID_MELEEDAMAGE,
-	PPOWER_ID_SYNTHMETALMASK,
-	PPOWER_ID_MELEEIGNORESHIELD,
-	PPOWER_ID_BOSSTAKEMOREDMG,
-	PPOWER_ID_UNDEADRECOVERES,
-	PPOWER_ID_PRECISIONCRIT,
-	PPOWER_ID_MAGICNEGATION,
-	PPOWER_ID_ESHIELDEXPLODE,
-	PPOWER_ID_MAXQUALITYHIGH
-};
-#define PPOWER_ID_FIRST PPOWER_ID_RAVAGER
-#define PPOWER_ID_LAST PPOWER_ID_MAXQUALITYHIGH
+bool IsSpecialRollRuleAttribute(int id) {
+	switch(id) {
+		case INV_IMP_CANROLL_PHYS:
+		case INV_IMP_CANROLL_MAGIC:
+		case INV_IMP_CANROLL_EXPLOSIVE:
+		case INV_IMP_CANROLL_ENERGY:
+		case INV_IMP_CANROLL_ELEMENTAL:
+		return true;
+	}
+	return false;
+}
 
 #define REDUCED_SELF_DMG_FACTOR 25 // 25%
-#define OVERHEAT_DISS_FACTOR 25 // 25%
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
@@ -414,7 +388,7 @@ enum {
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_INCMITARMORSHIELD
+#define LAST_REGULAR_IMPLICIT INV_IMP_QUALITYCAPFIFTY
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -477,9 +451,10 @@ enum {
 #define DND_ATTRIB_TAG_ID_BEGIN INV_ATTR_TAG_DAMAGE_ID
 #define DND_ATTRIB_TAG_ID_END INV_ATTR_TAG_LIGHTNING_ID
 #define MAX_ATTRIB_TAG_GROUPS (DND_ATTRIB_TAG_ID_END + 1)
+#define MAX_ATTRIB_TAG_GROUPCOUNT 64
 
 // indexing on this one is done by checking ranges, and then mapping appropriately
-global int 8: AttributeTagGroups[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES][64];
+global int 8: AttributeTagGroups[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES][MAX_ATTRIB_TAG_GROUPCOUNT];
 global int 5: AttributeTagGroupCount[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES];
 global int 57: PlayerModExtras[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
 global int 61: PlayerModValues[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
@@ -1379,50 +1354,14 @@ void SetupInventoryAttributeTable() {
 	///////////////////////
 	// regular implicits //
 	///////////////////////
-	ItemModTable[INV_IMP_INCARMOR].attrib_low = 100000;
-	ItemModTable[INV_IMP_INCARMOR].attrib_high = -1;
-	ItemModTable[INV_IMP_INCARMOR].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_INCARMOR].tags = INV_ATTR_TAG_DEFENSE;
 
-	ItemModTable[INV_IMP_INCSHIELD].attrib_low = 100000;
-	ItemModTable[INV_IMP_INCSHIELD].attrib_high = -1;
-	ItemModTable[INV_IMP_INCSHIELD].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_INCSHIELD].tags = INV_ATTR_TAG_DEFENSE;
-
-	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_low = 100000;
-	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_high = -1;
-	ItemModTable[INV_IMP_INCARMORSHIELD].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_INCARMORSHIELD].tags = INV_ATTR_TAG_DEFENSE;
-
-	ItemModTable[INV_IMP_INCMIT].attrib_low = 100000;
-	ItemModTable[INV_IMP_INCMIT].attrib_high = -1;
-	ItemModTable[INV_IMP_INCMIT].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_INCMIT].tags = INV_ATTR_TAG_DEFENSE;
-
-	ItemModTable[INV_IMP_INCMITARMOR].attrib_low = 100000;
-	ItemModTable[INV_IMP_INCMITARMOR].attrib_high = -1;
-	ItemModTable[INV_IMP_INCMITARMOR].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_INCMITARMOR].tags = INV_ATTR_TAG_DEFENSE;
-
-	ItemModTable[INV_IMP_INCMITSHIELD].attrib_low = 100000;
-	ItemModTable[INV_IMP_INCMITSHIELD].attrib_high = -1;
-	ItemModTable[INV_IMP_INCMITSHIELD].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_INCMITSHIELD].tags = INV_ATTR_TAG_DEFENSE;
-
-	ItemModTable[INV_IMP_POWERCORE].attrib_low = 100000;
-	ItemModTable[INV_IMP_POWERCORE].attrib_high = -1;
-	ItemModTable[INV_IMP_POWERCORE].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_POWERCORE].tags = INV_ATTR_TAG_DEFENSE;
-
-	ItemModTable[INV_IMP_UNSTABLECORE].attrib_low = 100000;
-	ItemModTable[INV_IMP_UNSTABLECORE].attrib_high = -1;
-	ItemModTable[INV_IMP_UNSTABLECORE].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_UNSTABLECORE].tags = INV_ATTR_TAG_DEFENSE;
-
-	ItemModTable[INV_IMP_INCMITARMORSHIELD].attrib_low = 100000;
-	ItemModTable[INV_IMP_INCMITARMORSHIELD].attrib_high = -1;
-	ItemModTable[INV_IMP_INCMITARMORSHIELD].attrib_level_modifier = 0;
-	ItemModTable[INV_IMP_INCMITARMORSHIELD].tags = INV_ATTR_TAG_DEFENSE;
+	// we dont care what they have, they get loaded in hardcoded values from outside
+	for(int i = FIRST_REGULAR_IMPLICIT; i <= LAST_REGULAR_IMPLICIT; ++i) {
+		ItemModTable[i].attrib_low = 100000;
+		ItemModTable[i].attrib_high = -1;
+		ItemModTable[i].attrib_level_modifier = 0;
+		ItemModTable[i].tags = INV_ATTR_TAG_DEFENSE;
+	}
 
 	///////////////////////////////
 	// essences from here on out //
@@ -1499,10 +1438,25 @@ int GetModTierRangeMapper(int attr, int lvl) {
 #define DND_POWERCORE_ATTRFACTOR -50
 #define DND_SMALLCHARM_ATTRFACTOR -50
 #define DND_LARGECHARM_ATTRFACTOR 25
+ 
+bool IsAttributeExtraException(int attr) {
+	switch(attr) {
+		case INV_IMP_INCARMOR:
+		case INV_IMP_INCARMORSHIELD:
+		case INV_IMP_INCSHIELD:
+		case INV_IMP_INCMIT:
+		case INV_IMP_INCMITARMOR:
+		case INV_IMP_INCMITSHIELD:
+		case INV_IMP_INCMITARMORSHIELD:
+		case INV_IMP_POWERCORE:
+		return true;
+	}
+	return false;
+}
 
 // Add other item properties related to item quality here
 int GetItemAttributeFactor(int item_type, int item_subtype) {
-	if(item_type != DND_ITEM_CHARM && item_type != DND_ITEM_POWERCORE)
+	if(item_type != DND_ITEM_CHARM && (item_type < FIRST_SPECIALTY_ITEM_TYPE || item_type > LAST_SPECIALTY_ITEM_TYPE))
 		return 0;
 	
 	if(item_type == DND_ITEM_CHARM) {
@@ -1515,7 +1469,7 @@ int GetItemAttributeFactor(int item_type, int item_subtype) {
 	return DND_POWERCORE_ATTRFACTOR;
 }
 
-int GetITemAttributeFactorVisual(int item_type, int item_subtype) {
+int GetItemAttributeFactorVisual(int item_type, int item_subtype) {
 	int base = GetItemAttributeFactor(item_type, item_subtype);
 
 	return base;
@@ -1686,20 +1640,6 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
-// Note to self: Just construct a global array with these strings prebuilt for these attributes later... this is getting out of hand real bad
-str GetArmorImplicitExtraText(str text, int extra) {
-	for(int i = PPOWER_ID_FIRST; i <= PPOWER_ID_LAST; ++i) {
-		if(extra & (1 << i)) {
-			str label = StrParam(s:"PPOWTEXT", d:i + 1);
-			// cyber armor has different special rule
-			if(i != PPOWER_ID_CYBER)
-				return StrParam(s:text, s:"\n", l:label);
-			return StrParam(s:text, s:"\n", l:label, s:"\n\c[R5]", l:"IATTR_T72");
-		}
-	}
-	return text;
-}
-
 str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
 	str text = GetInventoryAttributeText(attr);
 	str ess_tag = "\c[Q7]";
@@ -1724,6 +1664,17 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		else {
 			val /= 100;
 			val *= qual + 100;
+		}
+
+		if(extra != -1 && !IsAttributeExtraException(attr)) {
+			if(extra > 100000) {
+				extra /= 100;
+				extra *= qual + 100;
+			}
+			else {
+				extra *= qual + 100;
+				extra /= 100;
+			}
 		}
 	}
 	
@@ -1906,23 +1857,15 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_INCSHIELD:
 		case INV_IMP_INCARMORSHIELD:
 			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
-			// armor extras, can't have other implicits of armors together
-			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_INCMIT:
 			text = StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
-			// armor extras, can't have other implicits of armors together
-			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_INCMITARMOR:
 			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_ARMOR_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
-			// armor extras, can't have other implicits of armors together
-			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_INCMITSHIELD:
 			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_SHIELD_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
-			// armor extras, can't have other implicits of armors together
-			text = GetArmorImplicitExtraText(text, extra);
 		return text;
 		case INV_IMP_POWERCORE:
 			text = StrParam(s:"+ ", s:col_tag, d:extra, s:"%", s:no_tag, l:text, s: "\n", s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\c[R5]", l:"IATTR_T72");
@@ -1936,8 +1879,53 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		return text;
 		case INV_IMP_INCMITARMORSHIELD:
 			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " +", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_ARMOR_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
-			// armor extras, can't have other implicits of armors together
-			text = GetArmorImplicitExtraText(text, extra);
+		return text;
+
+		case INV_IMP_RAVAGER:					// ravager armor
+			text = StrParam(s:col_tag, d:val, s:"%\c-", l:text, s:col_tag, d:extra, s:"%\c- ", l:"IATTR_TI10S");
+		return text;
+
+		// just the wording
+		case INV_IMP_DOUBLEESHIELDRECOVERY:		//
+		case INV_IMP_CANROLL_PHYS:
+		case INV_IMP_CANROLL_MAGIC:
+		case INV_IMP_CANROLL_EXPLOSIVE:
+		case INV_IMP_CANROLL_ENERGY:
+		case INV_IMP_CANROLL_ELEMENTAL:
+		case INV_IMP_HIGHREFLECTREDUCE:			// synth metal
+		case INV_IMP_ESHIELDBLOCKSALL:
+		case INV_IMP_BONUSPETCAP:
+		case INV_IMP_MELEEIGNORESSHIELDS:
+		case INV_IMP_RECOVERESONUNDEADKILL:
+		case INV_IMP_QUALITYCAPFIFTY:
+		return StrParam(l:text);
+
+		case INV_IMP_ABSORBLIGHTNING:			// lightning coil
+			text = StrParam(s:col_tag, d:val, s:"%\c-", l:text, s:col_tag, d:extra, s:"%\c- ", l:"IATTR_TI12S");
+		return text;
+		case INV_IMP_KNIGHTARMOR:
+			text = StrParam(s:col_tag, d:val, s:"%\c-", l:text, s:col_tag, d:extra, s:"%\c- ", l:"IATTR_TI13S");
+		return text;
+		case INV_IMP_HANDGUNBONUS:
+			text = StrParam(l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:"%\c-", l:"IATTR_TI14S");
+		return text;
+
+		// value and text only as percentage
+		case INV_IMP_NECROARMOR:
+		case INV_IMP_LESSLIGHTNINGTAKEN:
+		case INV_IMP_FASTEROVERHEATDISS:
+		case INV_IMP_LESSPOISONTAKEN:
+		case INV_IMP_LESSFIRETAKEN:
+		case INV_IMP_LESSSELFDAMAGETAKEN:
+		case INV_IMP_REDUCEDVISIONIMPAIR:		// synthmetal mask
+			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
+		return text;
+
+		case INV_IMP_MOREDAMAGETOBOSSES:
+			text = StrParam(l:text, s:col_tag, d:val, s:"%\c-", s:"\c- ", l:"IATTR_TI31S");
+		return text;
+		case INV_IMP_PRECISIONCRITBONUS:
+			text = StrParam(l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:"%\c-", l:"IATTR_TI33S");
 		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
@@ -2321,7 +2309,6 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
-		case INV_EX_RIPPERSONETIMEONLY:
 			if(showDetailedMods) {
 				return StrParam(s:"+ \c[D4]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
@@ -2333,6 +2320,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_FORBID_ARMOR:
 		case INV_EX_CANNOTPICKAMMO:
 		case INV_EX_CANTFIRENONOVERHEAT:
+		case INV_EX_RIPPERSONETIMEONLY:
 			if(showDetailedMods) {
 				return StrParam(s:"\c[D4]", l:text, s:"\c- - ", s:GetModTierText(tier, extra));
 			}
@@ -2359,8 +2347,14 @@ bool IsTagArmorException(int tag, int armor_type) {
 		return (tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE) || (tag & INV_ATTR_TAG_CRIT) || (tag & INV_ATTR_TAG_MELEE);
 	else if(armor_type == DND_CRAFTABLEID_HELM)
 		return (tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE);
+	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_WANDERER)
+		return (tag & INV_ATTR_TAG_PHYSICAL);
+	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_BERSERKER)
+		return (tag & INV_ATTR_TAG_EXPLOSIVE) || (tag & INV_ATTR_TAG_ENERGY);
+	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_TRICKSTER)
+		return (tag & INV_ATTR_TAG_DEFENSE) || (tag & INV_ATTR_TAG_LIFE);
 
-	// powercores cant have occult
+	// generic cant have occult
 	return (tag & INV_ATTR_TAG_OCCULT);
 }
 
@@ -2394,88 +2388,24 @@ void SetupInventoryTagGroups() {
 			++tag_id;
 		}
 	}
-	
-	// do the same thing we did for charms to armors -- boots too
-	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_BODYARMOR] = 0;
-
-	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_BOOT] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_BOOT] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_CRIT_ID][DND_CRAFTABLEID_BOOT] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_MELEE_ID][DND_CRAFTABLEID_BOOT] = 0;
-
-	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_HELM] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_HELM] = 0;
 
 	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
-		tag = ItemModTable[i].tags;
+		for(j = DND_CRAFTABLEID_BODYARMOR; j < MAX_CRAFTABLEITEMTYPES; ++j) {
+			tag = ItemModTable[i].tags;
 
-		// armors and boots won't roll these, a general rule for now, we can add specifics later perhaps
-		if(IsTagArmorException(tag, DND_CRAFTABLEID_BODYARMOR))
-			continue;
+			if(IsTagArmorException(tag, j))
+				continue;
 
-		tag_id = 0;
-		// can have multiple
-		while(tag > 0) {
-			if(tag & 1) {
-				AttributeTagGroups[tag_id][DND_CRAFTABLEID_BODYARMOR][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BODYARMOR]] = i;
-				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BODYARMOR];
-
-				// boots also
-				AttributeTagGroups[tag_id][DND_CRAFTABLEID_BOOT][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BOOT]] = i;
-				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_BOOT];
-				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
+			tag_id = 0;
+			// can have multiple
+			while(tag > 0) {
+				if(tag & 1) {
+					AttributeTagGroups[tag_id][j][AttributeTagGroupCount[tag_id][j]] = i;
+					++AttributeTagGroupCount[tag_id][j];
+				}
+				tag >>= 1;
+				++tag_id;
 			}
-			tag >>= 1;
-			++tag_id;
-		}
-	}
-
-	// helms can roll crit and melee
-	AttributeTagGroupCount[INV_ATTR_TAG_ATTACK_ID][DND_CRAFTABLEID_HELM] = 0;
-	AttributeTagGroupCount[INV_ATTR_TAG_DAMAGE_ID][DND_CRAFTABLEID_HELM] = 0;
-
-	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
-		tag = ItemModTable[i].tags;
-
-		// armors won't roll these, a general rule for now, we can add specifics later perhaps
-		if(IsTagArmorException(tag, DND_CRAFTABLEID_HELM))
-			continue;
-
-		tag_id = 0;
-		// can have multiple
-		while(tag > 0) {
-			if(tag & 1) {
-				AttributeTagGroups[tag_id][DND_CRAFTABLEID_HELM][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_HELM]] = i;
-				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_HELM];
-			}
-			tag >>= 1;
-			++tag_id;
-		}
-	}
-
-	// powercores
-	AttributeTagGroupCount[INV_ATTR_TAG_OCCULT_ID][DND_CRAFTABLEID_POWERCORE] = 0;
-
-	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
-		tag = ItemModTable[i].tags;
-
-		// we won't roll these, a general rule for now, we can add specifics later perhaps
-		if(IsTagArmorException(tag, DND_CRAFTABLEID_POWERCORE))
-			continue;
-
-		tag_id = 0;
-		// can have multiple
-		while(tag > 0) {
-			if(tag & 1) {
-				AttributeTagGroups[tag_id][DND_CRAFTABLEID_POWERCORE][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_POWERCORE]] = i;
-				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_POWERCORE];
-				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
-			}
-			tag >>= 1;
-			++tag_id;
 		}
 	}
 }
@@ -2486,10 +2416,23 @@ int MapItemTypeToCraftableID(int type) {
 		return DND_CRAFTABLEID_BODYARMOR;
 		case DND_ITEM_BOOT:
 		return DND_CRAFTABLEID_BOOT;
-		case DND_ITEM_POWERCORE:
-		return DND_CRAFTABLEID_POWERCORE;
+
 		case DND_ITEM_HELM:
+		case DND_ITEM_SPECIALTY_HOBO: // hobo ruleset is same as helms', its a facewear afterall...
 		return DND_CRAFTABLEID_HELM;
+
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		case DND_ITEM_SPECIALTY_MARINE:
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		case DND_ITEM_SPECIALTY_CYBORG:
+		return DND_CRAFTABLEID_SPECIALTY_GENERIC;
+		
+		case DND_ITEM_SPECIALTY_WANDERER:
+		return DND_CRAFTABLEID_SPECIALTY_WANDERER;
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		return DND_CRAFTABLEID_SPECIALTY_BERSERKER;
+		case DND_ITEM_SPECIALTY_TRICKSTER:
+		return DND_CRAFTABLEID_SPECIALTY_TRICKSTER;
 	}
 	return DND_CRAFTABLEID_CHARM;
 }

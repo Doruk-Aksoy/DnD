@@ -6,6 +6,9 @@ enum {
     BTI_HAMMER,
     BTI_DEVASTATOR,
 
+    // all buffs below this one
+    BTI_PHASING,
+
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
     BTI_CHILL,

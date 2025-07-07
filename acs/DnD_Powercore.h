@@ -31,17 +31,20 @@ int ConstructPowercoreDataOnField(int item_pos, int item_tier) {
 
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_POWERCORE;
+	Inventories_On_Field[item_pos].item_type = DND_ITEM_SPECIALTY_CYBORG;
 	Inventories_On_Field[item_pos].item_subtype = res;
 	Inventories_On_Field[item_pos].width = 1;
 	Inventories_On_Field[item_pos].height = 1;
 
 	Inventories_On_Field[item_pos].corrupted = false;
 	Inventories_On_Field[item_pos].quality = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_id = INV_IMP_POWERCORE;
-	Inventories_On_Field[item_pos].implicit.attrib_val = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_tier = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_extra = 0;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
+		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+	}
 	
 	Inventories_On_Field[item_pos].attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
@@ -59,11 +62,11 @@ int RollPowercoreInfo(int item_pos, int item_tier, int pnum) {
 
 	Inventories_On_Field[item_pos].item_image = IIMG_CORE_1 + core_type;
 
-	SetupItemImplicit(item_pos, DND_ITEM_POWERCORE, core_type, item_tier);
+	SetupItemImplicit(item_pos, DND_ITEM_SPECIALTY_CYBORG, core_type, item_tier);
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_POWERCORE, special_roll, Inventories_On_Field[item_pos].implicit.attrib_id);
+			roll = PickRandomAttribute(DND_ITEM_SPECIALTY_CYBORG, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -94,10 +97,10 @@ Script "DnD Powercore Message" (int id, int type) CLIENTSIDE {
 
 	if(type > UNIQUE_BEGIN) {
 		type = (type >> UNIQUE_BITS) - 1;
-		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetUniqueItemName(DND_ITEM_POWERCORE, type), s:"!\c-"));
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetUniqueItemName(DND_ITEM_SPECIALTY_CYBORG, type), s:"!\c-"));
 	}
 	else
-		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetItemTagName(DND_ITEM_POWERCORE, id), s:"!\c-"));
+		Log(s:StrParam(s:"\cc", l:"DND_PICKUP_POWERCORE", s:": \c[Y5]", l:GetItemTagName(DND_ITEM_SPECIALTY_CYBORG, id), s:"!\c-"));
 }
 
 #endif

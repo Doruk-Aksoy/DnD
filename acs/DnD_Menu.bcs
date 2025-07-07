@@ -475,7 +475,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			if(curopt == MENU_STAT1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_STATS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				SetHudClipRect(192, 56, 256, 144, 256);
-				HudMessage(s:"\c[Y5]", l:"DND_STAT18", s:": \c-", d:CheckInventory("Level"); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_STAT18", s:" \c-", d:CheckInventory("Level"), s: " \cd", l:GetClassLabel(StrParam(s:"CLASS", d:CheckInventory("DnD_Character") - 1), DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 192.1, 64.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]", l:"DND_STAT16", s:": \c-", d:GetPlayerExp(pnum), s:" / ", d:LevelCurve[CheckInventory("Level") - 1]; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]", l:"DND_STAT19", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 96.0, 0.0, 0.0);
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s:": \c-$", d:CheckInventory("Budget"), s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 112.0, 0.0, 0.0);
@@ -629,7 +629,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// armors
 				DrawArmorBox(boxid, HELM_INDEX + 1, 394.4, 88.0, DND_ITEM_HELM);
 				DrawArmorBox(boxid, BODY_ARMOR_INDEX + 1, 394.4, 152.0, DND_ITEM_BODYARMOR);
-				DrawArmorBox(boxid, POWERCORE_INDEX + 1, 338.4, 152.0, DND_ITEM_POWERCORE);
+				DrawArmorBox(boxid, POWERCORE_INDEX + 1, 338.4, 152.0, DND_ITEM_SPECIALTY_CYBORG);
 				DrawArmorBox(boxid, BOOT_INDEX + 1, 394.4, 216.0, DND_ITEM_BOOT);
 
 				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 26, 432.4, 264.0);

@@ -2858,17 +2858,19 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 			case DND_ITEM_BODYARMOR:
 				SetFont("ARMBAK");
 			break;
-			case DND_ITEM_POWERCORE:
-				if(!CheckInventory("Cyborg_Perk25"))
-					SetFont("PCORBAKB");
-				else
-					SetFont("PCORBAK");
-			break;
 			case DND_ITEM_HELM:
 				SetFont("HELMBAK");
 			break;
 			case DND_ITEM_BOOT:
 				SetFont("BOOTBAK");
+			break;
+
+			// specialty items
+			case DND_ITEM_SPECIALTY_CYBORG:
+				if(!CheckInventory("Cyborg_Perk25"))
+					SetFont("PCORBAKB");
+				else
+					SetFont("PCORBAK");
 			break;
 		}
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 30 - thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
@@ -3274,7 +3276,7 @@ void PlayItemDropSound(int type, bool use_activator_sound) {
 	str snd = "Items/Drop";
 	if(type == DND_ITEM_BODYARMOR || type == DND_ITEM_BOOT || type == DND_ITEM_HELM)
 		snd = "Items/ArmorEquip";
-	else if(type == DND_ITEM_POWERCORE)
+	else if(type == DND_ITEM_SPECIALTY_CYBORG)
 		snd = "Items/PowercoreDrop";
 
 	if(!use_activator_sound) {
@@ -3338,7 +3340,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 							item_type = DND_ITEM_BODYARMOR;
 						break;
 						case POWERCORE_INDEX:
-							item_type = DND_ITEM_POWERCORE;
+							item_type = DND_ITEM_SPECIALTY_CYBORG;
 						break;
 						case BOOT_INDEX:
 							item_type = DND_ITEM_BOOT;
@@ -3351,7 +3353,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						if(temp == -1) {
 							if(item_type == DND_ITEM_CHARM)
 								LocalAmbientSound("Items/CharmDrop", 127);
-							else if(item_type != DND_ITEM_POWERCORE)
+							else if(item_type != DND_ITEM_SPECIALTY_CYBORG)
 								LocalAmbientSound("Items/ArmorEquip", 127);
 							else
 								LocalAmbientSound("Items/PowercoreEquip", 127);
@@ -5083,12 +5085,6 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
 	int val = GetPlayerAttributeValue(pnum, res) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) + reduce;
 	switch(res) {
-		case INV_DMGREDUCE_MAGIC:
-			val += HasPlayerPowerset(pnum, PPOWER_INCMAGICRES) * RESIST_BOOST_FROM_BOOTS;
-		break;
-		case INV_DMGREDUCE_ENERGY:
-			val += HasPlayerPowerset(pnum, PPOWER_INCENERGYRES) * RESIST_BOOST_FROM_BOOTS;
-		break;
 		case INV_DMGREDUCE_FIRE:
 		case INV_DMGREDUCE_ICE:
 		case INV_DMGREDUCE_POISON:
@@ -5723,7 +5719,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 
 			// reduced overheat
-			val = HasPlayerPowerset(pnum, PPOWER_LESSOVERHEAT) * LESS_OVERHEAT_FACTOR + GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
+			val = GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCED_OVERHEAT, 0, 0, val), s:"\n");
 				++k;

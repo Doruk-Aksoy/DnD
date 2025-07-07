@@ -249,11 +249,8 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 
 	// save
 	SaveUsedItemAttribs(pnum, item_index);
-	
-	int special_roll = 0;
-	if(PlayerInventoryList[pnum][item_index].implicit.attrib_id != -1) {
-		special_roll = PlayerInventoryList[pnum][item_index].implicit.attrib_extra;
-	}
+
+	int special_roll = GetSpecialRollAttribute(pnum, item_index);
 
 	for(int s = 0; s < aff && !finish; ++s) {
 		i = PlayerInventoryList[pnum][item_index].attrib_count;
@@ -263,7 +260,7 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 				PlayerInventoryList[pnum][item_index].item_type,
 				PlayerInventoryList[pnum][item_index].item_subtype, 
 				special_roll, 
-				PlayerInventoryList[pnum][item_index].implicit.attrib_id
+				PlayerInventoryList[pnum][item_index].implicit[0].attrib_id
 			);
 		} while(CheckItemAttribute(pnum, item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
 		
@@ -314,10 +311,13 @@ void SaveUsedItemQuality(int pnum, int item_id) {
 
 void SaveUsedItemImplicit(int pnum, int item_id) {
 	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
-	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].implicit.attrib_id;
-	Player_MostRecent_Orb[pnum].values[1] = PlayerInventoryList[pnum][item_id].implicit.attrib_val;
-	Player_MostRecent_Orb[pnum].values[2] = PlayerInventoryList[pnum][item_id].implicit.attrib_tier;
-	Player_MostRecent_Orb[pnum].values[3] = PlayerInventoryList[pnum][item_id].implicit.attrib_extra;
+
+	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_id;
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_val;
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_tier;
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_extra;
+	}
 }
 
 void RestoreItemAttribsFromUsedOrb(int pnum) {
@@ -338,10 +338,12 @@ void RestoreItemAttribsFromUsedOrb(int pnum) {
 void RestoreItemImplicitsFromUsedOrb(int pnum) {
 	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
 
-	PlayerInventoryList[pnum][temp].implicit.attrib_id = Player_MostRecent_Orb[pnum].values[0];
-	PlayerInventoryList[pnum][temp].implicit.attrib_val = Player_MostRecent_Orb[pnum].values[1];
-	PlayerInventoryList[pnum][temp].implicit.attrib_tier = Player_MostRecent_Orb[pnum].values[2];
-	PlayerInventoryList[pnum][temp].implicit.attrib_extra = Player_MostRecent_Orb[pnum].values[3];
+	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_id = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i];
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_val = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1];
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_tier = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2];
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_extra = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3];
+	}
 
 	SyncItemImplicits(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }

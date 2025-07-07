@@ -1,8 +1,6 @@
 #ifndef DND_WEAPONDEFS_IN
 #define DND_WEAPONDEFS_IN
 
-#include "DnD_Common.h"
-
 #define DND_THUNDERAXE_WEAKENPCT 50
 #define CHAIN_LIGHTNING_DELAY 4
 
@@ -12,8 +10,6 @@
 #define SNIPER_CRIT_BOOST_PER (0.75 / SNIPER_CRIT_MAX)
 
 #define THUNDERSTAFF_SELFDMG_DIST 160.0
-
-#define DND_HANDGUN_BUFFEDSHOT_PERCENT 0.25 // 25%
 
 int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
@@ -1842,7 +1838,7 @@ void GiveOverheat(int pnum, str item, int amt, int wepid) {
 	if((Weapons_Data[wepid].properties & WPROP_TECH) && CheckInventory("Cyborg_Perk5"))
 		amt -= amt * 3 / 10;
 
-	int reduce = HasPlayerPowerset(pnum, PPOWER_LESSOVERHEAT) * LESS_OVERHEAT_FACTOR + GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
+	int reduce = GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
 	if(reduce)
 		amt = amt * (100 - reduce) / 100;
 

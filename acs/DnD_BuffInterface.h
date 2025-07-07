@@ -63,8 +63,12 @@ bool IsCurse(int debuff_id) {
 void HandleCurseFade(int player_tid, int origin_tid, int r, int g, int b, int intensity, int duration, int curse_effect) {
     // curse has a color component attached
     if(intensity && !CheckActorInventory(player_tid, "IsBlinded")) {
-        if(HasPlayerPowerset(player_tid - P_TIDSTART, PPOWER_SYNTHMETALMASK))
-            intensity /= DND_SYNTHMASK_EFFECT;
+        int temp = GetPlayerAttributeValue(player_tid - P_TIDSTART, INV_IMP_REDUCEDVISIONIMPAIR);
+        if(temp)
+            intensity = (100 - temp) / 100;
+
+        if(intensity <= 0)
+            return;
 
         duration = duration * curse_effect / 100;
 

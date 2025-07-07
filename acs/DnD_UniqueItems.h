@@ -22,7 +22,7 @@ str GetUniqueItemName(int itype, int id) {
 			return StrParam(s:"DND_UNIQUE", d:id + 1);
 		return StrParam(s:"DND_DROP_UNIQUE", d:id - UNIQUE_CHARM_DROPONLY_BEGIN + 1);
 
-		case DND_ITEM_POWERCORE:
+		case DND_ITEM_SPECIALTY_CYBORG:
 		return StrParam(s:"DND_UCORE_NAME", d:id - UNIQUE_POWERCORE_BEGIN + 1);
 
 		case DND_ITEM_BODYARMOR:
@@ -99,7 +99,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
 	UniqueItemList[id].item_level = 30;
 	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 3;
+	UniqueItemList[id].attrib_count = 2;
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_FACTOR_SMALLCHARM;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_LIMITEDSMALLCHARMS;
 	UniqueItemList[id].rolls[0].attrib_low = 1250; // will be divided by 100 after mult (1.25 to 2)
@@ -570,7 +570,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].width = 1;
 	UniqueItemList[id].height = 1;
 	UniqueItemList[id].item_image = IIMG_UCORE_1;
-	UniqueItemList[id].item_type = DND_ITEM_POWERCORE | ((id + 1) << UNIQUE_BITS);
+	UniqueItemList[id].item_type = DND_ITEM_SPECIALTY_CYBORG | ((id + 1) << UNIQUE_BITS);
 	UniqueItemList[id].item_subtype = PCORE_UNSTABLE;
 	UniqueItemList[id].item_level = 48;
 	UniqueItemList[id].item_stack = 0;

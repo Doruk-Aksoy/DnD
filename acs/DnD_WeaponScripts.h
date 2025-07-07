@@ -45,6 +45,8 @@ Script "DnD Can Fire Weapon" (void) {
 
 			switch(wepid) {
 				case DND_WEAPON_SICKLE:
+					canFire = true;
+					flags = DND_CFW_ALTFIRECHECK;
 					canAltFire = !CheckInventory("SickleCooldown");
 				break;
 
@@ -813,7 +815,7 @@ Script "DnD Weapon Select" (int wepid) {
 	SetInventory("DnD_WeaponID", wepid);
 
 	int pnum = PlayerNumber();
-	if(IsHandgun(wepid) && HasPlayerPowerSet(pnum, PPOWER_HANDGUNMORECRIT)) {
+	if(IsHandgun(wepid) && GetPlayerAttributeValue(pnum, INV_IMP_HANDGUNBONUS)) {
 		GiveInventory("DnD_HandgunMoreCritShots", 1);
 	}
 	else
@@ -961,11 +963,11 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 	rate &= 0x0000FFFF;
 
 	int pnum = PlayerNumber();
-
-	if(HasPlayerPowerSet(pnum, PPOWER_OVERHEATGOFAST)) {
-		int temp = d * (100 - OVERHEAT_DISS_FACTOR) / 100;
+	int temp = GetPlayerAttributeValue(pnum, INV_IMP_FASTEROVERHEATDISS);
+	if(temp) {
+		temp = d * (100 - temp) / 100;
 		if(!temp) {
-			rate = rate * (100 + OVERHEAT_DISS_FACTOR) / 100;
+			rate = rate * (100 + temp) / 100;
 			// if not 1 then we also reduce the delay if the difference is that small
 			if(d != 1)
 				d = 1;

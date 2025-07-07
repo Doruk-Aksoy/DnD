@@ -27,13 +27,17 @@ int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 
 	Inventories_On_Field[charm_pos].corrupted = false;
 	Inventories_On_Field[charm_pos].quality = 0;
-	Inventories_On_Field[charm_pos].implicit.attrib_id = -1;
-	Inventories_On_Field[charm_pos].implicit.attrib_val = 0;
-	Inventories_On_Field[charm_pos].implicit.attrib_tier = 0;
-	Inventories_On_Field[charm_pos].implicit.attrib_extra = 0;
+
+	int i;
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		Inventories_On_Field[charm_pos].implicit[i].attrib_id = -1;
+		Inventories_On_Field[charm_pos].implicit[i].attrib_val = 0;
+		Inventories_On_Field[charm_pos].implicit[i].attrib_tier = 0;
+		Inventories_On_Field[charm_pos].implicit[i].attrib_extra = 0;
+	}
 	
 	Inventories_On_Field[charm_pos].attrib_count = 0;
-	for(int i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
 		Inventories_On_Field[charm_pos].attributes[i].attrib_id = -1;
 		
 	return res;
@@ -146,12 +150,16 @@ void ResetPlayerCharmsUsed(int pnum) {
 
 		Items_Used[pnum][i].corrupted = 0;
 		Items_Used[pnum][i].quality = 0;
-		Items_Used[pnum][i].implicit.attrib_id = -1;
-		Items_Used[pnum][i].implicit.attrib_val = 0;
-		Items_Used[pnum][i].implicit.attrib_tier = 0;
-		Items_Used[pnum][i].implicit.attrib_extra = 0;
 
-		for(int j = 0; j < Items_Used[pnum][i].attrib_count; ++j) {
+		int j;
+		for(j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
+			Items_Used[pnum][i].implicit[j].attrib_id = -1;
+			Items_Used[pnum][i].implicit[j].attrib_val = 0;
+			Items_Used[pnum][i].implicit[j].attrib_tier = 0;
+			Items_Used[pnum][i].implicit[j].attrib_extra = 0;
+		}
+
+		for(j = 0; j < Items_Used[pnum][i].attrib_count; ++j) {
 			Items_Used[pnum][i].attributes[j].attrib_id = 0;
 			Items_Used[pnum][i].attributes[j].attrib_val = 0;
 			Items_Used[pnum][i].attributes[j].attrib_tier = 0;

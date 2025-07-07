@@ -190,12 +190,7 @@ void SetupArmorDropWeights() {
 
 #define LIGHTNINGCOIL_ABSORBFACTOR 80
 
-#define WARRIORHELM_RANGEINC 0.15
-#define WARRIORHELM_DMGINC 25
 #define CRUSADER_ESPCT 1
-#define PREDATOR_DMG_BONUS 10 // 10%
-#define TACHELM_CRITBONUS 0.05 // 5% flat
-#define SAGE_ABSORB_VALUE 10
 
 #define MAX_HELM_ATTRIB_DEFAULT 4
 #define MAX_BOOT_ATTRIB_DEFAULT 4
@@ -263,10 +258,13 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 
 	Inventories_On_Field[item_pos].corrupted = false;
 	Inventories_On_Field[item_pos].quality = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_id = -1;
-	Inventories_On_Field[item_pos].implicit.attrib_val = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_tier = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_extra = 0;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
+		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+	}
 	
 	Inventories_On_Field[item_pos].attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
@@ -298,10 +296,13 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
 
 	Inventories_On_Field[item_pos].corrupted = false;
 	Inventories_On_Field[item_pos].quality = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_id = -1;
-	Inventories_On_Field[item_pos].implicit.attrib_val = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_tier = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_extra = 0;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
+		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+	}
 	
 	Inventories_On_Field[item_pos].attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
@@ -338,10 +339,13 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 
 	Inventories_On_Field[item_pos].corrupted = false;
 	Inventories_On_Field[item_pos].quality = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_id = -1;
-	Inventories_On_Field[item_pos].implicit.attrib_val = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_tier = 0;
-	Inventories_On_Field[item_pos].implicit.attrib_extra = 0;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
+		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
+		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+	}
 	
 	Inventories_On_Field[item_pos].attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
@@ -350,70 +354,37 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 }
 
 // extra holds m_id
-int RollArmorInfo(int item_pos, int item_tier, int pnum, int tiers = 0, int extra = -1) {
-	// roll random attributes for the charm
-	int i = 0, roll;
+int InitializeArmor(int item_pos, int item_tier, int pnum, int tiers = 0, int extra = -1) {
 	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers, extra);
-	int count = random(1, MAX_ARMOR_ATTRIB_DEFAULT);
-	
 	Inventories_On_Field[item_pos].item_image = IIMG_ARM_1 + armor_type;
-
-	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
-	int special_roll = SetupItemImplicit(item_pos, DND_ITEM_BODYARMOR, armor_type, Inventories_On_Field[item_pos].item_level);
-
-	while(i < count) {
-		do {
-			roll = PickRandomAttribute(DND_ITEM_BODYARMOR, armor_type, special_roll, Inventories_On_Field[item_pos].implicit.attrib_id);
-		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
-		AddAttributeToFieldItem(item_pos, roll, pnum, count);
-		++i;
-	}
-
 	return armor_type;
 }
 
-int RollBootInfo(int item_pos, int item_tier, int pnum) {
-	// roll random attributes for the charm
-	int i = 0, roll;
+int InitializeBoot(int item_pos, int item_tier, int pnum) {
 	int armor_type = ConstructBootDataOnField(item_pos, item_tier);
-	int count = random(1, MAX_BOOT_ATTRIB_DEFAULT);
-	int special_roll = 0;
-
 	Inventories_On_Field[item_pos].item_image = IIMG_BOO_1 + armor_type;
-
-	SetupItemImplicit(item_pos, DND_ITEM_BOOT, armor_type, item_tier);
-
-	while(i < count) {
-		do {
-			roll = PickRandomAttribute(DND_ITEM_BOOT, armor_type, special_roll, Inventories_On_Field[item_pos].implicit.attrib_id);
-		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
-		AddAttributeToFieldItem(item_pos, roll, pnum, count);
-		++i;
-	}
-
 	return armor_type;
 }
 
-int RollHelmInfo(int item_pos, int item_tier, int pnum, int type = -1) {
-	// roll random attributes for the charm
-	int i = 0, roll;
+int InitializeHelm(int item_pos, int item_tier, int pnum, int type = -1) {
 	int armor_type = ConstructHelmDataOnField(item_pos, item_tier, type);
-	int count = random(1, MAX_HELM_ATTRIB_DEFAULT);
-	int special_roll = 0;
-
 	Inventories_On_Field[item_pos].item_image = IIMG_HLM_1 + armor_type;
+	return armor_type;
+}
 
-	SetupItemImplicit(item_pos, DND_ITEM_HELM, armor_type, item_tier);
-	
+void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int armor_type, int max_attr) {
+	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
+	int i = 0, roll;
+	int count = random(1, max_attr);
+	int special_roll = SetupItemImplicit(item_pos, item_type, armor_type, item_tier);
+
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_HELM, armor_type, special_roll, Inventories_On_Field[item_pos].implicit.attrib_id);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
 	}
-
-	return armor_type;
 }
 
 str GetArmorDropClass(int type) {
@@ -497,7 +468,7 @@ void UpdateEnergyShieldVisual(int val) {
 int GetEShieldMagicAbsorbValue(int pnum) {
 	if(GetPlayerAttributeValue(pnum, INV_EX_ESHIELDFULLABSORB) || HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL))
 		return 100;
-	return HasPlayerPowerset(pnum, PPOWER_MAGICNEGATION) * SAGE_ABSORB_VALUE + GetPlayerAttributeValue(pnum, INV_MAGIC_NEGATION);
+	return GetPlayerAttributeValue(pnum, INV_MAGIC_NEGATION);
 }
 
 int GetMitigationChance(int pnum) {

@@ -409,7 +409,7 @@ Actor EliteReflectingShield {
 		Loop
 		Death:
 		Disappear:
-			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
 		Stop
 		Remove:
 			TNT1 A 1

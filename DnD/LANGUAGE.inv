@@ -471,6 +471,32 @@ IATTR_TI7			= "magic negation";
 IATTR_TI8			= "chance on hit for energy shield to explode for";		IATTR_TI8S = "of it in a 256 unit radius";
 IATTR_TI9			= "armor and energy shield,";
 
+IATTR_TI10			= " more damage and "; IATTR_TI10S = "damage reduction during killing sprees";
+IATTR_TI11			= "Double energy shield recovery rate";
+IATTR_TI12			= " of lightning damage taken absorbed as energy shield. "; IATTR_TI12S = "chance to release a lightning bolt towards an enemy on hit";
+IATTR_TI13			= " reduced damage from melee attacks. If a melee weapon is held, extra "; IATTR_TI13S = "protection is bestowed";
+IATTR_TI14			= "Handguns get "; IATTR_TI14S = " more crit chance when swapped to for the next \cd10\c- seconds";
+IATTR_TI15			= "chance on hit to fire a nova of spikes";
+IATTR_TI16			= "Can roll all \cdphysical\c- modifiers";
+IATTR_TI17			= "Can roll all \cdmagic\c- modifiers";
+IATTR_TI18			= "Can roll all \cdexplosive\c- modifiers";
+IATTR_TI19			= "Can roll all \cdenergy\c- modifiers";
+IATTR_TI20			= "Can roll all \cdelemental\c- modifiers";
+IATTR_TI21			= "Take \cd90%\c- less damage from reflect";
+IATTR_TI22			= "Energy shield blocks all damage";
+IATTR_TI23			= "less lightning damage taken";
+IATTR_TI24			= "faster overheat dissipation";
+IATTR_TI25			= "less poison damage taken";
+IATTR_TI26			= "less fire damage taken";
+IATTR_TI27			= "less self damage taken";
+IATTR_TI28			= "\cd+1\c- to pet cap";
+IATTR_TI29			= "reduced vision impairment";
+IATTR_TI30			= "Melee hits can ignore shields";
+IATTR_TI31			= "Deal "; IATTR_TI31S = " more damage to bosses";
+IATTR_TI32			= "Killing magical or undead enemies recover \cd1%\c- of energy shield";
+IATTR_TI33			= "Precision weapons have "; IATTR_TI33S = " to crit chance";
+IATTR_TI34			= "Quality cap is \cd50%\c-";
+
 // essences
 IATTR_TE1 			= "Enemy radius damage immunity is ignored";
 IATTR_TE2 			= "Soul weapons pierce ";

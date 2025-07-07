@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -43,15 +43,13 @@ struct ValueComponent_T {
 #define TICRATE 35
 #define TICRATE_F 35.0
 #define HALF_TICRATE 17
+#define MAXLOOTBOXES 1024
 
 #define DND_BASE_HEALTH 100
 
 #define DND_PLAYER_WEAKEN_LEVELS 40
 #define DND_MONSTER_RESIST_LEVELS 40
 #define DND_PLAYER_RESIST_REDUCE -25.0
-
-#define RESIST_BOOST_FROM_BOOTS 5.0 // 5%
-#define DMGREDUCE_BOOST_FROM_BOOTS -0.1 // 10%
 
 // moved here for better access everywhere, was necessary for monster resists
 enum {
@@ -270,9 +268,11 @@ enum {
 	
 	DND_SUBORDINATE_TEMPTID = DND_PICKUPTID_BEGIN + MAX_PICKUPS,
 
+	DND_LOOTBOX_TID,
+
 	// used for shit like elite sparkles or reflect shields that are attached to a monster
 	// DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS is the skip for next
-	DND_MONSTER_ATTACHMENT_TID_BEGIN,
+	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_LOOTBOX_TID + MAXLOOTBOXES,
 	
 	DND_DROP_TID = INT_MAX - 1,
 	SPECIAL_FX_TID
@@ -436,9 +436,10 @@ int active_quest_id = -1;
 #define DND_TID_SHOOTABLE 1
 #define DND_TID_PICKUPS 2
 #define DND_TID_SHAREDITEMS 3
+#define DND_TID_LOOTBOXES 4
 // keeps at what tid we are left off
 // { DND_MONSTERTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
-int DnD_TID_Counter[4] = { 0, 0, 0, 0 };
+int DnD_TID_Counter[5] = { 0, 0, 0, 0, 0 };
 
 // holds the monster tids that are in use -- arbitrary order
 global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
@@ -488,6 +489,7 @@ void GiveMonsterTID(int base_tid) {
 	}
 	temp = DnD_TID_Counter[DND_TID_MONSTER];
 	UsedMonsterTIDs[DnD_TID_Counter[DND_TID_MONSTER]++] = base_tid;
+	//Log(s:"monster count: ", d:DnD_TID_Counter[DND_TID_MONSTER]);
 	ACS_NamedExecuteAlways("DnD Update Monster TID CS", 0, temp, base_tid, DnD_TID_Counter[DND_TID_MONSTER]);
 }
 

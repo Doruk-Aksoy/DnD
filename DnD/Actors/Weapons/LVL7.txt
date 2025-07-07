@@ -381,7 +381,7 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 		Goto ReadyLoop
 		AltFireConfirmed:
 			// 66 tics => 1.5 secs
-			DEVA A 2 Offset(0, 31) ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, 0, 85)
+			DEVA A 2 Offset(0, 31) ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, 0, -85)
 			DEVA A 2 Offset(0, 30) A_PlayWeaponSound("weapons/bigcharge")
 			DEVA A 2 Offset(0, 28)
 			DEVA A 2 Offset(0, 26)
@@ -475,7 +475,7 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 			DEVA F 1
 			TNT1 A 0 A_PlaySound("weapons/devastatorfire", 5)
 			DEVA G 1 Bright A_GunFlash
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, BTI_F_REMOVE, 85)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, BTI_F_REMOVE, -85)
 			DEVA I 1 Bright
 			DEVA K 1
 			//--------------------
@@ -1167,7 +1167,7 @@ ACTOR "Rail Gun" : DnDWeapon {
 		ContinueCharge:
 			TNT1 A 0 A_PlayWeaponSound("weapons/plasmacharge")
 			RAIG T 2  A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Take Ammo From Weapon", DND_WEAPON_RAILGUN, 0, 8)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Take Ammo From Weapon", 0, DND_WEAPON_RAILGUN, 0, 8)
 		NoTake:
 			TNT1 A 0 A_GiveInventory("Railgun_Charge", 1)
 			RAIG BUCVD 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)

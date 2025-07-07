@@ -916,30 +916,33 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 				GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) +
 				CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT);
 
+	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
 	if(CheckInventory("Trickster_Perk5"))
-		val += GetMitigationChance(pnum) / 2;
+		val += GetMitigationChance(pnum) / 200;
 
 	return val;
 }
 
 int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 	int chance = GetBaseCritChance(pnum);
+	int pct_bonus;
 	// add other flat crit bonuses here
 	if(wepid != -1) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_WEP].val;
 
 		// precision bonus from tactical helm if any
-		chance += (HasPlayerPowerset(pnum, PPOWER_PRECISIONCRIT) && IsPrecisionWeapon(wepid)) * TACHELM_CRITBONUS;
+		if(IsPrecisionWeapon(wepid) && (pct_bonus = GetPlayerAttributeValue(pnum, INV_IMP_PRECISIONCRITBONUS)))
+			chance += pct_bonus;
 	}
 
 	// more player crit chance bonuses, only on sniper rifle currently
-	int pct_bonus = CheckInventory("SniperZoomTimer");
+	pct_bonus = CheckInventory("SniperZoomTimer");
 	if(pct_bonus)
 		chance = FixedMul(chance, 1.0 + pct_bonus * SNIPER_CRIT_BOOST_PER);
 
 	pct_bonus = CheckInventory("DnD_HandgunMoreCritShots");
-	if(pct_bonus)
-		chance = FixedMul(chance, 1.0 + DND_HANDGUN_BUFFEDSHOT_PERCENT);
+	if(pct_bonus && IsHandgun(wepid))
+		chance = FixedMul(chance, 1.0 + GetPlayerAttributeValue(pnum, INV_IMP_HANDGUNBONUS));
 
 	// monster related bonuses
 	//if(victim != -1)
@@ -1218,7 +1221,7 @@ int MapDamageCategoryToPercentBonus(int pnum, int talent, int flags) {
 
 	switch(talent) {
 		case DND_DAMAGECATEGORY_MELEE:
-			base += GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE) + (GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_DMGINC;
+			base += GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE);
 		break;
 		case DND_DAMAGECATEGORY_BULLET:
 			base += GetPlayerAttributeValue(pnum, INV_PERCENTPHYS_DAMAGE);
@@ -1283,8 +1286,7 @@ int GetMonsterBleedDuration(int m_id, int pnum) {
 int GetPlayerMeleeRange(int pnum, int range) {
 	return FixedMul(
 		range, 
-		1.0 + 
-		(GetHelmID(pnum) == HELMS_WARRIOR) * WARRIORHELM_RANGEINC + 
+		1.0 +  
 		0.01 * (GetPlayerAttributeValue(pnum, INV_MELEERANGE) + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
 	);
 }

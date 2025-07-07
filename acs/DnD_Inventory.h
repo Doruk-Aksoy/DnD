@@ -11,17 +11,15 @@
 
 #define MAX_ITEM_LEVEL 100
 
-#define DND_SYNC_ITEMBEGIN DND_SYNC_ITEMTOPLEFTBOX
-#define DND_SYNC_ITEMEND DND_SYNC_ITEMATTRIBUTES_TIER
-
 #define INVENTORY_INFO_ALPHA 0.666
 #define INVENTORY_HOLDTIME 0.5
 #define INVENTORY_FADETIME 0.5
 
-#define DND_BASE_DISASSEMBLE_COST 300
+#define DND_BASE_DISASSEMBLE_COST 350
 #define DND_DISASSEMBLE_LEVEL_PERCENT 10
-#define DND_DISASSEMBLE_IMPLICIT_PERCENT 25
-#define DND_DISASSEMBLE_TIER_PERCENT 16
+#define DND_DISASSEMBLE_IMPLICIT_PERCENT 10
+#define DND_DISASSEMBLE_TIER_PERCENT 15
+#define DND_DISASSEMBLE_FRACTURE_PERCENT 10 // 10% per fracture
 #define DND_BASE_DISASSEMBLE_CHANCE 25 // 25%
 #define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 5 // 5%
 #define DND_BASE_FRACTURE_DISASSEMBLE_CHANCE 3
@@ -470,12 +468,16 @@ void RemoveItemFromWorld(int fieldpos) {
 
 	Inventories_On_Field[fieldpos].corrupted = 0;
 	Inventories_On_Field[fieldpos].quality = 0;
-	Inventories_On_Field[fieldpos].implicit.attrib_id = -1;
-	Inventories_On_Field[fieldpos].implicit.attrib_val = 0;
-	Inventories_On_Field[fieldpos].implicit.attrib_tier = 0;
-	Inventories_On_Field[fieldpos].implicit.attrib_extra = 0;
 
-	for(int k = 0; k < Inventories_On_Field[fieldpos].attrib_count; ++k) {
+	int k;
+	for(k = 0; k < MAX_ITEM_IMPLICITS; ++k) {
+		Inventories_On_Field[fieldpos].implicit[k].attrib_id = -1;
+		Inventories_On_Field[fieldpos].implicit[k].attrib_val = 0;
+		Inventories_On_Field[fieldpos].implicit[k].attrib_tier = 0;
+		Inventories_On_Field[fieldpos].implicit[k].attrib_extra = 0;
+	}
+
+	for(k = 0; k < Inventories_On_Field[fieldpos].attrib_count; ++k) {
 		Inventories_On_Field[fieldpos].attributes[k].attrib_id = 0;
 		Inventories_On_Field[fieldpos].attributes[k].attrib_val = 0;
 		Inventories_On_Field[fieldpos].attributes[k].attrib_tier = 0;
@@ -503,10 +505,13 @@ void FreeItem(int pnum, int item_index, int source, bool dontSync) {
 
 	SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, item_index, -1, 0, source);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, 0, source);
+
+	for(j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, j, -1, source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, j, 0, source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, j, 0, source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, j, 0, source);
+	}
 	
 	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	for(j = 0; j < temp; ++j) {
@@ -545,10 +550,13 @@ void FreeSpot(int pnum, int item_index, int source) {
 
 	SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, item_index, -1, 0, source);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, -1, 0, source);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, 0, source);
+
+	for(j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, j, -1, source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, j, 0, source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, j, 0, source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, j, 0, source);
+	}
 	
 	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	for(j = 0; j < temp; ++j) {
@@ -620,7 +628,16 @@ int GetMaxItemAffixes(int item_type, int item_subtype = -1) {
 		case DND_ITEM_BOOT:
 			res = MAX_BOOT_ATTRIB_DEFAULT;
 		break;
-		case DND_ITEM_POWERCORE:
+
+
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		case DND_ITEM_SPECIALTY_MARINE:
+		case DND_ITEM_SPECIALTY_HOBO:
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		case DND_ITEM_SPECIALTY_WANDERER:
+		case DND_ITEM_SPECIALTY_CYBORG:
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		case DND_ITEM_SPECIALTY_TRICKSTER:
 			res = MAX_POWERCORE_ATTRIB_DEFAULT;
 		break;
 	}
@@ -925,10 +942,13 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 
 		Items_Used[pnum][use_id].corrupted = PlayerInventoryList[pnum][item_index].corrupted;
 		Items_Used[pnum][use_id].quality = PlayerInventoryList[pnum][item_index].quality;
-		Items_Used[pnum][use_id].implicit.attrib_id = PlayerInventoryList[pnum][item_index].implicit.attrib_id;
-		Items_Used[pnum][use_id].implicit.attrib_val = PlayerInventoryList[pnum][item_index].implicit.attrib_val;
-		Items_Used[pnum][use_id].implicit.attrib_tier = PlayerInventoryList[pnum][item_index].implicit.attrib_tier;
-		Items_Used[pnum][use_id].implicit.attrib_extra = PlayerInventoryList[pnum][item_index].implicit.attrib_extra;
+
+		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+			Items_Used[pnum][use_id].implicit[i].attrib_id = PlayerInventoryList[pnum][item_index].implicit[i].attrib_id;
+			Items_Used[pnum][use_id].implicit[i].attrib_val = PlayerInventoryList[pnum][item_index].implicit[i].attrib_val;
+			Items_Used[pnum][use_id].implicit[i].attrib_tier = PlayerInventoryList[pnum][item_index].implicit[i].attrib_tier;
+			Items_Used[pnum][use_id].implicit[i].attrib_extra = PlayerInventoryList[pnum][item_index].implicit[i].attrib_extra;
+		}
 
 		Items_Used[pnum][use_id].isDirty = true;
 		Items_Used[pnum][use_id].textID = 0;
@@ -1067,10 +1087,13 @@ bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, i
 
 		PlayerInventoryList[player_index][item_index].corrupted = Inventories_On_Field[fieldpos].corrupted;
 		PlayerInventoryList[player_index][item_index].quality = Inventories_On_Field[fieldpos].quality;
-		PlayerInventoryList[player_index][item_index].implicit.attrib_id = Inventories_On_Field[fieldpos].implicit.attrib_id;
-		PlayerInventoryList[player_index][item_index].implicit.attrib_val = Inventories_On_Field[fieldpos].implicit.attrib_val;
-		PlayerInventoryList[player_index][item_index].implicit.attrib_tier = Inventories_On_Field[fieldpos].implicit.attrib_tier;
-		PlayerInventoryList[player_index][item_index].implicit.attrib_extra = Inventories_On_Field[fieldpos].implicit.attrib_extra;
+
+		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+			PlayerInventoryList[player_index][item_index].implicit[i].attrib_id = Inventories_On_Field[fieldpos].implicit[i].attrib_id;
+			PlayerInventoryList[player_index][item_index].implicit[i].attrib_val = Inventories_On_Field[fieldpos].implicit[i].attrib_val;
+			PlayerInventoryList[player_index][item_index].implicit[i].attrib_tier = Inventories_On_Field[fieldpos].implicit[i].attrib_tier;
+			PlayerInventoryList[player_index][item_index].implicit[i].attrib_extra = Inventories_On_Field[fieldpos].implicit[i].attrib_extra;
+		}
 
 		PlayerInventoryList[player_index][item_index].isDirty = true;
 
@@ -1112,10 +1135,13 @@ int CloneItem(int pnum, int item_index, int source, bool dontSync) {
 
 		SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, item_index, -1, source), source);
 		SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, source), source);
+
+		for(k = 0; k < MAX_ITEM_IMPLICITS; ++k) {
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, k, source), source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, k, source), source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, k, source), source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, k, source), source);
+		}
 
 		SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, c, -1, true, source);
 
@@ -1252,10 +1278,13 @@ void MoveItemToTemporary(int player_index, int item_index, int temp_pos, int sou
 
 	TemporaryInventoryList[player_index][temp_pos].corrupted = GetItemSyncValue(player_index, DND_SYNC_ITEMCORRUPTED, item_index, -1, source);
 	TemporaryInventoryList[player_index][temp_pos].quality = GetItemSyncValue(player_index, DND_SYNC_ITEMQUALITY, item_index, -1, source);
-	TemporaryInventoryList[player_index][temp_pos].implicit.attrib_id = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, source);
-	TemporaryInventoryList[player_index][temp_pos].implicit.attrib_val = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, i, source);
-	TemporaryInventoryList[player_index][temp_pos].implicit.attrib_tier = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, i, source);
-	TemporaryInventoryList[player_index][temp_pos].implicit.attrib_extra = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, i, source);
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_id = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, source);
+		TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_val = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, i, source);
+		TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_tier = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, i, source);
+		TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_extra = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, i, source);
+	}
 
 	TemporaryInventoryList[player_index][temp_pos].isDirty = true;
 	TemporaryInventoryList[player_index][temp_pos].textID = 0;
@@ -1284,10 +1313,13 @@ void CopyItemFromTemporary(int player_index, int item_index, int temp_pos, int s
 
 	SetItemSyncValue(player_index, DND_SYNC_ITEMCORRUPTED, item_index, -1, TemporaryInventoryList[player_index][temp_pos].corrupted, source);
 	SetItemSyncValue(player_index, DND_SYNC_ITEMQUALITY, item_index, -1, TemporaryInventoryList[player_index][temp_pos].quality, source);
-	SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit.attrib_id, source);
-	SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit.attrib_val, source);
-	SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit.attrib_tier, source);
-	SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit.attrib_extra, source);
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_id, source);
+		SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_val, source);
+		SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_tier, source);
+		SetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, i, TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_extra, source);
+	}
 	
 	SetItemSyncValue(player_index, DND_SYNC_ISDIRTY, item_index, -1, true, source);
 	SetItemSyncValue(player_index, DND_SYNC_TEXTID, item_index, -1, 0, source);
@@ -1427,10 +1459,13 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 
 	PlayerInventoryList[pnum][temp].corrupted = PlayerInventoryList[pnum][tb].corrupted;
 	PlayerInventoryList[pnum][temp].quality = PlayerInventoryList[pnum][tb].quality;
-	PlayerInventoryList[pnum][temp].implicit.attrib_id = PlayerInventoryList[pnum][tb].implicit.attrib_id;
-	PlayerInventoryList[pnum][temp].implicit.attrib_val = PlayerInventoryList[pnum][tb].implicit.attrib_val;
-	PlayerInventoryList[pnum][temp].implicit.attrib_tier = PlayerInventoryList[pnum][tb].implicit.attrib_tier;
-	PlayerInventoryList[pnum][temp].implicit.attrib_extra = PlayerInventoryList[pnum][tb].implicit.attrib_extra;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_id = PlayerInventoryList[pnum][tb].implicit[i].attrib_id;
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_val = PlayerInventoryList[pnum][tb].implicit[i].attrib_val;
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_tier = PlayerInventoryList[pnum][tb].implicit[i].attrib_tier;
+		PlayerInventoryList[pnum][temp].implicit[i].attrib_extra = PlayerInventoryList[pnum][tb].implicit[i].attrib_extra;
+	}
 
 	PlayerInventoryList[pnum][temp].isDirty = PlayerInventoryList[pnum][tb].isDirty;
 	PlayerInventoryList[pnum][temp].textID = PlayerInventoryList[pnum][tb].textID;
@@ -1651,10 +1686,13 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 
 	SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, tb, -1, itemsource), emptysource);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, tb, i, itemsource), emptysource);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, tb, i, itemsource), emptysource);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, tb, i, itemsource), emptysource);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, tb, i, itemsource), emptysource);
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, tb, i, itemsource), emptysource);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, tb, i, itemsource), emptysource);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, tb, i, itemsource), emptysource);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, tb, i, itemsource), emptysource);
+	}
 
 	SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(pnum, DND_SYNC_TEXTID, temp, -1, GetItemSyncValue(pnum, DND_SYNC_TEXTID, tb, -1, itemsource), emptysource);
@@ -1723,10 +1761,13 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 
 	SetItemSyncValue(p_empty, DND_SYNC_ITEMCORRUPTED, temp, -1, GetItemSyncValue(p_item, DND_SYNC_ITEMCORRUPTED, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(p_empty, DND_SYNC_ITEMQUALITY, temp, -1, GetItemSyncValue(p_item, DND_SYNC_ITEMQUALITY, tb, -1, itemsource), emptysource);
-	SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, tb, i, itemsource), emptysource);
-	SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, tb, i, itemsource), emptysource);
-	SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, tb, i, itemsource), emptysource);
-	SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, tb, i, itemsource), emptysource);
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, tb, i, itemsource), emptysource);
+		SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, tb, i, itemsource), emptysource);
+		SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, tb, i, itemsource), emptysource);
+		SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, tb, i, itemsource), emptysource);
+	}
 
 	SetItemSyncValue(p_empty, DND_SYNC_ISDIRTY, temp, -1, true, emptysource);
 	SetItemSyncValue(p_empty, DND_SYNC_TEXTID, temp, -1, 0, emptysource);
@@ -1860,6 +1901,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	
 	// potential delete of quality in case we hover over an item that doesn't have it, we don't want it lingering!
 	DeleteText(id_begin - id_mult * MAX_INVENTORY_BOXES - 18);
+	DeleteTextRange(id_begin - id_mult * MAX_INVENTORY_BOXES - 16, id_begin - id_mult * MAX_INVENTORY_BOXES);
 
 	SetFont("NSMOLFNT");
 	if(IsStackedItem(itype)) {
@@ -1932,24 +1974,35 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 
 		// implicit
 		val = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, topboxid, -1, source);
-		temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, -1, source);
-		if(temp != -1) {
-			if(isUnique)
-				yoff = 6.0;
-			
-			tmp_text = GetItemAttributeText(
-				temp, 
-				itype, 
-				isubt, 
-				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, topboxid, j, source), 
-				0, 
-				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, topboxid, j, source), 
-				showModTiers, 
-				GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, topboxid, j, source), 
-				false,
-				val
-			);
 
+		tmp_text = "";
+		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+			temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i, source);
+			if(temp != -1) {
+				if(isUnique)
+					yoff = 6.0;
+
+				if(tmp_text != "")
+					tmp_text = StrParam(s:tmp_text, s:"\n");
+				
+				tmp_text = StrParam(s:tmp_text,
+					s:GetItemAttributeText(
+						temp, 
+						itype, 
+						isubt, 
+						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, topboxid, i, source), 
+						0, 
+						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, topboxid, i, source), 
+						false, // we dont want detailed info on implicits, it doesn't make much sense currently
+						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, topboxid, i, source), 
+						false,
+						val
+					)
+				);
+			}
+		}
+
+		if(tmp_text != "") {
 			HudMessage(
 				s:tmp_text;
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
@@ -2065,10 +2118,13 @@ void CopyItemToField(int fieldpos, int player_index, int item_index, int source)
 
 	Inventories_On_Field[fieldpos].corrupted = GetItemSyncValue(player_index, DND_SYNC_ITEMCORRUPTED, wtemp, -1, source);
 	Inventories_On_Field[fieldpos].quality = GetItemSyncValue(player_index, DND_SYNC_ITEMQUALITY, wtemp, -1, source);
-	Inventories_On_Field[fieldpos].implicit.attrib_id = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, wtemp, i, source);
-	Inventories_On_Field[fieldpos].implicit.attrib_val = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, wtemp, i, source);
-	Inventories_On_Field[fieldpos].implicit.attrib_tier = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, wtemp, i, source);
-	Inventories_On_Field[fieldpos].implicit.attrib_extra = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, wtemp, i, source);
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		Inventories_On_Field[fieldpos].implicit[i].attrib_id = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, wtemp, i, source);
+		Inventories_On_Field[fieldpos].implicit[i].attrib_val = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, wtemp, i, source);
+		Inventories_On_Field[fieldpos].implicit[i].attrib_tier = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, wtemp, i, source);
+		Inventories_On_Field[fieldpos].implicit[i].attrib_extra = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, wtemp, i, source);
+	}
 
 	Inventories_On_Field[fieldpos].isDirty = true;
 	Inventories_On_Field[fieldpos].textID = 0;
@@ -2105,7 +2161,7 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 			droptype = "UniqueCharmDrop";
 		else if(itype == DND_ITEM_BODYARMOR)
 			droptype = StrParam(s:"UniqueArmor_", d:utype - UNIQUE_BODYARMOR_BEGIN);
-		else if(itype == DND_ITEM_POWERCORE)
+		else if(itype == DND_ITEM_SPECIALTY_CYBORG)
 			droptype = StrParam(s:"PowercoreDrop_Unique", d:utype - UNIQUE_POWERCORE_BEGIN);
 	}
 	else if(itype == DND_ITEM_ORB)
@@ -2120,7 +2176,7 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetBootDropClass(stype);
 	else if(itype == DND_ITEM_HELM)
 		droptype = GetHelmDropClass(stype);
-	else if(itype == DND_ITEM_POWERCORE)
+	else if(itype == DND_ITEM_SPECIALTY_CYBORG)
 		droptype = GetPowercoreDropClass(stype);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
@@ -2240,7 +2296,7 @@ bool IsCraftableItem(int itype) {
 		case DND_ITEM_CHARM:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
-		case DND_ITEM_POWERCORE:
+		case DND_ITEM_SPECIALTY_CYBORG:
 		case DND_ITEM_WEAPON:
 		case DND_ITEM_BODYARMOR:
 		return true;
@@ -2257,7 +2313,7 @@ bool IsUsableOnInventory(int itype) {
 		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
-		case DND_ITEM_POWERCORE:
+		case DND_ITEM_SPECIALTY_CYBORG:
 		return true;
 	}
 	return false;
@@ -2340,45 +2396,11 @@ void HandleEShieldChange(int pnum, bool remove) {
 		SetEnergyShield(i);
 }
 
-enum {
-	REQ_SYNC_ACC = 1
-};
-
-int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, int multiplier = 100, bool noSync = false, bool needDelay = false) {
-	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
-	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
-	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, aindex, source);
+// standard attribute processing (not implicits)
+void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index, bool remove, bool noSync = false, bool needDelay = false) {
 	int i, temp;
-	int sync_required = 0;
 	int cap;
 
-	if(multiplier != 100) {
-		if(aval > INT_MAX / multiplier) {
-			aval /= 100;
-			aval *= multiplier;
-		}
-		else {
-			aval *= multiplier;
-			aval /= 100;
-		}
-
-		if(!IsAttributeExtraException(atype)) {
-			if(aextra > 100000) {
-				aextra /= 100;
-				aextra *= multiplier;
-			}
-			else {
-				aextra *= multiplier;
-				aextra /= 100;
-			}
-		}
-	}
-	
-	if(remove) {
-		aval = -aval;
-		aextra = -aextra;
-	}
-	
 	switch(atype) {
 		// this is handled differently
 		case INV_CYBERNETIC:
@@ -2401,7 +2423,6 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 		case INV_ESS_OMNISIGHT:
 		case INV_ESS_OMNISIGHT2:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
-			sync_required = REQ_SYNC_ACC;
 		break;
 		
 		// exotic stuff -- reason most of these dont have syncs is that they arent meant to be shown in stat menu page, so no need for client to be aware
@@ -2642,50 +2663,78 @@ int ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool re
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 		break;
 	}
-
-	return sync_required;
 }
 
-bool IsAttributeExtraException(int attr) {
-	switch(attr) {
-		case INV_IMP_INCARMOR:
-		case INV_IMP_INCARMORSHIELD:
-		case INV_IMP_INCSHIELD:
-		case INV_IMP_INCMIT:
-		case INV_IMP_INCMITARMOR:
-		case INV_IMP_INCMITSHIELD:
-		case INV_IMP_INCMITARMORSHIELD:
-		case INV_IMP_POWERCORE:
-		return true;
+void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool remove, int multiplier = 100, bool noSync = false, bool needDelay = false) {
+	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, aindex, source);
+	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, aindex, source);
+	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, aindex, source);
+
+	if(multiplier != 100) {
+		if(aval > INT_MAX / multiplier) {
+			aval /= 100;
+			aval *= multiplier;
+		}
+		else {
+			aval *= multiplier;
+			aval /= 100;
+		}
+
+		if(!IsAttributeExtraException(atype)) {
+			if(aextra > 100000) {
+				aextra /= 100;
+				aextra *= multiplier;
+			}
+			else {
+				aextra *= multiplier;
+				aextra /= 100;
+			}
+		}
 	}
-	return false;
+	
+	if(remove) {
+		aval = -aval;
+		aextra = -aextra;
+	}
+	
+	ProcessAttribute(pnum, atype, aval, aextra, item_index, remove, noSync, needDelay);
 }
 
 bool ItemIsCybernetic(int pnum, int item_index, int attrib_count, int source) {
-	for(int i = 0; i < attrib_count; ++i) {
+	int i;
+	for(i = 0; i < attrib_count; ++i) {
 		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, i, source) == INV_CYBERNETIC) {
 			return true;
 		}
 	}
 
-	return GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source) == INV_CORR_CYBERNETIC;
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		attrib_count = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, source);
+		if(attrib_count == INV_CORR_CYBERNETIC || attrib_count == INV_CYBERNETIC)
+			return true;
+	}
+	return false;
 }
 
-void HandleAttributeExtra(int pnum, int aextra, int powerset, bool remove, bool noSync = false, bool needDelay = false) {
-	if(aextra) {
+void HandleAttributePowerset(int pnum, int val, int powerset, bool remove, bool noSync = false, bool needDelay = false) {
+	if(val) {
 		if(!remove)
-			aextra = GetPlayerAttributeValue(pnum, powerset) | aextra;
+			val = GetPlayerAttributeValue(pnum, powerset) | val;
 		else
-			aextra = GetPlayerAttributeValue(pnum, powerset) & ~aextra;
+			val = GetPlayerAttributeValue(pnum, powerset) & ~val;
 		
-		SetPlayerModValue(pnum, powerset, aextra, noSync, needDelay);
+		SetPlayerModValue(pnum, powerset, val, noSync, needDelay);
 	}
 }
 
-void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, int multiplier = 100, bool noSync = false, bool needDelay = false) {
-	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source);
-	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, -1, source);
-	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, source);
+void ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, bool remove, int multiplier = 100, bool noSync = false, bool needDelay = false) {
+	int atype = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, implicit_id, source);
+	if(atype == -1)
+		return;
+
+	int aval = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, implicit_id, source);
+	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, implicit_id, source);
+
 	int i, temp;
 
 	if(multiplier != 100) {
@@ -2715,43 +2764,40 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, int 
 		aextra = -aextra;
 	}
 
+	// delegate regular attribute as implicit responsibility to this function instead
+	if(atype < FIRST_CORRUPT_IMPLICIT || atype > LAST_REGULAR_IMPLICIT) {
+		ProcessAttribute(pnum, atype, aval, aextra, item_index, remove, noSync, needDelay);
+		return;
+	}
+
 	switch(atype) {
 		// standard implicits
 		case INV_IMP_INCARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync, needDelay);
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
 		case INV_IMP_INCSHIELD:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
-
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMIT:
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, aval, noSync, needDelay);
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 		break;
 		case INV_IMP_INCARMORSHIELD:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync, needDelay);
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
-
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMITSHIELD:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_SHIELD_TO_MIT_RATIO), noSync, needDelay);
-
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync);
 			
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMITARMOR:
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_ARMOR_TO_MIT_RATIO), noSync, needDelay);
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
 		break;
 		case INV_IMP_POWERCORE:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
@@ -2761,12 +2807,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, int 
 		break;
 		case INV_IMP_UNSTABLECORE:
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
-			if(!remove)
-				GiveInventory("EShieldBlowChance", aextra);
-			else
-				TakeInventory("EShieldBlowChance", aextra);
-
-			HandleAttributeExtra(pnum, PPOWER_ESHIELDEXPLODE, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
+			IncPlayerModExtra(pnum, INV_IMP_UNSTABLECORE, aextra, noSync, needDelay);
 
 			HandleEShieldChange(pnum, remove);
 		break;
@@ -2774,9 +2815,56 @@ void ProcessItemImplicit(int pnum, int item_index, int source, bool remove, int 
 			IncPlayerModValue(pnum, INV_ARMOR_INCREASE, aval, noSync);
 			IncPlayerModValue(pnum, INV_SHIELD_INCREASE, aval, noSync, needDelay);
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, ((aval << 16) / DND_ARMOR_TO_MIT_RATIO), noSync, needDelay);
-			HandleAttributeExtra(pnum, aextra, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
 		break;
 
+		// value and extra implicits
+		case INV_IMP_RAVAGER:
+		case INV_IMP_KNIGHTARMOR:
+		case INV_IMP_ABSORBLIGHTNING:
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+			IncPlayerModExtra(pnum, atype, aextra, noSync, needDelay);
+		break;
+
+		// powerset things
+		case INV_IMP_DOUBLEESHIELDRECOVERY:
+			HandleAttributePowerset(pnum, PPOWER_CYBER, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
+		break;
+
+		// single value implicits
+		case INV_IMP_HANDGUNBONUS:
+		case INV_IMP_NECROARMOR:
+		case INV_IMP_LESSLIGHTNINGTAKEN:
+		case INV_IMP_LESSPOISONTAKEN:
+		case INV_IMP_LESSFIRETAKEN:
+		case INV_IMP_LESSSELFDAMAGETAKEN:
+		case INV_IMP_FASTEROVERHEATDISS:
+		case INV_IMP_BONUSPETCAP:
+		case INV_IMP_REDUCEDVISIONIMPAIR:
+		case INV_IMP_MOREDAMAGETOBOSSES:
+		case INV_IMP_RECOVERESONUNDEADKILL:
+		case INV_IMP_PRECISIONCRITBONUS:
+			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
+		break;
+		
+		// for these, do nothing, they are unique to the item itself (not player) and will be checked on the item itself, not player
+		case INV_IMP_CANROLL_PHYS:
+		case INV_IMP_CANROLL_MAGIC:
+		case INV_IMP_CANROLL_EXPLOSIVE:
+		case INV_IMP_CANROLL_ENERGY:
+		case INV_IMP_CANROLL_ELEMENTAL:
+		case INV_IMP_QUALITYCAPFIFTY:
+		break;
+
+		case INV_IMP_HIGHREFLECTREDUCE:
+			HandleAttributePowerset(pnum, PPOWER_LOWERREFLECT, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
+		break;
+
+		case INV_IMP_ESHIELDBLOCKSALL:
+			HandleAttributePowerset(pnum, PPOWER_ESHIELDBLOCKALL, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
+		break;
+		case INV_IMP_MELEEIGNORESSHIELDS:
+			HandleAttributePowerset(pnum, PPOWER_MELEEIGNORESHIELD, INV_EX_PLAYERPOWERSET1, remove, noSync, needDelay);
+		break;
 
 		// corrupted implicits
 		// non-weapon mods
@@ -2848,8 +2936,14 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	int i = 0;
 
 	// power cores are inherently cybernetic
-	i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, -1, source);
-	has_cybernetic |= i == INV_IMP_POWERCORE || (GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, -1, source) & PPOWER_CYBER);
+	i = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, 0, source);
+	has_cybernetic |= i == INV_IMP_POWERCORE;
+	
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		if(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, source) == INV_CYBERNETIC) {
+			has_cybernetic = true;
+			break;
+		}
 
 	int multiplier = 100;
 
@@ -2881,11 +2975,11 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	if(has_cybernetic && CheckInventory("Cyborg_Perk5"))
 		multiplier = multiplier * (DND_CYBERNETIC_FACTOR + 100) / 100;
 
-	int sync_required = 0;
 	for(i = 0; i < ac; ++i)
-		sync_required |= ProcessItemFeature(pnum, item_index, source, i, remove, multiplier, noSync, needDelay);
-
-	ProcessItemImplicit(pnum, item_index, source, remove, multiplier, noSync, needDelay);
+		ProcessItemFeature(pnum, item_index, source, i, remove, multiplier, noSync, needDelay);
+		
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		ProcessItemImplicit(pnum, item_index, source, i, remove, multiplier, noSync, needDelay);
 }
 
 int GetCraftableItemCount() {
@@ -3001,21 +3095,28 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 	PlayerInventoryList[pnum][item_pos].isDirty = true;
 }
 
+// can add implicits up to 3
 void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
-	if(extra != -1)
-		Inventories_On_Field[item_pos].implicit.attrib_extra = extra;
+	int imp_pos = 0;
+	for(imp_pos = 0; imp_pos < MAX_ITEM_IMPLICITS && Inventories_On_Field[item_pos].implicit[imp_pos].attrib_id != -1; ++imp_pos);
 
-	Inventories_On_Field[item_pos].implicit.attrib_id = attr;
-	Inventories_On_Field[item_pos].implicit.attrib_tier = tier;
+	if(imp_pos == MAX_ITEM_IMPLICITS)
+		return;
+
+	if(extra != -1)
+		Inventories_On_Field[item_pos].implicit[imp_pos].attrib_extra = extra;
+
+	Inventories_On_Field[item_pos].implicit[imp_pos].attrib_id = attr;
+	Inventories_On_Field[item_pos].implicit[imp_pos].attrib_tier = tier;
 
 	if(!tier)
-		Inventories_On_Field[item_pos].implicit.attrib_val = val;
+		Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = val;
 	else {
 		int temp = GetItemTier(tier);
 		if(tier_mapping)
-			Inventories_On_Field[item_pos].implicit.attrib_val = random(val + temp * tier_mapping, val + (temp + 1) * tier_mapping);
+			Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = random(val + temp * tier_mapping, val + (temp + 1) * tier_mapping);
 		else
-			Inventories_On_Field[item_pos].implicit.attrib_val = val * (temp + 1);
+			Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = val * (temp + 1);
 	}
 }
 
@@ -3023,6 +3124,7 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 	// pick between random effects to corruption implicits, with equal weight, and decide from there
 	// roll between 0 to MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1
 	// if > than MAX_CORRUPTION_WEIRD_OUTCOMES subtract it to get corrupt implicit
+	// NEW: Corruption ALWAYS replaces the very first implicit!
 	PlayerInventoryList[pnum][item_pos].isDirty = true;
 
 	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);
@@ -3031,13 +3133,13 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 		int extra = GetExtraForMod(corr_mod);
 
 		if(extra != -1)
-			PlayerInventoryList[pnum][item_pos].implicit.attrib_extra = extra;
+			PlayerInventoryList[pnum][item_pos].implicit[0].attrib_extra = extra;
 
-		PlayerInventoryList[pnum][item_pos].implicit.attrib_id = corr_mod;
-		PlayerInventoryList[pnum][item_pos].implicit.attrib_tier = 0;
+		PlayerInventoryList[pnum][item_pos].implicit[0].attrib_id = corr_mod;
+		PlayerInventoryList[pnum][item_pos].implicit[0].attrib_tier = 0;
 
 		// roll the value for this now
-		PlayerInventoryList[pnum][item_pos].implicit.attrib_val = random(ItemModTable[corr_mod].attrib_low, ItemModTable[corr_mod].attrib_high);
+		PlayerInventoryList[pnum][item_pos].implicit[0].attrib_val = random(ItemModTable[corr_mod].attrib_low, ItemModTable[corr_mod].attrib_high);
 
 		return;
 	}
@@ -3103,11 +3205,11 @@ int ScourItem(int pnum, int item_pos) {
 }
 
 bool CanAllowModRollSpecial(int tag, int special_roll_rule) {
-	return 	(tag == INV_ATTR_TAG_ELEMENTAL_ID && (special_roll_rule & PPOWER_CANROLLELEMENTAL)) ||
-			(tag == INV_ATTR_TAG_OCCULT_ID && (special_roll_rule & PPOWER_CANROLLOCCULT)) ||
-			(tag == INV_ATTR_TAG_PHYSICAL_ID && (special_roll_rule & PPOWER_CANROLLPHYS)) ||
-			(tag == INV_ATTR_TAG_EXPLOSIVE_ID && (special_roll_rule & PPOWER_CANROLLEXP)) ||
-			(tag == INV_ATTR_TAG_ENERGY_ID && (special_roll_rule & PPOWER_CANROLLENERGY));
+	return 	(tag == INV_ATTR_TAG_ELEMENTAL_ID && (special_roll_rule == INV_IMP_CANROLL_ELEMENTAL)) ||
+			(tag == INV_ATTR_TAG_OCCULT_ID && (special_roll_rule == INV_IMP_CANROLL_MAGIC)) ||
+			(tag == INV_ATTR_TAG_PHYSICAL_ID && (special_roll_rule == INV_IMP_CANROLL_PHYS)) ||
+			(tag == INV_ATTR_TAG_EXPLOSIVE_ID && (special_roll_rule == INV_IMP_CANROLL_EXPLOSIVE)) ||
+			(tag == INV_ATTR_TAG_ENERGY_ID && (special_roll_rule == INV_IMP_CANROLL_ENERGY));
 }
 
 bool IsArmorAttributeException(int rolled_attr) {
@@ -3127,6 +3229,7 @@ bool IsMitigationAttributeException(int rolled_attr) {
 			rolled_attr == INV_MITEFFECT_INCREASE;
 }
 
+// assumes the implicit to look for is at implicit id 0!
 bool IsImplicitException(int imp, int rolled_attr) {
 	//printbold(s:"implicit ", d:imp, s: " rolled ", d:rolled_attr, s: " BAD: ", d:INV_MIT_INCREASE, s: ", ", d:INV_MITEFFECT_INCREASE, s:", ", d:INV_SHIELD_INCREASE, s:", ", d:INV_SHIELD_RECHARGEDELAY, s: ", ", d:INV_SHIELD_RECOVERYRATE);
 	switch(imp) {
@@ -3149,7 +3252,7 @@ bool IsImplicitException(int imp, int rolled_attr) {
 }
 
 bool IsItemBaseException(int type, int subtype, int attr_id) {
-	return attr_id == INV_CYBERNETIC && (type == DND_ITEM_POWERCORE || (type == DND_ITEM_BODYARMOR && subtype == BODYARMOR_CYBER));
+	return attr_id == INV_CYBERNETIC && (type == DND_ITEM_SPECIALTY_CYBORG || (type == DND_ITEM_BODYARMOR && subtype == BODYARMOR_CYBER));
 }
 
 int GetHighestModTierOnItem(int pnum, int item_pos) {
@@ -3159,6 +3262,23 @@ int GetHighestModTierOnItem(int pnum, int item_pos) {
 		if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier > t)
 			t = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
 	return t;
+}
+
+// 0 means nothing exists of this sort
+int GetSpecialRollAttribute(int pnum, int item_pos) {
+	int special_roll;
+	// check if any of the implicits allow for special roll rules
+	for(special_roll = 0; special_roll < MAX_ITEM_IMPLICITS; ++special_roll) {
+		if(IsSpecialRollRuleAttribute(PlayerInventoryList[pnum][item_pos].implicit[special_roll].attrib_id)) {
+			special_roll = PlayerInventoryList[pnum][item_pos].implicit[special_roll].attrib_id;
+			break;
+		}
+	}
+
+	if(special_roll == MAX_ITEM_IMPLICITS)
+		special_roll = 0;
+
+	return special_roll;
 }
 
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
@@ -3210,16 +3330,13 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 }
 
 void AssignAttributes(int pnum, int item_pos, int itype, int attr_count) {
-	int special_roll = 0;
 	int isubt = PlayerInventoryList[pnum][item_pos].item_subtype;
-	if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1) {
-		special_roll = PlayerInventoryList[pnum][item_pos].implicit.attrib_extra;
-	}
+	int special_roll = GetSpecialRollAttribute(pnum, item_pos);
 	
 	int i = 0, roll;
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute(itype, isubt, special_roll, PlayerInventoryList[pnum][item_pos].implicit.attrib_id);
+			roll = PickRandomAttribute(itype, isubt, special_roll, PlayerInventoryList[pnum][item_pos].implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) != -1);
 		AddAttributeToItem(pnum, item_pos, roll);
 		++i;
@@ -3298,7 +3415,10 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 
 				// if no attributes of this type are allowed, but we have some special roll, include it and try again
 				if(rand_attr == -1 || IsAttributeArmorException(rand_attr, craftable_type)) {
-					if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1 && CanAllowModRollSpecial(tag_id, PlayerInventoryList[pnum][item_pos].implicit.attrib_extra)) {
+					// check if any of the implicits allow for special roll rules -- assumes multiple DONT exist
+					int imp_id = GetSpecialRollAttribute(pnum, item_pos);
+
+					if(imp_id && CanAllowModRollSpecial(tag_id, imp_id)) {
 						craftable_type = DND_CRAFTABLEID_CHARM;
 						rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
 					}
@@ -3313,7 +3433,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 				(
 					CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1 &&
 					!IsItemBaseException(itype, PlayerInventoryList[pnum][item_pos].item_subtype, rand_attr) &&
-					!IsImplicitException(PlayerInventoryList[pnum][item_pos].implicit.attrib_id, rand_attr)
+					!IsImplicitException(PlayerInventoryList[pnum][item_pos].implicit[0].attrib_id, rand_attr)
 				)
 				{
 					//printbold(s:"guaranteed add ", d:rand_attr);
@@ -3339,7 +3459,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_REGULARDROP_END; // roll only until the regular drop
 		break;
-		case DND_ITEM_POWERCORE:
+		case DND_ITEM_SPECIALTY_CYBORG:
 			beg = UNIQUE_POWERCORE_BEGIN;
 			end = UNIQUE_POWERCORE_END;
 		break;
@@ -3374,7 +3494,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_SLAYERSPECIAL;
+				//i = UITEM_WELLOFPOWER;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif
@@ -3437,12 +3557,16 @@ void ResetPlayerInventory(int pnum) {
 
 		PlayerInventoryList[pnum][i].corrupted = 0;
 		PlayerInventoryList[pnum][i].quality = 0;
-		PlayerInventoryList[pnum][i].implicit.attrib_id = -1;
-		PlayerInventoryList[pnum][i].implicit.attrib_val = 0;
-		PlayerInventoryList[pnum][i].implicit.attrib_tier = 0;
-		PlayerInventoryList[pnum][i].implicit.attrib_extra = 0;
+
+		int j;
+		for(j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
+			PlayerInventoryList[pnum][i].implicit[j].attrib_id = -1;
+			PlayerInventoryList[pnum][i].implicit[j].attrib_val = 0;
+			PlayerInventoryList[pnum][i].implicit[j].attrib_tier = 0;
+			PlayerInventoryList[pnum][i].implicit[j].attrib_extra = 0;
+		}
 		
-		for(int j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
+		for(j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 			PlayerInventoryList[pnum][i].attributes[j].attrib_id = 0;
 			PlayerInventoryList[pnum][i].attributes[j].attrib_val = 0;
 			PlayerInventoryList[pnum][i].attributes[j].attrib_tier = 0;
@@ -3469,12 +3593,16 @@ void ResetTradeViewList(int pnum) {
 
 		TradeViewList[pnum][i].corrupted = 0;
 		TradeViewList[pnum][i].quality = 0;
-		TradeViewList[pnum][i].implicit.attrib_id = -1;
-		TradeViewList[pnum][i].implicit.attrib_val = 0;
-		TradeViewList[pnum][i].implicit.attrib_tier = 0;
-		TradeViewList[pnum][i].implicit.attrib_extra = 0;
 
-		for(int j = 0; j < TradeViewList[pnum][i].attrib_count; ++j) {
+		int j;
+		for(j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
+			TradeViewList[pnum][i].implicit[j].attrib_id = -1;
+			TradeViewList[pnum][i].implicit[j].attrib_val = 0;
+			TradeViewList[pnum][i].implicit[j].attrib_tier = 0;
+			TradeViewList[pnum][i].implicit[j].attrib_extra = 0;
+		}
+
+		for(j = 0; j < TradeViewList[pnum][i].attrib_count; ++j) {
 			TradeViewList[pnum][i].attributes[j].attrib_id = 0;
 			TradeViewList[pnum][i].attributes[j].attrib_val = 0;
 			TradeViewList[pnum][i].attributes[j].attrib_tier = 0;
@@ -3531,12 +3659,16 @@ void ResetPlayerStash(int pnum) {
 
 			PlayerStashList[pnum][p][i].corrupted = 0;
 			PlayerStashList[pnum][p][i].quality = 0;
-			PlayerStashList[pnum][p][i].implicit.attrib_id = -1;
-			PlayerStashList[pnum][p][i].implicit.attrib_val = 0;
-			PlayerStashList[pnum][p][i].implicit.attrib_tier = 0;
-			PlayerStashList[pnum][p][i].implicit.attrib_extra = 0;
 
-			for(int j = 0; j < PlayerStashList[pnum][p][i].attrib_count; ++j) {
+			int j;
+			for(j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
+				PlayerStashList[pnum][p][i].implicit[j].attrib_id = -1;
+				PlayerStashList[pnum][p][i].implicit[j].attrib_val = 0;
+				PlayerStashList[pnum][p][i].implicit[j].attrib_tier = 0;
+				PlayerStashList[pnum][p][i].implicit[j].attrib_extra = 0;
+			}
+
+			for(j = 0; j < PlayerStashList[pnum][p][i].attrib_count; ++j) {
 				PlayerStashList[pnum][p][i].attributes[j].attrib_id = 0;
 				PlayerStashList[pnum][p][i].attributes[j].attrib_val = 0;
 				PlayerStashList[pnum][p][i].attributes[j].attrib_tier = 0;
@@ -3558,26 +3690,28 @@ int DisassembleItem_Price(int pnum, int item_pos) {
 	int avg_mod_tier = 0;
 	int acount = PlayerInventoryList[pnum][item_pos].attrib_count;
 	int fracture_count = 0;
+	int i;
 	if(acount) {
-		for(int i = 0; i < acount; ++i) {
-			// uniques have tier 0
-			if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier)
-				avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
-			else
-				avg_mod_tier += MAX_CHARM_AFFIXTIERS / 2;
-			fracture_count += PlayerInventoryList[pnum][item_pos].attributes[i].fractured;
+		if(!IsPlayerInventoryItemUnique(pnum, item_pos)) {
+			for(i = 0; i < acount; ++i) {
+				avg_mod_tier += PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier + 1;
+				fracture_count += PlayerInventoryList[pnum][item_pos].attributes[i].fractured;
+			}
+		
+			avg_mod_tier /= acount;
 		}
-		avg_mod_tier /= acount;
+		else
+			avg_mod_tier = MAX_CHARM_AFFIXTIERS / 2;
 	}
 
-	base = base * (100 + (ilvl - 1) * DND_DISASSEMBLE_LEVEL_PERCENT) / 100;
+	base = base * (100 + (ilvl - 1) * DND_DISASSEMBLE_LEVEL_PERCENT + fracture_count * DND_DISASSEMBLE_FRACTURE_PERCENT) / 100;
 	base = base * (100 + DND_DISASSEMBLE_TIER_PERCENT * avg_mod_tier) / 100;
-
 	// if corrupted or has implicit, include that too
-	if(PlayerInventoryList[pnum][item_pos].implicit.attrib_id != -1) {
-		// 50% increase
-		base = base * (100 + DND_DISASSEMBLE_IMPLICIT_PERCENT) / 100;
-	}
+	fracture_count = 0;
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		fracture_count += PlayerInventoryList[pnum][item_pos].implicit[i].attrib_id != -1;
+
+	base = base * (100 + DND_DISASSEMBLE_IMPLICIT_PERCENT * fracture_count) / 100;
 	
 	if(PlayerInventoryList[pnum][item_pos].corrupted) {
 		// 50% increase
@@ -3686,8 +3820,9 @@ Script "DnD Disassemble CS" (int result) CLIENTSIDE {
 }
 
 bool GetItemMaxQuality(int pnum, int item_index) {
-	if(PlayerInventoryList[pnum][item_index].implicit.attrib_extra & PPOWER_MAXQUALITYHIGH)
-		return 2 * DND_MAX_CHARM_QUALITY;
+	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		if(PlayerInventoryList[pnum][item_index].implicit[i].attrib_id == INV_IMP_QUALITYCAPFIFTY)
+			return 2 * DND_MAX_CHARM_QUALITY;
 	return DND_MAX_CHARM_QUALITY;
 }
 

@@ -9,7 +9,7 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
         case DND_TOKEN_ARMORER:
             if(item_type > UNIQUE_BEGIN)
                 item_type &= 0xFFFF;
-            res = (item_type == DND_ITEM_BODYARMOR || item_type == DND_ITEM_BOOT || item_type == DND_ITEM_HELM || item_type == DND_ITEM_POWERCORE) && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
+            res = (item_type == DND_ITEM_BODYARMOR || item_type == DND_ITEM_BOOT || item_type == DND_ITEM_HELM || item_type == DND_ITEM_SPECIALTY_CYBORG) && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
             res &= !IsInventoryCorrupted(pnum, item_id);
         break;
         case DND_TOKEN_GUNSMITH:

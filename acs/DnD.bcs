@@ -982,8 +982,8 @@ Script "DND On Kill" KILL {
 	}
 
 	// crusader helm check
-	if(IsMagicOrUndead() && HasPlayerPowerSet(target - P_TIDSTART, PPOWER_UNDEADRECOVERES) && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
-		i = temp * CRUSADER_ESPCT / 100;
+	if(IsMagicOrUndead() && (is_demon = GetPlayerAttributeValue(target - P_TIDSTART, INV_IMP_RECOVERESONUNDEADKILL)) && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
+		i = temp * is_demon / 100;
 		if(i < 1)
 			i = 1;
 
@@ -1645,6 +1645,10 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	//Make sure mob gets to right amount of hp at this point
 	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
 	int m_id = this - DND_MONSTERTID_BEGIN;
+
+	// reset attachment array to 0
+	ACS_NamedExecuteWithResult("Dnd Init Monster Attachments", m_id);
+
 	if(!pcount)
 		pcount = 1;
 	
@@ -1675,15 +1679,15 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	}
 
 	// run elite checks
-//#ifdef ISDEBUGBUILD
-//	if(1)
-//#else
+#ifdef ISDEBUGBUILD
+	if(1)
+#else
 	if(
 		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																	&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
 		!IsUniqueMonster(monsterid)
 	)
-//#endif
+#endif
 	{
 		MonsterProperties[m_id].isElite = true;
 		
@@ -2856,6 +2860,8 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	StatListOpened[pnum] = 0;
 	PlayerCanLoad[pnum] = 0;
 	BreakTradesBetween(pnum);
+	
+	RemoveAllBuffs(pnum);
 	
 	// if player was in middle of saving, don't accidently interfere if player leaves early
 	// save accumulated stats when player leaves
@@ -4168,7 +4174,7 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype) CLIENTSIDE {
 		case DND_ITEM_HELM:
 			Playsound(0, "Items/ArmorEquip", 6);
 		break;
-		case DND_ITEM_POWERCORE:
+		case DND_ITEM_SPECIALTY_CYBORG:
 			Playsound(0, "Items/PowercoreDrop", 6);
 		break;
 	}
@@ -4470,26 +4476,49 @@ Script "DnD Try Open Chestkey" (int keytype) {
 #endif
 }
 
-Script "DnD Try Open Lootbox" (int for_player) {
-	int p_tid = GetActorProperty(0, APROP_TARGETTID);
-	if(IsPlayer(p_tid) && IsPlayer(for_player + P_TIDSTART)) {
+Script "Dnd Init Lootbox" (int val) {
+	int tid = DND_LOOTBOX_TID + DnD_TID_Counter[DND_TID_LOOTBOXES];
+	Thing_ChangeTID(0, tid);
+	DnD_TID_Counter[DND_TID_LOOTBOXES]++;
+
+	SetThingSpecial(0, ACS_NamedExecuteWithResult, "DnD Try Open Lootbox", val, tid);
+	SetResultValue(0);
+}
+
+Script "DnD Try Open Lootbox" (int for_player, int box_tid) {
+	int can_open = ACS_NamedExecuteWithResult("DnD Lootbox Open Check", for_player);
+	if(can_open) {
+		SetActorState(box_tid, "Open", 0);
+		SetThingSpecial(box_tid, 0);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Lootbox Open Check" (int for_player) {
+	SetActivatorToTarget(0);
+	int p_tid = ActivatorTID();
+	int res = 0;
+
+	// any player can open
+	if(for_player == -1)
+		res = IsPlayer(p_tid) && GetGameModeState() == GAMESTATE_INPROGRESS && (!CheckActorInventory(p_tid, "CanLoad"));
+	else if(IsPlayer(p_tid) && IsPlayer(for_player + P_TIDSTART)) {
+		// only specific player can open
 		if(p_tid != for_player + P_TIDSTART) {
 			SetActivator(p_tid);
 			ACS_NamedExecuteAlways("DnD Lootbox Fail Open Message", 0, for_player);
-			SetResultValue(0);
 		}
-		else
-			SetResultValue(GetGameModeState() == GAMESTATE_INPROGRESS && (!CheckActorInventory(p_tid, "CanLoad")));
+		else if(GetGameModeState() == GAMESTATE_INPROGRESS && (!CheckActorInventory(p_tid, "CanLoad")))
+			res = 1;
 	}
-	else
-		SetResultValue(0);
+	SetResultValue(res);
 }
 
 Script "DnD Lootbox Fail Open Message" (int for_player) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 	ActivatorSound("Chest/Locked", 127);
-	Log(s:StrParam(s:"\cc", l:"DND_NOTYOURCHEST", s:" ", l:"DND_IT_BELONGS_TO", s:"\c- ", n:for_player));
+	Log(s:StrParam(s:"\cc", l:"DND_NOTYOURCHEST", s:" ", l:"DND_IT_BELONGS_TO", s:"\c- ", n:for_player + 1));
 }
 
 Script "DnD Lootbox Opened" (int for_player) {
@@ -5771,19 +5800,27 @@ Script 68 (int x) NET {
 			}
 		}
 		else if(x == 420) {
+			//Log(s:"charm");
 			SpawnCharm(0, true);
 			//SpawnCharm(0, true);
+			//Log(s:"armor");
 			SpawnArmor(0, true, 0);
+			//Log(s:"pcore");
 			SpawnPowercore(0, true);
-			SpawnBoot(0, 0);
-			SpawnHelm(0, 0);
+			//Log(s:"orb");
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ALCHEMIST, true, true, 100);
 			SpawnToken(0, true);
+			//Log(s:"boot");
+			SpawnBoot(0, 0);
+			//Log(s:"helm");
+			SpawnHelm(0, 0);
+			IncPlayerModValue(0, INV_AMMOGAIN_CHANCE, 50);
 			SpawnOrbForAll(1, random(300, 500));
-			SpawnChestKey(0);
+			/*SpawnChestKey(0);
 			SpawnCharmWithMods_ForAll(INV_PROJSPEED);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
-			IncPlayerModValue(0, INV_PROJSPEED, 0.25);
+			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

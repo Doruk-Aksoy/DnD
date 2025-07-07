@@ -473,7 +473,7 @@ void SpawnLootboxRewards(int i) {
 		int plvl = GetActorLevel(i + P_TIDSTART);
 
 		if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE)
-			SpawnOrb(i, true, false, plvl);
+			SpawnOrb(i, true, false, GetOrbDropStack(plvl));
 
 		// for tokens -- same likelihood to drop as orbs
 		if(random(0, 1.0) <= DND_LOOTBOX_TOKENDROPCHANCE)
@@ -643,12 +643,12 @@ void HandleChestDrops(int ctype) {
 		if(RunDefaultDropChance(pnum, 0.75))
 			SpawnItemForAll(DND_ITEM_TOKEN);
 		if(RunDefaultDropChance(pnum, 0.5))
-			SpawnItemForAll(DND_ITEM_POWERCORE);
+			SpawnItemForAll(DND_ITEM_SPECIALTY_CYBORG);
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
 		SpawnOrbForAll(random(5, 8), 1 + random(1, 10) / 2);
 		SpawnItemForAll(DND_ITEM_TOKEN);
-		SpawnItemForAll(DND_ITEM_POWERCORE);
+		SpawnItemForAll(DND_ITEM_SPECIALTY_CYBORG);
 		SpawnItemForAll(DND_ITEM_BODYARMOR, 1, random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL]));
 	}
 

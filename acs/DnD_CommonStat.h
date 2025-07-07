@@ -425,11 +425,11 @@ int GetUnity() {
 }
 
 int GetPetCap() {
-	return BASE_PET_CAP + HasPlayerPowerset(PlayerNumber(), PPOWER_PETCAP);
+	return BASE_PET_CAP + GetPlayerAttributeValue(PlayerNumber(), INV_IMP_BONUSPETCAP);
 }
 
 int GetActorPetCap(int tid) {
-	return BASE_PET_CAP + HasPlayerPowerset(tid - P_TIDSTART, PPOWER_PETCAP);
+	return BASE_PET_CAP + GetPlayerAttributeValue(tid - P_TIDSTART, INV_IMP_BONUSPETCAP);
 }
 
 bool CanActorHaveMorePets(int tid) {

@@ -324,9 +324,10 @@ Script "DnD Buff Ticker" (int pnum) {
 		int i = pbuffs.buff_list[pbuffs.head].next_id;
 		while(i != -1) {
 			int rem = -5;
+			//Log(s:"duration: ", d:pbuffs.buff_list[i].duration);
 			if((pbuffs.buff_list[i].flags & BUFF_F_TICKERREQUIRED)) {
 				--pbuffs.buff_list[i].duration;
-				//Log(d:i, s: ". ", d:pbuffs.buff_list[i].duration);
+				//(d:i, s: ". ", d:pbuffs.buff_list[i].duration);
 				// either timed out or conditional removal in the form of thawing for chill & freeze on player
 				if
 				(
@@ -350,7 +351,23 @@ Script "DnD Buff Ticker" (int pnum) {
 		//Log(s:"ticker tick");
 		Delay(const:DND_BUFF_TICKTIME);
 	}
+	RemoveAllBuffs(pnum);
+
 	SetResultValue(0);
+}
+
+void RemoveAllBuffs(int pnum) {
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	int i = pbuffs.buff_list[pbuffs.head].next_id;
+	while(i != -1) {
+		int rem = -5;
+		rem = RemoveBuff(pnum, i - 1); // assumes +1 so this corrects it
+
+		if(rem == -5)
+			i = pbuffs.buff_list[i].next_id;
+		else
+			i = rem;
+	}
 }
 
 // send 0 indexed, it'll add one since we have dummy node

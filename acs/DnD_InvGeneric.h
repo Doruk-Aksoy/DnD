@@ -6,20 +6,23 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 	//Log(s:"alloc armor id: ", d:c, s: " for player: ", d:pnum);
 	int id = 0;
 	if(c != -1) {
-        int type = RollArmorInfo(c, RollItemLevel(), pnum, tiers, extra);
+		int ilvl = RollItemLevel();
+        int type = InitializeArmor(c, ilvl, pnum, tiers, extra);
 
 		// tiers need to be 0 for it to be monster drops
-//#ifndef ISDEBUGBUILD
+#ifndef ISDEBUGBUILD
 		if(!tiers && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)))
-//#else
-		//if(random(0,1))
-//#endif
+#else
+		if(random(0,1))
+#endif
 		{
 			id = MakeUnique(c, DND_ITEM_BODYARMOR, pnum);
 			SpawnDrop(StrParam(s:"UniqueArmor_", d:id - UNIQUE_BODYARMOR_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
-		else
+		else {
+			RollArmorInfo(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT);
 			SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
@@ -29,7 +32,9 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	if(c != -1) {
-        int type = RollBootInfo(c, RollItemLevel(), pnum);
+		int ilvl = RollItemLevel();
+        int type = InitializeBoot(c, ilvl, pnum);
+		RollArmorInfo(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_BOOT_ATTRIB_DEFAULT);
         // depending on armor type rolled, spawn its appropriate actor
         SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
@@ -41,7 +46,9 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	if(c != -1) {
-        int type = RollHelmInfo(c, RollItemLevel(), pnum, pre_id);
+		int ilvl = RollItemLevel();
+        int type = InitializeHelm(c, ilvl, pnum, pre_id);
+		RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
         // depending on armor type rolled, spawn its appropriate actor
         SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
@@ -91,13 +98,13 @@ void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVel
 			if(random(0,1))
 		#endif
 		{
-			id = MakeUnique(c, DND_ITEM_POWERCORE, pnum);
+			id = MakeUnique(c, DND_ITEM_SPECIALTY_CYBORG, pnum);
 			SpawnDrop(StrParam(s:"PowercoreDrop_Unique", d:id - UNIQUE_POWERCORE_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
 		else
 			SpawnDrop(GetPowercoreDropClass(RollPowercoreInfo(c, RollItemLevel(), pnum)), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_POWERCORE);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_SPECIALTY_CYBORG);
 	}
 }
 
@@ -132,7 +139,7 @@ void SpawnItemForAll(int type, int repeats = 1, int extra = -1) {
 		case DND_ITEM_BOOT:
 			f = SpawnBoot;
 		break;
-        case DND_ITEM_POWERCORE:
+        case DND_ITEM_SPECIALTY_CYBORG:
             f = SpawnPowercore;
         break;
         case DND_ITEM_TOKEN:
@@ -156,7 +163,7 @@ str GetItemTagName(int itype, int isubt) {
 		case DND_ITEM_CHARM:
 		return StrParam(l:StrParam(s:"DND_CHARMTYPE", d:isubt + 1), s:" ", l:"DND_ITEM_CHARM");
 
-		case DND_ITEM_POWERCORE:
+		case DND_ITEM_SPECIALTY_CYBORG:
 		return StrParam(l:StrParam(s:"DND_PCORE", d:isubt + 1));
 
 		case DND_ITEM_BODYARMOR:
@@ -192,53 +199,67 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				break;
 
 				case BODYARMOR_GUNSLINGER:
-					special_roll = PPOWER_CANROLLPHYS;
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_CANROLLPHYS, item_tier, 1.75);
+					special_roll = INV_IMP_CANROLL_PHYS;
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 1.75);
+					GiveImplicitToField(item_pos, INV_IMP_CANROLL_PHYS, 1);
 				break;
 				case BODYARMOR_OCCULT:
-					special_roll = PPOWER_CANROLLOCCULT;
-					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 85, PPOWER_CANROLLOCCULT, item_tier, 30);
+					special_roll = INV_IMP_CANROLL_MAGIC;
+					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 85, 0, item_tier, 30);
+					GiveImplicitToField(item_pos, INV_IMP_CANROLL_MAGIC, 1);
 				break;
 				case BODYARMOR_DEMO:
-					special_roll = PPOWER_CANROLLEXP;
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, PPOWER_CANROLLEXP, item_tier, 100);
+					special_roll = INV_IMP_CANROLL_EXPLOSIVE;
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100);
+					GiveImplicitToField(item_pos, INV_IMP_CANROLL_EXPLOSIVE, 1);
 				break;
 				case BODYARMOR_ENERGY:
-					special_roll = PPOWER_CANROLLENERGY;
-					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 85, PPOWER_CANROLLENERGY, item_tier, 30);
+					special_roll = INV_IMP_CANROLL_ENERGY;
+					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 85, 0, item_tier, 30);
+					GiveImplicitToField(item_pos, INV_IMP_CANROLL_ENERGY, 1);
 				break;
 				case BODYARMOR_ELEMENTAL:
-					special_roll = PPOWER_CANROLLELEMENTAL;
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 125, PPOWER_CANROLLELEMENTAL, item_tier, 60);
+					special_roll = INV_IMP_CANROLL_ELEMENTAL;
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 125, 0, item_tier, 60);
+					GiveImplicitToField(item_pos, INV_IMP_CANROLL_ELEMENTAL, 1);
 				break;
 
 				case BODYARMOR_MONOLITH:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 40);
 				break;
 				case BODYARMOR_CYBER:
-					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 100, PPOWER_CYBER, item_tier, 40);
+					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 100, 0, item_tier, 40);
+					GiveImplicitToField(item_pos, INV_IMP_DOUBLEESHIELDRECOVERY, 1);
+					GiveImplicitToField(item_pos, INV_CYBERNETIC, 1);
 				break;
 				case BODYARMOR_DUELIST:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, PPOWER_HANDGUNMORECRIT, item_tier, 2.25);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 2.25);
+					GiveImplicitToField(item_pos, INV_IMP_HANDGUNBONUS, 0.12, 0, item_tier, 0.04);
 				break;
 				case BODYARMOR_NECRO:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, PPOWER_SPIKES, item_tier, 60);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 150, 0, item_tier, 60);
+					GiveImplicitToField(item_pos, INV_IMP_NECROARMOR, 15, 0, item_tier, 3);
 				break;
 				case BODYARMOR_KNIGHT:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, PPOWER_KNIGHTMELEEBONUS, item_tier, 100);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100);
+					GiveImplicitToField(item_pos, INV_IMP_KNIGHTARMOR, 50, 40);
 				break;
 				case BODYARMOR_RAVAGER:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, PPOWER_RAVAGER, item_tier, 80);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 80);
+					GiveImplicitToField(item_pos, INV_IMP_RAVAGER, 25, 15);
 				break;
 				case BODYARMOR_TANGLEDRIBCAGE:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITARMORSHIELD, 35, PPOWER_MAXQUALITYHIGH, item_tier, 10);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITARMORSHIELD, 35, 0, item_tier, 10);
+					GiveImplicitToField(item_pos, INV_IMP_QUALITYCAPFIFTY, 1);
 				break;
 
 				case BODYARMOR_SYNTHMETAL:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 180, PPOWER_LOWERREFLECT, item_tier, 80);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 180, 0, item_tier, 80);
+					GiveImplicitToField(item_pos, INV_IMP_HIGHREFLECTREDUCE, 1);
 				break;
 				case BODYARMOR_LIGHTNINGCOIL:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, PPOWER_LIGHTNINGABSORB, item_tier, 25);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 80, 0, item_tier, 25);
+					GiveImplicitToField(item_pos, INV_IMP_ABSORBLIGHTNING, 80, 25);
 				break;
 			}
         break;
@@ -246,37 +267,45 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 			// implicits that come along with the item always
 			switch(subtype) {
 				case BOOTS_SILVER:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 50, PPOWER_INCMAGICRES, item_tier, 20);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 20);
+					GiveImplicitToField(item_pos, INV_DMGREDUCE_MAGIC, 3.0, 0, item_tier, 1.0);
 				break;
 				case BOOTS_ENGINEER:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 16, PPOWER_INCENERGYRES, item_tier, 5);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 16, 0, item_tier, 5);
+					GiveImplicitToField(item_pos, INV_DMGREDUCE_ENERGY, 3.0, 0, item_tier, 1.0);
 				break;
 				case BOOTS_INSULATED:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 10, PPOWER_REDUCEDLIGHTNINGTAKEN, item_tier, 5);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 10, 0, item_tier, 5);
+					GiveImplicitToField(item_pos, INV_IMP_LESSLIGHTNINGTAKEN, 10);
 				break;
 				case BOOTS_PLATED:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 25);
 				break;
 				case BOOTS_POWER:
-					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 25, PPOWER_OVERHEATGOFAST, item_tier, 8);
+					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8);
+					GiveImplicitToField(item_pos, INV_IMP_FASTEROVERHEATDISS, 10, 0, item_tier, 5);
 				break;
 				case BOOTS_ENERGY:
-					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 12, PPOWER_REDUCEDSELFDMG, item_tier, 6);
+					GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 12, 0, item_tier, 6);
+					GiveImplicitToField(item_pos, INV_IMP_LESSSELFDAMAGETAKEN, 10);
 				break;
 				case BOOTS_TACTICAL:
 					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 45, 0, item_tier, 25);
 				break;
 				case BOOTS_FUSION:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 20, PPOWER_LESSOVERHEAT, item_tier, 8);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 20, 0, item_tier, 8);
+					GiveImplicitToField(item_pos, INV_REDUCED_OVERHEAT, 8, 0, item_tier, 4);
 				break;
 				case BOOTS_LEATHER:
 					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 8.0, 0, item_tier, 1.0);
 				break;
 				case BOOTS_SNAKESKIN:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.5, PPOWER_REDUCEDPOISONTAKEN, item_tier, 1.0);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.5, 0, item_tier, 1.0);
+					GiveImplicitToField(item_pos, INV_IMP_LESSPOISONTAKEN, 10);
 				break;
 				case BOOTS_DRAKESKIN:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, PPOWER_REDUCEDFIRETAKEN, item_tier, 10);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10);
+					GiveImplicitToField(item_pos, INV_IMP_LESSFIRETAKEN, 10);
 				break;
 			}
 		break;
@@ -284,32 +313,41 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 			// implicits that come along with the item always
 			switch(subtype) {
 				case HELMS_LICH:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 45, PPOWER_PETCAP, item_tier, 18);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18);
+					GiveImplicitToField(item_pos, INV_IMP_BONUSPETCAP, 1);
 				break;
 				case HELMS_WARRIOR:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, PPOWER_MELEEDAMAGE, item_tier, 40);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40);
+					GiveImplicitToField(item_pos, INV_MELEEDAMAGE, 25);
+					GiveImplicitToField(item_pos, INV_MELEERANGE, 15);
 				break;
 				case HELMS_SYNTHMETAL:
-					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 10.0, PPOWER_SYNTHMETALMASK, item_tier, 1.75);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 10.0, 0, item_tier, 1.75);
+					GiveImplicitToField(item_pos, INV_IMP_REDUCEDVISIONIMPAIR, 40, 0, item_tier, 5);
 				break;
 				case HELMS_KNIGHT:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 75, PPOWER_MELEEIGNORESHIELD, item_tier, 40);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 40);
+					GiveImplicitToField(item_pos, INV_IMP_MELEEIGNORESSHIELDS, 1);
 				break;
 				case HELMS_PREDATOR:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, PPOWER_BOSSTAKEMOREDMG, item_tier, 30);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 30);
+					GiveImplicitToField(item_pos, INV_IMP_MOREDAMAGETOBOSSES, 5, 0, item_tier, 1);
 				break;
 				case HELMS_CRUSADER:
-					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 55, PPOWER_UNDEADRECOVERES, item_tier, 25);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 55, 0, item_tier, 25);
+					GiveImplicitToField(item_pos, INV_IMP_RECOVERESONUNDEADKILL, 1);
 				break;
 				case HELMS_TACTICAL:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 72, PPOWER_PRECISIONCRIT, item_tier, 24);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 72, 0, item_tier, 24);
+					GiveImplicitToField(item_pos, INV_IMP_PRECISIONCRITBONUS, 0.02, 0, item_tier, 0.01);
 				break;
 				case HELMS_ROBE:
-					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 36, PPOWER_MAGICNEGATION, item_tier, 16);
+					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16);
+					GiveImplicitToField(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2);
 				break;
 			}
 		break;
-        case DND_ITEM_POWERCORE:
+        case DND_ITEM_SPECIALTY_CYBORG:
 			// implicits that come along with the item always
 			switch(subtype) {
 				case PCORE_COPPER:
@@ -335,7 +373,7 @@ bool IsArmorTypeItem(int type) {
 		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_HELM:
 		case DND_ITEM_BOOT:
-		case DND_ITEM_POWERCORE:
+		case DND_ITEM_SPECIALTY_CYBORG:
 		return true;
 	}
 	return false;

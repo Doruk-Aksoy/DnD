@@ -81,7 +81,6 @@ enum {
 	DND_ELEMENTAL_WEAKNESS,
 	
 	// resists
-	DND_EXPLOSIVE_RESIST,
 	DND_BULLET_RESIST,
 	DND_ENERGY_RESIST,
 	DND_MAGIC_RESIST,
@@ -89,7 +88,6 @@ enum {
 	
 	// immune
 	DND_EXPLOSIVE_IMMUNE,
-	DND_EXPLOSIVE_NONE,
 	DND_BULLET_IMMUNE,
 	DND_ENERGY_IMMUNE,
 	DND_MAGIC_IMMUNE,
@@ -143,7 +141,7 @@ enum {
 	DND_VENOMANCER,
 	DND_FRIGID,
 	DND_SCORCHED,
-	DND_INSULATED,
+	DND_VOLTAIC,
 	DND_REJUVENATING,
 	
 	DND_HATRED,
@@ -164,6 +162,11 @@ enum {
 	DND_TEMPORALBUBBLE,
 	DND_BLACKOUT,
 	DND_ENSHROUDED,
+
+	DND_TOXICBLOOD,
+	DND_FROSTBLOOD,
+	DND_MOLTENBLOOD,
+	DND_INSULATED,
 
 	// not rollable special
 	DND_ETHEREAL,
@@ -190,7 +193,7 @@ Actor DnD_AttachedFXBase {
 			TNT1 A 35 A_Jump(256, "SpawnLoop")
 		Wait
 		Disappear:
-			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
 		Stop
 	}
 }
@@ -241,7 +244,7 @@ Actor EliteSpecialFX : DnD_AttachedFXBase {
 		Loop
 		Death:
 		Fade:
-			TNT1 A 3 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
 		Stop
 		Remove:
 			TNT1 A 1
@@ -279,7 +282,7 @@ Actor DnD_BlindIcon : DnD_AttachedFXBase {
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
 		Death:
-			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
 		Stop
 		Remove:
 			TNT1 A 1
