@@ -119,13 +119,16 @@ Actor ResSSG1 : DnDWeapon {
 		Goto ReadyLoop
 		
 		ReloadFast:
-			RW02 JKLMNO 1
-			RW02 P 8
+			RW02 JKL 2
+			RW02 MNO 1
+			RW02 P 12
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/In")
-			RW02 QRSTUVW 1
+			RW02 QRS 2
+			RW02 TUVW 1
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_PLASMACANNON)
 			TNT1 A 0 A_PlayWeaponSound("PlasmaCannon/Charge")
-			RW22 ABC 1
+			RW22 AB 2
+			RW22 C 1
 		Goto ReadyLoop
     }
 }
@@ -530,9 +533,9 @@ Actor ResSSG3 : DnDWeapon {
 			STRG A 1 Offset(0, 74)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_HADES)
 			TNT1 A 0 A_PlaySound("Hades/Load", 7)
-			STRG A 20 Offset(0, 82)
+			STRG A 30 Offset(0, 82)
 			TNT1 A 0 A_PlaySound("Hades/Clipin", 6)
-			STRG A 6 Offset(0, 82)
+			STRG A 9 Offset(0, 82)
 			STRG A 1 Offset(0, 74)
 			STRG A 1 Offset(0, 63)
 			STRG A 1 Offset(0, 53)

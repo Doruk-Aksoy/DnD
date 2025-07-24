@@ -96,7 +96,7 @@ str StatData[STAT_LVL + 1] = {
 	
 	"Perk_Sharpshooting",
 	"Perk_Brutality",
-	"Perk_Endurance",
+	"Perk_RiskAversion",
 	"Perk_Wisdom",
 	"Perk_Greed",
 	"Perk_Medic",
@@ -907,7 +907,15 @@ void BreakAllTrades() {
 }
 
 int GetBaseCritChance(int pnum) {
-	return CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE);
+	int base = CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE);
+	
+	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
+	if(CheckInventory("Trickster_Perk5")) {
+		int mit_rounded = (GetMitigationChance(pnum) + 0.5) >> 16;
+		base += DND_TRICKSTER_CRIT_GAIN_FROM_MIT * mit_rounded;
+	}
+
+	return base;
 }
 
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
@@ -915,10 +923,6 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 				Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
 				GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) +
 				CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT);
-
-	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
-	if(CheckInventory("Trickster_Perk5"))
-		val += GetMitigationChance(pnum) / 200;
 
 	return val;
 }
@@ -994,7 +998,7 @@ bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noT
 			ActivatorSound("VeilOfAssassin/Active", 97);
 		}
 
-		if(random(0, 1.0) <= DND_TRICKSTER_PHASING_CHANCE && !HasPlayerBuff(pnum, BTI_PHASING))
+		if(CheckInventory("Trickster_Perk25") && random(0, 1.0) <= DND_TRICKSTER_PHASING_CHANCE && !HasPlayerBuff(pnum, BTI_PHASING))
 			ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
 	}
 	
@@ -1582,6 +1586,25 @@ int GetSelfExplosiveResist(int pnum) {
 		base = temp;
 	
 	return base;
+}
+
+int GetPlayerElementalAvoidance(int pnum, int ele_mod) {
+	int ptid = pnum + P_TIDSTART;
+	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
+		return 100;
+	return GetPlayerAttributeValue(pnum, ele_mod) + GetPlayerAttributeValue(pnum, INV_AVOID_ELEAILMENTS) + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
+}
+
+int GetPlayerNonElementalAvoidance(int pnum, int ele_mod) {
+	int ptid = pnum + P_TIDSTART;
+	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
+		return 100;
+	return GetPlayerAttributeValue(pnum, ele_mod) + RISK_AVERSION_VALUE * CheckActorInventory(pnum + P_TIDSTART, "Perk_RiskAversion");
+}
+
+void HandleRiskAversion() {
+	if(HasMasteredPerk(STAT_RISK) && !CheckInventory("Perk_AversionActivated"))
+		GiveInventory("Perk_AversionActivated", 1);
 }
 
 #endif

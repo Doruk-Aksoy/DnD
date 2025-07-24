@@ -79,8 +79,6 @@ int OrbDropWeights[MAX_ORBS] = {
 	0xFFFFFF
 };
 
-#define ENHANCEORB_BONUS 1
-
 #define ORB_MAXWEIGHT 1000
 #define DND_CORRUPT_FAIL 419
 #define DND_CORRUPT_SUCCESS 420
@@ -110,7 +108,11 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = extratype == DND_ITEM_WEAPON && GetPlayerWeaponQuality(pnum, extra) != ENHANCEORB_MAX;
 		break;
 		case DND_ORB_CORRUPT:
+#ifdef ISDEBUGBUILD
+			res = true;
+#else
 			res = IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra);
+#endif
 		break;
 		case DND_ORB_REPENT:
 			temp = Player_MostRecent_Orb[pnum].orb_type;
@@ -377,7 +379,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_ENHANCE:
 			res = extra;
 			prev = GetPlayerWeaponQuality(pnum, res);
-			temp = Clamp_Between(prev + affluence * ENHANCEORB_BONUS, 0, ENHANCEORB_MAX);
+			affluence *= random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
+			temp = Clamp_Between(prev + affluence, 0, ENHANCEORB_MAX);
 			SetPlayerWeaponQuality(pnum, res, temp);
 			SetInventory("OrbResult", res);
 			Player_MostRecent_Orb[pnum].values[0] = res;
@@ -629,9 +632,10 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				}
 			}
 
-			// check how many ilvls this should jump now
+			// check how many ilvls this should jump now -- only if the item tier itself is higher than the allowed item level range, so low tiers increasing on level 50 don't cause this bump
+			// this rounds it up, so getting tier 5 on ilvl 48 for example would check vs 50 > 48 + 5 / 10 = 5 * 10 = 50, and it's okay that way
 			temp = prev - x;
-			if(temp > 0) {
+			if(temp > 0 && prev * MAX_CHARM_AFFIXTIERS > ((PlayerInventoryList[pnum][extra].item_level + 5) / MAX_CHARM_AFFIXTIERS) * MAX_CHARM_AFFIXTIERS) {
 				// clear difference here, so adjust ilvl accordingly by +6-10 ilvls
 				for(s = 0; s < temp; ++s)
 					PlayerInventoryList[pnum][extra].item_level += random(3 * MAX_CHARM_AFFIXTIERS / 5, MAX_CHARM_AFFIXTIERS);
@@ -657,7 +661,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 
-			PlayerInventoryList[pnum][extra].quality += affluence;
+			PlayerInventoryList[pnum][extra].quality += affluence * random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
 			prev = GetItemMaxQuality(pnum, extra);
 			if(PlayerInventoryList[pnum][extra].quality > prev)
 				PlayerInventoryList[pnum][extra].quality = prev;
@@ -1158,7 +1162,7 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
 			if(val != 0x7FFFFFFF)
-				Log(s:"\cj", l:"DND_ORBUSETEXT1A", s:" \cd", l:GetWeaponTag(val), s:"\cv ", l:"DND_ORBUSETEXT1B", s:" \cd", d:affluence * ENHANCEORB_BONUS, s:"%\c-!");
+				Log(s:"\cj", l:"DND_ORBUSETEXT1A", s:" \cd", l:GetWeaponTag(val), s:"\cv ", l:"DND_ORBUSETEXT1B", s:" \cd", d:affluence, s:"%\c-!");
 			else
 				Log(s:"\cg", l:"DND_ORBUSEFAIL1");
 		break;

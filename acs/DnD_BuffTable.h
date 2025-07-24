@@ -87,7 +87,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_PHASING;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS;
             bvalue = 0.1;
-            bduration = 3;
+            bduration = 4;
             tic_duration = bduration * TICRATE;
         break;
 
@@ -262,8 +262,8 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             return 0;
         tic_duration = tic_duration * (100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION)) / 100;
     }
-
-    if(buff_table_index >= DND_BTI_DEBUFF_BEGIN && CheckActorInventory(ptid, "Wanderer_Perk5")) {
+    
+    if(buff_table_index >= DND_BTI_DEBUFF_BEGIN && HasActorClassPerk_Fast(ptid, "Wanderer", DND_CLASSPERK_1)) {
         bduration = bduration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
         tic_duration = tic_duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
     }

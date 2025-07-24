@@ -115,12 +115,12 @@ enum {
 
 #define DND_ELITE_BASEDROP 0.0025 // same as below
 
-#define DND_ELITE_BASEDROP_ORB 0.03
+#define DND_ELITE_BASEDROP_ORB 0.03875
 #define DND_MONSTER_ORBSTACK_LEVELTHRESHOLD 10
 
-#define DND_BASEARMOR_DROP 0.01375
-#define DND_BASE_CHARMRATE 0.02
-#define DND_BASE_POWERCORERATE 0.004
+#define DND_BASEARMOR_DROP 0.014
+#define DND_BASE_CHARMRATE 0.0225
+#define DND_BASE_POWERCORERATE 0.0045
 
 #define DND_BASE_PLAYERSPEED 0.9
 #define DND_LOWEST_PLAYERSPEED 0.05
@@ -129,8 +129,7 @@ enum {
 
 #define BASE_PET_CAP 3
 
-#define ENDURANCE_RES_INTEGER 35 // 35 will be divided by 1000 to get 3.5%
-#define ENDURANCE_RES_INC 0.035 // 3.5%
+#define RISK_AVERSION_VALUE 5 // 5%
 #define BASE_WISDOM_GAIN 10
 #define BASE_GREED_GAIN 10
 #define PERK_MEDICBONUS 10 // percent
@@ -139,8 +138,8 @@ enum {
 #define DND_SAVAGERY_BONUS 20 // percent
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
 #define DND_MUNITION_GAIN 10
-#define DND_LUCK_GAIN 0.05 // 5% multiplicative luck
-#define DND_LUCK_OUTCOME_GAIN 0.05
+#define DND_LUCK_GAIN 0.03 // 5% multiplicative luck
+#define DND_LUCK_OUTCOME_GAIN 0.03
 
 #define DND_SHARPSHOOTER_MASTERY_BONUS 0.01
 
@@ -319,7 +318,6 @@ str GetAttributeLabel_Short(int id) {
 #define DND_PERK_SHARPSHOOTER_INC 5 // 5%
 #define DND_PERK_BRUTALITY_DAMAGEINC 5 // 5%
 #define DND_PERK_BRUTALITY_RANGEINC 8 // 8%
-#define DND_ENDURANCE_MASTERY_CHANCE 10 // 10%
 #define DND_MUNITION_MASTERY_CHANCE 0.03 // 3%
 #define DND_MASTERY_DEADLINESSCOUNTER 6 // 7th is the crit, we give crit token at 6th so the 7th will be one
 #define DND_MASTERY_LUCKCHANCE 0.25 // 25%
@@ -327,7 +325,7 @@ str GetAttributeLabel_Short(int id) {
 enum {	
 	RES_STAT_DEX = 1,
 	RES_PERK_SHARP = 2,
-	RES_PERK_ENDURANCE = 4,
+	RES_PERK_RISKAVERSION = 4,
 	RES_PERK_CHARISMA = 8,
 	RES_PERK_MEDIC = 16,
 	RES_PERK_MUNITIONIST = 32,
@@ -496,7 +494,7 @@ int GetSpawnHealth(bool bypassEShieldCheck = false) {
 		return 1;
 	}
 
-	int str_bonus = GetSTrengthEffect(pnum, DND_HP_PER_STR);
+	int str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
 	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
@@ -673,93 +671,18 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 void HandleClassPerks(int tid) {
 	int lvl = CheckActorInventory(tid, "Level");
 	int class = CheckActorInventory(tid, "DnD_Character") - 1; // we use 0 based
-	if(lvl >= 5) {
-		// 1st perk
-		switch(class) {
-			case DND_PLAYER_DOOMGUY:
-				GiveActorInventory(tid, "Doomguy_Perk5", 1);
-			break;
-			case DND_PLAYER_MARINE:
-				GiveActorInventory(tid, "Marine_Perk5", 1);
-			break;			
-			case DND_PLAYER_HOBO:
-				GiveActorInventory(tid, "Hobo_Perk5", 1);
-			break;
-			case DND_PLAYER_PUNISHER:
-				GiveActorInventory(tid, "Punisher_Perk5", 1);
-			break;
-			case DND_PLAYER_WANDERER:
-				GiveActorInventory(tid, "Wanderer_Perk5", 1);
-			break;
-			case DND_PLAYER_CYBORG:
-				GiveActorInventory(tid, "Cyborg_Perk5", 1);
-			break;
-			case DND_PLAYER_BERSERKER:
-				GiveActorInventory(tid, "Berserker_Perk5", 1);
-			break;
-			case DND_PLAYER_TRICKSTER:
-				GiveActorInventory(tid, "Trickster_Perk5", 1);
-			break;
-		}
+	str perkToGive = "";
+	if(lvl >= DND_PERK1_THRESHOLD) {
+		perkToGive = GetClassPerk(class, DND_CLASSPERK_1);
+		if(perkToGive != "")
+			GiveActorInventory(tid, perkToGive, 1);
 	}
-	
-	if(lvl >= 25) {
-		// 2nd perk
-		switch(class) {
-			case DND_PLAYER_DOOMGUY:
-				GiveActorInventory(tid, "Doomguy_Perk25", 1);
-			break;
-			case DND_PLAYER_MARINE:
-				GiveActorInventory(tid, "Marine_Perk25", 1);
-			break;			
-			case DND_PLAYER_HOBO:
-				GiveActorInventory(tid, "Hobo_Perk25", 1);
-			break;
-			case DND_PLAYER_PUNISHER:
-				GiveActorInventory(tid, "Punisher_Perk25", 1);
-			break;
-			case DND_PLAYER_WANDERER:
-				GiveActorInventory(tid, "Wanderer_Perk25", 1);
-			break;
-			case DND_PLAYER_CYBORG:
-				GiveActorInventory(tid, "Cyborg_Perk25", 1);
-			break;
-			case DND_PLAYER_BERSERKER:
-				GiveActorInventory(tid, "Berserker_Perk25", 1);
-			break;
-			case DND_PLAYER_TRICKSTER:
-				GiveActorInventory(tid, "Trickster_Perk25", 1);
-			break;
-		}
-	}
-	
-	if(lvl >= 50) {
-		// 3rd perk
-		switch(class) {
-			case DND_PLAYER_DOOMGUY:
-				GiveActorInventory(tid, "Doomguy_Perk50", 1);
-			break;
-			case DND_PLAYER_MARINE:
-				GiveActorInventory(tid, "Marine_Perk50", 1);
-			break;			
-			case DND_PLAYER_HOBO:
-				GiveActorInventory(tid, "Hobo_Perk50", 1);
-			break;
-			case DND_PLAYER_PUNISHER:
-				GiveActorInventory(tid, "Punisher_Perk50", 1);
-			break;
-			case DND_PLAYER_WANDERER:
-				GiveActorInventory(tid, "Wanderer_Perk50", 1);
-			break;
-			case DND_PLAYER_CYBORG:
-				GiveActorInventory(tid, "Cyborg_Perk50", 1);
-			break;
-			case DND_PLAYER_BERSERKER:
-				GiveActorInventory(tid, "Berserker_Perk50", 1);
-			break;
-			case DND_PLAYER_TRICKSTER:
-				GiveActorInventory(tid, "Trickster_Perk50", 1);
-			break;
+
+	for(int i = DND_CLASSPERK_2; i <= DND_CLASSPERK_LAST; ++i) {
+		if(lvl >= (i - 1) * DND_PERK_REGULARTHRESHOLD) {
+			perkToGive = GetClassPerk(class, i);
+			if(perkToGive != "")
+				GiveActorInventory(tid, perkToGive, 1);
 		}
 	}
 }

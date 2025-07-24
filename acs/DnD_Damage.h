@@ -658,10 +658,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 
 		// include enhancement orb bonuses
 		temp = GetPlayerWeaponEnchant(pnum, wepid);
-		if(temp) {
-			temp *= ENHANCEORB_BONUS;
+		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		}
 			
 		// finally apply damage type or percentage bonuses
 		// last one is for ghost hit power, we reduce its power by a factor -- add the top pct values from above to here too
@@ -875,9 +873,7 @@ Script "DnD Occult Weaken" (int victim, int mon_id) {
 
 int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category, int flags, int resist, int pen) {
 	// factor is the final resistance the monster will have against the attack
-	int factor = (100 - resist + pen);
-	if(factor <= 0)
-		return 0;
+	int factor = Clamp_Between((100 - resist + pen), 0, 200);
 	
 	// non-zero, we're good
 	return dmg * factor / 100;
@@ -895,6 +891,9 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	forced_full |= (!wep_neg && (actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) && GetPlayerAttributeValue(pnum, INV_EX_CRITIGNORERESCHANCE) >= random(1, 100));
 	
 	int resist = MonsterProperties[mon_id].resists[damage_category];
+	if(resist > DND_IMMUNITY_FACTOR)
+		resist = DND_IMMUNITY_FACTOR;
+
 	int temp;
 	int pct_val = 0;
 
@@ -1896,7 +1895,7 @@ Script "DnD Monster Freeze" (int victim) {
 	while(CheckActorInventory(victim, "DnD_FreezeTimer")) {
 		// create freeze fx and adjust it every 5 tics
 		ACS_NamedExecuteWithResult("DnD Monster Freeze Adjust", victim, tics, tics >= 2, CheckActorInventory(victim, "DnD_FreezeTimer") == 1);
-		Delay(const:5);
+		Delay(const:6);
 		TakeActorInventory(victim, "DnD_FreezeTimer", 1);
 		tics = (tics + 1) % 4;
 	}
@@ -2385,7 +2384,15 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// final thing to check after damage reductions are applied, DoTs
 	// do not register more instances on dots from dots themselves as well
 	if(m_id != -1 && !isDot && dmg) {
-		if((dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && random(1, 100) <= GetMonsterBleedChance(m_id, pnum, dmg_string == "Melee", dmg_data & DND_DAMAGETYPEFLAG_HITSCAN)) {
+		if
+		(
+			(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && 
+			random(1, 100) <= GetMonsterBleedChance(m_id, pnum, dmg_string == "Melee", dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) &&
+			GetPlayerNonElementalAvoidance(pnum, INV_AVOID_BLEED) <= random(1, 100)
+		)
+		{
+			HandleRiskAversion();
+
 			temp = GetMonsterBleedDamage(dmg, m_id, pnum);
 			if(!temp)
 				temp = 1;
@@ -2405,7 +2412,14 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			res_bonus = CheckInventory("DnD_ChillStacks");
 			
 			// if hpdiff >= threshold
-			if(res_to_apply - GetActorProperty(0, APROP_HEALTH) >= res_to_apply * GetMonsterChillThreshold(m_id, res_bonus + 1) / 100) {
+			if
+			(
+				GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE) <= random(1, 100) && 
+				res_to_apply - GetActorProperty(0, APROP_HEALTH) >= res_to_apply * GetMonsterChillThreshold(m_id, res_bonus + 1) / 100
+			)
+			{
+				HandleRiskAversion();
+
 				// add a new stack of chill if applicable
 				if(!CheckInventory("DnD_ChillGainCooldown") && res_bonus < DND_BASE_CHILL_CAP) {
 					GiveInventory("DnD_ChillStacks", 1);
@@ -2427,12 +2441,25 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			}
 		}
 		
-		if(((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || MonsterProperties[m_id].trait_list[DND_VOLTAIC]) && random(1, 100) <= GetMonsterOverloadChance(m_id, pnum)) {
+		if
+		(
+			((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || MonsterProperties[m_id].trait_list[DND_VOLTAIC]) && 
+			random(1, 100) <= GetMonsterOverloadChance(m_id, pnum) &&
+			GetPlayerElementalAvoidance(pnum, INV_AVOID_OVERLOAD) <= random(1, 100)
+		)
+		{
+			HandleRiskAversion();
 			SetInventory("DnD_OverloadTimer", GetMonsterOverloadTime(m_id, pnum));
 			ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_OVERLOAD, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
 		}
 		
-		if(((dmg_data & DND_DAMAGETYPEFLAG_POISON) || MonsterProperties[m_id].trait_list[DND_VENOMANCER])) {
+		if
+		(
+			((dmg_data & DND_DAMAGETYPEFLAG_POISON) || MonsterProperties[m_id].trait_list[DND_VENOMANCER]) &&
+			GetPlayerElementalAvoidance(pnum, INV_AVOID_POISON) <= random(1, 100)
+		)
+		{
+			HandleRiskAversion();
 			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
 			if(!temp)
 				temp = 1;
@@ -2446,7 +2473,14 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			);
 		}
 		
-		if(((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || MonsterProperties[m_id].trait_list[DND_SCORCHED]) && random(0, 1.0) < DND_PLAYER_BURNING_CHANCE) {
+		if
+		(
+			((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || MonsterProperties[m_id].trait_list[DND_SCORCHED]) && 
+			random(0, 1.0) < DND_PLAYER_BURNING_CHANCE &&
+			GetPlayerElementalAvoidance(pnum, INV_AVOID_IGNITE) <= random(1, 100)
+		) 
+		{
+			HandleRiskAversion();
 			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_BURN_PERCENT);
 			if(!temp)
 				temp = 1;
@@ -3178,11 +3212,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					Thing_Damage2(shooter, dmg, "Reflection");
 					ACS_NamedExecuteWithResult("DnD Damage Numbers", shooter, dmg, 0);
 				}
-				
-				/*temp = CheckInventory("Perk_Endurance");
-				if(temp) {
-					dmg = dmg * (1000 - temp * ENDURANCE_RES_INTEGER) / 1000;
-				}*/
 				
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later

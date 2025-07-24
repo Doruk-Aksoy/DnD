@@ -16,9 +16,9 @@
 #define INVENTORY_FADETIME 0.5
 
 #define DND_BASE_DISASSEMBLE_COST 350
-#define DND_DISASSEMBLE_LEVEL_PERCENT 10
+#define DND_DISASSEMBLE_LEVEL_PERCENT 5
 #define DND_DISASSEMBLE_IMPLICIT_PERCENT 10
-#define DND_DISASSEMBLE_TIER_PERCENT 15
+#define DND_DISASSEMBLE_TIER_PERCENT 10
 #define DND_DISASSEMBLE_FRACTURE_PERCENT 10 // 10% per fracture
 #define DND_BASE_DISASSEMBLE_CHANCE 25 // 25%
 #define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 5 // 5%
@@ -901,7 +901,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	(
 		isUnique && 
 		(PlayerInventoryList[pnum][item_index].item_type >> UNIQUE_BITS) - 1 == UITEM_WELLOFPOWER &&
-		CountPlayerSmallCharms(pnum) > PlayerInventoryList[pnum][item_index].attributes[2].attrib_val
+		CountPlayerSmallCharms(pnum) > PlayerInventoryList[pnum][item_index].attributes[1].attrib_val
 	)
 		return POPUP_NOMORESMALLCHARMS;
 	
@@ -1901,7 +1901,6 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 	
 	// potential delete of quality in case we hover over an item that doesn't have it, we don't want it lingering!
 	DeleteText(id_begin - id_mult * MAX_INVENTORY_BOXES - 18);
-	DeleteTextRange(id_begin - id_mult * MAX_INVENTORY_BOXES - 16, id_begin - id_mult * MAX_INVENTORY_BOXES);
 
 	SetFont("NSMOLFNT");
 	if(IsStackedItem(itype)) {
@@ -1961,7 +1960,8 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		);
 
 		// quality -- non-stacking item so
-		HudMessage(s:"\c[Q2]Q: ", d:GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, topboxid, -1, source), s:"%";
+		val = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, topboxid, -1, source);
+		HudMessage(s:"\c[Q2]Q: ", d:val, s:"%";
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 18 - ITEMINFOBG_MAXMIDS, 
 			CR_GREEN, 
@@ -1973,8 +1973,6 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		);
 
 		// implicit
-		val = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, topboxid, -1, source);
-
 		tmp_text = "";
 		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 			temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i, source);
@@ -2671,13 +2669,15 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	int aextra = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, aindex, source);
 
 	if(multiplier != 100) {
-		if(aval > INT_MAX / multiplier) {
-			aval /= 100;
-			aval *= multiplier;
-		}
-		else {
-			aval *= multiplier;
-			aval /= 100;
+		if(!IsAttributeQualityException(atype)) {
+			if(aval > INT_MAX / multiplier) {
+				aval /= 100;
+				aval *= multiplier;
+			}
+			else {
+				aval *= multiplier;
+				aval /= 100;
+			}
 		}
 
 		if(!IsAttributeExtraException(atype)) {
@@ -2781,6 +2781,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMIT:
+			printbold(s:"process mit ", f:aval);
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, aval, noSync, needDelay);
 		break;
 		case INV_IMP_INCARMORSHIELD:
@@ -3019,7 +3020,7 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 		if(temp <= 0)
 			temp = 1;
 
-		PlayerInventoryList[pnum][item_pos].item_level += temp * random(3 * MAX_CHARM_AFFIXTIERS / 4, MAX_CHARM_AFFIXTIERS);
+		PlayerInventoryList[pnum][item_pos].item_level += temp * random(MAX_CHARM_AFFIXTIERS / 2, 3 * MAX_CHARM_AFFIXTIERS / 4);
 		if(PlayerInventoryList[pnum][item_pos].item_level > MAX_ITEM_LEVEL)
 			PlayerInventoryList[pnum][item_pos].item_level = MAX_ITEM_LEVEL;
 	}
@@ -3130,7 +3131,7 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);
 	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
 		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
-		int extra = GetExtraForMod(corr_mod);
+		int extra = GetExtraForMod(pnum, corr_mod);
 
 		if(extra != -1)
 			PlayerInventoryList[pnum][item_pos].implicit[0].attrib_extra = extra;
@@ -3494,7 +3495,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				//i = UITEM_WELLOFPOWER;
+				i = UITEM_SHELLSHOCK;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif
@@ -3704,8 +3705,8 @@ int DisassembleItem_Price(int pnum, int item_pos) {
 			avg_mod_tier = MAX_CHARM_AFFIXTIERS / 2;
 	}
 
-	base = base * (100 + (ilvl - 1) * DND_DISASSEMBLE_LEVEL_PERCENT + fracture_count * DND_DISASSEMBLE_FRACTURE_PERCENT) / 100;
-	base = base * (100 + DND_DISASSEMBLE_TIER_PERCENT * avg_mod_tier) / 100;
+	base = base * (100 + (ilvl - 1) * DND_DISASSEMBLE_LEVEL_PERCENT + fracture_count * DND_DISASSEMBLE_FRACTURE_PERCENT + DND_DISASSEMBLE_TIER_PERCENT * avg_mod_tier) / 100;
+
 	// if corrupted or has implicit, include that too
 	fracture_count = 0;
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)

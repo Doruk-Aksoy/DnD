@@ -1679,15 +1679,15 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	}
 
 	// run elite checks
-#ifdef ISDEBUGBUILD
-	if(1)
-#else
+//#ifdef ISDEBUGBUILD
+//	if(1)
+//#else
 	if(
 		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																	&& 
 		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
 		!IsUniqueMonster(monsterid)
 	)
-#endif
+//#endif
 	{
 		MonsterProperties[m_id].isElite = true;
 		
@@ -5577,8 +5577,9 @@ Script "DnD Pain Immune Toggle" (int secs) {
 Script "DnD Ammo Token Pickup" (void) {
 	// get random owned weapon of player and give ammo to it
 	int id = 0;
+	int pnum = PlayerNumber();
 	do {
-		id = PickRandomOwnedWeaponID();
+		id = PickRandomOwnedWeaponID(pnum);
 	} while(Weapons_Data[id].ammo_name1 == "");
 
 	// give 10% ammo on this weapon -- soulrender has weapon condition as ammo1 so dont give if it is 
@@ -5814,15 +5815,15 @@ Script 68 (int x) NET {
 			SpawnBoot(0, 0);
 			//Log(s:"helm");
 			SpawnHelm(0, 0);
-			IncPlayerModValue(0, INV_AMMOGAIN_CHANCE, 50);
 			SpawnOrbForAll(1, random(300, 500));
 			/*SpawnChestKey(0);
 			SpawnCharmWithMods_ForAll(INV_PROJSPEED);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 100);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);*/
 			//IncPlayerModValue(0, INV_ESS_KRULL, 50);

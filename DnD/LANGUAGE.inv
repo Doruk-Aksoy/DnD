@@ -447,6 +447,12 @@ IATTR_T124			= "increased lock-on range";
 IATTR_T125			= "increased killing spree duration";
 IATTR_T126			= "reduced effect of curses on you";
 IATTR_T127			= "reduced duration of curses on you";
+IATTR_T128			= "chance to avoid ignite";
+IATTR_T129			= "chance to avoid chill and freeze";
+IATTR_T130			= "chance to avoid poison";
+IATTR_T131			= "chance to avoid overload";
+IATTR_T132			= "chance to avoid elemental ailments";
+IATTR_T133			= "chance to avoid bleeding";	
 
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";

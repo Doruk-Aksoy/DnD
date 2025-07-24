@@ -239,21 +239,21 @@ DND_MENU_ATTRTEXT2		=	"Increases \cdMitigation Chance\c- by 0.2%.";
 DND_MENU_ATTRTEXT3		=	"Increases \cvEnergy Shield\c- by 1% per 2 points and improves spells.";
 
 DND_MENU_PERKTEXT1		=	"more ranged damage.";
-DND_MENU_PERKTEXT2		=	"more melee damage";			DND_MENU_PERKTEXT2_CONT 	=	"increased melee range.";
-DND_MENU_PERKTEXT3		=	"DOES NOTHING DO NOT USE!";//"reduced damage taken.";
+DND_MENU_PERKTEXT2		=	"more melee damage.";			DND_MENU_PERKTEXT2_CONT 	=	"increased melee range.";
+DND_MENU_PERKTEXT3		=	"chance to avoid ailments.";
 DND_MENU_PERKTEXT4		=	"increased exp gain.";
 DND_MENU_PERKTEXT5		=	"increased credit gain.";
 DND_MENU_PERKTEXT6		=	"increased effect of healing.";
 DND_MENU_PERKTEXT7		=	"increased ammo gain.";
 DND_MENU_PERKTEXT8		=	"to critical strike chance.";
 DND_MENU_PERKTEXT9		=	"to critical strike multiplier.";
-DND_MENU_PERKTEXT10		=	"more drop chance and 5% chance to have better outcomes.";
+DND_MENU_PERKTEXT10		=	"more drop chance and 3% chance to have better outcomes.";
 
 DND_MENU_MASTERY		=	"Mastery";
 DND_MENU_MASTERY_COND	=	"Requires 10 points";
 DND_MENU_PERKMASTERY1	=	"Dexterity has an additional 1% scaling for attunement.";
 DND_MENU_PERKMASTERY2	=	"Melee damage and range increase also applies to projectiles fired from melee weapons.";
-DND_MENU_PERKMASTERY3	=	"DOES NOTHING DO NOT USE!";//"Armor rating effect increases by 20%.";
+DND_MENU_PERKMASTERY3	=	"When you are first afflicted by an ailment, prevent further ailments for the next 5 seconds.";
 DND_MENU_PERKMASTERY4	=	"Gain experience from kills regardless of the killer or the range limit.";
 DND_MENU_PERKMASTERY5	=	"Gain credit from kills regardless of the killer or the range limit.";
 DND_MENU_PERKMASTERY6	=	"Convert 2% of healing pickups to energy shield.";
@@ -425,7 +425,7 @@ DND_MENU_ABLTAG1		=	"Melee Expertise";
 DND_MENU_ABLHELPTEXT1	=	"Melee weapons gain altfires.";
 
 DND_MENU_ABLTAG2		=	"Fast Reloading";
-DND_MENU_ABLHELPTEXT2	=	"You reload twice as fast.";
+DND_MENU_ABLHELPTEXT2	=	"You reload weapons 50% faster.";
 
 DND_MENU_ABLTAG3		=	"Mobility";
 DND_MENU_ABLHELPTEXT3	=	"You can dash to dodge attacks (bind a button under controls).";

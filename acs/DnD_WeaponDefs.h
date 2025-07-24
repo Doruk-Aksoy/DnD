@@ -562,7 +562,7 @@ void SetupWeaponData() {
 	
 	Weapons_Data[DND_WEAPON_KILLSTORM].name = "Upgraded Shotgun2";
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_name1 = "Shell";
-	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_name2 = "ShellSize_10";
+	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_name2 = "ShellSize_9";
 	Weapons_Data[DND_WEAPON_KILLSTORM].icon = "WEPICO19";
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_use1 = 1;
 	Weapons_Data[DND_WEAPON_KILLSTORM].ammo_use2 = 1;
@@ -1603,8 +1603,8 @@ int GetActorWeaponID(int actor) {
 	return CheckActorInventory(actor, "DnD_WeaponID");
 }
 
-int PickRandomOwnedWeaponID(void) {
-	int count = 0, i, pnum = PlayerNumber();
+int PickRandomOwnedWeaponID(int pnum) {
+	int count = 0, i;
 	static int owned_weapons[MAXPLAYERS][MAXWEPS];
 	// setup the list
 	for(i = 0; i < MAXWEPS; ++i) {
@@ -1613,8 +1613,11 @@ int PickRandomOwnedWeaponID(void) {
 			++count;
 		}
 	}
+
 	// pick from random weapons owned
-	return owned_weapons[pnum][random(0, count - 1)];
+	if(count)
+		return owned_weapons[pnum][random(0, count - 1)];
+	return 0;
 }
 
 str GetWeaponAmmoType(int wepid, int which) {

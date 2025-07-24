@@ -126,7 +126,7 @@ Actor " Machine gun " : DnDWeapon {
 			TNT1 A 0 A_PlaySound("Weapons/MGLoad", 6)
 			TNT1 A 0 A_FireCustomMissile("MGClip2Drop", frandom(-12.0, 12.0), 0, 0, 0)
 			DMGG B 1 Offset(-21, 50)
-			DMGG B 24 Offset(-21, 51)
+			DMGG B 36 Offset(-21, 51)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_MACHINEGUN)
 			DMGG B 1 Offset(-21, 51)
 			DMGG B 1 Offset(-21, 43)
@@ -663,15 +663,17 @@ Actor "Upgraded Machine Gun" : DnDWeapon {
 		
 		ReloadFaster:
 			TNT1 A 0 A_JumpIfInventory("MGClip2", 0, "Failed")
-			SMG2 HJLN 1
+			SMG2 HIJLN 1
 			TNT1 A 0 A_PlaySound("weapons/mg2clipout")
 			TNT1 A 0 A_FireCustomMissile("MGClip2Drop", frandom(-12.0, 12.0), 0, 0, 0)
-			SMG2 O 8
-			SMG2 PQR 1
+			SMG2 O 12
+			SMG2 PQ 2
+			SMG2 R 1
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_HEAVYMACHINEGUN)
 			TNT1 A 0 A_PlaySound("weapons/mg2clipin")
-			SMG2 STU 1
-			SMG2 VXZ 1
+			SMG2 ST 1
+			SMG2 U 2
+			SMG2 VWXYZ 1
 			TNT1 A 0 A_PlaySound("weapons/mg2ready")
 			SMG2 A 4
 		Goto ReadyLoop
@@ -796,13 +798,18 @@ Actor "Upgraded Machine Gun2" : DnDWeapon {
 			QUAR LKJIHGFEDBCA 3
 		Goto ReadyLoop
 		DoReloadFaster:
-			QUAR B 1
-			QUAR D 5
-			QUAR EFGH 1
+			QUAR BC 1
+			QUAR D 7
+			QUAR E 1
+			QUAR FG 2
+			QUAR H 1
 			QUAR I 1 A_PlayWeaponSound("Leadspitter/eject")
-			QUAR JKLMNOPQ 1
-			QUAR R 12
-			QUAR QPON 1
+			QUAR JK 1
+			QUAR LMNO 2
+			QUAR PQ 1
+			QUAR R 18
+			QUAR QP 2
+			QUAR ON 1
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_LEADSPITTER)
 			QUAR M 2 A_PlayWeaponSound("Leadspitter/reload")
 			QUAR LKJIHGFEDBCA 2

@@ -167,7 +167,7 @@ WEPTIP_1_7 		= "Scatter Pistol shoots 3 pellets each doing 10 - 20 damage. Pelle
 	 
 WEPTIP_2_0 		= "Typical boomstick, now spreads vertically too. 10 pellets, each doing 10-15 damage. Can be \cdreplaced\c-. Can use \cialternate\c- ammo.";
 WEPTIP_2_1 		= "The purifier shotgun, spreads with 3.6 by 3.6. 15 pellets, each doing 15 damage. Has a shell capacity of 8. Alt fire reloads.";
-WEPTIP_2_2 		= "Killstorm Auto Shotgun, drum fed with 12 shells, can shoot 12 pellets each doing 18 damage in a 9.6 by 7.2 spread.";
+WEPTIP_2_2 		= "Killstorm Auto Shotgun, drum fed with 9 shells, can shoot 12 pellets each doing 18 damage in a 9.6 by 7.2 spread.";
 WEPTIP_2_3 		= "Fires 5 blasts doing 15 damage in a 6 by 4.25 spread. Altfire fires a projectile that deals 150 damage, releasing an acid rain, doing 8-32 damage each. Can't hit \cughosts\c-. Victims explode on death doing 50 damage in 96 unit radius.";
 WEPTIP_2_4 		= "Deadlock fires 16 pellets doing 15 damage in a 7.0 by 5.2 spread. Has a shell capacity of 12.";
 WEPTIP_2_5 		= "Fires shots that do 210 ice damage. Alt fire shoots a blast of nitrogen 384 units ahead, creating 4 series of icy gas streams doing 5 damage.";

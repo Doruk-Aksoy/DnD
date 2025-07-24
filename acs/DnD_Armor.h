@@ -249,6 +249,10 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
 
+#ifdef ISDEBUGBUILD
+	res = BODYARMOR_GUNSLINGER;
+#endif
+
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;
 	Inventories_On_Field[item_pos].item_type = DND_ITEM_BODYARMOR;

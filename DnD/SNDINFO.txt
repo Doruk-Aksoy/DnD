@@ -69,10 +69,12 @@ Hammer/BounceSurf2		HAMBNCS2
 $random Hammer/BounceOffSurface	{ Hammer/BounceSurf1 Hammer/BounceSurf2 }
 
 Mitigation/Success		MITSUCCS
+$limit Mitigation/Success 1
 
 EShield/Hit				ESHLDHIT
 EShield/Break			ESHLDBRK
 $limit EShield/Break	1
+$limit EShield/Hit		1
 EShield/Begin			ESHLDBGN
 EShield/Finish			ESHLDFIN
 $limit EShield/Finish	1

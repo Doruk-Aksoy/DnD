@@ -1108,9 +1108,9 @@ ACTOR Basilisk : DnDWeapon {
 		
 		
 		ReloadFast:
-			BASG A 1 Offset(6, 35)
-			BASG A 1 Offset(12, 38)
-			BASG A 1 Offset(18, 41)
+			BASG A 2 Offset(6, 35)
+			BASG A 2 Offset(12, 38)
+			BASG A 2 Offset(18, 41)
 			BASG A 1 Offset(24, 44)
 			BASG A 1 Offset(30, 47)
 			BASG A 1 Offset(32, 50)
@@ -1123,11 +1123,11 @@ ACTOR Basilisk : DnDWeapon {
 			BASG A 1 Offset(32, 48)
 			BASG A 1 Offset(28, 44)
 			BASG A 1 Offset(24, 40)
-			BASG A 1 Offset(20, 36)
-			BASG A 1 Offset(16, 35)
-			BASG A 1 Offset(12, 34)
-			BASG A 1 OFfset(8, 33)
-			BASG A 1 Offset(2, 32)
+			BASG A 2 Offset(20, 36)
+			BASG A 2 Offset(16, 35)
+			BASG A 2 Offset(12, 34)
+			BASG A 2 OFfset(8, 33)
+			BASG A 2 Offset(2, 32)
 		Goto ReadyLoop
 		Full:
 			BASG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
@@ -1978,26 +1978,28 @@ Actor RhinoRifle : DnDWeapon {
 			MARG A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Ready
 		ReloadFaster:
-			MAYR A 1
-			MAYR B 2
-			MAYR CDE 1
+			MAYR A 2
+			MAYR B 3
+			MAYR CD 2
+			MAYR E 1
 			MAYR F 1 A_PlaySound("RhinoRifle/ClipOut")
 			TNT1 A 0 A_FireCustomMissile("RhinoClipDrop", frandom(-12.0, 12.0), 0, 0, 0)
 			MAYR GH 2
-			MAYR I 14
-			MAYR JK 1
+			MAYR I 21
+			MAYR JK 2
 			MAYR LM 1
 			TNT1 A 0 ACS_ExecuteAlways(998, 0, 7)
 			TNT1 A 0 A_PlaySound("RhinoRifle/Clipin")
-			MAYR N 1
-			MAYR OPQ 1
+			MAYR N 2
+			MAYR OP 2
+			MAYR Q 1
 			TNT1 A 0 A_JumpIfInventory("HadFullEmptyClip", 1, "CockFaster")
 		Goto Ready
 		CockFaster:
 			TNT1 A 0 A_TakeInventory("HadFullEmptyClip", 1)
-			MARC AB 2
+			MARC AB 3
 			MARC C 3 A_PlaySound("RhinoRifle/Cock")
-			MARC DEFG 1
+			MARC DEFG 2
 		Goto Ready
 
 		ModeSwitch:

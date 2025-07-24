@@ -561,7 +561,12 @@ Actor DnD_Player : PlayerPawn {
 			"####" "#" 3
 			TNT1 A 0 A_Fall
 			TNT1 A 0 A_Scream
+			TNT1 A 0 A_JumpIfInventory("DnD_Character", 8, "SkipTricksterBurnScream")
 			TNT1 A 0 A_Playsound("Burn/Death", 6)
+		Goto SkippedDeathSoundForBurn
+		SkipTricksterBurnScream:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Player Death Sound")
+		SkippedDeathSoundForBurn:
 			TNT1 A 0 A_SpawnItem("BurnDeath1",1)
 			BLAN A -1
 		Stop

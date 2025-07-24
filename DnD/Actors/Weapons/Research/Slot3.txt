@@ -175,22 +175,24 @@ Actor ResShotgun1 : DnDWeapon {
 		Goto RiseUp
 		
 		ReloadBeginFast:
-			RW01 FGHI 1
-			RW01 J 1
+			RW01 FG 2
+			RW01 HI 1
+			RW01 J 2
 		ReloadInsertFast:
 			RW01 J 1
 			TNT1 A 0 A_PlayWeaponSound("Deadlock/Insert")
 			TNT1 A 0 A_GiveInventory("Shellsize_12", 1)
-			RW01 KL 1
-			RW01 M 1 Offset(0, 30)
-			RW01 N 1 Offset(0, 31)
+			RW01 KKL 1
+			RW01 MM 1 Offset(0, 30)
+			RW01 NN 1 Offset(0, 31)
 			RW01 O 1 Offset(0, 32)
-			RW01 J 2
+			RW01 J 3
 			TNT1 A 0 A_JumpIfInventory("DoPump", 1, "RisePumpFast")
 			RW01 J 1 A_JumpIf(ACS_ExecuteWithResult(994, 9), "ReloadChecksFast")
 		Goto RiseUpFast
 		RiseUpFast:
-			RW01 IHGF 2
+			RW01 IH 1
+			RW01 GF 2
 		Goto ReadyLoop
 		RisePumpFast:
 			RW01 IHGF 2
@@ -334,12 +336,12 @@ Actor ResShotgun2 : DnDWeapon {
 			BOWG A 0 A_ReFire
 		Goto ReadyLoop
 		ReloadFaster:
-			BOWF E 4
-			BOWF E 1 A_PlaySound("weapons/cryobowreload")
+			BOWF E 6
+			BOWF E 2 A_PlaySound("weapons/cryobowreload")
 			BOWF E 1 Offset(0,31) 
-			BOWF F 1 Offset(0,32)
+			BOWF F 2 Offset(0,32)
 			BOWF F 1 Offset(0,30)
-			BOWF G 1 Offset(0,31)
+			BOWF G 2 Offset(0,31)
 			BOWF HI 1 Offset(0,32)
 			BOWG CDB 2 Bright Offset(0,32)
 			BOWG A 0 A_ReFire("Fire")
@@ -371,12 +373,12 @@ Actor ResShotgun2 : DnDWeapon {
 			BOWG CDB 3 Bright Offset(0,32)
 		Goto ReadyLoop
 		ReloadAltFaster:
-			BOWF E 4
-			BOWF E 1 A_PlaySound("weapons/cryobowreload")
+			BOWF E 6
+			BOWF E 2 A_PlaySound("weapons/cryobowreload")
 			BOWF E 1 Offset(0,31) 
-			BOWF F 1 Offset(0,32)
+			BOWF F 2 Offset(0,32)
 			BOWF F 1 Offset(0,30)
-			BOWF G 1 Offset(0,31)
+			BOWF G 2 Offset(0,31)
 			BOWF HI 1 Offset(0,32)
 			TNT1 A 0 A_GiveInventory("CryoBowCooldown", 1)
 			BOWG CDB 2 Bright Offset(0,32)

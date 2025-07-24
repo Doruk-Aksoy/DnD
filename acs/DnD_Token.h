@@ -52,10 +52,16 @@ void ApplyGunsmithToken(int pnum, int wepid) {
 }
 
 void HandleTokenUse(int pnum, int token_type, int item_id) {
+    int temp;
     switch(token_type) {
         case DND_TOKEN_ARMORER:
 			// just increment quality
-			++PlayerInventoryList[pnum][item_id].quality;
+			PlayerInventoryList[pnum][item_id].quality += random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
+            
+            temp = GetItemMaxQuality(pnum, item_id);
+            if(PlayerInventoryList[pnum][item_id].quality > temp)
+                PlayerInventoryList[pnum][item_id].quality = temp;
+
 			SyncItemQuality(pnum, item_id, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
         break;
         case DND_TOKEN_GUNSMITH:

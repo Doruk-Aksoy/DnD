@@ -93,19 +93,33 @@ Actor FlechettePuff : DnD_BasePuff {
 
 Actor FlechetteShot : DnD_BaseProjectile {
 	Speed 16
-	Radius 4
+	Radius 2
 	Height 4
 	Scale 0.2
 	+BRIGHT
 	RenderStyle Add
 	Gravity 0.75
+	
+	Damage(
+		SSAM_FLECHETTE |
+		(1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
+	Stamina 131072
+	
+	+PAINLESS
 	+DONTREFLECT
 	-NOGRAVITY
 	+FOILINVUL
-	+THRUACTORS
+	+RIPPER
+	+NODAMAGETHRUST
 	States {
 		SpawnState:
-			SPPJ A 1 A_CustomMissile("FlechetteDamager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 4)
+		SpawnLoop:
+			SPPJ A 1
 			TNT1 A 0 A_SpawnItemEx("ScatterPShotTrail", 0, 0, 8, 0, 0, 0, 0, SXF_CLIENTSIDE)
 			TNT1 A 0 A_SpawnItemEx("ScatterShotGlow", 0, 0, 0, 0, 0, 0, 0, 32)
 			SPPJ A 1
@@ -122,21 +136,6 @@ Actor FlechetteShot : DnD_BaseProjectile {
 
 Actor FlechetteShot_Crit : FlechetteShot {
 	Accuracy 69
-	States {
-		SpawnState:
-			SPPJ A 1 A_CustomMissile("FlechetteDamager_Crit", 0, 0, 0, CMF_TRACKOWNER)
-			TNT1 A 0 A_SpawnItemEx("ScatterPShotTrail", 0, 0, 8, 0, 0, 0, 0, SXF_CLIENTSIDE)
-			TNT1 A 0 A_SpawnItemEx("ScatterShotGlow", 0, 0, 0, 0, 0, 0, 0, 32)
-			SPPJ A 1
-			TNT1 A 0 A_SpawnItemEx("ScatterPShotTrail", 0, 0, 8, 0, 0, 0, 0, SXF_CLIENTSIDE)
-			TNT1 A 0 A_SpawnItemEx("ScatterShotGlow", 0, 0, 0, 0, 0, 0, 0, 32)
-		Loop
-		Death:
-			TNT1 A 0 A_SetScale(0.20)
-			TNT1 AA 0 A_CustomMissile("FlechetteSpark_Crit",0,0,random(0,360),CMF_TRACKOWNER | CMF_AIMDIRECTION,random(0,12))
-			TNT1 A 1 A_SpawnItem("FlechetteHitSpark")
-		Stop
-	}
 }
 
 Actor FlechetteHitSpark {
@@ -158,70 +157,7 @@ ACTOR FlechetteSpark : DnD_BaseProjectile {
 	Height 4
 	Scale 0.125
 	Gravity 0.3
-	+BRIGHT
-	-NOGRAVITY
-	+DROPOFF 
-	+THRUACTORS
-	+DONTREFLECT
-	RenderStyle Add
-	States {
-		SpawnState:
-			SPPJ A 1
-			TNT1 A 0 A_SpawnItemEx("ScatterShotGlowSmall", 0, 0, 0, 0, 0, 0, 0, 32)
-			TNT1 A 0 A_CustomMissile("FlechetteDamagerTiny", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Loop
-		Death:
-			TNT1 A 0
-			TNT1 A 0 A_PlaySound("SPRPIMPT",5,0.12,0)
-			TNT1 A 0 A_SetScale(0.08)
-			SPRI ABCDE 1
-		Stop
-	}
-}
-
-Actor FlechetteSpark_Crit : FlechetteSpark {
-	Accuracy 69
-	States {
-		SpawnState:
-			SPPJ A 1
-			TNT1 A 0 A_SpawnItemEx("ScatterShotGlowSmall", 0, 0, 0, 0, 0, 0, 0, 32)
-			TNT1 A 0 A_CustomMissile("FlechetteDamagerTiny_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-		Loop
-	}
-}
-
-Actor FlechetteDamager : DnD_BaseProjectile {
-	Radius 2
-	Height 4
-	Speed 8
 	
-	Damage(
-		SSAM_FLECHETTE |
-		(1 << CACHE_SHIFT) |
-		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
-		(100 << DPCT_SHIFT)
-	)
-	
-	Stamina 131072
-	
-	+PAINLESS
-	+FOILINVUL
-	+DONTREFLECT
-	States {
-		SpawnState:
-			TNT1 A 1
-		Stop
-		Death:
-			TNT1 A 1
-		Stop
-	}
-}
-
-Actor FlechetteDamager_Crit : FlechetteDamager {
-	Accuracy 69
-}
-
-ACTOR FlechetteDamagerTiny : FlechetteDamager {
 	Damage(
 		SSAM_FLECHETTE |
 		(2 << CACHE_SHIFT) |
@@ -233,14 +169,30 @@ ACTOR FlechetteDamagerTiny : FlechetteDamager {
 
    +NODAMAGETHRUST
    +PAINLESS
-   States {
+	
+	+BRIGHT
+	-NOGRAVITY
+	+DROPOFF 
+	+THRUACTORS
+	+DONTREFLECT
+	RenderStyle Add
+	States {
+		SpawnState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 2)
+		SpawnLoop:
+			SPPJ A 1
+			TNT1 A 0 A_SpawnItemEx("ScatterShotGlowSmall", 0, 0, 0, 0, 0, 0, 0, 32)
+		Loop
 		Death:
-			TNT1 A 1
+			TNT1 A 0
+			TNT1 A 0 A_PlaySound("SPRPIMPT",5,0.12,0)
+			TNT1 A 0 A_SetScale(0.08)
+			SPRI ABCDE 1
 		Stop
 	}
 }
 
-Actor FlechetteDamagerTiny_Crit : FlechetteDamagerTiny {
+Actor FlechetteSpark_Crit : FlechetteSpark {
 	Accuracy 69
 }
 
@@ -892,55 +844,62 @@ Actor ShockShellFX {
 
 Actor NitroWind : DnD_BaseProjectile {
 	Speed 7
-	Radius 5
-	Height 10
+	Radius 3
+	Height 4
 	
-	Damage (1)
+	Damage(
+		SSAM_NITROSHELL |
+		(1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+	
+	Stamina 163840
+	DamageType "P_Ice"
 	
 	Scale 0.5
 	Alpha 0.9
 	Renderstyle Add
 	BounceType "Doom"
-	+RIPPER
+	+THRUACTORS
 	+BLOODLESSIMPACT
 	+CANBOUNCEWATER
 	+NODAMAGETHRUST
 	+PAINLESS
-	+THRUACTORS
 	+DONTREFLECT
 	States {
 		SpawnState:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", MAX_RIPCOUNT, 1)
 		SpawnLoop:
-			RF34 J 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 J 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 K 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 K 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 L 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 L 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 M 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 M 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 N 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 N 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 O 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 O 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 P 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 P 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 Q 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 Q 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 R 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 R 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 S 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 S 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 T 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 T 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 U 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 U 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 V 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 V 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 W 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 W 5
 			TNT1 A 0 A_FadeOut(0.05)
-			RF34 X 5 A_CustomMissile("NitroWind_Damager", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			RF34 X 5
 			TNT1 A 0 A_FadeOut(0.05)
 		Loop
 		Death:
@@ -950,72 +909,6 @@ Actor NitroWind : DnD_BaseProjectile {
 }
 
 Actor NitroWind_Crit : NitroWind {
-	Accuracy 69
-	States {
-		SpawnState:
-			RF34 J 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 K 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 L 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 M 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 N 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 O 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 P 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 Q 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 R 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 S 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 T 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 U 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 V 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 W 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-			RF34 X 5 A_CustomMissile("NitroWind_Damager_Crit", 0, 0, 0, CMF_TRACKOWNER | CMF_AIMDIRECTION)
-			TNT1 A 0 A_FadeOut(0.05)
-		Loop
-	}
-}
-
-Actor NitroWind_Damager : DnD_BaseProjectile {
-	Radius 3
-	Height 4
-	Speed 5
-	
-	Damage(
-		SSAM_NITROSHELL |
-		(1 << CACHE_SHIFT) |
-		(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
-		(100 << DPCT_SHIFT)
-	)
-	
-	Stamina 131072
-	DamageType "P_Ice"
-	+DONTREFLECT
-	+PAINLESS
-	+NODAMAGETHRUST
-	+BLOODLESSIMPACT
-	States {
-		SpawnState:
-			TNT1 A 1
-		Stop
-		Death:
-			TNT1 A 1
-		Stop
-	}
-}
-
-Actor NitroWind_Damager_Crit : NitroWind_Damager {
 	Accuracy 69
 }
 

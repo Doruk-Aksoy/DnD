@@ -457,7 +457,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
 		break;
 		case DND_WEAPON_KILLSTORM:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
 		break;
 		case DND_WEAPON_EMERALDWAND:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
@@ -865,8 +865,8 @@ Script "DnD Handle Reload" (int wepid, int extra, int flags) {
 
 		case DND_WEAPON_KILLSTORM:
 			toTake = "Shell";
-			toGive = "ShellSize_10";
-			base = GetAmmoCapacity("ShellSize_10");
+			toGive = "ShellSize_9";
+			base = GetAmmoCapacity("ShellSize_9");
 		break;
 
 		case DND_WEAPON_ERASUS:
@@ -2064,7 +2064,7 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 	}
 }
 
-Script "DnD Set Projectile RipCount" (int amt) {
+Script "DnD Set Projectile RipCount" (int amt, int makeOneTimeRipper) {
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
 	if(!IsPlayer(owner)) {
 		SetResultValue(0);
@@ -2078,8 +2078,13 @@ Script "DnD Set Projectile RipCount" (int amt) {
 	else
 		amt = MAX_RIPCOUNT;
 
-	if(GetPlayerAttributeValue(pnum, INV_EX_RIPPERSONETIMEONLY))
+	if(GetPlayerAttributeValue(pnum, INV_EX_RIPPERSONETIMEONLY) || makeOneTimeRipper) {
 		SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
+
+		// this trick was necessary for nitro shell to make it go through then damage properly...
+		if(makeOneTimeRipper)
+			GiveInventory("ReplaceThruActorsWithRipper", 1);
+	}
 
 	SetInventory("DnD_RipLimit", amt);
 	SetResultValue(0);

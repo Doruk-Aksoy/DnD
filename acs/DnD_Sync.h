@@ -927,7 +927,7 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev) {
 	
 	// sync attributes
 	h = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, itemid, -1, source);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, h, itemid);
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSATTRIBCOUNT | payload, 0, itemid);
 	for(i = 0; i < h; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, 0, itemid | (i << 16));
@@ -972,8 +972,9 @@ void SyncItemImplicits(int pnum, int itemid, int source) {
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ISDIRTY | payload, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, itemid, -1, source), itemid);
 
 	for(int j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
-		for(i = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID; i <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA ; ++i)
+		for(i = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID; i <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA ; ++i) {
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, j, source), itemid | (j << 16));
+		}
 	}
 }
 

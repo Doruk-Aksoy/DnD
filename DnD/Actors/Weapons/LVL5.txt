@@ -380,15 +380,19 @@ ACTOR "Upgraded Rocket Launcher3" : DnDWeapon {
 		Goto ReadyLoop
 
 		DoReloadFaster:
-			VS9R ABCDE 1
+			VS9R ABC 2
+			VS9R DE 1
 			VS9R F 2 A_PlayWeaponSound("Vindicator/Clipout")
-			VS9R GHIJK 1
+			VS9R GHI 1
+			VS9R JK 2
 			TNT1 A 0 A_FireCustomMissile("FlakClipDrop", frandom(-12.0, 12.0), 0, 0, 0)
-			VS9R L 17
+			VS9R L 26
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Handle Reload", 0, DND_WEAPON_VINDICATOR)
-			VS9R MNOPQ 1
+			VS9R MN 2
+			VS9R OPQ 1
 			VS9R R 2 A_PlayWeaponSound("Vindicator/Clipin")
-			VS9R STUVWX 1
+			VS9R STU 2
+			VS9R VWX 1
 		Goto ReadyLoop
 		NoReload:
 			VS9G A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)

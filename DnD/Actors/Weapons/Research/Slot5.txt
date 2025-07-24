@@ -506,13 +506,13 @@ ACTOR ResRL2 : DnDWeapon {
 			GLAU F 4 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ReadyLoop
 		ReloadFast:
-			GLAU B 3
+			GLAU B 4
 			TNT1 A 0
-			GLAU G 2 A_PlaySound("HeavyGL/Cock", 7)
+			GLAU G 3 A_PlaySound("HeavyGL/Cock", 7)
 			TNT1 A 0 A_GiveInventory("HeavyGrenadeShooter2", 1)
-			GLAU H 2
-			GLAU I 2
-			GLAU F 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			GLAU H 3
+			GLAU I 3
+			GLAU F 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ReadyLoop
 		
 		Flash:

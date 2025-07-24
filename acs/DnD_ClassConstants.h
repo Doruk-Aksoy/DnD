@@ -1,6 +1,17 @@
 #ifndef DND_CLASSCONST_IN
 #define DND_CLASSCONST_IN
 
+enum {
+	DND_CLASSPERK_1 = 1,
+	DND_CLASSPERK_2,
+	DND_CLASSPERK_3,
+	DND_CLASSPERK_4,
+	DND_CLASSPERK_LAST
+};
+
+#define DND_PERK1_THRESHOLD 1
+#define DND_PERK_REGULARTHRESHOLD 20 // every 20 levels you get a perk
+
 #define DND_DOOMGUY_DMGREDUCE_PERCENT 90
 #define DND_DOOMGUY_PERK5HEAL 15 // 15%
 #define DND_DOOMGUY_DROPCHANCE 0.05
@@ -63,10 +74,51 @@
 
 #define DND_TRICKSTER_SIZEX 0.6
 #define DND_TRICKSTER_SIZEY 0.6
-#define DND_TRICKSTER_PHASING_CHANCE 0.1 // 10%
-#define DND_TRICKSTER_PERK50_THRESHOLD 33 // 33%
+#define DND_TRICKSTER_CRIT_GAIN_FROM_MIT 0.002 // 0.2 per 1%
+#define DND_TRICKSTER_PHASING_CHANCE 0.2 // 20%
+#define DND_TRICKSTER_PERK50_THRESHOLD 40 // 40%
 #define DND_TRICKSTER_PERK50_COOLDOWN 450 // 90 x 5
 #define DND_TRICKSTER_PERK50_DELAY 7
+
+enum {
+	DND_CLASS_LABEL_NAME,
+	DND_CLASS_LABEL_LEFTIMG,
+	DND_CLASS_LABEL_RIGHTIMG,
+	DND_CLASS_LABEL_MUGSHOT,
+	DND_CLASS_LABEL_TEXT,
+	DND_CLASS_LABEL_PERK1,
+	DND_CLASS_LABEL_PERK2,
+	DND_CLASS_LABEL_PERK3
+};
+
+str GetClassLabel(str class_prefix, int label) {
+	switch(label) {		
+		case DND_CLASS_LABEL_NAME:
+		return StrParam(s:class_prefix, s:"_NAME");
+		
+		case DND_CLASS_LABEL_LEFTIMG:
+		return StrParam(s:class_prefix, s:"_LEFTIMG");
+		
+		case DND_CLASS_LABEL_RIGHTIMG:
+		return StrParam(s:class_prefix, s:"_RIGHTIMG");
+		
+		case DND_CLASS_LABEL_MUGSHOT:
+		return StrParam(s:class_prefix, s:"_MUGSHOT");
+		
+		case DND_CLASS_LABEL_TEXT:
+		return StrParam(s:class_prefix, s:"_TEXT");
+		
+		case DND_CLASS_LABEL_PERK1:
+		return StrParam(s:class_prefix, s:"_PERK1");
+		
+		case DND_CLASS_LABEL_PERK2:
+		return StrParam(s:class_prefix, s:"_PERK2");
+		
+		case DND_CLASS_LABEL_PERK3:
+		return StrParam(s:class_prefix, s:"_PERK3");
+	}
+	return "";
+}
 
 void DoPreClassAdjustments() {
 	if(isPlayerClass(DND_PLAYER_TRICKSTER)) {
@@ -81,6 +133,35 @@ void CheckDoomguyExecuteReversal(int this) {
 		TakeActorInventory(this, "Doomguy_ValidExecute", 1);
 		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", this, 1, MonsterProperties[this - DND_MONSTERTID_BEGIN].id);
 	}
+}
+
+str GetClassPerk(int class, int perk_num) {
+	if(class < 0)
+		return "";
+	str cprefix = StrParam(s:"CLASS", d:class);
+	if(perk_num > DND_CLASSPERK_1)
+		perk_num = (perk_num - 1) * DND_PERK_REGULARTHRESHOLD;
+	return StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME), s:"_Perk", d:perk_num);
+}
+
+bool HasClassPerk(int class, int perk_num) {
+	return CheckInventory(GetClassPerk(class, perk_num));
+}
+
+bool HasActorClassPerk(int tid, int class, int perk_num) {
+	return CheckActorInventory(tid, GetClassPerk(class, perk_num));
+}
+
+bool HasClassPerk_Fast(str class, int perk_num) {
+	if(perk_num > DND_CLASSPERK_1)
+		perk_num = (perk_num - 1) * DND_PERK_REGULARTHRESHOLD;
+	return CheckInventory(StrParam(s:class, s:"_Perk", d:perk_num));
+}
+
+bool HasActorClassPerk_Fast(int tid, str class, int perk_num) {
+	if(perk_num > DND_CLASSPERK_1)
+		perk_num = (perk_num - 1) * DND_PERK_REGULARTHRESHOLD;
+	return CheckActorInventory(tid, StrParam(s:class, s:"_Perk", d:perk_num));
 }
 
 #endif

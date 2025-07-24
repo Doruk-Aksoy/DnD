@@ -272,6 +272,15 @@ Actor RemoveThruActors : DnD_Activator {
 	}
 }
 
+Actor ReplaceThruActorsWithRipper : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("THRUACTORS", 0)
+			TNT1 A 0 A_ChangeFlag("RIPPER", 0)
+		Stop
+	}
+}
+
 // because zandro doesnt have a working implementation of SetActorFlag...
 Actor ApplyNetherMaskBuff : DnD_Activator {
 	States {

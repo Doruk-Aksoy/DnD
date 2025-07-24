@@ -1,4 +1,4 @@
-Actor Doomguy_Perk5 : DnD_Boolean { }
+Actor Doomguy_Perk1 : DnD_Boolean { }
 Actor Doomguy_CanExecute : DnD_Boolean { }
 Actor Doomguy_ChangedColor : DnD_Boolean { }
 Actor Doomguy_ValidExecute : DnD_Boolean { }
@@ -61,7 +61,7 @@ Actor Doomguy_ResistReduced : PowerDamage {
 	powerup.duration -5
 }
 
-Actor Marine_Perk5 : DnD_Boolean { }
+Actor Marine_Perk1 : DnD_Boolean { }
 
 Actor Marine_Perk25 : DnD_Boolean { }
 
@@ -78,7 +78,7 @@ Actor Marine_Perk50_Cooldown : DnD_Info {
 Actor Marine_Perk50_DamageDealt : DnD_Info { }
 Actor Marine_Perk50_DamageTaken : DnD_Info { }
 
-Actor Hobo_Perk5 : DnD_Boolean { }
+Actor Hobo_Perk1 : DnD_Boolean { }
 
 Actor Hobo_Perk25 : DnD_Boolean { }
 
@@ -97,9 +97,9 @@ Actor Hobo_ShotgunFrenzyTimer : DnD_Info {
 	inventory.maxamount 700 // default setup is 350 = 10 secs
 }
 
-Actor Punisher_Perk5 : DnD_Boolean { }
+Actor Punisher_Perk1 : DnD_Boolean { }
 
-Actor Punisher_Perk5_MoveSpeed : PowerSpeed {
+Actor Punisher_Perk1_MoveSpeed : PowerSpeed {
 	powerup.duration 0x7FFFFFFF
 	Speed 1.1
 }
@@ -124,7 +124,7 @@ Actor Punisher_Perk50_NextReq : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
-Actor Wanderer_Perk5 : DnD_Boolean { }
+Actor Wanderer_Perk1 : DnD_Boolean { }
 Actor Wanderer_Perk25 : DnD_Boolean { }
 Actor Wanderer_Perk50 : DnD_Boolean { }
 
@@ -177,7 +177,7 @@ Actor DnD_AilmentToken : DnD_Info {
 	inventory.maxamount 64
 }
 
-Actor Cyborg_Perk5 : DnD_Boolean { }
+Actor Cyborg_Perk1 : DnD_Boolean { }
 Actor Cyborg_Perk25 : DnD_Boolean { }
 Actor Cyborg_Perk50 : DnD_Boolean { }
 
@@ -239,7 +239,7 @@ Actor InstabilityBlast : DnD_BaseProjectile {
 	}
 }
 
-Actor Berserker_Perk5 : DnD_Boolean { }
+Actor Berserker_Perk1 : DnD_Boolean { }
 
 Actor Berserker_Perk25 : DnD_Boolean { }
 Actor Berserker_DamageTracker : DnD_Info { }
@@ -299,7 +299,7 @@ Actor Berserker_ThunderFX_Spawner : DnD_Activator {
 	}
 }
 
-Actor Trickster_Perk5 : DnD_Boolean { }
+Actor Trickster_Perk1 : DnD_Boolean { }
 Actor Trickster_Perk25 : DnD_Boolean { }
 Actor Trickster_Perk50 : DnD_Boolean { }
 

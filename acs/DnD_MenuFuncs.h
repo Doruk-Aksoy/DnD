@@ -264,8 +264,8 @@ void DrawPerkText(int boxid) {
 			case STAT_BRUT:
 				toShow = StrParam(s:"\cd* \ci+", d:DND_PERK_BRUTALITY_DAMAGEINC, s:"%\c- ", l:GetPerkText(boxid - 1), l:"DND_MENU_AND", s:"\ci+", d:DND_PERK_BRUTALITY_RANGEINC, s:"%\c- ", l:"DND_MENU_PERKTEXT2_CONT");
 			break;
-			case STAT_END:
-				toShow = StrParam(s:"\cd* \ci+", s:GetFixedRepresentation(ENDURANCE_RES_INC, true), s:"%\c- ", l:GetPerkText(boxid - 1));
+			case STAT_RISK:
+				toShow = StrParam(s:"\cd* \ci+", d:RISK_AVERSION_VALUE, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 			case STAT_WIS:
 				toShow = StrParam(s:"\cd* \ci+", d:BASE_WISDOM_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
@@ -1305,7 +1305,7 @@ void DrawHighLightBar (int posy, int framecounter) {
 		!(framecounter % 2) &&
 	    !(
 			(CheckInventory("Perk_Sharpshooting") == DND_PERK_MAX) &&
-			(CheckInventory("Perk_Endurance") == DND_PERK_MAX) &&
+			(CheckInventory("Perk_RiskAversion") == DND_PERK_MAX) &&
 			(CheckInventory("Perk_Wisdom") == DND_PERK_MAX) &&
 			(CheckInventory("Perk_Greed") == DND_PERK_MAX) &&
 			(CheckInventory("Perk_Medic") == DND_PERK_MAX) &&
@@ -2946,7 +2946,7 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 
 void DrawInventoryInfo(int pnum) {
 	int pn, mx, my, offset, stack = 0;
-		
+	
 	if(CheckInventory("DnD_SelectedCharmBox"))
 		DrawInventoryInfo_Field(pnum, CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, true);
 		
@@ -3849,6 +3849,10 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 			soffset = 2 * MAX_INVENTORY_BOXES;
 		}
 		HandleM2Inputs(pnum, boxid - ioffset, isource, soffset, ssource);
+
+		// make sure changes are reflected dynamically
+		ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+		ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
 	}
 }
 
@@ -4485,6 +4489,8 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
 		my = INVENTORYINFO_NORMALVIEW_WRAPY + 0.1;
 
+	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+
 	int bg_x = mx;
 	int bg_y = my;
 		
@@ -4835,15 +4841,17 @@ void HandleCraftingInputs(int boxid, int curopt) {
 		if(CheckInventory("DnD_Crafting_ItemPage")) {
 			TakeInventory("DnD_Crafting_ItemPage", 1);
 			GiveInventory("DnD_RefreshPane", 1);
-			LocalAmbientSound("RPG/MenuChoose", 127);	
+			LocalAmbientSound("RPG/MenuChoose", 127);
 		}
 		else if(curopt != MENU_LOAD_CRAFTING) {
 			UpdateMenuPosition(MENU_LOAD_CRAFTING);
 			GiveInventory("DnD_CleanCraftingRequest", 1);
+			SetInventory("DnD_Crafting_MaterialPage", 0);
 		}
 		else {
 			UpdateMenuPosition(MENU_LOAD);
 			GiveInventory("DnD_CleanCraftingRequest", 1);
+			SetInventory("DnD_Crafting_MaterialPage", 0);
 		}
 			
 		SetInventory("DnD_SelectedInventoryBox", 0);
@@ -5613,6 +5621,37 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEEFFECT);
 			if(val > 0) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCEDCURSEEFFECT, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			// ailment avoidance
+			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_IGNITE);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_IGNITE, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_CHILLFREEZE, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_POISON);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_POISON, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_OVERLOAD);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_OVERLOAD, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerNonElementalAvoidance(pnum, INV_AVOID_BLEED);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_BLEED, 0, 0, val), s:"\n");
 				++k;
 			}
 		}

@@ -74,46 +74,6 @@ int GetMugshotXOffset(int pclass) {
 	return 0;
 }
 
-enum {
-	DND_CLASS_LABEL_NAME,
-	DND_CLASS_LABEL_LEFTIMG,
-	DND_CLASS_LABEL_RIGHTIMG,
-	DND_CLASS_LABEL_MUGSHOT,
-	DND_CLASS_LABEL_TEXT,
-	DND_CLASS_LABEL_PERK1,
-	DND_CLASS_LABEL_PERK2,
-	DND_CLASS_LABEL_PERK3
-};
-
-str GetClassLabel(str class_prefix, int label) {
-	switch(label) {		
-		case DND_CLASS_LABEL_NAME:
-		return StrParam(s:class_prefix, s:"_NAME");
-		
-		case DND_CLASS_LABEL_LEFTIMG:
-		return StrParam(s:class_prefix, s:"_LEFTIMG");
-		
-		case DND_CLASS_LABEL_RIGHTIMG:
-		return StrParam(s:class_prefix, s:"_RIGHTIMG");
-		
-		case DND_CLASS_LABEL_MUGSHOT:
-		return StrParam(s:class_prefix, s:"_MUGSHOT");
-		
-		case DND_CLASS_LABEL_TEXT:
-		return StrParam(s:class_prefix, s:"_TEXT");
-		
-		case DND_CLASS_LABEL_PERK1:
-		return StrParam(s:class_prefix, s:"_PERK1");
-		
-		case DND_CLASS_LABEL_PERK2:
-		return StrParam(s:class_prefix, s:"_PERK2");
-		
-		case DND_CLASS_LABEL_PERK3:
-		return StrParam(s:class_prefix, s:"_PERK3");
-	}
-	return "";
-}
-
 Script "DnD Class Select" (int isSinglePlayer) NET CLIENTSIDE {
 	// these aren't needed for net clientside
 	//if(PlayerNumber() != ConsolePlayerNumber())

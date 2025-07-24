@@ -1,6 +1,9 @@
 #ifndef DND_INV_GEN_IN
 #define DND_INV_GEN_IN
 
+#define QUALITY_ITEM_ADD_MIN 1
+#define QUALITY_ITEM_ADD_MAX 4
+
 void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	//Log(s:"alloc armor id: ", d:c, s: " for player: ", d:pnum);

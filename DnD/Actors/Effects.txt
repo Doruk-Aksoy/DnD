@@ -2420,7 +2420,7 @@ Actor FrozenFX {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
 		SpawnLoop:
-			FRZN A 6 Bright
+			FRZN A 7 Bright
 		Stop
 	}
 }

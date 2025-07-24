@@ -18,7 +18,7 @@ Actor DnDWeapon : Weapon {
 		Stop
 		
 		Zoom:
-			"####" "#" 0 A_JumpIfInventory("Doomguy_Perk5", 1, "CanCheckExecution")
+			"####" "#" 0 A_JumpIfInventory("Doomguy_Perk1", 1, "CanCheckExecution")
 			// zandronum safety
 		WaitForReady:
 			"####" "####" 1 A_Jump(256, "Ready")

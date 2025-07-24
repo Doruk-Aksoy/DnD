@@ -134,10 +134,15 @@ Actor Perk_Brutality : Ammo {
 	+IGNORESKILL
 }
 
-Actor Perk_Endurance : Ammo {
+Actor Perk_RiskAversion : Ammo {
 	inventory.amount 1
 	inventory.maxamount 10
 	+IGNORESKILL
+}
+
+Actor Perk_AversionActivated : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -5
 }
 
 Actor Perk_Wisdom : Ammo {

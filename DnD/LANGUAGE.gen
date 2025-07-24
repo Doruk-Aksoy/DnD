@@ -104,7 +104,7 @@ DND_STAT3								= "Intellect";
 	
 DND_PERK1								= "Sharpshooting";
 DND_PERK2								= "Brutality";
-DND_PERK3								= "Endurance";
+DND_PERK3								= "Risk Aversion";
 DND_PERK4								= "Wisdom";
 DND_PERK5								= "Greed";
 DND_PERK6								= "Medic";

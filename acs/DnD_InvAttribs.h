@@ -213,6 +213,12 @@ enum {
 	INV_INCKILLINGSPREE,
 	INV_REDUCEDCURSEEFFECT,
 	INV_REDUCEDCURSEDURATION,
+	INV_AVOID_IGNITE,
+	INV_AVOID_CHILLFREEZE,
+	INV_AVOID_POISON,
+	INV_AVOID_OVERLOAD,
+	INV_AVOID_ELEAILMENTS,
+	INV_AVOID_BLEED,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -375,7 +381,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_REDUCEDCURSEDURATION
+#define LAST_INV_ATTRIBUTE INV_AVOID_BLEED
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -522,7 +528,8 @@ bool IsFixedPointMod(int mod) {
 	return false;
 }
 
-int GetExtraForMod(int mod) {
+// Returns a weapon as extra field for the given corruption mod
+int GetExtraForMod(int pnum, int mod) {
 	int res = -1;
 	switch(mod) {
 		// extra is the weapon_id for these
@@ -533,7 +540,7 @@ int GetExtraForMod(int mod) {
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
 			// pick one from a weapon the player owns
-			res = PickRandomOwnedWeaponID();
+			res = PickRandomOwnedWeaponID(pnum);
 		break;
 	}
 	return res;
@@ -1168,13 +1175,13 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_level_modifier = 0;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 
-	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.4;
-	ItemModTable[INV_MIT_INCREASE].attrib_high = 1.0;
+	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.5;
+	ItemModTable[INV_MIT_INCREASE].attrib_high = 1.25;
 	ItemModTable[INV_MIT_INCREASE].attrib_level_modifier = 1.5;
 	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
-	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.1;
-	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.25;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.15;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.275;
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0.16;
 	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
@@ -1297,6 +1304,36 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_REDUCEDCURSEDURATION].attrib_high = 4;
 	ItemModTable[INV_REDUCEDCURSEDURATION].attrib_level_modifier = 0;
 	ItemModTable[INV_REDUCEDCURSEDURATION].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_AVOID_IGNITE].attrib_low = 1;
+	ItemModTable[INV_AVOID_IGNITE].attrib_high = 6;
+	ItemModTable[INV_AVOID_IGNITE].attrib_level_modifier = 0;
+	ItemModTable[INV_AVOID_IGNITE].tags = INV_ATTR_TAG_FIRE | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_AVOID_CHILLFREEZE].attrib_low = 1;
+	ItemModTable[INV_AVOID_CHILLFREEZE].attrib_high = 6;
+	ItemModTable[INV_AVOID_CHILLFREEZE].attrib_level_modifier = 0;
+	ItemModTable[INV_AVOID_CHILLFREEZE].tags = INV_ATTR_TAG_ICE | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_AVOID_POISON].attrib_low = 1;
+	ItemModTable[INV_AVOID_POISON].attrib_high = 6;
+	ItemModTable[INV_AVOID_POISON].attrib_level_modifier = 0;
+	ItemModTable[INV_AVOID_POISON].tags = INV_ATTR_TAG_POISON | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_AVOID_OVERLOAD].attrib_low = 1;
+	ItemModTable[INV_AVOID_OVERLOAD].attrib_high = 6;
+	ItemModTable[INV_AVOID_OVERLOAD].attrib_level_modifier = 0;
+	ItemModTable[INV_AVOID_OVERLOAD].tags = INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_AVOID_ELEAILMENTS].attrib_low = 1;
+	ItemModTable[INV_AVOID_ELEAILMENTS].attrib_high = 3;
+	ItemModTable[INV_AVOID_ELEAILMENTS].attrib_level_modifier = 0;
+	ItemModTable[INV_AVOID_ELEAILMENTS].tags = INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_AVOID_BLEED].attrib_low = 1;
+	ItemModTable[INV_AVOID_BLEED].attrib_high = 6;
+	ItemModTable[INV_AVOID_BLEED].attrib_level_modifier = 0;
+	ItemModTable[INV_AVOID_BLEED].tags = INV_ATTR_TAG_PHYSICAL;
 	
 	/////////////////////////
 	// corrupted implicits //
@@ -1449,6 +1486,24 @@ bool IsAttributeExtraException(int attr) {
 		case INV_IMP_INCMITSHIELD:
 		case INV_IMP_INCMITARMORSHIELD:
 		case INV_IMP_POWERCORE:
+
+		// these store the weapon in extra field!
+		case INV_CORR_WEAPONDMG:
+		case INV_CORR_WEAPONCRIT:
+		case INV_CORR_WEAPONCRITDMG:
+		case INV_CORR_WEAPONPCTDMG:
+		case INV_CORR_WEAPONPOISONPCT:
+		case INV_CORR_WEAPONFORCEPAIN:
+
+		return true;
+	}
+	return false;
+}
+
+bool IsAttributeQualityException(int attr) {
+	switch(attr) {
+		case INV_EX_LIMITEDSMALLCHARMS:
+		
 		return true;
 	}
 	return false;
@@ -1657,13 +1712,15 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		ess_tag = "";
 
 	if(qual) {
-		if(val < 100000) {
-			val *= qual + 100;
-			val /= 100;
-		}
-		else {
-			val /= 100;
-			val *= qual + 100;
+		if(!IsAttributeQualityException(attr)) {
+			if(val < 100000) {
+				val *= qual + 100;
+				val /= 100;
+			}
+			else {
+				val /= 100;
+				val *= qual + 100;
+			}
 		}
 
 		if(extra != -1 && !IsAttributeExtraException(attr)) {
@@ -1929,7 +1986,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		return text;
 
 		case INV_CORR_WEAPONFORCEPAIN:
-			return StrParam(l:GetWeaponTag(extra), s:" ", l:"DND_HAS", s:col_tag, s: " ", d:val, s:"% ", s:no_tag, l:text);
+			return StrParam(l:GetWeaponTag(extra), s:" ", l:"DND_HAS", s:col_tag, s: " ", d:val, s:"%", s:no_tag, l:text);
 
 		// fixed point corrupted
 		case INV_CORR_DROPCHANCE:
@@ -2041,22 +2098,24 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual);
 
 	if(qual) {
-		if(val1 < 100000) {
-			val1 *= qual + 100;
-			val1 /= 100;
-		}
-		else {
-			val1 /= 100;
-			val1 *= qual + 100;
-		}
+		if(!IsAttributeQualityException(attr)) {
+			if(val1 < 100000) {
+				val1 *= qual + 100;
+				val1 /= 100;
+			}
+			else {
+				val1 /= 100;
+				val1 *= qual + 100;
+			}
 
-		if(val2 < 100000) {
-			val2 *= qual + 100;
-			val2 /= 100;
-		}
-		else {
-			val2 /= 100;
-			val2 *= qual + 100;
+			if(val2 < 100000) {
+				val2 *= qual + 100;
+				val2 /= 100;
+			}
+			else {
+				val2 /= 100;
+				val2 *= qual + 100;
+			}
 		}
 	}
 
@@ -2170,11 +2229,6 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			if(showDetailedMods)
 				return StrParam(l:text, s:"\n", l:"IATTR_TX33A", s:"\n", l:"IATTR_TX33B", s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:text, s:"\n", l:"IATTR_TX33A", s:"\n", l:"IATTR_TX33B");
-		
-		case INV_EX_MOREAMMOUSE:
-			if(showDetailedMods)
-				return StrParam(l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX35S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:text, s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX35S");
 
 		case INV_EX_UNITY_RES_BONUS:
 			if(showDetailedMods)
@@ -2285,7 +2339,6 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_FLATDMG_ALL:
 		case INV_EX_FLATDOT:
 		case INV_EX_FLATPERSHOTGUNOWNED:
-		case INV_EX_AMMOCOSTMULTIPLIER:
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
@@ -2299,22 +2352,28 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			if(val1) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"- \c[D4]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
+						s:"- \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"- \c[D4]", d:val1, s:"%\c[D4] ", l:text);
+				return StrParam(s:"- \cg", d:val1, s:"%\c[D4] ", l:text);
 			}
 			return StrParam(l:text);
 			
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
+		case INV_EX_AMMOCOSTMULTIPLIER:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \c[D4]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
+				return StrParam(s:"+ \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \c[D4]", d:val1, s:"%\c[D4] ", l:text);
+			return StrParam(s:"+ \cg", d:val1, s:"%\c[D4] ", l:text);
+
+		case INV_EX_MOREAMMOUSE:
+			if(showDetailedMods)
+				return StrParam(s:"\c[D4] ", l:text, s:" \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:"IATTR_TX35S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(s:"\c[D4] ", l:text, s:" \cg", d:val1, s:"%\c[D4] ", l:"IATTR_TX35S");
 			
 		// single text negative effects
 		case INV_EX_FORBID_ARMOR:

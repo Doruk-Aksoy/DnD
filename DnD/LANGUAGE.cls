@@ -108,6 +108,6 @@ CLASS7_RIGHTIMG			= "P8_RIMG";
 CLASS7_MUGSHOT			= "ELENEVL0";
 
 CLASS7_TEXT				= "Not many know the origin of the Trickster, she wanders planes of existence in search of entertainment... Or so many assume, as she seems to relish every encounter. One thing is for sure, when she stops toying with her subjects her true form shows, and it's not pretty.";
-CLASS7_PERK1			= "Critical strike chance is increased by half of mitigation chance.";
-CLASS7_PERK2			= "10% chance to gain phasing on critical strike. (Phasing grants 3 seconds of projectile damage avoidance)";
-CLASS7_PERK3			= "When your health drops below 33%, create a shadow clone that runs towards the last enemy that hit you, distracting every enemy in its path by taunting them for 5 seconds. You are phasing when the shadow clone is first created. Cooldown of 90 seconds. Clone lasts 15 seconds.";
+CLASS7_PERK1			= "Gain 0.2% crit chance per 1% mitigation chance.";
+CLASS7_PERK2			= "20% chance to gain phasing on a critical strike. (Phasing grants 4 seconds of projectile damage avoidance)";
+CLASS7_PERK3			= "When your health drops below 40%, create a shadow clone that runs towards the last enemy that hit you, distracting every enemy in its path by taunting them for 5 seconds. You are phasing when the shadow clone is first created. Cooldown of 90 seconds. Clone lasts 15 seconds.";

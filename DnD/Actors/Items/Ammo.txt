@@ -507,6 +507,15 @@ Actor ShellSize_8N : Ammo {
 	+IGNORESKILL
 }
 
+Actor ShellSize_9 : Ammo {
+	inventory.amount 1
+	inventory.maxamount 9
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 9
+	inventory.icon "SHELAICO"
+	+IGNORESKILL
+}
+
 Actor ShellSize_10 : Ammo {
 	inventory.amount 1
 	inventory.maxamount 10
