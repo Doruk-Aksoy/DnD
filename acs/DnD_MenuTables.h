@@ -555,7 +555,7 @@ int ItemResearchRequirements[MAXSHOPITEMS][MAX_RESEARCH_REQUIREMENTS] = {
 	// wep slot 7
 		{ -1, -1, -1 },
 		{ -1, -1, -1 },
-		{ -1, -1, -1 },
+		{ RES_DESTRUCTIONGEN, -1, -1 },
 		{ RES_SLOT7UPG1, -1, -1 },
 		{ RES_SLOT7UPG2, -1, -1 },
 		{ RES_SLOT7LUXURY, -1, -1 },
@@ -1027,7 +1027,7 @@ struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
 	// 7
 	{ OBJ_WEP,												SHOP_WEP_BFG			},
 	{ OBJ_WEP,												SHOP_WEP_DEVA			},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_MFG			},
+	{ OBJ_WEP | OBJ_USESCROLL | OBJ_RESEARCH,				SHOP_WEP_MFG			},
 	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESBFG1		},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESBFG2		},
 	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_GAUSS			},
@@ -1449,6 +1449,9 @@ res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 			RES_SLOT6UPG4, 9464, 65
 		},
 		{
+			RES_DESTRUCTIONGEN, 5390, 60
+		},
+		{
 			RES_SLOT7UPG1, 5395, 60
 		},
 		{
@@ -1584,6 +1587,7 @@ int ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
 		62,
 		
 		// slot 7
+		66,
 		26,
 		38
 	},

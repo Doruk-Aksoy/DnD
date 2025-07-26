@@ -31,7 +31,7 @@ CLASS1_MUGSHOT			= "MAREVL0";
 CLASS1_TEXT				= "Marine has been through a lot, military complexes, other dimensions... "
 						  "All kinds of evil. And the kinds of evil he's seen, has made him a bit... different.";
 
-CLASS1_PERK1			= "Your explosives do 25% less self damage. Your explosive projectiles can't be reflected";
+CLASS1_PERK1			= "Your explosives do 25% less self damage. Your explosive projectiles can't be reflected.";
 CLASS1_PERK2			= "Enemy radius damage deals 33% less damage. Your explosives ignore radius damage immunity.";
 CLASS1_PERK3			= "Losing 40% of your health in the span of a two seconds makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
 
@@ -70,7 +70,7 @@ CLASS4_MUGSHOT			= "CRVEVL0";
 CLASS4_TEXT				= "The lone wolf, excels in being the only hero to clean up the menace. "
 						  "When he sets his gaze upon something, that thing hits the ground, lifeless.";
 
-CLASS4_PERK1			= "Debuffs on you last 25% less.";
+CLASS4_PERK1			= "Debuffs on you expire 25% faster.";
 CLASS4_PERK2			= "Applying ailments to enemies reduce their resists by 10 per different ailment on them.";
 CLASS4_PERK3			= "Enemies killed by you have 25% chance to explode for 10% of their maximum health in a 160 unit radius with a random elemental damage. You can't be hurt by this damage.";
 
@@ -110,4 +110,4 @@ CLASS7_MUGSHOT			= "ELENEVL0";
 CLASS7_TEXT				= "Not many know the origin of the Trickster, she wanders planes of existence in search of entertainment... Or so many assume, as she seems to relish every encounter. One thing is for sure, when she stops toying with her subjects her true form shows, and it's not pretty.";
 CLASS7_PERK1			= "Gain 0.2% crit chance per 1% mitigation chance.";
 CLASS7_PERK2			= "20% chance to gain phasing on a critical strike. (Phasing grants 4 seconds of projectile damage avoidance)";
-CLASS7_PERK3			= "When your health drops below 40%, create a shadow clone that runs towards the last enemy that hit you, distracting every enemy in its path by taunting them for 5 seconds. You are phasing when the shadow clone is first created. Cooldown of 90 seconds. Clone lasts 15 seconds.";
+CLASS7_PERK3			= "When your health drops below 40%, create shadow clones that distract every enemy in their path by taunting them for 5 seconds. You are phasing when the shadow clone is first created. Cooldown of 90 seconds. Clone lasts 15 seconds.";

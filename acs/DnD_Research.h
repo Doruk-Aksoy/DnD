@@ -108,6 +108,9 @@ res_req_info_T ResearchFlags[MAX_RESEARCHES] = {
     { 0, -1 },
     { 0, -1 },
 
+	// destr gen
+	{ 0, -1 },
+
 	{ RESF_NODROP | RESF_HASREQUIREMENT | RESF_UNLOCKSOTHER, RES_REQID_BIO1 },
 	{ RESF_NODROP | RESF_UNLOCKSOTHER, RES_REQID_BIO2 },
 	{ RESF_NODROP, -1 },

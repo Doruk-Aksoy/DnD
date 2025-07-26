@@ -232,6 +232,8 @@ enum {
 	INV_CORR_WEAPONPOISONPCT,
 	INV_CORR_WEAPONFORCEPAIN,
 	INV_CORR_CYBERNETIC,
+	INV_CORR_DMGDOESNTSTOPREGEN,
+	INV_CORR_INSTALEECHPCT,
 
 	// implicits -- add new ones below here
 	INV_IMP_INCARMOR = IMPLICIT_ATTRIB_ID_BEGIN,
@@ -390,7 +392,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
-#define LAST_CORRUPT_IMPLICIT INV_CORR_CYBERNETIC
+#define LAST_CORRUPT_IMPLICIT INV_CORR_INSTALEECHPCT
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
@@ -1388,6 +1390,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_CYBERNETIC].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_CYBERNETIC].tags = INV_ATTR_TAG_UTILITY;
 
+	ItemModTable[INV_CORR_DMGDOESNTSTOPREGEN].attrib_low = 1;
+	ItemModTable[INV_CORR_DMGDOESNTSTOPREGEN].attrib_high = 1;
+	ItemModTable[INV_CORR_DMGDOESNTSTOPREGEN].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_DMGDOESNTSTOPREGEN].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_CORR_INSTALEECHPCT].attrib_low = 5;
+	ItemModTable[INV_CORR_INSTALEECHPCT].attrib_high = 10;
+	ItemModTable[INV_CORR_INSTALEECHPCT].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_INSTALEECHPCT].tags = INV_ATTR_TAG_LIFE;
+
 	///////////////////////
 	// regular implicits //
 	///////////////////////
@@ -1955,6 +1967,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_MELEEIGNORESSHIELDS:
 		case INV_IMP_RECOVERESONUNDEADKILL:
 		case INV_IMP_QUALITYCAPFIFTY:
+		case INV_CORR_DMGDOESNTSTOPREGEN:
 		return StrParam(l:text);
 
 		case INV_IMP_ABSORBLIGHTNING:			// lightning coil
@@ -1975,6 +1988,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_LESSFIRETAKEN:
 		case INV_IMP_LESSSELFDAMAGETAKEN:
 		case INV_IMP_REDUCEDVISIONIMPAIR:		// synthmetal mask
+		case INV_CORR_INSTALEECHPCT:
 			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
 		return text;
 

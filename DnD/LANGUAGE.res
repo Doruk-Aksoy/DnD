@@ -157,23 +157,26 @@ RES_DESC50				= "Nano-technology is finally here! Unlocks cybernetic abilities."
 RES_LABEL51 			= "Occult Artifacts";
 RES_DESC51				= "Artifacts have always been an elusive aspect. However with demon technology we can harness even more! Unlocks certain artifacts.";
 
-RES_LABEL52 			= "Bio-Enhancement - I";
-RES_DESC52				= "\c[R5]CYBERNETIC \cj- UAC has new bionic enhancements to allow you to withstand more punishment. Increases health capacity by 5%.";
+RES_LABEL52				= "Destruction Generator (7)";
+RES_DESC52				= "UAC hesitantly complies allowing use of this utterly destructive weapon, as it can wreak absolute havoc to friend and foe alike. Unlocks Destruction Generator (7).";
 
-RES_LABEL53 			= "Bio-Enhancement - II";
-RES_DESC53				= "\c[R5]CYBERNETIC \cj- Second enhancement to your body, with improved bionic elements. Increases health capacity by a further 6%.";
+RES_LABEL53 			= "Bio-Enhancement - I";
+RES_DESC53				= "\c[R5]CYBERNETIC \cj- UAC has new bionic enhancements to allow you to withstand more punishment. Increases health capacity by 5%.";
 
-RES_LABEL54 			= "Bio-Enhancement - III";
-RES_DESC54				= "\c[R5]CYBERNETIC \cj- Top notch bionic material with super-soldier injections to make you even stronger. Increases health capacity by a further 9%.";
+RES_LABEL54 			= "Bio-Enhancement - II";
+RES_DESC54				= "\c[R5]CYBERNETIC \cj- Second enhancement to your body, with improved bionic elements. Increases health capacity by a further 6%.";
 
-RES_LABEL55 			= "Exoskeleton - I";
-RES_DESC55				= "\c[R5]CYBERNETIC \cj- UAC can now field their soldiers with exoskeletons, making your armors better. Increases armor capacity by 5%.";
+RES_LABEL55 			= "Bio-Enhancement - III";
+RES_DESC55				= "\c[R5]CYBERNETIC \cj- Top notch bionic material with super-soldier injections to make you even stronger. Increases health capacity by a further 9%.";
 
-RES_LABEL56 			= "Exoskeleton - II";
-RES_DESC56				= "\c[R5]CYBERNETIC \cj- Exoskeleton material is improved to be made even more durable. Increases armor capacity by a further 6%.";
+RES_LABEL56 			= "Exoskeleton - I";
+RES_DESC56				= "\c[R5]CYBERNETIC \cj- UAC can now field their soldiers with exoskeletons, making your armors better. Increases armor capacity by 5%.";
 
-RES_LABEL57 			= "Exoskeleton - III";
-RES_DESC57				= "\c[R5]CYBERNETIC \cj- UAC found the ultimate material to create exoskeletons with. Increases armor capacity by a further 9%.";
+RES_LABEL57 			= "Exoskeleton - II";
+RES_DESC57				= "\c[R5]CYBERNETIC \cj- Exoskeleton material is improved to be made even more durable. Increases armor capacity by a further 6%.";
 
-RES_LABEL58 			= "Increased Stash Tabs";
-RES_DESC58				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";
+RES_LABEL58 			= "Exoskeleton - III";
+RES_DESC58				= "\c[R5]CYBERNETIC \cj- UAC found the ultimate material to create exoskeletons with. Increases armor capacity by a further 9%.";
+
+RES_LABEL59 			= "Increased Stash Tabs";
+RES_DESC59				= "UAC can afford more space to teleport your personal belongings at the expense of more budget spent. Allows purchase of additional stash tabs.";

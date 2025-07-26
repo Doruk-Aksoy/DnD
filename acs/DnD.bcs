@@ -3588,7 +3588,7 @@ Script "DnD Periodic Regeneration" ENTER {
 			buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 			int regen_amt = pbuffs.buff_net_values[BUFF_HEALTHREGEN].additive;
 
-			if(regen_amt > 0 && CheckInventory("Ability_Regeneration") && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
+			if((regen_amt > 0 || CheckInventory("Ability_Regeneration")) && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 				cur = GetActorProperty(0, APROP_HEALTH);
 				// if we got the quest, our lim is half our cap, otherwise 25% the cap
 				regen_amt = (regen_amt * 100) >> 16;
@@ -3610,7 +3610,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				if(CheckInventory("Cyborg_Perk25"))
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 				
-				if(!CheckInventory("RegenStopper") && cur < lim) {
+				if((!CheckInventory("RegenStopper") || GetPlayerAttributeValue(pnum, INV_CORR_DMGDOESNTSTOPREGEN)) && cur < lim) {
 					if(cur + amt < lim)
 						GiveInventory("HealthBonusX", amt);
 					else
@@ -5809,7 +5809,7 @@ Script 68 (int x) NET {
 			//Log(s:"pcore");
 			SpawnPowercore(0, true);
 			//Log(s:"orb");
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ALCHEMIST, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 100);
 			SpawnToken(0, true);
 			//Log(s:"boot");
 			SpawnBoot(0, 0);
@@ -5821,6 +5821,8 @@ Script 68 (int x) NET {
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
+			//IncPlayerModValue(0, INV_CORR_INSTALEECHPCT, 15);
+			//IncPlayerModValue(0, INV_LIFESTEAL, 1.0);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 100);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

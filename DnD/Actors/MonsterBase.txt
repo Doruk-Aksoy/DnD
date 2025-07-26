@@ -109,6 +109,7 @@ Actor DnD_BaseMonster {
 	PainChance "ForcedPainBypass", 256
 	
 	PainChance "Execution", 256
+	PainChance "NoRealDamage", 1
 	
 	Accuracy 40 // level 40 fully completes default damage scale ramp for most monsters now
 	

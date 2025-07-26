@@ -335,9 +335,9 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_PLASMACANNON].flags = 0;
 	ProjectileInfo[DND_PROJ_PLASMACANNON].spd_range = 30;
 	
-	ProjectileInfo[DND_PROJ_SHOCKER].name = "ShockerPuff";
-	ProjectileInfo[DND_PROJ_SHOCKER].flags = DND_PROJ_HITSCAN;
-	ProjectileInfo[DND_PROJ_SHOCKER].spd_range = HITSCAN_RANGE_DEFAULT;
+	ProjectileInfo[DND_PROJ_SHOCKER].name = "ShockerTracer";
+	ProjectileInfo[DND_PROJ_SHOCKER].flags = 0;
+	ProjectileInfo[DND_PROJ_SHOCKER].spd_range = 64;
 	
 	ProjectileInfo[DND_PROJ_HADES].name = "HadesPuff";
 	ProjectileInfo[DND_PROJ_HADES].flags = DND_PROJ_HITSCAN | DND_PROJ_HASGHOSTHITTER;
@@ -664,7 +664,7 @@ void SetupProjectileData() {
 
 	ProjectileInfo[DND_PROJ_EXSHELL].name = "ExplodingShellPuff";
 	ProjectileInfo[DND_PROJ_EXSHELL].flags = DND_PROJ_HITSCAN;
-	ProjectileInfo[DND_PROJ_EXSHELL].spd_range = HITSCAN_RANGE_DEFAULT;
+	ProjectileInfo[DND_PROJ_EXSHELL].spd_range = HITSCAN_RANGE_DEFAULT / 8;
 	
 	ProjectileInfo[DND_PROJ_GRENADESPECIAL].name = "NormalGrenade_Special";
 	ProjectileInfo[DND_PROJ_GRENADESPECIAL].flags = DND_PROJ_HASGHOSTHITTER;
@@ -723,7 +723,6 @@ enum {
 	DND_HITSCAN_WHITEDEATH,
 	DND_HITSCAN_AXE,
 	DND_HITSCAN_AXE_NOMANA,
-	DND_HITSCAN_SHOCKER,
 	DND_HITSCAN_HADES,
 
 	DND_HITSCAN_MACHINEGUN,
@@ -958,12 +957,6 @@ void SetupHitscanData() {
 		(DND_DAMAGETYPE_MELEE << DTYPE_SHIFT) |
 		(50 << DPCT_SHIFT);
 
-	HitscanDamageData[DND_HITSCAN_SHOCKER] = 
-		DND_WEAPON_SHOCKER |
-		(DND_DMGID_0 << CACHE_SHIFT) |
-		(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
-		(100 << DPCT_SHIFT);
-
 	HitscanDamageData[DND_HITSCAN_HADES] = 
 		DND_WEAPON_HADES |
 		(DND_DMGID_0 << CACHE_SHIFT) |
@@ -1115,6 +1108,7 @@ void SetupHitscanData() {
 		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT);
 
+	// riot cannon alt ammo
 	HitscanDamageData[DND_HITSCAN_EXSHELL] =
 		SSAM_EXSHELL |
 		(0 << CACHE_SHIFT) |

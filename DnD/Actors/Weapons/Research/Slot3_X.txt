@@ -306,22 +306,53 @@ Actor ResSSG2 : DnDWeapon {
 	}
 }
 
-Actor ShockerPuff : DnD_BasePuff {
-	Scale 0.68
-	RenderStyle "Add"
+ACTOR ShockerTracer : DnD_BaseProjectile {
+	Radius 2
+	Height 4
+	Speed 64
+	Scale 0.1175
+	RenderStyle Add
+	Alpha 0.85
 	
-	Stamina 4096
+	Damage(
+		DND_WEAPON_SHOCKER |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
 	
 	+FORCEPAIN
 	+FOILINVUL
+	+FORCEXYBILLBOARD
 	+NOEXTREMEDEATH
+	
 	States {
 		Spawn:
-		Crash:
-		HitNoBlood:
-			TNT1 AAAA 0
+			TNT1 A 1
+		SpawnLoop:
+			TRAC A 2 Bright A_SpawnItemEx("ShockerTracer_Trail", 0, 0, 0, velx * 0.6, vely * 0.6, velz * 0.6, 0, SXF_ABSOLUTEVELOCITY)
+		Loop
+		Death:
+			TNT1 A 0 A_SetScale(0.68, 0.68)
 			EVA6 ABCDEFGH 2 Bright A_FadeOut(0.075)
 		Stop
+	}
+}
+
+Actor ShockerTracer_Trail {
+	Scale 0.1175
+	RenderStyle Add
+	Alpha 0.85
+	+FORCEXYBILLBOARD
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+		SpawnLoop:
+			TRAC A 1 
+			TNT1 A 0 A_FadeOut(0.05)
+		Loop
 	}
 }
 

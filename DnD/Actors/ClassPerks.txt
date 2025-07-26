@@ -366,11 +366,67 @@ Actor TricksterShadowClone {
 	}
 }
 
+Actor TricksterShadowClone_Random : TricksterShadowClone {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_SpawnItemEx("DissipationEffect")
+			TNT1 A 5 A_PlaySound("Trickster/Split")
+			ELEE A 1 A_GiveInventory("TricksterMover_Random", 1)
+			ELEE AAA 1 A_FadeIn(0.05)
+			ELEE B 1 A_GiveInventory("TricksterMover_Random", 1)
+			ELEE BBB 1 A_FadeIn(0.0625)
+			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
+			ELEE C 1 A_GiveInventory("TricksterMover_Random", 1)
+			ELEE CCC 1 A_FadeIn(0.075)
+			ELEE D 1 A_GiveInventory("TricksterMover_Random", 1)
+			ELEE DDD 1 A_FadeIn(0.09)
+			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
+			ELEE E 1 A_GiveInventory("TricksterMover_Random", 1)
+			ELEE EEE 1 A_FadeIn(0.1)
+			ELEE F 4 A_GiveInventory("TricksterMover_Random", 1)
+			ELEE FFF 1 A_FadeIn(0.1)
+			TNT1 A 0 A_Explode(1, 512, XF_NOTMISSILE, 0, 512)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Timed Monster", 15)
+		Walk:
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover_Random", 1)
+			TNT1 A 0 A_Jump(32, "Attack")
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover_Random", 1)
+			TNT1 A 0 A_Jump(64, "Attack")
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover_Random", 1)
+			TNT1 A 0 A_Jump(96, "Attack")
+			ELEE ABCDEF 4 A_GiveInventory("TricksterMover_Random", 1)
+			TNT1 A 0 A_Jump(128, "Attack")
+		Loop
+	}
+}
+
 Actor TricksterMover : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_Jump(128, "RandomAngle")
 			TNT1 A 0 A_FaceTarget
+		Goto Move
+		RandomAngle:
+			TNT1 A 0 A_SetAngle(frandom(0, 360))
+		Move:
 			TNT1 A 0 A_ChangeVelocity(8 * cos(angle), 8 * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_Jump(8, "Jumper")
+		Stop
+		Jumper:
+			TNT1 A 0 ThrustThingZ(0, random(32, 48), 0, 1)
+		Stop
+	}
+}
+
+Actor TricksterMover_Random : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SetAngle(frandom(0, 360))
+			TNT1 A 0 A_ChangeVelocity(8 * cos(angle), 8 * sin(angle), velz, CVF_REPLACE)
+			TNT1 A 0 A_Jump(8, "Jumper")
+		Stop
+		Jumper:
+			TNT1 A 0 ThrustThingZ(0, random(32, 48), 0, 1)
 		Stop
 	}
 }

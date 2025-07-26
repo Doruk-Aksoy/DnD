@@ -513,6 +513,16 @@ void HandleShadowClone(int pnum, int victim, int shooter) {
 	SetActorProperty(0, APROP_TARGETTID, shooter);
 	Thing_ChangeTID(DND_TRICKSTERCLONE_TID + pnum, 0);
 	SetActivator(victim);
+
+	for(int i = 0; i < DND_TRICKSTER_RANDOMCLONES_COUNT && IsActorAlive(victim); ++i) {
+		SpawnForced("TricksterShadowClone_Random", GetActorX(0), GetActorY(0), GetActorZ(0), DND_TRICKSTERCLONE_TID + pnum);
+		Thing_SetTranslation(DND_TRICKSTERCLONE_TID + pnum, -1);
+		SetActivator(DND_TRICKSTERCLONE_TID + pnum);
+		SetPointer(AAPTR_TARGET, shooter);
+		SetActorProperty(0, APROP_TARGETTID, shooter);
+		Thing_ChangeTID(DND_TRICKSTERCLONE_TID + pnum, 0);
+		SetActivator(victim);
+	}
 }
 
 Script "Trickster Cooldown" (void) {

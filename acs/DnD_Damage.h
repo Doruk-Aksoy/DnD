@@ -1384,7 +1384,8 @@ Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
 
 void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	// in order for this to work we must have less health than our cap
-	if(GetActorProperty(0, APROP_HEALTH) >= GetSpawnHealth() || !dmg)
+	int spawn_health = GetSpawnHealth();
+	if(GetActorProperty(0, APROP_HEALTH) >= spawn_health || !dmg)
 		return;
 		
 	int taltos = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
@@ -1422,6 +1423,26 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 			
 		//printbold(s:"ls amt: ", d:taltos, s: " prev counter: ", d:brune_1);
 		
+		brune_2 = GetPlayerAttributeValue(pnum, INV_CORR_INSTALEECHPCT);
+		if(brune_2) {
+			// take a bit away from this
+			brune_2 = taltos * brune_2 / 100;
+			if(brune_2) {
+				taltos -= brune_2;
+
+				// give player instant leech here
+				if(GetActorProperty(0, APROP_HEALTH) + brune_2 < spawn_health)
+					GiveInventory("HealthBonusX", brune_2);
+				else {
+					// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
+					GiveInventory("HealthBonusX", spawn_health - GetActorProperty(0, APROP_HEALTH));
+				}
+
+				if(taltos <= 0)
+					return;
+			}
+		}
+
 		if(!brune_1) {
 			GiveInventory("LifeStealAmount", taltos);
 			ACS_NamedExecuteAlways("DnD Lifesteal Script", 0);

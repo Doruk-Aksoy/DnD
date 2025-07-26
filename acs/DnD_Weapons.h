@@ -1038,7 +1038,6 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			// altfire fires an AoE but we dont need direction on that to be precise really, so it just fires pellets
 			count = 18;
 			proj_id = DND_PROJ_SHOCKER;
-			hitscan_id = DND_HITSCAN_SHOCKER;
 			use_default = true;
 			sp_x = 8.4;
 			sp_y = 6.2;

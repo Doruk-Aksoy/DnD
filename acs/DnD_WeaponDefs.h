@@ -686,7 +686,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_name1 = "Cell";
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_name2 = "IonOverheat";
 	Weapons_Data[DND_WEAPON_SHOCKER].icon = "WEPICO29";
-	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use1 = 5;
+	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use1 = 8;
 	Weapons_Data[DND_WEAPON_SHOCKER].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_SHOCKER].properties = WPROP_IGNORESHIELD | WPROP_OVERHEAT | WPROP_TECH | WPROP_SHOTGUN;
 	Weapons_Data[DND_WEAPON_SHOCKER].attunement[STAT_STR] = 0.01;
