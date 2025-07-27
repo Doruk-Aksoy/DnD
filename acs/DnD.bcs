@@ -1020,7 +1020,7 @@ Script "DND On Kill" KILL {
 	if
 	(
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
-		CheckInventory("Doomguy_Perk50") ||
+		HasClassPerk_Fast("Doomguy", 5) ||
 		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
@@ -1051,7 +1051,7 @@ Script "DND On Kill" KILL {
 		}
 	}
 	
-	if(CheckInventory("Hobo_ShotgunFrenzyTimer"))
+	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && HasClassPerk_Fast("Hobo", 5))
 		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
 	
 	// research track
@@ -2303,13 +2303,11 @@ Script "DnD Player Levelup Check" (int tid) {
 		
 		currlvl = GetActorLevel(tid);
 		// player just leveled and got their perks? check if so
-		if
-		(
-			(prevlvl < DND_CLASSPERK1_LEVEL && currlvl >= DND_CLASSPERK1_LEVEL) ||
-			(prevlvl < DND_CLASSPERK2_LEVEL && currlvl >= DND_CLASSPERK2_LEVEL) ||
-			(prevlvl < DND_CLASSPERK3_LEVEL && currlvl >= DND_CLASSPERK3_LEVEL)
-		)
-		{
+		bool newPerk = false;
+		for(int i = DND_CLASSPERK_1; !newPerk && i < DND_CLASSPERK_LAST; ++i)
+			newPerk = prevlvl < i * DND_PERK_REGULARTHRESHOLD && currlvl <= i + DND_PERK_REGULARTHRESHOLD;
+
+		if(newPerk) {
 			HandleClassPerks(tid);
 			
 			// this is done as new perks might increase some damage factors
@@ -3116,7 +3114,7 @@ Script "DnD Player Setup" ENTER {
 	// this is here as a precaution for taltos effect removal in case player has decided to remove it before a map ended
 	DecideAccessories();
 
-	if(CheckInventory("Marine_Perk50"))
+	if(HasClassPerk_Fast("Marine", 4))
 		ACS_NamedExecuteAlways("DnD Marine Perk 50 Checker", 0);
 	
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_TALTOSRING))

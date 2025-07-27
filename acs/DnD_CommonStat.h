@@ -171,10 +171,6 @@ enum {
 #define MAX_PHYSRESIST_VAL 100
 #define MAX_REFLRESIST_VAL 1000
 
-#define DND_CLASSPERK1_LEVEL 5
-#define DND_CLASSPERK2_LEVEL 25
-#define DND_CLASSPERK3_LEVEL 50
-
 #define DND_EXP_RES_ABILITY_BONUS 50
 
 #include "DnD_ClassConstants.h"
@@ -237,7 +233,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		
 		// +FORCERADIUSDMG can come from vaaj or marine
 		case PUP_IGNORERADIUSIMMUNITY:
-		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk25");
+		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) || HasActorClassPerk_Fast(pnum + P_TIDSTART, "Marine", 3);
 		
 		case PUP_SLAINENEMIESRIP:
 		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP);
@@ -255,7 +251,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		return GetPlayerAttributeValue(pnum, INV_EX_KNOCKBACK_IMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "GryphonCheck");
 		
 		case PUP_CURSEIMMUNITY:
-		return GetPlayerAttributeValue(pnum, INV_EX_CURSEIMMUNITY)/* || CheckActorInventory(pnum + P_TIDSTART, "Marine_Perk50")*/;
+		return GetPlayerAttributeValue(pnum, INV_EX_CURSEIMMUNITY);
 		
 		case PUP_PAINSHAREDWITHPETS:
 		return GetPlayerAttributeValue(pnum, INV_EX_DMGREDUCE_SHAREWITHPETS);
@@ -653,8 +649,9 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 	if(wepid == -1)
 		wepid = CheckInventory("DnD_WeaponID");
 
-	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && IsBoomstick(wepid))
-		acc_pct += DND_HOBO_ACCURACYBONUS;
+	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && IsBoomstick(wepid)) {
+		acc_pct += DND_HOBO_ACCURACYBONUS + HasClassPerk_Fast("Hobo", 5) * DND_HOBO_ACCURACYBONUS;
+	}
 
 	// omnisight essence gives % increased accuracy
 	acc += (acc * acc_pct) / 100;

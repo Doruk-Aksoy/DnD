@@ -1020,7 +1020,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 	}
 	
 	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
-	if(CheckActorInventory(target, "Doomguy_Perk25") && RunPrecalcDropChance(p_chance, DND_DOOMGUY_DROPCHANCE, m_id, DND_MON_RNG_3)) {
+	if(HasActorClassPerk_Fast(target, "Doomguy", 2) && RunPrecalcDropChance(p_chance, DND_DOOMGUY_DROPCHANCE, m_id, DND_MON_RNG_3)) {
 		temp = MonsterProperties[m_id].maxhp;
 		SpawnPlayerDrop(pnum, "Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
 	}

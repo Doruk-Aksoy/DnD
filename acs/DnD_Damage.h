@@ -770,7 +770,9 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 
 // there may be things that add + to cull % later
 bool CheckCullRange(int source, int victim, int dmg) {
-	return GetActorProperty(victim, APROP_HEALTH) - dmg <= ApplyDamageFactor_Safe(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, DND_CULL_BASEPERCENT);
+	int base = DND_CULL_BASEPERCENT;
+	base += HasActorClassPerk_Fast(source, "Doomguy", 4) * DND_DOOMGUY_CULLBONUS;
+	return GetActorProperty(victim, APROP_HEALTH) - dmg <= ApplyDamageFactor_Safe(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, base);
 }
 
 void HandleChillEffects(int pnum, int victim) {
@@ -919,8 +921,8 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 		pct_val += DND_THUNDERAXE_WEAKENPCT * (!!CheckActorInventory(victim, "ThunderAxeWeakenTimer"));
 	}
 
-	if(IsBoomstick(wepid) && CheckInventory("Hobo_Perk25"))
-		pct_val += DND_HOBO_RESISTPCT;
+	if(IsBoomstick(wepid) && HasClassPerk_Fast("Hobo", 2)) 
+		pct_val += DND_HOBO_RESISTPCT + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_RESISTPCT_PERLVL;
 	
 	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
 		pct_val += DND_DOOMGUY_RESISTPCT;
@@ -1043,7 +1045,7 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	int more_bonus = 100;
 
 	// little orbs he drops
-	if(CheckInventory("Doomguy_Perk25_Damage") || CheckInventory("Doomguy_Perk25_Damage_Execute"))
+	if(CheckInventory("Doomguy_Perk20_Damage") || CheckInventory("Doomguy_Perk20_Damage_Execute"))
 		more_bonus = more_bonus * (100 + DND_DOOMGUY_DMGBONUS) / 100;
 		
 	int temp;
@@ -1313,7 +1315,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 				}
 			}
 		}
-		else if(CheckInventory("Doomguy_Perk50"))
+		else if(HasClassPerk_Fast("Doomguy", 5)) 
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
 	}
 	
@@ -1593,7 +1595,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
 	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
 	// plus we get to adjust the push factor and other things before they affect the monster proper here
-	bool isHoboPowerApplicable = !(wep_neg & 1) && wepid >= 0 && IsBoomstick(wepid) && CheckInventory("Hobo_Perk50");
+	bool isHoboPowerApplicable = !(wep_neg & 1) && wepid >= 0 && IsBoomstick(wepid) && HasClassPerk_Fast("Hobo", 3);
 	if(isHoboPowerApplicable && CheckInventory("Hobo_ShotgunFrenzyTimer")) {
 		temp = fdistance_delta(ox - GetActorX(victim_tid), oy - GetActorY(victim_tid), oz - GetActorZ(victim_tid));
 		temp -= FixedMul(GetActorProperty(victim_tid, APROP_RADIUS) + DND_PLAYER_RADIUS, 1.207);
@@ -1606,7 +1608,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		if(temp <= DND_HOBO_SHOTGUNFALLOFFDIST) {
 			temp = LinearMap(temp, DND_HOBO_SHOTGUNMINBESTDIST_INT, DND_HOBO_SHOTGUNFALLOFFDIST, 0, 100);
 			// 100 + (100 - temp) would mean 200 - temp, and we scale inversely with distance so if we are farthest, we will be getting 100 to be dealing the same amount of damage anyway
-			more_dmg = more_dmg * (100 + DND_HOBO_SHOTGUNDISTMOREDMG - temp) / 100;
+			more_dmg = more_dmg * (100 + DND_HOBO_SHOTGUNDISTMOREDMG * (1 + HasClassPerk_Fast("Hobo", 5)) - temp) / 100;
 		}
 	}
 
@@ -2344,7 +2346,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// ELEMENTAL DAMAGE BLOCK ENDS
 	
 	// explosion sources
-	if((dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && CheckInventory("Marine_Perk25"))
+	if((dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && HasClassPerk_Fast("Marine", 3))
 		mult = CombineFactors(mult, DND_MARINE_EXPLOSIVEREDUCTION);
 
 	// marine perk 50 -- 50% reduction
@@ -2932,9 +2934,8 @@ bool HandleRipperHit(int shooter, int victim) {
 // should this projectile reflect back? -- takes dmg_data as flags
 // 0 is yes, 1 is no
 bool CheckReflect(int owner, int pnum, int flags) {
-	//printbold(d:(flags & DND_DAMAGEFLAG_ISEXPLOSIVE), s: " ", d:CheckActorInventory(owner, "Marine_Perk5"));
 	return 	CheckFlag(0, "DONTREFLECT") || CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT, CheckFlag(0, "SEEKERMISSILE"), CheckFlag(0, "SCREENSEEKER")) ||
-			((flags & DND_DAMAGEFLAG_ISEXPLOSIVE) && CheckActorInventory(owner, "Marine_Perk5"));
+			((flags & DND_DAMAGEFLAG_ISEXPLOSIVE) && HasActorClassPerk_Fast(owner, "Marine", 2));
 }
 
 // shooter is who fired initially and victim is the tid of the actor that got hit that'll now own the projectile
@@ -3247,8 +3248,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
 
 				// doomguy damage reduction
-				if(CheckInventory("Doomguy_Perk5") && CheckActorInventory(shooter, "Doomguy_CanExecute"))
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT);
+				if(HasClassPerk_Fast("Doomguy", 1) && CheckActorInventory(shooter, "Doomguy_CanExecute"))
+					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT - (HasClassPerk_Fast("Doomguy", 3)) * DND_DOOMGUY_DMGREDUCE_PERK3BONUS);
 				
 				// final check, if damage is less than 10% of it, cap it at 10%
 				temp = arg1 / 10;
@@ -3275,7 +3276,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 					PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
 
-					if(CheckInventory("Marine_Perk50") && !CheckInventory("Marine_Perk50_Cooldown"))
+					if(HasClassPerk_Fast("Marine", 4) && !CheckInventory("Marine_Perk50_Cooldown"))
 						GiveInventory("Marine_Perk50_DamageTaken", dmg);
 					
 					if(CheckInventory("Trickster_Perk50") && !CheckInventory("Trickster_ShadowCooldown") && GetActorProperty(0, APROP_HEALTH) - dmg <= CheckInventory("PlayerHealthCap") * DND_TRICKSTER_PERK50_THRESHOLD / 100)
@@ -3672,7 +3673,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
 
-			if(CheckInventory("Marine_Perk50") && !CheckInventory("Marine_Perk50_Cooldown"))
+			if(HasClassPerk_Fast("Marine", 4) && !CheckInventory("Marine_Perk50_Cooldown"))
 				GiveInventory("Marine_Perk50_DamageTaken", dmg);
 
 			if(!(dmg_data & DND_DAMAGEFLAG_NOPUSH))

@@ -1478,10 +1478,10 @@ int GetCritChance_Display(int pnum) {
 }
 
 int GetPelletIncrease(int pnum) {
-	return CombineMultiplicativeFactors(
-		GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE),
-		CheckInventory("Hobo_Perk25") * DND_HOBO_SHOTGUNPELLETBONUS
-	);
+	int base = 1.0 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
+	if(HasClassPerk_Fast("Hobo", 2))
+		return CombineMultiplicativeFactors(base, DND_HOBO_SHOTGUNPELLETBONUS + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_SHOTGUNPELLETBONUS_PERLVL);
+	return base;
 }
 
 int GetPelletCount(int pnum, int base) {
@@ -1544,13 +1544,27 @@ int ApplyResistCap(int pnum, int res, int cap = 0) {
 }
 
 int GetExplosiveRepeatChance(int pnum) {
-	return GetPlayerAttributeValue(pnum, INV_ESS_KRULL);
+	int tid = pnum + P_TIDSTART;
+	int isMarine = HasActorClassPerk_Fast(tid, "Marine", 5);
+	int bonus = isMarine * DND_MARINE_EXP_REPEAT_CHANCE;
+	if(isMarine) {
+		isMarine = CheckActorInventory(tid, "PlayerHealthCap");
+		bonus += LinearMap(
+			Clamp_Between((((isMarine - GetActorProperty(tid, APROP_HEALTH)) * 100) / isMarine), 50, 100),
+			100,
+			50,
+			0,
+			75
+		);
+	}
+
+	return bonus + GetPlayerAttributeValue(pnum, INV_ESS_KRULL);
 }
 
 int GetSelfExplosiveResist(int pnum) {
 	int base = 1.0; // 100%
 	
-	if(CheckInventory("Marine_Perk5"))
+	if(HasClassPerk_Fast("Marine", 1))
 		base = FixedMul(base, (100 - DND_MARINE_SELFEXPLOSIVEREDUCE) * 1.0 / 100);
 	
 	// get player selfdmg res

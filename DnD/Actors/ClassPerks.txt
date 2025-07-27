@@ -3,21 +3,23 @@ Actor Doomguy_CanExecute : DnD_Boolean { }
 Actor Doomguy_ChangedColor : DnD_Boolean { }
 Actor Doomguy_ValidExecute : DnD_Boolean { }
 
-Actor Doomguy_Perk25 : DnD_Boolean { }
+Actor Doomguy_Perk20 : DnD_Boolean { }
 
-Actor Doomguy_Perk25_Damage : PowerDamage {
+Actor Doomguy_Perk20_Damage : PowerDamage {
 	damagefactor "normal", 1.0
 	Powerup.Color "DF 11 11", 0.2
 	powerup.duration -10
 }
 
-Actor Doomguy_Perk25_Damage_Execute : PowerDamage {
+Actor Doomguy_Perk20_Damage_Execute : PowerDamage {
 	damagefactor "normal", 1.0
 	Powerup.Color "DF 11 11", 0.2
 	powerup.duration -20
 }
 
-Actor Doomguy_Perk50 : DnD_Boolean { }
+Actor Doomguy_Perk40 : DnD_Boolean { }
+Actor Doomguy_Perk60 : DnD_Boolean { }
+Actor Doomguy_Perk80 : DnD_Boolean { }
 
 Actor Doomguy_DemonSoul : DnD_DroppedItem {
 	Radius 16
@@ -39,7 +41,7 @@ Actor Doomguy_DemonSoul : DnD_DroppedItem {
 
 		Pickup:
 			TNT1 A 0 A_GiveToTarget("Doomguy_DemonSoul_PickMsg", 1)
-			TNT1 A 0 A_GiveToTarget("Doomguy_Perk25_Damage", 1)
+			TNT1 A 0 A_GiveToTarget("Doomguy_Perk20_Damage", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Doomguy Soul Pickup", 0, mass)
 			TNT1 A 3
 		stop
@@ -62,10 +64,10 @@ Actor Doomguy_ResistReduced : PowerDamage {
 }
 
 Actor Marine_Perk1 : DnD_Boolean { }
-
-Actor Marine_Perk25 : DnD_Boolean { }
-
-Actor Marine_Perk50 : DnD_Boolean { }
+Actor Marine_Perk20 : DnD_Boolean { }
+Actor Marine_Perk40 : DnD_Boolean { }
+Actor Marine_Perk60 : DnD_Boolean { }
+Actor Marine_Perk80 : DnD_Boolean { }
 
 Actor Marine_DamageReduction_Timer : DnD_Info {
 	inventory.maxamount 525
@@ -79,10 +81,12 @@ Actor Marine_Perk50_DamageDealt : DnD_Info { }
 Actor Marine_Perk50_DamageTaken : DnD_Info { }
 
 Actor Hobo_Perk1 : DnD_Boolean { }
+Actor Hobo_Perk20 : DnD_Boolean { }
+Actor Hobo_Perk40 : DnD_Boolean { }
+Actor Hobo_Perk60 : DnD_Boolean { }
+Actor Hobo_Perk80 : DnD_Boolean { }
 
-Actor Hobo_Perk25 : DnD_Boolean { }
-
-Actor Hobo_Perk50 : DnD_Boolean { }
+Actor DnD_HasAmphetamine : DnD_Boolean { }
 
 Actor Hobo_ShotgunTag : Inventory {
 	inventory.maxamount 4

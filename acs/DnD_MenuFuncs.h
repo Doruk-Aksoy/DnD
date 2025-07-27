@@ -774,8 +774,8 @@ int GetShopPrice (int id, int priceflag = 0) {
 	
 	}
 	
-	if((GetItemFlags(id) & OBJ_SHOTGUN) && CheckInventory("Hobo_Perk5")) {
-		res -= res / 4;
+	if((GetItemFlags(id) & OBJ_SHOTGUN) && HasClassPerk_Fast("Hobo", 1)) {
+		res -= res / 5;
 		if(res < 0)
 			res = 0;
 	}
@@ -788,7 +788,7 @@ bool CanResearch(int respage, int posx) {
 	int status = CheckResearchStatus(ResearchInfo[respage][posx].res_id);
 	bool finish_check = status != RES_DONE;
 	bool found_check = status == RES_KNOWN;
-	bool budget_check = CheckInventory("Budget") >= ResearchInfo[respage][posx].res_cost;
+	bool budget_check = CheckInventory("Budget") >= (ResearchInfo[respage][posx].res_cost * (IsShotgunResearch(ResearchInfo[respage][posx].res_id) && HasClassPerk_Fast("Hobo", 1) ? 4 : 5)) / 5;
 	if(finish_check && found_check && budget_check)
 		return false;
 	GiveInventory("DnD_PopupError", 1);

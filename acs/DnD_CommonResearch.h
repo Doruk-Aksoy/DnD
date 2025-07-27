@@ -188,4 +188,21 @@ void GiveResearch(int res_id, bool fancy) {
 		SetInventory("Research_Discovered_1", SetBit(CheckInventory("Research_Discovered_1"), res_id));
 }
 
+bool IsShotgunResearch(int res_id) {
+	switch(res_id) {
+		case RES_SLOT3UPG1:
+		case RES_SLOT3SSGUPG2:
+		case RES_SLOT3SSGUPG3:
+		case RES_SLOT4UPG2:
+		case RES_SLOT4UPG5:
+		case RES_FLECHETTE:
+		case RES_PIERCING:
+		case RES_ELECTRIC:
+   		case  RES_NITRO:
+		case RES_SLUGSHELL:
+		return true;
+	}
+	return false;
+}
+
 #endif

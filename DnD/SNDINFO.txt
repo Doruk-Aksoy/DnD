@@ -1,5 +1,7 @@
 $pitchshiftrange 2
 
+SyringeUse				SYRINGED
+
 NullSound				dsempty
 weapons/firex2          dsfirex2
 

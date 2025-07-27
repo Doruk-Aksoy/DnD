@@ -19,6 +19,7 @@ Actor DnDWeapon : Weapon {
 		
 		Zoom:
 			"####" "#" 0 A_JumpIfInventory("Doomguy_Perk1", 1, "CanCheckExecution")
+			"####" "#" 0 A_JumpIfInventory("Hobo_Perk60", 1, "CheckAmphetamine")
 			// zandronum safety
 		WaitForReady:
 			"####" "####" 1 A_Jump(256, "Ready")
@@ -79,6 +80,84 @@ Actor DnDWeapon : Weapon {
 			TNT1 A 0 A_PlaySound("Weapons/KickSwing")
 			TNT1 A 4
 			TNT1 A 11 A_PlaySound("Weapons/fisthit")
+		Stop
+		
+		// Hobo_Perk4
+		CheckAmphetamine:
+			"####" "#" 0 A_JumpIfInventory("NoMoreAmphetamine", 1, "WaitForReady")
+			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(100, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(110, 162) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 126 Offset(110, 162) A_GunFlash("SyringeAnim", GFF_NOEXTCHANGE)
+			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto WaitForReady
+		
+		SyringeAnim:
+			SYRU A 1
+			SYRU BCDEFGHIJKLMNO 1
+			SYRI A 1
+			SYRI BCD 3
+			SYRI EFGHI 1
+			SYRI J 5 
+			SYRI KL 1 
+			INJE A 8
+			INJE B 2
+			TNT1 A 0 A_PlaySound("Hobo/Stim", CHAN_WEAPON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_AMPHETAMINE, DEBUFF_F_PLAYERISACTIVATOR)
+			INJE C 2 A_GiveInventory("NoMoreAmphetamine", 1)
+			INJE D 2
+			INJE E 2
+			INJE EFGHIJKKKL 2
+			INJE M 8
+			INJE N 2
+			INJE O 2 A_PlaySound("SyringeUse")
+			INJE PQR 2
+			INJE S 8
+			INJE TU 2
+			INJE VWXYZ 1  
+			TNT1 A 10
+			SYRT AB 1
+			SYRT C 1 A_FireCustomMissile("SpentSyringe",0,0,0,0)
+			SYRT DEF 1
+			TNT1 A 2
+		Stop
+	}
+}
+
+Actor NoMoreAmphetamine : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
+}
+
+ACTOR SpentSyringe {
+	Scale 0.1
+	Radius 3
+	Height 3
+	Speed 10
+	Mass 5
+	
+	+NOBLOCKMAP 
+	+DROPOFF 
+	+MISSILE 
+	+NOTELEPORT 
+	+FLOORCLIP 
+	+DOOMBOUNCE
+	+CLIENTSIDEONLY
+	
+	SeeSound "Weapons/shotguncasing"
+	States {
+		Spawn:
+			SYTR ABCDEFGHIJKLMNOP 3
+		Loop
+		Death:
+			SYTR A -1
 		Stop
 	}
 }

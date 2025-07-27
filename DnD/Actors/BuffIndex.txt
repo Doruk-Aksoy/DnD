@@ -8,6 +8,7 @@ enum {
 
     // all buffs below this one
     BTI_PHASING,
+	BTI_AMPHETAMINE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -45,6 +46,7 @@ enum {
 
 enum {
     DND_BUFF_PHASING,
+	DND_BUFF_AMPHETAMINE,
 
     DND_DEBUFF_OTHERWORDLYGRIP,
 

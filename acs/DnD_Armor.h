@@ -476,7 +476,9 @@ int GetEShieldMagicAbsorbValue(int pnum) {
 }
 
 int GetMitigationChance(int pnum) {
-	return GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
+	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
+	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
+	return base;
 }
 
 bool CouldMitigateDamage(int pnum) {
@@ -486,6 +488,7 @@ bool CouldMitigateDamage(int pnum) {
 
 int GetMitigationEffect(int pnum) {
 	int mit_eff = GetPlayerAttributeValue(pnum, INV_MITEFFECT_INCREASE) + DND_MIT_BASE;
+	mit_eff += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONEFFECT;
 	if(mit_eff > DND_MIT_MAXEFFECT)
 		mit_eff = DND_MIT_MAXEFFECT;
 	return mit_eff;

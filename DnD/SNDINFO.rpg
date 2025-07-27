@@ -84,6 +84,10 @@ TradeRequest		TRADEREQ
 
 Buff/Phasing		BFPHSNG
 
+Hobo/Stim1			HOBOSTM1
+Hobo/Stim2			HOBOSTM2
+$random Hobo/Stim { Hobo/Stim1 Hobo/Stim2 }
+
 /*
 ********************
 ****** SPELLS ******

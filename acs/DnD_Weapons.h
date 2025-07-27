@@ -9,7 +9,7 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 	// if hand of artemis is equipped don't run this
 	int curr_wep = GetCurrentWeaponID();
 	int chance = GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE);
-	chance += (IsBoomstick(curr_wep) && CheckInventory("Hobo_ShotgunFrenzyTimer")) * DND_HOBO_PERK50_CHANCE;
+	chance += (IsBoomstick(curr_wep) && CheckInventory("Hobo_ShotgunFrenzyTimer")) * (DND_HOBO_PERK50_CHANCE + HasClassPerk_Fast("Hobo", 5) * DND_HOBO_PERK50_CHANCE_BONUSMAXED);
 
 	if(random(1, 100) <= chance) {
 		if(slot == DND_AMMOSLOT_MAGAZINE)

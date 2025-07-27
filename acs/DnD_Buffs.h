@@ -16,6 +16,7 @@ enum {
 	BUFF_STUN,
 	BUFF_VISIONLOSS,
 	BUFF_HEALTHREGEN,
+
 	BUFF_PHASING,
 
 	BUFF_TYPES_MAX
@@ -94,6 +95,10 @@ void ResetPlayerBuffs(int pnum) {
 	//Log(s:"reset buffs, head next: ", d:pbuffs.buff_list[pbuffs.head].next_id);
 	if(GetGameModeState() != GAMESTATE_COUNTDOWN)
 		ACS_NamedExecuteWithResult("DnD Buff Ticker", pnum);
+
+	i = pnum + P_TIDSTART;
+	TakeActorInventory(i, "DnD_HasPhasing", 1);
+	TakeActorInventory(i, "DnD_HasAmphetamine", 1);
 }
 
 bool IsPlayerBuffStateOK(int pnum) {
@@ -135,6 +140,10 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 		switch(type) {
 			case BUFF_PHASING:
 				TakeActorInventory(val, "DnD_HasPhasing", 1);
+			break;
+			case BUFF_SPEED:
+				if(toHandle.bt_index == BTI_AMPHETAMINE)
+					TakeActorInventory(val, "DnD_HasAmphetamine", 1);
 			break;
 		}
 	}

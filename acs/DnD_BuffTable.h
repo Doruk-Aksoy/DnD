@@ -11,6 +11,7 @@ enum {
 
     // all buffs below this one
     BTI_PHASING,
+    BTI_AMPHETAMINE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -88,6 +89,13 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS;
             bvalue = 0.1;
             bduration = 4;
+            tic_duration = bduration * TICRATE;
+        break;
+        case BTI_AMPHETAMINE:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS;
+            bvalue = 0.33;
+            bduration = 30;
             tic_duration = bduration * TICRATE;
         break;
 

@@ -12,7 +12,7 @@ Script "DnD Check Execution" (void) {
 // monster is assumed activator of this function
 void HandleDoomguyExecute(int ptid, int mon_tid) {
 	int pnum = ptid - P_TIDSTART;
-	if(CheckActorInventory(ptid, "Doomguy_Perk5") && CheckInventory("Doomguy_CanExecute")) {
+	if(HasActorClassPerk_Fast(ptid, "Doomguy", 1) && CheckInventory("Doomguy_CanExecute")) {
 		if(CheckInventory("Doomguy_ValidExecute")) {
 			TakeInventory("Doomguy_CanExecute", 1);
 			TakeInventory("Doomguy_ValidExecute", 1);
@@ -20,9 +20,9 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 			int hp_to_give = GetPlayerSpawnHealth(pnum) * DND_DOOMGUY_PERK5HEAL / 100;
 			
 			// give extra health to player
-			if(CheckActorInventory(ptid, "Doomguy_Perk25")) {
+			if(HasActorClassPerk_Fast(ptid, "Doomguy", 2)) {
 				// give the better damage boost
-				GiveActorInventory(ptid, "Doomguy_Perk25_Damage_Execute", 1);
+				GiveActorInventory(ptid, "Doomguy_Perk20_Damage_Execute", 1);
 				GiveActorInventory(ptid, "Doomguy_DemonSoul_PickMsg", 1);
 
 				int temp = MonsterProperties[mon_tid - DND_MONSTERTID_BEGIN].maxhp;
@@ -52,7 +52,7 @@ Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIEN
 	// if this guy isnt doomguy, terminate
 	// testing running it in any case to see if it helps fix the bug of these guys sometimes having their shit not taken away
 	//Log(d:ConsolePlayerNumber() + P_TIDSTART, s:" ", d:CheckActorInventory(ConsolePlayerNumber() + P_TIDSTART, "Doomguy_Perk5"));
-	if(!CheckActorInventory(ConsolePlayerNumber() + P_TIDSTART, "Doomguy_Perk5"))
+	if(!HasActorClassPerk_Fast(ConsolePlayerNumber() + P_TIDSTART, "Doomguy", 1))
 		Terminate;
 
 	if(!mode) {
