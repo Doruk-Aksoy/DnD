@@ -1,10 +1,6 @@
 #ifndef DND_ARMOR_IN
 #define DND_ARMOR_IN
 
-#define DND_MIT_PER_DEX 0.2
-#define DND_MIT_BASE 50.0 // 50%
-#define DND_MIT_MAXEFFECT 90.0
-
 #define BASE_ARMOR_FACTOR 8
 #define BASE_ARMOR_MAGIC_EFFECT 80 // 80% REDUCED effect, so really the effect is 20%
 
@@ -437,61 +433,6 @@ int DoArmorRatingEffect(int dmg, int rating) {
 	int dmg_f = BASE_ARMOR_FACTOR;
 	dmg_f = dmg - (dmg * rating) / (rating + dmg_f * dmg);
 	return dmg_f;
-}
-
-void SetEnergyShield(int val) {
-	SetInventory("EShieldAmount", val);
-	SetInventory("EShieldAmountVisual", val);
-}
-
-void SetActorEnergyShield(int tid, int val) {
-	SetActorInventory(tid, "EShieldAmount", val);
-	SetActorInventory(tid, "EShieldAmountVisual", val);
-}
-
-void AddEnergyShield(int val) {
-	GiveInventory("EShieldAmount", val);
-	GiveInventory("EShieldAmountVisual", val);
-}
-
-void AddActorEnergyShield(int tid, int val) {
-	GiveActorInventory(tid, "EShieldAmount", val);
-	GiveActorInventory(tid, "EShieldAmountVisual", val);
-}
-
-void TakeEnergyShield(int val) {
-	TakeInventory("EShieldAmount", val);
-	TakeInventory("EShieldAmountVisual", val);
-}
-
-void UpdateEnergyShieldVisual(int val) {
-	SetAmmoCapacity("EShieldAmountVisual", val);
-}
-
-// Absorb value for magic or poison attacks
-int GetEShieldMagicAbsorbValue(int pnum) {
-	if(GetPlayerAttributeValue(pnum, INV_EX_ESHIELDFULLABSORB) || HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL))
-		return 100;
-	return GetPlayerAttributeValue(pnum, INV_MAGIC_NEGATION);
-}
-
-int GetMitigationChance(int pnum) {
-	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
-	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
-	return base;
-}
-
-bool CouldMitigateDamage(int pnum) {
-	//Log(f:random(1.0, 100.0), s: " vs ", f:GetMitigationChance(pnum));
-	return random(0.0, 100.0) <= GetMitigationChance(pnum);
-}
-
-int GetMitigationEffect(int pnum) {
-	int mit_eff = GetPlayerAttributeValue(pnum, INV_MITEFFECT_INCREASE) + DND_MIT_BASE;
-	mit_eff += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONEFFECT;
-	if(mit_eff > DND_MIT_MAXEFFECT)
-		mit_eff = DND_MIT_MAXEFFECT;
-	return mit_eff;
 }
 
 Script "DnD Armor Item Pickup" (int sp) {

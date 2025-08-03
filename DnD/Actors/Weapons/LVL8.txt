@@ -71,6 +71,15 @@ ACTOR "Death Staff" : DnDWeapon {
 			TNT1 A 3 A_Light2
 			TNT1 A 3 A_Light0
 		Goto LightDone
+		
+		RiseUpSpecial:
+			LICS A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LICS A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LICS A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LICS A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LICS A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LICS A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -599,6 +608,15 @@ ACTOR Razorfang : DnDWeapon {
 			TNT1 A 4 A_Light2
 			TNT1 A 4 A_Light0
 		Goto LightDone
+		
+		RiseUpSpecial:
+			RAZG A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAZG A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAZG A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAZG A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAZG A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAZG A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -893,6 +911,15 @@ Actor "Sun Staff" : DnDWeapon {
 			TNT1 A 4 A_Light2
 			TNT1 A 3 A_Light0
 		Goto LightDone
+		
+		RiseUpSpecial:
+			LTBR M 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LTBR M 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LTBR M 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LTBR M 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LTBR M 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			LTBR M 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -1237,6 +1264,15 @@ Actor "Soul Reaver" : DnDWeapon {
 		NoMoreSphere:
 			SREA A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto ReadyLoop
+		
+		RiseUpSpecial:
+			SREA A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SREA A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SREA A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SREA A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SREA A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SREA A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 

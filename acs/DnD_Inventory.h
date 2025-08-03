@@ -2386,14 +2386,6 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 	return false;
 }
 
-void HandleEShieldChange(int pnum, bool remove) {
-	int i = GetPlayerEnergyShieldCap(pnum);
-	UpdateEnergyShieldVisual(i);
-
-	if(remove && CheckInventory("EShieldAmount") > i)
-		SetEnergyShield(i);
-}
-
 // standard attribute processing (not implicits)
 void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index, bool remove, bool noSync = false, bool needDelay = false) {
 	int i, temp;
@@ -2580,7 +2572,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		case INV_INCKILLINGSPREE:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
 			// make sure to update ammo caps
-			SetAmmoCapacity("DnD_SpreeTimer", DND_SPREE_AMOUNT * (100 + PlayerModValues[pnum][INV_INCKILLINGSPREE]) / 100);
+			UpdatePlayerSpreeTimer(pnum);
 		break;
 		case INV_EX_CURSEIMMUNITY:
 			IncPlayerModValue(pnum, atype, aval, noSync, needDelay);
@@ -2973,7 +2965,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	}
 	
 	// cybernetic check
-	if(has_cybernetic && CheckInventory("Cyborg_Perk5"))
+	if(has_cybernetic && HasClassPerk_Fast("Cyborg", 1))
 		multiplier = multiplier * (DND_CYBERNETIC_FACTOR + 100) / 100;
 
 	for(i = 0; i < ac; ++i)

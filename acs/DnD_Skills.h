@@ -68,15 +68,7 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 			spell_level = GetPlayerAttributeValue(pnum, INV_EX_ABILITY_RALLY);
 			temp = RALLY_DISTANCE + GetIntellectEffect(pnum, RALLY_DIST_PER_INT);
 			bufftimer = RALLY_DURATION * TICRATE;
-			/*if(CheckInventory("Wanderer_Perk50")) {
-				sptr1 = StrParam(s:"Rally_Damage_Wanderer_Lvl", d:spell_level);
-				sptr2 = StrParam(s:"Rally_Speed_Wanderer_Lvl", d:spell_level);
-				temp += temp / DND_WANDERER_SPELLEFFICIENCY;
-				bufftimer += bufftimer / DND_WANDERER_SPELLEFFICIENCY;
-			}
-			else {*/
-				sptr2 = StrParam(s:"Rally_Speed_Lvl", d:spell_level);
-			//}
+			sptr2 = StrParam(s:"Rally_Speed_Lvl", d:spell_level);
 
 			for(i = P_TIDSTART; i < P_TIDSTART + MAXPLAYERS; ++i) {
 				if(fdistance(this, i) <= temp) {
@@ -98,11 +90,6 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 			temp2 = ICESHIELD_HEALTHBASE + GetActorLevel(this) * ICESHIELD_HEALTH_PER_LEVEL + GetIntellectEffect(pnum, ICESHIELD_HEALTH_PER_INT);
 			bufftimer = ICESHIELD_BASE_DURATION + GetIntellectEffect(pnum, ICESHIELD_DURATION_PER_INT);
 			
-			/*if(CheckInventory("Wanderer_Perk50")) {
-				temp2 += temp2 / DND_WANDERER_SPELLEFFICIENCY;
-				bufftimer += bufftimer / DND_WANDERER_SPELLEFFICIENCY;
-			}*/
-			
 			// requires a byte angle
 			for(i = 0; i < ICESHIELD_COUNT; ++i) {
 				SpawnForced("IceShield_Barrier", GetActorX(0), GetActorY(0), GetActorZ(0), temp, (i * 255) / ICESHIELD_COUNT);
@@ -123,10 +110,7 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 		case DND_SPELL_MOLTENBOULDER:
 			ActivatorSound("Spell/MoltenBoulderCast", 127);
 			temp = TEMPORARY_SPELL_TID + PlayerNumber();
-			/*if(CheckInventory("Wanderer_Perk50"))
-				SpawnForced("MoltenBoulderProjectile_Longer", GetActorX(0), GetActorY(0), GetActorCeilingZ(0) - 64.0, temp, GetActorAngle(0) >> 8);
-			else*/
-				SpawnForced("MoltenBoulderProjectile", GetActorX(0), GetActorY(0), GetActorCeilingZ(0) - 64.0, temp, GetActorAngle(0) >> 8);
+			SpawnForced("MoltenBoulderProjectile", GetActorX(0), GetActorY(0), GetActorCeilingZ(0) - 64.0, temp, GetActorAngle(0) >> 8);
 			SetActivator(temp);
 			SetPointer(AAPTR_TARGET, this);
 			SetActorProperty(0, APROP_TARGETTID, this);
@@ -147,9 +131,6 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 // can add cooldown reduction calculations for future as well
 Script "DnD Spell Cooldown" (int spell_id, int cooldown) {
 	int i;
-	
-	/*if(CheckInventory("Wanderer_Perk50"))
-		cooldown -= cooldown / DND_WANDERER_COOLDOWNBONUS;*/
 	
 	SetInventory(SpellInfo[spell_id][SPELL_COOLDOWNCOUNTER], cooldown);
 	for(i = 0; i < cooldown; ++i) {

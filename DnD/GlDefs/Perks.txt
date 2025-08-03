@@ -1,0 +1,11 @@
+pulselight TricksterPointerLight {
+	color 0.1 1.0 0.1
+	size 20
+	secondarysize 36
+	interval 1
+}
+
+object Trickster_Pointer
+{
+    frame TRCK { light TricksterPointerLight }
+}

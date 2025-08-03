@@ -70,6 +70,15 @@ Actor " Pistol " : DnDWeapon {
 			TNT1 A 3 Bright A_Light1
 			TNT1 A 3 Bright A_Light0
 		Goto LightDone
+		
+		RiseUpSpecial:
+			COLT A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -296,6 +305,15 @@ Actor " Akimbo Pistols " : DnDWeapon {
 			TNT1 A 3 A_Light1
 			TNT1 A 3 A_Light0
 		Goto LightDone
+		
+		RiseUpSpecial:
+			PS2G A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PS2G A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PS2G A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PS2G A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PS2G A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PS2G A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -500,6 +518,15 @@ Actor Magnum : DnDWeapon {
 			REVO JKG 2
 			REVO DEDA 1
 		Goto ReadyLoop
+		
+		RiseUpSpecial:
+			REVO A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			REVO A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			REVO A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			REVO A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			REVO A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			REVO A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -706,6 +733,15 @@ Actor "Laser Pistol" : DnDWeapon {
 		Spawn:
 			PBLT Z -1
 		Stop
+		
+		RiseUpSpecial:
+			PBLT A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PBLT A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PBLT A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PBLT A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PBLT A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PBLT A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -899,6 +935,15 @@ ACTOR ScatterGun : DnDWeapon {
 			TNT1 A 1 Bright A_Light1
 			TNT1 A 1 Bright A_Light0
 		Stop
+		
+		RiseUpSpecial:
+			SPRP A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SPRP A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SPRP A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SPRP A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SPRP A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SPRP A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -1031,8 +1076,8 @@ Actor RubyWand : DnDWeapon {
 			WAND F -1 Bright
 		Loop
 		Ready:
-			  TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
-			  TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_RUBYWAND)
+			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_RUBYWAND)
 		ReadyLoop:
 			WAND A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
@@ -1113,6 +1158,15 @@ Actor RubyWand : DnDWeapon {
 			WAND A 1 Offset(0, 33)
 			WAND A 6 A_WeaponReady(WRF_NOSECONDARY | WRF_NOSWITCH)
 		Goto ReadyLoop
+		
+		RiseUpSpecial:
+			WAND A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			WAND A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			WAND A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			WAND A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			WAND A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			WAND A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 

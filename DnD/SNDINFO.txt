@@ -1,5 +1,8 @@
 $pitchshiftrange 2
 
+Trickster/Poof			TRCKPOOF
+Trickster/Swap			TRCKSWP
+
 SyringeUse				SYRINGED
 
 NullSound				dsempty

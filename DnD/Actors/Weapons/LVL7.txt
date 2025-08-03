@@ -62,7 +62,16 @@ Actor "BFG 9000" : DnDWeapon {
 			Goto LightDone
 		Spawn:
 			PRDC X -1
-		Stop	
+		Stop
+		
+		RiseUpSpecial:
+			PRDC A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PRDC A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PRDC A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PRDC A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PRDC A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PRDC A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -138,7 +147,16 @@ Actor "Upgraded BFG 9000" : DnDWeapon {
 		Goto ReadyLoopInit
 		Spawn:
 			DEBF A -1
-		Stop	
+		Stop
+		
+		RiseUpSpecial:
+			DBFG A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DBFG A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DBFG A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DBFG A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DBFG A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DBFG A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -493,7 +511,16 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 		Goto LightDone
 		Spawn:
 			DEVA Z -1
-		Stop	
+		Stop
+		
+		RiseUpSpecial:
+			DEVA A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DEVA A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DEVA A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DEVA A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DEVA A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			DEVA A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -687,6 +714,15 @@ ACTOR MFG : DnDWeapon {
 			NBFG A 7 Offset(1, 32)
 			NBFG A 1 Offset(1, 32) A_Refire
 		Goto ReadyLoop
+		
+		RiseUpSpecial:
+			NBFG A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			NBFG A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			NBFG A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			NBFG A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			NBFG A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			NBFG A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -1182,6 +1218,15 @@ ACTOR "Rail Gun" : DnDWeapon {
 			TNT1 A 1 A_Light1
 			TNT1 A 0 A_Light0
 		stop
+		
+		RiseUpSpecial:
+			RAIG A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAIG A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAIG A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAIG A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAIG A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			RAIG A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
    }
 }
 
@@ -1550,6 +1595,15 @@ Actor "Gauss Rifle" : DnDWeapon {
 		Spawn:
 			GAUS Z -1
 		Stop
+		
+		RiseUpSpecial:
+			GAUS A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			GAUS A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			GAUS A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			GAUS A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			GAUS A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			GAUS A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -1933,6 +1987,15 @@ ACTOR "Death Ray" : DnDWeapon {
 			TNT1 A 1 A_Light1
 			TNT1 A 0 A_Light0
 		stop
+		
+		RiseUpSpecial:
+			ERWE E 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ERWE E 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ERWE E 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ERWE E 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ERWE E 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ERWE E 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 

@@ -84,7 +84,16 @@ Actor " Fists " : DnDWeapon
 			PUNK H 1 Offset(0, 34)
 			PUNK I 1 Offset(0, 36)
 			PUNK I 1 Offset(0, 34)
-		goto ReadyLoop   
+		goto ReadyLoop
+		
+		RiseUpSpecial:
+			PUNK A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PUNK A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PUNK A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PUNK A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PUNK A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			PUNK A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -154,6 +163,15 @@ ACTOR " Chainsaw " : DnDWeapon {
 		Spawn:
 			CSAW A -1
 		Stop
+		
+		RiseUpSpecial:
+			SAWG A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAWG A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAWG A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAWG A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAWG A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAWG A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -236,8 +254,17 @@ ACTOR "Upgraded Chainsaw" : DnDWeapon {
 			SAWG B 0 A_ReFire
 		goto ReadyLoop
 		Spawn:
-		CSW2 A -1
+			CSW2 A -1
 		Stop
+		
+		RiseUpSpecial:
+			SAW2 A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAW2 A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAW2 A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAW2 A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAW2 A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SAW2 A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -361,6 +388,15 @@ ACTOR Sickle : DnDWeapon {
 			SCKL A 1 Offset(-1, 32)
 			TNT1 A 0 Offset(0, 32)
 		goto ReadyLoop
+		
+		RiseUpSpecial:
+			SCKL A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SCKL A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SCKL A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SCKL A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SCKL A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			SCKL A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
     }
 }
 
@@ -675,6 +711,15 @@ ACTOR Excalibat : DnDWeapon {
 			EXCL A 1 Offset(-1, 42)
 			EXCL A 1 Offset(-1, 32)
 		goto ReadyLoop
+		
+		RiseUpSpecial:
+			EXCL A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			EXCL A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			EXCL A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			EXCL A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			EXCL A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			EXCL A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
     }
 }
 
@@ -1077,6 +1122,15 @@ ACTOR Katana : DnDWeapon {
 		Reload:
 			TNT1 A 0 A_TakeInventory("KatanaIdleTimer", 1)
 		Goto ForcedSheathe
+		
+		RiseUpSpecial:
+			TNT1 A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			TNT1 A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			TNT1 A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			TNT1 A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			TNT1 A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			TNT1 A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 
@@ -1421,6 +1475,15 @@ Actor "Dusk Blade" : DnDWeapon {
 			VORP J 1 Bright
 			TNT1 A 0 A_Refire
 		goto ReadyLoop
+		
+		RiseUpSpecial:
+			VORP A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			VORP A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			VORP A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			VORP A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			VORP A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			TNT1 A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 

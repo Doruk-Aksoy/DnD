@@ -78,6 +78,15 @@ Actor ResMelee1 : DnDWeapon {
 			FBM1 C 1 Bright Offset(14, 62)
 			FBM1 A 1 Bright Offset(-3, 32)
 		Goto ReadyLoop
+		
+		RiseUpSpecial:
+			FBM1 C 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			FBM1 C 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			FBM1 C 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			FBM1 C 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			FBM1 C 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			FBM1 C 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }
 

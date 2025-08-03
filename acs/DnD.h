@@ -1126,7 +1126,7 @@ void ActivateKillingSpree() {
 		int temp = CheckInventory("DnD_MultikillCounter") + 1;
 		if(temp / DND_SPREE_PER >= 1) {
 			// punisher perks
-			if(CheckInventory("Punisher_Perk5")) {
+			if(HasClassPerk_Fast("Punisher", 1)) {
 				if(!CheckInventory("Punisher_Perk5_MoveSpeed")) {
 					int wepid = GetCurrentWeaponID();
 					if(GetSlotOfWeapon(wepid) != 9) {
@@ -1322,13 +1322,15 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("Berserker_HitTracker", 0);
 	SetInventory("Berserker_HitTimer", 0);
 	SetInventory("Berserker_NoRoar", 0);
-	SetInventory("Berserker_Perk50_HitCounter", 0);
+	SetInventory("Berserker_Perk60_HitCounter", 0);
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
 	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
 
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
+
+	SetInventory("Trickster_SwapCount", 0);
 
 	SetInventory("Marine_DamageReduction_Timer", 0);
 	SetInventory("Marine_Perk50_DamageDealt", 0);

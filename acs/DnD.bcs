@@ -382,7 +382,7 @@ Script "DnD On Death" DEATH {
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 	SetInventory("Marine_DamageReduction_Timer", 0);
 	SetInventory("Marine_Perk50_Cooldown", 0);
-	SetInventory("Berserker_Perk50_HitCounter", 0);
+	SetInventory("Berserker_Perk60_HitCounter", 0);
 	
 	TakeInventory("DnD_ShowPopup", 1);
 	TakeInventory("DnD_ShowSellPopup", 1);
@@ -708,7 +708,7 @@ Script "DnD Killing Spree Timer" (void) {
 			
 			// punisher perk 2 -- -2 means was at least merciless
 			temp = spree / DND_SPREE_PER;
-			if(CheckInventory("Punisher_Perk25") && temp >= 2) {
+			if(HasClassPerk_Fast("Punisher", 2) && temp >= 2) {
 				temp = DND_PUNISHER_SPREERECOVER + DND_PUNISHER_SPREEPERBONUS * (temp - 2);
 				if(temp > 100)
 					temp = 100; // don't give more than 100% of caps
@@ -921,7 +921,7 @@ Script "DND On Kill" KILL {
 	SetActivator(this);
 	
 	// 25% chance to explode
-	if(!random(0, 3) && CheckActorInventory(target, "Wanderer_Perk50"))
+	if(!random(0, 3) && HasActorClassPerk_Fast(target, "Wanderer", 4))
 		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
 	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime")) {
@@ -1032,7 +1032,7 @@ Script "DND On Kill" KILL {
 	IncrementPlayerLifetimeKills();
 	
 	is_demon = CheckInventory("Punisher_Perk50_Tiers");
-	if(CheckInventory("Punisher_Perk50") && is_demon < DND_MAX_PUNISHER_PERK50_TIERS) {
+	if(HasClassPerk_Fast("Punisher", 3) && is_demon < DND_MAX_PUNISHER_PERK50_TIERS) {
 		// in killing spree
 		if((CheckInventory("DnD_MultiKillCounter") + 1) / DND_SPREE_PER >= 1)
 			GiveInventory("Punisher_Perk50_Counter", (GetPunisherTierKillBonus(m_id) * DND_PUNISHER_PERK50_KSPREEBONUS_MULT / DND_PUNISHER_PERK50_KSPREEBONUS_DIV));
@@ -3477,6 +3477,7 @@ Script 997 (void) NET {
 	int velX;
 	int velY;
 	int velZ;
+	bool dashed = false;
 	Delay(3);
 	if(CheckInventory("Ability_Dash") && !CheckInventory("DashDelay") && GetActorVelZ(0) >= 0.0 && !CheckInventory("DashDisabled") && !CheckInventory("P_Frozen") && GetActorProperty(0, APROP_HEALTH) > 0) {
 		for(int i = 0; i < 4; ++i) {
@@ -3505,9 +3506,15 @@ Script 997 (void) NET {
 				}
 				GiveInventory("DashEffect", 1);
 				GiveInventory("DashDelay", 1);
+				dashed = true;
 			}
 		}
 		soundplayed = 0;
+
+		if(dashed && HasClassPerk_Fast("Trickster", 4) && !CheckInventory("Trickster_Acrobat_Cooldown")) {
+			GiveInventory("Trickster_Acrobat_Cooldown", 1);
+			ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING_DASH, DEBUFF_F_PLAYERISACTIVATOR);
+		}
 	}
 }
 
@@ -3605,7 +3612,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					amt = 1;
 				
 				// cyborg perk
-				if(CheckInventory("Cyborg_Perk25"))
+				if(HasClassPerk("Cyborg", 1))
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 				
 				if((!CheckInventory("RegenStopper") || GetPlayerAttributeValue(pnum, INV_CORR_DMGDOESNTSTOPREGEN)) && cur < lim) {
@@ -3762,23 +3769,41 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 	GiveInventory("EShieldBlend", 1);
 }
 
-Script "DnD Lifesteal Script" (void) {
+Script "DnD Lifesteal Script" (int tid) {
+	if(tid > 0)
+		SetActivator(tid);
+
 	GiveInventory("PlayerIsLeeching", 1);
 
 	int pnum = PlayerNumber();
-	int tics =  GetLifestealRate(pnum);
+	int tics = GetLifestealRate(pnum);
 	int amt;
 	int cap = GetSpawnHealth();
+	bool cyborgCheck = HasClassPerk_Fast("Cyborg", 5);
+	if(cyborgCheck)
+		cap = GetPlayerEnergyShieldCap(pnum);
+
 	// printbold(s:"health cap: ", d:cap, s: " tics: ", d:tics);
 	while(IsAlive() && CheckInventory("LifeStealAmount")) {
+		int toCompare = GetActorProperty(0, APROP_HEALTH);
+		if(cyborgCheck)
+			toCompare = CheckInventory("EShieldAmount");
+
 		amt = GetLifestealLifeRecovery(pnum, cap);
 		TakeInventory("LifeStealAmount", amt);
 		
-		if(GetActorProperty(0, APROP_HEALTH) + amt < cap)
-			GiveInventory("HealthBonusX", amt);
+		if(toCompare + amt < cap) {
+			if(!cyborgCheck)
+				GiveInventory("HealthBonusX", amt);
+			else
+				AddEnergyShield(amt);
+		}
 		else {
 			// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
-			GiveInventory("HealthBonusX", cap - GetActorProperty(0, APROP_HEALTH));
+			if(!cyborgCheck)
+				GiveInventory("HealthBonusX", cap - toCompare);
+			else
+				AddEnergyShield(cap - toCompare);
 			break;
 		}
 		Delay(tics);
@@ -5069,7 +5094,7 @@ Script "DnD Punisher Perk50 Display" (void) CLIENTSIDE {
 	if(PlayerNumber() != ConsolePlayerNumber())
 		Terminate;
 
-	while(!CheckInventory("Punisher_Perk50")) {
+	while(!HasClassPerk_Fast("Punisher", 3)) {
 		if(!IsAlive())
 			Terminate;
 		Delay(const:TICRATE);
@@ -5707,6 +5732,20 @@ Script "DnD Request Level Info" (int val) {
 	SetResultValue(PlayerInformationInLevel[val]);
 }
 
+// start and end converted to 0.01 scale, total_time is the time this transition takes, max_reach_time is the time it takes to maximum fade in value
+Script "DnD Fade Effect" (int start, int end, int total_time, int max_reach_time) {
+	start *= 0.01;
+	end *= 0.01;
+
+	for(int i = 0; i < total_time; ++i) {
+		int c = i < max_reach_time ? i : max_reach_time;
+		SetActorProperty(0, APROP_ALPHA, GetActorProperty(0, APROP_ALPHA) + start * (max_reach_time - c) / max_reach_time + end * c / max_reach_time);
+		Delay(const:1);
+	}
+
+	SetResultValue(0);
+}
+
 Script "DnD Temp Ignore Toggle" (int pnum, int val) NET {
 	if(val)
 		GiveInventory("DnD_NoTempPickup", 1);
@@ -5820,7 +5859,7 @@ Script 68 (int x) NET {
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
 			//IncPlayerModValue(0, INV_CORR_INSTALEECHPCT, 15);
-			//IncPlayerModValue(0, INV_LIFESTEAL, 1.0);
+			IncPlayerModValue(0, INV_LIFESTEAL, 1.0);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 100);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);

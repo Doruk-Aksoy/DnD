@@ -1076,9 +1076,9 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	else if(CheckInventory("TripleDamagePower2"))
 		more_bonus = more_bonus * 9 / 2;
 
-	// 30% more effectiveness
-	if(wepid >= 0 && CheckInventory("Cyborg_Perk5") && (Weapons_Data[wepid].properties & WPROP_TECH))
-		more_bonus = more_bonus * 13 / 10;
+	// 33% more effectiveness
+	if(wepid >= 0 && HasClassPerk_Fast("Cyborg", 1) && (Weapons_Data[wepid].properties & WPROP_TECH))
+		more_bonus = more_bonus * (100 + DND_CYBERNETIC_FACTOR) / 100;
 
 	// damage less modifier in form of enfeeblement -- buff net values always hold fixed
 	more_bonus = (more_bonus * pbuffs.buff_net_values[BUFF_DAMAGEDEALT].multiplicative) >> 16;
@@ -1294,6 +1294,13 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		if(GetActorProperty(victim, APROP_HEALTH) <= dmg) {
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 
+			// overkill damage lifesteal check
+			if(HasActorClassPerk_Fast(source, "Punisher", 5)) {
+				temp = (dmg - GetActorProperty(victim, APROP_HEALTH)) * DND_PUNISHER_OVERKILL_LEECHFACTOR / 100;
+				if(temp > 0)
+					ResolveLifesteal(pnum, temp, CheckActorInventory(source, "PlayerHealthCap"));
+			}
+
 			if(actor_flags & DND_ACTORFLAG_DROPSOUL)
 				GiveActorInventory(victim, "BookofDeadCausedDeath", 1);
 
@@ -1301,17 +1308,17 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || (!wep_neg && IsSoulDroppingWeapon(wepid))))
 				GiveActorInventory(victim, "MagicCausedDeath", 1);
 
-			if(CheckActorInventory(source, "Berserker_Perk50") && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
-				SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
-				if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS) {
+			if(HasActorClassPerk_Fast(source, "Berserker", 4) && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
+				SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK60_TIMER);
+				if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK60_MAXSTACKS) {
 					GiveActorInventory(source, "Berserker_HitTracker", 1);
 					if(!temp)
 						ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, source);
 				}
-				if(temp + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+				if(temp + 1 >= DND_BERSERKER_PERK60_MAXSTACKS) {
 					if(!CheckActorInventory(source, "Berserker_NoRoar"))
 						HandleBerserkerRoar(source);
-					GiveActorInventory(source, "Berserker_Perk50_Speed", 1);
+					GiveActorInventory(source, "Berserker_Perk60_Speed", 1);
 				}
 			}
 		}
@@ -1384,10 +1391,79 @@ Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
 	}
 }
 
+void ResolveLifesteal(int pnum, int amt, int spawn_health) {
+	// give up to the lifesteal limit
+	int ptid = pnum + P_TIDSTART;
+	int toAdd = CheckActorInventory(ptid, "LifeStealAmount");
+	int cap = GetLifestealCap(pnum);
+	int toCompare = GetActorProperty(ptid, APROP_HEALTH);
+	bool cyborgCheck = HasActorClassPerk_Fast(ptid, "Cyborg", 5);
+
+	if(cyborgCheck) {
+		cap = GetPlayerEnergyShieldCap(pnum);
+		amt /= 2;
+		if(!amt)
+			amt = 1;
+		toCompare = CheckActorInventory(ptid, "EShieldAmount");
+	}
+
+	// if over the cap, make it so that it would only be gaining up to reach the cap
+	if(amt + toAdd > cap) {
+		if(!HasActorClassPerk_Fast(ptid, "Punisher", 4))
+			amt = cap - toAdd;
+		else { // go over cap if punisher perk exists
+			amt += toAdd * DND_PUNISHER_OVERLEECHVAL / 100;
+			if(amt > cap * 2)
+				amt = cap * 2;
+		}
+	}
+	
+	// not using lifesteal cap from here on
+	cap = GetPlayerAttributeValue(pnum, INV_CORR_INSTALEECHPCT);
+	if(cap) {
+		// take a bit away from this
+		cap = amt * cap / 100;
+		if(cap) {
+			amt -= cap;
+
+			// give player instant leech here
+			if(toCompare + cap < spawn_health) {
+				if(!cyborgCheck)
+					GiveActorInventory(ptid, "HealthBonusX", cap);
+				else
+					AddActorEnergyShield(ptid, cap);
+			}
+			else {
+				// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
+				if(!cyborgCheck)
+					GiveActorInventory(ptid, "HealthBonusX", spawn_health - toCompare);
+				else
+					AddActorEnergyShield(ptid,  spawn_health - toCompare);
+			}
+
+			if(amt <= 0)
+				return;
+		}
+	}
+
+	if(!toAdd) {
+		GiveActorInventory(ptid, "LifeStealAmount", amt);
+		ACS_NamedExecuteAlways("DnD Lifesteal Script", 0, ptid);
+	}
+	else
+		GiveActorInventory(ptid, "LifeStealAmount", amt);
+}
+
 void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	// in order for this to work we must have less health than our cap
 	int spawn_health = GetSpawnHealth();
-	if(GetActorProperty(0, APROP_HEALTH) >= spawn_health || !dmg)
+	int comp = GetActorProperty(0, APROP_HEALTH);
+	if(HasClassPerk_Fast("Cyborg", 5)) {
+		spawn_health = GetPlayerEnergyShieldCap(pnum);
+		comp = CheckInventory("EShieldAmount");
+	}
+
+	if(comp >= spawn_health || !dmg)
 		return;
 		
 	int taltos = (IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && CheckInventory("TaltosUp");
@@ -1416,41 +1492,7 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 		if(taltos <= 0)
 			return;
 		
-		// give up to the lifesteal limit
-		brune_1 = CheckInventory("LifeStealAmount");
-		cap = GetLifestealCap(pnum);
-		// if over the cap, make it so that it would only be gaining up to reach the cap
-		if(taltos + brune_1 > cap)
-			taltos = cap - brune_1;
-			
-		//printbold(s:"ls amt: ", d:taltos, s: " prev counter: ", d:brune_1);
-		
-		brune_2 = GetPlayerAttributeValue(pnum, INV_CORR_INSTALEECHPCT);
-		if(brune_2) {
-			// take a bit away from this
-			brune_2 = taltos * brune_2 / 100;
-			if(brune_2) {
-				taltos -= brune_2;
-
-				// give player instant leech here
-				if(GetActorProperty(0, APROP_HEALTH) + brune_2 < spawn_health)
-					GiveInventory("HealthBonusX", brune_2);
-				else {
-					// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
-					GiveInventory("HealthBonusX", spawn_health - GetActorProperty(0, APROP_HEALTH));
-				}
-
-				if(taltos <= 0)
-					return;
-			}
-		}
-
-		if(!brune_1) {
-			GiveInventory("LifeStealAmount", taltos);
-			ACS_NamedExecuteAlways("DnD Lifesteal Script", 0);
-		}
-		else
-			GiveInventory("LifeStealAmount", taltos);
+		ResolveLifesteal(pnum, taltos, spawn_health);
 	}
 }
 
@@ -1807,8 +1849,8 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 
 	dmg = GetPoisonDOTDamage(pnum, dmg);
 
-	if(CheckActorInventory(source, "Wanderer_Perk25"))
-		AddMonsterAilment(victim, DND_AILMENT_POISON);
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+		AddMonsterAilment(source, victim, DND_AILMENT_POISON);
 		
 	while(counter < time_limit && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
@@ -1824,7 +1866,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		Delay(const:DND_POISON_TICCHECK);
 	}
 
-	if(CheckActorInventory(source, "Wanderer_Perk25"))
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_POISON);
 
 	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
@@ -1848,8 +1890,8 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
 		GiveActorInventory(victim, "UnMakeFaster", 1);
 
-	if(CheckInventory("Wanderer_Perk25"))
-		AddMonsterAilment(victim, DND_AILMENT_CHILL);
+	if(HasClassPerk_Fast("Wanderer", 2))
+		AddMonsterAilment(ActivatorTID(), victim, DND_AILMENT_CHILL);
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
 		// slow down
@@ -1865,7 +1907,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
 		GiveActorInventory(victim, "MakeFaster", 1);
 
-	if(CheckInventory("Wanderer_Perk25"))
+	if(HasClassPerk_Fast("Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_CHILL);
 }
 
@@ -1909,8 +1951,8 @@ Script "DnD Monster Freeze" (int victim) {
 	
 	GiveActorInventory(victim, "MakeNoPain", 1);
 
-	if(CheckInventory("Wanderer_Perk25"))
-		AddMonsterAilment(victim, DND_AILMENT_FREEZE);
+	if(HasClassPerk_Fast("Wanderer", 2))
+		AddMonsterAilment(ActivatorTID(), victim, DND_AILMENT_FREEZE);
 	
 	// actor flags dont get changed properly this way for some reason
 	//printbold(s:"actor flag: ", d:CheckFlag(victim, "NOPAIN"));
@@ -1923,7 +1965,7 @@ Script "DnD Monster Freeze" (int victim) {
 		tics = (tics + 1) % 4;
 	}
 
-	if(CheckInventory("Wanderer_Perk25"))
+	if(HasClassPerk_Fast("Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_FREEZE);
 	
 	// remove frozen nopain thing if monster didnt have it before
@@ -1985,8 +2027,8 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	// this is the value we will use to set the ignite timers on proliferated targets, if any
 	int ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 
-	if(CheckActorInventory(source, "Wanderer_Perk25"))
-		AddMonsterAilment(victim, DND_AILMENT_IGNITE);
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+		AddMonsterAilment(source, victim, DND_AILMENT_IGNITE);
 	
 	do {
 		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2);
@@ -2089,7 +2131,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		}
 	}
 
-	if(CheckActorInventory(source, "Wanderer_Perk25"))
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_IGNITE);
 	
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);
@@ -2119,8 +2161,8 @@ Script "DnD Monster Overload" (int victim) {
 	
 	PlaySound(0, "Overload/Loop", CHAN_ITEM, 1.0, true);
 
-	if(CheckActorInventory(source, "Wanderer_Perk25"))
-		AddMonsterAilment(victim, DND_AILMENT_OVERLOAD);
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+		AddMonsterAilment(source, victim, DND_AILMENT_OVERLOAD);
 	
 	while(CheckInventory("DnD_OverloadTimer")) {
 		if(!ActivatorTID())
@@ -2132,7 +2174,7 @@ Script "DnD Monster Overload" (int victim) {
 		GiveInventory("Overload_SoundStopper", 1);
 	}
 
-	if(CheckActorInventory(source, "Wanderer_Perk25"))
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_OVERLOAD);
 
 	// remove accumulated damage
@@ -2334,7 +2376,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 
 		// toxicology ability
 		if(CheckInventory("Ability_AntiPoison")) {
-			if(!CheckInventory("Cyborg_Perk25"))
+			if(!HasClassPerk_Fast("Cyborg", 1))
 				add -= DND_TOXICOLOGY_REDUCE;
 			else
 				add -= CombineFactors(DND_TOXICOLOGY_REDUCE, DND_CYBORG_CYBERF);
@@ -2605,69 +2647,85 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	if(!is_dot && CouldMitigateDamage(pnum)) {
 		temp = GetMitigationEffect(pnum);
 		dmg = dmg * ((100.0 - temp) >> 16) / 100;
-		LocalAmbientSound("Mitigation/Success", 96);
+		LocalAmbientSound("Mitigation/Success", 80);
 	}
 	
 	return dmg;
 }
 
-// energy shield reduction
-int ApplyPlayerEnergyShield(int pnum, int dmg, str dmg_string, int dmg_data) {
+// energy shield reduction and other true flat damage lowering things, these are the final defense
+int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 	int temp = CheckInventory("EShieldAmount");
 	int factor = GetEShieldMagicAbsorbValue(pnum);
 	bool is_dot = IsDamageStringDOT(dmg_string);
 	int armor_id = GetArmorID();
 	int to_take = 0;
+
 	if(temp) {
 		// this isn't DOT or magical attack and we have energy shield, so we can deduct damage from it
-		if(is_dot || (dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)) {
-			// no ways to prevent this type of damage, return raw dmg
-			if(!factor)
-				return dmg;
-			/*if(!HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL) && !factor)
-				return dmg;
-			factor += !!(HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL)) * 100;*/
-		}
-		else
+		if(!is_dot && !(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL))
 			factor = 100;
 
-		// lightning coil absorbs 80% by itself, so 20% of the damage will go through
-		if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
-			factor += LIGHTNINGCOIL_ABSORBFACTOR;
+		if(factor) {
+			// lightning coil absorbs 80% by itself, so 20% of the damage will go through
+			if((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) && armor_id == BODYARMOR_LIGHTNINGCOIL)
+				factor += LIGHTNINGCOIL_ABSORBFACTOR;
 
-		// force clamp
-		if(factor > 100)
-			factor = 100;
+			// force clamp
+			if(factor > 100)
+				factor = 100;
 
-		// only block this much if this is on
-		to_take = GetPlayerAttributeValue(pnum, INV_EX_ESHIELDONLYBLOCKPCT);
-		if(to_take)
-			factor = to_take;
+			// only block this much if this is on
+			to_take = GetPlayerAttributeValue(pnum, INV_EX_ESHIELDONLYBLOCKPCT);
+			if(to_take)
+				factor = to_take;
 
-		// only this much is prevented
-		to_take = Min(dmg * factor / 100, temp);
-		if(to_take < 1)
-			to_take = 1;
-		dmg -= to_take;
+			// only this much is prevented
+			to_take = Min(dmg * factor / 100, temp);
+			if(to_take < 1)
+				to_take = 1;
+			dmg -= to_take;
 
-		// completely absorbed by our shield, so just reduce our shield amount
-		if(dmg < 0) {
-			TakeEnergyShield(to_take + dmg);
-			dmg = 0;
-			LocalAmbientSound("EShield/Hit", 127);
+			// completely absorbed by our shield, so just reduce our shield amount
+			if(dmg < 0) {
+				TakeEnergyShield(to_take + dmg);
+				dmg = 0;
+				LocalAmbientSound("EShield/Hit", 100);
+			}
+			else if(to_take < temp) {
+				TakeEnergyShield(to_take);
+				LocalAmbientSound("EShield/Hit", 100);
+			}
+			else {
+				SetEnergyShield(0);
+				LocalAmbientSound("EShield/Break", 127);
+
+				temp = GetPlayerAttributeValue(pnum, INV_EX_STARTESONDEPLETE);
+				if(temp && random(1, 100) <= temp && (to_take = CanRegenEShield(pnum))) {
+					GiveInventory("EShieldChargeNow", 1);
+					ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, to_take, pnum);
+				}
+			}
 		}
-		else if(to_take < temp) {
-			TakeEnergyShield(to_take);
-			LocalAmbientSound("EShield/Hit", 127);
-		}
-		else {
-			SetEnergyShield(0);
-			LocalAmbientSound("EShield/Break", 127);
+	}
 
-			temp = GetPlayerAttributeValue(pnum, INV_EX_STARTESONDEPLETE);
-			if(temp && random(1, 100) <= temp && (to_take = CanRegenEShield(pnum))) {
-				GiveInventory("EShieldChargeNow", 1);
-				ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, to_take, pnum);
+	// check overleech
+	if(HasClassPerk_Fast("Punisher", 4)) {
+		// check if we do have overleech
+		temp = CheckInventory("LifeStealAmount") - GetLifestealCap(pnum);
+		if(temp > 0) {
+			// we got overleech, now we can consider taking damage off
+			to_take = dmg * DND_PUNISHER_OVERLEECH_REDUCEFACTOR / 100;
+			if(to_take > temp)
+				to_take = temp;
+
+			if(to_take > 0) {
+				dmg -= to_take;
+
+				// shouldn't need to check if dmg < 0, because to take is at most 33% anyway of the damage, and if that itself is more than we can afford, we clamp
+				// should def be lower
+				
+				TakeInventory("LifeStealAmount", to_take);
 			}
 		}
 	}
@@ -2834,14 +2892,14 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 	}
 	
 	// check perk25 for berserker with cooldown
-	if(CheckActorInventory(this, "Berserker_Perk25") && !CheckActorInventory(this, "Berserker_Perk25_CD")) {
+	if(HasActorClassPerk_Fast(this, "Berserker", 2) && !CheckActorInventory(this, "Berserker_Perk20_CD")) {
 		// basically make sure only one instance of this runs
 		if(!CheckActorInventory(this, "Berserker_DamageTimer"))
-			ACS_NamedExecuteAlways("DnD Berserker Perk25", 0);
+			ACS_NamedExecuteAlways("DnD Berserker Perk20", 0);
 			
 		SetActorInventory(this, "Berserker_DamageTimer", DND_BERSERKER_DAMAGETRACKTIME);
-		GiveActorInventory(this, "Berserker_Perk25_CD", 1);
-		if(CheckActorInventory(this, "Berserker_DamageTracker") < DND_BERSERKER_PERK25_MAXSTACKS)
+		GiveActorInventory(this, "Berserker_Perk20_CD", 1);
+		if(CheckActorInventory(this, "Berserker_DamageTracker") < DND_BERSERKER_PERK20_MAXSTACKS)
 			GiveActorInventory(this, "Berserker_DamageTracker", 1);
 	}
 	
@@ -3245,7 +3303,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// berserker damage reduction
 				temp = CheckInventory("Berserker_DamageTracker");
 				if(temp)
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK25_REDUCTION);
+					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK20_REDUCTION);
 
 				// doomguy damage reduction
 				if(HasClassPerk_Fast("Doomguy", 1) && CheckActorInventory(shooter, "Doomguy_CanExecute"))
@@ -3260,7 +3318,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = temp;
 
 				// the real final check vs eshield
-				dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, dmg_data);
+				dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, dmg_data);
 
 				// damage amplifications
 				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;
@@ -3279,7 +3337,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					if(HasClassPerk_Fast("Marine", 4) && !CheckInventory("Marine_Perk50_Cooldown"))
 						GiveInventory("Marine_Perk50_DamageTaken", dmg);
 					
-					if(CheckInventory("Trickster_Perk50") && !CheckInventory("Trickster_ShadowCooldown") && GetActorProperty(0, APROP_HEALTH) - dmg <= CheckInventory("PlayerHealthCap") * DND_TRICKSTER_PERK50_THRESHOLD / 100)
+					if(HasClassPerk_Fast("Trickster", 3) && !CheckInventory("Trickster_ShadowCooldown") && GetActorProperty(0, APROP_HEALTH) - dmg <= CheckInventory("PlayerHealthCap") * DND_TRICKSTER_PERK40_THRESHOLD / 100)
 						HandleShadowClone(pnum, victim, shooter);
 				}
 
@@ -3441,34 +3499,34 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(!isArmorPiercing) {
 					// berserker perk50 dmg increase portion and other melee increases
 					if((IsMeleeWeapon(m_id) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
-						if(CheckInventory("Berserker_Perk50")) {
-							SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+						if(HasClassPerk_Fast("Berserker", 4)) {
+							SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK60_TIMER);
 							if
 							(
-								!CheckInventory("Berserker_Perk50_HitCooldown") &&
-								(factor = CheckInventory("Berserker_HitTracker")) < DND_BERSERKER_PERK50_MAXSTACKS && 
-								(inflictor_class = CheckInventory("Berserker_Perk50_HitCounter")) < DND_BERSERKER_PERK50_MAXHITS
+								!CheckInventory("Berserker_Perk60_HitCooldown") &&
+								(factor = CheckInventory("Berserker_HitTracker")) < DND_BERSERKER_PERK60_MAXSTACKS && 
+								(inflictor_class = CheckInventory("Berserker_Perk60_HitCounter")) < DND_BERSERKER_PERK60_MAXHITS
 							)
 							{
 								GiveInventory("Berserker_HitTracker", 1);
 
-								GiveInventory("Berserker_Perk50_HitCounter", 1);
-								if(inflictor_class + 1 >= DND_BERSERKER_PERK50_MAXHITS) {
+								GiveInventory("Berserker_Perk60_HitCounter", 1);
+								if(inflictor_class + 1 >= DND_BERSERKER_PERK60_MAXHITS) {
 									// now that we hit cooldown time, reset the counter
-									GiveInventory("Berserker_Perk50_HitCooldown", 1);
-									SetInventory("Berserker_Perk50_HitCounter", 0);
+									GiveInventory("Berserker_Perk60_HitCooldown", 1);
+									SetInventory("Berserker_Perk60_HitCounter", 0);
 								}
 
 								if(!factor)
 									ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, shooter);
 							}
 
-							if(factor + 1 >= DND_BERSERKER_PERK50_MAXSTACKS) {
+							if(factor + 1 >= DND_BERSERKER_PERK60_MAXSTACKS) {
 								if(!CheckInventory("Berserker_NoRoar"))
 									HandleBerserkerRoar(shooter);
-								GiveInventory("Berserker_Perk50_Speed", 1);
+								GiveInventory("Berserker_Perk60_Speed", 1);
 							}
-							dmg = dmg * (100 + (factor + 1) * DND_BERSERKER_PERK50_DMGINCREASE) / 100;
+							dmg = dmg * (100 + (factor + 1) * DND_BERSERKER_PERK60_DMGINCREASE) / 100;
 						}
 						
 						dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) / 100;
@@ -3480,10 +3538,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				// cyborg perk50
-				if(!isArmorPiercing && CheckInventory("Cyborg_Perk50") && IsTechWeapon(m_id)) {
+				if(!isArmorPiercing && HasClassPerk_Fast("Cyborg", 3) && IsTechWeapon(m_id)) {
 					factor = CheckInventory("Cyborg_InstabilityStack");
 
-					SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER);
+					SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER + HasClassPerk_Fast("Cyborg", 4) * DND_CYBORG_INSTABILITY_BONUS);
 					if(!factor)
 						ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
 					else if(factor == DND_MAXCYBORG_INSTABILITY - 1 && !CheckInventory("Cyborg_NoAnim")) {
@@ -3588,7 +3646,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Telefrag" || arg2 == "Suicide" || arg2 == "InstantDeath" || arg2 == "Exit") {
 				// apply eshield to these only
 				if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning")
-					dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, 0);
+					dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, 0);
 				GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 				SetResultValue(dmg);
 				PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = arg1;
@@ -3668,7 +3726,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 			dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, !!isReflected || (dmg_data & DND_DAMAGEFLAG_ISREFLECTED), inflictor_class);
 			dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, false);
-			dmg = ApplyPlayerEnergyShield(pnum, dmg, arg2, dmg_data);
+			dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, dmg_data);
 			//GiveInventory("DnD_DamageReceived", dmg);
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);

@@ -258,21 +258,6 @@ str GetStatLabel(int id) {
 	return StrParam(s:"DND_STAT", d:id + 1);
 }
 
-int GetPlayerEnergyShieldCap(int pnum) {
-	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
-	
-	int int_bonus = 0;
-	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
-		int_bonus = GetIntellect(pnum) / 2;
-
-	int hp_bonus = GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD);
-	if(hp_bonus)
-		base += GetPlayerSpawnHealth(pnum, true) * hp_bonus / 100;
-
-	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + int_bonus)) / 100;
-	return base;
-}
-
 int GetPlayerEnergyShieldPercent(int pnum) {
 	int cap = GetPlayerEnergyShieldCap(pnum);
 	if(!cap)
@@ -296,8 +281,8 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	int pct = 100 + GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE);
 	int res = cap * bonus;
 
-	if(bonus > 1 && CheckInventory("Cyborg_Perk5")) {
-		res += res / DND_CYBERNETIC_FACTOR;
+	if(bonus > 1 && HasClassPerk_Fast("Cyborg", 1)) {
+		res += res * DND_CYBERNETIC_FACTOR / 100;
 	}
 
 	if(pct != 100)
@@ -601,7 +586,7 @@ int GetResearchArmorBonuses() {
 	res += EXO_AR_ADD_2 * (CheckResearchStatus(RES_EXO2) == RES_DONE);
 	res += EXO_AR_ADD_3 * (CheckResearchStatus(RES_EXO3) == RES_DONE);
 	
-	if(CheckInventory("Cyborg_Perk50")) {
+	if(HasClassPerk_Fast("Cyborg", 1)) {
 		res *= DND_CYBORG_CYBER_MULT;
 		res /= DND_CYBORG_CYBER_DIV;
 	}
@@ -910,7 +895,7 @@ int GetBaseCritChance(int pnum) {
 	int base = CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE);
 	
 	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
-	if(CheckInventory("Trickster_Perk5")) {
+	if(HasClassPerk_Fast("Trickster", 1)) {
 		int mit_rounded = (GetMitigationChance(pnum) + 0.5) >> 16;
 		base += DND_TRICKSTER_CRIT_GAIN_FROM_MIT * mit_rounded;
 	}
@@ -998,7 +983,7 @@ bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noT
 			ActivatorSound("VeilOfAssassin/Active", 97);
 		}
 
-		if(CheckInventory("Trickster_Perk25") && random(0, 1.0) <= DND_TRICKSTER_PHASING_CHANCE && !HasPlayerBuff(pnum, BTI_PHASING))
+		if(HasClassPerk_Fast("Trickster", 2) && random(0, 1.0) <= DND_TRICKSTER_PHASING_CHANCE && !HasPlayerBuff(pnum, BTI_PHASING))
 			ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
 	}
 	
@@ -1041,7 +1026,7 @@ int GetCritModifier(int pnum, int victim, int wepid) {
 	int base = GetBaseCritModifier(pnum, wepid); // calculates the regular "base" bonuses
 	
 	// berserker perk50 check
-	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK50_MAXSTACKS) * DND_BERSERKER_PERK50_CRITBONUS;
+	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK60_MAXSTACKS) * DND_BERSERKER_PERK60_CRITBONUS;
 	
 	if(CheckInventory("HunterTalismanCheck"))
 		base >>= 1;
@@ -1338,7 +1323,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison) {
 int GetLifesteal(int pnum) {
 	int base = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
 
-	if(CheckInventory("Punisher_Perk25")) {
+	if(HasClassPerk_Fast("Punisher", 2)) {
 		// spree * 2 => merciless
 		int bonus = Clamp_Between(CheckInventory("DnD_MultiKillCounter") / DND_SPREE_PER - 1, 0, DND_PUNISHER_MAXLIFESTEALTIMES);
 		base += bonus * DND_PUNISHER_LIFESTEALRATE;
@@ -1351,7 +1336,7 @@ int GetLifesteal(int pnum) {
 int GetLifestealCap(int pnum) {
 	// avoid recalculating over and over if possible -- changed from the above because if this gets to this point the GetSpawnHealth function has ran once
 	//int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
-	int hp_cap = CheckInventory("PlayerHealthCap");
+	int hp_cap = CheckActorInventory(pnum + P_TIDSTART, "PlayerHealthCap");
 	return Clamp_Between((hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP))) / 100, 1, hp_cap);
 }
 
@@ -1361,21 +1346,20 @@ int GetLifestealRate(int pnum) {
 	return max(1, DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE)) / 100);
 }
 
-#define DND_BASE_LIFERECOVERY 0.01 // 1% of healthcap
+#define DND_BASE_LIFERECOVERY 1 // 1% of healthcap
 int GetLifestealLifeRecovery(int pnum, int cap) {
 	// avoid recalculating over and over if possible
 	//cap = cap * DND_BASE_LIFERECOVERY / 100;
 	int bonus = 0;
-	cap = cap * DND_BASE_LIFERECOVERY;
+	cap = cap * DND_BASE_LIFERECOVERY / 100;
 
-	if(CheckInventory("Punisher_Perk25")) {
+	if(HasClassPerk_Fast("Punisher", 2)) {
 		// spree * 2 => merciless
 		bonus = Clamp_Between(CheckInventory("DnD_MultiKillCounter") / DND_SPREE_PER - 1, 0, DND_PUNISHER_MAXLIFESTEALTIMES);
 		bonus += bonus * DND_PUNISHER_RECOVERY;
 	}
 
 	cap = cap * (100 + bonus + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY)) / 100;
-	cap >>= 16;
 	if(cap <= 0)
 		cap = 1;
 	
@@ -1579,7 +1563,7 @@ int GetSelfExplosiveResist(int pnum) {
 	
 	// properly include this ability's benefit here, including cyborg check
 	if(CheckInventory("Ability_ExplosionMastery")) {
-		if(!CheckInventory("Cyborg_Perk25"))
+		if(!HasClassPerk("Cyborg", 1))
 			base = FixedMul(base, (100 - DND_EXP_RES_ABILITY_BONUS) * 1.0 / 100);
 		else
 			base = FixedMul(base, (100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV)) * 1.0 / 100);
@@ -1606,6 +1590,10 @@ int GetPlayerElementalAvoidance(int pnum, int ele_mod) {
 	int ptid = pnum + P_TIDSTART;
 	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
 		return 100;
+
+	if((HasActorClassPerk_Fast(ptid, "Wanderer", 3) && CheckActorInventory(ptid, "EShieldAmount")))
+		return 100;
+
 	return GetPlayerAttributeValue(pnum, ele_mod) + GetPlayerAttributeValue(pnum, INV_AVOID_ELEAILMENTS) + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
 }
 
@@ -1613,7 +1601,17 @@ int GetPlayerNonElementalAvoidance(int pnum, int ele_mod) {
 	int ptid = pnum + P_TIDSTART;
 	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
 		return 100;
-	return GetPlayerAttributeValue(pnum, ele_mod) + RISK_AVERSION_VALUE * CheckActorInventory(pnum + P_TIDSTART, "Perk_RiskAversion");
+	int base = GetPlayerAttributeValue(pnum, ele_mod) + RISK_AVERSION_VALUE * CheckActorInventory(pnum + P_TIDSTART, "Perk_RiskAversion");
+	
+	// special conditions like punisher and wanderer
+	if
+	(
+		(ele_mod == INV_AVOID_BLEED && HasActorClassPerk_Fast(ptid, "Punisher", 5) && (CheckActorInventory(ptid, "DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) ||
+		(HasActorClassPerk_Fast(ptid, "Wanderer", 3) && CheckActorInventory(ptid, "EShieldAmount"))
+	)
+		base = 100;
+	
+	return base;
 }
 
 void HandleRiskAversion() {

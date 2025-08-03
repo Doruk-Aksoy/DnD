@@ -838,7 +838,7 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 				cond2 = !IsBackpackLimitReached();
 		}
 		else { // weapon or ability
-			if(type == TYPE_WEAPON && CheckInventory("Berserker_Perk5")) {
+			if(type == TYPE_WEAPON && HasClassPerk_Fast("Berserker", 1)) {
 				if(id <= SHOP_WEAPON_SLOT1END) {
 					cond3 = !CheckInventory(item);
 					cond2 = cond3;
@@ -1011,7 +1011,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 						colorprefix = "\c[G8]";
 						toshow = "\c[G8]";
 					} // if I have options color others
-					else if( (!(CheckInventory("Berserker_Perk5") && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
+					else if( (!(HasClassPerk_Fast("Berserker", 1) && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
 							 (itemid == SHOP_ARTI_BACKPACK && IsBackpackLimitReached()) ||
 							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI1_INDEX))
 						   ) 
@@ -2867,7 +2867,7 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 
 			// specialty items
 			case DND_ITEM_SPECIALTY_CYBORG:
-				if(!CheckInventory("Cyborg_Perk25"))
+				if(!HasClassPerk("Cyborg", 2))
 					SetFont("PCORBAKB");
 				else
 					SetFont("PCORBAK");
@@ -3298,7 +3298,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			// we pressed an item box
 			if(!CheckInventory("DnD_InventoryView")) {
 				// don't let user even click this if they aren't allowed
-				if(boxid - 1 == POWERCORE_INDEX && !CheckInventory("Cyborg_Perk25")) {
+				if(boxid - 1 == POWERCORE_INDEX && !HasClassPerk("Cyborg", 2)) {
 					ShowPopup(POPUP_CANTUSEPOWERCORE, false, 0);
 					return;
 				}

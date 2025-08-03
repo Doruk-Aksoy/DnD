@@ -1838,7 +1838,7 @@ str GetWeaponTag(int wepid) {
 }
 
 void GiveOverheat(int pnum, str item, int amt, int wepid) {
-	if((Weapons_Data[wepid].properties & WPROP_TECH) && CheckInventory("Cyborg_Perk5"))
+	if((Weapons_Data[wepid].properties & WPROP_TECH) && HasClassPerk_Fast("Cyborg", 1))
 		amt -= amt * 3 / 10;
 
 	int reduce = GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);

@@ -51,7 +51,7 @@ enum {
 
 // by default assumes the source of buff to be activator of the script calling this, initiator may not always be activator of script
 // returns duration for blends
-int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0) {
+int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0, int new_duration = 0) {
     int ptid = pnum + P_TIDSTART;
 
     int bsource = 0;
@@ -86,10 +86,18 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         // buffs
         case BTI_PHASING:
             btype = BUFF_PHASING;
-            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
             bvalue = 0.1;
-            bduration = 4;
-            tic_duration = bduration * TICRATE;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else
+                bduration = new_duration * TICRATE;
+
+            if(HasActorClassPerk_Fast(ptid, "Trickster", 4))
+                bduration = bduration * (100 + DND_TRICKSTER_RANDOMCLONES_COUNT) / 100;
+
+            tic_duration = bduration;
         break;
         case BTI_AMPHETAMINE:
             btype = BUFF_SPEED;

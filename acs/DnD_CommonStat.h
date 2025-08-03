@@ -448,7 +448,7 @@ int GetResearchHealthBonuses() {
 	res += BIO_HP_ADD_3 * (CheckResearchStatus(RES_BIO3) == RES_DONE);
 	
 	// cyborg's bonus
-	if(CheckInventory("Cyborg_Perk50")) {
+	if(HasClassPerk_Fast("Cyborg", 1)) {
 		res *= DND_CYBORG_CYBER_MULT;
 		res /= DND_CYBORG_CYBER_DIV;
 	}
@@ -462,7 +462,7 @@ int GetActorResearchHealthBonuses(int tid) {
 	res += BIO_HP_ADD_3 * (CheckActorResearchStatus(tid, RES_BIO3) == RES_DONE);
 	
 	// cyborg's bonus
-	if(CheckActorInventory(tid, "Cyborg_Perk50")) {
+	if(HasClassPerk_Fast("Cyborg", 1)) {
 		res *= DND_CYBORG_CYBER_MULT;
 		res /= DND_CYBORG_CYBER_DIV;
 	}
@@ -482,24 +482,27 @@ int CalculateHealthCapBonuses(int pnum) {
 }
 
 // returns player max health
-int GetSpawnHealth(bool bypassEShieldCheck = false) {
-	int pnum = PlayerNumber();
+int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
+	if(pnum == -1)
+		pnum = PlayerNumber();
+
+	int tid = pnum + P_TIDSTART;
 
 	if(!bypassEShieldCheck && GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE)) {
-		SetInventory("PlayerHealthCap", 1);
+		SetActorInventory(tid, "PlayerHealthCap", 1);
 		return 1;
 	}
 
 	int str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
-	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckInventory("Level") - 1) + str_bonus;
+	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
-	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
-				   CheckInventory("CelestialCheck") * CELESTIAL_BOOST 						+
-				   GetResearchHealthBonuses() 												+
+	int percent  = //DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
+				   CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST 						+
+				   GetActorResearchHealthBonuses(tid) 													+
 				   GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
 	// player bonus + % research bonus
 	res += (res * percent) / 100;
-	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_ANGELICANKH))
+	if(IsAccessoryEquipped(tid, DND_ACCESSORY_ANGELICANKH))
 		res >>= 1;
 
 	if(GetPlayerAttributeValue(pnum, INV_EX_DOUBLE_HEALTHCAP))
@@ -507,34 +510,10 @@ int GetSpawnHealth(bool bypassEShieldCheck = false) {
 
 	if(res < DND_BASE_HEALTH)
 		res = DND_BASE_HEALTH;
-	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
-	SetInventory("PlayerHealthCap", !GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE) ? res : 1);
-	return res;
-}
 
-int GetPlayerSpawnHealth(int pnum, bool bypassEShieldCheck = false) {
-	int tid = pnum + P_TIDSTART;
-	if(!bypassEShieldCheck && GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE)) {
-		SetActorInventory(pnum + P_TIDSTART, "PlayerHealthCap", 1);
-		return 1;
-	}
+	if(HasActorClassPerk_Fast(tid, "Cyborg", 5))
+		res /= 2;
 
-	int str_bonus = 0;
-	if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY))
-		str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
-
-	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
-	// consider percent bonuses from here on
-	int percent  = DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
-				   CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST 			+
-				   GetActorResearchHealthBonuses(tid) 										+
-				   GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
-	// player bonus + % research bonus
-	res += (res * percent) / 100;
-	if(IsAccessoryEquipped(tid, DND_ACCESSORY_ANGELICANKH))
-		res >>= 1;
-	if(res < DND_BASE_HEALTH)
-		res = DND_BASE_HEALTH;
 	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
 	SetActorInventory(tid, "PlayerHealthCap", !GetPlayerAttributeValue(pnum, INV_EX_HEALTHATONE) ? res : 1);
 	return res;
@@ -664,6 +643,12 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 	ACS_NamedExecuteAlways("DnD Sync Actor Property", 0, ActivatorTID(), APROP_ACCURACY, acc);
 }
 
+void UpdatePlayerSpreeTimer(int pnum) {
+	int base = DND_SPREE_AMOUNT * (100 + PlayerModValues[pnum][INV_INCKILLINGSPREE]) / 100;
+	base = base * (100 + DND_PUNISHER_SPREEBONUS * (HasClassPerk_Fast("Punisher", 4))) / 100;
+	SetAmmoCapacity("DnD_SpreeTimer", base);
+}
+
 // Give powerups and stuff of the classes if they satisfy their perk things
 void HandleClassPerks(int tid) {
 	int lvl = CheckActorInventory(tid, "Level");
@@ -682,6 +667,105 @@ void HandleClassPerks(int tid) {
 				GiveActorInventory(tid, perkToGive, 1);
 		}
 	}
+
+	// he has a perk that updates spree timers so best to do it here
+	if(isActorPlayerClass(tid, DND_PLAYER_PUNISHER))
+		UpdatePlayerSpreeTimer(tid - P_TIDSTART);
+	
+	if(isActorPlayerClass(tid, DND_PLAYER_CYBORG)){
+		if(HasActorClassPerk_Fast(tid, "Cyborg", 4)) {
+			lvl = ActivatorTID();
+
+			// change activator and update ammo cap
+			SetActivator(tid);
+			SetAmmoCapacity("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER + DND_CYBORG_INSTABILITY_BONUS);
+			SetActivator(lvl);
+		}
+
+		if(HasActorClassPerk_Fast(tid, "Cyborg", 5)) {
+			GetSpawnHealth(false, tid - P_TIDSTART);
+			HandleEShieldChange(tid - P_TIDSTART, true);
+		}
+	}
+}
+
+void SetEnergyShield(int val) {
+	SetInventory("EShieldAmount", val);
+	SetInventory("EShieldAmountVisual", val);
+}
+
+void SetActorEnergyShield(int tid, int val) {
+	SetActorInventory(tid, "EShieldAmount", val);
+	SetActorInventory(tid, "EShieldAmountVisual", val);
+}
+
+void AddEnergyShield(int val) {
+	GiveInventory("EShieldAmount", val);
+	GiveInventory("EShieldAmountVisual", val);
+}
+
+void AddActorEnergyShield(int tid, int val) {
+	GiveActorInventory(tid, "EShieldAmount", val);
+	GiveActorInventory(tid, "EShieldAmountVisual", val);
+}
+
+void TakeEnergyShield(int val) {
+	TakeInventory("EShieldAmount", val);
+	TakeInventory("EShieldAmountVisual", val);
+}
+
+void UpdateEnergyShieldVisual(int val) {
+	SetAmmoCapacity("EShieldAmountVisual", val);
+}
+
+void HandleEShieldChange(int pnum, bool remove) {
+	int i = GetPlayerEnergyShieldCap(pnum);
+	UpdateEnergyShieldVisual(i);
+
+	if(remove && CheckInventory("EShieldAmount") > i)
+		SetEnergyShield(i);
+}
+
+// Absorb value for magic or poison attacks
+int GetEShieldMagicAbsorbValue(int pnum) {
+	if(GetPlayerAttributeValue(pnum, INV_EX_ESHIELDFULLABSORB) || HasPlayerPowerset(pnum, PPOWER_ESHIELDBLOCKALL))
+		return 100;
+	return GetPlayerAttributeValue(pnum, INV_MAGIC_NEGATION);
+}
+
+int GetPlayerEnergyShieldCap(int pnum) {
+	int base = GetPlayerAttributeValue(pnum, INV_SHIELD_INCREASE);
+	
+	int int_bonus = GetIntellectEffect(pnum, 1, 2);
+	int spawn_health = GetSpawnHealth(true, pnum);
+	
+	base += spawn_health * (GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD) + HasActorClassPerk_Fast(pnum + P_TIDSTART, "Cyborg", 5) * 100) / 100;
+
+	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + int_bonus)) / 100;
+	return base;
+}
+
+#define DND_MIT_PER_DEX 0.2
+#define DND_MIT_BASE 50.0 // 50%
+#define DND_MIT_MAXEFFECT 90.0
+
+int GetMitigationChance(int pnum) {
+	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
+	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
+	return base;
+}
+
+bool CouldMitigateDamage(int pnum) {
+	//Log(f:random(1.0, 100.0), s: " vs ", f:GetMitigationChance(pnum));
+	return random(0.0, 100.0) <= GetMitigationChance(pnum);
+}
+
+int GetMitigationEffect(int pnum) {
+	int mit_eff = GetPlayerAttributeValue(pnum, INV_MITEFFECT_INCREASE) + DND_MIT_BASE;
+	mit_eff += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONEFFECT;
+	if(mit_eff > DND_MIT_MAXEFFECT)
+		mit_eff = DND_MIT_MAXEFFECT;
+	return mit_eff;
 }
 
 int GetResistPenetration(int pnum, int category) {
@@ -793,9 +877,12 @@ void RemoveMonsterAilment(int tid, int ailment) {
 	SetActorInventory(tid, "DnD_AilmentToken", prev & ~ailment);
 }
 
-void AddMonsterAilment(int tid, int ailment) {
+void AddMonsterAilment(int source, int tid, int ailment) {
 	int prev = CheckActorInventory(tid, "DnD_AilmentToken");
 	SetActorInventory(tid, "DnD_AilmentToken", prev | ailment);
+
+	if(HasActorClassPerk_Fast(source, "Wanderer", 3) && CheckActorInventory(source, "EShieldAmount") && random(1, 100) <= DND_WANDERER_ELEAVOIDCHANCE)
+		GiveActorInventory(source, "RemoveAilments", 1);
 }
 
 int CountMonsterAilments(int tid) {

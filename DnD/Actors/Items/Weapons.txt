@@ -20,6 +20,7 @@ Actor DnDWeapon : Weapon {
 		Zoom:
 			"####" "#" 0 A_JumpIfInventory("Doomguy_Perk1", 1, "CanCheckExecution")
 			"####" "#" 0 A_JumpIfInventory("Hobo_Perk60", 1, "CheckAmphetamine")
+			"####" "#" 0 A_JumpIfInventory("Trickster_Perk80", 1, "CheckDoppelganger")
 			// zandronum safety
 		WaitForReady:
 			"####" "####" 1 A_Jump(256, "Ready")
@@ -31,6 +32,10 @@ Actor DnDWeapon : Weapon {
 		ExecutionCheck:
 			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Execution"), "DoExecution")
 		Goto WaitForReady
+		WaitForRiseUp:
+			"####" "####" 1 A_Jump(256, "RiseUpSpecial")
+			"####" "#" 35 A_Jump(256, "RiseUpSpecial")
+		Wait
 		
 		DoExecution:
 			"####" "#" 0 A_CustomPunch(200000, 1, 0, "ExecutionPuff", 130)
@@ -84,20 +89,14 @@ Actor DnDWeapon : Weapon {
 		
 		// Hobo_Perk4
 		CheckAmphetamine:
-			"####" "#" 0 A_JumpIfInventory("NoMoreAmphetamine", 1, "WaitForReady")
+			"####" "#" 1 A_JumpIfInventory("NoMoreAmphetamine", 1, "WaitForReady")
 			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(100, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(110, 162) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 126 Offset(110, 162) A_GunFlash("SyringeAnim", GFF_NOEXTCHANGE)
-			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-			"####" "#" 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
-		Goto WaitForReady
+			TNT1 A 126 Offset(-40, 32) A_GunFlash("SyringeAnim", GFF_NOEXTCHANGE)
+		Goto WaitForRiseUp
 		
 		SyringeAnim:
 			SYRU A 1
@@ -125,39 +124,37 @@ Actor DnDWeapon : Weapon {
 			TNT1 A 10
 			SYRT AB 1
 			SYRT C 1 A_FireCustomMissile("SpentSyringe",0,0,0,0)
-			SYRT DEF 1
+			SYRT DE 1
 			TNT1 A 2
 		Stop
-	}
-}
-
-Actor NoMoreAmphetamine : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration 0x7FFFFFFF
-}
-
-ACTOR SpentSyringe {
-	Scale 0.1
-	Radius 3
-	Height 3
-	Speed 10
-	Mass 5
-	
-	+NOBLOCKMAP 
-	+DROPOFF 
-	+MISSILE 
-	+NOTELEPORT 
-	+FLOORCLIP 
-	+DOOMBOUNCE
-	+CLIENTSIDEONLY
-	
-	SeeSound "Weapons/shotguncasing"
-	States {
-		Spawn:
-			SYTR ABCDEFGHIJKLMNOP 3
-		Loop
-		Death:
-			SYTR A -1
+		
+		// Trickster Perk 5
+		CheckDoppelganger:
+			"####" "#" 1 A_JumpIfInventory("NoMoreDoppelganger", 1, "CheckSwapTokens")
+			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(100, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 1 Offset(110, 162) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			"####" "#" 0 Offset(0, 32)
+			TNT1 A 17 Offset(-35, 32) A_GunFlash("PointyPointAnim", GFF_NOEXTCHANGE)
+			TNT1 A 1 Offset(0, 32)
+		Goto WaitForRiseUp
+		CheckSwapTokens:
+			"####" "#" 1 A_JumpIfInventory("Trickster_SwapCount", 1, "SwapPlaces")
+		Goto WaitForReady
+		SwapPlaces:
+			"####" "#" 8 A_GiveInventory("TricksterSwapSignal", 1)
+		Goto WaitForReady
+		
+		PointyPointAnim:
+			ERAC ABC 2
+			ERAC D 1
+			TNT1 A 0 A_GiveInventory("NoMoreDoppelganger", 1)
+			TNT1 A 0 A_GiveInventory("Trickster_SwapCount", 2)
+			ERAC E 1 A_FireBullets(0, 0, 0, 0, "Trickster_Pointer", 0, 1024)
+			ERAC F 4 ACS_NamedExecuteWithResult("DnD Spawn Target Clone")
+			ERAC GHIJ 1
 		Stop
 	}
 }

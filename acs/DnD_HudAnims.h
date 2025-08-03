@@ -4,7 +4,6 @@
 enum {
     DND_ANIM_DOOMGUYPUNCH,
     DND_ANIM_DOOMGUYKICK,
-    DND_ANIM_AMPHETAMINE
 };
 
 Script "DnD Hud Animation" (int anim_id) CLIENTSIDE {
@@ -152,28 +151,6 @@ Script "DnD Hud Animation" (int anim_id) CLIENTSIDE {
                 }
                 SetFont(toShow);
                 HudMessage(s:"A"; HUDMSG_PLAIN, HUDANIMATED_ID, CR_WHITE, animx + 276.0, animy + 196.0, 1.0);
-                Delay(const:1);
-            }
-        break;
-
-        case DND_ANIM_AMPHETAMINE:
-            hudx = 320;
-            hudy = 200;
-            SetHudsize(hudx, hudy, 0);
-            frame_count = 15;
-            animx = hudx << 15; // center
-            animy = (hudy << 16) - 4.0;
-
-            for(; frame_id < frame_count; ++frame_id) {
-                switch(frame_id) {
-                    case 0:
-                        toShow = "DGKICK0";
-                        animx -= 1.0;
-                        animy -= 10.0;
-                    break;
-                }
-                SetFont(toShow);
-                HudMessage(s:"A"; HUDMSG_PLAIN, HUDANIMATED_ID, CR_WHITE, animx, animy, 1.0);
                 Delay(const:1);
             }
         break;

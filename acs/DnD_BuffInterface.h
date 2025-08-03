@@ -5,6 +5,7 @@
 
 enum {
     DND_BUFF_PHASING,
+    DND_BUFF_PHASING_DASH,
     DND_BUFF_AMPHETAMINE,
 
     DND_DEBUFF_OTHERWORDLYGRIP,
@@ -134,6 +135,17 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 GiveActorInventory(player_tid, "DnD_HasPhasing", 1);
                 ACS_NamedExecuteAlways("DnD Phasing Anim", 0, player_tid);
             break;
+            case DND_BUFF_PHASING_DASH:
+                intensity = 0.33;
+                r = 112;
+                g = 112;
+                b = 112;
+                duration = HandlePlayerBuffAssignment(pnum, this, BTI_PHASING, sc_flags, 0, 2); // this lasts 2 seconds
+                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                GiveActorInventory(player_tid, "DnD_HasPhasing", 1);
+                ACS_NamedExecuteAlways("DnD Phasing Anim", 0, player_tid);
+            break;
+
             case DND_BUFF_AMPHETAMINE:
                 intensity = 0.225;
                 r = 33;

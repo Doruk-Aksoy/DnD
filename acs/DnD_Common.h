@@ -270,9 +270,11 @@ enum {
 
 	DND_LOOTBOX_TID,
 
+	DND_TRICKSTER_POINTERTID = DND_LOOTBOX_TID + MAXLOOTBOXES,
+
 	// used for shit like elite sparkles or reflect shields that are attached to a monster
 	// DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS is the skip for next
-	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_LOOTBOX_TID + MAXLOOTBOXES,
+	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_TRICKSTER_POINTERTID + MAXPLAYERS,
 	
 	DND_DROP_TID = INT_MAX - 1,
 	SPECIAL_FX_TID
@@ -764,6 +766,10 @@ int VectorLength3d(int x, int y, int z) {
 
 bool isPlayerClass(int ctype) {
 	return CheckInventory("DnD_Character") - 1 == ctype;
+}
+
+bool isActorPlayerClass(int tid, int ctype) {
+	return CheckActorInventory(tid, "DnD_Character") - 1 == ctype;
 }
 
 int GetPlayerClass() {

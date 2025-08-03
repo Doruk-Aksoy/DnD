@@ -17,7 +17,7 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 			TakeInventory("Doomguy_CanExecute", 1);
 			TakeInventory("Doomguy_ValidExecute", 1);
 
-			int hp_to_give = GetPlayerSpawnHealth(pnum) * DND_DOOMGUY_PERK5HEAL / 100;
+			int hp_to_give = GetSpawnHealth(false, pnum) * DND_DOOMGUY_PERK5HEAL / 100;
 			
 			// give extra health to player
 			if(HasActorClassPerk_Fast(ptid, "Doomguy", 2)) {
@@ -279,15 +279,15 @@ void HandleBerserkerRoar(int tid) {
 	ACS_NamedExecuteAlways("DnD Berserker Roar", 0, tid);
 }
 
-Script "DnD Berserker Perk25" (void) {
+Script "DnD Berserker Perk20" (void) {
 	while(CheckInventory("Berserker_DamageTimer")) {
 		Delay(const:1);
 		TakeInventory("Berserker_DamageTimer", 1);
 	}
 	
 	// heal for max hp 10% if was at full stack
-	if(isAlive() && CheckInventory("Berserker_DamageTracker") == DND_BERSERKER_PERK25_MAXSTACKS) {
-        HandleHealthPickup(GetSpawnHealth() / DND_BERSERKER_PERK25_HEALPERCENT, 0, 0);
+	if(isAlive() && CheckInventory("Berserker_DamageTracker") == DND_BERSERKER_PERK20_MAXSTACKS) {
+        HandleHealthPickup(GetSpawnHealth() / DND_BERSERKER_PERK20_HEALPERCENT, 0, 0);
 	
 		// fx
 		Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
@@ -310,9 +310,9 @@ Script "DnD Berserker Perk50 Timer" (int this) {
 			TakeInventory("Berserker_HitTimer", 1);
 			delay(const:1);
 		}
-		TakeInventory("Berserker_Perk50_Speed", 1);
+		TakeInventory("Berserker_Perk60_Speed", 1);
 		TakeInventory("Berserker_HitTracker", 1);
-		SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK50_TIMER);
+		SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK60_TIMER);
 	}
 	// get rid of no roar at end of timer
 	TakeInventory("Berserker_NoRoar", 1);
@@ -321,7 +321,7 @@ Script "DnD Berserker Perk50 Timer" (int this) {
 
 Script "DnD Berserker Perk5 Check" (void) {
 	// berserker perk5 fail-safe checks for super weapons
-	if(CheckInventory("Berserker_Perk5")) {
+	if(HasClassPerk_Fast("Berserker", 1)) {
 		for(int i = DND_WEAPON_BFG32768; i <= DND_WEAPON_SOULREAVER; ++i) {
 			if(CheckInventory(Weapons_Data[i].name)) {
 				TakeInventory(Weapons_Data[i].name, 1);
@@ -336,7 +336,7 @@ Script "DnD Berserker Perk5 Check (Melee)" (void) {
 	// berserker perk5 fail-safe checks for class change from berserker to any other
 	// do not include luxury weapons as part of this
 	bool has_melee = false;
-	if(!CheckInventory("Berserker_Perk5")) {
+	if(!HasClassPerk_Fast("Berserker", 1)) {
 		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= LAST_SLOT0_NONLUXURYWEAPON; ++i) {
 			if(CheckInventory(Weapons_Data[i].name)) {
 				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
@@ -429,7 +429,14 @@ Script "DnD Cyborg Visor Anim" (void) CLIENTSIDE {
 }
 
 Script "DnD Wanderer Explosions" (int this, int target) {
-	int hpdamage = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp / DND_WANDERER_EXP_DAMAGE;
+	int hpdamage = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp;
+	if(hpdamage > INT_MAX / DND_WANDERER_EXP_DAMAGE) {
+		hpdamage /= 100;
+		hpdamage *= DND_WANDERER_EXP_DAMAGE;
+	}
+	else
+		hpdamage = hpdamage * DND_WANDERER_EXP_DAMAGE / 100;
+
 	int exptid = DND_WANDERER_EXP_TID + target - P_TIDSTART;
 	if(hpdamage <= 0)
 		hpdamage = 1;
@@ -503,9 +510,9 @@ int GetPunisherTier() {
 }
 
 void HandleShadowClone(int pnum, int victim, int shooter) {
-	GiveInventory("Trickster_ShadowCooldown", DND_TRICKSTER_PERK50_COOLDOWN);
+	GiveInventory("Trickster_ShadowCooldown", DND_TRICKSTER_PERK40_COOLDOWN);
 	ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
-	ACS_NamedExecuteAlways("Trickster Cooldown", 0);
+	ACS_NamedExecuteAlways("DnD Trickster Cooldown", 0);
 	SpawnForced("TricksterShadowClone", GetActorX(0), GetActorY(0), GetActorZ(0), DND_TRICKSTERCLONE_TID + pnum);
 	Thing_SetTranslation(DND_TRICKSTERCLONE_TID + pnum, -1);
 	SetActivator(DND_TRICKSTERCLONE_TID + pnum);
@@ -525,12 +532,58 @@ void HandleShadowClone(int pnum, int victim, int shooter) {
 	}
 }
 
-Script "Trickster Cooldown" (void) {
+Script "DnD Trickster Cooldown" (void) {
 	while(IsAlive()) {
 		TakeInventory("Trickster_ShadowCooldown", 1);
-		Delay(DND_TRICKSTER_PERK50_DELAY);
+		Delay(DND_TRICKSTER_PERK40_DELAY);
 	}
 	SetInventory("Trickster_ShadowCooldown", 0);
+}
+
+Script "DnD Trickster Pointer" (void) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	Thing_ChangeTID(0, owner - P_TIDSTART + DND_TRICKSTER_POINTERTID);
+}
+
+Script "DnD Spawn Target Clone" (void) {
+	int owner = ActivatorTID();
+	int pnum = ActivatorTID() - P_TIDSTART;
+	int shooter = DND_TRICKSTER_POINTERTID + pnum;
+	SpawnForced("TricksterShadowClone_Targeted", GetActorX(0), GetActorY(0), GetActorZ(0), DND_TRICKSTERCLONE_TID + pnum);
+	Thing_SetTranslation(DND_TRICKSTERCLONE_TID + pnum, -1);
+	SetActivator(DND_TRICKSTERCLONE_TID + pnum);
+	SetPointer(AAPTR_TARGET, shooter);
+	SetPointer(AAPTR_MASTER, owner);
+	SetActorProperty(0, APROP_TARGETTID, shooter);
+	Thing_ChangeTID(DND_TRICKSTERCLONE_TID + pnum, 0);
+	SetResultValue(0);
+}
+
+Script "DnD Trickster Swap Checker" (void) {
+	int owner = GetActorProperty(0, APROP_MASTERTID);
+	while(isAlive() && isActorAlive(owner)) {
+		if(CheckActorInventory(owner, "TricksterSwapSignal")) {
+			// swap places
+			int ox = GetActorX(0);
+			int oy = GetActorY(0);
+			int oz = GetActorZ(0);
+
+			int tx = GetActorX(owner);
+			int ty = GetActorY(owner);
+			int tz = GetActorZ(owner);
+			
+			GiveActorInventory(owner, "Trickster_Swap", 1);
+			TakeActorInventory(owner, "Trickster_SwapCount", 1);
+
+			SetActorPosition(owner, ox, oy, oz, 0);
+			SetActorPosition(0, tx, ty, tz, 0);
+
+			ActivatorSound("Trickster/Poof", 127);
+
+			TakeActorInventory(owner, "TricksterSwapSignal", 1);
+		}
+		Delay(const:2);
+	}
 }
 
 #endif
