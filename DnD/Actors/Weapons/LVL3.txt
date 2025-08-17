@@ -648,14 +648,12 @@ ACTOR "Upgraded Shotgun3" : DnDWeapon {
 			JADE C -1 Bright
 		Loop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_GreenFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_EMERALDWAND)
 		ReadyLoop:
 			JADE A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
-			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
 		DeselectLoop:
 			JADE A 1 A_Lower

@@ -579,14 +579,12 @@ Actor "Laser Pistol" : DnDWeapon {
 	+WEAPON.NOAUTOAIM
 	States {
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_LASERPISTOL)
 		ReadyLoop:
 			PBLT A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Deselect:
-			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_StopSound(5)
 			TNT1 A 0 A_StopSound(6)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)

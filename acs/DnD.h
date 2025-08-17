@@ -1390,6 +1390,13 @@ void PostPlayerLoadRoutine(int pnum) {
 		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
 	if(HasMasteredPerk(STAT_GRE))
 		++CurrentLevelData[LEVELDATA_GREEDMASTERED];
+
+	// scripts for berserker in case they have remaining buffs like this, restart the timer scripts
+	if(CheckInventory("Berserker_DamageTracker"))
+		ACS_NamedExecuteAlways("DnD Berserker Perk20", 0);
+
+	if(CheckInventory("Berserker_HitTracker"))
+		ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, 0);
 }
 
 void UnfreezePlayer() {

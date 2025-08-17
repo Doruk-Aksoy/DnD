@@ -302,7 +302,6 @@ Actor ResShotgun2 : DnDWeapon {
 			Stop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
-			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 			BOWG A 1 Bright A_Lower
 			TNT1 A 0 A_Lower
 			Loop
@@ -314,7 +313,6 @@ Actor ResShotgun2 : DnDWeapon {
 			Loop
 		Ready:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
-			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_NITROGENCROSSBOW)
 		ReadyLoop:
 			BOWG AAABBBCCCDDDCCCBBB 1 Bright A_WeaponReady(WRF_ALLOWZOOM)
@@ -840,7 +838,6 @@ Actor ResShotgun3 : DnDWeapon {
 			WWOP A -1 
 		Loop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_WHEELOFTORMENT)
 		ReadyLoop:
@@ -852,7 +849,6 @@ Actor ResShotgun3 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
-			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
 		DeselectLoop:
 			WOPG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1109,7 +1105,6 @@ ACTOR ResShotgun4 : DnDWeapon {
 	
 		Ready:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot3", 1)
-			TNT1 A 0 A_GiveInventory("P_PurpleFire", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_CHARONBLASTER)
 			TNT1 A 0 A_PlaySound("CharonBlaster/idle", CHAN_7, 1.0, 1, 1.5)
 		ReadyLoop:
@@ -1133,7 +1128,6 @@ ACTOR ResShotgun4 : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_StopSound(CHAN_7)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
-			TNT1 A 0 A_TakeInventory("P_PurpleFire", 1)
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
 		DeselectLoop:

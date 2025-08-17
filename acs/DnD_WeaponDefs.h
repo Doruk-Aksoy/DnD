@@ -183,9 +183,12 @@ enum {
 	DND_WEAPON_HEAVYNAILGUN,
 	DND_WEAPON_BERETTAS,
 	DND_WEAPON_PLASMABOLTER,
-	DND_WEAPON_RIPPERCANNON
+	DND_WEAPON_RIPPERCANNON,
+
+	// special weapon
+	DND_WEAPON_ASCENSION
 };
-#define MAXWEPS (DND_WEAPON_RIPPERCANNON + 1)
+#define MAXWEPS (DND_WEAPON_ASCENSION + 1)
 
 // weapon mod data, mod_id contains the modifier, low and high are the rolled values
 typedef struct {

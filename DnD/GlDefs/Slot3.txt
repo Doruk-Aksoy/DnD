@@ -381,6 +381,16 @@ object ThunderAxePuff
     frame FAXEX { light CAXEPUFF3 }
 }
 
+object ThunderAxePuff_NoChain {
+    frame FAXER { light CAXEPUFF1 }
+    frame FAXES { light CAXEPUFF1 }
+    frame FAXET { light CAXEPUFF2 }
+    frame FAXEU { light CAXEPUFF2 }
+    frame FAXEV { light CAXEPUFF3 }
+    frame FAXEW { light CAXEPUFF3 }
+    frame FAXEX { light CAXEPUFF3 }
+}
+
 pointlight THROWNAXE
 {
     color 0.4 0.4 1.0

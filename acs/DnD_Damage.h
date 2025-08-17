@@ -1253,6 +1253,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
 		extra |= DND_DAMAGETICFLAG_LIGHTNING;
 
+	//printbold(s:"before num pnum ", d:pnum, s: " ", d:temp, s:" dmg ", d:dmg);
 	if(!PlayerDamageTicData[pnum][temp]) {
 		PlayerDamageVector[pnum].x = ox;
 		PlayerDamageVector[pnum].y = oy;
@@ -2894,11 +2895,15 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 	// check perk25 for berserker with cooldown
 	if(HasActorClassPerk_Fast(this, "Berserker", 2) && !CheckActorInventory(this, "Berserker_Perk20_CD")) {
 		// basically make sure only one instance of this runs
-		if(!CheckActorInventory(this, "Berserker_DamageTimer"))
-			ACS_NamedExecuteAlways("DnD Berserker Perk20", 0);
-			
-		SetActorInventory(this, "Berserker_DamageTimer", DND_BERSERKER_DAMAGETRACKTIME);
-		GiveActorInventory(this, "Berserker_Perk20_CD", 1);
+
+		if(!CheckInventory("Berserker_Perk80_Extension")) {
+			if(!CheckActorInventory(this, "Berserker_DamageTimer"))
+				ACS_NamedExecuteAlways("DnD Berserker Perk20", 0);
+				
+			SetActorInventory(this, "Berserker_DamageTimer", DND_BERSERKER_DAMAGETRACKTIME);
+			GiveActorInventory(this, "Berserker_Perk20_CD", 1);
+		}
+
 		if(CheckActorInventory(this, "Berserker_DamageTracker") < DND_BERSERKER_PERK20_MAXSTACKS)
 			GiveActorInventory(this, "Berserker_DamageTracker", 1);
 	}
@@ -3084,6 +3089,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 		bool isRipper = false;
 		int shooter = -1;
+		int orig_dmg = arg1;
 
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		int victim = ActivatorTID();
@@ -3191,6 +3197,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		//printbold(s:"Victim is ", s:GetActorClass(0));
 		
 		dmg = arg1;
+
+		//printbold(s:"Dmg Data ", d:dmg_data, s:" ", d:dmg, s:" ", d:shooter, s: " ", d:IsPlayer(shooter));
 
 		// FROM HERE ON WHOEVER TOOK DAMAGE IS THE ACTIVATOR, PLAYER OR MONSTER!
 		bool isDot = false;
@@ -3364,6 +3372,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// extract the encoded damage data, and proceed
 			// stamina contains any special flags we might need
 			// variable swap here to fix a bug with radius damage projectiles that also rip once
+			//printbold(s:"dmg ", d:dmg, s:" victim ", d:victim, s:" ", d:shooter, s:" ", d:dmg_data, s:" ", d:isReflected, s:" ", d:IsPlayer(isReflected));
 			if(!(dmg_data & DND_DAMAGEFLAG_ISREFLECTED) && (!isReflected || IsPlayer(isReflected))) {
 				factor = arg1;
 				//printbold(s:"factor = ", d:arg1);
@@ -3393,8 +3402,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					}
 
 					// save the percentage of damage from radius falloff into somewhere (arg1 base is 100, so we can use it as percentage)
-					//printbold(s:inflictor_class, s: " aoe dmg ", d:GetUserVariable(0, "user_expdmg"), s: " factor ", d:factor);
-					inflictor_class = factor;
+					//printbold(s:arg2, s: " aoe dmg ", d:GetUserVariable(0, "user_expdmg"), s: " factor ", d:factor);
+					arg2 = factor;
 					arg1 = GetUserVariable(0, "user_expdmg");
 					dmg_data |= GetUserVariable(0, "user_expflags");
 				}
@@ -3422,6 +3431,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 					arg1 >>= SPELL_DTYPE_SHIFT;
 					m_id = arg1 & SPELLID_MASK;
+
+					//printbold(s:"spell ", d:dmg);
 				}
 				else {
 					// regular weapon dmg
@@ -3463,8 +3474,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
-					//printbold(d:dmg, s: " ", d:inflictor_class, s:" ", d:dmg * inflictor_class / 100);
-					dmg = dmg * inflictor_class / 100;
+					//printbold(d:dmg, s: " ", d:arg2, s:" ", d:dmg * arg2 / 100);
+					dmg = dmg * arg2 / 100;
 					if(!dmg) {
 						SetResultValue(0);
 						Terminate;
@@ -3505,13 +3516,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 							(
 								!CheckInventory("Berserker_Perk60_HitCooldown") &&
 								(factor = CheckInventory("Berserker_HitTracker")) < DND_BERSERKER_PERK60_MAXSTACKS && 
-								(inflictor_class = CheckInventory("Berserker_Perk60_HitCounter")) < DND_BERSERKER_PERK60_MAXHITS
+								(arg2 = CheckInventory("Berserker_Perk60_HitCounter")) < DND_BERSERKER_PERK60_MAXHITS &&
+								!CheckInventory("Berserker_Perk80_Extension")
 							)
 							{
 								GiveInventory("Berserker_HitTracker", 1);
 
 								GiveInventory("Berserker_Perk60_HitCounter", 1);
-								if(inflictor_class + 1 >= DND_BERSERKER_PERK60_MAXHITS) {
+								if(arg2 + 1 >= DND_BERSERKER_PERK60_MAXHITS) {
 									// now that we hit cooldown time, reset the counter
 									GiveInventory("Berserker_Perk60_HitCooldown", 1);
 									SetInventory("Berserker_Perk60_HitCounter", 0);
@@ -3585,6 +3597,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
  
 			// finally dealing the damage
 			if(victim) {
+				//printbold(s:"dmg deal to ", d:victim, s:" dmg ", d:dmg);
 				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)), 0);
 
 				// failsafe
@@ -3596,8 +3609,42 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					SetActorProperty(victim, APROP_HEALTH, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp);
 				}
 
-				if(dmg < 0)
+				if(dmg <= 0)
 					dmg = 0;
+				else if((dmg_data & DND_DAMAGEFLAG_ISMELEE) && HasActorClassPerk_Fast(shooter, "Berserker", 3)) {
+					// check if the berserker perk for splashing melees is there
+					orig_dmg &= BITMASK_NOFACTOR;
+					orig_dmg |= DND_BERSERKER_PERK40_SPLASHPCT << DPCT_SHIFT;
+					
+					arg1 = GetActorProperty(0, APROP_STAMINA);
+					SetActorProperty(0, APROP_STAMINA, dmg_data ^ DND_DAMAGEFLAG_ISMELEE);
+
+					arg2 = GetPlayerMeleeRange(pnum, DND_BERSERKER_PERK40_SPLASHRADIUS);
+
+					if(inflictor_class == "ThunderAxePuff") {
+						inflictor_class = "ThunderAxePuff_NoChain";
+						//printbold(s:"inflictor changed to ", s:inflictor_class);
+					}
+
+					// search if any monster fits the criteria for a splash
+					for(temp = 0; temp < DnD_TID_Counter[DND_TID_MONSTER]; ++temp) {
+						ox = UsedMonsterTIDs[temp];
+						// to be affected by gravdis debuff
+						oy = GetActorX(shooter) - GetActorX(ox);
+						oz = GetActorY(shooter) - GetActorY(ox);
+						if
+						(
+							ox != victim && isActorAlive(ox) && AproxDistance(oy, oz) <= arg2 &&
+							MaxAngleDiff(shooter, ox, DND_BERSERKER_PERK40_SPLASHANGLE) && CheckSight(shooter, ox, CSF_NOBLOCKALL)
+						)
+						{
+							Thing_Damage2(ox, orig_dmg, "Player_MeleeSplash");
+							SpawnForced(inflictor_class, GetActorX(ox), GetActorY(ox), GetActorZ(ox) + GetActorProperty(ox, APROP_HEIGHT) / 2);
+						}
+					}
+
+					SetActorProperty(0, APROP_STAMINA, arg1);
+				}
 
 				SetResultValue(dmg);
 				HandleOnHitEffects(shooter);

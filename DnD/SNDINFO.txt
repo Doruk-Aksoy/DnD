@@ -1,5 +1,8 @@
 $pitchshiftrange 2
 
+Wanderer/RayLoop		WANDRAY
+Wanderer/RayFinish		WANDRAYF
+
 Trickster/Poof			TRCKPOOF
 Trickster/Swap			TRCKSWP
 

@@ -127,6 +127,8 @@ WEP_9_10_TAG 			= 			"Akimbo Berettas";
 WEP_9_11_TAG 			= 			"Plasma Bolter";
 WEP_9_12_TAG 			= 			"Ripper Cannon";
 
+WEP_SPECIAL0_TAG		=			"Ascended Form";
+
 DND_WEPPROP_1		=	"Through Ghost";
 DND_WEPPROP_2		=	"Self Damage";
 DND_WEPPROP_3		=	"Overheat";

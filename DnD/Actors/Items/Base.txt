@@ -299,12 +299,6 @@ Actor P_Slot8Luxury : DnD_Boolean { }
 
 Actor Reloading : DnD_Boolean { }
 
-Actor P_PlasmaFire : DnD_Boolean { }
-Actor P_GreenFire : DnD_Boolean { }
-Actor P_PurpleFire : DnD_Boolean { }
-Actor P_RedFire : DnD_Boolean { }
-Actor P_GrayFire : DnD_Boolean { }
-
 Actor P_Frozen : DnD_Boolean { }
 Actor P_StepTaken : DnD_Boolean { }
 Actor P_Invulnerable : DnD_Boolean { }

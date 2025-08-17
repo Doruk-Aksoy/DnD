@@ -1582,7 +1582,7 @@ Actor ThunderAxePuff : DnD_BasePuff {
 	Alpha 0.925
 	Renderstyle Add
 	
-	Stamina 4096
+	Stamina 8392704
 	
 	+FOILINVUL
 	States {
@@ -1612,13 +1612,25 @@ Actor ThunderAxePuff : DnD_BasePuff {
 	}
 }
 
+// this was extremely op when the puff splash made more chain lightnings... so yea
+Actor ThunderAxePuff_NoChain : ThunderAxePuff {
+	States {
+		HitNoBlood:
+		Spawn:
+		Crash:
+			TNT1 A 0 Radius_Quake(5, 8, 0, 2, 0)
+			FAXE RSTUVWX 3 Bright
+		Stop
+	}
+}
+
 Actor ThunderAxePuff_NoMana : DnD_BasePuff {
 	AttackSound "weapons/swingwall"
 	SeeSound "weapons/swinghit"
 	Alpha 0.8
 	Scale 0.75
 	
-	Stamina 4096
+	Stamina 8392704
 	
 	States {
 		Spawn:

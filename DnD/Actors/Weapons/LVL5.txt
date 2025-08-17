@@ -1928,7 +1928,7 @@ Actor BigHammerPuff : DnD_BasePuff {
 	Alpha 0.8
 	Scale 0.9
 	
-	Stamina 4096
+	Stamina 8392704
 	
 	States {
 		Spawn:

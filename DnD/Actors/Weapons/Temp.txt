@@ -1387,7 +1387,6 @@ ACTOR "Bloodfiend Spine" : DnDWeapon {
 			GORG A 1 Offset(0, 88)
 			TNT1 A 0 A_JumpIfInventory("BloodAmmo", 1, "RiseBack")
 			GORG A 1 Offset(0, 96)
-			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
 			TNT1 A 0 A_TakeInventory("BloodAmmo", 0)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -1404,7 +1403,6 @@ ACTOR "Bloodfiend Spine" : DnDWeapon {
 			GORG A 1 Offset(0, 40)
 		Goto ReadyLoop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_BLOODFIENDSPINE)
 		ReadyLoop:
 			GORG A 0 A_JumpIfInventory("BloodAmmo", 1, "NoRemove")
@@ -1460,7 +1458,6 @@ ACTOR "Bloodfiend Spine" : DnDWeapon {
 			WGOR A -1
 		Stop
 		Deselect:
-			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
 			GORG A 1 A_Lower
@@ -1732,7 +1729,6 @@ actor "Enforcer Rifle" : DnDWeapon {
 			ENRI A 1 Offset(0, 88)
 			TNT1 A 0 A_JumpIfInventory("LaserAmmo", 1, "RiseBack")
 			ENRI A 1 Offset(0, 96)
-			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
 			TNT1 A 0 A_TakeInventory("LaserAmmo", 0)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -1749,7 +1745,6 @@ actor "Enforcer Rifle" : DnDWeapon {
 			ENRI A 1 Offset(0, 40)
 		Goto ReadyLoop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_RedFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ENFORCERRIFLE)
@@ -1762,7 +1757,6 @@ actor "Enforcer Rifle" : DnDWeapon {
 			ENRI A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect: 
-			TNT1 A 0 A_TakeInventory("P_RedFire", 1)
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
@@ -1974,7 +1968,6 @@ ACTOR Venom : DnDWeapon {
 			SHRG A 1 Offset(0, 88)
 			TNT1 A 0 A_JumpIfInventory("VenomAmmo", 1, "RiseBack")
 			SHRG A 1 Offset(0, 96)
-			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
 			TNT1 A 0 A_TakeInventory("VenomAmmo", 0)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -1991,7 +1984,6 @@ ACTOR Venom : DnDWeapon {
 			SHRG A 1 Offset(0, 40)
 		Goto ReadyLoop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_GreenFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_VENOM)
 		ReadyLoop:
@@ -2042,7 +2034,6 @@ ACTOR Venom : DnDWeapon {
 			SHRG E 0 A_JumpIfInventory("ForceWeaponRemove", 1, "Remove")
 		goto ReadyLoop
 		Deselect:
-			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
 			SHRG A 1 A_Lower
@@ -3495,7 +3486,6 @@ actor "Plasma Bolter" : DnDWeapon {
 			PBL9 C 1 Offset(0, 88)
 			TNT1 A 0 A_JumpIfInventory("PlasmaBolterAmmo", 1, "RiseBack")
 			PBL9 C 1 Offset(0, 96)
-			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("ForceWeaponRemove", 1)
 			TNT1 A 0 A_TakeInventory("PlasmaBolterAmmo", 0)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
@@ -3512,7 +3502,6 @@ actor "Plasma Bolter" : DnDWeapon {
 			PBL9 A 1 Offset(0, 40)
 		Goto ReadyLoop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_PLASMABOLTER)
@@ -3525,7 +3514,6 @@ actor "Plasma Bolter" : DnDWeapon {
 			PBL9 AAABBBCCC 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Goto ReadyLoop
 		Deselect: 
-			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)

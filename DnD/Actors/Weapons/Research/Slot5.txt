@@ -800,7 +800,6 @@ Actor ResRL3 : DnDWeapon {
 			FRZC Z -1
 		Stop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_PlasmaFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_FREEZER)
 		ReadyLoopInit:
@@ -812,7 +811,6 @@ Actor ResRL3 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
-			TNT1 A 0 A_TakeInventory("P_PlasmaFire", 1)
 		DeselectLoop:
 			FRZC A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1542,7 +1540,6 @@ Actor ResRL5 : DnDWeapon {
 		Stop
 		Ready:
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot5", 1)
-			TNT1 A 0 A_GiveInventory("P_GrayFire", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Weapon Input Handler", 0, DND_WEAPON_VOIDCANNON)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_VOIDCANNON)
 		ReadyLoopInit:
@@ -1555,7 +1552,6 @@ Actor ResRL5 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
-			TNT1 A 0 A_TakeInventory("P_GrayFire", 1)
 			RW07 EDCB 1 A_StopSound(CHAN_7)
 		DeselectLoop:
 			RW07 A 1 A_Lower

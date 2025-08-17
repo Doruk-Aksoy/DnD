@@ -215,7 +215,6 @@ Actor ResPistol2 : DnDWeapon {
 			VIPA Z -1
 		Stop
 		Deselect:
-			TNT1 A 0 A_TakeInventory("P_GreenFire", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
 		DeselectLoop:
 			C_H_ U 1 A_Lower
@@ -228,7 +227,6 @@ Actor ResPistol2 : DnDWeapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Ready:
-			TNT1 A 0 A_GiveInventory("P_GreenFire", 1)
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot2", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_VIPERSTAFF)
 		ReadyLoop:

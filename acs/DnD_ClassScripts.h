@@ -297,7 +297,8 @@ Script "DnD Berserker Perk20" (void) {
 }
 
 Script "DnD Berserker Perk50 Timer" (int this) {
-	SetActivator(this);
+	if(this)
+		SetActivator(this);
 	// will simply count these by one while we have them, per the berserker timer
 	while(CheckInventory("Berserker_HitTracker")) {
 		while(CheckInventory("Berserker_HitTimer")) {
@@ -353,7 +354,8 @@ Script "DnD Berserker Perk5 Check (Melee)" (void) {
 }
 
 Script "DnD Berserker Roar" (int this) CLIENTSIDE {
-	SetActivator(this);
+	if(this)
+		SetActivator(this);
 	
 	PlaySound(0, "Berserker/Berserk", CHAN_6, 1.0);
 	PlaySound(0, "Berserker/GoMad", CHAN_7, 1.0);
@@ -368,6 +370,28 @@ Script "DnD Berserker Roar" (int this) CLIENTSIDE {
 		SetFont("BERSERK");
 		SetHudSize(640, 480, 0);
 		HudMessage(s:"A"; HUDMSG_FADEINOUT, 90, -1, 320.0, 240.0, 0.25, 0.3, 0.3, 0.8);
+	}
+}
+
+Script "DnD Berserker GoW" (void) {
+	GiveInventory("Berserker_Perk80_Extension", 1);
+
+	// damage reduction perk
+	SetInventory("Berserker_DamageTracker", DND_BERSERKER_PERK20_MAXSTACKS);
+
+	// damage boost perk
+	SetInventory("Berserker_HitTracker", DND_BERSERKER_PERK60_MAXSTACKS);
+
+	ACS_NamedExecuteAlways("DnD Berserker Roar", 0, 0);
+
+	Delay(TICRATE * DND_BERSERKER_PERK80_EXTENSION + 10);
+
+	if(!CheckInventory("Berserker_Perk80_Extension") && isAlive()) {
+		if(CheckInventory("Berserker_DamageTracker"))
+			ACS_NamedExecuteAlways("DnD Berserker Perk20", 0);
+
+		if(CheckInventory("Berserker_HitTracker"))
+			ACS_NamedExecuteAlways("DnD Berserker Perk50 Timer", 0, 0);
 	}
 }
 

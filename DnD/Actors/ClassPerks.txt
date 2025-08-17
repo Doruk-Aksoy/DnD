@@ -165,6 +165,11 @@ Actor Wanderer_Perk40 : DnD_Boolean { }
 Actor Wanderer_Perk60 : DnD_Boolean { }
 Actor Wanderer_Perk80 : DnD_Boolean { }
 
+Actor NoMoreEtherealForm : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
+}
+
 Actor Wanderer_Explosion : DnD_ExplosiveBase {
 	Renderstyle "Add"
 	Height 1
@@ -212,6 +217,132 @@ Actor Wanderer_Explosion : DnD_ExplosiveBase {
 
 Actor DnD_AilmentToken : DnD_Info {
 	inventory.maxamount 64
+}
+
+Actor Wanderer_Ascended : DnDWeapon {
+	Weapon.Slotnumber 0
+	Weapon.SelectionOrder 1
+	+INVENTORY.UNDROPPABLE
+	Weapon.BobStyle InverseSmooth
+	Weapon.BobSpeed 1.6
+	Weapon.BobRangeY 0.2
+	Weapon.BobRangeX 0.4
+	Weapon.AmmoUse 0
+	Weapon.AmmoGive 0
+	Tag "$WEP_SPECIAL0_TAG"
+	+WEAPON.NOAUTOAIM
+	States {
+		Spawn:
+			TNT1 A -1
+		Stop
+		Ready:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ASCENSION)
+		ReadyLoop:
+			ETHF A 3 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD | WRF_NOSWITCH)
+		Loop
+		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_ASCENSION)
+		SelectLoop:
+			ETHF A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Deselect:
+			TNT1 A 0 A_PlaySound("Wanderer/RayFinish", 7)
+		DeselectLoop:
+			ETHF A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		
+		// Ray
+		Fire:
+			ETHF BCDE 2
+		FireHold:
+			TNT1 A 0 A_PlaySound("Wanderer/RayLoop", 7, 1.0, 1)
+			ETHF F 1 Offset(1, 33)
+			ETHF F 1 Offset(2, 34)
+			ETHF F 1 Offset(4, 36)
+		FireLoop:
+			TNT1 A 0 A_Jump(64, "FireAnim1", "FireAnim1", "FireAnim1", "FireAnim1", "FireAnim2", "FireAnim2", "FireAnim2", "FireAnim3", "FireAnim3")
+			ETHF F 1 Offset(4, 36)
+		Goto FireFinish
+		FireAnim1:
+			ETHF F 1 Offset(5, 37)
+		Goto FireFinish
+		FireAnim2:
+			ETHF F 1 Offset(6, 38)
+		Goto FireFinish
+		FireAnim3:
+			ETHF F 1 Offset(7, 39)
+		Goto FireFinish
+		
+		FireFinish:
+			TNT1 A 0 A_GiveInventory("WandererRayShooter", 1)
+			ETHF F 1 Offset(0, 32) A_Refire("FireLoop")
+			TNT1 A 0 A_PlaySound("Wanderer/RayFinish", 7)
+			ETHF EDCB 2 Offset(0, 32) A_Refire("FireHold")
+		Goto ReadyLoop
+		
+		// Slam
+		AltFire:
+			ETHF G 3
+			ETHF H 3
+			ETHF IKJKIJIKIJIKJKIJ 3
+			
+			ETHF LMNOP 3
+			TNT1 A 3
+			ETHF SRQ 3
+		Goto ReadyLoop
+		
+		// Teleport
+		Reload:
+			ETHF QRS 3
+			TNT1 A 10
+			ETHF SRQ 3
+		Goto ReadyLoop
+		
+		RiseUpSpecial:
+			ETHF A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ETHF A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ETHF A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ETHF A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ETHF A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			ETHF A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
+	}
+}
+
+// spawn trails with acs instead purely decorative
+const int wanderer_rayoffset = 15;
+Actor WandererRayShooter : DnD_Activator {
+	States {
+		Pickup:
+			// fire the 4 side rails to "extend" hitbox
+			TNT1 A 0 A_SetArg(DND_ARG_DAMAGE,
+				DND_WEAPON_ASCENSION |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], 0, 0, none, none, RGF_SILENT, 0, "WandererRayPuff", 0, 0, 1024, 0, 5.0, 0, "WandererRayTrail", 1)
+		Stop
+	}
+}
+
+Actor WandererRayTrail {
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	Renderstyle Add
+	Alpha 0.9
+	Scale 0.5
+	States {
+		Spawn:
+			DRAY A 1 Bright A_FadeOut(0.125)
+		Loop
+	}
 }
 
 Actor Cyborg_Perk1 : DnD_Boolean { }
@@ -319,6 +450,11 @@ Actor Berserker_ThunderSpark : WhiteMagicSpark {
 	Scale 0.125
 }
 
+Actor Berserker_Perk80_Extension : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -30
+}
+
 Actor Berserker_ThunderFX {
 	+NOINTERACTION
 	+CLIENTSIDEONLY
@@ -343,6 +479,11 @@ Actor Berserker_ThunderFX_Spawner : DnD_Activator {
 			TNT1 A 0 A_SpawnItemEx("Berserker_ThunderFX")
 		Stop
 	}
+}
+
+Actor NoMoreGoW : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
 }
 
 Actor Trickster_Perk1 : DnD_Boolean { }

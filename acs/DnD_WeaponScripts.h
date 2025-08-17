@@ -289,6 +289,10 @@ Script "DnD Can Fire Weapon" (void) {
 					flags = DND_CFW_ALTFIRECHECK;
 				break;
 				case DND_WEAPON_EXCALIBAT:
+					canFire = true;
+					flags = DND_CFW_ALTFIRECHECK;
+					canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
+				break;
 				case DND_WEAPON_DUSKBLADE:
 				case DND_WEAPON_INFERNOSWORD:
 				case DND_WEAPON_AXE:
@@ -805,6 +809,11 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		case DND_WEAPON_RIPPERCANNON:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 0, wepid);
+		break;
+
+		// special
+		case DND_WEAPON_ASCENSION:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
 		break;
 	}
 

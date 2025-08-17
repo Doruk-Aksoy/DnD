@@ -98,7 +98,7 @@ Actor " Fists " : DnDWeapon
 }
 
 Actor FistPuff : DnD_BasePuff {
-	Stamina 4096
+	Stamina 8392704
 
 	States {
 		Spawn:
@@ -183,7 +183,7 @@ Actor ChainsawPuff : DnD_BasePuff {
 	Alpha 0.8
 	Scale 0.4
 
-	Stamina 4096
+	Stamina 8392704
 	
 	+THRUGHOST
 	States {
@@ -269,7 +269,7 @@ ACTOR "Upgraded Chainsaw" : DnDWeapon {
 }
 
 Actor DChainsawPuff : ChainsawPuff {
-	Stamina 4096
+	Stamina 8392704
 }
 
 Actor DChainsawPuff_NoSound : DChainsawPuff {
@@ -417,7 +417,7 @@ Actor SicklePuff : DnD_BasePuff {
 	Vspeed 0.8
 	Renderstyle Translucent
 	
-	Stamina 528384
+	Stamina 8916992
 	
 	States {
 		Spawn:
@@ -436,7 +436,7 @@ Actor SicklePuff : DnD_BasePuff {
 }
 
 Actor SicklePuff_X : SicklePuff {
-	Stamina 529408
+	Stamina 8918016
 }
 
 Actor ScreenPitch : DND_Activator {
@@ -644,10 +644,10 @@ ACTOR Excalibat : DnDWeapon {
 		goto ReadyLoop
 		Altfire:
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
-			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "FireConfirmed")
+			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "AltFireConfirmed")
 			EXCL A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		goto ReadyLoop
-		FireConfirmed:
+		AltFireConfirmed:
 			TNT1 A 0 A_PlayWeaponSound("weapons/batcharge")
 		ContinueAltFireLoop:
 			EXCL A 2 A_GiveInventory("BatCharge", rate)
@@ -735,16 +735,15 @@ Actor ExcalibatPuff : DnD_BasePuff {
 	AttackSound "weapons/swingwall"
 	SeeSound "weapons/swinghit"
 	
-	Stamina 528384
+	Stamina 8916992
 	
 	States {
 		Spawn:
+		Crash:
+		HitNoBlood:
 			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
 			VFX2 ABCDE 4
 		Stop
-		Crash:
-		HitNoBlood:
-		Goto AfterDamage
 	}
 }
 
@@ -1184,7 +1183,7 @@ Actor KatanaHitSpark : PowerProtection {
 Actor KatanaPuff : DnD_BasePuff {
 	Scale 0.8
 	
-	Stamina 4096
+	Stamina 8392704
 	
 	+HITTRACER
 	+NOEXTREMEDEATH
@@ -1508,7 +1507,7 @@ Actor DuskBladePuff : DnD_BasePuff {
 	RENDERSTYLE Translucent
 	ALPHA 0.66
 	
-	Stamina 528384
+	Stamina 8916992
 	
 	+LOOKALLAROUND
 	+FORCEXYBILLBOARD
@@ -1530,7 +1529,7 @@ Actor DuskBladePuff : DnD_BasePuff {
 
 Actor DuskBladePuff_NoArmor : DuskBladePuff {
 	States {
-		AfterDamage:
+		Spawn:
 			TNT1 A 0 A_GiveToTarget("DuskHealFX_NoArmor", 1)
 			TNT1 A 0 A_SpawnItem("SwordDuskPuff")
 			TNT1 A 1 A_PlaySound("Sword/Hit")
