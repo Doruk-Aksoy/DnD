@@ -230,21 +230,21 @@ Actor Wanderer_Ascended : DnDWeapon {
 	Weapon.AmmoUse 0
 	Weapon.AmmoGive 0
 	Tag "$WEP_SPECIAL0_TAG"
-	+WEAPON.NOAUTOAIM
 	States {
 		Spawn:
 			TNT1 A -1
 		Stop
 		Ready:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ASCENSION)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Force Select Ascension", 1)
 		ReadyLoop:
 			ETHF A 3 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD | WRF_NOSWITCH)
 		Loop
 		Select:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_ASCENSION)
 		SelectLoop:
+			TNT1 AAAAAAAAAAAAAAAAAA 0 A_Raise
 			ETHF A 1 A_Raise
-			TNT1 A 0 A_Raise
 		Loop
 		Deselect:
 			TNT1 A 0 A_PlaySound("Wanderer/RayFinish", 7)
@@ -258,39 +258,97 @@ Actor Wanderer_Ascended : DnDWeapon {
 			ETHF BCDE 2
 		FireHold:
 			TNT1 A 0 A_PlaySound("Wanderer/RayLoop", 7, 1.0, 1)
-			ETHF F 1 Offset(1, 33)
-			ETHF F 1 Offset(2, 34)
-			ETHF F 1 Offset(4, 36)
+			ETHF T 1 Offset(1, 33)
+			ETHF T 1 Offset(2, 34)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_KILLSTORM)
+			ETHF T 1 Offset(4, 36)
 		FireLoop:
-			TNT1 A 0 A_Jump(64, "FireAnim1", "FireAnim1", "FireAnim1", "FireAnim1", "FireAnim2", "FireAnim2", "FireAnim2", "FireAnim3", "FireAnim3")
-			ETHF F 1 Offset(4, 36)
+			TNT1 A 0 A_Jump(80, "FireAnim1", "FireAnim1", "FireAnim1", "FireAnim1", "FireAnim2", "FireAnim2", "FireAnim2", "FireAnim3", "FireAnim3")
+			ETHF F 1 Bright Offset(4, 36) ACS_NamedExecuteWithResult("DnD Ray of Disintegration Trails")
 		Goto FireFinish
 		FireAnim1:
-			ETHF F 1 Offset(5, 37)
+			ETHF F 1 Bright Offset(5, 37) ACS_NamedExecuteWithResult("DnD Ray of Disintegration Trails")
 		Goto FireFinish
 		FireAnim2:
-			ETHF F 1 Offset(6, 38)
+			ETHF F 1 Bright Offset(6, 38) ACS_NamedExecuteWithResult("DnD Ray of Disintegration Trails")
 		Goto FireFinish
 		FireAnim3:
-			ETHF F 1 Offset(7, 39)
+			ETHF F 1 Bright Offset(7, 39) ACS_NamedExecuteWithResult("DnD Ray of Disintegration Trails")
 		Goto FireFinish
 		
 		FireFinish:
 			TNT1 A 0 A_GiveInventory("WandererRayShooter", 1)
-			ETHF F 1 Offset(0, 32) A_Refire("FireLoop")
+			ETHF F 1 Bright Offset(4, 36)
+			ETHF F 1 Bright Offset(2, 34) A_Refire("FireLoop")
 			TNT1 A 0 A_PlaySound("Wanderer/RayFinish", 7)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_KILLSTORM, BTI_F_REMOVE)
 			ETHF EDCB 2 Offset(0, 32) A_Refire("FireHold")
 		Goto ReadyLoop
 		
 		// Slam
 		AltFire:
-			ETHF G 3
+			ETHF A 1 A_JumpIfInventory("Wanderer_BlastCooldown", 1, "FailAlt")
+			ETHF G 1
+			ETHF G 2 A_PlaySound("Wanderer/Charge", CHAN_6)
 			ETHF H 3
-			ETHF IKJKIJIKIJIKJKIJ 3
-			
+			ETHF IJ 3
+			ETHF K 3 A_FireCustomMissile("WandererShockwaveFX")
+			ETHF K 1 Offset(-1, 33)
+			ETHF K 1 Offset(-2, 34)
+			ETHF K 1 Offset(-3, 36)
+			ETHF K 1 Offset(-5, 38)
+			ETHF K 1 Offset(-6, 39)
+			ETHF K 1 Offset(-7, 41)
+			ETHF K 1 Offset(-10, 43)
+			ETHF K 1 Offset(-13, 46)
+			ETHF K 3 Offset(-15, 48)
+			TNT1 A 0 A_PlaySound("Wanderer/Blast", CHAN_7)
+			ETHF K 1 Offset(-16, 47)
+			ETHF K 1 Offset(-14, 49)
+			ETHF K 1 Offset(-15, 48)
+			ETHF K 1 Offset(-14, 47)
+			ETHF K 1 Offset(-16, 48)
+			ETHF K 1 Offset(-15, 47)
+			ETHF K 1 Offset(-16, 49)
+			ETHF K 1 Offset(-14, 48)
+			ETHF K 1 Offset(-16, 47)
+			ETHF K 1 Offset(-14, 49)
+			ETHF K 1 Offset(-15, 48)
+			ETHF K 1 Offset(-14, 47)
+			ETHF K 1 Offset(-16, 48)
+			ETHF K 1 Offset(-15, 47)
+			ETHF K 1 Offset(-16, 49)
+			ETHF K 1 Offset(-14, 48)
+			ETHF K 1 Offset(-16, 47)
+			ETHF K 1 Offset(-14, 49)
+			ETHF K 1 Offset(-15, 48)
+			ETHF K 1 Offset(-14, 47)
+			ETHF K 1 Offset(-16, 48)
+			ETHF K 1 Offset(-15, 47)
+			ETHF K 1 Offset(-16, 49)
+			ETHF K 1 Offset(-14, 48)
+			ETHF K 1 Offset(-16, 47)
+			ETHF K 1 Offset(-14, 49)
+			ETHF K 1 Offset(-15, 48)
+			ETHF K 1 Offset(-14, 47)
+			ETHF K 1 Offset(-16, 48)
+			ETHF K 1 Offset(-15, 47)
+			ETHF K 1 Offset(-16, 49)
+			ETHF K 1 Offset(-14, 48)
+			ETHF K 1 Offset(-10, 43)
+			ETHF K 1 Offset(-6, 39)
+			ETHF K 1 Offset(-3, 36)
+			ETHF K 1 Offset(-2, 34)
+			ETHF K 1 Offset(-1, 33)
+			TNT1 A 0 A_GiveInventory("Wanderer_ShockwaveTossSignal", 1)
+			TNT1 A 0 A_FireCustomMissile("WandererShockwave_Real")
 			ETHF LMNOP 3
-			TNT1 A 3
-			ETHF SRQ 3
+			TNT1 A 36
+			TNT1 A 0 A_GiveInventory("Wanderer_BlastCooldown", 1)
+			ETHF SRQ 2
+		Goto ReadyLoop
+		FailAlt:
+			ETHF A 3 A_WeaponReady(WRF_NOSECONDARY | WRF_ALLOWZOOM | WRF_ALLOWRELOAD | WRF_NOSWITCH)
 		Goto ReadyLoop
 		
 		// Teleport
@@ -311,6 +369,11 @@ Actor Wanderer_Ascended : DnDWeapon {
 	}
 }
 
+Actor Wanderer_ShockwaveTossSignal : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 10
+}
+
 // spawn trails with acs instead purely decorative
 const int wanderer_rayoffset = 15;
 Actor WandererRayShooter : DnD_Activator {
@@ -323,11 +386,12 @@ Actor WandererRayShooter : DnD_Activator {
 				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 				(100 << DPCT_SHIFT)
 			)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Invis", 0, 0, 1024, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], 0, 0, none, none, RGF_SILENT, 0, "WandererRayPuff", 0, 0, 1024, 0, 5.0, 0, "WandererRayTrail", 1)
+			TNT1 A 0 A_FireBullets(0, 0, 1, 0, "WandererRayPuff", 0, 1040)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], 0, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, 1)
 		Stop
 	}
 }
@@ -335,14 +399,224 @@ Actor WandererRayShooter : DnD_Activator {
 Actor WandererRayTrail {
 	+NOINTERACTION
 	+CLIENTSIDEONLY
+	Height 16
+	Radius 8
 	Renderstyle Add
 	Alpha 0.9
-	Scale 0.5
+	Scale 0.425
 	States {
 		Spawn:
-			DRAY A 1 Bright A_FadeOut(0.125)
+			DRAY A 1 Bright A_FadeOut(0.1275)
 		Loop
 	}
+}
+
+Actor WandererRayPuff {
+	Alpha 0.6
+	RenderStyle Add
+	Scale 0.275
+	Height 16
+	Radius 8
+	+ALWAYSPUFF
+	+THRUACTORS
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+		Crash:
+			TNT1 AAAAAAA 0
+		SpawnLoop:
+			FLAR D 1 Bright A_FadeOut(0.0825)
+		Loop
+	}
+}
+
+Actor WandererShockwaveFX {
+	Renderstyle Add
+	Alpha 0.95
+	+MISSILE
+	+THRUACTORS
+	+NOCLIP
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 0 A_JumpIfInTargetInventory("Wanderer_ShockwaveTossSignal", 1, "GoAway")
+			ETHP AAB 1 Bright A_Warp(AAPTR_TARGET, 32, 0, 28, 0, WARPF_INTERPOLATE)
+			TNT1 A 0 A_JumpIfInTargetInventory("Wanderer_ShockwaveTossSignal", 1, "GoAway")
+			ETHP BCC 1 Bright A_Warp(AAPTR_TARGET, 32, 0, 28, 0, WARPF_INTERPOLATE)
+		Loop
+		GoAway:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor WandererShockwave_Real : DnD_ExplosiveBase {
+	PROJECTILE
+	RenderStyle Add
+	Alpha 0.95
+	Height 16
+	Radius 8
+	Stamina 4194304
+	Speed 24
+	Scale 1.1
+	+THRUACTORS
+	+DONTBLAST
+	+FOILINVUL
+	+FORCERADIUSDMG
+	States {
+		Spawn:
+			TNT1 A 1
+		Death:
+			TNT1 A 1 A_Stop
+			TNT1 A 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_ASCENSION |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(200 << DPCT_SHIFT)
+			)
+			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 0 A_SpawnItemEx ("DeathStaffFlare", 0, 0, 0, 0, 0, 0, 0, SXF_CLIENTSIDE | SXF_NOCHECKPOSITION, 0)
+			TNT1 A 0 A_CustomMissile("WandererShockwave_ExpansionDamager", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 AAAAAA 0 A_SpawnItemEx("PurpleParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
+			TNT1 A 0 A_PlaySound("DarkLich/VortexHit")
+			TNT1 A 0 A_SpawnItemEx("WandererBlastShockwave", 0, 0, 16)
+			TNT1 A 0 A_Quake(4, 24, 0, 320)
+			TNT1 A 0 A_CustomMissile("WandererShockwave_MiniSpawner", 0, 0, 0, CMF_TRACKOWNER)
+			ETHP DEFGHIJKLMNOP 3 Bright A_FadeOut(0.025)
+			ETHP PPPPPP 1 Bright A_FadeOut(0.0875)
+		Stop
+	}
+}
+
+Actor WandererShockwave_ExpansionDamager : DnD_ExplosiveBase {
+	PROJECTILE
+	Speed 0
+	Height 1
+	Radius 1
+	ReactionTime 7
+	Stamina 4194304
+	+THRUACTORS
+	+FORCERADIUSDMG
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 0
+		XDeath:
+		Death:
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				DND_WEAPON_ASCENSION |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(85 << DPCT_SHIFT)
+			)
+			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 4)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+		Repeat:
+			TNT1 AAAA 0 A_SpawnItemEx("PurpleParticleSlowVanish", frandom(-16 - (7 - reactiontime) * 3, 16 + (7 - reactiontime) * 3), frandom(-16 - (7 - reactiontime) * 3 , 16 + (7 - reactiontime) * 3), 0, frandom(-12.5, 12.5), frandom(-12.5, 12.5), frandom(-12.5, 12.5))
+			TNT1 A 1
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 A 0 A_SetUserVar("user_expradius", user_expradius * 1.275)
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 4)
+			TNT1 A 2 A_Countdown
+			TNT1 A 0 A_JumpIf(reactiontime > 1, "Repeat")
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor WandererBlastShockwave {
+	Speed 0
+	Scale 2.25 
+	RenderStyle add
+	Alpha 0.9
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States { 
+		Spawn: 
+			R076 ABCDEFFGGHHIIIJJJKKKLLMMNNOP 1 BRIGHT A_FadeOut(0.03)
+		Stop 
+	} 
+} 
+
+Actor WandererSmallExplosion : DnD_ExplosiveBase {
+	Speed 0
+	Height 1
+	Radius 1
+	Stamina 4194304
+	Renderstyle Add
+	Alpha 0.85
+	+THRUACTORS
+	+FORCERADIUSDMG
+	+FOILINVUL
+	States {
+		Spawn:
+			TNT1 A 0
+		Death:
+			TNT1 A 0 A_PlaySound("MageStaffExplode")
+			BSBS EF 3 Bright
+			TNT1 A 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_ASCENSION |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(20 << DPCT_SHIFT)
+			)
+			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			BSBS GHIJKLM 3 Bright
+		Stop
+	}
+}
+
+Actor WandererShockwave_MiniSpawner {
+	PROJECTILE
+	Speed 0
+	Height 1
+	Radius 1
+	const int max_amt = 15;
+	const int r = 160;
+	const int deg_base = 120;
+	const int deg_area = deg_base / max_amt;
+	var int user_count;
+	+THRUACTORS
+	States {
+		Spawn:
+		Death:
+			TNT1 A 0
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+		SpawnLoop:
+			TNT1 A 0 A_JumpIf(user_count == max_amt, "Finish")
+			TNT1 A 0 A_SpawnItemEx("WandererSmallExplosion", -r / 2 + r * cos(user_count * deg_area), -r * sin(user_count * deg_area), 16, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("WandererSmallExplosion", r / 2  -r * cos(user_count * deg_area), -r * sin(user_count * deg_area), 16, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SpawnItemEx("WandererSmallExplosion", -r / 2 + r * cos(user_count * deg_area), r * sin(user_count * deg_area), 16, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 3 A_SpawnItemEx("WandererSmallExplosion", r / 2 + -r * cos(user_count * deg_area), r * sin(user_count * deg_area), 16, 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor Wanderer_BlastCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+}
+
+Actor NoMoreAscension : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
 }
 
 Actor Cyborg_Perk1 : DnD_Boolean { }

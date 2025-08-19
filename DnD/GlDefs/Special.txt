@@ -148,3 +148,35 @@ pulselight DarkWandererArtifactLight {
 object DarkWanderer_Artifact {
 	frame NAR0A { light DarkWandererArtifactLight }
 }
+
+// Wanderer special weapon
+
+object WandererShockwave_Real {
+    frame GNF1A { light DISCIPLEBALL }
+    frame GNF1B { light DISCIPLEBALL }
+    frame GNF1C { light DISCIPLEBALL }
+
+    frame GNF1D { light DISCIPLEBALL  }
+    frame GNF1E { light DISCIPLEBALL  }
+    frame GNF1F { light GAUNTLETBOOM1 }
+    frame GNF1G { light GAUNTLETBOOM1 }
+    frame GNF1H { light GAUNTLETBOOM1 }
+    frame GNF1I { light GAUNTLETBOOM2 }
+    frame GNF1J { light GAUNTLETBOOM2 }
+    frame GNF1K { light GAUNTLETBOOM2 }
+    frame GNF1L { light GAUNTLETBOOM3 }
+    frame GNF1M { light GAUNTLETBOOM3 }
+    frame GNF1N { light GAUNTLETBOOM4 }
+    frame GNF1O { light GAUNTLETBOOM4 }
+    frame GNF1P { light GAUNTLETBOOM5 }
+    frame GNF1Q { light GAUNTLETBOOM5 }
+    frame GNF1R { light GAUNTLETBOOM4 }
+    frame GNF1S { light GAUNTLETBOOM4 }
+    frame GNF1T { light GAUNTLETBOOM3 }
+    frame GNF1U { light GAUNTLETBOOM3 }
+    frame GNF1V { light GAUNTLETBOOM2 }
+    frame GNF1W { light GAUNTLETBOOM2 }
+    frame GNF1X { light GAUNTLETBOOM1 }
+    frame GNF1Y { light GAUNTLETBOOM1 }
+    frame GNF1Z { light GAUNTLETBOOM1 }
+}

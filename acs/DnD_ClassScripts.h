@@ -610,4 +610,11 @@ Script "DnD Trickster Swap Checker" (void) {
 	}
 }
 
+// add new deselect state that has instant, invis frame swtich in base weapon
+// rename all other weapon deselect states to be like "Deselect_state" or some shit... jump to this from base try that solution
+Script "DnD Force Select Ascension" (int val) {
+	SetWeapon("Wanderer_Ascended");
+	SetResultValue(0);
+}
+
 #endif

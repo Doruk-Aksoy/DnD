@@ -814,6 +814,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		// special
 		case DND_WEAPON_ASCENSION:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 300, 0, wepid);
 		break;
 	}
 
@@ -2268,6 +2269,30 @@ Script "DnD Check Weapon Discard" (int slot, int useTarget) {
 Script "DnD Swapped From Melee" (int ptid) {
 	Delay(const:HALF_TICRATE);
 	GiveActorInventory(ptid, "DnD_SwappedFromMelee", 1);
+}
+
+Script "DnD Ray of Disintegration Trails" (void) CLIENTSIDE {
+	int v_dir = GetDirectionVector(0);
+	int trail_amt = DND_WANDERER_RAY_BASEDIST / DND_WANDERER_RAY_DIST_PER;
+
+	int viewZ = GetActorViewHeight(0) - 8.0;
+	int ox = GetActorX(0);
+	int oy = GetActorY(0);
+	int oz = GetActorZ(0);
+
+	for(int i = 0; i < trail_amt; ++i) {
+		// just spawn these along a line
+		int mx = ox + vec3[v_dir].x * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
+		int my = oy + vec3[v_dir].y * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
+		int mz = oz + viewZ + vec3[v_dir].z * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
+
+		// if at any point it fails to spawn, good chance we hit a wall, ignore rest
+		// this is lazy and idc, gzdoom solution is way better anyway
+		if(!Spawn("WandererRayTrail", mx, my, mz, 0, 0))
+			break;
+	}
+
+	SetResultValue(0);
 }
 
 #endif
