@@ -30,6 +30,7 @@ Actor ResPlasma1 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			RW05 A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -395,6 +396,8 @@ Actor ResPlasma2 : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("LightningStacks", 0)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			LGNI A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -664,6 +667,7 @@ Actor ResPlasma3 : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			DGAG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1026,6 +1030,7 @@ Actor "ResPlasma4" : DnDWeapon {
 		
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			RW10 A 1 A_Lower
 			TNT1 A 0 A_Lower

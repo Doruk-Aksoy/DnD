@@ -4,6 +4,7 @@
 enum {
     DND_ANIM_DOOMGUYPUNCH,
     DND_ANIM_DOOMGUYKICK,
+    DND_ANIM_WANDERERSPARKLES
 };
 
 Script "DnD Hud Animation" (int anim_id) CLIENTSIDE {
@@ -154,8 +155,53 @@ Script "DnD Hud Animation" (int anim_id) CLIENTSIDE {
                 Delay(const:1);
             }
         break;
+
+        case DND_ANIM_WANDERERSPARKLES:
+            hudx = 800;
+            hudy = 600;
+            frame_count = 10;
+
+            animx = 8;
+            
+            for(; frame_id < frame_count; ++frame_id) {
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id);
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id + 1);
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id + 2);
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id + 3);
+
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id + 4, 1);
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id + 5, 1);
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id + 6, 1);
+                ACS_NamedExecuteWithResult("DnD Wanderer Sparkle", hudx, hudy, animx * frame_id + 7, 1);
+                Delay(const:1);
+            }
+        break;
     }
+
     HudMessage(s:""; HUDMSG_PLAIN, HUDANIMATED_ID, CR_WHITE, 0, 0, 1.0);
+    SetResultValue(0);
+}
+
+Script "DnD Wanderer Sparkle" (int hudx, int hudy, int id_offset, int side) CLIENTSIDE {
+    SetHudsize(hudx, hudy, 0);
+    int frame_count = 15;
+
+    int animx = random(120, 345) << 16;
+    if(!side)
+        animx += (GetHudLeft(hudx) << 16);
+    else
+        animx = (GetHudRight(hudx) << 16) - animx;
+
+    int animy = (hudy << 16) + (random(-152, -18) << 16);
+    
+    for(int frame_id = 0; frame_id < frame_count; ++frame_id) {
+        str img = StrParam(s:"SPRKL", d:frame_id / 3);
+        int a = 0.33 + cos(0.05 * (frame_id + 1));
+        SetFont(img);
+        HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, HUDANIMATED_ID + id_offset, CR_WHITE, animx + 0.4, animy, 0.1, a);
+        Delay(const:1);
+    }
+
     SetResultValue(0);
 }
 

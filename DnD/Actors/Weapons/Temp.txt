@@ -71,6 +71,7 @@ Actor Sawedoff : DnDWeapon {
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			TSWN A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -364,6 +365,7 @@ ACTOR "Soul Render" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			VBLG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -905,6 +907,8 @@ actor "SMG" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			NAMG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -1095,6 +1099,8 @@ ACTOR "Hellforge Cannon" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			HFCA A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -1460,6 +1466,8 @@ ACTOR "Bloodfiend Spine" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			GORG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -1760,6 +1768,8 @@ actor "Enforcer Rifle" : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			ENRI A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -2036,6 +2046,8 @@ ACTOR Venom : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			SHRG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -2464,6 +2476,8 @@ ACTOR "Demon Heart" : DnDWeapon {
 		Deselect:
 		    TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 		    TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			HRTG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -2717,6 +2731,8 @@ Actor DarkServantGloves : DnDWeapon {
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			GAU3 A 1 A_Lower
 			TNT1 A 0 A_Lower
 		loop
@@ -3041,6 +3057,8 @@ Actor Nailgun2 : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			TNT1 A 0 A_lower
 			NLCG A 1 A_Lower
 		Loop
@@ -3321,6 +3339,7 @@ Actor Berettas : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			PAKM A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -3517,6 +3536,7 @@ actor "Plasma Bolter" : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			PBL9 E 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -3848,6 +3868,8 @@ actor "Ripper Cannon" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("TempWeaponReady", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot9", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			TWP0 A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop

@@ -1,9 +1,19 @@
 $pitchshiftrange 2
 
+Wanderer/Ascend			WNDRASCN
 Wanderer/RayLoop		WANDRAY
 Wanderer/RayFinish		WANDRAYF
 Wanderer/Blast			WNDRBLST
 Wanderer/Charge			WNDRCHRG
+
+Wanderer/DashBegin1		WNDDSHB1
+Wanderer/DashBegin2		WNDDSHB2
+Wanderer/DashBegin3		WNDDSHB3
+$random Wanderer/DashBegin { Wanderer/DashBegin1 Wanderer/DashBegin2 Wanderer/DashBegin3 }
+
+Wanderer/DashFinish1	WNDDSHF1
+Wanderer/DashFinish2	WNDDSHF2
+$random Wanderer/DashFinish { Wanderer/DashFinish1 Wanderer/DashFinish2 }
 
 Trickster/Poof			TRCKPOOF
 Trickster/Swap			TRCKSWP

@@ -24,6 +24,8 @@ Actor "Rocket Launcher" : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			MIS9 A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -88,6 +90,8 @@ Actor "Upgraded Rocket Launcher" : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			RLDI A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -312,8 +316,9 @@ ACTOR "Upgraded Rocket Launcher3" : DnDWeapon {
 			V9ZG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
-			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "UnzoomDeselect")
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+			TNT1 A 0 A_JumpIfInventory("VindicatorZoomed", 1, "UnzoomDeselect")
 		DeselectLoop:
 			VS9G A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -726,6 +731,8 @@ Actor "Grenade Launcher" : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			NGLN A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -816,6 +823,8 @@ Actor "Upgraded Grenade Launcher" : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			RTGL A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -987,6 +996,7 @@ ACTOR "Heavy Missile Launcher" : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			MLNG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1160,6 +1170,8 @@ ACTOR "Sedrin Staff" : DnDWeapon {
 			TNT1 A 0 A_StopSound(7)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			AROK U 1 A_Lower
 			"####" "#" 0 A_Lower
 			AROK U 1 A_Lower
@@ -1472,8 +1484,9 @@ Actor TheHammer : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
-			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "DeselectAmmo")
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_HAMMER, BTI_F_REMOVE)
+			TNT1 A 0 A_JumpIfInventory("HammerAmmo", 1, "DeselectAmmo")
 		DeselectNoAmmo:
 			FHMR H 1 A_Lower
 			TNT1 A 0 A_Lower

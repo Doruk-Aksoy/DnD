@@ -325,6 +325,10 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 	if(unity)
 		temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / unity);
 
+	// ascended form makes you ethereal
+	if(CheckInventory("Wanderer_Ascended"))
+		temp += ETHEREAL_RESIST << 16;
+
 	if(!temp)
 		return dmg;
 	

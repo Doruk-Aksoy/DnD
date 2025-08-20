@@ -236,15 +236,17 @@ Actor Wanderer_Ascended : DnDWeapon {
 		Stop
 		Ready:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ASCENSION)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Force Select Ascension", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_WANDERERSPARKLES)
+			TNT1 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH) // fixes a bad offset problem
+			ETWF GFEDCBA 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH | WRF_NOBOB)
 		ReadyLoop:
-			ETHF A 3 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD | WRF_NOSWITCH)
+			ETHF A 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSWITCH)
 		Loop
 		Select:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_ASCENSION)
 		SelectLoop:
-			TNT1 AAAAAAAAAAAAAAAAAA 0 A_Raise
-			ETHF A 1 A_Raise
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Raise
+			TNT1 A 1 A_Raise
 		Loop
 		Deselect:
 			TNT1 A 0 A_PlaySound("Wanderer/RayFinish", 7)
@@ -353,8 +355,15 @@ Actor Wanderer_Ascended : DnDWeapon {
 		
 		// Teleport
 		Reload:
-			ETHF QRS 3
-			TNT1 A 10
+			ETHF A 1 A_JumpIfInventory("Wanderer_DashCooldown", 1, "FailAlt")
+			ETHF Q 3
+			TNT1 A 0 A_FireCustomMissile("Wanderer_DashDestination")
+			TNT1 A 0 A_GiveInventory("Wanderer_DashSpeedFX", 1)
+			TNT1 A 0 A_GiveInventory("Wanderer_DashCooldown", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Wanderer Dash")
+			ETHF RRRSSS 1 A_SpawnItemEx("Wanderer_DashFX", 0, 0, 32)
+			TNT1 AAAAAAAAAAAAAAAAAA 1 A_SpawnItemEx("Wanderer_DashFX", 0, 0, 32)
+			TNT1 A 0 A_FireCustomMissile("Wanderer_DashDestination")
 			ETHF SRQ 3
 		Goto ReadyLoop
 		
@@ -366,6 +375,96 @@ Actor Wanderer_Ascended : DnDWeapon {
 			ETHF A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			ETHF A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 		Goto Ready
+	}
+}
+
+Actor Wanderer_ReturnIndicator_Spawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("Wanderer_ReturnIndicator", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER | SXF_TRANSFERTRANSLATION)
+		Stop
+	}
+}
+
+Actor Wanderer_ReturnIndicator {
+	Renderstyle Translucent
+	Alpha 0.75
+	Height 56
+	Radius 8
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 1
+		KeepLoop:
+			MNK1 A 7
+			MNK1 A 1 A_JumpIfInventory("Wanderer_Ascended", 1, "KeepLoop", AAPTR_MASTER)
+			MNK1 AAAAAAAAAA 1 A_FadeOut(0.1)
+		Stop
+	}
+}
+
+Actor Wanderer_DashCooldown : PowerProtection {
+	powerup.duration -4
+	damagefactor "normal", 1.0
+}
+
+Actor Wanderer_DashSpeedFX : PowerSpeed {
+	powerup.duration 24
+	Speed 1.0
+}
+
+Actor Wanderer_DashDestination : DnD_ExplosiveBase {
+	PROJECTILE
+	Height 1
+	Radius 1
+	Stamina 4194304
+	+THRUACTORS
+	+BLOODLESSIMPACT
+	+FOILINVUL
+	Alpha 0.2
+	Renderstyle add
+	States {
+		Spawn:
+			TNT1 A 0
+		Death:
+			TNT1 A 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_ASCENSION |
+				(DND_DMGID_2 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", 80)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			NB03 DDDDDDD 1 Bright A_FadeIn(0.1)
+			NB03 DDDDDDD 1 Bright A_FadeOut(0.1)
+		Stop
+	}
+}
+
+Actor Wanderer_DashFX {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.58
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 1 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_Jump(128, "Other")
+			GSMX A 0
+		Anim:
+			"####" "#" 1 A_FadeOut(0.0875)
+			"####" "#" 0 A_SetScale(scalex - 0.0875, scaley - 0.0875)
+			"####" "#" 0 A_ChangeVelocity(0, 0, 2)
+		Loop
+		Other:
+			GSMX B 0
+		Goto Anim
 	}
 }
 

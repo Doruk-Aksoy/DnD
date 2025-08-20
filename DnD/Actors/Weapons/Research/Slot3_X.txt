@@ -37,6 +37,8 @@ Actor ResSSG1 : DnDWeapon {
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			RW02 X 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -210,6 +212,7 @@ Actor ResSSG2 : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			WSON A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -478,6 +481,7 @@ Actor ResSSG3 : DnDWeapon {
 		loop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			STRG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1201,6 +1205,7 @@ Actor ResSSG4 : DnDWeapon {
 		
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3X", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 			TNT1 A 0 A_JumpIfInventory("FlayerAmmo", 1, "AmmoDeSelect")
 		Deselect_NoAmmo:
 			CBOW K 1 A_Lower

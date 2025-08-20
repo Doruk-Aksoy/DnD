@@ -36,6 +36,8 @@ Actor ResShotgun1 : DnDWeapon {
 		loop
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			RW01 A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -302,6 +304,8 @@ Actor ResShotgun2 : DnDWeapon {
 			Stop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			BOWG A 1 Bright A_Lower
 			TNT1 A 0 A_Lower
 			Loop
@@ -849,6 +853,7 @@ Actor ResShotgun3 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			WOPG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1130,6 +1135,7 @@ ACTOR ResShotgun4 : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot3", 1)
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			RW08 A 1 A_Lower
 			"####" "#" 0 A_Lower

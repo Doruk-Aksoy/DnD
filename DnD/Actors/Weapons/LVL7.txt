@@ -24,6 +24,8 @@ Actor "BFG 9000" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			PRDC A 1 A_Lower
 			TNT1 A 0 A_Lower
 			Loop
@@ -103,6 +105,8 @@ Actor "Upgraded BFG 9000" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			DBFG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -352,6 +356,7 @@ Actor Devastator : DnDWeapon { // upgraded bfg 9000-2
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Player Buff", BTI_DEVASTATOR, BTI_F_REMOVE)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			DEVA A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -644,6 +649,7 @@ ACTOR MFG : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			NBFG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1123,6 +1129,8 @@ ACTOR "Rail Gun" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			RAIG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -1396,6 +1404,8 @@ Actor "Gauss Rifle" : DnDWeapon {
 			TNT1 A 0 A_ZoomFactor(1.0)
 			TNT1 A 0 A_TakeInventory("GaussZoom", 3)
 			TNT1 A 0 A_SetCrossHair(0)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			GAUS A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -1899,6 +1909,7 @@ ACTOR "Death Ray" : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			ERWE E 1 A_Lower
 			TNT1 A 0 A_Lower

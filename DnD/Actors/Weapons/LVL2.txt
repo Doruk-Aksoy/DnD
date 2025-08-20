@@ -22,6 +22,7 @@ Actor " Pistol " : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			COLT A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -121,6 +122,8 @@ Actor " Akimbo Pistols " : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			PS2G A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -410,6 +413,7 @@ Actor Magnum : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			REVO A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -588,6 +592,7 @@ Actor "Laser Pistol" : DnDWeapon {
 			TNT1 A 0 A_StopSound(5)
 			TNT1 A 0 A_StopSound(6)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			PBLT A 1 A_Lower
 			PBLT A 0 A_Lower
@@ -870,6 +875,8 @@ ACTOR ScatterGun : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			SPRP A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop  
@@ -1081,6 +1088,7 @@ Actor RubyWand : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			WAND A 1 A_Lower
 			TNT1 A 0 A_Lower

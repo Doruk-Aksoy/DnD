@@ -27,6 +27,7 @@ Actor "Upgraded Rocket Launcher2" : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			MERC A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -202,6 +203,8 @@ Actor ResRL1 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			RW06 A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -471,6 +474,7 @@ ACTOR ResRL2 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			GLAU A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -811,6 +815,7 @@ Actor ResRL3 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			FRZC A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1119,6 +1124,7 @@ Actor ResRL4 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			BRSG A 1 A_Lower
@@ -1552,6 +1558,7 @@ Actor ResRL5 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot5", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 			RW07 EDCB 1 A_StopSound(CHAN_7)
 		DeselectLoop:
 			RW07 A 1 A_Lower

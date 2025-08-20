@@ -26,6 +26,7 @@ Actor ResMelee1 : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			FBM1 C 1 Bright A_Lower
 			TNT1 A 0 A_Lower

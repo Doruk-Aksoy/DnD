@@ -30,6 +30,8 @@ Actor " Machine gun " : DnDWeapon {
 		Loop
 		Deselect:
 		    TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			DMGG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -585,6 +587,8 @@ Actor "Upgraded Machine Gun" : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("WeaponZoom", 1)
 			TNT1 A 0 A_ZoomFactor(1.0, ZOOM_NOSCALETURNING)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			SMG2 A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -750,6 +754,7 @@ Actor "Upgraded Machine Gun2" : DnDWeapon {
 			QUAH A 0 A_StopSoundEx("Weapon")
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			QUAG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -954,6 +959,7 @@ Actor "Upgraded Machine Gun3" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
 			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "DeselectAmmo")
 		DeselectLoop:
 			JPLA A 1 A_Lower
@@ -1497,6 +1503,7 @@ Actor Desolator : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 			TNT1 A 0 A_JumpIfInventory ("DesolatorAmmo", 1, "DeselectAmmo")
 		DeselectLoop:
 			DES4 B 1 A_Lower
@@ -1740,6 +1747,7 @@ actor " Minigun " : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("MinigunFiring", 1)
 			TNT1 A 0 A_StopSound(1)
 			TNT1 A 0 A_StopSound(5)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			CHNG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -2222,6 +2230,7 @@ Actor "Ebony Cannon" : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot4", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			WMAU A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -2474,6 +2483,7 @@ ACTOR MPPB : DnDWeapon {
 			TNT1 A 0 A_ClearRefire
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)
 			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			MPPB A 1 A_Lower
 			"####" "#" 0 A_Lower

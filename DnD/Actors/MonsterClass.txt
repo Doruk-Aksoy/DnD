@@ -140,6 +140,22 @@ Actor TakeFlight : DnD_Activator {
 	}
 }
 
+Actor AllowThruObjects : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("SOLID", 0)
+		Stop
+	}
+}
+
+Actor TakeThruObjects : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("SOLID", 1)
+		Stop
+	}
+}
+
 Actor AllowFloat : DnD_Activator {
 	States {
 		Pickup:
@@ -161,6 +177,14 @@ Actor MakePhysicalResist : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
+		Stop
+	}
+}
+
+Actor UnmakePhysicalResist : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
 		Stop
 	}
 }

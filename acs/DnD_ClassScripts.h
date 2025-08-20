@@ -610,10 +610,47 @@ Script "DnD Trickster Swap Checker" (void) {
 	}
 }
 
-// add new deselect state that has instant, invis frame swtich in base weapon
-// rename all other weapon deselect states to be like "Deselect_state" or some shit... jump to this from base try that solution
+void UndoWandererAscension() {
+	TakeInventory("Wanderer_Ascended", 1);
+	GiveInventory("UnmakePhysicalResist", 1);
+	StopSound(0, CHAN_7);
+}
+
 Script "DnD Force Select Ascension" (int val) {
 	SetWeapon("Wanderer_Ascended");
+	GiveInventory("MakePhysicalResist", 1);
+	GiveInventory("Wanderer_ReturnIndicator_Spawner", 1);
+
+	Delay(const:DND_WANDERER_ASCENSION_TIME);
+
+	UndoWandererAscension();
+	
+	SetResultValue(0);
+}
+
+Script "DnD Wanderer Dash" (void) {
+	GiveInventory("AllowFlight", 1);
+	GiveInventory("AllowThruObjects", 1);
+
+	SetActorVelocity(0, 0, 0, 0, 0, 0);
+
+	PlaySound(0, "Wanderer/DashBegin", 7);
+
+	for(int i = 0; i < DND_WANDERER_DASH_TIME; ++i) {
+		int v_dir = GetDirectionVector(0);
+		SetActorVelocity(0, vec3[v_dir].x * DND_WANDERER_DASHVEL, vec3[v_dir].y * DND_WANDERER_DASHVEL, vec3[v_dir].z * DND_WANDERER_DASHVEL, 0, 0);
+		Delay(const:1);
+	}
+
+	PlaySound(0, "Wanderer/DashFinish", 7);
+
+	SetActorVelocity(0, 0, 0, 0, 0, 0);
+
+	Delay(const:DND_WANDERER_DASH_DELAY);
+
+	GiveInventory("TakeFlight", 1);
+	GiveInventory("TakeThruObjects", 1);
+
 	SetResultValue(0);
 }
 

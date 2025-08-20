@@ -26,6 +26,7 @@ Actor "Plasma Rifle" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			NRAI Y 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -138,6 +139,8 @@ Actor "Upgraded Plasma Rifle" : DnDWeapon {
 		Deselect:
 		    TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			QNPL A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -570,6 +573,8 @@ Actor "Upgraded Plasma Rifle2" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
 			TNT1 A 0 A_TakeInventory("DnD_UsingEnergy", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			TURL A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -773,6 +778,8 @@ Actor "Nailgun" : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			DNLG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -1056,6 +1063,8 @@ ACTOR Basilisk : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			BASG A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop
@@ -1370,6 +1379,7 @@ Actor "Upgraded Plasma Rifle3" : DnDWeapon {
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			FSTF B 1 A_Lower
 			TNT1 A 0 A_lower
@@ -1794,6 +1804,7 @@ Actor "Upgraded Plasma Rifle4" : DnDWeapon {
 			TNT1 A 0 A_ZoomFactor(1.0)
 			TNT1 A 0 A_TakeInventory("SniperZoom", 1)
 			TNT1 A 0 A_SetCrossHair(0)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			SNIR A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -1941,6 +1952,7 @@ Actor RhinoRifle : DnDWeapon {
 			MAZG A 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 			TNT1 A 0 A_JumpIfInventory("RhinoZoomed", 1, "UnZoomDeselect")
 		DeselectContinue:
 		    TNT1 A 0 A_TakeInventory("H_WeaponSlot6", 1)

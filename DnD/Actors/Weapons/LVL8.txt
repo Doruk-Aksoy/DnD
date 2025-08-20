@@ -27,6 +27,8 @@ ACTOR "Death Staff" : DnDWeapon {
 		Loop 
 		Deselect: 
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			LICS A 1 A_Lower 
 			TNT1 A 0 A_Lower
 		Loop 
@@ -536,6 +538,7 @@ ACTOR Razorfang : DnDWeapon {
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 A_GiveInventory("DnD_RemoveLockOn", 1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Clear Homing Lock-on", 0)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 		DeselectLoop:
 			RAZG A 1 A_Lower
 			TNT1 A 0 A_Lower
@@ -799,6 +802,7 @@ Actor "Sun Staff" : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
 			TNT1 A 0 A_StopSoundEx("SoundSlot7")
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
 			TNT1 A 0 A_JumpIfInventory("Souls", 1, 1)
 		Goto Deselect2
 			LTBR ON 4 Bright
@@ -1211,6 +1215,8 @@ Actor "Soul Reaver" : DnDWeapon {
 		Loop
 		Deselect:
 		    TNT1 A 0 A_TakeInventory("H_WeaponSlot8", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
 			SREA A 1 A_Lower
 			TNT1 A 0 A_Lower
 		Loop

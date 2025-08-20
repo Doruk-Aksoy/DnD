@@ -17,6 +17,10 @@ Actor DnDWeapon : Weapon {
 			TNT1 A -1
 		Stop
 		
+		QuickDeselect:
+			"####" "#######################" 0 A_Lower
+		Loop
+		
 		Zoom:
 			"####" "#" 0 A_JumpIfInventory("Doomguy_Perk1", 1, "CanCheckExecution")
 			"####" "#" 0 A_JumpIfInventory("Hobo_Perk60", 1, "CheckAmphetamine")
@@ -189,9 +193,11 @@ Actor DnDWeapon : Weapon {
 			"####" "#" 1 Offset(100, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(110, 162) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
 			"####" "#" 1 Offset(133, 200) A_GiveInventory("Wanderer_Ascended", 1)
+			TNT1 A 0 A_GiveInventory("NoMoreAscension", 1)
+			TNT1 A 0 A_PlaySound("Wanderer/Ascend", CHAN_5)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Force Select Ascension")
 			TNT1 A 1 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
-			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 0 A_Lower
-			TNT1 A 30 ACS_NamedExecuteWithResult("DnD Force Select Ascension")
+			TNT1 A 30 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
 		Goto WaitForRiseUp
 	}
 }

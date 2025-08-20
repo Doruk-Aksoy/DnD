@@ -815,6 +815,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		case DND_WEAPON_ASCENSION:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 300, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 200, 0, wepid);
 		break;
 	}
 

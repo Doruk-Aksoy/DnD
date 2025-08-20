@@ -1361,6 +1361,9 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("DnD_FreezeFXRunning", 0);
 	SetInventory("DnD_OverloadFXRunning", 0);
 	ResetPlayerBuffs(pnum);
+
+	if(CheckInventory("Wanderer_Ascended"))
+		UndoWandererAscension();
 }
 
 void SyncResearchInvestments(int pnum) {
