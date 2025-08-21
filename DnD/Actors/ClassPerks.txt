@@ -235,15 +235,16 @@ Actor Wanderer_Ascended : DnDWeapon {
 			TNT1 A -1
 		Stop
 		Ready:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_ASCENSION)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ASCENSION)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Hud Animation", DND_ANIM_WANDERERSPARKLES)
 			TNT1 A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH) // fixes a bad offset problem
 			ETWF GFEDCBA 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH | WRF_NOBOB)
 		ReadyLoop:
-			ETHF A 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSWITCH)
+			ETHF A 3 A_WeaponReady(WRF_ALLOWRELOAD | WRF_NOSWITCH | WRF_ALLOWZOOM)
 		Loop
 		Select:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_ASCENSION)
+			TNT1 A 0
 		SelectLoop:
 			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Raise
 			TNT1 A 1 A_Raise
@@ -251,8 +252,9 @@ Actor Wanderer_Ascended : DnDWeapon {
 		Deselect:
 			TNT1 A 0 A_PlaySound("Wanderer/RayFinish", 7)
 		DeselectLoop:
-			ETHF A 1 A_Lower
-			TNT1 A 0 A_Lower
+			ETWF ABCDEFG 3
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Lower
+			TNT1 A 1 A_Lower
 		Loop
 		
 		// Ray
@@ -378,26 +380,29 @@ Actor Wanderer_Ascended : DnDWeapon {
 	}
 }
 
-Actor Wanderer_ReturnIndicator_Spawner : DnD_Activator {
-	States {
-		Pickup:
-			TNT1 A 0 A_SpawnItemEx("Wanderer_ReturnIndicator", 0, 0, 0, 0, 0, 0, 0, SXF_SETMASTER | SXF_TRANSFERTRANSLATION)
-		Stop
-	}
-}
-
 Actor Wanderer_ReturnIndicator {
 	Renderstyle Translucent
-	Alpha 0.75
-	Height 56
-	Radius 8
+	Alpha 0.80
+	Height 8
+	Radius 4
+	DamageType "Telefrag"
+	+VISIBILITYPULSE
+	+ISMONSTER
+	-COUNTKILL
+	+THRUACTORS
+	+NOINTERACTION
+	+FORCERADIUSDMG
+	+NODAMAGETHRUST
+	+FRIENDLY
 	States {
 		Spawn:
 			TNT1 A 0
 			TNT1 A 1
 		KeepLoop:
 			MNK1 A 7
-			MNK1 A 1 A_JumpIfInventory("Wanderer_Ascended", 1, "KeepLoop", AAPTR_MASTER)
+			MNK1 AAA 1 A_JumpIfInTargetInventory("Wanderer_Ascended", 1, "KeepLoop")
+			TNT1 A 0 A_SpawnItemEx("DissipationEffect")
+			TNT1 A 0 A_Explode(0x7FFFFFFF, 18, 0, 0, 18)
 			MNK1 AAAAAAAAAA 1 A_FadeOut(0.1)
 		Stop
 	}
@@ -421,6 +426,7 @@ Actor Wanderer_DashDestination : DnD_ExplosiveBase {
 	+THRUACTORS
 	+BLOODLESSIMPACT
 	+FOILINVUL
+	+FORCERADIUSDMG
 	Alpha 0.2
 	Renderstyle add
 	States {
@@ -434,13 +440,21 @@ Actor Wanderer_DashDestination : DnD_ExplosiveBase {
 				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 				(100 << DPCT_SHIFT)
 			)
-			TNT1 A 0 A_SetUserVar("user_expradius", 160 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", 192 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 80)
 			TNT1 A 0 A_SetUserVar("user_expflags", 0)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			NB03 DDDDDDD 1 Bright A_FadeIn(0.1)
 			NB03 DDDDDDD 1 Bright A_FadeOut(0.1)
+		Stop
+	}
+}
+
+Actor Wanderer_DashDestination_Spawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_FireCustomMissile("Wanderer_DashDestination")
 		Stop
 	}
 }
@@ -486,11 +500,11 @@ Actor WandererRayShooter : DnD_Activator {
 				(100 << DPCT_SHIFT)
 			)
 			TNT1 A 0 A_FireBullets(0, 0, 1, 0, "WandererRayPuff", 0, 1040)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
-			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], 0, 0, none, none, RGF_SILENT, 0, none, 0, 0, 1040, 0, 5.0, 0, none, 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Info", 0, 0, 1040, 0, 5.0, 0, none, wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], -wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Info", 0, 0, 1040, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Info", 0, 0, 1040, 0, 5.0, 0, none, wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], wanderer_rayoffset, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Info", 0, 0, 1040, 0, 5.0, 0, none, -wanderer_rayoffset + 1)
+			TNT1 A 0 A_RailAttack(Args[DND_ARG_DAMAGE], 0, 0, none, none, RGF_SILENT, 0, "WandererRayPuff_Info", 0, 0, 1040, 0, 5.0, 0, none, 1)
 		Stop
 	}
 }
@@ -507,6 +521,20 @@ Actor WandererRayTrail {
 		Spawn:
 			DRAY A 1 Bright A_FadeOut(0.1275)
 		Loop
+	}
+}
+
+Actor WandererRayPuff_Info : DnD_BaseRailPuff {
+	Stamina 4096
+	+FOILINVUL
+	States {
+		Spawn:
+		Crash:
+		HitNoBlood:
+		Melee:
+			TNT1 AAAA 0
+			TNT1 A 1
+		Stop
 	}
 }
 

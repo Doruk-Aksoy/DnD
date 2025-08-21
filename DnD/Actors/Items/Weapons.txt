@@ -186,7 +186,7 @@ Actor DnDWeapon : Weapon {
 		Stop
 		
 		CheckAscension:
-			"####" "#" 1 A_JumpIfInventory("NoMoreAscension", 1, "WaitForReady")
+			"####" "#" 1 A_JumpIfInventory("NoMoreAscension", 1, "CheckEndAscension")
 			"####" "#" 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 			"####" "#" 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
@@ -199,6 +199,12 @@ Actor DnDWeapon : Weapon {
 			TNT1 A 1 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
 			TNT1 A 30 A_WeaponReady(WRF_NOBOB | WRF_NOFIRE)
 		Goto WaitForRiseUp
+		CheckEndAscension:
+			"####" "#" 1 A_JumpIfInventory("Wanderer_Ascended", 1, "EndAscension")
+		Goto WaitForReady
+		EndAscension:
+			"####" "#" 8 ACS_NamedExecuteWithResult("DnD End Ascension")
+		Goto WaitForReady
 	}
 }
 

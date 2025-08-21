@@ -614,17 +614,43 @@ void UndoWandererAscension() {
 	TakeInventory("Wanderer_Ascended", 1);
 	GiveInventory("UnmakePhysicalResist", 1);
 	StopSound(0, CHAN_7);
+
+	int fx_tid = AUX_SIGNAL_TID + PlayerNumber();
+	if(ThingCountName("Wanderer_ReturnIndicator", fx_tid)) {
+		PlaySound(0, "Wanderer/DashBegin", 7);
+		GiveInventory("Wanderer_DashDestination_Spawner", 1);
+		SetActorPosition(0, GetActorX(fx_tid), GetActorY(fx_tid), GetActorZ(fx_tid) - 1.0, 0);
+		PlaySound(fx_tid, "Wanderer/DashFinish", 7);
+		GiveInventory("Wanderer_DashDestination_Spawner", 1);
+	}
 }
 
 Script "DnD Force Select Ascension" (int val) {
 	SetWeapon("Wanderer_Ascended");
 	GiveInventory("MakePhysicalResist", 1);
-	GiveInventory("Wanderer_ReturnIndicator_Spawner", 1);
+
+	int owner = ActivatorTID();
+	int fx_tid = AUX_SIGNAL_TID + PlayerNumber();
+	SpawnForced("Wanderer_ReturnIndicator", GetActorX(0), GetActorY(0), GetActorZ(0) + 2.0, fx_tid, 0);
+	Thing_SetTranslation(fx_tid, -1);
+	SetActivator(fx_tid);
+	SetActorProperty(0, APROP_TARGETTID, owner);
+	SetActorProperty(0, APROP_MASTERTID, owner);
+	SetPointer(AAPTR_TARGET, owner);
+	SetPointer(AAPTR_MASTER, owner);
+	SetActorAngle(fx_tid, GetActorAngle(owner));
+	SetActivator(owner);
 
 	Delay(const:DND_WANDERER_ASCENSION_TIME);
 
-	UndoWandererAscension();
+	if(CheckInventory("Wanderer_Ascended"))
+		UndoWandererAscension();
 	
+	SetResultValue(0);
+}
+
+Script "DnD End Ascension" (void) {
+	UndoWandererAscension();
 	SetResultValue(0);
 }
 

@@ -1404,14 +1404,14 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_RIPPERCANNON].attunement[STAT_DEX] = 0.015;
 
 	// special weapons
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].name = "Ethereal Form";
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].ammo_name1 = "";
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].ammo_name2 = "";
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].icon = "TNT1A0";
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].ammo_use1 = 0;
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].ammo_use2 = 0;
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].properties = 0;
-	Weapons_Data[DND_WEAPON_RIPPERCANNON].attunement[STAT_INT] = 0.04;
+	Weapons_Data[DND_WEAPON_ASCENSION].name = "Ethereal Form";
+	Weapons_Data[DND_WEAPON_ASCENSION].ammo_name1 = "";
+	Weapons_Data[DND_WEAPON_ASCENSION].ammo_name2 = "";
+	Weapons_Data[DND_WEAPON_ASCENSION].icon = "TNT1A0";
+	Weapons_Data[DND_WEAPON_ASCENSION].ammo_use1 = 0;
+	Weapons_Data[DND_WEAPON_ASCENSION].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_ASCENSION].properties = 0;
+	Weapons_Data[DND_WEAPON_ASCENSION].attunement[STAT_INT] = 0.04;
 }
 
 #define DEMONSEAL_DMGTAKEN_DEBUFF 50 // 50%

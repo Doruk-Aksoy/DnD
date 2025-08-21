@@ -325,10 +325,6 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 	if(unity)
 		temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / unity);
 
-	// ascended form makes you ethereal
-	if(CheckInventory("Wanderer_Ascended"))
-		temp += ETHEREAL_RESIST << 16;
-
 	if(!temp)
 		return dmg;
 	
@@ -1038,6 +1034,9 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 	// 10%
 	if(CheckActorInventory(p_tid, "Invulnerable_Better"))
 		dmg /= DND_INVULSPHERE_FACTOR;
+
+	if(CheckActorInventory(p_tid, "Wanderer_Ascended"))
+		dmg = dmg * (100 - ETHEREAL_RESIST) / 100;
 	
 	return dmg;
 }
@@ -2734,6 +2733,7 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 			}
 		}
 	}
+
 	return dmg;
 }
 
