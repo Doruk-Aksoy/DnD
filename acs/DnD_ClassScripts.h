@@ -680,4 +680,19 @@ Script "DnD Wanderer Dash" (void) {
 	SetResultValue(0);
 }
 
+Script "DnD Wanderer Return Circle" (void) CLIENTSIDE {
+	int tid = ActivatorTID();
+	SpawnForced("Wanderer_ReturnCircle", GetActorX(tid), GetActorY(tid), GetActorZ(tid), WANDERER_AURA_TID, 0);
+
+	// setup the attachment
+	SetActivator(WANDERER_AURA_TID);
+	SetPointer(AAPTR_TARGET, tid);
+	SetActorProperty(WANDERER_AURA_TID, APROP_TARGETTID, tid);
+	Thing_ChangeTID(0, 0);
+}
+
+Script "DnD Wanderer Circle Signal" (void) CLIENTSIDE {
+	GiveInventory("DnD_Boolean", 1);
+}
+
 #endif

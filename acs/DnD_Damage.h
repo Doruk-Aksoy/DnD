@@ -3074,19 +3074,30 @@ bool IsDamageEventException(str dt) {
 		HealThing(1);
 		return true;
 	}
+	else if(dt == "InstantDeath" || dt == "Telefrag") {
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
+		GiveInventory("MonsterKilledByPlayer", 1);
+		return true;
+	}
 	
-	return 	dt == "Suicide" || dt == "Telefrag" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass" || 
-			dt == "InstantDeath";
+	return 	dt == "Suicide" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass";
 }
 
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// in monster shooting player case, temp holds accuracy stored in the projectile!
 	int temp, dmg, m_id;
 	int pnum;
+	int victim;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
 		// arg1 contains damage, arg2 contains damage type as a string
 		// this causes A_KillChildren etc. to actually work...
 		if(IsDamageEventException(arg2)) {
+			if(arg2 == "Telefrag") {
+				victim = ActivatorTID();
+				SetActivator(0, AAPTR_DAMAGE_SOURCE);
+				if(isPlayer(ActivatorTID()) && isPlayer(victim))
+					arg1 = 0;
+			}
 			SetResultValue(arg1);
 			Terminate;
 		}
@@ -3096,7 +3107,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		int orig_dmg = arg1;
 
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
-		int victim = ActivatorTID();
+		victim = ActivatorTID();
 
 		// damage inflictor (projectile etc.) -- reflected projectiles seem to have "None" as their class
 		// poisonDOT or any DOT has this characteristic as well so we must check for those as exceptions here

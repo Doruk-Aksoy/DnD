@@ -380,13 +380,44 @@ Actor Wanderer_Ascended : DnDWeapon {
 	}
 }
 
+Actor Wanderer_ReturnCircle {
+	Renderstyle Add
+	Alpha 0.8
+	Scale 3.5
+	
+	const float r = 40;
+	const float rate = 0.5;
+	const int max_amt = 360 / rate;
+	
+	var int user_count;
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_SetUserVar("user_count", 0)
+		RealLoop:
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_Boolean", 1, "Fade")
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % max_amt)
+			AURA C 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("PurpleParticleSlowVanish", r * cos(user_count * rate), r * sin(user_count * rate), 0, 0, 0, frandom(0.75, 1.25))
+			TNT1 A 0 A_SpawnItemEx("PurpleParticleSlowVanish", r * cos(user_count * rate + 180), r * sin(user_count * rate + 180), 0, 0, 0, frandom(0.75, 1.25))
+			TNT1 A 0 A_SetUserVar("user_count", (user_count + 1) % max_amt)
+			AURA C 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("PurpleParticleSlowVanish", r * cos(user_count * rate), r * sin(user_count * rate), 0, 0, 0, frandom(0.75, 1.25))
+			TNT1 A 0 A_SpawnItemEx("PurpleParticleSlowVanish", r * cos(user_count * rate + 180), r * sin(user_count * rate + 180), 0, 0, 0, frandom(0.75, 1.25))
+		Loop
+		Fade:
+			AURA CCCCCC 1 A_FadeOut(0.125)
+		Stop
+	}
+}
+
 Actor Wanderer_ReturnIndicator {
 	Renderstyle Translucent
 	Alpha 0.80
 	Height 8
 	Radius 4
 	DamageType "Telefrag"
-	+VISIBILITYPULSE
 	+ISMONSTER
 	-COUNTKILL
 	+THRUACTORS
@@ -397,11 +428,12 @@ Actor Wanderer_ReturnIndicator {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 1
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Wanderer Return Circle")
 		KeepLoop:
 			MNK1 A 7
 			MNK1 AAA 1 A_JumpIfInTargetInventory("Wanderer_Ascended", 1, "KeepLoop")
 			TNT1 A 0 A_SpawnItemEx("DissipationEffect")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Wanderer Circle Signal", 0)
 			TNT1 A 0 A_Explode(0x7FFFFFFF, 18, 0, 0, 18)
 			MNK1 AAAAAAAAAA 1 A_FadeOut(0.1)
 		Stop

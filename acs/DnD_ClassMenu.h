@@ -28,6 +28,7 @@ enum {
 	DND_CLASSMENU_SELECTID = 1,
 	DND_CLASSMENU_CLASSID,
 	DND_CLASSMENU_CLASSEXPID,
+	DND_CLASSMENU_PERKSID,
 	DND_CLASSMENU_LEFTIMG,
 	DND_CLASSMENU_RIGHTIMG,
 	DND_CLASSMENU_MUGIMG,
@@ -192,9 +193,9 @@ Script "DnD Class Select Screen" (void) CLIENTSIDE {
 	SetFont("DBIGFONT");
 	HudMessage(s:"\cj", l:"CLASS_SELECT"; HUDMSG_PLAIN, DND_CLASSMENU_SELECTID, -1, 300.0, 80.0, 0.0);
 		
-	SetHUDSize(320, 240, 1);
+	SetHUDSize(320, 320, 1);
 	setFont("DNDCHRSL");
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 160.0, 120.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_BACKGROUND, -1, 160.0, 160.0, 0.0);
 }
 
 Script "DnD Class Select Animated" (void) CLIENTSIDE {
@@ -223,13 +224,13 @@ Script "DnD Class Select Animated" (void) CLIENTSIDE {
 			SetFont("CHSLARR2");
 		else
 			SetFont("CHSLARR1");
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_LEFTID, -1, 34.0, 66.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_LEFTID, -1, 34.0, 54.0, 0.0);
 		
 		if(rarr_inc)
 			SetFont("CHSRARR2");
 		else
 			SetFont("CHSRARR1");
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_RIGHTID, -1, 284.0, 66.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_RIGHTID, -1, 284.0, 54.0, 0.0);
 		
 		SetHudSize(600, 450, 1);
 		SetFont("NSMOLFNT");
@@ -270,36 +271,54 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 
 	SetHUDSize(600, 450, 1);
 	SetFont("NSMOLFNT");
-	SetHudClipRect(100, 84, 384, 384, 336);
 	
-	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 96.1, 0.0);
+	HudMessage(s:"\c[J7]", l:GetClassLabel(cprefix, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, DND_CLASSMENU_CLASSID, -1, 300.4, 88.1, 0.0);
+
+	SetHUDSize(800, 600, 1);
+	SetHudClipRect(248, 108, 320, 320, 308);
 
 	str toShow = StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_TEXT));
+	HudMessage(s:toshow; HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, CR_WHITE, 256.1, 128.1, 0.0);
+
+	SetHudClipRect(135, 112, 564, 564, 504);
+
+	static str color_codes[4] = { "\cd", "\ck", "\ci", "\cg" };
 
 	// perks
-	toShow = StrParam(s:toShow, s:"\n\n", s:"\cd+ L5: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1));
-	toShow = StrParam(s:toShow, s:"\n\n", s:"\ci+ L25: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK2));
-	toShow = StrParam(s:toShow, s:"\n\n", s:"\cg+ L50: ", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK3));
-	HudMessage(s:toshow; HUDMSG_PLAIN, DND_CLASSMENU_CLASSEXPID, CR_WHITE, 128.1, 184.1, 0.0);
+	toShow = StrParam(s:"\cq", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1), s:" - ", l:"CLASS_INNATE", s:"\n--------------------\n", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1_DESC), s:"\n\n");
+	for(int i = 1; i <= 4; ++i)
+		toShow = StrParam(s:toShow, s:color_codes[i - 1], l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1 + i), s:" - ", l:"DND_STAT18", s:" ", d:i * DND_PERK_REGULARTHRESHOLD, s:"\n--------------------\n", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1_DESC + i), s:"\n\n");
+	HudMessage(s:toshow; HUDMSG_PLAIN, DND_CLASSMENU_PERKSID, CR_WHITE, 144.1, 216.1, 0.0);
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
+	SetHUDSize(600, 450, 1);
 	
 	// show the class images -- offsets aligned
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_MUGSHOT)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 281.4 + GetIntegerBits(GetMugshotXOffset(ctype)), 112.1, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_MUGIMG, -1, 281.4 + GetIntegerBits(GetMugshotXOffset(ctype)), 136.1, 0.0);
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_LEFTIMG)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_LEFTIMG, -1, 80.4, 208.1, 0.0);
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)));
 	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_RIGHTIMG, -1, 512.4, 208.1, 0.0);
 	
 	// prev and next class images
-	cprefix = StrParam(s:"CLASS", d:(ctype - 1 < 0) ? MAXPLAYERCLASSES - 1 : ctype - 1);
+	int cval = (ctype - 1 < 0) ? MAXPLAYERCLASSES - 1 : ctype - 1;
+	int off = 0;
+	if(cval == DND_PLAYER_TRICKSTER)
+		off = -4.0;
+
+	cprefix = StrParam(s:"CLASS", d:cval);
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_LEFTIMG)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_PREVCLASS_IMGID, -1, 112.4, 96.1, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_PREVCLASS_IMGID, -1, 112.4, 80.1 + off, 0.0);
 	
-	cprefix = StrParam(s:"CLASS", d:(ctype + 1 > MAXPLAYERCLASSES - 1) ? 0 : ctype + 1);
+	cval = (ctype + 1 > MAXPLAYERCLASSES - 1) ? 0 : ctype + 1;
+	off = 0;
+	if(cval == DND_PLAYER_TRICKSTER)
+		off = -4.0;
+
+	cprefix = StrParam(s:"CLASS", d:cval);
 	SetFont(StrParam(l:GetClassLabel(cprefix, DND_CLASS_LABEL_RIGHTIMG)));
-	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_NEXTCLASS_IMGID, -1, 480.4, 96.1, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_NEXTCLASS_IMGID, -1, 480.4, 80.1 + off, 0.0);
 }
 
 Script "DnD Class Select Cleanup" (void) CLIENTSIDE {

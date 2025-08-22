@@ -112,9 +112,18 @@ enum {
 	DND_CLASS_LABEL_RIGHTIMG,
 	DND_CLASS_LABEL_MUGSHOT,
 	DND_CLASS_LABEL_TEXT,
+
 	DND_CLASS_LABEL_PERK1,
 	DND_CLASS_LABEL_PERK2,
-	DND_CLASS_LABEL_PERK3
+	DND_CLASS_LABEL_PERK3,
+	DND_CLASS_LABEL_PERK4,
+	DND_CLASS_LABEL_PERK5,
+
+	DND_CLASS_LABEL_PERK1_DESC,
+	DND_CLASS_LABEL_PERK2_DESC,
+	DND_CLASS_LABEL_PERK3_DESC,
+	DND_CLASS_LABEL_PERK4_DESC,
+	DND_CLASS_LABEL_PERK5_DESC
 };
 
 str GetClassLabel(str class_prefix, int label) {
@@ -142,6 +151,28 @@ str GetClassLabel(str class_prefix, int label) {
 		
 		case DND_CLASS_LABEL_PERK3:
 		return StrParam(s:class_prefix, s:"_PERK3");
+
+		case DND_CLASS_LABEL_PERK4:
+		return StrParam(s:class_prefix, s:"_PERK4");
+
+		case DND_CLASS_LABEL_PERK5:
+		return StrParam(s:class_prefix, s:"_PERK5");
+
+		case DND_CLASS_LABEL_PERK1_DESC:
+		return StrParam(s:class_prefix, s:"_PERK1_DESC");
+		
+		case DND_CLASS_LABEL_PERK2_DESC:
+		return StrParam(s:class_prefix, s:"_PERK2_DESC");
+		
+		case DND_CLASS_LABEL_PERK3_DESC:
+		return StrParam(s:class_prefix, s:"_PERK3_DESC");
+
+		case DND_CLASS_LABEL_PERK4_DESC:
+		return StrParam(s:class_prefix, s:"_PERK4_DESC");
+
+		case DND_CLASS_LABEL_PERK5_DESC:
+		return StrParam(s:class_prefix, s:"_PERK5_DESC");
+
 	}
 	return "";
 }

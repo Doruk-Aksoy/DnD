@@ -21,3 +21,15 @@ Model ViolentAuraFX {
 	
 	FrameIndex AURA B 0 3
 }
+
+Model Wanderer_ReturnCircle {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "WandRune.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA C 0 3
+}

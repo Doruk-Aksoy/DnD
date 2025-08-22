@@ -870,8 +870,6 @@ Script "DND On Kill" KILL {
 	bool killerWasntPlayer = !CheckInventory("MonsterKilledByPlayer");
 	TakeInventory("MonsterKilledByPlayer", 1);
 
-	printbold(s:"killed by ", d:target, s: " ", s:GetActorClassName(target));
-
 	MonsterProperties[this - DND_MONSTERTID_BEGIN].killer_tid = target;
 	
 	// if this was a unique boss monster, since its dead now we can clear it to clients
