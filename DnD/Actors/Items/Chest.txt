@@ -208,3 +208,54 @@ Actor LootChest_ForPlayer : LootChest {
 		Stop
 	}
 }
+
+Actor LootChest_ForPlayer_Reverance : LootChest {
+	States {
+		Spawn:
+			LBOX C 0
+			LBOX C 0 ACS_NamedExecuteWithResult("Dnd Init Lootbox", mass - 1)
+			LBOX C -1
+		Stop
+		Open:
+			LBOX C 3
+		DropContent:
+			LBOX D 5 A_PlaySound("Chest/Open")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Lootbox Opened", 0, mass - 1, DND_ORB_REVERANCE + 1)
+			LBOX D -1
+		Stop
+	}
+}
+
+Actor LootChest_ForPlayer_Order : LootChest {
+	States {
+		Spawn:
+			LBOX C 0
+			LBOX C 0 ACS_NamedExecuteWithResult("Dnd Init Lootbox", mass - 1)
+			LBOX C -1
+		Stop
+		Open:
+			LBOX C 3
+		DropContent:
+			LBOX D 5 A_PlaySound("Chest/Open")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Lootbox Opened", 0, mass - 1, DND_ORB_ORDER + 1)
+			LBOX D -1
+		Stop
+	}
+}
+
+Actor LootChest_ForPlayer_Destiny : LootChest {
+	States {
+		Spawn:
+			LBOX C 0
+			LBOX C 0 ACS_NamedExecuteWithResult("Dnd Init Lootbox", mass - 1)
+			LBOX C -1
+		Stop
+		Open:
+			LBOX C 3
+		DropContent:
+			LBOX D 5 A_PlaySound("Chest/Open")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Lootbox Opened", 0, mass - 1, DND_ORB_DESTINY + 1)
+			LBOX D -1
+		Stop
+	}
+}

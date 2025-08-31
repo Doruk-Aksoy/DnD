@@ -11,6 +11,8 @@ enum {
 	DND_ELITEFX_TEMPORALBUBBLE,
 	DND_ELITEFX_ENSHROUD,
 
+	DND_SPECIALFX_ASMODEUSCIRCLE,
+
 	DND_ATTACHMENT_PETICON
 };
 
@@ -42,6 +44,10 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 			case DND_ELITEFX_ENSHROUD:
 				for(i = 0; i < 7; ++i)
 					CreateMonsterAttachment(tid, "EnshroudFX", xoff, 0, zoff);
+			break;
+
+			case DND_SPECIALFX_ASMODEUSCIRCLE:
+				CreateMonsterAttachment(tid, "AsmodeusAuraFX");
 			break;
 
 			case DND_ATTACHMENT_PETICON:

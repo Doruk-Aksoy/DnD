@@ -469,6 +469,7 @@ Actor ChaosBolt {
 	Scale 0.75
 	Damage (random(15, 24))
 	DamageType "Chaos"
+	Stamina 8
 	SeeSound "ChaosBolt/Fire"
 	DeathSound "ChaosBolt/Hit"
 	Renderstyle Add
@@ -517,6 +518,20 @@ Actor ChaosBolt_Trail {
 			OGLP C 1 Bright A_FadeOut(0.0875)
 		Loop
 	}
+}
+
+Actor AsmodeusFireCircle_Lob {
+	Speed 24
+	Projectile
+	Height 20
+	Radius 10
+	Scale 0.75
+	Damage (random(40, 60))
+	DamageType "Fire"
+	SeeSound "ChaosBolt/Fire"
+	DeathSound "ChaosBolt/Hit"
+	Renderstyle Add
+	Stamina 32
 }
 
 Actor DnD_HurtToken : PowerProtection {

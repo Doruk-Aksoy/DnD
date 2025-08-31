@@ -32,6 +32,7 @@ Actor DnD_PoisonStacks : DnD_Info { }
 Actor DnD_ChillStacks: DnD_Info { }
 Actor DnD_FreezeTimer : DnD_Info { }
 Actor DnD_IgniteTimer : DnD_Info { }
+Actor DnD_BleedTimer : DnD_Info { }
 Actor DnD_OverloadTimer : DnD_Info { }
 Actor DnD_OverloadDamage : DnD_Info { }
 Actor DnD_OverloadLockTime : PowerProtection {

@@ -224,13 +224,13 @@ Script "DnD Class Select Animated" (void) CLIENTSIDE {
 			SetFont("CHSLARR2");
 		else
 			SetFont("CHSLARR1");
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_LEFTID, -1, 34.0, 54.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_LEFTID, -1, 34.0, 58.0, 0.0);
 		
 		if(rarr_inc)
 			SetFont("CHSRARR2");
 		else
 			SetFont("CHSRARR1");
-		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_RIGHTID, -1, 284.0, 54.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, DND_CLASSMENU_CLASSCURSOR_RIGHTID, -1, 284.0, 58.0, 0.0);
 		
 		SetHudSize(600, 450, 1);
 		SetFont("NSMOLFNT");
@@ -266,6 +266,26 @@ Script "DnD Class Select Animated" (void) CLIENTSIDE {
 	}
 }
 
+str GetClassPerkDisplay(str cprefix, bool isMenu) {
+	static str color_codes[4] = { "\cd", "\ck", "\ci", "\cg" };
+	str toShow = StrParam(s:"\cq", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1), s:" - ", l:"CLASS_INNATE", s:"\n\cq--------------------\n", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1_DESC), s:"\n\n");
+	int lvl = isMenu ? CheckInventory("Level") : 0;
+	for(int i = 1; i <= 4; ++i) {
+		if(!isMenu)
+			toShow = StrParam(s:toShow, s:color_codes[i - 1], l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1 + i), s:" - ", l:"DND_STAT18", s:" ", d:i * DND_PERK_REGULARTHRESHOLD, s:"\n", s:color_codes[i - 1], s:"--------------------\n", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1_DESC + i), s:"\n\n");
+		else {
+			str col = color_codes[i - 1];
+			str txt_col = "";
+			if(lvl < i * DND_PERK_REGULARTHRESHOLD) {
+				col = "\cm";
+				txt_col = "\cm";
+			}
+			toShow = StrParam(s:toShow, s:col, l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1 + i), s:" - ", l:"DND_STAT18", s:" ", d:i * DND_PERK_REGULARTHRESHOLD, s:"\n", s:col, s:"--------------------\n", s:txt_col, l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1_DESC + i), s:"\n\n");
+		}	
+	}
+	return toShow;
+}
+
 Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 	str cprefix = StrParam(s:"CLASS", d:ctype);
 
@@ -282,13 +302,8 @@ Script "DnD Class Select Info" (int ctype) CLIENTSIDE {
 
 	SetHudClipRect(135, 112, 564, 564, 504);
 
-	static str color_codes[4] = { "\cd", "\ck", "\ci", "\cg" };
-
 	// perks
-	toShow = StrParam(s:"\cq", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1), s:" - ", l:"CLASS_INNATE", s:"\n--------------------\n", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1_DESC), s:"\n\n");
-	for(int i = 1; i <= 4; ++i)
-		toShow = StrParam(s:toShow, s:color_codes[i - 1], l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1 + i), s:" - ", l:"DND_STAT18", s:" ", d:i * DND_PERK_REGULARTHRESHOLD, s:"\n--------------------\n", l:GetClassLabel(cprefix, DND_CLASS_LABEL_PERK1_DESC + i), s:"\n\n");
-	HudMessage(s:toshow; HUDMSG_PLAIN, DND_CLASSMENU_PERKSID, CR_WHITE, 144.1, 216.1, 0.0);
+	HudMessage(s:GetClassPerkDisplay(cprefix, false); HUDMSG_PLAIN, DND_CLASSMENU_PERKSID, CR_WHITE, 144.1, 216.1, 0.0);
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHUDSize(600, 450, 1);

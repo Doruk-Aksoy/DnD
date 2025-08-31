@@ -968,6 +968,10 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 			SetFont ("MONFONT");
 			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 		}
+		else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS]) {
+			SetFont ("MONFONT");
+			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFASMODEUS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
+		}
 		else if(MonsterProperties[m_id].hasTrait) {
 			SetFont ("MONFONT");
 			for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {

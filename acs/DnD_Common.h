@@ -13,7 +13,7 @@
 int test_counter = 0;
 #endif
 
-#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
+//#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 //#define HELPER_MESSAGES_ON
 
@@ -21,13 +21,13 @@ struct ValueComponent_T {
 	int additive;
 	int multiplicative;
 };
-#define SIZEOF_VALUECOMPONENT (SIZEOF_INT * 2)
 
 // string tables should always follow icon + name if they have both
 #define STRING_ICON 0
 #define STRING_NAME 1
 
 #define CHAOSMARK_DAMAGEBUFF 50
+#define ASMODEUSMARK_DAMAGEBUFF 100
 
 #define MAXLEVELS 100
 #define DND_EXP_ADJUST_LEVEL 60

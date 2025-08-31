@@ -245,7 +245,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				break;
 				case BODYARMOR_KNIGHT:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100);
-					GiveImplicitToField(item_pos, INV_IMP_KNIGHTARMOR, 50, 40);
+					GiveImplicitToField(item_pos, INV_IMP_KNIGHTARMOR, 50, 20);
 				break;
 				case BODYARMOR_RAVAGER:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 80);

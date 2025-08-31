@@ -217,6 +217,9 @@ enum {
 	IIMG_MORB_1 = 1640,
 	IIMG_MORB_2,
 	IIMG_MORB_3,
+	IIMG_MORB_4,
+	IIMG_MORB_5,
+	IIMG_MORB_6,
 
 	// armor
 	IIMG_ARM_1 = 1800,
@@ -319,7 +322,7 @@ void ResetUniqueCraftingItemList() {
 
 #define ITEM_IMAGE_CHARM_END IIMG_LC_3
 #define ITEM_IMAGE_ORB_END IIMG_ORB_31
-#define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_3
+#define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_6
 #define ITEM_IMAGE_POWERCORE_END IIMG_CORE_4
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
 #define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_GUNSMITH
@@ -1694,7 +1697,7 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, tb, i, itemsource), emptysource);
 	}
 
-	SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, tb, -1, itemsource), emptysource);
+	SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, temp, -1, true/*GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, tb, -1, itemsource)*/, emptysource);
 	SetItemSyncValue(pnum, DND_SYNC_TEXTID, temp, -1, GetItemSyncValue(pnum, DND_SYNC_TEXTID, tb, -1, itemsource), emptysource);
 
 	bid = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, temp, -1, emptysource);
@@ -2023,7 +2026,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		by += 8.0;
 
 		// optimization for the potentially busy section with strparam spam
-		if(GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, source) || CheckInventory("DnD_AssumedDirty")) {
+		if(GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, source) || GetItemSyncValue(pnum, DND_SYNC_LASTSHOWNTEXTMODE, topboxid, -1, source) != showModTiers) {
 			tmp_text = "";
 			for(j = 0; j < attr_count; ++j) {
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
@@ -2060,9 +2063,9 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 				++lines_count;
 			}
 
-			SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, 0, source);
+			SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, false, source);
+			SetItemSyncValue(pnum, DND_SYNC_LASTSHOWNTEXTMODE, topboxid, -1, showModTiers, source);
 			SetItemSyncValue(pnum, DND_SYNC_TEXTID, topboxid, -1, tmp_text, source);
-			TakeInventory("DnD_AssumedDirty", 1);
 		}
 		else
 			tmp_text = GetItemSyncValue(pnum, DND_SYNC_TEXTID, topboxid, -1, source);
@@ -2377,6 +2380,9 @@ bool IsSelfUsableItem(int itype, int isubtype) {
 				case DND_ORB_AFFLUENCE:
 				case DND_ORB_CALAMITY:
 				case DND_ORB_ASSIMILATION:
+				case DND_ORB_DESTINY:
+				case DND_ORB_ORDER:
+				case DND_ORB_REVERANCE:
 				return true;
 			}
 		return false;
@@ -2773,7 +2779,7 @@ void ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 			HandleEShieldChange(pnum, remove);
 		break;
 		case INV_IMP_INCMIT:
-			printbold(s:"process mit ", f:aval);
+			Log(s:"process mit ", f:aval, s:" player ", n:pnum + 1);
 			IncPlayerModValue(pnum, INV_MIT_INCREASE, aval, noSync, needDelay);
 		break;
 		case INV_IMP_INCARMORSHIELD:
@@ -2985,7 +2991,7 @@ int GetCraftableItemCount() {
 
 int GetItemTierRoll(int lvl, bool isWellRolled) {
 	// 10% chance to roll a tier up or down -- if well rolled 20%
-	if(!random(0, 9 - 5 * isWellRolled))
+	if(!random(0, 9 - 5 * isWellRolled) || CheckInventory("ReveranceUsed"))
 		++lvl;
 	else // 0-1 do nothing, 2-3 is -1, 4-5 is -2 => if well rolled has only 33% chance for the tier to be a downgrade
 		lvl -= random(0, 5 - 3 * isWellRolled) / 2;
@@ -3275,18 +3281,28 @@ int GetSpecialRollAttribute(int pnum, int item_pos) {
 }
 
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
-int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1) {
+// last field is checking for Orb of Order use, if it's not -2 then we must check for its use
+int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1, int respect_order_orb = -2) {
 	int bias = Timer() & 0xFFFF;
 	int val;
 	int craftable_id = DND_CRAFTABLEID_CHARM;
 
 	if(item_type == DND_ITEM_CHARM) {
-		// unrestricted picking
-		val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
-		// this is a last resort random here, in case there was an overflow... shouldn't, but might
-		// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
-		if(val < 0)
-			val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+		if(respect_order_orb == -2 || !respect_order_orb) {
+			// unrestricted picking
+			val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
+			// this is a last resort random here, in case there was an overflow... shouldn't, but might
+			// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
+			if(val < 0)
+				val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
+		}
+		else {
+			// we store +1
+			--respect_order_orb;
+			// its not -2 or 0, -2 is default behavior, 0 is "check for orb of order, but we dont have any effect stored"
+			// so we have something here of a tag, just pick from its pool instead
+			val = AttributeTagGroups[respect_order_orb][craftable_id][random(0, AttributeTagGroupCount[respect_order_orb][craftable_id] - 1)];
+		}
 	}
 	else {
 		craftable_id = MapItemTypeToCraftableID(item_type);
@@ -3295,9 +3311,13 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 		int tag;
 		do {
 			do {
-				tag = random(DND_ATTRIB_TAG_ID_BEGIN + bias, DND_ATTRIB_TAG_ID_END + bias) - bias;
-				if(tag < 0)
-					tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
+				if(respect_order_orb == -2 || !respect_order_orb) {
+					tag = random(DND_ATTRIB_TAG_ID_BEGIN + bias, DND_ATTRIB_TAG_ID_END + bias) - bias;
+					if(tag < 0)
+						tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
+				}
+				else // tag is pre-picked by order orb -- we store +1 of the actual tag
+					tag = respect_order_orb - 1;
 
 				// check rule exceptions -- compare vs charms for "cant roll" condition, charms can roll anything
 				if(AttributeTagGroupCount[tag][craftable_id] < AttributeTagGroupCount[tag][DND_CRAFTABLEID_CHARM]) {
@@ -3322,15 +3342,22 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 	return val;
 }
 
-void AssignAttributes(int pnum, int item_pos, int itype, int attr_count) {
+void AssignAttributes(int pnum, int item_pos, int itype, int attr_count, int respect_order_orb = -2) {
 	int isubt = PlayerInventoryList[pnum][item_pos].item_subtype;
 	int special_roll = GetSpecialRollAttribute(pnum, item_pos);
 	
-	int i = 0, roll;
+	int i = 0, roll, max_attempts = 0;
+
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute(itype, isubt, special_roll, PlayerInventoryList[pnum][item_pos].implicit[0].attrib_id);
-		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) != -1);
+			roll = PickRandomAttribute(itype, isubt, special_roll, PlayerInventoryList[pnum][item_pos].implicit[0].attrib_id, respect_order_orb);
+			++max_attempts;
+		} while(max_attempts < DND_MAX_ORB_REROLL_ATTEMPTS && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) != -1);
+		
+		// don't add more than one attribute of the same potentially
+		if(max_attempts >= DND_MAX_ORB_REROLL_ATTEMPTS)
+			break;
+
 		AddAttributeToItem(pnum, item_pos, roll);
 		++i;
 	}
@@ -3347,8 +3374,15 @@ void ReforgeItem(int pnum, int item_pos) {
 	int max_natural = GetMaxItemAffixes(itype, PlayerInventoryList[pnum][item_pos].item_subtype);
 	int attr_count = random(1, max_natural) - min_count;
 
-	if(attr_count > 0)
-		AssignAttributes(pnum, item_pos, itype, attr_count);
+	bool hasOrder = CheckInventory("OrderStored");
+
+	if(attr_count > 0) {
+		AssignAttributes(pnum, item_pos, itype, attr_count, hasOrder);
+		TakeInventory("ReveranceUsed", 1);
+	}
+
+	if(hasOrder)
+		SetInventory("OrderStored", 0);
 }
 
 void RemoveAttributeFromItem(int pnum, int item_id, int to_remove) {
@@ -3392,6 +3426,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 			// if this isn't already present on the item in question
 			if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][item_pos].attrib_count) == -1) {
 				AddAttributeToItem(pnum, item_pos, rand_attr, isWellRolled);
+				TakeInventory("ReveranceUsed", 1);
 				--attr_count;
 				--affluence;
 			}
@@ -3417,6 +3452,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 					}
 					else {
 						// rest of the mods, we can't fit a guaranteed attribute here
+						TakeInventory("ReveranceUsed", 1);
 						AssignAttributes(pnum, item_pos, itype, attr_count);
 						return;
 					}
@@ -3431,6 +3467,7 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 				{
 					//printbold(s:"guaranteed add ", d:rand_attr);
 					AddAttributeToItem(pnum, item_pos, rand_attr, isWellRolled);
+					TakeInventory("ReveranceUsed", 1);
 					--attr_count;
 					--affluence;
 					break;

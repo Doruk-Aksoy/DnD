@@ -608,6 +608,7 @@ DND_MENU_MMOD_UTI20		=	"Monster's attacks can inflict ignite.";
 DND_MENU_MMOD_UTI21		=	"Monster's attacks can inflict overload.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
+DND_MENU_MMOD_ASMODEUS	=	"Monster has triple health, 25% to all damage resistances, 100% more damage and special attacks depending on its type.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";
 
 

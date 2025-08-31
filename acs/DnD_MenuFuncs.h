@@ -475,6 +475,10 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-16, 0);
 		break;
 
+		case MENU_HELP_CLASSPERKS:
+			redraw = ListenScroll(-64, 0);
+		break;
+
 		case MENU_SHOP_AMMO_SPECIAL1:
 			redraw = ListenScroll(-24, 0);
 		break;
@@ -5360,6 +5364,21 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INCREASEDDOT, 0, 0, val), s:"\n");
 				++k;
 			}
+
+			// bleed things
+			val = GetPlayerAttributeValue(pnum, INV_BLEED_DURATION);
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetPlayerBleedTimeDisplay(pnum), s:"\c- ", l:"DND_BLEED_TIME", s:"\n");
+			++k;
+
+			val = GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
+			PlayerStatText = StrParam(s:PlayerStatText, s:GetBleedChanceDisplay(pnum), s:"\n");
+			++k;
+
+			val = GetPlayerAttributeValue(pnum, INV_PERCENTDMG_BLEED);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PERCENTDMG_BLEED, 0, 0, val), s:"\n");
+				++k;
+			}
 			
 			// fire things
 			val = GetFireDOTDamage(pnum);
@@ -5720,6 +5739,12 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_RECOVERY, 0, 0, val), s:"\n");
 				++k;
 			}
+
+			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE);
+			if(val) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T90", s:"\n");
+				++k;
+			}
 			// lifesteal block ends
 
 			// killing spree
@@ -5804,11 +5829,11 @@ void DrawPlayerStats(int pnum, int category) {
 	SetHudClipRect(0, 0, 0, 0, 0);
 	if(GetCVar("survival")) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
 	}
 	else {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 	}
 	
@@ -5905,8 +5930,9 @@ void DrawMonsterModCategory(int category) {
 		break;
 		case -1:
 			// since these are very few we can put these here for now
-			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 2]), s:"\n", l:"DND_MENU_MMOD_CHAOS"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 1]), s:"\n", l:"DND_MENU_MMOD_LEG"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 132.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 3]), s:"\n", l:"DND_MENU_MMOD_CHAOS"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 80.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 2]), s:"\n", l:"DND_MENU_MMOD_ASMODEUS"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 132.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+			HudMessage(l:GetMonsterTraitLabel(MonsterModGroupMapper[MAX_MONSTER_MODS - 1]), s:"\n", l:"DND_MENU_MMOD_LEG"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 184.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 		break;
 	}
 	SetHudClipRect(0, 0, 0, 0);

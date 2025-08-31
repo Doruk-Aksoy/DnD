@@ -70,6 +70,13 @@ DND_ORB_MONTEXT2	=	"Grants used weapon ability to hit ghosts but increases ammo 
 DND_ORB_MON3		=	"Assimilation Orb";
 DND_ORB_MONTEXT3	=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled, but amount of mods may be less than sum of both. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
 
+DND_ORB_MON4		=	"Orb of Order";
+DND_ORB_MONTEXT4	=	"Makes the next tagged orb's effect to be stored. When a non-tagged orb that can modify an item is used afterwards, it instead applies to attributes of that tag on the item. This effect is stored until a non-tagged orb is used that can modify an item directly.";
+DND_ORB_MON5		=	"Orb of Destiny";
+DND_ORB_MONTEXT5	=	"Ensures that the next orb used will always result in a positive outcome.";
+DND_ORB_MON6		=	"Orb of Reverence";
+DND_ORB_MONTEXT6	=	"Guarantees that the next orb used will apply with the maximum effect possible. (Highest tier mod rolls on items, near-perfect rolls...)";
+
 // random stuff + use texts
 DND_ORB_ANDGRANTS	=	"and grants";
 DND_ORB_STATPOINTS	=	"stat points";
@@ -87,6 +94,7 @@ DND_ORBUSETEXT2B	=	"Orb of Corruption \cgreforges\c- your item!";
 DND_ORBUSETEXT2C	=	"Orb of Corruption grants you a \cgcorrupted implicit\c- modifier!";
 
 DND_ORBUSETEXT3		=	"Prismatic Orb reforges the item, guaranteeing an \cvelemental\c- modifier.";
+DND_ORBUSETEXT3_ORD	=	"Prismatic Orb will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT4		=	"Orb of Repentance reverts the effects of";
 DND_ORBUSEFAIL4		=	"No orb used or tried to revert effects of Orb of Repentance!";
@@ -98,23 +106,29 @@ DND_ORBUSETEXT6		=	"Orb of Calamity turns your";
 DND_ORBUSEFAIL6		=	"No other orb found to convert!";
 
 DND_ORBUSETEXT7		=	"Orb of Prosperity reforges the item, guaranteeing a \cvlife\c- modifier";
+DND_ORBUSETEXT7_ORD	=	"Orb of Prosperity will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT8		=	"Orb of Fortitude reforges the item, guaranteeing a \cvdefense\c- modifier";
+DND_ORBUSETEXT8_ORD	=	"Orb of Fortitude will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT9A	=	"Orb of Nullification removes";
 DND_ORBUSETEXT9B	=	"Orb of Nullification removes \cdan attribute\c-!";
 DND_ORBUSEFAIL9		=	"Orb of Nullification couldn't be used, the item ran out of attributes to remove\c-!";
 
 DND_ORBUSETEXT10	=	"Orb of Destruction reforges the item, guaranteeing a \cvcritical\c- modifier";
+DND_ORBUSETEXT10_ORD=	"Orb of Destruction will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT11	=	"Orb of Violence reforges the item, guaranteeing an \cvattack\c- modifier";
+DND_ORBUSETEXT11_ORD=	"Orb of Violence will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT12	=	"Orb of Sin fractures a modifier, rendering it immutable";
 DND_ORBUSEFAIL12	=	"You don't have enough allocated stat points! Need at least";
 
 DND_ORBUSETEXT13	=	"Orb of Tremors reforges the item, guaranteeing an \cvexplosive\c- modifier";
+DND_ORBUSETEXT13_ORD=	"Orb of Tremors will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT14	=	"Tinkerer's Orb reforges the item, guaranteeing an \cvutility\c- modifier";
+DND_ORBUSETEXT14_ORD=	"Tinkerer's Orb will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT15A	=	"Orb of Refinement rerolls attributes of your item";
 DND_ORBUSEFAIL15	=	"Orb of Refinement couldn't be used";
@@ -139,10 +153,13 @@ DND_ORBUSETEXT20	=	"Assimilation Orb consumes the selected items, and produces a
 DND_ORBUSEFAIL20	=	"Assimilation Orb couldn't be used.";
 
 DND_ORBUSETEXT21	=	"Orb of Turmoil reforges the item!";
+DND_ORBUSETEXT21_ORD=	"Orb of Turmoil will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT22	=	"Orb of Hexes reforges the item, guaranteeing an \cvoccult\c- modifier";
+DND_ORBUSETEXT22_ORD=	"Orb of Hexes will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT23	=	"Orb of Growth reforges the item, guaranteeing a \cvstat\c- modifier";
+DND_ORBUSETEXT23_ORD=	"Orb of Growth will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT24A 	=	"Orb of Potency upgrades";
 DND_ORBUSETEXT24B	=	" attribute tiers!";
@@ -151,18 +168,33 @@ DND_ORBUSEFAIL24	=	"Orb of Potency couldn't be used, attribute tiers are maxed o
 DND_ORBUSEFAIL24B	=	"Orb of Potency did \cgnothing!\c-";
 
 DND_ORBUSETEXT25	=	"Crackling Orb reforges the item, guaranteeing an \cvenergy\c- modifier";
+DND_ORBUSETEXT25_ORD=	"Crackling Orb will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT26	=	"Brute's Orb reforges the item, guaranteeing a \cvmelee\c- modifier";
+DND_ORBUSETEXT26_ORD=	"Brute's Orb will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT27	=	"Jagged Orb reforges the item, guaranteeing a \cvphysical\c- modifier";
+DND_ORBUSETEXT27_ORD=	"Jagged Orb will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT28	=	"Alchemist's Orb increases the quality of your item by";
 
 DND_ORBUSETEXT29	=	"Evoker's Orb extracts the potential from this item, giving"; DND_ORBUSETEXT29B = "orb"; DND_ORBUSETEXT29BS = "orbs";
 
 DND_ORBUSETEXT30	=	"Orb of Savagery reforges the item, guaranteeing a \cvdamage\c- modifier";
+DND_ORBUSETEXT30_ORD=	"Orb of Savagery will \cvinfuse\c- the effect of the next orb";
 
 DND_ORBUSETEXT31	=	"Orb of Winter reforges the item, guaranteeing a \cvice\c- modifier";
+DND_ORBUSETEXT31_ORD=	"Orb of Winter will \cvinfuse\c- the effect of the next orb";
+
 DND_ORBUSETEXT32	=	"Voltaic Orb reforges the item, guaranteeing a \cvlightning\c- modifier";
+DND_ORBUSETEXT32_ORD=	"Voltaic Orb will \cvinfuse\c- the effect of the next orb";
+
 DND_ORBUSETEXT33	=	"Vile Orb reforges the item, guaranteeing a \cvpoison\c- modifier";
+DND_ORBUSETEXT33_ORD=	"Vile Orb will \cvinfuse\c- the effect of the next orb";
+
 DND_ORBUSETEXT34	=	"Orb of Embers reforges the item, guaranteeing a \cvfire\c- modifier";
+DND_ORBUSETEXT34_ORD=	"Orb of Embers will \cvinfuse\c- the effect of the next orb";
+
+DND_ORBUSETEXT35	=	"Orb of Order will allow you to \cvinfuse\c- the effects of the next orb";
+DND_ORBUSETEXT36	=	"Orb of Destiny will protect you from the harmful outcome of the next orb";
+DND_ORBUSETEXT37	=	"Orb of Reverence will amplify the next orb to its highest potential";

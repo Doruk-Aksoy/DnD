@@ -41,6 +41,9 @@ DND_ORBN31			=	"OrbofEmbers";
 DND_ORBNM1			=	"OrbofHollow";
 DND_ORBNM2			=	"OrbofPhantasmal";
 DND_ORBNM3			=	"OrbofAssimilation";
+DND_ORBNM4			=	"OrbofOrder";
+DND_ORBNM5			=	"OrbofDestiny";
+DND_ORBNM6			=	"OrbofReverance";
 
 DND_TOKENN1			=	"ArmorerToken";
 DND_TOKENN2			=	"GunsmithToken";
@@ -134,6 +137,9 @@ DND_OIMG31			=	"ORB6C0";
 DND_MOIMG1			=	"ORB3Q0";
 DND_MOIMG2			=	"ORB3Z0";
 DND_MOIMG3			=	"ORB3S0";
+DND_MOIMG4			=	"ORB6O0";
+DND_MOIMG5			=	"ORB6M0";
+DND_MOIMG6			=	"ORB6H0";
 
 // armor images
 
@@ -453,6 +459,10 @@ IATTR_T130			= "chance to avoid poison";
 IATTR_T131			= "chance to avoid overload";
 IATTR_T132			= "chance to avoid elemental ailments";
 IATTR_T133			= "chance to avoid bleeding";	
+
+IATTR_T134			= "chance to cause bleeding on physical attacks";
+IATTR_T135			= "increased bleed damage";
+IATTR_T136			= "increased bleed duration";							DND_BLEED_TIME = "seconds of bleed duration";
 
 // corrupt implicits
 IATTR_TC1			= "Increased weapon damage to";

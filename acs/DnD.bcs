@@ -271,9 +271,12 @@ Script "DnD On Map Load" OPEN {
 	SetupCVarTracking();
 
 	// commented out for now!
-#ifdef ISDEBUGBUILD
+//#ifdef ISDEBUGBUILD
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+		Delay(const:TICRATE);
+
 	NPC_Setup();
-#endif
+//#endif
 }
 
 Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
@@ -899,7 +902,10 @@ Script "DND On Kill" KILL {
 		// adds 5 seconds for killing it to the timer
 		NPC_States[DND_NPC_DARKWANDERER].time += 5 * (1 + GetMonsterSizeType(MonsterProperties[m_id].id));
 	}
-	else if(NPC_States[DND_NPC_DARKWANDERER].n_state == NPC_STATE_VOTE_ACCEPT && NPC_States[DND_NPC_DARKWANDERER].offer >= NPC_OFFER_1) {
+	else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
+		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
+
+	if(NPC_States[DND_NPC_DARKWANDERER].n_state == NPC_STATE_VOTE_ACCEPT && NPC_States[DND_NPC_DARKWANDERER].offer > NPC_OFFER_NA) {
 		// 20% chance to add 1, 4 or 7 seconds depending on monster size
 		NPC_States[DND_NPC_DARKWANDERER].time += !random(0, 4) * (1 + 3 * GetMonsterSizeType(MonsterProperties[m_id].id));
 	}
@@ -2886,6 +2892,11 @@ Script "DnD On Unloading" UNLOADING {
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
 	BreakAllTrades();
+
+	if(isSoftOrHardcore() && !ScoreBoardData[DND_SCBRD_SAVESUCCEEDED]) {
+		Log(s:"Saving data on unloading...");
+		SaveAllPlayerData();
+	}
 	
 	DungeonBossData[BOSSDATA_TID] = 0;
 	ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
@@ -3145,7 +3156,7 @@ Script "DnD Player Setup" ENTER {
 	if(isHardcore() && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 
-	SetInventory("MapDifficultyClientside", MapDifficulty);
+	SetInventory("MapDifficultyClientside", MapData[DND_MAPDATA_DIFFICULTY]);
 	
 	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
 	// for zombie quest to work
@@ -3216,6 +3227,9 @@ Script "DnD Monster Idle" (void) {
 Script "DnD Monster Active" (void) {
 	int tid = ActivatorTID();
 	MonsterProperties[tid - DND_MONSTERTID_BEGIN].isIdle = false;
+
+	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && MonsterProperties[tid - DND_MONSTERTID_BEGIN].trait_list[DND_MARKOFASMODEUS])
+		ACS_NamedExecuteAlways("DnD Dark Wanderer Challenge Track", 0);
 }
 
 Script "DnD Loot Penalty Text" (int pnum, int val) CLIENTSIDE {
@@ -3513,7 +3527,9 @@ Script 997 (void) NET {
 
 		if(dashed && HasClassPerk_Fast("Trickster", 4) && !CheckInventory("Trickster_Acrobat_Cooldown")) {
 			GiveInventory("Trickster_Acrobat_Cooldown", 1);
-			ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING_DASH, DEBUFF_F_PLAYERISACTIVATOR);
+
+			if(!!HasPlayerBuff(PlayerNumber(), BTI_PHASING))
+				ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING_DASH, DEBUFF_F_PLAYERISACTIVATOR);
 		}
 	}
 }
@@ -3784,30 +3800,35 @@ Script "DnD Lifesteal Script" (int tid) {
 		cap = GetPlayerEnergyShieldCap(pnum);
 
 	// printbold(s:"health cap: ", d:cap, s: " tics: ", d:tics);
-	while(IsAlive() && CheckInventory("LifeStealAmount")) {
-		int toCompare = GetActorProperty(0, APROP_HEALTH);
-		if(cyborgCheck)
-			toCompare = CheckInventory("EShieldAmount");
+	int ls_amount = 0;
+	while((IsAlive() && (ls_amount = CheckInventory("LifeStealAmount"))) || CheckInventory("LifestealCooldown")) {
+		if(ls_amount) {
+			int toCompare = GetActorProperty(0, APROP_HEALTH);
+			if(cyborgCheck)
+				toCompare = CheckInventory("EShieldAmount");
 
-		amt = GetLifestealLifeRecovery(pnum, cap);
-		TakeInventory("LifeStealAmount", amt);
-		
-		if(toCompare + amt < cap) {
-			if(!cyborgCheck)
-				GiveInventory("HealthBonusX", amt);
-			else
-				AddEnergyShield(amt);
-		}
-		else {
-			// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
-			if(!cyborgCheck)
-				GiveInventory("HealthBonusX", cap - toCompare);
-			else
-				AddEnergyShield(cap - toCompare);
-			break;
+			amt = GetLifestealLifeRecovery(pnum, cap);
+			TakeInventory("LifeStealAmount", amt);
+			
+			if(toCompare + amt < cap) {
+				if(!cyborgCheck)
+					GiveInventory("HealthBonusX", amt);
+				else
+					AddEnergyShield(amt);
+			}
+			else {
+				// we can put "lifesteal effect not removed when reaching max life" here in the future if needed to not break, but also not heal
+				if(!cyborgCheck)
+					GiveInventory("HealthBonusX", cap - toCompare);
+				else
+					AddEnergyShield(cap - toCompare);
+				break;
+			}
 		}
 		Delay(tics);
 	}
+
+	TakeInventory("LifestealScriptRunning", 1);
 	SetInventory("LifeStealAmount", 0);
 	TakeInventory("PlayerIsLeeching", 1);
 }
@@ -4544,16 +4565,17 @@ Script "DnD Lootbox Fail Open Message" (int for_player) CLIENTSIDE {
 	Log(s:StrParam(s:"\cc", l:"DND_NOTYOURCHEST", s:" ", l:"DND_IT_BELONGS_TO", s:"\c- ", n:for_player + 1));
 }
 
-Script "DnD Lootbox Opened" (int for_player) {
+// guaranteed_orb is +1 of actual value
+Script "DnD Lootbox Opened" (int for_player, int guaranteed_orb) {
 	if(for_player == -1) {
 		for(for_player = 0; for_player < MAXPLAYERS; ++for_player) {
 			// run each player's chance, drop for corresponding player only
-			SpawnLootboxRewards(for_player);
+			SpawnLootboxRewards(for_player, guaranteed_orb);
 		}
 	}
 	else {
 		// spawn stuff only for that player
-		SpawnLootboxRewards(for_player);
+		SpawnLootboxRewards(for_player, guaranteed_orb);
 	}
 }
 
@@ -5758,7 +5780,6 @@ Script 1007 (void) NET CLIENTSIDE {
 	
 	// so the toggle is changed on the menu if you press it while in help page for some reason... you are weird if you do this!
 	GiveInventory("DnD_RefreshPane", 1);
-	GiveInventory("DnD_AssumedDirty", 1);
 }
 
 Script 1691 (int tag, int mode) {
@@ -5846,22 +5867,26 @@ Script 68 (int x) NET {
 			//Log(s:"pcore");
 			SpawnPowercore(0, true);
 			//Log(s:"orb");
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 100);
-			SpawnToken(0, true);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 100);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
+			//SpawnToken(0, true);
 			//Log(s:"boot");
-			SpawnBoot(0, 0);
+			//SpawnBoot(0, 0);
 			//Log(s:"helm");
-			SpawnHelm(0, 0);
-			SpawnOrbForAll(1, random(300, 500));
+			//SpawnHelm(0, 0);
+			//SpawnOrbForAll(1, random(300, 500));
 			/*SpawnChestKey(0);
 			SpawnCharmWithMods_ForAll(INV_PROJSPEED);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
 			//IncPlayerModValue(0, INV_CORR_INSTALEECHPCT, 15);
-			IncPlayerModValue(0, INV_LIFESTEAL, 1.0);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 100);
+			//IncPlayerModValue(0, INV_LIFESTEAL, 1.6);
+			//IncPlayerModValue(0, INV_LIFESTEAL_DAMAGE, 0.05);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 100);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);*/

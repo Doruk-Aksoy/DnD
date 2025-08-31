@@ -279,7 +279,10 @@ void HandleBerserkerRoar(int tid) {
 	ACS_NamedExecuteAlways("DnD Berserker Roar", 0, tid);
 }
 
-Script "DnD Berserker Perk20" (void) {
+Script "DnD Berserker Perk20" (int tid) {
+	if(tid)
+		SetActivator(tid);
+	
 	while(CheckInventory("Berserker_DamageTimer")) {
 		Delay(const:1);
 		TakeInventory("Berserker_DamageTimer", 1);
@@ -287,7 +290,7 @@ Script "DnD Berserker Perk20" (void) {
 	
 	// heal for max hp 10% if was at full stack
 	if(isAlive() && CheckInventory("Berserker_DamageTracker") == DND_BERSERKER_PERK20_MAXSTACKS) {
-        HandleHealthPickup(GetSpawnHealth() / DND_BERSERKER_PERK20_HEALPERCENT, 0, 0);
+        HandleHealthPickup(DND_BERSERKER_PERK20_HEALPERCENT, 0, 0, true); // no medkit store
 	
 		// fx
 		Spawn("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
@@ -535,7 +538,10 @@ int GetPunisherTier() {
 
 void HandleShadowClone(int pnum, int victim, int shooter) {
 	GiveInventory("Trickster_ShadowCooldown", DND_TRICKSTER_PERK40_COOLDOWN);
-	ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
+
+	if(!HasPlayerBuff(pnum, BTI_PHASING))
+		ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
+
 	ACS_NamedExecuteAlways("DnD Trickster Cooldown", 0);
 	SpawnForced("TricksterShadowClone", GetActorX(0), GetActorY(0), GetActorZ(0), DND_TRICKSTERCLONE_TID + pnum);
 	Thing_SetTranslation(DND_TRICKSTERCLONE_TID + pnum, -1);

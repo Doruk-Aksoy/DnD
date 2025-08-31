@@ -1952,7 +1952,7 @@ Script "DnD Puff Take Ammo" (int wepid, int amt, int ammo_slot, int secondary) {
 		TakeInventory(ammo_type, amt);
 
 		if(!IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS))
-			HandleAmmoGainChance(ammo_slot, ammo_sub_slot, amt, owner);
+			HandleAmmoGainChance(ammo_slot, ammo_sub_slot, amt);
 	}
 
 	SetResultValue(0);

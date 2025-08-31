@@ -1,3 +1,51 @@
+enum {
+	DND_ORB_ENHANCE,
+	DND_ORB_CORRUPT,
+	DND_ORB_PRISMATIC,
+	DND_ORB_REPENT,
+	DND_ORB_AFFLUENCE,
+
+	DND_ORB_CALAMITY,
+	DND_ORB_PROSPERITY,
+	DND_ORB_NULLIFICATION,
+	DND_ORB_DESTRUCTION,
+	DND_ORB_VIOLENCE,
+
+	DND_ORB_FORTITUDE,
+	DND_ORB_SIN,
+	DND_ORB_TREMORS,
+	DND_ORB_TINKERER,
+	DND_ORB_REFINEMENT,
+
+	DND_ORB_SCULPTING,
+	DND_ORB_ELEVATION,
+	DND_ORB_TURMOIL,
+	DND_ORB_HEXES,
+	DND_ORB_GROWTH,
+
+	DND_ORB_POTENCY,
+	DND_ORB_CRACKLING,
+	DND_ORB_BRUTE,
+	DND_ORB_JAGGED,
+	DND_ORB_ALCHEMIST,
+	
+	DND_ORB_EVOKER,
+	DND_ORB_SAVAGERY,
+
+	DND_ORB_WINTER,
+	DND_ORB_VOLTAIC,
+	DND_ORB_VILE,
+	DND_ORB_EMBERS,
+
+	// unique drops from specific monsters
+	DND_ORB_HOLLOW,
+	DND_ORB_PHANTASMAL,
+	DND_ORB_ASSIMILATION,
+	DND_ORB_ORDER,
+	DND_ORB_DESTINY,
+	DND_ORB_REVERANCE
+};
+
 // a little precaution for database operation and acs syncs to work properly
 Actor OrbUseDelay : PowerDamage {
 	damagefactor "normal", 1.0
@@ -617,3 +665,56 @@ Actor OrbOfEmbers : OrbDrop {
 		Loop
 	}
 }
+
+Actor OrbOfReverance : OrbDrop {
+	States {
+		Spawn:
+			ORB6 G 0 Bright
+		Goto SpawnInit
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
+		SpawnLoop:
+		Idle:
+			ORB6 G 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfDestiny : OrbDrop {
+	States {
+		Spawn:
+			ORB6 I 0 Bright
+		Goto SpawnInit
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
+		SpawnLoop:
+		Idle:
+			ORB6 IJKL 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor OrbOfOrder : OrbDrop {
+	States {
+		Spawn:
+			ORB6 N 0 Bright
+		Goto SpawnInit
+		SpawnInit:
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD Remove Check Special", 0, mass, DND_SPECIAL_CHARM)
+			"####" "#" 1 Bright
+			"####" "#" 24 Bright ACS_NamedExecuteAlways("DnD Item Linger Check")
+		SpawnLoop:
+		Idle:
+			ORB6 N 4 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor DestinyUsed : DnD_Boolean { }
+Actor ReveranceUsed : DnD_Boolean { }
+Actor OrderUsed : DnD_Boolean { }
+Actor OrderStored : DnD_Info { }

@@ -219,6 +219,10 @@ enum {
 	INV_AVOID_OVERLOAD,
 	INV_AVOID_ELEAILMENTS,
 	INV_AVOID_BLEED,
+
+	INV_CHANCE_BLEED,
+	INV_PERCENTDMG_BLEED,
+	INV_BLEED_DURATION,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -383,7 +387,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_AVOID_BLEED
+#define LAST_INV_ATTRIBUTE INV_BLEED_DURATION
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -718,7 +722,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SPEED_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_MAGAZINE_INCREASE].attrib_low = 1;
-	ItemModTable[INV_MAGAZINE_INCREASE].attrib_high = 9;
+	ItemModTable[INV_MAGAZINE_INCREASE].attrib_high = 10;
 	ItemModTable[INV_MAGAZINE_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_MAGAZINE_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
@@ -1337,6 +1341,21 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_AVOID_BLEED].attrib_level_modifier = 0;
 	ItemModTable[INV_AVOID_BLEED].tags = INV_ATTR_TAG_PHYSICAL;
 	
+	ItemModTable[INV_CHANCE_BLEED].attrib_low = 1;
+	ItemModTable[INV_CHANCE_BLEED].attrib_high = 9;
+	ItemModTable[INV_CHANCE_BLEED].attrib_level_modifier = 0;
+	ItemModTable[INV_CHANCE_BLEED].tags = INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_ATTACK;
+	
+	ItemModTable[INV_PERCENTDMG_BLEED].attrib_low = 5;
+	ItemModTable[INV_PERCENTDMG_BLEED].attrib_high = 10;
+	ItemModTable[INV_PERCENTDMG_BLEED].attrib_level_modifier = 0;
+	ItemModTable[INV_PERCENTDMG_BLEED].tags = INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_DAMAGE;
+
+	ItemModTable[INV_BLEED_DURATION].attrib_low = 1;
+	ItemModTable[INV_BLEED_DURATION].attrib_high = 10;
+	ItemModTable[INV_BLEED_DURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_BLEED_DURATION].tags = INV_ATTR_TAG_PHYSICAL;
+	
 	/////////////////////////
 	// corrupted implicits //
 	/////////////////////////
@@ -1568,9 +1587,11 @@ int RollAttributeValue(int attr, int tier, bool isWellRolled, int item_type, int
 	int temp;
 	
 	int f = GetItemAttributeFactor(item_type, item_subtype);
+
+	bool revered = CheckInventory("ReveranceUsed");
 	
 	// the + 0.0005 is so the edge rolls can be achieved
-	if(!isWellRolled) {
+	if(!isWellRolled && !revered) {
 		temp = random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f), GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f));
 		if(IsFixedPointMod(attr) && temp > 0.0005)
 			temp += 0.0005;
@@ -1579,7 +1600,11 @@ int RollAttributeValue(int attr, int tier, bool isWellRolled, int item_type, int
 	
 	// well rolled case
 	temp = GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, f);
-	temp = random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f) + temp) / 2, temp);
+
+	if(!revered)
+		temp = random((GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f) + temp) / 2, temp);
+	else
+		temp = random(GetModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, f) / 4 + (temp * 3) / 4, temp);
 	
 	if(IsFixedPointMod(attr) && temp > 0.0005)
 		temp += 0.0005;
@@ -1590,13 +1615,17 @@ int RollAttributeValue(int attr, int tier, bool isWellRolled, int item_type, int
 int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
 	if(!isWellRolled)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
-	return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
+	if(!CheckInventory("ReveranceUsed"))
+		return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
+	return random(UniqueItemList[unique_id].rolls[attr].attrib_low / 4 + 3 * UniqueItemList[unique_id].rolls[attr].attrib_high / 4, UniqueItemList[unique_id].rolls[attr].attrib_high);
 }
 
 int RollUniqueAttributeExtra(int unique_id, int attr, bool isWellRolled) {
 	if(!isWellRolled)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
-	return random((UniqueItemList[unique_id].rolls[attr].attrib_extra_low + UniqueItemList[unique_id].rolls[attr].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
+	if(!CheckInventory("ReveranceUsed"))
+		return random((UniqueItemList[unique_id].rolls[attr].attrib_extra_low + UniqueItemList[unique_id].rolls[attr].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
+	return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low / 4 + 3 * UniqueItemList[unique_id].rolls[attr].attrib_extra_high / 4, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
 }
 
 str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {

@@ -5,13 +5,25 @@
 #include "DnD_Attack.h"
 #include "DnD_Projectiles.h"
 
-void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
+enum {
+	DND_AMMOGAIN_SYNCEDFAIL = -1,
+	DND_AMMOGAIN_FAIL = 0,
+	DND_AMMOGAIN_SUCCESS = 1
+};
+
+// returns if the chance succeeded, in case we need to sync these with other ammo types
+// 0 -- don't care, 1 -- synced success, -1 -- synced failure
+int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AMMOGAIN_FAIL) {
+	if(guaranteed == DND_AMMOGAIN_SYNCEDFAIL)
+		return DND_AMMOGAIN_FAIL;
+
 	// if hand of artemis is equipped don't run this
 	int curr_wep = GetCurrentWeaponID();
 	int chance = GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE);
 	chance += (IsBoomstick(curr_wep) && CheckInventory("Hobo_ShotgunFrenzyTimer")) * (DND_HOBO_PERK50_CHANCE + HasClassPerk_Fast("Hobo", 5) * DND_HOBO_PERK50_CHANCE_BONUSMAXED);
+	chance <<= 16;
 
-	if(random(1, 100) <= chance) {
+	if(guaranteed == DND_AMMOGAIN_SUCCESS || random(1.0, 100.0) <= chance) {
 		if(slot == DND_AMMOSLOT_MAGAZINE)
 			GiveInventory(ClipAmmoTypes[ammo], amount);
 		else if(slot == DND_AMMOSLOT_SPECIAL) {
@@ -30,18 +42,24 @@ void HandleAmmoGainChance(int slot, int ammo, int amount, int owner = 0) {
 		}
 		else
 			GiveInventory(AmmoInfo[slot][ammo].name, amount);
+
+		return DND_AMMOGAIN_SUCCESS;
 	}
+	return DND_AMMOGAIN_FAIL;
 }
 
 bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
-	int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
-	int mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
-	if(!mult)
-		mult = 1;
+	int mult = 1;
+	if(!(flags & DND_CFW_NOAMMOCONSUMPTIONCHECKS)) {
+		int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
+		mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
+		if(!mult)
+			mult = 1;
 
-	amt = amt * consumption_rate * mult / 100;
-	if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
-		amt = amt * 5 / 2;
+		amt = amt * consumption_rate * mult / 100;
+		if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
+			amt = amt * 5 / 2;
+	}
 
 	if(!GetPlayerAttributeValue(pnum, INV_EX_WEAPONSUSEHEALTH))
 		mult = CheckInventory(ammo);
@@ -51,15 +69,18 @@ bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0
 	return ((flags & DND_CFW_DONTCHECKEQUALITY) && mult > amt) || mult >= amt;
 }
 
-int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt) {
-	int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
-	int mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
-	if(!mult)
-		mult = 1;
+int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
+	int mult = 1;
+	if(!(flags & DND_ATF_NOAMMOCONSUMPTIONCHECK)) {
+		int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
+		mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
+		if(!mult)
+			mult = 1;
 
-	amt = amt * consumption_rate * mult / 100;
-	if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
-		amt = amt * 5 / 2;
+		amt = amt * consumption_rate * mult / 100;
+		if(HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT))
+			amt = amt * 5 / 2;
+	}
 
 	if(!GetPlayerAttributeValue(pnum, INV_EX_WEAPONSUSEHEALTH))
 		TakeInventory(ammo, amt);
@@ -120,6 +141,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	int angle_vec = GetVec2();		// negative is left, positive is right
 	int offset_vec = GetVec3();
 	bool use_default = false;		// default behavior
+	int ammo_gain_guarantee = DND_AMMOGAIN_FAIL;
 	int hitscan_id = -1;
 
 	// check for cyborg instability
@@ -590,8 +612,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_ELECTRICSHELL;
 					hitscan_id = DND_HITSCAN_SHOCKSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Shock", CHAN_5);
 					PlaySound(owner, "Shells/Shock2", CHAN_7);
@@ -602,8 +629,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_MAGNUMSHELL;
 
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -620,8 +652,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_FLECHETTE;
 					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -631,8 +668,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_SHOTGUN;
 					hitscan_id = DND_HITSCAN_SHOTGUN;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "weapons/sgun1fire", CHAN_WEAPON);
 				break;
@@ -650,8 +692,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_ELECTRICSHELL;
 					hitscan_id = DND_HITSCAN_SHOCKSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Shock", CHAN_5);
 					PlaySound(owner, "Shells/Shock2", CHAN_7);
@@ -662,8 +709,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_MAGNUMSHELL;
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -680,8 +732,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_FLECHETTE;
 					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -691,8 +748,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_PURIFIER;
 					hitscan_id = DND_HITSCAN_PURIFIER;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, ammo_take_amt, ammo_gain_guarantee);
+						
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "weapons/shotgunfirenew", CHAN_WEAPON);
 				break;
@@ -864,8 +926,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					sp_y = 0.5;
 					hitscan_id = DND_HITSCAN_SLUGSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SLUG, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SLUG][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SLUG, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Slug", CHAN_5);
 					ammo_handler = "SlugShellHandler";
@@ -875,8 +942,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_MAGNUMSHELL;
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Pierce", CHAN_5);
 					ammo_handler = "MagnumShellHandler";
@@ -893,8 +965,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_FLECHETTE;
 					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Flechette", CHAN_5);
 					ammo_handler = "FlechetteHandler";
@@ -904,8 +981,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_DEADLOCK;
 					hitscan_id = DND_HITSCAN_DEADLOCK;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_SHELL, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Deadlock/Fire", CHAN_WEAPON);
 				break;
@@ -1272,8 +1354,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_NITROSHELL;
 					hitscan_id = DND_HITSCAN_NITRO;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_NITROSHELL][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Nitro", CHAN_5);
 					ammo_handler = "NitroshellHandler";
@@ -1282,8 +1369,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_EXSHELL;
 					hitscan_id = DND_HITSCAN_EXSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_EXSHELL, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name, Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SHELL, AMMO_EXSHELL, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 					PlaySound(owner, "Shells/Explo", CHAN_5);
 					ammo_handler = "ExplosiveShellHandler_Riot";
@@ -1292,8 +1384,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				case AMMO_RIOTSHELL:
 					hitscan_id = DND_HITSCAN_RIOTGUN;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						HandleAmmoGainChance(DND_AMMOSLOT_CLIP, AMMO_RIOT, Weapons_Data[wepid].ammo_use1, owner);
 						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, Weapons_Data[wepid].ammo_name1, Weapons_Data[wepid].ammo_use1);
+						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_CLIP, AMMO_RIOT, ammo_take_amt, ammo_gain_guarantee);
+
+						// sycned fail state
+						if(ammo_gain_guarantee == DND_AMMOGAIN_FAIL)
+							ammo_gain_guarantee = DND_AMMOGAIN_SYNCEDFAIL;
+						flags |= DND_ATF_NOAMMOCONSUMPTIONCHECK;
 					}
 				break;
 			}
@@ -2055,7 +2152,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	
 	// take away ammo if each shot isn't using ammo and we don't have the "no ammo take" flag
 	if(!(flags & DND_ATF_NOAMMOTAKE) && ammo_type != "") {
-		ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, ammo_type, ammo_take_amt);
+		ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, ammo_type, ammo_take_amt, flags);
 		
 		// ammo has been taken, handlers should check for running out of ammo here
 		if(ammo_handler != "")
@@ -2063,8 +2160,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	}
 	
 	// moved doesn't have artemis check to here for clarity
-	if(!(flags & DND_ATF_NOAMMOGAINCHECK) && !(flags & DND_ATF_NOAMMOTAKE))
-		HandleAmmoGainChance(ammo_slot, ammo_sub_slot, ammo_take_amt, owner);
+	if((!(flags & DND_ATF_NOAMMOGAINCHECK) && !(flags & DND_ATF_NOAMMOTAKE)))
+		HandleAmmoGainChance(ammo_slot, ammo_sub_slot, ammo_take_amt, ammo_gain_guarantee);
 		
 	// NOTE: This rolls a crit chance to be used by the subsequent things below! Disabling it with the flag may remove crits!
 	if(!(flags & DND_ATF_NOATTACKTRIGGER))

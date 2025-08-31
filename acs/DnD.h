@@ -340,12 +340,25 @@ void CalculateMapDifficulty() {
 	factor += ThingCountName("PainElementalSpawner", 0) * DND_PAIN_CONTRIB;
 	factor += ThingCountName("RevenantSpawner", 0) * DND_REVENANT_CONTRIB;
 	factor += ThingCountName("HellKnightSpawner", 0) * DND_HELLKNIGHT_CONTRIB;
-	factor += ThingCountName("BaronSpawner", 0) * DND_BARON_CONTRIB;
-	factor += ThingCountName("FatsoSpawner", 0) * DND_FATSO_CONTRIB;
-	factor += ThingCountName("SpiderSpawner", 0) * DND_ARACHNO_CONTRIB;
-	factor += ThingCountName("ArchVileSpawner", 0) * DND_VILE_CONTRIB;
-	factor += ThingCountName("MastermindSpawner", 0) * DND_SPIDERMASTERMIND_CONTRIB;
-	factor += ThingCountName("CyberSpawner", 0) * DND_CYBERDEMON_CONTRIB;
+
+	MapData[DND_MAPDATA_BARONCOUNT] = ThingCountName("BaronSpawner", 0);
+	factor += MapData[DND_MAPDATA_BARONCOUNT] * DND_BARON_CONTRIB;
+
+	MapData[DND_MAPDATA_FATSOCOUNT] = ThingCountName("FatsoSpawner", 0);
+	factor += MapData[DND_MAPDATA_FATSOCOUNT] * DND_FATSO_CONTRIB;
+
+	MapData[DND_MAPDATA_ARACHNOCOUNT] = ThingCountName("SpiderSpawner", 0);
+	factor += MapData[DND_MAPDATA_ARACHNOCOUNT] * DND_ARACHNO_CONTRIB;
+
+	MapData[DND_MAPDATA_ARCHVILECOUNT] = ThingCountName("ArchVileSpawner", 0);
+	factor += MapData[DND_MAPDATA_ARCHVILECOUNT] * DND_VILE_CONTRIB;
+
+	MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] = ThingCountName("MastermindSpawner", 0);
+	factor += MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] * DND_SPIDERMASTERMIND_CONTRIB;
+
+	MapData[DND_MAPDATA_CYBERDEMONCOUNT] = ThingCountName("CyberSpawner", 0);
+	factor += MapData[DND_MAPDATA_CYBERDEMONCOUNT] * DND_CYBERDEMON_CONTRIB;
+
 	factor += ThingCountName("BossBrain", 0) * DND_BOSSBRAIN_CONTRIB;
 
 	// to force initialization of punisher tier count on the map
@@ -373,9 +386,9 @@ void CalculateMapDifficulty() {
 	factor += ThingCountName("ArmorDropper_HighTier", 0) * DND_BLUEARMOR_CONTRIB;
 	
 	// get the value -- <0 in case it overflows... somehow.. lol
-	MapDifficulty = factor / DND_MAPDIFF_TIERVAL;
-	if(MapDifficulty > DND_MAXMAPDIFF || MapDifficulty < 0)
-		MapDifficulty = DND_MAXMAPDIFF;
+	MapData[DND_MAPDATA_DIFFICULTY] = factor / DND_MAPDIFF_TIERVAL;
+	if(MapData[DND_MAPDATA_DIFFICULTY] > DND_MAXMAPDIFF || MapData[DND_MAPDATA_DIFFICULTY] < 0)
+		MapData[DND_MAPDATA_DIFFICULTY] = DND_MAXMAPDIFF;
 }
 
 int CalculateBonus(int bonustype, int mdifficulty) {
@@ -424,7 +437,7 @@ void ShowBonusMessage(int bonustype, int y) {
 void DistributeBonus(int bonustype) {
 	int bval = 0, temp = 0, i = 0;
 	if(bonustype == BONUS_KILL) {
-		bval = CalculateBonus(BONUS_KILL, MapDifficulty);
+		bval = CalculateBonus(BONUS_KILL, MapData[DND_MAPDATA_DIFFICULTY]);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				temp = GetActorLevelExperience(i + P_TIDSTART) * bval / 100;
@@ -434,7 +447,7 @@ void DistributeBonus(int bonustype) {
 		}
 	}
 	else if(bonustype == BONUS_ITEM) {
-		bval = CalculateBonus(BONUS_ITEM, MapDifficulty);
+		bval = CalculateBonus(BONUS_ITEM, MapData[DND_MAPDATA_DIFFICULTY]);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				temp = GetActorLevelCredits(i + P_TIDSTART) * bval / 100;
@@ -444,7 +457,7 @@ void DistributeBonus(int bonustype) {
 		}
 	}
 	else if(bonustype == BONUS_SECRET) {
-		bval = CalculateBonus(BONUS_SECRET, MapDifficulty);
+		bval = CalculateBonus(BONUS_SECRET, MapData[DND_MAPDATA_DIFFICULTY]);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				GiveActorInventory(i + P_TIDSTART, "DnD_SecretBonusShower", 1);
@@ -466,7 +479,10 @@ void DistributeBonus(int bonustype) {
 	}
 }
 
-void SpawnLootboxRewards(int i) {
+void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
+	// real value's +1
+	--guaranteed_orb;
+
 	int tmp;
 	if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 		// for orbs
@@ -499,6 +515,9 @@ void SpawnLootboxRewards(int i) {
 		
 		if(random(0, 1.0) <= DND_LOOTBOX_CHESTKEYDROPCHANCE)
 			SpawnChestKey(i);
+
+		if(guaranteed_orb >= 0)
+			SpawnSpecificOrb(i, guaranteed_orb, true, true, random(1, 3));
 	}
 }
 
@@ -602,7 +621,7 @@ void UpdateLevelChestLimit() {
 		Very Hard = 35
 	*/
 	// the numbers above are different now that we have a different difficulty scale from 0-9 instead of 0-4
-	CurrentLevelData[LEVELDATA_MAXCHESTS] = MAX_BASE_CHESTCOUNT + 5 * MapDifficulty / 2;
+	CurrentLevelData[LEVELDATA_MAXCHESTS] = MAX_BASE_CHESTCOUNT + 5 * MapData[DND_MAPDATA_DIFFICULTY] / 2;
 }
 
 void HandleChestSpawn(int chance_penalty) {
@@ -1106,6 +1125,7 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 		if(add > INT_MAX - base)
 			add = INT_MAX - base;
 	}
+
 	MonsterProperties[m_id].basehp = base;
 	MonsterProperties[m_id].maxhp = base + add;
 	MonsterProperties[m_id].level = level;
@@ -1325,8 +1345,10 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("Berserker_Perk60_HitCounter", 0);
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
+
 	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
+	SetInventory("LifestealScriptRunning", 0);
 
 	SetInventory("Hobo_ShotgunFrenzyTimer", 0);
 
@@ -1563,7 +1585,7 @@ void HandleEndOfLevelRewards(int pnum) {
 		
 		// check if the map had at least 1 monster in it... so people don't cheese stupid "skip maps"...
 		if(GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) {
-			temp = 2 * (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapDifficulty + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
+			temp = 2 * (1 + isSetupComplete(SETUP_STATE1, SETUP_HARDCORE)) * ((MapData[DND_MAPDATA_DIFFICULTY] + 1) + Clamp_Between(GetCVar("dnd_budget_reward"), 1, 1000));
 			GiveInventory("Budget", temp);
 			ACS_NamedExecuteWithResult("DnD Map Beaten Reward Text", temp);
 		}

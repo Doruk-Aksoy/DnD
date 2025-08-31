@@ -533,11 +533,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 				if(GetCVar("survival")) {
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
 				}
 				else {
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:GetMapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 				}
 
@@ -981,26 +981,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				toshow = "";
 				HudMessage(s:"--- ", l:"DND_MENU_HELPTEXT2", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				HudMessage(l:"DND_CLASS", s:": \cj", l:GetClassLabel(j, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 52.1, 0.0, 0.0);
 				
 				SetHudClipRect(192, 64, 256, 216, 256);
-				HudMessage(l:"DND_CLASS", s:": \cj", l:GetClassLabel(j, DND_CLASS_LABEL_NAME); HUDMSG_PLAIN, RPGMENUHELPID - 10, CR_CYAN, 316.4, 72.1, 0.0, 0.0);
-				
-				if(CheckInventory("Level") < 5)
-					toshow = StrParam(s:toshow, s:"\n\n\cm+ L5: ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK1));
-				else
-					toshow = StrParam(s:toshow, s:"\n\n\c[Y5]+ L5:\c- ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK1));
-				
-				if(CheckInventory("Level") < 25)
-					toshow = StrParam(s:toshow, s:"\n\n\cm+ L25: ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK2));
-				else
-					toshow = StrParam(s:toshow, s:"\n\n\c[Y5]+ L25:\c- ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK2));
-
-				if(CheckInventory("Level") < 50)
-					toshow = StrParam(s:toshow, s:"\n\n\cm+ L50: ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK3));
-				else
-					toshow = StrParam(s:toshow, s:"\n\n\c[Y5]+ L50:\c- ", l:GetClassLabel(j, DND_CLASS_LABEL_PERK3));
-					
-				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_GREEN, 192.1, 88.1, 0.0, 0.0);
+				toShow = GetClassPerkDisplay(j, true);
+				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 88.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 				SetHudClipRect(0, 0, 0, 0);
 			}
 			else if(curopt == MENU_HELP_WEAPONPROPS) {

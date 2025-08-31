@@ -128,6 +128,7 @@ typedef struct it {
 
 	// unsynced data
 	bool isDirty;									// textID is outdated, needs to be updated
+	bool last_text_mode;							// last drawn text mode ie. detailed mods or not (so we can redraw if user changed modes)
 	int textID;										// holds the whole text created by StrParams so we avoid rebuilding it
 } inventory_T;
 

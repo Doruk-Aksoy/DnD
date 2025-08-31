@@ -412,6 +412,19 @@ Actor ViolentAuraSpawner : DnD_Activator {
 	}
 }
 
+Actor AsmodeusAuraFX : DnD_AttachedFXBase {
+	Renderstyle Add
+	Alpha 0.875
+	Scale 3.0
+	States {
+		SpawnLoop:
+			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Aura Scale to Match")
+		RealLoop:
+			AURA D 1 Bright A_Warp(AAPTR_TARGET, 0, 0, 0, 0, WARPF_INTERPOLATE | WARPF_USECALLERANGLE | WARPF_NOCHECKPOSITION)
+		Loop
+	}
+}
+
 Actor MonsterNuclearExplosion {
 	PROJECTILE
 	Damage 0

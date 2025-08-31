@@ -135,6 +135,7 @@ enum {
 	// not rollable special
 	DND_ETHEREAL,
 	DND_MARKOFCHAOS,
+	DND_MARKOFASMODEUS,
 	
 	DND_LEGENDARY,
 	
@@ -332,6 +333,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_ETHEREAL";
 		case DND_MARKOFCHAOS:
 		return "DND_EMOD_MARKOFCHAOS";
+		case DND_MARKOFASMODEUS:
+		return "DND_EMOD_MARKOFASMODEUS";
 		
 		case DND_LEGENDARY:
 		return "DND_EMOD_LEGENDARY";

@@ -3,6 +3,14 @@
 
 #include "DnD_Common.h"
 
+#define DND_ARTIFACT_BASETIME 60
+#define DND_ARTIFACT_TIME_PER 30
+
+#define DND_SUPERDEMON_HPBUFF 3 // 3 times hp
+#define DND_SUPERDEMON_DIFFBONUS 20 // 20%
+
+#define DND_ASMODEUS_RESISTBUFF 25 // 25%
+
 enum {
 	DW_GREET_FIRST_TIME1,
 	DW_GREET_FIRST_TIME2,
@@ -19,10 +27,10 @@ enum {
 #define DW_CHALLENGE_BEGIN DW_CHALLENGE1
 
 enum {
-	NPC_NA,
-	NPC_OFFER_1,
-	NPC_OFFER_2,
-	NPC_OFFER_3,
+	NPC_OFFER_NA,
+	NPC_OFFER_SLAYCHAOSMARK,
+	NPC_OFFER_COLLECTARTIFACT,
+	NPC_OFFER_SUPERDEMON,
 	NPC_OFFER_DUNGEON
 };
 
@@ -50,6 +58,7 @@ typedef struct npc_info {
 	int offer_progress;
 	int time;
 	int n_state;
+	int aux_data;
 	int voters[MAXPLAYERS];		// index is player_id, value is what vote they cast, 1 for accept -1 for decline
 } npc_info_T;
 
@@ -65,13 +74,23 @@ bool HasMetNPC(int npc) {
 	return CheckInventory("DnD_NPC_Meet") & (1 << (npc + 1));
 }
 
+bool CanDarkWandererOfferSuperMonster() {
+	return 	MapData[DND_MAPDATA_BARONCOUNT] || MapData[DND_MAPDATA_FATSOCOUNT] || MapData[DND_MAPDATA_ARACHNOCOUNT] || 
+			MapData[DND_MAPDATA_ARCHVILECOUNT] || MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] || MapData[DND_MAPDATA_CYBERDEMONCOUNT];
+}
+
 void NPC_Setup() {
 	int pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 
 	// check averages -- later on if there are more random npcs added, consider checking which npc to place instead of assuming its dark wanderer
 	if(1) {
 	//if(PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_npc_appear_level") && random(0, 1.0) <= NPC_APPEAR_CHANCE && !NPC_States[DND_NPC_DARKWANDERER]) {
-		NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_3;//random(NPC_OFFER_1, NPC_OFFER_3);
+		// check if offers can be OK for this particular map
+		NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
+		do {
+			NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_SUPERDEMON);
+		} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
+
 		NPC_States[DND_NPC_DARKWANDERER].dialog = random(DW_GREET1, DW_GREET3);
 		// find a player and spawn this near them at start
 		int tid = 0;
@@ -159,8 +178,35 @@ void ApplyMarkOfChaos(int m_id) {
 	GiveActorInventory(tid, "ChaosMark_Script_Run", 1);
 }
 
+void ApplyMarkOfAsmodeus(int m_id) {
+	int tid = m_id + DND_MONSTERTID_BEGIN;
+
+	// this monster is the one, buff it
+	ACS_NamedExecuteWithResult("DnD Monster Trait Give Single", tid, DND_MARKOFASMODEUS);
+
+	// clear all weaknesses
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take - TID", tid, DND_ENERGY_WEAKNESS, DND_SILVER_WEAKNESS, DND_FIRE_WEAKNESS);
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take - TID", tid, DND_ICE_WEAKNESS, DND_MAGIC_WEAKNESS, DND_ELEMENTAL_WEAKNESS);
+
+	int base = MonsterProperties[m_id].maxhp;
+	int add = base * DND_SUPERDEMON_HPBUFF;
+	base = Clamp_Between(base + add, 1, INT_MAX);
+	MonsterProperties[m_id].basehp = base;
+	MonsterProperties[m_id].maxhp = base;
+	SetActorProperty(tid, APROP_HEALTH, base);
+
+	GiveActorInventory(tid, "AsmodeusMark_Script_Run", 1);
+
+	for(int i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
+		MonsterProperties[m_id].resists[i] = Min(MonsterProperties[m_id].resists[i] + DND_ASMODEUS_RESISTBUFF, DND_IMMUNITY_FACTOR);
+}
+
 Script "DnD Chaos Mark Script" (void) {
 	ACS_NamedExecuteWithResult("DnD Chaos Mark FX", ActivatorTID());
+}
+
+Script "DnD Asmodeus Mark Script" (void) {
+	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_SPECIALFX_ASMODEUSCIRCLE);
 }
 
 Script "DnD Chaos Mark FX" (int tid) CLIENTSIDE {
@@ -202,16 +248,19 @@ void HandleNPC(int npc_id) {
 	int i, j, k;
 	
 	static int slots_occupied[64];
+	for(i = 0; i < 64; ++i)
+		slots_occupied[i] = 0;
+
 	int slot_count = 0;
 	
 	switch(npc_id) {
 		case DND_NPC_DARKWANDERER:
 			// dark wanderer's offer must affect the map now
 			switch(NPC_States[DND_NPC_DARKWANDERER].offer) {
-				case NPC_OFFER_1:
+				case NPC_OFFER_SLAYCHAOSMARK:
 					// kill marked monsters -- min of 5, max of 50 -- scaling with map difficulty
 					mc = DnD_TID_Counter[DND_TID_MONSTER];
-					temp = random(5 + 5 * MapDifficulty, 10 + 5 * MapDifficulty);
+					temp = random(5 + 5 * MapData[DND_MAPDATA_DIFFICULTY], 10 + 5 * MapData[DND_MAPDATA_DIFFICULTY]);
 
 					// we dont care about uniqueness
 					for(i = 0; i < temp; ++i) {
@@ -231,10 +280,10 @@ void HandleNPC(int npc_id) {
 					// save this, we'll use it to track progress
 					NPC_States[DND_NPC_DARKWANDERER].offer_progress = count;
 				break;
-				case NPC_OFFER_2:
+				case NPC_OFFER_COLLECTARTIFACT:
 					// retrieve artifacts -- place the artifacts
-					mc = DnD_TID_Counter[DND_TID_PICKUPS] - DND_PICKUPTID_BEGIN;
-					temp = random(2 + MapDifficulty, 2 + 2 * MapDifficulty);
+					mc = DnD_TID_Counter[DND_TID_PICKUPS];
+					temp = random(2 + MapData[DND_MAPDATA_DIFFICULTY], 2 + 2 * MapData[DND_MAPDATA_DIFFICULTY]);
 					NPC_States[DND_NPC_DARKWANDERER].offer_progress = temp;
 					
 					// we need to find places to spawn these, prioritize high profile powerups, then health, then radsuits etc.
@@ -262,7 +311,7 @@ void HandleNPC(int npc_id) {
 						do {
 							// 50% from shared items and the other from powerups
 							if(random(0, 1)) {
-								k = random(SHARED_ITEM_TID_BEGIN, count - 1);
+								k = random(SHARED_ITEM_TID_BEGIN, SHARED_ITEM_TID_BEGIN + count - 1);
 								i = 8.0;
 							}
 							else {
@@ -280,7 +329,7 @@ void HandleNPC(int npc_id) {
 								++slot_count;
 								if(Spawn("DarkWanderer_Artifact", GetActorX(k) + random(-i, i), GetActorY(k) + random(-i, i), GetActorZ(k))) {
 									--temp;
-									printbold(s:GetActorClass(k), s: " ", f:GetActorX(k), s: " ", f:GetActorY(k));
+									//printbold(s:GetActorClass(k), s: " ", f:GetActorX(k), s: " ", f:GetActorY(k));
 								}
 							}
 						} while(temp);
@@ -289,7 +338,7 @@ void HandleNPC(int npc_id) {
 						// we have no powerups, simply loop through the shared items
 						count = DnD_TID_Counter[DND_TID_SHAREDITEMS];
 						do {
-							k = random(SHARED_ITEM_TID_BEGIN, count - 1);
+							k = random(SHARED_ITEM_TID_BEGIN, SHARED_ITEM_TID_BEGIN + count - 1);
 							for(j = 0; j < slot_count; ++j) {
 								if(slots_occupied[j] == k) {
 									j = -1;
@@ -305,22 +354,39 @@ void HandleNPC(int npc_id) {
 						} while(temp);
 					}
 				break;
-				case NPC_OFFER_3:
-					// super powered monster
+				case NPC_OFFER_SUPERDEMON:
+					// super powered monster -- find a random monster with matching random id and pick it to be our monster
+					for(i = 0; i < 6; ++i)
+						slots_occupied[i] = MapData[DND_MAPDATA_BARONCOUNT + i];
+
+					for(mc = 0; mc < DnD_TID_Counter[DND_TID_MONSTER]; ++mc) {
+						i = UsedMonsterTIDs[mc] - DND_MONSTERTID_BEGIN;
+						if
+						(
+							MonsterProperties[i].class >= MONSTERCLASS_BARON && MonsterProperties[i].class <= MONSTERCLASS_CYBERDEMON &&
+							random(0, 1.0) <= 1.0 / Max(slots_occupied[MonsterProperties[i].class - MONSTERCLASS_BARON]--, 1)
+						)
+						{
+							ApplyMarkOfAsmodeus(i);
+							NPC_States[DND_NPC_DARKWANDERER].offer_progress = 1;
+							break;
+						}
+					}
 				break;
 			}
 		break;
 	}
+
 	NPC_States[DND_NPC_DARKWANDERER].time = GetDarkWandererChallengeTime(NPC_States[DND_NPC_DARKWANDERER].offer);
 	
-	if(NPC_States[DND_NPC_DARKWANDERER].offer != NPC_OFFER_DUNGEON)
+	if(NPC_States[DND_NPC_DARKWANDERER].offer != NPC_OFFER_SUPERDEMON && NPC_States[DND_NPC_DARKWANDERER].offer != NPC_OFFER_DUNGEON)
 		ACS_NamedExecuteAlways("DnD Dark Wanderer Challenge Track", 0);
 }
 
 int GetDarkWandererChallengeTime(int offer_id) {
 	int x;
 	switch(offer_id) {
-		case NPC_OFFER_1:
+		case NPC_OFFER_SLAYCHAOSMARK:
 			// kill marked monsters
 			x = NPC_States[DND_NPC_DARKWANDERER].offer_progress;
 			if(x < 25)
@@ -328,12 +394,23 @@ int GetDarkWandererChallengeTime(int offer_id) {
 			else if(x < 35)
 				return x * 25 + 120;
 			return x * 20 + 140;
-		case NPC_OFFER_2:
+		case NPC_OFFER_COLLECTARTIFACT:
 			// retrieve artifacts
-			return NPC_States[DND_NPC_DARKWANDERER].offer_progress * 60 + MapDifficulty * 30;
-		case NPC_OFFER_3:
+			return NPC_States[DND_NPC_DARKWANDERER].offer_progress * DND_ARTIFACT_BASETIME + MapData[DND_MAPDATA_DIFFICULTY] * DND_ARTIFACT_TIME_PER;
+		case NPC_OFFER_SUPERDEMON:
 			// super powered monster
-			
+			switch(NPC_States[DND_NPC_DARKWANDERER].offer_progress) {
+				case DND_CYBERDEMONID:
+					x = 180;
+				break;
+				case DND_SPIDERMASTERMINDID:
+					x = 150;
+				break;
+				default:
+					x = 120;
+				break;
+			}
+			return x * (100 + MapData[DND_MAPDATA_DIFFICULTY] * DND_SUPERDEMON_DIFFBONUS) / 100;
 		break;
 	}
 	return 0;
@@ -380,13 +457,16 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 		// success
 		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
-		HudMessageBold(s:"WELL DONE!"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_GREEN, 240.4, 16.0, 1.0, 1.0);
+		HudMessageBold(l:"DND_WELLDONE"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_GREEN, 240.4, 16.0, 1.0, 1.0);
 		AmbientSound("DarkWanderer/ChallengeWin", 127);
+
+		str reward_chest = GetDarkWandererReward();
+
 		// hand out rewards to survivors
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			int tid = i + P_TIDSTART;
 			if(PlayerInGame(i) && isActorAlive(tid)) {
-				
+				SpawnDrop("LootChest_ForPlayer", 0, 0, i + 1, 0);
 			}
 		}
 	}
@@ -394,17 +474,31 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 		// fail, this means either we have progress left or there is no time, but we know theres no time from the loop above so...
 		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
-		HudMessageBold(s:"YOU FAILED!"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_RED, 240.4, 16.0, 1.0, 1.0);
+		HudMessageBold(l:"DND_FAILEDIT"; HUDMSG_FADEOUT, RPGMENUBACKGROUNDID + 1, CR_RED, 240.4, 16.0, 1.0, 1.0);
 		AmbientSound("DarkWanderer/ChallengeFail", 127);
 	}
 	
 	Delay(const:TICRATE);
 	SetActorState(DND_NPC_TID, "GoBack", false);
+
+	NPC_States[DND_NPC_DARKWANDERER].offer_progress = 0;
+}
+
+str GetDarkWandererReward() {
+	switch(NPC_States[DND_NPC_DARKWANDERER].offer) {
+		case NPC_OFFER_SLAYCHAOSMARK:
+		return "LootChest_ForPlayer_Reverance";
+		case NPC_OFFER_COLLECTARTIFACT:
+		return "LootChest_ForPlayer_Destiny";
+		case NPC_OFFER_SUPERDEMON:
+		return "LootChest_ForPlayer_Order";
+	}
+	return "LootChest_ForPlayer";
 }
 
 Script "DnD NPC Artifact Pickup" (void) {
 	--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
-	NPC_States[DND_NPC_DARKWANDERER].time += 45 + 15 * MapDifficulty;
+	NPC_States[DND_NPC_DARKWANDERER].time += DND_ARTIFACT_BASETIME + DND_ARTIFACT_TIME_PER * MapData[DND_MAPDATA_DIFFICULTY];
 }
 
 Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CLIENTSIDE {

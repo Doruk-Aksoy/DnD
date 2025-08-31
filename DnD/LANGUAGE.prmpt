@@ -9,13 +9,16 @@ DND_TOVOTE			=	"to vote";	// time left to vote
 DND_VOTEPASSED		=	"Vote Passed";
 DND_VOTEFAILED		=	"Vote Failed";
 
+DND_WELLDONE		=	"WELL DONE!";
+DND_FAILEDIT		=	"YOU'VE FAILED!";
+
 DND_PROMPT1			=	"    Greetings warrior! You have many questions, yes? Amongst them, who I am or why I'm not trying to destroy you probably take precedence.";
 DND_PROMPT2			=	"    Many can't see me, those that do see me only briefly. You, however, are different. I sense great power in you. I travel distant worlds, places unimaginable, trying to find the most interesting challenger.";
 DND_PROMPT3			=	"    The talents you have put to display here, show promise and entice me. Henceforth, I'll make offers to you anytime I'm visible to you. The offers I make require a sacrifice. Sometimes in blood, sometimes in other ways. The choice is left to the powers which I serve.";
 DND_PROMPT4			=	"    We meet once again, great warrior. Tell me, are you ready for another challenge?";
 DND_PROMPT5			=	"    Random hand of fate guides me to you, yet again. This time, it may come to pass that you lose.";
 DND_PROMPT6			=	"    My masters believe you are ready for another sacrifice. Let's see if you can live up to the challenge.";
-DND_PROMPT7			=	"Several monsters have received the mark of my masters, making them immensely powerful. Slay them, and be blessed. Fail, and be cursed.";
+DND_PROMPT7			=	"Several monsters have received the mark of my masters, making them immensely powerful. Slay them, and be rewarded. Fail, and leave with nothing.";
 DND_PROMPT8			=	"Objects of immense power have been deployed randomly across the land. Their return shall bring great wealth and power to you.";
 DND_PROMPT9			=	"A certain very powerful monster roams the land. It has been given further cosmic powers to tip the scales. Destroy it and claim its possessions.";
 DND_PROMPT10		=	"You have surpassed expectations. And so, your final challenge will be me. My masters are intrigued at this opportunity. What say you, great warrior? Are you ready?";

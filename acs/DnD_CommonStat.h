@@ -58,7 +58,8 @@ enum {
 	DND_AILMENT_CHILL = 2,
 	DND_AILMENT_FREEZE = 4,
 	DND_AILMENT_POISON = 8,
-	DND_AILMENT_OVERLOAD = 16
+	DND_AILMENT_OVERLOAD = 16,
+	DND_AILMENT_BLEED = 32
 };
 
 enum {
@@ -110,6 +111,7 @@ enum {
 	DND_DAMAGETICFLAG_NOIGNITESTACK		=			0b10000000000,
 	DND_DAMAGETICFLAG_SOULATTACK		=			0b100000000000,
 	DND_DAMAGETICFLAG_LESSENED			=			0b1000000000000, // tells damage numbers to paint it gray basically
+	DND_DAMAGETICFLAG_PHYSICAL			=			0b10000000000000,
 };
 
 #include "DnD_CommonResearch.h"
@@ -179,9 +181,23 @@ enum {
 global int 1: StatListOpened[MAXPLAYERS];
 
 #define MAX_MAP_DIFFICULTIES 5
-global int 4: MapDifficulty;
 
-str GetMapDifficultyLabel(int id) {
+enum {
+	DND_MAPDATA_DIFFICULTY,
+
+	DND_MAPDATA_BARONCOUNT,
+	DND_MAPDATA_FATSOCOUNT,
+	DND_MAPDATA_ARACHNOCOUNT,
+	DND_MAPDATA_ARCHVILECOUNT,
+	DND_MAPDATA_SPIDERMASTERMINDCOUNT,
+	DND_MAPDATA_CYBERDEMONCOUNT,
+
+	DND_MAX_MAPDATA
+};
+
+global int 4: MapData[DND_MAX_MAPDATA];
+
+str MapDifficultyLabel(int id) {
 	str col = "\cd";
 	switch(id) {
 		case 3:

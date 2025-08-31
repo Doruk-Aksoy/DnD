@@ -462,8 +462,6 @@ Actor DnD_RefreshPane : PowerProtection {
 	powerup.duration 3
 }
 
-Actor DnD_AssumedDirty : DnD_Boolean { }
-
 // Two bitsets
 Actor DnD_TradeEngaged_1 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
@@ -507,6 +505,13 @@ Actor DnD_ScoreboardRefresher : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 5
 }
+
+Actor LifestealCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
+Actor LifestealScriptRunning : DnD_Boolean { }
 
 Actor LifeStealAmount : Inventory {
 	inventory.maxamount 0x7FFFFFFF

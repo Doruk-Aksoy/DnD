@@ -817,6 +817,25 @@ void HandleChillEffects(int pnum, int victim) {
 	}
 }
 
+void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
+	if
+	(
+		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_STONECREATURE) &&
+		CheckBleedChance(pnum, wepid)
+	)
+	{
+		int amt = DND_BASE_BLEED_TIME_PLAYER * (100 + GetPlayerAttributeValue(pnum, INV_BLEED_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+		int current_bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
+
+		if(!current_bleed_time) {
+			SetActorInventory(victim, "DnD_BleedTimer", amt);
+			ACS_NamedExecuteWithResult("DnD Monster Bleed (Player)", victim, wepid, overall_dmg);
+		}
+		else
+			SetActorInventory(victim, "DnD_BleedTimer", Max(amt, current_bleed_time));
+	}
+}
+
 void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_within_tic) {
 	bool addedIgn = flags & DND_DAMAGETICFLAG_ADDEDIGNITE;
 	if
@@ -1255,6 +1274,8 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		extra |= DND_DAMAGETICFLAG_FIRE;
 	else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
 		extra |= DND_DAMAGETICFLAG_LIGHTNING;
+	else if(damage_type == DND_DAMAGETYPE_PHYSICAL || damage_type == DND_DAMAGETYPE_MELEE)
+		extra |= DND_DAMAGETICFLAG_PHYSICAL;
 
 	//printbold(s:"before num pnum ", d:pnum, s: " ", d:temp, s:" dmg ", d:dmg);
 	if(!PlayerDamageTicData[pnum][temp]) {
@@ -1450,12 +1471,22 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 		}
 	}
 
-	if(!toAdd) {
+	if(!toAdd && !CheckActorInventory(ptid, "LifestealCooldown")) {
 		GiveActorInventory(ptid, "LifeStealAmount", amt);
+		GiveActorInventory(ptid, "LifestealCooldown", 1);
+		GiveActorInventory(ptid, "LifestealScriptRunning", 1);
 		ACS_NamedExecuteAlways("DnD Lifesteal Script", 0, ptid);
 	}
-	else
+	else {
 		GiveActorInventory(ptid, "LifeStealAmount", amt);
+
+		// fixes a corner-case timing issue
+		if(!CheckActorInventory(ptid, "LifestealScriptRunning")) {
+			GiveActorInventory(ptid, "LifestealCooldown", 1);
+			GiveActorInventory(ptid, "LifestealScriptRunning", 1);
+			ACS_NamedExecuteAlways("DnD Lifesteal Script", 0, ptid);
+		}
+	}
 }
 
 void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
@@ -1714,6 +1745,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 			HandleIgniteEffects(pnum, victim_tid, wepid, flags, GetPlayerIgniteAddedDmg(pnum, wepid, PlayerDamageTicData[pnum][victim_data]));
 		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
 			HandleOverloadEffects(pnum, victim_tid);
+		else if((flags & DND_DAMAGETICFLAG_PHYSICAL) && !(flags & DND_DAMAGETICFLAG_DOT))
+			HandleBleedEffects(pnum, victim_tid, wepid, PlayerDamageTicData[pnum][victim_data]);
 		
 		// frozen monsters cant retaliate	
 		if(!CheckActorInventory(ox, "DnD_FreezeTimer")) {
@@ -1926,7 +1959,8 @@ Script "DnD Bleed FX" (int tid) CLIENTSIDE {
 		if(!isAlive())
 			Terminate;
 
-		SpawnForced("NashGore_Blood", GetActorX(0) + random(-r, r) / 2, GetActorY(0) + random(-r, r) / 2, GetActorZ(0) + (random(16.0, h + 32.0)) / 2, 0);
+		GiveActorInventory(tid, "BloodFXSpawner", 1);
+		//SpawnForced("NashGore_Blood", GetActorX(tid) + random(-r, r) / 2, GetActorY(tid) + random(-r, r) / 2, GetActorZ(tid) + (random(16.0, h + 32.0)) / 2, 0);
 
 		Delay(const:5);
 	}
@@ -2008,6 +2042,44 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 			SetActorProperty(0, APROP_SCALEY, 8 * GetActorProperty(0, APROP_SCALEY) / 10);
 		}
 	}
+	SetResultValue(0);
+}
+
+Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
+	int pnum = PlayerNumber();
+	int source = pnum + P_TIDSTART;
+
+	dmg = GetBleedDamage(pnum, wepid, dmg);
+	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
+
+	int bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
+	int next_dmg = dmg;
+	int inc_by = dmg * dmg_tic_buff / 100;
+
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+		AddMonsterAilment(source, victim, DND_AILMENT_BLEED);
+
+	do {
+		ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim);
+		TakeActorInventory(victim, "DnD_BleedTimer", 1);
+		dmg = HandleDamageDeal(
+			source, 
+			victim, 
+			next_dmg * (1 + 2 * (!!(GetActorVelX(victim) || GetActorVelY(victim) || GetActorVelZ(victim)))), 
+			DND_DAMAGETYPE_PHYSICAL, wepid, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME
+		);
+		if(dmg > 0)
+			Thing_Damage2(victim, dmg, "SkipHandle");
+		
+		// add base damage's value, not previous
+		next_dmg += inc_by;
+		
+		// x 5
+		Delay(const:DND_BLEED_TICRATE);
+	} while(CheckActorInventory(victim, "DnD_BleedTimer") && IsActorAlive(victim));
+
+	SetActorInventory(victim, "DnD_BleedTimer", 0);
+
 	SetResultValue(0);
 }
 
@@ -2616,34 +2688,31 @@ bool IsDamageStringDOT(str s) {
 int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isArmorPiercing) {
 	int armor_id = GetArmorID();
 	bool is_dot = IsDamageStringDOT(dmg_string);
-	int factor = 0.0;
+	int factor = 0;
 
 	// DoT is not negated by armor
 	if(armor_id != -1 && !is_dot) {
 		// retrieve and convert factor to an integer, we convert ex: 0.417 to 417, we will apply damage factor safe method
 		// dmg here is the one to be dealt to the player's health pool
-		factor = 0.0;
 
 		// apply armor effect on this damage
 		dmg = GetArmorRatingEffect(pnum, dmg, armor_id, dmg_data, isArmorPiercing);
 		
 		// special armor cases: Knight gives more reduction if using melee weapon, Duelist negates all hitscan 100% at cost of armor
 		if(armor_id == BODYARMOR_KNIGHT && IsUsingMeleeWeapon())
-			factor += DND_KNIGHTARMOR_MELEEWEP_BONUS;
-		else if(armor_id == BODYARMOR_DUELIST && (dmg_data & DND_DAMAGETYPEFLAG_HITSCAN))
-			factor = 0.75;
-		
-		factor *= ARMOR_INTEGER_FACTOR;
-		factor >>= 16;
+			factor += GetPlayerAttributeExtra(pnum, INV_IMP_KNIGHTARMOR);
+
+		if(HasClassPerk_Fast("Berserker", 1))
+			factor += DND_BERSERKER_MELEEWEPRESIST;
 		
 		// armor reduced factor amount of damage, this is what the player will take as damage
-		dmg = ApplyDamageFactor_Safe(dmg, ARMOR_INTEGER_FACTOR - factor, ARMOR_INTEGER_FACTOR);
+		dmg = ApplyDamageFactor_Safe(dmg, 100 - factor, 100);
 		
 		// if we have ravager armor and on killing spree, reduce damage to 17/20 (15% reduced)
 		if(armor_id == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
 			dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_FACTOR, DND_RAVAGER_REDUCE);
 		else if(armor_id == BODYARMOR_KNIGHT && dmg_string == "Melee") // apply special reductions offered by certain armors
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_KNIGHT_MELEEREDUCE);
+			dmg = ApplyDamageFactor_Safe(dmg, 100 - GetPlayerAttributeValue(pnum, INV_IMP_KNIGHTARMOR));
 	}
 
 	// mitigation -- poison goes through as well
@@ -2900,9 +2969,9 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 	if(HasActorClassPerk_Fast(this, "Berserker", 2) && !CheckActorInventory(this, "Berserker_Perk20_CD")) {
 		// basically make sure only one instance of this runs
 
-		if(!CheckInventory("Berserker_Perk80_Extension")) {
+		if(!CheckActorInventory(this, "Berserker_Perk80_Extension")) {
 			if(!CheckActorInventory(this, "Berserker_DamageTimer"))
-				ACS_NamedExecuteAlways("DnD Berserker Perk20", 0);
+				ACS_NamedExecuteAlways("DnD Berserker Perk20", 0, this);
 				
 			SetActorInventory(this, "Berserker_DamageTimer", DND_BERSERKER_DAMAGETRACKTIME);
 			GiveActorInventory(this, "Berserker_Perk20_CD", 1);
@@ -3253,13 +3322,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = dmg * (100 + factor) / 100;
 
 					// elite damage bonus is multiplicative
-					if(MonsterProperties[m_id].isElite/* && dmg < INT_MAX / factor*/)
+					if(MonsterProperties[m_id].isElite)
 						dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
 						
 					// chaos mark is multiplicative
-					factor = 100 + CHAOSMARK_DAMAGEBUFF;
-					if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]/* && dmg < INT_MAX / factor*/)
+					if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
 						dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
+					else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
+						dmg = dmg * (100 + ASMODEUSMARK_DAMAGEBUFF) / 100;
 						
 					// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
 					dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);

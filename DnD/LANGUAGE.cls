@@ -50,7 +50,7 @@ CLASS1_PERK1_DESC		= "Your explosives do 25% less self damage.";
 CLASS1_PERK2_DESC		= "Your explosive projectiles can't be reflected.";
 CLASS1_PERK3_DESC		= "Take 33% less damage from radius damage. Your explosives ignore radius damage immunity.";
 CLASS1_PERK4_DESC		= "Losing 40% of your health in the span of a two seconds makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
-CLASS1_PERK5_DESC		= "Explosives gain 25% chance to trigger again, increased to 100% per 1% missing health maxing out at 50% health.";
+CLASS1_PERK5_DESC		= "Explosives gain 25% chance to trigger again scaling up to 100% per 1% missing health. The effect is maximized at 50% missing health.";
 	
 
 // Hobo
@@ -114,8 +114,8 @@ CLASS4_PERK1_DESC		= "Debuffs on you expire 25% faster.";
 CLASS4_PERK2_DESC		= "Applying ailments to enemies reduce their resists by 10 per different ailment on them.";
 CLASS4_PERK3_DESC		= "While you have energy shield, you can't be affected by ailments. Energy shield recovery has 20% chance to start immediately when you inflict an ailment on an enemy.";
 CLASS4_PERK4_DESC		= "Enemies killed by you have 25% chance to explode for 15% of their maximum health in a 160 unit radius with a random element. You can't be hurt by this damage.";
-CLASS4_PERK5_DESC		= "Once per map, use the '+zoom' key to leave your body behind, becoming ethereal. Gain access to \ctPsionic Wave\c-, which charges up a massive nova to deal incredible damage with 5 second cooldown."
-						  "\ctRay of Disintegration\c-, which can deal constant damage in a line to all enemies in front of you. And \ctEthereal Walk\c-, which lets you travel freely with 4 second cooldown, dealing damage at start and the end."
+CLASS4_PERK5_DESC		= "Once per map, use the '+zoom' key to leave your body behind, becoming ethereal. Gain access to \ctPsionic Wave\c-, which charges up a massive nova to deal incredible damage with 5 second cooldown. "
+						  "\ctRay of Disintegration\c-, which can deal constant damage in a line to all enemies in front of you. And \ctEthereal Walk\c-, which lets you travel freely with 4 second cooldown, dealing damage at start and the end. "
 						  "Lasts 30 seconds. You return to your body once the effect ends. Press '+zoom' key to end early.";
 
 // Cyborg
@@ -154,8 +154,8 @@ CLASS6_PERK3			= "Barbaric Strength";
 CLASS6_PERK4			= "Relentless Fury";
 CLASS6_PERK5			= "God of War";
 
-CLASS6_PERK1_DESC		= "Can carry unlimited melee weapons. Can't buy any super weapon.";
-CLASS6_PERK2_DESC		= "Gain stacking 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.3 seconds between stacks. Heal for 15% of max health at the end at max stacks.";
+CLASS6_PERK1_DESC		= "Can carry unlimited melee weapons. Can't buy any super weapon. While holding a melee weapon, gain 20% less damage taken.";
+CLASS6_PERK2_DESC		= "Gain stacking 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.3 seconds between stacks. Heal for 25% of max health at the end at max stacks.";
 CLASS6_PERK3_DESC		= "Your melee hits splash on targets hit, dealing 33% of its damage in a cone of 128 unit radius (affected by melee range) and a 120 degree arc.";
 CLASS6_PERK4_DESC		= "Melee hits or kills give fury stacks, each granting 10% more melee damage. Max 30 stacks. At max stacks, gain 30% movement speed and 100% crit damage. Lose a stack every 2 seconds off combat.";
 CLASS6_PERK5_DESC		= "Once per map, use the '+zoom' key to instantly gain maximum stacks of \"Enduring Composure\" and \"Relentless Fury\" for an extended 30 seconds, after which they can start losing stacks.";

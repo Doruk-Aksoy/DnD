@@ -33,3 +33,27 @@ Model Wanderer_ReturnCircle {
 	
 	FrameIndex AURA C 0 3
 }
+
+Model AsmodeusAuraFX {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "ASMODE.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA D 0 3
+}
+
+Model AsmodeusFireCircle {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "FIRECIRC.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA E 0 3
+}

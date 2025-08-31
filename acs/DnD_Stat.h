@@ -127,7 +127,7 @@ void HandleHealDependencyCheck() {
 		FailQuest(ActivatorTID());
 }
 
-void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
+void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStore = false) {
 	if(useTarget)
 		SetActivatorToTarget(0);
 	int curhp = GetActorProperty(0, APROP_HEALTH);
@@ -174,7 +174,7 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 	if(toGive > amt)
 		toGive = amt;
 	
-	if(CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && !isspecial) {
+	if(!noMedkitStore && CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && !isspecial) {
 		if(curhp < healthcap) { // if my current curhp is less than max
 			GiveInventory("HealthBonusX", toGive);
 			GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
@@ -213,8 +213,6 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget) {
 #define DND_SYNTHMETAL_HITSCANBUFF 50 // 50%
 #define DND_SYNTHMETAL_LIGHTNINGNERF 50
 #define DND_LIGHTNINGCOIL_SPECIAL 85 // 85%
-
-#define ARMOR_INTEGER_FACTOR 1000
 
 /*int GetStat(int stat_id) {
 	return CheckInventory(StatData[stat_id]);
@@ -1370,6 +1368,59 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 	// is not immune or if it is, we rolled ailment ignore chance
 	return !MonsterProperties[m_id].trait_list[ailment_mod] || random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
+}
+
+#define DND_BASE_BLEEDCHANCE_MELEE 20
+#define DND_BASE_BLEEDCHANCE_PROJ 5
+#define DND_BASE_BLEED_MULT 3
+#define DND_BASE_BLEED_MULT_PROJ 1
+#define DND_BASE_BLEED_DIV 10
+#define DND_BASE_BLEED_TIME_PLAYER 5
+#define DND_BLEED_TICRATE 11
+
+int CheckBleedChance(int pnum, int wepid) {
+	int base = 0;
+	if(IsMeleeWeapon(wepid))
+		base = DND_BASE_BLEEDCHANCE_MELEE;
+	else
+		base = DND_BASE_BLEEDCHANCE_PROJ;
+
+	return random(1, 100) < base + GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
+}
+
+str GetBleedChanceDisplay(int pnum) {
+	int mval = DND_BASE_BLEEDCHANCE_MELEE + GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
+	int pval = DND_BASE_BLEEDCHANCE_PROJ + GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
+
+	return StrParam(s:"\c[Q9]", d:mval, s:"% \c-", l:"DND_AND", s:"\c[Q9] ", d:pval, s:"%\c- ", l:"DND_CHANCEBLEED");
+}
+
+int GetBleedDamage(int pnum, int wepid, int dmg) {
+	int mult = DND_BASE_BLEED_MULT_PROJ;
+	if(IsMeleeWeapon(wepid))
+		mult = DND_BASE_BLEED_MULT;
+
+	dmg += GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
+
+	dmg = dmg * mult / DND_BASE_BLEED_DIV;
+	if(!dmg)
+		dmg = 1;
+	
+	// percent increase
+	dmg = (dmg * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTDMG_BLEED) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100);
+	
+	// dot multi;
+	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+	
+	return dmg;
+}
+
+int GetPlayerBleedTime(int pnum) {
+	return DND_BASE_BLEED_TIME_PLAYER * (100 + GetPlayerAttributeValue(pnum, INV_BLEED_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+}
+
+str GetPlayerBleedTimeDisplay(int pnum) {
+	return StrParam(f:ftrunc(GetPlayerBleedTime(pnum) * (DND_BLEED_TICRATE << 16) / TICRATE));
 }
 
 #define DND_BASE_IGNITECHANCE 15 // 15%

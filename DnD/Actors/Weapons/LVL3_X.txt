@@ -1440,7 +1440,7 @@ Actor TheAxe : DnDWeapon {
 			FAXE N 4 Bright Offset(15, 32) A_PlayWeaponSound("Axe/Throw")
 			FAXE O 3 Bright Offset(15, 32)
 			FAXE P 2 Bright Offset(15, 32)
-			FAXE P 1 Bright Offset(-5, 70) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_AXE, DND_ATK_SECONDARY, 0)
+			FAXE P 1 Bright Offset(-5, 70) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_AXE, DND_ATK_SECONDARY, DND_AMMOSLOT_SHELL | (AMMO_AXE << 16))
 			FAXE P 2 Bright Offset(-25, 90)
 			FAXE Q 1 Bright Offset(15, 32)
 			FAXE Q 2 Bright Offset(10, 54)

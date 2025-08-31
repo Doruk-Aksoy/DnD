@@ -9,9 +9,10 @@ enum {
 	DND_SCBRD_ALIVEPLAYERCOUNT,
 	DND_SCBRD_SPECPLAYERCOUNT,
 	DND_SCBRD_DEADPLAYERCOUNT,
-	DND_SCBRD_SAFETOSAVE
+	DND_SCBRD_SAFETOSAVE,
+	DND_SCBRD_SAVESUCCEEDED
 };
-#define MAX_SCOREBOARD_DATA (DND_SCBRD_SAFETOSAVE + 1)
+#define MAX_SCOREBOARD_DATA (DND_SCBRD_SAVESUCCEEDED + 1)
 
 #define MAX_INTERMISSION_SONGS 4
 #define MAX_INTERMISSION_PLAYERS_SHOWN 29 // we can fit 29 players currently
@@ -230,6 +231,7 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			if(isSoftorHardcore()) {
 				SaveAllPlayerData();
 				Delay(const:HALF_TICRATE);
+				ScoreboardData[DND_SCBRD_SAVESUCCEEDED] = true;
 				ACS_NamedExecuteAlways("DnD Safe To Save Hint", 0);
 			}
 			

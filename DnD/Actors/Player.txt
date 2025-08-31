@@ -64,6 +64,7 @@ Actor DnD_Player : PlayerPawn {
 	Player.StartItem "ShellSize_2", 2
 	Player.StartItem "ShellSize_8", 8
 	Player.StartItem "ShellSize_8N", 8
+	Player.StartItem "ShellSize_9", 9
 	Player.StartItem "ShellSize_10", 10
 	Player.StartItem "ShellSize_12", 12
 	Player.StartItem "ShellSize_16", 16
