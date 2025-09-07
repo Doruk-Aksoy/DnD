@@ -2960,7 +2960,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 		GiveActorInventory(this, "VeilHealFXSpawner", 1); // use same fx as veil for now
 		GiveActorInventory(this, "DnD_HealOnMissingCD", 1);
 		SetActivator(this);
-		HandleHealthPickup((GetPlayerAttributeValue(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN) * GetMissingHealth()) / 100, 0, 0);
+		HandleHealthPickup((GetPlayerAttributeValue(pnum, INV_EX_CHANCE_HEALMISSINGONPAIN) * GetMissingHealth()) / 100, 0, true, true);
 		// restore ptr
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 	}

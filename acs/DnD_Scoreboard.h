@@ -191,6 +191,9 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			SetPlayerProperty(1, 1, PROP_TOTALLYFROZEN);
 			SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
 
+			// delete the npc prompt in case it was up
+			DeleteText(RPGMENUBACKGROUNDID + 1);
+
 			// make all players run this input loop
 			for(i = 0; i < MAXPLAYERS; ++i) {
 				if(PlayerInGame(i)) {

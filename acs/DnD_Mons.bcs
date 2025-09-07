@@ -341,10 +341,12 @@ Script "DND Dark Lich Warp Shake" (void) {
 	}
 }
 
-Script "DND Flesh Wizard Leash Trail" (int density, int target) CLIENTSIDE {
+Script "DND Flesh Wizard Leash Trail" (int density, int target, int alternate_fx) CLIENTSIDE {
 	int oX = GetActorX(0);
 	int oY = GetActorY(0);
 	int oZ = GetActorZ(0) + 64.0;
+	if(alternate_fx)
+		oZ -=  80.0;
 
     int grX; int grY;  int grZ;
     int vX;  int vY;   int vZ;
@@ -353,6 +355,10 @@ Script "DND Flesh Wizard Leash Trail" (int density, int target) CLIENTSIDE {
     int magnitude;
     int pointCount;
     int pointOffset;
+
+	str toSpawn = "FleshWizardLeashFX";
+	if(alternate_fx)
+		toSpawn = "AsmodeusLeashFX";
 	
     grX = GetActorX(target);
     grY = GetActorY(target);
@@ -376,7 +382,7 @@ Script "DND Flesh Wizard Leash Trail" (int density, int target) CLIENTSIDE {
             bY = (nY * j) + oY;
             bZ = (nZ * j) + oZ;
 
-            SpawnForced("FleshWizardLeashFX", bX, bY, bZ);
+            SpawnForced(toSpawn, bX, bY, bZ);
         }
     }
 }
@@ -882,6 +888,41 @@ Script "DnD Vaaj Pull" (void) {
 	}
 }
 
+Script "DnD Asmodeus Ghost Pull" (int pull_dist) {
+	int oX = GetActorX(0);
+	int oY = GetActorY(0);
+	int oZ = GetActorZ(0);
+
+	pull_dist <<= 16;
+	
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		int curtarget = i + P_TIDSTART;
+		if(!PlayerInGame(i) || !isActorAlive(curtarget))
+			continue;
+
+		int pmass = GetActorProperty(curtarget, APROP_MASS);
+		if(pmass < DND_BASE_PLAYER_MASS)
+			pmass = DND_BASE_PLAYER_MASS;
+
+		if(AproxDistance(GetActorX(curtarget) - oX, GetActorY(curtarget) - oY) <= pull_dist) {
+			int tX = GetActorX(curtarget);
+			int tY = GetActorY(curtarget);
+			int tZ = GetActorZ(curtarget);
+			
+			int xdiff = oX - tX;
+			int ydiff = oY - tY;
+			
+			int velz = (oZ - tZ) >> 16;
+			velz /= pmass; 
+			ThrustThing(VectorAngle(xdiff, ydiff) >> 8, 8, 1, curtarget);
+			ThrustThingZ(curtarget, velz * 2, velz > 0, 0);
+			ACS_NamedExecuteAlways("DND Flesh Wizard Leash Trail", 0, 16, curtarget, 1);
+			PlaySound(curtarget, "FleshWizard/SnareLoop", CHAN_AUTO, 0.33);
+		}
+	}
+}
+
+
 Script "DnD Monster Melee Loop" (int range) {
 	bool res = false;
 	int target = GetActorProperty(0, APROP_TARGETTID);
@@ -1065,6 +1106,49 @@ Script "DnD Eryxia Lob" (int yoffset, int zoffset) {
 		SetActivator(curtid);
 		Delay(const:ERYXIA_SALVO_DELAY);
 	}
+	SetResultValue(0);
+}
+
+Script "DnD Asmodeus Mark Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+
+	int ang = GetActorAngle(0);
+	int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+	int time = LESHRAC_T;
+	
+	if(dist > 256)
+		time += (dist / THORAX_DIST_FACTOR);
+	
+	int velz = ((z_diff + 0.5 * time * time) / time) >> 16;
+	
+	int px = GetActorX(0);
+	int py = GetActorY(0);
+	int spd = 8 * dist / time;
+	if(spd > ERYXIA_PROJ_SPEEDLIM)
+		spd = ERYXIA_PROJ_SPEEDLIM;
+		
+	int proj_angle = AngleToFace(0, targtid);
+		
+	// Shoot the projectile
+	// nx = xoff * cos + yoff * sin
+	// ny = xoff * sin - yoff * cos
+	SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+	SpawnProjectile(0, "AsmodeusFireCircle_Lob", proj_angle >> 8, spd, velz * 8, 800, UNIQUE_MON_AUX_TID);
+	// modify z of this, sometimes actors are too tall
+	SetActorPosition(UNIQUE_MON_AUX_TID, GetActorX(UNIQUE_MON_AUX_TID), GetActorY(UNIQUE_MON_AUX_TID), GetActorZ(0) + zoffset, 0);
+	SetActorPosition(0, px, py, GetActorZ(0), 0);
+	SetActivator(UNIQUE_MON_AUX_TID);
+	// Keep target as owner
+	SetPointer(AAPTR_TARGET, curtid);
+	Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+	SetActivator(curtid);
+	
 	SetResultValue(0);
 }
 
@@ -1387,4 +1471,25 @@ Script "DnD Aura Scale to Match" (void) CLIENTSIDE {
 
 	SetActorProperty(0, APROP_SCALEX, s);
 	SetActorProperty(0, APROP_SCALEY, s);
+}
+
+Script "DnD Species Update to Master" (void) {
+	int master_tid = GetActorProperty(0, APROP_MASTERTID);
+	//printbold(s:"master ", d:master_tid, s: " ", s:GetActorProperty(master_tid, APROP_SPECIES));
+	SetActorProperty(0, APROP_SPECIES, GetActorProperty(master_tid, APROP_SPECIES));
+	SetResultValue(0);
+}
+
+Script "DnD Get Master RH" (void) {
+	int master_tid = GetActorProperty(0, APROP_MASTERTID);
+	SetUserVariable(0, "user_r", 9 + (GetActorProperty(master_tid, APROP_RADIUS) >> 16));
+	SetUserVariable(0, "user_h", GetActorProperty(master_tid, APROP_HEIGHT) >> 16);
+	SetResultValue(0);
+}
+
+Script "Dnd Asmodeus Ghost Cooldown" (void) {
+	int master_tid = GetActorProperty(0, APROP_MASTERTID);
+	SetActivator(master_tid);
+	GiveInventory("AsmodeusPullerGhostCooldown", 1);
+	TakeInventory("AsmodeusMadePullerGhost", 1);
 }

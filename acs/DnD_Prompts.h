@@ -21,9 +21,10 @@ enum {
 	DW_CHALLENGE1,
 	DW_CHALLENGE2,
 	DW_CHALLENGE3,
-	DW_CHALLENGE_DUNGEON
+	DW_CHALLENGE4,
+
+	MAX_PROMPTED_LINES
 };
-#define MAX_PROMPTED_LINES (DW_CHALLENGE_DUNGEON + 1)
 #define DW_CHALLENGE_BEGIN DW_CHALLENGE1
 
 enum {
@@ -31,6 +32,7 @@ enum {
 	NPC_OFFER_SLAYCHAOSMARK,
 	NPC_OFFER_COLLECTARTIFACT,
 	NPC_OFFER_SUPERDEMON,
+	NPC_OFFER_INCURSION,
 	NPC_OFFER_DUNGEON
 };
 
@@ -87,9 +89,10 @@ void NPC_Setup() {
 	//if(PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_npc_appear_level") && random(0, 1.0) <= NPC_APPEAR_CHANCE && !NPC_States[DND_NPC_DARKWANDERER]) {
 		// check if offers can be OK for this particular map
 		NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
-		do {
-			NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_SUPERDEMON);
-		} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
+		//do {
+			NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_SUPERDEMON;
+			//NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_SUPERDEMON);
+		//} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
 
 		NPC_States[DND_NPC_DARKWANDERER].dialog = random(DW_GREET1, DW_GREET3);
 		// find a player and spawn this near them at start
@@ -122,7 +125,7 @@ void ClosePrompt() {
 	TakeInventory("NPC_Offer_Declined", 1);
 	TakeInventory("ShowingPrompt", 1);
 	GiveInventory("NPC_Trigger_Cooldown", 1);
-	LocalAmbientSound("RPG/MenuOpen", 127);
+	LocalAmbientSound("RPG/MenuClose", 127);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
@@ -426,7 +429,7 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 	Delay(const:TICRATE);
 	int color = CR_WHITE;
 	// players did not all die check at the end
-	while(NPC_States[DND_NPC_DARKWANDERER].time && NPC_States[DND_NPC_DARKWANDERER].offer_progress && GetGameModeState() != GAMESTATE_INRESULTSEQUENCE) {
+	while(NPC_States[DND_NPC_DARKWANDERER].time && NPC_States[DND_NPC_DARKWANDERER].offer_progress && GetGameModeState() != GAMESTATE_INRESULTSEQUENCE && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
 		// global display
 		if(NPC_States[DND_NPC_DARKWANDERER].time < 30)
 			color = CR_RED;
@@ -466,7 +469,7 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			int tid = i + P_TIDSTART;
 			if(PlayerInGame(i) && isActorAlive(tid)) {
-				SpawnDrop("LootChest_ForPlayer", 0, 0, i + 1, 0);
+				SpawnDrop(reward_chest, 0, 0, i + 1, 0);
 			}
 		}
 	}
@@ -479,7 +482,6 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 	}
 	
 	Delay(const:TICRATE);
-	SetActorState(DND_NPC_TID, "GoBack", false);
 
 	NPC_States[DND_NPC_DARKWANDERER].offer_progress = 0;
 }
@@ -648,39 +650,44 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			}
 		}
 		
-		// check inputs
-		ListenMouseInput();
-		sendInput = CheckInventory("MenuInput") != 0;
-		if(sendInput) {
-			// server gets a few extra info in boxid
-			if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
-				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
-			i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
-			// guarantee nonzero input
-			if(i) {
-				//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-				NamedRequestScriptPuke("DND Server Box Receive - NPC", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
-			}
-		}
-		
-		Delay(const:1);
-		
-		// retry ack
-		if(!CheckInventory("DND_ACK")) {
+		// users can make only one valid click (accept or decline, no spam)
+		if(!CheckInventory("DnD_PromptLocked")) {
+			// check inputs
+			ListenMouseInput();
+			sendInput = CheckInventory("MenuInput") != 0;
 			if(sendInput) {
-				GiveInventory("DND_ACKLoop", 1);
-				//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
-				//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-				ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK - NPC", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+				// server gets a few extra info in boxid
+				if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
+					MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+				i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
+				// guarantee nonzero input
+				if(i) {
+					//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+					NamedRequestScriptPuke("DND Server Box Receive - NPC", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+				}
+			}
+			
+			Delay(const:1);
+			
+			// retry ack
+			if(!CheckInventory("DND_ACK")) {
+				if(sendInput) {
+					GiveInventory("DND_ACKLoop", 1);
+					//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
+					//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
+					ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK - NPC", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+				}
+			}
+			else {
+				sendInput = false;
+				SetInventory("MenuInput", 0);
+				//Log(s:"reset input data");
+				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
+				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
 			}
 		}
-		else {
-			sendInput = false;
-			SetInventory("MenuInput", 0);
-			//Log(s:"reset input data");
-			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = 0;
-			MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] = 0;
-		}
+		else
+			Delay(const:1);
 	}
 }
 
@@ -720,6 +727,7 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				GiveInventory("NPC_Offer_Accepted", 1);
 				TakeInventory("NPC_Offer_Declined", 1);
+				GiveInventory("DnD_PromptLocked", 1);
 			}
 			else if(boxid == MBOX_2) {
 				// decline -- mark our vote as a no, wait for voting to conclude optionally
@@ -727,6 +735,7 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				GiveInventory("NPC_Offer_Declined", 1);
 				TakeInventory("NPC_Offer_Accepted", 1);
+				GiveInventory("DnD_PromptLocked", 1);
 			}
 		}
 		
@@ -763,6 +772,10 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 		// handle npc completion
 		while(!SpawnedChests)
 			Delay(const:10);
+
+		// send the npc away, no more interaction
+		SetActorState(DND_NPC_TID, "GoBack", false);
+
 		HandleNPC(npc_id);
 	}
 	else {

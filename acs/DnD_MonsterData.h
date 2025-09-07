@@ -14,6 +14,8 @@
 
 #define MONSTER_RES_PER_THRESHOLD 30
 
+#define DND_ASMODEUS_MAXLOB 3
+
 // note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
 // so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
 int GetMonsterHPScaling(int m_id, int level) {
@@ -1284,6 +1286,13 @@ bool IsMagic() {
 	if(monsterID < MONSTER_CUSTOM)
 		return MonsterData[monsterID].flags & DND_MTYPE_MAGICAL_POW;
 	return CheckActorInventory(ActivatorTID(), "MonsterTypeToken") & DND_MTYPE_MAGICAL_POW;
+}
+
+bool IsActorMagic(int tid) {
+	int monsterID = MonsterProperties[tid - DND_MONSTERTID_BEGIN].id;
+	if(monsterID < MONSTER_CUSTOM)
+		return MonsterData[monsterID].flags & DND_MTYPE_MAGICAL_POW;
+	return CheckActorInventory(tid, "MonsterTypeToken") & DND_MTYPE_MAGICAL_POW;
 }
 
 bool IsMagicOrUndead() {

@@ -1,5 +1,13 @@
 $pitchshiftrange 2
 
+Asmodeus/MagicFuse		ASMMFUSE
+
+Asmodeus/ZapExplode1	ASMZAPX1
+Asmodeus/ZapExplode2	ASMZAPX2
+$random Asmodeus/ZapExplode { Asmodeus/ZapExplode1 Asmodeus/ZapExplode2 }
+
+Asmodeus/ZapLoop		ASMOZAPL
+
 Wanderer/Ascend			WNDRASCN
 Wanderer/RayLoop		WANDRAY
 Wanderer/RayFinish		WANDRAYF

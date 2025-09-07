@@ -1334,6 +1334,7 @@ int GetAveragePlayerLevel() {
 
 void ClearLingeringBuffs(int pnum) {
 	TakeInventory("MenuFreeze", 1);
+	TakeInventory("DnD_PromptLocked", 1);
 	SetInventory("AllMapOnlyOnce", 0);
 	SetInventory("Punisher_Perk5_MoveSpeed", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
@@ -1684,6 +1685,53 @@ Script "DnD Register Unique Boss" (int tid, int monid, int maxhp, int level) CLI
 	MonsterProperties[m_id].level = level;
 	
 	SetResultValue(0);
+}
+
+void HandleAsmodeusAttack(int m_id, int isMelee) {
+	int tid = m_id + DND_MONSTERTID_BEGIN;
+	if(IsMonsterIdDemon(m_id)) {
+		if(!isMelee) {
+			if(!CheckInventory("AsmodeusFireLobCooldown")) {
+				GiveInventory("AsmodeusFireCount", 1);
+				if(CheckInventory("AsmodeusFireCount") == DND_ASMODEUS_MAXLOB) {
+					SetInventory("AsmodeusFireCount", 0);
+					GiveInventory("AsmodeusFireLobCooldown", 1);
+				}
+
+				ACS_NamedExecuteWithResult("DnD Asmodeus Mark Lob", 8 * random(-4, 4), random(24, 40));
+			}
+		}
+		else if(!CheckInventory("AsmodeusFireBreathCooldown")) {
+			GiveInventory("AsmodeusFireBreathCooldown", 1);
+			GiveInventory("AsmodeusFireBreather", 1);
+		}
+	}
+	else if(IsActorRobotic(tid)) {
+		if(!isMelee) {
+			GiveInventory("AsmodeusPlasmaShooter", 1);
+		}
+		else {
+			GiveInventory("AsmodeusZapSpawner", 1);
+		}
+	}
+	else if(IsActorMagic(tid)) {
+		if(!isMelee) {
+			GiveInventory("AsmodeusMagicShooter", 1);
+		}
+		else if(!CheckInventory("AsmodeusMagicCrackCooldown")) {
+			GiveInventory("AsmodeusMagicCrackCooldown", 1);
+			GiveInventory("AsmodeusMagicCrackShooter", 1);
+		}
+	}
+	else if(!isMelee) { // only option left is undead...
+		if(!CheckInventory("AsmodeusGhostCooldown")) {
+			GiveInventory("AsmodeusGhostSpawner", 1);
+			GiveInventory("AsmodeusGhostCooldown", 1);
+		}
+	}
+	else if(!CheckInventory("AsmodeusMadePullerGhost") && !CheckInventory("AsmodeusPullerGhostCooldown")) {
+		GiveInventory("AsmodeusPullerGhost_Spawner", 1);
+	}
 }
 
 #include "DnD_Damage.h"

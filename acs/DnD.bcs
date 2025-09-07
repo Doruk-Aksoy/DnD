@@ -1289,7 +1289,7 @@ Script 895 (int val, int this) {
 					SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 					GiveInventory("P_Frozen", 1);
 					GiveInventory("ShowingPrompt", 1);
-					LocalAmbientSound("RPG/MenuClose", 127);
+					LocalAmbientSound("RPG/MenuOpen", 127);
 					
 					// setup
 					ClearPlayerInput(PlayerNumber(), true);
@@ -3228,8 +3228,10 @@ Script "DnD Monster Active" (void) {
 	int tid = ActivatorTID();
 	MonsterProperties[tid - DND_MONSTERTID_BEGIN].isIdle = false;
 
-	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && MonsterProperties[tid - DND_MONSTERTID_BEGIN].trait_list[DND_MARKOFASMODEUS])
+	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !NPC_States[DND_NPC_DARKWANDERER].aux_data && MonsterProperties[tid - DND_MONSTERTID_BEGIN].trait_list[DND_MARKOFASMODEUS]) {
+		NPC_States[DND_NPC_DARKWANDERER].aux_data = 1;
 		ACS_NamedExecuteAlways("DnD Dark Wanderer Challenge Track", 0);
+	}
 }
 
 Script "DnD Loot Penalty Text" (int pnum, int val) CLIENTSIDE {
@@ -4833,7 +4835,7 @@ Script "DnD On Artifact Use" (void) {
 }
 
 // This doesn't trigger when a monster is continuously attacking, their stuff is manually added unfortunately
-Script "DnD On Monster Attack" (void) {
+Script "DnD On Monster Attack" (int isMelee) {
 	int this = ActivatorTID();
 	int m_id = this - DND_MONSTERTID_BEGIN;
 	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
@@ -4851,6 +4853,8 @@ Script "DnD On Monster Attack" (void) {
 			break;
 		}
 	}
+	else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
+		HandleAsmodeusAttack(m_id, isMelee);
 
 	int target = GetActorProperty(0, APROP_TARGETTID);
 

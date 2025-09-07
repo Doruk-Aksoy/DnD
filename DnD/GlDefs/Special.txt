@@ -149,6 +149,71 @@ object DarkWanderer_Artifact {
 	frame NAR0A { light DarkWandererArtifactLight }
 }
 
+object AsmodeusPlasma {
+    frame 64PBA { light PLASMABALL }
+    frame 64PBB { light PLASMABALL }
+
+    frame 64PBC { light PLASMA_X1 }
+    frame 64PBD { light PLASMA_X2 }
+    frame 64PBE { light PLASMA_X2 }
+    frame 64PBF { light PLASMA_X3 }
+    frame 64PBG { light PLASMA_X4 }
+}
+
+flickerlight AsmodeusZapLight {
+	color 0.75 0.8 0.8
+	size 64
+	secondarysize 108
+	chance 0.75
+}
+
+object AsmodeusZapField {
+	frame ASMZ { light AsmodeusZapLight }
+}
+
+flickerlight AsmodeusMagicBoltLight1 {
+	color 0.8 0.175 0.8
+	size 24
+	secondarysize 40
+	chance 0.5
+}
+
+pointlight AsmodeusMagicBoltLight2 {
+	color 1.0 0.25 1.0
+	size 40
+}
+
+pointlight AsmodeusMagicBoltLight3 {
+	color 1.0 0.275 1.0
+	size 48
+}
+
+pointlight AsmodeusMagicBoltLight4 {
+	color 1.0 0.3 1.0
+	size 56
+}
+
+pointlight AsmodeusMagicBoltLight5 {
+	color 1.0 0.0 1.0
+	size 24
+}
+
+pointlight AsmodeusMagicBoltLight6 {
+	color 1.0 0.0 1.0
+	size 12
+}
+
+object AsmodeusMagicBolt {
+	frame ASMMA { light AsmodeusMagicBoltLight1 }
+	frame ASMMB { light AsmodeusMagicBoltLight1 }
+	
+	frame ASMMC { light AsmodeusMagicBoltLight2 }
+	frame ASMMD { light AsmodeusMagicBoltLight3 }
+	frame ASMME { light AsmodeusMagicBoltLight4 }
+	frame ASMMF { light AsmodeusMagicBoltLight5 }
+	frame ASMMG { light AsmodeusMagicBoltLight5 }
+}
+
 // Wanderer special weapon
 
 object WandererShockwave_Real {

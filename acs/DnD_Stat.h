@@ -127,7 +127,7 @@ void HandleHealDependencyCheck() {
 		FailQuest(ActivatorTID());
 }
 
-void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStore = false) {
+void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStore = false, bool notPercentage = false) {
 	if(useTarget)
 		SetActivatorToTarget(0);
 	int curhp = GetActorProperty(0, APROP_HEALTH);
@@ -142,7 +142,8 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	// holds the old amt
 	int toGive = amt, base = amt;
 	// the percentage of spawn health is amt to be given
-	amt = healthcap * amt / 100;
+	if(!notPercentage)
+		amt = healthcap * amt / 100;
 	// consider healing bonuses from quests
 	amt = amt * (100 + bonus) / 100;
 	

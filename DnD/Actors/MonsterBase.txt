@@ -279,7 +279,7 @@ Actor DnD_BaseMeleeMonster_NoRes : DnD_BaseMonster {
 	Stamina 1
 	States {
 		Melee:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0, 1)
 			"####" "#" 0 A_Jump(256, "MeleeState")
 			"####" "#" 35
 		Wait
@@ -323,7 +323,7 @@ Actor DnD_BaseHybridMonster_NoRes : DnD_BaseMonster {
 	Stamina 1
 	States {
 		Melee:
-			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			"####" "#" 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0, 1)
 			"####" "#" 0 A_Jump(256, "MeleeState")
 			"####" "#" 35
 		Wait
@@ -520,18 +520,687 @@ Actor ChaosBolt_Trail {
 	}
 }
 
+Actor AsmodeusFireCount : DnD_Info { }
+Actor AsmodeusFireLobCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -10
+}
+
 Actor AsmodeusFireCircle_Lob {
 	Speed 24
 	Projectile
 	Height 20
 	Radius 10
-	Scale 0.75
+	Scale 0.875
 	Damage (random(40, 60))
 	DamageType "Fire"
+	seesound "lavdatk"
+	deathsound "weapons/phoenixhit"
+	Renderstyle Add
+	Stamina 32
+	BounceType Doom
+	BounceFactor 0.9
+	
+	const int repeats = 27;
+	const int r = 22;
+	var int user_count;
+	
+	-NOGRAVITY
+	+DONTBLAST
+	+BOUNCEONWALLS
+	+BOUNCEONCEILINGS
+	-BOUNCEONFLOORS
+	
+	States {
+		Spawn:
+			ASMO A 1 Bright A_SpawnItemEx("AsmodeusFireCircle_Lob_Trail")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("AsmodeusFireCircle")
+			TNT1 A 0 A_Explode(64, 128, 0)
+			TNT1 A 0 A_SpawnItemEx("AsmodeusFireHitFx")
+		DeathLoop:
+			TNT1 A 0 A_JumpIf(user_count == repeats, "Finish")
+			TNT1 A 17 A_SpawnItemEx("AsmodeusFireExplosion", r * frandom(-8, 8), r * frandom(-8, 8), frandom(0, 12), 0, 0, 0, 0, SXF_TRANSFERPOINTERS)
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Loop
+		Finish:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor AsmodeusFireExplosion {
+	PROJECTILE
+	Speed 0
+	Stamina 36
+	Renderstyle Add
+	Alpha 0.01
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("vile/firecrkl", CHAN_WEAPON)
+			FIRR AAAAAAAAAAAAAA 1 Bright A_FadeIn(0.07)
+			TNT1 A 0 A_PlaySound("weapons/hellex", CHAN_WEAPON)
+			TNT1 A 0 A_Explode(64, 96, 0, 0, 32)
+			FIRR BCDEFGH 3 Bright
+		Stop
+	}
+}
+
+Actor AsmodeusFireHitFx {
+	Scale 0.875
+	Renderstyle Add
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			ASMO CDEFGHIJKL 3 Bright A_FadeOut(0.0875)
+		Stop
+	}
+}
+
+Actor AsmodeusFireCircle_Lob_Trail {
+	Scale 0.6
+	Renderstyle Add
+	Alpha 0.875
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+		SpawnLoop:
+			ASMO B 1 Bright A_FadeOut(0.0875)
+		Loop
+	}
+}
+
+Actor AsmodeusFireCircle {
+	Renderstyle Add
+	Alpha 0.9
+	Scale 12.0
+	ReactionTime 8
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1
+		RealLoop:
+			AURA EEEEEEEEEEEEEEEEEE 1 Bright A_FadeOut(0.015)
+			AURA E 35 Bright A_CountDown
+			AURA EEEEEEEEEEEEEEEEEE 1 Bright A_FadeIn(0.015)
+		Loop
+	}
+}
+
+Actor AsmodeusFireBreathCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}
+
+Actor AsmodeusFireBreath {
+	PROJECTILE
+	Stamina 32
+	Height 16
+	Radius 8
+	Speed 15
+	Damage (random(4, 8))
+	Renderstyle Add
+	Alpha 0.9
+	+RIPPER
+	+BLOODLESSIMPACT
+	+DONTBLAST
+	States {
+		Spawn:
+			FXPO ABCDEFGHIJKLM 3 Bright ThrustThingZ(0, 4, 0, 0)
+		Stop
+		Death:
+			FXPO "####" 1 A_FadeOut(0.2)
+		Stop
+	}
+}
+
+Actor AsmodeusFireBreather : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlaySound("Guru/FireWall", CHAN_7)
+			TNT1 AAAAAAA 0 A_CustomMissile("AsmodeusFireBreath", frandom(height / 4, 2 * height / 3), frandom(-radius / 2, radius / 2), frandom(-22.5, 22.5), CMF_AIMOFFSET | CMF_CHECKTARGETDEAD)
+		Stop
+	}
+}
+
+Actor AsmodeusPlasma {
+	PROJECTILE
+	Speed 42
+	Damage (5 * random(6, 8))
+	Stamina 16
+    SeeSound "CyborgWarrior/Plasma1"
+    DeathSound "weapons/firex5"
+	+DONTREFLECT
+	+DONTBLAST
+	+PIERCEARMOR
+	States {
+		Spawn:
+			64PB AB 3 Bright
+		Loop
+		Death:
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			64PB CDEFGH 3 Bright
+		Stop
+	}
+}
+
+Actor AsmodeusPlasmaShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_CustomMissile("AsmodeusPlasma", frandom(height / 4, 2 * height / 3), frandom(-radius / 2, radius / 2), frandom(-9, 9), CMF_CHECKTARGETDEAD)
+		Stop
+	}
+}
+
+Actor AsmodeusZapField {
+	PROJECTILE
+	Speed 16
+	Stamina 260
+	Alpha 0.975
+	Renderstyle Add
+	Scale 1.2
+	
+	const int timer = 20;
+	var int user_timercount;
+	var int user_count;
+	
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_PlaySound("Asmodeus/ZapLoop", CHAN_WEAPON)
+		SpawnLoopBegin:
+			TNT1 A 0 A_JumpIf(user_count >= timer, "Finish")
+			TNT1 A 0 A_SetUserVar("user_timercount", timer - user_count)
+		SpawnLoop:
+			ASMZ NNNNNNN 1 Bright A_FadeOut(0.075)
+		SpawnDelayLoop:
+			TNT1 A 0 A_SpawnItemEx("AsmoZapFX1",0,0,0,0,0,frandom(0.0,0.5),0,SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("AsmoZapFX4",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,224)
+			TNT1 A 0 A_JumpIf(user_timercount == 0, "FinishSpawnLoop")
+			ASMZ N 1 Bright A_SetUserVar("user_timercount", user_timercount - 1)
+		Loop
+		FinishSpawnLoop:
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 2)
+			TNT1 A 0 A_Explode(32, 108, 0, 0, 32)
+			TNT1 AA 0 A_SpawnItemEx("AsmoZapFX2",0,0,0,0,0,frandom(-0.15,0.25),0,SXF_NOCHECKPOSITION)
+			TNT1 AA 0 A_SpawnItemEx("AsmoZapFX3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+			TNT1 AAAA 0 A_SpawnItemEx("AsmoZapFX4",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,224)
+			ASMZ NNNNNNN 1 Bright A_FadeIn(0.075)
+		Goto SpawnLoopBegin
+		Finish:
+			TNT1 AAA 0 A_SpawnItemEx("AsmoZapFX1",0,0,0,0,0,frandom(0.0,0.5),0,SXF_NOCHECKPOSITION)
+			TNT1 AA 0 A_SpawnItemEx("AsmoZapFX2",0,0,0,0,0,frandom(-0.15,0.25),0,SXF_NOCHECKPOSITION)
+			TNT1 AA 0 A_SpawnItemEx("AsmoZapFX3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION)
+			TNT1 AA 0 A_SpawnItemEx("AsmoZapFX4",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,224)
+			TNT1 A 0 A_PlaySound("Asmodeus/ZapExplode", CHAN_WEAPON)
+			TNT1 A 0 A_Explode(128, 108, 0, 0, 32)
+			ASMZ NNNNNNN 1 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor AsmodeusZapSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_CustomMissile("AsmodeusZapField")
+		Stop
+	}
+}
+
+Actor AsmoZapFX1 {
+	Scale 0
+	RenderStyle Translucent
+	Alpha 0.75
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+			ASMZ J 0
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ J 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ J 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ J 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ J 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ J 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ J 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ K 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ K 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ K 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ K 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ K 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ K 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ L 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ L 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ L 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ L 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ L 1 A_FadeOut(0.0375)
+			TNT1 A 0 A_SetScale(scalex+0.025)	ASMZ L 1 A_FadeOut(0.0375)
+			stop
+	}
+}
+
+Actor AsmoZapFX2 : AsmoZapFX1 {
+	Scale 0.6
+	RenderStyle Add
+	Alpha 0.5
+	+BRIGHT
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+			ASMZ O 0
+			TNT1 A 0 A_SetScale(frandom(0.6,0.68))
+			TNT1 A 0 A_SetScale(scalex-0.1)	ASMZ O 1 A_FadeOut(0.08)
+			TNT1 A 0 A_SetScale(scalex-0.1)	ASMZ O 1 A_FadeOut(0.08)
+			TNT1 A 0 A_SetScale(scalex-0.1)	ASMZ O 1 A_FadeOut(0.08)
+			TNT1 A 0 A_SetScale(scalex-0.1)	ASMZ O 1 A_FadeOut(0.08)
+			TNT1 A 0 A_SetScale(scalex-0.1)	ASMZ O 1 A_FadeOut(0.08)
+			TNT1 A 0 A_SetScale(scalex-0.1)	ASMZ O 1 A_FadeOut(0.08)
+			stop
+	}
+}
+
+Actor AsmoZapFX3 : AsmoZapFX1 {
+	Scale 0.28
+	RenderStyle Add
+	Alpha 1
+	+BRIGHT
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+			ASMZ M 0
+			TNT1 A 0 A_SetScale(frandom(0.28,0.4))
+			TNT1 A 0 A_SetScale(scalex-0.034)	ASMZ M 1 A_FadeOut(0.15)
+			TNT1 A 0 A_SetScale(scalex-0.034)	ASMZ M 1 A_FadeOut(0.15)
+			TNT1 A 0 A_SetScale(scalex-0.034)	ASMZ N 1 A_FadeOut(0.15)
+			TNT1 A 0 A_SetScale(scalex-0.034)	ASMZ N 1 A_FadeOut(0.15)
+			TNT1 A 0 A_SetScale(scalex-0.034)	ASMZ O 1 A_FadeOut(0.15)
+			TNT1 A 0 A_SetScale(scalex-0.034)	ASMZ O 1 A_FadeOut(0.15)
+			stop
+	}
+}
+
+Actor AsmoZapFX4 : AsmoZapFX1 {
+	Scale 1
+	RenderStyle Add
+	Alpha 1
+	+BRIGHT
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 1
+			TNT1 A 0 A_SetScale(frandom(0.6,0.8))
+		SpawnStart:
+			TNT1 A 0 A_Jump(256,"Spawn1","Spawn2","Spawn3","Spawn4","Spawn5")
+		Spawn1:
+			ASMZ P 0
+			goto End
+
+		Spawn2:
+			ASMZ Q 0
+			goto End
+
+		Spawn3:
+			ASMZ R 0
+			goto End
+
+		Spawn4:
+			ASMZ S 0
+			goto End
+
+		Spawn5:
+			ASMZ T 0
+			goto End
+
+		Spawn6:
+			ASMZ U 0
+			goto End
+
+		Spawn7:
+			ASMZ V 0
+			goto End
+
+		Spawn8:
+			ASMZ W 0
+			goto End
+
+		Spawn9:
+			ASMZ X 0
+			goto End
+
+		Spawn10:
+			ASMZ Y 0
+			goto End
+
+		End:
+			"####" "#" 1 A_FadeOut(0.2)
+			stop
+	}
+}
+
+Actor AsmodeusMagicBolt {
+	Speed 20
+	Projectile
+	Height 16
+	Radius 8
+	Scale 0.75
+	Damage (random(20, 36))
+	Stamina 8
 	SeeSound "ChaosBolt/Fire"
 	DeathSound "ChaosBolt/Hit"
 	Renderstyle Add
-	Stamina 32
+	+SEEKERMISSILE
+	States {
+		Spawn:
+			ASMM A 3 Bright A_SeekerMissile(9, 9, SMF_PRECISE)
+			TNT1 A 0 A_SpawnItemEx("AsmodeusMagicBoltTrail")
+			ASMM B 3 Bright A_SeekerMissile(9, 9, SMF_PRECISE)
+			TNT1 A 0 A_SpawnItemEx("AsmodeusMagicBoltTrail")
+		Loop
+		Death:
+			ASMM CDEFGHI 3 Bright
+		Stop
+	}
+}
+
+Actor AsmodeusMagicBoltTrail {
+	Renderstyle Add
+	Alpha 0.95
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1
+			ASMM HIJK 3
+		Stop
+	}
+}
+
+Actor AsmodeusMagicShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_CustomMissile("AsmodeusMagicBolt", frandom(height / 3, 2 * height / 3), frandom(-2 * radius / 3, 2 * radius / 3), frandom(-4, 4), CMF_CHECKTARGETDEAD)
+		Stop
+	}
+}
+
+Actor AsmodeusMagicCrack {
+	PROJECTILE
+	ReactionTime 200
+	Height 4
+	Radius 2
+	Speed 12
+	Damage 0
+	Stamina 12
+	BounceType Hexen
+	var int user_count;
+	const int exp_cd = 24;
+	+SEEKERMISSILE
+	+FLOORHUGGER
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay A_SetUserVar("user_count", 0)
+		SpawnStart:
+			TNT1 AA 0 A_SpawnItemEx("PurpleParticleSlowVanish", frandom(-2, 2), frandom(-2, 2), 0, frandom(-0.25, 0.25), frandom(-0.25, 0.25), frandom(0.75, 1.25))
+			TNT1 A 0 A_JumpIfTracerCloser(80, "SpawnExplosion")
+		FromSpawnExplosion:
+			TNT1 A 0 A_SetUserVar("user_count", 0)
+			TNT1 A 0 A_SeekerMissile(4, 4, SMF_PRECISE | SMF_CURSPEED)
+			TNT1 A 1 A_SpawnItemEx("AsmodeusMagicCrackMarker", 0, 0, 0.5)
+			TNT1 A 1 A_CountDown
+		Goto SpawnStart
+		SpawnExplosion:
+			TNT1 A 0 A_JumpIf(user_count == exp_cd, "FromSpawnExplosion")
+			TNT1 A 0 A_CustomMissile("AsmodeusMagicCrackExplosion", 0, 0, 0, CMF_TRACKOWNER)
+			TNT1 AA 0 A_SpawnItemEx("PurpleParticleSlowVanish", frandom(-2, 2), frandom(-2, 2), 0, frandom(-0.25, 0.25), frandom(-0.25, 0.25), frandom(0.75, 1.25))
+			TNT1 A 1 A_SpawnItemEx("AsmodeusMagicCrackMarker", 0, 0, 0.5)
+			TNT1 A 1 A_CountDown
+			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
+		Goto FromSpawnExplosion
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}
+
+Actor PurpleMagicSpark_Asmodeus : PurpleMagicSpark {
+	Scale 0.1
+	+NOINTERACTION
+	States {
+		Spawn:
+			TNT1 A 1
+		SpawnLoop:
+			OGLP P 2 Bright A_FadeOut(0.08)
+		Loop
+	}
+}
+
+Actor AsmodeusMagicCrackExplosion {
+	PROJECTILE
+	Stamina 12
+	+THRUACTORS
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("Asmodeus/MagicFuse")
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 A_SpawnItemEx("PurpleMagicSpark_Asmodeus", frandom(-2, 2), frandom(-2, 2), 0, frandom(-0.25, 0.25), frandom(-0.25, 0.25), frandom(1.5, 2.5))
+			TNT1 A 0 A_PlaySound("redballbdeth")
+			TNT1 AAAA 1 Light("AsmodeusMagicBoltLight1") A_SpawnItemEx("ExplosionFX3", frandom(-12, 12), frandom(-12, 12), frandom(12, 24), frandom(-0.35, 0.35), frandom(-0.35, 0.35), frandom(0, 0.35))
+			TNT1 A 15 Light("AsmodeusMagicBoltLight1") A_Explode(128, 128, 0, 0, 64)
+		Stop
+	}
+}
+
+Actor AsmodeusMagicCrackMarker {
+	RenderStyle Add
+	Alpha 0.95
+	Scale 0.5
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			AURA F 1 Bright A_FadeOut(0.025)
+		Loop
+	}
+}
+
+Actor AsmodeusMagicCrackShooter : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_CustomMissile("AsmodeusMagicCrack")
+		Stop
+	}
+}
+
+Actor AsmodeusMagicCrackCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -8
+}
+
+Actor AsmodeusGhost : DnD_ArchVilePassiveBase {
+	Health 0x7FFFFFFF
+	Height 16
+	Radius 8
+	Speed 8
+	Mass 50 
+	RENDERSTYLE ADD
+	ALPHA 0.67 
+	PAINCHANCE 0
+	Tag "Ghast"
+	+THRUSPECIES
+	+DONTGIB
+	+NOTARGET
+	+NOGRAVITY 
+	+FLOAT
+	+DONTFALL
+	+THRUACTORS
+	+DONTHURTSPECIES
+	+THRUGHOST
+	+NOBLOOD
+	+NOPAIN
+	+GHOST
+	-SOLID
+	-FLOORCLIP
+	-USEKILLSCRIPTS
+	+ISMONSTER
+	-COUNTKILL
+	SeeSound "UndeadSoul/See"
+	DeathSound "UndeadSoul/Die"
+	Renderstyle Translucent
+	States { 
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_UNDEADPRIESTGHOST)
+			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Species Update to Master")
+		Goto SpawnSetup
+
+		IdleState:
+			RFX0 AB 10 A_GiveInventory("DnD_SightChecker", 1) 
+		Loop 
+		
+		SeeState: 
+			RFX0 A 2 A_VileChase
+		Loop 
+		HealState:
+			TNT1 A 0 A_GiveInventory("Mo_Died", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Kill Forced CS", 0)
+			RFX0 A 3
+		Goto Death
+		XDeathState:
+		DeathState: 
+			RFX0 G 4
+			RFX0 H 3 A_Scream
+			TNT1 A 0 A_NoBlocking
+			RFX0 I 3
+			RFX0 JJJJJ 2 A_FadeOut(0.15)
+		Stop
+	} 
+}
+
+Actor AsmodeusGhostSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 AAA 0 A_SpawnItemEx("AsmodeusGhost", frandom(-16, 16), frandom(-16, 16), frandom(32, 40), 0, 0, 0, 0, SXF_SETMASTER)
+		Stop
+	}
+}
+
+Actor AsmodeusPullerGhost : DnD_BaseMeleeMonster_NoRes {
+	Health 0x7FFFFFFF
+	Radius 16 
+	Height 32 
+	Mass 0x7FFFFFFF
+	Speed 0
+	RENDERSTYLE ADD
+	ALPHA 0.67 
+	PAINCHANCE 0
+	MeleeRange 396
+	Tag "Tractor Ghost"
+	Translation "0:255=%[0.00,0.00,0.00]:[1.64,1.37,1.17]"
+	
+	var int user_r;
+	var int user_h;
+	
+	+DONTGIB
+	+NOTARGET
+	+NOGRAVITY
+	+DONTFALL
+	+NOBLOOD
+	+NOPAIN
+	+GHOST
+	+LOOKALLAROUND
+	-SOLID
+	-USEKILLSCRIPTS
+	+ISMONSTER
+	-COUNTKILL
+	SeeSound "UndeadSoul/See"
+	DeathSound "UndeadSoul/Die"
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_UNDEADPRIESTGHOST)
+			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
+			TNT1 A 0 A_GiveInventory("AsmodeusMadePullerGhost", 1, AAPTR_MASTER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Species Update to Master")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Get Master RH")
+		SpawnSetup:
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[4], args[1])
+		Idle:
+			SPI9 A 0 A_Look
+			SPI9 AAAA 1 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			SPI9 B 0 A_Look
+			SPI9 BBBB 1 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+		Loop 
+		See:
+			SPI9 A 0 A_Chase("Melee", "", CHF_DONTMOVE)
+			SPI9 A 0 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			SPI9 AAAA 1 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			SPI9 B 0 A_Chase("Melee", "", CHF_DONTMOVE)
+			SPI9 B 0 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			SPI9 BBBB 1 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+		Loop
+		Melee:
+			SPI9 A 0 A_FaceTarget
+			SPI9 A 0 ACS_NamedExecuteAlways("DnD Asmodeus Ghost Pull", 0, 384)
+			SPI9 A 0 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			SPI9 AAABBB 1 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+			SPI9 B 0 A_Warp(AAPTR_MASTER, 4, -user_r, user_h - 16, 0, WARPF_NOCHECKPOSITION | WARPF_INTERPOLATE)
+		Goto See
+		DeathState:
+		XDeathState:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Asmodeus Ghost Cooldown")
+			SPI9 EFGHIJ 5
+		Stop
+	}
+}
+
+Actor AsmodeusPullerGhost_Spawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("AsmodeusPullerGhost", 4, -32, 32, 0, 0, 0, 0, SXF_SETMASTER)
+		Stop
+	}
+}
+
+Actor AsmodeusPullerGhostCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -10
+}
+
+Actor AsmodeusMadePullerGhost : DnD_Boolean { }
+
+Actor AsmodeusLeashFX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Renderstyle Add
+	Scale 0.85
+	Translation "0:255=%[0.00,0.00,0.00]:[1.64,1.37,1.17]"
+	States {
+		Spawn:
+			FFX1 BC 3
+		Stop
+	}
+}
+
+Actor AsmodeusGhostCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -15
 }
 
 Actor DnD_HurtToken : PowerProtection {

@@ -13,7 +13,6 @@ object PlasmaBallX
 object NewPlasmaBall
 {
     frame BFLR { light PLASMABALL }
-    frame BFLR { light PLASMABALL }
 }
 
 Object NewPlasmaExplosion
