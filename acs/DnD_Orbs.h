@@ -427,7 +427,12 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			*/
 			PlayerInventoryList[pnum][extra].corrupted = true;
 
+#ifdef ISDEBUGBUILD
+			temp = 1000;
+#else
 			temp = random(1, 1000);
+#endif
+
 			if(temp <= 500 && !CheckInventory("DestinyUsed")) {
 				// does nothing but corrupt the item
 				SetInventory("OrbResult", DND_CORRUPT_FAIL);

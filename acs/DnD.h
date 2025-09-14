@@ -1129,6 +1129,10 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 	MonsterProperties[m_id].basehp = base;
 	MonsterProperties[m_id].maxhp = base + add;
 	MonsterProperties[m_id].level = level;
+
+	// init to false
+	MonsterProperties[m_id].spawnsIncursionMarker = false;
+
 	return base + add;
 }
 

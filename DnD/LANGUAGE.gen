@@ -86,13 +86,12 @@ DND_INVENTORY							= "Inventory";
 DND_TALENT1								= "Melee";
 DND_TALENT2								= "Ballistic";
 DND_TALENT3								= "Energy";
-DND_TALENT4								= "Explosive";
-DND_TALENT5								= "Occult";
+DND_TALENT4								= "Occult";
 
-DND_TALENT6								= "Fire";
-DND_TALENT7								= "Ice";
-DND_TALENT8								= "Lightning";
-DND_TALENT9								= "Poison";
+DND_TALENT5								= "Fire";
+DND_TALENT6								= "Ice";
+DND_TALENT7								= "Lightning";
+DND_TALENT8								= "Poison";
 
 DND_DAMAGEBONUS							= "damage bonus";
 DND_DAMAGE								= "damage";

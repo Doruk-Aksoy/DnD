@@ -82,6 +82,7 @@ typedef struct {
 	bool isElite;
 	bool hasTrait;									// used by clients mostly -- do we have traits
 	bool isIdle;									// monster is idle
+	bool spawnsIncursionMarker;						// will spawn incursion marker
 	int resists[MAX_DAMAGE_CATEGORIES];				// resists of the monster
 	bool trait_list[MAX_MONSTER_TRAITS_STORED]; 	// 1 if that trait is on, 0 if not
 } mo_prop_T;

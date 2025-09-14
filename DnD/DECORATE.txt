@@ -93,6 +93,8 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Monsters.txt"
 #include "Actors/Pets.txt"
 
+#include "Actors/IncursionBase.txt"
+
 #include "Actors/Monsters_Custom/Zombieman.txt"
 #include "Actors/Monsters_Custom/Shotgunguy.txt"
 #include "Actors/Monsters_Custom/Chaingunguy.txt"

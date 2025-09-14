@@ -2,6 +2,7 @@
 #define DND_PROMPT_IN
 
 #include "DnD_Common.h"
+#include "DnD_Incursion.h"
 
 #define DND_ARTIFACT_BASETIME 60
 #define DND_ARTIFACT_TIME_PER 30
@@ -90,7 +91,7 @@ void NPC_Setup() {
 		// check if offers can be OK for this particular map
 		NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
 		//do {
-			NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_SUPERDEMON;
+			NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_INCURSION;
 			//NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_SUPERDEMON);
 		//} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
 
@@ -244,6 +245,16 @@ Script "DnD Chaos Mark FX" (int tid) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+bool IsChallengeTrackException() {
+	switch(NPC_States[DND_NPC_DARKWANDERER].offer) {
+		case NPC_OFFER_SUPERDEMON:
+		case NPC_OFFER_INCURSION:
+		case NPC_OFFER_DUNGEON:
+		return true;
+	}
+	return false;
+}
+
 void HandleNPC(int npc_id) {
 	int mc = 0;
 	int temp = 0;
@@ -376,13 +387,26 @@ void HandleNPC(int npc_id) {
 						}
 					}
 				break;
+				case NPC_OFFER_INCURSION:
+					// cycle through entire list of monsters, roll rng and see if they are "destined" to drop an incursion marker on death
+					temp = GetBaseMarkerSpawnChance(DnD_TID_Counter[DND_TID_MONSTER]);
+					for(mc = 0; mc < DnD_TID_Counter[DND_TID_MONSTER]; ++mc) {
+						i = UsedMonsterTIDs[mc] - DND_MONSTERTID_BEGIN;
+						if(CanMonsterSpawnIncursionMarker(i, temp, mc, DnD_TID_Counter[DND_TID_MONSTER])) {
+							MonsterProperties[i].spawnsIncursionMarker = true;
+							//Log(s:"Confirmed marker on ", d:i, s:" ", s:GetActorClass(UsedMonsterTIDs[mc]), s:" with bchance: ", f:temp);
+						}
+					}
+
+					NPC_States[DND_NPC_DARKWANDERER].aux_data = random(DND_INCURSION_BEGIN, DND_INCURSION_END);
+				break;
 			}
 		break;
 	}
 
 	NPC_States[DND_NPC_DARKWANDERER].time = GetDarkWandererChallengeTime(NPC_States[DND_NPC_DARKWANDERER].offer);
 	
-	if(NPC_States[DND_NPC_DARKWANDERER].offer != NPC_OFFER_SUPERDEMON && NPC_States[DND_NPC_DARKWANDERER].offer != NPC_OFFER_DUNGEON)
+	if(!IsChallengeTrackException())
 		ACS_NamedExecuteAlways("DnD Dark Wanderer Challenge Track", 0);
 }
 
@@ -840,6 +864,71 @@ Script "DnD NPC Vote Sync" (int pnum, int vote, int npc_id) CLIENTSIDE {
 		NPC_States[npc_id].voters[pnum] = vote;
 	}
 	SetResultValue(0);
+}
+
+// this => monster's TID
+void HandleNPCChallenges(int this, int m_id) {
+	static int markers_closeby[DND_MAX_INCURSION_MARKERS][DND_INCURSION_MARKER_MERGECOUNT];
+
+	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_INCURSION) {
+		// make an incursion marker on this monster
+		int i, check_tid;
+		if(MonsterProperties[m_id].spawnsIncursionMarker && Spawn("DnD_IncursionMarker", GetActorX(0), GetActorY(0), GetActorZ(0) + 32.0, DND_INCURSIONMARKER_AUX)) {
+			int marker_tid = GiveIncursionMarkerTID();
+
+			for(i = 0; i < DND_INCURSION_MARKER_MERGECOUNT; ++i)
+				markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][i] = 0;
+
+			// if there are the required amount of markers within the radius of this one, merge them into a portal to summon the incursion monsters
+			for(i = 0; i < DnD_TID_Counter[DND_TID_INCURSIONMARKERS]; ++i) {
+				int count = 0;
+				check_tid = DND_INCURSIONMARKER_TID + i;
+				
+				// inventory check filters "disabled" markers, ie. ones that have already merged
+				if(marker_tid != check_tid && !CheckActorInventory(check_tid, "DnD_Boolean") && fdistance(marker_tid, check_tid) <= DND_INCURSION_MERGERADIUS) {
+					markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][count++] = check_tid;
+					if(count == DND_INCURSION_MARKER_MERGECOUNT) {
+						// stop looking further and spawn the portal now -- look for a spot to create it
+						// accumulate the marker's monster kill data and feed them into this portal
+						check_tid = markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][random(0, DND_INCURSION_MARKER_MERGECOUNT - 1)];
+
+						// find a "decent" place to spawn this thing
+						// it hopefully should spawn...
+						if(Spawn("DnD_IncursionPortal", GetActorX(check_tid), GetActorY(check_tid), GetActorZ(check_tid)), DND_INCURSIONPORTAL_TID) {
+							for(i = 0; i < DND_INCURSION_MARKER_MERGECOUNT; ++i) {
+								int temp = markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][i];
+								SetActorState(temp, "Vanish", false);
+
+								// transfer the user variable data to this
+								for(int j = 0; j < MAX_MONSTER_CATEGORIES; ++j)
+									CopyMarkerDataToPortal(temp, DND_INCURSIONPORTAL_TID, j);
+							}
+
+							SetActivator(DND_INCURSIONPORTAL_TID);
+
+							// remove this tid so more portals can occur perhaps
+    						Thing_ChangeTID(0, 0);
+
+							ACS_NamedExecuteWithResult("DnD Incursion Spawn", NPC_States[DND_NPC_DARKWANDERER].aux_data);
+
+							// restore it
+							SetActivator(this);
+						}
+						break;
+					}
+				}
+			}
+		}
+		else {
+			// check if there are any markers nearby this monster to feed information to
+			for(i = 0; i < DnD_TID_Counter[DND_TID_INCURSIONMARKERS]; ++i) {
+				check_tid = DND_INCURSIONMARKER_TID + i;
+				if(!CheckActorInventory(check_tid, "DnD_Boolean") && fdistance(marker_tid, check_tid) <= DND_INCURSION_MERGERADIUS) {
+					GiveMarkerMonsterKillData(check_tid, MonsterProperties[m_id].class);
+				}
+			}
+		}
+	}
 }
 
 #endif

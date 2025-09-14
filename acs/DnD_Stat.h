@@ -1615,7 +1615,7 @@ int GetSelfExplosiveResist(int pnum) {
 	
 	// properly include this ability's benefit here, including cyborg check
 	if(CheckInventory("Ability_ExplosionMastery")) {
-		if(!HasClassPerk("Cyborg", 1))
+		if(!HasClassPerk_Fast("Cyborg", 1))
 			base = FixedMul(base, (100 - DND_EXP_RES_ABILITY_BONUS) * 1.0 / 100);
 		else
 			base = FixedMul(base, (100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV)) * 1.0 / 100);

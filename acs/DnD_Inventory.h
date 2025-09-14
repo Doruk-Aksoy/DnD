@@ -2759,7 +2759,8 @@ void ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 	
 	if(remove) {
 		aval = -aval;
-		aextra = -aextra;
+		if(!IsAttributeExtraException(atype))
+			aextra = -aextra;
 	}
 
 	// delegate regular attribute as implicit responsibility to this function instead
@@ -2946,11 +2947,6 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 
 	int multiplier = 100;
 
-	// Well of power factor
-	int temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
-	if(temp && GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source) == DND_CHARM_SMALL)
-		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
-
 	// if player has mirror of eternity and this is a medium charm that is NOT the mirror, multiply magnitude by 2
 	if
 	(
@@ -2964,7 +2960,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	}
 
 	// quality check
-	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source);
+	int temp = GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source);
 	if(temp) {
 		// quality is percent based
 		multiplier = multiplier * (temp + 100) / 100;
@@ -2973,12 +2969,18 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// cybernetic check
 	if(has_cybernetic && HasClassPerk_Fast("Cyborg", 1))
 		multiplier = multiplier * (DND_CYBERNETIC_FACTOR + 100) / 100;
+		
+	// implicits dont get well of power factor
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		ProcessItemImplicit(pnum, item_index, source, i, remove, multiplier, noSync, needDelay);
+
+	// Well of power factor
+	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
+	if(temp && GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source) == DND_CHARM_SMALL)
+		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
 
 	for(i = 0; i < ac; ++i)
 		ProcessItemFeature(pnum, item_index, source, i, remove, multiplier, noSync, needDelay);
-		
-	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
-		ProcessItemImplicit(pnum, item_index, source, i, remove, multiplier, noSync, needDelay);
 }
 
 int GetCraftableItemCount() {
@@ -3126,9 +3128,18 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 	// NEW: Corruption ALWAYS replaces the very first implicit!
 	PlayerInventoryList[pnum][item_pos].isDirty = true;
 
+#ifndef ISDEBUGBUILD
 	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);
+#else
+	int corr_outcome = MAX_CORRUPTION_WEIRD_OUTCOMES;
+#endif
+
 	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
+#ifdef ISDEBUGBUILD
+		int corr_mod = INV_CORR_WEAPONPCTDMG;
+#else
 		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
+#endif
 		int extra = GetExtraForMod(pnum, corr_mod);
 
 		if(extra != -1)

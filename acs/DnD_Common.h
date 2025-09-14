@@ -167,6 +167,9 @@ enum {
 
 #define DND_STAT_ATTUNEMENT_GAIN 0.05
 
+#define DND_MAX_INCURSION_MARKERS 1024
+#define DND_MAX_INCURSION_PORTALS 256
+
 enum {
 	// from 1 to DND_MAX_MONSTERS + 1 is the amount of monsters we support -- we'll do tid - 1 to access array loc
 	DND_MONSTERTID_BEGIN = 1,
@@ -277,9 +280,13 @@ enum {
 
 	DND_TRICKSTER_POINTERTID = DND_LOOTBOX_TID + MAXLOOTBOXES,
 
+	DND_INCURSIONMARKER_AUX = DND_TRICKSTER_POINTERTID + MAXPLAYERS,
+	DND_INCURSIONMARKER_TID,
+	DND_INCURSIONPORTAL_TID = DND_INCURSIONMARKER_TID + DND_MAX_INCURSION_MARKERS,
+
 	// used for shit like elite sparkles or reflect shields that are attached to a monster
 	// DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS is the skip for next
-	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_TRICKSTER_POINTERTID + MAXPLAYERS,
+	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_INCURSIONPORTAL_TID + DND_MAX_INCURSION_PORTALS,
 	
 	DND_DROP_TID = INT_MAX - 1,
 	SPECIAL_FX_TID
@@ -444,9 +451,10 @@ int active_quest_id = -1;
 #define DND_TID_PICKUPS 2
 #define DND_TID_SHAREDITEMS 3
 #define DND_TID_LOOTBOXES 4
+#define DND_TID_INCURSIONMARKERS 5
 // keeps at what tid we are left off
 // { DND_MONSTERTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
-int DnD_TID_Counter[5] = { 0, 0, 0, 0, 0 };
+int DnD_TID_Counter[6] = { 0, 0, 0, 0, 0, 0 };
 
 // holds the monster tids that are in use -- arbitrary order
 global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
@@ -534,6 +542,11 @@ void GivePickupTID() {
 void GiveSharedItemTID() {
 	Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + DnD_TID_Counter[DND_TID_SHAREDITEMS]);
 	++DnD_TID_Counter[DND_TID_SHAREDITEMS];
+}
+
+int GiveIncursionMarkerTID() {
+	Thing_ChangeTID(DND_INCURSIONMARKER_AUX, DND_INCURSIONMARKER_TID + DnD_TID_Counter[DND_TID_INCURSIONMARKERS]);
+	return DnD_TID_Counter[DND_TID_INCURSIONMARKERS]++;
 }
 
 enum {

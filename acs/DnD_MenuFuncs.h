@@ -2871,7 +2871,7 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 
 			// specialty items
 			case DND_ITEM_SPECIALTY_CYBORG:
-				if(!HasClassPerk("Cyborg", 2))
+				if(!HasClassPerk_Fast("Cyborg", 2))
 					SetFont("PCORBAKB");
 				else
 					SetFont("PCORBAK");
@@ -3302,7 +3302,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			// we pressed an item box
 			if(!CheckInventory("DnD_InventoryView")) {
 				// don't let user even click this if they aren't allowed
-				if(boxid - 1 == POWERCORE_INDEX && !HasClassPerk("Cyborg", 2)) {
+				if(boxid - 1 == POWERCORE_INDEX && !HasClassPerk_Fast("Cyborg", 2)) {
 					ShowPopup(POPUP_CANTUSEPOWERCORE, false, 0);
 					return;
 				}

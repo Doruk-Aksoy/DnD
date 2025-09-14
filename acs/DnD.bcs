@@ -271,12 +271,12 @@ Script "DnD On Map Load" OPEN {
 	SetupCVarTracking();
 
 	// commented out for now!
-//#ifdef ISDEBUGBUILD
+#ifdef ISDEBUGBUILD
 	while(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
 		Delay(const:TICRATE);
 
 	NPC_Setup();
-//#endif
+#endif
 }
 
 Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
@@ -925,6 +925,8 @@ Script "DND On Kill" KILL {
 	
 	// set activator back to the monster
 	SetActivator(this);
+
+	HandleNPCChallenges(this, m_id);
 	
 	// 25% chance to explode
 	if(!random(0, 3) && HasActorClassPerk_Fast(target, "Wanderer", 4))
@@ -3630,7 +3632,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					amt = 1;
 				
 				// cyborg perk
-				if(HasClassPerk("Cyborg", 1))
+				if(HasClassPerk_Fast("Cyborg", 1))
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 				
 				if((!CheckInventory("RegenStopper") || GetPlayerAttributeValue(pnum, INV_CORR_DMGDOESNTSTOPREGEN)) && cur < lim) {
@@ -5871,7 +5873,7 @@ Script 68 (int x) NET {
 			//Log(s:"pcore");
 			SpawnPowercore(0, true);
 			//Log(s:"orb");
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
