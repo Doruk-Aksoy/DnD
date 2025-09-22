@@ -1,0 +1,20 @@
+Actor CyberdemonSpawner_Incursion : DnD_MonsterSpawner {
+	Health 0x7FFFFFFF
+	Height 40
+	Radius 110
+	-COUNTKILL
+	-SOLID
+	+NOCLIP
+	+NOTDMATCH
+	+BOSSDEATH
+	+NOTARGET
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 1 A_JumpIf(score == 1, "Chex")
+		stop
+		Chex:
+			TNT1 A 0 A_SpawnItemEx("Cyberdemon2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+	}
+}

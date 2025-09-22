@@ -281,6 +281,7 @@ enum {
 	DND_TRICKSTER_POINTERTID = DND_LOOTBOX_TID + MAXLOOTBOXES,
 
 	DND_INCURSIONMARKER_AUX = DND_TRICKSTER_POINTERTID + MAXPLAYERS,
+	DND_INCURSION_SPAWNER_AUX,
 	DND_INCURSIONMARKER_TID,
 	DND_INCURSIONPORTAL_TID = DND_INCURSIONMARKER_TID + DND_MAX_INCURSION_MARKERS,
 
@@ -545,8 +546,9 @@ void GiveSharedItemTID() {
 }
 
 int GiveIncursionMarkerTID() {
-	Thing_ChangeTID(DND_INCURSIONMARKER_AUX, DND_INCURSIONMARKER_TID + DnD_TID_Counter[DND_TID_INCURSIONMARKERS]);
-	return DnD_TID_Counter[DND_TID_INCURSIONMARKERS]++;
+	int toGive = DND_INCURSIONMARKER_TID + (DnD_TID_Counter[DND_TID_INCURSIONMARKERS]++);
+	Thing_ChangeTID(DND_INCURSIONMARKER_AUX, toGive);
+	return toGive;
 }
 
 enum {
@@ -737,33 +739,71 @@ void SpawnDropFacing(str actor, int zoffset, int thrust, int setspecial, int set
 int SpawnAreaTID(int stid, int maxdist, int degree_inc, str actortype, int newtid, int ang_begin, int forced) {
 	// tries to spawn an object in a circle around stid
 	// tries halving radius if a full circular attempt failed until radius becomes 1
-	int r = maxdist, tries = 0, circle_comp = 360 / (degree_inc >> 16), test = 0;
+	int r = maxdist, tries = 0, circle_comp = 360 / (degree_inc >> 16);
 	int sang = GetActorAngle(stid) + ang_begin;
 	bool finish = false;
 	// convert to byte angle for this part
 	degree_inc /= 360; 
-	degree_inc <<= 8;
-	while(r != 1.0 && !finish) {
-		// try to spawn at this one point
-		int cx = GetActorX(stid) + FixedMul(r, cos(sang + tries * degree_inc));
-		int cy = GetActorY(stid) + FixedMul(r, sin(sang + tries * degree_inc));
-		int cz = GetActorZ(stid);
-		if(forced)
-			test = SpawnForced(actortype, cx, cy, cz, newtid);
-		else
-			test = Spawn(actortype, cx, cy, cz, newtid);
-			
-		if(test)
-			finish = true;
-		else {
-			++tries;
-			if(tries == circle_comp) {
-				tries = 0;
-				r /= 2;
+	//degree_inc <<= 8;
+
+	// apparently this causes expression incomplete even though it looks complete to me
+	//int function(str, int, int, int, int, int)& f = Spawn;
+	int cx, cy, cz;
+	if(forced) {
+		while(r > 1.0 && !finish) {
+			// try to spawn at this one point
+			cx = GetActorX(stid) + FixedMul(r, cos(sang + tries * degree_inc));
+			cy = GetActorY(stid) + FixedMul(r, sin(sang + tries * degree_inc));
+			cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
+				
+			if(SpawnForced(actortype, cx, cy, cz, newtid, 0))
+				finish = true;
+			else {
+				++tries;
+				if(tries == circle_comp) {
+					tries = 0;
+					r /= 2;
+				}
+			}
+		}
+	}
+	else {
+		while(r > 1.0 && !finish) {
+			// try to spawn at this one point
+			cx = GetActorX(stid) + FixedMul(r, cos(sang + tries * degree_inc));
+			cy = GetActorY(stid) + FixedMul(r, sin(sang + tries * degree_inc));
+			cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
+
+			if(Spawn(actortype, cx, cy, cz, newtid, 0))
+				finish = true;
+			else {
+				++tries;
+				if(tries == circle_comp) {
+					tries = 0;
+					r /= 2;
+				}
 			}
 		}
 	}
 	return finish;
+}
+
+int SpawnAreaRandomTID(int stid, int radius, str actortype, int newtid, int max_tries = 30) {
+	int count = 0;
+	bool finished = false;
+	while(!finished && count++ < max_tries) {
+		// not the most uniform circle random point picker, but it's "close enough" -- mathematically robust one uses sqrt on the rng, too expensive for this game
+		int r = FixedMul(radius, random(0, 1.0));
+		int sang = random(0, 1.0);
+
+		int cx = GetActorX(stid) + FixedMul(r, cos(sang));
+		int cy = GetActorY(stid) + FixedMul(r, sin(sang));
+		int cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
+		if(Spawn(actortype, cx, cy, cz, newtid, 0))
+			finished = true;
+	}
+
+	return finished;
 }
 
 void DeleteText(int textid) {

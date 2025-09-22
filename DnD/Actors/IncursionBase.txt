@@ -1,6 +1,4 @@
-Actor DnD_IncursionMarker {
-	Scale 0.75
-	
+Actor DnD_Incursion_Base {
 	// monster class kill data collection
 	var int user_mclass_0;
 	var int user_mclass_1;
@@ -25,7 +23,7 @@ Actor DnD_IncursionMarker {
 	
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay A_SetUserVar("user_mclass_0", 0)
+			/*TNT1 A 0 NoDelay A_SetUserVar("user_mclass_0", 0)
 			TNT1 A 0 A_SetUserVar("user_mclass_1", 0)
 			TNT1 A 0 A_SetUserVar("user_mclass_2", 0)
 			TNT1 A 0 A_SetUserVar("user_mclass_3", 0)
@@ -42,9 +40,22 @@ Actor DnD_IncursionMarker {
 			TNT1 A 0 A_SetUserVar("user_mclass_14", 0)
 			TNT1 A 0 A_SetUserVar("user_mclass_15", 0)
 			TNT1 A 0 A_SetUserVar("user_mclass_16", 0)
-			TNT1 A 0 A_SetUserVar("user_mclass_17", 0)
+			TNT1 A 0 A_SetUserVar("user_mclass_17", 0)*/
+			TNT1 A 0
+			TNT1 A 0 A_Jump(256, "Init")
+			TNT1 A 35
+		Wait
+	}
+}
+
+Actor DnD_IncursionMarker : DnD_Incursion_Base {
+	Scale 0.75
+	
+	States {
+		Init:
 			CEYE A -1 Bright
 		Stop
+		
 		Vanish:
 			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
 			TNT1 A -1
@@ -52,31 +63,11 @@ Actor DnD_IncursionMarker {
 	}
 }
 
-Actor DnD_IncursionPortal {
-	+NOINTERACTION
+Actor DnD_IncursionPortal : DnD_Incursion_Base {
 	Translation "112:127=%[0.00,0.00,0.00]:[2.00,0.31,0.31]"
 	
-	var int user_mclass_0;
-	var int user_mclass_1;
-	var int user_mclass_2;
-	var int user_mclass_3;
-	var int user_mclass_4;
-	var int user_mclass_5;
-	var int user_mclass_6;
-	var int user_mclass_7;
-	var int user_mclass_8;
-	var int user_mclass_9;
-	var int user_mclass_10;
-	var int user_mclass_11;
-	var int user_mclass_12;
-	var int user_mclass_13;
-	var int user_mclass_14;
-	var int user_mclass_15;
-	var int user_mclass_16;
-	var int user_mclass_17;
-	
 	States {
-		Spawn:
+		Init:
 			CEYE C -1 Bright
 		Stop
 		

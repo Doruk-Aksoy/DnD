@@ -1,15 +1,16 @@
 #ifndef DND_INCURSION_IN
 #define DND_INCURSION_IN
 
-#define DND_INCURSION_MARKER_MERGECOUNT 4 // if this many markers have spawned within the radius, they'll merge to form a portal
+#define DND_INCURSION_MARKER_MERGECOUNT 4 // if this many markers have spawned within the radius, they'll merge to form a portal -- this is technically 3, as the marker itself counts as 1 too
 #define DND_INCURSION_MERGERADIUS 640.0 // the maximum radius in which incursion markers can be merged
-#define DND_INCURSION_BASE_MARKERCHANCE 0.15 // 15%
+#define DND_INCURSION_BASE_MARKERCHANCE 0.75 // 15%
 #define DND_INCURSION_MIN_MARKERCHANCE 0.075
 #define DND_INCURSION_BONUSMULT 0.33 // up to 33% increase the more it processes the monster list (to help even the odds and avoid "drought" situations)
 #define DND_INCURSION_IMPROVETHRESHOLD 500
 #define DND_INCURSION_REDUCETHRESHOLD 700
 #define DND_INCURSION_IMPROVEPER 250
 #define DND_INCURSION_MARKERIMPROVEPCT 0.025
+#define DND_INCURSION_SPAWNRADIUS 384.0
 
 enum {
     DND_INCURSION_NONE,
@@ -102,20 +103,81 @@ void GiveMarkerMonsterKillData(int marker_tid, int mclass) {
         var_name,
         GetUserVariable(marker_tid, var_name) + 1
     );
+    //Log(s:"incremented marker ", d:marker_tid, s:" on class ", d:mclass, s:" to now be ", d:GetUserVariable(marker_tid, var_name));
 }
 
-void CopyMarkerDataToPortal(int marker_tid, int portal_tid, int mclass) {
+void PoolMarkerDataToPortal(int marker_tid, int portal_tid, int mclass) {
     str var_name = StrParam(s:"user_mclass_", d:mclass);
     SetUserVariable(
         portal_tid,
         var_name,
-        GetUserVariable(marker_tid, var_name)
+        GetUserVariable(portal_tid, var_name) + GetUserVariable(marker_tid, var_name)
     );
+    //Log(s:"Pooling marker data ", d:marker_tid, s:" on mclass ", d:mclass, s: " to be ", d:GetUserVariable(portal_tid, var_name));
+}
+
+str GetIncursionMonsterSpawner(int class) {
+    switch(class) {
+        case MONSTERCLASS_ZOMBIEMAN:
+        return "ZombiemanSpawner_Incursion";
+        case MONSTERCLASS_SHOTGUNGUY:
+        return "ShotgunguySpawner_Incursion";
+        case MONSTERCLASS_CHAINGUNGUY:
+        return "ChaingunguySpawner_Incursion";
+        case MONSTERCLASS_DEMON:
+        return "DemonSpawner_Incursion";
+        case MONSTERCLASS_SPECTRE:
+        return "SpectreSpawner_Incursion";
+        case MONSTERCLASS_IMP:
+        return "ImpSpawner_Incursion";
+        case MONSTERCLASS_CACODEMON:
+        return "CacoSpawner_Incursion";
+        case MONSTERCLASS_PAINELEMENTAL:
+        return "PainElementalSpawner_Incursion";
+        case MONSTERCLASS_LOSTSOUL:
+        return "LostSoulSpawner_Incursion";
+        case MONSTERCLASS_REVENANT:
+        return "RevenantSpawner_Incursion";
+        case MONSTERCLASS_HELLKNIGHT:
+        return "HellKnightSpawner_Incursion";
+        case MONSTERCLASS_BARON:
+        return "BaronSpawner_Incursion";
+        case MONSTERCLASS_FATSO:
+        return "FatsoSpawner_Incursion";
+        case MONSTERCLASS_ARACHNOTRON:
+        return "ArachnoSpawner_Incursion";
+        case MONSTERCLASS_ARCHVILE:
+        return "ArchVileSpawner_Incursion";
+        case MONSTERCLASS_SPIDERMASTERMIND:
+        return "SpiderBossSpawner_Incursion";
+        case MONSTERCLASS_CYBERDEMON:
+        return "CyberdemonSpawner_Incursion";
+        case MONSTERCLASS_WOLFENSS:
+        return "WolfenSS_Spawner_Incursion";
+    }
+    return "";
 }
 
 Script "DnD Incursion Spawn" (int incursion_theme) {
     // spawn monsters from this portal according to what has been killed around it... with some randomization (maybe not spawn some at all etc.)
+    for(int i = 0; i < MAX_MONSTER_CATEGORIES; ++i) {
+        str var_name = StrParam(s:"user_mclass_", d:i);
+        int val = GetUserVariable(0, var_name);
 
+        Log(s:"checking user var: ", s:var_name, s:" value: ", d:val);
+
+        str spawner = GetIncursionMonsterSpawner(i);
+
+        for(int j = 0; j < val; ++j) {
+            if(SpawnAreaRandomTID(0, DND_INCURSION_SPAWNRADIUS, spawner, DND_INCURSION_SPAWNER_AUX)) {
+                //Log(s:"spawned!");
+                SetActorProperty(DND_INCURSION_SPAWNER_AUX, APROP_SCORE, incursion_theme);
+                Thing_ChangeTID(DND_INCURSION_SPAWNER_AUX, 0);
+                Delay(const:1);
+            }
+        }
+        Delay(const:HALF_TICRATE);
+    }
 
     // disappear
     SetActorState(0, "Vanish", false);

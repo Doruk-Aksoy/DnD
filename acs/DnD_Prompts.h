@@ -876,17 +876,25 @@ void HandleNPCChallenges(int this, int m_id) {
 		if(MonsterProperties[m_id].spawnsIncursionMarker && Spawn("DnD_IncursionMarker", GetActorX(0), GetActorY(0), GetActorZ(0) + 32.0, DND_INCURSIONMARKER_AUX)) {
 			int marker_tid = GiveIncursionMarkerTID();
 
+			//Log(s:"marker index: ", d:marker_tid - DND_INCURSIONMARKER_TID, s: " marker total: ", d:DnD_TID_Counter[DND_TID_INCURSIONMARKERS]);
+
 			for(i = 0; i < DND_INCURSION_MARKER_MERGECOUNT; ++i)
 				markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][i] = 0;
 
 			// if there are the required amount of markers within the radius of this one, merge them into a portal to summon the incursion monsters
+			int count = 0;
 			for(i = 0; i < DnD_TID_Counter[DND_TID_INCURSIONMARKERS]; ++i) {
-				int count = 0;
 				check_tid = DND_INCURSIONMARKER_TID + i;
 				
 				// inventory check filters "disabled" markers, ie. ones that have already merged
-				if(marker_tid != check_tid && !CheckActorInventory(check_tid, "DnD_Boolean") && fdistance(marker_tid, check_tid) <= DND_INCURSION_MERGERADIUS) {
+				//Log(s:"comp: ", d:marker_tid, s: " ", d:check_tid, s: " ", f:fdistance(marker_tid, check_tid), s: " <= ", f:DND_INCURSION_MERGERADIUS);
+				if(marker_tid == check_tid || (!CheckActorInventory(check_tid, "DnD_Boolean") && fdistance(marker_tid, check_tid) <= DND_INCURSION_MERGERADIUS)) {
 					markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][count++] = check_tid;
+
+					// increment marker data
+					GiveMarkerMonsterKillData(check_tid, MonsterProperties[m_id].class);
+
+					//Log(s:"matched, count: ", d:count);
 					if(count == DND_INCURSION_MARKER_MERGECOUNT) {
 						// stop looking further and spawn the portal now -- look for a spot to create it
 						// accumulate the marker's monster kill data and feed them into this portal
@@ -894,14 +902,14 @@ void HandleNPCChallenges(int this, int m_id) {
 
 						// find a "decent" place to spawn this thing
 						// it hopefully should spawn...
-						if(Spawn("DnD_IncursionPortal", GetActorX(check_tid), GetActorY(check_tid), GetActorZ(check_tid)), DND_INCURSIONPORTAL_TID) {
-							for(i = 0; i < DND_INCURSION_MARKER_MERGECOUNT; ++i) {
-								int temp = markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][i];
+						if(Spawn("DnD_IncursionPortal", GetActorX(check_tid), GetActorY(check_tid), GetActorZ(check_tid), DND_INCURSIONPORTAL_TID)) {
+							for(count = 0; count < DND_INCURSION_MARKER_MERGECOUNT; ++count) {
+								int temp = markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][count];
 								SetActorState(temp, "Vanish", false);
 
 								// transfer the user variable data to this
 								for(int j = 0; j < MAX_MONSTER_CATEGORIES; ++j)
-									CopyMarkerDataToPortal(temp, DND_INCURSIONPORTAL_TID, j);
+									PoolMarkerDataToPortal(temp, DND_INCURSIONPORTAL_TID, j);
 							}
 
 							SetActivator(DND_INCURSIONPORTAL_TID);
@@ -923,7 +931,7 @@ void HandleNPCChallenges(int this, int m_id) {
 			// check if there are any markers nearby this monster to feed information to
 			for(i = 0; i < DnD_TID_Counter[DND_TID_INCURSIONMARKERS]; ++i) {
 				check_tid = DND_INCURSIONMARKER_TID + i;
-				if(!CheckActorInventory(check_tid, "DnD_Boolean") && fdistance(marker_tid, check_tid) <= DND_INCURSION_MERGERADIUS) {
+				if(!CheckActorInventory(check_tid, "DnD_Boolean") && fdistance(0, check_tid) <= DND_INCURSION_MERGERADIUS) {
 					GiveMarkerMonsterKillData(check_tid, MonsterProperties[m_id].class);
 				}
 			}

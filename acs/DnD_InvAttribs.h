@@ -36,7 +36,56 @@ str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
 // every 10 points contribute 0.01%
 // applied as follows: X = spread of weapon, X * (1.0 - accuracy * factor_per_point), capped at 100 000 accuracy (100%)
 
-#define DND_ATTRIBUTEBONUS_CAP 1024
+#define DND_MAX_ATTRIBUTE_SYNC_ELEMS 64
+typedef struct {
+	int count;
+	int arr[DND_MAX_ATTRIBUTE_SYNC_ELEMS]; // 64 attributes should be enough
+
+	int extras;
+	int arr_extra[MAX_ITEM_IMPLICITS];
+} attrib_sync_T;
+
+global attrib_sync_T 48: PlayerAttributeSyncs[MAXPLAYERS];
+
+bool IsAttributeQueuedForSync(int pnum, int attrib_id) {
+	int amt = PlayerAttributeSyncs[pnum].count;
+	for(int i = 0; i < amt; ++i)
+		if(PlayerAttributeSyncs[pnum].arr[i] == attrib_id)
+			return true;
+	return false;
+}
+
+bool IsAttributeExtraQueuedForSync(int pnum, int attrib_id) {
+	int amt = PlayerAttributeSyncs[pnum].extras;
+	for(int i = 0; i < amt; ++i)
+		if(PlayerAttributeSyncs[pnum].arr_extra[i] == attrib_id)
+			return true;
+	return false;
+}
+
+void PushToPlayerAttributeSync(int pnum, int attrib_id) {
+	if(PlayerAttributeSyncs[pnum].count < DND_MAX_ATTRIBUTE_SYNC_ELEMS && !IsAttributeQueuedForSync(pnum, attrib_id))
+		PlayerAttributeSyncs[pnum].arr[PlayerAttributeSyncs[pnum].count++] = attrib_id;
+}
+
+void PushToPlayerAttributeExtraSync(int pnum, int attrib_id) {
+	if(PlayerAttributeSyncs[pnum].extras < MAX_ITEM_IMPLICITS && !IsAttributeExtraQueuedForSync(pnum, attrib_id))
+		PlayerAttributeSyncs[pnum].arr_extra[PlayerAttributeSyncs[pnum].extras++] = attrib_id;
+}
+
+void ClearPlayerAttributeSync(int pnum) {
+	int amt = PlayerAttributeSyncs[pnum].count;
+	for(int i = 0; i < amt; ++i)
+		PlayerAttributeSyncs[pnum].arr[i] = -1;
+	PlayerAttributeSyncs[pnum].count = 0;
+}
+
+void ClearPlayerAttributeExtraSync(int pnum) {
+	int amt = PlayerAttributeSyncs[pnum].extras;
+	for(int i = 0; i < amt; ++i)
+		PlayerAttributeSyncs[pnum].arr_extra[i] = -1;
+	PlayerAttributeSyncs[pnum].extras = 0;
+}
 
 //#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF
 
@@ -552,30 +601,18 @@ int GetExtraForMod(int pnum, int mod) {
 	return res;
 }
 
-void SetPlayerModValue(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
+void SetPlayerModValue(int pnum, int mod, int val) {
 	PlayerModValues[pnum][mod] = val;
-	
-	if(!noSync) {
-		if(!needDelay)
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
-		else
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync (Special)", pnum, mod, PlayerModValues[pnum][mod]);
-	}
+	PushToPlayerAttributeSync(pnum, mod);
 }
 
-void SetPlayerModExtra(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
+void SetPlayerModExtra(int pnum, int mod, int val) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
 	PlayerModExtras[pnum][mod] = val;
-	
-	if(!noSync) {
-		if(!needDelay)
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
-		else
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync (Special)", pnum, mod, PlayerModExtras[pnum][mod]);
-	}
+	PushToPlayerAttributeExtraSync(pnum, mod);
 }
 
-void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
+void IncPlayerModValue(int pnum, int mod, int val) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
@@ -598,15 +635,10 @@ void IncPlayerModValue(int pnum, int mod, int val, bool noSync = false, bool nee
 			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], -val) - 1.0;
 	}
 
-	if(!noSync) {
-		if(!needDelay)
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
-		else
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync (Special)", pnum, mod, PlayerModValues[pnum][mod]);
-	}
+	PushToPlayerAttributeSync(pnum, mod);
 }
 
-void IncPlayerModExtra(int pnum, int mod, int val, bool noSync = false, bool needDelay = false) {
+void IncPlayerModExtra(int pnum, int mod, int val) {
 	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
@@ -629,12 +661,7 @@ void IncPlayerModExtra(int pnum, int mod, int val, bool noSync = false, bool nee
 			PlayerModExtras[pnum][mod] = CancelMultiplicativeFactors(PlayerModExtras[pnum][mod], -val) - 1.0;
 	}
 	
-	if(!noSync) {
-		if(!needDelay)
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
-		else
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync (Special)", pnum, mod, PlayerModExtras[pnum][mod]);
-	}
+	PushToPlayerAttributeExtraSync(pnum, mod);
 }
 
 void ResetPlayerModList(int pnum) {

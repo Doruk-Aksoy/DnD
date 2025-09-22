@@ -1904,8 +1904,8 @@ Script "DnD Monster Spawner" (int category) {
     while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersNotReadyForHardcore())
         Delay(const:10);
 
-	// throttle the spawns
-	if(GameType() != GAME_SINGLE_PLAYER)
+	// throttle the spawns -- score field is used as a means to bypass delay here
+	if(GameType() != GAME_SINGLE_PLAYER && !GetActorProperty(0, APROP_SCORE))
 		Delay(17 * (random(0, DND_MAX_MONSTERDELAY) + 1)); //Added 1 second for player level to be accurate first (people might load at last second).
 	int roll, bin;
 	int avg_level = GetAveragePlayerLevel();
@@ -5931,8 +5931,8 @@ Script 68 (int x) NET {
 		else if(x == 451)
 			SpawnDrop("ResearchModule_MP", 24.0, 16, 1, random(0, 50));
 		else if(x == 500) {
-			IncPlayerModValue(PlayerNumber(), INV_SHIELD_INCREASE, 1000, false);
-			IncPlayerModValue(PlayerNumber(), INV_SHIELD_RECHARGEDELAY, 100, false);
+			IncPlayerModValue(PlayerNumber(), INV_SHIELD_INCREASE, 1000);
+			IncPlayerModValue(PlayerNumber(), INV_SHIELD_RECHARGEDELAY, 100);
 			HandleEShieldChange(PlayerNumber(), 0);
 		}
 		else if(x == 501)
