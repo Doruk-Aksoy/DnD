@@ -1,0 +1,79 @@
+ACTOR ChexQuadrumpus : DnD_BaseRangedMonster {
+	Health 0x7FFFFFFF
+	Mass 768
+	Height 60
+	Radius 25
+	Speed 8
+	Bloodcolor "Green"
+	Seesound "qimp/sight"
+	Painsound "qimp/pain"
+	Deathsound "qimp/death"
+	Activesound "qimp/active"
+	Painchance 30
+	+ISMONSTER
+	+FLOORCLIP
+	+QUICKTORETALIATE
+	-COUNTKILL
+	-DROPOFF
+	Obituary "%o was slimed by a Quadrumpus."
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_QUADWUMPUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+
+		SeeState:
+			C006 AABBCCDD 3 A_Chase
+		loop
+		IdleState:
+			C006 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C006 AB 10 A_Wander
+			C006 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+		loop
+		MissileState:
+			C006 E 0 A_Jump(128, "Multishot")
+			C006 EF 6 A_FaceTarget
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+		goto See
+		Multishot:
+			C006 EF 6 A_FaceTarget
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 EF 5 A_FaceTarget
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 EF 4 A_FaceTarget
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 EF 3 A_FaceTarget
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-1,1))
+			C006 G 5 A_CustomMissile("QuadrumpusBall", 32, 0, random(-2,2))
+			C006 E 7
+		goto See
+		PainState:
+			C006 H 2
+			C006 H 2 A_Pain
+		goto See
+		DeathState:
+			C006 I 1
+			C006 I 1 A_SpawnitemEx ("NashGore_Gib1", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C006 I 1 A_SpawnitemEx ("NashGore_Gib2", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C006 I 1 A_SpawnitemEx ("NashGore_Gib3", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C006 I 4 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C006 J 8 A_Scream
+			C006 K 6 
+			C006 L 6 A_NoBlocking
+		stop
+	}
+}

@@ -389,7 +389,7 @@ int CheckOrderOrb(int attribute_id) {
 
 	// we store tag value +1
 	--stored_tag;
-	printbold(s:"stored tag: ", d:stored_tag, s: " return: ", d:ItemModTable[attribute_id].tags & (1 << stored_tag));
+	//printbold(s:"stored tag: ", d:stored_tag, s: " return: ", d:ItemModTable[attribute_id].tags & (1 << stored_tag));
 	return ItemModTable[attribute_id].tags & (1 << stored_tag);
 }
 
@@ -625,7 +625,10 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				do {
 					res = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
 				} while(!(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[res].attrib_id)) && temp < DND_MAX_ORB_REROLL_ATTEMPTS && PlayerInventoryList[pnum][extra].attributes[res].fractured);
-				RemoveAttributeFromItem(pnum, extra, res);
+				
+				// just to be safe
+				if(!PlayerInventoryList[pnum][extra].attributes[res].fractured)
+					RemoveAttributeFromItem(pnum, extra, res);
 			}
 
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);

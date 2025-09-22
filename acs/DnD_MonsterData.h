@@ -463,6 +463,24 @@ enum {
 	MONSTER_ERYXIA,
 	// cyber uniques
 	MONSTER_ABAXOTH,
+
+	// incursion monsters
+	// chex
+	MONSTER_CHEX_COMMON,
+	MONSTER_CHEX_BIPEDAL,
+	MONSTER_CHEX_ARMORED,
+	MONSTER_CHEX_HEAVYARMORED,
+	MONSTER_CHEX_CYCLOPS,
+	MONSTER_CHEX_FLEMMINE,
+	MONSTER_CHEX_LARVA,
+	MONSTER_CHEX_STRIDICUS,
+	MONSTER_CHEX_QUADWUMPUS,
+	MONSTER_CHEX_SUPERCYCLOPS,
+	MONSTER_CHEX_MAXIMUS,
+	MONSTER_CHEX_FLEMBOMINATION,
+	MONSTER_CHEX_SNOTFOLUS,
+
+	DND_LASTMONSTER_INDEX,
 	
 	MONSTER_CUSTOM,
 	MONSTER_CUSTOM_BOSS,
@@ -578,7 +596,6 @@ enum {
 #define DND_BOSS_BEGIN MONSTER_DEMOLISHER
 #define LEGENDARY_START MONSTER_DREAMINGGOD
 #define LEGENDARY_END MONSTER_GOLGOTH
-#define DND_LASTMONSTER_INDEX MONSTER_ABAXOTH
 #define DND_MAX_LEGENDARY (LEGENDARY_END - LEGENDARY_START + 1)
 #define MONSTER_COUNT (DND_LASTMONSTER_INDEX + 50) // possible compatibility for other wads' monsters
 
@@ -1210,7 +1227,7 @@ typedef struct {
 	bool trait_list[MAX_MONSTER_TRAITS_STORED];
 } monster_data_T;
 
-global monster_data_T 10: MonsterData[DND_LASTMONSTER_INDEX + 1];
+global monster_data_T 10: MonsterData[DND_LASTMONSTER_INDEX];
 
 int MonsterPetTypeList[MAX_PET_TYPES] = {
 	DND_MTYPE_UNDEAD_POW
@@ -2370,6 +2387,46 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_MAGIC_RESIST] = true;
 }
 
+void SetupIncursionMonsters() {
+	// Chex
+	MonsterData[MONSTER_CHEX_COMMON].health = 100;
+	MonsterData[MONSTER_CHEX_COMMON].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_BIPEDAL].health = 200;
+	MonsterData[MONSTER_CHEX_BIPEDAL].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_ARMORED].health = 300;
+	MonsterData[MONSTER_CHEX_ARMORED].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_HEAVYARMORED].health = 450;
+	MonsterData[MONSTER_CHEX_HEAVYARMORED].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_HEAVYARMORED].trait_list[DND_BULLET_RESIST] = true;
+
+	MonsterData[MONSTER_CHEX_CYCLOPS].health = 330;
+	MonsterData[MONSTER_CHEX_CYCLOPS].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_FLEMMINE].health = 180;
+	MonsterData[MONSTER_CHEX_FLEMMINE].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_LARVA].health = 400;
+	MonsterData[MONSTER_CHEX_LARVA].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_STRIDICUS].health = 750;
+	MonsterData[MONSTER_CHEX_STRIDICUS].flags = DND_MTYPE_MAGICAL_POW;
+	
+	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].health = 900;
+	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_MAXIMUS].health = 2000;
+	MonsterData[MONSTER_CHEX_MAXIMUS].flags = DND_MTYPE_MAGICAL_POW;
+	
+	MonsterData[MONSTER_CHEX_FLEMBOMINATION].health = 4000;
+	MonsterData[MONSTER_CHEX_FLEMBOMINATION].flags = DND_MTYPE_MAGICAL_POW;
+
+	MonsterData[MONSTER_CHEX_SNOTFOLUS].health = 6000;
+	MonsterData[MONSTER_CHEX_SNOTFOLUS].flags = DND_MTYPE_MAGICAL_POW;
+}
+
 void SetupMonsterWeights() {
 	// zombieman
 	int id = 0;
@@ -2625,6 +2682,8 @@ Script "DnD Setup Monster Data" OPEN {
 		Delay(const:15);
 		SetupMonsterWeights();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
+		Delay(const:10);
+		SetupIncursionMonsters();
 	}
 }
 
@@ -2633,6 +2692,8 @@ Script "DnD Setup Monster Data CS" OPEN CLIENTSIDE {
 		Delay(const:20);
 		SetupMonsterData();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
+		Delay(const:10);
+		SetupIncursionMonsters();
 	}
 }
 

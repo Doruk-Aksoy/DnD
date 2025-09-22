@@ -1,0 +1,52 @@
+Actor ArmoredBipedalBall {
+	PROJECTILE
+	Speed 28
+	Radius 4
+	Height 8
+	Damage (random(10, 16))
+	Accuracy 133
+	+NODAMAGETHRUST
+	DamageType "Poison"
+	Stamina 1073741952
+	SeeSound "qimp/attack"
+	DeathSound "qimp/shotx"
+	Obituary "%o was slimed by an Armored Bipedal Flemoid."
+	Decal BipedBallSplat
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP00 AB 4
+		loop
+		Death:
+			CP00 CDE 6
+		stop
+	}
+}
+
+ACTOR QuadrumpusBall
+{
+	Radius 6
+	Height 6
+	Speed 35
+	Damage (random(16, 24))
+	DamageType "Poison"
+	Stamina 1073741952
+	Projectile
+	+RANDOMIZE
+	RenderStyle Normal
+	SeeSound "qimp/attack"
+	DeathSound "qimp/shotx"
+	Obituary "%o was slimed by a Quadrumpus."
+	Decal QuadrumpusSplat
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP00 AB 4
+		loop
+		Death:
+			CP00 CDE 6
+		stop
+	}
+}

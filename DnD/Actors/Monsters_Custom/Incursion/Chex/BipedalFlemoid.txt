@@ -1,0 +1,63 @@
+ACTOR BipedalFlemoid : DnD_BaseMeleeMonster {
+	Health 0x7FFFFFFF
+	Mass 150
+	Height 56
+	Radius 20
+	Speed 16
+	Meleerange 60
+	Seesound "qshotguy/sight"
+	Attacksound "qshotguy/attack"
+	Painsound "qshotguy/pain"
+	Deathsound "qshotguy/death"
+	Activesound "qshotguy/active"
+	Painchance 60
+	Species "Chex"
+	+QUICKTORETALIATE
+	+FLOORCLIP
+	-DROPOFF
+	-COUNTKILL
+	+ISMONSTER
+	Bloodcolor "green"
+	Obituary "%o was slimed by a Bipedal Flemoid."
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_BIPEDAL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+
+		SeeState:
+			C001 AABBCCDD 3 A_Chase
+		loop
+		IdleState:
+			C001 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C001 AABBCCDD 3 A_Wander
+			C001 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+		loop
+		MeleeState:
+			C001 E 9 A_FaceTarget
+			C001 F 8 A_CustomMeleeAttack (20, "qgrunt/attack")
+		goto See
+		PainState:
+			C001 G 3
+			C001 G 3 A_Pain
+		goto See
+		DeathState:
+			C001 H 5 
+			C001 I 5 A_Scream
+			C001 J 5 A_NoBlocking
+			C001 K 5
+			TNT1 A 1
+		stop
+		XDeathState:
+			C001 H 5     
+			C001 H 1 A_SpawnitemEx ("NashGore_Gib1", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C001 H 1 A_SpawnitemEx ("NashGore_Gib2", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C001 H 1 A_SpawnitemEx ("NashGore_Gib3", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C001 H 1 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C001 I 5 A_Scream
+			C001 J 7 A_Scream
+			C001 J 3 A_NoBlocking
+			C001 KL 4
+		stop
+	}
+}

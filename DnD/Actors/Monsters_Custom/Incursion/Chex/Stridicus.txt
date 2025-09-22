@@ -1,0 +1,62 @@
+ACTOR FlemoidStridicus : DnD_BaseMeleeMonster {
+	Health 0x7FFFFFFF
+	Mass 225
+	Speed 28
+	Height 60
+	Radius 24
+	Meleerange 96
+	Painchance 25
+	Bloodcolor "Green"
+	SeeSound "q3demon/sight"
+	AttackSound "q3demon/melee"
+	PainSound "q3demon/pain"
+	DeathSound "q3demon/death"
+	ActiveSound "q3demon/active"
+	+ISMONSTER
+	+QUICKTORETALIATE
+	+FLOORCLIP
+	-COUNTKILL
+	-DROPOFF
+	Hitobituary "%o was gooed by a Flemoid Larva."
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_LARVA)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+		
+		SeeState:
+			C007 ABBCCD 2 A_Chase
+		loop
+		IdleState:
+			C007 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C007 AABBCCDD 2 A_Wander
+			C007 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+		loop
+		MeleeState:
+			C007 EF 6 A_FaceTarget
+			C007 G 7 A_CustomMeleeAttack (random(30, 45), "qdemon/melee")
+		goto See
+		PainState:
+			C007 H 2
+			C007 H 2 A_Pain
+		goto See
+		DeathState:
+			C007 I 8
+			C007 J 8 A_Scream
+			C007 K 4
+			C007 L 4 A_NoBlocking
+			C007 M 4
+		stop
+		XDeathState:    
+			C007 I 1 A_SpawnitemEx ("NashGore_Gib1", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C007 I 1 A_SpawnitemEx ("NashGore_Gib2", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C007 I 1 A_SpawnitemEx ("NashGore_Gib3", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C007 I 4 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C007 J 8 A_Scream
+			C007 K 4 
+			C007 L 4 A_NoBlocking
+			C007 M 4
+			C007 N 5
+		stop
+	}
+}

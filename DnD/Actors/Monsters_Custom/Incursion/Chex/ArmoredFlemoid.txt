@@ -1,0 +1,75 @@
+ACTOR ArmoredFlemoid : DnD_BaseRangedMonster {
+	Health 0x7FFFFFFF
+	Mass 300
+	Height 56
+	Radius 20
+	Speed 9
+	Seesound "qimp/sight"
+	Painsound "qimp/pain"
+	Deathsound "qimp/death"
+	Activesound "qimp/active"
+	Painchance 75
+	Species "Chex"
+	+QUICKTORETALIATE
+	+MISSILEMORE
+	+FLOORCLIP
+	-DROPOFF
+	-COUNTKILL
+	+ISMONSTER
+	Bloodcolor "green"
+	Obituary "%o was slimed by a Bipedal Flemoid."
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_ARMORED)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+
+		SeeState:
+			C012 AABBCCDD 3 A_Chase
+		loop
+		IdleState:
+			C012 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C012 AABBCCDD 3 A_Wander
+			C012 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+		loop
+		MissileState:
+			C012 E 1 A_Jump (32, "MissileMultiple")
+			C012 EF 5 A_FaceTarget
+			TNT1 A 0 A_CustomMissile ("ArmoredBipedalBall", 32, -10, 0)
+			C012 G 3 A_CustomMissile ("ArmoredBipedalBall", 32, 10, 0)
+		goto See
+		MissileMultiple:
+			C012 EF 5 A_FaceTarget
+			TNT1 A 0 A_CustomMissile ("ArmoredBipedalBall", 32, -10, 0, CMF_AIMOFFSET)
+			C012 G 3 A_CustomMissile ("ArmoredBipedalBall", 32, 10, 0, CMF_AIMOFFSET)
+			C012 EF 5 A_FaceTarget
+			TNT1 A 0 A_CustomMissile ("ArmoredBipedalBall", 32, -10, 0)
+			C012 G 3 A_CustomMissile ("ArmoredBipedalBall", 32, 10, 0)
+			C012 EF 5 A_FaceTarget
+			TNT1 A 0 A_CustomMissile ("ArmoredBipedalBall", 32, -10, 0, CMF_AIMOFFSET)
+			C012 G 3 A_CustomMissile ("ArmoredBipedalBall", 32, 10, 0, CMF_AIMOFFSET)
+		Goto See
+		PainState:
+			C012 G 2
+			C012 G 2 A_Pain
+		goto See
+		DeathState:
+			C012 I 5 
+			C012 J 5 A_Scream
+			C012 K 5 A_NoBlocking
+			C012 L 5
+			TNT1 A 1
+		stop
+		XDeathState:
+			C012 H 5     
+			C012 H 1 A_SpawnitemEx ("NashGore_Gib1", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C012 H 1 A_SpawnitemEx ("NashGore_Gib2", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C012 H 1 A_SpawnitemEx ("NashGore_Gib3", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)
+			C012 H 1 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C012 I 5 A_Scream
+			C012 J 7 A_Scream
+			C012 J 3 A_NoBlocking
+			C012 KL 4
+		stop
+	}
+}

@@ -157,4 +157,15 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Spawners/Incursion/CyberdemonSpawner.txt"
 #include "Actors/Spawners/Incursion/WolfenSpawner.txt"
 
+// Incursion Monsters
+// Chex
+#include "Actors/Monsters_Custom/Incursion/Chex/Base.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/CommonFlemoid.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/BipedalFlemoid.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/ArmoredFlemoid.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/HeavyArmored.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Cyclops.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Larva.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Stridicus.txt"
+
 #include "Actors/DarkWanderer.txt"
