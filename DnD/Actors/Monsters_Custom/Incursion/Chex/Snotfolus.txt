@@ -1,0 +1,93 @@
+ACTOR Snotfolus : DnD_BaseRangedBoss {
+	Health 0x7FFFFFFF
+	Mass 7000
+	Height 126
+	Radius 60
+	Speed 14
+	Minmissilechance 64
+	PainChance 2
+	Bloodcolor "green"
+	Seesound "q3cyber/sight"
+	Painsound "q3cyber/pain"
+	Deathsound "q3cyber/death"
+	Activesound "q3cyber/active"
+	Tag "Lord Snotfolus"
+	+ISMONSTER
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
+	Species "Chex"
+	+DONTRIP
+	+FLOORCLIP
+	+NORADIUSDMG
+	+NODROPOFF
+	+MISSILEMORE
+	+DONTMORPH
+	+QUICKTORETALIATE
+	-COUNTKILL
+	-DROPOFF
+	+BOSS
+	+BOSSDEATH
+	Obituary "%o was defeated by Lord Snotfolus."
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_SNOTFOLUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+		
+		SeeState:
+			C011 AABBCCDD 3 A_Chase
+		loop
+		IdleState:
+			C011 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C011 AB 8 A_Wander
+			C011 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+		loop
+		MissileState:
+			C011 E 5 A_FaceTarget
+			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, 0)
+			C011 E 0 A_FaceTarget
+			C011 FF 3 A_CustomMissile("SnotfolusBall2", 90, 0, 0)
+			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, 0)
+			C011 F 0 A_FaceTarget
+			C011 FF 3 A_CustomMissile("SnotfolusBall2", 90, 0, 0)
+			C011 E 0 A_FaceTarget
+			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, 0)
+		goto See
+		PainState:
+			C011 G 8 A_Pain
+		goto See
+		XDeathState:
+		DeathState:
+			C011 H 10
+			C011 II 1 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
+			C011 I 1 A_CustomMissile("GenericGibber_Medium_Delayed", 65, 0, 16, 2, 48)
+			C011 IIIIIIIIIIIIIIIIIIIIIIIIJJJJJJJJJJJJJJJJJJJJ 1 A_SpawnItemEx ("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
+			C011 I 1 A_CustomMissile("GenericGibber_Medium_Delayed", 65, 0, 16, 2, 48)
+			C011 JJJJLLLLLLLLLLLLLLLL 1 A_SpawnItemEx ("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
+			C011 L 1 A_CustomMissile("GenericGibber_Medium_Delayed", 63, 0, -42, 2, 21)
+			C011 LLLLLLLLLLL 1 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
+			C011 M 10 A_Scream
+			C011 N 10 A_NoBlocking
+			C011 O 10
+		stop
+	}
+}
+
+ACTOR SnotfolusBall : MaximusBall {
+	Radius 8
+	Height 8
+	Speed 32
+	Damage (22 * random(4, 6))
+	+RANDOMIZE
+	+FOILINVUL
+	+DONTREFLECT
+	Obituary "%o was defeated by Lord Snotfolus."
+}
+
+ACTOR SnotfolusBall2 : QuadrumpusBall {
+	Radius 4
+	Height 4
+	Speed 24
+	Damage (5 * random(5, 8))
+	Obituary "%o was defeated by Lord Snotfolus."
+}

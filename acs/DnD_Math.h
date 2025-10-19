@@ -141,6 +141,26 @@ int CombineFactors(int f1, int f2) {
 	return FixedMul(f1, 1.0 + f2);
 }
 
+int HandleMultiplicativeFactors(int f1, int f2) {
+	if(!f1) {
+		// if we are zero, simply replace with val
+		return f2;
+	}
+	else if(f2 > 0) {
+		// non-zero, multiply case -- we store things like 0.2 etc. here, but while we amplify it we need to consider 1.0 + val
+		return FixedMul(f1, f2);
+	}
+	else if(f2 < 0) {
+		// if negative we divide
+		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
+		f1 = FixedMul(f1, FixedDiv(1.0, -f2));
+		if((f1 > 1.0 && f1 - 1.0 < F_EPSILON) || (f1 < 1.0 && 1.0 - f1 < F_EPSILON))
+			f1 = 0;
+	}
+
+	return f1;
+}
+
 // converts a factor in fixed to a factor in int (equivalent) -- also used in below
 int ConvertFixedFactorToInt(int factor) {
 	return ((1.0 + factor) * 100) >> 16;

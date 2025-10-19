@@ -268,7 +268,7 @@ enum {
 	BONUS_SECRET,
 	BONUS_BONUS,
 	BONUS_EXP_RATE = 5,
-	BONUS_CREDIT_RATE = 5,
+	BONUS_CREDIT_RATE = 10,
 	BONUS_SECRET_RATE = 3,
 };
 	
@@ -1151,7 +1151,7 @@ void ActivateKillingSpree() {
 		if(temp / DND_SPREE_PER >= 1) {
 			// punisher perks
 			if(HasClassPerk_Fast("Punisher", 1)) {
-				if(!CheckInventory("Punisher_Perk5_MoveSpeed")) {
+				if(!CheckInventory("Punisher_Perk1_MoveSpeed")) {
 					int wepid = GetCurrentWeaponID();
 					if(GetSlotOfWeapon(wepid) != 9) {
 						if(Weapons_Data[wepid].ammo_name1 != "" && Weapons_Data[wepid].ammo_name1 != "Souls") {
@@ -1164,7 +1164,7 @@ void ActivateKillingSpree() {
 						}
 					}
 				}
-				GiveInventory("Punisher_Perk5_MoveSpeed", 1);
+				GiveInventory("Punisher_Perk1_MoveSpeed", 1);
 			}
 		}
 		else if(temp / DND_HALF_SPREE_PER >= 1 && GetArmorID() == BODYARMOR_RAVAGER) {
@@ -1340,8 +1340,13 @@ void ClearLingeringBuffs(int pnum) {
 	TakeInventory("MenuFreeze", 1);
 	TakeInventory("DnD_PromptLocked", 1);
 	SetInventory("AllMapOnlyOnce", 0);
+
 	SetInventory("Punisher_Perk5_MoveSpeed", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
+	SetInventory("Punisher_Perk50_DamageBonus", 0);
+	SetInventory("Punisher_Perk50_DamageBonus", 0);
+	SetInventory("Punisher_Perk50_Tiers", 0);
+
 	SetInventory("Berserker_DamageTracker", 0);
 	SetInventory("Berserker_DamageTimer", 0);
 	SetInventory("Berserker_HitTracker", 0);

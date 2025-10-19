@@ -40,7 +40,7 @@ void DealDOTDamage(int target, int dmg, str dmg_type) {
 	// DaemonicBarrier
 	if(dmg > 0) {
 		if(!CheckActorInventory(this, "DaemonicBarrier")) {
-			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, this);
+			//IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, this);
 			Thing_Damage2(this, dmg, dmg_type);
 		}
 		else // take one out for this tic
@@ -208,7 +208,7 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 		}
 	}
 	else if(player_dot_damages.dot_list[pos].dmg_type == "BleedDOT") {
-			PlaySound(victim, "Bleed/Loop", CHAN_7, 0.875, true);
+		PlaySound(victim, "Bleed/Loop", CHAN_7, 0.875, true);
 
 		while(IsActorAlive(victim)) {
 			Delay(const:HALF_TICRATE);

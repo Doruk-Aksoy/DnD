@@ -35,12 +35,15 @@
 
 #define OCCULT_WEAKEN_DURATION 2
 
+#define VAAJ_WEAKEN_DURATION 3
+#define DND_VAAJ_WEAKENPCT 10
+
 #define DND_CORRUPTORB_DMGREDUCE 75 // /4 => 75% reduced dmg
 
-#define DND_MONSTER_BURN_PERCENT 20
+#define DND_MONSTER_BURN_PERCENT 10
 #define DND_PLAYER_BURNING_CHANCE 0.33
-#define DND_PLAYER_BURNING_MINTIME 4
-#define DND_PLAYER_BURNING_MAXTIME 8
+#define DND_PLAYER_BURNING_MINTIME 3
+#define DND_PLAYER_BURNING_MAXTIME 6
 
 #define MAX_RIPCOUNT 4096
 
@@ -254,7 +257,6 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_MAX_OVERLOADTARGETS 128 // up to 128 allowed
 #define DND_BASE_OVERLOADZAPDELAY 3 // 3 tics
 
-#define DND_BASE_POISON_STACKS 5
 #define DND_BASE_POISON_TIMER 3.0
 
 #define DND_EXTRAUNDEADDMG_MULTIPLIER 300
@@ -694,16 +696,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses	
 		// is occult (add demon bane bonus)
-		if(flags & DND_DAMAGEFLAG_COUNTSASMAGIC || damage_category == DND_DAMAGECATEGORY_OCCULT)
-			InsertCacheFactor(pnum, wepid, dmgid, DND_DEMONBANE_GAIN * (!!IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE)), false);
-		
-		// these HOPEFULLY dont have anything in common... yet?
-		if(IsHandgun(wepid)) // gunslinger affected
-			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SLOT2BONUS * IsQuestComplete(tid, QUEST_ONLYPISTOLWEAPONS), false);
-		else if(IsBoomstick(wepid)) // shotgun affected
-			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SLOT3BONUS * IsQuestComplete(tid, QUEST_NOSHOTGUNS), false);
-		else if(IsSuperWeapon(wepid)) // super weapon affected
-			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_SUPERGAIN * IsQuestComplete(tid, QUEST_NOSUPERWEAPONS), false);
+		if((flags & DND_DAMAGEFLAG_COUNTSASMAGIC || damage_category == DND_DAMAGECATEGORY_OCCULT) && IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE))
+			InsertCacheFactor(pnum, wepid, dmgid, 100 + DND_DEMONBANE_GAIN, false);
 		
 		// add other multiplicative factors below
 		
@@ -715,11 +709,12 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// % more / less damage from wepmod or orbs
 		temp = GetWeaponModValue(pnum, wepid, WEP_MOD_DMG);
 		if(temp)
-			InsertCacheFactor(pnum, wepid, dmgid, temp, false);
+			InsertCacheFactor_Fixed(pnum, wepid, dmgid, temp);
+			//InsertCacheFactor(pnum, wepid, dmgid, temp, false);
 		
 		// perk multiplicative factors
 		if(mult_factor)
-			InsertCacheFactor(pnum, wepid, dmgid, mult_factor, false);
+			InsertCacheFactor(pnum, wepid, dmgid, 100 + mult_factor, false);
 
 		MarkCachingComplete(pnum, wepid, dmgid);
 		
@@ -753,6 +748,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	// if we had a factor of 0, dont bother here
 	if(!temp)
 		return dmg;
+	else if(temp < 0)
+		return 0;
 	
 	if(dmg < INT_MAX / temp) {
 		dmg *= temp;
@@ -860,6 +857,7 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 }
 
 void HandleOverloadEffects(int pnum, int victim) {
+	int temp;
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_INSULATED) &&
@@ -868,7 +866,12 @@ void HandleOverloadEffects(int pnum, int victim) {
 	{
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
-			SetActorInventory(victim, "DnD_OverloadDamage", Max(ConvertFixedFactorToInt(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE)), CheckActorInventory(victim, "DnD_OverloadDamage")));
+			
+			temp = ConvertFixedFactorToInt(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE));
+			if(GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD)) // a third effect if this mod is there
+				temp /= 3;
+			SetActorInventory(victim, "DnD_OverloadDamage", Max(temp, CheckActorInventory(victim, "DnD_OverloadDamage")));
+			
 			ACS_NamedExecuteWithResult("DnD Monster Overload", victim);
 		}
 		else
@@ -880,7 +883,6 @@ void HandleOverloadEffects(int pnum, int victim) {
 Script "DnD Occult Weaken" (int victim, int mon_id) {
 	SetActivator(victim);
 	int time = 0;
-	int base_res = MonsterProperties[mon_id].resists[DND_DAMAGECATEGORY_OCCULT];
 	while(time < OCCULT_WEAKEN_DURATION) {
 		int prev = CheckInventory("OccultWeaknessStack");
 		Delay(const:TICRATE);
@@ -889,6 +891,20 @@ Script "DnD Occult Weaken" (int victim, int mon_id) {
 			time = 0;
 	}
 	SetInventory("OccultWeaknessStack", 0);
+	SetResultValue(0);
+}
+
+Script "DnD Vaaj Weaken" (int victim, int mon_id) {
+	SetActivator(victim);
+	int time = 0;
+	while(time < VAAJ_WEAKEN_DURATION) {
+		int prev = CheckInventory("VaajWeakness");
+		Delay(const:TICRATE);
+		++time;
+		if(prev != CheckInventory("VaajWeakness") || CheckInventory("VaajWeaknessTimeReset"))
+			time = 0;
+	}
+	SetInventory("VaajWeakness", 0);
 	SetResultValue(0);
 }
 
@@ -921,6 +937,18 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	// apply percentage reductions to resist HERE, ABOVE checking the penetration
 	// if occult weakness exists, apply it checking monster's debuff -- to be done as a resist reduction to affect all players later
 	// we will handle all percentage reductions here deliberately so that we don't mess up the base resist value of the monster!
+	if((flags & DND_DAMAGEFLAG_ISRADIUSDMG) && (temp = GetPlayerAttributeValue(pnum, INV_ESS_VAAJ))) {
+		if(!CheckActorInventory(victim, "VaajWkeakness")) {
+			GiveActorInventory(victim, "VaajWeakness", 1);
+			ACS_NamedExecuteWithResult("DnD Vaaj Weaken", victim, mon_id);
+		}
+		else {
+			// latter forces the reset on debuff timer
+			GiveActorInventory(victim, "VaajWeaknessTimeReset", 1);
+		}
+		pct_val += DND_VAAJ_WEAKENPCT * CheckActorInventory(victim, "VaajWeakness");
+	}
+
 	if(damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK)) {
 		temp = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
 		if(temp) {
@@ -955,6 +983,10 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 
 	// debuffs to reduce flat
 	resist -= CountMonsterAilments(victim) * DND_WANDERER_RESREDUCE;
+
+	temp = GetPlayerAttributeValue(pnum, INV_INC_INVERTRESISTANCES);
+	if(temp >= random(1, 100))
+		resist = -resist;
 
 	//printbold(s:"new res ", d:resist);
 
@@ -1226,7 +1258,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
 	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_TOXICBLOOD)) {
 		// poison damage deals 10% of its damage per stack over 3 seconds
-		if(CheckActorInventory(victim, "DnD_PoisonStacks") < DND_BASE_POISON_STACKS && dmg > 0) {
+		if(CheckActorInventory(victim, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum) && dmg > 0) {
 			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
 			// 2% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
 			poison_factor = Max(DND_BASE_POISON_FACTOR, poison_factor);
@@ -1274,6 +1306,8 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		extra |= DND_DAMAGETICFLAG_FIRE;
 	else if(damage_type == DND_DAMAGETYPE_LIGHTNING)
 		extra |= DND_DAMAGETICFLAG_LIGHTNING;
+	else if(IsPoisonDamage(damage_type))
+		extra |= DND_DAMAGETICFLAG_POISON;
 	else if(damage_type == DND_DAMAGETYPE_PHYSICAL || damage_type == DND_DAMAGETYPE_MELEE)
 		extra |= DND_DAMAGETICFLAG_PHYSICAL;
 
@@ -1437,15 +1471,18 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 		if(!HasActorClassPerk_Fast(ptid, "Punisher", 4))
 			amt = cap - toAdd;
 		else { // go over cap if punisher perk exists
-			amt += toAdd * DND_PUNISHER_OVERLEECHVAL / 100;
-			if(amt > cap * 2)
-				amt = cap * 2;
+			amt += amt * DND_PUNISHER_OVERLEECHVAL / 100;
+			if(amt + toAdd > cap * 2)
+				amt = cap * 2 - toAdd;
 		}
 	}
 	
 	// not using lifesteal cap from here on
-	cap = GetPlayerAttributeValue(pnum, INV_CORR_INSTALEECHPCT);
+	cap = GetPlayerAttributeValue(pnum, INV_CORR_INSTALEECHPCT) + GetPlayerAttributeValue(pnum, INV_INC_INSTANTLIFESTEAL);
 	if(cap) {
+		if(cap > 100)
+			cap = 100;
+
 		// take a bit away from this
 		cap = amt * cap / 100;
 		if(cap) {
@@ -1743,7 +1780,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 			HandleChillEffects(pnum, victim_tid);
 		else if((flags & DND_DAMAGETICFLAG_FIRE) || (flags & DND_DAMAGETICFLAG_ADDEDIGNITE)) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, flags, GetPlayerIgniteAddedDmg(pnum, wepid, PlayerDamageTicData[pnum][victim_data]));
-		else if(flags & DND_DAMAGETICFLAG_LIGHTNING)
+		else if((flags & DND_DAMAGETICFLAG_LIGHTNING) || (GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD) && (flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON))))
 			HandleOverloadEffects(pnum, victim_tid);
 		else if((flags & DND_DAMAGETICFLAG_PHYSICAL) && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleBleedEffects(pnum, victim_tid, wepid, PlayerDamageTicData[pnum][victim_data]);
@@ -1884,7 +1921,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_POISONTICSTWICE))
 		trigger_tic /= 2;
 
-	dmg = GetPoisonDOTDamage(pnum, dmg);
+	dmg = GetPoisonDOTDamage(pnum, dmg, victim, wepid);
 
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_POISON);
@@ -2049,7 +2086,7 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
 
-	dmg = GetBleedDamage(pnum, wepid, dmg);
+	dmg = GetBleedDamage(pnum, wepid, dmg, victim);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 
 	int bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
@@ -2091,7 +2128,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	if(!(ign_flags & DND_IGNITEFLAG_ADDEDIGN))
 		added_dmg = 0;
 
-	int dmg = GetFireDOTDamage(pnum, added_dmg);
+	int dmg = GetFireDOTDamage(pnum, added_dmg, victim, wepid);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 	
 	dmg = HandleNonWeaponDamageScale(dmg, DND_DAMAGECATEGORY_FIRE, DND_WDMG_ISDOT);
@@ -2342,9 +2379,14 @@ Script "DnD Check Explosion Repeat" (void) {
 	int pnum = owner - P_TIDSTART;
 	
 	// if explosion did not repeat and we have chance for it to repeat, go for it
-	if(!CheckInventory("DnD_ExplosionRepeated") && random(1, 100) <= GetExplosiveRepeatChance(pnum)) {
-		GiveInventory("DnD_ExplosionRepeated", 1);
+	int chanceSum = CheckInventory("DnD_ExplosionRepeatChance");
+	if(!chanceSum) {
+		// +1 so this isn't entered the 2nd time we check for repeats, it acts as sentinel value here
+		chanceSum = GetExplosiveRepeatChance(pnum) + 1;
+		SetInventory("DnD_ExplosionRepeatChance", chanceSum);
+	}
 
+	if(random(1, 100) <= chanceSum - 1) {
 		// check rekindled sparks
 		res = GetPlayerAttributeValue(pnum, INV_EX_SECONDEXPBONUS);
 		if(res) {
@@ -2366,6 +2408,11 @@ Script "DnD Check Explosion Repeat" (void) {
 		}
 
 		res = 1;
+
+		if(chanceSum - 100 <= 0)
+			SetInventory("DnD_ExplosionRepeatChance", 1);
+		else
+			SetInventory("DnD_ExplosionRepeatChance", chanceSum - 100);
 	}
 	
 	SetResultValue(res);
@@ -2641,6 +2688,10 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isArmorPiercing) {
 	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 	int rating = GetPlayerArmor(pnum);
+
+	int temp = GetPlayerAttributeValue(pnum, INV_INC_TWICEARMORDEFENSE);
+	if(temp && random(1, 100) <= temp)
+		rating <<= 1;
 
 	if(CheckInventory("RuinationHardDebuff"))
 		rating /= 4;
@@ -3355,20 +3406,22 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// resists of player now will factor in after we've calculated the damage accurately
 			// phasing also negates non-radius and hitscan damage
 			if(IsPlayer(victim)) {
+				pnum = victim - P_TIDSTART;
+
 				if
 				(
 					CheckInventory("DnD_CountdownProtection") ||
 					(
-						!(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && !(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) && !isDot && !(dmg_data & DND_DAMAGETYPEFLAG_DOT)
-					) && 
-					HasPlayerBuff(pnum, BTI_PHASING)
+						!(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && !(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) && !isDot && !(dmg_data & DND_DAMAGETYPEFLAG_DOT) && HasPlayerBuff(pnum, BTI_PHASING)
+					) ||
+					(
+						GetDodgeChance(pnum) >= random(0.01, 100.0) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE)
+					)
 				)
 				{
 					SetResultValue(0);
 					Terminate;
 				}
-
-				pnum = victim - P_TIDSTART;
 
 				// out of combat hit timer, 3 seconds
 				GiveInventory("DnD_Hit_CombatTimer", 1);
@@ -3630,7 +3683,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					}
 					
 					// Flayer magic or undead check -- explosive flag check to prevent it from calling itself
-					if(m_id == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim) && !(dmg_data & DND_DAMAGEFLAG_ISEXPLOSIVE))
+					if(m_id == DND_WEAPON_CROSSBOW && IsActorMagicOrUndead(victim) && !(dmg_data & (DND_DAMAGEFLAG_ISEXPLOSIVE | DND_DAMAGEFLAG_ISRADIUSDMG)))
 						ACS_NamedExecuteWithResult("DnD Crossbow Explosion", victim, shooter);
 				}
 

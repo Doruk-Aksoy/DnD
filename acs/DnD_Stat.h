@@ -288,6 +288,9 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 		res = res * pct / 100;
 	res /= 333;
 
+	if(GetPlayerAttributeValue(pnum, INV_INC_ESHIELDNOINTERRUPT))
+		res /= 2;
+
 	if(!res)
 		res = 1;
 	return res;
@@ -301,7 +304,7 @@ int CanRegenEShield(int pnum) {
 		cap &&
 		CheckInventory("EShieldAmount") < cap &&
 		!CheckInventory("EShieldCharging") &&
-		(GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) || !CheckInventory("DnD_Hit_CombatTimer")) &&
+		(GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) || GetPlayerAttributeValue(pnum, INV_INC_ESHIELDNOINTERRUPT) || !CheckInventory("DnD_Hit_CombatTimer")) &&
 		!CheckInventory("TaltosUp")
 	)
 	{
@@ -840,18 +843,6 @@ int GetPlayerWeaponEnchant(int pnum, int wepid) {
 	return Player_Weapon_Infos[pnum][wepid].quality;
 }
 
-/*void HandleArmorDependencyCheck() {
-	// Research Dependency
-	if(CheckInventory("Research_Body_Ar_1_Tracker") == GetAmmoCapacity("Research_Body_Ar_1_Tracker") && CheckResearchStatus(RES_EXO1) == RES_NA)
-		GiveResearch(RES_EXO1, true);
-
-	// check for thick skin quest
-	if(active_quest_id == QUEST_NOARMORS && !CheckInventory(Quest_List[active_quest_id].qchecker)) {
-		GiveInventory(Quest_List[active_quest_id].qchecker, 1);
-		FailQuest(ActivatorTID());
-	}
-}*/
-
 // break all trades between this player and others
 void BreakTradesBetween(int pnum) {
 	int i;
@@ -999,11 +990,6 @@ void HandleHunterTalisman() {
 	}
 }
 
-int ConfirmedCritFactor(int pnum, int victim, int dmg, int wepid = -1) {
-	dmg = dmg * GetCritModifier(pnum, victim, wepid) / 100;
-	return dmg;
-}
-
 // this one doesnt depend on a weapon, its used as it is in the menu etc.
 int GetIndependentCritModifier(int pnum) {
 	int base = DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
@@ -1021,7 +1007,11 @@ int GetBaseCritModifier(int pnum, int wepid) {
 	return base + wep_bonus;
 }
 
-int GetCritModifier(int pnum, int victim, int wepid) {
+int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) {
+	// forced return would skip this to get the value for dot multiplier bonus calculation
+	if(!forcedReturn && GetPlayerAttributeValue(pnum, INV_INC_CRITFORDOT))
+		return 100;
+
 	int base = GetBaseCritModifier(pnum, wepid); // calculates the regular "base" bonuses
 	
 	// berserker perk50 check
@@ -1047,7 +1037,7 @@ int GetCritModifier(int pnum, int victim, int wepid) {
 		GiveInventory("DnD_SavageryMasteryTimer", 1);
 	}
 
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_OSMIUM])
+	if(victim >= DND_MONSTERTID_BEGIN && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_OSMIUM])
 		base -= DND_OSMIUM_REDUCTION;
 
 	// damage is returned as it is if its 100, makes no sense for it to be less than 100 (it'd actually lower damage for critting...)
@@ -1074,6 +1064,9 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) 
 		// add accuracy as % bonus dmg
 		res += DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
 	}
+
+	if(IsPrecisionWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_INC_ACCURACYFORPRECISION))
+		res += GetActorProperty(0, APROP_ACCURACY) / DND_INC_ACCURACYFORPRECRATIO;
 	
 	// buff sourced percent damage
 
@@ -1279,8 +1272,16 @@ int GetPlayerMeleeRange(int pnum, int range) {
 	);
 }
 
+int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1) {
+	int base = GetPlayerAttributeValue(pnum, INV_DOTMULTI);
+
+	if(GetPlayerAttributeValue(pnum, INV_INC_CRITFORDOT))
+		base += GetCritModifier(pnum, victim, wepid, true) / 2;
+	return base;
+}
+
 #define DND_BASE_IGNITEDMG 20
-int GetFireDOTDamage(int pnum, int bonus = 0) {
+int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG + 
 				bonus +
@@ -1291,7 +1292,7 @@ int GetFireDOTDamage(int pnum, int bonus = 0) {
 	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi;
-	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
 	
 	// hellfire amulet -- moved here for ignite calculation specifically
 	if(IsAccessoryEquipped(pnum + P_TIDSTART, DND_ACCESSORY_AMULETHELLFIRE))
@@ -1300,8 +1301,10 @@ int GetFireDOTDamage(int pnum, int bonus = 0) {
 	return dmg;
 }
 
+#define DND_BASE_POISON_STACKS 5
+
 // dont include flat ele dmg and percent damage here, as they are applied to the attacks that inflicted the poison already, no double application!
-int GetPoisonDOTDamage(int pnum, int base_poison) {
+int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -1) {
 	int dmg = base_poison;
 	if(!dmg)
 		dmg = 1;
@@ -1314,9 +1317,13 @@ int GetPoisonDOTDamage(int pnum, int base_poison) {
 	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi
-	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
 	
 	return dmg;
+}
+
+int GetPlayerPoisonStacks(int pnum) {
+	return DND_BASE_POISON_STACKS + GetPlayerAttributeValue(pnum, INV_INC_MAXPOISONSTACK);
 }
 
 int GetLifesteal(int pnum) {
@@ -1342,7 +1349,8 @@ int GetLifestealCap(int pnum) {
 #define DND_BASE_LIFESTEALRATE 25
 int GetLifestealRate(int pnum) {
 	// don't return any faster than 1 tic
-	return max(1, DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE)) / 100);
+	int reductions = GetPlayerAttributeValue(pnum, INV_INC_INSTANTLIFESTEAL) * DND_INC_INSTALIFEREDUCTION;
+	return max(1, DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE) + reductions) / 100);
 }
 
 #define DND_BASE_LIFERECOVERY 1 // 1% of healthcap
@@ -1396,7 +1404,7 @@ str GetBleedChanceDisplay(int pnum) {
 	return StrParam(s:"\c[Q9]", d:mval, s:"% \c-", l:"DND_AND", s:"\c[Q9] ", d:pval, s:"%\c- ", l:"DND_CHANCEBLEED");
 }
 
-int GetBleedDamage(int pnum, int wepid, int dmg) {
+int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
 	int mult = DND_BASE_BLEED_MULT_PROJ;
 	if(IsMeleeWeapon(wepid))
 		mult = DND_BASE_BLEED_MULT;
@@ -1411,7 +1419,7 @@ int GetBleedDamage(int pnum, int wepid, int dmg) {
 	dmg = (dmg * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTDMG_BLEED) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100);
 	
 	// dot multi;
-	dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
 	
 	return dmg;
 }
@@ -1669,6 +1677,10 @@ int GetPlayerNonElementalAvoidance(int pnum, int ele_mod) {
 void HandleRiskAversion() {
 	if(HasMasteredPerk(STAT_RISK) && !CheckInventory("Perk_AversionActivated"))
 		GiveInventory("Perk_AversionActivated", 1);
+}
+
+int GetPlayerBonusProjectiles(int pnum, int wepid) {
+	return Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_WEP].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val;
 }
 
 #endif

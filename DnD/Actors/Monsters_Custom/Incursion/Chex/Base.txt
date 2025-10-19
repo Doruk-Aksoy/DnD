@@ -1,3 +1,16 @@
+Actor ChexTelefog {
+	Renderstyle Add
+	Alpha 0.9
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			CFOG ABCDEF 3 Bright
+			CFOG GGGHHHIIIJJJ 1 Bright A_FadeOut(0.0625)
+		Stop
+	}
+}
+
 Actor ArmoredBipedalBall {
 	PROJECTILE
 	Speed 28
@@ -49,4 +62,94 @@ ACTOR QuadrumpusBall
 			CP00 CDE 6
 		stop
 	}
+}
+
+ACTOR MaximusBall {
+	Damage (5 * random(8, 12))
+	DamageType "Poison"
+	Stamina 1073741952
+	Speed 25
+	Radius 6
+	Height 8
+	SeeSound "qbaron/attack"
+	DeathSound "qbaron/shotx"
+	Projectile
+	+RANDOMIZE
+	Obituary "%o was defeated by a Maximus"
+	Decal MaximusSplat
+	states {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP01 A 1
+		loop
+		Death:
+			CP01 CDE 6
+		stop
+	}
+}
+
+ACTOR FlembominationBall : ArmoredBipedalBall {
+	Radius 4
+	Height 4
+	Speed 20
+	Damage (5 * random(4, 6))
+	Obituary "%o was defeated by the Flembomination."
+}
+
+ACTOR FlembominationBall2 : ArmoredBipedalBall {
+	Radius 6
+	Height 6
+	Speed 25
+	Damage (8 * random(5, 7))
+	SeeSound "qcaco/attack"
+	DeathSound "qcaco/shotx"
+	+RANDOMIZE
+	+FOILINVUL
+	+DONTREFLECT
+	+THRUGHOST
+	RenderStyle Normal
+	Obituary "%o was defeated by the Flembomination."
+	Decal CycloptisSplat
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP03 AB 8
+		loop
+		Death:
+			CP03 CDE 6
+		stop
+	}
+}
+
+ACTOR FlembominationBall3 : ArmoredBipedalBall {
+	Radius 6
+	Height 6
+	Speed 25
+	Damage (3 * random(5, 8))
+	Projectile
+	+RANDOMIZE
+	+DONTREFLECT
+	+FOILINVUL
+	Obituary "%o was defeated by the Flembomination."
+	Decal BipedBallSplat
+}
+
+ACTOR FlembominationBall4 : ArmoredBipedalBall {
+	Radius 6
+	Height 6
+	Speed 35
+	Damage (4 * random(5, 8))
+	+RANDOMIZE
+	Obituary "%o was defeated by the Flembomination."
+	Decal QuadrumpusSplat
+}
+
+ACTOR FlembominationBall5 : FlembominationBall2 {
+	Radius 6
+	Height 6
+	Speed 25
+	Damage (7 * random(5, 8))
+	+THRUGHOST
 }

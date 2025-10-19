@@ -1,0 +1,68 @@
+ACTOR SuperCyclops : DnD_BaseRangedMonster {
+	Health 0x7FFFFFFF
+	Mass 1000
+	Height 50
+	Radius 31
+	Speed 9
+	Painchance 25
+	Bloodcolor "green"
+	Seesound "qcaco/sight"
+	Painsound "qcaco/pain"
+	Deathsound "qcaco/death"
+	Activesound "qcaco/active"
+	Attacksound "qcaco/melee"
+	Species "Chex"
+	Tag "Super Cyclops"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
+	+ISMONSTER
+	+QUICKTORETALIATE
+	+FLOAT
+	+NOGRAVITY
+	+PUSHABLE
+	+MISSILEEVENMORE
+	+MISSILEMORE
+	-COUNTKILL
+	Obituary "%o was slimed from afar by a Super Cyclops Flemoid."
+	Hitobituary "%o was slimed by a Super Cyclops Flemoid."
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_SUPERCYCLOPS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+		
+		SeeState:
+			C008 A 4 A_Chase ("", "Missile", CHF_FASTCHASE)
+			C008 A 4 A_Chase ("", "Missile")
+			C008 A 4 A_Chase ("", "Missile", CHF_FASTCHASE)
+			C008 A 4 A_Chase ("", "Missile")
+			C008 A 4 A_Chase ("", "Missile", CHF_FASTCHASE)
+		loop
+		Idle:
+			C008 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C008 AA 12 A_Wander
+			C008 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+		loop
+		MissileState:
+			C008 BC 4 A_FaceTarget
+			C008 D 4 A_CustomMissile("SuperCyclopsBall", 23, 0, 0)
+		goto See
+		PainState:
+			C008 E 3
+			C008 E 3 A_Pain
+			C008 F 6
+		goto See
+		XDeathState:
+		DeathState:
+			C008 G 8 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 20, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C008 H 8 A_Scream
+			C008 IJ 8
+			C008 K 8 A_NoBlocking
+		stop
+	}
+}
+
+Actor SuperCyclopsBall : FlembominationBall2 {
+	Obituary "%o was slimed by a Super Cyclops Flemoid."
+	Decal CycloptisSplat
+}

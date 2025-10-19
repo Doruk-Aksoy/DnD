@@ -48,16 +48,19 @@ str GetWeaponModText(int val, int id, int extra_bit = 0) {
 		case WEP_MOD_CRITPERCENT:
 			return StrParam(s:"\c[Y5]* \c[Q9]", s:GetFixedRepresentation(val, true), s:"% ", l:"IATTR_T38");
 		case WEP_MOD_DMG:
-			if(val > 0)
-				return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"IATTR_T41");
-			// put - here because it already says "less", -x% less is weird
-			return StrParam(s:"\c[Y5]* \c[Q2]", d:-val, s:"% ", l:"IATTR_T41NEG");
+			if(val > 1.0)
+				return StrParam(s:"\c[Y5]* \c[Q9]", s:GetFixedRepresentation(val, true), s:"% ", l:"IATTR_T41");
+			else if(val < 1.0)
+				return StrParam(s:"\c[Y5]* \c[Q2]", s:GetFixedRepresentation(1.0 - val, true), s:"% ", l:"IATTR_T41NEG");
+		break;
 		case WEP_MOD_PERCENTDAMAGE:
 			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"DND_WEPMOD_PERCENTDMG");
 		case WEP_MOD_POISONFORPERCENTDAMAGE:
 			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"DND_WEPMOD_POISONHITS");
 		case WEP_MOD_FORCEPAINCHANCE:
 			return StrParam(s:"\c[Y5]* \c[Q9]", d:val, s:"% ", l:"DND_WEPMOD_CHANCEFORCEPAIN");
+		case WEP_MOD_EXTRAPROJ:
+			return StrParam(s:"\c[Y5]* \c[Q9]+", d:val, s:" ", l:"DND_WEPMOD_EXTRAPROJ");
 		case WEP_MOD_POWERSET1:
 			// use extra_bit to check which sub mods we are after
 			switch(extra_bit) {

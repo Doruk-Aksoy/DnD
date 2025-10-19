@@ -161,7 +161,7 @@ DND_MENU_AILMENT2_EXP	=	"Monsters become completely encased in ice. It must firs
 DND_MENU_AILMENT3		=	"Ignite";
 DND_MENU_AILMENT3_EXP	=	"Fire damage from hits has 15% chance to ignite an enemy, dealing flat damage over 4 seconds. It can proliferate to nearby enemies if the monster dies with time remaining.";
 DND_MENU_AILMENT4		=	"Overload";
-DND_MENU_AILMENT4_EXP	=	"Lightning damage has 5% chance to cause the monster to take 20% more damage from all elemental damage except lightning for 3 seconds.";
+DND_MENU_AILMENT4_EXP	=	"Lightning damage has 5% chance to cause the monster to take 20% more damage from all elemental damage for 3 seconds.";
 DND_MENU_AILMENT5		=	"Poison";
 DND_MENU_AILMENT5_EXP	=	"Hits from poison damage inflict a stack of poison for 3 seconds dealing 2% of the damage, up to 5 maximum stacks, each with their own instances.";
 
@@ -505,6 +505,7 @@ DND_MENU_RARITY			=	"increased item rarity";
 DND_MENU_AMMOCAPS		=	"increased ammo caps";
 DND_MENU_SLOTDMG		=	"damage bonus to slot";
 DND_MENU_SELFEXPDMG		=	"less self damage";
+DND_MENU_DODGECHANCE	=	"chance to dodge attacks";
 
 DND_MENU_STATUS				=	"Status";
 DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";

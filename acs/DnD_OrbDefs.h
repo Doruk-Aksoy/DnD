@@ -55,6 +55,33 @@ enum {
 #define DND_MON_DROP_ORB_BEGIN DND_ORB_HOLLOW
 #define DND_MAX_ORB_KINDS (DND_ORB_REVERANCE + 1)
 
+bool IsMidTierOrb(int type) {
+	switch(type) {
+		case DND_ORB_AFFLUENCE:
+		case DND_ORB_NULLIFICATION:
+		case DND_ORB_POTENCY:
+		case DND_ORB_ALCHEMIST:
+		case DND_ORB_PRISMATIC:
+		case DND_ORB_HOLLOW:
+		return true;
+	}
+	return false;
+}
+
+bool IsHighTierOrb(int type) {
+	switch(type) {
+		case DND_ORB_CORRUPT:
+		case DND_ORB_REPENT:
+		case DND_ORB_SIN:
+		case DND_ORB_ASSIMILATION:
+		case DND_ORB_ORDER:
+		case DND_ORB_DESTINY:
+		case DND_ORB_REVERANCE:
+		return true;
+	}
+	return false;
+}
+
 #define MAX_TRANSMUTE_BOXES 3
 typedef struct {
 	int id;

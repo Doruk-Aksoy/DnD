@@ -97,7 +97,8 @@ void ClearPlayerAttributeExtraSync(int pnum) {
 #define CORRUPT_ATTRIB_ID_BEGIN 1000
 #define IMPLICIT_ATTRIB_ID_BEGIN 1250
 #define ESSENCE_ATTRIB_ID_BEGIN 1500
-#define UNIQUE_ATTRIB_ID_BEGIN 2000
+#define INCURSION_ATTRIB_ID_BEGIN 2000
+#define UNIQUE_ATTRIB_ID_BEGIN 2500
 // self note: all status_buffs_X modifiers are handled as exceptions
 enum {
 	INV_HP_INCREASE,
@@ -287,6 +288,7 @@ enum {
 	INV_CORR_CYBERNETIC,
 	INV_CORR_DMGDOESNTSTOPREGEN,
 	INV_CORR_INSTALEECHPCT,
+	// add new corruption implicits here
 
 	// implicits -- add new ones below here
 	INV_IMP_INCARMOR = IMPLICIT_ATTRIB_ID_BEGIN,
@@ -324,6 +326,7 @@ enum {
 	INV_IMP_RECOVERESONUNDEADKILL,
 	INV_IMP_PRECISIONCRITBONUS,
 	INV_IMP_QUALITYCAPFIFTY,
+	// add new implicits here
 	
 	// essence attributes (only via. specific means)
 	INV_ESS_VAAJ = ESSENCE_ATTRIB_ID_BEGIN,
@@ -337,8 +340,27 @@ enum {
 	INV_ESS_THORAX,
 	INV_ESS_ZRAVOG,
 	INV_ESS_ERYXIA,
-	
 	// add new essences here
+
+	INV_INC_DOUBLEHPBONUS = INCURSION_ATTRIB_ID_BEGIN,
+	INV_INC_MAXPOISONSTACK,
+	INV_INC_POISONSPREAD,
+	INV_INC_CRITFORDOT,
+	INV_INC_ALLOVERLOAD,
+	INV_INC_ESHIELDNOINTERRUPT,
+	INV_INC_PLUSPROJ,
+	INV_INC_PLUSTWOPROJ,
+	INV_INC_INSTANTLIFESTEAL,
+	INV_INC_TWICEARMORDEFENSE,
+	INV_INC_MITIGATIONTODODGE,
+	INV_INC_ACCURACYFORPRECISION,
+	INV_INC_HPREGENINTERRUPT,
+	INV_INC_PASSIVEREGEN,
+	INV_INC_ENEMYRIPCHANCE,
+	INV_INC_BLOCKPREVENTION,
+	INV_INC_RIPPERSEXPLODE,
+	INV_INC_INVERTRESISTANCES,
+	// add new incursion mods here
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
 	INV_EX_CHANCE_CASTELEMSPELLONATK = UNIQUE_ATTRIB_ID_BEGIN,
@@ -413,6 +435,13 @@ enum {
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
 
+#define DND_INC_HPDOUBLE_REDUCTION 300
+#define DND_INC_INSTALIFEREDUCTION 100
+#define DND_INC_ACCURACYFORPRECRATIO 25
+
+#define DND_INC_SINGLEPROJ_NEGDMG 0.75
+#define DND_INC_TWOPROJ_NEGDMG 0.50
+
 enum {
 	PPOWER_CYBER 						= 	0b1,
 	PPOWER_ESHIELDBLOCKALL				=	0b100,
@@ -456,7 +485,12 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define ESSENCE_ATTRIBUTE_COUNT (LAST_ESSENCE_ATTRIBUTE - FIRST_ESSENCE_ATTRIBUTE + 1)
 #define ESSENCE_MAP_MACRO(X) ((X) - FIRST_ESSENCE_ATTRIBUTE + 1)
 
-#define MAX_INV_ATTRIBUTE_TYPES (NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT)
+#define FIRST_INCURSION_ATTRIBUTE INV_INC_DOUBLEHPBONUS
+#define LAST_INCURSION_ATTRIBUTE INV_INC_INVERTRESISTANCES
+#define INCURSION_ATTRIBUTE_COUNT (LAST_INCURSION_ATTRIBUTE - FIRST_INCURSION_ATTRIBUTE + 1)
+#define INCURSION_MAP_MACRO(X) ((X) - FIRST_INCURSION_ATTRIBUTE + 1)
+
+#define MAX_INV_ATTRIBUTE_TYPES (NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT + INCURSION_ATTRIBUTE_COUNT)
 #define UNIQUE_MAP_MACRO(X) ((X) - UNIQUE_ATTRIB_ID_BEGIN + 1)
 #define MAX_TOTAL_ATTRIBUTES 3000 // 1000 for each of: regular, essence, unique mods.
 
@@ -533,6 +567,7 @@ bool IsMoreMultiplierMod(int mod) {
 		case INV_LIFESTEAL_DAMAGE:
 		case INV_ESS_ERYXIA:
 		case INV_EX_MORECRIT_LIGHTNING:
+		case INV_CORR_WEAPONDMG:
 		return true;
 	}
 	return false;
@@ -583,6 +618,15 @@ bool IsFixedPointMod(int mod) {
 	return false;
 }
 
+bool IsStaticMod(int mod) {
+	switch(mod) {
+		case INV_INC_PLUSPROJ:
+		case INV_INC_PLUSTWOPROJ:
+		return true;
+	}
+	return false;
+}
+
 // Returns a weapon as extra field for the given corruption mod
 int GetExtraForMod(int pnum, int mod) {
 	int res = -1;
@@ -596,6 +640,11 @@ int GetExtraForMod(int pnum, int mod) {
 		case INV_CORR_WEAPONFORCEPAIN:
 			// pick one from a weapon the player owns
 			res = PickRandomOwnedWeaponID(pnum);
+		break;
+
+		case INV_INC_PLUSPROJ:
+		case INV_INC_PLUSTWOPROJ:
+			res = PickRandomOwnedWeaponID_WithProj(pnum);
 		break;
 	}
 	return res;
@@ -1148,9 +1197,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_LIFESTEAL_CAP].attrib_level_modifier = 0;
 	ItemModTable[INV_LIFESTEAL_CAP].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
-	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_low = 0.02;
-	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_high = 0.08;
-	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_level_modifier = 0.07;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_low = 0.01;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_high = 0.03;
+	ItemModTable[INV_LIFESTEAL_DAMAGE].attrib_level_modifier = 0.025;
 	ItemModTable[INV_LIFESTEAL_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_OVERLOAD_DURATION].attrib_low = 0.1;
@@ -1386,8 +1435,8 @@ void SetupInventoryAttributeTable() {
 	/////////////////////////
 	// corrupted implicits //
 	/////////////////////////
-	ItemModTable[INV_CORR_WEAPONDMG].attrib_low = 25;
-	ItemModTable[INV_CORR_WEAPONDMG].attrib_high = 100;
+	ItemModTable[INV_CORR_WEAPONDMG].attrib_low = 1.15;
+	ItemModTable[INV_CORR_WEAPONDMG].attrib_high = 1.33;
 	ItemModTable[INV_CORR_WEAPONDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_WEAPONDMG].tags = INV_ATTR_TAG_DAMAGE;
 
@@ -1462,7 +1511,7 @@ void SetupInventoryAttributeTable() {
 	// essences from here on out //
 	///////////////////////////////
 	ItemModTable[INV_ESS_VAAJ].attrib_low = 1;
-	ItemModTable[INV_ESS_VAAJ].attrib_high = 1;
+	ItemModTable[INV_ESS_VAAJ].attrib_high = 3;
 	ItemModTable[INV_ESS_VAAJ].attrib_level_modifier = 1;
 	ItemModTable[INV_ESS_VAAJ].tags = INV_ATTR_TAG_NONE;
 	
@@ -1515,11 +1564,107 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ESS_ERYXIA].attrib_high = 0.075;
 	ItemModTable[INV_ESS_ERYXIA].attrib_level_modifier = 0.025;
 	ItemModTable[INV_ESS_ERYXIA].tags = INV_ATTR_TAG_NONE;
+
+	////////////////////////////////
+	// incursion from here on out //
+	////////////////////////////////
+	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_low = 1;
+	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_high = 1;
+	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_DOUBLEHPBONUS].tags = INV_ATTR_TAG_LIFE;
+
+	ItemModTable[INV_INC_MAXPOISONSTACK].attrib_low = 1;
+	ItemModTable[INV_INC_MAXPOISONSTACK].attrib_high = 1;
+	ItemModTable[INV_INC_MAXPOISONSTACK].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_MAXPOISONSTACK].tags = INV_ATTR_TAG_POISON | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_INC_POISONSPREAD].attrib_low = 1;
+	ItemModTable[INV_INC_POISONSPREAD].attrib_high = 3;
+	ItemModTable[INV_INC_POISONSPREAD].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_POISONSPREAD].tags = INV_ATTR_TAG_POISON | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_INC_CRITFORDOT].attrib_low = 1;
+	ItemModTable[INV_INC_CRITFORDOT].attrib_high = 1;
+	ItemModTable[INV_INC_CRITFORDOT].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_CRITFORDOT].tags = INV_ATTR_TAG_CRIT | INV_ATTR_TAG_DAMAGE;
+
+	ItemModTable[INV_INC_ALLOVERLOAD].attrib_low = 1;
+	ItemModTable[INV_INC_ALLOVERLOAD].attrib_high = 1;
+	ItemModTable[INV_INC_ALLOVERLOAD].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_ALLOVERLOAD].tags = INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_ELEMENTAL;
+
+	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_low = 1;
+	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_high = 1;
+	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_INC_PLUSPROJ].attrib_low = 1;
+	ItemModTable[INV_INC_PLUSPROJ].attrib_high = 1;
+	ItemModTable[INV_INC_PLUSPROJ].attrib_level_modifier = -1;
+	ItemModTable[INV_INC_PLUSPROJ].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_low = 2;
+	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_high = 2;
+	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_level_modifier = -1;
+	ItemModTable[INV_INC_PLUSTWOPROJ].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_INSTANTLIFESTEAL].attrib_low = 1;
+	ItemModTable[INV_INC_INSTANTLIFESTEAL].attrib_high = 2;
+	ItemModTable[INV_INC_INSTANTLIFESTEAL].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_INSTANTLIFESTEAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
+
+	ItemModTable[INV_INC_TWICEARMORDEFENSE].attrib_low = 1;
+	ItemModTable[INV_INC_TWICEARMORDEFENSE].attrib_high = 2;
+	ItemModTable[INV_INC_TWICEARMORDEFENSE].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_TWICEARMORDEFENSE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_INC_MITIGATIONTODODGE].attrib_low = 1;
+	ItemModTable[INV_INC_MITIGATIONTODODGE].attrib_high = 1;
+	ItemModTable[INV_INC_MITIGATIONTODODGE].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_MITIGATIONTODODGE].tags = INV_ATTR_TAG_DEFENSE;
+
+	ItemModTable[INV_INC_ACCURACYFORPRECISION].attrib_low = 1;
+	ItemModTable[INV_INC_ACCURACYFORPRECISION].attrib_high = 2;
+	ItemModTable[INV_INC_ACCURACYFORPRECISION].attrib_level_modifier = -1;
+	ItemModTable[INV_INC_ACCURACYFORPRECISION].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_HPREGENINTERRUPT].attrib_low = 1;
+	ItemModTable[INV_INC_HPREGENINTERRUPT].attrib_high = 1;
+	ItemModTable[INV_INC_HPREGENINTERRUPT].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_HPREGENINTERRUPT].tags = INV_ATTR_TAG_LIFE;
+
+	ItemModTable[INV_INC_PASSIVEREGEN].attrib_low = 5;
+	ItemModTable[INV_INC_PASSIVEREGEN].attrib_high = 5;
+	ItemModTable[INV_INC_PASSIVEREGEN].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_PASSIVEREGEN].tags = INV_ATTR_TAG_LIFE;
+
+	ItemModTable[INV_INC_ENEMYRIPCHANCE].attrib_low = 1;
+	ItemModTable[INV_INC_ENEMYRIPCHANCE].attrib_high = 3;
+	ItemModTable[INV_INC_ENEMYRIPCHANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_ENEMYRIPCHANCE].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_INC_BLOCKPREVENTION].attrib_low = 1;
+	ItemModTable[INV_INC_BLOCKPREVENTION].attrib_high = 3;
+	ItemModTable[INV_INC_BLOCKPREVENTION].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_BLOCKPREVENTION].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_RIPPERSEXPLODE].attrib_low = 1;
+	ItemModTable[INV_INC_RIPPERSEXPLODE].attrib_high = 2;
+	ItemModTable[INV_INC_RIPPERSEXPLODE].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_RIPPERSEXPLODE].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_INVERTRESISTANCES].attrib_low = 1;
+	ItemModTable[INV_INC_INVERTRESISTANCES].attrib_high = 2;
+	ItemModTable[INV_INC_INVERTRESISTANCES].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_INVERTRESISTANCES].tags = INV_ATTR_TAG_ATTACK;
 }
 
 // returns the amount to skip over the base range to map it into its appropriate tier
 int GetModTierRangeMapper(int attr, int lvl) {
 	int val = 0;
+	if(ItemModTable[attr].attrib_level_modifier == -1)
+		return -1;
+
 	if(!ItemModTable[attr].attrib_level_modifier)
 		val = (ItemModTable[attr].attrib_high - ItemModTable[attr].attrib_low + 1) * lvl;
 	else
@@ -1553,6 +1698,10 @@ bool IsAttributeExtraException(int attr) {
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
 
+		// incursion things that use extra field
+		case INV_INC_PLUSPROJ:
+		case INV_INC_PLUSTWOPROJ:
+
 		return true;
 	}
 	return false;
@@ -1582,19 +1731,22 @@ int GetItemAttributeFactor(int item_type, int item_subtype) {
 	return DND_POWERCORE_ATTRFACTOR;
 }
 
-int GetItemAttributeFactorVisual(int item_type, int item_subtype) {
-	int base = GetItemAttributeFactor(item_type, item_subtype);
-
-	return base;
-}
-
 // this uses a precalculated tier mapping to save time
 int GetModRangeWithTier(int attr, int tier_mapping, bool which, int attr_factor) {
 	int res = 0;
-	if(!which)
-		res = (ItemModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
-	else
-		res = (ItemModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+
+	if(tier_mapping != -1) {
+		if(!which)
+			res = (ItemModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+		else
+			res = (ItemModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+	}
+	else {
+		if(!which)
+			res = ItemModTable[attr].attrib_low * (100 + attr_factor) / 100;
+		else
+			res = ItemModTable[attr].attrib_high * (100 + attr_factor) / 100;
+	}
 	
 	if(!res)
 		res = 1;
@@ -1614,6 +1766,8 @@ int RollAttributeValue(int attr, int tier, bool isWellRolled, int item_type, int
 	int temp;
 	
 	int f = GetItemAttributeFactor(item_type, item_subtype);
+	if(IsStaticMod(attr))
+		f = 0;
 
 	bool revered = CheckInventory("ReveranceUsed");
 	
@@ -1758,12 +1912,15 @@ str GetInventoryAttributeText(int attr) {
 	// essences are mapped to 1 again for language file
 	if(attr <= LAST_ESSENCE_ATTRIBUTE)
 		return StrParam(s:"IATTR_TE", d:attr + 1 - FIRST_ESSENCE_ATTRIBUTE);
+
+	if(attr <= LAST_INCURSION_ATTRIBUTE)
+		return StrParam(s:"IATTR_TINC", d:attr + 1 - FIRST_INCURSION_ATTRIBUTE);
 		
 	// only option left is unique exotic attributes
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
-str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
+str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0, int attr_extra = 0) {
 	str text = GetInventoryAttributeText(attr);
 	str ess_tag = "\c[Q7]";
 	str col_tag = "\c[Q9]";
@@ -1773,6 +1930,11 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		col_tag = "\c[E2]";
 		ess_tag = "\c[E2]";
 		no_tag = "\c[E2] ";
+	}
+	else if(attr >= FIRST_INCURSION_ATTRIBUTE && attr <= LAST_INCURSION_ATTRIBUTE) {
+		ess_tag = "\c[Q0]";
+		col_tag = "\c[Q0]";
+		no_tag = "\c[Q0] ";
 	}
 
 	// dont draw essence mods as special if they are on unique items
@@ -1848,7 +2010,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			return StrParam(s:ess_tag, l:text, d:val, s: "%");
 
 		// essence with no numeric values
-		case INV_ESS_VAAJ:
 		case INV_ESS_LESHRAC:
 		case INV_ESS_THORAX:
 			if(showDetailedMods) {
@@ -1905,6 +2066,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			
 		// essences that are like regular mods, just have color code
 		case INV_ESS_OMNISIGHT:
+		case INV_ESS_VAAJ:
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, s:"+ ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, l:text,
@@ -1953,6 +2115,8 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_FLAT_POISONDMG:
 		case INV_OVERLOAD_ZAPCOUNT:
 		case INV_IGNITE_PROLIFCOUNT:
+
+		case INV_INC_MAXPOISONSTACK:
 			if(val > 0) {
 				if(showDetailedMods) {
 					return StrParam(
@@ -1966,7 +2130,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 				return StrParam(s:col_tag, s:"- \cg", d:val, s:no_tag, l:text);
 				
 		// corrupted implicits of certain kinds have +X% text TO (extra)
-		case INV_CORR_WEAPONDMG:
 		case INV_CORR_WEAPONCRITDMG:
 		case INV_CORR_WEAPONPCTDMG:
 		case INV_CORR_WEAPONPOISONPCT:
@@ -2066,6 +2229,15 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			}
 			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
 
+		// fixed point positive wep stuff
+		case INV_CORR_WEAPONDMG:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+ ", s:col_tag, s:GetFixedRepresentation(val - 1.0, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
+				);
+			}
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val - 1.0, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
+
 		// fixed point corrupted wep stuff
 		case INV_CORR_WEAPONCRIT:
 			if(showDetailedMods) {
@@ -2092,11 +2264,11 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_PELLET_INCREASE:
 		case INV_CRITCHANCE_INCREASE:
 		case INV_CRITPERCENT_INCREASE:
-		case INV_DAMAGEPERCENT_MORE:
 		case INV_BLOCKERS_MOREDMG:
 		case INV_OVERLOAD_DMGINCREASE:
 		case INV_LIFESTEAL_DAMAGE:
 		case INV_IGNITE_PROLIFRANGE:
+		case INV_DAMAGEPERCENT_MORE:
 			if(showDetailedMods) {
 				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)
@@ -2136,6 +2308,64 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			}
 			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
 
+		// incursion special attribs
+		case INV_INC_DOUBLEHPBONUS:
+		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC1S");
+
+		case INV_INC_CRITFORDOT:
+		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC4S");
+		case INV_INC_ALLOVERLOAD:
+		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC5S");
+		case INV_INC_ESHIELDNOINTERRUPT:
+		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC6S");
+		case INV_INC_PLUSPROJ:
+			ess_tag = GetWeaponTag(attr_extra);
+		return StrParam(s:col_tag, l:text, s:no_tag, l:ess_tag, s:"\n", s:col_tag, l:"IATTR_TINC7S", l:ess_tag);
+		case INV_INC_PLUSTWOPROJ:
+			ess_tag = GetWeaponTag(attr_extra);
+		return StrParam(s:col_tag, l:text, s:no_tag, l:ess_tag, s:"\n", s:col_tag, l:"IATTR_TINC8S", l:ess_tag);
+		case INV_INC_INSTANTLIFESTEAL:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
+					s:" - ", s:GetModTierText(tier, extra),
+					s:"\n", s:col_tag, l:"IATTR_TINC9S"
+				);
+			}
+			return StrParam(s:col_tag, d:val, s:"% ", l:text, s:"\n", s:col_tag, l:"IATTR_TINC9S");
+		case INV_INC_MITIGATIONTODODGE:
+		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC11S");
+		case INV_INC_ACCURACYFORPRECISION:
+		case INV_INC_HPREGENINTERRUPT:
+		return StrParam(s:col_tag, l:text);
+		case INV_INC_PASSIVEREGEN:
+		return StrParam(s:col_tag, l:text, s:" ", d:val, s:"% ", l:"IATTR_TINC14S1", s:"\n", s:col_tag, l:"IATTR_TINC14S2");
+		case INV_INC_ENEMYRIPCHANCE:
+			if(showDetailedMods) {
+				return StrParam(
+					s:col_tag, l:text, s:" ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:"IATTR_TINC15S",
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:col_tag, l:text, s:" ", d:val, s:"%", s:no_tag, l:"IATTR_TINC15S");
+		case INV_INC_BLOCKPREVENTION:
+		case INV_INC_INVERTRESISTANCES:
+			if(showDetailedMods) {
+				return StrParam(
+					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:"+ ", s:col_tag, d:val, s:"% ", l:text);
+		case INV_INC_RIPPERSEXPLODE:
+			if(showDetailedMods) {
+				return StrParam(
+					s:col_tag, l:text, s:" ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:"IATTR_TINC17S",
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:col_tag, l:text, s:" ", d:val, s:"%", s:no_tag, l:"IATTR_TINC17S");
+
 		// default takes percentage values
 		default:
 			if(val > 0) {
@@ -2164,8 +2394,8 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
-	if(attr <= LAST_ESSENCE_ATTRIBUTE)
-		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual);
+	if(attr <= LAST_INCURSION_ATTRIBUTE)
+		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2);
 
 	if(qual) {
 		if(!IsAttributeQualityException(attr)) {

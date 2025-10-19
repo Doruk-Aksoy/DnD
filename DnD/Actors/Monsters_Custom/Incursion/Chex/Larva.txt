@@ -12,10 +12,15 @@ ACTOR FlemoidLarva : DnD_BaseMeleeMonster {
 	Painsound "qspectre/pain"
 	Deathsound "qspectre/death"
 	Activesound "qspectre/active"
+	Species "Chex"
+	Tag "Flemoid Larva"
+	Stamina 128
 	+ISMONSTER
 	+PUSHABLE
 	+QUICKTORETALIATE
 	+FLOORCLIP
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	-COUNTKILL
 	-DROPOFF
 	Hitobituary "%o was gooed by a Flemoid Larva."

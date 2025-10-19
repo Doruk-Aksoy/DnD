@@ -3,6 +3,16 @@
 
 #include "DnD_Charms.h"
 
+global bool 52: PlayerWeaponDataNeedsSync[MAXPLAYERS][MAXWEPS];
+
+void MarkWeaponDataSync(int pnum, int wepid, bool s) {
+	PlayerWeaponDataNeedsSync[pnum][wepid] = s;
+}
+
+bool WeaponNeedsDataSync(int pnum, int wepid) {
+	return PlayerWeaponDataNeedsSync[pnum][wepid];
+}
+
 enum {
 	DND_SYNC_WEPMOD_CRIT,
 	DND_SYNC_WEPMOD_CRITDMG,

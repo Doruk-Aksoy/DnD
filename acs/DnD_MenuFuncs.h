@@ -3264,17 +3264,18 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 		}
 		else if(CheckInventory("DnD_SelectedInventoryBox") && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 			// drop selected item
+			epos = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("DnD_SelectedInventoryBox", 0);
-			PlayItemDropSound(temp, true);
+			PlayItemDropSound(temp, epos, true);
 		}
 	}
 	else if(choice == DND_MENUINPUT_RCLICK)
 		HandleM2Inputs(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
-void PlayItemDropSound(int type, bool use_activator_sound) {
+void PlayItemDropSound(int type, int sub_type, bool use_activator_sound) {
 	type &= 0xFFFF;
 
 	str snd = "Items/Drop";
@@ -3391,9 +3392,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 					// we have selected a box previously, if this has an item drop it otherwise clear it
 					if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_sel - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 						// drop selected item
+						item_subt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_sel - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 						DropItemToField(pnum, item_sel - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), item_sel - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-						PlayItemDropSound(temp, true);
+						PlayItemDropSound(temp, item_subt, true);
 					}
 					// clear selection
 					SetInventory("DnD_SelectedInventoryBox", 0);
@@ -3414,7 +3416,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			// try to drop item
 			item_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			if(item_sel != -1) {
-				PlayItemDropSound(Items_Used[pnum][boxid - 1].item_type, false);
+				PlayItemDropSound(Items_Used[pnum][boxid - 1].item_type, Items_Used[pnum][boxid - 1].item_subtype, false);
 				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
 				MoveItemTrade(pnum, boxid - 1, item_sel, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
@@ -4584,6 +4586,10 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		temp = GetWeaponModValue(j, extra1, WEP_MOD_FORCEPAINCHANCE);
 		if(temp)
 			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_FORCEPAINCHANCE), s:"\n");
+
+		temp = GetWeaponModValue(j, extra1, WEP_MOD_EXTRAPROJ);
+		if(temp)
+			modText = StrParam(s:modText, s:GetWeaponModText(temp, WEP_MOD_EXTRAPROJ), s:"\n");
 		
 		for(temp = 0; temp < MAX_WEP_MOD_POWERSET1; ++temp) {
 			if(HasWeaponPower(j, extra1, temp))
@@ -5353,7 +5359,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 
 			// generic things like dot multi, dot %
-			val = GetPlayerAttributeValue(pnum, INV_DOTMULTI);
+			val = GetPlayerDOTMulti(pnum);
 			if(val) {
 				PlayerStatText = StrParam(s:GetItemAttributeText(INV_DOTMULTI, 0, 0, val), s:"\n");
 				++k;
@@ -5535,6 +5541,10 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:"% \c-", l:"IATTR_T103", s:"\n");
 				++k;
 			}
+			else if((val = GetDodgeChance(pnum))) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:"% \c-", l:"DND_MENU_DODGECHANCE", s:"\n");
+				++k;
+			}
 
 			val = GetPlayerEnergyShieldCap(pnum);
 			i = val;
@@ -5671,6 +5681,24 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerNonElementalAvoidance(pnum, INV_AVOID_BLEED);
 			if(val > 0) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_BLEED, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerNonElementalAvoidance(pnum, INV_IMP_LESSFIRETAKEN);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IMP_LESSFIRETAKEN, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerNonElementalAvoidance(pnum, INV_IMP_LESSPOISONTAKEN);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IMP_LESSPOISONTAKEN, 0, 0, val), s:"\n");
+				++k;
+			}
+
+			val = GetPlayerNonElementalAvoidance(pnum, INV_IMP_LESSLIGHTNINGTAKEN);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IMP_LESSLIGHTNINGTAKEN, 0, 0, val), s:"\n");
 				++k;
 			}
 		}

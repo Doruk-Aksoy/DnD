@@ -10,6 +10,9 @@ ACTOR ArmoredFlemoid : DnD_BaseRangedMonster {
 	Activesound "qimp/active"
 	Painchance 75
 	Species "Chex"
+	Tag "Armored Flemoid"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	+QUICKTORETALIATE
 	+MISSILEMORE
 	+FLOORCLIP

@@ -11,13 +11,20 @@ ACTOR CyclopsFlemoid : DnD_BaseMeleeMonster {
 	Deathsound "qspectre/death"
 	Activesound "qspectre/active"
 	+ISMONSTER
+	Species "Chex"
+	Tag "Cyclops Flemoid"
 	Painchance 50
+	Stamina 128
+	Renderstyle Translucent
+	Alpha 0.666
 	+DROPOFF
 	+FLOORCLIP
 	+FLOAT
 	+NOGRAVITY  
 	+GHOST
 	+QUICKTORETALIATE
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	-COUNTKILL
 	Bloodcolor "Green"
 	Hitobituary "%o was slimed by a Cyclops Flemoid."

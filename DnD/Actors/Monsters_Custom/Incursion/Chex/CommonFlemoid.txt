@@ -12,6 +12,10 @@ ACTOR CommonFlemoid : DnD_BaseMeleeMonster {
 	Activesound "qgrunt/active"
 	Painchance 90
 	Species "Chex"
+	Tag "Common Flemoid"
+	Stamina 128
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	+QUICKTORETALIATE
 	+PUSHABLE
 	+FLOORCLIP

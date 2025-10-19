@@ -97,7 +97,7 @@ object InfernoSwordMissile_1 {
 	frame DKATM { light InfernoPuffLight5 }
 }
 
-object InfernoSwordMissile_2 {
+object InfernoSwordMissile_Adjust {
 	frame DKATA { light InfernoProjLight }
 	frame DKATB { light InfernoProjLight }
 	frame DKATC { light InfernoProjLight }
@@ -114,126 +114,7 @@ object InfernoSwordMissile_2 {
 	frame DKATM { light InfernoPuffLight5 }
 }
 
-object InfernoSwordMissile_3 {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_4 {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_5 {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_1_GhostHitter {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_2_GhostHitter {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_3_GhostHitter {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_4_GhostHitter {
-	frame DKATA { light InfernoProjLight }
-	frame DKATB { light InfernoProjLight }
-	frame DKATC { light InfernoProjLight }
-
-	frame DKATD { light InfernoPuffLight1 }
-	frame DKATE { light InfernoPuffLight1 }
-	frame DKATF { light InfernoPuffLight1 }
-	frame DKATG { light InfernoPuffLight2 }
-	frame DKATH { light InfernoPuffLight2 }
-	frame DKATI { light InfernoPuffLight2 }
-	frame DKATJ { light InfernoPuffLight2 }
-	frame DKATK { light InfernoPuffLight3 }
-	frame DKATL { light InfernoPuffLight4 }
-	frame DKATM { light InfernoPuffLight5 }
-}
-
-object InfernoSwordMissile_5_GhostHitter {
+object InfernoSwordMissile_Adjust_GhostHitter {
 	frame DKATA { light InfernoProjLight }
 	frame DKATB { light InfernoProjLight }
 	frame DKATC { light InfernoProjLight }

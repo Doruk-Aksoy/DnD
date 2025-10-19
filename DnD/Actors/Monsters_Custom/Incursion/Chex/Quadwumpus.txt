@@ -10,6 +10,10 @@ ACTOR ChexQuadrumpus : DnD_BaseRangedMonster {
 	Deathsound "qimp/death"
 	Activesound "qimp/active"
 	Painchance 30
+	Species "Chex"
+	Tag "Quadrumpus"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	+ISMONSTER
 	+FLOORCLIP
 	+QUICKTORETALIATE
@@ -65,6 +69,7 @@ ACTOR ChexQuadrumpus : DnD_BaseRangedMonster {
 			C006 H 2
 			C006 H 2 A_Pain
 		goto See
+		XDeathState:
 		DeathState:
 			C006 I 1
 			C006 I 1 A_SpawnitemEx ("NashGore_Gib1", 0, 0, random(0,42), 0, 0, random(2,6), random(0,360), SXF_USEBLOODCOLOR)

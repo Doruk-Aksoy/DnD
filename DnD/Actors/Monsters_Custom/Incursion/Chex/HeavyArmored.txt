@@ -11,6 +11,9 @@ ACTOR HeavyArmoredFlemoid : DnD_BaseHybridMonster {
 	Activesound "qimp/active"
 	Painchance 40
 	Species "Chex"
+	Tag "Heavy Armored Flemoid"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	+QUICKTORETALIATE
 	+MISSILEMORE
 	+MISSILEEVENMORE

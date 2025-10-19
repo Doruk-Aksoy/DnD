@@ -96,6 +96,17 @@ bool CanMonsterSpawnIncursionMarker(int m_id, int base_chance, int curr_count, i
     return random(0, 1.0) <= FixedMul(factor + DND_INCURSION_BASE_MARKERCHANCE, mul);
 }
 
+void ResetMarkerMonsterKillData(int marker_tid) {
+    for(int i = 0; i < MAX_MONSTER_CATEGORIES; ++i) {
+        str var_name = StrParam(s:"user_mclass_", d:i);
+        SetUserVariable(
+            marker_tid,
+            var_name,
+            0
+        );
+    }
+}
+
 void GiveMarkerMonsterKillData(int marker_tid, int mclass) {
     str var_name = StrParam(s:"user_mclass_", d:mclass);
     SetUserVariable(
@@ -113,7 +124,6 @@ void PoolMarkerDataToPortal(int marker_tid, int portal_tid, int mclass) {
         var_name,
         GetUserVariable(portal_tid, var_name) + GetUserVariable(marker_tid, var_name)
     );
-    //Log(s:"Pooling marker data ", d:marker_tid, s:" on mclass ", d:mclass, s: " to be ", d:GetUserVariable(portal_tid, var_name));
 }
 
 str GetIncursionMonsterSpawner(int class) {
@@ -162,21 +172,32 @@ Script "DnD Incursion Spawn" (int incursion_theme) {
     // spawn monsters from this portal according to what has been killed around it... with some randomization (maybe not spawn some at all etc.)
     for(int i = 0; i < MAX_MONSTER_CATEGORIES; ++i) {
         str var_name = StrParam(s:"user_mclass_", d:i);
-        int val = GetUserVariable(0, var_name);
 
-        Log(s:"checking user var: ", s:var_name, s:" value: ", d:val);
+        // divide by DND_INCURSION_MARKER_MERGECOUNT - 1 because there will be duplicate signals on these markers in most cases
+        int val = GetUserVariable(0, var_name);
+        if(!val)
+            continue;
+
+        if(i != MONSTERCLASS_CYBERDEMON && i != MONSTERCLASS_SPIDERMASTERMIND)
+            val = random(val / (DND_INCURSION_MARKER_MERGECOUNT - 1), val);
+        else
+            val /= DND_INCURSION_MARKER_MERGECOUNT - 1;
 
         str spawner = GetIncursionMonsterSpawner(i);
+        bool spawned = false;
 
         for(int j = 0; j < val; ++j) {
             if(SpawnAreaRandomTID(0, DND_INCURSION_SPAWNRADIUS, spawner, DND_INCURSION_SPAWNER_AUX)) {
                 //Log(s:"spawned!");
                 SetActorProperty(DND_INCURSION_SPAWNER_AUX, APROP_SCORE, incursion_theme);
                 Thing_ChangeTID(DND_INCURSION_SPAWNER_AUX, 0);
+                spawned = true;
                 Delay(const:1);
             }
         }
-        Delay(const:HALF_TICRATE);
+
+        if(spawned)
+            Delay(const:HALF_TICRATE);
     }
 
     // disappear

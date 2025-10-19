@@ -932,7 +932,7 @@ Script "DND On Kill" KILL {
 	if(!random(0, 3) && HasActorClassPerk_Fast(target, "Wanderer", 4))
 		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
-	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime")) {
+	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime") && !GetPlayerAttributeValue(target - P_TIDSTART, INV_INC_ALLOVERLOAD)) {
 		GiveInventory("DnD_OverloadZapGiver", 1);
 		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
 	}
@@ -1029,6 +1029,7 @@ Script "DND On Kill" KILL {
 	(
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
 		HasClassPerk_Fast("Doomguy", 5) ||
+		GetPlayerAttributeValue(target - P_TIDSTART, INV_INC_ENEMYRIPCHANCE) <= random(1, 100) ||
 		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
@@ -3635,7 +3636,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				if(HasClassPerk_Fast("Cyborg", 1))
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 				
-				if((!CheckInventory("RegenStopper") || GetPlayerAttributeValue(pnum, INV_CORR_DMGDOESNTSTOPREGEN)) && cur < lim) {
+				if((!CheckInventory("DnD_Hit_CombatTimer") || GetPlayerAttributeValue(pnum, INV_CORR_DMGDOESNTSTOPREGEN) || GetPlayerAttributeValue(pnum, INV_INC_HPREGENINTERRUPT)) && cur < lim) {
 					if(cur + amt < lim)
 						GiveInventory("HealthBonusX", amt);
 					else
@@ -3668,7 +3669,13 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 		++count;
 
 		// if we died, or if we are in combat AND we don't have "can charge right now!" or we have no eshield at this time
-		if(!isAlive() || (CheckInventory("DnD_Hit_CombatTimer") && !GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) && !CheckInventory("EShieldChargeNow")) || !GetAmmoCapacity("EShieldAmountVisual")) {
+		if
+		(
+			!isAlive() || 
+			(CheckInventory("DnD_Hit_CombatTimer") && !GetPlayerAttributeValue(pnum, INV_EX_ESCHARGE_DMGNOINTERRUPT) && !GetPlayerAttributeValue(pnum, INV_INC_ESHIELDNOINTERRUPT) && !CheckInventory("EShieldChargeNow")) || 
+			!GetAmmoCapacity("EShieldAmountVisual")
+		)
+		{
 			TakeInventory("EShieldCharging", 1);
 			Terminate;
 		}
@@ -3830,6 +3837,9 @@ Script "DnD Lifesteal Script" (int tid) {
 			}
 		}
 		Delay(tics);
+
+		// in case a new update occurs during
+		tics = GetLifestealRate(pnum);
 	}
 
 	TakeInventory("LifestealScriptRunning", 1);
@@ -4204,15 +4214,21 @@ Script "DnD Drop Orb" (void) {
 	SpawnOrbForAll(1);
 }
 
-Script "DnD Play Local Item Drop Sound" (int who, int droptype) CLIENTSIDE {
+Script "DnD Play Local Item Drop Sound" (int who, int droptype, int extra) CLIENTSIDE {
 	if(ConsolePlayerNumber() != who)
 		Terminate;
+	
 	switch(droptype) {
 		case DND_ITEM_CHARM:
 			PlaySound(0, "Items/CharmDrop", 4);
 		break;
 		case DND_ITEM_ORB:
-			PlaySound(0, "Items/OrbDrop", 5);
+			if(IsMidTierOrb(extra))
+				PlaySound(0, "Drop/Mid", 5);
+			else if(IsHighTierOrb(extra))
+				PlaySound(0, "Drop/High", 5);
+			else
+				PlaySound(0, "Items/OrbDrop", 5);
 		break;
 		case DND_ITEM_TOKEN:
 			Playsound(0, "Items/TokenDrop", 6);
@@ -5297,7 +5313,7 @@ Script "DnD Tcherno Corpse Explode Gib Giver" (int i) CLIENTSIDE {
 }
 
 Script "DnD Item Linger Check" (void) {
-	if(CheckInventory("DnD_NoLingerCheck"))
+	if(CheckInventory("DnD_NoLingerCheck") || GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 
 	int counter = 0;
@@ -5581,6 +5597,11 @@ Script "DnD Get Player WeaponID" (void) {
 }
 
 Script "DnD Bloodfiend Heal" (void) {
+	int victim = GetActorProperty(0, APROP_TRACERTID);
+
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BLOODLESS])
+		Terminate;
+
 	SetActivatorToTarget(0);
 	
 	// 1% heal per pellet hitting
@@ -5875,17 +5896,19 @@ Script 68 (int x) NET {
 			//Log(s:"orb");
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
 			//SpawnToken(0, true);
 			//Log(s:"boot");
-			//SpawnBoot(0, 0);
+			SpawnBoot(0, 0);
 			//Log(s:"helm");
 			//SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
-			/*SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_PROJSPEED);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
+			//SpawnChestKey(0);
+			SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
+			SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
+			SpawnCharmWithMods_ForAll(INV_INC_PLUSTWOPROJ);
+			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
 			//IncPlayerModValue(0, INV_CORR_INSTALEECHPCT, 15);
@@ -5919,6 +5942,8 @@ Script 68 (int x) NET {
 			/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
 			SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
+
+			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber(), false);
 		}
 		else if(x == 450) {
 			GiveInventory("PerkPoint", 10);

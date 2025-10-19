@@ -112,6 +112,7 @@ enum {
 	DND_DAMAGETICFLAG_SOULATTACK		=			0b100000000000,
 	DND_DAMAGETICFLAG_LESSENED			=			0b1000000000000, // tells damage numbers to paint it gray basically
 	DND_DAMAGETICFLAG_PHYSICAL			=			0b10000000000000,
+	DND_DAMAGETICFLAG_POISON			=			0b100000000000000,
 };
 
 #include "DnD_CommonResearch.h"
@@ -250,7 +251,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		
 		// +FORCERADIUSDMG can come from vaaj or marine
 		case PUP_IGNORERADIUSIMMUNITY:
-		return GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) || HasActorClassPerk_Fast(pnum + P_TIDSTART, "Marine", 3);
+		return HasActorClassPerk_Fast(pnum + P_TIDSTART, "Marine", 3);
 		
 		case PUP_SLAINENEMIESRIP:
 		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP);
@@ -492,10 +493,14 @@ int GetMissingHealth() {
 }
 
 int CalculateHealthCapBonuses(int pnum) {
-	// consider quest bonuses, charms, orb effects
-	return IsQuestComplete(pnum + P_TIDSTART, QUEST_NODYING) * DND_QUEST_PRECIOUSLIFE_BONUS 		+
-		   IsQuestComplete(pnum + P_TIDSTART, QUEST_NOHEALINGPICKUP) * DND_QUEST_SKINOTEETH_BONUS 	+
-		   GetPlayerAttributeValue(pnum, INV_HP_INCREASE);
+	int base = GetPlayerAttributeValue(pnum, INV_HP_INCREASE);
+	if(GetPlayerAttributeValue(pnum, INV_INC_DOUBLEHPBONUS)) {
+		// double it then add the negative component
+		base <<= 1;
+		base -= DND_INC_HPDOUBLE_REDUCTION;
+	}
+
+	return base;
 }
 
 // returns player max health
@@ -513,10 +518,13 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	int str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
-	int percent  = //DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE) 			+
-				   CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST 						+
-				   GetActorResearchHealthBonuses(tid) 													+
-				   GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
+	int percent  = GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
+	if(GetPlayerAttributeValue(pnum, INV_INC_DOUBLEHPBONUS))
+		percent <<= 1;
+	
+	percent += 	CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST 						+
+				GetActorResearchHealthBonuses(tid);
+				   
 	// player bonus + % research bonus
 	res += (res * percent) / 100;
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_ANGELICANKH))
@@ -689,7 +697,7 @@ void HandleClassPerks(int tid) {
 	if(isActorPlayerClass(tid, DND_PLAYER_PUNISHER))
 		UpdatePlayerSpreeTimer(tid - P_TIDSTART);
 	
-	if(isActorPlayerClass(tid, DND_PLAYER_CYBORG)){
+	if(isActorPlayerClass(tid, DND_PLAYER_CYBORG)) {
 		if(HasActorClassPerk_Fast(tid, "Cyborg", 4)) {
 			lvl = ActivatorTID();
 
@@ -756,7 +764,8 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	int int_bonus = GetIntellectEffect(pnum, 1, 2);
 	int spawn_health = GetSpawnHealth(true, pnum);
 	
-	base += spawn_health * (GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD) + HasActorClassPerk_Fast(pnum + P_TIDSTART, "Cyborg", 5) * 100) / 100;
+	// cyborg eshield conversion from hp is half
+	base += spawn_health * (GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD) + HasActorClassPerk_Fast(pnum + P_TIDSTART, "Cyborg", 5) * 50) / 100;
 
 	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + int_bonus)) / 100;
 	return base;
@@ -766,7 +775,10 @@ int GetPlayerEnergyShieldCap(int pnum) {
 #define DND_MIT_BASE 50.0 // 50%
 #define DND_MIT_MAXEFFECT 90.0
 
-int GetMitigationChance(int pnum) {
+int GetMitigationChance(int pnum, bool forcedReturn = false) {
+	if(!forcedReturn && GetPlayerAttributeValue(pnum, INV_INC_MITIGATIONTODODGE))
+		return 0;
+
 	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
 	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
 	return base;
@@ -774,7 +786,7 @@ int GetMitigationChance(int pnum) {
 
 bool CouldMitigateDamage(int pnum) {
 	//Log(f:random(1.0, 100.0), s: " vs ", f:GetMitigationChance(pnum));
-	return random(0.0, 100.0) <= GetMitigationChance(pnum);
+	return random(0.01, 100.0) <= GetMitigationChance(pnum);
 }
 
 int GetMitigationEffect(int pnum) {
@@ -783,6 +795,19 @@ int GetMitigationEffect(int pnum) {
 	if(mit_eff > DND_MIT_MAXEFFECT)
 		mit_eff = DND_MIT_MAXEFFECT;
 	return mit_eff;
+}
+
+#define DND_DODGECHANCE_CAP 50.0
+
+int GetDodgeChance(int pnum) {
+	int base = 0;
+	
+	if(GetPlayerAttributeValue(pnum, INV_INC_MITIGATIONTODODGE))
+		base += GetMitigationChance(pnum, true) / 2;
+
+	if(base > DND_DODGECHANCE_CAP)
+		base = DND_DODGECHANCE_CAP;
+	return base;
 }
 
 int GetResistPenetration(int pnum, int category) {

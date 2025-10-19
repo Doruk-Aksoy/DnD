@@ -2325,7 +2325,7 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 ACS_ExecuteAlways(960, 0, 0)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster State Syncer", 0, 0)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Push All Players", 84, 24)
-			RSON G 8 Fast Bright A_SetReflectiveInvulnerable
+			RSON G 8 Fast Bright
 		Goto See
 		PainState:
 			TNT1 A 0 A_JumpIfInventory("DarkZealotCooldown", 1, "Paincont")

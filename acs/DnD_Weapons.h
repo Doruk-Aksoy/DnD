@@ -188,7 +188,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_name_alt = "SicklePuff_X";
 				hitscan_id = DND_HITSCAN_SICKLEX;
 				if(isAltFire & DND_ATK_OTHER_DIR)
-					Do_Projectile_Attack_Named(owner, pnum, "SickleGhostwave", wepid, 1, 48, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack_Named(owner, pnum, "SickleGhostwave", wepid, 1, 48, angle_vec, offset_vec, 0, 0, flags);
 			}
 			else
 				proj_name_alt = ProjectileInfo[proj_id].name;
@@ -226,9 +226,11 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				
 				// angle increments of 4 degrees, start from -32 deg
 				// max charges results in 17
-				sp_y = 1 + (16 * sp_x) / 100;
+				sp_y = 1 + (16 * sp_x) / 100 + GetPlayerBonusProjectiles(pnum, wepid);
 				for(count = 0; count < sp_y; ++count) {
 					vec2[angle_vec].x = -2.0 * (sp_y - 1) + count * 4.0;
+
+					// special case, proj count just adds more projectiles here (which makes sense...)
 					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0.0, 0.0, flags);
 					Delay(const:1);
 				}
@@ -380,7 +382,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					case 21:
 						hitscan_id = DND_HITSCAN_KATANAID4;
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, 0.0, 0.0, flags, 36.0, hitscan_id);
-						Do_Projectile_Attack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+						HandleProjectileAttack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					break;
 				}
 			}
@@ -401,7 +403,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					case 12:
 						hitscan_id = DND_HITSCAN_KATANAID4;
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, 0.0, 0.0, flags, 36.0, hitscan_id);
-						Do_Projectile_Attack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+						HandleProjectileAttack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					break;
 					
 					case 3:
@@ -447,7 +449,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff_NoArmor", proj_id, 16.0, 5.0, flags, 0, DND_HITSCAN_DUSKBLADE);
 					else {
 						// fire the slashing projectile
-						Do_Projectile_Attack(owner, pnum, DND_PROJ_DUSKBLADE2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+						HandleProjectileAttack(owner, pnum, DND_PROJ_DUSKBLADE2, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, 16.0, 5.0, flags, 0, DND_HITSCAN_DUSKBLADE2);
 					}
 				break;
@@ -482,17 +484,18 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				use_default = false;
 				
 				if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
-					for(count = 0; count < 5; ++count) {
+					count = 5 + GetPlayerBonusProjectiles(pnum, wepid);
+					while(count--) {
 						vec2[angle_vec].x = -11.25 + count * 5.625;
 						vec3[offset_vec].z = 10.0 - count * 5.0;
 						if(count)
-							Do_Projectile_Attack_Named(owner, pnum, StrParam(s:"InfernoSwordMissile_", d:count + 1), wepid, 1, 1, angle_vec, offset_vec, 0, 0, flags, proj_id);
+							Do_Projectile_Attack_Named(owner, pnum, "InfernoSwordMissile_Adjust", wepid, 1, 1, angle_vec, offset_vec, 0, 0, flags | DND_ATF_SPEEDISTIMER, proj_id);
 						else
-							Do_Projectile_Attack_Named(owner, pnum, StrParam(s:"InfernoSwordMissile_", d:count + 1), wepid, 1, 28, angle_vec, offset_vec, 0, 0, flags, proj_id);
+							Do_Projectile_Attack_Named(owner, pnum, "InfernoSwordMissile_1", wepid, 1, 28, angle_vec, offset_vec, 0, 0, flags, proj_id);
 					}
 				}
 				else {
-					count = GetPelletCount(pnum, 5);
+					count = GetPelletCount(pnum, 5) + GetPlayerBonusProjectiles(pnum, wepid);
 					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
 				}
 			}
@@ -562,10 +565,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					
 					// -3, 0, 3 deg angles
 					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, sp_x, sp_y, flags);
-					vec2[angle_vec].x = -3.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, sp_x, sp_y, flags);
-					vec2[angle_vec].x = 3.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, sp_x, sp_y, flags);
+					count = 2 + GetPlayerBonusProjectiles(pnum, wepid);
+					while(count--) {
+						vec2[angle_vec].x = 3.0 * (1 + count / 2);
+						if(count % 2)
+							vec2[angle_vec].x *= -1;
+						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, sp_x, sp_y, flags);
+					}
 				}
 				else {
 					use_default = true;
@@ -837,32 +843,33 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					// left
 					vec2[angle_vec].x = -1.0;
 					vec3[offset_vec].y = -12.0;
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					
 					SetVec3XYZ(offset_vec, 0.0, 4.0, 0.0);
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					SetVec3XYZ(offset_vec, 0.0, -12.0, 16.0);
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					SetVec3XYZ(offset_vec, 0.0, -28.0, 0.0);
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 				}
 				else {
 					// right
 					vec2[angle_vec].x = 1.0;
 					vec3[offset_vec].y = 12.0;
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					
 					SetVec3XYZ(offset_vec, 0.0, -4.0, 0.0);
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					SetVec3XYZ(offset_vec, 0.0, 12.0, 16.0);
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					SetVec3XYZ(offset_vec, 0.0, 28.0, 0.0);
-					Do_Projectile_Attack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					HandleProjectileAttack(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 				}
 			}
 			else {
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, GetPelletCount(pnum, 1), ProjectileInfo[DND_PROJ_HELLSMAWMAIN].spd_range, flags);
-				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, GetPelletCount(pnum, 3), ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range, flags);
+				count = GetPlayerBonusProjectiles(pnum, wepid);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMAIN, wepid, GetPelletCount(pnum, 1) + count, ProjectileInfo[DND_PROJ_HELLSMAWMAIN].spd_range, flags);
+				Do_Attack_Circle(owner, pnum, DND_PROJ_HELLSMAWMINI, wepid, GetPelletCount(pnum, 3) + count, ProjectileInfo[DND_PROJ_HELLSMAWMINI].spd_range, flags);
 			}
 		break;
 		case DND_WEAPON_AXE:
@@ -907,9 +914,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 				vec2[angle_vec].x = 1.0;
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+
+				if(GetPlayerBonusProjectiles(pnum, wepid))
+					HandleProjectileAttack(owner, pnum, proj_id, wepid, 0, angle_vec, offset_vec, 0, 0, flags, 3.0, 6.0);
 			}
 			else {
-				count = GetPelletCount(pnum, 6);
+				count = GetPelletCount(pnum, 6) + GetPlayerBonusProjectiles(pnum, wepid);
 				Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
 			}
 		break;
@@ -1026,17 +1036,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_CHARON;
 				if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
 					flags |= DND_ATF_TRACERPICKER;
-					vec2[angle_vec].x = -12.5;
 					sp_x = Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, 360 | (250 << 16), 894.0);
 
 					// dont pick any more targets, we couldn't find the first time!
 					if(!sp_x)
 						flags &= ~(1 << DND_ATF_TRACERPICKER);
 
-					vec2[angle_vec].x = 0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, 360 | (250 << 16), 894.0 | sp_x);
-					vec2[angle_vec].x = 12.5;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, 360 | (250 << 16), 894.0 | sp_x);
+					count = 2 + GetPlayerBonusProjectiles(pnum, wepid);
+					while(count--) {
+						vec2[angle_vec].x = 12.5 * (1 + count / 2);
+						if(count % 2)
+							vec2[angle_vec].x *= -1;
+						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags, 360 | (250 << 16), 894.0 | sp_x);
+					}
 				}
 				else {
 					count = GetPelletCount(pnum, 3);
@@ -1085,36 +1097,31 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				// circle pattern -- check circle fire too
 				if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
-					count = 12;
-					for(sp_x = 0; sp_x < 12; ++sp_x) {
-						SetVec2XY(angle_vec, 4 * cos(ANG_TO_DOOM(30.0 * sp_x)), 4 * sin(ANG_TO_DOOM(30.0 * sp_x)));
+					count = 12 + GetPlayerBonusProjectiles(pnum, wepid);
+					sp_y = 360.0 / count;
+					for(sp_x = 0; sp_x < count; ++sp_x) {
+						SetVec2XY(angle_vec, 4 * cos(ANG_TO_DOOM(sp_y * sp_x)), 4 * sin(ANG_TO_DOOM(sp_y * sp_x)));
 						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 					}
 				}
 				else {
-					count = GetPelletCount(pnum, 12);
+					count = GetPelletCount(pnum, 12) + GetPlayerBonusProjectiles(pnum, wepid);
 					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
 				}
 			}
 			else {
 				// spread pattern -- check circle fire too				
 				if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
-					count = 6;
-					vec2[angle_vec].x = 1.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
-					vec2[angle_vec].x = 4.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
-					vec2[angle_vec].x = 6.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
-					vec2[angle_vec].x = -1.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
-					vec2[angle_vec].x = -4.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
-					vec2[angle_vec].x = -6.0;
-					Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					count = 6 + GetPlayerBonusProjectiles(pnum, wepid);
+					while(count--) {
+						vec2[angle_vec].x = 1.0 + 2.5 * (count / 2);
+						if(count % 2)
+							vec2[angle_vec].x *= -1;
+						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					}
 				}
 				else {
-					count = GetPelletCount(pnum, 6);
+					count = GetPelletCount(pnum, 6) + GetPlayerBonusProjectiles(pnum, wepid);
 					Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
 				}
 			}
@@ -1148,19 +1155,19 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			
 			switch(sp_x) {
 				case 0:
-					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_1", wepid, 1, 64, angle_vec, offset_vec, 0, 0, 0);
+					HandleProjectileAttack_Named(owner, pnum, "CrossbowBolt_1", wepid, 1, 64, angle_vec, offset_vec, 0, 0, 0);
 				break;
 				case 1:
-					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_2", wepid, 1, 80, angle_vec, offset_vec, 0, 0, 0);
+					HandleProjectileAttack_Named(owner, pnum, "CrossbowBolt_2", wepid, 1, 80, angle_vec, offset_vec, 0, 0, 0);
 				break;
 				case 2:
-					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_3", wepid, 1, 120, angle_vec, offset_vec, 0, 0, 0);
+					HandleProjectileAttack_Named(owner, pnum, "CrossbowBolt_3", wepid, 1, 120, angle_vec, offset_vec, 0, 0, 0);
 				break;
 				case 3:
-					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_4", wepid, 1, 160, angle_vec, offset_vec, 0, 0, 0);
+					HandleProjectileAttack_Named(owner, pnum, "CrossbowBolt_4", wepid, 1, 160, angle_vec, offset_vec, 0, 0, 0);
 				break;
 				case 4:
-					Do_Projectile_Attack_Named(owner, pnum, "CrossbowBolt_5", wepid, 1, 200, angle_vec, offset_vec, 0, 0, 0);
+					HandleProjectileAttack_Named(owner, pnum, "CrossbowBolt_5", wepid, 1, 200, angle_vec, offset_vec, 0, 0, 0);
 				break;
 			}
 		break;
@@ -1273,7 +1280,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
 			}
 			else {
-				count = GetPelletCount(pnum, 4);
+				count = GetPelletCount(pnum, 4) + GetPlayerBonusProjectiles(pnum, wepid);
 				Do_Attack_Circle(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, flags);
 			}
 		break;
@@ -2167,19 +2174,42 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	if(!(flags & DND_ATF_NOATTACKTRIGGER))
 		HandleAttackEvent(wepid, ammo_slot == DND_AMMOSLOT_SPECIAL, ammo_sub_slot > SSAM_SLUG ? ammo_sub_slot - 1 : ammo_sub_slot);
 	
+	// ammo is taken by now, so ammo_take_amt is not used anymore
 	// for generic weapons that fire single shots these few lines will suffice, special spread weapons will have specifically crafted code for their attack
 	if(proj_id != -1 && use_default) {
 		// scale count if its a shotgun and/or we got pellets fire circle with non-zero count
 		// every weapon that can fire in a circle is either a burst or a shotgun! -- this is the underlying assumption so far!
-		if(count > 1 && (flags & DND_ATF_CANFIRECIRCLE))
+		// the following now holds the additional projectile count if applicable to the weapon!
+		ammo_take_amt = IsWeaponFiringProjectiles(wepid) * GetPlayerBonusProjectiles(pnum, wepid);
+		if(count > 1 && (flags & DND_ATF_CANFIRECIRCLE)) {
+			count += ammo_take_amt;
 			count = GetPelletCount(pnum, count);
+		}
 
 		if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE) || !(flags & DND_ATF_CANFIRECIRCLE)) {
 			// projectile, hitscan or melee: Check and do their corresponding attack function
 			if(ProjectileInfo[proj_id].flags & DND_PROJ_HITSCAN)
 				Do_Hitscan_Attack(owner, pnum, proj_id, wepid, count, ProjectileInfo[proj_id].spd_range, sp_x, sp_y, flags, hitscan_id);
-			else if(!(ProjectileInfo[proj_id].flags & DND_PROJ_MELEE))
-				Do_Projectile_Attack(owner, pnum, proj_id, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
+			else if(!(ProjectileInfo[proj_id].flags & DND_PROJ_MELEE)) {
+				if(!ammo_take_amt)
+					Do_Projectile_Attack(owner, pnum, proj_id, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
+				else {
+					// multi proj firing code, fire projectiles with an 8.25 degree, - and +, and if its odd we fire one in the center as usual
+					// this means the ammo_take_amt + count must be odd
+					if((ammo_take_amt + count) % 2)
+						Do_Projectile_Attack(owner, pnum, proj_id, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
+					else
+						ammo_take_amt += count;
+
+					// fire - and + fashion now
+					for(ammo_gain_guarantee = 0; ammo_gain_guarantee < ammo_take_amt; ++ammo_gain_guarantee) {
+						vec2[angle_vec].x = DND_EXTRAPROJ_SPREADANG * (1 + ammo_gain_guarantee / 2);
+						if(ammo_gain_guarantee % 2)
+							vec2[angle_vec].x *= -1;
+						Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+					}
+				}
+			}
 			else // melee left as the sole option, not hitscan or proj
 				Do_Melee_Attack(owner, pnum, wepid, count, proj_name_alt, proj_id, sp_x, sp_y, flags, 0, hitscan_id);
 		}
@@ -2217,6 +2247,38 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	FreeVec3(offset_vec);
 	
 	SetResultValue(0);
+}
+
+void HandleProjectileAttack(int owner, int pnum, int proj_id, int wepid, int count, int angle_vec, int offset_vec, int sp_x, int sp_y, int flags, int spread_inc = DND_EXTRAPROJ_SPREADANG, int spread_base = 0) {
+	int extra_proj = GetPlayerBonusProjectiles(pnum, wepid);
+	if((extra_proj + count) % 2)
+		Do_Projectile_Attack(owner, pnum, proj_id, wepid, count, angle_vec, offset_vec, sp_x, sp_y, flags);
+	else
+		extra_proj += count;
+
+	// fire - and + fashion now
+	for(int i = 0; i < extra_proj; ++i) {
+		vec2[angle_vec].x = spread_base + spread_inc * (1 + i / 2);
+		if(i % 2)
+			vec2[angle_vec].x *= -1;
+		Do_Projectile_Attack(owner, pnum, proj_id, wepid, 1, angle_vec, offset_vec, 0, 0, flags);
+	}
+}
+
+void HandleProjectileAttack_Named(int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int sp_x, int sp_y, int flags, int spread_inc = DND_EXTRAPROJ_SPREADANG, int spread_base = 0) {
+	int extra_proj = GetPlayerBonusProjectiles(pnum, wepid);
+	if((extra_proj + count) % 2)
+		Do_Projectile_Attack_Named(owner, pnum, proj_name, wepid, count, speed, angle_vec, offset_vec, sp_x, sp_y, flags);
+	else
+		extra_proj += count;
+
+	// fire - and + fashion now
+	for(int i = 0; i < extra_proj; ++i) {
+		vec2[angle_vec].x = spread_base + spread_inc * (1 + i / 2);
+		if(i % 2)
+			vec2[angle_vec].x *= -1;
+		Do_Projectile_Attack_Named(owner, pnum, proj_name, wepid, 1, speed, angle_vec, offset_vec, 0, 0, flags);
+	}
 }
 
 Script "DnD Load Weapon Information" OPEN {

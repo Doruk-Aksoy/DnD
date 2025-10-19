@@ -397,8 +397,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	int res = -1;
 	int temp;
 	int prev;
-	int i, s, x;
+	int i, s, x = -1;
 	int affluence = GetAffluenceBonus();
+
 	SetInventory("OrbUseType", orbtype + 1);
 	// for any other orb, reset most recently used orb
 	if(orbtype != DND_ORB_REPENT)
@@ -522,8 +523,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				}
 
 				// consumed now
-				if(x >= 0)
-					SetInventory("OrderStored", 0);
+				SetInventory("OrderStored", 0);
 
 				// res holds count now, so we must have non-zero or do nothing
 				if(res) {
@@ -554,8 +554,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				s = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
 			} while(!(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[s].attrib_id)) && temp < DND_MAX_ORB_REROLL_ATTEMPTS);
 
-			if(x >= 0)
-				SetInventory("OrderStored", 0);
+			SetInventory("OrderStored", 0);
 
 			PlayerInventoryList[pnum][extra].attributes[s].fractured = true;
 			PlayerInventoryList[pnum][extra].isDirty = true;
@@ -608,8 +607,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				}
 			}
 
-			if(x >= 0)
-				SetInventory("OrderStored", 0);
+			SetInventory("OrderStored", 0);
 
 			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -625,11 +623,13 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				do {
 					res = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
 				} while(!(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[res].attrib_id)) && temp < DND_MAX_ORB_REROLL_ATTEMPTS && PlayerInventoryList[pnum][extra].attributes[res].fractured);
-				
+
 				// just to be safe
 				if(!PlayerInventoryList[pnum][extra].attributes[res].fractured)
 					RemoveAttributeFromItem(pnum, extra, res);
 			}
+
+			SetInventory("OrderStored", 0);
 
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -673,7 +673,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					} while(
 						s < DND_MAX_ORB_REROLL_ATTEMPTS && 
 						(PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || PlayerInventoryList[pnum][extra].attributes[temp].fractured) &&
-						!(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[temp].attrib_id))
+						!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[temp].attrib_id)
 					);
 					
 					// increment the tier and reroll that attribute!
@@ -694,8 +694,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				}
 			}
 
-			if(x >= 0)
-				SetInventory("OrderUsed", 0);
+			SetInventory("OrderStored", 0);
 
 			// check how many ilvls this should jump now -- only if the item tier itself is higher than the allowed item level range, so low tiers increasing on level 50 don't cause this bump
 			// this rounds it up, so getting tier 5 on ilvl 48 for example would check vs 50 > 48 + 5 / 10 = 5 * 10 = 50, and it's okay that way
@@ -934,8 +933,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				);
 			}
 
-			if(order_result >= 0)
-				SetInventory("OrderUsed", 0);
+			SetInventory("OrderStored", 0);
 			
 			// finally, sync it
 			PlayerInventoryList[pnum][extra2].isDirty = true;
@@ -1250,7 +1248,7 @@ void RevertLastOrbEffect() {
 int PickRandomOrb(bool doExceptionCheck = false) {
 	int i = DND_ORB_ENHANCE;
 	do {
-		i = random(DND_ORB_ENHANCE, DND_MAX_ORB_KINDS - 1);
+		i = random(DND_ORB_ENHANCE, DND_MON_DROP_ORB_BEGIN - 1);
 	} while(doExceptionCheck && IsOrbDropException(i));
 	return i;
 }
@@ -1548,7 +1546,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if (sound)
-			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
+			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB, i);
 			
 		// force noRepeat
 		if(!noRepeat && CheckPlayerLuckDuplicator(pnum))

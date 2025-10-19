@@ -17,9 +17,16 @@ Actor OccultWeaknessTimeReset : PowerProtection {
 	powerup.duration 40
 }
 
+Actor VaajWeakness : DnD_Boolean { }
+
+Actor VaajWeaknessTimeReset : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 40
+}
+
 Actor DnD_SpeedAdjustRunning : DnD_Boolean { }
 
-Actor DnD_ExplosionRepeated : DnD_Boolean { }
+Actor DnD_ExplosionRepeatChance : DnD_Info { }
 
 Actor DamagePerFlatHPBuffer : DnD_Info { }
 
@@ -305,11 +312,6 @@ Actor RegenEffect : DnD_Activator {
 			TNT1 A 0 A_SetBlend("24 90 24", 0.3, 15)
 		Stop
 	}
-}
-
-Actor RegenStopper : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration -1
 }
 
 Actor DnD_SellConfirm : DnD_Boolean { }

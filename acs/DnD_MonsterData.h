@@ -819,6 +819,50 @@ void HandleMonsterClassInnates(int mid, int id) {
 	}
 	else if(id == MONSTER_NAZI)
 		MonsterProperties[mid].class = MONSTERCLASS_WOLFENSS;
+	else {
+		// incursion
+		switch(id) {
+			case MONSTER_CHEX_COMMON:
+				MonsterProperties[mid].class = MONSTERCLASS_ZOMBIEMAN;
+			break;
+			case MONSTER_CHEX_BIPEDAL:
+				MonsterProperties[mid].class = MONSTERCLASS_SHOTGUNGUY;
+			break;
+			case MONSTER_CHEX_HEAVYARMORED:
+				MonsterProperties[mid].class = MONSTERCLASS_CHAINGUNGUY;
+			break;
+			case MONSTER_CHEX_ARMORED:
+				MonsterProperties[mid].class = MONSTERCLASS_IMP;
+			break;
+			case MONSTER_CHEX_LARVA:
+				MonsterProperties[mid].class = MONSTERCLASS_DEMON;
+			break;
+			case MONSTER_CHEX_CYCLOPS:
+				MonsterProperties[mid].class = MONSTERCLASS_SPECTRE;
+			break;
+			case MONSTER_CHEX_FLEMMINE:
+				MonsterProperties[mid].class = MONSTERCLASS_LOSTSOUL;
+			break;
+			case MONSTER_CHEX_SUPERCYCLOPS:
+				MonsterProperties[mid].class = MONSTERCLASS_CACODEMON;
+			break;
+			case MONSTER_CHEX_STRIDICUS:
+				MonsterProperties[mid].class = MONSTERCLASS_HELLKNIGHT;
+			break;
+			case MONSTER_CHEX_MAXIMUS:
+				MonsterProperties[mid].class = MONSTERCLASS_BARON;
+			break;
+			case MONSTER_CHEX_QUADWUMPUS:
+				MonsterProperties[mid].class = MONSTERCLASS_REVENANT;
+			break;
+			case MONSTER_CHEX_FLEMBOMINATION:
+				MonsterProperties[mid].class = MONSTERCLASS_SPIDERMASTERMIND;
+			break;
+			case MONSTER_CHEX_SNOTFOLUS:
+				MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;
+			break;
+		}
+	}
 }
 
 /*
@@ -1090,6 +1134,13 @@ void LoadMonsterTraits(int tid, int monsterid) {
 	// if magical, give magic weakness
 	if((MonsterData[monsterid].flags & DND_MTYPE_MAGICAL_POW) && !MonsterProperties[tid].trait_list[DND_MAGIC_RESIST] && !MonsterProperties[tid].trait_list[DND_MAGIC_IMMUNE])
 		MonsterProperties[tid].trait_list[DND_MAGIC_WEAKNESS] = true;
+
+	if(MonsterData[monsterid].flags & DND_MTYPE_FLEMOID_POW) {
+		MonsterProperties[tid].trait_list[DND_TOXICBLOOD] = true;
+		MonsterProperties[tid].trait_list[DND_FIRE_WEAKNESS] = true;
+		MonsterProperties[tid].trait_list[DND_ICE_WEAKNESS] = true;
+		MonsterProperties[tid].trait_list[DND_BLOODLESS] = true;
+	}
 	
 	// debug
 	//MonsterProperties[tid].trait_list[DND_REPEL] = true;
@@ -1171,6 +1222,7 @@ enum {
 	DND_MTYPE_ROBOTIC_POW 				= 			0b1000,
 	DND_MTYPE_ZOMBIE_POW 				= 			0b10000,
 	DND_MTYPE_HUMAN_POW					=			0b100000,
+	DND_MTYPE_FLEMOID_POW				=			0b1000000,
 };
 
 enum {
@@ -1178,11 +1230,12 @@ enum {
 	DND_MTYPE_UNDEAD,
 	DND_MTYPE_MAGICAL,
 	DND_MTYPE_ROBOTIC,
-	DND_MTYPE_HUMAN
+	DND_MTYPE_HUMAN,
+	DND_MTYPE_FLEMOID
 };
 
 // first 5 above dictate the basic monster types
-#define MAX_MONSTER_TYPES 5
+#define MAX_MONSTER_TYPES 6
 str GetMonsterTypeIcon(int type) {
 	switch(type) {
 		case DND_MTYPE_DEMON:
@@ -1195,6 +1248,8 @@ str GetMonsterTypeIcon(int type) {
 		return "DNDEROB";
 		case DND_MTYPE_HUMAN:
 		return "DNDEHUM";
+		case DND_MTYPE_FLEMOID:
+		return "DNDESLM";
 	}
 	return "DNDEDEM";
 }
@@ -1212,6 +1267,8 @@ int InferMonsterPower(int mid) {
 		return DND_MTYPE_UNDEAD;
 	if(mid & DND_MTYPE_HUMAN_POW)
 		return DND_MTYPE_HUMAN;
+	if(mid & DND_MTYPE_FLEMOID_POW)
+		return DND_MTYPE_FLEMOID;
 	return DND_MTYPE_DEMON;
 }
 
@@ -1248,11 +1305,11 @@ bool IsBossTID(int tid) {
 }
 
 bool IsMonsterIdBoss(int id) {
-	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id == MONSTER_CUSTOM_BOSS || isUniqueBossMonster_Id(id) || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || (id >= DND_UNIQUEBOSS_BEGIN && id < MONSTER_CUSTOM);
+	return id == MONSTER_MASTERMIND || id == MONSTER_CYBERDEMON || id == MONSTER_CUSTOM_BOSS || isUniqueBossMonster_Id(id) || (id >= DND_BOSS_BEGIN && id < DND_UNIQUEMONSTER_BEGIN) || (id >= DND_UNIQUEBOSS_BEGIN && id < DND_UNIQUEMONSTER_END);
 }
 
 bool IsUniqueMonster(int id) {
-	return id >= DND_UNIQUEMONSTER_BEGIN && id < MONSTER_CUSTOM;
+	return id >= DND_UNIQUEMONSTER_BEGIN && id <= DND_UNIQUEMONSTER_END;
 }
 
 bool isLegendaryMonster(int id) {
@@ -2390,41 +2447,45 @@ void SetupMonsterData() {
 void SetupIncursionMonsters() {
 	// Chex
 	MonsterData[MONSTER_CHEX_COMMON].health = 100;
-	MonsterData[MONSTER_CHEX_COMMON].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_COMMON].flags = DND_MTYPE_FLEMOID_POW;
 
 	MonsterData[MONSTER_CHEX_BIPEDAL].health = 200;
-	MonsterData[MONSTER_CHEX_BIPEDAL].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_BIPEDAL].flags = DND_MTYPE_FLEMOID_POW;
 
 	MonsterData[MONSTER_CHEX_ARMORED].health = 300;
-	MonsterData[MONSTER_CHEX_ARMORED].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_ARMORED].flags = DND_MTYPE_FLEMOID_POW;
 
 	MonsterData[MONSTER_CHEX_HEAVYARMORED].health = 450;
-	MonsterData[MONSTER_CHEX_HEAVYARMORED].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_HEAVYARMORED].flags = DND_MTYPE_FLEMOID_POW;
 	MonsterData[MONSTER_CHEX_HEAVYARMORED].trait_list[DND_BULLET_RESIST] = true;
 
 	MonsterData[MONSTER_CHEX_CYCLOPS].health = 330;
-	MonsterData[MONSTER_CHEX_CYCLOPS].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_CYCLOPS].flags = DND_MTYPE_FLEMOID_POW;
 
 	MonsterData[MONSTER_CHEX_FLEMMINE].health = 180;
-	MonsterData[MONSTER_CHEX_FLEMMINE].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_FLEMMINE].flags = DND_MTYPE_FLEMOID_POW;
 
 	MonsterData[MONSTER_CHEX_LARVA].health = 400;
-	MonsterData[MONSTER_CHEX_LARVA].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_LARVA].flags = DND_MTYPE_FLEMOID_POW;
+
+	MonsterData[MONSTER_CHEX_QUADWUMPUS].health = 600;
+	MonsterData[MONSTER_CHEX_QUADWUMPUS].flags = DND_MTYPE_FLEMOID_POW;
 
 	MonsterData[MONSTER_CHEX_STRIDICUS].health = 750;
-	MonsterData[MONSTER_CHEX_STRIDICUS].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_STRIDICUS].flags = DND_MTYPE_FLEMOID_POW;
 	
 	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].health = 900;
-	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_SUPERCYCLOPS].trait_list[DND_MOBILITY] = true;
 
-	MonsterData[MONSTER_CHEX_MAXIMUS].health = 2000;
-	MonsterData[MONSTER_CHEX_MAXIMUS].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_MAXIMUS].health = 2500;
+	MonsterData[MONSTER_CHEX_MAXIMUS].flags = DND_MTYPE_FLEMOID_POW;
 	
-	MonsterData[MONSTER_CHEX_FLEMBOMINATION].health = 4000;
-	MonsterData[MONSTER_CHEX_FLEMBOMINATION].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_FLEMBOMINATION].health = 4500;
+	MonsterData[MONSTER_CHEX_FLEMBOMINATION].flags = DND_MTYPE_FLEMOID_POW;
 
 	MonsterData[MONSTER_CHEX_SNOTFOLUS].health = 6000;
-	MonsterData[MONSTER_CHEX_SNOTFOLUS].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_CHEX_SNOTFOLUS].flags = DND_MTYPE_FLEMOID_POW;
 }
 
 void SetupMonsterWeights() {

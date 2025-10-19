@@ -873,8 +873,10 @@ void HandleNPCChallenges(int this, int m_id) {
 	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_INCURSION) {
 		// make an incursion marker on this monster
 		int i, check_tid;
-		if(MonsterProperties[m_id].spawnsIncursionMarker && Spawn("DnD_IncursionMarker", GetActorX(0), GetActorY(0), GetActorZ(0) + 32.0, DND_INCURSIONMARKER_AUX)) {
+		if(MonsterProperties[m_id].spawnsIncursionMarker && Spawn("DnD_IncursionMarker", GetActorX(0), GetActorY(0), GetActorZ(0), DND_INCURSIONMARKER_AUX)) {
 			int marker_tid = GiveIncursionMarkerTID();
+
+			ResetMarkerMonsterKillData(marker_tid);
 
 			//Log(s:"marker index: ", d:marker_tid - DND_INCURSIONMARKER_TID, s: " marker total: ", d:DnD_TID_Counter[DND_TID_INCURSIONMARKERS]);
 
@@ -894,7 +896,7 @@ void HandleNPCChallenges(int this, int m_id) {
 					// increment marker data
 					GiveMarkerMonsterKillData(check_tid, MonsterProperties[m_id].class);
 
-					//Log(s:"matched, count: ", d:count);
+					//Log(s:"matched ", d:check_tid, s:", count: ", d:count, s: " vs ", d:DND_INCURSION_MARKER_MERGECOUNT);
 					if(count == DND_INCURSION_MARKER_MERGECOUNT) {
 						// stop looking further and spawn the portal now -- look for a spot to create it
 						// accumulate the marker's monster kill data and feed them into this portal
@@ -903,8 +905,11 @@ void HandleNPCChallenges(int this, int m_id) {
 						// find a "decent" place to spawn this thing
 						// it hopefully should spawn...
 						if(Spawn("DnD_IncursionPortal", GetActorX(check_tid), GetActorY(check_tid), GetActorZ(check_tid), DND_INCURSIONPORTAL_TID)) {
+							ResetMarkerMonsterKillData(DND_INCURSIONPORTAL_TID);
+							
 							for(count = 0; count < DND_INCURSION_MARKER_MERGECOUNT; ++count) {
 								int temp = markers_closeby[marker_tid - DND_INCURSIONMARKER_TID][count];
+								GiveActorInventory(temp, "DnD_Boolean", 1);
 								SetActorState(temp, "Vanish", false);
 
 								// transfer the user variable data to this

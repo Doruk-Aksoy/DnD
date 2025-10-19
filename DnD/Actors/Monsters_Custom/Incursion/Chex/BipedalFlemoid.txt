@@ -12,6 +12,10 @@ ACTOR BipedalFlemoid : DnD_BaseMeleeMonster {
 	Activesound "qshotguy/active"
 	Painchance 60
 	Species "Chex"
+	Tag "Bipedal Flemoid"
+	Stamina 128
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	+QUICKTORETALIATE
 	+FLOORCLIP
 	-DROPOFF

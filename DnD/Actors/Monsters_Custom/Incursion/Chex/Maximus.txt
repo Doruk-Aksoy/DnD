@@ -1,0 +1,65 @@
+ACTOR FlemoidMaximus : DnD_BaseHybridMonster {
+	Health 0x7FFFFFFF
+	Mass 1500
+	Speed 8
+	Height 64
+	Radius 24
+	ProjectilePassHeight 86
+	Painchance 8
+	Bloodcolor "Green"
+	Seesound "qbaron/sight"
+	Painsound "qbaron/pain"
+	Deathsound "qbaron/death"
+	Activesound "qbaron/active"
+	Minmissilechance 50
+	Species "Chex"
+	Tag "Maximus"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
+	+ISMONSTER
+	+FLOORCLIP
+	+QUICKTORETALIATE
+	-COUNTKILL
+	-DROPOFF
+	+DONTRIP
+	+NORADIUSDMG
+	Obituary "%o was defeated by a Maximus."
+	states {		
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_MAXIMUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+
+		SeeState:
+			C009 A 3 A_Chase
+			C009 A 0 A_PlaySound("gibbage/bslide")
+			C009 A 3 A_Chase
+			C009 BBC 3 A_Chase
+			C009 C 0 A_PlaySound("gibbage/bslide")
+			C009 C 3 A_Chase
+			C009 DD 3 A_Chase
+		loop
+		IdleState:
+			C009 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C009 AABBCCDD 3 A_Wander
+			C009 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+		loop
+		MeleeState:
+		MissileState:
+			C009 EF 6 A_FaceTarget
+			C009 G 7 A_CustomMissile ("MaximusBall", 54, 0, 0)
+		goto See
+		PainState:
+			C009 H 2
+			C009 H 2 A_Pain
+		goto See
+		XDeathState:
+		DeathState:
+			C009 I 1 A_Scream
+			C009 I 3 A_SpawnItemEx("GenericGibber_Medium_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C009 JKL 4
+			C009 MN 5
+			C009 O 5 A_NoBlocking
+		stop
+	}
+}

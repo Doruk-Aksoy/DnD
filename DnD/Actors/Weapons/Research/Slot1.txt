@@ -275,41 +275,17 @@ Actor InfernoSwordMissile_1 : DnD_ExplosiveBase {
 	}
 }
 
-Actor InfernoSwordMissile_2 : InfernoSwordMissile_1 {
+Actor InfernoSwordMissile_Adjust : InfernoSwordMissile_1 {
 	Speed 1
+	var int user_timer;
 	States {
 		SpawnState:
-			TNT1 A 1 ACS_NamedExecuteWithResult("DnD Readjust Speed", 28)
-			TNT1 A 0 A_ScaleVelocity(pvel)
-		Goto Super::SpawnState
-	}
-}
-
-Actor InfernoSwordMissile_3 : InfernoSwordMissile_1 {
-	Speed 1
-	States {
-		SpawnState:
-			TNT1 A 2 ACS_NamedExecuteWithResult("DnD Readjust Speed", 28)
-			TNT1 A 0 A_ScaleVelocity(pvel)
-		Goto Super::SpawnState
-	}
-}
-
-Actor InfernoSwordMissile_4 : InfernoSwordMissile_1 {
-	Speed 1
-	States {
-		SpawnState:
-			TNT1 A 3 ACS_NamedExecuteWithResult("DnD Readjust Speed", 28)
-			TNT1 A 0 A_ScaleVelocity(pvel)
-		Goto Super::SpawnState
-	}
-}
-
-Actor InfernoSwordMissile_5 : InfernoSwordMissile_1 {
-	Speed 1
-	States {
-		SpawnState:
-			TNT1 A 4 ACS_NamedExecuteWithResult("DnD Readjust Speed", 28)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Readjust Speed", 28)
+		SpawnLoop:
+			TNT1 A 1 A_JumpIf(user_timer <= 0, "LoopFinish")
+			TNT1 A 0 A_SetUserVar("user_timer", user_timer - 1)
+		Loop
+		LoopFinish:
 			TNT1 A 0 A_ScaleVelocity(pvel)
 		Goto Super::SpawnState
 	}
@@ -319,19 +295,7 @@ Actor InfernoSwordMissile_1_GhostHitter : InfernoSwordMissile_1 {
 	-THRUGHOST
 }
 
-Actor InfernoSwordMissile_2_GhostHitter : InfernoSwordMissile_2 {
-	-THRUGHOST
-}
-
-Actor InfernoSwordMissile_3_GhostHitter : InfernoSwordMissile_3 {
-	-THRUGHOST
-}
-
-Actor InfernoSwordMissile_4_GhostHitter : InfernoSwordMissile_4 {
-	-THRUGHOST
-}
-
-Actor InfernoSwordMissile_5_GhostHitter : InfernoSwordMissile_5 {
+Actor InfernoSwordMissile_Adjust_GhostHitter : InfernoSwordMissile_Adjust {
 	-THRUGHOST
 }
 

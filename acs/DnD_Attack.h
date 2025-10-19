@@ -22,6 +22,7 @@ enum {
 	DND_ATF_DAMAGEINEXTRA			= 0b100000000,			// damage stored in extra field
 	DND_ATF_ISREFLECTED				= 0b1000000000,			// reflected proj
 	DND_ATF_NOAMMOCONSUMPTIONCHECK	= 0b10000000000,		// skips ammo consumption check on ammo taking
+	DND_ATF_SPEEDISTIMER			= 0b100000000000,		// speed information also saved in user variable user_timer
 
 	DND_ATF_INSTABILITY				= 0b100000000000000000000000000000,
 	DND_ATF_NOINSTABILITY			= 0b1000000000000000000000000000000
@@ -174,6 +175,9 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	}
 	else
 		g = 0;
+
+	if(flags & DND_ATF_SPEEDISTIMER)
+		SetUserVariable(0, "user_timer", spd);
 
 	// this is needed so that reflecting works
 	SetActorProperty(0, APROP_SPEED, spd << 16);

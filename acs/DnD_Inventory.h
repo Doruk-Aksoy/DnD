@@ -870,12 +870,11 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 		}
 	}
 	
-	
 	return true;
 }
 
 bool IsWearingBodyArmor(int pnum) {
-	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_BODYARMOR;
+	return (Items_Used[pnum][BODY_ARMOR_INDEX].item_type & 0xFFFF) == DND_ITEM_BODYARMOR;
 }
 
 bool IsPlayerInventoryItemUnique(int pnum, int pos) {
@@ -2653,6 +2652,29 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			// for int
 			HandleEShieldChange(pnum, remove);
 		break;
+
+		case INV_INC_PLUSPROJ:
+			// make sure this stays positive even for removal!!!
+			temp = DND_INC_SINGLEPROJ_NEGDMG;
+			if(remove) {
+				aextra = -aextra;
+				temp = -temp;
+			}
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
+			MarkWeaponDataSync(pnum, aextra, true);
+		break;
+		case INV_INC_PLUSTWOPROJ:
+			// make sure this stays positive even for removal!!!
+			temp = DND_INC_TWOPROJ_NEGDMG;
+			if(remove) {
+				aextra = -aextra;
+				temp = -temp;
+			}
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
+			MarkWeaponDataSync(pnum, aextra, true);
+		break;
 		
 		// anything that fits our generic formula
 		default:
@@ -2902,27 +2924,27 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		// weapon mods
 		case INV_CORR_WEAPONCRIT:
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val += aval;
-			SyncClientsideVariable_WeaponMods(pnum, aextra);
+			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 		case INV_CORR_WEAPONCRITDMG:
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_CRITDMG][WMOD_ITEMS].val += aval;
-			SyncClientsideVariable_WeaponMods(pnum, aextra);
+			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 		case INV_CORR_WEAPONDMG:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val += aval;
-			SyncClientsideVariable_WeaponMods(pnum, aextra);
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, aval);
+			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 		case INV_CORR_WEAPONFORCEPAIN:
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_FORCEPAINCHANCE][WMOD_ITEMS].val += aval;
-			SyncClientsideVariable_WeaponMods(pnum, aextra);
+			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 		case INV_CORR_WEAPONPCTDMG:
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_PERCENTDAMAGE][WMOD_ITEMS].val += aval;
-			SyncClientsideVariable_WeaponMods(pnum, aextra);
+			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 		case INV_CORR_WEAPONPOISONPCT:
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE][WMOD_ITEMS].val += aval;
-			SyncClientsideVariable_WeaponMods(pnum, aextra);
+			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 	}
 
@@ -2988,6 +3010,13 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 		ProcessItemFeature(pnum, item_index, source, i, remove, multiplier);
 
 	ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", pnum, hasImplicits);
+
+	for(i = 0; i < MAXWEPS; ++i) {
+		if(WeaponNeedsDataSync(pnum, i)) {
+			SyncClientsideVariable_WeaponMods(pnum, i);
+			MarkWeaponDataSync(pnum, i, false);
+		}
+	}
 }
 
 int GetCraftableItemCount() {
@@ -3071,6 +3100,10 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 			Inventories_On_Field[item_pos].item_type,
 			Inventories_On_Field[item_pos].item_subtype
 		);
+
+		max_affixes = GetExtraForMod(pnum, attrib);
+		if(max_affixes != -1)
+			Inventories_On_Field[item_pos].attributes[temp].attrib_extra = max_affixes;
 	}
 	CheckAttribEffects(pnum, item_pos, attrib, DND_SYNC_ITEMSOURCE_FIELD);
 }
@@ -3143,7 +3176,7 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 
 	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
 #ifdef ISDEBUGBUILD
-		int corr_mod = INV_CORR_WEAPONPCTDMG;
+		int corr_mod = INV_CORR_WEAPONDMG;
 #else
 		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
 #endif

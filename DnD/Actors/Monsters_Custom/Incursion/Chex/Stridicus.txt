@@ -12,6 +12,11 @@ ACTOR FlemoidStridicus : DnD_BaseMeleeMonster {
 	PainSound "q3demon/pain"
 	DeathSound "q3demon/death"
 	ActiveSound "q3demon/active"
+	Species "Chex"
+	Tag "Stridicus"
+	Stamina 128
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	+ISMONSTER
 	+QUICKTORETALIATE
 	+FLOORCLIP
