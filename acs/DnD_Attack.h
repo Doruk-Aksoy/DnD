@@ -9,7 +9,6 @@
 #define DND_ATK_SECONDARY 2
 #define DND_ATK_OTHER_DIR 4
 
-#define ACCURACY_FACTOR 0.00001875
 enum {
 	DND_ATF_NOAMMOTAKE 				= 0b1,					// does not take ammo
 	DND_ATF_NOATTACKTRIGGER 		= 0b10,					// does not run attack check code ---- use for things that make multi proj attacks that are different proj
@@ -377,7 +376,7 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 		GetActorZ(owner) + GetActorViewHeight(owner) - 5.0
 	);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
+	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
@@ -417,7 +416,7 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 	// vector of owner pos
 	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
+	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
@@ -506,7 +505,7 @@ int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count,
 	FreeVec3(vTemp);
 	
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
+	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
@@ -597,7 +596,7 @@ int Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, in
 	FreeVec3(vTemp);
 	
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
-	acc = Clamp_Between(1.0 - ACCURACY_FACTOR * acc, 0.0, 10.0);
+	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
 	
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));

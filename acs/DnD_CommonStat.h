@@ -21,6 +21,8 @@
 #define DND_BASE_OVERLOADTIME_NOADJ 175
 #define DND_BASE_PLAYEROVERLOADCHANCE 20 // 20%
 
+#define ACCURACY_FACTOR 0.00001875
+
 enum {
 	DND_WDMG_USETARGET = 1,
 	DND_WDMG_ISOCCULT = 2,
@@ -797,7 +799,7 @@ int GetMitigationEffect(int pnum) {
 	return mit_eff;
 }
 
-#define DND_DODGECHANCE_CAP 50.0
+#define DND_DODGECHANCE_CAP 60.0
 
 int GetDodgeChance(int pnum) {
 	int base = 0;

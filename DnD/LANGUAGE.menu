@@ -506,6 +506,7 @@ DND_MENU_AMMOCAPS		=	"increased ammo caps";
 DND_MENU_SLOTDMG		=	"damage bonus to slot";
 DND_MENU_SELFEXPDMG		=	"less self damage";
 DND_MENU_DODGECHANCE	=	"chance to dodge attacks";
+DND_MENU_REGENCAP		=	"health regen cap";
 
 DND_MENU_STATUS				=	"Status";
 DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";
@@ -523,6 +524,7 @@ DND_MENU_MMOD_WEAK3		=	"Monster takes 50% more damage from fire attacks.";
 DND_MENU_MMOD_WEAK4		=	"Monster takes 50% more damage from ice attacks.";
 DND_MENU_MMOD_WEAK5		=	"Monster takes 25% more damage from occult attacks.";
 DND_MENU_MMOD_WEAK6		=	"Monster takes 50% more damage from elemental attacks.";
+DND_MENU_MMOD_WEAK7		=	"Monster is unable to block attacks.";
 
 // resistance group
 DND_MENU_MMOD_RES1		=	"Monster takes 50% reduced damage from melee and ballistic attacks.";

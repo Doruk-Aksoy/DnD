@@ -684,14 +684,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// factor dot % increase if this is a dot attack
 		if(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			InsertCacheFactor(pnum, wepid, dmgid, GetPlayerAttributeValue(pnum, INV_INCREASEDDOT), true);
-			
-		// check for quest % increases
-		if(IsQuestComplete(tid, QUEST_ONLYONEWEAPON))
-			InsertCacheFactor(pnum, wepid, dmgid, DND_QUEST_ONEWEAPON_BONUS, true);
-		
-		temp = IsElementalDamageCategory(damage_category);
-		if(temp && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
-			InsertCacheFactor(pnum, wepid, dmgid, DND_MORDECQAI_BOOST, true);
 
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 		// quest or accessory bonuses	
@@ -704,7 +696,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// % more damage from charms -- already contains 100 in it as it's a multiplicative mod
 		temp = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
 		if(temp)
-			InsertCacheFactor_Fixed(pnum, wepid, dmgid, temp);
+			InsertCacheFactor_Fixed(pnum, wepid, dmgid, 1.0 + temp);
 			
 		// % more / less damage from wepmod or orbs
 		temp = GetWeaponModValue(pnum, wepid, WEP_MOD_DMG);
@@ -1174,6 +1166,17 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		// we have 0 chance or we have chance but it didn't roll in our favor
 		if(!temp || temp < random(1, 100)) {
 			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
+
+			temp = GetPlayerAttributeValue(pnum, INV_INC_BLOCKPREVENTION);
+			if(temp && random(1, 100) <= temp) {
+				if(!CheckActorInventory(victim, "DnD_AntiBlockCounter")) {
+					SetActorInventory(victim, "DnD_AntiBlockCounter", DND_INC_BLOCKPREVENTIONTIME);
+					ACS_NamedExecuteWithResult("DnD Block Prevention Timer", victim);
+				}
+				else
+					SetActorInventory(victim, "DnD_AntiBlockCounter", DND_INC_BLOCKPREVENTIONTIME);
+			}
+
 			return 0;
 		}
 	}
@@ -1939,6 +1942,93 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		counter += DND_POISON_CHECKRATE;
 		Delay(const:DND_POISON_TICCHECK);
 	}
+
+	// find N closest targets to victim for igniting
+	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
+	/*if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
+		// Moved here, makes more sense to only check if applicable...
+		// check ignite prolif
+		int owner = P_TIDSTART + pnum;
+		int prolif_dist = GetIgniteProlifRange(pnum);
+		int prolif_count = GetIgniteProlifCount(pnum);
+		
+		// clear ignite prolif from subsequent ignites from this monster jumping, we don't want that, too laggy
+		ign_flags ^= DND_IGNITEFLAG_CANPROLIF;
+		next_dmg = 0; // used as temp variable
+		inc_by = 0; // same as above
+		dmg_tic_buff = 0; // same as above...
+		
+		static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAX_IGNITEPROLIFS];
+		
+		// init list
+		for(i = 0; i < DND_MAX_IGNITEPROLIFS; ++i) {
+			tlist[pnum][i].tid = 0;
+			tlist[pnum][i].dist = prolif_dist;
+		}
+
+		int j, k;
+		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+			i = UsedMonsterTIDs[mn];
+			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
+				next_dmg = fdistance(victim, i);
+				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL)) {
+					// insert sorted
+					inc_by = dmg_tic_buff;
+					// while our calc dist > alloc dist, keep going -- we add things to the end
+					// if we come by a point where we are smaller, shift things
+					for(j = 0; j < inc_by && next_dmg > tlist[pnum][j].dist; ++j);
+
+					// we know where to add, check if we must shift (if we should)
+					if(j < inc_by) {
+						// less, so that means we are in-between things
+						// push everything for insertion
+						// this is needed to move in 0 index shifts
+						if(inc_by == prolif_count)
+							--inc_by;
+						
+						for(k = inc_by; k > j; --k) {
+							// slide data
+							tlist[pnum][k].dist = tlist[pnum][k - 1].dist;
+							tlist[pnum][k].tid = tlist[pnum][k - 1].tid;
+						}
+					}
+					
+					tlist[pnum][j].dist = next_dmg;
+					tlist[pnum][j].tid = i;
+					
+					if(dmg_tic_buff < prolif_count)
+						++dmg_tic_buff;
+				}
+			}
+		}
+		
+		//printbold(s:"check prolif ", d:dmg_tic_buff);
+		// we have things to prolif to
+		if(dmg_tic_buff) {
+			//printbold(s:"begin prolif");
+			for(i = 0, j = 0; i < prolif_count; ++i) {
+				if(tlist[pnum][i].tid) {
+					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
+					// check if target was ignited already, if not ignite if so replace timer
+					next_dmg = CheckActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer");
+					if(!next_dmg) {
+						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", ign_time);
+						
+						// we don't proliferate from the proliferated targets... that'd be busted
+						// note: WAIT AND SEE IF ITS OP!
+						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, ign_flags, added_dmg);
+					}
+					else
+						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", Max(ign_time, next_dmg));
+
+					// abort if we reached our count
+					++j;
+					if(j == dmg_tic_buff)
+						break;
+				}
+			}
+		}
+	}*/
 
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_POISON);
@@ -3924,6 +4014,33 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetResultValue(dmg);
 		}
 	}
+}
+
+Script "DnD Block Prevention Timer" (int monster_tid) {
+	SetActivator(monster_tid);
+
+	ACS_NamedExecuteWithResult("DnD Block Prevention FX");
+
+	// remove blocking status
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take Single", monster_tid, DND_ISBLOCKING);
+	ACS_NamedExecuteWithResult("DnD Monster Trait Give Single", monster_tid, DND_GUARDBROKEN);
+
+	while(isAlive() && CheckInventory("DnD_AntiBlockCounter")) {
+		TakeInventory("DnD_AntiBlockCounter", 1);
+		Delay(const:TICRATE);
+	}
+
+	SetInventory("DnD_AntiBlockCounter", 0);
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take Single", monster_tid, DND_GUARDBROKEN);
+
+	SetResultValue(0);
+}
+
+Script "DnD Block Prevention FX" (void) CLIENTSIDE {
+	PlaySound(0, "Elite/FortifyCrack", CHAN_VOICE, 1.0);
+	GiveInventory("ShieldPreventionFXSpawner", 1);
+
+	SetResultValue(0);
 }
 
 #endif

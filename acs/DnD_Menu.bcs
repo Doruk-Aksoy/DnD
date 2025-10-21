@@ -926,6 +926,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_HELPTEXT7", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 6, 192.1, 160.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_HELPTEXT8", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 7, 192.1, 176.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_HELPTEXT9", DND_LANGUAGE_LOOKUP, boxid, MBOX_9, RPGMENUITEMID - 8, 192.1, 192.0, "\c[B1]", "\c[Y5]");
+				HudMessage(s:"\c[Y5]______________________________________"; HUDMSG_PLAIN, RPGMENUITEMID - 14, CR_CYAN, 316.4, 192.1, 0.0, 0.0); 
 				
 				HudMessage(s:"\c[Y5]", l:"DND_MENU_AVGMONLEVEL", s:": \cj", d:CheckInventory("DnD_PTotalLevel") / PlayerCount(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 212.0, 0.0, 0.0);
 				str mapinfo = "DND_MENU_DISABLED";

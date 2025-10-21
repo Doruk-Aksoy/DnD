@@ -1647,21 +1647,15 @@ int PickRandomOwnedWeaponID_WithProj(int pnum) {
 	static int owned_weapons[MAXPLAYERS][MAXWEPS];
 	// setup the list
 	for(i = 0; i < MAXWEPS; ++i) {
-		if(CheckInventory(Weapons_Data[i].name)) {
+		if(CheckInventory(Weapons_Data[i].name) && IsWeaponFiringProjectiles(i)) {
 			owned_weapons[pnum][count] = i;
 			++count;
 		}
 	}
 
 	// pick from random weapons owned
-	i = 0;
-	if(count) {
-		int max_tries = 50;
-		do {
-			i = owned_weapons[pnum][random(0, count - 1)];
-		} while(--max_tries > 0 && !IsWeaponFiringProjectiles(i));
-		return i;
-	}
+	if(count)
+		return owned_weapons[pnum][random(0, count - 1)];
 	return 0;
 }
 

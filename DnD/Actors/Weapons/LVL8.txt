@@ -728,7 +728,6 @@ ACTOR RazorSkull : DnD_BaseProjectile {
 	+SEEKERMISSILE
 	+RIPPER
 	+DOOMBOUNCE
-	+SCREENSEEKER
 	+FORCEXYBILLBOARD
 	DeathSound "monster/dishht1"
 	States {

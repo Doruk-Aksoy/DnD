@@ -360,6 +360,8 @@ enum {
 	INV_INC_BLOCKPREVENTION,
 	INV_INC_RIPPERSEXPLODE,
 	INV_INC_INVERTRESISTANCES,
+	INV_INC_ACCURACYREVERSED,
+	INV_INC_PROJREVERSE,
 	// add new incursion mods here
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
@@ -438,9 +440,12 @@ enum {
 #define DND_INC_HPDOUBLE_REDUCTION 300
 #define DND_INC_INSTALIFEREDUCTION 100
 #define DND_INC_ACCURACYFORPRECRATIO 25
+#define DND_INC_BLOCKPREVENTIONTIME 10
 
-#define DND_INC_SINGLEPROJ_NEGDMG 0.75
-#define DND_INC_TWOPROJ_NEGDMG 0.50
+#define DND_INC_SINGLEPROJ_NEGDMG 0.85
+#define DND_INC_TWOPROJ_NEGDMG 0.7
+
+#define DND_INC_PASSIVEREGEN_REDUCEDLIFESTEAL 50
 
 enum {
 	PPOWER_CYBER 						= 	0b1,
@@ -486,7 +491,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define ESSENCE_MAP_MACRO(X) ((X) - FIRST_ESSENCE_ATTRIBUTE + 1)
 
 #define FIRST_INCURSION_ATTRIBUTE INV_INC_DOUBLEHPBONUS
-#define LAST_INCURSION_ATTRIBUTE INV_INC_INVERTRESISTANCES
+#define LAST_INCURSION_ATTRIBUTE INV_INC_PROJREVERSE
 #define INCURSION_ATTRIBUTE_COUNT (LAST_INCURSION_ATTRIBUTE - FIRST_INCURSION_ATTRIBUTE + 1)
 #define INCURSION_MAP_MACRO(X) ((X) - FIRST_INCURSION_ATTRIBUTE + 1)
 
@@ -607,10 +612,14 @@ bool IsFixedPointMod(int mod) {
 		case INV_MIT_INCREASE:
 		case INV_MITEFFECT_INCREASE:
 
+		case INV_CORR_WEAPONDMG:
 		case INV_CORR_DROPCHANCE:
 		case INV_CORR_SPEED:
 
 		case INV_ESS_ERYXIA:
+
+		case INV_INC_PASSIVEREGEN:
+		case INV_INC_PROJREVERSE:
 
 		case INV_EX_MORECRIT_LIGHTNING:
 		return true;
@@ -927,8 +936,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHOPSTOCK_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_SHOPSTOCK_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_REGENCAP_INCREASE].attrib_low = 5;
-	ItemModTable[INV_REGENCAP_INCREASE].attrib_high = 14;
+	ItemModTable[INV_REGENCAP_INCREASE].attrib_low = 1;
+	ItemModTable[INV_REGENCAP_INCREASE].attrib_high = 4;
 	ItemModTable[INV_REGENCAP_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_REGENCAP_INCREASE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIFE;
 	
@@ -1633,9 +1642,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_HPREGENINTERRUPT].attrib_level_modifier = 0;
 	ItemModTable[INV_INC_HPREGENINTERRUPT].tags = INV_ATTR_TAG_LIFE;
 
-	ItemModTable[INV_INC_PASSIVEREGEN].attrib_low = 5;
-	ItemModTable[INV_INC_PASSIVEREGEN].attrib_high = 5;
-	ItemModTable[INV_INC_PASSIVEREGEN].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_PASSIVEREGEN].attrib_low = 0.01;
+	ItemModTable[INV_INC_PASSIVEREGEN].attrib_high = 0.03;
+	ItemModTable[INV_INC_PASSIVEREGEN].attrib_level_modifier = 0.02;
 	ItemModTable[INV_INC_PASSIVEREGEN].tags = INV_ATTR_TAG_LIFE;
 
 	ItemModTable[INV_INC_ENEMYRIPCHANCE].attrib_low = 1;
@@ -1644,7 +1653,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_ENEMYRIPCHANCE].tags = INV_ATTR_TAG_UTILITY;
 
 	ItemModTable[INV_INC_BLOCKPREVENTION].attrib_low = 1;
-	ItemModTable[INV_INC_BLOCKPREVENTION].attrib_high = 3;
+	ItemModTable[INV_INC_BLOCKPREVENTION].attrib_high = 8;
 	ItemModTable[INV_INC_BLOCKPREVENTION].attrib_level_modifier = 0;
 	ItemModTable[INV_INC_BLOCKPREVENTION].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 
@@ -1657,6 +1666,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_INVERTRESISTANCES].attrib_high = 2;
 	ItemModTable[INV_INC_INVERTRESISTANCES].attrib_level_modifier = 0;
 	ItemModTable[INV_INC_INVERTRESISTANCES].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_ACCURACYREVERSED].attrib_low = 1;
+	ItemModTable[INV_INC_ACCURACYREVERSED].attrib_high = 1;
+	ItemModTable[INV_INC_ACCURACYREVERSED].attrib_level_modifier = -1;
+	ItemModTable[INV_INC_ACCURACYREVERSED].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_PROJREVERSE].attrib_low = 0.1;
+	ItemModTable[INV_INC_PROJREVERSE].attrib_high = 2.0;
+	ItemModTable[INV_INC_PROJREVERSE].attrib_level_modifier = -1;
+	ItemModTable[INV_INC_PROJREVERSE].tags = INV_ATTR_TAG_ATTACK;
 }
 
 // returns the amount to skip over the base range to map it into its appropriate tier
@@ -2103,7 +2122,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_PEN_LIGHTNING:
 		case INV_PEN_POISON:
 
-		case INV_REGENCAP_INCREASE:
 		case INV_KNOCKBACK_RESIST:
 		case INV_ACCURACY_INCREASE:
 		case INV_STAT_STRENGTH:
@@ -2335,11 +2353,23 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			return StrParam(s:col_tag, d:val, s:"% ", l:text, s:"\n", s:col_tag, l:"IATTR_TINC9S");
 		case INV_INC_MITIGATIONTODODGE:
 		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC11S");
+
+		// single text incursion
 		case INV_INC_ACCURACYFORPRECISION:
 		case INV_INC_HPREGENINTERRUPT:
+		case INV_INC_ACCURACYREVERSED:
 		return StrParam(s:col_tag, l:text);
+		
 		case INV_INC_PASSIVEREGEN:
-		return StrParam(s:col_tag, l:text, s:" ", d:val, s:"% ", l:"IATTR_TINC14S1", s:"\n", s:col_tag, l:"IATTR_TINC14S2");
+			if(showDetailedMods) {
+				return StrParam(
+					s:col_tag, l:text, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"% ", s:col_tag, l:"IATTR_TINC14S1",
+					s:col_tag, s:" - ", s:GetModTierText(tier, extra),
+					s:"\n", s:col_tag, l:"IATTR_TINC14S2"
+				);
+			}
+			return StrParam(s:col_tag, l:text, s:GetFixedRepresentation(val, true), s:"% ", l:"IATTR_TINC14S1", s:"\n", s:col_tag, l:"IATTR_TINC14S2");
+		
 		case INV_INC_ENEMYRIPCHANCE:
 			if(showDetailedMods) {
 				return StrParam(
@@ -2365,6 +2395,15 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 				);
 			}
 			return StrParam(s:col_tag, l:text, s:" ", d:val, s:"%", s:no_tag, l:"IATTR_TINC17S");
+
+		case INV_INC_PROJREVERSE:
+			if(showDetailedMods) {
+				return StrParam(
+					s:col_tag, l:text, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false),
+					s:col_tag, l:"IATTR_TINC20S"
+				);
+			}
+			return StrParam(s:col_tag, l:text, s:GetFixedRepresentation(val, false), s:col_tag, l:"IATTR_TINC20S");
 
 		// default takes percentage values
 		default:

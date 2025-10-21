@@ -1326,6 +1326,12 @@ int GetPlayerPoisonStacks(int pnum) {
 	return DND_BASE_POISON_STACKS + GetPlayerAttributeValue(pnum, INV_INC_MAXPOISONSTACK);
 }
 
+#define DND_BASEREGENCAP 33
+int GetRegenCap(int pnum) {
+	int base = (DND_BASEREGENCAP + GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE)) * GetSpawnHealth() / 100;
+	return base;
+}
+
 int GetLifesteal(int pnum) {
 	int base = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
 
@@ -1343,7 +1349,14 @@ int GetLifestealCap(int pnum) {
 	// avoid recalculating over and over if possible -- changed from the above because if this gets to this point the GetSpawnHealth function has ran once
 	//int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
 	int hp_cap = CheckActorInventory(pnum + P_TIDSTART, "PlayerHealthCap");
-	return Clamp_Between((hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP))) / 100, 1, hp_cap);
+	int bonus = 0;
+	if(GetPlayerAttributeValue(pnum, INV_INC_PASSIVEREGEN))
+		bonus -= DND_INC_PASSIVEREGEN_REDUCEDLIFESTEAL;
+	return Clamp_Between(
+		(hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP) + bonus)) / 100, 
+		1, 
+		hp_cap
+	);
 }
 
 #define DND_BASE_LIFESTEALRATE 25
@@ -1681,6 +1694,13 @@ void HandleRiskAversion() {
 
 int GetPlayerBonusProjectiles(int pnum, int wepid) {
 	return Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_WEP].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val;
+}
+
+int GetPlayerAccuracyFactor(int pnum) {
+	int base = ACCURACY_FACTOR;
+	if(GetPlayerAttributeValue(pnum, INV_INC_ACCURACYREVERSED))
+		base *= -1;
+	return base;
 }
 
 #endif

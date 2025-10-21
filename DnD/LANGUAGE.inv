@@ -535,11 +535,11 @@ IATTR_TINC3			= "chance on kill for poisons to spread up to 8 enemies within 160
 IATTR_TINC4			= "Your critical strikes deal no extra damage"; IATTR_TINC4S = "Crit damage instead applies to damage over time at half the value";
 IATTR_TINC5			= "Overload can no longer chain, and its effect is reduced by "; IATTR_TINC5S = "All elemental damage can apply overload";
 IATTR_TINC6			= "Energy shield recharge is not interrupted by damage"; IATTR_TINC6S = "Energy shield recharges at half rate";
-IATTR_TINC7			= "+1 additional projectiles fired from "; IATTR_TINC7S = "25% less damage to ";
-IATTR_TINC8			= "+2 additional projectiles fired from "; IATTR_TINC8S = "50% less damage to ";
+IATTR_TINC7			= "+1 additional projectiles fired from "; IATTR_TINC7S = "15% less damage to ";
+IATTR_TINC8			= "+2 additional projectiles fired from "; IATTR_TINC8S = "30% less damage to ";
 IATTR_TINC9			= "of lifesteal is instant"; IATTR_TINC9S = "100% reduced lifesteal recovery rate";
 IATTR_TINC10		= "chance to defend with twice your armor rating";
-IATTR_TINC11		= "Mitigation is converted to dodge chance at half the value"; IATTR_TINC11S = "Dodge chance is capped at 50% (Can't dodge explosives)";
+IATTR_TINC11		= "Mitigation is converted to dodge chance at half the value"; IATTR_TINC11S = "Dodge chance is capped at 60% (Can't dodge explosives)";
 IATTR_TINC12		= "Accuracy rating increases damage of precision weapons by 1% per 25 points";
 IATTR_TINC13		= "Health regeneration is not interrupted by damage";
 IATTR_TINC14		= "Regenerate "; IATTR_TINC14S1 = "of your life every 10 seconds"; IATTR_TINC14S2 = "50% reduced lifesteal cap";
@@ -547,6 +547,8 @@ IATTR_TINC15		= "Enemies slain have"; IATTR_TINC15S = "chance to rest in peace";
 IATTR_TINC16		= "chance that if an enemy blocks your attack, they can never block an attack for 10 seconds";
 IATTR_TINC17		= "Your rippers that hit a surface have"; IATTR_TINC17S = "chance to explode, dealing its damage in a 128 unit radius";
 IATTR_TINC18		= "chance to treat enemy resistances as inverted";
+IATTR_TINC19		= "Effect of accuracy is reversed";
+IATTR_TINC20		= "Your projectiles reverse direction after "; IATTR_TINC20S = " seconds";
 
 // exotic ones
 IATTR_TX_CHANCE 	= "chance to ";

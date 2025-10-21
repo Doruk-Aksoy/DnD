@@ -106,6 +106,7 @@ DND_EMOD_TOXICBLOOD				= "\cmToxic Blood\c-";
 DND_EMOD_FROSTBLOOD				= "\cmFrost Blood\c-";
 DND_EMOD_MOLTENBLOOD			= "\cmMolten Blood\c-";
 DND_EMOD_INSULATED				= "\cmInsulated\c-";
+DND_EMOD_GUARDBROKEN			= "\cfGuard Broken\c-";
 
 DND_EMOD_ETHEREAL				= "\cmEthereal\c-";	
 DND_EMOD_MARKOFCHAOS			= "\ciMark of Chaos\c-";			DND_EMOD_MARKOFCHAOS_NOCOL	= "Mark of Chaos";

@@ -2744,3 +2744,17 @@ Actor NuclearExplosionFX {
 		Stop
 	}
 }
+
+Actor GrayFlare_ShieldBreak : GrayFlare {
+	XScale 1.2
+	YScale 0.8
+}
+
+Actor ShieldPreventionFXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("GrayFlare_ShieldBreak", 8, 0, height / 2)
+			TNT1 AAAAAAAAA 0 A_SpawnItemEx("WhiteMagicSpark", 0, 0, height / 2 + frandom(-16.0, 16.0), frandom(-2.4, 2.4), frandom(-2.4, 2.4), frandom(-1.2, 2.4), 0, SXF_NOCHECKPOSITION)
+		Stop
+	}
+}

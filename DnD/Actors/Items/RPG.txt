@@ -24,6 +24,8 @@ Actor VaajWeaknessTimeReset : PowerProtection {
 	powerup.duration 40
 }
 
+Actor DnD_AntiBlockCounter : DnD_Info { }
+
 Actor DnD_SpeedAdjustRunning : DnD_Boolean { }
 
 Actor DnD_ExplosionRepeatChance : DnD_Info { }

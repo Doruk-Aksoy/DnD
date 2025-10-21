@@ -57,6 +57,7 @@ void CachePlayerFlatDamage(int pnum, int dmg, int wepid, int dmgid) {
 		cache.flat_values[wepid][dmgid] = dmg;
 }
 
+// additive things dont need +100
 void InsertCacheFactor(int pnum, int wepid, int dmgid, int factor, bool isAdditive) {
 	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	

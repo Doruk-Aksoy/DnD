@@ -513,7 +513,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-64 * (temp / 2), 0);
 		break;
 		case MENU_HELP_MMODS_WEAKNESS:
-			redraw = ListenScroll(-48, 0);
+			redraw = ListenScroll(-64, 0);
 		break;
 		case MENU_HELP_WEAPONPROPS:
 			redraw = ListenScroll(-256, 0);
@@ -5144,6 +5144,9 @@ void DrawPlayerStats(int pnum, int category) {
 
 			// accuracy
 			val = GetActorProperty(0, APROP_ACCURACY);
+			if(GetPlayerAttributeValue(pnum, INV_INC_ACCURACYREVERSED))
+				val *= -1;
+			
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_ACCURACY_INCREASE, 0, 0, val), s:"\n");
 				++k;
@@ -5240,7 +5243,6 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			// pen block ends
-			
 			
 			// flat and % dmg block
 			for(i = DND_DAMAGECATEGORY_BEGIN; i < DND_DAMAGECATEGORY_END; ++i) {
@@ -5455,13 +5457,7 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			// lightning things
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_LIGHTNINGDMG);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_LIGHTNINGDMG, 0, 0, val), s:"\n");
-				++k;
-			}
-			
+			// lightning things			
 			val = GetPlayerAttributeValue(pnum, INV_OVERLOADCHANCE);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOADCHANCE, 0, 0, val), s:"\n");
@@ -5481,6 +5477,12 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// poison things
+			val = GetPlayerPoisonStacks(pnum);
+			if(val != DND_BASE_POISON_STACKS) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INC_MAXPOISONSTACK, 0, 0, val - DND_BASE_POISON_STACKS), s:"\n");
+				++k;
+			}
+
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_POISONDMG, 0, 0, val), s:"\n");
@@ -5575,11 +5577,9 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// regen cap
-			val = GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REGENCAP_INCREASE, 0, 0, val), s:"\n");
-				++k;
-			}
+			val = GetRegenCap(pnum);
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_MENU_REGENCAP", s:"\n");
+			++k;
 			
 			// knockback
 			if(CheckUniquePropertyOnPlayer(pnum, PUP_KNOCKBACKIMMUNE)) {

@@ -2193,20 +2193,35 @@ Script "DnD Monster Trait Take Single CS" (int tid, int flag) CLIENTSIDE {
 
 Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag1] = true;
-	if(flag2 != -1)
+	bool noAntiBlock = !CheckInventory("DnD_AntiBlockCounter");
+	if(flag1 != DND_ISBLOCKING || noAntiBlock)
+		MonsterProperties[m_tid].trait_list[flag1] = true;
+	else
+		flag1 = -1;
+
+	if(flag2 != -1 && (flag2 != DND_ISBLOCKING || noAntiBlock))
 		MonsterProperties[m_tid].trait_list[flag2] = true;
-	if(flag3 != -1)
+	else
+		flag2 = -1;
+
+	if(flag3 != -1 && (flag3 != DND_ISBLOCKING || noAntiBlock))
 		MonsterProperties[m_tid].trait_list[flag3] = true;
-	if(flag4 != -1)
+	else
+		flag3 = -1;
+
+	if(flag4 != -1 && (flag4 != DND_ISBLOCKING || noAntiBlock))
 		MonsterProperties[m_tid].trait_list[flag4] = true;
+	else
+		flag4 = -1;
+
 	ACS_NamedExecuteWithResult("DnD Monster Trait Give CS", flag1, flag2, flag3, flag4);
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Give CS" (int flag1, int flag2, int flag3, int flag4) CLIENTSIDE {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag1] = true;
+	if(flag1 != -1)
+		MonsterProperties[m_tid].trait_list[flag1] = true;
 	if(flag2 != -1)
 		MonsterProperties[m_tid].trait_list[flag2] = true;
 	if(flag3 != -1)
@@ -2218,8 +2233,10 @@ Script "DnD Monster Trait Give CS" (int flag1, int flag2, int flag3, int flag4) 
 
 Script "DnD Monster Trait Give Single" (int tid, int flag) {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag] = true;
-	ACS_NamedExecuteWithResult("DnD Monster Trait Give Single CS", tid, flag);
+	if(flag != DND_ISBLOCKING || !CheckInventory("DnD_AntiBlockCounter")) {
+		MonsterProperties[m_tid].trait_list[flag] = true;
+		ACS_NamedExecuteWithResult("DnD Monster Trait Give Single CS", tid, flag);
+	}
 	SetResultValue(0);
 }
 
@@ -3609,18 +3626,22 @@ Script 998 (int wepnum, int side, int extra) {
 // Regeneration and other infrequent periodic checks
 Script "DnD Periodic Regeneration" ENTER {
 	int cur, amt, lim, pnum = PlayerNumber(), this = ActivatorTID();
+	int ticker = 0;
 	while(PlayerInGame(pnum)) {
 		if(isAlive()) {
 			buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 			int regen_amt = pbuffs.buff_net_values[BUFF_HEALTHREGEN].additive;
 
+			if(!(ticker % 10) && (amt = GetPlayerAttributeValue(pnum, INV_INC_PASSIVEREGEN))) {
+				regen_amt += amt;
+				ticker = 0;
+			}
+
 			if((regen_amt > 0 || CheckInventory("Ability_Regeneration")) && !IsAccessoryEquipped(this, DND_ACCESSORY_GRYPHONBOOTS)) {
 				cur = GetActorProperty(0, APROP_HEALTH);
-				// if we got the quest, our lim is half our cap, otherwise 25% the cap
 				regen_amt = (regen_amt * 100) >> 16;
-				lim = GetSpawnHealth() / 4;
-				lim += GetPlayerAttributeValue(pnum, INV_REGENCAP_INCREASE);
-				amt = lim * (DND_REGEN_PERCENT + regen_amt) / 100;
+				lim = GetRegenCap(pnum);
+				amt = CheckInventory("PlayerHealthCap") * (DND_REGEN_PERCENT + regen_amt) / 100;
 				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
 
 				regen_amt = pbuffs.buff_net_values[BUFF_HEALTHREGEN].multiplicative;
@@ -3652,6 +3673,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				ACS_NamedExecuteAlways("DnD Energy Shield Regen", 0, amt, pnum);
 		}
 		Delay(const:TICRATE);
+		++ticker;
 	}
 }
 
@@ -5394,7 +5416,19 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_IGNORERADIUSIMMUNITY) || (random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_IGNORERADIUSIMMUNITY)))
 		GiveInventory("ApplyForceRadiusDMG", 1);
+
+	wepid = GetPlayerAttributeValue(pnum, INV_INC_PROJREVERSE);
+	if(wepid)
+		ACS_NamedExecuteAlways("DnD Proj Reverse Direction", 0, wepid);
+
 	SetResultValue(0);
+}
+
+Script "DnD Proj Reverse Direction" (int wait_time) {
+	wait_time = (wait_time * TICRATE) >> 16;
+	Delay(wait_time);
+	SetActorVelocity(0, -GetActorVelX(0), -GetActorVelY(0), -GetActorVelZ(0), 0, 0);
+	SetActorAngle(0, GetActorAngle(0) - 0.5);
 }
 
 Script "DnD Check Crit" (void) {
@@ -5905,9 +5939,9 @@ Script 68 (int x) NET {
 			//SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
-			SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
-			SpawnCharmWithMods_ForAll(INV_INC_PLUSTWOPROJ);
+			SpawnCharmWithMods_ForAll(INV_INC_PROJREVERSE);
+			//SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
+			//SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
