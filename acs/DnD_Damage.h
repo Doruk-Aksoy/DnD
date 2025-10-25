@@ -18,8 +18,6 @@
 
 #define DND_HARDCORE_DEBUFF 15 // 15% more damage taken
 
-#define DND_BASE_POISON_FACTOR 2
-
 #define DND_INVULSPHERE_FACTOR 10 // 10% damage taken, divides by 10 => 90% reduce
 
 #define DND_EXPLOSION_FLAGVARIABLE "user_flags"
@@ -1214,7 +1212,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		
 		// poison on hit with % dmg
 		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
-		poison_factor = extra + (!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * DND_BASE_POISON_FACTOR;
+		poison_factor = extra + (!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * GetWeaponPoisonBaseFactor(wepid);
 		//flags |= (!!poison_factor) * DND_DAMAGEFLAG_INFLICTPOISON;
 		
 		// percent damage of monster if it exists
@@ -1261,12 +1259,17 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
 	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_TOXICBLOOD)) {
 		// poison damage deals 10% of its damage per stack over 3 seconds
-		if(CheckActorInventory(victim, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum) && dmg > 0) {
-			GiveActorInventory(victim, "DnD_PoisonStacks", 1);
-			// 2% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
+		if(dmg > 0) {
+			// 5% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
 			poison_factor = Max(DND_BASE_POISON_FACTOR, poison_factor);
 			extra = Max((dmg * poison_factor) / 100, 1);
-			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, extra, wepid);
+
+			poison_factor = !CheckActorInventory(victim, "DnD_PoisonStacks");
+
+			if(CheckActorInventory(victim, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum))
+				GiveActorInventory(victim, "DnD_PoisonStacks", 1);
+
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, extra, wepid, poison_factor);
 			//printbold(s:"poison received by ", d:victim);
 		}
 	}
@@ -1910,7 +1913,7 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 	SetResultValue(0);
 }
 
-Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
+Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
 	int time_limit = DND_BASE_POISON_TIMER * (100 + GetPlayerAttributeValue(pnum, INV_POISON_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
@@ -1918,23 +1921,92 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 	
 	int tic_temp = trigger_tic;
 	int counter = 0;
-	int temp;
+	int stacks = CheckActorInventory(victim, "DnD_PoisonStacks");
+	int temp, i;
+	int mid = victim - DND_MONSTERTID_BEGIN;
+
+	dmg = GetPoisonDOTDamage(pnum, dmg, victim, wepid);
+
+	static mon_dot_cache_T dot_cache[DND_MAX_MONSTERS][MAX_DOT_STACKS];
+
+	// if monster has only 1 stack that means they enter here for the first time, so reset
+	if(firstEntry) {
+		for(temp = 0; temp < MAX_DOT_STACKS; ++temp) {
+			dot_cache[mid][temp].dmg = 0;
+			dot_cache[mid][temp].tics = 0;
+		}
+
+		dot_cache[mid][0].dmg = dmg;
+		dot_cache[mid][0].tics = time_limit;
+		//printbold(s:"adding to cache first element dmg ", d:dmg, s:" tics: ", f:time_limit);
+	}
+	else {
+		// just add it to the cache and terminate
+		counter = INT_MAX, i = 0;
+		for(temp = 0; temp < MAX_DOT_STACKS; ++temp) {
+			if(!dot_cache[mid][temp].dmg) {
+				dot_cache[mid][temp].dmg = dmg;
+				dot_cache[mid][temp].tics = time_limit;
+				dmg = -1;
+				break;
+			}
+			else if(counter > dot_cache[mid][temp].dmg) {
+				// find the min in case this is full
+				counter = dot_cache[mid][temp].dmg;
+				i = temp;
+			}
+		}
+
+		// did not get placed into the list, replace the lowest damage one with this one
+		if(dmg != -1 && counter != INT_MAX) {
+			dot_cache[mid][i].dmg = dmg;
+			dot_cache[mid][i].tics = time_limit;
+		}
+
+		//printbold(s:"adding to cache dmg ", d:dmg, s:" tics: ", f:time_limit);
+		Terminate;
+	}
 	
 	// divide trigger tic count by half to make it twice as fast -- if poison ticrate is 100% reduction we'll do poison damage at every 2 tics, which is the most one would need
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_POISONTICSTWICE))
 		trigger_tic /= 2;
 
-	dmg = GetPoisonDOTDamage(pnum, dmg, victim, wepid);
-
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_POISON);
+
+	//printbold(s:"proceeding to loop dot on ", d:victim);
 		
-	while(counter < time_limit && IsActorAlive(victim)) {
+	while((stacks = CheckActorInventory(victim, "DnD_PoisonStacks")) && IsActorAlive(victim)) {
 		if(counter >= trigger_tic) {
+			// dmg to deal is the sum of all dot damages
+			time_limit = 0;
+			dmg = 0;
+			for(i = 0; i < MAX_DOT_STACKS; ++i) {
+				if(dot_cache[mid][i].dmg) {
+					dmg += dot_cache[mid][i].dmg;
+					++time_limit;
+
+					// tic the dot, if its the final tic of it we need to mark it as removed
+					dot_cache[mid][i].tics -= tic_temp;
+					if(dot_cache[mid][i].tics <= 0) {
+						// removed
+						dot_cache[mid][i].dmg = 0;
+						dot_cache[mid][i].tics = 0;
+						TakeActorInventory(victim, "DnD_PoisonStacks", 1);
+						//printbold(s:"time ran out, stacks: ", d:CheckActorInventory(victim, "DnD_PoisonStacks"));
+					}
+
+					//printbold(s:"finish loop? ", d:time_limit, s:" vs ", d:stacks);
+
+					if(time_limit == stacks)
+						break;
+				}
+			}
+
 			temp = HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME, wepid < 0);
 			if(temp > 0)
 				Thing_Damage2(victim, temp, "Special_NoPain");
-			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, CheckActorInventory(victim, "DnD_PoisonStacks"));
+			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, stacks);
 			
 			// go up to the next threshold for next tic etc.
 			trigger_tic += tic_temp;
@@ -1943,97 +2015,89 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid) {
 		Delay(const:DND_POISON_TICCHECK);
 	}
 
-	// find N closest targets to victim for igniting
-	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
-	/*if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
-		// Moved here, makes more sense to only check if applicable...
-		// check ignite prolif
-		int owner = P_TIDSTART + pnum;
-		int prolif_dist = GetIgniteProlifRange(pnum);
-		int prolif_count = GetIgniteProlifCount(pnum);
-		
-		// clear ignite prolif from subsequent ignites from this monster jumping, we don't want that, too laggy
-		ign_flags ^= DND_IGNITEFLAG_CANPROLIF;
-		next_dmg = 0; // used as temp variable
-		inc_by = 0; // same as above
-		dmg_tic_buff = 0; // same as above...
-		
-		static dist_tid_pair_T tlist[MAXPLAYERS][DND_MAX_IGNITEPROLIFS];
-		
-		// init list
-		for(i = 0; i < DND_MAX_IGNITEPROLIFS; ++i) {
-			tlist[pnum][i].tid = 0;
-			tlist[pnum][i].dist = prolif_dist;
-		}
-
-		int j, k;
-		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
-			i = UsedMonsterTIDs[mn];
-			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
-				next_dmg = fdistance(victim, i);
-				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL)) {
-					// insert sorted
-					inc_by = dmg_tic_buff;
-					// while our calc dist > alloc dist, keep going -- we add things to the end
-					// if we come by a point where we are smaller, shift things
-					for(j = 0; j < inc_by && next_dmg > tlist[pnum][j].dist; ++j);
-
-					// we know where to add, check if we must shift (if we should)
-					if(j < inc_by) {
-						// less, so that means we are in-between things
-						// push everything for insertion
-						// this is needed to move in 0 index shifts
-						if(inc_by == prolif_count)
-							--inc_by;
-						
-						for(k = inc_by; k > j; --k) {
-							// slide data
-							tlist[pnum][k].dist = tlist[pnum][k - 1].dist;
-							tlist[pnum][k].tid = tlist[pnum][k - 1].tid;
-						}
-					}
-					
-					tlist[pnum][j].dist = next_dmg;
-					tlist[pnum][j].tid = i;
-					
-					if(dmg_tic_buff < prolif_count)
-						++dmg_tic_buff;
-				}
-			}
-		}
-		
-		//printbold(s:"check prolif ", d:dmg_tic_buff);
-		// we have things to prolif to
-		if(dmg_tic_buff) {
-			//printbold(s:"begin prolif");
-			for(i = 0, j = 0; i < prolif_count; ++i) {
-				if(tlist[pnum][i].tid) {
-					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
-					// check if target was ignited already, if not ignite if so replace timer
-					next_dmg = CheckActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer");
-					if(!next_dmg) {
-						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", ign_time);
-						
-						// we don't proliferate from the proliferated targets... that'd be busted
-						// note: WAIT AND SEE IF ITS OP!
-						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, ign_flags, added_dmg);
-					}
-					else
-						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", Max(ign_time, next_dmg));
-
-					// abort if we reached our count
-					++j;
-					if(j == dmg_tic_buff)
-						break;
-				}
-			}
-		}
-	}*/
+	SetActorInventory(victim, "DnD_PoisonStacks", 0);
 
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_POISON);
 
-	TakeActorInventory(victim, "DnD_PoisonStacks", 1);
+	temp = GetPlayerAttributeValue(pnum, INV_INC_POISONSPREAD);
+	if(random(1, 100) <= temp && !IsActorAlive(victim)) {
+		// DONT USE PNUM FOR PLAYER ANYMORE HERE, SOURCE ALREADY HAS IT
+		// PNUM STORES INDEX FOR STORING DISTANCE INFO
+		// reuse dot cache static array here -- MAXDOTSTACKS is high enough for this (16 vs 8)
+		pnum = DND_MAX_MONSTERS - (pnum + 1) * DND_INC_POISONSPREAD_COUNT;
+		for(temp = 0; temp < DND_INC_POISONSPREAD_COUNT; ++temp) {
+			// dmg holds tid of monster, tics is distance
+			dot_cache[pnum][temp].dmg = 0;
+			dot_cache[pnum][temp].tics = 0;
+		}
+
+		int j, k;
+		temp = 0;
+		tic_temp = 0;
+		for(counter = 0; counter < DnD_TID_Counter[DND_TID_MONSTER]; ++counter) {
+			i = UsedMonsterTIDs[counter];
+			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
+				dmg = fdistance(victim, i);
+				if(dmg < DND_INC_POISONSPREAD_R && CheckSight(victim, i, CSF_NOBLOCKALL)) {
+					// insert sorted
+					temp = tic_temp;
+					// while our calc dist > alloc dist, keep going -- we add things to the end
+					// if we come by a point where we are smaller, shift things
+					for(j = 0; j < temp && dmg > dot_cache[pnum][j].tics; ++j);
+
+					// we know where to add, check if we must shift (if we should)
+					if(j < temp) {
+						// less, so that means we are in-between things
+						// push everything for insertion
+						// this is needed to move in 0 index shifts
+						if(temp == DND_INC_POISONSPREAD_COUNT)
+							--temp;
+						
+						for(k = temp; k > j; --k) {
+							// slide data
+							dot_cache[pnum][k].tics = dot_cache[pnum][k - 1].tics;
+							dot_cache[pnum][k].dmg = dot_cache[pnum][k - 1].dmg;
+						}
+					}
+					
+					dot_cache[pnum][j].tics = dmg;
+					dot_cache[pnum][j].dmg = i;
+					
+					if(tic_temp < DND_INC_POISONSPREAD_COUNT)
+						++tic_temp;
+				}
+			}
+		}
+		
+		// we have things to prolif to
+		if(tic_temp) {
+			// obtain the damage sum of poisons available then send them summed up as one poison with total duration
+			dmg = 0;
+			for(temp = 0; temp < MAX_DOT_STACKS; ++temp) {
+				if(!dot_cache[mid][temp].dmg)
+					dmg += dot_cache[mid][temp].dmg;
+			}
+
+			for(i = 0, j = 0; i < DND_INC_POISONSPREAD_COUNT; ++i) {
+				if(dot_cache[pnum][i].dmg) {
+					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
+					counter = !CheckActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks");
+
+					if(CheckActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks") < GetPlayerPoisonStacks(source - P_TIDSTART))
+						GiveActorInventory(dot_cache[pnum][i].dmg, "DnD_PoisonStacks", 1);
+
+					ACS_NamedExecuteWithResult("DnD Do Poison Damage", dot_cache[pnum][i].dmg, dmg, wepid, counter);
+
+					// abort if we reached our count
+					++j;
+					if(j == tic_temp)
+						break;
+				}
+			}
+		}
+	}
+
 	SetResultValue(0);
 }
 
@@ -2473,6 +2537,10 @@ Script "DnD Check Explosion Repeat" (void) {
 	if(!chanceSum) {
 		// +1 so this isn't entered the 2nd time we check for repeats, it acts as sentinel value here
 		chanceSum = GetExplosiveRepeatChance(pnum) + 1;
+		if(CheckFlag(0, "RIPPER")) {
+			//printbold(s:"is ripper explosive!");
+			chanceSum += GetPlayerAttributeValue(pnum, INV_INC_RIPPERSEXPLODE);
+		}
 		SetInventory("DnD_ExplosionRepeatChance", chanceSum);
 	}
 
@@ -2505,6 +2573,20 @@ Script "DnD Check Explosion Repeat" (void) {
 			SetInventory("DnD_ExplosionRepeatChance", chanceSum - 100);
 	}
 	
+	SetResultValue(res);
+}
+
+Script "DnD Check Explosion Ripper" (void) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(!isPlayer(owner))
+		owner = GetActorProperty(0, APROP_SCORE);
+
+	int pnum = owner - P_TIDSTART;
+	bool res = GetPlayerAttributeValue(pnum, INV_INC_RIPPERSEXPLODE) >= random(1, 100);
+
+	if(res)
+		GiveInventory("DnD_RipperExploded", 1);
+
 	SetResultValue(res);
 }
 

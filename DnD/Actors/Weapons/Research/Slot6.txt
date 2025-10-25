@@ -1248,7 +1248,7 @@ Actor DarkLanceEffect_R3 : DarkLanceEffect_L1 {
 	}
 }
 
-Actor DarkLanceProjectile : DnD_BaseFastProjectile {
+Actor DarkLanceProjectile : DnD_FastRipperBase {
 	Speed 90
 	Height 8
 	Radius 4
@@ -1282,10 +1282,21 @@ Actor DarkLanceProjectile : DnD_BaseFastProjectile {
 			OGLP F 1 Bright
 		Loop
 		Death:
+			SRV1 D 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_DARKLANCE |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			SRV1 D 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			SRV1 D 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_SetScale(1.0, 1.0)
 			SRV1 DEFGHIJ 2 Bright
-		Stop
+		Goto FinishExplosion
 	}
 }
 

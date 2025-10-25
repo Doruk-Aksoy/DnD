@@ -1,6 +1,6 @@
 Actor DarkWanderer {
 	Health 0x7FFFFFF
-	Radius 20
+	Radius 32
 	Height 56
 	Mass 0x7FFFFFF
 	MONSTER

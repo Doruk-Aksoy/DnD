@@ -387,6 +387,27 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int arm
 	}
 }
 
+void RollArmorInfoWithMods(int item_pos, int item_tier, int pnum, int item_type, int armor_type, int max_attr, int m1, int m2, int m3) {
+	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
+	int i = 0, roll;
+	int count = random(1, max_attr) - 1 - (m2 != -1) - (m3 != -1);
+	int special_roll = SetupItemImplicit(item_pos, item_type, armor_type, item_tier);
+
+	AddAttributeToFieldItem(item_pos, m1, pnum);
+	if(m2 != -1)
+		AddAttributeToFieldItem(item_pos, m2, pnum);
+	if(m3 != -1)
+		AddAttributeToFieldItem(item_pos, m3, pnum);
+
+	while(i < count) {
+		do {
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
+		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		AddAttributeToFieldItem(item_pos, roll, pnum, count);
+		++i;
+	}
+}
+
 str GetArmorDropClass(int type) {
 	return StrParam(s:"ArmorDrop_", d:type);
 }

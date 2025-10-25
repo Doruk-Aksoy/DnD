@@ -545,10 +545,11 @@ IATTR_TINC13		= "Health regeneration is not interrupted by damage";
 IATTR_TINC14		= "Regenerate "; IATTR_TINC14S1 = "of your life every 10 seconds"; IATTR_TINC14S2 = "50% reduced lifesteal cap";
 IATTR_TINC15		= "Enemies slain have"; IATTR_TINC15S = "chance to rest in peace";
 IATTR_TINC16		= "chance that if an enemy blocks your attack, they can never block an attack for 10 seconds";
-IATTR_TINC17		= "Your rippers that hit a surface have"; IATTR_TINC17S = "chance to explode, dealing its damage in a 128 unit radius";
+IATTR_TINC17		= "Your rippers that hit a surface have"; IATTR_TINC17S = "chance to explode, dealing its damage in a 160 unit radius";
 IATTR_TINC18		= "chance to treat enemy resistances as inverted";
 IATTR_TINC19		= "Effect of accuracy is reversed";
 IATTR_TINC20		= "Your projectiles reverse direction after "; IATTR_TINC20S = " seconds";
+IATTR_TINC21		= "% less crit chance"; IATTR_TINC21S = "Excess crit chance acts as an additional multiplier to crit damage";
 
 // exotic ones
 IATTR_TX_CHANCE 	= "chance to ";

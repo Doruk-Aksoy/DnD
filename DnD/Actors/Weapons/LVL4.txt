@@ -2365,7 +2365,7 @@ Actor EbonyBalls : DnD_ExplosiveBase {
 	}
 }
 
-Actor EbonyPellets : DnD_BaseProjectile {
+Actor EbonyPellets : DnD_RipperBase {
 	Damage (
 		DND_WEAPON_EBONYCANNON |
 		(DND_DMGID_2 << CACHE_SHIFT) |
@@ -2392,8 +2392,19 @@ Actor EbonyPellets : DnD_BaseProjectile {
 			MAPF BBCC 1 Bright
 		Loop
 		Death:
+			MAPF D 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_EBONYCANNON |
+				(DND_DMGID_2 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			MAPF D 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			MAPF D 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			MAPF DEFGH 2
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -2632,7 +2643,23 @@ Actor MPPB_Projectile1 : DnD_BaseProjectile {
 	}
 }
 
-Actor MPPB_Projectile2 : MPPB_Projectile1 {
+Actor MPPB_Projectile2 : DnD_RipperBase {
+	Speed 60
+	Radius 5
+	Height 10
+	Renderstyle Add
+	Alpha 1.0
+	Scale 0.58
+	Decal "PlasmaScorchLower"
+	DeathSound "MPPB/Hit"
+	
+	Damage(
+		DND_WEAPON_MPPB |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT)
+	)
+
 	+BLOODLESSIMPACT
 	+RIPPER
 	+THRUGHOST
@@ -2656,6 +2683,21 @@ Actor MPPB_Projectile2 : MPPB_Projectile1 {
 			TNT1 A 0 A_SpawnItemEx("MPPB_ProjectileTrail10", (14 *momx)/-35.0, -(14 *momy)/-35.0, 2+(14 *momz)/-35.0, 0, 0, 0, 0, SXF_ABSOLUTEANGLE | SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 			TNT1 A 0 A_SpawnItemEx("MPPB_ProjectileTrail11", (16 *momx)/-35.0, -(16 *momy)/-35.0, 2+(16 *momz)/-35.0, 0, 0, 0, 0, SXF_ABSOLUTEANGLE | SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 		Loop
+		Death:
+			XPSG F 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_MPPB |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_ENERGY << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			XPSG F 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			XPSG F 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
+			XPSG FFF 1 Bright Light("MPPB_Light2") A_FadeTo (0, 0.1, 1)
+			XPSG GGG 1 Bright Light("MPPB_Light3") A_FadeTo (0, 0.1, 1)
+		Goto FinishExplosion
 	}
 }
 

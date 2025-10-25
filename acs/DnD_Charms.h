@@ -121,10 +121,10 @@ void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepea
 	}
 }
 
-void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1) {
+void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnCharmWithMods(i, m1, m2, m3);
+			SpawnCharmWithMods(i, m1, m2, m3, noRepeat);
 	}
 }
 

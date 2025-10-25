@@ -44,7 +44,7 @@ enum {
 	DND_NPC_DARKWANDERER,
 };
 #define MAX_DND_NPCS (DND_NPC_DARKWANDERER + 1)
-#define NPC_APPEAR_CHANCE 0.075 // 7.5%
+#define NPC_APPEAR_CHANCE 0.15 // 15%
 
 enum {
 	NPC_STATE_IDLE,
@@ -84,16 +84,21 @@ bool CanDarkWandererOfferSuperMonster() {
 
 void NPC_Setup() {
 	int pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+	bool NPCOK = random(0, 1.0) <= NPC_APPEAR_CHANCE;
 
 	// check averages -- later on if there are more random npcs added, consider checking which npc to place instead of assuming its dark wanderer
+#ifdef ISDEBUGBUILD
 	if(1) {
-	//if(PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_npc_appear_level") && random(0, 1.0) <= NPC_APPEAR_CHANCE && !NPC_States[DND_NPC_DARKWANDERER]) {
+#else
+	if(PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_npc_appear_level") && NPCOK && NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_NA) {
+#endif
 		// check if offers can be OK for this particular map
 		NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
-		//do {
-			NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_INCURSION;
-			//NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_SUPERDEMON);
-		//} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
+		do {
+			//NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_INCURSION;
+			NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_INCURSION);
+		} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
+
 
 		NPC_States[DND_NPC_DARKWANDERER].dialog = random(DW_GREET1, DW_GREET3);
 		// find a player and spawn this near them at start
@@ -101,9 +106,9 @@ void NPC_Setup() {
 		int i;
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			tid = i + P_TIDSTART;
-			
+
 			// try a radius around this player first -- 4 degrees inc with 180 degree offset
-			if(PlayerInGame(i) && isActorAlive(tid) && SpawnAreaTID(tid, 96.0, 4.0, "DarkWanderer", DND_NPC_TID, 0.125, 0)) {
+			if(PlayerInGame(i) && isActorAlive(tid) && SpawnAreaTID(tid, 96.0, 4.0, "DarkWanderer", DND_NPC_TID, 0.0625, 0)) {
 				// this part assumes only a single npc will be available per map
 				SetThingSpecial(DND_NPC_TID, ACS_ExecuteAlways, 895, 0, 0, DND_NPC_TID);
 				FaceActor(DND_NPC_TID, tid);

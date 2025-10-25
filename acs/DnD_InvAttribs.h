@@ -362,6 +362,7 @@ enum {
 	INV_INC_INVERTRESISTANCES,
 	INV_INC_ACCURACYREVERSED,
 	INV_INC_PROJREVERSE,
+	INV_INC_EXCESSCRIT,
 	// add new incursion mods here
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
@@ -445,6 +446,9 @@ enum {
 #define DND_INC_SINGLEPROJ_NEGDMG 0.85
 #define DND_INC_TWOPROJ_NEGDMG 0.7
 
+#define DND_INC_POISONSPREAD_R 160.0
+#define DND_INC_POISONSPREAD_COUNT 8
+
 #define DND_INC_PASSIVEREGEN_REDUCEDLIFESTEAL 50
 
 enum {
@@ -491,7 +495,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define ESSENCE_MAP_MACRO(X) ((X) - FIRST_ESSENCE_ATTRIBUTE + 1)
 
 #define FIRST_INCURSION_ATTRIBUTE INV_INC_DOUBLEHPBONUS
-#define LAST_INCURSION_ATTRIBUTE INV_INC_PROJREVERSE
+#define LAST_INCURSION_ATTRIBUTE INV_INC_EXCESSCRIT
 #define INCURSION_ATTRIBUTE_COUNT (LAST_INCURSION_ATTRIBUTE - FIRST_INCURSION_ATTRIBUTE + 1)
 #define INCURSION_MAP_MACRO(X) ((X) - FIRST_INCURSION_ATTRIBUTE + 1)
 
@@ -573,6 +577,7 @@ bool IsMoreMultiplierMod(int mod) {
 		case INV_ESS_ERYXIA:
 		case INV_EX_MORECRIT_LIGHTNING:
 		case INV_CORR_WEAPONDMG:
+		case INV_INC_EXCESSCRIT:
 		return true;
 	}
 	return false;
@@ -1676,6 +1681,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_PROJREVERSE].attrib_high = 2.0;
 	ItemModTable[INV_INC_PROJREVERSE].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_PROJREVERSE].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INC_EXCESSCRIT].attrib_low = 0.2;
+	ItemModTable[INV_INC_EXCESSCRIT].attrib_high = 0.2;
+	ItemModTable[INV_INC_EXCESSCRIT].attrib_level_modifier = -1;
+	ItemModTable[INV_INC_EXCESSCRIT].tags = INV_ATTR_TAG_CRIT;
 }
 
 // returns the amount to skip over the base range to map it into its appropriate tier
@@ -2405,6 +2415,9 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			}
 			return StrParam(s:col_tag, l:text, s:GetFixedRepresentation(val, false), s:col_tag, l:"IATTR_TINC20S");
 
+		case INV_INC_EXCESSCRIT:
+		return StrParam(s:col_tag, s:GetFixedRepresentation(val, true), l:text, s:"\n", s:col_tag, l:"IATTR_TINC21S");
+
 		// default takes percentage values
 		default:
 			if(val > 0) {
@@ -2833,6 +2846,10 @@ int MapItemTypeToCraftableID(int type) {
 		return DND_CRAFTABLEID_SPECIALTY_TRICKSTER;
 	}
 	return DND_CRAFTABLEID_CHARM;
+}
+
+int PickRandomIncursionMod() {
+	return random(FIRST_INCURSION_ATTRIBUTE, LAST_INCURSION_ATTRIBUTE);
 }
 
 #endif

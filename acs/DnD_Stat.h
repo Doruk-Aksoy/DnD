@@ -933,6 +933,11 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 
 	if(chance)
 		chance = FixedMul(chance, pct_bonus);
+
+	pct_bonus = GetPlayerAttributeValue(pnum, INV_INC_EXCESSCRIT);
+	if(pct_bonus && 1.0 - pct_bonus > 0)
+		chance = FixedMul(chance, 1.0 - pct_bonus);
+
 	return chance;
 }
 
@@ -1013,6 +1018,7 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 		return 100;
 
 	int base = GetBaseCritModifier(pnum, wepid); // calculates the regular "base" bonuses
+	int temp;
 	
 	// berserker perk50 check
 	base += (CheckInventory("Berserker_HitTracker") == DND_BERSERKER_PERK60_MAXSTACKS) * DND_BERSERKER_PERK60_CRITBONUS;
@@ -1039,6 +1045,10 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 
 	if(victim >= DND_MONSTERTID_BEGIN && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_OSMIUM])
 		base -= DND_OSMIUM_REDUCTION;
+
+	forcedReturn = GetPlayerAttributeValue(pnum, INV_INC_EXCESSCRIT);
+	if(forcedReturn && (temp = GetCritChance(pnum, victim, wepid, IsWeaponLightningType(wepid))) > 1.0)
+		base = (base * temp) >> 16;
 
 	// damage is returned as it is if its 100, makes no sense for it to be less than 100 (it'd actually lower damage for critting...)
 	if(base < 100)
@@ -1641,10 +1651,6 @@ int GetSelfExplosiveResist(int pnum) {
 		else
 			base = FixedMul(base, (100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV)) * 1.0 / 100);
 	}
-	
-	// golgoth quest
-	if(IsQuestComplete(0, QUEST_KILLGOLGOTH))
-		base = FixedMul(base, (100 - DND_GOLGOTH_GAIN) * 1.0 / 100);
 		
 	// this is 75.0 or maximum 90.0, map it to 0-1.0 and reverse it
 	temp = GetPlayerAttributeValue(pnum, INV_ADDEDMAXRESIST) + DND_BASE_DAMAGERESISTCAP;
@@ -1656,6 +1662,18 @@ int GetSelfExplosiveResist(int pnum) {
 	if(base < temp)
 		base = temp;
 	
+	return base;
+}
+
+int GetPlayerSelfDamageReduction_Display(int pnum) {
+	int base = GetSelfExplosiveResist(pnum);
+	int temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSSELFDAMAGETAKEN);
+	if(temp)
+		base = base * (100 - temp) / 100;
+
+	if(base < 0.1)
+		base = 0.1;
+
 	return base;
 }
 

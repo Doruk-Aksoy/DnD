@@ -1925,4 +1925,16 @@ void GiveOwnedWeaponsAmmo(int pct) {
 	}
 }
 
+int GetWeaponPoisonBaseFactor(int wepid) {
+	switch(wepid) {
+		case DND_WEAPON_VIPERSTAFF:
+		case DND_WEAPON_DESOLATOR:
+		case DND_WEAPON_VENOM:
+		return 25;
+		case DND_WEAPON_ACIDRIFLE:
+		return 33;
+	}
+	return DND_BASE_POISON_FACTOR;
+}
+
 #endif

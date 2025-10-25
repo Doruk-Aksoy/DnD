@@ -1480,7 +1480,7 @@ Actor TheAxe : DnDWeapon {
 	}
 }
 
-Actor ThunderAxeThrown : DnD_BaseFastProjectile {
+Actor ThunderAxeThrown : DnD_FastRipperBase {
 	Speed 80
 	Radius 4
 	Height 12
@@ -1525,11 +1525,22 @@ Actor ThunderAxeThrown : DnD_BaseFastProjectile {
 			FAXE STUVWX 3 Bright
 		Stop
 		Death:
+			"####" "#" 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_AXE |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_LIGHTNING << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			"####" "#" 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			"####" "#" 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			"####" "#" 0 A_SetTranslucent(1.0, 1)
 			"####" "#" 0 A_PlaySound("Axe/HitWall", CHAN_5)
 			"####" "#" 35
 			"####" "#" 5 A_CustomMissile("ThunderAxeExplosion", 0, 0, 0, CMF_TRACKOWNER)
-		Stop
+		Goto FinishExplosion
 	}
 }
 

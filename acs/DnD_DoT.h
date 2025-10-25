@@ -21,6 +21,12 @@ dot_cache_T module& GetPlayerDotCache(int pnum) {
 	return dots[pnum];
 }
 
+#define MAX_DOT_STACKS 16
+typedef struct mon_dot_cache {
+	int dmg;
+	int tics;
+} mon_dot_cache_T;
+
 void DealDOTDamage(int target, int dmg, str dmg_type) {
 	// this is the player, target is monster
 	int this = ActivatorTID();

@@ -5595,7 +5595,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// dmg reduction block begins -- shown with their respective caps applied
-			val = 1.0 - GetSelfExplosiveResist(pnum);
+			val = 1.0 - GetPlayerSelfDamageReduction_Display(pnum);
 			if(val != 0.0) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_SELFEXPDMG", s:"\n");
 				++k;

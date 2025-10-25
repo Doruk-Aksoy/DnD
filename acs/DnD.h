@@ -717,6 +717,8 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 	bool mon_robot = IsActorRobotic(tid);
 	int tmp;
 
+	bool incursion = IsIncursionMonster(m_id);
+
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
@@ -743,17 +745,31 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
 				// boot and body armor chance is equal
 				tmp = random(1, 100);
-				if(tmp <= 33)
-					SpawnArmor(i, rarity_boost, 0, false, m_id);
-				else if(tmp <= 66)
-					SpawnBoot(i, rarity_boost);
+				if(tmp <= 33) {
+					if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+						SpawnArmorWithMods(i, PickRandomIncursionMod());
+					else
+						SpawnArmor(i, rarity_boost, 0, false, m_id);
+				}
+				else if(tmp <= 66) {
+					if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+						SpawnBootWithMods(i, PickRandomIncursionMod());
+					else
+						SpawnBoot(i, rarity_boost);
+				}
+				else if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+					SpawnHelmWithMods(i, PickRandomIncursionMod());
 				else
 					SpawnHelm(i, rarity_boost);
 				bits |= DND_LOOTBIT_ARMOR;
 			}
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASE_CHARMRATE * drop_boost / 100, m_id, DND_MON_RNG_4)) {
-				SpawnCharm(i, rarity_boost);
+				if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+					SpawnCharmWithMods(i, PickRandomIncursionMod());
+				else
+					SpawnCharm(i, rarity_boost);
+
 				bits |= DND_LOOTBIT_CHARM;
 			}
 

@@ -1405,7 +1405,7 @@ Actor CrossbowBolt_1 : DnD_BaseProjectile {
 	}
 }
 
-Actor CrossbowBolt_2 : DnD_BaseFastProjectile {
+Actor CrossbowBolt_2 : DnD_FastRipperBase {
 	Speed 80
 	Damage (
 		DND_WEAPON_CROSSBOW |
@@ -1429,9 +1429,20 @@ Actor CrossbowBolt_2 : DnD_BaseFastProjectile {
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
 		Death:
+			NLPJ B 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_CROSSBOW |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+				(150 << DPCT_SHIFT)
+			)
+			NLPJ B 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			NLPJ B 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ BCDEFG 2
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -1452,9 +1463,20 @@ Actor CrossbowBolt_3 : CrossbowBolt_2 {
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
 		Death:
+			NLPJ B 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_CROSSBOW |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+				(200 << DPCT_SHIFT)
+			)
+			NLPJ B 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			NLPJ B 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ BCDEFG 2
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -1475,9 +1497,20 @@ Actor CrossbowBolt_4 : CrossbowBolt_2 {
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
 		Death:
+			NLPJ B 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_CROSSBOW |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+				(250 << DPCT_SHIFT)
+			)
+			NLPJ B 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			NLPJ B 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ BCDEFG 2
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -1498,9 +1531,20 @@ Actor CrossbowBolt_5 : CrossbowBolt_2 {
 			ARRW A 1 A_SpawnItemEx("CrossbowBolt_AfterImage", -8, 0)
 		Loop
 		Death:
+			NLPJ B 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_CROSSBOW |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+				(300 << DPCT_SHIFT)
+			)
+			NLPJ B 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			NLPJ B 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ BCDEFG 2
-		Stop
+		Goto FinishExplosion
 	}
 }
 

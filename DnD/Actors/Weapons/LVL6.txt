@@ -855,7 +855,7 @@ Actor "Nailgun" : DnDWeapon {
 	}
 }
 
-Actor NailProjectile : DnD_BaseProjectile {
+Actor NailProjectile : DnD_RipperBase {
 	Radius 3
 	Height 4
 	Speed 40
@@ -885,10 +885,21 @@ Actor NailProjectile : DnD_BaseProjectile {
 			TNT1 A 0 A_PlaySound("Weapons/NailFlight")
 		Loop
 		Death:
-			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			NLPJ A 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_NAILGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			NLPJ A 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			NLPJ A 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
+			NLPJ AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			NLPJ A 0 A_PlaySound("Weapons/NailRic")
 			NLPJ BCDEFG 2
-		Stop
+		Goto FinishExplosion
 	}
 }
 
@@ -963,13 +974,24 @@ Actor LavaNailProjectile : NailProjectile {
 		Loop
 		
 	    Death:
+			NAI2 A 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_NAILGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			NAI2 A 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			NAI2 A 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "CritExp")
 			TNT1 A 0 A_CustomMissile("NailExplosion", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 		FinishAnim:
 			NLPJ A 0 A_PlaySound("Weapons/NailRic")
 			NLPJ BCDEFG 2
-		Stop
+		Goto FinishExplosion
 		CritExp:
 			TNT1 A 0 A_CustomMissile("NailExplosion_Crit", 0, 0, 0, CMF_AIMDIRECTION | CMF_TRACKOWNER)
 		Goto FinishAnim
@@ -1519,7 +1541,7 @@ Actor FrostFangShard_Glowing_GhostHitter_Crit : FrostFangShard_Glowing_GhostHitt
 	Accuracy 69
 }
 
-Actor FrostFangBall : DnD_BaseProjectile {
+Actor FrostFangBall : DnD_RipperBase {
 	Radius 10
 	Height 16
 	+RIPPER
@@ -1631,9 +1653,24 @@ Actor FrostFangBall : DnD_BaseProjectile {
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		Death:
-			TNT1 A 0 A_GiveInventory("ApplyDousing", 1)
+			TNT1 A 0 A_JumpIf(reactiontime > 0, "CheckRepeat")
+		FinishRepeat:
+			FFBL C 0 A_GiveInventory("ApplyDousing", 1)
 			FFBL CDEFG 4 Bright
-		Stop
+		Goto FinishExplosion
+		CheckRepeat:
+			FFBL C 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_FROSTFANG |
+				(DND_DMGID_1 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_ICE << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			FFBL C 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			FFBL C 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
+		Goto FinishRepeat
 	}
 }
 

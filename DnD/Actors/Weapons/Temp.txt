@@ -1224,7 +1224,7 @@ ACTOR Ripper1 : DnD_ExplosiveBase {
 	}
 }
 
-ACTOR Ripper2 : DnD_BaseProjectile {
+ACTOR Ripper2 : DnD_RipperBase {
 	Radius 5
 	Height 5
 	Speed 24
@@ -1247,9 +1247,20 @@ ACTOR Ripper2 : DnD_BaseProjectile {
 			RIP2 AAABBB 1 Bright A_SpawnItemEx("Ripper2Trail")
 		loop
 		Death:
+			RIP2 C 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_HELLFORGECANNON |
+				(DND_DMGID_2 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
+				(300 << DPCT_SHIFT)
+			)
+			RIP2 C 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			RIP2 C 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			RIP2 C 0 Bright A_SetTranslucent (0.67,1)
 			RIP2 CDEFG 3 Bright
-		stop
+		Goto FinishExplosion
 	}
 }
 
@@ -2124,7 +2135,7 @@ ACTOR Venom : DnDWeapon {
 	}
 }
 
-ACTOR Barbshot : DnD_BaseProjectile {
+ACTOR Barbshot : DnD_RipperBase {
 	Radius 4
 	Height 8
 	Speed 60
@@ -2158,9 +2169,20 @@ ACTOR Barbshot : DnD_BaseProjectile {
 			TNT1 A 0 A_CountDown
 		Loop
 		Death:
+			SSFX A 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_VENOM |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_POISON << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			SSFX A 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			SSFX A 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			SSFX A 0 Bright A_SetTranslucent(0.75,1)
 			SSFX ABCDEFGH 2 Bright
-		stop
+		Goto FinishExplosion
 	}
 }
 
@@ -3158,7 +3180,7 @@ actor nailGib {
 }
 
 
-Actor BigNailProj : DnD_BaseProjectile {
+Actor BigNailProj : DnD_RipperBase {
 	Radius 3
 	Height 3
 	Speed 44
@@ -3186,12 +3208,23 @@ Actor BigNailProj : DnD_BaseProjectile {
 		Loop
 		Crash:
 		Death:
+			NLPJ A 0 A_SetUserVar(
+				"user_expdmg", 
+				DND_WEAPON_HEAVYNAILGUN |
+				(DND_DMGID_0 << CACHE_SHIFT) |
+				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+				(100 << DPCT_SHIFT)
+			)
+			NLPJ A 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			NLPJ A 0 A_SetUserVar("user_fullexpradius", 0)
+		Goto CheckRipperExplosion
+		ContinueFromExplosion:
 			TNT1 A 0 A_PlaySound("Weapons/NG2HitWall")
 			TNT1 A 0 A_SpawnItemEx("WallHitSpark", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
 			TNT1 A 0 A_SpawnDebris("nailgib")
 			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 1
-		Stop
+		Goto FinishExplosion
 		XDeath:
 			TNT1 A 0 A_PlaySound("Weapons/NG2HitTarget")
 			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))

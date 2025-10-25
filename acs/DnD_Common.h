@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -139,6 +139,8 @@ enum {
 #define MAX_NPCS 512
 #define MAX_PETS 1600 // max of 1600 pets stored here because => 25 max pets per player x 64 = 1600
 #define MAX_PICKUPS 3000
+
+#define DND_BASE_POISON_FACTOR 5
 
 enum {
 	// dont change order of these, add below the last!

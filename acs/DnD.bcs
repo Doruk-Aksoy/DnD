@@ -271,12 +271,12 @@ Script "DnD On Map Load" OPEN {
 	SetupCVarTracking();
 
 	// commented out for now!
-#ifdef ISDEBUGBUILD
+//#ifdef ISDEBUGBUILD
 	while(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
 		Delay(const:TICRATE);
 
 	NPC_Setup();
-#endif
+//#endif
 }
 
 Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
@@ -1029,7 +1029,7 @@ Script "DND On Kill" KILL {
 	(
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
 		HasClassPerk_Fast("Doomguy", 5) ||
-		GetPlayerAttributeValue(target - P_TIDSTART, INV_INC_ENEMYRIPCHANCE) <= random(1, 100) ||
+		GetPlayerAttributeValue(target - P_TIDSTART, INV_INC_ENEMYRIPCHANCE) >= random(1, 100) ||
 		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
@@ -5426,6 +5426,8 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 
 Script "DnD Proj Reverse Direction" (int wait_time) {
 	wait_time = (wait_time * TICRATE) >> 16;
+	if(!wait_time)
+		wait_time = 1;
 	Delay(wait_time);
 	SetActorVelocity(0, -GetActorVelX(0), -GetActorVelY(0), -GetActorVelZ(0), 0, 0);
 	SetActorAngle(0, GetActorAngle(0) - 0.5);
@@ -5939,13 +5941,13 @@ Script 68 (int x) NET {
 			//SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_INC_PROJREVERSE);
+			SpawnCharmWithMods_ForAll(INV_INC_EXCESSCRIT);
 			//SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
 			//SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
-			//IncPlayerModValue(0, INV_CORR_INSTALEECHPCT, 15);
+			IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 1.5);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 1.6);
 			//IncPlayerModValue(0, INV_LIFESTEAL_DAMAGE, 0.05);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
