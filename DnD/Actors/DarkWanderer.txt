@@ -12,7 +12,7 @@ Actor DarkWanderer {
 	+THRUSPECIES
 	-COUNTKILL
 	-SHOOTABLE
-	-SOLID
+	+SOLID
 	+USESPECIAL
 	+FRIENDLY
 	+NODAMAGETHRUST
@@ -24,6 +24,8 @@ Actor DarkWanderer {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteWithResult("DnD Timed Monster", 30)
 		Idle:
+			TNT1 A 0 A_ChangeFlag("SOLID", 0)
+		IdleLoop:
 			THOR M 10 A_Look
 		Loop
 		See:

@@ -657,8 +657,10 @@ int GetExtraForMod(int pnum, int mod) {
 		break;
 
 		case INV_INC_PLUSPROJ:
+			res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16) | DND_INC_SINGLEPROJ_NEGDMG;
+		break;
 		case INV_INC_PLUSTWOPROJ:
-			res = PickRandomOwnedWeaponID_WithProj(pnum);
+			res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16) | DND_INC_TWOPROJ_NEGDMG;
 		break;
 	}
 	return res;
@@ -1602,9 +1604,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_CRITFORDOT].attrib_level_modifier = 0;
 	ItemModTable[INV_INC_CRITFORDOT].tags = INV_ATTR_TAG_CRIT | INV_ATTR_TAG_DAMAGE;
 
-	ItemModTable[INV_INC_ALLOVERLOAD].attrib_low = 1;
-	ItemModTable[INV_INC_ALLOVERLOAD].attrib_high = 1;
-	ItemModTable[INV_INC_ALLOVERLOAD].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_ALLOVERLOAD].attrib_low = 25;
+	ItemModTable[INV_INC_ALLOVERLOAD].attrib_high = 40;
+	ItemModTable[INV_INC_ALLOVERLOAD].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_ALLOVERLOAD].tags = INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_ELEMENTAL;
 
 	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_low = 1;
@@ -1728,9 +1730,16 @@ bool IsAttributeExtraException(int attr) {
 		case INV_CORR_WEAPONFORCEPAIN:
 
 		// incursion things that use extra field
+
+		return true;
+	}
+	return false;
+}
+
+bool CanRerollAttributeExtra(int attr) {
+	switch(attr) {
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
-
 		return true;
 	}
 	return false;
@@ -1823,17 +1832,19 @@ int RollAttributeValue(int attr, int tier, bool isWellRolled, int item_type, int
 }
 
 int RollUniqueAttributeValue(int unique_id, int attr, bool isWellRolled) {
-	if(!isWellRolled)
+	bool reverance = CheckInventory("ReveranceUsed");
+	if(!isWellRolled && !reverance)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_low, UniqueItemList[unique_id].rolls[attr].attrib_high);
-	if(!CheckInventory("ReveranceUsed"))
+	if(!reverance)
 		return random((UniqueItemList[unique_id].rolls[attr].attrib_low + UniqueItemList[unique_id].rolls[attr].attrib_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_high);
 	return random(UniqueItemList[unique_id].rolls[attr].attrib_low / 4 + 3 * UniqueItemList[unique_id].rolls[attr].attrib_high / 4, UniqueItemList[unique_id].rolls[attr].attrib_high);
 }
 
 int RollUniqueAttributeExtra(int unique_id, int attr, bool isWellRolled) {
-	if(!isWellRolled)
+	bool reverance = CheckInventory("ReveranceUsed");
+	if(!isWellRolled && !reverance)
 		return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
-	if(!CheckInventory("ReveranceUsed"))
+	if(!reverance)
 		return random((UniqueItemList[unique_id].rolls[attr].attrib_extra_low + UniqueItemList[unique_id].rolls[attr].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
 	return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low / 4 + 3 * UniqueItemList[unique_id].rolls[attr].attrib_extra_high / 4, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
 }
@@ -1962,7 +1973,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 	}
 	else if(attr >= FIRST_INCURSION_ATTRIBUTE && attr <= LAST_INCURSION_ATTRIBUTE) {
 		ess_tag = "\c[Q0]";
-		col_tag = "\c[Q0]";
+		col_tag = "\c[Q9]";
 		no_tag = "\c[Q0] ";
 	}
 
@@ -2338,85 +2349,84 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		// incursion special attribs
 		case INV_INC_DOUBLEHPBONUS:
-		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC1S");
+		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC1S");
 
 		case INV_INC_CRITFORDOT:
-		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC4S");
+		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC4S");
 		case INV_INC_ALLOVERLOAD:
-		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC5S");
+		return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%\n", s:ess_tag, l:"IATTR_TINC5S");
 		case INV_INC_ESHIELDNOINTERRUPT:
-		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC6S");
+		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC6S");
+		
 		case INV_INC_PLUSPROJ:
-			ess_tag = GetWeaponTag(attr_extra);
-		return StrParam(s:col_tag, l:text, s:no_tag, l:ess_tag, s:"\n", s:col_tag, l:"IATTR_TINC7S", l:ess_tag);
 		case INV_INC_PLUSTWOPROJ:
-			ess_tag = GetWeaponTag(attr_extra);
-		return StrParam(s:col_tag, l:text, s:no_tag, l:ess_tag, s:"\n", s:col_tag, l:"IATTR_TINC8S", l:ess_tag);
+		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(attr_extra >> 16), s:"\n", s:col_tag, d:((1.0 - (attr_extra & 0xFFFF)) * 100) >> 16, s:"% ", s:ess_tag, l:"IATTR_TINC7S", s:col_tag, l:GetWeaponTag(attr_extra >> 16));
+		
 		case INV_INC_INSTANTLIFESTEAL:
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra),
-					s:"\n", s:col_tag, l:"IATTR_TINC9S"
+					s:"\n", s:ess_tag, l:"IATTR_TINC9S"
 				);
 			}
-			return StrParam(s:col_tag, d:val, s:"% ", l:text, s:"\n", s:col_tag, l:"IATTR_TINC9S");
+			return StrParam(s:"+ ", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC9S");
 		case INV_INC_MITIGATIONTODODGE:
-		return StrParam(s:col_tag, l:text, s:"\n", s:col_tag, l:"IATTR_TINC11S");
+		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC11S");
 
 		// single text incursion
 		case INV_INC_ACCURACYFORPRECISION:
 		case INV_INC_HPREGENINTERRUPT:
 		case INV_INC_ACCURACYREVERSED:
-		return StrParam(s:col_tag, l:text);
+		return StrParam(s:ess_tag, l:text);
 		
 		case INV_INC_PASSIVEREGEN:
 			if(showDetailedMods) {
 				return StrParam(
-					s:col_tag, l:text, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"% ", s:col_tag, l:"IATTR_TINC14S1",
-					s:col_tag, s:" - ", s:GetModTierText(tier, extra),
-					s:"\n", s:col_tag, l:"IATTR_TINC14S2"
+					s:col_tag, l:text, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"% ", s:ess_tag, l:"IATTR_TINC14S1",
+					s:ess_tag, s:" - ", s:GetModTierText(tier, extra),
+					s:"\n", s:ess_tag, l:"IATTR_TINC14S2"
 				);
 			}
-			return StrParam(s:col_tag, l:text, s:GetFixedRepresentation(val, true), s:"% ", l:"IATTR_TINC14S1", s:"\n", s:col_tag, l:"IATTR_TINC14S2");
+			return StrParam(s:col_tag, l:text, s:GetFixedRepresentation(val, true), s:"% ", s:ess_tag, l:"IATTR_TINC14S1", s:"\n", s:ess_tag, l:"IATTR_TINC14S2");
 		
 		case INV_INC_ENEMYRIPCHANCE:
 			if(showDetailedMods) {
 				return StrParam(
-					s:col_tag, l:text, s:" ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:"IATTR_TINC15S",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:ess_tag, l:text, s:no_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:"IATTR_TINC15S",
+					s:ess_tag, s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:col_tag, l:text, s:" ", d:val, s:"%", s:no_tag, l:"IATTR_TINC15S");
+			return StrParam(s:ess_tag, l:text, s:no_tag, d:val, s:"% ", s:ess_tag, l:"IATTR_TINC15S");
 		case INV_INC_BLOCKPREVENTION:
 		case INV_INC_INVERTRESISTANCES:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:text,
+					s:ess_tag, s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, d:val, s:"% ", l:text);
+			return StrParam(s:"+ ", s:col_tag, d:val, s:"% ", s:ess_tag, l:text);
 		case INV_INC_RIPPERSEXPLODE:
 			if(showDetailedMods) {
 				return StrParam(
-					s:col_tag, l:text, s:" ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:"IATTR_TINC17S",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:ess_tag, l:text, s:no_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:"IATTR_TINC17S",
+					s:ess_tag, s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:col_tag, l:text, s:" ", d:val, s:"%", s:no_tag, l:"IATTR_TINC17S");
+			return StrParam(s:ess_tag, l:text, s:no_tag, d:val, s:"% ", s:ess_tag, l:"IATTR_TINC17S");
 
 		case INV_INC_PROJREVERSE:
 			if(showDetailedMods) {
 				return StrParam(
-					s:col_tag, l:text, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false),
-					s:col_tag, l:"IATTR_TINC20S"
+					s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false),
+					s:ess_tag, l:"IATTR_TINC20S"
 				);
 			}
-			return StrParam(s:col_tag, l:text, s:GetFixedRepresentation(val, false), s:col_tag, l:"IATTR_TINC20S");
+			return StrParam(s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, false), s:ess_tag, l:"IATTR_TINC20S");
 
 		case INV_INC_EXCESSCRIT:
-		return StrParam(s:col_tag, s:GetFixedRepresentation(val, true), l:text, s:"\n", s:col_tag, l:"IATTR_TINC21S");
+		return StrParam(s:col_tag, s:GetFixedRepresentation(val, true), s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC21S");
 
 		// default takes percentage values
 		default:

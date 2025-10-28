@@ -180,6 +180,7 @@ Actor DnD_BaseFastProjectile : FastProjectile {
 }
 
 Actor DnD_RippingBegan : DnD_Boolean { }
+Actor DnD_ExplosiveRepeated : DnD_Boolean { }
 
 Actor DnD_PuffTest : DnD_Activator {
 	States {

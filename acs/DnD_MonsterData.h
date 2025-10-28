@@ -819,7 +819,7 @@ void HandleMonsterClassInnates(int mid, int id) {
 	(
 		id == MONSTER_CYBERDEMON ||
 		(id >= DND_CUSTOM_CYBER_BEGIN && id <= LEGENDARY_END) ||
-		(id >= DND_UNIQUE_CYBER_BEGIN)
+		(id >= DND_UNIQUE_CYBER_BEGIN && id <= DND_UNIQUE_CYBER_END)
 	)
 	{
 		MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;

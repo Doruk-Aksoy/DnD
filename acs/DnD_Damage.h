@@ -858,8 +858,13 @@ void HandleOverloadEffects(int pnum, int victim) {
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
 			
 			temp = ConvertFixedFactorToInt(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE));
-			if(GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD)) // a third effect if this mod is there
-				temp /= 3;
+			int all_effect = GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD);
+			if(all_effect) {
+				// reduced effect if this mod is there
+				temp = temp * (100 - all_effect) / 100;
+				if(temp < 0)
+					temp = 0;
+			}
 			SetActorInventory(victim, "DnD_OverloadDamage", Max(temp, CheckActorInventory(victim, "DnD_OverloadDamage")));
 			
 			ACS_NamedExecuteWithResult("DnD Monster Overload", victim);
@@ -927,7 +932,7 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	// apply percentage reductions to resist HERE, ABOVE checking the penetration
 	// if occult weakness exists, apply it checking monster's debuff -- to be done as a resist reduction to affect all players later
 	// we will handle all percentage reductions here deliberately so that we don't mess up the base resist value of the monster!
-	if((flags & DND_DAMAGEFLAG_ISRADIUSDMG) && (temp = GetPlayerAttributeValue(pnum, INV_ESS_VAAJ))) {
+	if((flags & DND_DAMAGEFLAG_ISRADIUSDMG) && (temp = GetPlayerAttributeValue(pnum, INV_ESS_VAAJ)) >= random(1, 100)) {
 		if(!CheckActorInventory(victim, "VaajWkeakness")) {
 			GiveActorInventory(victim, "VaajWeakness", 1);
 			ACS_NamedExecuteWithResult("DnD Vaaj Weaken", victim, mon_id);
@@ -2547,8 +2552,10 @@ Script "DnD Check Explosion Repeat" (void) {
 	if(random(1, 100) <= chanceSum - 1) {
 		// check rekindled sparks
 		res = GetPlayerAttributeValue(pnum, INV_EX_SECONDEXPBONUS);
-		if(res) {
+		if(res && !CheckInventory("DnD_ExplosiveRepeated")) {
 			res += 100;
+
+			GiveInventory("DnD_ExplosiveRepeated", 1);
 
 			// we embed a damage factor into this, so we can scale that and reput it
 			int temp = GetUserVariable(0, "user_expdmg");

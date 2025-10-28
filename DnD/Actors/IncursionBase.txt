@@ -19,7 +19,13 @@ Actor DnD_Incursion_Base {
 	var int user_mclass_16;
 	var int user_mclass_17;
 	
-	+NOINTERACTION
+	Radius 16
+	Height 32
+	
+	-SOLID
+	-SHOOTABLE
+	+NOTELEPORT
+	+DONTBLAST
 	
 	States {
 		Spawn:

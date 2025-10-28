@@ -395,7 +395,7 @@ void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thru
 }
 
 bool CheckWellRolled(int pnum) {
-	return random(0, 1.0) <= DND_LUCK_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_LUCK) / 3;
+	return !CheckActorInventory(pnum + P_TIDSTART, "ReveranceUsed") && random(0, 1.0) <= DND_LUCK_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_LUCK) / 3;
 }
 
 void CalculateExpRatio() {
@@ -500,6 +500,7 @@ int RewardActorCredit(int tid, int amt) {
 void GiveCredit(int amt) {
 	int pnum = PlayerNumber();
 	GiveInventory("Credit", amt);
+	PlayerDataInLevel[pnum].levelcredit += amt;
 	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 	GiveInventory("DnD_MoneySpentQuest", amt);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
@@ -533,6 +534,7 @@ void GiveActorBudget(int tid, int amt) {
 void GiveActorCredit(int tid, int amt) {
 	int pnum = tid - P_TIDSTART;
 	GiveActorInventory(tid, "Credit", amt);
+	PlayerDataInLevel[pnum].levelcredit += amt;
 	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
 }
@@ -1547,7 +1549,7 @@ int GetCritChance_Display(int pnum) {
 int GetPelletIncrease(int pnum) {
 	int base = 1.0 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
 	if(HasClassPerk_Fast("Hobo", 2))
-		return CombineMultiplicativeFactors(base, DND_HOBO_SHOTGUNPELLETBONUS + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_SHOTGUNPELLETBONUS_PERLVL);
+		return CombineFactors(base, DND_HOBO_SHOTGUNPELLETBONUS + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_SHOTGUNPELLETBONUS_PERLVL);
 	return base;
 }
 

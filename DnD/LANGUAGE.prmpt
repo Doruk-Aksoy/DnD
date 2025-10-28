@@ -5,7 +5,7 @@ DND_ACCEPTED		=	"ACCEPTED";
 DND_ACCEPT			=	"Accept";
 DND_DECLINE			=	"Decline";
 
-DND_TOVOTE			=	"to vote";	// time left to vote
+DND_TOVOTE			=	"seconds to vote";	// time left to vote
 DND_VOTEPASSED		=	"Vote Passed";
 DND_VOTEFAILED		=	"Vote Failed";
 

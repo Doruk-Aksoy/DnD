@@ -535,8 +535,8 @@ IATTR_TINC3			= "chance on kill for poisons to spread up to 8 enemies within 160
 IATTR_TINC4			= "Your critical strikes deal no extra damage"; IATTR_TINC4S = "Crit damage instead applies to damage over time at half the value";
 IATTR_TINC5			= "Overload can no longer chain, and its effect is reduced by "; IATTR_TINC5S = "All elemental damage can apply overload";
 IATTR_TINC6			= "Energy shield recharge is not interrupted by damage"; IATTR_TINC6S = "Energy shield recharges at half rate";
-IATTR_TINC7			= "+1 additional projectiles fired from "; IATTR_TINC7S = "15% less damage to ";
-IATTR_TINC8			= "+2 additional projectiles fired from "; IATTR_TINC8S = "30% less damage to ";
+IATTR_TINC7			= "+1 additional projectiles fired from "; IATTR_TINC7S = "less damage to ";
+IATTR_TINC8			= "+2 additional projectiles fired from ";
 IATTR_TINC9			= "of lifesteal is instant"; IATTR_TINC9S = "100% reduced lifesteal recovery rate";
 IATTR_TINC10		= "chance to defend with twice your armor rating";
 IATTR_TINC11		= "Mitigation is converted to dodge chance at half the value"; IATTR_TINC11S = "Dodge chance is capped at 60% (Can't dodge explosives)";

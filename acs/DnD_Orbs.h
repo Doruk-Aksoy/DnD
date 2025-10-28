@@ -399,6 +399,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	int prev;
 	int i, s, x = -1;
 	int affluence = GetAffluenceBonus();
+	int overrideValue = 0;
 
 	SetInventory("OrbUseType", orbtype + 1);
 	// for any other orb, reset most recently used orb
@@ -603,6 +604,10 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 							PlayerInventoryList[pnum][extra].item_type,
 							PlayerInventoryList[pnum][extra].item_subtype
 						);
+
+						if(CanRerollAttributeExtra(temp)) {
+							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = GetExtraForMod(pnum, temp);
+						}
 					}
 				}
 			}
@@ -727,8 +732,10 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 			PlayerInventoryList[pnum][extra].quality += affluence * random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
 			prev = GetItemMaxQuality(pnum, extra);
-			if(PlayerInventoryList[pnum][extra].quality > prev || CheckInventory("ReveranceUsed"))
+			if(PlayerInventoryList[pnum][extra].quality > prev || CheckInventory("ReveranceUsed")) {
 				PlayerInventoryList[pnum][extra].quality = prev;
+				overrideValue = CheckInventory("ReveranceUsed") * prev;
+			}
 			
 			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemQuality(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -965,15 +972,16 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 	if(orbtype != DND_ORB_DESTINY)
 		TakeInventory("DestinyUsed", 1);
-	else if(orbtype != DND_ORB_REVERANCE)
+	else if(orbtype != DND_ORB_REVERANCE) {
 		TakeInventory("ReveranceUsed", 1);
+	}
 	else if(orbtype != DND_ORB_ORDER)
 		TakeInventory("OrderUsed", 1);
 
 	Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
 	
 	// clientside msg
-	ACS_NamedExecuteAlways("DND Orb Use Message", 0, CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence);
+	ACS_NamedExecuteWithResult("DND Orb Use Message", CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence, overrideValue);
 }
 
 // check if player has any orbs besides calamity
@@ -1257,7 +1265,7 @@ int GetAffluenceBonus() {
 	return 1 << CheckInventory("AffluenceCounter");
 }
 
-void HandleOrbUseMessage(int orbtype, int val, int affluence) {
+void HandleOrbUseMessage(int orbtype, int val, int affluence, int overrideValue) {
 	if(ConsolePlayerNumber() != PlayerNumber()) 
 		return;
 	switch(orbtype) {
@@ -1423,6 +1431,8 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence) {
 				Log(s:"\cj", l:"DND_ORBUSETEXT27_ORD", s:"\cj!");
 		break;
 		case DND_ORB_ALCHEMIST:
+			if(overrideValue)
+				affluence = overrideValue;
 			Log(s:"\cj", l:"DND_ORBUSETEXT28", s:"\cd ", d:affluence, s:"%", s:"\cj!");
 		break;
 		case DND_ORB_EVOKER:
@@ -1616,10 +1626,10 @@ Script "DnD Give Orb Delayed" (int type, int amt) {
 	GiveInventory("DnD_RefreshPane", 1);
 }
 
-Script "DND Orb Use Message" (int type, int result, int affluence) CLIENTSIDE {
+Script "DND Orb Use Message" (int type, int result, int affluence, int overrideValue) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	HandleOrbUseMessage(type, result, affluence);
+	HandleOrbUseMessage(type, result, affluence, overrideValue);
 }
 
 Script "DND Orb Use Message (Server)" (void) {

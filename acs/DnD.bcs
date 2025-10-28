@@ -1312,10 +1312,17 @@ Script 895 (int val, int this) {
 
 					ACS_NamedExecuteAlways("DnD Prompt Dark Wanderer", 0, first_time, NPC_States[DND_NPC_DARKWANDERER].offer, NPC_States[DND_NPC_DARKWANDERER].n_state);
 					
+					++NPC_States[DND_NPC_DARKWANDERER].interaction_count;
+					GiveActorInventory(DND_NPC_TID, "DnD_HaltMonsterTimer", 1);
+
 					MarkNPCMet(DND_NPC_DARKWANDERER);
 				}
 				else {
 					// close
+					--NPC_States[DND_NPC_DARKWANDERER].interaction_count;
+					if(!NPC_States[DND_NPC_DARKWANDERER].interaction_count)
+						TakeActorInventory(DND_NPC_TID, "DnD_HaltMonsterTimer", 1);
+
 					ClosePrompt();
 				}
 			break;
@@ -4187,8 +4194,11 @@ Script "DnD Toggle NoPain" (void) {
 
 Script "DnD Timed Monster" (int time, int isPet) {
 	int cnt = 0;
-	while(cnt++ != time)
+	while(cnt++ != time) {
+		if(CheckInventory("DnD_HaltMonsterTimer"))
+			--cnt;
 		Delay(const:TICRATE);
+	}
 	if(!isPet)
 		SetActorState(0, "Remove");
 	else
@@ -5930,7 +5940,7 @@ Script 68 (int x) NET {
 			//Log(s:"pcore");
 			SpawnPowercore(0, true);
 			//Log(s:"orb");
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
@@ -5941,13 +5951,11 @@ Script 68 (int x) NET {
 			//SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_INC_EXCESSCRIT);
-			//SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
 			//SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
-			IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 1.5);
+			//IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 1.5);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 1.6);
 			//IncPlayerModValue(0, INV_LIFESTEAL_DAMAGE, 0.05);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);

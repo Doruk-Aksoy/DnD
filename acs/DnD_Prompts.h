@@ -62,10 +62,11 @@ typedef struct npc_info {
 	int time;
 	int n_state;
 	int aux_data;
+	int interaction_count;
 	int voters[MAXPLAYERS];		// index is player_id, value is what vote they cast, 1 for accept -1 for decline
 } npc_info_T;
 
-npc_info_T NPC_States[MAX_DND_NPCS] = { { false, 0, 0, 0, 0, 0, 0 } };
+npc_info_T NPC_States[MAX_DND_NPCS] = { { false, 0, 0, 0, 0, 0, 0, 0 } };
 
 #define DND_VOTE_TIME 30 // seconds
 
@@ -118,7 +119,7 @@ void NPC_Setup() {
 		
 		for(i = 0; i < MAXPLAYERS; ++i)
 			NPC_States[DND_NPC_DARKWANDERER].voters[i] = 0;
-		ACS_NamedExecuteWithResult("DnD NPC Vote Sync", -1);
+		ACS_NamedExecuteWithResult("DnD NPC Vote Sync", -1, -1, DND_NPC_DARKWANDERER);
 	}
 }
 
@@ -134,7 +135,7 @@ void ClosePrompt() {
 	LocalAmbientSound("RPG/MenuClose", 127);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
-	ACS_NamedExecuteAlways("DND Menu Cleanup", 0);
+	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, PlayerNumber());
 }
 
 void ConcludeVoting(int npc_id, int result) {
@@ -152,7 +153,7 @@ void ConcludeVoting(int npc_id, int result) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(NPC_States[npc_id].voters[i]) {
 			SetActivator(i + P_TIDSTART);
-			ACS_NamedExecuteAlways("DnD Close Prompt Delayed", i, npc_id);
+			ACS_NamedExecuteAlways("DnD Close Prompt Delayed", 0, i, npc_id);
 		}
 	}
 	
@@ -498,7 +499,7 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			int tid = i + P_TIDSTART;
 			if(PlayerInGame(i) && isActorAlive(tid)) {
-				SpawnDrop(reward_chest, 0, 0, i + 1, 0);
+				SpawnDropAtActor(tid, reward_chest, 0, 0, i + 1, 0);
 			}
 		}
 	}
@@ -629,6 +630,8 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			LocalAmbientSound("RPG/MenuMove", 127);
 			
 		boxid_prev = boxid;
+
+		voting_ongoing = n_state != NPC_STATE_VOTE_DECLINE && n_state != NPC_STATE_VOTE_ACCEPT;
 		
 		// accept
 		if(voting_ongoing) {
@@ -684,7 +687,8 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			// check inputs
 			ListenMouseInput();
 			sendInput = CheckInventory("MenuInput") != 0;
-			if(sendInput) {
+			if(sendInput && !CheckInventory("DnD_ClickTicker")) {
+				GiveInventory("DnD_ClickTicker", 1);
 				// server gets a few extra info in boxid
 				if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
 					MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
@@ -699,15 +703,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			Delay(const:1);
 			
 			// retry ack
-			if(!CheckInventory("DND_ACK")) {
-				if(sendInput) {
-					GiveInventory("DND_ACKLoop", 1);
-					//temp = boxid | (CheckInventory("DnD_PlayerItemIndex") << DND_MENU_ITEMSAVEBITS1) | (CheckInventory("DnD_PlayerPrevItemIndex") << DND_MENU_ITEMSAVEBITS2);
-					//Log(s:"trying to send prev item loop beg", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
-					ACS_NamedExecuteAlways("DnD Retry Sending UntiL ACK - NPC", 0, PlayerNumber() | (CheckInventory("MenuInput") << 16), MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
-				}
-			}
-			else {
+			if(CheckInventory("DND_ACK")) {
 				sendInput = false;
 				SetInventory("MenuInput", 0);
 				//Log(s:"reset input data");
@@ -720,25 +716,15 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	}
 }
 
-Script "DnD Retry Sending UntiL ACK - NPC" (int payload1, int payload2, int npc_id) CLIENTSIDE {
-	if(!payload1 || CheckInventory("DND_ACKLoop"))
-		Terminate;
-	while(!CheckInventory("DnD_ACK")) {
-		//Log(s:"running till ack received with ", d:payload1, s: " ", d:payload2, s: " ", d:mainboxid);
-		//Log(s:"trying to send prev item ", d:payload2 >> 16);
-		NamedRequestScriptPuke("DND Server Box Receive - NPC", payload1, payload2, npc_id);
-		Delay(const:1);
-	}
-	TakeInventory("DND_ACKLoop", 1);
-}
-
 Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 	// don't let garbage data slip in
 	if(!pnum)
 		Terminate;
 	int temp = pnum >> 16;
 	pnum &= 0xFFFF;
-		
+
+	Log(s:"pre delay: ", d:MenuInputData[pnum][DND_MENUINPUT_DELAY]);
+
 	if(!MenuInputData[pnum][DND_MENUINPUT_DELAY]) {
 		SetActivator(pnum + P_TIDSTART);
 		MenuInputData[pnum][DND_MENUINPUT_DELAY] = DND_MENU_INPUTDELAYTICS;
@@ -751,6 +737,7 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 		}
 		else if(boxid != MAINBOX_NONE) {
 			if(boxid == MBOX_1) {
+				Log(s:"delay on arrival: ", d:MenuInputData[pnum][DND_MENUINPUT_DELAY]);
 				// in case of accept, declare a vote and wait majority or if only player in game, skip this phase
 				ACS_NamedExecuteWithResult("DnD NPC Vote Register", 1, npc_id, pnum);
 				LocalAmbientSound("RPG/MenuChoose", 127);
@@ -776,6 +763,10 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 }
 
 Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
+	// if concluded accept no further votes
+	if(NPC_States[npc_id].n_state == NPC_STATE_VOTE_ACCEPT || NPC_States[npc_id].n_state == NPC_STATE_VOTE_DECLINE)
+		Terminate;
+
 	if(!NPC_States[npc_id].voting) {
 		NPC_States[npc_id].voting = true;
 		NPC_States[npc_id].n_state = NPC_STATE_VOTE_ONGOING;
@@ -783,8 +774,17 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 	}
 	
 	// register vote
-	NPC_States[npc_id].vote_count += vote;
-	NPC_States[npc_id].voters[pnum] = vote;
+	Log(s:"vote comp on ", d:pnum, s:": ", d:NPC_States[npc_id].voters[pnum], s:" vs ", d:vote);
+	if(NPC_States[npc_id].voters[pnum] != vote) {
+		NPC_States[npc_id].vote_count += vote;
+		NPC_States[npc_id].voters[pnum] = vote;
+	}
+	else {
+		Log(s:"same vote, terminate");
+		Terminate;
+	}
+
+	Log(s:"incoming vote from ", d:pnum);
 		
 	// check if majority is met -- if our (yes vote count) - (current player count / 2) > 0 that means we can skip further checks, we have majority
 	int majority = PlayerCount() / 2 + (PlayerCount() > 1 && (PlayerCount() & 1));
@@ -805,15 +805,20 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 		// send the npc away, no more interaction
 		SetActorState(DND_NPC_TID, "GoBack", false);
 
+		Log(s:"accept vote from ", d:pnum);
+
 		HandleNPC(npc_id);
 	}
 	else {
 		// check if majority actually declined instead of accepted, so we can close voting early
 		curr = 0;
 		for(i = 0; i < MAXPLAYERS; ++i) {
-			if(NPC_States[npc_id].voters[i])
+			if(PlayerInGame(i) && NPC_States[npc_id].voters[i] == -1)
 				++curr;
 		}
+
+		Log(s:"accept negative vote from ", d:pnum, s: " ", d:curr);
+
 		// conclude voting
 		if(curr >= majority) {
 			HudMessageBold(s:""; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 1.0, 0.0);
@@ -822,9 +827,9 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 			HudMessageBold(l:"DND_VOTEFAILED", s:"!"; HUDMSG_FADEOUT, RPGMENUHELPCORNERID, CR_RED, 240.4, 16.0, 1.0, 1.0);
 			ConcludeVoting(npc_id, NPC_STATE_VOTE_DECLINE);
 		}
-		else
-			ACS_NamedExecuteWithResult("DnD NPC Vote Sync", pnum, vote, npc_id);
 	}
+
+	ACS_NamedExecuteWithResult("DnD NPC Vote Sync", pnum, vote, npc_id);
 }
 
 Script "DnD Close Prompt Delayed" (int pnum, int npc_id) {
@@ -838,9 +843,18 @@ Script "DnD NPC Voting" (int npc_id) {
 	int time = DND_VOTE_TIME * TICRATE;
 	while(time > 0 && NPC_States[npc_id].voting) {
 		// display the timer to everyone for vote countdown
+		str col_tag = "\cd";
+		int time_to_show = time / TICRATE;
+		if(time_to_show < 2 * DND_VOTE_TIME / 3 && time_to_show > DND_VOTE_TIME / 2)
+			col_tag = "\ck";
+		else if(time_to_show < DND_VOTE_TIME / 3)
+			col_tag = "\ci";
+		else if(time_to_show < DND_VOTE_TIME / 5)
+			col_tag = "\cg";
+
 		SetFont("DBIGFONT");
 		SetHUDSize(HUDMAX_X, HUDMAX_Y, 1);
-		HudMessageBold(d:time / TICRATE, s:" ", l:"DND_TOVOTE", s:"!"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 2.0, 0.0);
+		HudMessageBold(s:col_tag, d:time_to_show, s:"\c- ", l:"DND_TOVOTE", s:"!"; HUDMSG_PLAIN, RPGMENUBACKGROUNDID + 1, CR_WHITE, 240.4, 16.0, 2.0, 0.0);
 		
 		Delay(const:1);
 		--time;

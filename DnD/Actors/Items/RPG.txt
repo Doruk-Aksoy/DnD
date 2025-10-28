@@ -484,7 +484,12 @@ Actor DnD_TradeMute_2 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
-Actor DnD_PromptLocked : DnD_Boolean { }
+Actor DnD_PromptLocked : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}
+
+Actor DnD_HaltMonsterTimer : DnD_Boolean { }
 
 Actor DnD_MenuPlayerIcon {
 	+NOINTERACTION

@@ -926,7 +926,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 
 	// this means we must swap items
 	if(Items_Used[pnum][use_id].item_type != DND_ITEM_NULL) {
-		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
+		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
 		SwapItems(pnum, use_id, item_index, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false, true);
 		ApplyItemFeatures(pnum, use_id, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD);
 	}
@@ -2441,7 +2441,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 				// first 4 are small charms
 				for(i = 0; i < 4; ++i)
 					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
 				
 				// now give the item and re-apply
 				IncPlayerModValue(pnum, atype, aval);
@@ -2450,14 +2450,12 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD);
 								
-				// sync all at once at the end here for well of power...
-				SyncPlayerItemMods(pnum);
 			}
 			else if(PlayerModValues[pnum][atype]) {
 				// just take the attribute off and remove features and reapply
 				for(i = 0; i < 4; ++i)
 					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
-						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
+						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE, true);
 										
 				// little note: aval can be negative if we are removing, so just + is enough to subtract it
 				IncPlayerModValue(pnum, atype, aval);
@@ -2466,9 +2464,6 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 				for(i = 0; i < 4; ++i)
 					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD);
-						
-				// sync all at once for well of power
-				SyncPlayerItemMods(pnum);
 			}
 		break;
 		case INV_EX_MIRROROTHERMEDIUM:
@@ -2654,23 +2649,18 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 
 		case INV_INC_PLUSPROJ:
-			// make sure this stays positive even for removal!!!
-			temp = DND_INC_SINGLEPROJ_NEGDMG;
-			if(remove) {
-				aextra = -aextra;
-				temp = -temp;
-			}
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
-			MarkWeaponDataSync(pnum, aextra, true);
-		break;
 		case INV_INC_PLUSTWOPROJ:
 			// make sure this stays positive even for removal!!!
-			temp = DND_INC_TWOPROJ_NEGDMG;
 			if(remove) {
 				aextra = -aextra;
-				temp = -temp;
+				temp = -(aextra & 0xFFFF);
 			}
+			else
+				temp = aextra & 0xFFFF;
+			aextra >>= 16;
+
+			//Log(s:"processing plus proj ", d:aextra, s:" ", f:temp, s:" ", d:aval);
+
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
 			MarkWeaponDataSync(pnum, aextra, true);
@@ -2701,13 +2691,22 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 		}
 
 		if(!IsAttributeExtraException(atype)) {
-			if(aextra > 100000) {
-				aextra /= 100;
-				aextra *= multiplier;
+			if(atype != INV_INC_PLUSPROJ && atype != INV_INC_PLUSTWOPROJ) {
+				if(aextra > 100000) {
+					aextra /= 100;
+					aextra *= multiplier;
+				}
+				else {
+					aextra *= multiplier;
+					aextra /= 100;
+				}
 			}
 			else {
-				aextra *= multiplier;
-				aextra /= 100;
+				// these two have special treatment, only the first 16 bits scale
+				int temp = aextra & 0xFFFF;
+				aextra &= 0xFFFF0000;
+				temp = 1.0 - (1.0 - temp) * multiplier / 100;
+				aextra |= temp;
 			}
 		}
 	}
@@ -2952,7 +2951,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 }
 
 // Applies item stats to player -- can remove or add
-void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false) {
+void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false, bool noSync = false) {
 	int ac = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
 	
 	// check cybernetic and put it as bool
@@ -3010,6 +3009,9 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 		ProcessItemFeature(pnum, item_index, source, i, remove, multiplier);
 
 	ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", pnum, hasImplicits);
+
+	if(noSync)
+		return;
 
 	for(i = 0; i < MAXWEPS; ++i) {
 		if(WeaponNeedsDataSync(pnum, i)) {
@@ -3575,7 +3577,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_SHELLSHOCK;
+				i = UITEM_WELLOFPOWER;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif
