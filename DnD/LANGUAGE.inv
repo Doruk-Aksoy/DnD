@@ -516,7 +516,7 @@ IATTR_TI33			= "Precision weapons have "; IATTR_TI33S = " to crit chance";
 IATTR_TI34			= "Quality cap is \cd50%\c-";
 
 // essences
-IATTR_TE1 			= "% chance for radius damage to reduce enemy resists by 10% for 3 seconds";
+IATTR_TE1 			= "chance for radius damage to reduce enemy resists by "; IATTR_TE1S = "for 3 seconds";
 IATTR_TE2 			= "Soul weapons pierce ";
 IATTR_TE3 			= " accuracy rating";
 IATTR_TE4 			= " increased accuracy rating";
@@ -529,7 +529,7 @@ IATTR_TE10 			= "Magical attacks reduce enemy magic resistance by ";
 IATTR_TE11 			= "Frozen enemies take ";
 
 // incursion mods
-IATTR_TINC1			= "-300 health"; IATTR_TINC1S = "Health increase from items is doubled";
+IATTR_TINC1			= "health"; IATTR_TINC1S = "Health increase from items is doubled";
 IATTR_TINC2			= "to maximum poison stacks on enemies";
 IATTR_TINC3			= "chance on kill for poisons to spread up to 8 enemies within 160 units";
 IATTR_TINC4			= "Your critical strikes deal no extra damage"; IATTR_TINC4S = "Crit damage instead applies to damage over time at half the value";
@@ -537,15 +537,15 @@ IATTR_TINC5			= "Overload can no longer chain, and its effect is reduced by "; I
 IATTR_TINC6			= "Energy shield recharge is not interrupted by damage"; IATTR_TINC6S = "Energy shield recharges at half rate";
 IATTR_TINC7			= "+1 additional projectiles fired from "; IATTR_TINC7S = "less damage to ";
 IATTR_TINC8			= "+2 additional projectiles fired from ";
-IATTR_TINC9			= "of lifesteal is instant"; IATTR_TINC9S = "100% reduced lifesteal recovery rate";
+IATTR_TINC9			= "of lifesteal is instant"; IATTR_TINC9S = "reduced lifesteal recovery rate";
 IATTR_TINC10		= "chance to defend with twice your armor rating";
 IATTR_TINC11		= "Mitigation is converted to dodge chance at half the value"; IATTR_TINC11S = "Dodge chance is capped at 60% (Can't dodge explosives)";
 IATTR_TINC12		= "Accuracy rating increases damage of precision weapons by 1% per 25 points";
 IATTR_TINC13		= "Health regeneration is not interrupted by damage";
-IATTR_TINC14		= "Regenerate "; IATTR_TINC14S1 = "of your life every 10 seconds"; IATTR_TINC14S2 = "50% reduced lifesteal cap";
-IATTR_TINC15		= "Enemies slain have"; IATTR_TINC15S = "chance to rest in peace";
+IATTR_TINC14		= "Regenerate "; IATTR_TINC14S1 = "of your life every 10 seconds"; IATTR_TINC14S2 = "reduced lifesteal cap";
+IATTR_TINC15		= "Enemies slain have "; IATTR_TINC15S = "chance to rest in peace";
 IATTR_TINC16		= "chance that if an enemy blocks your attack, they can never block an attack for 10 seconds";
-IATTR_TINC17		= "Your rippers that hit a surface have"; IATTR_TINC17S = "chance to explode, dealing its damage in a 160 unit radius";
+IATTR_TINC17		= "Your rippers that hit a surface have "; IATTR_TINC17S = "chance to explode, dealing its damage in a 160 unit radius";
 IATTR_TINC18		= "chance to treat enemy resistances as inverted";
 IATTR_TINC19		= "Effect of accuracy is reversed";
 IATTR_TINC20		= "Your projectiles reverse direction after "; IATTR_TINC20S = " seconds";
@@ -560,7 +560,7 @@ IATTR_TX4 			= "to all attributes";
 IATTR_TX5 			= "to be healed for ";
 IATTR_TX6 			= "increased lightning damage";
 IATTR_TX7 			= "increased crit chance to lightning attacks";
-IATTR_TX8 			= "Explosives that trigger again have ";	IATTR_TX8B = "more damage and radius";		IATTR_TX8S = "Your initial explosions have \cg25%\c- less damage and radius";
+IATTR_TX8 			= "Explosives that trigger again have "; IATTR_TX8B = "more damage and radius";	IATTR_TX8S = "Your initial explosions have "; IATTR_TX8S2 = "less damage and radius";
 IATTR_TX9 			= "Double Health Cap";
 IATTR_TX10 			= "Gain 1% increased physical damage every ";
 IATTR_TX11 			= "Can't use body armor";

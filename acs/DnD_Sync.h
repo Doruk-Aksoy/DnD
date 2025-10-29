@@ -1079,7 +1079,7 @@ Script "DnD Request Mod Extra Sync (Special)" (int pnum, int mod, int val) CLIEN
 	SetResultValue(0);
 }
 
-Script "DnD Handle Attribute Sync" (int pnum, int hasImplicits) {
+Script "DnD Handle Attribute Sync" (int pnum) {
 	Delay(const:1);
 
 	int cnt = PlayerAttributeSyncs[pnum].count;
@@ -1091,10 +1091,10 @@ Script "DnD Handle Attribute Sync" (int pnum, int hasImplicits) {
 
 	ClearPlayerAttributeSync(pnum);
 
-	if(hasImplicits) {
+	cnt = PlayerAttributeSyncs[pnum].extras;
+	if(cnt) {
 		Delay(const:1);
 
-		cnt = PlayerAttributeSyncs[pnum].extras;
 		for(i = 0; i < cnt; ++i) {
 			mod = PlayerAttributeSyncs[pnum].arr_extra[i];
 			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);

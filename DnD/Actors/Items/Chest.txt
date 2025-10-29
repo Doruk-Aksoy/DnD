@@ -213,7 +213,9 @@ Actor LootChest_ForPlayer_Reverance : LootChest {
 	States {
 		Spawn:
 			LBOX C 0
-			LBOX C 0 ACS_NamedExecuteWithResult("Dnd Init Lootbox", mass - 1)
+			LBOX C 0 A_PlaySound("BigChestDrop")
+			LBOX C 0 ACS_NamedExecuteAlways("DnD Super Lootbox FX", 0, mass - 1)
+			LBOX C 0 ACS_NamedExecuteWithResult("DnD Init Lootbox", mass - 1)
 			LBOX C -1
 		Stop
 		Open:
@@ -230,7 +232,9 @@ Actor LootChest_ForPlayer_Order : LootChest {
 	States {
 		Spawn:
 			LBOX C 0
-			LBOX C 0 ACS_NamedExecuteWithResult("Dnd Init Lootbox", mass - 1)
+			LBOX C 0 A_PlaySound("BigChestDrop")
+			LBOX C 0 ACS_NamedExecuteAlways("DnD Super Lootbox FX", 0, mass - 1)
+			LBOX C 0 ACS_NamedExecuteWithResult("DnD Init Lootbox", mass - 1)
 			LBOX C -1
 		Stop
 		Open:
@@ -247,7 +251,9 @@ Actor LootChest_ForPlayer_Destiny : LootChest {
 	States {
 		Spawn:
 			LBOX C 0
-			LBOX C 0 ACS_NamedExecuteWithResult("Dnd Init Lootbox", mass - 1)
+			LBOX C 0 A_PlaySound("BigChestDrop")
+			LBOX C 0 ACS_NamedExecuteAlways("DnD Super Lootbox FX", 0, mass - 1)
+			LBOX C 0 ACS_NamedExecuteWithResult("DnD Init Lootbox", mass - 1)
 			LBOX C -1
 		Stop
 		Open:

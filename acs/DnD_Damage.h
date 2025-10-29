@@ -874,10 +874,29 @@ void HandleOverloadEffects(int pnum, int victim) {
 	}
 }
 
+enum {
+	DND_MONSTERDEBUFF_VAAJ,
+	DND_MONSTERDEBUFF_ZRAVOG,
+};
+
+Script "DnD Sync Monster Debuff" (int debuff, int victim, int val) CLIENTSIDE {
+	switch(debuff) {
+		case DND_MONSTERDEBUFF_VAAJ:
+			SetActorInventory(victim, "VaajWeakness", val);
+		break;
+		case DND_MONSTERDEBUFF_ZRAVOG:
+			SetActorInventory(victim, "OccultWeaknessStack", val);
+		break;
+	}
+
+	SetResultValue(0);
+}
+
 // tid, mon_id, weaken %
 Script "DnD Occult Weaken" (int victim, int mon_id) {
 	SetActivator(victim);
 	int time = 0;
+	ACS_NamedExecuteWithResult("DnD Sync Monster Debuff", DND_MONSTERDEBUFF_ZRAVOG, victim, CheckInventory("OccultWeaknessStack"));
 	while(time < OCCULT_WEAKEN_DURATION) {
 		int prev = CheckInventory("OccultWeaknessStack");
 		Delay(const:TICRATE);
@@ -886,27 +905,31 @@ Script "DnD Occult Weaken" (int victim, int mon_id) {
 			time = 0;
 	}
 	SetInventory("OccultWeaknessStack", 0);
+	SetInventory("OccultWeaknessReduction", 0);
+	ACS_NamedExecuteWithResult("DnD Sync Monster Debuff", DND_MONSTERDEBUFF_ZRAVOG, victim, 0);
 	SetResultValue(0);
 }
 
-Script "DnD Vaaj Weaken" (int victim, int mon_id) {
+Script "DnD Vaaj Weaken" (int victim) {
 	SetActivator(victim);
 	int time = 0;
+	ACS_NamedExecuteWithResult("DnD Sync Monster Debuff", DND_MONSTERDEBUFF_VAAJ, victim, CheckInventory("VaajWeakness"));
 	while(time < VAAJ_WEAKEN_DURATION) {
-		int prev = CheckInventory("VaajWeakness");
 		Delay(const:TICRATE);
 		++time;
-		if(prev != CheckInventory("VaajWeakness") || CheckInventory("VaajWeaknessTimeReset"))
+		if(CheckInventory("VaajWeaknessTimeReset"))
 			time = 0;
 	}
-	SetInventory("VaajWeakness", 0);
+	SetInventory("VaajReduction", 0);
+	TakeInventory("VaajWeakness", 1);
+	ACS_NamedExecuteWithResult("DnD Sync Monster Debuff", DND_MONSTERDEBUFF_VAAJ, victim, 0);
 	SetResultValue(0);
 }
 
 int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category, int flags, int resist, int pen) {
 	// factor is the final resistance the monster will have against the attack
 	int factor = Clamp_Between((100 - resist + pen), 0, 200);
-	
+
 	// non-zero, we're good
 	return dmg * factor / 100;
 }
@@ -932,17 +955,20 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 	// apply percentage reductions to resist HERE, ABOVE checking the penetration
 	// if occult weakness exists, apply it checking monster's debuff -- to be done as a resist reduction to affect all players later
 	// we will handle all percentage reductions here deliberately so that we don't mess up the base resist value of the monster!
-	if((flags & DND_DAMAGEFLAG_ISRADIUSDMG) && (temp = GetPlayerAttributeValue(pnum, INV_ESS_VAAJ)) >= random(1, 100)) {
-		if(!CheckActorInventory(victim, "VaajWkeakness")) {
+	if((flags & DND_DAMAGEFLAG_ISRADIUSDMG) && GetPlayerAttributeValue(pnum, INV_ESS_VAAJ) >= random(1, 100)) {
+		if(!CheckActorInventory(victim, "VaajWeakness")) {
 			GiveActorInventory(victim, "VaajWeakness", 1);
-			ACS_NamedExecuteWithResult("DnD Vaaj Weaken", victim, mon_id);
+			SetActorInventory(victim, "VaajReduction", GetPlayerAttributeExtra(pnum, INV_ESS_VAAJ));
+			ACS_NamedExecuteWithResult("DnD Vaaj Weaken", victim);
 		}
 		else {
 			// latter forces the reset on debuff timer
 			GiveActorInventory(victim, "VaajWeaknessTimeReset", 1);
 		}
-		pct_val += DND_VAAJ_WEAKENPCT * CheckActorInventory(victim, "VaajWeakness");
 	}
+
+	// other players can reuse the previously applied value by someone else
+	pct_val += CheckActorInventory(victim, "VaajReduction");
 
 	if(damage_category == DND_DAMAGECATEGORY_OCCULT || damage_category == DND_DAMAGECATEGORY_SOUL || (flags & DND_DAMAGEFLAG_SOULATTACK)) {
 		temp = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
@@ -956,8 +982,9 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 				GiveActorInventory(victim, "OccultWeaknessStack", 1);
 				GiveActorInventory(victim, "OccultWeaknessTimeReset", 1);
 			}
-			pct_val += temp * CheckActorInventory(victim, "OccultWeaknessStack");
+			SetActorInventory(victim, "OccultWeaknessReduction", temp * CheckActorInventory(victim, "OccultWeaknessStack"));
 		}
+		pct_val += CheckActorInventory(victim, "OccultWeaknessReduction");
 	}
 	else if(damage_category == DND_DAMAGECATEGORY_LIGHTNING) {
 		pct_val += DND_THUNDERAXE_WEAKENPCT * (!!CheckActorInventory(victim, "ThunderAxeWeakenTimer"));
@@ -2562,6 +2589,9 @@ Script "DnD Check Explosion Repeat" (void) {
 			int factor = temp >> DPCT_SHIFT;
 			temp &= BITMASK_NOFACTOR;
 
+			// this undoes the first explosion reduction effect
+			factor += GetPlayerAttributeExtra(pnum, INV_EX_SECONDEXPBONUS);
+
 			factor = factor * res / 100;
 
 			SetUserVariable(0, "user_expdmg", temp | (factor << DPCT_SHIFT));
@@ -3793,6 +3823,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
 					//printbold(d:dmg, s: " ", d:arg2, s:" ", d:dmg * arg2 / 100);
 					dmg = dmg * arg2 / 100;
+
 					if(!dmg) {
 						SetResultValue(0);
 						Terminate;

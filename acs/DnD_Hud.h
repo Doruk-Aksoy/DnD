@@ -102,6 +102,8 @@ enum {
 	MONSTER_TYPEICONID_RIGHT,
 	MONSTER_NAMEID,
 	MONSTER_TEXTID,
+	MONSTER_BARFILL_OVERLAY1,
+	MONSTER_BARFILL_OVERLAY2,
 	MONSTER_BARFILLID,
 	MONSTER_BARFILLOVERLAY,
 	MONSTER_BARFILLOVERLAY2,
@@ -858,6 +860,26 @@ str GetIntegerCommaView(int x) {
 	return StrParam(d:x);
 }
 
+void HandleCurseOverlays(int mon_tid) {
+	if(CheckActorInventory(mon_tid, "OccultWeaknessStack")) {
+		SetFont("HPZRAV");
+		HudMessage(
+			s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, MONSTER_BARFILL_OVERLAY1, CR_GREEN, 265.1, 28.0, 
+			MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, 
+			0.375 + FixedMul(0.375, sin(1.0 * (Timer() % TICRATE) / TICRATE))
+		);
+	}
+
+	if(CheckActorInventory(mon_tid, "VaajWeakness")) {
+		SetFont("HPBARFX2");
+		HudMessage(
+			s:"a"; HUDMSG_FADEOUT | HUDMSG_ALPHA | HUDMSG_ADDBLEND, MONSTER_BARFILL_OVERLAY2, CR_GREEN, 265.1, 28.0, 
+			MONSTERINFO_HOLDTIME, MONSTERINFO_HOLDTIME, 
+			0.45 + FixedMul(0.45, sin(0.5 + 1.0 * (Timer() % TICRATE) / TICRATE))
+		);
+	}
+}
+
 // hp bar of monsters
 void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int monid, int m_id, int fortify_amt) {
 	str barGraphic = "";
@@ -922,6 +944,8 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 					SetHudClipRect(265, 17, i, 18, i);
 					SetFont("FILLCRIT");
 					HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
+
+					HandleCurseOverlays(mon_tid);
 				}
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
@@ -929,6 +953,9 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 				SetHudClipRect(265, 17, i, 18, i);
 				SetFont("FILLCRIT");
 				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
+
+				HandleCurseOverlays(mon_tid);
+
 				SetHudClipRect(0, 0, 0, 0, 0);
 			}
 		}

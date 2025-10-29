@@ -2427,6 +2427,11 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 
 		// things that have EXTRA field used!
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
+		case INV_EX_SECONDEXPBONUS:
+		case INV_ESS_VAAJ:
+		case INV_INC_PASSIVEREGEN:
+		case INV_INC_INSTANTLIFESTEAL:
+		case INV_INC_DOUBLEHPBONUS:
 			IncPlayerModValue(pnum, atype, aval);
 			IncPlayerModExtra(pnum, atype, aextra);
 		break;
@@ -2994,11 +2999,8 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 		multiplier = multiplier * (DND_CYBERNETIC_FACTOR + 100) / 100;
 		
 	// implicits dont get well of power factor
-	bool hasImplicits = false;
-	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		if(ProcessItemImplicit(pnum, item_index, source, i, remove, multiplier))
-			hasImplicits = true;
-	}
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
+		ProcessItemImplicit(pnum, item_index, source, i, remove, multiplier);
 
 	// Well of power factor
 	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
@@ -3008,7 +3010,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	for(i = 0; i < ac; ++i)
 		ProcessItemFeature(pnum, item_index, source, i, remove, multiplier);
 
-	ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", pnum, hasImplicits);
+	ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", pnum);
 
 	if(noSync)
 		return;
@@ -3103,7 +3105,7 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 			Inventories_On_Field[item_pos].item_subtype
 		);
 
-		max_affixes = GetExtraForMod(pnum, attrib);
+		max_affixes = GetExtraForMod(pnum, attrib, lvl, Inventories_On_Field[item_pos].item_type, Inventories_On_Field[item_pos].item_subtype, makeWellRolled);
 		if(max_affixes != -1)
 			Inventories_On_Field[item_pos].attributes[temp].attrib_extra = max_affixes;
 	}
@@ -3131,6 +3133,10 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 		PlayerInventoryList[pnum][item_pos].item_type,
 		PlayerInventoryList[pnum][item_pos].item_subtype
 	);
+
+	lvl = GetExtraForMod(pnum, attrib, lvl, PlayerInventoryList[pnum][item_pos].item_type, PlayerInventoryList[pnum][item_pos].item_subtype, isWellRolled);
+	if(lvl != -1)
+		PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_extra = lvl;
 
 	// if attribute is CYBERNETIC, make sure it resets quality of the item to 0 in case its a charm
 	CheckAttribEffects(pnum, item_pos, attrib, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -3577,7 +3583,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_WELLOFPOWER;
+				i = UITEM_REKINDLEDSPARKS;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

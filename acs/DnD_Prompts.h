@@ -477,8 +477,8 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 			HUDMSG_PLAIN,
 			RPGMENUBACKGROUNDID + 1,
 			color,
-			240.4,
-			16.0,
+			480.4,
+			32.0,
 			2.0
 		);
 		

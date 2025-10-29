@@ -4258,7 +4258,7 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype, int extra) CLIEN
 			if(IsMidTierOrb(extra))
 				PlaySound(0, "Drop/Mid", 5);
 			else if(IsHighTierOrb(extra))
-				PlaySound(0, "Drop/High", 5);
+				PlaySound(0, "Drop/Big", 5);
 			else
 				PlaySound(0, "Items/OrbDrop", 5);
 		break;
@@ -4631,18 +4631,39 @@ Script "DnD Lootbox Opened" (int for_player, int guaranteed_orb) {
 	}
 }
 
-Script "DnD Explosion Radius Retrieve" (int flags) {
-	if(flags & DND_WDMG_USETARGET)
-		SetactivatorToTarget(0);
-	else if(flags & DND_WDMG_USEMASTER) {
-		if(flags & DND_WDMG_SETMASTER) // this is a hack
-			SetPointer(AAPTR_TARGET, GetActorProperty(0, APROP_MASTERTID));
-		SetActivator(GetActorProperty(0, APROP_MASTERTID));
+Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(!isPlayer(owner))
+		owner = GetActorProperty(0, APROP_SCORE);
+
+	int pnum = owner - P_TIDSTART;
+	int orig = r_base;
+	
+	// all the pct increases here
+	r_base = r_base * (100 + GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS)) / 100;
+
+	// less mods
+	if(!noSecondExp) {
+		int temp = GetPlayerAttributeExtra(pnum, INV_EX_SECONDEXPBONUS);
+		if(temp) {
+			r_base = r_base * (100 - temp) / 100;
+
+			// we embed a damage factor into this, so we can scale that and reput it
+			int dmg = GetUserVariable(0, "user_expdmg");
+			int factor = dmg >> DPCT_SHIFT;
+			dmg &= BITMASK_NOFACTOR;
+
+			factor = factor * (100 - temp) / 100;
+
+			SetUserVariable(0, "user_expdmg", dmg | (factor << DPCT_SHIFT));
+		}
 	}
-	else if(flags & DND_WDMG_USETARGETSMASTER) {
-		SetActivator(ACS_NamedExecuteWithResult("DnD Get Master of Target"));
-	}
-	SetResultValue(GetPlayerAttributeValue(PlayerNumber(), INV_EXPLOSION_RADIUS));
+
+	// adjust base size accordingly
+	SetActorProperty(0, APROP_SCALEX, GetActorProperty(0, APROP_SCALEX) * r_base / orig);
+	SetActorProperty(0, APROP_SCALEY, GetActorProperty(0, APROP_SCALEY) * r_base / orig);
+
+	SetResultValue(r_base);
 }
 
 // after 16th bit there can be extra info
@@ -5870,6 +5891,21 @@ Script 1691 (int tag, int mode) {
 		Teleport(0, tag);
 }
 
+
+Script "DnD Super Lootbox FX" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	int r = 24;
+	int s = 4;
+	for(int i = 0; i < 12; ++i) {
+		int a = 1.0 * (i + 1) / 12;
+		SpawnForced("LootFlames", GetActorX(0) + r * cos(a), GetActorY(0) + r * sin(a), GetActorZ(0), AUX_FX_TID);
+		SetActorVelocity(AUX_FX_TID, s * cos(a), s * sin(a), 0, 0, 0);
+		Thing_ChangeTID(AUX_FX_TID, 0);
+	}
+}
+
 /*Script 69 (void) NET {
 	SetInventory("Level", 98);
 	SetInventory("Exp", GetExpLimit() / 2);
@@ -5940,7 +5976,7 @@ Script 68 (int x) NET {
 			//Log(s:"pcore");
 			SpawnPowercore(0, true);
 			//Log(s:"orb");
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_AFFLUENCE, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
@@ -5951,7 +5987,7 @@ Script 68 (int x) NET {
 			//SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			//SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
+			SpawnCharmWithMods_ForAll(INV_ESS_VAAJ);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
@@ -5987,7 +6023,7 @@ Script 68 (int x) NET {
 			SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
 			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
 
-			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber(), false);
+			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
 		}
 		else if(x == 450) {
 			GiveInventory("PerkPoint", 10);

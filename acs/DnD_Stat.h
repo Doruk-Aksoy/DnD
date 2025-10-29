@@ -1362,8 +1362,10 @@ int GetLifestealCap(int pnum) {
 	//int hp_cap = Max(CheckInventory("PlayerHealthCap"), GetSpawnHealth());
 	int hp_cap = CheckActorInventory(pnum + P_TIDSTART, "PlayerHealthCap");
 	int bonus = 0;
-	if(GetPlayerAttributeValue(pnum, INV_INC_PASSIVEREGEN))
-		bonus -= DND_INC_PASSIVEREGEN_REDUCEDLIFESTEAL;
+	int temp;
+	if((temp = GetPlayerAttributeExtra(pnum, INV_INC_PASSIVEREGEN)))
+		bonus -= temp;
+
 	return Clamp_Between(
 		(hp_cap * (DND_BASE_LIFESTEALCAP + GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP) + bonus)) / 100, 
 		1, 
@@ -1374,7 +1376,7 @@ int GetLifestealCap(int pnum) {
 #define DND_BASE_LIFESTEALRATE 25
 int GetLifestealRate(int pnum) {
 	// don't return any faster than 1 tic
-	int reductions = GetPlayerAttributeValue(pnum, INV_INC_INSTANTLIFESTEAL) * DND_INC_INSTALIFEREDUCTION;
+	int reductions = GetPlayerAttributeExtra(pnum, INV_INC_INSTANTLIFESTEAL);
 	return max(1, DND_BASE_LIFESTEALRATE * (100 - GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE) + reductions) / 100);
 }
 

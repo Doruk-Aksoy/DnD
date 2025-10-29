@@ -1,6 +1,8 @@
 Drop/Mid			DROP_MID
 Drop/Big			DROP_BIG
 
+BigChestDrop		BIGCHEST
+
 Intermission1		INTER1
 Intermission2		INTER2
 Intermission3		INTER3

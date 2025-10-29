@@ -103,7 +103,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_FACTOR_SMALLCHARM;
 	UniqueItemList[id].attrib_id_list[1] = INV_EX_LIMITEDSMALLCHARMS;
 	UniqueItemList[id].rolls[0].attrib_low = 1250; // will be divided by 100 after mult (1.25 to 2)
-	UniqueItemList[id].rolls[0].attrib_high = 2500;
+	UniqueItemList[id].rolls[0].attrib_high = 2000;
 	UniqueItemList[id].rolls[1].attrib_low = 1;
 	UniqueItemList[id].rolls[1].attrib_high = 4;
 	id = UITEM_ANCIENTGEMSTONE;
@@ -342,6 +342,8 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_high = 25;
 	UniqueItemList[id].rolls[1].attrib_low = 15;
 	UniqueItemList[id].rolls[1].attrib_high = 40;
+	UniqueItemList[id].rolls[1].attrib_extra_low = 25;
+	UniqueItemList[id].rolls[1].attrib_extra_high = 25;
 	id = UITEM_DEADEYEGLARE;
 	UniqueItemList[id].weight = 910;
 	UniqueItemList[id].width = 1;

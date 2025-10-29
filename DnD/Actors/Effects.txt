@@ -2758,3 +2758,21 @@ Actor ShieldPreventionFXSpawner : DnD_Activator {
 		Stop
 	}
 }
+
+Actor LootFlames {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	Renderstyle Add
+	Alpha 0.01
+	
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("vile/firecrkl", CHAN_WEAPON)
+			FIRP AAAAAAAAAAAAAA 1 Bright A_FadeIn(0.07)
+			TNT1 A 0 A_ScaleVelocity(0.66)
+			FIRP BCD 3 Bright
+			TNT1 A 0 A_ScaleVelocity(0.33)
+			FIRP EFGH 3 Bright
+		Stop
+	}
+}

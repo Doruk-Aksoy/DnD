@@ -137,7 +137,7 @@ Actor FTExplosion1 : DnD_ExplosiveBase {
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 		ExplosionLoop:
-			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 8, 1))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 2 A_SetUserVar("user_count", user_count - 1)
@@ -171,7 +171,7 @@ Actor FTExplosion1_NoSelf : FTExplosion1 {
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
 		ExplosionLoop:
-			TNT1 A 0 A_SetUserVar("user_expradius", 8 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 8, 1))
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 2 A_SetUserVar("user_count", user_count - 1)
@@ -213,7 +213,7 @@ Actor FTExplosion2 : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_ISDAMAGEOVERTIME | DND_DAMAGEFLAG_ADDEDIGNITE)
-			TNT1 A 0 A_SetUserVar("user_expradius", 32 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 32, 1))
 		ExplosionLoop:
 			TNT1 A 1
 		Goto DoExplosionDamage
@@ -948,7 +948,7 @@ Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 				(100 << DPCT_SHIFT)
 			)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 256, 1))
 		ExplosionLoop:
 			TNT1 A 1
 		Goto DoExplosionDamage
@@ -1289,7 +1289,7 @@ Actor DarkLanceProjectile : DnD_FastRipperBase {
 				(DND_DAMAGETYPE_OCCULT << DTYPE_SHIFT) |
 				(100 << DPCT_SHIFT)
 			)
-			SRV1 D 0 A_SetUserVar("user_expradius", r_ripper * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			SRV1 D 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", r_ripper))
 			SRV1 D 0 A_SetUserVar("user_fullexpradius", 0)
 		Goto CheckRipperExplosion
 		ContinueFromExplosion:

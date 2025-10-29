@@ -7,7 +7,7 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -234,6 +234,8 @@ enum {
 	DND_AVATAR_CUBEPROJ_TID,
 	DND_AVATAR_CUBEFLARE_TID,
 	ZEALOT_SHIELD_TID,
+
+	AUX_FX_TID,
 
 	WANDERER_AURA_TID,
 	

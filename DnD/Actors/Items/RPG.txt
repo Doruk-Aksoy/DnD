@@ -17,7 +17,11 @@ Actor OccultWeaknessTimeReset : PowerProtection {
 	powerup.duration 40
 }
 
+Actor OccultWeaknessReduction : DnD_Info { }
+
 Actor VaajWeakness : DnD_Boolean { }
+
+Actor VaajReduction : DnD_Info { }
 
 Actor VaajWeaknessTimeReset : PowerProtection {
 	damagefactor "normal", 1.0

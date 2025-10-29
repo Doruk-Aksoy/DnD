@@ -499,7 +499,7 @@ int CalculateHealthCapBonuses(int pnum) {
 	if(GetPlayerAttributeValue(pnum, INV_INC_DOUBLEHPBONUS)) {
 		// double it then add the negative component
 		base <<= 1;
-		base -= DND_INC_HPDOUBLE_REDUCTION;
+		base -= GetPlayerAttributeExtra(pnum, INV_INC_DOUBLEHPBONUS);
 	}
 
 	return base;

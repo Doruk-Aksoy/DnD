@@ -597,16 +597,22 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 							continue;
 
 						temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+						x = CheckWellRolled(pnum);
 						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollAttributeValue(
 							temp, 
 							PlayerInventoryList[pnum][extra].attributes[i].attrib_tier, 
-							CheckWellRolled(pnum),
+							x,
 							PlayerInventoryList[pnum][extra].item_type,
 							PlayerInventoryList[pnum][extra].item_subtype
 						);
 
 						if(CanRerollAttributeExtra(temp)) {
-							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = GetExtraForMod(pnum, temp);
+							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = GetExtraForMod(
+								pnum, temp, PlayerInventoryList[pnum][extra].attributes[i].attrib_tier,
+								PlayerInventoryList[pnum][extra].item_type,
+								PlayerInventoryList[pnum][extra].item_subtype,
+								x
+							);
 						}
 					}
 				}
@@ -1584,7 +1590,7 @@ void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false, int s
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(id + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if(sound)
-			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB);
+			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB, id);
 			
 		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
 			SpawnSpecificOrb(pnum, id, sound, true, stack);

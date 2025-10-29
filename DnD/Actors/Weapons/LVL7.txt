@@ -566,7 +566,7 @@ Actor DevastatorRocket : DnD_ExplosiveBase {
 				(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 				(100 << DPCT_SHIFT)
 			)
-			TNT1 A 0 A_SetUserVar("user_expradius", 96 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 96, 1))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		Goto DoExplosionDamage
@@ -810,7 +810,7 @@ Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 				(DND_DAMAGETYPE_ENERGYEXPLOSION << DTYPE_SHIFT) |
 				(300 << DPCT_SHIFT)
 			)
-			TNT1 A 0 A_SetUserVar("user_expradius", 448 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 448, 1))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
 		ExplosionLoop:
@@ -850,7 +850,7 @@ Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 				(DND_DAMAGETYPE_ENERGYEXPLOSION << DTYPE_SHIFT) |
 				(100 << DPCT_SHIFT)
 			)
-			TNT1 A 0 A_SetUserVar("user_expradius", 256 * (1.0 + ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", DND_USETARGET) * exprad_factor))
+			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 256, 1))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 3 * user_expradius / 4)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
 		ExplosionLoop:
