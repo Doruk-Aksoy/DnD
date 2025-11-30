@@ -53,5 +53,10 @@ Actor ArachnoSpawner : DnD_MonsterSpawner replaces Arachnotron {
 		Unique:
 			TNT1 A 0 A_SpawnItemEx("Thorax", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
 		Goto SpawnLoop
+		
+		// Incursion
+		Incursion_Chex:
+			TNT1 A 0 A_SpawnItemEx("ChexQuadrumpus", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Goto SpawnLoop
 	}
 }

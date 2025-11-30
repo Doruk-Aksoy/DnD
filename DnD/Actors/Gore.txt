@@ -368,6 +368,10 @@ actor NashGore_Blood : Blood replaces Blood {
 	}
 }
 
+Actor NashGore_Oil : NashGore_Blood {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.28,1.02,0.65]"
+}
+
 Actor RealBlood {
 	Mass 5
 	+NOBLOCKMAP
@@ -383,22 +387,22 @@ Actor RealBlood {
 			BLUD BA 8
 		stop
 		Var1:
-			TNT1 A 0 A_SpawnItem("BloodVariant1", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx("BloodVariant1", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 			TNT1 A 0 A_SpawnItemEx("NashGore_FlyingBlood", frandom(-8, 8), frandom(-8, 8), frandom(-1, 1), frandom(-4, 4), frandom(-4, 4), frandom(5, 12), 0, SXF_TRANSFERTRANSLATION) 
 			BLUD CBA 8
 		Stop
 		Var2:
-			TNT1 A 0 A_SpawnItem("BloodVariant2", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx("BloodVariant2", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 			TNT1 A 0 A_SpawnItemEx("NashGore_FlyingBlood", frandom(-8, 8), frandom(-8, 8), frandom(-1, 1), frandom(-4, 4), frandom(-4, 4), frandom(5, 12), 0, SXF_TRANSFERTRANSLATION) 
 			BLUD BA 8
 		Stop
 		Var3:
-			TNT1 A 0 A_SpawnItem("BloodVariant3", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx("BloodVariant3", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 			TNT1 A 0 A_SpawnItemEx("NashGore_FlyingBlood", frandom(-8, 8), frandom(-8, 8), frandom(-1, 1), frandom(-4, 4), frandom(-4, 4), frandom(5, 12), 0, SXF_TRANSFERTRANSLATION) 
 			BLUD BA 8
 		Stop
 		Var4:
-			TNT1 A 0 A_SpawnItem("BloodVariant4", 0, 0, 0, 1)
+			TNT1 A 0 A_SpawnItemEx("BloodVariant4", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION)
 			TNT1 A 0 A_SpawnItemEx("NashGore_FlyingBlood", frandom(-8, 8), frandom(-8, 8), frandom(-1, 1), frandom(-4, 4), frandom(-4, 4), frandom(5, 12), 0, SXF_TRANSFERTRANSLATION) 
 			BLUD CBA 8
 		Stop
@@ -504,40 +508,40 @@ actor NashGore_FlyingBlood
   TNT1 A 0 A_Jump(128, "Variant2", "Variant3", "Variant4", "Variant5", "Variant6", "Variant7")
  SpawnLoop:
   TNT1 A 0 A_JumpIf(waterlevel > 1, "Remove")
-  B000 A 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 A 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 A 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 A 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 A 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 A 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 B 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 B 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 B 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 B 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 B 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 B 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 C 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 C 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 C 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 C 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 C 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 C 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 D 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 D 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 D 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 D 1 A_SpawnItem("NashGore_FlyingBloodTrail",0,0,0,1)
+  B000 D 1 A_SpawnItemEx("NashGore_FlyingBloodTrail", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 D 1
   loop
   Variant2:
   TNT1 A 0 A_JumpIf(waterlevel > 1, "Remove")
-  B000 E 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 E 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 E 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 E 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 E 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 E 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 F 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 F 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 F 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 F 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 F 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 F 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 G 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 G 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 G 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 G 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 G 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 G 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 H 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 H 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 H 1 A_JumpIf(waterlevel > 1, "Remove")
-  B000 H 1 A_SpawnItem("NashGore_FlyingBloodTrail2",0,0,0,1)
+  B000 H 1 A_SpawnItemEx("NashGore_FlyingBloodTrail2", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   B000 H 1  
   Loop
   Variant3:
@@ -556,12 +560,16 @@ actor NashGore_FlyingBlood
   TNT1 AA 0 A_SpawnItemEx ("BloodTrail6", 0, 0, 8, random(-5, 5), random(-5, 5), random(1, 9), random(0, 360), SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   Stop
  Crash:
-  TNT1 A 1 A_SpawnItem("NashGore_BloodSpot",0,0,0,1)
+  TNT1 A 1 A_SpawnItemEx("NashGore_BloodSpot", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERTRANSLATION)
   stop
  Remove:
 	TNT1 A 1
  Stop
  }
+}
+
+Actor NashGore_FlyingBlood_Oil : NashGore_FlyingBlood {
+	Translation "0:255=%[0.00,0.00,0.00]:[1.28,1.02,0.65]"
 }
 
 Actor NashGore_FlyingBlood_Green : NashGore_FlyingBlood {

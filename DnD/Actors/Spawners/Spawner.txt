@@ -5,3 +5,21 @@ Actor DnD_MonsterSpawner {
 	-COUNTKILL
 	+NOGRAVITY
 }
+
+Actor DnD_MonsterSpawner_Incursion : BulletPuff {
+	Monster
+	Radius 1
+	Height 1
+	-COUNTKILL
+	+NOGRAVITY
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	-ALLOWPARTICLES
+	States {
+		Spawn:
+			TNT1 AAAAAA 0
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Incursion Theme")
+			TNT1 A 1 A_Jump(256, "Idle")
+		Wait
+	}
+}

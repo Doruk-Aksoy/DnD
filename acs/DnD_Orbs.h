@@ -508,7 +508,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				temp = MAX_CHARM_AFFIXTIERS;
 				for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
 					// ignore the fractured mods
-					if(PlayerInventoryList[pnum][extra].attributes[i].fractured || !(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id)))
+					if(PlayerInventoryList[pnum][extra].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id))
 						continue;
 
 					if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier < temp) {
@@ -553,7 +553,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			temp = 0;
 			do {
 				s = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
-			} while(!(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[s].attrib_id)) && temp < DND_MAX_ORB_REROLL_ATTEMPTS);
+			} while(!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[s].attrib_id) || temp++ < DND_MAX_ORB_REROLL_ATTEMPTS);
 
 			SetInventory("OrderStored", 0);
 
@@ -580,7 +580,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				for(res = 0; res < s; ++res) {
 					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
 						// if its not a regular attribute that can have tags we shouldn't consider
-						if(PlayerInventoryList[pnum][extra].attributes[i].attrib_id <= LAST_INV_ATTRIBUTE && !(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id)))
+						if(PlayerInventoryList[pnum][extra].attributes[i].attrib_id <= LAST_INV_ATTRIBUTE || !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id))
 							continue;
 
 						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollUniqueAttributeValue(temp, i, CheckWellRolled(pnum));
@@ -593,7 +593,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				for(res = 0; res < s; ++res) {
 					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
 						// ignore fractured mods
-						if(PlayerInventoryList[pnum][extra].attributes[i].fractured || !(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id)))
+						if(PlayerInventoryList[pnum][extra].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id))
 							continue;
 
 						temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
@@ -633,8 +633,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				// reroll if fractured
 				do {
 					res = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
-				} while(!(x = CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[res].attrib_id)) && temp < DND_MAX_ORB_REROLL_ATTEMPTS && PlayerInventoryList[pnum][extra].attributes[res].fractured);
-
+				} while(!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[res].attrib_id) || (temp++ < DND_MAX_ORB_REROLL_ATTEMPTS && PlayerInventoryList[pnum][extra].attributes[res].fractured));
+				
 				// just to be safe
 				if(!PlayerInventoryList[pnum][extra].attributes[res].fractured)
 					RemoveAttributeFromItem(pnum, extra, res);
@@ -680,11 +680,12 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				
 					do {
 						temp = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
-						++s;
 					} while(
-						s < DND_MAX_ORB_REROLL_ATTEMPTS && 
-						(PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || PlayerInventoryList[pnum][extra].attributes[temp].fractured) &&
-						!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[temp].attrib_id)
+						!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[temp].attrib_id) ||
+						(
+							s++ < DND_MAX_ORB_REROLL_ATTEMPTS && 
+							(PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || PlayerInventoryList[pnum][extra].attributes[temp].fractured)
+						)
 					);
 					
 					// increment the tier and reroll that attribute!
@@ -978,9 +979,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 	if(orbtype != DND_ORB_DESTINY)
 		TakeInventory("DestinyUsed", 1);
-	else if(orbtype != DND_ORB_REVERANCE) {
+	else if(orbtype != DND_ORB_REVERANCE)
 		TakeInventory("ReveranceUsed", 1);
-	}
 	else if(orbtype != DND_ORB_ORDER)
 		TakeInventory("OrderUsed", 1);
 

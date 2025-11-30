@@ -66,5 +66,9 @@ Actor CyberdemonSpawner : DnD_MonsterSpawner replaces Cyberdemon {
 		Unique:
 			TNT1 A 0 A_SpawnItemEx("Abaxoth", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
 		Goto SpawnLoop
+		
+		Incursion_Chex:
+			TNT1 A 0 A_SpawnItemEx("Snotfolus", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Goto SpawnLoop
 	}
 }

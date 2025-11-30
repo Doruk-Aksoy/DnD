@@ -459,6 +459,14 @@ Actor BloodFXSpawner : DnD_Activator {
 	}
 }
 
+Actor RobotOilFXSpawner : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_SpawnItemEx("NashGore_Oil", frandom(-radius, radius) / 2, frandom(-radius, radius) / 2, frandom(16.0, height + 32.0) / 2, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_CLIENTSIDE)
+		Stop
+	}
+}
+
 // Colliders
 
 enum {

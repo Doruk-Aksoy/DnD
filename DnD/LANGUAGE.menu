@@ -277,6 +277,11 @@ DND_MENU_RES_REFL		=	"Reflection Resist";
 DND_MENU_RES_SELF		=	"Self Damage Reduction";
 DND_MENU_PENETRATION	=	"Pierce";
 
+DND_MENU_RES_FIRE_PEN	=	"Fire Pierce";
+DND_MENU_RES_ICE_PEN	=	"Ice Pierce";
+DND_MENU_RES_LGHT_PEN	=	"Lightning Pierce";
+DND_MENU_RES_POIS_PEN	=	"Poison Pierce";
+
 // accessories
 ACCTX_T0				=	"Wisdom Talisman";
 ACCTX_P0				=	"Increases exp gain by 50%.";

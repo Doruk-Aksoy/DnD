@@ -171,7 +171,6 @@ Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 	DeleteText(BLACKOUT_ID);
 		
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
-	ACS_NamedExecuteAlways("DnD Vote Cleanup", 0, pnum);
 }
 
 Script "DND Menu Icon Spawner" (void) CLIENTSIDE {

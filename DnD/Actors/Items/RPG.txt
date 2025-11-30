@@ -417,6 +417,16 @@ Actor DnD_PlayerInventoryPages : Inventory {
 	inventory.maxamount 10
 }
 
+Actor DnD_MitigationCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 17
+}
+
+Actor DnD_EshieldHitSoundCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 17
+}
+
 Actor DnD_PlayerCurrentPage : Inventory {
 	inventory.maxamount 10
 }

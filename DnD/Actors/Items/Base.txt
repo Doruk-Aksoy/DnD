@@ -620,3 +620,24 @@ Actor DnD_CanFire : DnD_Boolean { }
 Actor DnD_CanAltFire : DnD_Boolean { }
 Actor DnD_CanReload : DnD_Boolean { }
 Actor DnD_FiringFlags : DnD_Info { }
+
+Actor DnD_AttachedFXBase {
+	+MISSILE
+	+NOGRAVITY
+	+NOCLIP
+	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
+	States {
+		Spawn:
+			TNT1 A 0
+			TNT1 A 2
+			TNT1 A 35 A_Jump(256, "SpawnLoop")
+		Wait
+		Disappear:
+			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
+		Stop
+		Remove:
+			TNT1 A 1
+		Stop
+	}
+}

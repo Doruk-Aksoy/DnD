@@ -442,7 +442,7 @@ int ShopInfo[MAXSHOPITEMS][3] =
 		{ 19500,  1,		1 },
 		
 		// Account
-		{ 1500000, MAX_EXTRA_BUYABLE_INVENTORY_PAGES,		5 },
+		{ 1500000, MAX_EXTRA_INVENTORY_PAGES,		MAX_EXTRA_BUYABLE_INVENTORY_PAGES },
 
 		// Artifacts, here for convenience. Index = MAXSHOPITEMS - MAXARTIFACTS
 		{ 1250,          FIELDKITMAX,				3   },

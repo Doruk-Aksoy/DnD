@@ -154,8 +154,10 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_SCORE, extra); // if its not player tid thats monster's damage
 	}
 
-	if(flags & DND_ATF_ISREFLECTED)
+	if(flags & DND_ATF_ISREFLECTED) {
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STAMINA, extra2);
+		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_PLAYERSOURCED, true);
+	}
 
 	if(flags & DND_ATF_TRACERPICKER) {
 		// only pick if we have no previous recollection of another target

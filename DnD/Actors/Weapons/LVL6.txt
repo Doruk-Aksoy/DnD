@@ -1285,22 +1285,22 @@ ACTOR BasiliskBall2 : DnD_ExplosiveBase {
 		ContinueFromExplosion:
 			BASF C 3 Bright
 			TNT1 A 0 A_JumpIf(accuracy == DND_CRITTOKEN, "Crit")
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,30,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,90,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,150,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,210,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,270,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3",0,0,0,35,0,0,330,0,0)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3", 0, 0, 30, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3", 0, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3", 0, 0, 150, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3", 0, 0, 210, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3", 0, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3", 0, 0, 330, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		FinishAnim:
 			BASF DEFGH 3 Bright
 		stop
 		Crit:
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3_Crit",0,0,0,35,0,0,30,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3_Crit",0,0,0,35,0,0,90,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3_Crit",0,0,0,35,0,0,150,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3_Crit",0,0,0,35,0,0,210,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3_Crit",0,0,0,35,0,0,270,0,0)
-			TNT1 A 0 A_SpawnItemEx("BasiliskBall3_Crit",0,0,0,35,0,0,330,0,0)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3_Crit", 0, 0, 30, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3_Crit", 0, 0, 90, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3_Crit", 0, 0, 150, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3_Crit", 0, 0, 210, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3_Crit", 0, 0, 270, CMF_TRACKOWNER | CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("BasiliskBall3_Crit", 0, 0, 330, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 		Goto FinishAnim
 	}
 }

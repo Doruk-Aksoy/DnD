@@ -1285,9 +1285,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MIT_INCREASE].attrib_level_modifier = 1.5;
 	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
-	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.15;
-	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.275;
-	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0.16;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.3;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.875;
+	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0.575;
 	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_low = 5;
@@ -1539,57 +1539,57 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ESS_VAAJ].attrib_extra_high = 2;
 	ItemModTable[INV_ESS_VAAJ].attrib_level_modifier = 0;
 	ItemModTable[INV_ESS_VAAJ].attrib_level_extra_modifier = 0;
-	ItemModTable[INV_ESS_VAAJ].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_VAAJ].tags = INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_ESS_SSRATH].attrib_low = 3;
 	ItemModTable[INV_ESS_SSRATH].attrib_high = 5;
 	ItemModTable[INV_ESS_SSRATH].attrib_level_modifier = 0;
-	ItemModTable[INV_ESS_SSRATH].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_SSRATH].tags = INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_ESS_OMNISIGHT].attrib_low = 500;
 	ItemModTable[INV_ESS_OMNISIGHT].attrib_high = 1000;
 	ItemModTable[INV_ESS_OMNISIGHT].attrib_level_modifier = 0;
-	ItemModTable[INV_ESS_OMNISIGHT].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_OMNISIGHT].tags = INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_ESS_OMNISIGHT2].attrib_low = 2;
 	ItemModTable[INV_ESS_OMNISIGHT2].attrib_high = 5;
 	ItemModTable[INV_ESS_OMNISIGHT2].attrib_level_modifier = 0;
-	ItemModTable[INV_ESS_OMNISIGHT2].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_OMNISIGHT2].tags = INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_ESS_CHEGOVAX].attrib_low = 1;
 	ItemModTable[INV_ESS_CHEGOVAX].attrib_high = 4;
 	ItemModTable[INV_ESS_CHEGOVAX].attrib_level_modifier = 0;
-	ItemModTable[INV_ESS_CHEGOVAX].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_CHEGOVAX].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
 	
 	ItemModTable[INV_ESS_HARKIMONDE].attrib_low = 3;
 	ItemModTable[INV_ESS_HARKIMONDE].attrib_high = 6;
 	ItemModTable[INV_ESS_HARKIMONDE].attrib_level_modifier = 0;
-	ItemModTable[INV_ESS_HARKIMONDE].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_HARKIMONDE].tags = INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_ESS_LESHRAC].attrib_low = 1;
 	ItemModTable[INV_ESS_LESHRAC].attrib_high = 1;
 	ItemModTable[INV_ESS_LESHRAC].attrib_level_modifier = 1;
-	ItemModTable[INV_ESS_LESHRAC].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_LESHRAC].tags = INV_ATTR_TAG_POISON;
 	
 	ItemModTable[INV_ESS_KRULL].attrib_low = 5;
 	ItemModTable[INV_ESS_KRULL].attrib_high = 9;
 	ItemModTable[INV_ESS_KRULL].attrib_level_modifier = 0;
-	ItemModTable[INV_ESS_KRULL].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_KRULL].tags = INV_ATTR_TAG_EXPLOSIVE;
 	
 	ItemModTable[INV_ESS_THORAX].attrib_low = 1;
 	ItemModTable[INV_ESS_THORAX].attrib_high = 1;
 	ItemModTable[INV_ESS_THORAX].attrib_level_modifier = 1;
-	ItemModTable[INV_ESS_THORAX].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_THORAX].tags = INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_ESS_ZRAVOG].attrib_low = 1;
 	ItemModTable[INV_ESS_ZRAVOG].attrib_high = 2;
 	ItemModTable[INV_ESS_ZRAVOG].attrib_level_modifier = 0;
-	ItemModTable[INV_ESS_ZRAVOG].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_ZRAVOG].tags = INV_ATTR_TAG_OCCULT;
 	
 	ItemModTable[INV_ESS_ERYXIA].attrib_low = 0.05;
 	ItemModTable[INV_ESS_ERYXIA].attrib_high = 0.075;
 	ItemModTable[INV_ESS_ERYXIA].attrib_level_modifier = 0.025;
-	ItemModTable[INV_ESS_ERYXIA].tags = INV_ATTR_TAG_NONE;
+	ItemModTable[INV_ESS_ERYXIA].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
 
 	////////////////////////////////
 	// incursion from here on out //
@@ -2357,14 +2357,18 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		// value and text only as percentage
 		case INV_IMP_NECROARMOR:
-		case INV_IMP_LESSLIGHTNINGTAKEN:
 		case INV_IMP_FASTEROVERHEATDISS:
-		case INV_IMP_LESSPOISONTAKEN:
-		case INV_IMP_LESSFIRETAKEN:
 		case INV_IMP_LESSSELFDAMAGETAKEN:
 		case INV_IMP_REDUCEDVISIONIMPAIR:		// synthmetal mask
 		case INV_CORR_INSTALEECHPCT:
 			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
+		return text;
+
+		// fixed point implicits
+		case INV_IMP_LESSFIRETAKEN:
+		case INV_IMP_LESSPOISONTAKEN:
+		case INV_IMP_LESSLIGHTNINGTAKEN:
+			text = StrParam(s:col_tag, s:GetFixedRepresentation(val, true), s:"%\c- ", l:text);
 		return text;
 
 		case INV_IMP_MOREDAMAGETOBOSSES:

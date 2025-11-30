@@ -382,7 +382,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				break;
 				case BOOTS_INSULATED:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 10, 0, item_tier, 5);
-					GiveImplicitToField(item_pos, INV_IMP_LESSLIGHTNINGTAKEN, 10);
+					GiveImplicitToField(item_pos, INV_IMP_LESSLIGHTNINGTAKEN, 0.1);
 				break;
 				case BOOTS_PLATED:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 25);
@@ -407,11 +407,11 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				break;
 				case BOOTS_SNAKESKIN:
 					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 4.5, 0, item_tier, 1.0);
-					GiveImplicitToField(item_pos, INV_IMP_LESSPOISONTAKEN, 10);
+					GiveImplicitToField(item_pos, INV_IMP_LESSPOISONTAKEN, 0.1);
 				break;
 				case BOOTS_DRAKESKIN:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10);
-					GiveImplicitToField(item_pos, INV_IMP_LESSFIRETAKEN, 10);
+					GiveImplicitToField(item_pos, INV_IMP_LESSFIRETAKEN, 0.1);
 				break;
 			}
 		break;

@@ -137,6 +137,7 @@ Actor DnD_BaseProjectile {
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
 	Damage 0
 	
 	var int user_hitcount;
@@ -166,6 +167,7 @@ Actor DnD_BaseFastProjectile : FastProjectile {
 	+MTHRUSPECIES
 	+DONTBLAST
 	+NODAMAGETHRUST
+	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
 	Damage 0
 	
 	var int user_hitcount;
@@ -198,6 +200,7 @@ Actor DnD_ExplosiveBase {
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
 	//+THRUACTORS
 	var int user_count;
 	var int user_expdmg;
@@ -233,6 +236,7 @@ Actor DnD_ExplosiveBase_ForPets {
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
 	
 	var int user_expdmg;
 	var int user_expradius;
@@ -295,6 +299,7 @@ Actor DnD_FastRipperBase : FastProjectile {
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
 	+DONTBLAST
+	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
 	//+THRUACTORS
 	
 	var int user_count;

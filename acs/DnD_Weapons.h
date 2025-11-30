@@ -49,6 +49,9 @@ int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AM
 }
 
 bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
+	if(IsSoulWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_EX_SOULPICKUPSINFAMMO) && CheckInventory("SoulPickupInfinityTimer"))
+		return true;
+
 	int mult = 1;
 	if(!(flags & DND_CFW_NOAMMOCONSUMPTIONCHECKS)) {
 		int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);

@@ -1684,7 +1684,8 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 	SetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, tb, -1, itemsource), emptysource);
-	SetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, tb, -1, itemsource), emptysource);
+	bid = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, tb, -1, itemsource);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, temp, -1, bid, emptysource);
 
 	SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, tb, -1, itemsource), emptysource);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, tb, -1, itemsource), emptysource);
@@ -1699,7 +1700,6 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 	SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, temp, -1, true/*GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, tb, -1, itemsource)*/, emptysource);
 	SetItemSyncValue(pnum, DND_SYNC_TEXTID, temp, -1, GetItemSyncValue(pnum, DND_SYNC_TEXTID, tb, -1, itemsource), emptysource);
 
-	bid = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, temp, -1, emptysource);
 	for(i = 0; i < bid; ++i) {
 		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, tb, i, itemsource), emptysource);
 		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, temp, i, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, tb, i, itemsource), emptysource);
@@ -2668,6 +2668,9 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
+
+			//Log(s:"extra proj is now: ", d:Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val);
+
 			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 		
@@ -2888,6 +2891,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_IMP_ESHIELDBLOCKSALL:
 			HandleAttributePowerset(pnum, PPOWER_ESHIELDBLOCKALL, INV_EX_PLAYERPOWERSET1, remove);
 		break;
+		
 		case INV_IMP_MELEEIGNORESSHIELDS:
 			HandleAttributePowerset(pnum, PPOWER_MELEEIGNORESHIELD, INV_EX_PLAYERPOWERSET1, remove);
 		break;
@@ -3583,7 +3587,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_REKINDLEDSPARKS;
+				i = UITEM_DREAMINGGODIRE;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

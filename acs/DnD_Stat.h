@@ -1334,6 +1334,15 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 	return dmg;
 }
 
+int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1) {
+	base = base * (100 + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	
+	// dot multi
+	base = base * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
+
+	return base;
+}
+
 int GetPlayerPoisonStacks(int pnum) {
 	return DND_BASE_POISON_STACKS + GetPlayerAttributeValue(pnum, INV_INC_MAXPOISONSTACK);
 }

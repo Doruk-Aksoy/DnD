@@ -213,7 +213,7 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 		}
 #ifdef ISDEBUGBUILD
 		res = random(BODYARMORS_BEGIN, BODYARMORS_END);
-		//res = BODYARMOR_TANGLEDRIBCAGE;
+		//res = BODYARMOR_SYNTHMETAL;
 #endif
 	}
 	else if(tiers == 1) {
@@ -244,10 +244,6 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
-
-#ifdef ISDEBUGBUILD
-	res = BODYARMOR_GUNSLINGER;
-#endif
 
 	Inventories_On_Field[item_pos].item_level = item_tier;
 	Inventories_On_Field[item_pos].item_stack = 0;

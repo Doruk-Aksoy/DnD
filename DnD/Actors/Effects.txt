@@ -1,4 +1,10 @@
-Actor NoBloodFX {
+Actor DnD_SpecialFX {
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+NOTONAUTOMAP
+}
+
+Actor NoBloodFX : DnD_SpecialFX {
 	+CLIENTSIDEONLY
 	+NOINTERACTION
 	States {
@@ -15,6 +21,7 @@ Actor GrenadeSmoke
 	alpha 0.15
 	+clientsideonly
 	+NOGRAVITY
+	+NOTONAUTOMAP
 	States
 	{
 		spawn:
@@ -24,15 +31,13 @@ Actor GrenadeSmoke
 	}
 }
 
-Actor DnD_RocketTrail {
+Actor DnD_RocketTrail : DnD_SpecialFX {
 	Renderstyle "Add"
 	Alpha 0.8
 	Radius 1
 	Height 1
 	Scale 0.666
 	+NOBLOCKMAP
-	+NOINTERACTION
-	+CLIENTSIDEONLY
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
@@ -41,12 +46,10 @@ Actor DnD_RocketTrail {
 	}
 }
 
-Actor DnD_PoisonFX {
+Actor DnD_PoisonFX : DnD_SpecialFX {
 	Renderstyle "Add"
 	Alpha 0.9
 	Scale 0.175
-	+NOINTERACTION
-	+CLIENTSIDEONLY
 	const float v = 1.5;
 	States {
 		Spawn:
@@ -61,6 +64,7 @@ Actor NewGrenadeExplosion {
 	Renderstyle Add
 	Alpha 0.85
 	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
 	+NOGRAVITY
 	Scale 1.15
 	States {
@@ -72,16 +76,14 @@ Actor NewGrenadeExplosion {
 	}
 }
 
-Actor MeleeSmoke {
+Actor MeleeSmoke : DnD_SpecialFX {
     +NOBLOCKMAP
     +NOTELEPORT
     +DONTSPLASH
 	+MISSILE
 	+FORCEXYBILLBOARD
-    +NOINTERACTION
 	+NOGRAVITY
 	+THRUACTORS
-	+CLIENTSIDEONLY
 	+DONTBLAST
 	BounceType Doom
 	BounceFactor 0.5
@@ -149,12 +151,10 @@ Actor ExplosionSmokeFast : ExplosionSmoke {
 	Scale 0.8
 }
 
-Actor ExplosionFX1 {
+Actor ExplosionFX1 : DnD_SpecialFX {
 	Renderstyle Add
 	Alpha 0.75
 	+FORCEXYBILLBOARD
-	+CLIENTSIDEONLY
-	+NOINTERACTION
 	Scale 1.3
 	States {
 		Spawn:
@@ -275,6 +275,7 @@ Actor ExplosionParticleHeavy {
 	+BLOODLESSIMPACT 
 	+FORCEXYBILLBOARD
 	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
 	+DONTSPLASH
 	+THRUACTORS
 	+THRUGHOST
@@ -384,6 +385,7 @@ Actor ParticleSpawner {
 	+NOTELEPORT
 	+DONTSPLASH
 	+DONTBLAST
+	+NOTONAUTOMAP
 }
 
 Actor FireBallParticle {
@@ -400,6 +402,7 @@ Actor FireBallParticle {
 	+NOBLOCKMAP
 	+DONTBLAST
 	+FORCEXYBILLBOARD
+	+NOTONAUTOMAP
 	RENDERSTYLE ADD
 	BounceFactor 0.5
 	Gravity 0.4
@@ -409,7 +412,7 @@ Actor FireBallParticle {
 			TNT1 A 0 Thing_ChangeTID(0, SPECIAL_FX_TID)
 			TNT1 A 1
 		SpawnLoop:
-			SPKR A 2 Bright A_FadeOut(0.08)
+			SPKR Z 2 Bright A_FadeOut(0.08)
 		Loop
 	}
 }
@@ -937,10 +940,8 @@ Actor WhiteParticleSpawner : ParticleSpawner
   }
 }
 
-Actor ExplosionFlare {
-	+NOINTERACTION
+Actor ExplosionFlare : DnD_SpecialFX {
 	+NOGRAVITY
-	+CLIENTSIDEONLY
 	renderstyle Add
 	radius 1
 	height 1
@@ -1049,15 +1050,13 @@ Actor GrayFlare : ExplosionFlare {
 	}
 }
 
-Actor WallHitSpark {
+Actor WallHitSpark : DnD_SpecialFX {
 	Height 1
 	Radius 1
 	Renderstyle Add
 	Alpha 0.85
 	+FORCEXYBILLBOARD
 	+NOGRAVITY
-	+NOINTERACTION
-	+CLIENTSIDEONLY
 	
 	States {
 		Spawn:
@@ -1126,6 +1125,7 @@ Actor SparkPuff : BulletPuff
 	-LOWGRAVITY
 	-ALLOWPARTICLES
 	+clientsideonly
+	+NOTONAUTOMAP
 	Health 4
 	Radius 4
 	Height 8
@@ -1147,13 +1147,12 @@ Actor SparkPuff : BulletPuff
 }
 
 // Taken from Zdoomwars
-ACTOR ExplosionFX
+ACTOR ExplosionFX : DnD_SpecialFX
 {
    Radius 10
    Height 10
    Speed 5
    PROJECTILE
-    +CLIENTSIDEONLY
    +NOCLIP
    States
    {
@@ -1288,12 +1287,11 @@ Actor SalvationGlow
  }
 }
 
-Actor BaseSparkle
+Actor BaseSparkle : DnD_SpecialFX
 {
  +Missile
  +NoGravity
  +NoBlockmap
- +NoInteraction
  -Solid
  Radius 0
  Height 0
@@ -1359,7 +1357,7 @@ actor AccessoryEffectSpawner : SalvationEffectSpawner
 	translation "120:127=160:167", "112:119=224:231"  
 }
 
-Actor WaterParticleX
+Actor WaterParticleX : DnD_SpecialFX
 {
   Height 0
   Radius 0
@@ -1399,7 +1397,7 @@ Actor WaterParticleX
 
 //********** Splashes **********
 
-actor WaterSplashBase2
+actor WaterSplashBase2 : DnD_SpecialFX
 {
   Radius 1
   Height 1
@@ -1420,7 +1418,7 @@ actor WaterSplashBase2
 }
 
 
-actor WaterSplashBaseSmall
+actor WaterSplashBaseSmall : DnD_SpecialFX
 {
   Radius 1
   Height 1
@@ -1440,7 +1438,7 @@ actor WaterSplashBaseSmall
   }
 }
 
-ACTOR WaterSplashDrop
+ACTOR WaterSplashDrop : DnD_SpecialFX
 {
 	renderstyle add
 	Radius 1
@@ -1466,7 +1464,7 @@ ACTOR WaterSplashDrop
 	}
 }
 
-actor BloodSplashBaseSmall
+actor BloodSplashBaseSmall : DnD_SpecialFX
 {
   Radius 1
   Height 1
@@ -1490,7 +1488,7 @@ actor BloodSplashBaseSmall
   }
 }
 
-ACTOR BloodSplashDrop
+ACTOR BloodSplashDrop : DnD_SpecialFX
 {
 	renderstyle add
 	Radius 1
@@ -1544,7 +1542,7 @@ states
 	}
 }
 
-ACTOR RedPuff
+ACTOR RedPuff : DnD_SpecialFX
 {   
    Radius 0
    Height 1
@@ -1552,7 +1550,6 @@ ACTOR RedPuff
    PROJECTILE
    RENDERSTYLE ADD
    ALPHA 0.85
-   +CLIENTSIDEONLY
    States
    {
    Spawn:
@@ -1570,10 +1567,9 @@ ACTOR LevelUpEffectSpawner : DnD_Activator {
 	}
 }
 
-Actor LevelUpEffect {
+Actor LevelUpEffect : DnD_SpecialFX {
   RenderStyle "Add"
   +NOGRAVITY
-  +CLIENTSIDEONLY
   Translation "112:119=224:231", "120:127=160:167"
   var int user_fadeout;
   States
@@ -1598,6 +1594,7 @@ ACTOR Tracer : FastProjectile {
 	PROJECTILE
 	+FORCEXYBILLBOARD
 	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
 	States {
 		Spawn:
 			TNT1 A 0
@@ -1622,7 +1619,7 @@ Actor SGTracer : Tracer {
 
 Actor LeadSpitterTracer : Tracer { }
 
-ACTOR GunSmoke {
+ACTOR GunSmoke : DnD_SpecialFX {
 	Radius 1
 	Height 1
 	RenderStyle ADD
@@ -1630,9 +1627,7 @@ ACTOR GunSmoke {
 	Scale 0.025
 	+NOGRAVITY
 	+NOBLOCKMAP
-	+NOINTERACTION
 	+FLOORCLIP
-	+CLIENTSIDEONLY
 	+RANDOMIZE
 	States {
 		Spawn:
@@ -1655,9 +1650,8 @@ Actor GunSmokeSmaller : GunSmoke {
 	}
 }
 
-Actor RocketSmoke {
+Actor RocketSmoke : DnD_SpecialFX {
 	+MISSILE
-	+NOINTERACTION
 	+FORCEXYBILLBOARD
 	+NOTELEPORT
 	+NOBLOCKMAP
@@ -1669,7 +1663,6 @@ Actor RocketSmoke {
 	renderstyle translucent
 	scale 0.8
 	alpha 0.5
-	+clientsideonly
 	+NOGRAVITY
 	
 	States {
@@ -1743,11 +1736,9 @@ Actor PlasmaSmoke2 : RocketSmoke {
 }
 
 // By Tormentor667
-Actor SoulUseEffect
+Actor SoulUseEffect : DnD_SpecialFX
 {
 	+NoBlockmap
-	+NoInteraction
-	+CLIENTSIDEONLY
 	Radius 1
 	Height 1
 	RenderStyle Add
@@ -1799,13 +1790,11 @@ Actor TalentCapsuleFX : SoulUseEffect {
 	Scale 0.45
 }
 
-Actor SoulEffectSpawner
+Actor SoulEffectSpawner : DnD_SpecialFX
 {
 	+NoBlockMap 
 	+NoGravity 
-	+NoInteraction
 	-Solid 
-	+CLIENTSIDEONLY
 	States
 	{
 	Spawn:
@@ -1900,9 +1889,7 @@ Actor SoulEffectSpawnerLarge : SoulEffectSpawner
 	}        
 }
 
-Actor DissipationEffect {
-	+NOINTERACTION
-	+CLIENTSIDEONLY
+Actor DissipationEffect : DnD_SpecialFX {
 	Renderstyle Add
 	States {
 		Spawn:
@@ -1923,11 +1910,9 @@ Actor DissipationEffect_Orange : DissipationEffect {
 
 //AESTHETIC EFFECTS
 
-ACTOR ScatterShotGlow
+ACTOR ScatterShotGlow : DnD_SpecialFX
 {
-   +NOINTERACTION
    +THRUACTORS
-   +CLIENTSIDEONLY
    RenderStyle Add
    Alpha 0.4
    Scale 0.25
@@ -1945,15 +1930,13 @@ ACTOR ScatterShotGlowSmall : ScatterShotGlow
    Scale 0.1
 }
 
-ACTOR ScatterPShotTrail
+ACTOR ScatterPShotTrail : DnD_SpecialFX
 {
     Radius 6
     Height 8
     Scale 0.06
     RenderStyle Add
     Alpha 0.4
-	+NOINTERACTION
-	+CLIENTSIDEONLY
 	+THRUACTORS
     States
     {
@@ -1967,6 +1950,7 @@ Actor ItemRespawnFX replaces ItemFog {
 	+NOBLOCKMAP
 	+NOGRAVITY
 	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
 	Renderstyle Add
 	Alpha 0.25
 	Scale 0.85
@@ -1981,13 +1965,12 @@ Actor ItemRespawnFX replaces ItemFog {
 	}
 }
 
-Actor ElectDrSpark {
+Actor ElectDrSpark : DnD_SpecialFX {
 	Translation "0:255=%[0,0,0]:[0.75,0.75,2.0]"
 	+NOINTERACTION
 	Scale 0.08
 	RenderStyle Add
 	+FORCEXYBILLBOARD
-	+CLIENTSIDEONLY
 	Alpha 1.0
 	States { 
 		Spawn:
@@ -2028,11 +2011,9 @@ Actor ElectDrSpark {
 	}
 }
 
-Actor GolemSoul {
+Actor GolemSoul : DnD_SpecialFX {
 	Renderstyle Add
 	Alpha 0.875
-	+CLIENTSIDEONLY
-	+NOINTERACTION
 	States {
 		Spawn:
 			GFXX ABC 5
@@ -2048,6 +2029,7 @@ Actor GenericParticleFX {
 	RenderStyle Add
 	+CLIENTSIDEONLY
 	+NOGRAVITY
+	+NOTONAUTOMAP
 }
 
 Actor DesolatorHitFX {
@@ -2066,6 +2048,7 @@ Actor DesolatorHitFX {
     -NOGRAVITY
     -SOLID
     +CLIENTSIDEONLY
+	+NOTONAUTOMAP
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
@@ -2080,11 +2063,9 @@ Actor DesolatorHitFX {
 	}
 }
 
-Actor BigPuffFX_Shared {
-	+NoInteraction
+Actor BigPuffFX_Shared : DnD_SpecialFX {
 	+ForceXYBillboard
 	+NotOnAutomap
-	+CLIENTSIDEONLY
 }
 
 Actor BigPuffFX_Flash : BigPuffFX_Shared {
@@ -2383,11 +2364,9 @@ Actor IceChunkCS : IceChunk replaces IceChunk {
 	}
 }
 
-Actor ColdSmoke {
+Actor ColdSmoke : DnD_SpecialFX {
 	Renderstyle Add
 	Alpha 1.0
-	+CLIENTSIDEONLY
-	+NoInteraction
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
@@ -2406,11 +2385,9 @@ Actor DnD_ChillWindSpawner : DnD_Activator {
 	}
 }
 
-Actor FreezeGlitter {
+Actor FreezeGlitter : DnD_SpecialFX {
 	Renderstyle Add
 	Alpha 1.0
-	+CLIENTSIDEONLY
-	+NoInteraction
 	Scale 1.25
 	States {
 		Spawn:
@@ -2423,11 +2400,9 @@ Actor FreezeGlitter {
 	}
 }
 
-Actor FrozenFX {
+Actor FrozenFX : DnD_SpecialFX {
 	Renderstyle Add
 	Alpha 0.9
-	+CLIENTSIDEONLY
-	+NoInteraction
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
@@ -2437,12 +2412,10 @@ Actor FrozenFX {
 	}
 }
 
-Actor IgniteFX {
+Actor IgniteFX : DnD_SpecialFX {
 	RenderStyle Add
 	Translation "160:160=231:231", "161:162=215:215", "163:163=217:217", "164:167=176:188"
 	ALPHA 1.00
-	+CLIENTSIDEONLY
-	+NoInteraction
 	Scale 0.5
 	States {
 		Spawn:
@@ -2474,11 +2447,9 @@ Actor DnD_IgniteFXSpawner : DnD_Activator {
 	}
 }
 
-Actor OverloadZap_Particles {
+Actor OverloadZap_Particles : DnD_SpecialFX {
 	RenderStyle Add
 	Alpha 0.875
-	+NOINTERACTION
-	+CLIENTSIDEONLY
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
@@ -2487,12 +2458,10 @@ Actor OverloadZap_Particles {
 	}
 }
 
-Actor OverloadZap {
+Actor OverloadZap : DnD_SpecialFX {
 	Renderstyle Add
 	Scale 0.04
 	Alpha 0.01
-	+NOINTERACTION
-	+CLIENTSIDEONLY
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
@@ -2534,9 +2503,7 @@ Actor Overload_SoundStopper : DnD_Activator {
 
 // Stone bits SFX - by Blue Shadow (the spawning code is based on Nash's nashgore code)
 
-ACTOR StoneBitsSpawner {
-	+NOINTERACTION
-	+CLIENTSIDEONLY
+ACTOR StoneBitsSpawner : DnD_SpecialFX {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay A_Jump(256, "Low1", "Low2", "Medium1", "Medium2", "High1", "High2")
@@ -2567,6 +2534,7 @@ ACTOR StoneBitsSmall {
 	+NOTELEPORT
 	+NOBLOCKMAP
 	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
 	States {
 		Spawn:
 			TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB")
@@ -2601,6 +2569,7 @@ ACTOR StoneBitsMedium {
 	+NOTELEPORT
 	+NOBLOCKMAP
 	+CLIENTSIDEONLY
+	+NOTONAUTOMAP
 	States {
 		Spawn:
 			TNT1 AA 0 A_Jump(256, "SpawnA", "SpawnB", "SpawnC")
@@ -2697,11 +2666,9 @@ ACTOR StoneBitsLarge {
 	}
 }
 
-Actor EnemyResSoul {
+Actor EnemyResSoul : DnD_SpecialFX {
 	Renderstyle Translucent
 	Alpha 0.875
-	+CLIENTSIDEONLY
-	+NOINTERACTION
 	States {
 		Spawn:
 			SRV3 IHG 3
@@ -2711,14 +2678,12 @@ Actor EnemyResSoul {
 	}
 }
 
-Actor NuclearExplosionFX {
+Actor NuclearExplosionFX : DnD_SpecialFX {
 	Renderstyle Add
 	Alpha 0.0
 	Scale 0.95
 	var int user_fadetime;
 	var int user_a;
-	+CLIENTSIDEONLY
-	+NOINTERACTION
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay A_SetUserVar("user_a", 0)
@@ -2759,9 +2724,7 @@ Actor ShieldPreventionFXSpawner : DnD_Activator {
 	}
 }
 
-Actor LootFlames {
-	+CLIENTSIDEONLY
-	+NOINTERACTION
+Actor LootFlames : DnD_SpecialFX {
 	Renderstyle Add
 	Alpha 0.01
 	

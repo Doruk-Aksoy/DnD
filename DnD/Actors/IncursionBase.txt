@@ -89,3 +89,18 @@ Actor DnD_IncursionPortal : DnD_Incursion_Base {
 		Stop
 	}
 }
+
+Actor DnD_IncursionPuff : BulletPuff {
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	-ALLOWPARTICLES
+	States {
+		Spawn:
+		Melee:
+		Crash:
+			TNT1 A 0 NoDelay Thing_ChangeTID(0, 1)
+			TNT1 AAAAAA 0
+			TNT1 A 1
+		Stop
+	}
+}

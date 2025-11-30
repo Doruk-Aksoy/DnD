@@ -5,6 +5,8 @@
 #include "DnD_Physics.h"
 #include "DnD_AttackInfo.h"
 
+#define APROP_PLAYERSOURCED APROP_AMBUSH
+
 #define DND_CRIT_TOKEN 69
 
 #define DND_PLAYER_HITSCAN_Z 38.0
@@ -1787,8 +1789,13 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		HandleMonsterDeathConfirm(victim_tid, prev_dmg);
 		Thing_Damage2(victim_tid, prev_dmg, "Special_NoPain");
 	}
-	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) // we have reduced the overall damage instead, heal for the difference instead -- hope we dont need HealThing here...
-		SetActorProperty(victim_tid, APROP_HEALTH, GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTicData[pnum][victim_data]);
+	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) {
+		// we have reduced the overall damage instead, heal for the difference instead -- hope we dont need HealThing here...
+		prev_dmg = GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTicData[pnum][victim_data];
+		if(prev_dmg > MonsterProperties[victim_tid - DND_MONSTERTID_BEGIN].maxhp)
+			prev_dmg = MonsterProperties[victim_tid - DND_MONSTERTID_BEGIN].maxhp;
+		SetActorProperty(victim_tid, APROP_HEALTH, prev_dmg);
+	}
 
 	// prev_dmg is unused from here below
 
@@ -2171,18 +2178,22 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 		RemoveMonsterAilment(victim, DND_AILMENT_CHILL);
 }
 
-Script "DnD Bleed FX" (int tid) CLIENTSIDE {
+Script "DnD Bleed FX" (int tid, int isRobot) CLIENTSIDE {
 	SetActivator(tid);
 
 	int r = GetActorProperty(tid, APROP_RADIUS);
 	int h = GetActorProperty(tid, APROP_HEIGHT);
+
+	str blood_fx = "BloodFXSpawner";
+	if(isRobot)
+		blood_fx = "RobotOilFXSpawner";
 
 	for(int i = 0; i < 5; ++i) {
 		Delay(const:2);
 		if(!isAlive())
 			Terminate;
 
-		GiveActorInventory(tid, "BloodFXSpawner", 1);
+		GiveActorInventory(tid, blood_fx, 1);
 		//SpawnForced("NashGore_Blood", GetActorX(tid) + random(-r, r) / 2, GetActorY(tid) + random(-r, r) / 2, GetActorZ(tid) + (random(16.0, h + 32.0)) / 2, 0);
 
 		Delay(const:5);
@@ -2282,8 +2293,10 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_BLEED);
 
+	bool isRobot = isActorRobotic(victim);
+
 	do {
-		ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim);
+		ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim, isRobot);
 		TakeActorInventory(victim, "DnD_BleedTimer", 1);
 		dmg = HandleDamageDeal(
 			source, 
@@ -2590,16 +2603,24 @@ Script "DnD Check Explosion Repeat" (void) {
 			temp &= BITMASK_NOFACTOR;
 
 			// this undoes the first explosion reduction effect
-			factor += GetPlayerAttributeExtra(pnum, INV_EX_SECONDEXPBONUS);
-
+			int x = GetPlayerAttributeExtra(pnum, INV_EX_SECONDEXPBONUS);
+			factor = factor * 100 / (100 - x);
 			factor = factor * res / 100;
 
 			SetUserVariable(0, "user_expdmg", temp | (factor << DPCT_SHIFT));
-			SetUserVariable(0, "user_expradius", GetUserVariable(0, "user_expradius") * res / 100);
-			SetUserVariable(0, "user_fullexpradius", GetUserVariable(0, "user_fullexpradius") * res / 100);
 
-			SetActorProperty(0, APROP_SCALEX, GetActorProperty(0, APROP_SCALEX) * res / 100);
-			SetActorProperty(0, APROP_SCALEY, GetActorProperty(0, APROP_SCALEY) * res / 100);
+			// undo effect of first
+			temp = GetUserVariable(0, "user_expradius") * 100 / (100 - x);
+			SetUserVariable(0, "user_expradius", temp * res / 100);
+
+			temp = GetUserVariable(0, "user_fullexpradius") * 100 / (100 - x);
+			SetUserVariable(0, "user_fullexpradius", temp * res / 100);
+
+			temp = GetActorProperty(0, APROP_SCALEX) * 100 / (100 - x);
+			SetActorProperty(0, APROP_SCALEX, temp * res / 100);
+
+			temp = GetActorProperty(0, APROP_SCALEY) * 100 / (100 - x);
+			SetActorProperty(0, APROP_SCALEY, temp * res / 100);
 		}
 
 		res = 1;
@@ -2671,6 +2692,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		if(HasPlayerPowerSet(pnum, PPOWER_LOWERREFLECT))
 			mult = CombineFactors(mult, -0.9);
 		res_to_apply = INV_DMGREDUCE_REFL;
+
+		//printbold(s:"reflect will apply to resist, with factor: ", f:mult);
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
 		res_to_apply = INV_DMGREDUCE_PHYS;
@@ -2682,7 +2705,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 
 		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSFIRETAKEN);
 		if(temp)
-			mult = CombineFactors(mult, temp);
+			mult = CombineFactors(mult, -temp);
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
 		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
@@ -2694,13 +2717,13 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 
 		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSLIGHTNINGTAKEN);
 		if(temp)
-			mult = CombineFactors(mult, temp);
+			mult = CombineFactors(mult, -temp);
 	}
 	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
 		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
 		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSPOISONTAKEN);
 		if(temp)
-			mult = CombineFactors(mult, temp);
+			mult = CombineFactors(mult, -temp);
 		
 		// reduced poison damage taken
 		res_to_apply = INV_DMGREDUCE_POISON;
@@ -2744,10 +2767,13 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if(mult != 1.0) {
 		mult = (mult * 100) >> 16;
 		dmg = dmg * mult / 100;
+		//printbold(s:"mult is ", d:mult, s:" overall dmg: ", d:dmg);
 	}
 
 	// finally include resists as their own multiplicative factor
 	dmg = ApplyPlayerResist(pnum, dmg, res_to_apply, res_bonus);
+
+	//printbold(s:"res applied dmg: ", d:dmg);
 
 	// find player's lowest resist
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DAMAGELOWESTTAKENASPHYS);
@@ -2785,7 +2811,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		(
 			(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && 
 			random(1, 100) <= GetMonsterBleedChance(m_id, pnum, dmg_string == "Melee", dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) &&
-			GetPlayerNonElementalAvoidance(pnum, INV_AVOID_BLEED) <= random(1, 100)
+			GetPlayerNonElementalAvoidance(pnum, INV_AVOID_BLEED) < random(1, 100)
 		)
 		{
 			HandleRiskAversion();
@@ -2811,7 +2837,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			// if hpdiff >= threshold
 			if
 			(
-				GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE) <= random(1, 100) && 
+				GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE) < random(1, 100) && 
 				res_to_apply - GetActorProperty(0, APROP_HEALTH) >= res_to_apply * GetMonsterChillThreshold(m_id, res_bonus + 1) / 100
 			)
 			{
@@ -2842,7 +2868,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		(
 			((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || MonsterProperties[m_id].trait_list[DND_VOLTAIC]) && 
 			random(1, 100) <= GetMonsterOverloadChance(m_id, pnum) &&
-			GetPlayerElementalAvoidance(pnum, INV_AVOID_OVERLOAD) <= random(1, 100)
+			GetPlayerElementalAvoidance(pnum, INV_AVOID_OVERLOAD) < random(1, 100)
 		)
 		{
 			HandleRiskAversion();
@@ -2853,7 +2879,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		if
 		(
 			((dmg_data & DND_DAMAGETYPEFLAG_POISON) || MonsterProperties[m_id].trait_list[DND_VENOMANCER]) &&
-			GetPlayerElementalAvoidance(pnum, INV_AVOID_POISON) <= random(1, 100)
+			GetPlayerElementalAvoidance(pnum, INV_AVOID_POISON) < random(1, 100)
 		)
 		{
 			HandleRiskAversion();
@@ -2874,7 +2900,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		(
 			((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || MonsterProperties[m_id].trait_list[DND_SCORCHED]) && 
 			random(0, 1.0) < DND_PLAYER_BURNING_CHANCE &&
-			GetPlayerElementalAvoidance(pnum, INV_AVOID_IGNITE) <= random(1, 100)
+			GetPlayerElementalAvoidance(pnum, INV_AVOID_IGNITE) < random(1, 100)
 		) 
 		{
 			HandleRiskAversion();
@@ -2980,7 +3006,12 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 	if(!is_dot && CouldMitigateDamage(pnum)) {
 		temp = GetMitigationEffect(pnum);
 		dmg = dmg * ((100.0 - temp) >> 16) / 100;
-		LocalAmbientSound("Mitigation/Success", 80);
+
+		// only cooldown for sound because apparently localambientsound does not respect sound limits
+		if(!CheckInventory("DnD_MitigationCooldown")) {
+			LocalAmbientSound("Mitigation/Success", 80);
+			GiveInventory("DnD_MitigationCooldown", 1);
+		}
 	}
 	
 	return dmg;
@@ -3023,11 +3054,17 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 			if(dmg < 0) {
 				TakeEnergyShield(to_take + dmg);
 				dmg = 0;
-				LocalAmbientSound("EShield/Hit", 100);
+				if(!CheckInventory("DnD_EshieldHitSoundCooldown")) {
+					GiveInventory("DnD_EshieldHitSoundCooldown", 1);
+					LocalAmbientSound("EShield/Hit", 100);
+				}
 			}
 			else if(to_take < temp) {
 				TakeEnergyShield(to_take);
-				LocalAmbientSound("EShield/Hit", 100);
+				if(!CheckInventory("DnD_EshieldHitSoundCooldown")) {
+					GiveInventory("DnD_EshieldHitSoundCooldown", 1);
+					LocalAmbientSound("EShield/Hit", 100);
+				}
 			}
 			else {
 				SetEnergyShield(0);
@@ -3396,6 +3433,9 @@ bool IsDamageEventException(str dt) {
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 		GiveInventory("Doomguy_ValidExecute", 1);
 		GiveInventory("MonsterKilledByPlayer", 1);
+
+		// QoL for doomguy
+		ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_SUBORDINATE);
 		return true;
 	}
 	else if(dt == "NoRealDamage") {
@@ -3484,8 +3524,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			shooter = GetActorProperty(0, APROP_SCORE);
 		}
 
+		//printbold(s:"dmg source: ", s:GetActorClass(0));
+
 		// if whatever fired this is a monster but original owner was player, it's reflected
+		// NOTE: DONT USE TEMP UNTIL REFLECTION CHECK IS DONE
 		int isReflected = GetActorProperty(0, APROP_SCORE);
+		temp = GetActorProperty(0, APROP_PLAYERSOURCED);
 		if
 		(
 			(
@@ -3574,7 +3618,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			if(!isDot) {
 				// dont scale reflected damage by this -- reflected damage will have score property as damage of proj, if it's not a player tid its reflected
 				//printbold(s:"here?? ", d:isReflected, s: " ", d:dmg_data & DND_DAMAGEFLAG_ISREFLECTED);
-				if(!(dmg_data & DND_DAMAGEFLAG_ISREFLECTED) && (!isReflected || IsMonster(shooter))) {
+				// DONT USE TEMP UNTIL HERE!!!!!
+				//printbold(s:"incoming damage: ", d:dmg, s: " reflect ambush flag: ", d:temp, s: " reflect dmg flag: ", d:dmg_data & DND_DAMAGEFLAG_ISREFLECTED);
+				if(!temp && !(dmg_data & DND_DAMAGEFLAG_ISREFLECTED)) {
 					// special bonuses
 					factor += 	(MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
 								MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
@@ -4097,6 +4143,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				temp = arg1 >> NONWEP_DMG_SHIFT; // dmg_type
 				m_id = -1;
 			}
+
+			// restore ptr
+			SetActivator(0, AAPTR_DAMAGE_TARGET);
 
 			if(dmg_data & DND_DAMAGEFLAG_ISRADIUSDMG) {
 				dmg = dmg * inflictor_class / 100;

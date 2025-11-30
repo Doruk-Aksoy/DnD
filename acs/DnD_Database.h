@@ -515,9 +515,9 @@ void SavePlayerData(int pnum, int char_id) {
 		temp = Player_Weapon_Infos[pnum][i].quality;
 		SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONQUALITY, char_id), d:i), pacc, temp & 0xFF);
 
-		// rest of the mods for the weapon
+		// rest of the mods for the weapon -- item side stored on items
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			for(int k = 0; k < DND_MAX_WEAPONMODSOURCES; ++k) {
+			for(int k = WMOD_WEP; k < DND_MAX_WEAPONMODSOURCES; ++k) {
 				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][k].tier;
 				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, temp);
 
@@ -576,7 +576,7 @@ void SavePlayerActivities(int pnum, int char_id) {
 
 		// rest of the mods for the weapon
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			for(vt = 0; vt < DND_MAX_WEAPONMODSOURCES; ++vt) {
+			for(vt = WMOD_WEP; vt < DND_MAX_WEAPONMODSOURCES; ++vt) {
 				temp = Player_Weapon_Infos[pnum][i].wep_mods[j][vt].tier;
 				SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:vt), pacc, temp);
 				
@@ -849,7 +849,7 @@ void LoadPlayerData(int pnum, int char_id) {
 			
 			// rest of the mods for the weapon
 			for(w = 0; w < MAX_WEP_MODS; ++w) {
-				for(h = 0; h < DND_MAX_WEAPONMODSOURCES; ++h) {
+				for(h = WMOD_WEP; h < DND_MAX_WEAPONMODSOURCES; ++h) {
 					weptmp = GetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:w, s:"_Weapon", d:i, s:"_", d:h), pacc);
 					Player_Weapon_Infos[pnum][i].wep_mods[w][h].tier = weptmp;
 
@@ -1236,7 +1236,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 
 		// rest of the mods
 		for(j = 0; j < MAX_WEP_MODS; ++j) {
-			for(int k = 0; k < DND_MAX_WEAPONMODSOURCES; ++k) {
+			for(int k = WMOD_WEP; k < DND_MAX_WEAPONMODSOURCES; ++k) {
 				// so we dont save hundreds of data for no reason if they dont even exist
 				if(Player_Weapon_Infos[pnum][i].wep_mods[j][k].tier)
 					SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, 0);
@@ -1395,7 +1395,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 			
 			// rest of the mods
 			for(j = 0; j < MAX_WEP_MODS; ++j) {
-				for(int k = 0; k < DND_MAX_WEAPONMODSOURCES; ++k) {
+				for(int k = WMOD_WEP; k < DND_MAX_WEAPONMODSOURCES; ++k) {
 					// so we dont save hundreds of data for no reason if they dont even exist
 					if(Player_Weapon_Infos[pnum][i].wep_mods[j][k].tier)
 						SetDBEntry(StrParam(s:GetCharField(DND_DB_WEAPONMOD_TIER, char_id), d:j, s:"_Weapon", d:i, s:"_", d:k), pacc, 0);

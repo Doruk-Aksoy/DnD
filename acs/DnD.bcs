@@ -880,6 +880,14 @@ Script "DND On Kill" KILL {
 		DungeonBossData[BOSSDATA_TID] = 0;
 		ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
 	}
+
+	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
+		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
+		// adds 5 seconds for killing it to the timer
+		NPC_States[DND_NPC_DARKWANDERER].time += 5 * (1 + GetMonsterSizeType(MonsterProperties[m_id].id));
+	}
+	else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
+		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
 	
 	// only work if you can determine target as a player and if the player is alive
 	// if player has no level data don't process anything as it's somehow bad state to work with
@@ -896,14 +904,6 @@ Script "DND On Kill" KILL {
 	SetInventory("DnD_FreezeTimer", 0);
 
 	ACS_NamedExecuteAlways("DnD Monster Death Effects", 0, this, m_id);
-		
-	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
-		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
-		// adds 5 seconds for killing it to the timer
-		NPC_States[DND_NPC_DARKWANDERER].time += 5 * (1 + GetMonsterSizeType(MonsterProperties[m_id].id));
-	}
-	else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
-		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
 
 	if(NPC_States[DND_NPC_DARKWANDERER].n_state == NPC_STATE_VOTE_ACCEPT && NPC_States[DND_NPC_DARKWANDERER].offer > NPC_OFFER_NA) {
 		// 20% chance to add 1, 4 or 7 seconds depending on monster size
@@ -926,7 +926,7 @@ Script "DND On Kill" KILL {
 	// set activator back to the monster
 	SetActivator(this);
 
-	HandleNPCChallenges(this, m_id);
+	//HandleNPCChallenges(this, m_id);
 	
 	// 25% chance to explode
 	if(!random(0, 3) && HasActorClassPerk_Fast(target, "Wanderer", 4))
@@ -2338,7 +2338,7 @@ Script "DnD Player Levelup Check" (int tid) {
 		// player just leveled and got their perks? check if so
 		bool newPerk = false;
 		for(int i = DND_CLASSPERK_1; !newPerk && i < DND_CLASSPERK_LAST; ++i)
-			newPerk = prevlvl < i * DND_PERK_REGULARTHRESHOLD && currlvl <= i + DND_PERK_REGULARTHRESHOLD;
+			newPerk = prevlvl < i * DND_PERK_REGULARTHRESHOLD && currlvl >= i * DND_PERK_REGULARTHRESHOLD;
 
 		if(newPerk) {
 			HandleClassPerks(tid);
@@ -2862,6 +2862,12 @@ Script "DnD On Respawn" RESPAWN {
 	ACS_NamedExecuteAlways("DnD Punisher Perk50 Display", 0);
 	ACS_NamedExecuteWithResult("DnD Can Fire Weapon", 0);
 	ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
+
+	int temp = GetPlayerEnergyShieldCap(pnum);
+	if(CheckInventory("EShieldAmount") < temp) {
+		SetInventory("EShieldAmount", temp);
+		HandleEShieldChange(pnum, false);
+	}
 
 	ConditionalCalculateUnity(pnum);
 }
@@ -4285,14 +4291,16 @@ Script "DnD Check Special GameMode" (void) {
 }
 
 Script "DnD Talisman Mark Timer" (int counter) {
+	ACS_NamedExecuteAlways("DnD Talisman Mark", 0, ActivatorTID());
 	GiveInventory("HunterTalismanMarkBool", 1);
 	for(int i = 0; i < counter && isAlive(); ++i)
 		Delay(35);
 	TakeInventory("HunterTalismanMarkBool", 1);
 }
 
-Script "DnD Talisman Mark" (void) CLIENTSIDE {
-	CreateMonsterAttachment(ActivatorTID(), "HunterTalismanFX", 0, 0, 48.0);
+Script "DnD Talisman Mark" (int tid) CLIENTSIDE {
+	if(tid)
+		CreateMonsterAttachment(tid, "HunterTalismanFX", 0, 0, 8.0);
 }
 
 Script "DnD Chest Dropping Item" (int chance_penalty) {
@@ -5425,6 +5433,7 @@ Script "DnD Play Taunt Sound" (int pclass) CLIENTSIDE {
 	PlaySound(0, snd, CHAN_BODY, 1.0);
 }
 
+// Player spawned projectiles run this!
 Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	int owner = !isPet ? GetActorProperty(0, APROP_TARGETTID) : ACS_NamedExecuteWithResult("DnD Get Master of Target");
 	if(!IsPlayer(owner)) {
@@ -5969,14 +5978,16 @@ Script 68 (int x) NET {
 		}
 		else if(x == 420) {
 			//Log(s:"charm");
-			SpawnCharm(0, true);
 			//SpawnCharm(0, true);
+			SpawnCharm(0, true);
 			//Log(s:"armor");
 			SpawnArmor(0, true, 0);
 			//Log(s:"pcore");
-			SpawnPowercore(0, true);
+			//SpawnPowercore(0, true);
 			//Log(s:"orb");
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_AFFLUENCE, true, true, 100);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SCULPTING, true, true, 100);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
@@ -5984,10 +5995,11 @@ Script 68 (int x) NET {
 			//Log(s:"boot");
 			SpawnBoot(0, 0);
 			//Log(s:"helm");
-			//SpawnHelm(0, 0);
+			SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_ESS_VAAJ);
+			//SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
+			//SpawnCharmWithMods_ForAll(INV_INC_PLUSTWOPROJ);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
@@ -6055,6 +6067,9 @@ Script 68 (int x) NET {
 			ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
 		else if(x == 667)
 			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
+		else if(x == 1000) {
+			SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
+		}
 		else {
 			int c = CreateItemSpot();
 			//i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);

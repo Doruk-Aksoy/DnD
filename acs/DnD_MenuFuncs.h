@@ -4421,7 +4421,11 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 		// if there is an orb here, draw it
 		int o_id = TransmuteOrbs[pnum][i];
 		if(o_id != -1) {
-			SetFont(GetItemImage(o_id + ITEM_IMAGE_ORB_BEGIN));
+			str i_img = GetItemImage(o_id + ITEM_IMAGE_ORB_BEGIN);
+			if(o_id >= DND_MON_DROP_ORB_BEGIN)
+				i_img = GetItemImage(o_id + ITEM_IMAGE_MONSTERORB_BEGIN - DND_MON_DROP_ORB_BEGIN);
+			SetFont(i_img);
+
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 2 * thisboxid - id_offset, CR_WHITE, hudx, hudy, 0.0, 0.0);
 			
 			if(isHovered)
@@ -5110,6 +5114,8 @@ int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
 			val += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 		break;
 	}
+	if(val > cap)
+		val = cap;
 	return val;
 	//return ApplyResistCap(pnum, val, cap);
 }
@@ -5213,33 +5219,33 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_FIRE);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_FIRE)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_ICE);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_ICE)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_LIGHTNING);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_LIGHTNING)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_POISON);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_POISON)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s: " ", l:"DND_MENU_PENETRATION", s:"\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s: " ", l:"DND_MENU_PENETRATION", s:" \cf(H)\c-\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s:" \cf(H)\c-\n");
 				++k;
 			}
 			// pen block ends

@@ -7,13 +7,13 @@
 
 #define SIZEOF_INT 4
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
 #endif
 
-//#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
+#define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
 //#define HELPER_MESSAGES_ON
 
@@ -174,7 +174,8 @@ enum {
 
 enum {
 	// from 1 to DND_MAX_MONSTERS + 1 is the amount of monsters we support -- we'll do tid - 1 to access array loc
-	DND_MONSTERTID_BEGIN = 1,
+	AUX_INCURSION_PUFF_TID = 1,
+	DND_MONSTERTID_BEGIN,
 	
 	// 12801 - 12864 player tid range
 	P_TIDSTART = DND_MONSTERTID_BEGIN + DND_MAX_MONSTERS,
@@ -236,6 +237,7 @@ enum {
 	ZEALOT_SHIELD_TID,
 
 	AUX_FX_TID,
+	AUX_SPAWNER_TID,
 
 	WANDERER_AURA_TID,
 	
@@ -740,47 +742,37 @@ void SpawnDropFacing(str actor, int zoffset, int thrust, int setspecial, int set
 	Thing_ChangeTID(DND_DROP_TID, 0);
 }
 
-int SpawnAreaTID(int stid, int maxdist, int degree_inc, str actortype, int newtid, int ang_begin, int forced) {
+// r first 16 bits contain dist, next 8 bits ang increment, next 8 bits begin_angle
+// all this needed because this engine is shit so the whole thing is an awful hack, dont give anything above 255 to this thing...
+Script "DnD Try Spawn Area" (int stid, int actortype, int newtid, int r) {
 	// tries to spawn an object in a circle around stid
 	// tries halving radius if a full circular attempt failed until radius becomes 1
-	int r = maxdist, tries = 0, circle_comp = 360 / (degree_inc >> 16);
+	int degree_inc = (r >> 16) & 0xFF;
+	int ang_begin = (((r >> 24) & 0xFF) << 16) / 360;
+	r &= 0xFFFF;
+	r <<= 16;
+
+	int tries = 0, circle_comp = 360 / degree_inc;
 	int sang = GetActorAngle(stid) + ang_begin;
 	bool finish = false;
 	// convert to byte angle for this part
+	degree_inc <<= 16;
 	degree_inc /= 360; 
-	//degree_inc <<= 8;
 
-	// apparently this causes expression incomplete even though it looks complete to me
-	//int function(str, int, int, int, int, int)& f = Spawn;
 	int cx, cy, cz;
-	if(forced) {
-		while(r > 1.0 && !finish) {
-			// try to spawn at this one point
-			cx = GetActorX(stid) + FixedMul(r, cos(sang + tries * degree_inc));
-			cy = GetActorY(stid) + FixedMul(r, sin(sang + tries * degree_inc));
-			cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
-				
-			if(SpawnForced(actortype, cx, cy, cz, newtid, 0))
-				finish = true;
-			else {
-				++tries;
-				if(tries == circle_comp) {
-					tries = 0;
-					r /= 2;
-				}
-			}
-		}
-	}
-	else {
-		while(r > 1.0 && !finish) {
-			// try to spawn at this one point
-			cx = GetActorX(stid) + FixedMul(r, cos(sang + tries * degree_inc));
-			cy = GetActorY(stid) + FixedMul(r, sin(sang + tries * degree_inc));
+	while(r > 1.0 && !finish) {
+		// try to spawn at this one point
+		LineAttack(stid, sang, 0, 0, "DnD_IncursionPuff", "", r);
+
+		if(ThingCountName("DnD_IncursionPuff", AUX_INCURSION_PUFF_TID)) {
+			cx = GetActorX(AUX_INCURSION_PUFF_TID);
+			cy = GetActorY(AUX_INCURSION_PUFF_TID);
 			cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
 
 			if(Spawn(actortype, cx, cy, cz, newtid, 0))
 				finish = true;
 			else {
+				Thing_ChangeTID(AUX_INCURSION_PUFF_TID, 0);
 				++tries;
 				if(tries == circle_comp) {
 					tries = 0;
@@ -788,23 +780,45 @@ int SpawnAreaTID(int stid, int maxdist, int degree_inc, str actortype, int newti
 				}
 			}
 		}
+		else {
+			++tries;
+			if(tries == circle_comp) {
+				tries = 0;
+				r /= 2;
+			}
+		}
+
+		sang += tries * degree_inc;
 	}
-	return finish;
+
+	// dark wanderer special thingy (yes its awful i know)
+	if(newtid == DND_NPC_TID) {
+		SetThingSpecial(newtid, ACS_ExecuteAlways, 895, 0, 0, DND_NPC_TID);
+		FaceActor(newtid, stid);
+	}
+	
+	SetResultValue(0);
 }
 
-int SpawnAreaRandomTID(int stid, int radius, str actortype, int newtid, int max_tries = 30) {
+int SpawnAreaRandomTID(int stid, int radius, str actortype, int newtid, int max_tries = 8) {
 	int count = 0;
 	bool finished = false;
 	while(!finished && count++ < max_tries) {
-		// not the most uniform circle random point picker, but it's "close enough" -- mathematically robust one uses sqrt on the rng, too expensive for this game
-		int r = FixedMul(radius, random(0, 1.0));
-		int sang = random(0, 1.0);
+		// try to spawn at this one point
+		int r = FixedMul(radius, random(0.1875, 1.0));
+		LineAttack(stid, random(0, 1.0), 0, 0, actortype, "", r);
+		finished = true;
+		break;
+		/*if(ThingCountName("DnD_IncursionPuff", AUX_INCURSION_PUFF_TID)) {
+			int cx = GetActorX(AUX_INCURSION_PUFF_TID);
+			int cy = GetActorY(AUX_INCURSION_PUFF_TID);
+			int cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
 
-		int cx = GetActorX(stid) + FixedMul(r, cos(sang));
-		int cy = GetActorY(stid) + FixedMul(r, sin(sang));
-		int cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
-		if(Spawn(actortype, cx, cy, cz, newtid, 0))
-			finished = true;
+			if(Spawn(actortype, cx, cy, cz, newtid, 0))
+				finished = true;
+			else
+				Thing_ChangeTID(AUX_INCURSION_PUFF_TID, 0);
+		}*/
 	}
 
 	return finished;

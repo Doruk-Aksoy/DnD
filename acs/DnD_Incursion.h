@@ -3,7 +3,7 @@
 
 #define DND_INCURSION_MARKER_MERGECOUNT 4 // if this many markers have spawned within the radius, they'll merge to form a portal -- this is technically 3, as the marker itself counts as 1 too
 #define DND_INCURSION_MERGERADIUS 640.0 // the maximum radius in which incursion markers can be merged
-#define DND_INCURSION_BASE_MARKERCHANCE 0.75 // 15%
+#define DND_INCURSION_BASE_MARKERCHANCE 0.75 // 17.5%
 #define DND_INCURSION_MIN_MARKERCHANCE 0.075
 #define DND_INCURSION_BONUSMULT 0.33 // up to 33% increase the more it processes the monster list (to help even the odds and avoid "drought" situations)
 #define DND_INCURSION_IMPROVETHRESHOLD 500
@@ -189,10 +189,10 @@ Script "DnD Incursion Spawn" (int incursion_theme) {
         for(int j = 0; j < val; ++j) {
             if(SpawnAreaRandomTID(0, DND_INCURSION_SPAWNRADIUS, spawner, DND_INCURSION_SPAWNER_AUX)) {
                 //Log(s:"spawned!");
-                SetActorProperty(DND_INCURSION_SPAWNER_AUX, APROP_SCORE, incursion_theme);
-                Thing_ChangeTID(DND_INCURSION_SPAWNER_AUX, 0);
+                //SetActorProperty(DND_INCURSION_SPAWNER_AUX, APROP_SCORE, incursion_theme);
+                //Thing_ChangeTID(DND_INCURSION_SPAWNER_AUX, 0);
                 spawned = true;
-                Delay(const:1);
+                Delay(const:2);
             }
         }
 

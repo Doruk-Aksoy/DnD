@@ -180,24 +180,6 @@ enum {
 const int DND_FORCEDLEVEL = 7;
 const int DND_PASSLEVEL = 8;
 
-Actor DnD_AttachedFXBase {
-	+MISSILE
-	+NOGRAVITY
-	+NOCLIP
-	+CLIENTSIDEONLY
-	+NOTONAUTOMAP
-	States {
-		Spawn:
-			TNT1 A 0
-			TNT1 A 2
-			TNT1 A 35 A_Jump(256, "SpawnLoop")
-		Wait
-		Disappear:
-			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
-		Stop
-	}
-}
-
 Actor EliteSpecialFX : DnD_AttachedFXBase {
 	Height 2
 	Radius 1

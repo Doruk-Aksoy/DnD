@@ -248,7 +248,7 @@ enum {
 #define DARKLANCE_ALT_DURATION 15 // 105 tic duration, 7 tic timer between damage instances => 105 / 7 = 15
 #define DARKLANCE_ALT_DURATION_TICS 105
 #define DARKLANCE_TICKS 7
-#define DARKLANCE_BOUNCE_DIST 224.0
+#define DARKLANCE_BOUNCE_DIST 256.0
 
 #define DND_LAND_WINDOW 1.0
 #define DND_MAX_CORPSELAND_ATTEMPTS 1024
@@ -329,34 +329,72 @@ int DnD_BonusMessageY(int bonustype) {
 void CalculateMapDifficulty() {
 	int factor = 0;
 	// yes this is ugly but it won't ever change, no new spawners will come etc so why not :)
-	factor += ThingCountName("ZombiemanSpawner", 0) * DND_ZOMBIE_CONTRIB;
-	factor += ThingCountName("ShotgunguySpawner", 0) * DND_SHOTGUNNER_CONTRIB;
-	factor += ThingCountName("ChaingunguySpawner", 0) * DND_CHAINGUNNER_CONTRIB;
-	factor += ThingCountName("DemonSpawner", 0) * DND_DEMON_CONTRIB;
-	factor += ThingCountName("SpectreSpawner", 0) * DND_DEMON_CONTRIB;
-	factor += ThingCountName("ImpSpawner", 0) * DND_IMP_CONTRIB;
-	factor += ThingCountName("LostSoulSpawner", 0) * DND_SOUL_CONTRIB;
-	factor += ThingCountName("CacodemonSpawner", 0) * DND_CACO_CONTRIB;
-	factor += ThingCountName("PainElementalSpawner", 0) * DND_PAIN_CONTRIB;
-	factor += ThingCountName("RevenantSpawner", 0) * DND_REVENANT_CONTRIB;
-	factor += ThingCountName("HellKnightSpawner", 0) * DND_HELLKNIGHT_CONTRIB;
+	int temp = ThingCountName("ZombiemanSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] = temp;
+	factor += temp * DND_ZOMBIE_CONTRIB;
+
+	temp = ThingCountName("ShotgunguySpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_SHOTGUNNER_CONTRIB;
+
+	temp = ThingCountName("ChaingunguySpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_CHAINGUNNER_CONTRIB;
+
+	temp = ThingCountName("DemonSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_DEMON_CONTRIB;
+
+	temp = ThingCountName("SpectreSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_DEMON_CONTRIB;
+
+	temp = ThingCountName("ImpSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_IMP_CONTRIB;
+
+	temp = ThingCountName("LostSoulSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_SOUL_CONTRIB;
+
+	temp = ThingCountName("CacodemonSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_CACO_CONTRIB;
+
+	temp = ThingCountName("PainElementalSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_PAIN_CONTRIB;
+
+	temp = ThingCountName("RevenantSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_REVENANT_CONTRIB;
+
+	temp = ThingCountName("HellKnightSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
+	factor += temp * DND_HELLKNIGHT_CONTRIB;
 
 	MapData[DND_MAPDATA_BARONCOUNT] = ThingCountName("BaronSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_BARONCOUNT];
 	factor += MapData[DND_MAPDATA_BARONCOUNT] * DND_BARON_CONTRIB;
 
 	MapData[DND_MAPDATA_FATSOCOUNT] = ThingCountName("FatsoSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_FATSOCOUNT];
 	factor += MapData[DND_MAPDATA_FATSOCOUNT] * DND_FATSO_CONTRIB;
 
 	MapData[DND_MAPDATA_ARACHNOCOUNT] = ThingCountName("SpiderSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_ARACHNOCOUNT];
 	factor += MapData[DND_MAPDATA_ARACHNOCOUNT] * DND_ARACHNO_CONTRIB;
 
 	MapData[DND_MAPDATA_ARCHVILECOUNT] = ThingCountName("ArchVileSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_ARCHVILECOUNT];
 	factor += MapData[DND_MAPDATA_ARCHVILECOUNT] * DND_VILE_CONTRIB;
 
 	MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] = ThingCountName("MastermindSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT];
 	factor += MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] * DND_SPIDERMASTERMIND_CONTRIB;
 
 	MapData[DND_MAPDATA_CYBERDEMONCOUNT] = ThingCountName("CyberSpawner", 0);
+	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_CYBERDEMONCOUNT];
 	factor += MapData[DND_MAPDATA_CYBERDEMONCOUNT] * DND_CYBERDEMON_CONTRIB;
 
 	factor += ThingCountName("BossBrain", 0) * DND_BOSSBRAIN_CONTRIB;

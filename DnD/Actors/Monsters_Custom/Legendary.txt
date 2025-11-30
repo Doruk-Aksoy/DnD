@@ -2701,7 +2701,7 @@ Actor Golgoth : DnD_BaseHybridBoss {
 	+NODROPOFF
 	+DONTRIP
 	-FLOORCLIP
-	RadiusDamageFactor 0
+	RadiusDamageFactor 0.5
 	states {
 		SetInfo:
 			TNT1 A 1

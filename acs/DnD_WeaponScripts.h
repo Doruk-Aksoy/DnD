@@ -1277,12 +1277,13 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 		
 		// apply stacks and dot multi
 		int calc_dmg = dmg * (100 + stacks) / 100;
-		calc_dmg = calc_dmg * (100 + GetPlayerAttributeValue(pnum, INV_DOTMULTI)) / 100;
+		calc_dmg = GetGenericDoTDamage(pnum, calc_dmg, victim, DND_WEAPON_DARKLANCE);
 			
 		PlaySound(victim, "Darklance/Affliction", CHAN_ITEM, 1.0);
 		
 		bool terminated = false;
 		int i;
+		int orig_height = GetActorProperty(victim, APROP_HEIGHT);
 		for(i = 0; !terminated && i < time_lim; ++i) {
 			// flat dot damage added after stacks are multiplied, because otherwise it's too overpowered...
 			int tmp_dmg;
@@ -1293,6 +1294,8 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 			
 			Delay(const:DARKLANCE_TICKS);
 		}
+
+		terminated = !isActorAlive(victim);
 		
 		// find nearest monster to bounce to
 		if(terminated) {
@@ -1311,10 +1314,14 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 				i = UsedMonsterTIDs[mn];
 				if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE") && IsMonster(i)) {
 					dist = fdistance(prev_victim, i);
+
+					time_lim = GetActorZ(prev_victim);
+					SetActorPosition(prev_victim, GetActorX(prev_victim), GetActorY(prev_victim), GetActorZ(prev_victim) + orig_height - 24.0, false);
 					if(dist < DARKLANCE_BOUNCE_DIST && dist < curr_dist && CheckSight(prev_victim, i, CSF_NOBLOCKALL)) {
 						victim = i;
 						curr_dist = dist;
 					}
+					SetActorPosition(prev_victim, GetActorX(prev_victim), GetActorY(prev_victim), time_lim, false);
 				}
 			}
 			

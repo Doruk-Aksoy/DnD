@@ -50,7 +50,7 @@ CLASS1_PERK1_DESC		= "Your explosives do 25% less self damage.";
 CLASS1_PERK2_DESC		= "Your explosive projectiles can't be reflected.";
 CLASS1_PERK3_DESC		= "Take 33% less damage from radius damage. Your explosives ignore radius damage immunity.";
 CLASS1_PERK4_DESC		= "Losing 40% of your health in the span of a two seconds makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
-CLASS1_PERK5_DESC		= "Explosives gain 25% chance to trigger again scaling up to 100% per 1% missing health. The effect is maximized at 50% missing health.";
+CLASS1_PERK5_DESC		= "Regular explosives gain 25% chance to trigger again scaling up to 100% per 1% missing health. The effect is maximized at 50% missing health.";
 	
 
 // Hobo

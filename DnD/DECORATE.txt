@@ -116,6 +116,23 @@ const int SPECIAL_FX_TID = 2147483647;
 
 #include "Actors/Monsters_Custom/Uniques.txt"
 
+// Incursion Monsters
+// Chex
+#include "Actors/Monsters_Custom/Incursion/Chex/Base.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/CommonFlemoid.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/BipedalFlemoid.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/ArmoredFlemoid.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/HeavyArmored.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Cyclops.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Larva.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Stridicus.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/FlemMine.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Quadwumpus.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Maximus.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Flembomination.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Snotfolus.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/SuperCyclops.txt"
+
 // Spawners
 #include "Actors/Spawners/Spawner.txt"
 #include "Actors/Spawners/ZombieManSpawner.txt"
@@ -136,42 +153,5 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Spawners/SpiderBossSpawner.txt"
 #include "Actors/Spawners/CyberdemonSpawner.txt"
 #include "Actors/Spawners/WolfenSpawner.txt"
-
-// Incursion Spawners
-#include "Actors/Spawners/Incursion/ZombieManSpawner.txt"
-#include "Actors/Spawners/Incursion/ShotgunguySpawner.txt"
-#include "Actors/Spawners/Incursion/ChaingunguySpawner.txt"
-#include "Actors/Spawners/Incursion/DemonSpawner.txt"
-#include "Actors/Spawners/Incursion/SpectreSpawner.txt"
-#include "Actors/Spawners/Incursion/ImpSpawner.txt"
-#include "Actors/Spawners/Incursion/CacoSpawner.txt"
-#include "Actors/Spawners/Incursion/PainElementalSpawner.txt"
-#include "Actors/Spawners/Incursion/LostSoulSpawner.txt"
-#include "Actors/Spawners/Incursion/RevenantSpawner.txt"
-#include "Actors/Spawners/Incursion/HellKnightSpawner.txt"
-#include "Actors/Spawners/Incursion/BaronSpawner.txt"
-#include "Actors/Spawners/Incursion/FatsoSpawner.txt"
-#include "Actors/Spawners/Incursion/ArchVileSpawner.txt"
-#include "Actors/Spawners/Incursion/ArachnoSpawner.txt"
-#include "Actors/Spawners/Incursion/SpiderBossSpawner.txt"
-#include "Actors/Spawners/Incursion/CyberdemonSpawner.txt"
-#include "Actors/Spawners/Incursion/WolfenSpawner.txt"
-
-// Incursion Monsters
-// Chex
-#include "Actors/Monsters_Custom/Incursion/Chex/Base.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/CommonFlemoid.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/BipedalFlemoid.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/ArmoredFlemoid.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/HeavyArmored.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/Cyclops.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/Larva.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/Stridicus.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/FlemMine.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/Quadwumpus.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/Maximus.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/Flembomination.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/Snotfolus.txt"
-#include "Actors/Monsters_Custom/Incursion/Chex/SuperCyclops.txt"
 
 #include "Actors/DarkWanderer.txt"

@@ -4151,7 +4151,7 @@ Actor ZravogSlamDamager : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 4 A_Explode(128, 192, 0)
+			TNT1 A 4 A_Explode(160, 288, 0)
 		Stop
 	}
 }

@@ -2243,7 +2243,6 @@ Actor DreadKnight : DnD_BaseHybridMonster {
 	Translation "3:3=40:40", "80:111=%[0.00,0.00,0.00]:[1.43,0.31,0.31]"
 	Health 0x7FFFFFFF
 	Scale 1.1
-	RadiusDamageFactor 1.0
 	HitObituary "%o was dismembered by a dread knight."
 	Obituary "%o cowered away in fear of a dread knight's power."
 	SeeSound "DreadKnight/See"
