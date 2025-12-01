@@ -329,7 +329,7 @@ void SavePlayerData(int pnum, int char_id) {
 	str pacc = GetPlayerAccountName(pnum);
 	
 	// save class id -- the character class they use!
-	Log(s:"Save => char_id: ", d:char_id, s: " Character Class: ", d:CheckActorInventory(tid, "DnD_Character"),s :" pacc: ", s:pacc);
+	//Log(s:"Save => char_id: ", d:char_id, s: " Character Class: ", d:CheckActorInventory(tid, "DnD_Character"),s :" pacc: ", s:pacc);
 	SetDBEntry(GetCharField(DND_DB_CLASSID, char_id), pacc, CheckActorInventory(tid, "DnD_Character"));
 	
 	// save weapons

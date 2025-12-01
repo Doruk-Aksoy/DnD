@@ -70,7 +70,7 @@ void InitAttachments(int m_id) {
 	MonsterAttachmentUsed[m_id] = 0;
 }
 
-Script "Dnd Init Monster Attachments" (int m_id) CLIENTSIDE {
+Script "DnD Init Monster Attachments" (int m_id) CLIENTSIDE {
 	InitAttachments(m_id);
 	SetResultValue(0);
 }

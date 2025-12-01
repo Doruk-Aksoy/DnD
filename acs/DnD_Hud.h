@@ -216,7 +216,7 @@ void ClearMenuDisplay() {
 	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
 	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
 
-	DeleteTextRange(RPGMENUITEMID - 4, RPGMENUITEMID);
+	DeleteTextRange(RPGMENUITEMID - 6 - MAXPLAYERS, RPGMENUITEMID);
 
 	// login screen for hardcore
 	DeleteText(DND_HARDCORE_SCREENID);

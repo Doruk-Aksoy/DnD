@@ -16,7 +16,7 @@ Actor ArmoredBipedalBall {
 	Speed 28
 	Radius 4
 	Height 8
-	Damage (random(10, 16))
+	Damage (random(12, 18))
 	Accuracy 133
 	+NODAMAGETHRUST
 	DamageType "Poison"
@@ -35,6 +35,10 @@ Actor ArmoredBipedalBall {
 			CP00 CDE 6
 		stop
 	}
+}
+
+Actor WeakFlemoidBall : ArmoredBipedalBall {
+	Damage (random(5, 10))
 }
 
 ACTOR QuadrumpusBall

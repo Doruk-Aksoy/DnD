@@ -33,7 +33,7 @@ AddKeySection "DnD Keys" DNDKEYS
 	Alias stash "pukename \"DnD Open Stash\""
 	AddMenuKey "DnD Stash Dump" stashdump
 	Alias stashdump "pukename \"DnD Dump to Stash\""
-	AddMenuKey "DnD Stash Dump (Orbs Only)" stashdumporbs
+	AddMenuKey "DnD Stash Dump (Stackables Only)" stashdumporbs
 	Alias stashdumporbs "pukename \"DnD Dump to Stash\" 1"
 	AddMenuKey "DnD Dash" dashuse
 	Alias dashuse "Puke 997"

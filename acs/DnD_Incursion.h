@@ -1,6 +1,39 @@
 #ifndef DND_INCURSION_IN
 #define DND_INCURSION_IN
 
+#define DND_INCURSION_CHANCE 0.2
+#define DND_INCURSION_ITEMCHANCE 0.05 // 5% chance for an item to have an incursion mod on it
+
+bool RollIncursionItemChance() {
+    return random(0, 1.0) <= DND_INCURSION_ITEMCHANCE;
+}
+
+enum {
+    DND_INCURSION_FAILED = -1,
+    DND_INCURSION_NA = 0,
+    DND_INCURSION_ON_CHEX,
+};
+#define DND_INCURSION_THEME_BEGIN DND_INCURSION_ON_CHEX
+#define DND_INCURSION_THEME_END DND_INCURSION_ON_CHEX
+
+int RollIncursionTheme() {
+    return random(DND_INCURSION_THEME_BEGIN, DND_INCURSION_THEME_END);
+}
+
+bool IsIncursionActive() {
+    return MapData[DND_MAPDATA_INCURSIONSTATE] >= DND_INCURSION_ON_CHEX;
+}
+
+str GetIncursionSpawnerLabel() {
+    switch(MapData[DND_MAPDATA_INCURSIONSTATE]) {
+        case DND_INCURSION_ON_CHEX:
+        return "Incursion_Chex";
+    }
+
+    // not valid, so vanilla
+    return "Vanilla";
+}
+
 #define DND_INCURSION_MARKER_MERGECOUNT 4 // if this many markers have spawned within the radius, they'll merge to form a portal -- this is technically 3, as the marker itself counts as 1 too
 #define DND_INCURSION_MERGERADIUS 640.0 // the maximum radius in which incursion markers can be merged
 #define DND_INCURSION_BASE_MARKERCHANCE 0.75 // 17.5%

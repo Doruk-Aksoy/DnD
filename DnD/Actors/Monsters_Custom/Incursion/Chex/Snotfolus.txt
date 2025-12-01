@@ -38,9 +38,7 @@ ACTOR Snotfolus : DnD_BaseRangedBoss {
 			C011 AABBCCDD 3 A_Chase
 		loop
 		IdleState:
-			C011 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
-			C011 AB 8 A_Wander
-			C011 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C011 AABB 4 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		MissileState:
 			C011 E 5 A_FaceTarget

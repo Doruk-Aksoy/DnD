@@ -5369,7 +5369,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// generic things like dot multi, dot %
 			val = GetPlayerDOTMulti(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:GetItemAttributeText(INV_DOTMULTI, 0, 0, val), s:"\n");
+				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DOTMULTI, 0, 0, val), s:"\n");
 				++k;
 			}
 			

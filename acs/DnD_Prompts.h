@@ -552,6 +552,12 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 
 	// draw greetings text
 	SetFont("SMALLFONT");
+
+	HudMessage(
+		s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s: " \c[L7]", l:"CLASS_TOCLOSE", s:"!";
+		HUDMSG_PLAIN, RPGMENUITEMID - 5, -1, (HUDMAX_X_PROMPT << 15) + 0.4, ((HUDMAX_Y_PROMPT << 16) - 100.0) + 0.1, 0.0, 0.0
+	);
+
 	SetHudClipRect(160, 128, 532, 600, 532);
 	
 	menu_pane_T module& CurrentPane = GetPane();
@@ -619,7 +625,7 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 	int i, j, k;
 	int pnum = PlayerNumber();
 	bool sendInput = false;
-	while(CheckInventory("ShowingPrompt") && !CheckInventory("ShowingMenu")) {
+	while(isAlive() && CheckInventory("ShowingPrompt") && !CheckInventory("ShowingMenu")) {
 		// cursor handling
 		PlayerCursorData.posx = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_YAW), MOUSE_INPUT_X);
 		PlayerCursorData.posy = GetCursorPos(GetPlayerInput(ConsolePlayerNumber(), INPUT_PITCH), MOUSE_INPUT_Y);
@@ -677,11 +683,11 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			SetFont("SMALLFONT");
 			for(i = 0; i < MAXPLAYERS; ++i) {
 				if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == 1) {
-					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 5 - j - k, CR_UNTRANSLATED, 320.4, yOff + 16.0 * (j + 1), 0.0, 0.0);
+					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 6 - j - k, CR_UNTRANSLATED, 320.4, yOff + 16.0 * (j + 1), 0.0, 0.0);
 					++j;
 				}
 				else if(NPC_States[DND_NPC_DARKWANDERER].voters[i] == -1) {
-					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 5 - j - k, CR_UNTRANSLATED, 480.4, yOff + 16.0 * (k + 1), 0.0, 0.0);
+					HudMessage(n:i + 1; HUDMSG_PLAIN, RPGMENUITEMID - 6 - j - k, CR_UNTRANSLATED, 480.4, yOff + 16.0 * (k + 1), 0.0, 0.0);
 					++j;
 				}
 			}

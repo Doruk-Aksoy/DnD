@@ -224,13 +224,6 @@ Actor EliteSpecialFX : DnD_AttachedFXBase {
 			SKFX A 1 Bright A_Warp(AAPTR_TARGET, score, score, mass, 5, WARPF_USECALLERANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_FadeIn(f)
 		Loop
-		Death:
-		Fade:
-			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
-		Stop
-		Remove:
-			TNT1 A 1
-		Stop
 	}
 }
 
@@ -240,10 +233,6 @@ Actor DnD_PetIcon : DnD_AttachedFXBase {
 		SpawnLoop:
             AMIN AAA 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 		Loop
-		Death:
-		Remove:
-			TNT1 A 1
-		Stop
 	}
 }
 
@@ -263,12 +252,6 @@ Actor DnD_BlindIcon : DnD_AttachedFXBase {
 			ESYM HHHH 1 Bright A_Warp(AAPTR_TARGET, 0, 0, mass, 0, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
-		Death:
-			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
-		Stop
-		Remove:
-			TNT1 A 1
-		Stop
 	}
 }
 
@@ -333,7 +316,7 @@ Actor PetrifyBlindFX {
 			TNT1 A 0 A_JumpIfInTargetInventory("BlindCancelledSignal", 1, "Disappear")
 		Loop
 		Disappear:
-			TNT1 A 0
+			TNT1 A 1
 		Stop
 	}
 }

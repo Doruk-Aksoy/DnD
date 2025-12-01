@@ -69,7 +69,7 @@ CLASS2_PERK4			= "Amphetamine Boost";
 CLASS2_PERK5			= "Shotgun Rampage";
 
 CLASS2_PERK1_DESC		= "Shotgun weapons cost 20% less to buy and research.";
-CLASS2_PERK2_DESC		= "Shotguns have 15% resist pierce and 25% more pellets. Every 20 levels afterward additionally increases this pierce by 5% and pellets by 15%.";
+CLASS2_PERK2_DESC		= "Shotguns have 10% resist pierce and 25% more pellets. Every 20 levels afterward additionally increases this pierce by 5% and pellets by 15%.";
 CLASS2_PERK3_DESC		= "Hitting the same enemy with any shotgun's standard ammo more than 3 times within 10 seconds triggers 'Shotgun Frenzy', if not already frenzied. During this, shotguns have 25% chance to not use any ammo for 10 seconds, have 33% increased accuracy and gain up to 50% more damage depending on your distance to the enemy.";
 CLASS2_PERK4_DESC		= "Once per map, use the '+zoom' key to self-administer a syringe. While active, the user moves 33% faster, gains 20% to mitigation chance and 10% to mitigation effect for 30 seconds.";
 CLASS2_PERK5_DESC		= "Shotgun Frenzy instead grants 33% chance to not use ammo, 50% increased accuracy, 100% more damage with distance and kills extend duration by 1 second up to 15 seconds.";

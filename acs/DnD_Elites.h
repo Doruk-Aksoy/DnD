@@ -237,7 +237,7 @@ void SetEliteFlag(int f, bool updateCS) {
 			GiveInventory("MakeHatred", 1);
 		break;
 		case DND_FORTIFIED:
-			GiveInventory("MonsterFortifyCount", MonsterProperties[this].maxhp / DND_FORTIFY_AMOUNT);
+			GiveInventory("MonsterFortifyCount", MonsterProperties[this].maxhp * (DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)) / 100);
 		break;
 		case DND_REPEL:
 			GiveInventory("Repel_Script_Run", 1);

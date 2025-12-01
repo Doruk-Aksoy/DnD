@@ -540,7 +540,7 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[1].attrib_low = 0.1;
 	UniqueItemList[id].rolls[1].attrib_high = 1.0;
 	UniqueItemList[id].rolls[2].attrib_low = 5;
-	UniqueItemList[id].rolls[2].attrib_high = 15;
+	UniqueItemList[id].rolls[2].attrib_high = 10;
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
 	id = UITEM_THORNVEIN;
@@ -561,12 +561,12 @@ void SetupUniqueItems() {
 	UniqueItemList[id].rolls[0].attrib_low = 1;
 	UniqueItemList[id].rolls[0].attrib_high = 1;
 	UniqueItemList[id].rolls[1].attrib_low = 50;
-	UniqueItemList[id].rolls[1].attrib_high = 200;
+	UniqueItemList[id].rolls[1].attrib_high = 250;
 	UniqueItemList[id].rolls[2].attrib_low = 25;
-	UniqueItemList[id].rolls[2].attrib_high = 60;
+	UniqueItemList[id].rolls[2].attrib_high = 75;
 	UniqueItemList[id].rolls[3].attrib_low = 1;
 	UniqueItemList[id].rolls[3].attrib_high = 1;
-	UniqueItemList[id].rolls[4].attrib_low = 5;
+	UniqueItemList[id].rolls[4].attrib_low = 3;
 	UniqueItemList[id].rolls[4].attrib_high = 10;
 
 	// powercores

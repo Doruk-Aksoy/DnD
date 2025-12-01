@@ -784,18 +784,18 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 				// boot and body armor chance is equal
 				tmp = random(1, 100);
 				if(tmp <= 33) {
-					if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+					if(incursion && RollIncursionItemChance())
 						SpawnArmorWithMods(i, PickRandomIncursionMod());
 					else
 						SpawnArmor(i, rarity_boost, 0, false, m_id);
 				}
 				else if(tmp <= 66) {
-					if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+					if(incursion && RollIncursionItemChance())
 						SpawnBootWithMods(i, PickRandomIncursionMod());
 					else
 						SpawnBoot(i, rarity_boost);
 				}
-				else if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+				else if(incursion && RollIncursionItemChance())
 					SpawnHelmWithMods(i, PickRandomIncursionMod());
 				else
 					SpawnHelm(i, rarity_boost);
@@ -803,7 +803,7 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			}
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASE_CHARMRATE * drop_boost / 100, m_id, DND_MON_RNG_4)) {
-				if(incursion && random(1, 100) <= DND_INCURSION_ITEMCHANCE)
+				if(incursion && RollIncursionItemChance())
 					SpawnCharmWithMods(i, PickRandomIncursionMod());
 				else
 					SpawnCharm(i, rarity_boost);
@@ -1698,7 +1698,8 @@ enum {
 	DND_BARBATOS_TRANSLATION,
 	DND_KJAROCH_TRANSLATION,
 
-	DND_HORSHACKER_TRANSLATION
+	DND_HORSHACKER_TRANSLATION,
+	DND_BERNABE_TRANSLATION
 };
 
 // to do: when acs and zandronum support TRNSLATE lump, move this crap there
@@ -1736,6 +1737,7 @@ void CreateMonsterTranslationTables() {
 	CreateTranslation(DND_KJAROCH_TRANSLATION, 0:47=[202,102,121]:[0,0,0], 0:12=0:12, 13:15=1:2, 48:72=102:111, 73:79=6:8, 79:79=8:8, 137:141=110:112, 141:143=5:5, 144:150=109:109, 151:164=6:110, 190:191=[4,2,2]:[0,0,0]);
 
 	CreateTranslation(DND_HORSHACKER_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[0.28,0.88,1.98], 80:111=80:111, 0:15=0:15, 128:159=128:159, 48:79=48:79, 160:167=160:167, 208:239=208:239, 249:249=249:249);
+	CreateTranslation(DND_BERNABE_TRANSLATION, 112:127=%[0.00,0.00,0.00]:[1.23,0.90,0.39]);
 }
 
 // registers a unique boss to clientside, can be used to reset it as well

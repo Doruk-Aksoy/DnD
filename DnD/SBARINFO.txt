@@ -165,6 +165,11 @@ statusbar normal, fullscreenoffsets {
 	drawimage "H_LFSTL", 188, -68;
 	drawnumber 5, HUDFONT2_DOOM, NCRed, LifeStealAmount, alignment(center), 206, -78;
   }
+  
+  InInventory SoulPickupInfinityTimer, 1 {
+	drawimage "AMM3A0", 208, -38;
+	drawnumber 4, HUDFONT2_DOOM, NCWhiteC, SoulPickupInfinityTimer, alignment(center), 206, -38;
+  }
 
   // Draw both health and armor displays if the player has at least one point of armor
   InInventory EShieldAmount, 1

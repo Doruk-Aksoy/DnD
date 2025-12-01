@@ -1,4 +1,4 @@
-ACTOR CommonFlemoid : DnD_BaseMeleeMonster {
+ACTOR CommonFlemoid : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Mass 110
 	Height 56
@@ -34,10 +34,12 @@ ACTOR CommonFlemoid : DnD_BaseMeleeMonster {
 			C000 AABBCCDD 3 A_Chase
 		loop
 		IdleState:
-			C000 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
-			C000 AABBCCDD 3 A_Wander
-			C000 A 0 A_LookEx(0, 0, 0, 0, 360, "See")
+			C000 AABB 3 A_GiveInventory("DnD_SightChecker", 1)
 		loop
+		MissileState:
+			C000 E 10 A_FaceTarget
+			C000 F 10 A_CustomComboAttack("WeakFlemoidBall", 32, 10, "qgrunt/attack")
+		Goto See
 		MeleeState:
 			C000 E 10 A_FaceTarget
 			C000 F 10 A_CustomMeleeAttack (10, "qgrunt/attack")

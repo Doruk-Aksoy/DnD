@@ -211,6 +211,9 @@ Script "DnD On Map Load" OPEN {
 	// when it increments in createitem func, it'll be forced to be 0
 	PointerIndexTable[PTR_FREEITEMWORLD] = MAX_INVENTORIES_ON_FIELD;
 
+	// allow for incursion checks
+	MapData[DND_MAPDATA_INCURSIONSTATE] = DND_INCURSION_NA;
+
 	//Log(d:DND_TEMP_PROJTID);
 	//Log(d:DRAUGR_TEMP_FX);
 	
@@ -757,6 +760,7 @@ Script "DND On Revive" (void) {
 
 		HandleSpecialTraits(this, MonsterProperties[id].id, true);
 	}
+
 	//Log(s:"(Really After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health));
 	ACS_NamedExecuteAlways("DnD On Revive CS", 0);
 
@@ -793,12 +797,6 @@ Script "DnD On Revive CS" (void) CLIENTSIDE {
 	TakeInventory("Mo_Died", 1);
 }
 
-// Make sure clients are aware too
-Script "DND On Kill CS" KILL CLIENTSIDE {
-	GiveInventory("Mo_Died", 1);
-	DisposeAttachments(ActivatorTID() - DND_MONSTERTID_BEGIN);
-}
-
 Script "DnD On Kill Forced CS" (void) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
 	DisposeAttachments(ActivatorTID() - DND_MONSTERTID_BEGIN);
@@ -821,6 +819,12 @@ Script "DnD Scale Non Weapon Damage" (int damage, int damage_type, int flags) {
 	SetResultValue(!ActivatorTID() || CheckInventory("Mo_Died") || GetActorProperty(0, APROP_HEALTH) <= 0);
 }*/
 
+// Make sure clients are aware too
+Script "DnD On Kill CS" (int tid) CLIENTSIDE {
+	GiveInventory("Mo_Died", 1);
+	DisposeAttachments(tid - DND_MONSTERTID_BEGIN);
+}
+
 // Used for exp and credit calculations
 Script "DND On Kill" KILL {
 	int this = ActivatorTID();
@@ -840,6 +844,8 @@ Script "DND On Kill" KILL {
 	
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
+
+	ACS_NamedExecuteAlways("DnD On Kill CS", 0, this);
 
 	if(CheckInventory("Doomguy_ChangedColor")) {
 		TakeInventory("Doomguy_ChangedColor", 1);
@@ -1663,7 +1669,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	int m_id = this - DND_MONSTERTID_BEGIN;
 
 	// reset attachment array to 0
-	ACS_NamedExecuteWithResult("Dnd Init Monster Attachments", m_id);
+	ACS_NamedExecuteWithResult("DnD Init Monster Attachments", m_id);
 
 	if(!pcount)
 		pcount = 1;
@@ -1674,7 +1680,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
 
-	//MonsterProperties[m_id].trait_list[DND_VENOMANCER] = true;
+	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
+	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -1907,14 +1914,31 @@ Script "DnD Monster Spawner" (int category) {
 		
     int sum = MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM];
     bool picked = false;
+
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
-    while(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] <= 0 || PlayersNotReadyForHardcore())
+    while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore())
         Delay(const:10);
+
+	if(MapData[DND_MAPDATA_INCURSIONSTATE] == DND_INCURSION_NA) {
+		int temp = random(0, 1.0);
+		if
+		(
+			PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] >= GetCVar("dnd_incursion_level") &&
+			temp <= DND_INCURSION_CHANCE
+		)
+		{
+			MapData[DND_MAPDATA_INCURSIONSTATE] = RollIncursionTheme();
+		}
+		else {
+			MapData[DND_MAPDATA_INCURSIONSTATE] = DND_INCURSION_FAILED;
+		}
+	}
 
 	// throttle the spawns -- score field is used as a means to bypass delay here
 	if(GameType() != GAME_SINGLE_PLAYER && !GetActorProperty(0, APROP_SCORE))
 		Delay(17 * (random(0, DND_MAX_MONSTERDELAY) + 1)); //Added 1 second for player level to be accurate first (people might load at last second).
+
 	int roll, bin;
 	int avg_level = GetAveragePlayerLevel();
 	// roll legendary monster chance and do checks of it
@@ -1930,6 +1954,10 @@ Script "DnD Monster Spawner" (int category) {
 		if(!UniqueMonsterAvailability[category] && avg_level >= 25 && random(0, 1.0) <= GetCVar("dnd_uniquemonster_spawnchance")) {
 			SetActorState(0, "Unique", true);
 			UniqueMonsterAvailability[category] = true;
+			Terminate;
+		}
+		else if(IsIncursionActive()) {
+			SetActorState(0, GetIncursionSpawnerLabel(), true);
 			Terminate;
 		}
 	
@@ -2930,7 +2958,7 @@ Script "DnD On Unloading" UNLOADING {
 		Log(s:"Saving data on unloading...");
 		SaveAllPlayerData();
 	}
-	
+
 	DungeonBossData[BOSSDATA_TID] = 0;
 	ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
 }
@@ -5900,11 +5928,7 @@ Script 1691 (int tag, int mode) {
 		Teleport(0, tag);
 }
 
-
-Script "DnD Super Lootbox FX" (int pnum) CLIENTSIDE {
-	if(ConsolePlayerNumber() != pnum)
-		Terminate;
-
+void MakeFancyFlames() {
 	int r = 24;
 	int s = 4;
 	for(int i = 0; i < 12; ++i) {
@@ -5913,6 +5937,17 @@ Script "DnD Super Lootbox FX" (int pnum) CLIENTSIDE {
 		SetActorVelocity(AUX_FX_TID, s * cos(a), s * sin(a), 0, 0, 0);
 		Thing_ChangeTID(AUX_FX_TID, 0);
 	}
+}
+
+Script "DnD Wanderer Appear" (void) CLIENTSIDE {
+	MakeFancyFlames();
+}
+
+Script "DnD Super Lootbox FX" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	MakeFancyFlames();
 }
 
 /*Script 69 (void) NET {

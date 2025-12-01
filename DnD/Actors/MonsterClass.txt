@@ -385,7 +385,7 @@ Actor RuinBlend : DnD_Activator {
 Actor ViolentRetaliation_Proj {
 	Radius 6
 	Height 12
-	Damage (5 * random(4, 5))
+	Damage (4 * random(4, 5))
 	Scale 0.65
 	Gravity 0.33
 	Projectile
@@ -406,7 +406,7 @@ Actor ViolentRetaliation_Proj {
 			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			MFBL A 0 A_StopSoundEx("SoundSlot7")
-			TNT1 A 0 A_Explode(64, 96, 0)
+			TNT1 A 0 A_Explode(48, 96, 0)
 			MFBL DE 4 Bright
 			MFBL F 4 Bright A_SetTranslucent(0.7, 1)
 			MFBL G 4 Bright A_SetTranslucent(0.4, 1)
@@ -415,15 +415,24 @@ Actor ViolentRetaliation_Proj {
 	}
 }
 
+Actor DnD_ViolentRetaliationCounter : Inventory {
+	inventory.maxamount 6
+}
+
+Actor DnD_ViolentRetaliationCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 87
+}
+
 Actor DnD_ViolentRetaliationItem : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 A 0 A_ThrowGrenade("ViolentRetaliation_Proj", frandom(-15, -8 + height / 2), random(-13, 13),frandom(2, 9),0)
+			TNT1 A 0 A_ThrowGrenade("ViolentRetaliation_Proj", frandom(-15, -8 + height / 2), random(-14, 14),frandom(2, 9),0)
 		Stop
 	}
 }
 
-Actor EliteReflectingShield {
+Actor EliteReflectingShield : DnD_AttachedFXBase {
     Radius 2
     Height 2
 	+MISSILE
@@ -441,13 +450,6 @@ Actor EliteReflectingShield {
             REFL AA 1 Bright A_Warp(AAPTR_TARGET, score + 8, 0, mass, user_angle, WARPF_INTERPOLATE | WARPF_ABSOLUTEANGLE | WARPF_NOCHECKPOSITION)
 			TNT1 A 0 A_SetUserVar("user_angle", (user_angle + ai) % 360)
 		Loop
-		Death:
-		Disappear:
-			TNT1 A 35 ACS_NamedExecuteWithResult("DnD Remove Actor - CS")
-		Stop
-		Remove:
-			TNT1 A 1
-		Stop
 	}
 }
 

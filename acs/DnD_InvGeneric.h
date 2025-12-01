@@ -4,8 +4,6 @@
 #define QUALITY_ITEM_ADD_MIN 1
 #define QUALITY_ITEM_ADD_MAX 4
 
-#define DND_INCURSION_ITEMCHANCE 10 // 10% chance for an item to have an incursion mod on it
-
 void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	//Log(s:"alloc armor id: ", d:c, s: " for player: ", d:pnum);

@@ -1832,8 +1832,14 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		
 		// frozen monsters cant retaliate	
 		if(!CheckActorInventory(ox, "DnD_FreezeTimer")) {
-			if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE)
+			if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_tid, "DnD_ViolentRetaliationCooldown")) {
 				GiveActorInventory(victim_tid, "DnD_ViolentRetaliationItem", 1);
+				GiveActorInventory(victim_tid, "DnD_ViolentRetaliationCounter", 1);
+				if(CheckActorInventory(victim_tid, "DnD_ViolentRetaliationCounter") == DND_MAX_VIOLENTRETALIATES) {
+					SetActorInventory(victim_tid, "DnD_ViolentRetaliationCounter", 0);
+					GiveActorInventory(victim_tid, "DnD_ViolentRetaliationCooldown", 1);
+				}
+			}
 			if(MonsterProperties[victim_data].trait_list[DND_THUNDERSTRUCK] && !CheckInventory("ThunderstruckCooldown")) {
 				ACS_NamedExecuteAlways("DnD Thunderstruck", 0, victim_tid);
 				GiveInventory("ThunderstruckCooldown", 1);

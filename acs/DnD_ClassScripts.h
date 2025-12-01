@@ -143,6 +143,9 @@ Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIEN
 			case MONSTER_HORSHACKER:
 				Thing_SetTranslation(mon_tid, DND_HORSHACKER_TRANSLATION);
 			break;
+			case MONSTER_CHEX_BERNABE:
+				Thing_SetTranslation(mon_tid, DND_BERNABE_TRANSLATION);
+			break;
 
 			default:
 				Thing_SetTranslation(mon_tid, DND_NO_TRANSLATION);

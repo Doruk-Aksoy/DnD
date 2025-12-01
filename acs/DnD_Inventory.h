@@ -1578,7 +1578,7 @@ bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = f
 }
 
 // auto dump functionality from inventory of player to stash
-void AutoDumpItems(int pnum, int orbsOnly = 0) {
+void AutoDumpItems(int pnum, int stackableOnly = 0) {
 	// for each item the player has, attempt to AutoMoveItem them to stash
 	// first store item ids in an array, sorted from biggest to shortest (biggest first in list)
 	static bool marked_tbids[MAX_INVENTORY_BOXES];
@@ -1593,7 +1593,7 @@ void AutoDumpItems(int pnum, int orbsOnly = 0) {
 	// ItemMoveList contains topboxids of items to be moved in order of largest to smallest size occupying (w * h)
 	// insert sorted
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL && (!orbsOnly || PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB) && !marked_tbids[i]) {
+		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL && (!stackableOnly || IsStackedItem(PlayerInventoryList[pnum][i].item_type)) && !marked_tbids[i]) {
 			k = 0;
 			j = 0;
 			while(ItemMoveList[pnum][k].dest_pos != -1) {

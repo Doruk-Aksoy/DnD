@@ -129,6 +129,7 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Monsters_Custom/Incursion/Chex/FlemMine.txt"
 #include "Actors/Monsters_Custom/Incursion/Chex/Quadwumpus.txt"
 #include "Actors/Monsters_Custom/Incursion/Chex/Maximus.txt"
+#include "Actors/Monsters_Custom/Incursion/Chex/Brownabe.txt"
 #include "Actors/Monsters_Custom/Incursion/Chex/Flembomination.txt"
 #include "Actors/Monsters_Custom/Incursion/Chex/Snotfolus.txt"
 #include "Actors/Monsters_Custom/Incursion/Chex/SuperCyclops.txt"

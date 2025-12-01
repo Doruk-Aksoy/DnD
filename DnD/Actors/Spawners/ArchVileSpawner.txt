@@ -41,7 +41,7 @@ Actor ArchVileSpawner : DnD_MonsterSpawner replaces ArchVile {
 		
 		// Incursion
 		Incursion_Chex:
-			TNT1 A 0 A_SpawnItemEx("FlemoidStridicus", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+			TNT1 A 0 A_SpawnItemEx("FlemoidBernabe", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
 		Stop
 	}
 }

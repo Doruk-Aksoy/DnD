@@ -37,7 +37,10 @@ int GetMonsterHPScaling(int m_id, int level) {
 int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_factor = 0, int scaling_ramp = 0) {
 	// over the old formula of 4x, this provides 500% damage at lvl 100 instead of 400%
 	// edit: iterating over the improvement on previous versions, making the game harder -- divisor was 25 instead of 10 -- 10 was too high, trying 20
-	int res = level * level / 20 + level;
+	//int res = level * level / 20 + level;
+
+	// new formula for lower values till 67 then higher -- 0.0675x^{2}-0.2x+5
+	int res = level * level * 27 / 400 - level / 5 + 5;
 
 	// scaling factor contribution
 	if(scaling_ramp) {
@@ -477,6 +480,7 @@ enum {
 	MONSTER_CHEX_QUADWUMPUS,
 	MONSTER_CHEX_SUPERCYCLOPS,
 	MONSTER_CHEX_MAXIMUS,
+	MONSTER_CHEX_BERNABE,
 	MONSTER_CHEX_FLEMBOMINATION,
 	MONSTER_CHEX_SNOTFOLUS,
 
@@ -859,6 +863,9 @@ void HandleMonsterClassInnates(int mid, int id) {
 			case MONSTER_CHEX_MAXIMUS:
 				MonsterProperties[mid].class = MONSTERCLASS_BARON;
 			break;
+			case MONSTER_CHEX_BERNABE:
+				MonsterProperties[mid].class = MONSTERCLASS_ARCHVILE;
+			break;
 			case MONSTER_CHEX_QUADWUMPUS:
 				MonsterProperties[mid].class = MONSTERCLASS_REVENANT;
 			break;
@@ -1012,7 +1019,7 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 	if(MonsterProperties[m_id].trait_list[DND_FORTIFIED]) {
 		// full fortify exceptions
 		if(id != MONSTER_TERON && id != MONSTER_CHEGOVAX)
-			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * DND_FORTIFY_AMOUNT / 100);
+			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * (DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)) / 100);
 		else
 			SetInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp);
 	}
@@ -1103,7 +1110,8 @@ void InitMonsterResists(int m_id) {
 }
 
 // this is only used in revive of monsters by itself
-void HandleSpecialTraits(int mid, int id, bool isRevived = false) {
+void HandleSpecialTraits(int tid, int id, bool isRevived = false) {
+	int mid = tid - DND_MONSTERTID_BEGIN;
 	HandlePreInitTraits(mid, id);
 	HandlePostInitTraits(mid, id, -1, isRevived); // this had no params, I don't think sending -1 here will be much of a problem
 }
@@ -2487,6 +2495,10 @@ void SetupIncursionMonsters() {
 
 	MonsterData[MONSTER_CHEX_MAXIMUS].health = 2500;
 	MonsterData[MONSTER_CHEX_MAXIMUS].flags = DND_MTYPE_FLEMOID_POW;
+
+	MonsterData[MONSTER_CHEX_BERNABE].health = 1750;
+	MonsterData[MONSTER_CHEX_BERNABE].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_BERNABE].trait_list[DND_FORTIFIED] = true;
 	
 	MonsterData[MONSTER_CHEX_FLEMBOMINATION].health = 4500;
 	MonsterData[MONSTER_CHEX_FLEMBOMINATION].flags = DND_MTYPE_FLEMOID_POW;
