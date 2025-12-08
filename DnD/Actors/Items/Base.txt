@@ -581,7 +581,11 @@ Actor DnD_TauntCooldown : PowerProtection {
 Actor ProjectileHelper {
 	Species "Player"
 	// Try MISSILE here to see if puffs can get pointers transferred to them properly on spawn
+	Radius 1
+	Height 1
 	+NOINTERACTION
+	+NOTONAUTOMAP
+	+THRUACTORS
 	States {
 		Spawn:
 			TNT1 A 5
@@ -638,6 +642,15 @@ Actor DnD_AttachedFXBase {
 		Stop
 		Remove:
 			TNT1 A 1
+		Stop
+	}
+}
+
+Actor DnD_DummyTest {
+	+NOINTERACTION
+	States {
+		Spawn:
+			BON1 A 350
 		Stop
 	}
 }

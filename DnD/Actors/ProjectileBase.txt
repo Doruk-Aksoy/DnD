@@ -54,6 +54,7 @@ Actor DnD_OverloadZapGiver : DnD_Activator {
 }
 
 Actor DnD_BasePuff {
+	Species "Player"
 	+MISSILE // fast owner transfer, puffs require a delayed script for this, this way they dont
 	+PUFFGETSOWNER
 	+PUFFONACTORS
@@ -61,6 +62,7 @@ Actor DnD_BasePuff {
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
 	+NOGRAVITY
+	+THRUSPECIES
 	Height 1
 	Radius 1
 	
@@ -133,8 +135,10 @@ Actor DnD_DummySpawned : DnD_Boolean { }
 
 Actor DnD_BaseProjectile {
 	PROJECTILE
+	Species "Player"
 	+HITTRACER
 	+MTHRUSPECIES
+	+THRUSPECIES
 	+NODAMAGETHRUST
 	+DONTBLAST
 	+AMBUSH // DENOTES PLAYER SOURCED PROJECTILE
@@ -163,6 +167,8 @@ Actor DnD_CritToken : PowerProtection {
 // The first TNT1A 0 is needed, NoDelay doesn't work properly with fastprojectiles
 Actor DnD_BaseFastProjectile : FastProjectile {
 	PROJECTILE
+	Species "Player"
+	+THRUSPECIES
 	+HITTRACER
 	+MTHRUSPECIES
 	+DONTBLAST
@@ -196,6 +202,8 @@ Actor DnD_ExplosiveBase {
 	PROJECTILE
 	Damage 0
 	DamageType "PlayerExplosive"
+	Species "Player"
+	+THRUSPECIES
 	+HITTRACER
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
@@ -232,6 +240,8 @@ Actor DnD_ExplosiveBase {
 
 Actor DnD_ExplosiveBase_ForPets {
 	PROJECTILE
+	Species "Player"
+	+THRUSPECIES
 	+HITTRACER
 	+MTHRUSPECIES
 	+NODAMAGETHRUST
@@ -295,6 +305,8 @@ Actor DnD_FastRipperBase : FastProjectile {
 	PROJECTILE
 	Damage 0
 	DamageType ""
+	Species "Player"
+	+THRUSPECIES
 	+HITTRACER
 	+MTHRUSPECIES
 	+NODAMAGETHRUST

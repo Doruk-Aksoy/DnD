@@ -152,6 +152,7 @@ void ResetCursorHoverProc() {
 
 void ResetCursorHoverData() {
 	// cleanup anything that is potentially shown by cursor hovering here
+	//Log(s:"reset cursor");
 	CleanInventoryInfo();
 	ResetCursorHoverProc();
 }
@@ -223,9 +224,10 @@ int GetItemFlags(int itemid) {
 int CheckItemRequirements (int req_id, int constraint, int flags) {
 	int res = !(flags & OBJ_RESEARCH_ATLEASTONE); // if it has at least one flag set, the logic is inverted here
 	for(int i = 0; i < MAX_RESEARCH_REQUIREMENTS; ++i) {
-		if(ItemResearchRequirements[req_id][i] == -1)
+		int req = GetShopItemInfo(req_id, i + DND_SHOPINFO_REQUIREMENT1);
+		if(req == -1)
 			continue;
-		if(CheckResearchStatus(ItemResearchRequirements[req_id][i]) < constraint) {
+		if(CheckResearchStatus(req) < constraint) {
 			if(flags & OBJ_RESEARCH_ATLEASTONE)
 				continue;
 			res = 0;
@@ -285,8 +287,8 @@ void DrawPerkText(int boxid) {
 			case STAT_SAV:
 				toShow = StrParam(s:"\cd* \ci+", d:DND_SAVAGERY_BONUS, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
-			case STAT_LUCK:
-				toShow = StrParam(s:"\cd* \ci+", s:GetFixedRepresentation(DND_LUCK_GAIN, true), s:"%\c- ", l:GetPerkText(boxid - 1));
+			case STAT_ACRM:
+				toShow = StrParam(s:"\cd* \ci+", s:DND_ACRIMONY_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 		}
 		if(GetPerk(perk) == DND_PERK_MAX)
@@ -771,7 +773,7 @@ int ShopScale(int amount, int id) {
 int GetShopPrice (int id, int priceflag = 0) {
 	int res = 0, chr = 0, shop_scale = Clamp_Between(GetCVar("dnd_shop_scale"), 1, SHOP_SCALE_MAX);
 	if(id < MAXSHOPITEMS)
-		res = ShopInfo[id][SHOPINFO_PRICE] * shop_scale;
+		res = GetShopItemInfo(id, DND_SHOPINFO_PRICE) * shop_scale;
 	res = ShopScale(res, id);
 	
 	if(priceflag & PRICE_INCREASE_STOCK_LOW) {
@@ -835,7 +837,7 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 		}
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
 			if(id != SHOP_ARTI_BACKPACK) {
-				cond2 = (CheckInventory(item) < ShopInfo[id][SHOPINFO_MAX]);
+				cond2 = (CheckInventory(item) < GetShopItemInfo(id, DND_SHOPINFO_MAX));
 				cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
 			}
 			else
@@ -5104,7 +5106,7 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 	return 0;
 }
 
-int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
+int GetResistDisplayVal(int pnum, int res, int reduce) {
 	int val = GetPlayerAttributeValue(pnum, res) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) + reduce;
 	switch(res) {
 		case INV_DMGREDUCE_FIRE:
@@ -5114,10 +5116,7 @@ int GetResistDisplayVal(int pnum, int res, int cap, int reduce) {
 			val += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
 		break;
 	}
-	if(val > cap)
-		val = cap;
 	return val;
-	//return ApplyResistCap(pnum, val, cap);
 }
 
 // not sure how to group these for other places, their calculations arent exactly done in straightforward fashion so calculating as they come makes sense
@@ -5181,7 +5180,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// exp rad
-			val = GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS);
+			val = GetPlayerAoEIncrease(pnum);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T31", s:"\n");
 				++k;
@@ -5613,36 +5612,36 @@ void DrawPlayerStats(int pnum, int category) {
 			if(val)
 				temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / val);
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_PHYS", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ENERGY, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ENRG", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ENERGY, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ENRG", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_MAGIC, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_MAGC", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_MAGIC, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_MAGC", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_FIRE, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_FIRE", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_FIRE, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_FIRE", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ICE, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_ICE", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ICE, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ICE", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_LIGHTNING, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_LGHT", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_LIGHTNING, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_LGHT", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_POISON, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_POIS", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_POISON, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_POIS", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_REFL, i, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val, false), s:" / \c[Q9]", s:GetFixedRepresentation(i, false), s:" \c-", l:"DND_MENU_RES_REFL", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_REFL, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_REFL", s:"\n");
 			++k;
 			// dmg reduction block ends
 

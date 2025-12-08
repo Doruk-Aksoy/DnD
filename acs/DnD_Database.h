@@ -1067,7 +1067,7 @@ void load_char(int pnum, int char_id) {
 	// store unique id for future lookup to work even if a player disconnects
 	StrCpy(PlayerActivities[pnum].player_account, GetPlayerAccountName(pnum));
 	
-	PlayerLoaded[pnum] = 1;
+	PlayerGameState[pnum] |= DND_PSTATE_LOADED;
 	SetInventory("CanLoad", 0);
 
 	LoadPlayerData(pnum, char_id);
@@ -1084,7 +1084,7 @@ int check_load_char(int pnum, int char_id) {
 	// handle no data case -- only let people to load their stuff if there really is some data
 	if(!GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), GetPlayerAccountName(pnum))) return DND_LOGIN_NOCHAR;
 	// prevent people from loading their stuff to escape death, prevent loading if a save on this player happened already!
-	if(PlayerLoaded[pnum]) return DND_LOGIN_CHARINUSE;
+	if(PlayerGameState[pnum] & DND_PSTATE_LOADED) return DND_LOGIN_CHARINUSE;
 	if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME;
 	return DND_CHARLOADED;
 }
@@ -1266,7 +1266,7 @@ void create_char(int pnum, int char_id) {
 	SetInventory("DnD_CharacterID", char_id);
 	PlayerActivities[pnum].char_id = char_id;
 	StrCpy(PlayerActivities[pnum].player_account, GetPlayerAccountName(pnum));
-	PlayerLoaded[pnum] = 1;
+	PlayerGameState[pnum] |= DND_PSTATE_LOADED;
 	SetInventory("CanLoad", 0); //Let create char end loading timer
 }
 
@@ -1276,7 +1276,7 @@ int check_create_char(int pnum, int char_id) {
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
 	if(char_id < 0 || char_id > DND_MAX_CHARS - 1) return DND_LOGIN_CHARNOTINRANGE;
-	if(PlayerLoaded[pnum]) return DND_LOGIN_CHARINUSE;
+	if(PlayerGameState[pnum] & DND_PSTATE_LOADED) return DND_LOGIN_CHARINUSE;
 	if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME; //For now, allow player to setchar until end of map manually. -- Uncommented to see if it prevents stashes being destroyed.
 	return DND_LOGIN_CREATECHAROK;
 }
@@ -1295,7 +1295,7 @@ int check_transfer_char(int pnum, int char_id) {
 	if (!PlayerIsLoggedIn(pnum)) return DND_LOGIN_NOTLOGGED;
 	if(!PlayerInGame(pnum)) return DND_LOGIN_NOTINGAME;
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
-	if(!PlayerLoaded[pnum]) return DND_LOGIN_NOCHARINUSE;
+	if(!(PlayerGameState[pnum] & DND_PSTATE_LOADED)) return DND_LOGIN_NOCHARINUSE;
 	if(char_id < 0 || char_id > DND_MAX_CHARS-1) return DND_LOGIN_CHARNOTINRANGE;
 	
 	if(char_id == CheckInventory("DnD_CharacterID")) return DND_LOGIN_TRANSFSAMESLOT;

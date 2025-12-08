@@ -198,7 +198,7 @@ Actor SawedoffPickup : CustomInventory
 			TSWP A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SAWEDOFF), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_SAWEDOFF), "Success")
 		Fail
 		Success:
@@ -245,7 +245,7 @@ Actor SawedOffPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			TSWP A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			TSWP A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SAWEDOFF, 1), "PickupFail")
 			TSWP A 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_SAWEDOFF, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -787,7 +787,7 @@ Actor SoulRenderPickup : CustomInventory
 			WVBL A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SOULRENDER), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_SOULRENDER), "Success")
 		Fail
 		Success:
@@ -831,7 +831,7 @@ Actor SoulRenderPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			WVBL A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			WVBL A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SOULRENDER, 1), "PickupFail")
 			WVBL A 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_SOULRENDER, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -978,7 +978,7 @@ Actor SMGPickup : CustomInventory
 			MPPU A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SMG << 8), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_SMG), "Success")
 		Fail
 		Success:
@@ -1023,7 +1023,7 @@ Actor SMGPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			MPPU A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			MPPU A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_SMG, 1), "PickupFail")
 			MPPU A 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_SMG, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -1318,7 +1318,7 @@ Actor HellforgeCannonPickup : CustomInventory
 			WHFC A -1 Bright
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_HELLFORGECANNON), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_HELLFORGECANNON), "Success")
 		Fail
 		Success:
@@ -1362,7 +1362,7 @@ Actor HellForgePickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			WHFC A 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			WHFC A 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_HELLFORGECANNON, 1), "PickupFail")
 			WHFC A 1 Bright A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_HELLFORGECANNON, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -1655,7 +1655,7 @@ Actor SpinePickup : CustomInventory
 			WGOR A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_BLOODFIENDSPINE), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_BLOODFIENDSPINE), "Success")
 		Fail
 		Success:
@@ -1701,7 +1701,7 @@ Actor SpinePickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			WGOR A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			WGOR A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_BLOODFIENDSPINE, 1), "PickupFail")
 			WGOR A 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_BLOODFIENDSPINE, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -1900,7 +1900,7 @@ Actor LaserPickup : CustomInventory
 			ENRP A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_ENFORCERRIFLE), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_ENFORCERRIFLE), "Success")
 		Fail
 		Success:
@@ -1946,7 +1946,7 @@ Actor LaserPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			ENRP A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			ENRP A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_ENFORCERRIFLE, 1), "PickupFail")
 			ENRP A 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_ENFORCERRIFLE, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -2310,7 +2310,7 @@ Actor VenomPickup : CustomInventory
 			WSHD A -1 Bright
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_VENOM), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_VENOM), "Success")
 		Fail
 		Success:
@@ -2355,7 +2355,7 @@ Actor VenomPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			WSHD A 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			WSHD A 1 Bright A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_VENOM, 1), "PickupFail")
 			WSHD A 1 Bright A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_VENOM, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -2627,7 +2627,7 @@ Actor DemonHeartPickup : CustomInventory
 			TNT1 A 0 A_JumpIfInventory("Ability_HeartSeeker", 1, "Check2")
 		Fail
 		Check2:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_DEMONHEART), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_DEMONHEART), "Success")
 		Fail
 		Success:
@@ -2670,7 +2670,7 @@ Actor DemonHeartPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			HRTW A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			HRTW A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_DEMONHEART, 1), "PickupFail")
 			HRTW A 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_DEMONHEART, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -2957,7 +2957,7 @@ Actor DarkServantGlovesPickup : CustomInventory
 			WGT3 A -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_DARKGLOVES), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_DARKGLOVES), "Success")
 		Fail
 		Success:
@@ -3001,7 +3001,7 @@ Actor DarkServantGlovesPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			WGT3 A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			WGT3 A 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_DARKGLOVES, 1), "PickupFail")
 			WGT3 A 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_DARKGLOVES, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -3246,7 +3246,7 @@ Actor Nailgun2Pickup : CustomInventory
 			NLCG F -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_HEAVYNAILGUN), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_HEAVYNAILGUN), "Success")
 		Fail
 		Success:
@@ -3290,7 +3290,7 @@ Actor Nailgun2Pickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			NLCG F 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			NLCG F 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_HEAVYNAILGUN, 1), "PickupFail")
 			NLCG F 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_HEAVYNAILGUN, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -3449,7 +3449,7 @@ Actor BerettasPickup : CustomInventory
 			PAKM X -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_BERETTAS), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_BERETTAS), "Success")
 		Fail
 		Success:
@@ -3494,7 +3494,7 @@ Actor BerettasPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			PAKM X 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			PAKM X 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_BERETTAS, 1), "PickupFail")
 			PAKM X 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_BERETTAS, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -3781,7 +3781,7 @@ Actor PlasmaBolterPickup : CustomInventory
 			PBL9 X -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_PLASMABOLTER), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_PLASMABOLTER), "Success")
 		Fail
 		Success:
@@ -3825,7 +3825,7 @@ Actor PlasmaBolterPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			PBL9 X 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			PBL9 X 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_PLASMABOLTER, 1), "PickupFail")
 			PBL9 X 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_PLASMABOLTER, 1), "PickupSuccess")
 		goto PickupFail
 
@@ -4020,7 +4020,7 @@ Actor RipperCannonPickup : CustomInventory {
 			TWP0 X -1
 		Stop
 		Pickup:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8), "NoPick")
+			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_RIPPERCANNON), "NoPick")
 			TNT1 A 0 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_RIPPERCANNON), "Success")
 		Fail
 		Success:
@@ -4065,7 +4065,7 @@ Actor RipperCannonPickup_D : DND_DroppedItem {
 		goto SpawnLoop
 
 		Pickup:
-			TWP0 X 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", 8, 1), "PickupFail")
+			TWP0 X 1 A_JumpIf(ACS_NamedExecuteWithResult("DnD Check Weapon Discard", DND_WEAPON_RIPPERCANNON, 1), "PickupFail")
 			TWP0 X 1 A_JumpIf(1 == ACS_ExecuteWithResult(986, DND_WEAPON_RIPPERCANNON, 1), "PickupSuccess")
 		goto PickupFail
 

@@ -219,7 +219,9 @@ DND_MENU_ENABLE_WEP5	=	"Enable: \cjSlot 4";
 DND_MENU_ENABLE_WEP6	=	"Enable: \cjSlot 5";
 DND_MENU_ENABLE_WEP7	=	"Enable: \cjSlot 6";
 DND_MENU_ENABLE_WEP8	=	"Enable: \cjSlot 7";
-DND_MENU_ENABLE_WEP9	=	"Enable: \cjTemporary weapons";
+DND_MENU_TEMP_PREF		=	"Temp weapon: \cj";
+DND_MENU_TEMP_PREF_ANY	=	"Temp weapon: \cjAny";
+DND_MENU_TEMP_PREF_NONE	=	"Temp weapon: \cjNone";
 
 DND_MENU_DISCARD_EXPLANATION = "You can discard or enable weapon slots here. Discarded weapons on the slot won't be picked up, and the vanilla equivalent weapon will also be removed if you own it.";
 
@@ -247,7 +249,7 @@ DND_MENU_PERKTEXT6		=	"increased effect of healing.";
 DND_MENU_PERKTEXT7		=	"increased ammo gain.";
 DND_MENU_PERKTEXT8		=	"to critical strike chance.";
 DND_MENU_PERKTEXT9		=	"to critical strike multiplier.";
-DND_MENU_PERKTEXT10		=	"more drop chance and 3% chance to have better outcomes.";
+DND_MENU_PERKTEXT10		=	"to damage over time multiplier.";
 
 DND_MENU_MASTERY		=	"Mastery";
 DND_MENU_MASTERY_COND	=	"Requires 10 points";
@@ -260,7 +262,7 @@ DND_MENU_PERKMASTERY6	=	"Convert 2% of healing pickups to energy shield.";
 DND_MENU_PERKMASTERY7	=	"Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.";
 DND_MENU_PERKMASTERY8	=	"Every 7th hit you land within four seconds is a guaranteed critical strike.";
 DND_MENU_PERKMASTERY9	=	"100% to crit multiplier if you haven't dealt a critical strike in 5 seconds.";
-DND_MENU_PERKMASTERY10	=	"When an item drops there's a 25% chance to get an additional item drop of its type.";
+DND_MENU_PERKMASTERY10	=	"20% chance to recover 2% of your health on killing an enemy with damage over time.";
 
 // resists for defense tab
 DND_MENU_RES_ELE		=	"Elemental Resist";
@@ -569,6 +571,7 @@ DND_MENU_MMOD_AGG11		=	"Monster heals for 10% of the damage it deals to you.";
 DND_MENU_MMOD_AGG12		=	"Monster hits build ruination stacks. Each stack reduces armor by 5%, whereas at 7 stacks (max) your armor is reduced by 75%. Stacks each last 3 seconds.";
 DND_MENU_MMOD_AGG13		=	"Monster has a chance to summon slowing hands underneath players on attacking, slowing them by 66% and dealing 2% of their health as magic damage.";
 DND_MENU_MMOD_AGG14		=	"Upon hurting the monster, thunder strikes at your location after a certain delay, dealing massive damage.";
+DND_MENU_MMOD_AGG15		=	"Monster pierces 15% of your resistances with its damage.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";
@@ -617,7 +620,7 @@ DND_MENU_MMOD_UTI20		=	"Monster's attacks can inflict ignite.";
 DND_MENU_MMOD_UTI21		=	"Monster's attacks can inflict overload.";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
-DND_MENU_MMOD_ASMODEUS	=	"Monster has triple health, 25% to all damage resistances, 100% more damage and special attacks depending on its type.";
+DND_MENU_MMOD_ASMODEUS	=	"Monster has quadruple health (doubled on top if non-boss), +33% to all damage resistances, 100% more damage and special attacks depending on its type.";
 DND_MENU_MMOD_LEG		=	"Monster is unique.";
 
 

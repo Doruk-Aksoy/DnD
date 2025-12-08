@@ -894,14 +894,18 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	
 	bool is_unique = 0;
 	bool mon_isPet = IsPet(mon_tid);
+	int mon_flags = CheckInventory("TargetFlags");
 	
 	// draw the name of the monster
 	SetHudSize(900, 600, 0);
 	if(!mon_isPet) {
 		is_unique = IsUniqueMonster(monid);
 		str prefix = "";
-		if(CheckInventory("TargetIsElite"))
+		if(mon_flags & DND_MONFLAG_ISELITE)
 			prefix = StrParam(s:"\cf", l:"DND_ELITE", s:" ");
+		else if(mon_flags & DND_MONFLAG_ISMAGIC)
+			prefix = StrParam(s:"\c[W3]", l:"DND_MAGIC", s:" ");
+		
 		if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
 			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 454.4, 10.0, MONSTERINFO_HOLDTIME);
 		else if(is_unique)
@@ -1001,7 +1005,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 			SetFont ("MONFONT");
 			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFASMODEUS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 		}
-		else if(MonsterProperties[m_id].hasTrait) {
+		else if(MonsterProperties[m_id].flags & DND_MONFLAG_HASTRAITS) {
 			SetFont ("MONFONT");
 			for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
 				if(MonsterProperties[m_id].trait_list[i]) {
@@ -1011,7 +1015,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 			}
 		}
 	}
-	else if(PetMonsterProperties[m_id].hasTrait) {
+	else if(PetMonsterProperties[m_id].flags & DND_MONFLAG_HASTRAITS) {
 		SetFont ("MONFONT");
 		for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
 			if(PetMonsterProperties[m_id].trait_list[i]) {

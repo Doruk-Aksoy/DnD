@@ -154,10 +154,8 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_SCORE, extra); // if its not player tid thats monster's damage
 	}
 
-	if(flags & DND_ATF_ISREFLECTED) {
+	if(flags & DND_ATF_ISREFLECTED)
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STAMINA, extra2);
-		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_PLAYERSOURCED, true);
-	}
 
 	if(flags & DND_ATF_TRACERPICKER) {
 		// only pick if we have no previous recollection of another target
@@ -192,13 +190,13 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 }
 
 // same with projectile above but fires a hitscan attack instead
-void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int pitch, int range, int vPos, int dmg = 0) {
+void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int pitch, int range, int vPos, int dmg = 0, bool isMelee = false) {
 	// create a helper actor to manipulate spawn pos that will act on our behalf
 	SpawnForced(
 		"ProjectileHelper",
 		vec3[vPos].x,
 		vec3[vPos].y,
-		vec3[vPos].z,
+		vec3[vPos].z + isMelee * (-4.0),
 		p_helper_tid
 	);
 
@@ -261,7 +259,7 @@ void CreateMinion(int owner, str actor, int start_vels, int vPos, int unique_tid
 	}
 }
 
-void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, int spd, int flags, int hitscan_id = -1) {
+void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, int spd, int flags, int vPos, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
@@ -272,9 +270,6 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 	str proj_name = ProjectileInfo[proj_id].name;
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
-		
-	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 
 	int i, proj_ang;
 	if(!(ProjectileInfo[proj_id].flags & DND_PROJ_HITSCAN)) {
@@ -308,18 +303,13 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 			CreateHitscan(owner, p_helper_tid, proj_name, proj_ang, p, spd, vPos, hitscan_id);
 		}
 	}
-	
-	FreeVec3(vPos);
 }
 
-void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int count, int spd, int flags, int hitscan_id = -1) {
+void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int count, int spd, int flags, int vPos, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
-		
-	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 
 	int i, proj_ang;
 	if(!(flags & DND_ATF_ISHITSCAN)) {
@@ -354,12 +344,10 @@ void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int c
 			CreateHitscan(owner, p_helper_tid, proj_name, proj_ang, p, spd, vPos, hitscan_id);
 		}
 	}
-	
-	FreeVec3(vPos);
 }
 
 // Does a hitscan attack, depending on special weapon behavior it can fire additional things --- we check for those using wepid, proj_id and flags
-void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, int range, int spread_x, int spread_y, int flags, int hitscan_id = -1) {
+void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, int range, int spread_x, int spread_y, int flags, int vPos, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = GetActorPitch(owner);
@@ -371,12 +359,6 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
-	// vector of owner pos
-	int vPos = GetVec3(
-		GetActorX(owner), 
-		GetActorY(owner), 
-		GetActorZ(owner) + GetActorViewHeight(owner) - 5.0
-	);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
 	
@@ -400,11 +382,9 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 		
 		FreeVec2(vtemp);
 	}
-
-	FreeVec3(vPos);
 }
 
-void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, int proj_id = 0, int hitscan_id = -1) {
+void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, int vPos, int proj_id = 0, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = GetActorPitch(owner);
@@ -415,8 +395,6 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 		
-	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
 	
@@ -436,8 +414,6 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 		
 		FreeVec2(vtemp);
 	}
-
-	FreeVec3(vPos);
 }
 
 void Do_Railgun_Attack(str rail_helper, int count) {
@@ -450,7 +426,12 @@ void Do_Railgun_Attack(str rail_helper, int count) {
 // Does a projectile attack, depending on special weapon behavior it can fire additional things --- we check for those using wepid, proj_id and flags
 // angle_vec is (angle, pitch) offsets
 // offset_vec is (x,y,z) offsets of the projectile to fire
-int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, int extra = 0, int extra2 = 0) {
+int Do_Projectile_Attack
+(
+	int owner, int pnum, int proj_id, int wepid, int count, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, 
+	int vPos, int vUp, int vDir, int vRight, int extra = 0, int extra2 = 0
+)
+{
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
 	
 	// ghost power check
@@ -458,47 +439,46 @@ int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count,
 	str proj_name = ProjectileInfo[proj_id].name;
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
-		
-	// vectors of owner
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
-	int vDir = GetDirectionVector(owner);
-	int vUp = GetUpVector(vDir);
-	int vRight = GetRightVector(vDir, vUp);
 	
 	// do angle and pitch offsets -- negative on angle to flip it to decorate direction (- is left + is right)
 	int vTemp = GetVec3();
+	int vDirTemp = GetVec3();
+	int vPosTemp = GetVec3();
+	AssignVec3(vDirTemp, vDir);
+	AssignVec3(vPosTemp, vPos);
+
 	if(vec2[angle_vec].x) {
 		AssignVec3(vTemp, vRight);
 		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].x)));
-		AddVec3(vDir, vTemp);
+		AddVec3(vDirTemp, vTemp);
 	}
 	
 	if(vec2[angle_vec].y) {
 		AssignVec3(vTemp, vUp);
 		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].y)));
-		AddVec3(vDir, vTemp);
+		AddVec3(vDirTemp, vTemp);
 	}
 	
 	// angle and pitch corrections
-	int a = AngleOfVector3(vDir);
+	int a = AngleOfVector3(vDirTemp);
 	// if there's any spread do this otherwise don't, it fucks up pinpoint projectiles
 	if(spread_x || spread_y)
-		RotateVector3(vDir, -a);
-	int p = -VectorAngle(vec3[vDir].x, vec3[vDir].z);
+		RotateVector3(vDirTemp, -a);
+	int p = -VectorAngle(vec3[vDirTemp].x, vec3[vDirTemp].z);
 	
 	// offset adjustment
 	if(vec3[offset_vec].x || vec3[offset_vec].y || vec3[offset_vec].z) {
-		AssignVec3(vTemp, vDir);
+		AssignVec3(vTemp, vDirTemp);
 		ScaleVec3(vTemp, vec3[offset_vec].x);
-		AddVec3(vPos, vTemp);
+		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vRight);
 		ScaleVec3(vTemp, vec3[offset_vec].y);
-		AddVec3(vPos, vTemp);
+		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vUp);
 		ScaleVec3(vTemp, vec3[offset_vec].z);
-		AddVec3(vPos, vTemp);
+		AddVec3(vPosTemp, vTemp);
 	}
 	else
 		flags |= DND_ATF_NOHELPER;
@@ -515,8 +495,9 @@ int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count,
 
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile
-		int vFireDir = BulletAngleVec3(a, p, vDir, sp_x, sp_y);
-		
+		int vFireDir = BulletAngleVec3(a, p, vDirTemp, sp_x, sp_y);
+		//ToUnitVec3(vFireDir);
+
 		int proj_ang_vec = GetVec2(
 			VectorAngle(vec3[vFireDir].x, vec3[vFireDir].y),
 			-asin(FixedDiv(vec3[vFireDir].z, fsqrt(FixedMul(vec3[vFireDir].x, vec3[vFireDir].x) + FixedMul(vec3[vFireDir].y, vec3[vFireDir].y) + FixedMul(vec3[vFireDir].z, vec3[vFireDir].z))))
@@ -525,7 +506,7 @@ int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count,
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, ProjectileInfo[proj_id].spd_range);
 		
-		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, ProjectileInfo[proj_id].spd_range, vFireDir, vPos, flags, extra, extra2);
+		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, ProjectileInfo[proj_id].spd_range, vFireDir, vPosTemp, flags, extra, extra2);
 		if(spread_x && !acc)
 			acc = spread_x;
 
@@ -534,62 +515,64 @@ int Do_Projectile_Attack(int owner, int pnum, int proj_id, int wepid, int count,
 		FreeVec3(vFireDir);
 	}
 
-	FreeVec3(vPos);
-	FreeVec3(vUp);
-	FreeVec3(vDir);
-	FreeVec3(vRight);
+	FreeVec3(vDirTemp);
+	FreeVec3(vPosTemp);
 
 	return acc;
 }
 
-int Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, int proj_id = 0, int extra = 0, int extra2 = 0) {
+int Do_Projectile_Attack_Named
+(
+	int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags,
+	int vPos, int vUp, int vDir, int vRight, int proj_id = 0, int extra = 0, int extra2 = 0
+)
+{
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
 	
 	// ghost power check
 	bool makeGhostHitter = (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) || CheckActorInventory(owner, "NetherCheck")) && (ProjectileInfo[proj_id].flags & DND_PROJ_HASGHOSTHITTER);
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
-		
-	// vectors of owner
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
-	int vDir = GetDirectionVector(owner);
-	int vUp = GetUpVector(vDir);
-	int vRight = GetRightVector(vDir, vUp);
 	
 	// do angle and pitch offsets -- negative on angle to flip it to decorate direction (- is left + is right)
 	int vTemp = GetVec3();
+	int vDirTemp = GetVec3();
+	int vPosTemp = GetVec3();
+	AssignVec3(vDirTemp, vDir);
+	AssignVec3(vPosTemp, vPos);
+
 	if(vec2[angle_vec].x) {
 		AssignVec3(vTemp, vRight);
 		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].x)));
-		AddVec3(vDir, vTemp);
+		AddVec3(vDirTemp, vTemp);
 	}
 	
 	if(vec2[angle_vec].y) {
 		AssignVec3(vTemp, vUp);
 		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].y)));
-		AddVec3(vDir, vTemp);
+		AddVec3(vDirTemp, vTemp);
 	}
 	
 	// angle and pitch corrections
-	int a = AngleOfVector3(vDir);
+	int a = AngleOfVector3(vDirTemp);
 	// if there's any spread do this otherwise don't, it fucks up pinpoint projectiles
 	if(spread_x || spread_y)
-		RotateVector3(vDir, -a);
-	int p = -VectorAngle(vec3[vDir].x, vec3[vDir].z);
+		RotateVector3(vDirTemp, -a);
+	int p = -VectorAngle(vec3[vDirTemp].x, vec3[vDirTemp].z);
 	
 	// offset adjustment
 	if(vec3[offset_vec].x || vec3[offset_vec].y || vec3[offset_vec].z) {
-		AssignVec3(vTemp, vDir);
+		AssignVec3(vTemp, vDirTemp);
 		ScaleVec3(vTemp, vec3[offset_vec].x);
-		AddVec3(vPos, vTemp);
+		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vRight);
 		ScaleVec3(vTemp, vec3[offset_vec].y);
-		AddVec3(vPos, vTemp);
+		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vUp);
 		ScaleVec3(vTemp, vec3[offset_vec].z);
-		AddVec3(vPos, vTemp);
+		AddVec3(vPosTemp, vTemp);
 	}
 	else
 		flags |= DND_ATF_NOHELPER;
@@ -605,7 +588,7 @@ int Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, in
 	
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile
-		int vFireDir = BulletAngleVec3(a, p, vDir, sp_x, sp_y);
+		int vFireDir = BulletAngleVec3(a, p, vDirTemp, sp_x, sp_y);
 		
 		int proj_ang_vec = GetVec2(
 			VectorAngle(vec3[vFireDir].x, vec3[vFireDir].y),
@@ -615,7 +598,7 @@ int Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, in
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, speed);
 		
-		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, speed, vFireDir, vPos, flags, extra, extra2);
+		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, speed, vFireDir, vPosTemp, flags, extra, extra2);
 		if(spread_x && !acc)
 			acc = spread_x;
 
@@ -624,10 +607,8 @@ int Do_Projectile_Attack_Named(int owner, int pnum, str proj_name, int wepid, in
 		FreeVec3(vFireDir);
 	}
 
-	FreeVec3(vPos);
-	FreeVec3(vUp);
-	FreeVec3(vDir);
-	FreeVec3(vRight);
+	FreeVec3(vDirTemp);
+	FreeVec3(vPosTemp);
 
 	return acc;
 }
@@ -663,7 +644,7 @@ void Do_Minion_Summon(int owner, str actor, int offset_vec, int speed = 0, int u
 	FreeVec3(velocity);
 }
 
-void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, int proj_id, int angle_offset, int pitch_offset, int flags, int range_offset = 0, int hitscan_id = -1) {
+void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, int proj_id, int angle_offset, int pitch_offset, int flags, int vPos, int range_offset = 0, int hitscan_id = -1) {
 	// just like before, we fire hitscans in player's facing direction +- spread depending on the frame
 	int range = GetPlayerMeleeRange(pnum, ProjectileInfo[proj_id].spd_range + range_offset);
 	
@@ -676,17 +657,12 @@ void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, i
 	bool makeGhostHitter = (HasWeaponPower(pnum, wepid, WEP_POWER_GHOSTHIT) || CheckActorInventory(owner, "NetherCheck")) && (ProjectileInfo[proj_id].flags & DND_PROJ_HASGHOSTHITTER);
 	if(makeGhostHitter)
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
-		
-	// vector of owner pos
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 9.0);
 	
 	if(hitscan_id != -1)
 		hitscan_id = HitscanDamageData[hitscan_id];
 
 	for(int i = 0; i < count; ++i)
-		CreateHitscan(owner, p_helper_tid, proj_name, a, p, range, vPos, hitscan_id);
-	
-	FreeVec3(vPos);
+		CreateHitscan(owner, p_helper_tid, proj_name, a, p, range, vPos, hitscan_id, true);
 }
 
 void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {

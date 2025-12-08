@@ -105,7 +105,8 @@ Script "DnD Menu Reset on Enter" ENTER {
 	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
-		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
+		int stock = GetShopItemInfo(j, DND_SHOPINFO_STOCK);
+		if(stock == -1) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
@@ -120,7 +121,7 @@ Script "DnD Menu Reset on Enter" ENTER {
 				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
 		}
 		else
-			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
+			ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
 		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, ShopStockRemaining[pnum][j]);
 		
 		// just to balance the load a bit and not overwhelm
@@ -135,7 +136,8 @@ Script "DnD Menu Reset Forced" (void) {
 	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
-		if(ShopInfo[j][SHOPINFO_STOCK] == -1) {
+		int stock = GetShopItemInfo(j, DND_SHOPINFO_STOCK);
+		if(stock == -1) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
@@ -150,7 +152,7 @@ Script "DnD Menu Reset Forced" (void) {
 				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
 		}
 		else
-			ShopStockRemaining[pnum][j] = (ShopInfo[j][SHOPINFO_STOCK] * ch_factor) / 100;
+			ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
 		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, ShopStockRemaining[pnum][j]);
 
 		if(!(j % 10))
@@ -640,7 +642,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			else if(curopt == MENU_LOAD_WEAPONDISCARD) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_DISCARD", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
-				for(i = 1; i <= 9; ++i) {
+				for(i = 1; i < 9; ++i) {
 					if(HasPlayerDiscardedSlot(pnum, i - 1)) {
 						DrawBoxText(
 							StrParam(s:"DND_MENU_ENABLE_WEP", d:i), 
@@ -653,6 +655,27 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 							DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + i - 1, RPGMENUITEMID - 1 - i, 192.1, 64.0 + i * 16.0, "\c[B1]", "\c[Y5]"
 						);
 					}
+				}
+
+				// slot 9 has a different thing
+				i = GetPlayerPreferredTempWeapon(pnum);
+				if(i >= 0) {
+					DrawBoxText(
+						StrParam(l:"DND_MENU_TEMP_PREF", l:GetWeaponTag(i + FIRST_SLOT9_WEAPON)), 
+						DND_NOLOOKUP, boxid, MBOX_1 + 8, RPGMENUITEMID - 10, 192.1, 64.0 + 9 * 16.0, "\c[B1]", "\c[Y5]"
+					);
+				}
+				else if(i == -2) {
+					DrawBoxText(
+						"DND_MENU_TEMP_PREF_ANY", 
+						DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + 8, RPGMENUITEMID - 10, 192.1, 64.0 + 9 * 16.0, "\c[B1]", "\c[Y5]"
+					);
+				}
+				else {
+					DrawBoxText(
+						"DND_MENU_TEMP_PREF_NONE", 
+						DND_LANGUAGE_LOOKUP, boxid, MBOX_1 + 8, RPGMENUITEMID - 10, 192.1, 64.0 + 9 * 16.0, "\c[B1]", "\c[Y5]"
+					);
 				}
 
 				SetHudClipRect(184, 216, 256, 128, 256);
@@ -837,21 +860,21 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawCredits(pnum);
 				
 				for(i = 0; i < MAXARTIFACTS_PERPAGE; ++i)
-					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI1_INDEX + i][SHOPINFO_MAX], CR_RED);
+					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
 			}
 			else if(curopt == MENU_SHOP_ARTIFACT_2) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits(pnum);
 				
 				for(i = ARTI_RADSUIT; i < MAXARTIFACTS; ++i)
-					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i - ARTI_RADSUIT, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], ShopInfo[SHOP_FIRSTARTI1_INDEX + i][SHOPINFO_MAX], CR_RED);
+					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i - ARTI_RADSUIT, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
 			}
 			else if(curopt == MENU_SHOP_ACCOUNT) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCOUNT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits(pnum);
 				
 				for(i  = 0; i < MAXACCOUNTITEMS; ++i)
-					DrawToggledImage(pnum, SHOP_ACCOUNT_BEGIN + i, boxid, i, OBJ_RESEARCH | OBJ_ACCOUNT, CR_WHITE, CR_GREEN, GetItemName(SHOP_ACCOUNT_BEGIN + i), ShopInfo[SHOP_ACCOUNT_BEGIN + i][SHOPINFO_MAX], CR_RED);
+					DrawToggledImage(pnum, SHOP_ACCOUNT_BEGIN + i, boxid, i, OBJ_RESEARCH | OBJ_ACCOUNT, CR_WHITE, CR_GREEN, GetItemName(SHOP_ACCOUNT_BEGIN + i), GetShopItemInfo(SHOP_ACCOUNT_BEGIN + i, DND_SHOPINFO_MAX), CR_RED);
 			}
 			else if(curopt == MENU_RESEARCH) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESCAT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1468,9 +1491,14 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			else if(curopt == MENU_LOAD_WEAPONDISCARD) {
 				if(HasPlayerClicked(pnum) && boxid != MAINBOX_NONE) {
 					temp = boxid;
-					if(HasPlayerDiscardedSlot(pnum, temp - 1))
-						temp = -temp;
-					UpdateActivity(pnum, DND_ACTIVITY_WEAPONDISCARD, temp, 0);
+					if(temp < 9) {
+						if(HasPlayerDiscardedSlot(pnum, temp - 1))
+							temp = -temp;
+						UpdateActivity(pnum, DND_ACTIVITY_WEAPONDISCARD, temp, 0);
+					}
+					else {
+						UpdateActivity(pnum, DND_ACTIVITY_WEAPONDISCARD, temp, 2);
+					}
 
 					if(temp > 0) {
 						switch(temp) {
@@ -2148,6 +2176,16 @@ Script "DnD Filter Click" (int pnum) CLIENTSIDE {
 
 Script "DND Set Pickup Filter" (int pnum, int val) NET {
 	SetActorInventory(pnum + P_TIDSTART, "PlayerPickupFilter", val);
+}
+
+Script "DnD Setup Menu Vars" (void) {
+	GetShopItemInfo(0, 0);
+	SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
+}
+
+Script "DnD Setup Menu Vars - CS" (void) CLIENTSIDE {
+	GetShopItemInfo(0, 0);
+	SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
 }
 
 #ifdef ISAPRILFIRST

@@ -23,8 +23,7 @@ enum {
 
 #define DND_EXP_BASEFACTOR 4
 #define DND_CREDITGAIN_FACTOR 1 // divides the regular gain by 2 -- was 2, now 1, goes up by 1
-#define DND_CREDITGAIN_PERLEVELREDUCE 15 // every 15 levels we reduce the gain
-#define DND_CREDIT_BASEFACTOR 5
+#define DND_CREDITGAIN_PERLEVELREDUCE 10 // every 10 levels we reduce the gain
 #define DND_RESEARCH_MAX_CHANCE 1.0
 
 void SetupCVarTracking() {
@@ -1020,7 +1019,7 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 }
 
 // loc_tid is a potential drop location
-void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1) {
+void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 	if(!IsPlayer(target))
 		return;
 
@@ -1044,12 +1043,7 @@ void HandleLootDrops(int tid, int target, bool isElite = false, int loc_tid = -1
 			SpawnResearch(pnum);
 	}
 	
-	// if elite, roll orb and equipment drops
-	// new: we let every monster drop orbs, not just elites but with an overall lower chance
-	//if(GetCVar("dnd_ignore_dropweights") || isElite) {
-		// handle orb drops
 	HandleItemDrops(tid, m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
-	//}
 	
 	// accessory drops (accept only from cyber and spider masterminds)
 	//#ifdef ISDEBUGBUILD
@@ -1185,7 +1179,7 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 	MonsterProperties[m_id].level = level;
 
 	// init to false
-	MonsterProperties[m_id].spawnsIncursionMarker = false;
+	//MonsterProperties[m_id].spawnsIncursionMarker = false;
 
 	return base + add;
 }
@@ -1461,7 +1455,6 @@ void SyncResearchInvestments(int pnum) {
 
 void PostPlayerLoadRoutine(int pnum) {
 	// Load period is finished, now check for level stats
-	PlayerDied[pnum] = 0;
 	PlayerDatabaseState[pnum][PLAYER_TRANSFERSTATE] = false;
 	TakeInventory("DnD_PDead", 1);
 	SpawnedChests = 1;
@@ -1562,15 +1555,10 @@ void HandlePlayerDataSave(int pnum, bool isDisconnect = false, int game_mode = -
 
 	// the last check needs it to see if players are left because if the last player quits then it's not in progress anymore anyway...
 	int gstate = GetGameModeState();
-	/*Log(
-		d:!isSoftorHardcore(),
-		s:" ",
-		d:PlayerLoaded[pnum]
-	);*/
-	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || gstate == GAMESTATE_COUNTDOWN || !PlayerLoaded[pnum])
+	if(!isSoftorHardcore() || (game_mode != DND_MODE_HARDCORE && game_mode != DND_MODE_SOFTCORE) || gstate == GAMESTATE_COUNTDOWN || !(PlayerGameState[pnum] & DND_PSTATE_LOADED))
 		return;
 
-	PlayerLoaded[pnum] = 0;
+	PlayerGameState[pnum] &= ~(DND_PSTATE_LOADED);
 
 	if(!PlayerIsLoggedIn(pnum) || !PlayerDatabaseState[pnum][PLAYER_SAVESTATE])
 		return;
@@ -1626,7 +1614,7 @@ void SaveAllPlayerData() {
 				//Log(s:"char id save on ", d:CheckActorInventory(i + P_TIDSTART, "DnD_CharacterID"));
 				SavePlayerData(i, CheckActorInventory(ptid, "DnD_CharacterID"));
 				ResetPlayerActivities(i, false); // reset this player's activities for the map, no need for them to be stored anymore
-				PlayerLoaded[i] = 1; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
+				PlayerGameState[i] |= DND_PSTATE_LOADED; //Also make sure the auto-save gets considered as loading a char - which will prevent unecessary loading periods.
 				Log(s:"Saving player ", n:i + 1, s:"'s data on character id ", d:CheckActorInventory(ptid, "DnD_CharacterID"), s: ".");
 			}
 			PlayerDatabaseState[i][PLAYER_SAVESTATE] = false; //This will prevent players that joined and logged in in intermission get the auto-saved character erased.

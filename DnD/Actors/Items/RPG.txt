@@ -194,7 +194,7 @@ Actor Perk_Savagery : Ammo {
 	+IGNORESKILL
 }
 
-Actor Perk_Luck : Ammo {
+Actor Perk_Acrimony : Ammo {
 	inventory.amount 1
 	inventory.maxamount 10
 	+IGNORESKILL

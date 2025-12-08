@@ -231,7 +231,7 @@ Script "DnD On Map Load" OPEN {
 	int i;
 	for(i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerIsSpectator(i) == INTER_PSTATE_SPECTATING)
-			PlayerLoaded[i] = false;
+			PlayerGameState[i] = 0;
 	}
 	
 	// wait just in case for the level to really begin
@@ -314,7 +314,6 @@ Script "DND Check Hardcore Softcore" OPEN {
 Script "DnD On Death" DEATH {
 	int i, pnum = PlayerNumber();
 	int temp;
-	PlayerDied[pnum] += 1;
 	
 	// put this at the beginning to prevent the rare last second lvl 1 char auto-load bug.
 	if(GetCVar("Survival")) {
@@ -335,7 +334,7 @@ Script "DnD On Death" DEATH {
 					// reduce to not increment from joining
 					SetDBEntry(GetCharField(DND_DB_VOTESKIPS, temp), GetPlayerAccountName(pnum), PlayerActivities[pnum].vote_skips);
 					WipeoutPlayerData(pnum, temp);
-					PlayerLoaded[pnum] = 0;
+					PlayerGameState[pnum] &= ~(DND_PSTATE_LOADED);
 
 					EndDBTransaction();
 
@@ -407,10 +406,6 @@ Script "DnD On Death" DEATH {
 	}
 	
 	Thing_ChangeTID(0, 0);
-	
-	// we moved this to HandlePlayerDataSave and above
-	//if(PlayerLoaded[pnum] && !GetPlayerLivesLeft(pnum))
-	//	PlayerLoaded[pnum] = 0;
 
 	Delay(const:5);
 }
@@ -745,7 +740,7 @@ Script "DND On Revive" (void) {
 	if (MonsterProperties[id].maxhp) { // This could be skipped if all mobs have their Monster Scaling.
 		SetEliteFlag(DND_REVIVED, true); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		// Reapply the elite FX.
-		if (MonsterProperties[id].isElite)
+		if (MonsterProperties[id].flags & DND_MONFLAG_ISELITE)
 			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this);
 		//Log(s:"Monster id: ",d:MonsterProperties[id].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
@@ -840,7 +835,7 @@ Script "DND On Kill" KILL {
 	if(IsBlindCastingMonster(MonsterProperties[m_id].id))
 		ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS");
 
-	MonsterProperties[m_id].isIdle = false;
+	MonsterProperties[m_id].flags &= ~DND_MONFLAG_ISIDLE;
 	
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
@@ -1019,7 +1014,7 @@ Script "DND On Kill" KILL {
 	
 	// if this isn't a dungeon boss --- we have special parameters that they themselves should call that can't be done from here!
 	if(!isUniqueBossMonster(m_id))
-		HandleLootDrops(this, target, MonsterProperties[m_id].isElite);
+		HandleLootDrops(this, target);
 	
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
@@ -1701,40 +1696,61 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		MonsterProperties[m_id].level = 1;
 	}
 
-	// run elite checks
-//#ifdef ISDEBUGBUILD
-//	if(1)
-//#else
-	if(
-		!IsEliteException(m_id, monsterid) && GetCVar("dnd_enable_elites") 																	&& 
-		RollEliteChance() && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")				&&
-		!IsUniqueMonster(monsterid)
-	)
-//#endif
-	{
-		MonsterProperties[m_id].isElite = true;
-		
-		// Elite bonuses
-		base = maxhp;
-		add = base * GetEliteHealthScale(MonsterProperties[m_id].level) / 100;
-		maxhp = base + add;
-		
-		MonsterProperties[m_id].basehp = maxhp;
-		MonsterProperties[m_id].maxhp = maxhp;
-		// roll more traits randomly
-		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
-		DecideEliteTraits(this, m_id, traitcount);
-		// Double Health
-		if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+	// elite and magic checks
+	int traitcount;
+	if(!IsEliteException(m_id, monsterid) && !IsUniqueMonster(monsterid)) {
+		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
+		if(GetCVar("dnd_enable_elites") && base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;
+			
+			// Elite bonuses
 			base = maxhp;
-			add = base * DND_ELITE_VITAL_SCALE / 100;
-			maxhp = Clamp_Between(base + add, 1, INT_MAX);
+			add = base * GetEliteHealthScale(MonsterProperties[m_id].level) / 100;
+			maxhp = base + add;
+			
 			MonsterProperties[m_id].basehp = maxhp;
 			MonsterProperties[m_id].maxhp = maxhp;
+			// roll more traits randomly
+			traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
+			DecideEliteTraits(this, m_id, traitcount);
+			// Double Health
+			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+				base = maxhp;
+				add = base * DND_ELITE_VITAL_SCALE / 100;
+				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				MonsterProperties[m_id].basehp = maxhp;
+				MonsterProperties[m_id].maxhp = maxhp;
+			}
+		}
+		else if(base == ROLLED_MONSTER_IS_MAGIC && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel")) {
+			MonsterProperties[m_id].flags |= DND_MONFLAG_ISMAGIC;
+
+			// Magic bonuses
+			base = maxhp;
+			add = base * GetMagicHealthScale(MonsterProperties[m_id].level) / 100;
+			maxhp = base + add;
+			
+			MonsterProperties[m_id].basehp = maxhp;
+			MonsterProperties[m_id].maxhp = maxhp;
+			// roll more traits randomly
+			traitcount = random(DND_MIN_MAGICMODS, DND_MAX_MAGICMODS);
+			DecideEliteTraits(this, m_id, traitcount);
+			// Double Health
+			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+				base = maxhp;
+				add = base * DND_ELITE_VITAL_SCALE / 100;
+				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				MonsterProperties[m_id].basehp = maxhp;
+				MonsterProperties[m_id].maxhp = maxhp;
+			}
+		}
+		else {
+			// important addition to prevent elite name from clogging up later, uncleaned
+			MonsterProperties[m_id].flags &= ~(DND_MONFLAG_ISMAGIC | DND_MONFLAG_ISELITE);
 		}
 	}
-	else // important addition to prevent elite name from clogging up later, uncleaned
-		MonsterProperties[m_id].isElite = false;
+	else
+		MonsterProperties[m_id].flags &= ~(DND_MONFLAG_ISMAGIC | DND_MONFLAG_ISELITE);
 		
 	HandlePostInitTraits(m_id, monsterid, -1);
 	
@@ -1815,37 +1831,60 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	ACS_NamedExecuteWithResult("DnD Sync Custom Monster Type", properties);
 
 	// never roll elite status on FRIENDLY custom monsters / unique bosses
-	if
-	(
-		!CheckFlag(0, "FRIENDLY") &&
-		!MonsterProperties[m_id].trait_list[DND_LEGENDARY] && 
-		MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS && 
-		GetCVar("dnd_enable_elites") && 
-		RollEliteChance() && 
-		PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")
-	) {
-		MonsterProperties[m_id].isElite = true;
-
-		// Elite bonuses
-		base = maxhp;
-		add = base * GetEliteHealthScale(MonsterProperties[m_id].level) / 100;
-		maxhp = base + add;
-		MonsterProperties[m_id].basehp = maxhp;
-		MonsterProperties[m_id].maxhp = maxhp;
-		// roll more traits randomly
-		int traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
-		DecideEliteTraits(this, m_id, traitcount);
-		// Double Health
-		if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+	int traitcount;
+	if(!CheckFlag(0, "FRIENDLY") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] && MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS) {
+		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
+		if(GetCVar("dnd_enable_elites") && base == base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;
+			
+			// Elite bonuses
 			base = maxhp;
-			add = base * DND_ELITE_VITAL_SCALE / 100;
-			maxhp = Clamp_Between(base + add, 1, INT_MAX);
+			add = base * GetEliteHealthScale(MonsterProperties[m_id].level) / 100;
+			maxhp = base + add;
+			
 			MonsterProperties[m_id].basehp = maxhp;
 			MonsterProperties[m_id].maxhp = maxhp;
+			// roll more traits randomly
+			traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
+			DecideEliteTraits(this, m_id, traitcount);
+			// Double Health
+			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+				base = maxhp;
+				add = base * DND_ELITE_VITAL_SCALE / 100;
+				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				MonsterProperties[m_id].basehp = maxhp;
+				MonsterProperties[m_id].maxhp = maxhp;
+			}
+		}
+		else if(base == ROLLED_MONSTER_IS_MAGIC && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel")) {
+			MonsterProperties[m_id].flags |= DND_MONFLAG_ISMAGIC;
+
+			// Magic bonuses
+			base = maxhp;
+			add = base * GetMagicHealthScale(MonsterProperties[m_id].level) / 100;
+			maxhp = base + add;
+			
+			MonsterProperties[m_id].basehp = maxhp;
+			MonsterProperties[m_id].maxhp = maxhp;
+			// roll more traits randomly
+			traitcount = random(DND_MIN_MAGICMODS, DND_MAX_MAGICMODS);
+			DecideEliteTraits(this, m_id, traitcount);
+			// Double Health
+			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+				base = maxhp;
+				add = base * DND_ELITE_VITAL_SCALE / 100;
+				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				MonsterProperties[m_id].basehp = maxhp;
+				MonsterProperties[m_id].maxhp = maxhp;
+			}
+		}
+		else {
+			// important addition to prevent elite name from clogging up later, uncleaned
+			MonsterProperties[m_id].flags &= ~(DND_MONFLAG_ISMAGIC | DND_MONFLAG_ISELITE);
 		}
 	}
-	else // important addition to prevent elite name from clogging up later, uncleaned
-		MonsterProperties[m_id].isElite = false;
+	else
+		MonsterProperties[m_id].flags &= ~(DND_MONFLAG_ISMAGIC | DND_MONFLAG_ISELITE);
 		
 	HandlePostInitTraits(m_id, MonsterProperties[m_id].id, -1);
 
@@ -1929,6 +1968,9 @@ Script "DnD Monster Spawner" (int category) {
 		)
 		{
 			MapData[DND_MAPDATA_INCURSIONSTATE] = RollIncursionTheme();
+
+			// player announcement
+			ACS_NamedExecuteAlways("DnD Incursion Announcer", 0);
 		}
 		else {
 			MapData[DND_MAPDATA_INCURSIONSTATE] = DND_INCURSION_FAILED;
@@ -2518,7 +2560,7 @@ Script "DnD Monster Scanner Picker" (void) {
 				SetInventory("TargetHealthBarColor", 0);
 				SetInventory("TargetLevel", 0);
 				SetInventory("TargetIsWhat", 0);
-				SetInventory("TargetIsElite", 0);
+				SetInventory("TargetFlags", 0);
 				SetInventory("TargetFortify", 0);
 				SetInventory("TargetTID", 0);
 			}
@@ -2546,7 +2588,7 @@ Script "DnD Monster Scanner Picker" (void) {
 					SetInventory("TargetMaximumHealth", MonsterProperties[m_id].maxhp);
 					SetInventory("TargetLevel", MonsterProperties[m_id].level);
 					SetInventory("TargetIsWhat", MonsterProperties[m_id].id);
-					SetInventory("TargetIsElite", MonsterProperties[m_id].isElite);
+					SetInventory("TargetFlags", MonsterProperties[m_id].flags);
 					SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
 				}
 				else {
@@ -2555,7 +2597,7 @@ Script "DnD Monster Scanner Picker" (void) {
 					SetInventory("TargetMaximumHealth", PetMonsterProperties[m_id].maxhp);
 					SetInventory("TargetLevel", PetMonsterProperties[m_id].level);
 					SetInventory("TargetIsWhat", PetMonsterProperties[m_id].id);
-					SetInventory("TargetIsElite", PetMonsterProperties[m_id].isElite);
+					SetInventory("TargetFlags", PetMonsterProperties[m_id].flags);
 					SetInventory("TargetFortify", CheckActorInventory(montid, "MonsterFortifyCount"));
 				}
 
@@ -2570,7 +2612,7 @@ Script "DnD Monster Scanner Picker" (void) {
 				SetInventory("TargetHealthBarColor", 0);
 				SetInventory("TargetLevel", 0);
 				SetInventory("TargetIsWhat", 0);
-				SetInventory("TargetIsElite", 0);
+				SetInventory("TargetFlags", 0);
 				SetInventory("TargetFortify", 0);
 				SetInventory("TargetTID", 0);
 			}
@@ -2590,7 +2632,7 @@ Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE
 	if(v1) {
 		for(i = 0; i < 32; ++i)
 			MonsterProperties[m_id].trait_list[i] = IsSet(v1, i);
-		MonsterProperties[m_id].hasTrait = true;
+		MonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
 	}
 	else {
 		for(i = 0; i < 32; ++i)
@@ -2600,7 +2642,7 @@ Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE
 	if(v2) {
 		for(i = 32; i < 64; ++i)
 			MonsterProperties[m_id].trait_list[i] = IsSet(v2, i - 32);
-		MonsterProperties[m_id].hasTrait = true;
+		MonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
 	}
 	else {
 		for(i = 32; i < 64; ++i)
@@ -2610,7 +2652,7 @@ Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE
 	if(v3) {
 		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
 			MonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
-		MonsterProperties[m_id].hasTrait = true;
+		MonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
 	}
 	else {
 		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
@@ -2628,19 +2670,19 @@ Script "DnD Sync Pet Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSI
 	if(v1) {
 		for(i = 0; i < 32; ++i)
 			PetMonsterProperties[m_id].trait_list[i] = IsSet(v1, i);
-		PetMonsterProperties[m_id].hasTrait = true;
+		PetMonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
 	}
 	
 	if(v2) {
 		for(i = 32; i < 64; ++i)
 			PetMonsterProperties[m_id].trait_list[i] = IsSet(v2, i - 32);
-		PetMonsterProperties[m_id].hasTrait = true;
+		PetMonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
 	}
 
 	if(v3) {
 		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
 			PetMonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
-		PetMonsterProperties[m_id].hasTrait = true;
+		PetMonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
 	}
 	
 	SetResultValue(0);
@@ -2938,7 +2980,6 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	CheckEOL(true);
 	
 	//ACS_NamedExecuteWithResult("DnD Save Player Activities", pnum, true);
-	PlayerDied[pnum] = 0;
 	
 	ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID]);
 	ACS_NamedExecuteAlways("DnD Menu Icon Force Remove", 0, pnum + DND_MENUFLOATYICON_TID);
@@ -3036,7 +3077,7 @@ Script "DnD Player Setup" ENTER {
 
 		PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = true;
 		// display countdown timer
-		if (!PlayerLoaded[pnum]) {
+		if (!(PlayerGameState[pnum] & DND_PSTATE_LOADED)) {
 			PlayerCanLoad[pnum] = 1;
 			SetInventory("CanLoad", 1);
 			
@@ -3282,12 +3323,12 @@ Script "DnD Can Wander Around" (void) {
 
 Script "DnD Monster Idle" (void) {
 	int tid = ActivatorTID();
-	MonsterProperties[tid - DND_MONSTERTID_BEGIN].isIdle = true;
+	MonsterProperties[tid - DND_MONSTERTID_BEGIN].flags |= DND_MONFLAG_ISIDLE;
 }
 
 Script "DnD Monster Active" (void) {
 	int tid = ActivatorTID();
-	MonsterProperties[tid - DND_MONSTERTID_BEGIN].isIdle = false;
+	MonsterProperties[tid - DND_MONSTERTID_BEGIN].flags &= ~DND_MONFLAG_ISIDLE;
 
 	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !NPC_States[DND_NPC_DARKWANDERER].aux_data && MonsterProperties[tid - DND_MONSTERTID_BEGIN].trait_list[DND_MARKOFASMODEUS]) {
 		NPC_States[DND_NPC_DARKWANDERER].aux_data = 1;
@@ -3366,13 +3407,14 @@ Script 994 (int type, int extra, int wantNoAmmo) {
 		res = GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK;
 	else if(type == 4)
 		res = Clamp_Between(GetCVar("dnd_respawn_count"), 1, 0x7FFFFFFF);
-	else if(type > 4 && type < 9) { // keep until cleanup
+	// the lower section is not used anymore
+	/*else if(type > 4 && type < 9) { // keep until cleanup
 		if(GetCVar("dnd_monsterscale")) {
 			int bonus = 0;
 			if(type == 5) {
 				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
 				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
-				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
+				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].flags & )
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
 			}
@@ -3380,21 +3422,21 @@ Script 994 (int type, int extra, int wantNoAmmo) {
 				SetActivatorToTarget(0);
 				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
 				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
-				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
+				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].flags & )
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
 			}
 			else if(type == 7) {
 				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
 				res = (Clamp_Between(extra, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
-				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].isElite)
+				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].flags & )
 					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
 				res >>= 16;
 			}
 			else if(type == 8)
 				res = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level;
 		}
-	}
+	}*/
 	else if(type == 9)
 		res = GetPlayerInput(-1, INPUT_BUTTONS) & BT_RELOAD;
 	else if(type == 10) { // checks shell clip size
@@ -3983,6 +4025,15 @@ Script "DnD Legendary Announcer" (void) {
 	}
 }
 
+Script "DnD Incursion Announcer" (void) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i)) {
+			SetActivator(i + P_TIDSTART);
+			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_INCURSION);
+		}
+	}
+}
+
 Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	if(to)
 		SetActivator(to + P_TIDSTART - 1);
@@ -4045,10 +4096,12 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 			HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
 		else if(num == DND_ANNOUNCER_NEWCLASSPERK)
 			HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-		else if(num == DND_ANNOUNCER_LEGENDARYMONSTER) // this one is called from the monster spawner and thus must be hudmessagebold
-			HudMessageBold(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+		else if(num == DND_ANNOUNCER_LEGENDARYMONSTER)
+			HudMessage(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
 		else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
 			HudMessage(l:"DND_TEXT_DISCOVEREDRES", s:": \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+		else if(num == DND_ANNOUNCER_INCURSION)
+			HudMessage(l:"DND_TEXT_INCURSION"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
 		else if(num == DND_ANNOUNCER_TRADEREQUEST) {
 			LocalAmbientSound("TradeRequest", 127);
 			HudMessage(l:"DND_TEXT_TRADEREQUEST", s:": ", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
@@ -4676,7 +4729,7 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp) {
 	int orig = r_base;
 	
 	// all the pct increases here
-	r_base = r_base * (100 + GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS)) / 100;
+	r_base = r_base * (100 + GetPlayerAoEIncrease(pnum)) / 100;
 
 	// less mods
 	if(!noSecondExp) {
@@ -5578,7 +5631,7 @@ Script "DnD Phasing" (void) {
 	a = GetActorProperty(0, APROP_ALPHA);
 	While(isAlive() && !CheckFlag(0, "GHOST")) {
 		// wait while idle
-		while(MonsterProperties[m_id].isIdle)
+		while(MonsterProperties[m_id].flags & DND_MONFLAG_ISIDLE)
 			Delay(const:TICRATE);
 
 		Delay(TICRATE * random(1, 5));
@@ -5815,7 +5868,7 @@ Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
 	SetActivator(loc_tid);
 	
 	// when referring to the boss itself use the boss_tid!
-	HandleLootDrops(boss_tid, target, false, loc_tid);
+	HandleLootDrops(boss_tid, target, loc_tid);
 
 	// tier starts from 0 to 3 --- 0 is low tier boss, 1 is medium, 2 is high, 3 is end game boss
 	SpawnOrbForAll(random(1 + tier / 2, tier + 1));
@@ -6103,7 +6156,14 @@ Script 68 (int x) NET {
 		else if(x == 667)
 			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
 		else if(x == 1000) {
-			SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
+			IncPlayerModValue(0, INV_EXPLOSION_RADIUS, 100);
+			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
+			//SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
+		}
+		else if(x == 1001) {
+			IncPlayerModValue(0, INV_CORR_MOREAOE, 0.1);
+			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
+			//SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
 		}
 		else {
 			int c = CreateItemSpot();

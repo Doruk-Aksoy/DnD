@@ -54,6 +54,7 @@ DND_TEXT_SPENDINMENU					= "Spend them in \cvDnD Menu!";
 DND_TEXT_NEWPERK						= "New class perk unlocked! Go to \cvDnD Menu\c- help section for info!";
 DND_TEXT_LEGENDARYWALKS					= "A legendary monster now walks this land... Be wary.\c-";
 DND_TEXT_DISCOVEREDRES					= "You have discovered the following research";
+DND_TEXT_INCURSION						= "An incursion is happening! Dangerous foes from the great beyond have stepped into this realm.";
 DND_TEXT_TRADEREQUEST					= "You have a trade request from";
 
 DND_TEXT_NOACTIVEQUEST					= "No active quest found!";
@@ -111,7 +112,7 @@ DND_PERK6								= "Medic";
 DND_PERK7								= "Munitionist";
 DND_PERK8								= "Deadliness";
 DND_PERK9								= "Savagery";
-DND_PERK10								= "Luck";
+DND_PERK10								= "Acrimony";
 	
 DND_STAT16								= "Experience";
 DND_STAT17								= "Level Experience";

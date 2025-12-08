@@ -11,6 +11,8 @@
 #include "DnD_WeaponDefs.h"
 #include "DnD_DamageCache.h"
 
+#define DND_WELLROLL_ODDS 0.1
+
 #define DND_BASE_CRITMODIFIER 200
 #define DND_SAVAGERY_MASTERYBONUS 100
 #define DND_HARDCORE_DROPRATEBONUS 0.15
@@ -63,6 +65,7 @@ enum {
 	DND_ANNOUNCER_NEWCLASSPERK,
 	DND_ANNOUNCER_LEGENDARYMONSTER,
 	DND_ANNOUNCER_RESEARCHDISCOVER,
+	DND_ANNOUNCER_INCURSION,
 	DND_ANNOUNCER_TRADEREQUEST
 };
 
@@ -104,7 +107,7 @@ str StatData[STAT_LVL + 1] = {
 	"Perk_Munitionist",
 	"Perk_Deadliness",
 	"Perk_Savagery",
-	"Perk_Luck",
+	"Perk_Acrimony",
 	
 	"Level"
 };
@@ -380,23 +383,24 @@ bool HasActorMasteredPerk(int tid, int stat) {
 }
 
 bool CheckPlayerLuckDuplicator(int pnum) {
-	return HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE;
+	return false;
+	//return HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE;
 }
 
 void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
 	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
-	if(CheckPlayerLuckDuplicator(pnum))
-		SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2);
+	//if(CheckPlayerLuckDuplicator(pnum))
+	//	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2);
 }
 
 void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
 	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
-	if(CheckPlayerLuckDuplicator(pnum))
-		SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
+	//if(CheckPlayerLuckDuplicator(pnum))
+	//	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
 }
 
 bool CheckWellRolled(int pnum) {
-	return !CheckActorInventory(pnum + P_TIDSTART, "ReveranceUsed") && random(0, 1.0) <= DND_LUCK_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_LUCK) / 3;
+	return CheckActorInventory(pnum + P_TIDSTART, "ReveranceUsed") || random(0, 1.0) <= DND_WELLROLL_ODDS;
 }
 
 void CalculateExpRatio() {
@@ -644,7 +648,8 @@ int Calculate_Perks() {
 
 // this is used in drop rates, weapons proc chances etc.
 int GetPlayerLuck(int pnum, int outcome_val = DND_LUCK_GAIN) {
-	return outcome_val * GetActorPerk(pnum + P_TIDSTART, STAT_LUCK) + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
+	//return outcome_val * GetActorPerk(pnum + P_TIDSTART, X) + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
+	return GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
 }
 
 bool RunLuckBasedChance(int pnum, int base, int outcome_val = DND_LUCK_GAIN) {
@@ -1286,7 +1291,7 @@ int GetPlayerMeleeRange(int pnum, int range) {
 }
 
 int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1) {
-	int base = GetPlayerAttributeValue(pnum, INV_DOTMULTI);
+	int base = GetPlayerAttributeValue(pnum, INV_DOTMULTI) + DND_ACRIMONY_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_ACRM);
 
 	if(GetPlayerAttributeValue(pnum, INV_INC_CRITFORDOT))
 		base += GetCritModifier(pnum, victim, wepid, true) / 2;

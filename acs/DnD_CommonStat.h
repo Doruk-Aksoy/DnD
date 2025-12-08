@@ -121,12 +121,12 @@ enum {
 
 #define DND_ELITE_BASEDROP 0.0025 // same as below
 
-#define DND_ELITE_BASEDROP_ORB 0.03875
+#define DND_ELITE_BASEDROP_ORB 0.04125
 #define DND_MONSTER_ORBSTACK_LEVELTHRESHOLD 10
 
-#define DND_BASEARMOR_DROP 0.014
-#define DND_BASE_CHARMRATE 0.0225
-#define DND_BASE_POWERCORERATE 0.0045
+#define DND_BASEARMOR_DROP 0.015
+#define DND_BASE_CHARMRATE 0.025
+#define DND_BASE_POWERCORERATE 0.005
 
 #define DND_BASE_PLAYERSPEED 0.9
 #define DND_LOWEST_PLAYERSPEED 0.05
@@ -142,6 +142,9 @@ enum {
 #define PERK_MEDIC_ESBONUS 2 // percent
 #define PERK_MEDICSTOREBONUS 15
 #define DND_SAVAGERY_BONUS 20 // percent
+#define DND_ACRIMONY_GAIN 8 // 8%
+#define DND_ACRIMONY_RECOVERCHANCE 0.2 // 20%
+#define DND_ACRIMONY_RECOVERPERCENT 2
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
 #define DND_MUNITION_GAIN 10
 #define DND_LUCK_GAIN 0.03 // 5% multiplicative luck
@@ -330,7 +333,7 @@ str GetAttributeLabel_Short(int id) {
 }
 
 #define DND_PERK_BEGIN STAT_SHRP
-#define DND_PERK_END STAT_LUCK
+#define DND_PERK_END STAT_ACRM
 #define DND_MAX_PERKS (DND_PERK_END - DND_PERK_BEGIN + 1)
 
 #define DND_PERK_SHARPSHOOTER_INC 5 // 5%
@@ -591,13 +594,22 @@ void UpdatePlayerKnockbackResist() {
 	}
 }
 
+int GetPlayerAoEIncrease(int pnum) {
+	int base = GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS);
+	int temp = GetPlayerAttributeValue(pnum, INV_CORR_MOREAOE);
+	if(temp)
+		base = base * (100 + (((temp + 0.005) * 100) >> 16)) / 100;
+
+	return base;
+}
+
 // Generic Player RPG Stat restore function
 void RestoreRPGStat (int statflag) {
 	int pnum = PlayerNumber();
 	if(statflag & RES_ACCURACY)
 		CalculatePlayerAccuracy(pnum);
-	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS))
-		SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, INV_EXPLOSION_RADIUS));
+	if((statflag & RES_EXPLOSIONRADIUS) && GetPlayerAoEIncrease(pnum))
+		SetActorProperty(0, APROP_SCORE, GetPlayerAoEIncrease(pnum));
 	if(statflag & RES_PLAYERSPEED)
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(pnum));
 		
@@ -894,7 +906,7 @@ int GetResistPenetration(int pnum, int category) {
 		break;
 	}
 
-	val += GetPlayerAttributeValue(pnum, INV_EX_UNITY_PEN_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
+	val += GetPlayerAttributeValue(pnum, INV_CORR_ALLPIERCE) + GetPlayerAttributeValue(pnum, INV_EX_UNITY_PEN_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
 
 	return val;
 }

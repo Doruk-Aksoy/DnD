@@ -288,6 +288,8 @@ enum {
 	INV_CORR_CYBERNETIC,
 	INV_CORR_DMGDOESNTSTOPREGEN,
 	INV_CORR_INSTALEECHPCT,
+	INV_CORR_MOREAOE,
+	INV_CORR_ALLPIERCE,
 	// add new corruption implicits here
 
 	// implicits -- add new ones below here
@@ -481,7 +483,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
-#define LAST_CORRUPT_IMPLICIT INV_CORR_INSTALEECHPCT
+#define LAST_CORRUPT_IMPLICIT INV_CORR_ALLPIERCE
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
@@ -577,6 +579,7 @@ bool IsMoreMultiplierMod(int mod) {
 		case INV_EX_MORECRIT_LIGHTNING:
 		case INV_CORR_WEAPONDMG:
 		case INV_INC_EXCESSCRIT:
+		case INV_CORR_MOREAOE:
 		return true;
 	}
 	return false;
@@ -618,6 +621,7 @@ bool IsFixedPointMod(int mod) {
 
 		case INV_CORR_WEAPONDMG:
 		case INV_CORR_DROPCHANCE:
+		case INV_CORR_MOREAOE:
 		case INV_CORR_SPEED:
 
 		case INV_ESS_ERYXIA:
@@ -1518,6 +1522,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_INSTALEECHPCT].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_INSTALEECHPCT].tags = INV_ATTR_TAG_LIFE;
 
+	ItemModTable[INV_CORR_MOREAOE].attrib_low = 0.01;
+	ItemModTable[INV_CORR_MOREAOE].attrib_high = 0.2;
+	ItemModTable[INV_CORR_MOREAOE].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_MOREAOE].tags = INV_ATTR_TAG_EXPLOSIVE;
+
+	ItemModTable[INV_CORR_ALLPIERCE].attrib_low = 1;
+	ItemModTable[INV_CORR_ALLPIERCE].attrib_high = 10;
+	ItemModTable[INV_CORR_ALLPIERCE].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_ALLPIERCE].tags = INV_ATTR_TAG_ATTACK;
+
 	///////////////////////
 	// regular implicits //
 	///////////////////////
@@ -2357,12 +2371,30 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		// value and text only as percentage
 		case INV_IMP_NECROARMOR:
-		case INV_IMP_FASTEROVERHEATDISS:
 		case INV_IMP_LESSSELFDAMAGETAKEN:
 		case INV_IMP_REDUCEDVISIONIMPAIR:		// synthmetal mask
 		case INV_CORR_INSTALEECHPCT:
 			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
 		return text;
+
+		case INV_IMP_FASTEROVERHEATDISS:
+			if(extra == -1)
+				text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
+			else {
+				if(val < 0) {
+					col_tag = "\cg";
+					no_tag = "\c[D4]";
+				}
+				else
+					no_tag = "\c-";
+
+				if(showDetailedMods)
+					text = StrParam(s:col_tag, d:val, s:GetDetailedModRange_Unique(tier, 0, extra), s:"% ", s:no_tag, l:text, s:" - ", s:GetModTierText(tier, extra));
+				else
+					text = StrParam(s:col_tag, d:val, s:"% ", s:no_tag, l:text);
+			}
+		return text;
+		
 
 		// fixed point implicits
 		case INV_IMP_LESSFIRETAKEN:
@@ -2384,6 +2416,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		// fixed point corrupted
 		case INV_CORR_DROPCHANCE:
 		case INV_CORR_SPEED:
+		case INV_CORR_MOREAOE:
 			if(showDetailedMods) {
 				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text);
 			}
@@ -2407,11 +2440,19 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			}
 			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
 
+		// % corruption mods with ranges
 		case INV_CORR_PERCENTSTATS:
 			if(showDetailedMods) {
 				return StrParam(s:"+ ", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:"%", s:no_tag, l:text);
 			}
 			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text);
+
+		// flat corruption mods with ranges
+		case INV_CORR_ALLPIERCE:
+			if(showDetailedMods) {
+				return StrParam(s:"+ ", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:no_tag, l:text);
+			}
+			return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
 
 		// fixed point stuff
 		case INV_PROJSPEED:

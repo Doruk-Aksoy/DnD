@@ -195,6 +195,12 @@ void ScaleVec3(int v, int f) {
 	vec3[v].z = FixedMul(vec3[v].z, f);
 }
 
+void MulVecVec3(int v1, int v2) {
+	vec3[v1].x = FixedMul(vec3[v1].x, vec3[v2].x);
+	vec3[v1].y = FixedMul(vec3[v1].y, vec3[v2].y);
+	vec3[v1].z = FixedMul(vec3[v1].z, vec3[v2].z);
+}
+
 void ScaleVec3_Int(int v, int s) {
 	vec3[v].x *= s;
 	vec3[v].y *= s;

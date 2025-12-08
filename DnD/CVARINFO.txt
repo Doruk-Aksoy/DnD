@@ -70,9 +70,11 @@ server noarchive int dnd_gainrange = 768;
 server noarchive int dnd_quest_chance = 20;
 server noarchive int dnd_quest_avglevel = 1;
 server noarchive int dnd_elite_spawnchance = 10;
-server noarchive int dnd_elite_spawnlevel = 20;
+server noarchive int dnd_elite_spawnlevel = 25;
 server noarchive int dnd_legendary_chance = 1;
 server noarchive int dnd_limitedrespawn_amount = 2;
+server noarchive int dnd_magic_spawnchance = 15;
+server noarchive int dnd_magic_spawnlevel = 15;
 
 server noarchive int dnd_incursion_level = 25;
 server noarchive int dnd_npc_appear_level = 25;

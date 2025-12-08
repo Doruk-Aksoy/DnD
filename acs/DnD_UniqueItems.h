@@ -532,17 +532,17 @@ void SetupUniqueItems() {
 	UniqueItemList[id].item_stack = 0;
 	UniqueItemList[id].attrib_count = 4;
 	UniqueItemList[id].attrib_id_list[0] = INV_EX_CANFIREOVERHEATED;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_MOREDMGPEROVERHEAT;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_LESSDMGTAKENMAXOVERHEAT;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_CANTFIRENONOVERHEAT;
+	UniqueItemList[id].attrib_id_list[1] = INV_EX_LESSDMGTAKENMAXOVERHEAT;
+	UniqueItemList[id].attrib_id_list[2] = INV_EX_CANTFIRENONOVERHEAT;
+	UniqueItemList[id].attrib_id_list[3] = INV_IMP_FASTEROVERHEATDISS;
 	UniqueItemList[id].rolls[0].attrib_low = 1;
 	UniqueItemList[id].rolls[0].attrib_high = 1;
-	UniqueItemList[id].rolls[1].attrib_low = 0.1;
-	UniqueItemList[id].rolls[1].attrib_high = 1.0;
-	UniqueItemList[id].rolls[2].attrib_low = 5;
-	UniqueItemList[id].rolls[2].attrib_high = 10;
-	UniqueItemList[id].rolls[3].attrib_low = 1;
-	UniqueItemList[id].rolls[3].attrib_high = 1;
+	UniqueItemList[id].rolls[1].attrib_low = 5;
+	UniqueItemList[id].rolls[1].attrib_high = 10;
+	UniqueItemList[id].rolls[2].attrib_low = 1;
+	UniqueItemList[id].rolls[2].attrib_high = 1;
+	UniqueItemList[id].rolls[3].attrib_low = -300;
+	UniqueItemList[id].rolls[3].attrib_high = -200;
 	id = UITEM_THORNVEIN;
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;
@@ -676,7 +676,8 @@ Script "DnD Load Inventory Attributes" OPEN {
 		SetupInventoryTagGroups();
 		Delay(const:10);
 		SetupUniqueItems();
-		SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
+		Delay(10);
+		ACS_NamedExecuteAlways("DnD Setup Menu Vars", 0); // leave this last here
 	}
 }
 
@@ -687,7 +688,8 @@ Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 		SetupInventoryAttributeTable();
 		Delay(const:10);
 		SetupUniqueItems();
-		SetupComplete(SETUP_STATE1, SETUP_ITEMTABLES);
+		Delay(10);
+		ACS_NamedExecuteAlways("DnD Setup Menu Vars - CS", 0);
 	}
 }
 

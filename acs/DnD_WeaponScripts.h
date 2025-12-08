@@ -970,27 +970,30 @@ Script "DnD Handle Reload" (int wepid, int extra, int flags) {
 }
 
 Script "DnD Overheat Reduction" (int index, int rate) {
-	int d = rate >> 16;
-	rate &= 0x0000FFFF;
-
+	int base_rate = rate;
 	int pnum = PlayerNumber();
-	int temp = GetPlayerAttributeValue(pnum, INV_IMP_FASTEROVERHEATDISS);
-	if(temp) {
-		temp = d * (100 - temp) / 100;
-		if(!temp) {
-			rate = rate * (100 + temp) / 100;
-			// if not 1 then we also reduce the delay if the difference is that small
-			if(d != 1)
-				d = 1;
-		}
-		else
-			d = temp;
-	}
 
 	// prevent multiple copies, also dont keep this busy if we got no overheat bonus
 	if(!IsSet(PlayerRunsOverheat[pnum], index)) {
 		PlayerRunsOverheat[pnum] = SetBit(PlayerRunsOverheat[pnum], index);
 		while(CheckInventory(WeaponOverheatItems[index][WEAPON_OVERHEATID])) {
+			// prevent snapshotting
+			int temp = GetPlayerAttributeValue(pnum, INV_IMP_FASTEROVERHEATDISS);
+			int d = base_rate >> 16;
+			rate = base_rate & 0x0000FFFF;
+
+			if(temp) {
+				temp = d * (100 - temp) / 100;
+				if(!temp) {
+					rate = rate * (100 + temp) / 100;
+					// if not 1 then we also reduce the delay if the difference is that small
+					if(d != 1)
+						d = 1;
+				}
+				else
+					d = temp;
+			}
+
 			if(CheckInventory("DnD_OverheatCanReduce"))
 				TakeInventory(WeaponOverheatItems[index][WEAPON_OVERHEATID], rate);
 			Delay(d);
@@ -2271,7 +2274,13 @@ Script "DnD Clear Homing Lock-on" (void) CLIENTSIDE {
 Script "DnD Check Weapon Discard" (int slot, int useTarget) {
 	if(useTarget)
 		SetActivatorToTarget(0);
-	SetResultValue(HasPlayerDiscardedSlot(PlayerNumber(), slot));
+	if(slot < 8)
+		SetResultValue(HasPlayerDiscardedSlot(PlayerNumber(), slot));
+	else {
+		useTarget = GetPlayerPreferredTempWeapon(PlayerNumber());
+		slot -= FIRST_SLOT9_WEAPON;
+		SetResultValue(useTarget != -2 && useTarget != slot);
+	}
 }
 
 Script "DnD Swapped From Melee" (int ptid) {

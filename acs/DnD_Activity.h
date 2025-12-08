@@ -131,9 +131,15 @@ void UpdateActivity(int pnum, int activity, int val, int extra) {
 					PlayerActivities[pnum].discarded_weapons |= (1 << val);
 				}
 			}
-			else {
+			else if(extra == 1) {
 				// just update it
 				PlayerActivities[pnum].discarded_weapons = val;
+			}
+			else {
+				// cycle temp weapon ids
+				val = PlayerActivities[pnum].discarded_weapons >> 8;
+				val = (val + 1) % (LAST_SLOT9_WEAPON - FIRST_SLOT9_WEAPON + 3);
+				PlayerActivities[pnum].discarded_weapons = (PlayerActivities[pnum].discarded_weapons & 0xFF) | (val << 8);
 			}
 			// we want to sync this one to the client
 			ACS_NamedExecuteWithResult("DnD Player Weapon Discard Sync", pnum, PlayerActivities[pnum].discarded_weapons);
@@ -151,6 +157,10 @@ Script "DnD Player Weapon Discard Sync" (int pnum, int val) CLIENTSIDE {
 bool HasPlayerDiscardedSlot(int pnum, int slot) {
 	// expects 0 indexed
 	return PlayerActivities[pnum].discarded_weapons & (1 << slot);
+}
+
+int GetPlayerPreferredTempWeapon(int pnum) {
+	return (PlayerActivities[pnum].discarded_weapons >> 8) - 2;
 }
 
 void ResetPlayerActivities(int pnum, bool hardReset) {

@@ -1,5 +1,5 @@
 - Backstab (3)
-	* Hitting enemies while their back is turned gives grants +2% to crit chance.
+	* Hitting enemies while their back is turned gives +2% to crit chance.
 	+ 1% crit chance.
 
 - Deadliness (3)

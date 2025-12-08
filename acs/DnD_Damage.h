@@ -2065,8 +2065,16 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_POISON);
 
+	if(IsActorAlive(victim)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	if(HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE)
+		HandleHealthPickup(DND_ACRIMONY_RECOVERPERCENT, 0, true, true);
+
 	temp = GetPlayerAttributeValue(pnum, INV_INC_POISONSPREAD);
-	if(random(1, 100) <= temp && !IsActorAlive(victim)) {
+	if(random(1, 100) <= temp) {
 		// DONT USE PNUM FOR PLAYER ANYMORE HERE, SOURCE ALREADY HAS IT
 		// PNUM STORES INDEX FOR STORING DISTANCE INFO
 		// reuse dot cache static array here -- MAXDOTSTACKS is high enough for this (16 vs 8)
@@ -2285,6 +2293,7 @@ Script "DnD Monster Freeze Adjust" (int victim, int tics, int reverse, int is_la
 	SetResultValue(0);
 }
 
+// Bleed player does on monsters
 Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
@@ -2319,6 +2328,10 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 		// x 5
 		Delay(const:DND_BLEED_TICRATE);
 	} while(CheckActorInventory(victim, "DnD_BleedTimer") && IsActorAlive(victim));
+
+	if(!IsActorAlive(victim) && HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE) {
+		HandleHealthPickup(DND_ACRIMONY_RECOVERPERCENT, 0, true, true);
+	}
 
 	SetActorInventory(victim, "DnD_BleedTimer", 0);
 
@@ -2361,10 +2374,23 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		// x 5
 		Delay(const:7);
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
+
+	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+		RemoveMonsterAilment(victim, DND_AILMENT_IGNITE);
+
+	SetActorInventory(victim, "DnD_IgniteTimer", 0);
+
+	if(IsActorAlive(victim)) {
+		SetResultValue(0);
+		Terminate;
+	}
+
+	if(HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE)
+		HandleHealthPickup(DND_ACRIMONY_RECOVERPERCENT, 0, true, true);
 	
 	// find N closest targets to victim for igniting
 	//printbold(d:canProlif, s: " ", d:!IsActorAlive(victim), s: " ", d:CheckIgniteProlifChance(pnum));
-	if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && !IsActorAlive(victim) && CheckIgniteProlifChance(pnum)) {
+	if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && CheckIgniteProlifChance(pnum)) {
 		// Moved here, makes more sense to only check if applicable...
 		// check ignite prolif
 		int owner = P_TIDSTART + pnum;
@@ -2448,11 +2474,6 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 			}
 		}
 	}
-
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
-		RemoveMonsterAilment(victim, DND_AILMENT_IGNITE);
-	
-	SetActorInventory(victim, "DnD_IgniteTimer", 0);
 
 	SetResultValue(0);
 }
@@ -2777,6 +2798,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	}
 
 	// finally include resists as their own multiplicative factor
+	if(m_id != -1 && MonsterProperties[m_id].trait_list[DND_PENETRATOR])
+		res_bonus += DND_PENETRATOR_PIERCE;
 	dmg = ApplyPlayerResist(pnum, dmg, res_to_apply, res_bonus);
 
 	//printbold(s:"res applied dmg: ", d:dmg);
@@ -3634,8 +3657,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = dmg * (100 + factor) / 100;
 
 					// elite damage bonus is multiplicative
-					if(MonsterProperties[m_id].isElite)
+					if(MonsterProperties[m_id].flags & DND_MONFLAG_ISELITE)
 						dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
+					else if(MonsterProperties[m_id].flags & DND_MONFLAG_ISMAGIC) // half of elite
+						dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 200;
 						
 					// chaos mark is multiplicative
 					if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])

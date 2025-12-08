@@ -1,8 +1,6 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
-#pragma pointer_space global 56
-
 #include "libbcs.bcs"
 
 #define SIZEOF_INT 4
@@ -158,7 +156,7 @@ enum {
 	STAT_MUN,
     STAT_DED,
 	STAT_SAV,
-	STAT_LUCK,
+	STAT_ACRM,
 
 	STAT_LVL
 };
@@ -341,8 +339,12 @@ bool isHardcore() {
 	return isSetupComplete(SETUP_STATE1, SETUP_HARDCORE);
 }
 
-global bool 6: PlayerLoaded[MAXPLAYERS];
-global bool 7: PlayerDied[MAXPLAYERS];
+enum {
+	DND_PSTATE_LOADED = 1,
+	DND_PSTATE_DEAD = 2,
+};
+
+global bool 6: PlayerGameState[MAXPLAYERS];
 
 #define MAPLOOTPENALITY_FACTOR 4
 

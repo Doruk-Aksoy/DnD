@@ -1592,8 +1592,8 @@ void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false, int s
 		if(sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB, id);
 			
-		if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-			SpawnSpecificOrb(pnum, id, sound, true, stack);
+		//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+		//	SpawnSpecificOrb(pnum, id, sound, true, stack);
 	}
 }
 

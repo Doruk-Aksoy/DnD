@@ -477,6 +477,8 @@ IATTR_TC9			= "chance to force pain";
 IATTR_TC10			= "CYBERNETIC";
 IATTR_TC11			= "Taking damage doesn't stop regeneration";
 IATTR_TC12			= "of lifesteal is instant";
+IATTR_TC13			= "more area of effect";
+IATTR_TC14			= "to global resist pierce";
 
 // regular implicits
 IATTR_TI1			= "armor";
@@ -560,7 +562,7 @@ IATTR_TX4 			= "to all attributes";
 IATTR_TX5 			= "to be healed for ";
 IATTR_TX6 			= "increased lightning damage";
 IATTR_TX7 			= "increased crit chance to lightning attacks";
-IATTR_TX8 			= "Explosives that trigger again have "; IATTR_TX8B = "more damage and radius";	IATTR_TX8S = "Your initial explosions have "; IATTR_TX8S2 = "less damage and radius";
+IATTR_TX8 			= "Explosives that trigger again have "; IATTR_TX8B = "more damage and radius";	IATTR_TX8S = "Your initial explosions have "; IATTR_TX8S2 = " less damage and radius";
 IATTR_TX9 			= "Double Health Cap";
 IATTR_TX10 			= "Gain 1% increased physical damage every ";
 IATTR_TX11 			= "Can't use body armor";

@@ -14,6 +14,7 @@
 */
 
 DND_ELITE						= "Elite";
+DND_MAGIC						= "Tough";
 
 DND_EMOD_ENERGYWEAKNESS			= "\cfEnergy Weakness\c-";
 DND_EMOD_SILVERWEAKNESS			= "\cfSilver Weakness\c-";
@@ -55,7 +56,7 @@ DND_EMOD_RAGE					= "\cgRage\c-";
 DND_EMOD_PIERCEARMOR			= "\cgShredding Attacks\c-";
 DND_EMOD_AGGRESSIVE				= "\cgAggressive\c-";
 DND_EMOD_EXTRAFAST				= "\cgExtra Fast\c-";
-DND_EMOD_FASTREACT				= "\cgFast Reaction\c-";
+DND_EMOD_FASTREACT				= "\cgQuick Reaction\c-";
 
 DND_EMOD_NOPAIN					= "\cvNo Pain\c-";
 DND_EMOD_EXTRASTRONG			= "\cgExtra Strong\c-";
@@ -106,6 +107,9 @@ DND_EMOD_TOXICBLOOD				= "\cmToxic Blood\c-";
 DND_EMOD_FROSTBLOOD				= "\cmFrost Blood\c-";
 DND_EMOD_MOLTENBLOOD			= "\cmMolten Blood\c-";
 DND_EMOD_INSULATED				= "\cmInsulated\c-";
+
+DND_EMOD_PENETRATOR				= "\gResist Penetrator\c-";
+
 DND_EMOD_GUARDBROKEN			= "\cfGuard Broken\c-";
 
 DND_EMOD_ETHEREAL				= "\cmEthereal\c-";	

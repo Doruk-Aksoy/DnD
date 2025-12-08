@@ -206,8 +206,8 @@ void SpawnResearch(int pnum, bool noRepeat = false) {
 		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp);
 	
 	// input "noRepeat" as true so we don't call this again
-	if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, STAT_LUCK) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-		SpawnResearch(pnum, true);
+	//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
+	//	SpawnResearch(pnum, true);
 }
 
 // This place handles researches that depend on others being researched

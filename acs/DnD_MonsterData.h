@@ -13,6 +13,7 @@
 #define ETHEREAL_RESIST 33
 
 #define MONSTER_RES_PER_THRESHOLD 30
+#define MONSTER_RES_PER_PLUS40 8
 
 #define DND_ASMODEUS_MAXLOB 3
 
@@ -70,6 +71,13 @@ enum {
 };
 #define DND_MAX_MONSTER_PRECALC_RNG 4
 
+enum {
+	DND_MONFLAG_ISELITE = 1,
+	DND_MONFLAG_ISMAGIC = 2,
+	DND_MONFLAG_ISIDLE = 4,
+	DND_MONFLAG_HASTRAITS = 8
+};
+
 typedef struct {
 	int basehp;
 	int maxhp;
@@ -82,10 +90,7 @@ typedef struct {
 	int rarity_boost;								// item rarity boost from monster
 	int killer_tid;									// tid of the killer
 	int rng_vals[DND_MAX_MONSTER_PRECALC_RNG];		// precalculated rng outcomes
-	bool isElite;
-	bool hasTrait;									// used by clients mostly -- do we have traits
-	bool isIdle;									// monster is idle
-	bool spawnsIncursionMarker;						// will spawn incursion marker
+	int flags;										// isElite, isMagic, isIdle etc.
 	int resists[MAX_DAMAGE_CATEGORIES];				// resists of the monster
 	bool trait_list[MAX_MONSTER_TRAITS_STORED]; 	// 1 if that trait is on, 0 if not
 } mo_prop_T;
@@ -132,58 +137,58 @@ global int 54: Monster_Weights[MAX_MONSTER_CATEGORIES][MAX_MONSTER_VARIATIONS];
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 6 | (8 << 16);
+		return 6 | (9 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 9 | (12 << 16);
+		return 9 | (14 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 15 | (18 << 16);
+		return 15 | (20 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 21 | (22 << 16);
+		return 21 | (25 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 24 | (24 << 16);
+		return 24 | (27 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 12 | (16 << 16);
+		return 12 | (18 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 45 | (45 << 16);
+		return 45 | (50 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 54 | (60 << 16);
+		return 54 | (68 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 24 | (16 << 16);
+		return 24 | (18 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 33 | (42 << 16);
+		return 33 | (48 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 48 | (56 << 16);
+		return 48 | (62 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 81 | (80 << 16);
+		return 81 | (90 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 76 | (80 << 16);
+		return 76 | (85 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 72 | (80 << 16);
+		return 72 | (85 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 90 | (100 << 16);
+		return 90 | (110 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 600 | (130 << 16);
+		return 600 | (140 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1080 | (150 << 16);
+		return 1080 | (160 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
-		return 16 | (15 << 16);
+		return 16 | (16 << 16);
 	}
 	
 	return 1;
@@ -900,6 +905,7 @@ enum {
 };
 
 #define DND_ELITE_GAINBONUS 30 // 30%
+#define DND_MAGIC_GAINBONUS 15
 
 int GetMonsterLevelDroprateBonus(int lvl) {
 	// piecewise function so the early 25 levels increase sharper, then slow down but reach to a sweet spot of x2.5
@@ -912,7 +918,7 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 		return 4 * lvl;
 	return 2 * lvl + 50;*/
 	// new formula to ensure a sharp curve earlier levels then settle down
-	return FixedDiv(600.0, (80.0 / lvl + 3.0)) >> 16;
+	return FixedDiv(540.0, (60.0 / lvl + 3.0)) >> 16;
 }
 
 int GetMonsterRarityDroprateBonus(int rarity) {
@@ -942,13 +948,21 @@ int GetMonsterRarityDroprateBonus(int rarity) {
 	Multiply the bonus with 1000 / rarity of monster to get a percentage
 	This is a linear, simple bonus added on top just because of the rarity of the monster. While rarity is important, the level matters more. However early on it should have a tiny impact still.
 */
-#define DND_ELITEBONUS_FROM_RARITY 50
-int GetMonsterDropBonus(int drop_base, int level, int rarity, bool isElite) {
+#define DND_ELITEBONUS_FROM_RARITY 25
+int GetMonsterDropBonus(int drop_base, int level, int rarity, int flags) {
 	// first a 50% from elites as a multiplicative bonus, then the rest
-	drop_base = drop_base * (100 + DND_ELITEBONUS_FROM_RARITY * isElite) / 100;
+	bool isMagic = flags & DND_MONFLAG_ISMAGIC;
+	bool isElite = flags & DND_MONFLAG_ISELITE;
+	drop_base = drop_base * (100 + DND_ELITEBONUS_FROM_RARITY * isMagic + 2 * isElite * DND_ELITEBONUS_FROM_RARITY) / 100;
 	drop_base = drop_base * (100 + GetMonsterLevelDroprateBonus(level)) / 100;
 	drop_base = drop_base * (100 + GetMonsterRarityDroprateBonus(rarity)) / 100;
 	return drop_base;
+}
+
+int GetMonsterGainBonus(int flags) {
+	if(flags & DND_MONFLAG_ISMAGIC)
+		return DND_MAGIC_GAINBONUS;
+	return DND_ELITE_GAINBONUS * !!(flags & DND_MONFLAG_ISELITE);
 }
 
 // you gain the returned value for exp, and third of that for credits -- rarity is monster rarity not item related rarity!
@@ -957,7 +971,7 @@ void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
 	int drop_base = 0;
 	
 	// per lvl we get base 20%, and 30% per lvl if monster is elite
-	int pct = 	100 + (MonsterProperties[m_id].level - 1) * (DND_MONSTERBONUS_PERLVL + DND_ELITE_GAINBONUS * MonsterProperties[m_id].isElite);
+	int pct = 	100 + (MonsterProperties[m_id].level - 1) * (DND_MONSTERBONUS_PERLVL + GetMonsterGainBonus(MonsterProperties[m_id].flags));
 	//printbold(s:"pct: ", d:pct);
 	
 	// if rarity is within general rarity range, get monster class respective bonus
@@ -975,7 +989,7 @@ void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
 		//printbold(s:"base final ", d:MonsterProperties[m_id].gain);
 	
 		// droprate for regular monsters, low level trash tier monsters drop nothing or rarely vs. higher tier and higher level monsters
-		MonsterProperties[m_id].droprate = GetMonsterDropBonus(drop_base, MonsterProperties[m_id].level, rarity, MonsterProperties[m_id].isElite);
+		MonsterProperties[m_id].droprate = GetMonsterDropBonus(drop_base, MonsterProperties[m_id].level, rarity, MonsterProperties[m_id].flags);
 		//printbold(s:"droprate % inc for ", s:GetActorClass(0), s: " of level ", d:MonsterProperties[m_id].level, s: " is ", d:MonsterProperties[m_id].droprate);
 		
 		MonsterProperties[m_id].rarity_boost = MonsterProperties[m_id].droprate / 3; // was 2
@@ -1049,7 +1063,10 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 
 void InitMonsterResists(int m_id) {
 	int temp = 0;
-	int bonus = MONSTER_RES_PER_THRESHOLD * (MonsterProperties[m_id].level / DND_MONSTER_RESIST_LEVELS);
+	int bonus = 0;
+	if(MonsterProperties[m_id].level > DND_MONSTER_RESIST_LEVELS)
+		bonus += MONSTER_RES_PER_THRESHOLD + ((MonsterProperties[m_id].level - DND_MONSTER_RESIST_LEVELS) / 10) * MONSTER_RES_PER_PLUS40;
+	
 	int etherealBonus = MonsterProperties[m_id].trait_list[DND_ETHEREAL] * ETHEREAL_RESIST;
 
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET] = 	MonsterProperties[m_id].trait_list[DND_BULLET_RESIST] * DND_RESIST_FACTOR + bonus +

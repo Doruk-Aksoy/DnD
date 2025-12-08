@@ -90,7 +90,7 @@ int FlagAcceptedValues[MAXFLAGS] = {
 	2
 };
 
-#define MAXDNDFLAGS 50
+#define MAXDNDFLAGS 52
 str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_monsterbars",
 	"dnd_monsterscale",
@@ -135,6 +135,8 @@ str DNDFlagCheckList[MAXDNDFLAGS] = {
 	"dnd_elite_spawnlevel",
 	"dnd_legendary_chance",
 	"dnd_limitedrespawn_amount",
+	"dnd_magic_spawnchance",
+	"dnd_magic_spawnlevel",
 	
 	"dnd_incursion_level",
 	"dnd_npc_appear_level",
@@ -193,9 +195,11 @@ int DNDFlagAcceptedValues[MAXDNDFLAGS] = {
 	20,
 	25,
 	10,
-	20,
+	25,
 	1,
 	2,
+	15,
+	20,
 	
 	25,
 	25,

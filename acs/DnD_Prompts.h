@@ -291,7 +291,7 @@ void HandleNPC(int npc_id) {
 						do {
 							j = random(0, mc - 1);
 							j = UsedMonsterTIDs[j] - DND_MONSTERTID_BEGIN;
-						} while(MonsterProperties[j].isElite);
+						} while(MonsterProperties[j].flags & DND_MONFLAG_ISELITE);
 						
 						// give it the mark of chaos
 						if(!MonsterProperties[j].trait_list[DND_MARKOFCHAOS]) {

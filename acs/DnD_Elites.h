@@ -3,6 +3,9 @@
 
 #define DND_MIN_ELITEMODS 2
 #define DND_MAX_ELITEMODS 4
+#define DND_MIN_MAGICMODS 1
+#define DND_MAX_MAGICMODS 2
+
 #define DND_ELITE_DMGSCALE 13
 #define DND_ELITE_EXTRASTRONG_BONUS 35
 #define DND_ELITE_VITAL_SCALE 75
@@ -14,12 +17,18 @@
 #define DND_NUCLEAR_MINDMG 100
 
 // linear scale, returns the old 15% at level 40 and returns 25% at level 80. Returns 30% at level 100.
+// changed scale to be more powerful for elites
 int GetEliteHealthScale(int level) {
+	return 2 * level / 5 + 10;
+}
+
+int GetMagicHealthScale(int level) {
 	return level / 4 + 5;
 }
 
 #define DND_ELITE_RESOLUTION 10000
 #define DND_ELITE_MIN_INCREMENT 33 // per level add 0.33
+#define DND_MAGIC_MIN_INCREMENT 66 // per level add 0.66
 #define DND_ELITE_RESOLUTION_SCALE 100
 
 #define DND_ELITE_THIEFRATE 25
@@ -29,7 +38,7 @@ int GetEliteHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 51
+#define MAX_ROLLABLE_TRAITS 52
 
 #include "DnD_EliteInfo.h"
 
@@ -51,7 +60,7 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 	
 	{ DND_GHOST, 0, 200 },
 	{ DND_HARDENED_SKIN, 0, 250 },
-	{ DND_REFLECTIVE, 40, 75 },
+	{ DND_REFLECTIVE, 40, 60 },
 	{ DND_AGGRESSIVE, 0, 375 },
 	{ DND_EXTRAFAST, 30, 150 },
 	
@@ -94,7 +103,9 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 	{ DND_TOXICBLOOD, 0, 400 },
 	{ DND_FROSTBLOOD, 0, 400 },
 	{ DND_MOLTENBLOOD, 0, 400 },
-	{ DND_INSULATED, 0, 400 }
+	{ DND_INSULATED, 0, 400 },
+
+	{ DND_PENETRATOR, 50, 200 }
 };
 
 void SetupEliteModWeights() {
@@ -139,8 +150,16 @@ int GetRandomEliteTrait() {
 	return 0;
 }
 
-bool RollEliteChance() {
-	return random(1, DND_ELITE_RESOLUTION) <= Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * DND_ELITE_MIN_INCREMENT;
+#define ROLLED_MONSTER_IS_MAGIC 1
+#define ROLLED_MONSTER_IS_ELITE 2
+
+bool RollEliteChance(int chance) {
+	int base_elite = Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * DND_ELITE_MIN_INCREMENT;
+	if(chance <= base_elite)
+		return ROLLED_MONSTER_IS_ELITE;
+
+	base_elite += Clamp_Between(GetCVar("dnd_magic_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * DND_MAGIC_MIN_INCREMENT;
+	return chance <= base_elite;
 }
 
 void SetEliteFlag(int f, bool updateCS) {
@@ -321,18 +340,34 @@ bool CheckEliteCvar(int t) {
 	return res;
 }
 
+bool IsMagicMonsterModBanned(int trait) {
+	switch(trait) {
+		case DND_REFLECTIVE:
+		case DND_THUNDERSTRUCK:
+		case DND_VIOLENTRETALIATION:
+		case DND_OTHERWORLDGRIP:
+		case DND_RUINATION:
+		case DND_SUBORDINATE:
+		case DND_PHANTASM:
+		case DND_NUCLEAR:
+		return true;
+	}
+	return false;
+}
+
 // Exception occurs when: Either we rolled a resist when we have the corresponding immunity OR we rolled an immunity when we said this can't roll due to cvar
 bool HasTraitExceptions(int m_id, int trait) {
 	int t = EliteTraitNumbers[trait][ELITETRAIT_ID];
 	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	return 	CheckEliteCvar(t) 																||
-			MonsterProperties[m_id].level < EliteTraitNumbers[trait][ELITETRAIT_LVLREQ]		||
-			(t == DND_BULLET_RESIST && HasTrait(i, DND_BULLET_IMMUNE)) 						||
-			(t == DND_ENERGY_RESIST && HasTrait(i, DND_ENERGY_IMMUNE)) 						|| 
-			(t == DND_MAGIC_RESIST && HasTrait(i, DND_MAGIC_IMMUNE)) 						|| 
-			(t == DND_ELEMENTAL_RESIST && HasTrait(i, DND_ELEMENTAL_IMMUNE))				||
-			(t == DND_PHASING && HasTrait(i, DND_GHOST))									||
-			(t == DND_GHOST && HasTrait(i, DND_PHASING))									||
+	return 	CheckEliteCvar(t) 																		||
+			MonsterProperties[m_id].level < EliteTraitNumbers[trait][ELITETRAIT_LVLREQ]				||
+			((MonsterProperties[m_id].flags & DND_MONFLAG_ISMAGIC) && IsMagicMonsterModBanned(t)) 	||
+			(t == DND_BULLET_RESIST && HasTrait(i, DND_BULLET_IMMUNE)) 								||
+			(t == DND_ENERGY_RESIST && HasTrait(i, DND_ENERGY_IMMUNE)) 								|| 
+			(t == DND_MAGIC_RESIST && HasTrait(i, DND_MAGIC_IMMUNE)) 								|| 
+			(t == DND_ELEMENTAL_RESIST && HasTrait(i, DND_ELEMENTAL_IMMUNE))						||
+			(t == DND_PHASING && HasTrait(i, DND_GHOST))											||
+			(t == DND_GHOST && HasTrait(i, DND_PHASING))											||
 			(t == DND_REBIRTH && (HasTrait(i, DND_SUMMONED) || HasTrait(i, DND_REVIVED)));
 }
 
@@ -385,7 +420,8 @@ void DecideEliteTraits(int tid, int m_id, int count) {
 	}
 
 	// Run the elite special fx script on this monster
-	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid);
+	if(MonsterProperties[m_id].flags & DND_MONFLAG_ISELITE)
+		ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid);
 }
 
 Script "DnD Monster Nuclear Explosion" (int this) {

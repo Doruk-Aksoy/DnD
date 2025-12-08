@@ -4,7 +4,7 @@ Actor TargetLevel : DnD_Info {}
 Actor TargetIsWhat : DnD_Info {}
 Actor TargetMonId : DnD_Info {}
 Actor TargetHealthBarColor : DnD_Info {}
-Actor TargetIsElite : DnD_Boolean {}
+Actor TargetFlags : DnD_Info {}
 Actor TargetFortify : DnD_Info {}
 Actor TargetTID : DnD_Info {}
 

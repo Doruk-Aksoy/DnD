@@ -20,7 +20,7 @@
 #define DND_DISASSEMBLE_IMPLICIT_PERCENT 10
 #define DND_DISASSEMBLE_TIER_PERCENT 10
 #define DND_DISASSEMBLE_FRACTURE_PERCENT 10 // 10% per fracture
-#define DND_BASE_DISASSEMBLE_CHANCE 25 // 25%
+#define DND_BASE_DISASSEMBLE_CHANCE 40 // 40%
 #define DND_BASE_DISASSEMBLE_CHANCE_PERLUCK 5 // 5%
 #define DND_BASE_FRACTURE_DISASSEMBLE_CHANCE 3
 #define DND_BASE_CORRUPT_DISASSEMBLE_CHANCE 5
@@ -33,9 +33,9 @@
 
 #define MAX_POWERCORE_ATTRIB_DEFAULT 2
 
-#define MAXSTACKS_ORB 512
-#define MAXSTACKS_CKEY 128
-#define MAXSTACKS_TOKEN 128
+#define MAXSTACKS_ORB 1024
+#define MAXSTACKS_CKEY 256
+#define MAXSTACKS_TOKEN 256
 
 #define HUD_DII_FIELD_MULT 10
 
@@ -3587,7 +3587,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_DREAMINGGODIRE;
+				i = UITEM_HEATBREAKER;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif
@@ -3837,7 +3837,6 @@ int GetDissassembleChance(int pnum, int item_pos) {
 	// give more chance to succeed if we have the research related to it too
 	bool hasResearch = CheckResearchStatus(RES_MOLECULARREC);
 	int chance = 	DND_BASE_DISASSEMBLE_CHANCE + 
-					DND_BASE_DISASSEMBLE_CHANCE_PERLUCK * GetPerk(STAT_LUCK) +
 					hasResearch * DND_DISASS_CHANCEBONUS_RESEARCH;
 
 	// 10% of ilvl + 25% of avg mod tier + 3% flat per fractured mod and 5% if corrupted to fail
