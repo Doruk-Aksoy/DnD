@@ -25,7 +25,6 @@ ACTOR CyclopsFlemoid : DnD_BaseMeleeMonster {
 	+QUICKTORETALIATE
 	+DONTHURTSPECIES
 	+DONTHARMSPECIES
-	-COUNTKILL
 	Bloodcolor "Green"
 	Hitobituary "%o was slimed by a Cyclops Flemoid."
 	Obituary "%o was slimed by a Cyclops Flemoid."

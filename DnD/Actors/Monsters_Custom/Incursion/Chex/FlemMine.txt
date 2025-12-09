@@ -25,7 +25,6 @@ ACTOR FlemMine : DnD_BaseHybridMonster {
 	+NOICEDEATH
 	+FRIGHTENED
 	+PUSHABLE
-	-COUNTKILL
 	Obituary "%o was gooed by a Flem Mine."
 	States {
 		SetInfo:

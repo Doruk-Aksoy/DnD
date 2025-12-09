@@ -330,7 +330,6 @@ enum {
 	MONSTER_BEAMREVENANT,
 	MONSTER_AXEKNIGHT,
 	MONSTER_WIDOWMAKER,
-	MONSTER_YETI,
 	MONSTER_SLUDGEGIANT,
 	MONSTER_SLUDGEGIANT2,
 	MONSTER_SLUDGEGIANT3,
@@ -383,6 +382,7 @@ enum {
 	MONSTER_ABOMINATION,
 	MONSTER_REDEEMER,
 	MONSTER_GOLDGOLEM,
+	MONSTER_YETI,
 	
 	// Arachnotron
 	MONSTER_FUSIONSPIDER,
@@ -533,7 +533,7 @@ enum {
 #define DND_CUSTOM_BARON_END MONSTER_WARMASTER
 
 #define DND_CUSTOM_FATSO_BEGIN MONSTER_CORPULENT
-#define DND_CUSTOM_FATSO_END MONSTER_GOLDGOLEM
+#define DND_CUSTOM_FATSO_END MONSTER_YETI
 
 #define DND_CUSTOM_ARACHNO_BEGIN MONSTER_FUSIONSPIDER
 #define DND_CUSTOM_ARACHNO_END MONSTER_OPHIDIAN
@@ -987,7 +987,14 @@ void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
 		// depending on rarity apply a more multiplier
 		MonsterProperties[m_id].gain = base * DND_MWEIGHT_COMMON / rarity;
 		//printbold(s:"base final ", d:MonsterProperties[m_id].gain);
+
+		MonsterProperties[m_id].droprate = 0;
+		for(int i = FIRST_MONSTER_TRAIT; i < LAST_MONSTER_TRAIT; ++i)
+			if(MonsterProperties[m_id].trait_list[i])
+				MonsterProperties[m_id].droprate += GetEliteModPower(i);
 	
+		drop_base = drop_base * (100 + MonsterProperties[m_id].droprate) / 100;
+
 		// droprate for regular monsters, low level trash tier monsters drop nothing or rarely vs. higher tier and higher level monsters
 		MonsterProperties[m_id].droprate = GetMonsterDropBonus(drop_base, MonsterProperties[m_id].level, rarity, MonsterProperties[m_id].flags);
 		//printbold(s:"droprate % inc for ", s:GetActorClass(0), s: " of level ", d:MonsterProperties[m_id].level, s: " is ", d:MonsterProperties[m_id].droprate);
@@ -1894,8 +1901,6 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_AXEKNIGHT].flags = DND_MTYPE_UNDEAD_POW;
 	MonsterData[MONSTER_WIDOWMAKER].health = 300;
 	MonsterData[MONSTER_WIDOWMAKER].flags = DND_MTYPE_UNDEAD_POW;
-	MonsterData[MONSTER_YETI].health = 300;
-	MonsterData[MONSTER_YETI].flags = DND_MTYPE_MAGICAL_POW;
 	MonsterData[MONSTER_SLUDGEGIANT].health = 280;
 	MonsterData[MONSTER_SLUDGEGIANT].flags = DND_MTYPE_MAGICAL_POW;
 	MonsterData[MONSTER_SLUDGEGIANT2].health = 140;
@@ -1994,6 +1999,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_REDEEMER].flags = DND_MTYPE_ROBOTIC_POW;
 	MonsterData[MONSTER_GOLDGOLEM].health = 1000;
 	MonsterData[MONSTER_GOLDGOLEM].flags = DND_MTYPE_MAGICAL_POW;
+	MonsterData[MONSTER_YETI].health = 800;
+	MonsterData[MONSTER_YETI].flags = DND_MTYPE_MAGICAL_POW;
 
 	// arachnotron
 	MonsterData[MONSTER_FUSIONSPIDER].health = 500;
@@ -2658,7 +2665,6 @@ void SetupMonsterWeights() {
 	Monster_Weights[MONSTERCLASS_REVENANT][id++] = DND_MWEIGHT_UNCOMMON;
 	Monster_Weights[MONSTERCLASS_REVENANT][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_REVENANT][id++] = DND_MWEIGHT_RARE1;
-	Monster_Weights[MONSTERCLASS_REVENANT][id++] = DND_MWEIGHT_RARE1;
 	Monster_Weights[MONSTERCLASS_REVENANT][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_REVENANT][id++] = DND_MWEIGHT_RARE1;
 	Monster_Weights[MONSTERCLASS_REVENANT][id++] = DND_MWEIGHT_RARE1;
@@ -2714,6 +2720,7 @@ void SetupMonsterWeights() {
 	Monster_Weights[MONSTERCLASS_FATSO][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_FATSO][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_FATSO][id++] = DND_MWEIGHT_VERYRARE;
+	Monster_Weights[MONSTERCLASS_FATSO][id++] = DND_MWEIGHT_RARE1;
 	Monster_Weights[MONSTERCLASS_FATSO][id++] = DND_MWEIGHT_ENDMARKER;
 
 	id = 0;

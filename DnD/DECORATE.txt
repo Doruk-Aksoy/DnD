@@ -155,4 +155,5 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Spawners/CyberdemonSpawner.txt"
 #include "Actors/Spawners/WolfenSpawner.txt"
 
-#include "Actors/DarkWanderer.txt"
+#include "Actors/NPC/DarkWanderer.txt"
+#include "Actors/NPC/Merchant.txt"

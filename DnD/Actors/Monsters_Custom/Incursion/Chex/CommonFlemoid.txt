@@ -20,7 +20,6 @@ ACTOR CommonFlemoid : DnD_BaseHybridMonster {
 	+PUSHABLE
 	+FLOORCLIP
 	-DROPOFF
-	-COUNTKILL
 	+ISMONSTER
 	Bloodcolor "green"
 	Obituary "%o was slimed by a Common Flemoid."

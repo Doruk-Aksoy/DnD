@@ -19,7 +19,6 @@ ACTOR BipedalFlemoid : DnD_BaseHybridMonster {
 	+QUICKTORETALIATE
 	+FLOORCLIP
 	-DROPOFF
-	-COUNTKILL
 	+ISMONSTER
 	Bloodcolor "green"
 	Obituary "%o was slimed by a Bipedal Flemoid."

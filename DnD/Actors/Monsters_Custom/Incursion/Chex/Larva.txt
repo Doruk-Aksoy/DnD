@@ -21,7 +21,6 @@ ACTOR FlemoidLarva : DnD_BaseMeleeMonster {
 	+FLOORCLIP
 	+DONTHURTSPECIES
 	+DONTHARMSPECIES
-	-COUNTKILL
 	-DROPOFF
 	Hitobituary "%o was gooed by a Flemoid Larva."
 	states {

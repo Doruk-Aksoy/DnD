@@ -21,7 +21,6 @@ ACTOR FlemoidStridicus : DnD_BaseMeleeMonster {
 	+ISMONSTER
 	+QUICKTORETALIATE
 	+FLOORCLIP
-	-COUNTKILL
 	-DROPOFF
 	Hitobituary "%o was gooed by a Flemoid Larva."
 	states {

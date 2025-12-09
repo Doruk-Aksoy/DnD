@@ -959,7 +959,7 @@ void HandleCreditExp_MasteryCheck(int this, int target, int m_id) {
 	
     // decide how exp/credit base is calculated
 	int exptemp = MonsterProperties[m_id].gain;
-	int credtemp = ApplyCreditFactor(target, exptemp);;
+	int credtemp = ApplyCreditFactor(target, exptemp);
     int pnum = 0, i = MonsterProperties[m_id].level;
 	
 	if(credtemp < DND_MIN_CREDIT)

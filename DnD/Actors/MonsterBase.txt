@@ -425,8 +425,13 @@ Actor Monster_Chaos_Check : DnD_Activator {
 		Pickup:
 			TNT1 A 0 A_Jump(128, "SkipChaos")
 		ChaosAttack:
-			TNT1 A 0 A_Jump(128, "HomingSmall")
+			TNT1 A 0 A_Jump(128, "HomingSmall", "Spread")
 			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), frandom(-9, 9), 0, frandom(-4.5, 4.5))
+		Stop
+		Spread:
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), -3, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 0, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 3, 0, frandom(-1.5, 1.5))
 		Stop
 		HomingSmall:
 			TNT1 A 0 A_CustomMissile("ChaosBolt_Seeking", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), frandom(-9, 9), 0, frandom(-4.5, 4.5))
@@ -442,8 +447,16 @@ Actor Monster_Chaos_Check_Medium : DnD_Activator {
 	States {
 		Pickup:
 			TNT1 A 0 A_Jump(64, "SkipChaos")
+			TNT1 A 0 A_Jump(128, "Spread")
 			TNT1 AA 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), frandom(-9, 9), 0, frandom(-4.5, 4.5))
 			TNT1 A 0 A_CustomMissile("ChaosBolt_Seeking", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), frandom(-9, 9), 0, frandom(-4.5, 4.5))
+		Stop
+		Spread:
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), -6, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), -3, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 0, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 3, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 6, 0, frandom(-1.5, 1.5))
 		Stop
 		
 		SkipChaos:
@@ -455,8 +468,16 @@ Actor Monster_Chaos_Check_Medium : DnD_Activator {
 Actor Monster_Chaos_Check_Big : DnD_Activator {
 	States {
 		Pickup:
-			TNT1 AAA 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), frandom(-9, 9), 0, frandom(-4.5, 4.5))
 			TNT1 AA 0 A_CustomMissile("ChaosBolt_Seeking", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), frandom(-9, 9), 0, frandom(-4.5, 4.5))
+			TNT1 A 0 A_Jump(72, "Spread")
+			TNT1 AAA 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), frandom(-9, 9), 0, frandom(-4.5, 4.5))
+		Stop
+		Spread:
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), -6, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), -3, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 0, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 3, 0, frandom(-1.5, 1.5))
+			TNT1 A 0 A_CustomMissile("ChaosBolt", frandom(height / 2, 3 * height / 4), frandom(-radius / 2, radius / 2), 6, 0, frandom(-1.5, 1.5))
 		Stop
 	}
 }
@@ -467,7 +488,7 @@ Actor ChaosBolt {
 	Height 16
 	Radius 8
 	Scale 0.75
-	Damage (random(15, 24))
+	Damage (random(24, 30))
 	DamageType "Chaos"
 	Stamina 8
 	SeeSound "ChaosBolt/Fire"

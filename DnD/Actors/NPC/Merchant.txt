@@ -1,0 +1,57 @@
+Actor DnD_Merchant {
+	Health 0x7FFFFFF
+	Radius 32
+	Height 56
+	Mass 0x7FFFFFF
+	MONSTER
+	Activation THINGSPEC_NoDeathSpecial|THINGSPEC_ThingTargets
+	Tag "Merchant"
+	Species "Player"
+	+THRUSPECIES
+	-COUNTKILL
+	-SHOOTABLE
+	+SOLID
+	+USESPECIAL
+	+FRIENDLY
+	+NODAMAGETHRUST
+	+DONTBLAST
+	+NOPAIN
+	+LOOKALLAROUND
+	+STANDSTILL
+	
+	States {
+		Spawn:
+			TNT1 A 0
+		Idle:
+			TNT1 A 0 A_Jump(128, "Idle2", "Idle3", "Idle4")
+			MRCH U 10 A_LookEx(LOF_DONTCHASEGOAL | LOF_NOSEESOUND, 0, 256)
+		Loop
+		Idle2:
+			MRCH P 30
+		Goto Idle
+		Idle3:
+			MRCH Q 30
+		Goto Idle
+		Idle4:
+			MRCH ABCDEDCB 4
+			MRCH A 5
+			MRCH F 6
+		Goto Idle
+		
+		See
+			MRCH GHIJKLMNO 5
+		Goto Idle
+		Yes:
+			MRCH V 20
+		Goto See
+		No:
+			MRCH RS 6
+			MRCH T 10
+			MRCH SR 6
+		Goto Idle
+		
+		Death:
+			TNT1 A 1
+		Stop
+	}
+}

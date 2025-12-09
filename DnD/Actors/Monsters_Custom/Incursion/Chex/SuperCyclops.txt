@@ -22,7 +22,6 @@ ACTOR SuperCyclops : DnD_BaseRangedMonster {
 	+PUSHABLE
 	+MISSILEEVENMORE
 	+MISSILEMORE
-	-COUNTKILL
 	Obituary "%o was slimed from afar by a Super Cyclops Flemoid."
 	Hitobituary "%o was slimed by a Super Cyclops Flemoid."
 	States {

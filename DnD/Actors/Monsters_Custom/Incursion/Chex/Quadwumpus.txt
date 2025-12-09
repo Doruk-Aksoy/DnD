@@ -17,7 +17,6 @@ ACTOR ChexQuadrumpus : DnD_BaseRangedMonster {
 	+ISMONSTER
 	+FLOORCLIP
 	+QUICKTORETALIATE
-	-COUNTKILL
 	-DROPOFF
 	Obituary "%o was slimed by a Quadrumpus."
 	States {

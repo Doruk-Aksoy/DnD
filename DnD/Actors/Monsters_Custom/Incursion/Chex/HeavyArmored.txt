@@ -21,7 +21,6 @@ ACTOR HeavyArmoredFlemoid : DnD_BaseHybridMonster {
 	+DONTRIP
 	+NOBLOOD
 	-DROPOFF
-	-COUNTKILL
 	+ISMONSTER
 	Bloodcolor "green"
 	Obituary "%o was slimed by a Bipedal Flemoid."

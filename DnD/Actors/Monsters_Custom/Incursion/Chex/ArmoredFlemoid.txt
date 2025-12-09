@@ -17,7 +17,6 @@ ACTOR ArmoredFlemoid : DnD_BaseRangedMonster {
 	+MISSILEMORE
 	+FLOORCLIP
 	-DROPOFF
-	-COUNTKILL
 	+ISMONSTER
 	Bloodcolor "green"
 	Obituary "%o was slimed by a Bipedal Flemoid."

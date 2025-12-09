@@ -150,6 +150,112 @@ enum {
 	DND_NODROPS
 };
 
+enum {
+	DND_MODPOWER_LOW = 5,
+	DND_MODPOWER_MEDIUM = 10,
+	DND_MODPOWER_HIGH = 20,
+	DND_MODPOWER_ULTRA = 50
+};
+
+int GetEliteModPower(int t) {
+	switch(t) {
+		case DND_ENERGY_WEAKNESS:
+		case DND_SILVER_WEAKNESS:
+		case DND_FIRE_WEAKNESS:
+		case DND_ICE_WEAKNESS:
+		case DND_MAGIC_WEAKNESS:
+		case DND_ELEMENTAL_WEAKNESS:
+		return 0;
+
+		// low power
+		case DND_BULLET_RESIST:
+		case DND_ENERGY_RESIST:
+		case DND_MAGIC_RESIST:
+		case DND_ELEMENTAL_RESIST:
+		case DND_GHOST:
+		case DND_HARDENED_SKIN:
+		case DND_MINIONS:
+		case DND_HEAL:
+		case DND_BLOCK:
+		case DND_SPLIT:
+		case DND_TELEPORT:
+		case DND_TOXICBLOOD:
+		case DND_FROSTBLOOD:
+		case DND_MOLTENBLOOD:
+		case DND_INSULATED:
+		case DND_ENSHROUDED:
+		case DND_BLACKOUT:
+		case DND_TEMPORALBUBBLE:
+		case DND_PHASING:
+		case DND_OSMIUM:
+		case DND_SILENT:
+		case DND_VAMPIRISM:
+		case DND_SHOCKER:
+		case DND_HATRED:
+		case DND_REJUVENATING:
+		case DND_BLOODLESS:
+		case DND_THIEF:
+		case DND_REBIRTH:
+		case DND_ICECREATURE:
+		case DND_FIRECREATURE:
+		case DND_STONECREATURE:
+		case DND_EARTHCREATURE:
+		case DND_VITAL:
+		case DND_AGGRESSIVE:
+		case DND_FASTREACTION:
+		case DND_NOPAIN:
+		case DND_PIERCE:
+		case DND_RAGE:
+		case DND_DEATH:
+		case DND_MOBILITY:
+		case DND_HOMING:
+		case DND_POISON:
+		return DND_MODPOWER_LOW;
+
+		// medium power
+		case DND_EXPLOSIVE_IMMUNE:
+		case DND_BULLET_IMMUNE:
+		case DND_ENERGY_IMMUNE:
+		case DND_MAGIC_IMMUNE:
+		case DND_ELEMENTAL_IMMUNE:
+		case DND_CURSE:
+		case DND_RAISE:
+		case DND_ETHEREAL:
+		case DND_PENETRATOR:
+		case DND_CRIPPLE:
+		case DND_SUBORDINATE:
+		case DND_REPEL:
+		case DND_PHANTASM:
+		case DND_FORTIFIED:
+		case DND_VENOMANCER:
+		case DND_FRIGID:
+		case DND_SCORCHED:
+		case DND_VOLTAIC:
+		case DND_HEXFUSION:
+		case DND_ARMORPEN:
+		case DND_EXTRASTRONG:
+		case DND_EXTRAFAST:
+		case DND_RESURRECT:
+		return DND_MODPOWER_MEDIUM;
+
+		// high power
+		case DND_REFLECTIVE:
+		case DND_OTHERWORLDGRIP:
+		case DND_THUNDERSTRUCK:
+		case DND_MARKOFCHAOS:
+		case DND_RUINATION:
+		case DND_NUCLEAR:
+		case DND_VIOLENTRETALIATION:
+		return DND_MODPOWER_HIGH;
+
+		// ultra power
+		case DND_MARKOFASMODEUS:
+		return DND_MODPOWER_ULTRA;
+	}
+
+	return 0;
+}
+
 // +1 normally for array count, + 2 for NODROPS, we don't want to show this anywhere though
 // shown to players vs stored as data
 #define MAX_MONSTER_TRAITS_SHOWN (DND_LEGENDARY + 1)

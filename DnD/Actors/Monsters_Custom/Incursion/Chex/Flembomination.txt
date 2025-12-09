@@ -25,7 +25,6 @@ ACTOR Flembomination : DnD_BaseRangedBoss {
 	+QUICKTORETALIATE
 	+MISSILEMORE
 	-DROPOFF
-	-COUNTKILL
 	+BOSSDEATH
 	+BOSS
 	Obituary "%o was defeated by the Flembomination."
