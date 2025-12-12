@@ -272,7 +272,8 @@ enum {
 
 	DND_TRICKSTERCLONE_TID = DND_CROSSBOW_EXPLOSIONTID + MAXPLAYERS,
 	
-	DND_NPC_TID = DND_TRICKSTERCLONE_TID + MAXPLAYERS,
+	DND_MERCHANT_TID = DND_TRICKSTERCLONE_TID + MAXPLAYERS,
+	DND_NPC_TID,
 	
 	DND_PETTID_BEGIN = DND_NPC_TID + MAX_NPCS,
 	
@@ -796,6 +797,10 @@ Script "DnD Try Spawn Area" (int stid, int actortype, int newtid, int r) {
 	// dark wanderer special thingy (yes its awful i know)
 	if(newtid == DND_NPC_TID) {
 		SetThingSpecial(newtid, ACS_ExecuteAlways, 895, 0, 0, DND_NPC_TID);
+		FaceActor(newtid, stid);
+	}
+	else if(newtid == DND_MERCHANT_TID) {
+		SetThingSpecial(newtid, ACS_ExecuteAlways, 895, 0, 1, DND_MERCHANT_TID);
 		FaceActor(newtid, stid);
 	}
 	

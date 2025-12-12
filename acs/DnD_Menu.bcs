@@ -218,6 +218,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 	PlayerCursorData.posx = HUDMAX_XF / 2;
 	PlayerCursorData.posy = HUDMAX_YF / 2;
+
+	// fixes merchant showing up on menu use when talking to him
+	DeleteText(RPGMENUID);
 	
 	while(CheckInventory("ShowingMenu")) {
 		redraw = false;

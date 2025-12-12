@@ -82,6 +82,10 @@ bool IsHighTierOrb(int type) {
 	return false;
 }
 
+bool IsLowTierOrb(int orb) {
+	return !IsMidTierOrb(orb) && !IsHighTierOrb(orb);
+}
+
 #define MAX_TRANSMUTE_BOXES 3
 typedef struct {
 	int id;

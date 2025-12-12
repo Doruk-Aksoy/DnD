@@ -132,51 +132,6 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 	}
 }
 
-void ResetCursorDragData() {
-	PlayerCursorData.itemDragged = -1;
-	PlayerCursorData.itemDragInfo.topboxid = -1;
-	PlayerCursorData.itemDragInfo.source = -1;
-	PlayerCursorData.itemDragInfo.click_box = -1;
-}
-
-void ResetCursorHoverProc() {
-	PlayerCursorData.itemHovered = -1;
-	PlayerCursorData.itemHoveredType = 0;
-	PlayerCursorData.itemHoveredSource = 0;
-	PlayerCursorData.itemHoveredDim.x = 0;
-	PlayerCursorData.itemHoveredDim.y = 0;
-	PlayerCursorData.itemHoveredOffset = 0;
-	PlayerCursorData.owner_pnum = -1;
-	PlayerCursorData.hoverNeedsReset = false;
-}
-
-void ResetCursorHoverData() {
-	// cleanup anything that is potentially shown by cursor hovering here
-	//Log(s:"reset cursor");
-	CleanInventoryInfo();
-	ResetCursorHoverProc();
-}
-
-void UpdateCursorHoverData(int itemid, int source, int itemtype, int owner_p, int offset, int dimx = 0, int dimy = 0) {
-	if(PlayerCursorData.itemHovered != itemid)
-		CleanInventoryInfo();
-	
-	PlayerCursorData.itemHovered = itemid;
-	PlayerCursorData.itemHoveredSource = source;
-	PlayerCursorData.itemHoveredType = itemtype;
-	PlayerCursorData.itemHoveredDim.x = dimx;
-	PlayerCursorData.itemHoveredDim.y = dimy;
-	PlayerCursorData.itemHoveredOffset = offset;
-	PlayerCursorData.owner_pnum = owner_p;
-}
-
-void resetCursorClickProc() {
-	PlayerCursorData.itemClicked = -1;
-	PlayerCursorData.itemClickedPos.x = -1;
-	PlayerCursorData.itemClickedPos.y = -1;
-	PlayerCursorData.clickNeedsReset = false;
-}
-
 void ResetCursorClickData() {
 	CleanInventoryInfo(RPGMENUCLICKEDID);
 	
@@ -2948,70 +2903,6 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	else
 		SetFont("LDTBOX");
 	HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - 1, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * skip, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * skip, 0.0);
-}
-
-void DrawInventoryInfo(int pnum) {
-	int pn, mx, my, offset, stack = 0;
-	
-	if(CheckInventory("DnD_SelectedCharmBox"))
-		DrawInventoryInfo_Field(pnum, CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, true);
-		
-	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-	if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource) != DND_ITEM_NULL) {
-		DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18 - ITEMINFOBG_MAXMIDS, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
-
-		int isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-		
-		mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1;
-		my = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 16.1;
-
-		// to force them to appear in window
-		if(PlayerCursorData.itemHoveredDim.x == HUDMAX_X) {
-			if(mx > INVENTORYINFO_NORMALVIEW_WRAPX)
-				mx = INVENTORYINFO_NORMALVIEW_WRAPX + 0.1;
-			if(my > INVENTORYINFO_NORMALVIEW_WRAPY)
-				my = INVENTORYINFO_NORMALVIEW_WRAPY + 0.1;
-		}
-		else {
-			// tradeview
-			if(mx > INVENTORYINFO_TRADEVIEW_WRAPX)
-				mx = INVENTORYINFO_TRADEVIEW_WRAPX + 0.1;
-			if(my > INVENTORYINFO_TRADEVIEW_WRAPY)
-				my = INVENTORYINFO_TRADEVIEW_WRAPY + 0.1;
-		}
-		
-		int bg_x = mx;
-		int bg_y = my;
-
-		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
-		int attr_count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-
-		stack = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-		if(stack) {
-			SetFont("NMENUFNT");
-			HudMessage(d:stack; HUDMSG_PLAIN, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, GetIntegerBits(mx + HUD_ITEMBAK_XF - 9.0) + 0.2, my + 15.0, 0);
-		}
-		
-		SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
-		
-		int prev_x = 3 * mx / 2;
-		int prev_y = 3 * my / 2;
-		
-		mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
-		my = GetIntegerBits(3 * my / 2) + 20.1;
-		
-		SetHudClipRect(12 + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
-		DrawInventoryText(
-			PlayerCursorData.itemHovered,
-			PlayerCursorData.itemHoveredSource, 
-			pnum, mx, my, itype, isubt, RPGMENUINVENTORYID, HUD_DII_MULT, 
-			HUDMAX_X, HUDMAX_Y, 
-			bg_x, bg_y,
-			attr_count
-		);
-		SetHudClipRect(0, 0, 0, 0, 0);
-		SetHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y, 1);
-	}
 }
 
 // min is included max is excluded

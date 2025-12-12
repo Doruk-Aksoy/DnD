@@ -3,6 +3,7 @@
 
 #include "DnD_Common.h"
 #include "DnD_Incursion.h"
+#include "DnD_MerchantGUI.h"
 
 #define DND_ARTIFACT_BASETIME 60
 #define DND_ARTIFACT_TIME_PER 30
@@ -24,6 +25,8 @@ enum {
 	DW_CHALLENGE2,
 	DW_CHALLENGE3,
 	DW_CHALLENGE4,
+
+	MRCH_GREET,
 
 	MAX_PROMPTED_LINES
 };
@@ -128,14 +131,17 @@ str GetPromptText(int id) {
 	return StrParam(s:"DND_PROMPT", d:id + 1);
 }
 
-void ClosePrompt() {
-	TakeInventory("NPC_Offer_Accepted", 1);
-	TakeInventory("NPC_Offer_Declined", 1);
+void ClosePrompt(bool non_npc_use = false) {
+	if(!non_npc_use) {
+		TakeInventory("NPC_Offer_Accepted", 1);
+		TakeInventory("NPC_Offer_Declined", 1);
+	}
 	TakeInventory("ShowingPrompt", 1);
 	GiveInventory("NPC_Trigger_Cooldown", 1);
 	LocalAmbientSound("RPG/MenuClose", 127);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
+
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, PlayerNumber());
 }
 
@@ -745,21 +751,27 @@ Script "DND Server Box Receive - NPC" (int pnum, int boxid, int npc_id) NET {
 			ClosePrompt();
 		}
 		else if(boxid != MAINBOX_NONE) {
-			if(boxid == MBOX_1) {
-				// in case of accept, declare a vote and wait majority or if only player in game, skip this phase
-				ACS_NamedExecuteWithResult("DnD NPC Vote Register", 1, npc_id, pnum);
-				LocalAmbientSound("RPG/MenuChoose", 127);
-				GiveInventory("NPC_Offer_Accepted", 1);
-				TakeInventory("NPC_Offer_Declined", 1);
-				GiveInventory("DnD_PromptLocked", 1);
+			if(npc_id != -1) {
+				// any npc that offers challenges here
+				if(boxid == MBOX_1) {
+					// in case of accept, declare a vote and wait majority or if only player in game, skip this phase
+					ACS_NamedExecuteWithResult("DnD NPC Vote Register", 1, npc_id, pnum);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					GiveInventory("NPC_Offer_Accepted", 1);
+					TakeInventory("NPC_Offer_Declined", 1);
+					GiveInventory("DnD_PromptLocked", 1);
+				}
+				else if(boxid == MBOX_2) {
+					// decline -- mark our vote as a no, wait for voting to conclude optionally
+					ACS_NamedExecuteWithResult("DnD NPC Vote Register", -1, npc_id, pnum);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+					GiveInventory("NPC_Offer_Declined", 1);
+					TakeInventory("NPC_Offer_Accepted", 1);
+					GiveInventory("DnD_PromptLocked", 1);
+				}
 			}
-			else if(boxid == MBOX_2) {
-				// decline -- mark our vote as a no, wait for voting to conclude optionally
-				ACS_NamedExecuteWithResult("DnD NPC Vote Register", -1, npc_id, pnum);
-				LocalAmbientSound("RPG/MenuChoose", 127);
-				GiveInventory("NPC_Offer_Declined", 1);
-				TakeInventory("NPC_Offer_Accepted", 1);
-				GiveInventory("DnD_PromptLocked", 1);
+			else {
+
 			}
 		}
 		

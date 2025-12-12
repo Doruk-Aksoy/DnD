@@ -250,6 +250,7 @@ int GetEliteModPower(int t) {
 
 		// ultra power
 		case DND_MARKOFASMODEUS:
+		case DND_LEGENDARY:
 		return DND_MODPOWER_ULTRA;
 	}
 

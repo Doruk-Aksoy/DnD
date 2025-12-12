@@ -436,7 +436,7 @@ global int 24: PointerIndexTable[MAX_POINTERS];
 // holds indexes to items used that are on players like charms or armors
 global inventory_T 12: Items_Used[MAXPLAYERS][MAX_ITEMS_EQUIPPABLE];
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
-global inventory_T 14: TradeViewList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+global inventory_T 14: TradeViewList[MAXPLAYERS + 1][MAX_INVENTORY_BOXES]; // merchant's item list
 global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
 
 #define INVSOURCE_PLAYER PlayerInventoryList
@@ -544,7 +544,7 @@ void FreeItem(int pnum, int item_index, int source, bool dontSync) {
 		SyncItemData_Null(pnum, item_index, source, wtemp, htemp);
 }
 
-void FreeSpot(int pnum, int item_index, int source) {
+void FreeSpot(int pnum, int item_index, int source, bool dontSync = true) {
 	int j, temp;
 	SetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, 0, source);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, item_index, -1, 0, source);
@@ -574,6 +574,9 @@ void FreeSpot(int pnum, int item_index, int source) {
 	SetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_index, -1, DND_ITEM_NULL, source);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, item_index, -1, 0, source);
 	SetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, item_index, -1, 0, source);
+
+	if(!dontSync)
+		SyncItemData_Null(pnum, item_index, source, 1, 1);
 }
 
 // move this from field to player's inventory
@@ -1740,7 +1743,7 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 
 // this simply carries an item from another player's place to another, like moveitem but has player inputs
 // from p_item to p_empty
-void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int p_item, int p_empty) {
+void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int p_item, int p_empty, bool regular_free = true, bool no_wh_check = false, bool dontSync = false) {
 	int tb = GetItemSyncValue(p_item, DND_SYNC_ITEMTOPLEFTBOX, itempos, -1, itemsource) - 1;
 	int offset = tb - itempos;
 	
@@ -1783,14 +1786,26 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 		SetItemSyncValue(p_empty, DND_SYNC_ITEMATTRIBUTES_FRACTURE, temp, i, GetItemSyncValue(p_item, DND_SYNC_ITEMATTRIBUTES_FRACTURE, tb, i, itemsource), emptysource);
 	}
 	bid = GetItemSyncValue(p_item, DND_SYNC_ITEMTYPE, tb, -1, itemsource);
+
+	if(no_wh_check) {
+		h = 1;
+		w = 1;
+	}
+
 	for(i = 0; i < h; ++i)
 		for(j = 0; j < w; ++j) {
 			SetItemSyncValue(p_empty, DND_SYNC_ITEMTYPE, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, bid, emptysource);
 			SetItemSyncValue(p_empty, DND_SYNC_ITEMTOPLEFTBOX, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, temp + 1, emptysource);
-		}	
+			Log(s:"assign topleftbox to ", d:temp + i * MAXINVENTORYBLOCKS_VERT + j, s:": ", d:temp + 1);
+		}
 
-	FreeItem(p_item, tb, itemsource, false);
-	SyncItemData(p_empty, temp, emptysource, -1, -1);
+	if(regular_free)
+		FreeItem(p_item, tb, itemsource, dontSync);
+	else
+		FreeSpot(p_item, tb, itemsource, dontSync);
+
+	if(!dontSync)
+		SyncItemData(p_empty, temp, emptysource, -1, -1);
 }
 
 void TransferTradeItems(int from, int to) {
@@ -3179,6 +3194,7 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 	// if > than MAX_CORRUPTION_WEIRD_OUTCOMES subtract it to get corrupt implicit
 	// NEW: Corruption ALWAYS replaces the very first implicit!
 	PlayerInventoryList[pnum][item_pos].isDirty = true;
+	PlayerInventoryList[pnum][item_pos].corrupted = true;
 
 #ifndef ISDEBUGBUILD
 	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);

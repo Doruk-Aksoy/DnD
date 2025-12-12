@@ -2443,22 +2443,4 @@ int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
 	DND_LEGENDARY
 };
 
-str GetCharmBoxLabel(int charm_type, bool isSelected) {
-	switch(charm_type) {
-		case DND_CHARM_SMALL:
-			if(!isSelected)
-				return "SCHNOR";
-			return "SCHSEL";
-		case DND_CHARM_MEDIUM:
-			if(!isSelected)
-				return "MCHNOR";
-			return "MCHSEL";
-		case DND_CHARM_LARGE:
-			if(!isSelected)
-				return "LCHNOR";
-			return "LCHSEL";
-	}
-	return "SCHNOR";
-}
-
 #endif

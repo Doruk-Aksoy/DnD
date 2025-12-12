@@ -12,6 +12,24 @@
 
 #define DND_CHARM_SIZEFACTOR 4 // 25%
 
+str GetCharmBoxLabel(int charm_type, bool isSelected) {
+	switch(charm_type) {
+		case DND_CHARM_SMALL:
+			if(!isSelected)
+				return "SCHNOR";
+			return "SCHSEL";
+		case DND_CHARM_MEDIUM:
+			if(!isSelected)
+				return "MCHNOR";
+			return "MCHSEL";
+		case DND_CHARM_LARGE:
+			if(!isSelected)
+				return "LCHNOR";
+			return "LCHSEL";
+	}
+	return "SCHNOR";
+}
+
 // returns type of charm as result
 int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	if(charm_tier > GetCVar("dnd_maxmonsterlevel"))

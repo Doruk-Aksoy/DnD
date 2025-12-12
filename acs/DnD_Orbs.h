@@ -1558,7 +1558,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 #endif
 		// c is the index on the field now
 		//i = DND_ORB_POTENCY;
-		RollOrbInfo(c, i, true, stack);
+		RollOrbInfo(c, i, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if (sound)
@@ -1586,7 +1586,7 @@ void SpawnOrbForAll(int repeats, int stack = 1) {
 void SpawnSpecificOrb(int pnum, int id, bool sound, bool noRepeat = false, int stack = 1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		RollOrbInfo(c, id, true, stack);
+		RollOrbInfo(c, id, stack);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(id + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if(sound)
@@ -1613,7 +1613,7 @@ int GetOrbItemImage(int orbtype) {
 	return ITEM_IMAGE_MONSTERORB_BEGIN + orbtype - DND_MON_DROP_ORB_BEGIN;
 }
 
-void RollOrbInfo(int item_pos, int orbtype, bool onField, int stack = 1) {
+void RollOrbInfo(int item_pos, int orbtype, int stack = 1) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = 1;
 	Inventories_On_Field[item_pos].item_stack = stack; // orbs have default stack of 1

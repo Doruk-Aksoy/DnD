@@ -18,6 +18,8 @@ DND_PICKUP_ARMOR						= "Armor pickup";
 DND_PICKUP_BONUS						= "Bonus pickup";
 DND_PICKUP_POWERCORE					= "Powercore pickup";
 
+DND_PRICE								= "Price";
+
 DND_KILLS								= "Kills";
 DND_PLAYER								= "Player";
 DND_DMGDEALT							= "Damage Dealt";

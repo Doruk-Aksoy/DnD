@@ -796,13 +796,13 @@ void SyncClientsideVariable_WeaponMods(int pnum, int wepid) {
 	}
 }
 
-void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev) {
+void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev, bool source_inv_except = false) {
 	int i, j, h, bid;
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
 	// synchronize the topleftboxid for all adjacent ones
-	if(IsSourceInventoryView(raw_source)) {
+	if(!source_inv_except && IsSourceInventoryView(raw_source)) {
 		int w;
 		// we must know previous height/width for proper sync
 		if(wprev != -1)

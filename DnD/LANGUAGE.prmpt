@@ -22,3 +22,24 @@ DND_PROMPT7			=	"Several monsters have received the mark of my masters, making t
 DND_PROMPT8			=	"Objects of immense power have been deployed randomly across the land. Their return shall bring great wealth and power to you.";
 DND_PROMPT9			=	"A certain very powerful monster roams the land. It has been given further cosmic powers to tip the scales. Destroy it and claim its possessions.";
 DND_PROMPT10		=	"The great conflict will cause the arrival of unforeseen guests into this realm. They are as unpredictable as they are ravenous. However, potential for riches is undeniable. Survive the onslaught to claim your prize.";
+
+
+DND_MERCHANTHEADER	=	"\c[A3]Bernabe \cj\"\c[06]DRX\cj\" \c[A3]Santiago";
+DND_MRCHT_GREET		=	"Greetings weary traveller! I carry with me some shiny valuables and am willing to part with them for some coin! Take a look, you won't be disappointed.";
+
+DND_MRCHT_HOVER_LOWLEVELARMOR	=	"Well, what can I say? You look really high level but I'm convinced you could use this perfectly good armor right here! I think it's got your name on it too...";
+DND_MRCHT_HOVER_LOWLEVELCHARM	=	"Look, I know what you're thinking... This one doesn't look good, dogshit even... Well, I found it in the trashcan yesterday. I still think it can be of use to you however! Special discount!";
+
+DND_MRCHT_HOVER_HIGHLEVELITEM1	=	"Woah buddy! Slow down, I don't think you're quite ready to equip this one. Maybe one day, right? For now though, perhaps it can collect some dust?";
+DND_MRCHT_HOVER_HIGHLEVELITEM2	=	"I believe this one is out of your league at the moment pal but hey, dream big and maybe one day you'll win big, right?";
+
+DND_MRCHT_DOOMGUY_CANTAFFORD	=	"Oh man, it sure looks like you performed an execution on your bank account...";
+
+DND_MRCHT_MARINE_CANTAFFORD		=	"Maybe you could try rocket jumping into a bank account huh? Don't break your legs though, you don't look like you can afford the hospital bills...";
+
+DND_MRCHT_HOBO_CANTAFFORD		=	"No wonder you play Hobo, you're a broke ass motherfucker!";
+
+DND_MRCHT_WANDERER_CANTAFFORD1	=	"I guess you don't own the Heretic & Hexen Remaster either huh... Too bad, you could fare better there!";
+DND_MRCHT_WANDERER_CANTAFFORD2	=	"Aww poor baby... Did D'sparil steal your lunch money? Maybe go ask daddy Corvus for some pocket change.";
+
+DND_MRCHT_ORBOFSIN1				=	"99% of the travellers abandon before locking a good attribute on their items... I offer you this \cfOrb of Sin\c- to you with a special Bernabe discount, just this once!";

@@ -1327,6 +1327,25 @@ Script 895 (int val, int this) {
 					ClosePrompt();
 				}
 			break;
+			case 1:
+				// merchant
+				if(!CheckInventory("ShowingPrompt")) {
+					// open
+					SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+					GiveInventory("P_Frozen", 1);
+					GiveInventory("ShowingPrompt", 1);
+					LocalAmbientSound("RPG/MenuOpen", 127);
+					
+					// setup
+					ClearPlayerInput(PlayerNumber(), true);
+					
+					SetInventory("ReceivedDialogID", MRCH_GREET);
+					
+					FaceActor(this, ActivatorTID());
+
+					ACS_NamedExecuteAlways("DnD Prompt Merchant", 0);
+				}
+			break;
 		}
 	}
 }
@@ -4646,9 +4665,9 @@ Script "DnD Chestkey Message" (int id) CLIENTSIDE {
 }
 
 Script "DnD Try Open Chestkey" (int keytype) {
-#ifdef ISDEBUGBUILD
+/*#ifdef ISDEBUGBUILD
 	SetResultValue(1);
-#else
+#else*/
 	int res = -1;
 	if ((GetGameModeState() == GAMESTATE_INPROGRESS) && (!CheckActorInventory(GetActorProperty(0, APROP_TARGETTID), "CanLoad"))) {
 		res = CheckPlayerInventoryList(GetActorProperty(0, APROP_TARGETTID) - P_TIDSTART, DND_ITEM_CHESTKEY, keytype);
@@ -4658,7 +4677,7 @@ Script "DnD Try Open Chestkey" (int keytype) {
 		}
 	}
 	SetResultValue(res != -1);
-#endif
+//#endif
 }
 
 Script "Dnd Init Lootbox" (int val) {
@@ -6164,6 +6183,10 @@ Script 68 (int x) NET {
 			IncPlayerModValue(0, INV_CORR_MOREAOE, 0.1);
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
 			//SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
+		}
+		else if(x == 1002) {
+			ACS_NamedExecuteWithResult("DnD Try Spawn Area", 0, "DnD_Merchant", DND_MERCHANT_TID, 96 | (4 << 16) | (22 << 24));
+			ACS_NamedExecuteWithResult("DnD Merchant Items");
 		}
 		else {
 			int c = CreateItemSpot();

@@ -656,7 +656,10 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
 			// pick one from a weapon the player owns
-			res = PickRandomOwnedWeaponID(pnum);
+			if(pnum != MAXPLAYERS)
+				res = PickRandomOwnedWeaponID(pnum);
+			else
+				res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON);
 		break;
 
 		// mods that have natural extra values
@@ -668,10 +671,18 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 		break;
 
 		case INV_INC_PLUSPROJ:
-			res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16) | DND_INC_SINGLEPROJ_NEGDMG;
+			if(pnum != MAXPLAYERS)
+				res = PickRandomOwnedWeaponID_WithProj(pnum) << 16;
+			else
+				res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
+			res |=  DND_INC_SINGLEPROJ_NEGDMG;
 		break;
 		case INV_INC_PLUSTWOPROJ:
-			res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16) | DND_INC_TWOPROJ_NEGDMG;
+			if(pnum != MAXPLAYERS)
+				res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16);
+			else
+				res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
+			res |= DND_INC_TWOPROJ_NEGDMG;
 		break;
 	}
 	return res;
