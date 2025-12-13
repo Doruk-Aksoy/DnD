@@ -667,13 +667,13 @@ int FindInventoryOfType(int player_index, int item_type, int item_subtype) {
 }
 
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
-int GetFreeSpotForItem(int item_index, int player_index, int item_source, int dest_source, int source_player = -1) {
+int GetFreeSpotForItem(int item_index, int player_index, int item_source, int dest_source, int source_player = -1, bool source_inv_except = false) {
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
 	int w, h;
 
 	int temp = item_index;
-	if(IsSourceInventoryView(item_source))
+	if(!source_inv_except && IsSourceInventoryView(item_source))
 		temp = GetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, item_source) - 1;
 	
 	// extended check for potential player source change
@@ -685,6 +685,8 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 		w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, temp, -1, item_source);
 		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
 	}
+
+	//printbold(s:"comp with w and h: ", d:w, s: " ", d:h, s: " ", d:item_index, s: " ", d:temp);
 	
 	bool unfit = false;
 
@@ -802,9 +804,9 @@ int GetFreeSpotForSingleSpotItem(int player_index, int type, int sub) {
 	return -1;
 }
 
-int GetFreeSpotForItem_Trade(int item_index, int source_player, int player_index, int source) {
+int GetFreeSpotForItem_Trade(int item_index, int source_player, int player_index, int source, bool source_inv_except = false) {
 	if(!IsStackedItem(GetItemSyncValue(source_player, DND_SYNC_ITEMTYPE, item_index, -1, source)))
-		return GetFreeSpotForItem(item_index, player_index, source, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, source_player);
+		return GetFreeSpotForItem(item_index, player_index, source, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, source_player, source_inv_except);
 	return GetFreeSpotForItemWithStack(item_index, player_index, source, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, true, source_player);
 }
 
@@ -1754,7 +1756,7 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 	
 	int temp = emptypos + offset;
 	
-	//printbold(s:"carry item of player ", d:p_item, s: " to pos ", d:emptypos);
+	//printbold(s:"carry item ", d:itempos, s: " to pos ", d:emptypos);
 	
 	SetItemSyncValue(p_empty, DND_SYNC_ITEMWIDTH, temp, -1, w, emptysource);
 	SetItemSyncValue(p_empty, DND_SYNC_ITEMHEIGHT, temp, -1, h, emptysource);
@@ -1788,16 +1790,18 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 	bid = GetItemSyncValue(p_item, DND_SYNC_ITEMTYPE, tb, -1, itemsource);
 
 	if(no_wh_check) {
-		h = 1;
-		w = 1;
-	}
+		SetItemSyncValue(p_empty, DND_SYNC_ITEMTYPE, temp, -1, bid, emptysource);
+		SetItemSyncValue(p_empty, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, emptypos + 1, emptysource);
 
-	for(i = 0; i < h; ++i)
-		for(j = 0; j < w; ++j) {
-			SetItemSyncValue(p_empty, DND_SYNC_ITEMTYPE, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, bid, emptysource);
-			SetItemSyncValue(p_empty, DND_SYNC_ITEMTOPLEFTBOX, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, temp + 1, emptysource);
-			Log(s:"assign topleftbox to ", d:temp + i * MAXINVENTORYBLOCKS_VERT + j, s:": ", d:temp + 1);
-		}
+		//printbold(s:"assign topleftbox to ", d:temp, s:": ", d:emptypos + 1);
+	}
+	else {
+		for(i = 0; i < h; ++i)
+			for(j = 0; j < w; ++j) {
+				SetItemSyncValue(p_empty, DND_SYNC_ITEMTYPE, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, bid, emptysource);
+				SetItemSyncValue(p_empty, DND_SYNC_ITEMTOPLEFTBOX, temp + i * MAXINVENTORYBLOCKS_VERT + j, -1, temp + 1, emptysource);
+			}
+	}
 
 	if(regular_free)
 		FreeItem(p_item, tb, itemsource, dontSync);

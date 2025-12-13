@@ -923,12 +923,12 @@ void SyncItemStack(int pnum, int itemid, int source) {
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ISDIRTY | payload, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, itemid, -1, source), itemid);
 }
 
-void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev) {
+void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, bool source_inv_except = false) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
 	
-	if(IsSourceInventoryView(raw_source)) {
+	if(!source_inv_except && IsSourceInventoryView(raw_source)) {
 		int h, w;
 		if(wprev != -1)
 			w = wprev;

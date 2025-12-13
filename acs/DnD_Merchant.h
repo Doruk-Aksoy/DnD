@@ -33,6 +33,8 @@
 #define DND_MERCHANT_ITEMCORRUPTCHANCE 0.1 // 10% corrupted
 #define DND_MERCHANT_ITEMFRACTURECHANCE 0.025 // 2.5% to offer fractured
 
+#define DND_MERCHANT_SYNERGYITEM_CHANCE 0.05 // 5% chance for an item to have really synergistic mods (mods of same mod pool)
+
 void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
 	if(!max_affixes)
 		max_affixes = GetMaxItemAffixes(TradeViewList[MAXPLAYERS][item_pos].item_type, TradeViewList[MAXPLAYERS][item_pos].item_subtype);
@@ -558,7 +560,7 @@ Script "DnD Merchant Items" (void) {
 	int pcount =  PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 	pcount = PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount;
 
-	int item_count = random(DND_MIN_MERCHANTITEMS, DND_MAX_MERCHANTITEMS + pcount / DND_MERCHANT_ITEMSPERLVL);
+	int item_count = 9;//random(DND_MIN_MERCHANTITEMS, DND_MAX_MERCHANTITEMS + pcount / DND_MERCHANT_ITEMSPERLVL);
 	for(int pos = 0; pos < item_count; ++pos) {
         int ilvl = RollItemLevel();
 		int temp = random(0, 1.0);
