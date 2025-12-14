@@ -745,17 +745,15 @@ Script "DND On Revive" (void) {
 		// Reapply the elite FX.
 		if (MonsterProperties[id].flags & DND_MONFLAG_ISELITE)
 			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this);
-		//Log(s:"Monster id: ",d:MonsterProperties[id].id,s:", (After Respawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp);
 		//Mob revives with "APROP_SpawnHealth" HP. Make sure it respawns with the right max hp.
 		int maxhp = MonsterProperties[id].maxhp;
-		int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
 		SetActorProperty(0, APROP_HEALTH, maxhp);
-		Clamp_Between(dmg, 0, maxhp + 1);
-		Thing_Damage2(this, dmg, "None");
 		//Mob might actually be dead by this point.
-		if (GetActorProperty(0, APROP_Health) > maxhp) //In the rare case the mob keeps the very high hp
-			Thing_Damage2(this, GetActorProperty(0, APROP_Health) + 1, "None"); //Just kill it
-
+		if (GetActorProperty(0, APROP_Health) > maxhp || GetActorProperty(0, APROP_Health) == INT_MAX) {
+			//In the rare case the mob keeps the very high hp
+			Thing_Remove(this); //Just kill it
+			Terminate;
+		}
 		HandleSpecialTraits(this, MonsterProperties[id].id, true);
 	}
 
@@ -821,6 +819,7 @@ Script "DnD Scale Non Weapon Damage" (int damage, int damage_type, int flags) {
 Script "DnD On Kill CS" (int tid) CLIENTSIDE {
 	GiveInventory("Mo_Died", 1);
 	DisposeAttachments(tid - DND_MONSTERTID_BEGIN);
+	SetResultValue(0);
 }
 
 // Used for exp and credit calculations
@@ -843,7 +842,7 @@ Script "DND On Kill" KILL {
 	GiveInventory("Mo_Died", 1);
 	TakeInventory("DnD_CullSuccess", 1);
 
-	ACS_NamedExecuteAlways("DnD On Kill CS", 0, this);
+	ACS_NamedExecuteWithResult("DnD On Kill CS", this);
 
 	if(CheckInventory("Doomguy_ChangedColor")) {
 		TakeInventory("Doomguy_ChangedColor", 1);
@@ -2159,10 +2158,8 @@ Script 973 (int mode) { // Avatar tid / targeter
 			Delay(const:12);
 		}
 	}
-	else {
-		if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 3)
-			GiveInventory("AcolyteSummoner", 1);
-	}
+	else if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 3)
+		GiveInventory("AcolyteSummoner", 1);
 }
 
 // Form the blade vortex
@@ -5597,12 +5594,8 @@ Script "DnD Rejuvenation" (void) {
 		
 		// ignite effects prevent rejuvenation
 		if(!CheckInventory("DnD_IgniteTimer") && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
-			if(GetActorProperty(0, APROP_HEALTH) < MonsterProperties[id].maxhp - hp_per) {
-				SetActorProperty(0, APROP_HEALTH, GetActorProperty(0, APROP_HEALTH) + hp_per);
-				ACS_NamedExecuteAlways("DnD Rejuvenation FX CS", 0);
-			}
-			else
-				SetActorProperty(0, APROP_HEALTH, MonsterProperties[id].maxhp);
+			HealMonster(id, hp_per);
+			ACS_NamedExecuteAlways("DnD Rejuvenation FX CS", 0);
 		}
 	}
 }

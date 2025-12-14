@@ -1096,7 +1096,7 @@ Actor PyroImpExp2 : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 1 A_Explode(2, 56, 0)
+			TNT1 A 1 A_Explode(4, 56, 0)
 		Stop
 	}
 }

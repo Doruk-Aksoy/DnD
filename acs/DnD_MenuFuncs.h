@@ -3,9 +3,15 @@
 Script "DnD Refresh Request" (int pnum, int state) CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
-	
+
 	Delay(const:1);
-	GiveInventory("DnD_RefreshPane", 1);
+
+	int tid = pnum + P_TIDSTART;
+
+	if(state == 2)
+		GiveActorInventory(tid, "DnD_CleanTradeviewRequest", 1);
+
+	GiveActorInventory(tid, "DnD_RefreshPane", 1);
 }
 
 void SetPage(int option, bool useSound) {
@@ -3468,8 +3474,7 @@ void HandleInventoryViewTrade(int boxid) {
 // Just takes care of backend trade details
 void CancelTrade(int pnum) {
 	int tid = pnum + P_TIDSTART;
-	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-	GiveActorInventory(tid, "DnD_CleanTradeviewRequest", 1);
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 2);
 	TakeActorInventory(tid, "InTradeView", 1);
 	TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
 	TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
@@ -3663,15 +3668,11 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 								soffset = ioffset;
 								ioffset = temp;
 								*/
-								if(IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
+								if(IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource))
 									MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
-									ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
-								}
 							}
-							else {
+							else
 								SwapItems(pnum, boxid - 1 - ioffset, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, isource, ssource, false);
-								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
-							}
 						}
 						else {
 							// find which one has an item, and move it
@@ -3692,10 +3693,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 							}
 							// epos holds the empty position now
 							// make sure we aren't both empty slots
-							if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
+							if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource))
 								MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
-								ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
-							}
 						}
 						SetInventory("DnD_SelectedInventoryBox", 0);
 					}
@@ -4340,6 +4339,7 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 
 		SetFont("NMENUFNT");
 		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 7, 188.4, 256.0, "\c[B1]", "\c[G8]");
+		DeleteText(RPGMENUID - 16);
 	}
 	else {
 		SetFont("ORBMBKG");

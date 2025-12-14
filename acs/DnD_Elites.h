@@ -27,8 +27,8 @@ int GetMagicHealthScale(int level) {
 }
 
 #define DND_ELITE_RESOLUTION 10000
-#define DND_ELITE_MIN_INCREMENT 33 // per level add 0.33
-#define DND_MAGIC_MIN_INCREMENT 66 // per level add 0.66
+#define DND_ELITE_MIN_INCREMENT 12 // per level add 0.12
+#define DND_MAGIC_MIN_INCREMENT 24 // per level add 0.24
 #define DND_ELITE_RESOLUTION_SCALE 100
 
 #define DND_ELITE_THIEFRATE 25
