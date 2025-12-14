@@ -42,4 +42,6 @@ DND_MRCHT_HOBO_CANTAFFORD		=	"No wonder you play Hobo, you're a broke ass mother
 DND_MRCHT_WANDERER_CANTAFFORD1	=	"I guess you don't own the Heretic & Hexen Remaster either huh... Too bad, you could fare better there!";
 DND_MRCHT_WANDERER_CANTAFFORD2	=	"Aww poor baby... Did D'sparil steal your lunch money? Maybe go ask daddy Corvus for some pocket change.";
 
+DND_MRCHT_TRICKSTER_CANTAFFORD	=	"Let me guess, all your money went to catnip? No? Then it's the breast implants, definitely...";
+
 DND_MRCHT_ORBOFSIN1				=	"99% of the travellers abandon before locking a good attribute on their items... I offer you this \cfOrb of Sin\c- to you with a special Bernabe discount, just this once!";

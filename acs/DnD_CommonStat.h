@@ -191,6 +191,7 @@ global int 1: StatListOpened[MAXPLAYERS];
 enum {
 	DND_MAPDATA_DIFFICULTY,
 	DND_MAPDATA_INCURSIONSTATE,
+	DND_MAPDATA_MAPEVENTS1,
 
 	DND_MAPDATA_MONSTERTOTAL,
 	DND_MAPDATA_BARONCOUNT,
@@ -204,6 +205,8 @@ enum {
 };
 
 global int 4: MapData[DND_MAX_MAPDATA];
+
+#include "DnD_MapEvents.h"
 
 str MapDifficultyLabel(int id) {
 	str col = "\cd";

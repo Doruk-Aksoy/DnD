@@ -364,7 +364,7 @@ bool IsLobbyMap(str mapname) {
 enum {
 	TARR_ORB1,
 	TARR_ORB2,
-	TARR_MENU
+	TARR_MAPEVENTS
 };
 global int 58: TempArray[16][256];
 
@@ -559,12 +559,6 @@ int GiveIncursionMarkerTID() {
 	Thing_ChangeTID(DND_INCURSIONMARKER_AUX, toGive);
 	return toGive;
 }
-
-enum {
-    LEVEL_TOTAL,
-    LEVEL_MIN,
-    LEVEL_MAX
-};
 
 // naive search -- assumes lowercase key
 bool StringContains(str s, str key) {

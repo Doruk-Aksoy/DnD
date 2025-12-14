@@ -207,6 +207,7 @@ Script "DnD Clientside Open" OPEN CLIENTSIDE {
 	}
 }
 
+// Triggers on each map load
 Script "DnD On Map Load" OPEN {
 	// when it increments in createitem func, it'll be forced to be 0
 	PointerIndexTable[PTR_FREEITEMWORLD] = MAX_INVENTORIES_ON_FIELD;
@@ -224,6 +225,7 @@ Script "DnD On Map Load" OPEN {
 	CreateTranslation(DND_EXECUTE_TRANSLATION, 0:255=%[0.00,0.00,0.00]:[1.62,1.12,0.43]);
 	
 	// init vars
+	ResetMapEvents();
 	ResetSharedVariables();
 	ResetPlayerInformationLevel();
 	
@@ -261,6 +263,7 @@ Script "DnD On Map Load" OPEN {
 	}
 
 	CalculateMapDifficulty();
+	RollMapEvents();
 	UpdateLevelChestLimit();
 
 	// wait while total level is not initialized
@@ -1715,9 +1718,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 		MonsterProperties[m_id].level = 1;
 	}
 
-	// elite and magic checks
+	// elite and magic checks -- used to check for !IsUniqueMonster(monsterid) as well
 	int traitcount;
-	if(!IsEliteException(m_id, monsterid) && !IsUniqueMonster(monsterid)) {
+	if(!IsEliteException(m_id, monsterid)) {
 		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
 		if(GetCVar("dnd_enable_elites") && base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;
@@ -1787,8 +1790,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	SetActorProperty(0, APROP_HEALTH, maxhp);
 	
 	ScaleMonsterMass(MonsterProperties[m_id].level);
-	/*Clamp_Between(dmg, 0, maxhp + 1);
-	Thing_Damage2(this, dmg, "None");*/
+
 	//Mob might actually be dead by this point.
 	if (GetActorProperty(0, APROP_Health) < realhp || GetActorProperty(0, APROP_Health) == INT_MAX) {
 		// In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
@@ -1851,7 +1853,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 
 	// never roll elite status on FRIENDLY custom monsters / unique bosses
 	int traitcount;
-	if(!CheckFlag(0, "FRIENDLY") && !MonsterProperties[m_id].trait_list[DND_LEGENDARY] && MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS) {
+	if(!CheckFlag(0, "FRIENDLY") && MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS) {
 		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
 		if(GetCVar("dnd_enable_elites") && base == base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;

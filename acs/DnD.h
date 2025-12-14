@@ -682,6 +682,20 @@ void HandleChestSpawn(int chance_penalty) {
 	}
 	else if(r <= LOOTBOX_DROPWEIGHT / chance_penalty)
 		SpawnDrop("LootChest", 0, 0, 0, 0);
+
+	// check for merchant spawn now
+	if(CheckMapEvent(DND_MAPEVENT_MERCHANT)) {
+		chance_penalty = CurrentLevelData[LEVELDATA_MAXCHESTS];
+		if(!chance_penalty)
+			chance_penalty = 1;
+		TempArray[TARR_MAPEVENTS][DND_MAPEVENT_MERCHANTID] += 1.0 / chance_penalty;
+		if(random(0, 1.0) <= TempArray[TARR_MAPEVENTS][DND_MAPEVENT_MERCHANTID]) {
+			SpawnMerchant();
+
+			// clear event as we already spawned it
+			ClearMapEvent(DND_MAPEVENT_MERCHANT);
+		}
+	}
 }
 
 void HandleChestDrops(int ctype) {
@@ -1286,7 +1300,8 @@ void HandleRuination(int this, int target) {
 }
 
 bool IsEliteException(int m_id, int monster_type) {
-	return 	CheckFlag(0, "FRIENDLY") || isUniqueBossMonster(m_id) || MonsterProperties[m_id].trait_list[DND_SUMMONED] || MonsterProperties[m_id].trait_list[DND_LEGENDARY] || CheckInventory("DnD_EliteException") ||
+	// used to contain MonsterProperties[m_id].trait_list[DND_LEGENDARY] as well
+	return 	CheckFlag(0, "FRIENDLY") || isUniqueBossMonster(m_id) || MonsterProperties[m_id].trait_list[DND_SUMMONED] || CheckInventory("DnD_EliteException") ||
 			monster_type == MONSTER_PHANTASM || monster_type == MONSTER_WRAITH || monster_type == MONSTER_HADESSPHERE || monster_type == MONSTER_UNDEADPRIESTGHOST;
 }
 

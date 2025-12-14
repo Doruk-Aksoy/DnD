@@ -9,21 +9,22 @@
 #define DND_MERCHANT_ORBCHANCE 0.9
 #define DND_MERCHANT_TOKENCHANCE 1.0
 
-#define DND_MERCHANT_ARMORCHANCE 0.4
+#define DND_MERCHANT_ARMORCHANCE 0.4 // 0.4
 #define DND_MERCHANT_CHARMCHANCE 1.0
 
 #define DND_BASE_MERCHANT_STACKABLECOST 750
 
 #define DND_BASE_MERCHANT_ITEMCOST 2000
-#define DND_MERCHANT_LEVEL_PERCENT 10
+#define DND_MERCHANT_LEVEL_PERCENT 8
 #define DND_MERCHANT_IMPLICIT_PERCENT 20
-#define DND_MERCHANT_TIER_PERCENT 15
-#define DND_MERCHANT_FRACTURE_PERCENT 20
+#define DND_MERCHANT_TIER_PERCENT 10
+#define DND_MERCHANT_FRACTURE_PERCENT 50
+#define DND_MERCHANT_UNIQUEFACTOR 30 // 30% more cost if its unique
 
-#define DND_MERCHANT_MEDIUMTIERORB_FACTOR 2
-#define DND_MERCHANT_HIGHTIERORB_FACTOR 5
+#define DND_MERCHANT_MEDIUMTIERORB_FACTOR 3
+#define DND_MERCHANT_HIGHTIERORB_FACTOR 6
 #define DND_MERCHANT_STACKABLE_ILVLCONTRIB 20
-#define DND_MERCHANT_STACKABLE_ILVLFACTOR 15 // 15% per ilvl
+#define DND_MERCHANT_STACKABLE_ILVLFACTOR 10 // 10% per ilvl
 
 #define DND_MERCHANT_QUALITYCHANCE 0.25
 #define DND_MERCHANT_LOWQUALITY 0.6
@@ -33,7 +34,64 @@
 #define DND_MERCHANT_ITEMCORRUPTCHANCE 0.1 // 10% corrupted
 #define DND_MERCHANT_ITEMFRACTURECHANCE 0.025 // 2.5% to offer fractured
 
-#define DND_MERCHANT_SYNERGYITEM_CHANCE 0.05 // 5% chance for an item to have really synergistic mods (mods of same mod pool)
+#define DND_MERCHANT_SYNERGYITEM_CHANCE 0.1 // 10% chance for an item to have really synergistic mods (mods of same mod pool)
+
+#define DND_MERCHANT_UNIQUECHANCE 0.1 // 10% to offer uniques
+
+void ConstructUniqueOnMerchant(int item_pos, int unique_id) {
+	TradeViewList[MAXPLAYERS][item_pos].width = UniqueItemList[unique_id].width;
+	TradeViewList[MAXPLAYERS][item_pos].height = UniqueItemList[unique_id].height;
+	TradeViewList[MAXPLAYERS][item_pos].item_type = UniqueItemList[unique_id].item_type;
+	TradeViewList[MAXPLAYERS][item_pos].item_image = UniqueItemList[unique_id].item_image;
+	TradeViewList[MAXPLAYERS][item_pos].item_subtype = UniqueItemList[unique_id].item_subtype;
+	TradeViewList[MAXPLAYERS][item_pos].item_level = UniqueItemList[unique_id].item_level;
+	TradeViewList[MAXPLAYERS][item_pos].item_stack = UniqueItemList[unique_id].item_stack;
+	TradeViewList[MAXPLAYERS][item_pos].attrib_count = UniqueItemList[unique_id].attrib_count;
+
+	// this can set images sometimes, so just moved item_image below here
+	SetupItemImplicitOnMerchant(item_pos, TradeViewList[MAXPLAYERS][item_pos].item_type & 0xFFFF, TradeViewList[MAXPLAYERS][item_pos].item_subtype, TradeViewList[MAXPLAYERS][item_pos].item_level);
+
+	TradeViewList[MAXPLAYERS][item_pos].corrupted = 0;
+	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+
+	for(int i = 0; i < TradeViewList[MAXPLAYERS][item_pos].attrib_count; ++i) {
+		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
+		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_tier = 0;
+		
+		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
+		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_extra = random(UniqueItemList[unique_id].rolls[i].attrib_extra_low, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
+	}
+}
+
+int MakeMerchantItemUnique(int item_pos) {
+	int i, beg, end;
+
+	switch(TradeViewList[MAXPLAYERS][item_pos].item_type) {
+		case DND_ITEM_CHARM:
+			beg = UNIQUE_CHARM_BEGIN;
+			end = UNIQUE_CHARM_REGULARDROP_END; // rolonly until the regular drop
+		break;
+		case DND_ITEM_SPECIALTY_CYBORG:
+			beg = UNIQUE_POWERCORE_BEGIN;
+			end = UNIQUE_POWERCORE_END;
+		break;
+		case DND_ITEM_BODYARMOR:
+			beg = UNIQUE_BODYARMOR_BEGIN;
+			end = UNIQUE_BODYARMOR_END;
+		break;
+		default:
+			beg = UNIQUE_CHARM_BEGIN;
+			end = UNIQUE_CHARM_END;
+		break;
+	}
+
+	int roll = random(1, MAX_UNIQUE_WEIGHT);
+	for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
+
+	// i is the unique id
+	ConstructUniqueOnMerchant(item_pos, i);
+	return i;
+}
 
 void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
 	if(!max_affixes)
@@ -281,17 +339,63 @@ int SetupItemImplicitOnMerchant(int item_pos, int type, int subtype, int item_ti
 	return special_roll;
 }
 
+int CheckMerchantItemSynergy(int synergy_roll, int item_pos) {
+	static int tags_found[MAX_ATTRIB_TAG_GROUPS];
+
+	if(synergy_roll == -2 && random(0, 1.0) <= DND_MERCHANT_SYNERGYITEM_CHANCE) {
+		// pick one of the random mods on the existing item to be the target mod tag to go after
+		synergy_roll = random(0, TradeViewList[MAXPLAYERS][item_pos].attrib_count - 1);
+
+		// pick a random tag if its got multiple then give it +1, as it expects +1 of it
+		synergy_roll = TradeViewList[MAXPLAYERS][item_pos].attributes[synergy_roll].attrib_id;
+		synergy_roll = ItemModTable[synergy_roll].tags;
+
+		int i, j, temp;
+		if(synergy_roll & (synergy_roll - 1)) {
+			// not power of two so its got multiple tags in it, process it to pick a random one
+			for(i = 0; i < MAX_ATTRIB_TAG_GROUPS; ++i)
+				tags_found[i] = 0;
+
+			i = 0;			// holds tags found
+			j = 0;			// counter
+			while(synergy_roll) {
+				if(synergy_roll & 1)
+					tags_found[i++] = j + 1; // we store +1 here already
+				synergy_roll >>= 1;
+				++j;
+			}
+
+			// pick random bit from the obtained total
+			synergy_roll = tags_found[random(0, i - 1)];
+		}
+		else {
+			j = 0;
+			while(synergy_roll) {
+				synergy_roll >>= 1;
+				++j;
+			}
+			synergy_roll = j;
+		}
+	}
+	//printbold(s:"item ", d:item_pos, s:" picked synergy id ", d:synergy_roll - 1);
+	return synergy_roll;
+}
+
 void RollArmorInfoOnMerchant(int item_pos, int item_tier, int item_type, int armor_type, int max_attr) {
 	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
 	int i = 0, roll;
 	int count = random(1, max_attr);
 	int special_roll = SetupItemImplicitOnMerchant(item_pos, item_type, armor_type, item_tier);
+	int synergy_roll = -2;
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(item_type, armor_type, special_roll, TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_id);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_id, synergy_roll);
 		} while(CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
 		AddAttributeToMerchant(item_pos, roll, count);
+
+		synergy_roll = CheckMerchantItemSynergy(synergy_roll, item_pos);
+
 		++i;
 	}
 }
@@ -340,13 +444,17 @@ void ConstructArmorDataOnMerchant(int item_pos, int ilvl) {
 
     TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_ARM_1 + res;
 
-    RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BODYARMOR, res, MAX_ARMOR_ATTRIB_DEFAULT);
+	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE)
+		MakeMerchantItemUnique(item_pos);
+	else
+    	RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BODYARMOR, res, MAX_ARMOR_ATTRIB_DEFAULT);
 }
 
 void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int count = GetMaxItemAffixes(DND_ITEM_CHARM, charm_type);
+	int synergy_roll = -2;
 	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
@@ -361,10 +469,19 @@ void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
 	}
 	
 	while(i < count) {
+		int max_tries = 10;
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll);
+
+			// in case there's synergy with not enough mods available for a tag or unlucky rolls, opt out of synergy roll immediately
+			--max_tries;
+			if(max_tries <= 0)
+				synergy_roll = 0;
 		} while(CheckItemAttribute(MAXPLAYERS, charm_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
 		AddAttributeToMerchant(charm_pos, roll);
+
+		synergy_roll = CheckMerchantItemSynergy(synergy_roll, charm_pos);
+
 		++i;
 	}
 }
@@ -395,7 +512,10 @@ void ConstructCharmDataOnMerchant(int charm_pos, int ilvl) {
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
 		TradeViewList[MAXPLAYERS][charm_pos].attributes[i].attrib_id = -1;
 
-    RollCharmInfoOnMerchant(charm_pos, res, ilvl);
+	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE)
+		MakeMerchantItemUnique(charm_pos);
+	else
+    	RollCharmInfoOnMerchant(charm_pos, res, ilvl);
 }
 
 void RollOrbInfoOnMerchant(int item_pos, int ilvl) {
@@ -552,6 +672,9 @@ int GetMerchantItemPrice(int item_pos) {
 		base >>= 1;
 	}
 
+	if(TradeViewList[MAXPLAYERS][item_pos].item_type > UNIQUE_BEGIN)
+		base = base * (100 + DND_MERCHANT_UNIQUEFACTOR) / 100;
+
 	return base;
 }
 
@@ -604,6 +727,11 @@ Script "DnD Merchant Items" (void) {
 	}
 
     SetResultValue(0);
+}
+
+void SpawnMerchant() {
+	ACS_NamedExecuteWithResult("DnD Try Spawn Area", 0, "DnD_Merchant", DND_MERCHANT_TID, 96 | (4 << 16) | (22 << 24));
+	ACS_NamedExecuteWithResult("DnD Merchant Items");
 }
 
 #endif

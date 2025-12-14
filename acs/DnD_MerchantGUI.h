@@ -22,7 +22,9 @@ enum {
     DND_MRCHT_HOBO_CANTAFFORD,
 
     DND_MRCHT_WANDERER_CANTAFFORD1,
-    DND_MRCHT_WANDERER_CANTAFFORD2
+    DND_MRCHT_WANDERER_CANTAFFORD2,
+
+    DND_MRCHT_TRICKSTER_CANTAFFORD
 };
 
 #define DND_MERCHANT_HUDID_OFFSET 4
@@ -33,15 +35,17 @@ void AcquireItemDimensions(int pos) {
     item_dimensions.x = 40.0;
     item_dimensions.y = 40.0;
 
-    if(TradeViewList[MAXPLAYERS][pos].item_type != DND_ITEM_BODYARMOR && TradeViewList[MAXPLAYERS][pos].item_type != DND_ITEM_BOOT) {
+    int item_type = TradeViewList[MAXPLAYERS][pos].item_type & 0xFFFF;
+
+    if(item_type != DND_ITEM_BODYARMOR && item_type != DND_ITEM_BOOT) {
         item_dimensions.x = 40.0;
 
-        if(TradeViewList[MAXPLAYERS][pos].item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][pos].item_subtype != DND_CHARM_SMALL) {
+        if(item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][pos].item_subtype != DND_CHARM_SMALL) {
             // we downsize the grand charms to fit the screen better
             item_dimensions.y = 56.0;
         }
     }
-    else if(TradeViewList[MAXPLAYERS][pos].item_type == DND_ITEM_BODYARMOR) {
+    else if(item_type == DND_ITEM_BODYARMOR) {
         item_dimensions.x = 50.0;
         item_dimensions.y = 50.0;
     }
@@ -53,7 +57,7 @@ int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hu
     SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
     
     int txt_id = 0;
-    int item_type = TradeViewList[MAXPLAYERS][item_pos].item_type;
+    int item_type = TradeViewList[MAXPLAYERS][item_pos].item_type & 0xFFFF;
     int temp;
     int cpn = ConsolePlayerNumber();
     int yoff = 0;
@@ -100,6 +104,8 @@ int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hu
                     txt_id = DND_MRCHT_HOBO_CANTAFFORD;
                 else if(temp == DND_PLAYER_WANDERER)
                     txt_id = random(DND_MRCHT_WANDERER_CANTAFFORD1, DND_MRCHT_WANDERER_CANTAFFORD2);
+                else if(temp == DND_PLAYER_TRICKSTER)
+                    txt_id = DND_MRCHT_TRICKSTER_CANTAFFORD;
             }
         }
         else if(!TradeViewList[MAXPLAYERS][item_pos].item_stack) {
@@ -162,6 +168,10 @@ str GetMerchantText(int id) {
         case DND_MRCHT_WANDERER_CANTAFFORD2:
             txt = "DND_MRCHT_WANDERER_CANTAFFORD2";
         break;
+
+        case DND_MRCHT_TRICKSTER_CANTAFFORD:
+            txt = "DND_MRCHT_TRICKSTER_CANTAFFORD";
+        break;
     }
 
     return txt;
@@ -211,10 +221,11 @@ int UpdateMerchantBoxes(menu_pane_T module& p) {
     ResetPane(p);
 
     int ipos = 0, offset = 0, yoff = 0;
-    while(TradeViewList[MAXPLAYERS][ipos].item_type != DND_ITEM_NULL) {
+    int item_type = TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
+    while(item_type != DND_ITEM_NULL) {
         AcquireItemDimensions(ipos);
 
-        if(TradeViewList[MAXPLAYERS][ipos].item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][ipos].item_subtype == DND_CHARM_LARGE)
+        if(item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][ipos].item_subtype == DND_CHARM_LARGE)
             item_dimensions.x = 26.0;
 
         AddBoxToPane_Points(p, 400.0 - offset, 200.0 + item_dimensions.y / 2 - yoff, 400.0 - offset - item_dimensions.x, 200.0 - item_dimensions.y / 2 - yoff);
@@ -225,6 +236,8 @@ int UpdateMerchantBoxes(menu_pane_T module& p) {
             yoff = DND_MERCHANT_YSHIFTROW;
             offset = 0;
         }
+
+        item_type = TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
     }
     
     return ipos;
@@ -347,7 +360,7 @@ Script "DnD Prompt Merchant" (void) CLIENTSIDE {
                 if((k = DrawMerchantItemBox(i, boxid, i + 1, 80.1 + j, 120.0)) != DND_MRCHT_TEXT_DEFAULT)
                     UpdateMerchantText(k);
 
-                if(TradeViewList[MAXPLAYERS][i].item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][i].item_subtype == DND_CHARM_LARGE)
+                if((TradeViewList[MAXPLAYERS][i].item_type & 0xFFFF) == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][i].item_subtype == DND_CHARM_LARGE)
                     item_dimensions.x = 26.0;
 
                 j += item_dimensions.x + 10.0;

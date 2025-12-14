@@ -3369,6 +3369,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 	int bias = Timer() & 0xFFFF;
 	int val;
 	int craftable_id = DND_CRAFTABLEID_CHARM;
+	int max_tries = 10;
 
 	if(item_type == DND_ITEM_CHARM) {
 		if(respect_order_orb == -2 || !respect_order_orb) {
@@ -3391,7 +3392,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 		craftable_id = MapItemTypeToCraftableID(item_type);
 
 		// find a random valid tag for this item
-		int tag;
+		int tag = 0;
 		do {
 			do {
 				if(respect_order_orb == -2 || !respect_order_orb) {
@@ -3420,6 +3421,10 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 				val = random(0, AttributeTagGroupCount[tag][craftable_id]);
 			val = AttributeTagGroups[tag][craftable_id][val];
 			// finally check for implicit exception => Ex: Don't roll EShield on Armor base items!
+
+			--max_tries;
+			if(max_tries <= 0)
+				respect_order_orb = -2;
 		} while(IsItemBaseException(item_type, item_subtype, val) || IsImplicitException(implicit_id, val));
 	}
 	return val;
