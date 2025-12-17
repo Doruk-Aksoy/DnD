@@ -818,7 +818,7 @@ Script "DnD NPC Vote Register" (int vote, int npc_id, int pnum) {
 			Delay(const:10);
 
 		// send the npc away, no more interaction
-		SetActorState(DND_NPC_TID, "GoBack", false);
+		SetActorState(DND_NPC_TID, "Succeed", false);
 
 		HandleNPC(npc_id);
 	}

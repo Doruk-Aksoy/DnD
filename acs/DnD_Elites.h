@@ -19,11 +19,11 @@
 // linear scale, returns the old 15% at level 40 and returns 25% at level 80. Returns 30% at level 100.
 // changed scale to be more powerful for elites
 int GetEliteHealthScale(int level) {
-	return 4 * level / 5 + 20;
+	return 6 * level / 5 + 30;
 }
 
 int GetMagicHealthScale(int level) {
-	return 2 * level / 5 + 10;
+	return 3 * level / 5 + 15;
 }
 
 #define DND_ELITE_RESOLUTION 10000

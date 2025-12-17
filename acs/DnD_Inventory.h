@@ -2675,15 +2675,12 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
 			// make sure this stays positive even for removal!!!
-			if(remove) {
-				aextra = -aextra;
+			if(remove)
 				temp = -(aextra & 0xFFFF);
-			}
 			else
 				temp = aextra & 0xFFFF;
 			aextra >>= 16;
 
-			//Log(s:"processing plus proj ", d:aextra, s:" ", f:temp, s:" ", d:aval);
 
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
@@ -2691,6 +2688,16 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			//Log(s:"extra proj is now: ", d:Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val);
 
 			MarkWeaponDataSync(pnum, aextra, true);
+		break;
+
+		case INV_CRITPERCENT_FORWEPTYPE:
+			for(i = 0; i < MAXWEPS; ++i ) {
+				if(IsWeaponType(i, aextra)) {
+					Player_Weapon_Infos[pnum][i].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val += aval;
+					MarkWeaponDataSync(pnum, i, true);
+				}
+			}
+			
 		break;
 		
 		// anything that fits our generic formula
@@ -2740,7 +2747,8 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 	
 	if(remove) {
 		aval = -aval;
-		aextra = -aextra;
+		if(!IsAttributeExtraException(atype))
+			aextra = -aextra;
 	}
 	
 	ProcessAttribute(pnum, atype, aval, aextra, item_index, remove);
@@ -2973,6 +2981,10 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE][WMOD_ITEMS].val += aval;
 			MarkWeaponDataSync(pnum, aextra, true);
 		break;
+		case INV_CORR_WEPCULL:
+			SetWeaponModPowerset(pnum, aextra, WEP_POWER_CULL, !remove, WMOD_WEP);
+			MarkWeaponDataSync(pnum, aextra, true);
+		break;
 	}
 
 	return true;
@@ -3059,7 +3071,7 @@ int GetItemTierRoll(int lvl, bool isWellRolled) {
 	if(!random(0, 9 - 5 * isWellRolled) || CheckInventory("ReveranceUsed"))
 		++lvl;
 	else // 0-1 do nothing, 2-3 is -1, 4-5 is -2 => if well rolled has only 33% chance for the tier to be a downgrade
-		lvl -= random(0, 5 - 3 * isWellRolled) / 2;
+		lvl -= random(0, 6 - 3 * isWellRolled) / 2;
 
 	// clamp just in case
 	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
@@ -3208,7 +3220,7 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 
 	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
 #ifdef ISDEBUGBUILD
-		int corr_mod = INV_CORR_WEAPONDMG;
+		int corr_mod = INV_CORR_WEPCULL;
 #else
 		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
 #endif

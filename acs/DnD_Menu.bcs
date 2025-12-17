@@ -52,6 +52,11 @@ Script 900 (int opt, int showInv) NET {
 			(!PlayerIsSpectator(pnum) && GetGameModeState() == GAMESTATE_INPROGRESS && !CheckInventory("CanLoad") && !CheckInventory("ParsingData"))
 		)
 		{
+			if(CheckInventory("ShowingWeaponWheel")) {
+				TakeInventory("ShowingWeaponWheel", 1);
+				ACS_NamedExecuteWithResult("DnD Create Weapon Wheel", pnum, 1);
+			}
+
 			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
 				// sync all player data the first time they open it
 				TakeInventory("DnD_SyncMe", 1);

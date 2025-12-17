@@ -9,6 +9,15 @@ WEPMOD_TEXT5		=		"monster health on hits";
 WEPMOD_TEXT6		=		"of damage dealt as additional poison on hits";
 WEPMOD_TEXT7		=		"chance to force pain on hits";
 
+WEPTYPE_0			=		"tech weapons";
+WEPTYPE_1			=		"shotguns";
+WEPTYPE_2			=		"precision weapons";
+WEPTYPE_3			=		"handguns";
+WEPTYPE_4			=		"automatic weapons";
+WEPTYPE_5			=		"artillery weapons";
+WEPTYPE_6			=		"magic weapons";
+WEPTYPE_7			=		"melee weapons";
+
 // TAGS
 WEP_0_0_TAG 			= 			"Fists";
 WEP_0_1_TAG 			= 			"Chainsaw";

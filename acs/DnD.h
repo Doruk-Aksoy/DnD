@@ -684,16 +684,14 @@ void HandleChestSpawn(int chance_penalty) {
 		SpawnDrop("LootChest", 0, 0, 0, 0);
 
 	// check for merchant spawn now
-	if(CheckMapEvent(DND_MAPEVENT_MERCHANT)) {
+	if(CheckMapEvent(DND_MAPEVENT_MERCHANTID)) {
 		chance_penalty = CurrentLevelData[LEVELDATA_MAXCHESTS];
 		if(!chance_penalty)
 			chance_penalty = 1;
 		TempArray[TARR_MAPEVENTS][DND_MAPEVENT_MERCHANTID] += 1.0 / chance_penalty;
 		if(random(0, 1.0) <= TempArray[TARR_MAPEVENTS][DND_MAPEVENT_MERCHANTID]) {
 			SpawnMerchant();
-
-			// clear event as we already spawned it
-			ClearMapEvent(DND_MAPEVENT_MERCHANT);
+			ClearMapEvent(DND_MAPEVENT_MERCHANTID);
 		}
 	}
 }
@@ -1804,3 +1802,4 @@ void HandleAsmodeusAttack(int m_id, int isMelee) {
 
 #include "DnD_Damage.h"
 #include "DnD_Weapons.h"
+#include "DnD_WeaponWheel.h"

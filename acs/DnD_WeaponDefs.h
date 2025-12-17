@@ -26,6 +26,22 @@ enum {
 	DND_RWF_NOTAKEAMMO = 1,
 };
 
+enum {
+	DND_WEPTYPE_TECH,
+	DND_WEPTYPE_SHOTGUN,
+	DND_WEPTYPE_PRECISION,
+	DND_WEPTYPE_HANDGUN,
+	DND_WEPTYPE_AUTOMATIC,
+	DND_WEPTYPE_ARTILLERY,
+	DND_WEPTYPE_MAGIC,
+	DND_WEPTYPE_MELEE
+};
+#define DND_WEPTYPE_LAST DND_WEPTYPE_MELEE
+
+str GetWeaponTypeTag(int type) {
+	return StrParam(s:"WEPTYPE_", d:type);
+}
+
 // Supporting 8 such properties. See: RPGMENUBACKGROUNDID for increasing this
 enum {
 	WPROP_NONE,
@@ -52,6 +68,7 @@ enum {
 	WPROP_FIRESPROJECTILES = 262144,
 };
 #define MAX_WEAPON_PROPERTIES 17
+#define DND_TYPE_SHIFT_OFFSET 9 // 9 bits later the weapon type bit is stored
 
 str WeaponPropertyImages[MAX_WEAPON_PROPERTIES] = {
 	"WNOGHST",
@@ -1807,6 +1824,11 @@ int GetWeaponOrderSlot(int wepid, int slot) {
 		return wepid - FIRST_SLOT9_WEAPON;
 	}
 	return 0;
+}
+
+bool IsWeaponType(int wepid, int type) {
+	type += DND_TYPE_SHIFT_OFFSET;
+	return Weapons_Data[wepid].properties & (1 << type);
 }
 
 bool IsTechWeapon(int wepid) {

@@ -3,6 +3,7 @@
 
 #define DND_MIN_MERCHANTITEMS 3
 #define DND_MAX_MERCHANTITEMS 5
+#define DND_MERCHANT_LIMITITEMS 10
 #define DND_MERCHANT_ITEMSPERLVL 20
 
 #define DND_MERCHANT_ITEMCHANCE 0.4
@@ -683,7 +684,11 @@ Script "DnD Merchant Items" (void) {
 	int pcount =  PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
 	pcount = PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount;
 
-	int item_count = 9;//random(DND_MIN_MERCHANTITEMS, DND_MAX_MERCHANTITEMS + pcount / DND_MERCHANT_ITEMSPERLVL);
+	// just in case, we limit items here
+	int item_count = random(DND_MIN_MERCHANTITEMS, DND_MAX_MERCHANTITEMS + pcount / DND_MERCHANT_ITEMSPERLVL);
+	if(item_count > DND_MERCHANT_LIMITITEMS)
+		item_count = DND_MERCHANT_LIMITITEMS;
+
 	for(int pos = 0; pos < item_count; ++pos) {
         int ilvl = RollItemLevel();
 		int temp = random(0, 1.0);

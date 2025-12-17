@@ -10,9 +10,12 @@ enum {
 
 // powersets
 enum {
-	WEP_POWER_GHOSTHIT
+	WEP_POWER_GHOSTHIT,
+	WEP_POWER_CULL,
+
+	WEP_POWER_MAX1
 };
-#define MAX_WEP_MOD_POWERSET1 (WEP_POWER_GHOSTHIT + 1)
+#define MAX_WEP_MOD_POWERSET1 WEP_POWER_MAX1
 
 int GetPlayerWeaponQuality(int pnum, int wep) {
 	return Player_Weapon_Infos[pnum][wep].quality;
@@ -66,6 +69,8 @@ str GetWeaponModText(int val, int id, int extra_bit = 0) {
 			switch(extra_bit) {
 				case WEP_POWER_GHOSTHIT:
 					return StrParam(s:"\c[Y5]* \c[Q9]", l:"DND_WEPMOD_POW_GHOSTHIT");
+				case WEP_POWER_CULL:
+					return StrParam(s:"\c[Y5]* \c[Q9]", l:"IATTR_TC15");
 			}
 		break;
 	}

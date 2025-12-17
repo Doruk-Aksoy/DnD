@@ -1521,6 +1521,7 @@ int GetPoisonTicrate(int pnum) {
 
 #define DND_BASE_CHILL_SLOW 0.1 // 10% per stack
 #define DND_BASE_CHILL_DAMAGETHRESHOLD 20 // 20% of the monster's health
+#define DND_BASE_CHILL_DAMAGETHRESHOLD_PLAYER (DND_BASE_CHILL_DAMAGETHRESHOLD / 2) // 10% of the player's health
 #define DND_CHILL_HARDTHRESHOLD 2
 #define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
 int GetChillEffect(int pnum, int stacks) {
@@ -1542,10 +1543,10 @@ int GetFreezeChance(int pnum, int stacks) {
 	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + GetPlayerAttributeValue(pnum, INV_FREEZECHANCE)) / 100;
 }
 
-int GetMonsterChillThreshold(int m_id, int stacks) {
+int GetMonsterChillThreshold(int m_id) {
 	// for this, since monster applies to player, player's resistance to this should increase the threshold instead
-	// by default this is halved for players as well
-	return Clamp_Between(DND_BASE_CHILL_DAMAGETHRESHOLD * stacks, DND_CHILL_HARDTHRESHOLD, 100);
+	// returns a random percentage between the minimum of 2 and the player's value of (currently) 5% -- if player has higher chill threshold this will go up
+	return random(DND_CHILL_HARDTHRESHOLD, DND_BASE_CHILL_DAMAGETHRESHOLD_PLAYER);
 }
 
 int GetMonsterFreezeChance(int m_id, int stacks) {

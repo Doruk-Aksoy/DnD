@@ -262,8 +262,8 @@ Script "DnD On Map Load" OPEN {
 		SetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS);
 	}
 
-	CalculateMapDifficulty();
 	RollMapEvents();
+	CalculateMapDifficulty();
 	UpdateLevelChestLimit();
 
 	// wait while total level is not initialized
@@ -1287,6 +1287,12 @@ Script "DnD Periodic Checks" ENTER {
 Script 895 (int val, int this) {
 	if(!CheckInventory("ShowingMenu") && !CheckInventory("NPC_Trigger_Cooldown")) {
 		GiveInventory("NPC_Trigger_Cooldown", 1);
+
+		if(CheckInventory("ShowingWeaponWheel")) {
+			TakeInventory("ShowingWeaponWheel", 1);
+			ACS_NamedExecuteWithResult("DnD Create Weapon Wheel", PlayerNumber(), 1);
+		}
+
 		switch(val) {
 			case 0:
 				// dark wanderer engage script
@@ -1698,6 +1704,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
+	/*MonsterProperties[m_id].trait_list[DND_FORTIFIED] = true;
+	GiveInventory("MonsterFortifyCount", MonsterProperties[this].maxhp * (DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)) / 100);*/
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -1812,6 +1820,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	SetUserVariable(0, "user_spawnheight", GetActorProperty(0, APROP_HEIGHT) >> 16);
 	
 	GiveInventory("DnD_MonsterSetupDone", 1);
+
+	if(GetActorProperty(0, APROP_HEALTH) > MonsterProperties[m_id].maxhp)
+		printbold(s:"Overflow hp on ", s:GetActorClass(0));
 	
 	SetResultValue(0);
 }
@@ -1976,7 +1987,7 @@ Script "DnD Monster Spawner" (int category) {
 
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
-    while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore())
+    while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore() || !PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
         Delay(const:10);
 
 	if(MapData[DND_MAPDATA_INCURSIONSTATE] == DND_INCURSION_NA) {
@@ -6087,6 +6098,8 @@ Script 68 (int x) NET {
 			//Log(s:"pcore");
 			//SpawnPowercore(0, true);
 			//Log(s:"orb");
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SCULPTING, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
@@ -6101,7 +6114,7 @@ Script 68 (int x) NET {
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
-			//SpawnCharmWithMods_ForAll(INV_INC_PLUSTWOPROJ);
+			SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
@@ -6170,7 +6183,12 @@ Script 68 (int x) NET {
 		else if(x == 667)
 			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
 		else if(x == 1000) {
-			IncPlayerModValue(0, INV_EXPLOSION_RADIUS, 100);
+			IncPlayerModValue(0, INV_FLATENERGY_DAMAGE, 21);
+			IncPlayerModValue(0, INV_PERCENTENERGY_DAMAGE, 310);
+			IncPlayerModValue(0, INV_PEN_ENERGY, 79);
+			IncPlayerModValue(0, INV_FLAT_TECH, 50);
+			IncPlayerModValue(0, INV_TECH_PERCENT, 171);
+			
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
 			//SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
 		}

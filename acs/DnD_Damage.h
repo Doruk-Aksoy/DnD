@@ -1376,7 +1376,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// cull checks
 	if(CheckCullRange(source, victim, dmg)) {
 		//printbold(s:"can cull");
-		if((flags & DND_DAMAGEFLAG_CULL)) {
+		if((flags & DND_DAMAGEFLAG_CULL) || (!wep_neg && HasWeaponPower(pnum, wepid, WEP_POWER_CULL))) {
 			// if self cull is in effect simply destroy it otherwise return from here
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 			dmg = GetActorProperty(victim, APROP_HEALTH) * 2;
@@ -2858,41 +2858,6 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			);
 		}
 		
-		if((dmg_data & DND_DAMAGETYPEFLAG_ICE) || MonsterProperties[m_id].trait_list[DND_FRIGID]) {
-			// considerations for chill and freeze
-			res_to_apply = CheckInventory("PlayerHealthCap");
-			res_bonus = CheckInventory("DnD_ChillStacks");
-			
-			// if hpdiff >= threshold
-			if
-			(
-				GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE) < random(1, 100) && 
-				res_to_apply - GetActorProperty(0, APROP_HEALTH) >= res_to_apply * GetMonsterChillThreshold(m_id, res_bonus + 1) / 100
-			)
-			{
-				HandleRiskAversion();
-
-				// add a new stack of chill if applicable
-				if(!CheckInventory("DnD_ChillGainCooldown") && res_bonus < DND_BASE_CHILL_CAP) {
-					GiveInventory("DnD_ChillStacks", 1);
-					GiveInventory("DnD_ChillGainCooldown", 1);
-					
-					// give chill debuff
-					ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_CHILL, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
-				}
-				
-				// freeze checks --- added freeze chance % increase -- unique boss is immune to freeze
-				res_to_apply = GetMonsterFreezeChance(m_id, CheckInventory("DnD_ChillStacks"));
-				if(random(1, 100) <= res_to_apply) {
-					res_bonus = DND_BASE_FREEZETIMER;
-					
-					// set freeze timer and run script
-					SetInventory("DnD_FreezeTimer", res_bonus);
-					ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_FREEZE, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
-				}
-			}
-		}
-		
 		if
 		(
 			((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || MonsterProperties[m_id].trait_list[DND_VOLTAIC]) && 
@@ -3218,8 +3183,8 @@ int HandlePercentDamageFromEnemy(int victim, int dmg, int dmg_data) {
 }
 
 int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
-	if(IsMonsterIdBoss(MonsterProperties[m_id].id) && IsQuestComplete(victim, QUEST_KILL10BOSSES))
-		dmg = dmg * (100 - DND_QUEST_BOSSREDUCE) / 100;
+	//if(IsMonsterIdBoss(MonsterProperties[m_id].id) && IsQuestComplete(victim, QUEST_KILL10BOSSES))
+	//	dmg = dmg * (100 - DND_QUEST_BOSSREDUCE) / 100;
 	return dmg;
 }
 
@@ -3257,7 +3222,6 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 		}
 
 		m_id = m_id * ((UNSTABLE_DMG_MULT * temp * 100) >> 16) / 100;
-		printbold(d:m_id);
 		m_id &= NONWEP_DMG_MASK; // limit to 65536
 		// encode damage type
 		m_id |= DND_DAMAGETYPE_ENERGY << NONWEP_DMG_SHIFT;
@@ -3479,6 +3443,43 @@ bool IsDamageEventException(str dt) {
 	}
 	
 	return 	dt == "Suicide" || dt == "Perish" || dt == "Special_NoPain" || dt == "SkipHandle" || dt == "ForcedPainBypass";
+}
+
+void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
+	if(m_id != -1 && ((dmg_data & DND_DAMAGETYPEFLAG_ICE) || MonsterProperties[m_id].trait_list[DND_FRIGID])) {
+		// considerations for chill and freeze
+		int health_cap = CheckInventory("PlayerHealthCap");
+		int stacks = CheckInventory("DnD_ChillStacks");
+		
+		// if hpdiff >= threshold
+		if
+		(
+			GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE) < random(1, 100) && 
+			dmg_received >= health_cap * GetMonsterChillThreshold(m_id) / 100
+		)
+		{
+			HandleRiskAversion();
+
+			// add a new stack of chill if applicable
+			if(!CheckInventory("DnD_ChillGainCooldown") && stacks < DND_BASE_CHILL_CAP) {
+				GiveInventory("DnD_ChillStacks", 1);
+				GiveInventory("DnD_ChillGainCooldown", 1);
+				
+				// give chill debuff
+				ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_CHILL, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+			}
+			
+			// freeze checks
+			health_cap = GetMonsterFreezeChance(m_id, CheckInventory("DnD_ChillStacks"));
+			if(random(1, 100) <= health_cap) {
+				stacks = DND_BASE_FREEZETIMER;
+				
+				// set freeze timer and run script
+				SetInventory("DnD_FreezeTimer", stacks);
+				ACS_NamedExecuteWithResult("DnD Give Buff", DND_DEBUFF_FREEZE, DEBUFF_F_PLAYERISACTIVATOR | DEBUFF_F_OWNERISTARGET);
+			}
+		}
+	}
 }
 
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
@@ -3741,6 +3742,13 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(HasClassPerk_Fast("Doomguy", 1) && CheckActorInventory(shooter, "Doomguy_CanExecute"))
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT - (HasClassPerk_Fast("Doomguy", 3)) * DND_DOOMGUY_DMGREDUCE_PERK3BONUS);
 				
+				// damage amplifications
+				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;
+				if(temp > 100)
+					dmg = ApplyDamageFactor_Safe(dmg, temp);
+					
+				dmg = MonsterSpecificDamageChecks(m_id, victim, dmg);
+
 				// final check, if damage is less than 10% of it, cap it at 10%
 				temp = arg1 / 10;
 				if(temp <= 0)
@@ -3749,16 +3757,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(dmg < temp)
 					dmg = temp;
 
+				// this is the real damage going to player regardless of their eshield
+				HandlePlayerChill(pnum, m_id, dmg, dmg_data);
+
 				// the real final check vs eshield
 				dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, dmg_data);
 
-				// damage amplifications
-				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;
-				if(temp > 100)
-					dmg = ApplyDamageFactor_Safe(dmg, temp);
-					
-				dmg = MonsterSpecificDamageChecks(m_id, victim, dmg);
-					
 				if(dmg) {
 					// add to player stat
 					IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
@@ -3878,8 +3882,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						SetResultValue(0);
 						Terminate;
 					}
-
-					//printbold(d:dmg, s: " ", d:m_id, s: " ", d:temp, s: " ", d:arg1);
 
 					dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
 
@@ -4027,10 +4029,16 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				// failsafe
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {
-					Log(
-						s:"Monster hp overflow on ", s:GetActorClass(victim), s:" hp: ", d:GetActorProperty(victim, APROP_HEALTH), s:" / ", d:MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, 
-						s: " with player weapon and dmg: ", s:Weapons_Data[m_id].name, s: " <> ", d:dmg
-					);
+					if(m_id >= 0)
+						Log(
+							s:"Monster hp overflow on ", s:GetActorClass(victim), s:" hp: ", d:GetActorProperty(victim, APROP_HEALTH), s:" / ", d:MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, 
+							s: " with player weapon and dmg: ", s:Weapons_Data[m_id].name, s: " <> ", d:dmg, s:" m_id: ", d:m_id
+						);
+					else
+						Log(
+							s:"Monster hp overflow on ", s:GetActorClass(victim), s:" hp: ", d:GetActorProperty(victim, APROP_HEALTH), s:" / ", d:MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, 
+							s: " with player (weapon was neg) dmg: ", d:dmg, s:" m_id: ", d:m_id
+						);
 					SetActorProperty(victim, APROP_HEALTH, MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp);
 				}
 

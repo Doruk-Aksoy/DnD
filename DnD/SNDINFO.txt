@@ -13,6 +13,7 @@ Wanderer/RayLoop		WANDRAY
 Wanderer/RayFinish		WANDRAYF
 Wanderer/Blast			WNDRBLST
 Wanderer/Charge			WNDRCHRG
+Wanderer/Slam			THNDS01
 
 Wanderer/DashBegin1		WNDDSHB1
 Wanderer/DashBegin2		WNDDSHB2

@@ -2056,7 +2056,7 @@ Actor YetiCheck : DnD_Activator {
 
 Actor YetiIce {
 	PROJECTILE
-	Damage (5 * random(4, 8))
+	Damage (5 * random(4, 7))
 	DamageType "Ice"
 	Stamina 1073741888
 	Speed 24
@@ -2132,7 +2132,7 @@ ACTOR YetiIceShard {
 	Radius 12
 	Height 6
 	Speed 10
-	Damage (random(5, 10))
+	Damage (random(4, 8))
 	DamageType "Ice"
 	Stamina 1073741888
 	Scale 1.25

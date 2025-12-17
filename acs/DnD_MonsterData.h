@@ -904,8 +904,8 @@ enum {
 	DND_MWEIGHT_ENDMARKER = -1
 };
 
-#define DND_ELITE_GAINBONUS 30 // 30%
-#define DND_MAGIC_GAINBONUS 15
+#define DND_ELITE_GAINBONUS 25 // 25%
+#define DND_MAGIC_GAINBONUS 10
 
 int GetMonsterLevelDroprateBonus(int lvl) {
 	// piecewise function so the early 25 levels increase sharper, then slow down but reach to a sweet spot of x2.5

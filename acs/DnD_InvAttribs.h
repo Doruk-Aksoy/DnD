@@ -273,6 +273,8 @@ enum {
 	INV_CHANCE_BLEED,
 	INV_PERCENTDMG_BLEED,
 	INV_BLEED_DURATION,
+
+	INV_CRITPERCENT_FORWEPTYPE,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -290,6 +292,7 @@ enum {
 	INV_CORR_INSTALEECHPCT,
 	INV_CORR_MOREAOE,
 	INV_CORR_ALLPIERCE,
+	INV_CORR_WEPCULL,
 	// add new corruption implicits here
 
 	// implicits -- add new ones below here
@@ -474,7 +477,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_BLEED_DURATION
+#define LAST_INV_ATTRIBUTE INV_CRITPERCENT_FORWEPTYPE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -483,7 +486,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
-#define LAST_CORRUPT_IMPLICIT INV_CORR_ALLPIERCE
+#define LAST_CORRUPT_IMPLICIT INV_CORR_WEPCULL
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
@@ -595,6 +598,7 @@ bool IsFixedPointMod(int mod) {
 		case INV_PELLET_INCREASE:
 		case INV_CRITCHANCE_INCREASE:
 		case INV_CRITPERCENT_INCREASE:
+		case INV_CRITPERCENT_FORWEPTYPE:
 		case INV_DAMAGEPERCENT_MORE:
 		case INV_BLOCKERS_MOREDMG:
 		case INV_PROJSPEED:
@@ -655,6 +659,7 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 		case INV_CORR_WEAPONPCTDMG:
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
+		case INV_CORR_WEPCULL:
 			// pick one from a weapon the player owns
 			if(pnum != MAXPLAYERS)
 				res = PickRandomOwnedWeaponID(pnum);
@@ -667,6 +672,7 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 		case INV_INC_DOUBLEHPBONUS:
 		case INV_INC_PASSIVEREGEN:
 		case INV_INC_INSTANTLIFESTEAL:
+		case INV_CRITPERCENT_FORWEPTYPE:
 			res = RollAttributeExtra(mod, tier, isWellRolled, item_type, item_subtype);
 		break;
 
@@ -1469,6 +1475,14 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_BLEED_DURATION].attrib_high = 10;
 	ItemModTable[INV_BLEED_DURATION].attrib_level_modifier = 0;
 	ItemModTable[INV_BLEED_DURATION].tags = INV_ATTR_TAG_PHYSICAL;
+
+	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_low = 0.05;
+	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_high = 0.1;
+	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_level_modifier = 0.05;
+	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_extra_low = DND_WEPTYPE_TECH;
+	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_extra_high = DND_WEPTYPE_LAST;
+	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].tags = INV_ATTR_TAG_CRIT;
 	
 	/////////////////////////
 	// corrupted implicits //
@@ -1542,6 +1556,11 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_ALLPIERCE].attrib_high = 10;
 	ItemModTable[INV_CORR_ALLPIERCE].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_ALLPIERCE].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_CORR_WEPCULL].attrib_low = 1;
+	ItemModTable[INV_CORR_WEPCULL].attrib_high = 1;
+	ItemModTable[INV_CORR_WEPCULL].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_WEPCULL].tags = INV_ATTR_TAG_ATTACK;
 
 	///////////////////////
 	// regular implicits //
@@ -1778,14 +1797,19 @@ bool IsAttributeExtraException(int attr) {
 		case INV_IMP_POWERCORE:
 
 		// these store the weapon in extra field!
+		case INV_CRITPERCENT_FORWEPTYPE:
+
 		case INV_CORR_WEAPONDMG:
 		case INV_CORR_WEAPONCRIT:
 		case INV_CORR_WEAPONCRITDMG:
 		case INV_CORR_WEAPONPCTDMG:
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
+		case INV_CORR_WEPCULL:
 
 		// incursion things that use extra field
+		case INV_INC_PLUSPROJ:
+		case INV_INC_PLUSTWOPROJ:
 
 		return true;
 	}
@@ -1798,6 +1822,7 @@ bool CanRerollAttributeExtra(int attr) {
 
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
+		case INV_CRITPERCENT_FORWEPTYPE:
 		return true;
 	}
 	return false;
@@ -2321,6 +2346,10 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			}
 			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
 
+		// flat text with weapon mention
+		case INV_CORR_WEPCULL:
+			return StrParam(s:col_tag, l:GetWeaponTag(extra), s: " ", l:"DND_HAS", s:" ", l:text);
+
 		// this doesn't have detailed mod explanation on purpose, each item has their own presets
 		case INV_IMP_INCARMOR:
 		case INV_IMP_INCSHIELD:
@@ -2487,6 +2516,14 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 				);
 			}
 			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
+
+		case INV_CRITPERCENT_FORWEPTYPE:
+			if(showDetailedMods) {
+				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra),
+					s:no_tag, s:"- ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra));
 		
 		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
@@ -2562,7 +2599,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 					s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC14S2"
 				);
 			}
-			return StrParam(s:ess_tag, l:text, d:col_tag, s:GetFixedRepresentation(val, true), s:"% ", s:ess_tag, l:"IATTR_TINC14S1", s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC14S2");
+			return StrParam(s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:"% ", s:ess_tag, l:"IATTR_TINC14S1", s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC14S2");
 		
 		case INV_INC_ENEMYRIPCHANCE:
 			if(showDetailedMods) {

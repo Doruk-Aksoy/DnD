@@ -20,6 +20,7 @@ DND_PICKUP_POWERCORE					= "Powercore pickup";
 
 DND_PRICE								= "Price";
 
+DND_TOPURCHASE							= "to purchase";
 DND_KILLS								= "Kills";
 DND_PLAYER								= "Player";
 DND_DMGDEALT							= "Damage Dealt";

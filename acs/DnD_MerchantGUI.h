@@ -27,7 +27,7 @@ enum {
     DND_MRCHT_TRICKSTER_CANTAFFORD
 };
 
-#define DND_MERCHANT_HUDID_OFFSET 4
+#define DND_MERCHANT_HUDID_OFFSET 5
 
 coord_T item_dimensions;
 
@@ -259,7 +259,8 @@ Script "DnD Prompt Merchant" (void) CLIENTSIDE {
 	SetFont("SMALLFONT");
 
 	HudMessage(
-		s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s: " \c[L7]", l:"CLASS_TOCLOSE", s:"!";
+		s:"\c[L7]", l:"CLASS_PRESS", s:" \ci", k:"+use", s: " \c[L7]", l:"CLASS_TOCLOSE",
+        s:" ", l:"DND_AND", s:" \ci", k:"+attack", s:" \c[L7]", l:"DND_TOPURCHASE", s:"!";
 		HUDMSG_PLAIN, RPGMENUITEMID - 1, -1, (HUDMAX_X_PROMPT << 15) + 0.4, ((HUDMAX_Y_PROMPT << 16) - 100.0) + 0.1, 0.0, 0.0
 	);
 
@@ -339,6 +340,27 @@ Script "DnD Prompt Merchant" (void) CLIENTSIDE {
         else if(PlayerCursorData.hoverNeedsReset)
             ResetCursorHoverData();
 
+        // cant buy dynamic text
+        if(CheckInventory("DnD_SpecialText_Timer")) {
+            SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+            SetFont("MRCHT0");
+            HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 388.0, 162.0, 0.0, 0.0);
+
+            SetHudSize(HUDMAX_X_PROMPT, HUDMAX_Y_PROMPT, 1);
+            SetFont("SMALLFONT");
+            HudMessage(
+                l:"DND_POPUP_NOFUNDS";
+                HUDMSG_PLAIN, RPGMENUITEMID - 4, -1, (HUDMAX_X_PROMPT << 15) + 0.4, ((HUDMAX_Y_PROMPT << 16) - 110.0) + 0.1, 0.0, 0.0
+            );
+        }
+        else {
+            SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+            SetFont("MRCHV0");
+            HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID, -1, 392.0, 160.0, 0.0, 0.0);
+
+            DeleteText(RPGMENUITEMID - 4);
+        }
+
         if(redraw || CheckInventory("DnD_RefreshPane")) {
             // store previous count, check if there's difference, if there is, remove the last item from right as items are possibly shifted
             k = item_count;
@@ -383,6 +405,7 @@ Script "DnD Prompt Merchant" (void) CLIENTSIDE {
 	}
 
     CleanInventoryInfo();
+    DeleteText(RPGMENUID);
     DeleteTextRange(RPGMENUITEMID - 6 - MAXPLAYERS, RPGMENUITEMID);
 }
 
@@ -407,7 +430,7 @@ Script "DND Server Box Receive - Merchant" (int pnum, int boxid) NET {
 		}
 		else if(boxid != MAINBOX_NONE) {
             // check money spend conditions and item space availability
-            if(GetMerchantItemPrice(boxid - 1) < GetPlayerCredit(pnum)) {
+            if(GetMerchantItemPrice(boxid - 1) <= GetPlayerCredit(pnum)) {
                 temp = GetFreeSpotForItem_Trade(boxid - 1, MAXPLAYERS, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, true);
                 if(temp != -1) {
                     LocalAmbientSound("RPG/MenuChoose", 127);
@@ -432,8 +455,15 @@ Script "DND Server Box Receive - Merchant" (int pnum, int boxid) NET {
                         SyncItemData(MAXPLAYERS, i, DND_SYNC_ITEMSOURCE_TRADEVIEW, -1, -1, true);
                     SyncItemData_Null(MAXPLAYERS, item_count - 1, DND_SYNC_ITEMSOURCE_TRADEVIEW, 1, 1, true);
 
+                    TakeInventory("DnD_SpecialText_Timer", 1);
                     GiveInventory("DnD_RefreshPane", 1);
                 }
+                else
+                    ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, pnum);
+            }
+            else {
+                LocalAmbientSound("RPG/MenuError", 127);
+                GiveInventory("DnD_SpecialText_Timer", 1);
             }
 		}
 		

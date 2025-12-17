@@ -4,11 +4,6 @@
 #define DND_MERCHANT_SPAWNCHANCE 0.2 // 20% chance to spawn per map
 
 enum {
-    DND_MAPEVENT_MERCHANT = 1,
-    DND_MAPEVENT_ACIDRAIN = 2,
-};
-
-enum {
     DND_MAPEVENT_MERCHANTID,
     DND_MAPEVENT_ACIDRAINID,
 
@@ -35,8 +30,9 @@ void ResetMapEvents() {
 }
 
 void RollMapEvents() {
-    if(random(0, 1.0) <= DND_MERCHANT_SPAWNCHANCE)
-        MapData[DND_MAPDATA_MAPEVENTS1] |= DND_MAPEVENT_MERCHANT;
+    if(random(0, 1.0) <= DND_MERCHANT_SPAWNCHANCE) {
+        MapData[DND_MAPDATA_MAPEVENTS1] |= (1 << DND_MAPEVENT_MERCHANTID);
+    }
 }
 
 #endif

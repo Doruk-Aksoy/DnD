@@ -464,6 +464,9 @@ IATTR_T134			= "chance to cause bleeding on physical attacks";
 IATTR_T135			= "increased bleed damage";
 IATTR_T136			= "increased bleed duration";							DND_BLEED_TIME = "seconds of bleed duration";
 
+IATTR_T137			= "increased crit chance for";
+
+
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
 IATTR_TC2			= "Increased crit chance to";
@@ -479,6 +482,7 @@ IATTR_TC11			= "Taking damage doesn't stop regeneration";
 IATTR_TC12			= "of lifesteal is instant";
 IATTR_TC13			= "more area of effect";
 IATTR_TC14			= "to global resist pierce";
+IATTR_TC15			= "Culling Strike";
 
 // regular implicits
 IATTR_TI1			= "armor";

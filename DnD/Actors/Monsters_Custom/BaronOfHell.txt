@@ -2752,7 +2752,7 @@ Actor WarmasterBuff : DnD_Activator {
 			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Is Demon - Self"), "Give")
 		Stop
 		Give:
-			TNT1 A 0 HealThing(ACS_ExecuteWithResult(961, 7) * warmaster_ratio)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Heal Monster Direct", 0, 0, 100 * warmaster_ratio)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Warmaster Protect FX Trigger")
 		Stop
 	}

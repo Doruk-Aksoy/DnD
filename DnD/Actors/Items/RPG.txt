@@ -256,6 +256,7 @@ Actor MenuMainPosY : Inventory {
 Actor ShowingMenu : DnD_Boolean { }
 Actor ShowingMenu_CS : DnD_Boolean { }
 Actor ShowingPrompt : DnD_Boolean { }
+Actor ShowingWeaponWheel : DnD_Boolean { }
 
 Actor DnD_SelectedCharmBox : Inventory {
 	inventory.maxamount 255

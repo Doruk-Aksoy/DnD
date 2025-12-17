@@ -27,6 +27,8 @@ alias viewplayer "puke -1006 %1"
 AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Menu" upgs
 	Alias upgs "Puke 900"
+	AddMenuKey "DnD Weapon Wheel" wepwheel
+	Alias wepwheel "pukename \"DnD Weapon Wheel\""
 	AddMenuKey "DnD Inventory" inv
 	Alias inv "pukename \"DnD Open Inventory\""
 	AddMenuKey "DnD Stash" stash

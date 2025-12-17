@@ -5,3 +5,8 @@ Actor DnD_Button_Timer : Inventory {
 Actor DnD_LeftArrowButton_Timer : DnD_Button_Timer { }
 Actor DnD_ReturnArrowButton_Timer : DnD_Button_Timer { }
 Actor DnD_RightArrowButton_Timer : DnD_Button_Timer { }
+
+Actor DnD_SpecialText_Timer : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 35
+}
