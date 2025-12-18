@@ -179,7 +179,7 @@ enum {
 #define DND_MAX_SHARE 4
 #define DND_HALF_SPREE_PER (DND_SPREE_PER / 2)
 #define DND_SPREE_TRIGGER (DND_SPREE_PER - 1) // -1 because current monster killed doesn't count
-#define DND_SPREE_BASE 10 // 10%, this is dividing the exp
+#define DND_SPREE_BASE 5 // 5%, this is dividing the exp
 #define DND_SPREE_BASE_F (DND_SPREE_BASE * 1.0 / 100)
 #define DND_SPECIALAMMO_TEXTID 6001
 #define DND_SPREE_BLOODID 6000

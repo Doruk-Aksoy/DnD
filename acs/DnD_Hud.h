@@ -655,7 +655,7 @@ void DrawCursor(int hudx = HUDMAX_XF, int hudy = HUDMAX_YF) {
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
 	
-	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy/*, s: " hud: ", f:hudx, s: " ", f:hudy*/);
+	//printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy/*, s: " hud: ", f:hudx, s: " ", f:hudy*/);
 
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, hudx - (PlayerCursorData.posx & MMASK) + 0.1, hudy - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }

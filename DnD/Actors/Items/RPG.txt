@@ -258,6 +258,8 @@ Actor ShowingMenu_CS : DnD_Boolean { }
 Actor ShowingPrompt : DnD_Boolean { }
 Actor ShowingWeaponWheel : DnD_Boolean { }
 
+Actor WeaponWheelChangeId : DnD_Info { }
+
 Actor DnD_SelectedCharmBox : Inventory {
 	inventory.maxamount 255
 }
