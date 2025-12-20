@@ -1,7 +1,6 @@
 #ifndef DND_EXP_IN
 #define DND_EXP_IN
 
-#include "DnD_Quests.h"
 #include "DnD_CommonStat.h"
 #include "DnD_Common.h"
 #include "DnD_Charms.h"
@@ -121,14 +120,6 @@ void HandleHealDependencyCheck() {
 	// Research dependencies
 	if(CheckInventory("Research_Body_Hp_1_Tracker") == GetAmmoCapacity("Research_Body_Hp_1_Tracker") && CheckResearchStatus(RES_BIO1) == RES_NA)
 		GiveResearch(RES_BIO1, true);
-	
-	// Quest records
-	if(active_quest_id == QUEST_HEALFOR500 && !IsQuestComplete(ActivatorTID(), active_quest_id) && CheckInventory("DnD_MasterHealerQuest_HealAmount") >= DND_QUEST_MASTERHEALER_REQ)
-		CompleteQuest(ActivatorTID(), active_quest_id);
-	
-	// Skin O' My Teeth check
-	if(active_quest_id == QUEST_NOHEALINGPICKUP)
-		FailQuest(ActivatorTID());
 }
 
 void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStore = false, bool notPercentage = false) {
@@ -163,7 +154,6 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 		// map toast heal
 		amt = healthcap - curhp;
 	    GiveInventory("HealthBonusX", amt);
-		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
 		GiveInventory("Research_Body_Hp_1_Tracker", amt);
 	    return;
 	}
@@ -182,7 +172,6 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	if(!noMedkitStore && CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && !isspecial) {
 		if(curhp < healthcap) { // if my current curhp is less than max
 			GiveInventory("HealthBonusX", toGive);
-			GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
 			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 		}
         if(toGive < amt)
@@ -190,7 +179,6 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	}
 	else {
 		GiveInventory("HealthBonusX", toGive);
-		GiveInventory("DnD_MasterHealerQuest_HealAmount", toGive);
 		GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 	}
 
@@ -618,14 +606,7 @@ int CanPickHealthItem(int type) {
 
 // used for deciding armor pickup values
 int GetPlayerArmor(int pnum) {
-	int amt = CheckInventory("DnD_QuestReward_ArmorCapIncrease") * DND_QUEST_ARMORBONUS + GetPlayerAttributeValue(pnum, INV_ARMOR_INCREASE);
-	int inc = 0;
-	
-	// other bonuses
-	inc = 	DND_QUEST_ARMORBONUS * IsQuestComplete(0, QUEST_NOARMORS);
-			DND_TORRASQUE_BOOST * IsQuestComplete(0, QUEST_KILLTORRASQUE);
-	
-	amt += amt * inc / 100;
+	int amt = GetPlayerAttributeValue(pnum, INV_ARMOR_INCREASE);
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
 	amt += (amt * GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE)) / 100;
@@ -662,9 +643,6 @@ int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE);
-			
-	//if(isElite && IsQuestComplete(pnum + P_TIDSTART, QUEST_KILL20ELITES))
-	//	base += DND_ELITEDROP_GAIN;
 		
 	// more chance to find loot
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));

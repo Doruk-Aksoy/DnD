@@ -1,6 +1,9 @@
 #ifndef DND_ORBDEF_IN
 #define DND_ORBDEF_IN
 
+#include "DnD_Common.h"
+#include "DnD_Ammo.h"
+
 #define DND_MAX_ORB_REROLL_ATTEMPTS 100
 #define DND_POTENCY_CHANCE 0.33
 
@@ -374,6 +377,36 @@ int PickRandomTaggedOrb() {
 		break;
 	}
 	return o;
+}
+
+// this is server side only, clients aren't even aware of the values here so we can put as many stuff as needed...
+// because zan doesn't sync variables to clients unless told to do (sdee dnd_sync.h for it)
+
+// to be able to store item reroll stuff, 1 for attrib count, 2 per attribute x 9 = 19
+#define MAX_STORED_ORB_DATA 64
+typedef struct {
+	int orb_type;
+	int values[MAX_STORED_ORB_DATA];
+	// these are used for item data -- they are badly named, i'm aware...
+	int p_ammos[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT];
+	int p_tempammo;
+	int p_tempwep;
+	bool sins_cant_repent;
+} orb_info_T;
+
+// holds most recently used orb values
+global orb_info_T 3: Player_MostRecent_Orb[MAXPLAYERS];
+
+void ResetMostRecentOrb(int pnum) {
+	int i;
+	Player_MostRecent_Orb[pnum].orb_type = 0;
+	for(i = 0; i < MAX_STORED_ORB_DATA; ++i)
+		Player_MostRecent_Orb[pnum].values[i] = 0;
+	for(i = 0; i < MAX_SLOTS; ++i)
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+			Player_MostRecent_Orb[pnum].p_ammos[i][j] = 0;
+	Player_MostRecent_Orb[pnum].p_tempammo = 0;
+	Player_MostRecent_Orb[pnum].p_tempwep = 0;
 }
 
 #endif

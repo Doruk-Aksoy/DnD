@@ -5,6 +5,7 @@
 #include "DnD_SpecialAmmo.h"
 #include "DnD_Artifacts.h"
 #include "DnD_Abilities.h"
+#include "DnD_OrbDefs.h"
 
 #define DND_QUICKBUY_POPUPID 0xFFFF
 #define DND_LANGUAGE_LOOKUP true
@@ -15,47 +16,6 @@
 int TransmuteOrbs[MAXPLAYERS][MAX_TRANSMUTE_BOXES]; // holds topboxid from inventories
 
 #define DND_MENU_BASEAMMOSTOCK 50
-
-// Box definitions for clickables
-// 7 images on menu leftmost bar
-#define MAX_MAIN_BOXES 10
-#define MAX_TAGCHARS_SHOWN 17
-
-// Mainbox Labels
-enum {
-	MAINBOX_NONE = 0,
-	MAINBOX_STATS,
-	MAINBOX_PERK,
-	MAINBOX_LOAD,
-	MAINBOX_SHOP,
-	MAINBOX_RESEARCH,
-	MAINBOX_ABILITY,
-	MAINBOX_HELP,
-	MAINBOX_LARR,
-	MAINBOX_RET,
-	MAINBOX_RARR
-};
-
-// Various box enums (I know this part is terrible, dk how to make it look better atm)
-// Definition rule: L -> R, T -> B
-enum {
-	MBOX_1 = 1,
-	MBOX_2,
-	MBOX_3,
-	MBOX_4,
-	MBOX_5,
-	MBOX_6,
-	MBOX_7,
-	MBOX_8,
-	MBOX_9,
-	MBOX_10,
-	MBOX_11,
-	MBOX_12,
-	MBOX_13,
-	MBOX_14,
-	MBOX_15,
-	MBOX_16
-};
 
 enum {
 	DRAW_STAT_OFFENSE1,

@@ -1,6 +1,9 @@
 #ifndef DND_CLASS_SC_IN
 #define DND_CLASS_SC_IN
 
+#include "DnD_ClassConstants.h"
+#include "DnD_Stat.h"
+
 Script "DnD Check Execution" (void) {
 	int this = ActivatorTID();
 	SetActivatorToTarget(0);

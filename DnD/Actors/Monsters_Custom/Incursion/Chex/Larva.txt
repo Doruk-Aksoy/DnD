@@ -3,7 +3,7 @@ ACTOR FlemoidLarva : DnD_BaseMeleeMonster {
 	Mass 225
 	Speed 17
 	Height 46
-	Radius 24
+	Radius 20
 	Meleerange 84
 	Painchance 40
 	Bloodcolor "Green"

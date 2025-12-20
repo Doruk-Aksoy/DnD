@@ -71,11 +71,11 @@ DND_ORB_MON3		=	"Assimilation Orb";
 DND_ORB_MONTEXT3	=	"Assimilates the initially selected non-unique item into another non-unique item, taking attributes from the two unpredictably. The resulting modifiers are well-rolled, but amount of mods may be less than sum of both. Can have up to \cd1 additional modifier\c-. Effects can't be undone by an \c[Y5]Orb of Repentance\c-.";
 
 DND_ORB_MON4		=	"Orb of Order";
-DND_ORB_MONTEXT4	=	"Makes the next tagged orb's effect to be stored. When a non-tagged orb that can modify an item is used afterwards, it instead applies to attributes of that tag on the item. This effect is stored until a non-tagged orb is used that can modify an item directly.";
+DND_ORB_MONTEXT4	=	"Makes the next tagged orb's effect to be stored. When a non-tagged orb that can modify an item is used afterwards, it instead applies to attributes of that tag on the item. This effect is stored until a non-tagged orb is used that can modify an item directly, or another tagged orb is used afterwards.";
 DND_ORB_MON5		=	"Orb of Destiny";
-DND_ORB_MONTEXT5	=	"Ensures that the next orb used will always result in a positive outcome.";
+DND_ORB_MONTEXT5	=	"Ensures that the next orb will always result in a positive outcome.";
 DND_ORB_MON6		=	"Orb of Reverence";
-DND_ORB_MONTEXT6	=	"Guarantees that the next orb used will apply with the maximum effect possible. (Highest tier mod rolls on items, near-perfect rolls...)";
+DND_ORB_MONTEXT6	=	"Guarantees that the next orb will apply with the maximum effect possible. (Highest tier mod rolls on items, near-perfect rolls...)";
 
 // random stuff + use texts
 DND_ORB_ANDGRANTS	=	"and grants";

@@ -43,8 +43,6 @@ enum {
 #define DND_DB_RESEARCH_DISCOVERED "DND_PlayerResearch_Discovered_"
 #define DND_DB_RESEARCH_INVESTED "DND_PlayerResearch_Invested_"
 #define DND_DB_BUDGET "DND_PlayerBudget"
-#define DND_DB_QUESTSTATE1 "DnD_PlayerQuest_1"
-#define DND_DB_QUESTSTATE2 "DnD_PlayerQuest_2"
 #define DND_DB_WEAPONQUALITY "DnD_WeaponQuality_"
 #define DND_DB_WEAPONMOD_VAL "DnD_WeaponModVal_"
 #define DND_DB_WEAPONMOD_TIER "DnD_WeaponModTier_"

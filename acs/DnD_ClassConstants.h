@@ -185,14 +185,6 @@ void DoPreClassAdjustments() {
 	}
 }
 
-void CheckDoomguyExecuteReversal(int this) {
-	if(CheckActorInventory(this, "Doomguy_ChangedColor")) {
-		TakeActorInventory(this, "Doomguy_ChangedColor", 1);
-		TakeActorInventory(this, "Doomguy_ValidExecute", 1);
-		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", this, 1, MonsterProperties[this - DND_MONSTERTID_BEGIN].id);
-	}
-}
-
 str GetClassPerk(int class, int perk_num) {
 	if(class < 0)
 		return "";

@@ -1,10 +1,10 @@
 #ifndef DND_AMMO_IN
 #define DND_AMMO_IN
 
-#include "DnD_Stat.h"
-
 #define DND_MAX_BACKPACK 30
 #define DND_BACKPACK_RATIO 10
+
+#define DND_MUNITION_GAIN 10
 
 enum {
 	DND_AMMOSLOT_CLIP,

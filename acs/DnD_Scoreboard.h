@@ -200,6 +200,7 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 					SetActivator(i + P_TIDSTART);
 					TakeInventory("ShowingMenu", 1);
 					GiveInventory("DnD_IntermissionState", 1);
+					GiveInventory("DnD_RemoveLockOn", 1);
 
 					if(isActorAlive(i + P_TIDSTART))
 						HandleEndOfLevelRewards(i);

@@ -5,6 +5,10 @@
 #include "DnD_Physics.h"
 #include "DnD_AttackInfo.h"
 
+#ifdef ISDEBUGBUILD
+	int damage_script_count = 0;
+#endif
+
 #define APROP_PLAYERSOURCED APROP_AMBUSH
 
 #define DND_CRIT_TOKEN 69
@@ -532,10 +536,6 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
 	if(temp && IsLightningDamage(damage_type))
 		factor += temp;
-	
-	temp = IsElementalDamageCategory(damage_category);
-	if(temp && IsQuestComplete(tid, QUEST_KILLMORDECQAI))
-		factor += DND_MORDECQAI_BOOST;
 
 	// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
 	// quest or accessory bonuses	
@@ -586,10 +586,6 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	else {
 		// special ammo damage
 		temp = GetSpecialAmmoDamage(isSpecial - 1, dmgid);
-		
-		// specialist quest bonus
-		if(IsQuestComplete(tid, QUEST_ONLYSPECIALAMMO))
-			temp += temp * DND_QUEST_SPECIALGAIN / 100;
 	}
 		
 	// check if we have a random range cached -- special ammo types dont use this
@@ -1145,10 +1141,6 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	if(GetArmorID() == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
 		more_bonus = more_bonus * (100 + DND_RAVAGER_DMGBONUS) / 100;
 		
-	// artifact things
-	if(CheckInventory("DnD_ArtiDmgPower"))
-		more_bonus = more_bonus * (100 + DND_QUEST_NOARTIDMG) / 100;
-		
 	if(CheckInventory("TripleDamagePower"))
 		more_bonus *= 3;
 	else if(CheckInventory("TripleDamagePower2"))
@@ -1197,7 +1189,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		temp = GetPlayerAttributeValue(pnum, INV_ESS_HARKIMONDE);
 		// we have 0 chance or we have chance but it didn't roll in our favor
 		if(!temp || temp < random(1, 100)) {
-			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_INVULNERABLE);
+			ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, 0, 0, DND_HITBEEP_INVULNERABLE);
 
 			temp = GetPlayerAttributeValue(pnum, INV_INC_BLOCKPREVENTION);
 			if(temp && random(1, 100) <= temp) {
@@ -1310,17 +1302,9 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 
 	// hit beeps and stuff
 	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
-	extra = 0;
-	if(dmg > temp)
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_WEAKNESS);
-	else if(dmg < temp / 4) {
-		extra |= DND_DAMAGETICFLAG_LESSENED;
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
-	}
-	else if(dmg < temp) {
-		extra |= DND_DAMAGETICFLAG_LESSENED;
-		ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_RESIST);
-	}
+	extra = (dmg < temp) * DND_DAMAGETICFLAG_LESSENED;
+	
+	ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, dmg, temp);
 
 	// damage number handling - NO MORE DAMAGE FIDDLING FROM BELOW HERE
 	// all damage calculations should be done by this point, besides cull --- cull should not reflect on here
@@ -1391,6 +1375,13 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		// give this token early to prevent order of events getting mixed up
 		// is victim dead from this damage?
 		if(GetActorProperty(victim, APROP_HEALTH) <= dmg) {
+			if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BORROWEDTIME] && !CheckActorInventory(victim, "DnD_BorrowedTimeActive")) {
+				GiveActorInventory(victim, "DnD_BorrowedTimeActive", 1);
+				ACS_NamedExecuteAlways("DnD Borrowed Time FX", 0, victim);
+				ACS_NamedExecuteWithResult("DnD Borrowed Time Decay", victim);
+				return 0;
+			}
+
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 
 			// overkill damage lifesteal check
@@ -1480,11 +1471,24 @@ void HandleRipperHitSound(int tid, int owner, int wepid) {
 	}
 }
 
-Script "DnD Handle Hitbeep" (int beep_type) CLIENTSIDE {
+Script "DnD Handle Hitbeep" (int dmg, int orig_dmg, int type_override) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 
-	if(GetCVar("dnd_hitbeeps") && !CheckInventory(HitBeepSounds[beep_type][HITBEEP_TIMER])) {
+	int beep_type = -1;
+
+	if(!type_override) {
+		if(dmg > orig_dmg)
+			beep_type = DND_HITBEEP_WEAKNESS;
+		else if(dmg < orig_dmg / 4)
+			beep_type = DND_HITBEEP_IMMUNITY;
+		else if(dmg < orig_dmg)
+			beep_type = DND_HITBEEP_RESIST;
+	}
+	else
+		beep_type = type_override;
+
+	if(GetCVar("dnd_hitbeeps") && beep_type != -1 && !CheckInventory(HitBeepSounds[beep_type][HITBEEP_TIMER])) {
 		LocalAmbientSound(HitBeepSounds[beep_type][HITBEEP_SOUND], 127);
 		GiveInventory(HitBeepSounds[beep_type][HITBEEP_TIMER], 1);
 	}
@@ -1665,8 +1669,6 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	}*/
 	
 	// final additions
-	if((flags & DMG_WDMG_ISARTIFACT) && IsQuestcomplete(0, QUEST_USENOARTIFACT))
-		dmg = dmg * (100 + DND_QUEST_ARTIBONUS) / 100;
 	
 	/*if(isSpell) {
 		if(SpellDamageTable[temp2].dmg_low)
@@ -1719,7 +1721,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	}
 
 	if((flags & DND_DAMAGETICFLAG_EXTRATOUNDEAD) && MonsterProperties[victim_data].trait_list[DND_SILVER_WEAKNESS])
-		more_dmg = more_dmg * (100 + DND_EXTRAUNDEADDMG_MULTIPLIER + IsQuestComplete(0, QUEST_SPAREZOMBIES) * DND_QUEST_UNDEADGAIN) / 100;
+		more_dmg = more_dmg * (100 + DND_EXTRAUNDEADDMG_MULTIPLIER) / 100;
 
 	// check blockers take more dmg modifier
 	if(MonsterProperties[victim_data].trait_list[DND_ISBLOCKING] && (temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG)))
@@ -3099,13 +3101,14 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 
 void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg) {
 	// vampirism check
+	int hp;
 	if(MonsterProperties[m_id].trait_list[DND_VAMPIRISM] && isActorAlive(monster_tid)) {
 		// if this monster is trying to leech off of a bloodless monster, do not allow (we cant have all rules be against players... right?)
 		if(IsMonster(victim) && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BLOODLESS])
 			return;
 	
 		// 10% or 10 flat healing per hit, minimum
-		int hp = Max(dmg / 10, 10);
+		hp = Max(dmg / 10, 10);
 		
 		// ignite effects prevent vampirism healing
 		if(!CheckActorInventory(monster_tid, "DnD_IgniteTimer")) {
@@ -3120,7 +3123,10 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg
 		}
 	}
 
-	if(MonsterProperties[m_id].trait_list[DND_BLACKOUT] && isPlayer(victim))
+	if(!isPlayer(victim) || !isActorAlive(victim))
+		return;
+
+	if(MonsterProperties[m_id].trait_list[DND_BLACKOUT])
 		ACS_NamedExecuteAlways("DnD Blackout", 0, victim);
 }
 
@@ -3180,12 +3186,6 @@ int HandlePercentDamageFromEnemy(int victim, int dmg, int dmg_data) {
 		res = 1;
 
 	return res;
-}
-
-int MonsterSpecificDamageChecks(int m_id, int victim, int dmg) {
-	//if(IsMonsterIdBoss(MonsterProperties[m_id].id) && IsQuestComplete(victim, QUEST_KILL10BOSSES))
-	//	dmg = dmg * (100 - DND_QUEST_BOSSREDUCE) / 100;
-	return dmg;
 }
 
 void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = false) {
@@ -3292,6 +3292,17 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 			// if it's something we can take ammo from		
 			if(cur_ammo != "")
 				TakeActorInventory(this, cur_ammo, CheckActorInventory(this, cur_ammo) * DND_ELITE_THIEFRATE / 100);
+		}
+
+		// energy leech
+		if(MonsterProperties[m_id].trait_list[DND_ENERGYLEECH]) {
+			temp = CheckActorInventory(this, "EShieldAmount") * DND_ENERGYLEECH_PCT / 100;
+			if(temp) {
+				GiveActorInventory(target, "MonsterFortifyCount", temp);
+				if(CheckActorInventory(target, "MonsterFortifyCount") > MonsterProperties[m_id].maxhp)
+					SetActorInventory(target, "MonsterFortifyCount", MonsterProperties[m_id].maxhp);
+				TakeActorEnergyShield(this, temp);
+			}
 		}
 		
 		// shocker check
@@ -3488,6 +3499,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	int pnum;
 	int victim;
 	if(type == GAMEEVENT_ACTOR_DAMAGED) {
+#ifdef ISDEBUGBUILD
+		++damage_script_count;
+#endif
+
 		// arg1 contains damage, arg2 contains damage type as a string
 		// this causes A_KillChildren etc. to actually work...
 		if(IsDamageEventException(arg2)) {
@@ -3547,7 +3562,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				shooter = GetActorProperty(0, APROP_MASTERTID);
 		}
 
-		// this flag shares the same value as a damagetype for monsters, so we need to seperate it
+		// this flag shares the same value as a damagetype for monsters, so we need to separate it
 		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
 		if((shooter == -1 || shooter == 0) && !IsMonster(shooter) && (dmg_data & DND_DAMAGEFLAG_USEMASTER)) {
 			//printbold(s:"take shooter as ", d:GetActorProperty(0, APROP_SCORE));
@@ -3652,23 +3667,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				//printbold(s:"incoming damage: ", d:dmg, s: " reflect ambush flag: ", d:temp, s: " reflect dmg flag: ", d:dmg_data & DND_DAMAGEFLAG_ISREFLECTED);
 				if(!temp && !(dmg_data & DND_DAMAGEFLAG_ISREFLECTED)) {
 					// special bonuses
-					factor += 	(MonsterProperties[m_id].level > 1) * GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false, temp, GetActorProperty(shooter, APROP_ACCURACY)) + 
-								MonsterProperties[m_id].trait_list[DND_EXTRASTRONG] * DND_ELITE_EXTRASTRONG_BONUS;
-
+					factor  = 	(MonsterProperties[m_id].level > 1) * MonsterProperties[m_id].dmg_bonus;
 					dmg = dmg * (100 + factor) / 100;
 
-					// elite damage bonus is multiplicative
-					if(MonsterProperties[m_id].flags & DND_MONFLAG_ISELITE)
-						dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 100;
-					else if(MonsterProperties[m_id].flags & DND_MONFLAG_ISMAGIC) // half of elite
-						dmg = dmg * (100 + GetEliteBonusDamage(m_id)) / 200;
-						
-					// chaos mark is multiplicative
-					if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
-						dmg = dmg * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
-					else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
-						dmg = dmg * (100 + ASMODEUSMARK_DAMAGEBUFF) / 100;
-						
 					// % damage effects -- this is same for all monsters which is 10% of player's maximum health added as damage
 					dmg += HandlePercentDamageFromEnemy(victim, dmg, dmg_data);
 				}
@@ -3741,13 +3742,6 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// doomguy damage reduction
 				if(HasClassPerk_Fast("Doomguy", 1) && CheckActorInventory(shooter, "Doomguy_CanExecute"))
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT - (HasClassPerk_Fast("Doomguy", 3)) * DND_DOOMGUY_DMGREDUCE_PERK3BONUS);
-				
-				// damage amplifications
-				temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN) + 100;
-				if(temp > 100)
-					dmg = ApplyDamageFactor_Safe(dmg, temp);
-					
-				dmg = MonsterSpecificDamageChecks(m_id, victim, dmg);
 
 				// final check, if damage is less than 10% of it, cap it at 10%
 				temp = arg1 / 10;
@@ -3878,7 +3872,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 					// weapon check for sedrin staff
 					if(m_id == DND_WEAPON_SEDRINSTAFF && IsActorFullRobotic(victim)) {
-						ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, DND_HITBEEP_IMMUNITY);
+						ACS_NamedExecuteAlways("DnD Handle Hitbeep", 0, 0, 0, DND_HITBEEP_IMMUNITY);
 						SetResultValue(0);
 						Terminate;
 					}
@@ -4022,12 +4016,12 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				SetActivator(shooter);
 			}
  
-			// finally dealing the damage
+			// finally dealing the damage -- temp holds damage type, dont use temp above here!
 			if(victim) {
 				//printbold(s:"dmg deal to ", d:victim, s:" dmg ", d:dmg);
 				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)), 0);
 
-				// failsafe
+				// failsafe -- hopefully not necessary anymore
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {
 					if(m_id >= 0)
 						Log(

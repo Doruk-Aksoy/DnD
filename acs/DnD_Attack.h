@@ -835,43 +835,6 @@ void Do_DarkLance_Shots(int owner, int pnum, int amt, int dist, int spd, int lvl
 	}
 }
 
-void DoSlotWeaponQuestChecks(int wepid) {
-	int pnum = PlayerNumber();
-	// Simple Minded quest check
-	if(PlayerWeaponUsed[pnum] == -1)
-		PlayerWeaponUsed[pnum] = wepid;
-	else if(!CheckInventory("DnD_WeaponFiredOther") && PlayerWeaponUsed[pnum] != wepid)
-		GiveInventory(Quest_List[QUEST_ONLYONEWEAPON].qchecker, 1);
-
-	// only slot 2 quest check
-	if(
-		active_quest_id == QUEST_ONLYPISTOLWEAPONS && !CheckInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qchecker) &&
-		!IsQuestComplete(ActivatorTID(), QUEST_ONLYPISTOLWEAPONS) && !CheckInventory("H_WeaponSlot2")
-	  )
-		GiveInventory(Quest_List[QUEST_ONLYPISTOLWEAPONS].qchecker, 1);
-	
-	// only boomstick quest check
-	if(
-		active_quest_id == QUEST_NOSHOTGUNS && !CheckInventory(Quest_List[QUEST_NOSHOTGUNS].qchecker) && 
-		!IsQuestComplete(ActivatorTID(), QUEST_NOSHOTGUNS) && IsBoomstick(wepid)
-	  )
-		GiveInventory(Quest_List[QUEST_NOSHOTGUNS].qchecker, 1);
-	
-	// no superweapon quest check
-	if(
-		active_quest_id == QUEST_NOSUPERWEAPONS && !CheckInventory(Quest_List[QUEST_NOSUPERWEAPONS].qchecker) &&
-		!IsQuestComplete(ActivatorTID(), QUEST_NOSUPERWEAPONS) &&
-		(CheckInventory("H_WeaponSlot7") || CheckInventory("H_WeaponSlot8"))
-	  )
-		GiveInventory(Quest_List[QUEST_NOSUPERWEAPONS].qchecker, 1);
-		
-	// only energy quest check
-	if(
-		active_quest_id == QUEST_ONLYENERGY && !CheckInventory("DnD_UsingEnergy") && !CheckInventory(Quest_List[QUEST_ONLYENERGY].qchecker)
-	  )
-		GiveInventory(Quest_List[QUEST_ONLYENERGY].qchecker, 1);
-}
-
 void HandleAttackEvent(int wepid, int isSpecial, int extra) {
 	int pnum = PlayerNumber();
 	// elemental bulwark check
@@ -882,9 +845,6 @@ void HandleAttackEvent(int wepid, int isSpecial, int extra) {
 	
 	// reset crit roll before we check for crit on this attack again
 	UnsetPlayerWeaponCritState(pnum, wepid);
-	
-	// do the quest checks for slot guns being used
-	DoSlotWeaponQuestChecks(wepid);
 }
 
 #endif

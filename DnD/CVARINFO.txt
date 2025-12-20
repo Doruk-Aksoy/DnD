@@ -67,8 +67,6 @@ server noarchive int dnd_respawn_count = 3;
 server noarchive int dnd_accessory_droprate = 5;
 server noarchive int dnd_gainrange = 768;
 
-server noarchive int dnd_quest_chance = 20;
-server noarchive int dnd_quest_avglevel = 1;
 server noarchive int dnd_elite_spawnchance = 10;
 server noarchive int dnd_elite_spawnlevel = 25;
 server noarchive int dnd_legendary_chance = 1;

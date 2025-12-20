@@ -1,0 +1,183 @@
+Actor ChexMeteor {
+	PROJECTILE
+	Damage (40)
+	DamageType "Poison"
+	Stamina 1073741952
+	Height 32
+	Radius 20
+	Speed 24
+	Species "Chex"
+	RenderStyle Translucent
+	Alpha 0.0
+	SeeSound "Beast/Attack"
+	+THRUSPECIES
+	+DONTREFLECT
+	+DONTBLAST
+	+NOGRAVITY
+	
+	const int vz = -8;
+	
+	States {
+		Spawn:
+			C013 P 1 NoDelay A_ChangeVelocity(velx, vely, frandom(vz * 1.25, vz), CVF_REPLACE)
+			C013 PPPPPPPP 1 A_FadeIn(0.2)
+		SpawnLoop:
+			C013 P 2 A_SpawnItemEx("ChexMeteorTrail")
+		Loop
+		Death:
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, random(-9,9), random(-9,9), random(5,9))
+			C013 P 1 A_SpawnItemEx("ChexMeteorGround")
+		Stop
+	}
+}
+
+Actor ChexMeteorTrail {
+	RenderStyle Translucent
+	Alpha 1.0
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	States {
+		Spawn:
+			C013 PPPPPPPP 1 A_FadeOut(0.15)
+		Stop
+	}
+}
+
+Actor ChexMeteorGround : DnD_BaseHybridMonster {
+	Health 0x7FFFFFFF
+	Mass 0x7FFFFFFF
+	Height 40
+	Radius 20
+	Speed 2
+	Meleerange 32
+	Painchance 255
+	MinMissileChance 160
+	Species "Chex"
+	Tag "Flem Meteor"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
+	+FLOORCLIP
+	-DROPOFF
+	+ISMONSTER
+	+LOOKALLAROUND
+	+THRUSPECIES
+	-COUNTKILL
+	Bloodcolor "green"
+	Obituary "%o managed to die to a flem meteor..."
+	
+	const int zlow = 4;
+	const int zhigh = 10;
+	const int v = 10;
+	
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_METEOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_COMMON)
+		Goto SpawnSetup
+
+		IdleState:
+		SeeState:
+			C013 Q 5 A_Chase
+			C013 QQ 5 A_Chase("", "")
+		loop
+		MissileState:
+		MeleeState:
+			C013 Q 10
+			C013 Q 10 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+			TNT1 A 0 A_Jump(128, "OneMore")
+			TNT1 A 0 A_Jump(64, "TwoMore")
+			C013 Q 4
+		Goto See
+		OneMore:
+			C013 Q 4 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+		Goto See
+		TwoMore:
+			C013 A 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+			C013 Q 4 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+		Goto See
+		PainState:
+			C013 Q 3
+			C013 Q 2 A_Pain
+		goto See
+		DeathState:
+			C013 Q 5 
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, random(-9,9), random(-9,9), random(5,9))
+			C013 QQQ 1 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C013 Q 2
+		stop
+	}
+}
+
+Actor ChexMeteorShitlet {
+	PROJECTILE
+	Damage 0
+	Radius 20
+	Height 56
+	Translation "168:191=112:127"
+	Speed 15
+	Species "Chex"
+	Scale 1.25
+	+THRUSPECIES
+	+DONTREFLECT
+	+DONTBLAST
+	+NOGRAVITY
+	Gravity 0.666
+	States {
+		Spawn:
+			BSPH AB 2
+			TNT1 A 0 A_ChangeFlag("NOGRAVITY", 0)
+		SpawnLoop:
+			BSPH CDAB 2
+		Loop
+		Death:
+			TNT1 A 0 A_Jump(192, "Common")
+			TNT1 A 0 A_Jump(80, "Bipedal")
+			TNT1 A 0 A_SpawnItemEx("FlemoidLarva_Spawned")
+		Finish:
+			BSPH EFGHIJK 2
+		Stop
+		Common:
+			TNT1 A 0 A_SpawnItemEx("CommonFlemoid_Spawned")
+		Goto Finish
+		Bipedal:
+			TNT1 A 0 A_SpawnItemEx("BipedalFlemoid_Spawned")
+		Goto Finish
+	}
+}
+
+Actor CommonFlemoid_Spawned : CommonFlemoid {
+	+THRUSPECIES
+	-COUNTKILL
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_COMMON)
+			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_COMMON)
+		Goto SpawnSetup
+	}
+}
+
+ACTOR BipedalFlemoid_Spawned : BipedalFlemoid {
+	+THRUSPECIES
+	-COUNTKILL
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_BIPEDAL)
+			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
+Actor FlemoidLarva_Spawned : FlemoidLarva {
+	+THRUSPECIES
+	-COUNTKILL
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_LARVA)
+			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}

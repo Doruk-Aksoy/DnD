@@ -271,8 +271,6 @@ Script "DnD On Map Load" OPEN {
 		Delay(const:TICRATE);
 
 	Delay(const:TICRATE);
-	if (GetLevelInfo(LEVELINFO_LEVELNUM) != 99) //Prevents quests from firing on VR map (Lexicon) - compendium hubmap can't be detected this way unfortunately.
-		PickQuest();
 
 	SetupCVarTracking();
 
@@ -399,15 +397,6 @@ Script "DnD On Death" DEATH {
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 	BreakTradesBetween(pnum);
 	
-	// Precious Life check
-	if(active_quest_id == QUEST_NODYING) {
-		// fail for all players in the game
-		for(i = 0; i < MAXPLAYERS; ++i)
-			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART))
-				FailQuest(i + P_TIDSTART);
-		active_quest_id = -1; // completely remove this quest from everyone now
-	}
-	
 	Thing_ChangeTID(0, 0);
 
 	Delay(const:5);
@@ -421,7 +410,6 @@ Script "DnD Portable Kit Script" (void) {
 	while(GetActorProperty(0, APROP_HEALTH) < healthcap && CheckInventory("StoredMedkit")) {
 		TakeInventory("StoredMedkit", 1);
 		GiveInventory("HealthBonusX", amt);
-		GiveInventory("DnD_MasterHealerQuest_HealAmount", amt);
 	}
 }
 
@@ -698,17 +686,9 @@ Script "DnD Killing Spree Timer" (void) {
 					reward += temp;
 				--mult;
 			}
-			if(IsQuestComplete(0, QUEST_10SPREES))
-				reward += reward * DND_QUEST_BERSERK_SPREEBONUS / 100;
+
 			ACS_NamedExecuteAlways("DND Killing Spree End", 0, spree, prev_mult, reward);
 			GiveExp(reward, true);
-			
-			// check 10 kill spree quest
-			if(active_quest_id == QUEST_10SPREES && !IsQuestComplete(0, QUEST_10SPREES)) {
-				GiveInventory("DnD_BerserkQuest_SpreeCounter", 1);
-				if(CheckInventory("DnD_BerserkQuest_SpreeCounter") >= DND_QUEST_BERSERK_SPREEREQ)
-					CompleteQuest(ActivatorTID(), QUEST_10SPREES);
-			}
 			
 			// punisher perk 2 -- -2 means was at least merciless
 			temp = spree / DND_SPREE_PER;
@@ -944,26 +924,11 @@ Script "DND On Kill" KILL {
 	int is_demon = IsDemon();
 
 	// Demon Bane check
-	if(is_demon) {
-		if(active_quest_id == QUEST_KILL10BOSSES) {
-			GiveActorInventory(target, "DnD_BossKillQuest_Counter", 1);
-			if(!IsQuestComplete(target, QUEST_KILL10BOSSES) && CheckActorInventory(target, "DnD_BossKillQuest_Counter") == DND_QUEST_BOSSKILLER_REQ)
-				CompleteQuest(target, QUEST_KILL10BOSSES);
-		}
-
-		if(GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_DEMONBARRIERS)) {
-			GiveActorInventory(target, "DaemonicBarrier", 1);
-			if(!CheckActorInventory(target, "DaemonicBarrierTimer"))
-				ACS_NamedExecuteAlways("DnD Demon Barrier Timeout", 0, target);
-			GiveActorInventory(target, "DaemonicBarrierTimer", 1);
-		}
-	}
-	
-	// Elite Slayer check
-	if(active_quest_id == QUEST_KILL20ELITES && killerWasntPlayer) {
-		GiveActorInventory(target, "DnD_EliteKillQuest_Counter", 1);
-		if(!IsQuestComplete(target, QUEST_KILL20ELITES) && CheckActorInventory(target, "DnD_EliteKillQuest_Counter") == DND_QUEST_ELITEKILLER_REQ)
-			CompleteQuest(target, QUEST_KILL20ELITES);
+	if(is_demon && GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_DEMONBARRIERS)) {
+		GiveActorInventory(target, "DaemonicBarrier", 1);
+		if(!CheckActorInventory(target, "DaemonicBarrierTimer"))
+			ACS_NamedExecuteAlways("DnD Demon Barrier Timeout", 0, target);
+		GiveActorInventory(target, "DaemonicBarrierTimer", 1);
 	}
 	
 	// Legendary Kill Item
@@ -972,9 +937,6 @@ Script "DND On Kill" KILL {
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 				UpdateLegendaryKill(i, MonsterProperties[m_id].id - LEGENDARY_START);
-				
-				//if(active_quest_id - DND_LEGQUEST_START == MonsterProperties[m_id].id - LEGENDARY_START)
-				//	CompleteQuest(i + P_TIDSTART, active_quest_id);
 			}
 		}
 
@@ -1132,6 +1094,9 @@ Script "DnD Monster Death Effects" (int this, int m_id) {
 	if(MonsterProperties[m_id].trait_list[DND_SUBORDINATE])
 		HandleSubordinateSpawn(this, m_id);
 
+	if(MonsterProperties[m_id].trait_list[DND_CHTHONBLESSED])
+		GiveInventory("DnD_ChthonCircleSpawner", 1);
+
 	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
 		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 }
@@ -1266,13 +1231,6 @@ Script "DnD Periodic Checks" ENTER {
 					SetInventory("SigilCheck", (CheckInventory("SigilCheck") % 4) + 1);
 				}
 			}
-			
-			// for cautious quest
-			/*if(active_quest_id == QUEST_HPOVER50 && GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth())
-				GiveInventory("DnD_HealthLess50", 1);
-
-			if(active_quest_id == QUEST_SPEND25K && CheckInventory("DnD_MoneySpentQuest") >= DND_QUEST_MONEYMAKERREQ && !IsQuestComplete(ActivatorTID(), QUEST_SPEND25K))
-				CompleteQuest(ActivatorTID(), QUEST_SPEND25K);*/
 			
 			// this used to be 7, but I reduced frequency, hopefully nothing was too dependent on this
 			Delay(const:10);
@@ -1704,8 +1662,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
-	/*MonsterProperties[m_id].trait_list[DND_FORTIFIED] = true;
-	GiveInventory("MonsterFortifyCount", MonsterProperties[this].maxhp * (DND_FORTIFY_AMOUNT + random(0, 100 - DND_FORTIFY_AMOUNT)) / 100);*/
+	//MonsterProperties[m_id].trait_list[DND_ENERGYLEECH] = true;
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -3075,7 +3032,6 @@ Script "DnD Player Setup" ENTER {
 	// now everyone has this, no need to buy
 	GiveInventory("Ability_MonsterInfo", 1);
 	CleanPetStuff();
-	SetInventory("DnD_MasterHealerQuest_HealAmount", 0); // reset this upon map restart
 	int curlvl, i = 0;
 	int temp = 0;
 	bool wait_other_players = false;
@@ -3200,8 +3156,6 @@ Script "DnD Player Setup" ENTER {
 			PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = curlvl;
 	}
 	
-	ClearQuestCheckers();
-	
 	PostPlayerLoadRoutine(pnum);
 
 	SetupUndo(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
@@ -3243,9 +3197,6 @@ Script "DnD Player Setup" ENTER {
 	// Give Temporal Sphere
 	if(CheckInventory("Ability_Temporal") && !CheckInventory("TemporalSphere"))
         GiveInventory("TemporalSphere", 1);
-	
-	if(CheckInventory("QuestCompletionToken"))
-		ACS_NamedExecuteAlways("DND Quest Complete", 0);
 		
 	// for properly setting up taltos translucency when spawn protection is on
 	while(GetActorProperty(0, APROP_INVULNERABLE) && !CheckInventory("P_Invulnerable"))
@@ -3267,23 +3218,6 @@ Script "DnD Player Setup" ENTER {
 	if(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] >= PlayerCount())
 		SetupUndo(SETUP_STATE1, SETUP_MAPCHANGED);
 	
-	TakeInventory("QuestWasPicked", 1); // helps sync clientside variable Quest_Pick_Done
-	/*while(!Quest_Pick_Done)
-		Delay(const:10);
-		
-	GiveInventory("QuestWasPicked", 1);
-	if(active_quest_id != -1) {
-		SetInventory("ActiveQuestID", active_quest_id + 1);
-		ACS_NamedExecuteAlways("DND Announcer", 0, DND_ANNOUNCER_QUEST, active_quest_id);
-	}
-	else
-		SetInventory("ActiveQuestID", 0);
-		
-	while(CheckInventory("TipBoxOpen"))
-		Delay(const:17);
-	// give some time for completion thing to get through
-	SetInventory("QuestCompletionToken", 0);
-	*/
 	if(isHardcore() && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 
@@ -3982,11 +3916,29 @@ Script "DnD Lifesteal Script" (int tid) {
 }
 
 // for elites with pierce armor flag
+// also generic projectile initialization
 Script "DND Pierce Check" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int m_id = owner - DND_MONSTERTID_BEGIN;
+
 	// setactorflag isnt in zandro, so
 	if(CheckFlag(owner, "PIERCEARMOR"))
 		GiveInventory("MakePierce", 1);
+
+	int temp;
+	if(MonsterProperties[m_id].trait_list[DND_FASTPROJ] && (temp = GetActorProperty(0, APROP_SPEED))) {
+		temp = FixedMul(temp, DND_FASTPROJ_FACTOR);
+		SetActorProperty(0, APROP_SPEED, temp);
+
+		SetActorVelocity(
+			0,
+			FixedMul(GetActorVelX(0), DND_FASTPROJ_FACTOR),
+			FixedMul(GetActorVelY(0), DND_FASTPROJ_FACTOR),
+			FixedMul(GetActorVelZ(0), DND_FASTPROJ_FACTOR),
+			0,
+			0
+		);
+	}
 }
 
 Script "DND Riotgun Decide" (void) {
@@ -4103,144 +4055,24 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	hud_pos = GetHudRight(960) - 3 * NOTIFBAK_X / 2 + 8;
 	hud_pos <<= 16;
 	
-	if(num == DND_ANNOUNCER_QUEST) {
-		SetHudClipRect(hud_pos >> 16, 52, 225, 144, 225);
-		HudMessage(
-			l:"DND_NEWQUEST"; 
-			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_CYAN, GetIntegerBits(hud_pos + 2 * NOTIFBAK_XF / 3) + 0.4, 48.1, 4.0, 1.0, 1.0
-		);
-		
-		HudMessage(
-			s:"\cf", l:GetQuestLabel(extra, QUEST_NAME),
-			s:"\n\c[Y5]", l:"DND_REQ", s:": \c-", l:GetQuestLabel(extra, QUEST_REQ),
-			s:"\n\cd", l:"DND_REW", s:": \c-", l:GetQuestLabel(extra, QUEST_REW);
-			HUDMSG_FADEINOUT, SURVIVETEXTID2, CR_WHITE, hud_pos + 0.1, 72.1, 4.0, 1.0, 1.0
-		);
-	}
-	else {
-		SetHudClipRect(hud_pos >> 16, 96, 225, 128, 225);
-		hud_pos += 0.1;
-		
-		if(num == DND_ANNOUNCER_ATTRIBPOINT)
-			HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-		else if(num == DND_ANNOUNCER_NEWCLASSPERK)
-			HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-		else if(num == DND_ANNOUNCER_LEGENDARYMONSTER)
-			HudMessage(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-		else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
-			HudMessage(l:"DND_TEXT_DISCOVEREDRES", s:": \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-		else if(num == DND_ANNOUNCER_INCURSION)
-			HudMessage(l:"DND_TEXT_INCURSION"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-		else if(num == DND_ANNOUNCER_TRADEREQUEST) {
-			LocalAmbientSound("TradeRequest", 127);
-			HudMessage(l:"DND_TEXT_TRADEREQUEST", s:": ", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
-		}
+	SetHudClipRect(hud_pos >> 16, 96, 225, 128, 225);
+	hud_pos += 0.1;
+	
+	if(num == DND_ANNOUNCER_ATTRIBPOINT)
+		HudMessage(l:"DND_TEXT_UNSPENTPOINT", s:" ", l:"DND_TEXT_SPENDINMENU"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+	else if(num == DND_ANNOUNCER_NEWCLASSPERK)
+		HudMessage(l:"DND_TEXT_NEWPERK"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+	else if(num == DND_ANNOUNCER_LEGENDARYMONSTER)
+		HudMessage(l:"DND_TEXT_LEGENDARYWALKS"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+	else if(num == DND_ANNOUNCER_RESEARCHDISCOVER)
+		HudMessage(l:"DND_TEXT_DISCOVEREDRES", s:": \cd", l:GetResearchLabel(extra), s:"\c-!"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+	else if(num == DND_ANNOUNCER_INCURSION)
+		HudMessage(l:"DND_TEXT_INCURSION"; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
+	else if(num == DND_ANNOUNCER_TRADEREQUEST) {
+		LocalAmbientSound("TradeRequest", 127);
+		HudMessage(l:"DND_TEXT_TRADEREQUEST", s:": ", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
 	}
 	SetHudClipRect(0, 0, 0, 0, 0);
-}
-
-Script 1002 (void) NET CLIENTSIDE {
-	int qid = CheckInventory("ActiveQuestID") - 1;
-	if(qid < 0 || !CheckInventory("QuestWasPicked")) {
-		Log(l:"DND_TEXT_NOACTIVEQUEST");
-		Terminate;
-	}
-	else if(CheckInventory("TipBoxOpen"))
-		Terminate;
-			
-			
-	SetHudSize(640, 480, 1);
-	SetFont("QUESTPOP");
-	
-	int hud_pos = (GetHudRight(640) << 16) - QSTBOX2_XF / 2 + 0.4;
-	GiveInventory("TipboxOpen", 1);
-	LocalAmbientSound("Quest/View", 127);
-	SetHudSize(640, 480, 1);
-	SetFont("QSTBOX2");
-	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, hud_pos, 136.0, 4.0, 1.0, 1.0);
-	
-	hud_pos = (GetHudRight(960) << 16) - 3 * QSTBOX2_XF / 2 + 48.1;
-	SetHudSize(960, 600, 1);
-	SetFont("OBJFONT");
-	HudMessage
-	(
-		s:"\cf", l:GetQuestLabel(qid, QUEST_NAME);
-		HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 112.1, 4.0, 1.0, 1.0
-	);
-	// requirement
-	SetHudClipRect(hud_pos >> 16, 128, 384, 64, 384);
-	HudMessage
-	(
-		s:"\c-\c[Y5]", l:"DND_REQ", s:": \c-", l:GetQuestLabel(qid, QUEST_REQ);
-		HUDMSG_FADEINOUT, UPGRADETEXTID, CR_WHITE, hud_pos, 136.1, 4.0, 1.0, 1.0
-	);
-	// reward
-	SetHudClipRect(hud_pos >> 16, 176, 384, 64, 384);
-	HudMessage
-	(
-		s:"\c-\cd", l:"DND_REW", s:": \c-", l:GetQuestLabel(qid, QUEST_REW);
-		HUDMSG_FADEINOUT, SURVIVEICO, CR_WHITE, hud_pos, 184.1, 4.0, 1.0, 1.0
-	);
-	SetHudClipRect(0, 0, 0, 0, 0);
-	// progress
-	if(Quest_List[qid].qflag & QTYPE_TRACKABLE) {
-		int progress = Clamp_Between((100 * CheckInventory(Quest_List[qid].qchecker)) / GetQuestProgressRequirement(qid), 0, 100);
-		str color = "\cg";
-		if(progress == 100)
-			color = "\cd";
-		else if(progress > 75)
-			color = "\cf";
-		else if(progress > 50)
-			color = "\ck";
-		else if(progress > 25)
-			color = "\ci";
-		HudMessage
-		(
-			l:"DND_PROGRESS", s:": ", s:color, d:progress, s:"%\c-";
-			HUDMSG_FADEINOUT, SURVIVETOPTEXTID, CR_WHITE, hud_pos, 232.1, 4.0, 1.0, 1.0
-		);
-	}
-	Delay(35 * 5);
-	LocalAmbientSound("Quest/Close", 127);
-	SetHudClipRect(0, 0, 0, 0, 0);
-}
-
-Script "DND Quest Complete" (int isFail) CLIENTSIDE {
-	while(CheckInventory("ShowingMenu"))
-		Delay(const:35);
-	int qid = CheckInventory("QuestCompletionToken") - 1;
-	if(qid < 0)
-		Terminate;
-	while(ScreenResOffsets[0] == -1)
-		Delay(const:17);
-	
-	int hud_pos = (GetHudRight(640) << 16) - QSTBOX_XF / 2 + 0.4;
-	GiveInventory("TipBoxOpen", 1);
-	SetHudSize(640, 480, 1);
-	SetFont("QUESTBOX");
-	HudMessage(s:"A"; HUDMSG_FADEINOUT, SURVIVEID, CR_UNTRANSLATED, hud_pos, 120.0, 3.0, 1.0, 1.0);
-	
-	hud_pos = (GetHudRight(960) << 16) - 3 * QSTBOX_XF / 2 + 48.1;
-	SetHudSize(960, 600, 1);
-	SetFont("OBJFONT");
-	if(!isFail) {
-		LocalAmbientSound("Quest/Done", 127);
-		HudMessage
-		(
-			s:"\cf", l:GetQuestLabel(qid, QUEST_NAME),
-			s:"\c-\n\c[Y5]", l:"DND_QUESTCOMPLETE";
-			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 104.1, 3.0, 1.0, 1.0
-		);
-	}
-	else {
-		LocalAmbientSound("Quest/Fail", 127);
-		HudMessage
-		(
-			s:"\cf", l:GetQuestLabel(qid, QUEST_NAME),
-			s:"\c-\n\c[B1]", l:"DND_QUESTFAILED";
-			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 104.1, 3.0, 1.0, 1.0
-		);
-	}
 }
 
 Script "DND Weapon Damage Retrieve" (int dmgid, int damage_category, int flags) {
@@ -5019,8 +4851,7 @@ Script "DnD On Attack" (int isSpecial, int extra) {
 }
 
 Script "DnD On Artifact Use" (void) {
-	if(IsQuestComplete(0, QUEST_USENOARTIFACT))
-		GiveInventory("DnD_ArtiDmgPower", 1);
+	// nothing here yet
 }
 
 // This doesn't trigger when a monster is continuously attacking, their stuff is manually added unfortunately
@@ -6099,7 +5930,9 @@ Script 68 (int x) NET {
 			//SpawnPowercore(0, true);
 			//Log(s:"orb");
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SCULPTING, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
@@ -6214,6 +6047,16 @@ Script 68 (int x) NET {
 	}
 	#endif
 }
+
+#ifdef ISDEBUGBUILD
+Script "DnD Damage Script Output" (void) OPEN {
+	while(1) {
+		Delay(const:TICRATE);
+		Log(s:"Dmg script count: ", d:damage_script_count);
+		damage_script_count = 0;
+	}
+}
+#endif
 
 /*Script "DnD Buff Test" ENTER {
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN)

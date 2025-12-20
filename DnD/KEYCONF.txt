@@ -47,8 +47,6 @@ AddKeySection "DnD Keys" DNDKEYS
 	Alias droptemp "Puke 905 0"
 	AddMenuKey "Toggle Special Effects" fx
 	Alias fx "Puke -919"
-	AddMenuKey "View Current Quest" quest
-	Alias quest "Puke -1002"
 	AddMenuKey "Toggle Item Mod Range" item_mods
 	Alias item_mods "Puke -1007"
 	AddMenuKey "DnD Taunt" dnd_taunt

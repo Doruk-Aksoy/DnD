@@ -451,8 +451,6 @@ enum {
 
 global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 
-int active_quest_id = -1;
-
 #define DND_MAX_PETS_PER_PLAYER 25
 #define DND_MAX_PETS (DND_MAX_PETS_PER_PLAYER * MAXPLAYERS) // 25 pets per player x 64 players
 

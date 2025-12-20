@@ -2253,6 +2253,7 @@ Script "DnD Homing Lock-on Draw" (int width, int height, int range) CLIENTSIDE {
 
 		Delay(const:6);
 	}
+	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_MARKER, 0, 0, 0, 0.01);
 	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_DOWN, 0, 0, 0, 0.01);
 	HudMessage(s:""; HUDMSG_PLAIN, LOCKON_ID_UP, 0, 0, 0, 0.01);
 }

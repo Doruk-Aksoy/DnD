@@ -30,6 +30,8 @@
 
 #define DND_PENETRATOR_PIERCE -15.0 // 15%
 
+#define DND_ENERGYLEECH_PCT 5 // 5%
+
 enum {
 	DND_TRAITCODE_WEAKNESS,
 	DND_TRAITCODE_RESIST,
@@ -137,6 +139,10 @@ enum {
 	DND_INSULATED,
 
 	DND_PENETRATOR,
+	DND_FASTPROJ,
+	DND_CHTHONBLESSED,
+	DND_BORROWEDTIME,
+	DND_ENERGYLEECH,
 
 	DND_GUARDBROKEN,
 
@@ -236,6 +242,8 @@ int GetEliteModPower(int t) {
 		case DND_EXTRASTRONG:
 		case DND_EXTRAFAST:
 		case DND_RESURRECT:
+		case DND_FASTPROJ:
+		case DND_CHTHONBLESSED:
 		return DND_MODPOWER_MEDIUM;
 
 		// high power
@@ -246,6 +254,7 @@ int GetEliteModPower(int t) {
 		case DND_RUINATION:
 		case DND_NUCLEAR:
 		case DND_VIOLENTRETALIATION:
+		case DND_BORROWEDTIME:
 		return DND_MODPOWER_HIGH;
 
 		// ultra power
@@ -446,6 +455,14 @@ str GetMonsterTraitLabel(int id) {
 
 		case DND_PENETRATOR:
 		return "DND_EMOD_PENETRATOR";
+		case DND_FASTPROJ:
+		return "DND_EMOD_FASTPROJ";
+		case DND_CHTHONBLESSED:
+		return "DND_EMOD_CHTHONBLESSED";
+		case DND_BORROWEDTIME:
+		return "DND_EMOD_BORROWEDTIME";
+		case DND_ENERGYLEECH:
+		return "DND_EMOD_ENERGYLEECH";
 
 		case DND_GUARDBROKEN:
 		return "DND_EMOD_GUARDBROKEN";

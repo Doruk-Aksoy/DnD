@@ -198,7 +198,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_SPEED;
             bflags |= BUFF_F_MONSTERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
             bvalue = -1.0;
-            bduration = 17;
+            bduration = 42;
             tic_duration = bduration;
         break;
         case BTI_STOMPSLOW:

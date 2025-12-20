@@ -1,8 +1,8 @@
 ACTOR Snotfolus : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
 	Mass 7000
-	Height 126
-	Radius 60
+	Height 110
+	Radius 40
 	Speed 14
 	Minmissilechance 64
 	PainChance 2
@@ -27,6 +27,9 @@ ACTOR Snotfolus : DnD_BaseRangedBoss {
 	+BOSS
 	+BOSSDEATH
 	Obituary "%o was defeated by Lord Snotfolus."
+	
+	var int user_z;
+	
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEX_SNOTFOLUS)
@@ -40,16 +43,38 @@ ACTOR Snotfolus : DnD_BaseRangedBoss {
 			C011 AABB 4 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		MissileState:
+			C011 E 0 A_Jump(56, "Meteor")
+		Spit:
 			C011 E 5 A_FaceTarget
-			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, 0)
+			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, frandom(-4, 4))
 			C011 E 0 A_FaceTarget
-			C011 FF 3 A_CustomMissile("SnotfolusBall2", 90, 0, 0)
-			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, 0)
+			C011 FF 3 A_CustomMissile("SnotfolusBall2", 90, 0, frandom(-4, 4))
+			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, frandom(-4, 4))
 			C011 F 0 A_FaceTarget
-			C011 FF 3 A_CustomMissile("SnotfolusBall2", 90, 0, 0)
+			C011 FF 3 A_CustomMissile("SnotfolusBall2", 90, 0, frandom(-4, 4))
 			C011 E 0 A_FaceTarget
-			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, 0)
+			C011 F 3 A_CustomMissile("SnotfolusBall", 90, 0, frandom(-4, 4))
 		goto See
+		Meteor:
+			C011 E 0 A_JumpIfInventory("SnotfolusMeteorCooldown", 1, "Spit")
+			C011 E 0 A_GiveInventory("SnotfolusMeteorCooldown", 1)
+			C011 E 0 A_ChangeFlag("NOPAIN", 1)
+			C011 E 5 A_PlaySound("q3cyber/sight")
+			C011 E 1 A_JumpIf(ceilingz - z > 640, "LimitedZ")
+			C011 E 0 A_SetUserVar("user_z", ceilingz - 16)
+		ContMeteor:
+			C011 EEEEE 5 A_FaceTarget(0, 0)
+			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-48, 48), frandom(-20, 20), CMF_AIMDIRECTION, frandom(4, 20))
+			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-24, 24), frandom(-12, 12), CMF_AIMDIRECTION, frandom(4, 12))
+			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-32, 32), frandom(-16, 16), CMF_AIMDIRECTION, frandom(4, 16))
+			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-16, 16), frandom(-8, 8), CMF_AIMDIRECTION, frandom(4, 12))
+			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-16, 16), frandom(-8, 8), CMF_AIMDIRECTION, frandom(4, 12))
+			C011 E 0 A_ChangeFlag("NOPAIN", 0)
+			C011 F 9 A_CustomMissile("ChexMeteor", 90 + random(0, user_z / 2), frandom(-48, 48), frandom(-20, 20), CMF_AIMDIRECTION, frandom(4, 20))
+		Goto See
+		LimitedZ:
+			C011 E 0 A_SetUserVar("user_z", 618)
+		Goto ContMeteor
 		PainState:
 			C011 G 8 A_Pain
 		goto See
@@ -68,6 +93,11 @@ ACTOR Snotfolus : DnD_BaseRangedBoss {
 			C011 O 10
 		stop
 	}
+}
+
+Actor SnotfolusMeteorCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -5
 }
 
 ACTOR SnotfolusBall : MaximusBall {

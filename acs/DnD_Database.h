@@ -483,12 +483,6 @@ void SavePlayerData(int pnum, int char_id) {
 	temp = CheckActorInventory(tid, "Budget");
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, temp);
 	
-	// save quests
-	temp = CheckActorInventory(tid, "DnD_QuestState1");
-	SetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc, temp);
-	temp = CheckActorInventory(tid, "DnD_QuestState2");
-	SetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc, temp);
-	
 	// save player's lifetime
 	temp = CheckActorInventory(tid, "RoundsSurvived");
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, temp);
@@ -1004,14 +998,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	// read budget
 	temp = GetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc);
 	SetInventory("Budget", temp);
-	
-	// load quest states and give rewards accordingly
-	temp = GetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc);
-	SetInventory("DnD_QuestState1", temp);
-	
-	// quest count is < 32 so only 1 variable is enough atm
-	/*temp = GetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc);
-	SetInventory("DnD_QuestState2", temp);*/
 		
 	if(!CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
@@ -1205,8 +1191,6 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);
 
@@ -1367,8 +1351,6 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_QUESTSTATE1, char_id), pacc, 0);
-	SetDBEntry(GetCharField(DND_DB_QUESTSTATE2, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_PLAYERWEPCHECKERS, char_id), pacc, 0);
 	

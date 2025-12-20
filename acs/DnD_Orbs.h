@@ -4,7 +4,6 @@
 #include "DnD_Common.h"
 #include "DnD_Stat.h"
 #include "DnD_OrbDefs.h"
-#include "DnD_Ammo.h"
 #include "DnD_WeaponDefs.h"
 #include "DnD_Sync.h"
 
@@ -15,24 +14,6 @@
 #define AFFLUENCE_MULT 2
 
 #define DND_ORB_SIN_REPENTCHANCE 0.4
-
-// this is server side only, clients aren't even aware of the values here so we can put as many stuff as needed...
-// because zan doesn't sync variables to clients unless told to do (sdee dnd_sync.h for it)
-
-// to be able to store item reroll stuff, 1 for attrib count, 2 per attribute x 9 = 19
-#define MAX_STORED_ORB_DATA 64
-typedef struct {
-	int orb_type;
-	int values[MAX_STORED_ORB_DATA];
-	// these are used for item data -- they are badly named, i'm aware...
-	int p_ammos[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT];
-	int p_tempammo;
-	int p_tempwep;
-	bool sins_cant_repent;
-} orb_info_T;
-
-// holds most recently used orb values
-global orb_info_T 3: Player_MostRecent_Orb[MAXPLAYERS];
 
 int OrbDropWeights[MAX_ORBS] = {
 	45, // 4.5%
@@ -374,8 +355,21 @@ void HandleTaggedModGive(int pnum, int extra, int tag, int affluence, bool well_
 		SetInventory("OrbResult", extra);
 	}
 	else {
-		// saves +1 of the actual tag
-		SetInventory("OrderStored", tag + 1);
+		// saves +1 of the actual tag if we havent used one, otherwise similar functionality
+		if(!CheckInventory("OrderStored"))
+			SetInventory("OrderStored", tag + 1);
+		else {
+			SetInventory("OrderStored", 0);
+			SetInventory("OrderUsed", 0);
+
+			// same stub as above
+			SaveUsedItemAttribs(pnum, extra);
+					
+			ReforgeWithOneTagGuaranteed(pnum, extra, tag, affluence, well_rolled);
+			
+			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			SetInventory("OrbResult", extra);
+		}
 	}
 }
 
@@ -1510,18 +1504,6 @@ void HandleOrbUseMessage(int orbtype, int val, int affluence, int overrideValue)
 			Log(s:"\cj", l:"DND_ORBUSETEXT37");
 		break;
 	}
-}
-
-void ResetMostRecentOrb(int pnum) {
-	int i;
-	Player_MostRecent_Orb[pnum].orb_type = 0;
-	for(i = 0; i < MAX_STORED_ORB_DATA; ++i)
-		Player_MostRecent_Orb[pnum].values[i] = 0;
-	for(i = 0; i < MAX_SLOTS; ++i)
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
-			Player_MostRecent_Orb[pnum].p_ammos[i][j] = 0;
-	Player_MostRecent_Orb[pnum].p_tempammo = 0;
-	Player_MostRecent_Orb[pnum].p_tempwep = 0;
 }
 
 bool IsOrbDropException(int orb_id) {

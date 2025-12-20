@@ -178,10 +178,10 @@ Script "DnD Create Weapon Wheel" (int pnum, int cleanup, int wantChange) CLIENTS
                 HudMessage(s:"A";  HUDMSG_PLAIN, RPGMENUWEAPONPANELID - 1, -1, width, height, 0.0, 0.0);
                 
                 SetFont("SMALLFONT");
-                HudMessage(s:"\c[H9]", l:GetWeaponTag(k);  HUDMSG_PLAIN, RPGMENUCLICKEDID, -1, width, height + 28.1, 0.0);
+                HudMessage(s:"\c[H9]", l:GetWeaponTag(k);  HUDMSG_PLAIN, RPGMENUINVENTORYID, -1, width, height + 28.1, 0.0);
             }
             else {
-                DeleteText(RPGMENUCLICKEDID);
+                DeleteText(RPGMENUINVENTORYID);
                 DeleteText(RPGMENUWEAPONPANELID - 1);
                 SetInventory("WeaponWheelChangeId", INT_MAX);
             }
@@ -225,7 +225,7 @@ Script "DnD Create Weapon Wheel" (int pnum, int cleanup, int wantChange) CLIENTS
 
         DeleteText(RPGMENUCURSORID);
         DeleteText(RPGMENUBACKGROUNDID);
-        DeleteText(RPGMENUCLICKEDID);
+        DeleteText(RPGMENUINVENTORYID);
         DeleteText(RPGMENUWEAPONPANELID);
         DeleteText(RPGMENUWEAPONPANELID - 1);
         DeleteTextRange(RPGMENUITEMID - 16, RPGMENUITEMID);

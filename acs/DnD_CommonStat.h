@@ -2,7 +2,6 @@
 #define DND_COMMONSTAT_IN
 
 #include "DnD_Accessories.h"
-#include "DnD_QuestDefs.h"
 #include "DnD_InvAttribs.h"
 
 #define DND_ACCURACY_CAP 100000
@@ -146,7 +145,6 @@ enum {
 #define DND_ACRIMONY_RECOVERCHANCE 0.2 // 20%
 #define DND_ACRIMONY_RECOVERPERCENT 2
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
-#define DND_MUNITION_GAIN 10
 #define DND_LUCK_GAIN 0.03 // 5% multiplicative luck
 #define DND_LUCK_OUTCOME_GAIN 0.03
 
@@ -460,10 +458,6 @@ bool CanActorHaveMorePets(int tid) {
 
 int GetHealingBonuses(int pnum) {
 	int bonus = PERK_MEDICBONUS * CheckInventory("Perk_Medic");
-	if(IsQuestComplete(0, QUEST_HEALFOR500))
-		bonus += DND_QUEST_MASTERHEALER_INCREASE;
-	if(IsQuestComplete(pnum + P_TIDSTART, QUEST_NOHEALINGPICKUP))
-		bonus += DND_QUEST_SKINOTEETH_INCREASE;
 	// doesn't make sense for it to go below 0
 	int less_mod = Clamp_Between(100 - GetPlayerAttributeValue(pnum, INV_EX_LESSHEALING), 0, 100);
 	bonus = bonus * less_mod / 100;
@@ -758,6 +752,11 @@ void TakeEnergyShield(int val) {
 	TakeInventory("EShieldAmountVisual", val);
 }
 
+void TakeActorEnergyShield(int tid, int val) {
+	TakeActorInventory(tid, "EShieldAmount", val);
+	TakeActorInventory(tid, "EShieldAmountVisual", val);
+}
+
 void UpdateEnergyShieldVisual(int val) {
 	SetAmmoCapacity("EShieldAmountVisual", val);
 }
@@ -954,14 +953,6 @@ int CountMonsterAilments(int tid) {
 		val >>= 1;
 	}
 	return count;
-}
-
-void HealMonster(int mid, int amount) {
-	int hp = GetActorProperty(0, APROP_HEALTH);
-	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
-	SetActorProperty(0, APROP_HEALTH, hp + amount);
-
-	CheckDoomguyExecuteReversal(mid + DND_MONSTERTID_BEGIN);
 }
 
 #include "DnD_Buffs.h"

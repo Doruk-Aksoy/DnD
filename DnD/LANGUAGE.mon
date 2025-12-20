@@ -108,7 +108,11 @@ DND_EMOD_FROSTBLOOD				= "\cmFrost Blood\c-";
 DND_EMOD_MOLTENBLOOD			= "\cmMolten Blood\c-";
 DND_EMOD_INSULATED				= "\cmInsulated\c-";
 
-DND_EMOD_PENETRATOR				= "\gResist Penetrator\c-";
+DND_EMOD_PENETRATOR				= "\cgResist Penetrator\c-";
+DND_EMOD_FASTPROJ				= "\cgFast Projectiles\c-";
+DND_EMOD_CHTHONBLESSED			= "\cqChthon's Blessing\c-";
+DND_EMOD_BORROWEDTIME			= "\cgBorrowed Time\c-";
+DND_EMOD_ENERGYLEECH			= "\cvEnergy Leech\c-";
 
 DND_EMOD_GUARDBROKEN			= "\cfGuard Broken\c-";
 

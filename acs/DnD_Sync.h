@@ -1,8 +1,6 @@
 #ifndef DND_SYNC_IN
 #define DND_SYNC_IN
 
-#include "DnD_Charms.h"
-
 global bool 52: PlayerWeaponDataNeedsSync[MAXPLAYERS][MAXWEPS];
 
 void MarkWeaponDataSync(int pnum, int wepid, bool s) {

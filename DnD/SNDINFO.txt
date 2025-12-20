@@ -1,5 +1,7 @@
 $pitchshiftrange 2
 
+BorrowedTime			BORWTIME
+
 Asmodeus/MagicFuse		ASMMFUSE
 
 Asmodeus/ZapExplode1	ASMZAPX1
@@ -117,8 +119,8 @@ weapons/tp_fire 		TP_FIRE
 
 MagicExplosion			MAGCEX
 
-DarkWanderer/ChallengeWin		DWCHWIN
-DarkWanderer/ChallengeFail		DWCHLOSS
+DarkWanderer/ChallengeWin		QSTDONE
+DarkWanderer/ChallengeFail		QSTFAIL
 
 Items/NPCArtifactPick	NARTIPCK
 Items/NPCArtifactLoop	NARTILOO

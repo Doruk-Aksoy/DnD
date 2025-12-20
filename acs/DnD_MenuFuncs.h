@@ -249,7 +249,7 @@ void DrawPerkText(int boxid) {
 				toShow = StrParam(s:"\cd* \ci+", d:DND_SAVAGERY_BONUS, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 			case STAT_ACRM:
-				toShow = StrParam(s:"\cd* \ci+", s:DND_ACRIMONY_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
+				toShow = StrParam(s:"\cd* \ci+", d:DND_ACRIMONY_GAIN, s:"%\c- ", l:GetPerkText(boxid - 1));
 			break;
 		}
 		if(GetPerk(perk) == DND_PERK_MAX)
@@ -465,7 +465,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-128, 0);
 		break;
 		case MENU_HELP_MMODS_UTILITY:
-			redraw = ListenScroll(-208, 0);
+			redraw = ListenScroll(-304, 0);
 		break;
 		case MENU_HELP_LEGMONS:
 			temp = 0;
@@ -482,13 +482,13 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(-256, 0);
 		break;
 		case MENU_HELP_MMODS_AGGRESSIVE:
-			redraw = ListenScroll(-176, 0);
+			redraw = ListenScroll(-232, 0);
 		break;
 		case MENU_HELP_ORBS:
 			redraw = ListenScroll(-320, 0);
 		break;
 		case MENU_HELP_MMODS_DEFENSIVE:
-			redraw = ListenScroll(-272, 0);
+			redraw = ListenScroll(-304, 0);
 		break;
 		
 		// weapon pages -- this part is ugly I know, at this time I couldnt find a better solution :P

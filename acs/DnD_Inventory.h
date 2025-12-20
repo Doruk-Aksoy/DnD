@@ -1,6 +1,13 @@
 #ifndef DND_INVENTORY_IN
 #define DND_INVENTORY_IN
 
+#define MAX_SMALL_CHARMS_USED 4
+#define MAX_MEDIUM_CHARMS_USED 2
+#define MAX_LARGE_CHARMS_USED 1
+#define MAX_ARMORS_USED 3 // BOOT BODY HELM
+#define MAX_POWERCORES_USED 1
+#define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED + MAX_POWERCORES_USED)
+
 #include "DnD_InvInfo.h"
 #include "DnD_UniqueItems.h"
 #include "DnD_Hud.h"
@@ -44,13 +51,6 @@
 #define MAX_PHYSRESIST_VAL 100
 #define MAX_REFLRESIST_VAL 1000 // 1000 because we use 1 as 0.1% so 1000 is 100%
 #define MAX_WEAKEN_VAL 200
-
-#define MAX_SMALL_CHARMS_USED 4
-#define MAX_MEDIUM_CHARMS_USED 2
-#define MAX_LARGE_CHARMS_USED 1
-#define MAX_ARMORS_USED 3 // BOOT BODY HELM
-#define MAX_POWERCORES_USED 1
-#define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED + MAX_POWERCORES_USED)
 
 enum {
 	SMALLCHARM_INDEX1,
@@ -3242,8 +3242,9 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 
 	switch(corr_outcome) {
 		case DND_CORR_OUTCOME_QUALITY:
-			// don't let it hit negative
-			PlayerInventoryList[pnum][item_pos].quality += random(-DND_QUALITY_CORRUPTION_CHANGE, DND_QUALITY_CORRUPTION_CHANGE);
+			// don't let it hit negative -- if destiny is used, zero the negative component and make it 1
+			extra = CheckInventory("DestinyUsed");
+			PlayerInventoryList[pnum][item_pos].quality += random(-DND_QUALITY_CORRUPTION_CHANGE * (1 - extra) + extra, DND_QUALITY_CORRUPTION_CHANGE);
 			if(PlayerInventoryList[pnum][item_pos].quality < 0)
 				PlayerInventoryList[pnum][item_pos].quality = 0;
 			SyncItemQuality(pnum, item_pos, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -3424,6 +3425,10 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 						break;
 					}
 				}
+				
+				--max_tries;
+				if(max_tries <= 0)
+					respect_order_orb = -2;
 				// we check for "0" here because, if the above doesnt make it reroll into a wider pool, and if theres non-zero, that means we still get valid stuff here
 			} while(!AttributeTagGroupCount[tag][craftable_id]);
 
@@ -3960,5 +3965,6 @@ Script "DnD Check Item Collision" (void) {
 }
 
 #include "DnD_Token.h"
+#include "DnD_Sync.h"
 
 #endif

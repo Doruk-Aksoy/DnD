@@ -168,7 +168,7 @@ DND_MENU_AILMENT5_EXP	=	"Hits from poison damage inflict a stack of poison for 3
 DND_MENU_MMOD_WEAK		=	"Weakness Modifiers";
 DND_MENU_MMOD_RESIST	=	"Resistance Modifiers";
 DND_MENU_MMOD_IMMUNE	=	"Immunity Modifiers";
-DND_MENU_MMOD_AGGRESS	=	"Agressive Modifiers";
+DND_MENU_MMOD_AGGRESS	=	"Aggressive Modifiers";
 DND_MENU_MMOD_DEFENSE	=	"Defensive Modifiers";
 DND_MENU_MMOD_UTILITY	=	"Utility Modifiers";
 DND_MENU_MMOD_SPECIAL	=	"Special Modifiers";
@@ -572,6 +572,8 @@ DND_MENU_MMOD_AGG12		=	"Monster hits build ruination stacks. Each stack reduces 
 DND_MENU_MMOD_AGG13		=	"Monster has a chance to summon slowing hands underneath players on attacking, slowing them by 66% and dealing 2% of their health as magic damage.";
 DND_MENU_MMOD_AGG14		=	"Upon hurting the monster, thunder strikes at your location after a certain delay, dealing massive damage.";
 DND_MENU_MMOD_AGG15		=	"Monster pierces 15% of your resistances with its damage.";
+DND_MENU_MMOD_AGG16		=	"Monster fires projectiles at 1.5 times the speed.";
+DND_MENU_MMOD_AGG17		=	"Upon taking lethal damage from players, the monster becomes more aggressive and is granted a rapidly decaying shield.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";
@@ -595,6 +597,7 @@ DND_MENU_MMOD_DEF18		=	"Monster explodes into a catastrophic explosion on death 
 DND_MENU_MMOD_DEF19		=	"Monster takes 150% reduced damage from critical strikes.";
 DND_MENU_MMOD_DEF20		=	"Monster phases in and out of reality, becoming ghostly randomly.";
 DND_MENU_MMOD_DEF21		=	"Monster has a bubble that negates damage from the first hit once every 20 seconds.";
+DND_MENU_MMOD_DEF22		=	"Monster creates a circle of flame on death, periodically erupting until disappearing after 9 seconds.";
 
 // utility group
 DND_MENU_MMOD_UTI1		=	"Monster can curse the player.";
@@ -618,6 +621,7 @@ DND_MENU_MMOD_UTI18		=	"Monster's attacks can inflict poison.";
 DND_MENU_MMOD_UTI19		=	"Monster's attacks can inflict chill and freeze.";
 DND_MENU_MMOD_UTI20		=	"Monster's attacks can inflict ignite.";
 DND_MENU_MMOD_UTI21		=	"Monster's attacks can inflict overload.";
+DND_MENU_MMOD_UTI22		=	"Monster steals 5% of your energy shield on hits";
 
 DND_MENU_MMOD_CHAOS		=	"Monster has double health, 50% more damage, 50% more speed, extra aggressive and chaos imbued attacks.";
 DND_MENU_MMOD_ASMODEUS	=	"Monster has quadruple health (doubled on top if non-boss), +33% to all damage resistances, 100% more damage and special attacks depending on its type.";

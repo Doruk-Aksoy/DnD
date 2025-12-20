@@ -58,6 +58,19 @@ Model AsmodeusFireCircle {
 	FrameIndex AURA E 0 3
 }
 
+Model ChthonFireCircle {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "FIRECIRC.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex TNT1 A 0 3
+	FrameIndex AURA E 0 3
+}
+
 Model AsmodeusMagicCrackMarker {
 	Path "Models/Auras"   
 	Model 0 "flat.md3"   

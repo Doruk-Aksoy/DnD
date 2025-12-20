@@ -1,6 +1,8 @@
 #ifndef DND_WEAPONDEFS_IN
 #define DND_WEAPONDEFS_IN
 
+#include "DnD_Common.h"
+
 #define DND_THUNDERAXE_WEAKENPCT 50
 #define CHAIN_LIGHTNING_DELAY 4
 
@@ -12,8 +14,6 @@
 #define THUNDERSTAFF_SELFDMG_DIST 160.0
 
 #define DND_EXTRAPROJ_SPREADANG 6.25
-
-int PlayerWeaponUsed[MAXPLAYERS] = { -1 };
 
 enum {
 	DND_CFW_ALTFIRECHECK = 1,

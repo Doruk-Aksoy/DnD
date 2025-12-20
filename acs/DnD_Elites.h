@@ -6,8 +6,6 @@
 #define DND_MIN_MAGICMODS 1
 #define DND_MAX_MAGICMODS 2
 
-#define DND_ELITE_DMGSCALE 13
-#define DND_ELITE_EXTRASTRONG_BONUS 35
 #define DND_ELITE_VITAL_SCALE 75
 #define DND_ELITE_CREDITCHANCE_BONUS 0.1
 #define DND_ELITE_FX_DENSITY 8
@@ -15,6 +13,10 @@
 #define DND_ELITE_FX_TID 900
 #define DND_NUCLEAR_EXPLOSION_FACTOR 10
 #define DND_NUCLEAR_MINDMG 100
+#define DND_FASTPROJ_FACTOR 1.5
+
+#define DND_BORROWEDTIME_DECAYTIMER 5
+#define DND_BORROWEDTIME_DECAYPCT 5
 
 // linear scale, returns the old 15% at level 40 and returns 25% at level 80. Returns 30% at level 100.
 // changed scale to be more powerful for elites
@@ -38,7 +40,7 @@ int GetMagicHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 52
+#define MAX_ROLLABLE_TRAITS 56
 
 #include "DnD_EliteInfo.h"
 
@@ -105,7 +107,11 @@ int EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3] = {
 	{ DND_MOLTENBLOOD, 0, 400 },
 	{ DND_INSULATED, 0, 400 },
 
-	{ DND_PENETRATOR, 50, 200 }
+	{ DND_PENETRATOR, 40, 200 },
+	{ DND_FASTPROJ, 30, 325 },
+	{ DND_CHTHONBLESSED, 36, 100 },
+	{ DND_BORROWEDTIME, 40, 100 },
+	{ DND_ENERGYLEECH, 30, 175 }
 };
 
 void SetupEliteModWeights() {
@@ -113,12 +119,6 @@ void SetupEliteModWeights() {
 	for(int i = 0; i < MAX_ROLLABLE_TRAITS - 1; ++i) {
 		EliteTraitNumbers[i + 1][ELITETRAIT_WEIGHT] += EliteTraitNumbers[i][ELITETRAIT_WEIGHT];
 	}
-}
-
-int GetEliteBonusDamage(int m_id) {
-	// at level 100 this yields 125%, at level 0 13% and at level 50 44%
-	int lvl = MonsterProperties[m_id].level;
-	return DND_ELITE_DMGSCALE + lvl * lvl / 100 + (lvl * 3) / 25;
 }
 
 bool HasTrait(int id, int trait_index) {
@@ -350,6 +350,8 @@ bool IsMagicMonsterModBanned(int trait) {
 		case DND_SUBORDINATE:
 		case DND_PHANTASM:
 		case DND_NUCLEAR:
+		case DND_CHTHONBLESSED:
+		case DND_BORROWEDTIME:
 		return true;
 	}
 	return false;
@@ -434,6 +436,36 @@ Script "DnD Monster Nuclear Explosion" (int this) {
 	SetActivator(DND_NUCLEAREXP_TID);
 	SetPointer(AAPTR_TARGET, this);
 	Thing_ChangeTID(DND_NUCLEAREXP_TID, 0);
+}
+
+Script "DnD Borrowed Time Decay" (int this) {
+	SetActivator(this);
+
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_BORROWEDTIME);
+	ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_AGGRESSIVE);
+
+	int m_id = this - DND_MONSTERTID_BEGIN;
+
+	GiveInventory("MakeAggressive", 1);
+	GiveInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp);
+
+	while(isAlive() && CheckInventory("MonsterFortifyCount")) {
+		Delay(const:DND_BORROWEDTIME_DECAYTIMER);
+		TakeInventory("MonsterFortifyCount", MonsterProperties[m_id].maxhp * DND_BORROWEDTIME_DECAYPCT / 100);
+	}
+
+	TakeInventory("DnD_BorrowedTimeActive", 1);
+	ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_AGGRESSIVE);
+}
+
+Script "DnD Borrowed Time FX" (int this) CLIENTSIDE {
+	SetActivator(this);
+	SpawnForced("DnD_BorrowedTimeFx", GetActorX(0), GetActorY(0), GetActorZ(0), AUX_FX_TID);
+
+	// 20 and 56 are base sizes of an Imp
+	SetActorProperty(AUX_FX_TID, APROP_SCALEX, FixedMul(GetActorProperty(AUX_FX_TID, APROP_SCALEX), GetActorProperty(this, APROP_RADIUS) / 20));
+	SetActorProperty(AUX_FX_TID, APROP_SCALEY, FixedMul(GetActorProperty(AUX_FX_TID, APROP_SCALEY), GetActorProperty(this, APROP_HEIGHT) / 56));
+	Thing_ChangeTID(AUX_FX_TID, 0);
 }
 
 #endif
