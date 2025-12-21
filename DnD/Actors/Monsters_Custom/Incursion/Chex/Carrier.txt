@@ -1,0 +1,63 @@
+ACTOR FlemCarrier : DnD_BaseRangedMonster {
+	Health 0x7FFFFFFF
+	Mass 666
+	Height 50
+	Radius 15
+	Speed 5
+	Painchance 60
+	Bloodcolor "green"
+	Species "Chex"
+	Tag "Flem Carrier"
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
+	+ISMONSTER
+	+QUICKTORETALIATE
+	+FLOAT
+	+NOGRAVITY
+	+PUSHABLE
+	+MISSILEEVENMORE
+	+MISSILEMORE
+	Obituary "%o somehow died to a Flem Carrier."
+	Hitobituary "%o somehow died to a Flem Carrier."
+	
+	const int zlow = 4;
+	const int zhigh = 10;
+	const int v = 10;
+	
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_CHEX_FLEMCARRIER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+		
+		SeeState:
+			C013 R 5 A_Chase ("", "Missile")
+			C013 S 5 A_Chase ("", "")
+			C013 T 5 A_Chase ("", "Missile")
+		loop
+		IdleState:
+			C013 RST 6 A_GiveInventory("DnD_SightChecker", 1)
+		loop
+		MissileState:
+			C013 RS 4 A_FaceTarget
+			C013 T 4 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+		goto See
+		PainState:
+			C013 S 3
+			TNT1 A 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+			C013 S 3 A_Pain
+			C013 S 6 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+		goto See
+		XDeathState:
+		DeathState:
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, random(-9,9), random(-9,9), random(5,9))
+			C013 R 8 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 20, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 AAAA 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+			C013 S 8 A_Scream
+			TNT1 AA 0 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 AAAA 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, random(-9,9), random(-9,9), random(5,9))
+			C013 T 8 A_NoBlocking
+		stop
+	}
+}

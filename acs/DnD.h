@@ -297,8 +297,6 @@ enum {
 int DnD_StateChecker[MAX_STATES];
 // see if map changed or not
 
-bool UniqueMonsterAvailability[MAX_MONSTER_CATEGORIES] = { 0 };
-
 void Reset_RPGInfo (int resetflags) {
 	int i;
 	int pnum = PlayerNumber();
@@ -323,98 +321,96 @@ int DnD_BonusMessageY(int bonustype) {
 #define DND_MAPDIFF_TIERVAL 250
 #define DND_MAXMAPDIFF 9
 
+int GetMonsterKillContribution(int category) {
+	static int factor_table[MAX_MONSTER_CATEGORIES] = {
+		DND_ZOMBIE_CONTRIB,
+		DND_SHOTGUNNER_CONTRIB,
+		DND_CHAINGUNNER_CONTRIB,
+		DND_DEMON_CONTRIB,
+		DND_DEMON_CONTRIB,
+		DND_IMP_CONTRIB,
+		DND_CACO_CONTRIB,
+		DND_PAIN_CONTRIB,
+		DND_SOUL_CONTRIB,
+		DND_REVENANT_CONTRIB,
+		DND_HELLKNIGHT_CONTRIB,
+		DND_BARON_CONTRIB,
+		DND_FATSO_CONTRIB,
+		DND_ARACHNO_CONTRIB,
+		DND_VILE_CONTRIB,
+		DND_SPIDERMASTERMIND_CONTRIB,
+		DND_CYBERDEMON_CONTRIB,
+		DND_SHOTGUNNER_CONTRIB
+	};
+	return factor_table[category];
+}
+
+int GetPunisherTierKillBonus(int m_id) {
+	return (GetMonsterKillContribution(MonsterProperties[m_id].class) << 16) & 0xFFFFF000;
+}
+
+str GetMonsterSpawnerStr(int id) {
+	switch(id) {
+		case MONSTERCLASS_ZOMBIEMAN:
+		return "ZombiemanSpawner";
+		case MONSTERCLASS_SHOTGUNGUY:
+		return "ShotgunguySpawner";
+		case MONSTERCLASS_CHAINGUNGUY:
+		return "ChaingunguySpawner";
+		case MONSTERCLASS_DEMON:
+		return "DemonSpawner";
+		case MONSTERCLASS_SPECTRE:
+		return "SpectreSpawner";
+		case MONSTERCLASS_IMP:
+		return "ImpSpawner";
+		case MONSTERCLASS_CACODEMON:
+		return "CacodemonSpawner";
+		case MONSTERCLASS_PAINELEMENTAL:
+		return "PainElementalSpawner";
+		case MONSTERCLASS_LOSTSOUL:
+		return "LostSoulSpawner";
+		case MONSTERCLASS_REVENANT:
+		return "RevenantSpawner";
+		case MONSTERCLASS_HELLKNIGHT:
+		return "HellKnightSpawner";
+		case MONSTERCLASS_BARON:
+		return "BaronSpawner";
+		case MONSTERCLASS_FATSO:
+		return "FatsoSpawner";
+		case MONSTERCLASS_ARACHNOTRON:
+		return "SpiderSpawner";
+		case MONSTERCLASS_ARCHVILE:
+		return "ArchVileSpawner";
+		case MONSTERCLASS_SPIDERMASTERMIND:
+		return "MastermindSpawner";
+		case MONSTERCLASS_CYBERDEMON:
+		return "CyberSpawner";
+		case MONSTERCLASS_WOLFENSS:
+		return "ZombiemanSpawner";
+	}
+	return "";
+}
+
 // 5 Tiers: 0 -> Very Easy, 1 -> Easy, 2 -> Medium, 3 -> Hard and 4 -> Very Hard.
 void CalculateMapDifficulty() {
 	int factor = 0;
-	// yes this is ugly but it won't ever change, no new spawners will come etc so why not :)
-	int temp = ThingCountName("ZombiemanSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] = temp;
-	factor += temp * DND_ZOMBIE_CONTRIB;
-
-	temp = ThingCountName("ShotgunguySpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_SHOTGUNNER_CONTRIB;
-
-	temp = ThingCountName("ChaingunguySpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_CHAINGUNNER_CONTRIB;
-
-	temp = ThingCountName("DemonSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_DEMON_CONTRIB;
-
-	temp = ThingCountName("SpectreSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_DEMON_CONTRIB;
-
-	temp = ThingCountName("ImpSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_IMP_CONTRIB;
-
-	temp = ThingCountName("LostSoulSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_SOUL_CONTRIB;
-
-	temp = ThingCountName("CacodemonSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_CACO_CONTRIB;
-
-	temp = ThingCountName("PainElementalSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_PAIN_CONTRIB;
-
-	temp = ThingCountName("RevenantSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_REVENANT_CONTRIB;
-
-	temp = ThingCountName("HellKnightSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += temp;
-	factor += temp * DND_HELLKNIGHT_CONTRIB;
-
-	if(temp >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
-		AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
-
-	MapData[DND_MAPDATA_BARONCOUNT] = ThingCountName("BaronSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_BARONCOUNT];
-	factor += MapData[DND_MAPDATA_BARONCOUNT] * DND_BARON_CONTRIB;
-
-	if(MapData[DND_MAPDATA_BARONCOUNT] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
-		AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
-
-	MapData[DND_MAPDATA_FATSOCOUNT] = ThingCountName("FatsoSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_FATSOCOUNT];
-	factor += MapData[DND_MAPDATA_FATSOCOUNT] * DND_FATSO_CONTRIB;
-
-	if(MapData[DND_MAPDATA_FATSOCOUNT] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
-		AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
-
-	MapData[DND_MAPDATA_ARACHNOCOUNT] = ThingCountName("SpiderSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_ARACHNOCOUNT];
-	factor += MapData[DND_MAPDATA_ARACHNOCOUNT] * DND_ARACHNO_CONTRIB;
-
-	if(MapData[DND_MAPDATA_ARACHNOCOUNT] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
-		AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
-
-	MapData[DND_MAPDATA_ARCHVILECOUNT] = ThingCountName("ArchVileSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_ARCHVILECOUNT];
-	factor += MapData[DND_MAPDATA_ARCHVILECOUNT] * DND_VILE_CONTRIB;
-
-	if(MapData[DND_MAPDATA_ARCHVILECOUNT] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
-		AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
-
-	MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] = ThingCountName("MastermindSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT];
-	factor += MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] * DND_SPIDERMASTERMIND_CONTRIB;
-
-	if(MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
-		AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
-
-	MapData[DND_MAPDATA_CYBERDEMONCOUNT] = ThingCountName("CyberSpawner", 0);
-	MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[DND_MAPDATA_CYBERDEMONCOUNT];
-	factor += MapData[DND_MAPDATA_CYBERDEMONCOUNT] * DND_CYBERDEMON_CONTRIB;
 	
-	if(MapData[DND_MAPDATA_CYBERDEMONCOUNT] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
-		AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
+	MapData[DND_MAPDATA_MONSTERTOTAL] = 0;
+	for(int i = MONSTERCLASS_ZOMBIEMAN; i < MONSTERCLASS_WOLFENSS; ++i) {
+		int index = DND_MAPDATA_ZOMBIEMANCOUNT + i;
+		MapData[index] = ThingCountName(GetMonsterSpawnerStr(i), 0);
+		if(MapData[index] > 0) {
+			MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[index];
+			factor += MapData[index] * GetMonsterKillContribution(i);
+			CheckUniqueMonsterChance(DND_MAPEVENT_UZOMBIEMAN);
+		}
+
+		// infight prevention check on HK and above tier monsters
+		if(i >= MONSTERCLASS_HELLKNIGHT && MapData[index] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
+			AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
+
+		TempArray[TARR_MONID][i] = 0;
+	}
 
 	factor += ThingCountName("BossBrain", 0) * DND_BOSSBRAIN_CONTRIB;
 

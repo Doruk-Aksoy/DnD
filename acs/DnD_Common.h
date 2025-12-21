@@ -364,7 +364,8 @@ bool IsLobbyMap(str mapname) {
 enum {
 	TARR_ORB1,
 	TARR_ORB2,
-	TARR_MAPEVENTS
+	TARR_MAPEVENTS,
+	TARR_MONID
 };
 global int 58: TempArray[16][256];
 

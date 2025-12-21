@@ -1980,15 +1980,23 @@ Script "DnD Monster Spawner" (int category) {
 		ACS_NamedExecuteAlways("DnD Legendary Announcer", 0);
 	}
 	else {
+		//Log(s:"temp arr: ", f:TempArray[TARR_MONID][category], s: " on category ", d:category);
 		// check for unique possibility here
-		if(!UniqueMonsterAvailability[category] && avg_level >= 25 && random(0, 1.0) <= GetCVar("dnd_uniquemonster_spawnchance")) {
-			SetActorState(0, "Unique", true);
-			UniqueMonsterAvailability[category] = true;
-			Terminate;
-		}
-		else if(IsIncursionActive()) {
+		if(IsIncursionActive()) {
 			SetActorState(0, GetIncursionSpawnerLabel(), true);
 			Terminate;
+		}
+		else if(CheckMapEvent(DND_MAPEVENT_FIRSTUNIQUEMONSTER + category) && avg_level >= 25) {
+			if(random(0, 1.0) <= TempArray[TARR_MONID][category]) {
+				SetActorState(0, "Unique", true);
+				ClearMapEvent(DND_MAPEVENT_FIRSTUNIQUEMONSTER + category);
+				Terminate;
+			}
+			else {
+				bin = MapData[DND_MAPDATA_ZOMBIEMANCOUNT + category];
+				if(bin)
+					TempArray[TARR_MONID][category] += 1.0 / bin;
+			}
 		}
 	
 		int factor = Clamp_Between(GetCVar("dnd_monster_variation_factor"), 1.0, 5.0);

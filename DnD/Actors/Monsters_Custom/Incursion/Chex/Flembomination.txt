@@ -28,6 +28,11 @@ ACTOR Flembomination : DnD_BaseRangedBoss {
 	+BOSSDEATH
 	+BOSS
 	Obituary "%o was defeated by the Flembomination."
+	
+	const int zlow = 4;
+	const int zhigh = 10;
+	const int v = 10;
+	
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEX_FLEMBOMINATION)
@@ -65,16 +70,18 @@ ACTOR Flembomination : DnD_BaseRangedBoss {
 			C010 H 1 A_CPosRefire
 		Loop
 		PainState:
-			C010 I 3
+			C010 I 3 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 			C010 I 3 A_Pain
 		Goto SeeState
 		XDeathState:
 		DeathState:
 			C010 J 20 A_Scream
 			C010 K 10 A_NoBlocking
+			TNT1 AAAA 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 			C010 LLLLL 1 A_SpawnItemEx ("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
 			C010 L 1 A_CustomMissile ("GenericGibber_Medium_Delayed", 16, 0, 120, 2, 12)
 			C010 LL 1 A_SpawnItemEx ("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
+			TNT1 AAAA 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 			C010 MMMMMMMM 1 A_SpawnItemEx ("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
 			C010 NNNNNN 1 A_SpawnItemEx ("ExplosionFXMagicGreen", 0, 0,0,random(-9,9),random(-9,9),random(5,9), 48, 128)
 			C010 N 1 A_CustomMissile ("GenericGibber_Medium_Delayed", 37, 0, 48, 2, 64)

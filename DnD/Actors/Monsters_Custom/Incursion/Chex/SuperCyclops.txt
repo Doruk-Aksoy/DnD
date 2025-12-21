@@ -24,6 +24,11 @@ ACTOR SuperCyclops : DnD_BaseRangedMonster {
 	+MISSILEMORE
 	Obituary "%o was slimed from afar by a Super Cyclops Flemoid."
 	Hitobituary "%o was slimed by a Super Cyclops Flemoid."
+	
+	const int zlow = 4;
+	const int zhigh = 10;
+	const int v = 10;
+	
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEX_SUPERCYCLOPS)
@@ -47,7 +52,7 @@ ACTOR SuperCyclops : DnD_BaseRangedMonster {
 		PainState:
 			C008 E 3
 			C008 E 3 A_Pain
-			C008 F 6
+			C008 F 6 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 		goto See
 		XDeathState:
 		DeathState:

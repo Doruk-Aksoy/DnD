@@ -25,6 +25,11 @@ ACTOR FlemoidMobius : DnD_BaseHybridMonster {
 	+THRUSPECIES
 	+LOOKALLAROUND
 	Obituary "%o was defeated by the Flemobius."
+	
+	const int zlow = 4;
+	const int zhigh = 10;
+	const int v = 10;
+	
 	states {		
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEX_FLEMOBIUS)
@@ -54,7 +59,7 @@ ACTOR FlemoidMobius : DnD_BaseHybridMonster {
 			C013 G 7 A_SentinelRefire
 		goto See
 		PainState:
-			C013 O 2
+			C013 O 2 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 			C013 H 2 A_Pain
 		goto See
 		XDeathState:
@@ -62,6 +67,7 @@ ACTOR FlemoidMobius : DnD_BaseHybridMonster {
 			C013 I 1 A_Scream
 			C013 I 2 A_NoBlocking
 			C013 J 3 A_SpawnItemEx("GenericGibber_Medium_Delayed", 0, 0, 34, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 AA 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 			C013 KLM 4
 			C013 N 5
 		stop

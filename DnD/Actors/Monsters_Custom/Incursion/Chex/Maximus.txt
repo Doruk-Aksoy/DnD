@@ -23,6 +23,9 @@ ACTOR FlemoidMaximus : DnD_BaseHybridMonster {
 	+DONTRIP
 	+NORADIUSDMG
 	Obituary "%o was defeated by a Maximus."
+	const int zlow = 4;
+	const int zhigh = 10;
+	const int v = 10;
 	states {		
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEX_MAXIMUS)
@@ -47,7 +50,7 @@ ACTOR FlemoidMaximus : DnD_BaseHybridMonster {
 			C009 G 7 A_CustomMissile ("MaximusBall", 54, 0, 0)
 		goto See
 		PainState:
-			C009 H 2
+			C009 H 2 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 			C009 H 2 A_Pain
 		goto See
 		XDeathState:

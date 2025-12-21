@@ -1741,6 +1741,10 @@ void SetupIncursionMonsters() {
 	MonsterData[MONSTER_CHEX_METEOR].health = 600;
 	MonsterData[MONSTER_CHEX_METEOR].flags = DND_MTYPE_FLEMOID_POW;
 	MonsterData[MONSTER_CHEX_METEOR].trait_list[DND_SUMMONED] = true;
+
+	MonsterData[MONSTER_CHEX_FLEMCARRIER].health = 500;
+	MonsterData[MONSTER_CHEX_FLEMCARRIER].flags = DND_MTYPE_FLEMOID_POW;
+	MonsterData[MONSTER_CHEX_FLEMCARRIER].trait_list[DND_SUMMONED] = true;
 	
 	MonsterData[MONSTER_CHEX_FLEMBOMINATION].health = 4500;
 	MonsterData[MONSTER_CHEX_FLEMBOMINATION].flags = DND_MTYPE_FLEMOID_POW;

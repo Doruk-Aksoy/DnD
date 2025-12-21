@@ -507,31 +507,6 @@ int GetPunisherTierRequirement(int tier, int cap = -1) {
 	return punisher_tier_values[tier];
 }
 
-int GetPunisherTierKillBonus(int m_id) {
-	static int factor_table[MAX_MONSTER_CATEGORIES] = {
-		DND_ZOMBIE_CONTRIB,
-		DND_SHOTGUNNER_CONTRIB,
-		DND_CHAINGUNNER_CONTRIB,
-		DND_DEMON_CONTRIB,
-		DND_DEMON_CONTRIB,
-		DND_IMP_CONTRIB,
-		DND_CACO_CONTRIB,
-		DND_PAIN_CONTRIB,
-		DND_SOUL_CONTRIB,
-		DND_REVENANT_CONTRIB,
-		DND_HELLKNIGHT_CONTRIB,
-		DND_BARON_CONTRIB,
-		DND_FATSO_CONTRIB,
-		DND_ARACHNO_CONTRIB,
-		DND_VILE_CONTRIB,
-		DND_SPIDERMASTERMIND_CONTRIB,
-		DND_CYBERDEMON_CONTRIB,
-		DND_SHOTGUNNER_CONTRIB
-	};
-
-	return (factor_table[MonsterProperties[m_id].class] << 16) & 0xFFFFF000;
-}
-
 // Get the tier from amount of item token
 int GetPunisherTier() {
 	int comp = CheckInventory("Punisher_Perk50_Counter");
