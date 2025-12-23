@@ -1,6 +1,8 @@
 // Chex
 // Common Flemoid
 
+$pitchshiftrange 2
+
 $random qgrunt/sight 		{ qgrunt/sight1  qgrunt/sight2  qgrunt/sight3 }
 $random qgrunt/death		{ qgrunt/death1  qgrunt/death2  qgrunt/death3 }
 qgrunt/sight1			"Sounds/Monsters/Incursion/Chex/cqposit1.ogg"

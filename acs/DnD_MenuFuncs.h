@@ -3116,6 +3116,17 @@ void HandleM2Inputs(int pnum, int boxid, int source, int seloffset, int prevsour
 	SetInventory("DnD_SelectedInventoryBox", 0);
 }
 
+void HandleMenuItemDrop(int pnum, int boxid, int source) {
+	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1, -1, source);
+	if(itype == DND_ITEM_NULL)
+		return;
+
+	int epos = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, boxid - 1, -1, source);
+	DropItemToField(pnum, boxid - 1, true, source);
+	ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), boxid - 1, source);
+	PlayItemDropSound(itype, epos, true);
+}
+
 void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 	int bid;
 	int epos, ipos, temp;
@@ -3123,7 +3134,10 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 		if(boxid != MAINBOX_NONE) {
 			// m1
 			if(!CheckInventory("DnD_SelectedInventoryBox")) {
-				SetInventory("DnD_SelectedInventoryBox", boxid);
+				if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_CROUCH)
+					HandleMenuItemDrop(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				else
+					SetInventory("DnD_SelectedInventoryBox", boxid);
 			}
 			else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
 				// if neither are empty spots
@@ -3163,11 +3177,8 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 		}
 		else if(CheckInventory("DnD_SelectedInventoryBox") && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 			// drop selected item
-			epos = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			HandleMenuItemDrop(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("DnD_SelectedInventoryBox", 0);
-			PlayItemDropSound(temp, epos, true);
 		}
 	}
 	else if(choice == DND_MENUINPUT_RCLICK)
@@ -3291,10 +3302,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 					// we have selected a box previously, if this has an item drop it otherwise clear it
 					if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_sel - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
 						// drop selected item
-						item_subt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_sel - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-						DropItemToField(pnum, item_sel - 1, true, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-						ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), item_sel - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-						PlayItemDropSound(temp, item_subt, true);
+						HandleMenuItemDrop(pnum, item_sel, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 					}
 					// clear selection
 					SetInventory("DnD_SelectedInventoryBox", 0);
@@ -3602,23 +3610,27 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					// we pressed a box, and we didn't confirm trade yet
 					// normal clicking functionality on inventory view
 					if(!CheckInventory("DnD_SelectedInventoryBox")) {
+						// offset deciphering
+						if(boxid > 2 * MAX_INVENTORY_BOXES) {
+							isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+							ioffset = 2 * MAX_INVENTORY_BOXES;
+
+							ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
+							soffset = MAX_INVENTORY_BOXES;
+						}
+						else {
+							isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
+							ioffset = MAX_INVENTORY_BOXES;
+
+							ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+							soffset = 2 * MAX_INVENTORY_BOXES;
+						}
+
 						// jump click is to auto-dump hovered item to stash or vice versa
-						if((GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) && !CheckInventory("DnD_AutoDumpCooldown")) {
-							if(boxid > 2 * MAX_INVENTORY_BOXES) {
-								isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-								ioffset = 2 * MAX_INVENTORY_BOXES;
-
-								ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
-								soffset = MAX_INVENTORY_BOXES;
-							}
-							else {
-								isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
-								ioffset = MAX_INVENTORY_BOXES;
-
-								ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-								soffset = 2 * MAX_INVENTORY_BOXES;
-							}
-
+						if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_CROUCH) {
+							HandleMenuItemDrop(pnum, boxid - ioffset, isource);
+						}
+						else if((GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) && !CheckInventory("DnD_AutoDumpCooldown")) {
 							// auto move code -- returns success if it could move
 							if
 							(
@@ -3713,7 +3725,8 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					
 					if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
 						// drop selected item
-						DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
+						HandleMenuItemDrop(pnum, CheckInventory("DnD_SelectedInventoryBox") - soffset, ssource);
+						//DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
 						
 						// check if commenting this causes any issues, we already save player inventories when they spectate
 						// ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, ssource);
@@ -3850,10 +3863,7 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 			
 			if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, sel_box - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
 				// drop selected item
-				DropItemToField(pnum, sel_box - 1 - soffset, true, ssource);
-				ACS_NamedExecuteAlways("DnD Save Player Item Data", 0, pnum | (CheckInventory("DnD_CharacterID") << 16), sel_box - 1 - soffset, ssource);
-				SetInventory("DnD_SelectedInventoryBox", 0);
-				ActivatorSound("Items/Drop", 127);
+				HandleMenuItemDrop(pnum, sel_box - soffset, ssource);
 			}
 		}
 		else if(!sel_box && boxid < STASHBUTTON_BOXID_START) {
@@ -3861,25 +3871,27 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 			LocalAmbientSound("RPG/MenuChoose", 127);
 			SetInventory("DnD_PlayerPreviousPage", CheckInventory("DnD_PlayerCurrentPage"));
 
+			if(boxid > MAX_INVENTORY_BOXES) {
+				isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+				ioffset = MAX_INVENTORY_BOXES;
+
+				ssource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
+			}
+			else {
+				isource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
+
+				ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+				soffset = MAX_INVENTORY_BOXES;
+			}
+
 			// strafe click is to auto-dump hovered item to stash or vice versa
 			if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) {
-				if(boxid > MAX_INVENTORY_BOXES) {
-					isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-					ioffset = MAX_INVENTORY_BOXES;
-
-					ssource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
-				}
-				else {
-					isource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
-
-					ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-					soffset = MAX_INVENTORY_BOXES;
-				}
-
 				// auto move code -- returns success if it could move
 				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
 					AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource);
 			}
+			else if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_CROUCH)
+				HandleMenuItemDrop(pnum, boxid - ioffset, isource);
 			else
 				SetInventory("DnD_SelectedInventoryBox", boxid);
 		}

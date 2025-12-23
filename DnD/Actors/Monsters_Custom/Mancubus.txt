@@ -1990,7 +1990,7 @@ Actor Yeti : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SpawnItem("IceBurst")
 			TNT1 A 0 A_PlaySound("IceGuyShatter")
 			TNT1 A 0 A_SpawnDebris("IceChunkDebris")
-			TNT1 A -1
+			TNT1 A -1 A_KillMaster
 		Stop
 		RaiseState:
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)

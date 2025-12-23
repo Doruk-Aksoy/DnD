@@ -505,18 +505,21 @@ void ClearMenuLeftovers(int pnum) {
 
 int GetCursorPos(int input, int mt, int hudx = HUDMAX_X, int hudy = HUDMAX_Y) {
 	int res = 0, speed, ds;
+	int dim;
 	switch(mt) {
 		case MOUSE_INPUT_X:
+			dim = getcvar("vid_defwidth");
 			res = PlayerCursorData.posx;
 			speed = FixedDiv(1.0, FixedMul(GetCVar("m_yaw"), GetCVar("mouse_sensitivity")));
-			speed = (speed * 2 * hudx) / (hudx * 100);
+			speed = (speed * 2 * dim) / (dim * 100);
 			ds = input * speed;
 			res = Clamp_Between(res + ds, 0, hudx << 16);
 		break;
 		case MOUSE_INPUT_Y:
+			dim = getcvar("vid_defheight");
 			res = PlayerCursorData.posy;
 			speed = FixedDiv(1.0, FixedMul(GetCVar("m_pitch"), GetCVar("mouse_sensitivity")));
-			speed = (speed * 2 * hudy) / (hudy / 2 * 100);
+			speed = (speed * 2 * dim) / (dim / 2 * 100);
 			if (GetCVar("invertmouse"))
 				speed *= -1;
 			ds = input * speed;
@@ -534,7 +537,7 @@ void DrawCursor(int hudx = HUDMAX_XF, int hudy = HUDMAX_YF) {
 		SetFont(StrParam(s:"DND_CUR", d:cursor_anim / 4 - 1));
 	cursor_anim = (cursor_anim + 1) % 24;
 	
-	//printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy/*, s: " hud: ", f:hudx, s: " ", f:hudy*/);
+	printbold(f:PlayerCursorData.posx, s: " ", f:PlayerCursorData.posy/*, s: " hud: ", f:hudx, s: " ", f:hudy*/);
 
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUCURSORID, -1, hudx - (PlayerCursorData.posx & MMASK) + 0.1, hudy - (PlayerCursorData.posy & MMASK) + 0.1, 0.2, 0.0);
 }

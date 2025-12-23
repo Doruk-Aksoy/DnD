@@ -1,3 +1,5 @@
+$pitchshiftrange 2
+
 WeaponWheel/Open	WHEELON
 WeaponWheel/Hover	WHEELHVR
 WeaponWheel/Exit	WHEELEXT

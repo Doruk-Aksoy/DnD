@@ -1,3 +1,5 @@
+$pitchshiftrange 2
+
 $random ZombieFodder/Sight { FODDERSEE1 FODDERSEE2 }
 FODDERSEE1	FODDSEE1
 FODDERSEE2	FODDSEE2

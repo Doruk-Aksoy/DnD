@@ -91,3 +91,6 @@ Actor DnD_FreezeFXRunning : DnD_Boolean { }
 Actor DnD_OverloadFXRunning : DnD_Boolean { }
 
 Actor DnD_HasPhasing : DnD_Boolean { }
+
+Actor DnD_Charmed : DnD_Boolean { }
+Actor DnD_CharmTimer : DnD_Info { }

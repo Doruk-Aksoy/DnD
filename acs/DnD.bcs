@@ -2194,13 +2194,25 @@ Script 975 (int tid, int pang, int radius) {
 	}
 }
 
-Script "DnD Golgoth Health Check" (void) {
+Script "DnD Monster Health Check" (int makeNoPain) {
 	Delay(const:35);
-	int comp = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].maxhp / 2;
-	while(GetActorProperty(0, APROP_HEALTH) < comp)
+
+	int m_id = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	int comp = MonsterProperties[m_id].maxhp / 2;
+
+	while(GetActorProperty(0, APROP_HEALTH) > comp)
 		Delay(const:10);
 	GiveInventory("DnD_Boolean", 1);
-	GiveInventory("MakeNoPain", 1);
+
+	if(MonsterProperties[m_id].id == MONSTER_REMUS) {
+		GiveInventory("MakeGhost", 1);
+		ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_GHOST, -1, -1, -1);
+		SetActorProperty(0, APROP_RENDERSTYLE, STYLE_TRANSLUCENT);
+		SetActorProperty(0, APROP_ALPHA, 0.5);
+	}
+
+	if(makeNoPain)
+		GiveInventory("MakeNoPain", 1);
 }
 
 Script "DnD Monster Trait Take" (int flag1, int flag2, int flag3, int flag4) {
@@ -5865,6 +5877,61 @@ Script "DnD Super Lootbox FX" (int pnum) CLIENTSIDE {
 		Terminate;
 
 	MakeFancyFlames();
+}
+
+Script "DnD Vaaj Charm" (int spd) {
+	int charm_owner = GetActorProperty(0, APROP_TARGETTID);
+	int victim = GetActorProperty(0, APROP_TRACERTID);
+	if(IsPlayer(victim) && IsActorAlive(victim)) {
+		SetActivator(victim);
+		int pnum = victim - P_TIDSTART;
+		if(!CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY)) {
+			int base_t = DND_VAAJ_CHARMTIME;
+			int curse_effect = 100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEEFFECT);
+            if(curse_effect <= 0) {
+                SetResultValue(0);
+                Terminate;
+            }
+
+			base_t = base_t * curse_effect / 100;
+			SetInventory("DnD_CharmTimer", base_t);
+
+			PlaySound(0, "Vaaj/Charmed", CHAN_6, 0.75);
+			HandleCurseFade(victim, victim, 255, 192, 203, 0.33, base_t, 100);
+			if(!CheckInventory("DnD_Charmed")) {
+				GiveInventory("DnD_Charmed", 1);
+
+				SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+				GiveInventory("P_Frozen", 1);
+
+				ACS_NamedExecuteAlways("DnD Vaaj Heart Fx", 0);
+				
+				while(CheckInventory("DnD_CharmTimer")) {
+					TakeInventory("DnD_CharmTimer", 1);
+					Delay(const:1);
+
+					FaceActor(0, charm_owner);
+					base_t = GetActorAngle(0);
+					SetActorVelocity(0, spd * cos(base_t), spd * sin(base_t), GetActorVelZ(0), 0, 0);
+				}
+
+				SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+				TakeInventory("P_Frozen", 1);
+				SetInventory("DnD_Charmed", 0);
+			}
+		}
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Vaaj Heart Fx" (void) CLIENTSIDE {
+	int r = GetActorProperty(0, APROP_RADIUS);
+	int h = GetActorProperty(0, APROP_HEIGHT);
+	while(isAlive() && CheckInventory("DnD_CharmTimer")) {
+		SpawnForced("VaajHeartFX", GetActorX(0) + random(-r, r), GetActorY(0) + random(-r, r), GetActorZ(0) + random(h / 4, 3 * h / 4), 0);
+		Delay(2);
+	}
 }
 
 /*Script 69 (void) NET {

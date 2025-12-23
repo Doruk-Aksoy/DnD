@@ -160,6 +160,18 @@ Object OmniBall {
 	Frame UP06I { Light HadesBall7 }
 }
 
+Object HadesBall_Omni
+{
+	Frame HEFXA { Light HadesBall1 }
+	Frame HEFXB { Light HadesBall1 }
+	Frame HEFXC { Light HadesBall2 }
+	Frame HEFXD { Light HadesBall3 }
+	Frame HEFXE { Light HadesBall4 }
+	Frame HEFXF { Light HadesBall5 }
+	Frame HEFXG { Light HadesBall6 }
+	Frame HEFXH { Light HadesBall7 }
+}
+
 object Chegovax {
 	frame UE07R { light LOSTSOUL_X1 }
 	frame UE07S { light LOSTSOUL_X1 }

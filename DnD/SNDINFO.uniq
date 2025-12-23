@@ -1,3 +1,5 @@
+$pitchshiftrange 2
+
 Gant/Fire			GANTFIR
 Gant/Hit1			GANTHIT1
 Gant/Hit2			GANTHIT2
@@ -52,6 +54,11 @@ Vaaj/Die1			DSUCDTH1
 Vaaj/Die2			DSUCDTH2
 $random Vaaj/Die { Vaaj/Die1 Vaaj/Die2 }
 Vaaj/Attack			DSUCATK
+Vaaj/Kiss			VAAJKISS
+Vaaj/Charmed		VAAJCHARM
+Vaaj/KissHit1		VAAJKSH1
+Vaaj/KissHit2		VAAJKSH2
+$random Vaaj/KissHit { Vaaj/KissHit1 Vaaj/KissHit2 }
 
 Remus/see         	REMUSITE
 Remus/Die			REMUDTH

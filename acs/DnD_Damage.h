@@ -94,6 +94,7 @@ enum {
 	DND_DAMAGETYPEFLAG_DOT = 4096,
 	DND_DAMAGETYPEFLAG_ISBLEED = 8192,
 
+	DND_DAMAGETYPEFLAG_HURTSPECIES = 268435456,
 	DND_DAMAGETYPEFLAG_USEMASTER = 536870912,
 	DND_DAMAGETYPEFLAG_REFLECTABLE = 1073741824
 };
@@ -2050,10 +2051,12 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 				}
 			}
 
-			temp = HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME, wepid < 0);
-			if(temp > 0)
-				Thing_Damage2(victim, temp, "Special_NoPain");
-			ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, stacks);
+			if(CheckFlag(victim, "SHOOTABLE")) {
+				temp = HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME, wepid < 0);
+				if(temp > 0)
+					Thing_Damage2(victim, temp, "Special_NoPain");
+				ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, stacks);
+			}
 			
 			// go up to the next threshold for next tic etc.
 			trigger_tic += tic_temp;
@@ -2301,11 +2304,9 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	int source = pnum + P_TIDSTART;
 
 	dmg = GetBleedDamage(pnum, wepid, dmg, victim);
-	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
 
 	int bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
 	int next_dmg = dmg;
-	int inc_by = dmg * dmg_tic_buff / 100;
 
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_BLEED);
@@ -2313,19 +2314,19 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	bool isRobot = isActorRobotic(victim);
 
 	do {
-		ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim, isRobot);
+		if(CheckFlag(victim, "SHOOTABLE")) {
+			ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim, isRobot);
+			dmg = HandleDamageDeal(
+				source, 
+				victim, 
+				next_dmg * (1 + 2 * (!!(GetActorVelX(victim) || GetActorVelY(victim) || GetActorVelZ(victim)))), 
+				DND_DAMAGETYPE_PHYSICAL, wepid, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME
+			);
+			if(dmg > 0)
+				Thing_Damage2(victim, dmg, "SkipHandle");
+		}
+
 		TakeActorInventory(victim, "DnD_BleedTimer", 1);
-		dmg = HandleDamageDeal(
-			source, 
-			victim, 
-			next_dmg * (1 + 2 * (!!(GetActorVelX(victim) || GetActorVelY(victim) || GetActorVelZ(victim)))), 
-			DND_DAMAGETYPE_PHYSICAL, wepid, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME
-		);
-		if(dmg > 0)
-			Thing_Damage2(victim, dmg, "SkipHandle");
-		
-		// add base damage's value, not previous
-		next_dmg += inc_by;
 		
 		// x 5
 		Delay(const:DND_BLEED_TICRATE);
@@ -2364,15 +2365,19 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		AddMonsterAilment(source, victim, DND_AILMENT_IGNITE);
 	
 	do {
-		ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2);
+		// only apply ignite if target is shootable ie. not teleporting
+		if(CheckFlag(victim, "SHOOTABLE")) {
+			ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2);
+			i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME);
+			if(i > 0)
+				Thing_Damage2(victim, i, "SkipHandle");
+			
+			// add base damage's value, not previous
+			next_dmg += inc_by;
+		}
+
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
-		i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME);
-		if(i > 0)
-			Thing_Damage2(victim, i, "SkipHandle");
-		
-		// add base damage's value, not previous
-		next_dmg += inc_by;
-		
+
 		// x 5
 		Delay(const:7);
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
@@ -3649,7 +3654,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				(
 					IsMonster(victim) && 
 					victim != shooter && 
-					GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES)
+					GetActorProperty(victim, APROP_SPECIES) == GetActorProperty(shooter, APROP_SPECIES) && !(dmg_data & DND_DAMAGETYPEFLAG_HURTSPECIES)
 				)
 			)
 			{

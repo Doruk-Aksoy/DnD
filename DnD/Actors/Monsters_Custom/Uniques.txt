@@ -22,6 +22,8 @@ Actor Teron : DnD_BaseRangedMonster_NoRes {
 	+NOINFIGHTING
 	States {
 		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
 			TNT1 A 0 A_SetArg(4, DND_TERON)
 		Goto SpawnSetup
 		
@@ -40,30 +42,64 @@ Actor Teron : DnD_BaseRangedMonster_NoRes {
 		Goto See
 		MissileState:
 			TNT1 A 0 A_JumpIfInventory("DnD_Info", 8, "NeedReload")
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "HardHit")
 			TNT1 A 0 A_Jump(128, "SpreadShot")
 			UE00 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
-			TNT1 AAAAAAAAA 0 A_CustomMissile("RapidFireBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
 			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
 			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
 			UE00 E 6 Fast
 		Goto See
-		SpreadShot:
+		HardHit:
+			UE00 E 0 A_GiveInventory("TeronDasher", 1)
 			UE00 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
-			TNT1 AAAAAAAAA 0 A_CustomMissile("RapidFireBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet2", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
+			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
+			UE00 E 0 A_FaceTarget
+			UE00 E 0 A_GiveInventory("TeronDasher", 1)
+			UE00 E 6 Fast
+		Goto See
+		SpreadShot:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SpreadHardHit")
+			UE00 E 6 Fast A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
 			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
 			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
 			TNT1 A 0 A_FaceTarget
 			UE00 E 6 Fast A_SetAngle(angle + 9.75 + frandom(0, 9.75))
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
-			TNT1 AAAAAAAAA 0 A_CustomMissile("RapidFireBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
 			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
 			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
 			TNT1 A 0 A_FaceTarget
 			UE00 E 6 Fast A_SetAngle(angle - 9.75 - frandom(0, 9.75))
 			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
-			TNT1 AAAAAAAAA 0 A_CustomMissile("RapidFireBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
+			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
+		Goto See
+		SpreadHardHit:
+			UE00 E 6 Fast A_FaceTarget
+			UE00 E 0 A_GiveInventory("TeronDasher", 1)
+			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet2", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
+			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
+			TNT1 A 0 A_FaceTarget
+			UE00 E 6 Fast A_SetAngle(angle + 9.75 + frandom(0, 9.75))
+			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet2", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
+			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
+			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
+			TNT1 A 0 A_FaceTarget
+			UE00 E 0 A_GiveInventory("TeronDasher", 1)
+			UE00 E 6 Fast A_SetAngle(angle - 9.75 - frandom(0, 9.75))
+			TNT1 A 0 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAAAAAAAA 0 A_CustomMissile("TeronBullet2", 32, 0, frandom(-11.2, 11.2), 0, frandom(-7.1, 7.1))
 			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
 			UE00 F 7 Fast Bright A_PlaySound("weapons/autosgfire", CHAN_WEAPON)
 		Goto See
@@ -90,12 +126,42 @@ Actor Teron : DnD_BaseRangedMonster_NoRes {
 	}
 }
 
+Actor TeronDashCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -3
+}
+
+Actor TeronDasher : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("TeronDashCooldown", 1, "NoDash")
+			TNT1 A 0 A_Jump(128, "Dash")
+		Stop
+		Dash:
+			TNT1 A 0 A_GiveInventory("TeronDashCooldown", 1)
+			TNT1 A 0 ThrustThing(angle * 256 / 360 + (1 + 2 * random(0, -1)) * 64, 24, 0, 0)
+		Stop
+		NoDash:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor TeronBullet : ZombieBullet {
+	Damage (random(1,3) * 5)
+	Accuracy 200
+}
+
+Actor TeronBullet2 : TeronBullet {
+	Damage (random(2, 4) * 5)
+}
+
 Actor Gant : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
 	DropItem "SuperShotgunPickup_Drop"
-	Radius 24
-	Height 60
+	Radius 20
+	Height 56
 	Speed 10
 	PainChance 64
 	SeeSound "Gant/See"
@@ -112,6 +178,8 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 	+NOINFIGHTING
 	States {
 		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
 			TNT1 A 0 A_SetArg(4, DND_GANT)
 		Goto SpawnSetup
 		
@@ -126,6 +194,7 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
+			UE01 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING) 
 			UE01 A 2 Fast A_Chase("Melee", "")
 			UE01 A 2 Fast A_Chase
 			UE01 B 2 Fast A_Chase("Melee", "")
@@ -141,12 +210,53 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 			UE01 I 4 Fast A_FaceTarget
 			UE01 J 4 Fast
 		Goto See
+		CheckCharge:
+			UE01 E 0 A_JumpIfCloser(224, "ContinueCharge")
+		Goto ContMissile
+		ContinueCharge:
+			UE01 H 1 A_FaceTarget
+			UE01 H 1 ACS_ExecuteAlways(971, 0, 28) // script sets velocity
+			UE01 H 3 Fast ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
+			UE01 II 3 Fast A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
+			TNT1 A 0 A_JumpIf(velx == 0 || vely == 0, "See")
+			UE01 II 3 Fast A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
+			UE01 J 0 A_Stop
+			UE01 J 4 Fast A_SetFloorClip
+		Goto See
+		DashFinish:
+			UE01 J 2 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMeleeAttack(6 * random(6, 10), "weapons/vblhit")
+			UE01 J 2 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMissile("GantBash")
+			UE01 J 3
+		Goto See
 		MissileState:
-			UE01 E 7 Fast A_FaceTarget
+			UE01 E 1 A_JumpIfInventory("DnD_Boolean", 1, "CheckCharge")
+		ContMissile:
+			UE01 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING) 
+			UE01 E 0 A_JumpIfInventory("DnD_Boolean", 1, "FastMissile")
+			UE01 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
 			TNT1 AAAAA 0 A_CustomMissile("Gant_AcidShot", 40, 9, frandom(-5.25, 5.25), CMF_OFFSETPITCH, frandom(-3.25, 3.25))
 			UE01 F 4 Fast Bright A_FaceTarget
 			UE01 G 10 Fast A_FaceTarget
+		Goto See
+		FastMissile:
+			UE01 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			TNT1 AAAAA 0 A_CustomMissile("Gant_AcidShot", 40, 9, frandom(-5.25, 5.25), CMF_OFFSETPITCH, frandom(-3.25, 3.25))
+			UE01 F 2 Fast Bright A_FaceTarget
+			UE01 G 5 Fast A_FaceTarget
+			UE01 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			TNT1 AAAAA 0 A_CustomMissile("Gant_AcidShot", 40, 9, frandom(-5.25, 5.25), CMF_OFFSETPITCH, frandom(-3.25, 3.25))
+			UE01 F 2 Fast Bright A_FaceTarget
+			UE01 G 5 Fast A_FaceTarget
+			UE01 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			TNT1 AAAAA 0 A_CustomMissile("Gant_AcidShot", 40, 9, frandom(-5.25, 5.25), CMF_OFFSETPITCH, frandom(-3.25, 3.25))
+			UE01 F 2 Fast Bright A_FaceTarget
+			UE01 G 5 Fast A_FaceTarget
 		Goto See
 		PainState:
 			UE01 K 3 Fast
@@ -258,6 +368,8 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 	+NOINFIGHTING
 	States {
 		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
 			TNT1 A 0 A_SetArg(4, DND_BRONN)
 		Goto SpawnSetup
 		
@@ -312,6 +424,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 			UE02 G 5 Fast A_MonsterRefire(64, "See")
 		Loop
 		Lobbed:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "LobbedMines")
 			TNT1 A 0 A_JumpIfCloser(256, "ContinueLob")
 		Goto MissileGo
 		ContinueLob:
@@ -330,6 +443,27 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 			UE02 E 4 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
 			UE02 F 4 Fast Bright A_CustomMissile("Bronn_AcidShot", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(8, 15.0))
+			UE02 E 4 Fast A_FaceTarget
+			UE02 G 9 Fast
+		Goto See
+		LobbedMines:
+			UE02 EEE 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			UE02 F 4 Fast Bright A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
+			UE02 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			TNT1 A 0 A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
+			UE02 F 4 Fast Bright A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
+			UE02 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			UE02 F 4 Fast Bright A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
+			UE02 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			TNT1 A 0 A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
+			UE02 F 4 Fast Bright A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
+			UE02 E 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("Gant/Fire", CHAN_WEAPON)
+			UE02 F 4 Fast Bright A_CustomMissile("BronnLobbedMine", frandom(47, 49), 12, frandom(-4.25, 4.25), CMF_OFFSETPITCH, frandom(9, 18.0))
 			UE02 E 4 Fast A_FaceTarget
 			UE02 G 9 Fast
 		Goto See
@@ -384,18 +518,90 @@ Actor Bronn_AcidShot : Gant_AcidShot {
 	}
 }
 
+Actor BronnLobbedMine {
+	PROJECTILE
+	Damage (25)
+	DamageType "Poison"
+	Stamina 1073741952
+	Renderstyle Add
+	Scale 0.75
+	Speed 16
+	Height 16
+	Radius 8
+	Deathsound "Gant/Hit"
+	BounceType "Doom"
+	BounceCount 4
+	-NOGRAVITY
+	+DONTBLAST
+	States {
+		Spawn:
+			D2FX AABBCCDDEE 2 A_SpawnItemEx("BronnLobbedMine_Trail")
+		Loop
+		XDeath:
+		Explode:
+			D5FX GHI 4 Bright A_Explode(64, 128, 0)
+			D5FX JK 3 Bright
+			D5FX L 2 Bright
+		Stop
+		Death:
+			D2FX "#" 1 A_CustomMissile("BronnMineLatched", 0, 0, 0, CMF_TRACKOWNER)
+		Stop
+	}
+}
+
+Actor BronnLobbedMine_Trail {
+	Renderstyle Add
+	Scale 0.75
+	Alpha 0.9
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			D2FX AAABBBCCCDDDEEE 1 A_FadeOut(0.033)
+		Stop
+	}
+}
+
+Actor BronnMineLatched {
+	PROJECTILE
+	Damage (25)
+	DamageType "Poison"
+	Stamina 1073741952
+	Renderstyle Add
+	Scale 0.75
+	Speed 0
+	Height 16
+	Radius 8
+	ReactionTime 8
+	Deathsound "Gant/Hit"
+	+DONTREFLECT
+	+DONTBLAST
+	States {
+		Spawn:
+			D2FX ABCDE 4 
+			D2FX E 1 A_CountDown
+		Loop
+		Death:
+			D5FX GHI 4 Bright A_Explode(64, 128, 0)
+			D5FX JK 3 Bright
+			D5FX L 2 Bright
+		Stop
+	}
+}
+
 Actor Vaaj : DnD_BaseRangedMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 20
 	Height 58
 	Speed 8
-	PainChance 96
+	PainChance 64
 	SeeSound "Vaaj/See"
 	PainSound "Vaaj/pain"
 	DeathSound "Vaaj/Die"
 	ActiveSound "Vaaj/See"
 	Obituary "%o fell victim to Vaaj the Temptress."
+	MinMissileChance 96
 	Mass 256
 	Tag "Vaaj the Temptress"
 	Species "Imp"
@@ -404,6 +610,7 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes {
 	+ISMONSTER
 	+NOTARGET
 	+NOINFIGHTING
+	+MISSILEMORE
 	+DONTHURTSPECIES
 	+DONTHARMSPECIES
 	States {
@@ -422,18 +629,34 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes {
 			UE03 B 3 A_FastChase
 		loop
 		MissileState:
-			TNT1 A 0 A_Jump(96, "BigCharge")
+			TNT1 A 0 A_Jump(128, "BigCharge", "Kiss", "Kiss")
+		PinkBalls:
 			UE03 G 3 A_FaceTarget
 			UE03 I 3
 			TNT1 A 0 A_PlaySound("Vaaj/Attack")
 			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, 0)
-			TNT1 A 0 A_Jump(128, "Skip")
+			TNT1 A 0 A_Jump(128, "Skip", "More")
 			UE03 J 1
 			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, -8)
 			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, 8)
 		Skip:
 			UE03 J 5 A_FaceTarget
 		goto See
+		More:
+			UE03 J 3
+			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, -3.6)
+			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, 3.6)
+			UE03 J 3
+			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, -8)
+			TNT1 A 0 A_CustomMissile ("PinkBall", 36, 0, 8)
+		Goto Skip
+		Kiss:
+			UE03 G 4 A_FaceTarget
+			TNT1 A 0 A_PlaySound("Vaaj/Kiss", CHAN_WEAPON)
+			UE03 I 4 A_FaceTarget
+			TNT1 A 0 A_CustomMissile ("VaajKiss", 36, 0, 0)
+			UE03 J 5
+		Goto PinkBalls
 		BigCharge:
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			TNT1 A 0 A_PlaySound("weapons/deathstfire2")
@@ -463,6 +686,67 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes {
 			UE03 OP 6
 			UE03 Q -1
 		Stop
+	}
+}
+
+Actor VaajKiss {
+	PROJECTILE
+	Damage (10)
+	Height 24
+	Radius 12
+	Speed 16
+	Scale 0.65
+	Stamina 8
+	RenderStyle Add
+	Alpha 0.9
+	+HITTRACER
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			SUCP J 1 Bright A_SpawnItemEx("VaajKissTrail")
+		Loop
+		XDeath:
+			TNT1 A 0 A_PlaySound("Vaaj/KissHit")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Vaaj Charm", 5)
+		Goto DeathAnim
+		Death:
+			TNT1 A 0 A_PlaySound("imp/shotx")
+		DeathAnim:
+			SUCP KLMNOPQR 3 Bright
+		Stop
+	}
+}
+
+Actor VaajKissTrail {
+	RenderStyle Add
+	Alpha 0.9
+	Scale 0.65
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			SUCP J 1 Bright A_FadeOut(0.1)
+		Loop
+	}
+}
+
+Actor VaajHeartFX {
+	Renderstyle Add
+	Alpha 0.75
+	Scale 0.1
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	const float a = 0.05;
+	const int vhoriz = 2;
+	const int dhoriz = 3;
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_ChangeVelocity(0, 0, frandom(0.75, 1.5), CVF_REPLACE)
+		SpawnLoop:
+			SUCP S 1 A_FadeOut(a)
+			SUCP S 1 A_Weave(vhoriz, 0, dhoriz, 0)
+		Loop
 	}
 }
 
@@ -550,7 +834,7 @@ actor PinkBall {
 	radius 4
 	height 8
 	speed 30
-	damage (10)
+	damage (18)
 	DamageType "MagicalVoid"
 	Stamina 1073741832
 	renderstyle Add
@@ -589,7 +873,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 	Height 64
 	Speed 13
 	PainChance 80
-	MeleeRange 120
+	MeleeRange 128
 	SeeSound "Remus/See"
 	PainSound "Remus/pain"
 	DeathSound "Remus/die"
@@ -607,6 +891,8 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
 			TNT1 A 0 A_SetArg(4, DND_REMUS)
 		Goto SpawnSetup
 		
@@ -621,6 +907,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			UE04 D 5 A_GiveInventory("DnD_WanderChecker", 1)
 		Loop
 		SeeState:
+			UE04 A 0 A_JumpIfInventory("DnD_Boolean", 1, "FasterSee")
 			UE04 A 0 A_GiveInventory("DnD_Info", 1)
 			UE04 AA 2 A_Chase
 		SeeTeleportSkip:
@@ -630,6 +917,17 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			UE04 CC 2 A_Chase
 			UE04 D 0 A_TakeInventory("DnD_Info", 1)
 			UE04 DD 2 A_Chase
+		Goto See
+		FasterSee:
+			UE04 A 0 A_GiveInventory("DnD_Info", 1)
+			UE04 AAAA 1 A_Chase
+		SeeTeleportSkip:
+			UE04 B 0 A_GiveInventory("DnD_Info", 1)
+			UE04 BBBB 1 A_Chase
+			UE04 C 0 A_GiveInventory("DnD_Info", 1)
+			UE04 CCCC 1 A_Chase
+			UE04 D 0 A_TakeInventory("DnD_Info", 1)
+			UE04 DDDD 1 A_Chase
 		Goto See
 		MissileState:
 			TNT1 A 0 A_UnSetShootable
@@ -703,6 +1001,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			UE04 B 0 A_Jump(128, "TeleportA", "TeleportB", "TeleportC", "TeleportD")
 		Goto See
 		MeleeState:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "AnnoyingMelee")
 			TNT1 A 0 A_SetShootable
 			UE04 NO 3 A_FaceTarget
 			UE04 PQ 3 Bright A_FaceTarget
@@ -724,7 +1023,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
 			UE04 T 2 bright A_CustomMeleeAttack(random(2, 5))
-			UE04 T 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 96), "MeleeFinish")
+			UE04 T 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 144), "MeleeFinish")
 			TNT1 A 0 A_PlaySound("Enforcer/Hit")
 			TNT1 A 0 A_CustomMissile("RemusZapper", 36)
 			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 0, CMF_AIMDIRECTION)
@@ -742,7 +1041,49 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_FaceTarget
 			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
 			UE04 W 2 bright A_CustomMeleeAttack(random(2, 5))
-			UE04 W 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 96), "MeleeFinish")
+			UE04 W 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 144), "MeleeFinish")
+		Loop
+		AnnoyingMelee:
+			TNT1 A 0 A_SetShootable
+			UE04 NO 3 A_FaceTarget
+			UE04 PQ 3 Bright A_FaceTarget
+		MeleeLoop:
+			TNT1 A 0 A_PlaySound("Enforcer/Hit")
+			TNT1 A 0 A_CustomMissile("RemusZapper", 36)
+			TNT1 A 0 A_FaceTarget
+			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 0, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 60, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 120, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 180, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 240, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 300, CMF_AIMDIRECTION)
+			UE04 R 2 bright A_CustomMeleeAttack(random(10, 24))
+			TNT1 A 0 A_FaceTarget
+			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			UE04 S 2 bright A_CustomMeleeAttack(random(10, 24))
+			TNT1 A 0 A_FaceTarget
+			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			UE04 T 2 bright A_CustomMeleeAttack(random(10, 24))
+			UE04 T 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 144), "MissileState")
+			TNT1 A 0 A_PlaySound("Enforcer/Hit")
+			TNT1 A 0 A_CustomMissile("RemusZapper", 36)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 0, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 60, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 120, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 180, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 240, CMF_AIMDIRECTION)
+			TNT1 A 0 A_CustomMissile("RemusZapProjectile", 36, 0, 300, CMF_AIMDIRECTION)
+			TNT1 A 0 A_FaceTarget
+			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			UE04 U 2 bright A_CustomMeleeAttack(random(10, 24))
+			TNT1 A 0 A_FaceTarget
+			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			UE04 V 2 bright A_CustomMeleeAttack(random(10, 24))
+			TNT1 A 0 A_FaceTarget
+			TNT1 AAA 0 A_SpawnItemEx("RemusFX", frandom(-radius / 2, radius / 2), frandom(-radius / 2, radius / 2), height / 2 + frandom(-16, 16), frandom(-2, 2), frandom(-2 ,2), frandom(-2 ,2))
+			UE04 W 2 bright A_CustomMeleeAttack(random(10, 24))
+			UE04 W 1 Bright A_JumpIf(!ACS_NamedExecuteWithResult("DnD Monster Melee Loop", 144), "MissileState")
 		Loop
 		MeleeFinish:
 			UE04 PQ 1 Bright A_FaceTarget
@@ -852,6 +1193,8 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 	+DONTHARMSPECIES
 	States {
 		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
 			TNT1 A 0 A_SetArg(4, DND_SSRATH)
 		Goto SpawnSetup
 		
@@ -918,11 +1261,24 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 			TNT1 AAAAAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-36, 36), frandom(-36, 36), frandom(18, 44), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 0 A_PlaySound("Draugr/Fade")
 			UE05 HHHH 1 Fast A_FadeOut(0.24, 0)
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "MoreVanish")
 			TNT1 AAAAAAAAAAAAAAAA 2 A_Chase("", "")
 			TNT1 AAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-24, 24), frandom(-24, 24), frandom(24, 36), frandom(-3, 3), frandom(-3, 3), frandom(-1, 2))
 			TNT1 AAAAAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-36, 36), frandom(-36, 36), frandom(18, 444), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 A 0 A_PlaySound("Draugr/Fade")
 			UE05 HHHH 1 Fast A_FadeIn(0.24)
+		Goto See
+		MoreVanish:
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAA 2 A_Chase("", "")
+			TNT1 AAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-24, 24), frandom(-24, 24), frandom(24, 36), frandom(-3, 3), frandom(-3, 3), frandom(-1, 2))
+			TNT1 AAAAAAAA 0 A_SpawnItemEx("RocketSmoke", frandom(-36, 36), frandom(-36, 36), frandom(18, 444), frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 A 0 A_PlaySound("Draugr/Fade")
+			UE05 HHHH 1 Fast A_FadeIn(0.24)
+			UE05 E 4 Fast A_FaceTarget
+			UE05 FFFFF 5 Fast A_FaceTarget
+			TNT1 A 0 A_CustomMissile("Ssrath_Screamer", 32)
+			UE05 G 9 Fast
+			UE05 G 2 A_Jump(128, "Vanish")
 		Goto See
 		XDeathState:
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 32, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
@@ -1148,7 +1504,14 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 	+NOGRAVITY
 	+DONTFALL
 	+MISSILEMORE
+	+MISSILEEVENMORE
 	+NOBLOOD
+	
+	var int user_ang;
+	var int user_pitch;
+	var int user_odds;
+	const int spd = 24;
+	
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HOLLOWSHELL)
@@ -1172,6 +1535,25 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 			UE10 B 2 Fast Bright A_FaceTarget
 			TNT1 A 0 A_CustomMissile("HollowShellComet", 16)
 			UE10 BBBB 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8)) 
+			UE10 B 2 A_Jump(128, "Again")
+		Goto See
+		Again:
+			TNT1 A 0 A_SetUserVar("user_odds", 0)
+		AgainBegin:
+			TNT1 A 0 A_SetUserVar("user_ang", 22.5 * random(-2, 2))
+			TNT1 A 0 A_SetUserVar("user_pitch", 15 * random(-2, 2))
+			TNT1 A 0 A_SetAngle(user_ang + angle)
+			TNT1 A 0 A_ChangeVelocity(spd * cos(user_ang), spd * sin(user_ang), spd * sin(-user_pitch), CVF_REPLACE)
+			UE10 AAAA 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
+			TNT1 A 0 A_Stop
+			TNT1 A 0 A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
+			UE10 B 2 Fast Bright A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
+			UE10 B 2 Fast Bright A_FaceTarget
+			TNT1 A 0 A_CustomMissile("HollowShellComet", 16)
+			UE10 BBBB 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
+			TNT1 A 0 A_SetUserVar("user_odds", user_odds + 16)
+			UE10 B 2 A_Jump(208 - user_odds, "AgainBegin")
 		Goto See
 		Charge:
 			TNT1 A 0 A_FaceTarget
@@ -1197,6 +1579,7 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 			UE10 B 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 		Goto See
 		PainState:
+			TNT1 A 0 A_Stop
 			UE10 C 2 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
 			TNT1 A 0 A_Pain
 			UE10 C 3 Fast Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
@@ -1437,7 +1820,7 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 	Radius 36
 	Height 80
 	Speed 8
-	PainChance 64
+	PainChance 32
 	SeeSound "Omnisight/See"
 	PainSound "Omnisight/pain"
 	DeathSound "Omnisight/Die"
@@ -1498,10 +1881,10 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 		Missile3:
 			UE06 JJJJJJJJ 1 A_FaceTarget
 		Missile3Loop:
-			TNT1 A 0 A_CustomMissile("HadesBall",92,-40,random(-3,3),0,random(-3,3))
-			TNT1 A 0 A_CustomMissile("HadesBall",8,-40,random(-3,3),0,random(-3,3))
-			TNT1 A 0 A_CustomMissile("HadesBall",92,40,random(-3,3),0,random(-3,3))
-			TNT1 A 0 A_CustomMissile("HadesBall",8,40,random(-3,3),0,random(-3,3))
+			TNT1 A 0 A_CustomMissile("HadesBall_Omni",92,-40,random(-3,3),0,random(-3,3))
+			TNT1 A 0 A_CustomMissile("HadesBall_Omni",8,-40,random(-3,3),0,random(-3,3))
+			TNT1 A 0 A_CustomMissile("HadesBall_Omni",92,40,random(-3,3),0,random(-3,3))
+			TNT1 A 0 A_CustomMissile("HadesBall_Omni",8,40,random(-3,3),0,random(-3,3))
 			TNT1 A 0 A_CustomMissile("OmniBall",54,-50,random(-3,3),0,random(-3,3))
 			UE06 K 4 Bright A_CustomMissile("OmniBall",54,50,random(-3,3),0,random(-3,3))
 			UE06 J 4 A_SpidRefire
@@ -1552,6 +1935,7 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 			UE06 F 1 A_SetTranslucent(1.0)
 			UE06 F 0 A_SetShootable
 			UE06 F 0 A_UnSetInvulnerable
+			UE06 F 1 A_Jump(128, "Redecide")
 		Goto See
 		XDeathState:
 		DeathState:
@@ -1577,6 +1961,11 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 			UE06 PQRSTUV 5 bright
 		Stop
 	}
+}
+
+Actor HadesBall_Omni : HadesBall {
+	Damage (8 * random(4, 8))
+	Speed 24
 }
 
 Actor OmnisightTeleMove : DnD_Activator {
@@ -1826,8 +2215,8 @@ ACTOR OmnisightHorn2 : OmnisightFlesh1 {
 ACTOR OmniBall {
 	Radius 10
 	Height 20
-	Speed 24
-	Damage (8 * random(5, 8))
+	Speed 30
+	Damage (8 * random(6, 9))
 	DamageType "LightningRed"
 	Stamina 256
 	PROJECTILE
@@ -1854,7 +2243,7 @@ ACTOR OmniBall {
 
 Actor OmniBigBall {
 	Projectile
-	Speed 28
+	Speed 32
 	Damage (random(55, 75))
 	DamageType "LightningRed"
 	Stamina 256
@@ -1896,7 +2285,7 @@ Actor OmniBigBall {
 Actor OmniLightning : DarkZealotLightning {
 	DamageType "LightningRed"
 	Stamina 256
-	Damage (5 * random(4, 5))
+	Damage (5 * random(5, 6))
 	-PIERCEARMOR
 	+DONTREFLECT
 }
@@ -1913,7 +2302,7 @@ Actor OmniChaosBall {
 	Renderstyle Add
 	+DONTREFLECT
 	var int user_count;
-	const float r = 256.0;
+	const float r = 300.0;
 	const float s = 32.0;
 	States {
 		Spawn:
@@ -1960,8 +2349,10 @@ Actor OmniChaosBall {
 			TNT1 A 0 A_PlaySound("Omnisight/ZapLoop", CHAN_VOICE, 1, true)
 		ZappingLoop:
 			TNT1 A 0 A_JumpIf(user_count >= 20, "ZapFinish")
-			TNT1 A 10 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r), frandom(-r, r))
-			TNT1 A 10 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r), frandom(-r, r))
+			TNT1 A 5 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r), frandom(-r, r))
+			TNT1 A 5 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r) / 2, frandom(-r, r) / 2)
+			TNT1 A 5 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r), frandom(-r, r))
+			TNT1 A 5 A_SpawnItemEx("OmniLightningBlast", frandom(-r, r) / 2, frandom(-r, r) / 2)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		ZapFinish:
@@ -2024,7 +2415,7 @@ Actor OmniLightningBlast : BaseExplosionDamage {
 			TNT1 A 4 A_SpawnItemEx("OmniLightningBlastFX")
 			TNT1 A 1 A_PlaySound("Omnisight/BigZap")
 			TNT1 A 0 A_Quake(5, 17, 0, 128)
-			TNT1 A 0 A_Explode(80, 128, 0)
+			TNT1 A 0 A_Explode(80, 128, 0, 0, 40)
 			TNT1 A 1
 		Stop
 	}
@@ -2033,9 +2424,9 @@ Actor OmniLightningBlast : BaseExplosionDamage {
 Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
-	Radius 36
-	Height 80
-	Speed 8
+	Radius 31
+	Height 56
+	Speed 9
 	PainChance 10
 	SeeSound "monster/cubsit"
 	PainSound "Lich/Pain"
@@ -2046,9 +2437,9 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 	Tag "Chegovax the Overseer"
 	Species "PainElemental"
 	var int user_count;
-	const float f = 1.8;
-	const float pbase = -37.5;
-	DamageFactor "CacoMagic", 0 // immunity to guardians
+	const float f = 1.5;
+	const float pbase = -18.0;
+	const int blaze_lim = 12;
 	+ISMONSTER
 	+LOOKALLAROUND
 	+FLOAT
@@ -2061,6 +2452,7 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 	+NOINFIGHTING
 	+DONTHURTSPECIES
 	+DONTHARMSPECIES
+	+MISSILEMORE
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEGOVAX)
@@ -2101,7 +2493,7 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 			UE07 III 5 A_FaceTarget(0, 0)
 		FlameLoop:
-			TNT1 A 0 A_JumpIf(user_count > 20, "FlameFinish")
+			TNT1 A 0 A_JumpIf(user_count > blaze_lim, "FlameFinish")
 			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
 			UE07 J 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE | CMF_ABSOLUTEPITCH, pitch + pbase + user_count * f)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
@@ -2110,6 +2502,14 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		FlameFinish:
+			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE)
+			UE07 J 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE)
+			UE07 K 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE)
+			UE07 J 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_CustomMissile("ChegovaxFire", 56, -10, angle, CMF_ABSOLUTEANGLE)
+			UE07 K 2 Bright A_CustomMissile("ChegovaxFire", 56, 10, angle, CMF_ABSOLUTEANGLE)
 			UE07 I 4
 		Goto See
 		Meteor:
@@ -2274,9 +2674,11 @@ Actor ChegovaxFire {
 			BOLT A 2 Bright A_SpawnItem("RedPuff",0,0)
 		Loop
 		Death:
+			HBAL EFHIEFHI 2 Bright
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX8", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 0 A_Explode(32, 48, 0, 0, 24)
 			HBAL EFHI 2 Bright
 		stop
 	}
@@ -2316,6 +2718,11 @@ ACTOR GuardianSpawner {
 }
 
 Actor Guardian_NoExp : Guardian {
+	Species "PainElemental"
+	+NOTARGET
+	+NOINFIGHTING
+	+DONTHURTSPECIES
+	+DONTHARMSPECIES
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GUARDIAN)
@@ -2367,7 +2774,7 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 20
-	Height 60
+	Height 56
 	Speed 12
 	PainChance 48
 	Seesound "monster/horshacksee"
@@ -2405,10 +2812,10 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 		MeleeState:
 			UE08 E 8 Fast A_FaceTarget
 			UE08 F 7 Fast A_FaceTarget
-			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
+			UE08 G 6 Fast A_CustomComboAttack("RedAxe2_Onimuz", 32, 4 * random(5, 8), "hknight/melee")
 			UE08 H 8 Fast A_FaceTarget
 			UE08 I 7 Fast A_FaceTarget
-			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
+			UE08 J 6 Fast A_CustomComboAttack("RedAxe2_Onimuz", 32, 4 * random(5, 8), "hknight/melee")
 		Goto See
 		MissileState:
 			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
@@ -2431,39 +2838,39 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "MoreAxe") 
 			UE08 E 7 Fast A_FaceTarget
 			UE08 F 6 Fast A_FaceTarget
-			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6)
+			UE08 G 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6)
 			UE08 H 7 Fast A_FaceTarget
 			UE08 I 6 Fast A_FaceTarget
-			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, 6)
+			UE08 J 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, 6)
 			UE08 J 1 Fast A_Jump(64, "ThrowAxe")
 		Goto See
 		Multi_Left:
 			UE08 EEEEE 5 Fast A_FaceTarget
-			UE08 F 5 Fast A_CustomMissile("RedAxe2", 32, -6, -20 + angle, CMF_ABSOLUTEANGLE)
-			UE08 F 5 Fast A_CustomMissile("RedAxe2", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
-			UE08 F 5 Fast A_CustomMissile("RedAxe2", 32, -6, -4 + angle, CMF_ABSOLUTEANGLE)
-			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6, 4 + angle, CMF_ABSOLUTEANGLE)
-			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
+			UE08 F 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -20 + angle, CMF_ABSOLUTEANGLE)
+			UE08 F 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
+			UE08 F 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 G 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 G 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
 		Goto See
 		Multi_Right:
 			UE08 HHHHH 5 Fast A_FaceTarget
-			UE08 I 5 Fast A_CustomMissile("RedAxe2", 32, -6, 20 + angle, CMF_ABSOLUTEANGLE)
-			UE08 I 5 Fast A_CustomMissile("RedAxe2", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
-			UE08 I 5 Fast A_CustomMissile("RedAxe2", 32, -6, 4 + angle, CMF_ABSOLUTEANGLE)
-			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, -6, -4 + angle, CMF_ABSOLUTEANGLE)
-			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
+			UE08 I 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 20 + angle, CMF_ABSOLUTEANGLE)
+			UE08 I 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 12 + angle, CMF_ABSOLUTEANGLE)
+			UE08 I 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, 4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 J 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -4 + angle, CMF_ABSOLUTEANGLE)
+			UE08 J 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6, -12 + angle, CMF_ABSOLUTEANGLE)
 		Goto See
 		MoreAxe:
 			UE08 E 7 Fast A_FaceTarget
 			UE08 F 6 Fast A_FaceTarget
-			TNT1 A 0 A_CustomMissile("RedAxe2", 32, -6, -9)
-			TNT1 A 0 A_CustomMissile("RedAxe2", 32, -6, 9)
-			UE08 G 5 Fast A_CustomMissile("RedAxe2", 32, -6)
+			TNT1 A 0 A_CustomMissile("RedAxe2_Onimuz", 32, -6, -9)
+			TNT1 A 0 A_CustomMissile("RedAxe2_Onimuz", 32, -6, 9)
+			UE08 G 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6)
 			UE08 H 7 Fast A_FaceTarget
 			UE08 I 6 Fast A_FaceTarget
-			TNT1 A 0 A_CustomMissile("RedAxe2", 32, 6, -9)
-			TNT1 A 0 A_CustomMissile("RedAxe2", 32, 6, 9)
-			UE08 J 5 Fast A_CustomMissile("RedAxe2", 32, 6)
+			TNT1 A 0 A_CustomMissile("RedAxe2_Onimuz", 32, 6, -9)
+			TNT1 A 0 A_CustomMissile("RedAxe2_Onimuz", 32, 6, 9)
+			UE08 J 5 Fast A_CustomMissile("RedAxe2_Onimuz", 32, 6)
 			UE08 J 1 Fast A_Jump(64, "ThrowAxe")
 		Goto See
 		PainState:
@@ -2563,7 +2970,7 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 F 4 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
-			UE08 G 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
+			UE08 G 6 Fast A_CustomComboAttack("RedAxe2_Onimuz", 32, 4 * random(5, 8), "hknight/melee")
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 H 4 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
@@ -2573,17 +2980,17 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 I 4 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
-			UE08 J 6 Fast A_CustomComboAttack("RedAxe2", 32, 4 * random(5, 8), "hknight/melee")
+			UE08 J 6 Fast A_CustomComboAttack("RedAxe2_Onimuz", 32, 4 * random(5, 8), "hknight/melee")
 		Goto See
 		MissileState:
 			UE08 E 6 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 F 5 Fast A_FaceTarget
-			UE08 G 4 Fast A_CustomMissile("RedAxe2", 32, -6)
+			UE08 G 4 Fast A_CustomMissile("RedAxe2_Onimuz", 32, -6)
 			UE08 H 6 Fast A_FaceTarget
 			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Remove", AAPTR_MASTER)
 			UE08 I 5 Fast A_FaceTarget
-			UE08 J 4 Fast A_CustomMissile("RedAxe2", 32, 6)
+			UE08 J 4 Fast A_CustomMissile("RedAxe2_Onimuz", 32, 6)
 			UE08 J 1 Fast A_Jump(64, "MissileState")
 		Goto See
 
@@ -2740,7 +3147,26 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 		SeeState:
 			UE09 A 0 A_ChangeFlag("NOBLOOD", 0)
 			UE09 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
+			UE09 A 0 A_Jump(128, "FasterChase")
 			UE09 AABBCCDD 2 Fast A_Chase
+		Goto See
+		FasterChase:
+			UE09 AAAA 1 Fast A_Chase("Melee", "")
+			UE09 BBBB 1 Fast A_Chase
+			UE09 CCCC 1 Fast A_Chase("Melee", "")
+			UE09 DDDD 1 Fast A_Chase
+			UE09 AAAA 1 Fast A_Chase("Melee", "")
+			UE09 BBBB 1 Fast A_Chase
+			UE09 CCCC 1 Fast A_Chase("Melee", "")
+			UE09 DDDD 1 Fast A_Chase
+			UE09 AAAA 1 Fast A_Chase("Melee", "")
+			UE09 BBBB 1 Fast A_Chase
+			UE09 CCCC 1 Fast A_Chase("Melee", "")
+			UE09 DDDD 1 Fast A_Chase
+			UE09 AAAA 1 Fast A_Chase("Melee", "")
+			UE09 BBBB 1 Fast A_Chase
+			UE09 CCCC 1 Fast A_Chase("Melee", "")
+			UE09 DDDD 1 Fast A_Chase
 		Goto See
 		MeleeState:
 			TNT1 A 0 A_TakeInventory("DND_Boolean", 1)
@@ -2750,10 +3176,10 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 			UE09 H 5 A_FaceTarget
 			UE09 I 4 A_FaceTarget
 			TNT1 A 0 A_CustomMissile("HarkimondeSlash", 32)
-			UE09 J 7 A_JumpIfCloser(80, "ConfirmedMelee")
+			UE09 J 4 A_JumpIfCloser(80, "ConfirmedMelee")
 		Goto See
 		ConfirmedMelee:
-			UE09 J 7 A_CustomMeleeAttack(random(40, 65))
+			UE09 J 4 A_CustomMeleeAttack(random(40, 65))
 		Goto See
 		MissileState:
 			TNT1 A 0 A_Jump(108, "Leap")
@@ -2781,7 +3207,8 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 			UE09 I 3 Fast A_JumpIfInventory("MonsterLeapFinish", 1, "LeapFinish")
 		Loop
 		LeapFinish:
-			UE09 J 4 Fast A_TakeInventory("MonsterLeapFinish", 1)
+			UE09 J 3 Fast A_TakeInventory("MonsterLeapFinish", 1)
+			UE09 J 2 Fast A_Jump(64, "MissileGo")
 		Goto See
 		OneMore:
 			UE09 EE 4 Fast A_FaceTarget
@@ -2802,7 +3229,15 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 			UE09 G 12 Fast A_Pain
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
-			UE09 EEEEE 7 A_FaceTarget
+			UE09 E 7 A_FaceTarget
+			UE09 E 0 A_Jump(32, "MissileGo")
+			UE09 E 7 A_FaceTarget
+			UE09 E 0 A_Jump(32, "MissileGo")
+			UE09 E 7 A_FaceTarget
+			UE09 E 0 A_Jump(32, "MissileGo")
+			UE09 E 7 A_FaceTarget
+			UE09 E 0 A_Jump(32, "MissileGo")
+			UE09 E 7 A_FaceTarget
 			TNT1 A 0 A_ChangeFlag("NOBLOOD", 0)
 			UE09 E 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)
 		Goto See
@@ -3082,7 +3517,7 @@ Actor HarkimondeExp3 : BaseExplosionDamage {
 Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
-	Radius 30
+	Radius 24
 	Height 64
 	Speed 9
 	PainChance 64
@@ -3095,10 +3530,11 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 	MeleeRange 108
 	Mass 2048
 	Tag "Leshrac the Vile"
-	const float ms = 8.0;
+	const float ms = 9.0;
 	const float fire_z = 48.0;
 	const int mine_limit = 20;
 	Species "HK"
+	DamageFactor "PoisonPod", 0
 	+ISMONSTER
 	-FLOORCLIP
 	States {
@@ -3121,8 +3557,10 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 			UE11 "#" 0 A_Jump(32, "PoisonMine")
 		Goto See
 		MeleeState:
+			UE11 H 0 A_Jump(64, "PoisonMine2")
+		MeleeCont:
 			UE11 HHHH 4 Fast A_FaceTarget
-			TNT1 A 0 A_PlaySound("torturedsoul/poison") 
+			TNT1 A 0 A_PlaySound("torturedsoul/poison")
 			UE11 IIIIIIIIII 1 Fast Bright A_CustomMissile("LeshracPoisonMelee", 56, frandom(-3.75, 3.75), frandom(-20, 20))
 		Goto See
 		MissileState:
@@ -3142,22 +3580,32 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 			UE11 H 3 Fast A_FaceTarget
 		Goto See
 		LobbedMines:
-			TNT1 A 0 A_JumpIfCloser(512, "ContinueLob")
+			TNT1 A 0 A_JumpIfCloser(640, "ContinueLob")
 		Goto BallAttack
 		ContinueLob:
 			UE11 HH 8 Fast A_FaceTarget
 			TNT1 A 0 A_PlaySound("weapons/crabf2")
 			UE11 I 7 Bright ACS_NamedExecuteWithResult("DnD Leshrac Lob", 0, fire_z)
+			UE11 HHH 5 Fast A_FaceTarget
+			UE11 H 1 Fast A_SetAngle(angle + frandom(-16, 16))
+			TNT1 A 0 A_PlaySound("weapons/crabf2")
+			UE11 I 7 Bright ACS_NamedExecuteWithResult("DnD Leshrac Lob", 0, fire_z)
+			UE11 H 9 Fast
 		Goto See
 		PoisonMine:
 			UE11 "#" 0 A_JumpIfInventory("DnD_Info", mine_limit, "See")
+		ReallyMine:
 			UE11 H 7 Fast
 			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
-			UE11 I 9 Fast A_SpawnItemEx("LeshracPoisonMine", 24, 0, fire_z, ms * cos(angle), ms * sin(angle), 4, 0, SXF_ABSOLUTEVELOCITY | SXF_SETMASTER)
+			UE11 I 9 Fast A_SpawnItemEx("LeshracPoisonMine", 40, 0, fire_z, ms * cos(angle), ms * sin(angle), 5, 0, SXF_ABSOLUTEVELOCITY | SXF_SETMASTER)
 			UE11 H 4 Fast
 		Goto See
+		PoisonMine2:
+			UE11 "#" 1 A_JumpIfInventory("DnD_Info", mine_limit, "MeleeCont")
+		Goto ReallyMine
 		PainState:
 			TNT1 A 0 A_GiveInventory("LeshracInterrupt", 1)
+			TNT1 AAA 0 A_CustomMissile("LeshracPoisonMelee", 56, frandom(-9, 9), frandom(-20, 20), frandom(0, 360), CMF_ABSOLUTEANGLE)
 			UE11 G 9 Fast A_Pain
 		Goto See
 		XDeathState:
@@ -3190,11 +3638,12 @@ Actor LeshracInterrupt : PowerDamage {
 }
 
 actor LeshracPoisonMelee : TorturedSoulPoison { 
-    Damage (random(1, 3)) 
+    Damage (random(3, 5)) 
 	DamageType "Poison"
 	Stamina 128
 	Speed 7
 	+DONTREFLECT
+	+NODAMAGETHRUST
 }
 
 ACTOR Leshrac_Ball : ShadowBeast_Ball1 {
@@ -3215,9 +3664,9 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 	Mass 96
 	BloodType "LeshracMine_Goo"
 	Tag "Poisonous Mine"
-	Species "HK"
 	const int mine_timer = 35;
 	var int user_count;
+	Species "HK"
 	+THRUSPECIES
 	+SOLID
 	+SHOOTABLE
@@ -3235,7 +3684,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 	+QUICKTORETALIATE
 	DeathSound "Leshrac/BigMineExp"
 	DamageType "PoisonPod"
-	Stamina 128
+	Stamina 268435584
 	DamageFactor "PoisonPod", 3.0
 	States {
 		SetInfo:
@@ -3273,11 +3722,11 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 			TNT1 A 0 A_Quake(4, 10, 0, 160)
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner")
-			UP11 E 5 Bright A_SpawnItemEx("Leshrac_MineExplosion")
+			UP11 E 5 Bright A_CustomMissile("Leshrac_MineExplosion")
 			UP11 F 10 Bright
 		Stop
 		TimesUp:
-			UP11 "#" 10 Thing_Damage(0, 0x7FFFFFFF)
+			UP11 "#" 10 A_Die
 		Wait
 		PainState:
 			TNT1 A 0 A_SpawnItemEx("LeshracMine_Goo", frandom(-8, 8), frandom(-8, 8), frandom(20, 36), frandom(-2, 2), frandom(-2, 2), frandom(0.5, 2.5), 0, SXF_CLIENTSIDE, 224)
@@ -3291,7 +3740,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 			TNT1 A 0 A_Quake(4, 10, 0, 160)
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner")
-			UP11 E 5 Bright A_SpawnItemEx("Leshrac_MineExplosion")
+			UP11 E 5 Bright A_CustomMissile("Leshrac_MineExplosion")
 			UP11 F 10 Bright
 		Stop
 	}
@@ -3299,7 +3748,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 
 Actor Leshrac_MineExplosion : BaseExplosionDamage {
 	DamageType "PoisonPod"
-	Stamina 132
+	Stamina 268435588
 	Obituary "%o fell victim to Leshrac the Vile."
 	States {
 		Spawn:
@@ -3377,8 +3826,9 @@ Actor Leshrac_LobbedMineGround {
 Actor Krull : DnD_BaseRangedMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
-	Radius 56
-	Height 80
+	Radius 48
+	Height 64
+	ProjectilePassHeight 80
 	Speed 8
 	PainChance 56
 	MeleeRange 128
@@ -3395,8 +3845,11 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 	var int user_b;
 	+ISMONSTER
 	+NORADIUSDMG
+	+MISSILEMORE
 	States {
 		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
 			TNT1 A 0 A_SetArg(4, DND_KRULL)
 		Goto SpawnSetup
 		
@@ -3427,7 +3880,14 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 			UE12 F 0 A_GiveInventory("DnD_WanderChecker", 1)
 		Loop
 		SeeState:
+			UE12 A 0 A_JumpIfInventory("DnD_Boolean", 1, "MoreChase")
 			UE12 AABBCCDDEEFF 4 Fast A_Chase
+		Goto See
+		MoreChase:
+			UE12 AAAABBBBCCCC 2 Fast A_Chase
+			UE12 C 0 A_JumpIfCloser(384, "Missile")
+			UE12 DDDDEEEEFFFF 2 Fast A_Chase
+			UE12 C 0 A_JumpIfCloser(384, "Missile")
 		Goto See
 		MissileState:
 		MeleeState:
@@ -3435,7 +3895,12 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 A_TakeInventory("DND_Info", 0)
 			UE12 GGG 4 Fast A_FaceTarget
 		MissileLoop:
-			"####" "#" 0 A_JumpIfInventory("DND_Info", 3, "MissileFinish")
+			"####" "#" 0 A_JumpIfInventory("DnD_Boolean", 1, "MoreMissiles")
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 3, "MissileFinish")
+			"####" "#" 1 A_Jump(128, "Triangular")
+		Goto Spread
+		MoreMissiles:
+			"####" "#" 0 A_JumpIfInventory("DnD_Info", 9, "MissileFinish")
 			"####" "#" 1 A_Jump(128, "Triangular")
 		Goto Spread
 		MissileFinish:
@@ -3451,7 +3916,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 A_CustomMissile("KrullRocket", 34, 47.6, 0)
 			TNT1 A 0 A_CustomMissile("KrullRocket", 34, 47.6, -user_a * user_b)
 			UE12 H 9 Fast Bright A_CustomMissile("KrullRocket", 34, 47.6, user_a * user_b)
-			TNT1 A 0 A_GiveInventory("DND_Info", 1)
+			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
 			UE12 IG 6 Fast A_FaceTarget
 		Goto MissileLoop
 		Triangular:
@@ -3463,7 +3928,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 A_CustomMissile("KrullRocket", 34, 35.6, user_a, CMF_AIMOFFSET)
 			TNT1 A 0 A_CustomMissile("KrullRocket", 46, 47.6, user_a, CMF_AIMOFFSET)
 			UE12 H 9 Fast Bright A_CustomMissile("KrullRocket", 34, 59.6, user_a, CMF_AIMOFFSET)
-			TNT1 A 0 A_GiveInventory("DND_Info", 1)
+			TNT1 A 0 A_GiveInventory("DnD_Info", 1)
 			UE12 IG 6 Fast A_FaceTarget
 		Goto MissileLoop
 		PainState:
@@ -3644,7 +4109,7 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes {
 		Loop
 		SeeState:
 			UE14 BBCCDDEE 3 Fast A_Chase
-			UE14 E 1 Fast A_Jump(32, "Dash")
+			UE14 E 1 Fast A_Jump(64, "Dash")
 		Goto See
 		Dash:
 			"####" "#" 0 A_SetUserVar("user_count", random(4, 6))
@@ -3669,7 +4134,7 @@ Actor Thorax : DnD_BaseRangedMonster_NoRes {
 			"####" "#" 4 A_SpawnItemEx("ThoraxDashBlur")
 		Loop
 		FinishDash:
-			"####" "#" 0 A_Jump(97, "CheckSight")
+			"####" "#" 0 A_Jump(192, "CheckSight")
 			"####" "#" 1 A_Stop
 		Goto See
 		CheckSight:
@@ -3810,7 +4275,7 @@ Actor ThoraxMissileExp : BaseExplosionDamage {
 
 Actor ThoraxFireBall {
 	Projectile
-	Damage (25)
+	Damage (30)
 	DamageType "Fire"
 	Stamina 1073741856
 	BounceSound "WeaponGL/40MMHHit"
@@ -3919,7 +4384,7 @@ Actor ThoraxFireExp : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 5 A_Explode(20, 48, 0)
+			TNT1 A 5 A_Explode(24, 48, 0)
 		Stop
 	}
 }
@@ -3963,7 +4428,10 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes {
 			UE15 A 0 A_Jump(32, "Teleport")
 		Goto See
 		MissileState:
-			TNT1 A 0 A_Jump(224, "Fire1", "Fire2", "Fire3")
+			TNT1 A 0 A_Jump(224, "Fire1", "Fire2", "Fire3", "Fire4")
+		Goto Teleport
+		Redecide:
+			TNT1 A 0 A_Jump(192, "Fire1", "Fire2", "Fire3")
 		Goto Teleport
 		Fire1:
 			UE15 DDDD 4 Fast A_FaceTarget
@@ -3985,8 +4453,8 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Boolean Sync", true)
 			TNT1 A 0 A_ChangeFlag("QUICKTORETALIATE", 0)
 			UE15 D 1
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Zravog Slam", 3)
-			UE15 DDDDDDDDDDDDDDD 7 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Zravog Slam", 15)
+			UE15 DDDDDDDDDDDDDDD 5 A_FaceTarget
 			TNT1 A 0 A_ChangeFlag("QUICKTORETALIATE", 1)
 			UE15 C 9 Fast Bright
 		Goto See
@@ -4008,6 +4476,12 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes {
 			UE15 C 0 A_CustomMissile ("ZravogMissile", 48, 0, 6, 0)
 			UE15 D 4 Fast A_FaceTarget
 		Goto See
+		Fire4:
+			UE15 D 4 Fast A_FaceTarget
+			TNT1 A 0 A_PlaySound("weapons/boltfi", CHAN_WEAPON)
+			UE15 C 8 Fast Bright A_CustomMissile ("ZravogCube", 48, 0, 0, 0)
+			UE15 D 4 Fast A_FaceTarget
+		Goto Redecide
 		Teleport:
 			UE15 A 0 A_UnSetshootable
 			UE15 A 0 A_FaceTarget
@@ -4151,7 +4625,7 @@ Actor ZravogSlamDamager : BaseExplosionDamage {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
-			TNT1 A 4 A_Explode(160, 288, 0)
+			TNT1 A 4 A_Explode(160, 288, 0, 0, 128)
 		Stop
 	}
 }
@@ -4258,6 +4732,25 @@ Actor ZravogMissileTrail {
 	}
 }
 
+Actor ZravogCube : SorcBallProjectileBase {
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 1)
+		SpawnLoop:
+			SBMB ABCDEFGHIJKLMNOP 2 Bright
+		Loop
+		Death:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 3)
+			TNT1 AA 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 A 0 A_ChangeFlag("NOBOUNCESOUND", 1)
+			SBS3 D 5 Bright A_Explode(144, 144, 0)
+			SBS3 E 5 Bright
+			SBS3 FGH 6 Bright
+		Stop
+	}
+}
+
 Actor Eryxia : DnD_BaseRangedBoss {
 	Health 0x7FFFFFFF
     GibHealth -10
@@ -4322,46 +4815,46 @@ Actor Eryxia : DnD_BaseRangedBoss {
 		Loop
 		MissileState:
 			TNT1 A 0 A_Jump(112, "Freezer", "Spikes")
-			UE13 A 25 Fast Bright A_FaceTarget
+			UE13 AAAAA 5 Fast Bright A_FaceTarget
 		MissileLoopDecide:
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "MissileLoop2")
 		MissileLoop:
 			TNT1 A 0 A_PlaySound("Weapons/NG2Fire", CHAN_WEAPON)
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, -fr_min))
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(fr_min, fr_max))
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0)
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, fr_max))
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, -fr_min), CMF_ABSOLUTEANGLE)
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(fr_min, fr_max), CMF_ABSOLUTEANGLE)
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle, CMF_ABSOLUTEANGLE)
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, fr_max), CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_PlaySound("Weapons/NG2Fire", CHAN_WEAPON)
-			TNT1 A 0 A_FaceTarget
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, -fr_min))
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(fr_min, fr_max))
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0)
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, fr_max))
+			TNT1 A 0 A_GiveInventory("EryxiaAimer", 1)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, -fr_min), CMF_ABSOLUTEANGLE)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(fr_min, fr_max), CMF_ABSOLUTEANGLE)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle, CMF_ABSOLUTEANGLE)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, fr_max), CMF_ABSOLUTEANGLE)
 			UE13 G 1 Bright Fast A_SpidRefire
 		Loop
 		MissileLoop2:
 			TNT1 A 0 A_PlaySound("Weapons/NG2Fire", CHAN_WEAPON)
 			TNT1 A 0 A_GiveInventory("EryxiaFreezerChecker", 1)
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, -fr_min))
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(fr_min, fr_max))
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0)
-			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, fr_max))
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, -fr_min), CMF_ABSOLUTEANGLE)
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(fr_min, fr_max), CMF_ABSOLUTEANGLE)
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle, CMF_ABSOLUTEANGLE)
+			UE13 H 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, fr_max), CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_PlaySound("Weapons/NG2Fire", CHAN_WEAPON)
-			TNT1 A 0 A_FaceTarget
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, -fr_min))
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(fr_min, fr_max))
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0)
-			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, frandom(-fr_max, fr_max))
+			TNT1 A 0 A_GiveInventory("EryxiaAimer2", 1)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, -fr_min), CMF_ABSOLUTEANGLE)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(fr_min, fr_max), CMF_ABSOLUTEANGLE)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle, CMF_ABSOLUTEANGLE)
+			UE13 G 1 Bright Fast A_CustomMissile("EryxiaBullet", 54, 0, angle + frandom(-fr_max, fr_max), CMF_ABSOLUTEANGLE)
 			UE13 G 1 Bright Fast A_SpidRefire
 		Loop
 		Freezer:
 			TNT1 A 0 A_JumpIfHealthLower (ACS_ExecuteWithResult(961, 7) / 2, "Spikes")
 			UE13 A 10 Fast Bright A_FaceTarget
 			TNT1 A 0 A_PlaySound("Weapons/FreezerFire", CHAN_WEAPON)
-			UE13 H 6 Bright Fast A_CustomMissile("EryxiaFreezer", 54)
-			TNT1 A 0 A_FaceTarget
+			UE13 H 6 Bright Fast A_CustomMissile("EryxiaFreezer", 54, 0, angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_GiveInventory("EryxiaAimer", 1)
 			TNT1 A 0 A_PlaySound("Weapons/FreezerFire", CHAN_WEAPON)
-			UE13 G 6 Bright Fast A_CustomMissile("EryxiaFreezer", 54)
+			UE13 G 6 Bright Fast A_CustomMissile("EryxiaFreezer", 54, 0, angle, CMF_ABSOLUTEANGLE)
 			UE13 G 1 Bright Fast A_JumpIfTargetInLOS("MissileLoopDecide")
 		Goto See
 		Spikes:
@@ -4464,6 +4957,30 @@ Actor Eryxia : DnD_BaseRangedBoss {
 		Death.P_Ice:
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Ice
+	}
+}
+
+Actor EryxiaAimer : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(128, "Face")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Lead Aim", 9, 32, 54)
+		Stop
+		Face:
+			TNT1 A 0 A_FaceTarget
+		Stop
+	}
+}
+
+Actor EryxiaAimer2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(64, "Face")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Lead Aim", 9, 32, 54)
+		Stop
+		Face:
+			TNT1 A 0 A_FaceTarget
+		Stop
 	}
 }
 
@@ -4958,7 +5475,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 		LaserLoop:
 			TNT1 A 0 A_JumpIf(user_count == laser_t, "LaserFinish")
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Abaxoth Laser Adjust", -24)
-			UE16 J 2 Bright Fast A_CustomRailgun(random(20, 24), -24, none, none, RGF_SILENT | RGF_NOPIERCING, 0, 2, "AbaxothRailPuff", 0, 0, 4096, 0, 2.5, 0, "AbaxothRailTrail", 10)
+			UE16 J 2 Bright Fast A_CustomRailgun(random(24, 32), -24, none, none, RGF_SILENT | RGF_NOPIERCING, 0, 2, "AbaxothRailPuff", 0, 0, 4096, 0, 2.5, 0, "AbaxothRailTrail", 10)
 			TNT1 A 0 A_SetUserVar("user_count", user_count + 1)
 		Loop
 		LaserFinish:

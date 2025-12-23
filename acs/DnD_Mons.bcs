@@ -922,11 +922,12 @@ Script "DnD Asmodeus Ghost Pull" (int pull_dist) {
 	}
 }
 
-
 Script "DnD Monster Melee Loop" (int range) {
 	bool res = false;
-	int target = GetActorProperty(0, APROP_TARGETTID);
-	res = (AproxDistance(GetActorX(target) - GetActorX(0), GetActorY(target) - GetActorY(0)) >> 16) <= range && IsActorAlive(target) && CheckSight(0, target, CSF_NOBLOCKALL);
+	int this = ActivatorTID();
+	SetActivatorToTarget(0);
+	int target = ActivatorTID();
+	res = (AproxDistance(GetActorX(target) - GetActorX(this), GetActorY(target) - GetActorY(this)) >> 16) <= range && IsActorAlive(target) && CheckSight(this, target, CSF_NOBLOCKALL);
 	SetResultValue(res);
 }
 
@@ -990,8 +991,10 @@ Script "DnD Leshrac Lob" (int yoffset, int zoffset) {
 		int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
 		
 		dist_var = LESHRAC_DIST_VAR_FACTOR * random(-LESHRAC_DIST_VAR / 2, LESHRAC_DIST_VAR);
-		if(dist + dist_var < LESHRAC_MIN_DIST && dist_var < 0)
+		if(dist + dist_var < LESHRAC_MIN_DIST) {
 			dist_var = 0;
+			dist = LESHRAC_MIN_DIST;
+		}
 		
 		int velz = ((z_diff + 0.5 * LESHRAC_T * LESHRAC_T) / LESHRAC_T) >> 16;
 		
@@ -1175,8 +1178,8 @@ Script "DnD Zravog Slam" (int dtime) {
 	bool noslam = false;
 	while(count < dtime) {
 		++count;
+		Delay(const:5);
 		noslam = CheckInventory("DnD_Boolean");
-		Delay(const:TICRATE);
 	}
 	if(!noslam) {
 		int tx = GetActorX(target);
@@ -1192,7 +1195,7 @@ Script "DnD Zravog Slam" (int dtime) {
 Script "DnD Zravog Slam FX" (int target, int dtime) CLIENTSIDE {
 	int i, z, a, count = 0;
 	bool abort = false;
-	dtime *= TICRATE;
+	dtime *= 5;
 	
 	// there is a guarantee that only one of the unique monsters will be in a map at a time, so this is fine
 	SpawnForced("ZravogSlamSoundPlayer", GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, ZRAVOG_SOUND_TID);
@@ -1487,9 +1490,15 @@ Script "DnD Get Master RH" (void) {
 	SetResultValue(0);
 }
 
-Script "Dnd Asmodeus Ghost Cooldown" (void) {
+Script "DnD Asmodeus Ghost Cooldown" (void) {
 	int master_tid = GetActorProperty(0, APROP_MASTERTID);
 	SetActivator(master_tid);
 	GiveInventory("AsmodeusPullerGhostCooldown", 1);
 	TakeInventory("AsmodeusMadePullerGhost", 1);
+}
+
+Script "DnD Monster Lead Aim" (int ang_rand, int proj_speed, int zoffset) {
+	int ang = ANG_TO_DOOM(ang_rand << 16);
+	AimLead(proj_speed << 16, 0, 0.0, zoffset << 16, 0, 0, 0, ang, INTF_RANDOM | INTF_SETANGLE, 0);
+	SetResultValue(0);
 }

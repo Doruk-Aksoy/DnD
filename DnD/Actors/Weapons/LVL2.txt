@@ -622,7 +622,7 @@ Actor "Laser Pistol" : DnDWeapon {
 			TNT1 A 0 A_GiveInventory("DnD_UsedNonSpecial", 1)
 			TNT1 A 0 A_PlaySound("Weapons/laserpistolcharge", 5)
 		ChargeLoop:
-			PBLT A 1 A_GiveInventory("LPistolCharge", 1)
+			PBLT A 1 A_GiveInventory("LPistolCharge", 3)
 			TNT1 A 0 A_PlaySound("weapons/laserpistolcloop", 6, 1, 1)
 			PBLT A 1 A_Refire("ChargeLoop")
 		Release:

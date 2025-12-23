@@ -1310,41 +1310,41 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_GOLGOTH].flags = DND_MTYPE_DEMON_POW;
 
 	// uniques
-	MonsterData[MONSTER_TERON].health = 500;
+	MonsterData[MONSTER_TERON].health = 2000;
 	MonsterData[MONSTER_TERON].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
-	MonsterData[MONSTER_GANT].health = 800;
+	MonsterData[MONSTER_GANT].health = 2800;
 	MonsterData[MONSTER_GANT].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
-	MonsterData[MONSTER_BRONN].health = 1200;
+	MonsterData[MONSTER_BRONN].health = 4000;
 	MonsterData[MONSTER_BRONN].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
-	MonsterData[MONSTER_VAAJ].health = 900;
+	MonsterData[MONSTER_VAAJ].health = 3600;
 	MonsterData[MONSTER_VAAJ].flags = DND_MTYPE_DEMON_POW;
-	MonsterData[MONSTER_REMUS].health = 1500;
+	MonsterData[MONSTER_REMUS].health = 6000;
 	MonsterData[MONSTER_REMUS].flags = DND_MTYPE_UNDEAD_POW | DND_MTYPE_ZOMBIE_POW;
-	MonsterData[MONSTER_SSRATH].health = 1250;
+	MonsterData[MONSTER_SSRATH].health = 4500;
 	MonsterData[MONSTER_SSRATH].flags = DND_MTYPE_DEMON_POW;
-	MonsterData[MONSTER_HOLLOWSHELL].health = 600;
+	MonsterData[MONSTER_HOLLOWSHELL].health = 2000;
 	MonsterData[MONSTER_HOLLOWSHELL].flags = DND_MTYPE_UNDEAD_POW;
-	MonsterData[MONSTER_OMNISIGHT].health = 1600;
+	MonsterData[MONSTER_OMNISIGHT].health = 6400;
 	MonsterData[MONSTER_OMNISIGHT].flags = DND_MTYPE_DEMON_POW;
-	MonsterData[MONSTER_CHEGOVAX].health = 1200;
+	MonsterData[MONSTER_CHEGOVAX].health = 4800;
 	MonsterData[MONSTER_CHEGOVAX].flags = DND_MTYPE_MAGICAL_POW;
-	MonsterData[MONSTER_ONIMUZ].health = 900;
+	MonsterData[MONSTER_ONIMUZ].health = 3750;
 	MonsterData[MONSTER_ONIMUZ].flags = DND_MTYPE_UNDEAD_POW;
-	MonsterData[MONSTER_HARKIMONDE].health = 1750;
+	MonsterData[MONSTER_HARKIMONDE].health = 6000;
 	MonsterData[MONSTER_HARKIMONDE].flags = DND_MTYPE_DEMON_POW;
-	MonsterData[MONSTER_LESHRAC].health = 2250;
+	MonsterData[MONSTER_LESHRAC].health = 7000;
 	MonsterData[MONSTER_LESHRAC].flags = DND_MTYPE_DEMON_POW;
 	MonsterData[MONSTER_LESHRACPOD].health = 200;
 	MonsterData[MONSTER_LESHRACPOD].flags = DND_MTYPE_MAGICAL_POW;
-	MonsterData[MONSTER_KRULL].health = 2000;
+	MonsterData[MONSTER_KRULL].health = 7000;
 	MonsterData[MONSTER_KRULL].flags = DND_MTYPE_DEMON_POW;
-	MonsterData[MONSTER_THORAX].health = 1750;
+	MonsterData[MONSTER_THORAX].health = 7000;
 	MonsterData[MONSTER_THORAX].flags = DND_MTYPE_DEMON_POW | DND_MTYPE_ROBOTIC_POW;
-	MonsterData[MONSTER_ZRAVOG].health = 1800;
+	MonsterData[MONSTER_ZRAVOG].health = 6500;
 	MonsterData[MONSTER_ZRAVOG].flags = DND_MTYPE_MAGICAL_POW;
-	MonsterData[MONSTER_ERYXIA].health = 8000;
+	MonsterData[MONSTER_ERYXIA].health = 12000;
 	MonsterData[MONSTER_ERYXIA].flags = DND_MTYPE_DEMON_POW;
-	MonsterData[MONSTER_ABAXOTH].health = 9000;
+	MonsterData[MONSTER_ABAXOTH].health = 15000;
 	MonsterData[MONSTER_ABAXOTH].flags = DND_MTYPE_DEMON_POW;
 
 	// classics
@@ -1649,6 +1649,7 @@ void SetupMonsterData() {
 	
 	MonsterData[MONSTER_VAAJ].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_VAAJ].trait_list[DND_ARMORPEN] = true;
+	MonsterData[MONSTER_VAAJ].trait_list[DND_MAGIC_IMMUNE] = true;
 	
 	MonsterData[MONSTER_REMUS].trait_list[DND_TELEPORT] = true;
 	
@@ -1657,25 +1658,35 @@ void SetupMonsterData() {
 	
 	MonsterData[MONSTER_OMNISIGHT].trait_list[DND_TELEPORT] = true;
 	MonsterData[MONSTER_OMNISIGHT].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_OMNISIGHT].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_OMNISIGHT].trait_list[DND_ELEMENTAL_RESIST] = true;
 	
 	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_FORTIFIED] = true;
 	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_MINIONS] = true;
 	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_BULLET_IMMUNE] = true;
+	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_CHEGOVAX].trait_list[DND_MOLTENBLOOD] = true;
 	
 	MonsterData[MONSTER_ONIMUZ].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_ONIMUZ].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_ONIMUZ].trait_list[DND_MAGIC_IMMUNE] = true;
 	
 	MonsterData[MONSTER_HARKIMONDE].trait_list[DND_BLOCK] = true;
 	MonsterData[MONSTER_HARKIMONDE].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_HARKIMONDE].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_HARKIMONDE].trait_list[DND_MAGIC_RESIST] = true;
 	
 	MonsterData[MONSTER_LESHRAC].trait_list[DND_POISON] = true;
 	MonsterData[MONSTER_LESHRAC].trait_list[DND_MINIONS] = true;
+	MonsterData[MONSTER_LESHRAC].trait_list[DND_VENOMANCER] = true;
 	
 	MonsterData[MONSTER_KRULL].trait_list[DND_FORTIFIED] = true;
+	MonsterData[MONSTER_KRULL].trait_list[DND_ELEMENTAL_RESIST] = true;
+	MonsterData[MONSTER_KRULL].trait_list[DND_MOLTENBLOOD] = true;
 	
 	MonsterData[MONSTER_THORAX].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_THORAX].trait_list[DND_HOMING] = true;
+	MonsterData[MONSTER_THORAX].trait_list[DND_ELEMENTAL_IMMUNE] = true;
 	
 	MonsterData[MONSTER_ZRAVOG].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_ZRAVOG].trait_list[DND_CURSE] = true;
@@ -1683,7 +1694,9 @@ void SetupMonsterData() {
 	
 	MonsterData[MONSTER_ERYXIA].trait_list[DND_CURSE] = true;
 	MonsterData[MONSTER_ERYXIA].trait_list[DND_FORTIFIED] = true;
+	MonsterData[MONSTER_ERYXIA].trait_list[DND_MAGIC_RESIST] = true;
 	MonsterData[MONSTER_ERYXIA].trait_list[DND_ELEMENTAL_IMMUNE] = true;
+	MonsterData[MONSTER_ERYXIA].trait_list[DND_FROSTBLOOD] = true;
 	
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_FORTIFIED] = true;
@@ -1691,7 +1704,7 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_MOBILITY] = true;
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_AGGRESSIVE] = true;
 	MonsterData[MONSTER_ABAXOTH].trait_list[DND_ELEMENTAL_RESIST] = true;
-	MonsterData[MONSTER_ABAXOTH].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_ABAXOTH].trait_list[DND_MAGIC_IMMUNE] = true;
 }
 
 void SetupIncursionMonsters() {

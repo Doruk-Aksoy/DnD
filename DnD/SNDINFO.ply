@@ -173,6 +173,8 @@ $random Berserker/GoMad { Berserker/GoMad1 Berserker/GoMad2 Berserker/GoMad3 Ber
 
 BerserkerPlayer/Pain1	BERSPN1
 BerserkerPlayer/Pain2	BERSPN2
+$pitchshiftrange 2
+
 BerserkerPlayer/Pain3	BERSPN3
 $random BerserkerPlayer/Pain { BerserkerPlayer/Pain1 BerserkerPlayer/Pain2 BerserkerPlayer/Pain3 }
 

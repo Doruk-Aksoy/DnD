@@ -1,3 +1,5 @@
+$pitchshiftrange 2
+
 DarkLance/Charge		DLANCHR
 DarkLance/Fire1			DLANFIR1
 $limit DarkLance/Fire1 0
