@@ -23,6 +23,19 @@
 #define ACCURACY_FACTOR 0.00001875
 
 enum {
+	DND_CHARGE_FRENZY,
+	DND_CHARGE_ENDURANCE,
+	DND_CHARGE_POWER
+};
+#define DND_BASE_PLAYERCHARGEMAX 3
+#define DND_BASE_CHARGEDURATION 10 // 10 seconds
+
+#define DND_ENDURANCECHARGE_BONUS 0.04
+#define DND_FRENZYCHARGE_BONUS 0.05
+#define DND_FRENZYCHARGE_SPEEDBONUS 0.03
+#define DND_POWERCHARGE_BONUS 0.5
+
+enum {
 	DND_WDMG_USETARGET = 1,
 	DND_WDMG_ISOCCULT = 2,
 	DND_WDMG_ISPISTOL = 4,
@@ -125,7 +138,7 @@ enum {
 
 #define DND_BASEARMOR_DROP 0.01375
 #define DND_BASE_CHARMRATE 0.0225
-#define DND_BASE_POWERCORERATE 0.004
+#define DND_BASE_SPECIALTYRATE 0.00875
 
 #define DND_BASE_PLAYERSPEED 0.9
 #define DND_LOWEST_PLAYERSPEED 0.05
@@ -376,9 +389,10 @@ enum {
 };
 
 int GetBonusPlayerSpeed(int pnum) {
-	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE);
+	int ptid = pnum + P_TIDSTART;
+	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE) + CheckActorInventory(ptid, "DnD_FrenzyChargeCount") * DND_FRENZYCHARGE_SPEEDBONUS;
 	// add other stuff here
-	res = res * (100 + CheckInventory("GryphonCheck") * DND_GRYPHON_MSPEED + CheckInventory("CelestialCheck") * DND_CELESTIAL_MSPEED) / 100;
+	res = res * (100 + CheckActorInventory(ptid, "GryphonCheck") * DND_GRYPHON_MSPEED + CheckActorInventory(ptid, "CelestialCheck") * DND_CELESTIAL_MSPEED) / 100;
 	return res;
 }
 
@@ -393,7 +407,10 @@ bool HasPlayerDexterityDisablers(int pnum) {
 
 // These getters must be used when doing calculations based on benefit of these stats
 int GetDexterity(int pnum) {
-	return (CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Dexterity") + GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+	return (
+		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Dexterity") + 
+		GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY)
+	) * (100 + GetPlayerAttributeValue(pnum, INV_IMP_PERCENTDEX) + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
 int GetDexterityEffect(int pnum, int factor, int divisor = 1) {
@@ -408,7 +425,10 @@ bool HasPlayerIntellectDisablers(int pnum) {
 }
 
 int GetIntellect(int pnum) {
-	return (CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Intellect") + GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+	return (
+		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Intellect") + 
+		GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)
+	) * (100 + GetPlayerAttributeValue(pnum, INV_IMP_PERCENTINT) + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
 int GetIntellectEffect(int pnum, int factor, int divisor = 1) {
@@ -423,7 +443,10 @@ bool HasPlayerStrengthDisablers(int pnum) {
 }
 
 int GetStrength(int pnum) {
-	return (CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") + GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
+	return (
+		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") + 
+		GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH)
+	) * (100 + GetPlayerAttributeValue(pnum, INV_IMP_PERCENTSTR) + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 }
 
 int GetStrengthEffect(int pnum, int factor, int divisor = 1) {
@@ -966,7 +989,50 @@ int CountMonsterAilments(int tid) {
 	return count;
 }
 
+int GetPlayerChargeDuration(int pnum) {
+	int base = DND_BASE_CHARGEDURATION;
+	if(GetPlayerAttributeValue(pnum, INV_EX_CHARGEDURATIONHALVED))
+		base >>= 1;
+	return base * (100 + GetPlayerAttributeValue(pnum, INV_CHARGEDURATION)) / 100;
+}
+
+int CanActorHaveFrenzyCharges(int tid, int pnum) {
+	return CheckActorInventory(tid, "DnD_FrenzyChargeCount") < DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXFRENZY);
+}
+
+int CanActorHaveEnduranceCharges(int tid, int pnum) {
+	return CheckActorInventory(tid, "DnD_EnduranceChargeCount") < DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXENDURANCE);
+}
+
+int CanActorHavePowerCharges(int tid, int pnum) {
+	return CheckActorInventory(tid, "DnD_PowerChargeCount") < DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXPOWER);
+}
+
+int GetChargeCount() {
+	return CheckInventory("DnD_FrenzyChargeCount") + CheckInventory("DnD_EnduranceChargeCount") + CheckInventory("DnD_PowerChargeCount");
+}
+
+void GiveActorFrenzyCharge(int tid, int amt) {
+	GiveActorInventory(tid, "DnD_FrenzyChargeCount", amt);
+
+	SetActorProperty(tid, APROP_SPEED, GetPlayerSpeed(tid - P_TIDSTART));
+
+	// spawn charge actors
+	ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_FRENZY, amt);
+}
+
+void GiveActorEnduranceCharge(int tid, int amt) {
+	GiveActorInventory(tid, "DnD_EnduranceChargeCount", amt);
+	ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_ENDURANCE, amt);
+}
+
+void GiveActorPowerCharge(int tid, int amt) {
+	GiveActorInventory(tid, "DnD_PowerChargeCount", amt);
+	ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_POWER, amt);
+}
+
 #include "DnD_Buffs.h"
 #include "DnD_BuffInterface.h"
+
 
 #endif

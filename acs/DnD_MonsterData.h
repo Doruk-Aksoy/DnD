@@ -2020,9 +2020,9 @@ Script "DnD Setup Monster Data" OPEN {
 		SetupMonsterData();
 		Delay(const:15);
 		SetupMonsterWeights();
-		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 		Delay(const:10);
 		SetupIncursionMonsters();
+		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
 }
 
@@ -2030,9 +2030,9 @@ Script "DnD Setup Monster Data CS" OPEN CLIENTSIDE {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS)) {
 		Delay(const:20);
 		SetupMonsterData();
-		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 		Delay(const:10);
 		SetupIncursionMonsters();
+		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
 }
 

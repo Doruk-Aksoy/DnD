@@ -115,6 +115,7 @@ enum {
 	IIMG_UCHRM_19,
 	IIMG_UCHRM_20,
 	IIMG_UCHRM_21,
+	IIMG_UCHRM_22,
 
 	// drop only charms
 	IIMG_UDCHRM_1 = 400,
@@ -267,16 +268,46 @@ enum {
 	IIMG_HLM_7,
 	IIMG_HLM_8,
 
-	// powercores
-	IIMG_CORE_1 = 2400,
+	// specialty items
+	IIMG_SLAYERCARD_1 = 2300,
+	IIMG_SLAYERCARD_2,
+	IIMG_SLAYERCARD_3,
+
+	IIMG_DOGTAG_1 = 2310,
+	IIMG_DOGTAG_2,
+	IIMG_DOGTAG_3,
+
+	IIMG_SUNGLASS_1 = 2320,
+	IIMG_SUNGLASS_2,
+	IIMG_SUNGLASS_3,
+
+	IIMG_CIGAR_1 = 2330,
+	IIMG_CIGAR_2,
+	IIMG_CIGAR_3,
+
+	IIMG_POWERRING_1 = 2340,
+	IIMG_POWERRING_2,
+	IIMG_POWERRING_3,
+
+	IIMG_CORE_1 = 2350,
 	IIMG_CORE_2,
 	IIMG_CORE_3,
 	IIMG_CORE_4,
+
+	IIMG_BELT_1	= 2360,
+	IIMG_BELT_2,
+	IIMG_BELT_3,
+
+	IIMG_CLAW_1 = 2370,
+	IIMG_CLAW_2,
+	IIMG_CLAW_3,
 	
+	// chest keys
 	IIMG_CKEY_1 = 2600,
 	IIMG_CKEY_2,
 	IIMG_CKEY_3,
 	
+	// tokens
 	IIMG_TOKEN_ARMORER = 2800,
 	IIMG_TOKEN_GUNSMITH
 };
@@ -318,18 +349,40 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_HELM_END IIMG_HLM_8
 
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
+
+#define ITEM_IMAGE_SLAYERCARD_BEGIN IIMG_SLAYERCARD_1
+#define ITEM_IMAGE_SLAYERCARD_END IIMG_SLAYERCARD_3
+
+#define ITEM_IMAGE_DOGTAG_BEGIN IIMG_DOGTAG_1
+#define ITEM_IMAGE_DOGTAG_END IIMG_DOGTAG_3
+
+#define ITEM_IMAGE_SUNGLASSES_BEGIN IIMG_SUNGLASS_1
+#define ITEM_IMAGE_SUNGLASSES_END IIMG_SUNGLASS_3
+
+#define ITEM_IMAGE_CIGAR_BEGIN IIMG_CIGAR_1
+#define ITEM_IMAGE_CIGAR_END IIMG_CIGAR_3
+
+#define ITEM_IMAGE_POWERRING_BEGIN IIMG_POWERRING_1
+#define ITEM_IMAGE_POWERRING_END IIMG_POWERRING_3
+
 #define ITEM_IMAGE_POWERCORE_BEGIN IIMG_CORE_1
+#define ITEM_IMAGE_POWERCORE_END IIMG_CORE_4
+
+#define ITEM_IMAGE_BELT_BEGIN IIMG_BELT_1
+#define ITEM_IMAGE_BELT_END IIMG_BELT_3
+
+#define ITEM_IMAGE_CLAW_BEGIN IIMG_CLAW_1
+#define ITEM_IMAGE_CLAW_END IIMG_CLAW_3
 
 #define ITEM_IMAGE_CHARM_END IIMG_LC_3
 #define ITEM_IMAGE_ORB_END IIMG_ORB_31
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_6
-#define ITEM_IMAGE_POWERCORE_END IIMG_CORE_4
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
 #define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_GUNSMITH
 
 // uniques
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
-#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_21
+#define ITEM_IMAGE_UCHARM_END IIMG_UCHRM_22
 
 #define ITEM_IMAGE_DROPONLY_UCHARM_BEGIN IIMG_UDCHRM_1
 #define ITEM_IMAGE_DROPONLY_UCHARM_END IIMG_UDCHRM_5
@@ -341,7 +394,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_UBODYARM_END IIMG_UBODY_3
 
 #include "DnD_Armor.h"
-#include "DnD_Powercore.h"
+#include "DnD_SpecialtyItem.h"
 #include "DnD_InvGeneric.h"
 
 // wide returns wider version
@@ -400,9 +453,37 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "HL";
 		suffix = id - ITEM_IMAGE_HELM_BEGIN + 1;
 	}
+	else if(id <= ITEM_IMAGE_SLAYERCARD_END) {
+		img_prefix = "SC";
+		suffix = id - ITEM_IMAGE_SLAYERCARD_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_DOGTAG_END) {
+		img_prefix = "DT";
+		suffix = id - ITEM_IMAGE_DOGTAG_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_SUNGLASSES_END) {
+		img_prefix = "SG";
+		suffix = id - ITEM_IMAGE_SUNGLASSES_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_CIGAR_END) {
+		img_prefix = "CI";
+		suffix = id - ITEM_IMAGE_CIGAR_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_POWERRING_END) {
+		img_prefix = "RN";
+		suffix = id - ITEM_IMAGE_POWERRING_BEGIN + 1;
+	}
 	else if(id <= ITEM_IMAGE_POWERCORE_END) {
 		img_prefix = "PC";
 		suffix = id - ITEM_IMAGE_POWERCORE_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_BELT_END) {
+		img_prefix = "BL";
+		suffix = id - ITEM_IMAGE_BELT_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_CLAW_END) {
+		img_prefix = "CL";
+		suffix = id - ITEM_IMAGE_CLAW_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_KEY_END) {
 		img_prefix = "K";
@@ -2195,8 +2276,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetBootDropClass(stype);
 	else if(itype == DND_ITEM_HELM)
 		droptype = GetHelmDropClass(stype);
-	else if(itype == DND_ITEM_SPECIALTY_CYBORG)
-		droptype = GetPowercoreDropClass(stype);
+	else if(IsSpecialtyItemType(itype))
+		droptype = GetSpecialtyDropClass(itype, stype);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 
@@ -2985,6 +3066,10 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 			SetWeaponModPowerset(pnum, aextra, WEP_POWER_CULL, !remove, WMOD_WEP);
 			MarkWeaponDataSync(pnum, aextra, true);
 		break;
+
+		default:
+			IncPlayerModValue(pnum, atype, aval);
+		break;
 	}
 
 	return true;
@@ -3629,7 +3714,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_HEATBREAKER;
+				i = UITEM_KINGMAKER;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

@@ -16,6 +16,7 @@ enum {
 	BUFF_STUN,
 	BUFF_VISIONLOSS,
 	BUFF_HEALTHREGEN,
+	BUFF_CRITPERCENT,
 
 	BUFF_PHASING,
 
@@ -245,9 +246,9 @@ void GivePlayerBuff(int pnum, int bsource, int btype, int bbt_index, int bvalue,
 			if(pbuffs.buff_list[i].type == btype && pbuffs.buff_list[i].bt_index == bbt_index && (pbuffs.buff_list[i].flags & BUFF_F_NODUPLICATE_STRICT)) {
 				if(bflags & BUFF_F_ADDIFNODUPLICATE) {
 					// increase its value
-					//Log(s:"found duplicate, adding value ", f:bvalue);
 					pbuffs.buff_list[i].value += bvalue;
 					pbuffs.buff_list[i].duration = bduration;
+					//Log(s:"found duplicate, adding value to index: ", d:i, s:" value: ", f:bvalue, s:" ", d:pbuffs.buff_list[i].duration);
 					found = 2;
 					break;
 				}
@@ -336,7 +337,7 @@ Script "DnD Buff Ticker" (int pnum) {
 			//Log(s:"duration: ", d:pbuffs.buff_list[i].duration);
 			if((pbuffs.buff_list[i].flags & BUFF_F_TICKERREQUIRED)) {
 				--pbuffs.buff_list[i].duration;
-				//(d:i, s: ". ", d:pbuffs.buff_list[i].duration);
+				//Log(s:"Dec ", d:i, s:" duration: ", d:pbuffs.buff_list[i].duration);
 				// either timed out or conditional removal in the form of thawing for chill & freeze on player
 				if
 				(
@@ -416,6 +417,7 @@ int RemoveBuff(int pnum, int buff_index, int precalc_prev = -1) {
 
 	HandleBuffValueComponent(pnum, buff_index, true);
 	HandleBuffApplication(pnum, pbuffs.buff_list[buff_index].type);
+	HandleSpecialBuffRemoval(pnum, pbuffs.buff_list[buff_index].bt_index);
 
 	pbuffs.buff_list[buff_index].source = 0;
 	pbuffs.buff_list[buff_index].type = -1;
@@ -458,6 +460,25 @@ void RemoveBuffMatching(int pnum, int bsource, int btype, int bbt_index, int bva
 		}
 		prev = i;
 		i = pbuffs.buff_list[i].next_id;
+	}
+}
+
+void HandleSpecialBuffRemoval(int pnum, int buff_table_index) {
+	int ptid = pnum + P_TIDSTART;
+	if(buff_table_index == BTI_FRENZYCHARGE) {
+		SetActorInventory(ptid, "DnD_FrenzyChargeCount", 0);
+
+		// delete frenzy charge actors
+		GiveActorInventory(ptid, "DnD_FrenzyChargeRemoveSignal", 1);
+		SetActorProperty(ptid, APROP_SPEED, GetPlayerSpeed(pnum));
+	}
+	else if(buff_table_index == BTI_ENDURANCECHARGE) {
+		SetActorInventory(ptid, "DnD_EnduranceChargeCount", 0);
+		GiveActorInventory(ptid, "DnD_EnduranceChargeRemoveSignal", 1);
+	}
+	else if(buff_table_index == BTI_POWERCHARGE) {
+		SetActorInventory(ptid, "DnD_PowerChargeCount", 0);
+		GiveActorInventory(ptid, "DnD_PowerChargeRemoveSignal", 1);
 	}
 }
 

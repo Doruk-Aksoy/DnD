@@ -86,6 +86,7 @@ DND_UCIMG18			=	"UCHRM18";
 DND_UCIMG19			=	"UCHRM19";
 DND_UCIMG20			=	"UCHRM20";
 DND_UCIMG21			=	"UCHRM21";
+DND_UCIMG22			=	"UCHRM22";
 
 DND_UDCIMG1			=	"UDCHRM1";
 DND_UDCIMG2			=	"UDCHRM2";
@@ -188,16 +189,53 @@ DND_HLIMG6			=	"HLMICO6";
 DND_HLIMG7			=	"HLMICO7";
 DND_HLIMG8			=	"HLMICO8";
 
+// slayer card images
+DND_SCIMG1			=	"SCARD01";
+DND_SCIMG2			=	"SCARD02";
+DND_SCIMG3			=	"SCARD03";
+
+// dog tag images
+DND_DTIMG1			=	"DOGTAG01";
+DND_DTIMG2			=	"DOGTAG02";
+DND_DTIMG3			=	"DOGTAG03";
+
+// sunglass images
+DND_SGIMG1			=	"SUNGL01";
+DND_SGIMG2			=	"SUNGL02";
+DND_SGIMG3			=	"SUNGL03";
+
+// cigar images
+DND_CIIMG1			=	"CIGAR01";
+DND_CIIMG2			=	"CIGAR02";
+DND_CIIMG3			=	"CIGAR03";
+
+// power ring images
+DND_RNIMG1			=	"PRING01";
+DND_RNIMG2			=	"PRING02";
+DND_RNIMG3			=	"PRING03";
+
 // power core images
 DND_PCIMG1			=	"PCORE01";
 DND_PCIMG2			=	"PCORE02";
 DND_PCIMG3			=	"PCORE03";
 DND_PCIMG4			=	"PCORE04";
+
+// belt images
+DND_BLIMG1			=	"BELT01";
+DND_BLIMG2			=	"BELT02";
+DND_BLIMG3			=	"BELT03";
+
+// claw images
+DND_CLIMG1			=	"CLAW01";
+DND_CLIMG2			=	"CLAW02";
+DND_CLIMG3			=	"CLAW03";
 	
+// keys
 DND_KIMG1			=	"SBKGA0";
 DND_KIMG2			=	"SBKGB0";
 DND_KIMG3			=	"SBKGC0";
 	
+// tokens
 DND_TIMG1			=	"REPTOKN";
 DND_TIMG2			=	"SCRTOKN";
 
@@ -248,11 +286,6 @@ DND_TOKENTEXT1		=	"Allows to increase the quality of an armor by \cd1%\c-, cappe
 DND_TOKEN2			=	"Gunsmith's Token";
 DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and removing its quality.";
 
-DND_PCORE1			=	"Copper Powercore";
-DND_PCORE2			=	"Gold Powercore";
-DND_PCORE3			=	"Unstable Powercore";
-DND_PCORE4			=	"Molybdenum Powercore";
-
 // unique item names -- charms
 DND_UNIQUE1				=	"Elemental Bulwark";
 DND_UNIQUE2				=	"Ironbark";
@@ -275,6 +308,7 @@ DND_UNIQUE18			=	"Mindforge";
 DND_UNIQUE19			=	"Slayer Special";
 DND_UNIQUE20			=	"Deathwing's Fang";
 DND_UNIQUE21 			=	"Mirror of Eternity";
+DND_UNIQUE22			=	"Kingmaker";
 
 DND_DROP_UNIQUE1		=	"Elemental Harmony";
 DND_DROP_UNIQUE2		=	"Steelbark";
@@ -394,10 +428,10 @@ IATTR_T77			= "projectile speed";
 IATTR_T78			= "energy resist";
 IATTR_T79			= "increased knockback resist";
 IATTR_T80			= "magic resist";
-IATTR_T81			= "fire resist";
-IATTR_T82			= "ice resist";
-IATTR_T83			= "lightning resist";
-IATTR_T84			= "poison resist";
+IATTR_T81			= "fire damage over time multiplier";
+IATTR_T82			= "poison damage over time multiplier";
+IATTR_T83			= "bleed damage over time multiplier";
+IATTR_T84			= "increased charge duration";
 
 IATTR_T85			= "maximum damage resist cap";
 IATTR_T86			= "increased regeneration rate";
@@ -465,7 +499,9 @@ IATTR_T135			= "increased bleed damage";
 IATTR_T136			= "increased bleed duration";							DND_BLEED_TIME = "seconds of bleed duration";
 
 IATTR_T137			= "increased crit chance for";
-
+IATTR_T138			= "chance to gain a Frenzy Charge on shattering an enemy";
+IATTR_T139			= "chance to gain an Endurance Charge on melee kill";
+IATTR_T140			= "chance to gain a Power Charge on overloaded enemy kill";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
@@ -483,6 +519,9 @@ IATTR_TC12			= "of lifesteal is instant";
 IATTR_TC13			= "more area of effect";
 IATTR_TC14			= "to global resist pierce";
 IATTR_TC15			= "Culling Strike";
+IATTR_TC16			= "to maximum frenzy charges";
+IATTR_TC17			= "to maximum endurance charges";
+IATTR_TC18			= "to maximum power charges";
 
 // regular implicits
 IATTR_TI1			= "armor";
@@ -520,6 +559,15 @@ IATTR_TI31			= "Deal "; IATTR_TI31S = " more damage to bosses";
 IATTR_TI32			= "Killing magical or undead enemies recover \cd1%\c- of energy shield";
 IATTR_TI33			= "Precision weapons have "; IATTR_TI33S = " to crit chance";
 IATTR_TI34			= "Quality cap is \cd50%\c-";
+IATTR_TI35			= "increased strength";
+IATTR_TI36			= "increased dexterity";
+IATTR_TI37			= "increased intellect";
+IATTR_TI38			= "reduced slowdown on shotguns";
+IATTR_TI39			= "chance to not consume ammo for shotguns";
+IATTR_TI40			= "chance to gain a Frenzy Charge on kill";
+IATTR_TI41			= "chance to gain a Endurance Charge on kill";
+IATTR_TI42			= "chance to gain a Power Charge on kill";
+IATTR_TI43			= "increased phasing duration";
 
 // essences
 IATTR_TE1 			= "chance for radius damage to reduce enemy resists by "; IATTR_TE1S = "for 3 seconds";
@@ -627,6 +675,9 @@ IATTR_TX65			= "ammo cost multiplier";
 IATTR_TX66			= "rippers only rip a target once";
 IATTR_TX67			= "rippers can penetrate all targets";
 IATTR_TX68			= "Reflects your other medium charm";
+IATTR_TX69			= "chance to gain"; IATTR_TX69S = "charge on hitting a boss or elite";
+IATTR_TX70			= "Your charge duration is halved";
+IATTR_TX71			= "more damage per charge on you";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";
@@ -636,3 +687,7 @@ IATTR_RALLY					= "Rally";
 IATTR_CHANCEIGNORERES		= "chance to ignore enemy resistances";
 IATTR_MAGICRES				= "magic resistance";
 IATTR_MOREDMG				= "more damage";
+
+LCHARGE_0			= "a Frenzy Charge";
+LCHARGE_1			= "an Endurance Charge";
+LCHARGE_2			= "a Power Charge";

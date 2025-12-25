@@ -559,7 +559,7 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 				SpawnHelm(i, 0);
 			else {
 				// class specific spawn -- check if this is the fitting class of the player later here
-				SpawnPowercore(i, 0);
+				SpawnSpecialtyItem(i, 0, 0, false, random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE));
 			}
 		}
 		else
@@ -724,7 +724,7 @@ enum {
 	DND_LOOTBIT_TOKEN = 2,
 	DND_LOOTBIT_ARMOR = 4,
 	DND_LOOTBIT_CHARM = 8,
-	DND_LOOTBIT_POWERCORE = 16,
+	DND_LOOTBIT_SPECIALTY = 16,
 	DND_LOOTBIT_CHESTKEY = 32
 };
 
@@ -733,7 +733,7 @@ enum {
 	DND_LOOT_TOKEN,
 	DND_LOOT_ARMOR,
 	DND_LOOT_CHARM,
-	DND_LOOT_POWERCORE,
+	DND_LOOT_SPECIALTY,
 	DND_LOOT_CHESTKEY
 };
 #define DND_MAX_LOOTBITS 6
@@ -796,9 +796,9 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 				bits |= DND_LOOTBIT_CHARM;
 			}
 
-			if(ignoreWeight || (mon_robot && RunPrecalcDropChance(p_chance, DND_BASE_POWERCORERATE * drop_boost / 100, m_id, DND_MON_RNG_4))) {
-				SpawnPowercore(i, rarity_boost);
-				bits |= DND_LOOTBIT_POWERCORE;
+			if(ignoreWeight || (mon_robot && RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_4))) {
+				SpawnSpecialtyItem(i, rarity_boost, 0, false, random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE));
+				bits |= DND_LOOTBIT_SPECIALTY;
 			}
 			
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_2)) {
@@ -833,8 +833,8 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 						case DND_LOOT_CHARM:
 							SpawnCharm(i, rarity_boost);
 						break;
-						case DND_LOOT_POWERCORE:
-							SpawnPowercore(i, rarity_boost);
+						case DND_LOOT_SPECIALTY:
+							SpawnSpecialtyItem(i, rarity_boost, 0, false, random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE));
 						break;
 						case DND_LOOT_CHESTKEY:
 							SpawnChestKey(i);
@@ -1370,6 +1370,10 @@ void ClearLingeringBuffs(int pnum) {
 	TakeInventory("DnD_PromptLocked", 1);
 	SetInventory("AllMapOnlyOnce", 0);
 
+	SetInventory("DnD_FrenzyChargeCount", 0);
+	SetInventory("DnD_EnduranceChargeCount", 0);
+	SetInventory("DnD_PowerChargeCount", 0);
+
 	SetInventory("Punisher_Perk5_MoveSpeed", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
 	SetInventory("Punisher_Perk50_DamageBonus", 0);
@@ -1683,6 +1687,23 @@ void HandleAsmodeusAttack(int m_id, int isMelee) {
 	}
 	else if(!CheckInventory("AsmodeusMadePullerGhost") && !CheckInventory("AsmodeusPullerGhostCooldown")) {
 		GiveInventory("AsmodeusPullerGhost_Spawner", 1);
+	}
+}
+
+void HandleChargeAcquisitionOnKill(int this, int pnum) {
+	int temp = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_FRENZY);
+	if(temp && random(1, 100) <= temp) {
+		HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
+	}
+
+	temp = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_ENDURANCE);
+	if(temp && random(1, 100) <= temp) {
+		HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
+	}
+
+	temp = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_POWER);
+	if(temp && random(1, 100) <= temp) {
+		HandlePlayerBuffAssignment(pnum, 0, BTI_POWERCHARGE);
 	}
 }
 

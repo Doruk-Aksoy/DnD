@@ -1586,7 +1586,7 @@ rect_T module& LoadRect(int menu_page, int id) {
 			// rightside -- armors
 			{ 112.0, 257.0, 62.0, 207.0 },
 			{ 112.0, 193.0, 62.0, 143.0 },
-			{ 161.0, 193.0, 111.0, 143.0 },
+			{ 167.0, 193.0, 117.0, 143.0 },
 			{ 112.0, 129.0, 62.0, 79.0 },
 
 			// inv explore icon
@@ -2833,11 +2833,29 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 			break;
 
 			// specialty items
+			case DND_ITEM_SPECIALTY_DOOMGUY:
+				SetFont("SCARDBAK");
+			break;
+			case DND_ITEM_SPECIALTY_MARINE:
+				SetFont("DOGTGBAK");
+			break;
+			case DND_ITEM_SPECIALTY_HOBO:
+				SetFont("SUNGLBAK");
+			break;
+			case DND_ITEM_SPECIALTY_PUNISHER:
+				SetFont("CIGRBAK");
+			break;
+			case DND_ITEM_SPECIALTY_WANDERER:
+				SetFont("PRINGBAK");
+			break;
 			case DND_ITEM_SPECIALTY_CYBORG:
-				if(!HasClassPerk_Fast("Cyborg", 2))
-					SetFont("PCORBAKB");
-				else
-					SetFont("PCORBAK");
+				SetFont("PCORBAK");
+			break;
+			case DND_ITEM_SPECIALTY_BERSERKER:
+				SetFont("BELTBAK");
+			break;
+			case DND_ITEM_SPECIALTY_TRICKSTER:
+				SetFont("CLAWBAK");
 			break;
 		}
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 30 - thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
@@ -3212,12 +3230,6 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		if(boxid != MAINBOX_NONE) {
 			// we pressed an item box
 			if(!CheckInventory("DnD_InventoryView")) {
-				// don't let user even click this if they aren't allowed
-				if(boxid - 1 == POWERCORE_INDEX && !HasClassPerk_Fast("Cyborg", 2)) {
-					ShowPopup(POPUP_CANTUSEPOWERCORE, false, 0);
-					return;
-				}
-
 				GiveInventory("DnD_InventoryView", 1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				if(boxid != DND_INV_ICON_BOXID)
@@ -3255,7 +3267,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 							item_type = DND_ITEM_BODYARMOR;
 						break;
 						case POWERCORE_INDEX:
-							item_type = DND_ITEM_SPECIALTY_CYBORG;
+							item_type = DND_ITEM_SPECIALTY_DOOMGUY + GetPlayerClass();
 						break;
 						case BOOT_INDEX:
 							item_type = DND_ITEM_BOOT;
@@ -3276,6 +3288,8 @@ void HandleItemPageInputs(int pnum, int boxid) {
 							SetInventory("DnD_SelectedCharmBox", 0);
 							GiveInventory("DnD_CleanInventoryRequest", 1);
 						}
+						else if((PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) != item_type && item_type >= FIRST_SPECIALTY_ITEM_TYPE && item_type <= LAST_SPECIALTY_ITEM_TYPE)
+							ShowPopup(POPUP_CANTUSEPOWERCORE, false, 0); 
 						else
 							ShowPopup(temp, false, 0);
 					}
@@ -5011,14 +5025,6 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 
 int GetResistDisplayVal(int pnum, int res, int reduce) {
 	int val = GetPlayerAttributeValue(pnum, res) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) + reduce;
-	switch(res) {
-		case INV_DMGREDUCE_FIRE:
-		case INV_DMGREDUCE_ICE:
-		case INV_DMGREDUCE_POISON:
-		case INV_DMGREDUCE_LIGHTNING:
-			val += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
-		break;
-	}
 	return val;
 }
 
@@ -5527,20 +5533,8 @@ void DrawPlayerStats(int pnum, int category) {
 			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_MAGC", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_FIRE, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_FIRE", s:"\n");
-			++k;
-			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ICE, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ICE", s:"\n");
-			++k;
-			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_LIGHTNING, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_LGHT", s:"\n");
-			++k;
-			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_POISON, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_POIS", s:"\n");
+			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ELEM, temp);
+			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ELE", s:"\n");
 			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_REFL, temp);

@@ -204,10 +204,10 @@ enum {
 	INV_DMGREDUCE_ENERGY,
 	INV_PERCENT_KNOCKBACKRESIST,
 	INV_DMGREDUCE_MAGIC,
-	INV_DMGREDUCE_FIRE,
-	INV_DMGREDUCE_ICE,
-	INV_DMGREDUCE_LIGHTNING,
-	INV_DMGREDUCE_POISON,
+	INV_DOTMULTI_FIRE,
+	INV_DOTMULTI_POISON,
+	INV_DOTMULTI_BLEED,
+	INV_CHARGEDURATION,
 	
 	INV_ADDEDMAXRESIST,
 	INV_REGENRATE,
@@ -275,6 +275,9 @@ enum {
 	INV_BLEED_DURATION,
 
 	INV_CRITPERCENT_FORWEPTYPE,
+	INV_FRENZYCHARGE_ONSHATTER,
+	INV_ENDURANCECHARGE_ONMELEE,
+	INV_POWERCHARGE_ONOVERLOAD,
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -293,6 +296,9 @@ enum {
 	INV_CORR_MOREAOE,
 	INV_CORR_ALLPIERCE,
 	INV_CORR_WEPCULL,
+	INV_CORR_MAXFRENZY,
+	INV_CORR_MAXENDURANCE,
+	INV_CORR_MAXPOWER,
 	// add new corruption implicits here
 
 	// implicits -- add new ones below here
@@ -331,6 +337,15 @@ enum {
 	INV_IMP_RECOVERESONUNDEADKILL,
 	INV_IMP_PRECISIONCRITBONUS,
 	INV_IMP_QUALITYCAPFIFTY,
+	INV_IMP_PERCENTSTR,
+	INV_IMP_PERCENTDEX,
+	INV_IMP_PERCENTINT,
+	INV_IMP_REDUCEDSLOWSHOTGUNS,
+	INV_IMP_AMMOGAIN_SHOTGUNS,
+	INV_IMP_ONKILL_FRENZY,
+	INV_IMP_ONKILL_ENDURANCE,
+	INV_IMP_ONKILL_POWER,
+	INV_IMP_PHASINGTIME,
 	// add new implicits here
 	
 	// essence attributes (only via. specific means)
@@ -439,6 +454,9 @@ enum {
 	INV_EX_RIPPERSONETIMEONLY,
 	INV_EX_RIPPERSRIPALL,
 	INV_EX_MIRROROTHERMEDIUM,
+	INV_EX_CHANCEGAINXCHARGE,
+	INV_EX_CHARGEDURATIONHALVED,
+	INV_EX_MOREDAMAGEPERCHARGE,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -477,7 +495,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_CRITPERCENT_FORWEPTYPE
+#define LAST_INV_ATTRIBUTE INV_POWERCHARGE_ONOVERLOAD
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -486,11 +504,11 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
-#define LAST_CORRUPT_IMPLICIT INV_CORR_WEPCULL
+#define LAST_CORRUPT_IMPLICIT INV_CORR_MAXPOWER
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_QUALITYCAPFIFTY
+#define LAST_REGULAR_IMPLICIT INV_IMP_PHASINGTIME
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -606,10 +624,6 @@ bool IsFixedPointMod(int mod) {
 		case INV_DMGREDUCE_ENERGY:
 		case INV_DMGREDUCE_PHYS:
 		case INV_DMGREDUCE_MAGIC:
-		case INV_DMGREDUCE_FIRE:
-		case INV_DMGREDUCE_ICE:
-		case INV_DMGREDUCE_LIGHTNING:
-		case INV_DMGREDUCE_POISON:
 		case INV_DMGREDUCE_ALL:
 		case INV_DMGREDUCE_REFL:
 		case INV_ADDEDMAXRESIST:
@@ -1022,18 +1036,18 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_STAT_INTELLECT].tags = INV_ATTR_TAG_STAT;
 	
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 5.0;
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 6.0;
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 6.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_ELEMENTAL;
 	
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 5.0;
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 6.0;
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 6.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_PHYSICAL;
 	
 	ItemModTable[INV_DMGREDUCE_REFL].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_REFL].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_REFL].attrib_level_modifier = 5.0;
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_high = 6.0;
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_level_modifier = 6.0;
 	ItemModTable[INV_DMGREDUCE_REFL].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_PEN_PHYSICAL].attrib_low = 1;
@@ -1167,7 +1181,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MELEEDAMAGE].tags = INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_MELEE;
 	
 	ItemModTable[INV_DOTMULTI].attrib_low = 1;
-	ItemModTable[INV_DOTMULTI].attrib_high = 8;
+	ItemModTable[INV_DOTMULTI].attrib_high = 5;
 	ItemModTable[INV_DOTMULTI].attrib_level_modifier = 0;
 	ItemModTable[INV_DOTMULTI].tags = INV_ATTR_TAG_DAMAGE;
 	
@@ -1182,8 +1196,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PROJSPEED].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 5.0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 6.0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 6.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_ENERGY;
 	
 	ItemModTable[INV_PERCENT_KNOCKBACKRESIST].attrib_low = 1;
@@ -1192,29 +1206,29 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PERCENT_KNOCKBACKRESIST].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 5.0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 6.0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 6.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_OCCULT;
 	
-	ItemModTable[INV_DMGREDUCE_FIRE].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_FIRE].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_FIRE].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_FIRE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
+	ItemModTable[INV_DOTMULTI_FIRE].attrib_low = 4;
+	ItemModTable[INV_DOTMULTI_FIRE].attrib_high = 9;
+	ItemModTable[INV_DOTMULTI_FIRE].attrib_level_modifier = 0;
+	ItemModTable[INV_DOTMULTI_FIRE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_DAMAGE;
 	
-	ItemModTable[INV_DMGREDUCE_ICE].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_ICE].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_ICE].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_ICE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
+	ItemModTable[INV_DOTMULTI_POISON].attrib_low = 4;
+	ItemModTable[INV_DOTMULTI_POISON].attrib_high = 9;
+	ItemModTable[INV_DOTMULTI_POISON].attrib_level_modifier = 0;
+	ItemModTable[INV_DOTMULTI_POISON].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_DAMAGE;
 	
-	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_LIGHTNING].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_LIGHTNING].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
+	ItemModTable[INV_DOTMULTI_BLEED].attrib_low = 4;
+	ItemModTable[INV_DOTMULTI_BLEED].attrib_high = 9;
+	ItemModTable[INV_DOTMULTI_BLEED].attrib_level_modifier = 0;
+	ItemModTable[INV_DOTMULTI_BLEED].tags = INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_DAMAGE;
 	
-	ItemModTable[INV_DMGREDUCE_POISON].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_POISON].attrib_high = 5.0;
-	ItemModTable[INV_DMGREDUCE_POISON].attrib_level_modifier = 5.0;
-	ItemModTable[INV_DMGREDUCE_POISON].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
+	ItemModTable[INV_CHARGEDURATION].attrib_low = 5;
+	ItemModTable[INV_CHARGEDURATION].attrib_high = 10;
+	ItemModTable[INV_CHARGEDURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_CHARGEDURATION].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_ADDEDMAXRESIST].attrib_low = 0.25;
 	ItemModTable[INV_ADDEDMAXRESIST].attrib_high = 0.5;
@@ -1387,8 +1401,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_REDUCED_OVERHEAT].tags = INV_ATTR_TAG_UTILITY;
 
 	ItemModTable[INV_DMGREDUCE_ALL].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_ALL].attrib_high = 2.5;
-	ItemModTable[INV_DMGREDUCE_ALL].attrib_level_modifier = 1.5;
+	ItemModTable[INV_DMGREDUCE_ALL].attrib_high = 2.0;
+	ItemModTable[INV_DMGREDUCE_ALL].attrib_level_modifier = 1.0;
 	ItemModTable[INV_DMGREDUCE_ALL].tags = INV_ATTR_TAG_DEFENSE;
 
 	ItemModTable[INV_ITEMRARITY].attrib_low = 0.015;
@@ -1483,6 +1497,21 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_extra_high = DND_WEPTYPE_LAST;
 	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].attrib_level_extra_modifier = -1;
 	ItemModTable[INV_CRITPERCENT_FORWEPTYPE].tags = INV_ATTR_TAG_CRIT;
+
+	ItemModTable[INV_FRENZYCHARGE_ONSHATTER].attrib_low = 1;
+	ItemModTable[INV_FRENZYCHARGE_ONSHATTER].attrib_high = 3;
+	ItemModTable[INV_FRENZYCHARGE_ONSHATTER].attrib_level_modifier = 0;
+	ItemModTable[INV_FRENZYCHARGE_ONSHATTER].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_ICE;
+
+	ItemModTable[INV_ENDURANCECHARGE_ONMELEE].attrib_low = 1;
+	ItemModTable[INV_ENDURANCECHARGE_ONMELEE].attrib_high = 3;
+	ItemModTable[INV_ENDURANCECHARGE_ONMELEE].attrib_level_modifier = 0;
+	ItemModTable[INV_ENDURANCECHARGE_ONMELEE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_MELEE;
+
+	ItemModTable[INV_POWERCHARGE_ONOVERLOAD].attrib_low = 1;
+	ItemModTable[INV_POWERCHARGE_ONOVERLOAD].attrib_high = 3;
+	ItemModTable[INV_POWERCHARGE_ONOVERLOAD].attrib_level_modifier = 0;
+	ItemModTable[INV_POWERCHARGE_ONOVERLOAD].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIGHTNING;
 	
 	/////////////////////////
 	// corrupted implicits //
@@ -1561,6 +1590,21 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_WEPCULL].attrib_high = 1;
 	ItemModTable[INV_CORR_WEPCULL].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_WEPCULL].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_CORR_MAXFRENZY].attrib_low = 1;
+	ItemModTable[INV_CORR_MAXFRENZY].attrib_high = 1;
+	ItemModTable[INV_CORR_MAXFRENZY].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_MAXFRENZY].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_CORR_MAXENDURANCE].attrib_low = 1;
+	ItemModTable[INV_CORR_MAXENDURANCE].attrib_high = 1;
+	ItemModTable[INV_CORR_MAXENDURANCE].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_MAXENDURANCE].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_CORR_MAXPOWER].attrib_low = 1;
+	ItemModTable[INV_CORR_MAXPOWER].attrib_high = 1;
+	ItemModTable[INV_CORR_MAXPOWER].attrib_level_modifier = 0;
+	ItemModTable[INV_CORR_MAXPOWER].tags = INV_ATTR_TAG_UTILITY;
 
 	///////////////////////
 	// regular implicits //
@@ -1781,7 +1825,7 @@ int GetModTierRangeMapperExtra(int attr, int lvl) {
 #define ITEM_MODRANGE_LOW 0
 #define ITEM_MODRANGE_HIGH 1
 
-#define DND_POWERCORE_ATTRFACTOR -50
+#define DND_POWERCORE_ATTRFACTOR 0
 #define DND_SMALLCHARM_ATTRFACTOR -50
 #define DND_LARGECHARM_ATTRFACTOR 25
  
@@ -1810,6 +1854,9 @@ bool IsAttributeExtraException(int attr) {
 		// incursion things that use extra field
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
+
+		// unique things
+		case INV_EX_CHANCEGAINXCHARGE:
 
 		return true;
 	}
@@ -2413,6 +2460,9 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_NECROARMOR:
 		case INV_IMP_LESSSELFDAMAGETAKEN:
 		case INV_IMP_REDUCEDVISIONIMPAIR:		// synthmetal mask
+		case INV_IMP_PERCENTSTR:
+		case INV_IMP_PERCENTDEX:
+		case INV_IMP_PERCENTINT:
 		case INV_CORR_INSTALEECHPCT:
 			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
 		return text;
@@ -2487,6 +2537,12 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			}
 			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text);
 
+		// flat corruption mods with no ranges
+		case INV_CORR_MAXFRENZY:
+		case INV_CORR_MAXENDURANCE:
+		case INV_CORR_MAXPOWER:
+			return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
+
 		// flat corruption mods with ranges
 		case INV_CORR_ALLPIERCE:
 			if(showDetailedMods) {
@@ -2540,10 +2596,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_DMGREDUCE_REFL:
 		case INV_DMGREDUCE_ENERGY:
 		case INV_DMGREDUCE_MAGIC:
-		case INV_DMGREDUCE_FIRE:
-		case INV_DMGREDUCE_LIGHTNING:
-		case INV_DMGREDUCE_ICE:
-		case INV_DMGREDUCE_POISON:
 		case INV_DMGREDUCE_ALL:
 		case INV_ADDEDMAXRESIST:
 		case INV_OVERLOAD_DURATION:
@@ -2863,7 +2915,12 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			if(showDetailedMods)
 				return StrParam(l:"IATTR_TX62", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX62S", s:" - ", s:GetModTierText(tier, extra));
 			return StrParam(l:"IATTR_TX62", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX62S");
-
+		
+		case INV_EX_CHANCEGAINXCHARGE:
+			if(showDetailedMods)
+				return StrParam(s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text, s:" \c[Q9]", l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(s:"\c[Q9]", d:val1, s:"%\c- ", l:text, s:" \c[Q9]", l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S");
+		
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:
 		case INV_EX_DOUBLE_HEALTHCAP:
@@ -2953,6 +3010,7 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 		case INV_EX_CANNOTPICKAMMO:
 		case INV_EX_CANTFIRENONOVERHEAT:
 		case INV_EX_RIPPERSONETIMEONLY:
+		case INV_EX_CHARGEDURATIONHALVED:
 			if(showDetailedMods) {
 				return StrParam(s:"\c[D4]", l:text, s:"\c- - ", s:GetModTierText(tier, extra));
 			}

@@ -49,9 +49,8 @@ CLASS1_PERK5			= "Rage Fuel";
 CLASS1_PERK1_DESC		= "Your explosives do 25% less self damage.";
 CLASS1_PERK2_DESC		= "Your explosive projectiles can't be reflected.";
 CLASS1_PERK3_DESC		= "Take 33% less damage from radius damage. Your explosives ignore radius damage immunity.";
-CLASS1_PERK4_DESC		= "Losing 40% of your health in the span of a two seconds makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
+CLASS1_PERK4_DESC		= "Losing 40% of your health in the span of two seconds makes you take 50% less damage for 15 seconds. At the end of the buff, gain 1% of your health per 250 damage dealt. This effect can only occur once every 3 minutes. Cooldown reduced per kill by 1 second.";
 CLASS1_PERK5_DESC		= "Regular explosives gain 25% chance to trigger again scaling up to 100% per 1% missing health. The effect is maximized at 50% missing health.";
-	
 
 // Hobo
 
@@ -134,7 +133,7 @@ CLASS5_PERK4			= "Volatility";
 CLASS5_PERK5			= "Ascension";
 
 CLASS5_PERK1_DESC		= "Cybernetic equipments are 33% more effective.";
-CLASS5_PERK2_DESC		= "Can use powercores.";
+CLASS5_PERK2_DESC		= "Recovery effects have 25% chance to not be interrupted on taking damage.";
 CLASS5_PERK3_DESC		= "Tech weapons build instability stacks on enemy direct hits, granting +2 flat damage per stack up to 10 stacks. 50% chance to have energy shield recovery start immediately after losing max stacks. Stacks last 5 seconds.";
 CLASS5_PERK4_DESC		= "At max instability stacks, your tech weapons may fire additional energy particles. Stacks last an additional 5 seconds.";
 CLASS5_PERK5_DESC		= "Half your life becomes energy shield. Lifesteal applies to energy shield at half of its value instead.";

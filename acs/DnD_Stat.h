@@ -885,6 +885,9 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 				GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) +
 				CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT);
 
+	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
+	val += (pbuffs.buff_net_values[BUFF_CRITPERCENT].additive * 100) >> 16;
+
 	return val;
 }
 

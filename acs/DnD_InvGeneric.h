@@ -163,23 +163,20 @@ void SpawnUniqueCharm(int pnum, int charm_id, bool noRandomVelXY = false) {
 	ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
 }
 
-void SpawnPowercore(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
+// extra field is the class
+void SpawnSpecialtyItem(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	int id = 0;
 	if(c != -1) {
-		#ifndef ISDEBUGBUILD
-			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
-		#else
-			if(random(0,1))
-		#endif
-		{
+		if(extra == DND_ITEM_SPECIALTY_CYBORG && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))) {
 			id = MakeUnique(c, DND_ITEM_SPECIALTY_CYBORG, pnum);
 			SpawnDrop(StrParam(s:"PowercoreDrop_Unique", d:id - UNIQUE_POWERCORE_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
 		}
-		else
-			SpawnDrop(GetPowercoreDropClass(RollPowercoreInfo(c, RollItemLevel(), pnum)), 24.0, 16, pnum + 1, c, noRandomVelXY);
+		else {
+			SpawnDrop(GetSpecialtyDropClass(extra, RollSpecialtyItemInfo(c, RollItemLevel(), pnum, extra)), 24.0, 16, pnum + 1, c, noRandomVelXY);
+		}
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_SPECIALTY_CYBORG);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, extra);
 	}
 }
 
@@ -217,9 +214,19 @@ void SpawnItemForAll(int type, int repeats = 1, int extra = -1) {
 		case DND_ITEM_HELM:
 			f = SpawnHelm;
 		break;
-        case DND_ITEM_SPECIALTY_CYBORG:
-            f = SpawnPowercore;
+
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		case DND_ITEM_SPECIALTY_MARINE:
+		case DND_ITEM_SPECIALTY_HOBO:
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		case DND_ITEM_SPECIALTY_WANDERER:
+		case DND_ITEM_SPECIALTY_CYBORG:
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		case DND_ITEM_SPECIALTY_TRICKSTER:
+			extra = type;
+			f = SpawnSpecialtyItem;
         break;
+
         case DND_ITEM_TOKEN:
             f = SpawnToken;
         break;
@@ -267,8 +274,30 @@ str GetItemTagName(int itype, int isubt) {
 		case DND_ITEM_CHARM:
 		return StrParam(l:StrParam(s:"DND_CHARMTYPE", d:isubt + 1), s:" ", l:"DND_ITEM_CHARM");
 
+		// specialty
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		return StrParam(l:StrParam(s:"DND_SCARD", d:isubt + 1));
+
+		case DND_ITEM_SPECIALTY_MARINE:
+		return StrParam(l:StrParam(s:"DND_DOGTAG", d:isubt + 1));
+
+		case DND_ITEM_SPECIALTY_HOBO:
+		return StrParam(l:StrParam(s:"DND_SUNGLASS", d:isubt + 1));
+
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		return StrParam(l:StrParam(s:"DND_CIGAR", d:isubt + 1));
+
+		case DND_ITEM_SPECIALTY_WANDERER:
+		return StrParam(l:StrParam(s:"DND_POWERRING", d:isubt + 1));
+
 		case DND_ITEM_SPECIALTY_CYBORG:
 		return StrParam(l:StrParam(s:"DND_PCORE", d:isubt + 1));
+
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		return StrParam(l:StrParam(s:"DND_BELT", d:isubt + 1));
+
+		case DND_ITEM_SPECIALTY_TRICKSTER:
+		return StrParam(l:StrParam(s:"DND_CLAW", d:isubt + 1));
 
 		case DND_ITEM_BODYARMOR:
 		return StrParam(l:StrParam(s:"DND_ARMOR", d:isubt + 1));
@@ -451,8 +480,77 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				break;
 			}
 		break;
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+			switch(subtype) {
+				case SLAYERCARD_STR:
+					GiveImplicitToField(item_pos, INV_IMP_PERCENTSTR, 5, 0, item_tier, 2);
+				break;
+				case SLAYERCARD_DEX:
+					GiveImplicitToField(item_pos, INV_IMP_PERCENTDEX, 5, 0, item_tier, 2);
+				break;
+				case SLAYERCARD_INT:
+					GiveImplicitToField(item_pos, INV_IMP_PERCENTINT, 5, 0, item_tier, 2);
+				break;
+			}
+		break;
+
+		case DND_ITEM_SPECIALTY_MARINE:
+			switch(subtype) {
+				case DOGTAG_PRIVATE:
+					GiveImplicitToField(item_pos, INV_IMP_LESSPOISONTAKEN, 0.05, 0, item_tier, 0.025);
+				break;
+				case DOGTAG_SGT:
+					GiveImplicitToField(item_pos, INV_DMGREDUCE_PHYS, 5.0, 0, item_tier, 2.5);
+				break;
+				case DOGTAG_CORPORAL:
+					GiveImplicitToField(item_pos, INV_IMP_LESSFIRETAKEN, 0.05, 0, item_tier, 0.025);
+				break;
+			}
+		break;
+
+		case DND_ITEM_SPECIALTY_HOBO:
+			switch(subtype) {
+				case SUNGLASS_BLACK:
+					GiveImplicitToField(item_pos, INV_PELLET_INCREASE, 0.05, 0, item_tier, 0.015);
+				break;
+				case SUNGLASS_PINK:
+					GiveImplicitToField(item_pos, INV_IMP_REDUCEDSLOWSHOTGUNS, 10, 0, item_tier, 5);
+				break;
+				case SUNGLASS_GREEN:
+					GiveImplicitToField(item_pos, INV_IMP_AMMOGAIN_SHOTGUNS, 5, 0, item_tier, 1);
+				break;
+			}
+		break;
+
+		case DND_ITEM_SPECIALTY_PUNISHER:
+			switch(subtype) {
+				case CIGAR_LIGHT:
+					GiveImplicitToField(item_pos, INV_LIFESTEAL, 1.0, 0, item_tier, 0.025);
+				break;
+				case CIGAR_MID:
+					GiveImplicitToField(item_pos, INV_INCKILLINGSPREE, 10, 0, item_tier, 5);
+				break;
+				case CIGAR_HEAVY:
+					GiveImplicitToField(item_pos, INV_LIFESTEAL_RECOVERY, 10, 0, item_tier, 5);
+				break;
+			}
+		break;
+
+		case DND_ITEM_SPECIALTY_WANDERER:
+			switch(subtype) {
+				case POWERRING_GREEN:
+					GiveImplicitToField(item_pos, INV_IMP_ONKILL_FRENZY, 10, 0, item_tier, 1);
+				break;
+				case POWERRING_RED:
+					GiveImplicitToField(item_pos, INV_IMP_ONKILL_ENDURANCE, 10, 0, item_tier, 1);
+				break;
+				case POWERRING_BLUE:
+					GiveImplicitToField(item_pos, INV_IMP_ONKILL_POWER, 10, 0, item_tier, 1);
+				break;
+			}
+		break;
+
         case DND_ITEM_SPECIALTY_CYBORG:
-			// implicits that come along with the item always
 			switch(subtype) {
 				case PCORE_COPPER:
 					GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 10, 25, item_tier, 5);
@@ -465,6 +563,34 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				break;
 				case PCORE_MOLYBDENUM:
 					GiveImplicitToField(item_pos, INV_IMP_POWERCORE, 30, 15, item_tier, 10);
+				break;
+			}
+        break;
+
+		case DND_ITEM_SPECIALTY_BERSERKER:
+			switch(subtype) {
+				case BELT_SASH:
+					GiveImplicitToField(item_pos, INV_PERCENTPHYS_DAMAGE, 10, 0, item_tier, 5);
+				break;
+				case BELT_HEAVY:
+					GiveImplicitToField(item_pos, INV_PERCENT_KNOCKBACKRESIST, 12, 0, item_tier, 4);
+				break;
+				case BELT_LIGHT:
+					GiveImplicitToField(item_pos, INV_SPEED_INCREASE, 0.05, 0, item_tier, 0.02);
+				break;
+			}
+        break;
+
+		case DND_ITEM_SPECIALTY_TRICKSTER:
+			switch(subtype) {
+				case CLAW_RAKE:
+					GiveImplicitToField(item_pos, INV_CRITDAMAGE_INCREASE, 10, 0, item_tier, 5);
+				break;
+				case CLAW_CESTUS:
+					GiveImplicitToField(item_pos, INV_MITEFFECT_INCREASE, 5.0, 0, item_tier, 1.0);
+				break;
+				case CLAW_KATAR:
+					GiveImplicitToField(item_pos, INV_IMP_PHASINGTIME, 15, 0, item_tier, 2);
 				break;
 			}
         break;

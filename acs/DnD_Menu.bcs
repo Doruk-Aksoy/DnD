@@ -639,7 +639,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// armors
 				DrawArmorBox(boxid, HELM_INDEX + 1, 394.4, 88.0, DND_ITEM_HELM);
 				DrawArmorBox(boxid, BODY_ARMOR_INDEX + 1, 394.4, 152.0, DND_ITEM_BODYARMOR);
-				DrawArmorBox(boxid, POWERCORE_INDEX + 1, 338.4, 152.0, DND_ITEM_SPECIALTY_CYBORG);
+				DrawArmorBox(boxid, POWERCORE_INDEX + 1, 338.4, 152.0, DND_ITEM_SPECIALTY_DOOMGUY + GetPlayerClass());
 				DrawArmorBox(boxid, BOOT_INDEX + 1, 394.4, 216.0, DND_ITEM_BOOT);
 
 				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 26, 432.4, 264.0);

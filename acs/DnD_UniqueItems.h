@@ -41,420 +41,174 @@ str GetUniqueCreatorName(int itype, int id) {
 	return res;
 }
 
-#define MAX_UNIQUE_WEIGHT 1000
+#define START_UNIQUE_DATA(X) id = X
+#define UNIQUE_DATA_ENTRY(WEIGHT, WIDTH, HEIGHT, SUBTYPE, LEVEL, ATTRIBS) \
+		UniqueItemList[id].weight = weight + WEIGHT; \
+		UniqueItemList[id].width = WIDTH; \
+		UniqueItemList[id].height = HEIGHT; \
+		UniqueItemList[id].item_image = img + IIMG_UCHRM_1; \
+		UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS); \
+		UniqueItemList[id].item_subtype = SUBTYPE; \
+		UniqueItemList[id].item_level = LEVEL; \
+		UniqueItemList[id].item_stack = 0; \
+		UniqueItemList[id].attrib_count = ATTRIBS; \
+		++img; \
+		weight += WEIGHT; \
+		attr_id = 0
+
+#define UNIQUE_ATTR_ENTRY(MOD, LOW, HIGH, EXTRALOW, EXTRAHIGH) \
+		UniqueItemList[id].attrib_id_list[attr_id] = MOD; \
+		UniqueItemList[id].rolls[attr_id].attrib_low = LOW; \
+		UniqueItemList[id].rolls[attr_id].attrib_high = HIGH; \
+		UniqueItemList[id].rolls[attr_id].attrib_extra_low = EXTRALOW; \
+		UniqueItemList[id].rolls[attr_id].attrib_extra_high = EXTRAHIGH; \
+		++attr_id
+
+#define MAX_UNIQUE_WEIGHT UniqueItemList[UNIQUE_CHARM_REGULARDROP_END].weight
 
 // initializes all uniques
 void SetupUniqueItems() {
 	// construct unique list to copy from
-	int id = UITEM_ELEMENTALBULWARK;
-	UniqueItemList[id].weight = 125;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_1;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 21;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 3;
-	UniqueItemList[id].attrib_id_list[0] = INV_ARMORPERCENT_INCREASE;
-	UniqueItemList[id].attrib_id_list[1] = INV_DMGREDUCE_ELEM;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_CHANCE_CASTELEMSPELLONATK;
-	UniqueItemList[id].rolls[0].attrib_low = 25;
-	UniqueItemList[id].rolls[0].attrib_high = 50;
-	UniqueItemList[id].rolls[1].attrib_low = 10.0;
-	UniqueItemList[id].rolls[1].attrib_high = 25.0;
-	UniqueItemList[id].rolls[2].attrib_low = 2;
-	UniqueItemList[id].rolls[2].attrib_high = 5;
-	id = UITEM_IRONBARK;
-	UniqueItemList[id].weight = 210;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 3;
-	UniqueItemList[id].item_image = IIMG_UCHRM_2;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
-	UniqueItemList[id].item_level = 18;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 5;
-	UniqueItemList[id].attrib_id_list[0] = INV_FLATPHYS_DAMAGE;
-	UniqueItemList[id].attrib_id_list[1] = INV_STAT_STRENGTH;
-	UniqueItemList[id].attrib_id_list[2] = INV_DMGREDUCE_PHYS;
-	UniqueItemList[id].attrib_id_list[3] = INV_REGENCAP_INCREASE;
-	UniqueItemList[id].attrib_id_list[4] = INV_EX_KNOCKBACK_IMMUNITY;
-	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 30;
-	UniqueItemList[id].rolls[1].attrib_low = 10;
-	UniqueItemList[id].rolls[1].attrib_high = 25;
-	UniqueItemList[id].rolls[2].attrib_low = 10.0;
-	UniqueItemList[id].rolls[2].attrib_high = 25.0;
-	UniqueItemList[id].rolls[3].attrib_low = 75;
-	UniqueItemList[id].rolls[3].attrib_high = 200;
-	UniqueItemList[id].rolls[4].attrib_low = 1;
-	UniqueItemList[id].rolls[4].attrib_high = 1;
-	id = UITEM_WELLOFPOWER;
-	UniqueItemList[id].weight = 250;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 3;
-	UniqueItemList[id].item_image = IIMG_UCHRM_3;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
-	UniqueItemList[id].item_level = 30;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_FACTOR_SMALLCHARM;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_LIMITEDSMALLCHARMS;
-	UniqueItemList[id].rolls[0].attrib_low = 1250; // will be divided by 100 after mult (1.25 to 2)
-	UniqueItemList[id].rolls[0].attrib_high = 2000;
-	UniqueItemList[id].rolls[1].attrib_low = 1;
-	UniqueItemList[id].rolls[1].attrib_high = 4;
-	id = UITEM_ANCIENTGEMSTONE;
-	UniqueItemList[id].weight = 300;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_4;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
-	UniqueItemList[id].item_level = 30;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_ALLSTATS;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_CHANCE_HEALMISSINGONPAIN;
-	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 20;
-	UniqueItemList[id].rolls[1].attrib_extra_low = 3; // chance to proc
-	UniqueItemList[id].rolls[1].attrib_extra_high = 8;
-	UniqueItemList[id].rolls[1].attrib_low = 6; // heal %
-	UniqueItemList[id].rolls[1].attrib_high = 10;
-	id = UITEM_DEATHSPARK;
-	UniqueItemList[id].weight = 360;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_5;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
-	UniqueItemList[id].item_level = 25;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_DMGINCREASE_LIGHTNING;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_MORECRIT_LIGHTNING;
-	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 60;
-	UniqueItemList[id].rolls[1].attrib_low = 0.5;
-	UniqueItemList[id].rolls[1].attrib_high = 1.25;
-	id = UITEM_SHELLSHOCK;
-	UniqueItemList[id].weight = 480;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_6;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
-	UniqueItemList[id].item_level = 20;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 4;
-	UniqueItemList[id].attrib_id_list[0] = INV_PELLET_INCREASE;
-	UniqueItemList[id].attrib_id_list[1] = INV_SHOTGUN_PERCENT;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_FLATPERSHOTGUNOWNED;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_MOREAMMOUSE;
-	UniqueItemList[id].rolls[0].attrib_low = 0.15;
-	UniqueItemList[id].rolls[0].attrib_high = 0.35;
-	UniqueItemList[id].rolls[1].attrib_low = 40;
-	UniqueItemList[id].rolls[1].attrib_high = 75;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 3;
-	UniqueItemList[id].rolls[3].attrib_low = 100;
-	UniqueItemList[id].rolls[3].attrib_high = 300;
-	id = UITEM_OAKHEART;
-	UniqueItemList[id].weight = 570;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_7;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 25;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 4;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_DOUBLE_HEALTHCAP;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_FORBID_ARMOR;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_PHYSDAMAGEPER_FLATHEALTH;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_LESSHEALING;
-	UniqueItemList[id].rolls[0].attrib_low = 100;
-	UniqueItemList[id].rolls[0].attrib_high = 100;
-	UniqueItemList[id].rolls[1].attrib_low = 1;
-	UniqueItemList[id].rolls[1].attrib_high = 1;
-	UniqueItemList[id].rolls[2].attrib_low = 40;
-	UniqueItemList[id].rolls[2].attrib_high = 65;
-	UniqueItemList[id].rolls[3].attrib_low = 75;
-	UniqueItemList[id].rolls[3].attrib_high = 50;
-	id = UITEM_PELLETSTORM;
-	UniqueItemList[id].weight = 650;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_8;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 25;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 4;
-	UniqueItemList[id].attrib_id_list[0] = INV_PELLET_INCREASE;
-	UniqueItemList[id].attrib_id_list[1] = INV_SHOTGUN_PERCENT;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_PELLETSFIRECIRCLE;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_FORSHOW_BURSTGETSPELLETBONUS;
-	UniqueItemList[id].rolls[0].attrib_low = 0.1;
-	UniqueItemList[id].rolls[0].attrib_high = 1.0;
-	UniqueItemList[id].rolls[1].attrib_low = 1;
-	UniqueItemList[id].rolls[1].attrib_high = 100;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 1;
-	UniqueItemList[id].rolls[3].attrib_low = 1;
-	UniqueItemList[id].rolls[3].attrib_high = 1;
-	id = UITEM_GRAVECALLER;
-	UniqueItemList[id].weight = 680;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 3;
-	UniqueItemList[id].item_image = IIMG_UCHRM_9;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
-	UniqueItemList[id].item_level = 30;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 4;
-	UniqueItemList[id].attrib_id_list[0] = INV_STAT_INTELLECT;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_CHANCE_ONDEATH_RAISEZOMBIE;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_DMGREDUCE_SHAREWITHPETS;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_DMGINCREASE_TAKEN;
-	UniqueItemList[id].rolls[0].attrib_low = 15;
-	UniqueItemList[id].rolls[0].attrib_high = 25;
-	UniqueItemList[id].rolls[1].attrib_low = 5;
-	UniqueItemList[id].rolls[1].attrib_high = 15;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 1;
-	UniqueItemList[id].rolls[3].attrib_low = 25;
-	UniqueItemList[id].rolls[3].attrib_high = 50;
-	id = UITEM_ESSENCEEATER;
-	UniqueItemList[id].weight = 715;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_10;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 30;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 3;
-	UniqueItemList[id].attrib_id_list[0] = INV_SPEED_INCREASE;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_FLATDMG_ALL;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_ONKILL_HEALMISSING;
-	UniqueItemList[id].rolls[0].attrib_low = 0.06;
-	UniqueItemList[id].rolls[0].attrib_high = 0.175;
-	UniqueItemList[id].rolls[1].attrib_low = 3;
-	UniqueItemList[id].rolls[1].attrib_high = 12;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 5;
-	id = UITEM_EYEBEHOLDER;
-	UniqueItemList[id].weight = 740;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_11;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
-	UniqueItemList[id].item_level = 20;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 3;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_SOULWEPSPEN;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_PICKUPS_MORESOUL;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_BEHAVIOR_SPELLSFULLDAMAGE;
-	UniqueItemList[id].rolls[0].attrib_low = 15;
-	UniqueItemList[id].rolls[0].attrib_high = 25;
-	UniqueItemList[id].rolls[1].attrib_low = 50;
-	UniqueItemList[id].rolls[1].attrib_high = 100;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 1;
-	id = UITEM_DEADKINGBANNER;
-	UniqueItemList[id].weight = 770;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 3;
-	UniqueItemList[id].item_image = IIMG_UCHRM_12;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
-	UniqueItemList[id].item_level = 20;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 5;
-	UniqueItemList[id].attrib_id_list[0] = INV_HP_INCREASE;
-	UniqueItemList[id].attrib_id_list[1] = INV_ARMOR_INCREASE;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_ALLSTATS;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_ABILITY_RALLY;
-	UniqueItemList[id].attrib_id_list[4] = INV_EX_ABILITY_MONSTERSRIP;
-	UniqueItemList[id].rolls[0].attrib_low = 80;
-	UniqueItemList[id].rolls[0].attrib_high = 160;
-	UniqueItemList[id].rolls[1].attrib_low = 100;
-	UniqueItemList[id].rolls[1].attrib_high = 200;
-	UniqueItemList[id].rolls[2].attrib_low = 4;
-	UniqueItemList[id].rolls[2].attrib_high = 15;
-	UniqueItemList[id].rolls[3].attrib_low = 1;
-	UniqueItemList[id].rolls[3].attrib_high = 10;
-	UniqueItemList[id].rolls[4].attrib_low = 1;
-	UniqueItemList[id].rolls[4].attrib_high = 1;
-	id = UITEM_PAINMASTER;
-	UniqueItemList[id].weight = 820;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_13;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
-	UniqueItemList[id].item_level = 18;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 3;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_FLATDOT;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_DOTDURATION;
-	UniqueItemList[id].attrib_id_list[2] = INV_CHANCE_AILMENTIGNORE;
-	UniqueItemList[id].rolls[0].attrib_low = 8;
-	UniqueItemList[id].rolls[0].attrib_high = 16;
-	UniqueItemList[id].rolls[1].attrib_low = 50;
-	UniqueItemList[id].rolls[1].attrib_high = 100;
-	UniqueItemList[id].rolls[2].attrib_low = 30;
-	UniqueItemList[id].rolls[2].attrib_high = 50;
-	id = UITEM_VOIDEMBLEM;
-	UniqueItemList[id].weight = 850;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_14;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 20;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_ABILITY_LUCKYCRIT;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_CRITIGNORERESCHANCE;
-	UniqueItemList[id].rolls[0].attrib_low = 1;
-	UniqueItemList[id].rolls[0].attrib_high = 1;
-	UniqueItemList[id].rolls[1].attrib_low = 20;
-	UniqueItemList[id].rolls[1].attrib_high = 50;
-	id = UITEM_REKINDLEDSPARKS;
-	UniqueItemList[id].weight = 870;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_15;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
-	UniqueItemList[id].item_level = 45;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
-	UniqueItemList[id].attrib_id_list[0] = INV_ESS_KRULL;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_SECONDEXPBONUS;
-	UniqueItemList[id].rolls[0].attrib_low = 10;
-	UniqueItemList[id].rolls[0].attrib_high = 25;
-	UniqueItemList[id].rolls[1].attrib_low = 15;
-	UniqueItemList[id].rolls[1].attrib_high = 40;
-	UniqueItemList[id].rolls[1].attrib_extra_low = 25;
-	UniqueItemList[id].rolls[1].attrib_extra_high = 25;
-	id = UITEM_DEADEYEGLARE;
-	UniqueItemList[id].weight = 910;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_16;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 40;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
-	UniqueItemList[id].attrib_id_list[0] = INV_ESS_OMNISIGHT2;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_DEADEYEBONUS;
-	UniqueItemList[id].rolls[0].attrib_low = 15;
-	UniqueItemList[id].rolls[0].attrib_high = 36;
-	UniqueItemList[id].rolls[1].attrib_low = 1;
-	UniqueItemList[id].rolls[1].attrib_high = 1;
-	id = UITEM_UNITY;
-	UniqueItemList[id].weight = 930;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 3;
-	UniqueItemList[id].item_image = IIMG_UCHRM_17;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_LARGE;
-	UniqueItemList[id].item_level = 50;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 4;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_UNITY;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_UNITY_RES_BONUS;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_UNITY_PEN_BONUS;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_UNITY_NOBONUS;
-	UniqueItemList[id].rolls[0].attrib_low = 1;
-	UniqueItemList[id].rolls[0].attrib_high = 1;
-	UniqueItemList[id].rolls[1].attrib_low = 1;
-	UniqueItemList[id].rolls[1].attrib_high = 3;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 3;
-	UniqueItemList[id].rolls[3].attrib_low = 1;
-	UniqueItemList[id].rolls[3].attrib_high = 1;
-	id = UITEM_MINDFORGE;
-	UniqueItemList[id].weight = 950;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_18;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 35;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 2;
-	UniqueItemList[id].attrib_id_list[0] = INV_STAT_INTELLECT;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_INTBONUSTOMELEE;
-	UniqueItemList[id].rolls[0].attrib_low = 10;
-	UniqueItemList[id].rolls[0].attrib_high = 40;
-	UniqueItemList[id].rolls[1].attrib_low = 1.5;
-	UniqueItemList[id].rolls[1].attrib_high = 2.5;
-	id = UITEM_SLAYERSPECIAL;
-	UniqueItemList[id].weight = 975;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 1;
-	UniqueItemList[id].item_image = IIMG_UCHRM_19;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_SMALL;
-	UniqueItemList[id].item_level = 18;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 3;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_REFILLAMMOONMELEEKILL;
-	UniqueItemList[id].attrib_id_list[1] = INV_EX_SWAPFROMMELEECRIT;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_ALLSTATS;
-	UniqueItemList[id].rolls[0].attrib_low = 5;
-	UniqueItemList[id].rolls[0].attrib_high = 10;
-	UniqueItemList[id].rolls[1].attrib_low = 0.35;
-	UniqueItemList[id].rolls[1].attrib_high = 1.0;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 5;
-	id = UITEM_DRAGONFANG;
-	UniqueItemList[id].weight = 999;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_20;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 36;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 4;
-	UniqueItemList[id].attrib_id_list[0] = INV_DMGREDUCE_ALL;
-	UniqueItemList[id].attrib_id_list[1] = INV_FLAT_AUTOMATIC;
-	UniqueItemList[id].attrib_id_list[2] = INV_EX_RIPPERSRIPALL;
-	UniqueItemList[id].attrib_id_list[3] = INV_EX_RIPPERSONETIMEONLY;
-	UniqueItemList[id].rolls[0].attrib_low = 5.0;
-	UniqueItemList[id].rolls[0].attrib_high = 10.0;
-	UniqueItemList[id].rolls[1].attrib_low = 1;
-	UniqueItemList[id].rolls[1].attrib_high = 10;
-	UniqueItemList[id].rolls[2].attrib_low = 1;
-	UniqueItemList[id].rolls[2].attrib_high = 1;
-	UniqueItemList[id].rolls[3].attrib_low = 1;
-	UniqueItemList[id].rolls[3].attrib_high = 1;
-	id = UITEM_MIRROROFETERNITY;
-	UniqueItemList[id].weight = 1000;
-	UniqueItemList[id].width = 1;
-	UniqueItemList[id].height = 2;
-	UniqueItemList[id].item_image = IIMG_UCHRM_21;
-	UniqueItemList[id].item_type = DND_ITEM_CHARM | ((id + 1) << UNIQUE_BITS);
-	UniqueItemList[id].item_subtype = DND_CHARM_MEDIUM;
-	UniqueItemList[id].item_level = 40;
-	UniqueItemList[id].item_stack = 0;
-	UniqueItemList[id].attrib_count = 1;
-	UniqueItemList[id].attrib_id_list[0] = INV_EX_MIRROROTHERMEDIUM;
-	UniqueItemList[id].rolls[0].attrib_low = 1;
-	UniqueItemList[id].rolls[0].attrib_high = 1;
+	int id, weight = 0;
+	int img = 0;
+	int attr_id = 0;
+
+	START_UNIQUE_DATA(UITEM_ELEMENTALBULWARK);
+	UNIQUE_DATA_ENTRY(100, 1, 2, DND_CHARM_MEDIUM, 21, 3);
+	UNIQUE_ATTR_ENTRY(INV_ARMORPERCENT_INCREASE, 25, 50, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_DMGREDUCE_ELEM, 10.0, 25.0, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHANCE_CASTELEMSPELLONATK, 2, 5, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_IRONBARK);
+	UNIQUE_DATA_ENTRY(95, 1, 3, DND_CHARM_LARGE, 18, 5);
+	UNIQUE_ATTR_ENTRY(INV_FLATPHYS_DAMAGE, 5, 30, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_STAT_STRENGTH, 10, 25, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_DMGREDUCE_PHYS, 10.0, 25.0, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_REGENCAP_INCREASE, 75, 200, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_KNOCKBACK_IMMUNITY, 1, 1, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_WELLOFPOWER);
+	UNIQUE_DATA_ENTRY(30, 1, 3, DND_CHARM_LARGE, 30, 2);
+	UNIQUE_ATTR_ENTRY(INV_EX_FACTOR_SMALLCHARM, 1250, 2000, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_LIMITEDSMALLCHARMS, 1, 4, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_ANCIENTGEMSTONE);
+	UNIQUE_DATA_ENTRY(50, 1, 1, DND_CHARM_SMALL, 30, 2);
+	UNIQUE_ATTR_ENTRY(INV_EX_ALLSTATS, 5, 20, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHANCE_HEALMISSINGONPAIN, 6, 10, 3, 8);
+
+	START_UNIQUE_DATA(UITEM_DEATHSPARK);
+	UNIQUE_DATA_ENTRY(60, 1, 1, DND_CHARM_SMALL, 25, 2);
+	UNIQUE_ATTR_ENTRY(INV_EX_DMGINCREASE_LIGHTNING, 5, 60, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_MORECRIT_LIGHTNING, 0.5, 1.25, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_SHELLSHOCK);
+	UNIQUE_DATA_ENTRY(120, 1, 1, DND_CHARM_SMALL, 20, 4);
+	UNIQUE_ATTR_ENTRY(INV_PELLET_INCREASE, 0.15, 0.35, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_SHOTGUN_PERCENT, 40, 75, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_FLATPERSHOTGUNOWNED, 1, 3, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_MOREAMMOUSE, 100, 300, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_OAKHEART);
+	UNIQUE_DATA_ENTRY(110, 1, 2, DND_CHARM_MEDIUM, 25, 4);
+	UNIQUE_ATTR_ENTRY(INV_EX_DOUBLE_HEALTHCAP, 100, 100, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_FORBID_ARMOR, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_PHYSDAMAGEPER_FLATHEALTH, 40, 65, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_LESSHEALING, 75, 50, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_PELLETSTORM);
+	UNIQUE_DATA_ENTRY(80, 1, 2, DND_CHARM_MEDIUM, 25, 4);
+	UNIQUE_ATTR_ENTRY(INV_PELLET_INCREASE, 0.1, 1.0, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_SHOTGUN_PERCENT, 1, 100, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_BEHAVIOR_PELLETSFIRECIRCLE, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_FORSHOW_BURSTGETSPELLETBONUS, 1, 1, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_GRAVECALLER);
+	UNIQUE_DATA_ENTRY(30, 1, 3, DND_CHARM_LARGE, 30, 4);
+	UNIQUE_ATTR_ENTRY(INV_STAT_INTELLECT, 15, 25, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHANCE_ONDEATH_RAISEZOMBIE, 5, 15, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_DMGREDUCE_SHAREWITHPETS, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_DMGINCREASE_TAKEN, 25, 50, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_ESSENCEEATER);
+	UNIQUE_DATA_ENTRY(35, 1, 2, DND_CHARM_MEDIUM, 30, 3);
+	UNIQUE_ATTR_ENTRY(INV_SPEED_INCREASE, 0.06, 0.175, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_FLATDMG_ALL, 3, 12, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_ONKILL_HEALMISSING, 1, 5, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_EYEBEHOLDER);
+	UNIQUE_DATA_ENTRY(40, 1, 1, DND_CHARM_SMALL, 20, 3);
+	UNIQUE_ATTR_ENTRY(INV_EX_SOULWEPSPEN, 15, 25, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_PICKUPS_MORESOUL, 50, 100, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_BEHAVIOR_SPELLSFULLDAMAGE, 1, 1, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_DEADKINGBANNER);
+	UNIQUE_DATA_ENTRY(60, 1, 3, DND_CHARM_LARGE, 20, 5);
+	UNIQUE_ATTR_ENTRY(INV_HP_INCREASE, 80, 160, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_ARMOR_INCREASE, 100, 200, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_ALLSTATS, 4, 15, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_ABILITY_RALLY, 1, 10, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_ABILITY_MONSTERSRIP, 1, 1, 0, 0);
+	
+	START_UNIQUE_DATA(UITEM_PAINMASTER);
+	UNIQUE_DATA_ENTRY(80, 1, 1, DND_CHARM_SMALL, 20, 3);
+	UNIQUE_ATTR_ENTRY(INV_EX_FLATDOT, 8, 16, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_DOTDURATION, 50, 100, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_CHANCE_AILMENTIGNORE, 30, 50, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_VOIDEMBLEM);
+	UNIQUE_DATA_ENTRY(30, 1, 2, DND_CHARM_MEDIUM, 20, 2);
+	UNIQUE_ATTR_ENTRY(INV_EX_ABILITY_LUCKYCRIT, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CRITIGNORERESCHANCE, 20, 50, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_REKINDLEDSPARKS);
+	UNIQUE_DATA_ENTRY(20, 1, 1, DND_CHARM_SMALL, 45, 2);
+	UNIQUE_ATTR_ENTRY(INV_ESS_KRULL, 10, 25, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_SECONDEXPBONUS, 15, 40, 25, 25);
+
+	START_UNIQUE_DATA(UITEM_DEADEYEGLARE);
+	UNIQUE_DATA_ENTRY(40, 1, 2, DND_CHARM_MEDIUM, 40, 2);
+	UNIQUE_ATTR_ENTRY(INV_ESS_OMNISIGHT2, 15, 36, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_DEADEYEBONUS, 1, 1, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_UNITY);
+	UNIQUE_DATA_ENTRY(20, 1, 3, DND_CHARM_LARGE, 50, 4);
+	UNIQUE_ATTR_ENTRY(INV_EX_UNITY, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_UNITY_RES_BONUS, 1, 3, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_UNITY_PEN_BONUS, 1, 3, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_UNITY_NOBONUS, 1, 1, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_MINDFORGE);
+	UNIQUE_DATA_ENTRY(20, 1, 2, DND_CHARM_MEDIUM, 35, 2);
+	UNIQUE_ATTR_ENTRY(INV_STAT_INTELLECT, 10, 40, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_INTBONUSTOMELEE, 1.5, 2.5, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_SLAYERSPECIAL);
+	UNIQUE_DATA_ENTRY(25, 1, 1, DND_CHARM_SMALL, 18, 3);
+	UNIQUE_ATTR_ENTRY(INV_EX_REFILLAMMOONMELEEKILL, 5, 10, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_SWAPFROMMELEECRIT, 0.35, 1.0, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_ALLSTATS, 1, 5, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_DRAGONFANG);
+	UNIQUE_DATA_ENTRY(25, 1, 2, DND_CHARM_MEDIUM, 36, 4);
+	UNIQUE_ATTR_ENTRY(INV_DMGREDUCE_ALL, 5.0, 10.0, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_FLAT_AUTOMATIC, 1, 10, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_RIPPERSRIPALL, 1, 1, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_RIPPERSONETIMEONLY, 1, 1, 0, 0);
+
+	START_UNIQUE_DATA(UITEM_MIRROROFETERNITY);
+	UNIQUE_DATA_ENTRY(1, 1, 2, DND_CHARM_MEDIUM, 40, 1);
+	UNIQUE_ATTR_ENTRY(INV_EX_MIRROROTHERMEDIUM, 1, 1, 0, 0);
+	
+	START_UNIQUE_DATA(UITEM_KINGMAKER);
+	UNIQUE_DATA_ENTRY(35, 1, 2, DND_CHARM_MEDIUM, 30, 3);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHANCEGAINXCHARGE, 1, 12, DND_CHARGE_FRENZY, DND_CHARGE_POWER);
+	UNIQUE_ATTR_ENTRY(INV_EX_MOREDAMAGEPERCHARGE, 1, 5, 0, 0);
+	UNIQUE_ATTR_ENTRY(INV_EX_CHARGEDURATIONHALVED, 1, 1, 0, 0);
 
 	// ADD GENERAL DROP POOL UNIQUE CHARMS ABOVE
 	// DROP ONLY UNIQUE CHARMS
+	// Note: Maybe create new macros for these... only the ones above are factored into overall drop pool and weighting
 	id = UITEM_ELEMENTALHARMONY;
 	UniqueItemList[id].weight = -1;
 	UniqueItemList[id].width = 1;

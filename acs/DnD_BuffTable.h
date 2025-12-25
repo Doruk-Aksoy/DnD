@@ -12,6 +12,9 @@ enum {
     // all buffs below this one
     BTI_PHASING,
     BTI_AMPHETAMINE,
+    BTI_FRENZYCHARGE,
+    BTI_ENDURANCECHARGE,
+    BTI_POWERCHARGE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
@@ -62,6 +65,8 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
 
     int tic_duration = 0;
 
+    bool isShotgunSlow = false;
+
     if(script_flags & BTI_F_USEINITIALSOURCE)
         bsource = initiator;
     else
@@ -76,6 +81,9 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_SPEED;
             bflags |= BUFF_F_WEAPONSOURCE | BUFF_F_NODUPLICATE;
             bvalue = -0.25;
+
+            if(buff_table_index == BTI_KILLSTORM || buff_table_index == BTI_RIOTGUN)
+                isShotgunSlow = true;
         break;
         case BTI_HAMMER:
             btype = BUFF_SPEED;
@@ -94,8 +102,11 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             else
                 bduration = new_duration * TICRATE;
 
+            tic_duration = GetPlayerAttributeValue(pnum, INV_IMP_PHASINGTIME);
             if(HasActorClassPerk_Fast(ptid, "Trickster", 4))
-                bduration = bduration * (100 + DND_TRICKSTER_RANDOMCLONES_COUNT) / 100;
+                tic_duration += DND_TRICKSTER_ACROBAT_PHASINGBONUS;
+
+            bduration = bduration * (100 + tic_duration) / 100;
 
             tic_duration = bduration;
         break;
@@ -105,6 +116,43 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bvalue = 0.33;
             bduration = 30;
             tic_duration = bduration * TICRATE;
+        break;
+        case BTI_FRENZYCHARGE:
+            btype = BUFF_DAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
+            bvalue = DND_FRENZYCHARGE_BONUS;
+            bduration = GetPlayerChargeDuration(pnum);
+            tic_duration = bduration * TICRATE;
+
+            // set bvalue to 0 for refreshing duration
+            if(CanActorHaveFrenzyCharges(ptid, pnum))
+                GiveActorFrenzyCharge(ptid, 1);
+            else
+                bvalue = 0;
+        break;
+        case BTI_ENDURANCECHARGE:
+            btype = BUFF_DAMAGETAKEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
+            bvalue = -DND_ENDURANCECHARGE_BONUS;
+            bduration = GetPlayerChargeDuration(pnum);
+            tic_duration = bduration * TICRATE;
+
+            if(CanActorHaveEnduranceCharges(ptid, pnum))
+                GiveActorEnduranceCharge(ptid, 1);
+            else
+                bvalue = 0;
+        break;
+        case BTI_POWERCHARGE:
+            btype = BUFF_CRITPERCENT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_ADDIFNODUPLICATE;
+            bvalue = DND_POWERCHARGE_BONUS;
+            bduration = GetPlayerChargeDuration(pnum);
+            tic_duration = bduration * TICRATE;
+
+            if(CanActorHavePowerCharges(ptid, pnum))
+                GiveActorPowerCharge(ptid, 1);
+            else
+                bvalue = 0;
         break;
 
         // curses
@@ -290,6 +338,10 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             update = update * 1.0 / 100;
             bflags |= BUFF_F_REPLACEMENTVALUE;
         }
+
+        if(isShotgunSlow)
+            bvalue = bvalue * (100 - GetPlayerAttributeValue(pnum, INV_IMP_REDUCEDSLOWSHOTGUNS)) / 100;
+
         GivePlayerBuff(pnum, bsource, btype, buff_table_index, bvalue, bflags, bduration, update);
     }
     else {
@@ -298,6 +350,10 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bvalue = update * 1.0 / 100;
             bflags |= BUFF_F_REPLACEMENTVALUE;
         }
+
+        if(isShotgunSlow)
+            bvalue = bvalue * (100 - GetPlayerAttributeValue(pnum, INV_IMP_REDUCEDSLOWSHOTGUNS)) / 100;
+
         RemoveBuffMatching(pnum, bsource, btype, buff_table_index, bvalue, bflags);
     }
 

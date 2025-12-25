@@ -86,14 +86,13 @@ int Scan_to_WeaponID(int scan_id) {
 	return ret;
 }
 
-// needed to make current reflect systems work properly
 Script "DnD Readjust Speed" (int spd) {
 	SetActorProperty(0, APROP_SPEED, spd << 16);
 	SetResultValue(0);
 }
 
 // This function will create a projectile with given angles, pitch, direction vector, speed, xy dist and zdist
-int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, int velocity, int vPos, int flags = 0, int extra = 0, int extra2 = 0) {
+int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, int velocity, int vPos, int flags = 0, int extra = 0, int extra2 = 0, int dmg_category = 0) {
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good
 	int g = (flags & DND_ATF_USEGRAVITY) ? 800.0 : 0;
 	
@@ -154,8 +153,11 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_SCORE, extra); // if its not player tid thats monster's damage
 	}
 
-	if(flags & DND_ATF_ISREFLECTED)
+	if(flags & DND_ATF_ISREFLECTED) {
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STAMINA, extra2);
+		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STOREDREFLECTDAMAGETYPE, dmg_category);
+		GiveActorInventory(TEMPORARY_ATTACK_TID, "TakeThruSpecies", 1);
+	}
 
 	if(flags & DND_ATF_TRACERPICKER) {
 		// only pick if we have no previous recollection of another target

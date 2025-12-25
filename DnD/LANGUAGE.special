@@ -1,0 +1,42 @@
+[enu default]
+
+// slayer cards
+DND_SCARD1			=	"Strength Card";
+DND_SCARD2			=	"Dexterity Card";
+DND_SCARD3			=	"Intellect Card";
+
+// dog tags
+DND_DOGTAG1			=	"Private Tag";
+DND_DOGTAG2			=	"Sgt. Tag";
+DND_DOGTAG3			=	"Corporal Tag";
+
+// sunglasses
+DND_SUNGLASS1		=	"Stylish Sunglasses";
+DND_SUNGLASS2		=	"Funky Sunglasses";
+DND_SUNGLASS3		=	"Viper Sunglasses";
+
+// cigars
+DND_CIGAR1			=	"Light Cigar";
+DND_CIGAR2			=	"Medium Cigar";
+DND_CIGAR3			=	"Heavy Cigar";
+
+// power rings
+DND_POWERRING1		=	"Emerald Ring";
+DND_POWERRING2		=	"Amber Ring";
+DND_POWERRING3		=	"Sapphire Ring";
+
+// power cores
+DND_PCORE1			=	"Copper Powercore";
+DND_PCORE2			=	"Gold Powercore";
+DND_PCORE3			=	"Unstable Powercore";
+DND_PCORE4			=	"Molybdenum Powercore";
+
+// belts
+DND_BELT1			=	"Cloth Sash";
+DND_BELT2			=	"Heavy Belt";
+DND_BELT3			=	"Sturdy Belt";
+
+// claws
+DND_CLAw1			=	"Fleshrake Claw";
+DND_CLAW2			=	"Cestus";
+DND_CLAW3			=	"Katar";

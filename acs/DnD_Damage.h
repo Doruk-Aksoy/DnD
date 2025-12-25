@@ -10,6 +10,7 @@
 #endif
 
 #define APROP_PLAYERSOURCED APROP_AMBUSH
+#define APROP_STOREDREFLECTDAMAGETYPE APROP_HEALTH
 
 #define DND_CRIT_TOKEN 69
 
@@ -113,8 +114,8 @@ int MonsterDamageTypeToDamageCategory(int d) {
 	if(d & DND_DAMAGETYPEFLAG_FIRE)
 		return DND_DAMAGECATEGORY_FIRE;
 	if(d & DND_DAMAGETYPEFLAG_ICE)
-		return DND_DAMAGECATEGORY_FIRE;
-	if(d & DND_DAMAGECATEGORY_ICE)
+		return DND_DAMAGECATEGORY_ICE;
+	if(d & DND_DAMAGETYPEFLAG_POISON)
 		return DND_DAMAGECATEGORY_POISON;
 	if(d & DND_DAMAGETYPEFLAG_LIGHTNING)
 		return DND_DAMAGECATEGORY_LIGHTNING;
@@ -126,6 +127,30 @@ int MonsterDamageTypeToDamageCategory(int d) {
 		return DND_DAMAGECATEGORY_OCCULT;
 
 	return DND_DAMAGECATEGORY_MELEE;
+}
+
+int DamageCategoryToMonsterDamageType(int d) {
+	switch(d) {
+		case DND_DAMAGECATEGORY_BULLET:
+		return DND_DAMAGETYPEFLAG_PHYSICAL;
+
+		case DND_DAMAGECATEGORY_FIRE:
+		return DND_DAMAGETYPEFLAG_FIRE;
+		case DND_DAMAGECATEGORY_ICE:
+		return DND_DAMAGETYPEFLAG_ICE;
+		case DND_DAMAGECATEGORY_POISON:
+		return DND_DAMAGETYPEFLAG_POISON;
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return DND_DAMAGETYPEFLAG_LIGHTNING;
+
+		case DND_DAMAGECATEGORY_ENERGY:
+		return DND_DAMAGETYPEFLAG_ENERGY;
+
+		case DND_DAMAGECATEGORY_OCCULT:
+		return DND_DAMAGETYPEFLAG_MAGICAL;
+	}
+
+	return DND_DAMAGETYPEFLAG_EXPLOSIVE | DND_DAMAGETYPEFLAG_PHYSICAL;
 }
 
 #define MAX_DAMAGE_TYPES (DND_DAMAGETYPE_SOUL + 1)
@@ -342,14 +367,11 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 }
 
 int GetLowestResist(int pnum) {
-	static int res_ids[7][2] = { 
+	static int res_ids[4][2] = { 
 		{ INV_DMGREDUCE_PHYS, DND_DAMAGETYPEFLAG_PHYSICAL },
 		{ INV_DMGREDUCE_MAGIC, DND_DAMAGETYPEFLAG_MAGICAL },
 		{ INV_DMGREDUCE_ENERGY, DND_DAMAGETYPEFLAG_ENERGY },
-		{ INV_DMGREDUCE_FIRE, DND_DAMAGETYPEFLAG_FIRE },
-		{ INV_DMGREDUCE_ICE, DND_DAMAGETYPEFLAG_ICE },
-		{ INV_DMGREDUCE_LIGHTNING, DND_DAMAGETYPEFLAG_LIGHTNING },
-		{ INV_DMGREDUCE_POISON, DND_DAMAGETYPEFLAG_POISON }
+		{ INV_DMGREDUCE_ELEM, DND_DAMAGETYPEFLAG_FIRE | DND_DAMAGETYPEFLAG_ICE | DND_DAMAGETYPEFLAG_LIGHTNING | DND_DAMAGETYPEFLAG_POISON }
 	};
 
 	int val = INT_MAX;
@@ -1151,6 +1173,10 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	if(wepid >= 0 && HasClassPerk_Fast("Cyborg", 1) && (Weapons_Data[wepid].properties & WPROP_TECH))
 		more_bonus = more_bonus * (100 + DND_CYBERNETIC_FACTOR) / 100;
 
+	temp = GetPlayerAttributeValue(pnum, INV_EX_MOREDAMAGEPERCHARGE);
+	if(temp)
+		more_bonus = more_bonus * (100 + temp * GetChargeCount()) / 100;
+
 	// damage less modifier in form of enfeeblement -- buff net values always hold fixed
 	more_bonus = (more_bonus * pbuffs.buff_net_values[BUFF_DAMAGEDEALT].multiplicative) >> 16;
 	
@@ -1412,6 +1438,19 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 					GiveActorInventory(source, "Berserker_Perk60_Speed", 1);
 				}
 			}
+
+			// charge conditional kill checks
+			temp = GetPlayerAttributeValue(pnum, INV_FRENZYCHARGE_ONSHATTER);
+			if(temp && IsIceDamage(damage_type) && random(1, 100) <= temp)
+				HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
+
+			temp = GetPlayerAttributeValue(pnum, INV_ENDURANCECHARGE_ONMELEE);
+			if(temp && IsMeleeDamage(damage_type) && random(1, 100) <= temp)
+				HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
+
+			temp = GetPlayerAttributeValue(pnum, INV_POWERCHARGE_ONOVERLOAD);
+			if(temp && CheckActorInventory(victim, "DnD_OverloadTimer") && random(1, 100) <= temp)
+				HandlePlayerBuffAssignment(pnum, 0, BTI_POWERCHARGE);
 		}
 		else if(HasClassPerk_Fast("Doomguy", 5)) 
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
@@ -1795,8 +1834,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) {
 		// we have reduced the overall damage instead, heal for the difference instead -- hope we dont need HealThing here...
 		prev_dmg = GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTicData[pnum][victim_data];
-		if(prev_dmg > MonsterProperties[victim_tid - DND_MONSTERTID_BEGIN].maxhp)
-			prev_dmg = MonsterProperties[victim_tid - DND_MONSTERTID_BEGIN].maxhp;
+		if(prev_dmg > MonsterProperties[victim_data].maxhp)
+			prev_dmg = MonsterProperties[victim_data].maxhp;
 		SetActorProperty(victim_tid, APROP_HEALTH, prev_dmg);
 	}
 
@@ -1805,6 +1844,12 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 	/*
 		DMG ALTERING ENDS BY HERE! NO MORE! FINALIZED!
 	*/
+
+	temp = GetPlayerAttributeValue(pnum, INV_EX_CHANCEGAINXCHARGE);
+	if(temp && (IsMonsterIdBoss(MonsterProperties[victim_data].id) || (MonsterProperties[victim_data].flags & DND_MONFLAG_ISELITE)) && random(1, 100) <= temp) {
+		// give a charge
+		HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + GetPlayerAttributeExtra(pnum, INV_EX_CHANCEGAINXCHARGE));
+	}
 
 	// moved here as it's simpler and more efficient to run this function after 1 tic rather than immediately with multiple instances
 	IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, PlayerDamageTicData[pnum][victim_data], pnum + P_TIDSTART);
@@ -2725,29 +2770,27 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		// 90% reduction
 		if(HasPlayerPowerSet(pnum, PPOWER_LOWERREFLECT))
 			mult = CombineFactors(mult, -0.9);
-		res_to_apply = INV_DMGREDUCE_REFL;
-
-		//printbold(s:"reflect will apply to resist, with factor: ", f:mult);
+		SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+		dmg_data = GetActorProperty(0, APROP_STOREDREFLECTDAMAGETYPE);
+		SetActivator(0, AAPTR_DAMAGE_TARGET);
 	}
-	else if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
+
+	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
 		res_to_apply = INV_DMGREDUCE_PHYS;
 	else if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)
 		res_to_apply = INV_DMGREDUCE_MAGIC;
 	else if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
-		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
-		res_to_apply = INV_DMGREDUCE_FIRE;
+		res_to_apply = INV_DMGREDUCE_ELEM;
 
 		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSFIRETAKEN);
 		if(temp)
 			mult = CombineFactors(mult, -temp);
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
-		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
-		res_to_apply = INV_DMGREDUCE_ICE;
+		res_to_apply = INV_DMGREDUCE_ELEM;
 	}
 	else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
-		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
-		res_to_apply = INV_DMGREDUCE_LIGHTNING;
+		res_to_apply = INV_DMGREDUCE_ELEM;
 
 		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSLIGHTNINGTAKEN);
 		if(temp)
@@ -2760,8 +2803,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 			mult = CombineFactors(mult, -temp);
 		
 		// reduced poison damage taken
-		res_to_apply = INV_DMGREDUCE_POISON;
-		res_bonus += GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ELEM);
+		res_to_apply = INV_DMGREDUCE_ELEM;
 
 		// toxicology ability
 		if(CheckInventory("Ability_AntiPoison")) {
@@ -2771,9 +2813,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 				add -= CombineFactors(DND_TOXICOLOGY_REDUCE, DND_CYBORG_CYBERF);
 		}
 	}
-	else if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY) {
+	else if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY)
 		res_to_apply = INV_DMGREDUCE_ENERGY;
-	}
 	// ELEMENTAL DAMAGE BLOCK ENDS
 	
 	// explosion sources
@@ -2808,6 +2849,9 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if(m_id != -1 && MonsterProperties[m_id].trait_list[DND_PENETRATOR])
 		res_bonus += DND_PENETRATOR_PIERCE;
 	dmg = ApplyPlayerResist(pnum, dmg, res_to_apply, res_bonus);
+
+	if(isReflected)
+		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_REFL, 0);
 
 	//printbold(s:"res applied dmg: ", d:dmg);
 
@@ -3395,6 +3439,7 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 	RotateVector3(v_Vel, ANG_TO_DOOM(random(-45.0, 45.0)));
 
 	int wid, dmg, dtype;
+	int dmg_category = 0;
 	if(IsPlayer(shooter)) {
 		// wepid
 		wid = encoded_data & ATK_WID_MASK;
@@ -3409,7 +3454,9 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 		encoded_data >>= ATK_DPCT_SHIFT;
 
 		SetActivator(shooter);
-		dmg = RetrieveWeaponDamage(pnum, wid, dmg, GetDamageCategory(dtype, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+		dmg_category = GetDamageCategory(dtype, dmg_data);
+		dmg = RetrieveWeaponDamage(pnum, wid, dmg, dmg_category, dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+		dmg_category = DamageCategoryToMonsterDamageType(dmg_category);
 		//printbold(s:"retrieved dmg ", d:dmg);
 	}
 	else {
@@ -3430,7 +3477,8 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 		v_Pos,
 		dtype,
 		dmg,
-		dmg_data
+		dmg_data,
+		dmg_category
 	);
 	FreeVec3(v_Pos);
 	FreeVec3(v_Vel);
@@ -3680,7 +3728,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 				else {
 					// unpack regular weapon dmg from isReflected variable
-					arg1 = isReflected / 2;
+					arg1 = isReflected;
 					dmg = arg1;
 					arg2 = "Reflection";
 					//printbold(s:"player reflected damage ", d:dmg);
@@ -3717,7 +3765,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				// out of combat hit timer, 3 seconds
-				GiveInventory("DnD_Hit_CombatTimer", 1);
+				if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
+					GiveInventory("DnD_Hit_CombatTimer", 1);
 				
 				if(!CheckInventory("DnD_Hit_Cooldown")) {
 					OnPlayerHit(victim, pnum, shooter, true, isDot);
@@ -4126,7 +4175,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// apply eshield to these only
 				if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning")
 					dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, 0);
-				GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
+				if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
+					GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 				SetResultValue(dmg);
 				PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = arg1;
 				Terminate;
@@ -4198,7 +4248,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			if(dmg_data & DND_DAMAGEFLAG_HALFDMGSELF)
 				dmg /= 3;
 
-			GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
+			if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
+				GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 
 			if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
 				OnPlayerHit(victim, pnum, shooter, false);

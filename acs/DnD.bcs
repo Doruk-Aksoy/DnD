@@ -251,13 +251,12 @@ Script "DnD On Map Load" OPEN {
 	}
 
 	CreateMonsterTranslationTables();
-
-	SetupEliteModWeights();
-
+	
 	SetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 
 	if(!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS)) {
 		Build_Constants();
+		SetupEliteModWeights();
 		//Alloc_BuffTable();
 		SetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS);
 	}
@@ -374,6 +373,9 @@ Script "DnD On Death" DEATH {
 	
 	UnmarkPlayerAsExited(pnum);
 	GiveInventory("DnD_PDead", 1);
+	GiveInventory("DnD_FrenzyChargeRemoveSignal", 1);
+	GiveInventory("DnD_EnduranceChargeRemoveSignal", 1);
+	GiveInventory("DnD_PowerChargeRemoveSignal", 1);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
 	StatListOpened[pnum] = 0;
@@ -1028,15 +1030,7 @@ Script "DND On Kill" KILL {
 	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && HasClassPerk_Fast("Hobo", 5))
 		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
 	
-	// research track
-	/*if(IsBossTID(this) && CheckResearchStatus(RES_IMP1) == RES_NA) {
-		GiveInventory("Research_Body_Im_1_Tracker", 1);
-		if(CheckInventory("Research_Body_Im_1_Tracker") == GetAmmoCapacity("Research_Body_Im_1_Tracker")) {
-			GiveResearch(RES_IMP1, true);
-			// take these off so they don't take netid
-			TakeInventory("Research_Body_Im_1_Tracker", 65535);
-		}
-	}*/
+	
 	
 	if(IsMonsterIdDemon(m_id) && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
@@ -1057,11 +1051,15 @@ Script "DND On Kill" KILL {
 		ACS_NamedExecuteAlways("DnD Health Pickup", 0, GetSpawnHealth() / DND_HUNTERTALISMAN_HEALFACTOR);
 	}
 
-	i = GetPlayerAttributeValue(target - P_TIDSTART, INV_EX_REFILLAMMOONMELEEKILL);
+	is_demon = PlayerNumber();
+
+	i = GetPlayerAttributeValue(is_demon, INV_EX_REFILLAMMOONMELEEKILL);
 	if(i && IsUsingMeleeWeapon())
 		GiveOwnedWeaponsAmmo(i);
+
+	HandleChargeAcquisitionOnKill(target, is_demon);
 	
-	temp = GetPlayerAttributeValue(PlayerNumber(), INV_EX_ONKILL_HEALMISSING);
+	temp = GetPlayerAttributeValue(is_demon, INV_EX_ONKILL_HEALMISSING);
 	if(temp) {
 		i = GetMissingHealth();
 		temp = (i * temp) / 100;
@@ -4238,7 +4236,14 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype, int extra) CLIEN
 		case DND_ITEM_HELM:
 			Playsound(0, "Items/ArmorEquip", 6);
 		break;
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		case DND_ITEM_SPECIALTY_MARINE:
+		case DND_ITEM_SPECIALTY_HOBO:
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		case DND_ITEM_SPECIALTY_WANDERER:
 		case DND_ITEM_SPECIALTY_CYBORG:
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		case DND_ITEM_SPECIALTY_TRICKSTER:
 			Playsound(0, "Items/PowercoreDrop", 6);
 		break;
 	}
@@ -5934,6 +5939,33 @@ Script "DnD Vaaj Heart Fx" (void) CLIENTSIDE {
 	}
 }
 
+Script "DnD Spawn Charge" (int tid, int charge_type, int amt) CLIENTSIDE {
+	int pnum = tid - P_TIDSTART;
+
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	str actor = "FrenzyCharge";
+	if(charge_type == DND_CHARGE_ENDURANCE)
+		actor = "EnduranceCharge";
+	else if(charge_type == DND_CHARGE_POWER)
+		actor = "PowerCharge";
+
+	SpawnForced(actor, GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, AUX_CHARGEFX_TID, random(0, 1.0));
+	SetActivator(AUX_CHARGEFX_TID);
+	SetActorProperty(0, APROP_TARGETTID, tid);
+	SetPointer(AAPTR_TARGET, tid);
+	Thing_ChangeTID(0, 0);
+
+	SetResultValue(0);
+}
+
+Script "DnD Player In Game" (void) CLIENTSIDE {
+	int tid = GetActorProperty(0, APROP_TARGETTID);
+	int pnum = tid - P_TIDSTART;
+	SetResultValue(IsActorAlive(tid) && PlayerInGame(pnum) && !PlayerIsSpectator(pnum));
+}
+
 /*Script 69 (void) NET {
 	SetInventory("Level", 98);
 	SetInventory("Exp", GetExpLimit() / 2);
@@ -6091,11 +6123,15 @@ Script 68 (int x) NET {
 		else if(x == 667)
 			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
 		else if(x == 1000) {
-			IncPlayerModValue(0, INV_FLATENERGY_DAMAGE, 21);
+			IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
+			IncPlayerModValue(0, INV_ENDURANCECHARGE_ONMELEE, 33);
+			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 33);
+			
+			/*IncPlayerModValue(0, INV_FLATENERGY_DAMAGE, 21);
 			IncPlayerModValue(0, INV_PERCENTENERGY_DAMAGE, 310);
 			IncPlayerModValue(0, INV_PEN_ENERGY, 79);
 			IncPlayerModValue(0, INV_FLAT_TECH, 50);
-			IncPlayerModValue(0, INV_TECH_PERCENT, 171);
+			IncPlayerModValue(0, INV_TECH_PERCENT, 171);*/
 			
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
 			//SpawnDropAtActor(0, "LootChest_ForPlayer_Reverance", 0, 0, 1, 0);
@@ -6108,6 +6144,9 @@ Script 68 (int x) NET {
 		else if(x == 1002) {
 			ACS_NamedExecuteWithResult("DnD Try Spawn Area", 0, "DnD_Merchant", DND_MERCHANT_TID, 96 | (4 << 16) | (22 << 24));
 			ACS_NamedExecuteWithResult("DnD Merchant Items");
+		}
+		else if(x >= 1003 && x <= 1003 + DND_PLAYER_TRICKSTER) {
+			SpawnItemForAll(DND_ITEM_SPECIALTY_DOOMGUY + x - 1003);
 		}
 		else {
 			int c = CreateItemSpot();

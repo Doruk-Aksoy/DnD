@@ -2739,3 +2739,133 @@ Actor LootFlames : DnD_SpecialFX {
 		Stop
 	}
 }
+
+Actor DnD_FrenzyChargeCount : DnD_Info { }
+Actor DnD_EnduranceChargeCount : DnD_Info { }
+Actor DnD_PowerChargeCount : DnD_Info { }
+
+Actor DnD_FrenzyChargeRemoveSignal : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor DnD_EnduranceChargeRemoveSignal : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor DnD_PowerChargeRemoveSignal : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
+Actor BaseCharge {
+	Scale 0.33
+
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+BRIGHT
+	
+	const float r = 32;
+	const float a_inc = 1.5;
+	
+	States {
+		Spawn:
+			TNT1 A 1
+			TNT1 A 1 A_Jump(256, "Orbit")
+		Wait
+		Remove:
+			TNT1 A 1
+		Stop
+	}
+}
+// FORJ B
+Actor FrenzyCharge : BaseCharge {
+	RenderStyle Translucent
+	Alpha 1.0
+	States {
+		Orbit:
+			FORJ B 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_FrenzyChargeRemoveSignal", 1, "Remove")
+			FORJ B 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_FrenzyChargeRemoveSignal", 1, "Remove")
+			FORJ B 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_FrenzyChargeRemoveSignal", 1, "Remove")
+			FORJ B 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_FrenzyChargeRemoveSignal", 1, "Remove")
+			FORJ B 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_FrenzyChargeRemoveSignal", 1, "Remove")
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Player In Game"), "Remove")
+		Loop
+	}
+}
+
+Actor EnduranceCharge : BaseCharge {
+	RenderStyle Translucent
+	Alpha 1.0
+	States {
+		Orbit:
+			FORJ C 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_EnduranceChargeRemoveSignal", 1, "Remove")
+			FORJ C 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_EnduranceChargeRemoveSignal", 1, "Remove")
+			FORJ C 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_EnduranceChargeRemoveSignal", 1, "Remove")
+			FORJ C 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_EnduranceChargeRemoveSignal", 1, "Remove")
+			FORJ C 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_EnduranceChargeRemoveSignal", 1, "Remove")
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Player In Game"), "Remove")
+		Loop
+	}
+}
+
+Actor PowerCharge : BaseCharge {
+	RenderStyle Translucent
+	Alpha 1.0
+	States {
+		Orbit:
+			FORJ D 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_PowerChargeRemoveSignal", 1, "Remove")
+			FORJ D 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_PowerChargeRemoveSignal", 1, "Remove")
+			FORJ D 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_PowerChargeRemoveSignal", 1, "Remove")
+			FORJ D 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_PowerChargeRemoveSignal", 1, "Remove")
+			FORJ D 1 A_Warp(AAPTR_TARGET, r, 0, r + (r / 2) * cos(angle), angle, WARPF_ABSOLUTEANGLE | WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION)
+			TNT1 A 0 A_SetAngle(angle + a_inc)
+			TNT1 A 0 A_SetTranslucent(0.67 + 0.33 * cos(angle))
+			TNT1 A 0 A_JumpIfInTargetInventory("DnD_PowerChargeRemoveSignal", 1, "Remove")
+			TNT1 A 0 A_JumpIf(!ACS_NamedExecuteWithResult("DnD Player In Game"), "Remove")
+		Loop
+	}
+}

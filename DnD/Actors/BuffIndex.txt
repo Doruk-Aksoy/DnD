@@ -9,6 +9,9 @@ enum {
     // all buffs below this one
     BTI_PHASING,
 	BTI_AMPHETAMINE,
+	BTI_FRENZYCHARGE,
+	BTI_ENDURANCECHARGE,
+	BTI_POWERCHARGE,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
