@@ -1,0 +1,81 @@
+Actor AbyssalLostSoul : DnD_BaseRangedMonster { 
+	Health 0x7FFFFFFF
+	Damage (3 * random(8, 10))
+	DamageType "Melee"
+	Stamina 1
+	Tag "Abyssal Lost Soul"
+	Radius 16
+	Height 56
+	Mass 50
+	Speed 7
+	+FLOAT
+	+NOGRAVITY
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	+DONTFALL
+	+NOBLOOD
+	+ISMONSTER
+	PainChance 256
+	AttackSound "skull/melee"
+	PainSound "LostSoul/Pain"
+	DeathSound "skull/death"
+	ActiveSound "skull/active"
+	RenderStyle SoulTrans
+	Obituary "%o was spooked by an Abyssal Lost Soul."
+	+ISMONSTER
+	XScale 0.6
+	YScale 0.65
+	States {
+		SetInfo:
+			SKUL A 0 A_SetArg(4, DND_ABYSS_LOSTSOUL)
+		Goto SpawnSetup
+		
+		IdleState:
+			C021 ABC 6 Bright A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		
+		SeeState:
+			C021 ABC 6 Fast Bright A_Chase
+		Loop
+		MissileState:
+			C021 D 10 Fast Bright A_FaceTarget
+			C021 E 4 Fast Bright A_SkullAttack(30)
+		MissileLoop:
+			C021 DE 4 Fast Bright
+		Loop
+		PainState:
+			C021 F 3 Bright Fast
+			C021 F 3 Bright Fast A_Pain
+		Goto See
+		DeathState:
+		XDeathState:
+			TNT1 AAAAAA 0 A_CustomMissile("LostSoulSmoke", 32, 0, random(0,360), 2, random(0,360))
+			C021 G 4 Bright
+			C021 H 4 Bright A_Scream
+			C021 I 4 Bright
+			C021 J 4 Bright A_NoBlocking
+			C021 KLMNOP 4 A_FadeOut(0.15)
+		Stop
+	}
+}
+
+Actor AbyssalLostSoulNoExp : AbyssalLostSoul {
+	+LOOKALLAROUND
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_LOSTSOUL)
+			TNT1 A 0 A_SetArg(1, DND_SUMMONED)
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+		Goto SpawnSetup
+		
+		IdleState:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "GoAttack")
+		Goto Super::IdleState
+		GoAttack:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_FaceTarget
+			C021 D 4 Fast Bright A_FaceTarget
+			C021 ED 4 Fast Bright A_SkullAttack(30)
+		Goto MissileLoop
+	}
+}

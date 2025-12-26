@@ -1,0 +1,85 @@
+Actor AbyssalNightmareImp : DnD_BaseHybridMonster { 
+	Health 0x7FFFFFFF
+	Species "Imp"
+	Radius 20
+	Height 56
+	Mass 300
+	Speed 12
+	PainChance 32
+	GibHealth -50
+	SeeSound "imp/sight"
+	DeathSound "imp/death"
+	ActiveSound "imp/active"
+	HitObituary "$OB_IMPHIT"
+	Obituary "%o had %p soul stolen by an Abyssal Nightmare Imp."
+	PainSound "Imp/Pain"
+	Tag "Abyssal Nightmare Imp"
+	BloodColor "98 67 C5"
+	+ISMONSTER
+	XScale 0.6
+	YScale 0.65
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_NIGHTMAREIMP)
+		Goto SpawnSetup
+
+		IdleState:
+			C018 AB 10 Fast A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C018 AAABBBCCCDDD 2 Fast A_Chase
+		Goto See
+		MeleeState:
+		MissileState:
+			C018 EF 4 Fast A_FaceTarget
+			C018 G 5 Fast A_CustomComboAttack("AbyssNightmareImpBall", 32, 6 * random(5, 7), "imp/melee")
+			C018 G 1 Fast A_Jump(128, "MissileState")
+		Goto See
+		PainState:
+			C018 H 2 Fast
+			C018 H 2 Fast A_Pain
+		Goto See
+		DeathState:
+			C018 I 8
+			C018 J 8 A_Scream
+			C018 K 6
+			C018 L 6 A_NoBlocking
+			C018 M -1
+		Stop
+		XDeathState:
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C018 N 5
+			C018 O 5 A_XScream
+			C018 P 5
+			C018 Q 5 A_NoBlocking
+			C018 RST 5
+			C018 U -1
+		Stop
+		RaiseState:
+			C018 MLKJI 8
+		Goto See
+	}
+}
+
+Actor AbyssNightmareImpBall : AbyssImpBall {
+	Speed 32
+	Damage (5 * random(6, 9))
+	States {
+		Spawn:	
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP05 ABC 3 Bright
+        Loop
+		Death:
+			TNT1 A 0
+			TNT1 A 0 A_SpawnItemEx("PurpleParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX3", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			CP05 DEFGHI 3 Bright
+        Stop
+	}
+}

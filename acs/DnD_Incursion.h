@@ -12,9 +12,10 @@ enum {
     DND_INCURSION_FAILED = -1,
     DND_INCURSION_NA = 0,
     DND_INCURSION_ON_CHEX,
+    DND_INCURSION_ON_ABYSSAL
 };
 #define DND_INCURSION_THEME_BEGIN DND_INCURSION_ON_CHEX
-#define DND_INCURSION_THEME_END DND_INCURSION_ON_CHEX
+#define DND_INCURSION_THEME_END DND_INCURSION_ON_ABYSSAL
 
 int RollIncursionTheme() {
     return random(DND_INCURSION_THEME_BEGIN, DND_INCURSION_THEME_END);
@@ -28,6 +29,8 @@ str GetIncursionSpawnerLabel() {
     switch(MapData[DND_MAPDATA_INCURSIONSTATE]) {
         case DND_INCURSION_ON_CHEX:
         return "Incursion_Chex";
+        case DND_INCURSION_ON_ABYSSAL:
+        return "Incursion_Abyssal";
     }
 
     // not valid, so vanilla
@@ -48,14 +51,15 @@ str GetIncursionSpawnerLabel() {
 enum {
     DND_INCURSION_NONE,
     DND_INCURSION_CHEX,
+    DND_INCURSION_ABYSSAL,
 
     DND_INCURSION_LIMIT
 };
 #define DND_INCURSION_BEGIN DND_INCURSION_CHEX
-#define DND_INCURSION_END DND_INCURSION_CHEX
+#define DND_INCURSION_END DND_INCURSION_ABYSSAL
 
 // if the map isn't very dense, increased odds, if the map is dense the odds are reduced (slaughter map cases)
-int GetBaseMarkerSpawnChance(int max_monster_count) {
+/*int GetBaseMarkerSpawnChance(int max_monster_count) {
     int base = DND_INCURSION_BASE_MARKERCHANCE;
 
     if(max_monster_count < DND_INCURSION_IMPROVETHRESHOLD) {
@@ -235,6 +239,6 @@ Script "DnD Incursion Spawn" (int incursion_theme) {
 
     // disappear
     SetActorState(0, "Vanish", false);
-}
+}*/
 
 #endif

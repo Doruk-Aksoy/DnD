@@ -734,6 +734,9 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 
 	// Get the cached flat dmg and factor and apply them both
 	temp = GetCachedPlayerFlatDamage(pnum, wepid, dmgid);
+	if(isSpecial && isSpecial - 1 == SSAM_FLECHETTE)
+		temp /= 3;
+
 	range = CheckActorInventory(tid, "Cyborg_InstabilityStack");
 	if(range == DND_MAXCYBORG_INSTABILITY && IsTechWeapon(wepid))
 		temp += DND_DMG_PER_INSTABILITY * range;

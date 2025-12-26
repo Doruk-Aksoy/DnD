@@ -137,6 +137,27 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Monsters_Custom/Incursion/Chex/SuperCyclops.txt"
 #include "Actors/Monsters_Custom/Incursion/Chex/Flemobius.txt"
 
+// Abyssal
+#include "Actors/Monsters_Custom/Incursion/Abyss/Zombieman.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Shotgunner.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Chaingunner.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Demon.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Spectre.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Imp.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/NightmareImp.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/LostSoul.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Cacodemon.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/NightmareCaco.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/PainElemental.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Revenant.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/HellKnight.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Baron.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Fatso.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Arachno.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Vile.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/SM.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/Cyber.txt"
+
 // Spawners
 #include "Actors/Spawners/Spawner.txt"
 #include "Actors/Spawners/ZombieManSpawner.txt"

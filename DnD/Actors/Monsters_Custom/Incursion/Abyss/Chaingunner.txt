@@ -1,0 +1,80 @@
+Actor ChaingunnerBullet_Abyssal : ProjBullet {
+	Damage (random(3, 6) * 4)
+	Accuracy 133 // 1.33 scaling factor
+	Stamina 1073741827
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		Goto Super::Spawn
+	}
+}
+
+ACTOR AbyssalChaingunner : DnD_BaseRangedMonster {
+	Health 0x7FFFFFFF
+	Radius 20
+	Height 56
+	Mass 200
+	Speed 8
+	PainChance 150
+	SeeSound "sfainguy/sight"
+	PainSound "sfainguy/pain"
+	DeathSound "sfainguy/death"
+	ActiveSound "sfainguy/active"
+	AttackSound "sfainguy/attack"
+	+ISMONSTER
+	+FLOORCLIP
+	xscale 0.60
+	yscale 0.65
+	Obituary "%o was riddled with holes by an Abyssal Chaingunner."
+	DropItem "MachinegunPickup_Drop"
+	Species "Chaingunner"
+	Decal BulletChip
+	Tag "Abyssal Chaingunner"
+	XScale 0.6
+	YScale 0.65
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_CHAINGUNNER)
+		Goto SpawnSetup
+	
+		IdleState:
+			C016 AB 10 A_Look
+		Loop
+		SeeState:
+			C016 AABBCCDD 3 A_Chase
+		Loop
+		MissileState:
+			C016 E 10 A_FaceTarget
+		MissileLoop
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 A 0 A_CustomMissile("ChaingunnerBullet_Abyssal",24,5,frandom(5,-5))
+			C016 FE 4 Bright A_CPosAttack
+			C016 F 1 A_CPosRefire
+		Loop
+		PainState:
+			C016 G 3
+			C016 G 3 A_Pain
+		Goto See
+		DeathState:
+			C016 H 5
+			C016 I 5 A_Scream
+			C016 J 5 A_NoBlocking
+			C016 KL 5
+			C016 M -1
+		Stop
+		XDeathState:
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib10",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
+			C016 N 5 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C016 O 5 A_XScream
+			C016 Q 5 A_NoBlocking
+			C016 RS 5
+			C016 V -1
+		stop
+		RaiseState:
+			C016 NMLKJIH 5
+		Goto See
+	}
+}

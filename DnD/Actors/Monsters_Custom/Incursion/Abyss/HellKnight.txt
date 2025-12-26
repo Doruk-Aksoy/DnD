@@ -1,0 +1,88 @@
+Actor AbyssalHellKnight : DnD_BaseHybridMonster { 
+	Health 0x7FFFFFFF
+	GibHealth -50
+	Radius 24
+	Height 64
+	Mass 1000
+	Speed 9
+	PainChance 32
+	+ISMONSTER
+	+FLOORCLIP
+	+DONTHURTSPECIES
+	SeeSound "knight/sight"
+	ActiveSound "knight/active"
+	PainSound "HellKnight/Pain"
+	DeathSound "knight/death"
+	HitObituary "%o was burned alive by an Abyssal Hell Knight."
+	Obituary "%o was flayed by an Abyssal Hell Knight."
+	BloodColor "7D 9D 59"
+	Species "HK"
+	Tag "Abyssal Hell Knight"
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_HELLKNIGHT)
+		Goto SpawnSetup
+		
+		IdleState:
+			C025 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C025 A 0 A_CheckSight("NormalSee")
+			C025 A 0 A_JumpIfCloser(512, "Rush")
+			C025 AABBCCDD 3 Fast A_Chase
+		Goto See
+		Rush:
+			C025 AAA 2 Fast A_Chase("Melee", "")
+			C025 BBBCCC 2 Fast A_Chase
+			C025 DDD 2 Fast A_Chase("Melee", "")
+		Goto See
+		NormalSee:
+			C025 AABBCCDD 3 Fast A_Chase
+		Goto See
+		MeleeState:
+		MissileState:
+			C025 EF 6 Fast A_FaceTarget
+			C025 G 6 Fast A_CustomComboAttack("AbyssalHKBall", 32, 10 * random(4, 8), "baron/melee")
+		Goto See
+		PainState:
+			C025 H 2 Fast
+			C025 H 2 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C025 I 8
+			C025 J 8 A_Scream
+			C025 K 8
+			C025 L 8 A_NoBlocking
+			C025 M 8
+			C025 N -1
+		Stop
+		RaiseState:
+			C025 NMLKJI 8
+		Goto See
+	}
+}
+
+Actor AbyssalHKBall : BaronBall {
+	Damage (8 * random(5, 8))
+	Accuracy 133
+	DamageType "FireGreen"
+	Stamina 32
+	Decal "BaronScorch"
+	Speed 28
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP08 AB 3 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX4", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			CP08 CDEFGH 3 Bright
+		Stop
+	}
+}

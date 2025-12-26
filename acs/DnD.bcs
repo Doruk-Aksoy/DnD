@@ -6126,6 +6126,8 @@ Script 68 (int x) NET {
 			IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
 			IncPlayerModValue(0, INV_ENDURANCECHARGE_ONMELEE, 33);
 			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 33);
+			IncPlayerModValue(0, INV_FLATPHYS_DAMAGE, 5);
+
 			
 			/*IncPlayerModValue(0, INV_FLATENERGY_DAMAGE, 21);
 			IncPlayerModValue(0, INV_PERCENTENERGY_DAMAGE, 310);

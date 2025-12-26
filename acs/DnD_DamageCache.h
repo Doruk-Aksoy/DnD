@@ -13,6 +13,7 @@ typedef struct pdmg_cache {
 	bool norecalculate[MAXWEPS][MAX_CACHE_ELEMENTS]; 								// false => needs recalculation otherwise no
 	pdmg_T damage_cache[MAXWEPS][MAX_CACHE_ELEMENTS];
 	int flat_values[MAXWEPS][MAX_CACHE_ELEMENTS];									// holds flat dmg bonuses
+	int flat_factor[MAXWEPS][MAX_CACHE_ELEMENTS];									// holds added flat damage bonus efficiency
 	int final_factor[MAXWEPS][MAX_CACHE_ELEMENTS];									// holds final factor we multiply with
 } pdmg_cache_T;
 
@@ -40,7 +41,7 @@ void MarkCachingComplete(int pnum, int wepid, int dmgid) {
 	cache.massRecalculationRequested = false;
 }
 
-void CachePlayerDamage(int pnum, int dmg, int wepid, int dmgid, int dmg_rand) {
+void CachePlayerDamage(int pnum, int dmg, int wepid, int dmgid, int dmg_rand, int flat_factor = 100) {
 	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	
 	cache.damage_cache[wepid][dmgid].dmg = dmg;
@@ -48,13 +49,16 @@ void CachePlayerDamage(int pnum, int dmg, int wepid, int dmgid, int dmg_rand) {
 	cache.damage_cache[wepid][dmgid].dmg_low = dmg_rand & 0xFFFF;
 	cache.damage_cache[wepid][dmgid].dmg_high = dmg_rand >> 16;
 	cache.norecalculate[wepid][dmgid] = false;
+	cache.flat_factor[wepid][dmgid] = flat_factor;
 }
 
 void CachePlayerFlatDamage(int pnum, int dmg, int wepid, int dmgid) {
 	pdmg_cache_T module& cache = GetPlayerDamageCache(pnum);
 	// not cached
-	if(!cache.norecalculate[wepid][dmgid])
+	if(!cache.norecalculate[wepid][dmgid]) {
+		dmg = dmg * cache.flat_factor[wepid][dmgid] / 100;
 		cache.flat_values[wepid][dmgid] = dmg;
+	}
 }
 
 // additive things dont need +100

@@ -764,3 +764,12 @@ Actor HelmDrop_7 : ArmorDrop {
 		Goto SpawnInit
 	}
 }
+
+Actor HelmDrop_8 : ArmorDrop {
+	Scale 0.666
+	States {
+		Spawn:
+			HELM I 0
+		Goto SpawnInit
+	}
+}

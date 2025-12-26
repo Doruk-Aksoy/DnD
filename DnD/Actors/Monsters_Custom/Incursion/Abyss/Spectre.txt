@@ -1,0 +1,44 @@
+Actor AbyssalSpectre : AbyssalDemon { 
+	Species "Spectre"
+	Tag "Abyssal Spectre"
+	PainChance 96
+	Speed 16
+	
+	Renderstyle Translucent
+	Alpha 0.666
+	
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_SPECTRE)
+		Goto SpawnSetup
+		
+		IdleState:
+			C020 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C020 AAABBBCCCDDD 1 Fast A_Chase
+		Goto See
+		MeleeState:
+			C020 EF 3 Fast A_FaceTarget
+			C020 G 5 Fast A_CustomMeleeAttack(random(8, 12) * 4, "", "")
+		goto See
+		PainState:
+			C020 H 2 Fast
+			C020 H 2 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C020 I 8
+			C020 J 8 A_Scream
+			C020 K 4
+			C020 L 4 A_NoBlocking
+			C020 M 4
+			C020 N -1
+		Stop
+		RaiseState:
+			C020 N 5
+			C020 MLKJI 5
+		Goto See
+	}
+}

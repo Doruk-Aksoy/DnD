@@ -1,0 +1,57 @@
+Actor AbyssalPainElemental : DnD_BaseRangedMonster {
+	Health 0x7FFFFFFF
+	Species "PainElemental"
+	Radius 31
+	Height 56
+	Mass 600
+	Speed 8
+	PainChance 128
+	+ISMONSTER
+	+FLOAT
+	+NOGRAVITY
+	+DONTHURTSPECIES
+	-FLOORCLIP
+	SeeSound "pain/sight"
+	PainSound "pain/pain"
+	DeathSound "pain/death"
+	ActiveSound "pain/active"
+	Tag "Abyss Elemental"
+	XScale 0.6
+	YScale 0.65
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_PAINELEMENTAL)
+		Goto SpawnSetup
+
+		IdleState:
+			C024 A 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C024 A 3 Fast A_Chase
+		Goto See
+		PainState:
+			C024 D 6 Fast
+			C024 D 6 Fast A_Pain
+		Goto See
+		MissileState:
+		   C024 BB 5 Fast A_FaceTarget
+		   C024 C 5 Fast bright A_FaceTarget
+		   C024 C 0 A_SpawnItemEx("AbyssalLostSoulNoExp", 60, 30, 12, 0, 0, 0, 0, SXF_SETMASTER)
+		   C024 C 0 A_SpawnItemEx("AbyssalLostSoulNoExp", 60, -30, 12, 0, 0, 0, 0, SXF_SETMASTER)
+		   C024 C 2 Fast bright
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C024 E 8 bright
+			C024 F 8 bright A_Scream
+			C024 GH 8 bright
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX6", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx("AbyssalLostSoulNoExp", 20, 0, 0, -9, 9, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+			TNT1 A 0 A_SpawnItemEx("AbyssalLostSoulNoExp", 0, 0, 0, 9, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+			C024 I 8 bright A_SpawnItemEx("AbyssalLostSoulNoExp", -20, 0, 0, 9, 9, 0, 0, SXF_NOCHECKPOSITION | SXF_SETMASTER)
+			C024 JKL 8 bright A_FadeOut(0.2)
+		stop
+	}
+}

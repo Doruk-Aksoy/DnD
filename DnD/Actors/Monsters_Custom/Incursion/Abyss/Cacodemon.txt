@@ -1,0 +1,80 @@
+Actor AbyssalCaco : DnD_BaseHybridMonster {
+	Health 0x7FFFFFFF
+    BloodColor "Blue"
+	Species "Cacodemon"
+	Tag "Abyssal Cacodemon"
+	Radius 31
+	Height 56
+	Mass 400
+	Speed 9
+	PainChance 128
+	+FLOAT
+	+NOGRAVITY
+	+DONTHURTSPECIES
+	-FLOORCLIP
+	SeeSound "caco/sight"
+	Painsound "Cacodemon/Pain"
+	DeathSound "caco/death"
+	ActiveSound "caco/active"
+	Obituary "$OB_CACO"
+	HitObituary "$OB_CACOHIT"
+	Accuracy 50
+	XScale 0.6
+	YScale 0.65
+	+ISMONSTER
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_CACO)
+		Goto SpawnSetup
+	 
+		IdleState:
+			C022 A 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C022 AABBCCDD 3 Fast A_Chase
+		Goto See
+		MissileState:
+		MeleeState:
+			C022 EF 5 Fast Bright A_FaceTarget
+			C022 G 5 Fast bright A_CustomComboAttack("AbyssCacoBall", 32, 10 * random(4, 6), "", "")
+		goto See
+		PainState:
+			C022 D 3 Fast
+			C022 D 3 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C022 H 8
+			C022 I 8 A_Scream
+			C022 JK 8
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C022 LM 8 A_NoBlocking
+			C022 N -1 A_SetFloorClip
+		Stop
+		RaiseState:
+			C022 M 8 A_UnSetFloorClip
+			C022 LKJIH 8
+		Goto See
+	}
+}
+
+Actor AbyssCacoBall : Cacodemonball {
+	Damage (5 * random(1, 8))
+	+DONTBLAST
+	DamageType "MagicalBlue"
+	Stamina 1073742080
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Pierce Check")
+		SpawnLoop:
+			CP06 ABC 3 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("BlueParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX5", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			64PB CDEFGH 2 Bright
+		Stop
+	}
+}

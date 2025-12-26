@@ -120,10 +120,6 @@ Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIEN
 				Thing_SetTranslation(mon_tid, DND_CADAVER_TRANSLATION);
 			break;
 
-			case MONSTER_DREADKNIGHT:
-				Thing_SetTranslation(mon_tid, DND_DREADKNIGHT_TRANSLATION);
-			break;
-
 			case MONSTER_BLOODSATYR:
 				Thing_SetTranslation(mon_tid, DND_BLOODSATYR_TRANSLATION);
 			break;

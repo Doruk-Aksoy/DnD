@@ -348,7 +348,7 @@ Script "DnD Can Fire Weapon" (void) {
 	SetResultValue(0);
 }
 
-void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid) {
+void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid, int flat_factor = 100) {
 	// we recalc accuracy in case a particular weapon has bonuses to it
 	bool firingLoopRun = false;
 	if(!CheckInventory("DnD_WeaponSwapCheck")) {
@@ -367,7 +367,7 @@ void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid)
 	}
 
 	//printbold(s:"cached id and wep ", d:dmg_id, s:" ", d: wepid);
-	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand);
+	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand, flat_factor);
 }
 
 Script "DnD Weapon Damage Cache" (int wepid) {
@@ -382,10 +382,10 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 15, 12 | (16 << 16), wepid);
 		break;
 		case DND_WEAPON_CHAINSAW:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 5 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 5 | (10 << 16), wepid, 50);
 		break;
 		case DND_WEAPON_DOUBLECHAINSAW:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 5 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 4, 5 | (10 << 16), wepid, 25);
 		break;
 		case DND_WEAPON_KATANA:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 20, 0, wepid);
@@ -405,7 +405,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		case DND_WEAPON_DUSKBLADE:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 96, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 96, 0, wepid, 50);
 		break;
 		case DND_WEAPON_SICKLE:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 8 | (12 << 16), wepid);
@@ -445,17 +445,17 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		case DND_WEAPON_SCATTERGUN:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (4 << 16), wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 3, 2 | (4 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 3, 2 | (4 << 16), wepid, 25);
 		break;
 		
 		case DND_WEAPON_SHOTGUN:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (3 << 16), wepid, 50);
 		break;
 		case DND_WEAPON_PURIFIER:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid, 50);
 		break;
 		case DND_WEAPON_KILLSTORM:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid, 40);
 		break;
 		case DND_WEAPON_EMERALDWAND:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
@@ -464,7 +464,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_3, 50, 0, wepid);
 		break;
 		case DND_WEAPON_DEADLOCK:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid, 50);
 		break;
 		case DND_WEAPON_NITROGENCROSSBOW:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 210, 0, wepid);
@@ -482,11 +482,11 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		
 		case DND_WEAPON_SUPERSHOTGUN:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (3 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 2 | (3 << 16), wepid, 50);
 		break;
 		case DND_WEAPON_HEAVYSUPERSHOTGUN:
 		case DND_WEAPON_ERASUS:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 15, 0, wepid, 50);
 		break;
 		case DND_WEAPON_HELLSMAW:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 75, 0, wepid);
@@ -503,12 +503,12 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 40, 0, wepid);
 		break;
 		case DND_WEAPON_SHOCKER:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 18, 0, wepid, 40);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 4 | (5 << 16), wepid);
 		break;
 		case DND_WEAPON_HADES:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 2 | (3 << 16), wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 2 | (3 << 16), wepid, 50);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 10, 0, wepid, 33);
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 18, 0, wepid);
 		break;
 		case DND_WEAPON_CROSSBOW:
@@ -552,7 +552,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 5, 2 | (3 << 16), wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 10, 4 | (6 << 16), wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_3, 96, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_4, 3, 1 | (2 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_4, 3, 1 | (2 << 16), wepid, 33);
 		break;
 		case DND_WEAPON_FUSIONBLASTER:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 30, 0, wepid);
@@ -596,8 +596,8 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		case DND_WEAPON_VINDICATOR:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 5, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 12, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_2, 16, 0, wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_3, 20, 0, wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_2, 16, 0, wepid, 40);
+			DoWeaponDamageCache(pnum, DND_DMGID_3, 20, 0, wepid, 40);
 		break;
 		case DND_WEAPON_HAMMER:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 25, 3 | (5 << 16), wepid);
@@ -664,7 +664,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 2, 0, wepid);
 		break;
 		case DND_WEAPON_LIGHTNINGGUN:
-			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 1 | (10 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1, 1 | (10 << 16), wepid, 33);
 		break;
 		case DND_WEAPON_REBOUNDER:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 35, 0, wepid);
@@ -713,7 +713,7 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 		break;
 		case DND_WEAPON_THUNDERSTAFF:
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 50, 5 | (10 << 16), wepid);
-			DoWeaponDamageCache(pnum, DND_DMGID_1, 1, 20 | (80 << 16), wepid);
+			DoWeaponDamageCache(pnum, DND_DMGID_1, 1, 20 | (80 << 16), wepid, 33);
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 250, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_3, 50, 5 | (15 << 16), wepid);
 		break;

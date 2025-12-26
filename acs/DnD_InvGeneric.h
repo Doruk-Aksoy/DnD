@@ -478,6 +478,19 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 					GiveImplicitToField(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16);
 					GiveImplicitToField(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2);
 				break;
+				case HELMS_ELDER:
+					special_roll = random(INV_CORR_MAXFRENZY, INV_CORR_MAXPOWER);
+
+					// add these first so they can be corruption replaced
+					if(special_roll == INV_CORR_MAXFRENZY)
+						GiveImplicitToField(item_pos, INV_IMP_INCMIT, 5.0, 0, item_tier, 1.25);
+					else if(special_roll == INV_CORR_MAXENDURANCE)
+						GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 25);
+					else
+						GiveImplicitToField(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8);
+
+					GiveImplicitToField(item_pos, special_roll, 1, 0, item_tier, 0);
+				break;
 			}
 		break;
 		case DND_ITEM_SPECIALTY_DOOMGUY:

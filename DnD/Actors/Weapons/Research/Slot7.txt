@@ -24,7 +24,6 @@ Actor ResBFG1 : DnDWeapon {
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot7", 1)
 			TNT1 A 0 A_GiveInventory("DnD_UsingEnergy", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_IONCANNON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_IONCANNON)
 		ReadyLoopInit:
 			RW04 A 0 A_StopSound(CHAN_7)
 			RW04 A 1 A_WeaponReady(WRF_NOSWITCH)

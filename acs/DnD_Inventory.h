@@ -267,6 +267,7 @@ enum {
 	IIMG_HLM_6,
 	IIMG_HLM_7,
 	IIMG_HLM_8,
+	IIMG_HLM_9,
 
 	// specialty items
 	IIMG_SLAYERCARD_1 = 2300,
@@ -346,7 +347,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_BOOT_END IIMG_BOO_11
 
 #define ITEM_IMAGE_HELM_BEGIN IIMG_HLM_1
-#define ITEM_IMAGE_HELM_END IIMG_HLM_8
+#define ITEM_IMAGE_HELM_END IIMG_HLM_9
 
 #define ITEM_IMAGE_MONSTERORB_BEGIN IIMG_MORB_1
 

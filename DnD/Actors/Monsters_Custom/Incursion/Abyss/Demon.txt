@@ -1,0 +1,55 @@
+Actor AbyssalDemon : DnD_BaseMeleeMonster { 
+	Health 0x7FFFFFFF
+	GibHealth -50
+	Species "Demon"
+	Tag "Abyssal Demon"
+	+DONTHURTSPECIES
+	PainChance 144
+	Speed 12
+	Radius 30
+	Height 56
+	Mass 400
+	SeeSound "demon/sight"
+	AttackSound "demon/melee"
+	PainSound "demon/pain"
+	DeathSound "demon/death"
+	ActiveSound "demon/active"
+	Obituary "$OB_DEMONHIT"
+	+ISMONSTER
+	XScale 0.6
+	YScale 0.65
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_DEMON)
+		Goto SpawnSetup
+		
+		IdleState:
+			C019 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C019 AABBCCDD 2 Fast A_Chase
+		Goto See
+		MeleeState:
+			C019 EF 4 Fast A_FaceTarget
+			C019 G 8 Fast A_CustomMeleeAttack(random(8, 12) * 4, "", "")
+		goto See
+		PainState:
+			C019 H 2 Fast
+			C019 H 2 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C019 I 8
+			C019 J 8 A_Scream
+			C019 K 4
+			C019 L 4 A_NoBlocking
+			C019 M 4
+			C019 N -1
+		Stop
+		RaiseState:
+			C019 N 5
+			C019 MLKJI 5
+		Goto See
+	}
+}

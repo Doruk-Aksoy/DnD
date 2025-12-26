@@ -1,0 +1,117 @@
+Actor AbyssalRevenant : DnD_BaseHybridMonster {
+	Health 0x7FFFFFFF
+	Radius 20
+	Height 56
+	Mass 500
+	Speed 10
+	PainChance 84
+	+ISMONSTER
+	MeleeThreshold 196
+	+MISSILEMORE 
+	+FLOORCLIP
+	+DONTHURTSPECIES
+	SeeSound "skeleton/sight"
+	PainSound "Revenant/Pain"
+	DeathSound "skeleton/death"
+	ActiveSound "skeleton/active"
+	MeleeSound "skeleton/melee"
+	HitObituary "$OB_UNDEADHIT"
+	Obituary "%o was sent to the deepest pits of hell by an Abyssal Revenant."
+	Species "Skeleton"
+	Tag "Abyssal Revenant"
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_REVENANT)
+		Goto SpawnSetup
+
+		IdleState:
+			C027 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C027 AABBCCDDEEFF 2 A_Chase
+		Goto See
+		PainState:
+			TNT1 A 0 A_SpawnDebris("MetalScrap")
+			C027 L 5 Fast
+			C027 L 5 Fast A_Pain
+		Goto See
+		MeleeState:
+			TNT1 A 0 A_FaceTarget
+			C027 G 6 Fast A_SkelWhoosh
+			C027 H 6 Fast A_FaceTarget
+			C027 I 6 Fast A_CustomMeleeAttack(6 * random(4, 10), "C027eton/melee", "")
+		Goto See
+		MissileState:
+			C027 J 0 A_Jump(128, "Left", "Left", "Double")
+			C027 J 9 Bright A_FaceTarget
+			C027 K 9 A_CustomMissile("AbyssalRevenantMissile", 45, 20)
+			C027 K 9 A_FaceTarget
+		Goto See
+		Left:
+			C027 J 9 Bright A_FaceTarget
+			C027 K 9 A_CustomMissile("AbyssalRevenantMissile", 45, -20)
+			C027 K 9 A_FaceTarget
+		Goto See
+		Double:
+			C027 J 9 Bright A_FaceTarget
+			TNT1 A 0 A_CustomMissile("AbyssalRevenantMissile", 45, 20)
+			C027 K 9 A_CustomMissile("AbyssalRevenantMissile", 45, -20)
+			C027 K 9 A_FaceTarget
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnDebris("MetalScrap_More")
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C027 LM 7
+			C027 N 7 A_Scream
+			C027 O 7 A_NoBlocking
+			C027 P 7
+			C027 Q -1
+		Stop
+		RaiseState:
+			C027 Q 5
+			C027 PONML 5
+		Goto See
+	}
+}
+
+Actor AbyssalRevenantMissile_Trail {
+	Renderstyle Add
+	Alpha 0.85
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 1
+			IFX1 CDEFGH 2 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+actor AbyssalRevenantMissile : RevenantTracer {
+	Decal RevenantScorch
+	DamageType "Fire"
+	Stamina 1073741856 // fire
+	Damage (10 * random(4, 8))
+	Renderstyle Add
+	Speed 28
+	Scale 0.6
+	DeathSound "H2SkullWizard/Hit"
+	+DONTBLAST
+	+THRUGHOST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 A_Jump(128, "Homing")
+		Dumbfire:
+			IFX1 AABB 2 Bright
+		Loop
+		Homing:
+			IFX1 AABB 2 Bright A_SpawnItemEx("AbyssalRevenantMissile_Trail")
+		Loop
+		Death:
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			IFX1 IJKL 4 Bright
+		Stop
+	}
+}
