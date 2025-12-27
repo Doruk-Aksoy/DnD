@@ -1,0 +1,138 @@
+Actor AbyssalQueen : DnD_BaseRangedBoss {
+	Health 0x7FFFFFFF
+	Species "Spider2"
+	Tag "Abyssal Queen"
+	Radius 128
+	Height 100
+	Mass 4096
+	Speed 12
+	PainChance 24
+	+ISMONSTER
+	MinMissileChance 128
+	+BOSS
+	+MISSILEMORE
+	+NORADIUSDMG
+	+DONTMORPH
+	+DONTHURTSPECIES
+	+QUICKTORETALIATE
+	SeeSound "abyssal_spider/sight"
+	PainSound "abyssal_knight/pain"
+	AttackSound ""
+	DeathSound "abyssal_spider/death"
+	ActiveSound "abyssal_demon/active"
+	Obituary "%o was destroyed by an Abyssal Queen."
+	Scale 0.9
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_SPIDERDEMON)
+		Goto SpawnSetup
+		
+		IdleState:
+			C031 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_PlaySound("abyssal_cyber/hoof", CHAN_BODY)
+			C031 AABBCC 3 A_Chase
+		Goto See
+		MissileState:
+			TNT1 A 0 A_PlaySound("weapons/minigunup", 7)
+			C031 I 8 Fast A_FaceTarget
+			C031 I 7 Fast A_FaceTarget
+			C031 I 6 Fast A_FaceTarget
+			C031 I 5 Fast A_FaceTarget
+			C031 I 4 Fast A_FaceTarget
+			C031 I 3 Fast A_FaceTarget
+		MissileLoop:
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_PlaySound("SpiderMasterMind/MiniGunSpin", 7)
+			TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunFire", 5, 1, 1, 0.4)
+			TNT1 A 0 A_GiveInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAA 0 A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			C031 E 3 Fast Bright A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAA 0 A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			C031 F 3 Fast Bright A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAA 0 A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			C031 G 3 Fast Bright A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 28, 34, -4, 0, frandom(3.0, 5.0), random(-80, -90))
+			TNT1 AAA 0 A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			C031 H 3 Fast Bright A_CustomMissile("SpiderMBullet2", 52, 0, frandom(-22.5, 22.5))
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			C031 H 1 Fast A_MonsterRefire(24, "MissileFinish")
+		Loop
+		MissileFinish:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunEnd", 5, 1, 0, 0.4)
+			TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunSpinEnd", 7)
+			C031 I 3 A_FaceTarget
+			C031 I 4 Fast A_FaceTarget
+			C031 I 5 Fast A_FaceTarget
+			C031 I 6 Fast A_FaceTarget
+			C031 I 7 Fast A_FaceTarget
+			C031 I 8 Fast A_FaceTarget
+		Goto See
+		PainState:
+			TNT1 A 0 A_GiveInventory("AbyssalSpiderFireChecker", 1)
+			TNT1 A 0 A_StopSound(5)
+			C031 D 3 A_SpawnDebris("MetalScrap")
+			C031 D 3 A_Pain
+		Goto See
+		XDeathState:
+			TNT1 AA 0 A_SpawnDebris("MetalScrap_More")
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C031 K 2 A_Scream
+			TNT1 A 0 A_StopSound(7)
+			TNT1 A 0 A_StopSound(5)
+			TNT1 A 0 A_GiveInventory("AbyssalSpiderFireChecker", 1)
+			C031 K 18
+			C031 L 2 A_NoBlocking
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C031 LLLL 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C031 MMMM 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C031 NNNN 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C031 OOOO 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C031 PPPP 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128)
+			C031 P -1 A_KillMaster
+		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
+	}	
+}
+
+Actor SpiderMBullet2 : SpiderMBullet {
+	Accuracy 150
+}
+
+Actor AbyssalSpiderFireChecker : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_JumpIfInventory("DnD_Boolean", 1, "Finish")
+		Stop
+		Finish:
+			TNT1 A 0 A_TakeInventory("DnD_Boolean", 1)
+			TNT1 A 0 A_PlaySound("SpiderMasterMind/MinigunEnd", CHAN_WEAPON, 1, 0, 0.4)
+		Stop
+	}
+}

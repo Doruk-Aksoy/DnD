@@ -1,0 +1,76 @@
+Actor AbyssalArchVile : DnD_ArchVileBase {
+	Health 0x7FFFFFFF
+	GibHealth -75
+	Species "AV"
+	Tag "Abyssal ArchVile"
+	Radius 20
+	Height 56
+	Mass 1024
+	Speed 18
+	PainChance 4
+	+ISMONSTER
+	MaxTargetRange 1024
+	Stamina 32
+	+QUICKTORETALIATE
+	+NOTARGET
+	+DONTHURTSPECIES
+	SeeSound "abyssal_vile/sight"
+	PainSound "abyssal_vile/pain"
+	DeathSound "abyssal_vile/death"
+	ActiveSound "abyssal_vile/active"
+	Obituary "%o's soul perished at the hands of an Abyssal Arch Vile."
+	Scale 0.75
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_ARCHVILE)
+		Goto SpawnSetup
+		
+		IdleState:
+			C030 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C030 AABBCCDDEEFF 2 A_VileChase
+		Goto See
+		MissileState:
+			C030 G 0 A_PlaySound("abyssal_vile/attack", CHAN_VOICE)
+			C030 G 7 Fast BRIGHT A_FaceTarget
+			C030 H 6 Fast BRIGHT A_VileTarget("AbyssalArchVileFlame")
+			C030 IJKLMN 6 Fast BRIGHT A_FaceTarget
+			C030 O 6 Fast BRIGHT A_VileAttack("vile/stop", 40, 110, 128, 1.0, "ExplosiveFire")
+			C030 P 6 Fast BRIGHT
+			C030 Q 10 Fast
+		Goto See
+		HealState:
+			C030 "Z[]" 10 Bright
+		Goto See
+		PainState:
+			C030 R 5   
+			C030 R 5 A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C030 R 7
+			C030 S 7 A_Scream
+			C030 T 7 A_NoBlocking
+			C030 UVWX 7
+			C030 Y -1
+		Stop
+	}
+}
+
+Actor AbyssalArchVileFlame : ArchVileFire {
+	Stamina 32
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("abyssal_vile/fire")
+			CP10 A 2 Bright A_Fire
+			CP10 BAB 2 Bright A_Fire
+			TNT1 A 0 A_Fire
+			CP10 C 2 Bright A_PlaySound("abyssal_vile/fire")
+			CP10 BCBCDCDEDED 2 Bright A_Fire
+			CP10 E 2 Bright A_Fire
+			CP10 FEFGHGHGH 2 Bright A_Fire
+		Stop
+	}
+}

@@ -142,6 +142,7 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Monsters_Custom/Incursion/Abyss/Shotgunner.txt"
 #include "Actors/Monsters_Custom/Incursion/Abyss/Chaingunner.txt"
 #include "Actors/Monsters_Custom/Incursion/Abyss/Demon.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/HellHound.txt"
 #include "Actors/Monsters_Custom/Incursion/Abyss/Spectre.txt"
 #include "Actors/Monsters_Custom/Incursion/Abyss/Imp.txt"
 #include "Actors/Monsters_Custom/Incursion/Abyss/NightmareImp.txt"
@@ -157,6 +158,7 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Monsters_Custom/Incursion/Abyss/Vile.txt"
 #include "Actors/Monsters_Custom/Incursion/Abyss/SM.txt"
 #include "Actors/Monsters_Custom/Incursion/Abyss/Cyber.txt"
+#include "Actors/Monsters_Custom/Incursion/Abyss/MotherDemon.txt"
 
 // Spawners
 #include "Actors/Spawners/Spawner.txt"

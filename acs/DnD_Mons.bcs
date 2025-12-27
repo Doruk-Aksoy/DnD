@@ -6,6 +6,13 @@
 #include "DnD_Monsters.h"
 #include "DnD_Physics.h"
 
+#define DND_MOTHERDEMON_METEORCOUNT 3
+#define DND_MOTHERDEMON_TOTALMETEORS 24
+#define DND_MOTHERDEMON_METEORSPD 32
+#define DND_MOTHERDEMON_ANGDIFF (ANG_TO_DOOM(15.0))
+#define DND_MOTHERDEMON_PITCHLOW (ANG_TO_DOOM(-16.0))
+#define DND_MOTHERDEMON_PITCHHIGH (ANG_TO_DOOM(-4.0))
+
 // Monster stuff
 
 Script "DnD Face Target (Pitch)" (void) {
@@ -1497,8 +1504,71 @@ Script "DnD Asmodeus Ghost Cooldown" (void) {
 	TakeInventory("AsmodeusMadePullerGhost", 1);
 }
 
-Script "DnD Monster Lead Aim" (int ang_rand, int proj_speed, int zoffset) {
+Script "DnD Monster Lead Aim" (int ang_rand, int proj_speed, int zoffset, int yoffset) {
 	int ang = ANG_TO_DOOM(ang_rand << 16);
-	AimLead(proj_speed << 16, 0, 0.0, zoffset << 16, 0, 0, 0, ang, INTF_RANDOM | INTF_SETANGLE, 0);
+	ang = random(-ang, ang);
+	AimLead(proj_speed << 16, 0, yoffset << 16, zoffset << 16, 0, 0, 0, ang, INTF_RANDOM | INTF_SETANGLE, 0);
+	SetResultValue(0);
+}
+
+Script "DnD Mother Demon Meteors" (void) {
+	int this = ActivatorTID();
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	int zoffset = GetActorCeilingZ(0) - GetActorZ(0);
+	if(zoffset > 384.0)
+		zoffset = 360.0;
+
+	int r = GetActorProperty(0, APROP_RADIUS);
+	int h = GetActorProperty(0, APROP_HEIGHT);
+
+	int count = 0;
+	while(isAlive() && isActorAlive(target) && count++ < DND_MOTHERDEMON_TOTALMETEORS) {
+		int ox = GetActorX(0);
+		int oy = GetActorY(0);
+		int oz = GetActorZ(0) + h / 2;
+
+		int ang_base = GetActorAngle(0);
+		int p = PitchToFace(this, target);
+
+		for(int i = 0; i < DND_MOTHERDEMON_METEORCOUNT; ++i) {
+			int ang = ang_base + random(-DND_MOTHERDEMON_ANGDIFF, DND_MOTHERDEMON_ANGDIFF);
+
+			int c = cos(ang_base);
+			int s = sin(ang_base);
+
+			int xoff = random(-192.0, -64.0);
+			int yoff = random(-r, r);
+
+			if
+			(
+				Spawn(
+					"AbyssalMotherMeteor_ThruCybers", 
+					ox + FixedMul(c, xoff) + FixedMul(s, yoff), 
+					oy + FixedMul(s, xoff) - FixedMul(c, yoff),
+					oz + random(0, zoffset / 2),
+					DND_TEMP_PROJTID
+				)
+			)
+			{
+				SetActivator(DND_TEMP_PROJTID);
+				SetActorProperty(0, APROP_TARGETTID, this);
+				SetPointer(AAPTR_TARGET, this);
+
+				SetActorAngle(0, ang);
+				SetActorVelocity(
+					0, 
+					DND_MOTHERDEMON_METEORSPD * cos(ang), 
+					DND_MOTHERDEMON_METEORSPD * sin(ang), 
+					DND_MOTHERDEMON_METEORSPD * sin(-p + random(DND_MOTHERDEMON_PITCHLOW, DND_MOTHERDEMON_PITCHHIGH)), 0, 0
+				);
+
+				SetActivator(this);
+			}
+		}
+
+		Delay(const:4);
+	}
+
 	SetResultValue(0);
 }

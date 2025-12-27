@@ -16,7 +16,7 @@ Actor AbyssalSpectre : AbyssalDemon {
 			C020 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			C020 AAABBBCCCDDD 1 Fast A_Chase
+			C020 AABBCCDD 2 Fast A_Chase
 		Goto See
 		MeleeState:
 			C020 EF 3 Fast A_FaceTarget

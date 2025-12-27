@@ -7,21 +7,18 @@ ACTOR AbyssalShotgunner : DnD_BaseRangedMonster {
 	PainChance 155
 	Monster
 	DropItem "ShotgunPickup_Drop"
-	SeeSound "sfunt/sight"
-	AttackSound "sfunt/attack"
-	PainSound "sfunt/pain"
-	DeathSound "sfunt/death"
-	ActiveSound "sfunt/active"
+	SeeSound "abyssal_human/sight"
+	AttackSound "abyssal_human/shotgun"
+	PainSound "abyssal_human/pain"
+	DeathSound "abyssal_human/death"
+	ActiveSound "abyssal_human/active"
 	Obituary "%o was hunted down by an Abyssal Shotgunner."
-	xscale 0.60
-	yscale 0.65
 	Tag "Abyssal Shotgunner"
 	Species "Shotgunner"
 	Decal BulletChip
 	Accuracy 30
+	Scale 0.75
 	+ISMONSTER
-	XScale 0.6
-	YScale 0.65
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ABYSS_SHOTGUNNER)
@@ -35,7 +32,7 @@ ACTOR AbyssalShotgunner : DnD_BaseRangedMonster {
 		Loop
 		MissileState:
 			C015 E 10 A_FaceTarget
-			TNT1 A 0 A_PlaySound("shotguy/attack", CHAN_WEAPON)
+			TNT1 A 0 A_PlaySound("abyssal_human/shotgun", CHAN_WEAPON)
 			TNT1 AAA 0 A_CustomMissile("ZombieBullet_Abyssal", 32, 0, frandom(-22.5, 22.5))
 			C015 F 10 Bright A_CustomMissile("ZombieBullet_Abyssal", 32, 0, frandom(-22.5, 22.5))
 			C015 E 10 A_SpawnItemEx ("shotguncasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
@@ -45,7 +42,7 @@ ACTOR AbyssalShotgunner : DnD_BaseRangedMonster {
 			C015 G 3 A_Pain
 		Goto See
 		DeathState:
-			C015 H 5 A_SpawnItemEx("ZombieAmmoDropper",0,0,0, 0,0,0, 0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS)
+			C015 H 5
 			C015 I 5 A_Scream
 			C015 J 5 A_NoBlocking
 			C015 K 5

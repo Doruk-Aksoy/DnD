@@ -1,0 +1,113 @@
+Actor AbyssalFatso : DnD_BaseRangedMonster {
+	Health 0x7FFFFFFF
+	GibHealth -75
+	Radius 48
+	Height 64
+	Mass 2048
+	Speed 8
+	PainChance 56
+	+ISMONSTER
+	+DONTHURTSPECIES
+	SeeSound "abyssal_fatso/sight"
+	PainSound "abyssal_fatso/pain"
+	DeathSound "abyssal_fatso/death"
+	ActiveSound "abyssal_human/active"
+	Obituary "%o was squashed by an Abyssal Mancubus."
+	Species "Fatso"
+	Tag "Abyssal Mancubus"
+	Scale 0.8
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_MANCUBUS)
+		Goto SpawnSetup
+	
+		IdleState:
+			C028 AB 15 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C028 AABBCCDDEEFF 4 A_Chase
+		Goto See
+		MissileState:
+			C028 H 0 A_FaceTarget
+			C028 H 10 A_PlaySound("abyssal_fatso/attack")
+			TNT1 A 0 A_CustomMissile("AbyssalFatShot", 36, -32, 0)
+			C028 G 10 Bright A_CustomMissile("AbyssalFatShot", 36, 32, -6)
+			C028 HH 5 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			TNT1 A 0 A_CustomMissile("AbyssalFatShot", 36, -32, 6)
+			C028 G 10 Bright A_CustomMissile("AbyssalFatShot", 36, 32, 0)
+			C028 HH 5 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			TNT1 A 0 A_CustomMissile("AbyssalFatShot", 36, -32, 6)
+			C028 G 10 Bright A_CustomMissile("AbyssalFatShot", 36, 32, -6)
+			C028 HH 5 A_FaceTarget
+		Goto See
+		PainState:
+			C028 I 3
+			C028 I 3 A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C028 J 6
+			C028 K 6 A_Scream
+			C028 L 6 A_NoBlocking
+			C028 M 6
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C028 N 6
+			C028 O -1 A_KillMaster
+		Stop
+		RaiseState:
+			C028 NMLKJ 5
+		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
+	}
+}
+
+Actor AbyssalFatShot : Fatshot {
+	Damage (8 * random(5, 8))
+	DamageType "Fire"
+	Stamina 32
+	Speed 28
+	SeeSound "abyssal_demon/fireball"
+	DeathSound "abyssal_demon/fireballhit"
+	RenderStyle Normal
+	+THRUGHOST
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			MOMP ABC 3 Bright A_SpawnItemEx("AbyssalFatShotTrail")
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 0 A_SetTranslucent(0.75, 1)
+			MOMP DEFGHI 3 Bright
+		Stop
+	}
+}
+
+Actor AbyssalFatShotTrail {
+	Renderstyle Add
+	Alpha 0.9
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			TNT1 A 2
+			IFX1 CDEFGH 2
+		Stop
+	}
+}

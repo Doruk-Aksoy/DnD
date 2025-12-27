@@ -1,0 +1,150 @@
+Actor AbyssalCyberdemon : DnD_BaseRangedBoss {
+	Health 0x7FFFFFFF
+	Radius 40
+	Height 110
+	Mass 4096
+	Speed 13
+	PainChance 20
+	+ISMONSTER
+	MinMissileChance 128
+	+BOSS
+	+MISSILEMORE
+	+MISSILEMORE
+	+NORADIUSDMG
+	+DONTMORPH
+	+DONTHURTSPECIES
+	SeeSound "abyssal_cyber/sight"
+	PainSound "abyssal_knight/pain"
+	DeathSound "abyssal_cyber/death"
+	ActiveSound "abyssal_demon/active"
+	Obituary "%o was blown to millions of pieces by an Abyssal Cyberdemon."
+	Species "Cyber"
+	Tag "Abyssal Cyberdemon"
+	Scale 0.8
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_CYBERDEMON)
+		Goto SpawnSetup
+		
+		IdleState:
+			C032 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C032 A 0 A_PlaySound("abyssal_cyber/hoof", CHAN_BODY)
+			C032 A 3 A_Chase
+			C032 ABBCC 3 A_Chase
+			C032 C 0 A_Chase
+			C032 D 3 A_PlaySound("abyssal_cyber/metal", CHAN_BODY)
+			C032 D 3 A_Chase
+		Goto See
+		MissileState:
+			C032 F 6 Fast A_GiveInventory("AbyssCyberAimer", 1)
+			C032 E 12 Fast A_CustomMissile("AbyssCyberRocket", 70, -25, angle, CMF_ABSOLUTEANGLE)
+			C032 F 8 Fast A_GiveInventory("AbyssCyberAimer", 1)
+			C032 F 4 Fast A_GiveInventory("AbyssCyberAimer2", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			C032 E 12 Fast A_CustomMissile("AbyssCyberRocket", 70, -25, angle, CMF_ABSOLUTEANGLE)
+			C032 F 8 Fast A_GiveInventory("AbyssCyberAimer", 1)
+			C032 F 4 Fast A_GiveInventory("AbyssCyberAimer2", 1)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			C032 E 12 Fast A_CustomMissile("AbyssCyberRocket", 70, -25, angle, CMF_ABSOLUTEANGLE)
+		Goto See
+		PainState:
+			TNT1 A 0 A_SpawnDebris("MetalScrap")
+			C032 F 10 A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 0 A_SpawnDebris("MetalScrap_More")
+		DeathState:	
+			C032 G 10
+			C032 H 10 A_Scream
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C032 IIIII 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C032 JJJJJ 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 0 A_NoBlocking
+			C032 KKKKK 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C032 LLLLL 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C032 MMMMM 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			C032 N 5
+			C032 O -1 A_KillMaster
+		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
+	}	
+}
+
+Actor AbyssCyberAimer : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(128, "Face")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Lead Aim", random(0, 6), 28, 70, -25)
+		Stop
+		Face:
+			TNT1 A 0 A_FaceTarget
+		Stop
+	}
+}
+
+Actor AbyssCyberAimer2 : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(128, "Nothing")
+			TNT1 A 0 A_Jump(64, "Face")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Lead Aim", random(0, 6), 28, 70, -25)
+		Stop
+		Face:
+			TNT1 A 0 A_FaceTarget
+		Stop
+		Nothing:
+			TNT1 A 0
+		Stop
+	}
+}
+
+Actor AbyssCyberRocketExp : BaseExplosionDamage {
+	DamageType "Explosive"
+	Stamina 5
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(160, 128, 0)
+		Stop
+	}
+}
+
+Actor AbyssCyberRocket : Rocket {
+	Decal "Scorch"
+	Damage (25 * random(6, 8))
+	DamageType "Explosive"
+	Stamina 5
+	Speed 28
+	+THRUGHOST
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP11 A 1
+		Loop
+		Death:
+			TNT1 AAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 180))
+			TNT1 AAAAAAAA 0 A_CustomMissile("RocketSmoke", 0, 0, random(0, 360), 2, random(0, 360))
+			CP11 B 8 Bright A_SpawnItem("AbyssCyberRocketExp")
+			CP11 C 6 Bright
+			CP11 DEF 4 Bright
+		Stop
+	}	
+}

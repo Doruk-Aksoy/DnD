@@ -7,16 +7,14 @@ Actor AbyssalImp : DnD_BaseHybridMonster {
 	Speed 10
 	PainChance 160
 	GibHealth -10
-	SeeSound "imp/sight"
-	DeathSound "imp/death"
-	ActiveSound "imp/active"
-	HitObituary "$OB_IMPHIT"
+	seesound "monster/dvlsit"
+	painsound "monster/dvlpai"
+	deathsound "monster/dvldth"
+	activesound "monster/dvlact"
 	Obituary "%o was charred by an Abyssal Imp."
-	PainSound "Imp/Pain"
 	Tag "Abyssal Imp"
+	Scale 0.8
 	+ISMONSTER
-	XScale 0.6
-	YScale 0.65
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ABYSS_IMP)
@@ -28,21 +26,24 @@ Actor AbyssalImp : DnD_BaseHybridMonster {
 		SeeState:
 			C017 AABBCCDD 3 Fast A_Chase
 		Goto See
-		MeleeState:
 		MissileState:
+			C017 IJ 7 Fast A_FaceTarget
+			C017 K 6 Fast A_CustomMissile("AbyssImpBall", 32)
+		Goto See
+		MeleeState:
 			C017 EF 7 Fast A_FaceTarget
-			C017 G 6 Fast A_CustomComboAttack("AbyssImpBall", 32, 3 * random(5, 9), "imp/melee")
+			C017 G 6 Fast A_CustomMeleeAttack(3 * random(5, 9), "imp/melee", "")
 		Goto See
 		PainState:
-			C017 H 2 Fast
-			C017 H 2 Fast A_Pain
+			C017 H 3 Fast
+			C017 H 3 Fast A_Pain
 		Goto See
 		DeathState:
-			C017 I 8
-			C017 J 8 A_Scream
-			C017 K 6
-			C017 L 6 A_NoBlocking
-			C017 M -1
+			C017 L 8
+			C017 M 8 A_Scream
+			C017 N 6
+			C017 O 6 A_NoBlocking
+			C017 P -1
 		Stop
 		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -50,15 +51,15 @@ Actor AbyssalImp : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
-			C017 N 5
-			C017 O 5 A_XScream
-			C017 P 5
-			C017 Q 5 A_NoBlocking
-			C017 RST 5
-			C017 U -1
+			C017 Q 5
+			C017 R 5 A_XScream
+			C017 S 5
+			C017 T 5 A_NoBlocking
+			C017 UVW 5
+			C017 X -1
 		Stop
 		RaiseState:
-			C017 MLKJI 8
+			C017 ONML 8
 		Goto See
 	}
 }
@@ -72,6 +73,8 @@ Actor AbyssImpBall {
 	DamageType "Fire"
 	Stamina 1073741856 // fire
 	+DONTBLAST
+	SeeSound "abyssal_demon/fireball"
+	DeathSound "abyssal_demon/fireballhit"
 	Decal "DoomImpScorch"
 	States {
 		Spawn:	

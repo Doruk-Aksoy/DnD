@@ -12,19 +12,18 @@ Actor AbyssalCaco : DnD_BaseHybridMonster {
 	+NOGRAVITY
 	+DONTHURTSPECIES
 	-FLOORCLIP
-	SeeSound "caco/sight"
-	Painsound "Cacodemon/Pain"
-	DeathSound "caco/death"
-	ActiveSound "caco/active"
-	Obituary "$OB_CACO"
-	HitObituary "$OB_CACOHIT"
+	SeeSound "abyssal_caco/sight"
+	PainSound "abyssal_demon/pain"
+	DeathSound "abyssal_caco/death"
+	ActiveSound "abyssal_demon/active"
+	Obituary "%o was zapped by an Abyssal Cacodemon."
+	HitObituary "%o was electrocuted by an Abyssal Cacodemon."
 	Accuracy 50
-	XScale 0.6
-	YScale 0.65
+	Scale 0.8
 	+ISMONSTER
 	States {
 		SetInfo:
-			TNT1 A 0 A_SetArg(4, DND_ABYSS_CACO)
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_CACODEMON)
 		Goto SpawnSetup
 	 
 		IdleState:
@@ -49,12 +48,12 @@ Actor AbyssalCaco : DnD_BaseHybridMonster {
 			C022 I 8 A_Scream
 			C022 JK 8
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
-			C022 LM 8 A_NoBlocking
-			C022 N -1 A_SetFloorClip
+			C022 L 8 A_NoBlocking
+			C022 M -1 A_SetFloorClip
 		Stop
 		RaiseState:
-			C022 M 8 A_UnSetFloorClip
-			C022 LKJIH 8
+			C022 L 8 A_UnSetFloorClip
+			C022 KJIH 8
 		Goto See
 	}
 }
@@ -64,6 +63,9 @@ Actor AbyssCacoBall : Cacodemonball {
 	+DONTBLAST
 	DamageType "MagicalBlue"
 	Stamina 1073742080
+	SeeSound "abyssal_demon/fireball"
+	DeathSound "abyssal_demon/fireballhit"
+	Speed 24
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Pierce Check")

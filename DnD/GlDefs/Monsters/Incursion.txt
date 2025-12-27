@@ -1,0 +1,814 @@
+object AbyssalZombieman
+{
+    frame C014F { light RANGERATK }
+}
+
+object AbyssalShotgunner
+{
+    frame C015F { light RANGERATK }
+}
+
+object AbyssalChaingunner
+{
+    frame C016F { light RANGERATK }
+}
+
+pointlight 64IMPBALL
+{
+	color 1.0 0.6 0.0
+	size 64
+}
+
+flickerlight 64IMPBALL_X1
+{
+	color 0.7 0.4 0.0
+	size 80
+	secondarySize 88
+	chance 0.25
+}
+
+flickerlight 64IMPBALL_X2
+{
+	color 0.5 0.3 0.0
+	size 96
+	secondarySize 104
+	chance 0.25
+}
+
+flickerlight 64IMPBALL_X3
+{
+	color 0.4 0.2 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64IMPBALL_X4
+{
+	color 0.3 0.2 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64IMPBALL_X5
+{
+	color 0.2 0.1 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64IMPBALL_X6
+{
+	color 0.1 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+object AbyssImpBall
+{
+	frame CP04A { light 64IMPBALL }
+	frame CP04B { light 64IMPBALL }
+	frame CP04C { light 64IMPBALL }
+	frame CP04D { light 64IMPBALL_X1 }
+	frame CP04E { light 64IMPBALL_X2 }
+	frame CP04F { light 64IMPBALL_X3 }
+	frame CP04G { light 64IMPBALL_X4 }
+	frame CP04H { light 64IMPBALL_X5 }
+	frame CP04I { light 64IMPBALL_X6 }
+}
+
+pointlight NIMPBALL
+{
+	color 0.3 0.0 1.0
+	size 64
+}
+
+flickerlight NIMPBALL_X1
+{
+	color 0.2 0.0 0.7
+	size 80
+	secondarySize 88
+	chance 0.25
+}
+
+flickerlight NIMPBALL_X2
+{
+	color 0.1 0.0 0.5
+	size 96
+	secondarySize 104
+	chance 0.25
+}
+
+flickerlight NIMPBALL_X3
+{
+	color 0.1 0.0 0.4
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight NIMPBALL_X4
+{
+	color 0.0 0.0 0.3
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight NIMPBALL_X5
+{
+	color 0.0 0.0 0.2
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight NIMPBALL_X6
+{
+	color 0.0 0.0 0.1
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+object AbyssNightmareImpBall
+{
+	frame CP05A { light NIMPBALL }
+	frame CP05B { light NIMPBALL }
+	frame CP05C { light NIMPBALL }
+	frame CP05D { light NIMPBALL_X1 }
+	frame CP05E { light NIMPBALL_X2 }
+	frame CP05F { light NIMPBALL_X3 }
+	frame CP05G { light NIMPBALL_X4 }
+	frame CP05H { light NIMPBALL_X5 }
+	frame CP05I { light NIMPBALL_X6 }
+}
+
+flickerlight 64LOSTSOUL
+{
+	color 1.0 0.5 0.0
+	size 56
+	secondarySize 64
+	chance 0.1
+}
+
+flickerlight 64LOSTSOUL_X1
+{
+	color 0.8 0.4 0.0
+	size 72
+	secondarySize 80
+	chance 0.25
+}
+
+flickerlight 64LOSTSOUL_X2
+{
+	color 0.7 0.3 0.0
+	size 88
+	secondarySize 96
+	chance 0.25
+}
+
+flickerlight 64LOSTSOUL_X3
+{
+	color 0.6 0.2 0.0
+	size 104
+	secondarySize 112
+	chance 0.25
+}
+
+flickerlight 64LOSTSOUL_X4
+{
+	color 0.5 0.1 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64LOSTSOUL_X5
+{
+	color 0.4 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64LOSTSOUL_X6
+{
+	color 0.3 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64LOSTSOUL_X7
+{
+	color 0.2 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64LOSTSOUL_X8
+{
+	color 0.1 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+object AbyssalLostSoul
+{
+	frame C021A { light 64LOSTSOUL }
+	frame C021B { light 64LOSTSOUL }
+	frame C021C { light 64LOSTSOUL }
+	frame C021D { light 64LOSTSOUL }
+	frame C021E { light 64LOSTSOUL }
+	frame C021F { light 64LOSTSOUL }
+	frame C021G { light 64LOSTSOUL }
+	frame C021H { light 64LOSTSOUL_X1 }
+	frame C021I { light 64LOSTSOUL_X2 }
+	frame C021J { light 64LOSTSOUL_X3 }
+	frame C021K { light 64LOSTSOUL_X4 }
+	frame C021L { light 64LOSTSOUL_X5 }
+	frame C021M { light 64LOSTSOUL_X6 }
+	frame C021N { light 64LOSTSOUL_X7 }
+	frame C021O { light 64LOSTSOUL_X8 }
+}
+
+flickerlight 64CACOBALL
+{
+	color 1.0 0.0 0.0
+	size 56
+	secondarySize 64
+	chance 0.5
+}
+
+flickerlight 64CACOBALL_X1
+{
+	color 0.9 0.0 0.0
+	size 72
+	secondarySize 80
+	chance 0.25
+}
+
+flickerlight 64CACOBALL_X2
+{
+	color 0.6 0.0 0.0
+	size 88
+	secondarySize 96
+	chance 0.25
+}
+
+flickerlight 64CACOBALL_X3
+{
+	color 0.3 0.0 0.0
+	size 104
+	secondarySize 112
+	chance 0.25
+}
+
+flickerlight 64CACOBALL_X4
+{
+	color 0.2 0.0 0.0
+	size 104
+	secondarySize 112
+	chance 0.25
+}
+
+flickerlight 64CACOBALL_X5
+{
+	color 0.1 0.0 0.0
+	size 104
+	secondarySize 112
+	chance 0.25
+}
+
+object AbyssNightmareCacoBall
+{
+	frame CP07A { light 64CACOBALL }
+	frame CP07B { light 64CACOBALL }
+	frame CP07C { light 64CACOBALL }
+	frame CP07D { light 64CACOBALL_X1 }
+	frame CP07E { light 64CACOBALL_X2 }
+	frame CP07F { light 64CACOBALL_X3 }
+	frame CP07G { light 64CACOBALL_X4 }
+	frame CP07H { light 64CACOBALL_X5 }
+}
+
+object AbyssCacoBall {
+	frame CP06A { light CACOBALL }
+	frame CP06B { light CACOBALL }
+	frame CP06C { light CACOBALL }
+
+    frame 64PBC { light PLASMA2_X1 }
+    frame 64PBD { light PLASMA2_X1 }
+    frame 64PBE { light PLASMA2_X2 }
+	frame 64PBF { light PLASMA2_X2 }
+	frame 64PBG { light PLASMA2_X3 }
+	frame 64PBH { light PLASMA2_X3 }
+}
+
+pointlight 64BARONBALL
+{
+	color 0.0 1.0 0.0
+	size 64
+}
+
+flickerlight 64BARONBALL_X1
+{
+	color 0.0 0.7 0.0
+	size 80
+	secondarySize 88
+	chance 0.25
+}
+
+flickerlight 64BARONBALL_X2
+{
+	color 0.0 0.5 0.0
+	size 96
+	secondarySize 104
+	chance 0.25
+}
+
+flickerlight 64BARONBALL_X3
+{
+	color 0.0 0.4 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64BARONBALL_X4
+{
+	color 0.0 0.3 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64BARONBALL_X5
+{
+	color 0.0 0.2 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64BARONBALL_X6
+{
+	color 0.0 0.1 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+object AbyssalHKBall {
+	frame CP08A { light 64BARONBALL }
+	frame CP08B { light 64BARONBALL }
+	frame CP08C { light 64BARONBALL_X1 }
+	frame CP08D { light 64BARONBALL_X2 }
+	frame CP08E { light 64BARONBALL_X3 }
+	frame CP08F { light 64BARONBALL_X4 }
+	frame CP08G { light 64BARONBALL_X5 }
+	frame CP08H { light 64BARONBALL_X6 }
+}
+
+pointlight 64BARONBALL2
+{
+	color 1.0 0.0 0.0
+	size 64
+}
+
+flickerlight 64BARONBALL2_X1
+{
+	color 0.7 0.0 0.0
+	size 80
+	secondarySize 88
+	chance 0.25
+}
+
+flickerlight 64BARONBALL2_X2
+{
+	color 0.5 0.0 0.0
+	size 96
+	secondarySize 104
+	chance 0.25
+}
+
+flickerlight 64BARONBALL2_X3
+{
+	color 0.4 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64BARONBALL2_X4
+{
+	color 0.3 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64BARONBALL2_X5
+{
+	color 0.2 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+flickerlight 64BARONBALL2_X6
+{
+	color 0.1 0.0 0.0
+	size 112
+	secondarySize 120
+	chance 0.25
+}
+
+object AbyssalBaronBall {
+	frame CP12A { light 64BARONBALL2 }
+	frame CP12B { light 64BARONBALL2 }
+	frame CP12C { light 64BARONBALL2_X1 }
+	frame CP12D { light 64BARONBALL2_X2 }
+	frame CP12E { light 64BARONBALL2_X3 }
+	frame CP12F { light 64BARONBALL2_X4 }
+	frame CP12G { light 64BARONBALL2_X5 }
+	frame CP12H { light 64BARONBALL2_X6 }
+}
+
+pointlight 64TRACER
+{
+	color 1.0 0.7 0.0
+	size 56
+}
+
+flickerlight 64TRACER_X1
+{
+	color 1.0 0.7 0.0
+	size 64
+	secondarySize 72
+	chance 0.4
+}
+
+flickerlight 64TRACER_X2
+{
+	color 0.8 0.6 0.0
+	size 80
+	secondarySize 88
+	chance 0.4
+}
+
+flickerlight 64TRACER_X3
+{
+	color 0.6 0.4 0.0
+	size 96
+	secondarySize 104
+	chance 0.4
+}
+
+flickerlight 64TRACER_X4
+{
+	color 0.5 0.3 0.0
+	size 96
+	secondarySize 104
+	chance 0.4
+}
+
+flickerlight 64TRACER_X5
+{
+	color 0.3 0.2 0.0
+	size 96
+	secondarySize 104
+	chance 0.4
+}
+
+object AbyssalFatShot
+{
+	frame MOMPA { light 64TRACER }
+	frame MOMPB { light 64TRACER }
+	frame MOMPC { light 64TRACER }
+	frame MOMPD { light 64TRACER_X1 }
+	frame MOMPE { light 64TRACER_X2 }
+	frame MOMPF { light 64TRACER_X3 }
+	frame MOMPG { light 64TRACER_X4 }
+	frame MOMPH { light 64TRACER_X5 }
+	frame MOMPI { light 64TRACER_X5 }
+}
+
+pointlight 64ARACHPLAS
+{
+	color 0.0 0.1 1.0
+	size 48
+}
+
+flickerlight 64ARACHPLAS_X1
+{
+	color 0.2 0.2 1.0
+	size 72
+	secondarySize 80
+	chance 0.5
+}
+
+flickerlight 64ARACHPLAS_X2
+{
+	color 0.2 0.2 0.8
+	size 80
+	secondarySize 88
+	chance 0.5
+}
+
+flickerlight 64ARACHPLAS_X3
+{
+	color 0.1 0.1 0.5
+	size 32
+	secondarySize 48
+	chance 0.5
+}
+
+flickerlight 64ARACHPLAS_X4
+{
+	color 0.1 0.1 0.5
+	size 16
+	secondarySize 24
+	chance 0.5
+}
+
+flickerlight 64ARACHPLAS_X5
+{
+	color 0.0 0.0 0.2
+	size 8
+	secondarySize 16
+	chance 0.5
+}
+
+object AbyssalArachnoBolt
+{
+	frame CP09A { light 64ARACHPLAS }
+	frame CP09B { light 64ARACHPLAS }
+	frame CP09C { light 64ARACHPLAS_X1 }
+	frame CP09D { light 64ARACHPLAS_X2 }
+	frame CP09E { light 64ARACHPLAS_X2 }
+	frame CP09F { light 64ARACHPLAS_X3 }
+	frame CP09G { light 64ARACHPLAS_X4 }
+	frame CP09H { light 64ARACHPLAS_X5 }
+}
+
+flickerlight ARCHFI641
+{
+    color 1.0 0.1 0.0
+    size 24
+    secondarySize 32
+    chance 0.3
+    offset 0 8 0
+}
+
+flickerlight ARCHFI642
+{
+    color 1.0 0.1 0.0
+    size 40
+    secondarySize 48
+    chance 0.3
+    offset 0 24 0
+}
+
+flickerlight ARCHFI643
+{
+    color 1.0 0.1 0.0
+    size 64
+    secondarySize 72
+    chance 0.3
+    offset 0 32 0
+}
+
+flickerlight ARCHFI644
+{
+    color 0.8 0.1 0.0
+    size 64
+    secondarySize 72
+    chance 0.3
+    offset 0 40 0
+}
+
+flickerlight ARCHFI645
+{
+    color 0.8 0.1 0.0
+    size 64
+    secondarySize 72
+    chance 0.3
+    offset 0 48 0
+}
+
+flickerlight ARCHFI646
+{
+    color 0.6 0.1 0.0
+    size 48
+    secondarySize 56
+    chance 0.3
+    offset 0 64 0
+}
+
+flickerlight ARCHFI647
+{
+    color 0.4 0.1 0.0
+    size 32
+    secondarySize 40
+    chance 0.3
+    offset 0 72 0
+}
+
+flickerlight ARCHFI648
+{
+    color 0.2 0.1 0.0
+    size 16
+    secondarySize 24
+    chance 0.3
+    offset 0 80 0
+}
+
+object AbyssalArchVileFlame
+{
+    frame CP10A { light ARCHFI641 }
+    frame CP10B { light ARCHFI642 }
+    frame CP10C { light ARCHFI643 }
+    frame CP10D { light ARCHFI644 }
+    frame CP10E { light ARCHFI645 }
+    frame CP10F { light ARCHFI646 }
+    frame CP10G { light ARCHFI647 }
+    frame CP10H { light ARCHFI648 }
+}
+
+FLICKERLIGHT 64ArchvileExplosion
+{
+	Color 1.0 0.2 0
+	OffSet 0 12 0
+	Size 40
+	SecondarySize 50
+	Chance 0.2
+}
+
+OBJECT AbyssalArchVile {
+	Frame C030G { Light ArchvileExplosion }
+	Frame C030H { Light ArchvileExplosion }
+	Frame C030I { Light ArchvileExplosion }
+	Frame C030J { Light ArchvileExplosion }
+	Frame C030K { Light ArchvileExplosion }
+	Frame C030L { Light ArchvileExplosion }
+	Frame C030M { Light ArchvileExplosion }
+	Frame C030N { Light ArchvileExplosion }
+	Frame C030O { Light ArchvileExplosion }
+	Frame C030P { Light ArchvileExplosion }
+	Frame C030[ { Light ArchvileExplosion }
+	Frame C030Z { Light ArchvileExplosion }
+	Frame C030] { Light ArchvileExplosion }
+}
+
+Object AbyssalRevenant {
+	Frame C027J { Light ArchvileExplosion }
+}
+
+object AbyssalRevenantMissile {
+	frame IFX1A { light 64TRACER }
+	frame IFX1B { light 64TRACER }
+	frame IFX1I { light 64TRACER_X1 }
+	frame IFX1J { light 64TRACER_X2 }
+	frame IFX1K { light 64TRACER_X3 }
+	frame IFX1L { light 64TRACER_X5 }
+}
+
+PointLight AbyssalQueenLight1
+{
+	Color 0.7875 0.0 0.7875
+	Size 64
+	Offset 0 30 0
+}
+
+PointLight AbyssalQueenLight2
+{
+	Color 0.7 0.0 0.7
+	Size 92
+	Offset 0 30 0
+}
+
+Object AbyssalQueen
+{
+	Frame C031E { Light AbyssalQueenLight1 }
+	Frame C031F { Light AbyssalQueenLight2 }
+	Frame C031G { Light AbyssalQueenLight1 }
+	Frame C031H { Light AbyssalQueenLight2 }
+}
+
+pointlight 64ROCKET
+{
+	color 1.0 0.08 0.0
+	size 64
+	offset -24 0 0
+}
+
+flickerlight 64ROCKET_X1
+{
+	color 1.0 0.7 0.0
+	size 64
+	secondarySize 72
+	chance 0.4
+}
+
+flickerlight 64ROCKET_X2
+{
+	color 0.8 0.6 0.0
+	size 80
+	secondarySize 88
+	chance 0.4
+}
+
+flickerlight 64ROCKET_X3
+{
+	color 0.6 0.4 0.0
+	size 96
+	secondarySize 104
+	chance 0.4
+}
+
+flickerlight 64ROCKET_X4
+{
+	color 0.5 0.3 0.0
+	size 96
+	secondarySize 104
+	chance 0.4
+}
+
+flickerlight 64ROCKET_X5
+{
+	color 0.3 0.2 0.0
+	size 96
+	secondarySize 104
+	chance 0.4
+}
+
+object AbyssCyberRocket {
+	frame CP11A { light 64ROCKET }
+	frame CP11B { light 64ROCKET_X1 }
+	frame CP11C { light 64ROCKET_X2 }
+	frame CP11D { light 64ROCKET_X3 }
+	frame CP11E { light 64ROCKET_X4 }
+	frame CP11F { light 64ROCKET_X5 }
+}
+
+object AbyssalHellHoundFlame {
+    frame CP10A { light ARCHFI641 }
+    frame CP10B { light ARCHFI642 }
+    frame CP10C { light ARCHFI643 }
+    frame CP10D { light ARCHFI644 }
+    frame CP10E { light ARCHFI645 }
+    frame CP10F { light ARCHFI646 }
+    frame CP10G { light ARCHFI647 }
+    frame CP10H { light ARCHFI648 }
+}
+
+object AbyssalMotherMeteor
+{
+	frame MOMPA { light 64TRACER }
+	frame MOMPB { light 64TRACER }
+	frame MOMPC { light 64TRACER }
+	frame MOMPD { light 64TRACER_X1 }
+	frame MOMPE { light 64TRACER_X2 }
+	frame MOMPF { light 64TRACER_X3 }
+	frame MOMPG { light 64TRACER_X4 }
+	frame MOMPH { light 64TRACER_X5 }
+	frame MOMPI { light 64TRACER_X5 }
+}
+
+object AbyssalMotherMeteor_ThruCybers
+{
+	frame MOMPA { light 64TRACER }
+	frame MOMPB { light 64TRACER }
+	frame MOMPC { light 64TRACER }
+	frame MOMPD { light 64TRACER_X1 }
+	frame MOMPE { light 64TRACER_X2 }
+	frame MOMPF { light 64TRACER_X3 }
+	frame MOMPG { light 64TRACER_X4 }
+	frame MOMPH { light 64TRACER_X5 }
+	frame MOMPI { light 64TRACER_X5 }
+}
+
+object AbyssalMotherMeteor2
+{
+	frame MOMPA { light 64TRACER }
+	frame MOMPB { light 64TRACER }
+	frame MOMPC { light 64TRACER }
+	frame MOMPD { light 64TRACER_X1 }
+	frame MOMPE { light 64TRACER_X2 }
+	frame MOMPF { light 64TRACER_X3 }
+	frame MOMPG { light 64TRACER_X4 }
+	frame MOMPH { light 64TRACER_X5 }
+	frame MOMPI { light 64TRACER_X5 }
+}
+
+object AbyssalMotherFire
+{
+	frame CP14 { light BIGFIRE }
+}

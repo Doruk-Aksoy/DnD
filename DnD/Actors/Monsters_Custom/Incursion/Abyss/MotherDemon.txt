@@ -1,0 +1,233 @@
+Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
+	Health 0x7FFFFFFF
+	Radius 40
+	Height 110
+	Mass 8192
+	Speed 12
+	PainChance 4
+	+ISMONSTER
+	MinMissileChance 64
+	+BOSS
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	+DONTMORPH
+	+DONTHURTSPECIES
+	+NOINFIGHTING
+	+DONTRIP
+	+NORADIUSDMG
+	SeeSound "abyssal_mother/sight"
+	PainSound "abyssal_mother/pain"
+	DeathSound "abyssal_mother/death"
+	ActiveSound "abyssal_mother/active"
+	Obituary "%o wasn't powerful enough to defeat a Mother Demon."
+	Species "Cyber"
+	Tag "Mother Demon"
+	Scale 0.8
+	
+	var int user_z;
+	
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_MOTHERDEMON)
+		Goto SpawnSetup
+		
+		IdleState:
+			C034 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C034 AAABBBCCCDDD 3 A_Chase
+		Goto See
+		MissileState:
+			C034 E 0 A_PlaySound("abyssal_mother/attack", CHAN_VOICE)
+			C034 E 0 A_Jump(96, "FireAttack", "FireAttack", "MeteorSwarm", "Seekers")
+			C034 E 8 A_GiveInventory("AbyssMotherDemonAimer", 1)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor", 96, -25, angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor", 40, -50, angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor", 96, 25, angle, CMF_ABSOLUTEANGLE)
+			C034 F 14 BRIGHT A_CustomMissile("AbyssalMotherMeteor", 40, 50, angle, CMF_ABSOLUTEANGLE)
+			C034 E 8
+		Goto See
+		Seekers:
+			C034 E 8 A_GiveInventory("AbyssMotherDemonAimer", 1)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 96, -25, 35 + angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 40, -50, 35 + angle, CMF_ABSOLUTEANGLE)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 96, 25, -35 + angle, CMF_ABSOLUTEANGLE)
+			C034 F 14 BRIGHT A_CustomMissile("AbyssalMotherMeteor2", 40, 50, -35 + angle, CMF_ABSOLUTEANGLE)
+		Goto See
+		FireAttack:
+			C034 E 8 A_FaceTarget
+			TNT1 A 0 A_CustomMissile("AbyssalMotherFire", 0, 0, 0, 2, 0)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherFire", 0, 0, 90, 2, 0)
+			TNT1 A 0 A_CustomMissile("AbyssalMotherFire", 0, 0, -90, 2, 0)
+			C034 G 14 BRIGHT A_CustomMissile("AbyssalMotherFire", 0, 0, 180, 2, 0)
+		Goto See
+		MeteorSwarm:
+			C034 E 1 A_ChangeFlag("NOPAIN", 1)
+			C034 EEEE 9 A_FaceTarget
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Mother Demon Meteors")
+			C034 FFFFFFFFFFFFFFFFF 5 Bright A_FaceTarget
+			C034 E 8 A_ChangeFlag("NOPAIN", 0)
+		Goto See
+		PainState:
+			C034 H 5
+			C034 H 5 A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:	
+			C034 I 10
+			C034 I 10 A_Scream
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C034 IIIII 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C034 JJJJJ 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 0 A_NoBlocking
+			C034 KKKKK 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C034 LLLLL 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C034 MMMMM 2 A_SpawnItemEx("ExplosionFX", 0, 0, random(0, 32),random(-9,9),random(-9,9),random(5,9), 48, 128) 
+			C034 NO 5
+			TNT1 A -1 A_KillMaster
+		Stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
+	}	
+}
+
+Actor AbyssMotherDemonAimer : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_Jump(128, "Face")
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Lead Aim", random(0, 6), 32, 45, 0)
+		Stop
+		Face:
+			TNT1 A 0 A_FaceTarget
+		Stop
+	}
+}
+
+Actor AbyssalMotherMeteorExp : BaseExplosionDamage {
+	DamageType "Fire"
+	Stamina 36
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(96, 128, 0)
+		Stop
+	}
+}
+
+Actor AbyssalMotherMeteor {
+	PROJECTILE
+	Height 16
+	Radius 8
+	Damage (8 * random(5, 8))
+	DamageType "Fire"
+	Stamina 32
+	Speed 32
+	SeeSound "abyssal_demon/fireball"
+	DeathSound "abyssal_demon/fireballhit"
+	RenderStyle Normal
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			MOMP ABC 3 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAAA 0 A_SpawnItemEx("ExplosionFX2", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 AAAAAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			TNT1 A 0 A_SetTranslucent(0.75, 1)
+			TNT1 A 0 A_SpawnItem("AbyssalMotherMeteorExp")
+			MOMP DEFGHI 3 Bright 
+		Stop
+	}
+}
+
+Actor AbyssalMotherMeteor_ThruCybers : AbyssalMotherMeteor {
+	Species "Cyber"
+	+THRUSPECIES
+	+THRUGHOST
+}
+
+Actor AbyssalMotherMeteorTrail : AbyssalFatShotTrail {
+	Scale 1.1
+}
+
+Actor AbyssalMotherMeteor2 : AbyssalMotherMeteor {
+	Damage (4 * random(5, 8))
+	Speed 25
+	+SEEKERMISSILE
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			MOMP A 3 Bright A_SeekerMissile(5, 15)
+			TNT1 A 0 A_SpawnItemEx("AbyssalMotherMeteorTrail")
+			MOMP B 3 Bright A_SeekerMissile(5, 15)
+			TNT1 A 0 A_SpawnItemEx("AbyssalMotherMeteorTrail")
+			MOMP C 3 Bright A_SeekerMissile(5, 15)
+			TNT1 A 0 A_SpawnItemEx("AbyssalMotherMeteorTrail")
+		Loop
+	}
+}
+
+ACTOR AbyssalMotherFire {
+	Height 8
+	Radius 6
+	Damage (6 * random(6, 8))
+	DeathSound "abyssal_demon/fireballhit"
+	Speed 16
+	RenderStyle Translucent
+	Alpha 0.50
+	DamageType "Fire"
+	PROJECTILE
+	+RANDOMIZE
+	+NODAMAGETHRUST
+	+FLOORHUGGER
+	+SEEKERMISSILE
+
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			CP14 BCD 4 Bright
+		SpawnLoop:
+			TNT1 A 0 A_SeekerMissile(22.5, 22.5)
+			CP14 E 4 BRIGHT A_SpawnItemEx("AbyssalMotherFireTrail")
+			TNT1 A 0 A_SeekerMissile(22.5, 22.5)
+			CP14 B 4 BRIGHT A_SpawnItemEx("AbyssalMotherFireTrail")
+			TNT1 A 0 A_SeekerMissile(22.5, 22.5)
+			CP14 C 4 BRIGHT A_SpawnItemEx("AbyssalMotherFireTrail")
+			TNT1 A 0 A_SeekerMissile(22.5, 22.5)
+			CP14 D 4 BRIGHT A_SpawnItemEx("AbyssalMotherFireTrail")
+		Loop
+		Death:
+			CP11 BCDEF 3 Bright
+		Stop
+	}
+}
+
+ACTOR AbyssalMotherFireTrail {
+	RenderStyle Translucent
+	Alpha 0.60
+	+NOGRAVITY
+	+NOINTERACTION
+	+CLIENTSIDEONLY
+	States {
+		Spawn:
+			CP14 BCDE 4 BRIGHT A_FadeOut(0.20)
+		Loop
+	}
+}

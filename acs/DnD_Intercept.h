@@ -155,12 +155,8 @@ int ProjInt_Brute(int spd, int ptid, int xoff, int yoff, int zoff, str ptype, in
 
 	if(input_t) 
 		xoff = input_t; 
-	else {
-		if(flags & INTF_RANDOM) 
-			random(1, zoff);
-		else 
-			xoff = zoff;
-	}
+	else if(!(flags & INTF_RANDOM)) 
+		xoff = zoff;
 	
 	temp = tX + FixedMul(xoff, tVelX);
 	yoff = tY + FixedMul(xoff, tVelY);
@@ -327,12 +323,8 @@ void AimLead(int spd, int xoff, int yoff, int zoff, int axoff, int ayoff, int az
 
 	if(input_t) 
 		xoff = input_t; 
-	else {
-		if(flags & INTF_RANDOM) 
-			random(1, zoff);
-		else 
-			xoff = zoff;
-	}
+	else if(!(flags & INTF_RANDOM)) 
+		xoff = zoff;
 	
 	temp = tX + FixedMul(xoff, tVelX);
 	yoff = tY + FixedMul(xoff, tVelY);
@@ -349,36 +341,12 @@ void AimLead(int spd, int xoff, int yoff, int zoff, int axoff, int ayoff, int az
 		Y_spd = FixedDiv(yoff - sY, xoff);
 		p_ang = VectorAngle(temp - sX, yoff - sY); 
 	}
-	
+
+	if(angoff != 0)
+		p_ang = FixedAngMod(p_ang + angoff);
+
 	if(flags & INTF_SETANGLE)
 		SetActorAngle(0, p_ang);
-
-	sZ += azoff;
-
-	if(axoff > 0) {
-		sX -= FixedMul(cos(FixedAngMod(s_ang - 0.25)), axoff); 
-		sY -= FixedMul(sin(FixedAngMod(s_ang - 0.25)), axoff); 
-	}
-	else if(axoff < 0) {
-		sX += FixedMul(cos(FixedAngMod(s_ang + 0.25)), axoff); 
-		sY += FixedMul(sin(FixedAngMod(s_ang + 0.25)), axoff); 
-	}
-
-	if(ayoff > 0) {
-		sX += FixedMul(cos(s_ang), ayoff); 
-		sY += FixedMul(sin(s_ang), ayoff); 
-	}
-	else if(ayoff < 0) {
-		sX -= FixedMul(cos(s_ang), ayoff); 
-		sY -= FixedMul(sin(s_ang), ayoff); 
-	}
-
-	if(angoff != 0) {
-		p_ang = FixedAngMod(p_ang + angoff);
-		temp2 = FixedSqrt(sq(X_spd) + sq(Y_spd));
-		X_spd = FixedMul(cos(FixedAngMod(p_ang + angoff)), temp2);
-		Y_spd = FixedMul(sin(FixedAngMod(p_ang + angoff)), temp2); 
-	}
 }
 
 #endif

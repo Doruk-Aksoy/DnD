@@ -16,22 +16,19 @@ ACTOR AbyssalChaingunner : DnD_BaseRangedMonster {
 	Mass 200
 	Speed 8
 	PainChance 150
-	SeeSound "sfainguy/sight"
-	PainSound "sfainguy/pain"
-	DeathSound "sfainguy/death"
-	ActiveSound "sfainguy/active"
-	AttackSound "sfainguy/attack"
+	SeeSound "abyssal_human/sight"
+	AttackSound "abyssal_human/shotgun"
+	PainSound "abyssal_human/pain"
+	DeathSound "abyssal_human/death"
+	ActiveSound "abyssal_human/active"
 	+ISMONSTER
 	+FLOORCLIP
-	xscale 0.60
-	yscale 0.65
 	Obituary "%o was riddled with holes by an Abyssal Chaingunner."
 	DropItem "MachinegunPickup_Drop"
 	Species "Chaingunner"
 	Decal BulletChip
+	Scale 0.75
 	Tag "Abyssal Chaingunner"
-	XScale 0.6
-	YScale 0.65
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ABYSS_CHAINGUNNER)
@@ -45,7 +42,7 @@ ACTOR AbyssalChaingunner : DnD_BaseRangedMonster {
 		Loop
 		MissileState:
 			C016 E 10 A_FaceTarget
-		MissileLoop
+		MissileLoop:
 			TNT1 A 0 A_SpawnItemEx ("bulletcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
 			TNT1 A 0 A_CustomMissile("ChaingunnerBullet_Abyssal",24,5,frandom(5,-5))
 			C016 FE 4 Bright A_CPosAttack

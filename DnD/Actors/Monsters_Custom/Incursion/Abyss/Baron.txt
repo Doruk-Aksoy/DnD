@@ -1,0 +1,90 @@
+Actor AbyssalBaron : DnD_BaseHybridMonster { 
+	Health 0x7FFFFFFF
+	GibHealth -50
+	Radius 24
+	Height 64
+	Mass 2048
+	Speed 10
+	PainChance 16
+	+ISMONSTER
+	+FLOORCLIP
+	+DONTHURTSPECIES
+	SeeSound "abyssal_baron/sight"
+	PainSound "abyssal_knight/pain"
+	DeathSound "abyssal_baron/death"
+	ActiveSound "abyssal_demon/active"
+	HitObituary "%o was burned alive by an Abyssal Baron."
+	Obituary "%o was flayed by an Abyssal Baron."
+	BloodColor "7D 9D 59"
+	Species "HK"
+	Tag "Abyssal Baron"
+	Scale 0.8
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_BARON)
+		Goto SpawnSetup
+		
+		IdleState:
+			C026 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C026 A 0 A_CheckSight("NormalSee")
+			C026 A 0 A_JumpIfCloser(512, "Rush")
+			C026 AABBCCDD 3 Fast A_Chase
+		Goto See
+		Rush:
+			C026 AAA 2 Fast A_Chase("Melee", "")
+			C026 BBBCCC 2 Fast A_Chase
+			C026 DDD 2 Fast A_Chase("Melee", "")
+		Goto See
+		NormalSee:
+			C026 AABBCCDD 3 Fast A_Chase
+		Goto See
+		MeleeState:
+		MissileState:
+			C026 EF 6 Fast A_FaceTarget
+			C026 G 6 Fast A_CustomComboAttack("AbyssalBaronBall", 32, 10 * random(8, 12), "baron/melee")
+		Goto See
+		PainState:
+			C026 H 2 Fast
+			C026 H 2 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Medium", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C026 I 8
+			C026 J 8 A_Scream
+			C026 K 8
+			C026 L 8 A_NoBlocking
+			C026 M 8
+			C026 N -1 A_KillMaster
+		Stop
+		RaiseState:
+			C026 NMLKJI 8
+		Goto See
+	}
+}
+
+Actor AbyssalBaronBall : BaronBall {
+	Damage (8 * random(7, 9))
+	DamageType "MagicalArmorCorrupt"
+	Stamina 2080
+	Decal "BaronScorch"
+	Speed 28
+	SeeSound "abyssal_demon/fireball"
+	DeathSound "abyssal_demon/fireballhit"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP12 AB 3 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
+			TNT1 AAA 0 A_SpawnItemEx("ExplosionFX8", 0, 0, 0, frandom(-1, 1), frandom(-1, 1), frandom(-1, 1))
+			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			CP12 CDEFGH 3 Bright
+		Stop
+	}
+}

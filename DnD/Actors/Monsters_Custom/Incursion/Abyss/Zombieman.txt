@@ -17,21 +17,18 @@ ACTOR AbyssalZombieman : DnD_BaseRangedMonster {
 	Speed 8
 	PainChance 170
 	DropItem "DroppedClip"
-	SeeSound "sfunt/sight"
-	AttackSound "sfunt/attack"
-	PainSound "sfunt/pain"
-	DeathSound "sfunt/death"
-	ActiveSound "sfunt/active"
+	SeeSound "abyssal_human/sight"
+	AttackSound "abyssal_human/gunshot"
+	PainSound "abyssal_human/pain"
+	DeathSound "abyssal_human/death"
+	ActiveSound "abyssal_human/active"
 	Obituary "%o was hunted down by an Abyssal Zombieman."
-	xscale 0.60
-	yscale 0.65
+	Scale 0.75
 	Tag "Abyssal Zombieman"
 	Species "Zombieman"
 	Decal BulletChip
 	Accuracy 30
 	+ISMONSTER
-	XScale 0.6
-	YScale 0.65
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ABYSS_ZOMBIEMAN)
@@ -46,7 +43,7 @@ ACTOR AbyssalZombieman : DnD_BaseRangedMonster {
 		MissileState:
 			C014 E 10 A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx("pistolcasing", -8, 7, 26, 4, 0, frandom(3.0, 5.0), random(-80, -90))
-			TNT1 A 0 A_PlaySound ("grunt/attack")
+			TNT1 A 0 A_PlaySound ("abyssal_human/gunshot")
 			C014 F 5 Bright A_CustomMissile("ZombieBullet_Abyssal", 32, 0, frandom(-22.5, 22.5))
 			C014 E 8
 		Goto See
@@ -55,7 +52,7 @@ ACTOR AbyssalZombieman : DnD_BaseRangedMonster {
 			C014 G 3 A_Pain
 		Goto See
 		DeathState:
-			C014 H 5 A_SpawnItemEx("ZombieAmmoDropper",0,0,0, 0,0,0, 0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS)
+			C014 H 5
 			C014 I 5 A_Scream
 			C014 J 5 A_NoBlocking
 			C014 K 5

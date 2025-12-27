@@ -1,0 +1,103 @@
+Actor AbyssalArachno : DnD_BaseRangedMonster { 
+	Health 0x7FFFFFFF
+	GibHealth -75
+	Species "Spider"
+	Radius 64
+	Height 64
+	Mass 1024
+	Speed 12
+	PainChance 96
+	+ISMONSTER
+	+DONTHURTSPECIES
+	SeeSound "abyssal_arachno/sight"
+	PainSound "abyssal_knight/pain"
+	DeathSound "abyssal_arachno/death"
+	ActiveSound "abyssal_arachno/active"
+	Obituary "%o was burned to a crisp by an Abyssal Arachnotron."
+	Tag "Abyssal Arachnotron"
+	Scale 0.8
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_ARACHNOTRON)
+		Goto SpawnSetup
+	
+		IdleState:
+			C029 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C029 A 0 A_JumpIfInventory("DnD_Boolean", 1, "SeeStateSkip")
+			C029 A 20 A_GiveInventory("DnD_Boolean", 1)
+		SeeStateSkip:
+			C029 A 3 A_PlaySound("abyssal_arachno/walk")
+			C029 ABBCCDD 3 A_Chase
+		Goto See
+		MissileState:
+			C029 A 20 Bright A_FaceTarget
+			C029 D 4 A_FaceTarget
+			TNT1 A 0 A_PlaySound("abyssal_arachno/attack", CHAN_WEAPON)
+			TNT1 A 0 A_CustomMissile("AbyssalArachnoBolt", 20, -12, 2)
+			C029 E 4 BRIGHT A_CustomMissile("AbyssalArachnoBolt", 20, 12, -2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			C029 D 4 A_FaceTarget
+			TNT1 A 0 A_PlaySound("abyssal_arachno/attack", CHAN_WEAPON)
+			TNT1 A 0 A_CustomMissile("AbyssalArachnoBolt", 20, -12, 2)
+			C029 E 4 BRIGHT A_CustomMissile("AbyssalArachnoBolt", 20, 12, -2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			C029 D 4 A_FaceTarget
+			TNT1 A 0 A_PlaySound("abyssal_arachno/attack", CHAN_WEAPON)
+			TNT1 A 0 A_CustomMissile("AbyssalArachnoBolt", 20, -12, 2)
+			C029 E 4 BRIGHT A_CustomMissile("AbyssalArachnoBolt", 20, 12, -2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD On Monster Attack", 0)
+			C029 E 1 Bright A_SpidRefire
+		Goto MissileState + 1
+		PainState:
+			C029 F 3 A_SpawnDebris("MetalScrap")
+			C029 F 3 A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnDebris("MetalScrap_More")
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_High", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+	    DeathState:	
+			C029 G 20 A_Scream
+			C029 H 7 A_NoBlocking
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			C029 IJK 7
+			C029 L -1 A_KillMaster
+		Stop
+		RaiseState:
+			C029 K 5 A_TakeInventory("DnD_Boolean", 1)
+			C029 JIHG 5
+		Goto See
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
+	}
+}
+
+Actor AbyssalArachnoBolt : ArachnotronPlasma {
+	Damage (5 * random(5, 6))
+	DamageType "Energy"
+	Stamina 1073741840
+	Accuracy 133
+	Speed 36
+	DeathSound "abyssal_demon/fireballhit"
+	+DONTBLAST
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+		SpawnLoop:
+			CP09 AB 3 Bright
+		Loop
+		Death:
+			TNT1 A 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
+			CP09 CDEFGH 3 Bright
+		Stop
+	}
+}

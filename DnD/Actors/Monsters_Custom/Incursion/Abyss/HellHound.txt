@@ -1,0 +1,91 @@
+Actor AbyssalHound : DnD_BaseHybridMonster { 
+	Health 0x7FFFFFFF
+	GibHealth -50
+	Species "Demon"
+	Tag "Abyssal Hellhound"
+	+DONTHURTSPECIES
+	PainChance 144
+	MaxTargetRange 288
+	MinMissileChance 96
+	Speed 16
+	Radius 30
+	Height 56
+	Mass 640
+	SeeSound "abyssal_hound/sight"
+	AttackSound "abyssal_hound/attack"
+	PainSound "abyssal_demon/pain"
+	DeathSound "abyssal_hound/death"
+	ActiveSound "abyssal_demon/active"
+	Obituary "%o became food to an Abyssal Hellhound."
+	Scale 0.825
+	+MISSILEMORE
+	+MISSILEEVENMORE
+	+ISMONSTER
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_HOUND)
+		Goto SpawnSetup
+		
+		IdleState:
+			C033 C 10 A_GiveInventory("DnD_SightChecker", 1)
+		Loop
+		SeeState:
+			C033 AABBCCDD 2 Fast A_Chase
+		Goto See
+		MissileState:
+			C033 E 5 Fast A_FaceTarget
+			TNT1 A 0 A_FaceTarget
+			TNT1 A 0 A_PlaySound("weapons/burning", CHAN_WEAPON)
+			C033 FFFFGGGG 1 Fast A_CustomMissile("AbyssalHellHoundFlame", 32, frandom(-2.5, 2.5), frandom(-6.25, 6.25))
+			C033 GE 4 Fast
+		Goto See
+		MeleeState:
+			C033 E 5 Fast A_FaceTarget
+			TNT1 A 0 A_Recoil(-1.2)
+			TNT1 A 0 A_CustomMeleeAttack(random(8, 12) * 2, "", "")
+			C033 F 4 Fast A_FaceTarget
+			C033 G 6 Fast A_CustomMeleeAttack(random(8, 12) * 2, "", "")
+		goto See
+		PainState:
+			C033 H 2 Fast
+			C033 H 3 Fast A_Pain
+		Goto See
+		XDeathState:
+			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+		DeathState:
+			C033 I 8
+			C033 J 8 A_Scream
+			C033 K 4
+			C033 L 4 A_NoBlocking
+			C033 M 4
+			C033 N -1
+		Stop
+		RaiseState:
+			C033 N 5
+			C033 MLKJI 5
+		Goto See
+	}
+}
+
+ACTOR AbyssalHellHoundFlame {
+	Radius 4
+	Height 8
+	Speed 28
+	Damage (random(4, 12))
+	DamageType "Fire"
+	Stamina 32
+	PROJECTILE
+	+DONTBLAST
+	RENDERSTYLE ADD
+	ALPHA 0.8
+	SeeSound "CacoFlame/attack"
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			CP10 ABCDEFGH 2 Bright A_ChangeVelocity(0, 0, frandom(0.2, 0.33), CVF_RELATIVE)
+		Stop
+		Death:
+			CP10 "#" 1 A_FadeOut(0.1)
+		Loop
+	}
+}

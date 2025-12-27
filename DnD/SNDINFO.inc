@@ -1,7 +1,85 @@
+$pitchshiftrange 2
+
+// Abyssal
+
+abyssal_human/sight1		"Sounds/Monsters/Incursion/Abyssal/sfposit1.ogg"
+abyssal_human/sight2		"Sounds/Monsters/Incursion/Abyssal/sfposit2.ogg"
+abyssal_human/sight3		"Sounds/Monsters/Incursion/Abyssal/sfposit3.ogg"
+$random abyssal_human/sight { abyssal_human/sight1 abyssal_human/sight2 abyssal_human/sight3 }
+abyssal_human/active		"Sounds/Monsters/Incursion/Abyssal/sfposact.ogg"
+abyssal_human/death1		"Sounds/Monsters/Incursion/Abyssal/sfpodth1.ogg"
+abyssal_human/death2		"Sounds/Monsters/Incursion/Abyssal/sfpodth2.ogg"
+abyssal_human/death3		"Sounds/Monsters/Incursion/Abyssal/sfpodth3.ogg"
+$random abyssal_human/death { abyssal_human/death1 abyssal_human/death2 abyssal_human/death3 }
+abyssal_human/pain			"Sounds/Monsters/Incursion/Abyssal/sfpopain.ogg"
+
+abyssal_human/gunshot		"Sounds/Monsters/Incursion/Abyssal/sfpistol.ogg"
+abyssal_human/shotgun		"Sounds/Monsters/Incursion/Abyssal/sfdshtgn.ogg"
+abyssal_demon/fireball		"Sounds/Monsters/Incursion/Abyssal/sffirsht.ogg"
+abyssal_demon/fireballhit	"Sounds/Monsters/Incursion/Abyssal/sffirxpl.ogg"
+abyssal_arachno/attack		"Sounds/Monsters/Incursion/Abyssal/sfplasma.ogg"
+
+abyssal_demon/sight			"Sounds/Monsters/Incursion/Abyssal/sfsgtsit.ogg"
+abyssal_demon/death			"Sounds/Monsters/Incursion/Abyssal/sfsgtdth.ogg"
+abyssal_demon/attack		"Sounds/Monsters/Incursion/Abyssal/sfsgtatk.ogg"
+abyssal_demon/pain			"Sounds/Monsters/Incursion/Abyssal/sfdmpain.ogg"
+abyssal_demon/active		"Sounds/Monsters/Incursion/Abyssal/sfdmact.ogg"
+
+abyssal_caco/sight			"Sounds/Monsters/Incursion/Abyssal/sfcacsit.ogg"
+abyssal_caco/death			"Sounds/Monsters/Incursion/Abyssal/sfcacdth.ogg"
+
+abyssal_lostsoul/attack		"Sounds/Monsters/Incursion/Abyssal/sfsklatk.ogg"
+
+abyssal_pain/sight			"Sounds/Monsters/Incursion/Abyssal/sfpesit.ogg"
+abyssal_pain/pain			"Sounds/Monsters/Incursion/Abyssal/sfpepain.ogg" // lol
+abyssal_pain/death			"Sounds/Monsters/Incursion/Abyssal/sfpedth.ogg"
+
+abyssal_knight/sight		"Sounds/Monsters/Incursion/Abyssal/sfkntsit.ogg"
+abyssal_knight/pain			"Sounds/Monsters/Incursion/Abyssal/sfbdpain.ogg"
+abyssal_knight/death		"Sounds/Monsters/Incursion/Abyssal/sfkntdth.ogg"
+
+abyssal_baron/sight			"Sounds/Monsters/Incursion/Abyssal/sfbrssit.ogg"
+abyssal_baron/death			"Sounds/Monsters/Incursion/Abyssal/sfbrsdth.ogg"
+
+abyssal_fatso/sight			"Sounds/Monsters/Incursion/Abyssal/sfmansit.ogg"
+abyssal_fatso/pain			"Sounds/Monsters/Incursion/Abyssal/sfmnpain.ogg"
+abyssal_fatso/death			"Sounds/Monsters/Incursion/Abyssal/sfmandth.ogg"
+abyssal_fatso/attack		"Sounds/Monsters/Incursion/Abyssal/sfmanatk.ogg"
+
+abyssal_arachno/sight		"Sounds/Monsters/Incursion/Abyssal/sfbspsit.ogg"
+abyssal_arachno/death		"Sounds/Monsters/Incursion/Abyssal/sfbspdth.ogg"
+abyssal_arachno/walk		"Sounds/Monsters/Incursion/Abyssal/sfbspwlk.ogg"
+abyssal_arachno/active		"Sounds/Monsters/Incursion/Abyssal/sfbspact.ogg"
+
+abyssal_vile/sight			"Sounds/Monsters/Incursion/Abyssal/sfvilsit.ogg"
+abyssal_vile/pain			"Sounds/Monsters/Incursion/Abyssal/sfvilpn.ogg"
+abyssal_vile/death			"Sounds/Monsters/Incursion/Abyssal/sfvildth.ogg"
+abyssal_vile/active			"Sounds/Monsters/Incursion/Abyssal/sfvilact.ogg"
+abyssal_vile/fire			"Sounds/Monsters/Incursion/Abyssal/sfvilfir.ogg"
+abyssal_vile/attack			"Sounds/Monsters/Incursion/Abyssal/sfvilatk.ogg"
+
+abyssal_spider/sight		"Sounds/Monsters/Incursion/Abyssal/sfspisit.ogg"
+abyssal_spider/death		"Sounds/Monsters/Incursion/Abyssal/sfspidth.ogg"
+
+abyssal_cyber/sight			"Sounds/Monsters/Incursion/Abyssal/sfcybsit.ogg"
+abyssal_cyber/death			"Sounds/Monsters/Incursion/Abyssal/sfcybdth.ogg"
+abyssal_cyber/hoof			"Sounds/Monsters/Incursion/Abyssal/sfhoof.ogg"
+abyssal_cyber/metal			"Sounds/Monsters/Incursion/Abyssal/sfmetal.ogg"
+
+abyssal_hound/sight			"Sounds/Monsters/Incursion/Abyssal/HH_SIGHT.ogg"
+abyssal_hound/attack		"Sounds/Monsters/Incursion/Abyssal/HH_ATACK.ogg"
+abyssal_hound/death			"Sounds/Monsters/Incursion/Abyssal/HH_DEATH.ogg"
+
+abyssal_mother/sight		"Sounds/Monsters/Incursion/Abyssal/sfrectsi.ogg"
+abyssal_mother/pain			"Sounds/Monsters/Incursion/Abyssal/sfrectpn.ogg"
+abyssal_mother/active		"Sounds/Monsters/Incursion/Abyssal/sfrectac.ogg"
+abyssal_mother/death		"Sounds/Monsters/Incursion/Abyssal/sfrectdi.ogg"
+abyssal_mother/attack		"Sounds/Monsters/Incursion/Abyssal/sfrectat.ogg"
+
 // Chex
 // Common Flemoid
 
-$pitchshiftrange 2
+
 
 $random qgrunt/sight 		{ qgrunt/sight1  qgrunt/sight2  qgrunt/sight3 }
 $random qgrunt/death		{ qgrunt/death1  qgrunt/death2  qgrunt/death3 }

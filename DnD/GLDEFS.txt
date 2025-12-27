@@ -293,5 +293,6 @@ Glow
 #include "GLDefs/Monsters/Cyberdemon.txt"
 #include "GLDefs/Monsters/Legendary.txt"
 #include "GLDefs/Monsters/Uniques.txt"
+#include "GLDefs/Monsters/Incursion.txt"
 
 #include "GLDefs/Perks.txt"

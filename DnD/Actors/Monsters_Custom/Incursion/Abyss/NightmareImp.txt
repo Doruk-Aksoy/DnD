@@ -7,17 +7,18 @@ Actor AbyssalNightmareImp : DnD_BaseHybridMonster {
 	Speed 12
 	PainChance 32
 	GibHealth -50
-	SeeSound "imp/sight"
-	DeathSound "imp/death"
-	ActiveSound "imp/active"
-	HitObituary "$OB_IMPHIT"
+	seesound "monster/dvlsit"
+	painsound "monster/dvlpai"
+	deathsound "monster/dvldth"
+	activesound "monster/dvlact"
 	Obituary "%o had %p soul stolen by an Abyssal Nightmare Imp."
-	PainSound "Imp/Pain"
 	Tag "Abyssal Nightmare Imp"
 	BloodColor "98 67 C5"
+	Renderstyle Translucent
+	Alpha 0.666
+	Scale 0.8
+	+GHOST
 	+ISMONSTER
-	XScale 0.6
-	YScale 0.65
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ABYSS_NIGHTMAREIMP)
@@ -27,24 +28,27 @@ Actor AbyssalNightmareImp : DnD_BaseHybridMonster {
 			C018 AB 10 Fast A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
-			C018 AAABBBCCCDDD 2 Fast A_Chase
+			C018 AABBCCDD 2 Fast A_Chase
+		Goto See
+		MissileState:
+			C018 IJ 4 Fast A_FaceTarget
+			C018 K 5 Fast A_CustomComboAttack("AbyssNightmareImpBall", 32, 6 * random(5, 7), "imp/melee")
+			C018 K 2 Fast A_Jump(128, "MissileState")
 		Goto See
 		MeleeState:
-		MissileState:
-			C018 EF 4 Fast A_FaceTarget
-			C018 G 5 Fast A_CustomComboAttack("AbyssNightmareImpBall", 32, 6 * random(5, 7), "imp/melee")
-			C018 G 1 Fast A_Jump(128, "MissileState")
+			C018 EF 7 Fast A_FaceTarget
+			C018 G 6 Fast A_CustomComboAttack("AbyssNightmareImpBall", 32, 6 * random(5, 7), "imp/melee")
 		Goto See
 		PainState:
 			C018 H 2 Fast
 			C018 H 2 Fast A_Pain
 		Goto See
 		DeathState:
-			C018 I 8
-			C018 J 8 A_Scream
-			C018 K 6
-			C018 L 6 A_NoBlocking
-			C018 M -1
+			C018 L 8
+			C018 M 8 A_Scream
+			C018 N 6
+			C018 O 6 A_NoBlocking
+			C018 P -1
 		Stop
 		XDeathState:
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib9",0)
@@ -52,22 +56,23 @@ Actor AbyssalNightmareImp : DnD_BaseHybridMonster {
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnDebris("NashGore_Gib11",0)
 			TNT1 A 0 A_SpawnItemEx("GenericGibber_Low", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
-			C018 N 5
-			C018 O 5 A_XScream
-			C018 P 5
-			C018 Q 5 A_NoBlocking
-			C018 RST 5
-			C018 U -1
+			C018 Q 5
+			C018 R 5 A_XScream
+			C018 S 5
+			C018 T 5 A_NoBlocking
+			C018 UVW 5
+			C018 X -1
 		Stop
 		RaiseState:
-			C018 MLKJI 8
+			C018 ONML 8
 		Goto See
 	}
 }
 
 Actor AbyssNightmareImpBall : AbyssImpBall {
-	Speed 32
+	Speed 8
 	Damage (5 * random(6, 9))
+	Speed 32
 	States {
 		Spawn:	
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
