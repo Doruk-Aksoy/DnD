@@ -39,7 +39,7 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 		Goto See
 		MissileState:
 			C034 E 0 A_PlaySound("abyssal_mother/attack", CHAN_VOICE)
-			C034 E 0 A_Jump(96, "FireAttack", "FireAttack", "MeteorSwarm", "Seekers")
+			C034 E 0 A_Jump(128, "FireAttack", "FireAttack", "MeteorSwarm", "Seekers")
 			C034 E 8 A_GiveInventory("AbyssMotherDemonAimer", 1)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor", 96, -25, angle, CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor", 40, -50, angle, CMF_ABSOLUTEANGLE)
@@ -48,7 +48,7 @@ Actor AbyssalMotherDemon : DnD_BaseRangedBoss {
 			C034 E 8
 		Goto See
 		Seekers:
-			C034 E 8 A_GiveInventory("AbyssMotherDemonAimer", 1)
+			C034 E 8 A_FaceTarget
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 96, -25, 35 + angle, CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 40, -50, 35 + angle, CMF_ABSOLUTEANGLE)
 			TNT1 A 0 A_CustomMissile("AbyssalMotherMeteor2", 96, 25, -35 + angle, CMF_ABSOLUTEANGLE)
@@ -173,14 +173,26 @@ Actor AbyssalMotherMeteor2 : AbyssalMotherMeteor {
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			MOMP AB 3 Bright
 		SpawnLoop:
+			MOMP C 3 Bright A_SeekerMissile(5, 15)
+			TNT1 A 0 A_SpawnItemEx("AbyssalMotherMeteorTrail")
 			MOMP A 3 Bright A_SeekerMissile(5, 15)
 			TNT1 A 0 A_SpawnItemEx("AbyssalMotherMeteorTrail")
 			MOMP B 3 Bright A_SeekerMissile(5, 15)
 			TNT1 A 0 A_SpawnItemEx("AbyssalMotherMeteorTrail")
-			MOMP C 3 Bright A_SeekerMissile(5, 15)
-			TNT1 A 0 A_SpawnItemEx("AbyssalMotherMeteorTrail")
 		Loop
+	}
+}
+
+Actor AbyssalMotherFireExp : BaseExplosionDamage {
+	DamageType "Fire"
+	Stamina 36
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 A_Explode(64, 96, 0)
+		Stop
 	}
 }
 
@@ -193,6 +205,7 @@ ACTOR AbyssalMotherFire {
 	RenderStyle Translucent
 	Alpha 0.50
 	DamageType "Fire"
+	ReactionTime 16
 	PROJECTILE
 	+RANDOMIZE
 	+NODAMAGETHRUST
@@ -212,8 +225,10 @@ ACTOR AbyssalMotherFire {
 			CP14 C 4 BRIGHT A_SpawnItemEx("AbyssalMotherFireTrail")
 			TNT1 A 0 A_SeekerMissile(22.5, 22.5)
 			CP14 D 4 BRIGHT A_SpawnItemEx("AbyssalMotherFireTrail")
+			CP14 D 0 Bright A_CountDown
 		Loop
 		Death:
+			TNT1 A 0 A_SpawnItem("AbyssalMotherFireExp")
 			CP11 BCDEF 3 Bright
 		Stop
 	}

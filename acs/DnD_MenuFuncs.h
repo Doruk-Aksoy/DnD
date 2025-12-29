@@ -455,7 +455,7 @@ bool HandlePageListening(int curopt, int boxid) {
 			redraw = ListenScroll(ScrollPos.y, 0);
 		break;
 		case MENU_HELP_MMODS_IMMUNITY:
-			redraw = ListenScroll(-144, 0);
+			redraw = ListenScroll(-192, 0);
 		break;
 		case MENU_HELP_CHARACTER:
 		case MENU_HELP_MMODS_RESIST:
@@ -5618,6 +5618,15 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_RARITY", s:"\n");
 				++k;
 			}
+
+			// stamina things
+			val = GetAmmoCapacity("DnD_Stamina");
+			PlayerStatText = StrParam(s:PlayerStatText, d:val, s:" ", l:"DND_MENU_STAMINACAP", s:"\n");
+			++k;
+
+			val = GetPlayerStaminaGain(pnum);
+			PlayerStatText = StrParam(s:PlayerStatText, d:val, s:" ", l:"DND_MENU_STAMINAGAINEDPER", s:" ", d:GetPlayerStaminaRecoveryRate(pnum), s:" ", l:"DND_MENU_STAMINAGAINEDPER", s:"\n");
+			++k;
 
 			// ripper block
 			val = GetPlayerAttributeValue(pnum, INV_RIPCOUNT);

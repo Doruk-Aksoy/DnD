@@ -278,7 +278,7 @@ Actor DnD_PlayersNotReady_Sync : Inventory {
 
 Actor DnD_UsedTwoItemRequirementMaterial : DnD_Boolean { }
 
-Actor Ability_Kick : DnD_Boolean { }
+Actor Ability_ParryMaster : DnD_Boolean { }
 Actor Ability_Reloader : DnD_Boolean { }
 Actor Ability_Dash : DnD_Boolean { }
 Actor Ability_Arcanery : DnD_Boolean { }

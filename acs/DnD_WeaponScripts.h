@@ -23,7 +23,6 @@ Script "DnD Can Fire Weapon" (void) {
 	//int pc = 0;
 	while(IsAlive() && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
 		int wepid = GetCurrentWeaponID();
-		buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
 		//pc = (pc + 1) % 15;
 		//if(!pc)
@@ -45,8 +44,19 @@ Script "DnD Can Fire Weapon" (void) {
 		switch(wepid) {
 			case DND_WEAPON_SICKLE:
 				canFire = true;
-				flags = DND_CFW_ALTFIRECHECK;
-				canAltFire = !CheckInventory("SickleCooldown");
+				canAltFire = !GetMeleeWeaponCooldowns(DND_MELEECD_SICKLE).cd;
+			break;
+			case DND_WEAPON_EXCALIBAT:
+				canFire = true;
+				canAltFire = !GetMeleeWeaponCooldowns(DND_MELEECD_EXCALIBAT).cd;
+			break;
+			case DND_WEAPON_INFERNOSWORD:
+				canFire = true;
+				canAltFire = !GetMeleeWeaponCooldowns(DND_MELEECD_INFERNOSWORD).cd;
+			break;
+			case DND_WEAPON_DUSKBLADE:
+				canFire = true;
+				canAltFire = !GetMeleeWeaponCooldowns(DND_MELEECD_DUSKBLADE).cd;
 			break;
 
 			case DND_WEAPON_AKIMBOPISTOL:
@@ -285,17 +295,7 @@ Script "DnD Can Fire Weapon" (void) {
 			case DND_WEAPON_CHAINSAW:
 			case DND_WEAPON_DOUBLECHAINSAW:
 				canFire = true;
-				flags = DND_CFW_ALTFIRECHECK;
 			break;
-			case DND_WEAPON_EXCALIBAT:
-				canFire = true;
-				flags = DND_CFW_ALTFIRECHECK;
-				canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo2, amt2, flags);
-			break;
-			case DND_WEAPON_DUSKBLADE:
-			case DND_WEAPON_INFERNOSWORD:
-			case DND_WEAPON_AXE:
-				flags = DND_CFW_ALTFIRECHECK;
 			default:
 				canFire = ammo1 == "" || CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 
@@ -317,10 +317,7 @@ Script "DnD Can Fire Weapon" (void) {
 			canAltFire = false;
 		}
 
-		if((flags & DND_CFW_ALTFIRECHECK) && IsMeleeWeapon(wepid))
-			canAltFire &= CheckInventory("Ability_Kick");
-
-		if(pbuffs.buff_net_values[BUFF_STUN].multiplicative != 1.0) {
+		if(pbuffs[pnum].buff_net_values[BUFF_STUN].multiplicative != 1.0) {
 			canFire = false;
 			canAltFire = false;
 			canReload = false;
@@ -996,16 +993,54 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 	}
 }
 
-Script "DnD Sickle Cooldown" (void) {
-	if(!CheckInventory("SickleCooldown")) {
-		SetInventory("SickleCooldown", 100);
+wep_cd_T module& GetMeleeWeaponCooldowns(int id) {
+	static wep_cd_T wep_cds[DND_MELEECD_MAX];
+	return wep_cds[id];
+}
 
-		while(isAlive() && CheckInventory("SickleCooldown")) {
-			Delay(const:7);
-			TakeInventory("SickleCooldown", 2);
+Script "DnD Melee Weapon Cooldown" (int cd_id, int val) {
+	wep_cd_T module& wep_cd = GetMeleeWeaponCooldowns(cd_id);
+	if(!wep_cd.cd) {
+		wep_cd.cd = val;
+
+		str toTake = "";
+		str firePreventer = "";
+		switch(cd_id) {
+			case DND_MELEECD_SICKLE:
+				toTake = "SickleCooldown";
+			break;
+			case DND_MELEECD_KATANA:
+				toTake = "KatanaCooldown";
+				firePreventer = "KatanaNoAltFire";
+			break;
+			case DND_MELEECD_EXCALIBAT:
+				toTake = "ExcalibatCooldown";
+			break;
+			case DND_MELEECD_INFERNOSWORD:
+				toTake = "InfernoSwordCooldown";
+			break;
+			case DND_MELEECD_DUSKBLADE:
+				toTake = "DuskBladeCooldown";
+			break;
 		}
 
-		SetInventory("SickleCooldown", 0);
+		SetAmmoCapacity(toTake, val);
+		SetInventory(toTake, val);
+		
+		if(firePreventer != "")
+			GiveInventory(firePreventer, 1);
+
+		while(isAlive() && wep_cd.cd) {
+			Delay(const:3);
+			--wep_cd.cd;
+			TakeInventory(toTake, 1);
+		}
+
+		wep_cd.cd = 0;
+		SetInventory(toTake, 0);
+
+		if(firePreventer != "")
+			TakeInventory(firePreventer, 1);
 	}
 }
 
@@ -2303,6 +2338,144 @@ Script "DnD Ray of Disintegration Trails" (void) CLIENTSIDE {
 		if(!Spawn("WandererRayTrail", mx, my, mz, 0, 0))
 			break;
 	}
+
+	SetResultValue(0);
+}
+
+void HandleStaminaBarDraw(int pnum) {
+	GiveInventory("DnD_ShowStaminaBar", 1);
+
+	ACS_NamedExecuteAlways("DnD Stamina Bar Draw", 0, pnum);
+}
+
+#define HUD_STAMINA_X 1024
+#define HUD_STAMINA_Y 768
+#define HUD_STAMINA_XF 1024.0
+#define HUD_STAMINA_YF 768.0
+
+#define STAMINA_BAR_LEN 192
+#define STAMINABAR_HOLDTIME 0.25
+
+Script "DnD Stamina Bar Draw" (int pnum) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	int xoff = 0;
+
+	while((CheckInventory("DnD_ShowStaminaBar") || CheckInventory("DnD_ShowStaminaBar_Quick")) && isAlive()) { 
+		SetHudSize(HUD_STAMINA_X, HUD_STAMINA_Y, 1);
+
+		//HUD_STAMINA_ICON,
+		int stm = CheckInventory("DnD_Stamina");
+		int cap = GetAmmoCapacity("DnD_Stamina");
+
+		SetHudClipRect(HUD_STAMINA_X / 2 - STAMINA_BAR_LEN / 2, HUD_STAMINA_Y - 64, stm * STAMINA_BAR_LEN / cap, 48, stm * STAMINA_BAR_LEN / cap);
+		if(stm > 0) {
+			if(stm < cap / 2)
+				SetFont("SPRNTBRR");
+			else
+				SetFont("SPRNTBRO");
+			HudMessage(s:"a"; HUDMSG_FADEOUT, HUD_STAMINA_FOREGROUND, -1, HUD_STAMINA_XF / 2 - (STAMINA_BAR_LEN << 15) + 0.1, HUD_STAMINA_YF - 48.0, STAMINABAR_HOLDTIME);
+		}
+		else
+			DeleteText(HUD_STAMINA_FOREGROUND);
+		SetHudClipRect(0, 0, 0, 0, 0);
+
+		if(CheckInventory("DnD_ParryCooldown")) {
+			SetFont("WOSHLD");
+			HudMessage(s:"a"; HUDMSG_FADEOUT, HUD_STAMINA_PARRYCDID, -1, HUD_STAMINA_XF / 2 + 0.4, HUD_STAMINA_YF - 84.0, STAMINABAR_HOLDTIME);
+			xoff = 48.0;
+		}
+		else
+			DeleteText(HUD_STAMINA_PARRYCDID);
+
+		if(CheckInventory("DnD_ParryDamageReduction")) {
+			SetFont("PARRYDIC");
+			HudMessage(s:"a"; HUDMSG_FADEOUT, HUD_STAMINA_PARRYDICID, -1, HUD_STAMINA_XF / 2 + xoff + 0.4, HUD_STAMINA_YF - 84.0, STAMINABAR_HOLDTIME);
+		}
+		else
+			DeleteText(HUD_STAMINA_PARRYDICID);
+
+		SetHudSize(3 * HUD_STAMINA_X / 2, 3 * HUD_STAMINA_Y / 2, 1);
+
+		if(stm >= cap / 2)
+			SetFont("SPRNTICH");
+		else if(!CheckInventory("DnD_StaminaDepleted"))
+			SetFont("SPRNTICL");
+		else
+			SetFont("SPRNTICN");
+		HudMessage(s:"a"; HUDMSG_FADEOUT, HUD_STAMINA_ICON, -1, 3 * HUD_STAMINA_XF / 4 - 280.0 + 0.1, 3 * HUD_STAMINA_YF / 2 - 80.0, STAMINABAR_HOLDTIME);
+
+		Delay(const:1);
+	}
+
+	if(!isAlive())
+		DeleteTextRange(HUD_STAMINA_FOREGROUND, HUD_STAMINA_ICON);
+}
+
+Script "DnD Stamina Regen" (void) {
+	int pnum = PlayerNumber();
+	while(isAlive()) {
+		int rate = GetPlayerStaminaRecoveryRate(pnum);
+
+		if(!CheckInventory("DnD_StaminaLocked") && !CheckInventory("DnD_ParryCooldown")) {
+			int cap = GetAmmoCapacity("DnD_Stamina");
+			int amt = GetPlayerStaminaGain(pnum);
+
+			if(CheckInventory("DnD_Stamina") + amt >= cap ) {
+				SetInventory("DnD_Stamina", cap);
+				break;
+			}
+			else {
+				GiveInventory("DnD_Stamina", amt);
+				if(CheckInventory("DnD_Stamina") >= cap / 2)
+					TakeInventory("DnD_StaminaDepleted", 1);
+			}
+			GiveInventory("DnD_ShowStaminaBar_Quick", 1);
+		}
+		Delay(rate);
+	}
+	TakeInventory("DnD_RecoveringStamina", 1);
+}
+
+Script "DnD Start Stamina Recovery" (void) {
+	TakeInventory("DnD_StaminaLocked", 1);
+	if(!CheckInventory("DnD_RecoveringStamina")) {
+		GiveInventory("DnD_RecoveringStamina", 1);
+		ACS_NamedExecuteAlways("DnD Stamina Regen", 0);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Can Parry" (void) {
+	SetResultValue(CheckInventory("DnD_Stamina") >= DND_PARRY_STAMINA_COST - CheckInventory("Ability_ParryMaster") * DND_PARRYMASTER_STAMINAREDUCE);
+}
+
+Script "DnD Parry" (void) {
+	int amt = DND_BASE_PARRY_AMT + CheckInventory("Ability_ParryMaster") * DND_PARRY_MASTER_BONUS;
+	SetInventory("DnD_Parrying", amt);
+	GiveInventory("DnD_ParryCooldown", 1);
+
+	HandleStaminaBarDraw(PlayerNumber());
+
+	TakeStamina(DND_PARRY_STAMINA_COST - CheckInventory("Ability_ParryMaster") * DND_PARRYMASTER_STAMINAREDUCE);
+
+	int count = 0;
+	while(isAlive() && count++ < amt)
+		Delay(const:1);
+
+	// parry state over
+	SetInventory("DnD_Parrying", 0);
+
+	// factor in player's cdr for parry
+	int cd = DND_PARRY_STAMINABLOCKTIME - amt;
+	count = 0;
+
+	while(isAlive() && count++ < cd)
+		Delay(const:1);
+
+	// parry cd over
+	TakeInventory("DnD_ParryCooldown", 1);
 
 	SetResultValue(0);
 }

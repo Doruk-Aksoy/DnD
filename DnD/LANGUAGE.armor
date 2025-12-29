@@ -35,6 +35,7 @@ DND_BOOT8		=		"Fusion Boots";
 DND_BOOT9		=		"Leather Boots";
 DND_BOOT10		=		"Snakeskin Boots";
 DND_BOOT11		=		"Drakeskin Boots";
+DND_BOOT12		=		"Warrior Sabatons";
 
 // helms
 DND_HELM1		=		"Lich Skull";

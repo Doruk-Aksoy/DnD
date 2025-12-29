@@ -1456,8 +1456,6 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_WIDOWMAKER].trait_list[DND_DEATH] = true;
 	MonsterData[MONSTER_WIDOWMAKER].trait_list[DND_HOMING] = true;
 	MonsterData[MONSTER_AXEKNIGHT].trait_list[DND_BULLET_RESIST] = true;
-	MonsterData[MONSTER_YETI].trait_list[DND_ICECREATURE] = true;
-	MonsterData[MONSTER_YETI].trait_list[DND_BULLET_RESIST] = true;
 	MonsterData[MONSTER_SLUDGEGIANT].trait_list[DND_SPLIT] = true;
 	MonsterData[MONSTER_SLUDGEGIANT].trait_list[DND_POISON] = true;
 	MonsterData[MONSTER_SLUDGEGIANT2].trait_list[DND_SPLIT] = true;
@@ -1543,6 +1541,8 @@ void SetupMonsterData() {
 	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_PIERCE] = true;
 	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_ELEMENTAL_IMMUNE] = true;
 	MonsterData[MONSTER_GOLDGOLEM].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_YETI].trait_list[DND_ICECREATURE] = true;
+	MonsterData[MONSTER_YETI].trait_list[DND_BULLET_RESIST] = true;
 	
 	// arachno
 	MonsterData[MONSTER_BABYDEMOLISHER].trait_list[DND_MOBILITY] = true;

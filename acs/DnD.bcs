@@ -719,6 +719,7 @@ Script "DND On Revive" (void) {
 	TakeInventory("MonsterKilledByPlayer", 1);
 	TakeInventory("Doomguy_CanExecute", 1);
 	TakeInventory("Doomguy_ChangedColor", 1);
+	
 	//Mob that gets revived don't call Monster Scale script. Make sure some of its effects get reapplied here.
 	int this = ActivatorTID();
 	int id = this - DND_MONSTERTID_BEGIN;
@@ -2944,6 +2945,7 @@ Script "DnD On Respawn" RESPAWN {
 	}
 
 	ConditionalCalculateUnity(pnum);
+	SetInventory("DnD_Stamina", GetAmmoCapacity("DnD_Stamina"));
 }
 
 Script 988 (int wepslot, int type) {
@@ -3282,8 +3284,11 @@ Script "DnD Player Setup" ENTER {
 		}
 	}
 #endif
+
 	TakeInventory("DnD_CountdownProtection", 1);
 	TakeInventory("DnD_RemoveBoxSignal", 1);
+
+	SetInventory("DnD_Stamina", GetAmmoCapacity("DnD_Stamina"));
 
 /*#ifdef ISDEBUGBUILD
 	Delay(10*TICRATE);
@@ -3693,8 +3698,7 @@ Script "DnD Periodic Regeneration" ENTER {
 	int ticker = 0;
 	while(PlayerInGame(pnum)) {
 		if(isAlive()) {
-			buffData_T module& pbuffs = GetPlayerBuffData(pnum);
-			int regen_amt = pbuffs.buff_net_values[BUFF_HEALTHREGEN].additive;
+			int regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive;
 
 			if(!(ticker % 10) && (amt = GetPlayerAttributeValue(pnum, INV_INC_PASSIVEREGEN))) {
 				regen_amt += amt;
@@ -3708,7 +3712,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				amt = CheckInventory("PlayerHealthCap") * (DND_REGEN_PERCENT + regen_amt) / 100;
 				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
 
-				regen_amt = pbuffs.buff_net_values[BUFF_HEALTHREGEN].multiplicative;
+				regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].multiplicative;
 				if(regen_amt != 1.0) {
 					regen_amt = (regen_amt * 100) >> 16;
 					amt = amt * regen_amt / 100;
@@ -5412,6 +5416,7 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 
 	// store owner
 	SetActorProperty(0, APROP_SCORE, owner);
+	//printbold(s:"owner is ", d:owner);
 	
 	// hack for crit store on burst fire projectiles -- they call this on their initialization phase so at this point we should be able to check the wepid
 	if((wepid != -1 && GetPlayerWeaponCritState(pnum, wepid)) || CheckActorInventory(owner, "DnD_CritToken"))
@@ -5424,7 +5429,7 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 		GiveInventory("ApplyForceRadiusDMG", 1);
 
 	wepid = GetPlayerAttributeValue(pnum, INV_INC_PROJREVERSE);
-	if(wepid)
+	if(wepid && GetActorProperty(0, APROP_SPEED))
 		ACS_NamedExecuteAlways("DnD Proj Reverse Direction", 0, wepid);
 
 	SetResultValue(0);
@@ -6038,8 +6043,8 @@ Script 68 (int x) NET {
 			//Log(s:"orb");
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, true, 250);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_FORTITUDE, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SCULPTING, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
@@ -6054,7 +6059,7 @@ Script 68 (int x) NET {
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
-			SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
+			SpawnCharmWithMods_ForAll(INV_MELEESPLASH_NOTONLOWSTAMINA, INV_INC_STAMINA);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
@@ -6126,7 +6131,6 @@ Script 68 (int x) NET {
 			IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
 			IncPlayerModValue(0, INV_ENDURANCECHARGE_ONMELEE, 33);
 			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 33);
-			IncPlayerModValue(0, INV_FLATPHYS_DAMAGE, 5);
 
 			
 			/*IncPlayerModValue(0, INV_FLATENERGY_DAMAGE, 21);
@@ -6168,7 +6172,8 @@ Script 68 (int x) NET {
 Script "DnD Damage Script Output" (void) OPEN {
 	while(1) {
 		Delay(const:TICRATE);
-		Log(s:"Dmg script count: ", d:damage_script_count);
+		//Log(s:"Dmg script count: ", d:damage_script_count);
+		LogBuffList(0);
 		damage_script_count = 0;
 	}
 }

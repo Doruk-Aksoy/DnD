@@ -22,7 +22,6 @@ ACTOR AbyssalChaingunner : DnD_BaseRangedMonster {
 	DeathSound "abyssal_human/death"
 	ActiveSound "abyssal_human/active"
 	+ISMONSTER
-	+FLOORCLIP
 	Obituary "%o was riddled with holes by an Abyssal Chaingunner."
 	DropItem "MachinegunPickup_Drop"
 	Species "Chaingunner"

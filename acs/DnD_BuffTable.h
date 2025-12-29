@@ -118,41 +118,74 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             tic_duration = bduration * TICRATE;
         break;
         case BTI_FRENZYCHARGE:
-            btype = BUFF_DAMAGEDEALT;
+            btype = BUFF_FRENZYCHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
-            bvalue = DND_FRENZYCHARGE_BONUS;
-            bduration = GetPlayerChargeDuration(pnum);
-            tic_duration = bduration * TICRATE;
 
-            // set bvalue to 0 for refreshing duration
-            if(CanActorHaveFrenzyCharges(ptid, pnum))
-                GiveActorFrenzyCharge(ptid, 1);
-            else
-                bvalue = 0;
+            if(GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY) {
+                bvalue = DND_FRENZYCHARGE_BONUS;
+                bduration = GetPlayerChargeDuration(pnum);
+                tic_duration = bduration * TICRATE;
+
+                // set bvalue to 0 for refreshing duration
+                if(CanActorHaveFrenzyCharges(ptid, pnum))
+                    GiveActorFrenzyCharge(ptid, 1);
+                else
+                    bvalue = 0;
+            }
+            else {
+                bflags ^= BUFF_F_ADDIFNODUPLICATE | BUFF_F_NODUPLICATE_STRICT;
+                bduration = 0;
+                tic_duration = GetPlayerMaxFrenzyCharges(pnum);
+                bvalue = DND_FRENZYCHARGE_BONUS * tic_duration;
+                GiveActorFrenzyCharge(ptid, tic_duration, true);
+                tic_duration = 0;
+            }
         break;
         case BTI_ENDURANCECHARGE:
-            btype = BUFF_DAMAGETAKEN;
+            btype = BUFF_ENDURANCECHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
-            bvalue = -DND_ENDURANCECHARGE_BONUS;
-            bduration = GetPlayerChargeDuration(pnum);
-            tic_duration = bduration * TICRATE;
 
-            if(CanActorHaveEnduranceCharges(ptid, pnum))
-                GiveActorEnduranceCharge(ptid, 1);
-            else
-                bvalue = 0;
+            if(GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE) {
+                bvalue = -DND_ENDURANCECHARGE_BONUS;
+                bduration = GetPlayerChargeDuration(pnum);
+                tic_duration = bduration * TICRATE;
+
+                if(CanActorHaveEnduranceCharges(ptid, pnum))
+                    GiveActorEnduranceCharge(ptid, 1);
+                else
+                    bvalue = 0;
+            }
+            else {
+                bflags ^= BUFF_F_ADDIFNODUPLICATE | BUFF_F_NODUPLICATE_STRICT;
+                bduration = 0;
+                tic_duration = GetPlayerMaxEnduranceCharges(pnum);
+                bvalue = -DND_ENDURANCECHARGE_BONUS * tic_duration;
+                GiveActorEnduranceCharge(ptid, tic_duration, true);
+                tic_duration = 0;
+            }
         break;
         case BTI_POWERCHARGE:
-            btype = BUFF_CRITPERCENT;
+            btype = BUFF_POWERCHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_ADDIFNODUPLICATE;
-            bvalue = DND_POWERCHARGE_BONUS;
-            bduration = GetPlayerChargeDuration(pnum);
-            tic_duration = bduration * TICRATE;
 
-            if(CanActorHavePowerCharges(ptid, pnum))
-                GiveActorPowerCharge(ptid, 1);
-            else
-                bvalue = 0;
+            if(GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER) {
+                bvalue = DND_POWERCHARGE_BONUS;
+                bduration = GetPlayerChargeDuration(pnum);
+                tic_duration = bduration * TICRATE;
+
+                if(CanActorHavePowerCharges(ptid, pnum))
+                    GiveActorPowerCharge(ptid, 1);
+                else
+                    bvalue = 0;
+            }
+            else {
+                bflags ^= BUFF_F_ADDIFNODUPLICATE | BUFF_F_NODUPLICATE_STRICT;
+                bduration = 0;
+                tic_duration = GetPlayerMaxPowerCharges(pnum);
+                bvalue = DND_POWERCHARGE_BONUS * tic_duration;
+                GiveActorPowerCharge(ptid, tic_duration, true);
+                tic_duration = 0;
+            }
         break;
 
         // curses

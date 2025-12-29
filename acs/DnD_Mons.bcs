@@ -1544,7 +1544,7 @@ Script "DnD Mother Demon Meteors" (void) {
 			(
 				Spawn(
 					"AbyssalMotherMeteor_ThruCybers", 
-					ox + FixedMul(c, xoff) + FixedMul(s, yoff), 
+					ox + FixedMul(c, xoff) + FixedMul(s, yoff), // use relative offsets to align properly
 					oy + FixedMul(s, xoff) - FixedMul(c, yoff),
 					oz + random(0, zoffset / 2),
 					DND_TEMP_PROJTID
@@ -1562,6 +1562,7 @@ Script "DnD Mother Demon Meteors" (void) {
 					DND_MOTHERDEMON_METEORSPD * sin(ang), 
 					DND_MOTHERDEMON_METEORSPD * sin(-p + random(DND_MOTHERDEMON_PITCHLOW, DND_MOTHERDEMON_PITCHHIGH)), 0, 0
 				);
+				Thing_ChangeTID(DND_TEMP_PROJTID, 0);
 
 				SetActivator(this);
 			}

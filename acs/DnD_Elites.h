@@ -41,7 +41,7 @@ int GetMagicHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 56
+#define MAX_ROLLABLE_TRAITS 60
 
 #include "DnD_EliteInfo.h"
 
@@ -122,6 +122,10 @@ void SetupEliteModWeights() {
 	INSERT_ELITEMODPOOL(DND_CHTHONBLESSED, 36, 100);
 	INSERT_ELITEMODPOOL(DND_BORROWEDTIME, 40, 100);
 	INSERT_ELITEMODPOOL(DND_ENERGYLEECH, 30, 175);
+	INSERT_ELITEMODPOOL(DND_FIRE_IMMUNE, 36, 125);
+	INSERT_ELITEMODPOOL(DND_ICE_IMMUNE, 36, 125);
+	INSERT_ELITEMODPOOL(DND_POISON_IMMUNE, 36, 125);
+	INSERT_ELITEMODPOOL(DND_LIGHTNING_IMMUNE, 36, 125);
 
 	// cascade weights
 	for(i = 0; i < MAX_ROLLABLE_TRAITS - 1; ++i) {
@@ -233,6 +237,13 @@ void SetEliteFlag(int f, bool updateCS) {
 			for(i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END; ++i)
 				if(MonsterProperties[this].resists[i] < DND_IMMUNITY_FACTOR)
 					MonsterProperties[this].resists[i] = DND_IMMUNITY_FACTOR;
+		break;
+
+		case DND_FIRE_IMMUNE:
+			MonsterProperties[this].trait_list[DND_FIRE_WEAKNESS] = false;
+		break;
+		case DND_ICE_IMMUNE:
+			MonsterProperties[this].trait_list[DND_ICE_WEAKNESS] = false;
 		break;
 		
 		case DND_GHOST:

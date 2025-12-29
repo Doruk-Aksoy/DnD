@@ -1370,6 +1370,12 @@ void ClearLingeringBuffs(int pnum) {
 	TakeInventory("DnD_PromptLocked", 1);
 	SetInventory("AllMapOnlyOnce", 0);
 
+	TakeInventory("DnD_RecoveringStamina", 1);
+	TakeInventory("DnD_StaminaLocked", 1);
+	TakeInventory("DnD_StaminaDepleted", 1);
+	SetInventory("DnD_Parrying", 0);
+	TakeInventory("DnD_ParryCooldown", 1);
+
 	SetInventory("DnD_FrenzyChargeCount", 0);
 	SetInventory("DnD_EnduranceChargeCount", 0);
 	SetInventory("DnD_PowerChargeCount", 0);

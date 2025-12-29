@@ -2,7 +2,7 @@
 #define DND_ABILITY_IN
 
 enum {
-	ABILITY_KICK,
+	ABILITY_PARRYMASTER,
 	ABILITY_RELOADER,
 	ABILITY_DASH,
 	ABILITY_ARCANERY,
@@ -17,7 +17,7 @@ enum {
 #define MAXABILITIES (ABILITY_SOULSTEALER + 1)
 
 str AbilityInfo[MAXABILITIES] = {
-	"Ability_Kick",
+	"Ability_ParryMaster",
 	"Ability_Reloader",
 	"Ability_Dash",
 	"Ability_Arcanery",

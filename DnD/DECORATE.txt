@@ -69,6 +69,7 @@ const int SPECIAL_FX_TID = 2147483647;
 
 #include "Actors/Weapons/Temp.txt"
 
+#include "Actors/Weapons/Common.txt"
 #include "Actors/Weapons/Research/Slot1.txt"
 #include "Actors/Weapons/LVL1.txt"
 #include "Actors/Weapons/Research/Slot2.txt"

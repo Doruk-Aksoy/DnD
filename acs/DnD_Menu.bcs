@@ -176,6 +176,7 @@ Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {
 		Terminate;
 		
 	DeleteText(BLACKOUT_ID);
+	DeleteTextRange(HUD_STAMINA_FOREGROUND, HUD_STAMINA_ICON);
 		
 	ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 }

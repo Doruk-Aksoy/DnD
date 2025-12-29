@@ -883,10 +883,10 @@ int GetPercentCritChanceIncrease(int pnum, int wepid) {
 	int val = 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
 				Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
 				GetPlayerAttributeValue(pnum, INV_CRITPERCENT_INCREASE) +
-				CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT);
+				CheckInventory("DnD_SwappedFromMelee") * GetPlayerAttributeValue(pnum, INV_EX_SWAPFROMMELEECRIT) +
+				(IsMeleeWeapon(wepid) && !IsOnLowStamina()) * GetPlayerAttributeValue(pnum, INV_MELEECRIT_NOTONLOWSTAMINA);
 
-	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
-	val += (pbuffs.buff_net_values[BUFF_CRITPERCENT].additive * 100) >> 16;
+	val += pbuffs[pnum].buff_net_values[BUFF_CRITPERCENT].additive + pbuffs[pnum].buff_net_values[BUFF_POWERCHARGE].additive;
 
 	return val;
 }
@@ -1057,7 +1057,6 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) {
 	// stuff that dont depend on a wepid
 	int res = MapDamageCategoryToPercentBonus(pnum, damage_category, flags);
-	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
 	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS)) {
 		// add accuracy as % bonus dmg
@@ -1069,7 +1068,7 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) 
 	
 	// buff sourced percent damage
 
-	res += pbuffs.buff_net_values[BUFF_DAMAGEDEALT].additive;
+	res += pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].additive;
 
 	return res;
 }
@@ -1720,6 +1719,49 @@ int GetPlayerAccuracyFactor(int pnum) {
 	if(GetPlayerAttributeValue(pnum, INV_INC_ACCURACYREVERSED))
 		base *= -1;
 	return base;
+}
+
+int GetPlayerStaminaRecoveryRate(int pnum) {
+	int base = DND_BASE_STAMINA_RECOVERYRATE * (100 - GetPlayerAttributeValue(pnum, INV_INC_STAMINARECOVERYRATE)) / 100;
+	if(base <= 0)
+		base = 3; // minimum value is 3 for tic delay here
+	return base;
+}
+
+void TakeStamina(int amt) {
+	TakeInventory("DnD_Stamina", amt);
+	GiveInventory("DnD_StaminaLocked", 1);
+
+	if(!CheckInventory("DnD_Stamina"))
+		GiveInventory("DnD_StaminaDepleted", 1);
+}
+
+void GiveStamina(int amt) {
+	int cap = GetAmmoCapacity("DnD_Stamina");
+	if(CheckInventory("DnD_Stamina") + amt >= cap)
+		SetInventory("DnD_Stamina", cap);
+	else
+		GiveInventory("DnD_Stamina", amt);
+}
+
+int GetPlayerStaminaGain(int pnum) {
+	return DND_BASE_STAMINA_GAIN * (100 + GetPlayerAttributeValue(pnum, INV_INC_STAMINAGAINED)) / 100;
+}
+
+bool IsOnLowStamina() {
+	return CheckInventory("DnD_Stamina") < GetAmmoCapacity("DnD_Stamina") / 2;
+}
+
+bool CanGainStaminaOnKill(int pnum) {
+	int temp = GetPlayerAttributeValue(pnum, INV_IMP_STAMINAONKILL);
+	temp += HasClassPerk_Fast("Berserker", 2) * DND_BERSERKER_PERK40_STAMINACHANCE;
+	return temp >= random(1, 100);
+}
+
+int GetStaminaGainOnKill(int pnum) {
+	int temp = GetPlayerAttributeExtra(pnum, INV_IMP_STAMINAONKILL);
+	temp += HasClassPerk_Fast("Berserker", 2) * DND_BERSERKER_PERK40_STAMINAGAIN;
+	return temp;
 }
 
 #endif

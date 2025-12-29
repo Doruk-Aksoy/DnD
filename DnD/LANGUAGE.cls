@@ -154,7 +154,7 @@ CLASS6_PERK4			= "Relentless Fury";
 CLASS6_PERK5			= "God of War";
 
 CLASS6_PERK1_DESC		= "Can carry unlimited melee weapons. Can't buy any super weapon. While holding a melee weapon, gain 20% less damage taken.";
-CLASS6_PERK2_DESC		= "Gain stacking 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.3 seconds between stacks. Heal for 25% of max health at the end at max stacks.";
+CLASS6_PERK2_DESC		= "Gain stacking 2% damage reduction when hurt up to 30% for 3 seconds. Cooldown of 0.3 seconds between stacks. Heal for 25% of max health at the end at max stacks. Gain 20% chance to recover 8 stamina on kill.";
 CLASS6_PERK3_DESC		= "Your melee hits splash on targets hit, dealing 33% of its damage in a cone of 128 unit radius (affected by melee range) and a 120 degree arc.";
 CLASS6_PERK4_DESC		= "Melee hits or kills give fury stacks, each granting 10% more melee damage. Max 30 stacks. At max stacks, gain 30% movement speed and 100% crit damage. Lose a stack every 2 seconds off combat.";
 CLASS6_PERK5_DESC		= "Once per map, use the '+zoom' key to instantly gain maximum stacks of \"Enduring Composure\" and \"Relentless Fury\" for an extended 30 seconds, after which they can start losing stacks.";

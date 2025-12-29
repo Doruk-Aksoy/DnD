@@ -58,12 +58,24 @@ void SpawnArmorWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat =
 
 void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
+	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel();
         int type = InitializeBoot(c, ilvl, pnum);
-		RollArmorInfo(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_BOOT_ATTRIB_DEFAULT);
-        // depending on armor type rolled, spawn its appropriate actor
-        SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+#ifndef ISDEBUGBUILD
+		if(!tiers && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)))
+#else
+		if(random(0,1))
+#endif
+		{
+			id = MakeUnique(c, DND_ITEM_BOOT, pnum);
+			SpawnDrop(StrParam(s:"UniqueBoot_", d:id - UNIQUE_BOOT_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		}
+		else {
+			RollArmorInfo(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_BOOT_ATTRIB_DEFAULT);
+			SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		}
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BOOT);
@@ -439,6 +451,10 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 				case BOOTS_DRAKESKIN:
 					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10);
 					GiveImplicitToField(item_pos, INV_IMP_LESSFIRETAKEN, 0.1);
+				break;
+				case BOOTS_WARRIORSABATON:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 15);
+					GiveImplicitToField(item_pos, INV_IMP_STAMINAONKILL, 10, 5, item_tier, 2);
 				break;
 			}
 		break;

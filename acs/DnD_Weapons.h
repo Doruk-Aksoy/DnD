@@ -11,6 +11,18 @@ enum {
 	DND_AMMOGAIN_SUCCESS = 1
 };
 
+#define DND_FIST_STAMINACOST 1
+#define DND_CHAINSAW_STAMINACOST 2
+#define DND_DOUBLECHAINSAW_STAMINACOST 4
+#define DND_SICKLE_STAMINACOST 3
+#define DND_EXCALIBAT_STAMINACOST 2
+#define DND_KATANA_STAMINACOST 1
+#define DND_DUSKBLADE_STAMINACOST 2
+#define DND_INFERNOSWORD_STAMINACOST 4
+#define DND_WHEEL_STAMINACOST 2
+#define DND_AXE_STAMINACOST 8
+#define DND_HAMMER_STAMINACOST 12
+
 // returns if the chance succeeded, in case we need to sync these with other ammo types
 // 0 -- don't care, 1 -- synced success, -1 -- synced failure
 int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AMMOGAIN_FAIL) {
@@ -175,12 +187,16 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			hitscan_id = DND_HITSCAN_FIST;
 			if(CheckInventory("PowerStrength"))
 				hitscan_id = DND_HITSCAN_FIST2;
+			HandleStaminaBarDraw(pnum);
+			TakeStamina(DND_FIST_STAMINACOST);
 		break;
 		case DND_WEAPON_CHAINSAW:
 			use_default = true;
 			proj_id = DND_PROJ_CHAINSAW;
 			proj_name_alt = ProjectileInfo[proj_id].name;
 			hitscan_id = DND_HITSCAN_CHAINSAW;
+			HandleStaminaBarDraw(pnum);
+			TakeStamina(DND_CHAINSAW_STAMINACOST);
 		break;
 		case DND_WEAPON_DOUBLECHAINSAW:
 			use_default = true;
@@ -191,19 +207,25 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_name_alt = "DChainsawPuff_NoSound";
 			else
 				proj_name_alt = ProjectileInfo[proj_id].name;
+			HandleStaminaBarDraw(pnum);
+			TakeStamina(DND_DOUBLECHAINSAW_STAMINACOST);
 		break;
 		case DND_WEAPON_SICKLE:
 			use_default = true;
 			proj_id = DND_PROJ_SICKLE;
 			hitscan_id = DND_HITSCAN_SICKLE;
+
+			HandleStaminaBarDraw(pnum);
 			if(isAltFire & DND_ATK_SECONDARY) {
 				proj_name_alt = "SicklePuff_X";
 				hitscan_id = DND_HITSCAN_SICKLEX;
 				if(isAltFire & DND_ATK_OTHER_DIR)
 					HandleProjectileAttack_Named(owner, pnum, "SickleGhostwave", wepid, 1, 48, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 			}
-			else
+			else {
 				proj_name_alt = ProjectileInfo[proj_id].name;
+				TakeStamina(DND_SICKLE_STAMINACOST);
+			}
 		break;
 		case DND_WEAPON_EXCALIBAT:
 			use_default = true;
@@ -226,6 +248,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						sp_x = 36.0;
 					break;
 				}
+				HandleStaminaBarDraw(pnum);
+				TakeStamina(DND_EXCALIBAT_STAMINACOST);
 			}
 			else {
 				proj_id = DND_PROJ_EXCALIBAT2;
@@ -256,6 +280,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			use_default = false;
 			proj_id = DND_PROJ_KATANA;
 			hitscan_id = DND_HITSCAN_KATANA;
+
+			HandleStaminaBarDraw(pnum);
+
 			// regular primary sheathe -- IaiSlashNormal
 			if(!isAltFire) {
 				switch(CheckInventory("DnD_Weapon_FrameChecker")) {
@@ -279,6 +306,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff3", proj_id, -24.0, -12.0, flags, vPos,0, hitscan_id);
 					break;
 				}
+
+				// take half the time
+				if(CheckInventory("DnD_Weapon_FrameChecker") % 2)
+					TakeStamina(DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire == DND_ATK_PRIMARY) {
 				// left slash -- LeftSlashNormal
@@ -299,6 +330,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags, vPos, 0, hitscan_id);
 					break;
 				}
+
+				// take half the time
+				if(CheckInventory("DnD_Weapon_FrameChecker") % 2)
+					TakeStamina(DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire == DND_ATK_OTHER_DIR) {
 				// right slash -- RightSlashNormal
@@ -319,6 +354,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff", proj_id, -24.0, 12.0, flags, vPos, 0, hitscan_id);
 					break;
 				}
+
+				// take half the time
+				if(CheckInventory("DnD_Weapon_FrameChecker") % 2)
+					TakeStamina(DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire == DND_ATK_SECONDARY) {
 				// altfire -- ContinueAltFire
@@ -397,6 +436,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						HandleProjectileAttack(owner, pnum, DND_PROJ_KATANA2, wepid, 1, angle_vec, offset_vec, 0, 0, flags, vPos, vUp, vDir, vRight);
 					break;
 				}
+
+				if(!(CheckInventory("DnD_Weapon_FrameChecker") % 3))
+					TakeStamina(DND_KATANA_STAMINACOST);
 			}
 			else if(isAltFire & DND_ATK_OTHER_DIR) {
 				// combo altfire -- ComboUnsheathed
@@ -450,6 +492,9 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Melee_Attack(owner, pnum, wepid, 1, "KatanaPuff2", proj_id, 24.0, 12.0, flags, vPos, 0, hitscan_id);
 					break;
 				}
+
+				if(!(CheckInventory("DnD_Weapon_FrameChecker") % 3))
+					TakeStamina(DND_KATANA_STAMINACOST);
 			}
 		break;
 		case DND_WEAPON_DUSKBLADE:
@@ -484,12 +529,16 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 						Do_Melee_Attack(owner, pnum, wepid, 1, "DuskBladePuff", proj_id, -8.0, -9.0, flags, vPos, 0, DND_HITSCAN_DUSKBLADE2);
 				break;
 			}
+			HandleStaminaBarDraw(pnum);
+			TakeStamina(DND_DUSKBLADE_STAMINACOST);
 		break;
 		case DND_WEAPON_INFERNOSWORD:
 			use_default = false;
 			if(isAltFire & DND_ATK_PRIMARY) {
 				proj_id = DND_PROJ_INFERNOSWORD1;
 				Do_Melee_Attack(owner, pnum, wepid, 1, "InfernoSwordPuff", proj_id, -24.0 + 12.0 * CheckInventory("DnD_Weapon_FrameChecker"), 0.0, flags, vPos, 0, DND_HITSCAN_INFERNOSWORD);
+				HandleStaminaBarDraw(pnum);
+				TakeStamina(DND_INFERNOSWORD_STAMINACOST);
 			}
 			else {
 				proj_id = DND_PROJ_INFERNOSWORD2;
@@ -900,6 +949,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					hitscan_id = DND_HITSCAN_AXE_NOMANA;
 				}
 			}
+			HandleStaminaBarDraw(pnum);
+			TakeStamina(DND_AXE_STAMINACOST);
 		break;
 		case DND_WEAPON_SILVERGUN:
 			proj_id = DND_PROJ_WHITEDEATH;
@@ -1035,11 +1086,15 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				// special 3rd proj that gives ammo
 				proj_id = DND_PROJ_WHEELOFTORMENT_3;
 				hitscan_id = DND_HITSCAN_WHEEL2;
+				HandleStaminaBarDraw(pnum);
+				TakeStamina(DND_WHEEL_STAMINACOST);
 			}
 			else {
 				// 2nd proj
 				proj_id = DND_PROJ_WHEELOFTORMENT_2;
 				hitscan_id = DND_HITSCAN_WHEEL2;
+				HandleStaminaBarDraw(pnum);
+				TakeStamina(DND_WHEEL_STAMINACOST);
 			}
 		break;
 		case DND_WEAPON_CHARONBLASTER:
@@ -1528,6 +1583,8 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				proj_id = DND_PROJ_HAMMERMELEE;
 				hitscan_id = DND_HITSCAN_HAMMER;
 				proj_name_alt = ProjectileInfo[DND_PROJ_HAMMERMELEE].name;
+				HandleStaminaBarDraw(pnum);
+				TakeStamina(DND_HAMMER_STAMINACOST);
 			}
 		break;
 		case DND_WEAPON_HEAVYMISSILELAUNCHER:

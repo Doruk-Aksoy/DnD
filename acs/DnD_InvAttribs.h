@@ -278,6 +278,12 @@ enum {
 	INV_FRENZYCHARGE_ONSHATTER,
 	INV_ENDURANCECHARGE_ONMELEE,
 	INV_POWERCHARGE_ONOVERLOAD,
+	INV_INC_STAMINA,
+	INV_INC_STAMINARECOVERYRATE,
+	INV_INC_STAMINAGAINED,
+	INV_MELEECRIT_NOTONLOWSTAMINA,
+	INV_MELEESPLASH_NOTONLOWSTAMINA,
+
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -346,6 +352,7 @@ enum {
 	INV_IMP_ONKILL_ENDURANCE,
 	INV_IMP_ONKILL_POWER,
 	INV_IMP_PHASINGTIME,
+	INV_IMP_STAMINAONKILL,
 	// add new implicits here
 	
 	// essence attributes (only via. specific means)
@@ -457,6 +464,7 @@ enum {
 	INV_EX_CHANCEGAINXCHARGE,
 	INV_EX_CHARGEDURATIONHALVED,
 	INV_EX_MOREDAMAGEPERCHARGE,
+	INV_EX_COUNTASHAVINGMAXCHARGEOF,
 	// add new unique attributes here
 	INV_EX_PLAYERPOWERSET1, // holds certain powers that are just bitfields in one -- is not shown in item attrib list
 };
@@ -495,7 +503,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_POWERCHARGE_ONOVERLOAD
+#define LAST_INV_ATTRIBUTE INV_MELEESPLASH_NOTONLOWSTAMINA
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -508,7 +516,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
-#define LAST_REGULAR_IMPLICIT INV_IMP_PHASINGTIME
+#define LAST_REGULAR_IMPLICIT INV_IMP_STAMINAONKILL
 
 #define FIRST_ESSENCE_ATTRIBUTE INV_ESS_VAAJ
 #define LAST_ESSENCE_ATTRIBUTE INV_ESS_ERYXIA
@@ -552,7 +560,8 @@ enum {
 	INV_ATTR_TAG_FIRE = 8192,
 	INV_ATTR_TAG_ICE = 16384,
 	INV_ATTR_TAG_POISON = 32768,
-	INV_ATTR_TAG_LIGHTNING = 65536
+	INV_ATTR_TAG_LIGHTNING = 65536,
+	INV_ATTR_TAG_STAMINA = 131072
 };
 
 enum {
@@ -636,6 +645,8 @@ bool IsFixedPointMod(int mod) {
 
 		case INV_MIT_INCREASE:
 		case INV_MITEFFECT_INCREASE:
+
+		case INV_MELEECRIT_NOTONLOWSTAMINA:
 
 		case INV_CORR_WEAPONDMG:
 		case INV_CORR_DROPCHANCE:
@@ -970,8 +981,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SELFDMG_RESIST].attrib_level_modifier = 0;
 	ItemModTable[INV_SELFDMG_RESIST].tags = INV_ATTR_TAG_DEFENSE;
 	
-	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_low = 4;
-	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_high = 8;
+	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_low = 1;
+	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_high = 3;
 	ItemModTable[INV_AMMOGAIN_CHANCE].attrib_level_modifier = 0;
 	ItemModTable[INV_AMMOGAIN_CHANCE].tags = INV_ATTR_TAG_UTILITY;
 	
@@ -1512,6 +1523,31 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_POWERCHARGE_ONOVERLOAD].attrib_high = 3;
 	ItemModTable[INV_POWERCHARGE_ONOVERLOAD].attrib_level_modifier = 0;
 	ItemModTable[INV_POWERCHARGE_ONOVERLOAD].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_LIGHTNING;
+
+	ItemModTable[INV_INC_STAMINA].attrib_low = 1;
+	ItemModTable[INV_INC_STAMINA].attrib_high = 9;
+	ItemModTable[INV_INC_STAMINA].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_STAMINA].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_STAMINA;
+	
+	ItemModTable[INV_INC_STAMINARECOVERYRATE].attrib_low = 1;
+	ItemModTable[INV_INC_STAMINARECOVERYRATE].attrib_high = 6;
+	ItemModTable[INV_INC_STAMINARECOVERYRATE].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_STAMINARECOVERYRATE].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_STAMINA;
+	
+	ItemModTable[INV_INC_STAMINAGAINED].attrib_low = 1;
+	ItemModTable[INV_INC_STAMINAGAINED].attrib_high = 6;
+	ItemModTable[INV_INC_STAMINAGAINED].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_STAMINAGAINED].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_STAMINA;
+	
+	ItemModTable[INV_MELEECRIT_NOTONLOWSTAMINA].attrib_low = 0.01;
+	ItemModTable[INV_MELEECRIT_NOTONLOWSTAMINA].attrib_high = 0.1;
+	ItemModTable[INV_MELEECRIT_NOTONLOWSTAMINA].attrib_level_modifier = 0.09;
+	ItemModTable[INV_MELEECRIT_NOTONLOWSTAMINA].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_STAMINA;
+	
+	ItemModTable[INV_MELEESPLASH_NOTONLOWSTAMINA].attrib_low = 1;
+	ItemModTable[INV_MELEESPLASH_NOTONLOWSTAMINA].attrib_high = 6;
+	ItemModTable[INV_MELEESPLASH_NOTONLOWSTAMINA].attrib_level_modifier = 0;
+	ItemModTable[INV_MELEESPLASH_NOTONLOWSTAMINA].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_STAMINA;
 	
 	/////////////////////////
 	// corrupted implicits //
@@ -1857,6 +1893,7 @@ bool IsAttributeExtraException(int attr) {
 
 		// unique things
 		case INV_EX_CHANCEGAINXCHARGE:
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 
 		return true;
 	}
@@ -1878,7 +1915,15 @@ bool CanRerollAttributeExtra(int attr) {
 bool IsAttributeQualityException(int attr) {
 	switch(attr) {
 		case INV_EX_LIMITEDSMALLCHARMS:
-		
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+		return true;
+	}
+	return false;
+}
+
+bool IsUniqueModRerollException(int attr) {
+	switch(attr) {
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 		return true;
 	}
 	return false;
@@ -2484,7 +2529,10 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 					text = StrParam(s:col_tag, d:val, s:"% ", s:no_tag, l:text);
 			}
 		return text;
-		
+
+		case INV_IMP_STAMINAONKILL:
+			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text, s:" ", s:col_tag, d:extra, s:"\c- ", l:"IATTR_TI44S");
+		return text;
 
 		// fixed point implicits
 		case INV_IMP_LESSFIRETAKEN:
@@ -2566,6 +2614,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_LIFESTEAL_DAMAGE:
 		case INV_IGNITE_PROLIFRANGE:
 		case INV_DAMAGEPERCENT_MORE:
+		case INV_MELEECRIT_NOTONLOWSTAMINA:
 			if(showDetailedMods) {
 				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)
@@ -2964,6 +3013,9 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			if(val1 > 1)
 				return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX29_2");
 			return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX29_2S");
+
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+			return StrParam(l:text, s:" ", l:StrParam(s:"LCHARGE_NOPRE_", d:val2));
 		
 		case INV_EX_ALLSTATS:
 		case INV_EX_FLATDMG_ALL:
@@ -3033,16 +3085,20 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 }
 
 bool IsTagArmorException(int tag, int armor_type) {
+	// generic stamina rule -- only allowed on boots or berserker item
+	if(armor_type != DND_CRAFTABLEID_BOOT && armor_type != DND_CRAFTABLEID_SPECIALTY_BERSERKER && (tag & INV_ATTR_TAG_STAMINA))
+		return true;
+
 	if(armor_type == DND_CRAFTABLEID_BODYARMOR || armor_type == DND_CRAFTABLEID_BOOT)
-		return (tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE) || (tag & INV_ATTR_TAG_CRIT) || (tag & INV_ATTR_TAG_MELEE);
+		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_MELEE);
 	else if(armor_type == DND_CRAFTABLEID_HELM)
-		return (tag & INV_ATTR_TAG_ATTACK) || (tag & INV_ATTR_TAG_DAMAGE);
+		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE);
 	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_WANDERER)
-		return (tag & INV_ATTR_TAG_PHYSICAL);
+		return tag & INV_ATTR_TAG_PHYSICAL;
 	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_BERSERKER)
-		return (tag & INV_ATTR_TAG_EXPLOSIVE) || (tag & INV_ATTR_TAG_ENERGY);
+		return tag & (INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ENERGY);
 	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_TRICKSTER)
-		return (tag & INV_ATTR_TAG_DEFENSE) || (tag & INV_ATTR_TAG_LIFE);
+		return tag & (INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_LIFE);
 
 	// generic cant have occult
 	return (tag & INV_ATTR_TAG_OCCULT);

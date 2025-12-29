@@ -55,6 +55,7 @@
 enum {
 	DND_DAMAGETYPE_MELEE,
 	DND_DAMAGETYPE_MELEEOCCULT,
+	DND_DAMAGETYPE_PARRY,
 	DND_DAMAGETYPE_PHYSICAL,
 	DND_DAMAGETYPE_SILVERBULLET,
 	DND_DAMAGETYPE_ENERGY,
@@ -158,7 +159,7 @@ int DamageCategoryToMonsterDamageType(int d) {
 #define DAMAGE_TYPE_MASK 0x1F
 
 bool IsMeleeDamage(int damage_type) {
-	return damage_type >= DND_DAMAGETYPE_MELEE && damage_type <= DND_DAMAGETYPE_MELEEOCCULT;
+	return damage_type >= DND_DAMAGETYPE_MELEE && damage_type <= DND_DAMAGETYPE_PARRY;
 }
 
 bool IsBulletDamage(int damage_type) {
@@ -1141,7 +1142,6 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 // This function is responsible for handling all damage effects player has that affect their damage some way
 // ex: curses etc.
 int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
-	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 	int more_bonus = 100;
 
 	// little orbs he drops
@@ -1180,8 +1180,8 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	if(temp)
 		more_bonus = more_bonus * (100 + temp * GetChargeCount()) / 100;
 
-	// damage less modifier in form of enfeeblement -- buff net values always hold fixed
-	more_bonus = (more_bonus * pbuffs.buff_net_values[BUFF_DAMAGEDEALT].multiplicative) >> 16;
+	more_bonus = (more_bonus * pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].multiplicative) >> 16;
+	more_bonus = (more_bonus * pbuffs[pnum].buff_net_values[BUFF_FRENZYCHARGE].multiplicative) >> 16;
 	
 	return more_bonus;
 }
@@ -1441,6 +1441,10 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 					GiveActorInventory(source, "Berserker_Perk60_Speed", 1);
 				}
 			}
+
+			// stamina gain
+			if(!wep_neg  && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE) && CanGainStaminaOnKill(pnum))
+				GiveStamina(GetStaminaGainOnKill(pnum));
 
 			// charge conditional kill checks
 			temp = GetPlayerAttributeValue(pnum, INV_FRENZYCHARGE_ONSHATTER);
@@ -2757,14 +2761,14 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
 int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool isReflected, str inflictor_class, int m_id = -1) {
-	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
-
 	int temp;
 
 	bool isDot = IsDamageStringDOT(dmg_string) || (dmg_data & DND_DAMAGETYPEFLAG_DOT);
 
-	int add = pbuffs.buff_net_values[BUFF_DAMAGETAKEN].additive;
-	int mult = pbuffs.buff_net_values[BUFF_DAMAGETAKEN].multiplicative;
+	int add = pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].additive;
+	int mult = pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].multiplicative;
+	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_ENDURANCECHARGE].multiplicative);
+
 	int res_to_apply = 0;
 	int res_bonus = 0;
 	
@@ -2969,7 +2973,6 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 }
 
 int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isArmorPiercing) {
-	buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 	int rating = GetPlayerArmor(pnum);
 
 	int temp = GetPlayerAttributeValue(pnum, INV_INC_TWICEARMORDEFENSE);
@@ -2998,7 +3001,7 @@ int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isA
 	if(isArmorPiercing)
 		rating = rating * 2 / 5;
 
-	armor_id = pbuffs.buff_net_values[BUFF_ARMORINCREASE].additive;
+	armor_id = pbuffs[pnum].buff_net_values[BUFF_ARMORINCREASE].additive;
 	if(armor_id) {
 		armor_id = (armor_id * 100) >> 16;
 		if(armor_id > -100)
@@ -3006,7 +3009,7 @@ int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isA
 		rating = rating * (100 + armor_id) / 100;
 	}
 
-	armor_id = pbuffs.buff_net_values[BUFF_ARMORINCREASE].multiplicative;
+	armor_id = pbuffs[pnum].buff_net_values[BUFF_ARMORINCREASE].multiplicative;
 	if(armor_id != 1.0) {
 		armor_id = (armor_id * 100) >> 16;
 		rating = rating * armor_id / 100;
@@ -3549,6 +3552,21 @@ void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
 	}
 }
 
+Script "DnD Parry Weakness Time" (int tid, int amt) {
+	SetActivator(tid);
+
+	str pSound = GetActorProperty(0, APROP_PAINSOUND);
+	SetActorProperty(0, APROP_PAINSOUND, "");
+
+	while(isAlive() && CheckInventory("DnD_ParryWeaknessTimer")) {
+		TakeInventory("DnD_ParryWeaknessTimer", 1);
+		Delay(const:DND_PARRY_WEAKNESS_TICS);
+	}
+
+	SetActorProperty(0, APROP_PAINSOUND, pSound);
+	TakeInventory("DnD_ParryWeakness", 1);
+}
+
 Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 	// in monster shooting player case, temp holds accuracy stored in the projectile!
 	int temp, dmg, m_id;
@@ -3558,7 +3576,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 #ifdef ISDEBUGBUILD
 		++damage_script_count;
 #endif
-
+		//printbold(s:"dmg type: ", s:arg2);
 		// arg1 contains damage, arg2 contains damage type as a string
 		// this causes A_KillChildren etc. to actually work...
 		if(IsDamageEventException(arg2)) {
@@ -3625,7 +3643,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			shooter = GetActorProperty(0, APROP_SCORE);
 		}
 
-		//printbold(s:"dmg source: ", s:GetActorClass(0));
+		//printbold(s:"dmg source: ", s:GetActorClass(0), s: " ", s:GetActorClass(shooter));
 
 		// if whatever fired this is a monster but original owner was player, it's reflected
 		// NOTE: DONT USE TEMP UNTIL REFLECTION CHECK IS DONE
@@ -3766,6 +3784,38 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					SetResultValue(0);
 					Terminate;
 				}
+				else if(!isDot && CheckActorInventory(victim, "DnD_Parrying")) {
+					// spawn parry aoe
+					isReflected = GetActorAngle(victim);
+					ox = cos(isReflected);
+					oy = sin(isReflected);
+
+					SpawnForced(
+						"ParryAoE", 
+						GetActorX(victim) + DND_PARRY_SPAWNDIST * ox,
+						GetActorY(victim) + DND_PARRY_SPAWNDIST * oy,
+						GetActorZ(victim) + 64.0,
+						AUX_PARRY_TID + pnum
+					);
+
+					SetActivator(AUX_PARRY_TID + pnum);
+					SetActorProperty(0, APROP_TARGETTID, victim);
+					SetPointer(AAPTR_TARGET, victim);
+					Thing_ChangeTID(AUX_PARRY_TID + pnum, 0);
+
+					GiveActorInventory(victim, "DnD_ParryDamageReduction", 1);
+
+					// remove the projectile or attack that hit us if it's not a monster!!
+					SetActivator(0, AAPTR_DAMAGE_INFLICTOR);
+					ox = ActivatorTID();
+					if(!ox) {
+						Thing_ChangeTID(0, AUX_PROJ_TID);
+						Thing_Remove(AUX_PROJ_TID);
+					}
+
+					SetResultValue(0);
+					Terminate;
+				}
 
 				// out of combat hit timer, 3 seconds
 				if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
@@ -3795,6 +3845,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				temp = CheckInventory("Berserker_DamageTracker");
 				if(temp)
 					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK20_REDUCTION);
+
+				// parry dmg reduction
+				if(CheckInventory("DnD_ParryDamageReduction"))
+					dmg = dmg * (100 - DND_PARRY_DAMAGEREDUCTION) / 100;
 
 				// doomguy damage reduction
 				if(HasClassPerk_Fast("Doomguy", 1) && CheckActorInventory(shooter, "Doomguy_CanExecute"))
@@ -3897,6 +3951,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = arg1 & NONWEP_DMG_MASK; // dmg
 					temp = arg1 >> NONWEP_DMG_SHIFT; // dmg_type
 					m_id = -1;
+
+					if(temp == DND_DAMAGETYPE_PARRY) {
+						SetActorInventory(victim, "DnD_ParryWeaknessTimer", GetPlayerParryWeakenTimer(pnum, victim));
+						if(!CheckActorInventory(victim, "DnD_ParryWeakness")) {
+							GiveActorInventory(victim, "DnD_ParryWeakness", 1);
+							ACS_NamedExecuteWithResult("DnD Parry Weakness Time", victim);
+						}
+					}
 
 					//printbold(s:"dmg = ", d:dmg, s: " flags = ", d:temp);
 				}
@@ -4018,8 +4080,17 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 							}
 							dmg = dmg * (100 + (factor + 1) * DND_BERSERKER_PERK60_DMGINCREASE) / 100;
 						}
+
+						if(CheckInventory("DnD_StaminaDepleted"))
+							dmg = dmg * (100 - DND_DEPLETEDSTAMINA_FACTOR) / 100;
+						else if(IsOnLowStamina())
+							dmg = dmg * (100 - DND_LOWSTAMINA_FACTOR) / 100;
 						
-						dmg = dmg * (100 + GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE)) / 100;
+						dmg = dmg * (
+							100 + 
+							GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE) + 
+							CheckActorInventory(victim, "DnD_ParryWeakness") * DND_PARRY_DAMAGEWEAKNESS
+						) / 100;
 					}
 					
 					// Flayer magic or undead check -- explosive flag check to prevent it from calling itself
@@ -4095,7 +4166,15 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				if(dmg <= 0)
 					dmg = 0;
-				else if((dmg_data & DND_DAMAGEFLAG_ISMELEE) && HasActorClassPerk_Fast(shooter, "Berserker", 3)) {
+				else if
+				(
+					(dmg_data & DND_DAMAGEFLAG_ISMELEE) && 
+						(
+							HasActorClassPerk_Fast(shooter, "Berserker", 3) || 
+							(!IsOnLowStamina() && GetPlayerAttributeValue(pnum, INV_MELEESPLASH_NOTONLOWSTAMINA) >= random(1, 100))
+						)
+				)
+				{
 					// check if the berserker perk for splashing melees is there
 					orig_dmg &= BITMASK_NOFACTOR;
 					orig_dmg |= DND_BERSERKER_PERK40_SPLASHPCT << DPCT_SHIFT;

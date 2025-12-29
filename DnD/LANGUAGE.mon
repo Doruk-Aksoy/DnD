@@ -113,6 +113,10 @@ DND_EMOD_FASTPROJ				= "\cgFast Projectiles\c-";
 DND_EMOD_CHTHONBLESSED			= "\cqChthon's Blessing\c-";
 DND_EMOD_BORROWEDTIME			= "\cgBorrowed Time\c-";
 DND_EMOD_ENERGYLEECH			= "\cvEnergy Leech\c-";
+DND_EMOD_FIRE_IMMUNE			= "\cmFire Immune\c-";
+DND_EMOD_ICE_IMMUNE				= "\cmIce Immune\c-";
+DND_EMOD_POISON_IMMUNE			= "\cmPoison Immune\c-";
+DND_EMOD_LIGHTNING_IMMUNE		= "\cmLightning Immune\c-";
 
 DND_EMOD_GUARDBROKEN			= "\cfGuard Broken\c-";
 

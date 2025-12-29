@@ -3,7 +3,7 @@ Actor ResMelee1 : DnDWeapon {
 	Scale 0.8
 	Weapon.SlotNumber 1
 	Weapon.SelectionOrder 1600
-	Weapon.AmmoType "Souls"
+	Weapon.AmmoType "InfernoSwordCooldown"
 	Weapon.AmmoUse 0
 	Inventory.PickupMessage "You got the blade!!!11"
 	Obituary "%o was removed by %k's Inferno Sword."
@@ -19,10 +19,12 @@ Actor ResMelee1 : DnDWeapon {
 			FBM1 X -1 
 		Stop
 		Ready:
-			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_INFERNOSWORD)
+			FBM1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
+			FBM1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_INFERNOSWORD)
+		ReadyInit:
+			FBM1 A 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
-			FBM1 ABC 4 Bright A_WeaponReady(WRF_ALLOWZOOM)
+			FBM1 ABC 4 Bright A_WeaponReady(WRF_ALLOWZOOM | WRF_ALLOWRELOAD)
 		Loop
 		Deselect:
 			TNT1 A 0 A_TakeInventory("H_WeaponSlot1", 1)
@@ -57,7 +59,7 @@ Actor ResMelee1 : DnDWeapon {
 		Altfire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "ContinueAltFire")
 			FBM1 AAAABBBBCCCC 1 Bright A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-		Goto ReadyLoop
+		Goto ReadyInit
 		ContinueAltFire:
 			FBM1 D 2 Bright Offset(0, 32)
 			FBM1 E 2 Bright Offset(0, 32) A_AlertMonsters
@@ -70,6 +72,7 @@ Actor ResMelee1 : DnDWeapon {
 			FBM1 J 1 Bright Offset(0, 32)
 			FBM1 K 1 Bright Offset(0, 32)
 			FBM1 L 2 Bright Offset(0, 32)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Melee Weapon Cooldown", 0, DND_MELEECD_INFERNOSWORD, 60)
 			TNT1 A 10 Offset(0, 32)
 		Goto PreReady
 		PreReady:
@@ -78,7 +81,25 @@ Actor ResMelee1 : DnDWeapon {
 			FBM1 C 1 Bright Offset(32, 94)
 			FBM1 C 1 Bright Offset(14, 62)
 			FBM1 A 1 Bright Offset(-3, 32)
-		Goto ReadyLoop
+		Goto ReadyInit
+		
+		Reload:
+			"####" "#" 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Parry"), "Parry")
+		Nothing:
+			"####" "##" 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto ReadyInit
+		Parry:
+			FBM1 D 1 Bright
+			FBM1 E 1 Bright
+			TNT1 A 0 A_PlaySound("Vorpal/Swing")
+			FBM1 F 1 Bright Offset(0, 32) ACS_NamedExecuteWithResult("DnD Parry")
+			FBM1 G 1 Bright Offset(0, 32)
+			FBM1 H 1 Bright Offset(0, 32)
+			FBM1 I 1 Bright Offset(0, 32)
+			FBM1 JK 1 Bright Offset(0, 32)
+			FBM1 L 1 Bright Offset(0, 32)
+			TNT1 A 2 Offset(0, 32)
+		Goto ReadyInit
 		
 		RiseUpSpecial:
 			FBM1 C 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
@@ -89,6 +110,15 @@ Actor ResMelee1 : DnDWeapon {
 			FBM1 C 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
 		Goto Ready
 	}
+}
+
+Actor InfernoSwordCooldown : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
 }
 
 Actor InfernoExplosion : DnD_ExplosiveBase {
@@ -201,7 +231,7 @@ Actor InfernoProjExplosion2 : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 160, 1))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_HALFDMGSELF)
+			TNT1 A 0 A_SetUserVar("user_expflags", 0)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			TNT1 A 1

@@ -319,7 +319,7 @@ ACCTX_C8				=	"80% less non-melee damage.";
 
 ACCTX_T9				=	"Hand of Artemis";
 ACCTX_P9				=	"Your weapons do not require any ammo.";
-ACCTX_C9				=	"Regular weapons do 66% less damage. Super weapons do 90% less damage instead. Slot 8 weapons can't fire.";
+ACCTX_C9				=	"Regular weapons do 75% less damage. Super weapons do 90% less damage instead. Slot 8 weapons can't fire.";
 
 ACCTX_T10				=	"Scroll of Agamotto";
 ACCTX_P10				=	"Do 100% more damage while standing still.";
@@ -425,8 +425,8 @@ DND_MENU_ARTHELPTEXT10	=	"Resets your stats back to zero. You can reassign.";
 DND_MENU_ARTHELPTEXT11	=	"Gives a portable radsuit.";
 
 // abilities
-DND_MENU_ABLTAG1		=	"Melee Expertise";
-DND_MENU_ABLHELPTEXT1	=	"Melee weapons gain altfires.";
+DND_MENU_ABLTAG1		=	"Parry Master";
+DND_MENU_ABLHELPTEXT1	=	"Parrying requires 5 stamina less and increases parry window by 2 tics.";
 
 DND_MENU_ABLTAG2		=	"Fast Reloading";
 DND_MENU_ABLHELPTEXT2	=	"You reload weapons 50% faster.";
@@ -498,19 +498,22 @@ DND_MENU_SELLCONFIRM						=	"Are you sure you\nwant to sell your";
 
 // specific wording of this in player stat draw
 
-DND_MENU_ARMOREFF		=	"armor efficiency";
-DND_MENU_NONMAGICDMG	=	"non-magic damage";
-DND_MENU_MAGICDMG		=	"magic damage";
-DND_MENU_DISCOUNT		=	"discount";
-DND_MENU_GLOBALCRIT		=	"global critical strike chance";
-DND_MENU_GLOBALCRITMULT	=	"global critical strike multiplier";
-DND_MENU_DROPCHANCE		=	"increased drop chance";
-DND_MENU_RARITY			=	"increased item rarity";
-DND_MENU_AMMOCAPS		=	"increased ammo caps";
-DND_MENU_SLOTDMG		=	"damage bonus to slot";
-DND_MENU_SELFEXPDMG		=	"less self damage";
-DND_MENU_DODGECHANCE	=	"chance to dodge attacks";
-DND_MENU_REGENCAP		=	"health regen cap";
+DND_MENU_ARMOREFF			=	"armor efficiency";
+DND_MENU_NONMAGICDMG		=	"non-magic damage";
+DND_MENU_MAGICDMG			=	"magic damage";
+DND_MENU_DISCOUNT			=	"discount";
+DND_MENU_GLOBALCRIT			=	"global critical strike chance";
+DND_MENU_GLOBALCRITMULT		=	"global critical strike multiplier";
+DND_MENU_DROPCHANCE			=	"increased drop chance";
+DND_MENU_RARITY				=	"increased item rarity";
+DND_MENU_AMMOCAPS			=	"increased ammo caps";
+DND_MENU_SLOTDMG			=	"damage bonus to slot";
+DND_MENU_SELFEXPDMG			=	"less self damage";
+DND_MENU_DODGECHANCE		=	"chance to dodge attacks";
+DND_MENU_REGENCAP			=	"health regen cap";
+DND_MENU_STAMINACAP			=	"stamina cap";
+DND_MENU_STAMINAGAINEDPER	=	"stamina gained per";
+DND_MENU_TICS				=	"tics";
 
 DND_MENU_STATUS				=	"Status";
 DND_MENU_RESEARCH_NA		=	"\cgBlueprint Required";
@@ -542,15 +545,19 @@ DND_MENU_MMOD_RES8		=	"Monster is a being of earth, takes 50% more damage from l
 
 // immunity group
 DND_MENU_MMOD_IMM1		=	"Monster is immune to radius damage.";
-DND_MENU_MMOD_IMM2		=	"Monster is immune to any kind of melee or ballistic attack.";
-DND_MENU_MMOD_IMM3		=	"Monster is immune to energy attacks.";
-DND_MENU_MMOD_IMM4		=	"Monster is immune to occult attacks.";
-DND_MENU_MMOD_IMM5		=	"Monster is immune to elemental attacks.";
+DND_MENU_MMOD_IMM2		=	"Monster is immune to physical damage.";
+DND_MENU_MMOD_IMM3		=	"Monster is immune to energy damage.";
+DND_MENU_MMOD_IMM4		=	"Monster is immune to occult damage.";
+DND_MENU_MMOD_IMM5		=	"Monster is immune to elemental damage.";
 DND_MENU_MMOD_IMM6		=	"Monster is immune to poison effects.";
 DND_MENU_MMOD_IMM7		=	"Monster is immune to chill and freeze.";
 DND_MENU_MMOD_IMM8		=	"Monster is immune to ignite.";
 DND_MENU_MMOD_IMM9		=	"Monster is immune to overloading.";
 DND_MENU_MMOD_IMM10		=	"Monster is resistant to all except occult damage.";
+DND_MENU_MMOD_IMM11		=	"Monster is immune to fire damage.";
+DND_MENU_MMOD_IMM12		=	"Monster is immune to ice damage.";
+DND_MENU_MMOD_IMM13		=	"Monster is immune to poison damage.";
+DND_MENU_MMOD_IMM14		=	"Monster is immune to lightning damage.";
 
 // agressive group
 DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";

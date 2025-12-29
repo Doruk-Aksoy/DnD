@@ -143,6 +143,10 @@ enum {
 	DND_CHTHONBLESSED,
 	DND_BORROWEDTIME,
 	DND_ENERGYLEECH,
+	DND_FIRE_IMMUNE,
+	DND_ICE_IMMUNE,
+	DND_POISON_IMMUNE,
+	DND_LIGHTNING_IMMUNE,
 
 	DND_GUARDBROKEN,
 
@@ -216,6 +220,7 @@ int GetEliteModPower(int t) {
 		case DND_MOBILITY:
 		case DND_HOMING:
 		case DND_POISON:
+		case DND_ENERGYLEECH:
 		return DND_MODPOWER_LOW;
 
 		// medium power
@@ -244,6 +249,10 @@ int GetEliteModPower(int t) {
 		case DND_RESURRECT:
 		case DND_FASTPROJ:
 		case DND_CHTHONBLESSED:
+		case DND_FIRE_IMMUNE:
+		case DND_ICE_IMMUNE:
+		case DND_POISON_IMMUNE:
+		case DND_LIGHTNING_IMMUNE:
 		return DND_MODPOWER_MEDIUM;
 
 		// high power
@@ -463,6 +472,14 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_BORROWEDTIME";
 		case DND_ENERGYLEECH:
 		return "DND_EMOD_ENERGYLEECH";
+		case DND_FIRE_IMMUNE:
+		return "DND_EMOD_FIRE_IMMUNE";
+		case DND_ICE_IMMUNE:
+		return "DND_EMOD_ICE_IMMUNE";
+		case DND_POISON_IMMUNE:
+		return "DND_EMOD_POISON_IMMUNE";
+		case DND_LIGHTNING_IMMUNE:
+		return "DND_EMOD_LIGHTNING_IMMUNE";
 
 		case DND_GUARDBROKEN:
 		return "DND_EMOD_GUARDBROKEN";

@@ -1,0 +1,77 @@
+const int PARRY_STAMINA_COST = 10;
+
+Actor DnD_Parrying : DnD_Info {
+	inventory.amount 1
+	inventory.maxamount 10
+}
+
+Actor DnD_ParryDamageReduction : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 87
+}
+
+Actor DnD_ParryWeakness : DnD_Boolean {}
+Actor DnD_ParryWeaknessTimer : DnD_Info {}
+
+Actor DnD_ParryCooldown : DnD_Boolean {}
+
+Actor DnD_Stamina : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	inventory.icon "STTPRCNT"
+	+IGNORESKILL
+}
+
+Actor DnD_ShowStaminaBar : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -5
+}
+
+Actor DnD_ShowStaminaBar_Quick : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
+Actor DnD_StaminaLocked : DnD_Boolean {}
+Actor DnD_StaminaDepleted : DnD_Boolean {}
+Actor DnD_RecoveringStamina : DnD_Boolean {}
+
+Actor ParryAoE : DnD_ExplosiveBase {
+	Height 1
+	Radius 1
+	Speed 0
+	Stamina 0
+	
+	Damage 0
+	DamageType "Parry"
+	
+	+THRUACTORS
+	+FORCERADIUSDMG
+	+FORCEPAIN
+	+DONTREFLECT
+	+DONTBLAST
+	
+	States {
+		SpawnState:
+			TNT1 A 0
+		Death:
+			TNT1 A 1 A_PlaySound("Crossbow/Explode")
+			TNT1 A 0 A_SetUserVar("user_expdmg", 
+				ACS_NamedExecuteWithResult(
+					"DND Player Damage Scale", 
+					50, 
+					DND_DAMAGECATEGORY_MELEE, 
+					DND_USETARGET,
+					50
+				) | (DND_DAMAGETYPE_PARRY << NONWEP_DMG_SHIFT)
+			)
+			TNT1 A 0 A_SetUserVar("user_expradius", 160)
+			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NOPUSH | DND_DAMAGEFLAG_ISMELEE | DND_DAMAGEFLAG_DOFULLDAMAGE | DND_DAMAGEFLAG_NONWEAPON | DND_DAMAGEFLAG_ISRADIUSDMG)
+		Goto DoExplosionDamage
+		ContinueFromExplosion:
+			TNT1 AAAAAA 0 A_SpawnItemEx("Crossbow_SilverParticle", 0, 0, -16, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
+			TNT1 A 1 A_SpawnItemEx("GrayFlare", 0, 0, -16)
+		Stop
+	}
+}

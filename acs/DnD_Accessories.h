@@ -48,7 +48,7 @@ enum {
 #define DND_HATESHARD_BUFF 50 // 50% more
 #define DND_HATESHARD_REDUCTION 80 // 80%
 
-#define DND_ARTEMIS_REDUCE 66
+#define DND_ARTEMIS_REDUCE 75
 #define DND_ARTEMIS_REDUCE_SUPER 90 // 90%
 
 #define DND_AGAMOTTO_DEFENSE 14 // 14/10 is 1.4 => 40% more damage

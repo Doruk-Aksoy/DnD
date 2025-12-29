@@ -65,28 +65,37 @@ void ConstructUniqueOnMerchant(int item_pos, int unique_id) {
 }
 
 int MakeMerchantItemUnique(int item_pos) {
-	int i, beg, end;
+	int i, beg, end, w = 0;
 
 	switch(TradeViewList[MAXPLAYERS][item_pos].item_type) {
 		case DND_ITEM_CHARM:
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_REGULARDROP_END; // rolonly until the regular drop
+			w = MAX_UNIQUE_WEIGHT;
 		break;
 		case DND_ITEM_SPECIALTY_CYBORG:
 			beg = UNIQUE_POWERCORE_BEGIN;
 			end = UNIQUE_POWERCORE_END;
+			w = MAX_UNIQUE_PCORE_WEIGHT;
 		break;
 		case DND_ITEM_BODYARMOR:
 			beg = UNIQUE_BODYARMOR_BEGIN;
 			end = UNIQUE_BODYARMOR_END;
+			w = MAX_UNIQUE_BODYARMOR_WEIGHT;
+		break;
+		case DND_ITEM_BOOT:
+			beg = UNIQUE_BOOT_BEGIN;
+			end = UNIQUE_BOOT_END;
+			w = MAX_UNIQUE_BOOT_WEIGHT;
 		break;
 		default:
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_END;
+			w = MAX_UNIQUE_WEIGHT;
 		break;
 	}
 
-	int roll = random(1, MAX_UNIQUE_WEIGHT);
+	int roll = random(1, w);
 	for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
 
 	// i is the unique id

@@ -101,6 +101,9 @@ DND_UCORIMG1		=	"UCORE01";
 DND_UARMIMG1		=	"UARM1";
 DND_UARMIMG2		=	"UARM2";
 DND_UARMIMG3		=	"UARM3";
+
+// unique boots
+DND_UBOOIMG1		=	"UBOO1";
 	
 // orbs
 DND_OIMG1			=	"ORB1D0";
@@ -178,6 +181,7 @@ DND_BOIMG8			=	"BOOICO8";
 DND_BOIMG9			=	"BOOICO9";
 DND_BOIMG10			=	"BOOICO10";
 DND_BOIMG11			=	"BOOICO11";
+DND_BOIMG12			=	"BOOICO12";
 
 // helm images
 DND_HLIMG1			=	"HLMICO1";
@@ -324,6 +328,9 @@ DND_UCORE_NAME1			=	"The Tesseract";
 DND_UARM_NAME1			=	"Protoshell";
 DND_UARM_NAME2			=	"Prismguard";
 DND_UARM_NAME3			=	"Baron's Den";
+
+// unique boots
+DND_UBOOT_NAME1			=	"Death Trail";
 
 // inventory attribute table
 IATTR_T0 			= "Health";
@@ -503,6 +510,11 @@ IATTR_T137			= "increased crit chance for";
 IATTR_T138			= "chance to gain a Frenzy Charge on shattering an enemy";
 IATTR_T139			= "chance to gain an Endurance Charge on melee kill";
 IATTR_T140			= "chance to gain a Power Charge on overloaded enemy kill";
+IATTR_T141			= "increased stamina";
+IATTR_T142			= "increased stamina recovery rate";
+IATTR_T143			= "increased stamina recovered";
+IATTR_T144			= "increased melee crit chance while not on low stamina";
+IATTR_T145			= "melee splash chance while not on low stamina";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
@@ -569,6 +581,7 @@ IATTR_TI40			= "chance to gain a Frenzy Charge on kill";
 IATTR_TI41			= "chance to gain a Endurance Charge on kill";
 IATTR_TI42			= "chance to gain a Power Charge on kill";
 IATTR_TI43			= "increased phasing duration";
+IATTR_TI44			= "chance to gain"; IATTR_TI44S = "stamina on melee kill";
 
 // essences
 IATTR_TE1 			= "chance for radius damage to reduce enemy resists by "; IATTR_TE1S = "for 3 seconds";
@@ -679,6 +692,7 @@ IATTR_TX68			= "Reflects your other medium charm";
 IATTR_TX69			= "chance to gain"; IATTR_TX69S = "charge on hitting a boss or elite";
 IATTR_TX70			= "Your charge duration is halved";
 IATTR_TX71			= "more damage per charge on you";
+IATTR_TX72			= "Count as having maximum number of";
 
 // exotic attribute strings
 IATTR_MAXHEALTH				= "maximum health";
@@ -692,3 +706,7 @@ IATTR_MOREDMG				= "more damage";
 LCHARGE_0			= "a Frenzy Charge";
 LCHARGE_1			= "an Endurance Charge";
 LCHARGE_2			= "a Power Charge";
+
+LCHARGE_NOPRE_0		= "Frenzy Charges";
+LCHARGE_NOPRE_1		= "Endurance Charges";
+LCHARGE_NOPRE_2		= "Power Charges";

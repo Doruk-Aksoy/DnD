@@ -16,10 +16,9 @@
 #define DND_EXTRAPROJ_SPREADANG 6.25
 
 enum {
-	DND_CFW_ALTFIRECHECK = 1,
-	DND_CFW_HOLDFIREORRELOADCHECK = 2,
-	DND_CFW_DONTCHECKEQUALITY = 4,
-	DND_CFW_NOAMMOCONSUMPTIONCHECKS = 8
+	DND_CFW_HOLDFIREORRELOADCHECK = 1,
+	DND_CFW_DONTCHECKEQUALITY = 2,
+	DND_CFW_NOAMMOCONSUMPTIONCHECKS = 4
 };
 
 enum {
@@ -210,6 +209,20 @@ enum {
 	DND_WEAPON_ASCENSION
 };
 #define MAXWEPS (DND_WEAPON_ASCENSION + 1)
+
+enum {
+	DND_MELEECD_SICKLE,
+	DND_MELEECD_KATANA,
+	DND_MELEECD_EXCALIBAT,
+	DND_MELEECD_INFERNOSWORD,
+	DND_MELEECD_DUSKBLADE,
+
+	DND_MELEECD_MAX
+};
+
+typedef struct {
+	int cd;
+} wep_cd_T;
 
 // weapon mod data, mod_id contains the modifier, low and high are the rolled values
 typedef struct {
@@ -433,7 +446,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_DOUBLECHAINSAW].attunement[STAT_DEX] = 0.01;
 	
 	Weapons_Data[DND_WEAPON_KATANA].name = "Katana";
-	Weapons_Data[DND_WEAPON_KATANA].ammo_name1 = "";
+	Weapons_Data[DND_WEAPON_KATANA].ammo_name1 = "KatanaCooldown";
 	Weapons_Data[DND_WEAPON_KATANA].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_KATANA].icon = "WEPICO4";
 	Weapons_Data[DND_WEAPON_KATANA].ammo_use1 = 0;
@@ -444,7 +457,7 @@ void SetupWeaponData() {
 	
 	Weapons_Data[DND_WEAPON_EXCALIBAT].name = "Excalibat";
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_name1 = "BatCharge";
-	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_name2 = "Souls";
+	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_name2 = "ExcalibatCooldown";
 	Weapons_Data[DND_WEAPON_EXCALIBAT].icon = "WEPICO5";
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_EXCALIBAT].ammo_use2 = 3;
@@ -453,18 +466,18 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EXCALIBAT].attunement[STAT_INT] = 0.015;
 	
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].name = "ResMelee1";
-	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name1 = "Souls";
-	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name2 = "Souls";
+	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name1 = "InfernoSwordCooldown";
+	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].icon = "WEPICO6";
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].ammo_use2 = 5;
-	Weapons_Data[DND_WEAPON_INFERNOSWORD].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_MAGIC | WPROP_SELFDMG | WPROP_FIRESPROJECTILES;
+	Weapons_Data[DND_WEAPON_INFERNOSWORD].properties = WPROP_CANTHITGHOST | WPROP_MELEE | WPROP_MAGIC | WPROP_FIRESPROJECTILES;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].attunement[STAT_STR] = 0.025;
 	Weapons_Data[DND_WEAPON_INFERNOSWORD].attunement[STAT_INT] = 0.015;
 	
 	Weapons_Data[DND_WEAPON_DUSKBLADE].name = "Dusk Blade";
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_name1 = "SwordHitCharge";
-	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_name2 = "Souls";
+	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_name2 = "DuskBladeCooldown";
 	Weapons_Data[DND_WEAPON_DUSKBLADE].icon = "WEPICO7";
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use1 = 0;
 	Weapons_Data[DND_WEAPON_DUSKBLADE].ammo_use2 = 11;

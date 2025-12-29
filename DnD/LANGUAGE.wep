@@ -161,11 +161,11 @@ DND_WEPPROP_17		=	"Melee Weapon";
 WEPTIP_0_0 		= "Time to get your hands dirty. Does 10 - 30 damage normally or 180 - 240 with berserk per hit.";
 WEPTIP_0_1 		= "Open invitiation to the slaughterhouse! Does 20-40 damage. Can be \cdreplaced.";
 WEPTIP_0_2 		= "Double the blade, double the fun! Twice as much damage of the regular chainsaw, same firing rate.";
-WEPTIP_0_3 		= "Unsheathing does 140 damage, normal firing does 84. Altfire allows swinging combos to do massive damage. Altfire requires Melee Expertise ability.";
-WEPTIP_0_4 		= "Does 80 - 120 damage per swing. Melee does triple damage against undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius. Alt fire requires Melee Expertise ability.";
-WEPTIP_0_5 		= "60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire throws 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Combo melee with altfire to ignite enemies. Altfire requires Melee Expertise ability.";
-WEPTIP_0_6 		= "Does 100 - 400 damage per swing depending on how long you hold. Alt fire makes you shoot ripping slashes doing 24 damage in a 104 unit radius, run 15% faster but can't change weapons. Alt fire requires Melee Expertise ability.";
-WEPTIP_0_7 		= "Sickle deals 40 - 60 damage 3 times. Slain enemies have 66% chance to be raised as minions temporarily. Alt fire sends a ghost dealing 80 damage that has 66% chance to raise enemies with 10 second cooldown. Melee kills reduce this cooldown by 20%. Altfire requires Melee Expertise ability.";
+WEPTIP_0_3 		= "Unsheathing does 140 damage, normal firing does 84. Altfire allows swinging combos to do massive damage.";
+WEPTIP_0_4 		= "Does 80 - 120 damage per swing. Melee does triple damage against undead or magical enemies. Alt fire charges and releases 17 baseballs each doing 100 - 150 on impact and 128 damage in a 128 unit radius.";
+WEPTIP_0_5 		= "60 - 240 damage per swing with 48 - 192 additional damage in a 96 unit radius. Alt fire throws 5 flames doing 40 - 80 on hit and 192 - 240 damage in a 160 unit radius. Combo melee with altfire to ignite enemies.";
+WEPTIP_0_6 		= "Does 100 - 400 damage per swing depending on how long you hold. Alt fire makes you shoot ripping slashes doing 24 damage in a 104 unit radius, run 15% faster but can't change weapons.";
+WEPTIP_0_7 		= "Sickle deals 40 - 60 damage 3 times. Slain enemies have 66% chance to be raised as minions temporarily. Alt fire sends a ghost dealing 80 damage that has 66% chance to raise enemies with 10 second cooldown. Melee kills reduce this cooldown by 20%.";
 
 WEPTIP_1_0 		= "Your trustworthy Colt45, been with you since the start. Does 15 damage in a 0.5 spread. Can be \cdreplaced.";
 WEPTIP_1_1 		= "Akimbo longslides. Does 30 damage per shot firing silver bullets in a 3.5 by 2.5 spread.";

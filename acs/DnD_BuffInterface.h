@@ -122,7 +122,6 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
         int intensity = 0;
         int duration = 0;
         int r = 0, g = 0, b = 0;
-        buffData_T module& pbuffs = GetPlayerBuffData(pnum);
 
         switch(debuff_id) {
             case DND_BUFF_PHASING:
@@ -303,13 +302,13 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 HandlePlayerBuffAssignment(pnum, this, BTI_LICHDEGEN, sc_flags);
 
                 Delay(const:4);
-                r = pbuffs.buff_net_values[BUFF_HEALTHREGEN].additive;
+                r = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive;
                 if(r < 0) {
                     r = -r;
                     r = (r * 100) >> 16;
                     g = GetActorProperty(player_tid, APROP_HEALTH) * r / 100;
     
-                    r = pbuffs.buff_net_values[BUFF_HEALTHREGEN].multiplicative;
+                    r = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].multiplicative;
                     if(r != 1.0) {
                         r = (r * 100) >> 16;
                         g = g * r / 100;

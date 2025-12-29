@@ -574,7 +574,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				for(res = 0; res < s; ++res) {
 					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
 						// if its not a regular attribute that can have tags we shouldn't consider
-						if(PlayerInventoryList[pnum][extra].attributes[i].attrib_id <= LAST_INV_ATTRIBUTE || !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id))
+						if(IsUniqueModRerollException(PlayerInventoryList[pnum][extra].attributes[i].attrib_id) || (PlayerInventoryList[pnum][extra].attributes[i].attrib_id <= LAST_INV_ATTRIBUTE && !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id)))
 							continue;
 
 						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollUniqueAttributeValue(temp, i, CheckWellRolled(pnum));

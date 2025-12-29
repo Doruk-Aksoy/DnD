@@ -20,6 +20,24 @@
 #define DND_BASE_OVERLOADTIME_NOADJ 175
 #define DND_BASE_PLAYEROVERLOADCHANCE 20 // 20%
 
+#define DND_BASE_STAMINA 100
+#define DND_BASE_STAMINA_RECOVERYRATE 17
+#define DND_BASE_STAMINA_GAIN 5
+#define DND_LOWSTAMINA_FACTOR 25
+#define DND_DEPLETEDSTAMINA_FACTOR 50
+
+#define DND_BASE_PARRY_AMT 3
+#define DND_PARRY_MASTER_BONUS 2
+#define DND_PARRYMASTER_STAMINAREDUCE 5
+#define DND_MIN_PARRYCOOLDOWN (DND_BASE_PARRY_AMT + DND_PARRY_MASTER_BONUS) // min cooldown should never be shorter than this
+#define DND_PARRY_STAMINABLOCKTIME 105
+#define DND_PARRY_STAMINA_COST 15
+#define DND_PARRY_SPAWNDIST 64
+#define DND_PARRY_DAMAGEREDUCTION 30 // 30% damage reduction
+#define DND_PARRY_DAMAGEWEAKNESS 100 // double damage taken from melee
+#define DND_PARRY_WEAKNESSTIME 105
+#define DND_PARRY_WEAKNESS_TICS 7
+
 #define ACCURACY_FACTOR 0.00001875
 
 enum {
@@ -996,39 +1014,65 @@ int GetPlayerChargeDuration(int pnum) {
 	return base * (100 + GetPlayerAttributeValue(pnum, INV_CHARGEDURATION)) / 100;
 }
 
+int GetPlayerMaxFrenzyCharges(int pnum) {
+	return DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXFRENZY);
+}
+
+int GetPlayerMaxEnduranceCharges(int pnum) {
+	return DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXENDURANCE);
+}
+
+int GetPlayerMaxPowerCharges(int pnum) {
+	return DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXPOWER);
+}
+
 int CanActorHaveFrenzyCharges(int tid, int pnum) {
-	return CheckActorInventory(tid, "DnD_FrenzyChargeCount") < DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXFRENZY);
+	return CheckActorInventory(tid, "DnD_FrenzyChargeCount") < GetPlayerMaxFrenzyCharges(pnum);
 }
 
 int CanActorHaveEnduranceCharges(int tid, int pnum) {
-	return CheckActorInventory(tid, "DnD_EnduranceChargeCount") < DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXENDURANCE);
+	return CheckActorInventory(tid, "DnD_EnduranceChargeCount") < GetPlayerMaxEnduranceCharges(pnum);
 }
 
 int CanActorHavePowerCharges(int tid, int pnum) {
-	return CheckActorInventory(tid, "DnD_PowerChargeCount") < DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXPOWER);
+	return CheckActorInventory(tid, "DnD_PowerChargeCount") < GetPlayerMaxPowerCharges(pnum);
 }
 
 int GetChargeCount() {
 	return CheckInventory("DnD_FrenzyChargeCount") + CheckInventory("DnD_EnduranceChargeCount") + CheckInventory("DnD_PowerChargeCount");
 }
 
-void GiveActorFrenzyCharge(int tid, int amt) {
+void GiveActorFrenzyCharge(int tid, int amt, bool noSpawn = false) {
 	GiveActorInventory(tid, "DnD_FrenzyChargeCount", amt);
 
 	SetActorProperty(tid, APROP_SPEED, GetPlayerSpeed(tid - P_TIDSTART));
 
 	// spawn charge actors
-	ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_FRENZY, amt);
+	if(!noSpawn)
+		ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_FRENZY, amt);
 }
 
-void GiveActorEnduranceCharge(int tid, int amt) {
+void GiveActorEnduranceCharge(int tid, int amt, bool noSpawn = false) {
 	GiveActorInventory(tid, "DnD_EnduranceChargeCount", amt);
-	ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_ENDURANCE, amt);
+
+	if(!noSpawn)
+		ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_ENDURANCE, amt);
 }
 
-void GiveActorPowerCharge(int tid, int amt) {
+void GiveActorPowerCharge(int tid, int amt, bool noSpawn = false) {
 	GiveActorInventory(tid, "DnD_PowerChargeCount", amt);
-	ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_POWER, amt);
+
+	if(!noSpawn)
+		ACS_NamedExecuteWithResult("DnD Spawn Charge", tid, DND_CHARGE_POWER, amt);
+}
+
+int GetPlayerParryWeakenTimer(int pnum, int mon_tid) {
+	int base = DND_PARRY_WEAKNESSTIME / DND_PARRY_WEAKNESS_TICS;
+
+	if(IsBossTID(mon_tid))
+		base /= 3;
+
+	return base;
 }
 
 #include "DnD_Buffs.h"

@@ -148,7 +148,7 @@ enum {
 	IIMG_UBODY_R15,
 	IIMG_UBODY_R16,
 
-	IIMG_UBOOT_R1 = 1000,
+	IIMG_UBOOT_1 = 1000,
 	IIMG_UBOOT_R2,
 	IIMG_UBOOT_R3,
 	IIMG_UBOOT_R4,
@@ -257,6 +257,7 @@ enum {
 	IIMG_BOO_9,
 	IIMG_BOO_10,
 	IIMG_BOO_11,
+	IIMG_BOO_12,
 	
 	// helm
 	IIMG_HLM_1 = 2200,
@@ -344,7 +345,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_ARMOR_END IIMG_ARM_18
 
 #define ITEM_IMAGE_BOOT_BEGIN IIMG_BOO_1
-#define ITEM_IMAGE_BOOT_END IIMG_BOO_11
+#define ITEM_IMAGE_BOOT_END IIMG_BOO_12
 
 #define ITEM_IMAGE_HELM_BEGIN IIMG_HLM_1
 #define ITEM_IMAGE_HELM_END IIMG_HLM_9
@@ -394,6 +395,9 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_UBODYARM_BEGIN IIMG_UBODY_1
 #define ITEM_IMAGE_UBODYARM_END IIMG_UBODY_3
 
+#define ITEM_IMAGE_UBOOT_BEGIN IIMG_UBOOT_1
+#define ITEM_IMAGE_UBOOT_END IIMG_UBOOT_1
+
 #include "DnD_Armor.h"
 #include "DnD_SpecialtyItem.h"
 #include "DnD_InvGeneric.h"
@@ -431,6 +435,10 @@ str GetItemImage(int id, bool wide = false) {
 	else if(id <= ITEM_IMAGE_UBODYARM_END) {
 		img_prefix = "UARM";
 		suffix = id - ITEM_IMAGE_UBODYARM_BEGIN + 1;
+	}
+	else if(id <= ITEM_IMAGE_UBOOT_END) {
+		img_prefix = "UBOO";
+		suffix = id - ITEM_IMAGE_UBOOT_BEGIN + 1;
 	}
 	else if(id <= ITEM_IMAGE_ORB_END) {
 		img_prefix = "O";
@@ -2262,6 +2270,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 			droptype = "UniqueCharmDrop";
 		else if(itype == DND_ITEM_BODYARMOR)
 			droptype = StrParam(s:"UniqueArmor_", d:utype - UNIQUE_BODYARMOR_BEGIN);
+		else if(itype == DND_ITEM_BOOT)
+			droptype = StrParam(s:"UniqueBoot_", d:utype - UNIQUE_BOOT_BEGIN);
 		else if(itype == DND_ITEM_SPECIALTY_CYBORG)
 			droptype = StrParam(s:"PowercoreDrop_Unique", d:utype - UNIQUE_POWERCORE_BEGIN);
 	}
@@ -2779,7 +2789,18 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 					MarkWeaponDataSync(pnum, i, true);
 				}
 			}
-			
+		break;
+
+		case INV_INC_STAMINA:
+			IncPlayerModValue(pnum, atype, aval);
+			SetAmmoCapacity("DnD_Stamina", DND_BASE_STAMINA * (100 + GetPlayerAttributeValue(pnum, INV_INC_STAMINA)) / 100);
+		break;
+
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+			IncPlayerModValue(pnum, atype, aval);
+			IncPlayerModExtra(pnum, atype, aextra);
+			// call this to deflect use of static variable within module scope to be used in the main dnd.acs scope
+			HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + aextra, remove ? BTI_F_REMOVE : 0);
 		break;
 		
 		// anything that fits our generic formula
@@ -2959,6 +2980,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_IMP_RAVAGER:
 		case INV_IMP_KNIGHTARMOR:
 		case INV_IMP_ABSORBLIGHTNING:
+		case INV_IMP_STAMINAONKILL:
 			IncPlayerModValue(pnum, atype, aval);
 			IncPlayerModExtra(pnum, atype, aextra);
 		break;
@@ -3066,6 +3088,31 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_CORR_WEPCULL:
 			SetWeaponModPowerset(pnum, aextra, WEP_POWER_CULL, !remove, WMOD_WEP);
 			MarkWeaponDataSync(pnum, aextra, true);
+		break;
+
+		case INV_CORR_MAXFRENZY:
+			IncPlayerModValue(pnum, atype, aval);
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && (aextra = GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_FRENZY) {
+				RemoveBuffWithTableIndex(pnum, BTI_FRENZYCHARGE);
+				HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
+			}
+		break;
+		case INV_CORR_MAXENDURANCE:
+			IncPlayerModValue(pnum, atype, aval);
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && (aextra = GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_ENDURANCE) {
+				RemoveBuffWithTableIndex(pnum, BTI_ENDURANCECHARGE);
+				HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
+			}
+		break;
+		case INV_CORR_MAXPOWER:
+			IncPlayerModValue(pnum, atype, aval);
+
+			if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && (aextra = GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_POWER) {
+				RemoveBuffWithTableIndex(pnum, BTI_POWERCHARGE);
+				HandlePlayerBuffAssignment(pnum, 0, BTI_POWERCHARGE);
+			}
 		break;
 
 		default:
@@ -3673,24 +3720,33 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 }
 
 int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
-	int i, beg, end;
+	int i, beg, end, w;
 
 	switch(item_type) {
 		case DND_ITEM_CHARM:
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_REGULARDROP_END; // roll only until the regular drop
+			w = MAX_UNIQUE_WEIGHT;
 		break;
 		case DND_ITEM_SPECIALTY_CYBORG:
 			beg = UNIQUE_POWERCORE_BEGIN;
 			end = UNIQUE_POWERCORE_END;
+			w = MAX_UNIQUE_PCORE_WEIGHT;
 		break;
 		case DND_ITEM_BODYARMOR:
 			beg = UNIQUE_BODYARMOR_BEGIN;
 			end = UNIQUE_BODYARMOR_END;
+			w = MAX_UNIQUE_BODYARMOR_WEIGHT;
+		break;
+		case DND_ITEM_BOOT:
+			beg = UNIQUE_BOOT_BEGIN;
+			end = UNIQUE_BOOT_END;
+			w = MAX_UNIQUE_BOOT_WEIGHT;
 		break;
 		default:
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_END;
+			w = MAX_UNIQUE_WEIGHT;
 		break;
 	}
 
@@ -3699,7 +3755,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 			i = random(beg, end);
 		}
 		else {
-			int roll = random(1, MAX_UNIQUE_WEIGHT);
+			int roll = random(1, w);
 			for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
 		}
 

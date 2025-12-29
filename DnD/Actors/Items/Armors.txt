@@ -698,6 +698,22 @@ Actor BootDrop_10 : ArmorDrop {
 	}
 }
 
+Actor BootDrop_11 : ArmorDrop {
+	States {
+		Spawn:
+			BOO0 L 0
+		Goto SpawnInit
+	}
+}
+
+Actor UniqueBoot_0 : ArmorDrop {
+	States {
+		Spawn:
+			UBO0 A 0
+		Goto SpawnInit
+	}
+}
+
 // HELMS
 
 Actor HelmDrop_0 : ArmorDrop {
