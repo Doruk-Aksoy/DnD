@@ -2794,6 +2794,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		case INV_INC_STAMINA:
 			IncPlayerModValue(pnum, atype, aval);
 			SetAmmoCapacity("DnD_Stamina", DND_BASE_STAMINA * (100 + GetPlayerAttributeValue(pnum, INV_INC_STAMINA)) / 100);
+			ACS_NamedExecuteWithResult("DnD Start Stamina Recovery");
 		break;
 
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:

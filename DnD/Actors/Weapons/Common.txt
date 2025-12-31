@@ -65,7 +65,7 @@ Actor ParryAoE : DnD_ExplosiveBase {
 					50
 				) | (DND_DAMAGETYPE_PARRY << NONWEP_DMG_SHIFT)
 			)
-			TNT1 A 0 A_SetUserVar("user_expradius", 160)
+			TNT1 A 0 A_SetUserVar("user_expradius", 132)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
 			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_NOPUSH | DND_DAMAGEFLAG_ISMELEE | DND_DAMAGEFLAG_DOFULLDAMAGE | DND_DAMAGEFLAG_NONWEAPON | DND_DAMAGEFLAG_ISRADIUSDMG)
 		Goto DoExplosionDamage
@@ -73,5 +73,79 @@ Actor ParryAoE : DnD_ExplosiveBase {
 			TNT1 AAAAAA 0 A_SpawnItemEx("Crossbow_SilverParticle", 0, 0, -16, frandom(-2, 2), frandom(-2, 2), frandom(-2, 2))
 			TNT1 A 1 A_SpawnItemEx("GrayFlare", 0, 0, -16)
 		Stop
+	}
+}
+
+Actor AdminPistol : DnDWeapon {
+	Weapon.SlotNumber 2
+	Weapon.AmmoGive 0
+	Weapon.SelectionOrder 2700
+	attacksound ""
+	Decal "BulletChip"
+	Weapon.AmmoType ""
+	+INVENTORY.UNDROPPABLE
+    Weapon.BobStyle InverseSmooth
+    Weapon.BobSpeed 2.1
+    Weapon.BobRangeY 0.3
+    Weapon.BobRangeX 0.6
+	Tag "Bernabe Op"
+	Weapon.AmmoUse 0
+	+WEAPON.NOAUTOAIM
+	States {
+		Ready:
+			COLT A 0 A_GiveInventory("H_WeaponSlot2", 1)
+			COLT A 0 A_TakeInventory(" Pistol ", 1)
+			COLT A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_ADMINPISTOL)
+		ReadyLoop:
+			COLT A 1 A_WeaponReady(WRF_ALLOWZOOM)
+		Loop
+		Deselect:
+			TNT1 A 0 A_TakeInventory("H_WeaponSlot2", 1)
+			TNT1 A 0 A_JumpIfInventory("Wanderer_Ascended", 1, "QuickDeselect")
+		DeselectLoop:
+			COLT A 1 A_Lower
+			TNT1 A 0 A_Lower
+		Loop
+		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_ADMINPISTOL)
+		SelectLoop:
+			COLT A 1 A_Raise
+			TNT1 A 0 A_Raise
+		Loop
+		Fire:
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
+			COLT A 3
+		Goto ReadyLoop
+		FireConfirmed:
+			COLF A 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ADMINPISTOL, DND_ATK_PRIMARY, DND_AMMOSLOT_CLIP | (AMMO_CLIP << 16), DND_ATF_NOAMMOTAKE)
+		FireEnd:
+			TNT1 A 0 A_GunFlash
+			TNT1 A 0 A_PlayWeaponsound("Weapons/NewPist")
+			COLF C 1 Bright
+			COLT B 1 A_ReFire
+			COLX GH 1 A_ReFire
+		Goto ReadyLoop
+		Hold:
+			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "HoldConfirmed")
+			COLT A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+		Goto ReadyLoop
+		HoldConfirmed:
+			TNT1 A 0 A_FireCustomMissile("Tracer", frandom(-0.75, 0.75), 0, 0, frandom(-0.5, 0.5))
+			TNT1 A 0 A_SpawnItemEx("GunSmokeSmaller", 18 * cos(-pitch), 0, 32 * (1 + sin(-pitch)), 2, 0, 1)
+			COLF A 1 Bright ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_ADMINPISTOL, DND_ATK_PRIMARY, DND_AMMOSLOT_CLIP | (AMMO_CLIP << 16), DND_ATF_NOAMMOTAKE)
+		Goto FireEnd
+		Flash:
+			TNT1 A 3 Bright A_Light1
+			TNT1 A 3 Bright A_Light0
+		Goto LightDone
+		
+		RiseUpSpecial:
+			COLT A 1 Offset(110, 142) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(90, 122) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(60, 92) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(30, 62) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 1 Offset(15, 44) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+			COLT A 0 Offset(0, 32) A_WeaponReady(WRF_NOBOB | WRF_NOFIRE | WRF_DISABLESWITCH)
+		Goto Ready
 	}
 }

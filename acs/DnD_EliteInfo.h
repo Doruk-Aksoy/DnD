@@ -31,6 +31,7 @@
 #define DND_PENETRATOR_PIERCE -15.0 // 15%
 
 #define DND_ENERGYLEECH_PCT 5 // 5%
+#define DND_EXHAUSTING_STAMINATAKE 5
 
 enum {
 	DND_TRAITCODE_WEAKNESS,
@@ -148,6 +149,8 @@ enum {
 	DND_POISON_IMMUNE,
 	DND_LIGHTNING_IMMUNE,
 
+	DND_EXHAUSTING,
+
 	DND_GUARDBROKEN,
 
 	// not rollable special
@@ -221,6 +224,7 @@ int GetEliteModPower(int t) {
 		case DND_HOMING:
 		case DND_POISON:
 		case DND_ENERGYLEECH:
+		case DND_EXHAUSTING:
 		return DND_MODPOWER_LOW;
 
 		// medium power
@@ -480,6 +484,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_POISON_IMMUNE";
 		case DND_LIGHTNING_IMMUNE:
 		return "DND_EMOD_LIGHTNING_IMMUNE";
+		case DND_EXHAUSTING:
+		return "DND_EMOD_EXHAUSTING";
 
 		case DND_GUARDBROKEN:
 		return "DND_EMOD_GUARDBROKEN";

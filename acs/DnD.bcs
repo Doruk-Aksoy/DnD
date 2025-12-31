@@ -1661,7 +1661,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
-	//MonsterProperties[m_id].trait_list[DND_ENERGYLEECH] = true;
+	//MonsterProperties[m_id].trait_list[DND_EXHAUSTING] = true;
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -5285,6 +5285,9 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 }
 
 Script "DnD Heal Monster Direct" (int amount, int isPercent) {
+	if(!CanHealMonster())
+		Terminate;
+
 	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	if(!isPercent)
 		HealMonster(mid, amount);
@@ -5311,16 +5314,15 @@ Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
 	style &= 0xFFFF;
 	if(style == DND_MHR_DURATION) {
 		while(duration) {
-			if(!CheckInventory("MonsterRegenPause")) {
+			if(CanHealMonster())
 				HealMonster(mid, amount);
-				--duration;
-			}
+			--duration;
 			Delay(period);
 		}
 	}
 	else if(style == DND_MHR_PERIODIC) {
 		while(isAlive()) {
-			if(!CheckInventory("MonsterRegenPause"))
+			if(CanHealMonster())
 				HealMonster(mid, amount);
 			Delay(period);
 		}
@@ -5465,7 +5467,7 @@ Script "DnD Rejuvenation" (void) {
 		Delay(const:REJUV_TICS);
 		
 		// ignite effects prevent rejuvenation
-		if(!CheckInventory("DnD_IgniteTimer") && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
+		if(CanHealMonster() && GetActorProperty(0, APROP_HEALTH) != MonsterProperties[id].maxhp) {
 			HealMonster(id, hp_per);
 			ACS_NamedExecuteAlways("DnD Rejuvenation FX CS", 0);
 		}
@@ -5850,6 +5852,7 @@ Script 1007 (void) NET CLIENTSIDE {
 	
 	// so the toggle is changed on the menu if you press it while in help page for some reason... you are weird if you do this!
 	GiveInventory("DnD_RefreshPane", 1);
+	GiveInventory("DnD_ResetDrawnStatText", 1);
 }
 
 Script 1691 (int tag, int mode) {
@@ -6128,10 +6131,15 @@ Script 68 (int x) NET {
 		else if(x == 667)
 			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
 		else if(x == 1000) {
-			IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
+			/*IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
 			IncPlayerModValue(0, INV_ENDURANCECHARGE_ONMELEE, 33);
-			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 33);
+			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 33);*/
 
+			IncPlayerModValue(0, INV_CRUSHINGBLOW, 33);
+			IncPlayerModValue(0, INV_DEEPCUTS, 33);
+			IncPlayerModValue(0, INV_OPENWOUNDS, 33);
+			IncPlayerModValue(0, INV_DEADLYSTRIKE, 33);
+			IncPlayerModValue(0, INV_REAPINGCLEAVE, 33);
 			
 			/*IncPlayerModValue(0, INV_FLATENERGY_DAMAGE, 21);
 			IncPlayerModValue(0, INV_PERCENTENERGY_DAMAGE, 310);

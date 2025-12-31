@@ -58,34 +58,25 @@ Actor " Fists " : DnDWeapon
 		ContinueAltFire:
 			TNT1 A 0 A_Stop
 			TNT1 A 0 ACS_ExecuteAlways(920, 0, 0)
-			PUNK H 1 Offset(0, 34) A_SetAngle(angle - 36)
-			PUNK H 1 Offset(0, 36) A_SetAngle(angle - 36)
-			PUNK I 1 Offset(0, 34) A_SetAngle(angle - 36)
-			PKFS I 1 Offset(0, 36) A_SetAngle(angle - 36)
-			PKFS J 1 Offset(0, 36) A_SetAngle(angle - 36)
-			TNT1 A 0 A_Playsound("Weapons/KickSwing")
-			MLEG AA 1 Offset(16, 32) A_SetAngle(angle - 36)
-			MLEG BB 1 A_SetAngle(angle - 18)
-			MLEG CC 1 A_SetAngle(angle - 9)
-			MLEG D 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE)
-			TNT1 A 0 A_SetAngle(angle - 9)
-			MLEG D 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
-			TNT1 A 0 A_SetAngle(angle - 9)
-			MLEG E 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
-			TNT1 A 0 A_SetAngle(angle - 9)
-			MLEG E 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
-			TNT1 A 0 A_SetAngle(angle - 9)
-			MLEG F 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
-			TNT1 A 0 A_SetAngle(angle - 9)
-			MLEG F 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
-			TNT1 A 0 A_SetAngle(angle - 9)
-			MLEG F 1 ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_PRIMARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
-			MLEG G 2
+			PUNK H 1 Offset(0, 36) A_Playsound("Weapons/KickSwing")
+			PUNK H 1 Offset(0, 44) ACS_NamedExecuteWithResult("DnD Kick Vels")
+			PUNK I 1 Offset(0, 52)
+			PUNK I 1 Offset(0, 66)
+			MLEG D 1 Offset(0, 96)
+			MLEG D 1 Offset(0, 88) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE)
+			MLEG E 1 Offset(0, 76) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			MLEG G 1 Offset(0, 32)
 			MLEG H 2 ACS_ExecuteAlways(920, 0, 1)
 			PUNK J 1 Offset(0, 36)
 			PUNK H 1 Offset(0, 36)
 			PUNK H 1 Offset(0, 34)
-			PUNK I 1 Offset(0, 36)
+			PUNK I 1 Offset(0, 36) A_TakeInventory("DnD_Kickhit", 1)
 			PUNK I 1 Offset(0, 34)
 		goto ReadyInit
 		
@@ -127,6 +118,18 @@ Actor FistPuff : DnD_BasePuff {
 			TNT1 A 0 A_PlaySound("Weapons/FistWall")
 			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
 			TNT1 A 1
+		Stop
+	}
+}
+
+Actor DnD_Kickhit : DnD_Boolean { }
+
+Actor KickPuff : FistPuff {
+	States {
+		Spawn:
+			TNT1 AAA 0
+			TNT1 A 1 A_PlaySound("Weapons/fisthit")
+			TNT1 A 1 A_GiveToTarget("DnD_Kickhit", 1)
 		Stop
 	}
 }

@@ -682,12 +682,28 @@ int GetMonsterRarity(int monster_id) {
 	return r;
 }
 
+bool CanHealMonster() {
+	return !CheckInventory("DnD_DeepCuts") && !CheckInventory("DnD_IgniteTimer") && !CheckInventory("MonsterRegenPause");
+}
+
+bool CanHealMonsterTID(int tid) {
+	return !CheckActorInventory(tid, "DnD_DeepCuts") && !CheckActorInventory(tid, "DnD_IgniteTimer") && !CheckActorInventory(tid, "MonsterRegenPause");
+}
+
 void HealMonster(int mid, int amount) {
 	int hp = GetActorProperty(0, APROP_HEALTH);
 	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
 	SetActorProperty(0, APROP_HEALTH, hp + amount);
 
 	CheckDoomguyExecuteReversal(mid + DND_MONSTERTID_BEGIN);
+}
+
+void HealMonsterTID(int tid, int mid, int amount) {
+	int hp = GetActorProperty(tid, APROP_HEALTH);
+	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
+	SetActorProperty(tid, APROP_HEALTH, hp + amount);
+
+	CheckDoomguyExecuteReversal(tid);
 }
 
 // these are filled by hand, finding the rarest monster of each class is needlessly complicated (find top classes, equal ones must be considered as sharing top spot etc.)

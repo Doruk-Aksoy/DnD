@@ -483,6 +483,11 @@ Actor DnD_RefreshPane : PowerProtection {
 	powerup.duration 3
 }
 
+Actor DnD_ResetDrawnStatText : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 3
+}
+
 // Two bitsets
 Actor DnD_TradeEngaged_1 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
@@ -692,6 +697,21 @@ Actor SoulPickupInfinityTimer : Ammo {
 }
 
 Actor DnD_HandgunMoreCritShots : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration -10
+}
+
+Actor DnD_DeepCuts : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -10
+}
+
+Actor DnD_CrushingBlow : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -10
+}
+
+Actor DnD_OpenWounds : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -10
 }

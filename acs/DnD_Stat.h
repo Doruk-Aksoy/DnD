@@ -643,6 +643,7 @@ int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE);
+	base += Clamp_Between(DND_STARTER_LUCK - (GetLevel() + 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0);
 		
 	// more chance to find loot
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));
@@ -1409,14 +1410,17 @@ bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 #define DND_BASE_BLEED_TIME_PLAYER 5
 #define DND_BLEED_TICRATE 11
 
-int CheckBleedChance(int pnum, int wepid) {
+int CheckBleedChance(int pnum, int wepid, int victim) {
 	int base = 0;
 	if(IsMeleeWeapon(wepid))
 		base = DND_BASE_BLEEDCHANCE_MELEE;
 	else
 		base = DND_BASE_BLEEDCHANCE_PROJ;
 
-	return random(1, 100) < base + GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
+	base += GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
+	base += CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDCHANCE;
+
+	return random(1, 100) < base;
 }
 
 str GetBleedChanceDisplay(int pnum) {
@@ -1441,8 +1445,8 @@ int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
 	dmg = (dmg * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTDMG_BLEED) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100);
 	
 	// dot multi;
-	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
-	
+	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid) + CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDMULTIBONUS) / 100;
+
 	return dmg;
 }
 

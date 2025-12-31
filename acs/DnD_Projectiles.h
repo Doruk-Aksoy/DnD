@@ -23,6 +23,7 @@ typedef struct proj_data {
 
 enum {
 	DND_PROJ_FIST,
+	DND_PROJ_KICK,
 	DND_PROJ_CHAINSAW,
 	DND_PROJ_DOUBLECHAINSAW,
 	DND_PROJ_SICKLE,
@@ -168,6 +169,10 @@ void SetupProjectileData() {
 	ProjectileInfo[DND_PROJ_FIST].name = "FistPuff";
 	ProjectileInfo[DND_PROJ_FIST].flags = DND_PROJ_MELEE;
 	ProjectileInfo[DND_PROJ_FIST].spd_range = 64.0;
+
+	ProjectileInfo[DND_PROJ_KICK].name = "KickPuff";
+	ProjectileInfo[DND_PROJ_KICK].flags = DND_PROJ_MELEE;
+	ProjectileInfo[DND_PROJ_KICK].spd_range = 80.0;
 	
 	ProjectileInfo[DND_PROJ_CHAINSAW].name = "ChainsawPuff";
 	ProjectileInfo[DND_PROJ_CHAINSAW].flags = DND_PROJ_MELEE | DND_PROJ_HASGHOSTHITTER;
@@ -687,6 +692,8 @@ void SetupProjectileData() {
 enum {
 	DND_HITSCAN_FIST,
 	DND_HITSCAN_FIST2,
+	DND_HITSCAN_KICK,
+	DND_HITSCAN_KICK2,
 	DND_HITSCAN_CHAINSAW,
 	DND_HITSCAN_DCHAINSAW,
 	DND_HITSCAN_SICKLE,
@@ -756,6 +763,8 @@ enum {
 	DND_HITSCAN_SLUGSHELL,
 	DND_HITSCAN_EXSHELL,
 
+	DND_HITSCAN_ADMINPISTOL,
+
 	DND_HITSCAN_LAST
 };
 
@@ -772,6 +781,16 @@ void SetupHitscanData() {
 		(DND_DMGID_1 << CACHE_SHIFT) |
 		(DND_DAMAGETYPE_MELEE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT);
+
+	HitscanDamageData[DND_HITSCAN_KICK] = DND_WEAPON_FIST |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_MELEE << DTYPE_SHIFT) |
+		(200 << DPCT_SHIFT);
+
+	HitscanDamageData[DND_HITSCAN_KICK2] = DND_WEAPON_FIST |
+		(DND_DMGID_1 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_MELEE << DTYPE_SHIFT) |
+		(150 << DPCT_SHIFT);
 
 	HitscanDamageData[DND_HITSCAN_CHAINSAW] = DND_WEAPON_FIST |
 		DND_WEAPON_CHAINSAW |
@@ -1114,6 +1133,13 @@ void SetupHitscanData() {
 		(0 << CACHE_SHIFT) |
 		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT);
+
+	// admin cheat!!!
+	HitscanDamageData[DND_HITSCAN_ADMINPISTOL] = DND_WEAPON_ADMINPISTOL |
+		(DND_DMGID_0 << CACHE_SHIFT) |
+		(DND_DAMAGETYPE_PHYSICAL << DTYPE_SHIFT) |
+		(100 << DPCT_SHIFT);
+
 }
 
 #endif

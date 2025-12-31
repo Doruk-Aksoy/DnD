@@ -206,9 +206,10 @@ enum {
 	DND_WEAPON_RIPPERCANNON,
 
 	// special weapon
-	DND_WEAPON_ASCENSION
+	DND_WEAPON_ASCENSION,
+	DND_WEAPON_ADMINPISTOL
 };
-#define MAXWEPS (DND_WEAPON_ASCENSION + 1)
+#define MAXWEPS (DND_WEAPON_ADMINPISTOL + 1)
 
 enum {
 	DND_MELEECD_SICKLE,
@@ -1447,6 +1448,17 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_ASCENSION].ammo_use2 = 0;
 	Weapons_Data[DND_WEAPON_ASCENSION].properties = 0;
 	Weapons_Data[DND_WEAPON_ASCENSION].attunement[STAT_INT] = 0.04;
+
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].name = "Admin Pistol";
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].ammo_name1 = "";
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].ammo_name2 = "";
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].icon = "TNT1A0";
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].ammo_use1 = 0;
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].ammo_use2 = 0;
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].properties = 0;
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].attunement[STAT_STR] = 0.04;
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].attunement[STAT_DEX] = 0.04;
+	Weapons_Data[DND_WEAPON_ADMINPISTOL].attunement[STAT_INT] = 0.04;
 }
 
 #define DEMONSEAL_DMGTAKEN_DEBUFF 50 // 50%

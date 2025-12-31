@@ -280,6 +280,13 @@ DND_MENU_RES_ICE_PEN	=	"Ice Pierce";
 DND_MENU_RES_LGHT_PEN	=	"Lightning Pierce";
 DND_MENU_RES_POIS_PEN	=	"Poison Pierce";
 
+// explanation for some mods
+DND_DEEPCUTS_EXPL		=	"(Deep cuts prevents monster healing)";
+DND_CRUSHINGBLOW_EXPL	=	"(Crushing blow increases melee damage taken on a monster by 33%)";
+DND_DEADLYSTRIKE_EXPL	=	"(Deadly Strike allows double melee damage on the hit)";
+DND_OPENWOUNDS_EXPL		=	"(Open Wounds makes physical attacks against monsters have 25% increased chance to bleed and 50% bleed damage over time multiplier)";
+DND_REAPINGCLEAVE_EXPL	=	"(Reaping Cleave deals 33% of melee damage to all enemies in a 128 unit radius)";
+
 // accessories
 ACCTX_T0				=	"Wisdom Talisman";
 ACCTX_P0				=	"Increases exp gain by 50%.";
@@ -577,6 +584,7 @@ DND_MENU_MMOD_AGG14		=	"Upon hurting the monster, thunder strikes at your locati
 DND_MENU_MMOD_AGG15		=	"Monster pierces 15% of your resistances with its damage.";
 DND_MENU_MMOD_AGG16		=	"Monster fires projectiles at 1.5 times the speed.";
 DND_MENU_MMOD_AGG17		=	"Upon taking lethal damage from players, the monster becomes more aggressive and is granted a rapidly decaying shield.";
+DND_MENU_MMOD_AGG18		=	"Monster steals 5 stamina with each hit.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";

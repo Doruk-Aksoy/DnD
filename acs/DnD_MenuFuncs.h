@@ -5056,6 +5056,69 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
+			// melee specific skill stuff like deep cuts etc.
+			i = GetCVar("dnd_detailedmods");
+			val = GetPlayerAttributeValue(pnum, INV_CRUSHINGBLOW);
+			if(val) {
+				// detailed mods view
+				if(i) {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CRUSHINGBLOW, 0, 0, val), s:" ", s:"\cu", l:"DND_CRUSHINGBLOW_EXPL", s:"\n");
+					k += 3;
+				}
+				else {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CRUSHINGBLOW, 0, 0, val), s:"\n");
+					++k;
+				}
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_DEEPCUTS);
+			if(val) {
+				if(i) {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEEPCUTS, 0, 0, val), s:" ", s:"\cu", l:"DND_DEEPCUTS_EXPL", s:"\n");
+					k += 3;
+				}
+				else {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEEPCUTS, 0, 0, val), s:"\n");
+					++k;
+				}
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_OPENWOUNDS);
+			if(val) {
+				if(i) {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OPENWOUNDS, 0, 0, val), s:" ", s:"\cu", l:"DND_OPENWOUNDS_EXPL", s:"\n");
+					k += 3;
+				}
+				else {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OPENWOUNDS, 0, 0, val), s:"\n");
+					++k;
+				}
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_DEADLYSTRIKE);
+			if(val) {
+				if(i) {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEADLYSTRIKE, 0, 0, val), s:" ", s:"\cu", l:"DND_DEADLYSTRIKE_EXPL", s:"\n");
+					k += 3;
+				}
+				else {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEADLYSTRIKE, 0, 0, val), s:"\n");
+					++k;
+				}
+			}
+
+			val = GetPlayerAttributeValue(pnum, INV_REAPINGCLEAVE);
+			if(val) {
+				if(i) {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REAPINGCLEAVE, 0, 0, val), s:" ", s:"\cu", l:"DND_REAPINGCLEAVE_EXPL", s:"\n");
+					k += 3;
+				}
+				else {
+					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REAPINGCLEAVE, 0, 0, val), s:"\n");
+					++k;
+				}
+			}
+
 			// accuracy
 			val = GetActorProperty(0, APROP_ACCURACY);
 			if(GetPlayerAttributeValue(pnum, INV_INC_ACCURACYREVERSED))
@@ -5621,11 +5684,11 @@ void DrawPlayerStats(int pnum, int category) {
 
 			// stamina things
 			val = GetAmmoCapacity("DnD_Stamina");
-			PlayerStatText = StrParam(s:PlayerStatText, d:val, s:" ", l:"DND_MENU_STAMINACAP", s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINACAP", s:"\n");
 			++k;
 
 			val = GetPlayerStaminaGain(pnum);
-			PlayerStatText = StrParam(s:PlayerStatText, d:val, s:" ", l:"DND_MENU_STAMINAGAINEDPER", s:" ", d:GetPlayerStaminaRecoveryRate(pnum), s:" ", l:"DND_MENU_STAMINAGAINEDPER", s:"\n");
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINAGAINEDPER", s:" \c[Q9]", d:GetPlayerStaminaRecoveryRate(pnum), s:"\c- ", l:"DND_MENU_TICS", s:"\n");
 			++k;
 
 			// ripper block

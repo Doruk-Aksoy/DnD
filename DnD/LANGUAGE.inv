@@ -515,6 +515,12 @@ IATTR_T142			= "increased stamina recovery rate";
 IATTR_T143			= "increased stamina recovered";
 IATTR_T144			= "increased melee crit chance while not on low stamina";
 IATTR_T145			= "melee splash chance while not on low stamina";
+IATTR_T146			= "faster melee attack cooldown recovery";
+IATTR_T147			= "chance for \cdCrushing Blow\c- on melee hit";
+IATTR_T148			= "chance for \cdDeep Cuts\c- on melee hit";
+IATTR_T149			= "chance for \cdOpen Wounds\c- on melee hit";
+IATTR_T150			= "chance for \cdDeadly Strike\c- on melee hit";
+IATTR_T151			= "chance for \cdReaping Cleave\c- on melee hit";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";

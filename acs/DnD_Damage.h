@@ -833,7 +833,7 @@ void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_STONECREATURE) &&
-		CheckBleedChance(pnum, wepid)
+		CheckBleedChance(pnum, wepid, victim)
 	)
 	{
 		int amt = DND_BASE_BLEED_TIME_PLAYER * (100 + GetPlayerAttributeValue(pnum, INV_BLEED_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
@@ -1815,6 +1815,17 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		}
 	}
 
+	// deadly strike doubles damage
+	if
+	(
+		(IsMeleeWeapon(wepid) || (flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) && !(flags & DND_DAMAGETICFLAG_DOT) &&
+		(temp = GetPlayerAttributeValue(pnum, INV_DEADLYSTRIKE)) && random(1, 100) <= temp
+	) 
+	{
+		ACS_NamedExecuteAlways("DnD Special Fx Spawner", 0, victim_tid, INV_DEADLYSTRIKE);
+		more_dmg *= 2;
+	}
+
 	// moved crit at the end here -- copied code to save from 1 extra if check to see if more_dmg or crit is non-zero
 	if(flags & DND_DAMAGETICFLAG_CRIT) {
 		if(more_dmg != 100)
@@ -2363,7 +2374,7 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_BLEED);
 
-	bool isRobot = isActorRobotic(victim);
+	bool isRobot = IsActorFullRobotic(victim);
 
 	do {
 		if(CheckFlag(victim, "SHOOTABLE")) {
@@ -3154,32 +3165,31 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 	return dmg;
 }
 
-void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg) {
+void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg, bool isDot) {
 	// vampirism check
 	int hp;
 	if(MonsterProperties[m_id].trait_list[DND_VAMPIRISM] && isActorAlive(monster_tid)) {
 		// if this monster is trying to leech off of a bloodless monster, do not allow (we cant have all rules be against players... right?)
 		if(IsMonster(victim) && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BLOODLESS])
 			return;
-	
-		// 10% or 10 flat healing per hit, minimum
-		hp = Max(dmg / 10, 10);
 		
 		// ignite effects prevent vampirism healing
-		if(!CheckActorInventory(monster_tid, "DnD_IgniteTimer")) {
-			if(GetActorProperty(monster_tid, APROP_HEALTH) < MonsterProperties[m_id].maxhp - hp)
-				SetActorProperty(monster_tid, APROP_HEALTH, GetActorProperty(monster_tid, APROP_HEALTH) + hp);
-			else
-				SetActorProperty(monster_tid, APROP_HEALTH, MonsterProperties[m_id].maxhp);
+		if(CanHealMonsterTID(monster_tid)) {
+			// 10% or 10 flat healing per hit, minimum
+			hp = Max(dmg / 10, 10);
 
-			CheckDoomguyExecuteReversal(monster_tid);
-
+			HealMonsterTID(monster_tid, m_id, hp);
 			ACS_NamedExecuteAlways("DnD Vampirism FX CS", 0, monster_tid);
 		}
 	}
 
 	if(!isPlayer(victim) || !isActorAlive(victim))
 		return;
+
+	if(MonsterProperties[m_id].trait_list[DND_EXHAUSTING] && !isDot) {
+		HandleStaminaBarDraw(victim - P_TIDSTART);
+		TakeStamina(DND_EXHAUSTING_STAMINATAKE);
+	}
 
 	if(MonsterProperties[m_id].trait_list[DND_BLACKOUT])
 		ACS_NamedExecuteAlways("DnD Blackout", 0, victim);
@@ -3883,7 +3893,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				// these are on monsters only, dont have much to do with us beyond this point
-				HandleMonsterDamageModChecks(m_id, shooter, victim, dmg);
+				HandleMonsterDamageModChecks(m_id, shooter, victim, dmg, isDot);
 			}
 			else {
 				temp = GetActorProperty(shooter, APROP_MASTERTID);
@@ -3891,7 +3901,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					dmg = HandlePetMonsterDamageScale(shooter, temp, victim, dmg, dmg_data, -1);
 
 					// these are on monsters only, dont have much to do with us beyond this point
-					HandleMonsterDamageModChecks(m_id, shooter, victim, dmg);
+					HandleMonsterDamageModChecks(m_id, shooter, victim, dmg, isDot);
 					
 					if(GetActorProperty(victim, APROP_HEALTH) <= dmg)
 						GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
@@ -3995,6 +4005,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						SetResultValue(0);
 						Terminate;
 					}
+					else if(m_id == DND_WEAPON_ADMINPISTOL) {
+						dmg = 2 * GetActorProperty(victim, APROP_HEALTH);
+						SetResultValue(dmg);
+						Terminate;
+					}
 
 					dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
 
@@ -4091,6 +4106,27 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 							GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE) + 
 							CheckActorInventory(victim, "DnD_ParryWeakness") * DND_PARRY_DAMAGEWEAKNESS
 						) / 100;
+
+						if(CheckActorInventory(victim, "DnD_CrushingBlow"))
+							dmg = dmg * (100 + DND_CRUSHINGBLOW_PCT) / 100;
+
+						factor = GetPlayerAttributeValue(pnum, INV_CRUSHINGBLOW);
+						if(factor && random(1, 100) <= factor) {
+							ACS_NamedExecuteAlways("DnD Special Fx Spawner", 0, victim, INV_CRUSHINGBLOW);
+							GiveActorInventory(victim, "DnD_CrushingBlow", 1);
+						}
+
+						factor = GetPlayerAttributeValue(pnum, INV_DEEPCUTS);
+						if(factor && random(1, 100) <= factor) {
+							ACS_NamedExecuteAlways("DnD Special Fx Spawner", 0, victim, INV_DEEPCUTS);
+							GiveActorInventory(victim, "DnD_DeepCuts", 1);
+						}
+
+						factor = GetPlayerAttributeValue(pnum, INV_OPENWOUNDS);
+						if(factor && random(1, 100) <= factor) {
+							ACS_NamedExecuteAlways("DnD Special Fx Spawner", 0, victim, INV_OPENWOUNDS);
+							GiveActorInventory(victim, "DnD_OpenWounds", 1);
+						}
 					}
 					
 					// Flayer magic or undead check -- explosive flag check to prevent it from calling itself
@@ -4171,13 +4207,19 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					(dmg_data & DND_DAMAGEFLAG_ISMELEE) && 
 						(
 							HasActorClassPerk_Fast(shooter, "Berserker", 3) || 
-							(!IsOnLowStamina() && GetPlayerAttributeValue(pnum, INV_MELEESPLASH_NOTONLOWSTAMINA) >= random(1, 100))
+							(!IsOnLowStamina() && GetPlayerAttributeValue(pnum, INV_MELEESPLASH_NOTONLOWSTAMINA) >= random(1, 100)) ||
+							(ox = CheckPlayerCleave(pnum))
 						)
 				)
 				{
 					// check if the berserker perk for splashing melees is there
 					orig_dmg &= BITMASK_NOFACTOR;
 					orig_dmg |= DND_BERSERKER_PERK40_SPLASHPCT << DPCT_SHIFT;
+
+					// store potential cleave outcome
+					isRipper = ox;
+					if(isRipper)
+						ACS_NamedExecuteAlways("DnD Special Fx Spawner", 0, shooter, INV_REAPINGCLEAVE);
 					
 					arg1 = GetActorProperty(0, APROP_STAMINA);
 					SetActorProperty(0, APROP_STAMINA, dmg_data ^ DND_DAMAGEFLAG_ISMELEE);
@@ -4198,7 +4240,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						if
 						(
 							ox != victim && isActorAlive(ox) && AproxDistance(oy, oz) <= arg2 &&
-							MaxAngleDiff(shooter, ox, DND_BERSERKER_PERK40_SPLASHANGLE) && CheckSight(shooter, ox, CSF_NOBLOCKALL)
+							(isRipper || MaxAngleDiff(shooter, ox, DND_BERSERKER_PERK40_SPLASHANGLE)) && CheckSight(shooter, ox, CSF_NOBLOCKALL)
 						)
 						{
 							Thing_Damage2(ox, orig_dmg, "Player_MeleeSplash");
@@ -4381,6 +4423,44 @@ Script "DnD Block Prevention FX" (void) CLIENTSIDE {
 	GiveInventory("ShieldPreventionFXSpawner", 1);
 
 	SetResultValue(0);
+}
+
+Script "DnD Special Fx Spawner" (int victim, int id) CLIENTSIDE {
+	str actor = "";
+	int ang;
+	int offset = 8.0 + GetActorProperty(victim, APROP_RADIUS);
+	switch(id) {
+		case INV_DEEPCUTS:
+			actor = "DnD_DeepCutFX";
+			ang = AngleToFace(victim, ConsolePlayerNumber() + P_TIDSTART);
+		break;
+		case INV_CRUSHINGBLOW:
+			actor = "DnD_CrushingBlowFX";
+			ang = AngleToFace(victim, ConsolePlayerNumber() + P_TIDSTART);
+		break;
+		case INV_OPENWOUNDS:
+			actor = "DnD_OpenWoundsFX";
+			ang = AngleToFace(victim, ConsolePlayerNumber() + P_TIDSTART);
+		break;
+		case INV_DEADLYSTRIKE:
+			actor = "DnD_DeadlyStrikeFX";
+			ang = AngleToFace(victim, ConsolePlayerNumber() + P_TIDSTART);
+		break;
+		case INV_REAPINGCLEAVE:
+			actor = "DnD_ReapingCleaveFX";
+			ang = GetActorAngle(victim);
+			offset += 8.0;
+		break;
+	}
+
+	if(id) {
+		int c = cos(ang);
+		int s = sin(ang);
+
+		int h = GetActorProperty(victim, APROP_HEIGHT) / 2;
+
+		SpawnForced(actor, GetActorX(victim) + FixedMul(offset, c), GetActorY(victim) + FixedMul(offset, s), GetActorZ(victim) + h, 0);
+	}
 }
 
 #endif

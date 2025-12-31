@@ -64,7 +64,7 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
         int type = InitializeBoot(c, ilvl, pnum);
 
 #ifndef ISDEBUGBUILD
-		if(!tiers && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)))
+		if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
 #else
 		if(random(0,1))
 #endif
@@ -512,12 +512,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 		case DND_ITEM_SPECIALTY_DOOMGUY:
 			switch(subtype) {
 				case SLAYERCARD_STR:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10);
 					GiveImplicitToField(item_pos, INV_IMP_PERCENTSTR, 5, 0, item_tier, 2);
 				break;
 				case SLAYERCARD_DEX:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10);
 					GiveImplicitToField(item_pos, INV_IMP_PERCENTDEX, 5, 0, item_tier, 2);
 				break;
 				case SLAYERCARD_INT:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10);
 					GiveImplicitToField(item_pos, INV_IMP_PERCENTINT, 5, 0, item_tier, 2);
 				break;
 			}
@@ -526,12 +529,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 		case DND_ITEM_SPECIALTY_MARINE:
 			switch(subtype) {
 				case DOGTAG_PRIVATE:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15);
 					GiveImplicitToField(item_pos, INV_IMP_LESSPOISONTAKEN, 0.05, 0, item_tier, 0.025);
 				break;
 				case DOGTAG_SGT:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15);
 					GiveImplicitToField(item_pos, INV_DMGREDUCE_PHYS, 5.0, 0, item_tier, 2.5);
 				break;
 				case DOGTAG_CORPORAL:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15);
 					GiveImplicitToField(item_pos, INV_IMP_LESSFIRETAKEN, 0.05, 0, item_tier, 0.025);
 				break;
 			}
@@ -540,12 +546,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 		case DND_ITEM_SPECIALTY_HOBO:
 			switch(subtype) {
 				case SUNGLASS_BLACK:
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 1.5, 0, item_tier, 0.75);
 					GiveImplicitToField(item_pos, INV_PELLET_INCREASE, 0.05, 0, item_tier, 0.015);
 				break;
 				case SUNGLASS_PINK:
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 3.0, 0, item_tier, 0.75);
 					GiveImplicitToField(item_pos, INV_IMP_REDUCEDSLOWSHOTGUNS, 10, 0, item_tier, 5);
 				break;
 				case SUNGLASS_GREEN:
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 3.0, 0, item_tier, 0.75);
 					GiveImplicitToField(item_pos, INV_IMP_AMMOGAIN_SHOTGUNS, 5, 0, item_tier, 1);
 				break;
 			}
@@ -554,12 +563,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 		case DND_ITEM_SPECIALTY_PUNISHER:
 			switch(subtype) {
 				case CIGAR_LIGHT:
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
 					GiveImplicitToField(item_pos, INV_LIFESTEAL, 1.0, 0, item_tier, 0.025);
 				break;
 				case CIGAR_MID:
+					GiveImplicitToField(item_pos, INV_SHIELD_INCREASE, 10, 0, item_tier, 5);
 					GiveImplicitToField(item_pos, INV_INCKILLINGSPREE, 10, 0, item_tier, 5);
 				break;
 				case CIGAR_HEAVY:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 5);
 					GiveImplicitToField(item_pos, INV_LIFESTEAL_RECOVERY, 10, 0, item_tier, 5);
 				break;
 			}
@@ -568,12 +580,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 		case DND_ITEM_SPECIALTY_WANDERER:
 			switch(subtype) {
 				case POWERRING_GREEN:
+					GiveImplicitToField(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5);
 					GiveImplicitToField(item_pos, INV_IMP_ONKILL_FRENZY, 10, 0, item_tier, 1);
 				break;
 				case POWERRING_RED:
+					GiveImplicitToField(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5);
 					GiveImplicitToField(item_pos, INV_IMP_ONKILL_ENDURANCE, 10, 0, item_tier, 1);
 				break;
 				case POWERRING_BLUE:
+					GiveImplicitToField(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5);
 					GiveImplicitToField(item_pos, INV_IMP_ONKILL_POWER, 10, 0, item_tier, 1);
 				break;
 			}
@@ -599,12 +614,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 		case DND_ITEM_SPECIALTY_BERSERKER:
 			switch(subtype) {
 				case BELT_SASH:
-					GiveImplicitToField(item_pos, INV_PERCENTPHYS_DAMAGE, 10, 0, item_tier, 5);
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
+					GiveImplicitToField(item_pos, INV_PERCENTPHYS_DAMAGE, 10, 0, item_tier, 8);
 				break;
 				case BELT_HEAVY:
-					GiveImplicitToField(item_pos, INV_PERCENT_KNOCKBACKRESIST, 12, 0, item_tier, 4);
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10);
+					GiveImplicitToField(item_pos, INV_PERCENT_KNOCKBACKRESIST, 15, 0, item_tier, 5);
 				break;
 				case BELT_LIGHT:
+					GiveImplicitToField(item_pos, INV_IMP_INCMITARMOR, 20, 0, item_tier, 5);
 					GiveImplicitToField(item_pos, INV_SPEED_INCREASE, 0.05, 0, item_tier, 0.02);
 				break;
 			}
@@ -613,12 +631,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier) {
 		case DND_ITEM_SPECIALTY_TRICKSTER:
 			switch(subtype) {
 				case CLAW_RAKE:
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
 					GiveImplicitToField(item_pos, INV_CRITDAMAGE_INCREASE, 10, 0, item_tier, 5);
 				break;
 				case CLAW_CESTUS:
+					GiveImplicitToField(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10);
 					GiveImplicitToField(item_pos, INV_MITEFFECT_INCREASE, 5.0, 0, item_tier, 1.0);
 				break;
 				case CLAW_KATAR:
+					GiveImplicitToField(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
 					GiveImplicitToField(item_pos, INV_IMP_PHASINGTIME, 15, 0, item_tier, 2);
 				break;
 			}

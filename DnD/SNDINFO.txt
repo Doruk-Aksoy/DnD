@@ -1,5 +1,10 @@
 $pitchshiftrange 2
 
+ParrySuccess			PARRYSFX
+DeepCutSFX				DEEPCUTS
+CrushingBlowSFX			CRUSBLOW
+DeadlyStrikeSFX			DEADSTRK
+
 BorrowedTime			BORWTIME
 
 Asmodeus/MagicFuse		ASMMFUSE

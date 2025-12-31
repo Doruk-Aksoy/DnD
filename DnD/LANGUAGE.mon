@@ -117,6 +117,7 @@ DND_EMOD_FIRE_IMMUNE			= "\cmFire Immune\c-";
 DND_EMOD_ICE_IMMUNE				= "\cmIce Immune\c-";
 DND_EMOD_POISON_IMMUNE			= "\cmPoison Immune\c-";
 DND_EMOD_LIGHTNING_IMMUNE		= "\cmLightning Immune\c-";
+DND_EMOD_EXHAUSTING				= "\cgExhausting";
 
 DND_EMOD_GUARDBROKEN			= "\cfGuard Broken\c-";
 

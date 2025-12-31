@@ -26,7 +26,12 @@
 #define DND_LOWSTAMINA_FACTOR 25
 #define DND_DEPLETEDSTAMINA_FACTOR 50
 
-#define DND_BASE_PARRY_AMT 3
+#define DND_CRUSHINGBLOW_PCT 33 // 33% more melee damage taken
+#define DND_OPENWOUNDS_BLEEDCHANCE 25 // 25% bonus bleed chance
+#define DND_OPENWOUNDS_BLEEDMULTIBONUS 50 // 50% bleed dot multi on enemy
+#define DND_DEADSTRIKE_BONUSPCT 100 // 100% dmg bonus
+
+#define DND_BASE_PARRY_AMT 4
 #define DND_PARRY_MASTER_BONUS 2
 #define DND_PARRYMASTER_STAMINAREDUCE 5
 #define DND_MIN_PARRYCOOLDOWN (DND_BASE_PARRY_AMT + DND_PARRY_MASTER_BONUS) // min cooldown should never be shorter than this
@@ -178,6 +183,9 @@ enum {
 #define PERK_DEADLINESS_BONUS 0.01 // 1%
 #define DND_LUCK_GAIN 0.03 // 5% multiplicative luck
 #define DND_LUCK_OUTCOME_GAIN 0.03
+
+#define DND_STARTER_LUCK 0.5
+#define DND_LUCK_DIMINISHPERLVL 0.01
 
 #define DND_SHARPSHOOTER_MASTERY_BONUS 0.01
 
@@ -1073,6 +1081,11 @@ int GetPlayerParryWeakenTimer(int pnum, int mon_tid) {
 		base /= 3;
 
 	return base;
+}
+
+int CheckPlayerCleave(int pnum) {
+	int res = GetPlayerAttributeValue(pnum, INV_REAPINGCLEAVE);
+	return res && random(1, 100) <= res;
 }
 
 #include "DnD_Buffs.h"

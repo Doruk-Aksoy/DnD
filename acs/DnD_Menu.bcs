@@ -424,6 +424,12 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			// force a recalculation basically so we obtain the values once again
 			redraw = true;
 		}
+
+		if(CheckInventory("DnD_ResetDrawnStatText")) {
+			PlayerStatText = "";
+			TakeInventory("DnD_ResetDrawnStatText", 1);
+		}
+
 		//////////////////////////////////////////
 		// MENU DRAWING ROUTINE FROM HERE BELOW //
 		//////////////////////////////////////////

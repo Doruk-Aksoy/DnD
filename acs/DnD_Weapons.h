@@ -183,8 +183,16 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_id = DND_PROJ_FIST;
 			sp_x = 0;
 			SetInventory("FistSide", !CheckInventory("FistSide"));
-			proj_name_alt = ProjectileInfo[proj_id].name;
 			hitscan_id = DND_HITSCAN_FIST;
+			if(isAltFire & DND_ATK_SECONDARY) {
+				proj_id = DND_PROJ_KICK;
+				hitscan_id = DND_HITSCAN_KICK;
+				if(CheckInventory("PowerStrength"))
+					hitscan_id = DND_HITSCAN_KICK2;
+			}
+
+			proj_name_alt = ProjectileInfo[proj_id].name;
+
 			if(CheckInventory("PowerStrength"))
 				hitscan_id = DND_HITSCAN_FIST2;
 			HandleStaminaBarDraw(pnum);
@@ -2271,6 +2279,13 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 		case DND_WEAPON_RIPPERCANNON:
 			use_default = false;
 			Do_Railgun_Attack("RipperCannonShooter", 1);
+		break;
+
+		case DND_WEAPON_ADMINPISTOL:
+			proj_id = DND_PROJ_PISTOL;
+			use_default = true;
+			hitscan_id = DND_HITSCAN_ADMINPISTOL;
+			sp_x = 0.5;
 		break;
 	}
 	

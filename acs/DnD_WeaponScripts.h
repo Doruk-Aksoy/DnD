@@ -42,6 +42,10 @@ Script "DnD Can Fire Weapon" (void) {
 		str ammo2 = Weapons_Data[wepid].ammo_name2;
 
 		switch(wepid) {
+			case DND_WEAPON_FIST:
+				canFire = true;
+				canAltFire = true;
+			break;
 			case DND_WEAPON_SICKLE:
 				canFire = true;
 				canAltFire = !GetMeleeWeaponCooldowns(DND_MELEECD_SICKLE).cd;
@@ -290,7 +294,6 @@ Script "DnD Can Fire Weapon" (void) {
 			break;
 
 			// melee weapons with no ammo requirements
-			case DND_WEAPON_FIST:
 			case DND_WEAPON_KATANA:
 			case DND_WEAPON_CHAINSAW:
 			case DND_WEAPON_DOUBLECHAINSAW:
@@ -808,6 +811,10 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_1, 300, 0, wepid);
 			DoWeaponDamageCache(pnum, DND_DMGID_2, 200, 0, wepid);
 		break;
+
+		case DND_WEAPON_ADMINPISTOL:
+			DoWeaponDamageCache(pnum, DND_DMGID_0, 1000, 0, wepid);
+		break;
 	}
 
 	SetResultValue(0);
@@ -1001,6 +1008,7 @@ wep_cd_T module& GetMeleeWeaponCooldowns(int id) {
 Script "DnD Melee Weapon Cooldown" (int cd_id, int val) {
 	wep_cd_T module& wep_cd = GetMeleeWeaponCooldowns(cd_id);
 	if(!wep_cd.cd) {
+		val = val * 100 / (100 + GetPlayerAttributeValue(PlayerNumber(), INV_MELEE_ATKCDR));
 		wep_cd.cd = val;
 
 		str toTake = "";
@@ -2476,6 +2484,25 @@ Script "DnD Parry" (void) {
 
 	// parry cd over
 	TakeInventory("DnD_ParryCooldown", 1);
+
+	SetResultValue(0);
+}
+
+#define DND_KICK_VELTIME 14
+#define DND_KICK_VELSTART 30
+Script "DnD Kick Vels" (void) {
+	int count = 0;
+	int angle = GetActorAngle(0);
+	int p = -GetActorPitch(0);
+	while(isAlive() && count++ < DND_KICK_VELTIME) {
+		int v = DND_KICK_VELSTART - count / 2;
+		if(CheckInventory("DnD_Kickhit"))
+			v /= 4;
+		SetActorVelocity(0, v * cos(angle), v * sin(angle), 4 * sin(p) * (count < 16), 0, 0);
+		Delay(const:1);
+	}
+
+	TakeInventory("DnD_Kickhit", 1);
 
 	SetResultValue(0);
 }

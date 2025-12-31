@@ -2869,3 +2869,67 @@ Actor PowerCharge : BaseCharge {
 		Loop
 	}
 }
+
+Actor DnD_DeepCutFX : DnD_SpecialFX {
+	Renderstyle Add
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_PlaySound("DeepCutSFX")
+			X014 A 3 Bright
+			X014 AAAAAAAAA 1 Bright A_FadeOut(0.0875)
+		Stop
+	}
+}
+
+Actor DnD_CrushingBlowFX : DnD_SpecialFX {
+	Renderstyle Translucent
+	Alpha 1.0
+	Translation "0:255=%[0.00,0.00,0.00]:[1.50,1.50,1.50]"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_PlaySound("CrushingBlowSFX")
+			REBP GHIJKLMNO 1 Bright A_FadeOut(0.075)
+		Stop
+	}
+}
+
+Actor DnD_OpenWoundsFX : DnD_SpecialFX {
+	Renderstyle Translucent
+	Alpha 1.0
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_PlaySound("OpenWoundsSFX")
+			X037 ABCDEFGHIJKLMNOPQR 1 Bright A_FadeOut(0.025)
+		Stop
+	}
+}
+
+Actor DnD_DeadlyStrikeFX : DnD_SpecialFX {
+	Renderstyle Translucent
+	Alpha 1.0
+	Translation "0:255=%[0.00,0.00,0.00]:[1.50,1.50,1.50]"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_PlaySound("DeadlyStrikeSFX")
+			X037 ABCDEFGHIJKLMNOPQR 1 Bright A_FadeOut(0.025)
+		Stop
+	}
+}
+
+Actor DnD_ReapingCleaveFX : DnD_SpecialFX {
+	Renderstyle Translucent
+	Alpha 0.85
+	Translation "0:255=%[0.00,0.00,0.00]:[1.50,1.50,1.50]"
+	States {
+		Spawn:
+			TNT1 A 1 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
+			TNT1 A 0 A_PlaySound("ParrySuccess")
+			X037 ABCDEFGHIJKLMNOPQR 1 Bright A_FadeOut(0.025)
+		Stop
+	}
+}

@@ -283,6 +283,12 @@ enum {
 	INV_INC_STAMINAGAINED,
 	INV_MELEECRIT_NOTONLOWSTAMINA,
 	INV_MELEESPLASH_NOTONLOWSTAMINA,
+	INV_MELEE_ATKCDR,
+	INV_CRUSHINGBLOW,
+	INV_DEEPCUTS,
+	INV_OPENWOUNDS,
+	INV_DEADLYSTRIKE,
+	INV_REAPINGCLEAVE,
 
 	// add new regular rollable attributes here
 
@@ -503,7 +509,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_MELEESPLASH_NOTONLOWSTAMINA
+#define LAST_INV_ATTRIBUTE INV_REAPINGCLEAVE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -1548,6 +1554,36 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MELEESPLASH_NOTONLOWSTAMINA].attrib_high = 6;
 	ItemModTable[INV_MELEESPLASH_NOTONLOWSTAMINA].attrib_level_modifier = 0;
 	ItemModTable[INV_MELEESPLASH_NOTONLOWSTAMINA].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_STAMINA;
+
+	ItemModTable[INV_MELEE_ATKCDR].attrib_low = 1;
+	ItemModTable[INV_MELEE_ATKCDR].attrib_high = 8;
+	ItemModTable[INV_MELEE_ATKCDR].attrib_level_modifier = 0;
+	ItemModTable[INV_MELEE_ATKCDR].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_CRUSHINGBLOW].attrib_low = 1;
+	ItemModTable[INV_CRUSHINGBLOW].attrib_high = 4;
+	ItemModTable[INV_CRUSHINGBLOW].attrib_level_modifier = 0;
+	ItemModTable[INV_CRUSHINGBLOW].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_DEEPCUTS].attrib_low = 1;
+	ItemModTable[INV_DEEPCUTS].attrib_high = 5;
+	ItemModTable[INV_DEEPCUTS].attrib_level_modifier = 0;
+	ItemModTable[INV_DEEPCUTS].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_ATTACK;
+		
+	ItemModTable[INV_OPENWOUNDS].attrib_low = 1;
+	ItemModTable[INV_OPENWOUNDS].attrib_high = 5;
+	ItemModTable[INV_OPENWOUNDS].attrib_level_modifier = 0;
+	ItemModTable[INV_OPENWOUNDS].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL;
+
+	ItemModTable[INV_DEADLYSTRIKE].attrib_low = 1;
+	ItemModTable[INV_DEADLYSTRIKE].attrib_high = 3;
+	ItemModTable[INV_DEADLYSTRIKE].attrib_level_modifier = 0;
+	ItemModTable[INV_DEADLYSTRIKE].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_REAPINGCLEAVE].attrib_low = 1;
+	ItemModTable[INV_REAPINGCLEAVE].attrib_high = 3;
+	ItemModTable[INV_REAPINGCLEAVE].attrib_level_modifier = 0;
+	ItemModTable[INV_REAPINGCLEAVE].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_ATTACK;
 	
 	/////////////////////////
 	// corrupted implicits //
