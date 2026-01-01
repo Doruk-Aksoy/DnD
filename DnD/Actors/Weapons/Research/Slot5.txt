@@ -937,7 +937,6 @@ Actor FreezeBall : DnD_ExplosiveBase {
 	Renderstyle "Add"
 	Alpha 0.875
 	Scale 0.675
-	var int user_count;
 	const int steps = 5;
 	DeathSound "Freezer/Hit"
 	

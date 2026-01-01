@@ -1,0 +1,57 @@
+Actor ZombiemanSpawner_Elite : DnD_MonsterSpawner 25016 {
+	//$Category Monsters/DnD
+	//$Title "Elite Zombieman Spawner"
+	//$Sprite BPOSA1
+	Radius 20
+	Height 56
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_ZOMBIEMANID)
+		SpawnLoop:
+			TNT1 A 1
+		Loop
+		Vanilla:
+			TNT1 A 1 A_SpawnItemEx("ZombieMan2_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var1:
+			TNT1 A 1 A_SpawnItemEx("ZombiemanGray_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var2:
+			TNT1 A 1 A_SpawnItemEx("FormerRanger_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var3:
+			TNT1 A 1 A_SpawnItemEx("SMGGuy_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var4:
+			TNT1 A 1 A_SpawnItemEx("RapidFireTrooper_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var5:
+			TNT1 A 1 A_SpawnItemEx("ZombieMarine_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var6:
+			TNT1 A 1 A_SpawnItemEx("LosZombieman_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var7:
+			TNT1 A 1 A_SpawnItemEx("UndeadHunter_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var8:
+			TNT1 A 1 A_SpawnItemEx("PistolZombie_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var9:
+			TNT1 A 1 A_SpawnItemEx("Prophet_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Var10:
+			TNT1 A 1 A_SpawnItemEx("QuakeZombie_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Unique:
+			TNT1 A 1 A_SpawnItemEx("Teron_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		
+		Incursion_Chex:
+			TNT1 A 0 A_SpawnItemEx("CommonFlemoid_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+		Incursion_Abyssal:
+			TNT1 A 0 A_SpawnItemEx("AbyssalZombieman_Elite", 0, 0, 0, 0, 0, 0, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERAMBUSHFLAG | SXF_SETMASTER | SXF_TRANSFERSPECIAL | SXF_CLEARCALLERTID, 0, tid)
+		Stop
+	}
+}

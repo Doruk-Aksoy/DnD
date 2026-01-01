@@ -40,7 +40,7 @@ int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AM
 
 	if(guaranteed == DND_AMMOGAIN_SUCCESS || random(1.0, 100.0) <= chance) {
 		if(slot == DND_AMMOSLOT_MAGAZINE)
-			GiveInventory(ClipAmmoTypes[ammo], amount);
+			GiveInventory(AmmoInfo[DND_AMMOSLOT_MAGAZINE][ammo].name, amount);
 		else if(slot == DND_AMMOSLOT_SPECIAL) {
 			// subtract one if we are above slug, we have grenade for an exception
 			if(ammo > SSAM_SLUG)

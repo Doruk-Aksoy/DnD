@@ -156,6 +156,17 @@ Actor TeronBullet2 : TeronBullet {
 	Damage (random(2, 4) * 5)
 }
 
+Actor Teron_Elite : Teron {
+	States {
+		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_TERON)
+		Goto SpawnSetup
+	}
+}
+
 Actor Gant : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
@@ -341,6 +352,17 @@ Actor Gant_AcidShotTrail {
 		Spawn:
 			ACID BBCCDDEEFF 1 Bright A_FadeOut(0.075)
 		Loop
+	}
+}
+
+Actor Gant_Elite : Gant {
+	States {
+		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GANT)
+		Goto SpawnSetup
 	}
 }
 
@@ -586,6 +608,17 @@ Actor BronnMineLatched {
 			D5FX JK 3 Bright
 			D5FX L 2 Bright
 		Stop
+	}
+}
+
+Actor Bronn_Elite : Bronn {
+	States {
+		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BRONN)
+		Goto SpawnSetup
 	}
 }
 
@@ -863,6 +896,15 @@ Actor VaajSoulFX {
 		Spawn:
 			SHGH ABCDEFG 3 Bright A_FadeOut(0.05)
 		Stop
+	}
+}
+
+Actor Vaaj_Elite : Vaaj {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_VAAJ)
+		Goto SpawnSetup
 	}
 }
 
@@ -1161,6 +1203,17 @@ Actor RemusFX {
 		SpawnLoop:
 			SPKB A 1 Bright A_FadeOut(0.0875)
 		Loop
+	}
+}
+
+Actor Remus_Elite : Remus {
+	States {
+		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_REMUS)
+		Goto SpawnSetup
 	}
 }
 
@@ -1475,6 +1528,17 @@ Actor SSrath_SoulExplosion : BaseExplosionDamage {
 			SRV3 B 4 Bright A_Explode(32, 64, 0)
 			SRV3 CDEFGHI 3 Bright
 		Stop
+	}
+}
+
+Actor Ssrath_Elite : Ssrath {
+	States {
+		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SSRATH)
+		Goto SpawnSetup
 	}
 }
 
@@ -1811,6 +1875,15 @@ Actor HollowShellBone3 : HollowShellBone1 {
 		E:
 			UP10 E 0
 		Goto Fade
+	}
+}
+
+Actor HollowShell_Elite : HollowShell {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_HOLLOWSHELL)
+		Goto SpawnSetup
 	}
 }
 
@@ -2421,6 +2494,15 @@ Actor OmniLightningBlast : BaseExplosionDamage {
 	}
 }
 
+Actor OmniSight_Elite : OmniSight {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_OMNISIGHT)
+		Goto SpawnSetup
+	}
+}
+
 Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
@@ -2770,6 +2852,15 @@ Actor ChegovaxExp4 : ChegovaxExp1 {
 	}
 }
 
+Actor Chegovax_Elite : Chegovax {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CHEGOVAX)
+		Goto SpawnSetup
+	}
+}
+
 Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
@@ -3104,6 +3195,15 @@ Actor OnimuzDeathFX_Trail {
 		Spawn:
 			UE08 K 1 A_FadeOut(0.05)
 		Loop
+	}
+}
+
+Actor Onimuz_Elite : Onimuz {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ONIMUZ)
+		Goto SpawnSetup
 	}
 }
 
@@ -3514,6 +3614,15 @@ Actor HarkimondeExp3 : BaseExplosionDamage {
 	}
 }
 
+Actor Harkimonde_Elite : Harkimonde {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_HARKIMONDE)
+		Goto SpawnSetup
+	}
+}
+
 Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
@@ -3823,6 +3932,15 @@ Actor Leshrac_LobbedMineGround {
 	}
 }
 
+Actor Leshrac_Elite : Leshrac {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_LESHRAC)
+		Goto SpawnSetup
+	}
+}
+
 Actor Krull : DnD_BaseRangedMonster_NoRes {
 	Health 0x7FFFFFFF
     GibHealth -10
@@ -4075,6 +4193,17 @@ Actor KrullMiniRocket_Split {
 			HLML L 3 Bright
 			HLML MNOPQR 3 Bright 
 		stop
+	}
+}
+
+Actor Krull_Elite : Krull {
+	States {
+		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_KRULL)
+		Goto SpawnSetup
 	}
 }
 
@@ -4386,6 +4515,15 @@ Actor ThoraxFireExp : BaseExplosionDamage {
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 5 A_Explode(24, 48, 0)
 		Stop
+	}
+}
+
+Actor Thorax_Elite : Thorax {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_THORAX)
+		Goto SpawnSetup
 	}
 }
 
@@ -4748,6 +4886,15 @@ Actor ZravogCube : SorcBallProjectileBase {
 			SBS3 E 5 Bright
 			SBS3 FGH 6 Bright
 		Stop
+	}
+}
+
+Actor Zravog_Elite : Zravog {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ZRAVOG)
+		Goto SpawnSetup
 	}
 }
 
@@ -5317,6 +5464,15 @@ Actor EryxiaLobTrail {
 		SpawnLoop:
 			SPRK T 1 A_FadeOut(0.075)
 		Loop
+	}
+}
+
+Actor Eryxia_Elite : Eryxia {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ERYXIA)
+		Goto SpawnSetup
 	}
 }
 
@@ -6525,5 +6681,14 @@ ACTOR AbaxothHammer : CacodemonBall {
 			UP24 EFG 3  
 			UP24 G -1
 		stop
+	}
+}
+
+Actor Abaxoth_Elite : Abaxoth {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ABAXOTH)
+		Goto SpawnSetup
 	}
 }

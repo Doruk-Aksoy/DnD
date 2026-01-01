@@ -327,7 +327,6 @@ Actor VortexBlade : DnD_ExplosiveBase {
 	Height 8
 	Speed 8
 	Scale 0.4
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0 A_SetUserVar("user_count", 0)

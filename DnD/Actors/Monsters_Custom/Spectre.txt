@@ -68,6 +68,15 @@ Actor Lurker : DnD_BaseHybridMonster {
 	}
 }
 
+ACTOR Lurker_Elite : Lurker { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_LURKER)
+		Goto SpawnSetup
+	}
+}
+
 Actor FlameDemonGhost : FlameDemon {
 	Health 0x7FFFFFFF
 	Renderstyle Add
@@ -127,6 +136,16 @@ Actor FlameDemonGhost : FlameDemon {
    }
 }
 
+ACTOR FlameDemonGhost_Elite : FlameDemonGhost { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_FLAMEDEMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR NightmareSpectre : DnD_BaseMeleeMonster {
 	Health 0x7FFFFFFF
 	GibHealth -50
@@ -183,6 +202,15 @@ ACTOR NightmareSpectre : DnD_BaseMeleeMonster {
 			SARG NMLKJI 4
 		Goto See
    }
+}
+
+ACTOR NightmareSpectre_Elite : NightmareSpectre { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_NIGHTMAREDEMON)
+		Goto SpawnSetup
+	}
 }
 
 Actor Gravedigger : DnD_BaseMeleeMonster {
@@ -245,6 +273,16 @@ Actor Gravedigger : DnD_BaseMeleeMonster {
 	}
 }
 
+ACTOR Gravedigger_Elite : Gravedigger { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GRAVEDIGGER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor Devourer : DnD_BaseMeleeMonster {
 	Translation  "0:255=%[0.00,0.00,0.00]:[0.52,0.45,0.34]", "48:78=48:78", "80:111=80:111", "160:189=160:189", "224:235=224:235"
 	+ALWAYSFAST
@@ -302,6 +340,15 @@ Actor Devourer : DnD_BaseMeleeMonster {
 			SARG N 5
 			SARG MLKJI 5
 		Goto See
+	}
+}
+
+ACTOR Devourer_Elite : Devourer { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DEVOURER)
+		Goto SpawnSetup
 	}
 }
 
@@ -367,6 +414,16 @@ Actor SoulEaterGhost : DnD_BaseHybridMonster {
 		RaiseState:
 			SOEA NMLKJI 5
 		Goto See
+	}
+}
+
+ACTOR SoulEaterGhost_Elite : SoulEaterGhost { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SOULEATER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -476,6 +533,16 @@ Actor NhumCignGhost : DnD_BaseMeleeMonster {
 		RaiseState:
 			SOEA NMLKJI 5
 		Goto See
+	}
+}
+
+ACTOR NhumCignGhost_Elite : NhumCignGhost { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_NHUMCIGN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -665,5 +732,15 @@ ACTOR RavagerTrailD : RavagerTrailA {
 			SAR3 D 10  
 			SAR3 DDDDDDDDD 3 A_FadeOut(0.05) 
 		Stop 
+	}
+}
+
+ACTOR RavagerGhost_Elite : RavagerGhost { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_RAVAGER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }

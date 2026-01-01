@@ -205,10 +205,6 @@ Actor CriticalHit : PowerDamage {
 	powerup.duration 10 // adjust this to the delay in the loop it is given
 }
 
-Actor MapDifficultyClientside : Inventory {
-	inventory.maxamount 100
-}
-
 Actor LeveledUp : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 7

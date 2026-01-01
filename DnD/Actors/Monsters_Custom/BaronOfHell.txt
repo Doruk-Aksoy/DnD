@@ -348,6 +348,16 @@ Actor DnD_IceGuyWisp2 : DnD_IceGuyWisp1 {
 	}
 }
 
+ACTOR Lavademon_Elite : Lavademon { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_LAVADEMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR LordofHeresy : DnD_BaseHybridMonster { 
     Health 0x7FFFFFFF
     Radius 24
@@ -435,6 +445,16 @@ ACTOR LordofHeresy : DnD_BaseHybridMonster {
 			"####" "#" 0 A_KillMaster
 		Goto Super::Death.Ice
     } 
+}
+
+ACTOR LordofHeresy_Elite : LordofHeresy { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_LORDOFHERESY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
 }
 
 Actor Cybruiser : DnD_BaseHybridMonster { 
@@ -586,6 +606,16 @@ Actor BruiserTrail {
 			TNT1 A 3 Bright
 			PUFF ABCD 4 BRIGHT
 		Stop 
+	}
+}
+
+ACTOR Cybruiser_Elite : Cybruiser { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CYBRUISER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -853,6 +883,16 @@ Actor BruiserBloodEmber {
 		Splash:
 			TNT1 A 0
 		Stop
+	}
+}
+
+ACTOR BruiserDemon_Elite : BruiserDemon {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BRUISERDEMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -1323,6 +1363,16 @@ Actor FirePillarShot {
 	}
 }
 
+ACTOR Bormereth_Elite : Bormereth {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BORMERETH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR BloodSeeker : DnD_BaseHybridMonster {
 	OBITUARY "%o was killed by a blood seeker."
 	Bloodcolor "ff 0f 83"
@@ -1545,6 +1595,16 @@ Actor BeastFlame {
 	}
 }
 
+ACTOR BloodSeeker_Elite : BloodSeeker {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BLOODSEEKER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor Barbatos : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Species "HK"
@@ -1652,6 +1712,16 @@ Actor CyberdemonRocketWeak : CyberdemonRocket {
 			MISL C 6 Bright
 			MISL D 4 Bright
 		Stop
+	}
+}
+
+ACTOR Barbatos_Elite : Barbatos {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BARBATOS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
 	}
 }
 
@@ -1771,6 +1841,16 @@ Actor ShadowWizardProjectile : SkullWizardProjectile {
 	Damage (random(3, 6) * 6)
 	SeeSound "H2ShadowWizard/Fire"
     DeathSound "H2ShadowWizard/Hit"
+}
+
+ACTOR ShadowWizard_Elite : ShadowWizard {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SHADOWWIZARD)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
 }
 
 ACTOR Kjaroch : DnD_BaseHybridMonster {
@@ -2038,6 +2118,16 @@ Actor KjarochGroundFlamesTrail {
 	}
 }
 
+ACTOR Kjaroch_Elite : Kjaroch {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_KJAROCH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 Actor MagmaSerpent : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Radius 24
@@ -2239,6 +2329,16 @@ ACTOR MagmaChunk5 : DemonChunk {
 	}
 }
 
+ACTOR MagmaSerpent_Elite : MagmaSerpent {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_MAGMASERPENT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor DreadKnight : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Scale 1.1
@@ -2413,6 +2513,16 @@ Actor DreadSkull {
 	}
 }
 
+ACTOR DreadKnight_Elite : DreadKnight {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DREADKNIGHT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 Actor MagmaGolem : DnD_BaseHybridMonster { 
     Health 0x7FFFFFFF
     Speed 6
@@ -2584,6 +2694,16 @@ Actor MagmaGolemNade {
 			XPL1 ABC 4 Bright A_SpawnItem("MagmaGolemExp")
 			XPL1 DEF 4 bright
 		Stop
+	}
+}
+
+ACTOR MagmaGolem_Elite : MagmaGolem {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_MAGMAGOLEM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }
 
@@ -2835,6 +2955,16 @@ Actor WarmasterRoarFX {
 	}
 }
 
+ACTOR Warmaster_Elite : Warmaster {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_WARMASTER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
+		Goto SpawnSetup
+	}
+}
+
 actor Judicator : DnD_BaseHybridMonster {
 	obituary "%o was peppered by a Judicator's machine gun."
 	HitObituary "%o had %p head bashed in by a Judicator."
@@ -3061,4 +3191,14 @@ actor JudicatorBash {
 
 Actor JudicatorBash_Weak : JudicatorBash {
 	damage (8 * random(1, 2))
+}
+
+ACTOR Judicator_Elite : Judicator {
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_JUDICATOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
 }

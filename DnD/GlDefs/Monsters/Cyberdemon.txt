@@ -481,7 +481,28 @@ Color 1.0 0.0 0.0
 Size 56
 }
 
-Object Terminator
+Object TerminatorX
+{
+Frame TERMF { Light TerminatorAttack2 }
+Frame TERMH { Light TerminatorAttack1 }
+Frame TERMI { Light TerminatorAttack1 }
+Frame TERMK { Light TerminatorAttack3 }
+Frame TERMM { Light TerminatorDeath1 }
+Frame TERMN { Light TerminatorDeath2 }
+Frame TERMO { Light TerminatorDeath3 }
+Frame TERMP { Light TerminatorDeath4 }
+Frame TERMQ { Light TerminatorDeath5 }
+Frame TERMR { Light TerminatorDeath6 }
+Frame TERMS { Light TerminatorDeath7 }
+Frame TERMT { Light TerminatorDeath8 }
+Frame TERMU { Light TerminatorDeath9 }
+Frame TERMV { Light TerminatorDeath10 }
+Frame TERMW { Light TerminatorDeath11 }
+Frame TERMX { Light TerminatorDeath12 }
+Frame TERMY { Light TerminatorDeath13 }
+}
+
+Object TerminatorX_Elite
 {
 Frame TERMF { Light TerminatorAttack2 }
 Frame TERMH { Light TerminatorAttack1 }

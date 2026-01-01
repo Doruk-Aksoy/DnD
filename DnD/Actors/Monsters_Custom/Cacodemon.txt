@@ -232,6 +232,16 @@ ACTOR CacoLichFlame {
 	}
 }
 
+ACTOR CacoLich_Elite : CacoLich { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CACOLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR DeathWhisperer : DnD_BaseRangedMonster { 
     Health 0x7FFFFFFF
 	Mass 500
@@ -293,6 +303,16 @@ ACTOR DeathWhisperer : DnD_BaseRangedMonster {
 			DCAC KJIHGF 2
 		Goto See
     }
+}
+
+ACTOR DeathWhisperer_Elite : DeathWhisperer { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DEATHWHISPERER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
 }
 
 ACTOR EarthLich : DnD_BaseRangedMonster { 
@@ -450,6 +470,16 @@ Actor EarthLichRockPiece {
 	}
 }
 
+ACTOR EarthLich_Elite : EarthLich { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_EARTHLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR EnhancedCacodemon : DnD_BaseHybridMonster { 
 	Health 0x7FFFFFFF
 	GibHealth -65
@@ -525,6 +555,16 @@ Actor EnhancedCacoBall_1 : CacoDemonBall {
 
 Actor EnhancedCacoBall_2 : EnhancedCacoBall_1 {
 	weaveindexXY 32
+}
+
+ACTOR EnhancedCacodemon_Elite : EnhancedCacodemon { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ENHANCEDCACO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
 }
 
 ACTOR Inferno : DnD_BaseHybridMonster { 
@@ -636,6 +676,16 @@ ACTOR Lavaball {
 	}
 }
 
+ACTOR Inferno_Elite : Inferno { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_INFERNO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR Weakener : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	GibHealth -65
@@ -739,6 +789,16 @@ Actor WeakenerBallHoming : WeakenerBall {
 	}
 }
 
+ACTOR Weakener_Elite : Weakener { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_WEAKENER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 actor Grell : DnD_BaseRangedMonster {
 	//$Category Monsters
 	Tag "Grell"
@@ -764,6 +824,7 @@ actor Grell : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GRELL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -828,6 +889,16 @@ ACTOR GrellBall {
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			FVUL CDEF 4 Bright
 		stop
+	}
+}
+
+ACTOR Grell_Elite : Grell { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GRELL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
 	}
 }
 
@@ -1064,6 +1135,16 @@ Actor AcolyteShot2 : AcolyteShot {
 	Stamina 8
 }
 
+ACTOR ShadowPriest_Elite : ShadowPriest { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SHADOWPRIEST)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR Guardian : DnD_BaseRangedMonster { 
 	Health 0x7FFFFFFF
 	Radius 24 
@@ -1177,6 +1258,16 @@ Actor GuardianShotTrail {
 		SpawnLoop:
 			GBAL AAABBB 1 Bright A_FadeOut(0.075)
 		Loop
+	}
+}
+
+ACTOR Guardian_Elite : Guardian { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GUARDIAN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -1357,5 +1448,15 @@ Actor WickedTorsoRes {
 		Spawn:
 			WICK WVUTSRQ 5
 		Stop     
+	}
+}
+
+ACTOR Wicked_Elite : Wicked { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_WICKED)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }

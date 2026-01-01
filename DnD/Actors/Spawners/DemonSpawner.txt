@@ -1,4 +1,7 @@
 Actor DemonSpawner : DnD_MonsterSpawner replaces Demon {
+	//$Sprite SARGA1
+	Radius 30
+	Height 56
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_DEMONID)

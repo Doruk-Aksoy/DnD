@@ -90,6 +90,15 @@ ACTOR Incarnate : DnD_BaseHybridMonster {
    }
 }
 
+ACTOR Incarnate_Elite : Incarnate { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_INCARNATE)
+		Goto SpawnSetup
+	}
+}
+
 Actor Incarnate_Pretender : DnD_BaseHybridMonster_NoRes {
 	Health 0x7FFFFFFF
 	GibHealth -75
@@ -328,6 +337,16 @@ ACTOR Railpow {
 	}
 }
 
+ACTOR BeamRevenant_Elite : BeamRevenant { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BEAMREVENANT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR Cadaver : DnD_BaseHybridMonster {
 	Painchance 70
 	Health 0x7FFFFFFF
@@ -514,6 +533,16 @@ ACTOR ProjectileTrailParticleOrange {
 			SPK2 A 1 Bright A_SetTranslucent(.4,1)
 			SPK2 A 1 Bright A_SetTranslucent(.3,1)
 		Stop
+	}
+}
+
+ACTOR Cadaver_Elite : Cadaver { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CADAVER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -1115,6 +1144,16 @@ actor widowmaker_seekMissile {
 	}	
 }
 
+ACTOR Widowmaker_Elite : Widowmaker { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_WIDOWMAKER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR AxeKnight : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	+MISSILEMORE
@@ -1265,6 +1304,16 @@ Actor RedAxe2 : RedAxe {
 	}
 }
 
+ACTOR AxeKnight_Elite : AxeKnight { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_AXEKNIGHT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 Actor SludgeGiant : DnD_BaseHybridMonster {
 	obituary "%o was beaten down by a Sludge Giant."
 	Health 0x7FFFFFFF
@@ -1354,6 +1403,16 @@ Actor SludgeGiant : DnD_BaseHybridMonster {
 			SLDM H 1 A_SetScale(1.0, 1.0)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
 	    Goto See
+	}
+}
+
+ACTOR SludgeGiant_Elite : SludgeGiant { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SLUDGEGIANT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -1750,6 +1809,16 @@ Actor DarkServantMissile2 {
 	}
 }
 
+ACTOR DarkServant_Elite : DarkServant { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DARKSERVANT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor Crawler : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	GibHealth -75
@@ -1954,6 +2023,16 @@ ACTOR CrawlerChunk5 : DemonChunk {
 		Death:
 			GDME A -1
 		Stop
+	}
+}
+
+ACTOR Crawler_Elite : Crawler { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CRAWLER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -2229,6 +2308,16 @@ Actor DraugrSeeker {
 	}
 }
 
+ACTOR Draugr_Elite : Draugr { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DRAUGR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor CyborgSoldier : DnD_BaseHybridMonster {
 	OBITUARY "%o was shot down by a Cyborg Soldier."
 	Health 0x7FFFFFFF
@@ -2366,5 +2455,15 @@ Actor BorgNailBomb {
 			TNT1 A 0 A_CustomMissile("NailProjectileWeak", 16, 2, 350, CMF_TRACKOWNER | CMF_AIMDIRECTION)
 			TNT1 A 15
 		Stop
+	}
+}
+
+ACTOR CyborgSoldier_Elite : CyborgSoldier { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CYBORGSOLDIER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }

@@ -1382,7 +1382,7 @@ str GetItemName(int id) {
 				name = SpecialAmmoInfo_Str[id - SHOP_FIRSTAMMOSPECIAL_INDEX][AMMOINFO_NAME];
 		break; 
 		case TYPE_ABILITY:
-			name = AbilityInfo[id - SHOP_ABILITY1_BEGIN];
+			name = GetAbilityInfo(id - SHOP_ABILITY1_BEGIN);
 		break;
 		case TYPE_ARTI:
 			name = ArtifactInfo[id - SHOP_FIRSTARTI1_INDEX][ARTI_NAME];

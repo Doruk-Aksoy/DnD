@@ -704,7 +704,7 @@ str GetWeaponExplanation(int id) {
 
 void ShowAccessoryIcon(int acc, int i) {
 	SetHudSize(640, 480, 1);
-	SetFont(AccessoryInfo[acc][ACCESSORY_ICON]);
+	SetFont(GetAccessoryIcon(acc));
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 3 * i - 2, CR_WHITE, 421.4, 75.1 + 48.0 * i, 0.0, 0.0);
 	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
@@ -1085,7 +1085,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 
 void DrawAccessory(int id, int boxid, int page, menu_pane_T module& CurrentPane) {
 	int pos = id - ACCESSORY_PER_PAGE * (page - MENU_FIRST_ACCESSORY_PAGE);
-	if(CheckInventory(AccessoryInfo[id][ACCESSORY_NAME])) {
+	if(CheckInventory(GetAccessoryName(id))) {
 		if(boxid == pos + 1) {
 			HudMessage(s:"\c[B1]", l:GetAccessoryText(id, ACCESSORY_TAG); HUDMSG_PLAIN, RPGMENUITEMID - 3 * pos, CR_GREEN, 316.4, 74.1 + 32.0 * pos, 0.0, 0.0);
 			
@@ -5671,8 +5671,11 @@ void DrawPlayerStats(int pnum, int category) {
 			// utility
 			// drop chance
 			val = (GetDropChance(pnum) - 1.0);
-			if(val > 0.0) {
-				PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
+			if(val != 0.0) {
+				if(val > 0)
+					PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
+				else
+					PlayerStatText = StrParam(s:"+ \cg", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
 				++k;
 			}
 
@@ -5831,11 +5834,11 @@ void DrawPlayerStats(int pnum, int category) {
 	SetHudClipRect(0, 0, 0, 0, 0);
 	if(GetCVar("survival")) {
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
 	}
 	else {
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
 		HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 	}
 	

@@ -156,6 +156,16 @@ Actor BFGExtraDemolisher : BFGExtra {
 	Stamina 16
 }
 
+ACTOR Demolisher_Elite : Demolisher { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DEMOLISHER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR Arachnophyte : DnD_BaseRangedBoss {
     //$Category monsters
     Health 0x7FFFFFFF
@@ -271,6 +281,16 @@ Actor ArachnophyteExp1 : BaseExplosionDamage {
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(20, 96, 0)
 		Stop
+	}
+}
+
+ACTOR Arachnophyte_Elite : Arachnophyte { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ARACHNOPHYTE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -565,6 +585,16 @@ ACTOR ZWAVE {
 	}
 }
 
+ACTOR PsionicQueen_Elite : PsionicQueen { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_PSIONICQUEEN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 	Obituary "%o was raptured by an Angel of Death."
 	Health 0x7FFFFFFF
@@ -737,6 +767,16 @@ ACTOR BulletPierce {
 		Death:
 			TNT1 A 1 bright
 		Stop
+	}
+}
+
+ACTOR AngelOfDeath_Elite : AngelOfDeath { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ANGELOFDEATH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -1127,6 +1167,16 @@ ACTOR ReiverGhostGoldLich : ReiverGhost_NoExp {
 	Species "Spider2"
 	+THRUSPECIES
 	+DONTHURTSPECIES
+}
+
+ACTOR Goldlich_Elite : Goldlich { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GOLDLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
+		Goto SpawnSetup
+	}
 }
 
 ACTOR IronlichBoss : DnD_BaseRangedBoss {
@@ -1702,6 +1752,16 @@ Actor LichTurret {
 	}
 }
 
+ACTOR IronlichBoss_Elite : IronlichBoss { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_IRONLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 Actor SpiderOverlord : DnD_BaseRangedBoss {
 	Species "Spider2"
 	PainSound "SpiderMastermind/Pain"
@@ -1850,6 +1910,16 @@ ACTOR SpiderOverlordMissile : SentGmissile {
 			CFX6 AAA 1 Bright A_SpawnItem("Barbtrail",0,0)
 			TNT1 A 0 A_SeekerMissile(22.5, 22.5, SMF_PRECISE)
 		loop
+	}
+}
+
+ACTOR SpiderOverlord_Elite : SpiderOverlord { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SPIDEROVERLORD)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -2315,4 +2385,14 @@ Actor DarkLichWarpDamageCooldown : PowerDamage {
 Actor DarkLichGhostDamageCooldown : PowerDamage {
 	powerup.duration 7
 	damagefactor "normal", 1.0
+}
+
+ACTOR DarkLich_Elite : DarkLich { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DARKLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
 }

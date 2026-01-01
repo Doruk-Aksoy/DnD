@@ -131,6 +131,15 @@ ACTOR FusionTrail {
 	}
 }
 
+ACTOR FusionSpider_Elite : FusionSpider { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_FUSIONSPIDER)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR HellforgeSpider : DnD_BaseRangedMonster {
 	OBITUARY "%o was charred to smithereens by a Hellforge Spider."
 	Health 0x7FFFFFFF
@@ -275,6 +284,16 @@ ACTOR HFSpiderShot {
 	}
 }
 
+ACTOR HellforgeSpider_Elite : HellforgeSpider { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_HELLFORGESPIDER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR RailArachnotron : DnD_BaseRangedMonster {
 	//$Category "ZDoom Monster pack"
 	Health 0x7FFFFFFF
@@ -369,6 +388,15 @@ Actor ArachnoBullet : ZombieBullet {
 	DamageType "Physical"
 	Accuracy 133
 	Stamina 1073741825
+}
+
+ACTOR RailArachnotron_Elite : RailArachnotron { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_RAILARACHNOTRON)
+		Goto SpawnSetup
+	}
 }
 
 ACTOR BabyDemolisher : DnD_BaseRangedMonster {
@@ -599,6 +627,16 @@ actor GreenSparkFX : ExplosiveSpark {
 	}
 }
 
+ACTOR BabyDemolisher_Elite : BabyDemolisher { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BABYDEMOLISHER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 Actor Vore : DnD_BaseHybridMonster {
 	//$Category Monsters
 	Health 0x7FFFFFFF
@@ -757,6 +795,16 @@ Actor VoreFirepodTrail {
 	}
 }
 
+ACTOR Vore_Elite : Vore { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_VORE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor CommandoBullet1 : ZombieBullet {
 	Damage (random(1, 5) * 3)
 	DamageType "Physical"
@@ -908,6 +956,16 @@ Actor ChaingunCommando : DnD_BaseRangedMonster {
 	}	
 }
 
+ACTOR ChaingunCommando_Elite : ChaingunCommando { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CHAINGUNCOMMANDO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor ChaingunGeneral : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	PainChance 64
@@ -1018,6 +1076,16 @@ Actor NailProjectileWeak {
 			NLPJ A 0 A_PlaySound("Weapons/NailRic")
 			NLPJ BCDEFG 2
 		Stop
+	}
+}
+
+ACTOR ChaingunGeneral_Elite : ChaingunGeneral { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CHAINGUNGENERAL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -1213,6 +1281,16 @@ Actor LegionnaireMissile2 : LegionnaireMissile {
 	}
 }
 
+ACTOR Legionnaire_Elite : Legionnaire { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_LEGIONNAIRE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR Manticore : DnD_BaseRangedMonster {
 	OBITUARY "%o was blown away by a Manticore."
 	Health 0x7FFFFFFF
@@ -1356,6 +1434,16 @@ Actor ManticoreExp : BaseExplosionDamage {
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
 			TNT1 A 1 A_Explode(20, 96, 0)
 		Stop
+	}
+}
+
+ACTOR Manticore_Elite : Manticore { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_MANTICORE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }
 
@@ -1506,5 +1594,15 @@ Actor OphidianBeam : DnD_BaseProjectile {
 			TNT1 A 0 A_Explode(32, 64, 0)
 			TNT1 A 8 A_SpawnItem("SunBeamExplosionFX")
 		Stop
+	}
+}
+
+ACTOR Ophidian_Elite : Ophidian { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_OPHIDIAN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }

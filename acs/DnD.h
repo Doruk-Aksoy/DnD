@@ -391,11 +391,18 @@ str GetMonsterSpawnerStr(int id) {
 	return "";
 }
 
+#define DND_LOOT_MINMOBTHRESHOLD 100 // up to this threshold the game will give additional loot bonus
+#define DND_LOOT_MAXMOBTHRESHOLD 1000 // after this threshold the game will give no loot bonus based on monster count
+#define DND_LOOTBONUS_MOBCOUNT 0.5
+#define DND_LOOTBONUS_LOWEREDVAL -0.5
+
 // 5 Tiers: 0 -> Very Easy, 1 -> Easy, 2 -> Medium, 3 -> Hard and 4 -> Very Hard.
 void CalculateMapDifficulty() {
 	int factor = 0;
 	
 	MapData[DND_MAPDATA_MONSTERTOTAL] = 0;
+	MapData[DND_MAPDATA_LOOTBONUS] = 0;
+
 	for(int i = MONSTERCLASS_ZOMBIEMAN; i < MONSTERCLASS_WOLFENSS; ++i) {
 		int index = DND_MAPDATA_ZOMBIEMANCOUNT + i;
 		MapData[index] = ThingCountName(GetMonsterSpawnerStr(i), 0);
@@ -411,6 +418,12 @@ void CalculateMapDifficulty() {
 
 		TempArray[TARR_MONID][i] = 0;
 	}
+
+	int x = MapData[DND_MAPDATA_MONSTERTOTAL];
+	if(x > DND_LOOT_MAXMOBTHRESHOLD)
+		x = DND_LOOT_MAXMOBTHRESHOLD;
+	MapData[DND_MAPDATA_LOOTBONUS] = 	DND_LOOTBONUS_MOBCOUNT * (x < DND_LOOT_MINMOBTHRESHOLD) +
+										(x >= DND_LOOT_MINMOBTHRESHOLD) * LinearMap(x, DND_LOOT_MINMOBTHRESHOLD, DND_LOOT_MAXMOBTHRESHOLD, DND_LOOTBONUS_MOBCOUNT, DND_LOOTBONUS_LOWEREDVAL);
 
 	factor += ThingCountName("BossBrain", 0) * DND_BOSSBRAIN_CONTRIB;
 
@@ -464,7 +477,7 @@ int CalculateBonus(int bonustype, int mdifficulty) {
 }
 
 void ShowBonusMessage(int bonustype, int y) {
-	int bval = CalculateBonus(bonustype, CheckInventory("MapDifficultyClientside"));
+	int bval = CalculateBonus(bonustype, MapData[DND_MAPDATA_DIFFICULTY]);
 	SetHudSize(800, 600, 1);
 	SetFont("DBIGFONT");
 	switch(bonustype) {
@@ -541,7 +554,10 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 		// for orbs
 		int plvl = GetActorLevel(i + P_TIDSTART);
 
-		if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE)
+		if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE1)
+			SpawnOrb(i, true, false, GetOrbDropStack(plvl));
+
+		if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE2)
 			SpawnOrb(i, true, false, GetOrbDropStack(plvl));
 
 		// for tokens -- same likelihood to drop as orbs

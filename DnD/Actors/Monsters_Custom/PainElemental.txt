@@ -130,6 +130,15 @@ Actor TorturedSoulPoison_Weak : TorturedSoulPoison {
 	Damage (random(1, 4)) 
 }
 
+ACTOR TorturedSoul_Elite : TorturedSoul { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_TORTUREDSOUL)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR Defiler : DnD_BaseRangedMonster {
 	//$Category monsters
 	Health 0x7FFFFFFF
@@ -288,6 +297,16 @@ ACTOR DefilerShot  {
 Actor HadesLightningCD : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration -5
+}
+
+ACTOR Defiler_Elite : Defiler { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DEFILER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
 }
 
 Actor Helemental : DnD_BaseHybridMonster_NoRes {
@@ -548,6 +567,16 @@ Actor HadesBolt2 : CacodemonBall {
 			TNT1 A 0 A_SpawnItemEx("RedParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
 			TNT1 A 1
 		Stop
+	}
+}
+
+ACTOR Helemental_Elite : Helemental { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_HADESELEMENTAL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -874,6 +903,16 @@ ACTOR GCSpawner {
 	}
 }
 
+ACTOR DESentinel_Elite : DESentinel { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SENTINEL)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 // so the ghosts it summons doesnt resurrect itself again
 ACTOR BloodLich : DnD_BaseRangedMonster_NoRes {
     Obituary "%o was reduced to a pile of ash by a Blood Lich."
@@ -1070,6 +1109,16 @@ ACTOR CurseSpell {
 			TNT1 A 0 A_StopSound(CHAN_AUTO)
 			CURS GHIJKL 3 Bright
 		Stop
+	}
+}
+
+ACTOR BloodLich_Elite : BloodLich { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BLOODLICH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }
 
@@ -1314,6 +1363,16 @@ ACTOR DSFX2 {
 			TNT1 A 3 Bright
 			CFX3 HIJK 3 Bright
 		Stop 
+	}
+}
+
+ACTOR ShadowDisciple_Elite : ShadowDisciple { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_SHADOWDISCIPLE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -1741,5 +1800,15 @@ Actor ArbiterOrbitTrail {
 			TNT1 A 1
 			WIBL EFGHI 1
 		Stop
+	}
+}
+
+ACTOR HellArbiter_Elite : HellArbiter { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_HELLARBITER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }

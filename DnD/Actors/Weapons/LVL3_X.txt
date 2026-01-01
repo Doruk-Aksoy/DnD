@@ -1173,7 +1173,6 @@ Actor SlayerHook : DnD_ExplosiveBase {
 	Height 12
 	Radius 6
 	Speed 28
-	var int user_count;
 	SeeSound "weapons/slayergo"
 	Species "Player"
 	
@@ -1490,7 +1489,6 @@ Actor ThunderAxeThrown : DnD_FastRipperBase {
 	Alpha 1.0
 	
 	var int user_mrange;
-	var int user_expdmg;
 	
 	Damage(
 		DND_WEAPON_AXE |

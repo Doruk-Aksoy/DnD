@@ -550,11 +550,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 				if(GetCVar("survival")) {
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
 				}
 				else {
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(CheckInventory("MapDifficultyClientside")); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
 					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 				}
 
@@ -1667,7 +1667,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 							// i is the accessory to toggle
 							temp = boxid + ACCESSORY_PER_PAGE * (curopt - MENU_FIRST_ACCESSORY_PAGE) - 1;
 							// I don't have this
-							if(!CheckInventory(AccessoryInfo[temp][ACCESSORY_NAME]))
+							if(!CheckInventory(GetAccessoryName(temp)))
 								ShowPopup(POPUP_ACCESSORYNOTFOUND, false, 0);
 							else if(IsAccessoryEquipped(0, 1 << temp)) { // I have and already equipped it
 								LocalAmbientSound("RPG/MenuChoose", 127);

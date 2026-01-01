@@ -22,6 +22,11 @@
 
 #define DND_VAAJ_CHARMTIME 105
 
+enum {
+	DND_MON_PRESET_TOUGH = 1,
+	DND_MON_PRESET_ELITE
+};
+
 // used to eliminate various random calls when a monster dies, to offload it to initialization phase to reuse the numbers
 enum {
 	DND_MON_RNG_1,

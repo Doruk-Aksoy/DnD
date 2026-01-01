@@ -78,6 +78,16 @@ Actor MajorBullet : ZombieBullet {
 	Accuracy 133
 }
 
+ACTOR DoubleChaingunner_Elite : DoubleChaingunner { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DOUBLEGUNNER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
+		Goto SpawnSetup
+	}
+}
+
 Actor ChaingunMajor : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	GibHealth -25
@@ -146,6 +156,16 @@ Actor ChaingunMajor : DnD_BaseRangedMonster {
 		RaiseState:
 			CPS2 ONMLKJIH 5
 		Goto See
+	}
+}
+
+ACTOR ChaingunMajor_Elite : ChaingunMajor { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CGMAJOR)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
 	}
 }
 
@@ -308,6 +328,16 @@ Actor ZSecGrenade {
 	}
 }
 
+ACTOR ZSec_Elite : ZSec { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ZSEC)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	GibHealth -25
@@ -381,6 +411,16 @@ Actor ZSpecOpsMachinegun : DnD_BaseRangedMonster {
 		RaiseState:
 			ZSP2 KJIH 5
 		Goto See
+	}
+}
+
+ACTOR ZSpecOpsMachinegun_Elite : ZSpecOpsMachinegun { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ZSPECMG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -484,6 +524,16 @@ Actor EnforcerPlasma2 : EnforcerPlasma {
 	}
 }
 
+ACTOR QuakeZombieChaingun_Elite : QuakeZombieChaingun { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ZOMBIEQUAKE3)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 actor UndeadInitiate : DnD_BaseHybridMonster {
 	obituary "%o was bagged by an undead initiate."
 	DropItem "BerettasPickup"
@@ -566,6 +616,16 @@ actor UndeadInitiate : DnD_BaseHybridMonster {
 		RaiseState:
 			1102 MLKJIH 6
 		goto See
+	}
+}
+
+ACTOR UndeadInitiate_Elite : UndeadInitiate { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_INITIATE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }
 
@@ -700,6 +760,16 @@ Actor MrRobot_FrameD : MrRobot_FrameA {
 	}
 }
 
+ACTOR MrRobot_Elite : MrRobot { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_MRROBOT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 Actor MachinegunGuy : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	GibHealth -25
@@ -767,6 +837,16 @@ Actor MachinegunGuy : DnD_BaseRangedMonster {
 			ZHRF PQRST 5
 			ZHRF U -1	
 		Stop
+	}
+}
+
+ACTOR MachinegunGuy_Elite : MachinegunGuy { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ZOMBIEMG)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
 	}
 }
 
@@ -870,6 +950,16 @@ Actor ZombiePlasma : PlasmaBallX {
 	}
 }
 
+ACTOR PlasmaZombie_Elite : PlasmaZombie { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_PLASMAZOMBIE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 Actor Berserkerguy : DnD_BaseRangedMonster {
 	Obituary "%o was surprised by the tenacity of a Berserk Chaingunner."
 	Health 0x7FFFFFFF
@@ -967,5 +1057,15 @@ Actor Berserkerguy : DnD_BaseRangedMonster {
 		RaiseState:
 			CGOS NMLKJIH 5
 		Goto See
+	}
+}
+
+ACTOR Berserkerguy_Elite : Berserkerguy { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_BERSERKERGUY)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }

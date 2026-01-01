@@ -798,7 +798,6 @@ Actor DNBFGBallExp1 : DnD_ExplosiveBase {
 	Stamina 4194304
 	+FORCERADIUSDMG
 	+THRUACTORS
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -838,7 +837,6 @@ Actor DNBFGBallSmallExp1 : DnD_ExplosiveBase {
 	Stamina 4194304
 	+FORCERADIUSDMG
 	+THRUACTORS
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -2023,7 +2021,6 @@ Actor DeathRayProjectile : DnD_ExplosiveBase {
 	Speed 8
 	Renderstyle None
 	Deathsound "Deathray/Hit"
-	var int user_count;
 	const int r = 18;
 	const float f = 7.5;
 	

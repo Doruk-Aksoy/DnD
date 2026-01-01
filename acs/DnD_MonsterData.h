@@ -1949,7 +1949,7 @@ void SetupMonsterWeights() {
 	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_RARE2;
-	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_RARE2;
+	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_UNCOMMON;
 	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_RARE2;
 	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_COMMON;
 	Monster_Weights[MONSTERCLASS_IMP][id++] = DND_MWEIGHT_COMMON;

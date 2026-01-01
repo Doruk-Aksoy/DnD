@@ -1,7 +1,7 @@
 #ifndef DND_MAPEVENTS_IN
 #define DND_MAPEVENTS_IN
 
-#define DND_MERCHANT_SPAWNCHANCE 0.2 // 20% chance to spawn per map
+#define DND_MERCHANT_SPAWNCHANCE 0.25 // 25% chance to spawn per map
 
 enum {
     DND_MAPEVENT_MERCHANTID,

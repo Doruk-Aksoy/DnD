@@ -1012,6 +1012,17 @@ Actor TchernoLightning {
 	}
 }
 
+Actor DreamingGod_Elite : DreamingGod {
+	states {
+		SetInfo:
+			TNT1 A 0 ACS_NamedExecuteAlways("DND Dreamer Burn", 0, dreamer_burn)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DREAMER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
+		Goto SpawnSetup
+	}
+}
+
 Actor Torrasque : DnD_BaseHybridBoss {
 	obituary "%o got smashed by the Torrasque."
 	Health 0x7FFFFFFF
@@ -1421,6 +1432,16 @@ Actor TorrasqueGrabber {
 		DeathLoop:
 			OCLW AAAAAAAAAAAAAAAA 1 A_FadeOut(0.05)
 		Stop
+	}
+}
+
+Actor Torrasque_Elite : Torrasque {
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_TORRASQUE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
+		Goto SpawnSetup
 	}
 }
 
@@ -1837,6 +1858,16 @@ Actor MordecqaiSmallBall {
 Actor MordecqaiLightningFX : MordecqaiSmallBall {
 	Damage (0)
 	+CLIENTSIDEONLY
+}
+
+Actor Mordecqai_Elite : Mordecqai {
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_MORDECQAI)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
+		Goto SpawnSetup
+	}
 }
 
 Actor GodSlayer : DnD_BaseRangedBoss {
@@ -2666,6 +2697,16 @@ Actor InquisitorCounter : Inventory {
 	inventory.maxamount 45 // max flight is x4 tics
 }
 
+Actor GodSlayer_Elite : GodSlayer {
+	states {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GODSLAYER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
+		Goto SpawnSetup
+	}
+}
+
 Actor Golgoth : DnD_BaseHybridBoss {
 	tag "Golgoth"
 	obituary "%o was removed from existence by Golgoth."
@@ -3185,5 +3226,17 @@ ACTOR GolgothFireBall {
 			HIB1 C 3 Bright
 			HIB1 DEFG 3 Bright
 		stop
+	}
+}
+
+Actor Golgoth_Elite : Golgoth {
+	states {
+		SetInfo:
+			TNT1 A 1
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0, 1)
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GOLGOTH)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
+		Goto SpawnSetup
 	}
 }

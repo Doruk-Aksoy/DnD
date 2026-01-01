@@ -74,3 +74,12 @@ Actor AbyssalArchVileFlame : ArchVileFire {
 		Stop
 	}
 }
+
+ACTOR AbyssalArchVile_Elite : AbyssalArchVile { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_ARCHVILE)
+		Goto SpawnSetup
+	}
+}

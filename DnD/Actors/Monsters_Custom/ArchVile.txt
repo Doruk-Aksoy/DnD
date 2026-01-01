@@ -522,6 +522,16 @@ Actor DMissileCircle {
 	}
 }
 
+ACTOR Diabloist_Elite : Diabloist { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DIABLOIST)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 ACTOR DeathVile : DnD_ArchVileBase {
 	Health 0x7FFFFFFF
 	Speed 16
@@ -597,6 +607,16 @@ Actor DarkFlame : ArchVileFire {
 			WFRE E 2 Bright A_Fire
 			WFRE FEFEFGHGHGH 2 Bright A_Fire
 		Stop	
+	}
+}
+
+ACTOR DeathVile_Elite : DeathVile { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DEATHVILE)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
 	}
 }
 
@@ -920,6 +940,16 @@ Actor HieroFX : AcolFX2 {
 			TNT1 A 3
 			HIER A 5 A_FadeOut(0.10)
 		Goto Spawn+1
+	}
+}
+
+ACTOR Hierophant_Elite : Hierophant { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_HIEROPHANT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -1285,6 +1315,16 @@ ACTOR DKFire {
 		Death:
 			DKAT UVW 3 Bright A_SpawnItem("DKExp2")
 		stop
+	}
+}
+
+ACTOR Deathknight_Elite : Deathknight { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DEATHKNIGHT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }
 
@@ -1705,6 +1745,16 @@ Actor UndeadPriestBullet : RapidFireBullet {
 	Stamina 1
 }
 
+ACTOR Horshacker_Elite : Horshacker { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_HORSHACKER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 	obituary "%o was bagged by an undead priest."
 	Health 0x7FFFFFFF
@@ -1919,6 +1969,16 @@ Actor UndeadSpiritAttack {
 			BDSP F 5 A_Scream 
 			BDSP GHIJ 4  
 		Stop 
+	}
+}
+
+ACTOR UndeadPriest_Elite : UndeadPriest { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_UNDEADPRIEST)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
+		Goto SpawnSetup
 	}
 }
 
@@ -2221,7 +2281,16 @@ Actor FireVileDamage : DnD_FakeDamager {
 	Damage (random(1,8))
 	Speed 32
 	+FLOORHUGGER
-	
+}
+
+ACTOR Guru_Elite : Guru { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GURU)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
 }
 
 Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
@@ -2555,6 +2624,16 @@ Actor DarkZealotPierce {
 	}
 }
 
+ACTOR DarkZealot_Elite : DarkZealot { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DARKZEALOT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
+		Goto SpawnSetup
+	}
+}
+
 actor FleshWizard : DnD_BaseRangedMonster_NoRes {
 	obituary "%o was tormented by a Flesh Wizard."
 	Health 0x7FFFFFFF
@@ -2790,5 +2869,15 @@ Actor FleshWizardDeathFX {
 			BSBL K 15 Bright
 			BSBL L 5 Bright
 		Stop
+	}
+}
+
+ACTOR FleshWizard_Elite : FleshWizard { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_FLESHWIZARD)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
+		Goto SpawnSetup
 	}
 }

@@ -122,7 +122,6 @@ Actor FTExplosion1 : DnD_ExplosiveBase {
 	+THRUACTORS
 	+NODAMAGETHRUST
 	+DONTSPLASH
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -199,7 +198,6 @@ Actor FTExplosion2 : DnD_ExplosiveBase {
 	+THRUACTORS
 	+NODAMAGETHRUST
 	+DONTSPLASH
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0
@@ -918,7 +916,6 @@ Actor RebounderProjectileAlt : DnD_ExplosiveBase {
 	
 	+DONTREFLECT
 	+FOILINVUL
-	var int user_count;
 	States {
 		SpawnState:
 			REBP A 1 Bright A_SpawnItemEx("RebounderTrail2")
@@ -1257,8 +1254,6 @@ Actor DarkLanceProjectile : DnD_FastRipperBase {
 	DeathSound "weapons/firex5_l"
 	
 	Stamina 32768
-
-	var int user_expdmg;
 	
 	Damage(
 		DND_WEAPON_DARKLANCE |

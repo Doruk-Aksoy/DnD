@@ -1,7 +1,8 @@
 Actor FatsoSpawner : DnD_MonsterSpawner replaces Fatso {
+	//$Sprite FATTA1
 	Health 0x7FFFFFFF
-	Height 0
-	Radius 0
+	Height 64
+	Radius 48
 	-COUNTKILL
 	-SOLID
 	+NOCLIP

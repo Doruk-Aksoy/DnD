@@ -1,4 +1,7 @@
 Actor ArchVileSpawner : DnD_MonsterSpawner replaces ArchVile {
+	//$Sprite VILEA1D1
+	Radius 20
+	Height 56
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_ARCHVILEID)

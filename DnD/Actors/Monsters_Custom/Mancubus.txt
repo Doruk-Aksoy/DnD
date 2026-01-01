@@ -172,6 +172,16 @@ ACTOR Ripper2Corpulent {
 	}
 }
 
+ACTOR Corpulent_Elite : Corpulent { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CORPULENT)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}
+
 Actor Daedabus : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	Radius 48
@@ -311,6 +321,16 @@ Actor DaedTrail {
 	}
 }
 
+ACTOR Daedabus_Elite : Daedabus { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_DAEDABUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
+		Goto SpawnSetup
+	}
+}
+
 actor IceFatso : DnD_BaseRangedMonster {
 	obituary "%o was shatterred by an Ice Mancubus."
 	Health 0x7FFFFFFF
@@ -435,6 +455,15 @@ actor IceFatBallTrail {
 			TNFX C 1 bright A_SetTranslucent(0.2)
 			TNFX D 1 bright A_SetTranslucent(0.1)
 		stop
+	}
+}
+
+ACTOR IceFatso_Elite : IceFatso { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ICEFATSO)
+		Goto SpawnSetup
 	}
 }
 
@@ -595,6 +624,16 @@ Actor MafibusBallTrail {
 			TNT1 A 1
 			MFBT ABCDEFGHI 1 Bright
 		Stop
+	}
+}
+
+ACTOR Mafibus_Elite : Mafibus { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_MAFIBUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }
 
@@ -930,6 +969,16 @@ Actor PaladinShieldFade {
 	}
 }
 
+ACTOR Paladin_Elite : Paladin { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_PALADIN)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 actor Gamon : DnD_BaseHybridMonster {
 	obituary "%o was shocked by a Gamon."
 	Health 0x7FFFFFFF
@@ -1121,6 +1170,16 @@ Actor MephistoBullet : ZombieBullet {
 	Accuracy 133
 }
 
+ACTOR Gamon_Elite : Gamon { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GAMON)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
+}
+
 Actor Mephisto : DnD_BaseRangedMonster {
 	Health 0x7FFFFFFF
 	Radius 48
@@ -1279,6 +1338,16 @@ actor MephistoPlasmaTrail {
 		Death:
 			TNT1 A 1
 		Stop
+	}
+}
+
+ACTOR Mephisto_Elite : Mephisto { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_MEPHISTO)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
 	}
 }
 
@@ -1469,6 +1538,16 @@ ACTOR AbominationShot2 {
 			TNT1 AAA 0 A_CustomMissile("FireballSmoke", 0, 0, random(0,360), 2, random(0,360))
 			IMFX QRSTUVW 3 Bright
 		stop
+	}
+}
+
+ACTOR Abomination_Elite : Abomination { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ABOMINATION)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
 	}
 }
 
@@ -1669,6 +1748,16 @@ Actor GolemLaserTrail {
 Actor GoldGolemBash : CrystalGolemBash {
 	Speed 40
 	damage (20 * random(1, 2))
+}
+
+ACTOR GoldGolem_Elite : GoldGolem { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_GOLDGOLEM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
+		Goto SpawnSetup
+	}
 }
 
 ACTOR Redeemer : DnD_BaseHybridMonster {
@@ -1917,6 +2006,16 @@ Actor RedeemerExplosion : ReaverExplosion {
 	}
 }
 
+ACTOR Redeemer_Elite : Redeemer { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_REDEEMER)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
+		Goto SpawnSetup
+	}
+}
+
 Actor Yeti : DnD_BaseHybridMonster {
 	Health 0x7FFFFFFF
 	Mass 1024
@@ -2159,5 +2258,15 @@ ACTOR YetiIceShard {
 		SkipSound:
 			FX39 DEFG 3 Bright
 		Stop
+	}
+}
+
+ACTOR Yeti_Elite : Yeti { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_YETI)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
 	}
 }

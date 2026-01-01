@@ -54,8 +54,8 @@ Monsters/NBSit3		DSNBSIT3
 
 $random Monsters/NBDeath { Monsters/NBDth1 Monsters/NBDth2 Monsters/NBDth3 }
 Monsters/NBDth1		DSNBDTH1
-Monsters/NBDth1		DSNBDTH2
-Monsters/NBDth1		DSNBDTH3
+Monsters/NBDth2		DSNBDTH2
+Monsters/NBDth3		DSNBDTH3
 
 Monsters/NBPain		DSNBPAIN
 Monsters/NBAct		DSNBSACT
@@ -205,7 +205,7 @@ $random Satyr/Die { Satyr/Die1 Satyr/Die2 Satyr/Die3 Satyr/Die4 }
 Satyr/Hit1			SATYHIT1
 Satyr/Hit2			SATYHIT2
 Satyr/Hit3			SATYHIT3
-$random Satyr/Hit { Satyr/Hit1 Satyr/Hit2 Satyr/Hit3 Satyr/Hit4 }
+$random Satyr/Hit { Satyr/Hit1 Satyr/Hit2 Satyr/Hit3 }
 Satyr/Act1			SATYACT1
 Satyr/Act2			SATYACT2
 Satyr/Act3			SATYACT3
@@ -368,7 +368,7 @@ $random CyborgWarrior/Die { CyborgWarrior/Die1 CyborgWarrior/Die2 }
 CyborgWarrior/See1	CYBGSEE1
 CyborgWarrior/See2	CYBGSEE2
 CyborgWarrior/See3	CYBGSEE3
-$random CyborgWarrior/See { CyborgWarrior/See1 CyborgWarrior/See2 CyborgWarrior/See3 CyborgWarrior/See4 }
+$random CyborgWarrior/See { CyborgWarrior/See1 CyborgWarrior/See2 CyborgWarrior/See3 }
 
 Mephisto/Die		ROBDED
 Mephisto/Chaingun	ROBCGF
@@ -1097,7 +1097,7 @@ widowmaker/sight        WDMKSIGT
 widowmaker/death        WDMKDETH
 widowmaker/pain         WDMKPAIN
 
-$random widowmaker/act {widowmaker/act1 widowmaker/act2 widowmaker/act3}
+$random widowmaker/act {widowmaker/act1 widowmaker/act2}
 widowmaker/act1 BDGACT1
 widowmaker/act2 BDGACT2
 sfx/psmallexplo	 PSMEXP
@@ -1145,7 +1145,7 @@ angeltracer/explode2                 ric02
 angeltracer/explode3                 ric03
 angeltracer/fire                     clank
 
-$random pipebomb/whoosh 		{ pipe/whoosh1  pipe/whoosh2  }
+$random pipebomb/whoosh 		{ pipebomb/whoosh1  pipebomb/whoosh2  }
 pipebomb/fire                       pipesh
 pipebomb/explode                    boom1
 pipebomb/whoosh1                    pipe1

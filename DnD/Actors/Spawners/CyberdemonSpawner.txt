@@ -1,7 +1,8 @@
 Actor CyberdemonSpawner : DnD_MonsterSpawner replaces Cyberdemon {
+	//$Sprite CYBRA1
 	Health 0x7FFFFFFF
-	Height 0
-	Radius 0
+	Height 110
+	Radius 40
 	-COUNTKILL
 	-SOLID
 	+NOCLIP

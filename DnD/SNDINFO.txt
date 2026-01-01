@@ -879,7 +879,7 @@ $random Player/Dash { Player/Dash1 Player/Dash2 Player/Dash3 Player/Dash4 }
 Ability/Regen			ABREGEN
 
 
-$random misc/xdeath		{ misc/xdeath1a misc/xdeath1b misc/xdeath1c misc/xdeath1d misc/xdeath1e misc/xdeath1f misc/xdeath2a misc/xdeath2b misc/xdeath2c misc/xdeath2d misc/xdeath2e misc/xdeath2f misc/xdeath3a misc/xdeath3b misc/xdeath3c misc/xdeath4a misc/xdeath4b misc/xdeath4c }
+$random misc/xdeath		{ misc/xdeath1a misc/xdeath1b misc/xdeath1c misc/xdeath1d misc/xdeath1e misc/xdeath1f }
 misc/xdeath1a			dsxdth1a
 misc/xdeath1b			dsxdth1b
 misc/xdeath1c			dsxdth1c

@@ -73,3 +73,13 @@ ACTOR FlemoidMobius : DnD_BaseHybridMonster {
 		stop
 	}
 }
+
+ACTOR FlemoidMobius_Elite : FlemoidMobius { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_CHEX_FLEMOBIUS)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
+		Goto SpawnSetup
+	}
+}

@@ -643,7 +643,7 @@ int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE);
-	base += Clamp_Between(DND_STARTER_LUCK - (GetLevel() + 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0);
+	base += Clamp_Between(DND_STARTER_LUCK - (GetLevel() - 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0) + MapData[DND_MAPDATA_LOOTBONUS];
 		
 	// more chance to find loot
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));
@@ -1109,7 +1109,7 @@ void ResetPlayerItems(int pnum) {
 
 	// take all abilities
 	for(i = 0; i < MAXABILITIES; ++i)
-		SetInventory(AbilityInfo[i], 0);
+		SetInventory(GetAbilityInfo(i), 0);
 		
 	// take all researches, artifacts etc.
 	for(i = 0; i < RESEARCH_BITSETS; ++i) {

@@ -965,7 +965,7 @@ Size 86
 PointLight BruiserFire_18
 {
 Offset 0 0 0
-Color 1.38 0.13 0.0
+Color 1.0 0.13 0.0
 Size 87
 }
 
@@ -2621,6 +2621,23 @@ PulseLight LavaDemonLight
 }
 
 object LavaDemon
+{
+	Frame LAVDA { light LavaDemonLight }
+	Frame LAVDB { light LavaDemonLight }
+	Frame LAVDC { light LavaDemonLight }
+	Frame LAVDD { light LavaDemonLight }
+	Frame LAVDE { light LavaDemonLight }
+	Frame LAVDF { light LavaDemonLight }
+	Frame LAVDG { light LavaDemonLight }
+	Frame LAVDH { light LavaDemonLight }
+	Frame LAVDS { light LavaDemonLight }
+	Frame LAVDT { light LavaDemonLight }
+	Frame LAVDU { light LavaDemonLight }
+	Frame LAVDV { light LavaDemonLight }
+	Frame LAVDW { light LavaDemonLight }
+}
+
+object LavaDemon_Elite
 {
 	Frame LAVDA { light LavaDemonLight }
 	Frame LAVDB { light LavaDemonLight }

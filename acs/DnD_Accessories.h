@@ -63,27 +63,17 @@ enum {
 
 #define DND_HUNTERTALISMAN_NERF 3 // 1 / 3 -- this is subtracted
 
-#define ACCESSORY_NAME 0
-#define ACCESSORY_ICON 1
-str AccessoryInfo[MAX_ACCESSORY][3] = { 
-	{ "Accessory_1", 		"ACC1B0"	},
-	{ "Accessory_2", 		"ACC2B0"	},
-	{ "Accessory_3", 		"ACC3B0"	},
-	{ "Accessory_4", 		"ACC4B0"	},
-	{ "Accessory_5", 		"ACC5B0"	},
-	{ "Accessory_6", 		"ACC6B0"	},
-	{ "Accessory_7", 		"ACC7B0"	},
-	{ "Accessory_8", 		"ACC8B0"	},
-	{ "Accessory_9", 		"ACC9B0"	},
-	{ "Accessory_10", 	"AC10B0"	},
-	{ "Accessory_11", 	"AC11B0"	},
-	{ "Accessory_12", 	"AC12B0"	},
-	{ "Accessory_13", 	"AC13B0"	},
-	{ "Accessory_14", 	"AC14B0"	},
-	{ "Accessory_15", 	"AC15B0"	},
-	{ "Accessory_16", 	"AC16B0"	},
-	{ "Accessory_17", 	"AC17B0"	}
-};
+// id is 0 based
+str GetAccessoryIcon(int id) {
+	++id;
+	if(id < 10)
+		return StrParam(s:"ACC", d:id, s:"B0");
+	return StrParam(s:"AC", d:id, s:"B0");
+}
+
+str GetAccessoryName(int id) {
+	return StrParam(s:"Accessory_", d:id + 1);
+}
 
 #define ACCESSORY_TAG 0
 #define ACCESSORY_PRO 1

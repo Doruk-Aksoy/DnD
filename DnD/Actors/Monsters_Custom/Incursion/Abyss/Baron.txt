@@ -88,3 +88,12 @@ Actor AbyssalBaronBall : BaronBall {
 		Stop
 	}
 }
+
+ACTOR AbyssalBaron_Elite : AbyssalBaron { 
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
+			TNT1 A 0 A_SetArg(4, DND_ABYSS_BARON)
+		Goto SpawnSetup
+	}
+}

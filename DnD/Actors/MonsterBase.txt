@@ -123,7 +123,7 @@ Actor DnD_BaseMonster {
 		Wait
 		
 		SpawnSetup:
-			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[4], args[1])
+			"####" "#" 0 ACS_NamedExecuteWithResult("DnD Monster Scale", args[4], args[1], args[3])
 		Idle:
 			"####" "#" 0 ACS_NamedExecuteAlways("DnD Monster Idle", 0)
 			"####" "#" 0 A_Jump(256, "IdleState")
@@ -258,6 +258,11 @@ Actor DnD_BaseMonster {
 		Goto Death
 	}
 }
+
+enum {
+	DND_MONSTERIS_TOUGH = 1,
+	DND_MONSTERIS_ELITE = 2
+};
 
 Actor DnD_IceDeathToken : DnD_Activator {
 	States {

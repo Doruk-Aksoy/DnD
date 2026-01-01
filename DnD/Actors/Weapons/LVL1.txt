@@ -347,7 +347,8 @@ ACTOR Sickle : DnDWeapon {
 		ReadyInit:
 			SCKL A 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 		ReadyLoop:
-			SCKL A 1 Offset(0, 32) A_WeaponReady(WRF_ALLOWZOOM)
+			SCKL AAA 1 A_WeaponReady(WRF_ALLOWZOOM | WRF_NOSECONDARY)
+			SCKL A 1 A_WeaponReady(WRF_ALLOWZOOM)
 		Loop
 		Fire:
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
@@ -500,8 +501,6 @@ Actor SickleGhostwave : DnD_RipperBase {
 	SeeSound "Sickle/Ghost"
 	
 	Stamina 268468224
-
-	var int user_expdmg;
 	
 	+BLOODLESSIMPACT
 	+RIPPER
@@ -605,6 +604,7 @@ ACTOR Excalibat : DnDWeapon {
 			EBAT A -1
 		Stop
 		Select:
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Weapon Select", DND_WEAPON_EXCALIBAT)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Berserker Perk5 Check (Melee)")
 		SelectLoop:
 			EXCL A 1 A_Raise
@@ -1395,7 +1395,6 @@ Actor KatanaShockWave : DnD_RipperBase {
 	Stamina 134250512
 	
 	var int user_tics;
-	var int user_expdmg;				// bigger collision box imitating rippers need this
 	
 	// simulate ripper of r = 24, h = 64
 	// assume avg area of 56

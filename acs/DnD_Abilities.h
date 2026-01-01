@@ -16,17 +16,30 @@ enum {
 
 #define MAXABILITIES (ABILITY_SOULSTEALER + 1)
 
-str AbilityInfo[MAXABILITIES] = {
-	"Ability_ParryMaster",
-	"Ability_Reloader",
-	"Ability_Dash",
-	"Ability_Arcanery",
-	"Ability_AntiPoison",
-	"Ability_ExplosionMastery",
-	"Ability_HeartSeeker",
-	"Ability_Regeneration",
-	"Ability_Temporal",
-	"Ability_SoulStealer"
-};
+str GetAbilityInfo(int id) {
+	switch(id) {
+		case ABILITY_PARRYMASTER:
+		return "Ability_ParryMaster";
+		case ABILITY_RELOADER:
+		return "Ability_Reloader";
+		case ABILITY_DASH:
+		return "Ability_Dash";
+		case ABILITY_ARCANERY:
+		return "Ability_Arcanery";
+		case ABILITY_ANTIPOISON:
+		return "Ability_AntiPoison";
+		case ABILITY_EXPLOSIONMASTERY:
+		return "Ability_ExplosionMastery";
+		case ABILITY_HEARTSEEKER:
+		return "Ability_HeartSeeker";
+		case ABILITY_REGEN:
+		return"Ability_Regeneration";
+		case ABILITY_TEMPORAL:
+		return "Ability_Temporal";
+		case ABILITY_SOULSTEALER:
+		return "Ability_SoulStealer";
+	}
+	return "";
+}
 
 #endif

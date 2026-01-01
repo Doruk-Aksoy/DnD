@@ -1,7 +1,8 @@
 Actor SpiderBossSpawner : DnD_MonsterSpawner replaces SpiderMastermind {
+	//$Sprite SPIDA1D1
 	Health 0x7FFFFFFF
-	Height 0
-	Radius 0
+	Height 100
+	Radius 128
 	-COUNTKILL
 	-SOLID
 	+NOCLIP

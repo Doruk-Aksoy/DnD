@@ -245,7 +245,6 @@ Actor IonExplosion : DnD_ExplosiveBase {
 	+FORCERADIUSDMG
 	+NODAMAGETHRUST
 	+THRUACTORS
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0

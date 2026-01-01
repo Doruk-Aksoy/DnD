@@ -439,7 +439,6 @@ Actor HellFireTrailFExp : DnD_ExplosiveBase {
 	Speed 0
 	Stamina 4194304
 	+THRUACTORS
-	var int user_count;
 	States {
 		SpawnState:
 			TNT1 A 0

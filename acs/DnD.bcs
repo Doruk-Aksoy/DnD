@@ -8,7 +8,8 @@
 #include "DnD.h"
 #include "DnD_Prompts.h"
 
-#define DND_LOOTBOX_ORBDROPCHANCE 0.25
+#define DND_LOOTBOX_ORBDROPCHANCE1 0.25
+#define DND_LOOTBOX_ORBDROPCHANCE2 0.5
 #define DND_LOOTBOX_TOKENDROPCHANCE 0.15
 #define DND_LOOTBOX_CHESTKEYDROPCHANCE 0.1
 #define DND_LOOTBOX_ARMORDROPCHANCE 0.5
@@ -1638,7 +1639,7 @@ Script "DnD Setup Shootable" (void) {
 }
 
 // Monster scaler -- add scaling stuff here
-Script "DnD Monster Scale" (int monsterid, int isSummoned) {
+Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 	GiveMonsterTID(ActivatorTID());
 
 	//printbold(s:"Monster ", s:GetActorClass(0), s:" id ", d:ActivatorTID());
@@ -1685,7 +1686,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 	int traitcount;
 	if(!IsEliteException(m_id, monsterid)) {
 		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
-		if(GetCVar("dnd_enable_elites") && base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		if(toughOrElite == DND_MON_PRESET_ELITE || (GetCVar("dnd_enable_elites") && base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel"))) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;
 			
 			// Elite bonuses
@@ -1707,7 +1708,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned) {
 				MonsterProperties[m_id].maxhp = maxhp;
 			}
 		}
-		else if(base == ROLLED_MONSTER_IS_MAGIC && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel")) {
+		else if(toughOrElite == DND_MON_PRESET_TOUGH || (base == ROLLED_MONSTER_IS_MAGIC && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel"))) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISMAGIC;
 
 			// Magic bonuses
@@ -3241,7 +3242,8 @@ Script "DnD Player Setup" ENTER {
 	if(isHardcore() && !CheckInventory("HardcoreDebuff"))
 		GiveInventory("HardcoreDebuff", 1);
 
-	SetInventory("MapDifficultyClientside", MapData[DND_MAPDATA_DIFFICULTY]);
+	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_DIFFICULTY, MapData[DND_MAPDATA_DIFFICULTY]);
+	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_LOOTBONUS, MapData[DND_MAPDATA_LOOTBONUS]);
 	
 	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
 	// for zombie quest to work
@@ -3294,6 +3296,10 @@ Script "DnD Player Setup" ENTER {
 	Delay(10*TICRATE);
 	Log(s:"nuclear count: ", d:test_counter);
 #endif*/
+}
+
+Script "DnD Sync Mapdata" (int id, int val) CLIENTSIDE {
+	MapData[id] = val;
 }
 
 Script "DnD Can Look Around" (void) {
@@ -5221,7 +5227,7 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 		Log(s:"\n--------------------------------\n------- ", l:"DND_MENU_ACCESSORIES", s:" -------\n--------------------------------\n");
 		for(j = 0, i = 0; i < MAX_ACCESSORY && j < 2; ++i) {
 			if(IsAccessoryEquipped(0, 1 << i)) {
-				Log(s:"\c[Y5]", l:"DND_ACCESSORY", s:" ", d:(j + 1), s:": \c[C5]", s:AccessoryInfo[i][ACCESSORY_TAG]);
+				Log(s:"\c[Y5]", l:"DND_ACCESSORY", s:" ", d:(j + 1), s:": \c[C5]", s:GetAccessoryText(i, ACCESSORY_TAG));
 				++j;
 			}
 		}

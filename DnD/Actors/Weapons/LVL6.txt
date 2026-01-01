@@ -1563,8 +1563,7 @@ Actor FrostFangBall : DnD_RipperBase {
 		(100 << DPCT_SHIFT)
 	)
 	DamageType "P_Ice"
-	
-	var int user_count;
+
 	states {
 		SpawnState:
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Set Projectile RipCount", 8)
