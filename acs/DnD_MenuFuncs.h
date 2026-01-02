@@ -75,9 +75,10 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 						// skip as far ahead as we are able
 						do {
 							--curposx;
-						} while(curposx > 0 && ResearchInfo[curr_res_page][curposx].res_id != -1 && CheckResearchStatus(ResearchInfo[curr_res_page][curposx].res_id) == RES_DONE);
+							res_info_T module& resData = GetResearchInfo(curr_res_page, curposx);
+						} while(curposx > 0 && resData.res_id != -1 && CheckResearchStatus(resData.res_id) == RES_DONE);
 						
-						if(CheckResearchStatus(ResearchInfo[curr_res_page][curposx].res_id) != RES_DONE)
+						if(CheckResearchStatus(resData.res_id) != RES_DONE)
 							SetInventory("MenuPosX", curposx);
 					}
 					LocalAmbientSound("RPG/MenuMove", 127);
@@ -98,16 +99,17 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 			else
 				p = IsButtonHeld(bpress, GetMovementButton(MVMT_BT_RIGHT)) && !CheckInventory("Menu_LRCooldown");
 			if(p) {
-				if(curposx + 1 < condx_max && ResearchInfo[curr_res_page][curposx + 1].res_id != -1) {
+				if(curposx + 1 < condx_max && GetResearchInfo(curr_res_page, curposx + 1).res_id != -1) {
 					if(!(listenflag & LISTEN_SKIPKNOWNRES))
 						GiveInventory("MenuPosX", 1);
 					else {
 						// skip as far ahead as we are able
 						do {
 							++curposx;
-						} while(ResearchInfo[curr_res_page][curposx].res_id != -1 && curposx < condx_max && CheckResearchStatus(ResearchInfo[curr_res_page][curposx].res_id) == RES_DONE);
+							resData = GetResearchInfo(curr_res_page, curposx);
+						} while(resData.res_id != -1 && curposx < condx_max && CheckResearchStatus(resData.res_id) == RES_DONE);
 						// no change if we can't move further
-						if(ResearchInfo[curr_res_page][curposx].res_id != -1)
+						if(resData.res_id != -1)
 							SetInventory("MenuPosX", curposx);
 					}
 					LocalAmbientSound("RPG/MenuMove", 127);
@@ -169,13 +171,13 @@ int GetItemFlags(int itemid) {
 	int type = GetItemType(itemid);
 	switch(type) {
 		case TYPE_WEAPON:
-		return WeaponDrawInfo[itemid - SHOP_WEAPON_BEGIN].flags;
+		return GetWeaponDrawInfo(itemid - SHOP_WEAPON_BEGIN).flags;
 		case TYPE_AMMO:
-		return AmmoDrawInfo[itemid - SHOP_FIRSTAMMO_INDEX].flags;
+		return GetAmmoDrawInfo(itemid - SHOP_FIRSTAMMO_INDEX).flags;
 		case TYPE_ARTI:
-		return ArtifactDrawInfo[itemid - SHOP_FIRSTARTI1_INDEX].flags;
+		return GetArtifactDrawInfo(itemid - SHOP_FIRSTARTI1_INDEX).flags;
 		case TYPE_ABILITY:
-		return AbilityDrawInfo[itemid - SHOP_ABILITY1_BEGIN].flags;
+		return GetAbilityDrawInfo(itemid - SHOP_ABILITY1_BEGIN).flags;
 		case TYPE_ACCOUNT:
 		return OBJ_RESEARCH;
 	}
@@ -263,6 +265,113 @@ void DrawPerkText(int boxid) {
 }
 
 void DrawDamageTypes(int req_id, int constraint, int flags) {
+	static int WeaponDamageTypes[MAXSHOPWEAPONS] = {
+		// 1
+		DTYPE_MELEE,
+		DTYPE_MELEE,
+		DTYPE_MELEE | DTYPE_OCCULT,
+		DTYPE_MELEE | DTYPE_FIRE,
+		DTYPE_MELEE | DTYPE_OCCULT,
+		DTYPE_MELEE | DTYPE_OCCULT,
+		
+		// 2
+		DTYPE_PHYSICAL,
+		DTYPE_PHYSICAL,
+		DTYPE_ENERGY,
+		DTYPE_FIRE,
+		DTYPE_PHYSICAL,
+		DTYPE_OCCULT,
+		DTYPE_PHYSICAL,
+		
+		// 3 - 1
+		DTYPE_PHYSICAL,
+		DTYPE_PHYSICAL,
+		DTYPE_POISON,
+		DTYPE_PHYSICAL,
+		DTYPE_ICE,
+		DTYPE_OCCULT | DTYPE_MELEE,
+		DTYPE_ICE | DTYPE_FIRE | DTYPE_POISON,
+		DTYPE_PHYSICAL,
+		
+		
+		// 3 - 2
+		DTYPE_PHYSICAL,
+		DTYPE_EXPLOSIVE | DTYPE_OCCULT,
+		DTYPE_MELEE | DTYPE_LIGHTNING,
+		DTYPE_ENERGY,
+		DTYPE_LIGHTNING | DTYPE_FIRE,
+		DTYPE_PHYSICAL | DTYPE_FIRE,
+		DTYPE_PHYSICAL | DTYPE_OCCULT,
+		DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+
+		// 3 - 3
+		DTYPE_OCCULT,
+		
+		// 4 - 1
+		DTYPE_PHYSICAL,
+		DTYPE_ENERGY,
+		DTYPE_OCCULT,
+		DTYPE_PHYSICAL,
+		DTYPE_PHYSICAL,
+		DTYPE_PHYSICAL | DTYPE_POISON,
+		DTYPE_ENERGY,
+		DTYPE_FIRE,
+		
+		// 4 - 2
+		DTYPE_POISON,
+		DTYPE_PHYSICAL,
+		DTYPE_OCCULT,
+		DTYPE_ENERGY,
+		
+		// 5 - 1
+		DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+		DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+		DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+		DTYPE_FIRE | DTYPE_MELEE,
+		DTYPE_OCCULT,
+		DTYPE_EXPLOSIVE | DTYPE_PHYSICAL,
+		DTYPE_ICE,
+		DTYPE_PHYSICAL,
+		
+		// 5 - 2
+		DTYPE_ENERGY,
+		DTYPE_EXPLOSIVE | DTYPE_ICE,
+		DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+		DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+		DTYPE_ENERGY | DTYPE_POISON,
+		
+		// 6 - 1
+		DTYPE_ENERGY,
+		DTYPE_ENERGY,
+		DTYPE_ICE,
+		DTYPE_PHYSICAL,
+		DTYPE_FIRE,
+		DTYPE_LIGHTNING,
+		DTYPE_ENERGY,
+		DTYPE_OCCULT,
+		
+		// 6 - 2
+		DTYPE_PHYSICAL,
+		DTYPE_OCCULT,
+		DTYPE_OCCULT,
+		
+		// 7
+		DTYPE_ENERGY,
+		DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+		DTYPE_ENERGY,
+		DTYPE_ENERGY,
+		DTYPE_LIGHTNING,
+		DTYPE_ENERGY | DTYPE_EXPLOSIVE,
+		DTYPE_ENERGY,
+		DTYPE_ENERGY | DTYPE_EXPLOSIVE,
+		
+		// 8
+		DTYPE_OCCULT,
+		DTYPE_OCCULT,
+		DTYPE_OCCULT,
+		DTYPE_OCCULT
+	};
+
 	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES - 1);
 	if(req_id == -1 || CheckItemRequirements(req_id, constraint, flags)) {
 		int j = 0;
@@ -412,7 +521,7 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 	int real_wid = ShopTableIdToWeaponTableId(wid);
 	
 	DeleteTextRange(RPGMENUWEAPONPANELID - MAX_WEAPON_PROPERTIES, RPGMENUWEAPONPANELID - 1);
-	if(CheckItemRequirements(wid, RES_KNOWN, WeaponDrawInfo[wid - SHOP_WEAPON_BEGIN].flags)) {
+	if(CheckItemRequirements(wid, RES_KNOWN, GetWeaponDrawInfo(wid - SHOP_WEAPON_BEGIN).flags)) {
 		SetHudSize(HUDMAX_X * 2, HUDMAX_Y * 2, 1);
 		for(int i = 0; i < MAX_WEAPON_PROPERTIES; ++i) {
 			if(IsSet(Weapons_Data[real_wid].properties, i)) {
@@ -496,27 +605,27 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_SHOP_WEAPON3_1:
 		case MENU_SHOP_WEAPON3_2:
 		case MENU_SHOP_WEAPON4_2:
-			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
 				redraw = ListenScroll(-36, 0);
 		break;
 		case MENU_SHOP_WEAPON5_1:
-			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
 				redraw = ListenScroll(-40, 0);
 		break;
 		case MENU_SHOP_WEAPON2:
 		case MENU_SHOP_WEAPON6_2:
 		case MENU_SHOP_WEAPON7:
-			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
 				redraw = ListenScroll(-16, 0);
 		break;
 		case MENU_SHOP_WEAPON4_1:
 		case MENU_SHOP_WEAPON5_2:
-			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
 				redraw = ListenScroll(-24, 0);
 		break;
 		
 		case MENU_SHOP_WEAPON6_1:
-			if(boxid != -1 && (WeaponDrawInfo[GetWeaponBeginIndexFromOption(curopt) + boxid - 1].flags & OBJ_USESCROLL))
+			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
 				redraw = ListenScroll(-40, 0);
 		break;
 		case MENU_RESEARCH_BODY:
@@ -542,11 +651,11 @@ void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
 	if(boxid != MAINBOX_NONE) {
 		if(isSpecial) {
 			ammoindex = MAXSHOPNORMALAMMOS + boxid - 1;
-			toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_ICON], "", AmmoDrawInfo[ammoindex].res_id, RES_KNOWN, AmmoDrawInfo[ammoindex].flags);
+			toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_ICON], "", GetAmmoDrawInfo(ammoindex).res_id, RES_KNOWN, GetAmmoDrawInfo(ammoindex).flags);
 		}
 		else {
-			int shopindex = MenuAmmoIndexMap[slot][ammoindex] - SHOP_FIRSTAMMO_INDEX;
-			toshow = GetTextWithResearch(AmmoInfo[slot][ammoindex].icon, "", AmmoDrawInfo[shopindex].res_id, RES_KNOWN, AmmoDrawInfo[shopindex].flags);
+			int shopindex = GetMenuAmmoIndexMap(slot, ammoindex) - SHOP_FIRSTAMMO_INDEX;
+			toshow = GetTextWithResearch(AmmoInfo[slot][ammoindex].icon, "", GetAmmoDrawInfo(shopindex).res_id, RES_KNOWN, GetAmmoDrawInfo(shopindex).flags);
 		}
 	}
 
@@ -561,7 +670,8 @@ void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
 
 // the itemid as is works here because the first item list on menu is weapons in enum at dnd_menuconstants.h
 void DrawWeaponIconCorner(int itemid) {
-	str toshow = GetTextWithResearch(GetWeaponShopIcon(itemid), "", WeaponDrawInfo[itemid].res_id, RES_KNOWN, WeaponDrawInfo[itemid].flags);
+	draw_info_T module& drawInfo = GetWeaponDrawInfo(itemid);
+	str toshow = GetTextWithResearch(GetWeaponShopIcon(itemid), "", drawInfo.res_id, RES_KNOWN, drawInfo.flags);
 
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
@@ -569,12 +679,13 @@ void DrawWeaponIconCorner(int itemid) {
 		SetFont("NMENUFNT");
 		
 		// draw damage types as well
-		DrawDamageTypes(itemid, RES_KNOWN, WeaponDrawInfo[itemid].flags);
+		DrawDamageTypes(itemid, RES_KNOWN, drawInfo.flags);
 	}
 }
 
 void DrawArtifactIconCorner(int boxid) {
-	str toshow = GetTextWithResearch(ArtifactInfo[boxid][ARTI_ICON], "", ArtifactDrawInfo[boxid].res_id, RES_KNOWN, ArtifactDrawInfo[boxid].flags);
+	draw_info_T module& arti_info = GetArtifactDrawInfo(boxid);
+	str toshow = GetTextWithResearch(ArtifactInfo[boxid][ARTI_ICON], "", arti_info.res_id, RES_KNOWN, arti_info.flags);
 
 	if(StrCmp(toshow, "")) {
 		SetFont(toshow);
@@ -752,10 +863,11 @@ int GetShopPrice (int id, int priceflag = 0) {
 
 // returns 0 for buy being possible
 bool CanResearch(int respage, int posx) {
-	int status = CheckResearchStatus(ResearchInfo[respage][posx].res_id);
+	res_info_T module& resData = GetResearchInfo(respage, posx);
+	int status = CheckResearchStatus(resData.res_id);
 	bool finish_check = status != RES_DONE;
 	bool found_check = status == RES_KNOWN;
-	bool budget_check = CheckInventory("Budget") >= (ResearchInfo[respage][posx].res_cost * (IsShotgunResearch(ResearchInfo[respage][posx].res_id) && HasClassPerk_Fast("Hobo", 1) ? 4 : 5)) / 5;
+	bool budget_check = CheckInventory("Budget") >= (resData.res_cost * (IsShotgunResearch(resData.res_id) && HasClassPerk_Fast("Hobo", 1) ? 4 : 5)) / 5;
 	if(finish_check && found_check && budget_check)
 		return false;
 	GiveInventory("DnD_PopupError", 1);
@@ -884,7 +996,7 @@ void DrawBudget() {
 }
 
 int GetAmmoToGive(int index) {
-	return AmmoCounts[index - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] * GetAmmoGainFactor() / 100;
+	return GetMenuAmmoCount(index - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) * GetAmmoGainFactor() / 100;
 }
 
 str GetShopWeaponTag(int id) {
@@ -2505,7 +2617,7 @@ void HandleWeaponPageDraw(int pnum, int opt, int multipage, int slotid, int boxi
 	HudMessage(s:"\c[Y5]", l:"DND_MENU_CREDITS", s:": \c-$", d:GetPlayerCredit(pnum); HUDMSG_PLAIN, RPGMENUITEMID, CR_WHITE, 264.1, 64.0, 0.0, 0.0);
 	
 	for(int i = begin; i <= end; ++i)
-		DrawToggledImage(pnum, i, boxid, i - begin, WeaponDrawInfo[i - SHOP_WEAPON_BEGIN].flags, CR_WHITE, CR_GREEN, GetWeaponCondition(i), 1, CR_RED, redraw);
+		DrawToggledImage(pnum, i, boxid, i - begin, GetWeaponDrawInfo(i - SHOP_WEAPON_BEGIN).flags, CR_WHITE, CR_GREEN, GetWeaponCondition(i), 1, CR_RED, redraw);
 }
 
 // These except ammo indexes, true ammo indexes (dnd_ammo.h) not menu relative
@@ -2531,15 +2643,15 @@ void HandleAmmoPageDraw(int pnum, int boxid, int slot, int multipage, int start_
 
 	if(!specialammo) {
 		for(i = start_index; i <= end_index; ++i) {
-			shopindex = MenuAmmoIndexMap[slot][i];
-			DrawToggledImage(pnum, shopindex, boxid, i - start_index, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+			shopindex = GetMenuAmmoIndexMap(slot, i);
+			DrawToggledImage(pnum, shopindex, boxid, i - start_index, GetAmmoDrawInfo(shopindex - SHOP_FIRSTAMMO_INDEX).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 		}
 		DrawAmmoIconCorner(slot, boxid, boxid + start_index - 1, false);
 	}
 	else {
 		for(i = 0; i < MAX_SPECIAL_AMMOS_FOR_SHOP; ++i) {
 			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
-			DrawToggledImage(pnum, shopindex, boxid, i, AmmoDrawInfo[shopindex - SHOP_FIRSTAMMO_INDEX].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+			DrawToggledImage(pnum, shopindex, boxid, i, GetAmmoDrawInfo(shopindex - SHOP_FIRSTAMMO_INDEX).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 		}
 		DrawAmmoIconCorner(-1, boxid, -1, true);
 	}
@@ -2596,7 +2708,7 @@ void HandleAmmoPageInput(int pnum, int slot, int boxid, int begin_index, int pag
 		slot = -1;
 	}
 	else
-		id = MenuAmmoIndexMap[slot][boxid + begin_index - 1];
+		id = GetMenuAmmoIndexMap(slot, boxid + begin_index - 1);
 		
 	// printbold(d:id, s: " ", d:boxid + begin_index - 1, s: " vs ", d:AMMO_SLAYER);
 	
@@ -2625,7 +2737,8 @@ void HandleAmmoPageInput(int pnum, int slot, int boxid, int begin_index, int pag
 
 void HandleResearchPageDraw(int pnum, int page, int boxid) {
 	int posx = CheckInventory("MenuPosX");
-	int status = CheckResearchStatus(ResearchInfo[page][posx].res_id);
+	res_info_T module& resData = GetResearchInfo(page, posx);
+	int status = CheckResearchStatus(resData.res_id);
 	int budget = CheckInventory("Budget");
 
 	HudMessage(s:"--- ", l:"DND_MENU_HEAD_RESPAN", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0);
@@ -2635,7 +2748,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 	if(posx)
 		HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0);
 
-	if(ResearchInfo[page][posx + 1].res_id != -1)
+	if(GetResearchInfo(page, posx + 1).res_id != -1)
 		HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0);
 
 	if(budget)
@@ -2668,7 +2781,7 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 	
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 96.0, 0.0);
 
-	bool no_drop = ResearchFlags[ResearchInfo[page][posx].res_id].res_flags & RESF_NODROP;
+	bool no_drop = ResearchFlags[resData.res_id].res_flags & RESF_NODROP;
 	if(no_drop && status == RES_NA) {
 		SetFont("RESNONE");
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 199.1, 96.0, 0.0);
@@ -2683,11 +2796,11 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 		
 		SetFont("NMENUFNT");
 		
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- #", d:ResearchInfo[page][posx].res_number; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 264.1, 88.0, 0.0);
-		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- $", d:ResearchInfo[page][posx].res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 264.1, 104.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_ENTRY", s:":\c- #", d:resData.res_number; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 264.1, 88.0, 0.0);
+		HudMessage(s:"\c[Y5]", l:"DND_MENU_BUDGET", s: " ", l:"DND_MENU_COST", s:":\c- $", d:resData.res_cost, s:"k"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 264.1, 104.0, 0.0);
 		
 		SetHudClipRect(192, 144, 256, 96, 256);
-		HudMessage(l:GetResearchDescription(ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 152.1, 0.0);
+		HudMessage(l:GetResearchDescription(resData.res_id); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 152.1, 0.0);
 		SetHudClipRect(0, 0, 0, 0, 0);
 	}
 
@@ -2700,13 +2813,13 @@ void HandleResearchPageDraw(int pnum, int page, int boxid) {
 			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 9, 392.1, 232.0, "\c[B1]", "\c[Y5]");
 		
 			// show the invested % chance to drop if it can drop
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", s:GetFixedRepresentation(GetResearchDropRate(pnum, ResearchInfo[page][posx].res_id, true), false), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_DISCOVERYCHANCE", s:": \cj", s:GetFixedRepresentation(GetResearchDropRate(pnum, resData.res_id, true), false), s:"%"; HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 264.1, 136.1, 0.0, 0.0);
 		}
 		else
 			DrawBoxText("DND_MENU_INVEST", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 11, 392.1, 232.0, "\c[B1]", "\c[G8]");
 			
 		if(boxid == MBOX_2) {
-			HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj", d:GetInvestmentCost(pnum, page, posx, ResearchInfo[page][posx].res_id); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 440.2, 236.1, 0.0, 0.0);
+			HudMessage(s:"\c[Y5]", l:"DND_MENU_COST", s:": \cj", d:GetInvestmentCost(pnum, page, posx, resData.res_id); HUDMSG_PLAIN, RPGMENUITEMID - 12, CR_WHITE, 440.2, 236.1, 0.0, 0.0);
 			SetHudClipRect(184, 244, 256, 36, 256);
 			HudMessage(s:"\cd*\c- ", l:"DND_INVESTMENT_EXPLANATION"; HUDMSG_PLAIN, RPGMENUITEMID - 13, CR_WHITE, 184.1, 248.1 + 2.0 * ScrollPos.x, 0.0, 0.0);
 			SetHudClipRect(0, 0, 0, 0, 0);
@@ -2724,26 +2837,28 @@ int GetInvestmentCost(int pnum, int page, int menu_res_id, int res_id) {
 	// c * (100 + k * (5 + x / 10)) / 100 -- replace c here with k - 1's value
 	// c * (100 + (k - 1) * (5 + x / 10)) / 100 * (100 + k * (5 + x / 10)) / 100
 	// c * (100 + (k - 1) * y) / 100 * (100 + k * y) / 100
+	res_info_T module& resData = GetResearchInfo(page, menu_res_id);
 	int k = ResearchInvestments[pnum][res_id];
 	if(!k)
 		return BASE_INVESTMENT_COST;
 	else if(k == 1)
-		return BASE_INVESTMENT_COST * (105 + 3 * ResearchInfo[page][menu_res_id].res_cost / 20) / 100;
+		return BASE_INVESTMENT_COST * (105 + 3 * resData.res_cost / 20) / 100;
 		
-	int y = 5 + 3 * ResearchInfo[page][menu_res_id].res_cost / 20;
+	int y = 5 + 3 * resData.res_cost / 20;
 	return (BASE_INVESTMENT_COST * (100 + (k - 1) * y) / 100) * (100 + k * y) / 100;
 }
 
 void HandleResearchPageInput(int pnum, int page, int boxid) {
 	bool buystatus = 0;
 	int curposx = MenuInputData[pnum][DND_MENUINPUT_LRPOS];
+	res_info_T module& resData = GetResearchInfo(page, curposx);
 	if(HasLeftClicked(pnum)) {
 		if(boxid == MBOX_1) {
 			buystatus = CanResearch(page, curposx);
 			if(!buystatus) {
-				TakeBudget(ResearchInfo[page][curposx].res_cost);
+				TakeBudget(resData.res_cost);
 				LocalAmbientSound("items/research", 127);
-				CompleteResearch(ResearchInfo[page][curposx].res_id);
+				CompleteResearch(resData.res_id);
 			}
 			else
 				ShowPopup(CheckInventory("DnD_PopupId"), false, 0);
@@ -2751,16 +2866,16 @@ void HandleResearchPageInput(int pnum, int page, int boxid) {
 		else if(boxid == MBOX_2) {
 			// investment option
 			// check if it's not found already, no point investing into finding it if its there already
-			if(CheckResearchStatus(ResearchInfo[page][curposx].res_id) != RES_NA) {
+			if(CheckResearchStatus(resData.res_id) != RES_NA) {
 				// popup, you found this research already
 				ShowPopup(POPUP_ALREADYFOUND, false, 0);
 			}
-			else if(ResearchFlags[ResearchInfo[page][curposx].res_id].res_flags & RESF_NODROP) {
+			else if(ResearchFlags[resData.res_id].res_flags & RESF_NODROP) {
 				// popup, we dont know this one yet
 				ShowPopup(POPUP_NARESEARCH, false, 0);
 			}
 			else {
-				int resid = ResearchInfo[page][curposx].res_id;
+				int resid = resData.res_id;
 				int credit = GetPlayerCredit(pnum);
 				int cost = GetInvestmentCost(pnum, page, curposx, resid);
 				if(credit < cost) {
@@ -5013,7 +5128,7 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 		for(int i = 0; i < MAX_SLOTS; ++i)
 			int temp = GetAmmoSlotMaxIndex(i);
 			for(int j = 0; j < temp; ++j) {
-				if(MenuAmmoIndexMap[i][j] == index)
+				if(GetMenuAmmoIndexMap(i, j) == index)
 					return i | (j << 16);
 			}
 	}
@@ -5906,6 +6021,117 @@ str GetPlayerLifetimeKills() {
 }
 
 void DrawMonsterModCategory(int category) {
+// input is menu based index, returns corresponding label index for the mod
+	static int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
+		// weaknesses
+		DND_ENERGY_WEAKNESS,
+		DND_SILVER_WEAKNESS,
+		DND_FIRE_WEAKNESS,
+		DND_ICE_WEAKNESS,
+		DND_MAGIC_WEAKNESS,
+		DND_ELEMENTAL_WEAKNESS,
+		DND_GUARDBROKEN,
+		
+		// resists
+		DND_BULLET_RESIST,
+		DND_ENERGY_RESIST,
+		DND_MAGIC_RESIST,
+		DND_ELEMENTAL_RESIST,
+		DND_ICECREATURE,
+		DND_FIRECREATURE,
+		DND_STONECREATURE,
+		DND_EARTHCREATURE,
+		
+		// immune
+		DND_EXPLOSIVE_IMMUNE,
+		DND_BULLET_IMMUNE,
+		DND_ENERGY_IMMUNE,
+		DND_MAGIC_IMMUNE,
+		DND_ELEMENTAL_IMMUNE,
+		DND_TOXICBLOOD,
+		DND_FROSTBLOOD,
+		DND_MOLTENBLOOD,
+		DND_INSULATED,
+		DND_ETHEREAL,
+		DND_FIRE_IMMUNE,
+		DND_ICE_IMMUNE,
+		DND_POISON_IMMUNE,
+		DND_LIGHTNING_IMMUNE,
+		
+		// aggression
+		DND_RAGE,
+		DND_PIERCE,
+		DND_AGGRESSIVE,
+		DND_EXTRAFAST,
+		DND_FASTREACTION,
+		DND_EXTRASTRONG,
+		DND_HOMING,
+		DND_ARMORPEN,
+		DND_VIOLENTRETALIATION,
+		DND_HATRED,
+		DND_VAMPIRISM,
+		DND_RUINATION,
+		DND_OTHERWORLDGRIP,
+		DND_THUNDERSTRUCK,
+		DND_PENETRATOR,
+		DND_FASTPROJ,
+		DND_BORROWEDTIME,
+		DND_EXHAUSTING,
+		
+		// defense
+		DND_GHOST,
+		DND_HARDENED_SKIN,
+		DND_REFLECTIVE,
+		DND_MINIONS,
+		DND_HEAL,
+		DND_BLOCK,
+		DND_SPLIT,
+		DND_DEATH,
+		DND_VITAL,
+		DND_ISBLOCKING,
+		DND_BLOODLESS,
+		DND_REBIRTH,
+		DND_REJUVENATING,
+		DND_FORTIFIED,
+		DND_SUBORDINATE,
+		DND_REPEL,
+		DND_PHANTASM,
+		DND_NUCLEAR,
+		DND_OSMIUM,
+		DND_PHASING,
+		DND_TEMPORALBUBBLE,
+		DND_CHTHONBLESSED,
+		
+		// utility
+		DND_CURSE,
+		DND_RAISE,
+		DND_TELEPORT,
+		DND_RESURRECT,
+		DND_MOBILITY,
+		DND_POISON,
+		DND_NOPAIN,
+		DND_PET,
+		DND_SUMMONED,
+		DND_REVIVED,
+		DND_THIEF,
+		DND_HEXFUSION,
+		DND_SHOCKER,
+		DND_CRIPPLE,
+		DND_SILENT,
+		DND_BLACKOUT,
+		DND_ENSHROUDED,
+		DND_VENOMANCER,
+		DND_FRIGID,
+		DND_SCORCHED,
+		DND_VOLTAIC,
+		DND_ENERGYLEECH,
+		
+		DND_MARKOFCHAOS,
+		DND_MARKOFASMODEUS,
+		
+		DND_LEGENDARY
+	};
+
 	int i;
 	SetHudClipRect(192, 52, 256, 228, 256);
 	switch(category) {

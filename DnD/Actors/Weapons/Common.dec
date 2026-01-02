@@ -43,7 +43,6 @@ Actor ParryAoE : DnD_ExplosiveBase {
 	Stamina 0
 	
 	Damage 0
-	DamageType "Parry"
 	
 	+THRUACTORS
 	+FORCERADIUSDMG

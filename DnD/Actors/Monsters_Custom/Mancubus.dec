@@ -1801,7 +1801,7 @@ ACTOR Redeemer : DnD_BaseHybridMonster {
 			13RF DD 4 Fast A_Chase
 		Loop
 		PainState:
-			13RF A 5 Fast
+			13RF A 5 Fast A_StopSound(CHAN_WEAPON)
 		Goto See
 		MissileState:
 			TNT1 A 0 A_StopSound(CHAN_WEAPON)

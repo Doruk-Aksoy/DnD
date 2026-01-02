@@ -601,6 +601,7 @@ ACTOR HS : DnD_BaseMeleeMonster {
 	+NOPAIN
 	-COUNTKILL
 	-FLOORCLIP
+	PainSound "NULLSND"
 	SeeSound "monster/hadsit"
 	Tag "Hades Sphere"
 	States {

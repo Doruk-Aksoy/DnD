@@ -46,6 +46,7 @@ Actor DnD_WanderChecker : DnD_Activator {
 
 Actor DnD_BaseMonster {
 	GibHealth -150
+	PainSound "NULLSND"
 	+USEKILLSCRIPTS
 	-FLOORCLIP // no view sink on liquid floors
 	+DONTBLAST

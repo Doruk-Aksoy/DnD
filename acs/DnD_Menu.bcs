@@ -115,7 +115,7 @@ Script "DnD Menu Reset on Enter" ENTER {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) / 100);
 				int ovf_temp = INT_MAX / ammo_bonus;
 				if(ShopStockRemaining[pnum][j] > ovf_temp)
 					ShopStockRemaining[pnum][j] = ovf_temp;
@@ -123,7 +123,7 @@ Script "DnD Menu Reset on Enter" ENTER {
 					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
 			}
 			else
-				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
+				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT)) / 100) * ammo_bonus / 500;
 		}
 		else
 			ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
@@ -146,7 +146,7 @@ Script "DnD Menu Reset Forced" (void) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT] / 100);
+				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) / 100);
 				int ovf_temp = INT_MAX / ammo_bonus;
 				if(ShopStockRemaining[pnum][j] > ovf_temp)
 					ShopStockRemaining[pnum][j] = ovf_temp;
@@ -154,7 +154,7 @@ Script "DnD Menu Reset Forced" (void) {
 					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
 			}
 			else
-				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * AmmoCounts[j - SHOP_FIRSTAMMO_INDEX][AMMOID_COUNT]) / 100) * ammo_bonus / 500;
+				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT)) / 100) * ammo_bonus / 500;
 		}
 		else
 			ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
@@ -857,7 +857,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawCredits(pnum);
 				
 				for(i = SHOP_ABILITY1_BEGIN; i <= SHOP_ABILITY1_END; ++i)
-					DrawToggledImage(pnum, i, boxid, i - SHOP_ABILITY1_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+					DrawToggledImage(pnum, i, boxid, i - SHOP_ABILITY1_BEGIN, GetAbilityDrawInfo(i - SHOP_ABILITY1_BEGIN).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 			
 				HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUPAGEID, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 			}
@@ -866,7 +866,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawCredits(pnum);
 				
 				for(i = SHOP_ABILITY2_BEGIN; i <= SHOP_LASTABILITY_INDEX; ++i)
-					DrawToggledImage(pnum, i, boxid, i - SHOP_ABILITY2_BEGIN, AbilityDrawInfo[i - SHOP_ABILITY1_BEGIN].flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+					DrawToggledImage(pnum, i, boxid, i - SHOP_ABILITY2_BEGIN, GetAbilityDrawInfo(i - SHOP_ABILITY1_BEGIN).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 			
 				HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUPAGEID - 1, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
 			}
@@ -875,14 +875,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawCredits(pnum);
 				
 				for(i = 0; i < MAXARTIFACTS_PERPAGE; ++i)
-					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
+					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i, GetArtifactDrawInfo(i).flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
 			}
 			else if(curopt == MENU_SHOP_ARTIFACT_2) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ARTIFACTS", s:" (2) ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				DrawCredits(pnum);
 				
 				for(i = ARTI_RADSUIT; i < MAXARTIFACTS; ++i)
-					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i - ARTI_RADSUIT, ArtifactDrawInfo[i].flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
+					DrawToggledImage(pnum, SHOP_FIRSTARTI1_INDEX + i, boxid, i - ARTI_RADSUIT, GetArtifactDrawInfo(i).flags, CR_WHITE, CR_GREEN, ArtifactInfo[i][ARTI_NAME], GetShopItemInfo(SHOP_FIRSTARTI1_INDEX + i, DND_SHOPINFO_MAX), CR_RED);
 			}
 			else if(curopt == MENU_SHOP_ACCOUNT) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ACCOUNT", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);

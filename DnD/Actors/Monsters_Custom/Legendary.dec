@@ -1458,6 +1458,7 @@ Actor Mordecqai : DnD_BaseRangedBoss {
 	seesound "Mordecqai/See"
 	deathsound "Mordecqai/Die"
 	activesound ""
+	PainSound "NULLSND"
 	Species "Cyber"
 	Scale 1.25
 	const int flame_timer = 24;
@@ -1883,6 +1884,7 @@ Actor GodSlayer : DnD_BaseRangedBoss {
 	seesound "GodSlayer/See"
 	deathsound ""
 	activesound "GodSlayer/Act"
+	PainSound "NULLSND"
 	Species "Cyber"
 	Scale 1.25
 	var int user_attack;

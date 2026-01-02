@@ -3006,6 +3006,7 @@ Actor OnimuzProjection : DnD_BaseHybridMonster_NoRes {
 	SeeSound ""
 	DeathSound ""
 	ActiveSound ""
+	PainSound "NULLSND"
 	Obituary "%o fell victim to Onimuz the Unbroken."
 	Mass 0x7FFFFFFF
 	Tag "Onimuz Projection"
@@ -3791,6 +3792,7 @@ Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
 	+NOINFIGHTING
 	+NOTARGET
 	+QUICKTORETALIATE
+	PainSound "NULLSND"
 	DeathSound "Leshrac/BigMineExp"
 	DamageType "PoisonPod"
 	Stamina 268435584

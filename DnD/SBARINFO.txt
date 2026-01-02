@@ -1017,10 +1017,10 @@ statusbar normal, fullscreenoffsets {
 				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo2, -189, -73;
 			}
 
-			IsSelected not "Upgraded Plasma Rifle" {
+			IsSelected not "Upgraded Plasma Rifle", "ResMG1" {
 				IsSelected not "ResBfg1", "Upgraded BFG 9000" {
 					IsSelected not "ResRL3", "ResPlasma3" {
-						IsSelected not "Desolator", " Machine Gun ", "ResMG1" {
+						IsSelected not "Desolator", " Machine Gun " {
 							IsSelected not "Dusk Blade", "Excalibat" {
 								drawimage "H_BRFRMX", -185, -74;
 								drawbar "H_BRFILG", "H_BRFBGG", ammo2, horizontal, reverse, -182, -71;
@@ -1090,9 +1090,9 @@ statusbar normal, fullscreenoffsets {
 			}
 			
 			// not inverse bar
-			IsSelected not "Upgraded Plasma Rifle" {
+			IsSelected not "Upgraded Plasma Rifle", "Desolator" {
 				IsSelected not "ResBfg1", "Upgraded BFG 9000" {
-					IsSelected not "ResRL3", "ResPlasma3", "Desolator" {
+					IsSelected not "ResRL3", "ResPlasma3" {
 						IsSelected not "Dusk Blade", "Excalibat" {
 							drawimage "H_ARFW01", -185, -74;
 							drawbar "H_BRFILR", "H_BRFBGR", ammo2, horizontal, reverse, -182, -71;
@@ -1223,17 +1223,37 @@ statusbar normal, fullscreenoffsets {
 			}
 			
 			// this one has only this ammo so its in center
-			IsSelected "Sickle", "Katana", "ResMelee1" {
+			IsSelected "Sickle" {
 				drawimage "H_BRFRMX", -185, -61;
 				drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
 				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
 			}
 			
-			IsSelected not " Akimbo Pistols ", "Grenade Launcher", "Sickle" {
-				IsSelected not "Katana", "ResMelee1" {
-					drawimage "H_BRFRMX", -185, -61;
-					drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
-					drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+			IsSelected "Katana" {
+				drawimage "H_BRFRMX", -185, -61;
+				drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+			}
+			
+			IsSelected "ResMelee1" {
+				drawimage "H_BRFRMX", -185, -61;
+				drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+			}
+			
+			IsSelected " Fists " {
+				drawimage "H_BRFRMX", -185, -61;
+				drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+			}
+			
+			IsSelected not " Akimbo Pistols ", "Grenade Launcher" {
+				IsSelected not "Katana", "Sickle" {
+					IsSelected not "ResMelee1", " Fists " {
+						drawimage "H_BRFRMX", -185, -61;
+						drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
+						drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+					}
 				}
 			}
         }
@@ -1298,17 +1318,37 @@ statusbar normal, fullscreenoffsets {
 			}
 			
 			// this one has only this ammo so its in center
-			IsSelected "Sickle", "Katana", "ResMelee1" {
+			IsSelected "Sickle" {
 				drawimage "H_BRFRMX", -185, -61;
 				drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
 				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
 			}
 			
-			IsSelected not " Akimbo Pistols ", "Grenade Launcher", "Sickle" {
+			IsSelected "Katana" {
+				drawimage "H_BRFRMX", -185, -61;
+				drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+			}
+			
+			IsSelected "ResMelee1" {
+				drawimage "H_BRFRMX", -185, -61;
+				drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+			}
+			
+			IsSelected " Fists " {
+				drawimage "H_BRFRMX", -185, -61;
+				drawbar "H_BRFILG", "H_BRFBGG", ammo1, horizontal, reverse, -182, -58;
+				drawnumber 5, HUDFONT2_DOOM, NCGreen, ammo1, -189, -60;
+			}
+			
+			IsSelected not " Akimbo Pistols ", "Grenade Launcher" {
 				IsSelected not "Katana", "ResMelee1" { 
-					drawimage "H_ARFW01", -185, -61;
-					drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
-					drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+					IsSelected not " Fists ", "Sickle" {
+						drawimage "H_ARFW01", -185, -61;
+						drawbar "H_BRFILR", "H_BRFBGR", ammo1, horizontal, reverse, -182, -58;
+						drawnumber 5, HUDFONT2_DOOM, NCRed, ammo1, -189, -60;
+					}
 				}
 			}
         }

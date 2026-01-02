@@ -44,7 +44,7 @@ Script "DnD Can Fire Weapon" (void) {
 		switch(wepid) {
 			case DND_WEAPON_FIST:
 				canFire = true;
-				canAltFire = true;
+				canAltFire = !GetMeleeWeaponCooldowns(DND_MELEECD_KICK).cd;
 			break;
 			case DND_WEAPON_SICKLE:
 				canFire = true;
@@ -1014,6 +1014,9 @@ Script "DnD Melee Weapon Cooldown" (int cd_id, int val) {
 		str toTake = "";
 		str firePreventer = "";
 		switch(cd_id) {
+			case DND_MELEECD_KICK:
+				toTake = "KickCooldown";
+			break;
 			case DND_MELEECD_SICKLE:
 				toTake = "SickleCooldown";
 			break;

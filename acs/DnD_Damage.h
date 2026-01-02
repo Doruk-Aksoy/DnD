@@ -3962,7 +3962,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					temp = arg1 >> NONWEP_DMG_SHIFT; // dmg_type
 					m_id = -1;
 
-					if(temp == DND_DAMAGETYPE_PARRY) {
+					if(temp == DND_DAMAGETYPE_PARRY && !CheckFlag(victim, "NOPAIN")) {
 						SetActorInventory(victim, "DnD_ParryWeaknessTimer", GetPlayerParryWeakenTimer(pnum, victim));
 						if(!CheckActorInventory(victim, "DnD_ParryWeakness")) {
 							GiveActorInventory(victim, "DnD_ParryWeakness", 1);

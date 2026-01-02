@@ -212,6 +212,7 @@ enum {
 #define MAXWEPS (DND_WEAPON_ADMINPISTOL + 1)
 
 enum {
+	DND_MELEECD_KICK,
 	DND_MELEECD_SICKLE,
 	DND_MELEECD_KATANA,
 	DND_MELEECD_EXCALIBAT,
@@ -417,7 +418,7 @@ global wep_data_T 31: Weapons_Data[MAXWEPS];
 void SetupWeaponData() {
 	// SLOT 1
 	Weapons_Data[DND_WEAPON_FIST].name = " Fists ";
-	Weapons_Data[DND_WEAPON_FIST].ammo_name1 = "";
+	Weapons_Data[DND_WEAPON_FIST].ammo_name1 = "KickCooldown";
 	Weapons_Data[DND_WEAPON_FIST].ammo_name2 = "";
 	Weapons_Data[DND_WEAPON_FIST].icon = "WEPICO1";
 	Weapons_Data[DND_WEAPON_FIST].ammo_use1 = 0;

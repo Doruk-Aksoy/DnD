@@ -167,7 +167,7 @@ enum {
 	INVENTORY_SETUP_BIT = 0,
 	TRADEVIEW_SETUP_BIT = 1,
 	STASH_SETUP_BIT = 2,
-	CRAFTING_SETUP_BIT = 4,
+	CRAFTING_SETUP_BIT = 3,
 };
 int PaneSetup = 0;
 
@@ -246,10 +246,10 @@ enum {
 };
 
 // for drawtoggledimage func
-struct draw_info {
+typedef struct draw_info {
 	int flags;
 	int res_id;
-};
+} draw_info_T;
 
 enum {
 	DND_SHOPINFO_PRICE,
@@ -1517,436 +1517,344 @@ str GetDamageTypeIcon(int dt) {
 	return "DT_PHYS";
 }
 
-int WeaponDamageTypes[MAXSHOPWEAPONS] = {
-	// 1
-	DTYPE_MELEE,
-	DTYPE_MELEE,
-	DTYPE_MELEE | DTYPE_OCCULT,
-	DTYPE_MELEE | DTYPE_FIRE,
-	DTYPE_MELEE | DTYPE_OCCULT,
-	DTYPE_MELEE | DTYPE_OCCULT,
-	
-	// 2
-	DTYPE_PHYSICAL,
-	DTYPE_PHYSICAL,
-	DTYPE_ENERGY,
-	DTYPE_FIRE,
-	DTYPE_PHYSICAL,
-	DTYPE_OCCULT,
-	DTYPE_PHYSICAL,
-	
-	// 3 - 1
-	DTYPE_PHYSICAL,
-	DTYPE_PHYSICAL,
-	DTYPE_POISON,
-	DTYPE_PHYSICAL,
-	DTYPE_ICE,
-	DTYPE_OCCULT | DTYPE_MELEE,
-	DTYPE_ICE | DTYPE_FIRE | DTYPE_POISON,
-	DTYPE_PHYSICAL,
-	
-	
-	// 3 - 2
-	DTYPE_PHYSICAL,
-	DTYPE_EXPLOSIVE | DTYPE_OCCULT,
-	DTYPE_MELEE | DTYPE_LIGHTNING,
-	DTYPE_ENERGY,
-	DTYPE_LIGHTNING | DTYPE_FIRE,
-	DTYPE_PHYSICAL | DTYPE_FIRE,
-	DTYPE_PHYSICAL | DTYPE_OCCULT,
-	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
+draw_info_T module& GetWeaponDrawInfo(int id) {
+	static draw_info_T WeaponDrawInfo[MAXSHOPWEAPONS] = {
+		// 1
+		{ OBJ_WEP, 												-1 						},
+		{ OBJ_WEP | OBJ_USESCROLL,								-1						},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_EXCALIBAT		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_INFERNOSWORD	},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DUSKBLADE		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SICKLE			},
+		
+		// 2
+		{ OBJ_WEP,												SHOP_WEP_AKIMBOPISTOL	},
+		{ OBJ_WEP,												SHOP_WEP_MAGNUM			},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_LASERPISTOL	},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_RUBYWAND		},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESPIS1		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPIS2		},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_SCATTERPISTOL	},
+		
+		// 3 - 1
+		{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_PURIFIER		},
+		{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_AUTOSG			},
+		{ OBJ_WEP | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_EMERALDWAND	},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSG1			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSG2			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSG3			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESSG4			},
+		{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_HSSG			},
+		
+		// 3 - 2
+		{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_ERASUS			},
+		{ OBJ_WEP | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_HELLSMAW		},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_AXE			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG1		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG2		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSSG3		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSSG4		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_SILVER			},
 
-	// 3 - 3
-	DTYPE_OCCULT,
-	
-	// 4 - 1
-	DTYPE_PHYSICAL,
-	DTYPE_ENERGY,
-	DTYPE_OCCULT,
-	DTYPE_PHYSICAL,
-	DTYPE_PHYSICAL,
-	DTYPE_PHYSICAL | DTYPE_POISON,
-	DTYPE_ENERGY,
-	DTYPE_FIRE,
-	
-	// 4 - 2
-	DTYPE_POISON,
-	DTYPE_PHYSICAL,
-	DTYPE_OCCULT,
-	DTYPE_ENERGY,
-	
-	// 5 - 1
-	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
-	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
-	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
-	DTYPE_FIRE | DTYPE_MELEE,
-	DTYPE_OCCULT,
-	DTYPE_EXPLOSIVE | DTYPE_PHYSICAL,
-	DTYPE_ICE,
-	DTYPE_PHYSICAL,
-	
-	// 5 - 2
-	DTYPE_ENERGY,
-	DTYPE_EXPLOSIVE | DTYPE_ICE,
-	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
-	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
-	DTYPE_ENERGY | DTYPE_POISON,
-	
-	// 6 - 1
-	DTYPE_ENERGY,
-	DTYPE_ENERGY,
-	DTYPE_ICE,
-	DTYPE_PHYSICAL,
-	DTYPE_FIRE,
-	DTYPE_LIGHTNING,
-	DTYPE_ENERGY,
-	DTYPE_OCCULT,
-	
-	// 6 - 2
-	DTYPE_PHYSICAL,
-	DTYPE_OCCULT,
-	DTYPE_OCCULT,
-	
-	// 7
-	DTYPE_ENERGY,
-	DTYPE_PHYSICAL | DTYPE_EXPLOSIVE,
-	DTYPE_ENERGY,
-	DTYPE_ENERGY,
-	DTYPE_LIGHTNING,
-	DTYPE_ENERGY | DTYPE_EXPLOSIVE,
-	DTYPE_ENERGY,
-	DTYPE_ENERGY | DTYPE_EXPLOSIVE,
-	
-	// 8
-	DTYPE_OCCULT,
-	DTYPE_OCCULT,
-	DTYPE_OCCULT,
-	DTYPE_OCCULT
-};
+		// 3 - 3
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_SLAYER			},
+		
+		// 4 - 1
+		{ OBJ_WEP,												SHOP_WEP_HMG			},
+		{ OBJ_WEP,												SHOP_WEP_LEAD			},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_DSEAL			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESMG1			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESMG2			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG3			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG4			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG5			},
+		
+		// 4 - 2
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DESOLATOR		},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_MINIGUN		},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_EBONY			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_MPPB			},
+		
+		// 5 - 1
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_TORPEDO		},
+		{ OBJ_WEP,												SHOP_WEP_GRENADE		},
+		{ OBJ_WEP | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_VINDICATOR		},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_HAMMER			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL1			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL2			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL3			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL4			},
+		
+		// 5 - 2
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL5			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_MERC			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_ROTARYGL		},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_HEAVYML		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SEDRIN			},
+		
+		// 6 - 1
+		{ OBJ_WEP,												SHOP_WEP_NUCLEARPL		},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_TUREL			},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_FROSTFANG		},
+		{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_SNIPER         },
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESPL1			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL2			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL3			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL4			},
+		
+		// 6 - 2
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RHINO			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_NAIL			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_BASILISK		},
+		
+		// 7
+		{ OBJ_WEP,												SHOP_WEP_BFG			},
+		{ OBJ_WEP,												SHOP_WEP_DEVA			},
+		{ OBJ_WEP | OBJ_USESCROLL | OBJ_RESEARCH,				SHOP_WEP_MFG			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESBFG1		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESBFG2		},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_GAUSS			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RAIL			},
+		{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DEATHRAY		},
+		
+		// 8
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_DEATHSTAFF		},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RAZOR			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_SUN			},
+		{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_REAVER			}
+	};
+	return WeaponDrawInfo[id];
+}
 
-struct draw_info WeaponDrawInfo[MAXSHOPWEAPONS] = {
-	// 1
-	{ OBJ_WEP, 												-1 						},
-	{ OBJ_WEP | OBJ_USESCROLL,								-1						},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_EXCALIBAT		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_INFERNOSWORD	},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DUSKBLADE		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SICKLE			},
-	
-	// 2
-	{ OBJ_WEP,												SHOP_WEP_AKIMBOPISTOL	},
-	{ OBJ_WEP,												SHOP_WEP_MAGNUM			},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_LASERPISTOL	},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_RUBYWAND		},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESPIS1		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPIS2		},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_SCATTERPISTOL	},
-	
-	// 3 - 1
-	{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_PURIFIER		},
-	{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_AUTOSG			},
-	{ OBJ_WEP | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_EMERALDWAND	},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSG1			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSG2			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSG3			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESSG4			},
-	{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_HSSG			},
-	
-	// 3 - 2
-	{ OBJ_WEP | OBJ_SHOTGUN,								SHOP_WEP_ERASUS			},
-	{ OBJ_WEP | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_HELLSMAW		},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_AXE			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG1		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_RESSSG2		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSSG3		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_RESSSG4		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_SHOTGUN,					SHOP_WEP_SILVER			},
-
-	// 3 - 3
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL | OBJ_SHOTGUN,	SHOP_WEP_SLAYER			},
-	
-	// 4 - 1
-	{ OBJ_WEP,												SHOP_WEP_HMG			},
-	{ OBJ_WEP,												SHOP_WEP_LEAD			},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_DSEAL			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESMG1			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESMG2			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG3			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG4			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESMG5			},
-	
-	// 4 - 2
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DESOLATOR		},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_MINIGUN		},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_EBONY			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_MPPB			},
-	
-	// 5 - 1
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_TORPEDO		},
-	{ OBJ_WEP,												SHOP_WEP_GRENADE		},
-	{ OBJ_WEP | OBJ_USESCROLL | OBJ_SHOTGUN,				SHOP_WEP_VINDICATOR		},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_HAMMER			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL1			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL2			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL3			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL4			},
-	
-	// 5 - 2
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESRL5			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_MERC			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_ROTARYGL		},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_HEAVYML		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_SEDRIN			},
-	
-	// 6 - 1
-	{ OBJ_WEP,												SHOP_WEP_NUCLEARPL		},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_TUREL			},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_FROSTFANG		},
-	{ OBJ_WEP | OBJ_USESCROLL,								SHOP_WEP_SNIPER         },
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESPL1			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL2			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL3			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESPL4			},
-	
-	// 6 - 2
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RHINO			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_NAIL			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_BASILISK		},
-	
-	// 7
-	{ OBJ_WEP,												SHOP_WEP_BFG			},
-	{ OBJ_WEP,												SHOP_WEP_DEVA			},
-	{ OBJ_WEP | OBJ_USESCROLL | OBJ_RESEARCH,				SHOP_WEP_MFG			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RESBFG1		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_RESBFG2		},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_GAUSS			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RAIL			},
-	{ OBJ_WEP | OBJ_RESEARCH | OBJ_USESCROLL,				SHOP_WEP_DEATHRAY		},
-	
-	// 8
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_DEATHSTAFF		},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_RAZOR			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_SUN			},
-	{ OBJ_WEP | OBJ_RESEARCH,								SHOP_WEP_REAVER			}
-};
-
-struct draw_info ArtifactDrawInfo[MAXARTIFACTS] = {
-	{ OBJ_ARTI, 					        -1 										    },
-	{ OBJ_ARTI | OBJ_RESEARCH, 		        SHOP_ARTI_SALVATE				            },
-	{ OBJ_ARTI,								-1											},
-	{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_BLOOD				                },
-	{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_TRIPLE					        },
-	{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_VORTEX				            },
-	{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_BOOK					            },
-	{ OBJ_ARTI,								-1											},
-	{ OBJ_ARTI,								-1											},
-	{ OBJ_ARTI,								-1											},
-	{ OBJ_ARTI,								-1											}
-};
+draw_info_T module& GetArtifactDrawInfo(int id) {
+	static draw_info_T ArtifactDrawInfo[MAXARTIFACTS] = {
+		{ OBJ_ARTI, 					        -1 										    },
+		{ OBJ_ARTI | OBJ_RESEARCH, 		        SHOP_ARTI_SALVATE				            },
+		{ OBJ_ARTI,								-1											},
+		{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_BLOOD				                },
+		{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_TRIPLE					        },
+		{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_VORTEX				            },
+		{ OBJ_ARTI | OBJ_RESEARCH,		        SHOP_ARTI_BOOK					            },
+		{ OBJ_ARTI,								-1											},
+		{ OBJ_ARTI,								-1											},
+		{ OBJ_ARTI,								-1											},
+		{ OBJ_ARTI,								-1											}
+	};
+	return ArtifactDrawInfo[id];
+}
 
 // This mapper is used when transitioning from ammo tables to menu tables
-int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
-	// category 1
-	{
-		SHOP_AMMO_CLIP,
-		SHOP_AMMO_RUBY,
-		SHOP_AMMO_VIPER,
-		SHOP_AMMO_DSEAL,
-		SHOP_AMMO_RIOTSHELL,
-		SHOP_AMMO_ACID,
-		SHOP_AMMO_FUSION,
-		SHOP_AMMO_INCINERATOR,
-		SHOP_AMMO_DESOLATOR,
-		SHOP_AMMO_EBONY,
-		SHOP_AMMO_EBONYX,
-		-1
-	},
-	// category 2
-	{
-		SHOP_AMMO_SHELL,
-		SHOP_AMMO_EMERALDMANA,
-		SHOP_AMMO_HELLSMAW,
-		SHOP_AMMO_PCAN,
-		SHOP_AMMO_NITROGEN,
-		SHOP_AMMO_DEMONBLOOD,
-		SHOP_AMMO_CHARON,
-		SHOP_AMMO_HADES,
-		SHOP_AMMO_FLAYER,
-		SHOP_AMMO_EXPSHELL,
-		SHOP_AMMO_SLAYER,
-		SHOP_AMMO_AXEMANA,
-		-1
-	},
-	// category 3
-	{
-		SHOP_AMMO_ROCKET,
-		SHOP_AMMO_FLAK,
-		SHOP_AMMO_METEOR,
-		SHOP_AMMO_HEAVYGRENADE,
-		SHOP_AMMO_GRAVDIS,
-		SHOP_AMMO_GL,
-		SHOP_AMMO_MIS,
-		SHOP_AMMO_SEDRIN,
-		SHOP_AMMO_HAMMER,
-		-1
-	},
-	// category 4
-	{
-		SHOP_AMMO_CELL,
-		SHOP_AMMO_DEVASTATOR,
-		SHOP_AMMO_EVERICE,
-		SHOP_AMMO_SNIPER,
-		SHOP_AMMO_FUEL,
-		SHOP_AMMO_LG,
-		SHOP_AMMO_NAIL,
-		SHOP_AMMO_BASILISK,
-		SHOP_AMMO_ION,
-		SHOP_AMMO_THUNDER,
-		SHOP_AMMO_GAUSS,
-		-1
-	},
-	// category 5 (not buyable -- souls etc)
-	{
-		-1
-	}
-};
+int GetMenuAmmoIndexMap(int slot, int type) {
+	static int MenuAmmoIndexMap[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT] = {
+		// category 1
+		{
+			SHOP_AMMO_CLIP,
+			SHOP_AMMO_RUBY,
+			SHOP_AMMO_VIPER,
+			SHOP_AMMO_DSEAL,
+			SHOP_AMMO_RIOTSHELL,
+			SHOP_AMMO_ACID,
+			SHOP_AMMO_FUSION,
+			SHOP_AMMO_INCINERATOR,
+			SHOP_AMMO_DESOLATOR,
+			SHOP_AMMO_EBONY,
+			SHOP_AMMO_EBONYX,
+			-1
+		},
+		// category 2
+		{
+			SHOP_AMMO_SHELL,
+			SHOP_AMMO_EMERALDMANA,
+			SHOP_AMMO_HELLSMAW,
+			SHOP_AMMO_PCAN,
+			SHOP_AMMO_NITROGEN,
+			SHOP_AMMO_DEMONBLOOD,
+			SHOP_AMMO_CHARON,
+			SHOP_AMMO_HADES,
+			SHOP_AMMO_FLAYER,
+			SHOP_AMMO_EXPSHELL,
+			SHOP_AMMO_SLAYER,
+			SHOP_AMMO_AXEMANA,
+			-1
+		},
+		// category 3
+		{
+			SHOP_AMMO_ROCKET,
+			SHOP_AMMO_FLAK,
+			SHOP_AMMO_METEOR,
+			SHOP_AMMO_HEAVYGRENADE,
+			SHOP_AMMO_GRAVDIS,
+			SHOP_AMMO_GL,
+			SHOP_AMMO_MIS,
+			SHOP_AMMO_SEDRIN,
+			SHOP_AMMO_HAMMER,
+			-1
+		},
+		// category 4
+		{
+			SHOP_AMMO_CELL,
+			SHOP_AMMO_DEVASTATOR,
+			SHOP_AMMO_EVERICE,
+			SHOP_AMMO_SNIPER,
+			SHOP_AMMO_FUEL,
+			SHOP_AMMO_LG,
+			SHOP_AMMO_NAIL,
+			SHOP_AMMO_BASILISK,
+			SHOP_AMMO_ION,
+			SHOP_AMMO_THUNDER,
+			SHOP_AMMO_GAUSS,
+			-1
+		},
+		// category 5 (not buyable -- souls etc)
+		{
+			-1
+		}
+	};
+	return MenuAmmoIndexMap[slot][type];
+}
 
 int ShopAmmoIndexToRegularAmmoIndex(int id) {
 	// we exclude soul ammo types
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && MenuAmmoIndexMap[i][j] != -1; ++j) {
-			if(MenuAmmoIndexMap[i][j] - SHOP_FIRSTAMMO_INDEX == id)
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && GetMenuAmmoIndexMap(i, j) != -1; ++j) {
+			if(GetMenuAmmoIndexMap(i, j) - SHOP_FIRSTAMMO_INDEX == id)
 				return j | (i << 16);
 		}
 	}
 	return -1;
 }
 
-struct draw_info AmmoDrawInfo[MAXSHOPAMMOS] = {
-	{ OBJ_AMMO,													SHOP_AMMO_CLIP 				},
-	{ OBJ_AMMO,													SHOP_AMMO_SHELL				},
-	{ OBJ_AMMO,													SHOP_AMMO_ROCKET			},
-	{ OBJ_AMMO,													SHOP_AMMO_CELL				},
-	{ OBJ_AMMO | OBJ_RESEARCH | OBJ_RESEARCH_ATLEASTONE,		SHOP_AMMO_EXPSHELL			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONY				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONYX			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_MIS				},
-	{ OBJ_AMMO,													SHOP_AMMO_GL				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NAIL				},
-	
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_BASILISK			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_GAUSS				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SLAYER			},
-	{ OBJ_AMMO,													SHOP_AMMO_RUBY				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_PCAN				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_RIOTSHELL			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_METEOR			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FUEL				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_LG				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NITROGEN			},
-	
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ION				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ACID				},
-	{ OBJ_AMMO,													SHOP_AMMO_EVERICE			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_VIPER				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_THUNDER			},
-	{ OBJ_AMMO,													SHOP_AMMO_DSEAL				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FUSION			},
-	{ OBJ_AMMO,													SHOP_AMMO_FLAK				},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
-	
-	{ OBJ_AMMO | OBJ_RESEARCH | OBJ_RESEARCH_ATLEASTONE,		SHOP_AMMO_DEMONBLOOD		},
-	{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
-	{ OBJ_AMMO,													SHOP_AMMO_HELLSMAW			},
-	{ OBJ_AMMO,													SHOP_AMMO_DEVASTATOR		},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEAVYGRENADE		},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLAYER			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_GRAVDIS			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SEDRIN			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_CHARON			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_INCINERATOR		},
+draw_info_T module& GetAmmoDrawInfo(int id) {
+	static draw_info_T AmmoDrawInfo[MAXSHOPAMMOS] = {
+		{ OBJ_AMMO,													SHOP_AMMO_CLIP 				},
+		{ OBJ_AMMO,													SHOP_AMMO_SHELL				},
+		{ OBJ_AMMO,													SHOP_AMMO_ROCKET			},
+		{ OBJ_AMMO,													SHOP_AMMO_CELL				},
+		{ OBJ_AMMO | OBJ_RESEARCH | OBJ_RESEARCH_ATLEASTONE,		SHOP_AMMO_EXPSHELL			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONY				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_EBONYX			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_MIS				},
+		{ OBJ_AMMO,													SHOP_AMMO_GL				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NAIL				},
+		
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_BASILISK			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_GAUSS				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SLAYER			},
+		{ OBJ_AMMO,													SHOP_AMMO_RUBY				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_PCAN				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_RIOTSHELL			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_METEOR			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FUEL				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_LG				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NITROGEN			},
+		
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ION				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ACID				},
+		{ OBJ_AMMO,													SHOP_AMMO_EVERICE			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_VIPER				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_THUNDER			},
+		{ OBJ_AMMO,													SHOP_AMMO_DSEAL				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FUSION			},
+		{ OBJ_AMMO,													SHOP_AMMO_FLAK				},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_DESOLATOR			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HADES				},
+		
+		{ OBJ_AMMO | OBJ_RESEARCH | OBJ_RESEARCH_ATLEASTONE,		SHOP_AMMO_DEMONBLOOD		},
+		{ OBJ_AMMO,													SHOP_AMMO_EMERALDMANA		},
+		{ OBJ_AMMO,													SHOP_AMMO_HELLSMAW			},
+		{ OBJ_AMMO,													SHOP_AMMO_DEVASTATOR		},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEAVYGRENADE		},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLAYER			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_GRAVDIS			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SEDRIN			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_CHARON			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_INCINERATOR		},
 
-	{ OBJ_AMMO,													SHOP_AMMO_AXEMANA			},
-	{ OBJ_AMMO,													SHOP_AMMO_HAMMER			},
-	{ OBJ_AMMO,													SHOP_AMMO_SNIPER			},
-	
-	// special ammos
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_PIERCING			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ELECTRIC			},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NITROSHELL		},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SLUGSHELL			},
-	
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SONICGRENADE		},
-	{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEGRENADE			}
-};
+		{ OBJ_AMMO,													SHOP_AMMO_AXEMANA			},
+		{ OBJ_AMMO,													SHOP_AMMO_HAMMER			},
+		{ OBJ_AMMO,													SHOP_AMMO_SNIPER			},
+		
+		// special ammos
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_FLECHETTE			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_PIERCING			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_ELECTRIC			},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_NITROSHELL		},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SLUGSHELL			},
+		
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_SONICGRENADE		},
+		{ OBJ_AMMO | OBJ_RESEARCH,									SHOP_AMMO_HEGRENADE			}
+	};
+	return AmmoDrawInfo[id];
+}
 
 #define AMMOID_COUNT 0
-#define AMMOID_WEPREF 1			
-int AmmoCounts[MAXSHOPAMMOS][2] = {
-	{ 25, -1 },
-	{ 10, -1 },
-	{ 5, -1 },
-	{ 40, -1 },
-	
-	{ 8, DND_WEAPON_SILVERGUN },
-	{ 8, DND_WEAPON_EBONYCANNON },
-	{ 4, DND_WEAPON_EBONYCANNON },
-	{ 4, DND_WEAPON_HEAVYMISSILELAUNCHER },
-	{ 5, DND_WEAPON_GRENADELAUNCHER },
-	{ 15, DND_WEAPON_NAILGUN },
-	
-	{ 20, DND_WEAPON_BASILISK },
-	{ 5, DND_WEAPON_GAUSSRIFLE },
-	{ 6, DND_WEAPON_SLAYER },
-	{ 17, DND_WEAPON_RUBYWAND },
-    { 4, DND_WEAPON_PLASMACANNON },
-    { 8, DND_WEAPON_RIOTCANNON },
-    { 5, DND_WEAPON_METEORLAUNCHER },
-    { 30, DND_WEAPON_FLAMETHROWER },
-    { 25, DND_WEAPON_LIGHTNINGGUN },
-    { 8, DND_WEAPON_NITROGENCROSSBOW },
-	
-    { 18, DND_WEAPON_IONCANNON },
-	{ 16, DND_WEAPON_ACIDRIFLE },
-	{ 25, DND_WEAPON_FROSTFANG | (DND_WEAPON_FREEZER << 16) },
-	{ 4, DND_WEAPON_VIPERSTAFF },
-	{ 10, DND_WEAPON_THUNDERSTAFF },
-	{ 25, DND_WEAPON_DEMONSEALER },
-	{ 30, DND_WEAPON_FUSIONBLASTER },
-	{ 5, DND_WEAPON_VINDICATOR },
-	{ 20, DND_WEAPON_DESOLATOR },
-	{ 6, DND_WEAPON_HADES },
-	
-	{ 12, DND_WEAPON_WHEELOFTORMENT | (DND_WEAPON_DARKLANCE << 16) },
-	{ 18, DND_WEAPON_EMERALDWAND },
-	{ 10, DND_WEAPON_HELLSMAW },
-	{ 33, DND_WEAPON_DEVASTATOR },
-	{ 5, DND_WEAPON_HEAVYGL },
-	{ 5, DND_WEAPON_CROSSBOW },
-	{ 5, DND_WEAPON_GRAVDIS },
-	{ 5, DND_WEAPON_SEDRINSTAFF },
-	{ 10, DND_WEAPON_CHARONBLASTER },
-	{ 8, DND_WEAPON_INCINERATOR },
-	{ 6, DND_WEAPON_AXE },
-	{ 1, DND_WEAPON_HAMMER },
-	{ 8, DND_WEAPON_SNIPER },
-	
-	// special
-	{ 8, -1 },
-	{ 8, -1 },
-	{ 8, -1 },
-    { 8, -1 },
-	{ 8, -1 },
-	
-	{ 5, -1 },
-	{ 5, -1 }
-};
+#define AMMOID_WEPREF 1	
+int GetMenuAmmoCount(int id, int countOrRef) {
+	static int AmmoCounts[MAXSHOPAMMOS][2] = {
+		{ 25, -1 },
+		{ 10, -1 },
+		{ 5, -1 },
+		{ 40, -1 },
+		
+		{ 8, DND_WEAPON_SILVERGUN },
+		{ 8, DND_WEAPON_EBONYCANNON },
+		{ 4, DND_WEAPON_EBONYCANNON },
+		{ 4, DND_WEAPON_HEAVYMISSILELAUNCHER },
+		{ 5, DND_WEAPON_GRENADELAUNCHER },
+		{ 15, DND_WEAPON_NAILGUN },
+		
+		{ 20, DND_WEAPON_BASILISK },
+		{ 5, DND_WEAPON_GAUSSRIFLE },
+		{ 6, DND_WEAPON_SLAYER },
+		{ 17, DND_WEAPON_RUBYWAND },
+		{ 4, DND_WEAPON_PLASMACANNON },
+		{ 8, DND_WEAPON_RIOTCANNON },
+		{ 5, DND_WEAPON_METEORLAUNCHER },
+		{ 30, DND_WEAPON_FLAMETHROWER },
+		{ 25, DND_WEAPON_LIGHTNINGGUN },
+		{ 8, DND_WEAPON_NITROGENCROSSBOW },
+		
+		{ 18, DND_WEAPON_IONCANNON },
+		{ 16, DND_WEAPON_ACIDRIFLE },
+		{ 25, DND_WEAPON_FROSTFANG | (DND_WEAPON_FREEZER << 16) },
+		{ 4, DND_WEAPON_VIPERSTAFF },
+		{ 10, DND_WEAPON_THUNDERSTAFF },
+		{ 25, DND_WEAPON_DEMONSEALER },
+		{ 30, DND_WEAPON_FUSIONBLASTER },
+		{ 5, DND_WEAPON_VINDICATOR },
+		{ 20, DND_WEAPON_DESOLATOR },
+		{ 6, DND_WEAPON_HADES },
+		
+		{ 12, DND_WEAPON_WHEELOFTORMENT | (DND_WEAPON_DARKLANCE << 16) },
+		{ 18, DND_WEAPON_EMERALDWAND },
+		{ 10, DND_WEAPON_HELLSMAW },
+		{ 33, DND_WEAPON_DEVASTATOR },
+		{ 5, DND_WEAPON_HEAVYGL },
+		{ 5, DND_WEAPON_CROSSBOW },
+		{ 5, DND_WEAPON_GRAVDIS },
+		{ 5, DND_WEAPON_SEDRINSTAFF },
+		{ 10, DND_WEAPON_CHARONBLASTER },
+		{ 8, DND_WEAPON_INCINERATOR },
+		{ 6, DND_WEAPON_AXE },
+		{ 1, DND_WEAPON_HAMMER },
+		{ 8, DND_WEAPON_SNIPER },
+		
+		// special
+		{ 8, -1 },
+		{ 8, -1 },
+		{ 8, -1 },
+		{ 8, -1 },
+		{ 8, -1 },
+		
+		{ 5, -1 },
+		{ 5, -1 }
+	};
+	return AmmoCounts[id][countOrRef];
+}
 
 void DrawAmmoExplanation(int itemid) {
 	int ammo_id = itemid - SHOP_FIRSTAMMO_INDEX;
-	int ammo_ref = AmmoCounts[ammo_id][AMMOID_WEPREF];
+	int ammo_ref = GetMenuAmmoCount(ammo_id, AMMOID_WEPREF);
 	
 	// has 2 weapons -- we can extend this further in the future maybe with an array or something
 	if(ammo_ref < 65536) {
@@ -1965,18 +1873,21 @@ void DrawAmmoExplanation(int itemid) {
 		);
 }
 
-struct draw_info AbilityDrawInfo[MAXABILITIES] = {
-	{ OBJ_ABILITY, 								SHOP_ABILITY_PARRY 								},
-	{ OBJ_ABILITY, 								SHOP_ABILITY_RELOAD								},
-	{ OBJ_ABILITY, 								SHOP_ABILITY_DASH 								},
-	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_ARCANE	 					    	},
-	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_POISON	 							},
-	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_EXPLOSION	 						},
-	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_HEART	 							},
-    { OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_REGEN                           	},
-    { OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_TEMPORAL                           },
-	{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_SOUL		 						}
-};
+draw_info_T module& GetAbilityDrawInfo(int id) {
+	static draw_info_T AbilityDrawInfo[MAXABILITIES] = {
+		{ OBJ_ABILITY, 								SHOP_ABILITY_PARRY 								},
+		{ OBJ_ABILITY, 								SHOP_ABILITY_RELOAD								},
+		{ OBJ_ABILITY, 								SHOP_ABILITY_DASH 								},
+		{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_ARCANE	 					    	},
+		{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_POISON	 							},
+		{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_EXPLOSION	 						},
+		{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_HEART	 							},
+		{ OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_REGEN                           	},
+		{ OBJ_ABILITY | OBJ_RESEARCH,         		SHOP_ABILITY_TEMPORAL                           },
+		{ OBJ_ABILITY | OBJ_RESEARCH, 				SHOP_ABILITY_SOUL		 						}
+	};
+	return AbilityDrawInfo[id];
+}
 
 typedef struct {
 	int res_id;
@@ -1993,316 +1904,318 @@ enum {
 };
 
 #define MENU_MAXRES_PERPAGE 32
-res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
-	// body
-	{
+res_info_T module& GetResearchInfo(int page, int resid) {
+	static res_info_T ResearchInfo[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
+		// body
 		{
-			RES_NANOTECH, 3616, 85
+			{
+				RES_NANOTECH, 3616, 85
+			},
+			{
+				RES_OCCULTABILITY, 9999, 105
+			},
+			{
+				RES_BIO1, 7452, 50
+			},
+			{
+				RES_BIO2, 7453, 85
+			},
+			{
+				RES_BIO3, 7454, 120
+			},
+			{
+				RES_EXO1, 7460, 50
+			},
+			{
+				RES_EXO2, 7461, 85
+			},
+			{
+				RES_EXO3, 7462, 120
+			},
+			{
+				-1, -1, -1
+			}
 		},
+		// special ammo types
 		{
-			RES_OCCULTABILITY, 9999, 105
+			{
+				RES_FLECHETTE, 2302, 40
+			},
+			{
+				RES_PIERCING, 2303, 45
+			},
+			{
+				RES_ELECTRIC, 2304, 45
+			},
+			{
+				RES_NITRO, 2309, 45
+			},
+			{
+				RES_SLUGSHELL, 2316, 50
+			},
+			{
+				RES_SONICGRENADE, 2411, 55
+			},
+			{
+				RES_HEGRENADE, 2412, 55
+			},
+			{
+				RES_DOUBLESPECIALCAP, 2440, 75
+			},
+			{
+				-1, -1, -1
+			}
 		},
+		// slot guns
 		{
-			RES_BIO1, 7452, 50
+			{
+				RES_SLOT1UPG1, 6709, 50
+			},
+			{
+				RES_SLOT1UPG2, 6711, 45
+			},
+			{
+				RES_SLOT2UPG1, 6880, 40
+			},
+			{
+				RES_SLOT2UPG2, 7982, 50
+			},
+			{
+				RES_SLOT3UPG1, 7991, 45
+			},
+			{
+				RES_SLOT3UPG2, 8015, 50
+			},
+			{
+				RES_SLOT3UPG3, 8278, 60
+			},
+			{
+				RES_SLOT3UPG4, 8619, 65
+			},
+			{
+				RES_SLOT3SSGUPG1, 7995, 50
+			},
+			{
+				RES_SLOT3SSGUPG2, 8001, 55
+			},
+			{
+				RES_SLOT3SSGUPG3, 8671, 65
+			},
+			{
+				RES_SLOT3SSGUPG4, 9603, 60
+			},
+			{
+				RES_SLOT4UPG1, 8010, 45
+			},
+			{
+				RES_SLOT4UPG2, 9507, 60
+			},
+			{
+				RES_SLOT4UPG3, 8763, 55
+			},
+			{
+				RES_SLOT4UPG4, 8277, 60
+			},
+			{
+				RES_SLOT4UPG5, 8419, 65
+			},
+			{
+				RES_SLOT5UPG1, 8433, 50
+			},
+			{
+				RES_SLOT5UPG2, 8219, 55
+			},
+			{
+				RES_SLOT5UPG3, 7066, 50
+			},
+			{
+				RES_SLOT5UPG4, 8519, 65
+			},
+			{
+				RES_SLOT5UPG5, 9135, 60
+			},
+			{
+				RES_SLOT5MERC, 8216, 65
+			},
+			{
+				RES_SLOT6UPG1, 4811, 50
+			},
+			{
+				RES_SLOT6UPG2, 8566, 55
+			},
+			{
+				RES_SLOT6UPG3, 9104, 60
+			},
+			{
+				RES_SLOT6UPG4, 9464, 65
+			},
+			{
+				RES_DESTRUCTIONGEN, 5390, 60
+			},
+			{
+				RES_SLOT7UPG1, 5395, 60
+			},
+			{
+				RES_SLOT7UPG2, 5411, 65
+			},
+			{
+				-1, -1, -1
+			}
 		},
+		// luxury guns
 		{
-			RES_BIO2, 7453, 85
+			{
+				RES_SLOT1OCCULT, 611, 40
+			},
+			{
+				RES_SLOT2LUXURY, 640, 40
+			},
+			{
+				RES_SLOT3LUXURY, 783, 45
+			},
+			{
+				RES_SLOT4LUXURY, 831, 45
+			},
+			{
+				RES_SLOT5LUXURY, 895, 45
+			},
+			{
+				RES_SLOT6LUXURY, 899, 45
+			},
+			{
+				RES_SLOT7LUXURY, 909, 55
+			},
+			{
+				RES_SLOT8REVEAL, 7744, 140
+			},
+			{
+				-1, -1, -1
+			}
 		},
+		// utility
 		{
-			RES_BIO3, 7454, 120
-		},
-		{
-			RES_EXO1, 7460, 50
-		},
-		{
-			RES_EXO2, 7461, 85
-		},
-		{
-			RES_EXO3, 7462, 120
-		},
-		{
-			-1, -1, -1
+			{
+				RES_MOLECULARREC, 4301, 60
+			},
+			{
+				RES_TRANSMUTING, 4300, 80
+			},
+			{
+				RES_MEDKITSTORE, 3531, 55
+			},
+			{
+				RES_ACCESSORY, 6914, 105
+			},
+			{
+				RES_OCCULTARTIFACT, 4569, 75
+			},
+			{
+				RES_STASHTAB, 9704, 300
+			},
+			{
+				-1, -1, -1
+			}
 		}
-	},
-	// special ammo types
-	{
-		{
-			RES_FLECHETTE, 2302, 40
-		},
-		{
-			RES_PIERCING, 2303, 45
-		},
-		{
-			RES_ELECTRIC, 2304, 45
-		},
-		{
-			RES_NITRO, 2309, 45
-		},
-		{
-			RES_SLUGSHELL, 2316, 50
-		},
-		{
-			RES_SONICGRENADE, 2411, 55
-		},
-		{
-			RES_HEGRENADE, 2412, 55
-		},
-		{
-			RES_DOUBLESPECIALCAP, 2440, 75
-		},
-		{
-			-1, -1, -1
-		}
-	},
-	// slot guns
-	{
-		{
-			RES_SLOT1UPG1, 6709, 50
-		},
-		{
-			RES_SLOT1UPG2, 6711, 45
-		},
-		{
-			RES_SLOT2UPG1, 6880, 40
-		},
-		{
-			RES_SLOT2UPG2, 7982, 50
-		},
-		{
-			RES_SLOT3UPG1, 7991, 45
-		},
-		{
-			RES_SLOT3UPG2, 8015, 50
-		},
-		{
-			RES_SLOT3UPG3, 8278, 60
-		},
-		{
-			RES_SLOT3UPG4, 8619, 65
-		},
-		{
-			RES_SLOT3SSGUPG1, 7995, 50
-		},
-		{
-			RES_SLOT3SSGUPG2, 8001, 55
-		},
-		{
-			RES_SLOT3SSGUPG3, 8671, 65
-		},
-		{
-			RES_SLOT3SSGUPG4, 9603, 60
-		},
-		{
-			RES_SLOT4UPG1, 8010, 45
-		},
-		{
-			RES_SLOT4UPG2, 9507, 60
-		},
-		{
-			RES_SLOT4UPG3, 8763, 55
-		},
-		{
-			RES_SLOT4UPG4, 8277, 60
-		},
-		{
-			RES_SLOT4UPG5, 8419, 65
-		},
-		{
-			RES_SLOT5UPG1, 8433, 50
-		},
-		{
-			RES_SLOT5UPG2, 8219, 55
-		},
-		{
-			RES_SLOT5UPG3, 7066, 50
-		},
-		{
-			RES_SLOT5UPG4, 8519, 65
-		},
-		{
-			RES_SLOT5UPG5, 9135, 60
-		},
-		{
-			RES_SLOT5MERC, 8216, 65
-		},
-		{
-			RES_SLOT6UPG1, 4811, 50
-		},
-		{
-			RES_SLOT6UPG2, 8566, 55
-		},
-		{
-			RES_SLOT6UPG3, 9104, 60
-		},
-		{
-			RES_SLOT6UPG4, 9464, 65
-		},
-		{
-			RES_DESTRUCTIONGEN, 5390, 60
-		},
-		{
-			RES_SLOT7UPG1, 5395, 60
-		},
-		{
-			RES_SLOT7UPG2, 5411, 65
-		},
-		{
-			-1, -1, -1
-		}
-	},
-	// luxury guns
-	{
-		{
-			RES_SLOT1OCCULT, 611, 40
-		},
-		{
-			RES_SLOT2LUXURY, 640, 40
-		},
-		{
-			RES_SLOT3LUXURY, 783, 45
-		},
-		{
-			RES_SLOT4LUXURY, 831, 45
-		},
-		{
-			RES_SLOT5LUXURY, 895, 45
-		},
-		{
-			RES_SLOT6LUXURY, 899, 45
-		},
-		{
-			RES_SLOT7LUXURY, 909, 55
-		},
-		{
-			RES_SLOT8REVEAL, 7744, 140
-		},
-		{
-			-1, -1, -1
-		}
-	},
-	// utility
-	{
-		{
-			RES_MOLECULARREC, 4301, 60
-		},
-		{
-			RES_TRANSMUTING, 4300, 80
-		},
-		{
-			RES_MEDKITSTORE, 3531, 55
-		},
-		{
-			RES_ACCESSORY, 6914, 105
-		},
-		{
-			RES_OCCULTARTIFACT, 4569, 75
-		},
-		{
-			RES_STASHTAB, 9704, 300
-		},
-		{
-			-1, -1, -1
-		}
-	}
-};
-
-int ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
-	// body
-	{
-		29,
-		27,
-		45,		
-		46,
-		47,
-		48,
-		49,
-		50,
-		51,
-		52,
-		53
-	},
-	// special ammo types
-	{
-		5,
-		6,
-		7,
-		33,
-		54,
-		9,
-		8,
-		10
-	},
-	// slot guns
-	{
-		// slot 1
-		34,
-		35,
-		
-		// slot 2
-		18,
-		41,
-		
-		// slot 3 -- sg
-		19,
-		31,
-		55,
-		60,
-		
-		// slot 3 -- ssg
-		20,
-		37,
-		44,
-		57,
-		
-		// slot 4
-		21,
-		32,
-		36,
-		42,
-		61,
-		
-		// slot 5
-		22,
-		39,
-		40,
-		58,
-		59,
-		23,
-		
-		// slot 6
-		24,
-		25,
-		43,
-		62,
-		
-		// slot 7
-		66,
-		26,
-		38
-	},
-	// luxury guns
-	{
-		11,
-		12,
-		13,
-		14,
-		15,
-		16,
-		17,
-		28
-	},
-	// utility
-	{
-		1,
-		2,
-		3,
-		4,
-		30,
-		56
-	}
-};
+	};
+	return ResearchInfo[page][resid];
+}
 
 str GetResearchIcon(int page, int res) {
+	static int ResearchIcons[MENU_MAXRES_PAGES][MENU_MAXRES_PERPAGE] = {
+		// body
+		{
+			29,
+			27,
+			45,		
+			46,
+			47,
+			48,
+			49,
+			50,
+			51,
+			52,
+			53
+		},
+		// special ammo types
+		{
+			5,
+			6,
+			7,
+			33,
+			54,
+			9,
+			8,
+			10
+		},
+		// slot guns
+		{
+			// slot 1
+			34,
+			35,
+			
+			// slot 2
+			18,
+			41,
+			
+			// slot 3 -- sg
+			19,
+			31,
+			55,
+			60,
+			
+			// slot 3 -- ssg
+			20,
+			37,
+			44,
+			57,
+			
+			// slot 4
+			21,
+			32,
+			36,
+			42,
+			61,
+			
+			// slot 5
+			22,
+			39,
+			40,
+			58,
+			59,
+			23,
+			
+			// slot 6
+			24,
+			25,
+			43,
+			62,
+			
+			// slot 7
+			66,
+			26,
+			38
+		},
+		// luxury guns
+		{
+			11,
+			12,
+			13,
+			14,
+			15,
+			16,
+			17,
+			28
+		},
+		// utility
+		{
+			1,
+			2,
+			3,
+			4,
+			30,
+			56
+		}
+	};
 	return StrParam(s:"RESBAK", d:ResearchIcons[page][res]);
 }
 
@@ -2340,116 +2253,5 @@ int SpecialAmmoFixWeapons[MAX_SPECIALAMMOFIX_WEAPONS][3] = {
 
 #define MAX_UTILITY_MODS 22
 #define UTIMODOFFSET (DEFMODOFFSET + MAX_DEFENSE_MODS)
-
-// input is menu based index, returns corresponding label index for the mod
-int MonsterModGroupMapper[MAX_MONSTER_MODS] = {
-	// weaknesses
-	DND_ENERGY_WEAKNESS,
-	DND_SILVER_WEAKNESS,
-	DND_FIRE_WEAKNESS,
-	DND_ICE_WEAKNESS,
-	DND_MAGIC_WEAKNESS,
-	DND_ELEMENTAL_WEAKNESS,
-	DND_GUARDBROKEN,
-	
-	// resists
-	DND_BULLET_RESIST,
-	DND_ENERGY_RESIST,
-	DND_MAGIC_RESIST,
-	DND_ELEMENTAL_RESIST,
-	DND_ICECREATURE,
-	DND_FIRECREATURE,
-	DND_STONECREATURE,
-	DND_EARTHCREATURE,
-	
-	// immune
-	DND_EXPLOSIVE_IMMUNE,
-	DND_BULLET_IMMUNE,
-	DND_ENERGY_IMMUNE,
-	DND_MAGIC_IMMUNE,
-	DND_ELEMENTAL_IMMUNE,
-	DND_TOXICBLOOD,
-	DND_FROSTBLOOD,
-	DND_MOLTENBLOOD,
-	DND_INSULATED,
-	DND_ETHEREAL,
-	DND_FIRE_IMMUNE,
-	DND_ICE_IMMUNE,
-	DND_POISON_IMMUNE,
-	DND_LIGHTNING_IMMUNE,
-	
-	// aggression
-	DND_RAGE,
-	DND_PIERCE,
-	DND_AGGRESSIVE,
-	DND_EXTRAFAST,
-	DND_FASTREACTION,
-	DND_EXTRASTRONG,
-	DND_HOMING,
-	DND_ARMORPEN,
-	DND_VIOLENTRETALIATION,
-	DND_HATRED,
-	DND_VAMPIRISM,
-	DND_RUINATION,
-	DND_OTHERWORLDGRIP,
-	DND_THUNDERSTRUCK,
-	DND_PENETRATOR,
-	DND_FASTPROJ,
-	DND_BORROWEDTIME,
-	DND_EXHAUSTING,
-	
-	// defense
-	DND_GHOST,
-	DND_HARDENED_SKIN,
-	DND_REFLECTIVE,
-	DND_MINIONS,
-	DND_HEAL,
-	DND_BLOCK,
-	DND_SPLIT,
-	DND_DEATH,
-	DND_VITAL,
-	DND_ISBLOCKING,
-	DND_BLOODLESS,
-	DND_REBIRTH,
-	DND_REJUVENATING,
-	DND_FORTIFIED,
-	DND_SUBORDINATE,
-	DND_REPEL,
-	DND_PHANTASM,
-	DND_NUCLEAR,
-	DND_OSMIUM,
-	DND_PHASING,
-	DND_TEMPORALBUBBLE,
-	DND_CHTHONBLESSED,
-	
-	// utility
-	DND_CURSE,
-	DND_RAISE,
-	DND_TELEPORT,
-	DND_RESURRECT,
-	DND_MOBILITY,
-	DND_POISON,
-	DND_NOPAIN,
-	DND_PET,
-	DND_SUMMONED,
-	DND_REVIVED,
-	DND_THIEF,
-	DND_HEXFUSION,
-	DND_SHOCKER,
-	DND_CRIPPLE,
-	DND_SILENT,
-	DND_BLACKOUT,
-	DND_ENSHROUDED,
-	DND_VENOMANCER,
-	DND_FRIGID,
-	DND_SCORCHED,
-	DND_VOLTAIC,
-	DND_ENERGYLEECH,
-	
-	DND_MARKOFCHAOS,
-	DND_MARKOFASMODEUS,
-	
-	DND_LEGENDARY
-};
 
 #endif

@@ -328,6 +328,7 @@ ACTOR EarthLich : DnD_BaseRangedMonster {
     Obituary "%o was eliminated by an Earth Lich."
 	SeeSound "monster/cubsit"
 	ActiveSound "monster/senact"
+	PainSound "NULLSND"
 	DeathSound "EarthLich/Death"
 	Species "Cacodemon"
 	Tag "Earth Lich"

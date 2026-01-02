@@ -1,9 +1,19 @@
+Actor KickCooldown : Ammo {
+	inventory.amount 1
+	inventory.maxamount 100
+	ammo.backpackamount 0
+	ammo.backpackmaxamount 100
+	Inventory.Icon "STTPRCNT"
+	+IGNORESKILL
+}
+
 Actor " Fists " : DnDWeapon
 {
 	Weapon.SlotNumber 1
 	+WEAPON.NOALERT
 	+INVENTORY.UNDROPPABLE
 	Obituary "%o had %p shit beaten by %k."
+	Weapon.AmmoType "KickCooldown"
     Weapon.BobStyle InverseSmooth
     Weapon.BobSpeed 2.1
     Weapon.BobRangeY 0.4
@@ -71,6 +81,7 @@ Actor " Fists " : DnDWeapon
 			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
 			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
 			MLEG F 2 Offset(0, 32) ACS_NamedExecuteWithResult("DnD Fire Weapon", DND_WEAPON_FIST, DND_ATK_SECONDARY, 0, DND_ATF_NOAMMOTAKE | DND_ATF_NOATTACKTRIGGER)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Melee Weapon Cooldown", 0, DND_MELEECD_KICK, 20)
 			MLEG G 1 Offset(0, 32)
 			MLEG H 2 ACS_ExecuteAlways(920, 0, 1)
 			PUNK J 1 Offset(0, 36)
@@ -908,7 +919,6 @@ ACTOR Katana : DnDWeapon {
 			JFIS Z -1
 		Stop
 		Ready:
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Start Stamina Recovery")
 			TNT1 A 0 A_GiveInventory("H_WeaponSlot1", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DND Weapon Damage Cache", DND_WEAPON_KATANA)
 		ReadyInit:
