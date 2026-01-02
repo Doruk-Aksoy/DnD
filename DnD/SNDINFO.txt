@@ -1,5 +1,7 @@
 $pitchshiftrange 2
 
+NULLSND					NULLSND
+
 ParrySuccess			PARRYSFX
 DeepCutSFX				DEEPCUTS
 CrushingBlowSFX			CRUSBLOW

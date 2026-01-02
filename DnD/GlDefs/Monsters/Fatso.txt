@@ -1,4 +1,20 @@
+pulselight YetiLight {
+	color 0.86 0.86 1.0
+	size 48
+	secondarysize 64
+	interval 1
+	Offset 0 24 0
+}
 
+object Yeti {
+	frame YETI { light YetiLight }
+	frame "####" { light YetiLight }
+}
+
+object Yeti_Elite {
+	frame YETI { light YetiLight }
+	frame "####" { light YetiLight }
+}
 
 Pointlight DaedFire1
 {

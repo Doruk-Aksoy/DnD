@@ -712,18 +712,6 @@ object railpow
     frame MISLD { light Rail }
 }
 
-pulselight YetiLight {
-	color 0.86 0.86 1.0
-	size 48
-	secondarysize 64
-	interval 1
-	Offset 0 24 0
-}
-
-object Yeti {
-	frame YETI { light YetiLight }
-}
-
 object DarkServantMissile1 {
     frame FX16A { light DSPARILBALL }
     frame FX16B { light DSPARILBALL }

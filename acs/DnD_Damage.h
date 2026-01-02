@@ -4299,6 +4299,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// apply eshield to these only
 				if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning") {
 					// scale these up by player level
+
+					
 					dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, 0);
 				}
 				if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)

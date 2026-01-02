@@ -672,15 +672,6 @@ Script "DnD Warmaster Protect FX Trigger" (void) {
 	}
 }
 
-Script "DnD Yeti Wisp Spawn" (int mode, int chance) CLIENTSIDE {
-	if(random(1, 100) <= chance) {
-		if(mode)
-			GiveInventory("YetiWispSpawner2", 1);
-		else
-			GiveInventory("YetiWispSpawner1", 1);
-	}
-}
-
 // Gets Nastier if theres anyone less than 50% hp nearby
 Script "DnD Bloodseeker Transform" (void) {
 	int this = ActivatorTID(), targtid = 0;

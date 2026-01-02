@@ -2635,6 +2635,7 @@ object LavaDemon
 	Frame LAVDU { light LavaDemonLight }
 	Frame LAVDV { light LavaDemonLight }
 	Frame LAVDW { light LavaDemonLight }
+	Frame "####" { light LavaDemonLight }
 }
 
 object LavaDemon_Elite
@@ -2652,6 +2653,7 @@ object LavaDemon_Elite
 	Frame LAVDU { light LavaDemonLight }
 	Frame LAVDV { light LavaDemonLight }
 	Frame LAVDW { light LavaDemonLight }
+	Frame "####" { light LavaDemonLight }
 }
 
 BrightMap Sprite LOHSA1
