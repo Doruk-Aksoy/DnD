@@ -13,7 +13,6 @@ int test_counter = 0;
 
 #define SKIP_DB_SETTINGS // skips db setting files, only compile when just wanting to test basic things that don't have to do with settings for db modes
 //#define ISAPRILFIRST // enables memes... OH NO
-//#define HELPER_MESSAGES_ON
 
 struct ValueComponent_T {
 	int additive;

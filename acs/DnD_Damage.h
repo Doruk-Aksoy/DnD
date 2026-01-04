@@ -95,6 +95,7 @@ enum {
 	DND_DAMAGETYPEFLAG_PERCENTHP_LOW = 2048,
 	DND_DAMAGETYPEFLAG_DOT = 4096,
 	DND_DAMAGETYPEFLAG_ISBLEED = 8192,
+	DND_DAMAGETYPEFLAG_IGNORERESISTS = 16384,
 
 	DND_DAMAGETYPEFLAG_HURTSPECIES = 268435456,
 	DND_DAMAGETYPEFLAG_USEMASTER = 536870912,
@@ -4295,11 +4296,11 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			}
 
 			// exception for map related hazards
-			if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Telefrag" || arg2 == "Suicide" || arg2 == "InstantDeath" || arg2 == "Exit") {
+			if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Telefrag" || arg2 == "Suicide" || arg2 == "InstantDeath" || arg2 == "Exit" || arg2 == "Trap") {
 				// apply eshield to these only
-				if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning") {
-					// scale these up by player level
-
+				if(arg2 == "Slime" || arg2 == "Crush" || arg2 == "Drowning" || arg2 == "Trap") {
+					// scale these up by player level -- more if its a trap
+					dmg = dmg * (100 + GetBasicMonsterDMGScaling(GetActorLevel(victim), arg2 == "Trap")) / 100;
 					
 					dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, 0);
 				}

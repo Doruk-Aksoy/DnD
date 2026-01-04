@@ -1,0 +1,42 @@
+ACTOR DnD_SpikeTrap : DnD_SwitchableTrapBase 6660 {
+    //$Category Traps
+    Radius 20
+    Height 60
+    Speed 0
+    Mass 9999999
+    SCALE 0.50
+    +FLOORCLIP
+    +EXTREMEDEATH
+    Obituary "%o was impaled by a spike trap."
+    Stamina 16385 // phys + ignore res
+
+    const int dmg = 20;
+    const int r = 32;
+
+    States {
+        Spawn:
+        Inactive:
+            T003 G 30
+        Loop
+        Active:
+            T003 H 2
+            T003 I 2
+            T003 A 0 A_ChangeFlag("Shootable", 1)
+            T003 J 2 a_playsound("Traps/spikes")
+            T003 K 2 A_SetSolid
+            T003 L 2 A_explode(dmg, r)
+            T003 M 2
+            T003 N 2 A_explode(dmg, r)
+            T003 O 2
+            T003 P 2 A_explode(dmg, r)
+            T003 A 2
+            T003 B 2 A_explode(dmg, r)
+            T003 C 2
+            T003 D 2 A_explode(dmg, r)
+            T003 E 2
+            T003 F 2 
+            T003 G 0 A_UnsetSolid
+            T003 G 30 A_ChangeFlag("Shootable", 0)
+        Loop
+    }
+}

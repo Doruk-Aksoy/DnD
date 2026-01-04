@@ -1,0 +1,71 @@
+Actor DnD_FireJetUp : DnD_SwitchableTrapBase 6663 {
+    //$Category Traps
+    Radius 8
+    Height 60
+    Scale 0.50
+    +BRIGHT
+    +NOGRAVITY
+    +FLOORCLIP
+    +NODAMAGETHRUST
+    Obituary "%o was roasted by a fire jet."
+    Stamina 16416 // Fire + Ignore Res
+
+    const int dmg = 10;
+    const int r = 34;
+    
+    States {
+        Spawn:
+        Inactive:
+            T002 A 30
+        Loop
+        Active:
+            T002 A 2 a_playsound("Traps/Firejet")
+            T002 BCDEFGHIJKLMNOPQRSTU 2 A_explode(dmg, r, 0, 0, r)
+            T002 VW 2
+            T002 A 30
+        Loop
+    }
+}
+
+Actor DnD_FireJet : DnD_FireJetUp 6662 {
+    //$Category Traps
+    States {
+        Spawn:
+        Inactive:
+            T001 A 30
+        Loop
+        Active:
+            T001 A 2 a_playsound("Traps/Firejet")
+            T001 BCDEFGHIJKLMNOPQRSTU 2 A_explode(dmg, r, 0, 0, r)
+            T001 VW 2
+            T001 A 30
+        Loop
+    }
+}
+
+// For spawning from places
+Actor DnD_FireJetProjectile {
+    PROJECTILE
+    Speed 25
+    Height 16
+    Radius 10
+    Damage (25)
+    DamageType "Trap"
+    Stamina 16416 // Fire + Ignore Res
+    +BRIGHT
+    Scale 0.666
+    Renderstyle Add
+    Alpha 1.0
+    SeeSound "Traps/Fireball"
+    DeathSound "Traps/FireballHit"
+    Species "Trap"
+    States {
+        Spawn:
+            T000 AB 4
+        Loop
+        Death:
+            TNT1 A 0 A_Explode(60, 80)
+            T000 CDEFG 3 A_FadeOut(0.1)
+        Stop
+    }
+}

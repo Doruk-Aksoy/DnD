@@ -823,6 +823,15 @@ int GetEliteBonusDamage(int m_id) {
 	return DND_ELITE_DMGSCALE + lvl * lvl / 100 + (lvl * 3) / 25;
 }
 
+int GetBasicMonsterDMGScaling(int level, bool bonusScaling) {
+	int base = level * level * 27 / 400 - level / 5 + 5;
+
+	if(bonusScaling)
+		base += level * 5 / 2;
+
+	return base;
+}
+
 int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_factor = 0, int scaling_ramp = 0) {
 	// over the old formula of 4x, this provides 500% damage at lvl 100 instead of 400%
 	// edit: iterating over the improvement on previous versions, making the game harder -- divisor was 25 instead of 10 -- 10 was too high, trying 20

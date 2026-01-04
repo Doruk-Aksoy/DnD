@@ -94,6 +94,11 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Monsters.dec"
 #include "Actors/Pets.dec"
 
+#include "Actors/Traps/Common.dec"
+#include "Actors/Traps/FireJets.dec"
+#include "Actors/Traps/Spikes.dec"
+#include "Actors/Traps/SpinnyBlade.dec"
+
 #include "Actors/IncursionBase.dec"
 
 #include "Actors/Monsters_Custom/Zombieman.dec"

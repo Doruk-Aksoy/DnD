@@ -2,6 +2,12 @@ $pitchshiftrange 2
 
 NULLSND					NULLSND
 
+Traps/Fireball          E_FCHUTE
+Traps/FireBallHit       E_FBALHT
+Traps/Spikes            E_SPEAR
+Traps/FireJet           E_FJET
+Traps/Blades            E_SPINBL
+
 ParrySuccess			PARRYSFX
 DeepCutSFX				DEEPCUTS
 CrushingBlowSFX			CRUSBLOW

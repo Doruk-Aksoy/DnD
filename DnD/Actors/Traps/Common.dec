@@ -1,0 +1,25 @@
+Actor DnD_TrapBase {
+    Mass 0x7FFFFFFF
+    Species "Trap"
+    DamageType "Trap"
+    Damagefactor "normal", 0.0
+    +RANDOMIZE
+    +DONTBLAST
+    +DONTREFLECT
+    +NODAMAGE
+    +INVULNERABLE
+    +NOBLOOD
+}
+
+Actor DnD_SwitchableTrapBase : SwitchableDecoration {
+    Mass 0x7FFFFFFF
+    Species "Trap"
+    DamageType "Trap"
+    Damagefactor "normal", 0.0
+    +RANDOMIZE
+    +DONTBLAST
+    +DONTREFLECT
+    +NODAMAGE
+    +INVULNERABLE
+    +NOBLOOD
+}
