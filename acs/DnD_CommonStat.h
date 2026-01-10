@@ -150,6 +150,8 @@ enum {
 	DND_DAMAGETICFLAG_LESSENED			=			0b1000000000000, // tells damage numbers to paint it gray basically
 	DND_DAMAGETICFLAG_PHYSICAL			=			0b10000000000000,
 	DND_DAMAGETICFLAG_POISON			=			0b100000000000000,
+	DND_DAMAGETICFLAG_INFLICTPOISON		=			0b1000000000000000,
+	DND_DAMAGETICFLAG_SPELL				=			0b10000000000000000,
 };
 
 #include "DnD_CommonResearch.h"
@@ -418,7 +420,7 @@ enum {
 
 int GetBonusPlayerSpeed(int pnum) {
 	int ptid = pnum + P_TIDSTART;
-	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE) + CheckActorInventory(ptid, "DnD_FrenzyChargeCount") * DND_FRENZYCHARGE_SPEEDBONUS;
+	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE) + GetPlayerFrenzyCharges(ptid, pnum) * DND_FRENZYCHARGE_SPEEDBONUS;
 	// add other stuff here
 	res = res * (100 + CheckActorInventory(ptid, "GryphonCheck") * DND_GRYPHON_MSPEED + CheckActorInventory(ptid, "CelestialCheck") * DND_CELESTIAL_MSPEED) / 100;
 	return res;
@@ -487,12 +489,9 @@ int GetStrengthEffect(int pnum, int factor, int divisor = 1) {
 // dont use the "geteffect" functions here as unity is concerned only with raw value of the stats themselves
 void CalculateUnity(int pnum) {
 	int val = (
-			CheckInventory("PSTAT_Strength") + 
-			GetPlayerAttributeValue(pnum, INV_STAT_STRENGTH) +
-			CheckInventory("PSTAT_Dexterity") + 
-			GetPlayerAttributeValue(pnum, INV_STAT_DEXTERITY) +
-			CheckInventory("PSTAT_Intellect") +
-			GetPlayerAttributeValue(pnum, INV_STAT_INTELLECT)
+			GetStrength(pnum) +
+			GetDexterity(pnum) +
+			GetIntellect(pnum)
 		) * (100 + GetPlayerAttributeValue(pnum, INV_CORR_PERCENTSTATS)) / 100;
 	SetInventory("PSTAT_Unity", val);
 }
@@ -1036,6 +1035,24 @@ int GetPlayerMaxPowerCharges(int pnum) {
 	return DND_BASE_PLAYERCHARGEMAX + GetPlayerAttributeValue(pnum, INV_CORR_MAXPOWER);
 }
 
+int GetPlayerFrenzyCharges(int tid, int pnum) {
+	if(!GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) || GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY)
+		return CheckActorInventory(tid, "DnD_FrenzyChargeCount");
+	return GetPlayerMaxFrenzyCharges(pnum);
+}
+
+int GetPlayerEnduranceCharges(int tid, int pnum) {
+	if(!GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) || GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)
+		return CheckActorInventory(tid, "DnD_EnduranceChargeCount");
+	return GetPlayerMaxEnduranceCharges(pnum);
+}
+
+int GetPlayerPowerCharges(int tid, int pnum) {
+	if(!GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) || GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)
+		return CheckActorInventory(tid, "DnD_PowerChargeCount");
+	return GetPlayerMaxPowerCharges(pnum);
+}
+
 int CanActorHaveFrenzyCharges(int tid, int pnum) {
 	return CheckActorInventory(tid, "DnD_FrenzyChargeCount") < GetPlayerMaxFrenzyCharges(pnum);
 }
@@ -1048,8 +1065,9 @@ int CanActorHavePowerCharges(int tid, int pnum) {
 	return CheckActorInventory(tid, "DnD_PowerChargeCount") < GetPlayerMaxPowerCharges(pnum);
 }
 
-int GetChargeCount() {
-	return CheckInventory("DnD_FrenzyChargeCount") + CheckInventory("DnD_EnduranceChargeCount") + CheckInventory("DnD_PowerChargeCount");
+int GetChargeCount(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+	return GetPlayerFrenzyCharges(ptid, pnum) + GetPlayerEnduranceCharges(ptid, pnum) + GetPlayerPowerCharges(ptid, pnum);
 }
 
 void GiveActorFrenzyCharge(int tid, int amt, bool noSpawn = false) {

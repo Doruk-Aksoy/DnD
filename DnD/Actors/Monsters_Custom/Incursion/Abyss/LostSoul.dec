@@ -23,6 +23,7 @@ Actor AbyssalLostSoul : DnD_BaseRangedMonster {
 	RenderStyle SoulTrans
 	Obituary "%o was spooked by an Abyssal Lost Soul."
 	Scale 0.8
+	+GHOST
 	+ISMONSTER
 	States {
 		SetInfo:

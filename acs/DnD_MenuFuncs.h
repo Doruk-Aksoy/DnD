@@ -561,6 +561,7 @@ bool HandlePageListening(int curopt, int boxid) {
 		case MENU_STAT2_OFFENSE1:
 		case MENU_STAT2_OFFENSE2:
 		case MENU_STAT2_UTILITY:
+		case MENU_STAT2_MISC:
 			redraw = ListenScroll(ScrollPos.y, 0);
 		break;
 		case MENU_HELP_MMODS_IMMUNITY:
@@ -1622,6 +1623,7 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 289.0, 229.0, 108.0, 222.0 }, // off
 			{ 289.0, 213.0, 108.0, 206.0 }, // def
 			{ 289.0, 197.0, 108.0, 190.0 }, // uti
+			{ 289.0, 181.0, 108.0, 174.0 }, // misc
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
@@ -1642,6 +1644,11 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ -1, -1, -1, -1 }
 		},
 		// stat uti
+		{
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
+			{ -1, -1, -1, -1 }
+		},
+		// stat misc
 		{
 			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
@@ -3308,10 +3315,13 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 				SetInventory("DnD_SelectedInventoryBox", 0);
 			LocalAmbientSound("RPG/MenuChoose", 127);
 		}
-		else if(CheckInventory("DnD_SelectedInventoryBox") && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
-			// drop selected item
-			HandleMenuItemDrop(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			SetInventory("DnD_SelectedInventoryBox", 0);
+		else {
+			boxid = CheckInventory("DnD_SelectedInventoryBox");
+			if(boxid && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
+				// drop selected item
+				HandleMenuItemDrop(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				SetInventory("DnD_SelectedInventoryBox", 0);
+			}
 		}
 	}
 	else if(choice == DND_MENUINPUT_RCLICK)
@@ -5143,6 +5153,30 @@ int GetResistDisplayVal(int pnum, int res, int reduce) {
 	return val;
 }
 
+int GetPlayerMoreDamageDisplay(int pnum) {
+	int base = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
+	base = FixedMul(1.0 + base, pbuffs[pnum].buff_net_values[BUFF_FRENZYCHARGE].multiplicative);
+	if(base > 0)
+		return base - 1.0;
+	return 0;
+}
+
+int GetPlayerLessDamageDisplay(int pnum) {
+	int mult = 1.0;
+	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].multiplicative);
+	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_ENDURANCECHARGE].multiplicative);
+
+	int temp = GetPlayerAttributeValue(pnum, INV_EX_LESSDMGTAKENMAXOVERHEAT);
+	if(temp && HasRunningOverheatCooldown(pnum + P_TIDSTART))
+		mult = CombineFactors(mult, -((temp << 16)) / 100);
+
+	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
+	if(temp)
+		mult = CombineFactors(mult, (temp << 16) / 100);
+
+	return mult - 1.0;
+}
+
 // not sure how to group these for other places, their calculations arent exactly done in straightforward fashion so calculating as they come makes sense
 void DrawPlayerStats(int pnum, int category) {
 	int val;
@@ -5274,12 +5308,11 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// more damage
-			val = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
+			val = GetPlayerMoreDamageDisplay(pnum);
 			if(val) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DAMAGEPERCENT_MORE, 0, 0, val), s:"\n");
 				++k;
 			}
-			
 			
 			// pen block begins
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_BULLET);
@@ -5329,9 +5362,9 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_POISON);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_POISON)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s:"\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS", s:" \cf(H)\c-\n");
+					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			// pen block ends
@@ -5611,6 +5644,18 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetSpawnHealth();
 			PlayerStatText = StrParam(s:"\c[Q9]", d:val, s: " \c-", l:"DND_HEALTHCAPIS", s:"\n");
 			++k;
+
+			// reduced damage taken
+			// inc damage taken
+			val = GetPlayerLessDamageDisplay(pnum);
+			if(val > 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[D4]", s:GetFixedRepresentation(val, true), s:"% \c-", l:"DND_MOREDMGTAKEN", s:"\n");
+				++k;
+			}
+			else if(val < 0) {
+				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"% \c-", l:"DND_LESSDMGTAKEN", s:"\n");
+				++k;
+			}
 			
 			// armor rating
 			val = GetPlayerArmor(pnum);
@@ -5658,13 +5703,6 @@ void DrawPlayerStats(int pnum, int category) {
 				if(val > 100)
 					val = 100;
 				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"% \c-", l:"DND_ESHIELDABSORB", s:"\n");
-				++k;
-			}
-			
-			// inc damage taken
-			val = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
-			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_EX_DMGINCREASE_TAKEN, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -5782,7 +5820,7 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 		}
-		else {
+		else if(category == DRAW_STAT_UTILITY) {
 			// utility
 			// drop chance
 			val = (GetDropChance(pnum) - 1.0);
@@ -5940,6 +5978,22 @@ void DrawPlayerStats(int pnum, int category) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
+		}
+		else {
+			// misc stats
+
+			// charges
+			val = 0;
+			PlayerStatText = StrParam(s:"\c[Q9]", d:GetPlayerFrenzyCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxFrenzyCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_0", s:"\n");
+			++k;
+
+			val = 0;
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:GetPlayerEnduranceCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxEnduranceCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_1", s:"\n");
+			++k;
+
+			val = 0;
+			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:GetPlayerPowerCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxPowerCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_2", s:"\n");
+			++k;
 		}
 	}
 

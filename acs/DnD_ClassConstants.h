@@ -186,6 +186,11 @@ void DoPreClassAdjustments() {
 		SetActorProperty(0, APROP_SCALEX, DND_TRICKSTER_SIZEX);
 		SetActorProperty(0, APROP_SCALEY, DND_TRICKSTER_SIZEY);
 	}
+	else {
+		// reset in case its not
+		SetActorProperty(0, APROP_SCALEX, 1.0);
+		SetActorProperty(0, APROP_SCALEY, 1.0);
+	}
 }
 
 str GetClassPerk(int class, int perk_num) {

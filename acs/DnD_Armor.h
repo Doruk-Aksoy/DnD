@@ -237,9 +237,9 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
 			break;
 		}
 
-#ifdef ISDEBUGBUILD
+/*#ifdef ISDEBUGBUILD
 	res = BOOTS_WARRIORSABATON;
-#endif
+#endif*/
 
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");

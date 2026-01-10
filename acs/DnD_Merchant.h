@@ -10,7 +10,10 @@
 #define DND_MERCHANT_ORBCHANCE 0.9
 #define DND_MERCHANT_TOKENCHANCE 1.0
 
-#define DND_MERCHANT_ARMORCHANCE 0.4 // 0.4
+#define DND_MERCHANT_ARMORCHANCE 0.175
+#define DND_MERCHANT_HELMCHANCE 0.375
+#define DND_MERCHANT_BOOTCHANCE 0.575
+#define DND_MERCHANT_SPECIALTYCHANCE 0.675
 #define DND_MERCHANT_CHARMCHANCE 1.0
 
 #define DND_BASE_MERCHANT_STACKABLECOST 600
@@ -50,7 +53,7 @@ void ConstructUniqueOnMerchant(int item_pos, int unique_id) {
 	TradeViewList[MAXPLAYERS][item_pos].attrib_count = UniqueItemList[unique_id].attrib_count;
 
 	// this can set images sometimes, so just moved item_image below here
-	SetupItemImplicitOnMerchant(item_pos, TradeViewList[MAXPLAYERS][item_pos].item_type & 0xFFFF, TradeViewList[MAXPLAYERS][item_pos].item_subtype, TradeViewList[MAXPLAYERS][item_pos].item_level);
+	SetupItemImplicit(item_pos, TradeViewList[MAXPLAYERS][item_pos].item_type & 0xFFFF, TradeViewList[MAXPLAYERS][item_pos].item_subtype, TradeViewList[MAXPLAYERS][item_pos].item_level, true);
 
 	TradeViewList[MAXPLAYERS][item_pos].corrupted = 0;
 	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
@@ -135,220 +138,6 @@ void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
 	CheckAttribEffects(MAXPLAYERS, item_pos, attrib, DND_SYNC_ITEMSOURCE_TRADEVIEW);
 }
 
-void GiveImplicitToMerchant(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
-	int imp_pos = 0;
-	for(imp_pos = 0; imp_pos < MAX_ITEM_IMPLICITS && TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_id != -1; ++imp_pos);
-
-	if(imp_pos == MAX_ITEM_IMPLICITS)
-		return;
-
-	if(extra != -1)
-		TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_extra = extra;
-
-	TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_id = attr;
-	TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_tier = tier;
-
-	if(!tier)
-		TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_val = val;
-	else {
-		int temp = GetItemTier(tier);
-		if(tier_mapping)
-			TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_val = random(val + temp * tier_mapping, val + (temp + 1) * tier_mapping);
-		else
-			TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_val = val * (temp + 1);
-	}
-}
-
-int SetupItemImplicitOnMerchant(int item_pos, int type, int subtype, int item_tier) {
-	int special_roll = 0;
-	switch(type) {
-        case DND_ITEM_BODYARMOR:
-			// implicits that come along with the item always
-			switch(subtype) {
-				case BODYARMOR_GREEN:
-					// 100 armor, 33% damage reduction
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 50);
-				break;
-				case BODYARMOR_YELLOW:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 150, 0, item_tier, 75);
-				break;
-				case BODYARMOR_BLUE:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 100);
-				break;
-				case BODYARMOR_RED:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 300, 0, item_tier, 100);
-				break;
-
-				case BODYARMOR_GUNSLINGER:
-					special_roll = INV_IMP_CANROLL_PHYS;
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 1.75);
-					GiveImplicitToMerchant(item_pos, INV_IMP_CANROLL_PHYS, 1);
-				break;
-				case BODYARMOR_OCCULT:
-					special_roll = INV_IMP_CANROLL_MAGIC;
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITSHIELD, 85, 0, item_tier, 30);
-					GiveImplicitToMerchant(item_pos, INV_IMP_CANROLL_MAGIC, 1);
-				break;
-				case BODYARMOR_DEMO:
-					special_roll = INV_IMP_CANROLL_EXPLOSIVE;
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100);
-					GiveImplicitToMerchant(item_pos, INV_IMP_CANROLL_EXPLOSIVE, 1);
-				break;
-				case BODYARMOR_ENERGY:
-					special_roll = INV_IMP_CANROLL_ENERGY;
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCSHIELD, 85, 0, item_tier, 30);
-					GiveImplicitToMerchant(item_pos, INV_IMP_CANROLL_ENERGY, 1);
-				break;
-				case BODYARMOR_ELEMENTAL:
-					special_roll = INV_IMP_CANROLL_ELEMENTAL;
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 125, 0, item_tier, 60);
-					GiveImplicitToMerchant(item_pos, INV_IMP_CANROLL_ELEMENTAL, 1);
-				break;
-
-				case BODYARMOR_MONOLITH:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 40);
-				break;
-				case BODYARMOR_CYBER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCSHIELD, 100, 0, item_tier, 40);
-					GiveImplicitToMerchant(item_pos, INV_IMP_DOUBLEESHIELDRECOVERY, 1);
-					GiveImplicitToMerchant(item_pos, INV_CYBERNETIC, 1);
-				break;
-				case BODYARMOR_DUELIST:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 2.25);
-					GiveImplicitToMerchant(item_pos, INV_IMP_HANDGUNBONUS, 0.12, 0, item_tier, 0.04);
-				break;
-				case BODYARMOR_NECRO:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITARMOR, 150, 0, item_tier, 60);
-					GiveImplicitToMerchant(item_pos, INV_IMP_NECROARMOR, 15, 0, item_tier, 3);
-				break;
-				case BODYARMOR_KNIGHT:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100);
-					GiveImplicitToMerchant(item_pos, INV_IMP_KNIGHTARMOR, 50, 20);
-				break;
-				case BODYARMOR_RAVAGER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 80);
-					GiveImplicitToMerchant(item_pos, INV_IMP_RAVAGER, 25, 15);
-				break;
-				case BODYARMOR_TANGLEDRIBCAGE:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITARMORSHIELD, 35, 0, item_tier, 10);
-					GiveImplicitToMerchant(item_pos, INV_IMP_QUALITYCAPFIFTY, 1);
-				break;
-
-				case BODYARMOR_SYNTHMETAL:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITARMOR, 180, 0, item_tier, 80);
-					GiveImplicitToMerchant(item_pos, INV_IMP_HIGHREFLECTREDUCE, 1);
-				break;
-				case BODYARMOR_LIGHTNINGCOIL:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMORSHIELD, 80, 0, item_tier, 25);
-					GiveImplicitToMerchant(item_pos, INV_IMP_ABSORBLIGHTNING, 80, 25);
-				break;
-			}
-        break;
-		case DND_ITEM_BOOT:
-			// implicits that come along with the item always
-			switch(subtype) {
-				case BOOTS_SILVER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 20);
-					GiveImplicitToMerchant(item_pos, INV_DMGREDUCE_MAGIC, 3.0, 0, item_tier, 1.0);
-				break;
-				case BOOTS_ENGINEER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMORSHIELD, 16, 0, item_tier, 5);
-					GiveImplicitToMerchant(item_pos, INV_DMGREDUCE_ENERGY, 3.0, 0, item_tier, 1.0);
-				break;
-				case BOOTS_INSULATED:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMORSHIELD, 10, 0, item_tier, 5);
-					GiveImplicitToMerchant(item_pos, INV_IMP_LESSLIGHTNINGTAKEN, 0.1);
-				break;
-				case BOOTS_PLATED:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 25);
-				break;
-				case BOOTS_POWER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8);
-					GiveImplicitToMerchant(item_pos, INV_IMP_FASTEROVERHEATDISS, 10, 0, item_tier, 5);
-				break;
-				case BOOTS_ENERGY:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCSHIELD, 12, 0, item_tier, 6);
-					GiveImplicitToMerchant(item_pos, INV_IMP_LESSSELFDAMAGETAKEN, 10);
-				break;
-				case BOOTS_TACTICAL:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITARMOR, 45, 0, item_tier, 25);
-				break;
-				case BOOTS_FUSION:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITSHIELD, 20, 0, item_tier, 8);
-					GiveImplicitToMerchant(item_pos, INV_REDUCED_OVERHEAT, 8, 0, item_tier, 4);
-				break;
-				case BOOTS_LEATHER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMIT, 8.0, 0, item_tier, 1.0);
-				break;
-				case BOOTS_SNAKESKIN:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMIT, 4.5, 0, item_tier, 1.0);
-					GiveImplicitToMerchant(item_pos, INV_IMP_LESSPOISONTAKEN, 0.1);
-				break;
-				case BOOTS_DRAKESKIN:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10);
-					GiveImplicitToMerchant(item_pos, INV_IMP_LESSFIRETAKEN, 0.1);
-				break;
-			}
-		break;
-		case DND_ITEM_HELM:
-			// implicits that come along with the item always
-			switch(subtype) {
-				case HELMS_LICH:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18);
-					GiveImplicitToMerchant(item_pos, INV_IMP_BONUSPETCAP, 1);
-				break;
-				case HELMS_WARRIOR:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40);
-					GiveImplicitToMerchant(item_pos, INV_MELEEDAMAGE, 25);
-					GiveImplicitToMerchant(item_pos, INV_MELEERANGE, 15);
-				break;
-				case HELMS_SYNTHMETAL:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMIT, 10.0, 0, item_tier, 1.75);
-					GiveImplicitToMerchant(item_pos, INV_IMP_REDUCEDVISIONIMPAIR, 40, 0, item_tier, 5);
-				break;
-				case HELMS_KNIGHT:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 40);
-					GiveImplicitToMerchant(item_pos, INV_IMP_MELEEIGNORESSHIELDS, 1);
-				break;
-				case HELMS_PREDATOR:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 30);
-					GiveImplicitToMerchant(item_pos, INV_IMP_MOREDAMAGETOBOSSES, 5, 0, item_tier, 1);
-				break;
-				case HELMS_CRUSADER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCARMORSHIELD, 55, 0, item_tier, 25);
-					GiveImplicitToMerchant(item_pos, INV_IMP_RECOVERESONUNDEADKILL, 1);
-				break;
-				case HELMS_TACTICAL:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITARMOR, 72, 0, item_tier, 24);
-					GiveImplicitToMerchant(item_pos, INV_IMP_PRECISIONCRITBONUS, 0.02, 0, item_tier, 0.01);
-				break;
-				case HELMS_ROBE:
-					GiveImplicitToMerchant(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16);
-					GiveImplicitToMerchant(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2);
-				break;
-			}
-		break;
-        case DND_ITEM_SPECIALTY_CYBORG:
-			// implicits that come along with the item always
-			switch(subtype) {
-				case PCORE_COPPER:
-					GiveImplicitToMerchant(item_pos, INV_IMP_POWERCORE, 10, 25, item_tier, 5);
-				break;
-				case PCORE_GOLD:
-					GiveImplicitToMerchant(item_pos, INV_IMP_POWERCORE, 20, 20, item_tier, 7);
-				break;
-				case PCORE_UNSTABLE:
-					GiveImplicitToMerchant(item_pos, INV_IMP_UNSTABLECORE, 15, 0.05 + 0.0275 * item_tier / MAX_CHARM_AFFIXTIERS, item_tier, 8);
-				break;
-				case PCORE_MOLYBDENUM:
-					GiveImplicitToMerchant(item_pos, INV_IMP_POWERCORE, 30, 15, item_tier, 10);
-				break;
-			}
-        break;
-	}
-	return special_roll;
-}
-
 int CheckMerchantItemSynergy(int synergy_roll, int item_pos) {
 	static int tags_found[MAX_ATTRIB_TAG_GROUPS];
 
@@ -395,12 +184,15 @@ void RollArmorInfoOnMerchant(int item_pos, int item_tier, int item_type, int arm
 	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
 	int i = 0, roll;
 	int count = random(1, max_attr);
-	int special_roll = SetupItemImplicitOnMerchant(item_pos, item_type, armor_type, item_tier);
+	int special_roll = SetupItemImplicit(item_pos, item_type, armor_type, item_tier, true);
 	int synergy_roll = -2;
+	int max_tries = 10;
 
 	while(i < count) {
 		do {
 			roll = PickRandomAttribute(item_type, armor_type, special_roll, TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_id, synergy_roll);
+			if(max_tries-- < 0)
+				synergy_roll = -2;
 		} while(CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
 		AddAttributeToMerchant(item_pos, roll, count);
 
@@ -458,6 +250,227 @@ void ConstructArmorDataOnMerchant(int item_pos, int ilvl) {
 		MakeMerchantItemUnique(item_pos);
 	else
     	RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BODYARMOR, res, MAX_ARMOR_ATTRIB_DEFAULT);
+}
+
+void ConstructBootDataOnMerchant(int item_pos, int ilvl) {
+    // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
+	int i;
+	int res = random(1, MAX_BOOT_WEIGHT);
+	for(i = 0; i <= BOOTS_END; ++i)
+		if(res <= ArmorDropWeights[DND_DROPPEDARMOR_BOOT][i]) {
+			res = i;
+			break;
+		}
+
+	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
+	TradeViewList[MAXPLAYERS][item_pos].item_stack = 0;
+	TradeViewList[MAXPLAYERS][item_pos].item_type = DND_ITEM_BOOT;
+	TradeViewList[MAXPLAYERS][item_pos].item_subtype = res;
+	TradeViewList[MAXPLAYERS][item_pos].width = DND_BOOT_BASEWIDTH;
+	TradeViewList[MAXPLAYERS][item_pos].height = DND_BOOT_BASEHEIGHT;
+
+	TradeViewList[MAXPLAYERS][item_pos].corrupted = false;
+	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id = -1;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_val = 0;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_tier = 0;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_extra = 0;
+	}
+	
+	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = -1;
+
+	TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_BOO_1 + res;
+
+	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE)
+		MakeMerchantItemUnique(item_pos);
+	else
+    	RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BOOT, res, MAX_BOOT_ATTRIB_DEFAULT);
+}
+
+void ConstructHelmDataOnMerchant(int item_pos, int ilvl, int helm = -1) {
+    // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
+	int i;
+	int res = 0;
+	if(helm == -1) {
+		res = random(1, MAX_HELM_WEIGHT);
+		for(i = 0; i <= HELMS_END; ++i) {
+			if(res <= ArmorDropWeights[DND_DROPPEDARMOR_HELM][i]) {
+				res = i;
+				break;
+			}
+		}
+	}
+	else
+		res = helm;
+
+	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
+	TradeViewList[MAXPLAYERS][item_pos].item_stack = 0;
+	TradeViewList[MAXPLAYERS][item_pos].item_type = DND_ITEM_HELM;
+	TradeViewList[MAXPLAYERS][item_pos].item_subtype = res;
+	TradeViewList[MAXPLAYERS][item_pos].width = DND_HELM_BASEWIDTH;
+	TradeViewList[MAXPLAYERS][item_pos].height = DND_HELM_BASEHEIGHT;
+
+	TradeViewList[MAXPLAYERS][item_pos].corrupted = false;
+	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id = -1;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_val = 0;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_tier = 0;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_extra = 0;
+	}
+	
+	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = -1;
+
+	TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_HLM_1 + res;
+
+    RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_HELM, res, MAX_HELM_ATTRIB_DEFAULT);
+}
+
+void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
+    // decide what type of armor to spawn here -- droppers have tiers not equal to zero, so they can determine some easy armors to drop
+	int res, i;
+	res = random(1, 100);
+
+	TradeViewList[MAXPLAYERS][item_pos].width = 1;
+	TradeViewList[MAXPLAYERS][item_pos].height = 1;
+
+	switch(item_type) {
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+			i = ITEM_IMAGE_SLAYERCARD_BEGIN;
+			if(res <= 33)
+				res = SLAYERCARD_STR;
+			else if(res <= 66)
+				res = SLAYERCARD_DEX;
+			else
+				res = SLAYERCARD_INT;
+		break;
+
+		case DND_ITEM_SPECIALTY_MARINE:
+			TradeViewList[MAXPLAYERS][item_pos].height = 2;
+			i = ITEM_IMAGE_DOGTAG_BEGIN;
+			if(res <= 40)
+				res = DOGTAG_PRIVATE;
+			else if(res <= 60)
+				res = DOGTAG_SGT;
+			else
+				res = DOGTAG_CORPORAL;
+		break;
+
+		case DND_ITEM_SPECIALTY_HOBO:
+			TradeViewList[MAXPLAYERS][item_pos].width = 2;
+			i = ITEM_IMAGE_SUNGLASSES_BEGIN;
+			if(res <= 20)
+				res = SUNGLASS_BLACK;
+			else if(res <= 70)
+				res = SUNGLASS_PINK;
+			else
+				res = SUNGLASS_GREEN;
+		break;
+
+		case DND_ITEM_SPECIALTY_PUNISHER:
+			i = ITEM_IMAGE_CIGAR_BEGIN;
+			if(res <= 20)
+				res = CIGAR_LIGHT;
+			else if(res <= 60)
+				res = CIGAR_MID;
+			else
+				res = CIGAR_HEAVY;
+		break;
+
+		case DND_ITEM_SPECIALTY_WANDERER:
+			i = ITEM_IMAGE_POWERRING_BEGIN;
+			if(res <= 40)
+				res = POWERRING_GREEN;
+			else if(res <= 80)
+				res = POWERRING_BLUE;
+			else
+				res = POWERRING_RED;
+		break;
+
+		case DND_ITEM_SPECIALTY_CYBORG:
+			i = ITEM_IMAGE_POWERCORE_BEGIN;
+			if(res <= 35)
+				res = PCORE_COPPER;
+			else if(res <= 75)
+				res = PCORE_GOLD;
+			else if(res <= 90)
+				res = PCORE_UNSTABLE;
+			else
+				res = PCORE_MOLYBDENUM;
+		break;
+
+		case DND_ITEM_SPECIALTY_BERSERKER:
+			TradeViewList[MAXPLAYERS][item_pos].width = 2;
+			i = ITEM_IMAGE_BELT_BEGIN;
+			if(res <= 33)
+				res = BELT_SASH;
+			else if(res <= 66)
+				res = BELT_HEAVY;
+			else
+				res = BELT_LIGHT;
+		break;
+
+		case DND_ITEM_SPECIALTY_TRICKSTER:
+			TradeViewList[MAXPLAYERS][item_pos].height = 2;
+			i = ITEM_IMAGE_CLAW_BEGIN;
+			if(res <= 40)
+				res = CLAW_RAKE;
+			else if(res <= 80)
+				res = CLAW_CESTUS;
+			else
+				res = CLAW_KATAR;
+		break;
+	}
+
+	TradeViewList[MAXPLAYERS][item_pos].item_image = i + res;
+
+	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
+	TradeViewList[MAXPLAYERS][item_pos].item_stack = 0;
+	TradeViewList[MAXPLAYERS][item_pos].item_type = item_type;
+	TradeViewList[MAXPLAYERS][item_pos].item_subtype = res;
+
+	TradeViewList[MAXPLAYERS][item_pos].corrupted = false;
+	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+
+	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id = -1;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_val = 0;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_tier = 0;
+		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_extra = 0;
+	}
+	
+	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
+		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = -1;
+
+	RollSpecialtyItemInfoOnMerchant(item_pos, ilvl, item_type);
+}
+
+int RollSpecialtyItemInfoOnMerchant(int item_pos, int ilvl, int itype) {
+	// roll random attributes for the charm
+	int i = 0, roll;
+	int sub_type = ConstructSpecialtyDataOnField(item_pos, ilvl, itype);
+	int count = random(1, MAX_SPECIALTY_ATTRIBS);
+	int special_roll = 0;
+
+	SetupItemImplicit(item_pos, itype, sub_type, ilvl, true);
+	
+	while(i < count) {
+		do {
+			roll = PickRandomAttribute(itype, special_roll, TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_id);
+		} while(CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
+		AddAttributeToMerchant(item_pos, roll, count);
+		++i;
+	}
+
+	return sub_type;
 }
 
 void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
@@ -701,11 +714,23 @@ Script "DnD Merchant Items" (void) {
 	for(int pos = 0; pos < item_count; ++pos) {
         int ilvl = RollItemLevel();
 		int temp = random(0, 1.0);
+
+#ifdef ISDEBUGBUILD
+		temp = DND_MERCHANT_ITEMCHANCE;
+#endif
+
 		if(temp <= DND_MERCHANT_ITEMCHANCE) {
 			// roll items, charm or armor
 			temp = random(0, 1.0);
+
 			if(temp <= DND_MERCHANT_ARMORCHANCE) // armor
-                ConstructArmorDataOnMerchant(pos, ilvl);   
+                ConstructArmorDataOnMerchant(pos, ilvl);
+			else if(temp <= DND_MERCHANT_HELMCHANCE)
+				ConstructHelmDataOnMerchant(pos, ilvl);
+			else if(temp <= DND_MERCHANT_BOOTCHANCE)
+				ConstructBootDataOnMerchant(pos, ilvl);
+			else if(temp <= DND_MERCHANT_SPECIALTYCHANCE)
+				ConstructSpecialtyItemOnMerchant(pos, ilvl, random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE));
 			else // charm
                 ConstructCharmDataOnMerchant(pos, ilvl);
 
@@ -744,7 +769,7 @@ Script "DnD Merchant Items" (void) {
 }
 
 void SpawnMerchant() {
-	ACS_NamedExecuteWithResult("DnD Try Spawn Area", 0, "DnD_Merchant", DND_MERCHANT_TID, 96 | (4 << 16) | (22 << 24));
+	ACS_NamedExecuteWithResult("DnD Try Spawn Area", 0, "DnD_Merchant", DND_MERCHANT_TID, 32 | (4 << 16) | (22 << 24));
 	ACS_NamedExecuteWithResult("DnD Merchant Items");
 }
 

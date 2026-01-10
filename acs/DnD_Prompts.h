@@ -470,7 +470,7 @@ Script "DnD Dark Wanderer Challenge Track" (void) {
 	Delay(const:TICRATE);
 	int color = CR_WHITE;
 	// players did not all die check at the end
-	while(NPC_States[DND_NPC_DARKWANDERER].time && NPC_States[DND_NPC_DARKWANDERER].offer_progress && GetGameModeState() != GAMESTATE_INRESULTSEQUENCE && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
+	while(NPC_States[DND_NPC_DARKWANDERER].time && NPC_States[DND_NPC_DARKWANDERER].offer_progress > 0 && GetGameModeState() != GAMESTATE_INRESULTSEQUENCE && !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED)) {
 		// global display
 		if(NPC_States[DND_NPC_DARKWANDERER].time < 30)
 			color = CR_RED;

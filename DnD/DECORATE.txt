@@ -122,6 +122,11 @@ const int SPECIAL_FX_TID = 2147483647;
 
 #include "Actors/Monsters_Custom/Uniques.dec"
 
+// Ultimatum Monsters
+#include "Actors/Monsters_Custom/Ultimatum/Golem.dec"
+#include "Actors/Monsters_Custom/Ultimatum/Vassago.dec"
+#include "Actors/Monsters_Custom/Ultimatum/Dementor.dec"
+
 // Incursion Monsters
 // Chex
 #include "Actors/Monsters_Custom/Incursion/Chex/Base.dec"

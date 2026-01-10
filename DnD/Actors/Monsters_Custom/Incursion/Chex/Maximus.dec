@@ -58,9 +58,20 @@ ACTOR FlemoidMaximus : DnD_BaseHybridMonster {
 			C009 I 1 A_Scream
 			C009 I 3 A_SpawnItemEx("GenericGibber_Medium_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			C009 JKL 4
+			TNT1 A 0 A_NoBlocking
 			C009 MN 5
-			C009 O 5 A_NoBlocking
+			C009 O 5 A_KillMaster
 		stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 

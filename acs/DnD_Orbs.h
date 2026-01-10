@@ -973,9 +973,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 	if(orbtype != DND_ORB_DESTINY)
 		TakeInventory("DestinyUsed", 1);
-	else if(orbtype != DND_ORB_REVERANCE)
+	if(orbtype != DND_ORB_REVERANCE)
 		TakeInventory("ReveranceUsed", 1);
-	else if(orbtype != DND_ORB_ORDER)
+	if(orbtype != DND_ORB_ORDER)
 		TakeInventory("OrderUsed", 1);
 
 	Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb

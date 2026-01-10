@@ -1575,19 +1575,19 @@ Actor "Dusk Blade" : DnDWeapon {
 			TNT1 A 6
 		Goto PreReady
 		Altfire:
-			VORP A 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
-			TNT1 A 0 A_JumpIfInventory("DuskMode", 1, "DuskDoNothing")
-			TNT1 A 0 A_JumpIfInventory("DnD_CanAltFire", 1, "ContinueAltFire")
-			VORP A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			"####" "#" 0 A_JumpIfInventory("DuskMode", 1, "DuskDoNothing")
+			"####" "#" 2 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
+			"####" "#" 0 A_JumpIfInventory("DnD_CanAltFire", 1, "ContinueAltFire")
+			"####" "#" 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		goto ReadyInit
 		DuskDoNothing:
-			VORP JJJJKKKKLLLLMMMM 1 Bright A_WeaponReady(WRF_NOSECONDARY | WRF_NOSWITCH)
+			VORP JKLM 4 Bright A_WeaponReady(WRF_NOSECONDARY | WRF_NOSWITCH)
 		goto ReadyInit
 		ContinueAltFire:
 			VORP A 1 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 			TNT1 A 0 A_SetBlend("60 00 60", 0.85, 9)
 			TNT1 A 0 A_GiveInventory("DuskMode", 1)
-			VORP M 1 ACS_NamedExecuteAlways("DnD Melee Weapon Cooldown", 0, DND_MELEECD_DUSKBLADE, 160)
+			VORP M 1 ACS_NamedExecuteAlways("DnD DuskBlade Cooldown", 0, 7) // dusk mode lasts 8 seconds, -1 here for early start so it doesnt go back in
 		FinishAlt:
 			VORP M 1
 			TNT1 A 0 A_PlaySound("DuskMode/Activate")

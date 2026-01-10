@@ -56,6 +56,10 @@ enum {
 #define FIRST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_DOOMGUY
 #define LAST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_TRICKSTER
 
+int GetRandomSpecialtyItem() {
+	return random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE);
+}
+
 bool IsSpecialtyItemType(int type) {
 	switch(type) {
 		case DND_ITEM_SPECIALTY_DOOMGUY:

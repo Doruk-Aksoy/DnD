@@ -2510,4 +2510,9 @@ Script "DnD Kick Vels" (void) {
 	SetResultValue(0);
 }
 
+Script "DnD DuskBlade Cooldown" (int buff_time) {
+	Delay(buff_time * TICRATE);
+	ACS_NamedExecuteAlways("DnD Melee Weapon Cooldown", 0, DND_MELEECD_DUSKBLADE, 160);
+}
+
 #endif

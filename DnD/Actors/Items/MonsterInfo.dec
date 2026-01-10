@@ -967,7 +967,7 @@ Actor ChthonFireCircle {
 	Renderstyle None
 	Alpha 0.0
 	Scale 12.0
-	ReactionTime 8
+	ReactionTime 5
 	const int r = 22;
 	+FLOORHUGGER
 	+THRUACTORS

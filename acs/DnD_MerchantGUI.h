@@ -37,7 +37,7 @@ void AcquireItemDimensions(int pos) {
 
     int item_type = TradeViewList[MAXPLAYERS][pos].item_type & 0xFFFF;
 
-    if(item_type != DND_ITEM_BODYARMOR && item_type != DND_ITEM_BOOT) {
+    if(item_type != DND_ITEM_BODYARMOR) {
         item_dimensions.x = 40.0;
 
         if(item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][pos].item_subtype != DND_CHARM_SMALL) {
@@ -72,13 +72,13 @@ int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hu
             SetHudSize(HUDMAX_X * xscale / yscale, HUDMAX_Y * xscale / yscale, 1);
         }
     }
-    else if(item_type == DND_ITEM_BODYARMOR || item_type == DND_ITEM_HELM || item_type == DND_ITEM_BOOT) {
+    else if(item_type == DND_ITEM_BODYARMOR) {
         if(boxid == thisboxid)
             borderpic = "ARMSELG";
         else
             borderpic = "ARMSELB";
     }
-    else {
+    else if(item_type == DND_ITEM_HELM || item_type == DND_ITEM_BOOT || (item_type >= FIRST_SPECIALTY_ITEM_TYPE && item_type <= LAST_SPECIALTY_ITEM_TYPE)) {
         borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, boxid == thisboxid);
     }
 

@@ -2407,9 +2407,16 @@ bool IsCraftableItem(int itype) {
 		case DND_ITEM_CHARM:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
-		case DND_ITEM_SPECIALTY_CYBORG:
 		case DND_ITEM_WEAPON:
 		case DND_ITEM_BODYARMOR:
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		case DND_ITEM_SPECIALTY_MARINE:
+		case DND_ITEM_SPECIALTY_HOBO:
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		case DND_ITEM_SPECIALTY_WANDERER:
+		case DND_ITEM_SPECIALTY_CYBORG:
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		case DND_ITEM_SPECIALTY_TRICKSTER:
 		return true;
 	}
 	return false;
@@ -2424,7 +2431,14 @@ bool IsUsableOnInventory(int itype) {
 		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
+		case DND_ITEM_SPECIALTY_DOOMGUY:
+		case DND_ITEM_SPECIALTY_MARINE:
+		case DND_ITEM_SPECIALTY_HOBO:
+		case DND_ITEM_SPECIALTY_PUNISHER:
+		case DND_ITEM_SPECIALTY_WANDERER:
 		case DND_ITEM_SPECIALTY_CYBORG:
+		case DND_ITEM_SPECIALTY_BERSERKER:
+		case DND_ITEM_SPECIALTY_TRICKSTER:
 		return true;
 	}
 	return false;
@@ -2773,7 +2787,6 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 				temp = aextra & 0xFFFF;
 			aextra >>= 16;
 
-
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
 
@@ -2798,10 +2811,14 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+			// even though this has attribute extra exception, should still negate it here!
 			IncPlayerModValue(pnum, atype, aval);
-			IncPlayerModExtra(pnum, atype, aextra);
-			// call this to deflect use of static variable within module scope to be used in the main dnd.acs scope
-			HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + aextra, remove ? BTI_F_REMOVE : 0);
+			IncPlayerModExtra(pnum, atype, remove ? -aextra : aextra);
+
+			if(remove)
+				RemoveBuffWithTableIndex(pnum, BTI_FRENZYCHARGE + aextra);
+			else
+				HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + aextra, 0);
 		break;
 		
 		// anything that fits our generic formula
@@ -3078,16 +3095,22 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_FORCEPAINCHANCE][WMOD_ITEMS].val += aval;
 			MarkWeaponDataSync(pnum, aextra, true);
 		break;
-		case INV_CORR_WEAPONPCTDMG:
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_PERCENTDAMAGE][WMOD_ITEMS].val += aval;
-			MarkWeaponDataSync(pnum, aextra, true);
-		break;
 		case INV_CORR_WEAPONPOISONPCT:
 			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_POISONFORPERCENTDAMAGE][WMOD_ITEMS].val += aval;
 			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 		case INV_CORR_WEPCULL:
 			SetWeaponModPowerset(pnum, aextra, WEP_POWER_CULL, !remove, WMOD_WEP);
+			MarkWeaponDataSync(pnum, aextra, true);
+		break;
+
+		case INV_CORR_WEAPONPLUSPROJ:
+			aextra >>= 16;
+
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
+
+			//Log(s:"extra proj is now: ", d:Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val);
+
 			MarkWeaponDataSync(pnum, aextra, true);
 		break;
 
@@ -3338,6 +3361,30 @@ void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int ti
 	}
 }
 
+void GiveImplicitToMerchant(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
+	int imp_pos = 0;
+	for(imp_pos = 0; imp_pos < MAX_ITEM_IMPLICITS && TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_id != -1; ++imp_pos);
+
+	if(imp_pos == MAX_ITEM_IMPLICITS)
+		return;
+
+	if(extra != -1)
+		TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_extra = extra;
+
+	TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_id = attr;
+	TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_tier = tier;
+
+	if(!tier)
+		TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_val = val;
+	else {
+		int temp = GetItemTier(tier);
+		if(tier_mapping)
+			TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_val = random(val + temp * tier_mapping, val + (temp + 1) * tier_mapping);
+		else
+			TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_val = val * (temp + 1);
+	}
+}
+
 void GiveCorruptionEffect(int pnum, int item_pos) {
 	// pick between random effects to corruption implicits, with equal weight, and decide from there
 	// roll between 0 to MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1
@@ -3354,7 +3401,7 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 
 	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
 #ifdef ISDEBUGBUILD
-		int corr_mod = INV_CORR_WEPCULL;
+		int corr_mod = INV_CORR_WEAPONPLUSPROJ;
 #else
 		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
 #endif
@@ -3772,7 +3819,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				//i = UITEM_KINGMAKER;
+				i = UITEM_WELLOFPOWER;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

@@ -6,6 +6,7 @@ Actor AbyssalSpectre : AbyssalDemon {
 	
 	Renderstyle Translucent
 	Alpha 0.666
+	+GHOST
 	
 	States {
 		SetInfo:

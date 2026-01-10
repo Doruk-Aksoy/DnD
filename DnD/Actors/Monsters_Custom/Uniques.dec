@@ -28,14 +28,7 @@ Actor Teron : DnD_BaseRangedMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE00 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE00 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE00 C 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE00 D 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE00 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE00 ABCD 4 Fast A_Chase
@@ -195,14 +188,7 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE01 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE01 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE01 C 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE01 D 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE01 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE01 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", 0, DND_ISBLOCKING) 
@@ -396,14 +382,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE02 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE02 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE02 C 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE02 D 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE02 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE02 A 2 Fast A_Chase("Melee", "")
@@ -652,10 +631,7 @@ Actor Vaaj : DnD_BaseRangedMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE03 AA 4 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE03 BB 4 A_GiveInventory("DnD_WanderChecker", 1)
+			UE03 AABB 4 A_GiveInventory("DnD_SightChecker", 1)
 		loop
 		SeeState:
 			UE03 AB 3 A_Chase
@@ -939,14 +915,7 @@ Actor Remus : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE04 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE04 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE04 C 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE04 D 5 A_GiveInventory("DnD_WanderChecker", 1)
+			UE04 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE04 A 0 A_JumpIfInventory("DnD_Boolean", 1, "FasterSee")
@@ -1252,14 +1221,7 @@ Actor Ssrath : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE05 A 5 Fast A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE05 B 5 Fast A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE05 C 5 Fast A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE05 D 5 Fast A_GiveInventory("DnD_WanderChecker", 1)
+			UE05 AB 5 Fast A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE05 A 0 A_SetUserVar("user_ang", random(0, 360))
@@ -1582,9 +1544,8 @@ Actor HollowShell : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE10 A 1 Bright A_GiveInventory("DnD_WanderChecker", 1)
+			UE10 A 1 Bright A_GiveInventory("DnD_SightChecker", 1)
 			UE10 AA 2 Bright A_SpawnItemEx("HollowShellFlames", -12, 0, frandom(22, 28), frandom(-4, -1), frandom(-2.5, 2.5), frandom(0, 8))
-			UE10 A 0 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE10 A 0 A_Chase
@@ -1917,14 +1878,7 @@ Actor Omnisight : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE06 AA 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE06 BB 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE06 AA 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE06 CC 3 A_GiveInventory("DnD_WanderChecker", 1)
+			UE06 AABB 3 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE06 AABBAACC 3 A_Chase
@@ -2541,22 +2495,7 @@ Actor Chegovax : DnD_BaseRangedMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE07 A 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE07 B 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE07 C 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE07 D 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE07 E 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE07 F 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE07 G 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE07 H 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE07 A 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE07 ABCDEFGH 3 A_FastChase
@@ -2888,14 +2827,7 @@ Actor Onimuz : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE08 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE08 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE08 C 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE08 D 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE08 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE08 ABCD 3 Fast A_Chase
@@ -3236,14 +3168,7 @@ Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE09 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE09 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE09 C 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE09 D 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE09 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE09 A 0 A_ChangeFlag("NOBLOOD", 0)
@@ -3653,14 +3578,7 @@ Actor Leshrac : DnD_BaseHybridMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE11 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE11 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE11 C 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE11 D 5 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE11 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE11 ABCDEF 3 Fast A_Chase
@@ -3974,30 +3892,7 @@ Actor Krull : DnD_BaseRangedMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE12 A 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 A 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 B 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 B 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 C 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 C 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 D 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 D 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 E 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 E 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 F 4 A_GiveInventory("DnD_SightChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_WanderChecker", 1)
-			UE12 F 4 A_GiveInventory("DnD_SightChecker", 1)
-			UE12 F 0 A_GiveInventory("DnD_WanderChecker", 1)
+			UE12 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE12 A 0 A_JumpIfInventory("DnD_Boolean", 1, "MoreChase")
@@ -4558,10 +4453,7 @@ Actor Zravog : DnD_BaseRangedMonster_NoRes {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE15 A 5 A_GiveInventory("DnD_WanderChecker", 1)
-			UE15 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE15 B 5 A_GiveInventory("DnD_WanderChecker", 1)
-			UE15 B 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE15 AB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE15 AAABBB 2 Fast A_Chase
@@ -4927,19 +4819,7 @@ Actor Eryxia : DnD_BaseRangedBoss {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE13 A 3 A_PlaySound("Eryxia/walk",4,1,0,ATTN_IDLE)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE13 ABB 3 A_GiveInventory("DnD_WanderChecker", 1)
-			UE13 C 3 A_GiveInventory("DnD_SightChecker", 1)
-			UE13 C 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_PlaySound("Eryxia/walk",4,1,0,ATTN_IDLE)
-			UE13 DD 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE13 E 3 
-			UE13 E 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_PlaySound("Eryxia/walk",4,1,0,ATTN_IDLE)
-			UE13 FF 3 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE13 AABB 5 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE13 A 0 A_Jump(32, "Rush")
@@ -5518,14 +5398,7 @@ Actor Abaxoth : DnD_BaseHybridBoss {
 		Goto SpawnSetup
 		
 		IdleState:
-			UE16 A 4 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE16 B 4 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE16 C 4 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
-			UE16 D 4 A_GiveInventory("DnD_WanderChecker", 1)
-			TNT1 A 0 A_GiveInventory("DnD_SightChecker", 1)
+			UE16 AB 4 A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
 			UE16 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Take", DND_ISBLOCKING, -1, -1, -1)

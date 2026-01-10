@@ -69,8 +69,18 @@ ACTOR FlemoidMobius : DnD_BaseHybridMonster {
 			C013 J 3 A_SpawnItemEx("GenericGibber_Medium_Delayed", 0, 0, 34, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
 			TNT1 AA 0 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
 			C013 KLM 4
-			C013 N 5
+			C013 N 5 A_KillMaster
 		stop
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 

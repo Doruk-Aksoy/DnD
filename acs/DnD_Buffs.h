@@ -84,6 +84,9 @@ void ResetPlayerBuffs(int pnum) {
 	for(i = 0; i < BUFF_TYPES_MAX; ++i) {
 		pbuffs[pnum].buff_net_values[i].additive = 0;
 		pbuffs[pnum].buff_net_values[i].multiplicative = 1.0;
+
+		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, i, 0, 0);
+		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, i, 1.0, 1);
 	}
 
 	for(i = 0; i < DND_MAX_PLAYER_BUFFS; ++i) {
@@ -122,7 +125,7 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 		}
 
 		pbuffs[pnum].buff_net_values[type].multiplicative = val;
-		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, buff_index | type << 16, pbuffs[pnum].buff_net_values[type].multiplicative, 1);
+		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, type, pbuffs[pnum].buff_net_values[type].multiplicative, 1);
 		//Log(s:"multiplicative value: ", f:pbuffs[pnum].buff_net_values[type].multiplicative);
 	}
 	else {
@@ -131,7 +134,7 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 			val = -val;
 		pbuffs[pnum].buff_net_values[type].additive += val;
 		//Log(s:"additive value: ", f:pbuffs[pnum].buff_net_values[type].additive);
-		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, buff_index | type << 16, pbuffs[pnum].buff_net_values[type].additive, 0);
+		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, type, pbuffs[pnum].buff_net_values[type].additive, 0);
 	}
 
 	if(!pbuffs[pnum].buff_net_values[type].additive && pbuffs[pnum].buff_net_values[type].multiplicative == 1.0) {
@@ -149,13 +152,10 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 }
 
 // 0 => add, 1 mult
-Script "DnD Buff Value CS Sync" (int pnum, int buff_index, int val, int additiveOrMult) CLIENTSIDE {
+Script "DnD Buff Value CS Sync" (int pnum, int type, int val, int additiveOrMult) CLIENTSIDE {
 	if(pnum != ConsolePlayerNumber())
 		Terminate;
 
-	int type = buff_index >> 16;
-	buff_index &= 0xFFFF;
-	
 	if(additiveOrMult)
 		pbuffs[pnum].buff_net_values[type].multiplicative = val;
 	else

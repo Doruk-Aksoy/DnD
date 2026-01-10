@@ -1179,7 +1179,7 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 
 	temp = GetPlayerAttributeValue(pnum, INV_EX_MOREDAMAGEPERCHARGE);
 	if(temp)
-		more_bonus = more_bonus * (100 + temp * GetChargeCount()) / 100;
+		more_bonus = more_bonus * (100 + temp * GetChargeCount(pnum)) / 100;
 
 	more_bonus = (more_bonus * pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].multiplicative) >> 16;
 	more_bonus = (more_bonus * pbuffs[pnum].buff_net_values[BUFF_FRENZYCHARGE].multiplicative) >> 16;
@@ -1249,7 +1249,6 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 					(damage_type == DND_DAMAGETYPE_SOUL && CheckUniquePropertyOnPlayer(pnum, PUP_SOULWEPSDOFULL));
 					
 	int extra = 0;
-	int poison_factor = 0;
 	
 	// pain checks -- they dont do anything anymore because we dont deal damage here, we just send it outside
 	/*if(actor_flags & DND_ACTORFLAG_PAINLESS)
@@ -1266,11 +1265,6 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			HandleMonsterDeathConfirm(victim, 1);
 			Thing_Damage2(victim, 1, "ForcedPainBypass");
 		}
-		
-		// poison on hit with % dmg
-		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
-		poison_factor = extra + (!!(flags & DND_DAMAGEFLAG_INFLICTPOISON)) * GetWeaponPoisonBaseFactor(wepid);
-		//flags |= (!!poison_factor) * DND_DAMAGEFLAG_INFLICTPOISON;
 		
 		// percent damage of monster if it exists
 		extra = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_PERCENTDAMAGE);
@@ -1292,9 +1286,6 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		LockPlayerCritState(pnum, wepid);
 	}
 	else if(flags & DND_DAMAGEFLAG_ISSPELL) {
-		// check if it has any poison factor on the spell
-		poison_factor = GetSpellPoisonFactor(wepid);
-
 		if
 		(
 			!(actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) && 
@@ -1314,22 +1305,6 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	
 	// handle poison checks
 	// printbold(d:damage_type, s: " ", d:IsPoisonDamage(damage_type), s: " ", d:!(flags & DND_DAMAGEFLAG_NOPOISONSTACK), s: " ", d:flags);
-	if((IsPoisonDamage(damage_type) || (flags & DND_DAMAGEFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGEFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_TOXICBLOOD)) {
-		// poison damage deals 10% of its damage per stack over 3 seconds
-		if(dmg > 0) {
-			// 5% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
-			poison_factor = Max(DND_BASE_POISON_FACTOR, poison_factor);
-			extra = Max((dmg * poison_factor) / 100, 1);
-
-			poison_factor = !CheckActorInventory(victim, "DnD_PoisonStacks");
-
-			if(CheckActorInventory(victim, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum))
-				GiveActorInventory(victim, "DnD_PoisonStacks", 1);
-
-			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim, extra, wepid, poison_factor);
-			//printbold(s:"poison received by ", d:victim);
-		}
-	}
 
 	// hit beeps and stuff
 	// if more that means we hit a weakness, otherwise below conditions check immune and resist respectively
@@ -1344,14 +1319,16 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	temp = victim - DND_MONSTERTID_BEGIN;
 	
 	// extra represents the flag list of damageticflag
-	extra |= 	(!(flags & DND_DAMAGEFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 					|
+	extra |= 	(!(flags & DND_DAMAGEFLAG_NOPUSH) * DND_DAMAGETICFLAG_PUSH) 						|
 				(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
 				(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
 				(!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
 				(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
 				(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
+				(!!(flags & DND_DAMAGEFLAG_INFLICTPOISON) * DND_DAMAGETICFLAG_INFLICTPOISON)		|
 				(no_ignite_stack * DND_DAMAGETICFLAG_NOIGNITESTACK)									|
 				(!!(flags & DND_DAMAGEFLAG_SOULATTACK) * DND_DAMAGETICFLAG_SOULATTACK)				|
+				(!!(flags & DND_DAMAGEFLAG_ISSPELL) * DND_DAMAGETICFLAG_SPELL)						|
 				(!!((actor_flags & DND_ACTORFLAG_ISDAMAGEOVERTIME) || (flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)) * DND_DAMAGETICFLAG_DOT);
 	
 	// we send particular damage types in that can cause certain status effects like chill, freeze etc.
@@ -1371,7 +1348,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		PlayerDamageVector[pnum].x = ox;
 		PlayerDamageVector[pnum].y = oy;
 		PlayerDamageVector[pnum].z = oz;
-		ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | (extra << DND_DAMAGE_ACCUM_SHIFT), wepid, wep_neg | (oneTimeRipperHack << 1), damage_type);
+		ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | ((wep_neg | (oneTimeRipperHack << 1)) << DND_DAMAGE_ACCUM_SHIFT), wepid, extra, damage_type);
 	}
 	PlayerDamageTicData[pnum][temp] += dmg;
 	
@@ -1728,9 +1705,9 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 }
 
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
-Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int damage_type) {
+Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damage_type) {
 	int pnum = PlayerNumber();
-	int flags = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
+	int wep_neg = victim_data >> DND_DAMAGE_ACCUM_SHIFT;
 	victim_data &= DND_MONSTER_TICDATA_BITMASK;
 
 	int ox = PlayerDamageVector[pnum].x;
@@ -1884,6 +1861,8 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS] && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleLifesteal(pnum, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 	}
+
+	// ox, oy and oz arent used below
 	
 	// if ice damage, add stacks of slow and check for potential freeze chance
 	// do these if only the actor was alive after the tic they received dmg
@@ -1896,9 +1875,32 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int wep_neg, int dam
 			HandleOverloadEffects(pnum, victim_tid);
 		else if((flags & DND_DAMAGETICFLAG_PHYSICAL) && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleBleedEffects(pnum, victim_tid, wepid, PlayerDamageTicData[pnum][victim_data]);
+		else if((flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
+			// poison damage deals 10% of its damage per stack over 3 seconds
+			// 5% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
+			if(!(flags & DND_DAMAGETICFLAG_SPELL)) {
+				ox = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
+				oy = ox + GetWeaponPoisonBaseFactor(wepid);
+			}
+			else {
+				ox = GetSpellPoisonFactor(wepid);
+				oy = ox;
+			}
+
+			oy = Max(DND_BASE_POISON_FACTOR, oy);
+			ox = Max((PlayerDamageTicData[pnum][victim_data] * oy) / 100, 1);
+
+			oy = !CheckActorInventory(victim_tid, "DnD_PoisonStacks");
+
+			if(CheckActorInventory(victim_tid, "DnD_PoisonStacks") < GetPlayerPoisonStacks(pnum))
+				GiveActorInventory(victim_tid, "DnD_PoisonStacks", 1);
+
+			ACS_NamedExecuteWithResult("DnD Do Poison Damage", victim_tid, ox, wepid, oy);
+			//printbold(s:"poison received by ", d:victim);
+		}
 		
 		// frozen monsters cant retaliate	
-		if(!CheckActorInventory(ox, "DnD_FreezeTimer")) {
+		if(!CheckActorInventory(victim_tid, "DnD_FreezeTimer")) {
 			if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_tid, "DnD_ViolentRetaliationCooldown")) {
 				GiveActorInventory(victim_tid, "DnD_ViolentRetaliationItem", 1);
 				GiveActorInventory(victim_tid, "DnD_ViolentRetaliationCounter", 1);
@@ -2025,6 +2027,7 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+// HandlePoisonDamage
 Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
@@ -2088,7 +2091,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 
 	//printbold(s:"proceeding to loop dot on ", d:victim);
 		
-	while((stacks = CheckActorInventory(victim, "DnD_PoisonStacks")) && IsActorAlive(victim)) {
+	while((stacks = CheckActorInventory(victim, "DnD_PoisonStacks")) && IsActorAlive(victim) && IsActorAlive(source)) {
 		if(counter >= trigger_tic) {
 			// dmg to deal is the sum of all dot damages
 			time_limit = 0;
@@ -2110,7 +2113,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 
 					//printbold(s:"finish loop? ", d:time_limit, s:" vs ", d:stacks);
 
-					if(time_limit == stacks)
+					if(time_limit >= stacks)
 						break;
 				}
 			}
@@ -2778,7 +2781,8 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	bool isDot = IsDamageStringDOT(dmg_string) || (dmg_data & DND_DAMAGETYPEFLAG_DOT);
 
 	int add = pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].additive;
-	int mult = pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].multiplicative;
+	int mult = 1.0;
+	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].multiplicative);
 	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_ENDURANCECHARGE].multiplicative);
 
 	int res_to_apply = 0;
@@ -4400,6 +4404,8 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				HandleDamagePush(dmg * 4, ox, oy, oz, shooter);
 			SetResultValue(dmg);
 		}
+		else if(temp && !shooter)
+			SetResultValue(0);
 	}
 }
 

@@ -99,10 +99,12 @@ Actor ChexMeteorGround : DnD_BaseHybridMonster {
 			C013 Q 3
 			C013 Q 2 A_Pain
 		goto See
+		XDeathState:
 		DeathState:
 			C013 Q 5 
 			TNT1 AAAAA 0 A_SpawnItemEx("ExplosionFXMagicGreen", 0, 0, 0, random(-9,9), random(-9,9), random(5,9))
 			C013 QQQ 1 A_SpawnItemEx("GenericGibber_Low_Delayed", 0, 0, 0, 0, 0, 0, 0, SXF_USEBLOODCOLOR)
+			TNT1 A 0 A_NoBlocking
 			C013 Q 2
 		stop
 	}

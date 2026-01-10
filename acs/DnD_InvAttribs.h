@@ -299,7 +299,7 @@ enum {
 	INV_CORR_SPEED,
 	INV_CORR_DROPCHANCE,
 	INV_CORR_PERCENTSTATS,
-	INV_CORR_WEAPONPCTDMG,
+	INV_CORR_WEAPONPLUSPROJ,
 	INV_CORR_WEAPONPOISONPCT,
 	INV_CORR_WEAPONFORCEPAIN,
 	INV_CORR_CYBERNETIC,
@@ -687,10 +687,10 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 		case INV_CORR_WEAPONDMG:
 		case INV_CORR_WEAPONCRIT:
 		case INV_CORR_WEAPONCRITDMG:
-		case INV_CORR_WEAPONPCTDMG:
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
 		case INV_CORR_WEPCULL:
+		case INV_CRITPERCENT_FORWEPTYPE:
 			// pick one from a weapon the player owns
 			if(pnum != MAXPLAYERS)
 				res = PickRandomOwnedWeaponID(pnum);
@@ -703,16 +703,19 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 		case INV_INC_DOUBLEHPBONUS:
 		case INV_INC_PASSIVEREGEN:
 		case INV_INC_INSTANTLIFESTEAL:
-		case INV_CRITPERCENT_FORWEPTYPE:
 			res = RollAttributeExtra(mod, tier, isWellRolled, item_type, item_subtype);
 		break;
 
 		case INV_INC_PLUSPROJ:
+		case INV_CORR_WEAPONPLUSPROJ:
 			if(pnum != MAXPLAYERS)
 				res = PickRandomOwnedWeaponID_WithProj(pnum) << 16;
 			else
 				res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
-			res |=  DND_INC_SINGLEPROJ_NEGDMG;
+			
+			// corruption has no reduced damage
+			if(mod != INV_CORR_WEAPONPLUSPROJ)
+				res |=  DND_INC_SINGLEPROJ_NEGDMG;
 		break;
 		case INV_INC_PLUSTWOPROJ:
 			if(pnum != MAXPLAYERS)
@@ -1118,19 +1121,19 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_LIFESTEAL].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE;
 	
 	ItemModTable[INV_POISON_TICRATE].attrib_low = 5;
-	ItemModTable[INV_POISON_TICRATE].attrib_high = 14;
+	ItemModTable[INV_POISON_TICRATE].attrib_high = 9;
 	ItemModTable[INV_POISON_TICRATE].attrib_level_modifier = 0;
 	ItemModTable[INV_POISON_TICRATE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
 	
 	ItemModTable[INV_POISON_DURATION].attrib_low = 5;
-	ItemModTable[INV_POISON_DURATION].attrib_high = 14;
+	ItemModTable[INV_POISON_DURATION].attrib_high = 9;
 	ItemModTable[INV_POISON_DURATION].attrib_level_modifier = 0;
 	ItemModTable[INV_POISON_DURATION].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
 	
-	ItemModTable[INV_POISON_TICDMG].attrib_low = 5;
-	ItemModTable[INV_POISON_TICDMG].attrib_high = 20;
+	ItemModTable[INV_POISON_TICDMG].attrib_low = 1;
+	ItemModTable[INV_POISON_TICDMG].attrib_high = 5;
 	ItemModTable[INV_POISON_TICDMG].attrib_level_modifier = 0;
-	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
+	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_low = 0.05;
 	ItemModTable[INV_BLOCKERS_MOREDMG].attrib_high = 0.19;
@@ -1160,7 +1163,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_IGNITEDMG].attrib_low = 5;
 	ItemModTable[INV_IGNITEDMG].attrib_high = 14;
 	ItemModTable[INV_IGNITEDMG].attrib_level_modifier = 0;
-	ItemModTable[INV_IGNITEDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
+	ItemModTable[INV_IGNITEDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_IGNITEDURATION].attrib_low = 4;
 	ItemModTable[INV_IGNITEDURATION].attrib_high = 12;
@@ -1180,7 +1183,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_low = 0.01;
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_high = 0.04;
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_level_modifier = 0.04;
-	ItemModTable[INV_OVERLOAD_DMGINCREASE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_DAMAGE;
 	
 	ItemModTable[INV_CYBERNETIC].attrib_low = 1;
 	ItemModTable[INV_CYBERNETIC].attrib_high = 1;
@@ -1618,10 +1621,10 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_PERCENTSTATS].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_PERCENTSTATS].tags = INV_ATTR_TAG_STAT;
 
-	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_low = 1;
-	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_high = 5;
-	ItemModTable[INV_CORR_WEAPONPCTDMG].attrib_level_modifier = 0;
-	ItemModTable[INV_CORR_WEAPONPCTDMG].tags = INV_ATTR_TAG_DAMAGE;
+	ItemModTable[INV_CORR_WEAPONPLUSPROJ].attrib_low = 1;
+	ItemModTable[INV_CORR_WEAPONPLUSPROJ].attrib_high = 1;
+	ItemModTable[INV_CORR_WEAPONPLUSPROJ].attrib_level_modifier = -1;
+	ItemModTable[INV_CORR_WEAPONPLUSPROJ].tags = INV_ATTR_TAG_ATTACK;
 
 	ItemModTable[INV_CORR_WEAPONPOISONPCT].attrib_low = 5;
 	ItemModTable[INV_CORR_WEAPONPOISONPCT].attrib_high = 10;
@@ -1918,7 +1921,7 @@ bool IsAttributeExtraException(int attr) {
 		case INV_CORR_WEAPONDMG:
 		case INV_CORR_WEAPONCRIT:
 		case INV_CORR_WEAPONCRITDMG:
-		case INV_CORR_WEAPONPCTDMG:
+		case INV_CORR_WEAPONPLUSPROJ:
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
 		case INV_CORR_WEPCULL:
@@ -2465,7 +2468,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 				
 		// corrupted implicits of certain kinds have +X% text TO (extra)
 		case INV_CORR_WEAPONCRITDMG:
-		case INV_CORR_WEAPONPCTDMG:
 		case INV_CORR_WEAPONPOISONPCT:
 			if(showDetailedMods) {
 				return StrParam(
@@ -2660,11 +2662,11 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		case INV_CRITPERCENT_FORWEPTYPE:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra),
+				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra),
 					s:no_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra));
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra));
 		
 		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
@@ -2709,6 +2711,9 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_INC_PLUSTWOPROJ:
 		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(attr_extra >> 16), s:"\n", s:col_tag, d:((1.0 - (attr_extra & 0xFFFF)) * 100) >> 16, s:"% ", s:ess_tag, l:"IATTR_TINC7S", s:col_tag, l:GetWeaponTag(attr_extra >> 16));
 		
+		case INV_CORR_WEAPONPLUSPROJ:
+		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(extra >> 16));
+
 		case INV_INC_INSTANTLIFESTEAL:
 			if(showDetailedMods) {
 				return StrParam(

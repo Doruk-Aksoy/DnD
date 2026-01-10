@@ -860,7 +860,7 @@ Script "DND On Kill" KILL {
 	bool killerWasntPlayer = !CheckInventory("MonsterKilledByPlayer");
 	TakeInventory("MonsterKilledByPlayer", 1);
 
-	MonsterProperties[this - DND_MONSTERTID_BEGIN].killer_tid = target;
+	MonsterProperties[m_id].killer_tid = target;
 	
 	// if this was a unique boss monster, since its dead now we can clear it to clients
 	if(isUniqueBossMonster(m_id)) {
@@ -959,7 +959,7 @@ Script "DND On Kill" KILL {
 	}
 
 	// crusader helm check
-	if(IsMagicOrUndead() && (is_demon = GetPlayerAttributeValue(target - P_TIDSTART, INV_IMP_RECOVERESONUNDEADKILL)) && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
+	if(IsMagicOrUndead() && (is_demon = GetPlayerAttributeValue(target - P_TIDSTART, INV_IMP_RECOVERESONUNDEADKILL)) && !CheckActorInventory(target, "TaltosEffect") && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
 		i = temp * is_demon / 100;
 		if(i < 1)
 			i = 1;
@@ -1980,7 +1980,6 @@ Script "DnD Monster Spawner" (int category) {
 		ACS_NamedExecuteAlways("DnD Legendary Announcer", 0);
 	}
 	else {
-		//Log(s:"temp arr: ", f:TempArray[TARR_MONID][category], s: " on category ", d:category);
 		// check for unique possibility here
 		if(IsIncursionActive()) {
 			SetActorState(0, GetIncursionSpawnerLabel(), true);
@@ -1994,8 +1993,9 @@ Script "DnD Monster Spawner" (int category) {
 			}
 			else {
 				bin = MapData[DND_MAPDATA_ZOMBIEMANCOUNT + category];
-				if(bin)
+				if(bin) {
 					TempArray[TARR_MONID][category] += 1.0 / bin;
+				}
 			}
 		}
 	
@@ -6053,7 +6053,9 @@ Script 68 (int x) NET {
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, true, 250);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 250);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_FORTITUDE, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 250);
+
+			SpawnSpecialtyItem(0, 0, 0, 0, random(DND_ITEM_SPECIALTY_DOOMGUY, DND_ITEM_SPECIALTY_TRICKSTER));
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SCULPTING, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
@@ -6067,8 +6069,7 @@ Script 68 (int x) NET {
 			SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			//SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
-			SpawnCharmWithMods_ForAll(INV_MELEESPLASH_NOTONLOWSTAMINA, INV_INC_STAMINA);
+			SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/

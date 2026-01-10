@@ -44,6 +44,9 @@ DND_OBTAIN								= "Obtain";
 DND_PLAYER								= "Player";
 DND_POINTS								= "points";
 
+DND_LESSDMGTAKEN                        = "less damage taken";
+DND_MOREDMGTAKEN                        = "more damage taken";
+
 DND_ANNOUNCE							= "Announcement";
 DND_GOTPERK								= "has gained a \cjperk point\c-!";
 DND_HASLEVELEDUP						= "has leveled up to";

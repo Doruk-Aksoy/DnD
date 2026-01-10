@@ -57,7 +57,7 @@ DND_MENU_GAIN_OFFENSE	=	"Offensive Stats";
 DND_MENU_GAIN_ELEMENT	=	"Elemental Stats";
 DND_MENU_GAIN_DEFENSE	=	"Defensive Stats";
 DND_MENU_GAIN_UTILITY	=	"Utility Stats";
-DND_MENU_GAIN_QUEST		=	"Quest Bonuses";
+DND_MENU_GAIN_MISC		=	"Misc Stats";
 
 DND_MENU_HEAD_STATS		=	"Player Stats";
 DND_MENU_HEAD_GAINS		=	"Current Gains";
@@ -261,7 +261,7 @@ DND_MENU_PERKMASTERY5	=	"Gain credit from kills regardless of the killer or the 
 DND_MENU_PERKMASTERY6	=	"Convert 2% of healing pickups to energy shield.";
 DND_MENU_PERKMASTERY7	=	"Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.";
 DND_MENU_PERKMASTERY8	=	"Every 7th hit you land within four seconds is a guaranteed critical strike.";
-DND_MENU_PERKMASTERY9	=	"100% to crit multiplier if you haven't dealt a critical strike in 5 seconds.";
+DND_MENU_PERKMASTERY9	=	"100% to crit multiplier to attacks if you haven't dealt a critical strike in 5 seconds.";
 DND_MENU_PERKMASTERY10	=	"20% chance to recover 2% of your health on killing an enemy with damage over time.";
 
 // resists for defense tab

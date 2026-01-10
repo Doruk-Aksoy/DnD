@@ -56,7 +56,11 @@ void ResetMapEvents() {
 }
 
 void RollMapEvents() {
+#ifdef ISDEBUGBUILD
+    if(1) {
+#else
     if(random(0, 1.0) <= DND_MERCHANT_SPAWNCHANCE) {
+#endif
         MapData[DND_MAPDATA_MAPEVENTS1] |= (1 << DND_MAPEVENT_MERCHANTID);
     }
 }

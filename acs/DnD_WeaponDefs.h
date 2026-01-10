@@ -1978,9 +1978,9 @@ int GetWeaponPoisonBaseFactor(int wepid) {
 		case DND_WEAPON_VIPERSTAFF:
 		case DND_WEAPON_DESOLATOR:
 		case DND_WEAPON_VENOM:
-		return 25;
+		return 10;
 		case DND_WEAPON_ACIDRIFLE:
-		return 33;
+		return 15;
 	}
 	return DND_BASE_POISON_FACTOR;
 }

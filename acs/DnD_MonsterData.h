@@ -1804,6 +1804,7 @@ void SetupIncursionMonsters() {
 
 	MonsterData[MONSTER_ABYSS_SPECTRE].health = 550;
 	MonsterData[MONSTER_ABYSS_SPECTRE].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_ABYSS_SPECTRE].trait_list[DND_GHOST] = true;
 
 	MonsterData[MONSTER_ABYSS_HOUND].health = 650;
 	MonsterData[MONSTER_ABYSS_HOUND].flags = DND_MTYPE_DEMON_POW;
@@ -1812,6 +1813,7 @@ void SetupIncursionMonsters() {
 	MonsterData[MONSTER_ABYSS_LOSTSOUL].health = 240;
 	MonsterData[MONSTER_ABYSS_LOSTSOUL].flags = DND_MTYPE_DEMON_POW;
 	MonsterData[MONSTER_ABYSS_LOSTSOUL].trait_list[DND_MOLTENBLOOD] = true;
+	MonsterData[MONSTER_ABYSS_LOSTSOUL].trait_list[DND_GHOST] = true;
 
 	MonsterData[MONSTER_ABYSS_CACODEMON].health = 600;
 	MonsterData[MONSTER_ABYSS_CACODEMON].flags = DND_MTYPE_DEMON_POW;

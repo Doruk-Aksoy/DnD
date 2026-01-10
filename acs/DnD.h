@@ -364,7 +364,7 @@ str GetMonsterSpawnerStr(int id) {
 		case MONSTERCLASS_IMP:
 		return "ImpSpawner";
 		case MONSTERCLASS_CACODEMON:
-		return "CacodemonSpawner";
+		return "CacoSpawner";
 		case MONSTERCLASS_PAINELEMENTAL:
 		return "PainElementalSpawner";
 		case MONSTERCLASS_LOSTSOUL:
@@ -378,13 +378,13 @@ str GetMonsterSpawnerStr(int id) {
 		case MONSTERCLASS_FATSO:
 		return "FatsoSpawner";
 		case MONSTERCLASS_ARACHNOTRON:
-		return "SpiderSpawner";
+		return "ArachnoSpawner";
 		case MONSTERCLASS_ARCHVILE:
 		return "ArchVileSpawner";
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return "MastermindSpawner";
+		return "SpiderBossSpawner";
 		case MONSTERCLASS_CYBERDEMON:
-		return "CyberSpawner";
+		return "CyberdemonSpawner";
 		case MONSTERCLASS_WOLFENSS:
 		return "ZombiemanSpawner";
 	}
@@ -409,7 +409,7 @@ void CalculateMapDifficulty() {
 		if(MapData[index] > 0) {
 			MapData[DND_MAPDATA_MONSTERTOTAL] += MapData[index];
 			factor += MapData[index] * GetMonsterKillContribution(i);
-			CheckUniqueMonsterChance(DND_MAPEVENT_UZOMBIEMAN);
+			CheckUniqueMonsterChance(DND_MAPEVENT_UZOMBIEMAN + i);
 		}
 
 		// infight prevention check on HK and above tier monsters
@@ -575,7 +575,7 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 				SpawnHelm(i, 0);
 			else {
 				// class specific spawn -- check if this is the fitting class of the player later here
-				SpawnSpecialtyItem(i, 0, 0, false, random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE));
+				SpawnSpecialtyItem(i, 0, 0, false, GetRandomSpecialtyItem());
 			}
 		}
 		else
@@ -683,6 +683,7 @@ void HandleChestSpawn(int chance_penalty) {
 		if(!chance_penalty)
 			chance_penalty = 1;
 		TempArray[TARR_MAPEVENTS][DND_MAPEVENT_MERCHANTID] += 1.0 / chance_penalty;
+
 		if(random(0, 1.0) <= TempArray[TARR_MAPEVENTS][DND_MAPEVENT_MERCHANTID]) {
 			SpawnMerchant();
 			ClearMapEvent(DND_MAPEVENT_MERCHANTID);
@@ -705,12 +706,12 @@ void HandleChestDrops(int ctype) {
 		if(RunDefaultDropChance(pnum, 0.75))
 			SpawnItemForAll(DND_ITEM_TOKEN);
 		if(RunDefaultDropChance(pnum, 0.5))
-			SpawnItemForAll(DND_ITEM_SPECIALTY_CYBORG);
+			SpawnItemForAll(GetRandomSpecialtyItem());
 	}
 	else if(ctype == DND_CHESTTYPE_GOLD) {
 		SpawnOrbForAll(random(5, 8), 1 + random(1, 10) / 2);
 		SpawnItemForAll(DND_ITEM_TOKEN);
-		SpawnItemForAll(DND_ITEM_SPECIALTY_CYBORG);
+		SpawnItemForAll(GetRandomSpecialtyItem());
 		SpawnItemForAll(DND_ITEM_BODYARMOR, 1, random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL]));
 	}
 
@@ -813,7 +814,7 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			}
 
 			if(ignoreWeight || (mon_robot && RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_4))) {
-				SpawnSpecialtyItem(i, rarity_boost, 0, false, random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE));
+				SpawnSpecialtyItem(i, rarity_boost, 0, false, GetRandomSpecialtyItem());
 				bits |= DND_LOOTBIT_SPECIALTY;
 			}
 			
@@ -850,7 +851,7 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 							SpawnCharm(i, rarity_boost);
 						break;
 						case DND_LOOT_SPECIALTY:
-							SpawnSpecialtyItem(i, rarity_boost, 0, false, random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE));
+							SpawnSpecialtyItem(i, rarity_boost, 0, false, GetRandomSpecialtyItem());
 						break;
 						case DND_LOOT_CHESTKEY:
 							SpawnChestKey(i);
