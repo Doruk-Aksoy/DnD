@@ -1,0 +1,100 @@
+enum {
+    DND_FLASK_LIFE_SMALL,
+    DND_FLASK_LIFE_MEDIUM,
+    DND_FLASK_LIFE_LARGE,
+    DND_FLASK_LIFE_GRAND,
+    DND_FLASK_LIFE_EXQUISITE
+};
+
+Actor FlaskSoundPlayer : CustomInventory {
+	States {
+		Pickup:
+			TNT1 A 0 A_PlaySound("Items/FlaskDrop")
+			TNT1 A 0 A_SetBlend("25 99 25", 0.6, 17)
+		Stop
+	}
+}
+
+Actor FlaskDrop : InventoryBase {
+	Height 24
+    Radius 20
+	States {
+		Spawn:
+			TNT1 A 0
+		Goto SpawnInit
+		
+		SpawnLoop:
+		Idle:
+			TNT1 AAAAAAAAAAAAAAAA 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+
+        PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Flask Item Pickup", 0, mass - 1)
+		stop
+	}
+}
+
+Actor FlaskDrop_Life_0 : FlaskDrop {
+    States {
+        Spawn:
+            FLS1 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FLS1 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Life_1 : FlaskDrop {
+    States {
+        Spawn:
+            FLS2 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FLS2 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Life_2 : FlaskDrop {
+    States {
+        Spawn:
+            FLS3 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FLS3 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Life_3 : FlaskDrop {
+    States {
+        Spawn:
+            FLS4 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FLS4 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}
+
+Actor FlaskDrop_Life_4 : FlaskDrop {
+    States {
+        Spawn:
+            FLS5 A 0
+        Goto SpawnInit
+
+        SpawnLoop:
+        Idle:
+			FLS5 AAAAABBBBBCCCCC 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+    }
+}

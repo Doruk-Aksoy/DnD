@@ -157,3 +157,12 @@ ACTOR FlembominationBall5 : FlembominationBall2 {
 	Damage (7 * random(5, 8))
 	+THRUGHOST
 }
+
+Actor DnD_SlimeSpawnCount : Inventory {
+	inventory.maxamount 8
+}
+
+Actor DnD_SlimeSpawnCooldown : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 17
+}

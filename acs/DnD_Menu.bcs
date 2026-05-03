@@ -657,10 +657,14 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawArmorBox(boxid, POWERCORE_INDEX + 1, 338.4, 152.0, DND_ITEM_SPECIALTY_DOOMGUY + GetPlayerClass());
 				DrawArmorBox(boxid, BOOT_INDEX + 1, 394.4, 216.0, DND_ITEM_BOOT);
 
-				DrawInventoryExploreIcon(boxid, DND_INV_ICON_BOXID, RPGMENUITEMID - 26, 432.4, 264.0);
+				// flasks
+				DrawFlaskBox(boxid, FLASK1_INDEX + 1, 336.0, 208.0, 0);
+				DrawFlaskBox(boxid, FLASK2_INDEX + 1, 336.0, 256.0, 1);
 
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 28, CR_CYAN, 236.4, 32.0, 0.0, 0.0);
-				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 29, CR_CYAN, 396.4, 32.0, 0.0, 0.0);
+				DrawInventoryExploreIcon(boxid, INV_ICON_INDEX + 1, 432.4, 264.0);
+
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPLEFT"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * (INV_ICON_INDEX + 2), CR_CYAN, 236.4, 32.0, 0.0, 0.0);
+				HudMessage(s:"\c[Y5]", l:"DND_MENU_EQUIPRIGHT"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * (INV_ICON_INDEX + 2) - 1, CR_CYAN, 396.4, 32.0, 0.0, 0.0);
 			}
 			else if(curopt == MENU_LOAD_WEAPONDISCARD) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_DISCARD", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -1074,12 +1078,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(l:"DND_MENU_BULLETTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 				HudMessage(l:"DND_MENU_MELEETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 192.1, 144.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 				HudMessage(l:"DND_MENU_OCCULTTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 3, CR_WHITE, 192.1, 224.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-				HudMessage(l:"DND_MENU_EXPLOTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 304.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-				HudMessage(l:"DND_MENU_ENERGYTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 384.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-				HudMessage(l:"DND_MENU_FIRETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-				HudMessage(l:"DND_MENU_ICETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 544.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-				HudMessage(l:"DND_MENU_POISONTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 624.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
-				HudMessage(l:"DND_MENU_LIGHTNINGTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 192.1, 704.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_ENERGYTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 192.1, 304.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_FIRETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 192.1, 384.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_ICETEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 192.1, 464.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_POISONTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 192.1, 544.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
+				HudMessage(l:"DND_MENU_LIGHTNINGTEXT"; HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 192.1, 624.1 + 4.0 * ScrollPos.x, 0.0, 0.0);
 				
 				// size is 640 by 480 instead of 480 by 320, ratio them
 				SetHudClipRect(192, 90, 256, 330, 256);

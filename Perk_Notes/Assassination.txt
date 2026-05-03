@@ -12,7 +12,7 @@
 	
 - Big Game Hunter (3) [3]
 	* 10% crit multiplier against boss enemies.
-	+ 15% added crit multiplier.
+	+ 10% added crit multiplier.
 	- Backstab (1) OR Deadliness (1)
 
 - Bane of Legends (1) [9]
@@ -20,7 +20,7 @@
 	
 - Opening Salvo (3) [12]
 	* Enemies at full life are 15% more susceptible to crits.
-	+ +5% to the crit chance bonus.
+	+ +5% additional susceptability.
 
 - Eradication (1) [12]
 	* Enemies that die to a crit don't trigger on-death effects.
@@ -51,7 +51,7 @@
 	
 - Mercy Kill (3) [12]
 	* Enemies on low life are 15% more susceptible to crits.
-	+ 5% to the crit chance bonus.
+	+ 2.5% additional susceptability.
 	
 - Dance with Death (3) [12]
 	* 20% chance to gain Elusive on crit. (Elusive grants 30% movement speed and 25% chance to avoid damage from hits, rapidly decaying from 100% effect to 0%. Can't gain Elusive until it wears off)

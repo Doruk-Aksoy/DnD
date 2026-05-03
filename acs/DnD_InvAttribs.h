@@ -98,6 +98,8 @@ void ClearPlayerAttributeExtraSync(int pnum) {
 #define IMPLICIT_ATTRIB_ID_BEGIN 1250
 #define ESSENCE_ATTRIB_ID_BEGIN 1500
 #define INCURSION_ATTRIB_ID_BEGIN 2000
+#define FLASK_IMPLICIT_ID_BEGIN 2300
+#define FLASK_ATTRIB_ID_BEGIN 2400
 #define UNIQUE_ATTRIB_ID_BEGIN 2500
 // self note: all status_buffs_X modifiers are handled as exceptions
 enum {
@@ -397,6 +399,27 @@ enum {
 	INV_INC_PROJREVERSE,
 	INV_INC_EXCESSCRIT,
 	// add new incursion mods here
+
+	INV_FLASK_IMP_CHARGECOUNT = FLASK_IMPLICIT_ID_BEGIN,
+	INV_FLASK_IMP_LIFE,
+
+	INV_FLASK_INCCHARGES = FLASK_ATTRIB_ID_BEGIN,
+    INV_FLASK_REDUCEDCHARGEUSE,
+    INV_FLASK_INCAMOUNTRECOVER,
+    INV_FLASK_INSTANTRECOVERY,
+    INV_FLASK_INCEFFECT,
+    INV_FLASK_INCDURATION,
+    INV_FLASK_IMMUNE_BLEED,
+    INV_FLASK_IMMUNE_POISON,
+    INV_FLASK_IMMUNE_SHOCK,
+    INV_FLASK_IMMUNE_IGNITE,
+    INV_FLASK_IMMUNE_CHILLFREEZE,
+    INV_FLASK_CHANCEGAINCRIT,
+    INV_FLASK_CHANCEGAINONHIT,
+    INV_FLASK_INCCHARGERECOVERY,
+    INV_FLASK_INCRECOVERYRATE,
+    INV_FLASK_INSTANTONLOWLIFE,
+    INV_FLASK_MORERECOVERYONLOWLIFE,
 	
 	// below here are exotic attributes not found in normal items, if you add new attributes do so to above and change MAX_INV_ATTRIBUTE_TYPES
 	INV_EX_CHANCE_CASTELEMSPELLONATK = UNIQUE_ATTRIB_ID_BEGIN,
@@ -534,6 +557,14 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define INCURSION_ATTRIBUTE_COUNT (LAST_INCURSION_ATTRIBUTE - FIRST_INCURSION_ATTRIBUTE + 1)
 #define INCURSION_MAP_MACRO(X) ((X) - FIRST_INCURSION_ATTRIBUTE + 1)
 
+#define FIRST_FLASK_IMPLICIT INV_FLASK_IMP_CHARGECOUNT
+#define LAST_FLASK_IMPICIT INV_FLASK_IMP_LIFE
+
+#define FIRST_FLASK_ATTRIBUTE INV_FLASK_INCCHARGES
+#define LAST_FLASK_ATTRIBUTE INV_FLASK_MORERECOVERYONLOWLIFE
+#define FLASK_ATTRIBUTE_COUNT (LAST_FLASK_ATTRIBUTE - FIRST_FLASK_ATTRIBUTEFIRST_FLASK_ATTRIBUTE + 1)
+#define FLASK_MAP_MACRO(X) ((X) - FIRST_FLASK_ATTRIBUTE + 1)
+
 #define MAX_INV_ATTRIBUTE_TYPES (NORMAL_ATTRIBUTE_COUNT + ESSENCE_ATTRIBUTE_COUNT + INCURSION_ATTRIBUTE_COUNT)
 #define UNIQUE_MAP_MACRO(X) ((X) - UNIQUE_ATTRIB_ID_BEGIN + 1)
 #define MAX_TOTAL_ATTRIBUTES 3000 // 1000 for each of: regular, essence, unique mods.
@@ -567,7 +598,8 @@ enum {
 	INV_ATTR_TAG_ICE = 16384,
 	INV_ATTR_TAG_POISON = 32768,
 	INV_ATTR_TAG_LIGHTNING = 65536,
-	INV_ATTR_TAG_STAMINA = 131072
+	INV_ATTR_TAG_STAMINA = 131072,
+	INV_ATTR_TAG_FLASK = 262144,
 };
 
 enum {
@@ -870,9 +902,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_AMMOCAP_INCREASE].attrib_level_modifier = 0;
 	ItemModTable[INV_AMMOCAP_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
-	ItemModTable[INV_SPEED_INCREASE].attrib_low = 0.01;
-	ItemModTable[INV_SPEED_INCREASE].attrib_high = 0.03;
-	ItemModTable[INV_SPEED_INCREASE].attrib_level_modifier = 0.03;
+	ItemModTable[INV_SPEED_INCREASE].attrib_low = 1;
+	ItemModTable[INV_SPEED_INCREASE].attrib_high = 3;
+	ItemModTable[INV_SPEED_INCREASE].attrib_level_modifier = 2;
 	ItemModTable[INV_SPEED_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	
 	ItemModTable[INV_MAGAZINE_INCREASE].attrib_low = 1;
@@ -1870,6 +1902,112 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_EXCESSCRIT].attrib_high = 0.2;
 	ItemModTable[INV_INC_EXCESSCRIT].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_EXCESSCRIT].tags = INV_ATTR_TAG_CRIT;
+
+	///////////////////////////////
+	// flask mods from here out  //
+	///////////////////////////////
+	ItemModTable[INV_FLASK_INCCHARGES].attrib_low = 5;
+	ItemModTable[INV_FLASK_INCCHARGES].attrib_high = 10;
+	ItemModTable[INV_FLASK_INCCHARGES].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INCCHARGES].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].attrib_low = 1;
+	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].attrib_high = 10;
+	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_INCAMOUNTRECOVER].attrib_low = 1;
+	ItemModTable[INV_FLASK_INCAMOUNTRECOVER].attrib_high = 6;
+	ItemModTable[INV_FLASK_INCAMOUNTRECOVER].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INCAMOUNTRECOVER].attrib_extra_low = 20;
+	ItemModTable[INV_FLASK_INCAMOUNTRECOVER].attrib_extra_high = 25;
+	ItemModTable[INV_FLASK_INCAMOUNTRECOVER].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_FLASK_INCAMOUNTRECOVER].tags = INV_ATTR_TAG_FLASK;
+    
+	ItemModTable[INV_FLASK_INSTANTRECOVERY].attrib_low = 1;
+	ItemModTable[INV_FLASK_INSTANTRECOVERY].attrib_high = 1;
+	ItemModTable[INV_FLASK_INSTANTRECOVERY].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INSTANTRECOVERY].attrib_extra_low = 50;
+	ItemModTable[INV_FLASK_INSTANTRECOVERY].attrib_extra_high = 66;
+	ItemModTable[INV_FLASK_INSTANTRECOVERY].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_FLASK_INSTANTRECOVERY].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_INCEFFECT].attrib_low = 4;
+	ItemModTable[INV_FLASK_INCEFFECT].attrib_high = 10;
+	ItemModTable[INV_FLASK_INCEFFECT].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INCEFFECT].attrib_extra_low = 2;
+	ItemModTable[INV_FLASK_INCEFFECT].attrib_extra_high = 6;
+	ItemModTable[INV_FLASK_INCEFFECT].attrib_level_extra_modifier = 0;
+	ItemModTable[INV_FLASK_INCEFFECT].tags = INV_ATTR_TAG_FLASK;
+    
+	ItemModTable[INV_FLASK_INCDURATION].attrib_low = 1;
+	ItemModTable[INV_FLASK_INCDURATION].attrib_high = 6;
+	ItemModTable[INV_FLASK_INCDURATION].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INCDURATION].tags = INV_ATTR_TAG_FLASK;
+    
+	ItemModTable[INV_FLASK_IMMUNE_BLEED].attrib_low = 1;
+	ItemModTable[INV_FLASK_IMMUNE_BLEED].attrib_high = 1;
+	ItemModTable[INV_FLASK_IMMUNE_BLEED].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_IMMUNE_BLEED].tags = INV_ATTR_TAG_FLASK;
+    
+	ItemModTable[INV_FLASK_IMMUNE_POISON].attrib_low = 1;
+	ItemModTable[INV_FLASK_IMMUNE_POISON].attrib_high = 1;
+	ItemModTable[INV_FLASK_IMMUNE_POISON].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_IMMUNE_POISON].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_IMMUNE_SHOCK].attrib_low = 1;
+	ItemModTable[INV_FLASK_IMMUNE_SHOCK].attrib_high = 1;
+	ItemModTable[INV_FLASK_IMMUNE_SHOCK].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_IMMUNE_SHOCK].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_IMMUNE_IGNITE].attrib_low = 1;
+	ItemModTable[INV_FLASK_IMMUNE_IGNITE].attrib_high = 1;
+	ItemModTable[INV_FLASK_IMMUNE_IGNITE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_IMMUNE_IGNITE].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_IMMUNE_CHILLFREEZE].attrib_low = 1;
+	ItemModTable[INV_FLASK_IMMUNE_CHILLFREEZE].attrib_high = 1;
+	ItemModTable[INV_FLASK_IMMUNE_CHILLFREEZE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_IMMUNE_CHILLFREEZE].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_CHANCEGAINCRIT].attrib_low = 1;
+	ItemModTable[INV_FLASK_CHANCEGAINCRIT].attrib_high = 6;
+	ItemModTable[INV_FLASK_CHANCEGAINCRIT].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_CHANCEGAINCRIT].tags = INV_ATTR_TAG_FLASK;
+    
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_low = 1;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_high = 10;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_extra_low = 1;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_extra_high = 2;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_INCCHARGERECOVERY].attrib_low = 5;
+	ItemModTable[INV_FLASK_INCCHARGERECOVERY].attrib_high = 10;
+	ItemModTable[INV_FLASK_INCCHARGERECOVERY].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INCCHARGERECOVERY].attrib_extra_low = 25;
+	ItemModTable[INV_FLASK_INCCHARGERECOVERY].attrib_extra_high = 25;
+	ItemModTable[INV_FLASK_INCCHARGERECOVERY].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_FLASK_INCCHARGERECOVERY].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_INCRECOVERYRATE].attrib_low = 1;
+	ItemModTable[INV_FLASK_INCRECOVERYRATE].attrib_high = 10;
+	ItemModTable[INV_FLASK_INCRECOVERYRATE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INCRECOVERYRATE].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_low = 1;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_high = 1;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_extra_low = 20;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_extra_high = 25;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].tags = INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASK_MORERECOVERYONLOWLIFE].attrib_low = 6;
+	ItemModTable[INV_FLASK_MORERECOVERYONLOWLIFE].attrib_high = 10;
+	ItemModTable[INV_FLASK_MORERECOVERYONLOWLIFE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASK_MORERECOVERYONLOWLIFE].tags = INV_ATTR_TAG_FLASK;
 }
 
 // returns the amount to skip over the base range to map it into its appropriate tier
@@ -2250,6 +2388,12 @@ str GetInventoryAttributeText(int attr) {
 
 	if(attr <= LAST_INCURSION_ATTRIBUTE)
 		return StrParam(s:"IATTR_TINC", d:attr + 1 - FIRST_INCURSION_ATTRIBUTE);
+
+	if(attr <= LAST_FLASK_IMPICIT)
+		return StrParam(s:"IATTR_IMP_FLASK", d:attr - FIRST_FLASK_IMPLICIT);
+
+	if(attr <= LAST_FLASK_ATTRIBUTE)
+		return StrParam(s:"IATTR_FLASK", d:attr - FIRST_FLASK_ATTRIBUTE);
 		
 	// only option left is unique exotic attributes
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
@@ -2514,7 +2658,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		return text;
 
 		// just the wording
-		case INV_IMP_DOUBLEESHIELDRECOVERY:		//
+		case INV_IMP_DOUBLEESHIELDRECOVERY:
 		case INV_IMP_CANROLL_PHYS:
 		case INV_IMP_CANROLL_MAGIC:
 		case INV_IMP_CANROLL_EXPLOSIVE:
@@ -2527,6 +2671,11 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_RECOVERESONUNDEADKILL:
 		case INV_IMP_QUALITYCAPFIFTY:
 		case INV_CORR_DMGDOESNTSTOPREGEN:
+		case INV_FLASK_IMMUNE_BLEED:
+		case INV_FLASK_IMMUNE_CHILLFREEZE:
+		case INV_FLASK_IMMUNE_IGNITE:
+		case INV_FLASK_IMMUNE_POISON:
+		case INV_FLASK_IMMUNE_SHOCK:
 		return StrParam(l:text);
 
 		case INV_IMP_ABSORBLIGHTNING:			// lightning coil
@@ -2643,7 +2792,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_DROPCHANCE_INCREASE:
 		case INV_ITEMRARITY:
 		case INV_LUCK_INCREASE:
-		case INV_SPEED_INCREASE:
 		case INV_PELLET_INCREASE:
 		case INV_CRITCHANCE_INCREASE:
 		case INV_CRITPERCENT_INCREASE:
@@ -2781,6 +2929,26 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_INC_EXCESSCRIT:
 		return StrParam(s:col_tag, s:GetFixedRepresentation(val, true), s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC21S");
 
+		// fix coloration issue on these text
+		case INV_CRUSHINGBLOW:
+		case INV_DEEPCUTS:
+		case INV_OPENWOUNDS:
+		case INV_DEADLYSTRIKE:
+		case INV_REAPINGCLEAVE:
+				if(showDetailedMods) {
+					return StrParam(
+						s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT",
+						s:" - ", s:GetModTierText(tier, extra)
+					);
+				}
+				return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT");
+
+		// flasks
+		case INV_FLASK_IMP_CHARGECOUNT:
+		return StrParam(s:no_tag, l:text, s: " ", s:col_tag, d:val, s:no_tag, l:"IATTR_IMP_FLASK0X", s:" ", s:col_tag, d:extra, s:no_tag, l:"IATTR_IMP_FLASK0XX");
+		case INV_FLASK_IMP_LIFE:
+		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, d:extra, s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
+
 		// default takes percentage values
 		default:
 			if(val > 0) {
@@ -2809,7 +2977,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
-	if(attr <= LAST_INCURSION_ATTRIBUTE)
+	if(attr <= LAST_FLASK_ATTRIBUTE)
 		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2);
 
 	if(qual) {
@@ -3085,9 +3253,17 @@ str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, in
 			
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
-		case INV_EX_AMMOCOSTMULTIPLIER:
 			if(showDetailedMods) {
 				return StrParam(s:"+ \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:"+ \cg", d:val1, s:"%\c[D4] ", l:text);
+
+		// negative effect without any %
+		case INV_EX_AMMOCOSTMULTIPLIER:
+			if(showDetailedMods) {
+				return StrParam(s:"+ \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}

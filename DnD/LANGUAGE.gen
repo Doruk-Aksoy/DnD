@@ -16,6 +16,7 @@ DND_PICKUP_TOKEN						= "Token pickup";
 DND_PICKUP_CHARM						= "Charm pickup";
 DND_PICKUP_ARMOR						= "Armor pickup";
 DND_PICKUP_BONUS						= "Bonus pickup";
+DND_PICKUP_FLASK						= "Flask pickup";
 
 DND_PICKUP_SLAYERCARD					= "Slayer card pickup";
 DND_PICKUP_DOGTAG						= "Dogtag pickup";

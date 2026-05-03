@@ -1,0 +1,6 @@
+- some perk to negate poison when picking stimpack/medkit or using portable medkit
+- a perk to make homing missiles have a chance to not lock on you
+
+- Nature's Remedy (3)
+	* 50% chance to remove poison and bleeding when using healing items.
+	+ 25% added chance.

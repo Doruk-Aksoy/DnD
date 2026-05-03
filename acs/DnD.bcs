@@ -2947,6 +2947,10 @@ Script "DnD On Respawn" RESPAWN {
 
 	ConditionalCalculateUnity(pnum);
 	SetInventory("DnD_Stamina", GetAmmoCapacity("DnD_Stamina"));
+
+	Delay(const:5);
+
+	RestorePersistentBuffs(pnum);
 }
 
 Script 988 (int wepslot, int type) {
@@ -3044,6 +3048,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("DnD_MultikillCounter", 0);
 	TakeInventory("EShieldCharging", 1);
 	
+	RemoveAllBuffs(pnum);
 	ClearLingeringBuffs(pnum);
 	
 	// statistics reset
@@ -3291,6 +3296,10 @@ Script "DnD Player Setup" ENTER {
 	TakeInventory("DnD_RemoveBoxSignal", 1);
 
 	SetInventory("DnD_Stamina", GetAmmoCapacity("DnD_Stamina"));
+
+	Delay(const:5);
+
+	RestorePersistentBuffs(pnum);
 
 /*#ifdef ISDEBUGBUILD
 	Delay(10*TICRATE);
@@ -3715,7 +3724,13 @@ Script "DnD Periodic Regeneration" ENTER {
 				cur = GetActorProperty(0, APROP_HEALTH);
 				regen_amt = (regen_amt * 100) >> 16;
 				lim = GetRegenCap(pnum);
-				amt = CheckInventory("PlayerHealthCap") * (DND_REGEN_PERCENT + regen_amt) / 100;
+
+				// cap the regen to our health cap
+				amt = CheckInventory("PlayerHealthCap");
+				if(amt < lim)
+					lim = amt;
+
+				amt = amt * (DND_REGEN_PERCENT + regen_amt) / 100;
 				amt = amt * (100 + GetPlayerAttributeValue(pnum, INV_REGENRATE)) / 100;
 
 				regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].multiplicative;
@@ -4255,6 +4270,10 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype, int extra) CLIEN
 		case DND_ITEM_SPECIALTY_BERSERKER:
 		case DND_ITEM_SPECIALTY_TRICKSTER:
 			Playsound(0, "Items/PowercoreDrop", 6);
+		break;
+
+		case DND_ITEM_FLASK:
+			PlaySound(0, "Items/FlaskDrop", 6);
 		break;
 	}
 }
@@ -6050,10 +6069,11 @@ Script 68 (int x) NET {
 			//Log(s:"pcore");
 			//SpawnPowercore(0, true);
 			//Log(s:"orb");
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 250);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTRUCTION, true, true, 250);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 250);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 250);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_PHANTASMAL, true, true, 250);
 
 			SpawnSpecialtyItem(0, 0, 0, 0, random(DND_ITEM_SPECIALTY_DOOMGUY, DND_ITEM_SPECIALTY_TRICKSTER));
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
@@ -6069,7 +6089,8 @@ Script 68 (int x) NET {
 			SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_INC_PLUSPROJ);
+			SpawnCharmWithMods_ForAll(INV_MELEERANGE);
+			SpawnFlask(0, 0);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
@@ -6138,15 +6159,15 @@ Script 68 (int x) NET {
 		else if(x == 667)
 			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
 		else if(x == 1000) {
-			/*IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
+			IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
 			IncPlayerModValue(0, INV_ENDURANCECHARGE_ONMELEE, 33);
-			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 33);*/
+			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 33);
 
-			IncPlayerModValue(0, INV_CRUSHINGBLOW, 33);
+			/*IncPlayerModValue(0, INV_CRUSHINGBLOW, 33);
 			IncPlayerModValue(0, INV_DEEPCUTS, 33);
 			IncPlayerModValue(0, INV_OPENWOUNDS, 33);
 			IncPlayerModValue(0, INV_DEADLYSTRIKE, 33);
-			IncPlayerModValue(0, INV_REAPINGCLEAVE, 33);
+			IncPlayerModValue(0, INV_REAPINGCLEAVE, 33);*/
 			
 			/*IncPlayerModValue(0, INV_FLATENERGY_DAMAGE, 21);
 			IncPlayerModValue(0, INV_PERCENTENERGY_DAMAGE, 310);

@@ -211,6 +211,41 @@ void SpawnToken(int pnum, int stack = 0, int unused2 = 0, bool noRandomVelXY = f
 	}
 }
 
+void SpawnFlask(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY = false, int extra = -1) {
+    int c = CreateItemSpot();
+	if(c != -1) {
+		int ilvl = RollItemLevel();
+        int type = InitializeFlask(c, ilvl, pnum, pre_id);
+		RollFlaskInfo(c, ilvl, pnum, DND_ITEM_FLASK, type, MAX_FLASK_ATTRIB_DEFAULT);
+        // depending on armor type rolled, spawn its appropriate actor
+        SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_FLASK);
+	}
+}
+
+void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+	int c = CreateItemSpot();
+	if(c != -1) {
+		int ilvl = RollItemLevel();
+		int type = InitializeFlask(c, ilvl, pnum, -1);
+		RollFlaskInfoWithMods(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
+		// depending on armor type rolled, spawn its appropriate actor
+		SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, false);
+
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
+	}
+}
+
+void SpawnFlaskWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i) && !PlayerIsSpectator(i))
+			SpawnFlaskWithMods(i, m1, m2, m3, noRepeat);
+	}
+}
+
 void SpawnItemForAll(int type, int repeats = 1, int extra = -1) {
     void function(int, int, int, bool, int)& f = SpawnArmor;
     switch(type) {
@@ -242,6 +277,11 @@ void SpawnItemForAll(int type, int repeats = 1, int extra = -1) {
         case DND_ITEM_TOKEN:
             f = SpawnToken;
         break;
+
+		case DND_ITEM_FLASK:
+			f = SpawnFlask;
+		break;
+
 		default:
 		return;
     }
@@ -319,6 +359,9 @@ str GetItemTagName(int itype, int isubt) {
 
 		case DND_ITEM_HELM:
 		return StrParam(l:StrParam(s:"DND_HELM", d:isubt + 1));
+
+		case DND_ITEM_FLASK:
+		return StrParam(l:StrParam(s:"DND_FLASK", d:isubt + 1));
 	}
 	return "NULL";
 }
@@ -627,7 +670,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				break;
 				case BELT_LIGHT:
 					imp_func(item_pos, INV_IMP_INCMITARMOR, 20, 0, item_tier, 5);
-					imp_func(item_pos, INV_SPEED_INCREASE, 0.05, 0, item_tier, 0.02);
+					imp_func(item_pos, INV_SPEED_INCREASE, 5, 0, item_tier, 2);
 				break;
 			}
         break;
@@ -640,7 +683,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				break;
 				case CLAW_CESTUS:
 					imp_func(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10);
-					imp_func(item_pos, INV_MITEFFECT_INCREASE, 5.0, 0, item_tier, 1.0);
+					imp_func(item_pos, INV_MITEFFECT_INCREASE, 3.0, 0, item_tier, 0.5);
 				break;
 				case CLAW_KATAR:
 					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
@@ -648,6 +691,32 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				break;
 			}
         break;
+
+		// their primary behavior here
+		case DND_ITEM_FLASK:
+			switch(subtype) {
+				case DND_FLASK_LIFE_SMALL:
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 50, 3, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 20, 5, 0, 0);
+				break;
+				case DND_FLASK_LIFE_MEDIUM:
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 125, 4, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 28, 6, 0, 0);
+				break;
+				case DND_FLASK_LIFE_LARGE:
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 300, 5, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 32, 8, 0, 0);
+				break;
+				case DND_FLASK_LIFE_GRAND:
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 1000, 5, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 36, 10, 0, 0);
+				break;
+				case DND_FLASK_LIFE_EXQUISITE:
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 2000, 6, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 12, 0, 0);
+				break;
+			}
+		break;
 	}
 	return special_roll;
 }

@@ -990,6 +990,11 @@ int GetIndependentCritModifier(int pnum) {
 	int base = DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
 	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS))
 		base -= DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
+
+	int temp;
+	if(GetPlayerAttributeValue(pnum, INV_INC_EXCESSCRIT) && (temp = GetCritChance_Display(pnum)) > 1.0)
+		base = (base * temp) >> 16;
+
 	return base;
 }
 

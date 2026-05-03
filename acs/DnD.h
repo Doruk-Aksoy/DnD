@@ -1454,6 +1454,13 @@ void ClearLingeringBuffs(int pnum) {
 		UndoWandererAscension();
 }
 
+void RestorePersistentBuffs(int pnum) {
+	// restore these buffs though -- Max charge of types
+	if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) {
+		HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF), 0);
+	}
+}
+
 void SyncResearchInvestments(int pnum) {
 	for(int i = 0; i < MAX_RESEARCHES; ++i) {
 		if(ResearchInvestments[pnum][i])

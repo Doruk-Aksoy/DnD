@@ -121,7 +121,9 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_FRENZYCHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
 
-            if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY) {
+            // this check may seem redundant but its needed as the extra can be 0 which is DND_CHARGE_FRENZY
+            tic_duration = GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF);
+            if(!tic_duration || (tic_duration && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY)) {
                 bvalue = DND_FRENZYCHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
                 tic_duration = bduration * TICRATE;
@@ -145,7 +147,8 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_ENDURANCECHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
 
-            if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE) {
+            tic_duration = GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF);
+            if(!tic_duration || (tic_duration && GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)) {
                 bvalue = -DND_ENDURANCECHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
                 tic_duration = bduration * TICRATE;
@@ -168,7 +171,8 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_POWERCHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_ADDIFNODUPLICATE;
 
-            if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER) {
+            tic_duration = GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF);
+            if(!tic_duration || (tic_duration && GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)) {
                 bvalue = DND_POWERCHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
                 tic_duration = bduration * TICRATE;

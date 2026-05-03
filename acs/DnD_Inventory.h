@@ -63,7 +63,12 @@ enum {
 	HELM_INDEX,
 	BODY_ARMOR_INDEX,
 	POWERCORE_INDEX,
-	BOOT_INDEX
+	BOOT_INDEX,
+
+	FLASK1_INDEX,
+	FLASK2_INDEX,
+
+	INV_ICON_INDEX // not an item just the icon index
 };
 
 enum {
@@ -311,15 +316,24 @@ enum {
 	
 	// tokens
 	IIMG_TOKEN_ARMORER = 2800,
-	IIMG_TOKEN_GUNSMITH
+	IIMG_TOKEN_GUNSMITH,
+
+	// flasks
+	IIMG_FLASK_LIFE_SMALL = 3000,
+	IIMG_FLASK_LIFE_MEDIUM,
+	IIMG_FLASK_LIFE_LARGE,
+	IIMG_FLASK_LIFE_GRAND,
+	IIMG_FLASK_LIFE_EXQUISITE,
+
+	MAX_ITEM_IMAGES
 };
-#define MAX_ITEM_IMAGES (IIMG_TOKEN_GUNSMITH + 1)
 
 enum {
 	DND_TOKEN_ARMORER,
-	DND_TOKEN_GUNSMITH
+	DND_TOKEN_GUNSMITH,
+
+	DND_MAX_TOKEN_KINDS
 };
-#define DND_MAX_TOKEN_KINDS (DND_TOKEN_GUNSMITH + 1)
 
 // first bunch are orbs, the next are tokens
 #define MAX_UNIQUE_CRAFTING_TYPES (DND_MAX_ORB_KINDS + DND_MAX_TOKEN_KINDS)
@@ -398,7 +412,12 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_UBOOT_BEGIN IIMG_UBOOT_1
 #define ITEM_IMAGE_UBOOT_END IIMG_UBOOT_1
 
+#define ITEM_IMAGE_FLASK_BEGIN IIMG_FLASK_LIFE_SMALL
+#define ITEM_IMAGE_FLASK_END IIMG_FLASK_LIFE_EXQUISITE
+
+#include "DnD_InventoryWeights.h"
 #include "DnD_Armor.h"
+#include "DnD_Flasks.h"
 #include "DnD_SpecialtyItem.h"
 #include "DnD_InvGeneric.h"
 
@@ -498,15 +517,20 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "K";
 		suffix = id - ITEM_IMAGE_KEY_BEGIN + 1;
 	}
-	else {
+	else if(id <= ITEM_IMAGE_TOKEN_END) {
 		img_prefix = "T";
 		suffix = id - ITEM_IMAGE_TOKEN_BEGIN + 1;
+	}
+	else {
+		// flask
+		img_prefix = "FL";
+		suffix = id - ITEM_IMAGE_FLASK_BEGIN + 1;
 	}
 	//Log(l:StrParam(d:id, s:" ==>", s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 	return StrParam(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 }
 
-#define ITEMLEVEL_VARIANCE_LOWER 15
+#define ITEMLEVEL_VARIANCE_LOWER 20
 #define ITEMLEVEL_VARIANCE_HIGHER 7
 
 // holds inventories of all players
@@ -970,6 +994,10 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 
 bool IsWearingBodyArmor(int pnum) {
 	return (Items_Used[pnum][BODY_ARMOR_INDEX].item_type & 0xFFFF) == DND_ITEM_BODYARMOR;
+}
+
+bool HasFlaskEquipped(int pnum, int flask_id) {
+	return (Items_Used[pnum][FLASK1_INDEX + flask_id].item_type & 0xFFFF) == DND_ITEM_FLASK;
 }
 
 bool IsPlayerInventoryItemUnique(int pnum, int pos) {
@@ -2289,6 +2317,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetHelmDropClass(stype);
 	else if(IsSpecialtyItemType(itype))
 		droptype = GetSpecialtyDropClass(itype, stype);
+	else if(itype == DND_ITEM_FLASK)
+		droptype = GetFlaskDropClass(stype);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 
@@ -3224,11 +3254,11 @@ int GetCraftableItemCount() {
 }
 
 int GetItemTierRoll(int lvl, bool isWellRolled) {
-	// 10% chance to roll a tier up or down -- if well rolled 20%
+	// 10% chance to roll a tier up -- if well rolled 20%
 	if(!random(0, 9 - 5 * isWellRolled) || CheckInventory("ReveranceUsed"))
 		++lvl;
 	else // 0-1 do nothing, 2-3 is -1, 4-5 is -2 => if well rolled has only 33% chance for the tier to be a downgrade
-		lvl -= random(0, 6 - 3 * isWellRolled) / 2;
+		lvl -= random(0, 9 - 3 * isWellRolled) / 2;
 
 	// clamp just in case
 	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
@@ -3582,7 +3612,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 			val = AttributeTagGroups[respect_order_orb][craftable_id][random(0, AttributeTagGroupCount[respect_order_orb][craftable_id] - 1)];
 		}
 	}
-	else {
+	else if(item_type != DND_ITEM_FLASK) {
 		craftable_id = MapItemTypeToCraftableID(item_type);
 
 		// find a random valid tag for this item
@@ -3624,6 +3654,15 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 			if(max_tries <= 0)
 				respect_order_orb = -2;
 		} while(IsItemBaseException(item_type, item_subtype, val) || IsImplicitException(implicit_id, val));
+	}
+	else if(item_type == DND_ITEM_FLASK) {
+		// flask code -- for now rolls anything flasks can no regards to life or utility
+		// unrestricted picking for now
+		val = random(FIRST_FLASK_ATTRIBUTE + bias, LAST_FLASK_ATTRIBUTE + bias) - bias;
+		// this is a last resort random here, in case there was an overflow... shouldn't, but might
+		// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
+		if(val < 0)
+			val = random(FIRST_FLASK_ATTRIBUTE, LAST_FLASK_ATTRIBUTE);
 	}
 	return val;
 }

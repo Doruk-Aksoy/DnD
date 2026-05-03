@@ -55,7 +55,7 @@ enum {
 
 #define DND_ENDURANCECHARGE_BONUS 0.04
 #define DND_FRENZYCHARGE_BONUS 0.05
-#define DND_FRENZYCHARGE_SPEEDBONUS 0.03
+#define DND_FRENZYCHARGE_SPEEDBONUS 3
 #define DND_POWERCHARGE_BONUS 0.5
 
 enum {
@@ -422,12 +422,12 @@ int GetBonusPlayerSpeed(int pnum) {
 	int ptid = pnum + P_TIDSTART;
 	int res = GetPlayerAttributeValue(pnum, INV_SPEED_INCREASE) + GetPlayerFrenzyCharges(ptid, pnum) * DND_FRENZYCHARGE_SPEEDBONUS;
 	// add other stuff here
-	res = res * (100 + CheckActorInventory(ptid, "GryphonCheck") * DND_GRYPHON_MSPEED + CheckActorInventory(ptid, "CelestialCheck") * DND_CELESTIAL_MSPEED) / 100;
+	res += CheckActorInventory(ptid, "GryphonCheck") * DND_GRYPHON_MSPEED + CheckActorInventory(ptid, "CelestialCheck") * DND_CELESTIAL_MSPEED;
 	return res;
 }
 
 int GetPlayerSpeed(int pnum) {
-	return DND_BASE_PLAYERSPEED + GetBonusPlayerSpeed(pnum);
+	return DND_BASE_PLAYERSPEED * (100 + GetBonusPlayerSpeed(pnum)) / 100;
 }
 
 // returns true if there are things that'd nullify effect of dexterity

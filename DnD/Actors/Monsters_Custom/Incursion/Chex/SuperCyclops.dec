@@ -52,7 +52,8 @@ ACTOR SuperCyclops : DnD_BaseRangedMonster {
 		PainState:
 			C008 E 3
 			C008 E 3 A_Pain
-			C008 F 6 A_SpawnItemEx("ChexMeteorShitlet", frandom(-radius, radius), frandom(-radius, radius), frandom(height / 2, 3 * height / 4), frandom(-v, v), frandom(-v, v), frandom(zlow, zhigh), 0)
+			TNT1 A 0 A_GiveInventory("ChexSlimeSpawnToken", 1)
+			C008 F 6
 		goto See
 		XDeathState:
 		DeathState:

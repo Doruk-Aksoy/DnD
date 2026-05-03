@@ -26,6 +26,11 @@ enum {
 
 	BUFF_TYPES_MAX
 };
+#define DND_FIRST_CHARGE_BUFF BUFF_FRENZYCHARGE
+
+bool IsChargeBuff(int buff_type) {
+	return buff_type >= BUFF_FRENZYCHARGE && buff_type <= BUFF_POWERCHARGE;
+}
 
 enum {
 	BUFF_F_MONSTERSOURCE 				= 0b1,
@@ -82,6 +87,14 @@ void ResetPlayerBuffs(int pnum) {
 	pbuffs[pnum].head = 0;
 
 	for(i = 0; i < BUFF_TYPES_MAX; ++i) {
+		// do not reset this
+		if
+		(
+			IsChargeBuff(i) && GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && 
+			GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) == i - DND_FIRST_CHARGE_BUFF
+		)
+			continue;
+
 		pbuffs[pnum].buff_net_values[i].additive = 0;
 		pbuffs[pnum].buff_net_values[i].multiplicative = 1.0;
 

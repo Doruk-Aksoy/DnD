@@ -211,7 +211,7 @@ void ConstructArmorDataOnMerchant(int item_pos, int ilvl) {
     // pick with some weight here -- <= here for index, size is that +1
     res = random(1, 100);
     for(i = 0; i <= BODYARMORS_REGULAREND; ++i) {
-        if(res <= ArmorDropWeights[DND_DROPPEDARMOR_BODY][i]) {
+        if(res <= ItemDropWeights[DND_DROPPEDITEM_BODY][i]) {
             if(i == BODYARMOR_TANGLEDRIBCAGE && ilvl < ARMOR_TANGLED_DROPLVL) {
                 // repeat if this happened
                 res = random(1, 100);
@@ -257,7 +257,7 @@ void ConstructBootDataOnMerchant(int item_pos, int ilvl) {
 	int i;
 	int res = random(1, MAX_BOOT_WEIGHT);
 	for(i = 0; i <= BOOTS_END; ++i)
-		if(res <= ArmorDropWeights[DND_DROPPEDARMOR_BOOT][i]) {
+		if(res <= ItemDropWeights[DND_DROPPEDITEM_BOOT][i]) {
 			res = i;
 			break;
 		}
@@ -298,7 +298,7 @@ void ConstructHelmDataOnMerchant(int item_pos, int ilvl, int helm = -1) {
 	if(helm == -1) {
 		res = random(1, MAX_HELM_WEIGHT);
 		for(i = 0; i <= HELMS_END; ++i) {
-			if(res <= ArmorDropWeights[DND_DROPPEDARMOR_HELM][i]) {
+			if(res <= ItemDropWeights[DND_DROPPEDITEM_HELM][i]) {
 				res = i;
 				break;
 			}
@@ -714,10 +714,6 @@ Script "DnD Merchant Items" (void) {
 	for(int pos = 0; pos < item_count; ++pos) {
         int ilvl = RollItemLevel();
 		int temp = random(0, 1.0);
-
-#ifdef ISDEBUGBUILD
-		temp = DND_MERCHANT_ITEMCHANCE;
-#endif
 
 		if(temp <= DND_MERCHANT_ITEMCHANCE) {
 			// roll items, charm or armor

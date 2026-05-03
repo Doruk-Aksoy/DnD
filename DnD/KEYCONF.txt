@@ -28,15 +28,15 @@ AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "DnD Menu" upgs
 	Alias upgs "Puke 900"
 	AddMenuKey "DnD Weapon Wheel" wepwheel
-	Alias wepwheel "pukename \"DnD Weapon Wheel\""
+	Alias wepwheel "pukename \"DnD Weapon Wheel\" always"
 	AddMenuKey "DnD Inventory" inv
-	Alias inv "pukename \"DnD Open Inventory\""
+	Alias inv "pukename \"DnD Open Inventory\" always"
 	AddMenuKey "DnD Stash" stash
-	Alias stash "pukename \"DnD Open Stash\""
+	Alias stash "pukename \"DnD Open Stash\" always"
 	AddMenuKey "DnD Stash Dump" stashdump
-	Alias stashdump "pukename \"DnD Dump to Stash\""
+	Alias stashdump "pukename \"DnD Dump to Stash\" always"
 	AddMenuKey "DnD Stash Dump (Stackables Only)" stashdumporbs
-	Alias stashdumporbs "pukename \"DnD Dump to Stash\" 1"
+	Alias stashdumporbs "pukename \"DnD Dump to Stash\" always 1"
 	AddMenuKey "DnD Dash" dashuse
 	Alias dashuse "Puke 997"
 	AddMenuKey "Toggle Weapon Tip Boxes" tips
@@ -50,7 +50,12 @@ AddKeySection "DnD Keys" DNDKEYS
 	AddMenuKey "Toggle Item Mod Range" item_mods
 	Alias item_mods "Puke -1007"
 	AddMenuKey "DnD Taunt" dnd_taunt
-	Alias dnd_taunt "pukename \"DnD Taunt\""
+	Alias dnd_taunt "pukename \"DnD Taunt\" always"
+
+	AddMenuKey "DnD Use Flask #1" dnd_flask1
+	Alias dnd_flask1 "pukename \"DnD Flask Use\" always 0"
+	AddMenuKey "DnD Use Flask #2" dnd_flask2
+	Alias dnd_flask2 "pukename \"DnD Flask Use\" always 1"
 	
 AddKeySection "DnD Hard/Softcore Keys" DNDKEYS2
 	AddMenuKey "Skip character loading" sl

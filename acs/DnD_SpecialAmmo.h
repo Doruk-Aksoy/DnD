@@ -19,12 +19,10 @@ enum {
 };
 
 #define MAX_SPECIAL_AMMOS (SSAM_40MMHE + 1)
-#define MAX_SPECIAL_AMMOS_FOR_SHOP (MAX_SPECIAL_AMMOS - 1) // we need to ignore the regular grenade here
+#define MAX_SPECIAL_AMMOS_FOR_SHOP (MAX_SPECIAL_AMMOS - 2) // we need to ignore the regular grenade and exp shell here
 #define MAX_SPECIALAMMO_DAMAGEINDEX 3
 
-#define DND_SPECIALAMMO_ICON 0
-#define DND_SPECIALAMMO_NAME 1
-str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS_FOR_SHOP][2] = {
+str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS - 1][2] = {
 	{	"SAM1A0",			"FlechetteShell"		},
 	{	"SAM3A0",			"PiercingShell"			},
 	{	"SAM2A0",			"ElectricShell"			},
@@ -36,11 +34,12 @@ str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS_FOR_SHOP][2] = {
 	{	"GAM2A0",			"A40MMHEGrenade"		}
 };
 
-ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS_FOR_SHOP] = {
+ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS - 1] = {
 	{ 	40,			8		},
 	{ 	40,			8		},
 	{ 	40,			8		},
 	{   40,			8		},
+	{ 	40,			8		},
 	{ 	40,			8		},
 	
 	{ 	25,			5		},

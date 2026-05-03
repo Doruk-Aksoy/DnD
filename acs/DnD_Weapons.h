@@ -687,7 +687,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_ELECTRICSHELL;
 					hitscan_id = DND_HITSCAN_SHOCKSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SHOCK][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -704,7 +704,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_MAGNUMSHELL;
 
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -727,7 +727,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_FLECHETTE;
 					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -767,7 +767,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_ELECTRICSHELL;
 					hitscan_id = DND_HITSCAN_SHOCKSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SHOCK][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SHOCK][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SHOCK, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -784,7 +784,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_MAGNUMSHELL;
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -807,7 +807,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_FLECHETTE;
 					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -1007,7 +1007,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					sp_y = 0.5;
 					hitscan_id = DND_HITSCAN_SLUGSHELL;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SLUG][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_SLUG][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_SLUG, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -1023,7 +1023,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_MAGNUMSHELL;
 					
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_MAGNUM][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_MAGNUM, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -1046,7 +1046,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_FLECHETTE;
 					hitscan_id = DND_HITSCAN_FLECHETTE;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_FLECHETTE][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_FLECHETTE, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -1263,12 +1263,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				switch(CheckInventory("SpecialAmmoMode_4")) {
 					case AMMO_40MMHEGRENADE:
 						proj_id = DND_PROJ_HEGRENADE;
-						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][DND_SPECIALAMMO_NAME];
+						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][AMMOINFO_NAME];
 						ammo_handler = "HEGrenadeHandler";
 					break;
 					case AMMO_40MMSONIC:
 						proj_id = DND_PROJ_SONICGRENADE;
-						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][DND_SPECIALAMMO_NAME];
+						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][AMMOINFO_NAME];
 						ammo_handler = "SonicGrenadeHandler";
 					break;
 					case AMMO_BASICGRENADE:
@@ -1403,12 +1403,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				switch(CheckInventory("SpecialAmmoMode_4")) {
 					case AMMO_40MMHEGRENADE:
 						proj_id = DND_PROJ_HEGRENADE;
-						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][DND_SPECIALAMMO_NAME];
+						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][AMMOINFO_NAME];
 						ammo_handler = "HEGrenadeHandler";
 					break;
 					case AMMO_40MMSONIC:
 						proj_id = DND_PROJ_SONICGRENADE;
-						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][DND_SPECIALAMMO_NAME];
+						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][AMMOINFO_NAME];
 						ammo_handler = "SonicGrenadeHandler";
 					break;
 					case AMMO_BASICGRENADE:
@@ -1438,7 +1438,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 					proj_id = DND_PROJ_NITROSHELL;
 					hitscan_id = DND_HITSCAN_NITRO;
 					if(!(flags & DND_ATF_NOAMMOTAKE)) {
-						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_NITROSHELL][DND_SPECIALAMMO_NAME], Weapons_Data[wepid].ammo_use1);
+						ammo_take_amt = TakeAmmoFromPlayer(pnum, wepid, SpecialAmmoInfo_Str[SSAM_NITROSHELL][AMMOINFO_NAME], Weapons_Data[wepid].ammo_use1);
 						ammo_gain_guarantee = HandleAmmoGainChance(DND_AMMOSLOT_SPECIAL, SSAM_NITROSHELL, ammo_take_amt, ammo_gain_guarantee);
 
 						// sycned fail state
@@ -1548,12 +1548,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			switch(CheckInventory("SpecialAmmoMode_5X")) {
 				case AMMO_40MMHEGRENADE:
 					proj_id = DND_PROJ_HEGRENADE;
-					ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][DND_SPECIALAMMO_NAME];
+					ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][AMMOINFO_NAME];
 					ammo_handler = "HEGrenadeHandler";
 				break;
 				case AMMO_40MMSONIC:
 					proj_id = DND_PROJ_SONICGRENADE;
-					ammo_type = SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][DND_SPECIALAMMO_NAME];
+					ammo_type = SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][AMMOINFO_NAME];
 					ammo_handler = "SonicGrenadeHandler";
 				break;
 				case AMMO_BASICGRENADE:
@@ -1810,7 +1810,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 				switch(CheckInventory("SpecialAmmoMode_6")) {
 					case AMMO_40MMHEGRENADE:
 						proj_id = DND_PROJ_HEGRENADE;
-						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][DND_SPECIALAMMO_NAME];
+						ammo_type = SpecialAmmoInfo_Str[SSAM_40MMHE - 1][AMMOINFO_NAME];
 						ammo_handler = "HEGrenadeHandler";
 					break;
 				}

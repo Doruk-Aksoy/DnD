@@ -78,9 +78,8 @@ int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hu
         else
             borderpic = "ARMSELB";
     }
-    else if(item_type == DND_ITEM_HELM || item_type == DND_ITEM_BOOT || (item_type >= FIRST_SPECIALTY_ITEM_TYPE && item_type <= LAST_SPECIALTY_ITEM_TYPE)) {
+    else
         borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, boxid == thisboxid);
-    }
 
     if(item_pos >= DND_MERCHANT_MAXITEMSONROW)
         yoff += DND_MERCHANT_YSHIFTROW;

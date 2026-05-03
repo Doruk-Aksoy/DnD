@@ -1,0 +1,48 @@
+- Ramping Assault (3)
+	* Every 6/5/4th melee hit on the same enemy deals 20% more damage.
+	
+- Cranium Bash (3)
+	* Blunt melee weapons have 3/6/9% chance to stun enemies for 1.5 seconds.
+
+- Echoing Strikes (2) [5]
+	* Melee attacks have 12.5% chance to splash around for 50% of the damage.
+	+ 12.5% chance.
+	- Brutal Strikes (1) or Cranium Bash (1)
+
+- Unending Fury (2) [10]
+	* Berserk's damage bonus applies to all weapons at 50% of its value.
+	+ 25% additional factor.
+	- Requires Ramping Assault.
+	
+- Fervent Reach (2) [12]
+	* Melee splash effects can occur 20% further.
+	+ 20% additional splash distance.
+	- Requires Echoing Strikes.
+
+===============================
+
+- Exhauster (3)
+	* Melee hits have 10% chance to slow enemies hit by 20%.
+	+ +5% chance to slow.
+
+- Deep Cuts (3)
+	* Slashing melee hits have +15% chance to inflict bleeding on hit.
+	+ 7.5% bleeding chance.
+	
+- Quick & Deadly (1) [6]
+	* Slashing attacks repeat an additional time and are 33% faster.
+
+- Swift & Precise (1) [8]
+	* Melee hits grant 10% movement speed per enemy hit up to 100% for 3 seconds.
+
+===============================
+
+- Flash Parry (3)
+	* Parrying projectiles releases a shockwave forward for a limited distance, dealing 100 + 5% max health damage to enemies.
+	+ 50 base damage and 10% shockwave travel distance.
+
+- Riposte (1) [3]
+	* Successful parries reduce subsequent parry costs by 10% up to a maximum of 30% within a 10 second window.
+
+- Martial Finesse (1) [12]
+	* Melee hits reduce melee cooldowns by 10%.

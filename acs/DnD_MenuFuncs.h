@@ -652,6 +652,8 @@ void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
 	if(boxid != MAINBOX_NONE) {
 		if(isSpecial) {
 			ammoindex = MAXSHOPNORMALAMMOS + boxid - 1;
+			if(boxid - 1 >= SSAM_EXSHELL)
+				boxid = boxid + 1;
 			toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_ICON], "", GetAmmoDrawInfo(ammoindex).res_id, RES_KNOWN, GetAmmoDrawInfo(ammoindex).flags);
 		}
 		else {
@@ -1466,6 +1468,9 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 		ShowNeedResearchPopup();
 	}
 	else {
+		if(shop_index > SHOP_AMMO_SLUGSHELL && isSpecialAmmo)
+			++itemid;
+
 		int price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW);
 		int buystatus = CanTrade(pnum, shop_index, TRADE_BUY, price);
 		
@@ -1499,9 +1504,9 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 					}
 				}
 			}
-			if(amt > ShopStockRemaining[PlayerNumber()][shop_index]) {
+			if(amt > ShopStockRemaining[pnum][shop_index]) {
 				// rebalance the amount so we don't go in debt...
-				amt = ShopStockRemaining[PlayerNumber()][shop_index];
+				amt = ShopStockRemaining[pnum][shop_index];
 				price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW) * amt / GetAmmoToGive(shop_index);
 			}
 			
@@ -1511,8 +1516,8 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 				GiveInventory(AmmoInfo[slot][itemid].name, amt);
 			else
 				GiveInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME], amt);
-			ShopStockRemaining[PlayerNumber()][shop_index] -= amt;
-			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, PlayerNumber(), shop_index, ShopStockRemaining[PlayerNumber()][shop_index]);
+			ShopStockRemaining[pnum][shop_index] -= amt;
+			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, shop_index, ShopStockRemaining[pnum][shop_index]);
 			LocalAmbientSound("items/ammo", 127);
 		}
 		else
@@ -1707,6 +1712,10 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 112.0, 193.0, 62.0, 143.0 },
 			{ 167.0, 193.0, 117.0, 143.0 },
 			{ 112.0, 129.0, 62.0, 79.0 },
+
+			// flasks -- 2 for now
+			{ 164.0, 132.0, 124.0, 94.0 },
+			{ 164.0, 84.0, 124.0, 46.0 },
 
 			// inv explore icon
 			{ 58.0, 66.0, 38.0, 48.0 },
@@ -2932,6 +2941,31 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	SetFont("NMENUFNT");
 }
 
+void DrawFlaskBox(int boxid, int thisboxid, int hudx, int hudy, int flask_id) {
+	str borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, boxid == thisboxid);
+	int pnum = PlayerNumber();
+
+	// fixes background being lit on first row boxes
+	if(CheckInventory("DnD_InventoryView"))
+		borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, false);
+	
+	// if there is a charm here
+	if(Items_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
+		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		
+		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
+			UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, pnum, 0, HUDMAX_X, HUDMAX_Y);
+	}
+	else {
+		SetFont("FLASKBAK");
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	}
+	SetFont(borderpic);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+	SetFont("NMENUFNT");
+}
+
 void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) {
 	int pnum = PlayerNumber();
 
@@ -2980,7 +3014,7 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 				SetFont("CLAWBAK");
 			break;
 		}
-		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 30 - thisboxid, CR_WHITE, hudx, hudy, 0.0, 0.0);
+		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 	}
 
 	if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
@@ -2991,11 +3025,11 @@ void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) 
 	SetFont("NMENUFNT");
 }
 
-void DrawInventoryExploreIcon(int boxid, int thisboxid, int id, int x, int y) {
+void DrawInventoryExploreIcon(int boxid, int thisboxid, int x, int y) {
 	SetFont("ICOBSML");
 	if(boxid == thisboxid && !CheckInventory("DnD_InventoryView")) // don't highlight in inventory view
 		SetFont("ICOGSML");
-	HudMessage(s:"A"; HUDMSG_PLAIN, id, CR_CYAN, x, y, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_CYAN, x, y, 0.0, 0.0);
 	SetFont("NMENUFNT");
 }
 
@@ -3336,6 +3370,8 @@ void PlayItemDropSound(int type, int sub_type, bool use_activator_sound) {
 		snd = "Items/ArmorEquip";
 	else if(type == DND_ITEM_SPECIALTY_CYBORG)
 		snd = "Items/PowercoreDrop";
+	else if(type == DND_ITEM_FLASK)
+		snd = "Items/FlaskDrop";
 
 	if(!use_activator_sound) {
 		// this is the "unequip item" case, we should use this one as charms dont have their own "throw" sound
@@ -3357,7 +3393,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			if(!CheckInventory("DnD_InventoryView")) {
 				GiveInventory("DnD_InventoryView", 1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
-				if(boxid != DND_INV_ICON_BOXID)
+				if(boxid != INV_ICON_INDEX)
 					SetInventory("DnD_SelectedCharmBox", boxid);
 			}
 			else {
@@ -3396,6 +3432,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						break;
 						case BOOT_INDEX:
 							item_type = DND_ITEM_BOOT;
+						break;
+						case FLASK1_INDEX:
+						case FLASK2_INDEX:
+							item_type = DND_ITEM_FLASK;
 						break;
 					}
 					
@@ -3456,7 +3496,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		}
 		ClearPlayerInput(pnum, true);
 	}
-	else if(HasRightClicked(pnum) && boxid != DND_INV_ICON_BOXID) {
+	else if(HasRightClicked(pnum) && boxid != INV_ICON_INDEX) {
 		// mbox 8 is the view inventory button
 		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && Items_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
 			// try to drop item
@@ -5199,7 +5239,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// melee range
-			val = GetPlayerMeleeRange(pnum + P_TIDSTART, 100.0);
+			val = GetPlayerMeleeRange(pnum, 100.0);
 			if(val != 100.0) {
 				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:"%\c- ", l:"DND_MELEERANGE", s:"\n");
 				++k;
@@ -5708,6 +5748,9 @@ void DrawPlayerStats(int pnum, int category) {
 			
 			// regen cap
 			val = GetRegenCap(pnum);
+			i = CheckInventory("PlayerHealthCap");
+			if(val > i)
+				val = i;
 			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_MENU_REGENCAP", s:"\n");
 			++k;
 			

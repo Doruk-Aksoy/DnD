@@ -1,0 +1,41 @@
+[enu default]
+
+// Item names
+
+DND_FLASK1          = "Small Life Flask";
+DND_FLASK2          = "Medium Life Flask";
+DND_FLASK3          = "Large Life Flask";
+DND_FLASK4          = "Grand Life Flask";
+DND_FLASK5          = "Exquisite Life Flask";
+
+// Inventory images
+
+DND_FLIMG1          = "FLS1D0";
+DND_FLIMG2          = "FLS2D0";
+DND_FLIMG3          = "FLS3D0";
+DND_FLIMG4          = "FLS4D0";
+DND_FLIMG5          = "FLS5D0";
+
+// Flask mod names
+
+IATTR_IMP_FLASK0    = "Max";                            IATTR_IMP_FLASK0X = "charges, uses";    IATTR_IMP_FLASK0XX = "charges";
+IATTR_IMP_FLASK1    = "life recovered over";            IATTR_IMP_FLASK_SECONDS = "seconds";
+
+IATTR_FLASK0        = "increased total charges";
+IATTR_FLASK1        = "reduced charges per use";
+IATTR_FLASK2        = "increased amount recovered";         IATTR_FLASK2X = "increased charges used";
+IATTR_FLASK3        = "Recovery is instant";                IATTR_FLASK3X = "reduced amount recovered";
+IATTR_FLASK4        = "increased effect";                   IATTR_FLASK4X = "reduced effect duration";
+IATTR_FLASK5        = "increased effect duration";
+IATTR_FLASK6        = "Immunity to bleeding during effect";
+IATTR_FLASK7        = "Immunity to poison during effect";
+IATTR_FLASK8        = "Immunity to shock during effect";
+IATTR_FLASK9        = "Immunity to ignite during effect";
+IATTR_FLASK10       = "Immunity to chill and freeze during effect";
+IATTR_FLASK11       = "chance to gain a flask charge on critical hit";
+IATTR_FLASK12       = "chance to gain a flask charge when hit by an enemy";
+IATTR_FLASK13       = "increased charge recovery";        IATTR_FLASK13X= "reduced effect";
+IATTR_FLASK14       = "increased recovery rate";
+IATTR_FLASK15       = "Instant recovery when used on low life";
+IATTR_FLASK16       = "more recovery if used while on low life";
+IATTR_FLASK17       = "increased duration";

@@ -516,11 +516,13 @@ IATTR_T143			= "increased stamina recovered";
 IATTR_T144			= "increased melee crit chance while not on low stamina";
 IATTR_T145			= "melee splash chance while not on low stamina";
 IATTR_T146			= "faster melee attack cooldown recovery";
-IATTR_T147			= "chance for \cdCrushing Blow\c- on melee hit";
-IATTR_T148			= "chance for \cdDeep Cuts\c- on melee hit";
-IATTR_T149			= "chance for \cdOpen Wounds\c- on melee hit";
-IATTR_T150			= "chance for \cdDeadly Strike\c- on melee hit";
-IATTR_T151			= "chance for \cdReaping Cleave\c- on melee hit";
+
+IATTR_ONMELEEHIT    = "on melee hit";
+IATTR_T147			= "chance for \cdCrushing Blow\c-";
+IATTR_T148			= "chance for \cdDeep Cuts\c-";
+IATTR_T149			= "chance for \cdOpen Wounds\c-";
+IATTR_T150			= "chance for \cdDeadly Strike\c-";
+IATTR_T151			= "chance for \cdReaping Cleave\c-";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
@@ -691,7 +693,7 @@ IATTR_TX61			= "more damage to overheating weapons per overheat percent";
 IATTR_TX62			= "Take"; IATTR_TX62S = "less damage while on max overheat on a weapon";
 IATTR_TX63			= "Weapons use health instead of ammo";
 IATTR_TX64			= "Cannot pick up or buy ammo";
-IATTR_TX65			= "ammo cost multiplier";
+IATTR_TX65			= "X ammo cost multiplier";
 IATTR_TX66			= "rippers only rip a target once";
 IATTR_TX67			= "rippers can penetrate all targets";
 IATTR_TX68			= "Reflects your other medium charm";

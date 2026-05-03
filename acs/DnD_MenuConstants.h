@@ -440,8 +440,6 @@ enum {
 
 #define MAX_ACCESSORIES (DND_ACCESSORY_LICHARM + 1)
 
-#define DND_INV_ICON_BOXID MBOX_12
-
 bool IsWeaponPage(int page) {
 	return page >= SHOP_FIRSTWEAPON_PAGE && page <= SHOP_LASTWEAPON_PAGE;
 }

@@ -2,6 +2,9 @@ $pitchshiftrange 2
 
 NULLSND					NULLSND
 
+Items/FlaskDrop         FLASKDRP
+Items/FlaskUse          FLASKUSE
+
 Traps/Fireball          E_FCHUTE
 Traps/FireBallHit       E_FBALHT
 Traps/Spikes            E_SPEAR

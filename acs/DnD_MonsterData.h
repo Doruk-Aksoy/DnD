@@ -285,48 +285,73 @@ void HandleMonsterClassInnates(int mid, int id) {
 		// incursion
 		switch(id) {
 			case MONSTER_CHEX_COMMON:
+			case MONSTER_ABYSS_ZOMBIEMAN:
 				MonsterProperties[mid].class = MONSTERCLASS_ZOMBIEMAN;
 			break;
 			case MONSTER_CHEX_BIPEDAL:
+			case MONSTER_ABYSS_SHOTGUNNER:
 				MonsterProperties[mid].class = MONSTERCLASS_SHOTGUNGUY;
 			break;
 			case MONSTER_CHEX_HEAVYARMORED:
+			case MONSTER_ABYSS_CHAINGUNNER:
 				MonsterProperties[mid].class = MONSTERCLASS_CHAINGUNGUY;
 			break;
 			case MONSTER_CHEX_ARMORED:
+			case MONSTER_ABYSS_IMP:
+			case MONSTER_ABYSS_NIGHTMAREIMP:
 				MonsterProperties[mid].class = MONSTERCLASS_IMP;
 			break;
 			case MONSTER_CHEX_LARVA:
+			case MONSTER_ABYSS_DEMON:
+			case MONSTER_ABYSS_HOUND:
 				MonsterProperties[mid].class = MONSTERCLASS_DEMON;
 			break;
 			case MONSTER_CHEX_CYCLOPS:
+			case MONSTER_ABYSS_SPECTRE:
 				MonsterProperties[mid].class = MONSTERCLASS_SPECTRE;
 			break;
 			case MONSTER_CHEX_FLEMMINE:
+			case MONSTER_ABYSS_LOSTSOUL:
 				MonsterProperties[mid].class = MONSTERCLASS_LOSTSOUL;
 			break;
 			case MONSTER_CHEX_SUPERCYCLOPS:
+			case MONSTER_ABYSS_CACODEMON:
+			case MONSTER_ABYSS_NIGHTMARECACO:
 				MonsterProperties[mid].class = MONSTERCLASS_CACODEMON;
 			break;
+			case MONSTER_ABYSS_PAINELEMENTAL:
+				MonsterProperties[mid].class = MONSTERCLASS_PAINELEMENTAL;
+			break;
 			case MONSTER_CHEX_STRIDICUS:
+			case MONSTER_ABYSS_HELLKNIGHT:
 				MonsterProperties[mid].class = MONSTERCLASS_HELLKNIGHT;
 			break;
 			case MONSTER_CHEX_MAXIMUS:
+			case MONSTER_ABYSS_BARON:
 				MonsterProperties[mid].class = MONSTERCLASS_BARON;
 			break;
+			case MONSTER_CHEX_QUADWUMPUS:
+			case MONSTER_ABYSS_REVENANT:
+				MonsterProperties[mid].class = MONSTERCLASS_REVENANT;
+			break;
+			case MONSTER_ABYSS_MANCUBUS:
+				MonsterProperties[mid].class = MONSTERCLASS_FATSO;
+			break;
 			case MONSTER_CHEX_FLEMOBIUS:
+			case MONSTER_ABYSS_ARACHNOTRON:
 				MonsterProperties[mid].class = MONSTERCLASS_ARACHNOTRON;
 			break;
 			case MONSTER_CHEX_BERNABE:
+			case MONSTER_ABYSS_ARCHVILE:
 				MonsterProperties[mid].class = MONSTERCLASS_ARCHVILE;
 			break;
-			case MONSTER_CHEX_QUADWUMPUS:
-				MonsterProperties[mid].class = MONSTERCLASS_REVENANT;
-			break;
 			case MONSTER_CHEX_FLEMBOMINATION:
+			case MONSTER_ABYSS_SPIDERDEMON:
 				MonsterProperties[mid].class = MONSTERCLASS_SPIDERMASTERMIND;
 			break;
 			case MONSTER_CHEX_SNOTFOLUS:
+			case MONSTER_ABYSS_CYBERDEMON:
+			case MONSTER_ABYSS_MOTHERDEMON:
 				MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;
 			break;
 		}
@@ -382,9 +407,12 @@ int GetMonsterDropBonus(int drop_base, int level, int rarity, int flags) {
 	// first a 50% from elites as a multiplicative bonus, then the rest
 	bool isMagic = flags & DND_MONFLAG_ISMAGIC;
 	bool isElite = flags & DND_MONFLAG_ISELITE;
-	drop_base = drop_base * (100 + DND_ELITEBONUS_FROM_RARITY * isMagic + 2 * isElite * DND_ELITEBONUS_FROM_RARITY) / 100;
-	drop_base = drop_base * (100 + GetMonsterLevelDroprateBonus(level)) / 100;
-	drop_base = drop_base * (100 + GetMonsterRarityDroprateBonus(rarity)) / 100;
+	drop_base = drop_base * (100 + 
+		DND_ELITEBONUS_FROM_RARITY * isMagic + 
+		2 * isElite * DND_ELITEBONUS_FROM_RARITY + 
+		GetMonsterLevelDroprateBonus(level) + 
+		GetMonsterRarityDroprateBonus(rarity)
+	) / 100;
 	return drop_base;
 }
 
