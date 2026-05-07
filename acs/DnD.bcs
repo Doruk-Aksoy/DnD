@@ -886,6 +886,8 @@ Script "DND On Kill" KILL {
 
 	HandleDoomguyExecute(target, this);
 
+	HandleFlaskChargeGain(target - P_TIDSTART, m_id);
+
 	// remove freeze and chill timers
 	SetInventory("DnD_ChillStacks", 0);
 	SetInventory("DnD_FreezeTimer", 0);
@@ -2978,7 +2980,7 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	StatListOpened[pnum] = 0;
 	PlayerCanLoad[pnum] = 0;
 	BreakTradesBetween(pnum);
-	
+	ResetPlayerFlaskData(pnum);
 	RemoveAllBuffs(pnum);
 	
 	// if player was in middle of saving, don't accidently interfere if player leaves early
@@ -3066,6 +3068,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	GiveInventory("ParsingData", 1);
 	ResetAllSpellCooldowns(); // reset all leftover cooldowns
+	ResetPlayerFlaskData(pnum);
 	
 	// scanner runner
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
@@ -6158,6 +6161,8 @@ Script 68 (int x) NET {
 			ACS_NamedExecuteAlways("DnD Cyborg Visor Anim", 0);
 		else if(x == 667)
 			ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
+		else if(x == 668)
+			GiveFlaskCharges(PlayerNumber(), 60);
 		else if(x == 1000) {
 			IncPlayerModValue(0, INV_FRENZYCHARGE_ONSHATTER, 33);
 			IncPlayerModValue(0, INV_ENDURANCECHARGE_ONMELEE, 33);

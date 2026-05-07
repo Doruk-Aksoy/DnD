@@ -214,6 +214,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
+	pstat_text_T& pstat_text = GetPlayerStatText();
 	
 	// initialize cursor data
 	resetCursorHoverProc();
@@ -243,7 +244,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
-			PlayerStatText = ""; // reset stat block text
+			pstat_text.text = ""; // reset stat block text
 			PlayerCursorData.hoverNeedsReset = true;
 			redraw = true;
 
@@ -426,7 +427,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		}
 
 		if(CheckInventory("DnD_ResetDrawnStatText")) {
-			PlayerStatText = "";
+			pstat_text.text = "";
 			TakeInventory("DnD_ResetDrawnStatText", 1);
 		}
 

@@ -3393,7 +3393,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			if(!CheckInventory("DnD_InventoryView")) {
 				GiveInventory("DnD_InventoryView", 1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
-				if(boxid != INV_ICON_INDEX)
+				if(boxid - 1 != INV_ICON_INDEX)
 					SetInventory("DnD_SelectedCharmBox", boxid);
 			}
 			else {
@@ -3445,6 +3445,10 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						if(temp == -1) {
 							if(item_type == DND_ITEM_CHARM)
 								LocalAmbientSound("Items/CharmDrop", 127);
+							else if(item_type == DND_ITEM_FLASK) {
+								UpdatePlayerFlaskData(pnum, false);
+								LocalAmbientSound("", 127);
+							}
 							else if(item_type != DND_ITEM_SPECIALTY_CYBORG)
 								LocalAmbientSound("Items/ArmorEquip", 127);
 							else
@@ -3496,7 +3500,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		}
 		ClearPlayerInput(pnum, true);
 	}
-	else if(HasRightClicked(pnum) && boxid != INV_ICON_INDEX) {
+	else if(HasRightClicked(pnum) && boxid - 1 != INV_ICON_INDEX) {
 		// mbox 8 is the view inventory button
 		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && Items_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
 			// try to drop item
@@ -5224,24 +5228,25 @@ void DrawPlayerStats(int pnum, int category) {
 	int tid = pnum + P_TIDSTART;
 	int i;
 	int temp;
+	pstat_text_T& pstat_text = GetPlayerStatText();
 	
 	// sum of y and height should = 248
 	SetHudClipRect(192, 52, 256, 196, 256);
 	
 	// yea this is some terrible piece of code but idc, should be cleaned up with an array to lookup attribs and a switch-case for exceptions? idk
-	if(PlayerStatText == "") {
+	if(pstat_text.text == "") {
 		if(category == DRAW_STAT_OFFENSE1) {
 			// melee dmg
 			val = GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE);
 			if(val) {
-				PlayerStatText = StrParam(s:GetItemAttributeText(INV_MELEEDAMAGE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:GetItemAttributeText(INV_MELEEDAMAGE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// melee range
 			val = GetPlayerMeleeRange(pnum, 100.0);
 			if(val != 100.0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:"%\c- ", l:"DND_MELEERANGE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, false), s:"%\c- ", l:"DND_MELEERANGE", s:"\n");
 				++k;
 			}
 
@@ -5251,11 +5256,11 @@ void DrawPlayerStats(int pnum, int category) {
 			if(val) {
 				// detailed mods view
 				if(i) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CRUSHINGBLOW, 0, 0, val), s:" ", s:"\cu", l:"DND_CRUSHINGBLOW_EXPL", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_CRUSHINGBLOW, 0, 0, val), s:" ", s:"\cu", l:"DND_CRUSHINGBLOW_EXPL", s:"\n");
 					k += 3;
 				}
 				else {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CRUSHINGBLOW, 0, 0, val), s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_CRUSHINGBLOW, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
@@ -5263,11 +5268,11 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_DEEPCUTS);
 			if(val) {
 				if(i) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEEPCUTS, 0, 0, val), s:" ", s:"\cu", l:"DND_DEEPCUTS_EXPL", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DEEPCUTS, 0, 0, val), s:" ", s:"\cu", l:"DND_DEEPCUTS_EXPL", s:"\n");
 					k += 3;
 				}
 				else {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEEPCUTS, 0, 0, val), s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DEEPCUTS, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
@@ -5275,11 +5280,11 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_OPENWOUNDS);
 			if(val) {
 				if(i) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OPENWOUNDS, 0, 0, val), s:" ", s:"\cu", l:"DND_OPENWOUNDS_EXPL", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OPENWOUNDS, 0, 0, val), s:" ", s:"\cu", l:"DND_OPENWOUNDS_EXPL", s:"\n");
 					k += 3;
 				}
 				else {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OPENWOUNDS, 0, 0, val), s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OPENWOUNDS, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
@@ -5287,11 +5292,11 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_DEADLYSTRIKE);
 			if(val) {
 				if(i) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEADLYSTRIKE, 0, 0, val), s:" ", s:"\cu", l:"DND_DEADLYSTRIKE_EXPL", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DEADLYSTRIKE, 0, 0, val), s:" ", s:"\cu", l:"DND_DEADLYSTRIKE_EXPL", s:"\n");
 					k += 3;
 				}
 				else {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DEADLYSTRIKE, 0, 0, val), s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DEADLYSTRIKE, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
@@ -5299,11 +5304,11 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetPlayerAttributeValue(pnum, INV_REAPINGCLEAVE);
 			if(val) {
 				if(i) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REAPINGCLEAVE, 0, 0, val), s:" ", s:"\cu", l:"DND_REAPINGCLEAVE_EXPL", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REAPINGCLEAVE, 0, 0, val), s:" ", s:"\cu", l:"DND_REAPINGCLEAVE_EXPL", s:"\n");
 					k += 3;
 				}
 				else {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REAPINGCLEAVE, 0, 0, val), s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REAPINGCLEAVE, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
@@ -5314,20 +5319,20 @@ void DrawPlayerStats(int pnum, int category) {
 				val *= -1;
 			
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_ACCURACY_INCREASE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ACCURACY_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// crit block begins
 			val = GetCritChance_Display(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
 				++k;
 			}
 			
 			val = GetIndependentCritModifier(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_GLOBALCRITMULT", s:"\n");
 				++k;
 			}
 			// crit block ends
@@ -5336,40 +5341,40 @@ void DrawPlayerStats(int pnum, int category) {
 			// exp repeat chance
 			val = GetExplosiveRepeatChance(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_CHANCETOEXPREPEAT", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_CHANCETOEXPREPEAT", s:"\n");
 				++k;
 			}
 			
 			// exp rad
 			val = GetPlayerAoEIncrease(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T31", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T31", s:"\n");
 				++k;
 			}
 			
 			// more damage
 			val = GetPlayerMoreDamageDisplay(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DAMAGEPERCENT_MORE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DAMAGEPERCENT_MORE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// pen block begins
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_BULLET);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_PHYSICAL, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PEN_PHYSICAL, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_ENERGY);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_ENERGY, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PEN_ENERGY, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_OCCULT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PEN_OCCULT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PEN_OCCULT, 0, 0, val), s:"\n");
 				++k;
 			}
 			
@@ -5378,33 +5383,33 @@ void DrawPlayerStats(int pnum, int category) {
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_FIRE);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_FIRE)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE_PEN", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE_PEN", s:" \cf(H)\c-\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_FIRE_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_ICE);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_ICE)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE_PEN", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE_PEN", s:" \cf(H)\c-\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_ICE_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_LIGHTNING);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_LIGHTNING)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT_PEN", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT_PEN", s:" \cf(H)\c-\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_LGHT_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_POISON);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_POISON)
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS_PEN", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS_PEN", s:"\n");
 				else
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS_PEN", s:" \cf(H)\c-\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_RES_POIS_PEN", s:" \cf(H)\c-\n");
 				++k;
 			}
 			// pen block ends
@@ -5413,13 +5418,13 @@ void DrawPlayerStats(int pnum, int category) {
 			for(i = DND_DAMAGECATEGORY_BEGIN; i < DND_DAMAGECATEGORY_END; ++i) {
 				val = GetDamageTypeBonus(pnum, i, 0);
 				if(val) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGEBONUS", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGEBONUS", s:"\n");
 					++k;
 				}
 				
 				val = MapDamageCategoryToFlatBonus(pnum, i, 0);
 				if(val) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"\c- to ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGE", s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"\c- to ", l:GetTalentTag(i), s:" ", l:"DND_DAMAGE", s:"\n");
 					++k;
 				}
 			}
@@ -5428,14 +5433,14 @@ void DrawPlayerStats(int pnum, int category) {
 			// blocking mons take % more
 			val = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_BLOCKERS_MOREDMG, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_BLOCKERS_MOREDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// pellet count -- 1.0 is base
 			val = GetPelletIncrease(pnum) - 1.0;
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T30", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T30", s:"\n");
 				++k;
 			}
 		}
@@ -5443,269 +5448,269 @@ void DrawPlayerStats(int pnum, int category) {
 			// wep type specific bonuses flat and %
 			val = GetPlayerAttributeValue(pnum, INV_HANDGUN_PERCENT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_HANDGUN_PERCENT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_HANDGUN_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_HANDGUN);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_HANDGUN, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_HANDGUN, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_SHOTGUN_PERCENT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOTGUN_PERCENT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_SHOTGUN_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_SHOTGUN);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_SHOTGUN, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_SHOTGUN, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_AUTOMATIC_PERCENT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AUTOMATIC_PERCENT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AUTOMATIC_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_AUTOMATIC);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_AUTOMATIC, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_AUTOMATIC, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_ARTILLERY_PERCENT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_ARTILLERY_PERCENT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ARTILLERY_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_ARTILLERY);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_ARTILLERY, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_ARTILLERY, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_PRECISION_PERCENT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PRECISION_PERCENT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PRECISION_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_PRECISION);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_PRECISION, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_PRECISION, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_TECH_PERCENT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_TECH_PERCENT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_TECH_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_TECH);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_TECH, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_TECH, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_MAGIC_PERCENT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_MAGIC_PERCENT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_MAGIC_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_MAGIC);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_MAGIC, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_MAGIC, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// generic things like dot multi, dot %
 			val = GetPlayerDOTMulti(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_DOTMULTI, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DOTMULTI, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_INCREASEDDOT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INCREASEDDOT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INCREASEDDOT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// bleed things
 			val = GetPlayerAttributeValue(pnum, INV_BLEED_DURATION);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetPlayerBleedTimeDisplay(pnum), s:"\c- ", l:"DND_BLEED_TIME", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetPlayerBleedTimeDisplay(pnum), s:"\c- ", l:"DND_BLEED_TIME", s:"\n");
 			++k;
 
 			val = GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
-			PlayerStatText = StrParam(s:PlayerStatText, s:GetBleedChanceDisplay(pnum), s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:GetBleedChanceDisplay(pnum), s:"\n");
 			++k;
 
 			val = GetPlayerAttributeValue(pnum, INV_PERCENTDMG_BLEED);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_PERCENTDMG_BLEED, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PERCENTDMG_BLEED, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// fire things
 			val = GetFireDOTDamage(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEDAMAGE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEDAMAGE", s:"\n");
 				++k;
 			}
 			
 			// +flat fire damage
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_FIREDMG, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_FIREDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetIgniteChance(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"%\c- ", l:"DND_IGNITECHANCE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"%\c- ", l:"DND_IGNITECHANCE", s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_IGNITEDURATION);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IGNITEDURATION, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IGNITEDURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetIgniteProlifChance(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"%\c- ", l:"DND_IGNITEPROLIFCHANCE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"%\c- ", l:"DND_IGNITEPROLIFCHANCE", s:"\n");
 				++k;
 			}
 			
 			val = GetIgniteProlifRange(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", f:val, s:"\c- ", l:"DND_IGNITEPROLIFRANGE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", f:val, s:"\c- ", l:"DND_IGNITEPROLIFRANGE", s:"\n");
 				++k;
 			}
 			
 			val = GetIgniteProlifCount(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCOUNT", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_IGNITEPROLIFCOUNT", s:"\n");
 				++k;
 			}
 			
 			// ice things
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_ICEDMG, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_ICEDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetFreezeChance(pnum, 1);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s: "%\c- ", l:"DND_FREEZECHANCE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s: "%\c- ", l:"DND_FREEZECHANCE", s:"\n");
 				++k;
 			}
 			
 			val = GetChillEffect(pnum, 1);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_CHILLSLOWS", s: " \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\n");
+				pstat_text.text = StrParam(s:pstat_text.text, l:"DND_CHILLSLOWS", s: " \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\n");
 				++k;
 			}
 			
 			val = GetChillThreshold(pnum, 1);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s: "%\c- ", l:"DND_CHILLTHRESHOLD", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s: "%\c- ", l:"DND_CHILLTHRESHOLD", s:"\n");
 				++k;
 			}
 			
 			// lightning things			
 			val = GetPlayerAttributeValue(pnum, INV_OVERLOADCHANCE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOADCHANCE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OVERLOADCHANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_ZAPCOUNT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOAD_ZAPCOUNT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OVERLOAD_ZAPCOUNT, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_OVERLOAD_DMGINCREASE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OVERLOAD_DMGINCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// poison things
 			val = GetPlayerPoisonStacks(pnum);
 			if(val != DND_BASE_POISON_STACKS) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INC_MAXPOISONSTACK, 0, 0, val - DND_BASE_POISON_STACKS), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_MAXPOISONSTACK, 0, 0, val - DND_BASE_POISON_STACKS), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_FLAT_POISONDMG, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_POISONDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPoisonTicrate(pnum);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_POISONTICRATE", s:"\c[Q9]", d:(FixedDiv(val, DND_POISON_CHECKRATE) * DND_POISON_TICCHECK) >> 16, s:"\c- ", l:"DND_TICS", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, l:"DND_POISONTICRATE", s:"\c[Q9]", d:(FixedDiv(val, DND_POISON_CHECKRATE) * DND_POISON_TICCHECK) >> 16, s:"\c- ", l:"DND_TICS", s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_POISON_DURATION);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_DURATION, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_POISON_DURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_POISON_TICDMG);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_POISON_TICDMG, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_POISON_TICDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// ailment ignore chance
 			val = GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_CHANCE_AILMENTIGNORE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_CHANCE_AILMENTIGNORE, 0, 0, val), s:"\n");
 				++k;
 			}
 		}
 		else if(category == DRAW_STAT_DEFENSE) {
 			// hp cap
 			val = GetSpawnHealth();
-			PlayerStatText = StrParam(s:"\c[Q9]", d:val, s: " \c-", l:"DND_HEALTHCAPIS", s:"\n");
+			pstat_text.text = StrParam(s:"\c[Q9]", d:val, s: " \c-", l:"DND_HEALTHCAPIS", s:"\n");
 			++k;
 
 			// reduced damage taken
 			// inc damage taken
 			val = GetPlayerLessDamageDisplay(pnum);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[D4]", s:GetFixedRepresentation(val, true), s:"% \c-", l:"DND_MOREDMGTAKEN", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[D4]", s:GetFixedRepresentation(val, true), s:"% \c-", l:"DND_MOREDMGTAKEN", s:"\n");
 				++k;
 			}
 			else if(val < 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"% \c-", l:"DND_LESSDMGTAKEN", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"% \c-", l:"DND_LESSDMGTAKEN", s:"\n");
 				++k;
 			}
 			
 			// armor rating
 			val = GetPlayerArmor(pnum);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ARMORCAPIS", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ARMORCAPIS", s:"\n");
 				++k;
 
 				// estimated armor protection
 				val = GetPlayerEstimatedArmorProtect(pnum, val);
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"% \c-", l:"DND_ESTREDUCTION", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"% \c-", l:"DND_ESTREDUCTION", s:"\n");
 				++k;
 			}
 
@@ -5714,35 +5719,35 @@ void DrawPlayerStats(int pnum, int category) {
 				// clamp it on display, the math stuff behind the scenes doesn't need an extra if statement
 				if(val > 100.0)
 					val = 100.0;
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:"% \c-", l:"IATTR_T102", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:"% \c-", l:"IATTR_T102", s:"\n");
 				++k;
 
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:"% \c-", l:"IATTR_T103", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(GetMitigationEffect(pnum), false), s:"% \c-", l:"IATTR_T103", s:"\n");
 				++k;
 			}
 			else if((val = GetDodgeChance(pnum))) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:"% \c-", l:"DND_MENU_DODGECHANCE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(val, false), s:"% \c-", l:"DND_MENU_DODGECHANCE", s:"\n");
 				++k;
 			}
 
 			val = GetPlayerEnergyShieldCap(pnum);
 			i = val;
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ESHIELDIS", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ESHIELDIS", s:"\n");
 				++k;
 
 				val = GetPlayerEnergyShieldRechargeDelay(pnum);
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", s:GetFixedRepresentation((val << 16) / TICRATE, false), s:"\c-", l:"DND_ESHIELDDELAY", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation((val << 16) / TICRATE, false), s:"\c-", l:"DND_ESHIELDDELAY", s:"\n");
 				++k;
 
 				val = GetPlayerEnergyShieldRecoveryRate(pnum, i);
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ESHIELDRECOVERY", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:" \c-", l:"DND_ESHIELDRECOVERY", s:"\n");
 				++k;
 
 				val = GetEShieldMagicAbsorbValue(pnum);
 				if(val > 100)
 					val = 100;
-				PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"% \c-", l:"DND_ESHIELDABSORB", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"% \c-", l:"DND_ESHIELDABSORB", s:"\n");
 				++k;
 			}
 			
@@ -5751,18 +5756,18 @@ void DrawPlayerStats(int pnum, int category) {
 			i = CheckInventory("PlayerHealthCap");
 			if(val > i)
 				val = i;
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:" \c-", l:"DND_MENU_REGENCAP", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:" \c-", l:"DND_MENU_REGENCAP", s:"\n");
 			++k;
 			
 			// knockback
 			if(CheckUniquePropertyOnPlayer(pnum, PUP_KNOCKBACKIMMUNE)) {
-				PlayerStatText = StrParam(s:PlayerStatText, l:"DND_KNOCKBACKIMMUNE", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, l:"DND_KNOCKBACKIMMUNE", s:"\n");
 				++k;
 			}
 			else {
 				val = GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
 				if(val) {
-					PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_KNOCKBACK_RESIST, 0, 0, val), s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_KNOCKBACK_RESIST, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
@@ -5770,7 +5775,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// dmg reduction block begins -- shown with their respective caps applied
 			val = 1.0 - GetPlayerSelfDamageReduction_Display(pnum);
 			if(val != 0.0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_SELFEXPDMG", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_SELFEXPDMG", s:"\n");
 				++k;
 			}
 			
@@ -5781,85 +5786,85 @@ void DrawPlayerStats(int pnum, int category) {
 				temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / val);
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_PHYS", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ENERGY, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ENRG", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ENRG", s:"\n");
 			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_MAGIC, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_MAGC", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_MAGC", s:"\n");
 			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ELEM, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ELE", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ELE", s:"\n");
 			++k;
 			
 			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_REFL, temp);
-			PlayerStatText = StrParam(s:PlayerStatText, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_REFL", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_REFL", s:"\n");
 			++k;
 			// dmg reduction block ends
 
 			// reduced curse things
 			val = GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCEDCURSEDURATION, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REDUCEDCURSEDURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEEFFECT);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCEDCURSEEFFECT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REDUCEDCURSEEFFECT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// ailment avoidance
 			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_IGNITE);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_IGNITE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_IGNITE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_CHILLFREEZE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_CHILLFREEZE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_POISON);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_POISON, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_POISON, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_OVERLOAD);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_OVERLOAD, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_OVERLOAD, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerNonElementalAvoidance(pnum, INV_AVOID_BLEED);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AVOID_BLEED, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_BLEED, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerNonElementalAvoidance(pnum, INV_IMP_LESSFIRETAKEN);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IMP_LESSFIRETAKEN, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_LESSFIRETAKEN, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerNonElementalAvoidance(pnum, INV_IMP_LESSPOISONTAKEN);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IMP_LESSPOISONTAKEN, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_LESSPOISONTAKEN, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerNonElementalAvoidance(pnum, INV_IMP_LESSLIGHTNINGTAKEN);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_IMP_LESSLIGHTNINGTAKEN, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_LESSLIGHTNINGTAKEN, 0, 0, val), s:"\n");
 				++k;
 			}
 		}
@@ -5869,81 +5874,81 @@ void DrawPlayerStats(int pnum, int category) {
 			val = (GetDropChance(pnum) - 1.0);
 			if(val != 0.0) {
 				if(val > 0)
-					PlayerStatText = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
+					pstat_text.text = StrParam(s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
 				else
-					PlayerStatText = StrParam(s:"+ \cg", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
+					pstat_text.text = StrParam(s:"+ \cg", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_DROPCHANCE", s:"\n");
 				++k;
 			}
 
 			val = (GetPlayerItemRarity(pnum) - 1.0);
 			if(val > 0.0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_RARITY", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_RARITY", s:"\n");
 				++k;
 			}
 
 			// stamina things
 			val = GetAmmoCapacity("DnD_Stamina");
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINACAP", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINACAP", s:"\n");
 			++k;
 
 			val = GetPlayerStaminaGain(pnum);
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINAGAINEDPER", s:" \c[Q9]", d:GetPlayerStaminaRecoveryRate(pnum), s:"\c- ", l:"DND_MENU_TICS", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:val, s:"\c- ", l:"DND_MENU_STAMINAGAINEDPER", s:" \c[Q9]", d:GetPlayerStaminaRecoveryRate(pnum), s:"\c- ", l:"DND_MENU_TICS", s:"\n");
 			++k;
 
 			// ripper block
 			val = GetPlayerAttributeValue(pnum, INV_RIPCOUNT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_RIPCOUNT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_RIPCOUNT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_RIPDAMAGE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_RIPDAMAGE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_RIPDAMAGE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// lock-on block
 			val = GetPlayerAttributeValue(pnum, INV_LOCKONAREA);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LOCKONAREA, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LOCKONAREA, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_LOCKONRANGE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LOCKONRANGE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LOCKONRANGE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// lifesteal block begins
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_CAP, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL_CAP, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_RATE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL_RATE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_LIFESTEAL_RECOVERY, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL_RECOVERY, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T90", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T90", s:"\n");
 				++k;
 			}
 			// lifesteal block ends
@@ -5951,74 +5956,74 @@ void DrawPlayerStats(int pnum, int category) {
 			// killing spree
 			val = GetPlayerAttributeValue(pnum, INV_INCKILLINGSPREE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_INCKILLINGSPREE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INCKILLINGSPREE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// ammo gain chance
 			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_CHANCE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AMMOGAIN_CHANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// magsize
 			val = GetPlayerAttributeValue(pnum, INV_MAGAZINE_INCREASE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T10", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T10", s:"\n");
 				++k;
 			}
 			
 			// ammo cap inc
 			val = GetAmmoCapIncrease(pnum) - 100;
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_AMMOCAPS", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_MENU_AMMOCAPS", s:"\n");
 				++k;
 			}
 			
 			// ammo pickup inc
 			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_AMMOGAIN_INCREASE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AMMOGAIN_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// reduced overheat
 			val = GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_REDUCED_OVERHEAT, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REDUCED_OVERHEAT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// exp bonus
 			val = GetPlayerWisdomBonus(pnum, tid);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_EXPERIENCEGAIN", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_EXPERIENCEGAIN", s:"\n");
 				++k;
 			}
 			
 			// credit bonus
 			val = GetPlayerGreedBonus(pnum, tid);
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_CREDITGAIN", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"DND_CREDITGAIN", s:"\n");
 				++k;
 			}
 		
 			// movespeed
 			val = GetBonusPlayerSpeed(pnum);
 			if(val > 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T9", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T9", s:"\n");
 				++k;
 			}
 			else if(val < 0) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:"- \c[Q2]", s:GetFixedRepresentation(-val, true), s:"%\c- ", l:"IATTR_T9", s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:"- \c[Q2]", s:GetFixedRepresentation(-val, true), s:"%\c- ", l:"IATTR_T9", s:"\n");
 				++k;
 			}
 			
 			// shop stock
 			val = (GetAmmoCapIncrease(pnum) - 100) * (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100;
 			if(val) {
-				PlayerStatText = StrParam(s:PlayerStatText, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, 0, 0, val), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 		}
@@ -6027,20 +6032,20 @@ void DrawPlayerStats(int pnum, int category) {
 
 			// charges
 			val = 0;
-			PlayerStatText = StrParam(s:"\c[Q9]", d:GetPlayerFrenzyCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxFrenzyCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_0", s:"\n");
+			pstat_text.text = StrParam(s:"\c[Q9]", d:GetPlayerFrenzyCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxFrenzyCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_0", s:"\n");
 			++k;
 
 			val = 0;
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:GetPlayerEnduranceCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxEnduranceCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_1", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:GetPlayerEnduranceCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxEnduranceCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_1", s:"\n");
 			++k;
 
 			val = 0;
-			PlayerStatText = StrParam(s:PlayerStatText, s:"\c[Q9]", d:GetPlayerPowerCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxPowerCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_2", s:"\n");
+			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", d:GetPlayerPowerCharges(tid, pnum), s: " \c-/ \c[Q9]", d:GetPlayerMaxPowerCharges(pnum), s:"\c- ", l:"LCHARGE_NOPRE_2", s:"\n");
 			++k;
 		}
 	}
 
-	HudMessage(s:PlayerStatText; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 6.0 * ScrollPos.x, 0.0, 0.0);
+	HudMessage(s:pstat_text.text; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 6.0 * ScrollPos.x, 0.0, 0.0);
 	// --------------------------------------
 	
 	SetHudClipRect(0, 0, 0, 0, 0);

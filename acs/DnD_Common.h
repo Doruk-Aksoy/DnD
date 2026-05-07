@@ -6,6 +6,7 @@
 #define SIZEOF_INT 4
 
 #define ISDEBUGBUILD
+//#define WANTCURSORPOS
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;

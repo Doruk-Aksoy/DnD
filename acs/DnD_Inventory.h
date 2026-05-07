@@ -6,7 +6,7 @@
 #define MAX_LARGE_CHARMS_USED 1
 #define MAX_ARMORS_USED 3 // BOOT BODY HELM
 #define MAX_POWERCORES_USED 1
-#define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED + MAX_POWERCORES_USED)
+#define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED + MAX_POWERCORES_USED + MAX_FLASK_SLOTS)
 
 #include "DnD_InvInfo.h"
 #include "DnD_UniqueItems.h"
@@ -994,10 +994,6 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 
 bool IsWearingBodyArmor(int pnum) {
 	return (Items_Used[pnum][BODY_ARMOR_INDEX].item_type & 0xFFFF) == DND_ITEM_BODYARMOR;
-}
-
-bool HasFlaskEquipped(int pnum, int flask_id) {
-	return (Items_Used[pnum][FLASK1_INDEX + flask_id].item_type & 0xFFFF) == DND_ITEM_FLASK;
 }
 
 bool IsPlayerInventoryItemUnique(int pnum, int pos) {

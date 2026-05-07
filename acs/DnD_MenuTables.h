@@ -7,7 +7,14 @@
 #include "DnD_ClassMenu.h"
 #include "DnD_Research.h"
 
-global str 23: PlayerStatText;
+typedef struct {
+	str text;
+} pstat_text_T;
+
+pstat_text_T module& GetPlayerStatText() {
+	static pstat_text_T pst;
+	return pst;
+}
 
 enum {
 	PRICE_INCREASE_STOCK_LOW = 1
