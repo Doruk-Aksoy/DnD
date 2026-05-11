@@ -579,7 +579,7 @@ void RollOrbInfoOnMerchant(int item_pos, int ilvl) {
 void RollTokenInfoOnMerchant(int item_pos, int ilvl) {
     int i = 0, w = random(1, MAX_TOKEN_WEIGHT);
     
-    for(; i < MAX_TOKENS && TokenWeights[i] < w; ++i);
+    for(; i < MAX_TOKENS && ItemDropWeights[DND_DROPPEDITEM_TOKEN][i] < w; ++i);
 
 	// roll random attributes for the charm
 	TradeViewList[MAXPLAYERS][item_pos].item_level = 1;

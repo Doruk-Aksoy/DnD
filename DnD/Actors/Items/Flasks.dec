@@ -6,6 +6,57 @@ enum {
     DND_FLASK_LIFE_EXQUISITE
 };
 
+Actor Flask1_Type : Ammo {
+    inventory.amount 1
+	inventory.maxamount 100
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+Actor Flask2_Type : Ammo {
+    inventory.amount 1
+	inventory.maxamount 100
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask1_CurrentCharges : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask2_CurrentCharges : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask1_TicCounter : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask2_TicCounter : Ammo {
+    inventory.maxamount 100
+    inventory.amount 1
+    ammo.backpackamount 0
+    +IGNORESKILL
+}
+
+Actor Flask1_CritCooldown : PowerProtection {
+    damagefactor "normal", 1.0
+    powerup.duration 7 // 0.2 sec cd
+}
+
+Actor Flask2_CritCooldown : PowerProtection {
+    damagefactor "normal", 1.0
+    powerup.duration 7 // 0.2 sec cd
+}
+
 Actor FlaskSoundPlayer : CustomInventory {
 	States {
 		Pickup:

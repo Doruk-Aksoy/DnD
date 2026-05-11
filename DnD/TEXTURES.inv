@@ -205,3 +205,39 @@ Graphic "HLMICO8", 17, 26
 	YScale 0.750
 	Patch "HLMICO8", 2, 2
 }
+
+Graphic "FLS1D0", 14, 25
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "FLS1D0", 0, 0
+}
+
+Graphic "FLS2D0", 15, 22
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "FLS2D0", 0, 0
+}
+
+Graphic "FLS3D0", 15, 19
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "FLS3D0", 0, 0
+}
+
+Graphic "FLS4D0", 14, 25
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "FLS4D0", 0, 0
+}
+
+
+Graphic "FLS5D0", 15, 25
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "FLS5D0", 0, 0
+}

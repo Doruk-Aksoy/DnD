@@ -182,7 +182,7 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 		while(IsActorAlive(victim)) {
 			Delay(const:TICRATE);
 			
-			if(!player_dot_damages.dot_list[pos].duration || CheckActorInventory(victim, "RemoveAilments")) {
+			if(!player_dot_damages.dot_list[pos].duration || CheckActorInventory(victim, "RemoveAilments") || CheckActorInventory(victim, "RemovePoison")) {
 				ClearDoTInstance(pnum, pos);
 				break;
 			}
@@ -198,7 +198,7 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 		while(IsActorAlive(victim)) {
 			Delay(const:26);
 			
-			if(!player_dot_damages.dot_list[pos].duration || CheckActorInventory(victim, "RemoveAilments") || CheckActorInventory(victim, "DnD_DousePlayer")) {
+			if(!player_dot_damages.dot_list[pos].duration || CheckActorInventory(victim, "RemoveAilments") || CheckActorInventory(victim, "RemoveIgnite")) {
 				ClearDoTInstance(pnum, pos);
 				break;
 			}
@@ -223,7 +223,8 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 			(
 				!player_dot_damages.dot_list[pos].duration || 
 				CheckActorInventory(victim, "RemoveAilments") ||
-				(HasActorClassPerk_Fast(victim, "Punisher", 5) && (CheckActorInventory(victim, "DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) // bleed remove if punisher on spree with last perk
+				(HasActorClassPerk_Fast(victim, "Punisher", 5) && (CheckActorInventory(victim, "DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) || // bleed remove if punisher on spree with last perk
+				CheckActorInventory(victim, "RemoveBleed")
 			)
 			{
 				ClearDoTInstance(pnum, pos);

@@ -317,6 +317,7 @@ enum {
 	// tokens
 	IIMG_TOKEN_ARMORER = 2800,
 	IIMG_TOKEN_GUNSMITH,
+	IIMG_TOKEN_ARTISAN,
 
 	// flasks
 	IIMG_FLASK_LIFE_SMALL = 3000,
@@ -326,13 +327,6 @@ enum {
 	IIMG_FLASK_LIFE_EXQUISITE,
 
 	MAX_ITEM_IMAGES
-};
-
-enum {
-	DND_TOKEN_ARMORER,
-	DND_TOKEN_GUNSMITH,
-
-	DND_MAX_TOKEN_KINDS
 };
 
 // first bunch are orbs, the next are tokens
@@ -394,7 +388,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_ORB_END IIMG_ORB_31
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_6
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
-#define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_GUNSMITH
+#define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_ARTISAN
 
 // uniques
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
@@ -2435,6 +2429,7 @@ bool IsCraftableItem(int itype) {
 		case DND_ITEM_HELM:
 		case DND_ITEM_WEAPON:
 		case DND_ITEM_BODYARMOR:
+		case DND_ITEM_FLASK:
 		case DND_ITEM_SPECIALTY_DOOMGUY:
 		case DND_ITEM_SPECIALTY_MARINE:
 		case DND_ITEM_SPECIALTY_HOBO:
@@ -3652,13 +3647,15 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 		} while(IsItemBaseException(item_type, item_subtype, val) || IsImplicitException(implicit_id, val));
 	}
 	else if(item_type == DND_ITEM_FLASK) {
-		// flask code -- for now rolls anything flasks can no regards to life or utility
-		// unrestricted picking for now
-		val = random(FIRST_FLASK_ATTRIBUTE + bias, LAST_FLASK_ATTRIBUTE + bias) - bias;
-		// this is a last resort random here, in case there was an overflow... shouldn't, but might
-		// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
-		if(val < 0)
-			val = random(FIRST_FLASK_ATTRIBUTE, LAST_FLASK_ATTRIBUTE);
+		do {
+			// flask code -- for now rolls anything flasks can no regards to life or utility
+			// unrestricted picking for now
+			val = random(FIRST_FLASK_ATTRIBUTE + bias, LAST_FLASK_ATTRIBUTE + bias) - bias;
+			// this is a last resort random here, in case there was an overflow... shouldn't, but might
+			// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
+			if(val < 0)
+				val = random(FIRST_FLASK_ATTRIBUTE, LAST_FLASK_ATTRIBUTE);
+		} while(IsAttributeFlaskException(item_subtype, val));
 	}
 	return val;
 }

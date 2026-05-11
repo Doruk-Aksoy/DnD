@@ -3447,7 +3447,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 								LocalAmbientSound("Items/CharmDrop", 127);
 							else if(item_type == DND_ITEM_FLASK) {
 								UpdatePlayerFlaskData(pnum, false);
-								LocalAmbientSound("", 127);
+								LocalAmbientSound("Items/FlaskDrop", 127);
 							}
 							else if(item_type != DND_ITEM_SPECIALTY_CYBORG)
 								LocalAmbientSound("Items/ArmorEquip", 127);
@@ -3506,11 +3506,17 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			// try to drop item
 			item_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			if(item_sel != -1) {
+				// if flask, update the data for the player
+				temp = Items_Used[pnum][boxid - 1].item_type == DND_ITEM_FLASK;
+
 				PlayItemDropSound(Items_Used[pnum][boxid - 1].item_type, Items_Used[pnum][boxid - 1].item_subtype, false);
 				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
 				MoveItemTrade(pnum, boxid - 1, item_sel, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
 				ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
+
+				if(temp)
+					UpdatePlayerFlaskData(pnum);
 			}
 			else
 				ShowPopup(POPUP_NOSPOTFORITEM, false, 0);

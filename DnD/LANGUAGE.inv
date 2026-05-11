@@ -47,6 +47,7 @@ DND_ORBNM6			=	"OrbofReverance";
 
 DND_TOKENN1			=	"ArmorerToken";
 DND_TOKENN2			=	"GunsmithToken";
+DND_TOKENN3			=	"ArtisanToken";
 ///////////////////////////////////////////////////////
 
 // Inventory images
@@ -243,6 +244,7 @@ DND_KIMG3			=	"SBKGC0";
 // tokens
 DND_TIMG1			=	"REPTOKN";
 DND_TIMG2			=	"SCRTOKN";
+DND_DTIMG3          =   "ARTTOKN";
 
 ///////////////////////////////////////////////////////
 DND_ARTI1			=	"Field Kit";
@@ -290,6 +292,8 @@ DND_TOKEN1			=	"Armorer's Token";
 DND_TOKENTEXT1		=	"Allows to increase the quality of an armor by \cd1%\c-, capped at \cg25%\c-.";
 DND_TOKEN2			=	"Gunsmith's Token";
 DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and removing its quality.";
+DND_TOKEN3			=	"Artisan's Token";
+DND_TOKENTEXT3		=	"Allows to increase the quality of a flask by \cd1%\c-, capped at \cg25%\c-.";
 
 // unique item names -- charms
 DND_UNIQUE1				=	"Elemental Bulwark";

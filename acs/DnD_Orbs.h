@@ -92,7 +92,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 #ifdef ISDEBUGBUILD
 			res = true;
 #else
-			res = IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra);
+			res = IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK;
 #endif
 		break;
 		case DND_ORB_REPENT:
@@ -112,7 +112,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = HasOrbsBesidesCalamity();
 		break;
 		case DND_ORB_SIN:
-			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK) {
 				// if there's a fractured mod or it's a unique, don't let
 				temp = PlayerInventoryList[pnum][extra].item_type;
 
@@ -150,7 +150,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_VOLTAIC:
 		case DND_ORB_VILE:
 		case DND_ORB_EMBERS:
-			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK) {
 				// don't let this be used on a unique
 				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
 			}
@@ -194,12 +194,12 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		break;
 		case DND_ORB_EVOKER:
 			// won't work on uniques
-			res = PlayerInventoryList[pnum][extra].attrib_count > 0 && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
+			res = PlayerInventoryList[pnum][extra].attrib_count > 0 && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && extratype != DND_ITEM_FLASK;
 		break;
 
 		case DND_ORB_HOLLOW:
 			// this one is basically an orb of elevation with a +1 additional attribute allowed
-			res =  !IsInventoryCorrupted(pnum, extra) && CanAddModToItem(pnum, extratype, extra, 1);
+			res = !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK && CanAddModToItem(pnum, extratype, extra, 1);
 		break;
 		case DND_ORB_PHANTASMAL:
 			// if the weapon can't hit ghosts on its own or we didnt give it the ghost hit already

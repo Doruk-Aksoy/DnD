@@ -199,7 +199,7 @@ void SpawnToken(int pnum, int stack = 0, int unused2 = 0, bool noRandomVelXY = f
 		// only current token is repair token, so just assume that instead
 		int i = 0, w = random(1, MAX_TOKEN_WEIGHT);
 		
-		for(; i < MAX_TOKENS && TokenWeights[i] < w; ++i);
+		for(; i < MAX_TOKENS && ItemDropWeights[DND_DROPPEDITEM_TOKEN][i] < w; ++i);
 
 		if(!stack)
 			stack = 1;
@@ -216,7 +216,7 @@ void SpawnFlask(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY 
 	if(c != -1) {
 		int ilvl = RollItemLevel();
         int type = InitializeFlask(c, ilvl, pnum, pre_id);
-		RollFlaskInfo(c, ilvl, pnum, DND_ITEM_FLASK, type, MAX_FLASK_ATTRIB_DEFAULT);
+		RollFlaskInfo(c, ilvl, pnum, type, MAX_FLASK_ATTRIB_DEFAULT);
         // depending on armor type rolled, spawn its appropriate actor
         SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
 
@@ -230,12 +230,12 @@ void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepea
 	if(c != -1) {
 		int ilvl = RollItemLevel();
 		int type = InitializeFlask(c, ilvl, pnum, -1);
-		RollFlaskInfoWithMods(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
+		RollFlaskInfoWithMods(c, ilvl, pnum, type, MAX_FLASK_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
 		SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, false);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
-		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_FLASK);
 	}
 }
 
@@ -696,24 +696,24 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_FLASK:
 			switch(subtype) {
 				case DND_FLASK_LIFE_SMALL:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 50, 3, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 20, 5, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 50, 3 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 25, 7, 0, 0);
 				break;
 				case DND_FLASK_LIFE_MEDIUM:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 125, 4, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 28, 6, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 125, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 35, 8, 0, 0);
 				break;
 				case DND_FLASK_LIFE_LARGE:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 300, 5, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 32, 8, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 300, 5 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 10, 0, 0);
 				break;
 				case DND_FLASK_LIFE_GRAND:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 1000, 5, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 36, 10, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 1000, 5 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 45, 12, 0, 0);
 				break;
 				case DND_FLASK_LIFE_EXQUISITE:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 2000, 6, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 12, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 2000, 6 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 50, 15, 0, 0);
 				break;
 			}
 		break;

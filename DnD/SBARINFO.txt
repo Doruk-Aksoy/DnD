@@ -6,6 +6,77 @@ resolution 640, 400;
 statusbar normal, fullscreenoffsets {
   drawimage "H_BGLEFT", 5, -85; // Left background
   //drawmugshot "STF", 5, animatedgodmode, xdeathface, 6, -78; // Mugshot
+
+	InInventory Flask1_Type, 1 {
+		InInventory Flask1_CurrentCharges, 1 {
+			drawnumber 1, NCNormalFont, NCWhiteC, 1, alignment(right), 278, -78;
+		}
+		else {
+			drawnumber 1, NCNormalFont, NCRed, 1, alignment(right), 278, -78;
+		}
+
+		drawimage "INVCURS", 238, -85;
+
+		InInventory Flask1_TicCounter, 1 {
+			drawbar "INVCURSB", "INVCURSX", Flask1_TicCounter, vertical, 244, -83;
+		}
+
+		drawnumber 3, NCNormalFont, NCWhiteC, ammo Flask1_CurrentCharges, alignment(center), 264, -57;
+
+		// small to exquisite starting from 1 to 5
+		InInventory Flask1_Type, 2 {
+			InInventory Flask1_type, 3 {
+				InInventory Flask1_type, 4 {
+					InInventory Flask1_type, 5 {
+						drawbar "FLS5F0", "FLS5E0", Flask1_CurrentCharges, vertical, 256, -81;
+					}
+					else
+						drawbar "FLS4F0", "FLS4E0", Flask1_CurrentCharges, vertical, 256, -81;
+				}
+				else
+					drawbar "FLS3F0", "FLS3E0", Flask1_CurrentCharges, vertical, 256, -81;
+			}
+			else
+				drawbar "FLS2F0", "FLS2E0", Flask1_CurrentCharges, vertical, 256, -81;
+		}
+		else
+			drawbar "FLS1F0", "FLS1E0", Flask1_CurrentCharges, vertical, 256, -81;
+	}
+
+	InInventory Flask2_Type, 1 {
+		InInventory Flask2_CurrentCharges, 1 {
+			drawnumber 1, NCNormalFont, NCWhiteC, 2, alignment(right), 278, -42;
+		}
+		else {
+			drawnumber 1, NCNormalFont, NCRed, 2, alignment(right), 278, -42;
+		}
+
+		drawimage "INVCURS", 238, -49;
+
+		InInventory Flask2_TicCounter, 1 {
+			drawbar "INVCURSB", "INVCURSX", Flask2_TicCounter, vertical, 244, -47;
+		}
+
+		drawnumber 3, NCNormalFont, NCWhiteC, ammo Flask2_CurrentCharges, alignment(center), 264, -21;
+
+		InInventory Flask2_Type, 2 {
+			InInventory Flask2_type, 3 {
+				InInventory Flask2_type, 4 {
+					InInventory Flask2_type, 5 {
+						drawbar "FLS5F0", "FLS5E0", Flask2_CurrentCharges, vertical, 256, -45;
+					}
+					else
+						drawbar "FLS4F0", "FLS4E0", Flask2_CurrentCharges, vertical, 256, -45;
+				}
+				else
+					drawbar "FLS3F0", "FLS3E0", Flask2_CurrentCharges, vertical, 256, -45;
+			}
+			else
+				drawbar "FLS2F0", "FLS2E0", Flask2_CurrentCharges, vertical, 256, -45;
+		}
+		else
+			drawbar "FLS1F0", "FLS1E0", Flask2_CurrentCharges, vertical, 256, -45;
+	}
   
 	// KillSpree Meter
 	InInventory KillSpreeOn {

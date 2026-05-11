@@ -18,6 +18,8 @@ int GetItemTier(int level) {
 #define CHARMSTR_COLORCODE 0
 #define CHARMSTR_TIERTAG 1
 
+#define DND_FLASK_RECOVERY_REDUCEEFFECT 25 // 25%
+
 // level 100 = perfect
 str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
 	{ "\c[C8]", "DND_CHARMTIER1" },
@@ -735,7 +737,14 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 		case INV_INC_DOUBLEHPBONUS:
 		case INV_INC_PASSIVEREGEN:
 		case INV_INC_INSTANTLIFESTEAL:
+		case INV_FLASK_INCAMOUNTRECOVER:
+		case INV_FLASK_INSTANTRECOVERY:
+		case INV_FLASK_INCEFFECT:
+		case INV_FLASK_INSTANTONLOWLIFE:
 			res = RollAttributeExtra(mod, tier, isWellRolled, item_type, item_subtype);
+		break;
+		case INV_FLASK_INCCHARGERECOVERY:
+			res = DND_FLASK_RECOVERY_REDUCEEFFECT;
 		break;
 
 		case INV_INC_PLUSPROJ:
@@ -1976,10 +1985,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLASK_CHANCEGAINCRIT].tags = INV_ATTR_TAG_FLASK;
     
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_low = 1;
-	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_high = 10;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_high = 16;
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_level_modifier = 0;
-	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_extra_low = 1;
-	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_extra_high = 2;
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_level_extra_modifier = -1;
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].tags = INV_ATTR_TAG_FLASK;
 
@@ -1999,8 +2006,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_low = 1;
 	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_high = 1;
 	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_level_modifier = 0;
-	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_extra_low = 20;
-	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_extra_high = 25;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_extra_low = 25;
+	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_extra_high = 40;
 	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].attrib_level_extra_modifier = -1;
 	ItemModTable[INV_FLASK_INSTANTONLOWLIFE].tags = INV_ATTR_TAG_FLASK;
 
@@ -2053,6 +2060,10 @@ bool IsAttributeExtraException(int attr) {
 		case INV_IMP_INCMITARMORSHIELD:
 		case INV_IMP_POWERCORE:
 
+		// flask implicits
+		case INV_FLASK_IMP_LIFE:
+		case INV_FLASK_IMP_CHARGECOUNT:
+
 		// these store the weapon in extra field!
 		case INV_CRITPERCENT_FORWEPTYPE:
 
@@ -2091,6 +2102,7 @@ bool CanRerollAttributeExtra(int attr) {
 
 bool IsAttributeQualityException(int attr) {
 	switch(attr) {
+		case INV_FLASK_IMP_CHARGECOUNT:
 		case INV_EX_LIMITEDSMALLCHARMS:
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 		return true;
@@ -2671,11 +2683,6 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_IMP_RECOVERESONUNDEADKILL:
 		case INV_IMP_QUALITYCAPFIFTY:
 		case INV_CORR_DMGDOESNTSTOPREGEN:
-		case INV_FLASK_IMMUNE_BLEED:
-		case INV_FLASK_IMMUNE_CHILLFREEZE:
-		case INV_FLASK_IMMUNE_IGNITE:
-		case INV_FLASK_IMMUNE_POISON:
-		case INV_FLASK_IMMUNE_SHOCK:
 		return StrParam(l:text);
 
 		case INV_IMP_ABSORBLIGHTNING:			// lightning coil
@@ -2879,7 +2886,17 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_INC_ACCURACYFORPRECISION:
 		case INV_INC_HPREGENINTERRUPT:
 		case INV_INC_ACCURACYREVERSED:
+		if(showDetailedMods) {
+			return StrParam(s:ess_tag, l:text, s:" - ", s:GetModTierText(tier, extra));
+		}
 		return StrParam(s:ess_tag, l:text);
+
+		case INV_FLASK_IMMUNE_BLEED:
+		case INV_FLASK_IMMUNE_CHILLFREEZE:
+		case INV_FLASK_IMMUNE_IGNITE:
+		case INV_FLASK_IMMUNE_POISON:
+		case INV_FLASK_IMMUNE_SHOCK:
+		return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
 		
 		case INV_INC_PASSIVEREGEN:
 			if(showDetailedMods) {
@@ -2947,7 +2964,35 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_FLASK_IMP_CHARGECOUNT:
 		return StrParam(s:no_tag, l:text, s: " ", s:col_tag, d:val, s:no_tag, l:"IATTR_IMP_FLASK0X", s:" ", s:col_tag, d:extra, s:no_tag, l:"IATTR_IMP_FLASK0XX");
 		case INV_FLASK_IMP_LIFE:
-		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, d:extra, s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
+		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
+
+		case INV_FLASK_INSTANTRECOVERY:
+		case INV_FLASK_INSTANTONLOWLIFE:
+		if(showDetailedMods) {
+			return StrParam(
+				l:text, s:"\n", s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:"%", 
+				s:no_tag, l:"IATTR_FLASK3X", s:" - ", s:GetModTierText(tier, extra)
+			);
+		}
+		return StrParam(l:text, s:"\n", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:"IATTR_FLASK3X");
+		
+		case INV_FLASK_CHANCEGAINONHIT:
+		if(showDetailedMods) {
+			return StrParam(
+				l:text, s:"\n", s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), 
+				s:"%", s:no_tag, l:"IATTR_FLASK3X", s:" - ", s:GetModTierText(tier, extra));
+		}
+		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text);
+
+		case INV_FLASK_INCEFFECT:
+		if(showDetailedMods) {
+			return StrParam(
+				s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text, s:"\n",
+				s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:"%", s:no_tag, l:"IATTR_FLASK4X",
+				s:" - ", s:GetModTierText(tier, extra)
+			);
+		}
+		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:"IATTR_FLASK4X");
 
 		// default takes percentage values
 		default:

@@ -32,6 +32,31 @@ Actor RemoveAilments : PowerDamage {
 	powerup.duration -1
 }
 
+Actor RemoveBleed : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
+Actor RemovePoison : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
+Actor RemoveIgnite : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
+Actor RemoveShock : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
+Actor RemoveChillFreeze : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration -1
+}
+
 actor Salvationsphere : CustomInventory {
 	Inventory.PickupMessage "Salvationsphere!"
 	Inventory.Amount 1

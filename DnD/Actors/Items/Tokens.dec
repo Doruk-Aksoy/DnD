@@ -39,3 +39,12 @@ Actor GunsmithToken : TokenBase {
 		Goto SpawnInit
 	}
 }
+
+Actor ArtisanToken : TokenBase {
+	Scale 0.6
+	States {
+		Spawn:
+			TOK0 C 0
+		Goto SpawnInit
+	}
+}

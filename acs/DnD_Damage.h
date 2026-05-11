@@ -1136,6 +1136,9 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 
 	if(CheckActorInventory(p_tid, "Wanderer_Ascended"))
 		dmg = dmg * (100 - ETHEREAL_RESIST) / 100;
+
+	// check flask charge gain on hit mod
+	CheckFlasksOnHitGain(p_tid - P_TIDSTART);
 	
 	return dmg;
 }
@@ -1281,6 +1284,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		{
 			SetPlayerWeaponCritState(pnum, wepid);
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			CheckFlasksOnCritGain(pnum);
 		}
 
 		LockPlayerCritState(pnum, wepid);
@@ -1294,6 +1298,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		)
 		{
 			actor_flags |= DND_ACTORFLAG_CONFIRMEDCRIT;
+			CheckFlasksOnCritGain(pnum);
 		}
 	}
 

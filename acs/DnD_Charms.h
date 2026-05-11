@@ -153,7 +153,7 @@ void SpawnCharmForAll(int rarity_boost) {
 	}
 }
 
-void ResetPlayerCharmsUsed(int pnum) {
+void ResetPlayerItemsUsed(int pnum) {
 	for(int i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
 		if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
 			SyncItemData_Null(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, Items_Used[pnum][i].width, Items_Used[pnum][i].height);

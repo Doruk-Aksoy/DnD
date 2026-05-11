@@ -3169,6 +3169,7 @@ Script "DnD Player Setup" ENTER {
 		if(GetCVar("dnd_allresearchesfound"))
 			GiveAndDoAllResearch();
 		ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
+		ResetPlayerItemsUsed(pnum);
 	}
 	
 	while(pinfo_pending_reset)
@@ -6085,7 +6086,7 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
-			//SpawnToken(0, true);
+			SpawnToken(0, true);
 			//Log(s:"boot");
 			SpawnBoot(0, 0);
 			//Log(s:"helm");

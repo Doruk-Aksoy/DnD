@@ -823,6 +823,9 @@ void LoadPlayerData(int pnum, int char_id) {
 	}
 	// sync all of charms used
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
+
+	// now that we loaded used items, fill up flasks and setup updates
+	UpdatePlayerFlaskData(pnum, true);
 	
 	LoadPlayerStash(pnum, pacc);
 	

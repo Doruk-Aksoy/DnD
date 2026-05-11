@@ -622,6 +622,11 @@ int GetHealthPercent() {
 	return hp_pct;
 }
 
+// for players
+int IsLowLife() {
+	return GetHealthPercent() <= 50;
+}
+
 int GetActorSpawnHealth(int t) {
 	int caller = ActivatorTID();
 	SetActivator(t);

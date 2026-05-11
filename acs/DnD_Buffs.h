@@ -364,7 +364,7 @@ Script "DnD Buff Ticker" (int pnum) {
 				if
 				(
 					pbuffs[pnum].buff_list[i].duration <= 0 ||
-					((pbuffs[pnum].buff_list[i].bt_index == BTI_CHILL || pbuffs[pnum].buff_list[i].bt_index == BTI_FREEZE) && CheckInventory("DnD_ThawPlayer"))
+					((pbuffs[pnum].buff_list[i].bt_index == BTI_CHILL || pbuffs[pnum].buff_list[i].bt_index == BTI_FREEZE) && CheckInventory("RemoveChillFreeze"))
 				)
 				{
 					rem = RemoveBuff(pnum, i - 1); // assumes +1 so this corrects it

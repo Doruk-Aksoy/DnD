@@ -1125,13 +1125,13 @@ void ResetPlayerItems(int pnum) {
 	
 	for(i = 0; i < MAXARTIFACTS; ++i)
 		SetInventory(ArtifactInfo[i][ARTI_NAME], 0);
-}				
+}
 
 // resets all info (bearings, loadouts, etc.)
 void ResetPlayerInfo(int pnum, bool resetStash = true) {
 	// reset player items
 	ResetPlayerInventory(pnum);
-	ResetPlayerCharmsUsed(pnum);
+	ResetPlayerItemsUsed(pnum);
 	ResetTradeViewList(pnum);
 
 	if(resetStash)

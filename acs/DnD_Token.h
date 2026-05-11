@@ -1,6 +1,22 @@
 #ifndef DND_TOKENINFO_IN
 #define DND_TOKENINFO_IN
 
+enum {
+	DND_TOKEN_ARMORER,
+	DND_TOKEN_GUNSMITH,
+	DND_TOKEN_ARTISAN,
+
+    DND_MAX_TOKEN_KINDS
+};
+
+void SetupTokenDropWeights() {
+	// Body Armors
+	INIT_ITEM_WEIGHTS;
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_ARMORER, 8);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_GUNSMITH, 10);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_ARTISAN, 4);
+}
+
 bool CanUseToken(int token_type, int item_id, int item_type) {
     bool res = false;
     int pnum = PlayerNumber();
@@ -22,6 +38,9 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
                 Player_Weapon_Infos[pnum][item_id].quality > 0 || 
                     (HasWeaponPower(pnum, item_id, WEP_POWER_GHOSTHIT) && (Weapons_Data[item_id].properties & WPROP_CANTHITGHOST))
             );
+        break;
+        case DND_TOKEN_ARTISAN:
+            res = item_type == DND_ITEM_FLASK && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
         break;
     }
     return res;
@@ -58,6 +77,7 @@ void HandleTokenUse(int pnum, int token_type, int item_id) {
     int temp;
     switch(token_type) {
         case DND_TOKEN_ARMORER:
+        case DND_TOKEN_ARTISAN:
 			// just increment quality
 			PlayerInventoryList[pnum][item_id].quality += random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
             
@@ -84,6 +104,9 @@ void HandleTokenUseMessage(int token_type, int item_id) {
         break;
         case DND_TOKEN_GUNSMITH:
             Log(s:"\cj", l:"TOK_USE2", s:" \cv", l:GetWeaponTag(item_id), s:"\c-.");
+        break;
+        case DND_TOKEN_ARTISAN:
+            Log(s:"\cj", l:"TOK_USE3");
         break;
     }
 }
