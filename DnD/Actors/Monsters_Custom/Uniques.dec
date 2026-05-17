@@ -5114,8 +5114,12 @@ Actor EryxiaFreezer_Trail {
 Actor EryxiaFreezeDebuff_Giver : DnD_Activator {
 	States {
 		Pickup:
+			TNT1 A 0 A_JumpIfInventory("RemoveChillFreeze", 1, "NoFreeze")
 			TNT1 A 0 A_GiveInventory("EryxiaFreezeDebuff", 1)
 			TNT1 A 0 A_PlaySound("Lich/Ice", CHAN_7)
+		Stop
+		NoFreeze:
+			TNT1 A 0
 		Stop
 	}
 }

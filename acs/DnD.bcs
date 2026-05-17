@@ -1664,7 +1664,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
-	//MonsterProperties[m_id].trait_list[DND_EXHAUSTING] = true;
+	MonsterProperties[m_id].trait_list[DND_CRIPPLE] = true;
+	GiveInventory("Cripple_Script_Run", 1);
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -5583,6 +5584,7 @@ Script "DnD Phasing" (void) {
 Script "DnD Cripple" (void) {
 	int r = GetActorProperty(0, APROP_RADIUS) + 16.0;
 	int p_tid;
+	int this = ActivatorTID();
 
 	ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_CRIPPLE);
 	
@@ -5594,8 +5596,11 @@ Script "DnD Cripple" (void) {
 			p_tid = i + P_TIDSTART;
 			if(PlayerInGame(i) && isActorAlive(p_tid)) {
 				// 16.0 is player radius
-				if(AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= CRIPPLE_DISTANCE + r && CheckSight(p_tid, 0, CSF_NOBLOCKALL))
-					GiveActorInventory(p_tid, "CrippleSlower", 1);
+				if(AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= CRIPPLE_DISTANCE + r && CheckSight(p_tid, 0, CSF_NOBLOCKALL)) {
+					if(!CheckActorInventory(p_tid, "CrippleToken"))
+						PlaySound(p_tid, "Elite/CrippleFX", CHAN_5, 1.0);
+					HandlePlayerBuffAssignment(i, this, BTI_CRIPPLE);
+				}
 			}
 		}
 	}
@@ -6094,6 +6099,8 @@ Script 68 (int x) NET {
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
 			SpawnCharmWithMods_ForAll(INV_MELEERANGE);
+			//for(int k = INV_FLASK_INCCHARGES; k <= INV_FLASK_MORERECOVERYONLOWLIFE; ++k)
+			//	SpawnFlaskWithMods(0, k);
 			SpawnFlask(0, 0);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);

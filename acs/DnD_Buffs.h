@@ -24,6 +24,16 @@ enum {
 
 	BUFF_PHASING,
 
+	BUFF_ARMORFLAT,
+	BUFF_ELEMENTALRESIST,
+	BUFF_ENERGYRESIST,
+	BUFF_PHYSRESIST,
+	BUFF_MAGICRESIST,
+	BUFF_SILVERIMBUE,
+	BUFF_SULPHUR,
+	BUFF_SUPERMOVESPEED,
+	BUFF_MITIGATION,
+
 	BUFF_TYPES_MAX
 };
 #define DND_FIRST_CHARGE_BUFF BUFF_FRENZYCHARGE
@@ -180,20 +190,38 @@ Script "DnD Buff Value CS Sync" (int pnum, int type, int val, int additiveOrMult
 void HandleBuffApplication(int pnum, int buff_type) {	
 	int ptid = P_TIDSTART + pnum;
 	int base = 0;
+	bool hasSlowImmunity = false;
 
 	switch(buff_type) {
 		case BUFF_SPEED:
+		case BUFF_SUPERMOVESPEED:
 			// checks regarding having immunity to slowdowns can be done here
-			if(CheckActorInventory(ptid, "GryphonCheck"))
-				return;
+			hasSlowImmunity = CheckActorInventory(ptid, "GryphonCheck") || pbuffs[pnum].buff_net_values[BUFF_SUPERMOVESPEED].additive;
 
 		case BUFF_STUN:
 
 			// multiplicative here implies "less" movement speed, therefore if the positive value for example was 20% less speed, which would be 0.2 in the code, we'd really want 1.0 - 0.2 as the factor here
 			// which is 80% of your normal speed
-			base = GetPlayerSpeed(pnum) + pbuffs[pnum].buff_net_values[BUFF_SPEED].additive;
-			if(pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative != 1.0) // default is 1.0 if theres none so nothing to worry about here
-				base = FixedMul(base, pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative);
+			if(buff_type != BUFF_STUN) {
+				if(!hasSlowImmunity || pbuffs[pnum].buff_net_values[BUFF_SPEED].additive > 0)
+					base = GetPlayerSpeed(pnum) + pbuffs[pnum].buff_net_values[BUFF_SPEED].additive;
+				else
+					base = GetPlayerSpeed(pnum);
+
+				if
+				(
+					pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative != 1.0 &&
+					(!hasSlowImmunity || pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative > 1.0)
+				)
+				{
+					base = FixedMul(base, pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative);
+				}
+			}
+			else {
+				base = GetPlayerSpeed(pnum) + pbuffs[pnum].buff_net_values[BUFF_SPEED].additive;
+				if(pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative != 1.0) // default is 1.0 if theres none so nothing to worry about here
+					base = FixedMul(base, pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative);
+			}
 
 			// ie. not stunned, go ahead
 			if(pbuffs[pnum].buff_net_values[BUFF_STUN].multiplicative == 1.0) {
@@ -205,6 +233,11 @@ void HandleBuffApplication(int pnum, int buff_type) {
 
 			SetActorProperty(P_TIDSTART + pnum, APROP_SPEED, base);
 			//Log(s:"New speed factor: ", f:base);
+		break;
+
+		case BUFF_SULPHUR:
+			// for this one we also add damage buff
+			pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].additive += pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive;
 		break;
 	}
 }

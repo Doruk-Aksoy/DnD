@@ -234,10 +234,86 @@ Graphic "FLS4D0", 14, 25
 	Patch "FLS4D0", 0, 0
 }
 
-
 Graphic "FLS5D0", 15, 25
 {
 	XScale 0.8
 	YScale 0.8
 	Patch "FLS5D0", 0, 0
+}
+
+Graphic "FLS6H0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FLS6H0", 0, 0
+}
+
+Graphic "FLS7K0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FLS7K0", 0, 0
+}
+
+Graphic "FLS8G0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FLS8G0", 0, 0
+}
+
+Graphic "FLS9H0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FLS9H0", 0, 0
+}
+
+Graphic "FL10H0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FL10H0", 0, 0
+}
+
+Graphic "FL11I0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FL11I0", 0, 0
+}
+
+Graphic "FL12H0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FL12H0", 0, 0
+}
+
+Graphic "FL13F0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FL13F0", 0, 0
+}
+
+Graphic "FL14E0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FL14E0", 0, 0
+}
+
+Graphic "FL15B0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FL15B0", 0, 0
+}
+
+Graphic "FL16B0", 15, 25
+{
+	XScale 0.9
+	YScale 0.9
+	Patch "FL16B0", 0, 0
 }

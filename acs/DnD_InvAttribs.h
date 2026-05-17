@@ -404,6 +404,17 @@ enum {
 
 	INV_FLASK_IMP_CHARGECOUNT = FLASK_IMPLICIT_ID_BEGIN,
 	INV_FLASK_IMP_LIFE,
+	INV_FLASK_IMP_GRANITE,
+	INV_FLASK_IMP_BASALT,
+	INV_FLASK_IMP_BISMUTH,
+	INV_FLASK_IMP_INSULAR,
+	INV_FLASK_IMP_OAK,
+	INV_FLASK_IMP_ARCANE,
+	INV_FLASK_IMP_DIAMOND,
+	INV_FLASK_IMP_SILVER,
+	INV_FLASK_IMP_SULPHUR,
+	INV_FLASK_IMP_QUICKSILVER,
+	INV_FLASK_IMP_QUARTZ,
 
 	INV_FLASK_INCCHARGES = FLASK_ATTRIB_ID_BEGIN,
     INV_FLASK_REDUCEDCHARGEUSE,
@@ -560,7 +571,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 #define INCURSION_MAP_MACRO(X) ((X) - FIRST_INCURSION_ATTRIBUTE + 1)
 
 #define FIRST_FLASK_IMPLICIT INV_FLASK_IMP_CHARGECOUNT
-#define LAST_FLASK_IMPICIT INV_FLASK_IMP_LIFE
+#define LAST_FLASK_IMPICIT INV_FLASK_IMP_QUARTZ
 
 #define FIRST_FLASK_ATTRIBUTE INV_FLASK_INCCHARGES
 #define LAST_FLASK_ATTRIBUTE INV_FLASK_MORERECOVERYONLOWLIFE
@@ -1985,7 +1996,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLASK_CHANCEGAINCRIT].tags = INV_ATTR_TAG_FLASK;
     
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_low = 1;
-	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_high = 16;
+	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_high = 14;
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_level_modifier = 0;
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].attrib_level_extra_modifier = -1;
 	ItemModTable[INV_FLASK_CHANCEGAINONHIT].tags = INV_ATTR_TAG_FLASK;
@@ -2060,7 +2071,7 @@ bool IsAttributeExtraException(int attr) {
 		case INV_IMP_INCMITARMORSHIELD:
 		case INV_IMP_POWERCORE:
 
-		// flask implicits
+		// flask implicits -- utility flask extra contains the duration, which increases with quality
 		case INV_FLASK_IMP_LIFE:
 		case INV_FLASK_IMP_CHARGECOUNT:
 
@@ -2103,6 +2114,17 @@ bool CanRerollAttributeExtra(int attr) {
 bool IsAttributeQualityException(int attr) {
 	switch(attr) {
 		case INV_FLASK_IMP_CHARGECOUNT:
+		case INV_FLASK_IMP_GRANITE:
+		case INV_FLASK_IMP_BASALT:
+		case INV_FLASK_IMP_BISMUTH:
+		case INV_FLASK_IMP_INSULAR:
+		case INV_FLASK_IMP_OAK:
+		case INV_FLASK_IMP_ARCANE:
+		case INV_FLASK_IMP_DIAMOND:
+		case INV_FLASK_IMP_SILVER:
+		case INV_FLASK_IMP_SULPHUR:
+		case INV_FLASK_IMP_QUICKSILVER:
+		case INV_FLASK_IMP_QUARTZ:
 		case INV_EX_LIMITEDSMALLCHARMS:
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 		return true;
@@ -2966,6 +2988,22 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_FLASK_IMP_LIFE:
 		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
 
+		case INV_FLASK_IMP_GRANITE:
+		case INV_FLASK_IMP_BASALT:
+		case INV_FLASK_IMP_BISMUTH:
+		case INV_FLASK_IMP_INSULAR:
+		case INV_FLASK_IMP_OAK:
+		case INV_FLASK_IMP_ARCANE:
+		case INV_FLASK_IMP_DIAMOND:
+		case INV_FLASK_IMP_SULPHUR:
+		case INV_FLASK_IMP_QUICKSILVER:
+		case INV_FLASK_IMP_QUARTZ:
+		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
+		
+		// this one has text not a number besides use amount
+		case INV_FLASK_IMP_SILVER:
+		return StrParam(l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
+		
 		case INV_FLASK_INSTANTRECOVERY:
 		case INV_FLASK_INSTANTONLOWLIFE:
 		if(showDetailedMods) {
@@ -2979,8 +3017,8 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_FLASK_CHANCEGAINONHIT:
 		if(showDetailedMods) {
 			return StrParam(
-				l:text, s:"\n", s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), 
-				s:"%", s:no_tag, l:"IATTR_FLASK3X", s:" - ", s:GetModTierText(tier, extra));
+				s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0), 
+				s:"%", s:no_tag, l:text, s:" - ", s:GetModTierText(tier, extra));
 		}
 		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text);
 

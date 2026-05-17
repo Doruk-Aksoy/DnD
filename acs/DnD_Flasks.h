@@ -14,13 +14,28 @@ enum {
     DND_FLASK_LIFE_LARGE,
     DND_FLASK_LIFE_GRAND,
     DND_FLASK_LIFE_EXQUISITE,
+
+	DND_FLASK_GRANITE,
+	DND_FLASK_BASALT,
+	DND_FLASK_BISMUTH,
+	DND_FLASK_INSULAR,
+	DND_FLASK_OAK,
+	DND_FLASK_ARCANE,
+	DND_FLASK_DIAMOND,
+	DND_FLASK_SILVER,
+	DND_FLASK_SULPHUR,
+	DND_FLASK_QUICKSILVER,
+	DND_FLASK_QUARTZ
 };
 
 #define FLASK_LIFE_BEGIN DND_FLASK_LIFE_SMALL
 #define FLASK_LIFE_END DND_FLASK_LIFE_EXQUISITE
 
+#define FLASK_UTILITY_BEGIN DND_FLASK_GRANITE
+#define FLASK_UTILITY_END DND_FLASK_QUARTZ
+
 #define FLASKS_BEGIN DND_FLASK_LIFE_SMALL
-#define FLASKS_END DND_FLASK_LIFE_EXQUISITE
+#define FLASKS_END DND_FLASK_QUARTZ
 
 struct flaskData_T {
 	int flask_type;
@@ -33,6 +48,7 @@ struct flaskData_T {
 
 	int chance_on_hit;				// chance to gain charge on hit
 	int chance_on_crit;				// chance to gain on crit
+	int effect_increase;			// overall effect increase
 };
 
 #define MAX_FLASK_SLOTS 2
@@ -67,6 +83,10 @@ bool IsLifeFlask(int subtype) {
     return subtype >= FLASK_LIFE_BEGIN && subtype <= FLASK_LIFE_END;
 }
 
+bool IsUtilityFlask(int subtype) {
+	return subtype >= FLASK_UTILITY_BEGIN && subtype <= FLASK_UTILITY_END;
+}
+
 int GetFlaskChargeUseEffects(int pnum, int flask_id) {
 	int base = -GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_REDUCEDCHARGEUSE);
 	base += GetFlaskAttributeExtra(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY);
@@ -83,45 +103,37 @@ int GetFlaskData(int pnum, int flask_id, int flask_type, int data_type) {
 	int res = 0;
 	int i;
 	int temp;
-	if(IsLifeFlask(flask_type)) {
-		switch(data_type) {
-			case FLASK_DATA_MAXCHARGES:
-				for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-					if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
-						res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_val;
-				}
+	switch(data_type) {
+		case FLASK_DATA_MAXCHARGES:
+			for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+				if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
+					res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_val;
+			}
 
-				if((temp = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGES)))
-					res = res * (100 + temp) / 100;
-			break;
-			case FLASK_DATA_CHARGEUSE:
-				for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-					if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
-						res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_extra;
-				}
+			if((temp = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGES)))
+				res = res * (100 + temp) / 100;
+		break;
+		case FLASK_DATA_CHARGEUSE:
+			for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
+				if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
+					res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_extra;
+			}
 
-				if((temp = GetFlaskChargeUseEffects(pnum, flask_id)))
-					res = res * (100 + temp) / 100;
-			break;
-			case FLASK_DATA_EFFECTDURATION:
-				for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-					if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_LIFE)
-						res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_extra;
-				}
-			break;
-			case FLASK_DATA_GIVEAMOUNT:
-				for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-					if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_LIFE)
-						res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_val;
-				}
+			if((temp = GetFlaskChargeUseEffects(pnum, flask_id)))
+				res = res * (100 + temp) / 100;
+		break;
+		case FLASK_DATA_EFFECTDURATION:
+			// guaranteed first implicit contains effect duration on extra
+			res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[0].attrib_extra;
+		break;
+		case FLASK_DATA_GIVEAMOUNT:
+			if(IsLifeFlask(flask_type)) {
+				res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[0].attrib_val;
 			
 				if((temp = GetFlaskRecoveryEffects(pnum, flask_id)))
 					res = res * (100 + temp) / 100;
-			break;
-		}
-	}
-	else {
-
+			}
+		break;
 	}
 
 	return res;
@@ -215,11 +227,23 @@ bool HasFlaskEquipped(int pnum, int flask_id) {
 void SetupFlaskDropWeights() {
 	// Body Armors
 	INIT_ITEM_WEIGHTS;
-	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_SMALL, 50);
-	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_MEDIUM, 35);
-	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_LARGE, 20);
-	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_GRAND, 16);
-    SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_EXQUISITE, 6);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_SMALL, 100);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_MEDIUM, 70);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_LARGE, 40);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_GRAND, 32);
+    SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_LIFE_EXQUISITE, 12);
+
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_GRANITE, 24);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_BASALT, 20);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_BISMUTH, 16);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_INSULAR, 16);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_OAK, 16);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_ARCANE, 16);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_DIAMOND, 12);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_SILVER, 8);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_SULPHUR, 12);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_QUICKSILVER, 16);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_FLASK, DND_FLASK_QUARTZ, 20);
 }
 
 int GetFlaskLevelThreshold(int type) {
@@ -234,6 +258,23 @@ int GetFlaskLevelThreshold(int type) {
 		return 41;
 		case DND_FLASK_LIFE_EXQUISITE:
 		return 55;
+
+		case DND_FLASK_GRANITE:
+		case DND_FLASK_BASALT:
+		case DND_FLASK_QUARTZ:
+		return 20;
+
+		case DND_FLASK_BISMUTH:
+		case DND_FLASK_INSULAR:
+		case DND_FLASK_OAK:
+		case DND_FLASK_ARCANE:
+		case DND_FLASK_QUICKSILVER:
+		return 15;
+
+		case DND_FLASK_DIAMOND:
+		case DND_FLASK_SILVER:
+		case DND_FLASK_SULPHUR:
+		return 25;
 	}
 	return 0;
 }
@@ -353,7 +394,7 @@ void RollFlaskInfoWithMods(int item_pos, int item_tier, int pnum, int flask_type
 str GetFlaskDropClass(int type) {
     if(IsLifeFlask(type))
 	    return StrParam(s:"FlaskDrop_Life_", d:type);
-    return "FlaskDrop";
+    return StrParam(s:"FlaskDrop_Utility_", d:type - FLASK_UTILITY_BEGIN + 1);
 }
 
 bool CheckFlaskScriptConditions(int pnum) {
@@ -365,6 +406,18 @@ int GetReducedFlaskEffectAmount(int pnum, int flask_id) {
 	int base = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY);
 	if(base)
 		base = DND_FLASK_RECOVERY_REDUCEEFFECT;
+	return base;
+}
+
+int GetFlaskDurationEffects(int pnum, int flask_id) {
+	int base = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCDURATION);
+	base -= GetFlaskAttributeExtra(pnum, flask_id, INV_FLASK_INCEFFECT);
+	return base;
+}
+
+int GetFlaskEffectModifiers(int pnum, int flask_id) {
+	int base = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCEFFECT);
+	base -= GetFlaskAttributeExtra(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY);
 	return base;
 }
 
@@ -382,6 +435,53 @@ void HandleCommonFlaskActivationEffects(int pnum, int flask_id) {
 		GiveActorInventory(tid, "RemoveIgnite", 1);
 }
 
+void HandleFlaskBuffDispatch(int pnum, int flask_id, int duration) {
+	int type = FlaskData[pnum][flask_id].flask_type;
+	int this = ActivatorTID();
+
+	int temp = GetFlaskDurationEffects(pnum, flask_id);
+	if(temp)
+		duration = duration * (100 + temp) / 100;
+
+	int inc_effect = GetFlaskEffectModifiers(pnum, flask_id);
+
+	switch(type) {
+		case DND_FLASK_GRANITE:
+			HandlePlayerBuffAssignment(pnum, this, BTI_ARMOR_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_BASALT:
+			HandlePlayerBuffAssignment(pnum, this, BTI_MOREARMOR_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_BISMUTH:
+			HandlePlayerBuffAssignment(pnum, this, BTI_ELEMENTALRES_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_INSULAR:
+			HandlePlayerBuffAssignment(pnum, this, BTI_ENERGYRES_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_OAK:
+			HandlePlayerBuffAssignment(pnum, this, BTI_PHYSRES_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_ARCANE:
+			HandlePlayerBuffAssignment(pnum, this, BTI_MAGICRES_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_DIAMOND:
+			HandlePlayerBuffAssignment(pnum, this, BTI_CRITINCREASE_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_SILVER:
+			HandlePlayerBuffAssignment(pnum, this, BTI_SILVERIMBUE_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_SULPHUR:
+			HandlePlayerBuffAssignment(pnum, this, BTI_DMGINCREASE_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_QUICKSILVER:
+			HandlePlayerBuffAssignment(pnum, this, BTI_MOVESPEED_FLASK, 0, 0, duration, inc_effect);
+		break;
+		case DND_FLASK_QUARTZ:
+			HandlePlayerBuffAssignment(pnum, this, BTI_MITIGATION_FLASK, 0, 0, duration, inc_effect);
+		break;
+	}
+}
+
 Script "DnD Flask Use" (int flask_id) NET {
     // if dead or in intermission or spectating, don't allow
     int pnum = PlayerNumber();
@@ -394,8 +494,9 @@ Script "DnD Flask Use" (int flask_id) NET {
         Terminate;
 	}
 
-	int cap;
+	int cap, total_time;
 	// if its life flask only allow use when not max health already
+	str flask_tics_item = StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter");
     if(IsLifeFlask(FlaskData[pnum][flask_id].flask_type) && GetActorProperty(0, APROP_HEALTH) < (cap = CheckInventory("PlayerHealthCap"))) {
 		// play the drink sound
 		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);
@@ -407,7 +508,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 		SetInventory(StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), FlaskData[pnum][flask_id].curr_charges);
 
 		// the duration contains xTICRATE in it
-		int total_time = FlaskData[pnum][flask_id].effect_duration / FLASK_RECOVERY_TICRATE;
+		total_time = FlaskData[pnum][flask_id].effect_duration / FLASK_RECOVERY_TICRATE;
 
 		// this is the amount that would be given over this duration -- also consider quality effect here
 		int toGive_total = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_GIVEAMOUNT);
@@ -426,8 +527,8 @@ Script "DnD Flask Use" (int flask_id) NET {
 			total_time = total_time * 100 / (100 + rem);
 
 		// quality increases amount recovered
-		if(Items_Used[pnum][FLASK1_INDEX + flask_id].quality)
-			toGive_total = toGive_total * (100 + Items_Used[pnum][FLASK1_INDEX + flask_id].quality) / 100;
+		if(FlaskData[pnum][flask_id].quality)
+			toGive_total = toGive_total * (100 + FlaskData[pnum][flask_id].quality) / 100;
 
 		int toGive = toGive_total / total_time;
 		int currGiven = 0;
@@ -438,7 +539,6 @@ Script "DnD Flask Use" (int flask_id) NET {
 			toGive = 1;
 
 		// sbarinfo hook for current tics
-		str flask_tics_item = StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter");
 		SetInventory(flask_tics_item, total_time * FLASK_RECOVERY_TICRATE);
 
 		int error = 0;
@@ -481,8 +581,43 @@ Script "DnD Flask Use" (int flask_id) NET {
 
 		//printbold(s:"Given ", d:currGiven, s: " out of ", d:toGive_total);
 	}
-	else {
+	else if(!CheckInventory(flask_tics_item)) {
+		// utility flask isn't active, it can be used
+		// play the drink sound
+		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);
+
 		HandleCommonFlaskActivationEffects(pnum, flask_id);
+
+		// update current charges and SBARINFO hook
+		FlaskData[pnum][flask_id].curr_charges -= FlaskData[pnum][flask_id].charges_used;
+		SetInventory(StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), FlaskData[pnum][flask_id].curr_charges);
+
+		// the duration contains xTICRATE in it
+		total_time = FlaskData[pnum][flask_id].effect_duration;
+
+		// quality increases flask duration
+		if(FlaskData[pnum][flask_id].quality)
+			total_time = total_time * (100 + FlaskData[pnum][flask_id].quality) / 100;
+
+		// handle the buff dispatch
+		HandleFlaskBuffDispatch(pnum, flask_id, total_time);
+
+		// buff timers require full time without any kind of TICRATE stuff
+		total_time /= FLASK_RECOVERY_TICRATE;
+
+		// just a busy loop to make the gui function basically
+		while(!CheckFlaskScriptConditions(pnum) && FlaskData[pnum][flask_id].curr_tics < total_time) {
+			++FlaskData[pnum][flask_id].curr_tics;
+			TakeInventory(flask_tics_item, 1);
+			delay(const:FLASK_RECOVERY_TICRATE);
+		}
+
+		FlaskData[pnum][flask_id].curr_tics = 0;
+
+		if(CheckFlaskScriptConditions(pnum))
+			Terminate;
+
+		SetInventory(flask_tics_item, 0);
 	}
 }
 

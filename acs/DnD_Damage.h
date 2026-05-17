@@ -355,6 +355,21 @@ int ApplyPlayerResist(int pnum, int dmg, int res_attribute, int bonus = 0) {
 				unity +
 				DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS);
 
+	switch(res_attribute) {
+		case INV_DMGREDUCE_ELEM:
+			temp += pbuffs[pnum].buff_net_values[BUFF_ELEMENTALRESIST].additive;
+		break;
+		case INV_DMGREDUCE_ENERGY:
+			temp += pbuffs[pnum].buff_net_values[BUFF_ENERGYRESIST].additive;
+		break;
+		case INV_DMGREDUCE_PHYS:
+			temp += pbuffs[pnum].buff_net_values[BUFF_PHYSRESIST].additive;
+		break;
+		case INV_DMGREDUCE_MAGIC:
+			temp += pbuffs[pnum].buff_net_values[BUFF_MAGICRESIST].additive;
+		break;
+	}	
+
 	unity = GetPlayerAttributeValue(pnum, INV_EX_RESPERESHIELD);
 	if(unity)
 		temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / unity);
@@ -1345,8 +1360,11 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		extra |= DND_DAMAGETICFLAG_LIGHTNING;
 	else if(IsPoisonDamage(damage_type))
 		extra |= DND_DAMAGETICFLAG_POISON;
-	else if(damage_type == DND_DAMAGETYPE_PHYSICAL || damage_type == DND_DAMAGETYPE_MELEE)
+	else if(damage_type == DND_DAMAGETYPE_PHYSICAL || damage_type == DND_DAMAGETYPE_MELEE) {
 		extra |= DND_DAMAGETICFLAG_PHYSICAL;
+		if(pbuffs[pnum].buff_net_values[BUFF_SILVERIMBUE].additive)
+			extra |= DND_DAMAGETICFLAG_EXTRATOUNDEAD;
+	}
 
 	//printbold(s:"before num pnum ", d:pnum, s: " ", d:temp, s:" dmg ", d:dmg);
 	if(!PlayerDamageTicData[pnum][temp]) {
@@ -2996,17 +3014,11 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isArmorPiercing) {
 	int rating = GetPlayerArmor(pnum);
 
+	rating += pbuffs[pnum].buff_net_values[BUFF_ARMORFLAT].additive;
+
 	int temp = GetPlayerAttributeValue(pnum, INV_INC_TWICEARMORDEFENSE);
 	if(temp && random(1, 100) <= temp)
 		rating <<= 1;
-
-	if(CheckInventory("RuinationHardDebuff"))
-		rating /= 4;
-	else {
-		pnum = CheckInventory("RuinationStacks");
-		if(pnum)
-			rating -= rating * pnum * DND_RUINATION_REDUCE_PER_STACK / 100;
-	}
 
 	// DONT USE armor_id below here!!
 	if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL) {
@@ -3034,6 +3046,14 @@ int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isA
 	if(armor_id != 1.0) {
 		armor_id = (armor_id * 100) >> 16;
 		rating = rating * armor_id / 100;
+	}
+
+	if(CheckInventory("RuinationHardDebuff"))
+		rating /= 4;
+	else {
+		pnum = CheckInventory("RuinationStacks");
+		if(pnum)
+			rating -= rating * pnum * DND_RUINATION_REDUCE_PER_STACK / 100;
 	}
 
 	return DoArmorRatingEffect(dmg, rating);

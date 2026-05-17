@@ -198,7 +198,7 @@ void SpawnToken(int pnum, int stack = 0, int unused2 = 0, bool noRandomVelXY = f
 		// c is the index on the field now
 		// only current token is repair token, so just assume that instead
 		int i = 0, w = random(1, MAX_TOKEN_WEIGHT);
-		
+
 		for(; i < MAX_TOKENS && ItemDropWeights[DND_DROPPEDITEM_TOKEN][i] < w; ++i);
 
 		if(!stack)
@@ -714,6 +714,51 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 				case DND_FLASK_LIFE_EXQUISITE:
 					imp_func(item_pos, INV_FLASK_IMP_LIFE, 2000, 6 * TICRATE, 0, 0);
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 50, 15, 0, 0);
+				break;
+
+				case DND_FLASK_GRANITE:
+					imp_func(item_pos, INV_FLASK_IMP_GRANITE, 1000, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
+				break;
+				case DND_FLASK_BASALT:
+					imp_func(item_pos, INV_FLASK_IMP_BASALT, 30, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
+				break;
+				case DND_FLASK_BISMUTH:
+					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 35, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+				break;
+				case DND_FLASK_INSULAR:
+					imp_func(item_pos, INV_FLASK_IMP_INSULAR, 35, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+				break;
+				case DND_FLASK_OAK:
+					imp_func(item_pos, INV_FLASK_IMP_OAK, 35, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+				break;
+				case DND_FLASK_ARCANE:
+					imp_func(item_pos, INV_FLASK_IMP_ARCANE, 35, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+				break;
+				case DND_FLASK_DIAMOND:
+					imp_func(item_pos, INV_FLASK_IMP_DIAMOND, 70, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 20, 0, 0);
+				break;
+				case DND_FLASK_SILVER:
+					imp_func(item_pos, INV_FLASK_IMP_SILVER, 1, 3 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0);
+				break;
+				case DND_FLASK_SULPHUR:
+					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 40, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0);
+				break;
+				case DND_FLASK_QUICKSILVER:
+					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 20, 3 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
+				break;
+				case DND_FLASK_QUARTZ:
+					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 10, 3 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
 				break;
 			}
 		break;

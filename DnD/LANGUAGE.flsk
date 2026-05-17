@@ -8,6 +8,18 @@ DND_FLASK3          = "Large Life Flask";
 DND_FLASK4          = "Grand Life Flask";
 DND_FLASK5          = "Exquisite Life Flask";
 
+DND_FLASK6          = "Granite Flask";
+DND_FLASK7          = "Basalt Flask";
+DND_FLASK8          = "Bismuth Flask";
+DND_FLASK9          = "Insular Flask";
+DND_FLASK10         = "Oak Flask";
+DND_FLASK11         = "Arcane Flask";
+DND_FLASK12         = "Diamond Flask";
+DND_FLASK13         = "Silver Flask";
+DND_FLASK14         = "Sulphur Flask";
+DND_FLASK15         = "Quicksilver Flask";
+DND_FLASK15         = "Quartz Flask";
+
 // Inventory images
 
 DND_FLIMG1          = "FLS1D0";
@@ -16,10 +28,32 @@ DND_FLIMG3          = "FLS3D0";
 DND_FLIMG4          = "FLS4D0";
 DND_FLIMG5          = "FLS5D0";
 
-// Flask mod names
+DND_FLIMG6          = "FLS6H0";
+DND_FLIMG7          = "FLS7K0";
+DND_FLIMG8          = "FLS8G0";
+DND_FLIMG9          = "FLS9H0";
+DND_FLIMG10         = "FL10H0";
+DND_FLIMG11         = "FL11I0";
+DND_FLIMG12         = "FL12H0";
+DND_FLIMG13         = "FL13F0";
+DND_FLIMG14         = "FL14E0";
+DND_FLIMG15         = "FL15B0";
+DND_FLIMG16         = "FL16B0";
 
+// Flask mod names
 IATTR_IMP_FLASK0    = "Max";                            IATTR_IMP_FLASK0X = "charges, uses";    IATTR_IMP_FLASK0XX = "charges";
 IATTR_IMP_FLASK1    = "life recovered over";            IATTR_IMP_FLASK_SECONDS = "seconds";
+IATTR_IMP_FLASK2    = "to armor rating for";
+IATTR_IMP_FLASK3    = "more armor rating for";
+IATTR_IMP_FLASK4    = "to elemental resistance for";
+IATTR_IMP_FLASK5    = "to energy resistance for";
+IATTR_IMP_FLASK6    = "to physical resistance for";
+IATTR_IMP_FLASK7    = "to magic resistance for";
+IATTR_IMP_FLASK8    = "increased critical strike chance for";
+IATTR_IMP_FLASK9    = "Physical attacks are imbued with silver for";
+IATTR_IMP_FLASK10   = "increased damage and create consecrated ground for";
+IATTR_IMP_FLASK11   = "increased movement speed and slow immunity for";
+IATTR_IMP_FLASK12   = "to mitigation chance and gain phasing for";
 
 IATTR_FLASK0        = "increased total charges";
 IATTR_FLASK1        = "reduced charges per use";

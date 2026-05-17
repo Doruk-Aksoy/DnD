@@ -245,6 +245,7 @@ DND_POPUP_SCAVENGECONFIRM					=	"Disassemble the item for ";
 DND_POPUP_OWNNFT							=	"You already own this NFT... idiot.";
 DND_POPUP_NOTENOUGHMATERIALS				=	"Not enough materials to combine!";
 DND_POPUP_CANTUSEPOWERCORE					=	"That item isn't for your class!";
+DND_POPUP_ONLYONEFLASK                      =   "You can only use one of each utility flask!";
 
 // exceptions for some character sheet text
 DND_CHANCEBLEED								=	"chance to inflict bleed on melee and non-melee attacks";

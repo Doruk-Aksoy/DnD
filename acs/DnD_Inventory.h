@@ -326,6 +326,18 @@ enum {
 	IIMG_FLASK_LIFE_GRAND,
 	IIMG_FLASK_LIFE_EXQUISITE,
 
+	IIMG_FLASK_UTILITY_GRANITE,
+	IIMG_FLASK_UTILITY_BASALT,
+	IIMG_FLASK_UTILITY_BISMUTH,
+	IIMG_FLASK_UTILITY_INSULAR,
+	IIMG_FLASK_UTILITY_OAK,
+	IIMG_FLASK_UTILITY_ARCANE,
+	IIMG_FLASK_UTILITY_DIAMOND,
+	IIMG_FLASK_UTILITY_SILVER,
+	IIMG_FLASK_UTILITY_SULPHUR,
+	IIMG_FLASK_UTILITY_QUICKSILVER,
+	IIMG_FLASK_UTILITY_QUARTZ,
+
 	MAX_ITEM_IMAGES
 };
 
@@ -407,7 +419,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_UBOOT_END IIMG_UBOOT_1
 
 #define ITEM_IMAGE_FLASK_BEGIN IIMG_FLASK_LIFE_SMALL
-#define ITEM_IMAGE_FLASK_END IIMG_FLASK_LIFE_EXQUISITE
+#define ITEM_IMAGE_FLASK_END IIMG_FLASK_UTILITY_QUARTZ
 
 #include "DnD_InventoryWeights.h"
 #include "DnD_Armor.h"
@@ -1023,6 +1035,16 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	// or tried to put small charm when well of power is there and would exceed limit
 	if(target_type == DND_CHARM_SMALL && (i = GetPlayerAttributeValue(pnum, INV_EX_LIMITEDSMALLCHARMS)) && i != MAX_SMALL_CHARMS_USED && i == CountPlayerSmallCharms(pnum))
 		return POPUP_NOMORESMALLCHARMS;
+
+	// check if player is trying to equip another of the same utility flask if it is utility
+	if(item_type == DND_ITEM_FLASK && IsUtilityFlask(PlayerInventoryList[pnum][item_index].item_subtype)) {
+		// check if the other flask is the exact same subtype
+		i = FLASK1_INDEX;
+		if(use_id == FLASK1_INDEX)
+			i = FLASK2_INDEX;
+		if(Items_Used[pnum][i].item_subtype == PlayerInventoryList[pnum][item_index].item_subtype)
+			return POPUP_ONLYONEFLASK;
+	}
 
 	// if has forbid armor but has equipped body armor, don't allow that item to be put, and vice versa if has no armor and has forbid armor etc.
 	if

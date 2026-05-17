@@ -15,12 +15,25 @@ enum {
     BTI_FRENZYCHARGE,
     BTI_ENDURANCECHARGE,
     BTI_POWERCHARGE,
+    // flask sourced buffs
+    BTI_ARMOR_FLASK,
+    BTI_MOREARMOR_FLASK,
+    BTI_ELEMENTALRES_FLASK,
+    BTI_ENERGYRES_FLASK,
+    BTI_PHYSRES_FLASK,
+    BTI_MAGICRES_FLASK,
+    BTI_CRITINCREASE_FLASK,
+    BTI_SILVERIMBUE_FLASK,
+    BTI_DMGINCREASE_FLASK,
+    BTI_MOVESPEED_FLASK,
+    BTI_MITIGATION_FLASK,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
     BTI_CHILL,
     BTI_FREEZE,
     BTI_OVERLOAD,
+    BTI_CRIPPLE,
 
     BTI_REDLICH,
     BTI_PALADIN,
@@ -52,9 +65,20 @@ enum {
     BTI_F_ISCURSE           = 0b1000,
 };
 
+#define DND_GRANITE_ARMORBUFF 1000
+#define DND_BASALT_ARMORBUFF 0.3
+#define DND_BISMUTH_BUFF 35.0
+#define DND_INSULAR_BUFF 35.0
+#define DND_OAK_BUFF 35.0
+#define DND_ARCANE_BUFF 35.0
+#define DND_DIAMOND_BUFF 0.7
+#define DND_SULPHUR_BUFF 0.4
+#define DND_QUICKSILVER_BUFF 0.2
+#define DND_QUARTZ_BUFF 0.2
+
 // by default assumes the source of buff to be activator of the script calling this, initiator may not always be activator of script
 // returns duration for blends
-int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0, int new_duration = 0) {
+int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0, int new_duration = 0, int inc_effect = 0) {
     int ptid = pnum + P_TIDSTART;
 
     int bsource = 0;
@@ -191,6 +215,196 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
                 tic_duration = 0;
             }
         break;
+        case BTI_ARMOR_FLASK:
+            btype = BUFF_ARMORFLAT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_GRANITE_ARMORBUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_MOREARMOR_FLASK:
+            btype = BUFF_ARMORINCREASE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS | BUFF_F_MORETYPE;
+            bvalue = DND_BASALT_ARMORBUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_ELEMENTALRES_FLASK:
+            btype = BUFF_ELEMENTALRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_BISMUTH_BUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_ENERGYRES_FLASK:
+            btype = BUFF_ENERGYRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_INSULAR_BUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_PHYSRES_FLASK:
+            btype = BUFF_PHYSRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_OAK_BUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_MAGICRES_FLASK:
+            btype = BUFF_MAGICRESIST;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_ARCANE_BUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_CRITINCREASE_FLASK:
+            btype = BUFF_CRITPERCENT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_DIAMOND_BUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_SILVERIMBUE_FLASK:
+            btype = BUFF_SILVERIMBUE;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = 1;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_DMGINCREASE_FLASK:
+            btype = BUFF_SULPHUR;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_SULPHUR_BUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_MOVESPEED_FLASK:
+            btype = BUFF_SUPERMOVESPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_QUICKSILVER_BUFF;
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
+        case BTI_MITIGATION_FLASK:
+            btype = BUFF_MITIGATION;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE | BUFF_F_UNIQUETOCLASS | BUFF_F_DURATIONINTICS;
+            bvalue = DND_QUARTZ_BUFF;
+
+            // give the player the phasing buff alongside too
+            HandlePlayerBuffAssignment(pnum, initiator, BTI_PHASING, 0, 0, new_duration ? new_duration : 4, inc_effect);
+
+            if(inc_effect)
+                bvalue = bvalue * (100 + inc_effect) / 100;
+
+            if(!new_duration)
+                bduration = 4 * TICRATE;
+            else // supplied durations MUST have TICRATE factor in them
+                bduration = new_duration;
+
+            bduration = bduration * (100 + tic_duration) / 100;
+
+            tic_duration = bduration;
+        break;
 
         // curses
         case BTI_OTHERWORDLYGRIP:
@@ -221,6 +435,18 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bvalue = 0.21;
             bduration = CheckActorInventory(ptid, "DnD_OverloadTimer");
             tic_duration = bduration;
+        break;
+        case BTI_CRIPPLE:
+            GiveActorInventory(ptid, "CrippleToken", 1);
+
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_NODUPLICATE | BUFF_F_DURATIONINTICS;
+            bvalue = -0.5;
+
+            if(!new_duration)
+                bduration = 2 * TICRATE;
+            else
+                bduration = new_duration * TICRATE;
         break;
 
         case BTI_REDLICH:

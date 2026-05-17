@@ -865,6 +865,7 @@ int GetMitigationChance(int pnum, bool forcedReturn = false) {
 
 	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
 	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
+	base += pbuffs[pnum].buff_net_values[BUFF_MITIGATION].additive;
 	return base;
 }
 
