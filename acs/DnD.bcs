@@ -1664,8 +1664,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
-	MonsterProperties[m_id].trait_list[DND_CRIPPLE] = true;
-	GiveInventory("Cripple_Script_Run", 1);
+	//MonsterProperties[m_id].trait_list[DND_CRIPPLE] = true;
+	//GiveInventory("Cripple_Script_Run", 1);
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -6072,9 +6072,9 @@ Script 68 (int x) NET {
 		else if(x == 420) {
 			//Log(s:"charm");
 			//SpawnCharm(0, true);
-			SpawnCharm(0, true);
+			//SpawnCharm(0, true);
 			//Log(s:"armor");
-			SpawnArmor(0, true, 0);
+			//SpawnArmor(0, true, 0);
 			//Log(s:"pcore");
 			//SpawnPowercore(0, true);
 			//Log(s:"orb");
@@ -6082,26 +6082,26 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_REFINEMENT, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 250);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_PHANTASMAL, true, true, 250);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PHANTASMAL, true, true, 250);
 
-			SpawnSpecialtyItem(0, 0, 0, 0, random(DND_ITEM_SPECIALTY_DOOMGUY, DND_ITEM_SPECIALTY_TRICKSTER));
+			//SpawnSpecialtyItem(0, 0, 0, 0, random(DND_ITEM_SPECIALTY_DOOMGUY, DND_ITEM_SPECIALTY_TRICKSTER));
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SCULPTING, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
-			SpawnToken(0, true);
+			//SpawnToken(0, true);
 			//Log(s:"boot");
-			SpawnBoot(0, 0);
+			//SpawnBoot(0, 0);
 			//Log(s:"helm");
-			SpawnHelm(0, 0);
+			//SpawnHelm(0, 0);
 			//SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
-			SpawnCharmWithMods_ForAll(INV_MELEERANGE);
-			//for(int k = INV_FLASK_INCCHARGES; k <= INV_FLASK_MORERECOVERYONLOWLIFE; ++k)
-			//	SpawnFlaskWithMods(0, k);
-			SpawnFlask(0, 0);
+			//SpawnCharmWithMods_ForAll(INV_MELEERANGE);
+			for(int k = FLASKS_BEGIN; k <= FLASKS_END; ++k)
+				SpawnFlask(0, 0, k);
+			//SpawnFlask(0, 0);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/

@@ -749,15 +749,15 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0);
 				break;
 				case DND_FLASK_SULPHUR:
-					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 40, 4 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_SULPHUR, 40, 4 * TICRATE, 0, 0);
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0);
 				break;
 				case DND_FLASK_QUICKSILVER:
-					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 20, 3 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_QUICKSILVER, 20, 3 * TICRATE, 0, 0);
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
 				break;
 				case DND_FLASK_QUARTZ:
-					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 10, 3 * TICRATE, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_QUARTZ, 10, 3 * TICRATE, 0, 0);
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
 				break;
 			}

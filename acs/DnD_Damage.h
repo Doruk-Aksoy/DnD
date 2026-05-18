@@ -3014,8 +3014,6 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isArmorPiercing) {
 	int rating = GetPlayerArmor(pnum);
 
-	rating += pbuffs[pnum].buff_net_values[BUFF_ARMORFLAT].additive;
-
 	int temp = GetPlayerAttributeValue(pnum, INV_INC_TWICEARMORDEFENSE);
 	if(temp && random(1, 100) <= temp)
 		rating <<= 1;

@@ -5200,6 +5200,22 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 
 int GetResistDisplayVal(int pnum, int res, int reduce) {
 	int val = GetPlayerAttributeValue(pnum, res) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) + reduce;
+
+	switch(res) {
+		case INV_DMGREDUCE_ELEM:
+			val += pbuffs[pnum].buff_net_values[BUFF_ELEMENTALRESIST].additive;
+		break;
+		case INV_DMGREDUCE_ENERGY:
+			val += pbuffs[pnum].buff_net_values[BUFF_ENERGYRESIST].additive;
+		break;
+		case INV_DMGREDUCE_PHYS:
+			val += pbuffs[pnum].buff_net_values[BUFF_PHYSRESIST].additive;
+		break;
+		case INV_DMGREDUCE_MAGIC:
+			val += pbuffs[pnum].buff_net_values[BUFF_MAGICRESIST].additive;
+		break;
+	}	
+
 	return val;
 }
 

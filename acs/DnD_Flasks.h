@@ -581,7 +581,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 
 		//printbold(s:"Given ", d:currGiven, s: " out of ", d:toGive_total);
 	}
-	else if(!CheckInventory(flask_tics_item)) {
+	else if(IsUtilityFlask(FlaskData[pnum][flask_id].flask_type) && !CheckInventory(flask_tics_item)) {
 		// utility flask isn't active, it can be used
 		// play the drink sound
 		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);
@@ -601,6 +601,9 @@ Script "DnD Flask Use" (int flask_id) NET {
 
 		// handle the buff dispatch
 		HandleFlaskBuffDispatch(pnum, flask_id, total_time);
+
+		// sbarinfo hook for current tics
+		SetInventory(flask_tics_item, total_time * FLASK_RECOVERY_TICRATE);
 
 		// buff timers require full time without any kind of TICRATE stuff
 		total_time /= FLASK_RECOVERY_TICRATE;

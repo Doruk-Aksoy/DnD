@@ -606,6 +606,7 @@ int CanPickHealthItem(int type) {
 // used for deciding armor pickup values
 int GetPlayerArmor(int pnum) {
 	int amt = GetPlayerAttributeValue(pnum, INV_ARMOR_INCREASE);
+	amt += pbuffs[pnum].buff_net_values[BUFF_ARMORFLAT].additive;
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
 	amt += (amt * GetPlayerAttributeValue(pnum, INV_ARMORPERCENT_INCREASE)) / 100;
@@ -1073,7 +1074,7 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) 
 	
 	// buff sourced percent damage
 
-	res += pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].additive;
+	res += (100 * pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].additive) >> 16;
 
 	return res;
 }

@@ -2990,6 +2990,7 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 
 		case INV_FLASK_IMP_GRANITE:
 		case INV_FLASK_IMP_BASALT:
+		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
 		case INV_FLASK_IMP_BISMUTH:
 		case INV_FLASK_IMP_INSULAR:
 		case INV_FLASK_IMP_OAK:
@@ -2998,8 +2999,8 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_FLASK_IMP_SULPHUR:
 		case INV_FLASK_IMP_QUICKSILVER:
 		case INV_FLASK_IMP_QUARTZ:
-		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
-		
+		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
+
 		// this one has text not a number besides use amount
 		case INV_FLASK_IMP_SILVER:
 		return StrParam(l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
@@ -3013,6 +3014,15 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 			);
 		}
 		return StrParam(l:text, s:"\n", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:"IATTR_FLASK3X");
+
+		case INV_FLASK_INCCHARGERECOVERY:
+		if(showDetailedMods) {
+			return StrParam(
+				s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0),
+				s:"%", s:no_tag, l:"IATTR_FLASK13X", s:" - ", s:GetModTierText(tier, extra)
+			);
+		}
+		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:"IATTR_FLASK13X");
 		
 		case INV_FLASK_CHANCEGAINONHIT:
 		if(showDetailedMods) {
