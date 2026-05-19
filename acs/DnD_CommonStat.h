@@ -316,7 +316,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		return HasActorClassPerk_Fast(pnum + P_TIDSTART, "Marine", 3);
 		
 		case PUP_SLAINENEMIESRIP:
-		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP);
+		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP) || pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive;
 		
 		case PUP_FORBIDARMOR:
 		return GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR);

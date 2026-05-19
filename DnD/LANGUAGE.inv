@@ -44,10 +44,6 @@ DND_ORBNM3			=	"OrbofAssimilation";
 DND_ORBNM4			=	"OrbofOrder";
 DND_ORBNM5			=	"OrbofDestiny";
 DND_ORBNM6			=	"OrbofReverance";
-
-DND_TOKENN1			=	"ArmorerToken";
-DND_TOKENN2			=	"GunsmithToken";
-DND_TOKENN3			=	"ArtisanToken";
 ///////////////////////////////////////////////////////
 
 // Inventory images
@@ -240,11 +236,6 @@ DND_CLIMG3			=	"CLAW03";
 DND_KIMG1			=	"SBKGA0";
 DND_KIMG2			=	"SBKGB0";
 DND_KIMG3			=	"SBKGC0";
-	
-// tokens
-DND_TIMG1			=	"REPTOKN";
-DND_TIMG2			=	"SCRTOKN";
-DND_TIMG3           =   "ARTTOKN";
 
 ///////////////////////////////////////////////////////
 DND_ARTI1			=	"Field Kit";
@@ -287,13 +278,6 @@ DND_CHESTKEY2		=	"Silver Chest Key";
 DND_CHESTKEYTEXT2	=	"Opens a mysterious silver chest.";
 DND_CHESTKEY3		=	"Gold Chest Key";
 DND_CHESTKEYTEXT3	=	"Opens a mysterious gold chest.";
-
-DND_TOKEN1			=	"Armorer's Token";
-DND_TOKENTEXT1		=	"Allows to increase the quality of an armor by \cd1%\c-, capped at \cg25%\c-.";
-DND_TOKEN2			=	"Gunsmith's Token";
-DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and removing its quality.";
-DND_TOKEN3			=	"Artisan's Token";
-DND_TOKENTEXT3		=	"Allows to increase the quality of a flask by \cd1%\c-, capped at \cg25%\c-.";
 
 // unique item names -- charms
 DND_UNIQUE1				=	"Elemental Bulwark";
@@ -527,6 +511,9 @@ IATTR_T148			= "chance for \cdDeep Cuts\c-";
 IATTR_T149			= "chance for \cdOpen Wounds\c-";
 IATTR_T150			= "chance for \cdDeadly Strike\c-";
 IATTR_T151			= "chance for \cdReaping Cleave\c-";
+
+IATTR_T152          = "increased flask charges gained";
+IATTR_T153          = "increased life recovery rate from flasks";
 
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";

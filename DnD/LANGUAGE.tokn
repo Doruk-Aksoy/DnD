@@ -1,5 +1,21 @@
 [enu default]
 
+DND_TOKEN1			=	"Armorer's Token";
+DND_TOKENTEXT1		=	"Allows to increase the quality of an armor by \cd1%\c-, capped at \cg25%\c-.";
+DND_TOKEN2			=	"Gunsmith's Token";
+DND_TOKENTEXT2		=	"Allows scouring of a selected weapon, taking away all its mods and removing its quality.";
+DND_TOKEN3			=	"Artisan's Token";
+DND_TOKENTEXT3		=	"Allows to increase the quality of a flask by \cd1%\c-, capped at \cg25%\c-.";
+
+// tokens
+DND_TIMG1			=	"REPTOKN";
+DND_TIMG2			=	"SCRTOKN";
+DND_TIMG3           =   "ARTTOKN";
+
+DND_TOKENN1			=	"ArmorerToken";
+DND_TOKENN2			=	"GunsmithToken";
+DND_TOKENN3			=	"ArtisanToken";
+
 TOK_USE1			=	"Token used successfully to increase the armor's quality.";
 TOK_USE2			=	"Token used successfully to scour your";
 TOK_USE3			=	"Token used successfully to increase the flask's quality.";

@@ -294,6 +294,9 @@ enum {
 	INV_DEADLYSTRIKE,
 	INV_REAPINGCLEAVE,
 
+	INV_INCFLASKCHARGEGAINED,
+	INV_FLASKLIFERECOVERYRATE,
+
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -545,7 +548,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_REAPINGCLEAVE
+#define LAST_INV_ATTRIBUTE INV_FLASKLIFERECOVERYRATE
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 // modify the above to make it use the negative last
 //#define NEGATIVE_ATTRIB_BEGIN INV_NEG_DAMAGE_DEALT
@@ -1639,6 +1642,16 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_REAPINGCLEAVE].attrib_high = 3;
 	ItemModTable[INV_REAPINGCLEAVE].attrib_level_modifier = 0;
 	ItemModTable[INV_REAPINGCLEAVE].tags = INV_ATTR_TAG_MELEE | INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_INCFLASKCHARGEGAINED].attrib_low = 1;
+	ItemModTable[INV_INCFLASKCHARGEGAINED].attrib_high = 4;
+	ItemModTable[INV_INCFLASKCHARGEGAINED].attrib_level_modifier = 0;
+	ItemModTable[INV_INCFLASKCHARGEGAINED].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_FLASK;
+
+	ItemModTable[INV_FLASKLIFERECOVERYRATE].attrib_low = 1;
+	ItemModTable[INV_FLASKLIFERECOVERYRATE].attrib_high = 4;
+	ItemModTable[INV_FLASKLIFERECOVERYRATE].attrib_level_modifier = 0;
+	ItemModTable[INV_FLASKLIFERECOVERYRATE].tags = INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_FLASK;
 	
 	/////////////////////////
 	// corrupted implicits //
@@ -3400,18 +3413,18 @@ bool IsTagArmorException(int tag, int armor_type) {
 		return true;
 
 	if(armor_type == DND_CRAFTABLEID_BODYARMOR || armor_type == DND_CRAFTABLEID_BOOT)
-		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_MELEE);
+		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_MELEE | INV_ATTR_TAG_FLASK);
 	else if(armor_type == DND_CRAFTABLEID_HELM)
-		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE);
+		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_FLASK);
 	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_WANDERER)
-		return tag & INV_ATTR_TAG_PHYSICAL;
+		return tag & (INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_FLASK);
 	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_BERSERKER)
 		return tag & (INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ENERGY);
 	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_TRICKSTER)
-		return tag & (INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_LIFE);
+		return tag & (INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_LIFE | INV_ATTR_TAG_FLASK);
 
 	// generic cant have occult
-	return (tag & INV_ATTR_TAG_OCCULT);
+	return tag & (INV_ATTR_TAG_OCCULT | INV_ATTR_TAG_FLASK);
 }
 
 bool IsAttributeArmorException(int attr, int armor_type) {

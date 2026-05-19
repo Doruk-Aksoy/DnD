@@ -369,21 +369,12 @@ bool HasActorMasteredPerk(int tid, int stat) {
 	return GetActorPerk(tid, stat) == DND_PERK_MAX;
 }
 
-bool CheckPlayerLuckDuplicator(int pnum) {
-	return false;
-	//return HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE;
-}
-
 void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
 	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
-	//if(CheckPlayerLuckDuplicator(pnum))
-	//	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2);
 }
 
 void SpawnPlayerDropAtActor(int pnum, int dest, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
 	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
-	//if(CheckPlayerLuckDuplicator(pnum))
-	//	SpawnDropAtActor(dest, actor, zoffset, thrust, setspecial, setspecial2);
 }
 
 bool CheckWellRolled(int pnum) {

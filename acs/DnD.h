@@ -728,6 +728,8 @@ void HandleChestDrops(int ctype) {
 		SpawnOrbForAll(1);
 	if(RunDefaultDropChance(pnum, 0.2))
 		SpawnOrbForAll(1);
+	if(RunDefaultDropChance(pnum, 0.2))
+		SpawnItemForAll(DND_ITEM_FLASK);
 }
 
 Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
@@ -735,25 +737,6 @@ Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
 		Terminate;
 	Log(s:"\ccCredit pickup : \c[Y5]", d:amt, s:" credits.");
 }
-
-enum {
-	DND_LOOTBIT_ORB = 1,
-	DND_LOOTBIT_TOKEN = 2,
-	DND_LOOTBIT_ARMOR = 4,
-	DND_LOOTBIT_CHARM = 8,
-	DND_LOOTBIT_SPECIALTY = 16,
-	DND_LOOTBIT_CHESTKEY = 32
-};
-
-enum {
-	DND_LOOT_ORB,
-	DND_LOOT_TOKEN,
-	DND_LOOT_ARMOR,
-	DND_LOOT_CHARM,
-	DND_LOOT_SPECIALTY,
-	DND_LOOT_CHESTKEY
-};
-#define DND_MAX_LOOTBITS 6
 
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
 void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
@@ -767,20 +750,15 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			// for orbs
-			int bits = 0;
 			int p_chance = GetDropChance(i);
 			int j;
 
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1)) {
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1))
 				SpawnOrb(i, true, false, GetOrbDropStack(MonsterProperties[m_id].level));
-				bits |= DND_LOOTBIT_ORB;
-			}
 
 			// for tokens -- same likelihood to drop as orbs
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2)) {
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2))
 				SpawnToken(i, GetOrbDropStack(MonsterProperties[m_id].level));
-				bits |= DND_LOOTBIT_TOKEN;
-			}
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
 				// boot and body armor chance is equal
@@ -801,7 +779,6 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 					SpawnHelmWithMods(i, PickRandomIncursionMod());
 				else
 					SpawnHelm(i, rarity_boost);
-				bits |= DND_LOOTBIT_ARMOR;
 			}
 
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASE_CHARMRATE * drop_boost / 100, m_id, DND_MON_RNG_4)) {
@@ -809,56 +786,21 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 					SpawnCharmWithMods(i, PickRandomIncursionMod());
 				else
 					SpawnCharm(i, rarity_boost);
-
-				bits |= DND_LOOTBIT_CHARM;
 			}
 
-			if(ignoreWeight || (mon_robot && RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_4))) {
+			if(ignoreWeight || (mon_robot && RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_5)))
 				SpawnSpecialtyItem(i, rarity_boost, 0, false, GetRandomSpecialtyItem());
-				bits |= DND_LOOTBIT_SPECIALTY;
-			}
 			
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_2)) {
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_2))
 				SpawnChestKey(i);
-				bits |= DND_LOOTBIT_CHESTKEY;
-			}
+
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_FLASK_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_6))
+				SpawnFlask(i, rarity_boost);
 
 			// made this not tied to player's droprate
 			j = MonsterProperties[m_id].id;
 			if(isLegendaryMonster(j) && random(0, 1.0) <= DND_LEGENDARY_ITEMDROPRATE)
 				HandleLegendaryMonsterDrop(j, i);
-
-			// luck mastery check for inventory items --- they need special handling
-			for(j = 0; j < DND_MAX_LOOTBITS; ++j) {
-				if(IsSet(bits, j) && CheckPlayerLuckDuplicator(i)) {
-					switch(j) {
-						case DND_LOOT_ORB:
-							SpawnOrb(i, true);
-						break;
-						case DND_LOOT_TOKEN:
-							SpawnToken(i);
-						break;
-						case DND_LOOT_ARMOR:
-							tmp = random(1, 100);
-							if(tmp <= 33)
-								SpawnArmor(i, rarity_boost, 0, false, m_id);
-							else if(tmp <= 66)
-								SpawnBoot(i, rarity_boost);
-							else
-								SpawnHelm(i, rarity_boost);
-						break;
-						case DND_LOOT_CHARM:
-							SpawnCharm(i, rarity_boost);
-						break;
-						case DND_LOOT_SPECIALTY:
-							SpawnSpecialtyItem(i, rarity_boost, 0, false, GetRandomSpecialtyItem());
-						break;
-						case DND_LOOT_CHESTKEY:
-							SpawnChestKey(i);
-						break;
-					}
-				}
-			}
 		}
 	}
 }

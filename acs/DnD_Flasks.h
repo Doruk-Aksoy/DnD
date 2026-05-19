@@ -8,6 +8,8 @@
 
 #define FLASK_RECOVERY_TICRATE 2
 
+#define DND_FLASK_DROPRATE 0.0065
+
 enum {
     DND_FLASK_LIFE_SMALL,
     DND_FLASK_LIFE_MEDIUM,
@@ -203,7 +205,7 @@ int GetFlaskAttributeExtra(int pnum, int flask_id, int attrib_to_check) {
 void GiveSpecificFlaskCharges(int pnum, int amt, int flask_id) {
 	// check for inc charges gained mod on flask
 	int temp;
-	if((temp = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY)))
+	if((temp = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY) + GetPlayerAttributeValue(pnum, INV_INCFLASKCHARGEGAINED)))
 		amt = amt * (100 + temp) / 100;
 
 	FlaskData[pnum][flask_id].curr_charges += amt;
@@ -523,7 +525,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 		// instant recovery check
 		if((GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INSTANTONLOWLIFE) && IsLowLife()) || GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INSTANTRECOVERY))
 			total_time = 1;
-		else if((rem = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCRECOVERYRATE)))
+		else if((rem = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCRECOVERYRATE) + GetPlayerAttributeValue(pnum, INV_FLASKLIFERECOVERYRATE)))
 			total_time = total_time * 100 / (100 + rem);
 
 		// quality increases amount recovered

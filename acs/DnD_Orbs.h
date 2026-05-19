@@ -1541,10 +1541,6 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 		SpawnDrop(GetInventoryName(i + ORBS_BEGIN), 24.0, 16, pnum + 1, c);
 		if (sound)
 			ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_ORB, i);
-			
-		// force noRepeat
-		if(!noRepeat && CheckPlayerLuckDuplicator(pnum))
-			SpawnOrb(pnum, sound, true);
 	}
 }
 

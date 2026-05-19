@@ -51,7 +51,7 @@ IATTR_IMP_FLASK6    = "to physical resistance for";
 IATTR_IMP_FLASK7    = "to magic resistance for";
 IATTR_IMP_FLASK8    = "increased critical strike chance for";
 IATTR_IMP_FLASK9    = "Physical attacks are imbued with silver for";
-IATTR_IMP_FLASK10   = "increased damage and create consecrated ground for";
+IATTR_IMP_FLASK10   = "increased damage and slain enemies rest in peace for";
 IATTR_IMP_FLASK11   = "increased movement speed and slow immunity for";
 IATTR_IMP_FLASK12   = "to mitigation chance and gain phasing for";
 
