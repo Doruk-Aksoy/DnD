@@ -3,6 +3,8 @@ Actor DnD_MonsterSpawner {
 	Radius 1
 	Height 1
 	-COUNTKILL
+	-SHOOTABLE
+	-SOLID
 	+NOGRAVITY
 }
 

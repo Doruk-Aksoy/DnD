@@ -4698,8 +4698,15 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 
 		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, CountNewLinesInText(modText, NEXT_LINE_LEN_ATTR + 8));
 	}
-	else // draw using our established drawing routine
-		DrawInventoryText(extra1, extra2, pnum, mx, my, itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count);
+	else { 
+		// draw using our established drawing routine
+		DrawInventoryText(
+			extra1, extra2, pnum, mx, my, itype, 
+			GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), 
+			id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count, false,
+			PlayerCursorData.itemHovered 
+		);
+	}
 }
 
 void HandleCraftingView(int pnum, menu_inventory_T module& p, int boxid, int curopt, int k) {

@@ -741,7 +741,6 @@ Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
 void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
-	bool mon_robot = IsActorRobotic(tid);
 	int tmp;
 
 	bool incursion = IsIncursionMonster(m_id);
@@ -788,7 +787,7 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 					SpawnCharm(i, rarity_boost);
 			}
 
-			if(ignoreWeight || (mon_robot && RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_5)))
+			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_5))
 				SpawnSpecialtyItem(i, rarity_boost, 0, false, GetRandomSpecialtyItem());
 			
 			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_2))
@@ -1394,6 +1393,8 @@ void ClearLingeringBuffs(int pnum) {
 
 	if(CheckInventory("Wanderer_Ascended"))
 		UndoWandererAscension();
+
+	ClearFlaskStates(pnum);
 }
 
 void RestorePersistentBuffs(int pnum) {

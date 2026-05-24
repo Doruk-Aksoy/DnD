@@ -350,7 +350,7 @@ enum {
 
 global bool 6: PlayerGameState[MAXPLAYERS];
 
-#define MAPLOOTPENALITY_FACTOR 4
+#define MAPLOOTPENALTY_FACTOR 4
 
 // can voteskip only twice before loot affects badly -- reason this is 2 + 1 is because each time we enter a map we add 1, if we beat the map legitimately its reduced by 1
 // but if we voteskip from the map we got, then this'll be 2 and then we are in trouble until we beat maps legitimately again -- once we legit beat maps if our skip was > 1 we reduce it by 2

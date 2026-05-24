@@ -3069,7 +3069,7 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	GiveInventory("ParsingData", 1);
 	ResetAllSpellCooldowns(); // reset all leftover cooldowns
-	ResetPlayerFlaskData(pnum);
+	UpdatePlayerFlaskData(pnum, true);
 	
 	// scanner runner
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
@@ -3413,36 +3413,6 @@ Script 994 (int type, int extra, int wantNoAmmo) {
 		res = GetPlayerInput(-1, INPUT_BUTTONS) & BT_ALTATTACK;
 	else if(type == 4)
 		res = Clamp_Between(GetCVar("dnd_respawn_count"), 1, 0x7FFFFFFF);
-	// the lower section is not used anymore
-	/*else if(type > 4 && type < 9) { // keep until cleanup
-		if(GetCVar("dnd_monsterscale")) {
-			int bonus = 0;
-			if(type == 5) {
-				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
-				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].flags & )
-					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
-				res >>= 16;
-			}
-			else if(type == 6) {
-				SetActivatorToTarget(0);
-				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
-				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].flags & )
-					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
-				res >>= 16;
-			}
-			else if(type == 7) {
-				bonus = (MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRASTRONG]) ? DND_ELITE_EXTRASTRONG_BONUS : 0;
-				res = (Clamp_Between(extra, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100));
-				if(MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].flags & )
-					res = FixedMul(res, 1.0 + DND_ELITE_DMGSCALE + bonus);
-				res >>= 16;
-			}
-			else if(type == 8)
-				res = MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].level;
-		}
-	}*/
 	else if(type == 9)
 		res = GetPlayerInput(-1, INPUT_BUTTONS) & BT_RELOAD;
 	else if(type == 10) { // checks shell clip size
@@ -6072,7 +6042,7 @@ Script 68 (int x) NET {
 		else if(x == 420) {
 			//Log(s:"charm");
 			//SpawnCharm(0, true);
-			//SpawnCharm(0, true);
+			SpawnCharm(0, true);
 			//Log(s:"armor");
 			//SpawnArmor(0, true, 0);
 			//Log(s:"pcore");
@@ -6096,11 +6066,11 @@ Script 68 (int x) NET {
 			//SpawnBoot(0, 0);
 			//Log(s:"helm");
 			//SpawnHelm(0, 0);
-			//SpawnOrbForAll(1, random(300, 500));
+			SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_MELEERANGE);
-			for(int k = FLASKS_BEGIN; k <= FLASKS_END; ++k)
-				SpawnFlask(0, 0, k);
+			//for(int k = FLASKS_BEGIN; k <= FLASKS_END; ++k)
+				SpawnFlask(0, 0);
 			//SpawnFlask(0, 0);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);

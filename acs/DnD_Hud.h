@@ -814,15 +814,14 @@ void HandleCurseOverlays(int mon_tid) {
 
 void DrawInventoryInfo(int pnum) {
 	int pn, mx, my, offset, stack = 0;
-	
-	if(CheckInventory("DnD_SelectedCharmBox"))
-		DrawInventoryInfo_Field(pnum, CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, true);
-		
+
 	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
-	if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource) != DND_ITEM_NULL) {
+	int isubt = -1;
+	
+	if(itype != DND_ITEM_NULL) {
 		DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18 - ITEMINFOBG_MAXMIDS, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 
-		int isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
+		isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		
 		mx = HUDMAX_XF - (PlayerCursorData.posx & MMASK) + 16.1;
 		my = HUDMAX_YF - (PlayerCursorData.posy & MMASK) + 16.1;
@@ -873,6 +872,11 @@ void DrawInventoryInfo(int pnum) {
 		);
 		SetHudClipRect(0, 0, 0, 0, 0);
 		SetHudSize(PlayerCursorData.itemHoveredDim.x, PlayerCursorData.itemHoveredDim.y, 1);
+	}
+
+	// if we have some sort of orb hovered, highlight attributes in case they can be related
+	if(CheckInventory("DnD_SelectedCharmBox")) {
+		DrawInventoryInfo_Field(pnum, CheckInventory("DnD_SelectedCharmBox") - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, 0, true);
 	}
 }
 

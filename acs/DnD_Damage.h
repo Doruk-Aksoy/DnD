@@ -4035,6 +4035,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					}
 					else if(m_id == DND_WEAPON_ADMINPISTOL) {
 						dmg = 2 * GetActorProperty(victim, APROP_HEALTH);
+						GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 						SetResultValue(dmg);
 						Terminate;
 					}

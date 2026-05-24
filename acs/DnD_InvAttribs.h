@@ -635,7 +635,11 @@ enum {
 	INV_ATTR_TAG_FIRE_ID,
 	INV_ATTR_TAG_ICE_ID,
 	INV_ATTR_TAG_POISON_ID,
-	INV_ATTR_TAG_LIGHTNING_ID
+	INV_ATTR_TAG_LIGHTNING_ID,
+
+	// these arent "real" tags, but more like sub tags --- dont add them to the below group otherwise they get grouped in their own tag group, which doesnt make sense for these
+	INV_ATTR_TAG_STAMINA_ID,
+	INV_ATTR_TAG_FLASK_ID
 };
 #define DND_ATTRIB_TAG_ID_BEGIN INV_ATTR_TAG_DAMAGE_ID
 #define DND_ATTRIB_TAG_ID_END INV_ATTR_TAG_LIGHTNING_ID
@@ -2446,21 +2450,34 @@ str GetInventoryAttributeText(int attr) {
 	return StrParam(s:"IATTR_TX", d:UNIQUE_MAP_MACRO(attr));
 }
 
-str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0, int attr_extra = 0) {
+str ItemAttributeString(
+	int attr, int item_type, int item_subtype, 
+	int val, int tier = 0, bool showDetailedMods = false, 
+	int extra = -1, bool isFractured = false, int qual = 0, 
+	int attr_extra = 0, bool craftAffected = false
+)
+{
 	str text = GetInventoryAttributeText(attr);
 	str ess_tag = "\c[Q7]";
 	str col_tag = "\c[Q9]";
 	str no_tag = "\c- ";
 
-	if(isFractured) {
-		col_tag = "\c[E2]";
-		ess_tag = "\c[E2]";
-		no_tag = "\c[E2] ";
+	if(!craftAffected) {
+		if(isFractured) {
+			col_tag = "\c[E2]";
+			ess_tag = "\c[E2]";
+			no_tag = "\c[E2] ";
+		}
+		else if(attr >= FIRST_INCURSION_ATTRIBUTE && attr <= LAST_INCURSION_ATTRIBUTE) {
+			ess_tag = "\c[Q0]";
+			col_tag = "\c[Q9]";
+			no_tag = "\c[Q0] ";
+		}
 	}
-	else if(attr >= FIRST_INCURSION_ATTRIBUTE && attr <= LAST_INCURSION_ATTRIBUTE) {
-		ess_tag = "\c[Q0]";
-		col_tag = "\c[Q9]";
-		no_tag = "\c[Q0] ";
+	else {
+		ess_tag = "\ck";
+		col_tag = "\ck";
+		no_tag = "\ck ";
 	}
 
 	// dont draw essence mods as special if they are on unique items
@@ -2931,7 +2948,9 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		case INV_FLASK_IMMUNE_IGNITE:
 		case INV_FLASK_IMMUNE_POISON:
 		case INV_FLASK_IMMUNE_SHOCK:
-		return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
+		if(showDetailedMods)
+			return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
+		return StrParam(l:text);
 		
 		case INV_INC_PASSIVEREGEN:
 			if(showDetailedMods) {
@@ -3002,8 +3021,8 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
 
 		case INV_FLASK_IMP_GRANITE:
-		case INV_FLASK_IMP_BASALT:
 		return StrParam(s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation(extra * 1.0 / TICRATE, false), s:no_tag, l:"IATTR_IMP_FLASK_SECONDS");
+		case INV_FLASK_IMP_BASALT:
 		case INV_FLASK_IMP_BISMUTH:
 		case INV_FLASK_IMP_INSULAR:
 		case INV_FLASK_IMP_OAK:
@@ -3080,11 +3099,17 @@ str ItemAttributeString(int attr, int item_type, int item_subtype, int val, int 
 }
 
 // this definitely needs some better cleaning up for sure... in the future
-str GetItemAttributeText(int attr, int item_type, int item_subtype, int val1, int val2 = -1, int tier = 0, bool showDetailedMods = false, int extra = -1, bool isFractured = false, int qual = 0) {
+str GetItemAttributeText(
+	int attr, int item_type, int item_subtype, 
+	int val1, int val2 = -1, int tier = 0, 
+	bool showDetailedMods = false, int extra = -1, bool isFractured = false, 
+	int qual = 0, bool craftAffected = false
+)
+{
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
 	if(attr <= LAST_FLASK_ATTRIBUTE)
-		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2);
+		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
 
 	if(qual) {
 		if(!IsAttributeQualityException(attr)) {

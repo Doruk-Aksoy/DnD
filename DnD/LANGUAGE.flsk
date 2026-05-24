@@ -18,7 +18,7 @@ DND_FLASK12         = "Diamond Flask";
 DND_FLASK13         = "Silver Flask";
 DND_FLASK14         = "Sulphur Flask";
 DND_FLASK15         = "Quicksilver Flask";
-DND_FLASK15         = "Quartz Flask";
+DND_FLASK16         = "Quartz Flask";
 
 // Inventory images
 

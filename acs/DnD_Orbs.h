@@ -77,6 +77,7 @@ bool CanAddModToItem(int pnum, int itemtype, int item_index, int add_lim) {
 	return res;
 }
 
+// extra is inventory position
 // extra type holds the base item type, no extra information - this comes from the function that calls this
 bool CanUseOrb(int orbtype, int extra, int extratype) {
 	bool res = 0;
@@ -138,7 +139,6 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_FORTITUDE:
 		case DND_ORB_PROSPERITY:
 		case DND_ORB_TINKERER:
-		case DND_ORB_TURMOIL:
 		case DND_ORB_TREMORS:
 		case DND_ORB_HEXES:
 		case DND_ORB_GROWTH:
@@ -151,6 +151,12 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_VILE:
 		case DND_ORB_EMBERS:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK) {
+				// don't let this be used on a unique
+				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
+			}
+		break;
+		case DND_ORB_TURMOIL:
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// don't let this be used on a unique
 				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
 			}
@@ -383,6 +389,8 @@ int CheckOrderOrb(int attribute_id) {
 	return ItemModTable[attribute_id].tags & (1 << stored_tag);
 }
 
+// extra holds item position
+// extra2 only matters for orb of assimilation (or 2 item use crafts)
 void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	int res = -1;
 	int temp;
@@ -1624,6 +1632,53 @@ Script "DND Orb Use" (int orbtype, int extra, int extra2) {
 	Delay(const:2);
 	if(orbtype != DND_ORB_AFFLUENCE)
 		SetInventory("AffluenceCounter", 0);
+}
+
+typedef struct orb_craft_result {
+	int count;
+	int id_list[MAX_ITEM_ATTRIBUTES];
+} orb_craft_result_T;
+
+orb_craft_result_T hovered_orb_craft_result;
+
+// positive values indicate tags
+void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
+	hovered_orb_craft_result.count = 0;
+
+	int i;
+	switch(orb_type) {
+		case DND_ORB_PRISMATIC:
+		case DND_ORB_DESTRUCTION:
+		case DND_ORB_VIOLENCE:
+		case DND_ORB_FORTITUDE:
+		case DND_ORB_PROSPERITY:
+		case DND_ORB_TINKERER:
+		case DND_ORB_TREMORS:
+		case DND_ORB_HEXES:
+		case DND_ORB_GROWTH:
+		case DND_ORB_CRACKLING:
+		case DND_ORB_BRUTE:
+		case DND_ORB_JAGGED:
+		case DND_ORB_SAVAGERY:
+		case DND_ORB_WINTER:
+		case DND_ORB_VOLTAIC:
+		case DND_ORB_VILE:
+		case DND_ORB_EMBERS:
+			// if order isn't used, then we mark everything as its a direct reforge
+			if(!CheckInventory("OrderUsed")) {
+				hovered_orb_craft_result.count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_pos, -1, source);
+				for(i = 0; i < hovered_orb_craft_result.count; ++i)
+					hovered_orb_craft_result.id_list[i] = i;
+			}
+		break;
+		case DND_ORB_TURMOIL:
+			hovered_orb_craft_result.count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_pos, -1, source);
+			for(i = 0; i < hovered_orb_craft_result.count; ++i)
+				hovered_orb_craft_result.id_list[i] = i;
+		break;
+
+		// other orbs that do a certain effect based on conditions including order orb
+	}
 }
 
 #endif

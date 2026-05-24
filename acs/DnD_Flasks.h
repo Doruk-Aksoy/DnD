@@ -626,6 +626,13 @@ Script "DnD Flask Use" (int flask_id) NET {
 	}
 }
 
+void ClearFlaskStates(int pnum) {
+	for(int i = 0; i < MAX_FLASK_SLOTS; ++i) {
+		FlaskData[pnum][i].curr_tics = 0;
+		SetInventory(StrParam(s:"Flask", d:i + 1, s:"_TicCounter"), 0);
+	}
+}
+
 Script "DnD Flask Message" (int id, int type) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;

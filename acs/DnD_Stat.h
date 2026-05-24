@@ -464,7 +464,7 @@ int RewardActorExp(int tid, int amt) {
 	amt = amt * GetPlayerWisdomBonus(tid - P_TIDSTART, tid) / 100;
 
 	if(PlayerActivities[tid - P_TIDSTART].loot_penalty)
-		amt /= MAPLOOTPENALITY_FACTOR;
+		amt /= MAPLOOTPENALTY_FACTOR;
 
 	GiveActorExp(tid, amt);
 	return amt;
@@ -474,7 +474,7 @@ int RewardActorCredit(int tid, int amt) {
 	amt = amt * GetPlayerGreedBonus(tid - P_TIDSTART, tid) / 100;
 
 	if(PlayerActivities[tid - P_TIDSTART].loot_penalty)
-		amt /= MAPLOOTPENALITY_FACTOR;
+		amt /= MAPLOOTPENALTY_FACTOR;
 
 	GiveActorCredit(tid, amt);
 	return amt;
@@ -634,16 +634,17 @@ int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
 	base += GetPlayerAttributeValue(pnum, INV_DROPCHANCE_INCREASE);
-	base += Clamp_Between(DND_STARTER_LUCK - (GetLevel() - 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0) + MapData[DND_MAPDATA_LOOTBONUS];
 		
 	// more chance to find loot
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 
+	base += Clamp_Between(DND_STARTER_LUCK - (GetLevel() - 1) * DND_LUCK_DIMINISHPERLVL, 0, 1.0) + MapData[DND_MAPDATA_LOOTBONUS];
+
 	// chances reduced to 25%
 	if(PlayerActivities[pnum].loot_penalty)
-		base /= MAPLOOTPENALITY_FACTOR;
+		base /= MAPLOOTPENALTY_FACTOR;
 
 	return base;
 }

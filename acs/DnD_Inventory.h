@@ -2039,7 +2039,18 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 	}
 }
 
-void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int itype, int isubt, int id_begin, int id_mult, int hx, int hy, int bg_posx, int bg_posy, int attr_count = 0, bool isOutsideSource = false) {
+void DrawInventoryText(
+	int topboxid, 
+	int source, 
+	int pnum, 
+	int bx, int by, 
+	int itype, int isubt, 
+	int id_begin, int id_mult, int hx, int hy, 
+	int bg_posx, int bg_posy, 
+	int attr_count = 0, bool isOutsideSource = false,
+	int craftMaterialIdx = -1
+)
+{
 	int i, j;
 	int val, temp, lvl;
 	int yoff = 0.0;
@@ -2079,6 +2090,24 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 		return;
 	}
 	else {
+		if(craftMaterialIdx != -1) {
+			i = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, craftMaterialIdx, -1, source);
+			j = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, craftMaterialIdx, -1, source);
+			if(i == DND_ITEM_ORB) {
+				craftMaterialIdx = CanUseOrb(j, topboxid, itype);
+				if(craftMaterialIdx) {
+					GetOrbAffectedIds(j, pnum, topboxid, source);
+					craftMaterialIdx = i | (j << 16);
+				}
+			}
+			else {
+				// reset if its not a crafting item being hovered (ex: item itself being hovered, we dont care)
+				craftMaterialIdx = -1;
+			}
+		}
+		// after this point, if user made a selection to craft an item, and is hovering a craftable item, craftMaterialIdx will hold if its appropriate to use or not
+		// it will also hold a non-zero value to indicate the "tags" of attributes that will be affected
+
 		// this holds charm's tier id
 		lvl = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, topboxid, -1, source);
 		
@@ -2171,16 +2200,35 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6 - ITEMINFOBG_MAXMIDS, val, GetIntegerBits(bx) + 0.4, by + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
-		by += 8.0;
+		by += 12.0;
 
 		// optimization for the potentially busy section with strparam spam
-		if(GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, source) || GetItemSyncValue(pnum, DND_SYNC_LASTSHOWNTEXTMODE, topboxid, -1, source) != showModTiers) {
+		if
+		(
+			GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, source) || 
+			GetItemSyncValue(pnum, DND_SYNC_LASTSHOWNTEXTMODE, topboxid, -1, source) != showModTiers ||
+			GetItemSyncValue(pnum, DND_SYNC_LASTSHOWNCRAFTVALS, topboxid, -1, source) != craftMaterialIdx
+		)
+		{
 			tmp_text = "";
 			for(j = 0; j < attr_count; ++j) {
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, topboxid, j, source);
 				lvl = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, topboxid, j, source);
 				if(isUnique)
 					lvl = itype;
+
+				i = 0;
+				if(craftMaterialIdx > 0 && hovered_orb_craft_result.count) {
+					for(i = 0; i < hovered_orb_craft_result.count; ++i)
+						if(hovered_orb_craft_result.id_list[i] == j) {
+							i = 1;
+							break;
+						}
+					if(i != 1)
+						i = 0;
+				}
+
+				printbold(s:"count: ", d:hovered_orb_craft_result.count, s: " ", d:i);
 	
 				tmp_text = StrParam(s:tmp_text,
 					s:GetItemAttributeText(
@@ -2193,9 +2241,10 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 						showModTiers, 
 						!isUnique ? -1 : j, 
 						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source),
-						val
+						val,
+						i
 					),
-					s: (j != attr_count - 1) ? "\n" : ""
+					s: "\n"
 				);
 			}
 	
@@ -2213,6 +2262,7 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 
 			SetItemSyncValue(pnum, DND_SYNC_ISDIRTY, topboxid, -1, false, source);
 			SetItemSyncValue(pnum, DND_SYNC_LASTSHOWNTEXTMODE, topboxid, -1, showModTiers, source);
+			SetItemSyncValue(pnum, DND_SYNC_LASTSHOWNCRAFTVALS, topboxid, -1, craftMaterialIdx, source);
 			SetItemSyncValue(pnum, DND_SYNC_TEXTID, topboxid, -1, tmp_text, source);
 		}
 		else
@@ -2225,31 +2275,46 @@ void DrawInventoryText(int topboxid, int source, int pnum, int bx, int by, int i
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 - ITEMINFOBG_MAXMIDS, CR_WHITE, bx, by + yoff, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
-		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 15);
-		yoff += 8.0 * temp;
-		lines_count += max(1, temp);
+		temp = CountNewLinesInText(tmp_text, NEXT_LINE_LEN_ATTR + 2);
+		lines_count += attr_count;
+		isUnique = abs(temp - lines_count) >= 2;
+		if(lines_count < temp)
+			lines_count = temp;
 	}
 
-	DrawItemInfoBackground(id_begin - id_mult * MAX_INVENTORY_BOXES, hx, hy, bg_posx, bg_posy, lines_count);
+	DrawItemInfoBackground(id_begin - id_mult * MAX_INVENTORY_BOXES, hx, hy, bg_posx, bg_posy, lines_count, isUnique, craftMaterialIdx);
 }
 
-void DrawItemInfoBackground(int hudid_begin, int hx, int hy, int bg_posx, int bg_posy, int lines_count) {
+void DrawItemInfoBackground(int hudid_begin, int hx, int hy, int bg_posx, int bg_posy, int lines_count, bool adjust_count = false, int craft_status = -1) {
 	SetHudClipRect(0, 0, 0, 0, 0);
 
 	// finally draw the background -- use hx and hy to set hudsize
 	SetHudSize(hx, hy, 1);
 	// per amount of this many lines, get a new midsection in
-	int midcount = 1 + ((lines_count * 0.525) >> 16);
+	if(adjust_count || lines_count > 6)
+		lines_count = 1 + ((lines_count * 0.666) >> 16);
 
-	SetFont("LDTITTOP");
+	if(lines_count > ITEMINFOBG_MAXMIDS)
+		lines_count = ITEMINFOBG_MAXMIDS;
+
+	str mid_img = "LDTITMID";
+	if(craft_status)
+		SetFont("LDTITTOP");
+	else {
+		SetFont("LDTITTOR");
+		mid_img = "LDTITMIR";
+	}
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, bg_posx, bg_posy, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 
-	for(int i = 0; i < midcount; ++i) {
-		SetFont("LDTITMID");
+	for(int i = 0; i < lines_count; ++i) {
+		SetFont(mid_img);
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, bg_posx, bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 
-	SetFont("LDTITBOT");
+	if(craft_status)
+		SetFont("LDTITBOT");
+	else
+		SetFont("LDTITBOR");
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 2 - i, CR_WHITE, bg_posx, bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 }
 
@@ -2474,6 +2539,7 @@ bool IsUsableOnInventory(int itype) {
 		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
+		case DND_ITEM_FLASK:
 		case DND_ITEM_SPECIALTY_DOOMGUY:
 		case DND_ITEM_SPECIALTY_MARINE:
 		case DND_ITEM_SPECIALTY_HOBO:
@@ -3873,7 +3939,7 @@ int MakeUnique(int item_pos, int item_type, int pnum, int unique_id = -1) {
 				int bias = Timer() & 0xFFFF;
 				i = random(bias + beg, bias + end) - bias;
 				//i = random(UITEM_ELEMENTALHARMONY, UITEM_THORNVEIN);
-				i = UITEM_WELLOFPOWER;
+				//i = UITEM_WELLOFPOWER;
 				//i = random(UITEM_UNITY, UITEM_MINDFORGE);
 			}
 		#endif

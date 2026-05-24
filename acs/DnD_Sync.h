@@ -30,6 +30,7 @@ enum {
 	DND_SYNC_ITEMQUALITY,
 	DND_SYNC_ISDIRTY,
 	DND_SYNC_LASTSHOWNTEXTMODE,			// stores if it last drew text with detailed attrib mode or not (1 or 0)
+	DND_SYNC_LASTSHOWNCRAFTVALS,		// stores last shown craft text values
 	DND_SYNC_TEXTID,
 	// add non attribute related things from above attrib count
 
@@ -100,6 +101,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Items_Used[pnum][extra].isDirty;
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 			return Items_Used[pnum][extra].last_text_mode;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+			return Items_Used[pnum][extra].last_craft_vals;
 			case DND_SYNC_TEXTID:
 			return Items_Used[pnum][extra].textID;
 
@@ -154,6 +157,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Inventories_On_Field[extra].isDirty;
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 			return Inventories_On_Field[extra].last_text_mode;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+			return Inventories_On_Field[extra].last_craft_vals;
 			case DND_SYNC_TEXTID:
 			return Inventories_On_Field[extra].textID;
 
@@ -208,6 +213,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].isDirty;
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 			return PlayerInventoryList[pnum][extra].last_text_mode;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+			return PlayerInventoryList[pnum][extra].last_craft_vals;
 			case DND_SYNC_TEXTID:
 			return PlayerInventoryList[pnum][extra].textID;
 
@@ -262,6 +269,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return TradeViewList[pnum][extra].isDirty;
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 			return TradeViewList[pnum][extra].last_text_mode;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+			return TradeViewList[pnum][extra].last_craft_vals;
 			case DND_SYNC_TEXTID:
 			return TradeViewList[pnum][extra].textID;
 
@@ -316,6 +325,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerStashList[pnum][page][extra].isDirty;
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 			return PlayerStashList[pnum][page][extra].last_text_mode;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+			return PlayerStashList[pnum][page][extra].last_craft_vals;
 			case DND_SYNC_TEXTID:
 			return PlayerStashList[pnum][page][extra].textID;
 
@@ -394,6 +405,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 				Items_Used[pnum][extra].last_text_mode = val;
 			break;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+				Items_Used[pnum][extra].last_craft_vals = val;
+			break;
 			case DND_SYNC_TEXTID:
 				Items_Used[pnum][extra].textID = val;
 			break;
@@ -468,6 +482,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 				Inventories_On_Field[extra].last_text_mode = val;
+			break;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+				Inventories_On_Field[extra].last_craft_vals = val;
 			break;
 			case DND_SYNC_TEXTID:
 				Inventories_On_Field[extra].textID = val;
@@ -544,6 +561,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 				PlayerInventoryList[pnum][extra].last_text_mode = val;
 			break;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+				PlayerInventoryList[pnum][extra].last_craft_vals = val;
+			break;
 			case DND_SYNC_TEXTID:
 				PlayerInventoryList[pnum][extra].textID = val;
 			break;
@@ -619,6 +639,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 				TradeViewList[pnum][extra].last_text_mode = val;
 			break;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+				TradeViewList[pnum][extra].last_craft_vals = val;
+			break;
 			case DND_SYNC_TEXTID:
 				TradeViewList[pnum][extra].textID = val;
 			break;
@@ -693,6 +716,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_LASTSHOWNTEXTMODE:
 				PlayerStashList[pnum][page][extra].last_text_mode = val;
+			break;
+			case DND_SYNC_LASTSHOWNCRAFTVALS:
+				PlayerStashList[pnum][page][extra].last_craft_vals = val;
 			break;
 			case DND_SYNC_TEXTID:
 				PlayerStashList[pnum][page][extra].textID = val;

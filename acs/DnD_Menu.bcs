@@ -217,11 +217,11 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	pstat_text_T& pstat_text = GetPlayerStatText();
 	
 	// initialize cursor data
-	resetCursorHoverProc();
+	ResetCursorHoverProc();
 	
 	ResetCursorDragData();
 
-	resetCursorClickProc();
+	ResetCursorClickProc();
 
 	PlayerCursorData.posx = HUDMAX_XF / 2;
 	PlayerCursorData.posy = HUDMAX_YF / 2;

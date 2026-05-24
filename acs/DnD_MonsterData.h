@@ -1901,6 +1901,15 @@ void SetupIncursionMonsters() {
 	MonsterData[MONSTER_ABYSS_MOTHERDEMON].trait_list[DND_HOMING] = true;
 }
 
+void SetupUltimatumMonsters() {
+	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].health = 2000;
+	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_TOXICBLOOD] = true;
+	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_EXPLOSIVE_IMMUNE] = true;
+	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_MOBILITY] = true;
+}
+
 void SetupMonsterWeights() {
 	// zombieman
 	int id = 0;
@@ -2157,6 +2166,8 @@ Script "DnD Setup Monster Data" OPEN {
 		SetupMonsterWeights();
 		Delay(const:10);
 		SetupIncursionMonsters();
+		Delay(const:5);
+		SetupUltimatumMonsters();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
 }
@@ -2167,6 +2178,8 @@ Script "DnD Setup Monster Data CS" OPEN CLIENTSIDE {
 		SetupMonsterData();
 		Delay(const:10);
 		SetupIncursionMonsters();
+		Delay(const:5);
+		SetupUltimatumMonsters();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
 }

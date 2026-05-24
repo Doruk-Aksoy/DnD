@@ -46,8 +46,8 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define TIPBOX_MIDLEN 39.0
 
 #define ITEMINFOBG_TOPLEN 17.0
-#define ITEMINFOBG_MIDLEN 16.0
-#define ITEMINFOBG_MAXMIDS 12
+#define ITEMINFOBG_MIDLEN 9.0
+#define ITEMINFOBG_MAXMIDS 10
 #define ITEMINFO_CLIPWIDTH 360
 
 typedef struct coord {
