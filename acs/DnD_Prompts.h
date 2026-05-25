@@ -137,6 +137,7 @@ void ClosePrompt(bool non_npc_use = false) {
 		TakeInventory("NPC_Offer_Declined", 1);
 	}
 	TakeInventory("ShowingPrompt", 1);
+	TakeInventory("ShowingMerchantView", 1);
 	GiveInventory("NPC_Trigger_Cooldown", 1);
 	LocalAmbientSound("RPG/MenuClose", 127);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);

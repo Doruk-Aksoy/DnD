@@ -455,7 +455,13 @@ Script "DND Server Box Receive - Merchant" (int pnum, int boxid) NET {
                     SyncItemData_Null(MAXPLAYERS, item_count - 1, DND_SYNC_ITEMSOURCE_TRADEVIEW, 1, 1, true);
 
                     TakeInventory("DnD_SpecialText_Timer", 1);
-                    GiveInventory("DnD_RefreshPane", 1);
+
+                    // make every player refresh
+                    for(i = 0; i < MAXPLAYERS; ++i) {
+                        temp = i + P_TIDSTART;
+                        if(PlayerInGame(i) && !PlayerIsSpectator(i) && IsActorAlive(temp))
+                            GiveActorInventory(temp, "DnD_RefreshPane", 1);
+                    }
                 }
                 else
                     ACS_NamedExecuteAlways("DnD Inventory Full CS", 0, pnum);

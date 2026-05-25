@@ -2,8 +2,8 @@ Actor HellKnightSpawner_Elite : DnD_MonsterSpawner 25008 {
 	//$Category Monsters/DnD
 	//$Title "Elite HellKnight Spawner"
 	//$Sprite BOS4A1C1
-	Radius 24
-	Height 64
+	//$Radius 24
+	//$Height 64
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_HELLKNIGHTID)

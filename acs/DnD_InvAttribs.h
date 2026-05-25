@@ -2454,7 +2454,7 @@ str ItemAttributeString(
 	int attr, int item_type, int item_subtype, 
 	int val, int tier = 0, bool showDetailedMods = false, 
 	int extra = -1, bool isFractured = false, int qual = 0, 
-	int attr_extra = 0, bool craftAffected = false
+	int attr_extra = 0, int craftAffected = 0
 )
 {
 	str text = GetInventoryAttributeText(attr);
@@ -2462,7 +2462,7 @@ str ItemAttributeString(
 	str col_tag = "\c[Q9]";
 	str no_tag = "\c- ";
 
-	if(!craftAffected) {
+	if(!(craftAffected & 0xFF)) {
 		if(isFractured) {
 			col_tag = "\c[E2]";
 			ess_tag = "\c[E2]";
@@ -2475,9 +2475,11 @@ str ItemAttributeString(
 		}
 	}
 	else {
-		ess_tag = "\ck";
+		if((craftAffected >> 8) != DND_ORBEFFECT_NUMBER) {
+			ess_tag = "\ck";
+			no_tag = "\ck ";
+		}
 		col_tag = "\ck";
-		no_tag = "\ck ";
 	}
 
 	// dont draw essence mods as special if they are on unique items
@@ -3103,7 +3105,7 @@ str GetItemAttributeText(
 	int attr, int item_type, int item_subtype, 
 	int val1, int val2 = -1, int tier = 0, 
 	bool showDetailedMods = false, int extra = -1, bool isFractured = false, 
-	int qual = 0, bool craftAffected = false
+	int qual = 0, int craftAffected = 0
 )
 {
 	// treat it as normal inv attribute range
@@ -3133,111 +3135,118 @@ str GetItemAttributeText(
 		}
 	}
 
+	str col_tag = "\c[Q9]";
+	str bad_tag = "\cg";
+	if(craftAffected & 0xFF) {
+		col_tag = "\ck";
+		bad_tag = "\ck";
+	}
+
 	// if the item is unique extra is not -1
 	str text = GetInventoryAttributeText(attr);
 	switch(attr) {
 		case INV_EX_FACTOR_SMALLCHARM:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10, s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c-",
+					l:text, s:col_tag, d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10, s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c-",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9]", d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10);
+			return StrParam(l:text, s:col_tag, d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10);
 		
 		case INV_EX_CHANCE_HEALMISSINGONPAIN:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"\c[Q9]", d:val2, s:GetDetailedModRange_Unique(tier, 0, extra, false, true), s:"%\c- ",
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_RECOVERHPHURT",
+					s:col_tag, d:val2, s:GetDetailedModRange_Unique(tier, 0, extra, false, true), s:"%\c- ",
+					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_RECOVERHPHURT",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"\c[Q9]", d:val2, s:"%\c- ", l:"IATTR_TX_CHANCE", l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
+			return StrParam(s:col_tag, d:val2, s:"%\c- ", l:"IATTR_TX_CHANCE", l:text, s:col_tag, d:val1, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
 		
 		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_MAXHEALTH",
+					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_MAXHEALTH",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_MAXHEALTH");
+			return StrParam(l:text, s:col_tag, d:val1, s:"\c- ", l:"IATTR_MAXHEALTH");
 		
 		case INV_EX_ONKILL_HEALMISSING:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_PMISSHP",
+					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_PMISSHP",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_PMISSHP");
+			return StrParam(l:text, s:col_tag, d:val1, s:"%\c- ", l:"IATTR_PMISSHP");
 		
 		case INV_EX_ABILITY_RALLY:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_RALLY",
+					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_RALLY",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"\c- ", l:"IATTR_RALLY");
+			return StrParam(l:text, s:col_tag, d:val1, s:"\c- ", l:"IATTR_RALLY");
 		
 		case INV_EX_CRITIGNORERESCHANCE:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_CHANCEIGNORERES",
+					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_CHANCEIGNORERES",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9]", d:val1, s:"%\c- ", l:"IATTR_CHANCEIGNORERES");
+			return StrParam(l:text, s:col_tag, d:val1, s:"%\c- ", l:"IATTR_CHANCEIGNORERES");
 		
 		// float factor stuff
 		case INV_EX_MORECRIT_LIGHTNING:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
+					s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
 
 		// float factor that isnt a percentage by representation, but has % at the end
 		case INV_EX_MOREDMGPEROVERHEAT:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false), s:"%\c- ", l:text,
+					s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:"\c[Q9]", s:GetFixedRepresentation(val1, false), s:"%\c- ", l:text);
+			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, false), s:"%\c- ", l:text);
 
 		case INV_EX_INTBONUSTOMELEE:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s: " ", s:"\c[Q9]x", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false),
+					l:text, s: " ", s:col_tag, s:"x", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false),
 					s:"\c- ", l:"IATTR_TX41S", s:"\n", l:"IATTR_TX41B", s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s: " ", s:"\c[Q9]x", s:GetFixedRepresentation(val1, false), s:"\c- ", l:"IATTR_TX41S", s:"\n", l:"IATTR_TX41B");
+			return StrParam(l:text, s: " ", s:col_tag, s:"x", s:GetFixedRepresentation(val1, false), s:"\c- ", l:"IATTR_TX41S", s:"\n", l:"IATTR_TX41B");
 			
 		case INV_EX_SOULWEPSPEN:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_MAGICRES",
+					l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_MAGICRES",
 					s:"\c- - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_MAGICRES");
+			return StrParam(l:text, s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_MAGICRES");
 
 		case INV_EX_SECONDEXPBONUS:
 			if(showDetailedMods) {
 				return StrParam(
-					l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX8B", s:"\n",
-					l:"IATTR_TX8S", s:"\cg", d:val2, s:"%\c-", l:"IATTR_TX8S2",
+					l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX8B", s:"\n",
+					l:"IATTR_TX8S", s:bad_tag, d:val2, s:"%\c-", l:"IATTR_TX8S2",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(l:text, s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX8B", s:"\n", l:"IATTR_TX8S", s:"\cg", d:val2, s:"%\c-", l:"IATTR_TX8S2");
+			return StrParam(l:text, s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX8B", s:"\n", l:"IATTR_TX8S", s:bad_tag, d:val2, s:"%\c-", l:"IATTR_TX8S2");
 
 		case INV_EX_DEADEYEBONUS:
 			if(showDetailedMods)
@@ -3246,69 +3255,69 @@ str GetItemAttributeText(
 
 		case INV_EX_UNITY_RES_BONUS:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX_UNITY", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX38", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX_UNITY", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX38");
+				return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX38", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX38");
 		case INV_EX_UNITY_PEN_BONUS:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX_UNITY", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX39", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX_UNITY", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX39");
+				return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX39", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX39");
 
 		case INV_EX_ESEXPLOSIONHPDMG:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX44", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX44S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX44", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX44S");
+				return StrParam(l:"IATTR_TX44", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX44S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX44", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX44S");
 		case INV_EX_ESCHARGE_USEHP:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX45", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX45S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX45", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX45S");
+				return StrParam(l:"IATTR_TX45", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX45S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX45", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX45S");
 
 		case INV_EX_HPTOESHIELD:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX46", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX46S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX46", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX46S");
+				return StrParam(l:"IATTR_TX46", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX46S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX46", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX46S");
 
 		case INV_EX_RESPERESHIELD:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX49", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX49S");
+				return StrParam(l:"IATTR_TX49", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX49", s:col_tag, s:" ", d:val1, s:"\c- ", l:"IATTR_TX49S");
 		case INV_EX_ESHIELDONLYBLOCKPCT:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX50", s:"\cg ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\cg%\c- ", l:"IATTR_TX50S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX50", s:"\cg ", d:val1, s:"%\c- ", l:"IATTR_TX50S");
+				return StrParam(l:"IATTR_TX50", s:bad_tag, s: " ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\cg%\c- ", l:"IATTR_TX50S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX50", s:bad_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX50S");
 
 		case INV_EX_REFILLAMMOONMELEEKILL:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX51", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX51", s:"\c[Q9] ", d:val1, s:"%");
+				return StrParam(l:"IATTR_TX51", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX51", s:col_tag, s:" ", d:val1, s:"%");
 		case INV_EX_SWAPFROMMELEECRIT:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX52", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX52S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX52", s:"\c[Q9] ", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:"IATTR_TX52S");
+				return StrParam(l:"IATTR_TX52", s:col_tag, s:" ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX52S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX52", s:col_tag, s:" ", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:"IATTR_TX52S");
 
 		case INV_EX_SOULPICKUPSINFAMMO:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX55", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX55S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX55", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX55S");
+				return StrParam(l:"IATTR_TX55", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX55S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX55", s:col_tag, s:" ", d:val1, s:"\c- ", l:"IATTR_TX55S");
 
 		case INV_EX_SOULPICKUPSONLYAMMO:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX56", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX56S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX56", s:"\c[Q9] ", d:val1, s:"\c- ", l:"IATTR_TX56S");
+				return StrParam(l:"IATTR_TX56", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX56S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX56", s:col_tag, s:" ", d:val1, s:"\c- ", l:"IATTR_TX56S");
 
 		case INV_EX_STREXTRABONUSTOMELEE:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c- ", l:"IATTR_TX57S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX57", s:"\c[Q9] ", s:GetFixedRepresentation(val1, false), s:"\c- ", l:"IATTR_TX57S");
+				return StrParam(l:"IATTR_TX57", s:col_tag, s:" ", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c- ", l:"IATTR_TX57S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX57", s:col_tag, s:" ", s:GetFixedRepresentation(val1, false), s:"\c- ", l:"IATTR_TX57S");
 
 		case INV_EX_LESSDMGTAKENMAXOVERHEAT:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX62", s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX62S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(l:"IATTR_TX62", s:"\c[Q9] ", d:val1, s:"%\c- ", l:"IATTR_TX62S");
+				return StrParam(l:"IATTR_TX62", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX62S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:"IATTR_TX62", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX62S");
 		
 		case INV_EX_CHANCEGAINXCHARGE:
 			if(showDetailedMods)
-				return StrParam(s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text, s:" \c[Q9]", l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(s:"\c[Q9]", d:val1, s:"%\c- ", l:text, s:" \c[Q9]", l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S");
+				return StrParam(s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text, s:" ", s:col_tag, l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(s:col_tag, d:val1, s:"%\c- ", l:text, s:" ", s:col_tag, l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S");
 		
 		// single text things, no mod ranges, just tier U
 		case INV_EX_KNOCKBACK_IMMUNITY:
@@ -3342,17 +3351,17 @@ str GetItemAttributeText(
 				// singular matters here
 				if(val1 > 1)
 					return StrParam(
-						l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2",
+						l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2",
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				return StrParam(
-					l:text, s:"\c[Q9] ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2S",
+					l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2S",
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
 			if(val1 > 1)
-				return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX29_2");
-			return StrParam(l:text, s:"\c[Q9] ", d:val1, s: "\c- ", l:"IATTR_TX29_2S");
+				return StrParam(l:text, s:col_tag, s:" ", d:val1, s: "\c- ", l:"IATTR_TX29_2");
+			return StrParam(l:text, s:col_tag, s:" ", d:val1, s: "\c- ", l:"IATTR_TX29_2S");
 
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 			return StrParam(l:text, s:" ", l:StrParam(s:"LCHARGE_NOPRE_", d:val2));
@@ -3402,8 +3411,8 @@ str GetItemAttributeText(
 
 		case INV_EX_MOREAMMOUSE:
 			if(showDetailedMods)
-				return StrParam(s:"\c[D4] ", l:text, s:" \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:"IATTR_TX35S", s:" - ", s:GetModTierText(tier, extra));
-			return StrParam(s:"\c[D4] ", l:text, s:" \cg", d:val1, s:"%\c[D4] ", l:"IATTR_TX35S");
+				return StrParam(s:"\c[D4] ", l:text, s:" ", s:bad_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:"IATTR_TX35S", s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(s:"\c[D4] ", l:text, s:" ", s:bad_tag, d:val1, s:"%\c[D4] ", l:"IATTR_TX35S");
 			
 		// single text negative effects
 		case INV_EX_FORBID_ARMOR:

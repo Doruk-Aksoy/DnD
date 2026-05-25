@@ -252,6 +252,7 @@ Actor MenuMainPosY : Inventory {
 Actor ShowingMenu : DnD_Boolean { }
 Actor ShowingMenu_CS : DnD_Boolean { }
 Actor ShowingPrompt : DnD_Boolean { }
+Actor ShowingMerchantView : DnD_Boolean { }
 Actor ShowingWeaponWheel : DnD_Boolean { }
 
 Actor WeaponWheelChangeId : DnD_Info { }

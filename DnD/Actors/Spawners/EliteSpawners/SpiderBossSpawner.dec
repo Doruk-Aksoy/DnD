@@ -2,9 +2,9 @@ Actor SpiderBossSpawner_Elite : DnD_MonsterSpawner 25015 {
 	//$Category Monsters/DnD
 	//$Title "Elite SpiderMastermind Spawner"
 	//$Sprite DEMOA1D1
+	//$Height 100
+	//$Radius 128
 	Health 0x7FFFFFFF
-	Height 100
-	Radius 128
 	-COUNTKILL
 	-SOLID
 	+NOCLIP

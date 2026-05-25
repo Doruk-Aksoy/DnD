@@ -806,7 +806,7 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
 	}
 
-	//printbold(s:"comp with w and h: ", d:w, s: " ", d:h, s: " ", d:item_index, s: " ", d:temp);
+	//printbold(s:"comp with w and h: ", d:w, s: " ", d:h, s: " ", d:item_index, s: " ", d:temp, s: " source: ", d:source_player, s: " player_index: ", d:player_index);
 	
 	bool unfit = false;
 
@@ -822,7 +822,7 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 					if
 					(
 						bid >= MAX_INVENTORY_BOXES || 
-						(!rowStart && !(bid % 9)) ||
+						(!rowStart && !(bid % MAXINVENTORYBLOCKS_VERT)) ||
 						GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, dest_source) != DND_ITEM_NULL
 					)
 						unfit = true;
@@ -940,7 +940,7 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 			bid = j + i * MAXINVENTORYBLOCKS_VERT;
 			// care about the items only once, so use topleftboxid == bid
 			if(TradeViewList[tradee][bid].topleftboxid - 1 == bid) {
-				pos = GetFreeSpotForItem_Trade(bid, tradee, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW);
+				pos = GetFreeSpotForItem_Trade(bid, tradee, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, true);
 				if(pos != -1) {
 					// mark as occupied so getfreespot wont return them
 					hcomp = TradeViewList[tradee][bid].height;
@@ -2099,12 +2099,20 @@ void DrawInventoryText(
 					GetOrbAffectedIds(j, pnum, topboxid, source);
 					craftMaterialIdx = i | (j << 16);
 				}
+				else
+					hovered_orb_craft_result.effect_type = -1; // reset if craft fails anyways
+			}
+			else if(i == DND_ITEM_TOKEN) {
+				craftMaterialIdx = CanUseToken(j, topboxid, itype);
 			}
 			else {
 				// reset if its not a crafting item being hovered (ex: item itself being hovered, we dont care)
 				craftMaterialIdx = -1;
+				hovered_orb_craft_result.effect_type = -1; // reset just in case
 			}
 		}
+		else
+			hovered_orb_craft_result.effect_type = -1; // reset just in case
 		// after this point, if user made a selection to craft an item, and is hovering a craftable item, craftMaterialIdx will hold if its appropriate to use or not
 		// it will also hold a non-zero value to indicate the "tags" of attributes that will be affected
 
@@ -2227,8 +2235,6 @@ void DrawInventoryText(
 					if(i != 1)
 						i = 0;
 				}
-
-				printbold(s:"count: ", d:hovered_orb_craft_result.count, s: " ", d:i);
 	
 				tmp_text = StrParam(s:tmp_text,
 					s:GetItemAttributeText(
@@ -2242,10 +2248,13 @@ void DrawInventoryText(
 						!isUnique ? -1 : j, 
 						GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, topboxid, j, source),
 						val,
-						i
+						i | (hovered_orb_craft_result.effect_type << 8)
 					),
 					s: "\n"
 				);
+
+				if(j == attr_count - 1 && hovered_orb_craft_result.effect_type == DND_ORBEFFECT_NEWATTRIBUTE)
+					tmp_text = StrParam(s:tmp_text, s:"\ck>>>\t???\t<<<\n");
 			}
 	
 			// corrupted label and seperator
@@ -2298,8 +2307,14 @@ void DrawItemInfoBackground(int hudid_begin, int hx, int hy, int bg_posx, int bg
 		lines_count = ITEMINFOBG_MAXMIDS;
 
 	str mid_img = "LDTITMID";
-	if(craft_status)
-		SetFont("LDTITTOP");
+	if(craft_status) {
+		if(hovered_orb_craft_result.effect_type != DND_ORBEFFECT_ENTIREITEM)
+			SetFont("LDTITTOP");
+		else {
+			SetFont("LDTITTOO");
+			mid_img = "LDTITMIO";
+		}
+	}
 	else {
 		SetFont("LDTITTOR");
 		mid_img = "LDTITMIR";
@@ -2311,8 +2326,12 @@ void DrawItemInfoBackground(int hudid_begin, int hx, int hy, int bg_posx, int bg
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, bg_posx, bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
 
-	if(craft_status)
-		SetFont("LDTITBOT");
+	if(craft_status) {
+		if(hovered_orb_craft_result.effect_type != DND_ORBEFFECT_ENTIREITEM)
+			SetFont("LDTITBOT");
+		else
+			SetFont("LDTITBOO");
+	}
 	else
 		SetFont("LDTITBOR");
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 2 - i, CR_WHITE, bg_posx, bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN, INVENTORY_HOLDTIME, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);

@@ -2,9 +2,9 @@ Actor CyberdemonSpawner_Elite : DnD_MonsterSpawner 25005 {
 	//$Category Monsters/DnD
 	//$Title "Elite Cyberdemon Spawner"
 	//$Sprite 4NNIA1C1
+	//$Height 110
+	//$Radius 40
 	Health 0x7FFFFFFF
-	Height 110
-	Radius 40
 	-COUNTKILL
 	-SOLID
 	+NOCLIP

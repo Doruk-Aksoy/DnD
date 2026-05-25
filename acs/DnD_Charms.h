@@ -65,7 +65,7 @@ void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
-	int count = GetMaxItemAffixes(DND_ITEM_CHARM, charm_type);
+	int count = random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
 	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
@@ -92,7 +92,7 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
-	int count = random(2, 2 * (charm_type + 1)) - 1 - (m2 != -1) - (m3 != -1);
+	int count = random(0, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type) - 1 - (m2 != -1) - (m3 != -1));
 	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:

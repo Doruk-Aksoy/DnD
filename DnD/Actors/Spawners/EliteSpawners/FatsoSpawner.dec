@@ -2,9 +2,9 @@ Actor FatsoSpawner_Elite : DnD_MonsterSpawner 25007 {
 	//$Category Monsters/DnD
 	//$Title "Elite Mancubus Spawner"
 	//$Sprite DAEDA1
+	//$Height 64
+	//$Radius 48
 	Health 0x7FFFFFFF
-	Height 64
-	Radius 48
 	-COUNTKILL
 	-SOLID
 	+NOCLIP

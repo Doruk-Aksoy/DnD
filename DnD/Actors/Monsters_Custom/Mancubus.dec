@@ -2120,6 +2120,17 @@ Actor Yeti : DnD_BaseHybridMonster {
 			YETI H 1 A_SetScale(1.0, 1.0)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 0)
 	    Goto See
+		
+		Death.MagicSealing:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.MagicSealing
+		Death.Emerald:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Emerald
+		Death.Ice:
+		Death.P_Ice:
+			"####" "#" 0 A_KillMaster
+		Goto Super::Death.Ice
 	}
 }
 

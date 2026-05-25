@@ -7,6 +7,13 @@
 #define DND_MAX_ORB_REROLL_ATTEMPTS 100
 #define DND_POTENCY_CHANCE 0.33
 
+enum {
+	DND_ORBEFFECT_WHOLE,					// whole attribute will change
+	DND_ORBEFFECT_NUMBER,					// only number on the attribute will change
+	DND_ORBEFFECT_NEWATTRIBUTE,				// adds a new attribute
+	DND_ORBEFFECT_ENTIREITEM,				// things that will alter the entire item: Ex: Corrupt, evoker etc.
+};
+
 // SELF NOTE: when we have more than 32 orbs, make sure to add an extra int to flags in material counting code in Inventory!!! GetNextUniqueCraftingMaterial and CountCraftingMaterials
 enum {
 	DND_ORB_ENHANCE,

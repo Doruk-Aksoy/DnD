@@ -1,8 +1,8 @@
 #ifndef DND_MERCHANT_IN
 #define DND_MERCHANT_IN
 
-#define DND_MIN_MERCHANTITEMS 3
-#define DND_MAX_MERCHANTITEMS 5
+#define DND_MIN_MERCHANTITEMS 4
+#define DND_MAX_MERCHANTITEMS 6
 #define DND_MERCHANT_LIMITITEMS 10
 #define DND_MERCHANT_ITEMSPERLVL 20
 
@@ -16,9 +16,9 @@
 #define DND_MERCHANT_SPECIALTYCHANCE 0.675
 #define DND_MERCHANT_CHARMCHANCE 1.0
 
-#define DND_BASE_MERCHANT_STACKABLECOST 600
+#define DND_BASE_MERCHANT_STACKABLECOST 500
 
-#define DND_BASE_MERCHANT_ITEMCOST 2000
+#define DND_BASE_MERCHANT_ITEMCOST 1000
 #define DND_MERCHANT_LEVEL_PERCENT 7
 #define DND_MERCHANT_IMPLICIT_PERCENT 20
 #define DND_MERCHANT_TIER_PERCENT 10
@@ -246,8 +246,11 @@ void ConstructArmorDataOnMerchant(int item_pos, int ilvl) {
 
     TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_ARM_1 + res;
 
-	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE)
-		MakeMerchantItemUnique(item_pos);
+	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
+		i = MakeMerchantItemUnique(item_pos);
+		if(UniqueItemList[i].item_level > ilvl)
+			RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BODYARMOR, res, MAX_ARMOR_ATTRIB_DEFAULT);
+	}
 	else
     	RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BODYARMOR, res, MAX_ARMOR_ATTRIB_DEFAULT);
 }
@@ -285,8 +288,11 @@ void ConstructBootDataOnMerchant(int item_pos, int ilvl) {
 
 	TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_BOO_1 + res;
 
-	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE)
-		MakeMerchantItemUnique(item_pos);
+	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
+		i = MakeMerchantItemUnique(item_pos);
+		if(UniqueItemList[i].item_level > ilvl)
+			RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BOOT, res, MAX_BOOT_ATTRIB_DEFAULT);
+	}
 	else
     	RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BOOT, res, MAX_BOOT_ATTRIB_DEFAULT);
 }
@@ -476,7 +482,7 @@ int RollSpecialtyItemInfoOnMerchant(int item_pos, int ilvl, int itype) {
 void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
 	// roll random attributes for the charm
 	int i = 0, roll;
-	int count = GetMaxItemAffixes(DND_ITEM_CHARM, charm_type);
+	int count = random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
 	int synergy_roll = -2;
 	
 	switch(charm_type) {
@@ -535,8 +541,11 @@ void ConstructCharmDataOnMerchant(int charm_pos, int ilvl) {
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
 		TradeViewList[MAXPLAYERS][charm_pos].attributes[i].attrib_id = -1;
 
-	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE)
-		MakeMerchantItemUnique(charm_pos);
+	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
+		i = MakeMerchantItemUnique(charm_pos);
+		if(UniqueItemList[i].item_level > ilvl)
+			RollCharmInfoOnMerchant(charm_pos, res, ilvl);
+	}
 	else
     	RollCharmInfoOnMerchant(charm_pos, res, ilvl);
 }

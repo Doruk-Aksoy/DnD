@@ -3446,7 +3446,8 @@ void HandleItemPageInputs(int pnum, int boxid) {
 							if(item_type == DND_ITEM_CHARM)
 								LocalAmbientSound("Items/CharmDrop", 127);
 							else if(item_type == DND_ITEM_FLASK) {
-								UpdatePlayerFlaskData(pnum, false);
+								printbold(s:"slot ", d:item_sel - FLASK1_INDEX);
+								UpdatePlayerFlaskData(pnum, item_sel - FLASK1_INDEX, false);
 								LocalAmbientSound("Items/FlaskDrop", 127);
 							}
 							else if(item_type != DND_ITEM_SPECIALTY_CYBORG)
@@ -3504,19 +3505,19 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		// mbox 8 is the view inventory button
 		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && Items_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
 			// try to drop item
-			item_sel = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-			if(item_sel != -1) {
+			temp = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			if(temp != -1) {
 				// if flask, update the data for the player
-				temp = Items_Used[pnum][boxid - 1].item_type == DND_ITEM_FLASK;
+				item_subt = Items_Used[pnum][boxid - 1].item_type == DND_ITEM_FLASK;
 
 				PlayItemDropSound(Items_Used[pnum][boxid - 1].item_type, Items_Used[pnum][boxid - 1].item_subtype, false);
 				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
-				MoveItemTrade(pnum, boxid - 1, item_sel, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				MoveItemTrade(pnum, boxid - 1, temp, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
 				ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 
-				if(temp)
-					UpdatePlayerFlaskData(pnum);
+				if(item_subt)
+					UpdatePlayerFlaskData(pnum, boxid - 1 - FLASK1_INDEX, false);
 			}
 			else
 				ShowPopup(POPUP_NOSPOTFORITEM, false, 0);
@@ -3712,9 +3713,9 @@ void ReturnTradeItems(int pnum) {
 
 void HandleTradeCountdown(int p1, int p2) {
 	SetActivator(p1 + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p1);
+	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p1, p2);
 	SetActivator(p2 + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p2);
+	ACS_NamedExecuteAlways("DnD Trade Countdown", 0, p2, p1);
 	ACS_NamedExecuteAlways("DnD Trade Counter", 0, p1, p2);
 }
 
@@ -4698,7 +4699,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 
 		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, CountNewLinesInText(modText, NEXT_LINE_LEN_ATTR + 8));
 	}
-	else { 
+	else {
 		// draw using our established drawing routine
 		DrawInventoryText(
 			extra1, extra2, pnum, mx, my, itype, 

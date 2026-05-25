@@ -142,43 +142,41 @@ int GetFlaskData(int pnum, int flask_id, int flask_type, int data_type) {
 }
 
 // Reads equipped item data to gather information about the flasks
-void UpdatePlayerFlaskData(int pnum, bool charLoad = false) {
+void UpdatePlayerFlaskData(int pnum, int flask_id, bool charLoad = false) {
 	int tid = pnum + P_TIDSTART;
-	for(int i = 0; i < MAX_FLASK_SLOTS; ++i) {
-		if(Items_Used[pnum][FLASK1_INDEX + i].item_type == DND_ITEM_NULL) {
-			ResetFlask(pnum, i);
-			SetActorInventory(tid, StrParam(s:"Flask", d:i + 1, s:"_Type"), 0);
-			SetActorInventory(tid, StrParam(s:"Flask", d:i + 1, s:"_CurrentCharges"), 0);
-			SetActorInventory(tid, StrParam(s:"Flask", d:i + 1, s:"_TicCounter"), 0);
-			continue;
-		}
-
-		FlaskData[pnum][i].flask_type = Items_Used[pnum][FLASK1_INDEX + i].item_subtype;
-
-		FlaskData[pnum][i].max_charges = GetFlaskData(pnum, i, FlaskData[pnum][i].flask_type, FLASK_DATA_MAXCHARGES);
-
-		// if we aren't loading fresh set to 0, player just put this in place of something else in the world
-		FlaskData[pnum][i].curr_charges = charLoad ? FlaskData[pnum][i].max_charges : 0;
-		FlaskData[pnum][i].effect_duration = GetFlaskData(pnum, i, FlaskData[pnum][i].flask_type, FLASK_DATA_EFFECTDURATION);
-		FlaskData[pnum][i].charges_used = GetFlaskData(pnum, i, FlaskData[pnum][i].flask_type, FLASK_DATA_CHARGEUSE);
-
-		// not active
-		FlaskData[pnum][i].curr_tics = 0;
-		FlaskData[pnum][i].quality = Items_Used[pnum][FLASK1_INDEX + i].quality;
-
-		FlaskData[pnum][i].chance_on_hit = GetFlaskAttributeVal(pnum, i, INV_FLASK_CHANCEGAINONHIT);
-		FlaskData[pnum][i].chance_on_crit = GetFlaskAttributeVal(pnum, i, INV_FLASK_CHANCEGAINCRIT);
-
-		// send +1 here as 0 doesnt make sense here for SBARINFO from the enums
-		SetActorInventory(tid, StrParam(s:"Flask", d:i + 1, s:"_Type"), FlaskData[pnum][i].flask_type + 1);
-		SetActorInventory(tid, StrParam(s:"Flask", d:i + 1, s:"_CurrentCharges"), FlaskData[pnum][i].curr_charges);
-		SetActorInventory(tid, StrParam(s:"Flask", d:i + 1, s:"_TicCounter"), 0);
-
-		SetAmmoCapacity(StrParam(s:"Flask", d:i + 1, s:"_CurrentCharges"), FlaskData[pnum][i].max_charges);
-
-		// the /2 is needed to match the code that gives tics + make it look right on the hud
-		SetAmmoCapacity(StrParam(s:"Flask", d:i + 1, s:"_TicCounter"), FlaskData[pnum][i].effect_duration / FLASK_RECOVERY_TICRATE);
+	if(Items_Used[pnum][FLASK1_INDEX + flask_id].item_type == DND_ITEM_NULL) {
+		ResetFlask(pnum, flask_id);
+		SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_Type"), 0);
+		SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), 0);
+		SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter"), 0);
+		return;
 	}
+
+	FlaskData[pnum][flask_id].flask_type = Items_Used[pnum][FLASK1_INDEX + flask_id].item_subtype;
+
+	FlaskData[pnum][flask_id].max_charges = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_MAXCHARGES);
+
+	// if we aren't loading fresh set to 0, player just put this in place of something else in the world
+	FlaskData[pnum][flask_id].curr_charges = charLoad ? FlaskData[pnum][flask_id].max_charges : 0;
+	FlaskData[pnum][flask_id].effect_duration = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_EFFECTDURATION);
+	FlaskData[pnum][flask_id].charges_used = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_CHARGEUSE);
+
+	// not active
+	FlaskData[pnum][flask_id].curr_tics = 0;
+	FlaskData[pnum][flask_id].quality = Items_Used[pnum][FLASK1_INDEX + flask_id].quality;
+
+	FlaskData[pnum][flask_id].chance_on_hit = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_CHANCEGAINONHIT);
+	FlaskData[pnum][flask_id].chance_on_crit = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_CHANCEGAINCRIT);
+
+	// send +1 here as 0 doesnt make sense here for SBARINFO from the enums
+	SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_Type"), FlaskData[pnum][flask_id].flask_type + 1);
+	SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), FlaskData[pnum][flask_id].curr_charges);
+	SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter"), 0);
+
+	SetAmmoCapacity(StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), FlaskData[pnum][flask_id].max_charges);
+
+	// the /2 is needed to match the code that gives tics + make it look right on the hud
+	SetAmmoCapacity(StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter"), FlaskData[pnum][flask_id].effect_duration / FLASK_RECOVERY_TICRATE);
 }
 
 // checks to see if this attribute exists on the flask, returns 0 if it doesn't

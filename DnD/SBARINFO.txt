@@ -118,52 +118,52 @@ statusbar normal, fullscreenoffsets {
 														InInventory Flask2_Type, 14 {
 															InInventory Flask2_Type, 15 {
 																InInventory Flask2_Type, 16 {
-																	drawbar "FL16D0", "FL15C0", Flask1_CurrentCharges, vertical, 256, -45;
+																	drawbar "FL16D0", "FL15C0", Flask2_CurrentCharges, vertical, 256, -45;
 																}
 																else
-																	drawbar "FL15D0", "FL15C0", Flask1_CurrentCharges, vertical, 256, -45;
+																	drawbar "FL15D0", "FL15C0", Flask2_CurrentCharges, vertical, 256, -45;
 															}
 															else
-																drawbar "FL14G0", "FL14F0", Flask1_CurrentCharges, vertical, 256, -45;
+																drawbar "FL14G0", "FL14F0", Flask2_CurrentCharges, vertical, 256, -45;
 														}
 														else
-															drawbar "FL13H0", "FL13G0", Flask1_CurrentCharges, vertical, 256, -45;
+															drawbar "FL13H0", "FL13G0", Flask2_CurrentCharges, vertical, 256, -45;
 													}
 													else
-														drawbar "FL12J0", "FL12I0", Flask1_CurrentCharges, vertical, 256, -45;
+														drawbar "FL12J0", "FL12I0", Flask2_CurrentCharges, vertical, 256, -45;
 												}
 												else
-													drawbar "FL11J0", "FLS7I0", Flask1_CurrentCharges, vertical, 256, -45;
+													drawbar "FL11J0", "FLS7I0", Flask2_CurrentCharges, vertical, 256, -45;
 											}
 											else
-												drawbar "FL10J0", "FL10I0", Flask1_CurrentCharges, vertical, 256, -45;
+												drawbar "FL10J0", "FL10I0", Flask2_CurrentCharges, vertical, 256, -45;
 										}
 										else
-											drawbar "FLS9J0", "FLS9I0", Flask1_CurrentCharges, vertical, 256, -45;
+											drawbar "FLS9J0", "FLS9I0", Flask2_CurrentCharges, vertical, 256, -45;
 									}
 									else
-										drawbar "FLS8I0", "FLS8H0", Flask1_CurrentCharges, vertical, 256, -45;
+										drawbar "FLS8I0", "FLS8H0", Flask2_CurrentCharges, vertical, 256, -45;
 								}
 								else
-									drawbar "FLS7J0", "FLS7I0", Flask1_CurrentCharges, vertical, 256, -45;
+									drawbar "FLS7J0", "FLS7I0", Flask2_CurrentCharges, vertical, 256, -45;
 							}
 							else
-								drawbar "FLS6J0", "FLS6I0", Flask1_CurrentCharges, vertical, 256, -45;
+								drawbar "FLS6J0", "FLS6I0", Flask2_CurrentCharges, vertical, 256, -45;
 						}
 						else
-							drawbar "FLS5F0", "FLS5E0", Flask1_CurrentCharges, vertical, 256, -45;
+							drawbar "FLS5F0", "FLS5E0", Flask2_CurrentCharges, vertical, 256, -45;
 					}
 					else
-						drawbar "FLS4F0", "FLS4E0", Flask1_CurrentCharges, vertical, 256, -45;
+						drawbar "FLS4F0", "FLS4E0", Flask2_CurrentCharges, vertical, 256, -45;
 				}
 				else
-					drawbar "FLS3F0", "FLS3E0", Flask1_CurrentCharges, vertical, 256, -45;
+					drawbar "FLS3F0", "FLS3E0", Flask2_CurrentCharges, vertical, 256, -45;
 			}
 			else
-				drawbar "FLS2F0", "FLS2E0", Flask1_CurrentCharges, vertical, 256, -45;
+				drawbar "FLS2F0", "FLS2E0", Flask2_CurrentCharges, vertical, 256, -45;
 		}
 		else
-			drawbar "FLS1F0", "FLS1E0", Flask1_CurrentCharges, vertical, 256, -45;
+			drawbar "FLS1F0", "FLS1E0", Flask2_CurrentCharges, vertical, 256, -45;
 	}
 
 	// KillSpree Meter

@@ -1302,6 +1302,7 @@ Script 895 (int val, int this) {
 					SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 					GiveInventory("P_Frozen", 1);
 					GiveInventory("ShowingPrompt", 1);
+					GiveInventory("ShowingMerchantView", 1);
 					LocalAmbientSound("RPG/MenuOpen", 127);
 					
 					// setup
@@ -3069,7 +3070,9 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("PlayerIsLoggedIn", PlayerIsLoggedIn(pnum)); //Only used to let player know if he's logged in at start (clientside doesn't have this function).
 	GiveInventory("ParsingData", 1);
 	ResetAllSpellCooldowns(); // reset all leftover cooldowns
-	UpdatePlayerFlaskData(pnum, true);
+
+	for(i = 0; i < MAX_FLASK_SLOTS; ++i)
+		UpdatePlayerFlaskData(pnum, i, true);
 	
 	// scanner runner
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
@@ -3163,6 +3166,7 @@ Script "DnD Player Setup" ENTER {
 		TakeInventory("SetMyLives", 1);
 		SetInventory("ShowingMenu", 0);
 		SetInventory("ShowingPrompt", 0);
+		SetInventory("ShowingMerchantView", 0);
 		Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
 		StatListOpened[pnum] = 0;
 		GiveInventory(" Fists ", 1);
@@ -6061,7 +6065,7 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
-			//SpawnToken(0, true);
+			SpawnToken(0, true);
 			//Log(s:"boot");
 			//SpawnBoot(0, 0);
 			//Log(s:"helm");

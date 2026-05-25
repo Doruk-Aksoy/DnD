@@ -1636,6 +1636,7 @@ Script "DND Orb Use" (int orbtype, int extra, int extra2) {
 
 typedef struct orb_craft_result {
 	int count;
+	int effect_type;
 	int id_list[MAX_ITEM_ATTRIBUTES];
 } orb_craft_result_T;
 
@@ -1645,7 +1646,9 @@ orb_craft_result_T hovered_orb_craft_result;
 void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 	hovered_orb_craft_result.count = 0;
 
-	int i;
+	int affluence = GetAffluenceBonus();
+
+	int i, j, temp;
 	switch(orb_type) {
 		case DND_ORB_PRISMATIC:
 		case DND_ORB_DESTRUCTION:
@@ -1666,18 +1669,76 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		case DND_ORB_EMBERS:
 			// if order isn't used, then we mark everything as its a direct reforge
 			if(!CheckInventory("OrderUsed")) {
-				hovered_orb_craft_result.count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_pos, -1, source);
+				hovered_orb_craft_result.count = PlayerInventoryList[pnum][item_pos].attrib_count;
 				for(i = 0; i < hovered_orb_craft_result.count; ++i)
 					hovered_orb_craft_result.id_list[i] = i;
+				hovered_orb_craft_result.effect_type = DND_ORBEFFECT_WHOLE;
 			}
-		break;
-		case DND_ORB_TURMOIL:
-			hovered_orb_craft_result.count = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_pos, -1, source);
-			for(i = 0; i < hovered_orb_craft_result.count; ++i)
-				hovered_orb_craft_result.id_list[i] = i;
 		break;
 
 		// other orbs that do a certain effect based on conditions including order orb
+		case DND_ORB_TURMOIL:
+			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
+				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+					continue;
+				hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
+			}
+			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_WHOLE;
+		break;
+
+		case DND_ORB_SCULPTING:
+			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
+				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+					continue;
+				hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
+			}
+			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_WHOLE;
+		break;
+
+		case DND_ORB_ELEVATION:
+		case DND_ORB_HOLLOW:
+			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_NEWATTRIBUTE;
+		break;
+
+		case DND_ORB_REFINEMENT:
+		case DND_ORB_SIN:
+		case DND_ORB_POTENCY:
+			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
+				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+					continue;
+				hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
+			}
+			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_NUMBER;
+		break;
+
+		case DND_ORB_NULLIFICATION:
+			// find the attribute with the lowest tier, in case of multiple, return a random one
+			hovered_orb_craft_result.count = 0;
+			temp = MAX_CHARM_AFFIXTIERS;
+			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
+				// ignore the fractured mods
+				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+					continue;
+
+				if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier < temp) {
+					// we use count to hold the count of elements in this temporary array
+					// reset current count if we found a new minimum, then add it to our array
+
+					hovered_orb_craft_result.count = 0;
+					hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
+					temp = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+				}
+				else if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier == temp) // if equal to current min, store it
+					hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
+			}
+			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_WHOLE;
+		break;
+
+		case DND_ORB_CORRUPT:
+		case DND_ORB_EVOKER:
+		case DND_ORB_ASSIMILATION:
+			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_ENTIREITEM;
+		break;
 	}
 }
 

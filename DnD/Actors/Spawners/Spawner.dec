@@ -1,17 +1,16 @@
 Actor DnD_MonsterSpawner {
 	Monster
-	Radius 1
-	Height 1
+	Radius 0
+	Height 0
 	-COUNTKILL
-	-SHOOTABLE
 	-SOLID
 	+NOGRAVITY
 }
 
 Actor DnD_MonsterSpawner_Incursion : BulletPuff {
 	Monster
-	Radius 1
-	Height 1
+	Radius 0
+	Height 0
 	-COUNTKILL
 	+NOGRAVITY
 	+ALWAYSPUFF

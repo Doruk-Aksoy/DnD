@@ -825,7 +825,8 @@ void LoadPlayerData(int pnum, int char_id) {
 	SyncAllItemData(pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 
 	// now that we loaded used items, fill up flasks and setup updates
-	UpdatePlayerFlaskData(pnum, true);
+	for(i = 0; i < MAX_FLASK_SLOTS; ++i)
+		UpdatePlayerFlaskData(pnum, i, true);
 	
 	LoadPlayerStash(pnum, pacc);
 	
