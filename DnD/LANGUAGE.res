@@ -6,8 +6,8 @@ RES_DESC0				= "UAC's research on the salvaged items found on the battlefields h
 RES_LABEL1 				= "Transmutia Station";
 RES_DESC1				= "It seems these \"orbs\" that we come across have some inherent properties to evolve... We can harness this and allow the user to change orbs to other orbs by combining them. Unlocks Transmuting in Crafting.";
 
-RES_LABEL2 				= "Medikit Storing";
-RES_DESC2				= "Instead of wasting medikits, by using this new technology we can allow marines to store the medikits picked up permanently. \cgMedic\c- perk increases the cap by 15% each.";
+RES_LABEL2 				= "Alchemical Transfusion";
+RES_DESC2				= "Instead of wasting medikits, by using this new technology we can allow marines to convert stimpacks and medikits to flask charges, filling at x4 the heal percentage.";
 
 RES_LABEL3 				= "Accessory Tap";
 RES_DESC3				= "Unlocking the occult secrets of demonic energy, we can allow marines to use ancient trophies they come across. Allows use of accessories.";

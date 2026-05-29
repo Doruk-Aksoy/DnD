@@ -3446,7 +3446,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 							if(item_type == DND_ITEM_CHARM)
 								LocalAmbientSound("Items/CharmDrop", 127);
 							else if(item_type == DND_ITEM_FLASK) {
-								printbold(s:"slot ", d:item_sel - FLASK1_INDEX);
+								//printbold(s:"slot ", d:item_sel - FLASK1_INDEX);
 								UpdatePlayerFlaskData(pnum, item_sel - FLASK1_INDEX, false);
 								LocalAmbientSound("Items/FlaskDrop", 127);
 							}
@@ -4598,28 +4598,23 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 
 	int bg_x = mx;
 	int bg_y = my;
-		
+
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	int attr_count = GetItemSyncValue(pn, DND_SYNC_ITEMSATTRIBCOUNT, item_id, -1, item_source);
 	
 	if(GetStackValue(item_type) && item_source) {
 		SetFont("NMENUFNT");
-		HudMessage(d:GetTotalStackOfMaterial(item_id); HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 0.0);
+		HudMessage(
+			d:GetTotalStackOfMaterial(item_id); HUDMSG_PLAIN | HUDMSG_FADEOUT, 
+			id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 14, CR_GREEN, mx + 200.1, my + 16.0, 
+			INVENTORY_HOLDTIME_CRAFT, 
+			INVENTORY_FADETIME, 
+			INVENTORY_INFO_ALPHA
+		);
 	}
 	
 	int prev_x = GetIntegerBits(mx + HUD_ITEMBAK_XF / 2) + 0.4;
 	int prev_y;
-	
-	// show item details -- dont draw charm icons (saves space)
-	/*if(item_type == DND_ITEM_WEAPON) {
-		SetFont(Weapons_Data[item_id].icon);	
-		HudMessage(s:"A"; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my, 0.0);
-	}
-	else if(PlayerCursorData.itemHoveredType != DND_ITEM_CHARM && PlayerCursorData.itemHoveredType < UNIQUE_BEGIN) {
-		// dont draw charm images here
-		SetFont(Item_Images[PlayerInventoryList[pn][PlayerCursorData.itemHovered].item_image]);
-		HudMessage(s:"A"; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 1, CR_WHITE, prev_x, my + 16.0, 0.0);
-	}*/
 	
 	SetHudSize(HUDMAX_X * 3 / 2, HUDMAX_Y * 3 / 2, 1);
 	
@@ -4697,7 +4692,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 		
 		HudMessage(s:modText; HUDMSG_PLAIN, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 4 - ITEMINFOBG_MAXMIDS, CR_WHITE, mx, my - 8.0, 0.0, 0.0);
 
-		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, CountNewLinesInText(modText, NEXT_LINE_LEN_ATTR + 8));
+		DrawItemInfoBackground(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES, hx, hy, bg_x, bg_y, CountNewLinesInText(modText, HUD_ITEMBAK_WIDTH));
 	}
 	else {
 		// draw using our established drawing routine
@@ -4705,7 +4700,7 @@ void DrawCraftingInventoryText(int itype, int extra1, int extra2, int pnum, int 
 			extra1, extra2, pnum, mx, my, itype, 
 			GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, extra1, -1, extra2), 
 			id_begin, HUD_DII_MULT, hx, hy, bg_x, bg_y, attr_count, false,
-			PlayerCursorData.itemHovered 
+			PlayerCursorData.itemHovered, INVENTORY_HOLDTIME_CRAFT
 		);
 	}
 }

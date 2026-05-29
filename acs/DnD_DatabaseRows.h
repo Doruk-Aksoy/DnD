@@ -46,7 +46,6 @@ enum {
 #define DND_DB_WEAPONQUALITY "DnD_WeaponQuality_"
 #define DND_DB_WEAPONMOD_VAL "DnD_WeaponModVal_"
 #define DND_DB_WEAPONMOD_TIER "DnD_WeaponModTier_"
-#define DND_DB_STOREDKIT "DnD_StoredKit"
 #define DND_DB_SURVIVECOUNT "DnD_PlayerLifeTime"
 #define DND_DB_PLAYERWEPCHECKERS "DnD_PlayerWepCheckers"
 #define DND_DB_MISC "DnD_PlayerMiscallenous"

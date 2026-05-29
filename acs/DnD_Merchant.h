@@ -6,7 +6,12 @@
 #define DND_MERCHANT_LIMITITEMS 10
 #define DND_MERCHANT_ITEMSPERLVL 20
 
-#define DND_MERCHANT_ITEMCHANCE 0.4
+#ifdef ISDEBUGBUILD
+	#define DND_MERCHANT_ITEMCHANCE 1.0
+#else
+	#define DND_MERCHANT_ITEMCHANCE 0.4
+#endif
+
 #define DND_MERCHANT_ORBCHANCE 0.9
 #define DND_MERCHANT_TOKENCHANCE 1.0
 
@@ -30,12 +35,17 @@
 #define DND_MERCHANT_STACKABLE_ILVLCONTRIB 20
 #define DND_MERCHANT_STACKABLE_ILVLFACTOR 10 // 10% per ilvl
 
-#define DND_MERCHANT_QUALITYCHANCE 0.25
+#define DND_MERCHANT_QUALITYCHANCE 0.3
 #define DND_MERCHANT_LOWQUALITY 0.6
 #define DND_MERCHANT_MEDQUALITY 0.9
 #define DND_MERCHANT_HIGHQUALITY 1.0
 
-#define DND_MERCHANT_ITEMCORRUPTCHANCE 0.1 // 10% corrupted
+#ifdef ISDEBUGBUILD
+	#define DND_MERCHANT_ITEMCORRUPTCHANCE 1.0
+#else
+	#define DND_MERCHANT_ITEMCORRUPTCHANCE 0.1 // 10% corrupted
+#endif
+
 #define DND_MERCHANT_ITEMFRACTURECHANCE 0.025 // 2.5% to offer fractured
 
 #define DND_MERCHANT_SYNERGYITEM_CHANCE 0.1 // 10% chance for an item to have really synergistic mods (mods of same mod pool)
@@ -67,7 +77,7 @@ void ConstructUniqueOnMerchant(int item_pos, int unique_id) {
 	}
 }
 
-int MakeMerchantItemUnique(int item_pos) {
+int PickUniqueItemMerchant(int item_pos) {
 	int i, beg, end, w = 0;
 
 	switch(TradeViewList[MAXPLAYERS][item_pos].item_type) {
@@ -102,7 +112,6 @@ int MakeMerchantItemUnique(int item_pos) {
 	for(i = beg; i <= end && roll > UniqueItemList[i].weight; ++i);
 
 	// i is the unique id
-	ConstructUniqueOnMerchant(item_pos, i);
 	return i;
 }
 
@@ -247,9 +256,11 @@ void ConstructArmorDataOnMerchant(int item_pos, int ilvl) {
     TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_ARM_1 + res;
 
 	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
-		i = MakeMerchantItemUnique(item_pos);
+		i = PickUniqueItemMerchant(item_pos);
 		if(UniqueItemList[i].item_level > ilvl)
 			RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BODYARMOR, res, MAX_ARMOR_ATTRIB_DEFAULT);
+		else
+			ConstructUniqueOnMerchant(item_pos, i);
 	}
 	else
     	RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BODYARMOR, res, MAX_ARMOR_ATTRIB_DEFAULT);
@@ -289,9 +300,11 @@ void ConstructBootDataOnMerchant(int item_pos, int ilvl) {
 	TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_BOO_1 + res;
 
 	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
-		i = MakeMerchantItemUnique(item_pos);
+		i = PickUniqueItemMerchant(item_pos);
 		if(UniqueItemList[i].item_level > ilvl)
 			RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BOOT, res, MAX_BOOT_ATTRIB_DEFAULT);
+		else
+			ConstructUniqueOnMerchant(item_pos, i);
 	}
 	else
     	RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_BOOT, res, MAX_BOOT_ATTRIB_DEFAULT);
@@ -542,9 +555,11 @@ void ConstructCharmDataOnMerchant(int charm_pos, int ilvl) {
 		TradeViewList[MAXPLAYERS][charm_pos].attributes[i].attrib_id = -1;
 
 	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
-		i = MakeMerchantItemUnique(charm_pos);
+		i = PickUniqueItemMerchant(charm_pos);
 		if(UniqueItemList[i].item_level > ilvl)
 			RollCharmInfoOnMerchant(charm_pos, res, ilvl);
+		else
+			ConstructUniqueOnMerchant(charm_pos, i);
 	}
 	else
     	RollCharmInfoOnMerchant(charm_pos, res, ilvl);
@@ -616,7 +631,7 @@ void CorruptMerchantItem(int item_pos) {
 	// roll between 0 to MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1
 	// if > than MAX_CORRUPTION_WEIRD_OUTCOMES subtract it to get corrupt implicit
 	// NEW: Corruption ALWAYS replaces the very first implicit!
-	TradeViewList[MAXPLAYERS][item_pos].isDirty = true;
+	//TradeViewList[MAXPLAYERS][item_pos].isDirty = true;
 	TradeViewList[MAXPLAYERS][item_pos].corrupted = true;
 
 	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);
@@ -716,7 +731,11 @@ Script "DnD Merchant Items" (void) {
 	pcount = PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount;
 
 	// just in case, we limit items here
+#ifdef ISDEBUGBUILD
+	int item_count = 10;
+#else
 	int item_count = random(DND_MIN_MERCHANTITEMS, DND_MAX_MERCHANTITEMS + pcount / DND_MERCHANT_ITEMSPERLVL);
+#endif
 	if(item_count > DND_MERCHANT_LIMITITEMS)
 		item_count = DND_MERCHANT_LIMITITEMS;
 
@@ -766,7 +785,7 @@ Script "DnD Merchant Items" (void) {
 		}
 
         TradeViewList[MAXPLAYERS][pos].topleftboxid = pos + 1;
-        TradeViewList[MAXPLAYERS][pos].isDirty = true;
+       // TradeViewList[MAXPLAYERS][pos].isDirty = true;
         SyncItemData(MAXPLAYERS, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, -1, -1, true);
 	}
 

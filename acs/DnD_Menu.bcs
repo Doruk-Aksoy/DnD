@@ -304,6 +304,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					PlayerCursorData.itemHovered != GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid - 1 - PlayerCursorData.itemHoveredOffset, -1, PlayerCursorData.itemHoveredSource) - 1
 				)
 				{
+					TakeInventory("LimitedCraftDraw", 1);
 					redraw = true;
 				}
 			}
@@ -375,15 +376,21 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					DrawInventoryInfo(PlayerCursorData.owner_pnum);
 				}
 				else {
-					DrawCraftingInventoryInfo(
-						PlayerCursorData.owner_pnum,
-						RPGMENUINVENTORYID,
-						PlayerCursorData.posx,
-						PlayerCursorData.posy,
-						PlayerCursorData.itemHovered,
-						PlayerCursorData.itemHoveredType,
-						PlayerCursorData.itemHoveredSource
-					);
+					if(!CheckInventory("LimitedCraftDraw") || (PlayerCursorData.itemHoveredType != DND_ITEM_ORB && PlayerCursorData.itemHoveredType != DND_ITEM_TOKEN)) {
+						// don't redraw if its in crafting material menu, just draw once
+						DrawCraftingInventoryInfo(
+							PlayerCursorData.owner_pnum,
+							RPGMENUINVENTORYID,
+							PlayerCursorData.posx,
+							PlayerCursorData.posy,
+							PlayerCursorData.itemHovered,
+							PlayerCursorData.itemHoveredType,
+							PlayerCursorData.itemHoveredSource
+						);
+					}
+
+					if(curopt == MENU_LOAD_CRAFTING_WEAPON || curopt == MENU_LOAD_CRAFTING_INVENTORY)
+						GiveInventory("LimitedCraftDraw", 1);
 				}
 			}
 		}

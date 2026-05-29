@@ -8,16 +8,14 @@
 #define DND_SILVERCHESTKEY_DROPRATE 0.3
 
 #define MAX_BASE_CHESTCOUNT 10
-#define CHEST_DROPWEIGHT 0.1
-#define LOOTBOX_DROPWEIGHT 0.175
+#define CHEST_DROPWEIGHT 0.1275
+#define LOOTBOX_DROPWEIGHT 0.1875
 #define SILVERCHEST_DROPWEIGHT 0.37
 #define GOLDCHEST_DROPWEIGHT 0.50
 
-str ChestKeyText[MAX_CHESTKEYS] = {
-	"\ccNotice        : You need a \ceBronze\c- Chest Key to open this!",
-	"\ccNotice        : You need a \cuSilver\c- Chest Key to open this!",
-	"\ccNotice        : You need a \cfGold\c- Chest Key to open this!"
-};
+str GetChestLockedText(int type) {
+	return StrParam(s:"DND_CHESTLOCKEDTXT", d:type + 1);
+}
 
 bool SpawnedChests = 0;
 

@@ -213,10 +213,28 @@ void GiveSpecificFlaskCharges(int pnum, int amt, int flask_id) {
 	SetActorInventory(pnum + P_TIDSTART, StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), FlaskData[pnum][flask_id].curr_charges);
 }
 
+// This one is % based plus it doesn't benefit from attributes regarding flask charge gained, those relate to kills
+void GiveSpecificFlaskChargesPercentage(int pnum, int pct, int flask_id) {
+	int amt = FlaskData[pnum][flask_id].max_charges * pct / 100;
+
+	FlaskData[pnum][flask_id].curr_charges += amt;
+	if(FlaskData[pnum][flask_id].curr_charges > FlaskData[pnum][flask_id].max_charges)
+		FlaskData[pnum][flask_id].curr_charges = FlaskData[pnum][flask_id].max_charges;
+
+	SetActorInventory(pnum + P_TIDSTART, StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), FlaskData[pnum][flask_id].curr_charges);
+}
+
 void GiveFlaskCharges(int pnum, int amt) {
 	for(int i = 0; i < MAX_FLASK_SLOTS; ++i) {
 		if(FlaskData[pnum][i].flask_type != -1)
 			GiveSpecificFlaskCharges(pnum, amt, i);
+	}
+}
+
+void GiveFlaskChargesPercentage(int pnum, int pct) {
+	for(int i = 0; i < MAX_FLASK_SLOTS; ++i) {
+		if(FlaskData[pnum][i].flask_type != -1)
+			GiveSpecificFlaskChargesPercentage(pnum, pct, i);
 	}
 }
 
@@ -703,6 +721,13 @@ void CheckFlasksOnCritGain(int pnum) {
 			GiveActorInventory(tid, flask_cd_item, 1);
 		}
 	}
+}
+
+bool HasNonfullFlasks(int pnum) {
+	for(int i = 0; i < MAX_FLASK_SLOTS; ++i)
+		if(FlaskData[pnum][i].curr_charges < FlaskData[pnum][i].max_charges)
+			return true;
+	return false; 
 }
 
 #endif

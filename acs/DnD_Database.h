@@ -521,9 +521,6 @@ void SavePlayerData(int pnum, int char_id) {
 		}
 	}
 	
-	// save stored medkit
-	SetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc, CheckActorInventory(tid, "StoredMedkit"));
-	
 	SetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc, CheckActorInventory(tid, "DnD_NPC_Meet"));
 	
 	SavePlayerInventoryStuff(pnum, char_id, pacc, DND_PINVFLAGS_ALL);
@@ -662,7 +659,6 @@ void LoadPlayerStash(int pnum, str pacc) {
 					PlayerStashList[pnum][i][j].implicit[temp].attrib_tier = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER, s:"_", d:temp), pacc);
 					PlayerStashList[pnum][i][j].implicit[temp].attrib_extra = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA, s:"_", d:temp), pacc);
 				}
-				PlayerStashList[pnum][i][j].isDirty = true;
 
 				for(temp = 0; temp < PlayerStashList[pnum][i][j].attrib_count; ++temp) {
 					PlayerStashList[pnum][i][j].attributes[temp].attrib_val = GetDBEntry(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_STASHPAGE, d:i, s:"_", d:j, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:temp), pacc);
@@ -763,8 +759,6 @@ void LoadPlayerData(int pnum, int char_id) {
 				PlayerInventoryList[pnum][i].implicit[j].attrib_extra = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA, s:"_", d:j), char_id), pacc);
 			}
 
-			PlayerInventoryList[pnum][i].isDirty = true;
-
 			for(j = 0; j < PlayerInventoryList[pnum][i].attrib_count; ++j) {
 				PlayerInventoryList[pnum][i].attributes[j].attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc);
 				PlayerInventoryList[pnum][i].attributes[j].attrib_id = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBID, s:"_", d:j), char_id), pacc);
@@ -806,8 +800,6 @@ void LoadPlayerData(int pnum, int char_id) {
 			Items_Used[pnum][i].implicit[j].attrib_tier = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER, s:"_", d:j), char_id), pacc);
 			Items_Used[pnum][i].implicit[j].attrib_extra = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_IMPLICITEXTRA, s:"_", d:j), char_id), pacc);
 		}
-
-		Items_Used[pnum][i].isDirty = true;
 
 		for(j = 0; j < Items_Used[pnum][i].attrib_count; ++j) {
 			Items_Used[pnum][i].attributes[j].attrib_val = GetDBEntry(GetCharField(StrParam(s:DND_DB_PLAYERINVENTORY, s:DND_DB_CHARMUSED, d:i, s:DND_DB_PLAYERINVENTORYFIELD_ATTRIBVAL, s:"_", d:j), char_id), pacc);
@@ -1011,11 +1003,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	for(i = 0; i < MAX_WEPCONDITION_CHECKERS; ++i)
 		if(IsSet(temp, i))
 			GiveInventory(WeaponConditionCheckers[i], 1);
-	
-	// load stored medkit
-	temp = GetDBEntry(GetCharField(DND_DB_STOREDKIT, char_id), pacc);
-	SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
-	SetInventory("StoredMedkit", temp);
 	
 	// load npc meet status
 	temp = GetDBEntry(GetCharField(DND_DB_NPCTRACKER, char_id), pacc);

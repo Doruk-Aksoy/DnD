@@ -495,12 +495,6 @@ void ResetPlayerInformationLevel() {
 	SetupUndo(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
 }
 
-typedef struct {
-	int levelexp;
-	int levelcredit;
-} pleveldata_T;
-pleveldata_T PlayerDataInLevel[MAXPLAYERS];
-
 void GiveMonsterTID(int base_tid) {
 	int temp;
 	if(!base_tid) {

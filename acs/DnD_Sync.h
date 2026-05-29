@@ -28,10 +28,6 @@ enum {
 	DND_SYNC_ITEMSTACK,
 	DND_SYNC_ITEMCORRUPTED,
 	DND_SYNC_ITEMQUALITY,
-	DND_SYNC_ISDIRTY,
-	DND_SYNC_LASTSHOWNTEXTMODE,			// stores if it last drew text with detailed attrib mode or not (1 or 0)
-	DND_SYNC_LASTSHOWNCRAFTVALS,		// stores last shown craft text values
-	DND_SYNC_TEXTID,
 	// add non attribute related things from above attrib count
 
 	// implicit attribute stuff
@@ -97,14 +93,6 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Items_Used[pnum][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return Items_Used[pnum][extra].quality;
-			case DND_SYNC_ISDIRTY:
-			return Items_Used[pnum][extra].isDirty;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-			return Items_Used[pnum][extra].last_text_mode;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-			return Items_Used[pnum][extra].last_craft_vals;
-			case DND_SYNC_TEXTID:
-			return Items_Used[pnum][extra].textID;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return Items_Used[pnum][extra].attributes[sub].attrib_id;
@@ -153,14 +141,6 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Inventories_On_Field[extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return Inventories_On_Field[extra].quality;
-			case DND_SYNC_ISDIRTY:
-			return Inventories_On_Field[extra].isDirty;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-			return Inventories_On_Field[extra].last_text_mode;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-			return Inventories_On_Field[extra].last_craft_vals;
-			case DND_SYNC_TEXTID:
-			return Inventories_On_Field[extra].textID;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return Inventories_On_Field[extra].attributes[sub].attrib_id;
@@ -209,14 +189,6 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return PlayerInventoryList[pnum][extra].quality;
-			case DND_SYNC_ISDIRTY:
-			return PlayerInventoryList[pnum][extra].isDirty;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-			return PlayerInventoryList[pnum][extra].last_text_mode;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-			return PlayerInventoryList[pnum][extra].last_craft_vals;
-			case DND_SYNC_TEXTID:
-			return PlayerInventoryList[pnum][extra].textID;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_id;
@@ -265,14 +237,6 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return TradeViewList[pnum][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return TradeViewList[pnum][extra].quality;
-			case DND_SYNC_ISDIRTY:
-			return TradeViewList[pnum][extra].isDirty;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-			return TradeViewList[pnum][extra].last_text_mode;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-			return TradeViewList[pnum][extra].last_craft_vals;
-			case DND_SYNC_TEXTID:
-			return TradeViewList[pnum][extra].textID;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return TradeViewList[pnum][extra].attributes[sub].attrib_id;
@@ -321,14 +285,6 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerStashList[pnum][page][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return PlayerStashList[pnum][page][extra].quality;
-			case DND_SYNC_ISDIRTY:
-			return PlayerStashList[pnum][page][extra].isDirty;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-			return PlayerStashList[pnum][page][extra].last_text_mode;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-			return PlayerStashList[pnum][page][extra].last_craft_vals;
-			case DND_SYNC_TEXTID:
-			return PlayerStashList[pnum][page][extra].textID;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_id;
@@ -399,18 +355,6 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMQUALITY:
 				Items_Used[pnum][extra].quality = val;
 			break;
-			case DND_SYNC_ISDIRTY:
-				Items_Used[pnum][extra].isDirty = val;
-			break;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-				Items_Used[pnum][extra].last_text_mode = val;
-			break;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-				Items_Used[pnum][extra].last_craft_vals = val;
-			break;
-			case DND_SYNC_TEXTID:
-				Items_Used[pnum][extra].textID = val;
-			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				Items_Used[pnum][extra].attributes[sub].attrib_id = val;
@@ -476,18 +420,6 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_ITEMQUALITY:
 				Inventories_On_Field[extra].quality = val;
-			break;
-			case DND_SYNC_ISDIRTY:
-				Inventories_On_Field[extra].isDirty = val;
-			break;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-				Inventories_On_Field[extra].last_text_mode = val;
-			break;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-				Inventories_On_Field[extra].last_craft_vals = val;
-			break;
-			case DND_SYNC_TEXTID:
-				Inventories_On_Field[extra].textID = val;
 			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
@@ -555,18 +487,6 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMQUALITY:
 				PlayerInventoryList[pnum][extra].quality = val;
 			break;
-			case DND_SYNC_ISDIRTY:
-				PlayerInventoryList[pnum][extra].isDirty = val;
-			break;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-				PlayerInventoryList[pnum][extra].last_text_mode = val;
-			break;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-				PlayerInventoryList[pnum][extra].last_craft_vals = val;
-			break;
-			case DND_SYNC_TEXTID:
-				PlayerInventoryList[pnum][extra].textID = val;
-			break;
 			
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				PlayerInventoryList[pnum][extra].attributes[sub].attrib_id = val;
@@ -633,18 +553,6 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMQUALITY:
 				TradeViewList[pnum][extra].quality = val;
 			break;
-			case DND_SYNC_ISDIRTY:
-				TradeViewList[pnum][extra].isDirty = val;
-			break;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-				TradeViewList[pnum][extra].last_text_mode = val;
-			break;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-				TradeViewList[pnum][extra].last_craft_vals = val;
-			break;
-			case DND_SYNC_TEXTID:
-				TradeViewList[pnum][extra].textID = val;
-			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				TradeViewList[pnum][extra].attributes[sub].attrib_id = val;
@@ -710,18 +618,6 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_ITEMQUALITY:
 				PlayerStashList[pnum][page][extra].quality = val;
-			break;
-			case DND_SYNC_ISDIRTY:
-				PlayerStashList[pnum][page][extra].isDirty = val;
-			break;
-			case DND_SYNC_LASTSHOWNTEXTMODE:
-				PlayerStashList[pnum][page][extra].last_text_mode = val;
-			break;
-			case DND_SYNC_LASTSHOWNCRAFTVALS:
-				PlayerStashList[pnum][page][extra].last_craft_vals = val;
-			break;
-			case DND_SYNC_TEXTID:
-				PlayerStashList[pnum][page][extra].textID = val;
 			break;
 			
 			case DND_SYNC_ITEMATTRIBUTES_ID:
@@ -852,7 +748,7 @@ void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev, bool s
 	//Log(s:"syncing item at field pos ", d:itemid, s:" type ", d:GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), s:" for player ", d:pnum);
 	
 	// skip top left box and item type, we handled it
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_TEXTID ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 
 	// sync implicits
@@ -868,6 +764,8 @@ void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev, bool s
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
+
+	MarkVSyncItemDirty();
 }
 
 void SyncItemData_Special(int pnum, int itemid, int source) {
@@ -893,7 +791,7 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_TEXTID ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 
 	// sync implicits
@@ -909,6 +807,8 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
+
+	MarkVSyncItemDirty();
 }
 
 // this is a sync function that syncs data to all players
@@ -918,10 +818,9 @@ void SyncItemData_Field(int itemid) {
 	// topleftboxid is 0 for field items, it doesnt make sense for them to have one
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", DND_SYNC_ITEMTOPLEFTBOX | payload, 0, itemid);
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(-1, DND_SYNC_ITEMTYPE, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", DND_SYNC_ISDIRTY | payload, GetItemSyncValue(-1, DND_SYNC_ISDIRTY, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
 
 
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_TEXTID ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", i | payload, GetItemSyncValue(-1, i, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
 
 	// sync implicits
@@ -944,7 +843,8 @@ void SyncItemStack(int pnum, int itemid, int source) {
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ISDIRTY | payload, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, itemid, -1, source), itemid);
+	
+	MarkVSyncItemDirty();
 }
 
 void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, bool source_inv_except = false) {
@@ -974,7 +874,7 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, b
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid);
 	}
 	
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_TEXTID ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
 
 	// sync implicits
@@ -1005,12 +905,13 @@ void SyncItemAttributes(int pnum, int itemid, int source) {
 	
 	// we now sync ilvl too
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMLEVEL | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, itemid, -1, source), itemid);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ISDIRTY | payload, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, itemid, -1, source), itemid);
 
 	for(i = 0; i < temp; ++i) {
 		for(j = DND_SYNC_ITEMATTRIBUTES_ID; j <= DND_LAST_SYNC_TYPE; ++j)
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, j | payload, GetItemSyncValue(pnum, j, itemid, i, source), itemid | (i << 16));
 	}
+
+	MarkVSyncItemDirty();
 }
 
 void SyncItemQuality(int pnum, int itemid, int source) {
@@ -1019,7 +920,8 @@ void SyncItemQuality(int pnum, int itemid, int source) {
 	int raw_source = source & 0xFFFF;
 	int payload = (raw_source << 8) | (page << 16);
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMQUALITY | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, itemid, -1, source), itemid);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ISDIRTY | payload, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, itemid, -1, source), itemid);
+	
+	MarkVSyncItemDirty();
 }
 
 void SyncItemImplicits(int pnum, int itemid, int source) {
@@ -1029,13 +931,14 @@ void SyncItemImplicits(int pnum, int itemid, int source) {
 	int payload = (raw_source << 8) | (page << 16);
 
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMCORRUPTED | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, itemid, -1, source), itemid);
-	ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ISDIRTY | payload, GetItemSyncValue(pnum, DND_SYNC_ISDIRTY, itemid, -1, source), itemid);
 
 	for(int j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
 		for(i = DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID; i <= DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA ; ++i) {
 			ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, j, source), itemid | (j << 16));
 		}
 	}
+
+	MarkVSyncItemDirty();
 }
 
 void SyncAllItemData(int pnum, int source) {
@@ -1066,6 +969,8 @@ void SyncAllItemData(int pnum, int source) {
 			}
 		}
 	}
+
+	MarkVSyncItemDirty();
 }
 
 void SyncAllClientsideVariables(int pnum) {

@@ -12,6 +12,8 @@
 
 #define DND_WELLROLL_ODDS 0.1
 
+#define DND_MEDKIT_TO_FLASK_FACTOR 4
+
 #define DND_BASE_CRITMODIFIER 200
 #define DND_SAVAGERY_MASTERYBONUS 100
 #define DND_HARDCORE_DROPRATEBONUS 0.15
@@ -26,8 +28,6 @@
 #define EXO_AR_ADD_3 9
 
 #define DND_ESTIMATED_AVG_DAMAGE 40 // This is used in estimated damage reduction for armor rating, assumes avg damage a player would receive throughout anything really
-
-#define TALENT_CAP 100
 
 #ifdef ISDEBUGBUILD
 	#define EXP_SCALE_MAX 100
@@ -138,6 +138,7 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	// the percentage of spawn health is amt to be given
 	if(!notPercentage)
 		amt = healthcap * amt / 100;
+
 	// consider healing bonuses from quests
 	amt = amt * (100 + bonus) / 100;
 	
@@ -174,7 +175,7 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 			GiveInventory("Research_Body_Hp_1_Tracker", toGive);
 		}
         if(toGive < amt)
-            GiveInventory("StoredMedkit", Clamp_Between(amt - toGive, 1, base));
+			GiveFlaskChargesPercentage(pnum, DND_MEDKIT_TO_FLASK_FACTOR * Clamp_Between((amt - toGive) * 100 / healthcap, 1, base));
 	}
 	else {
 		GiveInventory("HealthBonusX", toGive);
@@ -223,11 +224,11 @@ int GetActorLevel(int tid) {
 }
 
 int GetActorLevelExperience(int tid) {
-	return PlayerDataInLevel[tid - P_TIDSTART].levelexp;
+	return CheckActorInventory(tid, "DnD_LevelExp");
 }
 
 int GetActorLevelCredits(int tid) {
-	return PlayerDataInLevel[tid - P_TIDSTART].levelcredit;
+	return CheckActorInventory(tid, "DnD_LevelCredit");
 }
 
 int GetPerk(int attr) {
@@ -408,7 +409,7 @@ void GiveExp(int amt, bool resetSpree = false) {
 	else
 		SetInventory("SpreeXP", 0);
 
-	PlayerDataInLevel[pnum].levelexp += amt;
+	GiveInventory("DnD_LevelExp", amt);
 	ACS_NamedExecuteAlways("DnD Player Levelup Check", 0, ActivatorTID());
 	CalculateExpRatio();
 }
@@ -417,7 +418,7 @@ void GiveActorExp(int tid, int amt) {
 	int pnum = tid - P_TIDSTART;
 	AddPlayerExp(pnum, amt);
 	GiveActorInventory(tid, "SpreeXP", amt);
-	PlayerDataInLevel[pnum].levelexp += amt;
+	GiveActorInventory(tid, "DnD_LevelExp", amt);
 	ACS_NamedExecuteAlways("DnD Player Levelup Check", 0, tid);
 	CalculatePlayerExpRatio(tid);
 }
@@ -483,7 +484,7 @@ int RewardActorCredit(int tid, int amt) {
 void GiveCredit(int amt) {
 	int pnum = PlayerNumber();
 	GiveInventory("Credit", amt);
-	PlayerDataInLevel[pnum].levelcredit += amt;
+	GiveInventory("DnD_LevelCredit", amt);
 	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 	GiveInventory("DnD_MoneySpentQuest", amt);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
@@ -517,7 +518,7 @@ void GiveActorBudget(int tid, int amt) {
 void GiveActorCredit(int tid, int amt) {
 	int pnum = tid - P_TIDSTART;
 	GiveActorInventory(tid, "Credit", amt);
-	PlayerDataInLevel[pnum].levelcredit += amt;
+	GiveActorInventory(tid, "DnD_LevelCredit", amt);
 	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 	UpdateActivity(pnum, DND_ACTIVITY_CREDIT, amt, 0);
 }
@@ -583,10 +584,8 @@ int GetResearchArmorBonuses() {
 
 int CanPickHealthItem(int type) {
 	int res = 0;
-    int research_cond = CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && CheckInventory("StoredMedkit") < GetAmmoCapacity("StoredMedkit");
-	if(type == 2) // portable medikit
-        res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth() && CheckInventory("StoredMedkit");
-    else if(type == 1) // the artifact kit
+    int research_cond = CheckResearchStatus(RES_MEDKITSTORE) == RES_DONE && HasNonfullFlasks(PlayerNumber());
+	if(type == 1) // the artifact kit
 		res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth();
 	else // normal health pickup
 		res = GetActorProperty(0, APROP_HEALTH) < GetSpawnHealth() || research_cond;
@@ -802,9 +801,7 @@ bool HasNoSigilPower() {
 }
 
 void UpdatePerkStuff(int perk) {
-	if(perk == STAT_MED)
-		SetAmmoCapacity("StoredMedkit", GetAmmoCapacity("StoredMedkit") + 15 * CheckInventory("Perk_Medic"));
-	else if(perk == STAT_WIS && CheckInventory(StatData[perk]) == DND_PERK_MAX)
+	if(perk == STAT_WIS && CheckInventory(StatData[perk]) == DND_PERK_MAX)
 		++CurrentLevelData[LEVELDATA_WISDOMMASTERED];
 	else if(perk == STAT_GRE && CheckInventory(StatData[perk]) == DND_PERK_MAX)
 		++CurrentLevelData[LEVELDATA_GREEDMASTERED];

@@ -60,7 +60,7 @@ void CalculateHudScale(int width, int height, bool isForcedScale) {
 #define MAX_CRAFTING_MATERIALBOXES 12
 
 void CleanInventoryInfo(int id_begin = RPGMENUINVENTORYID) {
-	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20 - ITEMINFOBG_MAXMIDS, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+	DeleteTextRange(id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES - 20 + ITEMID_SKIP, id_begin - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 }
 
 // cleans up stuff in crafting material panel -- minus_bg is for preserving the background!
@@ -329,7 +329,7 @@ void ShowActorPopup(int pnum, int popupid, bool isSell, int activebox) {
 #define HUD_ITEMBAK_Y 168
 #define HUD_ITEMBAK_XF 212.0
 #define HUD_ITEMBAK_YF 168.0
-#define HUD_ITEMBAK_WIDTH (4 * HUD_ITEMBAK_X / 3 + 16)
+#define HUD_ITEMBAK_WIDTH 300//(4 * HUD_ITEMBAK_X / 3 + 16)
 
 // stash hud
 #define HUDMAX_X_STASH (HUDMAX_X * 3 / 2)
@@ -699,46 +699,135 @@ int GetRawLength(str name) {
 	return real_len;
 }
 
+// this applies only to NSMOLFONT right now! If more fonts are needed, add their char widths here
+int GetCharWidth(int c) {
+	switch(c) {
+		case '.':
+		case ',':
+		return 4;
+		
+		case ' ': // this seems the best fit for this particular font
+		case '[':
+		case ']':
+		case '1':
+		case 'i':
+		case 'I':
+		return 6;
+		
+		case '^':
+		return 10;
+		
+		case '-':
+		case '<':
+		case '=':
+		case '>':
+		case '+':
+		return 7;
+
+		case ':':
+		case ';':
+		case '!':
+		return 4;
+		
+		case '?':
+		case 'T':
+		case 't':
+		case 'y':
+		case 'Y':
+		return 8;
+	}
+
+	// most characters have width 9 for the NSMOLFONT
+	return 9;
+}
+
 // this is the refined version of the above function where it counts how many new lines we'd need given a big string that can potentially have many line breaks
-int CountNewLinesInText(str name, int char_count_per_line) {
-	int len = Strlen(name);
-	int real_len = 0;
-	int line_count = 0;
+int CountNewLinesInText(str text, int maxWidth) {
+    int len = StrLen(text);
+    int i;
+
+    int lineCount = 1;
+    int currentWidth = 0;
+
+    int wordWidth = 0;
+    int spaceWidth = GetCharWidth(' ');
+
 	int color_count = 0;
 	bool in_ccode = false;
 	bool in_bracketed_color = false;
-	
-	for(int i = 0; i < len; ++i) {
-		int c = GetChar(name, i);
-		
-		// 28 is FS (File Seperator)
-		if(c == 28)
+
+    for(i = 0; i < len; i++) {
+        int c = GetChar(text, i);
+
+		if(c == 28) {
 			in_ccode = true;
+			continue;
+		}
 		else if(in_ccode) {
 			++color_count;
-			if(c == '[')
+			if(c == '[') {
 				in_bracketed_color = true;
+			}
 			else if((!in_bracketed_color && color_count == 1) || (in_bracketed_color && c == ']')) {
 				// enter here if we counted the color character in zandro (\c + u into \cu example) or in newtextcolors bracket style (\c[M3] for example)
 				in_ccode = false;
 				in_bracketed_color = false;
 				color_count = 0;
 			}
+			continue;
 		}
-		else if(c != 10) {
-			// not new line
-			++real_len;
-			if(real_len >= char_count_per_line) {
-				real_len = 0;
-				++line_count;
-			}
-		}
-		else {
-			++line_count;
-			real_len = 0;
-		}
-	}
-	return line_count;
+
+        // hard line break
+        if(c == '\n') {
+            // commit pending word first
+            if (wordWidth > 0) {
+                if (!currentWidth)
+                    currentWidth = wordWidth;
+                else if (currentWidth + wordWidth > maxWidth) {
+                    lineCount++;
+                    currentWidth = wordWidth;
+                }
+                else
+                    currentWidth += wordWidth;
+
+                wordWidth = 0;
+            }
+
+            // explicit newline
+            lineCount++;
+            currentWidth = 0;
+            continue;
+        }
+
+        // space = commit word
+        if(c == ' ') {
+            if(wordWidth > 0) {
+                // word fits?
+                if(!currentWidth)
+                    currentWidth = wordWidth;
+                else if(currentWidth + spaceWidth + wordWidth > maxWidth) {
+                    // Move whole word to next line
+                    lineCount++;
+                    currentWidth = wordWidth;
+                }
+                else
+                    currentWidth += spaceWidth + wordWidth;
+
+                wordWidth = 0;
+            }
+
+            continue;
+        }
+
+        // Accumulate word width
+        wordWidth += GetCharWidth(c);
+    }
+
+    // Final word at end of string
+    if(wordWidth > 0 && currentWidth && currentWidth + spaceWidth + wordWidth > maxWidth)
+        lineCount++;
+
+    return lineCount;
 }
 
 void HudMessageOnActor(int tid, int msgID, int hudX = 640, int hudY = 480, int xOffset = 0, int yOffset = 0, int range = 128, str sprite = "TNT1A0", str text = "Null", int holdTime = 0.1, int colour = CR_RED) {
@@ -819,7 +908,7 @@ void DrawInventoryInfo(int pnum) {
 	int isubt = -1;
 	
 	if(itype != DND_ITEM_NULL) {
-		DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18 - ITEMINFOBG_MAXMIDS, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
+		DeleteTextRange(RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES - 18 + ITEMID_SKIP, RPGMENUINVENTORYID - HUD_DII_MULT * MAX_INVENTORY_BOXES);
 
 		isubt = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, PlayerCursorData.itemHovered, -1, PlayerCursorData.itemHoveredSource);
 		

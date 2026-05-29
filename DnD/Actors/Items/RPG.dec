@@ -1,5 +1,8 @@
 const float m_range_factor = 0.01;
 
+Actor DnD_LevelExp : DnD_Info {}
+Actor DnD_LevelCredit : DnD_Info {}
+
 Actor BossBrainProtection : PowerProtection {
 	damagefactor "normal", 1.0
 	damagefactor "BarrelExplosion", 0.0
@@ -254,6 +257,11 @@ Actor ShowingMenu_CS : DnD_Boolean { }
 Actor ShowingPrompt : DnD_Boolean { }
 Actor ShowingMerchantView : DnD_Boolean { }
 Actor ShowingWeaponWheel : DnD_Boolean { }
+
+Actor LimitedCraftDraw : PowerDamage {
+	damagefactor "normal", 1.0
+	powerup.duration 5
+}
 
 Actor WeaponWheelChangeId : DnD_Info { }
 

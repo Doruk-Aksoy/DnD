@@ -302,7 +302,8 @@ void Reset_RPGInfo (int resetflags) {
 	int pnum = PlayerNumber();
 	if(resetflags & RESET_LEVEL) {
 		SetPlayerExp(pnum, 0);
-		PlayerDataInLevel[PlayerNumber()].levelexp = 0;
+		SetInventory("DnD_LevelExp", 0);
+		SetInventory("DnD_LevelCredit", 0);
 		SetInventory("Level", 1);
 	}
 	
@@ -463,7 +464,7 @@ int CalculateBonus(int bonustype, int mdifficulty) {
 		return BONUS_EXP_RATE * (mdifficulty + 1);
 	}
 	else if(bonustype == BONUS_ITEM) {
-		// add 250 credit for each difficulty level
+		// add 10% credit for each difficulty level
 		return BONUS_CREDIT_RATE * (mdifficulty + 1);
 	}
 	else if(bonustype == BONUS_SECRET) {
@@ -518,7 +519,7 @@ void DistributeBonus(int bonustype) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
 				temp = GetActorLevelCredits(i + P_TIDSTART) * bval / 100;
 				GiveActorInventory(i + P_TIDSTART, "DnD_ItemBonusShower", 1);
-				GiveActorCredit(i + P_TIDSTART, bval);
+				GiveActorCredit(i + P_TIDSTART, temp);
 			}
 		}
 	}

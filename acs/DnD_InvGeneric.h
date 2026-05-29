@@ -19,9 +19,11 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 		if(random(0,1))
 #endif
 		{
-			id = MakeUnique(c, DND_ITEM_BODYARMOR, pnum);
-			if(UniqueItemList[id].item_level <= ilvl)
+			id = PickUniqueItem(DND_ITEM_BODYARMOR);
+			if(UniqueItemList[id].item_level <= ilvl) {
+				ConstructUniqueOnField(c, id, pnum);
 				SpawnDrop(StrParam(s:"UniqueArmor_", d:id - UNIQUE_BODYARMOR_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
 			else {
 				RollArmorInfo(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT);
 				SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
@@ -74,9 +76,11 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 		if(random(0,2))
 #endif
 		{
-			id = MakeUnique(c, DND_ITEM_BOOT, pnum);
-			if(UniqueItemList[id].item_level <= ilvl)
+			id = PickUniqueItem(DND_ITEM_BOOT);
+			if(UniqueItemList[id].item_level <= ilvl) {
+				ConstructUniqueOnField(c, id, pnum);
 				SpawnDrop(StrParam(s:"UniqueBoot_", d:id - UNIQUE_BOOT_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
 			else {
 				RollArmorInfo(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_BOOT_ATTRIB_DEFAULT);
 				SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
@@ -137,7 +141,7 @@ void SpawnHelmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat
 		int type = InitializeHelm(c, ilvl, pnum, -1);
 		RollArmorInfoWithMods(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
-		SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, false);
+		SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, false);
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
@@ -166,9 +170,11 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY =
 			if(!random(0,1))
 		#endif
 		{
-			int id = MakeUnique(c, DND_ITEM_CHARM, pnum);
-			if(UniqueItemList[id].item_level <= ilvl)
+			int id = PickUniqueItem(DND_ITEM_CHARM);
+			if(UniqueItemList[id].item_level <= ilvl) {
+				ConstructUniqueOnField(c, id, pnum);
 				SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
 			else {
 				RollCharmInfo(c, ilvl, pnum);
 				SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
@@ -185,7 +191,7 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY =
 
 void SpawnUniqueCharm(int pnum, int charm_id, bool noRandomVelXY = false) {
 	int c = CreateItemSpot();
-	MakeUnique(c, DND_ITEM_CHARM, pnum, charm_id);
+	ConstructUniqueOnField(c, charm_id, pnum);
 	SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
 	SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 	ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
@@ -198,9 +204,11 @@ void SpawnSpecialtyItem(int pnum, int rarity_boost, int unused = 0, bool noRando
 	if(c != -1) {
 		int ilvl = RollItemLevel();
 		if(extra == DND_ITEM_SPECIALTY_CYBORG && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))) {
-			id = MakeUnique(c, DND_ITEM_SPECIALTY_CYBORG, pnum);
-			if(UniqueItemList[id].item_level <= ilvl)
+			id = PickUniqueItem(DND_ITEM_SPECIALTY_CYBORG);
+			if(UniqueItemList[id].item_level <= ilvl) {
+				ConstructUniqueOnField(c, id, pnum);
 				SpawnDrop(StrParam(s:"PowercoreDrop_Unique", d:id - UNIQUE_POWERCORE_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
 			else
 				SpawnDrop(GetSpecialtyDropClass(extra, RollSpecialtyItemInfo(c, ilvl, pnum, extra)), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		}

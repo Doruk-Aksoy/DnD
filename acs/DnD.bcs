@@ -405,17 +405,6 @@ Script "DnD On Death" DEATH {
 	Delay(const:5);
 }
 
-Script "DnD Portable Kit Script" (void) {
-	int healthcap = GetSpawnHealth();
-	int bonus = GetHealingBonuses(PlayerNumber());
-	int amt = healthcap / 100;
-	amt = amt * (100 + bonus) / 100;
-	while(GetActorProperty(0, APROP_HEALTH) < healthcap && CheckInventory("StoredMedkit")) {
-		TakeInventory("StoredMedkit", 1);
-		GiveInventory("HealthBonusX", amt);
-	}
-}
-
 // Health Kits Script (Used by Portable Medikits as well, ported here)
 Script "DnD Health Pickup" (int amt, int isSpecial, int useTarget) {
 	HandleHealthPickup(amt, isSpecial, useTarget);
@@ -435,7 +424,6 @@ Script "DnD Critical Input Handler" ENTER {
 		if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_USE)
 			GiveInventory("DnD_PressedUse", 1);
 		
-        SetInventory("MedkitItem", CheckInventory("StoredMedKit"));
         TakeInventory("FadeIntensity", 1);
 		
 		// had enough of armor fucking up
@@ -1171,9 +1159,6 @@ Script 832 (void) {
 		TakeStat(i, GetPerk(i));
 
 	UpdateEnergyShieldVisual(GetPlayerEnergyShieldCap(pnum));
-		
-	// not sure why this is here but it was before so I'll keep it for now
-	SetAmmoCapacity("StoredMedkit", DND_BASE_HEALTH);
 			
 	// update health to new cap if higher
 	int temp = GetSpawnHealth();
@@ -2863,7 +2848,7 @@ Script "DnD Message Logger" (int type, int id, int id_is_special) CLIENTSIDE {
 	else if(type == 4)
 		Log(s:"\cc", l:"DND_PICKUP_HEALTH", s:": \c[Y5]", l:"DND_PICKUP_DEMONESSENCE");
 	else
-		Log(s:ChestKeyText[id]);
+		Log(l:GetChestLockedText(id));
 }
 
 // Pickup check for the temporary weapons
@@ -3382,6 +3367,7 @@ Script "DnD On Player Enter CS" ENTER CLIENTSIDE {
 		NamedRequestScriptPuke("DnD Set Class", class_id, cpnum);
 
 	ResetPlayerScriptChecks();
+	ResetVSyncItemInfo();
 
 	if(GetCVar("dnd_showmapinfo"))
 		SetInventory("ShowMapInfo", 1);
@@ -4285,6 +4271,7 @@ Script "DnD Chest Dropping Item" (int chance_penalty) {
 
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
+
 	// additional delay for the map difficulty calculator
 	Delay(const:TICRATE);
 	HandleChestSpawn(chance_penalty);
@@ -6048,7 +6035,7 @@ Script 68 (int x) NET {
 			//SpawnCharm(0, true);
 			SpawnCharm(0, true);
 			//Log(s:"armor");
-			//SpawnArmor(0, true, 0);
+			SpawnArmor(0, true, 0);
 			//Log(s:"pcore");
 			//SpawnPowercore(0, true);
 			//Log(s:"orb");
@@ -6067,9 +6054,9 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
 			SpawnToken(0, true);
 			//Log(s:"boot");
-			//SpawnBoot(0, 0);
+			SpawnBoot(0, 0);
 			//Log(s:"helm");
-			//SpawnHelm(0, 0);
+			SpawnHelm(0, 0);
 			SpawnOrbForAll(1, random(300, 500));
 			//SpawnChestKey(0);
 			//SpawnCharmWithMods_ForAll(INV_MELEERANGE);
@@ -6181,7 +6168,7 @@ Script 68 (int x) NET {
 			int c = CreateItemSpot();
 			//i = random(UITEM_ELEMENTALBULWARK, UITEM_PAINMASTER);
 			i = UITEM_UNITY;
-			MakeUnique(c, DND_ITEM_CHARM, 0);
+			ConstructUniqueOnField(c, i, 0);
 			SpawnDrop("UniqueCharmDrop", 16.0, 16, 1, c);
 			
 			SyncItemData(0, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);

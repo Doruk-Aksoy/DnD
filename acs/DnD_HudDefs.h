@@ -50,6 +50,8 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define ITEMINFOBG_MAXMIDS 10
 #define ITEMINFO_CLIPWIDTH 360
 
+#define ITEMID_SKIP (-10 - ITEMINFOBG_MAXMIDS)
+
 typedef struct coord {
 	int x;
 	int y;

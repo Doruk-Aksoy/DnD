@@ -1,0 +1,5 @@
+[enu default]
+
+DND_CHESTLOCKEDTXT1 =   "\ccNotice        : You need a \ceBronze\c- Chest Key to open this!";
+DND_CHESTLOCKEDTXT2 =   "\ccNotice        : You need a \cuSilver\c- Chest Key to open this!";
+DND_CHESTLOCKEDTXT3 =   "\ccNotice        : You need a \cfGold\c- Chest Key to open this!";

@@ -556,7 +556,6 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrderStored", 0);
 
 			PlayerInventoryList[pnum][extra].attributes[s].fractured = true;
-			PlayerInventoryList[pnum][extra].isDirty = true;
 		
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -618,7 +617,6 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 			SetInventory("OrderStored", 0);
 
-			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
 		break;
@@ -717,8 +715,6 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					PlayerInventoryList[pnum][extra].item_level = MAX_ITEM_LEVEL;
 			}
 
-			// sync at end all at once
-			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", res);
 		break;
@@ -742,7 +738,6 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				overrideValue = CheckInventory("ReveranceUsed") * prev;
 			}
 			
-			PlayerInventoryList[pnum][extra].isDirty = true;
 			SyncItemQuality(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
 		break;
@@ -947,8 +942,6 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 			SetInventory("OrderStored", 0);
 			
-			// finally, sync it
-			PlayerInventoryList[pnum][extra2].isDirty = true;
 			SyncItemData(pnum, extra2, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][extra2].width, PlayerInventoryList[pnum][extra2].height);
 			GiveInventory("DnD_CleanCraftingRequest", 1);
 			GiveInventory("DnD_RefreshPane", 1);
@@ -1121,8 +1114,6 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 			PlayerInventoryList[pnum][i].item_image = GetOrbItemImage(otype);
 			PlayerInventoryList[pnum][i].topleftboxid = i + 1;
 
-			PlayerInventoryList[pnum][i].isDirty = true;
-
 			if(amt - res < j - PlayerInventoryList[pnum][i].item_stack) {
 				PlayerInventoryList[pnum][i].item_stack += amt - res;
 				res = amt;
@@ -1150,8 +1141,6 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 					PlayerStashList[pnum][i][j].attrib_count = 0;
 					PlayerStashList[pnum][i][j].item_image = GetOrbItemImage(otype);
 					PlayerStashList[pnum][i][j].topleftboxid = j + 1;
-
-					PlayerStashList[pnum][i][j].isDirty = true;
 					
 					if(amt - res < GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack) {
 						PlayerStashList[pnum][i][j].item_stack += amt - res;

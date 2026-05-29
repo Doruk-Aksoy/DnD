@@ -2563,65 +2563,65 @@ str ItemAttributeString(
 			if(extra == -1) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:ess_tag, s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
+						s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
 						s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:ess_tag, s:"+ ", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
+				return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
 			}
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, d:val, s:"\c-", s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, s:"%", l:text,
+					s:"+", s:col_tag, d:val, s:"\c-", s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, s:"%", l:text,
 					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:"\c-", l:text);
+			return StrParam(s:"+", s:col_tag, d:val, s:"%", s:"\c-", l:text);
 
 		case INV_ESS_HARKIMONDE:
 			if(showDetailedMods) {
 				return StrParam(
-					s:ess_tag, s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
+					s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
 					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:ess_tag, s:"+ ", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
+			return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
 
 		case INV_ESS_KRULL:
 			if(showDetailedMods) {
 				if(extra == -1) {
 					return StrParam(
-						s:ess_tag, s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
+						s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
 						s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 					);
 				}
 				return StrParam(
-					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%\c-", l:text,
+					s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%\c-", l:text,
 					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
 			if(extra == -1)
-				return StrParam(s:ess_tag, s:"+ ", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
-			return StrParam(s:"+ ", s:col_tag, d:val, s:"%\c-", l:text);
+				return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
+			return StrParam(s:"+", s:col_tag, d:val, s:"%\c-", l:text);
 			
 		// essences that are like regular mods, just have color code
 		case INV_ESS_OMNISIGHT:
 			if(showDetailedMods) {
 				return StrParam(
-					s:ess_tag, s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, l:text,
+					s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, l:text,
 					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:ess_tag, s:"+ ", s:col_tag, d:val, s:ess_tag, l:text);
+			return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:ess_tag, l:text);
 
 		case INV_ESS_VAAJ:
 			if(showDetailedMods) {
 				return StrParam(
-					s:ess_tag, s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:text,
+					s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:text,
 					s:ess_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:col_tag, s:"% ", s:ess_tag, l:"IATTR_TE1S",
 					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:ess_tag, s:"+ ", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TE1S");
+			return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TE1S");
 		
 		// since percentages are handled in default case, we will handle all flat value attributes under here
 		case INV_HP_INCREASE:
@@ -2667,24 +2667,24 @@ str ItemAttributeString(
 			if(val > 0) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:no_tag, l:text,
+						s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:no_tag, l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
+				return StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text);
 			}
 			else if(val < 0)
-				return StrParam(s:col_tag, s:"- \cg", d:val, s:no_tag, l:text);
+				return StrParam(s:col_tag, s:"-\cg", d:val, s:no_tag, l:text);
 				
 		// corrupted implicits of certain kinds have +X% text TO (extra)
 		case INV_CORR_WEAPONCRITDMG:
 		case INV_CORR_WEAPONPOISONPCT:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
+					s:"+", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
+			return StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
 
 		// flat text with weapon mention
 		case INV_CORR_WEPCULL:
@@ -2694,29 +2694,29 @@ str ItemAttributeString(
 		case INV_IMP_INCARMOR:
 		case INV_IMP_INCSHIELD:
 		case INV_IMP_INCARMORSHIELD:
-			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
+			text = StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text);
 		return text;
 		case INV_IMP_INCMIT:
-			text = StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
+			text = StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
 		return text;
 		case INV_IMP_INCMITARMOR:
-			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_ARMOR_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
+			text = StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_ARMOR_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
 		return text;
 		case INV_IMP_INCMITSHIELD:
-			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_SHIELD_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
+			text = StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text, s: " ", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_SHIELD_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
 		return text;
 		case INV_IMP_POWERCORE:
-			text = StrParam(s:"+ ", s:col_tag, d:extra, s:"%", s:no_tag, l:text, s: "\n", s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\c[R5]", l:"IATTR_T72");
+			text = StrParam(s:"+", s:col_tag, d:extra, s:"%", s:no_tag, l:text, s: "\n", s:"+", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\c[R5]", l:"IATTR_T72");
 		return text;
 		case INV_IMP_UNSTABLECORE:
 			text = StrParam(
-				s:"+ ", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\cd",
+				s:"+", s:col_tag, d:val, s:no_tag, l:"IATTR_T98", s:"\n\cd",
 				s:GetFixedRepresentation(extra, true), s:"%\c-", s:no_tag, l:text, s:" \cd", s:GetFixedRepresentation(extra * UNSTABLE_DMG_MULT, true), s:"%\c- ", l:"IATTR_TI8S", s:"\n\c[R5]",
 				l:"IATTR_T72"
 			);
 		return text;
 		case INV_IMP_INCMITARMORSHIELD:
-			text = StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text, s: " +", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_ARMOR_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
+			text = StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text, s: " +", s:col_tag, s:GetFixedRepresentation((val << 16) / DND_ARMOR_TO_MIT_RATIO, false), s:"%", s:no_tag, l:"IATTR_TI4");
 		return text;
 
 		case INV_IMP_RAVAGER:					// ravager armor
@@ -2804,47 +2804,47 @@ str ItemAttributeString(
 		case INV_CORR_SPEED:
 		case INV_CORR_MOREAOE:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text);
+				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
 
 		// fixed point positive wep stuff
 		case INV_CORR_WEAPONDMG:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, s:GetFixedRepresentation(val - 1.0, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
+					s:"+", s:col_tag, s:GetFixedRepresentation(val - 1.0, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val - 1.0, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val - 1.0, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
 
 		// fixed point corrupted wep stuff
 		case INV_CORR_WEAPONCRIT:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
+					s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s: " ", l:GetWeaponTag(extra));
 
 		// % corruption mods with ranges
 		case INV_CORR_PERCENTSTATS:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:"%", s:no_tag, l:text);
+				return StrParam(s:"+", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:"%", s:no_tag, l:text);
 			}
-			return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text);
+			return StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text);
 
 		// flat corruption mods with no ranges
 		case INV_CORR_MAXFRENZY:
 		case INV_CORR_MAXENDURANCE:
 		case INV_CORR_MAXPOWER:
-			return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
+			return StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text);
 
 		// flat corruption mods with ranges
 		case INV_CORR_ALLPIERCE:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:no_tag, l:text);
+				return StrParam(s:"+", s:col_tag, d:val, s:GetDetailedImplicitModRange(attr, item_type, item_subtype, 0), s:no_tag, l:text);
 			}
-			return StrParam(s:"+ ", s:col_tag, d:val, s:no_tag, l:text);
+			return StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text);
 
 		// fixed point stuff
 		case INV_PROJSPEED:
@@ -2863,19 +2863,19 @@ str ItemAttributeString(
 		case INV_DAMAGEPERCENT_MORE:
 		case INV_MELEECRIT_NOTONLOWSTAMINA:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text,
+				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
 
 		case INV_CRITPERCENT_FORWEPTYPE:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra),
+				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra),
 					s:no_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra));
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra));
 		
 		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
@@ -2899,11 +2899,11 @@ str ItemAttributeString(
 		case INV_MIT_INCREASE:
 		case INV_MITEFFECT_INCREASE:
 			if(showDetailedMods) {
-				return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%", s:no_tag, l:text,
+				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
 
 		// incursion special attribs
 		case INV_INC_DOUBLEHPBONUS:
@@ -2926,12 +2926,12 @@ str ItemAttributeString(
 		case INV_INC_INSTANTLIFESTEAL:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
+					s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 					s:" - ", s:GetModTierText(tier, extra),
 					s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S"
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S");
+			return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S");
 		
 			case INV_INC_MITIGATIONTODODGE:
 		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC11S");
@@ -2976,11 +2976,11 @@ str ItemAttributeString(
 		case INV_INC_INVERTRESISTANCES:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:text,
+					s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:text,
 					s:ess_tag, s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, d:val, s:"% ", s:ess_tag, l:text);
+			return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text);
 		case INV_INC_RIPPERSEXPLODE:
 			if(showDetailedMods) {
 				return StrParam(
@@ -3010,11 +3010,11 @@ str ItemAttributeString(
 		case INV_REAPINGCLEAVE:
 				if(showDetailedMods) {
 					return StrParam(
-						s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT",
+						s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT",
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT");
+				return StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT");
 
 		// flasks
 		case INV_FLASK_IMP_CHARGECOUNT:
@@ -3081,20 +3081,20 @@ str ItemAttributeString(
 			if(val > 0) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"+ ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
+						s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"+ ", s:col_tag, d:val, s:"%", s:no_tag, l:text);
+				return StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text);
 			}
 			else if(val < 0) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"- ", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
+						s:"-", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"- \cg", d:val, s:"%", s:no_tag, l:text);
+				return StrParam(s:"-\cg", d:val, s:"%", s:no_tag, l:text);
 			}
 	}
 	return "";
@@ -3204,21 +3204,21 @@ str GetItemAttributeText(
 		case INV_EX_MORECRIT_LIGHTNING:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
+					s:"+", s:col_tag, s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
 
 		// float factor that isnt a percentage by representation, but has % at the end
 		case INV_EX_MOREDMGPEROVERHEAT:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false), s:"%\c- ", l:text,
+					s:"+", s:col_tag, s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false), s:"%\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ ", s:col_tag, s:GetFixedRepresentation(val1, false), s:"%\c- ", l:text);
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val1, false), s:"%\c- ", l:text);
 
 		case INV_EX_INTBONUSTOMELEE:
 			if(showDetailedMods) {
@@ -3372,42 +3372,42 @@ str GetItemAttributeText(
 		case INV_EX_FLATPERSHOTGUNOWNED:
 			if(showDetailedMods) {
 				return StrParam(
-					s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
+					s:"+\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \c[Q9]", d:val1, s:"\c- ", l:text);
+			return StrParam(s:"+\c[Q9]", d:val1, s:"\c- ", l:text);
 		
 		// negative %
 		case INV_EX_LESSHEALING:
 			if(val1) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"- \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
+						s:"-\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"- \cg", d:val1, s:"%\c[D4] ", l:text);
+				return StrParam(s:"-\cg", d:val1, s:"%\c[D4] ", l:text);
 			}
 			return StrParam(l:text);
 			
 		// negative effects are shown with different color -- these are % ones of those, these are positive numerically
 		case INV_EX_DMGINCREASE_TAKEN:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
+				return StrParam(s:"+\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \cg", d:val1, s:"%\c[D4] ", l:text);
+			return StrParam(s:"+\cg", d:val1, s:"%\c[D4] ", l:text);
 
 		// negative effect without any %
 		case INV_EX_AMMOCOSTMULTIPLIER:
 			if(showDetailedMods) {
-				return StrParam(s:"+ \cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:text,
+				return StrParam(s:"+\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:text,
 					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+ \cg", d:val1, s:"%\c[D4] ", l:text);
+			return StrParam(s:"+\cg", d:val1, s:"%\c[D4] ", l:text);
 
 		case INV_EX_MOREAMMOUSE:
 			if(showDetailedMods)
@@ -3430,11 +3430,11 @@ str GetItemAttributeText(
 			if(val1) {
 				if(showDetailedMods) {
 					return StrParam(
-						s:"+ \c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text,
+						s:"+\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text,
 						s:" - ", s:GetModTierText(tier, extra)
 					);
 				}
-				return StrParam(s:"+ \c[Q9]", d:val1, s:"%\c- ", l:text);
+				return StrParam(s:"+\c[Q9]", d:val1, s:"%\c- ", l:text);
 			}
 			return StrParam(l:text);
 	}

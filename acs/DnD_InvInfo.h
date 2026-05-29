@@ -131,13 +131,60 @@ typedef struct it {
 
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
+} inventory_T;
 
-	// unsynced data
-	bool isDirty;									// textID is outdated, needs to be updated
-	bool last_text_mode;							// last drawn text mode ie. detailed mods or not (so we can redraw if user changed modes)
+// visual sync type -- entirely to be used clientside
+typedef struct it_sync {
+	int source;										// together with topboxid used as an identifier
+	int topleftboxid;								// used as an identifier
+
+	// real sync data
 	int last_craft_vals;							// last shown craft values, which tags are affected and what not
 	int textID;										// holds the whole text created by StrParams so we avoid rebuilding it
-} inventory_T;
+	int implicit_textID;							// text id for implicit instead
+	int implicit_lines_count;
+	int attr_lines_count;
+	bool isDirty;									// textID is outdated, needs to be updated
+	bool last_text_mode;							// last drawn text mode ie. detailed mods or not (so we can redraw if user changed modes)
+} inventory_vsync_T;
+
+enum {
+	DND_SYNCINDEX_ITEM,
+	DND_SYNCINDEX_STACKABLE,
+
+	DND_MAXSYNCINDICES
+};
+
+global inventory_vsync_T 47: ItemSyncData[DND_MAXSYNCINDICES];
+
+bool IsExactInventoryVSyncData(int source, int tbid, int id) {
+	auto item = ItemSyncData[id];
+	return item.source == source && item.topleftboxid == tbid;
+}
+
+void ResetVSyncItemInfo() {
+	for(int i = 0; i < DND_MAXSYNCINDICES; ++i) {
+		auto item = ItemSyncData[i];
+		item.topleftboxid = -1;
+		item.source = -1;
+		item.isDirty = true;
+	}
+}
+
+void MarkVSyncItemDirty() {
+	ACS_NamedExecuteWithResult("DnD Item Dirty Mark");
+}
+
+Script "DnD Item Dirty Mark" (void) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+
+	auto item = ItemSyncData[DND_SYNCINDEX_ITEM];
+	if(item.topleftboxid != -1 && item.source != -1)
+		item.isDirty = true;
+
+	SetResultValue(0);
+}
 
 // The following are seperated to fitting categories, they are used this way in many places
 enum {

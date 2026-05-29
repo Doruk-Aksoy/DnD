@@ -242,8 +242,6 @@ void CompleteResearch(int res_id) {
 	
 	if(res_id == RES_DOUBLESPECIALCAP)
 		DoubleSpecialAmmoCapacity();
-	if(res_id == RES_MEDKITSTORE)
-		GiveInventory("MedkitItem", 1);
 }
 
 bool HasIncompleteResearches() {
@@ -258,7 +256,6 @@ void GiveAndDoAllResearch() {
 		GiveResearch(i, false);
 		CompleteResearch(i);
 	}
-	GiveInventory("MedkitItem", 1);
 	DoubleSpecialAmmoCapacity();
 }
 

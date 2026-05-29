@@ -84,37 +84,6 @@ Actor TechLevel : Ammo {
 	+IGNORESKILL
 }
 
-Actor StoredMedkit : Ammo {
-	inventory.amount 1
-	inventory.maxamount 100
-	ammo.backpackamount 0
-	ammo.backpackmaxamount 100
-	+IGNORESKILL
-}
-
-Actor MedkitItem : CustomInventory {
-	inventory.maxamount 1
-	inventory.icon "PORMEICO"
-	+INVENTORY.INVBAR
-	+INVENTORY.UNDROPPABLE
-	inventory.amount 1
-	inventory.maxamount 16000
-	States {
-		Use:
-			MEDI A 0 A_JumpIfInventory("StoredMedkit", 1, "TryHeal")
-		End:
-			TNT1 A 0
-			Fail
-		TryHeal:
-			TNT1 A 0 A_JumpIf(ACS_NamedExecuteWithResult("DnD Can Pick Health Item", 2), "DoHeal")
-			Goto End
-		DoHeal:
-			TNT1 A 0 A_PlaySound("Items/fieldkit")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Portable Kit Script")
-			Fail
-	}
-}
-
 Actor Research_Discovered_1 : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
