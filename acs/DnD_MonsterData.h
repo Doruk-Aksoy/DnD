@@ -75,7 +75,7 @@ void ScaleMonsterMass(int level) {
 	if(m < new_m)
 		SetActorProperty(0, APROP_MASS, new_m);
 	else if(m > new_m)
-		SetActorProperty(0, APROP_MASS, INT_MAX);
+		SetActorProperty(0, APROP_MASS, bcs::INT_MAX);
 }
 
 int GetMonsterSizeType(int id) {
@@ -505,24 +505,22 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 	// don't do anything past this point if revived, there is no need, the data for these is already stored
 	if(isRevived)
 		return;
-	
+		
+	MonsterProperties[m_id].rarity = MonsterData[MonsterProperties[m_id].id].rarity;
+	//printbold(s:GetActorClass(0), s:" rarity ", d:MonsterProperties[m_id].rarity, s: " ", d:MonsterProperties[m_id].class, s: " ", d:MonsterProperties[m_id].id);
+
 	// calculate the gains multiplier -- this is the safest place to do as most of monster data is now known by this point, like level etc.
 	// all unique monsters have highest possible rarity
 	if(rarity == -1) {
 		if(!IsUniqueMonster(id))
-			rarity = GetMonsterRarity(m_id);
+			rarity = MonsterProperties[m_id].rarity;
 		else
 			rarity = DND_MWEIGHT_EPIC;
 	}
-		
-	//printbold(s:GetActorClass(0), s:" rarity ", d:rarity, s: " ", d:MonsterProperties[m_id].class, s: " ", d:MonsterProperties[m_id].id);
-	
-	MonsterProperties[m_id].rarity = rarity;
+
 	MonsterProperties[m_id].dmg_bonus = GetMonsterDMGScaling(m_id, MonsterProperties[m_id].level, false);
 	
 	CalculateMonsterGainMult(m_id, rarity);
-
-	
 
 	// finally handle the monster resists according to its traits
 	InitMonsterResists(m_id);
@@ -701,13 +699,6 @@ bool CanDropSoulAmmoTID(int tid) {
 
 bool CanDropSoulAmmo() {
 	return CanDropSoulAmmoTID(ActivatorTID());
-}
-
-int GetMonsterRarity(int monster_id) {
-	int r = GetActorProperty(monster_id + DND_MONSTERTID_BEGIN, APROP_SCORE);
-	if(!r)
-		return DND_MWEIGHT_COMMON;
-	return r;
 }
 
 bool CanHealMonster() {
@@ -1901,13 +1892,21 @@ void SetupIncursionMonsters() {
 	MonsterData[MONSTER_ABYSS_MOTHERDEMON].trait_list[DND_HOMING] = true;
 }
 
-void SetupUltimatumMonsters() {
-	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].health = 2000;
-	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].flags = DND_MTYPE_UNDEAD_POW;
-	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_TOXICBLOOD] = true;
-	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_MAGIC_IMMUNE] = true;
-	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_EXPLOSIVE_IMMUNE] = true;
-	MonsterData[MONSTER_ULTIMATUM_BLOODGOLEM].trait_list[DND_MOBILITY] = true;
+void SetupDungeonMonsters() {
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].health = 1600;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].flags = DND_MTYPE_UNDEAD_POW;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].trait_list[DND_TOXICBLOOD] = true;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].trait_list[DND_MAGIC_IMMUNE] = true;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].trait_list[DND_EXPLOSIVE_IMMUNE] = true;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].trait_list[DND_MOBILITY] = true;
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].trait_list[DND_FORTIFIED] = true;
+
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].health = 2750;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].flags = DND_MTYPE_DEMON_POW;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].trait_list[DND_INSULATED] = true;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].trait_list[DND_LIGHTNING_IMMUNE] = true;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].trait_list[DND_MAGIC_RESIST] = true;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].trait_list[DND_VOLTAIC] = true;
 }
 
 void SetupMonsterWeights() {
@@ -2159,15 +2158,301 @@ void SetupMonsterWeights() {
 	Monster_Weights[MONSTERCLASS_WOLFENSS][id++] = DND_MWEIGHT_ENDMARKER;
 }
 
+void SetupMonsterRarities() {
+	MonsterData[MONSTER_ZOMBIEMAN].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_SHOTGUNNER].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_CHAINGUNNER].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_DEMON].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_SPECTRE].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_IMP].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_CACODEMON].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_PAINELEMENTAL].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_LOSTSOUL].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_REVENANT].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_HELLKNIGHT].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_BARON].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_FATSO].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_SPIDER].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_VILE].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_MASTERMIND].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_CYBERDEMON].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_NAZI].rarity = DND_MWEIGHT_COMMON;
+
+	// zombiemen
+	MonsterData[MONSTER_ZOMBIEMANGRAY].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_ZOMBIERANGER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_ZOMBIESMG].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_ZOMBIERAPID].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_ZOMBIEMARINE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_ZOMBIELOS].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_ZOMBIEPISTOL].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ZOMBIEQUAKE1].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_ZOMBIEHUNTER].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_ZOMBIEPROPHET].rarity = DND_MWEIGHT_RARE1;
+
+	// shotgunners
+	MonsterData[MONSTER_SSGLOS].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ZSPECSG].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_SGLOS].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_SAWEDOFF1].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_SAWEDOFF2].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_ROGUE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_ZOMBIEQUAKE2].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ZOMBIESSG].rarity = DND_MWEIGHT_VERYRARE;
+
+	// chaingunner
+	MonsterData[MONSTER_ZOMBIEQUAKE3].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_ZOMBIEMG].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_INITIATE].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_DOUBLEGUNNER].rarity = DND_MWEIGHT_EPIC;
+	MonsterData[MONSTER_CGMAJOR].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_MRROBOT].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_ZSEC].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ZSPECMG].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_PLASMAZOMBIE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_BERSERKERGUY].rarity = DND_MWEIGHT_VERYRARE;
+
+	// demon
+	MonsterData[MONSTER_BLOODDEMON].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_BLOODFIEND].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_CYBERFIEND].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_FLAMEDEMON].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_STONEIMP].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_SCAVENGER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_SOULEATER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_NHUMCIGN].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_STONEDEMON].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_BRUTY].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_SATYR].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_EARTHGOLEM].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_RAVAGER].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_PUREBREDDEMON].rarity = DND_MWEIGHT_EPIC;
+	MonsterData[MONSTER_SABRECLAW].rarity = DND_MWEIGHT_RARE1;
+
+	// spectre
+	MonsterData[MONSTER_LURKER].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_GRAVEDIGGER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_DEVOURER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_NIGHTMAREDEMON].rarity = DND_MWEIGHT_COMMON;
+
+	// imp
+	MonsterData[MONSTER_DARKIMP1].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_VOIDDARKIMP].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_NETHERDARKIMP].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_DARKIMP2].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_IMPABOM].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_STIMP].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_VOIDIMP].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_SOULHARVESTER].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_PYROIMP].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_DEVIL].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_DEVIL2].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_VULGAR].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_UNDEADMAGE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_SHADOW].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_REAVER].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_ROACH].rarity = DND_MWEIGHT_RARE1;
+
+	// lost soul
+	MonsterData[MONSTER_BABYCACO].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_ETHEREALSOUL].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_FLESHSPAWN].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_GUARDIANCUBE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_FORGOTTENONE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_HADESSPHERE].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_WATCHER].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_DARKLICH_SPIRIT].rarity = DND_MWEIGHT_COMMON;
+
+	// cacodemon
+	MonsterData[MONSTER_WEAKENER].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_SHADOWPRIEST].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_GRELL].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_DEATHWHISPERER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_CACOLICH].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_INFERNO].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_GUARDIAN].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ENHANCEDCACO].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_EARTHLICH].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_WICKED].rarity = DND_MWEIGHT_RARE1;
+
+	// pain elemental
+	MonsterData[MONSTER_BLOODLICH].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_HADESELEMENTAL].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_HELLARBITER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_DEFILER].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_TORTUREDSOUL].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_SHADOWDISCIPLE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_SENTINEL].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_PHANTASM].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_WRAITH].rarity = DND_MWEIGHT_COMMON;
+
+	// Revenant
+	MonsterData[MONSTER_INCARNATE].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_BEAMREVENANT].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_AXEKNIGHT].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_WIDOWMAKER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_SLUDGEGIANT].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_SLUDGEGIANT2].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_SLUDGEGIANT3].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_CADAVER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_DARKSERVANT].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_CRAWLER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_CYBORGSOLDIER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_DRAUGR].rarity = DND_MWEIGHT_RARE1;
+
+	// Hell Knight
+	MonsterData[MONSTER_BLOODSATYR].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_HELLWARRIOR].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_HELLSFURY].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_BLACKKNIGHT].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ARCHON].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_WARLORD].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_SKULLWIZARD].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_CYBORGWARRIOR].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_SHADOWBEAST].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_CHAOSSERPENT].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_MOONSATYR].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_ICEGOLEM].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_PUTREFIER].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_GLADIATOR].rarity = DND_MWEIGHT_VERYRARE;
+
+	// Baron
+	MonsterData[MONSTER_LAVADEMON].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_LORDOFHERESY].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_BORMERETH].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_BARBATOS].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_BLOODSEEKER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_SHADOWWIZARD].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_KJAROCH].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_CYBRUISER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_BRUISERDEMON].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_MAGMASERPENT].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_DREADKNIGHT].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_MAGMAGOLEM].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_JUDICATOR].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_WARMASTER].rarity = DND_MWEIGHT_EPIC;
+
+	// Fatso
+	MonsterData[MONSTER_CORPULENT].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_DAEDABUS].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_PALADIN].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_GAMON].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_MEPHISTO].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_MAFIBUS].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ICEFATSO].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_ABOMINATION].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_REDEEMER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_GOLDGOLEM].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_YETI].rarity = DND_MWEIGHT_RARE1;
+
+	// Arachnotron
+	MonsterData[MONSTER_FUSIONSPIDER].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_RAILARACHNOTRON].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_HELLFORGESPIDER].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_VORE].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_BABYDEMOLISHER].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_CHAINGUNGENERAL].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_CHAINGUNCOMMANDO].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_LEGIONNAIRE].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_MANTICORE].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_OPHIDIAN].rarity = DND_MWEIGHT_RARE1;
+
+	// ArchVile
+	MonsterData[MONSTER_DIABLOIST].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_UNDEADPRIEST].rarity = DND_MWEIGHT_EPIC;
+	MonsterData[MONSTER_UNDEADPRIESTGHOST].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_DEATHVILE].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_HIEROPHANT].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_GURU].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_DEATHKNIGHT].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_HORSHACKER].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_DARKZEALOT].rarity = DND_MWEIGHT_EPIC;
+	MonsterData[MONSTER_FLESHWIZARD].rarity = DND_MWEIGHT_EPIC;
+
+	// Spider Mastermind
+	MonsterData[MONSTER_DEMOLISHER].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_ARACHNOPHYTE].rarity = DND_MWEIGHT_RARE1;
+	MonsterData[MONSTER_PSIONICQUEEN].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_ANGELOFDEATH].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_GOLDLICH].rarity = DND_MWEIGHT_EPIC;
+	MonsterData[MONSTER_GOLDLICHFAKE].rarity = DND_MWEIGHT_COMMON;
+	MonsterData[MONSTER_IRONLICH].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_SPIDEROVERLORD].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_DARKLICH].rarity = DND_MWEIGHT_VERYRARE;
+
+	// Cyberdemon
+	MonsterData[MONSTER_CARDINAL].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_TERMINATOR].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_THAMUZ].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_AZAZEL].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_HELLSMITH].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_THANATOS].rarity = DND_MWEIGHT_EPIC;
+	MonsterData[MONSTER_AVATAR].rarity = DND_MWEIGHT_RARE2;
+	MonsterData[MONSTER_CERBERUS].rarity = DND_MWEIGHT_EPIC;
+	MonsterData[MONSTER_DEATHWYVERN].rarity = DND_MWEIGHT_VERYRARE;
+
+	// Legendaries
+	MonsterData[MONSTER_DREAMINGGOD].rarity = 10000;
+	MonsterData[MONSTER_TORRASQUE].rarity = 10000;
+	MonsterData[MONSTER_MORDECQAI].rarity = 10000;
+	MonsterData[MONSTER_GODSLAYER].rarity = 10000;
+	MonsterData[MONSTER_GOLGOTH].rarity = 10000;
+
+	// Uniques
+	MonsterData[MONSTER_TERON].rarity = DND_MWEIGHT_VERYRARE;
+	// shotgunner uniques
+	MonsterData[MONSTER_GANT].rarity = DND_MWEIGHT_VERYRARE;
+	// chaingunnner uniques
+	MonsterData[MONSTER_BRONN].rarity = DND_MWEIGHT_VERYRARE;
+	// imp uniques
+	MonsterData[MONSTER_VAAJ].rarity = DND_MWEIGHT_VERYRARE;
+	// demon uniques
+	MonsterData[MONSTER_REMUS].rarity = DND_MWEIGHT_VERYRARE;
+	// spectre uniques
+	MonsterData[MONSTER_SSRATH].rarity = DND_MWEIGHT_VERYRARE;
+	// lost soul uniques
+	MonsterData[MONSTER_HOLLOWSHELL].rarity = DND_MWEIGHT_VERYRARE;
+	// cacodemon uniques
+	MonsterData[MONSTER_OMNISIGHT].rarity = DND_MWEIGHT_VERYRARE;
+	// pain e. uniques
+	MonsterData[MONSTER_CHEGOVAX].rarity = DND_MWEIGHT_VERYRARE;
+	// rev uniques
+	MonsterData[MONSTER_ONIMUZ].rarity = DND_MWEIGHT_VERYRARE;
+	// hk uniques
+	MonsterData[MONSTER_HARKIMONDE].rarity = DND_MWEIGHT_VERYRARE;
+	// baron uniques
+	MonsterData[MONSTER_LESHRAC].rarity = DND_MWEIGHT_VERYRARE;
+	MonsterData[MONSTER_LESHRACPOD].rarity = DND_MWEIGHT_COMMON;
+	// manc uniques
+	MonsterData[MONSTER_KRULL].rarity = DND_MWEIGHT_VERYRARE;
+	// arachno uniques
+	MonsterData[MONSTER_THORAX].rarity = DND_MWEIGHT_VERYRARE;
+	// vile uniques
+	MonsterData[MONSTER_ZRAVOG].rarity = DND_MWEIGHT_VERYRARE;
+	// sm uniques
+	MonsterData[MONSTER_ERYXIA].rarity = DND_MWEIGHT_VERYRARE;
+	// cyber uniques
+	MonsterData[MONSTER_ABAXOTH].rarity = DND_MWEIGHT_VERYRARE;
+
+	// incursion monsters have uncommon across the board, a tier above normal doom monsters
+	for(int i = DND_FIRST_INCURSIONMONSTER; i <= DND_LAST_INCURSIONMONSTER; ++i)
+		MonsterData[MONSTER_ABAXOTH].rarity = DND_MWEIGHT_UNCOMMON;
+
+	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].rarity = DND_MWEIGHT_UNCOMMON;
+	MonsterData[MONSTER_DUNGEON_SHAMBLER].rarity = DND_MWEIGHT_UNCOMMON;
+}
+
 Script "DnD Setup Monster Data" OPEN {
 	if(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS)) {
 		SetupMonsterData();
 		Delay(const:15);
 		SetupMonsterWeights();
 		Delay(const:10);
+		SetupMonsterRarities();
+		Delay(const:10);
 		SetupIncursionMonsters();
 		Delay(const:5);
-		SetupUltimatumMonsters();
+		SetupDungeonMonsters();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
 }
@@ -2179,7 +2464,7 @@ Script "DnD Setup Monster Data CS" OPEN CLIENTSIDE {
 		Delay(const:10);
 		SetupIncursionMonsters();
 		Delay(const:5);
-		SetupUltimatumMonsters();
+		SetupDungeonMonsters();
 		SetupComplete(SETUP_STATE1, SETUP_MONSTERS);
 	}
 }

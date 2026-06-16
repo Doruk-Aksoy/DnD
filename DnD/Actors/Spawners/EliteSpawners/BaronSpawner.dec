@@ -1,9 +1,5 @@
 Actor BaronSpawner_Elite : DnD_MonsterSpawner 25002 {
-	//$Category Monsters/DnD
-	//$Title "Elite Baron Spawner"
 	//$Sprite BRUSA1
-	//$Height 64
-	//$Radius 24
 	Health 0x7FFFFFFF
 	-COUNTKILL
 	-SOLID

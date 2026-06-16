@@ -1525,10 +1525,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 #else
 	do {
 		int w = random(1, ORB_MAXWEIGHT);
-		if(GetCVar("dnd_ignore_dropweights"))
-			i = PickRandomOrb(true);
-		else
-			for(i = 0; i < MAX_DROPPABLE_ORBS && OrbDropWeights[i] < w; ++i);
+		for(i = 0; i < MAX_DROPPABLE_ORBS && OrbDropWeights[i] < w; ++i);
 	} while(IsOrbDropException(i));
 #endif
 		// c is the index on the field now

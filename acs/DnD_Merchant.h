@@ -727,8 +727,13 @@ int GetMerchantItemPrice(int item_pos) {
 
 // build merchant's items, uses TradeViewList[MAXPLAYERS][item#] as a list
 Script "DnD Merchant Items" (void) {
-	int pcount =  PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
-	pcount = PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount;
+	int pcount =  InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
+
+	// fixes a singleplayer issue
+	if(!pcount)
+		pcount = 1;
+
+	pcount = InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount;
 
 	// just in case, we limit items here
 #ifdef ISDEBUGBUILD

@@ -391,7 +391,7 @@ int GetLowestResist(int pnum) {
 		{ INV_DMGREDUCE_ELEM, DND_DAMAGETYPEFLAG_FIRE | DND_DAMAGETYPEFLAG_ICE | DND_DAMAGETYPEFLAG_LIGHTNING | DND_DAMAGETYPEFLAG_POISON }
 	};
 
-	int val = INT_MAX;
+	int val = bcs::INT_MAX;
 	int min_type = 0;
 	for(int i = 0; i < 7; ++i) {
 		int temp = GetPlayerAttributeValue(pnum, res_ids[i][0]);
@@ -597,7 +597,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 		
 	//printbold(s:"dmg factor mult by ", d:factor, s: " base dmg: ", d:dmg, s: " end result: ", d:dmg * factor / 100);
 		
-	if(dmg < INT_MAX / factor) {
+	if(dmg < bcs::INT_MAX / factor) {
 		dmg *= factor;
 		dmg /= 100;
 		// no longer fixed
@@ -605,7 +605,7 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	}
 	else {
 		// beyond this point wepid doesnt matter so use that instead
-		dmg = INT_MAX;//BigNumberFormula(dmg, factor);
+		dmg = bcs::INT_MAX;//BigNumberFormula(dmg, factor);
 	}
 	
 	return dmg;
@@ -782,7 +782,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	else if(temp < 0)
 		return 0;
 	
-	if(dmg < INT_MAX / temp) {
+	if(dmg < bcs::INT_MAX / temp) {
 		dmg *= temp;
 		dmg /= 100;
 		// no longer fixed
@@ -790,7 +790,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	}
 	else {
 		// beyond this point wepid doesnt matter so use that instead
-		dmg = INT_MAX;//BigNumberFormula(dmg, temp);
+		dmg = bcs::INT_MAX;//BigNumberFormula(dmg, temp);
 	}
 	
 	return dmg;
@@ -1641,7 +1641,7 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 		
 		// divide by 100 as its a percentage -- and >> 16 to make it int -- added little overflow check here too
 		taltos /= 100;
-		if(taltos > INT_MAX / dmg) {
+		if(taltos > bcs::INT_MAX / dmg) {
 			taltos >>= 16;
 			taltos *= dmg;
 		}
@@ -2080,7 +2080,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	}
 	else {
 		// just add it to the cache and terminate
-		counter = INT_MAX, i = 0;
+		counter = bcs::INT_MAX, i = 0;
 		for(temp = 0; temp < MAX_DOT_STACKS; ++temp) {
 			if(!dot_cache[mid][temp].dmg) {
 				dot_cache[mid][temp].dmg = dmg;
@@ -2096,7 +2096,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 		}
 
 		// did not get placed into the list, replace the lowest damage one with this one
-		if(dmg != -1 && counter != INT_MAX) {
+		if(dmg != -1 && counter != bcs::INT_MAX) {
 			dot_cache[mid][i].dmg = dmg;
 			dot_cache[mid][i].tics = time_limit;
 		}
@@ -2183,7 +2183,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 		int j, k;
 		temp = 0;
 		tic_temp = 0;
-		for(counter = 0; counter < DnD_TID_Counter[DND_TID_MONSTER]; ++counter) {
+		for(counter = 0; counter < InformationInLevel[LEVELINFO_TID_MONSTER]; ++counter) {
 			i = UsedMonsterTIDs[counter];
 			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
 				dmg = fdistance(victim, i);
@@ -2509,7 +2509,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		}
 
 		int j, k;
-		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+		for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 			i = UsedMonsterTIDs[mn];
 			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
 				next_dmg = fdistance(victim, i);
@@ -2651,7 +2651,7 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	
 	// we dont deal damage now just apply debuff!
 	//int dmg = ACS_NamedExecuteWithResult("DND Player Damage Scale", CheckInventory("DnD_OverloadDamage") * (100 + CheckActorInventory(killer, "IATTR_OverloadZapDmg")) / 100, TALENT_ELEMENTAL, DND_WDMG_LIGHTNINGDAMAGE);
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER] && zap_count; ++mn) {
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER] && zap_count; ++mn) {
 		// if currently alive and received the checker item
 		i = UsedMonsterTIDs[mn];
 		if(CheckActorInventory(i, "DnD_OverloadZapCandidate") && isActorAlive(i) && CheckFlag(i, "ISMONSTER") && i != this)
@@ -4261,7 +4261,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					}
 
 					// search if any monster fits the criteria for a splash
-					for(temp = 0; temp < DnD_TID_Counter[DND_TID_MONSTER]; ++temp) {
+					for(temp = 0; temp < InformationInLevel[LEVELINFO_TID_MONSTER]; ++temp) {
 						ox = UsedMonsterTIDs[temp];
 						// to be affected by gravdis debuff
 						oy = GetActorX(shooter) - GetActorX(ox);

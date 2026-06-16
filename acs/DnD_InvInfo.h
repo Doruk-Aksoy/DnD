@@ -52,7 +52,8 @@ enum {
 	DND_ITEM_ORB,
 	DND_ITEM_CHESTKEY,
 	DND_ITEM_WEAPON,
-	DND_ITEM_TOKEN
+	DND_ITEM_TOKEN,
+	DND_ITEM_DUNGEONKEY
 };
 
 #define FIRST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_DOOMGUY
@@ -80,7 +81,8 @@ bool IsSpecialtyItemType(int type) {
 enum {
 	DND_STACKEDITEM_ORB,
 	DND_STACKEDITEM_CHESTKEY,
-	DND_STACKEDITEM_TOKEN
+	DND_STACKEDITEM_TOKEN,
+	DND_STACKEDITEM_DUNGEONKEY
 };
 
 enum {
@@ -240,19 +242,23 @@ enum {
 	
 	DND_ISUBT_TOKEN_ARMORER = 10000,
 	DND_ISUBT_TOKEN_GUNSMITH,
-	DND_ISUBT_TOKEN_ARTISAN
+	DND_ISUBT_TOKEN_ARTISAN,
+
+	DND_ISUBT_DUNGEONKEY_VOIDKEEP = 12500
 };
 
 #define CHESTKEY_BEGIN DND_ISUBT_CHESTTYPE_BRONZE
 #define ORBS_BEGIN DND_ISUBT_ORB_0
 #define MONSTER_ORBS_BEGIN DND_ISUBT_MORB_0
 #define TOKEN_BEGIN DND_ISUBT_TOKEN_ARMORER
+#define DUNGEONKEY_BEGIN DND_ISUBT_DUNGEONKEY_VOIDKEEP
 
 #define CHESTKEY_END DND_ISUBT_CHESTTYPE_GOLD
 #define ORBS_END DND_ISUBT_ORB_30
 #define MAX_DROPPABLE_ORBS (ORBS_END + 1)
 #define MONSTER_ORBS_END DND_ISUBT_MORB_2
 #define TOKEN_END DND_ISUBT_TOKEN_ARTISAN
+#define DUNGEONKEY_END DND_ISUBT_DUNGEONKEY_VOIDKEEP
 
 #define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)
 #define MAX_ORBS ((MONSTER_ORBS_END - MONSTER_ORBS_BEGIN + 1) + (ORBS_END - ORBS_BEGIN + 1)) // notice the monster drops were below regular and we use their index as final here
@@ -265,10 +271,12 @@ str GetInventoryName(int inv) {
 		label = StrParam(s:"DND_KEYN", d:inv + 1);
 	else if(inv <= ORBS_END)
 		label = StrParam(s:"DND_ORBN", d:inv + 1 - ORBS_BEGIN);
-	else if(inv > ORBS_END && inv < MONSTER_ORBS_BEGIN)
+	else if(inv <= MONSTER_ORBS_BEGIN)
 		label = StrParam(s:"DND_ORBNM", d:inv - ORBS_END);
-	else
+	else if(inv <= TOKEN_END)
 		label = StrParam(s:"DND_TOKENN", d:inv + 1 - TOKEN_BEGIN);
+	else
+		label = StrParam(s:"DND_DUNGEONKEY", d:inv + 1 - DUNGEONKEY_BEGIN);
 	return StrParam(l:label);
 }
 
@@ -281,7 +289,9 @@ str GetInventoryTag(int id) {
 		return StrParam(s:"DND_ORB", d:id - ORBS_BEGIN + 1);
 	if(id < MONSTER_ORBS_BEGIN)
 		return StrParam(s:"DND_ORB_MON", d:id - ORBS_END);
-	return StrParam(s:"DND_TOKEN", d:id - TOKEN_BEGIN + 1);
+	if(id <= TOKEN_END)
+		return StrParam(s:"DND_TOKEN", d:id - TOKEN_BEGIN + 1);
+	return StrParam(s:"DND_DUNGEONKEYN", d:id - DUNGEONKEY_BEGIN + 1);
 }
 
 str GetInventoryText(int id) {
@@ -291,7 +301,9 @@ str GetInventoryText(int id) {
 		return StrParam(s:"DND_ORBTEXT", d:id - ORBS_BEGIN + 1);
 	if(id < MONSTER_ORBS_BEGIN)
 		return StrParam(s:"DND_ORB_MONTEXT", d:id - ORBS_END);
-	return StrParam(s:"DND_TOKENTEXT", d:id - TOKEN_BEGIN + 1);
+	if(id <= TOKEN_END)
+		return StrParam(s:"DND_TOKENTEXT", d:id - TOKEN_BEGIN + 1);
+	return StrParam(s:"DND_DUNGEONKEYTEXT", d:id - DUNGEONKEY_BEGIN + 1);
 }
 
 // Putting the uniques enum here due to dependency issues

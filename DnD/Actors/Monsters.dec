@@ -1,4 +1,5 @@
-Actor ZombieMan2 : DnD_BaseRangedMonster { 
+Actor ZombieMan2 : DnD_BaseRangedMonster 21000 { 
+	//$Sprite ZHRFA1
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -101,7 +102,8 @@ Actor ZombieBullet : ProjBullet {
 	}
 }
 
-Actor Shotgunguy2 : DnD_BaseRangedMonster { 
+Actor Shotgunguy2 : DnD_BaseRangedMonster 21001 { 
+	//$Sprite ZSSHA1
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -179,7 +181,8 @@ Actor Shotgunguy2_Elite : Shotgunguy2 {
 	}
 }
 
-Actor Chaingunguy2 : DnD_BaseRangedMonster {
+Actor Chaingunguy2 : DnD_BaseRangedMonster 21002 {
+	//$Sprite ZCCHA1
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -257,7 +260,8 @@ Actor Chaingunguy2_Elite : Chaingunguy2 {
 	}
 }
 
-Actor Demon2x : DnD_BaseMeleeMonster { 
+Actor Demon2x : DnD_BaseMeleeMonster 21003 { 
+	//$Sprite SARGA1
 	Health 0x7FFFFFFF
 	GibHealth -50
 	Species "Demon"
@@ -322,7 +326,8 @@ Actor Demon2x_Elite : Demon2x {
 	}
 }
 
-Actor Spectre2 : Demon2x { 
+Actor Spectre2 : Demon2x 21017 { 
+	//$Sprite SARGA1
 	Tag "Spectre"
 	HitObituary "$OB_SPECTREHIT"
 	RenderStyle OptFuzzy
@@ -347,7 +352,8 @@ Actor Spectre2_Elite : Spectre2 {
 	}
 }
 
-Actor DoomImp2 : DnD_BaseHybridMonster { 
+Actor DoomImp2 : DnD_BaseHybridMonster 21004 { 
+	//$Sprite IMP0A1
 	Health 0x7FFFFFFF
 	Species "Imp"
 	Radius 20
@@ -458,7 +464,8 @@ Actor DoomImpBall2 : DoomImpBall replaces DoomImpBall
 	}
 }
 
-Actor LostSoul2 : DnD_BaseRangedMonster { 
+Actor LostSoul2 : DnD_BaseRangedMonster 21005 { 
+	//$Sprite SKULA1
 	Health 0x7FFFFFFF
 	Damage (3 * random(1, 10))
 	DamageType "Melee"
@@ -549,7 +556,8 @@ Actor LostSoulNoExp : LostSoul2 {
 	}
 }
 
-Actor CacoDemon2 : DnD_BaseHybridMonster {
+Actor CacoDemon2 : DnD_BaseHybridMonster 21006 {
+	//$Sprite HEADA1
 	Health 0x7FFFFFFF
 	GibHealth -50
     BloodColor "Blue"
@@ -638,7 +646,8 @@ Actor Cacodemon2_Elite : Cacodemon2 {
 	}
 }
 
-Actor PainElemental2 : DnD_BaseRangedMonster {
+Actor PainElemental2 : DnD_BaseRangedMonster_NoRes 21007 {
+	//$Sprite PAINA1
 	Health 0x7FFFFFFF
 	GibHealth -50
 	Species "PainElemental"
@@ -704,7 +713,8 @@ Actor PainElemental2_Elite : PainElemental2 {
 	}
 }
 
-Actor Revenant2 : DnD_BaseHybridMonster {
+Actor Revenant2 : DnD_BaseHybridMonster 21008 {
+	//$Sprite SKELA1D1
 	Health 0x7FFFFFFF
 	GibHealth -50
 	Radius 20
@@ -810,7 +820,8 @@ Actor Revenant2_Elite : Revenant2 {
 	}
 }
 
-Actor HellKnight2 : DnD_BaseHybridMonster { 
+Actor HellKnight2 : DnD_BaseHybridMonster 21009 { 
+	//$Sprite BOS2A1C1
 	Health 0x7FFFFFFF
 	GibHealth -50
 	Radius 24
@@ -908,7 +919,8 @@ Actor HellKnight2_Elite : HellKnight2 {
 	}
 }
 
-Actor BaronOfHell2 : DnD_BaseHybridMonster { 
+Actor BaronOfHell2 : DnD_BaseHybridMonster 21010 { 
+	//$Sprite BOSSA1
 	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
@@ -973,7 +985,8 @@ Actor BaronOfHell2_Elite : BaronOfHell2 {
 	}
 }
 
-Actor Mancubus2 : DnD_BaseRangedMonster {
+Actor Mancubus2 : DnD_BaseRangedMonster 21011 {
+	//$Sprite FATTA1
 	Health 0x7FFFFFFF
 	GibHealth -75
 	Radius 48
@@ -1073,7 +1086,8 @@ Actor FatShot2 : Fatshot replaces Fatshot {
 	}
 }
 
-Actor Arachno2 : DnD_BaseRangedMonster { 
+Actor Arachno2 : DnD_BaseRangedMonster 21012 { 
+	//$Sprite BSPIA1D1
 	Health 0x7FFFFFFF
 	GibHealth -75
 	Species "Spider"
@@ -1174,7 +1188,8 @@ Actor Arachno2_Elite : Arachno2 {
 	}
 }
 
-Actor ArchVile2 : DnD_ArchVileBase {
+Actor ArchVile2 : DnD_ArchVileBase 21016 {
+	//$Sprite VILEA1D1
 	Health 0x7FFFFFFF
 	GibHealth -75
 	Species "AV"
@@ -1251,7 +1266,8 @@ Actor ArchVile2_Elite : ArchVile2 {
 	}
 }
 
-Actor SpiderMastermind2 : DnD_BaseRangedBoss {
+Actor SpiderMastermind2 : DnD_BaseRangedBoss 21015 {
+	//$Sprite SPIDA1D1
 	Health 0x7FFFFFFF
 	Species "Spider2"
 	Tag "Spider Mastermind"
@@ -1404,7 +1420,8 @@ Actor SpiderMastermind2_Elite : SpiderMastermind2 {
 	}
 }
 
-Actor Cyberdemon2 : DnD_BaseRangedBoss {
+Actor Cyberdemon2 : DnD_BaseRangedBoss 21014 {
+	//$Sprite CYBRA1
 	Health 0x7FFFFFFF
 	PainSound "CyberDemon/Pain"
 	Radius 40
@@ -1534,7 +1551,8 @@ Actor Cyberdemon2_Elite : Cyberdemon2 {
 	}
 }
 
-Actor WolfensteinSS2 : DnD_BaseRangedMonster { 
+Actor WolfensteinSS2 : DnD_BaseRangedMonster 21013 { 
+	//$Sprite SSWVA1
 	Health 0x7FFFFFFF
 	Tag "SS Nazi"
 	Radius 20

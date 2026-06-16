@@ -12,6 +12,18 @@
 
 #define DND_CHARM_SIZEFACTOR 4 // 25%
 
+#define DND_CHARM_BAGCOLORSMAX 3
+#define DND_CHARM_SPECIALTYBOOST_BASE 10 // 10%
+
+str GetCharmDropLabel(int worth) {
+	if(worth > DND_CHARM_BAGCOLORSMAX)
+		worth = DND_CHARM_BAGCOLORSMAX;
+
+	if(!worth)
+		return "CharmDrop";
+	return StrParam(s:"CharmDrop_Synergy", d:worth);
+}
+
 str GetCharmBoxLabel(int charm_type, bool isSelected) {
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
@@ -61,11 +73,15 @@ int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 	return res;
 }
 
-void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
+int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -1) {
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
 	int count = random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
+
+	int synergy_roll = -2;
+
+	int worth = 0;
 	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
@@ -78,14 +94,27 @@ void RollCharmInfo(int charm_pos, int charm_tier, int pnum) {
 			Inventories_On_Field[charm_pos].item_image = random(DND_LARGECHARM_IMAGEBEGIN, DND_LARGECHARM_IMAGEEND);
 		break;
 	}
+
+	int max_tries = 10;
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll);
+
+			if(max_tries-- < 0)
+				synergy_roll = -2;
+			else if(synergy_roll != -2)
+				++worth;
+
 		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(charm_pos, roll, pnum);
+
+		synergy_roll = CheckItemSynergy(synergy_roll, charm_pos, synergy_boost);
+
 		++i;
 	}
+
+	return worth;
 }
 
 void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3, int pnum) {
@@ -146,10 +175,10 @@ void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat =
 	}
 }
 
-void SpawnCharmForAll(int rarity_boost) {
+void SpawnCharmForAll(int rarity_boost, int synergy_boost = -1) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnCharm(i, rarity_boost);
+			SpawnCharm(i, rarity_boost, 0, false, synergy_boost);
 	}
 }
 

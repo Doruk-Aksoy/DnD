@@ -14,7 +14,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 
 		// tiers need to be 0 for it to be monster drops
 #ifndef ISDEBUGBUILD
-		if(!tiers && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)))
+		if(!tiers && RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
 #else
 		if(random(0,1))
 #endif
@@ -71,7 +71,7 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
         int type = InitializeBoot(c, ilvl, pnum);
 
 #ifndef ISDEBUGBUILD
-		if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
+		if(RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
 #else
 		if(random(0,2))
 #endif
@@ -158,14 +158,15 @@ void SpawnHelmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = 
 	}
 }
 
-// monsters dropping charms
+// monsters dropping charms -- extra for synergy boost
 void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
+		int worth = 0;
 		int ilvl = RollItemLevel();
 		// c is the index on the field now
 		#ifndef ISDEBUGBUILD
-			if((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
+			if(RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
 		#else
 			if(!random(0,1))
 		#endif
@@ -176,13 +177,13 @@ void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY =
 				SpawnDrop("UniqueCharmDrop", 16.0, 16, pnum + 1, c, noRandomVelXY);
 			}
 			else {
-				RollCharmInfo(c, ilvl, pnum);
-				SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
+				worth = RollCharmInfo(c, ilvl, pnum, extra);
+				SpawnDrop(GetCharmDropLabel(worth), 16.0, 16, pnum + 1, c);
 			}
 		}
 		else {
-			RollCharmInfo(c, ilvl, pnum);
-			SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
+			worth = RollCharmInfo(c, ilvl, pnum, extra);
+			SpawnDrop(GetCharmDropLabel(worth), 16.0, 16, pnum + 1, c);
 		}
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
@@ -203,7 +204,7 @@ void SpawnSpecialtyItem(int pnum, int rarity_boost, int unused = 0, bool noRando
 	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-		if(extra == DND_ITEM_SPECIALTY_CYBORG && ((GetCVar("dnd_ignore_dropweights") && random(0, 1)) || RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))) {
+		if(extra == DND_ITEM_SPECIALTY_CYBORG && RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)) {
 			id = PickUniqueItem(DND_ITEM_SPECIALTY_CYBORG);
 			if(UniqueItemList[id].item_level <= ilvl) {
 				ConstructUniqueOnField(c, id, pnum);

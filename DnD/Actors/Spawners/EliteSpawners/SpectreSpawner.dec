@@ -1,9 +1,5 @@
 Actor SpectreSpawner_Elite : DnD_MonsterSpawner 25014 {
-	//$Category Monsters/DnD
-	//$Title "Elite Spectre Spawner"
 	//$Sprite SARGA1
-	//$Radius 30
-	//$Height 56
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_SPECTREID)

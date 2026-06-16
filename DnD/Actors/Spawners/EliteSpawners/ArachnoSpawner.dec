@@ -1,9 +1,5 @@
 Actor ArachnoSpawner_Elite : DnD_MonsterSpawner 25000 {
-	//$Category Monsters/DnD
-	//$Title "Elite Arachnotron Spawner"
 	//$Sprite MSPIA1D1
-	//$Height 64
-	//$Radius 64
 	Health 0x7FFFFFFF
 	-COUNTKILL
 	-SOLID

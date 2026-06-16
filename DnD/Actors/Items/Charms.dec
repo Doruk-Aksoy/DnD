@@ -21,6 +21,47 @@ Actor CharmDrop : InventoryBase {
 	}
 }
 
+Actor CharmDrop_Synergy1 : InventoryBase {
+	States {
+		Spawn:
+			IBAG C 0
+		Goto SpawnInit
+		
+		SpawnLoop:
+		Idle:
+			IBAG CCCCCCCCCCCCCCCDDDDDDDD 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor CharmDrop_Synergy2 : InventoryBase {
+	Scale 1.15
+	States {
+		Spawn:
+			IBAG E 0
+		Goto SpawnInit
+		
+		SpawnLoop:
+		Idle:
+			IBAG EEEEEEEEEEEEEEEFFFFFFF 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
+Actor CharmDrop_Synergy3 : InventoryBase {
+	Scale 1.15
+	States {
+		Spawn:
+			IBAG G 0
+		Goto SpawnInit
+		
+		SpawnLoop:
+		Idle:
+			IBAG GGGGGGGGGGGGGGGHHHHHHH 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, item_look_dist, 0, 360, "CheckPickup")
+		Loop
+	}
+}
+
 Actor UniqueCharmDrop : InventoryBase {
 	Scale 1.15
 	States {

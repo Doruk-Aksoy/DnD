@@ -1,4 +1,5 @@
-Actor Demolisher : DnD_BaseRangedBoss {
+Actor Demolisher : DnD_BaseRangedBoss 21187 {
+	//$Sprite DEMOA1D1
 	Obituary "%o felt the power of the Spider-Demolisher."
 	Health 0x7FFFFFFF
 	Radius 96 
@@ -23,7 +24,6 @@ Actor Demolisher : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEMOLISHER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -161,13 +161,12 @@ ACTOR Demolisher_Elite : Demolisher {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DEMOLISHER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Arachnophyte : DnD_BaseRangedBoss {
-    //$Category monsters
+ACTOR Arachnophyte : DnD_BaseRangedBoss 21188 {
+    //$Sprite APYTA1
     Health 0x7FFFFFFF
     Radius 96
     Height 100
@@ -193,7 +192,6 @@ ACTOR Arachnophyte : DnD_BaseRangedBoss {
     states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ARACHNOPHYTE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -289,12 +287,12 @@ ACTOR Arachnophyte_Elite : Arachnophyte {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ARACHNOPHYTE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-actor PsionicQueen : DnD_BaseHybridBoss {
+actor PsionicQueen : DnD_BaseHybridBoss 21189 {
+	//$Sprite ARNQA1
 	+BOSS
 	Health 0x7FFFFFFF
 	Radius 96
@@ -321,7 +319,6 @@ actor PsionicQueen : DnD_BaseHybridBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_PSIONICQUEEN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -590,12 +587,12 @@ ACTOR PsionicQueen_Elite : PsionicQueen {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_PSIONICQUEEN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR AngelOfDeath : DnD_BaseRangedBoss {
+ACTOR AngelOfDeath : DnD_BaseRangedBoss 21190 {
+	//$Sprite LMDAA1
 	Obituary "%o was raptured by an Angel of Death."
 	Health 0x7FFFFFFF
 	Radius 56
@@ -620,7 +617,6 @@ ACTOR AngelOfDeath : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ANGELOFDEATH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -775,12 +771,12 @@ ACTOR AngelOfDeath_Elite : AngelOfDeath {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ANGELOFDEATH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Goldlich : DnD_BaseRangedBoss {
+ACTOR Goldlich : DnD_BaseRangedBoss 21191 {
+	//$Sprite GLICA1
 	Scale 1.35
 	Mass 2048
 	Painchance 8
@@ -811,7 +807,6 @@ ACTOR Goldlich : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GOLDLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1174,12 +1169,12 @@ ACTOR Goldlich_Elite : Goldlich {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_GOLDLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR IronlichBoss : DnD_BaseRangedBoss {
+ACTOR IronlichBoss : DnD_BaseRangedBoss 21192 {
+	//$Sprite ILICA1
 	Scale 1.35
 	Mass 2048
 	Painchance 8
@@ -1209,7 +1204,6 @@ ACTOR IronlichBoss : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_IRONLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1757,12 +1751,12 @@ ACTOR IronlichBoss_Elite : IronlichBoss {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_IRONLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor SpiderOverlord : DnD_BaseRangedBoss {
+Actor SpiderOverlord : DnD_BaseRangedBoss 21193 {
+	//$Sprite NMASA1D1
 	Species "Spider2"
 	PainSound "SpiderMastermind/Pain"
 	AttackSound ""
@@ -1791,7 +1785,6 @@ Actor SpiderOverlord : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SPIDEROVERLORD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1918,12 +1911,12 @@ ACTOR SpiderOverlord_Elite : SpiderOverlord {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SPIDEROVERLORD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-actor DarkLich : DnD_BaseRangedBoss {
+actor DarkLich : DnD_BaseRangedBoss 21194 {
+	//$Sprite DLCHA1
 	obituary "%o couldn't withstand the magic of a Dark Lich."
 	Health 0x7FFFFFFF
 	painchance 0
@@ -1958,7 +1951,6 @@ actor DarkLich : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DARKLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2169,7 +2161,7 @@ Actor DarkLichWarp {
 	States {
 		Spawn:
 			TNT1 A 0
-			TNT1 A 0 A_PlaySound("ironlich/attack3", CHAN_BODY, 1.0, 1)
+			TNT1 A 0 A_PlaySound("TornadoFX", CHAN_BODY, 1.0, 1)
 			TNT1 A 0 A_ScaleVelocity(0.1)
 			FX07 DEFG 3
 			TNT1 A 0 A_ChangeFlag("FLOORHUGGER", 0)
@@ -2392,7 +2384,6 @@ ACTOR DarkLich_Elite : DarkLich {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DARKLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }

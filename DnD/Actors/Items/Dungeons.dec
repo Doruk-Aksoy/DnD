@@ -1,0 +1,33 @@
+// Keys
+Actor DungeonKeySoundPlayer : CustomInventory {
+	States {
+		Pickup:
+			//TNT1 A 0 A_PlaySound("Items/TokenPick")
+			TNT1 A 0 A_SetBlend("33 99 33", 0.6, 17)
+		Stop
+	}
+}
+
+Actor DungeonKeyBase : InventoryBase {
+	Radius 20
+	Height 24
+    +FLOATBOB
+	States {
+		SpawnLoop:
+		Idle:
+			"####" "#" 1 Bright A_LookEx(LOF_NOSOUNDCHECK, 0, 28, 0, 360, "CheckPickup")
+		Loop
+	
+		PickupSuccess:
+			TNT1 A 8 ACS_NamedExecuteAlways("DnD Stacked Item Pickup", 0, mass - 1, DND_STACKEDITEM_DUNGEONKEY)
+		stop
+	}
+}
+
+Actor DungeonKey_0 : DungeonKeyBase {
+    States {
+		Spawn:
+			DTK0 A 0
+		Goto SpawnInit
+    }
+}

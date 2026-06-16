@@ -644,13 +644,13 @@ void HandleCurseImmunityRemoval() {
 void UpdatePlayerKnockbackResist() {
 	int pnum = PlayerNumber();
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_KNOCKBACKIMMUNE))
-		SetActorProperty(0, APROP_MASS, INT_MAX);
+		SetActorProperty(0, APROP_MASS, bcs::INT_MAX);
 	else {
 		int val = GetStrengthEffect(pnum, DND_STR_KNOCKBACK_GAIN);
 		val += DND_BASE_PLAYER_MASS + GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
 
 		int pct = (100 + GetPlayerAttributeValue(pnum, INV_PERCENT_KNOCKBACKRESIST));
-		if(val < INT_MAX / pct)
+		if(val < bcs::INT_MAX / pct)
 			val = val * pct / 100;
 
 		SetActorProperty(0, APROP_MASS, val);

@@ -1,4 +1,5 @@
-actor Lavademon : DnD_BaseHybridMonster {
+actor Lavademon : DnD_BaseHybridMonster 21134 {
+	//$Sprite LAVDA1
 	obituary "%o was charred by a Lava Giant."
 	Health 0x7FFFFFFF
 	radius 24
@@ -21,7 +22,6 @@ actor Lavademon : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_LAVADEMON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -353,12 +353,12 @@ ACTOR Lavademon_Elite : Lavademon {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_LAVADEMON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR LordofHeresy : DnD_BaseHybridMonster { 
+ACTOR LordofHeresy : DnD_BaseHybridMonster 21135 {
+	//$Sprite LOHSA1
     Health 0x7FFFFFFF
     Radius 24
     Height 64
@@ -379,7 +379,6 @@ ACTOR LordofHeresy : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_LORDOFHERESY)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -452,12 +451,12 @@ ACTOR LordofHeresy_Elite : LordofHeresy {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_LORDOFHERESY)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-Actor Cybruiser : DnD_BaseHybridMonster { 
+Actor Cybruiser : DnD_BaseHybridMonster 21136 { 
+	//$Sprite CRUSA1
 	Health 0x7FFFFFFF
 	Radius 24 
 	Height 64 
@@ -480,7 +479,6 @@ Actor Cybruiser : DnD_BaseHybridMonster {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CYBRUISER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -614,12 +612,12 @@ ACTOR Cybruiser_Elite : Cybruiser {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CYBRUISER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor BruiserDemon : DnD_BaseHybridMonster {
+Actor BruiserDemon : DnD_BaseHybridMonster 21137 {
+	//$Sprite BRUSA1
 	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
@@ -644,7 +642,6 @@ Actor BruiserDemon : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BRUISERDEMON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -891,12 +888,12 @@ ACTOR BruiserDemon_Elite : BruiserDemon {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_BRUISERDEMON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Bormereth : DnD_BaseHybridMonster {
+ACTOR Bormereth : DnD_BaseHybridMonster 21138 {
+	//$Sprite BORMA1
     Health 0x7FFFFFFF
     Radius 24
     Height 64
@@ -918,7 +915,6 @@ ACTOR Bormereth : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BORMERETH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1368,12 +1364,12 @@ ACTOR Bormereth_Elite : Bormereth {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_BORMERETH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR BloodSeeker : DnD_BaseHybridMonster {
+ACTOR BloodSeeker : DnD_BaseHybridMonster 21139 {
+	//$Sprite BDE2A1
 	OBITUARY "%o was killed by a blood seeker."
 	Bloodcolor "ff 0f 83"
 	Health 0x7FFFFFFF
@@ -1394,7 +1390,6 @@ ACTOR BloodSeeker : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BLOODSEEKER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Bloodseeker Size Change")
 		Goto SpawnSetup
 	
@@ -1600,12 +1595,12 @@ ACTOR BloodSeeker_Elite : BloodSeeker {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_BLOODSEEKER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor Barbatos : DnD_BaseHybridMonster {
+Actor Barbatos : DnD_BaseHybridMonster 21140 {
+	//$Sprite CYBRA1
 	Health 0x7FFFFFFF
 	Species "HK"
 	BloodColor "Red"
@@ -1626,7 +1621,6 @@ Actor Barbatos : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BARBATOS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -1720,12 +1714,12 @@ ACTOR Barbatos_Elite : Barbatos {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_BARBATOS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-Actor ShadowWizard : DnD_BaseHybridMonster {
+Actor ShadowWizard : DnD_BaseHybridMonster 21141 {
+	//$Sprite SHWZA1
 	Obituary "%o was lobotomized by a Shadow Wizard."
 	Health 0x7FFFFFFF
 	Radius 21
@@ -1747,7 +1741,6 @@ Actor ShadowWizard : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SHADOWWIZARD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1848,12 +1841,12 @@ ACTOR ShadowWizard_Elite : ShadowWizard {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SHADOWWIZARD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Kjaroch : DnD_BaseHybridMonster {
+ACTOR Kjaroch : DnD_BaseHybridMonster 21142 {
+	//$Sprite LOHSA1
 	Health 0x7FFFFFFF
 	PainChance 32
 	SeeSound "Kjaroch/See"
@@ -1876,7 +1869,6 @@ ACTOR Kjaroch : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_KJAROCH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2123,12 +2115,12 @@ ACTOR Kjaroch_Elite : Kjaroch {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_KJAROCH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor MagmaSerpent : DnD_BaseHybridMonster {
+Actor MagmaSerpent : DnD_BaseHybridMonster 21143 {
+	//$Sprite RDMNA1
 	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
@@ -2153,7 +2145,6 @@ Actor MagmaSerpent : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MAGMASERPENT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2334,12 +2325,12 @@ ACTOR MagmaSerpent_Elite : MagmaSerpent {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_MAGMASERPENT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor DreadKnight : DnD_BaseHybridMonster {
+Actor DreadKnight : DnD_BaseHybridMonster 21144 {
+	//$Sprite KNGTA1
 	Health 0x7FFFFFFF
 	Scale 1.1
 	HitObituary "%o was dismembered by a dread knight."
@@ -2371,7 +2362,6 @@ Actor DreadKnight : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DREADKNIGHT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2392,8 +2382,8 @@ Actor DreadKnight : DnD_BaseHybridMonster {
 			KNGT F 2 Fast A_FaceTarget
 			KNGT F 0 A_PlaySound("dknight/swing")
 			KNGT GH 2 Fast
-			KNGT I 3 Fast A_CustomMeleeAttack(random(8, 28), "dknight/melee", "", "Dread")
-			KNGT J 4 Fast A_CustomMeleeAttack(random(8, 28), "dknight/melee", "", "Dread")
+			KNGT I 3 Fast A_CustomMeleeAttack(random(8, 28), "dknight/melee", "")
+			KNGT J 4 Fast A_CustomMeleeAttack(random(8, 28), "dknight/melee", "")
 			KNGT E 2 Fast
 		Goto See
 		MissileState:
@@ -2419,13 +2409,13 @@ Actor DreadKnight : DnD_BaseHybridMonster {
 			TNT1 A 0 A_TakeInventory("KnightTimer", 0)
 			TNT1 A 0 A_PlaySound("DreadKnight/See")
 			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14) // script sets velocity, ensures no dropoff
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 14) // script sets velocity, ensures no dropoff
 			TNT1 A 0 A_ChangeFlag("SKULLFLY", 1)
 			TNT1 A 0 A_ChangeFlag("NOPAIN", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 		ChargeLoop:
 			TNT1 A 0 A_JumpIfInventory("KnightTimer", 0, "Rush")
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 14)
 			KNGT ABCD 2 Fast A_FaceTarget
 			TNT1 A 0 A_GiveInventory("KnightTimer", 1)
 		Loop
@@ -2518,12 +2508,12 @@ ACTOR DreadKnight_Elite : DreadKnight {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DREADKNIGHT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor MagmaGolem : DnD_BaseHybridMonster { 
+Actor MagmaGolem : DnD_BaseHybridMonster 21145 { 
+	//$Sprite GOL2A1C1
     Health 0x7FFFFFFF
     Speed 6
 	Scale 1.35
@@ -2548,11 +2538,10 @@ Actor MagmaGolem : DnD_BaseHybridMonster {
     States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MAGMAGOLEM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		IdleState:
-		   GOL2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
+		   	GOL2 AB 10 A_GiveInventory("DnD_SightChecker", 1)
 	    Loop 
 		SeeState: 
 			GOL2 AABBCCDD 2 Fast A_Chase
@@ -2702,14 +2691,14 @@ ACTOR MagmaGolem_Elite : MagmaGolem {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_MAGMAGOLEM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
 const float warmaster_ratio = 0.25;
 
-ACTOR Warmaster : DnD_BaseHybridMonster { 
+ACTOR Warmaster : DnD_BaseHybridMonster 21146 { 
+	//$Sprite BOSXA1
     Health 0x7FFFFFFF
     Radius 24 
     Height 64 
@@ -2732,7 +2721,6 @@ ACTOR Warmaster : DnD_BaseHybridMonster {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_WARMASTER)
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Warmaster Rage")
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2960,12 +2948,12 @@ ACTOR Warmaster_Elite : Warmaster {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_WARMASTER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	}
 }
 
-actor Judicator : DnD_BaseHybridMonster {
+actor Judicator : DnD_BaseHybridMonster 21147 {
+	//$Sprite JUICA1
 	obituary "%o was peppered by a Judicator's machine gun."
 	HitObituary "%o had %p head bashed in by a Judicator."
 	Health 0x7FFFFFFF
@@ -2991,7 +2979,6 @@ actor Judicator : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_JUDICATOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -3198,7 +3185,6 @@ ACTOR Judicator_Elite : Judicator {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_JUDICATOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }

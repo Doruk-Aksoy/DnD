@@ -1,0 +1,93 @@
+// compiler note: requires zt-bcc to compile
+#library "MISC"
+
+#include "libbcs.bcs"
+
+#pragma raw define on
+#pragma raw include on
+#nocompact
+
+#import "zcommon.bcs"
+
+#libdefine TID_EMPTY (bcs::INT_MAX - 2)
+
+script "OS_Spawn_Torch_Flare" (int which, int height) CLIENTSIDE
+{
+    int old_tid = ActivatorTID();
+    int temp_tid = UniqueTID(TID_EMPTY);
+    Thing_ChangeTID(0, temp_tid);
+    int temp_tid_flare = UniqueTID(TID_EMPTY);
+
+    str flare_choice = "OSTorchFlare";
+    switch(which)
+    {
+        case 1: flare_choice = "OSTorchFlareRed"; break;
+        case 2: flare_choice = "OSTorchFlareOrange"; break;
+        case 3: flare_choice = "OSTorchFlareGold"; break;
+        case 4: flare_choice = "OSTorchFlareYellow"; break;
+        case 5: flare_choice = "OSTorchFlareChartreuse"; break;
+        case 6: flare_choice = "OSTorchFlareGreen"; break;
+        case 7: flare_choice = "OSTorchFlareSpringGreen"; break;
+        case 8: flare_choice = "OSTorchFlareCyan"; break;
+        case 9: flare_choice = "OSTorchFlareAzure"; break;
+        case 10: flare_choice = "OSTorchFlareBlue"; break;
+        case 11: flare_choice = "OSTorchFlareIndigo"; break;
+        case 12: flare_choice = "OSTorchFlarePurple"; break;
+        case 13: flare_choice = "OSTorchFlareMagenta"; break;
+        case 14: flare_choice = "OSTorchFlareRose"; break;
+        case 15: flare_choice = "OSTorchFlareWhite"; break;
+        //
+        case 16: flare_choice = "OSWallTorchFlareRed"; break;
+        case 17: flare_choice = "OSWallTorchFlareOrange"; break;
+        case 18: flare_choice = "OSWallTorchFlareGold"; break;
+        case 19: flare_choice = "OSWallTorchFlareYellow"; break;
+        case 20: flare_choice = "OSWallTorchFlareChartreuse"; break;
+        case 21: flare_choice = "OSWallTorchFlareGreen"; break;
+        case 22: flare_choice = "OSWallTorchFlareSpringGreen"; break;
+        case 23: flare_choice = "OSWallTorchFlareCyan"; break;
+        case 24: flare_choice = "OSWallTorchFlareAzure"; break;
+        case 25: flare_choice = "OSWallTorchFlareBlue"; break;
+        case 26: flare_choice = "OSWallTorchFlareIndigo"; break;
+        case 27: flare_choice = "OSWallTorchFlarePurple"; break;
+        case 28: flare_choice = "OSWallTorchFlareMagenta"; break;
+        case 29: flare_choice = "OSWallTorchFlareRose"; break;
+        case 30: flare_choice = "OSWallTorchFlareWhite"; break;
+        //
+        case 31: flare_choice = "OSTorchFlareVermillion"; break;
+        case 32: flare_choice = "OSTorchFlareCrimson"; break;
+        case 33: flare_choice = "OSTorchFlarePink"; break;
+        case 34: flare_choice = "OSTorchFlareBlack"; break;
+        //
+        case 35: flare_choice = "OSWallTorchFlareVermillion"; break;
+        case 36: flare_choice = "OSWallTorchFlareCrimson"; break;
+        case 37: flare_choice = "OSWallTorchFlarePink"; break;
+        case 38: flare_choice = "OSWallTorchFlareBlack"; break;
+        //
+        default: flare_choice = "OSTorchFlare"; break; // white
+    }
+    SpawnForced(flare_choice, 0.0, 0.0, 32.0, temp_tid_flare, 0.0);
+
+    SetActorProperty(temp_tid_flare, APROP_Stamina, height);
+    SetActivator(temp_tid_flare);
+    SetPointer(AAPTR_MASTER, temp_tid);
+
+    Thing_ChangeTID(temp_tid, old_tid);
+    Thing_ChangeTID(temp_tid_flare, 0);
+}
+
+script "OS_Torch_Sound_Loop" (int which) CLIENTSIDE
+{
+    delay(Random(1, 175)); // stagger the sound
+    switch(which)
+    {
+        case 1:
+            PlaySound(0, "torch/loop/loud", CHAN_BODY, 1.0, 1);
+            break;
+        case 2:
+            PlaySound(0, "fire/loop", CHAN_BODY, 1.0, 1);
+            break;
+        default:
+            PlaySound(0, "torch/loop", CHAN_BODY, 1.0, 1);
+            break;
+    }
+}

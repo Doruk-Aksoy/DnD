@@ -120,7 +120,7 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 	
 	// there was no instance of this before, insert it
 	// we have no space, find the one with least duration left and replace it
-	int min = INT_MAX;
+	int min = bcs::INT_MAX;
 	int pos = 0;
 	if(player_dot_damages.cursize == MAX_DOT_INSTANCES) {
 		for(i = 0; i < MAX_DOT_INSTANCES; ++i) {

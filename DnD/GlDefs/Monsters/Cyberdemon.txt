@@ -2446,19 +2446,16 @@ Chance 0.7
 Object RedLiteTop
 {
 Frame MLFX { light AvatarLightning }
-Frame MLF2 { light AvatarLightning }
 }
 
 Object RedLiteBot
 {
 Frame MLFX { Light AvatarLightning }
-Frame MLF2 { Light AvatarLightning }
 }
 
-Object LightningZap
+Object RedLiteInBetween
 {
 Frame MLFX { Light AvatarLightning }
-Frame MLF2 { Light AvatarLightning }
 }
 
 Pointlight AvatarElectroBall11

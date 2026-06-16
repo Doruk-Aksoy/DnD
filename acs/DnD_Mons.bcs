@@ -217,11 +217,20 @@ Script "DnD Avatar Ball State Check" (void) CLIENTSIDE {
 	SetResultValue(res);
 }
 
-Script 971 (int speed) {
+Script "DnD Vel Adjust" (int speed, int face_target) {
 	speed = Clamp_Between(speed, 1, 48);
-	int velx = FixedMul(cos(GetActorAngle(0)), speed << 16);
-	int vely = FixedMul(sin(GetActorAngle(0)), speed << 16);
-	SetActorVelocity(0, velx, vely, 0, 0, 0);
+
+	int velz = 0;
+	if(face_target) {
+		face_target = AngleToFaceActor(0, GetActorProperty(0, APROP_TARGETTID));
+		velz = GetActorVelZ(0);
+	}
+	else
+		face_target = GetActorAngle(0);
+
+	int velx = cos(face_target) * speed;
+	int vely = sin(face_target) * speed;
+	SetActorVelocity(0, velx, vely, velz, 0, 0);
 }
 
 // run this on pain state of monsters that can blind!
@@ -765,6 +774,9 @@ Script "DnD Draugr Appear FX" (void) CLIENTSIDE {
 
 // items on monsters aren't synced
 Script "DnD Bloodseeker Transform Sync" (int mode) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
 	if(!mode)
 		GiveInventory("BloodseekerTransform", 1);
 	else
@@ -782,6 +794,9 @@ Script "DnD Boolean Sync" (int take) {
 }
 
 Script "DnD Boolean Sync - CS" (int take) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+		
 	if(take)
 		TakeInventory("DnD_Boolean", 1);
 	else
@@ -791,10 +806,16 @@ Script "DnD Boolean Sync - CS" (int take) CLIENTSIDE {
 
 // syncs desynced projectiles or anything really
 Script "DnD Sync Hack" (int x, int y, int z) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
 	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
 }
 
 Script "DnD Sync Hack Immediate" (int x, int y, int z) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+		
 	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
 	SetResultValue(0);
 }
@@ -1458,11 +1479,6 @@ Script "DnD Monster Push All Players" (int dist, int f_xy) {
 	SetResultValue(0);
 }
 
-Script "DnD Init Monster Data" (int rarity) {
-	SetActorProperty(0, APROP_SCORE, rarity);
-	SetResultValue(0);
-}
-
 Script "DnD Aura Scale to Match" (void) CLIENTSIDE {
 	// update scale of this to match the scale of the monster its attached to
 	int owner = GetActorProperty(0, APROP_TARGETTID);
@@ -1563,4 +1579,174 @@ Script "DnD Mother Demon Meteors" (void) {
 	}
 
 	SetResultValue(0);
+}
+
+Script "DnD Shambler Attack Form FX" (int frame) CLIENTSIDE {
+	// it has 3 frames, 4th one is for the last frame mirror + adjust
+	static LightningFrameData_T ShamblerData[4] = {
+		{ 
+			SHAMBLER_LGDISTX_FORM1,
+			SHAMBLER_LGDISTY_FORM1,
+			SHAMBLER_LGDISTZ_FORM1,
+			SHAMBLER_LGDISTX_FORM1,
+			SHAMBLER_LGDISTY_FORM1D,
+			SHAMBLER_LGDISTZ_FORM1D
+		},
+		{ 
+			SHAMBLER_LGDISTX_FORM2,
+			SHAMBLER_LGDISTY_FORM2,
+			SHAMBLER_LGDISTZ_FORM2,
+			SHAMBLER_LGDISTX_FORM2,
+			SHAMBLER_LGDISTY_FORM2D,
+			SHAMBLER_LGDISTZ_FORM2D
+		},
+		{
+			SHAMBLER_LGDISTX_FORM3,
+			SHAMBLER_LGDISTY_FORM3,
+			SHAMBLER_LGDISTZ_FORM3,
+			SHAMBLER_LGDISTX_FORM3D,
+			SHAMBLER_LGDISTY_FORM3D,
+			SHAMBLER_LGDISTZ_FORM3
+		},
+		{
+			SHAMBLER_LGDISTX_FORM4,
+			SHAMBLER_LGDISTY_FORM4,
+			SHAMBLER_LGDISTZ_FORM4,
+			SHAMBLER_LGDISTX_FORM3D,
+			SHAMBLER_LGDISTY_FORM3D,
+			SHAMBLER_LGDISTZ_FORM4D
+		}
+	};
+
+	// first generate some points
+	int i;
+	int[]* points = bcs::malloc(SIZEOF_INT * SHAMBLER_ATTACK_POINTS);
+	int pcount = SHAMBLER_ATTACK_POINTS;
+	if(frame < 2)
+		pcount = SHAMBLER_ATTACK_POINTS_FEW;
+
+	for(i = 0; i < pcount; ++i)
+		points[i] = random(0, 1.0);
+	
+	// sort points
+	bubblesort(points, SHAMBLER_ATTACK_POINTS);
+	
+	// we need to create the lightning-like fx, for that we get a rotation matrix
+	// the two hands of the monster
+	int sx = GetActorX(0) + ShamblerData[frame].sx * cos(GetActorAngle(0)) + ShamblerData[frame].sy * sin(GetActorAngle(0));
+	int dx = GetActorX(0) + ShamblerData[frame].dx * cos(GetActorAngle(0)) - ShamblerData[frame].dy * sin(GetActorAngle(0));
+	
+	int sy = GetActorY(0) + ShamblerData[frame].sx * sin(GetActorAngle(0)) - ShamblerData[frame].sy * cos(GetActorAngle(0));
+	int dy = GetActorY(0) + ShamblerData[frame].dx * sin(GetActorAngle(0)) + ShamblerData[frame].dy * cos(GetActorAngle(0));
+	
+	int sz = GetActorZ(0) + ShamblerData[frame].sz;
+	int dz = GetActorZ(0) + ShamblerData[frame].dz;
+	// prev point, base
+	int px = sx;
+	int py = sy;
+	int pz = sz;
+	// t holds tangent
+	int tx = dx - sx;
+	int ty = dy - sy;
+	int mag = magnitudeTwo(tx >> 16, ty >> 16);
+	
+	// for each point of that we will be making the line segments
+	int disp = 0, prevdisp = 0, pos = 0;
+	int scale, envelope;
+	for(i = 1; i < pcount; ++i) {
+		pos = points[i];
+		// prevents sharp angles, smooths them
+		scale = FixedMul(mag, SHAMBLER_LGJAGG);
+		scale = FixedMul(scale, pos - points[i - 1]);
+		
+		envelope = (pos > 0.15 && pos < 0.85) ? SHAMBLER_LGDISTY * (1.0 - pos) : pos;
+		
+		disp = random(-SHAMBLER_LGSWAYF, SHAMBLER_LGSWAYF);
+		disp -= FixedMul(disp - prevdisp, 1.0 - scale);
+		disp = FixedMul(disp, envelope);
+		// d are new points
+		dx = sx + FixedMul(pos, tx);
+		dy = sy + FixedMul(pos, ty);
+		dz = sz + FixedMul(pos, random(-SHAMBLER_TZ, SHAMBLER_TZ)) + FixedMul(disp, SHAMBLER_ZCHANGE);
+		
+		// draw line from previous point to current point (px, py, pz) to (dx, dy, dz)
+		LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, dz, SHAMBLER_LGDENSITY);
+		
+		// previous are now current
+		px = dx;
+		py = dy;
+		pz = dz;
+		prevdisp = disp;
+	}
+
+	bcs::free(points);
+	// last point
+	dx = GetActorX(0) + ShamblerData[frame].dx * cos(GetActorAngle(0)) - ShamblerData[frame].dy * sin(GetActorAngle(0));
+	dy = GetActorY(0) + ShamblerData[frame].dx * sin(GetActorAngle(0)) + ShamblerData[frame].dy * cos(GetActorAngle(0));
+	LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, sz, SHAMBLER_LGDENSITY);
+}
+
+Script "DnD Shambler Attack FX" (int owner) CLIENTSIDE {
+	// first generate some points
+	int i;
+	int[]* points = bcs::malloc(SIZEOF_INT * SHAMBLER_ATTACK_POINTS_MORE);
+	for(i = 0; i < SHAMBLER_ATTACK_POINTS_MORE; ++i)
+		points[i] = random(0, 1.0);
+	
+	// sort points
+	bubblesort(points, SHAMBLER_ATTACK_POINTS_MORE);
+	
+	// we need to create the lightning-like fx, for that we need the normal of the source and dest
+	// the two hands of the monster
+	int sx = GetActorX(owner) + SHAMBLER_LGDISTX * cos(GetActorAngle(owner));
+	int dx = GetActorX(0);
+	
+	int sy = GetActorY(owner) + SHAMBLER_LGDISTX * sin(GetActorAngle(owner));
+	int dy = GetActorY(0);
+	
+	int sz = GetActorZ(owner) + 48.0;
+	int dz = GetActorZ(0);
+	// prev point, base
+	int px = sx;
+	int py = sy;
+	int pz = sz;
+	// t holds tangent
+	int tx = dx - sx;
+	int ty = dy - sy;
+	int mag = magnitudeThree(tx >> 16, ty >> 16, (dz - sz) >> 16);
+	
+	// for each point of that we will be making the line segments
+	int disp = 0, prevdisp = 0, pos = 0;
+	int scale, envelope;
+	for(i = 1; i < SHAMBLER_ATTACK_POINTS_MORE; ++i) {
+		pos = points[i];
+		// prevents sharp angles, smooths them
+		scale = FixedMul(mag, SHAMBLER_LGJAGG);
+		scale = FixedMul(scale, pos - points[i - 1]);
+		
+		envelope = (pos > 0.15 && pos < 0.85) ? SHAMBLER_LGDISTY * (1.0 - pos) : pos;
+		
+		disp = random(-SHAMBLER_LGSWAYF, SHAMBLER_LGSWAYF);
+		disp -= FixedMul(disp - prevdisp, 1.0 - scale);
+		disp = FixedMul(disp, envelope);
+		// d are new points
+		dx = sx + FixedMul(pos, tx);
+		dy = sy + FixedMul(pos, ty);
+		dz = sz + FixedMul(pos, GetActorZ(0) - sz + random(-SHAMBLER_TZ, SHAMBLER_TZ)) + FixedMul(disp, SHAMBLER_ZCHANGE);
+		
+		// draw line from previous point to current point (px, py, pz) to (dx, dy, dz)
+		LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, dz, SHAMBLER_LGDENSITY);
+		
+		// previous are now current
+		px = dx;
+		py = dy;
+		pz = dz;
+		prevdisp = disp;
+	}
+
+	bcs::free(points);
+	// last point
+	dx = GetActorX(0);
+	dy = GetActorY(0);
+	LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, GetActorZ(0), SHAMBLER_LGDENSITY);
 }

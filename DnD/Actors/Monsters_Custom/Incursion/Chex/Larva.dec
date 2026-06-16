@@ -26,7 +26,6 @@ ACTOR FlemoidLarva : DnD_BaseMeleeMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEX_LARVA)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 		
 		SeeState:
@@ -70,7 +69,6 @@ ACTOR FlemoidLarva_Elite : FlemoidLarva {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CHEX_LARVA)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }

@@ -47,6 +47,10 @@ const int SPECIAL_FX_TID = 2147483647;
 #include "Actors/Items/Orbs.dec"
 #include "Actors/Items/Chest.dec"
 #include "Actors/Items/Tokens.dec"
+#include "Actors/Items/Dungeons.dec"
+
+#include "Actors/Maps/Decoration.dec"
+#include "Actors/Maps/Torches.dec"
 
 // Spells
 #include "Actors/Spells/Common.dec"
@@ -123,10 +127,11 @@ const int SPECIAL_FX_TID = 2147483647;
 
 #include "Actors/Monsters_Custom/Uniques.dec"
 
-// Ultimatum Monsters
-#include "Actors/Monsters_Custom/Ultimatum/Golem.dec"
-#include "Actors/Monsters_Custom/Ultimatum/Vassago.dec"
-#include "Actors/Monsters_Custom/Ultimatum/Dementor.dec"
+// Dungeon Monsters
+#include "Actors/Monsters_Custom/Dungeons/Shambler.dec"
+#include "Actors/Monsters_Custom/Dungeons/Golem.dec"
+#include "Actors/Monsters_Custom/Dungeons/Vassago.dec"
+#include "Actors/Monsters_Custom/Dungeons/Dementor.dec"
 
 // Incursion Monsters
 // Chex

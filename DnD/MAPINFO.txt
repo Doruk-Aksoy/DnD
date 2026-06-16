@@ -1,3 +1,9 @@
+DefaultMap {
+	SmoothLighting
+	ClipMidTextures
+	UsePlayerStartZ
+}
+
 gameinfo {
 	PlayerClasses 		= "DnD_Player"
 	norandomplayerclass = true
@@ -48,4 +54,11 @@ skill crazy
 
 gamedefaults {
 	nointermission
+}
+
+map DND01 "Void Keep" {
+	music = "DNDM01"
+	SmoothLighting
+	lightmode = 3 // dark
+	AirControl = 0.25
 }

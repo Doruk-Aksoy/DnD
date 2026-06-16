@@ -1,0 +1,250 @@
+Actor DNDDecor
+{
+  Radius 8
+  Height 4
+  -SOLID
+  -SHOOTABLE
+  +FLOORCLIP
+  +NOINTERACTION
+  +CLIENTSIDEONLY
+  States
+  {
+  Spawn:
+    TNT1 A 1
+    stop
+  }
+}
+
+// light sources
+Actor DNDChandelier : DNDDecor 15001
+{
+  //$Category Light sources
+  //$Title "DNDChandelier"
+  //$Sprite CHDLA0
+  +SPAWNCEILING
+  States
+  {
+  Spawn:
+    CHDL ABC 3 Bright
+    Loop
+  }
+}
+
+// loot
+Actor DNDLootChestSpawner : RandomSpawner 15100
+{
+    //$Category Powerups/DND Loot
+    //$Title "DNDLootChest Spawner"
+    //$Sprite LBOXA0
+    DropItem "LootChest" 255
+}
+
+Actor DNDBronzeChestSpawner : RandomSpawner 15101
+{
+    //$Category Powerups/DND Loot
+    //$Title "DNDBronzeChest Spawner"
+    //$Sprite SUBXA0
+    DropItem "DNDBronzeChest" 255
+}
+
+Actor DNDSilverChestSpawner : RandomSpawner 15102
+{
+    //$Category Powerups/DND Loot
+    //$Title "DNDSilverChest Spawner"
+    //$Sprite SUBXC0
+    DropItem "DNDSilverChest" 255
+}
+
+Actor DNDGoldChestSpawner : RandomSpawner 15103
+{
+    //$Category Powerups/DND Loot
+    //$Title "DNDGoldChest Spawner"
+    //$Sprite SUBXE0
+    DropItem "DNDGoldChest" 255
+}
+
+// always spawns a chest
+Actor DNDRandomChestSpawner : RandomSpawner 15104
+{
+    //$Category Powerups/DND Loot
+    //$Title "DNDRandom Chest Spawner"
+    //$Sprite SUBXA0
+    DropItem "LootChest" 255 8
+    DropItem "DNDBronzeChest" 255 4
+    DropItem "DNDSilverChest" 255 2
+    DropItem "DNDGoldChest" 255 1
+}
+
+// spawns nothing a majority of the time
+Actor DNDRandomChestRareSpawner : RandomSpawner 15105
+{
+    //$Category Powerups/DND Loot
+    //$Title "DNDRarely Random Chest Spawner"
+    //$Sprite LBOXA0
+    DropItem "LootChest" 50 8
+    DropItem "DNDBronzeChest" 50 4
+    DropItem "DNDSilverChest" 50 2
+    DropItem "DNDGoldChest" 50 1
+}
+
+Actor DNDRandomGoodChestSpawner : RandomSpawner 15106
+{
+    //$Category Powerups/DND Loot
+    //$Title "DNDRandom Good Chest Spawner"
+    //$Sprite SUBXE0
+    DropItem "DNDSilverChest" 255 3
+    DropItem "DNDGoldChest" 255 2
+}
+
+Actor DNDRandomItemSpawner : RandomSpawner
+{
+    DropItem "Clip" 255 1
+}
+
+Actor DNDRandomItemRareSpawner : RandomSpawner
+{
+    DropItem "DNDRandomItemSpawner" 50 1
+}
+
+Actor DNDRandomGoodItemSpawner : RandomSpawner
+{
+    DropItem "ClipBox" 255 1
+}
+
+// barrel
+Actor DNDBarrelChip
+{
+  Scale 1.4
+  Bouncefactor 0.6
+  BounceCount 3
+  Radius 8
+  Height 8
+  Speed 8
+  seesound none
+  Mass 1
+  +MISSILE
+  +NOBLOCKMAP
+  +NOTELEPORT
+  +DOOMBOUNCE
+  +MOVEWITHSECTOR
+  +CLIENTSIDEONLY
+  -TELESTOMP
+  +NOTELESTOMP
+  +DROPOFF
+  states
+  {
+  Spawn:
+    WOOD A 0
+    "####" A 0 A_Jump(128, 2)
+    "####" D 2
+    "####" D 0
+    Goto SpawnLoop
+  SpawnLoop:
+    "####" A 0
+    "####" A 0 A_JumpIf(waterlevel > 1, "Death2")
+    "####" ABCD 2
+    loop
+  Death:
+    "####" B 350
+    Stop
+  Death2:
+    TNT1 A 1
+    Stop
+  }
+}
+
+actor DNDBarrelSmoke
+{
+  RenderStyle Translucent
+  +NOINTERACTION
+  +CLIENTSIDEONLY
+  +NOBLOCKMAP
+  +NOGRAVITY
+  +NOTELEPORT
+  -TELESTOMP
+  +NOTELESTOMP
+  Alpha 0.5
+  Scale 0.9
+  States
+  {
+  Spawn:
+    SMOK GHIJKLMNOPQ 1
+    Stop
+  }
+}
+
+ACTOR DNDBarrel
+{
+  Health 50
+  Radius 12
+  Height 40
+  YScale 1.2
+  Mass 150
+  MaxStepHeight 32
+  +SOLID
+  +SHOOTABLE
+  +FLOORCLIP
+  +DONTGIB
+  +PUSHABLE
+  -NOGRAVITY
+  +NOBLOOD
+  +NOICEDEATH
+  -TELESTOMP
+  +MOVEWITHSECTOR
+  pushfactor 0.5
+  States
+  {
+  Spawn:
+    BARL A -1
+    Stop
+  Death:
+    TNT1 A 1
+    Goto DeathGibs
+  DeathGibs:
+    TNT1 A 0 A_NoBlocking
+    TNT1 A 0 A_PlaySound("barrel/break")
+    TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("DNDBarrelChip", random(-8, 8), random(-8, 8), random(8, 24), random(0, 5), random(0, 5), random(2, 8), random(1, 360), 0, 64)
+    TNT1 AAAA 0 A_SpawnItemEx("DNDBarrelSmoke", random(-8, 8), random(-8, 8), random(4, 28), 0, 0, 0, 0, 0, 64)
+    TNT1 A 1
+    Stop
+  }
+}
+
+ACTOR DNDBarrelRandomItemRare : DNDBarrel 16000
+{
+  //$Category Obstacles/DNDObstacles
+  //$Title "Barrel Rarely Random Item"
+  //$Sprite BARLA0
+  States
+  {
+  Death:
+    TNT1 A 1 A_SpawnItemEx("DNDRandomItemRareSpawner", 0, 0, 16)
+    Goto DeathGibs
+  }
+}
+
+ACTOR DNDBarrelRandomItem : DNDBarrel 16001
+{
+  //$Category Obstacles/DNDObstacles
+  //$Title "Barrel Random Item"
+  //$Sprite BARLA0
+  States
+  {
+  Death:
+    TNT1 A 1 A_SpawnItemEx("DNDRandomItemSpawner", 0, 0, 16)
+    Goto DeathGibs
+  }
+}
+
+ACTOR DNDBarrelRandomGoodItem : DNDBarrel 16002
+{
+  //$Category Obstacles/DNDObstacles
+  //$Title "Barrel Random Good Item"
+  //$Sprite BARLA0
+  States
+  {
+  Death:
+    TNT1 A 1 A_SpawnItemEx("DNDRandomGoodItemSpawner", 0, 0, 16)
+    Goto DeathGibs
+  }
+}

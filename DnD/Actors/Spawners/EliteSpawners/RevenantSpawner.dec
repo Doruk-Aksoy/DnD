@@ -1,9 +1,5 @@
 Actor RevenantSpawner_Elite : DnD_MonsterSpawner 25012 {
-	//$Category Monsters/DnD
-	//$Title "Elite Revenant Spawner"
 	//$Sprite SKE2A1
-	//$Radius 20
-	//$Height 56
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_REVENANTID)

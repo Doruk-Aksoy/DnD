@@ -5,7 +5,7 @@
 
 #define SIZEOF_INT 4
 
-#define ISDEBUGBUILD
+//#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 
 #ifdef ISDEBUGBUILD
@@ -297,7 +297,8 @@ enum {
 	// DND_MAX_MONSTERS * DND_MAX_MONSTER_ATTACHMENTS is the skip for next
 	DND_MONSTER_ATTACHMENT_TID_BEGIN = DND_INCURSIONPORTAL_TID + DND_MAX_INCURSION_PORTALS,
 	
-	DND_DROP_TID = INT_MAX - 1,
+	DND_TORCH_TEMP_TID = bcs::INT_MAX - 2,
+	DND_DROP_TID,
 	SPECIAL_FX_TID
 };
 
@@ -458,65 +459,82 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 #define DND_MAX_PETS_PER_PLAYER 25
 #define DND_MAX_PETS (DND_MAX_PETS_PER_PLAYER * MAXPLAYERS) // 25 pets per player x 64 players
 
-#define DND_TID_MONSTER 0
-#define DND_TID_SHOOTABLE 1
-#define DND_TID_PICKUPS 2
-#define DND_TID_SHAREDITEMS 3
-#define DND_TID_LOOTBOXES 4
-#define DND_TID_INCURSIONMARKERS 5
-// keeps at what tid we are left off
-// { DND_MONSTERTID_BEGIN, DND_SHOOTABLETID_BEGIN, DND_PICKUPTID_BEGIN, SHARED_ITEM_TID_BEGIN };
-int DnD_TID_Counter[6] = { 0, 0, 0, 0, 0, 0 };
-
 // holds the monster tids that are in use -- arbitrary order
 global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
 
-// Turned this to global to allow outside access for modders
-#define PLAYERLEVELINFO_LEVEL 0
-#define PLAYERLEVELINFO_MINLEVEL 1
-#define PLAYERLEVELINFO_MAXLEVEL 2
-#define PLAYERLEVELINFO_COUNTATSTART 3
-#define PLAYERLEVELINFO_TIDMONSTER 4 // how many monster tids were skipped, this can happen if mappers allocated tids of their own
-#define PLAYERLEVELINFO_LEVELATSTART 5 // level total of players at the start of the game
-#define MAX_PLAYERLEVELINFO_DATA (PLAYERLEVELINFO_LEVELATSTART + 1)
+enum {
+	LEVELINFO_PLAYERLEVEL, // sum of all players' levels
+	LEVELINFO_MINPLAYERLEVEL,
+	LEVELINFO_MAXPLAYERLEVEL,
+	LEVELINFO_PLAYERCOUNTATSTART,
+	LEVELINFO_TIDMONSTER, // how many monster tids were skipped, this can happen if mappers allocated tids of their own
+	LEVELINFO_PLAYERLEVELATSTART, // level total of players at the start of the game
+
+	LEVELINFO_ISDUNGEON,
+
+	// keeps at what tid we are left off
+	LEVELINFO_TID_MONSTER,
+	LEVELINFO_TID_SHOOTABLE,
+	LEVELINFO_TID_PICKUPS,
+	LEVELINFO_TID_SHAREDITEMS,
+	LEVELINFO_TID_LOOTBOXES,
+	LEVELINFO_TID_INCURSIONMARKERS,
+
+	MAX_LEVELINFO_DATA
+};
 
 bool pinfo_pending_reset = true;
-global int 28: PlayerInformationInLevel[MAX_PLAYERLEVELINFO_DATA];
+global int 28: InformationInLevel[MAX_LEVELINFO_DATA];
 
 void ResetPlayerInformationLevel() {
-	PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] = 0;
-	PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = INT_MAX;
-	PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = INT_MIN;
-	PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] = 0;
-	PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER] = 0;
-	PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] = 0;
+	InformationInLevel[LEVELINFO_PLAYERLEVEL] = 0;
+	InformationInLevel[LEVELINFO_MINPLAYERLEVEL] = bcs::INT_MAX;
+	InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = bcs::INT_MIN;
+	InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] = 0;
+	InformationInLevel[LEVELINFO_TIDMONSTER] = 0;
+	InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] = 0;
 	pinfo_pending_reset = false;
 
 	SetupUndo(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
 }
 
+void UpdateLevelInformation() {
+	// get this map's lump name, dungeon names follow "DNDXX"
+	str map_lump = StrParam(n:PRINTNAME_LEVEL);
+
+	//Log(s:"lump name: ", s:map_lump);
+
+	InformationInLevel[LEVELINFO_ISDUNGEON] = StrLen(map_lump) > 3 && GetChar(map_lump, 0) == 'D' && GetChar(map_lump, 1) == 'N' && GetChar(map_lump, 2) == 'D';
+
+	//Log(s:"Map is dungeon: ", d:InformationInLevel[LEVELINFO_ISDUNGEON]);
+}
+
 void GiveMonsterTID(int base_tid) {
 	int temp;
 	if(!base_tid) {
-		temp = DND_MONSTERTID_BEGIN + DnD_TID_Counter[DND_TID_MONSTER] + PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER];
+		temp = DND_MONSTERTID_BEGIN + InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_TIDMONSTER];
 		
 		// we have to constantly check if we have run into a specific tid monster...
 		while(ThingCount(0, temp)) {
 			++temp;
-			++PlayerInformationInLevel[PLAYERLEVELINFO_TIDMONSTER];
+			++InformationInLevel[LEVELINFO_TIDMONSTER];
 		}
 		base_tid = temp;
 		Thing_ChangeTID(0, base_tid);
 	}
-	temp = DnD_TID_Counter[DND_TID_MONSTER];
-	UsedMonsterTIDs[DnD_TID_Counter[DND_TID_MONSTER]++] = base_tid;
-	//Log(s:"monster count: ", d:DnD_TID_Counter[DND_TID_MONSTER]);
-	ACS_NamedExecuteAlways("DnD Update Monster TID CS", 0, temp, base_tid, DnD_TID_Counter[DND_TID_MONSTER]);
+	temp = InformationInLevel[LEVELINFO_TID_MONSTER];
+	UsedMonsterTIDs[InformationInLevel[LEVELINFO_TID_MONSTER]++] = base_tid;
+	//Log(s:"monster count: ", d:InformationInLevel[LEVELINFO_TID_MONSTER]);
+
+	ACS_NamedExecuteAlways("DnD Update Monster TID CS", 0, temp, base_tid, InformationInLevel[LEVELINFO_TID_MONSTER]);
 }
 
 Script "DnD Update Monster TID CS" (int id, int val, int newcount) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
 	UsedMonsterTIDs[id] = val;
-	DnD_TID_Counter[DND_TID_MONSTER] = newcount;
+	InformationInLevel[LEVELINFO_TID_MONSTER] = newcount;
 
 	// this is necessary to fix a bug
 	Thing_ChangeTID(0, val);
@@ -536,22 +554,22 @@ void GivePetTID(int master_tid) {
 }
 
 void GiveShootableTID() {
-	Thing_ChangeTID(0, DND_SHOOTABLETID_BEGIN + DnD_TID_Counter[DND_TID_SHOOTABLE]);
-	++DnD_TID_Counter[DND_TID_SHOOTABLE];
+	Thing_ChangeTID(0, DND_SHOOTABLETID_BEGIN + InformationInLevel[LEVELINFO_TID_SHOOTABLE]);
+	++InformationInLevel[LEVELINFO_TID_SHOOTABLE];
 }
 
 void GivePickupTID() {
-	Thing_ChangeTID(0, DND_PICKUPTID_BEGIN + DnD_TID_Counter[DND_TID_PICKUPS]);
-	++DnD_TID_Counter[DND_TID_PICKUPS];
+	Thing_ChangeTID(0, DND_PICKUPTID_BEGIN + InformationInLevel[LEVELINFO_TID_PICKUPS]);
+	++InformationInLevel[LEVELINFO_TID_PICKUPS];
 }
 
 void GiveSharedItemTID() {
-	Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + DnD_TID_Counter[DND_TID_SHAREDITEMS]);
-	++DnD_TID_Counter[DND_TID_SHAREDITEMS];
+	Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + InformationInLevel[LEVELINFO_TID_SHAREDITEMS]);
+	++InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
 }
 
 int GiveIncursionMarkerTID() {
-	int toGive = DND_INCURSIONMARKER_TID + (DnD_TID_Counter[DND_TID_INCURSIONMARKERS]++);
+	int toGive = DND_INCURSIONMARKER_TID + (InformationInLevel[LEVELINFO_TID_INCURSIONMARKERS]++);
 	Thing_ChangeTID(DND_INCURSIONMARKER_AUX, toGive);
 	return toGive;
 }
@@ -608,6 +626,12 @@ int PitchToFace_Height(int m1, int m2) {
 	return -VectorAngle(dist, zdiff);
 }
 
+int AngleToFaceActor(int this, int to) {
+	int x = GetActorX(to) - GetActorX(this);
+	int y = GetActorY(to) - GetActorY(this);
+	return VectorAngle(x, y);
+}
+
 void FaceActor(int this, int to) {
 	int x = GetActorX(to) - GetActorX(this);
 	int y = GetActorY(to) - GetActorY(this);
@@ -618,9 +642,9 @@ void FaceActor(int this, int to) {
 int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
 	// disabled overflow checks for now, see if there's any improvement in performance
 	// if this turns out to be necessary, I'll enable this
-	//if(dmg < INT_MAX / factor)
+	//if(dmg < bcs::INT_MAX / factor)
 		return dmg * factor / div;
-	//return INT_MAX;
+	//return bcs::INT_MAX;
 }
 
 int SetInventory (str item, int count) {
@@ -707,7 +731,7 @@ int GetHealthPercentage(int currhp, int maxhp) {
 }
 
 // user must guarantee setspecial and setspecial2 are less than 65536
-void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
+void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false, int target_tid = -1) {
 	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0) + zoffset, DND_DROP_TID);
 	if(!noRandomVelXY)
 		ThrustThing(random(0, 255), random(3, 6), 0, DND_DROP_TID);
@@ -715,6 +739,10 @@ void SpawnDrop(str actor, int zoffset, int thrust, int setspecial, int setspecia
 		GiveActorInventory(DND_DROP_TID, "DnD_NoLingerCheck", 1);
 	ThrustThingZ(DND_DROP_TID, thrust, 0, 1);
 	SetActorProperty(DND_DROP_TID, APROP_MASS, setspecial | (setspecial2 << 16));
+	if(target_tid != -1) {
+		SetActorProperty(DND_DROP_TID, APROP_TARGETTID, target_tid);
+		ACS_NamedExecuteWithResult("DnD Update Target", DND_DROP_TID, target_tid);
+	}
 	Thing_ChangeTID(DND_DROP_TID, 0);
 }
 

@@ -1,4 +1,5 @@
-ACTOR SSGZombie : DnD_BaseRangedMonster {
+ACTOR SSGZombie : DnD_BaseRangedMonster 21027 {
+	//$Sprite GPOSA1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	Radius 20
@@ -20,7 +21,6 @@ ACTOR SSGZombie : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ZOMBIESSG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -74,12 +74,12 @@ ACTOR SSGZombie_Elite : SSGZombie {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ZOMBIESSG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor ZSpecOpsShotgun : DnD_BaseRangedMonster {
+Actor ZSpecOpsShotgun : DnD_BaseRangedMonster 21028 {
+	//$Sprite ZSP1A1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	Height 56
@@ -101,7 +101,6 @@ Actor ZSpecOpsShotgun : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ZSPECSG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -150,12 +149,12 @@ ACTOR ZSpecOpsShotgun_Elite : ZSpecOpsShotgun {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ZSPECSG)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR LOSShotgunGuy : DnD_BaseRangedMonster {
+ACTOR LOSShotgunGuy : DnD_BaseRangedMonster 21029 {
+	//$Sprite ZSSGA1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	Tag "Armored Shotgunner"
@@ -177,7 +176,6 @@ ACTOR LOSShotgunGuy : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SGLOS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -250,12 +248,12 @@ ACTOR LOSShotgunGuy_Elite : LOSShotgunGuy {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SGLOS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster {
+ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster 21030 {
+	//$Sprite ZSS2A1
 	Spawnid 253
 	Health 0x7FFFFFFF
 	GibHealth -25
@@ -277,7 +275,6 @@ ACTOR LOSSuperShotgunGuy : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SSGLOS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -344,12 +341,12 @@ ACTOR LOSSuperShotgunGuy_Elite : LOSSuperShotgunGuy {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SSGLOS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-actor SawedOffShotgunGuy : DnD_BaseRangedMonster {
+actor SawedOffShotgunGuy : DnD_BaseRangedMonster 21031 {
+	//$Sprite ZSDOA1
 	obituary "%o was bucked by a zombie."
 	Health 0x7FFFFFFF
 	GibHealth -25
@@ -371,7 +368,6 @@ actor SawedOffShotgunGuy : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -423,12 +419,12 @@ ACTOR SawedOffShotgunGuy_Elite : SawedOffShotgunGuy {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-actor SawedOffShotgunGuy2 : DnD_BaseRangedMonster {
+actor SawedOffShotgunGuy2 : DnD_BaseRangedMonster 21032 {
+	//$Sprite AZSGA1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	painchance 224
@@ -451,7 +447,6 @@ actor SawedOffShotgunGuy2 : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -501,11 +496,11 @@ ACTOR SawedOffShotgunGuy2_Elite : SawedOffShotgunGuy2 {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SAWEDOFF2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
-Actor QuakeZombieShotgun : DnD_BaseRangedMonster {
+Actor QuakeZombieShotgun : DnD_BaseRangedMonster 21033 {
+	//$Sprite QZOMA1
 	Translation "128:143=25:40", "236:239=41:47"
 	Obituary "%o was killed by an enforcer captain."
 	Health 0x7FFFFFFF
@@ -526,7 +521,6 @@ Actor QuakeZombieShotgun : DnD_BaseRangedMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ZOMBIEQUAKE2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -578,12 +572,12 @@ ACTOR QuakeZombieShotgun_Elite : QuakeZombieShotgun {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ZOMBIEQUAKE2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-actor UndeadRogue : DnD_BaseHybridMonster {
+actor UndeadRogue : DnD_BaseHybridMonster 21034 {
+	//$Sprite 1083A1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	obituary "%o was bagged by an undead rogue."
@@ -606,7 +600,6 @@ actor UndeadRogue : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ROGUE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -686,7 +679,6 @@ ACTOR UndeadRogue_Elite : UndeadRogue {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ROGUE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }

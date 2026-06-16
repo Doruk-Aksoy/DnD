@@ -1,0 +1,89 @@
+:SeqQDoor1
+   door 4
+   playrepeat QuakeDoor/Move5
+   stopsound QuakeDoor/Stop1
+end
+
+:SeqQDoor2
+   door 5
+   playuntildone QuakeDoor/Move2
+   playrepeat QuakeElevator/Move4
+   stopsound QuakeDoor/Stop2
+end
+
+:SeqQDoor3
+   door 6
+   playuntildone QuakeDoor/Move3
+   playrepeat QuakeElevator/Move5
+   stopsound QuakeDoor/Stop3
+end
+
+:SeqQDoor4
+   door 7
+   playrepeat QuakeDoor/Move4
+   stopsound QuakeDoor/Stop4
+end
+
+:SeqQDoor5
+   door 8
+   playuntildone QuakeBase/Move1
+   playrepeat QuakeElevator/Move4
+   stopsound QuakeBase/Stop1
+end
+
+:SeqQDoor6
+   door 9
+   playuntildone QuakeBase/Move1
+   playrepeat QuakeBase/Move2
+   stopsound QuakeBase/Stop1
+end
+
+:SeqQPlat1
+   platform 1
+   playrepeat QuakeElevator/Move1
+   stopsound QuakeElevator/Stop1
+end
+
+:SeqQPlat2
+   platform 2
+   playuntildone QuakeBase/Move1
+   playrepeat QuakeElevator/Move4
+   stopsound QuakeBase/Stop1
+end
+
+:SeqQPlat3
+   platform 3
+   playuntildone QuakeElevator/Move2
+   playrepeat QuakeElevator/Move6
+   stopsound QuakeBase/Stop1
+end
+
+:SeqQPlat4
+   platform 4
+   playrepeat QuakePlatform/Move1
+   stopsound QuakeDoor/Stop2
+end
+
+:SeqQPlat5
+   platform 5
+   playrepeat QuakePlatform/Move1
+   stopsound QuakeDoor/Stop4
+end
+
+:SeqQPlat6
+   platform 6
+   playrepeat QuakePlatform/Move1
+   stopsound QuakeDoor/ElevatorStop2
+end
+
+:SeqQPlat7
+   platform 7
+   playrepeat QuakeDoor/Move5
+   stopsound QuakeDoor/Stop1
+end
+
+:SeqQPlat8
+	platform 8
+	playrepeat QuakeElevator/Move3
+	stopsound QuakeDoor/ElevatorStop2
+end

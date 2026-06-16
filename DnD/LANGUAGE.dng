@@ -1,0 +1,9 @@
+[enu default]
+
+DND_DKIMG1			        =	    "DNGTK00";
+
+DND_DUNGEONKEYN1            =       "Void Keep Fragment";
+
+DND_DUNGEONKEY1             =       "DungeonKey_0";
+
+DND_DUNGEONKEYTEXT1         =       "This eldritch key seems to guide towards a lost fortress within the void.";

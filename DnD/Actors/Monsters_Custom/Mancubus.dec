@@ -1,4 +1,5 @@
-Actor Corpulent : DnD_BaseRangedMonster {
+Actor Corpulent : DnD_BaseRangedMonster 21148 {
+	//$Sprite FAT2A1D1
 	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
@@ -20,7 +21,6 @@ Actor Corpulent : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CORPULENT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -177,12 +177,12 @@ ACTOR Corpulent_Elite : Corpulent {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CORPULENT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor Daedabus : DnD_BaseRangedMonster {
+Actor Daedabus : DnD_BaseRangedMonster 21149 {
+	//$Sprite DAEDA1
 	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
@@ -203,7 +203,6 @@ Actor Daedabus : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DAEDABUS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -326,12 +325,12 @@ ACTOR Daedabus_Elite : Daedabus {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DAEDABUS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-actor IceFatso : DnD_BaseRangedMonster {
+actor IceFatso : DnD_BaseRangedMonster 21150 {
+	//$Sprite FATTA1
 	obituary "%o was shatterred by an Ice Mancubus."
 	Health 0x7FFFFFFF
 	radius 48
@@ -467,7 +466,8 @@ ACTOR IceFatso_Elite : IceFatso {
 	}
 }
 
-Actor Mafibus : DnD_BaseRangedMonster {
+Actor Mafibus : DnD_BaseRangedMonster 21151 {
+	//$Sprite MFBSA1
 	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
@@ -489,7 +489,6 @@ Actor Mafibus : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MAFIBUS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -632,12 +631,12 @@ ACTOR Mafibus_Elite : Mafibus {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_MAFIBUS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Paladin : DnD_BaseHybridMonster {
+ACTOR Paladin : DnD_BaseHybridMonster 21152 {
+	//$Sprite HPALA1
 	Health 0x7FFFFFFF
 	Scale 1.15
 	Radius 32
@@ -661,7 +660,6 @@ ACTOR Paladin : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_PALADIN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -974,12 +972,12 @@ ACTOR Paladin_Elite : Paladin {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_PALADIN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-actor Gamon : DnD_BaseHybridMonster {
+actor Gamon : DnD_BaseHybridMonster 21153 {
+	//$Sprite VESTA1C1
 	obituary "%o was shocked by a Gamon."
 	Health 0x7FFFFFFF
 	radius 28
@@ -1006,7 +1004,6 @@ actor Gamon : DnD_BaseHybridMonster {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Gamon Shifter")
 			TNT1 A 0 A_SetArg(4, DND_GAMON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -1175,12 +1172,12 @@ ACTOR Gamon_Elite : Gamon {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_GAMON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor Mephisto : DnD_BaseRangedMonster {
+Actor Mephisto : DnD_BaseRangedMonster 21154 {
+	//$Sprite MMDRA1
 	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
@@ -1203,7 +1200,6 @@ Actor Mephisto : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MEPHISTO)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -1346,12 +1342,12 @@ ACTOR Mephisto_Elite : Mephisto {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_MEPHISTO)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor Abomination : DnD_BaseRangedMonster {
+Actor Abomination : DnD_BaseRangedMonster 21155 {
+	//$Sprite HFATA1
 	Health 0x7FFFFFFF
 	Radius 48
 	Height 64
@@ -1371,7 +1367,6 @@ Actor Abomination : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ABOMINATION)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1546,12 +1541,12 @@ ACTOR Abomination_Elite : Abomination {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ABOMINATION)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor GoldGolem : DnD_BaseHybridMonster {
+Actor GoldGolem : DnD_BaseHybridMonster 21156 {
+	//$Sprite GOL4A1
 	Obituary "%o's head was taken as a trophy for a Gold Golem."
 	HitObituary "%o was smashed like an insect by a Gold Golem."
 	Health 0x7FFFFFFF
@@ -1583,7 +1578,6 @@ Actor GoldGolem : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GOLDGOLEM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1633,7 +1627,7 @@ Actor GoldGolem : DnD_BaseHybridMonster {
 		ContinueDash:
 			GOL4 G 1 A_FaceTarget
 			TNT1 A 0 A_PlaySound("Golem/Slide")
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 25) // script sets velocity
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 25) // script sets velocity
 			GOL4 G 3 A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -8, -12, 0, 0, -2.5, 1)
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -8, 12, 0, 0, 2.5, 1)
@@ -1755,12 +1749,12 @@ ACTOR GoldGolem_Elite : GoldGolem {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_GOLDGOLEM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Redeemer : DnD_BaseHybridMonster {
+ACTOR Redeemer : DnD_BaseHybridMonster 21157 {
+	//$Sprite 13RFA1
 	Health 0x7FFFFFFF
 	Speed 8
 	Radius 48
@@ -1773,6 +1767,7 @@ ACTOR Redeemer : DnD_BaseHybridMonster {
 	DeathSound "Redeemer/death"
 	Obituary "%o was destroyed by a Redeemer."
 	MeleeRange 264
+	Tag "Redeemer"
 	+ISMONSTER
 	+MissileMore
 	+FLOORCLIP
@@ -1782,7 +1777,6 @@ ACTOR Redeemer : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_REDEEMER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -2015,12 +2009,12 @@ ACTOR Redeemer_Elite : Redeemer {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_REDEEMER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor Yeti : DnD_BaseHybridMonster {
+Actor Yeti : DnD_BaseHybridMonster 21158 {
+	//$Sprite YETIA1
 	Health 0x7FFFFFFF
 	Mass 1024
 	Height 64
@@ -2047,7 +2041,6 @@ Actor Yeti : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_YETI)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -2282,7 +2275,6 @@ ACTOR Yeti_Elite : Yeti {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_YETI)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }

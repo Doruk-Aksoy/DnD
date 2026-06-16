@@ -1,4 +1,5 @@
-ACTOR Cardinal : DnD_BaseRangedBoss { 
+ACTOR Cardinal : DnD_BaseRangedBoss 21178 { 
+	//$Sprite CARDA1
 	Health 0x7FFFFFFF
 	Speed 7
 	Radius 40
@@ -25,7 +26,6 @@ ACTOR Cardinal : DnD_BaseRangedBoss {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CARDINAL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -316,12 +316,12 @@ ACTOR Cardinal_Elite : Cardinal {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CARDINAL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR TerminatorX : DnD_BaseRangedBoss {
+ACTOR TerminatorX : DnD_BaseRangedBoss 21179 {
+	//$Sprite TERMA1
 	Health 0x7FFFFFFF
 	Radius 40
 	Height 110
@@ -347,7 +347,6 @@ ACTOR TerminatorX : DnD_BaseRangedBoss {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_TERMINATOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -691,12 +690,12 @@ ACTOR TerminatorX_Elite : TerminatorX {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_TERMINATOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-Actor Thamuz : DnD_BaseRangedBoss {
+Actor Thamuz : DnD_BaseRangedBoss 21180 {
+	//$Sprite CYBRA1
 	Health 0x7FFFFFFF
 	Speed 16
 	PainChance 35
@@ -720,7 +719,6 @@ Actor Thamuz : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_THAMUZ)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -1135,12 +1133,12 @@ ACTOR Thamuz_Elite : Thamuz {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_THAMUZ)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-actor Azazel : DnD_BaseHybridBoss {
+actor Azazel : DnD_BaseHybridBoss 21181 {
+	//$Sprite AZEWA1
     Health 0x7FFFFFFF
     Radius 40
     Height 100
@@ -1168,7 +1166,6 @@ actor Azazel : DnD_BaseHybridBoss {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_AZAZEL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1707,12 +1704,12 @@ ACTOR Azazel_Elite : Azazel {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_AZAZEL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR HellsmithX : DnD_BaseHybridBoss { 
+ACTOR HellsmithX : DnD_BaseHybridBoss 21182 { 
+	//$Sprite BSMTA1C1
 	Health 0x7FFFFFFF
 	Radius 40
 	Height 110
@@ -1740,7 +1737,6 @@ ACTOR HellsmithX : DnD_BaseHybridBoss {
 	States  {  
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HELLSMITH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -2381,12 +2377,12 @@ ACTOR HellsmithX_Elite : HellsmithX {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_HELLSMITH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR AvatarOfChaos : DnD_BaseRangedBoss { 
+ACTOR AvatarOfChaos : DnD_BaseRangedBoss 21183 { 
+	//$Sprite AVATA1C1
 	Health 0x7FFFFFFF
 	PainChance 4
 	Speed 15 
@@ -2411,7 +2407,6 @@ ACTOR AvatarOfChaos : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_AVATAR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -3550,12 +3545,12 @@ ACTOR AvatarOfChaos_Elite : AvatarOfChaos {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_AVATAR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor Thanatos : DnD_BaseRangedBoss {
+Actor Thanatos : DnD_BaseRangedBoss 21184 {
+	//$Sprite 4NNIA1C1
 	Translation "0:255=%[0.00,0.00,0.00]:[0.81,0.53,0.53]", "16:47=16:47", "168:255=168:255", "80:111=80:111"
 	Obituary "%o was wiped off the face of Earth by a Thanatos."
 	Health 0x7FFFFFFF
@@ -3582,7 +3577,6 @@ Actor Thanatos : DnD_BaseRangedBoss {
 	States {  
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_THANATOS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -3916,12 +3910,12 @@ ACTOR Thanatos_Elite : Thanatos {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_THAMUZ)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	}
 }
 
-actor Cerberus : DnD_BaseRangedBoss {
+actor Cerberus : DnD_BaseRangedBoss 21185 {
+	//$Sprite CERBA1
 	obituary "%o didn't approach Cerberus the right way."
 	Health 0x7FFFFFFF
 	radius 40
@@ -3946,7 +3940,6 @@ actor Cerberus : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CERBERUS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -4208,12 +4201,12 @@ ACTOR Cerberus_Elite : Cerberus {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CERBERUS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR DeathWyvern : DnD_BaseRangedBoss {
+ACTOR DeathWyvern : DnD_BaseRangedBoss 21186 {
+	//$Sprite DRAGA1
 	Health 0x7FFFFFFF
 	PainChance 128
 	Speed 15
@@ -4240,7 +4233,6 @@ ACTOR DeathWyvern : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEATHWYVERN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -4445,7 +4437,6 @@ ACTOR DeathWyvern_Elite : DeathWyvern {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DEATHWYVERN)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }

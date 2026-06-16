@@ -1,4 +1,5 @@
-actor BloodSatyr : DnD_BaseHybridMonster {
+actor BloodSatyr : DnD_BaseHybridMonster 21120 {
+	//$Sprite STYRA1
     Health 0x7FFFFFFF
 	GibHealth -100
     Radius 24
@@ -186,7 +187,8 @@ ACTOR BloodSatyr_Elite : BloodSatyr {
 	}
 }
 
-Actor HellWarrior : DnD_BaseHybridMonster {
+Actor HellWarrior : DnD_BaseHybridMonster 21121 {
+	//$Sprite HWARA1
 	Health 0x7FFFFFFF
 	GibHealth -100
 	Speed 8
@@ -209,7 +211,6 @@ Actor HellWarrior : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HELLWARRIOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -380,13 +381,12 @@ ACTOR HellWarrior_Elite : HellWarrior {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_HELLWARRIOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-Actor HellsFury : DnD_BaseHybridMonster {
-	//$Category Monsters
+Actor HellsFury : DnD_BaseHybridMonster 21122 {
+	//$Sprite HFRYA1
 	Health 0x7FFFFFFF
 	GibHealth -100
 	Radius 24
@@ -408,7 +408,6 @@ Actor HellsFury : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HELLSFURY)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -535,12 +534,12 @@ ACTOR HellsFury_Elite : HellsFury {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_HELLSFURY)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-Actor ArchonOfHell : DnD_BaseHybridMonster { 
+Actor ArchonOfHell : DnD_BaseHybridMonster 21123 { 
+	//$Sprite BOS4A1C1
 	Health 0x7FFFFFFF
 	GibHealth -100
 	Radius 24 
@@ -564,7 +563,6 @@ Actor ArchonOfHell : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_ARCHON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -717,12 +715,12 @@ ACTOR ArchonOfHell_Elite : ArchonOfHell {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ARCHON)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor WarlordOfHell : DnD_BaseHybridMonster { 
+Actor WarlordOfHell : DnD_BaseHybridMonster 21124 { 
+	//$Sprite BOS2A1C1
 	Health 0x7FFFFFFF
 	GibHealth -100
 	Radius 24
@@ -745,7 +743,6 @@ Actor WarlordOfHell : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_WARLORD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -865,12 +862,12 @@ ACTOR WarlordOfHell_Elite : WarlordOfHell {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_WARLORD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR ShadowBeast : DnD_BaseRangedMonster {
+ACTOR ShadowBeast : DnD_BaseRangedMonster 21125 {
+	//$Sprite BDEMA1
 	OBITUARY "%o was killed by a shadow beast."
 	Bloodcolor "70 AC 00"
 	Health 0x7FFFFFFF
@@ -893,7 +890,6 @@ ACTOR ShadowBeast : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SHADOWBEAST)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1112,12 +1108,12 @@ ACTOR ShadowBeast_Elite : ShadowBeast {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SHADOWBEAST)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-actor BlackKnight : DnD_BaseHybridMonster {
+actor BlackKnight : DnD_BaseHybridMonster 21126 {
+	//$Sprite TM04A1
 	Health 0x7FFFFFFF
 	Radius 24
 	Height 64
@@ -1143,7 +1139,6 @@ actor BlackKnight : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BLACKKNIGHT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1178,11 +1173,11 @@ actor BlackKnight : DnD_BaseHybridMonster {
 		Charge:
 			TNT1 A 0 A_PlaySound("dknight/sight")
 			TNT1 A 0 A_FaceTarget
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14) // script sets velocity, ensures no dropoff
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 14) // script sets velocity, ensures no dropoff
 			TNT1 A 0 A_ChangeFlag("SKULLFLY", 1)
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 		ChargeLoop:
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 14)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 14)
 			TM04 MNOP 3 A_FaceTarget
 		Loop
 		PainState:
@@ -1251,12 +1246,12 @@ ACTOR BlackKnight_Elite : BlackKnight {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_BLACKKNIGHT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor SkullWizard : DnD_BaseHybridMonster {
+Actor SkullWizard : DnD_BaseHybridMonster 21127 {
+	//$Sprite SKWZA1
 	Obituary "%o succumbed to a Skull Wizard's magic."
 	Health 0x7FFFFFFF
 	Radius 21
@@ -1280,7 +1275,6 @@ Actor SkullWizard : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SKULLWIZARD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1460,12 +1454,12 @@ ACTOR SkullWizard_Elite : SkullWizard {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SKULLWIZARD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor CyborgWarrior : DnD_BaseHybridMonster { 
+Actor CyborgWarrior : DnD_BaseHybridMonster 21128 { 
+	//$sprite QQMNA1
 	Health 0x7FFFFFFF
 	Radius 24 
 	Height 64 
@@ -1487,7 +1481,6 @@ Actor CyborgWarrior : DnD_BaseHybridMonster {
 	States  { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CYBORGWARRIOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1629,12 +1622,12 @@ ACTOR CyborgWarrior_Elite : CyborgWarrior {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CYBORGWARRIOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR ChaosSerpent : DnD_BaseHybridMonster {
+ACTOR ChaosSerpent : DnD_BaseHybridMonster 21129 {
+	//$Sprite DEMNA1
 	Health 0x7FFFFFFF
 	GibHealth -100
 	PainChance 64
@@ -1656,7 +1649,6 @@ ACTOR ChaosSerpent : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHAOSSERPENT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1771,12 +1763,12 @@ ACTOR ChaosSerpent_Elite : ChaosSerpent {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CHAOSSERPENT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor MoonSatyr : DnD_BaseHybridMonster {
+Actor MoonSatyr : DnD_BaseHybridMonster 21130 {
+	//$Sprite STYRA1
     Health 0x7FFFFFFF
 	GibHealth -100
     Radius 24
@@ -1803,7 +1795,6 @@ Actor MoonSatyr : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MOONSATYR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1956,12 +1947,12 @@ ACTOR MoonSatyr_Elite : MoonSatyr {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_MOONSATYR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor IceGolem : DnD_BaseHybridMonster { 
+Actor IceGolem : DnD_BaseHybridMonster 21131 { 
+	//$Sprite GOL3A1
     Health 0x7FFFFFFF
     Speed 6
 	Scale 1.2
@@ -1990,7 +1981,6 @@ Actor IceGolem : DnD_BaseHybridMonster {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Translucency Weave")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 3), 2)
 			TNT1 A 0 A_SetArg(4, DND_ICEGOLEM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 			
 		IdleState:
@@ -2029,7 +2019,7 @@ Actor IceGolem : DnD_BaseHybridMonster {
 		ContinueDash:
 			GOL3 G 1 A_FaceTarget
 			TNT1 A 0 A_PlaySound("Golem/Slide")
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 27) // script sets velocity
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 27) // script sets velocity
 			GOL3 G 3 A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -8, -12, 0, 0, -2.5, 1)
 			TNT1 A 0 A_SpawnItemEx("GrenadeSmoke", -8, 12, 0, 0, 2.5, 1)
@@ -2173,12 +2163,12 @@ ACTOR IceGolem_Elite : IceGolem {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ICEGOLEM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor Gladiator : DnD_BaseHybridMonster {
+Actor Gladiator : DnD_BaseHybridMonster 21132 {
+	//$Sprite GLADA1
 	Health 0x7FFFFFFF
 	GibHealth -100
 	Radius 24
@@ -2199,7 +2189,6 @@ Actor Gladiator : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GLADIATOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2336,12 +2325,12 @@ ACTOR Gladiator_Elite : Gladiator {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_GLADIATOR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor Putrefier : DnD_BaseHybridMonster {
+Actor Putrefier : DnD_BaseHybridMonster 21133 {
+	//$Sprite 9TRFA1
 	Health 0x7FFFFFFF
 	PainChance 84
 	Speed 8
@@ -2357,6 +2346,7 @@ Actor Putrefier : DnD_BaseHybridMonster {
 	ActiveSound "Putrefier/active"
 	HitObituary "%o was clawed by a Putrefier."
 	Obituary "%o was vaporized by a Putrefier."
+	Tag "Putrefier"
 	Renderstyle Translucent
 	+ISMONSTER
 	+NOBLOOD
@@ -2365,7 +2355,6 @@ Actor Putrefier : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_PUTREFIER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -2495,7 +2484,6 @@ ACTOR Putrefier_Elite : Putrefier {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_PUTREFIER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }

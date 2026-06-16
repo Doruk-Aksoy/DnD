@@ -199,11 +199,11 @@ void SpawnResearch(int pnum, bool noRepeat = false) {
 			drop_rate = i + P_TIDSTART;
 			// spawn this only if this isn't already found by the player
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckActorResearchStatus(drop_rate, temp))
-				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp);
+				SpawnDrop("ResearchModule_MP", 24.0, 16, i + 1, temp, false, drop_rate);
 		}
 	}
 	else if(!CheckResearchStatus(temp)) // 1 before temp is player (0 + 1)
-		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp);
+		SpawnDrop("ResearchModule_MP", 24.0, 16, 1, temp, false, P_TIDSTART);
 	
 	// input "noRepeat" as true so we don't call this again
 	//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)

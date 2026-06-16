@@ -1,7 +1,5 @@
 Actor ArachnoSpawner : DnD_MonsterSpawner replaces Arachnotron {
 	//$Sprite BSPIA1D1
-	//$Height 64
-	//$Radius 64
 	Health 0x7FFFFFFF
 	-COUNTKILL
 	-SOLID

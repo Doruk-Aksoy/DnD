@@ -1250,3 +1250,23 @@ monster/hamflr                dshamflr
 monster/hamhit                dshamhit
 monster/hamsht                dshamsht
 monster/dash                  dshdash
+
+TornadoFX						TORNADO
+
+// Dungeons
+
+BloodGolem/See				  	UM0SEE
+BloodGolem/Pain1				UM0PN1
+BloodGolem/Pain2				UM0PN2
+$random BloodGolem/Pain { BloodGolem/Pain1 BloodGolem/Pain2 }
+BloodGolem/Act1					UM0ACT1
+BloodGolem/Act2					UM0ACT2
+$random BloodGolem/Act { BloodGolem/Act1 BloodGolem/Act2 }
+BloodGolem/Attack1				UM0ATK1
+BloodGolem/Attack2				UM0ATK2
+$random BloodGolem/Attack { BloodGolem/Attack1 BloodGolem/Attack2 }
+BloodGolem/Death				UM0DTH
+BloodGolem/Dash					UM0DASH
+
+Shambler/Attack					SHAMATK
+Shambler/Hit					SHAMHIT

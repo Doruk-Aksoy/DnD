@@ -31,7 +31,6 @@ ACTOR CyclopsFlemoid : DnD_BaseMeleeMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_CHEX_CYCLOPS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		SeeState:
@@ -78,7 +77,6 @@ ACTOR CyclopsFlemoid_Elite : CyclopsFlemoid {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_CHEX_CYCLOPS)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }

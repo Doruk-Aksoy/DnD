@@ -1,4 +1,5 @@
 Actor WolfenSS_Spawner : DnD_MonsterSpawner replaces WolfensteinSS {
+	//$Sprite SSWVA2
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_NAZIID)

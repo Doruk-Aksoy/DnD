@@ -212,7 +212,9 @@ Actor NewShellBox : CustomInventory {
 	}
 }
 
-Actor Slot3AmmoContainer : CustomInventory {
+Actor Slot3AmmoContainer : CustomInventory 16750 {
+	//$Category Ammunition
+	//$title Slot 3 Ammo Box
 	Radius 20
 	Height 20
 	inventory.pickupsound "items/ammo"
@@ -239,7 +241,9 @@ Actor Slot3AmmoBigSpawner : RandomSpawner replaces ShellBox {
 	DropItem "Slot3AmmoContainer", 255, 8
 }
 
-Actor Slot4AmmoContainer : Slot3AmmoContainer {
+Actor Slot4AmmoContainer : Slot3AmmoContainer 16751 {
+	//$Category Ammunition
+	//$title Slot 4 Ammo Box
 	Translation "78:78=5:5", "125:126=108:109", "154:159=96:106"
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Slot 4 Ammos\c-"
 	Radius 20
@@ -306,8 +310,10 @@ Actor RocketBox2 : CustomInventory {
 	}
 }
 
-Actor Slot5AmmoContainer : Slot3AmmoContainer
+Actor Slot5AmmoContainer : Slot3AmmoContainer 16752
 {
+	//$Category Ammunition
+	//$title Slot 5 Ammo Box
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Slot 5 Ammos\c-"
 	Radius 20
 	Height 16
@@ -374,7 +380,9 @@ Actor Cellpack2 : CustomInventory {
 	}
 }
 
-Actor Slot6AmmoContainer : Slot3AmmoContainer {
+Actor Slot6AmmoContainer : Slot3AmmoContainer 16753 {
+	//$Category Ammunition
+	//$title Slot 6 Ammo Box
 	Translation "238:238=197:197", "167:167=196:196"
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Slot 6 Ammos\c-"
 	Radius 20
@@ -418,7 +426,9 @@ Actor Souls : Ammo
 	}
 }
 
-Actor SoulsDrop : CustomInventory {
+Actor SoulsDrop : CustomInventory 16754 {
+	//$Category Ammunition
+	//$title Souls
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 1\c-"
 	Radius 20
 	Height 16
@@ -436,7 +446,9 @@ Actor SoulsDrop : CustomInventory {
 	}
 }
 
-Actor LargeSoulsDrop : SoulsDrop {
+Actor LargeSoulsDrop : SoulsDrop 16755 {
+	//$Category Ammunition
+	//$title Large Souls
 	inventory.pickupmessage "\ccAmmo pickup   : \c[Y5]Souls x 3\c-"
 	States {
 		Spawn:

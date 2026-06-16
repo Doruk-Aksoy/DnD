@@ -1,7 +1,5 @@
 Actor BaronSpawner : DnD_MonsterSpawner replaces BaronOfHell {
 	//$Sprite BOSSA1
-	//$Height 64
-	//$Radius 24
 	Health 0x7FFFFFFF
 	-COUNTKILL
 	-SOLID

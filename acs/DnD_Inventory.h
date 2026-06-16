@@ -53,6 +53,8 @@
 #define MAX_REFLRESIST_VAL 1000 // 1000 because we use 1 as 0.1% so 1000 is 100%
 #define MAX_WEAKEN_VAL 200
 
+#define DND_SYNERGYITEM_CHANCE 0.125
+
 enum {
 	SMALLCHARM_INDEX1,
 	SMALLCHARM_INDEX2,
@@ -339,6 +341,8 @@ enum {
 	IIMG_FLASK_UTILITY_QUICKSILVER,
 	IIMG_FLASK_UTILITY_QUARTZ,
 
+	IIMG_DUNGEONKEY_VOIDKEEP = 4000,
+
 	MAX_ITEM_IMAGES
 };
 
@@ -361,6 +365,9 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_ORB_BEGIN IIMG_ORB_1
 #define ITEM_IMAGE_KEY_BEGIN IIMG_CKEY_1
 #define ITEM_IMAGE_TOKEN_BEGIN IIMG_TOKEN_ARMORER
+
+#define ITEM_IMAGE_DUNGEONKEY_BEGIN IIMG_DUNGEONKEY_VOIDKEEP
+#define ITEM_IMAGE_DUNGEONKEY_END IIMG_DUNGEONKEY_VOIDKEEP
 
 #define ITEM_IMAGE_ARMOR_BEGIN IIMG_ARM_1
 #define ITEM_IMAGE_ARMOR_END IIMG_ARM_18
@@ -528,10 +535,15 @@ str GetItemImage(int id, bool wide = false) {
 		img_prefix = "T";
 		suffix = id - ITEM_IMAGE_TOKEN_BEGIN + 1;
 	}
-	else {
+	else if(id <= ITEM_IMAGE_FLASK_END) {
 		// flask
 		img_prefix = "FL";
 		suffix = id - ITEM_IMAGE_FLASK_BEGIN + 1;
+	}
+	else {
+		// dungeon key
+		img_prefix = "DK";
+		suffix = id - ITEM_IMAGE_DUNGEONKEY_BEGIN + 1;
 	}
 	//Log(l:StrParam(d:id, s:" ==>", s:"DND_", s:img_prefix, s:"IMG", d:suffix));
 	return StrParam(l:StrParam(s:"DND_", s:img_prefix, s:"IMG", d:suffix));
@@ -723,6 +735,7 @@ bool IsStackedItem(int type) {
 		case DND_ITEM_ORB:
 		case DND_ITEM_CHESTKEY:
 		case DND_ITEM_TOKEN:
+		case DND_ITEM_DUNGEONKEY:
 		return true;
 	}
 	return false;
@@ -1113,7 +1126,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 
 // based on average player level
 int RollItemLevel() {
-	int res = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+	int res = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
 	if(!res)
 		res = 1;
 	
@@ -1121,13 +1134,13 @@ int RollItemLevel() {
 	// if that 33% chance rolls then there's a 50-50 chance that it'll be either min - max level players or something much closer to lower lvl player
 	if(!random(0, 2)) {
 		if(random(0, 1))
-			return random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL]);
-		res = random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] + 2 * ITEMLEVEL_VARIANCE_HIGHER);
+			return random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MAXPLAYERLEVEL]);
+		res = random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MINPLAYERLEVEL] + 2 * ITEMLEVEL_VARIANCE_HIGHER);
 		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
 		return res;
 	}
 
-	int pavg = PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / res;
+	int pavg = InformationInLevel[LEVELINFO_PLAYERLEVEL] / res;
 	if(pavg > 2 * ITEMLEVEL_VARIANCE_LOWER) {
 		res = pavg + random(-ITEMLEVEL_VARIANCE_LOWER, ITEMLEVEL_VARIANCE_HIGHER);
 		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
@@ -1157,7 +1170,7 @@ int IsAttribInItem(int pnum, int item_pos, int attrib_id) {
 
 // find the item that has a min, if basis isn't -1 then we must exclude this from inclusion to min
 int FindMinOnUsedCharmsForAttribute(int pnum, int attrib_index, int basis) {
-	int res = -1, temp, compare = INT_MAX;
+	int res = -1, temp, compare = bcs::INT_MAX;
 	for(int i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
 		if(i == basis)
 			continue;
@@ -1952,6 +1965,8 @@ int GetInventoryInfoOffset(int itype) {
 		return ORBS_BEGIN;
 		case DND_ITEM_TOKEN:
 		return TOKEN_BEGIN;
+		case DND_ITEM_DUNGEONKEY:
+		return DUNGEONKEY_BEGIN;
 	}
 	return 0;
 }
@@ -2433,6 +2448,8 @@ void StackedItemPickupCS(int item_index, int type) {
 		ACS_NamedExecuteAlways("DnD Chestkey Message", 0, Inventories_On_Field[item_index].item_subtype);
 	else if(type == DND_STACKEDITEM_TOKEN)
 		ACS_NamedExecuteAlways("DnD Token Message", 0, Inventories_On_Field[item_index].item_subtype);
+	else if(type == DND_STACKEDITEM_DUNGEONKEY)
+		ACS_NamedExecuteAlways("DnD Dungeon Key Message", 0, Inventories_On_Field[item_index].item_subtype);
 }
 
 // move this from field to player's inventory
@@ -2971,7 +2988,7 @@ void ProcessItemFeature(int pnum, int item_index, int source, int aindex, bool r
 
 	if(multiplier != 100) {
 		if(!IsAttributeQualityException(atype)) {
-			if(aval > INT_MAX / multiplier) {
+			if(aval > bcs::INT_MAX / multiplier) {
 				aval /= 100;
 				aval *= multiplier;
 			}
@@ -3049,7 +3066,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 	int i, temp;
 
 	if(multiplier != 100) {
-		if(aval > INT_MAX / multiplier) {
+		if(aval > bcs::INT_MAX / multiplier) {
 			aval /= 100;
 			aval *= multiplier;
 		}
@@ -3940,13 +3957,8 @@ int PickUniqueItem(int item_type, int unique_id = -1) {
 	}
 
 	if(unique_id == -1) {
-		if(GetCVar("dnd_ignore_dropweights")) {
-			i = random(beg, end);
-		}
-		else {
-			w = random(1, w);
-			for(i = beg; i <= end && w > UniqueItemList[i].weight; ++i);
-		}
+		w = random(1, w);
+		for(i = beg; i <= end && w > UniqueItemList[i].weight; ++i);
 
 		#ifdef ISDEBUGBUILD
 			if(item_type == DND_ITEM_CHARM) {
@@ -4290,6 +4302,53 @@ bool GetItemMaxQuality(int pnum, int item_index) {
 
 Script "DnD Check Item Collision" (void) {
 	SetResultValue(Spawn("DnD_ItemCollisionChecker", GetActorX(0), GetActorY(0), GetActorZ(0)));
+}
+
+// This is ran on spawned items on field
+int CheckItemSynergy(int synergy_roll, int item_pos, int synergy_boost) {
+	static int tags_found[MAX_ATTRIB_TAG_GROUPS];
+
+	int chance = DND_SYNERGYITEM_CHANCE;
+	if(synergy_boost != -1)
+		chance = chance * synergy_boost / 100;
+
+	if(synergy_roll == -2 && random(0, 1.0) <= chance) {
+		// pick one of the random mods on the existing item to be the target mod tag to go after
+		synergy_roll = random(0, Inventories_On_Field[item_pos].attrib_count - 1);
+
+		// pick a random tag if its got multiple then give it +1, as it expects +1 of it
+		synergy_roll = Inventories_On_Field[item_pos].attributes[synergy_roll].attrib_id;
+		synergy_roll = ItemModTable[synergy_roll].tags;
+
+		int i, j, temp;
+		if(synergy_roll & (synergy_roll - 1)) {
+			// not power of two so its got multiple tags in it, process it to pick a random one
+			for(i = 0; i < MAX_ATTRIB_TAG_GROUPS; ++i)
+				tags_found[i] = 0;
+
+			i = 0;			// holds tags found
+			j = 0;			// counter
+			while(synergy_roll) {
+				if(synergy_roll & 1)
+					tags_found[i++] = j + 1; // we store +1 here already
+				synergy_roll >>= 1;
+				++j;
+			}
+
+			// pick random bit from the obtained total
+			synergy_roll = tags_found[random(0, i - 1)];
+		}
+		else {
+			j = 0;
+			while(synergy_roll) {
+				synergy_roll >>= 1;
+				++j;
+			}
+			synergy_roll = j;
+		}
+	}
+	//printbold(s:"item ", d:item_pos, s:" picked synergy id ", d:synergy_roll - 1);
+	return synergy_roll;
 }
 
 #include "DnD_Token.h"

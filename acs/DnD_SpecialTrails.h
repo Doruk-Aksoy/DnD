@@ -69,20 +69,18 @@ void LineDraw(int actortype, int sx, int sy, int sz, int dx, int dy, int dz, int
     pointCount  = magnitude / density;
     pointOffset = magnitude - (pointCount * density);
 
-    if (magnitude != 0) {
-        nX = dx / magnitude; nY = dy / magnitude; nZ = dz / magnitude;
+	nX = dx / magnitude; nY = dy / magnitude; nZ = dz / magnitude;
 
-        int i; int j;
-        for (i = 1; i < pointCount; ++i) {
-            j = (i * density) + pointOffset;
+	int i; int j;
+	for (i = 1; i < pointCount; ++i) {
+		j = (i * density) + pointOffset;
 
-            bX = (nX * j) + sx;
-            bY = (nY * j) + sy;
-            bZ = (nZ * j) + sz;
+		bX = (nX * j) + sx;
+		bY = (nY * j) + sy;
+		bZ = (nZ * j) + sz;
 
-			SpawnForced(DnD_TrailDef[actortype].actor, bX, bY, bZ);
-        }
-    }
+		SpawnForced(DnD_TrailDef[actortype].actor, bX, bY, bZ);
+	}
 }
 
 Script "DnD Overload Zap FX" (int source, int dest) CLIENTSIDE {

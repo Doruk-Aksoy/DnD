@@ -653,6 +653,8 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 }
 
 Script "DND Clientside Item Syncer" (int pnum, int var, int to, int extra) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
 	/*if(ConsolePlayerNumber() != pnum)
 		Terminate;*/
 	SetItemSyncValue(pnum, var & 0xFF, extra & 0xFFFF, extra >> 16, to, ((var & 0xFF00) >> 8) | (var & 0xFF0000));
@@ -660,6 +662,9 @@ Script "DND Clientside Item Syncer" (int pnum, int var, int to, int extra) CLIEN
 }
 
 Script "DND Clientside Item Syncer Special" (int pnum, int var, int to, int extra) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
 	/*if(ConsolePlayerNumber() != pnum)
 		Terminate;*/
 	Delay(1);
@@ -677,6 +682,9 @@ Script "DND Clientside Item Syncer Field" (int var, int to, int extra) CLIENTSID
 }
 
 Script "DND Clientside Weapon Mod Sync" (int wepid, int mod, int val, int tier) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
 	int pnum = wepid >> 16;
 	wepid &= 0xFFFF;
 
@@ -983,12 +991,16 @@ void SyncAllClientsideVariables(int pnum) {
 }
 
 Script "DnD Request Mod Sync" (int pnum, int mod, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	PlayerModValues[pnum][mod] = val;
 	SetResultValue(0);
 }
 
 Script "DnD Request Mod Sync (Special)" (int pnum, int mod, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	Delay(const:1);
 	PlayerModValues[pnum][mod] = val;
@@ -996,12 +1008,16 @@ Script "DnD Request Mod Sync (Special)" (int pnum, int mod, int val) CLIENTSIDE 
 }
 
 Script "DnD Request Mod Extra Sync" (int pnum, int mod, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	PlayerModExtras[pnum][mod] = val;
 	SetResultValue(0);
 }
 
 Script "DnD Request Mod Extra Sync (Special)" (int pnum, int mod, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	Delay(const:1);
 	PlayerModExtras[pnum][mod] = val;
@@ -1009,6 +1025,9 @@ Script "DnD Request Mod Extra Sync (Special)" (int pnum, int mod, int val) CLIEN
 }
 
 Script "DnD Handle Attribute Sync" (int pnum) {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
 	Delay(const:1);
 
 	int cnt = PlayerAttributeSyncs[pnum].count;

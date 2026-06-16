@@ -35,6 +35,8 @@ enum {
 	DND_MON_RNG_4,
 	DND_MON_RNG_5,
 	DND_MON_RNG_6,
+	DND_MON_RNG_7,
+	DND_MON_RNG_8,
 
 	DND_MAX_MONSTER_PRECALC_RNG
 };
@@ -71,6 +73,7 @@ global mo_prop_T 26: PetMonsterProperties[DND_MAX_PETS];
 typedef struct {
 	int health;
 	int flags;
+	int rarity;
 	bool trait_list[MAX_MONSTER_TRAITS_STORED];
 } monster_data_T;
 
@@ -429,9 +432,10 @@ enum {
 	MONSTER_ABYSS_CYBERDEMON,
 	MONSTER_ABYSS_MOTHERDEMON,
 
-	MONSTER_ULTIMATUM_BLOODGOLEM,
-	MONSTER_ULTIMATUM_DEMENTOR,
-	MONSTER_ULTIMATUM_VASSAGO,
+	MONSTER_DUNGEON_BLOODGOLEM,
+	MONSTER_DUNGEON_DEMENTOR,
+	MONSTER_DUNGEON_VASSAGO,
+	MONSTER_DUNGEON_SHAMBLER,
 
 	DND_LASTMONSTER_INDEX,
 	
@@ -551,6 +555,24 @@ enum {
 
 bool IsIncursionMonster(int m_id) {
 	return MonsterProperties[m_id].id >= DND_FIRST_INCURSIONMONSTER && MonsterProperties[m_id].id <= DND_LAST_INCURSIONMONSTER;
+}
+
+bool IsLootChestDroppingMonster(int m_id) {
+	bool category_ok = false;
+	switch(MonsterProperties[m_id].class) {
+		case MONSTERCLASS_HELLKNIGHT:
+		case MONSTERCLASS_BARON:
+		case MONSTERCLASS_FATSO:
+		case MONSTERCLASS_ARACHNOTRON:
+		case MONSTERCLASS_ARCHVILE:
+		case MONSTERCLASS_SPIDERMASTERMIND:
+		case MONSTERCLASS_CYBERDEMON:
+			category_ok = true;
+		break;
+	}
+
+	// rarer than VERYRARE and fitting category
+	return category_ok && MonsterProperties[m_id].rarity <= DND_MWEIGHT_VERYRARE;
 }
 
 #define DND_BOSS_BEGIN MONSTER_DEMOLISHER

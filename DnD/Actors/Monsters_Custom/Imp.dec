@@ -1,5 +1,5 @@
-actor STDarkImp : DnD_BaseHybridMonster {
-	//$Category Monsters
+actor STDarkImp : DnD_BaseHybridMonster 21045 {
+	//$Sprite DRKSA1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -22,7 +22,6 @@ actor STDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DARKIMP1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -117,13 +116,12 @@ ACTOR STDarkImp_Elite : STDarkImp {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DARKIMP1)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-actor NamiDarkImp : DnD_BaseHybridMonster {
-	//$Category Monsters
+actor NamiDarkImp : DnD_BaseHybridMonster 21046 {
+	//$Sprite DRKIA1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -145,7 +143,6 @@ actor NamiDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DARKIMP2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -233,13 +230,12 @@ ACTOR NamiDarkImp_Elite : NamiDarkImp {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DARKIMP2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-actor VoidDarkImp : DnD_BaseHybridMonster {
-	//$Category Monsters
+actor VoidDarkImp : DnD_BaseHybridMonster 21047 {
+	//$Sprite DRKVA1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -261,7 +257,6 @@ actor VoidDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_VOIDDARKIMP)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -397,12 +392,12 @@ ACTOR VoidDarkImp_Elite : VoidDarkImp {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_VOIDDARKIMP)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-actor NetherDarkImp : DnD_BaseHybridMonster {
+actor NetherDarkImp : DnD_BaseHybridMonster 21048 {
+	//$Sprite DRKVA1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -428,7 +423,6 @@ actor NetherDarkImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_NETHERDARKIMP)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -582,12 +576,12 @@ ACTOR NetherDarkImp_Elite : NetherDarkImp {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_NETHERDARKIMP)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor ImpAbomination : DnD_BaseHybridMonster {
+Actor ImpAbomination : DnD_BaseHybridMonster 21049 {
+	//$Sprite TRO5A1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	Tag "Imp Abomination"
@@ -609,7 +603,6 @@ Actor ImpAbomination : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_IMPABOM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -660,12 +653,12 @@ ACTOR ImpAbomination_Elite : ImpAbomination {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_IMPABOM)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-Actor STImp : DnD_BaseHybridMonster {
+Actor STImp : DnD_BaseHybridMonster 21050 {
+	//$Sprite TRO3A1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -772,7 +765,8 @@ ACTOR STImp_Elite : STImp {
 	}
 }
 
-Actor VoidImp : DnD_BaseHybridMonster {
+Actor VoidImp : DnD_BaseHybridMonster 21051 {
+	//$Sprite TRO4A1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -882,7 +876,8 @@ ACTOR VoidImp_Elite : VoidImp {
 	}
 }
 
-actor SoulHarvester : DnD_BaseHybridMonster {
+actor SoulHarvester : DnD_BaseHybridMonster 21052 {
+	//$Sprite SLHVA1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -1018,8 +1013,8 @@ ACTOR SoulHarvester_Elite : SoulHarvester {
 	}
 }
 
-actor PyroImp : DnD_BaseHybridMonster {
-	//$Category monsters
+actor PyroImp : DnD_BaseHybridMonster 21053 {
+	//$Sprite PRIMA1C1
     Health 0x7FFFFFFF
 	GibHealth -25
     Radius 20
@@ -1042,7 +1037,6 @@ actor PyroImp : DnD_BaseHybridMonster {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_PYROIMP)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1225,12 +1219,12 @@ ACTOR PyroImp_Elite : PyroImp {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_PYROIMP)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-actor Devil : DnD_BaseHybridMonster {
+actor Devil : DnD_BaseHybridMonster 21054 {
+	//$Sprite TRO2A1C1
 	obituary "%o was fried by a Devil."
 	hitobituary "%o was flayed by a Devil."
 	Health 0x7FFFFFFF
@@ -1254,7 +1248,6 @@ actor Devil : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEVIL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1316,12 +1309,12 @@ ACTOR Devil_Elite : Devil {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DEVIL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-actor Devil2 : DnD_BaseHybridMonster {
+actor Devil2 : DnD_BaseHybridMonster 21055 {
+	//$Sprite TRO6A1C1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	Painchance 128
@@ -1345,7 +1338,6 @@ actor Devil2 : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEVIL2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1484,12 +1476,12 @@ ACTOR Devil2_Elite : Devil2 {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DEVIL2)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-actor Vulgar : DnD_BaseHybridMonster {
+actor Vulgar : DnD_BaseHybridMonster 21056 {
+	//$Sprite VULGA1C1
 	obituary "%o was poisoned by a vulgar."
 	hitobituary "A Vulgar had %o for lunch."
 	Health 0x7FFFFFFF
@@ -1511,7 +1503,6 @@ actor Vulgar : DnD_BaseHybridMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_VULGAR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1594,12 +1585,12 @@ ACTOR Vulgar_Elite : Vulgar {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_VULGAR)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor UndeadMage : DnD_ArchVileBase {
+Actor UndeadMage : DnD_ArchVileBase 21057 {
+	//$Sprite CMYSA1
 	Radius 20
 	Height 56
 	Speed 8
@@ -1621,7 +1612,6 @@ Actor UndeadMage : DnD_ArchVileBase {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_UNDEADMAGE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1727,12 +1717,12 @@ ACTOR UndeadMage_Elite : UndeadMage {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_UNDEADMAGE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor ReaverRobot : DnD_BaseHybridMonster {
+Actor ReaverRobot : DnD_BaseHybridMonster 21058 {
+	//$Sprite 5TRFA1
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -1754,7 +1744,6 @@ Actor ReaverRobot : DnD_BaseHybridMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_REAVER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1864,12 +1853,12 @@ ACTOR ReaverRobot_Elite : ReaverRobot {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_REAVER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Shadow : DnD_BaseRangedMonster {
+ACTOR Shadow : DnD_BaseRangedMonster 21059 {
+	//$Sprite TROXA1
 	//$Category Monsters
 	Health 0x7FFFFFFF
 	GibHealth -25
@@ -1894,7 +1883,6 @@ ACTOR Shadow : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SHADOW)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2081,12 +2069,12 @@ ACTOR Shadow_Elite : Shadow {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SHADOW)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor Roach : DnD_BaseHybridMonster {
+Actor Roach : DnD_BaseHybridMonster 21060 {
+	//$Sprite ROACA1
 	Health 0x7FFFFFFF
 	GibHealth -25
 	Radius 20
@@ -2110,7 +2098,6 @@ Actor Roach : DnD_BaseHybridMonster {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Regen Script", 0, DND_MHR_PERIODIC, ACS_NamedExecuteWithResult("DnD Monster Heal Potency", 2), 8)
 			TNT1 A 0 A_SetArg(4, DND_ROACH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2213,7 +2200,6 @@ ACTOR Roach_Elite : Roach {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_ROACH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }

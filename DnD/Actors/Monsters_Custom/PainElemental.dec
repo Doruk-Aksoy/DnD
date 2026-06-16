@@ -1,5 +1,5 @@
-ACTOR TorturedSoul : DnD_BaseRangedMonster { 
-	//$Category "ZDoom Monster pack"
+ACTOR TorturedSoul : DnD_BaseRangedMonster_NoRes 21099 { 
+	//$Sprite TORTA1
 	Health 0x7FFFFFFF
 	GibHealth -75
 	Speed 8 
@@ -139,8 +139,8 @@ ACTOR TorturedSoul_Elite : TorturedSoul {
 	}
 }
 
-ACTOR Defiler : DnD_BaseRangedMonster {
-	//$Category monsters
+ACTOR Defiler : DnD_BaseRangedMonster_NoRes 21100 {
+	//$Sprite PAINA1
 	Health 0x7FFFFFFF
 	GibHealth -75
 	Radius 31
@@ -166,7 +166,6 @@ ACTOR Defiler : DnD_BaseRangedMonster {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEFILER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 
 		IdleState:
@@ -304,12 +303,12 @@ ACTOR Defiler_Elite : Defiler {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DEFILER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
-Actor Helemental : DnD_BaseHybridMonster_NoRes {
+Actor Helemental : DnD_BaseHybridMonster_NoRes 21101 {
+	//$Sprite HELEA1
 	Obituary "%o was electrocuted by a Hades-Elemental."
 	HitObituary "%o got chomped by a Hades-Elemental."
 	Health 0x7FFFFFFF
@@ -339,7 +338,6 @@ Actor Helemental : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HADESELEMENTAL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 
 		IdleState:
@@ -575,12 +573,12 @@ ACTOR Helemental_Elite : Helemental {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_HADESELEMENTAL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR HS : DnD_BaseMeleeMonster { 
+ACTOR HS : DnD_BaseMeleeMonster_NoRes 21102 { 
+	//$Sprite HADEA0
 	Health 0x7FFFFFFF
 	Radius 16 
 	Height 56
@@ -707,7 +705,8 @@ ACTOR HSBoom {
 	}
 }
 
-actor DESentinel : DnD_BaseRangedMonster {
+actor DESentinel : DnD_BaseRangedMonster 21103 {
+	//$Sprite SENTA1
 	obituary "%o was blasted away by a sentinel."
 	Health 0x7FFFFFFF
 	radius 31
@@ -736,7 +735,6 @@ actor DESentinel : DnD_BaseRangedMonster {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SENTINEL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -909,13 +907,13 @@ ACTOR DESentinel_Elite : DESentinel {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SENTINEL)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
 // so the ghosts it summons doesnt resurrect itself again
-ACTOR BloodLich : DnD_BaseRangedMonster_NoRes {
+ACTOR BloodLich : DnD_BaseRangedMonster_NoRes 21104 {
+	//$Sprite BLCHA1
     Obituary "%o was reduced to a pile of ash by a Blood Lich."
     Health 0x7FFFFFFF
 	GibHealth -75
@@ -942,7 +940,6 @@ ACTOR BloodLich : DnD_BaseRangedMonster_NoRes {
     States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_BLOODLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1118,12 +1115,12 @@ ACTOR BloodLich_Elite : BloodLich {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_BLOODLICH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR ShadowDisciple : DnD_BaseRangedMonster { 
+ACTOR ShadowDisciple : DnD_BaseRangedMonster 21105 { 
+	//$Sprite DISCA1
 	Health 0x7FFFFFFF
 	PainChance 140
 	Speed 8
@@ -1145,7 +1142,6 @@ ACTOR ShadowDisciple : DnD_BaseRangedMonster {
 	States  { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_SHADOWDISCIPLE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1372,12 +1368,12 @@ ACTOR ShadowDisciple_Elite : ShadowDisciple {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_SHADOWDISCIPLE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-Actor HellArbiter : DnD_BaseRangedMonster {
+Actor HellArbiter : DnD_BaseRangedMonster 21106 {
+	//$Sprite ARBTA1
 	Health 0x7FFFFFFF
 	GibHealth -75
 	Radius 31
@@ -1409,7 +1405,6 @@ Actor HellArbiter : DnD_BaseRangedMonster {
 			TNT1 A 0 A_CustomMissile("ArbiterOrbit2", 32, 0, 120, CMF_AIMDIRECTION)
 			TNT1 A 0 A_CustomMissile("ArbiterOrbit3", 32, 0, 240, CMF_AIMDIRECTION)
 			TNT1 A 0 A_SetArg(4, DND_HELLARBITER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -1809,7 +1804,6 @@ ACTOR HellArbiter_Elite : HellArbiter {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_HELLARBITER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }

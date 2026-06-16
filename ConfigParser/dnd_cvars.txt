@@ -80,4 +80,4 @@ dnd_monster_rewardscalepercent 5
 dnd_monster_dmgscalepercent 4
 dnd_uniquemonster_spawnchance 0.01
 dnd_researchdroprate 0.0025
-dnd_ignore_dropweights 0
+dnd_ignorelootpenalty 0

@@ -183,7 +183,7 @@ Script "DnD Create Weapon Wheel" (int pnum, int cleanup, int wantChange) CLIENTS
             else {
                 DeleteText(RPGMENUINVENTORYID);
                 DeleteText(RPGMENUWEAPONPANELID - 1);
-                SetInventory("WeaponWheelChangeId", INT_MAX);
+                SetInventory("WeaponWheelChangeId", bcs::INT_MAX);
             }
             
             if(k == -1 || prev_wep != i) {
@@ -211,7 +211,7 @@ Script "DnD Create Weapon Wheel" (int pnum, int cleanup, int wantChange) CLIENTS
     else {
         k = CheckInventory("WeaponWheelChangeId");
         if(wantChange) {
-            if(k != INT_MAX) {
+            if(k != bcs::INT_MAX) {
                 LocalAmbientSound("WeaponWheel/Select", 127);
                 NamedRequestScriptPuke("DND Weapon Wheel Change", cpn, k);
             }

@@ -219,7 +219,7 @@ flickerlight INQSHOT_X9
     chance 0.3
 }
 
-object InquisitorShot
+/*object InquisitorShot
 {
     frame FP97A { light INQSHOT_X1 }
     frame FP97B { light INQSHOT_X2 }
@@ -230,7 +230,7 @@ object InquisitorShot
     frame FP97G { light INQSHOT_X7 }
     frame FP97H { light INQSHOT_X8 }
     frame FP97I { light INQSHOT_X9 }
-}
+}*/
 
 object FlakProjectileExplosion1 {
 	frame DEXP { light INQSHOT_X8 }

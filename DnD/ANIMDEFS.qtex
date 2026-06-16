@@ -1,0 +1,17 @@
+texture WFALL_1 range WFALL_8 tics 2 //waterfall
+
+texture CANDLE_1 range CANDLE_3 rand 3 5 //candle-lit decoration
+
+texture GARG_1 range GARG_4 tics 7 oscillate //glowing gargoyle
+
+texture GLOW_1 range GLOW_5 tics 8 oscillate //glowing runes
+
+texture QSYMB1_1 range QSYMB1_3 tics 6 oscillate //glowing quake symbol
+
+texture QSYMB2_1 range QSYMB2_3 tics 6 oscillate //another glowing quake symbol
+
+texture SLATGL_1 range SLATGL_7 tics 8 oscillate //glowing grate
+
+warp2 texture QLAVA
+warp2 texture PWATER
+warp texture SLIPGATE

@@ -1,6 +1,7 @@
 // Zombiemen
 
-Actor Teron : DnD_BaseRangedMonster_NoRes {
+Actor Teron : DnD_BaseRangedMonster_NoRes 21195 {
+	//$Sprite UE00A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	DropItem "ShotgunPickup_Drop"
@@ -160,7 +161,8 @@ Actor Teron_Elite : Teron {
 	}
 }
 
-Actor Gant : DnD_BaseHybridMonster_NoRes {
+Actor Gant : DnD_BaseHybridMonster_NoRes 21196 {
+	//$Sprite UE01A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	DropItem "SuperShotgunPickup_Drop"
@@ -212,7 +214,7 @@ Actor Gant : DnD_BaseHybridMonster_NoRes {
 		Goto ContMissile
 		ContinueCharge:
 			UE01 H 1 A_FaceTarget
-			UE01 H 1 ACS_ExecuteAlways(971, 0, 28) // script sets velocity
+			UE01 H 1 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 28) // script sets velocity
 			UE01 H 3 Fast ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_ISBLOCKING, -1, -1, -1)
 			UE01 II 3 Fast A_JumpIfTargetInLos("DashFinish", 90, JLOSF_DEADNOJUMP, 80)
 			TNT1 A 0 A_JumpIf(velx == 0 || vely == 0, "See")
@@ -352,7 +354,8 @@ Actor Gant_Elite : Gant {
 	}
 }
 
-Actor Bronn : DnD_BaseHybridMonster_NoRes {
+Actor Bronn : DnD_BaseHybridMonster_NoRes 21197 {
+	//$Sprite UE02A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	DropItem "MachinegunPickup_Drop"
@@ -399,7 +402,7 @@ Actor Bronn : DnD_BaseHybridMonster_NoRes {
 			TNT1 A 0 A_JumpIfCloser(80, "CloseMelee")
 		DashMelee:
 			UE02 C 2 Fast A_FaceTarget
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 25)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 25)
 			UE02 DAB 2 Fast
 			UE02 H 5 Fast
 			UE02 I 1 Fast
@@ -601,7 +604,8 @@ Actor Bronn_Elite : Bronn {
 	}
 }
 
-Actor Vaaj : DnD_BaseRangedMonster_NoRes {
+Actor Vaaj : DnD_BaseRangedMonster_NoRes 21198 {
+	//$Sprite UE03A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 20
@@ -884,7 +888,8 @@ Actor Vaaj_Elite : Vaaj {
 	}
 }
 
-Actor Remus : DnD_BaseHybridMonster_NoRes {
+Actor Remus : DnD_BaseHybridMonster_NoRes 21199 {
+	//$Sprite UE04A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 30
@@ -1186,7 +1191,8 @@ Actor Remus_Elite : Remus {
 	}
 }
 
-Actor Ssrath : DnD_BaseHybridMonster_NoRes {
+Actor Ssrath : DnD_BaseHybridMonster_NoRes 21200 {
+	//$Sprite UE05A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 32
@@ -1504,7 +1510,8 @@ Actor Ssrath_Elite : Ssrath {
 	}
 }
 
-Actor HollowShell : DnD_BaseHybridMonster_NoRes {
+Actor HollowShell : DnD_BaseHybridMonster_NoRes 21201 {
+	//$Sprite UE10A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 16
@@ -1848,7 +1855,8 @@ Actor HollowShell_Elite : HollowShell {
 	}
 }
 
-Actor Omnisight : DnD_BaseHybridMonster_NoRes {
+Actor Omnisight : DnD_BaseHybridMonster_NoRes 21202 {
+	//$Sprite UE06A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 36
@@ -2457,7 +2465,8 @@ Actor OmniSight_Elite : OmniSight {
 	}
 }
 
-Actor Chegovax : DnD_BaseRangedMonster_NoRes {
+Actor Chegovax : DnD_BaseRangedMonster_NoRes 21203 {
+	//$Sprite UE07A0
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 31
@@ -2800,7 +2809,8 @@ Actor Chegovax_Elite : Chegovax {
 	}
 }
 
-Actor Onimuz : DnD_BaseHybridMonster_NoRes {
+Actor Onimuz : DnD_BaseHybridMonster_NoRes 21204 {
+	//$Sprite UE08A1C1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 20
@@ -3140,7 +3150,8 @@ Actor Onimuz_Elite : Onimuz {
 	}
 }
 
-Actor Harkimonde : DnD_BaseHybridMonster_NoRes {
+Actor Harkimonde : DnD_BaseHybridMonster_NoRes 21205 {
+	//$Sprite UE09A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 30
@@ -3549,7 +3560,8 @@ Actor Harkimonde_Elite : Harkimonde {
 	}
 }
 
-Actor Leshrac : DnD_BaseHybridMonster_NoRes {
+Actor Leshrac : DnD_BaseHybridMonster_NoRes 21206 {
+	//$Sprite UE11A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 24
@@ -3683,7 +3695,8 @@ ACTOR Leshrac_Ball : ShadowBeast_Ball1 {
 	Stamina 1073741952
 }
 
-Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes {
+Actor LeshracPoisonMine : DnD_BaseMeleeMonster_NoRes 21207 {
+	//$Sprite UP11A0
 	Health 0x7FFFFFFF
 	Radius 16
 	Height 54
@@ -3861,7 +3874,8 @@ Actor Leshrac_Elite : Leshrac {
 	}
 }
 
-Actor Krull : DnD_BaseRangedMonster_NoRes {
+Actor Krull : DnD_BaseRangedMonster_NoRes 21208 {
+	//$Sprite UE12A1D1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 48
@@ -4104,7 +4118,8 @@ Actor Krull_Elite : Krull {
 	}
 }
 
-Actor Thorax : DnD_BaseRangedMonster_NoRes {
+Actor Thorax : DnD_BaseRangedMonster_NoRes 21209 {
+	//$Sprite UE14A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 48
@@ -4424,7 +4439,8 @@ Actor Thorax_Elite : Thorax {
 	}
 }
 
-Actor Zravog : DnD_BaseRangedMonster_NoRes {
+Actor Zravog : DnD_BaseRangedMonster_NoRes 21210 {
+	//$Sprite UE15A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 20
@@ -4792,7 +4808,8 @@ Actor Zravog_Elite : Zravog {
 	}
 }
 
-Actor Eryxia : DnD_BaseRangedBoss {
+Actor Eryxia : DnD_BaseRangedBoss 21211 {
+	//$Sprite UE13A1D1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 128
@@ -5362,7 +5379,8 @@ Actor Eryxia_Elite : Eryxia {
 	}
 }
 
-Actor Abaxoth : DnD_BaseHybridBoss {
+Actor Abaxoth : DnD_BaseHybridBoss 21212 {
+	//$Sprite UE16A1
 	Health 0x7FFFFFFF
     GibHealth -10
 	Radius 42

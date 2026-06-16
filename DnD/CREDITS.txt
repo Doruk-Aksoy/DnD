@@ -1,6 +1,10 @@
 ==================================================================================
 SPECIAL THANKS TO THE FOLLOWING AWESOME PEOPLE FOR SUPPORTING ME ON PATREON:
 
+- Exarch Supporters
+
+	* Joke
+
 - Initiate Supporters
 
 	* Ancalagon
@@ -11,6 +15,27 @@ SPECIAL THANKS TO THE FOLLOWING AWESOME PEOPLE FOR SUPPORTING ME ON PATREON:
 	* magicmancer
 
 ==================================================================================
+
+- Music credits in MAPINFO
+
+- Gothic Textures
+- OTEX by Ola Björling
+
+=========================================================================================
+This PWAD contains select texture(s) and flat(s) that can originally be found
+in GothicDM or Gothic2. Credit and thanks go out to the artist(s) of said
+flat(s) and texture(s) and also to the rest of the Gothic Crew (1997/98). The
+ORIGINAL GothicDM(2).ZIP can be found at CDROM.COM. Each said PKZIP archive
+contains thirty-two professional quality levels and music.
+http://cdrom.com/pub/idgames/levels/doom...thicdm.zip
+http://cdrom.com/pub/idgames/levels/doom...othic2.zip
+
+However, cdrom.com is no longer online at the time of writing this text file.
+GothicDM and Gothic2 may be found in other mirrors, howerer, such as:
+http://ftp.fu.berlin.de/pc/games/idgames...thicdm.zip
+http://ftp.fu.berlin.de/pc/games/idgames...othic2.zip
+=========================================================================================
+
 
 Detailed Credits:
 
@@ -102,3 +127,13 @@ Thanks to:
 - James Stanfield (Duke4.net, AMC TC) for various sprites.
 - 3D Realms, Bethesda Software, Blizzard, Monolith, ID Software, Relic, THQ, Raven Software for various graphics and sounds.
 - Grinding Gear Games for Path of Exile. (Sounds, Graphics)
+
+=========================
+- Torches by Combinebobnt
+=========================
+
+Credits:
+- Doom, Heretic, Hexen
+- Torch particle sprite from Psychophobia, heavily edited
+- Torch looping sound from Brutal Doom
+- Torch lit sound from Freesound

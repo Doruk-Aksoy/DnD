@@ -1,0 +1,871 @@
+// gldefs
+pointlight TORCH_FAINT
+{
+    color 0.3 0.2 0.0
+    size 192
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH
+{
+    color 0.4 0.3 0.0
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorch
+{
+    frame WLTR { light TORCH_FAINT }
+    frame WLTRI { light WALL_TORCH }
+}
+object OSSerpentTorch
+{
+    frame SRTC { light TORCH_FAINT }
+    frame SRTCD { light WALL_TORCH }
+}
+
+object OSWallTorchHeretic
+{
+    frame WTRH { light TORCH_FAINT }
+    frame WTRHD { light WALL_TORCH }
+}
+
+object OSBrassTorch
+{
+    frame BRTR { light TORCH_FAINT }
+    frame BRTRN { light WALL_TORCH }
+}
+object OSTallBrassTorch
+{
+    frame BRTR { light TORCH_FAINT }
+    frame BRTRN { light WALL_TORCH }
+}
+
+flickerlight2 FIRE_BRAZIER
+{
+    color 0.5 0.4 0.0
+    size 80
+    secondarySize 84
+    interval 0.001
+    offset 0 40 0
+}
+object OSFireBrazier
+{
+    frame KFR1 { light TORCH_FAINT }
+    frame KFR1I { light FIRE_BRAZIER }
+}
+
+
+pointlight TORCH_FAINT_RED
+{
+    color 0.3 0.0 0.0
+    size 192
+    offset 0 40 0
+}
+flickerlight2 RED_TORCH
+{
+    color 0.7 0.1 0.0
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_RED
+{
+    color 0.4 0.05 0.0
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchRed
+{
+    frame WLTR { light TORCH_FAINT_RED }
+    frame WLTRI { light WALL_TORCH_RED }
+}
+object OSCeilingTorchRed
+{
+    frame CCAU { light TORCH_FAINT_RED }
+    frame CCAUA { light WALL_TORCH_RED }
+}
+object OSShortTorchRed
+{
+    frame STRC { light TORCH_FAINT_RED }
+    frame STRCA { light RED_TORCH }
+}
+object OSTallTorchRed
+{
+    frame TTRC { light TORCH_FAINT_RED }
+    frame TTRCA { light RED_TORCH }
+}
+object OSReplacerRedTorch
+{
+    frame TTRC { light TORCH_FAINT_RED }
+    frame TTRCA { light RED_TORCH }
+}
+object OSReplacerShortRedTorch
+{
+    frame STRC { light TORCH_FAINT_RED }
+    frame STRCA { light RED_TORCH }
+}
+
+pointlight TORCH_FAINT_PINK
+{
+    color 0.4 0.2 0.2
+    size 192
+    offset 0 40 0
+}
+flickerlight2 PINK_TORCH
+{
+    color 0.8 0.4 0.4
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_PINK
+{
+    color 0.4 0.2 0.2
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchPink
+{
+    frame WLTR { light TORCH_FAINT_PINK }
+    frame WLTRI { light WALL_TORCH_PINK }
+}
+object OSCeilingTorchPink
+{
+    frame CCAU { light TORCH_FAINT_PINK }
+    frame CCAUA { light WALL_TORCH_PINK }
+}
+object OSShortTorchPink
+{
+    frame STRC { light TORCH_FAINT_PINK }
+    frame STRCA { light PINK_TORCH }
+}
+object OSTallTorchPink
+{
+    frame TTRC { light TORCH_FAINT_PINK }
+    frame TTRCA { light PINK_TORCH }
+}
+
+pointlight TORCH_FAINT_VERMILLION
+{
+    color 0.3 0.08 0.0
+    size 192
+    offset 0 40 0
+}
+flickerlight2 VERMILLION_TORCH
+{
+    color 0.7 0.2 0.0
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_VERMILLION
+{
+    color 0.4 0.1 0.0
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchVermillion
+{
+    frame WLTR { light TORCH_FAINT_VERMILLION }
+    frame WLTRI { light WALL_TORCH_VERMILLION }
+}
+object OSCeilingTorchVermillion
+{
+    frame CCAU { light TORCH_FAINT_VERMILLION }
+    frame CCAUA { light WALL_TORCH_VERMILLION }
+}
+object OSShortTorchVermillion
+{
+    frame STRC { light TORCH_FAINT_VERMILLION }
+    frame STRCA { light VERMILLION_TORCH }
+}
+object OSTallTorchVermillion
+{
+    frame TTRC { light TORCH_FAINT_VERMILLION }
+    frame TTRCA { light VERMILLION_TORCH }
+}
+
+flickerlight2 ORANGE_TORCH
+{
+    color 0.7 0.5 0.1
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+
+object OSWallTorchOrange
+{
+    frame WLTR { light TORCH_FAINT }
+    frame WLTRI { light WALL_TORCH }
+}
+object OSCeilingTorch
+{
+    frame CCAU { light TORCH_FAINT }
+    frame CCAUA { light WALL_TORCH }
+}
+object OSCeilingTorchOrange
+{
+    frame CCAU { light TORCH_FAINT }
+    frame CCAUA { light WALL_TORCH }
+}
+object OSShortTorch
+{
+    frame STRC { light TORCH_FAINT }
+    frame STRCA { light ORANGE_TORCH }
+}
+object OSShortTorchOrange
+{
+    frame STRC { light TORCH_FAINT }
+    frame STRCA { light ORANGE_TORCH }
+}
+object OSTallTorch
+{
+    frame TTRC { light TORCH_FAINT }
+    frame TTRCA { light ORANGE_TORCH }
+}
+object OSTallTorchOrange
+{
+    frame TTRC { light TORCH_FAINT }
+    frame TTRCA { light ORANGE_TORCH }
+}
+
+pointlight TORCH_FAINT_GOLD
+{
+    color 0.25 0.2 0.0
+    size 192
+    offset 0 40 0
+}
+flickerlight2 GOLD_TORCH
+{
+    color 0.65 0.55 0.1
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_GOLD
+{
+    color 0.35 0.30 0.0
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchGold
+{
+    frame WLTR { light TORCH_FAINT_GOLD }
+    frame WLTRI { light WALL_TORCH_GOLD }
+}
+object OSCeilingTorchGold
+{
+    frame CCAU { light TORCH_FAINT_GOLD }
+    frame CCAUA { light WALL_TORCH_GOLD }
+}
+object OSShortTorchGold
+{
+    frame STRC { light TORCH_FAINT_GOLD }
+    frame STRCA { light GOLD_TORCH }
+}
+object OSTallTorchGold
+{
+    frame TTRC { light TORCH_FAINT_GOLD }
+    frame TTRCA { light GOLD_TORCH }
+}
+object OSTallTorchYellow
+{
+    frame TTRC { light TORCH_FAINT_GOLD }
+    frame TTRCA { light GOLD_TORCH }
+}
+
+pointlight TORCH_FAINT_CHARTREUSE
+{
+    color 0.15 0.25 0.0
+    size 192
+    offset 0 40 0
+}
+flickerlight2 CHARTREUSE_TORCH
+{
+    color 0.35 0.65 0.0
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_CHARTREUSE
+{
+    color 0.2 0.35 0.0
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchChartreuse
+{
+    frame WLTR { light TORCH_FAINT_CHARTREUSE }
+    frame WLTRI { light WALL_TORCH_CHARTREUSE }
+}
+object OSCeilingTorchChartreuse
+{
+    frame CCAU { light TORCH_FAINT_CHARTREUSE }
+    frame CCAUA { light WALL_TORCH_CHARTREUSE }
+}
+object OSShortTorchChartreuse
+{
+    frame STRC { light TORCH_FAINT_CHARTREUSE }
+    frame STRCA { light CHARTREUSE_TORCH }
+}
+object OSTallTorchChartreuse
+{
+    frame TTRC { light TORCH_FAINT_CHARTREUSE }
+    frame TTRCA { light CHARTREUSE_TORCH }
+}
+
+pointlight TORCH_FAINT_GREEN
+{
+    color 0.0 0.25 0.0
+    size 192
+    offset 0 40 0
+}
+flickerlight2 GREEN_TORCH
+{
+    color 0.0 0.65 0.0
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_GREEN
+{
+    color 0.0 0.35 0.0
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchGreen
+{
+    frame WLTR { light TORCH_FAINT_GREEN }
+    frame WLTRI { light WALL_TORCH_GREEN }
+}
+object OSCeilingTorchGreen
+{
+    frame CCAU { light TORCH_FAINT_GREEN }
+    frame CCAUA { light WALL_TORCH_GREEN }
+}
+object OSShortTorchGreen
+{
+    frame STRC { light TORCH_FAINT_GREEN }
+    frame STRCA { light GREEN_TORCH }
+}
+object OSTallTorchGreen
+{
+    frame TTRC { light TORCH_FAINT_GREEN }
+    frame TTRCA { light GREEN_TORCH }
+}
+object OSReplacerGreenTorch
+{
+    frame TTRC { light TORCH_FAINT_GREEN }
+    frame TTRCA { light GREEN_TORCH }
+}
+object OSReplacerShortGreenTorch
+{
+    frame STRC { light TORCH_FAINT_GREEN }
+    frame STRCA { light GREEN_TORCH }
+}
+
+pointlight TORCH_FAINT_SPRING_GREEN
+{
+    color 0.0 0.25 0.12
+    size 192
+    offset 0 40 0
+}
+flickerlight2 SPRING_GREEN_TORCH
+{
+    color 0.0 0.65 0.32
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_SPRING_GREEN
+{
+    color 0.0 0.35 0.16
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchSpringGreen
+{
+    frame WLTR { light TORCH_FAINT_SPRING_GREEN }
+    frame WLTRI { light WALL_TORCH_SPRING_GREEN }
+}
+object OSCeilingTorchSpringGreen
+{
+    frame CCAU { light TORCH_FAINT_SPRING_GREEN }
+    frame CCAUA { light WALL_TORCH_SPRING_GREEN }
+}
+object OSShortTorchSpringGreen
+{
+    frame STRC { light TORCH_FAINT_SPRING_GREEN }
+    frame STRCA { light SPRING_GREEN_TORCH }
+}
+object OSTallTorchSpringGreen
+{
+    frame TTRC { light TORCH_FAINT_SPRING_GREEN }
+    frame TTRCA { light SPRING_GREEN_TORCH }
+}
+
+pointlight TORCH_FAINT_CYAN
+{
+    color 0.0 0.25 0.25
+    size 192
+    offset 0 40 0
+}
+flickerlight2 CYAN_TORCH
+{
+    color 0.0 0.65 0.65
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_CYAN
+{
+    color 0.0 0.35 0.35
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchCyan
+{
+    frame WLTR { light TORCH_FAINT_CYAN }
+    frame WLTRI { light WALL_TORCH_CYAN }
+}
+object OSCeilingTorchCyan
+{
+    frame CCAU { light TORCH_FAINT_CYAN }
+    frame CCAUA { light WALL_TORCH_CYAN }
+}
+object OSShortTorchCyan
+{
+    frame STRC { light TORCH_FAINT_CYAN }
+    frame STRCA { light CYAN_TORCH }
+}
+object OSTallTorchCyan
+{
+    frame TTRC { light TORCH_FAINT_CYAN }
+    frame TTRCA { light CYAN_TORCH }
+}
+
+pointlight TORCH_FAINT_AZURE
+{
+    color 0.05 0.15 0.3
+    size 192
+    offset 0 40 0
+}
+flickerlight2 AZURE_TORCH
+{
+    color 0.1 0.4 0.7
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_AZURE
+{
+    color 0.1 0.2 0.4
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchAzure
+{
+    frame WLTR { light TORCH_FAINT_AZURE }
+    frame WLTRI { light WALL_TORCH_AZURE }
+}
+object OSCeilingTorchAzure
+{
+    frame CCAU { light TORCH_FAINT_AZURE }
+    frame CCAUA { light WALL_TORCH_AZURE }
+}
+object OSShortTorchAzure
+{
+    frame STRC { light TORCH_FAINT_AZURE }
+    frame STRCA { light AZURE_TORCH }
+}
+object OSTallTorchAzure
+{
+    frame TTRC { light TORCH_FAINT_AZURE }
+    frame TTRCA { light AZURE_TORCH }
+}
+
+pointlight TORCH_FAINT_BLUE
+{
+    color 0.05 0.05 0.3
+    size 192
+    offset 0 40 0
+}
+flickerlight2 BLUE_TORCH
+{
+    color 0.1 0.1 0.7
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_BLUE
+{
+    color 0.1 0.1 0.4
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchBlue
+{
+    frame WLTR { light TORCH_FAINT_BLUE }
+    frame WLTRI { light WALL_TORCH_BLUE }
+}
+object OSCeilingTorchBlue
+{
+    frame CCAU { light TORCH_FAINT_BLUE }
+    frame CCAUA { light WALL_TORCH_BLUE }
+}
+object OSShortTorchBlue
+{
+    frame STRC { light TORCH_FAINT_BLUE }
+    frame STRCA { light BLUE_TORCH }
+}
+object OSTallTorchBlue
+{
+    frame TTRC { light TORCH_FAINT_BLUE }
+    frame TTRCA { light BLUE_TORCH }
+}
+object OSReplacerBlueTorch
+{
+    frame TTRC { light TORCH_FAINT_BLUE }
+    frame TTRCA { light BLUE_TORCH }
+}
+object OSReplacerShortBlueTorch
+{
+    frame STRC { light TORCH_FAINT_BLUE }
+    frame STRCA { light BLUE_TORCH }
+}
+
+pointlight TORCH_FAINT_INDIGO
+{
+    color 0.15 0.0 0.3
+    size 192
+    offset 0 40 0
+}
+flickerlight2 INDIGO_TORCH
+{
+    color 0.3 0.1 0.7
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_INDIGO
+{
+    color 0.2 0.0 0.4
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchIndigo
+{
+    frame WLTR { light TORCH_FAINT_INDIGO }
+    frame WLTRI { light WALL_TORCH_INDIGO }
+}
+object OSCeilingTorchIndigo
+{
+    frame CCAU { light TORCH_FAINT_INDIGO }
+    frame CCAUA { light WALL_TORCH_INDIGO }
+}
+object OSShortTorchIndigo
+{
+    frame STRC { light TORCH_FAINT_INDIGO }
+    frame STRCA { light INDIGO_TORCH }
+}
+object OSTallTorchIndigo
+{
+    frame TTRC { light TORCH_FAINT_INDIGO }
+    frame TTRCA { light INDIGO_TORCH }
+}
+
+pointlight TORCH_FAINT_PURPLE
+{
+    color 0.15 0.0 0.3
+    size 192
+    offset 0 40 0
+}
+flickerlight2 PURPLE_TORCH
+{
+    color 0.3 0.1 0.7
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_PURPLE
+{
+    color 0.2 0.0 0.4
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchPurple
+{
+    frame WLTR { light TORCH_FAINT_PURPLE }
+    frame WLTRI { light WALL_TORCH_PURPLE }
+}
+object OSCeilingTorchPurple
+{
+    frame CCAU { light TORCH_FAINT_PURPLE }
+    frame CCAUA { light WALL_TORCH_PURPLE }
+}
+object OSShortTorchPurple
+{
+    frame STRC { light TORCH_FAINT_PURPLE }
+    frame STRCA { light PURPLE_TORCH }
+}
+object OSTallTorchPurple
+{
+    frame TTRC { light TORCH_FAINT_PURPLE }
+    frame TTRCA { light PURPLE_TORCH }
+}
+
+pointlight TORCH_FAINT_MAGENTA
+{
+    color 0.3 0.0 0.3
+    size 192
+    offset 0 40 0
+}
+flickerlight2 MAGENTA_TORCH
+{
+    color 0.7 0.0 0.7
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_MAGENTA
+{
+    color 0.4 0.0 0.4
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchMagenta
+{
+    frame WLTR { light TORCH_FAINT_MAGENTA }
+    frame WLTRI { light WALL_TORCH_MAGENTA }
+}
+object OSCeilingTorchMagenta
+{
+    frame CCAU { light TORCH_FAINT_MAGENTA }
+    frame CCAUA { light WALL_TORCH_MAGENTA }
+}
+object OSShortTorchMagenta
+{
+    frame STRC { light TORCH_FAINT_MAGENTA }
+    frame STRCA { light MAGENTA_TORCH }
+}
+object OSTallTorchMagenta
+{
+    frame TTRC { light TORCH_FAINT_MAGENTA }
+    frame TTRCA { light MAGENTA_TORCH }
+}
+
+pointlight TORCH_FAINT_ROSE
+{
+    color 0.3 0.0 0.15
+    size 192
+    offset 0 40 0
+}
+flickerlight2 ROSE_TORCH
+{
+    color 0.7 0.0 0.35
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_ROSE
+{
+    color 0.4 0.0 0.2
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchRose
+{
+    frame WLTR { light TORCH_FAINT_ROSE }
+    frame WLTRI { light WALL_TORCH_ROSE }
+}
+object OSCeilingTorchRose
+{
+    frame CCAU { light TORCH_FAINT_ROSE }
+    frame CCAUA { light WALL_TORCH_ROSE }
+}
+object OSShortTorchRose
+{
+    frame STRC { light TORCH_FAINT_ROSE }
+    frame STRCA { light ROSE_TORCH }
+}
+object OSTallTorchRose
+{
+    frame TTRC { light TORCH_FAINT_ROSE }
+    frame TTRCA { light ROSE_TORCH }
+}
+
+pointlight TORCH_FAINT_CRIMSON
+{
+    color 0.3 0.0 0.08
+    size 192
+    offset 0 40 0
+}
+flickerlight2 CRIMSON_TORCH
+{
+    color 0.7 0.0 0.2
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_CRIMSON
+{
+    color 0.4 0.0 0.1
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchCrimson
+{
+    frame WLTR { light TORCH_FAINT_CRIMSON }
+    frame WLTRI { light WALL_TORCH_CRIMSON }
+}
+object OSCeilingTorchCrimson
+{
+    frame CCAU { light TORCH_FAINT_CRIMSON }
+    frame CCAUA { light WALL_TORCH_CRIMSON }
+}
+object OSShortTorchCrimson
+{
+    frame STRC { light TORCH_FAINT_CRIMSON }
+    frame STRCA { light CRIMSON_TORCH }
+}
+object OSTallTorchCrimson
+{
+    frame TTRC { light TORCH_FAINT_CRIMSON }
+    frame TTRCA { light CRIMSON_TORCH }
+}
+
+pointlight TORCH_FAINT_WHITE
+{
+    color 0.3 0.3 0.3
+    size 192
+    offset 0 40 0
+}
+flickerlight2 WHITE_TORCH
+{
+    color 0.7 0.7 0.7
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+}
+flickerlight2 WALL_TORCH_WHITE
+{
+    color 0.4 0.4 0.4
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+}
+object OSWallTorchWhite
+{
+    frame WLTR { light TORCH_FAINT_WHITE }
+    frame WLTRI { light WALL_TORCH_WHITE }
+}
+object OSCeilingTorchWhite
+{
+    frame CCAU { light TORCH_FAINT_WHITE }
+    frame CCAUA { light WALL_TORCH_WHITE }
+}
+object OSShortTorchWhite
+{
+    frame STRC { light TORCH_FAINT_WHITE }
+    frame STRCA { light WHITE_TORCH }
+}
+object OSTallTorchWhite
+{
+    frame TTRC { light TORCH_FAINT_WHITE }
+    frame TTRCA { light WHITE_TORCH }
+}
+
+pointlight TORCH_FAINT_BLACK
+{
+    color 0.1 0.1 0.1
+    size 192
+    offset 0 40 0
+    subtractive 1
+}
+flickerlight2 BLACK_TORCH
+{
+    color 0.4 0.4 0.4
+    size 64
+    secondarySize 68
+    interval 0.001
+    offset 0 40 0
+    subtractive 1
+}
+flickerlight2 WALL_TORCH_BLACK
+{
+    color 0.2 0.2 0.2
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 40 0
+    subtractive 1
+}
+object OSWallTorchBlack
+{
+    frame WLTR { light TORCH_FAINT_BLACK }
+    frame WLTRI { light WALL_TORCH_BLACK }
+}
+object OSCeilingTorchBlack
+{
+    frame CCAU { light TORCH_FAINT_BLACK }
+    frame CCAUA { light WALL_TORCH_BLACK }
+}
+object OSShortTorchBlack
+{
+    frame STRC { light TORCH_FAINT_BLACK }
+    frame STRCA { light BLACK_TORCH }
+}
+object OSTallTorchBlack
+{
+    frame TTRC { light TORCH_FAINT_BLACK }
+    frame TTRCA { light BLACK_TORCH }
+}

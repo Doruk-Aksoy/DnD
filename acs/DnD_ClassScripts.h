@@ -459,7 +459,7 @@ Script "DnD Cyborg Visor Anim" (void) CLIENTSIDE {
 
 Script "DnD Wanderer Explosions" (int this, int target) {
 	int hpdamage = MonsterProperties[this - DND_MONSTERTID_BEGIN].maxhp;
-	if(hpdamage > INT_MAX / DND_WANDERER_EXP_DAMAGE) {
+	if(hpdamage > bcs::INT_MAX / DND_WANDERER_EXP_DAMAGE) {
 		hpdamage /= 100;
 		hpdamage *= DND_WANDERER_EXP_DAMAGE;
 	}

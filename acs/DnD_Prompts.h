@@ -91,14 +91,14 @@ void NPC_Setup() {
 	if(IsLobbyMap(StrParam(n:PRINTNAME_LEVEL)) || !MapData[DND_MAPDATA_MONSTERTOTAL])
 		return;
 
-	int pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+	int pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
 	bool NPCOK = random(0, 1.0) <= NPC_APPEAR_CHANCE;
 
 	// check averages -- later on if there are more random npcs added, consider checking which npc to place instead of assuming its dark wanderer
 #ifdef ISDEBUGBUILD
 	if(1) {
 #else
-	if(PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / pcount >= GetCVar("dnd_npc_appear_level") && NPCOK && NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_NA) {
+	if(InformationInLevel[LEVELINFO_PLAYERLEVEL] / pcount >= GetCVar("dnd_npc_appear_level") && NPCOK && NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_NA) {
 #endif
 		// check if offers can be OK for this particular map
 		NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
@@ -185,7 +185,7 @@ void ApplyMarkOfChaos(int m_id) {
 	// provide the benefits of this trait - doubled health, 50% more damage, 50% faster, extra aggressive, chaos imbued attacks
 	int base = MonsterProperties[m_id].maxhp;
 	int add = base * 2;
-	base = Clamp_Between(base + add, 1, INT_MAX);
+	base = Clamp_Between(base + add, 1, bcs::INT_MAX);
 	MonsterProperties[m_id].basehp = base;
 	MonsterProperties[m_id].maxhp = base;
 	
@@ -211,7 +211,7 @@ void ApplyMarkOfAsmodeus(int m_id, int m_class) {
 	if(m_class != MONSTERCLASS_CYBERDEMON && m_class != MONSTERCLASS_SPIDERMASTERMIND)
 		add *= DND_SUPERDEMON_NONBOSSBUFF;
 
-	base = Clamp_Between(base + add, 1, INT_MAX);
+	base = Clamp_Between(base + add, 1, bcs::INT_MAX);
 	MonsterProperties[m_id].basehp = base;
 	MonsterProperties[m_id].maxhp = base;
 	SetActorProperty(tid, APROP_HEALTH, base);
@@ -289,7 +289,7 @@ void HandleNPC(int npc_id) {
 			switch(NPC_States[DND_NPC_DARKWANDERER].offer) {
 				case NPC_OFFER_SLAYCHAOSMARK:
 					// kill marked monsters -- min of 5, max of 50 -- scaling with map difficulty
-					mc = DnD_TID_Counter[DND_TID_MONSTER];
+					mc = InformationInLevel[LEVELINFO_TID_MONSTER];
 					temp = random(5 + 5 * MapData[DND_MAPDATA_DIFFICULTY], 10 + 5 * MapData[DND_MAPDATA_DIFFICULTY]);
 
 					// we dont care about uniqueness
@@ -313,7 +313,7 @@ void HandleNPC(int npc_id) {
 				break;
 				case NPC_OFFER_COLLECTARTIFACT:
 					// retrieve artifacts -- place the artifacts
-					mc = DnD_TID_Counter[DND_TID_PICKUPS];
+					mc = InformationInLevel[LEVELINFO_TID_PICKUPS];
 					temp = random(2 + MapData[DND_MAPDATA_DIFFICULTY], 2 + 2 * MapData[DND_MAPDATA_DIFFICULTY]);
 					NPC_States[DND_NPC_DARKWANDERER].offer_progress = temp;
 					
@@ -338,7 +338,7 @@ void HandleNPC(int npc_id) {
 					}
 					else if(mc) {
 						// we have some powerups, but not enough, so we'll most likely need shared items
-						count = DnD_TID_Counter[DND_TID_SHAREDITEMS];
+						count = InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
 						do {
 							// 50% from shared items and the other from powerups
 							if(random(0, 1)) {
@@ -367,7 +367,7 @@ void HandleNPC(int npc_id) {
 					}
 					else {
 						// we have no powerups, simply loop through the shared items
-						count = DnD_TID_Counter[DND_TID_SHAREDITEMS];
+						count = InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
 						do {
 							k = random(SHARED_ITEM_TID_BEGIN, SHARED_ITEM_TID_BEGIN + count - 1);
 							for(j = 0; j < slot_count; ++j) {
@@ -390,7 +390,7 @@ void HandleNPC(int npc_id) {
 					for(i = 0; i < 6; ++i)
 						slots_occupied[i] = MapData[DND_MAPDATA_BARONCOUNT + i];
 
-					for(mc = 0; mc < DnD_TID_Counter[DND_TID_MONSTER]; ++mc) {
+					for(mc = 0; mc < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mc) {
 						i = UsedMonsterTIDs[mc] - DND_MONSTERTID_BEGIN;
 						temp = MonsterProperties[i].class >= MONSTERCLASS_SPIDERMASTERMIND ? 0.25 : 0; // bias to bosses
 						if
@@ -407,10 +407,10 @@ void HandleNPC(int npc_id) {
 				break;
 				/*case NPC_OFFER_INCURSION:
 					// cycle through entire list of monsters, roll rng and see if they are "destined" to drop an incursion marker on death
-					temp = GetBaseMarkerSpawnChance(DnD_TID_Counter[DND_TID_MONSTER]);
-					for(mc = 0; mc < DnD_TID_Counter[DND_TID_MONSTER]; ++mc) {
+					temp = GetBaseMarkerSpawnChance(InformationInLevel[LEVELINFO_TID_MONSTER]);
+					for(mc = 0; mc < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mc) {
 						i = UsedMonsterTIDs[mc] - DND_MONSTERTID_BEGIN;
-						if(CanMonsterSpawnIncursionMarker(i, temp, mc, DnD_TID_Counter[DND_TID_MONSTER])) {
+						if(CanMonsterSpawnIncursionMarker(i, temp, mc, InformationInLevel[LEVELINFO_TID_MONSTER])) {
 							MonsterProperties[i].spawnsIncursionMarker = true;
 							//Log(s:"Confirmed marker on ", d:i, s:" ", s:GetActorClass(UsedMonsterTIDs[mc]), s:" with bchance: ", f:temp);
 						}

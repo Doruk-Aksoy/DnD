@@ -1,0 +1,1481 @@
+//////////////////////
+// SPECIAL FX BLOCK //
+//////////////////////
+
+// torches sfx
+actor OSTorchFlare
+{
+  +NOBLOCKMAP
+  +NOTELEPORT
+  +NOGRAVITY
+  +NOINTERACTION
+  +FORCEXYBILLBOARD
+  +BRIGHT
+  +CLIENTSIDEONLY
+  RenderStyle Add
+  Alpha 1
+  Radius 1
+  Height 2
+  Scale 0.25
+  Stamina 0
+  States
+  {
+  Spawn:
+    FTA0 A 0
+    "####" "#" 0 A_JumpIf(IsPointerEqual(AAPTR_MASTER, AAPTR_NULL), 2)
+    "####" "#" 2 A_Warp(AAPTR_MASTER, 0, 0, stamina, 0, WARPF_NOCHECKPOSITION)
+    Goto Spawn+1
+    TNT1 A 1
+    Stop
+  } 
+}
+actor OSTorchFlareRed : OSTorchFlare { States { Spawn: FTA0 R 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareDarkRed : OSTorchFlare { States { Spawn: FTA0 [ 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlarePink : OSTorchFlare { States { Spawn: FTA0 Q 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareVermillion : OSTorchFlare { States { Spawn: FTA0 V 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareOrange : OSTorchFlare { States { Spawn: FTA0 O 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareGold : OSTorchFlare { States { Spawn: FTA0 D 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareYellow : OSTorchFlare { States { Spawn: FTA0 Y 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareChartreuse : OSTorchFlare { States { Spawn: FTA0 H 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareSage : OSTorchFlare { States { Spawn: FTA0 E 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareGreen : OSTorchFlare { States { Spawn: FTA0 G 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareSpringGreen : OSTorchFlare { States { Spawn: FTA0 S 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareCyan : OSTorchFlare { States { Spawn: FTA0 C 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareAzure : OSTorchFlare { States { Spawn: FTA0 Z 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareBlue : OSTorchFlare { States { Spawn: FTA0 B 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareIndigo : OSTorchFlare { States { Spawn: FTA0 I 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlarePurple : OSTorchFlare { States { Spawn: FTA0 P 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareMagenta : OSTorchFlare { States { Spawn: FTA0 M 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareRose : OSTorchFlare { States { Spawn: FTA0 F 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareCrimson : OSTorchFlare { States { Spawn: FTA0 N 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareTan : OSTorchFlare { States { Spawn: FTA0 K 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareDarkGray : OSTorchFlare { States { Spawn: FTA0 L 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlareWhite : OSTorchFlare {}
+actor OSTorchFlareBlack : OSTorchFlare
+{
+  RenderStyle "Translucent"
+  States
+  {
+  Spawn:
+    FTA0 J 0
+    Goto Super::Spawn+1
+  }
+}
+
+actor OSWallTorchFlare : OSTorchFlare { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareRed : OSTorchFlareRed  { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareDarkRed : OSTorchFlareDarkRed  { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlarePink : OSTorchFlarePink  { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareVermillion : OSTorchFlareVermillion { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareOrange : OSTorchFlareOrange { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareGold : OSTorchFlareGold { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareYellow : OSTorchFlareYellow { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareChartreuse : OSTorchFlareChartreuse { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareSage : OSTorchFlareSage { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareGreen : OSTorchFlareGreen { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareSpringGreen : OSTorchFlareSpringGreen { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareCyan : OSTorchFlareCyan { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareAzure : OSTorchFlareAzure { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareBlue : OSTorchFlareBlue { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareIndigo : OSTorchFlareIndigo { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlarePurple : OSTorchFlarePurple { Scale 0.2
+    Alpha 0.4 }    
+actor OSWallTorchFlareMagenta : OSTorchFlareMagenta { Scale 0.2
+    Alpha 0.4 }
+actor OSWallTorchFlareRose : OSTorchFlareRose { Scale 0.2
+    Alpha 0.4 }
+actor OSWallTorchFlareCrimson : OSTorchFlareCrimson { Scale 0.2
+    Alpha 0.4 }
+actor OSWallTorchFlareTan : OSTorchFlareTan { Scale 0.2
+    Alpha 0.4 }
+actor OSWallTorchFlareDarkGray : OSTorchFlareDarkGray { Scale 0.2
+    Alpha 0.4 }
+actor OSWallTorchFlareWhite : OSWallTorchFlare {}
+actor OSWallTorchFlareBlack : OSTorchFlareBlack { Scale 0.2
+    Alpha 0.4 }
+
+// torch effects (sprite from Psychophobia)
+actor OSTorchFlame
+{
+  Scale 0.15
+  RenderStyle Add
+  Alpha 1.0
+  +NOBLOCKMAP
+  +NOTELEPORT
+  +NOGRAVITY
+  +CLIENTSIDEONLY
+  +NOINTERACTION
+  +FORCEXYBILLBOARD
+  +BRIGHT
+  var int user_random_flip_xy;
+  States
+  {
+  Spawn:
+    TOFX A 0
+    "####" "#" 0 
+    "####" "#" 0 A_SetUserVar("user_random_flip_xy", 1 - 2 * random(0, 1))
+    "####" "#" 0 A_SetScale(scaleX * user_random_flip_xy)
+    "####" A 2 A_Jump(64, 1)
+    "####" B 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" C 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" D 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" E 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" F 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" G 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" H 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" "#" 0 A_FadeOut(0.14)
+    "####" A 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" "#" 0 A_JumpIf(scaleX < 0.01, "Done")
+    "####" "#" 0 A_FadeOut(0.14)
+    "####" B 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" "#" 0 A_FadeOut(0.14)
+    "####" C 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" "#" 0 A_FadeOut(0.14)
+    "####" D 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" "#" 0 A_FadeOut(0.14)
+    "####" E 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" "#" 0 A_FadeOut(0.14)
+    "####" F 2 A_SetScale(scaleX - (0.012 * user_random_flip_xy))
+    "####" "#" 0 A_FadeOut(0.14)
+    "####" G 2
+    stop
+  Done:
+    TNT1 A 1
+    stop
+  }
+}
+actor OSTorchFlameRed : OSTorchFlame { States { Spawn: TRFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlamePink : OSTorchFlame { States { Spawn: TQFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameVermillion : OSTorchFlame { States { Spawn: TVFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameOrange : OSTorchFlame { States { Spawn: TOFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameGold : OSTorchFlame { States { Spawn: TDFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameChartreuse : OSTorchFlame { States { Spawn: THFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameGreen : OSTorchFlame { States { Spawn: TGFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameSpringGreen : OSTorchFlame { States { Spawn: TSFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameCyan : OSTorchFlame { States { Spawn: TCFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameAzure: OSTorchFlame { States { Spawn: TZFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameBlue : OSTorchFlame { States { Spawn: TBFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameIndigo : OSTorchFlame { States { Spawn: TIFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlamePurple : OSTorchFlame { States { Spawn: TPFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameMagenta : OSTorchFlame { States { Spawn: TMFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameRose : OSTorchFlame { States { Spawn: TFFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameCrimson : OSTorchFlame { States { Spawn: TNFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameWhite : OSTorchFlame { States { Spawn: TWFX A 0
+    Goto Super::Spawn+1 } }
+actor OSTorchFlameBlack : OSTorchFlame
+{
+  RenderStyle "Translucent"
+  States
+  {
+  Spawn:
+    TLFX A 0
+    Goto Super::Spawn+1
+  }
+}
+
+actor OSWallTorchFlame : OSTorchFlame { Scale 0.1 }
+actor OSWallTorchFlameRed : OSTorchFlameRed { Scale 0.1 }
+actor OSWallTorchFlamePink : OSTorchFlamePink { Scale 0.1 }
+actor OSWallTorchFlameVermillion : OSTorchFlameVermillion { Scale 0.1 }
+actor OSWallTorchFlameOrange : OSTorchFlameOrange { Scale 0.1 }
+actor OSWallTorchFlameGold : OSTorchFlameGold { Scale 0.1 }
+actor OSWallTorchFlameChartreuse : OSTorchFlameChartreuse { Scale 0.1 }
+actor OSWallTorchFlameGreen : OSTorchFlameGreen { Scale 0.1 }
+actor OSWallTorchFlameSpringGreen : OSTorchFlameSpringGreen { Scale 0.1 }
+actor OSWallTorchFlameCyan : OSTorchFlameCyan { Scale 0.1 }
+actor OSWallTorchFlameAzure : OSTorchFlameAzure { Scale 0.1 }
+actor OSWallTorchFlameBlue : OSTorchFlameBlue { Scale 0.1 }
+actor OSWallTorchFlameIndigo : OSTorchFlameIndigo { Scale 0.1 }
+actor OSWallTorchFlamePurple : OSTorchFlamePurple { Scale 0.1 }
+actor OSWallTorchFlameMagenta : OSTorchFlameMagenta { Scale 0.1 }
+actor OSWallTorchFlameRose : OSTorchFlameRose { Scale 0.1 }
+actor OSWallTorchFlameCrimson : OSTorchFlameCrimson { Scale 0.1 }
+actor OSWallTorchFlameWhite : OSTorchFlameWhite { Scale 0.1 }
+actor OSWallTorchFlameBlack : OSTorchFlameBlack { Scale 0.1 }
+
+actor OSBigTorchFlame : OSTorchFlame { Scale 0.24 }
+
+///////////////////
+// TORCHES BLOCK //
+///////////////////
+
+// wall torches
+Actor OSWallTorch : SwitchableDecoration 12508
+{
+  Radius 6
+  Height 23
+  +FIXMAPTHINGPOS
+  +NOGRAVITY
+  -SOLID
+  -SHOOTABLE
+  +FLOORCLIP
+  +NOINTERACTION
+  -CLIENTSIDEONLY
+  +FORCEYBILLBOARD
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 17, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlame", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  Active:
+    WLTR I 0 A_PlaySound("torch/light")
+    WLTR I 0 A_Jump(256, "Spawn")
+    Wait
+  Inactive:
+    WLTX A 0 A_RemoveChildren(1)
+    WLTX A -1 A_StopSound(4)
+    Stop
+  }
+}
+Actor OSWallTorchOrange : OSWallTorch {}
+Actor OSWallTorchRed : OSWallTorch 12501
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 16, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameRed", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchPink : OSWallTorch 12528
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 37, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlamePink", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchVermillion : OSWallTorch 12529
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 35, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameVermillion", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchGold : OSWallTorch 12504
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 18, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameGold", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchChartreuse : OSWallTorch 12503
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 20, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameChartreuse", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchGreen : OSWallTorch 12502
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 21, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchSpringGreen : OSWallTorch 12505
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 22, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameSpringGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchCyan : OSWallTorch 12506
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 23, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameCyan", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchAzure : OSWallTorch 12507
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 24, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameAzure", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchBlue : OSWallTorch 12500
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 25, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameBlue", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchIndigo : OSWallTorch 12513
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 26, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameIndigo", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchPurple : OSWallTorch 12509
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 27, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlamePurple", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchMagenta : OSWallTorch 12510
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 28, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameMagenta", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchRose : OSWallTorch 12511
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 29, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameRose", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchCrimson : OSWallTorch 12530
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 36, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameCrimson", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchWhite : OSWallTorch 12512
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 30, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameWhite", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSWallTorchBlack : OSWallTorch 12531
+{
+  States
+  {
+  Spawn:
+    WLTR I 0
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 38, 26)
+    WLTR I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WLTR I 0 bright A_CheckSightOrRange(2000, 2)
+    WLTR I 0 bright A_SpawnItemEx("OSWallTorchFlameBlack", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(24.0, 28.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WLTR I 2 bright
+    goto Spawn+3
+  }
+}
+
+// short torches
+Actor OSShortTorchRed : SwitchableDecoration 10550
+{
+  Radius 16
+  Height 36
+  +SOLID
+  +FLOORCLIP
+  +FORCEYBILLBOARD
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 1, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameRed", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  Active:
+    STRC A 0 A_PlaySound("torch/light")
+    STRC A 0 A_Jump(256, "Spawn")
+    Wait
+  Inactive:
+    STRX A 0 A_RemoveChildren(1)
+    STRX A -1 A_StopSound(4)
+    Stop
+  }
+}
+Actor OSShortTorchPink : OSShortTorchRed 10548
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 33, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlamePink", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchVermillion : OSShortTorchRed 12532
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 31, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameVermillion", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchOrange : OSShortTorchRed 10527
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 2, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameOrange", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorch : OSShortTorchOrange {}
+Actor OSShortTorchGold : OSShortTorchRed 5153
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 3, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameGold", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchChartreuse : OSShortTorchRed 10542
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 5, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameChartreuse", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchGreen : OSShortTorchRed 10553
+{
+  Radius 16
+  Height 36
+  +SOLID
+  +FLOORCLIP
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 6, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchSpringGreen : OSShortTorchRed 10543
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 7, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameSpringGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchCyan : OSShortTorchRed 10544
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 8, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameCyan", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchAzure : OSShortTorchRed 10552
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 9, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameAzure", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchBlue : OSShortTorchRed 10554
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 10, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameBlue", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchIndigo : OSShortTorchRed 10545
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 11, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameIndigo", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchPurple : OSShortTorchRed 10546
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 12, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlamePurple", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchMagenta : OSShortTorchRed 10529
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 13, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameMagenta", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchRose : OSShortTorchRed 10547
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 14, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameRose", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchCrimson : OSShortTorchRed 12533
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 32, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameCrimson", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchWhite : OSShortTorchRed 5151
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 15, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameWhite", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSShortTorchBlack : OSShortTorchRed 10528
+{
+  States
+  {
+  Spawn:
+    STRC A 0
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 34, 30)
+    STRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    STRC A 0 bright A_CheckSightOrRange(2000, 2)
+    STRC A 0 bright A_SpawnItemEx("OSTorchFlameBlack", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(28.0, 32.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    STRC A 2 bright
+    goto Spawn+3
+  }
+}
+
+// tall torches
+Actor OSTallTorchRed : OSShortTorchRed 10549
+{
+  Height 78 // prevent player from jumping on it
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 1, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameRed", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  Active:
+    TTRC A 0 A_PlaySound("torch/light")
+    TTRC A 0 A_Jump(256, "Spawn")
+    Wait
+  Inactive:
+    TTRX A 0 A_RemoveChildren(1)
+    TTRX A -1 A_StopSound(4)
+    Stop
+  }
+}
+Actor OSTallTorchPink : OSTallTorchRed 10541
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 33, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlamePink", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchVermillion : OSTallTorchRed 12534
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 31, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameVermillion", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchOrange : OSTallTorchRed 10524
+{
+  //$Category Light sources/Torches
+  //$Title "Tall Orange Torch"
+  //$Sprite TTRIO0
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 2, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameOrange", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorch : OSTallTorchOrange {}
+Actor OSTallTorchGold : OSTallTorchRed 5152
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 3, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameGold", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchYellow : OSTallTorchGold 10534 {}
+Actor OSTallTorchChartreuse : OSTallTorchRed 10535
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 5, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameChartreuse", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchGreen : OSTallTorchRed 10555
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 6, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchSpringGreen : OSTallTorchRed 10536
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 7, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameSpringGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchCyan : OSTallTorchRed 10537
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 8, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameCyan", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchAzure : OSTallTorchRed 10551
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 9, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameAzure", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchBlue : OSTallTorchRed 10556
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 10, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameBlue", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchIndigo : OSTallTorchRed 10538
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 11, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameIndigo", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchPurple : OSTallTorchRed 10539
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 12, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlamePurple", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchMagenta : OSTallTorchRed 10526
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 13, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameMagenta", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchRose : OSTallTorchRed 10540
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 14, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameRose", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchCrimson : OSTallTorchRed 12535
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 32, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameCrimson", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchWhite : OSTallTorchRed 5150
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 15, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameWhite", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSTallTorchBlack : OSTallTorchRed 10525
+{
+  States
+  {
+  Spawn:
+    TTRC A 0
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 34, 54)
+    TTRC A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    TTRC A 0 bright A_CheckSightOrRange(2000, 2)
+    TTRC A 0 bright A_SpawnItemEx("OSTorchFlameBlack", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(52.0, 56.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    TTRC A 2 bright
+    goto Spawn+3
+  }
+}
+
+// ceiling cauldron torches
+Actor OSCeilingTorch : OSWallTorch 12514
+{
+  +SPAWNCEILING
+  +FORCEYBILLBOARD
+  Height 58
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 17, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlame", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  Active:
+    CCAU A 0 A_PlaySound("torch/light")
+    CCAU A 0 A_Jump(256, "Spawn")
+    Wait
+  Inactive:
+    CCAX A 0 A_RemoveChildren(1)
+    CCAX A -1 A_StopSound(4)
+    Stop
+  }
+}
+Actor OSCeilingTorchOrange : OSCeilingTorch {}
+Actor OSCeilingTorchRed : OSCeilingTorch 12515
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 16, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameRed", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchPink : OSCeilingTorch 12536
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 37, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlamePink", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchVermillion : OSCeilingTorch 12537
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 35, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameVermillion", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchGold : OSCeilingTorch 12516
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 18, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameGold", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchChartreuse : OSCeilingTorch 12517
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 20, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameChartreuse", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchGreen : OSCeilingTorch 12518
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 21, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchSpringGreen : OSCeilingTorch 12519
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 22, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameSpringGreen", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchCyan : OSCeilingTorch 12520
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 23, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameCyan", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchAzure : OSCeilingTorch 12521
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 24, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameAzure", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchBlue : OSCeilingTorch 12522
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 25, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameBlue", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchIndigo : OSCeilingTorch 12523
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 26, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameIndigo", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchPurple : OSCeilingTorch 12524
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 27, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlamePurple", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchMagenta : OSCeilingTorch 12525
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 28, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameMagenta", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchRose : OSCeilingTorch 12526
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 29, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameRose", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchCrimson : OSCeilingTorch 12538
+{
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 36, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameCrimson", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchWhite : OSCeilingTorch 12527
+{
+  //$Category Light sources/Torches
+  //$Title "Ceiling White Torch"
+  //$Sprite CCAIW0
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 30, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameWhite", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+Actor OSCeilingTorchBlack : OSCeilingTorch 12539
+{
+  //$Category Light sources/Torches
+  //$Title "Ceiling Black Torch"
+  //$Sprite CCAIL0
+  States
+  {
+  Spawn:
+    CCAU A 0
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 38, 10)
+    CCAU A 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    CCAU A 0 bright A_CheckSightOrRange(2000, 2)
+    CCAU A 0 bright A_SpawnItemEx("OSWallTorchFlameBlack", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(8.0, 12.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    CCAU A 2 bright
+    goto Spawn+3
+  }
+}
+
+// other
+Actor OSFireBrazier : OSShortTorchRed
+{
+  Height 44
+  States
+  {
+  Spawn:
+    KFR1 I 0
+    KFR1 I 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 2, 42)
+    KFR1 I 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 2)
+    KFR1 I 0 bright A_CheckSightOrRange(2000, 2)
+    KFR1 I 0 bright A_SpawnItemEx("OSBigTorchFlame", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(40.0, 44.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    KFR1 I 2 bright
+    goto Spawn+3
+  Active:
+    stop
+  Inactive:
+    stop
+  }
+}
+
+Actor OSSerpentTorch : OSShortTorchRed
+{
+  States
+  {
+  Spawn:
+    SRTC D 0
+    SRTC D 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 17, 50)
+    SRTC D 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    SRTC D 0 bright A_CheckSightOrRange(2000, 2)
+    SRTC D 0 bright A_SpawnItemEx("OSWallTorchFlame", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(48.0, 52.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    SRTC D 2 bright
+    goto Spawn+2
+  Active:
+    stop
+  Inactive:
+    stop
+  }
+}
+
+Actor OSWallTorchHeretic : OSWallTorch
+{
+  States
+  {
+  Spawn:
+    WTRH D 0
+    WTRH D 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 17, 74)
+    WTRH D 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 0)
+    WTRH D 0 bright A_CheckSightOrRange(2000, 2)
+    WTRH D 0 bright A_SpawnItemEx("OSWallTorchFlame", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(72.0, 76.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    WTRH D 2 bright
+    goto Spawn+2
+  Active:
+    stop
+  Inactive:
+    stop
+  }
+}
+
+Actor OSBrassTorch : OSShortTorchRed
+{
+  States
+  {
+  Spawn:
+    Spawn:
+    BRTR N 0
+    BRTR N 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 2, 34)
+    BRTR N 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    BRTR N 0 bright A_CheckSightOrRange(2000, 2)
+    BRTR N 0 bright A_SpawnItemEx("OSTorchFlame", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(32.0, 36.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    BRTR N 2 bright
+    goto Spawn+2
+  Active:
+    stop
+  Inactive:
+    stop
+  }
+}
+Actor OSTallBrassTorch : OSBrassTorch
+{
+  Height 78
+  States
+  {
+  Spawn:
+    Spawn:
+    BRTR P 0
+    BRTR P 0 ACS_NamedExecuteWithResult("OS_Spawn_Torch_Flare", 2, 68)
+    BRTR P 0 ACS_NamedExecuteWithResult("OS_Torch_Sound_Loop", 1)
+    BRTR P 0 bright A_CheckSightOrRange(2000, 2)
+    BRTR P 0 bright A_SpawnItemEx("OSTorchFlame", frandom(-2.0, 2.0), frandom(-2.0, 2.0), frandom(66.0, 70.0), frandom(0.01, 0.2), frandom(0.01, 0.2), frandom(1.2, 1.4), random(1, 360))
+    BRTR P 2 bright
+    goto Spawn+3
+  Active:
+    stop
+  Inactive:
+    stop
+  }
+}
+
+// torch actor replacers for IWADs
+Actor OSReplacerRedTorch : OSTallTorchRed replaces RedTorch
+{
+  //$Category Light sources
+  //$Title "Doom-only Tall Red Torch"
+  //$Sprite TREDA0
+  Game Doom
+}
+Actor OSReplacerGreenTorch : OSTallTorchGreen replaces GreenTorch
+{
+  //$Category Light sources
+  //$Title "Doom-only Tall Green Torch"
+  //$Sprite TGRNA0
+  Game Doom
+}
+Actor OSReplacerBlueTorch : OSTallTorchBlue replaces BlueTorch
+{
+  //$Category Light sources
+  //$Title "Doom-only Tall Blue Torch"
+  //$Sprite TBLUA0
+  Game Doom
+}
+Actor OSReplacerShortRedTorch : OSShortTorchRed replaces ShortRedTorch
+{
+  //$Category Light sources
+  //$Title "Doom-only Short Red Torch"
+  //$Sprite SMRTA0
+  Game Doom
+}
+Actor OSReplacerShortGreenTorch : OSShortTorchGreen replaces ShortGreenTorch
+{
+  //$Category Light sources
+  //$Title "Doom-only Short Green Torch"
+  //$Sprite SMGTA0
+  Game Doom
+}
+Actor OSReplacerShortBlueTorch : OSShortTorchBlue replaces ShortBlueTorch
+{
+  //$Category Light sources
+  //$Title "Doom-only Short Blue Torch"
+  //$Sprite SMBTA0
+  Game Doom
+}

@@ -63,12 +63,16 @@ typedef struct scan_data {
 	int spawn_offZ;
 } scan_data_T;
 
-scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
-	{ 1024.0, 			0.1875, 			24.0 },
-	{ 1024.0,		 	0.1875, 			24.0 },
-	{ 2048.0,		 	0.16, 				32.0 },
-	{ 4096.0,			0.25,				32.0 }
-};
+scan_data_T module& GetScanAttackData(int id) {
+	static scan_data_T ScanAttackData[MAX_SCANNER_PARTICLES] = {
+		{ 1024.0, 			0.1875, 			24.0 },
+		{ 1024.0,		 	0.1875, 			24.0 },
+		{ 2048.0,		 	0.16, 				32.0 },
+		{ 4096.0,			0.25,				32.0 }
+	};
+
+	return ScanAttackData[id];
+}
 
 int Scan_to_WeaponID(int scan_id) {
 	int ret = DND_WEAPON_BFG6000;
@@ -674,9 +678,11 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 	
 	int scan_id = tracer_count >> 16;
 	tracer_count &= 0xFFFF;
+
+	auto scan_data = GetScanAttackData(scan_id);
 	
-	int scan_dist = ScanAttackData[scan_id].max_dist;
-	int scan_fov = ScanAttackData[scan_id].fov;
+	int scan_dist = scan_data.max_dist;
+	int scan_fov = scan_data.fov;
 	
 	int dist = scan_dist, i, j, k, temp;
 	
@@ -696,16 +702,17 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 	if(!(flags & DND_DAMAGEFLAG_SELFORIGIN))
 		projection_angle = GetActorAngle(0);
 	
-	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id, s: " mon count: ", d:DnD_TID_Counter[DND_TID_MONSTER]);
+	//printbold(s:"starting scan from ", d:owner, s: " with dmg ", d:dmg, s: " scan id: ", d:scan_id, s: " mon count: ", d:InformationInLevel[LEVELINFO_TID_MONSTER]);
 	// pick tracer_count closest enemies
+	//printbold(s:"tid count: ", d:InformationInLevel[LEVELINFO_TID_MONSTER]);
 	int mn;
-	for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(owner, i);
-			//printbold(s:"Checking ", s:GetActorClass(i));
+			printbold(s:"Checking ", s:GetActorClass(i));
 			if(dist < scan_dist && MaxAngleDiff_Projection(owner, i, scan_fov, projection_angle) && CheckSight(owner, i, CSF_NOBLOCKALL)) {
-				//printbold(s:"approved ", s:GetActorClass(i), s: " ", d:i);
+				printbold(s:"approved ", s:GetActorClass(i), s: " ", d:i);
 				// insert sorted
 				temp = tcount;
 				// while our calc dist > alloc dist, keep going -- we add things to the end
@@ -769,7 +776,7 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 				mn = HandleDamageDeal(owner, tlist[pnum][i].tid, temp, damage_type, wepid, flags, GetActorX(owner), GetActorY(owner), GetActorZ(owner), actor_flags);
 				if(mn > 0)
 					Thing_Damage2(tlist[pnum][i].tid, mn, "SkipHandle");
-				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + ScanAttackData[scan_id].spawn_offZ, 0);
+				SpawnForced(ScannerAttackParticles[scan_id], GetActorX(tlist[pnum][i].tid), GetActorY(tlist[pnum][i].tid), GetActorZ(tlist[pnum][i].tid) + scan_data.spawn_offZ, 0);
 				
 				//printbold(s:"do scan damage of ", d:temp, s: " dist: ", d:tlist[pnum][i].dist, s: " to ", s:GetActorClass(tlist[pnum][i].tid), s:" ", d:tlist[pnum][i].tid, s:" -- j = ", d:j, s: " / ", d:tcount, s: " index: ", d:i);
 				// abort if we reached our tracer cap

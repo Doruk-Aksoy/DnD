@@ -1,4 +1,5 @@
-Actor DreamingGod : DnD_BaseRangedBoss {
+Actor DreamingGod : DnD_BaseRangedBoss 22000 {
+	//$Sprite TCHRA1
 	tag "The Dreaming God"
 	obituary "%o was disintegrated for gazing upon The Dreaming God."
 	Health 0x7FFFFFFF
@@ -25,12 +26,10 @@ Actor DreamingGod : DnD_BaseRangedBoss {
 	+LOOKALLAROUND
 	+DONTRIP
 	const int dreamer_burn = 3;
-	RadiusDamageFactor 0.5
 	states {
 		SetInfo:
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Dreamer Burn", 0, dreamer_burn)
 			TNT1 A 0 A_SetArg(4, DND_DREAMER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 			
 		IdleState:
@@ -1018,12 +1017,12 @@ Actor DreamingGod_Elite : DreamingGod {
 			TNT1 A 0 ACS_NamedExecuteAlways("DND Dreamer Burn", 0, dreamer_burn)
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DREAMER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 	}
 }
 
-Actor Torrasque : DnD_BaseHybridBoss {
+Actor Torrasque : DnD_BaseHybridBoss 22001 {
+	//$Sprite DNB2A1
 	obituary "%o got smashed by the Torrasque."
 	Health 0x7FFFFFFF
 	radius 32
@@ -1043,7 +1042,6 @@ Actor Torrasque : DnD_BaseHybridBoss {
 	var int user_charge;
 	const int wait_count = 8;
 	Damage (16)
-	RadiusDamageFactor 0.5
 	+ISMONSTER
 	+NOBLOOD
 	+DONTRIP
@@ -1059,7 +1057,6 @@ Actor Torrasque : DnD_BaseHybridBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_TORRASQUE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1163,7 +1160,7 @@ Actor Torrasque : DnD_BaseHybridBoss {
 			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Monster Trait Give", 0, DND_ISBLOCKING)
 			DNB2 H 9 A_FaceTarget
 			DNB2 GF 3 A_FaceTarget
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 10 + user_charge)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 10 + user_charge)
 			TNT1 A 0 A_ChangeFlag("SKULLFLY", 1)
 		ChargeLoop:
 			DNB2 A 4 A_FaceTarget
@@ -1173,11 +1170,11 @@ Actor Torrasque : DnD_BaseHybridBoss {
 			TNT1 AAAAAA 0 A_SpawnItemEx("MeleeSmoke", 16, 0, 0, frandom(-6, 6), frandom(-6, 6), frandom(1, 4), random (0, 360))
 			TNT1 A 0 A_SpawnItemEx("TorrasqueAfterEffect_B")
 			TNT1 A 0 A_SetUserVar("user_charge", user_charge + 2)
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 10 + user_charge)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 10 + user_charge)
 			DNB2 C 4 A_FaceTarget
 			TNT1 A 0 A_SpawnItemEx("TorrasqueAfterEffect_C")
 			DNB2 D 4 A_FaceTarget
-			TNT1 A 0 ACS_ExecuteAlways(971, 0, 10 + user_charge)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Vel Adjust", 0, 10 + user_charge)
 			TNT1 A 0 A_PlaySound("Torrasque/Step")
 			TNT1 AAAAAA 0 A_SpawnItemEx("MeleeSmoke", 16, 0, 0, frandom(-6, 6), frandom(-6, 6), frandom(1, 4), random (0, 360))
 			TNT1 A 0 A_SpawnItemEx("TorrasqueAfterEffect_D")
@@ -1440,12 +1437,12 @@ Actor Torrasque_Elite : Torrasque {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_TORRASQUE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 	}
 }
 
-Actor Mordecqai : DnD_BaseRangedBoss {
+Actor Mordecqai : DnD_BaseRangedBoss 22002 {
+	//$Sprite MORDA1
 	tag "Mordecqai"
 	obituary "%o couldn't stand against the might of Mordecqai."
 	Health 0x7FFFFFFF
@@ -1468,7 +1465,6 @@ Actor Mordecqai : DnD_BaseRangedBoss {
 	const int ang_inc = 20;
 	var int user_count;
 	BloodColor "FF A5 00"
-	RadiusDamageFactor 0.5
 	+ISMONSTER
 	+BOSS
 	+QUICKTORETALIATE
@@ -1485,7 +1481,6 @@ Actor Mordecqai : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_MORDECQAI)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1866,12 +1861,12 @@ Actor Mordecqai_Elite : Mordecqai {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_MORDECQAI)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 	}
 }
 
-Actor GodSlayer : DnD_BaseRangedBoss {
+Actor GodSlayer : DnD_BaseRangedBoss 22003 {
+	//$Sprite ROB4A1
 	tag "God Slayer"
 	obituary "%o saw UAC's biggest invention gone rogue and that was it."
 	Health 0x7FFFFFFF
@@ -1891,7 +1886,6 @@ Actor GodSlayer : DnD_BaseRangedBoss {
 	var int user_charge;
 	var int user_chargerpt;
 	const int attack_on_flight_dist = 224;
-	RadiusDamageFactor 0.5
 	+ISMONSTER
 	+NOBLOOD
 	+BOSS
@@ -1909,7 +1903,6 @@ Actor GodSlayer : DnD_BaseRangedBoss {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GODSLAYER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -2704,12 +2697,12 @@ Actor GodSlayer_Elite : GodSlayer {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_GODSLAYER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 	}
 }
 
-Actor Golgoth : DnD_BaseHybridBoss {
+Actor Golgoth : DnD_BaseHybridBoss 22004 {
+	//$Sprite MOMDA1
 	tag "Golgoth"
 	obituary "%o was removed from existence by Golgoth."
 	Health 0x7FFFFFFF
@@ -2744,13 +2737,11 @@ Actor Golgoth : DnD_BaseHybridBoss {
 	+NODROPOFF
 	+DONTRIP
 	-FLOORCLIP
-	RadiusDamageFactor 0.5
 	states {
 		SetInfo:
 			TNT1 A 1
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0, 1)
 			TNT1 A 0 A_SetArg(4, DND_GOLGOTH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 
 		IdleState:
@@ -3238,7 +3229,6 @@ Actor Golgoth_Elite : Golgoth {
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Health Check", 0, 1)
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_GOLGOTH)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", 10000)
 		Goto SpawnSetup
 	}
 }

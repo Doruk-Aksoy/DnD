@@ -256,7 +256,7 @@ SecondarySize 32
 Chance 0.4
 }
 
-Object FlamePuff2
+Object DMissile
 {
 Frame CFFXB { Light DMissileTrail2 }
 Frame CFFXC { Light DMissileTrail3 }
@@ -271,7 +271,7 @@ Frame CFFXK { Light DMissileTrail5 }
 Frame CFFXL { Light DMissileTrail6 }
 }
 
-Object CFlameFloor
+Object DTracerPuff
 {
 Frame CFFX { Light DMissileTrail1 }
 }

@@ -13,6 +13,7 @@
 #define DND_LOOTBOX_TOKENDROPCHANCE 0.15
 #define DND_LOOTBOX_CHESTKEYDROPCHANCE 0.1
 #define DND_LOOTBOX_ARMORDROPCHANCE 0.5
+#define DND_LOOTBOX_FLASKCHANCE 0.2
 
 // this is here for convenience, tracks if a legendary monster was spawned
 bool MadeLegendary = 0;
@@ -229,6 +230,8 @@ Script "DnD On Map Load" OPEN {
 	ResetMapEvents();
 	ResetSharedVariables();
 	ResetPlayerInformationLevel();
+
+	UpdateLevelInformation();
 	
 	// check for players that are spectating, reset their playerloaded variable (fixes bug where people can leave during intermission and cant load character until they spec again)
 	int i;
@@ -267,7 +270,7 @@ Script "DnD On Map Load" OPEN {
 	UpdateLevelChestLimit();
 
 	// wait while total level is not initialized
-	while(!PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL])
+	while(!InformationInLevel[LEVELINFO_PLAYERLEVEL])
 		Delay(const:TICRATE);
 
 	Delay(const:TICRATE);
@@ -348,7 +351,7 @@ Script "DnD On Death" DEATH {
 				// decrease player gained exp
 				int exp = GetPlayerExp(pnum);
 				int lvl = GetLevel();
-				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, INT_MAX), 0);
+				UpdateActivity(pnum, DND_ACTIVITY_EXP, Clamp_Between(exp - LevelCurve[lvl - 1] / 5, 0, bcs::INT_MAX), 0);
 
 				// reduce to not increment from joining
 				--PlayerActivities[pnum].vote_skips;
@@ -673,7 +676,7 @@ Script "DnD Killing Spree Timer" (void) {
 			
 			while(mult) {
 				// no overflow
-				if(reward < INT_MAX - temp)
+				if(reward < bcs::INT_MAX - temp)
 					reward += temp;
 				--mult;
 			}
@@ -721,7 +724,7 @@ Script "DND On Revive" (void) {
 		int maxhp = MonsterProperties[id].maxhp;
 		SetActorProperty(0, APROP_HEALTH, maxhp);
 		//Mob might actually be dead by this point.
-		if (GetActorProperty(0, APROP_Health) > maxhp || GetActorProperty(0, APROP_Health) == INT_MAX) {
+		if (GetActorProperty(0, APROP_Health) > maxhp || GetActorProperty(0, APROP_Health) == bcs::INT_MAX) {
 			//In the rare case the mob keeps the very high hp
 			Thing_Remove(this); //Just kill it
 			Terminate;
@@ -963,9 +966,6 @@ Script "DND On Kill" KILL {
 	// if marked by talisman
 	i = CheckInventory("HunterTalismanMarkBool");
 	SetInventory("HunterTalismanMarkBool", 0);
-	
-	if(isZombie())
-		GiveActorInventory(target, "DnD_ShotUndead", 1);
 	
 	// required delay for transition from specific death state labels
 	Delay(const:1);
@@ -1633,7 +1633,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 	//printbold(s:"Monster ", s:GetActorClass(0), s:" id ", d:ActivatorTID());
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 	//Make sure mob gets to right amount of hp at this point
-	int maxhp, base, add, pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
+	int maxhp, base, add, pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
 	int m_id = this - DND_MONSTERTID_BEGIN;
 
 	// reset attachment array to 0
@@ -1643,6 +1643,12 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 		pcount = 1;
 	
 	MonsterProperties[m_id].id = monsterid;
+
+	// prevent divide by 0 error in monster scaler due to rarity not being setup yet
+	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS) || !realhp)
+		Delay(const:HALF_TICRATE);
+
+	realhp = MonsterData[monsterid].health;
 	
 	LoadMonsterTraits(m_id, monsterid);
 	if(isSummoned)
@@ -1655,11 +1661,11 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
-		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
+		while(DnD_StateChecker[DND_STATECHECK_PLAYERJOIN] < InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART])
 			Delay(const:3);
 		//This delay needs a check
 		//Delay(35); // wait just in case someone leaves, disconnect script will correct the level
-		pcount = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+		pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
 		if(!pcount)
 			pcount = 1;
 		maxhp = ScaleMonster(this, m_id, pcount, realhp, isSummoned);
@@ -1675,7 +1681,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 	int traitcount;
 	if(!IsEliteException(m_id, monsterid)) {
 		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
-		if(toughOrElite == DND_MON_PRESET_ELITE || (GetCVar("dnd_enable_elites") && base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel"))) {
+		if(toughOrElite == DND_MON_PRESET_ELITE || (GetCVar("dnd_enable_elites") && base == ROLLED_MONSTER_IS_ELITE && InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel"))) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;
 			
 			// Elite bonuses
@@ -1692,12 +1698,12 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
-				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
 				MonsterProperties[m_id].basehp = maxhp;
 				MonsterProperties[m_id].maxhp = maxhp;
 			}
 		}
-		else if(toughOrElite == DND_MON_PRESET_TOUGH || (base == ROLLED_MONSTER_IS_MAGIC && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel"))) {
+		else if(toughOrElite == DND_MON_PRESET_TOUGH || (base == ROLLED_MONSTER_IS_MAGIC && InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel"))) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISMAGIC;
 
 			// Magic bonuses
@@ -1714,7 +1720,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
-				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
 				MonsterProperties[m_id].basehp = maxhp;
 				MonsterProperties[m_id].maxhp = maxhp;
 			}
@@ -1726,7 +1732,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 	}
 	else
 		MonsterProperties[m_id].flags &= ~(DND_MONFLAG_ISMAGIC | DND_MONFLAG_ISELITE);
-		
+
 	HandlePostInitTraits(m_id, monsterid, -1);
 	
 	// sync the decided traits
@@ -1745,7 +1751,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 	ScaleMonsterMass(MonsterProperties[m_id].level);
 
 	//Mob might actually be dead by this point.
-	if (GetActorProperty(0, APROP_Health) < realhp || GetActorProperty(0, APROP_Health) == INT_MAX) {
+	if (GetActorProperty(0, APROP_Health) < realhp || GetActorProperty(0, APROP_Health) == bcs::INT_MAX) {
 		// In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
 		// Just kill it
 		//Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None");
@@ -1768,7 +1774,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 	GiveInventory("DnD_MonsterSetupDone", 1);
 
 	if(GetActorProperty(0, APROP_HEALTH) > MonsterProperties[m_id].maxhp)
-		printbold(s:"Overflow hp on ", s:GetActorClass(0));
+		Log(s:"Overflow hp on ", s:GetActorClass(0));
 	
 	SetResultValue(0);
 }
@@ -1786,6 +1792,10 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	MonsterProperties[m_id].id = properties & 0x1FF;
 	MonsterProperties[m_id].class = (properties >> 9) & 0x1F;
 	properties >>= 14;
+
+	// prevent divide by 0 error in monster scaler due to rarity not being setup yet
+	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS))
+		Delay(const:HALF_TICRATE);
 		
 	if(GetCVar("dnd_monsterscale")) {
 		// scaling code -- delay is because monsters are initialized before enter scripts are executed
@@ -1811,7 +1821,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	int traitcount;
 	if(!CheckFlag(0, "FRIENDLY") && MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS) {
 		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
-		if(GetCVar("dnd_enable_elites") && base == base == ROLLED_MONSTER_IS_ELITE && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		if(GetCVar("dnd_enable_elites") && base == base == ROLLED_MONSTER_IS_ELITE && InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;
 			
 			// Elite bonuses
@@ -1828,12 +1838,12 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
-				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
 				MonsterProperties[m_id].basehp = maxhp;
 				MonsterProperties[m_id].maxhp = maxhp;
 			}
 		}
-		else if(base == ROLLED_MONSTER_IS_MAGIC && PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel")) {
+		else if(base == ROLLED_MONSTER_IS_MAGIC && InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount >= GetCVar("dnd_magic_spawnlevel")) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISMAGIC;
 
 			// Magic bonuses
@@ -1850,7 +1860,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
-				maxhp = Clamp_Between(base + add, 1, INT_MAX);
+				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
 				MonsterProperties[m_id].basehp = maxhp;
 				MonsterProperties[m_id].maxhp = maxhp;
 			}
@@ -1862,7 +1872,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	}
 	else
 		MonsterProperties[m_id].flags &= ~(DND_MONFLAG_ISMAGIC | DND_MONFLAG_ISELITE);
-		
+
 	HandlePostInitTraits(m_id, MonsterProperties[m_id].id, -1);
 
 	// sync the decided traits
@@ -1882,7 +1892,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	/*Clamp_Between(dmg, 0, maxhp + 1);
 	Thing_Damage2(this, dmg, "None");*/
 	//Mob might actually be dead by this point.
-	if (GetActorProperty(0, APROP_Health) < realhp || GetActorProperty(0, APROP_Health) == INT_MAX) {
+	if (GetActorProperty(0, APROP_Health) < realhp || GetActorProperty(0, APROP_Health) == bcs::INT_MAX) {
 		// In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
 		// Just kill it
 		//Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None");
@@ -1933,14 +1943,14 @@ Script "DnD Monster Spawner" (int category) {
 
     // for each bin, do condition check, see if roll fits in a range
     // wait for the players to enter (returns 0 to imply everyone ready)
-    while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore() || !PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART])
+    while(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED) || PlayersNotReadyForHardcore() || !InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART])
         Delay(const:10);
 
 	if(MapData[DND_MAPDATA_INCURSIONSTATE] == DND_INCURSION_NA) {
 		int temp = random(0, 1.0);
 		if
 		(
-			PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] / PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] >= GetCVar("dnd_incursion_level") &&
+			InformationInLevel[LEVELINFO_PLAYERLEVEL] / InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] >= GetCVar("dnd_incursion_level") &&
 			temp <= DND_INCURSION_CHANCE
 		)
 		{
@@ -2019,7 +2029,7 @@ Script "DnD Monster Spawner" (int category) {
 					int m_level = Monster_Weights[category][bin] << 16;
 					int ratio = FixedDiv(Monster_Weights[category][0] << 16, m_level);
 					int bias = random(factor / 5, factor);
-					if(ratio <= bias + PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] * FixedDiv(1.0, ratio) / 5) {
+					if(ratio <= bias + InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] * FixedDiv(1.0, ratio) / 5) {
 						SetActorState(0, StrParam(s:"Var", d:bin), true);
 						picked = true;
 					}
@@ -2099,7 +2109,7 @@ Script 973 (int mode) { // Avatar tid / targeter
 		
 		for(int i = 0; i < AVATAR_SOUL_COUNT; i++) {
 			// choose closest target
-			curdist = INT_MAX;
+			curdist = bcs::INT_MAX;
 			for(int j = 0; j < MAXPLAYERS; j++) {
 				int dist = fdistance(owner, P_TIDSTART + j);
 				if(GetActorProperty(P_TIDSTART + j, APROP_HEALTH) > 0 && dist < curdist) {
@@ -2377,7 +2387,7 @@ Script "DnD Player Levelup Check" (int tid) {
 		GiveActorInventory(tid, "AttributePoint", ATTRIB_PER_LEVEL);
 		UpdateActivity(pnum, DND_ACTIVITY_ATTRIBUTEPOINT, ATTRIB_PER_LEVEL, 0);
 		
-		++PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL];
+		++InformationInLevel[LEVELINFO_PLAYERLEVEL];
 		UpdateActivity(pnum, DND_ACTIVITY_LEVEL, 1, 0);
 
 		Delay(const:1);
@@ -2390,8 +2400,8 @@ Script "DnD Player Levelup Check" (int tid) {
 		GiveActorInventory(tid, "LevelUpEffectSpawner", 1);
 		GiveActorInventory(tid, "LeveledUp", 1);
 		ACS_NamedExecuteAlways("DnD Levelup Log", 0);
-		if(GetActorLevel(tid) - 1 == PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL])
-			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = GetActorLevel(tid);
+		if(GetActorLevel(tid) - 1 == InformationInLevel[LEVELINFO_MAXPLAYERLEVEL])
+			InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = GetActorLevel(tid);
 			
 		// sync level cap exp
 		CalculatePlayerExpRatio(tid);
@@ -2622,6 +2632,8 @@ Script "DnD Monster Scanner Picker" (void) {
 
 // takes flag segments
 Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
 	// get all of the flagsets now
 	int i;
 	if(v1) {
@@ -2930,7 +2942,7 @@ Script "DnD On Respawn" RESPAWN {
 
 	int temp = GetPlayerEnergyShieldCap(pnum);
 	if(CheckInventory("EShieldAmount") < temp) {
-		SetInventory("EShieldAmount", temp);
+		SetEnergyShield(temp);
 		HandleEShieldChange(pnum, false);
 	}
 
@@ -3167,13 +3179,13 @@ Script "DnD Player Setup" ENTER {
 	
 	if(PlayerInGame(pnum)) {
 		curlvl = GetLevel();
-		PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] += curlvl;
-		PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] += curlvl;
-		++PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
-		if(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] < curlvl)
-			PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = curlvl;
-		if(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] > curlvl)
-			PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = curlvl;
+		InformationInLevel[LEVELINFO_PLAYERLEVEL] += curlvl;
+		InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] += curlvl;
+		++InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
+		if(InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] < curlvl)
+			InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = curlvl;
+		if(InformationInLevel[LEVELINFO_MINPLAYERLEVEL] > curlvl)
+			InformationInLevel[LEVELINFO_MINPLAYERLEVEL] = curlvl;
 	}
 	
 	PostPlayerLoadRoutine(pnum);
@@ -3244,9 +3256,8 @@ Script "DnD Player Setup" ENTER {
 	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_DIFFICULTY, MapData[DND_MAPDATA_DIFFICULTY]);
 	ACS_NamedExecuteAlways("DnD Sync Mapdata", 0, DND_MAPDATA_LOOTBONUS, MapData[DND_MAPDATA_LOOTBONUS]);
 	
-	SetInventory("DnD_PTotalLevel", PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL]);
-	// for zombie quest to work
-	TakeInventory("DnD_ShotUndead", 1);
+	SetInventory("DnD_PTotalLevel", InformationInLevel[LEVELINFO_PLAYERLEVEL]);
+
 	TakeInventory("ParsingData", 1);
 	if(GetCVar("dnd_mode") <= DND_MODE_SOFTCORE)
 		ACS_NamedExecuteAlways("DnD Ankh Checker", 0);
@@ -3968,9 +3979,9 @@ Script 1000 (int isSoftcore) {
 	// casual mode has higher drop rates
 	if(isSoftcore != 2) {
 		for(i = 0; i < MAXFLAGS; ++i)
-			ConsoleCommand(StrParam(s:FlagCheckList[i], s: " ", d:FlagAcceptedValues[i]));
+			ConsoleCommand(StrParam(s:GetDefaultSettingString(i), s: " ", d:GetDefaultSettingAcceptedValue(i)));
 		for(i = 0; i < MAXDNDFLAGS; ++i)
-			SetCVar(DNDFlagCheckList[i], DNDFlagAcceptedValues[i]);
+			SetCVar(GetDnDSettingString(i), GetDnDSettingAcceptedValue(i));
 		// handle fixed point shit here because getcvar is stupid with them
 		ConsoleCommand("sv_coop_damagefactor 1.0");
 		/*SetCVar("dnd_researchdroprate", 0.0025);
@@ -4307,6 +4318,14 @@ Script "DnD Token Message" (int id) CLIENTSIDE {
 	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_TOKEN", s:": \c[Y5]", l:GetInventoryTag(id + TOKEN_BEGIN), s:"!\c-"));
 }
 
+Script "DnD Dungeon Key Message" (int id) CLIENTSIDE {
+	if(ConsolePlayerNumber() != PlayerNumber())
+		Terminate;
+	ActivatorSound("Items/DungeonKeyPick", 127);
+	GiveInventory("DungeonKeySoundPlayer", 1);
+	Log(s:StrParam(s:"\cc", l:"DND_PICKUP_DUNGEONKEY", s:": \c[Y5]", l:GetInventoryTag(id + DUNGEONKEY_BEGIN), s:"!\c-"));
+}
+
 Script "DnD Stacked Item Pickup" (int sp, int type) {
 	if((sp & 0xFFFF) == 255)
 		SetActivatorToTarget(0);
@@ -4339,6 +4358,12 @@ Script "DnD Footstep Sound" ENTER CLIENTSIDE {
 Script "DnD Weapon Can Switch Mode" (int ammo_category, int weptype) {
 	// prevent switching while in menu
 	SetResultValue(!CheckInventory("ShowingMenu") && CanSwitchMode(ammo_category, weptype));
+}
+
+Script "DnD Update Target" (int activator, int tid) {
+	SetActivator(activator);
+	SetPointer(AAPTR_TARGET, tid);
+	SetResultValue(0);
 }
 
 Script "DnD Get Target" (void) {
@@ -4543,9 +4568,9 @@ Script "DnD Try Open Chestkey" (int keytype) {
 }
 
 Script "Dnd Init Lootbox" (int val) {
-	int tid = DND_LOOTBOX_TID + DnD_TID_Counter[DND_TID_LOOTBOXES];
+	int tid = DND_LOOTBOX_TID + InformationInLevel[LEVELINFO_TID_LOOTBOXES];
 	Thing_ChangeTID(0, tid);
-	DnD_TID_Counter[DND_TID_LOOTBOXES]++;
+	InformationInLevel[LEVELINFO_TID_LOOTBOXES]++;
 
 	SetThingSpecial(0, ACS_NamedExecuteWithResult, "DnD Try Open Lootbox", val, tid);
 	SetResultValue(0);
@@ -4591,11 +4616,11 @@ Script "DnD Lootbox Fail Open Message" (int for_player) CLIENTSIDE {
 Script "DnD Lootbox Opened" (int for_player, int guaranteed_orb) {
 	if(for_player == -1) {
 		for(for_player = 0; for_player < MAXPLAYERS; ++for_player) {
-			// run each player's chance, drop for corresponding player only
-			SpawnLootboxRewards(for_player, guaranteed_orb);
+			if(PlayerInGame(for_player) && IsActorAlive(for_player + P_TIDSTART))
+				SpawnLootboxRewards(for_player, guaranteed_orb);
 		}
 	}
-	else {
+	else if(PlayerInGame(for_player) && IsActorAlive(for_player + P_TIDSTART)) {
 		// spawn stuff only for that player
 		SpawnLootboxRewards(for_player, guaranteed_orb);
 	}
@@ -4651,7 +4676,7 @@ Script "DnD Warmaster Rage" (void) {
 	while(CheckInventory("WarmasterActive")) {
 		bool found = false;
 		// try to see if there's at least one monster that is closest to this
-		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER] && !found; ++mn) {
+		for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER] && !found; ++mn) {
 			i = UsedMonsterTIDs[mn];
 		
 			if(IsActorAlive(i)) {
@@ -4709,8 +4734,8 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 
 		// add level factor to it
 		// first overflow check
-		if(add > INT_MAX - base)
-			add = INT_MAX - base;
+		if(add > bcs::INT_MAX - base)
+			add = bcs::INT_MAX - base;
 	}
 	SetActorProperty(0, APROP_HEALTH, base + add);
 	ScaleMonsterMass(level);
@@ -5322,7 +5347,7 @@ Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
 
 // Needs to be here as it loops through monster tid variable which is changed through this part
 Script "DnD Tcherno Corpse Explode" (void) {
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		int i = UsedMonsterTIDs[mn];
 		if(!isActorAlive(i) && fdistance(0, i) <= DREAMER_CORPSEEXPLOSION_DIST) {
 			GiveActorInventory(i, "TchernoCorpseExploder", 1);
@@ -5811,14 +5836,14 @@ Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
 
 Script "DnD Request Level Info" (int val) {
 	// as of adding this, these are legal values --- there can be more in future, check DnD_Common.h
-	/*#define PLAYERLEVELINFO_LEVEL 0
-	#define PLAYERLEVELINFO_MINLEVEL 1
-	#define PLAYERLEVELINFO_MAXLEVEL 2
-	#define PLAYERLEVELINFO_COUNTATSTART 3
-	#define PLAYERLEVELINFO_TIDMONSTER 4*/
-	if(val > MAX_PLAYERLEVELINFO_DATA - 1)
-		val = MAX_PLAYERLEVELINFO_DATA - 1;
-	SetResultValue(PlayerInformationInLevel[val]);
+	/*#define LEVELINFO_PLAYERLEVEL 0
+	#define LEVELINFO_MINPLAYERLEVEL 1
+	#define LEVELINFO_MAXPLAYERLEVEL 2
+	#define LEVELINFO_PLAYERCOUNTATSTART 3
+	#define LEVELINFO_TIDMONSTER 4*/
+	if(val > MAX_LEVELINFO_DATA - 1)
+		val = MAX_LEVELINFO_DATA - 1;
+	SetResultValue(InformationInLevel[val]);
 }
 
 // start and end converted to 0.01 scale, total_time is the time this transition takes, max_reach_time is the time it takes to maximum fade in value
@@ -6062,6 +6087,7 @@ Script 68 (int x) NET {
 			//SpawnCharmWithMods_ForAll(INV_MELEERANGE);
 			//for(int k = FLASKS_BEGIN; k <= FLASKS_END; ++k)
 				SpawnFlask(0, 0);
+			SpawnDungeonKey(0);
 			//SpawnFlask(0, 0);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);

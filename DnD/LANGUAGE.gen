@@ -13,6 +13,7 @@ DND_PICKUP_DISCOVERED					= "Discovered";
 DND_PICKUP_ORB							= "Orb pickup";
 DND_PICKUP_ELIXIR						= "Elixir pickup";
 DND_PICKUP_TOKEN						= "Token pickup";
+DND_PICKUP_DUNGEONKEY					= "Dungeon key pickup";
 DND_PICKUP_CHARM						= "Charm pickup";
 DND_PICKUP_ARMOR						= "Armor pickup";
 DND_PICKUP_BONUS						= "Bonus pickup";

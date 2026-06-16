@@ -1,9 +1,5 @@
 Actor PainElementalSpawner_Elite : DnD_MonsterSpawner 25011 {
-	//$Category Monsters/DnD
-	//$Title "Elite PainElemental Spawner"
 	//$Sprite TORTA1
-	//$Radius 31
-	//$Height 56
 	States {
 		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Spawner", 0, DND_PAINELEMENTALID)

@@ -1076,7 +1076,7 @@ Script "DnD Sickle Mass Res" (int base, int dist) {
 	dist <<= 16;
 	base = (base << 16) / 100;
 
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		int i = UsedMonsterTIDs[mn];
 		if(!isActorAlive(i) && RunLuckBasedChance(pnum, base, DND_LUCK_OUTCOME_GAIN) && fdistance(0, i) <= dist) {
 			ACS_NamedExecuteAlways("DnD Resurrect Checker", 0, TICRATE, i);
@@ -1350,10 +1350,10 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 			// find new victim
 			int dist = 0;
 			int prev_victim = victim;
-			int curr_dist = INT_MAX;
+			int curr_dist = bcs::INT_MAX;
 			victim = -1;
 			
-			for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+			for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 				i = UsedMonsterTIDs[mn];
 				if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE") && IsMonster(i)) {
 					dist = fdistance(prev_victim, i);
@@ -1409,7 +1409,7 @@ Script "DnD Do Scan Attack" (int dmg, int damage_type, int tracer_count, int fla
 }
 
 Script "DND Thunderstaff Bolts" (void) {
-	int dist = INT_MAX, i, j, k, temp;
+	int dist = bcs::INT_MAX, i, j, k, temp;
 	// scan all monsters for the item ThunderTarget -- that implies they are candidates having passed range check
 	static dist_tid_pair_T tlist[MAXPLAYERS][DND_THUNDERSTAFF_MAXTARGETS];
 	
@@ -1419,12 +1419,12 @@ Script "DND Thunderstaff Bolts" (void) {
 	// init list
 	for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 		tlist[pnum][i].tid = 0;
-		tlist[pnum][i].dist = INT_MAX;
+		tlist[pnum][i].dist = bcs::INT_MAX;
 	}
 	int tcount = 0;
 	int tidlim = 0;
 	// pick N closest targets as a list of targets to hit
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		if(CheckActorInventory(i, "ThunderTarget") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(0, i);
@@ -1547,7 +1547,7 @@ Script "DND Thunderstaff Lightning" (void) {
 	int scan_amt = 0;
 	int adist;
 	
-	for(int mn = 0; scan_amt < DND_THUNDERSTAFF_LIMIT && mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(int mn = 0; scan_amt < DND_THUNDERSTAFF_LIMIT && mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		if(CheckActorInventory(i, "ThunderStrike") && IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DND ThunderStaff FX Spawn", 0, i);
@@ -1685,12 +1685,12 @@ Script "DnD Pull Towards Self" (int force, int pull_dist, int flags) {
 		adj_fixed = true;
 		
 	pull_dist <<= 16;
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		int i = UsedMonsterTIDs[mn];
 		int mass = GetActorProperty(i, APROP_MASS);
 		
 		// overflow check, we divide by x2 of mass so
-		if(mass >= INT_MAX >> 1)
+		if(mass >= bcs::INT_MAX >> 1)
 			continue;
 		
 		// flags has can pull dead, we dont need to check for alive or not
@@ -1729,7 +1729,7 @@ Script "DnD Gravdis Thrust" (int pull_count, int force) {
 	force <<= 16;
 	int j = pull_count;
 	while(j) {
-		for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+		for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 			int i = UsedMonsterTIDs[mn];
 			if(CheckActorInventory(i, "GravdisDebuff") && isActorAlive(i) && !CheckActorInventory(i, "GravdisImmunity")) {
 				// get angle to face and thrust it towards this
@@ -1753,7 +1753,7 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, 0, 0);
 	bool got_one = false;
 	
-	for(int mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		i = UsedMonsterTIDs[mn];
 		// to be affected by gravdis debuff
 		if(CheckActorInventory(i, "GravdisToken") && IsActorAlive(i) && !CheckActorInventory(i, "GravdisImmunity")) {
@@ -1792,7 +1792,7 @@ Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_d
 	//bool projcrit = victim >> 17;
 	victim &= 0xFFFF;
 	int m = GetActorProperty(victim, APROP_MASS);
-	if(m < INT_MAX / damage * base_dmg)
+	if(m < bcs::INT_MAX / damage * base_dmg)
 		m = m * base_dmg / damage;
 	m = Clamp_Between(m / 12, 16, 4096);
 	bool was_flying = CheckFlag(victim, "NOGRAVITY");
@@ -2084,7 +2084,7 @@ Script "DnD Chain Lightning (Weapon)" (int dmg, int zap_count, int flags, int ju
 		for(i = 0; i < zap_count; ++i)
 			zap_tids[pnum][i] = 0;
 
-		for(mn = 0; mn < DnD_TID_Counter[DND_TID_MONSTER]; ++mn) {
+		for(mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 			i = UsedMonsterTIDs[mn];
 			if(i != this && isActorAlive(i) && CheckFlag(i, "SHOOTABLE") && fdistance(this, i) <= jump_dist && CheckSight(this, i, 0))
 				zap_tids[pnum][cur_count++] = i;
@@ -2176,7 +2176,7 @@ int HandleTracerPicking(int owner, int lock_on_range, int width, int height, boo
 	//printbold(s:"target pick");
 	
 	int result = 0;
-	int cur_dist = INT_MAX;
+	int cur_dist = bcs::INT_MAX;
 
 	int x, y;
 	int draw_x, draw_y;
@@ -2198,7 +2198,7 @@ int HandleTracerPicking(int owner, int lock_on_range, int width, int height, boo
 
 	//Log(s:"width height range ", f:width, s: " ", f:height, s: " ", f:lock_on_range);
 
-	for(int i = 0; i < DnD_TID_Counter[DND_TID_MONSTER]; ++i) {
+	for(int i = 0; i < InformationInLevel[LEVELINFO_TID_MONSTER]; ++i) {
 		int tid = UsedMonsterTIDs[i];
 		if(!isActorAlive(tid))
 			continue;

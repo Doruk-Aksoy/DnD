@@ -7,6 +7,7 @@
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
 #include "DnD_ChestKey.h"
+#include "DnD_Dungeons.h"
 #include "DnD_Skills.h"
 #include "DnD_Settings.h"
 #include "DnD_ClassMenu.h"
@@ -551,44 +552,45 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 	--guaranteed_orb;
 
 	int tmp;
-	if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
-		// for orbs
-		int plvl = GetActorLevel(i + P_TIDSTART);
+	// for orbs
+	int plvl = GetActorLevel(i + P_TIDSTART);
 
-		if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE1)
-			SpawnOrb(i, true, false, GetOrbDropStack(plvl));
+	if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE1)
+		SpawnOrb(i, true, false, GetOrbDropStack(plvl));
 
-		if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE2)
-			SpawnOrb(i, true, false, GetOrbDropStack(plvl));
+	if(random(0, 1.0) <= DND_LOOTBOX_ORBDROPCHANCE2)
+		SpawnOrb(i, true, false, GetOrbDropStack(plvl));
 
-		// for tokens -- same likelihood to drop as orbs
-		if(random(0, 1.0) <= DND_LOOTBOX_TOKENDROPCHANCE)
-			SpawnToken(i, GetOrbDropStack(plvl));
+	// for tokens -- same likelihood to drop as orbs
+	if(random(0, 1.0) <= DND_LOOTBOX_TOKENDROPCHANCE)
+		SpawnToken(i, GetOrbDropStack(plvl));
 
-		if(random(0, 1.0) <= DND_LOOTBOX_ARMORDROPCHANCE) {
-			// boot and body armor chance is equal
-			tmp = random(1, 100);
-			if(tmp <= 25)
-				SpawnArmor(i, 0, 0, false);
-			else if(tmp <= 60)
-				SpawnBoot(i, 0);
-			else if(tmp <= 85)
-				SpawnHelm(i, 0);
-			else {
-				// class specific spawn -- check if this is the fitting class of the player later here
-				SpawnSpecialtyItem(i, 0, 0, false, GetRandomSpecialtyItem());
-			}
+	if(random(0, 1.0) <= DND_LOOTBOX_ARMORDROPCHANCE) {
+		// boot and body armor chance is equal
+		tmp = random(1, 100);
+		if(tmp <= 25)
+			SpawnArmor(i, 0, 0, false);
+		else if(tmp <= 60)
+			SpawnBoot(i, 0);
+		else if(tmp <= 85)
+			SpawnHelm(i, 0);
+		else {
+			// class specific spawn -- check if this is the fitting class of the player later here
+			SpawnSpecialtyItem(i, 0, 0, false, GetRandomSpecialtyItem());
 		}
-		else
-			SpawnCharm(i, 0);
-
-		
-		if(random(0, 1.0) <= DND_LOOTBOX_CHESTKEYDROPCHANCE)
-			SpawnChestKey(i);
-
-		if(guaranteed_orb >= 0)
-			SpawnSpecificOrb(i, guaranteed_orb, true, true, random(1, 3));
 	}
+	else
+		SpawnCharm(i, 0, 0, false, random(0, 100));
+
+	
+	if(random(0, 1.0) <= DND_LOOTBOX_CHESTKEYDROPCHANCE)
+		SpawnChestKey(i);
+
+	if(random(0, 1.0) <= DND_LOOTBOX_FLASKCHANCE)
+		SpawnFlask(i, 0);
+
+	if(guaranteed_orb >= 0)
+		SpawnSpecificOrb(i, guaranteed_orb, true, true, random(1, 3));
 }
 
 enum {
@@ -623,11 +625,11 @@ void SpawnResearchId(int id) {
 		for(int i = 0; i < MAXPLAYERS; ++i) {
 			// spawn this only if this isn't already found by the player
 			if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART) && !CheckResearchStatus(id))
-				SpawnPlayerDrop(i, "ResearchModule_MP", 24.0, 16, i + 1, id);
+				SpawnPlayerDropTargeted(i, "ResearchModule_MP", 24.0, 16, i + 1, id);
 		}
 	}
 	else if(!CheckResearchStatus(id)) // 1 before id is player (0 + 1)
-		SpawnPlayerDrop(0, "ResearchModule_MP", 24.0, 16, 1, id);
+		SpawnPlayerDropTargeted(0, "ResearchModule_MP", 24.0, 16, 1, id);
 }
 
 void SpawnAccessory(int pnum) {
@@ -713,7 +715,7 @@ void HandleChestDrops(int ctype) {
 		SpawnOrbForAll(random(5, 8), 1 + random(1, 10) / 2);
 		SpawnItemForAll(DND_ITEM_TOKEN);
 		SpawnItemForAll(GetRandomSpecialtyItem());
-		SpawnItemForAll(DND_ITEM_BODYARMOR, 1, random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL], PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL]));
+		SpawnItemForAll(DND_ITEM_BODYARMOR, 1, random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MAXPLAYERLEVEL]));
 	}
 
 	// tid used as value here for credit
@@ -723,6 +725,10 @@ void HandleChestDrops(int ctype) {
 			GiveActorCredit(i, tid);
 		}
 	}
+
+	// 25% chance to spawn a charm that has boosted synergy chance
+	if(RunDefaultDropChance(pnum, 0.25))
+		SpawnCharmForAll(0, (ctype + 1) * DND_CHARM_SPECIALTYBOOST_BASE);
 	
 	// common to all chests, an extra orb can drop with 33% chance and another with 20%
 	if(RunDefaultDropChance(pnum, 0.33))
@@ -740,9 +746,13 @@ Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
 }
 
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
-void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
-	bool ignoreWeight = GetCVar("dnd_ignore_dropweights");
+void HandleItemDropsForLoot(int tid, int m_id, int drop_boost, int rarity_boost) {
 	int tmp;
+
+	// chest droprate check
+	int chest_dropchance = DND_LOOTCHEST_DROPRATE_DUNGEON;
+	if(InformationInLevel[LEVELINFO_ISDUNGEON])
+		chest_dropchance = DND_LOOTCHEST_DROPRATE_DUNGEON;
 
 	bool incursion = IsIncursionMonster(m_id);
 
@@ -753,14 +763,14 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 			int p_chance = GetDropChance(i);
 			int j;
 
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1))
+			if(RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1))
 				SpawnOrb(i, true, false, GetOrbDropStack(MonsterProperties[m_id].level));
 
 			// for tokens -- same likelihood to drop as orbs
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2))
+			if(RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2))
 				SpawnToken(i, GetOrbDropStack(MonsterProperties[m_id].level));
 
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
+			if(RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
 				// boot and body armor chance is equal
 				tmp = random(1, 100);
 				if(tmp <= 33) {
@@ -781,21 +791,24 @@ void HandleItemDrops(int tid, int m_id, int drop_boost, int rarity_boost) {
 					SpawnHelm(i, rarity_boost);
 			}
 
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASE_CHARMRATE * drop_boost / 100, m_id, DND_MON_RNG_4)) {
+			if(RunPrecalcDropChance(p_chance, DND_BASE_CHARMRATE * drop_boost / 100, m_id, DND_MON_RNG_4)) {
 				if(incursion && RollIncursionItemChance())
 					SpawnCharmWithMods(i, PickRandomIncursionMod());
 				else
 					SpawnCharm(i, rarity_boost);
 			}
 
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_5))
+			if(RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_5))
 				SpawnSpecialtyItem(i, rarity_boost, 0, false, GetRandomSpecialtyItem());
 			
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_2))
+			if(RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_7))
 				SpawnChestKey(i);
 
-			if(ignoreWeight || RunPrecalcDropChance(p_chance, DND_FLASK_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_6))
+			if(RunPrecalcDropChance(p_chance, DND_FLASK_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_6))
 				SpawnFlask(i, rarity_boost);
+
+			if(IsLootChestDroppingMonster(m_id) && RunPrecalcDropChance(p_chance, chest_dropchance * drop_boost / 100, m_id, DND_MON_RNG_8))
+				SpawnDrop("LootChest", 0, 0, 0, 0);
 
 			// made this not tied to player's droprate
 			j = MonsterProperties[m_id].id;
@@ -984,11 +997,15 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 		// note: this doesnt seem to be contributing towards anything...
 		//temp = random(0, DND_RESEARCH_DROPMULT * DND_RESEARCH_MAX_CHANCE);
 		//printbold(f:CVarValues[DND_CVAR_RESEARCHDROPRATE], s:" ", d:MonsterProperties[m_id].droprate, s:" ", f:CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100);
-		if(GetCVar("dnd_ignore_dropweights") || RunPrecalcDropChance(p_chance, CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_2))
-			SpawnResearch(pnum);
+/*#ifdef ISDEBUGBUILD
+		if(1)
+#else*/
+		if(RunPrecalcDropChance(p_chance, CVarValues[DND_CVAR_RESEARCHDROPRATE] * MonsterProperties[m_id].droprate / 100, m_id, DND_MON_RNG_2))
+//#endif
+		SpawnResearch(pnum);
 	}
 	
-	HandleItemDrops(tid, m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
+	HandleItemDropsForLoot(tid, m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	
 	// accessory drops (accept only from cyber and spider masterminds)
 	if(
@@ -1025,9 +1042,6 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 		temp = MonsterProperties[m_id].maxhp;
 		SpawnPlayerDrop(pnum, "Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
 	}
-
-	if(IsMonsterIdZombie(m_id))
-		GiveActorInventory(target, "DnD_ShotUndead", 1);
 		
 	if(CheckActorInventory(tid, "BookofDeadCausedDeath")) {
 		if(random(1, 100) <= DND_SOULAMMO_SMALLCHANCE)
@@ -1067,7 +1081,7 @@ int GetWeaponSlotFromFlag(int flags) {
 int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 	int base = realhp;
 	int add = 0, level = 1, low, high, temp;
-	level = PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount;
+	level = InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount;
 	// ensure minions use master's level -- do so only if its summoned, boss tier monsters have tids on the spawners that can mess this up during mapload!!!
 	if(GetActorProperty(0, APROP_MASTERTID) && isSummoned)
 		level = MonsterProperties[GetActorProperty(0, APROP_MASTERTID) - DND_MONSTERTID_BEGIN].level;
@@ -1088,10 +1102,10 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 			level += random(low, high);
 		}
 		else // level of unique boss is always level of highest player
-			level = PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL];
+			level = InformationInLevel[LEVELINFO_MAXPLAYERLEVEL];
 	}
 	if(GetCVar("dnd_monsterlevel_behind"))
-		level = Clamp_Between(level, 1, PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / pcount);
+		level = Clamp_Between(level, 1, InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount);
 	level = Clamp_Between(level, 1, GetCVar("dnd_maxmonsterlevel"));
 	if(level > 1) {
 		add = GetMonsterHPScaling(m_id, level);
@@ -1104,8 +1118,8 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
 
 		// add level factor to it
 		// first overflow check
-		if(add > INT_MAX - base)
-			add = INT_MAX - base;
+		if(add > bcs::INT_MAX - base)
+			add = bcs::INT_MAX - base;
 	}
 
 	if(CheckMapEvent(DND_MAPEVENT_NOINFIGHTING)) {
@@ -1318,10 +1332,10 @@ void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 }
 
 int GetAveragePlayerLevel() {
-	int temp = PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+	int temp = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
 	if(temp < 1)
 		temp = 1;
-	return PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] / temp;
+	return InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / temp;
 }
 
 void ClearLingeringBuffs(int pnum) {

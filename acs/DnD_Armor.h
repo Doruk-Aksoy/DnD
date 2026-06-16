@@ -163,8 +163,8 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 		else
 			res = BODYARMOR_YELLOW;
 		// make sure everyone can equip this armor (we need this to ensure map spawned armors are readily equippable)
-		item_tier = PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL];
-		if(!item_tier || item_tier == INT_MAX)
+		item_tier = InformationInLevel[LEVELINFO_MINPLAYERLEVEL];
+		if(!item_tier || item_tier == bcs::INT_MAX)
 			item_tier = 1;
 	}
 	else if(tiers == 2) {
@@ -174,9 +174,9 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 			res = BODYARMOR_BLUE;
 		else
 			res = BODYARMOR_RED;
-		item_tier = PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL];
-		if(!item_tier || item_tier == INT_MAX)
-			item_tier = 1 + random(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] / 2, PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] - 1);
+		item_tier = InformationInLevel[LEVELINFO_MINPLAYERLEVEL];
+		if(!item_tier || item_tier == bcs::INT_MAX)
+			item_tier = 1 + random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL] / 2, InformationInLevel[LEVELINFO_MINPLAYERLEVEL] - 1);
 	}
 	else if(tiers < 0)
 		res = -tiers;

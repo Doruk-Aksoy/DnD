@@ -29,8 +29,8 @@ int GetMagicHealthScale(int level) {
 }
 
 #define DND_ELITE_RESOLUTION 10000
-#define DND_ELITE_MIN_INCREMENT 120 // per DND_MONSTERRARITY_PERLVL levels add 1.2
-#define DND_MAGIC_MIN_INCREMENT 240 // per DND_MONSTERRARITY_PERLVL levels add 2.4
+#define DND_ELITE_MIN_INCREMENT 100 // per DND_MONSTERRARITY_PERLVL levels add 1.0
+#define DND_MAGIC_MIN_INCREMENT 200 // per DND_MONSTERRARITY_PERLVL levels add 2.0
 #define DND_MONSTERRARITY_PERLVL 10
 #define DND_ELITE_RESOLUTION_SCALE 100
 
@@ -168,11 +168,11 @@ int GetRandomEliteTrait() {
 #define ROLLED_MONSTER_IS_ELITE 2
 
 bool RollEliteChance(int chance) {
-	int base_elite = Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + (PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] / DND_MONSTERRARITY_PERLVL) * DND_ELITE_MIN_INCREMENT;
+	int base_elite = Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + (InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] / DND_MONSTERRARITY_PERLVL) * DND_ELITE_MIN_INCREMENT;
 	if(chance <= base_elite)
 		return ROLLED_MONSTER_IS_ELITE;
 
-	base_elite += Clamp_Between(GetCVar("dnd_magic_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + (PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] / DND_MONSTERRARITY_PERLVL) * DND_MAGIC_MIN_INCREMENT;
+	base_elite += Clamp_Between(GetCVar("dnd_magic_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + (InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] / DND_MONSTERRARITY_PERLVL) * DND_MAGIC_MIN_INCREMENT;
 	return chance <= base_elite;
 }
 

@@ -107,7 +107,7 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 Script "DND Shared Item Init" (int type) {
 	if(GameType() != GAME_SINGLE_PLAYER) {
 		// If it goes over limits, just ignore its existance.
-		if (DnD_TID_Counter[DND_TID_SHAREDITEMS] < MAX_SHARED_ITEMS) {
+		if (InformationInLevel[LEVELINFO_TID_SHAREDITEMS] < MAX_SHARED_ITEMS) {
 			GiveSharedItemTID();
 			SetActorProperty(0, APROP_MASS, type);
 		}

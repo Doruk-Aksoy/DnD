@@ -1,0 +1,121 @@
+Actor Shambler : DnD_BaseHybridMonster 21215 {
+    //$Sprite UD00A1
+	Health 0x7FFFFFFF
+	Radius 35
+	Height 84
+	Mass 1200
+	Speed 11
+	ReactionTime 10
+	PainChance 16
+    +ISMONSTER
+	+FLOORCLIP
+	+DONTHARMSPECIES
+	+DONTHURTSPECIES
+	SeeSound "Kjaroch/See"
+	PainSound "Kjaroch/pain"
+	DeathSound "Kjaroch/death"
+	ActiveSound "Kjaroch/act"
+	Obituary "%o met a Dimensional Shambler."
+	HitObituary "%o was torn apart by a Dimensional Shambler."
+	Scale 1.25
+	MeleeRange 82
+	const int shambler_dmg = 18;
+    const int shamber_dmg_max = 27;
+	MaxTargetRange 768
+	Species "HK"
+	Tag "Dimensional Shambler"
+	States {
+		SetInfo:
+			TNT1 A 0 A_SetArg(4, DND_DUNGEON_SHAMBLER)
+		Goto SpawnSetup
+
+		IdleState:
+			UD00 AB 12 A_Look
+		Loop
+		SeeState:
+			UD00 CC 2 A_Chase
+			UD00 DD 3 A_Chase
+			UD00 EEFF 2 A_Chase
+			UD00 GG 3 A_Chase
+			UD00 HH 2 A_Chase
+		Loop
+		MeleeState:
+			TNT1 A 0 A_Jump(128, "Other")
+			UD00 I 7 A_FaceTarget
+            TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+			TNT1 A 0 A_FaceTarget
+			UD00 JJJ 2 A_Recoil(-2.0)
+			TNT1 A 0 A_Stop
+			UD00 K 7 A_CustomMeleeAttack(72, "Kjaroch/Hit", "")
+		Goto See
+		Other:
+			UD00 N 7 A_FaceTarget
+            TNT1 A 0 A_PlaySound("Kjaroch/Melee")
+			TNT1 A 0 A_FaceTarget
+			UD00 WWW 2 A_Recoil(-2.0)
+			TNT1 A 0 A_Stop
+			UD00 X 7 A_CustomMeleeAttack(72, "Kjaroch/Hit", "")
+		Goto See
+		MissileState:
+			UD00 L 2 A_FaceTarget
+			TNT1 A 0 A_PlaySound ("Shambler/Attack", 5)
+			UD00 LL 5 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 0)
+			TNT1 A 0 A_FaceTarget
+			UD00 MM 6 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 1)
+			TNT1 A 0 A_FaceTarget
+			UD00 M 6 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 1)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Face Target (Pitch)")
+			TNT1 A 0 A_PlaySound("Shambler/Hit", 5)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 3)
+			UD00 O 5 A_CustomBulletAttack(0, 0, 1, random(shambler_dmg, shamber_dmg_max), "ShamblerPuff", 1576, CBAF_NORANDOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Face Target (Pitch)")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 3)
+			UD00 O 5 A_CustomBulletAttack(0, 0, 1, random(shambler_dmg, shamber_dmg_max), "ShamblerPuff", 1576, CBAF_NORANDOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Face Target (Pitch)")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 3)
+			UD00 O 5 A_CustomBulletAttack(0, 0, 1, random(shambler_dmg, shamber_dmg_max), "ShamblerPuff", 1576, CBAF_NORANDOM)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Face Target (Pitch)")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 2)
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Shambler Attack Form FX", 0, 3)
+			UD00 O 5 A_CustomBulletAttack(0, 0, 1, random(shambler_dmg, shamber_dmg_max), "ShamblerPuff", 1576, CBAF_NORANDOM)
+		Goto See
+		PainState:
+			UD00 P 8 A_Pain
+		Goto See
+        XDeathState:
+		DeathState:
+			UD00 Q 8 A_Scream
+			UD00 R 8
+			UD00 S 8 A_NoBlocking
+			UD00 TU 8
+			UD00 V -1
+		Stop
+		RaiseState:
+			UD00 UTSRQ 6
+		Goto See
+	}
+}
+
+Actor ShamblerPuff {
+	Height 2
+	Radius 1
+	Scale 0.25
+    DamageType "Lightning"
+	Stamina 256
+	+HITTRACER
+	+NOGRAVITY
+	+PUFFGETSOWNER
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	+SKYEXPLODE // important to prevent a problem with skies
+	States {
+		Spawn:
+		Melee:
+			TNT1 AAAA 0
+			TNT1 A 16 ACS_NamedExecuteAlways("DnD Shambler Attack FX", 0, ACS_NamedExecuteWithResult("DnD Get Target"))
+		Stop
+	}
+}

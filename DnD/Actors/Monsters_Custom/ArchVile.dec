@@ -1,4 +1,5 @@
-Actor Diabloist : DnD_BaseRangedMonster_NoRes {
+Actor Diabloist : DnD_BaseRangedMonster_NoRes 21169 {
+	//$Sprite DIABA1D1
 	Obituary "%o was set ablaze by a Diabloist."
 	Health 0x7FFFFFFF
 	Radius 20 
@@ -23,7 +24,6 @@ Actor Diabloist : DnD_BaseRangedMonster_NoRes {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DIABLOIST)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	
 		IdleState:
@@ -527,12 +527,12 @@ ACTOR Diabloist_Elite : Diabloist {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DIABLOIST)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE2)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR DeathVile : DnD_ArchVileBase {
+ACTOR DeathVile : DnD_ArchVileBase 21170 {
+	//$Sprite WILEA1D1
 	Health 0x7FFFFFFF
 	Speed 16
 	PainChance 8
@@ -556,7 +556,6 @@ ACTOR DeathVile : DnD_ArchVileBase {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEATHVILE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 		
 		IdleState:
@@ -615,13 +614,13 @@ ACTOR DeathVile_Elite : DeathVile {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DEATHVILE)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_UNCOMMON)
 		Goto SpawnSetup
 	}
 }
 
 //Hierophant
-Actor Hierophant : DnD_BaseHybridMonster_NoRes {
+Actor Hierophant : DnD_BaseHybridMonster_NoRes 21171 {
+	//$Sprite HIERA1C1
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -648,7 +647,6 @@ Actor Hierophant : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HIEROPHANT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -948,12 +946,12 @@ ACTOR Hierophant_Elite : Hierophant {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_HIEROPHANT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-ACTOR Deathknight : DnD_BaseHybridMonster_NoRes { 
+ACTOR Deathknight : DnD_BaseHybridMonster_NoRes 21172 { 
+	//$Sprite DKNTA1
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -979,7 +977,6 @@ ACTOR Deathknight : DnD_BaseHybridMonster_NoRes {
 	States { 
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DEATHKNIGHT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1323,12 +1320,12 @@ ACTOR Deathknight_Elite : Deathknight {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DEATHKNIGHT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-Actor Horshacker : DnD_BaseHybridMonster_NoRes {
+Actor Horshacker : DnD_BaseHybridMonster_NoRes 21173 {
+	//$Sprite DKNTA1
 	Translation "0:255=%[0.00,0.00,0.00]:[0.28,0.88,1.98]", "80:111=80:111", "0:15=0:15", "128:159=128:159", "48:79=48:79", "160:167=160:167", "208:239=208:239", "249:249=249:249"
 	Seesound "monster/horshacksee"
 	ActiveSound "monster/horshackact"
@@ -1356,7 +1353,6 @@ Actor Horshacker : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_HORSHACKER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1750,12 +1746,12 @@ ACTOR Horshacker_Elite : Horshacker {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_HORSHACKER)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_VERYRARE)
 		Goto SpawnSetup
 	}
 }
 
-actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
+actor UndeadPriest : DnD_BaseHybridMonster_NoRes 21174 {
+	//$Sprite UNDPA1
 	obituary "%o was bagged by an undead priest."
 	Health 0x7FFFFFFF
 	gibhealth 20
@@ -1781,7 +1777,6 @@ actor UndeadPriest : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_UNDEADPRIEST)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		IdleState:
@@ -1977,12 +1972,12 @@ ACTOR UndeadPriest_Elite : UndeadPriest {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_UNDEADPRIEST)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	}
 }
 
-Actor Guru : DnD_BaseHybridMonster_NoRes {
+Actor Guru : DnD_BaseHybridMonster_NoRes 21175 {
+	//$Sprite GURUA1
 	Health 0x7FFFFFFF
 	Radius 20
 	Height 56
@@ -2009,7 +2004,6 @@ Actor Guru : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_GURU)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2288,12 +2282,12 @@ ACTOR Guru_Elite : Guru {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_GURU)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_RARE1)
 		Goto SpawnSetup
 	}
 }
 
-Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
+Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
+	//$Sprite RSONA1
 	Health 0x7FFFFFFF
 	+MISSILEMORE
 	+DONTHURTSPECIES
@@ -2319,7 +2313,6 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes {
 	States {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_DARKZEALOT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2629,12 +2622,12 @@ ACTOR DarkZealot_Elite : DarkZealot {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_DARKZEALOT)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	}
 }
 
-actor FleshWizard : DnD_BaseRangedMonster_NoRes {
+actor FleshWizard : DnD_BaseRangedMonster_NoRes 21177 {
+	//$Sprite LMWZE1
 	obituary "%o was tormented by a Flesh Wizard."
 	Health 0x7FFFFFFF
 	radius 20
@@ -2658,7 +2651,6 @@ actor FleshWizard : DnD_BaseRangedMonster_NoRes {
 	states {
 		SetInfo:
 			TNT1 A 0 A_SetArg(4, DND_FLESHWIZARD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 
 		IdleState:
@@ -2877,7 +2869,6 @@ ACTOR FleshWizard_Elite : FleshWizard {
 		SetInfo:
 			TNT1 A 0 A_SetArg(3, DND_MONSTERIS_ELITE)
 			TNT1 A 0 A_SetArg(4, DND_FLESHWIZARD)
-			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Init Monster Data", DND_MWEIGHT_EPIC)
 		Goto SpawnSetup
 	}
 }

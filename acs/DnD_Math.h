@@ -71,6 +71,11 @@ int Max(int x, int y) {
 	return y;
 }
 
+int magnitudeTwo(int x, int y)
+{
+    return sqrt_z(x*x + y*y);
+}
+
 int magnitudeThree(int x, int y, int z)
 {
     return sqrt_z(x*x + y*y + z*z);
@@ -267,7 +272,7 @@ int LinearMap_Fixed(int val, int o_min, int o_max, int n_min, int n_max) {
 	return FixedDiv(FixedMul(val - o_min, n_max - n_min), o_max - o_min) + n_min;
 }
 
-// INT_MAX has 10 digits
+// bcs::INT_MAX has 10 digits
 int PowersOf10[10] = {
 	1,
 	10,

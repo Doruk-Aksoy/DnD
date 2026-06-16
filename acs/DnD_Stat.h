@@ -371,6 +371,10 @@ bool HasActorMasteredPerk(int tid, int stat) {
 }
 
 void SpawnPlayerDrop(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
+	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY, pnum + P_TIDSTART);
+}
+
+void SpawnPlayerDropTargeted(int pnum, str actor, int zoffset, int thrust, int setspecial, int setspecial2, bool noRandomVelXY = false) {
 	SpawnDrop(actor, zoffset, thrust, setspecial, setspecial2, noRandomVelXY);
 }
 
@@ -1069,22 +1073,22 @@ int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) 
 }
 
 void RecalculatePlayerLevelInfo() {
-	PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] = 0;
-	PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] = 0;
-	PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = INT_MAX;
-	PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = INT_MIN;
-	PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART] = 0;
+	InformationInLevel[LEVELINFO_PLAYERLEVEL] = 0;
+	InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] = 0;
+	InformationInLevel[LEVELINFO_MINPLAYERLEVEL] = bcs::INT_MAX;
+	InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = bcs::INT_MIN;
+	InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] = 0;
 	int temp = 0;
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			temp = CheckActorInventory(i + P_TIDSTART, "Level");
-			PlayerInformationInLevel[PLAYERLEVELINFO_LEVEL] += temp;
-			PlayerInformationInLevel[PLAYERLEVELINFO_LEVELATSTART] += temp;
-			if(PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] > temp)
-				PlayerInformationInLevel[PLAYERLEVELINFO_MINLEVEL] = temp;
-			if(PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] < temp)
-				PlayerInformationInLevel[PLAYERLEVELINFO_MAXLEVEL] = temp;
-			++PlayerInformationInLevel[PLAYERLEVELINFO_COUNTATSTART];
+			InformationInLevel[LEVELINFO_PLAYERLEVEL] += temp;
+			InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] += temp;
+			if(InformationInLevel[LEVELINFO_MINPLAYERLEVEL] > temp)
+				InformationInLevel[LEVELINFO_MINPLAYERLEVEL] = temp;
+			if(InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] < temp)
+				InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = temp;
+			++InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
 		}
 	}
 }
