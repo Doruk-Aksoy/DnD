@@ -69,7 +69,6 @@ Actor DogTagDrop_2 : SpecialtyItemDrop {
 }
 
 Actor SunglassDrop_0 : SpecialtyItemDrop {
-	Scale 0.5
 	States {
 		Spawn:
 			SPI0 G 0
@@ -78,7 +77,6 @@ Actor SunglassDrop_0 : SpecialtyItemDrop {
 }
 
 Actor SunglassDrop_1 : SpecialtyItemDrop {
-	Scale 0.5
 	States {
 		Spawn:
 			SPI0 H 0
@@ -87,7 +85,6 @@ Actor SunglassDrop_1 : SpecialtyItemDrop {
 }
 
 Actor SunglassDrop_2 : SpecialtyItemDrop {
-	Scale 0.5
 	States {
 		Spawn:
 			SPI0 I 0

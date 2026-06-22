@@ -17,6 +17,7 @@
 #include "GLDefs/Spells.txt"
 #include "GLDefs/MapDecor.txt"
 #include "GLDefs/Torches.txt"
+#include "GLDefs/Traps.txt"
 
 flickerlight2 PLASMAATK {
     color 0.5 0.5 1.0

@@ -31,6 +31,7 @@ Script 900 (int opt, int showInv) NET {
 	int pnum = PlayerNumber();
 	if(StatListOpened[pnum]) {
 		ClearMenuLeftovers(pnum);
+		ResetSelectedDungeonInformation(pnum);
 		DecideAccessories();
 		//SetInventory("MenuPosY", 5);
 		LocalAmbientSound("RPG/MenuClose", 127);
@@ -85,6 +86,7 @@ Script 900 (int opt, int showInv) NET {
 			FlushStack(pnum);
 
 			ResetTransmutingData(pnum);
+			ResetDungeonSelectData(pnum);
 			
 			ACS_NamedExecuteWithResult("DnD Sync Player Exp", pnum, GetPlayerExp(pnum));
 			ACS_NamedExecuteAlways("DnD Menu Input Loop", 0);
@@ -97,11 +99,21 @@ Script 900 (int opt, int showInv) NET {
 	}
 }
 
-Script "DnD Transmute Orb Sync" (int pnum, int id, int val) CLIENTSIDE {
-	if(ConsolePlayerNumber() != pnum)
+Script "DnD Selected Dungeon Sync" (int pnum, int val) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum || GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 
-	TransmuteOrbs[pnum][id] = val;
+	auto d = GetSelectedDungeonData(pnum);
+	d.id = val;
+	SetResultValue(0);
+}
+
+Script "DnD Transmute Orb Sync" (int pnum, int id, int val) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum || GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
+	auto d = GetTransmuteOrbData(pnum);
+	d.val[id] = val;
 	SetResultValue(0);
 }
 
@@ -371,7 +383,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(PlayerCursorData.itemHovered != -1/* && (PlayerCursorData.itemClicked == -1 || CheckInventory("DnD_UsedTwoItemRequirementMaterial"))*/) {
 			if(boxid == MAINBOX_NONE || PlayerCursorData.hoverNeedsReset)
 				ResetCursorHoverData();
-			else if(curopt != MENU_LOAD_CRAFTING_TRANSMUTING || boxid >= MATERIALBOX_OFFSET_BOXID){
+			else if(curopt != MENU_LOAD_CRAFTING_TRANSMUTING || boxid >= MATERIALBOX_OFFSET_BOXID) {
 				if(PlayerCursorData.itemHoveredDim.x) {
 					DrawInventoryInfo(PlayerCursorData.owner_pnum);
 				}
@@ -626,6 +638,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_CRAFTING", DND_LANGUAGE_LOOKUP, boxid, MBOX_6, RPGMENUITEMID - 6, 192.1, 176.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_ACCESSORIES", DND_LANGUAGE_LOOKUP, boxid, MBOX_7, RPGMENUITEMID - 7, 192.1, 192.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_TRADING", DND_LANGUAGE_LOOKUP, boxid, MBOX_8, RPGMENUITEMID - 8, 192.1, 208.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_DUNGEONS", DND_LANGUAGE_LOOKUP, boxid, MBOX_9, RPGMENUITEMID - 9, 192.1, 224.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_LOAD1) {
 				HudMessage(s:"--- ", l:"DND_MENU_HEAD_ITEMS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0); 
@@ -772,6 +785,40 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					HudMessage(s:"\c[Y5]=>"; HUDMSG_PLAIN, RPGMENUITEMID - 32, CR_CYAN, 436.1, 44.0, 0.0, 0.0);
 				if(curopt != MENU_FIRST_TRADE)
 					HudMessage(s:"\c[Y5]<="; HUDMSG_PLAIN, RPGMENUITEMID - 33, CR_CYAN, 184.1, 44.0, 0.0, 0.0);
+			}
+			else if(curopt == MENU_LOAD_DUNGEONS) {
+				HudMessage(s:"--- ", l:"DND_MENU_HEAD_DUNGEONS", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+
+				i = CheckInventory("DnD_InventoryView");
+				DrawBoxText("<=", DND_NOLOOKUP, i ? -1 : boxid, MBOX_3, RPGMENUID - 3, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+
+				// MBOX_1 is used for the main map drop hole
+				j = boxid == MBOX_1 && !CheckInventory("DnD_InventoryView");
+
+				// if there is an orb here, draw it
+				k = GetSelectedDungeonData(pnum).id;
+				if(k != -1) {
+					SetFont(GetItemImage(k + ITEM_IMAGE_DUNGEONKEY_BEGIN));
+
+					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 316.4, 80.0, 0.0, 0.0);
+					
+					if(j)
+						UpdateCursorHoverData(CheckInventory("DnD_SelectedDungeonBox") - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0, pnum, 0, HUDMAX_X, HUDMAX_Y);
+				}
+				else {
+					SetFont("ORBBAKQ");
+					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2, CR_WHITE, 316.4, 80.0, 0.0, 0.0);
+				}
+
+				if(j)
+					SetFont("SCHSEL");
+				else
+					SetFont("SCHNOR");
+				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 316.4, 80.0, 0.0, 0.0);
+
+				// restore font
+				SetFont("NMENUFNT");
+				DrawBoxText("DND_ACTIVATE", DND_LANGUAGE_LOOKUP, i ? -1 : boxid, MBOX_2, RPGMENUITEMID - 3, 316.4, 112.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
 				// if RES_ACCESSORY is not made, don't let player do anything here
@@ -1435,7 +1482,11 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				SetInventory("DnD_SelectedInventoryBox", 0);
 				if(HasLeftClicked(pnum)) {
 					if(boxid > 0) {
-						if(boxid == MBOX_8)
+						if(boxid == MBOX_9) {
+							ResetDungeonSelectData(pnum);
+							UpdateMenuPosition(MENU_LOAD_DUNGEONS);
+						}
+						else if(boxid == MBOX_8)
 							UpdateMenuPosition(MENU_LOAD_TRADE1);
 						else if(boxid == MBOX_7)
 							UpdateMenuPosition(MENU_LOAD_ACC1);
@@ -1718,6 +1769,51 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				else if(HasPressedRight(pnum)) {
 					if(curopt != MENU_LAST_ACCESSORY_PAGE)
 						UpdateMenuPosition(curopt + 1);
+				}
+			}
+			else if(curopt == MENU_LOAD_DUNGEONS) {
+				if(HasLeftClicked(pnum)) {
+					if(!CheckInventory("DnD_InventoryView")) {
+						if(boxid == MBOX_1) {
+							SetInventory("DnD_Inventory_Filter", DND_BOXFILTER_DUNGEONS);
+							GiveInventory("DnD_InventoryView", 1);
+							LocalAmbientSound("RPG/MenuChoose", 127);
+						}
+						else if(boxid == MBOX_2) {
+							// allow to open portal to dungeon
+							temp = CheckInventory("DnD_SelectedDungeonBox");
+							if(!temp)
+								ShowPopup(POPUP_NODUNGEONSELECTED, false, 0);
+							else if(DungeonInformation.dungeon_id == -1) {
+								ACS_NamedExecuteWithResult("DnD Dungeon Portal Create", pnum, temp - 1, GetSelectedDungeonData(pnum).id);
+								ResetDungeonSelectData(pnum);
+								GiveInventory("DnD_RefreshPane", 1);
+								LocalAmbientSound("RPG/MenuChoose", 127);
+							}
+							else
+								ShowPopup(POPUP_ALREADYDUNGEONACTIVE, false, 0);
+						}
+						else if(boxid == MBOX_3) {
+							SetInventory("DnD_Inventory_Filter", 0);
+							TakeInventory("DnD_InventoryView", 1);
+							GiveInventory("DnD_CleanInventoryRequest", 1);
+							UpdateMenuPosition(MENU_LOAD);
+						}
+					}
+					else {
+						// inventory view clicks will attempt to place a proper (dungeon key) item to the slot
+						HandleDungeonKeySelection(pnum, boxid, temp);
+					}
+				}
+				else if(HasRightClicked(pnum) && boxid == MBOX_1 && CheckInventory("DnD_SelectedDungeonBox")) {
+					ResetSelectedDungeonInformation(pnum);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				else if(HasPressedLeft(pnum)) {
+					SetInventory("DnD_Inventory_Filter", 0);
+					TakeInventory("DnD_InventoryView", 1);
+					GiveInventory("DnD_CleanInventoryRequest", 1);
+					UpdateMenuPosition(MENU_LOAD);
 				}
 			}
 			else if(curopt == MENU_SHOP) {

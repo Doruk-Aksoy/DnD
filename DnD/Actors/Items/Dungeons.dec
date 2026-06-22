@@ -24,6 +24,68 @@ Actor DungeonKeyBase : InventoryBase {
 	}
 }
 
+Actor DungeonPortal {
+	RenderStyle Add
+	Alpha 0.01
+	Scale 0.01
+	Radius 20
+	Height 40
+	ReactionTime 32 // nearly 15 seconds
+	const float s = 0.05;
+	Activation THINGSPEC_NoDeathSpecial|THINGSPEC_ThingTargets
+	+USESPECIAL
+	+DONTBLAST
+	+DONTSPLASH
+	+NOGRAVITY
+	States {
+		Spawn:
+			TNT1 A 0 NoDelay A_PlaySound("DungeonPortal/Make", CHAN_5)
+			PRTL A 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL A 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL B 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL B 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL C 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL C 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL D 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL D 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL E 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL E 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL F 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL F 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL G 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL G 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL H 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			PRTL H 1 Bright A_FadeIn(0.05)
+			TNT1 A 0 A_SetScale(scalex + s, scaley + s)
+			TNT1 A 0 Thing_SetSpecial(0, 226, 255, 0, 0)
+			TNT1 A 0 A_PlaySound("DungeonPortal/Loop", CHAN_6, 1.0, true)
+		SpawnLoop:
+			PRTL ABCDEFGH 2 Bright
+			PRTL A 0 A_Countdown
+		Loop
+		Death:
+			TNT1 A 0 A_StopSound(CHAN_6)
+			TNT1 A 0 ACS_NamedExecuteWithResult("DnD Dungeon Portal Perish")
+			PRTL ABCDEFGH 2 Bright A_FadeOut(0.0875)
+		Stop
+	}
+}
+
 Actor DungeonKey_0 : DungeonKeyBase {
     States {
 		Spawn:

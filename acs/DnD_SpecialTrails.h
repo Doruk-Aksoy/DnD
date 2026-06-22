@@ -52,6 +52,7 @@ void bubblesort(int[]* list, int len) {
    }
 }
 
+#define DND_LINEDRAW_HARDCAP 32
 void LineDraw(int actortype, int sx, int sy, int sz, int dx, int dy, int dz, int density) {
     int nX;  int nY;   int nZ;
     int bX;  int bY;   int bZ;
@@ -66,7 +67,7 @@ void LineDraw(int actortype, int sx, int sy, int sz, int dx, int dy, int dz, int
 	if(!magnitude)
 		magnitude = 1;
 
-    pointCount  = magnitude / density;
+    pointCount  = Min(magnitude / density, DND_LINEDRAW_HARDCAP);
     pointOffset = magnitude - (pointCount * density);
 
 	nX = dx / magnitude; nY = dy / magnitude; nZ = dz / magnitude;

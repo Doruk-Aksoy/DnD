@@ -317,3 +317,24 @@ Graphic "FL16B0", 17, 21
 	YScale 0.9
 	Patch "FL16B0", 0, 0
 }
+
+Graphic "SUNGLW01", 23, 13
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "SUNGL01", 0, 0
+}
+
+Graphic "SUNGLW02", 23, 10
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "SUNGL02", 0, 0
+}
+
+Graphic "SUNGLW03", 23, 12
+{
+	XScale 0.8
+	YScale 0.8
+	Patch "SUNGL03", 0, 0
+}

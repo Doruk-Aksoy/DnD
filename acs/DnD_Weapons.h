@@ -2285,7 +2285,14 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			proj_id = DND_PROJ_PISTOL;
 			use_default = true;
 			hitscan_id = DND_HITSCAN_ADMINPISTOL;
-			sp_x = 0.5;
+
+			if(!(isAltFire & DND_ATK_SECONDARY))
+				sp_x = 0.5;
+			else {
+				sp_x = 7.2;
+				sp_y = 7.2;
+				count = 12;
+			}
 		break;
 	}
 	

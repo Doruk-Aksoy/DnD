@@ -155,6 +155,18 @@ enum {
 	BOXLIT_STATE_BAD
 };
 
+enum {
+	DND_BOXFILTER_DUNGEONS = 1,
+};
+
+int GetFilterItemType(int id) {
+	switch(id) {
+		case DND_BOXFILTER_DUNGEONS:
+		return DND_ITEM_DUNGEONKEY;
+	}
+	return -1;
+}
+
 #define MAXLITBOXES (3 * MAX_INVENTORY_BOXES)
 int InventoryBoxLit[MAXLITBOXES];
 

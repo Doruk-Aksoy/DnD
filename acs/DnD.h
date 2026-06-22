@@ -1078,8 +1078,8 @@ int GetWeaponSlotFromFlag(int flags) {
 	return 0;
 }
 
-int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned) {
-	int base = realhp;
+int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int hp_mult) {
+	int base = realhp * hp_mult;
 	int add = 0, level = 1, low, high, temp;
 	level = InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount;
 	// ensure minions use master's level -- do so only if its summoned, boss tier monsters have tids on the spawners that can mess this up during mapload!!!

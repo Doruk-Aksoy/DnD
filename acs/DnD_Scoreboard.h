@@ -10,9 +10,11 @@ enum {
 	DND_SCBRD_SPECPLAYERCOUNT,
 	DND_SCBRD_DEADPLAYERCOUNT,
 	DND_SCBRD_SAFETOSAVE,
-	DND_SCBRD_SAVESUCCEEDED
+	DND_SCBRD_SAVESUCCEEDED,
+	DND_SCBRD_TRIGGERED,
+
+	MAX_SCOREBOARD_DATA
 };
-#define MAX_SCOREBOARD_DATA (DND_SCBRD_SAVESUCCEEDED + 1)
 
 #define MAX_INTERMISSION_SONGS 4
 #define MAX_INTERMISSION_PLAYERS_SHOWN 29 // we can fit 29 players currently
@@ -225,6 +227,8 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			democracy = GetLevelInfo(LEVELINFO_TOTAL_MONSTERS);
 			
 			ACS_NamedExecuteWithResult("DnD Scoreboard Display", ScoreboardData[DND_SCBRD_TIMER], democracy);
+
+			ScoreboardData[DND_SCBRD_TRIGGERED] = 1;
 			
 			// clean up exit markers, we'll reuse them for click detection
 			ScoreboardData[DND_SCBRD_PLAYEREXITED1] = 0;
@@ -243,11 +247,21 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 			democracy = ScoreboardData[DND_SCBRD_TIMER] * TICRATE;
 			while(democracy-- && ScoreboardData[DND_SCBRD_PLAYEREXITCOUNT] < GetActivePlayerCount())
 				Delay(const:1);
-			
-			if(!isSecretExit)
-				Exit_Normal(0);
-			else
-				Exit_Secret(0);
+
+			if(DungeonInformation.dungeon_id == -1) {
+				if(!isSecretExit)
+					Exit_Normal(0);
+				else
+					Exit_Secret(0);
+			}
+			else if(!InformationInLevel[LEVELINFO_ISDUNGEON])
+				ChangeLevel(GetDungeonMapLump(DungeonInformation.dungeon_id), 0, CHANGELEVEL_NOINTERMISSION, -1);
+			else {
+				// we are in dungeon and dungeon id is not -1, so get its next map to be applied here
+				i = DungeonInformation.next_map;
+				ResetCurrentDungeonData();
+				ChangeLevel(i, 0, CHANGELEVEL_NOINTERMISSION, -1);
+			}
 			Delay(1);
 		}
 	}

@@ -452,11 +452,11 @@ object GreenTorch2
 
 flickerlight2 CANDELABRA
 {
-    color 1.0 1.0 0.0
-    size 47
-    secondarySize 51
-    interval 0.01
-    offset 0 52 0
+    color 0.4 0.3 0.0
+    size 48
+    secondarySize 52
+    interval 0.001
+    offset 0 76 0
 }
 
 object Candelabra2

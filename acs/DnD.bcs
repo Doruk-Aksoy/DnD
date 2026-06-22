@@ -232,6 +232,8 @@ Script "DnD On Map Load" OPEN {
 	ResetPlayerInformationLevel();
 
 	UpdateLevelInformation();
+
+	ScoreBoardData[DND_SCBRD_TRIGGERED] = 0;
 	
 	// check for players that are spectating, reset their playerloaded variable (fixes bug where people can leave during intermission and cant load character until they spec again)
 	int i;
@@ -277,13 +279,16 @@ Script "DnD On Map Load" OPEN {
 
 	SetupCVarTracking();
 
-	// commented out for now!
-//#ifdef ISDEBUGBUILD
 	while(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
 		Delay(const:TICRATE);
 
 	NPC_Setup();
-//#endif
+
+	// this is needed as a one time thing on server launch
+	if(!IsSetupComplete(SETUP_STATE1, SETUP_DUNGEONDATAFIRSTTIMECLEAR)) {
+		ResetCurrentDungeonData();
+		SetupComplete(SETUP_STATE1, SETUP_DUNGEONDATAFIRSTTIMECLEAR);
+	}
 }
 
 Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
@@ -1627,7 +1632,7 @@ Script "DnD Setup Shootable" (void) {
 }
 
 // Monster scaler -- add scaling stuff here
-Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
+Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int hp_mult) {
 	GiveMonsterTID(ActivatorTID());
 
 	//printbold(s:"Monster ", s:GetActorClass(0), s:" id ", d:ActivatorTID());
@@ -1641,6 +1646,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 
 	if(!pcount)
 		pcount = 1;
+
+	if(!hp_mult)
+		hp_mult = 1;
 	
 	MonsterProperties[m_id].id = monsterid;
 
@@ -1668,7 +1676,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite) {
 		pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
 		if(!pcount)
 			pcount = 1;
-		maxhp = ScaleMonster(this, m_id, pcount, realhp, isSummoned);
+		maxhp = ScaleMonster(this, m_id, pcount, realhp, isSummoned, hp_mult);
 	}
 	else {
 		maxhp = realhp;
@@ -1803,7 +1811,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 			Delay(const:3);
 		if(!pcount)
 			pcount = 1;
-		maxhp = ScaleMonster(this, m_id, pcount, realhp, MonsterProperties[m_id].trait_list[DND_SUMMONED]);
+		maxhp = ScaleMonster(this, m_id, pcount, realhp, MonsterProperties[m_id].trait_list[DND_SUMMONED], 1);
 	}
 	else {
 		maxhp = realhp;
@@ -1951,7 +1959,7 @@ Script "DnD Monster Spawner" (int category) {
 		if
 		(
 			InformationInLevel[LEVELINFO_PLAYERLEVEL] / InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] >= GetCVar("dnd_incursion_level") &&
-			temp <= DND_INCURSION_CHANCE
+			temp <= DND_INCURSION_CHANCE && !InformationInLevel[LEVELINFO_ISDUNGEON]
 		)
 		{
 			MapData[DND_MAPDATA_INCURSIONSTATE] = RollIncursionTheme();
@@ -3012,6 +3020,10 @@ Script "DnD On Unloading" UNLOADING {
 		SaveAllPlayerData();
 	}
 
+	// map skip = no dungeon data save
+	if(!ScoreBoardData[DND_SCBRD_TRIGGERED])
+		ResetCurrentDungeonData();
+
 	DungeonBossData[BOSSDATA_TID] = 0;
 	ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
 }
@@ -4044,6 +4056,11 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 	// dont proceed if we are in scoreboard
 	if(CheckInventory("DnD_IntermissionState"))
 		Terminate;
+
+	if(num > 0xFFFF) {
+		to = num >> 16;
+		num &= 0xFFFF;
+	}
 		
 	GiveInventory("TipBoxOpen", 1); // just in case this wasn't given before
 	if(num != DND_ANNOUNCER_TRADEREQUEST)
@@ -4067,7 +4084,7 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 		SetFont("NOTIFBAK");
 		HudMessageBold(s:"A"; HUDMSG_FADEINOUT, SURVIVEBAKID, CR_UNTRANSLATED, hud_pos, 96.0, 4.0, 1.0, 1.0);
 	}
-		
+
 	SetFont("OBJFONT");
 	SetHudSize(960, 600, 1);
 	
@@ -4091,6 +4108,12 @@ Script "DND Announcer" (int num, int extra, int to) CLIENTSIDE {
 		LocalAmbientSound("TradeRequest", 127);
 		HudMessage(l:"DND_TEXT_TRADEREQUEST", s:": ", n:extra + 1; HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0);
 	}
+	else if(num == DND_ANNOUNCER_DUNGEONPOP)
+		HudMessage(
+			l:"DND_DUNGEON_CREATED", n:to + 1, s:": ", 
+			l:"DND_STAT18", s:" \cd", d:extra >> 16, s:"\c- \ck", l:GetDungeonName(1 + (extra & 0xFFFF)), s:"\c-!"; 
+			HUDMSG_FADEINOUT, SURVIVETEXTID, CR_WHITE, hud_pos, 126.1, 4.0, 1.0, 1.0
+		);
 	SetHudClipRect(0, 0, 0, 0, 0);
 }
 
@@ -6070,13 +6093,13 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 250);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PHANTASMAL, true, true, 250);
 
-			//SpawnSpecialtyItem(0, 0, 0, 0, random(DND_ITEM_SPECIALTY_DOOMGUY, DND_ITEM_SPECIALTY_TRICKSTER));
+			SpawnSpecialtyItem(0, 0, 0, 0, random(DND_ITEM_SPECIALTY_DOOMGUY, DND_ITEM_SPECIALTY_TRICKSTER));
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_SCULPTING, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_PRISMATIC, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
 			SpawnToken(0, true);
 			//Log(s:"boot");
 			SpawnBoot(0, 0);

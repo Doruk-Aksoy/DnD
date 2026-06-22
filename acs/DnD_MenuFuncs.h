@@ -1682,6 +1682,7 @@ rect_T module& LoadRect(int menu_page, int id) {
 			{ 289.0, 149.0, 221.0, 142.0 }, // crafting
 			{ 289.0, 133.0, 196.0, 126.0 }, // accessories
 			{ 289.0, 117.0, 230.0, 110.0 }, // trading
+			{ 289.0, 101.0, 224.0, 94.0 }, // dungeons
 			{ -1, -1, -1, -1 }
 		},
 		// loadout 1
@@ -1805,6 +1806,13 @@ rect_T module& LoadRect(int menu_page, int id) {
 		},
 		// trade 5
 		{
+			{ -1, -1, -1, -1 }
+		},
+		// dungeons
+		{
+			{ 184.0, 260.0, 144.0, 220.0 },
+			{ 198.0, 212.0, 130.0, 204.0 },
+			{ 296.0, 280.0, 296.0 - CRAFTING_PAGEARROW_XSIZE, 278.0 - CRAFTING_PAGEARROW_YSIZE },
 			{ -1, -1, -1, -1 }
 		},
 		// shop
@@ -3075,7 +3083,11 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 		SetFont("LDTBOXC");
 	else if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, bid, -1, source))) {
 		// if lvl requirement is satisfied draw them normal -- topbox is +1 of actual index
-		if(GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, temp - 1, -1, source) <= GetLevel())
+		img = CheckInventory("DnD_Inventory_Filter");
+		hasItem = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, temp - 1, -1, source);
+		if(img && hasItem != GetFilterItemType(img))
+			SetFont("LDTBOXR");
+		else if(GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, temp - 1, -1, source) <= GetLevel() || hasItem == DND_ITEM_DUNGEONKEY) // dont subject keys to level cap, if user wants to go there, let em
 			SetFont("LDTBOXO");
 		else
 			SetFont("LDTBOXR");
@@ -4416,9 +4428,16 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T module& p, int boxid
 	SetFont("NMENUFNT");
 }
 
+void ResetDungeonSelectData(int pnum) {
+	auto d = GetSelectedDungeonData(pnum);
+	d.id = -1;
+	ACS_NamedExecuteWithResult("DnD Selected Dungeon Sync", pnum, -1);
+}
+
 void ResetTransmutingData(int pnum) {
+	auto d = GetTransmuteOrbData(pnum);
 	for(int i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
-		TransmuteOrbs[pnum][i] = -1;
+		d.val[i] = -1;
 		ACS_NamedExecuteWithResult("DnD Transmute Orb Sync", pnum, i, -1);
 	}
 }
@@ -4433,8 +4452,9 @@ int IsValidTransmuteRecipe(int pnum) {
 		orb_counts[i] = 0;
 
 	// get count of all orbs in the transmute chamber
+	auto transmute_data = GetTransmuteOrbData(pnum);
 	for(i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
-		j = TransmuteOrbs[pnum][i];
+		j = transmute_data.val[i];
 		if(j != -1) {
 			++orb_counts[j];
 			++overall_count;
@@ -4502,6 +4522,7 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 	// we have three total boxes
 	int i;
 	int id_offset = 7;
+	auto transmute_data = GetTransmuteOrbData(pnum);
 	for(i = 0; i < MAX_TRANSMUTE_BOXES; ++i) {
 		str borderpic = "SCHNOR";
 		int thisboxid = MBOX_1 + i;
@@ -4513,7 +4534,7 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 		int hudy = 128.0 + 64.0 * (1 - 2 * (i % 2));
 			
 		// if there is an orb here, draw it
-		int o_id = TransmuteOrbs[pnum][i];
+		int o_id = transmute_data.val[i];
 		if(o_id != -1) {
 			str i_img = GetItemImage(o_id + ITEM_IMAGE_ORB_BEGIN);
 			if(o_id >= DND_MON_DROP_ORB_BEGIN)
@@ -4542,6 +4563,7 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 		SetFont("NMENUFNT");
 		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 7, 188.4, 256.0, "\c[B1]", "\c[G8]");
 		DeleteText(RPGMENUID - 16);
+		DeleteText(RPGMENUID - 17);
 	}
 	else {
 		SetFont("ORBMBKG");
@@ -4576,6 +4598,10 @@ void HandleTransmutingDraw(int pnum, menu_inventory_T module& p, int boxid, int 
 			HudMessage(s:"\c[Y5]", l:"DND_RANDOM_TAGGED_ORB"; HUDMSG_PLAIN, RPGMENUID - 16, CR_WHITE, 188.4, 180.0, 0.0, 0.0);
 		}
 
+		if(GetPlayerCredit(pnum) >= DND_TRANSMUTE_COST)
+			HudMessage(s:"\c[Y5]", l:"DND_PRICE", s:": \cd", d:DND_TRANSMUTE_COST; HUDMSG_PLAIN, RPGMENUID - 17, CR_WHITE, 188.4, 196.0, 0.0, 0.0);
+		else
+			HudMessage(s:"\c[Y5]", l:"DND_PRICE", s:": \cg", d:DND_TRANSMUTE_COST; HUDMSG_PLAIN, RPGMENUID - 17, CR_WHITE, 188.4, 196.0, 0.0, 0.0);
 		DrawBoxText("DND_TRANSMUTE", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUID - 5, 188.4, 256.0, "\c[B1]", "\c[Y5]");
 	}
 
@@ -4988,6 +5014,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 		//Log(d:curitemeindex, s: " ", d:previtemindex);
 		//printbold(d:previtemindex, s: " ", d:boxid);
 		boxid = (boxid & DND_MENU_ITEMSAVEBITS1_MASK);
+		auto transmute_data = GetTransmuteOrbData(pnum);
 		if(boxid != MAINBOX_NONE) {
 			if(HasLeftClicked(pnum)) {
 				// arrows in material part, left and right respectively
@@ -5022,9 +5049,10 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 					}
 
 					// add them only if they aren't the same -- really shitty code but I really didn't wanna use an array to group them together
-					int oid_1 = TransmuteOrbs[pnum][0];
-					int oid_2 = TransmuteOrbs[pnum][1];
-					int oid_3 = TransmuteOrbs[pnum][2];
+					auto data = GetTransmuteOrbData(pnum);
+					int oid_1 = data.val[0];
+					int oid_2 = data.val[1];
+					int oid_3 = data.val[2];
 					int oamt_1 = 1;
 					int oamt_2 = 1;
 					int oamt_3 = 1;
@@ -5086,7 +5114,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 				else if(boxid >= MBOX_1 && boxid <= MBOX_3 && CheckInventory("DnD_SelectedInventoryBox")) {
 					// previtemindex holds (topboxid of item) - 1 in inventory
 					temp = PlayerInventoryList[pnum][previtemindex].item_subtype;
-					TransmuteOrbs[pnum][boxid - 1] = temp;
+					transmute_data.val[boxid - 1] = temp;
 					ACS_NamedExecuteAlways("DnD Transmute Orb Sync", 0, pnum, boxid - 1, temp);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 					SetInventory("DnD_SelectedInventoryBox", 0);
@@ -5094,7 +5122,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 			}
 			else if(HasRightClicked(pnum) && boxid >= MBOX_1 && boxid <= MBOX_3) {
 				// take orb off transmute list
-				TransmuteOrbs[pnum][boxid - 1] = -1;
+				transmute_data.val[boxid - 1] = -1;
 				ACS_NamedExecuteAlways("DnD Transmute Orb Sync", 0, pnum, boxid - 1, -1);
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedInventoryBox", 0);
@@ -6316,6 +6344,40 @@ bool IsBoxChangeException(int curopt, int boxid) {
 		return CheckResearchStatus(RES_ACCESSORY) != RES_DONE && boxid < MBOX_3;
 	}
 	return false;
+}
+
+void ResetSelectedDungeonInformation(int pnum) {
+	SetInventory("DnD_SelectedDungeonBox", 0);
+	ResetDungeonSelectData(pnum);
+}
+
+void HandleDungeonKeySelection(int pnum, int boxid, int choice) {
+	int temp;
+	int tpbid = -1;
+	if(choice == DND_MENUINPUT_LCLICK) {
+		if(boxid != MAINBOX_NONE && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
+			tpbid = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) - 1;
+			if(temp != DND_ITEM_DUNGEONKEY) {
+				// failed, popup
+				ShowPopup(POPUP_ITEMTYPEMISMATCH, false, 0);
+			}
+			else {
+				// success, place it for activation
+				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, tpbid, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				GetSelectedDungeonData(pnum).id = temp;
+				ACS_NamedExecuteWithResult("DnD Selected Dungeon Sync", pnum, temp);
+
+				// save the topleftbox for later removal in case player activates this
+				SetInventory("DnD_SelectedDungeonBox", tpbid + 1);
+
+				// close inventory view
+				TakeInventory("DnD_InventoryView", 1);
+				GiveInventory("DnD_CleanInventoryRequest", 1);
+
+				LocalAmbientSound("RPG/MenuChoose", 127);
+			}
+		}
+	}
 }
 
 #ifdef ISAPRILFIRST

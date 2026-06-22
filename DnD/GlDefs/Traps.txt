@@ -1,0 +1,73 @@
+FlickerLight FireJetTrapLight
+{
+    Color 1.0 0.6 0.0
+    Size 40
+    SecondarySize 56
+    Chance 0.4
+}
+
+pointlight FireJetTrapLight2 {
+    Color 1.0 0.6 0.0
+    Size 30
+}
+
+pointlight FireJetTrapLight3 {
+    Color 1.0 0.6 0.0
+    Size 20
+}
+
+object DnD_FireJetUp {
+    frame T002B { light FireJetTrapLight }
+    frame T002C { light FireJetTrapLight }
+    frame T002D { light FireJetTrapLight }
+    frame T002E { light FireJetTrapLight }
+    frame T002F { light FireJetTrapLight }
+    frame T002G { light FireJetTrapLight }
+    frame T002H { light FireJetTrapLight }
+    frame T002I { light FireJetTrapLight }
+    frame T002J { light FireJetTrapLight }
+    frame T002K { light FireJetTrapLight }
+    frame T002L { light FireJetTrapLight }
+    frame T002M { light FireJetTrapLight }
+    frame T002N { light FireJetTrapLight }
+    frame T002O { light FireJetTrapLight }
+    frame T002P { light FireJetTrapLight }
+    frame T002Q { light FireJetTrapLight }
+    frame T002R { light FireJetTrapLight }
+    frame T002S { light FireJetTrapLight }
+
+    frame T002T { light FireJetTrapLight2 }
+    frame T002U { light FireJetTrapLight3 }
+}
+
+object DnD_FireJet {
+    frame T002B { light FireJetTrapLight }
+    frame T002C { light FireJetTrapLight }
+    frame T002D { light FireJetTrapLight }
+    frame T002E { light FireJetTrapLight }
+    frame T002F { light FireJetTrapLight }
+    frame T002G { light FireJetTrapLight }
+    frame T002H { light FireJetTrapLight }
+    frame T002I { light FireJetTrapLight }
+    frame T002J { light FireJetTrapLight }
+    frame T002K { light FireJetTrapLight }
+    frame T002L { light FireJetTrapLight }
+    frame T002M { light FireJetTrapLight }
+    frame T002N { light FireJetTrapLight }
+    frame T002O { light FireJetTrapLight }
+    frame T002P { light FireJetTrapLight }
+    frame T002Q { light FireJetTrapLight }
+    frame T002R { light FireJetTrapLight }
+    frame T002S { light FireJetTrapLight }
+
+    frame T002T { light FireJetTrapLight2 }
+    frame T002U { light FireJetTrapLight3 }
+}
+
+object DnD_FireJetProjectile {
+    frame T000A { light FireJetTrapLight }
+    frame T000B { light FireJetTrapLight }
+    frame T000C { light FireJetTrapLight }
+    frame T000D { light FireJetTrapLight2 }
+    frame T000E { light FireJetTrapLight3 }
+}

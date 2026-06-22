@@ -13,7 +13,25 @@
 
 #define DND_BUDGET_CONVERSION_CREDIT 10000
 #define DND_TRANSMUTE_COST 5000
-int TransmuteOrbs[MAXPLAYERS][MAX_TRANSMUTE_BOXES]; // holds topboxid from inventories
+
+typedef struct {
+	int val[MAX_TRANSMUTE_BOXES];
+} transmute_data_T;
+
+typedef struct {
+	int id;
+} sel_dungeon_data_T;
+
+// holds topboxid from inventories in its val field
+transmute_data_T module& GetTransmuteOrbData(int pnum) {
+	static transmute_data_T TransmuteData[MAXPLAYERS];
+	return TransmuteData[pnum];
+}
+
+sel_dungeon_data_T module& GetSelectedDungeonData(int pnum) {
+	static sel_dungeon_data_T DungeonData[MAXPLAYERS];
+	return DungeonData[pnum];
+}
 
 #define DND_MENU_BASEAMMOSTOCK 50
 
@@ -58,6 +76,8 @@ enum {
 	MENU_LOAD_TRADE3,
 	MENU_LOAD_TRADE4,
 	MENU_LOAD_TRADE5,
+
+	MENU_LOAD_DUNGEONS,
 	
 	MENU_SHOP,
 	MENU_SHOP_WEAPON,

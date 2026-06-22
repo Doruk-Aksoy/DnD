@@ -5,7 +5,7 @@
 
 #define SIZEOF_INT 4
 
-//#define ISDEBUGBUILD
+#define ISDEBUGBUILD
 //#define WANTCURSORPOS
 
 #ifdef ISDEBUGBUILD
@@ -320,7 +320,8 @@ enum {
 	SETUP_WEAPONDATA,
 	SETUP_PLAYERINFO_MINMAXLEVELS,
 	SETUP_CLEANINGMONSTERTIDS,
-	SETUP_GLOBALCONSTANTSETUPS
+	SETUP_GLOBALCONSTANTSETUPS,
+	SETUP_DUNGEONDATAFIRSTTIMECLEAR
 };
 global int 55: SetupStates[2];
 
@@ -950,5 +951,22 @@ enum {
 	DND_GREENARMOR_CONTRIB = -15,
 	DND_BLUEARMOR_CONTRIB = -30,
 };
+
+bool HasMapLump(str lump) {
+	// first try if the MAP01, MAP02 etc. is in there, if not try full path on the lump if that doesn't exist we know for sure its not there
+	int id = LumpOpen(lump, 0);
+	if(id == -1) {
+		id = LumpOpen(StrParam(s:"Maps/", s:lump, s:".wad"), 0, LUMP_OPEN_FULLPATH);
+		
+		if(id != -1)
+			LumpClose(id);
+
+		return id != -1;
+	}
+
+	LumpClose(id);
+
+	return true;
+}
 
 #endif

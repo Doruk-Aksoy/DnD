@@ -9,6 +9,7 @@ Actor DnD_TrapBase {
     +NODAMAGE
     +INVULNERABLE
     +NOBLOOD
+    +FORCEYBILLBOARD
 }
 
 Actor DnD_SwitchableTrapBase : SwitchableDecoration {
@@ -22,4 +23,5 @@ Actor DnD_SwitchableTrapBase : SwitchableDecoration {
     +NODAMAGE
     +INVULNERABLE
     +NOBLOOD
+    +FORCEYBILLBOARD
 }

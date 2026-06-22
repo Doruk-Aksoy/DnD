@@ -341,6 +341,7 @@ enum {
 	IIMG_FLASK_UTILITY_QUICKSILVER,
 	IIMG_FLASK_UTILITY_QUARTZ,
 
+	// dungeon keys -- in matching order with dnd_dungeons.h enum
 	IIMG_DUNGEONKEY_VOIDKEEP = 4000,
 
 	MAX_ITEM_IMAGES
@@ -735,7 +736,6 @@ bool IsStackedItem(int type) {
 		case DND_ITEM_ORB:
 		case DND_ITEM_CHESTKEY:
 		case DND_ITEM_TOKEN:
-		case DND_ITEM_DUNGEONKEY:
 		return true;
 	}
 	return false;
@@ -767,6 +767,10 @@ int GetMaxItemAffixes(int item_type, int item_subtype = -1) {
 		break;
 		case DND_ITEM_FLASK:
 			res = MAX_FLASK_ATTRIB_DEFAULT;
+		break;
+
+		case DND_ITEM_DUNGEONKEY:
+			res = MAX_DUNGEONKEY_ATTRIB_DEFAULT;
 		break;
 
 
@@ -2134,7 +2138,7 @@ void DrawInventoryText(
 			);
 		}
 		else if(itype <= UNIQUE_BEGIN) {
-			HudMessage(s:"\c[Y5]", s:GetItemTagName(itype, isubt); 
+			HudMessage(s:"\c[Y5]", l:GetItemTagName(itype, isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
@@ -2203,7 +2207,7 @@ void DrawInventoryText(
 				}
 			}
 			sync_info.implicit_textID = tmp_text;
-			sync_info.implicit_lines_count = max(0, CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH) - 1);
+			sync_info.implicit_lines_count = max(0, CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH - 1) - 1); // -1 to fix the off by one error in necro armor
 			//Log(s:"implicit lines: ", d:sync_info.implicit_lines_count);
 		}
 		else

@@ -82,6 +82,7 @@ DND_MENU_HEAD_ABILEARNED = 	"Abilities Learned";
 DND_MENU_HEAD_HELP		=	"DnD Help";
 DND_MENU_HEAD_RESGUNS	=	"Research: Guns";
 DND_MENU_HEAD_NFT		=	"NFTs";
+DND_MENU_HEAD_DUNGEONS	=	"Dungeons Available";
 
 DND_MENU_SLOT			=	"Slot";
 DND_MENU_MATERIALS		=	"Materials";
@@ -114,6 +115,7 @@ DND_MENU_WEAPONDISCARD	=	"Weapon Discard";
 DND_MENU_CRAFTING		=	"Crafting";
 DND_MENU_ACCESSORIES	=	"Accessories";
 DND_MENU_TRADING		=	"Trading";
+DND_MENU_DUNGEONS		=	"Dungeons";
 DND_MENU_VIEWINV		=	"View Inventory";
 
 DND_MENU_MAPDIFF		=	"Map Difficulty";

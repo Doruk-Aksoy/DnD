@@ -440,4 +440,6 @@ typedef struct it_con {
 #define MAX_UNIQUE_ITEMS (UNIQUE_HELM_END - UNIQUE_CHARM_BEGIN + 1)
 global inventory_constructor_T 53: UniqueItemList[MAX_UNIQUE_ITEMS];
 
+#include "DnD_DungeonBase.h"
+
 #endif

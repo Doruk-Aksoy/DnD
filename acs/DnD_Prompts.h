@@ -88,7 +88,7 @@ bool CanDarkWandererOfferSuperMonster() {
 
 void NPC_Setup() {
 	// dont show npc in lobby maps or unpopulated maps
-	if(IsLobbyMap(StrParam(n:PRINTNAME_LEVEL)) || !MapData[DND_MAPDATA_MONSTERTOTAL])
+	if(IsLobbyMap(StrParam(n:PRINTNAME_LEVEL)) || !MapData[DND_MAPDATA_MONSTERTOTAL] || InformationInLevel[LEVELINFO_ISDUNGEON])
 		return;
 
 	int pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];

@@ -1,5 +1,8 @@
 $pitchshiftrange 2
 
+DungeonPortal/Loop  PORTLOOP
+DungeonPortal/Make  PORTMAKE
+
 WeaponWheel/Open	WHEELON
 WeaponWheel/Hover	WHEELHVR
 WeaponWheel/Exit	WHEELEXT

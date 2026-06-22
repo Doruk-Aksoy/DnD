@@ -357,40 +357,43 @@ str GetItemTagName(int itype, int isubt) {
 
 		// specialty
 		case DND_ITEM_SPECIALTY_DOOMGUY:
-		return StrParam(l:StrParam(s:"DND_SCARD", d:isubt + 1));
+		return StrParam(s:"DND_SCARD", d:isubt + 1);
 
 		case DND_ITEM_SPECIALTY_MARINE:
-		return StrParam(l:StrParam(s:"DND_DOGTAG", d:isubt + 1));
+		return StrParam(s:"DND_DOGTAG", d:isubt + 1);
 
 		case DND_ITEM_SPECIALTY_HOBO:
-		return StrParam(l:StrParam(s:"DND_SUNGLASS", d:isubt + 1));
+		return StrParam(s:"DND_SUNGLASS", d:isubt + 1);
 
 		case DND_ITEM_SPECIALTY_PUNISHER:
-		return StrParam(l:StrParam(s:"DND_CIGAR", d:isubt + 1));
+		return StrParam(s:"DND_CIGAR", d:isubt + 1);
 
 		case DND_ITEM_SPECIALTY_WANDERER:
-		return StrParam(l:StrParam(s:"DND_POWERRING", d:isubt + 1));
+		return StrParam(s:"DND_POWERRING", d:isubt + 1);
 
 		case DND_ITEM_SPECIALTY_CYBORG:
-		return StrParam(l:StrParam(s:"DND_PCORE", d:isubt + 1));
+		return StrParam(s:"DND_PCORE", d:isubt + 1);
 
 		case DND_ITEM_SPECIALTY_BERSERKER:
-		return StrParam(l:StrParam(s:"DND_BELT", d:isubt + 1));
+		return StrParam(s:"DND_BELT", d:isubt + 1);
 
 		case DND_ITEM_SPECIALTY_TRICKSTER:
-		return StrParam(l:StrParam(s:"DND_CLAW", d:isubt + 1));
+		return StrParam(s:"DND_CLAW", d:isubt + 1);
 
 		case DND_ITEM_BODYARMOR:
-		return StrParam(l:StrParam(s:"DND_ARMOR", d:isubt + 1));
+		return StrParam(s:"DND_ARMOR", d:isubt + 1);
 
 		case DND_ITEM_BOOT:
-		return StrParam(l:StrParam(s:"DND_BOOT", d:isubt + 1));
+		return StrParam(s:"DND_BOOT", d:isubt + 1);
 
 		case DND_ITEM_HELM:
-		return StrParam(l:StrParam(s:"DND_HELM", d:isubt + 1));
+		return StrParam(s:"DND_HELM", d:isubt + 1);
 
 		case DND_ITEM_FLASK:
-		return StrParam(l:StrParam(s:"DND_FLASK", d:isubt + 1));
+		return StrParam(s:"DND_FLASK", d:isubt + 1);
+
+		case DND_ITEM_DUNGEONKEY:
+		return StrParam(s:"DND_DUNGEONKEYN", d:isubt + 1);
 	}
 	return "NULL";
 }

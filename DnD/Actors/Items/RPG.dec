@@ -277,6 +277,10 @@ Actor DnD_SecondSelectedBox : Inventory {
 	inventory.maxamount 255
 }
 
+Actor DnD_SelectedDungeonBox : Inventory {
+	inventory.maxamount 255
+}
+
 Actor DnD_PlayersNotReady_Sync : Inventory {
 	inventory.maxamount 64
 }
@@ -335,6 +339,13 @@ Actor DnD_PopupReset : DnD_Boolean { }
 Actor DnD_PopupResetMade : DnD_Boolean { }
 Actor DnD_InventoryView : DnD_Boolean { }
 Actor DnD_StashView : DnD_Boolean { }
+
+
+enum {
+	DND_BOXFILTER_DUNGEONS = 1,
+};
+
+Actor DnD_Inventory_Filter : DnD_Info { }
 
 Actor DnD_ButtonPressTimer : PowerDamage {
 	damagefactor "normal", 1.0

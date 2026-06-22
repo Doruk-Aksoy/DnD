@@ -11,7 +11,7 @@ Actor DnD_FireJetUp : DnD_SwitchableTrapBase 6663 {
     Stamina 16416 // Fire + Ignore Res
 
     const int dmg = 10;
-    const int r = 34;
+    const int r = 31;
     
     States {
         Spawn:

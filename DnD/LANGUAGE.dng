@@ -1,8 +1,12 @@
 [enu default]
 
+DND_DUNGEON_CREATED         =       "Dungeon portal summoned by";
+
 DND_DKIMG1			        =	    "DNGTK00";
 
 DND_DUNGEONKEYN1            =       "Void Keep Fragment";
+
+DND_DUNGEONNAME1            =       "Void Keep";
 
 DND_DUNGEONKEY1             =       "DungeonKey_0";
 
