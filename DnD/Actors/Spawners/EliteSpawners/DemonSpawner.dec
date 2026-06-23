@@ -1,4 +1,4 @@
-Actor DemonSpawner_Elite : DnD_MonsterSpawner 25006 {
+Actor DemonSpawner_Elite : DnD_MonsterSpawner 27006 {
 	//$Sprite SAR2A1
 	States {
 		Spawn:

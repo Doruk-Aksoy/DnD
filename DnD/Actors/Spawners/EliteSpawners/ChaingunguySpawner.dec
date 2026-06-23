@@ -1,4 +1,4 @@
-Actor ChaingunguySpawner_Elite : DnD_MonsterSpawner 25004 {
+Actor ChaingunguySpawner_Elite : DnD_MonsterSpawner 27004 {
 	//$Sprite CPS2A1
 	States {
 		Spawn:

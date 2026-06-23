@@ -1,4 +1,4 @@
-Actor RevenantSpawner_Elite : DnD_MonsterSpawner 25012 {
+Actor RevenantSpawner_Elite : DnD_MonsterSpawner 27012 {
 	//$Sprite SKE2A1
 	States {
 		Spawn:

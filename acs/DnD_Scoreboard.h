@@ -38,18 +38,15 @@ typedef struct mt {
 	int cursize;
 } menu_inter_T;
 
-global menu_inter_T 19: IntermissionPane;
-
-// this order is followed during display
-enum {
-	INTER_PSTATE_ALIVE,
-	INTER_PSTATE_SPECTATING,
-	INTER_PSTATE_DEAD
-};
-global int 20: PInterGroups[][MAXPLAYERS];
+menu_inter_T module& GetIntermissionPane() {
+	static menu_inter_T inter_pane;
+	return inter_pane;
+}
 
 void ResetIntermissionPane() {
-	IntermissionPane.cursize = 0;
+	auto pane = GetIntermissionPane();
+
+	pane.cursize = 0;
 	
 	// re-add the fixed boxes
 	AddBoxToInterPane_Points(0, 0, 0, 0);
@@ -58,37 +55,57 @@ void ResetIntermissionPane() {
 }
 
 void AddBoxToInterPane_Points(int tx, int ty, int bx, int by) {
-	if(IntermissionPane.cursize < MAXINTERMISSIONRECTS) {
-		int s = IntermissionPane.cursize;
-		IntermissionPane.MenuRectangles[s].topleft_x = tx;
-		IntermissionPane.MenuRectangles[s].topleft_y = ty;
-		IntermissionPane.MenuRectangles[s].botright_x = bx;
-		IntermissionPane.MenuRectangles[s].botright_y = by;
+	auto pane = GetIntermissionPane();
+	if(pane.cursize < MAXINTERMISSIONRECTS) {
+		int s = pane.cursize;
+		pane.MenuRectangles[s].topleft_x = tx;
+		pane.MenuRectangles[s].topleft_y = ty;
+		pane.MenuRectangles[s].botright_x = bx;
+		pane.MenuRectangles[s].botright_y = by;
 		//Log(s:"add box ", f:tx, s: " ", f:ty, s: " ", f:bx, s: " ", f:by);
-		++IntermissionPane.cursize;
+		++pane.cursize;
 	}
 	else
 		Log(s:"Menu box limit exceeded.");
 }
 
 int GetTriggeredBoxOnIntermissionPane(int mx, int my, int yoff = 0) {
+	auto pane = GetIntermissionPane();
 	// temporary soln, I'll put some button or some shit there maybe
 	if(my < 90.0)
 		return MAINBOX_NONE;
-	for(int i = 0; i < IntermissionPane.cursize; ++i) {
+	for(int i = 0; i < pane.cursize; ++i) {
 		if
 		(
 			point_in_points(
-				IntermissionPane.MenuRectangles[i].topleft_x,
-				IntermissionPane.MenuRectangles[i].topleft_y,
-				IntermissionPane.MenuRectangles[i].botright_x,
-				IntermissionPane.MenuRectangles[i].botright_y,
+				pane.MenuRectangles[i].topleft_x,
+				pane.MenuRectangles[i].topleft_y,
+				pane.MenuRectangles[i].botright_x,
+				pane.MenuRectangles[i].botright_y,
 				mx, my, yoff
 			)
 		)
 			return i + 1;
 	}
 	return MAINBOX_NONE;
+}
+
+// this order is followed during display
+enum {
+	INTER_PSTATE_ALIVE,
+	INTER_PSTATE_SPECTATING,
+	INTER_PSTATE_DEAD,
+
+	INTER_PSTATE_MAX
+};
+
+typedef struct {
+	int state[INTER_PSTATE_MAX];
+} p_inter_group_T;
+
+p_inter_group_T module& GetPInterGroups(int pnum) {
+	static p_inter_group_T PInterGroups[MAXPLAYERS];
+	return PInterGroups[pnum];
 }
 
 bool PlayerTriggeredExit(int pnum) {
@@ -331,11 +348,14 @@ void GroupScoreboardPlayers() {
 	ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT] = 0;
 	
 	int i;
+	auto pgroup = GetPInterGroups(0);
 	for(i = 0; i < MAXPLAYERS; ++i) {
 		// reset to -1
-		PInterGroups[INTER_PSTATE_ALIVE][i] = -1;
-		PInterGroups[INTER_PSTATE_DEAD][i] = -1;
-		PInterGroups[INTER_PSTATE_SPECTATING][i] = -1;
+		pgroup = GetPInterGroups(i);
+
+		pgroup.state[INTER_PSTATE_ALIVE] = -1;
+		pgroup.state[INTER_PSTATE_DEAD] = -1;
+		pgroup.state[INTER_PSTATE_SPECTATING] = -1;
 	}
 
 	// grouping works on first come first serve in player id -- the index 0 may be player 13 for example on spectating players
@@ -348,17 +368,20 @@ void GroupScoreboardPlayers() {
 	
 		if(spec == INTER_PSTATE_DEAD) {
 			// dead, but in the game
-			PInterGroups[INTER_PSTATE_DEAD][ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]++] = i;
+			pgroup = GetPInterGroups(ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]++);
+			pgroup.state[INTER_PSTATE_DEAD] = i;
 			++pcounter;
 		}
 		else if(spec == INTER_PSTATE_SPECTATING) {
 			// spectating
-			PInterGroups[INTER_PSTATE_SPECTATING][ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]++] = i;
+			pgroup = GetPInterGroups(ScoreboardData[DND_SCBRD_SPECPLAYERCOUNT]++);
+			pgroup.state[INTER_PSTATE_SPECTATING] = i;
 			++pcounter;
 		}
 		else {
 			// alive and well
-			PInterGroups[INTER_PSTATE_ALIVE][ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]++] = i;
+			pgroup = GetPInterGroups(ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]++);
+			pgroup.state[INTER_PSTATE_ALIVE] = i;
 			++pcounter;
 		}
 	}
@@ -374,21 +397,21 @@ void BuildScoreboardBoxes() {
 	bool foundDead = false;
 	bool foundAlive = false;
 	int y_off = 0;
-	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_ALIVE][i] != -1; ++i) {
+	for(i = 0; i < MAXPLAYERS && GetPInterGroups(i).state[INTER_PSTATE_ALIVE] != -1; ++i) {
 		foundAlive = true;
 		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count);
 		++box_count;
 	}
 	y_off = foundAlive * 7.5;
 	// dead
-	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_DEAD][i] != -1; ++i) {
+	for(i = 0; i < MAXPLAYERS &&  GetPInterGroups(i).state[INTER_PSTATE_DEAD] != -1; ++i) {
 		foundDead = true;
 		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off);
 		++box_count;
 	}
 	y_off += foundDead * 7.5;
 	// spec
-	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_SPECTATING][i] != -1; ++i) {
+	for(i = 0; i < MAXPLAYERS &&  GetPInterGroups(i).state[INTER_PSTATE_SPECTATING] != -1; ++i) {
 		AddBoxToInterPane_Points(464.0, 306.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off, 400.0, 300.0 - INTERMISSION_BOX_YCHANGE * box_count - y_off);
 		++box_count;
 	}
@@ -613,22 +636,23 @@ void DrawScoreboard(int time, int ScrollPos, int total_mons, int p_highlight) {
 	// clear the potentially previously drawn things due to refresh
 	DeleteTextRange(DND_SCBRDID_PDATA, DND_SCBRDID_PDATA + DND_SCBRD_PDATA_THINGS * (MAXPLAYERS + 1));
 	
-	for(i = 0; PInterGroups[INTER_PSTATE_ALIVE][i] != -1; ++i) {
+	int curr_state = -1;
+	for(i = 0; (curr_state = GetPInterGroups(i).state[INTER_PSTATE_ALIVE]) != -1; ++i) {
 		foundAlive = true;
-		DrawPlayerOnScoreboard(INTER_PSTATE_ALIVE, PInterGroups[INTER_PSTATE_ALIVE][i], draw_count++, total_mons, p_highlight, 0);
+		DrawPlayerOnScoreboard(INTER_PSTATE_ALIVE, curr_state, draw_count++, total_mons, p_highlight, 0);
 	}
 	
 	// dead
 	y_off = foundAlive * 18.0;
-	for(i = 0; PInterGroups[INTER_PSTATE_DEAD][i] != -1; ++i) {
+	for(i = 0; (curr_state = GetPInterGroups(i).state[INTER_PSTATE_DEAD]) != -1; ++i) {
 		foundDead = true;
-		DrawPlayerOnScoreboard(INTER_PSTATE_DEAD, PInterGroups[INTER_PSTATE_DEAD][i], draw_count++, total_mons, p_highlight, y_off);
+		DrawPlayerOnScoreboard(INTER_PSTATE_DEAD, curr_state, draw_count++, total_mons, p_highlight, y_off);
 	}
 		
 	// spec
 	y_off += foundDead * 18.0;
-	for(i = 0; i < MAXPLAYERS && PInterGroups[INTER_PSTATE_SPECTATING][i] != -1; ++i)
-		DrawPlayerOnScoreboard(INTER_PSTATE_SPECTATING, PInterGroups[INTER_PSTATE_SPECTATING][i], draw_count++, total_mons, p_highlight, y_off);
+	for(i = 0; i < MAXPLAYERS && (curr_state = GetPInterGroups(i).state[INTER_PSTATE_SPECTATING]) != -1; ++i)
+		DrawPlayerOnScoreboard(INTER_PSTATE_SPECTATING, curr_state, draw_count++, total_mons, p_highlight, y_off);
 	
 	SetHudClipRect(0, 0, 0, 0, 0);
 }
@@ -652,19 +676,19 @@ int DrawHoveredPlayerData() {
 	if(boxid >= ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]) {
 		if(boxid >= ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT] + ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT]) {
 			// spectating range
-			pnum = PInterGroups[INTER_PSTATE_SPECTATING][boxid - ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT] - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]];
+			pnum = GetPInterGroups(boxid - ScoreboardData[DND_SCBRD_DEADPLAYERCOUNT] - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]).state[INTER_PSTATE_SPECTATING];
 			spec_info = INTER_PSTATE_SPECTATING;
 		}
 		else {
 			// within dead player range
-			pnum = PInterGroups[INTER_PSTATE_DEAD][boxid - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]];
+			pnum = GetPInterGroups(boxid - ScoreboardData[DND_SCBRD_ALIVEPLAYERCOUNT]).state[INTER_PSTATE_DEAD];
 			inGame = true;
 			spec_info = INTER_PSTATE_DEAD;
 		}
 	}
 	else {
 		// alive range
-		pnum = PInterGroups[INTER_PSTATE_ALIVE][boxid];
+		pnum = GetPInterGroups(boxid).state[INTER_PSTATE_ALIVE];
 		inGame = true;
 	}
 	

@@ -2133,7 +2133,7 @@ void DrawInventoryText(
 		
 		if(itype == DND_ITEM_CHARM) {
 			temp = GetItemTier(lvl);
-			HudMessage(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetItemTagName(DND_ITEM_CHARM, isubt); 
+			HudMessage(s:GetCharmString(temp, CHARMSTR_COLORCODE), l:GetCharmString(temp, CHARMSTR_TIERTAG), s: " ", l:GetItemTagName(DND_ITEM_CHARM, isubt); 
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 2 + ITEMID_SKIP, CR_WHITE, bx, by, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 		}
@@ -3446,13 +3446,22 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 
 		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
 		// luck adds a small chance for a charm to have well rolled modifier on it -- luck gain is 0.15, 0.05 x 10 = 0.5 max rank thats 50% chance for well rolled mods
-		Inventories_On_Field[item_pos].attributes[temp].attrib_val = RollAttributeValue(
-			attrib, 
-			lvl, 
-			makeWellRolled,
-			Inventories_On_Field[item_pos].item_type,
-			Inventories_On_Field[item_pos].item_subtype
-		);
+		if(Inventories_On_Field[item_pos].item_type != DND_ITEM_DUNGEONKEY) {
+			Inventories_On_Field[item_pos].attributes[temp].attrib_val = RollAttributeValue(
+				attrib, 
+				lvl, 
+				makeWellRolled,
+				Inventories_On_Field[item_pos].item_type,
+				Inventories_On_Field[item_pos].item_subtype
+			);
+		}
+		else {
+			Inventories_On_Field[item_pos].attributes[temp].attrib_val = RollDungeonAttributeValue(
+				attrib, 
+				lvl, 
+				makeWellRolled
+			);
+		}
 
 		max_affixes = GetExtraForMod(pnum, attrib, lvl, Inventories_On_Field[item_pos].item_type, Inventories_On_Field[item_pos].item_subtype, makeWellRolled);
 		if(max_affixes != -1)
@@ -3736,7 +3745,7 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 			val = AttributeTagGroups[respect_order_orb][craftable_id][random(0, AttributeTagGroupCount[respect_order_orb][craftable_id] - 1)];
 		}
 	}
-	else if(item_type != DND_ITEM_FLASK) {
+	else if(item_type != DND_ITEM_FLASK && item_type != DND_ITEM_DUNGEONKEY) {
 		craftable_id = MapItemTypeToCraftableID(item_type);
 
 		// find a random valid tag for this item
@@ -3789,6 +3798,11 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 			if(val < 0)
 				val = random(FIRST_FLASK_ATTRIBUTE, LAST_FLASK_ATTRIBUTE);
 		} while(IsAttributeFlaskException(item_subtype, val));
+	}
+	else if(item_type == DND_ITEM_DUNGEONKEY) {
+		val = random(FIRST_DUNGEON_ATTRIBUTE + bias, DUN_ATTR_MAX - 1 + bias) - bias;
+		if(val < 0)
+			val = random(FIRST_DUNGEON_ATTRIBUTE, DUN_ATTR_MAX - 1);
 	}
 	return val;
 }

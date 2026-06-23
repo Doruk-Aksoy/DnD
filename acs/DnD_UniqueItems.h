@@ -385,6 +385,8 @@ Script "DnD Load Inventory Attributes" OPEN {
 		Delay(const:10);
 		SetupInventoryAttributeTable();
 		Delay(const:10);
+		SetupDungeonModTable();
+		Delay(const:5);
 		SetupInventoryTagGroups();
 		Delay(const:10);
 		SetupUniqueItems();
@@ -402,6 +404,8 @@ Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 		Delay(const:10);
 		SetupInventoryAttributeTable();
 		Delay(const:10);
+		SetupDungeonModTable();
+		Delay(const:5);
 		SetupUniqueItems();
 		Delay(10);
 		ACS_NamedExecuteAlways("DnD Setup Menu Vars - CS", 0);

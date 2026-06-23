@@ -4,10 +4,6 @@
 #include "DnD_InvInfo.h"
 #include "DnD_WeaponDefs.h"
 
-#define MAX_CHARM_AFFIXTIERS 10
-#define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is... its basically every 10 levels a new tier is named for it
-#define MAX_ATTRIBUTE_TIERS 9
-
 int GetItemTier(int level) {
 	int res = level / CHARM_ATTRIBLEVEL_SEPERATOR;
 	if(res > MAX_ATTRIBUTE_TIERS)
@@ -15,24 +11,7 @@ int GetItemTier(int level) {
 	return res;
 }
 
-#define CHARMSTR_COLORCODE 0
-#define CHARMSTR_TIERTAG 1
-
 #define DND_FLASK_RECOVERY_REDUCEEFFECT 25 // 25%
-
-// level 100 = perfect
-str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
-	{ "\c[C8]", "DND_CHARMTIER1" },
-	{ "\c[D5]", "DND_CHARMTIER2" },
-	{ "\c[A3]", "DND_CHARMTIER3" },
-	{ "\c[C3]", "DND_CHARMTIER4" },
-	{ "\c[E9]", "DND_CHARMTIER5" },
-	{ "\c[K9]", "DND_CHARMTIER6" },
-	{ "\c[E2]", "DND_CHARMTIER7" },
-	{ "\c[C5]", "DND_CHARMTIER8" },
-	{ "\c[W9]", "DND_CHARMTIER9" },
-	{ "\c[Y9]", "DND_CHARMTIER10" }
-};
 
 // formula for accuracy:
 // every 10 points contribute 0.01%
@@ -734,55 +713,63 @@ bool IsStaticMod(int mod) {
 // Returns a weapon as extra field for the given corruption mod
 int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item_subtype = -1, bool isWellRolled = false) {
 	int res = -1;
-	switch(mod) {
-		// extra is the weapon_id for these
-		case INV_CORR_WEAPONDMG:
-		case INV_CORR_WEAPONCRIT:
-		case INV_CORR_WEAPONCRITDMG:
-		case INV_CORR_WEAPONPOISONPCT:
-		case INV_CORR_WEAPONFORCEPAIN:
-		case INV_CORR_WEPCULL:
-		case INV_CRITPERCENT_FORWEPTYPE:
-			// pick one from a weapon the player owns
-			if(pnum != MAXPLAYERS)
-				res = PickRandomOwnedWeaponID(pnum);
-			else
-				res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON);
-		break;
 
-		// mods that have natural extra values
-		case INV_ESS_VAAJ:
-		case INV_INC_DOUBLEHPBONUS:
-		case INV_INC_PASSIVEREGEN:
-		case INV_INC_INSTANTLIFESTEAL:
-		case INV_FLASK_INCAMOUNTRECOVER:
-		case INV_FLASK_INSTANTRECOVERY:
-		case INV_FLASK_INCEFFECT:
-		case INV_FLASK_INSTANTONLOWLIFE:
-			res = RollAttributeExtra(mod, tier, isWellRolled, item_type, item_subtype);
-		break;
-		case INV_FLASK_INCCHARGERECOVERY:
-			res = DND_FLASK_RECOVERY_REDUCEEFFECT;
-		break;
+	if(item_type != DND_ITEM_DUNGEONKEY) {
+		switch(mod) {
+			// extra is the weapon_id for these
+			case INV_CORR_WEAPONDMG:
+			case INV_CORR_WEAPONCRIT:
+			case INV_CORR_WEAPONCRITDMG:
+			case INV_CORR_WEAPONPOISONPCT:
+			case INV_CORR_WEAPONFORCEPAIN:
+			case INV_CORR_WEPCULL:
+			case INV_CRITPERCENT_FORWEPTYPE:
+				// pick one from a weapon the player owns
+				if(pnum != MAXPLAYERS)
+					res = PickRandomOwnedWeaponID(pnum);
+				else
+					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON);
+			break;
 
-		case INV_INC_PLUSPROJ:
-		case INV_CORR_WEAPONPLUSPROJ:
-			if(pnum != MAXPLAYERS)
-				res = PickRandomOwnedWeaponID_WithProj(pnum) << 16;
-			else
-				res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
-			
-			// corruption has no reduced damage
-			if(mod != INV_CORR_WEAPONPLUSPROJ)
-				res |=  DND_INC_SINGLEPROJ_NEGDMG;
-		break;
-		case INV_INC_PLUSTWOPROJ:
-			if(pnum != MAXPLAYERS)
-				res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16);
-			else
-				res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
-			res |= DND_INC_TWOPROJ_NEGDMG;
-		break;
+			// mods that have natural extra values
+			case INV_ESS_VAAJ:
+			case INV_INC_DOUBLEHPBONUS:
+			case INV_INC_PASSIVEREGEN:
+			case INV_INC_INSTANTLIFESTEAL:
+			case INV_FLASK_INCAMOUNTRECOVER:
+			case INV_FLASK_INSTANTRECOVERY:
+			case INV_FLASK_INCEFFECT:
+			case INV_FLASK_INSTANTONLOWLIFE:
+				res = RollAttributeExtra(mod, tier, isWellRolled, item_type, item_subtype);
+			break;
+			case INV_FLASK_INCCHARGERECOVERY:
+				res = DND_FLASK_RECOVERY_REDUCEEFFECT;
+			break;
+
+			case INV_INC_PLUSPROJ:
+			case INV_CORR_WEAPONPLUSPROJ:
+				if(pnum != MAXPLAYERS)
+					res = PickRandomOwnedWeaponID_WithProj(pnum) << 16;
+				else
+					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
+				
+				// corruption has no reduced damage
+				if(mod != INV_CORR_WEAPONPLUSPROJ)
+					res |=  DND_INC_SINGLEPROJ_NEGDMG;
+			break;
+			case INV_INC_PLUSTWOPROJ:
+				if(pnum != MAXPLAYERS)
+					res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16);
+				else
+					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
+				res |= DND_INC_TWOPROJ_NEGDMG;
+			break;
+		}
+	}
+	else {
+		// for now, assign one of the random upside modifier ids to it
+		res = random(FIRST_DUNGEON_UPSIDE, DUN_UPSIDE_MAX - 1);
+		res |= RollDungeonAttributeExtra(res, tier, isWellRolled) << 16;
 	}
 	return res;
 }
@@ -2070,9 +2057,6 @@ int GetModTierRangeMapperExtra(int attr, int lvl) {
 	return val;
 }
 
-#define ITEM_MODRANGE_LOW 0
-#define ITEM_MODRANGE_HIGH 1
-
 #define DND_POWERCORE_ATTRFACTOR 0
 #define DND_SMALLCHARM_ATTRFACTOR -50
 #define DND_LARGECHARM_ATTRFACTOR 25
@@ -2314,7 +2298,7 @@ str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
 	
 	// limit this to here at t10...
-	str col_tag = Charm_Strings[Clamp_Between(tier, 0, 9)][CHARMSTR_COLORCODE];
+	str col_tag = GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE);
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 
 	// visually change the attribute values depending on item scale factors
@@ -2338,7 +2322,7 @@ str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int
 
 str GetDetailedModRangeExtra(int attr, int item_type, int item_subtype, int tier, int trunc_factor = 0, bool isPercentage = false) {
 	// limit this to here at t10...
-	str col_tag = Charm_Strings[Clamp_Between(tier, 0, 9)][CHARMSTR_COLORCODE];
+	str col_tag = GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE);
 	int tier_mapping = GetModTierRangeMapperExtra(attr, tier);
 
 	// visually change the attribute values depending on item scale factors
@@ -2420,7 +2404,7 @@ str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_r
 str GetModTierText(int tier, int extra) {
 	if(extra != -1)
 		return StrParam(s:"\c[D1]", s:"U");
-	return StrParam(s:Charm_Strings[Clamp_Between(tier, 0, 9)][CHARMSTR_COLORCODE], s:"T", d:tier);
+	return StrParam(s:GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE), s:"T", d:tier);
 }
 
 str GetInventoryAttributeText(int attr) {
@@ -3110,6 +3094,9 @@ str GetItemAttributeText(
 {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
+	if(item_type == DND_ITEM_DUNGEONKEY)
+		return DungeonAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
+
 	if(attr <= LAST_FLASK_ATTRIBUTE)
 		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
 

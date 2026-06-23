@@ -1,4 +1,4 @@
-Actor CacoSpawner_Elite : DnD_MonsterSpawner 25003 {
+Actor CacoSpawner_Elite : DnD_MonsterSpawner 27003 {
 	//$Sprite CALIA1
 	States {
 		Spawn:

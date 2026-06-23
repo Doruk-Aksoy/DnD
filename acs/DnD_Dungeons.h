@@ -8,7 +8,7 @@ enum {
 };
 #define DND_FIRST_DUNGEONID DND_DUNGEON_VOIDKEEP
 
-void RollDungeonKeyInfo(int item_pos, int keytype, bool onField) {
+void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = RollItemLevel();
 	Inventories_On_Field[item_pos].item_stack = 0;
@@ -16,8 +16,21 @@ void RollDungeonKeyInfo(int item_pos, int keytype, bool onField) {
 	Inventories_On_Field[item_pos].item_subtype = keytype;
 	Inventories_On_Field[item_pos].width = 1;
 	Inventories_On_Field[item_pos].height = 1;
-	Inventories_On_Field[item_pos].attrib_count = 0;
 	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_DUNGEONKEY_BEGIN + keytype;
+
+	int count = random(1, MAX_DUNGEONKEY_ATTRIB_DEFAULT);
+
+	// assign attributes
+	int i = 0;
+	while(i < count) {
+		int roll = -1;
+		do {
+			roll = PickRandomAttribute(DND_ITEM_DUNGEONKEY, keytype);
+		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		
+		AddAttributeToFieldItem(item_pos, roll, pnum);
+		++i;
+	}
 }
 
 str GetDungeonName(int id) {
@@ -72,7 +85,7 @@ void SpawnDungeonKey(int pnum) {
         res = PickDungeon();
 
 		// c is the index on the field now
-		RollDungeonKeyInfo(c, res, true);
+		RollDungeonKeyInfo(c, res, pnum);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		SpawnDrop(GetInventoryName(res + DUNGEONKEY_BEGIN), 24.0, 16, pnum + 1, c);
 	}
@@ -111,6 +124,22 @@ void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 		DungeonInformation.attributes[i].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
 		DungeonInformation.attributes[i].attrib_extra = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_extra;
 	}
+}
+
+// return value if it exists, -1 if not
+int HasDungeonAttributeVal(int attr) {
+	for(int i = 0; i < DungeonInformation.attrib_count; ++i)
+		if(DungeonInformation.attributes[i].attrib_id == attr)
+			return DungeonInformation.attributes[i].attrib_val;
+	return -1;
+}
+
+// returns the value of extra when given the id that would be encoded here
+int HasDungeonAttributeExtra(int attr) {
+	for(int i = 0; i < DungeonInformation.attrib_count; ++i)
+		if((DungeonInformation.attributes[i].attrib_extra & 0xFFFF) == attr)
+			return DungeonInformation.attributes[i].attrib_extra >> 16;
+	return -1;
 }
 
 // pnum, item position top box id (includes -1), selected dungeon enum

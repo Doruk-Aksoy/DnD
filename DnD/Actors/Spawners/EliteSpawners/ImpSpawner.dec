@@ -1,4 +1,4 @@
-Actor ImpSpawner_Elite : DnD_MonsterSpawner 25009 {
+Actor ImpSpawner_Elite : DnD_MonsterSpawner 27009 {
 	//$Sprite TRO2A1C1
 	States {
 		Spawn:

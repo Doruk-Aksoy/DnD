@@ -1,4 +1,4 @@
-Actor ArchVileSpawner_Elite : DnD_MonsterSpawner 25001 {
+Actor ArchVileSpawner_Elite : DnD_MonsterSpawner 27001 {
 	//$Sprite DIABA1D1
 	States {
 		Spawn:

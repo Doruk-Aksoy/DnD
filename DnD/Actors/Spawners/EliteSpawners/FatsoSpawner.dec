@@ -1,4 +1,4 @@
-Actor FatsoSpawner_Elite : DnD_MonsterSpawner 25007 {
+Actor FatsoSpawner_Elite : DnD_MonsterSpawner 27007 {
 	//$Sprite DAEDA1
 	Health 0x7FFFFFFF
 	-COUNTKILL

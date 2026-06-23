@@ -1,4 +1,4 @@
-Actor HellKnightSpawner_Elite : DnD_MonsterSpawner 25008 {
+Actor HellKnightSpawner_Elite : DnD_MonsterSpawner 27008 {
 	//$Sprite BOS4A1C1
 	States {
 		Spawn:

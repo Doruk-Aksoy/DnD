@@ -6,6 +6,13 @@
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
 
+#define MAX_CHARM_AFFIXTIERS 10
+#define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is... its basically every 10 levels a new tier is named for it
+#define MAX_ATTRIBUTE_TIERS 9
+
+#define ITEM_MODRANGE_LOW 0
+#define ITEM_MODRANGE_HIGH 1
+
 #define DND_BASE_STASH_PAGES 4
 
 // only orbs and tokens
@@ -439,6 +446,27 @@ typedef struct it_con {
 
 #define MAX_UNIQUE_ITEMS (UNIQUE_HELM_END - UNIQUE_CHARM_BEGIN + 1)
 global inventory_constructor_T 53: UniqueItemList[MAX_UNIQUE_ITEMS];
+
+#define CHARMSTR_COLORCODE 0
+#define CHARMSTR_TIERTAG 1
+
+// level 100 = perfect
+str GetCharmString(int tier, int which) {
+	static str Charm_Strings[MAX_CHARM_AFFIXTIERS][2] = {
+		{ "\c[C8]", "DND_CHARMTIER1" },
+		{ "\c[D5]", "DND_CHARMTIER2" },
+		{ "\c[A3]", "DND_CHARMTIER3" },
+		{ "\c[C3]", "DND_CHARMTIER4" },
+		{ "\c[E9]", "DND_CHARMTIER5" },
+		{ "\c[K9]", "DND_CHARMTIER6" },
+		{ "\c[E2]", "DND_CHARMTIER7" },
+		{ "\c[C5]", "DND_CHARMTIER8" },
+		{ "\c[W9]", "DND_CHARMTIER9" },
+		{ "\c[Y9]", "DND_CHARMTIER10" }
+	};
+
+	return Charm_Strings[tier][which];
+}
 
 #include "DnD_DungeonBase.h"
 

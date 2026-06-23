@@ -1,4 +1,4 @@
-Actor ArachnoSpawner_Elite : DnD_MonsterSpawner 25000 {
+Actor ArachnoSpawner_Elite : DnD_MonsterSpawner 27000 {
 	//$Sprite MSPIA1D1
 	Health 0x7FFFFFFF
 	-COUNTKILL

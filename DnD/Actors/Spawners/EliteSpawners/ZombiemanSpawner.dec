@@ -1,4 +1,4 @@
-Actor ZombiemanSpawner_Elite : DnD_MonsterSpawner 25016 {
+Actor ZombiemanSpawner_Elite : DnD_MonsterSpawner 27016 {
 	//$Sprite BPOSA1
 	States {
 		Spawn:

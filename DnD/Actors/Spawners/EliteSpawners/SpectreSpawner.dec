@@ -1,4 +1,4 @@
-Actor SpectreSpawner_Elite : DnD_MonsterSpawner 25014 {
+Actor SpectreSpawner_Elite : DnD_MonsterSpawner 27014 {
 	//$Sprite SARGA1
 	States {
 		Spawn:

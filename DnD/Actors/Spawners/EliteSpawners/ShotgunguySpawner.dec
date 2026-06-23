@@ -1,4 +1,4 @@
-Actor ShotgunguySpawner_Elite : DnD_MonsterSpawner 25013 {
+Actor ShotgunguySpawner_Elite : DnD_MonsterSpawner 27013 {
 	//$Sprite GPOSA1
 	States {
 		Spawn:

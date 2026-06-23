@@ -1,4 +1,4 @@
-Actor PainElementalSpawner_Elite : DnD_MonsterSpawner 25011 {
+Actor PainElementalSpawner_Elite : DnD_MonsterSpawner 27011 {
 	//$Sprite TORTA1
 	States {
 		Spawn:

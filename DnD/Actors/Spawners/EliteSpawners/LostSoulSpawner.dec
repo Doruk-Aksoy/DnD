@@ -1,4 +1,4 @@
-Actor LostSoulSpawner_Elite : DnD_MonsterSpawner 25010 {
+Actor LostSoulSpawner_Elite : DnD_MonsterSpawner 27010 {
 	//$Sprite ETHSA1
 	States {
 		Spawn:

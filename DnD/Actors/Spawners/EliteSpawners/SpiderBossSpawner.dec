@@ -1,4 +1,4 @@
-Actor SpiderBossSpawner_Elite : DnD_MonsterSpawner 25015 {
+Actor SpiderBossSpawner_Elite : DnD_MonsterSpawner 27015 {
 	//$Sprite DEMOA1D1
 	Health 0x7FFFFFFF
 	-COUNTKILL

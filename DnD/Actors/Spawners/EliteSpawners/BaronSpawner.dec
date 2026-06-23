@@ -1,4 +1,4 @@
-Actor BaronSpawner_Elite : DnD_MonsterSpawner 25002 {
+Actor BaronSpawner_Elite : DnD_MonsterSpawner 27002 {
 	//$Sprite BRUSA1
 	Health 0x7FFFFFFF
 	-COUNTKILL

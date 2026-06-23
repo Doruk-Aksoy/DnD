@@ -1,4 +1,4 @@
-Actor CyberdemonSpawner_Elite : DnD_MonsterSpawner 25005 {
+Actor CyberdemonSpawner_Elite : DnD_MonsterSpawner 27005 {
 	//$Sprite 4NNIA1C1
 	Health 0x7FFFFFFF
 	-COUNTKILL

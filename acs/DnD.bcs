@@ -5281,14 +5281,14 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 			if(itype != DND_ITEM_NULL) {
 				if(itype == DND_ITEM_CHARM) {
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
-					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:Charm_Strings[temp][CHARMSTR_TIERTAG], s: " ", l:GetItemTagName(DND_ITEM_CHARM, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
+					Log(s:GetCharmString(temp, CHARMSTR_COLORCODE), l:GetCharmString(temp, CHARMSTR_TIERTAG), s: " ", l:GetItemTagName(DND_ITEM_CHARM, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 					for(j = 0; j < temp; ++j)
 						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED), itype, isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
 				}
 				else if(itype <= UNIQUE_BEGIN) {
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
-					Log(s:Charm_Strings[temp][CHARMSTR_COLORCODE], l:GetItemTagName(itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
+					Log(s:GetCharmString(temp, CHARMSTR_COLORCODE), l:GetItemTagName(itype, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED)));
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED);
 					for(j = 0; j < temp; ++j)
 						Log(s:"    ", s:GetItemAttributeText(GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED), itype, isubt, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, i, j, DND_SYNC_ITEMSOURCE_ITEMSUSED)));

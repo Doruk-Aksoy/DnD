@@ -14,4 +14,448 @@ typedef struct {
 
 global dungeon_data_T 38: DungeonInformation;
 
+enum {
+	DUN_ATTR_EXTRAHP,
+	DUN_ATTR_FORTIFIED,
+	DUN_ATTR_MORETOUGHENEMIES,
+	DUN_ATTR_MOREELITEENEMIES,
+	DUN_ATTR_CULLENEMIES,
+	DUN_ATTR_NOINFIGHT,
+	DUN_ATTR_NOPAIN,
+	DUN_ATTR_NORIP,
+	DUN_ATTR_EXTRAFAST,
+	DUN_ATTR_MOREDMG,
+	DUN_ATTR_FASTPROJ,
+	DUN_ATTR_GHOST,
+	DUN_ATTR_INCREASEDRESISTS,
+
+	DUN_ATTR_MAX
+};
+#define FIRST_DUNGEON_ATTRIBUTE DUN_ATTR_EXTRAHP
+
+enum {
+	DUN_UPSIDE_QUANT,
+	DUN_UPSIDE_RARITY,
+	DUN_UPSIDE_EXPANDCREDIT,
+	DUN_UPSIDE_BUDGET,
+	DUN_UPSIDE_RARERCHEST,
+	DUN_UPSIDE_RARERORBS,
+
+	DUN_UPSIDE_MAX
+};
+#define FIRST_DUNGEON_UPSIDE DUN_UPSIDE_QUANT
+
+global inv_attrib_T 19: DungeonModTable[DUN_ATTR_MAX];
+
+void SetupDungeonModTable() {
+	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_low = 10;
+	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_high = 21;
+	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_extra_low = 5;
+	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_extra_high = 10;
+	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_level_modifier = 0;
+	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_level_extra_modifier = 0;
+	DungeonModTable[DUN_ATTR_EXTRAHP].tags = INV_ATTR_TAG_LIFE;
+
+	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_low = 5;
+	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_high = 11;
+	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_extra_low = 8;
+	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_extra_high = 12;
+	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_level_modifier = 0;
+	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_level_extra_modifier = 0;
+	DungeonModTable[DUN_ATTR_FORTIFIED].tags = INV_ATTR_TAG_DEFENSE;
+
+	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_low = 5;
+	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_high = 15;
+	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_extra_low = 8;
+	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_extra_high = 12;
+	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_level_modifier = 0;
+	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_level_extra_modifier = 0;
+	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_low = 5;
+	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_high = 15;
+	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_extra_low = 10;
+	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_extra_high = 15;
+	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_level_modifier = 0;
+	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_level_extra_modifier = 0;
+	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_low = 1;
+	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_high = 1;
+	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_extra_low = 20;
+	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_extra_high = 40;
+	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_level_modifier = -1;
+	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_level_extra_modifier = -1;
+	DungeonModTable[DUN_ATTR_CULLENEMIES].tags = INV_ATTR_TAG_ATTACK;
+
+	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_low = 1;
+	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_high = 1;
+	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_extra_low = 15;
+	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_extra_high = 25;
+	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_level_modifier = -1;
+	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_level_extra_modifier = -1;
+	DungeonModTable[DUN_ATTR_NOINFIGHT].tags = INV_ATTR_TAG_UTILITY;
+
+	DungeonModTable[DUN_ATTR_NOPAIN].attrib_low = 1;
+	DungeonModTable[DUN_ATTR_NOPAIN].attrib_high = 1;
+	DungeonModTable[DUN_ATTR_NOPAIN].attrib_extra_low = 15;
+	DungeonModTable[DUN_ATTR_NOPAIN].attrib_extra_high = 30;
+	DungeonModTable[DUN_ATTR_NOPAIN].attrib_level_modifier = -1;
+	DungeonModTable[DUN_ATTR_NOPAIN].attrib_level_extra_modifier = -1;
+	DungeonModTable[DUN_ATTR_NOPAIN].tags = INV_ATTR_TAG_DEFENSE;
+
+	DungeonModTable[DUN_ATTR_NORIP].attrib_low = 1;
+	DungeonModTable[DUN_ATTR_NORIP].attrib_high = 1;
+	DungeonModTable[DUN_ATTR_NORIP].attrib_extra_low = 10;
+	DungeonModTable[DUN_ATTR_NORIP].attrib_extra_high = 20;
+	DungeonModTable[DUN_ATTR_NORIP].attrib_level_modifier = -1;
+	DungeonModTable[DUN_ATTR_NORIP].attrib_level_extra_modifier = -1;
+	DungeonModTable[DUN_ATTR_NORIP].tags = INV_ATTR_TAG_ATTACK;
+
+	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_low = 1;
+	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_high = 1;
+	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_extra_low = 20;
+	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_extra_high = 50;
+	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_level_modifier = -1;
+	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_level_extra_modifier = -1;
+	DungeonModTable[DUN_ATTR_EXTRAFAST].tags = INV_ATTR_TAG_UTILITY;
+
+	DungeonModTable[DUN_ATTR_MOREDMG].attrib_low = 11;
+	DungeonModTable[DUN_ATTR_MOREDMG].attrib_high = 20;
+	DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_low = 8;
+	DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_high = 14;
+	DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_modifier = 0;
+	DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_extra_modifier = 0;
+	DungeonModTable[DUN_ATTR_MOREDMG].tags = INV_ATTR_TAG_DAMAGE;
+
+	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_low = 5;
+	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_high = 10;
+	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_extra_low = 10;
+	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_extra_high = 16;
+	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_level_modifier = 0;
+	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_level_extra_modifier = 0;
+	DungeonModTable[DUN_ATTR_FASTPROJ].tags = INV_ATTR_TAG_ATTACK;
+
+	DungeonModTable[DUN_ATTR_GHOST].attrib_low = 1;
+	DungeonModTable[DUN_ATTR_GHOST].attrib_high = 1;
+	DungeonModTable[DUN_ATTR_GHOST].attrib_extra_low = 15;
+	DungeonModTable[DUN_ATTR_GHOST].attrib_extra_high = 35;
+	DungeonModTable[DUN_ATTR_GHOST].attrib_level_modifier = -1;
+	DungeonModTable[DUN_ATTR_GHOST].attrib_level_extra_modifier = -1;
+	DungeonModTable[DUN_ATTR_GHOST].tags = INV_ATTR_TAG_UTILITY;
+
+	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_low = 5;
+	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_high = 10;
+	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_extra_low = 16;
+	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_extra_high = 20;
+	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_modifier = 0;
+	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_extra_modifier = 0;
+	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].tags = INV_ATTR_TAG_DEFENSE;
+}
+
+bool IsDungeonAttributeQualityException(int attr) {
+	/*switch(attr) {
+		case INV_FLASK_IMP_CHARGECOUNT:
+		case INV_FLASK_IMP_GRANITE:
+		case INV_FLASK_IMP_BASALT:
+		case INV_FLASK_IMP_BISMUTH:
+		case INV_FLASK_IMP_INSULAR:
+		case INV_FLASK_IMP_OAK:
+		case INV_FLASK_IMP_ARCANE:
+		case INV_FLASK_IMP_DIAMOND:
+		case INV_FLASK_IMP_SILVER:
+		case INV_FLASK_IMP_SULPHUR:
+		case INV_FLASK_IMP_QUICKSILVER:
+		case INV_FLASK_IMP_QUARTZ:
+		case INV_EX_LIMITEDSMALLCHARMS:
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+		return true;
+	}*/
+	return false;
+}
+
+bool IsDungeonAttributeExtraException(int attr) {
+	/*switch(attr) {
+		return true;
+	}*/
+	return false;
+}
+
+bool IsFixedPointDungeonMod(int mod) {
+	/*switch(mod) {
+
+	}*/
+	return false;
+}
+
+int GetDungeonModTierRangeMapper(int attr, int lvl) {
+	int val = 0;
+	if(DungeonModTable[attr].attrib_level_modifier == -1)
+		return -1;
+
+	if(!DungeonModTable[attr].attrib_level_modifier)
+		val = (DungeonModTable[attr].attrib_high - DungeonModTable[attr].attrib_low + 1) * lvl;
+	else
+		val = (DungeonModTable[attr].attrib_level_modifier * lvl);
+	return val;
+}
+
+int GetDungeonModTierRangeMapperExtra(int attr, int lvl) {
+	int val = 0;
+	if(DungeonModTable[attr].attrib_level_extra_modifier == -1)
+		return -1;
+
+	if(!DungeonModTable[attr].attrib_level_extra_modifier)
+		val = (DungeonModTable[attr].attrib_extra_high - DungeonModTable[attr].attrib_extra_low + 1) * lvl;
+	else
+		val = (DungeonModTable[attr].attrib_level_extra_modifier * lvl);
+	return val;
+}
+
+// this uses a precalculated tier mapping to save time
+int GetDungeonModRangeWithTier(int attr, int tier_mapping, bool which, int attr_factor) {
+	int res = 0;
+
+	if(tier_mapping != -1) {
+		if(!which)
+			res = (DungeonModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+		else
+			res = (DungeonModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+	}
+	else {
+		if(!which)
+			res = DungeonModTable[attr].attrib_low * (100 + attr_factor) / 100;
+		else
+			res = DungeonModTable[attr].attrib_high * (100 + attr_factor) / 100;
+	}
+	
+	if(!res)
+		res = 1;
+	return res;
+}
+
+int GetDungeonModRangeWithTierExtra(int attr, int tier_mapping, bool which, int attr_factor) {
+	int res = 0;
+
+	if(tier_mapping != -1) {
+		if(!which)
+			res = (DungeonModTable[attr].attrib_extra_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+		else
+			res = (DungeonModTable[attr].attrib_extra_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+	}
+	else {
+		if(!which)
+			res = DungeonModTable[attr].attrib_extra_low * (100 + attr_factor) / 100;
+		else
+			res = DungeonModTable[attr].attrib_extra_high * (100 + attr_factor) / 100;
+	}
+	
+	if(!res)
+		res = 1;
+	return res;
+}
+
+// this calculates the tier mapping for itself based on supplied level
+int GetDungeonModRange(int attr, int tier, bool which, int attr_factor) {
+	return GetDungeonModRangeWithTier(attr, GetDungeonModTierRangeMapper(attr, tier), which, attr_factor);
+}
+
+int GetDungeonModRangeExtra(int attr, int tier, bool which, int attr_factor) {
+	return GetDungeonModRangeWithTierExtra(attr, GetDungeonModTierRangeMapperExtra(attr, tier), which, attr_factor);
+}
+
+str GetDetailedDungeonModRange(int attr, int tier, int trunc_factor = 0, int extra = -1, bool isPercentage = false) {
+	if(extra != -1)
+		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
+	
+	// limit this to here at t10...
+	str col_tag = GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE);
+	int tier_mapping = GetModTierRangeMapper(attr, tier);
+	
+	if(!trunc_factor) {
+		return StrParam(
+			s:"\c-(",
+			s:col_tag, d:GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, 0),
+			s:"\c--",
+			s:col_tag, d:GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, 0), s:"\c-)"
+		);
+	}
+	return StrParam(
+		s:"\c-(",
+		s:col_tag, s:GetFixedRepresentation(GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, 0), isPercentage),
+		s:"\c--",
+		s:col_tag, s:GetFixedRepresentation(GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, 0), isPercentage), s:"\c-)"
+	);
+}
+
+int RollDungeonAttributeValue(int attr, int tier, bool isWellRolled) {
+	int tier_mapping = GetDungeonModTierRangeMapper(attr, tier);
+	int temp;
+
+	bool revered = CheckInventory("ReveranceUsed");
+	
+	// the + 0.0005 is so the edge rolls can be achieved
+	if(!isWellRolled && !revered) {
+		temp = random(GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, 0), GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, 0));
+		if(IsFixedPointDungeonMod(attr) && temp > 0.0005)
+			temp += 0.0005;
+		return temp;
+	}
+	
+	// well rolled case
+	temp = GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_HIGH, 0);
+
+	if(!revered)
+		temp = random((GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, 0) + temp) / 2, temp);
+	else
+		temp = random(GetDungeonModRangeWithTier(attr, tier_mapping, ITEM_MODRANGE_LOW, 0) / 4 + (temp * 3) / 4, temp);
+	
+	if(IsFixedPointDungeonMod(attr) && temp > 0.0005)
+		temp += 0.0005;
+	
+	return temp;
+}
+
+int RollDungeonAttributeExtra(int attr, int tier, bool isWellRolled) {
+	int tier_mapping = GetDungeonModTierRangeMapperExtra(attr, tier);
+	int temp;
+
+	bool revered = CheckInventory("ReveranceUsed");
+	
+	// the + 0.0005 is so the edge rolls can be achieved
+	if(!isWellRolled && !revered) {
+		temp = random(GetDungeonModRangeWithTierExtra(attr, tier_mapping, ITEM_MODRANGE_LOW, 0), GetDungeonModRangeWithTierExtra(attr, tier_mapping, ITEM_MODRANGE_HIGH, 0));
+		if(IsFixedPointDungeonMod(attr) && temp > 0.0005)
+			temp += 0.0005;
+		return temp;
+	}
+	
+	// well rolled case
+	temp = GetDungeonModRangeWithTierExtra(attr, tier_mapping, ITEM_MODRANGE_HIGH, 0);
+
+	if(!revered)
+		temp = random((GetDungeonModRangeWithTierExtra(attr, tier_mapping, ITEM_MODRANGE_LOW, 0) + temp) / 2, temp);
+	else
+		temp = random(GetDungeonModRangeWithTierExtra(attr, tier_mapping, ITEM_MODRANGE_LOW, 0) / 4 + (temp * 3) / 4, temp);
+	
+	if(IsFixedPointDungeonMod(attr) && temp > 0.0005)
+		temp += 0.0005;
+	
+	return temp;
+}
+
+str DungeonAttributeString(
+	int attr, int item_type, int item_subtype, 
+	int val, int tier = 0, bool showDetailedMods = false, 
+	int extra = -1, bool isFractured = false, int qual = 0, 
+	int attr_extra = 0, int craftAffected = 0
+)
+{
+	str text = StrParam(s:"DUNATTR_", d:attr);
+	str col_tag = "\c[Q9]";
+	str no_tag = "\c- ";
+
+	if(!(craftAffected & 0xFF)) {
+		if(isFractured) {
+			col_tag = "\c[E2]";
+			no_tag = "\c[E2] ";
+		}
+	}
+	else {
+		if((craftAffected >> 8) != DND_ORBEFFECT_NUMBER)
+			no_tag = "\ck ";
+		col_tag = "\ck";
+	}
+
+	// extract id and value separately (we encode id in the value as part of limitation)
+	int attr_extra_id = attr_extra & 0xFFFF;
+	attr_extra >>= 16;
+
+	if(qual) {
+		if(!IsDungeonAttributeQualityException(attr)) {
+			if(val < 100000) {
+				val *= qual + 100;
+				val /= 100;
+			}
+			else {
+				val /= 100;
+				val *= qual + 100;
+			}
+		}
+
+		if(attr_extra && !IsDungeonAttributeExtraException(attr)) {
+			if(attr_extra > 100000) {
+				attr_extra /= 100;
+				attr_extra *= qual + 100;
+			}
+			else {
+				attr_extra *= qual + 100;
+				attr_extra /= 100;
+			}
+		}
+	}
+
+	switch(attr) {
+		case DUN_ATTR_EXTRAHP:
+		case DUN_ATTR_FORTIFIED:
+		case DUN_ATTR_MORETOUGHENEMIES:
+		case DUN_ATTR_MOREELITEENEMIES:
+			if(showDetailedMods) {
+				text = StrParam(s:"+", s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:text, s:"\n");
+			}
+			else
+				text =  StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n");
+		break;
+
+		// single line text, they dont have any change on text
+		case DUN_ATTR_CULLENEMIES:
+		case DUN_ATTR_NOINFIGHT:
+		case DUN_ATTR_NOPAIN:
+		case DUN_ATTR_NORIP:
+		case DUN_ATTR_EXTRAFAST:
+		case DUN_ATTR_GHOST:
+			text = StrParam(l:text, s:"\n");
+		break;
+
+		case DUN_ATTR_MOREDMG:
+			if(showDetailedMods) {
+				text = StrParam(l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:"DUNATTR_9X", s:"\n");
+			}
+			else
+				text =  StrParam(l:text, s:col_tag, d:val, s:"%", s:no_tag, l:"DUNATTR_9X", s:"\n");
+		break;
+
+		case DUN_ATTR_FASTPROJ:
+			if(showDetailedMods) {
+				text = StrParam(l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:"DUNATTR_10X", s:"\n");
+			}
+			else
+				text =  StrParam(l:text, s:col_tag, d:val, s:"%", s:no_tag, l:"DUNATTR_10X", s:"\n");
+		break;
+
+		case DUN_ATTR_INCREASEDRESISTS:
+			if(showDetailedMods) {
+				text = StrParam(l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:"DUNATTR_12X", s:"\n");
+			}
+			else
+				text =  StrParam(l:text, s:col_tag, d:val, s:"%", s:no_tag, l:"DUNATTR_12X", s:"\n");
+		break;
+	}
+
+	// use the assigned extra id as a separate thing to draw here, appended to text with a newline
+	// for now we got no exceptions in the style of the upside text, so...
+	if(showDetailedMods) {
+		// append this at the end if mod tiers is requested, after the upside
+		text = StrParam(
+			s:text, s:"+", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id),
+			s:" - ", s:GetModTierText(tier, extra)
+		);
+	}
+	else {
+		text = StrParam(s:text, s:"+", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id));
+	}
+
+	return text;
+}
+
 #endif
