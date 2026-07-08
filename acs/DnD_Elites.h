@@ -168,11 +168,21 @@ int GetRandomEliteTrait() {
 #define ROLLED_MONSTER_IS_ELITE 2
 
 bool RollEliteChance(int chance) {
+	int temp = -1;
 	int base_elite = Clamp_Between(GetCVar("dnd_elite_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + (InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] / DND_MONSTERRARITY_PERLVL) * DND_ELITE_MIN_INCREMENT;
+	
+	if((temp = HasDungeonAttributeVal(DUN_ATTR_MOREELITEENEMIES)) != -1)
+		base_elite = base_elite * (100 + temp) / 100;
+
 	if(chance <= base_elite)
 		return ROLLED_MONSTER_IS_ELITE;
 
-	base_elite += Clamp_Between(GetCVar("dnd_magic_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + (InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] / DND_MONSTERRARITY_PERLVL) * DND_MAGIC_MIN_INCREMENT;
+	int add = Clamp_Between(GetCVar("dnd_magic_spawnchance"), 1, 100) * DND_ELITE_RESOLUTION_SCALE + (InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] / DND_MONSTERRARITY_PERLVL) * DND_MAGIC_MIN_INCREMENT;
+
+	if((temp = HasDungeonAttributeVal(DUN_ATTR_MORETOUGHENEMIES)) != -1)
+		add = add * (100 + temp) / 100;
+
+	base_elite += add;
 	return chance <= base_elite;
 }
 

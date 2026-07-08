@@ -168,7 +168,7 @@ Actor Bloodshot {
 	DeathSound "weapons/bloodx"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FBLD A 2 Bright A_CStaffMissileSlither
 			FBLD A 0 A_SpawnItemEx("Bloodtrail",0,0,0,0,0,0,128)
@@ -421,7 +421,7 @@ ACTOR Puke1 {
 	+Missile
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			PUK1 ABCDEFGH 2
 		Loop
@@ -749,7 +749,7 @@ actor StoneDemonBoulder {
 	Stamina 1073741825
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			STNB ABCDEFGH 3
 		Loop
@@ -843,7 +843,7 @@ Actor SoulEaterProj : MummyFX1 {
 	
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		Goto Super::Spawn
 		Death:
 			TNT1 A 0 A_SpawnItemEx("OrangeParticleSpawner", 0, 0, 0, 0, 0, 0, 0, 128)
@@ -933,7 +933,7 @@ Actor BruteExplosion1 : BaseExplosionDamage {
 	Accuracy 150
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_Explode(36, 128, 0)
 			TNT1 AAAAAA 0 A_SpawnDebris("NashGore_FlyingBlood")
 			TNT1 AAAAAAAAAA 1 A_SpawnItemEx("ExplosionFX", 0, 0, 16, random(-3,3), random(-3,3), random(0,4))
@@ -947,7 +947,7 @@ Actor BruteExplosion2 : BaseExplosionDamage {
 	Accuracy 150
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_Explode(72, 128, 0)
 			TNT1 AAAAAA 0 A_SpawnDebris("NashGore_FlyingBlood")
 			TNT1 AAAAAAAAAA 1 A_SpawnItemEx("ExplosionFX", 0, 0, 16, random(-3,3), random(-3,3), random(0,4))
@@ -1049,7 +1049,7 @@ Actor ScavengerBall {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BAL7 AAAABBBB 1 Bright A_FadeOut(0.075)
 		Loop
@@ -1187,7 +1187,7 @@ Actor DemonLand : BaseExplosionDamage {
 	Obituary "%o was traumatized by a Nhumcign."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(36, 84, 0)
 		Stop
 	}
@@ -1309,7 +1309,7 @@ Actor DemonFlightAtk {
 	Speed 56
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		Stop
 		Death:
 			TNT1 A 1
@@ -1490,7 +1490,7 @@ Actor EarthGolemShot : VulgarShot {
 	Stamina 1073741952
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FVUL AA 1 Bright A_SpawnItemEx("BarbTrail",0,0,0,0,0,0,0,128,0)
 			TNT1 A 0 A_Weave(2.0, 0, 4.0, 0)
@@ -1514,7 +1514,7 @@ Actor EarthGolemPieces {
 	-NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BPBL AB 2 Bright
 		Loop
@@ -1678,7 +1678,7 @@ Actor PurebredChargeExp : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(12, 96, 0, 0, 44)
 		Stop
 	}

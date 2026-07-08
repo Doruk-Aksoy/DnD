@@ -415,7 +415,7 @@ void CalculateMapDifficulty() {
 		}
 
 		// infight prevention check on HK and above tier monsters
-		if(i >= MONSTERCLASS_HELLKNIGHT && MapData[index] >= DND_NOINFIGHT_THRESHOLD && !CheckMapEvent(DND_MAPEVENT_NOINFIGHTING))
+		if(!CheckMapEvent(DND_MAPEVENT_NOINFIGHTING) && (HasDungeonAttributeVal(DUN_ATTR_NOINFIGHT) != -1 || (i >= MONSTERCLASS_HELLKNIGHT && MapData[index] >= DND_NOINFIGHT_THRESHOLD)))
 			AcceptMapEvent(DND_MAPEVENT_NOINFIGHTING);
 
 		TempArray[TARR_MONID][i] = 0;
@@ -457,6 +457,25 @@ void CalculateMapDifficulty() {
 	MapData[DND_MAPDATA_DIFFICULTY] = factor / DND_MAPDIFF_TIERVAL;
 	if(MapData[DND_MAPDATA_DIFFICULTY] > DND_MAXMAPDIFF || MapData[DND_MAPDATA_DIFFICULTY] < 0)
 		MapData[DND_MAPDATA_DIFFICULTY] = DND_MAXMAPDIFF;
+
+	CheckOtherMapEvents();
+}
+
+void CheckOtherMapEvents() {
+	if(HasDungeonAttributeVal(DUN_ATTR_NOPAIN) != -1)
+		AcceptMapEvent(DND_MAPEVENT_NOPAIN);
+
+	if(HasDungeonAttributeVal(DUN_ATTR_NORIP) != -1)
+		AcceptMapEvent(DND_MAPEVENT_NORIP);
+
+	if(HasDungeonAttributeVal(DUN_ATTR_EXTRAFAST) != -1)
+		AcceptMapEvent(DND_MAPEVENT_EXTRAFAST);
+
+	if(HasDungeonAttributeVal(DUN_ATTR_GHOST) != -1)
+		AcceptMapEvent(DND_MAPEVENT_GHOST);
+
+	if(HasDungeonAttributeVal(DUN_ATTR_CULLENEMIES) != -1)
+		AcceptMapEvent(DND_MAPEVENT_CULLINGMONSTERS);
 }
 
 int CalculateBonus(int bonustype, int mdifficulty) {
@@ -669,7 +688,7 @@ void HandleChestSpawn(int chance_penalty) {
 	if(r <= CHEST_DROPWEIGHT / chance_penalty) {
 		// chest will now spawn, determine type of it here
 		++CurrentLevelData[LEVELDATA_CHESTSPAWNED];
-		r = random(0, 1.0);
+		r = random(0, 1.0) * (100 + HasDungeonUpside(DUN_UPSIDE_RARERCHEST)) / 100;
 		if(r < SILVERCHEST_DROPWEIGHT)
 			SpawnDrop("DNDSilverChest", 0, 0, 0, 0);
 		else if(r < GOLDCHEST_DROPWEIGHT)
@@ -1116,6 +1135,9 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 		
 		add = base * add / 100;
 
+		if((temp = HasDungeonAttributeVal(DUN_ATTR_EXTRAHP)) != -1)
+			add = add * (100 + temp) / 100;
+
 		// add level factor to it
 		// first overflow check
 		if(add > bcs::INT_MAX - base)
@@ -1130,6 +1152,21 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 	MonsterProperties[m_id].basehp = base;
 	MonsterProperties[m_id].maxhp = base + add;
 	MonsterProperties[m_id].level = level;
+
+	if((temp = HasDungeonAttributeVal(DUN_ATTR_FORTIFIED)) != -1 && random(1, 100) <= temp)
+		SetEliteFlag(DND_FORTIFIED, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_GHOST))
+		SetEliteFlag(DND_GHOST, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_NOPAIN))
+		SetEliteFlag(DND_NOPAIN, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_NORIP))
+		SetEliteFlag(DND_HARDENED_SKIN, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_EXTRAFAST))
+		SetEliteFlag(DND_EXTRAFAST, true);
 
 	// init to false
 	//MonsterProperties[m_id].spawnsIncursionMarker = false;

@@ -138,7 +138,7 @@ Actor BFGBallDemolisher : BFGBall2 {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BFS1 AAAABBBB 1 Bright A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop
@@ -276,7 +276,7 @@ Actor ArachnophyteExp1 : BaseExplosionDamage {
 	Accuracy 133
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(20, 96, 0)
 		Stop
 	}
@@ -460,7 +460,7 @@ actor QueenPlasmaBlast {
 	DeathSound "electricplasma/hit"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TNT1 AA 0 A_CustomMissile("QueenPlasmaBlastTrail", 0, 0, 0)
 			EBLT GH 2 bright A_BishopMissileWeave
@@ -500,7 +500,7 @@ Actor PsionicQueenExp1 : BaseExplosionDamage {
 	Stamina 20
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(160, 192, 0)
 		Stop
 	}
@@ -524,7 +524,7 @@ ACTOR QueenBFG {
     Decal "Scorch"
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			XBTS A 2 BRIGHT A_SeekerMissile(1,4)
 			TNT1 AA 0 A_SpawnItemEx("PurpleParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
@@ -687,7 +687,7 @@ Actor AngelOfDeathExp1 : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(64, 84, 0)
 		Stop
 	}
@@ -708,7 +708,7 @@ ACTOR PipeBomb {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			LMPI A 3 bright
 			LMPI B 3 bright A_PlaySound("pipe/whoosh")
@@ -756,7 +756,7 @@ ACTOR BulletPierce {
 	BounceFactor 1.0
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			LMPB A 1 bright
 		Loop
@@ -1000,7 +1000,7 @@ Actor GoldLichExp1 : BaseExplosionDamage {
 	Stamina 12
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(64, 160,0)
 		Stop
 	}
@@ -1030,7 +1030,7 @@ ACTOR GoldLichBounce {
 	BounceCount 4
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			FXA1 ABCA 4 BRIGHT
 		SpawnLoop:
 			FXA1 BCA 4 Bright A_SeekerMissile(4, 4, SMF_CURSPEED)
@@ -1051,7 +1051,7 @@ ACTOR GoldLichBounce2 : GoldLichBounce {
 	BounceCount 8
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			FXA1 A 4 BRIGHT
 			TNT1 A 0 A_Stop
 			FXA1 B 4 Bright
@@ -1091,7 +1091,7 @@ ACTOR GoldLichFire {
 	RenderStyle Add
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		Weave:
 			TNT1 A 0 A_PlaySound("goldlich/attack1")
 			FX06 AAAABBBBCCCC 1 BRIGHT A_CstaffMissileSlither
@@ -1351,7 +1351,7 @@ Actor VolcanoTBlast2Lich : VolcanoTBlast2 {
 	Stamina 1073741856
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		Goto Super::Spawn
 	}
 }
@@ -1364,7 +1364,7 @@ Actor IronLichFireAttack : beastball2 {
 	Scale 1.25
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		Goto Super::Spawn
 	    Death:
 			TNT1 A 0 A_SpawnItem("VolcanoExp")
@@ -1411,7 +1411,7 @@ Actor IronLichIceAttack {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FX39 ABC 3 Bright
 		Loop
@@ -1453,7 +1453,7 @@ ACTOR IronLichIceShard {
 	RenderStyle Add
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FX39 HIJ 3 Bright
 		Loop
@@ -1481,7 +1481,7 @@ ACTOR IronLichGroundSpike {
 	+DONTBLAST
 	States {
 		Spawn:	
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TNT1 D 2 A_CustomMissile("GroundSpikeExt",0,0,0,4)
 			TNT1 A 3
@@ -1524,7 +1524,7 @@ ACTOR GroundSpikeExt {
 	DeathSound "ThrustSpikeLower"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			RSPK DCBA 3
 			RSPK A 5
 			RSPK BCD 3
@@ -1629,7 +1629,7 @@ Actor IronLichSmallEnergy {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			STAR GH 3 Bright A_FadeOut(0.05)
 		Loop
@@ -1646,7 +1646,7 @@ Actor IronLichFireTracer {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_PlaySound("Lich/FireCurse")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 		SpawnLoop:
@@ -1667,7 +1667,7 @@ Actor IronLichFireSky : VolcanoTBlast2 {
 	Speed 4
 	States {
 		Spawn:
-			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 1 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_ChangeFlag("CEILINGHUGGER", 0)
 			TNT1 A 1 A_ChangeVelocity(velx, vely, frandom(-90, -60), CVF_REPLACE)
 		SpawnLoop:
@@ -2201,7 +2201,7 @@ Actor DarkLichVortexExp1 : BaseExplosionDamage {
 	Stamina 524
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(24, 160, 0)
 		Stop
 	}
@@ -2212,7 +2212,7 @@ Actor DarkLichVortexExp2 : BaseExplosionDamage {
 	Stamina 524
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(36, 192, 0)
 		Stop
 	}
@@ -2223,7 +2223,7 @@ Actor DarkLichVortexExp3 : BaseExplosionDamage {
 	Stamina 524
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(48, 224,0)
 		Stop
 	}
@@ -2234,7 +2234,7 @@ Actor DarkLichVortexExp4 : BaseExplosionDamage {
 	Stamina 524
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(60, 288,0)
 		Stop
 	}
@@ -2245,7 +2245,7 @@ Actor DarkLichVortexExp5 : BaseExplosionDamage {
 	Stamina 524
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(72, 360,0)
 		Stop
 	}
@@ -2267,7 +2267,7 @@ Actor DarkLichVortex {
 	+NODAMAGETHRUST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			GNF1 ABCABC 2 BRIGHT
 			TNT1 A 0 A_PlaySound("DarkLich/Charge")
@@ -2317,7 +2317,7 @@ Actor DarkLichHomingBallExp : BaseExplosionDamage {
 	Stamina 524
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(36, 96,0)
 		Stop
 	}
@@ -2340,7 +2340,7 @@ ACTOR DarkLichHomingBall {
 	+SCREENSEEKER
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BSBS A 0 Bright Light(DISCIPLEBALL)
 			BSBS A 0 Bright Light(DISCIPLEBALL) A_PlaySoundEx ("DarkLich/ballfly", "SoundSlot6", 1) 

@@ -277,6 +277,10 @@ Script 255 (int isSecretExit, int forcedExit, int isBossBrain) {
 				// we are in dungeon and dungeon id is not -1, so get its next map to be applied here
 				i = DungeonInformation.next_map;
 				ResetCurrentDungeonData();
+				
+				// mark everyone's orb alias tables as needing a reset, they came from a dungeon where they could have had orb modifying effects
+				MarkAllPlayerOrbTablesDirty();
+
 				ChangeLevel(i, 0, CHANGELEVEL_NOINTERMISSION, -1);
 			}
 			Delay(1);

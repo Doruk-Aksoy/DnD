@@ -119,7 +119,7 @@ Actor AbyssCyberRocketExp : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(160, 128, 0)
 		Stop
 	}
@@ -135,7 +135,7 @@ Actor AbyssCyberRocket : Rocket {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CP11 A 1
 		Loop

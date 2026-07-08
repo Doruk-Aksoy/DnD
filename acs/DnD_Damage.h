@@ -276,6 +276,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 };
 
 #define DND_CULL_BASEPERCENT 15 // percent
+#define DND_CULL_BASEPERCENT_VS_PLAYER 10 // percent
 #define DND_DESOLATOR_DMG_GAIN 10 // 10%
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
 
@@ -801,6 +802,11 @@ bool CheckCullRange(int source, int victim, int dmg) {
 	int base = DND_CULL_BASEPERCENT;
 	base += HasActorClassPerk_Fast(source, "Doomguy", 4) * DND_DOOMGUY_CULLBONUS;
 	return GetActorProperty(victim, APROP_HEALTH) - dmg <= ApplyDamageFactor_Safe(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, base);
+}
+
+bool CheckCullRangeVsPlayer(int source, int victim, int dmg) {
+	int base = DND_CULL_BASEPERCENT_VS_PLAYER;
+	return GetActorProperty(victim, APROP_HEALTH) - dmg <= CheckActorInventory(victim, "PlayerHealthCap") * base / 100;
 }
 
 void HandleChillEffects(int pnum, int victim) {
@@ -3922,6 +3928,9 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 
 				// these are on monsters only, dont have much to do with us beyond this point
 				HandleMonsterDamageModChecks(m_id, shooter, victim, dmg, isDot);
+
+				if(CheckMapEvent(DND_MAPEVENT_CULLINGMONSTERS) && CheckCullRangeVsPlayer(shooter, victim, dmg))
+					dmg = 99999;
 			}
 			else {
 				temp = GetActorProperty(shooter, APROP_MASTERTID);

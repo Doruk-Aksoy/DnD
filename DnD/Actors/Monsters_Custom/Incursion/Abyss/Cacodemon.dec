@@ -68,7 +68,7 @@ Actor AbyssCacoBall : Cacodemonball {
 	Speed 24
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DND Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CP06 ABC 3 Bright
 		Loop

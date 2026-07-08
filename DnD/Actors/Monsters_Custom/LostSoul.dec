@@ -76,7 +76,7 @@ ACTOR BabyCacoBall {
 	Decal "HImpScorch"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BCAB AB 4 BRIGHT
 		Loop
@@ -226,7 +226,7 @@ Actor Fleshspawnball {
 	Projectile
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			FLBL ABCBABCBABCBABCBIJKLM 4 Bright
 		Stop
 		Death:
@@ -436,7 +436,7 @@ ACTOR ShadowBall {
 	Decal DoomImpScorch
 	States {
 		Spawn: 
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			SBAL ABC 4 BRIGHT A_SpawnItemEx("ShadowTrail", 0, 0, 0, 0, 0, 0, 0, 128)
 			Loop
@@ -556,7 +556,7 @@ Actor CubeShot {
 	Obituary "%o got fried by a Guardian Cube."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CBAL AB 3 Bright A_SpawnItemEx("CubePuff",0,0,0,0,0,0,0,128)
 		Loop

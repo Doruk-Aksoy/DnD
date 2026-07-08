@@ -2294,6 +2294,14 @@ void DrawInventoryText(
 				--lvl;
 			}
 
+			if(itype == DND_ITEM_DUNGEONKEY) {
+				tmp_text = StrParam(
+					s:tmp_text, s:"\n\n\c[K9]", l:StrParam(s:"DND_DUNGEONKEYTEXT", d:isubt + 1),
+					s:"\n", s:GetDungeonMonsterTypeString(isubt)
+				);
+				lvl -= 2;
+			}
+
 			sync_info.isDirty = false;
 			sync_info.last_text_mode = showModTiers;
 			sync_info.last_craft_vals = craftMaterialIdx;
@@ -2565,6 +2573,7 @@ bool IsCraftableItem(int itype) {
 		case DND_ITEM_WEAPON:
 		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_FLASK:
+		case DND_ITEM_DUNGEONKEY:
 		case DND_ITEM_SPECIALTY_DOOMGUY:
 		case DND_ITEM_SPECIALTY_MARINE:
 		case DND_ITEM_SPECIALTY_HOBO:
@@ -2588,6 +2597,7 @@ bool IsUsableOnInventory(int itype) {
 		case DND_ITEM_BOOT:
 		case DND_ITEM_HELM:
 		case DND_ITEM_FLASK:
+		case DND_ITEM_DUNGEONKEY:
 		case DND_ITEM_SPECIALTY_DOOMGUY:
 		case DND_ITEM_SPECIALTY_MARINE:
 		case DND_ITEM_SPECIALTY_HOBO:

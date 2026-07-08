@@ -15,50 +15,54 @@
 
 #define DND_ORB_SIN_REPENTCHANCE 0.4
 
-int OrbDropWeights[MAX_ORBS] = {
-	45, // 4.5%
-	65, // 2%
-	95, // 3%
-	113, // 1.8%
-	137, // 2.4%
+int GetOrbDropWeight(int id) {
+	static int OrbDropWeights[MAX_ORBS] = {
+		450, 		// DND_ORB_ENHANCE
+		200, 		// DND_ORB_CORRUPT
+		300, 		// DND_ORB_PRISMATIC
+		75, 		// DND_ORB_REPENT
+		240, 		// DND_ORB_AFFLUENCE
 
-	162, // 2.5%
-	197, // 3.5%
-	222, // 2.5%
-	252, // 3%
-	282, // 3%
+		250,		// DND_ORB_CALAMITY
+		350,		// DND_ORB_PROSPERITY
+		250,		// DND_ORB_NULLIFICATION
+		300,		// DND_ORB_DESTRUCTION
+		300,		// DND_ORB_VIOLENCE
 
-	317, // 3.5%
-	335, // 1.8%
-	370, // 3.5%
-	405, // 3.5%
-	455, // 5%
+		350,		// DND_ORB_FORTITUDE
+		120,		// DND_ORB_SIN
+		350,		// DND_ORB_TREMORS
+		350,		// DND_ORB_TINKERER
+		500,		// DND_ORB_REFINEMENT
 
-	490, // 3.5%
-	525, // 3.5%
-	575, // 5%
-	610, // 3.5%
-	645, // 3.5%
+		350,		// DND_ORB_SCULPTING
+		350,		// DND_ORB_ELEVATION
+		500,		// DND_ORB_TURMOIL
+		350,		// DND_ORB_HEXES
+		350,		// DND_ORB_GROWTH
 
-	670, // 2.5%
-	705, // 3.5%
-	740, // 3.5%
-	775, // 3.5%
-	800, // 2.5%
+		250,		// DND_ORB_POTENCY
+		350,		// DND_ORB_CRACKLING
+		350,		// DND_ORB_BRUTE
+		350,		// DND_ORB_JAGGED
+		250,		// DND_ORB_ALCHEMIST
 
-	825, // 2.5%
-	860, // 3.5%
+		250,		// DND_ORB_EVOKER
+		350,		// DND_ORB_SAVAGERY
 
-	895, // 3.5%
-	930, // 3.5%
-	965, // 3.5%
-	1000, // 3.5%
+		350,		// DND_ORB_WINTER
+		350,		// DND_ORB_VOLTAIC
+		350,		// DND_ORB_VILE
+		350,		// DND_ORB_EMBERS
 
-	// drops only from specific monster
-	0xFFFFFF,
-	0xFFFFFF,
-	0xFFFFFF
-};
+		// drops only from specific monster
+		0xFFFFFF,
+		0xFFFFFF,
+		0xFFFFFF
+	};
+
+	return OrbDropWeights[id];
+}
 
 #define ORB_MAXWEIGHT 1000
 #define DND_CORRUPT_FAIL 419
@@ -77,6 +81,34 @@ bool CanAddModToItem(int pnum, int itemtype, int item_index, int add_lim) {
 	return res;
 }
 
+bool IsCorruptableItem(int item_type) {
+	switch(item_type) {
+		case DND_ITEM_FLASK:
+		case DND_ITEM_DUNGEONKEY:
+		return false;
+	}
+
+	return true;
+}
+
+bool IsFracturableItem(int item_type) {
+	switch(item_type) {
+		case DND_ITEM_FLASK:
+		return false;
+	}
+	return true;
+}
+
+bool IsEvokableItem(int item_type) {
+	switch(item_type) {
+		case DND_ITEM_FLASK:
+		case DND_ITEM_DUNGEONKEY:
+		return false;
+	}
+
+	return true;
+}
+
 // extra is inventory position
 // extra type holds the base item type, no extra information - this comes from the function that calls this
 bool CanUseOrb(int orbtype, int extra, int extratype) {
@@ -93,7 +125,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 #ifdef ISDEBUGBUILD
 			res = true;
 #else
-			res = IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK;
+			res = IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && IsCorruptableItem(extratype);
 #endif
 		break;
 		case DND_ORB_REPENT:
@@ -113,7 +145,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			res = HasOrbsBesidesCalamity();
 		break;
 		case DND_ORB_SIN:
-			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK) {
+			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && IsFracturableItem(extratype)) {
 				// if there's a fractured mod or it's a unique, don't let
 				temp = PlayerInventoryList[pnum][extra].item_type;
 
@@ -200,7 +232,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		break;
 		case DND_ORB_EVOKER:
 			// won't work on uniques
-			res = PlayerInventoryList[pnum][extra].attrib_count > 0 && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && extratype != DND_ITEM_FLASK;
+			res = PlayerInventoryList[pnum][extra].attrib_count > 0 && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && IsEvokableItem(extratype);
 		break;
 
 		case DND_ORB_HOLLOW:
@@ -1523,10 +1555,7 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 #ifdef ISDEBUGBUILD
 		i = PickRandomOrb();
 #else
-	do {
-		int w = random(1, ORB_MAXWEIGHT);
-		for(i = 0; i < MAX_DROPPABLE_ORBS && OrbDropWeights[i] < w; ++i);
-	} while(IsOrbDropException(i));
+		i = PickPlayerOrb(pnum);
 #endif
 		// c is the index on the field now
 		//i = DND_ORB_POTENCY;

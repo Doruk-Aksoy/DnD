@@ -268,6 +268,15 @@ Script "DnD On Map Load" OPEN {
 	}
 
 	RollMapEvents();
+
+	// merchant uses alias tables
+	if(CheckMapEvent(DND_MAPEVENT_MERCHANTID))
+		ClearPlayerAliasTables(MAXPLAYERS);
+	else {
+		SetupPlayerAliasTables(MAXPLAYERS);
+		ReadjustOrbWeightsForRarerOnes(MAXPLAYERS);
+	}
+
 	CalculateMapDifficulty();
 	UpdateLevelChestLimit();
 
@@ -3003,6 +3012,8 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	
 	ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID]);
 	ACS_NamedExecuteAlways("DnD Menu Icon Force Remove", 0, pnum + DND_MENUFLOATYICON_TID);
+
+	ClearPlayerAliasTables(pnum);
 }
 
 // End of level checks
@@ -3316,7 +3327,17 @@ Script "DnD Player Setup" ENTER {
 
 	Delay(const:5);
 
+	SetupPlayerAliasTables(pnum);
+
 	RestorePersistentBuffs(pnum);
+
+	Delay(const:1);
+
+	ReadjustOrbWeightsForRarerOnes(pnum);
+
+#ifdef ISDEBUGBUILD
+	TestAliasTable(pnum);
+#endif
 
 /*#ifdef ISDEBUGBUILD
 	Delay(10*TICRATE);
@@ -3948,7 +3969,7 @@ Script "DnD Lifesteal Script" (int tid) {
 
 // for elites with pierce armor flag
 // also generic projectile initialization
-Script "DND Pierce Check" (void) {
+Script "DnD Monster Projectile Setup" (void) {
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int m_id = owner - DND_MONSTERTID_BEGIN;
 
@@ -3957,15 +3978,20 @@ Script "DND Pierce Check" (void) {
 		GiveInventory("MakePierce", 1);
 
 	int temp;
-	if(MonsterProperties[m_id].trait_list[DND_FASTPROJ] && (temp = GetActorProperty(0, APROP_SPEED))) {
-		temp = FixedMul(temp, DND_FASTPROJ_FACTOR);
+	int factor = FixedMul(1.0, (!!MonsterProperties[m_id].trait_list[DND_FASTPROJ] * DND_FASTPROJ_FACTOR));
+
+	if((temp = HasDungeonAttributeVal(DUN_ATTR_FASTPROJ)) != -1)
+		factor = FixedMul(1.0, 1.0 + ((temp << 16) / 100));
+
+	if(factor != 1.0 && (temp = GetActorProperty(0, APROP_SPEED))) {
+		temp = FixedMul(temp, factor);
 		SetActorProperty(0, APROP_SPEED, temp);
 
 		SetActorVelocity(
 			0,
-			FixedMul(GetActorVelX(0), DND_FASTPROJ_FACTOR),
-			FixedMul(GetActorVelY(0), DND_FASTPROJ_FACTOR),
-			FixedMul(GetActorVelZ(0), DND_FASTPROJ_FACTOR),
+			FixedMul(GetActorVelX(0), factor),
+			FixedMul(GetActorVelY(0), factor),
+			FixedMul(GetActorVelZ(0), factor),
 			0,
 			0
 		);
@@ -5948,6 +5974,9 @@ Script "DnD Vaaj Charm" (int spd) {
                 SetResultValue(0);
                 Terminate;
             }
+
+			if(HasActorClassPerk_Fast(victim, "Wanderer", DND_CLASSPERK_1))
+				base_t = base_t * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
 
 			base_t = base_t * curse_effect / 100;
 			SetInventory("DnD_CharmTimer", base_t);

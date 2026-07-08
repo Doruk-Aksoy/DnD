@@ -111,7 +111,7 @@ ACTOR Flemsplode : BaseExplosionDamage {
 	Obituary "%o was gooed by a Flem Mine."
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(80, 288, 0)
 		Stop
 	}

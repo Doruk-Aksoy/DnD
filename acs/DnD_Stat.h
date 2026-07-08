@@ -430,7 +430,7 @@ void GiveActorExp(int tid, int amt) {
 
 int GetPlayerWisdomBonus(int pnum, int tid) {
 	// the item modifier is fixed point and is a more multiplier
-	int base = 100 + BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom");
+	int base = 100 + BASE_WISDOM_GAIN * CheckActorInventory(tid, "Perk_Wisdom") + HasDungeonUpside(DUN_UPSIDE_EXPANDCREDIT);
 	
 	// halved
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
@@ -445,7 +445,7 @@ int GetPlayerWisdomBonus(int pnum, int tid) {
 
 int GetPlayerGreedBonus(int pnum, int tid) {
 	// the item modifier is fixed point and is a more multiplier
-	int base = 100 + BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed");
+	int base = 100 + BASE_GREED_GAIN * CheckActorInventory(tid, "Perk_Greed") + HasDungeonUpside(DUN_UPSIDE_EXPANDCREDIT);
 	
 	// halved
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
@@ -503,6 +503,7 @@ void TakeCredit(int amt) {
 }
 
 void GiveBudget(int amt) {
+	amt = amt * (100 + HasDungeonUpside(DUN_UPSIDE_BUDGET)) / 100;
 	GiveInventory("Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
 	ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
 	UpdateActivity(PlayerNumber(), DND_ACTIVITY_BUDGET, amt, 0);
@@ -515,6 +516,7 @@ void TakeBudget(int amt) {
 }
 
 void GiveActorBudget(int tid, int amt) {
+	amt = amt * (100 + HasDungeonUpside(DUN_UPSIDE_BUDGET)) / 100;
 	GiveActorInventory(tid, "Budget", amt * Clamp_Between(GetCVar("dnd_budget_scale"), 1, BUDGET_SCALE_MAX));
 	ACS_NamedExecuteAlways("DnD Refresh Request", 0, tid - P_TIDSTART, 1);
 	UpdateActivity(tid - P_TIDSTART, DND_ACTIVITY_BUDGET, amt, 0);
@@ -625,7 +627,7 @@ int Calculate_Perks() {
 // this is used in drop rates, weapons proc chances etc.
 int GetPlayerLuck(int pnum, int outcome_val = DND_LUCK_GAIN) {
 	//return outcome_val * GetActorPerk(pnum + P_TIDSTART, X) + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
-	return GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
+	return GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE) + (HasDungeonUpside(DUN_UPSIDE_QUANT) << 16) / 100;
 }
 
 bool RunLuckBasedChance(int pnum, int base, int outcome_val = DND_LUCK_GAIN) {
@@ -656,10 +658,10 @@ int GetDropChance(int pnum) {
 int GetPlayerItemRarity(int pnum) {
 	int base = 1.0;
 
-	base += GetPlayerAttributeValue(pnum, INV_ITEMRARITY);
+	base += GetPlayerAttributeValue(pnum, INV_ITEMRARITY) + (HasDungeonUpside(DUN_UPSIDE_RARITY) << 16) / 100;
 
-	// more chance for rarity -- only at half
-	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum) / 2);
+	// more chance for rarity -- only at quarter
+	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum) / 4);
 	if(GetCVar("dnd_mode") == DND_MODE_HARDCORE)
 		base = FixedMul(base, 1.0 + DND_HARDCORE_DROPRATEBONUS);
 
@@ -1766,5 +1768,7 @@ int GetStaminaGainOnKill(int pnum) {
 	temp += HasClassPerk_Fast("Berserker", 2) * DND_BERSERKER_PERK40_STAMINAGAIN;
 	return temp;
 }
+
+#include "DnD_Player.h"
 
 #endif

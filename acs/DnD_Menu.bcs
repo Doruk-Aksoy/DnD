@@ -226,7 +226,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
-	pstat_text_T& pstat_text = GetPlayerStatText();
+	pstat_text_T? pstat_text = GetPlayerStatText();
 	
 	// initialize cursor data
 	ResetCursorHoverProc();

@@ -1,6 +1,8 @@
 #ifndef DND_COMMON_IN
 #define DND_COMMON_IN
 
+#pragma pointer_space global 20
+
 #include "libbcs.bcs"
 
 #define SIZEOF_INT 4
@@ -968,5 +970,7 @@ bool HasMapLump(str lump) {
 
 	return true;
 }
+
+#include "DnD_Alias.h"
 
 #endif

@@ -1,5 +1,13 @@
 [enu default]
 
+DND_OPPOSITION              =       "Opposition";
+
+DUNGEON_MTYPE_1             =       "Demons";
+DUNGEON_MTYPE_2             =       "Eldritch";
+DUNGEON_MTYPE_3             =       "Robotics";
+DUNGEON_MTYPE_4             =       "Undead";
+DUNGEON_MTYPE_5             =       "Magical";
+
 DND_DUNGEON_CREATED         =       "Dungeon portal summoned by";
 
 DND_DKIMG1			        =	    "DNGTK00";
@@ -22,6 +30,7 @@ DUNATTR_UPSIDE_2            =       "increased exp and credit gain";
 DUNATTR_UPSIDE_3            =       "increased budget gain";
 DUNATTR_UPSIDE_4            =       "increased chance to find rarer chests";
 DUNATTR_UPSIDE_5            =       "increased chance to find rarer orbs";
+DUNATTR_UPSIDE_6            =       "increased chance to run into the merchant";
 
 DUNATTR_0                   =       "increased monster health";
 DUNATTR_1                   =       "chance for a monsters to be fortified";

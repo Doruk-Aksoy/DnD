@@ -531,6 +531,9 @@ void InitMonsterResists(int m_id) {
 	int bonus = 0;
 	if(MonsterProperties[m_id].level > DND_MONSTER_RESIST_LEVELS)
 		bonus += MONSTER_RES_PER_THRESHOLD + ((MonsterProperties[m_id].level - DND_MONSTER_RESIST_LEVELS) / 10) * MONSTER_RES_PER_PLUS40;
+
+	if((temp = HasDungeonAttributeVal(DUN_ATTR_INCREASEDRESISTS)) != -1)
+		bonus += temp;
 	
 	int etherealBonus = MonsterProperties[m_id].trait_list[DND_ETHEREAL] * ETHEREAL_RESIST;
 

@@ -83,7 +83,7 @@ actor DarkFast {
     Decal DoomImpScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			DKB1 AABB 2 Bright A_SpawnItem("DarkImpBallTrail")
         Loop
@@ -205,7 +205,7 @@ actor DarkSeeker {
     Decal DoomImpScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TNT1 A 0 A_SpawnItem("DarkImpBallTrail")
 			DKB1 A 2 Bright A_SeekerMissile (5, 10)
@@ -332,7 +332,7 @@ actor DarkNormal {
     Decal DoomImpScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			DKB1 AABB 2 Bright A_SpawnItem("DarkImpBallTrail")
         Loop
@@ -362,7 +362,7 @@ actor DarkStrong {
 	Translation "192:193=48:51", "194:194=17:17", "195:199=171:175", "200:206=176:188", "207:241=45:46", "242:246=46:47"
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			DKB1 AB 4 Bright A_SpawnItemEx("DarkTail", 0, 0, 0, 0, 0, 0, 0, 128)
         Loop
@@ -490,7 +490,7 @@ actor InfernoBall {
     Decal DoomImpScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			IBAL AAAABBBB 1 Bright A_SpawnItemEx ("InfernoBallTrail", 0, 0, 0, random(0, -4), random(-2, 2), random(-2, 2), 0, 0, 0)
         Loop
@@ -530,7 +530,7 @@ actor NetherLightning {
     Decal DoomImpScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			NLIT AA 1 Bright A_SpawnItemEx ("NetherLightningTrail", 0, 0, 0, 0, 0, 0, 0, 0, 0)
 			NLIT A 0 Bright A_SpawnItemEx ("NetherLightningSpark", 0, 0, 0, random(0, -4), random(-2, 2), random(-2, 2), 0, 0, 0)
@@ -742,7 +742,7 @@ Actor SmallImpBall {
     Decal DoomImpScorch
     States {
 		Spawn:	
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BAL1 AB 2 Bright A_SpawnItemEx("ImpBallTrail",0,0,0,0,0,0,0,128,0)	
         Loop
@@ -853,7 +853,7 @@ Actor LargeImpBall {
     DeathSound "imp/shotx"
     States {
 		Spawn:	
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BAL1 AB 2 Bright A_SpawnItemEx("ImpBallTrail",0,0,0,0,0,0,0,128,0)	
         Loop
@@ -966,7 +966,7 @@ actor SoulHarvesterBall {
 	Decal DoomImpScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			SHBA A  0 Bright A_SpawnItemEx("SoulBallTrail", 0, 0, 0, 0, 0, 0, 180, 128)
 			SHBA AB 2 Bright A_SeekerMissile (10,20)
@@ -1087,7 +1087,7 @@ Actor PyroImpExp1 : BaseExplosionDamage {
 	Obituary "%o was burned by a pyro imp."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(8, 56, 0)
 		Stop
 	}
@@ -1103,7 +1103,7 @@ actor PyroImpBall : DoomImpBall2 {
 	-NOGRAVITY
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BAL1 A 1 bright
 			BAL1 A 0 bright A_SpawnItemEx ("PyroImpBallFire", random(1,-1), random(1,-1), random(1,-1), 0, 0, 0 , random(0,360), 16, 0)
@@ -1207,7 +1207,7 @@ actor PyroImpExplosion : BaseExplosionDamage {
 	states {
 		Spawn:
 			TNT1 A 0 NoDelay A_PlaySound ("weapons/rocklx")
-			TNT1 A 0 ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			MISL B 4 bright A_Explode(random(20, 24), 64, 0)
 			MISL CDE 6 bright
 		stop
@@ -1420,7 +1420,7 @@ actor Devil2Ball {
     Decal DoomImpScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			DVB9 AABB 2 Bright A_SpawnItem("Devil2BallTrail")
         Loop
@@ -1438,7 +1438,7 @@ Actor Devil2Ball2 : Devil2Ball {
 	var int user_count;
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_SetUserVar("user_count", 0)
 		SpawnLoop:
 			TNT1 A 0 A_JumpIf(user_count == 2, "NormalLoop")
@@ -1569,7 +1569,7 @@ ACTOR VulgarShot {
 	Decal "DoomImpScorch"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FVUL AAABBB 1 Bright A_SpawnItemEx("BarbTrail",0,0,0,0,0,0,0,128,0)
 		loop
@@ -1701,7 +1701,7 @@ ACTOR CultMysticShot {
 	Renderstyle Add
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CMYP AB 2 Bright A_SpawnItem("CultMysticShotTrail")
 		loop
@@ -1805,7 +1805,7 @@ Actor ReaverShot {
 	Scale 0.5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnState:
 			MPUF A 1 Bright A_SpawnItemEx("ReaverShotTrail")
 		Loop
@@ -1841,7 +1841,7 @@ Actor ReaverExplosion : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_Explode(5, 72, 0)
 			11PF ABCDE 5 Bright
 		Stop
@@ -1991,7 +1991,7 @@ ACTOR ShadowBallX {
 	Decal DoomImpScorch
 	States {
 		Spawn: 
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			SBAL ABC 4 BRIGHT A_MissileAttack
 		Loop
@@ -2151,7 +2151,7 @@ Actor RoachExp : BaseExplosionDamage {
 	Stamina 132
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_Explode(5, 32, 0)
 		Stop
 	}
@@ -2171,7 +2171,7 @@ Actor RoachBall : DoomImpBall {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			RCHB AAAABBBB 1 Bright A_SpawnItemEx("RoachBallTrail", -(MomX/1.2), -(MomY/1.2), (MomZ/1.2*-1), (MomX/1.2), (MomY/1.2), (MomZ/1.2), -Angle, 138)
 		Loop

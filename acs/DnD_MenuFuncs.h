@@ -5281,7 +5281,7 @@ void DrawPlayerStats(int pnum, int category) {
 	int tid = pnum + P_TIDSTART;
 	int i;
 	int temp;
-	pstat_text_T& pstat_text = GetPlayerStatText();
+	pstat_text_T? pstat_text = GetPlayerStatText();
 	
 	// sum of y and height should = 248
 	SetHudClipRect(192, 52, 256, 196, 256);

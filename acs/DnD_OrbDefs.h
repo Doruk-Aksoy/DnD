@@ -14,7 +14,6 @@ enum {
 	DND_ORBEFFECT_ENTIREITEM,				// things that will alter the entire item: Ex: Corrupt, evoker etc.
 };
 
-// SELF NOTE: when we have more than 32 orbs, make sure to add an extra int to flags in material counting code in Inventory!!! GetNextUniqueCraftingMaterial and CountCraftingMaterials
 enum {
 	DND_ORB_ENHANCE,
 	DND_ORB_CORRUPT,
@@ -60,10 +59,12 @@ enum {
 	DND_ORB_ASSIMILATION,
 	DND_ORB_ORDER,
 	DND_ORB_DESTINY,
-	DND_ORB_REVERANCE
+	DND_ORB_REVERANCE,
+
+	DND_MAX_ORB_KINDS
 };
 #define DND_MON_DROP_ORB_BEGIN DND_ORB_HOLLOW
-#define DND_MAX_ORB_KINDS (DND_ORB_REVERANCE + 1)
+#define DND_NORMAL_DROP_ORBCOUNT (DND_MON_DROP_ORB_BEGIN - DND_ORB_ENHANCE)
 
 bool IsMidTierOrb(int type) {
 	switch(type) {
@@ -398,7 +399,6 @@ typedef struct {
 	int p_ammos[MAX_SLOTS][MAX_AMMOTYPES_PER_SLOT];
 	int p_tempammo;
 	int p_tempwep;
-	bool sins_cant_repent;
 } orb_info_T;
 
 // holds most recently used orb values

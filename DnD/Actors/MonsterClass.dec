@@ -392,7 +392,7 @@ Actor ViolentRetaliation_Proj {
 	-NOGRAVITY
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			MFBL A 0 A_PlaySoundEx("Mafibus/Loop", "SoundSlot7", 1, -1)
 			MFBL AAAABBBBCCCC 1 Bright A_SpawnItemEx("MafibusBallTrail", 0, 0, 0, 0, 0, 0, 0, 128)

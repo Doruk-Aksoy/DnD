@@ -572,10 +572,7 @@ void RollOrbInfoOnMerchant(int item_pos, int ilvl) {
 	if(stack < 1)
 		stack = 1;
 
-	do {
-		w = random(1, ORB_MAXWEIGHT);
-		for(orbtype = 0; orbtype < MAX_DROPPABLE_ORBS && OrbDropWeights[orbtype] < w; ++orbtype);
-	} while(IsOrbDropException(orbtype));
+	orbtype = PickPlayerOrb(MAXPLAYERS);
 
 	if(IsHighTierOrb(orbtype)) {
 		stack /= 3;

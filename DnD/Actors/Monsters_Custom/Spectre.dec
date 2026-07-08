@@ -648,7 +648,7 @@ Actor Bloodshot_Icey : Bloodshot {
 	Stamina 8
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FBLD A 2 Bright A_CStaffMissileSlither
 			FBLD A 0 A_SpawnItemEx("Bloodtrail_Icey",0,0,0,0,0,0,128)
@@ -668,7 +668,7 @@ Actor Bloodshot_Grav_Icey : Bloodshot_Grav {
 	Stamina 8
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 ThrustThingZ(0, 18, 0, 0)
 		SpawnLoop:
 			FBLD A 2 Bright A_CStaffMissileSlither

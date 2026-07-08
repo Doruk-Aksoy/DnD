@@ -81,7 +81,7 @@ ACTOR AbyssalHellHoundFlame {
 	SeeSound "CacoFlame/attack"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			CP10 ABCDEFGH 2 Bright A_ChangeVelocity(0, 0, frandom(0.2, 0.33), CVF_RELATIVE)
 		Stop
 		Death:

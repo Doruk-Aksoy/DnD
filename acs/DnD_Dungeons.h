@@ -3,11 +3,6 @@
 
 #include "DnD_InvInfo.h"
 
-enum {
-	DND_DUNGEON_VOIDKEEP,
-};
-#define DND_FIRST_DUNGEONID DND_DUNGEON_VOIDKEEP
-
 void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	// roll random attributes for the charm
 	Inventories_On_Field[item_pos].item_level = RollItemLevel();
@@ -92,17 +87,21 @@ void SpawnDungeonKey(int pnum) {
 }
 
 void ResetCurrentDungeonData() {
+	int i;
 	DungeonInformation.quality = 0;
 	DungeonInformation.level = -1;
 	DungeonInformation.dungeon_id = -1;
 	DungeonInformation.next_map = "MAP01";
 
-	for(int i = 0; i < DungeonInformation.attrib_count; ++i) {
+	for(i = 0; i < DungeonInformation.attrib_count; ++i) {
 		DungeonInformation.attributes[i].attrib_id = -1;
 		DungeonInformation.attributes[i].attrib_val = 0;
 		DungeonInformation.attributes[i].attrib_tier = 0;
 		DungeonInformation.attributes[i].attrib_extra = 0;
 	}
+
+	for(i = 0; i < DUN_UPSIDE_MAX; ++i)
+		DungeonInformation.upside_vals[i] = 0;
 
 	DungeonInformation.attrib_count = 0;
 }
@@ -120,26 +119,22 @@ void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 	
 	for(i = 0; i < DungeonInformation.attrib_count; ++i) {
 		DungeonInformation.attributes[i].attrib_id = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id;
-		DungeonInformation.attributes[i].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val;
-		DungeonInformation.attributes[i].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+
+		if(!IsDungeonAttributeQualityException(DungeonInformation.attributes[i].attrib_id))
+			DungeonInformation.attributes[i].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val * (100 + DungeonInformation.quality) / 100;
+
+		// the value of extra is in << 16
 		DungeonInformation.attributes[i].attrib_extra = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_extra;
+		int id = DungeonInformation.attributes[i].attrib_extra & 0xFFFF;
+		int val = DungeonInformation.attributes[i].attrib_extra >> 16;
+		if(!IsDungeonAttributeExtraException(id))
+			DungeonInformation.attributes[i].attrib_extra = id | ((val * (100 + DungeonInformation.quality) / 100) << 16);
+
+		DungeonInformation.attributes[i].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+
+		// add the sum to the upsides array
+		DungeonInformation.upside_vals[DungeonInformation.attributes[i].attrib_extra & 0xFFFF] += DungeonInformation.attributes[i].attrib_extra >> 16;
 	}
-}
-
-// return value if it exists, -1 if not
-int HasDungeonAttributeVal(int attr) {
-	for(int i = 0; i < DungeonInformation.attrib_count; ++i)
-		if(DungeonInformation.attributes[i].attrib_id == attr)
-			return DungeonInformation.attributes[i].attrib_val;
-	return -1;
-}
-
-// returns the value of extra when given the id that would be encoded here
-int HasDungeonAttributeExtra(int attr) {
-	for(int i = 0; i < DungeonInformation.attrib_count; ++i)
-		if((DungeonInformation.attributes[i].attrib_extra & 0xFFFF) == attr)
-			return DungeonInformation.attributes[i].attrib_extra >> 16;
-	return -1;
 }
 
 // pnum, item position top box id (includes -1), selected dungeon enum

@@ -85,7 +85,7 @@ Actor AbyssalFatShot : Fatshot {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			MOMP ABC 3 Bright A_SpawnItemEx("AbyssalFatShotTrail")
 		Loop

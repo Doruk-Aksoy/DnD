@@ -27,7 +27,7 @@ Actor ArmoredBipedalBall {
 	Decal BipedBallSplat
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CP00 AB 4
 		loop
@@ -58,7 +58,7 @@ ACTOR QuadrumpusBall
 	Decal QuadrumpusSplat
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CP00 AB 4
 		loop
@@ -83,7 +83,7 @@ ACTOR MaximusBall {
 	Decal MaximusSplat
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CP01 A 1
 		loop
@@ -117,7 +117,7 @@ ACTOR FlembominationBall2 : ArmoredBipedalBall {
 	Decal CycloptisSplat
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CP03 AB 8
 		loop

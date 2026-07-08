@@ -278,7 +278,7 @@ Actor BloodGolemChargeExp : BaseExplosionDamage {
 	Stamina 1
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(random(48, 64), 144, 0, 0, 40)
 		Stop
 	}
@@ -299,7 +299,7 @@ Actor BloodGolemBash {
 	+DONTBLAST
 	States {
 		spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TNT1 AA 1 A_SeekerMissile(90, 90, SMF_PRECISE)
 			stop

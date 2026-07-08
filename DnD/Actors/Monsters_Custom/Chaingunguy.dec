@@ -314,7 +314,7 @@ Actor ZSecGrenade {
 	bouncecount 10
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			GRND AAA 35 bright
 		Death:
 			MISL C 0 bright A_PlaySound("weapons/rocklx")
@@ -510,7 +510,7 @@ Actor EnforcerPlasma2 : EnforcerPlasma {
 	+DONTREFLECT
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TRAC A -1 Bright
 		Stop
 		Death:
@@ -932,7 +932,7 @@ Actor ZombiePlasma : PlasmaBallX {
 	
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			PLSS AAABBB 2 Bright A_SpawnItemEx("BlueParticleNoGravityFastVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
 		Loop

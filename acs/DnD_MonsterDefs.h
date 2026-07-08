@@ -907,6 +907,9 @@ int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_
 	// unique bosses have additional damage multiplier per level -- x^2 * 0.01667 + x
 	if(IsUniqueBossMonster(m_id))
 		res = res * (100 + (level * level) / 60 + level) / 100;
+
+	if((level = HasDungeonAttributeVal(DUN_ATTR_MOREDMG)) != -1)
+		res = res * (100 + level) / 100;
 	
 	return res;
 }

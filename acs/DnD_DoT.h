@@ -96,7 +96,7 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 	duration &= 0xFFFF;
 
 	int victim = P_TIDSTART + pnum;
-	if(HasActorClassPerk_Fast(victim, "Wanderer", 1))
+	if(HasActorClassPerk_Fast(victim, "Wanderer", DND_CLASSPERK_1))
 		duration = duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
 	
 	// check if player has a dot source of this script running already

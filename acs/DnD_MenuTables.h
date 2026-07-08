@@ -11,8 +11,10 @@ typedef struct {
 	str text;
 } pstat_text_T;
 
-pstat_text_T module& GetPlayerStatText() {
-	static pstat_text_T pst;
+pstat_text_T global:20? GetPlayerStatText() {
+	static pstat_text_T? pst = null;
+	if(pst == null)
+		pst = bcs::malloc(SIZEOF_INT);
 	return pst;
 }
 
@@ -24,8 +26,6 @@ enum {
 
 #define DND_MENU_LOADOUTWEPITEMS 6
 #define DND_MENU_ACCESSORYITEMS 4
-
-#define DND_MAX_ACK_ATTEMPT 35
 
 #define VORTEXMAX 1
 #define TRIPLEMAX 1

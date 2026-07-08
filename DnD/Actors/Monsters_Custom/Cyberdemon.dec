@@ -194,7 +194,7 @@ Actor CardinalExp1 : BaseExplosionDamage {
 	Obituary "%o was blessed by the dark cardinal."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(128, 128, 0)
 		Stop
 	}
@@ -216,7 +216,7 @@ ACTOR Cardinal_Rocket {
 	DeathSound "weapons/rocklx"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CROC AB 4 Bright
 		Loop
@@ -242,7 +242,7 @@ actor DeathBall : BaronBall2 {
 	Speed 32
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BAL7 A 4 BRIGHT A_SeekerMissile(8, 8)
 			BAL7 A 0 A_SpawnItem("BallTail", 0, 0)
@@ -287,7 +287,7 @@ ACTOR CardinalPlasma {
 	scale 1.25
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CRTA J 1 Bright A_SpawnItem("plasmaTail", 0, 0)
 		Loop
@@ -443,7 +443,7 @@ Actor TerminatorExp1 : BaseExplosionDamage {
 	Obituary "%o was liquidated by a Terminator."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(50, 72, 0)
 		Stop
 	}
@@ -472,7 +472,7 @@ ACTOR TerminatorBlaster {
 	Decal RevenantScorch
 	States {
 		Spawn: 
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			0LST A 1 Bright 
 		loop
@@ -505,7 +505,7 @@ actor Redstar {
     Decal CacoScorch
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TPR9 ABCD 3 Bright A_SeekerMissile (10,15)
 		Loop
@@ -533,7 +533,7 @@ actor Redgrenade {
     DeathSound "imp/shotx"
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TGND A 1 Bright Thrustthingz(0, 24, 0, 1)
 			TGND A 1 Bright A_Playsound("Terminator/tershotA")
 			TGND BBBBCCCCAAAA 1 Bright A_SpawnItemEx("grenadetrail2",0,0,0,0,0,0,0,128)
@@ -594,7 +594,7 @@ actor Grenadeblast {
     DeathSound "imp/shotx"
     States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TGBL ABCDEFGHIJK 2 Bright
         stop
     }
@@ -911,7 +911,7 @@ Actor ThamuzExp1 : BaseExplosionDamage  {
 	Obituary "%o fell before Thamuz."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(140, 140, 0)
 		Stop
 	}
@@ -934,7 +934,7 @@ Actor DCBMiss1 {
 	Decal BFGLightning
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CBTS A 1 Bright A_SeekerMissile(1,90)
 			TNT1 A 0 A_SpawnItemEx("GreenParticleSlowVanish",Random(-12,12),Random(-12,12),Random(-12,12),Random(-2,2),Random(-2,2),Random(-2,2),Random(-20,20),128)
@@ -1028,7 +1028,7 @@ Actor DCBMiss2 {
 	Decal RevenantScorch
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			THZ4 A 2 Bright 
 		Loop
@@ -1073,7 +1073,7 @@ Actor ThamuzExp2 : BaseExplosionDamage {
 	Obituary "%o fell before Thamuz."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(64, 64, 0)
 		Stop
 	}
@@ -1095,7 +1095,7 @@ Actor DCBMiss3M {
 	Decal RevenantScorch
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FSFX NOPQRSTNOPQRST 3 A_SpawnItemEx("DCBMiss3MG",0,0,0,0,0,0,0,128)
 		Loop
@@ -1306,7 +1306,7 @@ Actor AzazelExp1 : BaseExplosionDamage {
 	Obituary "%o was slaughtered by Azazel"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(36, 48, 0)
 		Stop
 	}
@@ -1329,7 +1329,7 @@ actor SLGroundFire {
 	Decal Scorch
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FX03 B 1 A_SpawnItemEx("SLGFXtraSpawner",0,0,0,0,0,0,0)
 			TNT1 A 0 A_SpawnItem("AzazelExp1")
@@ -1437,7 +1437,7 @@ Actor SatyrLordMissile1 {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			ANFB AAA 1 Bright A_CustomMissile("SLM1Trail",random(-5,5),random(8,-8),0)
 			ANFB BBB 1 Bright A_CustomMissile("SLM1Trail",random(-5,5),random(8,-8),0)
@@ -1489,7 +1489,7 @@ Actor SatyrLordMissile2 {
 	deathsound "whiteballbdeth"
 	states {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			PSMM A 2 Bright A_SeekerMissile(25,10)
 			TNT1 A 0 A_CustomMissile("SLM2Trail",0,0,0)
 			PSMM A 2 Bright A_SeekerMissile(25,10)
@@ -1571,7 +1571,7 @@ Actor SatyrLordMissileDual1Real {
 	+DONTBLAST
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			MSP4 A 1 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
 			TNT1 AA 0 A_CustomMissile("SLMD1RTrail",random(-5,5),random(8,-8),0)
@@ -1661,7 +1661,7 @@ Actor SatyrLordMissileDual2Real {
 	Decal PlasmaScorchLower
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CSSF D 1 Bright A_SeekerMissile(10,10)
 			TNT1 AAA 0 A_CustomMissile("SLMD2RTrail",random(5,-5),random(5,-5),0)
@@ -1921,7 +1921,7 @@ Actor HellSmithChargeExp : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(80, 144, 0, 0, 65)
 		Stop
 	}
@@ -2010,7 +2010,7 @@ Actor SmithExplosion1 : BaseExplosionDamage {
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(48, 192, 0)
 		Stop
 	}	
@@ -2022,7 +2022,7 @@ Actor SmithExplosion2 : BaseExplosionDamage {
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(2, 32, 0)
 		Stop
 	}	
@@ -2174,7 +2174,7 @@ Actor SmithExplosion3 : BaseExplosionDamage {
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(64, 128, 0)
 		Stop
 	}	
@@ -2200,7 +2200,7 @@ ACTOR STracer {
 	DeathSound "weapons/firex3"   
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			TNT1 A 1 Bright A_CStaffMissileSlither
 			TNT1 A 0 Bright A_SpawnItem("STracerPuff",0,0)
@@ -2219,7 +2219,7 @@ Actor SmithExplosion4 : BaseExplosionDamage {
 	Obituary "%o was turned to crisps by a Hellsmith."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(8, 8, 0)
 		Stop
 	}	
@@ -2274,7 +2274,7 @@ Actor SmithExplosion5 : BaseExplosionDamage {
 	Obituary "%o was blown up by a Hell Smith."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(96, 128, 0)
 		Stop
 	}	
@@ -2298,7 +2298,7 @@ ACTOR Hellshot2 {
 	Decal "Scorch"
 	States {
 		Spawn: 
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			HEPA ABCDEF 3 Bright A_SpawnItemEx("RedPuff",0,0,0,0,0,0,0,8)
 		loop
@@ -2344,7 +2344,7 @@ Actor SmithExplosion6 : BaseExplosionDamage {
 	Obituary "%o was turned to crisps by a Bloodseeker."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(48, 96, 0)
 		Stop
 	}	
@@ -3084,7 +3084,7 @@ Actor SorcBallFlare_Yellow : SorcBallFlare_Red {
 Actor SorcBall1Projectile : SorcBallProjectileBase {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 0)
 		SpawnLoop:
 			SBMP ABCDEFGHIJKLMNOP 2 Bright
@@ -3103,7 +3103,7 @@ Actor SorcBall1Projectile : SorcBallProjectileBase {
 Actor SorcBall2Projectile : SorcBallProjectileBase {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 1)
 		SpawnLoop:
 			SBMB ABCDEFGHIJKLMNOP 2 Bright
@@ -3122,7 +3122,7 @@ Actor SorcBall2Projectile : SorcBallProjectileBase {
 Actor SorcBall3Projectile : SorcBallProjectileBase {
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Avatar Ball Flare", 0, 2)
 		SpawnLoop:
 			SBMG ABCDEFGHIJKLMNOP 2 Bright
@@ -3378,7 +3378,7 @@ ACTOR AvaFireBall {
 	Decal "RevenantScorch"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			AFX5 ABC 3 Bright
 		loop
@@ -3409,7 +3409,7 @@ Actor AvatarIceJet {
 	DeathSound "Avatar/IceJet"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			AVIC ABC 4 BRIGHT
 		Loop
@@ -3443,7 +3443,7 @@ ACTOR HolyMissile2 {
 	Decal "Scorch"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			SPIR A 1 Bright A_CustomMissile("HolyMissileTrail",0,0,0,0)
 			TNT1 A 0 A_SeekerMissile(10, 16, SMF_PRECISE)
@@ -3694,7 +3694,7 @@ Actor ThanatosExp1 : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(96, 128, 0)
 		Stop
 	}
@@ -3720,7 +3720,7 @@ ACTOR ThanatosRocket {
 	SeeSound "weapons/heavyrlfire"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			HMIS AA 4 Bright
 		SpawnLoop:
 			TNT1 AAAAAA 0 A_CustomMissile ("MeleeSmoke", 0, 0, random (0, 360), 2, random (0, 360))
@@ -3756,7 +3756,7 @@ Actor CyberdemonStomper : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 4 A_Explode(160, 224, 0)
 			TNT1 A 4 A_Explode(116, 256, 0)
 			TNT1 A 4 A_Explode(80, 288, 0)
@@ -3858,7 +3858,7 @@ Actor ThanatosExp2 : BaseExplosionDamage {
 	Stamina 5
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(32, 72, 0)
 		Stop
 	}
@@ -3883,7 +3883,7 @@ Actor ThanatosMiniRocket {
 	+SEEKERMISSILE
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			DEVM AA 2 Bright
 			TNT1 A 0 A_ScaleVelocity(1.5)
@@ -4121,7 +4121,7 @@ Actor CerberusExp1 : BaseExplosionDamage {
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(96, 128, 0)
 		Stop
 	}
@@ -4133,7 +4133,7 @@ Actor CerberusExp2 : BaseExplosionDamage {
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(32, 96, 0)
 		Stop
 	}
@@ -4145,7 +4145,7 @@ Actor CerberusExp3 : BaseExplosionDamage {
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(16, 72, 0)
 		Stop
 	}
@@ -4157,7 +4157,7 @@ Actor CerberusExp4 : BaseExplosionDamage {
 	Obituary "%o didn't approach Cerberus the right way."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(8, 56, 0)
 		Stop
 	}
@@ -4179,7 +4179,7 @@ actor CerberusShot {
 	+DONTBLAST
 	states {
 		Spawn:   
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 0 A_PlaySound("Cerberus/MissileFly", 7, 1.0, 1)
 		SpawnLoop:
 			NAPP ABCDE 2 bright A_SpawnItemEx("BFireTrail",0+random[Cerberus](-5,5),0+random[Cerberus](-5,5),0+random[Cerberus](-5,5),0,0,1,0,128)

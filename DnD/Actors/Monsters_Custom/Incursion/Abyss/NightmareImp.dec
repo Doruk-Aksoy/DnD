@@ -75,7 +75,7 @@ Actor AbyssNightmareImpBall : AbyssImpBall {
 	Speed 32
 	States {
 		Spawn:	
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CP05 ABC 3 Bright
         Loop

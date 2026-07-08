@@ -173,7 +173,7 @@ ACTOR CacoLichBall {
 	Decal CacoScorch
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			LBAL AB 4 BRIGHT A_SeekerMissile(5,15)
 		Loop
@@ -200,7 +200,7 @@ ACTOR CacoLichFlameFar {
 	SeeSound "CacoFlame/attack"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			CFIR ABCDEFGHIJKLMOP 1
 		Stop
 		Death:
@@ -223,7 +223,7 @@ ACTOR CacoLichFlame {
 	SeeSound "CacoFlame/attack"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			CFIR ABCDEFGHIJKLMOP 1
 		Stop
 		Death:
@@ -401,7 +401,7 @@ Actor EarthLichSpike {
 	DeathSound "Armors/NecroShardHit"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CRYS AAAAA 1 
 		Loop
@@ -418,7 +418,7 @@ Actor EarthLichExp : BaseExplosionDamage {
     Obituary "%o was eliminated by an Earth Lich."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(32, 72, 0)
 		Stop
 	}
@@ -439,7 +439,7 @@ Actor EarthLichRock {
 	DeathSound "EarthLich/Rockhit"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			HHRB A 5
 		Loop
@@ -635,7 +635,7 @@ Actor InfernoExp : BaseExplosionDamage {
 	Obituary "%o got incinerated by an inferno."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 			TNT1 A 1 A_Explode(32, 96, 0)
 		Stop
 	}
@@ -659,7 +659,7 @@ ACTOR Lavaball {
 	DONTHURTSHOOTER
 	States {
 		Spawn: 
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BAL3 AB 4 Bright A_SpawnItem("RedPuff",0,0)
 		loop
@@ -761,7 +761,7 @@ ACTOR WeakenerBall {
 	DeathSound "caco/shotx"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CMFB AB 3 BRIGHT
 		Loop
@@ -778,7 +778,7 @@ Actor WeakenerBallHoming : WeakenerBall {
 	+SEEKERMISSILE
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CMFB BA 3 Bright A_SeekerMissile(10, 90)
 		Loop
@@ -875,7 +875,7 @@ ACTOR GrellBall {
 	DeathSound "grell/projhit"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			FVUL AAABBB 1 Bright A_SpawnItemEx("BarbTrail",0,0,0,0,0,0,0,128,0)
 		loop
@@ -1048,7 +1048,7 @@ ACTOR AcolyteShot {
 	Decal "BishopScorch"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			CFX1 AABB 1 Bright A_BishopMissileWeave
 			CFX1 B 0 Bright A_SeekerMissile(2, 3)
@@ -1227,7 +1227,7 @@ ACTOR GuardShot : CacodemonBall {
 	Obituary "%o was fried by a Guardian."
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			GBAL AAABBB 1 Bright A_SpawnItem("GuardianShotTrail")
 		loop
@@ -1379,7 +1379,7 @@ Actor WickedShot {
 	Decal "DoomImpScorch"
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Pierce Check")
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			WIBL ABCDABCDABCDABCDABCDABCDABCD 1 Bright A_SpawnItemEx("WickedFX",0,0,0,random(-1,1),random(-1,1),random(-1,1),0,128,0)
 			WIBL ABCD 0 Bright A_SeekerMissile(90, 90)

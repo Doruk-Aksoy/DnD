@@ -1,14 +1,33 @@
 #ifndef DND_DUNGEONBASE_IN
 #define DND_DUNGEONBASE_IN
 
+enum {
+	DND_DUNGEON_VOIDKEEP,
+};
+#define DND_FIRST_DUNGEONID DND_DUNGEON_VOIDKEEP
+
 #define MAX_DUNGEONKEY_ATTRIB_DEFAULT 3
+
+enum {
+	DUN_UPSIDE_QUANT,
+	DUN_UPSIDE_RARITY,
+	DUN_UPSIDE_EXPANDCREDIT,
+	DUN_UPSIDE_BUDGET,
+	DUN_UPSIDE_RARERCHEST,
+	DUN_UPSIDE_RARERORBS,
+	DUN_UPSIDE_MERCHANTCHANCE,
+
+	DUN_UPSIDE_MAX
+};
+#define FIRST_DUNGEON_UPSIDE DUN_UPSIDE_QUANT
 
 typedef struct {
 	int dungeon_id;									// # of the dungeon map (DND0X etc)
-	int quality;									// quality is a multiplier for drop rates
+	int quality;									// quality is a multiplier for the upsides and downsides
 	int level;										// level of drops / monsters
 	int attrib_count;
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list of the dungeon (% increased elite chance etc. stuff like that)
+	int upside_vals[DUN_UPSIDE_MAX];				// sums of upside values if any applicable
 	str next_map;
 } dungeon_data_T;
 
@@ -32,18 +51,6 @@ enum {
 	DUN_ATTR_MAX
 };
 #define FIRST_DUNGEON_ATTRIBUTE DUN_ATTR_EXTRAHP
-
-enum {
-	DUN_UPSIDE_QUANT,
-	DUN_UPSIDE_RARITY,
-	DUN_UPSIDE_EXPANDCREDIT,
-	DUN_UPSIDE_BUDGET,
-	DUN_UPSIDE_RARERCHEST,
-	DUN_UPSIDE_RARERORBS,
-
-	DUN_UPSIDE_MAX
-};
-#define FIRST_DUNGEON_UPSIDE DUN_UPSIDE_QUANT
 
 global inv_attrib_T 19: DungeonModTable[DUN_ATTR_MAX];
 
@@ -154,23 +161,16 @@ void SetupDungeonModTable() {
 }
 
 bool IsDungeonAttributeQualityException(int attr) {
-	/*switch(attr) {
-		case INV_FLASK_IMP_CHARGECOUNT:
-		case INV_FLASK_IMP_GRANITE:
-		case INV_FLASK_IMP_BASALT:
-		case INV_FLASK_IMP_BISMUTH:
-		case INV_FLASK_IMP_INSULAR:
-		case INV_FLASK_IMP_OAK:
-		case INV_FLASK_IMP_ARCANE:
-		case INV_FLASK_IMP_DIAMOND:
-		case INV_FLASK_IMP_SILVER:
-		case INV_FLASK_IMP_SULPHUR:
-		case INV_FLASK_IMP_QUICKSILVER:
-		case INV_FLASK_IMP_QUARTZ:
-		case INV_EX_LIMITEDSMALLCHARMS:
-		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+	// these don't have scaling values
+	switch(attr) {
+		case DUN_ATTR_CULLENEMIES:
+		case DUN_ATTR_NOINFIGHT:
+		case DUN_ATTR_NOPAIN:
+		case DUN_ATTR_NORIP:
+		case DUN_ATTR_EXTRAFAST:
+		case DUN_ATTR_GHOST:
 		return true;
-	}*/
+	}
 	return false;
 }
 
@@ -353,17 +353,17 @@ str DungeonAttributeString(
 {
 	str text = StrParam(s:"DUNATTR_", d:attr);
 	str col_tag = "\c[Q9]";
-	str no_tag = "\c- ";
+	str no_tag = "\c-";
 
 	if(!(craftAffected & 0xFF)) {
 		if(isFractured) {
 			col_tag = "\c[E2]";
-			no_tag = "\c[E2] ";
+			no_tag = "\c[E2]";
 		}
 	}
 	else {
 		if((craftAffected >> 8) != DND_ORBEFFECT_NUMBER)
-			no_tag = "\ck ";
+			no_tag = "\ck";
 		col_tag = "\ck";
 	}
 
@@ -383,7 +383,7 @@ str DungeonAttributeString(
 			}
 		}
 
-		if(attr_extra && !IsDungeonAttributeExtraException(attr)) {
+		if(attr_extra && !IsDungeonAttributeExtraException(attr_extra_id)) {
 			if(attr_extra > 100000) {
 				attr_extra /= 100;
 				attr_extra *= qual + 100;
@@ -401,10 +401,10 @@ str DungeonAttributeString(
 		case DUN_ATTR_MORETOUGHENEMIES:
 		case DUN_ATTR_MOREELITEENEMIES:
 			if(showDetailedMods) {
-				text = StrParam(s:"+", s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:text, s:"\n");
+				text = StrParam(s:"+", s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"% ", s:no_tag, l:text, s:"\n");
 			}
 			else
-				text =  StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n");
+				text =  StrParam(s:"+", s:col_tag, d:val, s:"% ", s:no_tag, l:text, s:"\n");
 		break;
 
 		// single line text, they dont have any change on text
@@ -414,31 +414,31 @@ str DungeonAttributeString(
 		case DUN_ATTR_NORIP:
 		case DUN_ATTR_EXTRAFAST:
 		case DUN_ATTR_GHOST:
-			text = StrParam(l:text, s:"\n");
+			text = StrParam(s:no_tag, l:text, s:"\n");
 		break;
 
 		case DUN_ATTR_MOREDMG:
 			if(showDetailedMods) {
-				text = StrParam(l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:"DUNATTR_9X", s:"\n");
+				text = StrParam(s:no_tag, l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"% ", s:no_tag, l:"DUNATTR_9X", s:"\n");
 			}
 			else
-				text =  StrParam(l:text, s:col_tag, d:val, s:"%", s:no_tag, l:"DUNATTR_9X", s:"\n");
+				text =  StrParam(s:no_tag, l:text, s:col_tag, d:val, s:"% ", s:no_tag, l:"DUNATTR_9X", s:"\n");
 		break;
 
 		case DUN_ATTR_FASTPROJ:
 			if(showDetailedMods) {
-				text = StrParam(l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:"DUNATTR_10X", s:"\n");
+				text = StrParam(s:no_tag, l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"% ", s:no_tag, l:"DUNATTR_10X", s:"\n");
 			}
 			else
-				text =  StrParam(l:text, s:col_tag, d:val, s:"%", s:no_tag, l:"DUNATTR_10X", s:"\n");
+				text =  StrParam(s:no_tag, l:text, s:col_tag, d:val, s:"% ", s:no_tag, l:"DUNATTR_10X", s:"\n");
 		break;
 
 		case DUN_ATTR_INCREASEDRESISTS:
 			if(showDetailedMods) {
-				text = StrParam(l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"%", s:no_tag, l:"DUNATTR_12X", s:"\n");
+				text = StrParam(s:no_tag, l:text, s:col_tag, d:val, s:GetDetailedDungeonModRange(attr, tier, 0, extra), s:"% ", s:no_tag, l:"DUNATTR_12X", s:"\n");
 			}
 			else
-				text =  StrParam(l:text, s:col_tag, d:val, s:"%", s:no_tag, l:"DUNATTR_12X", s:"\n");
+				text =  StrParam(s:no_tag, l:text, s:col_tag, d:val, s:"% ", s:no_tag, l:"DUNATTR_12X", s:"\n");
 		break;
 	}
 
@@ -447,15 +447,62 @@ str DungeonAttributeString(
 	if(showDetailedMods) {
 		// append this at the end if mod tiers is requested, after the upside
 		text = StrParam(
-			s:text, s:"+", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id),
+			s:text, s:"+", s:col_tag, d:attr_extra, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id),
 			s:" - ", s:GetModTierText(tier, extra)
 		);
 	}
 	else {
-		text = StrParam(s:text, s:"+", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id));
+		text = StrParam(s:text, s:"+", s:col_tag, d:attr_extra, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id));
 	}
 
 	return text;
+}
+
+enum {
+	DUNGEON_MONTYPE_DEMON = 1,
+	DUNGEON_MONTYPE_ELDRITCH = 2,
+	DUNGEON_MONTYPE_ROBOT = 4,
+	DUNGEON_MONTYPE_UNDEAD = 8,
+	DUNGEON_MONTYPE_MAGICAL = 16
+};
+
+int GetDungeonMonsterTypes(int id) {
+	switch(id) {
+		case DND_DUNGEON_VOIDKEEP:
+		return DUNGEON_MONTYPE_DEMON | DUNGEON_MONTYPE_ELDRITCH;
+	}
+	return 0;
+}
+
+str GetDungeonMonsterTypeString(int id) {
+	int curr = 0;
+	int types = GetDungeonMonsterTypes(id);
+	str res = StrParam(s:"\c[Y5]", l:"DND_OPPOSITION", s:": \cj");
+	while(types) {
+		if(types & 1) {
+			res = StrParam(s:res, l:StrParam(s:"DUNGEON_MTYPE_", d:curr + 1));
+
+			if(types >> 1)
+				res = StrParam(s:res, s:", ");
+		}
+		++curr;
+		types >>= 1;
+	}
+
+	return res;
+}
+
+// return value if it exists, -1 if not
+int HasDungeonAttributeVal(int attr) {
+	for(int i = 0; i < DungeonInformation.attrib_count; ++i)
+		if(DungeonInformation.attributes[i].attrib_id == attr)
+			return DungeonInformation.attributes[i].attrib_val;
+	return -1;
+}
+
+// returns the value of extra when given the id that would be encoded here
+int HasDungeonUpside(int id) {
+	return DungeonInformation.upside_vals[id];
 }
 
 #endif
