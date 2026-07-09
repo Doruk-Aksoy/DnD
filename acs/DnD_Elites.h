@@ -13,7 +13,7 @@
 #define DND_ELITE_FX_TID 900
 #define DND_NUCLEAR_EXPLOSION_FACTOR 10
 #define DND_NUCLEAR_MINDMG 100
-#define DND_FASTPROJ_FACTOR 1.5
+#define DND_FASTPROJ_FACTOR 0.5
 
 #define DND_BORROWEDTIME_DECAYTIMER 5
 #define DND_BORROWEDTIME_DECAYPCT 5
@@ -41,24 +41,126 @@ int GetMagicHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 60
+#define MAX_ROLLABLE_TRAITS 64
 
 #include "DnD_EliteInfo.h"
+
+enum {
+	MON_ELITE_THRESHOLD_0,
+	MON_ELITE_THRESHOLD_30,
+	MON_ELITE_THRESHOLD_33,
+	MON_ELITE_THRESHOLD_36,
+	MON_ELITE_THRESHOLD_40,
+	MON_ELITE_THRESHOLD_45,
+	MON_ELITE_THRESHOLD_50,
+
+	MAX_ELITE_LEVEL_THRESHOLDS
+};
+
+int MapEliteLevelToThresholdID(int lvl) {
+	if(lvl < 30)
+		return MON_ELITE_THRESHOLD_0;
+	if(lvl < 33)
+		return MON_ELITE_THRESHOLD_30;
+	if(lvl < 36)
+		return MON_ELITE_THRESHOLD_33;
+	if(lvl < 40)
+		return MON_ELITE_THRESHOLD_36;
+	if(lvl < 45)
+		return MON_ELITE_THRESHOLD_40;
+	if(lvl < 50)
+		return MON_ELITE_THRESHOLD_45;
+	return MON_ELITE_THRESHOLD_50;
+}
+
+int MapThresholdIdToEliteLevel(int id) {
+	switch(id) {
+		case MON_ELITE_THRESHOLD_0:
+		return 0;
+		case MON_ELITE_THRESHOLD_30:
+		return 30;
+		case MON_ELITE_THRESHOLD_33:
+		return 33;
+		case MON_ELITE_THRESHOLD_36:
+		return 36;
+		case MON_ELITE_THRESHOLD_40:
+		return 40;
+		case MON_ELITE_THRESHOLD_45:
+		return 45;
+		case MON_ELITE_THRESHOLD_50:
+		return 50;
+	}
+	return 0;
+}
+
+typedef struct {
+	int levels[MAX_ELITE_LEVEL_THRESHOLDS];
+} elite_unique_levels_T;
+
+elite_unique_levels_T module& GetUniqueEliteTraitThresholds() {
+	static elite_unique_levels_T UniqueEliteThresholds = { { 0 } };
+	return UniqueEliteThresholds;
+}
+
+void InsertUniqueEliteTraitThreshold(elite_unique_levels_T module& t, int threshold) {
+	++t.levels[threshold];
+}
+
+typedef struct {
+	int id;
+	int lvl_req;
+	int weight;
+} elite_trait_info_T;
+
+typedef struct {
+	alias_table_T? alias_tables[MAX_ELITE_LEVEL_THRESHOLDS];
+	elite_trait_info_T info[MAX_ROLLABLE_TRAITS];
+} elite_traits_data_T;
+
+global elite_traits_data_T 36: EliteTraitData;
 
 // these are powers, not actual values
 #define ELITETRAIT_ID 0
 #define ELITETRAIT_LVLREQ 1
 #define ELITETRAIT_WEIGHT 2
 
-#define INSERT_ELITEMODPOOL(X, Y, Z) 	EliteTraitNumbers[i][ELITETRAIT_ID] = X; \
-									 	EliteTraitNumbers[i][ELITETRAIT_LVLREQ] = Y; \
-									 	EliteTraitNumbers[i][ELITETRAIT_WEIGHT] = Z; \
+#define INSERT_ELITEMODPOOL(X, Y, Z) 	EliteTraitData.info[i].id = X; \
+									 	EliteTraitData.info[i].lvl_req = Y; \
+									 	EliteTraitData.info[i].weight = Z; \
+										InsertUniqueEliteTraitThreshold(thresholds, MapEliteLevelToThresholdID(Y)); \
 										++i
 
-global int 36: EliteTraitNumbers[MAX_ROLLABLE_TRAITS][3];
+void CreateEliteAliasTables(elite_unique_levels_T module& thresholds) {
+	int curr_count = 0;
+	for(int i = 0; i < MAX_ELITE_LEVEL_THRESHOLDS; ++i) {
+		curr_count += thresholds.levels[i];
+
+		EliteTraitData.alias_tables[i] = CreateAliasTable(curr_count);
+
+		int index = 0;
+		int lvl_to_compare = MapThresholdIdToEliteLevel(i);
+		for(int j = 0; j < MAX_ROLLABLE_TRAITS; ++j) {
+			if(EliteTraitData.info[j].lvl_req <= lvl_to_compare) {
+				EliteTraitData.alias_tables[i].weights[index] = EliteTraitData.info[j].weight;
+				++index;
+			}
+		}
+		BuildAliasTable(EliteTraitData.alias_tables[i]);
+	}
+}
 
 void SetupEliteModWeights() {
+	Log(s:"Setting up elite table mods");
+
 	int i = 0;
+
+	// reset thresholds
+	auto thresholds = GetUniqueEliteTraitThresholds();
+	for(i = 0; i < MAX_ELITE_LEVEL_THRESHOLDS; ++i)
+		thresholds.levels[i] = 0;
+
+	// setup of weight and other info for individual mods
+	i = 0;
 	INSERT_ELITEMODPOOL(DND_BULLET_RESIST, 0, 250);
 	INSERT_ELITEMODPOOL(DND_ENERGY_RESIST, 0, 250);
 	INSERT_ELITEMODPOOL(DND_MAGIC_RESIST, 0, 250);
@@ -129,39 +231,12 @@ void SetupEliteModWeights() {
 
 	INSERT_ELITEMODPOOL(DND_EXHAUSTING, 30, 180);
 
-	// cascade weights
-	for(i = 0; i < MAX_ROLLABLE_TRAITS - 1; ++i) {
-		EliteTraitNumbers[i + 1][ELITETRAIT_WEIGHT] += EliteTraitNumbers[i][ELITETRAIT_WEIGHT];
-	}
+	// build the tables off of this info
+	CreateEliteAliasTables(thresholds);
 }
 
 bool HasTrait(int id, int trait_index) {
 	return MonsterProperties[id].trait_list[trait_index];
-}
-
-int GetRandomEliteTrait() {
-	int l = 0, h = MAX_ROLLABLE_TRAITS - 1;
-	int w = random(0, EliteTraitNumbers[h][ELITETRAIT_WEIGHT]);
-	// binary search to find a bit faster than linear... it'll matter with how many monsters can be elites...
-	//Log(s:"rolled ", d:w);
-	while(l <= h) {
-		int m = l + (h - l) / 2;
-		//Log(s:"try ", d:EliteTraitNumbers[m][ELITETRAIT_WEIGHT], s: " < ", d:w, s: " ", d: EliteTraitNumbers[m + 1][ELITETRAIT_WEIGHT]);
-		if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w && w <= EliteTraitNumbers[m + 1][ELITETRAIT_WEIGHT]) {
-			//Log(s:"picked ", d:m, s:" elite mod: ", d:EliteTraitNumbers[m][ELITETRAIT_ID]);
-			return m + 1;
-		}
-		else if(EliteTraitNumbers[m][ELITETRAIT_WEIGHT] < w) {
-			l = m + 1;
-			//Log(s:"left up to ", d:l);
-		}
-		else {
-			h = m - 1;
-			//Log(s:"right down to ", d:h);
-		}
-	}
-	// shouldn't reach here ever unless it picked 0th element
-	return 0;
 }
 
 #define ROLLED_MONSTER_IS_MAGIC 1
@@ -186,8 +261,8 @@ bool RollEliteChance(int chance) {
 	return chance <= base_elite;
 }
 
-void SetEliteFlag(int f, bool updateCS) {
-	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
+// this = m_id
+void SetEliteFlag(int this, int f, bool updateCS) {
 	int i;
 	switch (f) {
 		case DND_EXPLOSIVE_IMMUNE:
@@ -389,19 +464,17 @@ bool IsMagicMonsterModBanned(int trait) {
 }
 
 // Exception occurs when: Either we rolled a resist when we have the corresponding immunity OR we rolled an immunity when we said this can't roll due to cvar
-bool HasTraitExceptions(int m_id, int trait) {
-	int t = EliteTraitNumbers[trait][ELITETRAIT_ID];
-	int i = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	return 	CheckEliteCvar(t) 																		||
-			MonsterProperties[m_id].level < EliteTraitNumbers[trait][ELITETRAIT_LVLREQ]				||
-			((MonsterProperties[m_id].flags & DND_MONFLAG_ISMAGIC) && IsMagicMonsterModBanned(t)) 	||
-			(t == DND_BULLET_RESIST && HasTrait(i, DND_BULLET_IMMUNE)) 								||
-			(t == DND_ENERGY_RESIST && HasTrait(i, DND_ENERGY_IMMUNE)) 								|| 
-			(t == DND_MAGIC_RESIST && HasTrait(i, DND_MAGIC_IMMUNE)) 								|| 
-			(t == DND_ELEMENTAL_RESIST && HasTrait(i, DND_ELEMENTAL_IMMUNE))						||
-			(t == DND_PHASING && HasTrait(i, DND_GHOST))											||
-			(t == DND_GHOST && HasTrait(i, DND_PHASING))											||
-			(t == DND_REBIRTH && (HasTrait(i, DND_SUMMONED) || HasTrait(i, DND_REVIVED)));
+bool HasTraitExceptions(int m_id, int t) {
+	return 	CheckEliteCvar(t) 																			||
+			//MonsterProperties[m_id].level < EliteTraitNumbers[trait][ELITETRAIT_LVLREQ]				||
+			((MonsterProperties[m_id].flags & DND_MONFLAG_ISMAGIC) && IsMagicMonsterModBanned(t)) 		||
+			(t == DND_BULLET_RESIST && HasTrait(m_id, DND_BULLET_IMMUNE)) 								||
+			(t == DND_ENERGY_RESIST && HasTrait(m_id, DND_ENERGY_IMMUNE)) 								|| 
+			(t == DND_MAGIC_RESIST && HasTrait(m_id, DND_MAGIC_IMMUNE)) 								|| 
+			(t == DND_ELEMENTAL_RESIST && HasTrait(m_id, DND_ELEMENTAL_IMMUNE))							||
+			(t == DND_PHASING && HasTrait(m_id, DND_GHOST))												||
+			(t == DND_GHOST && HasTrait(m_id, DND_PHASING))												||
+			(t == DND_REBIRTH && (HasTrait(m_id, DND_SUMMONED) || HasTrait(m_id, DND_REVIVED)));
 }
 
 bool HasMaxImmunes() {
@@ -442,11 +515,15 @@ int GetPetMonsterTraits(int monster_id, int segment) {
 
 void DecideEliteTraits(int tid, int m_id, int count) {
 	int tries = 0;
+	alias_table_T? elite_alias_table = EliteTraitData.alias_tables[MapEliteLevelToThresholdID(MonsterProperties[m_id].level)];
+
 	while(tries < MAX_ELITE_TRIES && count) {
-		int try_trait = GetRandomEliteTrait();
-		if(!HasTrait(m_id, EliteTraitNumbers[try_trait][ELITETRAIT_ID]) && !HasTraitExceptions(m_id, try_trait) && CheckImmunityFlagStatus(EliteTraitNumbers[try_trait][ELITETRAIT_ID])) {
+		int try_trait = PickFromAliasTable(elite_alias_table);
+		int trait_id = EliteTraitData.info[try_trait].id;
+		//Log(s:"Alias index and trait index: ", d:try_trait, s:" vs ", d:trait_id);
+		if(!HasTrait(m_id, trait_id) && !HasTraitExceptions(m_id, trait_id) && CheckImmunityFlagStatus(trait_id)) {
 			// dont give explosive immunity with resist etc
-			SetEliteFlag(EliteTraitNumbers[try_trait][ELITETRAIT_ID], false);
+			SetEliteFlag(m_id, trait_id, false);
 			--count;
 		}
 		++tries;

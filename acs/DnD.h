@@ -1154,19 +1154,19 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 	MonsterProperties[m_id].level = level;
 
 	if((temp = HasDungeonAttributeVal(DUN_ATTR_FORTIFIED)) != -1 && random(1, 100) <= temp)
-		SetEliteFlag(DND_FORTIFIED, true);
+		SetEliteFlag(m_id, DND_FORTIFIED, true);
 
 	if(CheckMapEvent(DND_MAPEVENT_GHOST))
-		SetEliteFlag(DND_GHOST, true);
+		SetEliteFlag(m_id, DND_GHOST, true);
 
 	if(CheckMapEvent(DND_MAPEVENT_NOPAIN))
-		SetEliteFlag(DND_NOPAIN, true);
+		SetEliteFlag(m_id, DND_NOPAIN, true);
 
 	if(CheckMapEvent(DND_MAPEVENT_NORIP))
-		SetEliteFlag(DND_HARDENED_SKIN, true);
+		SetEliteFlag(m_id, DND_HARDENED_SKIN, true);
 
 	if(CheckMapEvent(DND_MAPEVENT_EXTRAFAST))
-		SetEliteFlag(DND_EXTRAFAST, true);
+		SetEliteFlag(m_id, DND_EXTRAFAST, true);
 
 	// init to false
 	//MonsterProperties[m_id].spawnsIncursionMarker = false;

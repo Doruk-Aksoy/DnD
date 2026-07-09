@@ -2439,7 +2439,7 @@ void SetupMonsterRarities() {
 
 	// incursion monsters have uncommon across the board, a tier above normal doom monsters
 	for(int i = DND_FIRST_INCURSIONMONSTER; i <= DND_LAST_INCURSIONMONSTER; ++i)
-		MonsterData[MONSTER_ABAXOTH].rarity = DND_MWEIGHT_UNCOMMON;
+		MonsterData[i].rarity = DND_MWEIGHT_UNCOMMON;
 
 	MonsterData[MONSTER_DUNGEON_BLOODGOLEM].rarity = DND_MWEIGHT_UNCOMMON;
 	MonsterData[MONSTER_DUNGEON_SHAMBLER].rarity = DND_MWEIGHT_UNCOMMON;

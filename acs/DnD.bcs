@@ -730,7 +730,7 @@ Script "DND On Revive" (void) {
 	int this = ActivatorTID();
 	int id = this - DND_MONSTERTID_BEGIN;
 	if (MonsterProperties[id].maxhp) { // This could be skipped if all mobs have their Monster Scaling.
-		SetEliteFlag(DND_REVIVED, true); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
+		SetEliteFlag(id, DND_REVIVED, true); // Add "Revived" trait to mob. Also gives "Mo_Revived" item.
 		// Reapply the elite FX.
 		if (MonsterProperties[id].flags & DND_MONFLAG_ISELITE)
 			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this);
@@ -1673,7 +1673,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
-	//MonsterProperties[m_id].trait_list[DND_CRIPPLE] = true;
+	//MonsterProperties[m_id].trait_list[DND_FASTPROJ] = true;
 	//GiveInventory("Cripple_Script_Run", 1);
 
 	if(GetCVar("dnd_monsterscale")) {
@@ -3336,7 +3336,7 @@ Script "DnD Player Setup" ENTER {
 	ReadjustOrbWeightsForRarerOnes(pnum);
 
 #ifdef ISDEBUGBUILD
-	TestAliasTable(pnum);
+	//TestAliasTable(pnum);
 #endif
 
 /*#ifdef ISDEBUGBUILD
@@ -3978,10 +3978,10 @@ Script "DnD Monster Projectile Setup" (void) {
 		GiveInventory("MakePierce", 1);
 
 	int temp;
-	int factor = FixedMul(1.0, (!!MonsterProperties[m_id].trait_list[DND_FASTPROJ] * DND_FASTPROJ_FACTOR));
+	int factor = 1.0 + (!!MonsterProperties[m_id].trait_list[DND_FASTPROJ] * DND_FASTPROJ_FACTOR);
 
 	if((temp = HasDungeonAttributeVal(DUN_ATTR_FASTPROJ)) != -1)
-		factor = FixedMul(1.0, 1.0 + ((temp << 16) / 100));
+		factor = FixedMul(factor, 1.0 + ((temp << 16) / 100));
 
 	if(factor != 1.0 && (temp = GetActorProperty(0, APROP_SPEED))) {
 		temp = FixedMul(temp, factor);
@@ -5665,7 +5665,7 @@ Script "DnD Resurrect Checker" (int d, int this) {
 	//printbold(d:!CheckInventory("DnD_EnemySlatedForRemoval"), s: " ", d:CanActorHaveMorePets(killer), s: " ", d:IsMonsterCategoryResurrectable(id), s: " ", d:isPlayer(killer));
 	if(!CheckInventory("DnD_EnemySlatedForRemoval") && CanActorHaveMorePets(killer) && IsMonsterCategoryResurrectable(id) && isPlayer(killer)) {
 		// proceed to resurrect and make the master the player and mark this monster as a pet
-		SetEliteFlag(DND_REVIVED, true);
+		SetEliteFlag(id, DND_REVIVED, true);
 
 		int tries = 0;
 		while(!CanRaiseActor(this) && tries++ < 15)
@@ -6257,14 +6257,14 @@ Script 68 (int x) NET {
 }
 
 #ifdef ISDEBUGBUILD
-Script "DnD Damage Script Output" (void) OPEN {
+/*Script "DnD Damage Script Output" (void) OPEN {
 	while(1) {
 		Delay(const:TICRATE);
 		//Log(s:"Dmg script count: ", d:damage_script_count);
 		LogBuffList(0);
 		damage_script_count = 0;
 	}
-}
+}*/
 #endif
 
 /*Script "DnD Buff Test" ENTER {
