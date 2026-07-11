@@ -47,3 +47,11 @@ Actor ArtisanToken : TokenBase {
 		Goto SpawnInit
 	}
 }
+
+Actor CartographerToken : TokenBase {
+	States {
+		Spawn:
+			TOK0 D 0
+		Goto SpawnInit
+	}
+}

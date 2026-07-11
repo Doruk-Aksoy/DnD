@@ -5,6 +5,7 @@ enum {
 	DND_TOKEN_ARMORER,
 	DND_TOKEN_GUNSMITH,
 	DND_TOKEN_ARTISAN,
+    DND_TOKEN_CARTOGRAPHER,
 
     DND_MAX_TOKEN_KINDS
 };
@@ -12,9 +13,10 @@ enum {
 void SetupTokenDropWeights() {
 	// Body Armors
 	INIT_ITEM_WEIGHTS;
-	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_ARMORER, 8);
-	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_GUNSMITH, 10);
-	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_ARTISAN, 4);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_ARMORER, 16);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_GUNSMITH, 20);
+	SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_ARTISAN, 8);
+    SET_ITEM_WEIGHT(DND_DROPPEDITEM_TOKEN, DND_TOKEN_CARTOGRAPHER, 4);
 }
 
 bool CanUseToken(int token_type, int item_id, int item_type) {
@@ -41,6 +43,9 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
         break;
         case DND_TOKEN_ARTISAN:
             res = item_type == DND_ITEM_FLASK && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
+        break;
+        case DND_TOKEN_CARTOGRAPHER:
+            res = item_type == DND_ITEM_DUNGEONKEY && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
         break;
     }
     return res;
@@ -78,6 +83,7 @@ void HandleTokenUse(int pnum, int token_type, int item_id) {
     switch(token_type) {
         case DND_TOKEN_ARMORER:
         case DND_TOKEN_ARTISAN:
+        case DND_TOKEN_CARTOGRAPHER:
 			// just increment quality
 			PlayerInventoryList[pnum][item_id].quality += random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
             
@@ -107,6 +113,9 @@ void HandleTokenUseMessage(int token_type, int item_id) {
         break;
         case DND_TOKEN_ARTISAN:
             Log(s:"\cj", l:"TOK_USE3");
+        break;
+        case DND_TOKEN_CARTOGRAPHER:
+            Log(s:"\cj", l:"TOK_USE4");
         break;
     }
 }

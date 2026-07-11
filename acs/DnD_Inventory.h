@@ -86,7 +86,10 @@ typedef struct imove {
 	bool state;
 } imove_T;
 
-imove_T ItemMoveList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+imove_T[] module& GetItemMoveList(int pnum) {
+	static imove_T ItemMoveList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+	return ItemMoveList[pnum];
+}
 
 enum {
 	IIMG_SC_1,
@@ -321,6 +324,7 @@ enum {
 	IIMG_TOKEN_ARMORER = 2800,
 	IIMG_TOKEN_GUNSMITH,
 	IIMG_TOKEN_ARTISAN,
+	IIMG_TOKEN_CARTOGRAPHER,
 
 	// flasks
 	IIMG_FLASK_LIFE_SMALL = 3000,
@@ -409,7 +413,7 @@ void ResetUniqueCraftingItemList() {
 #define ITEM_IMAGE_ORB_END IIMG_ORB_31
 #define ITEM_IMAGE_MONSTERORB_END IIMG_MORB_6
 #define ITEM_IMAGE_KEY_END IIMG_CKEY_3
-#define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_ARTISAN
+#define ITEM_IMAGE_TOKEN_END IIMG_TOKEN_CARTOGRAPHER
 
 // uniques
 #define ITEM_IMAGE_UCHARM_BEGIN IIMG_UCHRM_1
@@ -952,6 +956,9 @@ int GetFreeSpotForItem_Trade(int item_index, int source_player, int player_index
 bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 	int bid, pos;
 	int i, j, h, w, hcomp, wcomp;
+
+	auto item_move_list = GetItemMoveList(pnum);
+
 	// for every possible item in the trade list of this player, get free position
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -968,24 +975,24 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 							// hack to avoid finding the same spot as empty
 							if(PlayerInventoryList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].item_type == DND_ITEM_NULL)
 								PlayerInventoryList[pnum][pos + w + h * MAXINVENTORYBLOCKS_VERT].item_type = DND_ITEM_TEMPORARY;
-							ItemMoveList[pnum][bid + w + h * MAXINVENTORYBLOCKS_VERT].state = true;
-							ItemMoveList[pnum][bid + w + h * MAXINVENTORYBLOCKS_VERT].width = wcomp;
-							ItemMoveList[pnum][bid + w + h * MAXINVENTORYBLOCKS_VERT].height = hcomp;
+							item_move_list[bid + w + h * MAXINVENTORYBLOCKS_VERT].state = true;
+							item_move_list[bid + w + h * MAXINVENTORYBLOCKS_VERT].width = wcomp;
+							item_move_list[bid + w + h * MAXINVENTORYBLOCKS_VERT].height = hcomp;
 						}
 					//printbold(s:"send player ", d:pnum, s:"'s item at ", d:bid, s:" to ", d:pos);
-					ItemMoveList[pnum][bid].dest_pos = pos;
+					item_move_list[bid].dest_pos = pos;
 				}
 				else {
 					// clean up whatever was used up, we had no space
 					for(pos = 0; pos < MAX_INVENTORY_BOXES; ++pos) {
-						if(ItemMoveList[pnum][pos].state) {
+						if(item_move_list[pos].state) {
 							// cleanup our hack
 							if(PlayerInventoryList[pnum][pos].item_type == DND_ITEM_TEMPORARY)
 								PlayerInventoryList[pnum][pos].item_type = DND_ITEM_NULL;
-							ItemMoveList[pnum][pos].state = false;
-							ItemMoveList[pnum][pos].width = 0;
-							ItemMoveList[pnum][pos].height = 0;
-							ItemMoveList[pnum][pos].dest_pos = -1;
+							item_move_list[pos].state = false;
+							item_move_list[pos].width = 0;
+							item_move_list[pos].height = 0;
+							item_move_list[pos].dest_pos = -1;
 						}
 					}
 					return false;
@@ -997,13 +1004,13 @@ bool ConfirmSpaceForOfferings(int pnum, int tradee) {
 	// unmark all marked spots as unoccupied (real marking happens when we move items)
 	// do not touch itemmovelist, we will use this as the place to move new items so we avoid checking again
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(ItemMoveList[pnum][i].state) {
+		if(item_move_list[i].state) {
 			// unmark as occupied
-			wcomp = ItemMoveList[pnum][i].width;
-			hcomp = ItemMoveList[pnum][i].height;
+			wcomp = item_move_list[i].width;
+			hcomp = item_move_list[i].height;
 			
 			// note that the itemmovelist contains "Item of Player in tradebox was to move to dest_pos in player inventory" info
-			pos = ItemMoveList[pnum][i].dest_pos;
+			pos = item_move_list[i].dest_pos;
 			for(h = 0; h < hcomp; ++h)
 				for(w = 0; w < wcomp; ++w) {
 					// cleanup our hack
@@ -1136,7 +1143,7 @@ int RollItemLevel() {
 	
 	// return average player level, +- some value -- 33% chance to just roll something between min player level and max player level regardless
 	// if that 33% chance rolls then there's a 50-50 chance that it'll be either min - max level players or something much closer to lower lvl player
-	if(!random(0, 2)) {
+	if(DungeonInformation.level == -1 && !random(0, 2)) {
 		if(random(0, 1))
 			return random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MAXPLAYERLEVEL]);
 		res = random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MINPLAYERLEVEL] + 2 * ITEMLEVEL_VARIANCE_HIGHER);
@@ -1144,7 +1151,12 @@ int RollItemLevel() {
 		return res;
 	}
 
-	int pavg = InformationInLevel[LEVELINFO_PLAYERLEVEL] / res;
+	int pavg = 0;
+	if(DungeonInformation.level == -1)
+		pavg = InformationInLevel[LEVELINFO_PLAYERLEVEL] / res;
+	else
+		pavg = DungeonInformation.level;
+
 	if(pavg > 2 * ITEMLEVEL_VARIANCE_LOWER) {
 		res = pavg + random(-ITEMLEVEL_VARIANCE_LOWER, ITEMLEVEL_VARIANCE_HIGHER);
 		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
@@ -1721,10 +1733,11 @@ void AutoDumpItems(int pnum, int stackableOnly = 0) {
 	static bool marked_tbids[MAX_INVENTORY_BOXES];
 
 	int i, j, k, count = 0;
+	auto item_move_list = GetItemMoveList(pnum);
 
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		marked_tbids[i] = false;
-		ItemMoveList[pnum][i].dest_pos = -1;
+		item_move_list[i].dest_pos = -1;
 	}
 
 	// ItemMoveList contains topboxids of items to be moved in order of largest to smallest size occupying (w * h)
@@ -1733,8 +1746,8 @@ void AutoDumpItems(int pnum, int stackableOnly = 0) {
 		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL && (!stackableOnly || IsStackedItem(PlayerInventoryList[pnum][i].item_type)) && !marked_tbids[i]) {
 			k = 0;
 			j = 0;
-			while(ItemMoveList[pnum][k].dest_pos != -1) {
-				if(ItemMoveList[pnum][k].width * ItemMoveList[pnum][k].height < PlayerInventoryList[pnum][i].width * PlayerInventoryList[pnum][i].height) {
+			while(item_move_list[k].dest_pos != -1) {
+				if(item_move_list[k].width * item_move_list[k].height < PlayerInventoryList[pnum][i].width * PlayerInventoryList[pnum][i].height) {
 					// need to shift items right starting from k
 					j = 1;
 					break;
@@ -1748,17 +1761,17 @@ void AutoDumpItems(int pnum, int stackableOnly = 0) {
 				//printbold(s:"shifting item at ", d:k, s: " right");
 				for(j = count - 1; j >= k; --j) {
 					//printbold(s:"move ", d:j, s: " to ", d:j + 1, s: " item dest_pos: ", d:ItemMoveList[pnum][j + 1].dest_pos, s: " to ", d:ItemMoveList[pnum][j].dest_pos);
-					ItemMoveList[pnum][j + 1].dest_pos = ItemMoveList[pnum][j].dest_pos;
-					ItemMoveList[pnum][j + 1].width = ItemMoveList[pnum][j].width;
-					ItemMoveList[pnum][j + 1].height = ItemMoveList[pnum][j].height;
+					item_move_list[j + 1].dest_pos = item_move_list[j].dest_pos;
+					item_move_list[j + 1].width = item_move_list[j].width;
+					item_move_list[j + 1].height = item_move_list[j].height;
 				}
 			}
 
 			// add here
 			//printbold(s:"insert to movelist ", d:k, s: " item at ", d:i, s:" w and h: ", d:PlayerInventoryList[pnum][i].width, s: " ", d:PlayerInventoryList[pnum][i].height);
-			ItemMoveList[pnum][k].dest_pos = PlayerInventoryList[pnum][i].topleftboxid;
-			ItemMoveList[pnum][k].width = PlayerInventoryList[pnum][i].width;
-			ItemMoveList[pnum][k].height = PlayerInventoryList[pnum][i].height;
+			item_move_list[k].dest_pos = PlayerInventoryList[pnum][i].topleftboxid;
+			item_move_list[k].width = PlayerInventoryList[pnum][i].width;
+			item_move_list[k].height = PlayerInventoryList[pnum][i].height;
 
 			++count;
 
@@ -1774,7 +1787,7 @@ void AutoDumpItems(int pnum, int stackableOnly = 0) {
 	// we formed the list of items to be send to stash, sorted wrt size, now just send them over
 	for(i = 0; i < count; ++i) {
 		//printbold(s:"item: ", d:i, s: " w and h: ", d:ItemMoveList[pnum][i].width, s: " ", d:ItemMoveList[pnum][i].height, s:" move item pos: ", d:ItemMoveList[pnum][i].dest_pos - 1);
-		AutoMoveItem(pnum, ItemMoveList[pnum][i].dest_pos - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16));
+		AutoMoveItem(pnum, item_move_list[i].dest_pos - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16));
 	}
 
 	// sync entire inventory and stash after success
@@ -1941,6 +1954,8 @@ void CarryItemTo(int itempos, int emptypos, int itemsource, int emptysource, int
 void TransferTradeItems(int from, int to) {
 	int bid;
 	int i, j, h, w;
+	auto item_move_list = GetItemMoveList(to);
+
 	// for every possible item in the trade list of this player, get free position
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -1948,16 +1963,16 @@ void TransferTradeItems(int from, int to) {
 			// care about the items only once, so use topleftboxid == bid
 			if(TradeViewList[from][bid].topleftboxid - 1 == bid) {
 				//printbold(s:"carry item to ", d:ItemMoveList[to][bid].dest_pos, s: " from player ", d:from, s:"'s movelist to player ", d:to);
-				CarryItemTo(bid, ItemMoveList[to][bid].dest_pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, from, to);
+				CarryItemTo(bid, item_move_list[bid].dest_pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, from, to);
 			}
 		}
 	}
 	
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		ItemMoveList[to][i].state = false;
-		ItemMoveList[to][i].width = 0;
-		ItemMoveList[to][i].height = 0;
-		ItemMoveList[to][i].dest_pos = -1;
+		item_move_list[i].state = false;
+		item_move_list[i].width = 0;
+		item_move_list[i].height = 0;
+		item_move_list[i].dest_pos = -1;
 	}
 }
 
@@ -2061,24 +2076,26 @@ void DrawInventoryText(
 	// potential delete of quality in case we hover over an item that doesn't have it, we don't want it lingering!
 	DeleteText(id_begin - id_mult * MAX_INVENTORY_BOXES - 18);
 
+	auto item_vsync_data = GetItemVSyncData(DND_SYNCINDEX_STACKABLE);
+
 	SetFont("NSMOLFNT");
 	if(IsStackedItem(itype)) {
-		if(topboxid != ItemSyncData[DND_SYNCINDEX_STACKABLE].topleftboxid || source != ItemSyncData[DND_SYNCINDEX_STACKABLE].source) {
-			ItemSyncData[DND_SYNCINDEX_STACKABLE].isDirty = true;
-			ItemSyncData[DND_SYNCINDEX_STACKABLE].topleftboxid = topboxid;
-			ItemSyncData[DND_SYNCINDEX_STACKABLE].source = source;
-			ItemSyncData[DND_SYNCINDEX_STACKABLE].attr_lines_count = 0;
+		if(topboxid != item_vsync_data.topleftboxid || source != item_vsync_data.source) {
+			item_vsync_data.isDirty = true;
+			item_vsync_data.topleftboxid = topboxid;
+			item_vsync_data.source = source;
+			item_vsync_data.attr_lines_count = 0;
 		}
 
 		temp = isubt + GetInventoryInfoOffset(itype);
-		if(ItemSyncData[DND_SYNCINDEX_STACKABLE].isDirty) {
+		if(item_vsync_data.isDirty) {
 			tmp_text = StrParam(s:"\c[Y5]", l:GetInventoryTag(temp), s:"\n\n", l:GetInventoryText(temp));
-			ItemSyncData[DND_SYNCINDEX_STACKABLE].isDirty = false;
-			ItemSyncData[DND_SYNCINDEX_STACKABLE].textID = tmp_text;
-			ItemSyncData[DND_SYNCINDEX_STACKABLE].attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
+			item_vsync_data.isDirty = false;
+			item_vsync_data.textID = tmp_text;
+			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
 		}
 		else
-			tmp_text = ItemSyncData[DND_SYNCINDEX_STACKABLE].textID;
+			tmp_text = item_vsync_data.textID;
 
 		HudMessage(
 				s:tmp_text;
@@ -2091,15 +2108,15 @@ void DrawInventoryText(
 				INVENTORY_FADETIME, 
 				INVENTORY_INFO_ALPHA
 		);
-		DrawItemInfoBackground(id_begin - id_mult * MAX_INVENTORY_BOXES, hx, hy, bg_posx, bg_posy, ItemSyncData[DND_SYNCINDEX_STACKABLE].attr_lines_count, -1, holdTime);
+		DrawItemInfoBackground(id_begin - id_mult * MAX_INVENTORY_BOXES, hx, hy, bg_posx, bg_posy, item_vsync_data.attr_lines_count, -1, holdTime);
 		return;
 	}
 	else {
-		auto sync_info = ItemSyncData[DND_SYNCINDEX_ITEM];
-		if(topboxid != sync_info.topleftboxid || source != sync_info.source) {
-			sync_info.isDirty = true;
-			sync_info.topleftboxid = topboxid;
-			sync_info.source = source;
+		item_vsync_data = GetItemVSyncData(DND_SYNCINDEX_ITEM);
+		if(topboxid != item_vsync_data.topleftboxid || source != item_vsync_data.source) {
+			item_vsync_data.isDirty = true;
+			item_vsync_data.topleftboxid = topboxid;
+			item_vsync_data.source = source;
 		}
 
 		if(craftMaterialIdx != -1) {
@@ -2175,9 +2192,9 @@ void DrawInventoryText(
 		// implicit
 		if
 		(
-			sync_info.isDirty || 
-			sync_info.last_text_mode != showModTiers ||
-			sync_info.last_craft_vals != craftMaterialIdx
+			item_vsync_data.isDirty || 
+			item_vsync_data.last_text_mode != showModTiers ||
+			item_vsync_data.last_craft_vals != craftMaterialIdx
 		)
 		{
 			tmp_text = "";
@@ -2206,12 +2223,12 @@ void DrawInventoryText(
 					);
 				}
 			}
-			sync_info.implicit_textID = tmp_text;
-			sync_info.implicit_lines_count = max(0, CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH - 1) - 1); // -1 to fix the off by one error in necro armor
-			//Log(s:"implicit lines: ", d:sync_info.implicit_lines_count);
+			item_vsync_data.implicit_textID = tmp_text;
+			item_vsync_data.implicit_lines_count = max(0, CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH - 1) - 1); // -1 to fix the off by one error in necro armor
+			//Log(s:"implicit lines: ", d:item_vsync_data.implicit_lines_count);
 		}
 		else
-			tmp_text = sync_info.implicit_textID;
+			tmp_text = item_vsync_data.implicit_textID;
 
 		if(tmp_text != "") {
 			HudMessage(
@@ -2220,7 +2237,7 @@ void DrawInventoryText(
 				id_begin - id_mult * MAX_INVENTORY_BOXES - 5 + ITEMID_SKIP, CR_WHITE, bx, by + 10.0 + yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
-			yoff = 10.0 + 8.0 * sync_info.implicit_lines_count;
+			yoff = 10.0 + 8.0 * item_vsync_data.implicit_lines_count;
 		}
 
 		by += 12.0 + 8.0 * isUnique;
@@ -2236,9 +2253,9 @@ void DrawInventoryText(
 		// optimization for the potentially busy section with strparam spam
 		if
 		(
-			sync_info.isDirty || 
-			sync_info.last_text_mode != showModTiers ||
-			sync_info.last_craft_vals != craftMaterialIdx
+			item_vsync_data.isDirty || 
+			item_vsync_data.last_text_mode != showModTiers ||
+			item_vsync_data.last_craft_vals != craftMaterialIdx
 		)
 		{
 			//Log(s:"obtain attrib text");
@@ -2302,14 +2319,14 @@ void DrawInventoryText(
 				lvl -= 2;
 			}
 
-			sync_info.isDirty = false;
-			sync_info.last_text_mode = showModTiers;
-			sync_info.last_craft_vals = craftMaterialIdx;
-			sync_info.textID = tmp_text;
-			sync_info.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH) + lvl;
+			item_vsync_data.isDirty = false;
+			item_vsync_data.last_text_mode = showModTiers;
+			item_vsync_data.last_craft_vals = craftMaterialIdx;
+			item_vsync_data.textID = tmp_text;
+			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH) + lvl;
 		}
 		else
-			tmp_text = sync_info.textID;
+			tmp_text = item_vsync_data.textID;
 
 		SetFont("NSMOLFNT");
 		HudMessage(
@@ -2318,13 +2335,13 @@ void DrawInventoryText(
 			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 + ITEMID_SKIP, CR_WHITE, bx, by + yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
-		//log(s:"final lines: ", d:sync_info.lines_count);
+		//log(s:"final lines: ", d:item_vsync_data.lines_count);
 	}
 
 	DrawItemInfoBackground(
 		id_begin - id_mult * MAX_INVENTORY_BOXES, 
 		hx, hy, bg_posx, bg_posy, 
-		sync_info.attr_lines_count + sync_info.implicit_lines_count, 
+		item_vsync_data.attr_lines_count + item_vsync_data.implicit_lines_count, 
 		craftMaterialIdx, holdTime
 	);
 }
@@ -2450,6 +2467,8 @@ void DropItemToField(int player_index, int pitem_index, bool forAll, int source)
 		droptype = GetSpecialtyDropClass(itype, stype);
 	else if(itype == DND_ITEM_FLASK)
 		droptype = GetFlaskDropClass(stype);
+	else if(itype == DND_ITEM_DUNGEONKEY)
+		droptype = GetInventoryName(stype + DUNGEONKEY_BEGIN);
 	forAll ? SpawnDropFacing(droptype, 16.0, 16, 256, c) : SpawnDropFacing(droptype, 16.0, 16, player_index + 1, c);
 }
 

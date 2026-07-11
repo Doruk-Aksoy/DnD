@@ -1,7 +1,5 @@
-#library "DND_MENU"
-#include "zcommon.h"
-
-#nocompact
+#ifndef DND_MENU_IN
+#define DND_MENU_IN
 
 #include "DnD_MenuFuncs.h"
 
@@ -29,7 +27,7 @@ Script 900 (int opt, int showInv) NET {
 		Terminate;
 
 	int pnum = PlayerNumber();
-	if(StatListOpened[pnum]) {
+	if(CheckInventory("DnD_StatListOpen")) {
 		ClearMenuLeftovers(pnum);
 		ResetSelectedDungeonInformation(pnum);
 		DecideAccessories();
@@ -65,7 +63,7 @@ Script 900 (int opt, int showInv) NET {
 			}
 			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 			GiveInventory("P_Frozen", 1);
-			StatListOpened[pnum] = 1;
+			GiveInventory("DnD_StatListOpen", 1);
 
 			if(!opt)
 				SetInventory("MenuOption", MENU_MAIN);
@@ -795,7 +793,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// MBOX_1 is used for the main map drop hole
 				j = boxid == MBOX_1 && !CheckInventory("DnD_InventoryView");
 
-				// if there is an orb here, draw it
+				// if there is an item here, draw it
 				k = GetSelectedDungeonData(pnum).id;
 				if(k != -1) {
 					SetFont(GetItemImage(k + ITEM_IMAGE_DUNGEONKEY_BEGIN));
@@ -818,6 +816,47 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 
 				// restore font
 				SetFont("NMENUFNT");
+
+				if(DungeonInformation.attrib_count) {
+					if(k == -1 && DungeonInformation.dungeon_id != -1)
+						k = DungeonInformation.dungeon_id;
+
+					if(k != -1)
+						HudMessage(s:GetDungeonMonsterTypeString(k); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 316.4, 128.1, 0.0, 0.0);
+
+					SetHudClipRect(192, 112, 256, 400, 256);
+
+					// mods affecting the dungeon
+					// show the synced attributes and the overall upsides here
+					for(j = 0; j < DungeonInformation.attrib_count; ++j) {
+						// note \n here is not needed as they inherently have it
+						toShow = StrParam(s:toShow, 
+							s:DungeonAttributeString(
+								DungeonInformation.attributes[j].attrib_id,
+								DungeonInformation.attributes[j].attrib_val,
+								0,
+								false,
+								-1,
+								false,
+								DungeonInformation.quality,
+								-1
+							)
+						);
+					}
+
+					toShow = StrParam(s:toShow, s:"\c[Y5]----------------------\n");
+
+					// upsides
+					for(j = 0; j < DUN_UPSIDE_MAX; ++j) {
+						if(DungeonInformation.upside_vals[j])
+							toShow = StrParam(s:toShow, s:DungeonUpsideString(j, DungeonInformation.upside_vals[j]), s:"\n");
+					}
+
+					HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 316.4, 128.1 + (k != -1) * 16.0, 0.0, 0.0);
+
+					SetHudClipRect(0, 0, 0, 0);
+				}
+
 				DrawBoxText("DND_ACTIVATE", DND_LANGUAGE_LOOKUP, i ? -1 : boxid, MBOX_2, RPGMENUITEMID - 3, 316.4, 112.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt >= MENU_FIRST_ACCESSORY_PAGE && curopt <= MENU_LAST_ACCESSORY_PAGE) {
@@ -1142,7 +1181,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				// size is 640 by 480 instead of 480 by 320, ratio them
 				SetHudClipRect(192, 90, 256, 330, 256);
 				
-				for(i = 0; i < MAX_DAMAGE_TYPES; ++i)
+				for(i = 0; i < MAX_DAMAGE_TYPES_MENU; ++i)
 					ShowDamageTypeIcon(i);
 					
 				SetHudClipRect(0, 0, 0, 0);
@@ -2354,4 +2393,6 @@ Script "DnD NFT Announce" (int pnum, int id) CLIENTSIDE {
 		f = HUDMSG_PLAIN | HUDMSG_ALPHA;
 	}
 }
+#endif
+
 #endif

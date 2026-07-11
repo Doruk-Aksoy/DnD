@@ -232,7 +232,7 @@ void SpawnToken(int pnum, int stack = 0, int unused2 = 0, bool noRandomVelXY = f
 
 		if(!stack)
 			stack = 1;
-		
+
 		RollTokenInfo(c, i, true, stack);
 		SpawnDrop(GetInventoryName(i + TOKEN_BEGIN), 24.0, 16, pnum + 1, c, noRandomVelXY);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);

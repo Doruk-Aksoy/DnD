@@ -322,7 +322,7 @@ void ClearPlayerInput(int pnum, bool cleanLR) {
 void ClearMenuLeftovers(int pnum) {
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
-	StatListOpened[pnum] = 0;
+	TakeInventory("DnD_StatListOpen", 1);
 	SetInventory("ShowingMenu", 0);
 	SetInventory("MenuOption", 5);
 	SetInventory("DnD_PlayerItemIndex", 0);

@@ -3253,7 +3253,7 @@ str GetItemAttributeText(
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
 	if(item_type == DND_ITEM_DUNGEONKEY)
-		return DungeonAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
+		return DungeonAttributeString(attr, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
 
 	if(attr <= LAST_FLASK_ATTRIBUTE)
 		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);

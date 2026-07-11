@@ -1,5 +1,8 @@
 $pitchshiftrange 2
 
+Items/DungeonKeyDrop    DUNKDROP
+Items/DungeonKeyPick    DUNKPICK
+
 DungeonPortal/Loop  PORTLOOP
 DungeonPortal/Make  PORTMAKE
 

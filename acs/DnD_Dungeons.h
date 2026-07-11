@@ -116,12 +116,16 @@ void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 	DungeonInformation.next_map = GetNextMapLump();
 
 	DungeonInformation.attrib_count = PlayerInventoryList[pnum][item_pos].attrib_count;
+
+	ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 1", DungeonInformation.dungeon_id, DungeonInformation.quality, DungeonInformation.level, DungeonInformation.attrib_count);
 	
 	for(i = 0; i < DungeonInformation.attrib_count; ++i) {
 		DungeonInformation.attributes[i].attrib_id = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id;
 
 		if(!IsDungeonAttributeQualityException(DungeonInformation.attributes[i].attrib_id))
 			DungeonInformation.attributes[i].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val * (100 + DungeonInformation.quality) / 100;
+		else
+			DungeonInformation.attributes[i].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val;
 
 		// the value of extra is in << 16
 		DungeonInformation.attributes[i].attrib_extra = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_extra;
@@ -129,12 +133,39 @@ void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 		int val = DungeonInformation.attributes[i].attrib_extra >> 16;
 		if(!IsDungeonAttributeExtraException(id))
 			DungeonInformation.attributes[i].attrib_extra = id | ((val * (100 + DungeonInformation.quality) / 100) << 16);
+		else
+			DungeonInformation.attributes[i].attrib_extra = id | (val << 16);
 
 		DungeonInformation.attributes[i].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+
+		ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 2", i, DungeonInformation.attributes[i].attrib_id, DungeonInformation.attributes[i].attrib_val, DungeonInformation.attributes[i].attrib_extra);
 
 		// add the sum to the upsides array
 		DungeonInformation.upside_vals[DungeonInformation.attributes[i].attrib_extra & 0xFFFF] += DungeonInformation.attributes[i].attrib_extra >> 16;
 	}
+}
+
+void SyncCurrentDungeonInformation() {
+	ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 1", DungeonInformation.dungeon_id, DungeonInformation.quality, DungeonInformation.level, DungeonInformation.attrib_count);
+	for(int i = 0; i < DungeonInformation.attrib_count; ++i)
+		ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 2", i, DungeonInformation.attributes[i].attrib_id, DungeonInformation.attributes[i].attrib_val, DungeonInformation.attributes[i].attrib_extra);
+}
+
+Script "DnD Sync Current Dungeon Data - 1" (int dung_id, int quality, int level, int attrib_count) CLIENTSIDE {
+	DungeonInformation.dungeon_id = dung_id;
+	DungeonInformation.quality = quality;
+	DungeonInformation.level = level;
+	DungeonInformation.attrib_count = attrib_count;
+	
+	SetResultValue(0);
+}
+
+Script "DnD Sync Current Dungeon Data - 2" (int id, int attrib_id, int val, int extra) CLIENTSIDE {
+	DungeonInformation.attributes[id].attrib_id = attrib_id;
+	DungeonInformation.attributes[id].attrib_val = val;
+	DungeonInformation.attributes[id].attrib_extra = extra;
+	DungeonInformation.upside_vals[extra & 0xFFFF] += extra >> 16;
+	SetResultValue(0);
 }
 
 // pnum, item position top box id (includes -1), selected dungeon enum

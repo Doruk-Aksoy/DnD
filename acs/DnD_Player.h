@@ -29,6 +29,8 @@ void SetupPlayerAliasTables(int pnum) {
             PlayerAliasTables[pnum].item_attributes_table.weights[i] = ItemModTable[i].weight;
 
         PlayerAliasTables[pnum].tables_exist = true;
+
+        //Log(s:"Alias tables setup for player ", d:pnum);
     }
 }
 
@@ -39,6 +41,7 @@ void ClearPlayerAliasTables(int pnum) {
         FreeAliasTable(PlayerAliasTables[pnum].orb_table);
         FreeAliasTable(PlayerAliasTables[pnum].item_attributes_table);
         PlayerAliasTables[pnum].tables_exist = false;
+        //Log(s:"Clear complete");
     }
 }
 

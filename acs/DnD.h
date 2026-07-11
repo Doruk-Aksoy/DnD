@@ -15,6 +15,7 @@
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
 #include "DnD_Attachments.h"
+#include "DnD_Menu.h"
 
 enum {
 	ITEMFILTER_STACKABLE = 1,
@@ -476,6 +477,8 @@ void CheckOtherMapEvents() {
 
 	if(HasDungeonAttributeVal(DUN_ATTR_CULLENEMIES) != -1)
 		AcceptMapEvent(DND_MAPEVENT_CULLINGMONSTERS);
+
+	SetupComplete(SETUP_STATE1, SETUP_MAPEVENTS);
 }
 
 int CalculateBonus(int bonustype, int mdifficulty) {
@@ -1100,7 +1103,13 @@ int GetWeaponSlotFromFlag(int flags) {
 int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int hp_mult) {
 	int base = realhp * hp_mult;
 	int add = 0, level = 1, low, high, temp;
-	level = InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount;
+
+	// if we are in a dungeon of specific level, apply it to the monsters
+	if(DungeonInformation.level == -1)
+		level = InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount;
+	else
+		level = DungeonInformation.level;
+
 	// ensure minions use master's level -- do so only if its summoned, boss tier monsters have tids on the spawners that can mess this up during mapload!!!
 	if(GetActorProperty(0, APROP_MASTERTID) && isSummoned)
 		level = MonsterProperties[GetActorProperty(0, APROP_MASTERTID) - DND_MONSTERTID_BEGIN].level;
@@ -1643,7 +1652,7 @@ void HandleEndOfLevelRewards(int pnum) {
 	// if hardcore modes are set, check this, otherwise simply give the player the things if they managed to survive the level regularly
 	if((!isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) || PlayerDatabaseState[pnum][PLAYER_SAVESTATE])) {
 		GiveInventory("LevelToken", 1);
-		StatListOpened[pnum] = 0;
+		TakeInventory("DnD_StatListOpen", 1);
 		
 		// check if the map had at least 1 monster in it... so people don't cheese stupid "skip maps"...
 		if(GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) {

@@ -1,3 +1,6 @@
+#ifndef DND_MENUFUNC_IN
+#define DND_MENUFUNC_IN
+
 #include "DnD_MenuTables.h"
 
 Script "DnD Refresh Request" (int pnum, int state) CLIENTSIDE {
@@ -372,10 +375,10 @@ void DrawDamageTypes(int req_id, int constraint, int flags) {
 		DTYPE_OCCULT
 	};
 
-	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES - 1);
+	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES_MENU - 1);
 	if(req_id == -1 || CheckItemRequirements(req_id, constraint, flags)) {
 		int j = 0;
-		for(int i = 0; i < MAX_DAMAGE_TYPES; ++i) {
+		for(int i = 0; i < MAX_DAMAGE_TYPES_MENU; ++i) {
 			if(IsSet(WeaponDamageTypes[req_id], i)) {
 				SetFont(GetDamageTypeIcon(i));
 				HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUDAMAGETYPEID + j, CR_CYAN, 62.1 + j * 30.0 - 60.0 * (j > 1), 84.1 - 32.0 * (j > 1), 0.0, 0.0);
@@ -728,7 +731,7 @@ void HandleItemInfoPanel(int curopt, int boxid, bool redraw) {
 
 void ClearInfoPanel() {
 	DeleteText(RPGMENUHELPCORNERID);
-	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES - 1);
+	DeleteTextRange(RPGMENUDAMAGETYPEID, RPGMENUDAMAGETYPEID + MAX_DAMAGE_TYPES_MENU - 1);
 }
 
 void ShowWeaponIcon(int wep, int i, int k) {
@@ -742,7 +745,7 @@ void ShowWeaponIcon(int wep, int i, int k) {
 void ShowDamageTypeIcon(int dmg) {
 	SetHudSize(640, 480, 1);
 	SetFont(GetDamageTypeIcon(dmg));
-	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_DAMAGE_TYPES - 1 - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos.x, 0.0, 0.0);
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - MAX_DAMAGE_TYPES_MENU - 1 - dmg, CR_WHITE, 384.1, 88.1 + 120.0 * dmg + 6.0 * ScrollPos.x, 0.0, 0.0);
 	SetFont("NMENUFNT");
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 }
@@ -3384,6 +3387,8 @@ void PlayItemDropSound(int type, int sub_type, bool use_activator_sound) {
 		snd = "Items/PowercoreDrop";
 	else if(type == DND_ITEM_FLASK)
 		snd = "Items/FlaskDrop";
+	else if(type == DND_ITEM_DUNGEONKEY)
+		snd = "Items/DungeonKeyDrop";
 
 	if(!use_activator_sound) {
 		// this is the "unequip item" case, we should use this one as charms dont have their own "throw" sound
@@ -6403,4 +6408,6 @@ void HandleNFTDrawing(int boxid) {
 		}
 	}
 }
+#endif
+
 #endif

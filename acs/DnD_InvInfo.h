@@ -164,16 +164,17 @@ enum {
 	DND_MAXSYNCINDICES
 };
 
-global inventory_vsync_T 47: ItemSyncData[DND_MAXSYNCINDICES];
-
-bool IsExactInventoryVSyncData(int source, int tbid, int id) {
-	auto item = ItemSyncData[id];
-	return item.source == source && item.topleftboxid == tbid;
+// this is purely clientside, its freed once app quits
+inventory_vsync_T global:20? GetItemVSyncData(int id) {
+	static inventory_vsync_T[]? ItemSyncData = null;
+	if(ItemSyncData == null)
+		ItemSyncData = bcs::arrNew(DND_MAXSYNCINDICES, 9);
+	return ItemSyncData[id];
 }
 
 void ResetVSyncItemInfo() {
 	for(int i = 0; i < DND_MAXSYNCINDICES; ++i) {
-		auto item = ItemSyncData[i];
+		auto item = GetItemVSyncData(i);
 		item.topleftboxid = -1;
 		item.source = -1;
 		item.isDirty = true;
@@ -188,7 +189,7 @@ Script "DnD Item Dirty Mark" (void) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
 
-	auto item = ItemSyncData[DND_SYNCINDEX_ITEM];
+	auto item = GetItemVSyncData(DND_SYNCINDEX_ITEM);
 	if(item.topleftboxid != -1 && item.source != -1)
 		item.isDirty = true;
 
@@ -250,6 +251,7 @@ enum {
 	DND_ISUBT_TOKEN_ARMORER = 10000,
 	DND_ISUBT_TOKEN_GUNSMITH,
 	DND_ISUBT_TOKEN_ARTISAN,
+	DND_ISUBT_TOKEN_CARTOGRAPHER,
 
 	DND_ISUBT_DUNGEONKEY_VOIDKEEP = 12500
 };
@@ -264,7 +266,7 @@ enum {
 #define ORBS_END DND_ISUBT_ORB_30
 #define MAX_DROPPABLE_ORBS (ORBS_END + 1)
 #define MONSTER_ORBS_END DND_ISUBT_MORB_2
-#define TOKEN_END DND_ISUBT_TOKEN_ARTISAN
+#define TOKEN_END DND_ISUBT_TOKEN_CARTOGRAPHER
 #define DUNGEONKEY_END DND_ISUBT_DUNGEONKEY_VOIDKEEP
 
 #define MAX_CHESTKEYS (CHESTKEY_END - CHESTKEY_BEGIN + 1)

@@ -1,5 +1,10 @@
 const float m_range_factor = 0.01;
 
+Actor DnD_StatListOpen : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 0x7FFFFFFF
+}
+
 Actor DnD_LevelExp : DnD_Info {}
 Actor DnD_LevelCredit : DnD_Info {}
 

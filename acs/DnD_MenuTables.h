@@ -1509,7 +1509,7 @@ enum {
 	DTYPE_POISON = 128,
 	DTYPE_LIGHTNING = 256
 };
-#define MAX_DAMAGE_TYPES 9
+#define MAX_DAMAGE_TYPES_MENU 9
 
 str GetDamageTypeIcon(int dt) {
 	dt = 1 << dt;

@@ -17,10 +17,12 @@ typedef struct {
 #define SIZEOF_ALIASTABLE (SIZEOF_INT * 5) // bools are ints
 
 void FreeAliasTable(alias_table_T? table) {
-    bcs::free(table.weights);
-    bcs::free(table.probability);
-    bcs::free(table.alias);
+    // delete array of pointers like so
+    bcs::arrDelete(table.weights);
+    bcs::arrDelete(table.probability);
+    bcs::arrDelete(table.alias);
     bcs::free(table);
+    //Log(s:"Tables cleared");
 }
 
 alias_table_T* CreateAliasTable(int size) {
@@ -31,9 +33,10 @@ alias_table_T* CreateAliasTable(int size) {
 
     alias_table_T* res = bcs::malloc(SIZEOF_ALIASTABLE);
 
-    res.weights = bcs::malloc(SIZEOF_INT * size);
-    res.probability = bcs::malloc(SIZEOF_INT * size);
-    res.alias = bcs::malloc(SIZEOF_INT * size);
+    // allocate array of pointers like so -- arrNew has a 2nd parameter which determines how big the allocated element is going to be: Ex: struct of 3 ints, it'd be 3 etc.
+    res.weights = bcs::arrNew(size);
+    res.probability = bcs::arrNew(size);
+    res.alias = bcs::arrNew(size);
 
     res.size = size;
     res.isDirty = true;

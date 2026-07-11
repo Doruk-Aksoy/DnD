@@ -298,6 +298,9 @@ Script "DnD On Map Load" OPEN {
 		ResetCurrentDungeonData();
 		SetupComplete(SETUP_STATE1, SETUP_DUNGEONDATAFIRSTTIMECLEAR);
 	}
+
+	if(InformationInLevel[LEVELINFO_ISDUNGEON])
+		SyncCurrentDungeonInformation();
 }
 
 Script "DnD Map Beaten Reward Text" (int budget) CLIENTSIDE {
@@ -396,7 +399,7 @@ Script "DnD On Death" DEATH {
 	GiveInventory("DnD_PowerChargeRemoveSignal", 1);
 	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	TakeInventory("P_Frozen", 1);
-	StatListOpened[pnum] = 0;
+	TakeInventory("DnD_StatListOpen", 1);
 	SetInventory("ShowingMenu", 0);
 	SetInventory("MenuOption", 5);
 	SetInventory("MenuPosX", 0);
@@ -1157,7 +1160,8 @@ Script 832 (void) {
 	int statpts = Calculate_Stats();
 	int perkpts = Calculate_Perks();
 	int pnum = PlayerNumber();
-	StatListOpened[pnum] = 0;
+	
+	TakeInventory("DnD_StatListOpen", 1);
 	
 	// don't use set here, it removes unallocated pts
 	GiveInventory("AttributePoint", statpts);
@@ -1662,7 +1666,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 	MonsterProperties[m_id].id = monsterid;
 
 	// prevent divide by 0 error in monster scaler due to rarity not being setup yet
-	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS) || !realhp)
+	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS) || !IsSetupComplete(SETUP_STATE1, SETUP_MAPEVENTS) || !realhp)
 		Delay(const:HALF_TICRATE);
 
 	realhp = MonsterData[monsterid].health;
@@ -1811,7 +1815,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	properties >>= 14;
 
 	// prevent divide by 0 error in monster scaler due to rarity not being setup yet
-	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS))
+	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS) || !IsSetupComplete(SETUP_STATE1, SETUP_MAPEVENTS))
 		Delay(const:HALF_TICRATE);
 		
 	if(GetCVar("dnd_monsterscale")) {
@@ -2928,18 +2932,6 @@ Script "DnD On Respawn" RESPAWN {
 	ACS_NamedExecuteAlways("DnD SBAR", 0);
 
 	DoPreClassAdjustments();
-	
-	// if game mode is coop, we don't want any sort of reset on death here! make sure it's not coop
-	/*if(GetCVar("Survival")) {
-		if(CheckInventory("CurrentLives"))
-			TakeInventory("CurrentLives", 1);
-		else {
-			Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
-			StatListOpened[PlayerNumber()] = 0;
-			ResetWeaponMods(PlayerNumber());
-			ResetPlayerBonuses(PlayerNumber());
-		}
-	}*/
 
 	// for properly setting up taltos translucency when spawn protection is on
 	while(PlayerIsInvulnerable())
@@ -2993,7 +2985,6 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	ACS_NamedExecuteAlways("DnD Class Select Cleanup", 0);
 	// if someone quit during countdown just remove this
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
-	StatListOpened[pnum] = 0;
 	PlayerCanLoad[pnum] = 0;
 	BreakTradesBetween(pnum);
 	ResetPlayerFlaskData(pnum);
@@ -3022,6 +3013,7 @@ Script "DnD On Unloading" UNLOADING {
 	SetupComplete(SETUP_STATE1, SETUP_MAPCHANGED);
 	SetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
 	SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+	SetupUndo(SETUP_STATE1, SETUP_MAPEVENTS);
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
 	BreakAllTrades();
@@ -3044,8 +3036,7 @@ Script "DnD Player Setup" ENTER {
 	int pnum = PlayerNumber();
 	Thing_ChangeTID(0, P_TIDSTART + pnum);
 
-	if(StatListOpened[pnum])
-		ClearMenuLeftovers(pnum);
+	ClearMenuLeftovers(pnum);
 
 	// if its sp and we dont have DnD_Character non-zero, bring up class menu and freeze us
 	if(GameType() == GAME_SINGLE_PLAYER && !CheckInventory("DnD_Character")) {
@@ -3188,7 +3179,7 @@ Script "DnD Player Setup" ENTER {
 		SetInventory("ShowingPrompt", 0);
 		SetInventory("ShowingMerchantView", 0);
 		Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
-		StatListOpened[pnum] = 0;
+		TakeInventory("DnD_StatListOpen", 1);
 		GiveInventory(" Fists ", 1);
 		GiveInventory(" Pistol ", 1);
 		if(GetCVar("dnd_allresearchesfound"))
@@ -4295,6 +4286,10 @@ Script "DnD Play Local Item Drop Sound" (int who, int droptype, int extra) CLIEN
 		case DND_ITEM_SPECIALTY_BERSERKER:
 		case DND_ITEM_SPECIALTY_TRICKSTER:
 			Playsound(0, "Items/PowercoreDrop", 6);
+		break;
+
+		case DND_ITEM_DUNGEONKEY:
+			PlaySound(0, "Items/DungeonKeyDrop", 6);
 		break;
 
 		case DND_ITEM_FLASK:

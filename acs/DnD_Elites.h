@@ -150,7 +150,7 @@ void CreateEliteAliasTables(elite_unique_levels_T module& thresholds) {
 }
 
 void SetupEliteModWeights() {
-	Log(s:"Setting up elite table mods");
+	//Log(s:"Setting up elite table mods");
 
 	int i = 0;
 

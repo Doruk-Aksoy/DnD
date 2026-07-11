@@ -1392,4 +1392,243 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	#endif
 }
 
+/*
+
+-- PLAYER STUFF SAVE --
+
+* Save weapons in three ints, use bits. There are enough weapons to fit in 96 bits.
+* Save artifacts and accessories the same way, each occupying an int. For artifacts having more than 1 carryable value, use 2-3 bits.
+* Save player stats like this => 8 bits from an int for each stat, 4 stats can fit in this way. Rest of the stats can occupy their place similarly.
+* Save backpack counts to the 5th stat's int, starting from bit 8. Max backpack count is < 64, so 6 bits is enough.
+* Save all perk counts into an int. Max perk count is 10, so 4 bits needed. 8 perks, so 32 bits is enough.
+* Save health and armor into one int. Health max can be around 65536, so assume 16 bits. Armor can be max around same so both can fit.
+* Save armor type as a new int with each bit as an armor type.
+* For every weapon ammo, safest way to go is use an int for each type. Their limits are dynamic and annoying to use bits with.
+* For exp, level and credit use one int each.
+* For abilities use one int, each ability occupies one bit.
+* For researches, things are a bit tricky. A research can be 0 (NA), 1 (KNOWN) or 2 (DONE). We need 2 bits to state the value of a research.
+* Finally for leftover stat and perk points, use one int. A player can have at most 1023 stats, so 10 bits. Assuming the same for perks, 10 more bits for that.
+* For budget, use an int's first 10 bits. (Budget limit is 1000)
+*!! For orbs, each take 8 bits. Can support 8 different types of orbs in 2 ints.
+* For weapons that the orbs are used, for compat with weapon mods (extra stats etc.) we must store each weapon data individually. For each weapon, do the following:
+	- Weapon enhancement %, from 0 - 25, in first 5 bits.
+	- Rest of the 27 bits will be used for mod saving.
+* Format for saving player inventory:
+	- Use DND_DB_PLAYERINVENTORY, append inventory index.
+	- Save every field of an inventory_T for this spot by appending the said field to the one above.
+	- Do not save pointers to width/height, we'll reconstruct those while loading the items.
+	- We are also not saving topleftboxid field, as it corresponds to the inventory index we're loading.
+*/
+
+Script "DnD Load Character Check" (int pnum, int char_id) {
+	SetResultValue(check_load_char(pnum, char_id));	
+}
+
+Script "DnD Load Character With Reset" (int pnum, int char_id) {
+	// moved here from enter script, should only run if player is about to load anyway -- NOOO acsd sync
+	ResetPlayerItems(pnum);
+	// the above reset actual items of player, the below resets variables used to denote inventories and such
+	ResetPlayerInfo(pnum);
+
+	Delay(const:5);
+
+	load_char(pnum, char_id);
+
+	SetResultValue(0);
+}
+
+int load_char_proc(int pnum, int char_id) {
+	int result = check_load_char(pnum, char_id);
+	if (result == DND_CHARLOADED) {
+		// load with reset if softcore because we skip the reset earlier in enter script
+		if(!isHardcore())
+			ACS_NamedExecuteWithResult("DnD Load Character With Reset", pnum, char_id);
+		else
+			load_char(pnum, char_id);
+	}
+	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id);
+	return result;
+}
+
+Script 1001 (int char_id) NET {
+	int pnum = PlayerNumber();
+	load_char_proc(pnum, char_id);
+}
+
+Script "DnD Load Char" (int char_id) {
+	int pnum = PlayerNumber();
+	SetResultValue(load_char_proc(pnum, char_id));
+}
+
+Script "DnD Create Character Check" (int pnum, int char_id) {
+	SetResultValue(check_create_char(pnum, char_id));	
+}
+
+int set_char_proc(int pnum, int char_id) {
+	int result = check_create_char(pnum, char_id);
+	if (result == DND_LOGIN_CREATECHAROK) {
+		// reset whatever gibberish the player might have had
+		int tid = pnum + P_TIDSTART;
+		str pacc = GetPlayerAccountName(pnum);
+		
+		ResetPlayerInfo(pnum);
+		ResetPlayerActivities(pnum, true);
+
+		// save default data for this character -- we do this to prevent overlap and stacking from death/spec related to player activity save on a pre-existing char
+		BeginDBTransaction();
+
+		SaveDefaultPlayer(pnum, char_id);
+		
+		create_char(pnum, char_id);
+		
+		// load player stash only if we could do it properly
+		LoadPlayerStash(pnum, GetPlayerAccountName(pnum));
+
+		EndDBTransaction();
+	}
+	ACS_NamedExecuteWithResult("DnD Login Message", pnum, result, char_id);
+	return result;
+}
+
+Script 1003 (int char_id) NET {
+	int pnum = PlayerNumber();
+	set_char_proc(pnum, char_id);
+}
+
+Script "DnD Set Char" (int char_id) {
+	int pnum = PlayerNumber();
+	SetResultValue(set_char_proc(pnum, char_id));
+}
+
+Script 1005 (int char_id) NET {
+	int pnum = PlayerNumber();
+	int result = check_transfer_char(pnum, char_id);
+	if ((result == DND_LOGIN_CHARTRANSFERRED) || (result == DND_LOGIN_TRANSFSAMESLOT)) transfer_char(pnum, char_id);
+	ACS_NamedExecuteAlways("DnD Login Message", pnum, result, char_id);
+}
+
+Script "DnD Login Message" (int pnum, int msg_no, int extra) CLIENTSIDE {
+	if(ConsolePlayerNumber() != pnum && msg_no != DND_CHARLOADED)
+		Terminate;
+
+	Delay(const:HALF_TICRATE);
+
+	int level = CheckInventory("Level");
+	switch(msg_no) {
+		case DND_LOGIN_NOCHAR:
+			Log(s:"\cg", l:"DND_DBERR1A", s:" 0 - ", d:DND_MAX_CHARS-1, s:" ", l:"DND_DBERR1B");
+		break;
+		case DND_LOGIN_CREATECHAROK:
+			Log(l:"DND_DBERR2", s:" \cd", d:extra, s:"\c-.");
+		break;
+		case DND_LOGIN_CHARINUSE:
+			Log(s:"\cg", l:"DND_DBERR3");
+		break;
+		case DND_LOGIN_NOCHARINUSE:
+			Log(s:"\cg", l:"DND_DBERR4");
+		break;
+		case DND_LOGIN_NOTINGAME:
+			Log(s:"\cg", l:"DND_DBERR5");
+		break;
+		case DND_LOGIN_NOTHARDCORE:
+			Log(s:"\cg", l:"DND_DBERR6");
+		break;
+		case DND_LOGIN_INCOUNTDOWN:
+			Log(s:"\cg", l:"DND_DBERR7");
+		break;
+		case DND_LOGIN_NOTLOGGED:
+			Log(s:"\cg", l:"DND_DBERR8");
+		break;
+		case DND_LOGIN_NOTIME:
+			Log(s:"\cg", l:"DND_DBERR9");
+		break;
+		case DND_LOGIN_CHARNOTINRANGE:
+			Log(s:"\cg", l:"DND_DBERR10", s:" 0 - ", d:DND_MAX_CHARS - 1, s:"!");
+		break;
+		case DND_LOGIN_TRANSFSAMESLOT:
+			Log(l:"TRANSFER CHAR: Character will remain at the current slot", s:" \cd", d:extra, s:"\c- ", l:"DND_DBERR11B");
+		break;
+		case DND_CHARLOADED:
+			Log(n:0, s:" ", l:"DND_DBERR12", s:" (", l:"DND_STAT18", s:" ", d:level, s:")!");
+		break;
+		case DND_LOGIN_CHARTRANSFERRED:
+			Log(l:"DND_DBERR13A", s:" \cd", d:extra, s:"\c- ", l:"DND_DBERR13B");
+		break;
+	}
+}
+
+Script "DnD Save Player Item Data" (int pnum_char, int itemid, int source) {
+	SavePlayerItem(pnum_char & 0xFFFF, pnum_char >> 16, itemid, source);
+}
+
+Script "DnD Save Player Inventory" (int pnc1, int pnc2) {
+	int pn1 = pnc1 & 0xFFFF;
+	int pn2 = pnc2 & 0xFFFF;
+	if(isSetupComplete(SETUP_STATE1, SETUP_HARDCORE) && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE)) {
+		BeginDBTransaction();
+		if(PlayerIsLoggedIn(pn1)) {
+			pnc1 >>= 16;
+			SavePlayerInventoryStuff(pn1, pnc1, GetPlayerAccountName(pn1), DND_PINVFLAGS_INVENTORY);
+		}
+		if(PlayerIsLoggedIn(pn2)) {
+			pnc2 >>= 16;
+			SavePlayerInventoryStuff(pn2, pnc2, GetPlayerAccountName(pn2), DND_PINVFLAGS_INVENTORY);
+		}
+		EndDBTransaction();
+	}
+}
+
+// shows when game asks user to load char
+Script "DnD Created Chars Display" (int pnum) {
+	if(PlayerIsLoggedIn(pnum)) {
+		str pacc = GetPlayerAccountName(pnum);
+		bool hasClasses = false;
+		bool draw_header = true;
+
+		// log to player how many characters they might have had
+		for(int i = 0; i < DND_MAX_CHARS; ++i) {
+			int class_id = GetDBEntry(GetCharField(DND_DB_CLASSID, i), pacc);
+			if(class_id) {
+				hasClasses = true;
+				ACS_NamedExecuteWithResult(
+					"DnD Show Occupied Char Slot Data",
+					pnum | (i << 16),
+					(class_id - 1) | (draw_header << 5),
+					GetDBEntry(GetCharField(DND_DB_LEVEL, i), pacc)
+				);
+				draw_header = false;
+			}
+			Delay(const:1);
+		}
+		
+		// if has no characters, draw a seperate text
+		if(!hasClasses)
+			ACS_NamedExecuteWithResult("DnD Show Occupied Char Header", pnum);
+	}
+}
+
+Script "DnD Show Occupied Char Header" (int pnum) CLIENTSIDE {
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+		
+	Log(s:"\n\cd==============================================\n", l:"DND_DB_NOCHARS_MAKEONE");
+}
+
+Script "DnD Show Occupied Char Slot Data" (int pnum, int class_id, int level) CLIENTSIDE {
+	int char_id = pnum >> 16;
+	pnum &= 0xFFFF;
+	
+	if(pnum != ConsolePlayerNumber())
+		Terminate;
+		
+	bool need_header = class_id >> 5;
+	class_id &= 0x1F;
+	
+	// as for why I need this weird construct, zandronum didn't like it when I put the header in a seperate clientside script even with some delay... so here it is
+	if(need_header)
+		Log(s:"\n\cd==============================================\n", l:"DND_DB_CHARLIST", s:":");
+	
+	Log(s:"    ", d:char_id, s:". Level \cd", d:level, s: "\c[J7] ", l:GetClassLabel(StrParam(s:"CLASS", d:class_id), DND_CLASS_LABEL_NAME), s:".");
+}
+
 #endif

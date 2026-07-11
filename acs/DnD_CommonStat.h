@@ -223,8 +223,6 @@ enum {
 
 #include "DnD_ClassConstants.h"
 
-global int 1: StatListOpened[MAXPLAYERS];
-
 #define MAX_MAP_DIFFICULTIES 5
 
 enum {

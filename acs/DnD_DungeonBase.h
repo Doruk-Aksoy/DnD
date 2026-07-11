@@ -345,8 +345,7 @@ int RollDungeonAttributeExtra(int attr, int tier, bool isWellRolled) {
 }
 
 str DungeonAttributeString(
-	int attr, int item_type, int item_subtype, 
-	int val, int tier = 0, bool showDetailedMods = false, 
+	int attr, int val, int tier = 0, bool showDetailedMods = false, 
 	int extra = -1, bool isFractured = false, int qual = 0, 
 	int attr_extra = 0, int craftAffected = 0
 )
@@ -444,18 +443,28 @@ str DungeonAttributeString(
 
 	// use the assigned extra id as a separate thing to draw here, appended to text with a newline
 	// for now we got no exceptions in the style of the upside text, so...
-	if(showDetailedMods) {
-		// append this at the end if mod tiers is requested, after the upside
-		text = StrParam(
-			s:text, s:"+", s:col_tag, d:attr_extra, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id),
-			s:" - ", s:GetModTierText(tier, extra)
-		);
-	}
-	else {
-		text = StrParam(s:text, s:"+", s:col_tag, d:attr_extra, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id));
+	if(attr_extra != -1) {
+		if(showDetailedMods) {
+			// append this at the end if mod tiers is requested, after the upside
+			text = StrParam(
+				s:text, s:"+", s:col_tag, d:attr_extra, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id),
+				s:" - ", s:GetModTierText(tier, extra)
+			);
+		}
+		else {
+			text = StrParam(s:text, s:"+", s:col_tag, d:attr_extra, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id));
+		}
 	}
 
 	return text;
+}
+
+// this is used for menu only really
+str DungeonUpsideString(int id, int val) {
+	str col_tag = "\c[Q9]";
+	str no_tag = "\c-";
+
+	return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:id));
 }
 
 enum {

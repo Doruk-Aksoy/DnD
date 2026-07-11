@@ -5,6 +5,8 @@
 #include "DnD_CommonStat.h"
 #include "DnD_MonsterData.h"
 #include "DnD_SpecialTrails.h"
+#include "DnD_Intercept.h"
+#include "DnD_Physics.h"
 
 #define DND_BASE_AURA_RADIUS 30 // radius of a Demon is 30
 
@@ -319,6 +321,1751 @@ void GolgothLaserTrail(int yoff, int zoff, int target, bool isFake) {
 				Spawn("GolgothRailFX", bX, bY, bZ);
         }
     }
+}
+
+#define DND_MOTHERDEMON_METEORCOUNT 3
+#define DND_MOTHERDEMON_TOTALMETEORS 24
+#define DND_MOTHERDEMON_METEORSPD 32
+#define DND_MOTHERDEMON_ANGDIFF (ANG_TO_DOOM(15.0))
+#define DND_MOTHERDEMON_PITCHLOW (ANG_TO_DOOM(-16.0))
+#define DND_MOTHERDEMON_PITCHHIGH (ANG_TO_DOOM(-4.0))
+
+// Monster scripts
+
+Script "DnD Face Target (Pitch)" (void) {
+	int target = GetActorProperty(0, APROP_TARGETTID);
+	SetActorPitch(0, PitchToFace_Height(0, target));
+}
+
+Script "DnD Monster State Syncer" (int type) CLIENTSIDE {
+	int res = 0;
+	switch(type) {
+		case 0:
+			ACS_NamedExecuteAlways("DnD Zealot Shield", 0, ActivatorTID());
+		break;
+		case 1:
+			GiveInventory("ArbiterFade", 1);
+		break;
+		case 2:
+			TakeInventory("ArbiterFade", 1);
+			GiveInventory("Mo_Died", 1);
+		break;
+		case 3:
+			TakeInventory("ArbiterFade", 1);
+		break;
+		case 4:
+			TakeInventory("ArbiterFade", 1);
+		break;
+		case 5:
+			SetActivatorToTarget(0);
+			res = CheckInventory("ArbiterFade");
+		break;
+		case 6:
+			SetActivatorToTarget(0);
+			res = CheckInventory("Mo_Died");
+		break;
+		case 7:
+			GiveInventory("AvatarAttack", 1);
+		break;
+		case 8:
+			GiveInventory("AvatarOnAttack", 1);
+		break;
+		case 9:
+			TakeInventory("AvatarAttack", 1);
+			TakeInventory("AvatarOnAttack", 1);
+		break;
+		case 10:
+			TakeInventory("AvatarAttack", 1);
+			TakeInventory("AvatarOnAttack", 1);
+			GiveInventory("AvatarDead", 1);
+		break;
+	}
+	SetResultValue(res);
+}
+
+Script "DnD Avatar Ball Flare" (int type) CLIENTSIDE {
+	if(type == 3) {
+		GiveInventory("DnD_Boolean", 1);
+		Terminate;
+	}
+
+	str actor;
+	switch(type) {
+		case 0:
+			actor = "SorcBallFlare_Red";
+		break;
+		case 1:
+			actor = "SorcBallFlare_Blue";
+		break;
+		case 2:
+			actor = "SorcBallFlare_Yellow";
+		break;
+	}
+
+	Thing_ChangeTID(0, DND_AVATAR_CUBEPROJ_TID);
+	SpawnForced(actor, GetActorX(0), GetActorY(0), GetActorZ(0), DND_AVATAR_CUBEFLARE_TID);
+	SetActivator(DND_AVATAR_CUBEFLARE_TID);
+	SetPointer(AAPTR_TARGET, DND_AVATAR_CUBEPROJ_TID);
+	Thing_ChangeTID(DND_AVATAR_CUBEFLARE_TID, 0);
+	SetActivator(DND_AVATAR_CUBEPROJ_TID);
+	Thing_ChangeTID(DND_AVATAR_CUBEPROJ_TID, 0);
+}
+
+Script "DnD Zealot Shield" (int tid) CLIENTSIDE {
+	if(Spawn("ZealotShield", GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, ZEALOT_SHIELD_TID)) {
+		SetActivator(ZEALOT_SHIELD_TID);
+		Thing_ChangeTID(0, 0);
+		
+		int count = 0;
+		while (count < ZEALOT_SHIELD_TIME && isActorAlive(tid)) {
+			SetActorPosition(0, GetActorX(tid), GetActorY(tid), GetActorZ(tid) + 32.0, 0);
+			Delay(1);
+			++count;
+		}
+		SetActorState(0, "Death");
+	}
+}
+
+Script 960 (int type) {
+	if(!type) {
+		int count = 0;
+		while(count < ZEALOT_SHIELD_TIME) {
+			Delay(1);
+			++count;
+		}
+		GiveInventory("ZealotUnsetReflection", 1);
+	}
+}
+
+Script "DnD Is Actor Stuck" (void) {
+	int px = GetActorX(0);
+	int py = GetActorY(0);
+	int pz = GetActorZ(0);
+
+	int count = 0;
+
+	// 2 checks to be safe
+	do {
+		++count;
+		Delay(const:1);
+	} while(isAlive() && count < 4 && px == GetActorX(0) && py == GetActorY(0) && pz == GetActorZ(0));
+
+	if(count > 2)
+		GiveInventory("DnD_Boolean", 1);
+
+	SetResultValue(count > 2);
+}
+
+Script "DnD Monster Leap" (void) {
+	int montid = ActivatorTID();
+	int monang = GetActorAngle(0);
+	SetActivatorToTarget(montid);
+	int targtid = ActivatorTID();
+	SetActivator(montid);
+	
+	int x = (GetActorX(montid) - GetActorX(targtid)) >> 16;
+	int y = (GetActorY(montid) - GetActorY(targtid)) >> 16;
+	int distance = sqrt((x*x) + (y*y));
+	
+	ThrustThingZ(montid, (distance >> 5) + 18, 0, 1);
+	Delay(3);
+	ThrustThing(monang >> 8, (distance >> 5) + 15, 1, montid);
+}
+
+Script "DnD Monster Leap Finish" () {
+	int t = 0;
+	while(t < WAIT_MAX) {
+		if(GetActorZ(0) - GetActorFloorZ(0) < 4.0) {
+			GiveInventory("DemonLanded", 1);
+			break;
+		}
+		GiveInventory("DemonFlightDamager", 1);
+		Delay(3);
+		GiveInventory("DemonFlightDamager", 1);
+		Delay(2);
+		++t;
+	}
+	TakeInventory("DemonGoJump", 1);
+	if(t == WAIT_MAX - 1) { // waited full duration, high chance it was stuck, get it unstuck
+		ThrustThing((GetActorAngle(0) >> 8), 24, 0, 0);
+		Delay(4);
+		ThrustThing((GetActorAngle(0) >> 8) + 64, 24, 0, 0);
+		Delay(4);
+		ThrustThing((GetActorAngle(0) >> 8) + 128, 24, 0, 0);
+		Delay(4);
+		ThrustThing((GetActorAngle(0) >> 8) + 192, 24, 0, 0);
+	}
+}
+
+Script "DnD Avatar Ball Setup" (void) CLIENTSIDE {
+    if(CheckInventory("AvatarBallSet"))
+        Terminate;
+    
+    int x, y, z, newtid;
+	int tid = 0;
+    
+    do {
+        tid = ActivatorTID();
+        Delay(1);
+    } while(!tid);
+    if(CheckInventory("AvatarBallSet"))
+        Terminate;
+    GiveInventory("AvatarBallSet", 1);
+    
+    x = GetActorX(0);
+    y = GetActorY(0);
+    z = GetActorZ(0) + 16.0;
+    
+	tid = ActivatorTID();
+	newtid = AVATAR_CUBE_TID + (tid % 2000) * 3;
+    while(!SpawnForced("SorcBall1New", x, y, z, newtid));
+	while(!SpawnForced("SorcBall2New", x, y, z, newtid + 1));
+	while(!SpawnForced("SorcBall3New", x, y, z, newtid + 2));
+	SetActorProperty(newtid, APROP_HEALTH, tid);
+	SetActorProperty(newtid + 1, APROP_HEALTH, tid);
+	SetActorProperty(newtid + 2, APROP_HEALTH, tid);
+}
+
+Script "DnD Avatar Ball State Check" (void) CLIENTSIDE {
+	int tid = GetActorProperty(0, APROP_HEALTH);
+	int res = 1 + CheckActorInventory(tid, "AvatarAttack") - 2 * CheckActorInventory(tid, "AvatarOnAttack");
+	if(CheckActorInventory(tid, "AvatarDead"))
+		res = -2;
+	SetResultValue(res);
+}
+
+Script "DnD Vel Adjust" (int speed, int face_target) {
+	speed = Clamp_Between(speed, 1, 48);
+
+	int velz = 0;
+	if(face_target) {
+		face_target = AngleToFaceActor(0, GetActorProperty(0, APROP_TARGETTID));
+		velz = GetActorVelZ(0);
+	}
+	else
+		face_target = GetActorAngle(0);
+
+	int velx = cos(face_target) * speed;
+	int vely = sin(face_target) * speed;
+	SetActorVelocity(0, velx, vely, velz, 0, 0);
+}
+
+// run this on pain state of monsters that can blind!
+Script "DnD Monster Blind Cancel CS" (void) CLIENTSIDE {
+	GiveInventory("BlindCancelledSignal", 1);
+}
+
+// type is encoded in duration after the first 16 bits
+// intensity is 0-100 with percentage base, rgb is rgb encoded in 8 bit packets with bgr order
+// distance is how far away from the monster we allow the blind to affect the players
+Script "DnD Monster Blind Cast" (int duration, int rgb, int intensity, int distance) {
+	// create the blinding eye actor depending on severity
+	int b = rgb & 0xFF;
+	int g  = (rgb >> 8) & 0xFF;
+	int r = rgb >> 16;
+
+	int type = duration >> 16;
+	duration &= 0xFFFF;
+
+	distance <<= 16;
+
+	intensity = (intensity << 16) / 100;
+	if(intensity > 1.0)
+		intensity = 1.0;
+
+	GiveInventory("BlindCancelledSignal", 1);
+	ACS_NamedExecuteWithResult("DnD Monster Blind Cancel CS");
+
+	int this = ActivatorTID();
+
+	// the activator becomes the player to blind themselves or petrify themselves
+	SetActivatorToTarget(0);
+	int target = ActivatorTID();
+	// early termination conditions -- check for angle diff between actors to see if one is looking at the other last
+	if(!ActivatorTID() || !isAlive() || !IsPlayer(target) || fdistance(this, target) > distance || !IsActorFacing(target, this, DND_BLIND_ANGLETHRESHOLD))
+		Terminate;
+
+	int temp = GetPlayerAttributeValue(target - P_TIDSTART, INV_IMP_REDUCEDVISIONIMPAIR);
+	if(temp)
+		intensity = (100 - temp) / 100;
+
+	switch(type) {
+		case DND_BLIND_LIGHT:
+			if(!CheckInventory("IsBlinded")) {
+				GiveInventory("IsBlinded", 1);
+				FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / TICRATE);
+				Delay(duration);
+				TakeInventory("IsBlinded", 1);
+			}
+		break;
+		case DND_BLIND_PETRIFY:
+			// set petrification status --- totally frozen player
+			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+			PlaySound(0, "Blind/Petrified", CHAN_7, 1.0);
+		case DND_BLIND_HEAVY:
+			// heavy blind comes up front so we can take it even if spammed
+			FadeTo(r, g, b, intensity, 1);
+
+			// dont spam range fade though
+			if(!CheckInventory("IsBlinded")) {
+				GiveInventory("IsBlinded", 1);
+				Delay(duration);
+				FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / (4 * TICRATE));
+				Delay(duration / 4);
+				TakeInventory("IsBlinded", 1);
+
+				if(type == DND_BLIND_PETRIFY)
+					SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+			}
+		break;
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {
+	int this = ActivatorTID();
+	if(!IsMonster(this) || !IsAlive())
+		Terminate;
+
+	str actor = "";
+	int zoff = GetActorProperty(0, APROP_HEIGHT) + 8.0;
+	switch(type) {
+		case DND_BLIND_LIGHT:
+			PlaySound(0, "Blind/Normal", CHAN_6, 1.0);
+			CreateMonsterAttachment(this, "DnD_BlindIcon", 0, 0, zoff);
+			actor = "NormalBlindFX";
+		break;
+		case DND_BLIND_HEAVY:
+			PlaySound(0, "Blind/Heavy", CHAN_6, 1.0);
+			CreateMonsterAttachment(this, "DnD_BlindIcon_Heavy", 0, 0, zoff);
+			actor = "HeavyBlindFX";
+		break;
+		case DND_BLIND_PETRIFY:
+			PlaySound(0, "Lich/VisionDim", CHAN_6, 1.0);
+			CreateMonsterAttachment(this, "DnD_BlindIcon_Petrify", 0, 0, zoff);
+			actor = "PetrifyBlindFX";
+		break;
+	}
+
+	// create circle fx around this with r = dist
+	for(int i = 0; i < 24; ++i) {
+		if(SpawnForced(actor, GetActorX(this), GetActorY(this), GetActorZ(this), DND_BLINDFX_TID)) {
+			SetActivator(DND_BLINDFX_TID);
+			SetActorAngle(0, (i + 1) * 1.0 / 24);
+			SetPointer(AAPTR_TARGET, this);
+			SetActorProperty(0, APROP_MASS, distance);
+			SetActorProperty(0, APROP_TARGETTID, this);
+			//SetActivator(this);
+			Thing_ChangeTID(DND_BLINDFX_TID, 0);
+		}
+	}
+}
+
+Script "DND Dark Lich Warp Shake" (void) {
+	if(!CheckInventory("DarkLichWarpDamageCooldown")) {
+		GiveInventory("DarkLichWarpDamageCooldown", 1);
+		int randVal = Clamp_Between(random(0, 0x7FFFFFFF) & 255, 0, DARKLICH_WARP_RANDMAX);
+		int velx = GetActorVelX(0) + (random(0, 255) << 10);
+		int vely = GetActorVelY(0) + (random(0, 255) << 10);
+		int velz = Clamp_Between(GetActorVelZ(0) + (randVal << 11), 0, DARKLICH_WARP_VELZMAX);
+		SetActorAngle(0, GetActorAngle(0) + (random(-48, 48) << 16) / 360);
+		SetActorVelocity(0, velx, vely, velz, 0, 0);
+	}
+}
+
+Script "DND Flesh Wizard Leash Trail" (int density, int target, int alternate_fx) CLIENTSIDE {
+	int oX = GetActorX(0);
+	int oY = GetActorY(0);
+	int oZ = GetActorZ(0) + 64.0;
+	if(alternate_fx)
+		oZ -=  80.0;
+
+    int grX; int grY;  int grZ;
+    int vX;  int vY;   int vZ;
+    int nX;  int nY;   int nZ;
+    int bX;  int bY;   int bZ;
+    int magnitude;
+    int pointCount;
+    int pointOffset;
+
+	str toSpawn = "FleshWizardLeashFX";
+	if(alternate_fx)
+		toSpawn = "AsmodeusLeashFX";
+	
+    grX = GetActorX(target);
+    grY = GetActorY(target);
+    grZ = GetActorZ(target) + GetActorProperty(target, APROP_VIEWHEIGHT) - 9.0;
+	
+    vX   = grX - oX;
+	vY   = grY - oY;
+	vZ   = grZ - oZ;
+	
+    magnitude = magnitudeThree(vX >> 16, vY >> 16, vZ >> 16);
+    pointCount  = magnitude / density;
+    pointOffset = magnitude - (pointCount * density);
+
+    if (magnitude != 0) {
+        nX = vX / magnitude; nY = vY / magnitude; nZ = vZ / magnitude;
+
+        int i; int j;
+        for (i = 1; i < pointCount; i++) {
+            j = (i * density) + pointOffset;
+            bX = (nX * j) + oX;
+            bY = (nY * j) + oY;
+            bZ = (nZ * j) + oZ;
+
+            SpawnForced(toSpawn, bX, bY, bZ);
+        }
+    }
+}
+
+Script "DND Flesh Wizard Torment" (int force) {
+	int source = ActivatorTID();
+	SetActivatorToTarget(0);
+	int target = ActivatorTID();
+	SetActivator(source);
+	
+	if(!target)
+		Terminate;
+	
+	int timecounter = 0;
+	while(GetActorProperty(0, APROP_HEALTH) > 0 && !CheckInventory("StopLeash")) {
+		int oX = GetActorX(source);
+		int oY = GetActorY(source);
+		int oZ = GetActorZ(source);
+		int dist = fdistance(source, target);
+		// Check for damage candidates every X seconds
+		if(!timecounter) {
+			for(int i = 0; i < MAXPLAYERS; ++i) {
+				int curtarget = i + P_TIDSTART;
+				if(target == curtarget || GetActorProperty(curtarget, APROP_HEALTH) > 0 && abs(fdistance(source, curtarget) - dist) <= FLESHWIZARD_TETHERRANGE_RADIUS) {
+					int tX = GetActorX(curtarget);
+					int tY = GetActorY(curtarget);
+					int tZ = GetActorZ(curtarget);
+					
+					int xdiff = oX - tX;
+					int ydiff = oY - tY;
+					
+					int velz = (oZ - tZ) >> 16;
+					int pmass = GetActorProperty(curtarget, APROP_MASS);
+					if(!pmass)
+						pmass = 1;
+					velz /= pmass; // player mass
+
+					ThrustThing(VectorAngle(xdiff, ydiff) >> 8, force, 1, curtarget);
+					ThrustThingZ(curtarget, velz * force, velz > 0, 0);
+					
+					// base 10 dmg
+					Thing_Damage2(curtarget, 10, "MagicalRedLeash");
+					Spawn("FleshWizardDebuffFX", tX, tY, tZ + 32.0);
+					GiveActorInventory(curtarget, "FleshWizardDamageSoundPlayer", 1);
+					ACS_NamedExecuteAlways("DND Flesh Wizard Leash Trail", 0, 16, curtarget);
+				}
+			}
+			ActivatorSound("FleshWizard/SnareLoop", 127);
+		}
+		timecounter = (++timecounter) % FLESHWIZARD_DAMAGE_PERIOD;
+		Delay(1);
+		if(GetActorProperty(target, APROP_HEALTH) <= 0 || dist >= FLESHWIZARD_TETHERRANGE_MAX)
+			GiveActorInventory(source, "StopLeash", 1);
+
+	}
+}
+
+Script "DND Blood Satyr FX" (void) CLIENTSIDE {
+	SetActivatorToTarget(0);
+	SpawnForced("DarkHealEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0); 
+}
+
+Script "DND Dreamer Burn" (int dmg) {
+	while(GetActorProperty(0, APROP_HEALTH) > 0) {
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			int tid = i + P_TIDSTART;
+			if(CheckActorInventory(tid, "DreamerBurnCount")) {
+				Thing_Damage2(tid, dmg, "LegendaryFire");
+				GiveActorInventory(tid, "DreamerBurnFXStarter", 1);
+				TakeActorInventory(tid, "DreamerBurnCount", 1);
+			}
+		}
+		Delay(17);
+	}
+}
+
+Script "DND Dreamer Burn FX" (int time) CLIENTSIDE {
+	for(int i = 0; i < time && CheckInventory("DreamerBurnCount"); ++i) {
+		Spawn("DreamerBurnFireSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+		Delay(1);
+	}
+}
+
+Script "DND Torrasque Pull" (int force) {
+	// target is player
+	int targtid = GetActorProperty(0, APROP_TRACERTID);
+	int curtid = GetActorProperty(0, APROP_TARGETTID);
+	SetActorVelocity(targtid, 0, 0, 0, 0, 0);
+	
+	int xdiff = GetActorX(curtid) - GetActorX(targtid);
+	int ydiff = GetActorY(curtid) - GetActorY(targtid);
+	int velx = xdiff >> 16;
+	int vely = ydiff >> 16;
+	int velz = (GetActorZ(curtid) - GetActorZ(targtid)) >> 16;
+	int mass = GetActorProperty(targtid, APROP_MASS);
+	int speed = sqrt(velx * velx + vely * vely) / mass;
+	velz /= mass;
+	ThrustThing(VectorAngle(xdiff, ydiff) >> 8, speed * force, 1, targtid);
+	ThrustThingZ(targtid, velz * force, 0, 0);
+}
+
+// Should I fly?
+Script "DnD Decide Flight" (void) {
+	int res = 0;
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0));
+	if(
+		!CheckInventory("GSFlightCooldown")													&&
+		GetActorZ(0) + 164.0 < GetActorCeilingZ(0)											&&
+		(	
+			(abs((GetActorZ(0) - GetActorZ(targtid))) > 40.0 || dist > 768.0) 					||
+			(
+				random(0, 3) 												&& 
+				(dist > 320.0 && CheckSight(0, targtid, CSF_NOBLOCKALL)) 	||
+				(!CheckSight(0, targtid, CSF_NOBLOCKALL))
+			)
+		)
+	  )
+		res = 1;
+	SetResultValue(res);
+}
+
+// Inquisitor Jump end case Handler
+Script "DnD Decide Land" (int type, int speed) {
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 1;
+	int curz = GetActorZ(0);
+	if(!type) {
+		if(dist < 1.0) 
+			dist = 1.0;
+		curz = FixedDiv(GetActorZ(targtid) - GetActorZ(0), (dist / speed) * 2);
+		// do blockage checks
+		SetInventory("GSDist", 0);
+		TakeInventory("InquisitorLand", 1);
+		SetInventory("InquisitorCounter", 45);
+		if(!DoCollisionCheck(0, 72.0, 72.0, 0.0))
+			TryChangeDirection();
+		SetXYSpeed(speed);
+		SetActorVelocity(0, 0, 0, curz, 1, 0);
+	}
+	else if(type == 1) {
+		if	(
+				!CheckInventory("InquisitorCounter")														|| 
+				/*!GetActorVelX(0)																			|| 
+				!GetActorVelY(0)																			||*/
+				!GetActorVelZ(0)																			||
+				(GetActorZ(targtid) - GetActorFloorZ(0) < 16.0 && CheckSight(0, targtid, CSF_NOBLOCKALL))	||
+				//(curz - GetActorFloorZ(0)) < 32.0															||
+				(dist < 184.0 && (curz - GetActorZ(targtid) > 24.0))
+			)
+		{
+			AddXYSpeed(2);
+			SetInventory("InquisitorCounter", 0);
+			GiveInventory("InquisitorLand", 1);
+		}
+		else {
+			GiveInventory("InquisitorSoundPlayer", 1);
+			TakeInventory("InquisitorCounter", 1);
+			if(!GetActorVelX(0) || !GetActorVelY(0)) {
+				curz = FixedDiv(GetActorZ(targtid) - GetActorZ(0), (dist / speed) * 2);
+				TryChangeDirection();
+				SetXYSpeed(speed);
+				SetActorVelocity(0, GetActorVelX(0), GetActorVelY(0), curz, 0, 0);
+			}
+		}
+	}
+}
+
+Script "DnD GodSlayer Land" (void) {
+	if(!CheckInventory("GSLandToken")) {
+		GiveInventory("GSLandToken", 1);
+		while(GetActorZ(0) - GetActorFloorZ(0) > 6.0)
+			Delay(8);
+		ActivatorSound("GodSlayer/Land", 127);
+		GiveInventory("GodSlayerLandStomper", 1);
+		TakeInventory("GSLandToken", 1);
+	}
+}
+
+Script "DND Monster Shoot" (int id, int missile_id, int speed) {
+	int ang = 0, target = 0, arc = 0;
+	switch(id) {
+		case MONSTER_TORRASQUE:
+			str missile = "TorrasqueMace";
+			if(missile_id)
+				missile = "TorrasqueGrabber";
+			if(missile_id == 2)
+				ang = -0.0275;
+			else if(missile_id == 3)
+				ang = 0.0275;
+			ProjInt_Brute((speed + random(0, 8)) << 16, 0, 24.0, 0.0, 48.0, missile, 0, 0, 0, ang, INTF_RANDOM | INTF_SETANGLE, 0);
+		break;
+		case MONSTER_GODSLAYER:
+			target = GetActorProperty(0, APROP_TARGETTID);
+			ang = AproxDistance(GetActorX(target) - GetActorX(0), GetActorY(target) - GetActorY(0)) >> 4;
+			speed <<= 16;
+			speed += ang;
+			if(speed > 48.0)
+				speed = 48.0;
+			arc = FixedDiv((GetActorZ(target) - GetActorZ(0)), ang << 3);
+			SetActorPosition(0, GetActorX(0), GetActorY(0), GetActorZ(0) + 16.0, 0); // this is to avoid actor misfiring in water
+			ang = ProjInt_Brute(speed, 0, 0.0, 0.0, 116.0, "InquisitorShot2", -28.0, 0.0, -5.0 - arc / 2, 0, INTF_RANDOM | INTF_SETANGLE, 0);
+			ProjInt_Brute(speed, 0, 0.0, 0.0, 116.0, "InquisitorShot2", 28.0, 0.0, -5.0 - arc / 2, 0, INTF_SETANGLE, ang);
+			SetActorPosition(0, GetActorX(0), GetActorY(0), GetActorZ(0) - 16.0, 0);
+		break;
+		case MONSTER_GOLGOTH:
+			ProjInt_Brute(GOLGOTH_METEOR_SPEED, 0, 0.0, 0.0, GOLGOTH_METEOR_Z2, "GolgothMeteor", GOLGOTH_METEOR_OFFSET, 0, 0, 0, INTF_RANDOM, 0);
+			ProjInt_Brute(GOLGOTH_METEOR_SPEED, 0, 0.0, 0.0, GOLGOTH_METEOR_Z2, "GolgothMeteor", -GOLGOTH_METEOR_OFFSET, 0, 0, 0, INTF_RANDOM, 0);
+			// meteors
+			if(missile_id > 1) {
+				ProjInt_Brute(GOLGOTH_METEOR_SPEED, 0, 0.0, 0.0, GOLGOTH_METEOR_Z1, "GolgothMeteor", GOLGOTH_METEOR_OFFSET, 0, 0, 0, INTF_RANDOM, 0);
+				ProjInt_Brute(GOLGOTH_METEOR_SPEED, 0, 0.0, 0.0, GOLGOTH_METEOR_Z1, "GolgothMeteor", -GOLGOTH_METEOR_OFFSET, 0, 0, 0, INTF_RANDOM, 0);
+			}
+		break;
+	}
+}
+
+Script "DnD Translucency Weave" (void) CLIENTSIDE {
+	int base = GetActorProperty(0, APROP_ALPHA), t = 0, tmp = 0;
+	while(IsAlive()) {
+		tmp = abs(sin(t * 0.055));
+		SetActorProperty(0, APROP_ALPHA, base + FixedMul((1.0 - base), tmp));
+		t = (t + 1) % 18;
+		Delay(3 + ((16 * tmp) >> 16));
+	}
+}
+
+// Default 256
+script "DnD Draw Pentagram" (int fxID) CLIENTSIDE {
+	int i;
+	int alpha = 255;
+	int pentaangle = 0;
+	
+	int cX = GetActorX(0);
+	int cY = GetActorY(0);
+	int cZ = GetActorZ(0);
+	
+	int size = GetPentagramFXData(fxID, DND_PENTAGRAMFX_SIZE); 
+	int time = GetPentagramFXData(fxID, DND_PENTAGRAMFX_TIME); 
+	int growtime = GetPentagramFXData(fxID, DND_PENTAGRAMFX_GROWTIME);
+	
+	if(!size)
+		size = 256;
+
+	for (i = 0; i < time; i++) {
+		if (!isAlive())
+			break;
+			
+		size = 256;
+		// grow timer (takes a second)
+		if (i < growtime) 
+			size = i * 256 / growtime;
+		alpha = 255;
+		if (i < growtime) 
+			alpha = i * 255 / growtime;
+		pentaangle = GetActorAngle(0) + i * 1.0 / time;
+		DrawPentagram(cX, cY, cZ + 2.0, size, alpha, pentaangle, fxID);
+
+		Delay(1);
+	}
+	
+	// update 22.07.2016: decay pentagram slowly
+	for (i = alpha; i > 0; i -= 16) {
+		DrawPentagram(cX, cY, cZ + 2.0, size, i, pentaangle, fxID);
+		Delay(1);
+	}
+}
+
+Script "DnD Warmaster Protect FX" (void) CLIENTSIDE {
+	Spawn("WarmasterProtectFXSpawner", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
+}
+
+Script "DnD Warmaster Protect FX Trigger" (void) {
+	if(CheckInventory("WarmasterProtect"))
+		Terminate;
+	GiveInventory("WarmasterProtect", 1);
+	while(IsAlive() && CheckInventory("WarmasterProtect")) {
+		ACS_NamedExecuteAlways("DnD Warmaster Protect FX", 0);
+		Delay(2);
+	}
+}
+
+// Gets Nastier if theres anyone less than 50% hp nearby
+Script "DnD Bloodseeker Transform" (void) {
+	int this = ActivatorTID(), targtid = 0;
+	bool res = false;
+	for(int i = 0; !res && i < MAXPLAYERS; ++i) {
+		if(PlayerInGame(i)) {
+			targtid = i + P_TIDSTART;
+			// playerhealthcap is an inventory that represents a player's healthcap, to be used by sources outside of players
+			res = 	GetActorProperty(targtid, APROP_HEALTH) <= CheckActorInventory(targtid, "PlayerHealthCap") / 2 						&& 
+					AproxDistance(GetActorX(this) - GetActorX(targtid), GetActorY(this) - GetActorY(targtid)) <= BLOODSEEKER_DISTANCE 	&&
+					CheckSight(targtid, this, CSF_NOBLOCKALL);
+		}
+	}
+	if(res) {
+		// first moment of transform
+		if(!CheckInventory("BeastTransform")) {
+			ActivatorSound("Beast/Lust", 127);
+			GiveInventory("BeastTransform", 1);
+			ACS_NamedExecuteAlways("DnD Bloodseeker Transform CS", 0, 1);
+		}
+	}
+	else {
+		if(CheckInventory("BeastTransform")) {
+			TakeInventory("BeastTransform", 1);
+			ACS_NamedExecuteAlways("DnD Bloodseeker Transform CS", 0, 0);
+		}
+	}
+	SetResultValue(res);
+}
+
+Script "DnD Bloodseeker Transform CS" (int st) CLIENTSIDE {
+	if(st)
+		GiveInventory("BeastTransform", 1);
+	else
+		TakeInventory("BeastTransform", 1);
+}
+
+Script "DnD Bloodseeker Size Change" (void) CLIENTSIDE {
+	int mode = -1, prevmode = -1;
+	int i = 0;
+	while(isAlive()) {
+		if(CheckInventory("BeastTransform"))
+			mode = 1;
+		else
+			mode = -1;
+		if(mode == 1) {
+			for(i = 0; prevmode != mode && i < BLOODSEEKERSIZE_TIME; ++i) {
+				SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				Delay(const:1);
+			}
+		}
+		else {
+			for(i = 0; prevmode != mode && i < BLOODSEEKERSIZE_TIME; ++i) {
+				SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+				Delay(const:1);
+			}
+		}
+		prevmode = mode;
+		Delay(const:5);
+	}
+	
+	if(CheckInventory("BeastTransform")) {
+		for(i = 0; i < BLOODSEEKERSIZE_TIME; ++i) {
+			SetActorProperty(0, APROP_SCALEX, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+			SetActorProperty(0, APROP_SCALEY, BLOODSEEKER_BASESIZE + BLOODSEEKERSIZE_INC - FixedMul(BLOODSEEKERSIZE_INC, sin((0.25 * (i + 1)) / BLOODSEEKERSIZE_TIME)));
+			Delay(const:1);
+		}
+	}
+}
+
+Script "DnD Draugr Appear FX" (void) CLIENTSIDE {
+	int cx = GetActorX(0);
+	int cy = GetActorY(0);
+	int cz = GetActorZ(0);
+	for(int i = 0; i < DRAUGR_FX_COUNT; ++i) {
+		int t_ang = i * 1.0 / DRAUGR_FX_COUNT;
+		int nx = cx + DRAUGR_R * cos(t_ang);
+		int ny = cy + DRAUGR_R * sin(t_ang);
+		if(Spawn("DraugrFader2", nx, ny, cz, DRAUGR_TEMP_FX)) {
+			nx = cx - nx;
+			ny = cy - ny;
+			t_ang = VectorAngle(nx, ny);
+			SetActorAngle(DRAUGR_TEMP_FX, t_ang);
+			SetActorVelocity(DRAUGR_TEMP_FX, -DRAUGR_VEL_BASE * cos(t_ang), -DRAUGR_VEL_BASE * sin(t_ang), 0, 0, 0);
+			Thing_ChangeTID(DRAUGR_TEMP_FX, 0);
+		}
+	}
+}
+
+// items on monsters aren't synced
+Script "DnD Bloodseeker Transform Sync" (int mode) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
+	if(!mode)
+		GiveInventory("BloodseekerTransform", 1);
+	else
+		TakeInventory("BloodseekerTransform", 1);
+}
+
+// necessary so we sync between serverside and clientside checks
+Script "DnD Boolean Sync" (int take) {
+	if(take)
+		TakeInventory("DnD_Boolean", 1);
+	else
+		GiveInventory("DnD_Boolean", 1);
+	ACS_NamedExecuteWithResult("DnD Boolean Sync - CS", take);
+	SetResultValue(0);
+}
+
+Script "DnD Boolean Sync - CS" (int take) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+		
+	if(take)
+		TakeInventory("DnD_Boolean", 1);
+	else
+		GiveInventory("DnD_Boolean", 1);
+	SetResultValue(0);
+}
+
+// syncs desynced projectiles or anything really
+Script "DnD Sync Hack" (int x, int y, int z) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+
+	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
+}
+
+Script "DnD Sync Hack Immediate" (int x, int y, int z) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+		
+	SetActorPosition(0, x << 16, y << 16, z << 16, 0);
+	SetResultValue(0);
+}
+
+Script "DnD Golgoth Laser Trail" (int target) CLIENTSIDE {
+	GolgothLaserTrail(DND_GOLGOTH_YOFF1, DND_GOLGOTH_ZOFF1, target, false);
+	GolgothLaserTrail(DND_GOLGOTH_YOFF2, DND_GOLGOTH_ZOFF2, target, false);
+	GolgothLaserTrail(-DND_GOLGOTH_YOFF1, DND_GOLGOTH_ZOFF1 - 5.0, target, false);
+	GolgothLaserTrail(-DND_GOLGOTH_YOFF2, DND_GOLGOTH_ZOFF2, target, false);
+}
+
+Script "DnD Golgoth Laser Trail Fake" (int target) CLIENTSIDE {
+	GolgothLaserTrail(DND_GOLGOTH_YOFF1, DND_GOLGOTH_ZOFF1, target, true);
+	GolgothLaserTrail(DND_GOLGOTH_YOFF2, DND_GOLGOTH_ZOFF2, target, true);
+	GolgothLaserTrail(-DND_GOLGOTH_YOFF1, DND_GOLGOTH_ZOFF1 - 5.0, target, true);
+	GolgothLaserTrail(-DND_GOLGOTH_YOFF2, DND_GOLGOTH_ZOFF2, target, true);
+}
+
+Script "DnD Afrit Bob" (int d, int speed) {
+	int bobindex = 0, temp = 0;
+	while(GetActorProperty(0, APROP_HEALTH) > 0) {
+		// it doesn't bob when it's attacking or in pain state
+		if(!CheckInventory("AfritStopBob")) {
+			bobindex = (bobindex + 2) & 63;
+			temp = GetActorZ(0) + sin(bobindex << 10) * speed;
+			if (temp < GetActorFloorZ(0) + 64.0)
+				temp += 2.0;
+			SetActorPosition(0, GetActorX(0), GetActorY(0), temp, 0);
+		}
+		Delay(d);
+	}
+}
+
+Script "DnD Wendigo Wisp Spawn" (int mode, int chance) CLIENTSIDE {
+	if(random(1, 100) <= chance) {
+		if(!mode)
+			GiveInventory("DnD_WendigoWispSpawner", 1);
+		else
+			GiveInventory("DnD_WendigoWispChaseSpawner", 1);
+	}
+}
+
+Script "DnD Gamon Shifter" (void) {
+	while(!CheckInventory("GamonShift") && isAlive())
+		Delay(const:5);
+	SetActorProperty(0, APROP_ALPHA, 0.5);
+	ActivatorSound("Veste/Cast", 127.0);
+	SpawnForced("SalvationEffectSpawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+	ACS_NamedExecuteWithResult("DnD Monster Trait Give", DND_GHOST, -1, -1, -1);
+}
+
+Script "DnD Collision Checker" (int collision_id) {
+	int res = 0;
+	switch(collision_id) {
+		case DND_REVENANT_COLLIDER:
+			res = Spawn("RevenantCollider", GetActorX(0), GetActorY(0), GetActorZ(0));
+		break;
+	}
+	SetResultValue(res);
+}
+
+Script "DnD Vaaj Pull" (void) {
+	while(GetActorVelX(0) || GetActorVelY(0) || GetActorVelZ(0)) {
+		int oX = GetActorX(0);
+		int oY = GetActorY(0);
+		int oZ = GetActorZ(0);
+		
+		for(int i = 0; i < MAXPLAYERS; ++i) {
+			int curtarget = i + P_TIDSTART;
+			int pmass = GetActorProperty(curtarget, APROP_MASS);
+			if(pmass < DND_BASE_PLAYER_MASS)
+				pmass = DND_BASE_PLAYER_MASS;
+
+			if(AproxDistance(GetActorX(curtarget) - oX, GetActorY(curtarget) - oY) <= VAAJ_PULL_DIST) {
+				int tX = GetActorX(curtarget);
+				int tY = GetActorY(curtarget);
+				int tZ = GetActorZ(curtarget);
+				
+				int xdiff = oX - tX;
+				int ydiff = oY - tY;
+				
+				int velz = (oZ - tZ) >> 16;
+				velz /= pmass; 
+				ThrustThing(VectorAngle(xdiff, ydiff) >> 8, 2, 1, curtarget);
+				ThrustThingZ(curtarget, velz * 2, velz > 0, 0);
+			}
+		}
+		Delay(const:1);
+	}
+}
+
+Script "DnD Asmodeus Ghost Pull" (int pull_dist) {
+	int oX = GetActorX(0);
+	int oY = GetActorY(0);
+	int oZ = GetActorZ(0);
+
+	pull_dist <<= 16;
+	
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		int curtarget = i + P_TIDSTART;
+		if(!PlayerInGame(i) || !isActorAlive(curtarget))
+			continue;
+
+		int pmass = GetActorProperty(curtarget, APROP_MASS);
+		if(pmass < DND_BASE_PLAYER_MASS)
+			pmass = DND_BASE_PLAYER_MASS;
+
+		if(AproxDistance(GetActorX(curtarget) - oX, GetActorY(curtarget) - oY) <= pull_dist) {
+			int tX = GetActorX(curtarget);
+			int tY = GetActorY(curtarget);
+			int tZ = GetActorZ(curtarget);
+			
+			int xdiff = oX - tX;
+			int ydiff = oY - tY;
+			
+			int velz = (oZ - tZ) >> 16;
+			velz /= pmass; 
+			ThrustThing(VectorAngle(xdiff, ydiff) >> 8, 8, 1, curtarget);
+			ThrustThingZ(curtarget, velz * 2, velz > 0, 0);
+			ACS_NamedExecuteAlways("DND Flesh Wizard Leash Trail", 0, 16, curtarget, 1);
+			PlaySound(curtarget, "FleshWizard/SnareLoop", CHAN_AUTO, 0.33);
+		}
+	}
+}
+
+Script "DnD Monster Melee Loop" (int range) {
+	bool res = false;
+	int this = ActivatorTID();
+	SetActivatorToTarget(0);
+	int target = ActivatorTID();
+	res = (AproxDistance(GetActorX(target) - GetActorX(this), GetActorY(target) - GetActorY(this)) >> 16) <= range && IsActorAlive(target) && CheckSight(this, target, CSF_NOBLOCKALL);
+	SetResultValue(res);
+}
+
+Script "DnD Onimuz Clone Spawn" (void) {
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	if(SpawnForced("OnimuzProjection", GetActorX(0), GetActorY(0), GetActorZ(0), UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
+		SetActorProperty(0, APROP_MASTERTID, owner);
+		SetPointer(AAPTR_MASTER, owner);
+		Thing_ChangeTID(0, 0);
+	}
+}
+
+Script "DnD On Solid Surface" (int monster_id) {
+	Delay(const:10);
+	// while actor is above ground, wait
+	// no change for 2 tics can imply the unit landed somewhere and is no longer moving
+	int prev_z;
+	bool landed = false;
+	do {
+		prev_z = GetActorZ(0);
+		Delay(const:2);
+		landed = prev_z == GetActorZ(0) || prev_z - GetActorFloorZ(0) <= 4.0;
+	} while(!landed);
+	GiveInventory("MonsterLeapFinish", 1);
+	
+	if(monster_id == 1)
+		GiveInventory("HarkimondeLand", 1);
+	
+	SetResultValue(1);
+}
+
+Script "DnD Harkimonde Smoke FX" (void) CLIENTSIDE {
+	GiveInventory("HarkimondeSmokeFXSpawner", 1);
+}
+
+Script "DnD Random Shake" (int iter, int wait, int esc_factor) {
+	int escalation = 0.0;
+	for(int i = 0; i < iter; ++i) {
+		SetActorPosition(0, GetActorX(0) + random(-1.0 - escalation, 1.0 + escalation), GetActorY(0) + random(-1.0 - escalation, 1.0 + escalation), GetActorZ(0) + random(-0.33 - escalation / 3, 0.33 + escalation / 3), 0);
+		escalation += FixedMul(0.01, sin(0.25 / iter * (i + 1)) * esc_factor);
+		Delay(wait);
+	}
+}
+
+Script "DnD Leshrac Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+	
+	for(int i = 0; i < LESHRAC_SALVO; ++i) {
+		if(CheckInventory("LeshracInterrupt"))
+			break;
+		int rand_angle = random(-LESHRAC_RANDOM_ANG, LESHRAC_RANDOM_ANG);
+		int dist_var = 0;
+		int ang = GetActorAngle(0);
+		int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+		
+		dist_var = LESHRAC_DIST_VAR_FACTOR * random(-LESHRAC_DIST_VAR / 2, LESHRAC_DIST_VAR);
+		if(dist + dist_var < LESHRAC_MIN_DIST) {
+			dist_var = 0;
+			dist = LESHRAC_MIN_DIST;
+		}
+		
+		int velz = ((z_diff + 0.5 * LESHRAC_T * LESHRAC_T) / LESHRAC_T) >> 16;
+		
+		int px = GetActorX(0);
+		int py = GetActorY(0);
+		int spd = 8 * (dist + dist_var) / LESHRAC_T;
+		if(spd > LESHRAC_PROJ_SPEEDLIM)
+			spd = LESHRAC_PROJ_SPEEDLIM;
+			
+		// Shoot the projectile
+		// nx = xoff * cos + yoff * sin
+		// ny = xoff * sin - yoff * cos
+		SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+		SpawnProjectile(0, "Leshrac_LobbedMine", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, DND_TEMP_PROJTID);
+		// modify z of this, sometimes actors are too tall
+		SetActorPosition(DND_TEMP_PROJTID, GetActorX(DND_TEMP_PROJTID), GetActorY(DND_TEMP_PROJTID), GetActorZ(0) + zoffset, 0);
+		SetActorPosition(0, px, py, GetActorZ(0), 0);
+		SetActivator(DND_TEMP_PROJTID);
+		// Keep target as owner
+		SetPointer(AAPTR_TARGET, curtid);
+		Thing_ChangeTID(DND_TEMP_PROJTID, 0);
+		SetActivator(curtid);
+		Delay(const:LESHRAC_SALVO_DELAY);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Thorax Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+
+	int ang = GetActorAngle(0);
+	int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+	int time = THORAX_T;
+	
+	if(dist > 256)
+		time += (dist / THORAX_DIST_FACTOR);
+	
+	int velz = ((z_diff + 0.5 * time * time) / time) >> 16;
+	
+	int px = GetActorX(0);
+	int py = GetActorY(0);
+	int spd = 8 * dist / time;
+	if(spd > THORAX_PROJ_SPEEDLIM)
+		spd = THORAX_PROJ_SPEEDLIM;
+		
+	int proj_angle = AngleToFace(0, targtid);
+		
+	// Shoot the projectile
+	// nx = xoff * cos + yoff * sin
+	// ny = xoff * sin - yoff * cos
+	SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+	SpawnProjectile(0, "ThoraxFireBall", proj_angle >> 8, spd, velz * 8, 800, UNIQUE_MON_AUX_TID);
+	// modify z of this, sometimes actors are too tall
+	SetActorPosition(UNIQUE_MON_AUX_TID, GetActorX(UNIQUE_MON_AUX_TID), GetActorY(UNIQUE_MON_AUX_TID), GetActorZ(0) + zoffset, 0);
+	SetActorPosition(0, px, py, GetActorZ(0), 0);
+	SetActivator(UNIQUE_MON_AUX_TID);
+	// Keep target as owner
+	SetPointer(AAPTR_TARGET, curtid);
+	Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+	SetActivator(curtid);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Eryxia Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+	
+	for(int i = 0; i < ERYXIA_SALVO; ++i) {
+		if(CheckInventory("EryxiaInterrupt"))
+			break;
+		int rand_angle = random(-ERYXIA_RANDOM_ANG, ERYXIA_RANDOM_ANG);
+		int dist_var = 0;
+		int ang = GetActorAngle(0);
+		int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+		
+		dist_var = LESHRAC_DIST_VAR_FACTOR * random(-LESHRAC_DIST_VAR / 2, LESHRAC_DIST_VAR);
+		if(dist + dist_var < LESHRAC_MIN_DIST && dist_var < 0)
+			dist_var = 0;
+		
+		int velz = ((z_diff + 0.5 * ERYXIA_T * ERYXIA_T) / ERYXIA_T) >> 16;
+		
+		int px = GetActorX(0);
+		int py = GetActorY(0);
+		int spd = 8 * (dist + dist_var) / ERYXIA_T;
+		if(spd > ERYXIA_PROJ_SPEEDLIM)
+			spd = ERYXIA_PROJ_SPEEDLIM;
+			
+		// Shoot the projectile
+		// nx = xoff * cos + yoff * sin
+		// ny = xoff * sin - yoff * cos
+		SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+		SpawnProjectile(0, "EryxiaLob", ((ang + rand_angle) % 1.0) >> 8, spd, velz * 8, 800, UNIQUE_MON_AUX_TID);
+		// modify z of this, sometimes actors are too tall
+		SetActorPosition(UNIQUE_MON_AUX_TID, GetActorX(UNIQUE_MON_AUX_TID), GetActorY(UNIQUE_MON_AUX_TID), GetActorZ(0) + zoffset, 0);
+		SetActorPosition(0, px, py, GetActorZ(0), 0);
+		SetActivator(UNIQUE_MON_AUX_TID);
+		// Keep target as owner
+		SetPointer(AAPTR_TARGET, curtid);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+		SetActivator(curtid);
+		Delay(const:ERYXIA_SALVO_DELAY);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Asmodeus Mark Lob" (int yoffset, int zoffset) {
+	int curtid = ActivatorTID();
+	int targtid = GetActorProperty(0, APROP_TARGETTID);
+	
+	// make fixed
+	zoffset <<= 16;
+	
+	int z_diff = GetActorZ(targtid) + GetActorProperty(targtid, APROP_HEIGHT) / 2 - (GetActorZ(0) + zoffset);
+
+	int ang = GetActorAngle(0);
+	int dist = AproxDistance(GetActorX(targtid) - GetActorX(0), GetActorY(targtid) - GetActorY(0)) >> 16;
+	int time = LESHRAC_T;
+	
+	if(dist > 256)
+		time += (dist / THORAX_DIST_FACTOR);
+	
+	int velz = ((z_diff + 0.5 * time * time) / time) >> 16;
+	
+	int px = GetActorX(0);
+	int py = GetActorY(0);
+	int spd = 8 * dist / time;
+	if(spd > ERYXIA_PROJ_SPEEDLIM)
+		spd = ERYXIA_PROJ_SPEEDLIM;
+		
+	int proj_angle = AngleToFace(0, targtid);
+		
+	// Shoot the projectile
+	// nx = xoff * cos + yoff * sin
+	// ny = xoff * sin - yoff * cos
+	SetActorPosition(0, px + yoffset * sin(ang), py - yoffset * cos(ang), GetActorZ(0), 0);
+	SpawnProjectile(0, "AsmodeusFireCircle_Lob", proj_angle >> 8, spd, velz * 8, 800, UNIQUE_MON_AUX_TID);
+	// modify z of this, sometimes actors are too tall
+	SetActorPosition(UNIQUE_MON_AUX_TID, GetActorX(UNIQUE_MON_AUX_TID), GetActorY(UNIQUE_MON_AUX_TID), GetActorZ(0) + zoffset, 0);
+	SetActorPosition(0, px, py, GetActorZ(0), 0);
+	SetActivator(UNIQUE_MON_AUX_TID);
+	// Keep target as owner
+	SetPointer(AAPTR_TARGET, curtid);
+	Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+	SetActivator(curtid);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Krull Angle" (int yoff) {
+	int ang = 0;
+	int prev_x = GetActorX(0);
+	int prev_y = GetActorY(0);
+	int prev_z = GetActorZ(0);
+	int curr_angle = GetActorAngle(0);
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	SetActorPosition(0, prev_x + yoff * sin(curr_angle), prev_y - yoff * cos(curr_angle), prev_z, 0);
+	ang = AngleToFace(0, target);
+	SetActorPosition(0, prev_x, prev_y, prev_z, 0);
+	
+	SetResultValue((ang * 360) >> 16);
+}
+
+// creates a circle that hovers above the player, after dtime tics it'll slam the player and steal 50% of their ammo on current weapon
+Script "DnD Zravog Slam" (int dtime) {
+	int target = GetActorProperty(0, APROP_TARGETTID);
+	ACS_NamedExecuteWithResult("DnD Zravog Slam FX", target, dtime);
+	int count = 0;
+	bool noslam = false;
+	while(count < dtime) {
+		++count;
+		Delay(const:5);
+		noslam = CheckInventory("DnD_Boolean");
+	}
+	if(!noslam) {
+		int tx = GetActorX(target);
+		int ty = GetActorY(target);
+		int tz = GetActorZ(target);
+		// proceed with slam damage
+		Delay(const:(ZRAVOG_SLAM_RELIEF + ZRAVOG_SLAM_SHAKE));
+		SpawnForced("ZravogSlamDamager", tx, ty, tz, 0);
+		SpawnForced("ZravogSlamHitSoundPlayer", tx, ty, tz, 0);
+	}
+}
+
+Script "DnD Zravog Slam FX" (int target, int dtime) CLIENTSIDE {
+	int i, z, a, count = 0;
+	bool abort = false;
+	dtime *= 5;
+	
+	// there is a guarantee that only one of the unique monsters will be in a map at a time, so this is fine
+	SpawnForced("ZravogSlamSoundPlayer", GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, ZRAVOG_SOUND_TID);
+	
+	while(count < dtime && !abort) {
+		// create fx and align them
+		for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i) {
+			a = (1.0 / ZRAVOG_SLAM_FXCOUNT) * i;
+			z = GetActorZ(target) + 192.0;
+			if(z > GetActorCeilingZ(target))
+				z = GetActorCeilingZ(target) - 16.0;
+			SpawnForced("ZravogSlamParticle", GetActorX(target) + ZRAVOG_SLAM_RADIUS * cos(a), GetActorY(target) + ZRAVOG_SLAM_RADIUS * sin(a), z, 0);
+		}
+		
+		if(!(count % 4))
+			SpawnForced("PurpleSparkSpawner", GetActorX(target), GetActorY(target), z, 0);
+		
+		Delay(const:1);
+		++count;
+		
+		abort = CheckInventory("DnD_Boolean");
+		SetActorPosition(ZRAVOG_SOUND_TID, GetActorX(target), GetActorY(target), GetActorZ(target) + 64.0, 0);
+	}
+	
+	if(abort) {
+		Thing_Remove(ZRAVOG_SOUND_TID);
+		Terminate;
+	}
+	
+	int tx = GetActorX(target);
+	int ty = GetActorY(target);
+	int tz = GetActorZ(target) + 8.0;
+	int nz = 0;
+	int nr = 0;
+	
+	// final z that we'll descend from
+	z = tz + 192.0;
+	if(z > GetActorCeilingZ(target))
+		z = GetActorCeilingZ(target) - 16.0;
+		
+	count = 0;
+		
+	while(count < ZRAVOG_SLAM_SHAKE) {
+		// shake the particles
+		nz = random(-10.0, 10.0);
+		nr = random(-10.0, 10.0);
+		for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i) {
+			a = (1.0 / ZRAVOG_SLAM_FXCOUNT) * i;
+			SpawnForced("ZravogSlamParticle", tx + ZRAVOG_SLAM_RADIUS * cos(a) + nz, ty + ZRAVOG_SLAM_RADIUS * sin(a) + nr, z, 0);
+		}
+		
+		if(!(count % 4))
+			SpawnForced("PurpleSparkSpawner", tx, ty, tz, 0);
+		
+		Delay(const:1);
+		++count;
+		
+		abort = CheckInventory("DnD_Boolean");
+		SetActorPosition(ZRAVOG_SOUND_TID, tx, ty, tz + 64.0, 0);
+	}
+	
+	if(abort) {
+		Thing_Remove(ZRAVOG_SOUND_TID);
+		Terminate;
+	}
+	
+	nz = 0;
+	count = 0;
+	
+	while(count < ZRAVOG_SLAM_RELIEF) {
+		// create fx and drag them down
+		nz = z - ((z - tz) >> 16) * sin(0.25 * (count + 1) / ZRAVOG_SLAM_RELIEF);
+		for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i) {
+			a = (1.0 / ZRAVOG_SLAM_FXCOUNT) * i;
+			SpawnForced("ZravogSlamParticle", tx + ZRAVOG_SLAM_RADIUS * cos(a), ty + ZRAVOG_SLAM_RADIUS * sin(a), nz, 0);
+		}
+		
+		if(!(count % 4))
+			SpawnForced("PurpleSparkSpawner", tx, ty, tz, 0);
+		
+		Delay(const:1);
+		++count;
+		
+		abort = CheckInventory("DnD_Boolean");
+		SetActorPosition(ZRAVOG_SOUND_TID, tx, ty, tz + 64.0, 0);
+	}
+	
+	if(abort)
+		Terminate;
+		
+	Thing_Remove(ZRAVOG_SOUND_TID);
+	// hit smoke
+	for(i = 0; i < ZRAVOG_SLAM_FXCOUNT; ++i)
+		SpawnForced("ZravogSlamSmoke", tx + random(-16.0, 16.0), ty + random(-16.0, 16.0), nz, 0);
+}
+
+// same thing as Krull's except this updates angle from here
+Script "DnD Abaxoth Laser Adjust" (int yoff) {
+	int ang = 0;
+	int prev_x = GetActorX(0);
+	int prev_y = GetActorY(0);
+	int prev_z = GetActorZ(0);
+	int curr_angle = GetActorAngle(0);
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	SetActorPosition(0, prev_x + yoff * sin(curr_angle), prev_y - yoff * cos(curr_angle), prev_z, 0);
+	ang = AngleToFace(0, target) + random(-0.0075, 0.0075);
+	SetActorPitch(0, PitchToFace_Height(0, target));
+	SetActorPosition(0, prev_x, prev_y, prev_z, 0);
+	SetActorAngle(0, ang);
+	
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunderbolt" (void) {
+	// for a while we cast thunder fx on his hammer, and we heal while doing so
+	// after the fx is over we project a thunderbolt towards player
+	ACS_NamedExecuteWithResult("DnD Abaxoth Thunderbolt FX");
+	
+	// we delegated fx part to CS script, now do healing
+	for(int i = 0; i < ABAXOTH_THUNDER_HEALCOUNT && !CheckInventory("DnD_Boolean"); ++i) {
+		if(!CheckInventory("MonsterRegenPause"))
+			ACS_NamedExecuteAlways("DnD Heal Monster Direct", 0, ABAXOTH_THUNDER_HEAL);
+		GiveInventory("AbaxothThunderExploder", 1);
+		Delay(const:ABAXOTH_THUNDER_HEALFREQ);	
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunderbolt FX" (void) CLIENTSIDE {
+	int count = 0;
+	bool abort = false;
+	int zdiff;
+	while(!abort && count < ABAXOTH_THUNDER_TIME) {
+		// create the lightning fx every few tics
+		if(!(count % 4))
+			abort = CheckInventory("DnD_Boolean");
+			
+		if(!(count % ABAXOTH_THUNDER_HEALFREQ) && SpawnForced("AbaxothThunderFX", GetActorX(0), GetActorY(0), GetActorZ(0), UNIQUE_MON_AUX_TID)) {
+			// scale appropriately
+			zdiff = GetActorCeilingZ(0) - GetActorZ(0);
+			if(zdiff >= ABAXOTH_THUNDER_Y) {
+				zdiff = FixedDiv(zdiff, ABAXOTH_THUNDER_Y);
+				SetActorProperty(UNIQUE_MON_AUX_TID, APROP_SCALEY, zdiff);
+				Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+			}
+		}
+		
+		if((count & 1) && SpawnForced("AbaxothThunderFX_Thin", GetActorX(0) + random(-40.0, 40.0), GetActorY(0) + random(-40.0, 40.0), GetActorZ(0), UNIQUE_MON_AUX_TID)) {
+			// scale appropriately
+			zdiff = GetActorCeilingZ(0) - GetActorZ(0);
+			if(zdiff >= ABAXOTH_THUNDER_Y2) {
+				zdiff = FixedDiv(zdiff, ABAXOTH_THUNDER_Y2);
+				SetActorProperty(UNIQUE_MON_AUX_TID, APROP_SCALEY, zdiff);
+				Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+			}
+		}
+			
+		Delay(const:1);
+		++count;
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunder Shield" (void) {
+	ACS_NamedExecuteWithResult("DnD Abaxoth Thunder Shield - CS");
+	
+	int count = 0;
+	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
+	while(count < ABAXOTH_SHIELD_DURATION) {
+		Delay(const:1);
+		
+		// we got hurt + not fortified + not in cd?
+		if(CheckInventory("DnD_HurtToken") && !CheckInventory("MonsterFortifyCount") && !CheckInventory("AbaxothThunderShieldProc_CD")) {
+			// gives cd, spawns the spark fx, and fires a lighting bolt towards player
+			GiveInventory("AbaxothThunderShieldProc", 1);
+			
+			// we'll give another item clientside to spawn the fx properly clientsided
+			ACS_NamedExecuteWithResult("DnD Abaxoth Thunder Shield Proc FX");
+			
+			if(!CheckInventory("MonsterRegenPause"))
+				ACS_NamedExecuteAlways("DnD Heal Monster Direct", 0, 0, ABAXOTH_THUNDER_HEALPERCENT);
+		}
+		
+		++count;
+	}
+	
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunder Shield Proc FX" (void) CLIENTSIDE {
+	int this = ActivatorTID();
+	
+	SpawnForced("AbaxothThunderProcFX_Spawner", GetActorX(0), GetActorY(0), GetActorZ(0));
+	
+	if(SpawnForced("AbaxothThunderProcFX", GetActorX(0), GetActorY(0), GetActorZ(0) + 72.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
+		SetPointer(AAPTR_TARGET, this);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+	}
+	
+	SetResultValue(0);
+}
+
+Script "DnD Abaxoth Thunder Shield - CS" (void) CLIENTSIDE {
+	int this = ActivatorTID();
+	
+	if(SpawnForced("AbaxothThunderShieldFX_1", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
+		SetPointer(AAPTR_TARGET, this);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+	}
+	
+	SetActivator(this);
+	
+	if(SpawnForced("AbaxothThunderShieldFX_2", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
+		SetPointer(AAPTR_TARGET, this);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+	}
+	
+	if(SpawnForced("AbaxothThunderShieldFX_3", GetActorX(0), GetActorY(0), GetActorZ(0) + 96.0, UNIQUE_MON_AUX_TID)) {
+		SetActivator(UNIQUE_MON_AUX_TID);
+		SetPointer(AAPTR_TARGET, this);
+		Thing_ChangeTID(UNIQUE_MON_AUX_TID, 0);
+	}
+	
+	SetResultValue(0);
+}
+
+Script "DnD Projectile Push" (int f_xy) {
+	// tracer holds the actor we hit
+	int mon_tid = GetActorProperty(0, APROP_TARGETTID);
+	int target_tid = GetActorProperty(0, APROP_TRACERTID);
+	
+	// if not player => always push, if player and doesn't have knockback immune => also push
+	if(!isPlayer(target_tid) || !CheckUniquePropertyOnPlayer(target_tid - P_TIDSTART, PUP_KNOCKBACKIMMUNE))
+		PushPlayerAway(target_tid, mon_tid, f_xy, f_xy / 2, true);
+		
+	SetResultValue(0);
+}
+
+Script "DnD Monster Push All Players" (int dist, int f_xy) {
+	// check all players to see if they are close to us
+	int this = ActivatorTID();
+	dist <<= 16;
+	
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		int p_tid = i + P_TIDSTART;
+		int r = GetActorProperty(p_tid, APROP_RADIUS);
+		// added check for knockback immunity
+		if
+		(
+			PlayerInGame(i) &&
+			isActorAlive(p_tid) &&
+			!CheckUniquePropertyOnPlayer(i, PUP_KNOCKBACKIMMUNE) &&
+			AproxDistance(GetActorX(p_tid) - GetActorX(0), GetActorY(p_tid) - GetActorY(0)) <= dist + r
+			&& CheckSight(p_tid, 0, CSF_NOBLOCKALL)
+		)
+			PushPlayerAway(p_tid, this, f_xy, f_xy / 2, true);
+	}
+	SetResultValue(0);
+}
+
+Script "DnD Aura Scale to Match" (void) CLIENTSIDE {
+	// update scale of this to match the scale of the monster its attached to
+	int owner = GetActorProperty(0, APROP_TARGETTID);
+	int r = GetActorProperty(owner, APROP_RADIUS);
+
+	int s = FixedMul(GetActorProperty(0, APROP_SCALEX), r / DND_BASE_AURA_RADIUS);
+
+	SetActorProperty(0, APROP_SCALEX, s);
+	SetActorProperty(0, APROP_SCALEY, s);
+}
+
+Script "DnD Species Update to Master" (void) {
+	int master_tid = GetActorProperty(0, APROP_MASTERTID);
+	//printbold(s:"master ", d:master_tid, s: " ", s:GetActorProperty(master_tid, APROP_SPECIES));
+	SetActorProperty(0, APROP_SPECIES, GetActorProperty(master_tid, APROP_SPECIES));
+	SetResultValue(0);
+}
+
+Script "DnD Get Master RH" (void) {
+	int master_tid = GetActorProperty(0, APROP_MASTERTID);
+	SetUserVariable(0, "user_r", 9 + (GetActorProperty(master_tid, APROP_RADIUS) >> 16));
+	SetUserVariable(0, "user_h", GetActorProperty(master_tid, APROP_HEIGHT) >> 16);
+	SetResultValue(0);
+}
+
+Script "DnD Asmodeus Ghost Cooldown" (void) {
+	int master_tid = GetActorProperty(0, APROP_MASTERTID);
+	SetActivator(master_tid);
+	GiveInventory("AsmodeusPullerGhostCooldown", 1);
+	TakeInventory("AsmodeusMadePullerGhost", 1);
+}
+
+Script "DnD Monster Lead Aim" (int ang_rand, int proj_speed, int zoffset, int yoffset) {
+	int ang = ANG_TO_DOOM(ang_rand << 16);
+	ang = random(-ang, ang);
+	AimLead(proj_speed << 16, 0, yoffset << 16, zoffset << 16, 0, 0, 0, ang, INTF_RANDOM | INTF_SETANGLE, 0);
+	SetResultValue(0);
+}
+
+Script "DnD Mother Demon Meteors" (void) {
+	int this = ActivatorTID();
+	int target = GetActorProperty(0, APROP_TARGETTID);
+
+	int zoffset = GetActorCeilingZ(0) - GetActorZ(0);
+	if(zoffset > 384.0)
+		zoffset = 360.0;
+
+	int r = GetActorProperty(0, APROP_RADIUS);
+	int h = GetActorProperty(0, APROP_HEIGHT);
+
+	int count = 0;
+	while(isAlive() && isActorAlive(target) && count++ < DND_MOTHERDEMON_TOTALMETEORS) {
+		int ox = GetActorX(0);
+		int oy = GetActorY(0);
+		int oz = GetActorZ(0) + h / 2;
+
+		int ang_base = GetActorAngle(0);
+		int p = PitchToFace(this, target);
+
+		for(int i = 0; i < DND_MOTHERDEMON_METEORCOUNT; ++i) {
+			int ang = ang_base + random(-DND_MOTHERDEMON_ANGDIFF, DND_MOTHERDEMON_ANGDIFF);
+
+			int c = cos(ang_base);
+			int s = sin(ang_base);
+
+			int xoff = random(-192.0, -64.0);
+			int yoff = random(-r, r);
+
+			if
+			(
+				Spawn(
+					"AbyssalMotherMeteor_ThruCybers", 
+					ox + FixedMul(c, xoff) + FixedMul(s, yoff), // use relative offsets to align properly
+					oy + FixedMul(s, xoff) - FixedMul(c, yoff),
+					oz + random(0, zoffset / 2),
+					DND_TEMP_PROJTID
+				)
+			)
+			{
+				SetActivator(DND_TEMP_PROJTID);
+				SetActorProperty(0, APROP_TARGETTID, this);
+				SetPointer(AAPTR_TARGET, this);
+
+				SetActorAngle(0, ang);
+				SetActorVelocity(
+					0, 
+					DND_MOTHERDEMON_METEORSPD * cos(ang), 
+					DND_MOTHERDEMON_METEORSPD * sin(ang), 
+					DND_MOTHERDEMON_METEORSPD * sin(-p + random(DND_MOTHERDEMON_PITCHLOW, DND_MOTHERDEMON_PITCHHIGH)), 0, 0
+				);
+				Thing_ChangeTID(DND_TEMP_PROJTID, 0);
+
+				SetActivator(this);
+			}
+		}
+
+		Delay(const:4);
+	}
+
+	SetResultValue(0);
+}
+
+Script "DnD Shambler Attack Form FX" (int frame) CLIENTSIDE {
+	// it has 3 frames, 4th one is for the last frame mirror + adjust
+	static LightningFrameData_T ShamblerData[4] = {
+		{ 
+			SHAMBLER_LGDISTX_FORM1,
+			SHAMBLER_LGDISTY_FORM1,
+			SHAMBLER_LGDISTZ_FORM1,
+			SHAMBLER_LGDISTX_FORM1,
+			SHAMBLER_LGDISTY_FORM1D,
+			SHAMBLER_LGDISTZ_FORM1D
+		},
+		{ 
+			SHAMBLER_LGDISTX_FORM2,
+			SHAMBLER_LGDISTY_FORM2,
+			SHAMBLER_LGDISTZ_FORM2,
+			SHAMBLER_LGDISTX_FORM2,
+			SHAMBLER_LGDISTY_FORM2D,
+			SHAMBLER_LGDISTZ_FORM2D
+		},
+		{
+			SHAMBLER_LGDISTX_FORM3,
+			SHAMBLER_LGDISTY_FORM3,
+			SHAMBLER_LGDISTZ_FORM3,
+			SHAMBLER_LGDISTX_FORM3D,
+			SHAMBLER_LGDISTY_FORM3D,
+			SHAMBLER_LGDISTZ_FORM3
+		},
+		{
+			SHAMBLER_LGDISTX_FORM4,
+			SHAMBLER_LGDISTY_FORM4,
+			SHAMBLER_LGDISTZ_FORM4,
+			SHAMBLER_LGDISTX_FORM3D,
+			SHAMBLER_LGDISTY_FORM3D,
+			SHAMBLER_LGDISTZ_FORM4D
+		}
+	};
+
+	// first generate some points
+	int i;
+	int[]* points = bcs::malloc(SIZEOF_INT * SHAMBLER_ATTACK_POINTS);
+	int pcount = SHAMBLER_ATTACK_POINTS;
+	if(frame < 2)
+		pcount = SHAMBLER_ATTACK_POINTS_FEW;
+
+	for(i = 0; i < pcount; ++i)
+		points[i] = random(0, 1.0);
+	
+	// sort points
+	bubblesort(points, SHAMBLER_ATTACK_POINTS);
+	
+	// we need to create the lightning-like fx, for that we get a rotation matrix
+	// the two hands of the monster
+	int sx = GetActorX(0) + ShamblerData[frame].sx * cos(GetActorAngle(0)) + ShamblerData[frame].sy * sin(GetActorAngle(0));
+	int dx = GetActorX(0) + ShamblerData[frame].dx * cos(GetActorAngle(0)) - ShamblerData[frame].dy * sin(GetActorAngle(0));
+	
+	int sy = GetActorY(0) + ShamblerData[frame].sx * sin(GetActorAngle(0)) - ShamblerData[frame].sy * cos(GetActorAngle(0));
+	int dy = GetActorY(0) + ShamblerData[frame].dx * sin(GetActorAngle(0)) + ShamblerData[frame].dy * cos(GetActorAngle(0));
+	
+	int sz = GetActorZ(0) + ShamblerData[frame].sz;
+	int dz = GetActorZ(0) + ShamblerData[frame].dz;
+	// prev point, base
+	int px = sx;
+	int py = sy;
+	int pz = sz;
+	// t holds tangent
+	int tx = dx - sx;
+	int ty = dy - sy;
+	int mag = magnitudeTwo(tx >> 16, ty >> 16);
+	
+	// for each point of that we will be making the line segments
+	int disp = 0, prevdisp = 0, pos = 0;
+	int scale, envelope;
+	for(i = 1; i < pcount; ++i) {
+		pos = points[i];
+		// prevents sharp angles, smooths them
+		scale = FixedMul(mag, SHAMBLER_LGJAGG);
+		scale = FixedMul(scale, pos - points[i - 1]);
+		
+		envelope = (pos > 0.15 && pos < 0.85) ? SHAMBLER_LGDISTY * (1.0 - pos) : pos;
+		
+		disp = random(-SHAMBLER_LGSWAYF, SHAMBLER_LGSWAYF);
+		disp -= FixedMul(disp - prevdisp, 1.0 - scale);
+		disp = FixedMul(disp, envelope);
+		// d are new points
+		dx = sx + FixedMul(pos, tx);
+		dy = sy + FixedMul(pos, ty);
+		dz = sz + FixedMul(pos, random(-SHAMBLER_TZ, SHAMBLER_TZ)) + FixedMul(disp, SHAMBLER_ZCHANGE);
+		
+		// draw line from previous point to current point (px, py, pz) to (dx, dy, dz)
+		LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, dz, SHAMBLER_LGDENSITY);
+		
+		// previous are now current
+		px = dx;
+		py = dy;
+		pz = dz;
+		prevdisp = disp;
+	}
+
+	bcs::free(points);
+	// last point
+	dx = GetActorX(0) + ShamblerData[frame].dx * cos(GetActorAngle(0)) - ShamblerData[frame].dy * sin(GetActorAngle(0));
+	dy = GetActorY(0) + ShamblerData[frame].dx * sin(GetActorAngle(0)) + ShamblerData[frame].dy * cos(GetActorAngle(0));
+	LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, sz, SHAMBLER_LGDENSITY);
+}
+
+Script "DnD Shambler Attack FX" (int owner) CLIENTSIDE {
+	// first generate some points
+	int i;
+	int[]* points = bcs::malloc(SIZEOF_INT * SHAMBLER_ATTACK_POINTS_MORE);
+	for(i = 0; i < SHAMBLER_ATTACK_POINTS_MORE; ++i)
+		points[i] = random(0, 1.0);
+	
+	// sort points
+	bubblesort(points, SHAMBLER_ATTACK_POINTS_MORE);
+	
+	// we need to create the lightning-like fx, for that we need the normal of the source and dest
+	// the two hands of the monster
+	int sx = GetActorX(owner) + SHAMBLER_LGDISTX * cos(GetActorAngle(owner));
+	int dx = GetActorX(0);
+	
+	int sy = GetActorY(owner) + SHAMBLER_LGDISTX * sin(GetActorAngle(owner));
+	int dy = GetActorY(0);
+	
+	int sz = GetActorZ(owner) + 48.0;
+	int dz = GetActorZ(0);
+	// prev point, base
+	int px = sx;
+	int py = sy;
+	int pz = sz;
+	// t holds tangent
+	int tx = dx - sx;
+	int ty = dy - sy;
+	int mag = magnitudeThree(tx >> 16, ty >> 16, (dz - sz) >> 16);
+	
+	// for each point of that we will be making the line segments
+	int disp = 0, prevdisp = 0, pos = 0;
+	int scale, envelope;
+	for(i = 1; i < SHAMBLER_ATTACK_POINTS_MORE; ++i) {
+		pos = points[i];
+		// prevents sharp angles, smooths them
+		scale = FixedMul(mag, SHAMBLER_LGJAGG);
+		scale = FixedMul(scale, pos - points[i - 1]);
+		
+		envelope = (pos > 0.15 && pos < 0.85) ? SHAMBLER_LGDISTY * (1.0 - pos) : pos;
+		
+		disp = random(-SHAMBLER_LGSWAYF, SHAMBLER_LGSWAYF);
+		disp -= FixedMul(disp - prevdisp, 1.0 - scale);
+		disp = FixedMul(disp, envelope);
+		// d are new points
+		dx = sx + FixedMul(pos, tx);
+		dy = sy + FixedMul(pos, ty);
+		dz = sz + FixedMul(pos, GetActorZ(0) - sz + random(-SHAMBLER_TZ, SHAMBLER_TZ)) + FixedMul(disp, SHAMBLER_ZCHANGE);
+		
+		// draw line from previous point to current point (px, py, pz) to (dx, dy, dz)
+		LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, dz, SHAMBLER_LGDENSITY);
+		
+		// previous are now current
+		px = dx;
+		py = dy;
+		pz = dz;
+		prevdisp = disp;
+	}
+
+	bcs::free(points);
+	// last point
+	dx = GetActorX(0);
+	dy = GetActorY(0);
+	LineDraw(DND_TRAILACTOR_OVERLOADZAP, px, py, pz, dx, dy, GetActorZ(0), SHAMBLER_LGDENSITY);
 }
 
 #endif
