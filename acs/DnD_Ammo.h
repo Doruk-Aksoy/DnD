@@ -38,6 +38,7 @@ enum {
 	AMMO_DESOLATOR,
 	AMMO_EBONY1,
 	AMMO_EBONY2,
+	AMMO_CLIP_COUNT,
 	
 	// category 3
 	AMMO_SHELL = 0,
@@ -53,6 +54,7 @@ enum {
 
 	AMMO_SLAYER,
 	AMMO_AXE,
+	AMMO_SHELL_COUNT,
 	
 	// category 4
 	AMMO_ROCKET = 0,
@@ -64,6 +66,7 @@ enum {
 	AMMO_HMISSILE,
 	AMMO_SEDRIN,
 	AMMO_HAMMER,
+	AMMO_ROCKET_COUNT,
 	
 	// category 5
 	AMMO_CELL = 0,
@@ -78,9 +81,11 @@ enum {
 	AMMO_THUNDER,
 
 	AMMO_GAUSS,
+	AMMO_CELL_COUNT,
 	
 	// category 6 (soul weapons -- only 1 ammo type here)
-	AMMO_SOUL = 0
+	AMMO_SOUL = 0,
+	AMMO_SOUL_COUNT,
 };
 
 enum {
@@ -167,26 +172,29 @@ int GetAmmoSlotMaxIndex(int ammo_slot) {
 // don't make tables with strings and ints... weird fuckups happen
 // replaced container value => it's calculated as follows:
 // CLIPS => 25%, SHELL => 20%, ROCKETS => 10%, CELL => 33% -- min 1
-typedef struct {
-	int initial_capacity;
-	str icon;
-	str name;
-} ammo_info_T;
-
-// +1 for magazines, in-game max of MAX_SLOTS is used for most arithmetic and ammo cap setting, but for lookups we have this +1 (saves array id)
-// +32 is for the mag stuff
-global ammo_info_T 16: AmmoInfo[MAX_SLOTS + 1][MAX_AMMOTYPES_PER_SLOT + 32];
 
 // slot it belongs to
 // ammo id
 // cap of ammo
 // icon and name are strings
-#define DEFINE_AMMO_INFO(SLOT, AMMO_ID, CAP, ICON, NAME) 	AmmoInfo[SLOT][AMMO_ID].initial_capacity = CAP; \
-															AmmoInfo[SLOT][AMMO_ID].icon = ICON; \
-															AmmoInfo[SLOT][AMMO_ID].name = NAME
+#define DEFINE_AMMO_INFO(SLOT, AMMO_ID, CAP, ICON, NAME) 	GlobalData.AmmoInfo[SLOT][AMMO_ID].initial_capacity = CAP; \
+															GlobalData.AmmoInfo[SLOT][AMMO_ID].icon = ICON; \
+															GlobalData.AmmoInfo[SLOT][AMMO_ID].name = NAME
 
-void SetupAmmoInfos() {
+// +1 for magazines, in-game max of MAX_SLOTS is used for most arithmetic and ammo cap setting, but for lookups we have this +1 (saves array id)
+// +32 is for the mag stuff
+ammo_info_T? GetAmmoInfo(int slot, int type) {
+	return GlobalData.AmmoInfo[slot][type];
+}
+
+void SetupAmmoInfo() {
+	if(GlobalData.AmmoInfo != null)
+		return;
+
+	GlobalData.AmmoInfo = bcs::arrNew(MAX_SLOTS + 1, 1);
+
 	// clip category
+	GlobalData.AmmoInfo[DND_AMMOSLOT_CLIP] = bcs::arrNew(AMMO_CLIP_COUNT, 3);
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CLIP, AMMO_CLIP, 200, "CLIPA0", "Clip");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CLIP, AMMO_RUBY, 175, "RBAMA0", "RubyAmmo");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CLIP, AMMO_VIPER, 50, "C_H2A1", "ViperAmmo");
@@ -200,6 +208,7 @@ void SetupAmmoInfos() {
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CLIP, AMMO_EBONY2, 30, "EBOPE0", "EbonyAmmoX");
 
 	// shell category
+	GlobalData.AmmoInfo[DND_AMMOSLOT_SHELL] = bcs::arrNew(AMMO_SHELL_COUNT, 3);
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_SHELL, AMMO_SHELL, 50, "SHELA0", "Shell");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_SHELL, AMMO_EMERALDMANA, 90, "EMEAA0", "EmeraldMana");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_SHELL, AMMO_HELLSMAWAMMO, 60, "HMAWA1", "HellsMawAmmo");
@@ -214,6 +223,7 @@ void SetupAmmoInfos() {
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_SHELL, AMMO_AXE, 60, "AXEAMM", "AxeMana");
 
 	// rocket category
+	GlobalData.AmmoInfo[DND_AMMOSLOT_ROCKET] = bcs::arrNew(AMMO_ROCKET_COUNT, 3);
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_ROCKET, AMMO_ROCKET, 50, "ROCKA0", "RocketAmmo");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_ROCKET, AMMO_FLAKSHELL, 40, "FSHLA0", "FlakShell");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_ROCKET, AMMO_METEOR, 40, "LAAM1", "MeteorAmmo");
@@ -225,6 +235,7 @@ void SetupAmmoInfos() {
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_ROCKET, AMMO_HAMMER, 1, "WEPICO98", "HammerAmmo");
 
 	// cell category
+	GlobalData.AmmoInfo[DND_AMMOSLOT_CELL] = bcs::arrNew(AMMO_CELL_COUNT, 3);
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CELL, AMMO_CELL, 300, "CELLA0", "Cell");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CELL, AMMO_DEVASTATOR, 270, "DEVIAM0", "DevastatorAmmo");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CELL, AMMO_EVERICE, 240, "EICEAM1", "EverIce");
@@ -238,9 +249,11 @@ void SetupAmmoInfos() {
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_CELL, AMMO_GAUSS, 75, "GAUSICO", "GaussRound");
 
 	// soul
+	GlobalData.AmmoInfo[DND_AMMOSLOT_SOULS] = bcs::arrNew(AMMO_SOUL_COUNT, 3);
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_SOULS, AMMO_SOUL, 75, "AMM3A0", "Souls");
 
 	// magazines / clips --- secondary ammo of reloading weapons
+	GlobalData.AmmoInfo[DND_AMMOSLOT_MAGAZINE] = bcs::arrNew(MAXCLIPAMMOTYPES, 3);
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SPECIALAMMOMODE_3, 0, "", "SpecialAmmoMode_3");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SPECIALAMMOMODE_3X, 0, "", "SpecialAmmoMode_3X");
 	DEFINE_AMMO_INFO(DND_AMMOSLOT_MAGAZINE, DND_MAGAZINE_SPECIALAMMOMODE_4, 0, "", "SpecialAmmoMode_4");
@@ -278,7 +291,7 @@ void SetupAmmoInfos() {
 }
 
 int GetAmmoContainerValue(int ammo_slot, int ammo) {
-	int res = AmmoInfo[ammo_slot][ammo].initial_capacity;
+	int res = GetAmmoInfo(ammo_slot, ammo).initial_capacity;
 	switch(ammo_slot) {
 		case DND_AMMOSLOT_CLIP:
 			res /= 4;
@@ -321,10 +334,14 @@ void SetAllAmmoCapacities(int pnum) {
 	int factor = GetAmmoCapIncrease(pnum);
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
 		int temp = GetAmmoSlotMaxIndex(i);
-		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity; ++j) {
+		for(int j = 0; j < temp; ++j) {
+			auto a_info = GetAmmoInfo(i, j);
+			if(!a_info.initial_capacity)
+				break;
+
 			// dont change hammer cap
 			if(i != DND_AMMOSLOT_ROCKET || j != AMMO_HAMMER)
-				SetAmmoCapacity(AmmoInfo[i][j].name, (AmmoInfo[i][j].initial_capacity * factor) / 100);
+				SetAmmoCapacity(a_info.name, (a_info.initial_capacity * factor) / 100);
 		}
 	}
 }
@@ -333,8 +350,13 @@ void SetAllAmmoCapacitiesToDefault() {
 	// last slot is for souls, we don't increase it here
 	for(int i = 0; i < MAX_SLOTS - 1; ++i) {
 		int temp = GetAmmoSlotMaxIndex(i);
-		for(int j = 0; j < temp && AmmoInfo[i][j].initial_capacity; ++j)
-			SetAmmoCapacity(AmmoInfo[i][j].name, AmmoInfo[i][j].initial_capacity);
+		for(int j = 0; j < temp; ++j) {
+			auto a_info = GetAmmoInfo(i, j);
+			if(!a_info.initial_capacity)
+				break;
+
+			SetAmmoCapacity(a_info.name, a_info.initial_capacity);
+		}
 	}
 }
 
@@ -344,24 +366,32 @@ bool CheckAmmoPickup(int slot, bool simple) {
 	if(GetPlayerAttributeValue(pnum, INV_EX_CANNOTPICKAMMO))
 		return true;
 
-	bool res = CheckInventory(AmmoInfo[slot][0].name) >= GetAmmoCapacity(AmmoInfo[slot][0].name);
+	auto a_info = GetAmmoInfo(slot, 0);
+	bool res = CheckInventory(a_info.name) >= GetAmmoCapacity(a_info.name);
 	if(!simple) {
 		// start from 1, we already included 0 above
 		int temp = GetAmmoSlotMaxIndex(slot);
-		for(int i = 1; i < temp && AmmoInfo[slot][i].initial_capacity; ++i)
-			res = res && CheckInventory(AmmoInfo[slot][i].name) >= GetAmmoCapacity(AmmoInfo[slot][i].name);
+		for(int i = 1; i < temp; ++i) {
+			a_info = GetAmmoInfo(slot, i);
+			if(!a_info.initial_capacity)
+				break;
+			res = res && CheckInventory(a_info.name) >= GetAmmoCapacity(a_info.name);
+		}
 			
 		// we got a few exceptions -- everice is used in rocket slot, and cell slot has clip using weapon
 		// slot 6 has rhino ar which uses clip
 		// slot 3 has shocker which uses cell
 		if(slot == DND_AMMOSLOT_SHELL) {
-			res = res && CheckInventory(AmmoInfo[DND_AMMOSLOT_CELL][AMMO_CELL].name) >= GetAmmoCapacity(AmmoInfo[DND_AMMOSLOT_CELL][AMMO_CELL].name);
+			a_info = GetAmmoInfo(DND_AMMOSLOT_CELL, AMMO_CELL);
+			res = res && CheckInventory(a_info.name) >= GetAmmoCapacity(a_info.name);
 		}
 		else if(slot == DND_AMMOSLOT_CELL) {
-			res = res && CheckInventory(AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_CLIP].name) >= GetAmmoCapacity(AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_CLIP].name);
+			a_info = GetAmmoInfo(DND_AMMOSLOT_CLIP, AMMO_CLIP);
+			res = res && CheckInventory(a_info.name) >= GetAmmoCapacity(a_info.name);
 		}
 		else if(slot == DND_AMMOSLOT_ROCKET) {
-			res = res && CheckInventory(AmmoInfo[DND_AMMOSLOT_CELL][AMMO_EVERICE].name) >= GetAmmoCapacity(AmmoInfo[DND_AMMOSLOT_CELL][AMMO_EVERICE].name);
+			a_info = GetAmmoInfo(DND_AMMOSLOT_CELL, AMMO_EVERICE);
+			res = res && CheckInventory(a_info.name) >= GetAmmoCapacity(a_info.name);
 		}
 	}
 	return res;
@@ -383,8 +413,12 @@ void HandleAmmoContainerPickup(int slot, int basic_kind) {
 	}
 	else {
 		int temp = GetAmmoSlotMaxIndex(slot);
-		for(int i = 0; i < temp && AmmoInfo[slot][i].initial_capacity; ++i)
+		for(int i = 0; i < temp; ++i) {
+			auto a_info = GetAmmoInfo(slot, i);
+			if(!a_info.initial_capacity)
+				break;
 			GiveAmmo(GetAmmoContainerValue(slot, i), slot, i);
+		}
 		
 		if(slot == DND_AMMOSLOT_SHELL) {
 			GiveAmmo(GetAmmoContainerValue(DND_AMMOSLOT_CELL, AMMO_CELL) / 2, DND_AMMOSLOT_CELL, AMMO_CELL);
@@ -403,7 +437,8 @@ void GiveAmmo(int amt, int slot, int t) {
 		amt = amt * GetAmmoGainFactor() / 100;
 	else
 		amt = amt * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_EX_PICKUPS_MORESOUL)) / 100;
-	GiveInventory(AmmoInfo[slot][t].name, amt);
+	auto a_info = GetAmmoInfo(slot, t);
+	GiveInventory(a_info.name, amt);
 }
 
 // a fancy ammo pickup script to make it easier to add new ammo types to slots

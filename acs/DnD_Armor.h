@@ -152,7 +152,7 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 		}
 #ifdef ISDEBUGBUILD
 		res = random(BODYARMORS_BEGIN, BODYARMORS_END);
-		res = BODYARMOR_NECRO;
+//		res = BODYARMOR_NECRO;
 #endif
 	}
 	else if(tiers == 1) {

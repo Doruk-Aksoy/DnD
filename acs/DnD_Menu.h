@@ -125,19 +125,20 @@ Script "DnD Menu Reset on Enter" ENTER {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) / 100);
+				auto a_info = GetAmmoInfo(temp & 0xFFFF, temp >> 16);
+				GlobalData.ShopStockRemaining[pnum][j] = (a_info.initial_capacity * (ch_factor / 2) * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) / 100);
 				int ovf_temp = bcs::INT_MAX / ammo_bonus;
-				if(ShopStockRemaining[pnum][j] > ovf_temp)
-					ShopStockRemaining[pnum][j] = ovf_temp;
+				if(GlobalData.ShopStockRemaining[pnum][j] > ovf_temp)
+					GlobalData.ShopStockRemaining[pnum][j] = ovf_temp;
 				else
-					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
+					GlobalData.ShopStockRemaining[pnum][j] = (GlobalData.ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
 			}
 			else
-				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT)) / 100) * ammo_bonus / 500;
+				GlobalData.ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT)) / 100) * ammo_bonus / 500;
 		}
 		else
-			ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
-		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, ShopStockRemaining[pnum][j]);
+			GlobalData.ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
+		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, GlobalData.ShopStockRemaining[pnum][j]);
 		
 		// just to balance the load a bit and not overwhelm
 		if(!(j % 10))
@@ -156,19 +157,20 @@ Script "DnD Menu Reset Forced" (void) {
 			temp = GetAmmoSlotAndIndexFromShop(j);
 			if(j < SHOP_FIRSTAMMOSPECIAL_INDEX) {
 				// overflow fix
-				ShopStockRemaining[pnum][j] = (AmmoInfo[temp & 0xFFFF][temp >> 16].initial_capacity * (ch_factor / 2) * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) / 100);
+				auto a_info = GetAmmoInfo(temp & 0xFFFF, temp >> 16);
+				GlobalData.ShopStockRemaining[pnum][j] = (a_info.initial_capacity * (ch_factor / 2) * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT) / 100);
 				int ovf_temp = bcs::INT_MAX / ammo_bonus;
-				if(ShopStockRemaining[pnum][j] > ovf_temp)
-					ShopStockRemaining[pnum][j] = ovf_temp;
+				if(GlobalData.ShopStockRemaining[pnum][j] > ovf_temp)
+					GlobalData.ShopStockRemaining[pnum][j] = ovf_temp;
 				else
-					ShopStockRemaining[pnum][j] = (ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
+					GlobalData.ShopStockRemaining[pnum][j] = (GlobalData.ShopStockRemaining[pnum][j] * ammo_bonus) / 500;
 			}
 			else
-				ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT)) / 100) * ammo_bonus / 500;
+				GlobalData.ShopStockRemaining[pnum][j] = ((SpecialAmmoInfo[temp].initial_capacity * ch_factor * GetMenuAmmoCount(j - SHOP_FIRSTAMMO_INDEX, AMMOID_COUNT)) / 100) * ammo_bonus / 500;
 		}
 		else
-			ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
-		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, ShopStockRemaining[pnum][j]);
+			GlobalData.ShopStockRemaining[pnum][j] = (stock * ch_factor) / 100;
+		ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, j, GlobalData.ShopStockRemaining[pnum][j]);
 
 		if(!(j % 10))
 			Delay(const:1);
@@ -178,7 +180,7 @@ Script "DnD Menu Reset Forced" (void) {
 Script "DnD Sync Shop Stock" (int pnum, int itemid, int val) CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
-	ShopStockRemaining[pnum][itemid] = val;
+	GlobalData.ShopStockRemaining[pnum][itemid] = val;
 }
 
 Script "DND On Disconnect Menu Cleanup" (int pnum) DISCONNECT CLIENTSIDE {

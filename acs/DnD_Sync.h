@@ -994,7 +994,7 @@ Script "DnD Request Mod Sync" (int pnum, int mod, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
-	PlayerModValues[pnum][mod] = val;
+	PlayerModData[pnum].value[mod] = val;
 	SetResultValue(0);
 }
 
@@ -1003,7 +1003,7 @@ Script "DnD Request Mod Sync (Special)" (int pnum, int mod, int val) CLIENTSIDE 
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	Delay(const:1);
-	PlayerModValues[pnum][mod] = val;
+	PlayerModData[pnum].value[mod] = val;
 	SetResultValue(0);
 }
 
@@ -1011,7 +1011,7 @@ Script "DnD Request Mod Extra Sync" (int pnum, int mod, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
-	PlayerModExtras[pnum][mod] = val;
+	PlayerModData[pnum].extra[mod] = val;
 	SetResultValue(0);
 }
 
@@ -1020,7 +1020,7 @@ Script "DnD Request Mod Extra Sync (Special)" (int pnum, int mod, int val) CLIEN
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	Delay(const:1);
-	PlayerModExtras[pnum][mod] = val;
+	PlayerModData[pnum].extra[mod] = val;
 	SetResultValue(0);
 }
 
@@ -1030,22 +1030,23 @@ Script "DnD Handle Attribute Sync" (int pnum) {
 
 	Delay(const:1);
 
-	int cnt = PlayerAttributeSyncs[pnum].count;
+	auto psync = GetPlayerAttributeSyncs(pnum);
+	int cnt = psync.count;
 	int mod, i;
 	for(i = 0; i < cnt; ++i) {
-		mod = PlayerAttributeSyncs[pnum].arr[i];
-		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModValues[pnum][mod]);
+		mod = psync.arr[i];
+		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModData[pnum].value[mod]);
 	}
 
 	ClearPlayerAttributeSync(pnum);
 
-	cnt = PlayerAttributeSyncs[pnum].extras;
+	cnt = psync.extras;
 	if(cnt) {
 		Delay(const:1);
 
 		for(i = 0; i < cnt; ++i) {
-			mod = PlayerAttributeSyncs[pnum].arr_extra[i];
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModExtras[pnum][mod]);
+			mod = psync.arr_extra[i];
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModData[pnum].extra[mod]);
 		}
 
 		ClearPlayerAttributeExtraSync(pnum);

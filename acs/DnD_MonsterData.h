@@ -10,58 +10,58 @@
 int GetMonsterClassBonus(int class) {
 	switch(class) {
 		case MONSTERCLASS_ZOMBIEMAN:
-		return 6 | (9 << 16);
+		return 6 | (2 << 16);
 		
 		case MONSTERCLASS_SHOTGUNGUY:
-		return 9 | (14 << 16);
+		return 9 | (3 << 16);
 		
 		case MONSTERCLASS_CHAINGUNGUY:
-		return 15 | (20 << 16);
+		return 15 | (4 << 16);
 		
 		case MONSTERCLASS_DEMON:
-		return 21 | (25 << 16);
+		return 21 | (4 << 16);
 		
 		case MONSTERCLASS_SPECTRE:
-		return 24 | (27 << 16);
+		return 24 | (4 << 16);
 		
 		case MONSTERCLASS_IMP:
-		return 12 | (18 << 16);
+		return 12 | (3 << 16);
 		
 		case MONSTERCLASS_CACODEMON:
-		return 45 | (50 << 16);
+		return 45 | (6 << 16);
 		
 		case MONSTERCLASS_PAINELEMENTAL:
-		return 54 | (68 << 16);
+		return 54 | (8 << 16);
 		
 		case MONSTERCLASS_LOSTSOUL:
-		return 24 | (18 << 16);
+		return 24 | (3 << 16);
 		
 		case MONSTERCLASS_REVENANT:
-		return 33 | (48 << 16);
+		return 33 | (9 << 16);
 		
 		case MONSTERCLASS_HELLKNIGHT:
-		return 48 | (62 << 16);
+		return 48 | (10 << 16);
 		
 		case MONSTERCLASS_BARON:
-		return 81 | (90 << 16);
+		return 81 | (15 << 16);
 		
 		case MONSTERCLASS_FATSO:
-		return 76 | (85 << 16);
+		return 76 | (12 << 16);
 		
 		case MONSTERCLASS_ARACHNOTRON:
-		return 72 | (85 << 16);
+		return 72 | (12 << 16);
 		
 		case MONSTERCLASS_ARCHVILE:
-		return 90 | (110 << 16);
+		return 90 | (16 << 16);
 		
 		case MONSTERCLASS_SPIDERMASTERMIND:
-		return 600 | (140 << 16);
+		return 600 | (25 << 16);
 		
 		case MONSTERCLASS_CYBERDEMON:
-		return 1080 | (160 << 16);
+		return 1080 | (25 << 16);
 		
 		case MONSTERCLASS_WOLFENSS:
-		return 16 | (16 << 16);
+		return 16 | (2 << 16);
 	}
 	
 	return 1;

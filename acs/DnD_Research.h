@@ -261,7 +261,7 @@ void GiveAndDoAllResearch() {
 
 void DoubleSpecialAmmoCapacity() {
 	for(int i = 0; i < MAX_SPECIAL_AMMOS; ++i)
-		SetAmmoCapacity(SpecialAmmoInfo_Str[i][AMMOINFO_NAME], SpecialAmmoInfo[i].initial_capacity * 2);
+		SetAmmoCapacity(GetSpecialAmmoStr(i, AMMOINFO_NAME), SpecialAmmoInfo[i].initial_capacity * 2);
 }
 
 #endif

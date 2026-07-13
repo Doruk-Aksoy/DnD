@@ -263,7 +263,8 @@ Script "DnD On Map Load" OPEN {
 	if(!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS)) {
 		Build_Constants();
 		SetupEliteModWeights();
-		//Alloc_BuffTable();
+		Delay(const:3);
+		SetupMonsterDropTable();
 		SetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS);
 	}
 
@@ -1954,12 +1955,12 @@ Script "DnD Monster Spawner" (int category) {
 		Delay(const:HALF_TICRATE);
 
     // add up total count and weight sum of category
-    if(!MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT]) {
-        for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != DND_MWEIGHT_ENDMARKER; MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM] += Monster_Weights[category][i], ++i);
-		MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT] = i;
+    if(!GlobalData.MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT]) {
+        for(; i < MAX_MONSTER_VARIATIONS && Monster_Weights[category][i] != DND_MWEIGHT_ENDMARKER; GlobalData.MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM] += Monster_Weights[category][i], ++i);
+		GlobalData.MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT] = i;
 	}
 		
-    int sum = MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM];
+    int sum = GlobalData.MonsterCategoryData[category][MONSTERDATA_WEIGHTSUM];
     bool picked = false;
 
     // for each bin, do condition check, see if roll fits in a range
@@ -2025,7 +2026,7 @@ Script "DnD Monster Spawner" (int category) {
 			bin = 0;
 			// start i from 0 here, because bin starts from 0 the added weight should be consistent with where we started
 			// count is 1 more than the index allowed as is expected, so if it picked the next we must subtract 1 from bin
-			for(i = 0; bin < MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT] && i < roll; ++bin)
+			for(i = 0; bin < GlobalData.MonsterCategoryData[category][MONSTERDATA_VARIATIONCOUNT] && i < roll; ++bin)
 				i += Monster_Weights[category][bin];
 			--bin;
 			// go to vanilla if bin is 0
@@ -3578,9 +3579,11 @@ Script 996 (int type, int id) {
 		//Give base 1/20 of initial ammo on backpack pickup.
 		for(i = 0; i < MAX_SLOTS - 1; ++i) //Except souls
 			int temp = GetAmmoSlotMaxIndex(i);
-			for(j = 0; j < temp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+			for(j = 0; j < temp; ++j) {
 				type = GetAmmoContainerValue(i, j);
-				GiveInventory(AmmoInfo[i][j].name, ((type / 5) + (type / 5) * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN))/100));
+
+				auto a_info = GetAmmoInfo(i, j);
+				GiveInventory(a_info.name, ((type / 5) + (type / 5) * (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100));
 			}
 	}
     else if(type == 1) {
@@ -5685,7 +5688,7 @@ Script "DnD Roll Proc" (int base, int owner_flags) {
 		SetActivatorToTarget(0);
 
 	base = (base << 16) / 100;
-	SetResultValue(RunLuckBasedChance(PlayerNumber(), base, DND_LUCK_OUTCOME_GAIN));
+	SetResultValue(RunLuckBasedChance(PlayerNumber(), base));
 }
 
 Script "DnD Hurt Actor" (int hurter, int victim, int dmg) {
@@ -6153,7 +6156,7 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
 			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
 			//SpawnCharmWithMods_ForAll(INV_LIFESTEAL);
-			//PlayerModValues[0][INV_CRITCHANCE_INCREASE] = 0.25;
+			//PlayerModData[0].value[INV_CRITCHANCE_INCREASE] = 0.25;
 			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
 			//SpawnCharmWithMods_ForAll(INV_RIPDAMAGE, INV_RIPCOUNT);
@@ -6189,7 +6192,7 @@ Script 68 (int x) NET {
 			HandleEShieldChange(PlayerNumber(), 0);
 		}
 		else if(x == 501)
-			SetPlayerModValue(PlayerNumber(), INV_PELLET_INCREASE, 2 * PlayerModValues[PlayerNumber()][INV_PELLET_INCREASE] + 1.0);
+			SetPlayerModValue(PlayerNumber(), INV_PELLET_INCREASE, 2 * PlayerModData[PlayerNumber()].value[INV_PELLET_INCREASE] + 1.0);
 		else if(x == 502) {
 			IncPlayerModValue(PlayerNumber(), INV_ACCURACY_INCREASE, 1000);
 			IncPlayerModValue(PlayerNumber(), INV_ESS_OMNISIGHT2, 10);

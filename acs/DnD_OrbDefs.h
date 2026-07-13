@@ -410,7 +410,7 @@ void ResetMostRecentOrb(int pnum) {
 	for(i = 0; i < MAX_STORED_ORB_DATA; ++i)
 		Player_MostRecent_Orb[pnum].values[i] = 0;
 	for(i = 0; i < MAX_SLOTS; ++i)
-		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT && AmmoInfo[i][j].initial_capacity != -1; ++j)
+		for(int j = 0; j < MAX_AMMOTYPES_PER_SLOT; ++j)
 			Player_MostRecent_Orb[pnum].p_ammos[i][j] = 0;
 	Player_MostRecent_Orb[pnum].p_tempammo = 0;
 	Player_MostRecent_Orb[pnum].p_tempwep = 0;

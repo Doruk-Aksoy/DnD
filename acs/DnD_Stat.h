@@ -465,7 +465,7 @@ int RewardActorExp(int tid, int amt) {
 		return 0;
 
 	if(tmp >= DND_EXP_ADJUST_LEVEL)
-		amt = amt * ((DnD_Constants[DND_CONSTANT_EXPCURVE][tmp - DND_EXP_ADJUST_LEVEL] * 100) >> 16) / 100;
+		amt = amt * ((GlobalData.DnD_Constants[DND_CONSTANT_EXPCURVE][tmp - DND_EXP_ADJUST_LEVEL] * 100) >> 16) / 100;
 
 	amt = amt * GetPlayerWisdomBonus(tid - P_TIDSTART, tid) / 100;
 
@@ -625,14 +625,24 @@ int Calculate_Perks() {
 }
 
 // this is used in drop rates, weapons proc chances etc.
-int GetPlayerLuck(int pnum, int outcome_val = DND_LUCK_GAIN) {
+int GetPlayerLuck(int pnum) {
 	//return outcome_val * GetActorPerk(pnum + P_TIDSTART, X) + GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
-	return GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE) + (HasDungeonUpside(DUN_UPSIDE_QUANT) << 16) / 100;
+	return GetPlayerAttributeValue(pnum, INV_LUCK_INCREASE);
 }
 
-bool RunLuckBasedChance(int pnum, int base, int outcome_val = DND_LUCK_GAIN) {
+bool RunLuckBasedChance(int pnum, int base) {
 	int r = random(0, 1.0);
-	return r <= FixedMul(base, 1.0 + GetPlayerLuck(pnum, outcome_val));
+	return r <= FixedMul(base, 1.0 + GetPlayerLuck(pnum));
+}
+
+int GetPlayerDropQuantity(int pnum) {
+	int base = 1.0;
+	base = FixedMul(
+		base, 
+		1.0 + GetPlayerLuck(pnum) + (HasDungeonUpside(DUN_UPSIDE_QUANT) << 16) / 100
+	);
+
+	return base;
 }
 
 // this is the generic drop chance factor
@@ -765,20 +775,21 @@ void DecideAccessories() {
 		SetActorProperty(0, APROP_SPEED, GetPlayerSpeed(PlayerNumber()));
 	}
 	
+	auto a_info = GetAmmoInfo(DND_AMMOSLOT_SOULS, AMMO_SOUL);
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_LICHARM)) {
 		GiveInventory("LichCheck", 1);
-		SetAmmoCapacity("Souls", AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity * DND_LICH_SOULFACTOR);
+		SetAmmoCapacity("Souls", a_info.initial_capacity * DND_LICH_SOULFACTOR);
 	}
 	else {
 		TakeInventory("LichCheck", 1);
 		int tmp = GetAmmoCapacity("Souls");
-		if(tmp > AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity) {
+		if(tmp > a_info.initial_capacity) {
 			SetAmmoCapacity("Souls", tmp / 2);
 			if(CheckInventory("Souls") > tmp / 2)
 				SetInventory("Souls", tmp / 2);
 		}
 		else
-			SetAmmoCapacity("Souls", AmmoInfo[DND_AMMOSLOT_SOULS][AMMO_SOUL].initial_capacity);
+			SetAmmoCapacity("Souls", a_info.initial_capacity);
 	}
 	
 	// sigil order: 1 = fire, 2 = ice, 3 = lightning, 4 = poison

@@ -96,7 +96,7 @@ Script "DnD Readjust Speed" (int spd) {
 }
 
 // This function will create a projectile with given angles, pitch, direction vector, speed, xy dist and zdist
-int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, int velocity, int vPos, int flags = 0, int extra = 0, int extra2 = 0, int dmg_category = 0) {
+int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int pitch, int spd, Vec3_T* velocity, Vec3_T* vPos, int flags = 0, int extra = 0, int extra2 = 0, int dmg_category = 0) {
 	// this is the actor that is responsible for firing the projectile because moving the player itself to the position temporarily jitters them... ty zandro you are really good
 	int g = (flags & DND_ATF_USEGRAVITY) ? 800.0 : 0;
 	
@@ -104,9 +104,9 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	if(!(flags & DND_ATF_DAMAGEINEXTRA)) {
 		SpawnForced(
 			"ProjectileHelper",
-			vec3[vPos].x,
-			vec3[vPos].y,
-			vec3[vPos].z,
+			vPos.x,
+			vPos.y,
+			vPos.z,
 			p_helper_tid
 		);
 		
@@ -119,11 +119,12 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		Thing_ChangeTID(p_helper_tid, 0);
 	}
 	else {
-		p_helper_tid = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner));
-		SetActorPosition(owner, vec3[vPos].x, vec3[vPos].y, vec3[vPos].z, false);
+		Vec3_T* owner_pos_temp = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner));
+		SetActorPosition(owner, vPos.x, vPos.y, vPos.z, false);
 		SetActivator(owner);
 		SpawnProjectile(0, projectile, angle >> 8, 0, 0, g, TEMPORARY_ATTACK_TID);
-		SetActorPosition(owner, vec3[p_helper_tid].x, vec3[p_helper_tid].y, vec3[p_helper_tid].z, false);
+		SetActorPosition(owner, owner_pos_temp.x, owner_pos_temp.y, owner_pos_temp.z, false);
+		bcs::free(owner_pos_temp);
 	}
 
 	// manipulate newly spawned projectiles
@@ -134,13 +135,13 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		g += 1.0;
 		if(g > 3.0)
 			g = 3.0;
-		vec3[velocity].x = FixedMul(vec3[velocity].x, g);
-		vec3[velocity].y = FixedMul(vec3[velocity].y, g);
-		vec3[velocity].z = FixedMul(vec3[velocity].z, g);
+		velocity.x = FixedMul(velocity.x, g);
+		velocity.y = FixedMul(velocity.y, g);
+		velocity.z = FixedMul(velocity.z, g);
 		spd = FixedMul(spd, g);
 	}
 
-	SetActorVelocity(TEMPORARY_ATTACK_TID, vec3[velocity].x, vec3[velocity].y, vec3[velocity].z, 0, 0);
+	SetActorVelocity(TEMPORARY_ATTACK_TID, velocity.x, velocity.y, velocity.z, 0, 0);
 	
 	// remove NOGRAVITY
 	if(flags & DND_ATF_USEGRAVITY)
@@ -196,13 +197,13 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 }
 
 // same with projectile above but fires a hitscan attack instead
-void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int pitch, int range, int vPos, int dmg = 0, bool isMelee = false) {
+void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int pitch, int range, Vec3_T* vPos, int dmg = 0, bool isMelee = false) {
 	// create a helper actor to manipulate spawn pos that will act on our behalf
 	SpawnForced(
 		"ProjectileHelper",
-		vec3[vPos].x,
-		vec3[vPos].y,
-		vec3[vPos].z + isMelee * (-4.0),
+		vPos.x,
+		vPos.y,
+		vPos.z + isMelee * (-4.0),
 		p_helper_tid
 	);
 
@@ -230,15 +231,15 @@ void CreateHitscan(int owner, int p_helper_tid, str projectile, int angle, int p
 }
 
 // start_vels and vPos are vectors
-void CreateMinion(int owner, str actor, int start_vels, int vPos, int unique_tid = 0, int flags = 0) {
+void CreateMinion(int owner, str actor, Vec3_T* start_vels, Vec3_T* vPos, int unique_tid = 0, int flags = 0) {
 	if(!unique_tid)
 		unique_tid = TEMPORARY_ATTACK_TID;
 
 	int spawned = Spawn(
 		actor,
-		vec3[vPos].x,
-		vec3[vPos].y,
-		vec3[vPos].z,
+		vPos.x,
+		vPos.y,
+		vPos.z,
 		unique_tid
 	);
 
@@ -254,8 +255,8 @@ void CreateMinion(int owner, str actor, int start_vels, int vPos, int unique_tid
 			SetPointer(AAPTR_MASTER, owner);
 		}
 		
-		SetActorVelocity(unique_tid, vec3[start_vels].x, vec3[start_vels].y, vec3[start_vels].z, 0, 0);
-		SetActorAngle(unique_tid, VectorAngle(vec3[start_vels].x, vec3[start_vels].y));
+		SetActorVelocity(unique_tid, start_vels.x, start_vels.y, start_vels.z, 0, 0);
+		SetActorAngle(unique_tid, VectorAngle(start_vels.x, start_vels.y));
 		
 		// clear used tid
 		Thing_ChangeTID(unique_tid, 0);
@@ -265,7 +266,7 @@ void CreateMinion(int owner, str actor, int start_vels, int vPos, int unique_tid
 	}
 }
 
-void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, int spd, int flags, int vPos, int hitscan_id = -1) {
+void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, int spd, int flags, Vec3_T* vPos, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
@@ -280,18 +281,20 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 	int i, proj_ang;
 	if(!(ProjectileInfo[proj_id].flags & DND_PROJ_HITSCAN)) {
 		int cosp = cos(p);
-		int vProj = GetVec3();
+		Vec3_T* vProj = GetVec3();
 		
 		for(i = 0; i < count; ++i) {
 			proj_ang = (a + (1.0 / count) * i) % 1.0;
 			
 			// these make our direction vector
-			vec3[vProj].x = spd * FixedMul(cos(proj_ang), cosp);
-			vec3[vProj].y = spd * FixedMul(sin(proj_ang), cosp);
-			vec3[vProj].z = -sin(p) * spd;
+			vProj.x = spd * FixedMul(cos(proj_ang), cosp);
+			vProj.y = spd * FixedMul(sin(proj_ang), cosp);
+			vProj.z = -sin(p) * spd;
 			
 			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, spd, vProj, vPos, flags);
 		}
+
+		bcs::free(vProj);
 	}
 	else {
 		// hitscan version of the above -- spd becomes range for us in this case
@@ -311,7 +314,7 @@ void Do_Attack_Circle(int owner, int pnum, int proj_id, int wepid, int count, in
 	}
 }
 
-void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int count, int spd, int flags, int vPos, int hitscan_id = -1) {
+void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int count, int spd, int flags, Vec3_T* vPos, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = Clamp_Between(GetActorPitch(owner), -0.248, 0.248);
@@ -320,18 +323,20 @@ void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int c
 	int i, proj_ang;
 	if(!(flags & DND_ATF_ISHITSCAN)) {
 		int cosp = cos(p);
-		int vProj = GetVec3();
+		Vec3_T* vProj = GetVec3();
 		
 		for(i = 0; i < count; ++i) {
 			proj_ang = (a + (1.0 / count) * i) % 1.0;
 			
 			// these make our direction vector
-			vec3[vProj].x = spd * FixedMul(cos(proj_ang), cosp);
-			vec3[vProj].y = spd * FixedMul(sin(proj_ang), cosp);
-			vec3[vProj].z = -sin(p) * spd;
+			vProj.x = spd * FixedMul(cos(proj_ang), cosp);
+			vProj.y = spd * FixedMul(sin(proj_ang), cosp);
+			vProj.z = -sin(p) * spd;
 			
 			CreateProjectile(owner, p_helper_tid, proj_name, proj_ang, p, spd, vProj, vPos, flags);
 		}
+
+		bcs::free(vProj);
 	}
 	else {
 		// hitscan version of the above -- spd becomes range for us in this case
@@ -353,7 +358,7 @@ void Do_Attack_Circle_Named(int owner, int pnum, str proj_name, int wepid, int c
 }
 
 // Does a hitscan attack, depending on special weapon behavior it can fire additional things --- we check for those using wepid, proj_id and flags
-void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, int range, int spread_x, int spread_y, int flags, int vPos, int hitscan_id = -1) {
+void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, int range, int spread_x, int spread_y, int flags, Vec3_T* vPos, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = GetActorPitch(owner);
@@ -378,19 +383,19 @@ void Do_Hitscan_Attack(int owner, int pnum, int proj_id, int wepid, int count, i
 	if(hitscan_id != -1)
 		hitscan_id = HitscanDamageData[hitscan_id];
 	
+	Vec2_T* vtemp = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread
-		int vtemp = BulletAngle(a, p, sp_x, sp_y);
+		SetBulletAngle(vtemp, a, p, sp_x, sp_y);
 		
-		CreateHitscan(owner, p_helper_tid, proj_name, vec2[vtemp].x, vec2[vtemp].y, range, vPos, hitscan_id);
+		CreateHitscan(owner, p_helper_tid, proj_name, vtemp.x, vtemp.y, range, vPos, hitscan_id);
 		
-		//printbold(f:vec2[vtemp].x, s: " ", f:vec2[vtemp].y, s: " ", s:proj_name, s: " ", f:range);
-		
-		FreeVec2(vtemp);
+		//printbold(f:vtemp.x, s: " ", f:vtemp.y, s: " ", s:proj_name, s: " ", f:range);
 	}
+	bcs::free(vtemp);
 }
 
-void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, int vPos, int proj_id = 0, int hitscan_id = -1) {
+void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int count, int range, int spread_x, int spread_y, int flags, Vec3_T* vPos, int proj_id = 0, int hitscan_id = -1) {
 	// ghost check
 	int a = GetActorAngle(owner);
 	int p = GetActorPitch(owner);
@@ -410,16 +415,17 @@ void Do_Hitscan_Attack_Named(int owner, int pnum, str proj_name, int wepid, int 
 	if(hitscan_id != -1)
 		hitscan_id = HitscanDamageData[hitscan_id];
 	
+	Vec2_T* vtemp = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread
-		int vtemp = BulletAngle(a, p, sp_x, sp_y);
+		SetBulletAngle(vtemp, a, p, sp_x, sp_y);
 		
-		CreateHitscan(owner, p_helper_tid, proj_name, vec2[vtemp].x, vec2[vtemp].y, range, vPos, hitscan_id);
+		CreateHitscan(owner, p_helper_tid, proj_name, vtemp.x, vtemp.y, range, vPos, hitscan_id);
 		
-		//printbold(f:vec2[vtemp].x, s: " ", f:vec2[vtemp].y, s: " ", s:proj_name, s: " ", f:range);
-		
-		FreeVec2(vtemp);
+		//printbold(f:vtemp.x, s: " ", f:vtemp.y, s: " ", s:proj_name, s: " ", f:range);
 	}
+
+	bcs::free(vtemp);
 }
 
 void Do_Railgun_Attack(str rail_helper, int count) {
@@ -434,8 +440,8 @@ void Do_Railgun_Attack(str rail_helper, int count) {
 // offset_vec is (x,y,z) offsets of the projectile to fire
 int Do_Projectile_Attack
 (
-	int owner, int pnum, int proj_id, int wepid, int count, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags, 
-	int vPos, int vUp, int vDir, int vRight, int extra = 0, int extra2 = 0
+	int owner, int pnum, int proj_id, int wepid, int count, Vec2_T* angle_vec, Vec3_T* offset_vec, int spread_x, int spread_y, int flags, 
+	Vec3_T* vPos, Vec3_T* vUp, Vec3_T* vDir, Vec3_T* vRight, int extra = 0, int extra2 = 0
 )
 {
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
@@ -447,21 +453,21 @@ int Do_Projectile_Attack
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 	
 	// do angle and pitch offsets -- negative on angle to flip it to decorate direction (- is left + is right)
-	int vTemp = GetVec3();
-	int vDirTemp = GetVec3();
-	int vPosTemp = GetVec3();
+	Vec3_T* vTemp = GetVec3();
+	Vec3_T* vDirTemp = GetVec3();
+	Vec3_T* vPosTemp = GetVec3();
 	AssignVec3(vDirTemp, vDir);
 	AssignVec3(vPosTemp, vPos);
 
-	if(vec2[angle_vec].x) {
+	if(angle_vec.x) {
 		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].x)));
+		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.x)));
 		AddVec3(vDirTemp, vTemp);
 	}
 	
-	if(vec2[angle_vec].y) {
+	if(angle_vec.y) {
 		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].y)));
+		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.y)));
 		AddVec3(vDirTemp, vTemp);
 	}
 	
@@ -470,27 +476,27 @@ int Do_Projectile_Attack
 	// if there's any spread do this otherwise don't, it fucks up pinpoint projectiles
 	if(spread_x || spread_y)
 		RotateVector3(vDirTemp, -a);
-	int p = -VectorAngle(vec3[vDirTemp].x, vec3[vDirTemp].z);
+	int p = -VectorAngle(vDirTemp.x, vDirTemp.z);
 	
 	// offset adjustment
-	if(vec3[offset_vec].x || vec3[offset_vec].y || vec3[offset_vec].z) {
+	if(offset_vec.x || offset_vec.y || offset_vec.z) {
 		AssignVec3(vTemp, vDirTemp);
-		ScaleVec3(vTemp, vec3[offset_vec].x);
+		ScaleVec3(vTemp, offset_vec.x);
 		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, vec3[offset_vec].y);
+		ScaleVec3(vTemp, offset_vec.y);
 		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, vec3[offset_vec].z);
+		ScaleVec3(vTemp, offset_vec.z);
 		AddVec3(vPosTemp, vTemp);
 	}
 	else
 		flags |= DND_ATF_NOHELPER;
 	
 	// we dont use it beyond here
-	FreeVec3(vTemp);
+	bcs::free(vTemp);
 	
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
@@ -499,38 +505,39 @@ int Do_Projectile_Attack
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 	acc = 0;
 
+	Vec3_T* vFireDir = GetVec3();
+	Vec2_T* proj_ang_vec = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile
-		int vFireDir = BulletAngleVec3(a, p, vDirTemp, sp_x, sp_y);
+		SetBulletAngleVec3(vFireDir, a, p, vDirTemp, sp_x, sp_y);
 		//ToUnitVec3(vFireDir);
 
-		int proj_ang_vec = GetVec2(
-			VectorAngle(vec3[vFireDir].x, vec3[vFireDir].y),
-			-asin(FixedDiv(vec3[vFireDir].z, fsqrt(FixedMul(vec3[vFireDir].x, vec3[vFireDir].x) + FixedMul(vec3[vFireDir].y, vec3[vFireDir].y) + FixedMul(vec3[vFireDir].z, vec3[vFireDir].z))))
+		SetVec2(
+			proj_ang_vec,
+			VectorAngle(vFireDir.x, vFireDir.y),
+			-asin(FixedDiv(vFireDir.z, fsqrt(FixedMul(vFireDir.x, vFireDir.x) + FixedMul(vFireDir.y, vFireDir.y) + FixedMul(vFireDir.z, vFireDir.z))))
 		);
 		
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, ProjectileInfo[proj_id].spd_range);
 		
-		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, ProjectileInfo[proj_id].spd_range, vFireDir, vPosTemp, flags, extra, extra2);
+		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, proj_ang_vec.x, proj_ang_vec.y, ProjectileInfo[proj_id].spd_range, vFireDir, vPosTemp, flags, extra, extra2);
 		if(spread_x && !acc)
 			acc = spread_x;
-
-		FreeVec2(proj_ang_vec);
-		
-		FreeVec3(vFireDir);
 	}
 
-	FreeVec3(vDirTemp);
-	FreeVec3(vPosTemp);
+	bcs::free(proj_ang_vec);
+	bcs::free(vFireDir);
+	bcs::free(vDirTemp);
+	bcs::free(vPosTemp);
 
 	return acc;
 }
 
 int Do_Projectile_Attack_Named
 (
-	int owner, int pnum, str proj_name, int wepid, int count, int speed, int angle_vec, int offset_vec, int spread_x, int spread_y, int flags,
-	int vPos, int vUp, int vDir, int vRight, int proj_id = 0, int extra = 0, int extra2 = 0
+	int owner, int pnum, str proj_name, int wepid, int count, int speed, Vec2_T* angle_vec, Vec3_T* offset_vec, int spread_x, int spread_y, int flags,
+	Vec3_T* vPos, Vec3_T* vUp, Vec3_T* vDir, Vec3_T* vRight, int proj_id = 0, int extra = 0, int extra2 = 0
 )
 {
 	int p_helper_tid = PROJECTILE_HELPER_TID + pnum;
@@ -541,21 +548,21 @@ int Do_Projectile_Attack_Named
 		proj_name = StrParam(s:proj_name, s:"_GhostHitter");
 	
 	// do angle and pitch offsets -- negative on angle to flip it to decorate direction (- is left + is right)
-	int vTemp = GetVec3();
-	int vDirTemp = GetVec3();
-	int vPosTemp = GetVec3();
+	Vec3_T* vTemp = GetVec3();
+	Vec3_T* vDirTemp = GetVec3();
+	Vec3_T* vPosTemp = GetVec3();
 	AssignVec3(vDirTemp, vDir);
 	AssignVec3(vPosTemp, vPos);
 
-	if(vec2[angle_vec].x) {
+	if(angle_vec.x) {
 		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].x)));
+		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.x)));
 		AddVec3(vDirTemp, vTemp);
 	}
 	
-	if(vec2[angle_vec].y) {
+	if(angle_vec.y) {
 		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-vec2[angle_vec].y)));
+		ScaleVec3(vTemp, sin(ANG_TO_DOOM(-angle_vec.y)));
 		AddVec3(vDirTemp, vTemp);
 	}
 	
@@ -564,27 +571,27 @@ int Do_Projectile_Attack_Named
 	// if there's any spread do this otherwise don't, it fucks up pinpoint projectiles
 	if(spread_x || spread_y)
 		RotateVector3(vDirTemp, -a);
-	int p = -VectorAngle(vec3[vDirTemp].x, vec3[vDirTemp].z);
+	int p = -VectorAngle(vDirTemp.x, vDirTemp.z);
 	
 	// offset adjustment
-	if(vec3[offset_vec].x || vec3[offset_vec].y || vec3[offset_vec].z) {
+	if(offset_vec.x || offset_vec.y || offset_vec.z) {
 		AssignVec3(vTemp, vDirTemp);
-		ScaleVec3(vTemp, vec3[offset_vec].x);
+		ScaleVec3(vTemp, offset_vec.x);
 		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vRight);
-		ScaleVec3(vTemp, vec3[offset_vec].y);
+		ScaleVec3(vTemp, offset_vec.y);
 		AddVec3(vPosTemp, vTemp);
 		
 		AssignVec3(vTemp, vUp);
-		ScaleVec3(vTemp, vec3[offset_vec].z);
+		ScaleVec3(vTemp, offset_vec.z);
 		AddVec3(vPosTemp, vTemp);
 	}
 	else
 		flags |= DND_ATF_NOHELPER;
 	
 	// we dont use it beyond here
-	FreeVec3(vTemp);
+	bcs::free(vTemp);
 	
 	int acc = GetActorProperty(owner, APROP_ACCURACY);
 	acc = Clamp_Between(1.0 - GetPlayerAccuracyFactor(pnum) * acc, 0.0, 10.0);
@@ -592,65 +599,66 @@ int Do_Projectile_Attack_Named
 	int sp_x = ANG_TO_DOOM(FixedMul(spread_x, acc));
 	int sp_y = ANG_TO_DOOM(FixedMul(spread_y, acc));
 	
+	Vec3_T* vFireDir = GetVec3();
+	Vec2_T* proj_ang_vec = GetVec2();
 	for(int i = 0; i < count; ++i) {
 		// use conical spread to obtain velocities of firing the projectile
-		int vFireDir = BulletAngleVec3(a, p, vDirTemp, sp_x, sp_y);
+		SetBulletAngleVec3(vFireDir, a, p, vDirTemp, sp_x, sp_y);
 		
-		int proj_ang_vec = GetVec2(
-			VectorAngle(vec3[vFireDir].x, vec3[vFireDir].y),
-			-asin(FixedDiv(vec3[vFireDir].z, fsqrt(FixedMul(vec3[vFireDir].x, vec3[vFireDir].x) + FixedMul(vec3[vFireDir].y, vec3[vFireDir].y) + FixedMul(vec3[vFireDir].z, vec3[vFireDir].z))))
+		SetVec2(
+			proj_ang_vec,
+			VectorAngle(vFireDir.x, vFireDir.y),
+			-asin(FixedDiv(vFireDir.z, fsqrt(FixedMul(vFireDir.x, vFireDir.x) + FixedMul(vFireDir.y, vFireDir.y) + FixedMul(vFireDir.z, vFireDir.z))))
 		);
 		
 		// proper scaling now that we got our direction vector
 		ScaleVec3_Int(vFireDir, speed);
 		
-		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, vec2[proj_ang_vec].x, vec2[proj_ang_vec].y, speed, vFireDir, vPosTemp, flags, extra, extra2);
+		spread_x = CreateProjectile(owner, p_helper_tid, proj_name, proj_ang_vec.x, proj_ang_vec.y, speed, vFireDir, vPosTemp, flags, extra, extra2);
 		if(spread_x && !acc)
 			acc = spread_x;
-
-		FreeVec2(proj_ang_vec);
-		
-		FreeVec3(vFireDir);
 	}
 
-	FreeVec3(vDirTemp);
-	FreeVec3(vPosTemp);
+	bcs::free(proj_ang_vec);
+	bcs::free(vFireDir);
+	bcs::free(vDirTemp);
+	bcs::free(vPosTemp);
 
 	return acc;
 }
 
 // takes DND_MF_XXX not the ATF! This is a minion summon!
-void Do_Minion_Summon(int owner, str actor, int offset_vec, int speed = 0, int unique_tid = 0, int flags = 0) {
-	int vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
-	int vDir = GetDirectionVector(owner);
-	int vUp = GetUpVector(vDir);
-	int vRight = GetRightVector(vDir, vUp);
+void Do_Minion_Summon(int owner, str actor, Vec3_T* offset_vec, int speed = 0, int unique_tid = 0, int flags = 0) {
+	Vec3_T* vPos = GetVec3(GetActorX(owner), GetActorY(owner), GetActorZ(owner) + GetActorViewHeight(owner) - 5.0);
+	Vec3_T* vDir = GetDirectionVector(owner);
+	Vec3_T* vUp = GetUpVector(vDir);
+	Vec3_T* vRight = GetRightVector(vDir, vUp);
 	
-	int velocity = CopyVec3(vDir);
+	Vec3_T* velocity = CopyVec3(vDir);
 	ScaleVec3_Int(velocity, speed);
 	
 	// offset adjustment
-	if(vec3[offset_vec].x || vec3[offset_vec].y || vec3[offset_vec].z) {
-		ScaleVec3(vDir, vec3[offset_vec].x);
+	if(offset_vec.x || offset_vec.y || offset_vec.z) {
+		ScaleVec3(vDir, offset_vec.x);
 		AddVec3(vPos, vDir);
 		
-		ScaleVec3(vRight, vec3[offset_vec].y);
+		ScaleVec3(vRight, offset_vec.y);
 		AddVec3(vPos, vRight);
 
-		ScaleVec3(vUp, vec3[offset_vec].z);
+		ScaleVec3(vUp, offset_vec.z);
 		AddVec3(vPos, vUp);
 	}
 	
 	CreateMinion(owner, actor, velocity, vPos, unique_tid, flags);
 
-	FreeVec3(vPos);
-	FreeVec3(vUp);
-	FreeVec3(vDir);
-	FreeVec3(vRight);
-	FreeVec3(velocity);
+	bcs::free(vPos);
+	bcs::free(vUp);
+	bcs::free(vDir);
+	bcs::free(vRight);
+	bcs::free(velocity);
 }
 
-void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, int proj_id, int angle_offset, int pitch_offset, int flags, int vPos, int range_offset = 0, int hitscan_id = -1) {
+void Do_Melee_Attack(int owner, int pnum, int wepid, int count, str proj_name, int proj_id, int angle_offset, int pitch_offset, int flags, Vec3_T* vPos, int range_offset = 0, int hitscan_id = -1) {
 	// just like before, we fire hitscans in player's facing direction +- spread depending on the frame
 	int range = GetPlayerMeleeRange(pnum, ProjectileInfo[proj_id].spd_range + range_offset);
 	

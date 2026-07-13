@@ -52,112 +52,156 @@ enum {
 };
 #define FIRST_DUNGEON_ATTRIBUTE DUN_ATTR_EXTRAHP
 
-global inv_attrib_T 19: DungeonModTable[DUN_ATTR_MAX];
+typedef struct {
+	inv_attrib_T DungeonModTable[DUN_ATTR_MAX];
+	inv_attrib_T DungeonUpsideModTable[DUN_UPSIDE_MAX];
+} dungeon_mod_info_T;
+
+global dungeon_mod_info_T 19: DungeonModData;
 
 void SetupDungeonModTable() {
-	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_low = 10;
-	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_high = 21;
-	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_extra_low = 5;
-	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_extra_high = 10;
-	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_level_modifier = 0;
-	DungeonModTable[DUN_ATTR_EXTRAHP].attrib_level_extra_modifier = 0;
-	DungeonModTable[DUN_ATTR_EXTRAHP].tags = INV_ATTR_TAG_LIFE;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAHP].attrib_low = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAHP].attrib_high = 21;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAHP].attrib_extra_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAHP].attrib_extra_high = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAHP].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAHP].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAHP].tags = INV_ATTR_TAG_LIFE;
 
-	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_low = 5;
-	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_high = 11;
-	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_extra_low = 8;
-	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_extra_high = 12;
-	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_level_modifier = 0;
-	DungeonModTable[DUN_ATTR_FORTIFIED].attrib_level_extra_modifier = 0;
-	DungeonModTable[DUN_ATTR_FORTIFIED].tags = INV_ATTR_TAG_DEFENSE;
+	DungeonModData.DungeonModTable[DUN_ATTR_FORTIFIED].attrib_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_FORTIFIED].attrib_high = 11;
+	DungeonModData.DungeonModTable[DUN_ATTR_FORTIFIED].attrib_extra_low = 8;
+	DungeonModData.DungeonModTable[DUN_ATTR_FORTIFIED].attrib_extra_high = 12;
+	DungeonModData.DungeonModTable[DUN_ATTR_FORTIFIED].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_FORTIFIED].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_FORTIFIED].tags = INV_ATTR_TAG_DEFENSE;
 
-	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_low = 5;
-	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_high = 15;
-	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_extra_low = 8;
-	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_extra_high = 12;
-	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_level_modifier = 0;
-	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_level_extra_modifier = 0;
-	DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].tags = INV_ATTR_TAG_NONE;
+	DungeonModData.DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_high = 15;
+	DungeonModData.DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_extra_low = 8;
+	DungeonModData.DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_extra_high = 12;
+	DungeonModData.DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_MORETOUGHENEMIES].tags = INV_ATTR_TAG_NONE;
 
-	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_low = 5;
-	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_high = 15;
-	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_extra_low = 10;
-	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_extra_high = 15;
-	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_level_modifier = 0;
-	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_level_extra_modifier = 0;
-	DungeonModTable[DUN_ATTR_MOREELITEENEMIES].tags = INV_ATTR_TAG_NONE;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_high = 15;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_extra_low = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_extra_high = 15;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREELITEENEMIES].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREELITEENEMIES].tags = INV_ATTR_TAG_NONE;
 
-	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_low = 1;
-	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_high = 1;
-	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_extra_low = 20;
-	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_extra_high = 40;
-	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_level_modifier = -1;
-	DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_level_extra_modifier = -1;
-	DungeonModTable[DUN_ATTR_CULLENEMIES].tags = INV_ATTR_TAG_ATTACK;
+	DungeonModData.DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_extra_low = 20;
+	DungeonModData.DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_extra_high = 40;
+	DungeonModData.DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_CULLENEMIES].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_CULLENEMIES].tags = INV_ATTR_TAG_ATTACK;
 
-	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_low = 1;
-	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_high = 1;
-	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_extra_low = 15;
-	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_extra_high = 25;
-	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_level_modifier = -1;
-	DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_level_extra_modifier = -1;
-	DungeonModTable[DUN_ATTR_NOINFIGHT].tags = INV_ATTR_TAG_UTILITY;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_extra_low = 15;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_extra_high = 25;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOINFIGHT].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOINFIGHT].tags = INV_ATTR_TAG_UTILITY;
 
-	DungeonModTable[DUN_ATTR_NOPAIN].attrib_low = 1;
-	DungeonModTable[DUN_ATTR_NOPAIN].attrib_high = 1;
-	DungeonModTable[DUN_ATTR_NOPAIN].attrib_extra_low = 15;
-	DungeonModTable[DUN_ATTR_NOPAIN].attrib_extra_high = 30;
-	DungeonModTable[DUN_ATTR_NOPAIN].attrib_level_modifier = -1;
-	DungeonModTable[DUN_ATTR_NOPAIN].attrib_level_extra_modifier = -1;
-	DungeonModTable[DUN_ATTR_NOPAIN].tags = INV_ATTR_TAG_DEFENSE;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOPAIN].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOPAIN].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOPAIN].attrib_extra_low = 15;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOPAIN].attrib_extra_high = 30;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOPAIN].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOPAIN].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NOPAIN].tags = INV_ATTR_TAG_DEFENSE;
 
-	DungeonModTable[DUN_ATTR_NORIP].attrib_low = 1;
-	DungeonModTable[DUN_ATTR_NORIP].attrib_high = 1;
-	DungeonModTable[DUN_ATTR_NORIP].attrib_extra_low = 10;
-	DungeonModTable[DUN_ATTR_NORIP].attrib_extra_high = 20;
-	DungeonModTable[DUN_ATTR_NORIP].attrib_level_modifier = -1;
-	DungeonModTable[DUN_ATTR_NORIP].attrib_level_extra_modifier = -1;
-	DungeonModTable[DUN_ATTR_NORIP].tags = INV_ATTR_TAG_ATTACK;
+	DungeonModData.DungeonModTable[DUN_ATTR_NORIP].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NORIP].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NORIP].attrib_extra_low = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_NORIP].attrib_extra_high = 20;
+	DungeonModData.DungeonModTable[DUN_ATTR_NORIP].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NORIP].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_NORIP].tags = INV_ATTR_TAG_ATTACK;
 
-	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_low = 1;
-	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_high = 1;
-	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_extra_low = 20;
-	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_extra_high = 50;
-	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_level_modifier = -1;
-	DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_level_extra_modifier = -1;
-	DungeonModTable[DUN_ATTR_EXTRAFAST].tags = INV_ATTR_TAG_UTILITY;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_extra_low = 20;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_extra_high = 50;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAFAST].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRAFAST].tags = INV_ATTR_TAG_UTILITY;
 
-	DungeonModTable[DUN_ATTR_MOREDMG].attrib_low = 11;
-	DungeonModTable[DUN_ATTR_MOREDMG].attrib_high = 20;
-	DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_low = 8;
-	DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_high = 14;
-	DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_modifier = 0;
-	DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_extra_modifier = 0;
-	DungeonModTable[DUN_ATTR_MOREDMG].tags = INV_ATTR_TAG_DAMAGE;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_low = 11;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_high = 20;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_low = 8;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_high = 14;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].tags = INV_ATTR_TAG_DAMAGE;
 
-	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_low = 5;
-	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_high = 10;
-	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_extra_low = 10;
-	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_extra_high = 16;
-	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_level_modifier = 0;
-	DungeonModTable[DUN_ATTR_FASTPROJ].attrib_level_extra_modifier = 0;
-	DungeonModTable[DUN_ATTR_FASTPROJ].tags = INV_ATTR_TAG_ATTACK;
+	DungeonModData.DungeonModTable[DUN_ATTR_FASTPROJ].attrib_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_FASTPROJ].attrib_high = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_FASTPROJ].attrib_extra_low = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_FASTPROJ].attrib_extra_high = 16;
+	DungeonModData.DungeonModTable[DUN_ATTR_FASTPROJ].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_FASTPROJ].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_FASTPROJ].tags = INV_ATTR_TAG_ATTACK;
 
-	DungeonModTable[DUN_ATTR_GHOST].attrib_low = 1;
-	DungeonModTable[DUN_ATTR_GHOST].attrib_high = 1;
-	DungeonModTable[DUN_ATTR_GHOST].attrib_extra_low = 15;
-	DungeonModTable[DUN_ATTR_GHOST].attrib_extra_high = 35;
-	DungeonModTable[DUN_ATTR_GHOST].attrib_level_modifier = -1;
-	DungeonModTable[DUN_ATTR_GHOST].attrib_level_extra_modifier = -1;
-	DungeonModTable[DUN_ATTR_GHOST].tags = INV_ATTR_TAG_UTILITY;
+	DungeonModData.DungeonModTable[DUN_ATTR_GHOST].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_GHOST].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_GHOST].attrib_extra_low = 15;
+	DungeonModData.DungeonModTable[DUN_ATTR_GHOST].attrib_extra_high = 35;
+	DungeonModData.DungeonModTable[DUN_ATTR_GHOST].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_GHOST].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_GHOST].tags = INV_ATTR_TAG_UTILITY;
 
-	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_low = 5;
-	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_high = 10;
-	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_extra_low = 16;
-	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_extra_high = 20;
-	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_modifier = 0;
-	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_extra_modifier = 0;
-	DungeonModTable[DUN_ATTR_INCREASEDRESISTS].tags = INV_ATTR_TAG_DEFENSE;
+	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_low = 5;
+	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_high = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_extra_low = 16;
+	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_extra_high = 20;
+	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_extra_modifier = 0;
+	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].tags = INV_ATTR_TAG_DEFENSE;
+	
+	/////////////
+	// upsides //
+	/////////////
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_QUANT].attrib_low = 5;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_QUANT].attrib_high = 10;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_QUANT].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_QUANT].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARITY].attrib_low = 5;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARITY].attrib_high = 10;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARITY].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARITY].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_EXPANDCREDIT].attrib_low = 5;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_EXPANDCREDIT].attrib_high = 20;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_EXPANDCREDIT].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_EXPANDCREDIT].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_BUDGET].attrib_low = 5;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_BUDGET].attrib_high = 15;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_BUDGET].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_BUDGET].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_low = 1;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_high = 8;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_low = 1;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_high = 6;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_MERCHANTCHANCE].attrib_low = 1;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_MERCHANTCHANCE].attrib_high = 10;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_MERCHANTCHANCE].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_MERCHANTCHANCE].tags = INV_ATTR_TAG_NONE;
 }
 
 bool IsDungeonAttributeQualityException(int attr) {
@@ -190,25 +234,25 @@ bool IsFixedPointDungeonMod(int mod) {
 
 int GetDungeonModTierRangeMapper(int attr, int lvl) {
 	int val = 0;
-	if(DungeonModTable[attr].attrib_level_modifier == -1)
+	if(DungeonModData.DungeonModTable[attr].attrib_level_modifier == -1)
 		return -1;
 
-	if(!DungeonModTable[attr].attrib_level_modifier)
-		val = (DungeonModTable[attr].attrib_high - DungeonModTable[attr].attrib_low + 1) * lvl;
+	if(!DungeonModData.DungeonModTable[attr].attrib_level_modifier)
+		val = (DungeonModData.DungeonModTable[attr].attrib_high - DungeonModData.DungeonModTable[attr].attrib_low + 1) * lvl;
 	else
-		val = (DungeonModTable[attr].attrib_level_modifier * lvl);
+		val = (DungeonModData.DungeonModTable[attr].attrib_level_modifier * lvl);
 	return val;
 }
 
 int GetDungeonModTierRangeMapperExtra(int attr, int lvl) {
 	int val = 0;
-	if(DungeonModTable[attr].attrib_level_extra_modifier == -1)
+	if(DungeonModData.DungeonModTable[attr].attrib_level_extra_modifier == -1)
 		return -1;
 
-	if(!DungeonModTable[attr].attrib_level_extra_modifier)
-		val = (DungeonModTable[attr].attrib_extra_high - DungeonModTable[attr].attrib_extra_low + 1) * lvl;
+	if(!DungeonModData.DungeonModTable[attr].attrib_level_extra_modifier)
+		val = (DungeonModData.DungeonModTable[attr].attrib_extra_high - DungeonModData.DungeonModTable[attr].attrib_extra_low + 1) * lvl;
 	else
-		val = (DungeonModTable[attr].attrib_level_extra_modifier * lvl);
+		val = (DungeonModData.DungeonModTable[attr].attrib_level_extra_modifier * lvl);
 	return val;
 }
 
@@ -218,15 +262,15 @@ int GetDungeonModRangeWithTier(int attr, int tier_mapping, bool which, int attr_
 
 	if(tier_mapping != -1) {
 		if(!which)
-			res = (DungeonModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+			res = (DungeonModData.DungeonModTable[attr].attrib_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
 		else
-			res = (DungeonModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+			res = (DungeonModData.DungeonModTable[attr].attrib_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
 	}
 	else {
 		if(!which)
-			res = DungeonModTable[attr].attrib_low * (100 + attr_factor) / 100;
+			res = DungeonModData.DungeonModTable[attr].attrib_low * (100 + attr_factor) / 100;
 		else
-			res = DungeonModTable[attr].attrib_high * (100 + attr_factor) / 100;
+			res = DungeonModData.DungeonModTable[attr].attrib_high * (100 + attr_factor) / 100;
 	}
 	
 	if(!res)
@@ -239,15 +283,15 @@ int GetDungeonModRangeWithTierExtra(int attr, int tier_mapping, bool which, int 
 
 	if(tier_mapping != -1) {
 		if(!which)
-			res = (DungeonModTable[attr].attrib_extra_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+			res = (DungeonModData.DungeonModTable[attr].attrib_extra_low + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
 		else
-			res = (DungeonModTable[attr].attrib_extra_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
+			res = (DungeonModData.DungeonModTable[attr].attrib_extra_high + tier_mapping + (tier_mapping != 0)) * (100 + attr_factor) / 100;
 	}
 	else {
 		if(!which)
-			res = DungeonModTable[attr].attrib_extra_low * (100 + attr_factor) / 100;
+			res = DungeonModData.DungeonModTable[attr].attrib_extra_low * (100 + attr_factor) / 100;
 		else
-			res = DungeonModTable[attr].attrib_extra_high * (100 + attr_factor) / 100;
+			res = DungeonModData.DungeonModTable[attr].attrib_extra_high * (100 + attr_factor) / 100;
 	}
 	
 	if(!res)

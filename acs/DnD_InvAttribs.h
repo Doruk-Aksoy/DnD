@@ -26,46 +26,55 @@ typedef struct {
 	int arr_extra[MAX_ITEM_IMPLICITS];
 } attrib_sync_T;
 
-global attrib_sync_T 48: PlayerAttributeSyncs[MAXPLAYERS];
+attrib_sync_T module& GetPlayerAttributeSyncs(int pnum) {
+	static attrib_sync_T PlayerAttributeSyncs[MAXPLAYERS];
+	return PlayerAttributeSyncs[pnum];
+}
 
 bool IsAttributeQueuedForSync(int pnum, int attrib_id) {
-	int amt = PlayerAttributeSyncs[pnum].count;
+	auto psync = GetPlayerAttributeSyncs(pnum);
+	int amt = psync.count;
 	for(int i = 0; i < amt; ++i)
-		if(PlayerAttributeSyncs[pnum].arr[i] == attrib_id)
+		if(psync.arr[i] == attrib_id)
 			return true;
 	return false;
 }
 
 bool IsAttributeExtraQueuedForSync(int pnum, int attrib_id) {
-	int amt = PlayerAttributeSyncs[pnum].extras;
+	auto psync = GetPlayerAttributeSyncs(pnum);
+	int amt = psync.extras;
 	for(int i = 0; i < amt; ++i)
-		if(PlayerAttributeSyncs[pnum].arr_extra[i] == attrib_id)
+		if(psync.arr_extra[i] == attrib_id)
 			return true;
 	return false;
 }
 
 void PushToPlayerAttributeSync(int pnum, int attrib_id) {
-	if(PlayerAttributeSyncs[pnum].count < DND_MAX_ATTRIBUTE_SYNC_ELEMS && !IsAttributeQueuedForSync(pnum, attrib_id))
-		PlayerAttributeSyncs[pnum].arr[PlayerAttributeSyncs[pnum].count++] = attrib_id;
+	auto psync = GetPlayerAttributeSyncs(pnum);
+	if(psync.count < DND_MAX_ATTRIBUTE_SYNC_ELEMS && !IsAttributeQueuedForSync(pnum, attrib_id))
+		psync.arr[psync.count++] = attrib_id;
 }
 
 void PushToPlayerAttributeExtraSync(int pnum, int attrib_id) {
-	if(PlayerAttributeSyncs[pnum].extras < DND_MAX_ATTRIBUTE_SYNC_ELEMS && !IsAttributeExtraQueuedForSync(pnum, attrib_id))
-		PlayerAttributeSyncs[pnum].arr_extra[PlayerAttributeSyncs[pnum].extras++] = attrib_id;
+	auto psync = GetPlayerAttributeSyncs(pnum);
+	if(psync.extras < DND_MAX_ATTRIBUTE_SYNC_ELEMS && !IsAttributeExtraQueuedForSync(pnum, attrib_id))
+		psync.arr_extra[psync.extras++] = attrib_id;
 }
 
 void ClearPlayerAttributeSync(int pnum) {
-	int amt = PlayerAttributeSyncs[pnum].count;
+	auto psync = GetPlayerAttributeSyncs(pnum);
+	int amt = psync.count;
 	for(int i = 0; i < amt; ++i)
-		PlayerAttributeSyncs[pnum].arr[i] = -1;
-	PlayerAttributeSyncs[pnum].count = 0;
+		psync.arr[i] = -1;
+	psync.count = 0;
 }
 
 void ClearPlayerAttributeExtraSync(int pnum) {
-	int amt = PlayerAttributeSyncs[pnum].extras;
+	auto psync = GetPlayerAttributeSyncs(pnum);
+	int amt = psync.extras;
 	for(int i = 0; i < amt; ++i)
-		PlayerAttributeSyncs[pnum].arr_extra[i] = -1;
-	PlayerAttributeSyncs[pnum].extras = 0;
+		psync.arr_extra[i] = -1;
+	psync.extras = 0;
 }
 
 //#define MAX_ATTRIB_MODIFIER 0xFFFFFFFF
@@ -629,8 +638,13 @@ enum {
 // indexing on this one is done by checking ranges, and then mapping appropriately
 global int 8: AttributeTagGroups[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES][MAX_ATTRIB_TAG_GROUPCOUNT];
 global int 5: AttributeTagGroupCount[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES];
-global int 57: PlayerModExtras[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
-global int 61: PlayerModValues[MAXPLAYERS][MAX_TOTAL_ATTRIBUTES];
+
+typedef struct {
+	int extra[MAX_TOTAL_ATTRIBUTES];
+	int value[MAX_TOTAL_ATTRIBUTES];
+} player_item_mod_data_T;
+
+global player_item_mod_data_T 57: PlayerModData[MAXPLAYERS];
 
 // More multiplier mods are multiplied amongst themselves in case of having more than one source, and are all "FIXED POINT" values, not integers
 bool IsMoreMultiplierMod(int mod) {
@@ -776,63 +790,60 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 }
 
 void SetPlayerModValue(int pnum, int mod, int val) {
-	PlayerModValues[pnum][mod] = val;
+	PlayerModData[pnum].value[mod] = val;
 	PushToPlayerAttributeSync(pnum, mod);
 }
 
 void SetPlayerModExtra(int pnum, int mod, int val) {
-	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " = ", d:val);
-	PlayerModExtras[pnum][mod] = val;
+	PlayerModData[pnum].extra[mod] = val;
 	PushToPlayerAttributeExtraSync(pnum, mod);
 }
 
 void IncPlayerModValue(int pnum, int mod, int val) {
-	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
-		PlayerModValues[pnum][mod] += val;
+		PlayerModData[pnum].value[mod] += val;
 	}
-	else if(!PlayerModValues[pnum][mod]) {
+	else if(!PlayerModData[pnum].value[mod]) {
 		// if we are zero, simply replace with val
-		PlayerModValues[pnum][mod] = val;
+		PlayerModData[pnum].value[mod] = val;
 	}
 	else if(val > 0) {
 		// non-zero, multiply case -- we store things like 0.2 etc. here, but while we amplify it we need to consider 1.0 + val
-		PlayerModValues[pnum][mod] = CombineMultiplicativeFactors(PlayerModValues[pnum][mod], val) - 1.0;
+		PlayerModData[pnum].value[mod] = CombineMultiplicativeFactors(PlayerModData[pnum].value[mod], val) - 1.0;
 	}
 	else if(val < 0) {
 		// if negative we divide
 		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
-		if(PlayerModValues[pnum][mod] + val < EPSILON)
-			PlayerModValues[pnum][mod] = 0;
+		if(PlayerModData[pnum].value[mod] + val < EPSILON)
+			PlayerModData[pnum].value[mod] = 0;
 		else
-			PlayerModValues[pnum][mod] = CancelMultiplicativeFactors(PlayerModValues[pnum][mod], -val) - 1.0;
+			PlayerModData[pnum].value[mod] = CancelMultiplicativeFactors(PlayerModData[pnum].value[mod], -val) - 1.0;
 	}
 
 	PushToPlayerAttributeSync(pnum, mod);
 }
 
 void IncPlayerModExtra(int pnum, int mod, int val) {
-	//printbold(s:"mod: ", d:mod, s:" ", d:PlayerModValues[pnum][mod], s: " += ", d:val);
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
-		PlayerModExtras[pnum][mod] += val;
+		PlayerModData[pnum].extra[mod] += val;
 	}
-	else if(!PlayerModExtras[pnum][mod]) {
+	else if(!PlayerModData[pnum].extra[mod]) {
 		// if we are zero, simply replace with val
-		PlayerModExtras[pnum][mod] = val;
+		PlayerModData[pnum].extra[mod] = val;
 	}
 	else if(val > 0) {
 		// non-zero, multiply case -- we store things like 0.2 etc. here, but while we amplify it we need to consider 1.0 + val
-		PlayerModExtras[pnum][mod] = CombineMultiplicativeFactors(PlayerModExtras[pnum][mod], val) - 1.0;
+		PlayerModData[pnum].extra[mod] = CombineMultiplicativeFactors(PlayerModData[pnum].extra[mod], val) - 1.0;
 	}
 	else if(val < 0) {
 		// if negative we divide
 		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
-		if(PlayerModExtras[pnum][mod] + val < EPSILON)
-			PlayerModExtras[pnum][mod] = 0;
+		if(PlayerModData[pnum].extra[mod] + val < EPSILON)
+			PlayerModData[pnum].extra[mod] = 0;
 		else
-			PlayerModExtras[pnum][mod] = CancelMultiplicativeFactors(PlayerModExtras[pnum][mod], -val) - 1.0;
+			PlayerModData[pnum].extra[mod] = CancelMultiplicativeFactors(PlayerModData[pnum].extra[mod], -val) - 1.0;
 	}
 	
 	PushToPlayerAttributeExtraSync(pnum, mod);
@@ -840,26 +851,26 @@ void IncPlayerModExtra(int pnum, int mod, int val) {
 
 void ResetPlayerModList(int pnum) {
 	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
-		PlayerModValues[pnum][i] = 0;
-		PlayerModExtras[pnum][i] = 0;
+		PlayerModData[pnum].value[i] = 0;
+		PlayerModData[pnum].extra[i] = 0;
 	}
 	ACS_NamedExecuteWithResult("DnD Reset Player Mod List", pnum);
 }
 
 void SyncPlayerItemMods(int pnum) {
 	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
-		if(PlayerModValues[pnum][i])
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModValues[pnum][i]);
-		if(PlayerModExtras[pnum][i])
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, i, PlayerModExtras[pnum][i]);
+		if(PlayerModData[pnum].value[i])
+			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModData[pnum].value[i]);
+		if(PlayerModData[pnum].extra[i])
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, i, PlayerModData[pnum].extra[i]);
 	}
 }
 
 // resets things clientside for the array
 Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
 	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
-		PlayerModValues[pnum][i] = 0;
-		PlayerModExtras[pnum][i] = 0;
+		PlayerModData[pnum].value[i] = 0;
+		PlayerModData[pnum].extra[i] = 0;
 	}
 }
 

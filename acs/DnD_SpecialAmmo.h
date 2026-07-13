@@ -22,17 +22,21 @@ enum {
 #define MAX_SPECIAL_AMMOS_FOR_SHOP (MAX_SPECIAL_AMMOS - 2) // we need to ignore the regular grenade and exp shell here
 #define MAX_SPECIALAMMO_DAMAGEINDEX 3
 
-str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS - 1][2] = {
-	{	"SAM1A0",			"FlechetteShell"		},
-	{	"SAM3A0",			"PiercingShell"			},
-	{	"SAM2A0",			"ElectricShell"			},
-	{	"SAM4A0",         	"NitroShell"			},
-	{	"SAM5A0",			"SlugShell"				},
-	{ 	"ESHAB0",			"ExplodingShell"		},
-	
-	{	"GAM1A0",			"A40MMSonicGrenade"		},
-	{	"GAM2A0",			"A40MMHEGrenade"		}
-};
+str GetSpecialAmmoStr(int ammo, int which) {
+	static str SpecialAmmoInfo_Str[MAX_SPECIAL_AMMOS - 1][2] = {
+		{	"SAM1A0",			"FlechetteShell"		},
+		{	"SAM3A0",			"PiercingShell"			},
+		{	"SAM2A0",			"ElectricShell"			},
+		{	"SAM4A0",         	"NitroShell"			},
+		{	"SAM5A0",			"SlugShell"				},
+		{ 	"ESHAB0",			"ExplodingShell"		},
+		
+		{	"GAM1A0",			"A40MMSonicGrenade"		},
+		{	"GAM2A0",			"A40MMHEGrenade"		}
+	};
+
+	return SpecialAmmoInfo_Str[ammo][which];
+}
 
 ammo_info_T SpecialAmmoInfo[MAX_SPECIAL_AMMOS - 1] = {
 	{ 	40,			8		},
@@ -124,41 +128,46 @@ int SpecialAmmoRanges[SPECIALAMMO_TYPE_MAX][SPECIALAMMO_PERWEAPON_MAX] = {
 str GetSpecialAmmoString(int id, int which) {
 	switch(id) {
 		case AMMO_BASICSHELL:
+			auto a_info = GetAmmoInfo(DND_AMMOSLOT_SHELL, AMMO_SHELL);
 			if(which == AMMOINFO_ICON)
-				return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_SHELL].icon;
-			return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_SHELL].name;
+				return a_info.icon;
+			return a_info.name;
 		case AMMO_FLECHETTE:
-		return SpecialAmmoInfo_Str[SSAM_FLECHETTE][which];
+		return GetSpecialAmmoStr(SSAM_FLECHETTE, which);
 		case AMMO_PIERCING:
-		return SpecialAmmoInfo_Str[SSAM_MAGNUM][which];
+		return GetSpecialAmmoStr(SSAM_MAGNUM, which);
 		case AMMO_ELECTRIC:
-		return SpecialAmmoInfo_Str[SSAM_SHOCK][which];
+		return GetSpecialAmmoStr(SSAM_SHOCK, which);
 		
 		case AMMO_BULLET:
+			a_info = GetAmmoInfo(DND_AMMOSLOT_CLIP, AMMO_CLIP);
 			if(which == AMMOINFO_ICON)
-				return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_CLIP].icon;
-			return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_CLIP].name;
+				return a_info.icon;
+			return a_info.name;
 		case AMMO_BASICGRENADE:
+			a_info = GetAmmoInfo(DND_AMMOSLOT_ROCKET, AMMO_GRENADE);
 			if(which == AMMOINFO_ICON)
-				return AmmoInfo[DND_AMMOSLOT_ROCKET][AMMO_GRENADE].icon;
-			return AmmoInfo[DND_AMMOSLOT_ROCKET][AMMO_GRENADE].name;
+				return a_info.icon;
+			return a_info.name;
 		case AMMO_40MMSONIC:
-		return SpecialAmmoInfo_Str[SSAM_40MMSONIC - 1][which];
+		return GetSpecialAmmoStr(SSAM_40MMSONIC - 1, which);
 		case AMMO_40MMHEGRENADE:
-		return SpecialAmmoInfo_Str[SSAM_40MMHE - 1][which];
+		return GetSpecialAmmoStr(SSAM_40MMHE - 1, which);
 		
 		case AMMO_RIOTSHELL:
+			a_info = GetAmmoInfo(DND_AMMOSLOT_CLIP, AMMO_RIOT);
 			if(which == AMMOINFO_ICON)
-				return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_RIOT].icon;
-			return AmmoInfo[DND_AMMOSLOT_CLIP][AMMO_RIOT].name;
+				return a_info.icon;
+			return a_info.name;
 		case AMMO_NITROGENSHELL:
-		return SpecialAmmoInfo_Str[SSAM_NITROSHELL][which];
+		return GetSpecialAmmoStr(SSAM_NITROSHELL, which);
 		case AMMO_EXPLOSIVESHELL:
+			a_info = GetAmmoInfo(DND_AMMOSLOT_SHELL, AMMO_EXSHELL);
 			if(which == AMMOINFO_ICON)
-				return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].icon;
-			return AmmoInfo[DND_AMMOSLOT_SHELL][AMMO_EXSHELL].name;
+				return a_info.icon;
+			return a_info.name;
 		case AMMO_SLUGSHELL:
-		return SpecialAmmoInfo_Str[SSAM_SLUG][which];
+		return GetSpecialAmmoStr(SSAM_SLUG, which);
 	}
 	return "";
 }

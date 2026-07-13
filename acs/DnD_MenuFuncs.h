@@ -657,11 +657,11 @@ void DrawAmmoIconCorner(int slot, int boxid, int ammoindex, bool isSpecial) {
 			ammoindex = MAXSHOPNORMALAMMOS + boxid - 1;
 			if(boxid - 1 >= SSAM_EXSHELL)
 				boxid = boxid + 1;
-			toshow = GetTextWithResearch(SpecialAmmoInfo_Str[boxid - 1][AMMOINFO_ICON], "", GetAmmoDrawInfo(ammoindex).res_id, RES_KNOWN, GetAmmoDrawInfo(ammoindex).flags);
+			toshow = GetTextWithResearch(GetSpecialAmmoStr(boxid - 1, AMMOINFO_ICON), "", GetAmmoDrawInfo(ammoindex).res_id, RES_KNOWN, GetAmmoDrawInfo(ammoindex).flags);
 		}
 		else {
 			int shopindex = GetMenuAmmoIndexMap(slot, ammoindex) - SHOP_FIRSTAMMO_INDEX;
-			toshow = GetTextWithResearch(AmmoInfo[slot][ammoindex].icon, "", GetAmmoDrawInfo(shopindex).res_id, RES_KNOWN, GetAmmoDrawInfo(shopindex).flags);
+			toshow = GetTextWithResearch(GetAmmoInfo(slot, ammoindex).icon, "", GetAmmoDrawInfo(shopindex).res_id, RES_KNOWN, GetAmmoDrawInfo(shopindex).flags);
 		}
 	}
 
@@ -912,12 +912,12 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 	if(tradeflag & TRADE_BUY) {
 		if(type == TYPE_AMMO) { // ammo
 			cond2 = (CheckInventory(item) < GetAmmoCapacity(item)) && !GetPlayerAttributeValue(pnum, INV_EX_CANNOTPICKAMMO);
-			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
+			cond4 = GlobalData.ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
 			if(id != SHOP_ARTI_BACKPACK) {
 				cond2 = (CheckInventory(item) < GetShopItemInfo(id, DND_SHOPINFO_MAX));
-				cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
+				cond4 = GlobalData.ShopStockRemaining[PlayerNumber()][id] > 0;
 			}
 			else
 				cond2 = !IsBackpackLimitReached();
@@ -939,7 +939,7 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 				cond3 = !CheckInventory(item);
 				cond2 = cond3 && !CheckInventory(wepcheck);
 			}
-			cond4 = ShopStockRemaining[PlayerNumber()][id] > 0;
+			cond4 = GlobalData.ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
 		
 		if(!cond4)
@@ -1074,7 +1074,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 		
 		bool sellstate = false;
 		bool price_vs_credit = price > GetPlayerCredit(pnum);
-		bool nostock = ShopStockRemaining[PlayerNumber()][itemid] <= 0;
+		bool nostock = GlobalData.ShopStockRemaining[PlayerNumber()][itemid] <= 0;
 		
 		if(objectflag & OBJ_RESEARCH && !res_state) {
 			toshow = "\c[W3]";
@@ -1144,7 +1144,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 				if(sellstate)
 					HudMessage(s:"\c[M1]--> ", l:"DND_MENU_SELLSFOR", s:":\c- $", d:GetShopPrice(itemid) / 2; HUDMSG_PLAIN, RPGMENUITEMID - 41, CR_WHITE, 192.1, 200.1, 0.0, 0.0);
 				// stock
-				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
+				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:GlobalData.ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 200.1, 0.0, 0.0);
 				SetHudClipRect(184, 216, 256, 64, 256);
 				HudMessage
 				(
@@ -1161,7 +1161,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 				DrawAmmoExplanation(itemid);
 				SetHudClipRect(0, 0, 0, 0, 0);
 				// stock
-				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 232.1, 0.0, 0.0);
+				HudMessage(s:toshow, l:"DND_MENU_STOCK", s:":\c- ", s:colorprefix, d:GlobalData.ShopStockRemaining[PlayerNumber()][itemid]; HUDMSG_PLAIN, RPGMENUITEMID - 42, CR_WHITE, 440.2, 232.1, 0.0, 0.0);
 				// bulk price -- res_state isn't used from below here
 				res_state = GetBulkPriceForAmmo(itemid);
 				if(res_state)
@@ -1239,7 +1239,7 @@ void ResetWeaponStats(int wepid) {
 int GetBulkPriceForAmmo(int itemid) {
 	int id = GetAmmoSlotAndIndexFromShop(itemid);
 	int temp = 0, count = 0;
-	str ammo = AmmoInfo[id & 0xFFFF][id >> 16].name;
+	str ammo = GetAmmoInfo(id & 0xFFFF, id >> 16).name;
 	if(CheckInventory(ammo) < GetAmmoCapacity(ammo)) {
 		int price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW);
 		temp = GetAmmoToGive(itemid);
@@ -1297,10 +1297,10 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						}
 						if(tradeflag & TRADE_ARTIFACT)
 							SetInventory("DnD_Artifact_MapBits", SetBit(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI1_INDEX));
-						--ShopStockRemaining[pnum][itemid];
+						--GlobalData.ShopStockRemaining[pnum][itemid];
 					}
 				} while (givefull && !buystatus);
-				ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, itemid, ShopStockRemaining[pnum][itemid]);
+				ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, itemid, GlobalData.ShopStockRemaining[pnum][itemid]);
 				//sound (mostly)
 				if (buystatus && loopnumber == 1)
 					ShowPopup(buystatus, false, 0);
@@ -1476,7 +1476,8 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 
 		int price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW);
 		int buystatus = CanTrade(pnum, shop_index, TRADE_BUY, price);
-		
+		auto a_info = GetAmmoInfo(slot, itemid);
+
 		if(!buystatus) {
 			int amt = GetAmmoToGive(shop_index), count = 1;
 			
@@ -1485,9 +1486,9 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 				// count was overcounting before
 				--count;
 				if(slot != -1)
-					count += (GetAmmoCapacity(AmmoInfo[slot][itemid].name) - CheckInventory(AmmoInfo[slot][itemid].name)) / amt;
+					count += (GetAmmoCapacity(a_info.name) - CheckInventory(a_info.name)) / amt;
 				else
-					count += (GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME])) / amt;
+					count += (GetAmmoCapacity(GetSpecialAmmoStr(itemid, AMMOINFO_NAME)) - CheckInventory(GetSpecialAmmoStr(itemid, AMMOINFO_NAME))) / amt;
 				price = price * count;
 				if(price > GetPlayerCredit(pnum)) {
 					count = GetPlayerCredit(pnum) / GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW);
@@ -1498,29 +1499,29 @@ void HandleAmmoPurchase(int pnum, int slot, int itemid, int shop_index, bool giv
 					amt *= count;
 					// we can indeed afford to buy a complete fill, check for remainder ammo from bulk purchase -- like 28 shells, need 32 but each buy gives 10 so 2 remains
 					if(slot != -1)
-						buystatus = GetAmmoCapacity(AmmoInfo[slot][itemid].name) - (CheckInventory(AmmoInfo[slot][itemid].name) + amt);
+						buystatus = GetAmmoCapacity(a_info.name) - (CheckInventory(a_info.name) + amt);
 					else
-						buystatus = GetAmmoCapacity(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) - (CheckInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME]) + amt);
+						buystatus = GetAmmoCapacity(GetSpecialAmmoStr(itemid, AMMOINFO_NAME)) - (CheckInventory(GetSpecialAmmoStr(itemid, AMMOINFO_NAME)) + amt);
 					if(buystatus) {
 						amt += buystatus;
 						price += Max(buystatus * GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW) / GetAmmoToGive(shop_index), 1);
 					}
 				}
 			}
-			if(amt > ShopStockRemaining[pnum][shop_index]) {
+			if(amt > GlobalData.ShopStockRemaining[pnum][shop_index]) {
 				// rebalance the amount so we don't go in debt...
-				amt = ShopStockRemaining[pnum][shop_index];
+				amt = GlobalData.ShopStockRemaining[pnum][shop_index];
 				price = GetShopPrice(shop_index, PRICE_INCREASE_STOCK_LOW) * amt / GetAmmoToGive(shop_index);
 			}
 			
 			// we're OK now
 			TakeCredit(price);
 			if(slot != -1)
-				GiveInventory(AmmoInfo[slot][itemid].name, amt);
+				GiveInventory(a_info.name, amt);
 			else
-				GiveInventory(SpecialAmmoInfo_Str[itemid][AMMOINFO_NAME], amt);
-			ShopStockRemaining[pnum][shop_index] -= amt;
-			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, shop_index, ShopStockRemaining[pnum][shop_index]);
+				GiveInventory(GetSpecialAmmoStr(itemid, AMMOINFO_NAME), amt);
+			GlobalData.ShopStockRemaining[pnum][shop_index] -= amt;
+			ACS_NamedExecuteAlways("DnD Sync Shop Stock", 0, pnum, shop_index, GlobalData.ShopStockRemaining[pnum][shop_index]);
 			LocalAmbientSound("items/ammo", 127);
 		}
 		else

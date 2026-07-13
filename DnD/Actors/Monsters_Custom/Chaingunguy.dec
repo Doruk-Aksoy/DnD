@@ -496,16 +496,18 @@ Actor QuakeZombieChaingun : DnD_BaseRangedMonster 21039 {
     }
 }
 
-Actor EnforcerPlasma2 : EnforcerPlasma {
+Actor EnforcerPlasma2 {
+	PROJECTILE
 	Height 8
 	Radius 4
 	RenderStyle Add
-	Damage (2 * random(3,6))
+	Damage (2 * random(3, 6))
 	Accuracy 133
 	Alpha 0.8
 	Scale 0.25
 	Speed 40
 	DeathSound "Enforcer/Hit"
+	Stamina 1073741840
 	+FOILINVUL
 	+DONTREFLECT
 	States {

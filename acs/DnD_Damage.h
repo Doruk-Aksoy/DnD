@@ -3307,7 +3307,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 
 	// check unstable power core
 	temp = GetPlayerAttributeExtra(pnum, INV_IMP_UNSTABLECORE);
-	if(temp && (m_id = CheckInventory("EShieldAmount")) && RunLuckBasedChance(pnum, temp, DND_LUCK_OUTCOME_GAIN / 2)) {
+	if(temp && (m_id = CheckInventory("EShieldAmount")) && RunLuckBasedChance(pnum, temp)) {
 		// explode for this amount now
 		SpawnForced("UnstableExplosion", GetActorX(0), GetActorY(0), GetActorZ(0) + GetActorViewHeight(this) / 2, DND_UNSTABLEEXP_TID);
 		SetActivator(DND_UNSTABLEEXP_TID);
@@ -3479,13 +3479,13 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 	int pnum = shooter - P_TIDSTART;
 
 	// the hit location
-	int v_Pos = GetVec3(hit_x, hit_y, hit_z);
+	Vec3_T* v_Pos = GetVec3(hit_x, hit_y, hit_z);
 
 	// velocity vector will be randomized ie. towards the shooter but with some randomness
-	int v_Vel = Vec3To_Pos(shooter, hit_x, hit_y, hit_z);
+	Vec3_T* v_Vel = Vec3To_Pos(shooter, hit_x, hit_y, hit_z);
 	ToUnitVec3(v_Vel);
 	ScaleVec3(v_Vel, spd);
-	SetVec3Z(v_Vel, FixedMul(GetVec3Z(v_Vel), random(0.75, 1.25)));
+	v_Vel.z = FixedMul(v_Vel.z, random(0.75, 1.25));
 	RotateVector3(v_Vel, ANG_TO_DOOM(random(-45.0, 45.0)));
 
 	int wid, dmg, dtype;
@@ -3530,8 +3530,8 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 		dmg_data,
 		dmg_category
 	);
-	FreeVec3(v_Pos);
-	FreeVec3(v_Vel);
+	bcs::free(v_Pos);
+	bcs::free(v_Vel);
 }
 
 bool IsDamageEventException(str dt) {

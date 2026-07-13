@@ -379,23 +379,25 @@ void SavePlayerData(int pnum, int char_id) {
 	for(i = 0; i < MAX_SLOTS; ++i) {
 		slot_tmp = GetAmmoSlotMaxIndex(i);
 		for(j = 0; j < slot_tmp; ++j) {
-			temp = CheckActorInventory(tid, AmmoInfo[i][j].name);
+			auto a_info = GetAmmoInfo(i, j);
+			temp = CheckActorInventory(tid, a_info.name);
 			// send temp over
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, temp);
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc, temp);
 		}
 	}
 		
 	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
-		temp = CheckActorInventory(tid, SpecialAmmoInfo_Str[i][AMMOINFO_NAME]);
+		temp = CheckActorInventory(tid, GetSpecialAmmoStr(i, AMMOINFO_NAME));
 		// send temp over
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SpecialAmmoInfo_Str[i][AMMOINFO_NAME]), pacc, temp);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:GetSpecialAmmoStr(i, AMMOINFO_NAME)), pacc, temp);
 	}
 	
 	// save weapon clips/magazines that use them
 	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
-		temp = CheckActorInventory(tid, AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name);
+		a_info = GetAmmoInfo(DND_AMMOSLOT_MAGAZINE, i);
+		temp = CheckActorInventory(tid, a_info.name);
 		// send temp over
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name), pacc, temp);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc, temp);
 	}
 	
 	// save exp, credit and level (when loading give expvisual, amt = exp % levelcurve[level])
@@ -897,22 +899,24 @@ void LoadPlayerData(int pnum, int char_id) {
 	int slot_tmp;
 	for(i = 0; i < MAX_SLOTS; ++i) {
 		slot_tmp = GetAmmoSlotMaxIndex(i);
-		for(j = 0; j < slot_tmp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-			temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc);
-			SetInventory(AmmoInfo[i][j].name, temp);
+		for(j = 0; j < slot_tmp; ++j) {
+			auto a_info = GetAmmoInfo(i, j);
+			temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc);
+			SetInventory(a_info.name, temp);
 		}
 	}
 	
 	// read special ammos
 	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
-		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SpecialAmmoInfo_Str[i][AMMOINFO_NAME]), pacc);
-		SetInventory(SpecialAmmoInfo_Str[i][AMMOINFO_NAME], temp);
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:GetSpecialAmmoStr(i, AMMOINFO_NAME)), pacc);
+		SetInventory(GetSpecialAmmoStr(i, AMMOINFO_NAME), temp);
 	}
 	
 	// read clip ammos
 	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
-		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name), pacc);
-		SetInventory(AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name, temp);
+		a_info = GetAmmoInfo(DND_AMMOSLOT_MAGAZINE, i);
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc);
+		SetInventory(a_info.name, temp);
 	}
 	
 	// read abilities
@@ -1158,21 +1162,28 @@ void WipeoutPlayerData(int pnum, int cid) {
 	int slot_tmp;
 	for(i = 0; i < MAX_SLOTS; ++i) {
 		slot_tmp = GetAmmoSlotMaxIndex(i);
-		for(j = 0; j < slot_tmp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
-			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 0);
+		for(j = 0; j < slot_tmp; ++j) {
+			auto a_info = GetAmmoInfo(i, j);
+			if(a_info.initial_capacity == -1)
+				break;
+			SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc, 0);
 		}
 	}
 	
 	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SpecialAmmoInfo_Str[i][AMMOINFO_NAME]), pacc, 0);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:GetSpecialAmmoStr(i, AMMOINFO_NAME)), pacc, 0);
 	
 	// reset weapon clips/magazines that use them -- first 6 are firing mode information
-	for(i = 0; i < 6; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name), pacc, 0);
+	for(i = 0; i < 6; ++i) {
+		a_info = GetAmmoInfo(DND_AMMOSLOT_MAGAZINE, i);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc, 0);
+	}
 	
-	for(i = 6; i < MAXCLIPAMMOTYPES; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name), pacc, GetAmmoCapacity(AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name));
-	
+	for(i = 6; i < MAXCLIPAMMOTYPES; ++i) {
+		a_info = GetAmmoInfo(DND_AMMOSLOT_MAGAZINE, i);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc, GetAmmoCapacity(a_info.name));
+	}
+
 	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_CREDIT, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_LEVEL, char_id), pacc, 1);
@@ -1309,28 +1320,32 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	int slot_tmp;
 	for(i = 0; i < MAX_SLOTS; ++i) {
 		slot_tmp = GetAmmoSlotMaxIndex(i);
-		for(j = 0; j < slot_tmp && AmmoInfo[i][j].initial_capacity != -1; ++j) {
+		for(j = 0; j < slot_tmp; ++j) {
+			auto a_info = GetAmmoInfo(i, j);
+
 			if(i != DND_AMMOSLOT_CLIP || j != AMMO_CLIP)
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 0);
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc, 0);
 			else
-				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[i][j].name), pacc, 50);
+				SetDBEntry(StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name), pacc, 50);
 		}
 	}
 	
 	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i)
-		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:SpecialAmmoInfo_Str[i][AMMOINFO_NAME]), pacc, 0);
+		SetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:GetSpecialAmmoStr(i, AMMOINFO_NAME)), pacc, 0);
 	
 	// reset weapon clips/magazines that use them
 	// first 6 store firing modes, we need to set them to 0
 	str amm;
 	for(i = 0; i < 6; ++i) {
-		amm = StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name);
+		a_info = GetAmmoInfo(DND_AMMOSLOT_MAGAZINE, i);
+		amm = StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name);
 		SetDBEntry(amm, pacc, 0);
 	}
 	
 	for(i = 6; i < MAXCLIPAMMOTYPES; ++i) {
-		amm = StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name);
-		SetDBEntry(amm, pacc, GetAmmoCapacity(AmmoInfo[DND_AMMOSLOT_MAGAZINE][i].name));
+		a_info = GetAmmoInfo(DND_AMMOSLOT_MAGAZINE, i);
+		amm = StrParam(s:GetCharField(DND_DB_AMMO, char_id), s:a_info.name);
+		SetDBEntry(amm, pacc, GetAmmoCapacity(a_info.name));
 	}
 	
 	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, 0);

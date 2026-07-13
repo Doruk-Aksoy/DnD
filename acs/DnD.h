@@ -615,14 +615,6 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 		SpawnSpecificOrb(i, guaranteed_orb, true, true, random(1, 3));
 }
 
-enum {
-	MONSTERDATA_VARIATIONCOUNT,
-	MONSTERDATA_WEIGHTSUM
-};
-
-// MAX_MONSTER_CATEGORIES
-global int 21: MonsterCategoryData[][2];
-
 // 0 means they are ready
 bool PlayersNotReadyForHardcore() {
 	int players_notready = 0;
@@ -768,75 +760,111 @@ Script "DnD Chest Credit Message" (int amt) CLIENTSIDE {
 }
 
 // drop boost increases chance for a drop, rarity is for chance for it to be unique
-void HandleItemDropsForLoot(int tid, int m_id, int drop_boost, int rarity_boost) {
+void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 	int tmp;
 
 	// chest droprate check
-	int chest_dropchance = DND_LOOTCHEST_DROPRATE_DUNGEON;
+	int chest_dropchance = DND_LOOTCHEST_DROPRATE;
 	if(InformationInLevel[LEVELINFO_ISDUNGEON])
 		chest_dropchance = DND_LOOTCHEST_DROPRATE_DUNGEON;
 
+	drop_boost += 100;
+	chest_dropchance = chest_dropchance * drop_boost / 100;
+
 	bool incursion = IsIncursionMonster(m_id);
+	bool dropped_chest = false;
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		// run each player's chance, drop for corresponding player only
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
-			// for orbs
+			// GetDropChance returns fixed value
 			int p_chance = GetDropChance(i);
-			int j;
+			int quant = GetPlayerDropQuantity(i);
 
-			if(RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP_ORB * drop_boost / 100, m_id, DND_MON_RNG_1))
-				SpawnOrb(i, true, false, GetOrbDropStack(MonsterProperties[m_id].level));
-
-			// for tokens -- same likelihood to drop as orbs
-			if(RunPrecalcDropChance(p_chance, DND_ELITE_BASEDROP * drop_boost / 100, m_id, DND_MON_RNG_2))
-				SpawnToken(i, GetOrbDropStack(MonsterProperties[m_id].level));
-
-			if(RunPrecalcDropChance(p_chance, DND_BASEARMOR_DROP * drop_boost / 100, m_id, DND_MON_RNG_3)) {
-				// boot and body armor chance is equal
-				tmp = random(1, 100);
-				if(tmp <= 33) {
-					if(incursion && RollIncursionItemChance())
-						SpawnArmorWithMods(i, PickRandomIncursionMod());
-					else
-						SpawnArmor(i, rarity_boost, 0, false, m_id);
-				}
-				else if(tmp <= 66) {
-					if(incursion && RollIncursionItemChance())
-						SpawnBootWithMods(i, PickRandomIncursionMod());
-					else
-						SpawnBoot(i, rarity_boost);
-				}
-				else if(incursion && RollIncursionItemChance())
-					SpawnHelmWithMods(i, PickRandomIncursionMod());
-				else
-					SpawnHelm(i, rarity_boost);
-			}
-
-			if(RunPrecalcDropChance(p_chance, DND_BASE_CHARMRATE * drop_boost / 100, m_id, DND_MON_RNG_4)) {
-				if(incursion && RollIncursionItemChance())
-					SpawnCharmWithMods(i, PickRandomIncursionMod());
-				else
-					SpawnCharm(i, rarity_boost);
-			}
-
-			if(RunPrecalcDropChance(p_chance, DND_BASE_SPECIALTYRATE * drop_boost / 100, m_id, DND_MON_RNG_5))
-				SpawnSpecialtyItem(i, rarity_boost, 0, false, GetRandomSpecialtyItem());
+			// construct new weights for this table given player's drop chance and monster's drop boost
+			tmp = (((p_chance * 100) >> 16) * drop_boost / 100) - 100;
+			//printbold(d:tmp, s: " ", d:((p_chance * 100) >> 16), s: " ", d:drop_boost);
+			UpdateMonsterDropTable(tmp, GetActorPlayerClass(i + P_TIDSTART));
 			
-			if(RunPrecalcDropChance(p_chance, DND_CHESTKEY_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_7))
-				SpawnChestKey(i);
+			// count how many items to spawn with player's item quant
+			int count = 0;
+			while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
+				tmp = PickFromAliasTable(LootTables.monster_drop_table);
+				SpawnLootFromDropTableIndex(i, rarity_boost, tmp, m_id, incursion);
+				quant -= 1.0;
+				++count;
+				if(count > LAST_MON_RNG_INDEX)
+					count = LAST_MON_RNG_INDEX;
+			}
 
-			if(RunPrecalcDropChance(p_chance, DND_FLASK_DROPRATE * drop_boost / 100, m_id, DND_MON_RNG_6))
-				SpawnFlask(i, rarity_boost);
-
-			if(IsLootChestDroppingMonster(m_id) && RunPrecalcDropChance(p_chance, chest_dropchance * drop_boost / 100, m_id, DND_MON_RNG_8))
+			if(!dropped_chest && IsLootChestDroppingMonster(m_id) && RunPrecalcDropChance(p_chance, chest_dropchance, m_id, DND_MON_RNG_8)) {
 				SpawnDrop("LootChest", 0, 0, 0, 0);
+				dropped_chest = true;
+			}
 
 			// made this not tied to player's droprate
-			j = MonsterProperties[m_id].id;
-			if(isLegendaryMonster(j) && random(0, 1.0) <= DND_LEGENDARY_ITEMDROPRATE)
-				HandleLegendaryMonsterDrop(j, i);
+			tmp = MonsterProperties[m_id].id;
+			if(isLegendaryMonster(tmp) && random(0, 1.0) <= DND_LEGENDARY_ITEMDROPRATE)
+				HandleLegendaryMonsterDrop(tmp, i);
 		}
+	}
+}
+
+void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_id, bool is_incursion_monster = false) {
+	switch(drop_id) {
+		case DND_MONSTERLOOT_NOTHING:
+		return;
+
+		case DND_MONSTERLOOT_CHARM:
+			if(is_incursion_monster && RollIncursionItemChance())
+				SpawnCharmWithMods(pnum, PickRandomIncursionMod());
+			else
+				SpawnCharm(pnum, rarity_boost);
+		break;
+		case DND_MONSTERLOOT_BODYARMOR:
+			if(is_incursion_monster && RollIncursionItemChance())
+				SpawnArmorWithMods(pnum, PickRandomIncursionMod());
+			else
+				SpawnArmor(pnum, rarity_boost, 0, false, m_id);
+		break;
+		case DND_MONSTERLOOT_HELM:
+			if(is_incursion_monster && RollIncursionItemChance())
+				SpawnHelmWithMods(pnum, PickRandomIncursionMod());
+			else
+				SpawnHelm(pnum, rarity_boost);
+		break;
+		case DND_MONSTERLOOT_BOOT:
+			if(is_incursion_monster && RollIncursionItemChance())
+				SpawnBootWithMods(pnum, PickRandomIncursionMod());
+			else
+				SpawnBoot(pnum, rarity_boost);
+		break;
+		
+		// they all spawn a specialty item
+		case DND_MONSTERLOOT_SPECIALTY_DOOMGUY:
+		case DND_MONSTERLOOT_SPECIALTY_MARINE:
+		case DND_MONSTERLOOT_SPECIALTY_HOBO:
+		case DND_MONSTERLOOT_SPECIALTY_PUNISHER:
+		case DND_MONSTERLOOT_SPECIALTY_WANDERER:
+		case DND_MONSTERLOOT_SPECIALTY_CYBORG:
+		case DND_MONSTERLOOT_SPECIALTY_BERSERKER:
+		case DND_MONSTERLOOT_SPECIALTY_TRICKSTER:
+			SpawnSpecialtyItem(pnum, rarity_boost, 0, false, FIRST_SPECIALTY_ITEM_TYPE + drop_id - DND_MONSTERLOOT_SPECIALTY_DOOMGUY);
+		break;
+
+		case DND_MONSTERLOOT_FLASK:
+			SpawnFlask(pnum, rarity_boost);
+		break;
+		case DND_MONSTERLOOT_ORB:
+			SpawnOrb(pnum, true, false, GetOrbDropStack(MonsterProperties[m_id].level));
+		break;
+		case DND_MONSTERLOOT_CHESTKEY:
+			SpawnChestKey(pnum);
+		break;
+
+		case DND_MONSTERLOOT_TOKEN:
+			SpawnToken(pnum, GetOrbDropStack(MonsterProperties[m_id].level));
+		break;
 	}
 }
 
@@ -1027,7 +1055,7 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 		SpawnResearch(pnum);
 	}
 	
-	HandleItemDropsForLoot(tid, m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
+	HandleItemDropsForLoot(m_id, MonsterProperties[m_id].droprate, MonsterProperties[m_id].rarity_boost);
 	
 	// accessory drops (accept only from cyber and spider masterminds)
 	if(

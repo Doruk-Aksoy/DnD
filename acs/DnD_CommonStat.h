@@ -712,15 +712,15 @@ bool HasPlayerPowerset(int pnum, int power) {
 }
 
 int GetPlayerAttributeValue(int pnum, int attrib) {
-	return PlayerModValues[pnum][attrib];
+	return PlayerModData[pnum].value[attrib];
 }
 
 int GetPlayerAttributeExtra(int pnum, int attrib) {
-	return PlayerModExtras[pnum][attrib];
+	return PlayerModData[pnum].extra[attrib];
 }
 
 int GetActorAttributeValue(int tid, int attrib) {
-	return PlayerModValues[tid - P_TIDSTART][attrib];
+	return PlayerModData[tid - P_TIDSTART].value[attrib];
 }
 
 void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
@@ -746,7 +746,7 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 }
 
 void UpdatePlayerSpreeTimer(int pnum) {
-	int base = DND_SPREE_AMOUNT * (100 + PlayerModValues[pnum][INV_INCKILLINGSPREE]) / 100;
+	int base = DND_SPREE_AMOUNT * (100 + PlayerModData[pnum].value[INV_INCKILLINGSPREE]) / 100;
 	base = base * (100 + DND_PUNISHER_SPREEBONUS * (HasClassPerk_Fast("Punisher", 4))) / 100;
 	SetAmmoCapacity("DnD_SpreeTimer", base);
 }

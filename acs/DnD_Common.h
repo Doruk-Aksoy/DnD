@@ -888,28 +888,15 @@ int GetActorPlayerClass(int tid) {
 #include "DnD_Math.h"
 
 bool IsActorFacing(int this, int target, int threshold) {
-	int v_this = GetDirectionVector(this);
-	int v_pos_this = Vec3To_Pos(target, GetActorX(this), GetActorY(this), GetActorZ(this));
+	Vec3_T* v_this = GetDirectionVector(this);
+	Vec3_T* v_pos_this = Vec3To_Pos(target, GetActorX(this), GetActorY(this), GetActorZ(this));
 	ToUnitVec3(v_pos_this);
 	int dot = DotProductVec3(v_this, v_pos_this);
 
+	bcs::free(v_this);
+	bcs::free(v_pos_this);
+
 	return dot >= threshold;
-}
-
-enum {
-	DND_CONSTANT_EXPCURVE,
-
-	DND_MAX_CONSTANTS
-};
-global int 51: DnD_Constants[DND_MAX_CONSTANTS][256];
-
-void Build_Constants() {
-	// the exp curve is assuming level DND_EXP_ADJUST_LEVEL and above as the value, but the array is 0 - (100 - DND_EXP_ADJUST_LEVEL) range
-	int i = 0;
-	for(; i <= MAXLEVELS - DND_EXP_ADJUST_LEVEL; ++i) {
-		DnD_Constants[DND_CONSTANT_EXPCURVE][i] = fpow(DND_EXP_ADJUST_LEVELFACTOR, i + 1);
-		//Log(d:i, s: " => ", f:DnD_Constants[DND_CONSTANT_EXPCURVE][i]);
-	}
 }
 
 // moved these here due to co-dependency
@@ -973,5 +960,6 @@ bool HasMapLump(str lump) {
 }
 
 #include "DnD_Alias.h"
+#include "DnD_Globals.h"
 
 #endif

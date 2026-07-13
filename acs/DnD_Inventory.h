@@ -2767,7 +2767,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD);
 								
 			}
-			else if(PlayerModValues[pnum][atype]) {
+			else if(PlayerModData[pnum].value[atype]) {
 				// just take the attribute off and remove features and reapply
 				for(i = 0; i < 4; ++i)
 					if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
@@ -2839,7 +2839,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			if(temp != -1) {
 				// update to use the new min if our comparison is better -- dont care otherwise
 				if(!remove)
-					SetPlayerModValue(pnum, atype, Min(aval, PlayerModValues[pnum][atype]));
+					SetPlayerModValue(pnum, atype, Min(aval, PlayerModData[pnum].value[atype]));
 			}
 			else {
 				// no new min was found
@@ -2855,7 +2855,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 		case INV_EX_ABILITY_RALLY:
 			IncPlayerModValue(pnum, atype, aval);
-			if(PlayerModValues[pnum][atype])
+			if(PlayerModData[pnum].value[atype])
 				GiveInventory("CastRally", 1);
 			else
 				TakeInventory("CastRally", 1);
@@ -2892,7 +2892,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 		case INV_EX_CURSEIMMUNITY:
 			IncPlayerModValue(pnum, atype, aval);
-			if(PlayerModValues[pnum][atype])
+			if(PlayerModData[pnum].value[atype])
 				GiveInventory("CurseImmunity", 1);
 			else
 				HandleCurseImmunityRemoval();

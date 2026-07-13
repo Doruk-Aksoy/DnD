@@ -1304,9 +1304,6 @@ Actor OSCeilingTorchCrimson : OSCeilingTorch 12538
 }
 Actor OSCeilingTorchWhite : OSCeilingTorch 12527
 {
-  //$Category Light sources/Torches
-  //$Title "Ceiling White Torch"
-  //$Sprite CCAIW0
   States
   {
   Spawn:
@@ -1321,9 +1318,6 @@ Actor OSCeilingTorchWhite : OSCeilingTorch 12527
 }
 Actor OSCeilingTorchBlack : OSCeilingTorch 12539
 {
-  //$Category Light sources/Torches
-  //$Title "Ceiling Black Torch"
-  //$Sprite CCAIL0
   States
   {
   Spawn:

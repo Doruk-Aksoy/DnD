@@ -1062,7 +1062,7 @@ Script "DnD Sickle Check Res" (int base) {
 	if(IsMonster(hit) && !IsActorAlive(hit)) {
 		SetActivatorToTarget(0);
 		base = (base << 16) / 100;
-		res = RunLuckBasedChance(PlayerNumber(), base, DND_LUCK_OUTCOME_GAIN);
+		res = RunLuckBasedChance(PlayerNumber(), base);
 		TakeInventory("SickleCooldown", 20);
 	}
 
@@ -1078,7 +1078,7 @@ Script "DnD Sickle Mass Res" (int base, int dist) {
 
 	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
 		int i = UsedMonsterTIDs[mn];
-		if(!isActorAlive(i) && RunLuckBasedChance(pnum, base, DND_LUCK_OUTCOME_GAIN) && fdistance(0, i) <= dist) {
+		if(!isActorAlive(i) && RunLuckBasedChance(pnum, base) && fdistance(0, i) <= dist) {
 			ACS_NamedExecuteAlways("DnD Resurrect Checker", 0, TICRATE, i);
 		}
 	}
@@ -1943,21 +1943,21 @@ Script "DnD Hammer Speed Limiter" (int max_vel, int min_vel) {
 		if(update_spd && CheckInventory("DnD_Boolean")) {
 			int tracer_tid = GetActorProperty(0, APROP_TRACERTID);
 			if(tracer_tid && tracer_tid != owner_tid) {
-				int v_dir = Vec3To(tracer_tid);
+				Vec3_T* v_dir = Vec3To(tracer_tid);
 				ToUnitVec3(v_dir);
 
 				update_spd = false;
 				new_spd >>= 16;
 				SetActorVelocity(
 					0,
-					vec3[v_dir].x * new_spd,
-					vec3[v_dir].y * new_spd,
-					vec3[v_dir].z * new_spd,
+					v_dir.x * new_spd,
+					v_dir.y * new_spd,
+					v_dir.z * new_spd,
 					0,
 					0
 				);
 				GiveInventory("HammerSeekDelay", 1);
-				FreeVec3(v_dir);
+				bcs::free(v_dir);
 
 				// printbold(s:"is missile? ", d:CheckFlag(0, "MISSILE"), s: " ", s:GetActorClass(0), s: " vs ", s:GetActorClass(owner_tid));
 
@@ -2330,7 +2330,7 @@ Script "DnD Swapped From Melee" (int ptid) {
 }
 
 Script "DnD Ray of Disintegration Trails" (void) CLIENTSIDE {
-	int v_dir = GetDirectionVector(0);
+	Vec3_T* v_dir = GetDirectionVector(0);
 	int trail_amt = DND_WANDERER_RAY_BASEDIST / DND_WANDERER_RAY_DIST_PER;
 
 	int viewZ = GetActorViewHeight(0) - 8.0;
@@ -2340,15 +2340,17 @@ Script "DnD Ray of Disintegration Trails" (void) CLIENTSIDE {
 
 	for(int i = 0; i < trail_amt; ++i) {
 		// just spawn these along a line
-		int mx = ox + vec3[v_dir].x * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
-		int my = oy + vec3[v_dir].y * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
-		int mz = oz + viewZ + vec3[v_dir].z * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
+		int mx = ox + v_dir.x * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
+		int my = oy + v_dir.y * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
+		int mz = oz + viewZ + v_dir.z * ((i + 1) * DND_WANDERER_RAY_DIST_PER + DND_WANDERER_RAY_DIST_PER / 2);
 
 		// if at any point it fails to spawn, good chance we hit a wall, ignore rest
 		// this is lazy and idc, gzdoom solution is way better anyway
 		if(!Spawn("WandererRayTrail", mx, my, mz, 0, 0))
 			break;
 	}
+
+	bcs::free(v_dir);
 
 	SetResultValue(0);
 }

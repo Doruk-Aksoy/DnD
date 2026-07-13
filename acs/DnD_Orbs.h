@@ -702,7 +702,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 			for(i = 0; i < affluence; ++i) {
-				if(RunLuckBasedChance(pnum, DND_POTENCY_CHANCE, DND_LUCK_OUTCOME_GAIN) || CheckInventory("DestinyUsed")) {
+				if(RunLuckBasedChance(pnum, DND_POTENCY_CHANCE) || CheckInventory("DestinyUsed")) {
 					// failsafe, if it tried it 100 times there's a really good chance the item now has perfect tiers... don't bother
 					s = 0;
 				
@@ -1239,7 +1239,7 @@ void RevertLastOrbEffect() {
 			SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 		break;
 		case DND_ORB_SIN:
-			if(RunLuckBasedChance(pnum, DND_ORB_SIN_REPENTCHANCE, DND_LUCK_OUTCOME_GAIN) || CheckInventory("DestinyUsed")) {
+			if(RunLuckBasedChance(pnum, DND_ORB_SIN_REPENTCHANCE) || CheckInventory("DestinyUsed")) {
 				RestoreItemAttribsFromUsedOrb(pnum);
 				SetInventory("OrbResult", Player_MostRecent_Orb[pnum].orb_type - 1);
 			}
@@ -1552,11 +1552,8 @@ void SpawnOrb(int pnum, bool sound, bool noRepeat = false, int stack = 1) {
 	if(c != -1) {
 		int i;
 		
-#ifdef ISDEBUGBUILD
-		i = PickRandomOrb();
-#else
 		i = PickPlayerOrb(pnum);
-#endif
+		
 		// c is the index on the field now
 		//i = DND_ORB_POTENCY;
 		RollOrbInfo(c, i, stack);
