@@ -765,13 +765,17 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 
 	// chest droprate check
 	int chest_dropchance = DND_LOOTCHEST_DROPRATE;
-	if(InformationInLevel[LEVELINFO_ISDUNGEON])
+	bool incursion = IsIncursionMonster(m_id);
+
+	if(InformationInLevel[LEVELINFO_ISDUNGEON]) {
 		chest_dropchance = DND_LOOTCHEST_DROPRATE_DUNGEON;
+		if(!incursion)
+			incursion = random(1, 100) <= DND_DUNGEON_INCURSION_ODDS;
+	}
 
 	drop_boost += 100;
 	chest_dropchance = chest_dropchance * drop_boost / 100;
 
-	bool incursion = IsIncursionMonster(m_id);
 	bool dropped_chest = false;
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
@@ -784,12 +788,12 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 			// construct new weights for this table given player's drop chance and monster's drop boost
 			tmp = (((p_chance * 100) >> 16) * drop_boost / 100) - 100;
 			//printbold(d:tmp, s: " ", d:((p_chance * 100) >> 16), s: " ", d:drop_boost);
-			UpdateMonsterDropTable(tmp, GetActorPlayerClass(i + P_TIDSTART));
+			UpdateMonsterDropTable(i, tmp, GetActorPlayerClass(i + P_TIDSTART));
 			
 			// count how many items to spawn with player's item quant
 			int count = 0;
 			while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
-				tmp = PickFromAliasTable(LootTables.monster_drop_table);
+				tmp = PickFromAliasTable(LootTables.monster_drop_table[i]);
 				SpawnLootFromDropTableIndex(i, rarity_boost, tmp, m_id, incursion);
 				quant -= 1.0;
 				++count;
@@ -864,6 +868,10 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 
 		case DND_MONSTERLOOT_TOKEN:
 			SpawnToken(pnum, GetOrbDropStack(MonsterProperties[m_id].level));
+		break;
+
+		case DND_MONSTERLOOT_DUNGEONKEY:
+			SpawnDungeonKey(pnum);
 		break;
 	}
 }

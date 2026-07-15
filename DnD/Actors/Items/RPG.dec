@@ -375,6 +375,7 @@ Actor DnD_ButtonPress_7 : DnD_ButtonPressTimer { }
 Actor DnD_ButtonPress_8 : DnD_ButtonPressTimer { }
 Actor DnD_ButtonPress_9 : DnD_ButtonPressTimer { }
 Actor DnD_ButtonPress_10 : DnD_ButtonPressTimer { }
+Actor DnD_ButtonPress_OrbPage : DnD_ButtonPressTimer { }
 
 Actor DnD_Trade_Cooldown : DnD_ButtonPressTimer {
 	damagefactor "normal", 1.0
@@ -438,7 +439,7 @@ Actor DnD_Crafting_ItemPage : Inventory {
 }
 
 Actor DnD_PlayerInventoryPages : Inventory {
-	inventory.maxamount 10
+	inventory.maxamount 11
 }
 
 Actor DnD_MitigationCooldown : PowerProtection {
@@ -452,11 +453,11 @@ Actor DnD_EshieldHitSoundCooldown : PowerProtection {
 }
 
 Actor DnD_PlayerCurrentPage : Inventory {
-	inventory.maxamount 10
+	inventory.maxamount 11
 }
 
 Actor DnD_PlayerPreviousPage : Inventory {
-	inventory.maxamount 10
+	inventory.maxamount 11
 }
 
 Actor DnD_TradeSpaceFit : DnD_Boolean { }

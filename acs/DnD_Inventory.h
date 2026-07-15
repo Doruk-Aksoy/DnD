@@ -38,10 +38,12 @@
 #define DND_BASE_CORRUPT_YIELD 100
 
 #define MAX_EXTRA_INVENTORY_PAGES 10
+#define PAGEID_STASHTAB_ORBS MAX_EXTRA_INVENTORY_PAGES
 
 #define MAX_POWERCORE_ATTRIB_DEFAULT 2
 
-#define MAXSTACKS_ORB 1024
+#define MAXSTACKS_ORB 128
+#define MAXSTACKS_ORB_MORE 8192
 #define MAXSTACKS_CKEY 256
 #define MAXSTACKS_TOKEN 256
 
@@ -575,7 +577,7 @@ global int 24: PointerIndexTable[MAX_POINTERS];
 global inventory_T 12: Items_Used[MAXPLAYERS][MAX_ITEMS_EQUIPPABLE];
 global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
 global inventory_T 14: TradeViewList[MAXPLAYERS + 1][MAX_INVENTORY_BOXES]; // merchant's item list
-global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES][MAX_INVENTORY_BOXES];
+global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES + 1][MAX_INVENTORY_BOXES];
 
 #define INVSOURCE_PLAYER PlayerInventoryList
 #define INVSOURCE_ITEMSUSED Items_Used
@@ -723,10 +725,12 @@ int HandleInventoryPickup(int item_index) {
 	return pcharm_index;
 }
 
-int GetStackValue(int type) {
+int GetStackValue(int type, int source = 0) {
 	switch (type) {
 		case DND_ITEM_ORB:
-		return MAXSTACKS_ORB;
+		if((source >> 16) != PAGEID_STASHTAB_ORBS)
+			return MAXSTACKS_ORB;
+		return MAXSTACKS_ORB_MORE;
 		case DND_ITEM_CHESTKEY:
 		return MAXSTACKS_CKEY;
 		case DND_ITEM_TOKEN:
@@ -879,7 +883,7 @@ int GetFreeSpotForItemWithStack(int item_index, int player_index, int item_sourc
 	// first search for any spot on our inventory for a stack item of this type
 	int type = GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, item_index, -1, item_source);
 	int sub = GetItemSyncValue(player_index, DND_SYNC_ITEMSUBTYPE, item_index, -1, item_source);
-	int maxstack = GetStackValue(type);
+	int maxstack = GetStackValue(type, dest_source);
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if
 		(
@@ -920,7 +924,7 @@ int GetFreeSpotForSingleSpotItem(int player_index, int type, int sub) {
 	bool unfit = false;
 	
 	// first search for any spot on our inventory for a stack item of this type
-	int maxstack = GetStackValue(type);
+	int maxstack = GetStackValue(type, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i)
 		if(PlayerInventoryList[player_index][i].item_type == type && PlayerInventoryList[player_index][i].item_subtype == sub && PlayerInventoryList[player_index][i].item_stack < maxstack)
 			return i;
@@ -1211,7 +1215,7 @@ bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, i
 	// handle the box management
 	// is this a stack item and does it already contain an item of this type?
 	// ex type = orb, subtype = enhancement
-	int max_stack = GetStackValue(Inventories_On_Field[fieldpos].item_type);
+	int max_stack = GetStackValue(Inventories_On_Field[fieldpos].item_type, 0);
 	if(
 		Inventories_On_Field[fieldpos].item_stack && 
 		Inventories_On_Field[fieldpos].item_type == PlayerInventoryList[player_index][item_index].item_type && 
@@ -1281,50 +1285,99 @@ bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, i
 }
 
 // clones an item on this player's inventory, if no spot is found it won't bother
-int CloneItem(int pnum, int item_index, int source, bool dontSync) {
+int CloneItem(int pnum, int item_index, int source, bool dontSync, int dest_source = -1) {
 	int temp;
-	int c = GetFreeSpotForItem(item_index, pnum, source, source);
+	if(dest_source == -1)
+		dest_source = source;
+
+	int c = GetFreeSpotForItem(item_index, pnum, source, dest_source);
 	if(c != -1) {
 		int wtemp = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, item_index, -1, source);
 		int htemp = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, item_index, -1, source);
 		int i, j, k;
-		SetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, c, -1, wtemp, source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, c, -1, htemp, source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, item_index, -1, source), source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, c, -1, wtemp, dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, c, -1, htemp, dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, item_index, -1, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, item_index, -1, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, item_index, -1, source), dest_source);
 
-		SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, item_index, -1, source), source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source), source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, item_index, -1, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, c, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source), dest_source);
 
 		for(k = 0; k < MAX_ITEM_IMPLICITS; ++k) {
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, k, source), source);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, k, source), source);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, k, source), source);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, k, source), source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, k, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, k, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, k, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, k, source), dest_source);
 		}
 
 		temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
-		SetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, c, -1, temp, source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, c, -1, temp, dest_source);
 		for(k = 0; k < temp; ++k) {
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, k, source), source);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, k, source), source);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, item_index, k, source), source);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, k, source), source);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, item_index, k, source), source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, k, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, k, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, item_index, k, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, k, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, c, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, item_index, k, source), dest_source);
 		}
 		for(i = 0; i < htemp; ++i)
 			for(j = 0; j < wtemp; ++j) {
 				temp = c + i * MAXINVENTORYBLOCKS_VERT + j;
-				SetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_index, -1, source), source);
-				SetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, c + 1, source);
+				SetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_index, -1, source), dest_source);
+				SetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, c + 1, dest_source);
 			}
 		if(!dontSync)
-			SyncItemData(pnum, c, source, -1, -1);
+			SyncItemData(pnum, c, dest_source, -1, -1);
 		return c;
 	}
 	return -1;
+}
+
+int CloneItemToSpot(int pnum, int item_index, int source, int dest_spot, bool dontSync, int dest_source = -1) {
+	int temp;
+	if(dest_source == -1)
+		dest_source = source;
+
+	// this doesnt retrieve a free spot, assumes the dest_spot is a free spot already
+	int wtemp = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, item_index, -1, source);
+	int htemp = GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, item_index, -1, source);
+	int i, j, k;
+	SetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, dest_spot, -1, wtemp, dest_source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, dest_spot, -1, htemp, dest_source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, dest_spot, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source), dest_source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, dest_spot, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, item_index, -1, source), dest_source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, dest_spot, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, item_index, -1, source), dest_source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, dest_spot, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, item_index, -1, source), dest_source);
+
+	SetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, dest_spot, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, item_index, -1, source), dest_source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, dest_spot, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMQUALITY, item_index, -1, source), dest_source);
+
+	for(k = 0; k < MAX_ITEM_IMPLICITS; ++k) {
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, k, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_VAL, item_index, k, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_TIER, item_index, k, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, item_index, k, source), dest_source);
+	}
+
+	temp = GetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, item_index, -1, source);
+	SetItemSyncValue(pnum, DND_SYNC_ITEMSATTRIBCOUNT, dest_spot, -1, temp, dest_source);
+	for(k = 0; k < temp; ++k) {
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_ID, item_index, k, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_VAL, item_index, k, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_TIER, item_index, k, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_EXTRA, item_index, k, source), dest_source);
+		SetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, dest_spot, k, GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_FRACTURE, item_index, k, source), dest_source);
+	}
+	for(i = 0; i < htemp; ++i)
+		for(j = 0; j < wtemp; ++j) {
+			temp = dest_spot + i * MAXINVENTORYBLOCKS_VERT + j;
+			SetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, temp, -1, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_index, -1, source), dest_source);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, dest_spot + 1, dest_source);
+		}
+	if(!dontSync)
+		SyncItemData(pnum, dest_spot, dest_source, -1, -1);
+	return dest_spot;
 }
 
 // check if clicked spot is free for the item we want to put
@@ -1522,7 +1575,7 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 		GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, ipos1 + offset1, -1, source1) == GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, ipos2 + offset2, -1, source2)
 	)
 	{
-		w2p = GetStackValue(w1p);
+		w2p = GetStackValue(w1p, source1);
 		// add stack of ipos2 to ipos1
 		if(h1p + h2p <= w2p) {
 			SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, h1p + h2p, source1);
@@ -1532,8 +1585,15 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 		}
 		else {
 			// set stack of h1p to max, then set the stack of ipos2 to whatever is left
-			SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, h2p - w2p + h1p, source2);
-			SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, w2p, source1);
+			if(h1p != w2p && h2p != w2p) {
+				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, h2p - w2p + h1p, source2);
+				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, w2p, source1);
+			}
+			else {
+				// just swap around
+				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, h1p, source2);
+				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, h2p, source1);
+			}
 			SyncItemStack(pnum, ipos1 + offset1, source1);
 			SyncItemStack(pnum, ipos2 + offset2, source2);
 		}
@@ -1660,8 +1720,8 @@ void MoveItem(int pnum, int itempos, int emptypos) {
 	SyncItemData_Special(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
-bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = false) {
-	bool res = false;
+int AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = false) {
+	int res = 0;
 
 	int tpbid = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid, -1, isource) - 1;
 	int i, j;
@@ -1671,7 +1731,7 @@ bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = f
 	// reduce stack count if we couldn't, and if we could, we're done
 	int itype = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, tpbid, -1, isource);
 	int isubtype = GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, tpbid, -1, isource);
-	int maxstacks = GetStackValue(itype), istacks = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, tpbid, -1, isource);
+	int maxstacks = GetStackValue(itype, ssource), istacks = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, tpbid, -1, isource);
 	int stype;
 	if(IsStackedItem(itype)) {
 		for(j = 0; !res && j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -1690,53 +1750,77 @@ bool AutoMoveItem(int pnum, int boxid, int isource, int ssource, bool noSync = f
 					stype = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, try_pos, -1, ssource);
 					if(stype + istacks <= maxstacks) {
 						SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, try_pos, -1, stype + istacks, ssource);
-						SyncItemStack(pnum, try_pos, ssource);
+
+						if(!noSync)
+							SyncItemStack(pnum, try_pos, ssource);
+
 						FreeItem(pnum, tpbid, isource, false);
-						return true;
+						return try_pos;
 					}
 					else if(stype != maxstacks) {
 						// set target one to max, and ours max - what we had
 						SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, try_pos, -1, maxstacks, ssource);
-						SyncItemStack(pnum, try_pos, ssource);
 
+						if(!noSync)
+							SyncItemStack(pnum, try_pos, ssource);
+						
 						// dont sync this, we'll move it later anyways then the real sync will occur
 						SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, tpbid, -1, istacks - (maxstacks - stype), isource);
-						res = true;
+						res = 1;
 					}
 				}
 			}
 		}
 	}
 
-	// if res was true before, make it false on the stacked item case for 2nd condition occuring
-	res = false;
+	// if this is the special orb stash page and we are dealing with more than the max limits while auto moving, handle it here
+	if(!res && itype == DND_ITEM_ORB && (isource >> 16) == PAGEID_STASHTAB_ORBS && istacks > maxstacks) {
+		// we are auto pulling from orb stash tab to our inventory, only ever allow stacks of max stacks on regular pages
+		res = CloneItem(pnum, tpbid, isource, true, ssource);
+		if(res != -1) {
+			i = GetStackValue(DND_ITEM_ORB);
+			SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, tpbid, -1, istacks - i, isource);
+			SyncItemStack(pnum, tpbid, isource);
+
+			SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, res, -1, i, ssource);
+
+			if(!noSync)
+				SyncItemData(pnum, res, ssource, -1, -1);
+
+			return res;
+		}
+		return -1;
+	}
 
 	// scan from vertical positions to horizontal first to find a good spot
-	for(j = 0; !res && j < MAXINVENTORYBLOCKS_VERT; ++j) {
-		for(i = 0; !res && i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
+	for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
+		for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 			try_pos = j + i * MAXINVENTORYBLOCKS_VERT;
 			if(IsFreeSpot(pnum, tpbid, try_pos, isource, ssource)) {
 				// move item to here now
 				MoveItemTrade(pnum, tpbid, try_pos, isource, ssource, noSync);
-				res = true;
+				return try_pos;
 			}
 		}
 	}
 
-	return res;
+	return -1;
 }
 
 // auto dump functionality from inventory of player to stash
 void AutoDumpItems(int pnum, int stackableOnly = 0) {
 	// for each item the player has, attempt to AutoMoveItem them to stash
 	// first store item ids in an array, sorted from biggest to shortest (biggest first in list)
-	static bool marked_tbids[MAX_INVENTORY_BOXES];
+	static int marked_tbids[MAX_INVENTORY_BOXES];
+	static int is_orb[MAX_INVENTORY_BOXES];
 
 	int i, j, k, count = 0;
 	auto item_move_list = GetItemMoveList(pnum);
+	int curr_page = CheckInventory("DnD_PlayerCurrentPage") - 1;
 
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		marked_tbids[i] = false;
+		marked_tbids[i] = 0;
+		is_orb[i] = 0;
 		item_move_list[i].dest_pos = -1;
 	}
 
@@ -1744,6 +1828,9 @@ void AutoDumpItems(int pnum, int stackableOnly = 0) {
 	// insert sorted
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL && (!stackableOnly || IsStackedItem(PlayerInventoryList[pnum][i].item_type)) && !marked_tbids[i]) {
+			if(curr_page == PAGEID_STASHTAB_ORBS && PlayerInventoryList[pnum][i].item_type != DND_ITEM_ORB)
+				continue;
+
 			k = 0;
 			j = 0;
 			while(item_move_list[k].dest_pos != -1) {
@@ -1787,10 +1874,35 @@ void AutoDumpItems(int pnum, int stackableOnly = 0) {
 	// we formed the list of items to be send to stash, sorted wrt size, now just send them over
 	for(i = 0; i < count; ++i) {
 		//printbold(s:"item: ", d:i, s: " w and h: ", d:ItemMoveList[pnum][i].width, s: " ", d:ItemMoveList[pnum][i].height, s:" move item pos: ", d:ItemMoveList[pnum][i].dest_pos - 1);
-		AutoMoveItem(pnum, item_move_list[i].dest_pos - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16));
+		if(stackableOnly && PlayerInventoryList[pnum][item_move_list[i].dest_pos - 1].item_type == DND_ITEM_ORB) {
+			curr_page = PAGEID_STASHTAB_ORBS;
+			is_orb[i] = 1;
+		}
+		else
+			curr_page = CheckInventory("DnD_PlayerCurrentPage") - 1;
+
+		marked_tbids[i] = AutoMoveItem(pnum, item_move_list[i].dest_pos - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_STASH | (curr_page << 16), true);
+
+		// if somehow we got no space on the dedicated page, try dumping to the current page instead, if that fails it fails
+		if(marked_tbids[i] == -1 && is_orb[i]) {
+			is_orb[i] = 0;
+			curr_page = CheckInventory("DnD_PlayerCurrentPage") - 1;
+			marked_tbids[i] = AutoMoveItem(pnum, item_move_list[i].dest_pos - 1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_STASH | (curr_page << 16), true);
+		}
 	}
 
-	// sync entire inventory and stash after success
+	// sync them all after if movement was successful (this preserves later updates such as multiple same kinds of stacked items retain the sum)
+	for(i = 0; i < count; ++i) {
+		if(marked_tbids[i] == -1)
+			continue;
+
+		if(stackableOnly && is_orb[i])
+			curr_page = PAGEID_STASHTAB_ORBS;
+		else
+			curr_page = CheckInventory("DnD_PlayerCurrentPage") - 1;
+
+		SyncItemData(pnum, marked_tbids[i], DND_SYNC_ITEMSOURCE_STASH | (curr_page << 16), -1, -1);
+	}
 }
 
 // this is made specifically for trade view, the one above is optimized for normal inventory
@@ -3492,7 +3604,12 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 			);
 		}
 
-		max_affixes = GetExtraForMod(pnum, attrib, lvl, Inventories_On_Field[item_pos].item_type, Inventories_On_Field[item_pos].item_subtype, makeWellRolled);
+		max_affixes = GetExtraForMod(
+			pnum, attrib, lvl, 
+			Inventories_On_Field[item_pos].item_type, Inventories_On_Field[item_pos].item_subtype, 
+			makeWellRolled,
+			Inventories_On_Field[item_pos].attributes[temp].attrib_val
+		);
 		if(max_affixes != -1)
 			Inventories_On_Field[item_pos].attributes[temp].attrib_extra = max_affixes;
 	}
@@ -3521,7 +3638,12 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 		PlayerInventoryList[pnum][item_pos].item_subtype
 	);
 
-	lvl = GetExtraForMod(pnum, attrib, lvl, PlayerInventoryList[pnum][item_pos].item_type, PlayerInventoryList[pnum][item_pos].item_subtype, isWellRolled);
+	lvl = GetExtraForMod(
+		pnum, attrib, lvl, 
+		PlayerInventoryList[pnum][item_pos].item_type, PlayerInventoryList[pnum][item_pos].item_subtype, 
+		isWellRolled,
+		PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_val
+	);
 	if(lvl != -1)
 		PlayerInventoryList[pnum][item_pos].attributes[temp].attrib_extra = lvl;
 
@@ -4165,7 +4287,7 @@ void ResetTradeViewList(int pnum) {
 }*/
 
 void ResetPlayerStash(int pnum) {
-	for(int p = 0; p < MAX_EXTRA_INVENTORY_PAGES; ++p) {
+	for(int p = 0; p < MAX_EXTRA_INVENTORY_PAGES + 1; ++p) {
 		for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 			if(PlayerStashList[pnum][p][i].topleftboxid - 1 == i)
 				SyncItemData_Null(pnum, i, DND_SYNC_ITEMSOURCE_STASH | (p << 16), PlayerStashList[pnum][p][i].width, PlayerStashList[pnum][p][i].height);

@@ -140,7 +140,12 @@ void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
 			TradeViewList[MAXPLAYERS][item_pos].item_subtype
 		);
 
-		max_affixes = GetExtraForMod(MAXPLAYERS, attrib, lvl, TradeViewList[MAXPLAYERS][item_pos].item_type, TradeViewList[MAXPLAYERS][item_pos].item_subtype, makeWellRolled);
+		max_affixes = GetExtraForMod(
+			MAXPLAYERS, attrib, lvl, 
+			TradeViewList[MAXPLAYERS][item_pos].item_type, TradeViewList[MAXPLAYERS][item_pos].item_subtype, 
+			makeWellRolled,
+			TradeViewList[MAXPLAYERS][item_pos].attributes[temp].attrib_val
+		);
 		if(max_affixes != -1)
 			TradeViewList[MAXPLAYERS][item_pos].attributes[temp].attrib_extra = max_affixes;
 	}

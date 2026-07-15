@@ -3329,6 +3329,7 @@ Script "DnD Player Setup" ENTER {
 
 #ifdef ISDEBUGBUILD
 	//TestAliasTable(pnum);
+	TestMonsterDropTable(pnum);
 #endif
 
 /*#ifdef ISDEBUGBUILD
@@ -6126,7 +6127,7 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 700);
 			SpawnToken(0, true);
 			//Log(s:"boot");
 			SpawnBoot(0, 0);

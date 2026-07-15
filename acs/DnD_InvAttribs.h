@@ -726,7 +726,7 @@ bool IsStaticMod(int mod) {
 }
 
 // Returns a weapon as extra field for the given corruption mod
-int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item_subtype = -1, bool isWellRolled = false) {
+int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item_subtype = -1, bool isWellRolled = false, int attr_val = -1) {
 	int res = -1;
 
 	if(item_type != DND_ITEM_DUNGEONKEY) {
@@ -784,7 +784,7 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 	else {
 		// for now, assign one of the random upside modifier ids to it
 		res = random(FIRST_DUNGEON_UPSIDE, DUN_UPSIDE_MAX - 1);
-		res |= RollDungeonAttributeExtra(res, tier, isWellRolled) << 16;
+		res |= RollDungeonAttributeExtra(res, mod, tier, isWellRolled) << 16;
 	}
 	return res;
 }

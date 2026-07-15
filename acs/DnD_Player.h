@@ -86,7 +86,7 @@ void MarkAllPlayerOrbTablesDirty() {
     }
 }
 
-void TestAliasTable(int pnum)  {
+/*void TestAliasTable(int pnum)  {
     int i = 200;
     int orbs[DND_NORMAL_DROP_ORBCOUNT] = { 0 };
     while(i--) {
@@ -95,6 +95,6 @@ void TestAliasTable(int pnum)  {
 
     for(i = 0; i < DND_NORMAL_DROP_ORBCOUNT; ++i)
         Log(s:"Picked ", s:GetInventoryName(i + ORBS_BEGIN), s:": ", d:orbs[i]);
-}
+}*/
 
 #endif

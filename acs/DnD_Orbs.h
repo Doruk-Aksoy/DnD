@@ -24,36 +24,36 @@ int GetOrbDropWeight(int id) {
 		240, 		// DND_ORB_AFFLUENCE
 
 		250,		// DND_ORB_CALAMITY
-		350,		// DND_ORB_PROSPERITY
+		300,		// DND_ORB_PROSPERITY
 		250,		// DND_ORB_NULLIFICATION
 		300,		// DND_ORB_DESTRUCTION
 		300,		// DND_ORB_VIOLENCE
 
-		350,		// DND_ORB_FORTITUDE
-		120,		// DND_ORB_SIN
-		350,		// DND_ORB_TREMORS
-		350,		// DND_ORB_TINKERER
-		500,		// DND_ORB_REFINEMENT
+		300,		// DND_ORB_FORTITUDE
+		100,		// DND_ORB_SIN
+		300,		// DND_ORB_TREMORS
+		300,		// DND_ORB_TINKERER
+		750,		// DND_ORB_REFINEMENT
 
-		350,		// DND_ORB_SCULPTING
-		350,		// DND_ORB_ELEVATION
-		500,		// DND_ORB_TURMOIL
-		350,		// DND_ORB_HEXES
-		350,		// DND_ORB_GROWTH
+		400,		// DND_ORB_SCULPTING
+		400,		// DND_ORB_ELEVATION
+		750,		// DND_ORB_TURMOIL
+		300,		// DND_ORB_HEXES
+		300,		// DND_ORB_GROWTH
 
 		250,		// DND_ORB_POTENCY
-		350,		// DND_ORB_CRACKLING
-		350,		// DND_ORB_BRUTE
-		350,		// DND_ORB_JAGGED
+		300,		// DND_ORB_CRACKLING
+		300,		// DND_ORB_BRUTE
+		300,		// DND_ORB_JAGGED
 		250,		// DND_ORB_ALCHEMIST
 
 		250,		// DND_ORB_EVOKER
-		350,		// DND_ORB_SAVAGERY
+		300,		// DND_ORB_SAVAGERY
 
-		350,		// DND_ORB_WINTER
-		350,		// DND_ORB_VOLTAIC
-		350,		// DND_ORB_VILE
-		350,		// DND_ORB_EMBERS
+		300,		// DND_ORB_WINTER
+		300,		// DND_ORB_VOLTAIC
+		300,		// DND_ORB_VILE
+		300,		// DND_ORB_EMBERS
 
 		// drops only from specific monster
 		0xFFFFFF,
@@ -640,8 +640,18 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 								pnum, temp, PlayerInventoryList[pnum][extra].attributes[i].attrib_tier,
 								PlayerInventoryList[pnum][extra].item_type,
 								PlayerInventoryList[pnum][extra].item_subtype,
-								x
+								x,
+								PlayerInventoryList[pnum][extra].attributes[i].attrib_val
 							);
+						}
+						else if(PlayerInventoryList[pnum][extra].item_type == DND_ITEM_DUNGEONKEY) {
+							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = (PlayerInventoryList[pnum][extra].attributes[i].attrib_extra & 0xFFFF) |
+								RollDungeonAttributeExtra(
+									(PlayerInventoryList[pnum][extra].attributes[i].attrib_extra & 0xFFFF), 
+									temp, 
+									PlayerInventoryList[pnum][extra].attributes[i].attrib_tier, 
+									x
+								) << 16;
 						}
 					}
 				}

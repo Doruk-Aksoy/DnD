@@ -639,7 +639,8 @@ int GetPlayerDropQuantity(int pnum) {
 	int base = 1.0;
 	base = FixedMul(
 		base, 
-		1.0 + GetPlayerLuck(pnum) + (HasDungeonUpside(DUN_UPSIDE_QUANT) << 16) / 100
+		1.0 + GetPlayerLuck(pnum) + (HasDungeonUpside(DUN_UPSIDE_QUANT) << 16) / 100 +
+		(DungeonInformation.level != -1) * (DungeonInformation.level * DND_DUNGEON_QUANTPERLVL)
 	);
 
 	return base;

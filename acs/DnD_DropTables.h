@@ -23,12 +23,13 @@ enum {
     DND_MONSTERLOOT_CHESTKEY,
 
     DND_MONSTERLOOT_TOKEN,
+    DND_MONSTERLOOT_DUNGEONKEY,
 
     DND_MONSTERLOOT_COUNT
 };
 
 typedef struct {
-	alias_table_T* monster_drop_table;
+	alias_table_T* monster_drop_table[MAXPLAYERS];
 } loot_tables_T;
 
 global loot_tables_T 21: LootTables;
@@ -54,7 +55,8 @@ int[] module& GetLootDropWeights() {
         80,
         30,
 
-        25
+        25,
+        10
     };
 
     return loot_weights;
@@ -63,29 +65,42 @@ int[] module& GetLootDropWeights() {
 void SetupMonsterDropTable() {
     auto weights = GetLootDropWeights();
 
-    int i;
-	LootTables.monster_drop_table = CreateAliasTable(DND_MONSTERLOOT_COUNT);
+    int i, j;
+    for(j = 0; j < MAXPLAYERS; ++j) {
+        LootTables.monster_drop_table[j] = CreateAliasTable(DND_MONSTERLOOT_COUNT);
 
-    for(i = 0; i < DND_MONSTERLOOT_COUNT; ++i)
-        LootTables.monster_drop_table.weights[i] = weights[i];
+        for(i = 0; i < DND_MONSTERLOOT_COUNT; ++i)
+            LootTables.monster_drop_table[j].weights[i] = weights[i];
+    }
 }
 
 // sets it up to the same weight
-void ResetMonsterDropTable() {
+void ResetMonsterDropTable(int pnum) {
     auto weights = GetLootDropWeights();
     for(int i = 0; i < DND_MONSTERLOOT_COUNT; ++i)
-        LootTables.monster_drop_table.weights[i] = weights[i];
+        LootTables.monster_drop_table[pnum].weights[i] = weights[i];
 }
 
 // reducing weight of nothing dropping is same as increasing everything else, this is the most performant option here
-void UpdateMonsterDropTable(int increase, int class_of_player) {
+void UpdateMonsterDropTable(int pnum, int increase, int class_of_player) {
     auto weights = GetLootDropWeights();
-    LootTables.monster_drop_table.weights[DND_MONSTERLOOT_NOTHING] = weights[DND_MONSTERLOOT_NOTHING] * 100 / (100 + increase);
+    LootTables.monster_drop_table[pnum].weights[DND_MONSTERLOOT_NOTHING] = weights[DND_MONSTERLOOT_NOTHING] * 100 / (100 + increase);
 
     // player class bonus for player to be more likely to find specialty item of themselves
-    LootTables.monster_drop_table.weights[DND_MONSTERLOOT_SPECIALTY_DOOMGUY + class_of_player] = weights[DND_MONSTERLOOT_SPECIALTY_DOOMGUY + class_of_player] * 4;
+    LootTables.monster_drop_table[pnum].weights[DND_MONSTERLOOT_SPECIALTY_DOOMGUY + class_of_player] = weights[DND_MONSTERLOOT_SPECIALTY_DOOMGUY + class_of_player] * 4;
 
-    LootTables.monster_drop_table.isDirty = true;
+    LootTables.monster_drop_table[pnum].isDirty = true;
+}
+
+void TestMonsterDropTable(int pnum)  {
+    int i = 1000;
+    int vals[DND_MONSTERLOOT_COUNT] = { 0 };
+    while(i--) {
+        ++vals[PickFromAliasTable(LootTables.monster_drop_table[pnum])];
+    }
+
+    for(i = 0; i < DND_MONSTERLOOT_COUNT; ++i)
+        Log(s:"Picked ", d:i, s:": ", d:vals[i]);
 }
 
 #endif

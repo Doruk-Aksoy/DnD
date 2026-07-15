@@ -250,6 +250,7 @@ DND_POPUP_CANTUSEPOWERCORE					=	"That item isn't for your class!";
 DND_POPUP_ONLYONEFLASK                      =   "You can only use one of each utility flask!";
 DND_POPUP_NODUNGEONSELECTED                 =   "You haven't selected a dungeon key to open!";
 DND_POPUP_ALREADYDUNGEONACTIVE              =   "There's already an active dungeon portal, wait for it first!";
+DND_POPUP_ORBSONLY                          =   "You can only move orbs to this tab!";
 
 // exceptions for some character sheet text
 DND_CHANCEBLEED								=	"chance to inflict bleed on melee and non-melee attacks";

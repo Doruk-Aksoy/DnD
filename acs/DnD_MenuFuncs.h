@@ -2307,7 +2307,7 @@ rect_T module& LoadInventoryViewRect(int id) {
 rect_T module& LoadStashViewRect(int id) {
 	// this is the top left box, ie 0, 0
 	// left and right boxes
-	static rect_T bp[2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES];
+	static rect_T bp[2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 1];
 	int i, j;
 	// construct for first time, these can be constructed easily from base coordinates
 	if(!IsSet(PaneSetup, STASH_SETUP_BIT)) {
@@ -2333,6 +2333,13 @@ rect_T module& LoadStashViewRect(int id) {
 			bp[2 * MAX_INVENTORY_BOXES + i].botright_x = STASHTAB_BUTTON_BOTRIGHT_X - i * STASHTAB_BUTTON_INCREMENT_X;
 			bp[2 * MAX_INVENTORY_BOXES + i].botright_y = STASHTAB_BUTTON_BOTRIGHT_Y;
 		}
+
+		// orb special page
+		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].topleft_x = 253.0;
+		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].topleft_y = STASHTAB_BUTTON_TOPLEFT_Y;
+		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].botright_x = 228.0;
+		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].botright_y = STASHTAB_BUTTON_BOTRIGHT_Y;
+
 		PaneSetup = SetBit(PaneSetup, STASH_SETUP_BIT);
 	}
 	return bp[id];
@@ -2448,7 +2455,7 @@ void LoadInventoryView(menu_inventory_T module& p) {
 
 void LoadStashView(menu_inventory_T module& p) {
 	p.cursize = 0;
-	for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES; ++i) {
+	for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 1; ++i) {
 		auto r = LoadStashViewRect(i);
 		if(r.topleft_x != -1) {
 			// Log(s:"Adding box: ", f:bp[menu_page][i].topleft_x, s: " ", f:bp[menu_page][i].topleft_y, s: " ", f:bp[menu_page][i].botright_x, s: " ", f:bp[menu_page][i].botright_y);
@@ -4042,6 +4049,23 @@ void HandleStashView(int boxid) {
 		SetFont("NMENUFNT");
 		HudMessage(d:i + 1; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 1 - 2 * i, color, 388.4 + 15.0 * i, 210.0, 0.0, 0.0);
 	}
+
+	// the final orb special page
+	if(CheckInventory("DnD_ButtonPress_OrbPage") || curpages == PAGEID_STASHTAB_ORBS) {
+		SetFont("TRAOBTNC");
+		color = CR_GREEN;
+	}
+	else if(boxid == STASHBUTTON_BOXID_START + PAGEID_STASHTAB_ORBS) {
+		SetFont("TRAOBTNO");
+		color = CR_GREEN;
+	}
+	else {
+		SetFont("TRAOBTN");
+		color = CR_CYAN;
+	}
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2 * MAX_EXTRA_INVENTORY_PAGES, CR_WHITE, 361.4, 210.0, 0.0, 0.0);
+	SetFont("NMENUFNT");
+	HudMessage(s:"Orbs"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 1 - 2 * MAX_EXTRA_INVENTORY_PAGES, color, 361.4, 210.0, 0.0, 0.0);
 	
 	SetFont("NMENUFNT");
 	HudMessage(s:"\c[W3]", l:"DND_MENU_HEAD_STASH"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 4, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
@@ -4076,32 +4100,43 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 		}
 		else if(!sel_box && boxid < STASHBUTTON_BOXID_START) {
 			//printbold(s:"set selected box to ", d:boxid);
-			LocalAmbientSound("RPG/MenuChoose", 127);
-			SetInventory("DnD_PlayerPreviousPage", CheckInventory("DnD_PlayerCurrentPage"));
+			cpage = CheckInventory("DnD_PlayerCurrentPage");
+			SetInventory("DnD_PlayerPreviousPage", cpage);
 
 			if(boxid > MAX_INVENTORY_BOXES) {
 				isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
 				ioffset = MAX_INVENTORY_BOXES;
 
-				ssource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
+				ssource = DND_SYNC_ITEMSOURCE_STASH | ((cpage - 1) << 16);
 			}
 			else {
-				isource = DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16);
+				isource = DND_SYNC_ITEMSOURCE_STASH | ((cpage - 1) << 16);
 
 				ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
 				soffset = MAX_INVENTORY_BOXES;
 			}
 
-			// strafe click is to auto-dump hovered item to stash or vice versa
+			// jump click is to auto-dump hovered item to stash or vice versa
 			if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) {
 				// auto move code -- returns success if it could move
-				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
-					AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource);
+				ppage = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource);
+				if(ppage != DND_ITEM_NULL) {
+					if(cpage - 1 != PAGEID_STASHTAB_ORBS || ppage == DND_ITEM_ORB) {
+						LocalAmbientSound("RPG/MenuChoose", 127);
+						AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource);
+					}
+					else
+						ShowPopup(POPUP_ORBSONLY, false, 0);
+				}
 			}
-			else if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_CROUCH)
+			else if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_CROUCH) {
+				LocalAmbientSound("RPG/MenuChoose", 127);
 				HandleMenuItemDrop(pnum, boxid - ioffset, isource);
-			else
+			}
+			else {
+				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedInventoryBox", boxid);
+			}
 		}
 		else if(boxid != sel_box) {
 			if(boxid >= STASHBUTTON_BOXID_START) {
@@ -4110,6 +4145,11 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 				if(temp < CheckInventory("DnD_PlayerInventoryPages")) {
 					GiveInventory(StrParam(s:"DnD_ButtonPress_", d:temp + 1), 1);
 					//printbold(s:"set current page to ", d:temp + 1);
+					SetInventory("DnD_PlayerCurrentPage", temp + 1);
+					LocalAmbientSound("RPG/MenuChoose", 127);
+				}
+				else if(temp == PAGEID_STASHTAB_ORBS) {
+					GiveInventory("DnD_ButtonPress_OrbPage", 1);
 					SetInventory("DnD_PlayerCurrentPage", temp + 1);
 					LocalAmbientSound("RPG/MenuChoose", 127);
 				}
@@ -4153,8 +4193,19 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 							MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
 					}
 					else {
-						//printbold(s:"swapping");
-						SwapItems(pnum, boxid - 1 - ioffset, sel_box - 1 - soffset, isource, ssource, false);
+						// if we want to move something from inv to stash check if its orbs only page
+						if
+						(
+							((ssource >> 16) == PAGEID_STASHTAB_ORBS && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset - ioffset, -1, isource) != DND_ITEM_ORB) ||
+							((isource >> 16) == PAGEID_STASHTAB_ORBS && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, sel_box - 1 - soffset, -1, ssource) != DND_ITEM_ORB)
+						)
+						{
+							ShowPopup(POPUP_ORBSONLY, false, 0);
+						}
+						else {
+							//printbold(s:"swapping ", d:boxid - 1 - ioffset, s: " and ", d:sel_box - 1 - soffset);
+							SwapItems(pnum, boxid - 1 - ioffset, sel_box - 1 - soffset, isource, ssource, false);
+						}
 					}
 				}
 				else {
@@ -4176,8 +4227,26 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 					}
 					// epos holds the empty position now
 					// make sure we aren't both empty slots
-					if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource))
-						MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
+					if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource)) {
+						if((ssource >> 16) == PAGEID_STASHTAB_ORBS && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, ipos - ioffset, -1, isource) != DND_ITEM_ORB)
+							ShowPopup(POPUP_ORBSONLY, false, 0);
+						else if
+						(
+							(isource >> 16) == PAGEID_STASHTAB_ORBS && 
+							(ppage = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos - ioffset, -1, isource)) > (cpage = GetStackValue(DND_ITEM_ORB, ssource))
+						)
+						{
+							// if we are not allowed to pull more here, adjust stacks
+							SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos - ioffset, -1, ppage - cpage, isource);
+							SyncItemStack(pnum, ipos - ioffset, isource);
+
+							CloneItemToSpot(pnum, ipos - ioffset, isource, epos - soffset, true, ssource);
+							SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, epos - soffset, -1, cpage, ssource);
+							SyncItemData(pnum, epos - soffset, ssource, -1, -1);
+						}
+						else
+							MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
+					}
 				}
 				//printbold(s:"reset at mainbox != none");
 				SetInventory("DnD_SelectedInventoryBox", 0);

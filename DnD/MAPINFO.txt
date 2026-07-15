@@ -52,10 +52,6 @@ skill crazy
    Key = "D"
 }
 
-gamedefaults {
-	nointermission
-}
-
 map DND01 "Void Keep" {
 	music = "DNDM01"
 	SmoothLighting

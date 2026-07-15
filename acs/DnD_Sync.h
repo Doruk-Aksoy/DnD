@@ -855,6 +855,15 @@ void SyncItemStack(int pnum, int itemid, int source) {
 	MarkVSyncItemDirty();
 }
 
+void SyncItemStack_Delayed(int pnum, int itemid, int source) {
+	int page = source >> 16;
+	int raw_source = source & 0xFFFF;
+	int payload = (raw_source << 8) | (page << 16);
+	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMSTACK | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, itemid, -1, source), itemid);
+	
+	MarkVSyncItemDirty();
+}
+
 void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, bool source_inv_except = false) {
 	int page = source >> 16;
 	int raw_source = source & 0xFFFF;
@@ -975,6 +984,15 @@ void SyncAllItemData(int pnum, int source) {
 				else
 					SyncItemData_Null(pnum, j, source | (i << 16), 1, 1);
 			}
+		}
+
+		// sync the orbs page
+		i = PAGEID_STASHTAB_ORBS;
+		for(j = 0; j < MAX_INVENTORY_BOXES; ++j) {
+			if(PlayerStashList[pnum][i][j].item_type != DND_ITEM_NULL)
+				SyncItemData(pnum, j, source | (i << 16), 1, 1);
+			else
+				SyncItemData_Null(pnum, j, source | (i << 16), 1, 1);
 		}
 	}
 
