@@ -3327,11 +3327,6 @@ Script "DnD Player Setup" ENTER {
 
 	ReadjustOrbWeightsForRarerOnes(pnum);
 
-#ifdef ISDEBUGBUILD
-	//TestAliasTable(pnum);
-	TestMonsterDropTable(pnum);
-#endif
-
 /*#ifdef ISDEBUGBUILD
 	Delay(10*TICRATE);
 	Log(s:"nuclear count: ", d:test_counter);
@@ -6256,6 +6251,11 @@ Script 68 (int x) NET {
 }
 
 #ifdef ISDEBUGBUILD
+Script "table test" (int boost) {
+	if(!boost)
+		boost = 100;
+	TestMonsterDropTable(PlayerNumber(), boost);
+}
 /*Script "DnD Damage Script Output" (void) OPEN {
 	while(1) {
 		Delay(const:TICRATE);

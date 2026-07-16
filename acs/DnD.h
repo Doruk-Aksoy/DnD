@@ -783,22 +783,23 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			// GetDropChance returns fixed value
 			int p_chance = GetDropChance(i);
-			int quant = GetPlayerDropQuantity(i);
+			int quant = GetPlayerDropQuantity(i) * drop_boost / 100;
 
-			// construct new weights for this table given player's drop chance and monster's drop boost
-			tmp = (((p_chance * 100) >> 16) * drop_boost / 100) - 100;
-			//printbold(d:tmp, s: " ", d:((p_chance * 100) >> 16), s: " ", d:drop_boost);
-			UpdateMonsterDropTable(i, tmp, GetActorPlayerClass(i + P_TIDSTART));
-			
-			// count how many items to spawn with player's item quant
-			int count = 0;
-			while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
-				tmp = PickFromAliasTable(LootTables.monster_drop_table[i]);
-				SpawnLootFromDropTableIndex(i, rarity_boost, tmp, m_id, incursion);
-				quant -= 1.0;
-				++count;
-				if(count > LAST_MON_RNG_INDEX)
-					count = LAST_MON_RNG_INDEX;
+			// this is the effective weight of nothing dropping -- if we pass this roll that means a loot drop can occur and we can check successive rolls after
+			int count = GetAdjustedNothingWeight(p_chance, drop_boost);
+			if(random(1, count + LootTables.monster_loot_weight_sum) <= LootTables.monster_loot_weight_sum) {
+				// count how many items to spawn with player's item quant
+				count = 0;
+				while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
+					// for subsequent chance rolls that pass the quant, guaranteed drop them
+					tmp = PickFromAliasTable(LootTables.monster_drop_table);
+					SpawnLootFromDropTableIndex(i, rarity_boost, tmp, m_id, incursion);
+
+					quant -= 1.0;
+					++count;
+					if(count > LAST_MON_RNG_INDEX)
+						count = LAST_MON_RNG_INDEX;
+				}
 			}
 
 			if(!dropped_chest && IsLootChestDroppingMonster(m_id) && RunPrecalcDropChance(p_chance, chest_dropchance, m_id, DND_MON_RNG_8)) {
@@ -816,9 +817,6 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 
 void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_id, bool is_incursion_monster = false) {
 	switch(drop_id) {
-		case DND_MONSTERLOOT_NOTHING:
-		return;
-
 		case DND_MONSTERLOOT_CHARM:
 			if(is_incursion_monster && RollIncursionItemChance())
 				SpawnCharmWithMods(pnum, PickRandomIncursionMod());
@@ -845,15 +843,12 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 		break;
 		
 		// they all spawn a specialty item
-		case DND_MONSTERLOOT_SPECIALTY_DOOMGUY:
-		case DND_MONSTERLOOT_SPECIALTY_MARINE:
-		case DND_MONSTERLOOT_SPECIALTY_HOBO:
-		case DND_MONSTERLOOT_SPECIALTY_PUNISHER:
-		case DND_MONSTERLOOT_SPECIALTY_WANDERER:
-		case DND_MONSTERLOOT_SPECIALTY_CYBORG:
-		case DND_MONSTERLOOT_SPECIALTY_BERSERKER:
-		case DND_MONSTERLOOT_SPECIALTY_TRICKSTER:
-			SpawnSpecialtyItem(pnum, rarity_boost, 0, false, FIRST_SPECIALTY_ITEM_TYPE + drop_id - DND_MONSTERLOOT_SPECIALTY_DOOMGUY);
+		case DND_MONSTERLOOT_SPECIALTY:
+			drop_id = GetActorPlayerClass(pnum + P_TIDSTART);
+			if(random(1, 100) <= DND_SPECIALTY_BIAS_CHANCE)
+				SpawnSpecialtyItem(pnum, rarity_boost, 0, false, FIRST_SPECIALTY_ITEM_TYPE + drop_id);
+			else
+				SpawnSpecialtyItem(pnum, rarity_boost, 0, false, GetRandomSpecialtyItem());
 		break;
 
 		case DND_MONSTERLOOT_FLASK:

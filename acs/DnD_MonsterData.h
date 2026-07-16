@@ -361,36 +361,22 @@ void HandleMonsterClassInnates(int mid, int id) {
 #define DND_ELITE_GAINBONUS 25 // 25%
 #define DND_MAGIC_GAINBONUS 10
 
-int GetMonsterLevelDroprateBonus(int lvl) {
-	// piecewise function so the early 25 levels increase sharper, then slow down but reach to a sweet spot of x2.5
-	/*if(lvl <= 25)
-		return 4 * lvl;
-	else if(lvl <= 50)
-		return lvl * lvl / 100 + 3 * lvl + 19;
-	return lvl * lvl / 150 + 184;
-	if(lvl <= 25)
-		return 4 * lvl;
-	return 2 * lvl + 50;*/
-	// new formula to ensure a sharp curve earlier levels then settle down
-	return FixedDiv(540.0, (60.0 / lvl + 3.0)) >> 16;
-}
-
 int GetMonsterRarityDroprateBonus(int rarity) {
 	switch(rarity) {
 		case DND_MWEIGHT_COMMON:
 		return 0;
 		
 		case DND_MWEIGHT_UNCOMMON:
-		return 15;
+		return 10;
 		
 		case DND_MWEIGHT_RARE1:
-		return 25;
+		return 20;
 		
 		case DND_MWEIGHT_RARE2:
-		return 35;
+		return 30;
 		
 		case DND_MWEIGHT_VERYRARE:
-		return 60;
+		return 50;
 		
 		case DND_MWEIGHT_EPIC:
 		return 100;
@@ -404,13 +390,13 @@ int GetMonsterRarityDroprateBonus(int rarity) {
 */
 #define DND_ELITEBONUS_FROM_RARITY 25
 int GetMonsterDropBonus(int drop_base, int level, int rarity, int flags) {
-	// first a 50% from elites as a multiplicative bonus, then the rest
-	bool isMagic = flags & DND_MONFLAG_ISMAGIC;
-	bool isElite = flags & DND_MONFLAG_ISELITE;
+	// 25% on tough and 50% on elite monsters as a flat bonus
+	bool isMagic = !!(flags & DND_MONFLAG_ISMAGIC);
+	bool isElite = !!(flags & DND_MONFLAG_ISELITE);
 	drop_base = drop_base * (100 + 
 		DND_ELITEBONUS_FROM_RARITY * isMagic + 
 		2 * isElite * DND_ELITEBONUS_FROM_RARITY + 
-		GetMonsterLevelDroprateBonus(level) + 
+		GlobalData.DnD_Constants[DND_CONSTANT_MONSTER_LEVEL_DROPBOOST][level - 1] + // level 1's data is in index 0 etc.
 		GetMonsterRarityDroprateBonus(rarity)
 	) / 100;
 	return drop_base;

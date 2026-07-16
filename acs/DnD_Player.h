@@ -3,7 +3,13 @@
 
 typedef struct {
     alias_table_T? orb_table;
+
+    // attribute picking table used by charms as well as general purpose
     alias_table_T? item_attributes_table;
+
+    // tables of attributes for item bases
+
+    // special attribute tables with "more likely" conditions, or disabled mods
 
     bool tables_exist;
 } player_alias_tables_T;

@@ -2313,9 +2313,6 @@ void DrawInventoryText(
 			for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i, source);
 				if(temp != -1) {
-					if(isUnique)
-						yoff = 6.0;
-
 					if(i + 1 != MAX_ITEM_IMPLICITS && tmp_text != "")
 						tmp_text = StrParam(s:tmp_text, s:"\n");
 					
@@ -2343,6 +2340,8 @@ void DrawInventoryText(
 			tmp_text = item_vsync_data.implicit_textID;
 
 		if(tmp_text != "") {
+			if(isUnique)
+				yoff = 6.0;
 			HudMessage(
 				s:tmp_text;
 				HUDMSG_PLAIN | HUDMSG_FADEOUT, 

@@ -3,6 +3,7 @@
 
 enum {
 	DND_CONSTANT_EXPCURVE,
+	DND_CONSTANT_MONSTER_LEVEL_DROPBOOST,
 
 	DND_MAX_CONSTANTS
 };
@@ -270,6 +271,10 @@ void Build_Constants() {
 	for(; i <= MAXLEVELS - DND_EXP_ADJUST_LEVEL; ++i) {
 		GlobalData.DnD_Constants[DND_CONSTANT_EXPCURVE][i] = fpow(DND_EXP_ADJUST_LEVELFACTOR, i + 1);
 		//Log(d:i, s: " => ", f:DnD_Constants[DND_CONSTANT_EXPCURVE][i]);
+	}
+
+	for(i = 0; i < MAXLEVELS; ++i) {
+		GlobalData.DnD_Constants[DND_CONSTANT_MONSTER_LEVEL_DROPBOOST][i] = GetMonsterLevelDroprateBonus(i + 1);
 	}
 }
 

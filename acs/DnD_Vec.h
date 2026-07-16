@@ -538,7 +538,7 @@ Vec2_T* GetEllipticSpread(int rx, int ry = 0.0) {
 	return v;
 }
 
-// returns vec2 with xy and z spreads
+// returns vec2 with xy and z spreads -- allocates memory
 Vec2_T* BulletAngle(int angle, int pitch, int rx, int ry = 0) {
 	// if no spread return these as they are
 	Vec2_T* res = GetVec2(angle, pitch);
@@ -574,11 +574,13 @@ Vec2_T* BulletAngle(int angle, int pitch, int rx, int ry = 0) {
 	return res;
 }
 
-// returns vec2 with xy and z spreads
+// returns vec2 with xy and z spreads -- no mem allocation, takes in a mem allocated vec
 void SetBulletAngle(Vec2_T* res, int angle, int pitch, int rx, int ry = 0) {
 	// if no spread return these as they are
-	if(rx == 0 && ry == 0)
+	if(rx == 0 && ry == 0) {
+		SetVec2(res, angle, pitch);
 		return;
+	}
 	
 	// rx exists but not ry, assign same val
 	if(ry == 0)
@@ -637,8 +639,10 @@ Vec3_T* BulletAngleVec3(int angle, int pitch, Vec3_T* vDefaultDir, int rx, int r
 
 void SetBulletAngleVec3(Vec3_T* res, int angle, int pitch, Vec3_T* vDefaultDir, int rx, int ry = 0) {
 	// if no spread return these as they are
-	if(rx == 0 && ry == 0)
+	if(rx == 0 && ry == 0) {
+		AssignVec3(res, vDefaultDir);
 		return;
+	}
 	
 	// rx exists but not ry, assign same val
 	if(ry == 0)

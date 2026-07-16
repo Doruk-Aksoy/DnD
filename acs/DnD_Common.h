@@ -959,6 +959,12 @@ bool HasMapLump(str lump) {
 	return true;
 }
 
+int GetMonsterLevelDroprateBonus(int lvl) {
+	// new formula to ensure a sharp curve earlier levels then settle down
+	return FixedDiv(400.0, (100.0 / lvl + 3.0)) >> 16;
+}
+
+#include "DnD_Bitset.h"
 #include "DnD_Alias.h"
 #include "DnD_Globals.h"
 

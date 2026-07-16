@@ -73,7 +73,7 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 #ifndef ISDEBUGBUILD
 		if(RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
 #else
-		if(random(0,2))
+		if(random(0,1))
 #endif
 		{
 			id = PickUniqueItem(DND_ITEM_BOOT);

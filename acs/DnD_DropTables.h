@@ -2,21 +2,12 @@
 #define DND_DROPTABLE_IN
 
 enum {
-    DND_MONSTERLOOT_NOTHING,
-
     DND_MONSTERLOOT_CHARM,
     DND_MONSTERLOOT_BODYARMOR,
     DND_MONSTERLOOT_HELM,
     DND_MONSTERLOOT_BOOT,
     
-    DND_MONSTERLOOT_SPECIALTY_DOOMGUY,
-	DND_MONSTERLOOT_SPECIALTY_MARINE,
-	DND_MONSTERLOOT_SPECIALTY_HOBO,
-	DND_MONSTERLOOT_SPECIALTY_PUNISHER,
-	DND_MONSTERLOOT_SPECIALTY_WANDERER,
-	DND_MONSTERLOOT_SPECIALTY_CYBORG,
-	DND_MONSTERLOOT_SPECIALTY_BERSERKER,
-	DND_MONSTERLOOT_SPECIALTY_TRICKSTER,
+    DND_MONSTERLOOT_SPECIALTY,
 
     DND_MONSTERLOOT_FLASK,
     DND_MONSTERLOOT_ORB,
@@ -29,34 +20,29 @@ enum {
 };
 
 typedef struct {
-	alias_table_T* monster_drop_table[MAXPLAYERS];
+    int monster_loot_weight_sum;
+	alias_table_T* monster_drop_table;
 } loot_tables_T;
 
 global loot_tables_T 21: LootTables;
 
+#define DND_LOOTWEIGHT_NOTHING 10000
+#define DND_SPECIALTY_BIAS_CHANCE 66 // biased towards finding your own specialty item
 int[] module& GetLootDropWeights() {
     static int loot_weights[DND_MONSTERLOOT_COUNT] = {
-        10000,
+        200,
+        150,
         100,
-        75,
-        50,
+        120,
+
         60,
 
-        4,
-        4,
-        4,
-        4,
-        4,
-        4,
-        4,
-        4,
+        32,
+        160,
+        60,
 
-        15,
-        80,
-        30,
-
-        25,
-        10
+        50,
+        20
     };
 
     return loot_weights;
@@ -65,40 +51,42 @@ int[] module& GetLootDropWeights() {
 void SetupMonsterDropTable() {
     auto weights = GetLootDropWeights();
 
-    int i, j;
-    for(j = 0; j < MAXPLAYERS; ++j) {
-        LootTables.monster_drop_table[j] = CreateAliasTable(DND_MONSTERLOOT_COUNT);
+    int i;
+    LootTables.monster_loot_weight_sum = 0;
+    LootTables.monster_drop_table = CreateAliasTable(DND_MONSTERLOOT_COUNT);
 
-        for(i = 0; i < DND_MONSTERLOOT_COUNT; ++i)
-            LootTables.monster_drop_table[j].weights[i] = weights[i];
+    for(i = 0; i < DND_MONSTERLOOT_COUNT; ++i) {
+        LootTables.monster_drop_table.weights[i] = weights[i];
+        LootTables.monster_loot_weight_sum += weights[i];
     }
 }
 
-// sets it up to the same weight
-void ResetMonsterDropTable(int pnum) {
-    auto weights = GetLootDropWeights();
-    for(int i = 0; i < DND_MONSTERLOOT_COUNT; ++i)
-        LootTables.monster_drop_table[pnum].weights[i] = weights[i];
+int GetAdjustedNothingWeight(int drop_chance, int drop_boost = 100) {
+    int tmp = (((drop_chance * 100 - 100.0) >> 16) * drop_boost / 100) - 100;
+    // clamp it
+    if(tmp < -50)
+        tmp = -50;
+    return DND_LOOTWEIGHT_NOTHING * 100 / (100 + tmp);
 }
 
-// reducing weight of nothing dropping is same as increasing everything else, this is the most performant option here
-void UpdateMonsterDropTable(int pnum, int increase, int class_of_player) {
-    auto weights = GetLootDropWeights();
-    LootTables.monster_drop_table[pnum].weights[DND_MONSTERLOOT_NOTHING] = weights[DND_MONSTERLOOT_NOTHING] * 100 / (100 + increase);
-
-    // player class bonus for player to be more likely to find specialty item of themselves
-    LootTables.monster_drop_table[pnum].weights[DND_MONSTERLOOT_SPECIALTY_DOOMGUY + class_of_player] = weights[DND_MONSTERLOOT_SPECIALTY_DOOMGUY + class_of_player] * 4;
-
-    LootTables.monster_drop_table[pnum].isDirty = true;
-}
-
-void TestMonsterDropTable(int pnum)  {
+void TestMonsterDropTable(int pnum, int drop_boost = 100)  {
     int i = 1000;
     int vals[DND_MONSTERLOOT_COUNT] = { 0 };
+
+    int p_chance = GetDropChance(pnum);
+    int nothing_count = 0;
+    int w = GetAdjustedNothingWeight(p_chance, drop_boost);
+
+    Log(s:"Nothing weight and sum: ", d:w, s: " ", d:LootTables.monster_loot_weight_sum, s: " drop boost: ", d:drop_boost, s:" drop chance: ", f:p_chance);
+
     while(i--) {
-        ++vals[PickFromAliasTable(LootTables.monster_drop_table[pnum])];
+        if(random(1, w + LootTables.monster_loot_weight_sum) > LootTables.monster_loot_weight_sum)
+            ++nothing_count;
+        else
+            ++vals[PickFromAliasTable(LootTables.monster_drop_table)];
     }
 
+    Log(s:"Nothing rolled: ", d:nothing_count);
     for(i = 0; i < DND_MONSTERLOOT_COUNT; ++i)
         Log(s:"Picked ", d:i, s:": ", d:vals[i]);
 }
