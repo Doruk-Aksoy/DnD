@@ -28,6 +28,7 @@ enum {
 	DND_SYNC_ITEMSTACK,
 	DND_SYNC_ITEMCORRUPTED,
 	DND_SYNC_ITEMQUALITY,
+	DND_SYNC_MODPROPFLAGS,
 	// add non attribute related things from above attrib count
 
 	// implicit attribute stuff
@@ -93,6 +94,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Items_Used[pnum][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return Items_Used[pnum][extra].quality;
+			case DND_SYNC_MODPROPFLAGS:
+			return Items_Used[pnum][extra].mod_prop_flags;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return Items_Used[pnum][extra].attributes[sub].attrib_id;
@@ -141,6 +144,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return Inventories_On_Field[extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return Inventories_On_Field[extra].quality;
+			case DND_SYNC_MODPROPFLAGS:
+			return Inventories_On_Field[extra].mod_prop_flags;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return Inventories_On_Field[extra].attributes[sub].attrib_id;
@@ -189,6 +194,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerInventoryList[pnum][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return PlayerInventoryList[pnum][extra].quality;
+			case DND_SYNC_MODPROPFLAGS:
+			return PlayerInventoryList[pnum][extra].mod_prop_flags;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return PlayerInventoryList[pnum][extra].attributes[sub].attrib_id;
@@ -237,6 +244,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return TradeViewList[pnum][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return TradeViewList[pnum][extra].quality;
+			case DND_SYNC_MODPROPFLAGS:
+			return TradeViewList[pnum][extra].mod_prop_flags;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return TradeViewList[pnum][extra].attributes[sub].attrib_id;
@@ -285,6 +294,8 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 			return PlayerStashList[pnum][page][extra].corrupted;
 			case DND_SYNC_ITEMQUALITY:
 			return PlayerStashList[pnum][page][extra].quality;
+			case DND_SYNC_MODPROPFLAGS:
+			return PlayerStashList[pnum][page][extra].mod_prop_flags;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 			return PlayerStashList[pnum][page][extra].attributes[sub].attrib_id;
@@ -355,6 +366,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMQUALITY:
 				Items_Used[pnum][extra].quality = val;
 			break;
+			case DND_SYNC_MODPROPFLAGS:
+				Items_Used[pnum][extra].mod_prop_flags = val;
+			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				Items_Used[pnum][extra].attributes[sub].attrib_id = val;
@@ -420,6 +434,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_ITEMQUALITY:
 				Inventories_On_Field[extra].quality = val;
+			break;
+			case DND_SYNC_MODPROPFLAGS:
+				Inventories_On_Field[extra].mod_prop_flags = val;
 			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
@@ -487,6 +504,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMQUALITY:
 				PlayerInventoryList[pnum][extra].quality = val;
 			break;
+			case DND_SYNC_MODPROPFLAGS:
+				PlayerInventoryList[pnum][extra].mod_prop_flags = val;
+			break;
 			
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				PlayerInventoryList[pnum][extra].attributes[sub].attrib_id = val;
@@ -553,6 +573,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			case DND_SYNC_ITEMQUALITY:
 				TradeViewList[pnum][extra].quality = val;
 			break;
+			case DND_SYNC_MODPROPFLAGS:
+				TradeViewList[pnum][extra].mod_prop_flags = val;
+			break;
 
 			case DND_SYNC_ITEMATTRIBUTES_ID:
 				TradeViewList[pnum][extra].attributes[sub].attrib_id = val;
@@ -618,6 +641,9 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 			break;
 			case DND_SYNC_ITEMQUALITY:
 				PlayerStashList[pnum][page][extra].quality = val;
+			break;
+			case DND_SYNC_MODPROPFLAGS:
+				PlayerStashList[pnum][page][extra].mod_prop_flags = val;
 			break;
 			
 			case DND_SYNC_ITEMATTRIBUTES_ID:
@@ -756,7 +782,7 @@ void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev, bool s
 	//Log(s:"syncing item at field pos ", d:itemid, s:" type ", d:GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), s:" for player ", d:pnum);
 	
 	// skip top left box and item type, we handled it
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_MODPROPFLAGS ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 
 	// sync implicits
@@ -799,7 +825,7 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_MODPROPFLAGS ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 
 	// sync implicits
@@ -828,7 +854,7 @@ void SyncItemData_Field(int itemid) {
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(-1, DND_SYNC_ITEMTYPE, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
 
 
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_MODPROPFLAGS ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", i | payload, GetItemSyncValue(-1, i, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
 
 	// sync implicits
@@ -891,7 +917,7 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, b
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid);
 	}
 	
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMQUALITY ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_MODPROPFLAGS ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
 
 	// sync implicits

@@ -20,6 +20,11 @@ enum {
 };
 
 typedef struct {
+    int count;
+    int[]* mod_list;
+} mod_pool_T;
+
+typedef struct {
     int monster_loot_weight_sum;
 	alias_table_T* monster_drop_table;
 } loot_tables_T;

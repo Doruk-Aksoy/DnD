@@ -266,7 +266,7 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 	else
 		res = helm;
 
-	//res = HELMS_ELDER;
+	res = HELMS_WARRIOR;
 
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");

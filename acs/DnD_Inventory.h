@@ -611,6 +611,7 @@ void RemoveItemFromWorld(int fieldpos) {
 
 	Inventories_On_Field[fieldpos].corrupted = 0;
 	Inventories_On_Field[fieldpos].quality = 0;
+	Inventories_On_Field[fieldpos].mod_prop_flags = 0;
 
 	int k;
 	for(k = 0; k < MAX_ITEM_IMPLICITS; ++k) {
@@ -1108,6 +1109,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 
 		Items_Used[pnum][use_id].corrupted = PlayerInventoryList[pnum][item_index].corrupted;
 		Items_Used[pnum][use_id].quality = PlayerInventoryList[pnum][item_index].quality;
+		Items_Used[pnum][use_id].mod_prop_flags = PlayerInventoryList[pnum][item_index].mod_prop_flags;
 
 		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 			Items_Used[pnum][use_id].implicit[i].attrib_id = PlayerInventoryList[pnum][item_index].implicit[i].attrib_id;
@@ -1166,6 +1168,7 @@ int RollItemLevel() {
 		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
 		return res;
 	}
+
 	return pavg + random((-pavg + 1) / 2, ITEMLEVEL_VARIANCE_HIGHER);
 }
 
@@ -1255,6 +1258,7 @@ bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, i
 
 		PlayerInventoryList[player_index][item_index].corrupted = Inventories_On_Field[fieldpos].corrupted;
 		PlayerInventoryList[player_index][item_index].quality = Inventories_On_Field[fieldpos].quality;
+		PlayerInventoryList[player_index][item_index].mod_prop_flags = Inventories_On_Field[fieldpos].mod_prop_flags;
 
 		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 			PlayerInventoryList[player_index][item_index].implicit[i].attrib_id = Inventories_On_Field[fieldpos].implicit[i].attrib_id;
@@ -1491,6 +1495,7 @@ void MoveItemToTemporary(int player_index, int item_index, int temp_pos, int sou
 
 	TemporaryInventoryList[player_index][temp_pos].corrupted = GetItemSyncValue(player_index, DND_SYNC_ITEMCORRUPTED, item_index, -1, source);
 	TemporaryInventoryList[player_index][temp_pos].quality = GetItemSyncValue(player_index, DND_SYNC_ITEMQUALITY, item_index, -1, source);
+	TemporaryInventoryList[player_index][temp_pos].mod_prop_flags = GetItemSyncValue(player_index, DND_SYNC_MODPROPFLAGS, item_index, -1, source);
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 		TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_id = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, source);
@@ -2313,9 +2318,6 @@ void DrawInventoryText(
 			for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 				temp = GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i, source);
 				if(temp != -1) {
-					if(i + 1 != MAX_ITEM_IMPLICITS && tmp_text != "")
-						tmp_text = StrParam(s:tmp_text, s:"\n");
-					
 					tmp_text = StrParam(s:tmp_text,
 						s:GetItemAttributeText(
 							temp, 
@@ -2328,7 +2330,8 @@ void DrawInventoryText(
 							GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_EXTRA, topboxid, i, source), 
 							false,
 							val
-						)
+						),
+						s:(i != MAX_ITEM_IMPLICITS - 1) && GetItemSyncValue(pnum, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, topboxid, i + 1, source) != -1 ? "\n" : ""
 					);
 				}
 			}
@@ -3667,11 +3670,11 @@ void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int ti
 	if(!tier)
 		Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = val;
 	else {
-		int temp = GetItemTier(tier);
+		extra = GetItemTier(tier);
 		if(tier_mapping)
-			Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = random(val + temp * tier_mapping, val + (temp + 1) * tier_mapping);
+			Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = random(val + extra * tier_mapping, val + (extra + 1) * tier_mapping);
 		else
-			Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = val * (temp + 1);
+			Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = val * (extra + 1);
 	}
 }
 

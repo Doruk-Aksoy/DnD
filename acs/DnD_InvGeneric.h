@@ -803,7 +803,6 @@ bool IsArmorTypeItem(int type) {
 		case DND_ITEM_BODYARMOR:
 		case DND_ITEM_HELM:
 		case DND_ITEM_BOOT:
-		case DND_ITEM_SPECIALTY_CYBORG:
 		return true;
 	}
 	return false;

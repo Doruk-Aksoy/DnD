@@ -718,9 +718,7 @@ void Do_Scan_Attack(int dmg, int damage_type, int tracer_count, int flags) {
 		i = UsedMonsterTIDs[mn];
 		if(IsActorAlive(i) && CheckFlag(i, "SHOOTABLE")) {
 			dist = fdistance(owner, i);
-			printbold(s:"Checking ", s:GetActorClass(i));
 			if(dist < scan_dist && MaxAngleDiff_Projection(owner, i, scan_fov, projection_angle) && CheckSight(owner, i, CSF_NOBLOCKALL)) {
-				printbold(s:"approved ", s:GetActorClass(i), s: " ", d:i);
 				// insert sorted
 				temp = tcount;
 				// while our calc dist > alloc dist, keep going -- we add things to the end
