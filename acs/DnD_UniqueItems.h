@@ -375,41 +375,4 @@ void SetupUniqueItems() {
 	UNIQUE_ATTR_ENTRY(INV_INC_STAMINARECOVERYRATE, 20, 100, 0, 0);
 }
 
-// These are necessary to sync the global variables + unique data
-Script "DnD Load Inventory Attributes" OPEN {
-	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
-		SetupArmorDropWeights();
-		Delay(const:5);
-		SetupFlaskDropWeights();
-		SetupTokenDropWeights();
-		Delay(const:10);
-		SetupInventoryAttributeTable();
-		Delay(const:10);
-		SetupDungeonModTable();
-		Delay(const:5);
-		SetupInventoryTagGroups();
-		Delay(const:10);
-		SetupUniqueItems();
-		Delay(10);
-		ACS_NamedExecuteAlways("DnD Setup Menu Vars", 0); // leave this last here
-	}
-}
-
-Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
-	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
-		SetupArmorDropWeights();
-		Delay(const:5);
-		SetupFlaskDropWeights();
-		SetupTokenDropWeights();
-		Delay(const:10);
-		SetupInventoryAttributeTable();
-		Delay(const:10);
-		SetupDungeonModTable();
-		Delay(const:5);
-		SetupUniqueItems();
-		Delay(10);
-		ACS_NamedExecuteAlways("DnD Setup Menu Vars - CS", 0);
-	}
-}
-
 #endif

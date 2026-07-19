@@ -89,50 +89,50 @@ bool IsUtilityFlask(int subtype) {
 	return subtype >= FLASK_UTILITY_BEGIN && subtype <= FLASK_UTILITY_END;
 }
 
-int GetFlaskChargeUseEffects(int pnum, int flask_id) {
-	int base = -GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_REDUCEDCHARGEUSE);
-	base += GetFlaskAttributeExtra(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY);
+int GetFlaskChargeUseEffects(int pnum, inventory_T& flask) {
+	int base = -GetFlaskAttributeVal(pnum, flask, INV_FLASK_REDUCEDCHARGEUSE);
+	base += GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
 	return base;
 }
 
-int GetFlaskRecoveryEffects(int pnum, int flask_id) {
-	int base = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY);
-	base -= GetFlaskAttributeExtra(pnum, flask_id, INV_FLASK_INSTANTONLOWLIFE);
+int GetFlaskRecoveryEffects(int pnum, inventory_T& flask) {
+	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
+	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INSTANTONLOWLIFE);
 	return base;
 }
 
-int GetFlaskData(int pnum, int flask_id, int flask_type, int data_type) {
+int GetFlaskData(int pnum, inventory_T& flask, int flask_type, int data_type) {
 	int res = 0;
 	int i;
 	int temp;
 	switch(data_type) {
 		case FLASK_DATA_MAXCHARGES:
 			for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-				if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
-					res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_val;
+				if(flask.implicit[i].attrib_id != -1 && flask.implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
+					res = flask.implicit[i].attrib_val;
 			}
 
-			if((temp = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGES)))
+			if((temp = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGES)))
 				res = res * (100 + temp) / 100;
 		break;
 		case FLASK_DATA_CHARGEUSE:
 			for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-				if(Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id != -1 && Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
-					res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[i].attrib_extra;
+				if(flask.implicit[i].attrib_id != -1 && flask.implicit[i].attrib_id == INV_FLASK_IMP_CHARGECOUNT)
+					res = flask.implicit[i].attrib_extra;
 			}
 
-			if((temp = GetFlaskChargeUseEffects(pnum, flask_id)))
+			if((temp = GetFlaskChargeUseEffects(pnum, flask)))
 				res = res * (100 + temp) / 100;
 		break;
 		case FLASK_DATA_EFFECTDURATION:
 			// guaranteed first implicit contains effect duration on extra
-			res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[0].attrib_extra;
+			res = flask.implicit[0].attrib_extra;
 		break;
 		case FLASK_DATA_GIVEAMOUNT:
 			if(IsLifeFlask(flask_type)) {
-				res = Items_Used[pnum][FLASK1_INDEX + flask_id].implicit[0].attrib_val;
+				res = flask.implicit[0].attrib_val;
 			
-				if((temp = GetFlaskRecoveryEffects(pnum, flask_id)))
+				if((temp = GetFlaskRecoveryEffects(pnum, flask)))
 					res = res * (100 + temp) / 100;
 			}
 		break;
@@ -144,7 +144,8 @@ int GetFlaskData(int pnum, int flask_id, int flask_type, int data_type) {
 // Reads equipped item data to gather information about the flasks
 void UpdatePlayerFlaskData(int pnum, int flask_id, bool charLoad = false) {
 	int tid = pnum + P_TIDSTART;
-	if(Items_Used[pnum][FLASK1_INDEX + flask_id].item_type == DND_ITEM_NULL) {
+	auto flask = GetPlayerFlask(pnum, flask_id);
+	if(flask.item_type == DND_ITEM_NULL) {
 		ResetFlask(pnum, flask_id);
 		SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_Type"), 0);
 		SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_CurrentCharges"), 0);
@@ -152,21 +153,21 @@ void UpdatePlayerFlaskData(int pnum, int flask_id, bool charLoad = false) {
 		return;
 	}
 
-	FlaskData[pnum][flask_id].flask_type = Items_Used[pnum][FLASK1_INDEX + flask_id].item_subtype;
+	FlaskData[pnum][flask_id].flask_type = flask.item_subtype;
 
-	FlaskData[pnum][flask_id].max_charges = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_MAXCHARGES);
+	FlaskData[pnum][flask_id].max_charges = GetFlaskData(pnum, flask, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_MAXCHARGES);
 
 	// if we aren't loading fresh set to 0, player just put this in place of something else in the world
 	FlaskData[pnum][flask_id].curr_charges = charLoad ? FlaskData[pnum][flask_id].max_charges : 0;
-	FlaskData[pnum][flask_id].effect_duration = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_EFFECTDURATION);
-	FlaskData[pnum][flask_id].charges_used = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_CHARGEUSE);
+	FlaskData[pnum][flask_id].effect_duration = GetFlaskData(pnum, flask, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_EFFECTDURATION);
+	FlaskData[pnum][flask_id].charges_used = GetFlaskData(pnum, flask, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_CHARGEUSE);
 
 	// not active
 	FlaskData[pnum][flask_id].curr_tics = 0;
-	FlaskData[pnum][flask_id].quality = Items_Used[pnum][FLASK1_INDEX + flask_id].quality;
+	FlaskData[pnum][flask_id].quality = flask.quality;
 
-	FlaskData[pnum][flask_id].chance_on_hit = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_CHANCEGAINONHIT);
-	FlaskData[pnum][flask_id].chance_on_crit = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_CHANCEGAINCRIT);
+	FlaskData[pnum][flask_id].chance_on_hit = GetFlaskAttributeVal(pnum, flask, INV_FLASK_CHANCEGAINONHIT);
+	FlaskData[pnum][flask_id].chance_on_crit = GetFlaskAttributeVal(pnum, flask, INV_FLASK_CHANCEGAINCRIT);
 
 	// send +1 here as 0 doesnt make sense here for SBARINFO from the enums
 	SetActorInventory(tid, StrParam(s:"Flask", d:flask_id + 1, s:"_Type"), FlaskData[pnum][flask_id].flask_type + 1);
@@ -180,21 +181,21 @@ void UpdatePlayerFlaskData(int pnum, int flask_id, bool charLoad = false) {
 }
 
 // checks to see if this attribute exists on the flask, returns 0 if it doesn't
-int GetFlaskAttributeVal(int pnum, int flask_id, int attrib_to_check) {
-	if(Items_Used[pnum][FLASK1_INDEX + flask_id].item_type == DND_ITEM_FLASK) {
-		for(int i = 0; i < Items_Used[pnum][FLASK1_INDEX + flask_id].attrib_count; ++i) {
-			if(Items_Used[pnum][FLASK1_INDEX + flask_id].attributes[i].attrib_id == attrib_to_check)
-				return Items_Used[pnum][FLASK1_INDEX + flask_id].attributes[i].attrib_val;
+int GetFlaskAttributeVal(int pnum, inventory_T& flask, int attrib_to_check) {
+	if(flask.item_type == DND_ITEM_FLASK) {
+		for(int i = 0; i < flask.attrib_count; ++i) {
+			if(flask.attributes[i].attrib_id == attrib_to_check)
+				return flask.attributes[i].attrib_val;
 		}
 	}
 	return 0;
 }
 
-int GetFlaskAttributeExtra(int pnum, int flask_id, int attrib_to_check) {
-	if(Items_Used[pnum][FLASK1_INDEX + flask_id].item_type == DND_ITEM_FLASK) {
-		for(int i = 0; i < Items_Used[pnum][FLASK1_INDEX + flask_id].attrib_count; ++i) {
-			if(Items_Used[pnum][FLASK1_INDEX + flask_id].attributes[i].attrib_id == attrib_to_check)
-				return Items_Used[pnum][FLASK1_INDEX + flask_id].attributes[i].attrib_extra;
+int GetFlaskAttributeExtra(int pnum, inventory_T& flask, int attrib_to_check) {
+	if(flask.item_type == DND_ITEM_FLASK) {
+		for(int i = 0; i < flask.attrib_count; ++i) {
+			if(flask.attributes[i].attrib_id == attrib_to_check)
+				return flask.attributes[i].attrib_extra;
 		}
 	}
 	return 0;
@@ -203,7 +204,8 @@ int GetFlaskAttributeExtra(int pnum, int flask_id, int attrib_to_check) {
 void GiveSpecificFlaskCharges(int pnum, int amt, int flask_id) {
 	// check for inc charges gained mod on flask
 	int temp;
-	if((temp = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY) + GetPlayerAttributeValue(pnum, INV_INCFLASKCHARGEGAINED)))
+	auto flask = GetPlayerFlask(pnum, flask_id);
+	if((temp = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY) + GetPlayerAttributeValue(pnum, INV_INCFLASKCHARGEGAINED)))
 		amt = amt * (100 + temp) / 100;
 
 	FlaskData[pnum][flask_id].curr_charges += amt;
@@ -239,7 +241,7 @@ void GiveFlaskChargesPercentage(int pnum, int pct) {
 }
 
 bool HasFlaskEquipped(int pnum, int flask_id) {
-	return (Items_Used[pnum][FLASK1_INDEX + flask_id].item_type & 0xFFFF) == DND_ITEM_FLASK;
+	return (GetPlayerFlask(pnum, flask_id).item_type & 0xFFFF) == DND_ITEM_FLASK;
 }
 
 void SetupFlaskDropWeights() {
@@ -323,33 +325,30 @@ int ConstructFlaskDataOnField(int item_pos, int item_tier, int pnum, int flask =
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
 
-	Inventories_On_Field[item_pos].item_level = item_tier;
-	Inventories_On_Field[item_pos].item_stack = 0;
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_FLASK;
-	Inventories_On_Field[item_pos].item_subtype = res;
-	Inventories_On_Field[item_pos].width = DND_FLASK_BASEWIDTH;
-	Inventories_On_Field[item_pos].height = DND_FLASK_BASEHEIGHT;
+	auto item = GetFieldItem(item_pos);	
 
-	Inventories_On_Field[item_pos].corrupted = false;
-	Inventories_On_Field[item_pos].quality = 0;
+	item.item_level = item_tier;
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_FLASK;
+	item.item_subtype = res;
+	item.width = DND_FLASK_BASEWIDTH;
+	item.height = DND_FLASK_BASEHEIGHT;
+	item.item_image = ITEM_IMAGE_FLASK_BEGIN + res;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
-		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	Inventories_On_Field[item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 	return res;
-}
-
-int InitializeFlask(int item_pos, int item_tier, int pnum, int type = -1) {
-	int flask_type = ConstructFlaskDataOnField(item_pos, item_tier, pnum, type);
-	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_FLASK_BEGIN + flask_type;
-	return flask_type;
 }
 
 bool IsAttributeFlaskException(int flask_type, int id) {
@@ -378,10 +377,11 @@ void RollFlaskInfo(int item_pos, int item_tier, int pnum, int flask_type, int ma
 	int i = 0, roll;
 	int count = random(1, max_attr);
 	int special_roll = SetupItemImplicit(item_pos, DND_ITEM_FLASK, flask_type, item_tier);
+	auto item = GetFieldItem(item_pos);
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
+			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, item.implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -393,6 +393,7 @@ void RollFlaskInfoWithMods(int item_pos, int item_tier, int pnum, int flask_type
 	int i = 0, roll;
 	int count = random(1, max_attr) - 1 - (m2 != -1) - (m3 != -1);
 	int special_roll = SetupItemImplicit(item_pos, DND_ITEM_FLASK, flask_type, item_tier);
+	auto item = GetFieldItem(item_pos);
 
 	AddAttributeToFieldItem(item_pos, m1, pnum);
 	if(m2 != -1)
@@ -402,7 +403,7 @@ void RollFlaskInfoWithMods(int item_pos, int item_tier, int pnum, int flask_type
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
+			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, item.implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -419,49 +420,48 @@ bool CheckFlaskScriptConditions(int pnum) {
 	return !isAlive() || !PlayerInGame(pnum) || PlayerIsSpectator(pnum) || CheckInventory("DnD_IntermissionState");
 }
 
-int GetReducedFlaskEffectAmount(int pnum, int flask_id) {
+int GetReducedFlaskEffectAmount(int pnum, inventory_T& flask) {
 	// this modifier has -25%
-	int base = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY);
+	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
 	if(base)
 		base = DND_FLASK_RECOVERY_REDUCEEFFECT;
 	return base;
 }
 
-int GetFlaskDurationEffects(int pnum, int flask_id) {
-	int base = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCDURATION);
-	base -= GetFlaskAttributeExtra(pnum, flask_id, INV_FLASK_INCEFFECT);
+int GetFlaskDurationEffects(int pnum, inventory_T& flask) {
+	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCDURATION);
+	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCEFFECT);
 	return base;
 }
 
-int GetFlaskEffectModifiers(int pnum, int flask_id) {
-	int base = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCEFFECT);
-	base -= GetFlaskAttributeExtra(pnum, flask_id, INV_FLASK_INCCHARGERECOVERY);
+int GetFlaskEffectModifiers(int pnum, inventory_T& flask) {
+	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCEFFECT);
+	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
 	return base;
 }
 
-void HandleCommonFlaskActivationEffects(int pnum, int flask_id) {
+void HandleCommonFlaskActivationEffects(int pnum, inventory_T& flask) {
 	int tid = pnum + P_TIDSTART;
-	if(GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_IMMUNE_BLEED))
+	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_BLEED))
 		GiveActorInventory(tid, "RemoveBleed", 1);
-	if(GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_IMMUNE_CHILLFREEZE))
+	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_CHILLFREEZE))
 		GiveActorInventory(tid, "RemoveChillFreeze", 1);
-	if(GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_IMMUNE_POISON))
+	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_POISON))
 		GiveActorInventory(tid, "RemovePoison", 1);
-	if(GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_IMMUNE_SHOCK))
+	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_SHOCK))
 		GiveActorInventory(tid, "RemoveShock", 1);
-	if(GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_IMMUNE_IGNITE))
+	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_IGNITE))
 		GiveActorInventory(tid, "RemoveIgnite", 1);
 }
 
-void HandleFlaskBuffDispatch(int pnum, int flask_id, int duration) {
-	int type = FlaskData[pnum][flask_id].flask_type;
+void HandleFlaskBuffDispatch(int pnum, inventory_T& flask, int type, int duration) {
 	int this = ActivatorTID();
 
-	int temp = GetFlaskDurationEffects(pnum, flask_id);
+	int temp = GetFlaskDurationEffects(pnum, flask);
 	if(temp)
 		duration = duration * (100 + temp) / 100;
 
-	int inc_effect = GetFlaskEffectModifiers(pnum, flask_id);
+	int inc_effect = GetFlaskEffectModifiers(pnum, flask);
 
 	switch(type) {
 		case DND_FLASK_GRANITE:
@@ -512,6 +512,8 @@ Script "DnD Flask Use" (int flask_id) NET {
         Terminate;
 	}
 
+	auto flask = GetPlayerFlask(pnum, flask_id);
+
 	int cap, total_time;
 	// if its life flask only allow use when not max health already
 	str flask_tics_item = StrParam(s:"Flask", d:flask_id + 1, s:"_TicCounter");
@@ -519,7 +521,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 		// play the drink sound
 		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);
 
-		HandleCommonFlaskActivationEffects(pnum, flask_id);
+		HandleCommonFlaskActivationEffects(pnum, flask);
 
 		// update current charges and SBARINFO hook
 		FlaskData[pnum][flask_id].curr_charges -= FlaskData[pnum][flask_id].charges_used;
@@ -529,19 +531,19 @@ Script "DnD Flask Use" (int flask_id) NET {
 		total_time = FlaskData[pnum][flask_id].effect_duration / FLASK_RECOVERY_TICRATE;
 
 		// this is the amount that would be given over this duration -- also consider quality effect here
-		int toGive_total = GetFlaskData(pnum, flask_id, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_GIVEAMOUNT);
-		int rem = GetReducedFlaskEffectAmount(pnum, flask_id);
+		int toGive_total = GetFlaskData(pnum, flask, FlaskData[pnum][flask_id].flask_type, FLASK_DATA_GIVEAMOUNT);
+		int rem = GetReducedFlaskEffectAmount(pnum, flask);
 
 		if(FlaskData[pnum][flask_id].quality)
 			toGive_total = toGive_total * (100 + FlaskData[pnum][flask_id].quality - rem) / 100;
 
-		if((rem = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_MORERECOVERYONLOWLIFE)) && IsLowLife())
+		if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_MORERECOVERYONLOWLIFE)) && IsLowLife())
 			toGive_total = toGive_total * (100 + rem) / 100;
 
 		// instant recovery check
-		if((GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INSTANTONLOWLIFE) && IsLowLife()) || GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INSTANTRECOVERY))
+		if((GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTONLOWLIFE) && IsLowLife()) || GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTRECOVERY))
 			total_time = 1;
-		else if((rem = GetFlaskAttributeVal(pnum, flask_id, INV_FLASK_INCRECOVERYRATE) + GetPlayerAttributeValue(pnum, INV_FLASKLIFERECOVERYRATE)))
+		else if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCRECOVERYRATE) + GetPlayerAttributeValue(pnum, INV_FLASKLIFERECOVERYRATE)))
 			total_time = total_time * 100 / (100 + rem);
 
 		// quality increases amount recovered
@@ -604,7 +606,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 		// play the drink sound
 		PlaySound(0, "Items/FlaskUse", CHAN_ITEM);
 
-		HandleCommonFlaskActivationEffects(pnum, flask_id);
+		HandleCommonFlaskActivationEffects(pnum, flask);
 
 		// update current charges and SBARINFO hook
 		FlaskData[pnum][flask_id].curr_charges -= FlaskData[pnum][flask_id].charges_used;
@@ -618,7 +620,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 			total_time = total_time * (100 + FlaskData[pnum][flask_id].quality) / 100;
 
 		// handle the buff dispatch
-		HandleFlaskBuffDispatch(pnum, flask_id, total_time);
+		HandleFlaskBuffDispatch(pnum, flask, FlaskData[pnum][flask_id].flask_type, total_time);
 
 		// sbarinfo hook for current tics
 		SetInventory(flask_tics_item, total_time * FLASK_RECOVERY_TICRATE);
@@ -666,7 +668,9 @@ Script "DnD Flask Item Pickup" (int sp) {
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
 
-	ACS_NamedExecuteAlways("DnD Flask Message", 0, Inventories_On_Field[sp >> 16].item_subtype, Inventories_On_Field[sp >> 16].item_type);
+	auto item = GetFieldItem(sp >> 16);
+
+	ACS_NamedExecuteAlways("DnD Flask Message", 0, item.item_subtype, item.item_type);
     GiveInventory("FlaskSoundPlayer", 1);
 	
     HandleInventoryPickup(sp >> 16);

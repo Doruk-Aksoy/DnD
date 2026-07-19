@@ -184,26 +184,29 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
 
-	Inventories_On_Field[item_pos].item_level = item_tier;
-	Inventories_On_Field[item_pos].item_stack = 0;
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_BODYARMOR;
-	Inventories_On_Field[item_pos].item_subtype = res;
-	Inventories_On_Field[item_pos].width = DND_BODYARMOR_BASEWIDTH;
-	Inventories_On_Field[item_pos].height = DND_BODYARMOR_BASEHEIGHT;
+	auto item = GetFieldItem(item_pos);
 
-	Inventories_On_Field[item_pos].corrupted = false;
-	Inventories_On_Field[item_pos].quality = 0;
+	item.item_level = item_tier;
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_BODYARMOR;
+	item.item_subtype = res;
+	item.width = DND_BODYARMOR_BASEWIDTH;
+	item.height = DND_BODYARMOR_BASEHEIGHT;
+	item.item_image = IIMG_ARM_1 + res;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
-		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	Inventories_On_Field[item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
 	return res;
 }
@@ -226,26 +229,29 @@ int ConstructBootDataOnField(int item_pos, int item_tier) {
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
 
-	Inventories_On_Field[item_pos].item_level = item_tier;
-	Inventories_On_Field[item_pos].item_stack = 0;
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_BOOT;
-	Inventories_On_Field[item_pos].item_subtype = res;
-	Inventories_On_Field[item_pos].width = DND_BOOT_BASEWIDTH;
-	Inventories_On_Field[item_pos].height = DND_BOOT_BASEHEIGHT;
+	auto item = GetFieldItem(item_pos);
 
-	Inventories_On_Field[item_pos].corrupted = false;
-	Inventories_On_Field[item_pos].quality = 0;
+	item.item_level = item_tier;
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_BOOT;
+	item.item_subtype = res;
+	item.width = DND_BOOT_BASEWIDTH;
+	item.height = DND_BOOT_BASEHEIGHT;
+	item.item_image = IIMG_BOO_1 + res;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
-		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	Inventories_On_Field[item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
 	return res;
 }
@@ -266,51 +272,35 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 	else
 		res = helm;
 
-	res = HELMS_WARRIOR;
+	//res = HELMS_WARRIOR;
 
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
 
-	Inventories_On_Field[item_pos].item_level = item_tier;
-	Inventories_On_Field[item_pos].item_stack = 0;
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_HELM;
-	Inventories_On_Field[item_pos].item_subtype = res;
-	Inventories_On_Field[item_pos].width = DND_HELM_BASEWIDTH;
-	Inventories_On_Field[item_pos].height = DND_HELM_BASEHEIGHT;
+	auto item = GetFieldItem(item_pos);
 
-	Inventories_On_Field[item_pos].corrupted = false;
-	Inventories_On_Field[item_pos].quality = 0;
+	item.item_level = item_tier;
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_HELM;
+	item.item_subtype = res;
+	item.width = DND_HELM_BASEWIDTH;
+	item.height = DND_HELM_BASEHEIGHT;
+	item.item_image = IIMG_HLM_1 + res;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
-		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	Inventories_On_Field[item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 	return res;
-}
-
-// extra holds m_id
-int InitializeArmor(int item_pos, int item_tier, int pnum, int tiers = 0, int extra = -1) {
-	int armor_type = ConstructArmorDataOnField(item_pos, item_tier, tiers, extra);
-	Inventories_On_Field[item_pos].item_image = IIMG_ARM_1 + armor_type;
-	return armor_type;
-}
-
-int InitializeBoot(int item_pos, int item_tier, int pnum) {
-	int armor_type = ConstructBootDataOnField(item_pos, item_tier);
-	Inventories_On_Field[item_pos].item_image = IIMG_BOO_1 + armor_type;
-	return armor_type;
-}
-
-int InitializeHelm(int item_pos, int item_tier, int pnum, int type = -1) {
-	int armor_type = ConstructHelmDataOnField(item_pos, item_tier, type);
-	Inventories_On_Field[item_pos].item_image = IIMG_HLM_1 + armor_type;
-	return armor_type;
 }
 
 void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int armor_type, int max_attr) {
@@ -319,9 +309,11 @@ void RollArmorInfo(int item_pos, int item_tier, int pnum, int item_type, int arm
 	int count = random(1, max_attr);
 	int special_roll = SetupItemImplicit(item_pos, item_type, armor_type, item_tier);
 
+	auto item = GetFieldItem(item_pos);
+
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(item_type, armor_type, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -332,6 +324,7 @@ void RollArmorInfoWithMods(int item_pos, int item_tier, int pnum, int item_type,
 	// only for rolling body armors we access the array for item_tier, as that can be changed in ConstructArmorDataOnField to level this down for lower level players
 	int i = 0, roll;
 	int count = random(1, max_attr) - 1 - (m2 != -1) - (m3 != -1);
+	auto item = GetFieldItem(item_pos);
 	int special_roll = SetupItemImplicit(item_pos, item_type, armor_type, item_tier);
 
 	AddAttributeToFieldItem(item_pos, m1, pnum);
@@ -342,7 +335,7 @@ void RollArmorInfoWithMods(int item_pos, int item_tier, int pnum, int item_type,
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(item_type, armor_type, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -365,10 +358,12 @@ int GetArmorID(int pnum = -1) {
 	if(pnum == -1)
 		pnum = PlayerNumber();
 
-	if(Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL)
+	auto item = GetUsedItem(pnum, BODY_ARMOR_INDEX);
+
+	if(item.item_type == DND_ITEM_NULL)
 		return -1;
 
-	return Items_Used[pnum][BODY_ARMOR_INDEX].item_subtype;
+	return item.item_subtype;
 }
 
 int GetActorArmorID(int tid) {
@@ -379,15 +374,12 @@ int GetHelmID(int pnum = -1) {
 	if(pnum == -1)
 		pnum = PlayerNumber();
 
-	if(Items_Used[pnum][HELM_INDEX].item_type == DND_ITEM_NULL)
+	auto item = GetUsedItem(pnum, HELM_INDEX);
+
+	if(item.item_type == DND_ITEM_NULL)
 		return -1;
 
-	return Items_Used[pnum][HELM_INDEX].item_subtype;
-}
-
-bool ActorHasNoArmor(int tid) {
-	int pnum = tid - P_TIDSTART;
-	return Items_Used[pnum][BODY_ARMOR_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][BOOT_INDEX].item_type == DND_ITEM_NULL && Items_Used[pnum][HELM_INDEX].item_type == DND_ITEM_NULL;
+	return item.item_subtype;
 }
 
 int DoArmorRatingEffect(int dmg, int rating) {
@@ -403,7 +395,9 @@ Script "DnD Armor Item Pickup" (int sp) {
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
 
-	ACS_NamedExecuteAlways("DnD Armor Message", 0, Inventories_On_Field[sp >> 16].item_subtype, Inventories_On_Field[sp >> 16].item_type);
+	auto item = GetFieldItem(sp >> 16);
+
+	ACS_NamedExecuteAlways("DnD Armor Message", 0, item.item_subtype, item.item_type);
     GiveInventory("ArmorSoundPlayer", 1);
 	
     HandleInventoryPickup(sp >> 16);

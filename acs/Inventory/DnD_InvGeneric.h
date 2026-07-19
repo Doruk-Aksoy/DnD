@@ -10,7 +10,7 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-        int type = InitializeArmor(c, ilvl, pnum, tiers, extra);
+        int type = ConstructArmorDataOnField(c, ilvl, tiers, extra);
 
 		// tiers need to be 0 for it to be monster drops
 #ifndef ISDEBUGBUILD
@@ -43,7 +43,7 @@ void SpawnArmorWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepea
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-        int type = InitializeArmor(c, ilvl, pnum, 0, -1);
+        int type = ConstructArmorDataOnField(c, ilvl, 0, -1);
 
 		RollArmorInfoWithMods(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
 		SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, false);
@@ -68,7 +68,7 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 	int id = 0;
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-        int type = InitializeBoot(c, ilvl, pnum);
+        int type = ConstructBootDataOnField(c, ilvl);
 
 #ifndef ISDEBUGBUILD
 		if(RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
@@ -100,7 +100,7 @@ void SpawnBootWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-		int type = InitializeBoot(c, ilvl, pnum);
+		int type = ConstructBootDataOnField(c, ilvl);
 		RollArmorInfoWithMods(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
 		SpawnDrop(GetBootDropClass(type), 16.0, 16, pnum + 1, c, false);
@@ -124,7 +124,8 @@ void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY =
     int c = CreateItemSpot();
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-        int type = InitializeHelm(c, ilvl, pnum, pre_id);
+        int type = ConstructHelmDataOnField(c, ilvl, pre_id);
+		
 		RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
         // depending on armor type rolled, spawn its appropriate actor
         SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
@@ -138,7 +139,7 @@ void SpawnHelmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-		int type = InitializeHelm(c, ilvl, pnum, -1);
+		int type = ConstructHelmDataOnField(c, ilvl, -1);
 		RollArmorInfoWithMods(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
 		SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, false);
@@ -244,7 +245,7 @@ void SpawnFlask(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY 
     int c = CreateItemSpot();
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-        int type = InitializeFlask(c, ilvl, pnum, pre_id);
+        int type = ConstructFlaskDataOnField(c, ilvl, pnum, pre_id);
 		RollFlaskInfo(c, ilvl, pnum, type, MAX_FLASK_ATTRIB_DEFAULT);
         // depending on armor type rolled, spawn its appropriate actor
         SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
@@ -258,7 +259,7 @@ void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepea
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int ilvl = RollItemLevel();
-		int type = InitializeFlask(c, ilvl, pnum, -1);
+		int type = ConstructFlaskDataOnField(c, ilvl, pnum, -1);
 		RollFlaskInfoWithMods(c, ilvl, pnum, type, MAX_FLASK_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
 		SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, false);
@@ -400,7 +401,7 @@ str GetItemTagName(int itype, int isubt) {
 
 int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool isForMerchant = false) {
 	int special_roll = 0;
-	void function(int, int, int, int, int, int)& imp_func = GiveImplicitToField;
+	void function(int, int, int, int, int, int, int)& imp_func = GiveImplicitToField;
 	if(isForMerchant)
 		imp_func = GiveImplicitToMerchant;
 
@@ -410,80 +411,80 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 			switch(subtype) {
 				case BODYARMOR_GREEN:
 					// 100 armor, 33% damage reduction
-					imp_func(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 50);
+					imp_func(item_pos, INV_IMP_INCARMOR, 100, 0, item_tier, 50, DND_ITEMBASE_BODY_ARMOR);
 				break;
 				case BODYARMOR_YELLOW:
-					imp_func(item_pos, INV_IMP_INCARMOR, 150, 0, item_tier, 75);
+					imp_func(item_pos, INV_IMP_INCARMOR, 150, 0, item_tier, 75, DND_ITEMBASE_BODY_ARMOR);
 				break;
 				case BODYARMOR_BLUE:
-					imp_func(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 100);
+					imp_func(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 100, DND_ITEMBASE_BODY_ARMOR);
 				break;
 				case BODYARMOR_RED:
-					imp_func(item_pos, INV_IMP_INCARMOR, 300, 0, item_tier, 100);
+					imp_func(item_pos, INV_IMP_INCARMOR, 300, 0, item_tier, 100, DND_ITEMBASE_BODY_ARMOR);
 				break;
 
 				case BODYARMOR_GUNSLINGER:
 					special_roll = INV_IMP_CANROLL_PHYS;
-					imp_func(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 1.75);
-					imp_func(item_pos, INV_IMP_CANROLL_PHYS, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 1.75, DND_ITEMBASE_BODY_MITIGATION);
+					imp_func(item_pos, INV_IMP_CANROLL_PHYS, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_OCCULT:
 					special_roll = INV_IMP_CANROLL_MAGIC;
-					imp_func(item_pos, INV_IMP_INCMITSHIELD, 85, 0, item_tier, 30);
-					imp_func(item_pos, INV_IMP_CANROLL_MAGIC, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCMITSHIELD, 85, 0, item_tier, 30, DND_ITEMBASE_BODY_ESHIELD);
+					imp_func(item_pos, INV_IMP_CANROLL_MAGIC, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_DEMO:
 					special_roll = INV_IMP_CANROLL_EXPLOSIVE;
-					imp_func(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100);
-					imp_func(item_pos, INV_IMP_CANROLL_EXPLOSIVE, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 175, 0, item_tier, 100, DND_ITEMBASE_BODY_ARMOR);
+					imp_func(item_pos, INV_IMP_CANROLL_EXPLOSIVE, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_ENERGY:
 					special_roll = INV_IMP_CANROLL_ENERGY;
-					imp_func(item_pos, INV_IMP_INCSHIELD, 85, 0, item_tier, 30);
-					imp_func(item_pos, INV_IMP_CANROLL_ENERGY, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCSHIELD, 85, 0, item_tier, 30, DND_ITEMBASE_BODY_ESHIELD);
+					imp_func(item_pos, INV_IMP_CANROLL_ENERGY, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_ELEMENTAL:
 					special_roll = INV_IMP_CANROLL_ELEMENTAL;
-					imp_func(item_pos, INV_IMP_INCARMOR, 125, 0, item_tier, 60);
-					imp_func(item_pos, INV_IMP_CANROLL_ELEMENTAL, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 125, 0, item_tier, 60, DND_ITEMBASE_BODY_ARMOR);
+					imp_func(item_pos, INV_IMP_CANROLL_ELEMENTAL, 1, -1, 0, 0, 0);
 				break;
 
 				case BODYARMOR_MONOLITH:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 40);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 115, 0, item_tier, 40, DND_ITEMBASE_BODY_ARMOR_ESHIELD);
 				break;
 				case BODYARMOR_CYBER:
-					imp_func(item_pos, INV_IMP_INCSHIELD, 100, 0, item_tier, 40);
-					imp_func(item_pos, INV_IMP_DOUBLEESHIELDRECOVERY, 1, -1, 0, 0);
-					imp_func(item_pos, INV_CYBERNETIC, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCSHIELD, 100, 0, item_tier, 40, DND_ITEMBASE_BODY_ESHIELD);
+					imp_func(item_pos, INV_IMP_DOUBLEESHIELDRECOVERY, 1, -1, 0, 0, 0);
+					imp_func(item_pos, INV_CYBERNETIC, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_DUELIST:
-					imp_func(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 2.25);
-					imp_func(item_pos, INV_IMP_HANDGUNBONUS, 0.12, 0, item_tier, 0.04);
+					imp_func(item_pos, INV_IMP_INCMIT, 20.0, 0, item_tier, 2.25, DND_ITEMBASE_BODY_MITIGATION);
+					imp_func(item_pos, INV_IMP_HANDGUNBONUS, 0.12, 0, item_tier, 0.04, 0);
 				break;
 				case BODYARMOR_NECRO:
-					imp_func(item_pos, INV_IMP_INCMITARMOR, 150, 0, item_tier, 60);
-					imp_func(item_pos, INV_IMP_NECROARMOR, 15, 0, item_tier, 3);
+					imp_func(item_pos, INV_IMP_INCMITARMOR, 150, 0, item_tier, 60, DND_ITEMBASE_BODY_ARMOR_MITIGATION);
+					imp_func(item_pos, INV_IMP_NECROARMOR, 15, 0, item_tier, 3, 0);
 				break;
 				case BODYARMOR_KNIGHT:
-					imp_func(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100);
-					imp_func(item_pos, INV_IMP_KNIGHTARMOR, 50, 20, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 250, 0, item_tier, 100, DND_ITEMBASE_BODY_ARMOR);
+					imp_func(item_pos, INV_IMP_KNIGHTARMOR, 50, 20, 0, 0, 0);
 				break;
 				case BODYARMOR_RAVAGER:
-					imp_func(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 80);
-					imp_func(item_pos, INV_IMP_RAVAGER, 25, 15, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 200, 0, item_tier, 80, DND_ITEMBASE_BODY_ARMOR);
+					imp_func(item_pos, INV_IMP_RAVAGER, 25, 15, 0, 0, 0);
 				break;
 				case BODYARMOR_TANGLEDRIBCAGE:
-					imp_func(item_pos, INV_IMP_INCMITARMORSHIELD, 35, 0, item_tier, 10);
-					imp_func(item_pos, INV_IMP_QUALITYCAPFIFTY, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCMITARMORSHIELD, 35, 0, item_tier, 10, DND_ITEMBASE_BODY_ARMOR_ESHIELD_MITIGATION);
+					imp_func(item_pos, INV_IMP_QUALITYCAPFIFTY, 1, -1, 0, 0, 0);
 				break;
 
 				case BODYARMOR_SYNTHMETAL:
-					imp_func(item_pos, INV_IMP_INCMITARMOR, 180, 0, item_tier, 80);
-					imp_func(item_pos, INV_IMP_HIGHREFLECTREDUCE, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCMITARMOR, 180, 0, item_tier, 80, DND_ITEMBASE_BODY_ARMOR);
+					imp_func(item_pos, INV_IMP_HIGHREFLECTREDUCE, 1, -1, 0, 0, 0);
 				break;
 				case BODYARMOR_LIGHTNINGCOIL:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 80, 0, item_tier, 25);
-					imp_func(item_pos, INV_IMP_ABSORBLIGHTNING, 80, 25, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 80, 0, item_tier, 25, DND_ITEMBASE_BODY_ARMOR_ESHIELD);
+					imp_func(item_pos, INV_IMP_ABSORBLIGHTNING, 80, 25, 0, 0, 0);
 				break;
 			}
         break;
@@ -491,49 +492,49 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 			// implicits that come along with the item always
 			switch(subtype) {
 				case BOOTS_SILVER:
-					imp_func(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 20);
-					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 3.0, 0, item_tier, 1.0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 20, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 3.0, 0, item_tier, 1.0, 0);
 				break;
 				case BOOTS_ENGINEER:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 16, 0, item_tier, 5);
-					imp_func(item_pos, INV_DMGREDUCE_ENERGY, 3.0, 0, item_tier, 1.0);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 16, 0, item_tier, 5, DND_ITEMBASE_BOOT_ARMOR_ESHIELD);
+					imp_func(item_pos, INV_DMGREDUCE_ENERGY, 3.0, 0, item_tier, 1.0, 0);
 				break;
 				case BOOTS_INSULATED:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 10, 0, item_tier, 5);
-					imp_func(item_pos, INV_IMP_LESSLIGHTNINGTAKEN, 0.1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 10, 0, item_tier, 5, DND_ITEMBASE_BOOT_ARMOR_ESHIELD);
+					imp_func(item_pos, INV_IMP_LESSLIGHTNINGTAKEN, 0.1, -1, 0, 0, 0);
 				break;
 				case BOOTS_PLATED:
-					imp_func(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 25);
+					imp_func(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 25, DND_ITEMBASE_BOOT_ARMOR);
 				break;
 				case BOOTS_POWER:
-					imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8);
-					imp_func(item_pos, INV_IMP_FASTEROVERHEATDISS, 10, 0, item_tier, 5);
+					imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8, DND_ITEMBASE_BOOT_ESHIELD);
+					imp_func(item_pos, INV_IMP_FASTEROVERHEATDISS, 10, 0, item_tier, 5, 0);
 				break;
 				case BOOTS_ENERGY:
-					imp_func(item_pos, INV_IMP_INCSHIELD, 12, 0, item_tier, 6);
-					imp_func(item_pos, INV_IMP_LESSSELFDAMAGETAKEN, 10, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCSHIELD, 12, 0, item_tier, 6, DND_ITEMBASE_BOOT_ESHIELD);
+					imp_func(item_pos, INV_IMP_LESSSELFDAMAGETAKEN, 10, -1, 0, 0, 0);
 				break;
 				case BOOTS_TACTICAL:
-					imp_func(item_pos, INV_IMP_INCMITARMOR, 45, 0, item_tier, 25);
+					imp_func(item_pos, INV_IMP_INCMITARMOR, 45, 0, item_tier, 25, DND_ITEMBASE_BOOT_ARMOR_MITIGATION);
 				break;
 				case BOOTS_FUSION:
-					imp_func(item_pos, INV_IMP_INCMITSHIELD, 20, 0, item_tier, 8);
-					imp_func(item_pos, INV_REDUCED_OVERHEAT, 8, 0, item_tier, 4);
+					imp_func(item_pos, INV_IMP_INCMITSHIELD, 20, 0, item_tier, 8, DND_ITEMBASE_BOOT_ESHIELD_MITIGATION);
+					imp_func(item_pos, INV_REDUCED_OVERHEAT, 8, 0, item_tier, 4, 0);
 				break;
 				case BOOTS_LEATHER:
-					imp_func(item_pos, INV_IMP_INCMIT, 8.0, 0, item_tier, 1.0);
+					imp_func(item_pos, INV_IMP_INCMIT, 8.0, 0, item_tier, 1.0, DND_ITEMBASE_BOOT_MITIGATION);
 				break;
 				case BOOTS_SNAKESKIN:
-					imp_func(item_pos, INV_IMP_INCMIT, 4.5, 0, item_tier, 1.0);
-					imp_func(item_pos, INV_IMP_LESSPOISONTAKEN, 0.1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCMIT, 4.5, 0, item_tier, 1.0, DND_ITEMBASE_BOOT_MITIGATION);
+					imp_func(item_pos, INV_IMP_LESSPOISONTAKEN, 0.1, -1, 0, 0, 0);
 				break;
 				case BOOTS_DRAKESKIN:
-					imp_func(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10);
-					imp_func(item_pos, INV_IMP_LESSFIRETAKEN, 0.1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 35, 0, item_tier, 10, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_IMP_LESSFIRETAKEN, 0.1, -1, 0, 0, 0);
 				break;
 				case BOOTS_WARRIORSABATON:
-					imp_func(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 15);
-					imp_func(item_pos, INV_IMP_STAMINAONKILL, 10, 5, item_tier, 2);
+					imp_func(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 15, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_IMP_STAMINAONKILL, 10, 5, item_tier, 2, 0);
 				break;
 			}
 		break;
@@ -541,66 +542,66 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 			// implicits that come along with the item always
 			switch(subtype) {
 				case HELMS_LICH:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18);
-					imp_func(item_pos, INV_IMP_BONUSPETCAP, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18, DND_ITEMBASE_BOOT_ARMOR_ESHIELD);
+					imp_func(item_pos, INV_IMP_BONUSPETCAP, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_WARRIOR:
-					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40);
-					imp_func(item_pos, INV_MELEEDAMAGE, 25, -1, 0, 0);
-					imp_func(item_pos, INV_MELEERANGE, 15, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_MELEEDAMAGE, 25, -1, 0, 0, 0);
+					imp_func(item_pos, INV_MELEERANGE, 15, -1, 0, 0, 0);
 				break;
 				case HELMS_SYNTHMETAL:
-					imp_func(item_pos, INV_IMP_INCMIT, 10.0, 0, item_tier, 1.75);
-					imp_func(item_pos, INV_IMP_REDUCEDVISIONIMPAIR, 40, 0, item_tier, 5);
+					imp_func(item_pos, INV_IMP_INCMIT, 10.0, 0, item_tier, 1.75, DND_ITEMBASE_BOOT_MITIGATION);
+					imp_func(item_pos, INV_IMP_REDUCEDVISIONIMPAIR, 40, 0, item_tier, 5, 0);
 				break;
 				case HELMS_KNIGHT:
-					imp_func(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 40);
-					imp_func(item_pos, INV_IMP_MELEEIGNORESSHIELDS, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 40, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_IMP_MELEEIGNORESSHIELDS, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_PREDATOR:
-					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 30);
-					imp_func(item_pos, INV_IMP_MOREDAMAGETOBOSSES, 5, 0, item_tier, 1);
+					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 30, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_IMP_MOREDAMAGETOBOSSES, 5, 0, item_tier, 1, 0);
 				break;
 				case HELMS_CRUSADER:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 55, 0, item_tier, 25);
-					imp_func(item_pos, INV_IMP_RECOVERESONUNDEADKILL, 1, -1, 0, 0);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 55, 0, item_tier, 25, DND_ITEMBASE_BOOT_ARMOR_ESHIELD);
+					imp_func(item_pos, INV_IMP_RECOVERESONUNDEADKILL, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_TACTICAL:
-					imp_func(item_pos, INV_IMP_INCMITARMOR, 72, 0, item_tier, 24);
-					imp_func(item_pos, INV_IMP_PRECISIONCRITBONUS, 0.02, 0, item_tier, 0.01);
+					imp_func(item_pos, INV_IMP_INCMITARMOR, 72, 0, item_tier, 24, DND_ITEMBASE_BOOT_ARMOR_MITIGATION);
+					imp_func(item_pos, INV_IMP_PRECISIONCRITBONUS, 0.02, 0, item_tier, 0.01, 0);
 				break;
 				case HELMS_ROBE:
-					imp_func(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16);
-					imp_func(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2);
+					imp_func(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16, DND_ITEMBASE_BOOT_ESHIELD_MITIGATION);
+					imp_func(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2, 0);
 				break;
 				case HELMS_ELDER:
 					special_roll = random(INV_CORR_MAXFRENZY, INV_CORR_MAXPOWER);
 
 					// add these first so they can be corruption replaced
 					if(special_roll == INV_CORR_MAXFRENZY)
-						imp_func(item_pos, INV_IMP_INCMIT, 5.0, 0, item_tier, 1.25);
+						imp_func(item_pos, INV_IMP_INCMIT, 5.0, 0, item_tier, 1.25, DND_ITEMBASE_BOOT_MITIGATION);
 					else if(special_roll == INV_CORR_MAXENDURANCE)
-						imp_func(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 25);
+						imp_func(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 25, DND_ITEMBASE_BOOT_ARMOR);
 					else
-						imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8);
+						imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8, DND_ITEMBASE_BOOT_ESHIELD);
 
-					imp_func(item_pos, special_roll, 1, 0, item_tier, 0);
+					imp_func(item_pos, special_roll, 1, 0, item_tier, 0, 0);
 				break;
 			}
 		break;
 		case DND_ITEM_SPECIALTY_DOOMGUY:
 			switch(subtype) {
 				case SLAYERCARD_STR:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10);
-					imp_func(item_pos, INV_IMP_PERCENTSTR, 5, 0, item_tier, 2);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10, DND_ITEMBASE_SPECIALTY_DOOMGUY);
+					imp_func(item_pos, INV_IMP_PERCENTSTR, 5, 0, item_tier, 2, 0);
 				break;
 				case SLAYERCARD_DEX:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10);
-					imp_func(item_pos, INV_IMP_PERCENTDEX, 5, 0, item_tier, 2);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10, DND_ITEMBASE_SPECIALTY_DOOMGUY);
+					imp_func(item_pos, INV_IMP_PERCENTDEX, 5, 0, item_tier, 2, 0);
 				break;
 				case SLAYERCARD_INT:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10);
-					imp_func(item_pos, INV_IMP_PERCENTINT, 5, 0, item_tier, 2);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 25, 0, item_tier, 10, DND_ITEMBASE_SPECIALTY_DOOMGUY);
+					imp_func(item_pos, INV_IMP_PERCENTINT, 5, 0, item_tier, 2, 0);
 				break;
 			}
 		break;
@@ -608,16 +609,16 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_SPECIALTY_MARINE:
 			switch(subtype) {
 				case DOGTAG_PRIVATE:
-					imp_func(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15);
-					imp_func(item_pos, INV_IMP_LESSPOISONTAKEN, 0.05, 0, item_tier, 0.025);
+					imp_func(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15, DND_ITEMBASE_SPECIALTY_MARINE);
+					imp_func(item_pos, INV_IMP_LESSPOISONTAKEN, 0.05, 0, item_tier, 0.025, 0);
 				break;
 				case DOGTAG_SGT:
-					imp_func(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15);
-					imp_func(item_pos, INV_DMGREDUCE_PHYS, 5.0, 0, item_tier, 2.5);
+					imp_func(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15, DND_ITEMBASE_SPECIALTY_MARINE);
+					imp_func(item_pos, INV_DMGREDUCE_PHYS, 5.0, 0, item_tier, 2.5, 0);
 				break;
 				case DOGTAG_CORPORAL:
-					imp_func(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15);
-					imp_func(item_pos, INV_IMP_LESSFIRETAKEN, 0.05, 0, item_tier, 0.025);
+					imp_func(item_pos, INV_IMP_INCARMOR, 45, 0, item_tier, 15, DND_ITEMBASE_SPECIALTY_MARINE);
+					imp_func(item_pos, INV_IMP_LESSFIRETAKEN, 0.05, 0, item_tier, 0.025, 0);
 				break;
 			}
 		break;
@@ -625,16 +626,16 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_SPECIALTY_HOBO:
 			switch(subtype) {
 				case SUNGLASS_BLACK:
-					imp_func(item_pos, INV_IMP_INCMIT, 1.5, 0, item_tier, 0.75);
-					imp_func(item_pos, INV_PELLET_INCREASE, 0.05, 0, item_tier, 0.015);
+					imp_func(item_pos, INV_IMP_INCMIT, 1.5, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_HOBO);
+					imp_func(item_pos, INV_PELLET_INCREASE, 0.05, 0, item_tier, 0.015, 0);
 				break;
 				case SUNGLASS_PINK:
-					imp_func(item_pos, INV_IMP_INCMIT, 3.0, 0, item_tier, 0.75);
-					imp_func(item_pos, INV_IMP_REDUCEDSLOWSHOTGUNS, 10, 0, item_tier, 5);
+					imp_func(item_pos, INV_IMP_INCMIT, 3.0, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_HOBO);
+					imp_func(item_pos, INV_IMP_REDUCEDSLOWSHOTGUNS, 10, 0, item_tier, 5, 0);
 				break;
 				case SUNGLASS_GREEN:
-					imp_func(item_pos, INV_IMP_INCMIT, 3.0, 0, item_tier, 0.75);
-					imp_func(item_pos, INV_IMP_AMMOGAIN_SHOTGUNS, 5, 0, item_tier, 1);
+					imp_func(item_pos, INV_IMP_INCMIT, 3.0, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_HOBO);
+					imp_func(item_pos, INV_IMP_AMMOGAIN_SHOTGUNS, 5, 0, item_tier, 1, 0);
 				break;
 			}
 		break;
@@ -642,16 +643,16 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_SPECIALTY_PUNISHER:
 			switch(subtype) {
 				case CIGAR_LIGHT:
-					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
-					imp_func(item_pos, INV_LIFESTEAL, 1.0, 0, item_tier, 0.025);
+					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_PUNISHER_MITIGATION);
+					imp_func(item_pos, INV_LIFESTEAL, 1.0, 0, item_tier, 0.025, 0);
 				break;
 				case CIGAR_MID:
-					imp_func(item_pos, INV_SHIELD_INCREASE, 10, 0, item_tier, 5);
-					imp_func(item_pos, INV_INCKILLINGSPREE, 10, 0, item_tier, 5);
+					imp_func(item_pos, INV_SHIELD_INCREASE, 10, 0, item_tier, 5, DND_ITEMBASE_SPECIALTY_PUNISHER_ESHIELD);
+					imp_func(item_pos, INV_INCKILLINGSPREE, 10, 0, item_tier, 5, 0);
 				break;
 				case CIGAR_HEAVY:
-					imp_func(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 5);
-					imp_func(item_pos, INV_LIFESTEAL_RECOVERY, 10, 0, item_tier, 5);
+					imp_func(item_pos, INV_IMP_INCARMOR, 25, 0, item_tier, 5, DND_ITEMBASE_SPECIALTY_PUNISHER_ARMOR);
+					imp_func(item_pos, INV_LIFESTEAL_RECOVERY, 10, 0, item_tier, 5, 0);
 				break;
 			}
 		break;
@@ -659,16 +660,16 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_SPECIALTY_WANDERER:
 			switch(subtype) {
 				case POWERRING_GREEN:
-					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5);
-					imp_func(item_pos, INV_IMP_ONKILL_FRENZY, 10, 0, item_tier, 1);
+					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5, DND_ITEMBASE_SPECIALTY_WANDERER);
+					imp_func(item_pos, INV_IMP_ONKILL_FRENZY, 10, 0, item_tier, 1, 0);
 				break;
 				case POWERRING_RED:
-					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5);
-					imp_func(item_pos, INV_IMP_ONKILL_ENDURANCE, 10, 0, item_tier, 1);
+					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5, DND_ITEMBASE_SPECIALTY_WANDERER);
+					imp_func(item_pos, INV_IMP_ONKILL_ENDURANCE, 10, 0, item_tier, 1, 0);
 				break;
 				case POWERRING_BLUE:
-					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5);
-					imp_func(item_pos, INV_IMP_ONKILL_POWER, 10, 0, item_tier, 1);
+					imp_func(item_pos, INV_DMGREDUCE_MAGIC, 5.0, 0, item_tier, 1.5, DND_ITEMBASE_SPECIALTY_WANDERER);
+					imp_func(item_pos, INV_IMP_ONKILL_POWER, 10, 0, item_tier, 1, 0);
 				break;
 			}
 		break;
@@ -676,16 +677,16 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
         case DND_ITEM_SPECIALTY_CYBORG:
 			switch(subtype) {
 				case PCORE_COPPER:
-					imp_func(item_pos, INV_IMP_POWERCORE, 10, 25, item_tier, 5);
+					imp_func(item_pos, INV_IMP_POWERCORE, 10, 25, item_tier, 5, DND_ITEMBASE_SPECIALTY_CYBORG);
 				break;
 				case PCORE_GOLD:
-					imp_func(item_pos, INV_IMP_POWERCORE, 20, 20, item_tier, 7);
+					imp_func(item_pos, INV_IMP_POWERCORE, 20, 20, item_tier, 7, DND_ITEMBASE_SPECIALTY_CYBORG);
 				break;
 				case PCORE_UNSTABLE:
-					imp_func(item_pos, INV_IMP_UNSTABLECORE, 15, 0.05 + 0.0275 * item_tier / MAX_CHARM_AFFIXTIERS, item_tier, 8);
+					imp_func(item_pos, INV_IMP_UNSTABLECORE, 15, 0.05 + 0.0275 * item_tier / MAX_CHARM_AFFIXTIERS, item_tier, 8, DND_ITEMBASE_SPECIALTY_CYBORG);
 				break;
 				case PCORE_MOLYBDENUM:
-					imp_func(item_pos, INV_IMP_POWERCORE, 30, 15, item_tier, 10);
+					imp_func(item_pos, INV_IMP_POWERCORE, 30, 15, item_tier, 10, DND_ITEMBASE_SPECIALTY_CYBORG);
 				break;
 			}
         break;
@@ -693,16 +694,16 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_SPECIALTY_BERSERKER:
 			switch(subtype) {
 				case BELT_SASH:
-					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
-					imp_func(item_pos, INV_PERCENTPHYS_DAMAGE, 10, 0, item_tier, 8);
+					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_BERSERKER_MITIGATION);
+					imp_func(item_pos, INV_PERCENTPHYS_DAMAGE, 10, 0, item_tier, 8, 0);
 				break;
 				case BELT_HEAVY:
-					imp_func(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10);
-					imp_func(item_pos, INV_PERCENT_KNOCKBACKRESIST, 15, 0, item_tier, 5);
+					imp_func(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10, DND_ITEMBASE_SPECIALTY_BERSERKER_ARMOR);
+					imp_func(item_pos, INV_PERCENT_KNOCKBACKRESIST, 15, 0, item_tier, 5, 0);
 				break;
 				case BELT_LIGHT:
-					imp_func(item_pos, INV_IMP_INCMITARMOR, 20, 0, item_tier, 5);
-					imp_func(item_pos, INV_SPEED_INCREASE, 5, 0, item_tier, 2);
+					imp_func(item_pos, INV_IMP_INCMITARMOR, 20, 0, item_tier, 5, DND_ITEMBASE_SPECIALTY_BERSERKER_ARMOR_MITIGATION);
+					imp_func(item_pos, INV_SPEED_INCREASE, 5, 0, item_tier, 2, 0);
 				break;
 			}
         break;
@@ -710,16 +711,16 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_SPECIALTY_TRICKSTER:
 			switch(subtype) {
 				case CLAW_RAKE:
-					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
-					imp_func(item_pos, INV_CRITDAMAGE_INCREASE, 10, 0, item_tier, 5);
+					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_TRICKSTER_MITIGATION);
+					imp_func(item_pos, INV_CRITDAMAGE_INCREASE, 10, 0, item_tier, 5, 0);
 				break;
 				case CLAW_CESTUS:
-					imp_func(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10);
-					imp_func(item_pos, INV_MITEFFECT_INCREASE, 3.0, 0, item_tier, 0.5);
+					imp_func(item_pos, INV_IMP_INCARMOR, 40, 0, item_tier, 10, DND_ITEMBASE_SPECIALTY_TRICKSTER_ARMOR);
+					imp_func(item_pos, INV_MITEFFECT_INCREASE, 3.0, 0, item_tier, 0.5, 0);
 				break;
 				case CLAW_KATAR:
-					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75);
-					imp_func(item_pos, INV_IMP_PHASINGTIME, 15, 0, item_tier, 2);
+					imp_func(item_pos, INV_IMP_INCMIT, 2.0, 0, item_tier, 0.75, DND_ITEMBASE_SPECIALTY_TRICKSTER_MITIGATION);
+					imp_func(item_pos, INV_IMP_PHASINGTIME, 15, 0, item_tier, 2, 0);
 				break;
 			}
         break;
@@ -728,69 +729,69 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 		case DND_ITEM_FLASK:
 			switch(subtype) {
 				case DND_FLASK_LIFE_SMALL:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 50, 3 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 25, 7, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 50, 3 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 25, 7, 0, 0, 0);
 				break;
 				case DND_FLASK_LIFE_MEDIUM:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 125, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 35, 8, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 125, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 35, 8, 0, 0, 0);
 				break;
 				case DND_FLASK_LIFE_LARGE:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 300, 5 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 10, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 300, 5 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 10, 0, 0, 0);
 				break;
 				case DND_FLASK_LIFE_GRAND:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 1000, 5 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 45, 12, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 1000, 5 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 45, 12, 0, 0, 0);
 				break;
 				case DND_FLASK_LIFE_EXQUISITE:
-					imp_func(item_pos, INV_FLASK_IMP_LIFE, 2000, 6 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 50, 15, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_LIFE, 2000, 6 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_LIFE);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 50, 15, 0, 0, 0);
 				break;
 
 				case DND_FLASK_GRANITE:
-					imp_func(item_pos, INV_FLASK_IMP_GRANITE, 1000, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_GRANITE, 1000, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0, 0);
 				break;
 				case DND_FLASK_BASALT:
-					imp_func(item_pos, INV_FLASK_IMP_BASALT, 30, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_BASALT, 30, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0, 0);
 				break;
 				case DND_FLASK_BISMUTH:
-					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 35, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_BISMUTH, 35, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0, 0);
 				break;
 				case DND_FLASK_INSULAR:
-					imp_func(item_pos, INV_FLASK_IMP_INSULAR, 35, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_INSULAR, 35, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0, 0);
 				break;
 				case DND_FLASK_OAK:
-					imp_func(item_pos, INV_FLASK_IMP_OAK, 35, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_OAK, 35, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0, 0);
 				break;
 				case DND_FLASK_ARCANE:
-					imp_func(item_pos, INV_FLASK_IMP_ARCANE, 35, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_ARCANE, 35, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 15, 0, 0, 0);
 				break;
 				case DND_FLASK_DIAMOND:
-					imp_func(item_pos, INV_FLASK_IMP_DIAMOND, 70, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 20, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_DIAMOND, 70, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 40, 20, 0, 0, 0);
 				break;
 				case DND_FLASK_SILVER:
-					imp_func(item_pos, INV_FLASK_IMP_SILVER, 1, 3 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_SILVER, 1, 3 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0, 0);
 				break;
 				case DND_FLASK_SULPHUR:
-					imp_func(item_pos, INV_FLASK_IMP_SULPHUR, 40, 4 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_SULPHUR, 40, 4 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0, 0);
 				break;
 				case DND_FLASK_QUICKSILVER:
-					imp_func(item_pos, INV_FLASK_IMP_QUICKSILVER, 20, 3 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_QUICKSILVER, 20, 3 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0, 0);
 				break;
 				case DND_FLASK_QUARTZ:
-					imp_func(item_pos, INV_FLASK_IMP_QUARTZ, 10, 3 * TICRATE, 0, 0);
-					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0);
+					imp_func(item_pos, INV_FLASK_IMP_QUARTZ, 10, 3 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0, 0);
 				break;
 			}
 		break;

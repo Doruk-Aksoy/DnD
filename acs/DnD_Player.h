@@ -15,7 +15,7 @@ typedef struct {
 } player_alias_tables_T;
 
 // this will store ALL of alias tables that are needed for a player to roll things with specific modifiers applied to certain weights still in O(1). +1 for Merchant
-global player_alias_tables_T 20: PlayerAliasTables[MAXPLAYERS + 1];
+global player_alias_tables_T 12: PlayerAliasTables[MAXPLAYERS + 1];
 
 void SetupPlayerAliasTables(int pnum) {
     int i;

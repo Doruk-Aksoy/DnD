@@ -6,7 +6,7 @@
 #include "DnD_Ammo.h"
 #include "DnD_Monsters.h"
 #include "DnD_SpecialTrails.h"
-#include "DnD_ChestKey.h"
+#include "Inventory/DnD_ChestKey.h"
 #include "DnD_Dungeons.h"
 #include "DnD_Skills.h"
 #include "DnD_Settings.h"

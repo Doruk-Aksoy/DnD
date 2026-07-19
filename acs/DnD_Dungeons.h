@@ -1,7 +1,7 @@
 #ifndef DND_DUNGEONS_IN
 #define DND_DUNGEONS_IN
 
-#include "DnD_InvInfo.h"
+#include "Inventory/DnD_InvInfo.h"
 
 void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	// roll random attributes for the charm

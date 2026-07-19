@@ -3,7 +3,7 @@
 
 #include "DnD_CommonStat.h"
 #include "DnD_Common.h"
-#include "DnD_Charms.h"
+#include "Inventory/DnD_Charms.h"
 #include "DnD_Artifacts.h"
 #include "DnD_Abilities.h"
 #include "DnD_Activity.h"

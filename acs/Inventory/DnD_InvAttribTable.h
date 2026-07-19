@@ -468,9 +468,8 @@ typedef struct {
 	int attrib_extra_high;
 	int attrib_level_modifier;
 	int attrib_level_extra_modifier;
-	int tags;
-	int allowed_slots;
-	int required_properties;
+	int tags;										// tags
+	int allowed_slots;								// what slots can these appear on, DND_MODBASE_XXX
 	int weight;
 } inv_attrib_T;
 
@@ -496,7 +495,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ARMOR_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	ItemModTable[INV_ARMOR_INCREASE].weight = 1000;
 	ItemModTable[INV_ARMOR_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_ARMOR_INCREASE].required_properties = DND_IMPFLAG_ARMOR;
 	
 	ItemModTable[INV_HPPERCENT_INCREASE].attrib_low = 1;
 	ItemModTable[INV_HPPERCENT_INCREASE].attrib_high = 6;
@@ -511,7 +509,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ARMORPERCENT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].weight = 800;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_ARMORPERCENT_INCREASE].required_properties = DND_IMPFLAG_ARMOR;
 	
 	ItemModTable[INV_EXPGAIN_INCREASE].attrib_low = 0.02;
 	ItemModTable[INV_EXPGAIN_INCREASE].attrib_high = 0.04;
@@ -810,14 +807,14 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 6.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 6.0;
-	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	ItemModTable[INV_DMGREDUCE_ELEM].weight = 650;
 	ItemModTable[INV_DMGREDUCE_ELEM].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 6.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 6.0;
-	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_PHYSICAL;
+	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL;
 	ItemModTable[INV_DMGREDUCE_PHYS].weight = 650;
 	ItemModTable[INV_DMGREDUCE_PHYS].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
@@ -1034,7 +1031,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 6.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 6.0;
-	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 	ItemModTable[INV_DMGREDUCE_ENERGY].weight = 650;
 	ItemModTable[INV_DMGREDUCE_ENERGY].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
@@ -1048,7 +1045,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_low = 1.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 6.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 6.0;
-	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_OCCULT;
+	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT;
 	ItemModTable[INV_DMGREDUCE_MAGIC].weight = 650;
 	ItemModTable[INV_DMGREDUCE_MAGIC].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
@@ -1177,7 +1174,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 	ItemModTable[INV_SHIELD_INCREASE].weight = 650;
 	ItemModTable[INV_SHIELD_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_SHIELD_INCREASE].required_properties = DND_IMPFLAG_ESHIELD;
 
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_low = 1;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 9;
@@ -1185,7 +1181,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].weight = 650;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_PERCENTSHIELD_INCREASE].required_properties = DND_IMPFLAG_ESHIELD;
 
 	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_low = 5;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_high = 9;
@@ -1193,7 +1188,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_RECOVERYRATE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].weight = 500;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_SHIELD_RECOVERYRATE].required_properties = DND_IMPFLAG_ESHIELD;
 
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_low = 5;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_high = 10;
@@ -1201,7 +1195,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].weight = 450;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_SHIELD_RECHARGEDELAY].required_properties = DND_IMPFLAG_ESHIELD;
 
 	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.5;
 	ItemModTable[INV_MIT_INCREASE].attrib_high = 1.25;
@@ -1209,7 +1202,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	ItemModTable[INV_MIT_INCREASE].weight = 750;
 	ItemModTable[INV_MIT_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_MIT_INCREASE].required_properties = DND_IMPFLAG_MITIGATION;
 
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.3;
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.875;
@@ -1217,7 +1209,6 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
 	ItemModTable[INV_MITEFFECT_INCREASE].weight = 400;
 	ItemModTable[INV_MITEFFECT_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
-	ItemModTable[INV_MITEFFECT_INCREASE].required_properties = DND_IMPFLAG_MITIGATION;
 
 	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_low = 5;
 	ItemModTable[INV_PERCENTFIRE_DAMAGE].attrib_high = 15;

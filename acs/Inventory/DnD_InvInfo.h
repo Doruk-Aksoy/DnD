@@ -1,7 +1,7 @@
 #ifndef DND_INVINFO_IN
 #define DND_INVINFO_IN
 
-#include "DnD_OrbDefs.h"
+#include "../DnD_OrbDefs.h"
 
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
@@ -60,8 +60,13 @@ enum {
 	DND_ITEM_CHESTKEY,
 	DND_ITEM_WEAPON,
 	DND_ITEM_TOKEN,
-	DND_ITEM_DUNGEONKEY
+	DND_ITEM_DUNGEONKEY,
+
+	DND_ITEM_MAXTYPES
 };
+
+#define FIRST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_DOOMGUY
+#define LAST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_TRICKSTER
 
 // these bitmasks are for when an attribute is eligible to roll on something
 enum {
@@ -78,6 +83,8 @@ enum {
 	DND_MODBASE_SPECIALTY_CYBORG			= 0b1000000000,			// no offensive mods
 	DND_MODBASE_SPECIALTY_BERSERKER			= 0b10000000000,		// allow all melee, no energy or explosive
 	DND_MODBASE_SPECIALTY_TRICKSTER			= 0b100000000000,		// allow no defense/life mods
+
+	DND_MODBASE_FLASK						= 0b1000000000000,		// flasks only
 
 	// shorthands
 	DND_MODBASE_NOTRICKSTERCLAW				= 	~DND_MODBASE_SPECIALTY_TRICKSTER,
@@ -99,21 +106,35 @@ enum {
 	DND_MODBASE_ALL							= 0xFFFF					// shorthand for allowing all bases
 };
 
-enum {
-	DND_IMPFLAG_ARMOR						= 0b1,
-	DND_IMPFLAG_ESHIELD						= 0b10,
-	DND_IMPFLAG_MITIGATION					= 0b100,
+// Maps DND_ITEM_XXX to DND_MODBASE_XXX for applicable mods an item slot can have (ex: DND_ITEM_CHARM to DND_MODBASE_CHARM flag)
+int ItemTypeToModBaseFlag(int type) {
+    static int mapper[DND_ITEM_MAXTYPES] = {
+		0,
+		0,
+		DND_MODBASE_CHARM,
+		DND_MODBASE_HELM,
+		DND_MODBASE_BOOT,
+		DND_MODBASE_BODYARMOR,
 
-	// special conditional or implicit flags
-	DND_IMPFLAG_CANROLLPHYS					= 0b1000,
-	DND_IMPFLAG_CANROLLMAGIC				= 0b10000,
-	DND_IMPFLAG_CANROLLELEM					= 0b100000,
-	DND_IMPFLAG_CANROLLENERGY				= 0b1000000,
-	DND_IMPFLAG_CANROLLEXPLOSIVE			= 0b10000000,
-};
+		DND_MODBASE_FLASK,
 
-#define FIRST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_DOOMGUY
-#define LAST_SPECIALTY_ITEM_TYPE DND_ITEM_SPECIALTY_TRICKSTER
+		DND_MODBASE_SPECIALTY_DOOMGUY,
+		DND_MODBASE_SPECIALTY_MARINE,
+		DND_MODBASE_SPECIALTY_HOBO,
+		DND_MODBASE_SPECIALTY_PUNISHER,
+		DND_MODBASE_SPECIALTY_WANDERER,
+		DND_MODBASE_SPECIALTY_CYBORG,
+		DND_MODBASE_SPECIALTY_BERSERKER,
+		DND_MODBASE_SPECIALTY_TRICKSTER,
+
+		0,
+		0,
+		0,
+		0,
+		0
+	};
+	return mapper[type];
+}
 
 int GetRandomSpecialtyItem() {
 	return random(FIRST_SPECIALTY_ITEM_TYPE, LAST_SPECIALTY_ITEM_TYPE);
@@ -190,7 +211,8 @@ typedef struct it {
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
 
-	int mod_prop_flags;								// Holds special information about what type of modifiers can be on this item (special permits in a way)
+	int	item_base;									// holds item_base value for mod pool filtering
+	itembase_tags_T item_tags;						// holds the flags allowed/excluded for this item to be rolled
 } inventory_T;
 
 // visual sync type -- entirely to be used clientside

@@ -52,8 +52,10 @@ int ConstructSpecialtyDataOnField(int item_pos, int item_tier, int item_type) {
 	int res, i;
 	res = random(1, 100);
 
-	Inventories_On_Field[item_pos].width = 1;
-	Inventories_On_Field[item_pos].height = 1;
+	auto item = GetFieldItem(item_pos);
+
+	item.width = 1;
+	item.height = 1;
 
 	switch(item_type) {
 		case DND_ITEM_SPECIALTY_DOOMGUY:
@@ -67,7 +69,7 @@ int ConstructSpecialtyDataOnField(int item_pos, int item_tier, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_MARINE:
-			Inventories_On_Field[item_pos].height = 2;
+			item.height = 2;
 			i = ITEM_IMAGE_DOGTAG_BEGIN;
 			if(res <= 40)
 				res = DOGTAG_PRIVATE;
@@ -78,7 +80,7 @@ int ConstructSpecialtyDataOnField(int item_pos, int item_tier, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_HOBO:
-			Inventories_On_Field[item_pos].width = 2;
+			item.width = 2;
 			i = ITEM_IMAGE_SUNGLASSES_BEGIN;
 			if(res <= 20)
 				res = SUNGLASS_BLACK;
@@ -121,7 +123,7 @@ int ConstructSpecialtyDataOnField(int item_pos, int item_tier, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_BERSERKER:
-			Inventories_On_Field[item_pos].width = 2;
+			item.width = 2;
 			i = ITEM_IMAGE_BELT_BEGIN;
 			if(res <= 33)
 				res = BELT_SASH;
@@ -132,7 +134,7 @@ int ConstructSpecialtyDataOnField(int item_pos, int item_tier, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_TRICKSTER:
-			Inventories_On_Field[item_pos].height = 2;
+			item.height = 2;
 			i = ITEM_IMAGE_CLAW_BEGIN;
 			if(res <= 40)
 				res = CLAW_RAKE;
@@ -143,29 +145,29 @@ int ConstructSpecialtyDataOnField(int item_pos, int item_tier, int item_type) {
 		break;
 	}
 
-	Inventories_On_Field[item_pos].item_image = i + res;
+	item.item_image = i + res;
 
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
 
-	Inventories_On_Field[item_pos].item_level = item_tier;
-	Inventories_On_Field[item_pos].item_stack = 0;
-	Inventories_On_Field[item_pos].item_type = item_type;
-	Inventories_On_Field[item_pos].item_subtype = res;
+	item.item_level = item_tier;
+	item.item_stack = 0;
+	item.item_type = item_type;
+	item.item_subtype = res;
 
-	Inventories_On_Field[item_pos].corrupted = false;
-	Inventories_On_Field[item_pos].quality = 0;
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Inventories_On_Field[item_pos].implicit[i].attrib_id = -1;
-		Inventories_On_Field[item_pos].implicit[i].attrib_val = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_tier = 0;
-		Inventories_On_Field[item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	Inventories_On_Field[item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		Inventories_On_Field[item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
 	return res;
 }
@@ -177,11 +179,13 @@ int RollSpecialtyItemInfo(int item_pos, int item_tier, int pnum, int itype) {
 	int count = random(1, MAX_SPECIALTY_ATTRIBS);
 	int special_roll = 0;
 
+	auto item = GetFieldItem(item_pos);
+
 	SetupItemImplicit(item_pos, itype, sub_type, item_tier);
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(itype, special_roll, Inventories_On_Field[item_pos].implicit[0].attrib_id);
+			roll = PickRandomAttribute(itype, special_roll, item.implicit[0].attrib_id);
 		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
@@ -218,7 +222,9 @@ Script "DnD Specialty Item Pickup" (int sp) {
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
 
-	ACS_NamedExecuteAlways("DnD Specialty Message", 0, Inventories_On_Field[sp >> 16].item_subtype, Inventories_On_Field[sp >> 16].item_type);
+	auto item = GetFieldItem(sp >> 16);
+
+	ACS_NamedExecuteAlways("DnD Specialty Message", 0, item.item_subtype, item.item_type);
     GiveInventory("PowercoreSoundPlayer", 1);
 	
     HandleInventoryPickup(sp >> 16);

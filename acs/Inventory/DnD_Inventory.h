@@ -9,9 +9,9 @@
 #define MAX_ITEMS_EQUIPPABLE (MAX_SMALL_CHARMS_USED + MAX_MEDIUM_CHARMS_USED + MAX_LARGE_CHARMS_USED + MAX_ARMORS_USED + MAX_POWERCORES_USED + MAX_FLASK_SLOTS)
 
 #include "DnD_InvInfo.h"
-#include "DnD_UniqueItems.h"
-#include "DnD_Hud.h"
-#include "DnD_WeaponDefs.h"
+#include "../DnD_UniqueItems.h"
+#include "../DnD_Hud.h"
+#include "../DnD_WeaponDefs.h"
 
 #define DND_ITEMMOD_ADD FALSE
 #define DND_ITEMMOD_REMOVE TRUE
@@ -559,8 +559,7 @@ str GetItemImage(int id, bool wide = false) {
 #define ITEMLEVEL_VARIANCE_LOWER 20
 #define ITEMLEVEL_VARIANCE_HIGHER 7
 
-// holds inventories of all players
-global inventory_T 11: PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];
+
 
 #define MAX_TEMP_INVENTORIES 4
 global inventory_T 23: TemporaryInventoryList[MAXPLAYERS][MAX_TEMP_INVENTORIES];
@@ -569,18 +568,26 @@ enum {
 	PTR_FREEITEMWORLD
 };
 #define MAX_POINTERS (PTR_FREEITEMWORLD + 1)
+#define MAX_INVENTORIES_ON_FIELD 4096
 
-global int 24: PointerIndexTable[MAX_POINTERS];
+typedef struct {
+	int PointerIndexTable[MAX_POINTERS];
 
-#define MAX_INVENTORIES_ON_FIELD 8192
+	inventory_T Items_Used[MAXPLAYERS][MAX_ITEMS_EQUIPPABLE];
+
+	inventory_T Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
+
+	inventory_T PlayerInventoryList[MAXPLAYERS][MAX_INVENTORY_BOXES];			// holds inventories of all players
+
+	inventory_T TradeViewList[MAXPLAYERS + 1][MAX_INVENTORY_BOXES]; 			// merchant's item list is on MAXPLAYERS index of this
+
+	inventory_T PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES + 1][MAX_INVENTORY_BOXES];
+} global_item_storage_T;
+
 // holds indexes to items used that are on players like charms or armors
-global inventory_T 12: Items_Used[MAXPLAYERS][MAX_ITEMS_EQUIPPABLE];
-global inventory_T 13: Inventories_On_Field[MAX_INVENTORIES_ON_FIELD];
-global inventory_T 14: TradeViewList[MAXPLAYERS + 1][MAX_INVENTORY_BOXES]; // merchant's item list
-global inventory_T 15: PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES + 1][MAX_INVENTORY_BOXES];
+global global_item_storage_T 20: GlobalItemStorage;
 
-#define INVSOURCE_PLAYER PlayerInventoryList
-#define INVSOURCE_ITEMSUSED Items_Used
+#include "DnD_InventoryFuncs.h"
 
 // Creates an item on the game field
 int CreateItemSpot() {
@@ -600,35 +607,7 @@ int CreateItemSpot() {
 }
 
 void RemoveItemFromWorld(int fieldpos) {
-	//Log(s:"remove item id ", d:fieldpos);
-	Inventories_On_Field[fieldpos].width = 1;
-	Inventories_On_Field[fieldpos].height = 1;
-	Inventories_On_Field[fieldpos].item_type = DND_ITEM_NULL;
-	Inventories_On_Field[fieldpos].item_subtype = 0;
-	Inventories_On_Field[fieldpos].item_image = 0;
-	Inventories_On_Field[fieldpos].item_level = 0;
-	Inventories_On_Field[fieldpos].item_stack = 0;
-
-	Inventories_On_Field[fieldpos].corrupted = 0;
-	Inventories_On_Field[fieldpos].quality = 0;
-	Inventories_On_Field[fieldpos].mod_prop_flags = 0;
-
-	int k;
-	for(k = 0; k < MAX_ITEM_IMPLICITS; ++k) {
-		Inventories_On_Field[fieldpos].implicit[k].attrib_id = -1;
-		Inventories_On_Field[fieldpos].implicit[k].attrib_val = 0;
-		Inventories_On_Field[fieldpos].implicit[k].attrib_tier = 0;
-		Inventories_On_Field[fieldpos].implicit[k].attrib_extra = 0;
-	}
-
-	for(k = 0; k < Inventories_On_Field[fieldpos].attrib_count; ++k) {
-		Inventories_On_Field[fieldpos].attributes[k].attrib_id = 0;
-		Inventories_On_Field[fieldpos].attributes[k].attrib_val = 0;
-		Inventories_On_Field[fieldpos].attributes[k].attrib_tier = 0;
-		Inventories_On_Field[fieldpos].attributes[k].fractured = 0;
-		Inventories_On_Field[fieldpos].attributes[k].attrib_extra = 0;
-	}
-	Inventories_On_Field[fieldpos].attrib_count = 0;
+	ClearInventoryItem(Inventories_On_Field[fieldpos]);
 }
 
 // Deletes an item, essentially
@@ -1109,7 +1088,9 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 
 		Items_Used[pnum][use_id].corrupted = PlayerInventoryList[pnum][item_index].corrupted;
 		Items_Used[pnum][use_id].quality = PlayerInventoryList[pnum][item_index].quality;
-		Items_Used[pnum][use_id].mod_prop_flags = PlayerInventoryList[pnum][item_index].mod_prop_flags;
+		Items_Used[pnum][use_id].item_base = PlayerInventoryList[pnum][item_index].item_base;
+		Items_Used[pnum][use_id].item_tags.allowed_tags = PlayerInventoryList[pnum][item_index].item_tags.allowed_tags;
+		Items_Used[pnum][use_id].item_tags.excluded_tags = PlayerInventoryList[pnum][item_index].item_tags.excluded_tags;
 
 		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 			Items_Used[pnum][use_id].implicit[i].attrib_id = PlayerInventoryList[pnum][item_index].implicit[i].attrib_id;
@@ -1258,7 +1239,9 @@ bool CopyItemFromFieldToPlayer(int fieldpos, int player_index, int item_index, i
 
 		PlayerInventoryList[player_index][item_index].corrupted = Inventories_On_Field[fieldpos].corrupted;
 		PlayerInventoryList[player_index][item_index].quality = Inventories_On_Field[fieldpos].quality;
-		PlayerInventoryList[player_index][item_index].mod_prop_flags = Inventories_On_Field[fieldpos].mod_prop_flags;
+		PlayerInventoryList[player_index][item_index].item_base = Inventories_On_Field[fieldpos].item_base;
+		PlayerInventoryList[player_index][item_index].item_tags.allowed_tags = Inventories_On_Field[fieldpos].item_tags.allowed_tags;
+		PlayerInventoryList[player_index][item_index].item_tags.excluded_tags = Inventories_On_Field[fieldpos].item_tags.excluded_tags;
 
 		for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 			PlayerInventoryList[player_index][item_index].implicit[i].attrib_id = Inventories_On_Field[fieldpos].implicit[i].attrib_id;
@@ -1495,7 +1478,7 @@ void MoveItemToTemporary(int player_index, int item_index, int temp_pos, int sou
 
 	TemporaryInventoryList[player_index][temp_pos].corrupted = GetItemSyncValue(player_index, DND_SYNC_ITEMCORRUPTED, item_index, -1, source);
 	TemporaryInventoryList[player_index][temp_pos].quality = GetItemSyncValue(player_index, DND_SYNC_ITEMQUALITY, item_index, -1, source);
-	TemporaryInventoryList[player_index][temp_pos].mod_prop_flags = GetItemSyncValue(player_index, DND_SYNC_MODPROPFLAGS, item_index, -1, source);
+	TemporaryInventoryList[player_index][temp_pos].item_base = GetItemSyncValue(player_index, DND_SYNC_ITEMBASE, item_index, -1, source);
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 		TemporaryInventoryList[player_index][temp_pos].implicit[i].attrib_id = GetItemSyncValue(player_index, DND_SYNC_ITEMATTRIBUTES_IMPLICIT_ID, item_index, i, source);
@@ -3654,7 +3637,7 @@ void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = 
 }
 
 // can add implicits up to 3
-void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
+void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0, int item_base = 0) {
 	int imp_pos = 0;
 	for(imp_pos = 0; imp_pos < MAX_ITEM_IMPLICITS && Inventories_On_Field[item_pos].implicit[imp_pos].attrib_id != -1; ++imp_pos);
 
@@ -3676,9 +3659,11 @@ void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int ti
 		else
 			Inventories_On_Field[item_pos].implicit[imp_pos].attrib_val = val * (extra + 1);
 	}
+
+	Inventories_On_Field[item_pos].item_base = item_base;
 }
 
-void GiveImplicitToMerchant(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0) {
+void GiveImplicitToMerchant(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0, int item_base = 0) {
 	int imp_pos = 0;
 	for(imp_pos = 0; imp_pos < MAX_ITEM_IMPLICITS && TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_id != -1; ++imp_pos);
 
@@ -3700,6 +3685,8 @@ void GiveImplicitToMerchant(int item_pos, int attr, int val, int extra = -1, int
 		else
 			TradeViewList[MAXPLAYERS][item_pos].implicit[imp_pos].attrib_val = val * (temp + 1);
 	}
+
+	TradeViewList[MAXPLAYERS][item_pos].item_base = item_base;
 }
 
 void GiveCorruptionEffect(int pnum, int item_pos) {
@@ -4522,7 +4509,46 @@ int CheckItemSynergy(int synergy_roll, int item_pos, int synergy_boost) {
 	return synergy_roll;
 }
 
-#include "DnD_Token.h"
-#include "DnD_Sync.h"
+#include "../DnD_Token.h"
+#include "../DnD_Sync.h"
+
+// These are necessary to sync the global variables + unique data
+Script "DnD Load Inventory Attributes" OPEN {
+	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
+		SetupArmorDropWeights();
+		Delay(const:5);
+		SetupFlaskDropWeights();
+		SetupTokenDropWeights();
+		Delay(const:10);
+		SetupInventoryAttributeTable();
+		Delay(const:8);
+		InitModPoolCache();
+		Delay(const:1);
+		SetupDungeonModTable();
+		Delay(const:5);
+		SetupInventoryTagGroups();
+		Delay(const:10);
+		SetupUniqueItems();
+		Delay(10);
+		ACS_NamedExecuteAlways("DnD Setup Menu Vars", 0); // leave this last here
+	}
+}
+
+Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
+	if(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES)) {
+		SetupArmorDropWeights();
+		Delay(const:5);
+		SetupFlaskDropWeights();
+		SetupTokenDropWeights();
+		Delay(const:10);
+		SetupInventoryAttributeTable();
+		Delay(const:10);
+		SetupDungeonModTable();
+		Delay(const:5);
+		SetupUniqueItems();
+		Delay(10);
+		ACS_NamedExecuteAlways("DnD Setup Menu Vars - CS", 0);
+	}
+}
 
 #endif

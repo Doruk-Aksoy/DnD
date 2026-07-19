@@ -2,7 +2,6 @@
 #define DND_CHARMS_IN
 
 #include "DnD_InvAttribs.h"
-#include "DnD_Common.h"
 #include "DnD_Inventory.h"
 
 #define NULL_CHARM -1

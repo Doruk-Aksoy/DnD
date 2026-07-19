@@ -2,7 +2,7 @@
 #define DND_COMMONSTAT_IN
 
 #include "DnD_Accessories.h"
-#include "DnD_InvAttribs.h"
+#include "Inventory/DnD_InvAttribs.h"
 
 #define DND_ACCURACY_CAP 100000
 
