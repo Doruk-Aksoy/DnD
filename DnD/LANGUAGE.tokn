@@ -20,7 +20,7 @@ DND_TOKENN2			=	"GunsmithToken";
 DND_TOKENN3			=	"ArtisanToken";
 DND_TOKENN4			=	"CartographerToken";
 
-TOK_USE1			=	"Token used successfully to increase the armor's quality.";
+TOK_USE1			=	"Token used to increase the armor's quality by";
 TOK_USE2			=	"Token used successfully to scour your";
-TOK_USE3			=	"Token used successfully to increase the flask's quality.";
-TOK_USE4			=	"Token used successfully to increase the dungeon key's quality.";
+TOK_USE3			=	"Token used to increase the flask's quality by";
+TOK_USE4			=	"Token used to increase the dungeon key's quality by";

@@ -585,7 +585,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					else
 						imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8, DND_ITEMBASE_BOOT_ESHIELD);
 
-					imp_func(item_pos, special_roll, 1, 0, item_tier, 0, 0);
+					imp_func(item_pos, special_roll, 1, 0, 0, 0, 0);
 				break;
 			}
 		break;
@@ -786,7 +786,7 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 40, 0, 0, 0);
 				break;
 				case DND_FLASK_QUICKSILVER:
-					imp_func(item_pos, INV_FLASK_IMP_QUICKSILVER, 20, 3 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
+					imp_func(item_pos, INV_FLASK_IMP_QUICKSILVER, 40, 3 * TICRATE, 0, 0, DND_ITEMBASE_FLASK_UTILITY);
 					imp_func(item_pos, INV_FLASK_IMP_CHARGECOUNT, 60, 30, 0, 0, 0);
 				break;
 				case DND_FLASK_QUARTZ:

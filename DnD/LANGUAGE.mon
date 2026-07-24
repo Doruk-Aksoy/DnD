@@ -55,7 +55,7 @@ DND_EMOD_DEATHSURP				= "\cqDeath Surprise\c-";
 DND_EMOD_RAGE					= "\cgRage\c-";
 DND_EMOD_PIERCEARMOR			= "\cgShredding Attacks\c-";
 DND_EMOD_AGGRESSIVE				= "\cgAggressive\c-";
-DND_EMOD_EXTRAFAST				= "\cgExtra Fast\c-";
+DND_EMOD_HASTE					= "\cgHaste\c-";
 DND_EMOD_FASTREACT				= "\cgQuick Reaction\c-";
 
 DND_EMOD_NOPAIN					= "\cvNo Pain\c-";
@@ -118,6 +118,7 @@ DND_EMOD_ICE_IMMUNE				= "\cmIce Immune\c-";
 DND_EMOD_POISON_IMMUNE			= "\cmPoison Immune\c-";
 DND_EMOD_LIGHTNING_IMMUNE		= "\cmLightning Immune\c-";
 DND_EMOD_EXHAUSTING				= "\cgExhausting";
+DND_EMOD_EXTRASPEED				= "\cgExtra Speed";
 
 DND_EMOD_GUARDBROKEN			= "\cfGuard Broken\c-";
 

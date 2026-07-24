@@ -1443,7 +1443,7 @@ void DrawFrequentRedrawItems(int curopt, int pnum) {
 		str text = "";
 		if(i != -1) {
 			// player used an assimilation orb, figure out if they made a choice or not
-			if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == DND_ORB_ASSIMILATION) {
+			if(GlobalItemStorage.PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && GlobalItemStorage.PlayerInventoryList[pnum][i].item_subtype == DND_ORB_ASSIMILATION) {
 				doDraw = true;
 				if(!CheckInventory("DnD_SelectedInventoryBox"))
 					text = StrParam(s:"\c[Q2]", l:"DND_MENU_ASSIMORB1");
@@ -2946,10 +2946,12 @@ void DrawCharmBox(int charm_type, int boxid, int thisboxid, int hudx, int hudy) 
 	// fixes background being lit on first row boxes
 	if(CheckInventory("DnD_InventoryView"))
 		charmborderpic = GetCharmBoxLabel(charm_type, false);
+
+	auto item = GetUsedItem(pnum, thisboxid - 1);
 	
 	// if there is a charm here
-	if(Items_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
-		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
+	if(item.item_type != DND_ITEM_NULL) {
+		SetFont(GetItemImage(item.item_image));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
@@ -2967,10 +2969,12 @@ void DrawFlaskBox(int boxid, int thisboxid, int hudx, int hudy, int flask_id) {
 	// fixes background being lit on first row boxes
 	if(CheckInventory("DnD_InventoryView"))
 		borderpic = GetCharmBoxLabel(DND_CHARM_SMALL, false);
+
+	auto item = GetUsedItem(pnum, thisboxid - 1);
 	
 	// if there is a charm here
-	if(Items_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
-		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
+	if(item.item_type != DND_ITEM_NULL) {
+		SetFont(GetItemImage(item.item_image));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
@@ -2988,8 +2992,10 @@ void DrawFlaskBox(int boxid, int thisboxid, int hudx, int hudy, int flask_id) {
 void DrawArmorBox(int boxid, int thisboxid, int hudx, int hudy, int armor_slot) {
 	int pnum = PlayerNumber();
 
-	if(Items_Used[pnum][thisboxid - 1].item_type != DND_ITEM_NULL) {
-		SetFont(GetItemImage(Items_Used[pnum][thisboxid - 1].item_image));
+	auto item = GetUsedItem(pnum, thisboxid - 1);
+
+	if(item.item_type != DND_ITEM_NULL) {
+		SetFont(GetItemImage(item.item_image));
 		HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - 1, CR_WHITE, hudx, hudy, 0.0, 0.0);
 		
 		if(boxid == thisboxid && !CheckInventory("DnD_InventoryView"))
@@ -3338,11 +3344,11 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 			}
 			else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
 				// if neither are empty spots
-				bool boxidon = PlayerInventoryList[pnum][boxid - 1].item_type != DND_ITEM_NULL;
-				bool prevselecton = PlayerInventoryList[pnum][CheckInventory("DnD_SelectedInventoryBox") - 1].item_type != DND_ITEM_NULL;
+				bool boxidon = GlobalItemStorage.PlayerInventoryList[pnum][boxid - 1].item_type != DND_ITEM_NULL;
+				bool prevselecton = GlobalItemStorage.PlayerInventoryList[pnum][CheckInventory("DnD_SelectedInventoryBox") - 1].item_type != DND_ITEM_NULL;
 				if(boxidon && prevselecton) {
 					// if both of them point to the same pointer, we need to move this item instead
-					if(PlayerInventoryList[pnum][boxid - 1].topleftboxid == PlayerInventoryList[pnum][CheckInventory("DnD_SelectedInventoryBox") - 1].topleftboxid) {
+					if(GlobalItemStorage.PlayerInventoryList[pnum][boxid - 1].topleftboxid == GlobalItemStorage.PlayerInventoryList[pnum][CheckInventory("DnD_SelectedInventoryBox") - 1].topleftboxid) {
 						ipos = CheckInventory("DnD_SelectedInventoryBox") - 1;
 						epos = boxid - 1;
 						if(IsFreeSpot(pnum, ipos, epos))
@@ -3426,7 +3432,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 				item_sel = CheckInventory("DnD_SelectedCharmBox");
 				if(item_sel) {
 					item_type = DND_ITEM_NULL;
-					topboxid = PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
+					topboxid = GlobalItemStorage.PlayerInventoryList[pnum][boxid - 1].topleftboxid - 1;
 
 					--item_sel;
 					switch(item_sel) {
@@ -3464,7 +3470,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 						break;
 					}
 					
-					if(topboxid != -1 && (PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) == item_type) {
+					if(topboxid != -1 && (GlobalItemStorage.PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) == item_type) {
 						// this returns popupid to show, and -1 if it was ok
 						temp = MakeItemUsed(pnum, item_sel, topboxid, item_type, item_subt);
 						if(temp == -1) {
@@ -3483,7 +3489,7 @@ void HandleItemPageInputs(int pnum, int boxid) {
 							SetInventory("DnD_SelectedCharmBox", 0);
 							GiveInventory("DnD_CleanInventoryRequest", 1);
 						}
-						else if((PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) != item_type && item_type >= FIRST_SPECIALTY_ITEM_TYPE && item_type <= LAST_SPECIALTY_ITEM_TYPE)
+						else if((GlobalItemStorage.PlayerInventoryList[pnum][topboxid].item_type & 0xFFFF) != item_type && item_type >= FIRST_SPECIALTY_ITEM_TYPE && item_type <= LAST_SPECIALTY_ITEM_TYPE)
 							ShowPopup(POPUP_CANTUSEPOWERCORE, false, 0); 
 						else
 							ShowPopup(temp, false, 0);
@@ -3528,14 +3534,15 @@ void HandleItemPageInputs(int pnum, int boxid) {
 	}
 	else if(HasRightClicked(pnum) && boxid - 1 != INV_ICON_INDEX) {
 		// mbox 8 is the view inventory button
-		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && Items_Used[pnum][boxid - 1].item_type != DND_ITEM_NULL) {
+		auto item = GetUsedItem(pnum, boxid - 1);
+		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && item.item_type != DND_ITEM_NULL) {
 			// try to drop item
 			temp = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			if(temp != -1) {
 				// if flask, update the data for the player
-				item_subt = Items_Used[pnum][boxid - 1].item_type == DND_ITEM_FLASK;
+				item_subt = item.item_type == DND_ITEM_FLASK;
 
-				PlayItemDropSound(Items_Used[pnum][boxid - 1].item_type, Items_Used[pnum][boxid - 1].item_subtype, false);
+				PlayItemDropSound(item.item_type, item.item_subtype, false);
 				ApplyItemFeatures(pnum, boxid - 1, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_REMOVE);
 				MoveItemTrade(pnum, boxid - 1, temp, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				// force a damage cache recalc
@@ -3722,7 +3729,7 @@ void ReturnTradeItems(int pnum) {
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			bid = j + i * MAXINVENTORYBLOCKS_VERT;
-			if(TradeViewList[pnum][bid].item_type != DND_ITEM_NULL) {
+			if(GlobalItemStorage.TradeViewList[pnum][bid].item_type != DND_ITEM_NULL) {
 				int pos = GetFreeSpotForItem(bid, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 				if(pos != -1)
 					MoveItemTrade(pnum, bid, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -4315,7 +4322,7 @@ void HandleMaterialDraw(menu_inventory_T module& p, int boxid, int curopt, int k
 				if(tx != -1) {
 					if(boxid - 1 == MATERIALBOX_OFFSET_BOXID + i) {
 						//Log(s:"update item boxlit material ", d:tx);
-						UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum, 0);
+						UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, GlobalItemStorage.PlayerInventoryList[pnum][tx].item_type, pnum, 0);
 
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
 						MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] |= tx << DND_MENU_ITEMSAVEBITS1;
@@ -4332,7 +4339,7 @@ void HandleMaterialDraw(menu_inventory_T module& p, int boxid, int curopt, int k
 					else
 						SetFont("CRFBX_N2");
 					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
-					SetFont(GetItemImage(PlayerInventoryList[pnum][tx].item_image));
+					SetFont(GetItemImage(GlobalItemStorage.PlayerInventoryList[pnum][tx].item_image));
 					HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - MATERIALBOX_OFFSET - 3 * i - 1, CR_CYAN, 404.0 + 44.0 * (i % 2), 72.0 + 36.0 * (i / 2), 0.0);
 					bx = GetTotalStackOfMaterial(tx);
 					if(bx > 0) {
@@ -4437,7 +4444,8 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T module& p, int boxid
 	static int craftable_materials[MAX_INVENTORY_BOXES];
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
 		// if this a craftable item, include in list
-		if(IsCraftableItem(PlayerInventoryList[pnum][i].item_type) && PlayerInventoryList[pnum][i].height) {
+		auto item = GetPlayerInventoryItem(pnum, i);
+		if(IsCraftableItem(item.item_type) && item.height) {
 			craftable_materials[mcount] = i;
 			++mcount;
 		}
@@ -4460,9 +4468,10 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T module& p, int boxid
 		for(i = 0; i < MAX_CRAFTING_ITEMBOXES && i < mcount - MAX_CRAFTING_ITEMBOXES * page; ++i) {
 			// store id into this for ease -- move forward page x box times to skip
 			tx = craftable_materials[i + MAX_CRAFTING_ITEMBOXES * page];
+			item = GetPlayerInventoryItem(pnum, tx);
 			// give priority to clicking over hovering
 			if(prevclick == i) {
-				UpdateCursorClickData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, PlayerCursorData.posx, PlayerCursorData.posy);
+				UpdateCursorClickData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.item_type, PlayerCursorData.posx, PlayerCursorData.posy);
 				click_reset = false;
 			
 				//Log(s:"update prev item inv ", d:tx);
@@ -4472,7 +4481,7 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T module& p, int boxid
 				SetFont("CRFBX_H");
 			}
 			else if(boxid - 1 == i) {
-				UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][tx].item_type, pnum, 0);
+				UpdateCursorHoverData(tx, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.item_type, pnum, 0);
 				
 				//Log(s:"update cur item inv ", d:tx);
 				MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] &= DND_MENU_ITEMCLEARMASK1;
@@ -4483,7 +4492,7 @@ void HandleCraftingInventoryDraw(int pnum, menu_inventory_T module& p, int boxid
 			else
 				SetFont("CRFBX_N");
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 5 - 3 * i, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (i % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (i / 4), 0.0, 0.0);
-			SetFont(GetItemImage(PlayerInventoryList[pnum][tx].item_image));
+			SetFont(GetItemImage(item.item_image));
 			HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUID - 6 - 3 * i, CR_CYAN, CRAFTING_WEAPONBOXDRAW_X + 76.0 * (i % 4), CRAFTING_WEAPONBOXDRAW_Y + 68.0 * (i / 4), 0.0, 0.0);
 		}
 		
@@ -4964,7 +4973,7 @@ void HandleCraftingInputs(int boxid, int curopt) {
 				// using an orb in material part
 				if(boxid > MATERIALBOX_OFFSET_BOXID && boxid <= MATERIALBOX_OFFSET_BOXID + MAX_CRAFTING_MATERIALBOXES) {
 					//Log(s:"item type ", d:PlayerInventoryList[pnum][curitemeindex].item_type, s: " ", d:PlayerInventoryList[pnum][curitemeindex].item_subtype);
-					if(IsSelfUsableItem(PlayerInventoryList[pnum][curitemeindex].item_type, PlayerInventoryList[pnum][curitemeindex].item_subtype)) {
+					if(IsSelfUsableItem(GlobalItemStorage.PlayerInventoryList[pnum][curitemeindex].item_type, GlobalItemStorage.PlayerInventoryList[pnum][curitemeindex].item_subtype)) {
 						if(IsTwoSelectionItem(pnum, curitemeindex)) {
 							// start the display saying player needs to make two selections
 							// printbold(s:"right click on assim ", d:curitemeindex);
@@ -5188,7 +5197,7 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 				}
 				else if(boxid >= MBOX_1 && boxid <= MBOX_3 && CheckInventory("DnD_SelectedInventoryBox")) {
 					// previtemindex holds (topboxid of item) - 1 in inventory
-					temp = PlayerInventoryList[pnum][previtemindex].item_subtype;
+					temp = GlobalItemStorage.PlayerInventoryList[pnum][previtemindex].item_subtype;
 					transmute_data.val[boxid - 1] = temp;
 					ACS_NamedExecuteAlways("DnD Transmute Orb Sync", 0, pnum, boxid - 1, temp);
 					LocalAmbientSound("RPG/MenuChoose", 127);
@@ -5222,13 +5231,13 @@ void HandleTransmutingInputs(int pnum, int boxid) {
 // item is craft material, target is the item we intend to use it on
 bool HandleMaterialUse(int pnum, int itemindex, int targetindex, bool isWeapon = false) {
 	bool res = false;
-	int itype = PlayerInventoryList[pnum][itemindex].item_type;
-	int isubtype = PlayerInventoryList[pnum][itemindex].item_subtype;
+	int itype = GlobalItemStorage.PlayerInventoryList[pnum][itemindex].item_type;
+	int isubtype = GlobalItemStorage.PlayerInventoryList[pnum][itemindex].item_subtype;
 	
 	int targettype = DND_ITEM_NULL;
 	if(targetindex != -1) {
 		if(!isWeapon)
-			targettype = PlayerInventoryList[pnum][targetindex].item_type;
+			targettype = GlobalItemStorage.PlayerInventoryList[pnum][targetindex].item_type;
 		else
 			targettype = DND_ITEM_WEAPON;
 	}
@@ -5262,11 +5271,11 @@ bool HandleMaterialUse(int pnum, int itemindex, int targetindex, bool isWeapon =
 
 bool HandleTwoRequirementMaterialUse(int pnum, int item_index1, int item_index2) {
 	// preliminary check to see if these are items that can indeed be crafted on
-	if(!IsCraftableItem(PlayerInventoryList[pnum][item_index1].item_type) || !IsCraftableItem(PlayerInventoryList[pnum][item_index2].item_type))
+	if(!IsCraftableItem(GlobalItemStorage.PlayerInventoryList[pnum][item_index1].item_type) || !IsCraftableItem(GlobalItemStorage.PlayerInventoryList[pnum][item_index2].item_type))
 		return false;
 	int mat_index = CheckInventory("DnD_UsedTwoItemRequirementMaterial") - 1;
-	int type = PlayerInventoryList[pnum][mat_index].item_type;
-	int subtype = PlayerInventoryList[pnum][mat_index].item_subtype;
+	int type = GlobalItemStorage.PlayerInventoryList[pnum][mat_index].item_type;
+	int subtype = GlobalItemStorage.PlayerInventoryList[pnum][mat_index].item_subtype;
 	
 	// We check to specific types now and determine what needs to be done
 	if(type == DND_ITEM_ORB) {
@@ -6292,7 +6301,7 @@ void DrawMonsterModCategory(int category) {
 		DND_RAGE,
 		DND_PIERCE,
 		DND_AGGRESSIVE,
-		DND_EXTRAFAST,
+		DND_HASTE,
 		DND_FASTREACTION,
 		DND_EXTRASTRONG,
 		DND_HOMING,
@@ -6307,6 +6316,7 @@ void DrawMonsterModCategory(int category) {
 		DND_FASTPROJ,
 		DND_BORROWEDTIME,
 		DND_EXHAUSTING,
+		DND_EXTRASPEED,
 		
 		// defense
 		DND_GHOST,

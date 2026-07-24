@@ -844,7 +844,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].attrib_level_modifier = 0;
 	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].weight = 300;
-	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].allowed_slots = DND_MODBASE_RADIUSATK;
+	ItemModTable[INV_CHANCE_IGNORERADIUSIMMUNITY].allowed_slots = DND_MODBASE_RADIUSATK ^ DND_MODBASE_SPECIALTY_MARINE;
 	
 	ItemModTable[INV_PEN_OCCULT].attrib_low = 1;
 	ItemModTable[INV_PEN_OCCULT].attrib_high = 4;
@@ -1581,8 +1581,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_WEAPONCRITDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_WEAPONCRITDMG].tags = INV_ATTR_TAG_CRIT;
 
-	ItemModTable[INV_CORR_SPEED].attrib_low = 0.1;
-	ItemModTable[INV_CORR_SPEED].attrib_high = 0.25;
+	ItemModTable[INV_CORR_SPEED].attrib_low = 10;
+	ItemModTable[INV_CORR_SPEED].attrib_high = 25;
 	ItemModTable[INV_CORR_SPEED].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_SPEED].tags = INV_ATTR_TAG_UTILITY;
 

@@ -282,8 +282,8 @@ void HandleMonsterClassInnates(int mid, int id) {
 	else if(id == MONSTER_NAZI)
 		MonsterProperties[mid].class = MONSTERCLASS_WOLFENSS;
 	else {
-		// incursion
 		switch(id) {
+			// incursion
 			case MONSTER_CHEX_COMMON:
 			case MONSTER_ABYSS_ZOMBIEMAN:
 				MonsterProperties[mid].class = MONSTERCLASS_ZOMBIEMAN;
@@ -353,6 +353,12 @@ void HandleMonsterClassInnates(int mid, int id) {
 			case MONSTER_ABYSS_CYBERDEMON:
 			case MONSTER_ABYSS_MOTHERDEMON:
 				MonsterProperties[mid].class = MONSTERCLASS_CYBERDEMON;
+			break;
+
+			// dungeon
+			case MONSTER_DUNGEON_SHAMBLER:
+			case MONSTER_DUNGEON_BLOODGOLEM:
+				MonsterProperties[mid].class = MONSTERCLASS_BARON;
 			break;
 		}
 	}

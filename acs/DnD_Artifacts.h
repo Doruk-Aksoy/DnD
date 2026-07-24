@@ -33,4 +33,8 @@ str ArtifactInfo[MAXARTIFACTS][2] = {
 	{ "RADSICO",			"Radsuit_Portable"		}
 };
 
+Script "DnD Salvation Sphere Use" (void) {
+	SetResultValue(!InformationInLevel[LEVELINFO_ISDUNGEON]);
+}
+
 #endif

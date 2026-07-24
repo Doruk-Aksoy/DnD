@@ -1,8 +1,8 @@
 #ifndef DND_ORBDEF_IN
 #define DND_ORBDEF_IN
 
-#include "DnD_Common.h"
-#include "DnD_Ammo.h"
+#include "../DnD_Common.h"
+#include "../DnD_Ammo.h"
 
 #define DND_MAX_ORB_REROLL_ATTEMPTS 100
 #define DND_POTENCY_CHANCE 0.33

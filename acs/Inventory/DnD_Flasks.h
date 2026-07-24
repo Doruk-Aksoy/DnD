@@ -53,7 +53,6 @@ struct flaskData_T {
 	int effect_increase;			// overall effect increase
 };
 
-#define MAX_FLASK_SLOTS 2
 global flaskData_T 34: FlaskData[MAXPLAYERS][MAX_FLASK_SLOTS];
 
 void ResetFlask(int pnum, int i) {
@@ -89,19 +88,19 @@ bool IsUtilityFlask(int subtype) {
 	return subtype >= FLASK_UTILITY_BEGIN && subtype <= FLASK_UTILITY_END;
 }
 
-int GetFlaskChargeUseEffects(int pnum, inventory_T& flask) {
+int GetFlaskChargeUseEffects(int pnum, inventory_T? flask) {
 	int base = -GetFlaskAttributeVal(pnum, flask, INV_FLASK_REDUCEDCHARGEUSE);
 	base += GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
 	return base;
 }
 
-int GetFlaskRecoveryEffects(int pnum, inventory_T& flask) {
+int GetFlaskRecoveryEffects(int pnum, inventory_T? flask) {
 	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
 	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INSTANTONLOWLIFE);
 	return base;
 }
 
-int GetFlaskData(int pnum, inventory_T& flask, int flask_type, int data_type) {
+int GetFlaskData(int pnum, inventory_T? flask, int flask_type, int data_type) {
 	int res = 0;
 	int i;
 	int temp;
@@ -181,7 +180,7 @@ void UpdatePlayerFlaskData(int pnum, int flask_id, bool charLoad = false) {
 }
 
 // checks to see if this attribute exists on the flask, returns 0 if it doesn't
-int GetFlaskAttributeVal(int pnum, inventory_T& flask, int attrib_to_check) {
+int GetFlaskAttributeVal(int pnum, inventory_T? flask, int attrib_to_check) {
 	if(flask.item_type == DND_ITEM_FLASK) {
 		for(int i = 0; i < flask.attrib_count; ++i) {
 			if(flask.attributes[i].attrib_id == attrib_to_check)
@@ -191,7 +190,7 @@ int GetFlaskAttributeVal(int pnum, inventory_T& flask, int attrib_to_check) {
 	return 0;
 }
 
-int GetFlaskAttributeExtra(int pnum, inventory_T& flask, int attrib_to_check) {
+int GetFlaskAttributeExtra(int pnum, inventory_T? flask, int attrib_to_check) {
 	if(flask.item_type == DND_ITEM_FLASK) {
 		for(int i = 0; i < flask.attrib_count; ++i) {
 			if(flask.attributes[i].attrib_id == attrib_to_check)
@@ -420,7 +419,7 @@ bool CheckFlaskScriptConditions(int pnum) {
 	return !isAlive() || !PlayerInGame(pnum) || PlayerIsSpectator(pnum) || CheckInventory("DnD_IntermissionState");
 }
 
-int GetReducedFlaskEffectAmount(int pnum, inventory_T& flask) {
+int GetReducedFlaskEffectAmount(int pnum, inventory_T? flask) {
 	// this modifier has -25%
 	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
 	if(base)
@@ -428,19 +427,19 @@ int GetReducedFlaskEffectAmount(int pnum, inventory_T& flask) {
 	return base;
 }
 
-int GetFlaskDurationEffects(int pnum, inventory_T& flask) {
+int GetFlaskDurationEffects(int pnum, inventory_T? flask) {
 	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCDURATION);
 	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCEFFECT);
 	return base;
 }
 
-int GetFlaskEffectModifiers(int pnum, inventory_T& flask) {
+int GetFlaskEffectModifiers(int pnum, inventory_T? flask) {
 	int base = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCEFFECT);
 	base -= GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
 	return base;
 }
 
-void HandleCommonFlaskActivationEffects(int pnum, inventory_T& flask) {
+void HandleCommonFlaskActivationEffects(int pnum, inventory_T? flask) {
 	int tid = pnum + P_TIDSTART;
 	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_BLEED))
 		GiveActorInventory(tid, "RemoveBleed", 1);
@@ -454,7 +453,7 @@ void HandleCommonFlaskActivationEffects(int pnum, inventory_T& flask) {
 		GiveActorInventory(tid, "RemoveIgnite", 1);
 }
 
-void HandleFlaskBuffDispatch(int pnum, inventory_T& flask, int type, int duration) {
+void HandleFlaskBuffDispatch(int pnum, inventory_T? flask, int type, int duration) {
 	int this = ActivatorTID();
 
 	int temp = GetFlaskDurationEffects(pnum, flask);

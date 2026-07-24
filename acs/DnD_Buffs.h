@@ -203,8 +203,8 @@ void HandleBuffApplication(int pnum, int buff_type) {
 			// multiplicative here implies "less" movement speed, therefore if the positive value for example was 20% less speed, which would be 0.2 in the code, we'd really want 1.0 - 0.2 as the factor here
 			// which is 80% of your normal speed
 			if(buff_type != BUFF_STUN) {
-				if(!hasSlowImmunity || pbuffs[pnum].buff_net_values[BUFF_SPEED].additive > 0)
-					base = GetPlayerSpeed(pnum) + pbuffs[pnum].buff_net_values[BUFF_SPEED].additive;
+				if(!hasSlowImmunity || pbuffs[pnum].buff_net_values[BUFF_SPEED].additive + pbuffs[pnum].buff_net_values[BUFF_SUPERMOVESPEED].additive > 0)
+					base = GetPlayerSpeed(pnum) + pbuffs[pnum].buff_net_values[BUFF_SPEED].additive + pbuffs[pnum].buff_net_values[BUFF_SUPERMOVESPEED].additive;
 				else
 					base = GetPlayerSpeed(pnum);
 
@@ -218,7 +218,7 @@ void HandleBuffApplication(int pnum, int buff_type) {
 				}
 			}
 			else {
-				base = GetPlayerSpeed(pnum) + pbuffs[pnum].buff_net_values[BUFF_SPEED].additive;
+				base = GetPlayerSpeed(pnum) + pbuffs[pnum].buff_net_values[BUFF_SPEED].additive + pbuffs[pnum].buff_net_values[BUFF_SUPERMOVESPEED].additive;
 				if(pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative != 1.0) // default is 1.0 if theres none so nothing to worry about here
 					base = FixedMul(base, pbuffs[pnum].buff_net_values[BUFF_SPEED].multiplicative);
 			}

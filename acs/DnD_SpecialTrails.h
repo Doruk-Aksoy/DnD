@@ -87,7 +87,7 @@ void LineDraw(int actortype, int sx, int sy, int sz, int dx, int dy, int dz, int
 Script "DnD Overload Zap FX" (int source, int dest) CLIENTSIDE {
 	// first generate some points
 	int i;
-	int[]* points = bcs::malloc(SIZEOF_INT * LIGHTNING_ATTACK_POINTS);
+	int[]? points = bcs::arrNew(LIGHTNING_ATTACK_POINTS);
 	for(i = 0; i < LIGHTNING_ATTACK_POINTS; ++i)
 		points[i] = random(0, 1.0);
 	
@@ -144,7 +144,7 @@ Script "DnD Overload Zap FX" (int source, int dest) CLIENTSIDE {
 		pz = dz;
 		prevdisp = disp;
 	}
-	bcs::free(points);
+	bcs::arrDelete(points);
 	// last point
 	dx = GetActorX(dest);
 	dy = GetActorY(dest);

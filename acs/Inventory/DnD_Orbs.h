@@ -1,11 +1,10 @@
 #ifndef DND_ORBS_IN
 #define DND_ORBS_IN
 
-#include "DnD_Common.h"
-#include "DnD_Stat.h"
 #include "DnD_OrbDefs.h"
-#include "DnD_WeaponDefs.h"
-#include "DnD_Sync.h"
+#include "../DnD_Stat.h"
+#include "../DnD_WeaponDefs.h"
+#include "../DnD_Sync.h"
 
 #define MAX_ITER 200
 
@@ -71,11 +70,12 @@ int GetOrbDropWeight(int id) {
 bool CanAddModToItem(int pnum, int itemtype, int item_index, int add_lim) {
 	bool res = false;
 	if(IsUsableOnInventory(itemtype)) {
+		auto item = GetPlayerInventoryItem(pnum, item_index);
 		// this one depends on attribute counts of items it is used on
-		if(PlayerInventoryList[pnum][item_index].item_type > UNIQUE_BEGIN)
+		if(item.item_type > UNIQUE_BEGIN)
 			res = false;
 		else {
-			res = PlayerInventoryList[pnum][item_index].attrib_count < GetMaxItemAffixes(PlayerInventoryList[pnum][item_index].item_type, PlayerInventoryList[pnum][item_index].item_subtype) + add_lim;
+			res = item.attrib_count < GetMaxItemAffixes(item.item_type, item.item_subtype) + add_lim;
 		}
 	}
 	return res;
@@ -147,17 +147,18 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_SIN:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && IsFracturableItem(extratype)) {
 				// if there's a fractured mod or it's a unique, don't let
-				temp = PlayerInventoryList[pnum][extra].item_type;
+				auto item = GetPlayerInventoryItem(pnum, extra);
+				temp = item.item_type;
 
 				// unique case
 				res = temp < UNIQUE_BEGIN;
 
 				// mod count > half case
-				res = res && PlayerInventoryList[pnum][extra].attrib_count >= Max(2, 1 + GetMaxItemAffixes(temp, PlayerInventoryList[pnum][extra].item_subtype) / 2);
+				res = res && item.attrib_count >= Max(2, 1 + GetMaxItemAffixes(temp, item.item_subtype) / 2);
 
 				// fracture case
-				for(i = 0; res && i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
-					if(PlayerInventoryList[pnum][extra].attributes[i].fractured) {
+				for(i = 0; res && i < item.attrib_count; ++i) {
+					if(item.attributes[i].fractured) {
 						res = false;
 						break;
 					}
@@ -184,13 +185,13 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_EMBERS:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra) && extratype != DND_ITEM_FLASK) {
 				// don't let this be used on a unique
-				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
+				res = GlobalItemStorage.PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
 			}
 		break;
 		case DND_ORB_TURMOIL:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// don't let this be used on a unique
-				res = PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
+				res = GlobalItemStorage.PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN;
 			}
 		break;
 		case DND_ORB_REFINEMENT:
@@ -201,38 +202,42 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		case DND_ORB_NULLIFICATION:
 			if(IsUsableOnInventory(extratype) && !IsInventoryCorrupted(pnum, extra)) {
 				// don't let this be used on a unique
-				if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN)
+				item = GetPlayerInventoryItem(pnum, extra);
+				if(item.item_type > UNIQUE_BEGIN)
 					res = false;
 				else
-					res = PlayerInventoryList[pnum][extra].attrib_count - GetItemFracturedModCount(pnum, extra) > 0;
+					res = item.attrib_count - GetItemFracturedModCount(pnum, extra) > 0;
 			}
 		break;
 		case DND_ORB_ELEVATION:
 			res =  !IsInventoryCorrupted(pnum, extra) && CanAddModToItem(pnum, extratype, extra, 0);
 		break;
 		case DND_ORB_POTENCY:
-			if(!IsInventoryCorrupted(pnum, extra) && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN) {
-				temp = PlayerInventoryList[pnum][extra].attrib_count;
+			item = GetPlayerInventoryItem(pnum, extra);
+			if(!IsInventoryCorrupted(pnum, extra) && item.item_type < UNIQUE_BEGIN) {
+				temp = item.attrib_count;
 				res = false;
 				for(i = 0; i < temp; ++i) {
-					if(PlayerInventoryList[pnum][extra].attributes[i].fractured)
+					if(item.attributes[i].fractured)
 						continue;
 
-					if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier < MAX_CHARM_AFFIXTIERS)
+					if(item.attributes[i].attrib_tier < MAX_CHARM_AFFIXTIERS)
 						res = true;
 				}
 			}
 		break;
 		case DND_ORB_ALCHEMIST:
-			res = (extratype & 0xFFFF) == DND_ITEM_CHARM && PlayerInventoryList[pnum][extra].quality < GetItemMaxQuality(pnum, extra);
+			item = GetPlayerInventoryItem(pnum, extra);
+			res = (extratype & 0xFFFF) == DND_ITEM_CHARM && item.quality < GetItemMaxQuality(pnum, extra);
 
 			// check if item has cybernetic -- it shouldn't have it!
-			res &= !ItemIsCybernetic(pnum, extra, PlayerInventoryList[pnum][extra].attrib_count, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+			res &= !ItemIsCybernetic(pnum, extra, item.attrib_count, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			res &= !IsInventoryCorrupted(pnum, extra);
 		break;
 		case DND_ORB_EVOKER:
 			// won't work on uniques
-			res = PlayerInventoryList[pnum][extra].attrib_count > 0 && PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && IsEvokableItem(extratype);
+			item = GetPlayerInventoryItem(pnum, extra);
+			res = item.attrib_count > 0 && item.item_type < UNIQUE_BEGIN && IsEvokableItem(extratype);
 		break;
 
 		case DND_ORB_HOLLOW:
@@ -248,10 +253,11 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 			// extra is itemid1, extratype is itemid2
 			// we must have matching item types, so charm x charm, Y x Y etc.
 			// and we have at least an attribute on both to be taking
-			res = 	PlayerInventoryList[pnum][extra].item_type == PlayerInventoryList[pnum][extratype].item_type && 
-					PlayerInventoryList[pnum][extra].item_type < UNIQUE_BEGIN && PlayerInventoryList[pnum][extratype].item_type < UNIQUE_BEGIN &&
-					(PlayerInventoryList[pnum][extra].item_type != DND_ITEM_CHARM || (PlayerInventoryList[pnum][extra].item_subtype == PlayerInventoryList[pnum][extratype].item_subtype)) &&
-					(PlayerInventoryList[pnum][extra].attrib_count && PlayerInventoryList[pnum][extratype].attrib_count);
+			item = GetPlayerInventoryItem(pnum, extra);
+			res = 	item.item_type == GlobalItemStorage.PlayerInventoryList[pnum][extratype].item_type && 
+					item.item_type < UNIQUE_BEGIN && GlobalItemStorage.PlayerInventoryList[pnum][extratype].item_type < UNIQUE_BEGIN &&
+					(item.item_type != DND_ITEM_CHARM || (item.item_subtype == GlobalItemStorage.PlayerInventoryList[pnum][extratype].item_subtype)) &&
+					(item.attrib_count && GlobalItemStorage.PlayerInventoryList[pnum][extratype].attrib_count);
 		break;
 		case DND_ORB_REVERANCE:
 		case DND_ORB_DESTINY:
@@ -267,7 +273,8 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled) {
 	int i, temp, aff = GetAffluenceBonus();
 	bool finish = false;
-	int max_possible = GetMaxItemAffixes(PlayerInventoryList[pnum][item_index].item_type, PlayerInventoryList[pnum][item_index].item_subtype);
+	auto item = GetPlayerInventoryItem(pnum, item_index);
+	int max_possible = GetMaxItemAffixes(item.item_type, item.item_subtype);
 
 	// save
 	SaveUsedItemAttribs(pnum, item_index);
@@ -275,21 +282,21 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 	int special_roll = GetSpecialRollAttribute(pnum, item_index);
 
 	for(int s = 0; s < aff && !finish; ++s) {
-		i = PlayerInventoryList[pnum][item_index].attrib_count;
+		i = item.attrib_count;
 		// find an attribute that this item doesn't have
 		do {
 			temp = PickRandomAttribute(
-				PlayerInventoryList[pnum][item_index].item_type,
-				PlayerInventoryList[pnum][item_index].item_subtype, 
+				item.item_type,
+				item.item_subtype, 
 				special_roll, 
-				PlayerInventoryList[pnum][item_index].implicit[0].attrib_id,
+				item.implicit[0].attrib_id,
 				CheckInventory("OrderStored")
 			);
 		} while(CheckItemAttribute(pnum, item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
 		
 		// if not well rolled by default, run the chance (orbs may force it, but sometimes they may not)
 		AddAttributeToItem(pnum, item_index, temp, !isWellRolled ? CheckWellRolled(pnum) : isWellRolled);
-		finish = PlayerInventoryList[pnum][item_index].attrib_count >= max_possible + add_lim;
+		finish = item.attrib_count >= max_possible + add_lim;
 	}
 
 	if(CheckInventory("OrderStored"))
@@ -301,8 +308,8 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 
 // picks an item id from two weigted by their level x 10
 int PickWeightedFromTwoItems(int pnum, int item1, int item2) {
-	int lvl1 = PlayerInventoryList[pnum][item1].item_level * 10;
-	int lvl2 = PlayerInventoryList[pnum][item2].item_level * 10;
+	int lvl1 = GlobalItemStorage.PlayerInventoryList[pnum][item1].item_level * 10;
+	int lvl2 = GlobalItemStorage.PlayerInventoryList[pnum][item2].item_level * 10;
 
 	if(lvl1 == lvl2)
 		return random(0, 1) ? item1 : item2;
@@ -316,58 +323,62 @@ int PickWeightedFromTwoItems(int pnum, int item1, int item2) {
 }
 
 void SaveUsedItemAttribs(int pnum, int item_id) {
+	auto item = GetPlayerInventoryItem(pnum, item_id);
 	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
-	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].attrib_count;
-	Player_MostRecent_Orb[pnum].values[1] = PlayerInventoryList[pnum][item_id].item_level;
+	Player_MostRecent_Orb[pnum].values[0] = item.attrib_count;
+	Player_MostRecent_Orb[pnum].values[1] = item.item_level;
 
 	for(int i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_id;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_val;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_tier;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5] = PlayerInventoryList[pnum][item_id].attributes[i].attrib_extra;
-		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 6] = PlayerInventoryList[pnum][item_id].attributes[i].fractured;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2] = item.attributes[i].attrib_id;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3] = item.attributes[i].attrib_val;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4] = item.attributes[i].attrib_tier;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5] = item.attributes[i].attrib_extra;
+		Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 6] = item.attributes[i].fractured;
 	}
 }
 
 void SaveUsedItemQuality(int pnum, int item_id) {
 	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
-	Player_MostRecent_Orb[pnum].values[0] = PlayerInventoryList[pnum][item_id].quality;
+	Player_MostRecent_Orb[pnum].values[0] = GlobalItemStorage.PlayerInventoryList[pnum][item_id].quality;
 }
 
 void SaveUsedItemImplicit(int pnum, int item_id) {
+	auto item = GetPlayerInventoryItem(pnum, item_id);
 	Player_MostRecent_Orb[pnum].p_tempwep = item_id + 1;
 
 	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_id;
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_val;
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_tier;
-		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3] = PlayerInventoryList[pnum][item_id].implicit[i].attrib_extra;
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i] = item.implicit[i].attrib_id;
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1] = item.implicit[i].attrib_val;
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2] = item.implicit[i].attrib_tier;
+		Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3] = item.implicit[i].attrib_extra;
 	}
 }
 
 void RestoreItemAttribsFromUsedOrb(int pnum) {
 	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
-	PlayerInventoryList[pnum][temp].attrib_count = Player_MostRecent_Orb[pnum].values[0];
-	PlayerInventoryList[pnum][temp].item_level = Player_MostRecent_Orb[pnum].values[1];
+	auto item = GetPlayerInventoryItem(pnum, temp);
+	item.attrib_count = Player_MostRecent_Orb[pnum].values[0];
+	item.item_level = Player_MostRecent_Orb[pnum].values[1];
 	
 	for(int i = 0; i < Player_MostRecent_Orb[pnum].values[0]; ++i) {
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_id = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_val = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_tier = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4];
-		PlayerInventoryList[pnum][temp].attributes[i].attrib_extra = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5];
-		PlayerInventoryList[pnum][temp].attributes[i].fractured = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 6];
+		item.attributes[i].attrib_id = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 2];
+		item.attributes[i].attrib_val = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 3];
+		item.attributes[i].attrib_tier = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 4];
+		item.attributes[i].attrib_extra = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 5];
+		item.attributes[i].fractured = Player_MostRecent_Orb[pnum].values[ATTRIB_DATA_COUNT * i + 6];
 	}
 	SyncItemAttributes(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
 void RestoreItemImplicitsFromUsedOrb(int pnum) {
 	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
+	auto item = GetPlayerInventoryItem(pnum, temp);
 
 	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		PlayerInventoryList[pnum][temp].implicit[i].attrib_id = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i];
-		PlayerInventoryList[pnum][temp].implicit[i].attrib_val = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1];
-		PlayerInventoryList[pnum][temp].implicit[i].attrib_tier = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2];
-		PlayerInventoryList[pnum][temp].implicit[i].attrib_extra = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3];
+		item.implicit[i].attrib_id = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i];
+		item.implicit[i].attrib_val = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 1];
+		item.implicit[i].attrib_tier = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 2];
+		item.implicit[i].attrib_extra = Player_MostRecent_Orb[pnum].values[IMPLICIT_DATA_COUNT * i + 3];
 	}
 
 	SyncItemImplicits(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -375,14 +386,23 @@ void RestoreItemImplicitsFromUsedOrb(int pnum) {
 
 void RestoreItemQualityFromUsedOrb(int pnum) {
 	int temp = Player_MostRecent_Orb[pnum].p_tempwep - 1;
-	PlayerInventoryList[pnum][temp].quality = Player_MostRecent_Orb[pnum].values[0];
+	GlobalItemStorage.PlayerInventoryList[pnum][temp].quality = Player_MostRecent_Orb[pnum].values[0];
 	SyncItemQuality(pnum, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
 
 void HandleTaggedModGive(int pnum, int extra, int tag, int affluence, bool well_rolled = false) {
+	// little exception handling, as these aren't very dense in tags yet
+	if(GlobalItemStorage.PlayerInventoryList[pnum][extra].item_type == DND_ITEM_DUNGEONKEY) {
+		SaveUsedItemAttribs(pnum, extra);
+		ReforgeItem(pnum, extra);
+		SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+		SetInventory("OrbResult", extra);
+		return;
+	}
+
 	if(!CheckInventory("OrderUsed")) {
 		SaveUsedItemAttribs(pnum, extra);
-					
+
 		ReforgeWithOneTagGuaranteed(pnum, extra, tag, affluence, well_rolled);
 		
 		SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -457,7 +477,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				2. Reforge item completely (25% chance)
 				3. Add or replace existing implicit with a corruption implicit (25% chance)
 			*/
-			PlayerInventoryList[pnum][extra].corrupted = true;
+			auto item = GetPlayerInventoryItem(pnum, extra);
+			item.corrupted = true;
 
 #ifdef ISDEBUGBUILD
 			temp = 1000;
@@ -472,7 +493,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			}
 			else if(temp <= 750 && !CheckInventory("DestinyUsed")) {
 				// if it was a unique item, destroy it
-				if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN) {
+				if(item.item_type > UNIQUE_BEGIN) {
 					FreeItem(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false);
 					GiveInventory("DnD_CleanCraftingRequest", 1);
 					GiveInventory("DnD_RefreshPane", 1);
@@ -531,25 +552,25 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_NULLIFICATION:
 			// save
 			SaveUsedItemAttribs(pnum, extra);
-			
-			for(s = 0; s < affluence && PlayerInventoryList[pnum][extra].attrib_count; ++s) {
+			item = GetPlayerInventoryItem(pnum, extra);
+			for(s = 0; s < affluence && item.attrib_count; ++s) {
 				// find the attribute with the lowest tier, in case of multiple, return a random one
 				res = 0;
 				temp = MAX_CHARM_AFFIXTIERS;
-				for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
+				for(i = 0; i < item.attrib_count; ++i) {
 					// ignore the fractured mods
-					if(PlayerInventoryList[pnum][extra].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id))
+					if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
 						continue;
 
-					if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier < temp) {
+					if(item.attributes[i].attrib_tier < temp) {
 						// we use res to hold the count of elements in this temporary array
 						// reset current count if we found a new minimum, then add it to our array
 
 						res = 0;
 						TempArray[TARR_ORB1][res++] = i;
-						temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_tier;
+						temp = item.attributes[i].attrib_tier;
 					}
-					else if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier == temp) // if equal to current min, store it
+					else if(item.attributes[i].attrib_tier == temp) // if equal to current min, store it
 						TempArray[TARR_ORB1][res++] = i;
 				}
 
@@ -577,17 +598,18 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_SIN:
 			// save
 			SaveUsedItemAttribs(pnum, extra);
+			item = GetPlayerInventoryItem(pnum, extra);
 
 			// pick random attribute to fracture
 			// if order orb is used, attempt to pick attribute that matches tag -- maximum of 30 tries
 			temp = 0;
 			do {
-				s = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
-			} while(!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[s].attrib_id) || temp++ < DND_MAX_ORB_REROLL_ATTEMPTS);
+				s = random(0, item.attrib_count - 1);
+			} while(!CheckOrderOrb(item.attributes[s].attrib_id) || temp++ < DND_MAX_ORB_REROLL_ATTEMPTS);
 
 			SetInventory("OrderStored", 0);
 
-			PlayerInventoryList[pnum][extra].attributes[s].fractured = true;
+			item.attributes[s].fractured = true;
 		
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", extra);
@@ -601,55 +623,56 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_REFINEMENT:
 			// save
 			SaveUsedItemAttribs(pnum, extra);
+			item = GetPlayerInventoryItem(pnum, extra);
 				
 			s = affluence;
-			if(PlayerInventoryList[pnum][extra].item_type > UNIQUE_BEGIN) {
+			if(item.item_type > UNIQUE_BEGIN) {
 				// handle unique random roll case
-				temp = (PlayerInventoryList[pnum][extra].item_type >> UNIQUE_BITS) - 1;
+				temp = (item.item_type >> UNIQUE_BITS) - 1;
 				for(res = 0; res < s; ++res) {
-					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
+					for(i = 0; i < item.attrib_count; ++i) {
 						// if its not a regular attribute that can have tags we shouldn't consider
-						if(IsUniqueModRerollException(PlayerInventoryList[pnum][extra].attributes[i].attrib_id) || (PlayerInventoryList[pnum][extra].attributes[i].attrib_id <= LAST_INV_ATTRIBUTE && !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id)))
+						if(IsUniqueModRerollException(item.attributes[i].attrib_id) || (item.attributes[i].attrib_id <= LAST_INV_ATTRIBUTE && !CheckOrderOrb(item.attributes[i].attrib_id)))
 							continue;
 
-						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollUniqueAttributeValue(temp, i, CheckWellRolled(pnum));
-						if(PlayerInventoryList[pnum][extra].attributes[i].attrib_extra)
-							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = RollUniqueAttributeExtra(temp, i, CheckWellRolled(pnum));
+						item.attributes[i].attrib_val = RollUniqueAttributeValue(temp, i, CheckWellRolled(pnum));
+						if(item.attributes[i].attrib_extra)
+							item.attributes[i].attrib_extra = RollUniqueAttributeExtra(temp, i, CheckWellRolled(pnum));
 					}
 				}
 			}
 			else {
 				for(res = 0; res < s; ++res) {
-					for(i = 0; i < PlayerInventoryList[pnum][extra].attrib_count; ++i) {
+					for(i = 0; i < item.attrib_count; ++i) {
 						// ignore fractured mods
-						if(PlayerInventoryList[pnum][extra].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[i].attrib_id))
+						if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
 							continue;
 
-						temp = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+						temp = item.attributes[i].attrib_id;
 						x = CheckWellRolled(pnum);
-						PlayerInventoryList[pnum][extra].attributes[i].attrib_val = RollAttributeValue(
+						item.attributes[i].attrib_val = RollAttributeValue(
 							temp, 
-							PlayerInventoryList[pnum][extra].attributes[i].attrib_tier, 
+							item.attributes[i].attrib_tier, 
 							x,
-							PlayerInventoryList[pnum][extra].item_type,
-							PlayerInventoryList[pnum][extra].item_subtype
+							item.item_type,
+							item.item_subtype
 						);
 
 						if(CanRerollAttributeExtra(temp)) {
-							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = GetExtraForMod(
-								pnum, temp, PlayerInventoryList[pnum][extra].attributes[i].attrib_tier,
-								PlayerInventoryList[pnum][extra].item_type,
-								PlayerInventoryList[pnum][extra].item_subtype,
+							item.attributes[i].attrib_extra = GetExtraForMod(
+								pnum, temp, item.attributes[i].attrib_tier,
+								item.item_type,
+								item.item_subtype,
 								x,
-								PlayerInventoryList[pnum][extra].attributes[i].attrib_val
+								item.attributes[i].attrib_val
 							);
 						}
-						else if(PlayerInventoryList[pnum][extra].item_type == DND_ITEM_DUNGEONKEY) {
-							PlayerInventoryList[pnum][extra].attributes[i].attrib_extra = (PlayerInventoryList[pnum][extra].attributes[i].attrib_extra & 0xFFFF) |
+						else if(item.item_type == DND_ITEM_DUNGEONKEY) {
+							item.attributes[i].attrib_extra = (item.attributes[i].attrib_extra & 0xFFFF) |
 								RollDungeonAttributeExtra(
-									(PlayerInventoryList[pnum][extra].attributes[i].attrib_extra & 0xFFFF), 
+									(item.attributes[i].attrib_extra & 0xFFFF), 
 									temp, 
-									PlayerInventoryList[pnum][extra].attributes[i].attrib_tier, 
+									item.attributes[i].attrib_tier, 
 									x
 								) << 16;
 						}
@@ -665,16 +688,17 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_SCULPTING:
 			// save
 			SaveUsedItemAttribs(pnum, extra);
+			item = GetPlayerInventoryItem(pnum, extra);
 			
 			temp = 0;
-			for(s = 0; s < affluence && PlayerInventoryList[pnum][extra].attrib_count; ++s) {
+			for(s = 0; s < affluence && item.attrib_count; ++s) {
 				// reroll if fractured
 				do {
-					res = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
-				} while(!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[res].attrib_id) || (temp++ < DND_MAX_ORB_REROLL_ATTEMPTS && PlayerInventoryList[pnum][extra].attributes[res].fractured));
+					res = random(0, item.attrib_count - 1);
+				} while(!CheckOrderOrb(item.attributes[res].attrib_id) || (temp++ < DND_MAX_ORB_REROLL_ATTEMPTS && item.attributes[res].fractured));
 				
 				// just to be safe
-				if(!PlayerInventoryList[pnum][extra].attributes[res].fractured)
+				if(!item.attributes[res].fractured)
 					RemoveAttributeFromItem(pnum, extra, res);
 			}
 
@@ -711,35 +735,36 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			x = prev;
 			// save
 			SaveUsedItemAttribs(pnum, extra);
+			item = GetPlayerInventoryItem(pnum, extra);
 			for(i = 0; i < affluence; ++i) {
 				if(RunLuckBasedChance(pnum, DND_POTENCY_CHANCE) || CheckInventory("DestinyUsed")) {
 					// failsafe, if it tried it 100 times there's a really good chance the item now has perfect tiers... don't bother
 					s = 0;
 				
 					do {
-						temp = random(0, PlayerInventoryList[pnum][extra].attrib_count - 1);
+						temp = random(0, item.attrib_count - 1);
 					} while(
-						!CheckOrderOrb(PlayerInventoryList[pnum][extra].attributes[temp].attrib_id) ||
+						!CheckOrderOrb(item.attributes[temp].attrib_id) ||
 						(
 							s++ < DND_MAX_ORB_REROLL_ATTEMPTS && 
-							(PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || PlayerInventoryList[pnum][extra].attributes[temp].fractured)
+							(item.attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || item.attributes[temp].fractured)
 						)
 					);
 					
 					// increment the tier and reroll that attribute!
-					if(!PlayerInventoryList[pnum][extra].attributes[temp].fractured && PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier < MAX_CHARM_AFFIXTIERS) {
-						++PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier;
-						PlayerInventoryList[pnum][extra].attributes[temp].attrib_val = RollAttributeValue(
-							PlayerInventoryList[pnum][extra].attributes[temp].attrib_id, 
-							PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier,
+					if(!item.attributes[temp].fractured && item.attributes[temp].attrib_tier < MAX_CHARM_AFFIXTIERS) {
+						++item.attributes[temp].attrib_tier;
+						item.attributes[temp].attrib_val = RollAttributeValue(
+							item.attributes[temp].attrib_id, 
+							item.attributes[temp].attrib_tier,
 							false, 
-							PlayerInventoryList[pnum][extra].item_type, 
-							PlayerInventoryList[pnum][extra].item_subtype
+							item.item_type, 
+							item.item_subtype
 						);
 						++res;
 
-						if(PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier > prev)
-							prev = PlayerInventoryList[pnum][extra].attributes[temp].attrib_tier;
+						if(item.attributes[temp].attrib_tier > prev)
+							prev = item.attributes[temp].attrib_tier;
 					}
 				}
 			}
@@ -749,12 +774,12 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// check how many ilvls this should jump now -- only if the item tier itself is higher than the allowed item level range, so low tiers increasing on level 50 don't cause this bump
 			// this rounds it up, so getting tier 5 on ilvl 48 for example would check vs 50 > 48 + 5 / 10 = 5 * 10 = 50, and it's okay that way
 			temp = prev - x;
-			if(temp > 0 && prev * MAX_CHARM_AFFIXTIERS > ((PlayerInventoryList[pnum][extra].item_level + 5) / MAX_CHARM_AFFIXTIERS) * MAX_CHARM_AFFIXTIERS) {
+			if(temp > 0 && prev * MAX_CHARM_AFFIXTIERS > ((item.item_level + 5) / MAX_CHARM_AFFIXTIERS) * MAX_CHARM_AFFIXTIERS) {
 				// clear difference here, so adjust ilvl accordingly by +6-10 ilvls
 				for(s = 0; s < temp; ++s)
-					PlayerInventoryList[pnum][extra].item_level += random(3 * MAX_CHARM_AFFIXTIERS / 5, MAX_CHARM_AFFIXTIERS);
-				if(PlayerInventoryList[pnum][extra].item_level > MAX_ITEM_LEVEL)
-					PlayerInventoryList[pnum][extra].item_level = MAX_ITEM_LEVEL;
+					item.item_level += random(3 * MAX_CHARM_AFFIXTIERS / 5, MAX_CHARM_AFFIXTIERS);
+				if(item.item_level > MAX_ITEM_LEVEL)
+					item.item_level = MAX_ITEM_LEVEL;
 			}
 
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
@@ -772,11 +797,13 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_ALCHEMIST:
 			// save
 			SaveUsedItemAttribs(pnum, extra);
+			item = GetPlayerInventoryItem(pnum, extra);
 
-			PlayerInventoryList[pnum][extra].quality += affluence * random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
+			affluence *= random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
+			item.quality += affluence;
 			prev = GetItemMaxQuality(pnum, extra);
-			if(PlayerInventoryList[pnum][extra].quality > prev || CheckInventory("ReveranceUsed")) {
-				PlayerInventoryList[pnum][extra].quality = prev;
+			if(item.quality > prev || CheckInventory("ReveranceUsed")) {
+				item.quality = prev;
 				overrideValue = CheckInventory("ReveranceUsed") * prev;
 			}
 			
@@ -788,15 +815,16 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// if it returns a tag we don't have currently, return a random orb
 			prev = -1;
 			s = 0;
-			temp = PlayerInventoryList[pnum][extra].attrib_count;
+			item = GetPlayerInventoryItem(pnum, extra);
+			temp = item.attrib_count;
 			for(i = 0; i < temp; ++i) {
-				if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier > prev) {
-					prev = PlayerInventoryList[pnum][extra].attributes[i].attrib_tier;
+				if(item.attributes[i].attrib_tier > prev) {
+					prev = item.attributes[i].attrib_tier;
 					s = 0;
-					TempArray[TARR_ORB1][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+					TempArray[TARR_ORB1][s++] = item.attributes[i].attrib_id;
 				}
-				else if(PlayerInventoryList[pnum][extra].attributes[i].attrib_tier == prev)
-					TempArray[TARR_ORB1][s++] = PlayerInventoryList[pnum][extra].attributes[i].attrib_id;
+				else if(item.attributes[i].attrib_tier == prev)
+					TempArray[TARR_ORB1][s++] = item.attributes[i].attrib_id;
 			}
 
 			// now we have a list of the highest attributes, pick one random
@@ -890,11 +918,12 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			// we determine when to stop, we either stop until max affixes or we have minimum of both attrib counts total
 			// make the latter count unique attributes on both combined, not just total attribute count of both
 			// for that we assume base count on item 1, then we check item 2 for non-occuring attributes
-			temp = PlayerInventoryList[pnum][extra].attrib_count;
-			for(i = 0; i < PlayerInventoryList[pnum][extra2].attrib_count; ++i) {
+			item = GetPlayerInventoryItem(pnum, extra);
+			temp = item.attrib_count;
+			for(i = 0; i < GlobalItemStorage.PlayerInventoryList[pnum][extra2].attrib_count; ++i) {
 				fail_pick = false;
-				for(s = 0; s < PlayerInventoryList[pnum][extra].attrib_count; ++s) {
-					if(PlayerInventoryList[pnum][extra2].attributes[i].attrib_id == PlayerInventoryList[pnum][extra].attributes[s].attrib_id) {
+				for(s = 0; s < item.attrib_count; ++s) {
+					if(GlobalItemStorage.PlayerInventoryList[pnum][extra2].attributes[i].attrib_id == item.attributes[s].attrib_id) {
 						fail_pick = true;
 						break;
 					}
@@ -904,7 +933,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			
 			// will pick anywhere from half of max affix count of a charm to max affix count + 1
 			// if we don't have at least half of affix count of item on total sum of mods, we'll pick between 1 and the sum instead
-			x = GetMaxItemAffixes(PlayerInventoryList[pnum][extra2].item_type, PlayerInventoryList[pnum][extra2].item_subtype);
+			x = GetMaxItemAffixes(GlobalItemStorage.PlayerInventoryList[pnum][extra2].item_type, GlobalItemStorage.PlayerInventoryList[pnum][extra2].item_subtype);
 			if(temp < x / 2)
 				s = random(1, temp);
 			else
@@ -925,15 +954,16 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 					// pick a random attribute from it
 					// confirm this is a real attribute and the charm isn't devoid of any attributes
 					res = PickWeightedFromTwoItems(pnum, extra, extra2);
+					item = GetPlayerInventoryItem(pnum, res);
 
-					if(!PlayerInventoryList[pnum][res].attrib_count)
+					if(!item.attrib_count)
 						continue;
 
-					prev = random(0, PlayerInventoryList[pnum][res].attrib_count - 1);
+					prev = random(0, item.attrib_count - 1);
 					//log(s:"picked ", d: res, s:" from: ", d:extra, s: " - ", d:extra2, s: "\nmod: ", d:picked_mod);
 					
 					// set this to be the actual attribute now instead of just an index in the item itself
-					picked_mod = PlayerInventoryList[pnum][res].attributes[prev].attrib_id;
+					picked_mod = item.attributes[prev].attrib_id;
 					
 					// if its not in our array add it to it
 					for(i = 0; i < MAX_ITEM_ATTRIBUTES && TempArray[TARR_ORB2][i * ATTRIB_DATA_COUNT] != -1; ++i) {
@@ -947,11 +977,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				} while(fail_pick && affluence != MAX_ITER);
 
 				// confirmed addable attribute
-				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT] = PlayerInventoryList[pnum][res].attributes[prev].attrib_id;
-				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 1] = PlayerInventoryList[pnum][res].attributes[prev].attrib_val;
-				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 2] = PlayerInventoryList[pnum][res].attributes[prev].attrib_tier;
-				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 3] = PlayerInventoryList[pnum][res].attributes[prev].attrib_extra;
-				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 4] = PlayerInventoryList[pnum][res].attributes[prev].fractured;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT] = item.attributes[prev].attrib_id;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 1] = item.attributes[prev].attrib_val;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 2] = item.attributes[prev].attrib_tier;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 3] = item.attributes[prev].attrib_extra;
+				TempArray[TARR_ORB2][temp * ATTRIB_DATA_COUNT + 4] = item.attributes[prev].fractured;
 
 				++temp;
 			} while(temp < s);
@@ -984,7 +1014,7 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 			SetInventory("OrderStored", 0);
 			
-			SyncItemData(pnum, extra2, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, PlayerInventoryList[pnum][extra2].width, PlayerInventoryList[pnum][extra2].height);
+			SyncItemData(pnum, extra2, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, GlobalItemStorage.PlayerInventoryList[pnum][extra2].width, GlobalItemStorage.PlayerInventoryList[pnum][extra2].height);
 			GiveInventory("DnD_CleanCraftingRequest", 1);
 			GiveInventory("DnD_RefreshPane", 1);
 			SetInventory("OrbResult", 1);
@@ -1027,8 +1057,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 bool HasOrbsBesidesCalamity() {
 	int pn = PlayerNumber();
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(PlayerInventoryList[pn][i].item_type == DND_ITEM_ORB) {
-			if(PlayerInventoryList[pn][i].item_subtype == DND_ORB_CALAMITY || IsOrbDropException(PlayerInventoryList[pn][i].item_subtype))
+		auto item = GetPlayerInventoryItem(pn, i);
+		if(item.item_type == DND_ITEM_ORB) {
+			if(item.item_subtype == DND_ORB_CALAMITY || IsOrbDropException(item.item_subtype))
 				continue;
 			return true;
 		}
@@ -1039,7 +1070,8 @@ bool HasOrbsBesidesCalamity() {
 bool HasOrbOfType(int type) {
 	int pn = PlayerNumber();
 	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(PlayerInventoryList[pn][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pn][i].item_subtype == type)
+		auto item = GetPlayerInventoryItem(pn, i);
+		if(item.item_type == DND_ITEM_ORB && item.item_subtype == type)
 			return true;
 	}
 	return false;
@@ -1050,15 +1082,16 @@ int TakeOrbFromPlayer(int otype, int amt) {
 	int res = 0;
 	// search player inventory to take from first
 	for(i = 0; i < MAX_INVENTORY_BOXES && res < amt; ++i) {
-		if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == otype) {
-			if(PlayerInventoryList[pnum][i].item_stack > amt - res) {
+		auto item = GetPlayerInventoryItem(pnum, i);
+		if(item.item_type == DND_ITEM_ORB && item.item_subtype == otype) {
+			if(item.item_stack > amt - res) {
 				UsePlayerItem_Count(pnum, i, amt - res);
 				res += amt;
 			}
 			else { 
 				// use however many we are left to reach amt
-				res += PlayerInventoryList[pnum][i].item_stack;
-				UsePlayerItem_Count(pnum, i, PlayerInventoryList[pnum][i].item_stack);
+				res += item.item_stack;
+				UsePlayerItem_Count(pnum, i, item.item_stack);
 			}
 		}
 	}
@@ -1072,15 +1105,16 @@ int TakeOrbFromPlayer(int otype, int amt) {
 	// now check player stash if we couldn't find enough
 	for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages") && res < amt; ++i) {
 		for(j = 0; j < MAX_INVENTORY_BOXES && res < amt; ++j) {
-			if(PlayerStashList[pnum][i][j].item_type == DND_ITEM_ORB && PlayerStashList[pnum][i][j].item_subtype == otype) {
-				if(PlayerStashList[pnum][i][j].item_stack > amt - res) {
+			item = GetPlayerStashItem(pnum, i, j);
+			if(item.item_type == DND_ITEM_ORB && item.item_subtype == otype) {
+				if(item.item_stack > amt - res) {
 					UsePlayerStashItem_Count(pnum, i, j, amt - res);
 					res += amt;
 				}
 				else { 
 					// use however many we are left to reach amt
-					res += PlayerStashList[pnum][i][j].item_stack;
-					UsePlayerStashItem_Count(pnum, i, j, PlayerStashList[pnum][i][j].item_stack);
+					res += item.item_stack;
+					UsePlayerStashItem_Count(pnum, i, j, item.item_stack);
 				}
 			}
 		}
@@ -1094,8 +1128,9 @@ int CountOrbsOfTypeInventory(int pnum, int otype) {
 	int amt = 0, i;
 	// search player inventory to take from first
 	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
-		if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == otype)
-			amt += PlayerInventoryList[pnum][i].item_stack;
+		auto item = GetPlayerInventoryItem(pnum, i);
+		if(item.item_type == DND_ITEM_ORB && item.item_subtype == otype)
+			amt += item.item_stack;
 	}
 	return amt;
 }
@@ -1106,15 +1141,16 @@ int TakeOrbFromPlayer_NoStash(int pnum, int otype, int amt) {
 	int res = 0;
 	// search player inventory to take from first
 	for(i = 0; i < MAX_INVENTORY_BOXES && res < amt; ++i) {
-		if(PlayerInventoryList[pnum][i].item_type == DND_ITEM_ORB && PlayerInventoryList[pnum][i].item_subtype == otype) {
-			if(PlayerInventoryList[pnum][i].item_stack > amt - res) {
+		auto item = GetPlayerInventoryItem(pnum, i);
+		if(item.item_type == DND_ITEM_ORB && item.item_subtype == otype) {
+			if(item.item_stack > amt - res) {
 				UsePlayerItem_Count(pnum, i, amt - res);
 				res += amt;
 			}
 			else { 
 				// use however many we are left to reach amt
-				res += PlayerInventoryList[pnum][i].item_stack;
-				UsePlayerItem_Count(pnum, i, PlayerInventoryList[pnum][i].item_stack);
+				res += item.item_stack;
+				UsePlayerItem_Count(pnum, i, item.item_stack);
 			}
 		}
 	}
@@ -1132,38 +1168,39 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 	i = GetFreeSpotForSingleSpotItem(pnum, DND_ITEM_ORB, otype);
 	if(i != -1) {
 		j = GetStackValue(DND_ITEM_ORB);
-		if(PlayerInventoryList[pnum][i].item_type != DND_ITEM_NULL) {
+		auto item = GetPlayerInventoryItem(pnum, i);
+		if(item.item_type != DND_ITEM_NULL) {
 			// we can add to this item's stack
-			if(amt - res < j - PlayerInventoryList[pnum][i].item_stack) {
-				PlayerInventoryList[pnum][i].item_stack += amt - res;
+			if(amt - res < j - item.item_stack) {
+				item.item_stack += amt - res;
 				res = amt;
 			}
 			else {
 				// difference is added
-				res += j - PlayerInventoryList[pnum][i].item_stack;
-				PlayerInventoryList[pnum][i].item_stack = j;
+				res += j - item.item_stack;
+				item.item_stack = j;
 			}
 			SyncItemStack(pnum, i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 		}
 		else {
 			// implant this item here, and add as many stacks as we can to this
-			PlayerInventoryList[pnum][i].item_level = 1;
-			PlayerInventoryList[pnum][i].item_type = DND_ITEM_ORB;
-			PlayerInventoryList[pnum][i].item_subtype = otype;
-			PlayerInventoryList[pnum][i].width = 1;
-			PlayerInventoryList[pnum][i].height = 1;
-			PlayerInventoryList[pnum][i].attrib_count = 0;
-			PlayerInventoryList[pnum][i].item_image = GetOrbItemImage(otype);
-			PlayerInventoryList[pnum][i].topleftboxid = i + 1;
+			item.item_level = 1;
+			item.item_type = DND_ITEM_ORB;
+			item.item_subtype = otype;
+			item.width = 1;
+			item.height = 1;
+			item.attrib_count = 0;
+			item.item_image = GetOrbItemImage(otype);
+			item.topleftboxid = i + 1;
 
-			if(amt - res < j - PlayerInventoryList[pnum][i].item_stack) {
-				PlayerInventoryList[pnum][i].item_stack += amt - res;
+			if(amt - res < j - item.item_stack) {
+				item.item_stack += amt - res;
 				res = amt;
 			}
 			else {
 				// difference is added
-				res += j - PlayerInventoryList[pnum][i].item_stack;
-				PlayerInventoryList[pnum][i].item_stack = j;
+				res += j - item.item_stack;
+				item.item_stack = j;
 			}
 			SyncItemData(pnum, i, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 1, 1);
 		}
@@ -1173,35 +1210,36 @@ void GiveOrbToPlayer(int pnum, int otype, int amt) {
 		// no space or need more? try stash
 		for(i = 0; i < CheckInventory("DnD_PlayerInventoryPages") && res < amt; ++i) {
 			for(j = 0; j < MAX_INVENTORY_BOXES && res < amt; ++j) {
-				if(PlayerStashList[pnum][i][j].item_type == DND_ITEM_NULL) {
+				item = GetPlayerStashItem(pnum, i, j);
+				if(item.item_type == DND_ITEM_NULL) {
 					// implant item here with remaining stacks
-					PlayerStashList[pnum][i][j].item_level = 1;
-					PlayerStashList[pnum][i][j].item_type = DND_ITEM_ORB;
-					PlayerStashList[pnum][i][j].item_subtype = otype;
-					PlayerStashList[pnum][i][j].width = 1;
-					PlayerStashList[pnum][i][j].height = 1;
-					PlayerStashList[pnum][i][j].attrib_count = 0;
-					PlayerStashList[pnum][i][j].item_image = GetOrbItemImage(otype);
-					PlayerStashList[pnum][i][j].topleftboxid = j + 1;
+					item.item_level = 1;
+					item.item_type = DND_ITEM_ORB;
+					item.item_subtype = otype;
+					item.width = 1;
+					item.height = 1;
+					item.attrib_count = 0;
+					item.item_image = GetOrbItemImage(otype);
+					item.topleftboxid = j + 1;
 					
-					if(amt - res < GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack) {
-						PlayerStashList[pnum][i][j].item_stack += amt - res;
+					if(amt - res < GetStackValue(DND_ITEM_ORB) - item.item_stack) {
+						item.item_stack += amt - res;
 						res = amt;
 					}
 					else {
-						res += GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack;
-						PlayerStashList[pnum][i][j].item_stack = GetStackValue(DND_ITEM_ORB);
+						res += GetStackValue(DND_ITEM_ORB) - item.item_stack;
+						item.item_stack = GetStackValue(DND_ITEM_ORB);
 					}
 					SyncItemData(pnum, j, DND_SYNC_ITEMSOURCE_STASH | (i << 16), 1, 1);
 				}
-				else if(PlayerStashList[pnum][i][j].item_type == DND_ITEM_ORB && PlayerStashList[pnum][i][j].item_subtype == otype) {
-					if(amt - res < GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack) {
-						PlayerStashList[pnum][i][j].item_stack += amt - res;
+				else if(item.item_type == DND_ITEM_ORB && item.item_subtype == otype) {
+					if(amt - res < GetStackValue(DND_ITEM_ORB) - item.item_stack) {
+						item.item_stack += amt - res;
 						res = amt;
 					}
 					else {
-						res += GetStackValue(DND_ITEM_ORB) - PlayerStashList[pnum][i][j].item_stack;
-						PlayerStashList[pnum][i][j].item_stack = GetStackValue(DND_ITEM_ORB);
+						res += GetStackValue(DND_ITEM_ORB) - item.item_stack;
+						item.item_stack = GetStackValue(DND_ITEM_ORB);
 					}
 					SyncItemStack(pnum, j, DND_SYNC_ITEMSOURCE_STASH | (i << 16));
 				}
@@ -1619,15 +1657,16 @@ int GetOrbItemImage(int orbtype) {
 
 void RollOrbInfo(int item_pos, int orbtype, int stack = 1) {
 	// roll random attributes for the charm
-	Inventories_On_Field[item_pos].item_level = 1;
-	Inventories_On_Field[item_pos].item_stack = stack; // orbs have default stack of 1
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_ORB;
-	Inventories_On_Field[item_pos].item_subtype = orbtype;
-	Inventories_On_Field[item_pos].width = 1;
-	Inventories_On_Field[item_pos].height = 1;
-	Inventories_On_Field[item_pos].attrib_count = 0;
+	auto item = GetFieldItem(item_pos);
+	item.item_level = 1;
+	item.item_stack = stack; // orbs have default stack of 1
+	item.item_type = DND_ITEM_ORB;
+	item.item_subtype = orbtype;
+	item.width = 1;
+	item.height = 1;
+	item.attrib_count = 0;
 
-	Inventories_On_Field[item_pos].item_image = GetOrbItemImage(orbtype);
+	item.item_image = GetOrbItemImage(orbtype);
 }
 
 Script "DnD Give Orb Delayed" (int type, int amt) {
@@ -1691,7 +1730,7 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		case DND_ORB_EMBERS:
 			// if order isn't used, then we mark everything as its a direct reforge
 			if(!CheckInventory("OrderUsed")) {
-				hovered_orb_craft_result.count = PlayerInventoryList[pnum][item_pos].attrib_count;
+				hovered_orb_craft_result.count = GlobalItemStorage.PlayerInventoryList[pnum][item_pos].attrib_count;
 				for(i = 0; i < hovered_orb_craft_result.count; ++i)
 					hovered_orb_craft_result.id_list[i] = i;
 				hovered_orb_craft_result.effect_type = DND_ORBEFFECT_WHOLE;
@@ -1700,8 +1739,9 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 
 		// other orbs that do a certain effect based on conditions including order orb
 		case DND_ORB_TURMOIL:
-			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
-				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+			auto item = GetPlayerInventoryItem(pnum, item_pos);
+			for(i = 0; i < item.attrib_count; ++i) {
+				if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
 					continue;
 				hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
 			}
@@ -1709,8 +1749,9 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		break;
 
 		case DND_ORB_SCULPTING:
-			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
-				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+			item = GetPlayerInventoryItem(pnum, item_pos);
+			for(i = 0; i < item.attrib_count; ++i) {
+				if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
 					continue;
 				hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
 			}
@@ -1725,8 +1766,9 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		case DND_ORB_REFINEMENT:
 		case DND_ORB_SIN:
 		case DND_ORB_POTENCY:
-			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
-				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+			item = GetPlayerInventoryItem(pnum, item_pos);
+			for(i = 0; i < item.attrib_count; ++i) {
+				if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
 					continue;
 				hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
 			}
@@ -1737,20 +1779,21 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 			// find the attribute with the lowest tier, in case of multiple, return a random one
 			hovered_orb_craft_result.count = 0;
 			temp = MAX_CHARM_AFFIXTIERS;
-			for(i = 0; i < PlayerInventoryList[pnum][item_pos].attrib_count; ++i) {
+			item = GetPlayerInventoryItem(pnum, item_pos);
+			for(i = 0; i < item.attrib_count; ++i) {
 				// ignore the fractured mods
-				if(PlayerInventoryList[pnum][item_pos].attributes[i].fractured || !CheckOrderOrb(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id))
+				if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
 					continue;
 
-				if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier < temp) {
+				if(item.attributes[i].attrib_tier < temp) {
 					// we use count to hold the count of elements in this temporary array
 					// reset current count if we found a new minimum, then add it to our array
 
 					hovered_orb_craft_result.count = 0;
 					hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
-					temp = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+					temp = item.attributes[i].attrib_tier;
 				}
-				else if(PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier == temp) // if equal to current min, store it
+				else if(item.attributes[i].attrib_tier == temp) // if equal to current min, store it
 					hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
 			}
 			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_WHOLE;

@@ -2,10 +2,10 @@
 #define DND_MENUTABLES_IN
 
 #include "DnD_MenuConstants.h"
-#include "DnD_Orbs.h"
-#include "DnD_EliteInfo.h"
-#include "DnD_ClassMenu.h"
-#include "DnD_Research.h"
+#include "../Inventory/DnD_Orbs.h"
+#include "../DnD_EliteInfo.h"
+#include "../DnD_ClassMenu.h"
+#include "../DnD_Research.h"
 
 typedef struct {
 	str text;
@@ -2246,7 +2246,7 @@ int SpecialAmmoFixWeapons[MAX_SPECIALAMMOFIX_WEAPONS][3] = {
 #define MAX_IMMUNITY_MODS 14
 #define IMMMODOFFSET (RESMODOFFSET + MAX_RESIST_MODS)
 
-#define MAX_AGGRESSIVE_MODS 18
+#define MAX_AGGRESSIVE_MODS 19
 #define AGGMODOFFSET (IMMMODOFFSET + MAX_IMMUNITY_MODS)
 
 #define MAX_DEFENSE_MODS 22

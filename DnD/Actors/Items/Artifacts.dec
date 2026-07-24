@@ -75,6 +75,9 @@ actor Salvationsphere : CustomInventory {
 			SALV ABCDE 3 Bright
 		loop
 		Use:
+			TNT1 A 0 A_JumpIf(CallACS("DnD Salvation Sphere Use"), "ContinueUse")
+		Stop
+		ContinueUse:
 			TNT1 A 0 ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100 + 50 * ACS_ExecuteWithResult(918, 2, 1), 1)
 			TNT1 A 0 A_GiveInventory("Salvate")
 			TNT1 A 0 A_GiveInventory("DnD_UseNoArtifact", 1)

@@ -4,7 +4,7 @@
 typedef struct {
     int bit_count;              // how many bits is the bitset responsible of (not size of the bits array in ints)
     int elem_count;             // how many int elements are in bits array
-    int[]* bits;
+    int[]? bits;
 } bitset_T;
 
 // given N amount of bits in size, create the array to accommodate that many bits with 32 bit ints, gives zero'd out memory

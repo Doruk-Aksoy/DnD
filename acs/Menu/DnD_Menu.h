@@ -823,10 +823,10 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					if(k == -1 && DungeonInformation.dungeon_id != -1)
 						k = DungeonInformation.dungeon_id;
 
+					SetHudClipRect(192, 112, 256, 400, 256);
+
 					if(k != -1)
 						HudMessage(s:GetDungeonMonsterTypeString(k); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 316.4, 128.1, 0.0, 0.0);
-
-					SetHudClipRect(192, 112, 256, 400, 256);
 
 					// mods affecting the dungeon
 					// show the synced attributes and the overall upsides here
@@ -854,7 +854,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 							toShow = StrParam(s:toShow, s:DungeonUpsideString(j, DungeonInformation.upside_vals[j]), s:"\n");
 					}
 
-					HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 316.4, 128.1 + (k != -1) * 16.0, 0.0, 0.0);
+					HudMessage(s:toShow; HUDMSG_PLAIN, RPGMENUITEMID - 4, CR_WHITE, 316.4, 128.1 + (k != -1) * 24.0, 0.0, 0.0);
 
 					SetHudClipRect(0, 0, 0, 0);
 				}

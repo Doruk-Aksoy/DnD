@@ -507,10 +507,44 @@ int GetPunisherTierRequirement(int tier, int cap = -1) {
 int GetPunisherTier() {
 	int comp = CheckInventory("Punisher_Perk50_Counter");
 	for(int i = 0; i < DND_MAX_PUNISHER_PERK50_TIERS; ++i) {
+		//printbold(s:"comp ", f:comp, s: " vs ", f:GetPunisherTierRequirement(i));
 		if(comp < GetPunisherTierRequirement(i))
 			return i;
 	}
 	return DND_MAX_PUNISHER_PERK50_TIERS;
+}
+
+Script "DnD Punisher Perk50 Display" (void) CLIENTSIDE {
+	if(PlayerNumber() != ConsolePlayerNumber())
+		Terminate;
+
+	while(!HasClassPerk_Fast("Punisher", 3)) {
+		if(!IsAlive())
+			Terminate;
+		Delay(const:TICRATE);
+	}
+
+	int tmp = 0;
+	int pnum = PlayerNumber();
+	while(IsAlive() && PlayerInGame(pnum)) {
+		SetFont("OBJFONT");
+		SetHudSize(900, 600, 1);
+		int x = (GetHudRight(900) << 16) - 5.8;
+		int curr_tier = CheckInventory("Punisher_Perk50_Tiers");
+		tmp = CheckInventory("Punisher_Perk50_Counter");
+		
+		HudMessage(l:"DND_CURRTIER", s:": \c[I7]", d:curr_tier, s:"\c- - \c[I7]", s:GetFixedRepresentation(CheckInventory("Punisher_Perk50_DamageBonus"), true), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
+		
+		int req = CheckInventory("Punisher_Perk50_NextReq");
+		if(curr_tier < DND_MAX_PUNISHER_PERK50_TIERS - 1)
+			HudMessage(l:"DND_OBTAIN", s:" \c[I7]", f:(req - tmp) & 0xFFFFF000, s:"\c- ", l:"DND_POINTS", s: " ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
+		else
+			HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
+		Delay(const:5);
+	}
+
+	HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
+	HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
 }
 
 void HandleShadowClone(int pnum, int victim, int shooter) {

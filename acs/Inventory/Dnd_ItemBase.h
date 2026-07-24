@@ -59,6 +59,7 @@ typedef struct {
     int allowed_tags;
     int excluded_tags;
 } itembase_tags_T;
+#define SIZEOF_ITEMBASE_TAGS (SIZEOF_INT * 2)
 
 // tagsets from item bases defined above -- these are used for mod pools
 itembase_tags_T module& GetItemBaseTags(int item_base) {

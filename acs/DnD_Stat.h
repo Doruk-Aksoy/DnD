@@ -1634,13 +1634,7 @@ int GetExplosiveRepeatChance(int pnum) {
 	int bonus = isMarine * DND_MARINE_EXP_REPEAT_CHANCE;
 	if(isMarine) {
 		isMarine = CheckActorInventory(tid, "PlayerHealthCap");
-		bonus += LinearMap(
-			Clamp_Between((((isMarine - GetActorProperty(tid, APROP_HEALTH)) * 100) / isMarine), 50, 100),
-			100,
-			50,
-			0,
-			75
-		);
+		bonus += Clamp_Between((((isMarine - GetActorProperty(tid, APROP_HEALTH)) * 150) / isMarine), 0, 75); // * 150 so 50% missing health can reach cap
 	}
 
 	return bonus + GetPlayerAttributeValue(pnum, INV_ESS_KRULL);

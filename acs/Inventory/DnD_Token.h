@@ -23,6 +23,8 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
     bool res = false;
     int pnum = PlayerNumber();
 
+    auto item = GetPlayerInventoryItem(pnum, item_id);
+
     switch(token_type) {
         case DND_TOKEN_ARMORER:
             if(item_type > UNIQUE_BEGIN)
@@ -30,7 +32,7 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
             res = (
                 item_type == DND_ITEM_BODYARMOR || item_type == DND_ITEM_BOOT || item_type == DND_ITEM_HELM || 
                 (item_type >= FIRST_SPECIALTY_ITEM_TYPE && item_type <= LAST_SPECIALTY_ITEM_TYPE)
-            ) && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
+            ) && item.quality < GetItemMaxQuality(pnum, item_id);
             res &= !IsInventoryCorrupted(pnum, item_id);
         break;
         case DND_TOKEN_GUNSMITH:
@@ -42,10 +44,10 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
             );
         break;
         case DND_TOKEN_ARTISAN:
-            res = item_type == DND_ITEM_FLASK && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
+            res = item_type == DND_ITEM_FLASK && item.quality < GetItemMaxQuality(pnum, item_id);
         break;
         case DND_TOKEN_CARTOGRAPHER:
-            res = item_type == DND_ITEM_DUNGEONKEY && PlayerInventoryList[pnum][item_id].quality < GetItemMaxQuality(pnum, item_id);
+            res = item_type == DND_ITEM_DUNGEONKEY && item.quality < GetItemMaxQuality(pnum, item_id);
         break;
     }
     return res;
@@ -53,20 +55,21 @@ bool CanUseToken(int token_type, int item_id, int item_type) {
 
 void RollTokenInfo(int item_pos, int token_type, bool onField, int stack = 1) {
 	// roll random attributes for the charm
-	Inventories_On_Field[item_pos].item_level = 1;
+    auto item = GetFieldItem(item_pos);
+	item.item_level = 1;
 	
 #ifdef ISDEBUGBUILD
-	Inventories_On_Field[item_pos].item_stack = 100;
+	item.item_stack = 100;
 #else
-	Inventories_On_Field[item_pos].item_stack = stack; // stackables have default stack of 1
+	item.item_stack = stack; // stackables have default stack of 1
 #endif
 
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_TOKEN;
-	Inventories_On_Field[item_pos].item_subtype = token_type;
-	Inventories_On_Field[item_pos].width = 1;
-	Inventories_On_Field[item_pos].height = 1;
-	Inventories_On_Field[item_pos].attrib_count = 0;
-	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_TOKEN_BEGIN + token_type;
+	item.item_type = DND_ITEM_TOKEN;
+	item.item_subtype = token_type;
+	item.width = 1;
+	item.height = 1;
+	item.attrib_count = 0;
+	item.item_image = ITEM_IMAGE_TOKEN_BEGIN + token_type;
 }
 
 // if we add more mods that can be directly applied through use of orbs on the weapon itself, modify here!
@@ -80,16 +83,19 @@ void ApplyGunsmithToken(int pnum, int wepid) {
 
 void HandleTokenUse(int pnum, int token_type, int item_id) {
     int temp;
+    auto item = GetPlayerInventoryItem(pnum, item_id);
+    int amt = 0;
     switch(token_type) {
         case DND_TOKEN_ARMORER:
         case DND_TOKEN_ARTISAN:
         case DND_TOKEN_CARTOGRAPHER:
 			// just increment quality
-			PlayerInventoryList[pnum][item_id].quality += random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
+            amt = random(QUALITY_ITEM_ADD_MIN, QUALITY_ITEM_ADD_MAX);
+			item.quality += amt;
             
             temp = GetItemMaxQuality(pnum, item_id);
-            if(PlayerInventoryList[pnum][item_id].quality > temp)
-                PlayerInventoryList[pnum][item_id].quality = temp;
+            if(item.quality > temp)
+                item.quality = temp;
 
 			SyncItemQuality(pnum, item_id, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
         break;
@@ -100,37 +106,37 @@ void HandleTokenUse(int pnum, int token_type, int item_id) {
 			SyncClientsideVariable_WeaponMods(pnum, item_id);
         break;
     }
-    ACS_NamedExecuteAlways("DND Token Use Message", 0, token_type, item_id);
+    ACS_NamedExecuteAlways("DND Token Use Message", 0, token_type, item_id, amt);
 }
 
-void HandleTokenUseMessage(int token_type, int item_id) {
+void HandleTokenUseMessage(int token_type, int item_id, int amt) {
     switch(token_type) {
         case DND_TOKEN_ARMORER:
-            Log(s:"\cj", l:"TOK_USE1");
+            Log(s:"\cj", l:"TOK_USE1", s:" \cd", d:amt, s:"%\c-.");
         break;
         case DND_TOKEN_GUNSMITH:
             Log(s:"\cj", l:"TOK_USE2", s:" \cv", l:GetWeaponTag(item_id), s:"\c-.");
         break;
         case DND_TOKEN_ARTISAN:
-            Log(s:"\cj", l:"TOK_USE3");
+            Log(s:"\cj", l:"TOK_USE3", s:" \cd", d:amt, s:"%\c-.");
         break;
         case DND_TOKEN_CARTOGRAPHER:
-            Log(s:"\cj", l:"TOK_USE4");
+            Log(s:"\cj", l:"TOK_USE4", s:" \cd", d:amt, s:"%\c-.");
         break;
     }
 }
 
-Script "DND Token Use" (int token_type, int item_id) {
+Script "DND Token Use" (int token_type, int item_id, int amt) {
 	int pnum = PlayerNumber();
 	HandleTokenUse(pnum, token_type, item_id);
 	LocalAmbientSound("Items/TokenPick", 127);
 	ACS_NamedExecuteAlways("DnD Force Damage Cache Recalculation", 0, pnum);
 }
 
-Script "DND Token Use Message" (int type, int result, int affluence) CLIENTSIDE {
+Script "DND Token Use Message" (int type, int result, int amt) CLIENTSIDE {
 	if(ConsolePlayerNumber() != PlayerNumber())
 		Terminate;
-	HandleTokenUseMessage(type, result);
+	HandleTokenUseMessage(type, result, amt);
 }
 
 #endif

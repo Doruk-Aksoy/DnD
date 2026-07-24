@@ -73,7 +73,7 @@ enum {
 #define DND_ARCANE_BUFF 35.0
 #define DND_DIAMOND_BUFF 0.7
 #define DND_SULPHUR_BUFF 0.4
-#define DND_QUICKSILVER_BUFF 0.2
+#define DND_QUICKSILVER_BUFF 0.33
 #define DND_QUARTZ_BUFF 0.2
 
 // by default assumes the source of buff to be activator of the script calling this, initiator may not always be activator of script

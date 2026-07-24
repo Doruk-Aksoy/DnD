@@ -2269,7 +2269,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	int base_speed = GetActorProperty(victim, APROP_SPEED);
 	
 	// revoke monster's extra fast flag if it has it
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HASTE])
 		GiveActorInventory(victim, "UnMakeFaster", 1);
 
 	if(HasClassPerk_Fast("Wanderer", 2))
@@ -2286,7 +2286,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	SetActorProperty(victim, APROP_SPEED, base_speed);
 	
 	// retain super fast property after chill ends
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_EXTRAFAST])
+	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HASTE])
 		GiveActorInventory(victim, "MakeFaster", 1);
 
 	if(HasClassPerk_Fast("Wanderer", 2))

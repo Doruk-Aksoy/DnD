@@ -1,7 +1,7 @@
 #ifndef DND_INVINFO_IN
 #define DND_INVINFO_IN
 
-#include "../DnD_OrbDefs.h"
+#include "DnD_OrbDefs.h"
 
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
@@ -190,6 +190,7 @@ typedef struct {
 	bool fractured;
 } attr_inf_T;
 #define ATTRIB_DATA_COUNT 5
+#define SIZEOF_ATTR_INF_T (SIZEOF_INT * 5)
 
 #define MAX_ITEM_IMPLICITS 3
 #define IMPLICIT_DATA_COUNT 4
@@ -214,6 +215,8 @@ typedef struct it {
 	int	item_base;									// holds item_base value for mod pool filtering
 	itembase_tags_T item_tags;						// holds the flags allowed/excluded for this item to be rolled
 } inventory_T;
+#define SIZEOF_INVENTORY_T (SIZEOF_INT * 12 + SIZEOF_ATTR_INF_T * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES) + SIZEOF_ITEMBASE_TAGS)
+#define INVENTORY_T_INTS (12 + ATTRIB_DATA_COUNT * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES) + 2)
 
 // visual sync type -- entirely to be used clientside
 typedef struct it_sync {

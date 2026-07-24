@@ -7,7 +7,7 @@
 #define DND_MERCHANT_ITEMSPERLVL 20
 
 #ifdef ISDEBUGBUILD
-	#define DND_MERCHANT_ITEMCHANCE 1.0
+	#define DND_MERCHANT_ITEMCHANCE 0.4
 #else
 	#define DND_MERCHANT_ITEMCHANCE 0.4
 #endif
@@ -41,7 +41,7 @@
 #define DND_MERCHANT_HIGHQUALITY 1.0
 
 #ifdef ISDEBUGBUILD
-	#define DND_MERCHANT_ITEMCORRUPTCHANCE 1.0
+	#define DND_MERCHANT_ITEMCORRUPTCHANCE 0.5
 #else
 	#define DND_MERCHANT_ITEMCORRUPTCHANCE 0.1 // 10% corrupted
 #endif
@@ -53,34 +53,37 @@
 #define DND_MERCHANT_UNIQUECHANCE 0.1 // 10% to offer uniques
 
 void ConstructUniqueOnMerchant(int item_pos, int unique_id) {
-	TradeViewList[MAXPLAYERS][item_pos].width = UniqueItemList[unique_id].width;
-	TradeViewList[MAXPLAYERS][item_pos].height = UniqueItemList[unique_id].height;
-	TradeViewList[MAXPLAYERS][item_pos].item_type = UniqueItemList[unique_id].item_type;
-	TradeViewList[MAXPLAYERS][item_pos].item_image = UniqueItemList[unique_id].item_image;
-	TradeViewList[MAXPLAYERS][item_pos].item_subtype = UniqueItemList[unique_id].item_subtype;
-	TradeViewList[MAXPLAYERS][item_pos].item_level = UniqueItemList[unique_id].item_level;
-	TradeViewList[MAXPLAYERS][item_pos].item_stack = UniqueItemList[unique_id].item_stack;
-	TradeViewList[MAXPLAYERS][item_pos].attrib_count = UniqueItemList[unique_id].attrib_count;
+	auto item = GetMerchantItem(item_pos);
+	item.width = UniqueItemList[unique_id].width;
+	item.height = UniqueItemList[unique_id].height;
+	item.item_type = UniqueItemList[unique_id].item_type;
+	item.item_image = UniqueItemList[unique_id].item_image;
+	item.item_subtype = UniqueItemList[unique_id].item_subtype;
+	item.item_level = UniqueItemList[unique_id].item_level;
+	item.item_stack = UniqueItemList[unique_id].item_stack;
+	item.attrib_count = UniqueItemList[unique_id].attrib_count;
 
 	// this can set images sometimes, so just moved item_image below here
-	SetupItemImplicit(item_pos, TradeViewList[MAXPLAYERS][item_pos].item_type & 0xFFFF, TradeViewList[MAXPLAYERS][item_pos].item_subtype, TradeViewList[MAXPLAYERS][item_pos].item_level, true);
+	SetupItemImplicit(item_pos, item.item_type & 0xFFFF, item.item_subtype, item.item_level, true);
 
-	TradeViewList[MAXPLAYERS][item_pos].corrupted = 0;
-	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+	item.corrupted = 0;
+	item.quality = 0;
 
-	for(int i = 0; i < TradeViewList[MAXPLAYERS][item_pos].attrib_count; ++i) {
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_tier = 0;
+	for(int i = 0; i < item.attrib_count; ++i) {
+		item.attributes[i].attrib_id = UniqueItemList[unique_id].attrib_id_list[i];
+		item.attributes[i].attrib_tier = 0;
 		
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_extra = random(UniqueItemList[unique_id].rolls[i].attrib_extra_low, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
+		item.attributes[i].attrib_val = random(UniqueItemList[unique_id].rolls[i].attrib_low, UniqueItemList[unique_id].rolls[i].attrib_high);
+		item.attributes[i].attrib_extra = random(UniqueItemList[unique_id].rolls[i].attrib_extra_low, UniqueItemList[unique_id].rolls[i].attrib_extra_high);
 	}
 }
 
 int PickUniqueItemMerchant(int item_pos) {
 	int i, beg, end, w = 0;
 
-	switch(TradeViewList[MAXPLAYERS][item_pos].item_type) {
+	auto item = GetMerchantItem(item_pos);
+
+	switch(item.item_type) {
 		case DND_ITEM_CHARM:
 			beg = UNIQUE_CHARM_BEGIN;
 			end = UNIQUE_CHARM_REGULARDROP_END; // rolonly until the regular drop
@@ -116,38 +119,39 @@ int PickUniqueItemMerchant(int item_pos) {
 }
 
 void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
+	auto item = GetMerchantItem(item_pos);
 	if(!max_affixes)
-		max_affixes = GetMaxItemAffixes(TradeViewList[MAXPLAYERS][item_pos].item_type, TradeViewList[MAXPLAYERS][item_pos].item_subtype);
-	if(TradeViewList[MAXPLAYERS][item_pos].attrib_count < max_affixes) {
-		int temp = TradeViewList[MAXPLAYERS][item_pos].attrib_count++;
-		int lvl = TradeViewList[MAXPLAYERS][item_pos].item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
+		max_affixes = GetMaxItemAffixes(item.item_type, item.item_subtype);
+	if(item.attrib_count < max_affixes) {
+		int temp = item.attrib_count++;
+		int lvl = item.item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
 		
 		bool makeWellRolled = CheckWellRolled(MAXPLAYERS);
 		
 		lvl = GetItemTierRoll(lvl, makeWellRolled);
 
-		TradeViewList[MAXPLAYERS][item_pos].attributes[temp].attrib_tier = lvl;
-		TradeViewList[MAXPLAYERS][item_pos].attributes[temp].attrib_id = attrib;
-		TradeViewList[MAXPLAYERS][item_pos].attributes[temp].fractured = random(0, 1.0) <= DND_MERCHANT_ITEMFRACTURECHANCE;
+		item.attributes[temp].attrib_tier = lvl;
+		item.attributes[temp].attrib_id = attrib;
+		item.attributes[temp].fractured = random(0, 1.0) <= DND_MERCHANT_ITEMFRACTURECHANCE;
 
 		// it basically adds the step value (val) and a +1 if we aren't 0, so our range is ex: 5-10 in tier 1 then 11-15 in tier 2 assuming +5 range per tier
 		// luck adds a small chance for a charm to have well rolled modifier on it -- luck gain is 0.15, 0.05 x 10 = 0.5 max rank thats 50% chance for well rolled mods
-		TradeViewList[MAXPLAYERS][item_pos].attributes[temp].attrib_val = RollAttributeValue(
+		item.attributes[temp].attrib_val = RollAttributeValue(
 			attrib, 
 			lvl, 
 			makeWellRolled,
-			TradeViewList[MAXPLAYERS][item_pos].item_type,
-			TradeViewList[MAXPLAYERS][item_pos].item_subtype
+			item.item_type,
+			item.item_subtype
 		);
 
 		max_affixes = GetExtraForMod(
 			MAXPLAYERS, attrib, lvl, 
-			TradeViewList[MAXPLAYERS][item_pos].item_type, TradeViewList[MAXPLAYERS][item_pos].item_subtype, 
+			item.item_type, item.item_subtype, 
 			makeWellRolled,
-			TradeViewList[MAXPLAYERS][item_pos].attributes[temp].attrib_val
+			item.attributes[temp].attrib_val
 		);
 		if(max_affixes != -1)
-			TradeViewList[MAXPLAYERS][item_pos].attributes[temp].attrib_extra = max_affixes;
+			item.attributes[temp].attrib_extra = max_affixes;
 	}
 	CheckAttribEffects(MAXPLAYERS, item_pos, attrib, DND_SYNC_ITEMSOURCE_TRADEVIEW);
 }
@@ -155,12 +159,14 @@ void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
 int CheckMerchantItemSynergy(int synergy_roll, int item_pos) {
 	static int tags_found[MAX_ATTRIB_TAG_GROUPS];
 
+	auto item = GetMerchantItem(item_pos);
+
 	if(synergy_roll == -2 && random(0, 1.0) <= DND_MERCHANT_SYNERGYITEM_CHANCE) {
 		// pick one of the random mods on the existing item to be the target mod tag to go after
-		synergy_roll = random(0, TradeViewList[MAXPLAYERS][item_pos].attrib_count - 1);
+		synergy_roll = random(0, item.attrib_count - 1);
 
 		// pick a random tag if its got multiple then give it +1, as it expects +1 of it
-		synergy_roll = TradeViewList[MAXPLAYERS][item_pos].attributes[synergy_roll].attrib_id;
+		synergy_roll = item.attributes[synergy_roll].attrib_id;
 		synergy_roll = ItemModTable[synergy_roll].tags;
 
 		int i, j, temp;
@@ -202,9 +208,11 @@ void RollArmorInfoOnMerchant(int item_pos, int item_tier, int item_type, int arm
 	int synergy_roll = -2;
 	int max_tries = 10;
 
+	auto item = GetMerchantItem(item_pos);
+
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(item_type, armor_type, special_roll, TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_id, synergy_roll);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id, synergy_roll);
 			if(max_tries-- < 0)
 				synergy_roll = -2;
 		} while(CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
@@ -237,28 +245,30 @@ void ConstructArmorDataOnMerchant(int item_pos, int ilvl) {
         }
     }
 
-	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
-	TradeViewList[MAXPLAYERS][item_pos].item_stack = 0;
-	TradeViewList[MAXPLAYERS][item_pos].item_type = DND_ITEM_BODYARMOR;
-	TradeViewList[MAXPLAYERS][item_pos].item_subtype = res;
-	TradeViewList[MAXPLAYERS][item_pos].width = DND_BODYARMOR_BASEWIDTH;
-	TradeViewList[MAXPLAYERS][item_pos].height = DND_BODYARMOR_BASEHEIGHT;
+	auto item = GetMerchantItem(item_pos);
 
-	TradeViewList[MAXPLAYERS][item_pos].corrupted = false;
-	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+	item.item_level = ilvl;
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_BODYARMOR;
+	item.item_subtype = res;
+	item.width = DND_BODYARMOR_BASEWIDTH;
+	item.height = DND_BODYARMOR_BASEHEIGHT;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id = -1;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_val = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_tier = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
-    TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_ARM_1 + res;
+    item.item_image = IIMG_ARM_1 + res;
 
 	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
 		i = PickUniqueItemMerchant(item_pos);
@@ -281,28 +291,30 @@ void ConstructBootDataOnMerchant(int item_pos, int ilvl) {
 			break;
 		}
 
-	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
-	TradeViewList[MAXPLAYERS][item_pos].item_stack = 0;
-	TradeViewList[MAXPLAYERS][item_pos].item_type = DND_ITEM_BOOT;
-	TradeViewList[MAXPLAYERS][item_pos].item_subtype = res;
-	TradeViewList[MAXPLAYERS][item_pos].width = DND_BOOT_BASEWIDTH;
-	TradeViewList[MAXPLAYERS][item_pos].height = DND_BOOT_BASEHEIGHT;
+	auto item = GetMerchantItem(item_pos);
 
-	TradeViewList[MAXPLAYERS][item_pos].corrupted = false;
-	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+	item.item_level = ilvl;
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_BOOT;
+	item.item_subtype = res;
+	item.width = DND_BOOT_BASEWIDTH;
+	item.height = DND_BOOT_BASEHEIGHT;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id = -1;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_val = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_tier = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
-	TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_BOO_1 + res;
+	item.item_image = IIMG_BOO_1 + res;
 
 	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
 		i = PickUniqueItemMerchant(item_pos);
@@ -331,28 +343,30 @@ void ConstructHelmDataOnMerchant(int item_pos, int ilvl, int helm = -1) {
 	else
 		res = helm;
 
-	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
-	TradeViewList[MAXPLAYERS][item_pos].item_stack = 0;
-	TradeViewList[MAXPLAYERS][item_pos].item_type = DND_ITEM_HELM;
-	TradeViewList[MAXPLAYERS][item_pos].item_subtype = res;
-	TradeViewList[MAXPLAYERS][item_pos].width = DND_HELM_BASEWIDTH;
-	TradeViewList[MAXPLAYERS][item_pos].height = DND_HELM_BASEHEIGHT;
+	auto item = GetMerchantItem(item_pos);
 
-	TradeViewList[MAXPLAYERS][item_pos].corrupted = false;
-	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+	item.item_level = ilvl;
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_HELM;
+	item.item_subtype = res;
+	item.width = DND_HELM_BASEWIDTH;
+	item.height = DND_HELM_BASEHEIGHT;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id = -1;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_val = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_tier = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
-	TradeViewList[MAXPLAYERS][item_pos].item_image = IIMG_HLM_1 + res;
+	item.item_image = IIMG_HLM_1 + res;
 
     RollArmorInfoOnMerchant(item_pos, ilvl, DND_ITEM_HELM, res, MAX_HELM_ATTRIB_DEFAULT);
 }
@@ -362,8 +376,10 @@ void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
 	int res, i;
 	res = random(1, 100);
 
-	TradeViewList[MAXPLAYERS][item_pos].width = 1;
-	TradeViewList[MAXPLAYERS][item_pos].height = 1;
+	auto item = GetMerchantItem(item_pos);
+
+	item.width = 1;
+	item.height = 1;
 
 	switch(item_type) {
 		case DND_ITEM_SPECIALTY_DOOMGUY:
@@ -377,7 +393,7 @@ void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_MARINE:
-			TradeViewList[MAXPLAYERS][item_pos].height = 2;
+			item.height = 2;
 			i = ITEM_IMAGE_DOGTAG_BEGIN;
 			if(res <= 40)
 				res = DOGTAG_PRIVATE;
@@ -388,7 +404,7 @@ void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_HOBO:
-			TradeViewList[MAXPLAYERS][item_pos].width = 2;
+			item.width = 2;
 			i = ITEM_IMAGE_SUNGLASSES_BEGIN;
 			if(res <= 20)
 				res = SUNGLASS_BLACK;
@@ -431,7 +447,7 @@ void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_BERSERKER:
-			TradeViewList[MAXPLAYERS][item_pos].width = 2;
+			item.width = 2;
 			i = ITEM_IMAGE_BELT_BEGIN;
 			if(res <= 33)
 				res = BELT_SASH;
@@ -442,7 +458,7 @@ void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
 		break;
 
 		case DND_ITEM_SPECIALTY_TRICKSTER:
-			TradeViewList[MAXPLAYERS][item_pos].height = 2;
+			item.height = 2;
 			i = ITEM_IMAGE_CLAW_BEGIN;
 			if(res <= 40)
 				res = CLAW_RAKE;
@@ -453,26 +469,26 @@ void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
 		break;
 	}
 
-	TradeViewList[MAXPLAYERS][item_pos].item_image = i + res;
+	item.item_image = i + res;
 
-	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
-	TradeViewList[MAXPLAYERS][item_pos].item_stack = 0;
-	TradeViewList[MAXPLAYERS][item_pos].item_type = item_type;
-	TradeViewList[MAXPLAYERS][item_pos].item_subtype = res;
+	item.item_level = ilvl;
+	item.item_stack = 0;
+	item.item_type = item_type;
+	item.item_subtype = res;
 
-	TradeViewList[MAXPLAYERS][item_pos].corrupted = false;
-	TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+	item.corrupted = false;
+	item.quality = 0;
 
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id = -1;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_val = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_tier = 0;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
 	RollSpecialtyItemInfoOnMerchant(item_pos, ilvl, item_type);
 }
@@ -485,10 +501,12 @@ int RollSpecialtyItemInfoOnMerchant(int item_pos, int ilvl, int itype) {
 	int special_roll = 0;
 
 	SetupItemImplicit(item_pos, itype, sub_type, ilvl, true);
+
+	auto item = GetMerchantItem(item_pos);
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(itype, special_roll, TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_id);
+			roll = PickRandomAttribute(itype, special_roll, item.implicit[0].attrib_id);
 		} while(CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
 		AddAttributeToMerchant(item_pos, roll, count);
 		++i;
@@ -502,16 +520,18 @@ void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
 	int i = 0, roll;
 	int count = random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
 	int synergy_roll = -2;
+
+	auto item = GetMerchantItem(charm_pos);
 	
 	switch(charm_type) {
 		case DND_CHARM_SMALL:
-			TradeViewList[MAXPLAYERS][charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
+			item.item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
 		break;
 		case DND_CHARM_MEDIUM:
-			TradeViewList[MAXPLAYERS][charm_pos].item_image = random(DND_MEDIUMCHARM_IMAGEBEGIN, DND_MEDIUMCHARM_IMAGEEND);
+			item.item_image = random(DND_MEDIUMCHARM_IMAGEBEGIN, DND_MEDIUMCHARM_IMAGEEND);
 		break;
 		case DND_CHARM_LARGE:
-			TradeViewList[MAXPLAYERS][charm_pos].item_image = random(DND_LARGECHARM_IMAGEBEGIN, DND_LARGECHARM_IMAGEEND);
+			item.item_image = random(DND_LARGECHARM_IMAGEBEGIN, DND_LARGECHARM_IMAGEEND);
 		break;
 	}
 	
@@ -537,27 +557,29 @@ void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
 void ConstructCharmDataOnMerchant(int charm_pos, int ilvl) {
 	int res = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
 
-	TradeViewList[MAXPLAYERS][charm_pos].item_level = ilvl;
-	TradeViewList[MAXPLAYERS][charm_pos].item_stack = 0; // charms have no stack
-	TradeViewList[MAXPLAYERS][charm_pos].item_type = DND_ITEM_CHARM;
-	TradeViewList[MAXPLAYERS][charm_pos].item_subtype = res;
-	TradeViewList[MAXPLAYERS][charm_pos].width = DND_CHARM_BASEWIDTH;
-	TradeViewList[MAXPLAYERS][charm_pos].height = DND_CHARM_BASEHEIGHT + res;
+	auto item = GetMerchantItem(charm_pos);
 
-	TradeViewList[MAXPLAYERS][charm_pos].corrupted = false;
-	TradeViewList[MAXPLAYERS][charm_pos].quality = 0;
+	item.item_level = ilvl;
+	item.item_stack = 0; // charms have no stack
+	item.item_type = DND_ITEM_CHARM;
+	item.item_subtype = res;
+	item.width = DND_CHARM_BASEWIDTH;
+	item.height = DND_CHARM_BASEHEIGHT + res;
+
+	item.corrupted = false;
+	item.quality = 0;
 
 	int i;
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		TradeViewList[MAXPLAYERS][charm_pos].implicit[i].attrib_id = -1;
-		TradeViewList[MAXPLAYERS][charm_pos].implicit[i].attrib_val = 0;
-		TradeViewList[MAXPLAYERS][charm_pos].implicit[i].attrib_tier = 0;
-		TradeViewList[MAXPLAYERS][charm_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	TradeViewList[MAXPLAYERS][charm_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		TradeViewList[MAXPLAYERS][charm_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
 
 	if(random(0, 1.0) <= DND_MERCHANT_UNIQUECHANCE) {
 		i = PickUniqueItemMerchant(charm_pos);
@@ -573,7 +595,7 @@ void ConstructCharmDataOnMerchant(int charm_pos, int ilvl) {
 void RollOrbInfoOnMerchant(int item_pos, int ilvl) {
     int w, orbtype = 0;
 
-	int stack = (GetOrbDropStack(ilvl) * random(0, 1.0)) >> 16;
+	int stack = (GetOrbDropStack(ilvl) * random(0, 1.25)) >> 16;
 	if(stack < 1)
 		stack = 1;
 
@@ -590,16 +612,18 @@ void RollOrbInfoOnMerchant(int item_pos, int ilvl) {
 			stack = 1;
 	}
 
-	// roll random attributes for the charm
-	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
-	TradeViewList[MAXPLAYERS][item_pos].item_stack = stack; // orbs have default stack of 1
-	TradeViewList[MAXPLAYERS][item_pos].item_type = DND_ITEM_ORB;
-	TradeViewList[MAXPLAYERS][item_pos].item_subtype = orbtype;
-	TradeViewList[MAXPLAYERS][item_pos].width = 1;
-	TradeViewList[MAXPLAYERS][item_pos].height = 1;
-	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
+	auto item = GetMerchantItem(item_pos);
 
-	TradeViewList[MAXPLAYERS][item_pos].item_image = GetOrbItemImage(orbtype);
+	// roll random attributes for the charm
+	item.item_level = ilvl;
+	item.item_stack = stack; // orbs have default stack of 1
+	item.item_type = DND_ITEM_ORB;
+	item.item_subtype = orbtype;
+	item.width = 1;
+	item.height = 1;
+	item.attrib_count = 0;
+
+	item.item_image = GetOrbItemImage(orbtype);
 }
 
 void RollTokenInfoOnMerchant(int item_pos, int ilvl) {
@@ -607,25 +631,27 @@ void RollTokenInfoOnMerchant(int item_pos, int ilvl) {
     
     for(; i < MAX_TOKENS && ItemDropWeights[DND_DROPPEDITEM_TOKEN][i] < w; ++i);
 
-	// roll random attributes for the charm
-	TradeViewList[MAXPLAYERS][item_pos].item_level = 1;
+	auto item = GetMerchantItem(item_pos);
 
-	w = (GetOrbDropStack(ilvl) * random(0, 1.0)) >> 16;
+	// roll random attributes for the charm
+	item.item_level = 1;
+
+	w = (GetOrbDropStack(ilvl) * random(0, 1.25)) >> 16;
 	if(w < 1)
 		w = 1;
 	
-	TradeViewList[MAXPLAYERS][item_pos].item_stack = w;
-	TradeViewList[MAXPLAYERS][item_pos].item_level = ilvl;
-	TradeViewList[MAXPLAYERS][item_pos].item_type = DND_ITEM_TOKEN;
-	TradeViewList[MAXPLAYERS][item_pos].item_subtype = i;
-	TradeViewList[MAXPLAYERS][item_pos].width = 1;
-	TradeViewList[MAXPLAYERS][item_pos].height = 1;
-	TradeViewList[MAXPLAYERS][item_pos].attrib_count = 0;
-	TradeViewList[MAXPLAYERS][item_pos].item_image = ITEM_IMAGE_TOKEN_BEGIN + i;
+	item.item_stack = w;
+	item.item_level = ilvl;
+	item.item_type = DND_ITEM_TOKEN;
+	item.item_subtype = i;
+	item.width = 1;
+	item.height = 1;
+	item.attrib_count = 0;
+	item.item_image = ITEM_IMAGE_TOKEN_BEGIN + i;
 }
 
 bool IsMerchantItemUnique(int pos) {
-	return TradeViewList[MAXPLAYERS][pos].item_type > UNIQUE_BEGIN;
+	return GlobalItemStorage.TradeViewList[MAXPLAYERS][pos].item_type > UNIQUE_BEGIN;
 }
 
 void CorruptMerchantItem(int item_pos) {
@@ -633,8 +659,9 @@ void CorruptMerchantItem(int item_pos) {
 	// roll between 0 to MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1
 	// if > than MAX_CORRUPTION_WEIRD_OUTCOMES subtract it to get corrupt implicit
 	// NEW: Corruption ALWAYS replaces the very first implicit!
-	//TradeViewList[MAXPLAYERS][item_pos].isDirty = true;
-	TradeViewList[MAXPLAYERS][item_pos].corrupted = true;
+	auto item = GetMerchantItem(item_pos);
+	//item.isDirty = true;
+	item.corrupted = true;
 
 	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);
 
@@ -643,13 +670,13 @@ void CorruptMerchantItem(int item_pos) {
 		int extra = GetExtraForMod(MAXPLAYERS, corr_mod);
 
 		if(extra != -1)
-			TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_extra = extra;
+			item.implicit[0].attrib_extra = extra;
 
-		TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_id = corr_mod;
-		TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_tier = 0;
+		item.implicit[0].attrib_id = corr_mod;
+		item.implicit[0].attrib_tier = 0;
 
 		// roll the value for this now
-		TradeViewList[MAXPLAYERS][item_pos].implicit[0].attrib_val = random(ItemModTable[corr_mod].attrib_low, ItemModTable[corr_mod].attrib_high);
+		item.implicit[0].attrib_val = random(ItemModTable[corr_mod].attrib_low, ItemModTable[corr_mod].attrib_high);
 
 		return;
 	}
@@ -659,9 +686,9 @@ void CorruptMerchantItem(int item_pos) {
 	switch(corr_outcome) {
 		case DND_CORR_OUTCOME_QUALITY:
 			// don't let it hit negative
-			TradeViewList[MAXPLAYERS][item_pos].quality += random(-DND_QUALITY_CORRUPTION_CHANGE, DND_QUALITY_CORRUPTION_CHANGE);
-			if(TradeViewList[MAXPLAYERS][item_pos].quality < 0)
-				TradeViewList[MAXPLAYERS][item_pos].quality = 0;
+			item.quality += random(-DND_QUALITY_CORRUPTION_CHANGE, DND_QUALITY_CORRUPTION_CHANGE);
+			if(item.quality < 0)
+				item.quality = 0;
 		break;
 	}
 }
@@ -671,33 +698,35 @@ int GetMerchantItemPrice(int item_pos) {
 	// make tier and amount of mods contribute highly to this too, so we need to do some of the steps we did again for this one
 	int base = DND_BASE_MERCHANT_ITEMCOST;
 
-	if(TradeViewList[MAXPLAYERS][item_pos].item_stack > 0) {
-		base = DND_BASE_MERCHANT_STACKABLECOST;
-		base *= TradeViewList[MAXPLAYERS][item_pos].item_stack;
+	auto item = GetMerchantItem(item_pos);
 
-		if(TradeViewList[MAXPLAYERS][item_pos].item_type == DND_ITEM_ORB) {
-			if(IsHighTierOrb(TradeViewList[MAXPLAYERS][item_pos].item_subtype))
-				base *= DND_MERCHANT_HIGHTIERORB_FACTOR + TradeViewList[MAXPLAYERS][item_pos].item_level / DND_MERCHANT_STACKABLE_ILVLCONTRIB;
-			else if(IsMidTierOrb(TradeViewList[MAXPLAYERS][item_pos].item_subtype))
-				base *= DND_MERCHANT_MEDIUMTIERORB_FACTOR + TradeViewList[MAXPLAYERS][item_pos].item_level / DND_MERCHANT_STACKABLE_ILVLCONTRIB;
+	if(item.item_stack > 0) {
+		base = DND_BASE_MERCHANT_STACKABLECOST;
+		base *= item.item_stack;
+
+		if(item.item_type == DND_ITEM_ORB) {
+			if(IsHighTierOrb(item.item_subtype))
+				base *= DND_MERCHANT_HIGHTIERORB_FACTOR + item.item_level / DND_MERCHANT_STACKABLE_ILVLCONTRIB;
+			else if(IsMidTierOrb(item.item_subtype))
+				base *= DND_MERCHANT_MEDIUMTIERORB_FACTOR + item.item_level / DND_MERCHANT_STACKABLE_ILVLCONTRIB;
 		}
 
-		base = base * (100 + DND_MERCHANT_STACKABLE_ILVLFACTOR * TradeViewList[MAXPLAYERS][item_pos].item_level) / 100;
+		base = base * (100 + DND_MERCHANT_STACKABLE_ILVLFACTOR * item.item_level) / 100;
 
 		return base;
 	}
 
-	int ilvl = TradeViewList[MAXPLAYERS][item_pos].item_level;
+	int ilvl = item.item_level;
 
 	int avg_mod_tier = 0;
-	int acount = TradeViewList[MAXPLAYERS][item_pos].attrib_count;
+	int acount = item.attrib_count;
 	int fracture_count = 0;
 	int i;
 	if(acount) {
 		if(!IsMerchantItemUnique(item_pos)) {
 			for(i = 0; i < acount; ++i) {
-				avg_mod_tier += TradeViewList[MAXPLAYERS][item_pos].attributes[i].attrib_tier + 1;
-				fracture_count += TradeViewList[MAXPLAYERS][item_pos].attributes[i].fractured;
+				avg_mod_tier += item.attributes[i].attrib_tier + 1;
+				fracture_count += item.attributes[i].fractured;
 			}
 		
 			avg_mod_tier /= acount;
@@ -711,17 +740,17 @@ int GetMerchantItemPrice(int item_pos) {
 	// if corrupted or has implicit, include that too
 	fracture_count = 0;
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
-		fracture_count += TradeViewList[MAXPLAYERS][item_pos].implicit[i].attrib_id != -1;
+		fracture_count += item.implicit[i].attrib_id != -1;
 
 	base = base * (100 + DND_MERCHANT_IMPLICIT_PERCENT * fracture_count) / 100;
 	
-	if(TradeViewList[MAXPLAYERS][item_pos].corrupted) {
+	if(item.corrupted) {
 		// 50% increase
 		base *= 3;
 		base >>= 1;
 	}
 
-	if(TradeViewList[MAXPLAYERS][item_pos].item_type > UNIQUE_BEGIN)
+	if(item.item_type > UNIQUE_BEGIN)
 		base = base * (100 + DND_MERCHANT_UNIQUEFACTOR) / 100;
 
 	return base;
@@ -749,11 +778,16 @@ Script "DnD Merchant Items" (void) {
 	if(item_count > DND_MERCHANT_LIMITITEMS)
 		item_count = DND_MERCHANT_LIMITITEMS;
 
+	//Log(s:"adding ", d:item_count, s:" things to merchant");
+
 	for(int pos = 0; pos < item_count; ++pos) {
         int ilvl = RollItemLevel();
 		int temp = random(0, 1.0);
 
+		auto item = GetMerchantItem(pos);
+
 		if(temp <= DND_MERCHANT_ITEMCHANCE) {
+			//Log(s:"add item merchant");
 			// roll items, charm or armor
 			temp = random(0, 1.0);
 
@@ -778,7 +812,7 @@ Script "DnD Merchant Items" (void) {
 					temp = random(8, 15);
 				else
 					temp = random(16, DND_MAX_ITEM_QUALITY);
-				TradeViewList[MAXPLAYERS][pos].quality = temp;
+				item.quality = temp;
 			}
 
 			temp = random(0, 1.0);
@@ -786,17 +820,20 @@ Script "DnD Merchant Items" (void) {
 				CorruptMerchantItem(pos);
 		}
 		else if(temp <= DND_MERCHANT_ORBCHANCE) {
+			//Log(s:"add orb merchant");
 			// roll some orbs
             RollOrbInfoOnMerchant(pos, ilvl);
 		}
 		else {
+			//Log(s:"add token merchant");
 			// roll tokens
             RollTokenInfoOnMerchant(pos, ilvl);
 		}
 
-        TradeViewList[MAXPLAYERS][pos].topleftboxid = pos + 1;
+        item.topleftboxid = pos + 1;
        // TradeViewList[MAXPLAYERS][pos].isDirty = true;
         SyncItemData(MAXPLAYERS, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, -1, -1, true);
+		Delay(const:1);
 	}
 
     SetResultValue(0);

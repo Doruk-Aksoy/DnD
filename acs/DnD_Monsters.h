@@ -1937,7 +1937,7 @@ Script "DnD Shambler Attack Form FX" (int frame) CLIENTSIDE {
 
 	// first generate some points
 	int i;
-	int[]* points = bcs::malloc(SIZEOF_INT * SHAMBLER_ATTACK_POINTS);
+	int[]? points = bcs::arrNew(SHAMBLER_ATTACK_POINTS);
 	int pcount = SHAMBLER_ATTACK_POINTS;
 	if(frame < 2)
 		pcount = SHAMBLER_ATTACK_POINTS_FEW;
@@ -1996,7 +1996,7 @@ Script "DnD Shambler Attack Form FX" (int frame) CLIENTSIDE {
 		prevdisp = disp;
 	}
 
-	bcs::free(points);
+	bcs::arrDelete(points);
 	// last point
 	dx = GetActorX(0) + ShamblerData[frame].dx * cos(GetActorAngle(0)) - ShamblerData[frame].dy * sin(GetActorAngle(0));
 	dy = GetActorY(0) + ShamblerData[frame].dx * sin(GetActorAngle(0)) + ShamblerData[frame].dy * cos(GetActorAngle(0));
@@ -2006,7 +2006,7 @@ Script "DnD Shambler Attack Form FX" (int frame) CLIENTSIDE {
 Script "DnD Shambler Attack FX" (int owner) CLIENTSIDE {
 	// first generate some points
 	int i;
-	int[]* points = bcs::malloc(SIZEOF_INT * SHAMBLER_ATTACK_POINTS_MORE);
+	int[]? points = bcs::arrNew(SHAMBLER_ATTACK_POINTS_MORE);
 	for(i = 0; i < SHAMBLER_ATTACK_POINTS_MORE; ++i)
 		points[i] = random(0, 1.0);
 	
@@ -2061,7 +2061,7 @@ Script "DnD Shambler Attack FX" (int owner) CLIENTSIDE {
 		prevdisp = disp;
 	}
 
-	bcs::free(points);
+	bcs::arrDelete(points);
 	// last point
 	dx = GetActorX(0);
 	dy = GetActorY(0);

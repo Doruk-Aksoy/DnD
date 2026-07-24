@@ -53,6 +53,8 @@ void BuildAliasTable(alias_table_T? table) {
     int i, s, l;
     int totalWeight = 0;
 
+    //Log(s:"building table of size ", d:table.size, s:" vs max ", d:MAX_ALIAS_TABLE_SIZE);
+
     int scaled[MAX_ALIAS_TABLE_SIZE];
     int small[MAX_ALIAS_TABLE_SIZE];
     int large[MAX_ALIAS_TABLE_SIZE];
@@ -126,6 +128,8 @@ int PickFromAliasTable(alias_table_T? table) {
         BuildAliasTable(table);
 
     int col = random(0, table.size - 1);
+
+    //Log(s:"pick ", d:col, s:" from ", d:table.size - 1);
 
     if(Random(0, ALIAS_TABLE_SCALE - 1) < table.probability[col])
         return col;

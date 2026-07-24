@@ -4,14 +4,15 @@
 #include "Inventory/DnD_InvInfo.h"
 
 void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
-	// roll random attributes for the charm
-	Inventories_On_Field[item_pos].item_level = RollItemLevel();
-	Inventories_On_Field[item_pos].item_stack = 0;
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_DUNGEONKEY;
-	Inventories_On_Field[item_pos].item_subtype = keytype;
-	Inventories_On_Field[item_pos].width = 1;
-	Inventories_On_Field[item_pos].height = 1;
-	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_DUNGEONKEY_BEGIN + keytype;
+	// roll random attributes for the key
+	auto item = GetFieldItem(item_pos);
+	item.item_level = RollItemLevel();
+	item.item_stack = 0;
+	item.item_type = DND_ITEM_DUNGEONKEY;
+	item.item_subtype = keytype;
+	item.width = 1;
+	item.height = 1;
+	item.item_image = ITEM_IMAGE_DUNGEONKEY_BEGIN + keytype;
 
 	int count = random(1, MAX_DUNGEONKEY_ATTRIB_DEFAULT);
 
@@ -108,27 +109,28 @@ void ResetCurrentDungeonData() {
 
 void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 	int i;
+	auto d_item = GetPlayerInventoryItem(pnum, item_pos);
 
 	// initialize this from player's item token used
 	DungeonInformation.dungeon_id = sel_dungeon_id;
-	DungeonInformation.quality = PlayerInventoryList[pnum][item_pos].quality;
-	DungeonInformation.level = PlayerInventoryList[pnum][item_pos].item_level;
+	DungeonInformation.quality = d_item.quality;
+	DungeonInformation.level = d_item.item_level;
 	DungeonInformation.next_map = GetNextMapLump();
 
-	DungeonInformation.attrib_count = PlayerInventoryList[pnum][item_pos].attrib_count;
+	DungeonInformation.attrib_count = d_item.attrib_count;
 
 	ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 1", DungeonInformation.dungeon_id, DungeonInformation.quality, DungeonInformation.level, DungeonInformation.attrib_count);
 	
 	for(i = 0; i < DungeonInformation.attrib_count; ++i) {
-		DungeonInformation.attributes[i].attrib_id = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_id;
+		DungeonInformation.attributes[i].attrib_id = d_item.attributes[i].attrib_id;
 
 		if(!IsDungeonAttributeQualityException(DungeonInformation.attributes[i].attrib_id))
-			DungeonInformation.attributes[i].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val * (100 + DungeonInformation.quality) / 100;
+			DungeonInformation.attributes[i].attrib_val = d_item.attributes[i].attrib_val * (100 + DungeonInformation.quality) / 100;
 		else
-			DungeonInformation.attributes[i].attrib_val = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_val;
+			DungeonInformation.attributes[i].attrib_val = d_item.attributes[i].attrib_val;
 
 		// the value of extra is in << 16
-		DungeonInformation.attributes[i].attrib_extra = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_extra;
+		DungeonInformation.attributes[i].attrib_extra = d_item.attributes[i].attrib_extra;
 		int id = DungeonInformation.attributes[i].attrib_extra & 0xFFFF;
 		int val = DungeonInformation.attributes[i].attrib_extra >> 16;
 		if(!IsDungeonAttributeExtraException(id))
@@ -136,7 +138,7 @@ void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 		else
 			DungeonInformation.attributes[i].attrib_extra = id | (val << 16);
 
-		DungeonInformation.attributes[i].attrib_tier = PlayerInventoryList[pnum][item_pos].attributes[i].attrib_tier;
+		DungeonInformation.attributes[i].attrib_tier = d_item.attributes[i].attrib_tier;
 
 		ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 2", i, DungeonInformation.attributes[i].attrib_id, DungeonInformation.attributes[i].attrib_val, DungeonInformation.attributes[i].attrib_extra);
 
@@ -149,6 +151,16 @@ void SyncCurrentDungeonInformation() {
 	ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 1", DungeonInformation.dungeon_id, DungeonInformation.quality, DungeonInformation.level, DungeonInformation.attrib_count);
 	for(int i = 0; i < DungeonInformation.attrib_count; ++i)
 		ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 2", i, DungeonInformation.attributes[i].attrib_id, DungeonInformation.attributes[i].attrib_val, DungeonInformation.attributes[i].attrib_extra);
+}
+
+void HandleDungeonExit(str next_map) {
+	ResetCurrentDungeonData();
+				
+	// mark everyone's orb alias tables as needing a reset, they came from a dungeon where they could have had orb modifying effects
+	MarkAllPlayerOrbTablesDirty();
+	InformationInLevel[LEVELINFO_DUNGEONMUSTRESET] = false;
+
+	ChangeLevel(next_map, 0, CHANGELEVEL_NOINTERMISSION, -1);
 }
 
 Script "DnD Sync Current Dungeon Data - 1" (int dung_id, int quality, int level, int attrib_count) CLIENTSIDE {

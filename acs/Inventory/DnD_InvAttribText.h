@@ -493,7 +493,6 @@ str ItemAttributeString(
 
 		// fixed point corrupted
 		case INV_CORR_DROPCHANCE:
-		case INV_CORR_SPEED:
 		case INV_CORR_MOREAOE:
 			if(showDetailedMods) {
 				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedImplicitModRange(attr, item_type, item_subtype, FACTOR_FIXED_RESOLUTION, true), s:"%", s:no_tag, l:text);
@@ -802,7 +801,7 @@ str GetItemAttributeText(
 {
 	// treat it as normal inv attribute range
 	// check last essence as its an all encompassing range except exotics
-	if(item_type == DND_ITEM_DUNGEONKEY)
+	if(extra == -1 && item_type == DND_ITEM_DUNGEONKEY)
 		return DungeonAttributeString(attr, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
 
 	if(attr <= LAST_FLASK_ATTRIBUTE)

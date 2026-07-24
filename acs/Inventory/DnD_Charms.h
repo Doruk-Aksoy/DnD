@@ -47,27 +47,40 @@ int ConstructCharmDataOnField(int charm_pos, int charm_tier) {
 		charm_tier = GetCVar("dnd_maxmonsterlevel");
 
 	int res = random(DND_CHARM_SMALL, DND_CHARM_LARGE);
-	Inventories_On_Field[charm_pos].item_level = charm_tier;
-	Inventories_On_Field[charm_pos].item_stack = 0; // charms have no stack
-	Inventories_On_Field[charm_pos].item_type = DND_ITEM_CHARM;
-	Inventories_On_Field[charm_pos].item_subtype = res;
-	Inventories_On_Field[charm_pos].width = DND_CHARM_BASEWIDTH;
-	Inventories_On_Field[charm_pos].height = DND_CHARM_BASEHEIGHT + res;
+	auto item = GetFieldItem(charm_pos);
+	item.item_level = charm_tier;
+	item.item_stack = 0; // charms have no stack
+	item.item_type = DND_ITEM_CHARM;
+	item.item_subtype = res;
+	item.width = DND_CHARM_BASEWIDTH;
+	item.height = DND_CHARM_BASEHEIGHT + res;
 
-	Inventories_On_Field[charm_pos].corrupted = false;
-	Inventories_On_Field[charm_pos].quality = 0;
+	item.corrupted = false;
+	item.quality = 0;
 
 	int i;
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
-		Inventories_On_Field[charm_pos].implicit[i].attrib_id = -1;
-		Inventories_On_Field[charm_pos].implicit[i].attrib_val = 0;
-		Inventories_On_Field[charm_pos].implicit[i].attrib_tier = 0;
-		Inventories_On_Field[charm_pos].implicit[i].attrib_extra = 0;
+		item.implicit[i].attrib_id = -1;
+		item.implicit[i].attrib_val = 0;
+		item.implicit[i].attrib_tier = 0;
+		item.implicit[i].attrib_extra = 0;
 	}
 	
-	Inventories_On_Field[charm_pos].attrib_count = 0;
+	item.attrib_count = 0;
 	for(i = 0; i < MAX_ITEM_ATTRIBUTES; ++i)
-		Inventories_On_Field[charm_pos].attributes[i].attrib_id = -1;
+		item.attributes[i].attrib_id = -1;
+
+	switch(res) {
+		case DND_CHARM_SMALL:
+			item.item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
+		break;
+		case DND_CHARM_MEDIUM:
+			item.item_image = random(DND_MEDIUMCHARM_IMAGEBEGIN, DND_MEDIUMCHARM_IMAGEEND);
+		break;
+		case DND_CHARM_LARGE:
+			item.item_image = random(DND_LARGECHARM_IMAGEBEGIN, DND_LARGECHARM_IMAGEEND);
+		break;
+	}
 		
 	return res;
 }
@@ -81,18 +94,6 @@ int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -
 	int synergy_roll = -2;
 
 	int worth = 0;
-	
-	switch(charm_type) {
-		case DND_CHARM_SMALL:
-			Inventories_On_Field[charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
-		break;
-		case DND_CHARM_MEDIUM:
-			Inventories_On_Field[charm_pos].item_image = random(DND_MEDIUMCHARM_IMAGEBEGIN, DND_MEDIUMCHARM_IMAGEEND);
-		break;
-		case DND_CHARM_LARGE:
-			Inventories_On_Field[charm_pos].item_image = random(DND_LARGECHARM_IMAGEBEGIN, DND_LARGECHARM_IMAGEEND);
-		break;
-	}
 
 	int max_tries = 10;
 	
@@ -121,18 +122,6 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
 	int count = random(0, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type) - 1 - (m2 != -1) - (m3 != -1));
-	
-	switch(charm_type) {
-		case DND_CHARM_SMALL:
-			Inventories_On_Field[charm_pos].item_image = random(DND_SMALLCHARM_IMAGEBEGIN, DND_SMALLCHARM_IMAGEEND);
-		break;
-		case DND_CHARM_MEDIUM:
-			Inventories_On_Field[charm_pos].item_image = random(DND_MEDIUMCHARM_IMAGEBEGIN, DND_MEDIUMCHARM_IMAGEEND);
-		break;
-		case DND_CHARM_LARGE:
-			Inventories_On_Field[charm_pos].item_image = random(DND_LARGECHARM_IMAGEBEGIN, DND_LARGECHARM_IMAGEEND);
-		break;
-	}
 	
 	// add the guaranteed mods first, because rolling later will check for their presence if they are rolled
 	AddAttributeToFieldItem(charm_pos, m1, pnum);
@@ -181,47 +170,12 @@ void SpawnCharmForAll(int rarity_boost, int synergy_boost = -1) {
 	}
 }
 
-void ResetPlayerItemsUsed(int pnum) {
-	for(int i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
-		if(Items_Used[pnum][i].item_type != DND_ITEM_NULL)
-			SyncItemData_Null(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, Items_Used[pnum][i].width, Items_Used[pnum][i].height);
-		Items_Used[pnum][i].item_type = DND_ITEM_NULL;
-		Items_Used[pnum][i].width = 0;
-		Items_Used[pnum][i].height = 0;
-		Items_Used[pnum][i].item_image = 0;
-		Items_Used[pnum][i].item_subtype = 0;
-		Items_Used[pnum][i].item_level = 0;
-		Items_Used[pnum][i].item_stack = 0;
-		Items_Used[pnum][i].topleftboxid = 0;
-
-		Items_Used[pnum][i].corrupted = 0;
-		Items_Used[pnum][i].quality = 0;
-
-		int j;
-		for(j = 0; j < MAX_ITEM_IMPLICITS; ++j) {
-			Items_Used[pnum][i].implicit[j].attrib_id = -1;
-			Items_Used[pnum][i].implicit[j].attrib_val = 0;
-			Items_Used[pnum][i].implicit[j].attrib_tier = 0;
-			Items_Used[pnum][i].implicit[j].attrib_extra = 0;
-		}
-
-		for(j = 0; j < Items_Used[pnum][i].attrib_count; ++j) {
-			Items_Used[pnum][i].attributes[j].attrib_id = 0;
-			Items_Used[pnum][i].attributes[j].attrib_val = 0;
-			Items_Used[pnum][i].attributes[j].attrib_tier = 0;
-			Items_Used[pnum][i].attributes[j].attrib_extra = 0;
-			Items_Used[pnum][i].attributes[j].fractured = 0;
-		}
-		Items_Used[pnum][i].attrib_count = 0;
-	}
-}
-
 int CountPlayerSmallCharms(int pnum) {
 	int res = 0;
 	
 	// first 4 boxes are for small charms, so id 0-3 are
 	for(int i = 0; i < MAX_SMALL_CHARMS_USED; ++i)
-		res += Items_Used[pnum][i].item_type != DND_ITEM_NULL;
+		res += GlobalItemStorage.Items_Used[pnum][i].item_type != DND_ITEM_NULL;
 	return res;
 }
 
@@ -236,14 +190,14 @@ bool DoUniqueCheck(int pnum, int use_id, int item_index, int target_type) {
 			id = 5;
 		else
 			id = 4;
-		return Items_Used[pnum][id].item_type > UNIQUE_BEGIN && PlayerInventoryList[pnum][item_index].item_type == Items_Used[pnum][id].item_type;
+		return GlobalItemStorage.Items_Used[pnum][id].item_type > UNIQUE_BEGIN && GlobalItemStorage.PlayerInventoryList[pnum][item_index].item_type == GlobalItemStorage.Items_Used[pnum][id].item_type;
 	}
 	
 	// small charm
 	for(int i = 0; i < MAX_SMALL_CHARMS_USED; ++i) {
 		if(i == use_id)
 			continue;
-		if(Items_Used[pnum][i].item_type > UNIQUE_BEGIN && PlayerInventoryList[pnum][item_index].item_type == Items_Used[pnum][i].item_type)
+		if(GlobalItemStorage.Items_Used[pnum][i].item_type > UNIQUE_BEGIN && GlobalItemStorage.PlayerInventoryList[pnum][item_index].item_type == GlobalItemStorage.Items_Used[pnum][i].item_type)
 			return true;
 	}
 	return false;

@@ -571,7 +571,7 @@ DND_MENU_MMOD_IMM14		=	"Monster is immune to lightning damage.";
 DND_MENU_MMOD_AGG1		=	"Monster can enter rage mode under certain conditions.";
 DND_MENU_MMOD_AGG2		=	"Monster has attacks treat armor at 40% of its value.";
 DND_MENU_MMOD_AGG3		=	"Monster uses ranged attacks more often and is fearless.";
-DND_MENU_MMOD_AGG4		=	"Monster is twice as fast.";
+DND_MENU_MMOD_AGG4		=	"Monster has twice the action speed.";
 DND_MENU_MMOD_AGG5		=	"Monster reacts to whoever hits it immediately.";
 DND_MENU_MMOD_AGG6		=	"Monster deals 35% increased damage.";
 DND_MENU_MMOD_AGG7		=	"Monster has homing attacks.";
@@ -586,6 +586,7 @@ DND_MENU_MMOD_AGG15		=	"Monster pierces 15% of your resistances with its damage.
 DND_MENU_MMOD_AGG16		=	"Monster fires projectiles at 1.5 times the speed.";
 DND_MENU_MMOD_AGG17		=	"Upon taking lethal damage from players, the monster becomes more aggressive and is granted a rapidly decaying shield.";
 DND_MENU_MMOD_AGG18		=	"Monster steals 5 stamina with each hit.";
+DND_MENU_MMOD_AGG19		=	"Monster has 50% increased movement speed.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";

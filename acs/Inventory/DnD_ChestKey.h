@@ -23,19 +23,20 @@ str GetChestLockedText(int type) {
 bool SpawnedChests = 0;
 
 void RollChestkeyInfo(int item_pos, int keytype, bool onField) {
+	auto item = GetFieldItem(item_pos);
 	// roll random attributes for the charm
-	Inventories_On_Field[item_pos].item_level = 1;
+	item.item_level = 1;
 #ifdef ISDEBUGBUILD
-	Inventories_On_Field[item_pos].item_stack = 100; 
+	item.item_stack = 100; 
 #else
-	Inventories_On_Field[item_pos].item_stack = 1;
+	item.item_stack = 1;
 #endif
-	Inventories_On_Field[item_pos].item_type = DND_ITEM_CHESTKEY;
-	Inventories_On_Field[item_pos].item_subtype = keytype;
-	Inventories_On_Field[item_pos].width = 1;
-	Inventories_On_Field[item_pos].height = 1;
-	Inventories_On_Field[item_pos].attrib_count = 0;
-	Inventories_On_Field[item_pos].item_image = ITEM_IMAGE_KEY_BEGIN + keytype;
+	item.item_type = DND_ITEM_CHESTKEY;
+	item.item_subtype = keytype;
+	item.width = 1;
+	item.height = 1;
+	item.attrib_count = 0;
+	item.item_image = ITEM_IMAGE_KEY_BEGIN + keytype;
 }
 
 void SpawnChestKey(int pnum) {

@@ -31,17 +31,17 @@ global loot_tables_T 21: LootTables;
 int[] module& GetLootDropWeights() {
     static int loot_weights[DND_MONSTERLOOT_COUNT] = {
         200,
-        150,
-        100,
-        120,
+        56,
+        40,
+        48,
 
         60,
 
         32,
         160,
-        60,
+        24,
 
-        50,
+        20,
         5
     };
 

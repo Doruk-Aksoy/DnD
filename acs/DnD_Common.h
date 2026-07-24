@@ -9,6 +9,7 @@
 
 #define ISDEBUGBUILD
 //#define WANTCURSORPOS
+//#define VERBOSE_MONSTER_SETUP
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -466,15 +467,29 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 // holds the monster tids that are in use -- arbitrary order
 global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
 
+void ResetUsedMonsterTIDs() {
+	if(IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
+		return;
+
+#ifdef VERBOSE_MONSTER_SETUP
+	Log(s:"Clearing used monster TIDs.");
+#endif
+
+	ResetTIDCounts();
+
+	SetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+}
+
 enum {
 	LEVELINFO_PLAYERLEVEL, // sum of all players' levels
 	LEVELINFO_MINPLAYERLEVEL,
 	LEVELINFO_MAXPLAYERLEVEL,
 	LEVELINFO_PLAYERCOUNTATSTART,
-	LEVELINFO_TIDMONSTER, // how many monster tids were skipped, this can happen if mappers allocated tids of their own
+	LEVELINFO_SKIPPEDMONSTERTID, // how many monster tids were skipped, this can happen if mappers allocated tids of their own
 	LEVELINFO_PLAYERLEVELATSTART, // level total of players at the start of the game
 
 	LEVELINFO_ISDUNGEON,
+	LEVELINFO_DUNGEONMUSTRESET,
 
 	// keeps at what tid we are left off
 	LEVELINFO_TID_MONSTER,
@@ -495,11 +510,21 @@ void ResetPlayerInformationLevel() {
 	InformationInLevel[LEVELINFO_MINPLAYERLEVEL] = bcs::INT_MAX;
 	InformationInLevel[LEVELINFO_MAXPLAYERLEVEL] = bcs::INT_MIN;
 	InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] = 0;
-	InformationInLevel[LEVELINFO_TIDMONSTER] = 0;
 	InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] = 0;
+
 	pinfo_pending_reset = false;
 
 	SetupUndo(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS);
+}
+
+void ResetTIDCounts() {
+	InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID] = 0;
+	InformationInLevel[LEVELINFO_TID_MONSTER] = 0;
+	InformationInLevel[LEVELINFO_TID_SHOOTABLE] = 0;
+	InformationInLevel[LEVELINFO_TID_PICKUPS] = 0;
+	InformationInLevel[LEVELINFO_TID_SHAREDITEMS] = 0;
+	InformationInLevel[LEVELINFO_TID_LOOTBOXES] = 0;
+	InformationInLevel[LEVELINFO_TID_INCURSIONMARKERS] = 0;
 }
 
 void UpdateLevelInformation() {
@@ -516,19 +541,22 @@ void UpdateLevelInformation() {
 void GiveMonsterTID(int base_tid) {
 	int temp;
 	if(!base_tid) {
-		temp = DND_MONSTERTID_BEGIN + InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_TIDMONSTER];
+		temp = DND_MONSTERTID_BEGIN + InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
 		
 		// we have to constantly check if we have run into a specific tid monster...
 		while(ThingCount(0, temp)) {
 			++temp;
-			++InformationInLevel[LEVELINFO_TIDMONSTER];
+			++InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
 		}
 		base_tid = temp;
 		Thing_ChangeTID(0, base_tid);
 	}
 	temp = InformationInLevel[LEVELINFO_TID_MONSTER];
 	UsedMonsterTIDs[InformationInLevel[LEVELINFO_TID_MONSTER]++] = base_tid;
-	//Log(s:"monster count: ", d:InformationInLevel[LEVELINFO_TID_MONSTER]);
+
+#ifdef VERBOSE_MONSTER_SETUP
+	Log(s:"monster count: ", d:InformationInLevel[LEVELINFO_TID_MONSTER], s: " given tid ", d:base_tid);
+#endif
 
 	ACS_NamedExecuteAlways("DnD Update Monster TID CS", 0, temp, base_tid, InformationInLevel[LEVELINFO_TID_MONSTER]);
 }
@@ -794,6 +822,8 @@ Script "DnD Try Spawn Area" (int stid, int actortype, int newtid, int r) {
 			cy = GetActorY(AUX_INCURSION_PUFF_TID);
 			cz = GetSectorFloorZ(0, cx >> 16, cy >> 16);
 
+			//Log(s:"try ", f:cx, s: " ", f:cy, s: " ", f:cz);
+
 			if(Spawn(actortype, cx, cy, cz, newtid, 0))
 				finish = true;
 			else {
@@ -824,6 +854,7 @@ Script "DnD Try Spawn Area" (int stid, int actortype, int newtid, int r) {
 	else if(newtid == DND_MERCHANT_TID) {
 		SetThingSpecial(newtid, ACS_ExecuteAlways, 895, 0, 1, DND_MERCHANT_TID);
 		FaceActor(newtid, stid);
+		//Log(s:"Bernabe spawned at ", f:GetActorX(newtid), s:", ", f:GetActorY(newtid));
 	}
 	
 	SetResultValue(0);

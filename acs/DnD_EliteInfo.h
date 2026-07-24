@@ -86,7 +86,7 @@ enum {
 	DND_RAGE,
 	DND_PIERCE,
 	DND_AGGRESSIVE,
-	DND_EXTRAFAST,
+	DND_HASTE,
 	DND_FASTREACTION,
 	
 	DND_NOPAIN,
@@ -150,6 +150,7 @@ enum {
 	DND_LIGHTNING_IMMUNE,
 
 	DND_EXHAUSTING,
+	DND_EXTRASPEED,
 
 	DND_GUARDBROKEN,
 
@@ -225,6 +226,7 @@ int GetEliteModPower(int t) {
 		case DND_POISON:
 		case DND_ENERGYLEECH:
 		case DND_EXHAUSTING:
+		case DND_EXTRASPEED:
 		return DND_MODPOWER_LOW;
 
 		// medium power
@@ -249,7 +251,7 @@ int GetEliteModPower(int t) {
 		case DND_HEXFUSION:
 		case DND_ARMORPEN:
 		case DND_EXTRASTRONG:
-		case DND_EXTRAFAST:
+		case DND_HASTE:
 		case DND_RESURRECT:
 		case DND_FASTPROJ:
 		case DND_CHTHONBLESSED:
@@ -368,8 +370,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_PIERCEARMOR";
 		case DND_AGGRESSIVE:
 		return "DND_EMOD_AGGRESSIVE";
-		case DND_EXTRAFAST:
-		return "DND_EMOD_EXTRAFAST";
+		case DND_HASTE:
+		return "DND_EMOD_HASTE";
 		case DND_FASTREACTION:
 		return "DND_EMOD_FASTREACT";
 		
@@ -486,6 +488,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_LIGHTNING_IMMUNE";
 		case DND_EXHAUSTING:
 		return "DND_EMOD_EXHAUSTING";
+		case DND_EXTRASPEED:
+		return "DND_EMOD_EXTRASPEED";
 
 		case DND_GUARDBROKEN:
 		return "DND_EMOD_GUARDBROKEN";
@@ -501,6 +505,13 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_LEGENDARY";
 	}
 	return "";
+}
+
+Script "DnD Give Monster Extra Speed" (int tid) {
+	SetActivator(tid);
+
+	int m_id = tid - DND_MONSTERTID_BEGIN;
+	SetEliteFlag(m_id, DND_EXTRASPEED, true);
 }
 
 #endif

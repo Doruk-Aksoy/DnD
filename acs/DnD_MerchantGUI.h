@@ -35,12 +35,14 @@ void AcquireItemDimensions(int pos) {
     item_dimensions.x = 40.0;
     item_dimensions.y = 40.0;
 
-    int item_type = TradeViewList[MAXPLAYERS][pos].item_type & 0xFFFF;
+    auto item = GetMerchantItem(pos);
+
+    int item_type = item.item_type & 0xFFFF;
 
     if(item_type != DND_ITEM_BODYARMOR) {
         item_dimensions.x = 40.0;
 
-        if(item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][pos].item_subtype != DND_CHARM_SMALL) {
+        if(item_type == DND_ITEM_CHARM && item.item_subtype != DND_CHARM_SMALL) {
             // we downsize the grand charms to fit the screen better
             item_dimensions.y = 56.0;
         }
@@ -56,8 +58,10 @@ void AcquireItemDimensions(int pos) {
 int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hudy) {
     SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
     
+    auto item = GetMerchantItem(item_pos);
+
     int txt_id = 0;
-    int item_type = TradeViewList[MAXPLAYERS][item_pos].item_type & 0xFFFF;
+    int item_type = item.item_type & 0xFFFF;
     int temp;
     int cpn = ConsolePlayerNumber();
     int yoff = 0;
@@ -65,8 +69,8 @@ int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hu
     int yscale = 1;
     str borderpic = "";
     if(item_type == DND_ITEM_CHARM) {
-        borderpic = GetCharmBoxLabel(TradeViewList[MAXPLAYERS][item_pos].item_subtype, boxid == thisboxid);
-        if(TradeViewList[MAXPLAYERS][item_pos].item_subtype == DND_CHARM_LARGE) {
+        borderpic = GetCharmBoxLabel(item.item_subtype, boxid == thisboxid);
+        if(item.item_subtype == DND_CHARM_LARGE) {
             xscale = 3;
             yscale = 2;
             SetHudSize(HUDMAX_X * xscale / yscale, HUDMAX_Y * xscale / yscale, 1);
@@ -84,11 +88,11 @@ int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hu
     if(item_pos >= DND_MERCHANT_MAXITEMSONROW)
         yoff += DND_MERCHANT_YSHIFTROW;
 
-    SetFont(GetItemImage(TradeViewList[MAXPLAYERS][item_pos].item_image));
+    SetFont(GetItemImage(item.item_image));
     HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUITEMID - 2 * thisboxid - DND_MERCHANT_HUDID_OFFSET - 1, CR_WHITE, GetIntegerBits(hudx) * xscale / yscale + item_dimensions.x / 2 + 0.4, (hudy + yoff) * xscale / yscale, 0.0, 0.0);
     
     if(boxid == thisboxid) {
-        UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_TRADEVIEW, TradeViewList[MAXPLAYERS][item_pos].item_type, MAXPLAYERS, 0, HUDMAX_X, HUDMAX_Y);
+        UpdateCursorHoverData(thisboxid - 1, DND_SYNC_ITEMSOURCE_TRADEVIEW, item.item_type, MAXPLAYERS, 0, HUDMAX_X, HUDMAX_Y);
 
         // hovered so we can return some special text here
         if(random(0, 1.0) <= DND_MERCHANT_CLASSBASED_CHANCE) {
@@ -107,15 +111,15 @@ int DrawMerchantItemBox(int item_pos, int boxid, int thisboxid, int hudx, int hu
                     txt_id = DND_MRCHT_TRICKSTER_CANTAFFORD;
             }
         }
-        else if(!TradeViewList[MAXPLAYERS][item_pos].item_stack) {
+        else if(!item.item_stack) {
             temp = GetActorLevel(cpn + P_TIDSTART);
-            if(temp > TradeViewList[MAXPLAYERS][item_pos].item_level * 3) {
+            if(temp > item.item_level * 3) {
                 if(item_type != DND_ITEM_CHARM)    
                     txt_id = DND_MRCHT_TEXT_LOWLEVELARMOR;
                 else if(item_type == DND_ITEM_CHARM)
                     txt_id = DND_MRCHT_TEXT_LOWLEVELCHARM;
             }
-            else if(temp < TradeViewList[MAXPLAYERS][item_pos].item_level - 10) {
+            else if(temp < item.item_level - 10) {
                 txt_id = random(DND_MRCHT_HOVER_HIGHLEVELITEM1, DND_MRCHT_HOVER_HIGHLEVELITEM2);
             }
         }
@@ -220,11 +224,11 @@ int UpdateMerchantBoxes(menu_pane_T module& p) {
     ResetPane(p);
 
     int ipos = 0, offset = 0, yoff = 0;
-    int item_type = TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
+    int item_type = GlobalItemStorage.TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
     while(item_type != DND_ITEM_NULL) {
         AcquireItemDimensions(ipos);
 
-        if(item_type == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][ipos].item_subtype == DND_CHARM_LARGE)
+        if(item_type == DND_ITEM_CHARM && GlobalItemStorage.TradeViewList[MAXPLAYERS][ipos].item_subtype == DND_CHARM_LARGE)
             item_dimensions.x = 26.0;
 
         AddBoxToPane_Points(p, 400.0 - offset, 200.0 + item_dimensions.y / 2 - yoff, 400.0 - offset - item_dimensions.x, 200.0 - item_dimensions.y / 2 - yoff);
@@ -236,7 +240,7 @@ int UpdateMerchantBoxes(menu_pane_T module& p) {
             offset = 0;
         }
 
-        item_type = TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
+        item_type = GlobalItemStorage.TradeViewList[MAXPLAYERS][ipos].item_type & 0xFFFF;
     }
     
     return ipos;
@@ -381,7 +385,7 @@ Script "DnD Prompt Merchant" (void) CLIENTSIDE {
                 if((k = DrawMerchantItemBox(i, boxid, i + 1, 80.1 + j, 120.0)) != DND_MRCHT_TEXT_DEFAULT)
                     UpdateMerchantText(k);
 
-                if((TradeViewList[MAXPLAYERS][i].item_type & 0xFFFF) == DND_ITEM_CHARM && TradeViewList[MAXPLAYERS][i].item_subtype == DND_CHARM_LARGE)
+                if((GlobalItemStorage.TradeViewList[MAXPLAYERS][i].item_type & 0xFFFF) == DND_ITEM_CHARM && GlobalItemStorage.TradeViewList[MAXPLAYERS][i].item_subtype == DND_CHARM_LARGE)
                     item_dimensions.x = 26.0;
 
                 j += item_dimensions.x + 10.0;
@@ -435,14 +439,14 @@ Script "DND Server Box Receive - Merchant" (int pnum, int boxid) NET {
                     LocalAmbientSound("RPG/MenuChoose", 127);
 
                     // get the item count of merchant
-                    while(TradeViewList[MAXPLAYERS][item_count].item_type != DND_ITEM_NULL)
+                    while(GlobalItemStorage.TradeViewList[MAXPLAYERS][item_count].item_type != DND_ITEM_NULL)
                         ++item_count;
 
                     TakeCredit(GetMerchantItemPrice(boxid - 1));
 
                     // if its a stackable item, clear its ilvl that we stored pricing stuff, we are through price obtaining
-                    if(TradeViewList[MAXPLAYERS][boxid - 1].item_stack)
-                        TradeViewList[MAXPLAYERS][boxid - 1].item_level = 0;
+                    if(GlobalItemStorage.TradeViewList[MAXPLAYERS][boxid - 1].item_stack)
+                        GlobalItemStorage.TradeViewList[MAXPLAYERS][boxid - 1].item_level = 0;
 
                     CarryItemTo(boxid - 1, temp, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, MAXPLAYERS, pnum, false, false, true); // false here prevents freeing of width and height stuff
                     // move every item left by 1

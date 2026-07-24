@@ -266,7 +266,6 @@ bool IsFixedPointMod(int mod) {
 		case INV_CORR_WEAPONDMG:
 		case INV_CORR_DROPCHANCE:
 		case INV_CORR_MOREAOE:
-		case INV_CORR_SPEED:
 
 		case INV_ESS_ERYXIA:
 

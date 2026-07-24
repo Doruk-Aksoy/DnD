@@ -1,7 +1,7 @@
 #ifndef DND_CLASSMENU
 #define DND_CLASSMENU
 
-#include "DnD_DatabaseRows.h"
+#include "Database/DnD_DatabaseRows.h"
 
 #define DND_CLASSMENU_BUTTON_DELAY 4
 #define DND_MAX_CHARACTERSEL_ITEMS 24

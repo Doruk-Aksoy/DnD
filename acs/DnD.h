@@ -1,7 +1,6 @@
 #include "DnD_Common.h"
 #include "DnD_Elites.h"
-#include "DnD_Database.h"
-#include "DnD_MenuConstants.h"
+#include "Database/DnD_Database.h"
 #include "DnD_TempWeps.h"
 #include "DnD_Ammo.h"
 #include "DnD_Monsters.h"
@@ -15,7 +14,7 @@
 #include "DnD_Statistics.h"
 #include "DnD_Scoreboard.h"
 #include "DnD_Attachments.h"
-#include "DnD_Menu.h"
+#include "Menu/DnD_Menu.h"
 
 enum {
 	ITEMFILTER_STACKABLE = 1,
@@ -349,7 +348,7 @@ int GetMonsterKillContribution(int category) {
 }
 
 int GetPunisherTierKillBonus(int m_id) {
-	return (GetMonsterKillContribution(MonsterProperties[m_id].class) << 16) & 0xFFFFF000;
+	return (GetMonsterKillContribution(MonsterProperties[m_id].class) << 16) & 0xFFFF0000;
 }
 
 str GetMonsterSpawnerStr(int id) {
@@ -430,8 +429,7 @@ void CalculateMapDifficulty() {
 
 	factor += ThingCountName("BossBrain", 0) * DND_BOSSBRAIN_CONTRIB;
 
-	// to force initialization of punisher tier count on the map
-	GetPunisherTierRequirement(0, factor);
+	int factor_mons = factor;
 	
 	factor += ThingCountName("InvulnerabilitySphere2", 0) * DND_INVUL_CONTRIB;
 
@@ -460,6 +458,13 @@ void CalculateMapDifficulty() {
 		MapData[DND_MAPDATA_DIFFICULTY] = DND_MAXMAPDIFF;
 
 	CheckOtherMapEvents();
+
+	// to force initialization of punisher tier count on the map
+	// if its a dungeon, do a fixed number based on map difficulty
+	if(!InformationInLevel[LEVELINFO_ISDUNGEON])
+		GetPunisherTierRequirement(0, factor_mons);
+	else
+		GetPunisherTierRequirement(0, MapData[DND_MAPDATA_DIFFICULTY] * DND_PUNISHER_TIERSCALE_DUNGEON);
 }
 
 void CheckOtherMapEvents() {
@@ -530,7 +535,14 @@ void DistributeBonus(int bonustype) {
 		bval = CalculateBonus(BONUS_KILL, MapData[DND_MAPDATA_DIFFICULTY]);
 		for(i = 0; i < MAXPLAYERS; ++i) {
 			if(PlayerInGame(i) && isActorAlive(i + P_TIDSTART)) {
-				temp = GetActorLevelExperience(i + P_TIDSTART) * bval / 100;
+				temp = GetActorLevelExperience(i + P_TIDSTART);
+				if(temp > bcs::INT_MAX / bval) {
+					temp /= 100;
+					temp *= bval;
+				}
+				else
+					temp = temp * bval / 100;
+
 				GiveActorInventory(i + P_TIDSTART, "DnD_KillBonusShower", 1);
 				GiveActorExp(i + P_TIDSTART, temp);
 			}
@@ -733,7 +745,7 @@ void HandleChestDrops(int ctype) {
 	}
 
 	// tid used as value here for credit
-	tid = random(1000, 2000) * (2 * GetCVar("dnd_mode") + 1) * (ctype + 1);
+	tid = random(500, 750) * (2 * GetCVar("dnd_mode") + 1) * (ctype + 1);
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && IsActorAlive(i + P_TIDSTART)) {
 			GiveActorCredit(i, tid);
@@ -787,7 +799,11 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 
 			// this is the effective weight of nothing dropping -- if we pass this roll that means a loot drop can occur and we can check successive rolls after
 			int count = GetAdjustedNothingWeight(p_chance, drop_boost);
+#ifdef ISDEBUGBUILD
+			if(1) {
+#else
 			if(random(1, count + LootTables.monster_loot_weight_sum) <= LootTables.monster_loot_weight_sum) {
+#endif
 				// count how many items to spawn with player's item quant
 				count = 0;
 				while(quant > 0 && MonsterProperties[m_id].rng_vals[count] <= quant) {
@@ -816,7 +832,7 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 }
 
 void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_id, bool is_incursion_monster = false) {
-	switch(drop_id) {
+	/*switch(drop_id) {
 		case DND_MONSTERLOOT_CHARM:
 			if(is_incursion_monster && RollIncursionItemChance())
 				SpawnCharmWithMods(pnum, PickRandomIncursionMod());
@@ -868,7 +884,7 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 		case DND_MONSTERLOOT_DUNGEONKEY:
 			SpawnDungeonKey(pnum);
 		break;
-	}
+	}*/
 }
 
 void HandleLegendaryMonsterDrop(int leg_mon_id, int pnum) {
@@ -1206,7 +1222,7 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 		SetEliteFlag(m_id, DND_HARDENED_SKIN, true);
 
 	if(CheckMapEvent(DND_MAPEVENT_EXTRAFAST))
-		SetEliteFlag(m_id, DND_EXTRAFAST, true);
+		SetEliteFlag(m_id, DND_HASTE, true);
 
 	// init to false
 	//MonsterProperties[m_id].spawnsIncursionMarker = false;

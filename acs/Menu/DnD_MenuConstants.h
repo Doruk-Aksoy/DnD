@@ -1,11 +1,11 @@
 #ifndef DND_MENUCONSTANTS_IN
 #define DND_MENUCONSTANTS_IN
 
-#include "DnD_Ammo.h"
-#include "DnD_SpecialAmmo.h"
-#include "DnD_Artifacts.h"
-#include "DnD_Abilities.h"
-#include "DnD_OrbDefs.h"
+#include "../DnD_Ammo.h"
+#include "../DnD_SpecialAmmo.h"
+#include "../DnD_Artifacts.h"
+#include "../DnD_Abilities.h"
+#include "../Inventory/DnD_OrbDefs.h"
 
 #define DND_QUICKBUY_POPUPID 0xFFFF
 #define DND_LANGUAGE_LOOKUP true

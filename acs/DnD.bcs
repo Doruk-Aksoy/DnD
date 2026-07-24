@@ -4,7 +4,7 @@
 
 #include "DnD_MonsterData.h"
 #include "DnD_Shared.h"
-#include "DnD_Orbs.h"
+#include "Inventory/DnD_Orbs.h"
 #include "DnD.h"
 #include "DnD_Prompts.h"
 
@@ -212,10 +212,21 @@ Script "DnD Clientside Open" OPEN CLIENTSIDE {
 // Triggers on each map load
 Script "DnD On Map Load" OPEN {
 	// when it increments in createitem func, it'll be forced to be 0
-	PointerIndexTable[PTR_FREEITEMWORLD] = MAX_INVENTORIES_ON_FIELD;
+	//SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+	GlobalItemStorage.PointerIndexTable[PTR_FREEITEMWORLD] = MAX_INVENTORIES_ON_FIELD;
 
 	// allow for incursion checks
 	MapData[DND_MAPDATA_INCURSIONSTATE] = DND_INCURSION_NA;
+
+	UpdateLevelInformation();
+
+	// this is to catch the first map launch case
+	while(GetGameModeState() != GAMESTATE_INPROGRESS)
+		Delay(const:TICRATE);
+
+	ResetUsedMonsterTIDs();
+
+	Delay(const:1);
 
 	//Log(d:DND_TEMP_PROJTID);
 	//Log(d:DRAUGR_TEMP_FX);
@@ -231,8 +242,6 @@ Script "DnD On Map Load" OPEN {
 	ResetSharedVariables();
 	ResetPlayerInformationLevel();
 
-	UpdateLevelInformation();
-
 	ScoreBoardData[DND_SCBRD_TRIGGERED] = 0;
 	
 	// check for players that are spectating, reset their playerloaded variable (fixes bug where people can leave during intermission and cant load character until they spec again)
@@ -241,24 +250,11 @@ Script "DnD On Map Load" OPEN {
 		if(PlayerIsSpectator(i) == INTER_PSTATE_SPECTATING)
 			PlayerGameState[i] = 0;
 	}
-	
-	// wait just in case for the level to really begin
-	while(GetGameModeState() != GAMESTATE_INPROGRESS)
-		Delay(const:TICRATE);
 
 	// reset used TIDs
-	i = 0;
-	Delay(const:7);
-	//Log(s:"check start cond ", d:UsedMonsterTIDs[i], s: " ", d:DND_MONSTERTID_BEGIN);
-	while(UsedMonsterTIDs[i] >= DND_MONSTERTID_BEGIN) {
-		//Log(s:"clear id ", d:i);
-		UsedMonsterTIDs[i] = 0;
-		++i;
-	}
+	Delay(const:5);
 
 	CreateMonsterTranslationTables();
-	
-	SetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 
 	if(!IsSetupComplete(SETUP_STATE1, SETUP_GLOBALCONSTANTSETUPS)) {
 		Build_Constants();
@@ -271,7 +267,7 @@ Script "DnD On Map Load" OPEN {
 	RollMapEvents();
 
 	// merchant uses alias tables
-	if(CheckMapEvent(DND_MAPEVENT_MERCHANTID))
+	if(!CheckMapEvent(DND_MAPEVENT_MERCHANTID))
 		ClearPlayerAliasTables(MAXPLAYERS);
 	else {
 		SetupPlayerAliasTables(MAXPLAYERS);
@@ -424,6 +420,10 @@ Script "DnD On Death" DEATH {
 	Thing_ChangeTID(0, 0);
 
 	Delay(const:5);
+
+	// everyone died in survival and its dungeon
+	if(GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE && InformationInLevel[LEVELINFO_ISDUNGEON])
+		InformationInLevel[LEVELINFO_DUNGEONMUSTRESET] = true;
 }
 
 // Health Kits Script (Used by Portable Medikits as well, ported here)
@@ -1040,8 +1040,6 @@ Script "DND On Kill" KILL {
 	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && HasClassPerk_Fast("Hobo", 5))
 		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
 	
-	
-	
 	if(IsMonsterIdDemon(m_id) && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
 		if(CheckInventory("Research_Slot3Upgrade3_Tracker") == GetAmmoCapacity("Research_Slot3Upgrade3_Tracker")) {
@@ -1647,6 +1645,9 @@ Script "DnD Setup Shootable" (void) {
 
 // Monster scaler -- add scaling stuff here
 Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int hp_mult) {
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+		Delay(const:5);
+
 	GiveMonsterTID(ActivatorTID());
 
 	//printbold(s:"Monster ", s:GetActorClass(0), s:" id ", d:ActivatorTID());
@@ -1805,6 +1806,9 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 // next 5 bits holds monster class (shotgunner, baron etc)
 // next 6 bits holds monster type powers (demon, undead, zombie, robot etc.)
 Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int traits3) {
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+		Delay(const:5);
+
 	GiveMonsterTID(ActivatorTID());
 	int maxhp, base, add, pcount = PlayerCount(), this = ActivatorTID(), realhp = GetActorProperty(0, APROP_SPAWNHEALTH);
 	int m_id = this - DND_MONSTERTID_BEGIN;
@@ -2397,6 +2401,9 @@ Script "DnD Player Levelup Check" (int tid) {
 			Terminate;
 
 		exptemp = GetPlayerExp(pnum) - LevelCurve[currlvl - 1];
+		if(exptemp < 0)
+			exptemp = 0;
+
 		if(!((currlvl + 1) % 5)) { // multiples of 5 give perk
 			GiveActorInventory(tid, "PerkPoint", 1);
 			UpdateActivity(pnum, DND_ACTIVITY_PERKPOINT, 1, 0);
@@ -3006,14 +3013,19 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	ACS_NamedExecuteAlways("DnD Menu Icon Force Remove", 0, pnum + DND_MENUFLOATYICON_TID);
 
 	ClearPlayerAliasTables(pnum);
+
+	if(InformationInLevel[LEVELINFO_ISDUNGEON] && !GetActivePlayerCount())
+		ACS_ExecuteAlways(255, 0, 0, 1, 0);
 }
 
 // End of level checks
 Script "DnD On Unloading" UNLOADING {
+	SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+	ResetUsedMonsterTIDs();
+
 	int tid;
 	SetupComplete(SETUP_STATE1, SETUP_MAPCHANGED);
 	SetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
-	SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 	SetupUndo(SETUP_STATE1, SETUP_MAPEVENTS);
 	//Field items are global, but new items simply replace old ones no questions asked, so no need to clear this.
 	//ResetFieldInventory();
@@ -3085,6 +3097,13 @@ Script "DnD Player Setup" ENTER {
 
 	for(i = 0; i < MAX_FLASK_SLOTS; ++i)
 		UpdatePlayerFlaskData(pnum, i, true);
+
+	if(InformationInLevel[LEVELINFO_DUNGEONMUSTRESET]) {
+		while(GetGamemodeState() != GAMESTATE_INPROGRESS)
+			Delay(const:TICRATE);
+		InformationInLevel[LEVELINFO_DUNGEONMUSTRESET] = false;
+		ACS_ExecuteAlways(255, 0, 0, 1, 0);
+	}
 	
 	// scanner runner
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
@@ -4319,9 +4338,12 @@ Script "DnD Talisman Mark" (int tid) CLIENTSIDE {
 }
 
 Script "DnD Chest Dropping Item" (int chance_penalty) {
+	//Log(s:"check chest drop script");
 	// after the initial spawning this will be checked to not spawn a chest again
-	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+	if(IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS) && !InformationInLevel[LEVELINFO_ISDUNGEON])
 		Terminate;
+
+	//Log(s:"pass");
 
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
@@ -4506,7 +4528,7 @@ Script "DnD Charm Pickup" (int sp) {
 		SetActivatorToTarget(0);
 	else
 		SetActivator((sp & 0xFFFF) + P_TIDSTART);
-	ACS_NamedExecuteAlways("DnD Charm Message", 0, Inventories_On_Field[sp >> 16].item_subtype, Inventories_On_Field[sp >> 16].item_type);
+	ACS_NamedExecuteAlways("DnD Charm Message", 0, GlobalItemStorage.Inventories_On_Field[sp >> 16].item_subtype, GlobalItemStorage.Inventories_On_Field[sp >> 16].item_type);
 	GiveInventory("CharmSoundPlayer", 1);
 	HandleInventoryPickup(sp >> 16);
 }
@@ -4523,12 +4545,14 @@ Script "DnD Player Has Spot For Item" (int sp) {
 			int ipos = sp >> 16;
 			bool res = !CheckInventory("DnD_WaitNextItemPick");
 
+			auto item = GetFieldItem(ipos);
+
 			if
 			(
 				!CheckInventory("AutoPickCooldown") &&
-					(((filter & ITEMFILTER_STACKABLE) && Inventories_On_Field[ipos].item_stack) ||
-					((filter & ITEMFILTER_CHARM) && (Inventories_On_Field[ipos].item_type & 0xFFFF) == DND_ITEM_CHARM) ||
-					(filter & ITEMFILTER_ARMOR) && (IsArmorTypeItem(Inventories_On_Field[ipos].item_type & 0xFFFF)))
+					(((filter & ITEMFILTER_STACKABLE) && item.item_stack) ||
+					((filter & ITEMFILTER_CHARM) && (item.item_type & 0xFFFF) == DND_ITEM_CHARM) ||
+					(filter & ITEMFILTER_ARMOR) && (IsArmorTypeItem(item.item_type & 0xFFFF)))
 			)
 			{
 				// actually do nothing here as res will only need to check for waiting item pick cooldown, rather than pressing use
@@ -4542,7 +4566,7 @@ Script "DnD Player Has Spot For Item" (int sp) {
 
 				int pnum = PlayerNumber();
 				bool spot = false;
-				if(Inventories_On_Field[ipos].item_stack)
+				if(item.item_stack)
 					spot = GetFreeSpotForItemWithStack(ipos, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, false) != -1;
 				else
 					spot = GetFreeSpotForItem(ipos, pnum, DND_SYNC_ITEMSOURCE_FIELD, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) != -1;
@@ -5224,39 +5248,6 @@ Script "DnD Budget Giver" (int amt) {
 	GiveBudget(amt);
 }
 
-Script "DnD Punisher Perk50 Display" (void) CLIENTSIDE {
-	if(PlayerNumber() != ConsolePlayerNumber())
-		Terminate;
-
-	while(!HasClassPerk_Fast("Punisher", 3)) {
-		if(!IsAlive())
-			Terminate;
-		Delay(const:TICRATE);
-	}
-
-	int tmp = 0;
-	int pnum = PlayerNumber();
-	while(IsAlive() && PlayerInGame(pnum)) {
-		SetFont("OBJFONT");
-		SetHudSize(900, 600, 1);
-		int x = (GetHudRight(900) << 16) - 5.8;
-		int curr_tier = CheckInventory("Punisher_Perk50_Tiers");
-		tmp = CheckInventory("Punisher_Perk50_Counter");
-		
-		HudMessage(l:"DND_CURRTIER", s:": \c[I7]", d:curr_tier, s:"\c- - \c[I7]", s:GetFixedRepresentation(CheckInventory("Punisher_Perk50_DamageBonus"), true), s:"%\c- more damage"; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
-		
-		int req = CheckInventory("Punisher_Perk50_NextReq");
-		if(curr_tier < DND_MAX_PUNISHER_PERK50_TIERS - 1)
-			HudMessage(l:"DND_OBTAIN", s:" \c[I7]", f:(req - tmp) & 0xFFFFF000, s:"\c- ", l:"DND_POINTS", s: " ", l:"DND_FORBUFF"; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
-		else
-			HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
-		Delay(const:5);
-	}
-
-	HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID1, -1, x, 450.0, 0.0);
-	HudMessage(s:""; HUDMSG_PLAIN, PUNISHERPERKID2, -1, x, 480.0, 0.0);
-}
-
 Script 1006 (int pnum) NET CLIENTSIDE {
 	if(PlayerInGame(pnum)) {
 		int tid = pnum + P_TIDSTART;
@@ -5296,8 +5287,9 @@ Script 1006 (int pnum) NET CLIENTSIDE {
 				
 		Log(s:"\n--------------------------------\n------- ", l:"DND_MENU_HEAD_CHARMS", s:" -------\n--------------------------------\n");
 		for(i = 0; i < MAX_ITEMS_EQUIPPABLE; ++i) {
-			itype = Items_Used[pnum][i].item_type;
-			isubt = Items_Used[pnum][i].item_subtype;
+			auto item = GetUsedItem(pnum, i);
+			itype = item.item_type;
+			isubt = item.item_subtype;
 			if(itype != DND_ITEM_NULL) {
 				if(itype == DND_ITEM_CHARM) {
 					temp = GetItemSyncValue(pnum, DND_SYNC_ITEMLEVEL, i, -1, DND_SYNC_ITEMSOURCE_ITEMSUSED) / CHARM_ATTRIBLEVEL_SEPERATOR;
@@ -5415,7 +5407,7 @@ Script "DnD Item Linger Check" (void) {
 		++counter;
 		Delay(const:TICRATE);
 		// if this is picked up, terminate early
-		if(Inventories_On_Field[sp].item_type == DND_ITEM_NULL)
+		if(GlobalItemStorage.Inventories_On_Field[sp].item_type == DND_ITEM_NULL)
 			Terminate;
 	}
 
@@ -5760,7 +5752,7 @@ Script "DnD Ammo Token Pickup" (void) {
 	int pnum = PlayerNumber();
 	do {
 		id = PickRandomOwnedWeaponID(pnum);
-	} while(Weapons_Data[id].ammo_name1 == "");
+	} while(!IsAmmoUsingWeapon(id));
 
 	// give 10% ammo on this weapon -- soulrender has weapon condition as ammo1 so dont give if it is 
 	str ammo;
@@ -5883,7 +5875,7 @@ Script "DnD Request Level Info" (int val) {
 	#define LEVELINFO_MINPLAYERLEVEL 1
 	#define LEVELINFO_MAXPLAYERLEVEL 2
 	#define LEVELINFO_PLAYERCOUNTATSTART 3
-	#define LEVELINFO_TIDMONSTER 4*/
+	#define LEVELINFO_SKIPPEDMONSTERTID 4*/
 	if(val > MAX_LEVELINFO_DATA - 1)
 		val = MAX_LEVELINFO_DATA - 1;
 	SetResultValue(InformationInLevel[val]);
@@ -6016,8 +6008,9 @@ Script "DnD Vaaj Heart Fx" (void) CLIENTSIDE {
 Script "DnD Spawn Charge" (int tid, int charge_type, int amt) CLIENTSIDE {
 	int pnum = tid - P_TIDSTART;
 
-	if(ConsolePlayerNumber() != pnum)
-		Terminate;
+	// let others see you became a christmas tree
+	//if(ConsolePlayerNumber() != pnum)
+	//	Terminate;
 
 	str actor = "FrenzyCharge";
 	if(charge_type == DND_CHARGE_ENDURANCE)
@@ -6123,6 +6116,8 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 700);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ENHANCE, true, true, 700);
+			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ALCHEMIST, true, true, 700);
 			SpawnToken(0, true);
 			//Log(s:"boot");
 			SpawnBoot(0, 0);
@@ -6251,7 +6246,7 @@ Script 68 (int x) NET {
 }
 
 #ifdef ISDEBUGBUILD
-Script "table test" (int boost) {
+Script "table test" (int boost) NET {
 	if(!boost)
 		boost = 100;
 	TestMonsterDropTable(PlayerNumber(), boost);

@@ -38,6 +38,8 @@ int GetMagicHealthScale(int level) {
 #define DND_VIOLENTRETALIATION_CHANCE 50
 #define DND_HEXFUSION_CHANCE 33
 
+#define DND_EXTRASPEED_BUFF 1.5
+
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
@@ -130,7 +132,7 @@ global elite_traits_data_T 36: EliteTraitData;
 										InsertUniqueEliteTraitThreshold(thresholds, MapEliteLevelToThresholdID(Y)); \
 										++i
 
-void CreateEliteAliasTables(elite_unique_levels_T module& thresholds) {
+void CreateEliteAliasTables(elite_unique_levels_T module& thresholds, int size) {
 	int curr_count = 0;
 	for(int i = 0; i < MAX_ELITE_LEVEL_THRESHOLDS; ++i) {
 		curr_count += thresholds.levels[i];
@@ -139,7 +141,7 @@ void CreateEliteAliasTables(elite_unique_levels_T module& thresholds) {
 
 		int index = 0;
 		int lvl_to_compare = MapThresholdIdToEliteLevel(i);
-		for(int j = 0; j < MAX_ROLLABLE_TRAITS; ++j) {
+		for(int j = 0; j < size; ++j) {
 			if(EliteTraitData.info[j].lvl_req <= lvl_to_compare) {
 				EliteTraitData.alias_tables[i].weights[index] = EliteTraitData.info[j].weight;
 				++index;
@@ -176,7 +178,7 @@ void SetupEliteModWeights() {
 	INSERT_ELITEMODPOOL(DND_HARDENED_SKIN, 0, 250);
 	INSERT_ELITEMODPOOL(DND_REFLECTIVE, 40, 60);
 	INSERT_ELITEMODPOOL(DND_AGGRESSIVE, 0, 375);
-	INSERT_ELITEMODPOOL(DND_EXTRAFAST, 30, 150);
+	INSERT_ELITEMODPOOL(DND_HASTE, 30, 150);
 	
 	INSERT_ELITEMODPOOL(DND_FASTREACTION, 0, 500);
 	INSERT_ELITEMODPOOL(DND_NOPAIN, 0, 250);
@@ -230,9 +232,10 @@ void SetupEliteModWeights() {
 	INSERT_ELITEMODPOOL(DND_LIGHTNING_IMMUNE, 36, 125);
 
 	INSERT_ELITEMODPOOL(DND_EXHAUSTING, 30, 180);
+	INSERT_ELITEMODPOOL(DND_EXTRASPEED, 0, 250);
 
 	// build the tables off of this info
-	CreateEliteAliasTables(thresholds);
+	CreateEliteAliasTables(thresholds, i);
 }
 
 bool HasTrait(int id, int trait_index) {
@@ -341,8 +344,11 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 		case DND_AGGRESSIVE:
 			GiveInventory("MakeAggressive", 1);
 		break;
-		case DND_EXTRAFAST:
+		case DND_HASTE:
 			GiveInventory("MakeFaster", 1);
+		break;
+		case DND_EXTRASPEED:
+			SetActorProperty(0, APROP_SPEED, FixedMul(GetActorProperty(0, APROP_SPEED), DND_EXTRASPEED_BUFF));
 		break;
 		case DND_FASTREACTION:
 			GiveInventory("MakeRetaliate", 1);

@@ -562,7 +562,7 @@ enum {
 int GetDungeonMonsterTypes(int id) {
 	switch(id) {
 		case DND_DUNGEON_VOIDKEEP:
-		return DUNGEON_MONTYPE_DEMON | DUNGEON_MONTYPE_ELDRITCH;
+		return DUNGEON_MONTYPE_DEMON | DUNGEON_MONTYPE_ELDRITCH | DUNGEON_MONTYPE_UNDEAD;
 	}
 	return 0;
 }
