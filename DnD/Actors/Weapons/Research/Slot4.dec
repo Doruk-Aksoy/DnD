@@ -43,7 +43,7 @@ Actor ResMG1 : DnDWeapon {
 			TNT1 A 0 A_Raise
 		Loop
 		Fire:
-			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_GRENADE, "FireGrenade")
+			TNT1 A 0 A_JumpIfInventory("SpecialAmmoMode_4", AMMO_SPECIAL_GRENADE, "FireGrenade")
 			TNT1 A 0 A_JumpIfInventory("DnD_CanFire", 1, "FireConfirmed")
 			RW03 A 3 A_WeaponReady(WRF_NOFIRE | WRF_NOSWITCH)
 		Goto Reload

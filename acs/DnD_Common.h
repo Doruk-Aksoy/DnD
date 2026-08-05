@@ -10,6 +10,7 @@
 #define ISDEBUGBUILD
 //#define WANTCURSORPOS
 //#define VERBOSE_MONSTER_SETUP
+#define WANT_BUFF_LOG
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -722,6 +723,10 @@ int IsActorAlive(int tid) {
 
 int IsDigit(int c) {
 	return c >= '0' && c <= '9';
+}
+
+bool IsActivePlayer(int pnum) {
+	return PlayerInGame(pnum) && !PlayerIsSpectator(pnum);
 }
 
 int GetActivePlayerCount() {

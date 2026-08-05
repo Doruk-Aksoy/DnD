@@ -1433,8 +1433,7 @@ int CheckBleedChance(int pnum, int wepid, int victim) {
 
 	base += GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
 	base += CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDCHANCE;
-
-	return random(1, 100) < base;
+	return random(1, 100) <= base;
 }
 
 str GetBleedChanceDisplay(int pnum) {
@@ -1556,9 +1555,9 @@ int GetCritChance_Display(int pnum) {
 	
 	// how it works: let crit chance be "p", you either get a crit, which is probability "p", or you don't and then you get it, which is p * (1 - p)
 	// add them both, we get: 2p - p^2, which is our theoretical crit chance if we are lucky
-	if(GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT))
+	if(GetPlayerAttributeValue(pnum, INV_EX_ABILITY_LUCKYCRIT) && base < 1.0)
 		base = 2 * base - FixedMul(base, base);
-	
+
 	return base;
 }
 

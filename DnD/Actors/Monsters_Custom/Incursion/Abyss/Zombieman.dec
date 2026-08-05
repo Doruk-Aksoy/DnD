@@ -70,7 +70,7 @@ ACTOR AbyssalZombieman : DnD_BaseRangedMonster {
 			C014 PQRST 5
 			C014 U -1
 		Stop
-		Raise:
+		RaiseState:
 			C014 KJIH 5
 		Goto See	
 	}

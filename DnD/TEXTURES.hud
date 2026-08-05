@@ -1,0 +1,5 @@
+// White, for phasing
+Graphic "H_BGLEFW", 239, 80
+{
+	Patch "H_BGLEFT", 0, 0
+}

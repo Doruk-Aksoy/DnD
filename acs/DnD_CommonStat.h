@@ -370,13 +370,6 @@ Script "DnD Check Unique Player Property" (int prop) {
 #define DND_HARDCORE_LOADTIME 5 // minimum time for hardcore load
 #define DND_HARDCORE_SCREENID 6
 
-enum {
-	RESET_LEVEL = 1,
-	RESET_CREDIT = 2,
-	RESET_STATS = 4,
-	RESET_PERKS = 8
-};
-
 str GetAttributeLabel(int id) {
 	return StrParam(s:"DND_MENU_ATTR", d:id + 1);
 }
@@ -856,6 +849,7 @@ int GetPlayerEnergyShieldCap(int pnum) {
 #define DND_MIT_PER_DEX 0.2
 #define DND_MIT_BASE 50.0 // 50%
 #define DND_MIT_MAXEFFECT 90.0
+#define DND_MIT_MAXCHANCE 100.0
 
 int GetMitigationChance(int pnum, bool forcedReturn = false) {
 	if(!forcedReturn && GetPlayerAttributeValue(pnum, INV_INC_MITIGATIONTODODGE))
@@ -864,6 +858,10 @@ int GetMitigationChance(int pnum, bool forcedReturn = false) {
 	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + GetPlayerAttributeValue(pnum, INV_MIT_INCREASE);
 	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
 	base += pbuffs[pnum].buff_net_values[BUFF_MITIGATION].additive;
+
+	if(base >= DND_MIT_MAXCHANCE)
+		base = DND_MIT_MAXCHANCE;
+
 	return base;
 }
 

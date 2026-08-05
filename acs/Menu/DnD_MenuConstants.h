@@ -14,6 +14,8 @@
 #define DND_BUDGET_CONVERSION_CREDIT 10000
 #define DND_TRANSMUTE_COST 5000
 
+#define DND_MENU_MAX_AILMENTDESCRIPTIONS 6
+
 typedef struct {
 	int val[MAX_TRANSMUTE_BOXES];
 } transmute_data_T;

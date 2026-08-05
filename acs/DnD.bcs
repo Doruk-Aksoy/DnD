@@ -1661,9 +1661,6 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 
 	if(!pcount)
 		pcount = 1;
-
-	if(!hp_mult)
-		hp_mult = 1;
 	
 	MonsterProperties[m_id].id = monsterid;
 
@@ -1676,6 +1673,10 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 	LoadMonsterTraits(m_id, monsterid);
 	if(isSummoned)
 		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
+
+	// only allow the hp multiplier feature for bosses placed in maps specifically
+	if(!hp_mult || !IsBossTID(this))
+		hp_mult = 1;
 
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
@@ -1778,6 +1779,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 		// In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
 		// Just kill it
 		//Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None");
+		Log(s:"Monster ", s:GetActorClass(0), s: " removed due to hp overflow");
 		Thing_Remove(this);
 		SetResultValue(0);
 		Terminate;
@@ -3198,7 +3200,11 @@ Script "DnD Player Setup" ENTER {
 		SetInventory("ShowingMenu", 0);
 		SetInventory("ShowingPrompt", 0);
 		SetInventory("ShowingMerchantView", 0);
-		Reset_RPGInfo(RESET_LEVEL | RESET_CREDIT | RESET_STATS | RESET_PERKS);
+
+		SetPlayerExp(pnum, 0);
+		SetInventory("Level", 1);
+		SetInventory("Credit", 0);
+
 		TakeInventory("DnD_StatListOpen", 1);
 		GiveInventory(" Fists ", 1);
 		GiveInventory(" Pistol ", 1);
@@ -3207,6 +3213,10 @@ Script "DnD Player Setup" ENTER {
 		ACS_NamedExecuteAlways("DND Menu Cleanup", 0, pnum);
 		ResetPlayerItemsUsed(pnum);
 	}
+
+	// level stats
+	SetInventory("DnD_LevelExp", 0);
+	SetInventory("DnD_LevelCredit", 0);
 	
 	while(pinfo_pending_reset)
 		Delay(const:10);
@@ -3224,7 +3234,8 @@ Script "DnD Player Setup" ENTER {
 	
 	PostPlayerLoadRoutine(pnum);
 
-	SetupUndo(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
+	if(InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART] >= GetActivePlayerCount())
+		SetupUndo(SETUP_STATE1, SETUP_PLAYERDATAFINISHED);
 
 	if(isSoftorHardcore()) {
 		ACS_NamedExecuteAlways("DND Hardcore Monster Message", 0);
@@ -6133,6 +6144,7 @@ Script 68 (int x) NET {
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
+			IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 0.1);
 			//IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 1.5);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 1.6);
 			//IncPlayerModValue(0, INV_LIFESTEAL_DAMAGE, 0.05);
@@ -6141,6 +6153,7 @@ Script 68 (int x) NET {
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);*/
+			//IncPlayerModValue(0, INV_AMMOGAIN_CHANCE, 50);
 			//IncPlayerModValue(0, INV_ESS_KRULL, 50);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 0.875);
 			//IncPlayerModValue(0, INV_ACCURACY_INCREASE, 500);
@@ -6251,14 +6264,18 @@ Script "table test" (int boost) NET {
 		boost = 100;
 	TestMonsterDropTable(PlayerNumber(), boost);
 }
-/*Script "DnD Damage Script Output" (void) OPEN {
+
+#ifdef WANT_BUFF_LOG
+Script "DnD Damage Script Output" (void) OPEN {
 	while(1) {
 		Delay(const:TICRATE);
 		//Log(s:"Dmg script count: ", d:damage_script_count);
 		LogBuffList(0);
 		damage_script_count = 0;
 	}
-}*/
+}
+#endif
+
 #endif
 
 /*Script "DnD Buff Test" ENTER {

@@ -1421,7 +1421,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_AVOID_BLEED].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
 	ItemModTable[INV_CHANCE_BLEED].attrib_low = 1;
-	ItemModTable[INV_CHANCE_BLEED].attrib_high = 9;
+	ItemModTable[INV_CHANCE_BLEED].attrib_high = 3;
 	ItemModTable[INV_CHANCE_BLEED].attrib_level_modifier = 0;
 	ItemModTable[INV_CHANCE_BLEED].tags = INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_ATTACK;
 	ItemModTable[INV_CHANCE_BLEED].weight = 500;

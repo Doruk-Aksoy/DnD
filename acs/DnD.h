@@ -298,20 +298,6 @@ enum {
 int DnD_StateChecker[MAX_STATES];
 // see if map changed or not
 
-void Reset_RPGInfo (int resetflags) {
-	int i;
-	int pnum = PlayerNumber();
-	if(resetflags & RESET_LEVEL) {
-		SetPlayerExp(pnum, 0);
-		SetInventory("DnD_LevelExp", 0);
-		SetInventory("DnD_LevelCredit", 0);
-		SetInventory("Level", 1);
-	}
-	
-	if(resetflags & RESET_CREDIT)
-		SetInventory("Credit", 0);
-}
-
 int DnD_BonusMessageY(int bonustype) {
 	int res = 34.1;
 	for(int i = DND_STATECHECK_KILLBONUS; i <= DND_STATECHECK_BONUSBONUS; ++i)
@@ -832,7 +818,7 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 }
 
 void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_id, bool is_incursion_monster = false) {
-	/*switch(drop_id) {
+	switch(drop_id) {
 		case DND_MONSTERLOOT_CHARM:
 			if(is_incursion_monster && RollIncursionItemChance())
 				SpawnCharmWithMods(pnum, PickRandomIncursionMod());
@@ -884,7 +870,7 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 		case DND_MONSTERLOOT_DUNGEONKEY:
 			SpawnDungeonKey(pnum);
 		break;
-	}*/
+	}
 }
 
 void HandleLegendaryMonsterDrop(int leg_mon_id, int pnum) {
@@ -1147,6 +1133,24 @@ int GetWeaponSlotFromFlag(int flags) {
 	return 0;
 }
 
+void CheckMonsterMapEventBuffs(int m_id) {
+	int temp;
+	if((temp = HasDungeonAttributeVal(DUN_ATTR_FORTIFIED)) != -1 && random(1, 100) <= temp)
+		SetEliteFlag(m_id, DND_FORTIFIED, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_GHOST))
+		SetEliteFlag(m_id, DND_GHOST, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_NOPAIN))
+		SetEliteFlag(m_id, DND_NOPAIN, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_NORIP))
+		SetEliteFlag(m_id, DND_HARDENED_SKIN, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_EXTRAFAST))
+		SetEliteFlag(m_id, DND_HASTE, true);
+}
+
 int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int hp_mult) {
 	int base = realhp * hp_mult;
 	int add = 0, level = 1, low, high, temp;
@@ -1209,20 +1213,10 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 	MonsterProperties[m_id].maxhp = base + add;
 	MonsterProperties[m_id].level = level;
 
-	if((temp = HasDungeonAttributeVal(DUN_ATTR_FORTIFIED)) != -1 && random(1, 100) <= temp)
-		SetEliteFlag(m_id, DND_FORTIFIED, true);
+	//printbold(s:"base ", d:base, s: " add ", d:add, s: " level ", d:level);
 
-	if(CheckMapEvent(DND_MAPEVENT_GHOST))
-		SetEliteFlag(m_id, DND_GHOST, true);
-
-	if(CheckMapEvent(DND_MAPEVENT_NOPAIN))
-		SetEliteFlag(m_id, DND_NOPAIN, true);
-
-	if(CheckMapEvent(DND_MAPEVENT_NORIP))
-		SetEliteFlag(m_id, DND_HARDENED_SKIN, true);
-
-	if(CheckMapEvent(DND_MAPEVENT_EXTRAFAST))
-		SetEliteFlag(m_id, DND_HASTE, true);
+	// map event buffs
+	CheckMonsterMapEventBuffs(m_id);
 
 	// init to false
 	//MonsterProperties[m_id].spawnsIncursionMarker = false;
@@ -1602,7 +1596,7 @@ void CheckEOL(bool isSpectate, int game_mode = -1) {
 		}
 	}
 	else
-		isEOL = !PlayerCount();
+		isEOL = !GetActivePlayerCount();
 	
 	if(isEOL/* && TransactionMade*/)
 	{

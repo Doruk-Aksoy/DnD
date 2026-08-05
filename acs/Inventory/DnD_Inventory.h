@@ -968,7 +968,7 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 	// check if there's enough space
 	// find if there is some sort of offset we must take care of, this matters only if we are swapping in inventory
 	int offset1 = 0, offset2 = 0;
-	int i, j, h1p, h2p, w1p, w2p;
+	int h1p, h2p, w1p, w2p, i2_type;
 	if(IsSourceInventoryView(source1))
 		offset1 = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos1, -1, source1) - 1 - ipos1;
 	if(IsSourceInventoryView(source2))
@@ -978,6 +978,7 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 	h1p = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, source1);
 	h2p = GetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, source2);
 	w1p = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, ipos1 + offset1, -1, source1);
+
 	if(
 		h1p && h2p &&
 		w1p == GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, ipos2 + offset2, -1, source2) &&
@@ -998,8 +999,8 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, h2p - w2p + h1p, source2);
 				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, w2p, source1);
 			}
-			else {
-				// just swap around
+			else if(h1p <= GetStackValue(w1p, source2) && h2p <= w2p) {
+				// one of them is max stack of the source that can handle! just swap around
 				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos2 + offset2, -1, h1p, source2);
 				SetItemSyncValue(pnum, DND_SYNC_ITEMSTACK, ipos1 + offset1, -1, h2p, source1);
 			}

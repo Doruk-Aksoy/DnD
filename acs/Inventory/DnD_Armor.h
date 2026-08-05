@@ -162,10 +162,6 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 			res = BODYARMOR_GREEN;
 		else
 			res = BODYARMOR_YELLOW;
-		// make sure everyone can equip this armor (we need this to ensure map spawned armors are readily equippable)
-		item_tier = InformationInLevel[LEVELINFO_MINPLAYERLEVEL];
-		if(!item_tier || item_tier == bcs::INT_MAX)
-			item_tier = 1;
 	}
 	else if(tiers == 2) {
 		// 1/5 chance to be red
@@ -174,15 +170,9 @@ int ConstructArmorDataOnField(int item_pos, int item_tier, int tiers = 0, int ex
 			res = BODYARMOR_BLUE;
 		else
 			res = BODYARMOR_RED;
-		item_tier = InformationInLevel[LEVELINFO_MINPLAYERLEVEL];
-		if(!item_tier || item_tier == bcs::INT_MAX)
-			item_tier = 1 + random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL] / 2, InformationInLevel[LEVELINFO_MINPLAYERLEVEL] - 1);
 	}
 	else if(tiers < 0)
 		res = -tiers;
-
-	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
-		item_tier = GetCVar("dnd_maxmonsterlevel");
 
 	auto item = GetFieldItem(item_pos);
 
@@ -272,7 +262,7 @@ int ConstructHelmDataOnField(int item_pos, int item_tier, int helm = -1) {
 	else
 		res = helm;
 
-	res = HELMS_ELDER;
+	//res = HELMS_ELDER;
 
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");
@@ -416,13 +406,13 @@ Script "DnD Armor Message" (int id, int type) CLIENTSIDE {
 
 Script "DnD Drop Random Basic Armor" (int higher_tier, int dont_remove) {
 	// wait for the setup phase to finish
-	while(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS) || IsSetupComplete(SETUP_STATE1 , SETUP_PLAYERDATAFINISHED))
+	while(!isSetupComplete(SETUP_STATE1, SETUP_ITEMTABLES) || !IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS) || IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
 		Delay(const:TICRATE);
 
 	Delay(const:HALF_TICRATE);
 
 	for(int i = 0; i < MAXPLAYERS; ++i) {
-		if(PlayerInGame(i) && !PlayerIsSpectator(i) && IsActorAlive(i + P_TIDSTART))
+		if(IsActivePlayer(i) && IsActorAlive(i + P_TIDSTART))
 			SpawnArmor(i, 0, higher_tier, true);
 	}
 

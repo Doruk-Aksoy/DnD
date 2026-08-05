@@ -937,12 +937,6 @@ void LoadPlayerData(int pnum, int char_id) {
 		}
 	}
 	
-	// read special ammos
-	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
-		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:GetSpecialAmmoStr(i, AMMOINFO_NAME)), pacc);
-		SetInventory(GetSpecialAmmoStr(i, AMMOINFO_NAME), temp);
-	}
-	
 	// read clip ammos
 	for(i = 0; i < MAXCLIPAMMOTYPES; ++i) {
 		a_info = GetAmmoInfo(DND_AMMOSLOT_MAGAZINE, i);
@@ -1002,6 +996,15 @@ void LoadPlayerData(int pnum, int char_id) {
 				k = SetBit(k, j);
 		SetInventory(StrParam(s:"Research_Discovered_", d:i + 1), k);
 	}
+
+	// Research stuff
+	RestoreResearchItems();
+
+	// read special ammos -- after researches for the ammo cap thing
+	for(i = 0; i < MAX_SPECIAL_AMMOS; ++i) {
+		temp = GetDBEntry(StrParam(s:GetCharField(DND_DB_SPECIALAMMO, char_id), s:GetSpecialAmmoStr(i, AMMOINFO_NAME)), pacc);
+		SetInventory(GetSpecialAmmoStr(i, AMMOINFO_NAME), temp);
+	}
 	
 	// read research investment
 	for(i = 0; i < MAX_RESEARCHES; ++i) {
@@ -1047,8 +1050,6 @@ void LoadPlayerData(int pnum, int char_id) {
 	RestoreRPGStat(RES_PLAYERSPEED | RES_NOCLASSPERK);
 	UpdatePlayerKnockbackResist();
 	
-	// Research stuff
-	RestoreResearchItems();
 	// fixes some clientside things not being synced right on load
 	ACS_NamedExecuteAlways("DnD Menu Reset Forced", 0);
 	// this seems unnecessary, as it syncs the 3 item source datas (we already do that as soon as we finished loading them)
@@ -1206,6 +1207,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 	SetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);
@@ -1370,6 +1372,7 @@ void SaveDefaultPlayer(int pnum, int char_id) {
 	SetDBEntry(GetCharField(DND_DB_UNSPENTATTRIB, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_UNSPENTPERK, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ACCESSORIES, char_id), pacc, 0);
+	SetDBEntry(GetCharField(DND_DB_ACTIVEACCESSORIES, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_ARTIFACTS, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, 0);
 	SetDBEntry(GetCharField(DND_DB_SURVIVECOUNT, char_id), pacc, 0);

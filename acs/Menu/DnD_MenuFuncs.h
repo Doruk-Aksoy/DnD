@@ -543,8 +543,10 @@ bool HandlePageListening(int curopt, int boxid) {
 	switch(curopt) {
 		case MENU_MAIN:
 		case MENU_HELP_RESEARCHES:
-		case MENU_HELP_AILMENTS:
 			redraw = ListenScroll(-32, 0);
+		break;
+		case MENU_HELP_AILMENTS:
+			redraw = ListenScroll(-40, 0);
 		break;
 		case MENU_PERK:
 			redraw = ListenScroll(-16, 0);
@@ -1239,7 +1241,18 @@ void ResetWeaponStats(int wepid) {
 int GetBulkPriceForAmmo(int itemid) {
 	int id = GetAmmoSlotAndIndexFromShop(itemid);
 	int temp = 0, count = 0;
-	str ammo = GetAmmoInfo(id & 0xFFFF, id >> 16).name;
+
+	str ammo = "";
+
+	// special correction for special ammo
+	if(itemid >= SHOP_FIRSTAMMOSPECIAL_INDEX) {
+		if(id >= SSAM_EXSHELL)
+			id = id + 1;
+		ammo = GetSpecialAmmoStr(id, AMMOINFO_NAME);
+	}
+	else
+		ammo = GetAmmoInfo(id & 0xFFFF, id >> 16).name;
+
 	if(CheckInventory(ammo) < GetAmmoCapacity(ammo)) {
 		int price = GetShopPrice(itemid, PRICE_INCREASE_STOCK_LOW);
 		temp = GetAmmoToGive(itemid);
@@ -2686,7 +2699,7 @@ void HandleAmmoPageDraw(int pnum, int boxid, int slot, int multipage, int start_
 	else {
 		for(i = 0; i < MAX_SPECIAL_AMMOS_FOR_SHOP; ++i) {
 			shopindex = SHOP_FIRSTAMMOSPECIAL_INDEX + i;
-			DrawToggledImage(pnum, shopindex, boxid, i, GetAmmoDrawInfo(shopindex - SHOP_FIRSTAMMO_INDEX).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
+			DrawToggledImage(pnum, shopindex, boxid, i, GetAmmoDrawInfo(i + MAXSHOPNORMALAMMOS).flags, CR_WHITE, CR_GREEN, "", 1, CR_RED);
 		}
 		DrawAmmoIconCorner(-1, boxid, -1, true);
 	}
@@ -4203,14 +4216,14 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 						// if we want to move something from inv to stash check if its orbs only page
 						if
 						(
-							((ssource >> 16) == PAGEID_STASHTAB_ORBS && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset - ioffset, -1, isource) != DND_ITEM_ORB) ||
+							((ssource >> 16) == PAGEID_STASHTAB_ORBS && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_ORB) ||
 							((isource >> 16) == PAGEID_STASHTAB_ORBS && GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, sel_box - 1 - soffset, -1, ssource) != DND_ITEM_ORB)
 						)
 						{
 							ShowPopup(POPUP_ORBSONLY, false, 0);
 						}
 						else {
-							//printbold(s:"swapping ", d:boxid - 1 - ioffset, s: " and ", d:sel_box - 1 - soffset);
+							//printbold(s:"swapping ", d:boxid - 1 - ioffset, s: " and ", d:sel_box - 1 - soffset);3
 							SwapItems(pnum, boxid - 1 - ioffset, sel_box - 1 - soffset, isource, ssource, false);
 						}
 					}
@@ -5463,7 +5476,18 @@ void DrawPlayerStats(int pnum, int category) {
 			// crit block begins
 			val = GetCritChance_Display(pnum);
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
+				if(val <= 1.0)
+					pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n");
+				else {
+					// over the cap special display
+					val -= 1.0;
+					if(val > 10.0) // some impossible cap nobody will probably reach????
+						val = 10.0;
+					pstat_text.text = StrParam(
+						s:pstat_text.text, s:"\c[Q9]100.0", 
+						s:" (\cd", s:GetFixedRepresentation(val, true), s:"\c[Q9])%\c- ", l:"DND_MENU_GLOBALCRIT", s:"\n"
+					);
+				}
 				++k;
 			}
 			

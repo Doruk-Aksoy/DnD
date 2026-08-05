@@ -59,9 +59,9 @@ ACTOR AbyssalShotgunner : DnD_BaseRangedMonster {
 			C015 PQRST 5
 			C015 U -1
 		Stop
-		Raise:
+		RaiseState:
 			C015 KJIH 5
-		Goto See	
+		Goto See
 	}
 }
 

@@ -4,7 +4,12 @@ resolution 640, 400;
 
 // NC HUD
 statusbar normal, fullscreenoffsets {
-  drawimage "H_BGLEFT", 5, -85; // Left background
+  InInventory DnD_HasPhasing, 1 {
+  	drawimage "H_BGLEFW", 5, -85; // Left background
+  }
+  else
+	drawimage "H_BGLEFT", 5, -85; // Left background
+	
   //drawmugshot "STF", 5, animatedgodmode, xdeathface, 6, -78; // Mugshot
 
 	InInventory Flask1_Type, 1 {

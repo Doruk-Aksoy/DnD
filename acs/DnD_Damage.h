@@ -863,10 +863,15 @@ void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
 
 		if(!current_bleed_time) {
 			SetActorInventory(victim, "DnD_BleedTimer", amt);
+			SetActorInventory(victim, "DnD_CurrentBleedDamage", overall_dmg);
 			ACS_NamedExecuteWithResult("DnD Monster Bleed (Player)", victim, wepid, overall_dmg);
 		}
-		else
+		else {
 			SetActorInventory(victim, "DnD_BleedTimer", Max(amt, current_bleed_time));
+			// update with higher damage
+			if(overall_dmg > CheckActorInventory(victim, "DnD_CurrentBleedDamage"))
+				SetActorInventory(victim, "DnD_CurrentBleedDamage", overall_dmg);
+		}
 	}
 }
 
@@ -1681,13 +1686,13 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 		dmg = SpellDamageTable[dmg].dmg;
 	}*/
 	
-	dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, dmg_flag_mapping);
-
 	if(flags & DMG_WDMG_ESHIELDSCALE)
 		dmg += CheckInventory("EShieldAmount") / 25; // 4%
 	
 	// attribute bonus only applied if not DOT
 	if(!(flags & DND_WDMG_ISDOT)) {
+		dmg += (!isSpell) * MapDamageCategoryToFlatBonus(pnum, damage_category, dmg_flag_mapping);
+
 		bool isMelee = damage_category == DND_DAMAGECATEGORY_MELEE || (flags & DND_WDMG_ISMELEE);
 		if(isMelee)
 			str_att = !str_att ? DND_STAT_ATTUNEMENT_GAIN : str_att;
@@ -2399,33 +2404,54 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
 
+	int base_dmg = dmg;
+
 	dmg = GetBleedDamage(pnum, wepid, dmg, victim);
 
 	int bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
-	int next_dmg = dmg;
+	int next_dmg = dmg; // holds scaled bleed damage
 
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_BLEED);
 
 	bool isRobot = IsActorFullRobotic(victim);
+	bool isMoving = false;
 
 	do {
+		// monsters dont set velxyz fields, so check prev pos vs curr pos for delta -- for extra guarantee on this specific thing, checking for 2 tic window instead
+		isMoving = false;
+
+		int px = GetActorX(victim);
+		int py = GetActorY(victim);
+		int pz = GetActorZ(victim);
+
+		Delay(const:2);
+
+		isMoving = px != GetActorX(victim) || py != GetActorY(victim) || pz != GetActorZ(victim);
+
 		if(CheckFlag(victim, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DnD Bleed FX", 0, victim, isRobot);
 			dmg = HandleDamageDeal(
 				source, 
 				victim, 
-				next_dmg * (1 + 2 * (!!(GetActorVelX(victim) || GetActorVelY(victim) || GetActorVelZ(victim)))), 
-				DND_DAMAGETYPE_PHYSICAL, wepid, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME
+				next_dmg * (1 + 2 * isMoving), 
+				DND_DAMAGETYPE_PHYSICAL, wepid, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS
 			);
 			if(dmg > 0)
-				Thing_Damage2(victim, dmg, "SkipHandle");
+				Thing_Damage2(victim, dmg, "Special_NoPain");
 		}
 
 		TakeActorInventory(victim, "DnD_BleedTimer", 1);
 		
 		// x 5
-		Delay(const:DND_BLEED_TICRATE);
+		Delay(const:DND_BLEED_TICRATE - 2);
+
+		// update the newer bleed damage now
+		px = CheckActorInventory(victim, "DnD_CurrentBleedDamage");
+		if(px > base_dmg) {
+			next_dmg = GetBleedDamage(pnum, wepid, px, victim);
+			base_dmg = px;
+		}
 	} while(CheckActorInventory(victim, "DnD_BleedTimer") && IsActorAlive(victim));
 
 	if(!IsActorAlive(victim) && HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE) {
@@ -2433,6 +2459,7 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	}
 
 	SetActorInventory(victim, "DnD_BleedTimer", 0);
+	SetActorInventory(victim, "DnD_CurrentBleedDamage", 0);
 
 	SetResultValue(0);
 }
@@ -2601,7 +2628,7 @@ Script "DnD Monster Overload" (int victim) {
 	// we dont have any player involvement here so
 	SetActivator(victim);
 	
-	PlaySound(0, "Overload/Loop", CHAN_ITEM, 1.0, true);
+	PlaySound(victim, "Overload/Loop", CHAN_ITEM, 1.0, true);
 
 	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_OVERLOAD);
@@ -2621,7 +2648,7 @@ Script "DnD Monster Overload" (int victim) {
 
 	// remove accumulated damage
 	SetInventory("DnD_OverloadDamage", 0);
-	StopSound(0, CHAN_ITEM);
+	StopSound(victim, CHAN_ITEM);
 	
 	SetResultValue(0);
 }
@@ -2642,7 +2669,7 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 	if(!isPlayer(killer))
 		Terminate;
 	
-	ActivatorSound("Overload/ZapBegin", 127);
+	PlaySound(this, "Overload/ZapBegin", CHAN_ITEM, 1.0);
 	//SpawnForced("OverloadZap_Source", GetActorX(this), GetActorY(this), GetActorZ(this) + GetActorProperty(this, APROP_HEIGHT) + 16.0, 0);
 	
 	// first look up potential targets and then store them, we'll zap later with some delay
@@ -2673,10 +2700,11 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 		
 		// no more damage
 		// HandleDamageDeal(killer, zap_tids[pnum][i], dmg, DND_DAMAGETYPE_LIGHTNING, 0, GetActorX(this), GetActorY(this), GetActorZ(this), DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_FORCEPAIN);
-		ActivatorSound("Overload/Zap", 127);
 		
 		// overload this monster if its still alive
 		if(isActorAlive(zap_tids[pnum][i])) {
+			PlaySound(zap_tids[pnum][i], "Overload/Zap", CHAN_ITEM, 1.0);
+
 			if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
 				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 				// overload damage amp is set to maximum of whatever the monster might have had (from another player) or this new instance of overload
@@ -4220,7 +4248,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
  
 			// finally dealing the damage -- temp holds damage type, dont use temp above here!
 			if(victim) {
-				//printbold(s:"dmg deal to ", d:victim, s:" dmg ", d:dmg);
+				//printbold(s:"dmg deal to ", d:victim, s:" dmg ", d:dmg, s: " wepid ", d:m_id);
 				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)), 0);
 
 				// failsafe -- hopefully not necessary anymore

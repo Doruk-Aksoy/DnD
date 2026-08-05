@@ -1193,8 +1193,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				
 				SetHudClipRect(192, 52, 256, 228, 256);
 				
-				// we have 5 maximum ailments at the moment
-				for(i = 0; i < 5; ++i)
+				// we have 6 maximum ailments at the moment
+				for(i = 0; i < DND_MENU_MAX_AILMENTDESCRIPTIONS; ++i)
 					toshow = StrParam(s:toshow, s:"\c[Y5]", l:StrParam(s:"DND_MENU_AILMENT", d:i + 1), s:"\n\n", l:StrParam(s:"DND_MENU_AILMENT", d:i + 1, s: "_EXP"), s:"\n\n");
 				
 				HudMessage(s:toshow; HUDMSG_PLAIN, RPGMENUITEMID - 1, CR_WHITE, 192.1, 64.1 + 8.0 * ScrollPos.x, 0.0, 0.0);

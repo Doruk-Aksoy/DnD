@@ -33,7 +33,7 @@ int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AM
 	int curr_wep = GetCurrentWeaponID();
 	int chance = GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE);
 	if(IsBoomstick(curr_wep)) {
-		chance += CheckInventory("Hobo_ShotgunFrenzyTimer") * (DND_HOBO_PERK50_CHANCE + HasClassPerk_Fast("Hobo", 5) * DND_HOBO_PERK50_CHANCE_BONUSMAXED);
+		chance += (!!CheckInventory("Hobo_ShotgunFrenzyTimer")) * (DND_HOBO_PERK50_CHANCE + HasClassPerk_Fast("Hobo", 5) * DND_HOBO_PERK50_CHANCE_BONUSMAXED);
 		chance += GetPlayerAttributeValue(PlayerNumber(), INV_IMP_AMMOGAIN_SHOTGUNS);
 	}
 	chance <<= 16;
@@ -55,8 +55,9 @@ int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AM
 			if(ammo == DND_TEMPWEP_SOULRENDER)
 				GiveInventory("BladeCharge", 100);
 		}
-		else
+		else {
 			GiveInventory(GetAmmoInfo(slot, ammo).name, amount);
+		}
 
 		return DND_AMMOGAIN_SUCCESS;
 	}

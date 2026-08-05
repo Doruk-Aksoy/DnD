@@ -41,7 +41,7 @@ Actor DnD_Player : PlayerPawn {
 	Player.StartItem "DnD_CountdownProtection"
 	
 	Player.StartItem "SpecialAmmoMode_4", 4 // AMMO_BULLET constant from specialweapons.txt
-	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_GRENADE constant from specialweapons.txt
+	Player.StartITem "SpecialAmmoMode_5X", 5 // AMMO_SPECIAL_GRENADE constant from specialweapons.txt
 	Player.StartItem "SpecialAmmoMode_6", 4
 	
 	Player.StartItem "Clip", 50

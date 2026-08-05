@@ -1,0 +1,1 @@
+HardwareShader Texture H_BGLEFW   { Shader "GLDefs/Shaders/Pulse_Phasing.fp" }

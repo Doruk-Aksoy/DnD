@@ -124,7 +124,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             if(!new_duration)
                 bduration = 4 * TICRATE;
             else
-                bduration = new_duration * TICRATE;
+                bduration = new_duration;
 
             tic_duration = GetPlayerAttributeValue(pnum, INV_IMP_PHASINGTIME);
             if(HasActorClassPerk_Fast(ptid, "Trickster", 4))
@@ -133,6 +133,8 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bduration = bduration * (100 + tic_duration) / 100;
 
             tic_duration = bduration;
+
+            GiveActorInventory(ptid, "DnD_HasPhasing", 1);
         break;
         case BTI_AMPHETAMINE:
             btype = BUFF_SPEED;
@@ -172,7 +174,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
 
             tic_duration = GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF);
-            if(!tic_duration || (tic_duration && GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)) {
+            if(!tic_duration || (tic_duration  && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)) {
                 bvalue = -DND_ENDURANCECHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
                 tic_duration = bduration * TICRATE;
@@ -196,7 +198,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_ADDIFNODUPLICATE;
 
             tic_duration = GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF);
-            if(!tic_duration || (tic_duration && GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)) {
+            if(!tic_duration || (tic_duration && GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)) {
                 bvalue = DND_POWERCHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
                 tic_duration = bduration * TICRATE;
@@ -391,18 +393,17 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bvalue = DND_QUARTZ_BUFF;
 
             // give the player the phasing buff alongside too
-            HandlePlayerBuffAssignment(pnum, initiator, BTI_PHASING, 0, 0, new_duration ? new_duration : 4, inc_effect);
+            HandlePlayerBuffAssignment(pnum, initiator, BTI_PHASING, 0, 0, new_duration ? new_duration : 3, inc_effect);
 
             if(inc_effect)
                 bvalue = bvalue * (100 + inc_effect) / 100;
 
             if(!new_duration)
-                bduration = 4 * TICRATE;
+                bduration = 3 * TICRATE;
             else // supplied durations MUST have TICRATE factor in them
                 bduration = new_duration;
 
-            bduration = bduration * (100 + tic_duration) / 100;
-
+            bduration = bduration;
             tic_duration = bduration;
         break;
 

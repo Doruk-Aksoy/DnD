@@ -2413,8 +2413,9 @@ Actor DarkZealot : DnD_BaseHybridMonster_NoRes 21176 {
 			TNT1 A 0 A_GiveInventory("DarkZealotCooldown", 1)
 			TNT1 A 0 A_ScaleVelocity(0.5)
 			TNT1 A 0 A_SetUserVar("user_teleport", 0)
-			RSON SRQPO 3 Fast Bright
+			RSON SRQP 3 Fast Bright
 			TNT1 A 0 A_SetShootable
+			RSON O 3 Fast Bright
 		Goto See
 		XDeathState:
 		DeathState:

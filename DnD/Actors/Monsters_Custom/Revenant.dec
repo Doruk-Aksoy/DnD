@@ -1693,9 +1693,12 @@ Actor DarkServant : DnD_BaseHybridMonster 21116 {
 		TeleportFinish:
 			TNT1 A 0 A_ScaleVelocity(0.5)
 			TNT1 A 0 A_SetUserVar("user_teleport", 0)
-			DSON SRQPO 3 Fast Bright
+			DSON SRQP 3 Bright
+			DSON O 1 Fast Bright
 			TNT1 A 0 A_SetShootable
+			DSON O 1 Fast Bright
 			DSON O 0 Bright A_Jump(192, "Aggressive")
+			DSON O 1 Fast Bright
 		Goto See
 		XDeathState:
 		DeathState:
