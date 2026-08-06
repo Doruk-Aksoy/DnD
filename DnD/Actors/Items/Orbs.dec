@@ -97,11 +97,6 @@ Actor OrbOfEnhancement : OrbDrop {
 	}
 }
 
-Actor CorruptOrb_DamageReduction : PowerDamage {
-	powerup.duration 0x7FFFFFFF
-	damagefactor "normal", 1.0
-}
-
 Actor OrbofCorruption : OrbDrop {
 	states {
 		Spawn:

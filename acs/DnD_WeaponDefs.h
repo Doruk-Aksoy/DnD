@@ -896,7 +896,7 @@ void SetupWeaponData() {
 	Weapons_Data[DND_WEAPON_EBONYCANNON].ammo_use2 = 1;
 	Weapons_Data[DND_WEAPON_EBONYCANNON].properties = WPROP_IGNORESHIELD | WPROP_SELFDMG | WPROP_MAGIC | WPROP_FIRESPROJECTILES;
 	Weapons_Data[DND_WEAPON_EBONYCANNON].attunement[STAT_STR] = 0.01;
-	Weapons_Data[DND_WEAPON_EBONYCANNON].attunement[STAT_INT] = 0.3;
+	Weapons_Data[DND_WEAPON_EBONYCANNON].attunement[STAT_INT] = 0.03;
 	
 	Weapons_Data[DND_WEAPON_MPPB].name = "MPPB";
 	Weapons_Data[DND_WEAPON_MPPB].ammo_name1 = "Cell";

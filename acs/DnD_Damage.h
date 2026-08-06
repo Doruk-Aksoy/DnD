@@ -1181,9 +1181,6 @@ int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	int temp;
 	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
 		more_bonus = more_bonus * (100 + ConvertFixedFactorToInt(temp)) / 100;
-		
-	if(CheckInventory("CorruptOrb_DamageReduction"))
-		more_bonus = more_bonus * (100 - DND_CORRUPTORB_DMGREDUCE) / 100;
 	
 	temp = CheckInventory("Punisher_Perk50_DamageBonus");
 	if(temp)
@@ -3846,7 +3843,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				(
 					CheckInventory("DnD_CountdownProtection") ||
 					(
-						!(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && !(dmg_data & DND_DAMAGETYPEFLAG_HITSCAN) && !isDot && !(dmg_data & DND_DAMAGETYPEFLAG_DOT) && HasPlayerBuff(pnum, BTI_PHASING)
+						!(dmg_data & (DND_DAMAGETYPEFLAG_EXPLOSIVE | DND_DAMAGETYPEFLAG_HITSCAN | DND_DAMAGETYPEFLAG_DOT)) && !isDot && arg2 != "Melee" && HasPlayerBuff(pnum, BTI_PHASING)
 					) ||
 					(
 						GetDodgeChance(pnum) >= random(0.01, 100.0) && !(dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE)

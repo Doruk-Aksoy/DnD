@@ -868,7 +868,9 @@ void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_
 		break;
 
 		case DND_MONSTERLOOT_DUNGEONKEY:
-			SpawnDungeonKey(pnum);
+			// don't spawn dungeon keys within dungeons as natural loot drop from monsters
+			if(!InformationInLevel[LEVELINFO_ISDUNGEON])
+				SpawnDungeonKey(pnum);
 		break;
 	}
 }

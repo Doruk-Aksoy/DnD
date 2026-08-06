@@ -300,12 +300,14 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 			case INV_CORR_WEAPONPOISONPCT:
 			case INV_CORR_WEAPONFORCEPAIN:
 			case INV_CORR_WEPCULL:
-			case INV_CRITPERCENT_FORWEPTYPE:
 				// pick one from a weapon the player owns
 				if(pnum != MAXPLAYERS)
 					res = PickRandomOwnedWeaponID(pnum);
 				else
 					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON);
+			break;
+			case INV_CRITPERCENT_FORWEPTYPE:
+				res = random(DND_WEPTYPE_TECH, DND_WEPTYPE_LAST);
 			break;
 
 			// mods that have natural extra values

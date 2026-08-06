@@ -298,7 +298,7 @@ void HandleNPC(int npc_id) {
 						do {
 							j = random(0, mc - 1);
 							j = UsedMonsterTIDs[j] - DND_MONSTERTID_BEGIN;
-						} while(MonsterProperties[j].flags & DND_MONFLAG_ISELITE);
+						} while((MonsterProperties[j].flags & DND_MONFLAG_ISELITE) || !isActorAlive(j + DND_MONSTERTID_BEGIN));
 						
 						// give it the mark of chaos
 						if(!MonsterProperties[j].trait_list[DND_MARKOFCHAOS]) {
@@ -399,6 +399,10 @@ void HandleNPC(int npc_id) {
 							random(0, 1.0) <= temp + 1.0 / Max(slots_occupied[MonsterProperties[i].class - MONSTERCLASS_BARON]--, 1)
 						)
 						{
+							// if this monster is dead somehow, don't pick
+							if(!isActorAlive(UsedMonsterTIDs[mc]))
+								continue;
+
 							ApplyMarkOfAsmodeus(i, MonsterProperties[i].class);
 							NPC_States[DND_NPC_DARKWANDERER].offer_progress = 1;
 							break;

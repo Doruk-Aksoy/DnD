@@ -562,11 +562,11 @@ str ItemAttributeString(
 
 		case INV_CRITPERCENT_FORWEPTYPE:
 			if(showDetailedMods) {
-				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra),
+				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra),
 					s:no_tag, s:"- ", s:GetModTierText(tier, extra)
 				);
 			}
-			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTag(attr_extra));
+			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra));
 		
 		case INV_ESS_ERYXIA:
 			if(showDetailedMods) {
