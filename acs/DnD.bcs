@@ -224,7 +224,7 @@ Script "DnD On Map Load" OPEN {
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
 
-	ResetUsedMonsterTIDs();
+	ResetUsedTIDs();
 
 	Delay(const:1);
 
@@ -422,8 +422,14 @@ Script "DnD On Death" DEATH {
 	Delay(const:5);
 
 	// everyone died in survival and its dungeon
-	if(GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE && InformationInLevel[LEVELINFO_ISDUNGEON])
-		InformationInLevel[LEVELINFO_DUNGEONMUSTRESET] = true;
+	if(GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE) {
+		// reset used tids
+		SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+		ResetUsedTIDs();
+
+		if(InformationInLevel[LEVELINFO_ISDUNGEON])
+			InformationInLevel[LEVELINFO_DUNGEONMUSTRESET] = true;
+	}
 }
 
 // Health Kits Script (Used by Portable Medikits as well, ported here)
@@ -3016,14 +3022,19 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 
 	ClearPlayerAliasTables(pnum);
 
-	if(InformationInLevel[LEVELINFO_ISDUNGEON] && !GetActivePlayerCount())
-		ACS_ExecuteAlways(255, 0, 0, 1, 0);
+	if(!GetActivePlayerCount()) {
+		SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+		ResetUsedTIDs();
+
+		if(InformationInLevel[LEVELINFO_ISDUNGEON])
+			ACS_ExecuteAlways(255, 0, 0, 1, 0);
+	}
 }
 
 // End of level checks
 Script "DnD On Unloading" UNLOADING {
 	SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
-	ResetUsedMonsterTIDs();
+	ResetUsedTIDs();
 
 	int tid;
 	SetupComplete(SETUP_STATE1, SETUP_MAPCHANGED);
@@ -5696,6 +5707,8 @@ Script "DnD Hurt Actor" (int hurter, int victim, int dmg) {
 }
 
 Script "Dnd Pickup Setup" (void) {
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
+		Delay(const:TICRATE);
 	GivePickupTID();
 }
 

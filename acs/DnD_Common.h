@@ -9,8 +9,8 @@
 
 #define ISDEBUGBUILD
 //#define WANTCURSORPOS
-//#define VERBOSE_MONSTER_SETUP
-#define WANT_BUFF_LOG
+//#define VERBOSE_TID_SETUP
+//#define WANT_BUFF_LOG
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -468,11 +468,11 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 // holds the monster tids that are in use -- arbitrary order
 global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
 
-void ResetUsedMonsterTIDs() {
+void ResetUsedTIDs() {
 	if(IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
 		return;
 
-#ifdef VERBOSE_MONSTER_SETUP
+#ifdef VERBOSE_TID_SETUP
 	Log(s:"Clearing used monster TIDs.");
 #endif
 

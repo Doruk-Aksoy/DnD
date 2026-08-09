@@ -537,10 +537,7 @@ int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
 int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial) {
 	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
 	// add +1 because flechette is id 0
-	if(isSpecial) {
-		isSpecial = wepid + 1;
-		wepid = CheckInventory("DnD_WeaponID");
-	}
+	// correction code moved within main code block
 	
 	//printbold(s:"retrieved acc ", d:GetActorProperty(0, APROP_ACCURACY));
 
@@ -3530,7 +3527,14 @@ void HandleReflect(int shooter, int victim, str proj_name, int encoded_data, int
 
 		SetActivator(shooter);
 		dmg_category = GetDamageCategory(dtype, dmg_data);
-		dmg = RetrieveWeaponDamage(pnum, wid, dmg, dmg_category, dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+
+		if(!(dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO))
+			dmg = RetrieveWeaponDamage(pnum, wid, dmg, dmg_category, dmg_data, 0);
+		else {
+			encoded_data = CheckInventory("DnD_WeaponID");
+			dmg = RetrieveWeaponDamage(pnum, encoded_data, dmg, dmg_category, dmg_data, wid + 1);
+			wid = encoded_data;
+		}
 		dmg_category = DamageCategoryToMonsterDamageType(dmg_category);
 		//printbold(s:"retrieved dmg ", d:dmg);
 	}
@@ -4074,7 +4078,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						Terminate;
 					}
 
-					dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+					if(!(dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO))
+						dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, 0);
+					else {
+						// special ammo correction
+						factor = CheckInventory("DnD_WeaponID");
+						dmg = RetrieveWeaponDamage(pnum, factor, dmg, GetDamageCategory(temp, dmg_data), dmg_data, m_id + 1);
+						m_id = factor;
+					}
 
 					//printbold(s:"retrieved dmg ", d:dmg);
 
@@ -4246,7 +4257,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// finally dealing the damage -- temp holds damage type, dont use temp above here!
 			if(victim) {
 				//printbold(s:"dmg deal to ", d:victim, s:" dmg ", d:dmg, s: " wepid ", d:m_id);
-				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & (DND_DAMAGEFLAG_ISSPELL | DND_DAMAGEFLAG_ISSPECIALAMMO)), 0);
+				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & DND_DAMAGEFLAG_ISSPELL), 0);
 
 				// failsafe -- hopefully not necessary anymore
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {
@@ -4410,7 +4421,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// % adjustment factor
 				factor = arg1 & ATK_DPCT_MASK;
 
-				dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO);
+				if(!(dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO))
+					dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, 0);
+				else {
+					// special ammo correction
+					isRipper = CheckInventory("DnD_WeaponID");
+					dmg = RetrieveWeaponDamage(pnum, isRipper, dmg, GetDamageCategory(temp, dmg_data), dmg_data, m_id + 1);
+					m_id = isRipper;
+				}
 
 				// setup the flags and factor
 				if(factor != 100)

@@ -106,6 +106,10 @@ Script DND_SHARED_ITEM_SCRIPT (int tid) {
 
 Script "DND Shared Item Init" (int type) {
 	if(GameType() != GAME_SINGLE_PLAYER) {
+		int temp = TICRATE + random(0, 7);
+		while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
+			Delay(temp);
+
 		// If it goes over limits, just ignore its existance.
 		if (InformationInLevel[LEVELINFO_TID_SHAREDITEMS] < MAX_SHARED_ITEMS) {
 			GiveSharedItemTID();

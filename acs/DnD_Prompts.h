@@ -106,6 +106,10 @@ void NPC_Setup() {
 			NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_SUPERDEMON);
 		} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
 
+#ifdef ISDEBUGBUILD
+		NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_COLLECTARTIFACT;
+#endif
+
 		NPC_States[DND_NPC_DARKWANDERER].dialog = random(DW_GREET1, DW_GREET3);
 		// find a player and spawn this near them at start
 		int tid = 0;
@@ -290,7 +294,7 @@ void HandleNPC(int npc_id) {
 				case NPC_OFFER_SLAYCHAOSMARK:
 					// kill marked monsters -- min of 5, max of 50 -- scaling with map difficulty
 					mc = InformationInLevel[LEVELINFO_TID_MONSTER];
-					temp = random(5 + 5 * MapData[DND_MAPDATA_DIFFICULTY], 10 + 5 * MapData[DND_MAPDATA_DIFFICULTY]);
+					temp = 5 * MapData[DND_MAPDATA_DIFFICULTY] + random(5, 10);
 
 					// we dont care about uniqueness
 					for(i = 0; i < temp; ++i) {
@@ -314,14 +318,14 @@ void HandleNPC(int npc_id) {
 				case NPC_OFFER_COLLECTARTIFACT:
 					// retrieve artifacts -- place the artifacts
 					mc = InformationInLevel[LEVELINFO_TID_PICKUPS];
-					temp = random(2 + MapData[DND_MAPDATA_DIFFICULTY], 2 + 2 * MapData[DND_MAPDATA_DIFFICULTY]);
+					temp = 2 + random(MapData[DND_MAPDATA_DIFFICULTY], 2 * MapData[DND_MAPDATA_DIFFICULTY]);
 					NPC_States[DND_NPC_DARKWANDERER].offer_progress = temp;
 					
 					// we need to find places to spawn these, prioritize high profile powerups, then health, then radsuits etc.
 					if(mc >= temp) {
 						// there're enough powerups to place things around
 						do {
-							k = random(DND_PICKUPTID_BEGIN, mc + DND_PICKUPTID_BEGIN - 1);
+							k = DND_PICKUPTID_BEGIN + random(0, mc - 1);
 							for(j = 0; j < slot_count; ++j) {
 								if(slots_occupied[j] == k) {
 									j = -1;
@@ -342,12 +346,14 @@ void HandleNPC(int npc_id) {
 						do {
 							// 50% from shared items and the other from powerups
 							if(random(0, 1)) {
-								k = random(SHARED_ITEM_TID_BEGIN, SHARED_ITEM_TID_BEGIN + count - 1);
+								k = SHARED_ITEM_TID_BEGIN + random(0, count - 1);
 								i = 8.0;
+								//Log(s:"try shared tid ", d:k, s: " begin: ", d:SHARED_ITEM_TID_BEGIN, s: " count: ", d:count);
 							}
 							else {
-								k = random(DND_PICKUPTID_BEGIN, mc + DND_PICKUPTID_BEGIN - 1);
+								k = DND_PICKUPTID_BEGIN + random(0, mc - 1);
 								i = 20.0;
+								//Log(s:"try pickup tid ", d:k, s: " begin: ", d:DND_PICKUPTID_BEGIN, s: " count: ", d:mc);
 							}
 							for(j = 0; j < slot_count; ++j) {
 								if(slots_occupied[j] == k) {
@@ -360,7 +366,7 @@ void HandleNPC(int npc_id) {
 								++slot_count;
 								if(Spawn("DarkWanderer_Artifact", GetActorX(k) + random(-i, i), GetActorY(k) + random(-i, i), GetActorZ(k))) {
 									--temp;
-									//printbold(s:GetActorClass(k), s: " ", f:GetActorX(k), s: " ", f:GetActorY(k));
+									//Log(s:"Spawned artifact at: ", s:GetActorClass(k), s: " ", f:GetActorX(k), s: " ", f:GetActorY(k));
 								}
 							}
 						} while(temp);
@@ -369,7 +375,7 @@ void HandleNPC(int npc_id) {
 						// we have no powerups, simply loop through the shared items
 						count = InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
 						do {
-							k = random(SHARED_ITEM_TID_BEGIN, SHARED_ITEM_TID_BEGIN + count - 1);
+							k = SHARED_ITEM_TID_BEGIN + random(0, count - 1);
 							for(j = 0; j < slot_count; ++j) {
 								if(slots_occupied[j] == k) {
 									j = -1;
