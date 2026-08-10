@@ -5,6 +5,8 @@ Actor DnD_StatListOpen : PowerProtection {
 	powerup.duration 0x7FFFFFFF
 }
 
+Actor DnD_CharacterActive : DnD_Info { }
+
 Actor DnD_LevelExp : DnD_Info {}
 Actor DnD_LevelCredit : DnD_Info {}
 

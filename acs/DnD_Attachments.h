@@ -1,8 +1,15 @@
 #ifndef DND_ATTACHMENT_IN
 #define DND_ATTACHMENT_IN
 
+typedef struct {
+	int val;
+} attachment_data_T;
+
 // max 32, using an int as a bitfield
-global int 49: MonsterAttachmentUsed[DND_MAX_MONSTERS];
+attachment_data_T module& GetMonsterAttachmentsUsed(int m_id) {
+	static attachment_data_T MonsterAttachmentUsed[DND_MAX_MONSTERS];
+	return MonsterAttachmentUsed[m_id];
+}
 
 enum {
 	DND_ELITEFX_REFLECT = 1,
@@ -67,7 +74,7 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 }
 
 void InitAttachments(int m_id) {
-	MonsterAttachmentUsed[m_id] = 0;
+	GetMonsterAttachmentsUsed(m_id).val = 0;
 }
 
 Script "DnD Init Monster Attachments" (int m_id) CLIENTSIDE {
@@ -80,16 +87,21 @@ void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0
 	// base tid skip
 	int sfx_id = 0;
 	int m_id = tid - DND_MONSTERTID_BEGIN;
-	int temp = MonsterAttachmentUsed[m_id];
+	auto attachment_data = GetMonsterAttachmentsUsed(m_id);
+	int temp = attachment_data.val;
 	while(temp & 1) {
 		temp >>= 1;
 		++sfx_id;
 	}
-	MonsterAttachmentUsed[m_id] |= 1 << sfx_id;
+
+	// don't go over the bit limit
+	if(sfx_id > 31)
+		return;
+
+	attachment_data.val |= 1 << sfx_id;
 
 	// offset to tid
 	sfx_id += DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
-	//Log(s:"sfx tid: ", d:sfx_id, s: " for monster tid: ", d:tid, s:" attachment used? ", d:MonsterAttachmentUsed[m_id], s: " ", d:m_id);
 	SpawnForced(actor_name, GetActorX(tid) + xoff, GetActorY(tid) + yoff, GetActorZ(tid) + zoff, sfx_id, angle);
 
 	// setup the attachment
@@ -106,16 +118,17 @@ void CreateMonsterAttachment(int tid, str actor_name, int xoff = 0, int yoff = 0
 
 // When a monster is killed this is called to do cleanup
 void DisposeAttachments(int m_id) {
+	auto attachment_data = GetMonsterAttachmentsUsed(m_id);
 	// if theres any attachment
-	//Log(s:" attachment used? ", d:MonsterAttachmentUsed[m_id], s: " ", d:m_id);
-	if(MonsterAttachmentUsed[m_id]) {
+	//Log(s:" attachment used? ", d:attachment_data.val, s: " ", d:m_id);
+	if(attachment_data.val) {
 		int count = 0;
 		int base = DND_MONSTER_ATTACHMENT_TID_BEGIN + m_id * DND_MAX_MONSTER_ATTACHMENTS;
-		while(MonsterAttachmentUsed[m_id]) {
-			if(MonsterAttachmentUsed[m_id] & 1)
+		while(attachment_data.val) {
+			if(attachment_data.val & 1)
 				SetActorState(count + base, "Disappear");
 
-			MonsterAttachmentUsed[m_id] >>= 1;
+			attachment_data.val >>= 1;
 			++count;
 		}
 	}

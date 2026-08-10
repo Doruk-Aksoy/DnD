@@ -794,7 +794,7 @@ void DecideAccessories() {
 			SetAmmoCapacity("Souls", a_info.initial_capacity);
 	}
 	
-	// sigil order: 1 = fire, 2 = ice, 3 = lightning, 4 = poison
+	// sigil order: 1 = fire, 2 = cold, 3 = lightning, 4 = poison
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_SIGILELEMENTS))
 		SetInventory("SigilCheck", 1);
 	else {
@@ -1335,7 +1335,11 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 	return dmg;
 }
 
+// this doesn't consider INV_EX_FLATDOT here because the weapon that calls this does -- if wepid is left at -1, it should then consider it!
 int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1) {
+	if(wepid == -1)
+		base += GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
+	
 	base = base * (100 + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi

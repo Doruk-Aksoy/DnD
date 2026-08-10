@@ -706,6 +706,9 @@ bool CanHealMonsterTID(int tid) {
 
 void HealMonster(int mid, int amount) {
 	int hp = GetActorProperty(0, APROP_HEALTH);
+	if(MonsterProperties[mid].maxhp <= hp)
+		return;
+
 	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
 	SetActorProperty(0, APROP_HEALTH, hp + amount);
 
@@ -714,6 +717,9 @@ void HealMonster(int mid, int amount) {
 
 void HealMonsterTID(int tid, int mid, int amount) {
 	int hp = GetActorProperty(tid, APROP_HEALTH);
+	if(MonsterProperties[mid].maxhp <= hp)
+		return;
+	
 	amount = Clamp_Between(amount, 0, MonsterProperties[mid].maxhp - hp);
 	SetActorProperty(tid, APROP_HEALTH, hp + amount);
 

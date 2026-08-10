@@ -343,7 +343,8 @@ Script "DnD On Death" DEATH {
 			// things saved are in DnD_Activity.h
 			i = GetCVar("dnd_mode");
 			if(i == DND_MODE_HARDCORE) {
-				if(PlayerIsLoggedIn(pnum) && GetGameModeState() >= GAMESTATE_INPROGRESS) {
+				// check to make sure the player is actually using a character that is in use
+				if(PlayerIsLoggedIn(pnum) && GetGameModeState() >= GAMESTATE_INPROGRESS && CheckInventory("DnD_CharacterActive")) {
 					temp = CheckInventory("DnD_CharacterID");
 					--PlayerActivities[pnum].vote_skips;
 
@@ -421,12 +422,13 @@ Script "DnD On Death" DEATH {
 
 	Delay(const:5);
 
-	// everyone died in survival and its dungeon
+	// everyone died in survival
 	if(GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE) {
 		// reset used tids
 		SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 		ResetUsedTIDs();
 
+		// and its a dungeon
 		if(InformationInLevel[LEVELINFO_ISDUNGEON])
 			InformationInLevel[LEVELINFO_DUNGEONMUSTRESET] = true;
 	}
@@ -1684,6 +1686,8 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 	if(!hp_mult || !IsBossTID(this))
 		hp_mult = 1;
 
+	//MonsterProperties[m_id].trait_list[DND_HASTE] = true;
+	//GiveInventory("MakeFaster", 1);
 	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
 	//MonsterProperties[m_id].trait_list[DND_FASTPROJ] = true;
@@ -1781,11 +1785,11 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 	ScaleMonsterMass(MonsterProperties[m_id].level);
 
 	//Mob might actually be dead by this point.
-	if (GetActorProperty(0, APROP_Health) < realhp || GetActorProperty(0, APROP_Health) == bcs::INT_MAX) {
+	if (GetActorProperty(0, APROP_HEALTH) < realhp || GetActorProperty(0, APROP_HEALTH) == bcs::INT_MAX) {
 		// In the rare case the mob keeps the very high hp, if some reason SetActorProperty fails.
 		// Just kill it
 		//Thing_Damage2(ActivatorTID(), GetActorProperty(0, APROP_Health) + 1, "None");
-		Log(s:"Monster ", s:GetActorClass(0), s: " removed due to hp overflow");
+		Log(s:"Monster ", s:GetActorClass(0), s: " removed due to hp overflow ", d:GetActorProperty(0, APROP_HEALTH), s: " vs ", d:realhp);
 		Thing_Remove(this);
 		SetResultValue(0);
 		Terminate;
@@ -3011,6 +3015,9 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	// things saved are in DnD_Activity.h
 	HandlePlayerDataSave(pnum, true);
 
+	// fixes a character deletion bug with spectating during countdown
+	PlayerGameState[pnum] &= ~(DND_PSTATE_LOADED);
+
 	// this moved here so the above function has prio, not sure if it has any other implications but its good for it to be here regardless
 	PlayerDatabaseState[pnum][PLAYER_SAVESTATE] = false;
 	CheckEOL(true);
@@ -3023,9 +3030,6 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	ClearPlayerAliasTables(pnum);
 
 	if(!GetActivePlayerCount()) {
-		SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
-		ResetUsedTIDs();
-
 		if(InformationInLevel[LEVELINFO_ISDUNGEON])
 			ACS_ExecuteAlways(255, 0, 0, 1, 0);
 	}
@@ -5381,6 +5385,9 @@ Script "DnD Monster Heal Potency" (int base) {
 }
 
 Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
+	while(!CheckInventory("DnD_MonsterSetupDone"))
+		Delay(const:TICRATE_TIMESFIVE);
+
 	// how many periods will be waited for this to end?
 	int duration = style >> 16;
 	int mid = ActivatorTID() - DND_MONSTERTID_BEGIN;
@@ -6159,6 +6166,8 @@ Script 68 (int x) NET {
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
 			IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 0.1);
+			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 100);
+			IncPlayerModValue(0, INV_OVERLOADCHANCE, 100);
 			//IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 1.5);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 1.6);
 			//IncPlayerModValue(0, INV_LIFESTEAL_DAMAGE, 0.05);

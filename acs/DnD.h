@@ -1409,7 +1409,7 @@ void HandleUniqueDeath(int p_actor, int unique_id, int level) {
 				SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
 		break;
 		case MONSTER_ERYXIA:
-			// eryxia influence: Frozen enemies take % increased ice damage.
+			// eryxia influence: Frozen enemies take % increased cold damage.
 			if(!random(0, 2))
 				SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);
 		break;

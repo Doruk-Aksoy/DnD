@@ -254,7 +254,7 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 	if(isSoftorHardcore() && (GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) && PlayerIsLoggedIn(pnum)) {
 		BeginDBTransaction();
 		int tid = pnum + P_TIDSTART, i, j, k, temp;
-		char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
+		char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
 		str pacc = GetPlayerAccountName(pnum);
 		
 		int w = GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, itemid, -1, source);
@@ -293,7 +293,7 @@ void SavePlayerItem(int pnum, int char_id, int itemid, int source) {
 
 void SavePlayerData(int pnum, int char_id) {
 	int temp, tid = pnum + P_TIDSTART, i, j;
-	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1); // DnD_CharacterID defaults to 1 if no cmds are used.
+	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
 	str pacc = GetPlayerAccountName(pnum);
 	
 	// save class id -- the character class they use!
@@ -510,7 +510,7 @@ void SavePlayerActivities(int pnum, int char_id) {
 	int i, j, vt;
 	int tid = pnum + P_TIDSTART;
 	char_id = Clamp_Between(char_id, 0, DND_MAX_CHARS - 1);
-	int temp; //DnD_CharacterID defaults to 1 if no cmds are used.
+	int temp;
 	str pacc = RecoverPlayerAccountName(pnum);
 
 	temp = PlayerActivities[pnum].attribute_change[STAT_STR];
@@ -1075,6 +1075,7 @@ void LoadPlayerData(int pnum, int char_id) {
 
 void load_char(int pnum, int char_id) {
 	SetInventory("DnD_CharacterID", char_id);
+	SetInventory("DnD_CharacterActive", 1);
 	PlayerActivities[pnum].char_id = char_id;
 	
 	// store unique id for future lookup to work even if a player disconnects
@@ -1267,6 +1268,7 @@ void WipeoutPlayerData(int pnum, int cid) {
 
 void create_char(int pnum, int char_id) {
 	SetInventory("DnD_CharacterID", char_id);
+	SetInventory("DnD_CharacterActive", 1);
 	PlayerActivities[pnum].char_id = char_id;
 	StrCpy(PlayerActivities[pnum].player_account, GetPlayerAccountName(pnum));
 	PlayerGameState[pnum] |= DND_PSTATE_LOADED;

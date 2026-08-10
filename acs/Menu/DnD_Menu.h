@@ -56,11 +56,10 @@ Script 900 (int opt, int showInv) NET {
 				ACS_NamedExecuteWithResult("DnD Create Weapon Wheel", pnum, 1);
 			}
 
-			if(GameType() != GAME_SINGLE_PLAYER && CheckInventory("DnD_SyncMe")) {
-				// sync all player data the first time they open it
-				TakeInventory("DnD_SyncMe", 1);
+			// sync all data if player opens menu -- lazy solution, implement write request on id/source giving a "version" increment, and only write the latest version at the end of a tic
+			if(GameType() != GAME_SINGLE_PLAYER)
 				ACS_NamedExecuteAlways("DnD Force Sync Player Global Data", 0);
-			}
+
 			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
 			GiveInventory("P_Frozen", 1);
 			GiveInventory("DnD_StatListOpen", 1);

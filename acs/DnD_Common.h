@@ -9,7 +9,7 @@
 
 #define ISDEBUGBUILD
 //#define WANTCURSORPOS
-//#define VERBOSE_TID_SETUP
+#define VERBOSE_TID_SETUP
 //#define WANT_BUFF_LOG
 
 #ifdef ISDEBUGBUILD
@@ -44,6 +44,7 @@ struct ValueComponent_T {
 #define MAXPLAYERS_MASK 0x3F
 #define TICRATE 35
 #define TICRATE_F 35.0
+#define TICRATE_TIMESFIVE (35 * 5)
 #define HALF_TICRATE 17
 #define MAXLOOTBOXES 1024
 
@@ -355,7 +356,7 @@ enum {
 	DND_PSTATE_DEAD = 2,
 };
 
-global bool 6: PlayerGameState[MAXPLAYERS];
+global int 6: PlayerGameState[MAXPLAYERS];
 
 #define MAPLOOTPENALTY_FACTOR 4
 

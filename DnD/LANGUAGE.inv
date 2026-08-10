@@ -390,7 +390,7 @@ IATTR_T52 			= "magic pierce";
 IATTR_T53 			= "elemental pierce";
 	
 IATTR_T54 			= "fire damage";
-IATTR_T55 			= "ice damage";
+IATTR_T55 			= "cold damage";
 IATTR_T56 			= "lightning damage";
 IATTR_T57 			= "poison damage";
 	
@@ -402,7 +402,7 @@ IATTR_T61 			= "increased damage per tic for poison";
 	
 IATTR_T62 			= "more damage against blocking enemies";
 	
-IATTR_T63 			= "increased chance to freeze for ice attacks";
+IATTR_T63 			= "increased chance to freeze for cold attacks";
 IATTR_T64 			= "increased chill effectiveness";
 IATTR_T65 			= "reduced enemy chill threshold";
 	
@@ -455,12 +455,12 @@ IATTR_T102			= "mitigation chance";
 IATTR_T103			= "mitigation effect";
 
 IATTR_T104			= "increased fire damage";
-IATTR_T105			= "increased ice damage";
+IATTR_T105			= "increased cold damage";
 IATTR_T106			= "increased lightning damage";
 IATTR_T107			= "increased poison damage";
 
 IATTR_T108			= "fire pierce";
-IATTR_T109			= "ice pierce";
+IATTR_T109			= "cold pierce";
 IATTR_T110			= "lightning pierce";
 IATTR_T111			= "poison pierce";
 
@@ -677,7 +677,7 @@ IATTR_TX54			= "Killing demons builds stacks of \cgDaemonic Barrier\c-, up to \c
 IATTR_TX55			= "Soul ammo instead makes soul weapons not use ammo for"; IATTR_TX55S = "seconds";
 IATTR_TX56			= "The next"; IATTR_TX56S = "souls picked up only give ammo";
 IATTR_TX57			= "Strength has extra"; IATTR_TX57S = "attunement for melee weapons";
-IATTR_TX58			= "Your fire/ice/lightning/poison pierce is equal to the highest of the four";
+IATTR_TX58			= "Your fire/cold/lightning/poison pierce is equal to the highest of the four";
 IATTR_TX59			= "Overheating weapons can fire while overheated";
 IATTR_TX60			= "Can't fire weapons that don't overheat while a weapon has overheated";
 IATTR_TX61			= "more damage to overheating weapons per overheat percent";

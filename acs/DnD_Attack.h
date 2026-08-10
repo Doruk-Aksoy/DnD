@@ -162,6 +162,7 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STAMINA, extra2);
 		SetActorProperty(TEMPORARY_ATTACK_TID, APROP_STOREDREFLECTDAMAGETYPE, dmg_category);
 		GiveActorInventory(TEMPORARY_ATTACK_TID, "TakeThruSpecies", 1);
+		GiveActorInventory(TEMPORARY_ATTACK_TID, "MakeNoReflect", 1); // fixed ping pong reflect thing causing TID issues, system is too fragile to handle memes like that
 	}
 
 	if(flags & DND_ATF_TRACERPICKER) {

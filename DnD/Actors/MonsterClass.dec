@@ -1,3 +1,11 @@
+Actor MakeNoReflect : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_ChangeFlag("DONTREFLECT", 1)
+		Stop
+	}
+}
+
 Actor MonsterInfightRemover : DnD_Activator {
 	States {
 		Pickup:

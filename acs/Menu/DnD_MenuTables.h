@@ -1484,14 +1484,13 @@ enum {
 	DTYPE_PHYSICAL = 1,
 	DTYPE_MELEE = 2,
 	DTYPE_OCCULT = 4,
-	DTYPE_EXPLOSIVE = 8,
-	DTYPE_ENERGY = 16,
-	DTYPE_FIRE = 32,
-	DTYPE_ICE = 64,
-	DTYPE_POISON = 128,
-	DTYPE_LIGHTNING = 256
+	DTYPE_ENERGY = 8,
+	DTYPE_FIRE = 16,
+	DTYPE_ICE = 32,
+	DTYPE_POISON = 64,
+	DTYPE_LIGHTNING = 128
 };
-#define MAX_DAMAGE_TYPES_MENU 9
+#define MAX_DAMAGE_TYPES_MENU 8
 
 str GetDamageTypeIcon(int dt) {
 	dt = 1 << dt;
@@ -1502,8 +1501,6 @@ str GetDamageTypeIcon(int dt) {
 		return "DT_MELE";
 		case DTYPE_OCCULT:
 		return "DT_OCCU";
-		case DTYPE_EXPLOSIVE:
-		return "DT_EXPL";
 		case DTYPE_ENERGY:
 		return "DT_ENER";
 		case DTYPE_FIRE:

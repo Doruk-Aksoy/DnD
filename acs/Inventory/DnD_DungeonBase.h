@@ -138,7 +138,7 @@ void SetupDungeonModTable() {
 	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_low = 11;
 	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_high = 20;
 	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_low = 8;
-	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_high = 14;
+	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_extra_high = 20;
 	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_modifier = 0;
 	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].attrib_level_extra_modifier = 0;
 	DungeonModData.DungeonModTable[DUN_ATTR_MOREDMG].tags = INV_ATTR_TAG_DAMAGE;
@@ -191,13 +191,13 @@ void SetupDungeonModTable() {
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_BUDGET].attrib_level_modifier = 0;
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_BUDGET].tags = INV_ATTR_TAG_NONE;
 
-	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_low = 1;
-	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_high = 8;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_low = 3;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_high = 12;
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].attrib_level_modifier = 0;
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERCHEST].tags = INV_ATTR_TAG_NONE;
 
-	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_low = 1;
-	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_high = 8;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_low = 2;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_high = 10;
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].attrib_level_modifier = 0;
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_RARERORBS].tags = INV_ATTR_TAG_NONE;
 

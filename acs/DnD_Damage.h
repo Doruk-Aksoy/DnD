@@ -281,7 +281,7 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_DISTANCEDAMAGE_VARIABLE "user_tics"
 
 #define DND_BASE_FREEZETIMER 21 // 3 seconds base time (21 x 5 = 105)
-#define DND_BASE_CHILL_CAP 5 // 50% health dealt in ice = maximum slow
+#define DND_BASE_CHILL_CAP 5 // 50% health dealt in cold = maximum slow
 
 #define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
 
@@ -1082,7 +1082,7 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 	if(CheckFlag(enemy_tid, "GHOST") && IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK))
 		more_bonus = more_bonus * (100 + DND_NETHERGHOST_BONUS) / 100;
 		
-	// amps fire damage, reduces ice damage
+	// amps fire damage, reduces cold damage
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
 		// we handle ignite damage buff in the dot calculation
 		if(IsFireDamage(damage_type) && !(flags & DND_DAMAGETICFLAG_NOIGNITESTACK))
@@ -1138,7 +1138,7 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK) && !CheckFlag(enemy_tid, "GHOST"))
 		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERMASK_AMP, DND_NETHERMASK_DIV);
 		
-	// amps ice damage taken, reduces fire damage
+	// amps cold damage taken, reduces fire damage
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
 		if((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || arg2 == "Slime")
 			dmg /= DND_AMULETHELL_FACTOR;
@@ -1707,12 +1707,15 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
 		pct_bonus += GetFlatHealthDamageFactor(temp);
 	
-	temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping);
-	if(temp/* && !isSpell*/)
-		pct_bonus += temp;
+	// dont let dot double dip
+	if(!(flags & DND_WDMG_ISDOT)) {
+		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping);
+		if(temp/* && !isSpell*/)
+			pct_bonus += temp;
 
-	// apply the % bonus now
-	dmg = dmg * (100 + pct_bonus) / 100;
+		// apply the % bonus now
+		dmg = dmg * (100 + pct_bonus) / 100;
+	}
 		
 	// finally crit chance
 	// spells will have their own crit source compared to attacks
@@ -1892,7 +1895,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 	// ox, oy and oz arent used below
 	
-	// if ice damage, add stacks of slow and check for potential freeze chance
+	// if cold damage, add stacks of slow and check for potential freeze chance
 	// do these if only the actor was alive after the tic they received dmg
 	if(IsActorAlive(victim_tid)) {
 		if(flags & DND_DAMAGETICFLAG_ICE)
@@ -4482,6 +4485,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		}
 		else if(temp && !shooter)
 			SetResultValue(0);
+	}
+	else if(type == GAMEEVENT_ROUND_ABORTED) {
+		SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
+		ResetUsedTIDs();
 	}
 }
 

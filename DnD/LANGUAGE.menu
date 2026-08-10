@@ -159,7 +159,7 @@ DND_MENU_HELPTEXT9		=	"Legendary Monster Codex";
 DND_MENU_AILMENT1		=	"Chill";
 DND_MENU_AILMENT1_EXP	=	"Monsters are slowed by 10% for every 10% of health they lose, up to a maximum of 50% health lost. This stacks and enables \cvfreezing.";
 DND_MENU_AILMENT2		=	"Freeze";
-DND_MENU_AILMENT2_EXP	=	"Monsters become completely encased in ice. It must first be \cvchilled\c-, and each stack of \cvchill\c- increases odds of freezing a monster by 2% up to a maximum of 10%.";
+DND_MENU_AILMENT2_EXP	=	"Monsters become completely encased in cold. It must first be \cvchilled\c-, and each stack of \cvchill\c- increases odds of freezing a monster by 2% up to a maximum of 10%.";
 DND_MENU_AILMENT3		=	"Ignite";
 DND_MENU_AILMENT3_EXP	=	"Fire damage from hits has 15% chance to ignite an enemy, dealing flat damage over 4 seconds. It can proliferate to nearby enemies if the monster dies with time remaining.";
 DND_MENU_AILMENT4		=	"Overload";
@@ -182,7 +182,7 @@ DND_MENU_MELEETEXT		=	"\c[Y5]Melee\n\nFound specifically in \c[Y5]Slot 1\c- weap
 DND_MENU_OCCULTTEXT		=	"\c[Y5]Occult\n\nDemonic or holy weapons utilize this damage type. The most dominant weapons of this type are \c[Y5]Slot 8\c- weapons. Magical and undead monsters take extra damage from this type.";
 DND_MENU_ENERGYTEXT		=	"\c[Y5]Energy\n\nGeneral category of the plasma type weapons. Mostly found in \c[Y5]Slot 6\c- and \c[Y5]7\c- weapons. Mechanical enemies take extra damage from this type.";
 DND_MENU_FIRETEXT		=	"\c[Y5]Fire\n\nWeapon deals fire damage. These weapons can ignite enemies.";
-DND_MENU_ICETEXT		=	"\c[Y5]Ice\n\nWeapon deals ice damage. These weapons can chill and freeze enemies.";
+DND_MENU_ICETEXT		=	"\c[Y5]Cold\n\nWeapon deals cold damage. These weapons can chill and freeze enemies.";
 DND_MENU_POISONTEXT		=	"\c[Y5]Poison\n\nWeapon deals poison damage. These weapons can poison enemies.";
 DND_MENU_LIGHTNINGTEXT	=	"\c[Y5]Lightning\n\nWeapon deals lightning damage. These weapons can overload enemies.";
 
@@ -279,7 +279,7 @@ DND_MENU_RES_SELF		=	"Self Damage Reduction";
 DND_MENU_PENETRATION	=	"Pierce";
 
 DND_MENU_RES_FIRE_PEN	=	"Fire Pierce";
-DND_MENU_RES_ICE_PEN	=	"Ice Pierce";
+DND_MENU_RES_ICE_PEN	=	"Cold Pierce";
 DND_MENU_RES_LGHT_PEN	=	"Lightning Pierce";
 DND_MENU_RES_POIS_PEN	=	"Poison Pierce";
 
@@ -305,7 +305,7 @@ ACCTX_C2				=	"Reduces other damage by 75%.";
 
 ACCTX_T3				=	"Amulet of Hellfire";
 ACCTX_P3				=	"Protects from all fire damage and hazards by 75%. Deal 50% more fire damage.";
-ACCTX_C3				=	"Increases ice damage taken by 75%. Deal 50% less ice damage.";
+ACCTX_C3				=	"Increases cold damage taken by 75%. Deal 50% less cold damage.";
 
 ACCTX_T4				=	"Angelic Ankh";
 ACCTX_P4				=	"When about to die, the ankh will intervene, making you invulnerable for 8 seconds. Works once every map.";
@@ -389,7 +389,7 @@ DND_MENU_AMMOTEXT20		=	"nitrogen canisters";
 	
 DND_MENU_AMMOTEXT21		=	"ion cells";
 DND_MENU_AMMOTEXT22		=	"acid clips";
-DND_MENU_AMMOTEXT23		=	"ever ice";
+DND_MENU_AMMOTEXT23		=	"ever cold";
 DND_MENU_AMMOTEXT24		=	"viper essence";
 DND_MENU_AMMOTEXT25		=	"thunder mana";
 DND_MENU_AMMOTEXT26		=	"dark seals";
@@ -538,7 +538,7 @@ DND_INVESTMENT_EXPLANATION	=	"Investing increases odds of discovering that resea
 DND_MENU_MMOD_WEAK1		=	"Monster takes 25% more damage from energy attacks.";
 DND_MENU_MMOD_WEAK2		=	"Monster takes 300% more damage from silver bullets.";
 DND_MENU_MMOD_WEAK3		=	"Monster takes 50% more damage from fire attacks.";
-DND_MENU_MMOD_WEAK4		=	"Monster takes 50% more damage from ice attacks.";
+DND_MENU_MMOD_WEAK4		=	"Monster takes 50% more damage from cold attacks.";
 DND_MENU_MMOD_WEAK5		=	"Monster takes 25% more damage from occult attacks.";
 DND_MENU_MMOD_WEAK6		=	"Monster takes 50% more damage from elemental attacks.";
 DND_MENU_MMOD_WEAK7		=	"Monster is unable to block attacks.";
@@ -548,9 +548,9 @@ DND_MENU_MMOD_RES1		=	"Monster takes 50% reduced damage from melee and ballistic
 DND_MENU_MMOD_RES2		=	"Monster takes 50% reduced damage from energy attacks.";
 DND_MENU_MMOD_RES3		=	"Monster takes 50% reduced damage from occult attacks.";
 DND_MENU_MMOD_RES4		=	"Monster takes 50% reduced damage from elemental attacks.";
-DND_MENU_MMOD_RES5		=	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to ice attacks.";
-DND_MENU_MMOD_RES6		=	"Monster is a being of fire, takes 50% more damage from ice attacks but immune to fire attacks.";
-DND_MENU_MMOD_RES7		=	"Monster is a being of stone, has ice weakness, fire resist, immunity to poison and lightning, and Hardened Skin.";
+DND_MENU_MMOD_RES5		=	"Monster is a being of ice, takes 50% more damage from fire attacks but immune to cold attacks.";
+DND_MENU_MMOD_RES6		=	"Monster is a being of fire, takes 50% more damage from cold attacks but immune to fire attacks.";
+DND_MENU_MMOD_RES7		=	"Monster is a being of stone, has cold weakness, fire resist, immunity to poison and lightning, and Hardened Skin.";
 DND_MENU_MMOD_RES8		=	"Monster is a being of earth, takes 50% more damage from lightning, but immune to poison attacks.";
 
 // immunity group
@@ -565,7 +565,7 @@ DND_MENU_MMOD_IMM8		=	"Monster is immune to ignite.";
 DND_MENU_MMOD_IMM9		=	"Monster is immune to overloading.";
 DND_MENU_MMOD_IMM10		=	"Monster is resistant to all except occult damage.";
 DND_MENU_MMOD_IMM11		=	"Monster is immune to fire damage.";
-DND_MENU_MMOD_IMM12		=	"Monster is immune to ice damage.";
+DND_MENU_MMOD_IMM12		=	"Monster is immune to cold damage.";
 DND_MENU_MMOD_IMM13		=	"Monster is immune to poison damage.";
 DND_MENU_MMOD_IMM14		=	"Monster is immune to lightning damage.";
 
