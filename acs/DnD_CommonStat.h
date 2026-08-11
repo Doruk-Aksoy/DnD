@@ -1112,6 +1112,6 @@ int CheckPlayerCleave(int pnum) {
 
 #include "DnD_Buffs.h"
 #include "DnD_BuffInterface.h"
-
+#include "DnD_StatCache.h"
 
 #endif

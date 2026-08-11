@@ -10,7 +10,7 @@
 #define ISDEBUGBUILD
 //#define WANTCURSORPOS
 #define VERBOSE_TID_SETUP
-//#define WANT_BUFF_LOG
+#define WANT_BUFF_LOG
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;

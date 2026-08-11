@@ -285,16 +285,16 @@ Script "DnD On Map Load" OPEN {
 
 	SetupCVarTracking();
 
-	while(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
-		Delay(const:TICRATE);
-
-	NPC_Setup();
-
 	// this is needed as a one time thing on server launch
 	if(!IsSetupComplete(SETUP_STATE1, SETUP_DUNGEONDATAFIRSTTIMECLEAR)) {
 		ResetCurrentDungeonData();
 		SetupComplete(SETUP_STATE1, SETUP_DUNGEONDATAFIRSTTIMECLEAR);
 	}
+
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
+		Delay(const:TICRATE);
+
+	NPC_Setup();
 
 	if(InformationInLevel[LEVELINFO_ISDUNGEON])
 		SyncCurrentDungeonInformation();
@@ -6165,9 +6165,15 @@ Script 68 (int x) NET {
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
 			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
 			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
-			IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 0.1);
+
+			/*IncPlayerModValue(0, INV_ESS_CHEGOVAX, 40);
+			IncPlayerModValue(0, INV_IGNITE_PROLIFCHANCE, 100);
+			IncPlayerModValue(0, INV_CHANCE_FLATIGNITE, 100);*/
+
+			/*IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 0.1);
 			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 100);
-			IncPlayerModValue(0, INV_OVERLOADCHANCE, 100);
+			IncPlayerModValue(0, INV_OVERLOADCHANCE, 100);*/
+
 			//IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 1.5);
 			//IncPlayerModValue(0, INV_LIFESTEAL, 1.6);
 			//IncPlayerModValue(0, INV_LIFESTEAL_DAMAGE, 0.05);
