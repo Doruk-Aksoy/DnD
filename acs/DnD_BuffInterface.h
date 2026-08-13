@@ -8,6 +8,11 @@ enum {
     DND_BUFF_PHASING_DASH,
     DND_BUFF_AMPHETAMINE,
 
+    // both map to BTI_DOOMGUY_ORB (so they can never stack); they differ only in
+    // duration, which is why there are two ids rather than an extra script arg
+    DND_BUFF_DOOMGUY_ORB,
+    DND_BUFF_DOOMGUY_ORB_EXEC,
+
     DND_DEBUFF_OTHERWORDLYGRIP,
 
     DND_DEBUFF_CHILL,
@@ -153,6 +158,21 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_AMPHETAMINE, sc_flags) / 6;
                 HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
                 GiveActorInventory(player_tid, "DnD_HasAmphetamine", 1);
+            break;
+
+            // the tint decays over the buff's life, so the bonus visibly winds down
+            case DND_BUFF_DOOMGUY_ORB:
+            case DND_BUFF_DOOMGUY_ORB_EXEC:
+                intensity = 0.2;
+                r = 223;
+
+                g = 17;
+                b = 17;
+                if(debuff_id == DND_BUFF_DOOMGUY_ORB_EXEC)
+                    duration = HandlePlayerBuffAssignment(pnum, this, BTI_DOOMGUY_ORB, sc_flags, 0, DND_DOOMGUY_ORB_EXEC_DURATION);
+                else
+                    duration = HandlePlayerBuffAssignment(pnum, this, BTI_DOOMGUY_ORB, sc_flags);
+                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
 
             case DND_DEBUFF_OTHERWORDLYGRIP:

@@ -712,7 +712,7 @@ Script "DnD Killing Spree Timer" (void) {
 			
 			// punisher perk 2 -- -2 means was at least merciless
 			temp = spree / DND_SPREE_PER;
-			if(HasClassPerk_Fast("Punisher", 2) && temp >= 2) {
+			if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 2) && temp >= 2) {
 				temp = DND_PUNISHER_SPREERECOVER + DND_PUNISHER_SPREEPERBONUS * (temp - 2);
 				if(temp > 100)
 					temp = 100; // don't give more than 100% of caps
@@ -935,7 +935,7 @@ Script "DND On Kill" KILL {
 	//HandleNPCChallenges(this, m_id);
 	
 	// 25% chance to explode
-	if(!random(0, 3) && HasActorClassPerk_Fast(target, "Wanderer", 4))
+	if(!random(0, 3) && HasActorClassPerk_Fast(target, DND_PLAYER_WANDERER, 4))
 		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
 	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime") && !GetPlayerAttributeValue(target - P_TIDSTART, INV_INC_ALLOVERLOAD)) {
@@ -1013,7 +1013,7 @@ Script "DND On Kill" KILL {
 	if
 	(
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
-		HasClassPerk_Fast("Doomguy", 5) ||
+		HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5) ||
 		GetPlayerAttributeValue(target - P_TIDSTART, INV_INC_ENEMYRIPCHANCE) >= random(1, 100) ||
 		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
 	)
@@ -1026,7 +1026,7 @@ Script "DND On Kill" KILL {
 	IncrementPlayerLifetimeKills();
 	
 	is_demon = CheckInventory("Punisher_Perk50_Tiers");
-	if(HasClassPerk_Fast("Punisher", 3) && is_demon < DND_MAX_PUNISHER_PERK50_TIERS) {
+	if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 3) && is_demon < DND_MAX_PUNISHER_PERK50_TIERS) {
 		// in killing spree
 		if((CheckInventory("DnD_MultiKillCounter") + 1) / DND_SPREE_PER >= 1)
 			GiveInventory("Punisher_Perk50_Counter", (GetPunisherTierKillBonus(m_id) * DND_PUNISHER_PERK50_KSPREEBONUS_MULT / DND_PUNISHER_PERK50_KSPREEBONUS_DIV));
@@ -1038,14 +1038,17 @@ Script "DND On Kill" KILL {
 			// tier up!
 			if(is_demon < temp) {
 				is_demon = FixedMul(DND_PUNISHER_PERK50_DAMAGEFACTOR, FixedDiv(fpow(1.0 + DND_PUNISHER_PERK50_BONUS_PER_TIER, temp) - 1.0, DND_PUNISHER_PERK50_BONUS_PER_TIER));
+				// the item stays as the HUD's source of truth (DnD_ClassScripts.h
+				// renders it); the buff carries the actual damage multiplier
 				SetInventory("Punisher_Perk50_DamageBonus", is_demon);
 				SetInventory("Punisher_Perk50_Tiers", temp);
+				HandlePlayerBuffAssignment(target - P_TIDSTART, 0, BTI_PUNISHER_DAMAGE, 0, 0, 0, is_demon);
 			}
 			SetInventory("Punisher_Perk50_NextReq", GetPunisherTierRequirement(temp));
 		}
 	}
 	
-	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && HasClassPerk_Fast("Hobo", 5))
+	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && HasClassPerk_Fast(DND_PLAYER_HOBO, 5))
 		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
 	
 	if(IsMonsterIdDemon(m_id) && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
@@ -1226,20 +1229,11 @@ Script "DnD Periodic Checks" ENTER {
 			if(CheckInventory("SigilCheck")) {
 				// give item only if there is no sigil powerup currently on player
 				if(HasNoSigilPower()) {
-					switch(CheckInventory("SigilCheck")) {
-						case 1: // fire
-							GiveInventory("ElementPower_Fire", 1);
-						break;
-						case 2:
-							GiveInventory("ElementPower_Ice", 1);
-						break;
-						case 3:
-							GiveInventory("ElementPower_Lightning", 1);
-						break;
-						case 4:
-							GiveInventory("ElementPower_Earth", 1);
-						break;
-					}
+					// SigilCheck cycles 1..4 in fire/cold/lightning/poison order, which
+					// is exactly the order of the contiguous BTI_ELEMENTPOWER_* block --
+					// so the switch collapses to one offset. The buff ticker owns expiry
+					// now, replacing the engine-managed PowerDamage duration.
+					HandlePlayerBuffAssignment(pnum, 0, BTI_ELEMENTPOWER_FIRE + CheckInventory("SigilCheck") - 1);
 					SetInventory("SigilCheck", (CheckInventory("SigilCheck") % 4) + 1);
 				}
 			}
@@ -2458,15 +2452,24 @@ Script "DnD Player Levelup Check" (int tid) {
 
 		if(newPerk) {
 			HandleClassPerks(tid);
-			
-			// this is done as new perks might increase some damage factors
-			ForcePlayerDamageCaching(pnum);
-			
+
+			// HandleClassPerks only hands out the perk ITEM. Perks backed by a
+			// long-running script have to be started here too, or they do not come
+			// alive until the next map.
+			if(HasActorClassPerk_Fast(tid, DND_PLAYER_MARINE, 4))
+				ACS_NamedExecuteAlways("DnD Marine Perk 50 Checker", 0);
+
 			// make some announcement the player has a new perk
 			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_NEWCLASSPERK);
 		}
 		else
 			ACS_NamedExecuteAlways("DnD Announcer", 0, DND_ANNOUNCER_ATTRIBPOINT);
+
+		// EVERY level, not just perk levels. New perks can raise damage factors, but so
+		// can the level itself: GetSpawnHealth() grows by DND_HP_PER_LVL each level and
+		// feeds GetFlatHealthDamageFactor inside the cached block. Gated on newPerk,
+		// four out of five level-ups left that factor frozen.
+		ForcePlayerDamageCaching(pnum);
 	}
 	
 	UpdateActivity(pnum, DND_ACTIVITY_EXP, GetPlayerExp(pnum), 0);
@@ -2941,15 +2944,19 @@ Script "DnD On Respawn" RESPAWN {
 
 	ClearLingeringBuffs(pnum);
 
-	SetInventory("PlayerIsLeeching", 0);
 	RestoreRPGStat(RES_ACCURACY | RES_EXPLOSIONRADIUS);
 	ACS_NamedExecuteAlways("DnD Health Pickup", 0, 100, 4); // full heal
 	
 	// run the monster scanner script again on respawn
 	ACS_NamedExecuteWithResult("DnD Monster Scanner Picker");
 	ACS_NamedExecuteAlways("DnD Monster Scanner", 0);
-	
+
 	ACS_NamedExecuteAlways("DnD SBAR", 0);
+
+	// its loop ends for good when the player dies, so it has to be restarted here or
+	// the perk stays dead for the rest of the map
+	if(HasClassPerk_Fast(DND_PLAYER_MARINE, 4))
+		ACS_NamedExecuteAlways("DnD Marine Perk 50 Checker", 0);
 
 	DoPreClassAdjustments();
 
@@ -3007,8 +3014,13 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	HudMessage(s:""; HUDMSG_PLAIN, DND_HARDCORE_SCREENID, CR_RED, 320.0, 240.0, 1);
 	PlayerCanLoad[pnum] = 0;
 	BreakTradesBetween(pnum);
+
+	Delay(const:1);
+
 	ResetPlayerFlaskData(pnum);
 	RemoveAllBuffs(pnum);
+
+	Delay(const:1);
 	
 	// if player was in middle of saving, don't accidently interfere if player leaves early
 	// save accumulated stats when player leaves
@@ -3027,7 +3039,11 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	ACS_NamedExecuteWithResult("DnD Unique Boss Bar Draw SpecOnly", DungeonBossData[BOSSDATA_TID]);
 	ACS_NamedExecuteAlways("DnD Menu Icon Force Remove", 0, pnum + DND_MENUFLOATYICON_TID);
 
+	Delay(const:1);
+
 	ClearPlayerAliasTables(pnum);
+
+	Delay(const:1);
 
 	if(!GetActivePlayerCount()) {
 		if(InformationInLevel[LEVELINFO_ISDUNGEON])
@@ -3299,7 +3315,7 @@ Script "DnD Player Setup" ENTER {
 	// this is here as a precaution for taltos effect removal in case player has decided to remove it before a map ended
 	DecideAccessories();
 
-	if(HasClassPerk_Fast("Marine", 4))
+	if(HasClassPerk_Fast(DND_PLAYER_MARINE, 4))
 		ACS_NamedExecuteAlways("DnD Marine Perk 50 Checker", 0);
 	
 	if(IsAccessoryEquipped(ActivatorTID(), DND_ACCESSORY_TALTOSRING))
@@ -3675,7 +3691,7 @@ Script 997 (void) NET {
 		}
 		soundplayed = 0;
 
-		if(dashed && HasClassPerk_Fast("Trickster", 4) && !CheckInventory("Trickster_Acrobat_Cooldown")) {
+		if(dashed && HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 4) && !CheckInventory("Trickster_Acrobat_Cooldown")) {
 			GiveInventory("Trickster_Acrobat_Cooldown", 1);
 
 			if(!!HasPlayerBuff(PlayerNumber(), BTI_PHASING))
@@ -3787,7 +3803,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					amt = 1;
 				
 				// cyborg perk
-				if(HasClassPerk_Fast("Cyborg", 1))
+				if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 				
 				if((!CheckInventory("DnD_Hit_CombatTimer") || GetPlayerAttributeValue(pnum, INV_CORR_DMGDOESNTSTOPREGEN) || GetPlayerAttributeValue(pnum, INV_INC_HPREGENINTERRUPT)) && cur < lim) {
@@ -3955,13 +3971,17 @@ Script "DnD Lifesteal Script" (int tid) {
 	if(tid > 0)
 		SetActivator(tid);
 
-	GiveInventory("PlayerIsLeeching", 1);
-
 	int pnum = PlayerNumber();
+
+	// only bother granting the leech damage buff when the player has the affix at all
+	int leech_dmg = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE);
+	if(leech_dmg)
+		HandlePlayerBuffAssignment(pnum, 0, BTI_LEECHINGDAMAGE, 0, 0, 0, leech_dmg);
+
 	int tics = GetLifestealRate(pnum);
 	int amt;
 	int cap = GetSpawnHealth();
-	bool cyborgCheck = HasClassPerk_Fast("Cyborg", 5);
+	bool cyborgCheck = HasClassPerk_Fast(DND_PLAYER_CYBORG, 5);
 	if(cyborgCheck)
 		cap = GetPlayerEnergyShieldCap(pnum);
 
@@ -3999,7 +4019,9 @@ Script "DnD Lifesteal Script" (int tid) {
 
 	TakeInventory("LifestealScriptRunning", 1);
 	SetInventory("LifeStealAmount", 0);
-	TakeInventory("PlayerIsLeeching", 1);
+
+	// unconditional teardown -- reached by both the loop exit and the break above
+	RemoveBuffWithTableIndex(pnum, BTI_LEECHINGDAMAGE);
 }
 
 // for elites with pierce armor flag
@@ -5992,7 +6014,7 @@ Script "DnD Vaaj Charm" (int spd) {
                 Terminate;
             }
 
-			if(HasActorClassPerk_Fast(victim, "Wanderer", DND_CLASSPERK_1))
+			if(HasActorClassPerk_Fast(victim, DND_PLAYER_WANDERER, DND_CLASSPERK_1))
 				base_t = base_t * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
 
 			base_t = base_t * curse_effect / 100;
@@ -6098,7 +6120,6 @@ Script 68 (int x) NET {
 			CompleteResearch(x);
 		}
 		else if(x == 32768) {
-
 			SpawnSpecificOrbForAll(DND_ORB_ASSIMILATION, 1);
 			SpawnSpecificOrbForAll(DND_ORB_PHANTASMAL, 1);
 			SpawnSpecificOrbForAll(DND_ORB_HOLLOW, 1);
@@ -6124,6 +6145,9 @@ Script 68 (int x) NET {
 					SetActivator(-1);
 				}
 			}
+		}
+		else if(x == 404) {
+			GiveExp(100000);
 		}
 		else if(x == 420) {
 			//Log(s:"charm");

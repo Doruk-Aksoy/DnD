@@ -558,25 +558,7 @@ Actor SigilCheck : Inventory {
 	inventory.maxamount 4
 }
 
-Actor ElementPower_Fire : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration -20
-}
 
-Actor ElementPower_Ice : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration -20
-}
-
-Actor ElementPower_Lightning : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration -20
-}
-
-Actor ElementPower_Earth : PowerDamage {
-	damagefactor "normal", 1.0
-	powerup.duration -20
-}
 
 Actor CelestialCheck : DnD_Boolean { }
 

@@ -672,13 +672,57 @@ void FaceActor(int this, int to) {
 	SetActorAngle(this, VectorAngle(x, y));
 }
 
-// contains overflow checks
-int ApplyDamageFactor_Safe(int dmg, int factor, int div = 100) {
-	// disabled overflow checks for now, see if there's any improvement in performance
-	// if this turns out to be necessary, I'll enable this
-	//if(dmg < bcs::INT_MAX / factor)
-		return dmg * factor / div;
-	//return bcs::INT_MAX;
+// Exact  v * pct / div,  with `div` times more headroom than the naive form.
+//
+// The split is an identity, not an approximation:
+//     floor(v*p/d)  ==  (v/d)*p + floor((v%d)*p/d)
+// so this returns bit-identical results wherever the naive form doesn't
+// overflow, and correct results where it does. Saturation happens only when the
+// TRUE product exceeds INT_MAX -- the naive `if(v < INT_MAX/p)` guard bails at
+// 1/div of that, clamping to INT_MAX while the real answer still fits.
+//
+// For div = 100 that is the difference between saturating at v = 21,474,836 and
+// saturating at v = 2,147,483,647.
+int MulPercent_Exact(int v, int pct, int div = 100) {
+	if(v <= 0 || pct <= 0 || div <= 0)
+		return 0;
+
+	// fast path: the naive product fits
+	if(v <= bcs::INT_MAX / pct)
+		return v * pct / div;
+
+	// v * pct overflows int32, so split BOTH operands by div. With
+	//     v = q1*div + r1  and  pct = q2*div + r2
+	// this identity is exact:
+	//     floor(v*pct/div) == q1*pct + r1*q2 + floor(r1*r2/div)
+	// Only the first term can overflow: r1*q2 < pct, and r1*r2 < div*div.
+	// (Splitting v alone is NOT enough -- (v % div) * pct overflows on its own,
+	//  and when v < div that term is the entire answer.)
+	int q1 = v / div;
+	if(q1 > bcs::INT_MAX / pct)
+		return bcs::INT_MAX;
+
+	int res = q1 * pct;
+	int r1 = v % div;
+	int acc = r1 * (pct / div) + (r1 * (pct % div)) / div;
+
+	if(res > bcs::INT_MAX - acc)
+		return bcs::INT_MAX;
+
+	return res + acc;
+}
+
+// Scales only the BONUS portion of an integer-percent factor, leaving the 100
+// baseline untouched.
+//
+// "66% effectiveness of damage scaling" means a +300% bonus becomes +200%. It
+// does NOT mean the base damage is multiplied by 0.66 -- but that is exactly
+// what `factor = factor * 2 / 3` does, because the baseline is part of `factor`.
+// An ungeared weapon has factor == 100 and comes out at 66.
+int ScaleFactorBonus(int factor, int num, int den) {
+	if(factor <= 100 || den <= 0)
+		return factor;
+	return 100 + (factor - 100) * num / den;
 }
 
 int SetInventory (str item, int count) {

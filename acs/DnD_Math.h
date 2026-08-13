@@ -28,7 +28,7 @@ int fsqrt(int number)
 
   if (number == 1.0) return 1.0; 
   if (number <= 0) return 0;
-  int val = samples<<17 + samples<<19; // x*10 = x<<1 + x<<3
+  int val = (samples<<17) + (samples<<19); // x*10 = x<<1 + x<<3
   for (int i=0; i<samples; ++i) 
     val = (val + FixedDiv(number, val)) >> 1;
 
@@ -355,17 +355,6 @@ int pow (int x, int n) {
 	int y = 1;
 	while (n-- > 0) y *= x;
 	return y;
-}
-
-int nth_root(int num, int p) {	
-	int x = num / 2;
-	int dx = FixedDiv(FixedDiv(num, fpow(x, p - 1)) - x, num);
-	
-	while(dx >= EPSILON || dx <= -EPSILON){
-		x = x + dx;
-		dx = FixedDiv(FixedDiv(num, fpow(x, p - 1)) - x, num);
-	}
-	return x;
 }
 
 int abs (int x) {

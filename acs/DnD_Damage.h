@@ -564,7 +564,8 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	dmg += MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
 	
 	// overall percentage bonuses -- this is basically ScaleCachedDamage but unwrapped, we need to rewrite these into a common function that just retrieves the overall bonus factor to multiply with!
-	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category, flags);
+	// uncached path, so the buff term is read live right here
+	int factor = 100 + GetPlayerPercentDamage(pnum, -1, damage_category, flags) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
 	
 	// apply flat health to damage conversion if player has any
 	int temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
@@ -590,8 +591,8 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	}
 		
 	// if we had a factor of 0, dont bother here
-	if(!factor)
-		return dmg;
+	if(factor <= 0)
+		return 0;
 		
 	//printbold(s:"dmg factor mult by ", d:factor, s: " base dmg: ", d:dmg, s: " end result: ", d:dmg * factor / 100);
 		
@@ -653,6 +654,14 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		if(IsTechWeapon(wepid)) {
 			temp += GetPlayerAttributeValue(pnum, INV_FLAT_TECH);
 			pct_tmp += GetPlayerAttributeValue(pnum, INV_TECH_PERCENT);
+
+			// Cyborg perk 1: +33% MORE on tech weapons. This is weapon-conditional, so
+			// it belongs in the per-weapon cache rather than the buff layer -- and perk
+			// spend already calls ForcePlayerDamageCaching, so it has an invalidation
+			// edge. Actor-based lookup because the cached block is not guaranteed to
+			// run with the player as activator.
+			if(HasActorClassPerk_Fast(tid, DND_PLAYER_CYBORG, DND_CLASSPERK_1))
+				InsertCacheFactor(pnum, wepid, dmgid, 100 + DND_CYBERNETIC_FACTOR, false);
 		}
 
 		if(IsHandgun(wepid)) {
@@ -686,9 +695,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		}
 		
 		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
-		
-		int mult_factor = 0;
-		
+
 		// include the stat attunement bonus
 		InsertCacheFactor(pnum, wepid, dmgid, GetStatAttunementBonus(pnum, wepid, damage_category == DND_DAMAGECATEGORY_MELEE || is_melee_mastery_exception), true);
 
@@ -701,7 +708,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 		// last one is for ghost hit power, we reduce its power by a factor -- add the top pct values from above to here too
 		temp = GetPlayerPercentDamage(pnum, wepid, damage_category, flags) + pct_tmp;
 		if(damage_category != DND_DAMAGECATEGORY_MELEE && is_melee_mastery_exception)
-			temp += GetPlayerPercentDamage(pnum, wepid, DND_DAMAGECATEGORY_MELEE, flags);
+			temp += MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_MELEE, flags); // prevent double dipping
 		if(temp)
 			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
 		
@@ -738,9 +745,8 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 			InsertCacheFactor_Fixed(pnum, wepid, dmgid, temp);
 			//InsertCacheFactor(pnum, wepid, dmgid, temp, false);
 		
-		// perk multiplicative factors
-		if(mult_factor)
-			InsertCacheFactor(pnum, wepid, dmgid, 100 + mult_factor, false);
+		// New multipliers go through the stat cache: infrequent ones as cached
+		// factors, frequent ones as buffs.
 
 		MarkCachingComplete(pnum, wepid, dmgid);
 		
@@ -752,9 +758,13 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	if(isSpecial && isSpecial - 1 == SSAM_FLECHETTE)
 		temp /= 3;
 
-	range = CheckActorInventory(tid, "Cyborg_InstabilityStack");
-	if(range == DND_MAXCYBORG_INSTABILITY && IsTechWeapon(wepid))
-		temp += DND_DMG_PER_INSTABILITY * range;
+	// IsTechWeapon is a property-table bit, the inventory lookup is a name-based native
+	// call -- test the cheap half first so the native one is skipped on most shots
+	if(IsTechWeapon(wepid)) {
+		range = CheckActorInventory(tid, "Cyborg_InstabilityStack");
+		if(range == DND_MAXCYBORG_INSTABILITY)
+			temp += DND_DMG_PER_INSTABILITY * range;
+	}
 	
 	// isSpecial isn't used or kept track of below here, so re-use
 	// 66% effectiveness of damage scaling on tracer -- dmgid is 1 on tracers
@@ -767,38 +777,41 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	// add flat bonus here
 	dmg += temp;
 	
-	// if there would be an overflow with dmg x temp (temp in [1.0, 65536.0], fixed)
-	temp = GetCachedPlayerFactor(pnum, wepid, dmgid);
+	// The weapon layer's "increased" pool, kept SEPARATE from its "more" product so
+	// the buff layer's own increased can join this same pool at request time. Fusing
+	// them into one number is what let a buff percent freeze into the weapon cache.
+	// THE STALENESS FIX: the weapon layer's cached "increased" and the buff layer's
+	// live "increased" join the SAME additive pool, here, at request time. The buff
+	// term is read fresh on every shot while the weapon half stays cached, so a buff
+	// takes effect the instant it lands and stops the instant it expires -- without
+	// buff churn ever invalidating the per-weapon cache.
+	temp = 100 + GetCachedPlayerIncreased(pnum, wepid, dmgid) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
+
+	// Collapse the two layers into ONE integer percent before touching dmg.
+	// Scaling dmg by the increased pool first would quantize it to an integer and
+	// then amplify that error by the whole more-product -- at dmg 5 with a 17x
+	// factor that is a 10% loss. One truncation at the end instead of two.
+	temp = ApplyPackedMultiplier(temp, GetCachedPlayerMorePacked(pnum, wepid, dmgid));
+
 	if(isSpecial) {
-		temp *= 2;
-		temp /= 3;
+		// the tracer scales the bonus of the COMBINED factor, which is why the
+		// collapse above has to happen first
+		temp = ScaleFactorBonus(temp, 2, 3);
 	}
-	
+
 	// if we had a factor of 0, dont bother here
-	if(!temp)
-		return dmg;
-	else if(temp < 0)
+	if(temp <= 0)
 		return 0;
-	
-	if(dmg < bcs::INT_MAX / temp) {
-		dmg *= temp;
-		dmg /= 100;
-		// no longer fixed
-		//dmg >>= 16;
-	}
-	else {
-		// beyond this point wepid doesnt matter so use that instead
-		dmg = bcs::INT_MAX;//BigNumberFormula(dmg, temp);
-	}
-	
-	return dmg;
+
+	// exact, and saturates only when the true product really exceeds INT_MAX
+	return MulPercent_Exact(dmg, temp);
 }
 
 // there may be things that add + to cull % later
 bool CheckCullRange(int source, int victim, int dmg) {
 	int base = DND_CULL_BASEPERCENT;
-	base += HasActorClassPerk_Fast(source, "Doomguy", 4) * DND_DOOMGUY_CULLBONUS;
-	return GetActorProperty(victim, APROP_HEALTH) - dmg <= ApplyDamageFactor_Safe(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, base);
+	base += HasActorClassPerk_Fast(source, DND_PLAYER_DOOMGUY, 4) * DND_DOOMGUY_CULLBONUS;
+	return GetActorProperty(victim, APROP_HEALTH) - dmg <= MulPercent_Exact(MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp, base);
 }
 
 bool CheckCullRangeVsPlayer(int source, int victim, int dmg) {
@@ -906,7 +919,10 @@ void HandleOverloadEffects(int pnum, int victim) {
 		if(!CheckActorInventory(victim, "DnD_OverloadTimer")) {
 			SetActorInventory(victim, "DnD_OverloadTimer", GetOverloadTime(pnum));
 			
-			temp = ConvertFixedFactorToInt(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE));
+			// DnD_OverloadDamage is a BONUS percent added on top of DND_BASE_OVERLOADBUFF
+			// at the consumption site, so it must NOT carry the 100 baseline.
+			// ConvertFixedFactorToInt returns 100 + pct (and 100 for a zero attribute).
+			temp = (GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE) * 100) >> 16;
 			int all_effect = GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD);
 			if(all_effect) {
 				// reduced effect if this mod is there
@@ -1039,7 +1055,7 @@ int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, i
 		pct_val += DND_THUNDERAXE_WEAKENPCT * (!!CheckActorInventory(victim, "ThunderAxeWeakenTimer"));
 	}
 
-	if(IsBoomstick(wepid) && HasClassPerk_Fast("Hobo", 2)) 
+	if(IsBoomstick(wepid) && HasClassPerk_Fast(DND_PLAYER_HOBO, 2)) 
 		pct_val += DND_HOBO_RESISTPCT + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_RESISTPCT_PERLVL;
 	
 	if(CheckActorInventory(victim, "Doomguy_ResistReduced"))
@@ -1112,21 +1128,27 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 			more_bonus = more_bonus * (100 - DND_LICHARM_NERF) / 100;
 	}
 
-	if
-	(
-		(IsFireDamage(damage_type) && CheckInventory("ElementPower_Fire")) ||
-		(IsIceDamage(damage_type) && CheckInventory("ElementPower_Ice")) ||
-		(IsLightningDamage(damage_type) && CheckInventory("ElementPower_Lightning")) ||
-		(IsPoisonDamage(damage_type) && CheckInventory("ElementPower_Earth"))
-	)
-	{
-		more_bonus = more_bonus * (100 + DND_SIGIL_BUFF) / 100;
-	}
+	// Sigil  of elements powers live in the buff layer now
+	int ele_idx = -1;
+	if(IsFireDamage(damage_type))
+		ele_idx = DND_DAMAGECATEGORY_FIRE - DND_ELECATEGORY_BEGIN;
+	else if(IsIceDamage(damage_type))
+		ele_idx = DND_DAMAGECATEGORY_ICE - DND_ELECATEGORY_BEGIN;
+	else if(IsLightningDamage(damage_type))
+		ele_idx = DND_DAMAGECATEGORY_LIGHTNING - DND_ELECATEGORY_BEGIN;
+	else if(IsPoisonDamage(damage_type))
+		ele_idx = DND_DAMAGECATEGORY_POISON - DND_ELECATEGORY_BEGIN;
+
+	int ele_packed = GetPlayerBuffElementalMorePacked(p_tid - P_TIDSTART, ele_idx);
+	if(ele_packed != DND_PACKED_MULT_IDENTITY)
+		more_bonus = ApplyPackedMultiplier(more_bonus, ele_packed);
 	else if(IsElementalDamageType(damage_type) && IsAccessoryEquipped(p_tid, DND_ACCESSORY_SIGILELEMENTS))
-		more_bonus = more_bonus * (100 - DND_SIGIL_NERF) / 100;
+		more_bonus = more_bonus * (100 - DND_SIGIL_NERF) / 100; // DND_SIGIL_NERF is 100: total negation, by design
 	
 	// 50% more damage taken
-	if(CheckInventory("HateWeakness"))
+	// the token is granted to the MONSTER (OnPlayerHit), so a bare CheckInventory
+	// read the player and this branch never fired
+	if(CheckActorInventory(enemy_tid, "HateWeakness"))
 		more_bonus = more_bonus * (100 + DND_HATESHARD_BUFF) / 100;
 	
 	return more_bonus;
@@ -1136,19 +1158,19 @@ int HandlePlayerBuffs(int p_tid, int enemy_tid, int damage_type, int wepid, int 
 int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str arg2) {
 	// take extra damage only if they aren't ghost
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_NETHERMASK) && !CheckFlag(enemy_tid, "GHOST"))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_NETHERMASK_AMP, DND_NETHERMASK_DIV);
+		dmg = MulPercent_Exact(dmg, DND_NETHERMASK_AMP, DND_NETHERMASK_DIV);
 		
 	// amps cold damage taken, reduces fire damage
 	if(IsAccessoryEquipped(p_tid, DND_ACCESSORY_AMULETHELLFIRE)) {
 		if((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || arg2 == "Slime")
 			dmg /= DND_AMULETHELL_FACTOR;
 		else if(dmg_data & DND_DAMAGETYPEFLAG_ICE)
-			dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
+			dmg = MulPercent_Exact(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
 	}
 	
 	// agamotto defense
 	if(CheckActorInventory(p_tid, "AgamottoDefense"))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_AGAMOTTO_DEFENSE, DND_AGAMOTTO_DEFENSE_FACTOR);
+		dmg = MulPercent_Exact(dmg, DND_AGAMOTTO_DEFENSE, DND_AGAMOTTO_DEFENSE_FACTOR);
 		
 	if(CheckActorInventory(enemy_tid, "HunterTalismanDebuff"))
 		dmg -= dmg / DND_HUNTERTALISMAN_NERF;
@@ -1170,42 +1192,12 @@ int HandlePlayerOnHitBuffs(int p_tid, int enemy_tid, int dmg, int dmg_data, str 
 // ex: curses etc.
 int HandleGenericPlayerMoreDamageEffects(int pnum, int wepid) {
 	int more_bonus = 100;
-
-	// little orbs he drops
-	if(CheckInventory("Doomguy_Perk20_Damage") || CheckInventory("Doomguy_Perk20_Damage_Execute"))
-		more_bonus = more_bonus * (100 + DND_DOOMGUY_DMGBONUS) / 100;
-		
 	int temp;
-	if(CheckInventory("PlayerIsLeeching") && (temp = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE)))
-		more_bonus = more_bonus * (100 + ConvertFixedFactorToInt(temp)) / 100;
-	
-	temp = CheckInventory("Punisher_Perk50_DamageBonus");
-	if(temp)
-		more_bonus = (more_bonus * (1.0 + temp)) >> 16;
-		
-	temp = CheckInventory("Rally_DamageBuff");
-	if(temp)
-		more_bonus = more_bonus * (100 + RALLY_BASEDAMAGE + (temp - 1) * RALLY_DAMAGEPERLVL) / 100;
-		
-	// dmg is multiplied by 3/2 = 1.5, 50% more dmg
-	if(GetArmorID() == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
-		more_bonus = more_bonus * (100 + DND_RAVAGER_DMGBONUS) / 100;
-		
-	if(CheckInventory("TripleDamagePower"))
-		more_bonus *= 3;
-	else if(CheckInventory("TripleDamagePower2"))
-		more_bonus = more_bonus * 9 / 2;
-
-	// 33% more effectiveness
-	if(wepid >= 0 && HasClassPerk_Fast("Cyborg", 1) && (Weapons_Data[wepid].properties & WPROP_TECH))
-		more_bonus = more_bonus * (100 + DND_CYBERNETIC_FACTOR) / 100;
-
 	temp = GetPlayerAttributeValue(pnum, INV_EX_MOREDAMAGEPERCHARGE);
 	if(temp)
 		more_bonus = more_bonus * (100 + temp * GetChargeCount(pnum)) / 100;
 
-	more_bonus = (more_bonus * pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].multiplicative) >> 16;
-	more_bonus = (more_bonus * pbuffs[pnum].buff_net_values[BUFF_FRENZYCHARGE].multiplicative) >> 16;
+	more_bonus = ApplyPackedMultiplier(more_bonus, GetPlayerBuffMoreDamagePacked(pnum));
 	
 	return more_bonus;
 }
@@ -1421,7 +1413,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			GiveActorInventory(victim, "MonsterKilledByPlayer", 1);
 
 			// overkill damage lifesteal check
-			if(HasActorClassPerk_Fast(source, "Punisher", 5)) {
+			if(HasActorClassPerk_Fast(source, DND_PLAYER_PUNISHER, 5)) {
 				temp = (dmg - GetActorProperty(victim, APROP_HEALTH)) * DND_PUNISHER_OVERKILL_LEECHFACTOR / 100;
 				if(temp > 0)
 					ResolveLifesteal(pnum, temp, CheckActorInventory(source, "PlayerHealthCap"));
@@ -1434,7 +1426,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			if(damage_type != DND_DAMAGETYPE_MAGICSEAL && (IsOccultDamage(damage_type) || (!wep_neg && IsSoulDroppingWeapon(wepid))))
 				GiveActorInventory(victim, "MagicCausedDeath", 1);
 
-			if(HasActorClassPerk_Fast(source, "Berserker", 4) && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
+			if(HasActorClassPerk_Fast(source, DND_PLAYER_BERSERKER, 4) && (IsMeleeDamage(damage_type) || flags & DND_DAMAGETICFLAG_CONSIDERMELEE)) {
 				SetActorInventory(source, "Berserker_HitTimer", DND_BERSERKER_PERK60_TIMER);
 				if((temp = CheckActorInventory(source, "Berserker_HitTracker")) < DND_BERSERKER_PERK60_MAXSTACKS) {
 					GiveActorInventory(source, "Berserker_HitTracker", 1);
@@ -1465,7 +1457,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 			if(temp && CheckActorInventory(victim, "DnD_OverloadTimer") && random(1, 100) <= temp)
 				HandlePlayerBuffAssignment(pnum, 0, BTI_POWERCHARGE);
 		}
-		else if(HasClassPerk_Fast("Doomguy", 5)) 
+		else if(HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5)) 
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
 	}
 	
@@ -1553,7 +1545,7 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 	int toAdd = CheckActorInventory(ptid, "LifeStealAmount");
 	int cap = GetLifestealCap(pnum);
 	int toCompare = GetActorProperty(ptid, APROP_HEALTH);
-	bool cyborgCheck = HasActorClassPerk_Fast(ptid, "Cyborg", 5);
+	bool cyborgCheck = HasActorClassPerk_Fast(ptid, DND_PLAYER_CYBORG, 5);
 
 	if(cyborgCheck) {
 		cap = GetPlayerEnergyShieldCap(pnum);
@@ -1565,7 +1557,7 @@ void ResolveLifesteal(int pnum, int amt, int spawn_health) {
 
 	// if over the cap, make it so that it would only be gaining up to reach the cap
 	if(amt + toAdd > cap) {
-		if(!HasActorClassPerk_Fast(ptid, "Punisher", 4))
+		if(!HasActorClassPerk_Fast(ptid, DND_PLAYER_PUNISHER, 4))
 			amt = cap - toAdd;
 		else { // go over cap if punisher perk exists
 			amt += amt * DND_PUNISHER_OVERLEECHVAL / 100;
@@ -1627,7 +1619,7 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 	// in order for this to work we must have less health than our cap
 	int spawn_health = GetSpawnHealth();
 	int comp = GetActorProperty(0, APROP_HEALTH);
-	if(HasClassPerk_Fast("Cyborg", 5)) {
+	if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 5)) {
 		spawn_health = GetPlayerEnergyShieldCap(pnum);
 		comp = CheckInventory("EShieldAmount");
 	}
@@ -1646,14 +1638,12 @@ void HandleLifesteal(int pnum, int wepid, int flags, int dmg) {
 		
 		// divide by 100 as its a percentage -- and >> 16 to make it int -- added little overflow check here too
 		taltos /= 100;
-		if(taltos > bcs::INT_MAX / dmg) {
-			taltos >>= 16;
-			taltos *= dmg;
-		}
-		else {
-			taltos *= dmg;
-			taltos >>= 16;
-		}
+		// FixedMul carries a 64-bit intermediate, so no branch is needed. The old
+		// "overflow safe" branch did taltos >>= 16 on a sub-1.0 fraction, which is
+		// 0 -- 25% lifesteal healed 32767 at dmg 131071 and NOTHING at 131072, so
+		// sustain vanished on exactly the biggest hits. It also divided by dmg,
+		// which terminates the script when dmg is 0.
+		taltos = FixedMul(dmg, taltos);
 
 		//printbold(s:"to be given ", d:taltos);
 		
@@ -1709,12 +1699,19 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	
 	// dont let dot double dip
 	if(!(flags & DND_WDMG_ISDOT)) {
-		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping);
+		// uncached path, so the buff term is read live right here
+		temp = GetPlayerPercentDamage(pnum, -1, damage_category, dmg_flag_mapping) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1);
 		if(temp/* && !isSpell*/)
 			pct_bonus += temp;
 
-		// apply the % bonus now
-		dmg = dmg * (100 + pct_bonus) / 100;
+		// apply the % bonus now -- guard the collapse, the weapon paths already do.
+		// Golgoth Weaken (-75) + Fleshwizard Weaken (-25) sum to exactly -100, and
+		// anything past that produced NEGATIVE damage here.
+		pct_bonus += 100;
+		if(pct_bonus <= 0)
+			dmg = 0;
+		else
+			dmg = MulPercent_Exact(dmg, pct_bonus);
 	}
 		
 	// finally crit chance
@@ -1781,7 +1778,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 	// check blockers take more dmg modifier
 	if(MonsterProperties[victim_data].trait_list[DND_ISBLOCKING] && (temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG)))
-		more_dmg = more_dmg * (100 + ConvertFixedFactorToInt(temp)) / 100;
+		more_dmg = more_dmg * (100 + ((temp * 100) >> 16)) / 100;
 	
 	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
 	if(CheckActorInventory(victim_tid, "DnD_OverloadTimer"))
@@ -1792,7 +1789,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 
 	// additional damage vs frozen enemies modifier
 	if(CheckActorInventory(victim_tid, "DnD_FreezeTimer") && (temp = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA)))
-		more_dmg = more_dmg * (100 + ConvertFixedFactorToInt(temp)) / 100;
+		more_dmg = more_dmg * (100 + ((temp * 100) >> 16)) / 100;
 		
 	// 50% more damage taken, so dmg * 3 / 2
 	if(CheckActorInventory(victim_tid, "DemonSealResistDebuff"))
@@ -1807,7 +1804,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
 	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
 	// plus we get to adjust the push factor and other things before they affect the monster proper here
-	bool isHoboPowerApplicable = !(wep_neg & 1) && wepid >= 0 && IsBoomstick(wepid) && HasClassPerk_Fast("Hobo", 3);
+	bool isHoboPowerApplicable = !(wep_neg & 1) && wepid >= 0 && IsBoomstick(wepid) && HasClassPerk_Fast(DND_PLAYER_HOBO, 3);
 	if(isHoboPowerApplicable && CheckInventory("Hobo_ShotgunFrenzyTimer")) {
 		temp = fdistance_delta(ox - GetActorX(victim_tid), oy - GetActorY(victim_tid), oz - GetActorZ(victim_tid));
 		temp -= FixedMul(GetActorProperty(victim_tid, APROP_RADIUS) + DND_PLAYER_RADIUS, 1.207);
@@ -1820,7 +1817,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		if(temp <= DND_HOBO_SHOTGUNFALLOFFDIST) {
 			temp = LinearMap(temp, DND_HOBO_SHOTGUNMINBESTDIST_INT, DND_HOBO_SHOTGUNFALLOFFDIST, 0, 100);
 			// 100 + (100 - temp) would mean 200 - temp, and we scale inversely with distance so if we are farthest, we will be getting 100 to be dealing the same amount of damage anyway
-			more_dmg = more_dmg * (100 + DND_HOBO_SHOTGUNDISTMOREDMG * (1 + HasClassPerk_Fast("Hobo", 5)) - temp) / 100;
+			more_dmg = more_dmg * (100 + DND_HOBO_SHOTGUNDISTMOREDMG * (1 + HasClassPerk_Fast(DND_PLAYER_HOBO, 5)) - temp) / 100;
 		}
 	}
 
@@ -1838,17 +1835,17 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// moved crit at the end here -- copied code to save from 1 extra if check to see if more_dmg or crit is non-zero
 	if(flags & DND_DAMAGETICFLAG_CRIT) {
 		if(more_dmg != 100)
-			PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], more_dmg);
+			PlayerDamageTicData[pnum][victim_data] = MulPercent_Exact(PlayerDamageTicData[pnum][victim_data], more_dmg);
 
 		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
 		more_dmg = GetCritModifier(pnum, victim_tid, wepid);
 
-		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], more_dmg);
+		PlayerDamageTicData[pnum][victim_data] = MulPercent_Exact(PlayerDamageTicData[pnum][victim_data], more_dmg);
 
 		HandleHunterTalisman();
 	}
 	else if(more_dmg != 100)
-		PlayerDamageTicData[pnum][victim_data] = ApplyDamageFactor_Safe(PlayerDamageTicData[pnum][victim_data], more_dmg);
+		PlayerDamageTicData[pnum][victim_data] = MulPercent_Exact(PlayerDamageTicData[pnum][victim_data], more_dmg);
 
 	//printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTicData[pnum][victim_data], s: " ", d:more_dmg);
 
@@ -2117,7 +2114,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	if(CheckUniquePropertyOnPlayer(pnum, PUP_POISONTICSTWICE))
 		trigger_tic /= 2;
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_POISON);
 
 	//printbold(s:"proceeding to loop dot on ", d:victim);
@@ -2165,7 +2162,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 
 	SetActorInventory(victim, "DnD_PoisonStacks", 0);
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_POISON);
 
 	if(IsActorAlive(victim)) {
@@ -2274,7 +2271,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HASTE])
 		GiveActorInventory(victim, "UnMakeFaster", 1);
 
-	if(HasClassPerk_Fast("Wanderer", 2))
+	if(HasClassPerk_Fast(DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(ActivatorTID(), victim, DND_AILMENT_CHILL);
 	
 	while((cur_stacks = CheckActorInventory(victim, "DnD_ChillStacks"))) {
@@ -2291,7 +2288,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HASTE])
 		GiveActorInventory(victim, "MakeFaster", 1);
 
-	if(HasClassPerk_Fast("Wanderer", 2))
+	if(HasClassPerk_Fast(DND_PLAYER_WANDERER, 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_CHILL);
 }
 
@@ -2340,7 +2337,7 @@ Script "DnD Monster Freeze" (int victim) {
 	
 	GiveActorInventory(victim, "MakeNoPain", 1);
 
-	if(HasClassPerk_Fast("Wanderer", 2))
+	if(HasClassPerk_Fast(DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(ActivatorTID(), victim, DND_AILMENT_FREEZE);
 	
 	// actor flags dont get changed properly this way for some reason
@@ -2354,7 +2351,7 @@ Script "DnD Monster Freeze" (int victim) {
 		tics = (tics + 1) % 4;
 	}
 
-	if(HasClassPerk_Fast("Wanderer", 2))
+	if(HasClassPerk_Fast(DND_PLAYER_WANDERER, 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_FREEZE);
 	
 	// remove frozen nopain thing if monster didnt have it before
@@ -2408,7 +2405,7 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	int bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
 	int next_dmg = dmg; // holds scaled bleed damage
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_BLEED);
 
 	bool isRobot = IsActorFullRobotic(victim);
@@ -2481,7 +2478,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	// this is the value we will use to set the ignite timers on proliferated targets, if any
 	int ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_IGNITE);
 	
 	do {
@@ -2502,7 +2499,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		Delay(const:7);
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_IGNITE);
 
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);
@@ -2627,7 +2624,7 @@ Script "DnD Monster Overload" (int victim) {
 	
 	PlaySound(victim, "Overload/Loop", CHAN_ITEM, 1.0, true);
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_OVERLOAD);
 	
 	while(CheckInventory("DnD_OverloadTimer")) {
@@ -2640,7 +2637,7 @@ Script "DnD Monster Overload" (int victim) {
 		GiveInventory("Overload_SoundStopper", 1);
 	}
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 2))
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		RemoveMonsterAilment(victim, DND_AILMENT_OVERLOAD);
 
 	// remove accumulated damage
@@ -2705,7 +2702,7 @@ Script "DnD Monster Overload Zap" (int this, int killer) {
 			if(!CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer")) {
 				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadTimer", GetOverloadTime(pnum));
 				// overload damage amp is set to maximum of whatever the monster might have had (from another player) or this new instance of overload
-				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage", Max(ConvertFixedFactorToInt(GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE)), CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage")));
+				SetActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage", Max((GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE) * 100) >> 16, CheckActorInventory(zap_tids[pnum][i], "DnD_OverloadDamage")));
 				ACS_NamedExecuteWithResult("DnD Monster Overload", zap_tids[pnum][i]);
 			}
 			else
@@ -2819,8 +2816,10 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 			(!!(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME) * DND_DAMAGETICFLAG_DOT);
 
 	int amp = HandlePlayerBuffs(pnum + P_TIDSTART, pnum + P_TIDSTART, dmg_type, wepid, tflag);
+	// amp already carries the 100 baseline -- "100 + amp" doubled it, and the
+	// amp != 100 guard is exactly what hid the silent x2 on the no-accessory case
 	if(amp != 100)
-		dmg = ApplyDamageFactor_Safe(dmg, 100 + amp);
+		dmg = MulPercent_Exact(dmg, amp);
 
 	// factor in players armor here!!! -- NO DON'T DO THAT! We have a generic resist and armor handle in main dmg script
 	//dmg = HandlePlayerArmor(pnum, dmg, "null", DND_DAMAGETYPEFLAG_EXPLOSIVE, isArmorPiercing);
@@ -2884,7 +2883,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 
 		// toxicology ability
 		if(CheckInventory("Ability_AntiPoison")) {
-			if(!HasClassPerk_Fast("Cyborg", 1))
+			if(!HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 				add -= DND_TOXICOLOGY_REDUCE;
 			else
 				add -= CombineFactors(DND_TOXICOLOGY_REDUCE, DND_CYBORG_CYBERF);
@@ -2895,13 +2894,12 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	// ELEMENTAL DAMAGE BLOCK ENDS
 	
 	// explosion sources
-	if((dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && HasClassPerk_Fast("Marine", 3))
+	if((dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && HasClassPerk_Fast(DND_PLAYER_MARINE, 3))
 		mult = CombineFactors(mult, DND_MARINE_EXPLOSIVEREDUCTION);
 
-	// marine perk 50 -- 50% reduction
-	if(CheckInventory("Marine_DamageReduction_Timer"))
-		mult = CombineFactors(mult, DND_MARINE_50REDUCTION);
-	
+	// marine perk 50's 50% reduction is BTI_MARINE_DAMAGEREDUCTION now, so it is already
+	// folded into BUFF_DAMAGETAKEN's multiplicative above
+
 	// overheat unique charm
 	temp = GetPlayerAttributeValue(pnum, INV_EX_LESSDMGTAKENMAXOVERHEAT);
 	if(temp && HasRunningOverheatCooldown(pnum + P_TIDSTART))
@@ -2911,16 +2909,28 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	if(temp)
 		mult = CombineFactors(mult, (temp << 16) / 100);
 
-	// apply additive and multiplicative effects together now -- minimum 10% reduction
-	add = (add * 100) >> 16;
-	if(add < -90)
-		add = -90;
-	dmg = dmg * (100 + add) / 100;
-	if(mult != 1.0) {
-		mult = (mult * 100) >> 16;
-		dmg = dmg * mult / 100;
-		//printbold(s:"mult is ", d:mult, s:" overall dmg: ", d:dmg);
-	}
+	// Apply additive and multiplicative effects together now -- minimum 10% damage taken.
+	//
+	// Everything stays in 16.16 until the single multiply at the end.
+	//
+	// Do NOT convert to integer percent first the way the damage-DEALT path does. There
+	// the factor is (100 + increased), which is large, so a 1% quantum is noise. Here a
+	// reduction makes the factor SMALL, and collapsing a 37% x 17% chain through integer
+	// percent gives 37 * 16 / 100 = 5% -- a fifth of the value thrown away. Keeping 16.16
+	// resolution costs nothing and cuts the mean error about sevenfold.
+	//
+	// (add * 100) >> 16 is avoided for a second reason: it wraps once add passes 327.68
+	// in fixed, and add is a sum of buff values. That wrap could turn an 884 damage hit
+	// into 2.9 million.
+	if(add < -0.9)
+		add = -0.9;
+
+	int combined = 1.0 + add;
+	if(mult != 1.0)
+		combined = FixedMul(combined, mult);
+
+	// exact, saturating, and yields 0 for a total-negation factor
+	dmg = MulPercent_Exact(dmg, combined, 1.0);
 
 	// finally include resists as their own multiplicative factor
 	if(m_id != -1 && MonsterProperties[m_id].trait_list[DND_PENETRATOR])
@@ -3005,7 +3015,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		)
 		{
 			HandleRiskAversion();
-			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_POISONPERCENT);
+			temp = MulPercent_Exact(dmg, DND_MONSTER_POISONPERCENT);
 			if(!temp)
 				temp = 1;
 
@@ -3026,7 +3036,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		) 
 		{
 			HandleRiskAversion();
-			temp = ApplyDamageFactor_Safe(dmg, DND_MONSTER_BURN_PERCENT);
+			temp = MulPercent_Exact(dmg, DND_MONSTER_BURN_PERCENT);
 			if(!temp)
 				temp = 1;
 			RegisterDoTDamage(
@@ -3066,7 +3076,7 @@ int GetArmorRatingEffect(int pnum, int dmg, int armor_id, int dmg_data, bool isA
 	armor_id = pbuffs[pnum].buff_net_values[BUFF_ARMORINCREASE].additive;
 	if(armor_id) {
 		armor_id = (armor_id * 100) >> 16;
-		if(armor_id > -100)
+		if(armor_id < -100)
 			armor_id = -100;
 		rating = rating * (100 + armor_id) / 100;
 	}
@@ -3109,17 +3119,17 @@ int HandlePlayerArmor(int pnum, int dmg, str dmg_string, int dmg_data, bool isAr
 		if(armor_id == BODYARMOR_KNIGHT && IsUsingMeleeWeapon())
 			factor += GetPlayerAttributeExtra(pnum, INV_IMP_KNIGHTARMOR);
 
-		if(HasClassPerk_Fast("Berserker", 1))
+		if(HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1))
 			factor += DND_BERSERKER_MELEEWEPRESIST;
 		
 		// armor reduced factor amount of damage, this is what the player will take as damage
-		dmg = ApplyDamageFactor_Safe(dmg, 100 - factor, 100);
+		dmg = MulPercent_Exact(dmg, 100 - factor, 100);
 		
 		// if we have ravager armor and on killing spree, reduce damage to 17/20 (15% reduced)
-		if(armor_id == BODYARMOR_RAVAGER && CheckInventory("RavagerPower"))
-			dmg = ApplyDamageFactor_Safe(dmg, DND_RAVAGER_FACTOR, DND_RAVAGER_REDUCE);
+		if(armor_id == BODYARMOR_RAVAGER && HasPlayerBuff(pnum, BTI_RAVAGER_POWER))
+			dmg = MulPercent_Exact(dmg, DND_RAVAGER_FACTOR, DND_RAVAGER_REDUCE);
 		else if(armor_id == BODYARMOR_KNIGHT && dmg_string == "Melee") // apply special reductions offered by certain armors
-			dmg = ApplyDamageFactor_Safe(dmg, 100 - GetPlayerAttributeValue(pnum, INV_IMP_KNIGHTARMOR));
+			dmg = MulPercent_Exact(dmg, 100 - GetPlayerAttributeValue(pnum, INV_IMP_KNIGHTARMOR));
 	}
 
 	// mitigation -- poison goes through as well
@@ -3201,7 +3211,7 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 	}
 
 	// check overleech
-	if(HasClassPerk_Fast("Punisher", 4)) {
+	if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 4)) {
 		// check if we do have overleech
 		temp = CheckInventory("LifeStealAmount") - GetLifestealCap(pnum);
 		if(temp > 0) {
@@ -3345,7 +3355,9 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 			SetActorProperty(0, APROP_HEALTH, 2);
 		}
 
-		m_id = m_id * ((UNSTABLE_DMG_MULT * temp * 100) >> 16) / 100;
+		// quantizing to whole percent first made a low roll deal ZERO: at temp 0.002
+		// (5*temp*100)>>16 is 0, and even temp 0.01 delivered 4% instead of 5%
+		m_id = FixedMul(m_id, UNSTABLE_DMG_MULT * temp);
 		m_id &= NONWEP_DMG_MASK; // limit to 65536
 		// encode damage type
 		m_id |= DND_DAMAGETYPE_ENERGY << NONWEP_DMG_SHIFT;
@@ -3380,7 +3392,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 	}
 	
 	// check perk25 for berserker with cooldown
-	if(HasActorClassPerk_Fast(this, "Berserker", 2) && !CheckActorInventory(this, "Berserker_Perk20_CD")) {
+	if(HasActorClassPerk_Fast(this, DND_PLAYER_BERSERKER, 2) && !CheckActorInventory(this, "Berserker_Perk20_CD")) {
 		// basically make sure only one instance of this runs
 
 		if(!CheckActorInventory(this, "Berserker_Perk80_Extension")) {
@@ -3496,7 +3508,7 @@ bool HandleRipperHit(int shooter, int victim) {
 // 0 is yes, 1 is no
 bool CheckReflect(int owner, int pnum, int flags) {
 	return 	CheckFlag(0, "DONTREFLECT") || CheckUniquePropertyOnPlayer(pnum, PUP_HOMINGNOREFLECT, CheckFlag(0, "SEEKERMISSILE"), CheckFlag(0, "SCREENSEEKER")) ||
-			((flags & DND_DAMAGEFLAG_ISEXPLOSIVE) && HasActorClassPerk_Fast(owner, "Marine", 2));
+			((flags & DND_DAMAGEFLAG_ISEXPLOSIVE) && HasActorClassPerk_Fast(owner, DND_PLAYER_MARINE, 2));
 }
 
 // shooter is who fired initially and victim is the tid of the actor that got hit that'll now own the projectile
@@ -3894,7 +3906,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				// out of combat hit timer, 3 seconds
-				if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
+				if(!HasActorClassPerk_Fast(victim, DND_PLAYER_CYBORG, 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
 					GiveInventory("DnD_Hit_CombatTimer", 1);
 				
 				if(!CheckInventory("DnD_Hit_Cooldown")) {
@@ -3920,15 +3932,15 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// berserker damage reduction
 				temp = CheckInventory("Berserker_DamageTracker");
 				if(temp)
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - temp * DND_BERSERKER_PERK20_REDUCTION);
+					dmg = MulPercent_Exact(dmg, 100 - temp * DND_BERSERKER_PERK20_REDUCTION);
 
 				// parry dmg reduction
 				if(CheckInventory("DnD_ParryDamageReduction"))
 					dmg = dmg * (100 - DND_PARRY_DAMAGEREDUCTION) / 100;
 
 				// doomguy damage reduction
-				if(HasClassPerk_Fast("Doomguy", 1) && CheckActorInventory(shooter, "Doomguy_CanExecute"))
-					dmg = ApplyDamageFactor_Safe(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT - (HasClassPerk_Fast("Doomguy", 3)) * DND_DOOMGUY_DMGREDUCE_PERK3BONUS);
+				if(HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 1) && CheckActorInventory(shooter, "Doomguy_CanExecute"))
+					dmg = MulPercent_Exact(dmg, 100 - DND_DOOMGUY_DMGREDUCE_PERCENT - (HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 3)) * DND_DOOMGUY_DMGREDUCE_PERK3BONUS);
 
 				// final check, if damage is less than 10% of it, cap it at 10%
 				temp = arg1 / 10;
@@ -3951,10 +3963,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 					PlayerScriptsCheck[DND_SCRIPT_BLEND][pnum] = false;
 
-					if(HasClassPerk_Fast("Marine", 4) && !CheckInventory("Marine_Perk50_Cooldown"))
+					if(HasClassPerk_Fast(DND_PLAYER_MARINE, 4) && !CheckInventory("Marine_Perk50_Cooldown"))
 						GiveInventory("Marine_Perk50_DamageTaken", dmg);
 					
-					if(HasClassPerk_Fast("Trickster", 3) && !CheckInventory("Trickster_ShadowCooldown") && GetActorProperty(0, APROP_HEALTH) - dmg <= CheckInventory("PlayerHealthCap") * DND_TRICKSTER_PERK40_THRESHOLD / 100)
+					if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 3) && !CheckInventory("Trickster_ShadowCooldown") && GetActorProperty(0, APROP_HEALTH) - dmg <= CheckInventory("PlayerHealthCap") * DND_TRICKSTER_PERK40_THRESHOLD / 100)
 						HandleShadowClone(pnum, victim, shooter);
 				}
 
@@ -4142,7 +4154,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(!isArmorPiercing) {
 					// berserker perk50 dmg increase portion and other melee increases
 					if((IsMeleeWeapon(m_id) || (actor_flags & DND_ACTORFLAG_COUNTSASMELEE))) {
-						if(HasClassPerk_Fast("Berserker", 4)) {
+						if(HasClassPerk_Fast(DND_PLAYER_BERSERKER, 4)) {
 							SetInventory("Berserker_HitTimer", DND_BERSERKER_PERK60_TIMER);
 							if
 							(
@@ -4212,10 +4224,10 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				}
 
 				// cyborg perk50
-				if(!isArmorPiercing && HasClassPerk_Fast("Cyborg", 3) && IsTechWeapon(m_id)) {
+				if(!isArmorPiercing && HasClassPerk_Fast(DND_PLAYER_CYBORG, 3) && IsTechWeapon(m_id)) {
 					factor = CheckInventory("Cyborg_InstabilityStack");
 
-					SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER + HasClassPerk_Fast("Cyborg", 4) * DND_CYBORG_INSTABILITY_BONUS);
+					SetInventory("Cyborg_Instability_Timer", DND_CYBORG_INSTABILITY_TIMER + HasClassPerk_Fast(DND_PLAYER_CYBORG, 4) * DND_CYBORG_INSTABILITY_BONUS);
 					if(!factor)
 						ACS_NamedExecuteAlways("DnD Cyborg Instability Timer", 0);
 					else if(factor == DND_MAXCYBORG_INSTABILITY - 1 && !CheckInventory("Cyborg_NoAnim")) {
@@ -4283,7 +4295,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				(
 					(dmg_data & DND_DAMAGEFLAG_ISMELEE) && 
 						(
-							HasActorClassPerk_Fast(shooter, "Berserker", 3) || 
+							HasActorClassPerk_Fast(shooter, DND_PLAYER_BERSERKER, 3) || 
 							(!IsOnLowStamina() && GetPlayerAttributeValue(pnum, INV_MELEESPLASH_NOTONLOWSTAMINA) >= random(1, 100)) ||
 							(ox = CheckPlayerCleave(pnum))
 						)
@@ -4380,7 +4392,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					
 					dmg = ApplyTrueDamageDeductions(pnum, dmg, arg2, 0);
 				}
-				if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
+				if(!HasActorClassPerk_Fast(victim, DND_PLAYER_CYBORG, 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
 					GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 				SetResultValue(dmg);
 				PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = arg1;
@@ -4460,7 +4472,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			if(dmg_data & DND_DAMAGEFLAG_HALFDMGSELF)
 				dmg /= 3;
 
-			if(!HasActorClassPerk_Fast(victim, "Cyborg", 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
+			if(!HasActorClassPerk_Fast(victim, DND_PLAYER_CYBORG, 2) || random(0, 1.0) <= DND_CYBORG_REGENCONTCHANCE)
 				GiveActorInventory(victim, "DnD_Hit_CombatTimer", 1);
 
 			if(!CheckActorInventory(victim, "DnD_Hit_Cooldown")) {
@@ -4476,7 +4488,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			PlayerScriptsCheck[DND_SCRIPT_DAMAGETAKENTIC][pnum] = dmg;
 			IncrementStatistic(DND_STATISTIC_DAMAGETAKEN, dmg, victim);
 
-			if(HasClassPerk_Fast("Marine", 4) && !CheckInventory("Marine_Perk50_Cooldown"))
+			if(HasClassPerk_Fast(DND_PLAYER_MARINE, 4) && !CheckInventory("Marine_Perk50_Cooldown"))
 				GiveInventory("Marine_Perk50_DamageTaken", dmg);
 
 			if(!(dmg_data & DND_DAMAGEFLAG_NOPUSH))

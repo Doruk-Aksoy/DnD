@@ -211,16 +211,74 @@ bool HasActorClassPerk(int tid, int class, int perk_num) {
 	return CheckActorInventory(tid, GetClassPerk(class, perk_num));
 }
 
-bool HasClassPerk_Fast(str class, int perk_num) {
-	if(perk_num > DND_CLASSPERK_1)
-		perk_num = (perk_num - 1) * DND_PERK_REGULARTHRESHOLD;
-	return CheckInventory(StrParam(s:class, s:"_Perk", d:perk_num));
+// ---------------------------------------------------------------------------
+//  PERK LOOKUP CACHE
+//
+//  A player has exactly one class and at most DND_CLASSPERK_LAST perks, so the whole
+//  answer is a class id plus a small bitmask. CachePlayerPerkData rebuilds it from
+//  HandleClassPerks, which is the ONLY place perk items are granted and which runs on
+//  character load, on level-up, and from RestoreRPGStat.
+//
+//  Module scope rather than global, deliberately:
+//    - it resets on map change, and HandleClassPerks runs on map entry anyway;
+//    - the client never builds it, so clientside callers (the shop menu) fall through
+//      to the live inventory lookup, which is correct there and cold.
+//  A cache miss is therefore never WRONG, only slower -- it cannot desync into a lie.
+// ---------------------------------------------------------------------------
+typedef struct {
+	bool valid;
+	int class_id;
+	int perk_mask;      // bit N set when the player owns perk N (N is 1-based)
+} perkCache_T;
+
+perkCache_T module& GetPlayerPerkCache(int pnum) {
+	static perkCache_T cache[MAXPLAYERS];
+	return cache[pnum];
 }
 
-bool HasActorClassPerk_Fast(int tid, str class, int perk_num) {
-	if(perk_num > DND_CLASSPERK_1)
-		perk_num = (perk_num - 1) * DND_PERK_REGULARTHRESHOLD;
-	return CheckActorInventory(tid, StrParam(s:class, s:"_Perk", d:perk_num));
+// The StrParam/CheckInventory cost lands here -- a handful of times per character --
+// instead of on every shot.
+void CachePlayerPerkData(int pnum) {
+	perkCache_T module& c = GetPlayerPerkCache(pnum);
+	int ptid = pnum + P_TIDSTART;
+	int cls = CheckActorInventory(ptid, "DnD_Character") - 1;
+	int mask = 0;
+
+	// cls < 0 means no character picked yet; GetClassPerk returns "" for it
+	if(cls >= 0) {
+		for(int i = DND_CLASSPERK_1; i <= DND_CLASSPERK_LAST; ++i) {
+			if(CheckActorInventory(ptid, GetClassPerk(cls, i)))
+				mask |= 1 << i;
+		}
+	}
+
+	c.class_id = cls;
+	c.perk_mask = mask;
+	c.valid = true;
+}
+
+bool HasPlayerClassPerk(int pnum, int class_id, int perk_num) {
+	perkCache_T module& c = GetPlayerPerkCache(pnum);
+
+	if(c.valid)
+		return c.class_id == class_id && !!(c.perk_mask & (1 << perk_num));
+
+	// not built on this side -- fall back to the live lookup rather than answering "no"
+	return HasActorClassPerk(pnum + P_TIDSTART, class_id, perk_num);
+}
+
+bool HasClassPerk_Fast(int class_id, int perk_num) {
+	return HasPlayerClassPerk(PlayerNumber(), class_id, perk_num);
+}
+
+bool HasActorClassPerk_Fast(int tid, int class_id, int perk_num) {
+	int pnum = tid - P_TIDSTART;
+
+	// callers pass monster tids here too, and those own no perks
+	if(pnum < 0 || pnum >= MAXPLAYERS)
+		return false;
+
+	return HasPlayerClassPerk(pnum, class_id, perk_num);
 }
 
 #endif

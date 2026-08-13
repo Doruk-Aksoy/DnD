@@ -34,8 +34,25 @@ enum {
 	BUFF_SUPERMOVESPEED,
 	BUFF_MITIGATION,
 
+	// Rally's damage half. It gets its own type rather than sharing
+	// BUFF_DAMAGEDEALT so the spell owns one identifiable slot, and so the speed
+	// half can live alongside it in the buff system instead of as an external
+	// PowerSpeed powerup. Appended at the end deliberately -- buff_net_values is a
+	// global array, so inserting in the middle would shift every existing ordinal.
+	BUFF_RALLY,
+
+	// Sigil element powers. Kept CONTIGUOUS and in DND_DAMAGECATEGORY order so the
+	// damage transform can index them with a single (category - DND_ELECATEGORY_BEGIN)
+	// offset instead of a switch.
+	BUFF_FIREDAMAGEDEALT,
+	BUFF_ICEDAMAGEDEALT,
+	BUFF_LIGHTNINGDAMAGEDEALT,
+	BUFF_POISONDAMAGEDEALT,
+
 	BUFF_TYPES_MAX
 };
+#define DND_FIRST_ELEMENTAL_DMGBUFF BUFF_FIREDAMAGEDEALT
+#define DND_ELEMENTAL_DMGBUFF_COUNT 4
 #define DND_FIRST_CHARGE_BUFF BUFF_FRENZYCHARGE
 
 bool IsChargeBuff(int buff_type) {
@@ -76,6 +93,17 @@ struct buff_T {
 #define DND_BUFF_FLAG_SHIFT (DND_BUFF_SOURCE_BITS + DND_BUFF_FLAG_BITS)
 
 #define DND_MAX_PLAYER_BUFFS 64
+
+// Width of the bt_index presence bitmask, in whole 32-bit words.
+//
+// This deliberately is NOT derived from BTI_MAX: that enum lives in DnD_BuffTable.h,
+// which is included at the BOTTOM of this file, so the value does not exist yet at
+// struct-definition time. VerifyBuffMaskCapacity() checks the two agree at load, and
+// RebuildPlayerBuffMask() bounds-tests every write, so outgrowing this can neither
+// corrupt memory nor pass silently.
+#define DND_BTI_MASK_WORDS 3
+#define DND_BTI_MASK_BITS (DND_BTI_MASK_WORDS * 32)
+
 struct buffData_T {
 	int head;										// holds first buff index
 	buff_T buff_list[DND_MAX_PLAYER_BUFFS];			// unsorted buff list
@@ -84,6 +112,16 @@ struct buffData_T {
 	bool state;										// needs to be true to be good to use (fixes runaway script problems in weapons)
 
 	ValueComponent_T buff_net_values[BUFF_TYPES_MAX];
+
+	// Set whenever buff_net_values changes. The damage transform in DnD_StatCache.h
+	// is a PURE function of buff_net_values, so this one bool is the entire
+	// invalidation story for it -- and it deliberately does NOT touch the
+	// [wepid][dmgid] cache, which is what keeps buff churn off the weapon cache.
+	bool dmg_xform_dirty;
+
+	// One bit per bt_index present in buff_list, so HasPlayerBuff is a shift and an
+	// AND rather than a list walk. Rebuilt from the list by RebuildPlayerBuffMask().
+	int bt_mask[DND_BTI_MASK_WORDS];
 };
 
 global buffData_T 37: pbuffs[MAXPLAYERS];
@@ -117,7 +155,22 @@ void ResetPlayerBuffs(int pnum) {
 		pbuffs[pnum].buff_list[i].next_id = -1;
 	}
 
+	// the list is now empty, so the presence mask is too. This path never reaches
+	// RebuildPlayerBuffMask (it does not go through HandleBuffValueComponent), so it
+	// has to clear the mask itself -- otherwise a stale bit would survive a map change
+	// and HasPlayerBuff would report a buff that no longer exists.
+	for(i = 0; i < DND_BTI_MASK_WORDS; ++i)
+		pbuffs[pnum].bt_mask[i] = 0;
+
 	pbuffs[pnum].state = true;
+
+	// mask is clear, so this drops every HUD token. Must come AFTER state is set --
+	// SyncBuffDisplayItems asks HasPlayerBuff, which refuses to answer before then.
+	SyncBuffDisplayItems(pnum);
+
+	// this path zeroes buff_net_values directly instead of going through
+	// HandleBuffValueComponent, so it has to invalidate the transform itself
+	pbuffs[pnum].dmg_xform_dirty = true;
 
 	//Log(s:"reset buffs, head next: ", d:pbuffs[pnum].buff_list[pbuffs.head].next_id);
 	if(GetGameModeState() != GAMESTATE_COUNTDOWN)
@@ -132,13 +185,101 @@ bool IsPlayerBuffStateOK(int pnum) {
 	return pbuffs[pnum].state;
 }
 
+// ---------------------------------------------------------------------------
+//  SBARINFO DISPLAY TOKENS
+//
+//  SBARINFO can only test inventory, so buff state is projected onto a set of
+//  display-only items. The BUFF stays the source of truth -- these tokens carry no
+//  powerup base and no damagefactor, so unlike the actors they replaced they cannot
+//  affect damage on their own.
+//
+//  Driven off bt_mask, which means duplicates are handled and there is exactly one
+//  place to keep honest. The tokens are maxamount 1, so Give is idempotent and Take
+//  is a no-op when absent -- syncing unconditionally is cheaper than testing first.
+// ---------------------------------------------------------------------------
+#define DND_BUFF_ICON_COUNT 5
+
+int GetBuffIconTableIndex(int slot) {
+	switch(slot) {
+		case 0: return BTI_ELEMENTPOWER_FIRE;
+		case 1: return BTI_ELEMENTPOWER_ICE;
+		case 2: return BTI_ELEMENTPOWER_LIGHTNING;
+		case 3: return BTI_ELEMENTPOWER_POISON;
+		case 4: return BTI_RAVAGER_POWER;
+	}
+	return -1;
+}
+
+// KEEP ALIGNED with GetBuffIconTableIndex -- same slot must mean the same buff
+str GetBuffIconItem(int slot) {
+	switch(slot) {
+		case 0: return "DnD_BuffIcon_SigilFire";
+		case 1: return "DnD_BuffIcon_SigilIce";
+		case 2: return "DnD_BuffIcon_SigilLightning";
+		case 3: return "DnD_BuffIcon_SigilPoison";
+		case 4: return "DnD_BuffIcon_Ravager";
+	}
+	return "";
+}
+
+void SyncBuffDisplayItems(int pnum) {
+	int ptid = pnum + P_TIDSTART;
+
+	for(int i = 0; i < DND_BUFF_ICON_COUNT; ++i) {
+		if(HasPlayerBuff(pnum, GetBuffIconTableIndex(i)))
+			GiveActorInventory(ptid, GetBuffIconItem(i), 1);
+		else
+			TakeActorInventory(ptid, GetBuffIconItem(i), 1);
+	}
+}
+
+// Rebuilds the bt_index presence bitmask from the live list.
+//
+// DERIVED, never delta-maintained. Every mutation of the list funnels through
+// HandleBuffValueComponent -- GivePlayerBuff calls it on insert, and RemoveBuff calls
+// it on removal, which covers ticker timeouts, RemoveBuffWithTableIndex,
+// RemoveBuffMatching and RemoveAllBuffs alike. Rebuilding from scratch there means
+// there is no second maintenance path to forget, so the mask cannot drift.
+//
+// "exclude" is the node being dropped. RemoveBuff calls in while that node may still
+// be linked (the no-valid-prev path) and before its fields are cleared, so it has to
+// be skipped explicitly.
+void RebuildPlayerBuffMask(int pnum, int exclude = -1) {
+	int i;
+	int bt;
+
+	for(i = 0; i < DND_BTI_MASK_WORDS; ++i)
+		pbuffs[pnum].bt_mask[i] = 0;
+
+	i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
+	while(i != -1) {
+		bt = pbuffs[pnum].buff_list[i].bt_index;
+
+		// bt_index is -1 on a cleared slot. The upper bound also keeps a BTI_MAX that
+		// has outgrown the mask from writing past the end of it -- VerifyBuffMaskCapacity
+		// reports that loudly at load, this just makes it harmless in the meantime.
+		if(i != exclude && bt >= 0 && bt < DND_BTI_MASK_BITS)
+			pbuffs[pnum].bt_mask[bt >> 5] |= 1 << (bt & 31);
+
+		i = pbuffs[pnum].buff_list[i].next_id;
+	}
+
+	// the HUD tokens are a projection of the mask, so they update with it -- keeping
+	// this here means a future caller of the rebuild gets the display sync for free
+	SyncBuffDisplayItems(pnum);
+}
+
 void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 	int type = pbuffs[pnum].buff_list[buff_index].type;
 	int val = 1.0;
+	int i;
+
+	// keep the presence mask in lockstep with the list on every mutation
+	RebuildPlayerBuffMask(pnum, remove ? buff_index : -1);
 
 	if(pbuffs[pnum].buff_list[buff_index].flags & BUFF_F_MORETYPE) {
 		// go through all buffs for final result, as mathematically this could be irreversible (result was 0 on "less" multipliers)
-		int i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
+		i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
 		while(i != -1) {
 			if(pbuffs[pnum].buff_list[i].type == type && (pbuffs[pnum].buff_list[i].flags & BUFF_F_MORETYPE) && (!remove || i != buff_index)) {
 				val = CombineFactors(val, pbuffs[pnum].buff_list[i].value);
@@ -152,13 +293,30 @@ void HandleBuffValueComponent(int pnum, int buff_index, bool remove = false) {
 		//Log(s:"multiplicative value: ", f:pbuffs[pnum].buff_net_values[type].multiplicative);
 	}
 	else {
-		val = pbuffs[pnum].buff_list[buff_index].value;
-		if(remove)
-			val = -val;
-		pbuffs[pnum].buff_net_values[type].additive += val;
+		// Recompute from the list, exactly like the MORETYPE branch above.
+		//
+		// This must NOT be a delta apply: several flags mutate a node's value IN PLACE
+		// rather than inserting/removing one, and a delta has no way to withdraw the
+		// value it is replacing -- BUFF_F_ADDIFNODUPLICATE accumulates into a single
+		// node, BUFF_F_REPLACEMENTVALUE swaps it, and a strict stronger-value grant
+		// overwrites it. Deriving the net keeps all three correct by construction.
+		val = 0;
+		i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
+		while(i != -1) {
+			// the removed node is usually unlinked before we get here, but not on the
+			// no-valid-prev path, so exclude it explicitly
+			if(pbuffs[pnum].buff_list[i].type == type && !(pbuffs[pnum].buff_list[i].flags & BUFF_F_MORETYPE) && (!remove || i != buff_index))
+				val += pbuffs[pnum].buff_list[i].value;
+			i = pbuffs[pnum].buff_list[i].next_id;
+		}
+
+		pbuffs[pnum].buff_net_values[type].additive = val;
 		//Log(s:"additive value: ", f:pbuffs[pnum].buff_net_values[type].additive);
 		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, type, pbuffs[pnum].buff_net_values[type].additive, 0);
 	}
+
+	// buff_net_values just moved, so the derived damage transform is stale
+	pbuffs[pnum].dmg_xform_dirty = true;
 
 	if(!pbuffs[pnum].buff_net_values[type].additive && pbuffs[pnum].buff_net_values[type].multiplicative == 1.0) {
 		val = pnum + P_TIDSTART;
@@ -183,7 +341,10 @@ Script "DnD Buff Value CS Sync" (int pnum, int type, int val, int additiveOrMult
 		pbuffs[pnum].buff_net_values[type].multiplicative = val;
 	else
 		pbuffs[pnum].buff_net_values[type].additive = val;
-	
+
+	// the client mirrors buff_net_values, so it must invalidate its transform too
+	pbuffs[pnum].dmg_xform_dirty = true;
+
 	SetResultValue(0);
 }
 
@@ -235,10 +396,11 @@ void HandleBuffApplication(int pnum, int buff_type) {
 			//Log(s:"New speed factor: ", f:base);
 		break;
 
-		case BUFF_SULPHUR:
-			// for this one we also add damage buff
-			pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].additive += pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive;
-		break;
+		// NOTE: no case may write into ANOTHER buff type's slot here. This function has
+		// no "remove" parameter and runs on both apply and removal, so a cross-type
+		// copy would add on the way in and never subtract on the way out. Buffs that
+		// need to combine (BUFF_SULPHUR into damage, say) are summed at read time by
+		// the damage transform in DnD_StatCache.h instead.
 	}
 }
 
@@ -388,6 +550,7 @@ Script "DnD Buff Ticker" (int pnum) {
 	while(IsAlive() && !CheckInventory("DnD_IntermissionState")) {
 		int i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
 		while(i != -1) {
+			// sentinel value
 			int rem = -5;
 			//Log(s:"duration: ", d:pbuffs.buff_list[i].duration);
 			if((pbuffs[pnum].buff_list[i].flags & BUFF_F_TICKERREQUIRED)) {
@@ -422,6 +585,14 @@ Script "DnD Buff Ticker" (int pnum) {
 }
 
 void RemoveAllBuffs(int pnum) {
+	// The list has to EXIST before it can be walked. pbuffs is a global, so on the
+	// first map entry it is all zeroes -- head == 0 and buff_list[0].next_id == 0,
+	// which means the dummy head links to ITSELF and every walk from it cycles
+	// forever. "DnD Player Setup" calls this before ClearLingeringBuffs ->
+	// ResetPlayerBuffs has run, so this is the one walk that can hit a virgin array.
+	if(!IsPlayerBuffStateOK(pnum))
+		return;
+
 	int i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
 	while(i != -1) {
 		int rem = -5;
@@ -516,6 +687,11 @@ void RemoveBuffMatching(int pnum, int bsource, int btype, int bbt_index, int bva
 
 // Used in case a single instance of a buff can be on player that needs replacing like charge updates
 void RemoveBuffWithTableIndex(int pnum, int bbt_index) {
+	// same virgin-array guard as RemoveAllBuffs -- this one is reachable from
+	// arbitrary game code (lifesteal teardown, sigil unequip)
+	if(!IsPlayerBuffStateOK(pnum))
+		return;
+
 	int i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
 	int prev = pbuffs[pnum].head;
 	//Log(s:"remove buff start ", d:i);
@@ -550,17 +726,14 @@ void HandleSpecialBuffRemoval(int pnum, int buff_table_index) {
 	}
 }
 
-// checks by buff table index, mostly should be used for strict no duplication cases
+// checks by buff table index, mostly should be used for strict no duplication cases.
+// O(1) off the presence mask -- this sits in per-shot damage paths and in polling
+// loops, so it must not walk the list.
 bool HasPlayerBuff(int pnum, int bbt_index) {
-	int i = pbuffs[pnum].buff_list[pbuffs[pnum].head].next_id;
-	
-	while(i != -1) {
-		if(pbuffs[pnum].buff_list[i].bt_index == bbt_index)
-			return true;
-		i = pbuffs[pnum].buff_list[i].next_id;
-	}
+	if(!IsPlayerBuffStateOK(pnum) || bbt_index < 0 || bbt_index >= DND_BTI_MASK_BITS)
+		return false;
 
-	return false;
+	return !!(pbuffs[pnum].bt_mask[bbt_index >> 5] & (1 << (bbt_index & 31)));
 }
 
 void SlowPlayer(int amt, int mode, int pnum) {

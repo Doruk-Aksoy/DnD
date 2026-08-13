@@ -25,6 +25,23 @@ enum {
     BTI_MOVESPEED_FLASK,
     BTI_MITIGATION_FLASK,
 
+    // powerup-sourced "more" damage buffs -- MUST match acs/DnD_BuffTable.h exactly,
+    // these indices are passed numerically from DECORATE
+    BTI_DOOMGUY_ORB,
+    BTI_TRIPLEDAMAGE,
+    BTI_RAVAGER_POWER,
+    BTI_RALLY,
+    BTI_RALLY_SPEED,
+    BTI_LEECHINGDAMAGE,
+    BTI_PUNISHER_DAMAGE,
+    BTI_MARINE_DAMAGEREDUCTION,
+
+    // sigil element powers -- keep contiguous and in DND_DAMAGECATEGORY order
+    BTI_ELEMENTPOWER_FIRE,
+    BTI_ELEMENTPOWER_ICE,
+    BTI_ELEMENTPOWER_LIGHTNING,
+    BTI_ELEMENTPOWER_POISON,
+
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
     BTI_CHILL,
@@ -51,7 +68,10 @@ enum {
 
     BTI_TORRASQUE_SNARE,
     BTI_GOLGOTH_SLOW,
-    BTI_GOLGOTH_WEAKEN
+    BTI_GOLGOTH_WEAKEN,
+
+    // KEEP LAST -- sizes the bt_index presence mask on the ACS side.
+    BTI_MAX
 };
 
 enum {
@@ -64,6 +84,10 @@ enum {
     DND_BUFF_PHASING,
 	DND_BUFF_PHASING_DASH,
 	DND_BUFF_AMPHETAMINE,
+
+    // MUST match acs/DnD_BuffInterface.h exactly -- passed numerically from DECORATE
+    DND_BUFF_DOOMGUY_ORB,
+    DND_BUFF_DOOMGUY_ORB_EXEC,
 
     DND_DEBUFF_OTHERWORDLYGRIP,
 
@@ -101,6 +125,17 @@ Actor DnD_ChillGainCooldown : PowerProtection {
 	damagefactor "normal", 1.0
 	powerup.duration 7
 }
+
+// Display-only tokens for the SBARINFO buff icons. SBARINFO can only test inventory,
+// so buff state is projected onto these. The BUFF remains the source of truth: unlike
+// the ElementPower_* / RavagerPower actors they replace, these carry no powerup base
+// and no damagefactor, so they cannot affect damage on their own.
+// Driven by SyncBuffDisplayItems() in acs/DnD_Buffs.h -- do not give or take them by hand.
+Actor DnD_BuffIcon_SigilFire : DnD_Boolean { }
+Actor DnD_BuffIcon_SigilIce : DnD_Boolean { }
+Actor DnD_BuffIcon_SigilLightning : DnD_Boolean { }
+Actor DnD_BuffIcon_SigilPoison : DnD_Boolean { }
+Actor DnD_BuffIcon_Ravager : DnD_Boolean { }
 
 Actor DnD_ChillFXRunning : DnD_Boolean { }
 Actor DnD_FreezeFXRunning : DnD_Boolean { }

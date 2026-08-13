@@ -860,7 +860,7 @@ int GetShopPrice (int id, int priceflag = 0) {
 	
 	}
 	
-	if((GetItemFlags(id) & OBJ_SHOTGUN) && HasClassPerk_Fast("Hobo", 1)) {
+	if((GetItemFlags(id) & OBJ_SHOTGUN) && HasClassPerk_Fast(DND_PLAYER_HOBO, 1)) {
 		res -= res / 5;
 		if(res < 0)
 			res = 0;
@@ -875,7 +875,7 @@ bool CanResearch(int respage, int posx) {
 	int status = CheckResearchStatus(resData.res_id);
 	bool finish_check = status != RES_DONE;
 	bool found_check = status == RES_KNOWN;
-	bool budget_check = CheckInventory("Budget") >= (resData.res_cost * (IsShotgunResearch(resData.res_id) && HasClassPerk_Fast("Hobo", 1) ? 4 : 5)) / 5;
+	bool budget_check = CheckInventory("Budget") >= (resData.res_cost * (IsShotgunResearch(resData.res_id) && HasClassPerk_Fast(DND_PLAYER_HOBO, 1) ? 4 : 5)) / 5;
 	if(finish_check && found_check && budget_check)
 		return false;
 	GiveInventory("DnD_PopupError", 1);
@@ -925,7 +925,7 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 				cond2 = !IsBackpackLimitReached();
 		}
 		else { // weapon or ability
-			if(type == TYPE_WEAPON && HasClassPerk_Fast("Berserker", 1)) {
+			if(type == TYPE_WEAPON && HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1)) {
 				if(id <= SHOP_WEAPON_SLOT1END) {
 					cond3 = !CheckInventory(item);
 					cond2 = cond3;
@@ -1098,7 +1098,7 @@ void DrawToggledImage(int pnum, int itemid, int boxid, int onposy, int objectfla
 						colorprefix = "\c[G8]";
 						toshow = "\c[G8]";
 					} // if I have options color others
-					else if( (!(HasClassPerk_Fast("Berserker", 1) && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
+					else if( (!(HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1) && itemid <= SHOP_WEAPON_SLOT1END) && CheckInventory(choicename) == choicecount) || 
 							 (itemid == SHOP_ARTI_BACKPACK && IsBackpackLimitReached()) ||
 							 (objectflag & OBJ_ARTI && IsSet(CheckInventory("DnD_Artifact_MapBits"), itemid - SHOP_FIRSTARTI1_INDEX))
 						   ) 
@@ -1297,6 +1297,13 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 						TakeCredit(price);
 						GiveInventory(GetItemName(itemid), 1);
 						if(tradeflag & TRADE_WEAPON) {
+							// Buying a shotgun shifts CountShotgunWeaponsOwned(), which is
+							// baked into every OTHER boomstick's cached flat bonus. Only the
+							// boomsticks care, so only they get invalidated -- the bought
+							// weapon itself rebuilds on its first raise anyway.
+							if(IsBoomstick(ShopTableIdToWeaponTableId(itemid)))
+								ForceShotgunDamageCaching(pnum);
+
 							totake = GetWeaponToTake(itemid);
 							if(StrCmp(totake, ""))
 								TakeInventory(totake, 1);
@@ -1371,6 +1378,11 @@ void ProcessTrade (int pnum, int posy, int low, int high, int tradeflag, bool gi
 				ResetWeaponStats(ShopTableIdToWeaponTableId(itemid));
 				TakeInventory(GetWeaponCondition(itemid), 1);
 				TakeInventory(GetItemName(itemid), 1);
+
+				// selling a shotgun shifts CountShotgunWeaponsOwned(), which is baked into
+				// every OTHER boomstick's cached flat bonus -- and only theirs
+				if(IsBoomstick(ShopTableIdToWeaponTableId(itemid)))
+					ForceShotgunDamageCaching(pnum);
 				
 				// reset buffs of weapon
 				GiveCredit(price);

@@ -187,16 +187,16 @@ statusbar normal, fullscreenoffsets {
 				DrawImage "AGADEF", 28, -144;
 			}
 			
-			InInventory ElementPower_Fire {
+			InInventory DnD_BuffIcon_SigilFire {
 				DrawImage "SIGILFIR", 28, -166;
 			}
-			InInventory ElementPower_Ice {
+			InInventory DnD_BuffIcon_SigilIce {
 				DrawImage "SIGILICE", 28, -166;
 			}
-			InInventory ElementPower_Lightning {
+			InInventory DnD_BuffIcon_SigilLightning {
 				DrawImage "SIGILLIG", 28, -166;
 			}
-			InInventory ElementPower_Earth {
+			InInventory DnD_BuffIcon_SigilPoison {
 				DrawImage "SIGILERT", 28, -166;
 			}
 			
@@ -229,16 +229,16 @@ statusbar normal, fullscreenoffsets {
 				DrawImage "AGADEF", 148, -118;
 			}
 			
-			InInventory ElementPower_Fire {
+			InInventory DnD_BuffIcon_SigilFire {
 				DrawImage "SIGILFIR", 148, -140;
 			}
-			InInventory ElementPower_Ice {
+			InInventory DnD_BuffIcon_SigilIce {
 				DrawImage "SIGILICE", 148, -140;
 			}
-			InInventory ElementPower_Lightning {
+			InInventory DnD_BuffIcon_SigilLightning {
 				DrawImage "SIGILLIG", 148, -140;
 			}
-			InInventory ElementPower_Earth {
+			InInventory DnD_BuffIcon_SigilPoison {
 				DrawImage "SIGILERT", 148, -140;
 			}
 
@@ -321,7 +321,7 @@ statusbar normal, fullscreenoffsets {
   drawstring SHOPFONT, Untranslated, "h$", -214, 12, 0, alignment(right);
   drawnumber 10, SHOPFONT, Untranslated, ammo Credit, alignment(right), fillzeros, -16, 16;
 
-	InInventory RavagerPower {
+	InInventory DnD_BuffIcon_Ravager {
 		drawimage "ARICO15", 216, -84;
 	}
 	

@@ -96,7 +96,7 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 	duration &= 0xFFFF;
 
 	int victim = P_TIDSTART + pnum;
-	if(HasActorClassPerk_Fast(victim, "Wanderer", DND_CLASSPERK_1))
+	if(HasActorClassPerk_Fast(victim, DND_PLAYER_WANDERER, DND_CLASSPERK_1))
 		duration = duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
 	
 	// check if player has a dot source of this script running already
@@ -223,7 +223,7 @@ Script "DnD Player Receive DoT" (int pnum, int duration, int owner, int inflicto
 			(
 				!player_dot_damages.dot_list[pos].duration || 
 				CheckActorInventory(victim, "RemoveAilments") ||
-				(HasActorClassPerk_Fast(victim, "Punisher", 5) && (CheckActorInventory(victim, "DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) || // bleed remove if punisher on spree with last perk
+				(HasActorClassPerk_Fast(victim, DND_PLAYER_PUNISHER, 5) && (CheckActorInventory(victim, "DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) || // bleed remove if punisher on spree with last perk
 				CheckActorInventory(victim, "RemoveBleed")
 			)
 			{

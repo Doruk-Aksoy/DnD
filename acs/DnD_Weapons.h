@@ -33,7 +33,7 @@ int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AM
 	int curr_wep = GetCurrentWeaponID();
 	int chance = GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE);
 	if(IsBoomstick(curr_wep)) {
-		chance += (!!CheckInventory("Hobo_ShotgunFrenzyTimer")) * (DND_HOBO_PERK50_CHANCE + HasClassPerk_Fast("Hobo", 5) * DND_HOBO_PERK50_CHANCE_BONUSMAXED);
+		chance += (!!CheckInventory("Hobo_ShotgunFrenzyTimer")) * (DND_HOBO_PERK50_CHANCE + HasClassPerk_Fast(DND_PLAYER_HOBO, 5) * DND_HOBO_PERK50_CHANCE_BONUSMAXED);
 		chance += GetPlayerAttributeValue(PlayerNumber(), INV_IMP_AMMOGAIN_SHOTGUNS);
 	}
 	chance <<= 16;
@@ -171,7 +171,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 
 	// check for cyborg instability
 	flags |= 
-		(IsTechWeapon(wepid) && HasClassPerk_Fast("Cyborg", 4) && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY && 
+		(IsTechWeapon(wepid) && HasClassPerk_Fast(DND_PLAYER_CYBORG, 4) && CheckInventory("Cyborg_InstabilityStack") == DND_MAXCYBORG_INSTABILITY && 
 		!CheckInventory("Cyborg_Instability_CD") && 
 		RunLuckBasedChance(pnum, DND_CYBORG_INSTABILITY_CHANCE)) * DND_ATF_INSTABILITY;
 	
@@ -2461,6 +2461,13 @@ Script "DnD Load Weapon Information" OPEN {
 		SetupAmmoInfo();
 		Delay(const:5);
 		SetupHitscanData();
+
+		// property table is populated by now, so the roster can be checked against it
+		VerifyShotgunWeaponList();
+
+		// unrelated to weapons, but this is the once-per-load server script
+		VerifyBuffMaskCapacity();
+
 		SetupComplete(SETUP_STATE1, SETUP_WEAPONDATA);
 	}
 }

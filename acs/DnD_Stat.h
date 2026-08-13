@@ -273,7 +273,7 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	int pct = 100 + GetPlayerAttributeValue(pnum, INV_SHIELD_RECOVERYRATE);
 	int res = cap * bonus;
 
-	if(bonus > 1 && HasClassPerk_Fast("Cyborg", 1)) {
+	if(bonus > 1 && HasClassPerk_Fast(DND_PLAYER_CYBORG, 1)) {
 		res += res * DND_CYBERNETIC_FACTOR / 100;
 	}
 
@@ -581,7 +581,7 @@ int GetResearchArmorBonuses() {
 	res += EXO_AR_ADD_2 * (CheckResearchStatus(RES_EXO2) == RES_DONE);
 	res += EXO_AR_ADD_3 * (CheckResearchStatus(RES_EXO3) == RES_DONE);
 	
-	if(HasClassPerk_Fast("Cyborg", 1)) {
+	if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1)) {
 		res *= DND_CYBORG_CYBER_MULT;
 		res /= DND_CYBORG_CYBER_DIV;
 	}
@@ -799,10 +799,10 @@ void DecideAccessories() {
 		SetInventory("SigilCheck", 1);
 	else {
 		SetInventory("SigilCheck", 0);
-		TakeInventory("ElementPower_Fire", 1);
-		TakeInventory("ElementPower_Ice", 1);
-		TakeInventory("ElementPower_Lightning", 1);
-		TakeInventory("ElementPower_Earth", 1);
+
+		// unequipping the sigil drops any element power it granted
+		for(int ele = 0; ele < DND_ELEMENTAL_DMGBUFF_COUNT; ++ele)
+			RemoveBuffWithTableIndex(this - P_TIDSTART, BTI_ELEMENTPOWER_FIRE + ele);
 	}
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_CELESTIAL))
 		SetInventory("CelestialCheck", 1);
@@ -817,7 +817,7 @@ void DecideAccessories() {
 }
 
 bool HasNoSigilPower() {
-	return !CheckInventory("ElementPower_Fire") && !CheckInventory("ElementPower_Ice") && !CheckInventory("ElementPower_Lightning") && !CheckInventory("ElementPower_Earth");
+	return PlayerHasNoElementalDamageBuff(PlayerNumber());
 }
 
 void UpdatePerkStuff(int perk) {
@@ -881,7 +881,7 @@ int GetBaseCritChance(int pnum) {
 	int base = CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + GetPlayerAttributeValue(pnum, INV_CRITCHANCE_INCREASE);
 	
 	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
-	if(HasClassPerk_Fast("Trickster", 1)) {
+	if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 1)) {
 		int mit_rounded = (GetMitigationChance(pnum) + 0.5) >> 16;
 		base += DND_TRICKSTER_CRIT_GAIN_FROM_MIT * mit_rounded;
 	}
@@ -977,7 +977,7 @@ bool CheckCritChance(int pnum, int victim, int wepid, bool isLightning, bool noT
 			ActivatorSound("VeilOfAssassin/Active", 97);
 		}
 
-		if(HasClassPerk_Fast("Trickster", 2) && random(0, 1.0) <= DND_TRICKSTER_PHASING_CHANCE && !HasPlayerBuff(pnum, BTI_PHASING))
+		if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 2) && random(0, 1.0) <= DND_TRICKSTER_PHASING_CHANCE && !HasPlayerBuff(pnum, BTI_PHASING))
 			ACS_NamedExecuteWithResult("DnD Give Buff", DND_BUFF_PHASING, DEBUFF_F_PLAYERISACTIVATOR);
 	}
 	
@@ -995,20 +995,25 @@ void HandleHunterTalisman() {
 }
 
 // this one doesnt depend on a weapon, its used as it is in the menu etc.
-int GetIndependentCritModifier(int pnum) {
+// applyExcess: the in-game path (GetCritModifier) applies excess-crit itself, using
+// the weapon- and victim-aware GetCritChance, so it must suppress this display-chance
+// copy. Applying both multiplied the modifier TWICE, and the doubled product wrapped
+// for base > 1311 at a 5.0 crit chance -- the "if(base < 100) base = 100" floor then
+// caught the negative, so crits landed for exactly base damage.
+int GetIndependentCritModifier(int pnum, bool applyExcess = true) {
 	int base = DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + GetPlayerAttributeValue(pnum, INV_CRITDAMAGE_INCREASE);
 	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS))
 		base -= DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
 
 	int temp;
-	if(GetPlayerAttributeValue(pnum, INV_INC_EXCESSCRIT) && (temp = GetCritChance_Display(pnum)) > 1.0)
-		base = (base * temp) >> 16;
+	if(applyExcess && GetPlayerAttributeValue(pnum, INV_INC_EXCESSCRIT) && (temp = GetCritChance_Display(pnum)) > 1.0)
+		base = FixedMul(base, temp);
 
 	return base;
 }
 
-int GetBaseCritModifier(int pnum, int wepid) {
-	int base = GetIndependentCritModifier(pnum);
+int GetBaseCritModifier(int pnum, int wepid, bool applyExcess = true) {
+	int base = GetIndependentCritModifier(pnum, applyExcess);
 	int wep_bonus = 0;
 	
 	if(wepid != -1)
@@ -1021,7 +1026,7 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 	if(!forcedReturn && GetPlayerAttributeValue(pnum, INV_INC_CRITFORDOT))
 		return 100;
 
-	int base = GetBaseCritModifier(pnum, wepid); // calculates the regular "base" bonuses
+	int base = GetBaseCritModifier(pnum, wepid, false); // excess-crit is applied below with the real crit chance
 	int temp;
 	
 	// berserker perk50 check
@@ -1052,7 +1057,7 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 
 	forcedReturn = GetPlayerAttributeValue(pnum, INV_INC_EXCESSCRIT);
 	if(forcedReturn && (temp = GetCritChance(pnum, victim, wepid, IsWeaponLightningType(wepid))) > 1.0)
-		base = (base * temp) >> 16;
+		base = FixedMul(base, temp);
 
 	// damage is returned as it is if its 100, makes no sense for it to be less than 100 (it'd actually lower damage for critting...)
 	if(base < 100)
@@ -1069,21 +1074,43 @@ bool HasWeaponPower(int pnum, int wep, int power) {
 	return IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1][WMOD_ITEMS].val, power) || IsSet(Player_Weapon_Infos[pnum][wep].wep_mods[WEP_MOD_POWERSET1][WMOD_WEP].val, power);
 }
 
+// Accuracy-derived percent damage.
+//
+// Deliberately NOT part of GetPlayerPercentDamage, which is called from inside the
+// cached block: APROP_ACCURACY is a STORED property that CalculatePlayerAccuracy
+// folds a TEMPORARY term into -- the Hobo shotgun-frenzy bonus, granted on a shotgun
+// kill and dropped when it expires, both mid-combat. Cached, that froze; read here at
+// request time it is always current.
+//
+// The wepid >= 0 guard is new: callers pass -1 for spells and DoTs, and
+// IsPrecisionWeapon(-1) indexes Weapons_Data out of bounds.
+int GetPlayerAccuracyDamageBonus(int pnum, int wepid) {
+	int res = 0;
+	int acc = GetActorProperty(pnum + P_TIDSTART, APROP_ACCURACY);
+
+	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS))
+		res += DND_DEADEYE_BONUS * (acc / DND_DEADEYE_PLUSPER);
+
+	if(wepid >= 0 && IsPrecisionWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_INC_ACCURACYFORPRECISION))
+		res += acc / DND_INC_ACCURACYFORPRECRATIO;
+
+	return res;
+}
+
 int GetPlayerPercentDamage(int pnum, int wepid, int damage_category, int flags) {
 	// stuff that dont depend on a wepid
 	int res = MapDamageCategoryToPercentBonus(pnum, damage_category, flags);
 
-	if(GetPlayerAttributeValue(pnum, INV_EX_DEADEYEBONUS)) {
-		// add accuracy as % bonus dmg
-		res += DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
-	}
-
-	if(IsPrecisionWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_INC_ACCURACYFORPRECISION))
-		res += GetActorProperty(0, APROP_ACCURACY) / DND_INC_ACCURACYFORPRECRATIO;
-	
-	// buff sourced percent damage
-
-	res += (100 * pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].additive) >> 16;
+	// DO NOT add buff-sourced percent damage here.
+	//
+	// This runs INSIDE the cached block of ScaleCachedDamage, so anything added here is
+	// frozen into the per-weapon factor on the first shot and stays until the weapon is
+	// re-raised -- present forever or absent forever, regardless of whether the buff is
+	// actually up. That cuts both ways: a mid-fight Golgoth Weaken would keep its -75%
+	// on that weapon long after expiring.
+	//
+	// Buff terms belong at the call sites, via GetPlayerBuffIncreasedDamage(pnum),
+	// where they are read fresh on every shot.
 
 	return res;
 }
@@ -1302,14 +1329,14 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
 				GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + GetPlayerAttributeValue(pnum, INV_IGNITEDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
 	
 	// hellfire amulet -- moved here for ignite calculation specifically
 	if(IsAccessoryEquipped(pnum + P_TIDSTART, DND_ACCESSORY_AMULETHELLFIRE))
-		dmg = ApplyDamageFactor_Safe(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
+		dmg = MulPercent_Exact(dmg, DND_AMULETHELL_AMP, DND_AMULETHELL_FACTOR);
 	
 	return dmg;
 }
@@ -1327,7 +1354,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 			GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
@@ -1361,7 +1388,7 @@ int GetRegenCap(int pnum) {
 int GetLifesteal(int pnum) {
 	int base = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
 
-	if(HasClassPerk_Fast("Punisher", 2)) {
+	if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 2)) {
 		// spree * 2 => merciless
 		int bonus = Clamp_Between(CheckInventory("DnD_MultiKillCounter") / DND_SPREE_PER - 1, 0, DND_PUNISHER_MAXLIFESTEALTIMES);
 		base += bonus * DND_PUNISHER_LIFESTEALRATE;
@@ -1401,7 +1428,7 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 	int bonus = 0;
 	cap = cap * DND_BASE_LIFERECOVERY / 100;
 
-	if(HasClassPerk_Fast("Punisher", 2)) {
+	if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 2)) {
 		// spree * 2 => merciless
 		bonus = Clamp_Between(CheckInventory("DnD_MultiKillCounter") / DND_SPREE_PER - 1, 0, DND_PUNISHER_MAXLIFESTEALTIMES);
 		bonus += bonus * DND_PUNISHER_RECOVERY;
@@ -1567,7 +1594,7 @@ int GetCritChance_Display(int pnum) {
 
 int GetPelletIncrease(int pnum) {
 	int base = 1.0 + GetPlayerAttributeValue(pnum, INV_PELLET_INCREASE);
-	if(HasClassPerk_Fast("Hobo", 2))
+	if(HasClassPerk_Fast(DND_PLAYER_HOBO, 2))
 		return CombineFactors(base, DND_HOBO_SHOTGUNPELLETBONUS + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_SHOTGUNPELLETBONUS_PERLVL);
 	return base;
 }
@@ -1633,7 +1660,7 @@ int ApplyResistCap(int pnum, int res, int cap = 0) {
 
 int GetExplosiveRepeatChance(int pnum) {
 	int tid = pnum + P_TIDSTART;
-	int isMarine = HasActorClassPerk_Fast(tid, "Marine", 5);
+	int isMarine = HasActorClassPerk_Fast(tid, DND_PLAYER_MARINE, 5);
 	int bonus = isMarine * DND_MARINE_EXP_REPEAT_CHANCE;
 	if(isMarine) {
 		isMarine = CheckActorInventory(tid, "PlayerHealthCap");
@@ -1646,7 +1673,7 @@ int GetExplosiveRepeatChance(int pnum) {
 int GetSelfExplosiveResist(int pnum) {
 	int base = 1.0; // 100%
 	
-	if(HasClassPerk_Fast("Marine", 1))
+	if(HasClassPerk_Fast(DND_PLAYER_MARINE, 1))
 		base = FixedMul(base, (100 - DND_MARINE_SELFEXPLOSIVEREDUCE) * 1.0 / 100);
 	
 	// get player selfdmg res
@@ -1661,7 +1688,7 @@ int GetSelfExplosiveResist(int pnum) {
 	
 	// properly include this ability's benefit here, including cyborg check
 	if(CheckInventory("Ability_ExplosionMastery")) {
-		if(!HasClassPerk_Fast("Cyborg", 1))
+		if(!HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 			base = FixedMul(base, (100 - DND_EXP_RES_ABILITY_BONUS) * 1.0 / 100);
 		else
 			base = FixedMul(base, (100 - (DND_EXP_RES_ABILITY_BONUS + DND_EXP_RES_ABILITY_BONUS * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV)) * 1.0 / 100);
@@ -1697,7 +1724,7 @@ int GetPlayerElementalAvoidance(int pnum, int ele_mod) {
 	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
 		return 100;
 
-	if((HasActorClassPerk_Fast(ptid, "Wanderer", 3) && CheckActorInventory(ptid, "EShieldAmount")))
+	if((HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, 3) && CheckActorInventory(ptid, "EShieldAmount")))
 		return 100;
 
 	return GetPlayerAttributeValue(pnum, ele_mod) + GetPlayerAttributeValue(pnum, INV_AVOID_ELEAILMENTS) + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
@@ -1712,8 +1739,8 @@ int GetPlayerNonElementalAvoidance(int pnum, int ele_mod) {
 	// special conditions like punisher and wanderer
 	if
 	(
-		(ele_mod == INV_AVOID_BLEED && HasActorClassPerk_Fast(ptid, "Punisher", 5) && (CheckActorInventory(ptid, "DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) ||
-		(HasActorClassPerk_Fast(ptid, "Wanderer", 3) && CheckActorInventory(ptid, "EShieldAmount"))
+		(ele_mod == INV_AVOID_BLEED && HasActorClassPerk_Fast(ptid, DND_PLAYER_PUNISHER, 5) && (CheckActorInventory(ptid, "DnD_MultikillCounter") + 1) / DND_SPREE_PER >= 1) ||
+		(HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, 3) && CheckActorInventory(ptid, "EShieldAmount"))
 	)
 		base = 100;
 	
@@ -1769,13 +1796,13 @@ bool IsOnLowStamina() {
 
 bool CanGainStaminaOnKill(int pnum) {
 	int temp = GetPlayerAttributeValue(pnum, INV_IMP_STAMINAONKILL);
-	temp += HasClassPerk_Fast("Berserker", 2) * DND_BERSERKER_PERK40_STAMINACHANCE;
+	temp += HasClassPerk_Fast(DND_PLAYER_BERSERKER, 2) * DND_BERSERKER_PERK40_STAMINACHANCE;
 	return temp >= random(1, 100);
 }
 
 int GetStaminaGainOnKill(int pnum) {
 	int temp = GetPlayerAttributeExtra(pnum, INV_IMP_STAMINAONKILL);
-	temp += HasClassPerk_Fast("Berserker", 2) * DND_BERSERKER_PERK40_STAMINAGAIN;
+	temp += HasClassPerk_Fast(DND_PLAYER_BERSERKER, 2) * DND_BERSERKER_PERK40_STAMINAGAIN;
 	return temp;
 }
 

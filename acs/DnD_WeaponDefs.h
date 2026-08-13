@@ -1709,21 +1709,80 @@ str GetWeaponAmmoType(int wepid, int which) {
 	return Weapons_Data[wepid].ammo_name2;
 }
 
+// The shotgun roster is static -- there is no runtime path that makes a weapon become
+// or stop being a boomstick. Keeping it as one list means the "add newer shotguns here"
+// note lives in exactly one place, and callers that need to WALK the shotguns don't
+// have to scan all MAXWEPS testing IsBoomstick.
+// KEEP IN SYNC with every weapon carrying WPROP_SHOTGUN -- a mismatch means a shotgun
+// that IsBoomstick() accepts but that goes uncounted and uninvalidated.
+// VerifyShotgunWeaponList() checks this at load time.
+#define DND_SHOTGUN_WEAPON_COUNT 14
+int[] module& GetShotgunWeaponList() {
+	static int shotgun_list[DND_SHOTGUN_WEAPON_COUNT] = {
+		DND_WEAPON_SHOTGUN,
+		DND_WEAPON_RIOTCANNON,
+		DND_WEAPON_PURIFIER,
+		DND_WEAPON_KILLSTORM,
+		DND_WEAPON_DEADLOCK,
+		DND_WEAPON_SUPERSHOTGUN,
+		DND_WEAPON_HEAVYSUPERSHOTGUN,
+		DND_WEAPON_ERASUS,
+		DND_WEAPON_SHOCKER,
+		DND_WEAPON_HADES,
+		DND_WEAPON_SILVERGUN,
+		DND_WEAPON_INCINERATOR,
+		DND_WEAPON_VINDICATOR,
+		DND_WEAPON_SAWEDOFF
+	};
+	return shotgun_list;
+}
+
+// Load-time parity check between GetShotgunWeaponList() and the WPROP_SHOTGUN flags.
+// These two are edited in different files by different changes, and a silent drift is
+// expensive: a flagged-but-unlisted weapon receives every shotgun bonus while counting
+// for none of them, and never gets invalidated when the owned-count moves.
+//
+// Runs once from the weapon-setup OPEN script, AFTER SetupWeaponData() has populated
+// the property table. Silent when correct.
+void VerifyShotgunWeaponList() {
+	auto shotguns = GetShotgunWeaponList();
+	int i, j;
+	bool found;
+
+	// 1. every weapon the property table calls a shotgun must be in the list
+	for(i = 0; i < MAXWEPS; ++i) {
+		if(!IsBoomstick(i))
+			continue;
+
+		found = false;
+		for(j = 0; j < DND_SHOTGUN_WEAPON_COUNT && !found; ++j)
+			found = shotguns[j] == i;
+
+		if(!found)
+			Log(s:"DnD SETUP ERROR: weapon id ", d:i, s:" (", s:Weapons_Data[i].name, s:") has WPROP_SHOTGUN but is missing from GetShotgunWeaponList()");
+	}
+
+	// 2. and nothing in the list may be a non-shotgun or a duplicate
+	for(i = 0; i < DND_SHOTGUN_WEAPON_COUNT; ++i) {
+		if(!IsBoomstick(shotguns[i]))
+			Log(s:"DnD SETUP ERROR: GetShotgunWeaponList() entry ", d:i, s:" (weapon id ", d:shotguns[i], s:") does not have WPROP_SHOTGUN");
+
+		for(j = i + 1; j < DND_SHOTGUN_WEAPON_COUNT; ++j) {
+			if(shotguns[i] == shotguns[j])
+				Log(s:"DnD SETUP ERROR: GetShotgunWeaponList() lists weapon id ", d:shotguns[i], s:" twice (entries ", d:i, s:" and ", d:j, s:")");
+		}
+	}
+}
+
 int CountShotgunWeaponsOwned() {
-	// optimized to not loop over all weapons, but newer shotguns must be added here
-	return 	CheckInventory(Weapons_Data[DND_WEAPON_SHOTGUN].name) 					+
-			CheckInventory(Weapons_Data[DND_WEAPON_PURIFIER].name) 					+
-			CheckInventory(Weapons_Data[DND_WEAPON_KILLSTORM].name) 				+
-			CheckInventory(Weapons_Data[DND_WEAPON_DEADLOCK].name) 					+
-			CheckInventory(Weapons_Data[DND_WEAPON_SUPERSHOTGUN].name) 				+
-			CheckInventory(Weapons_Data[DND_WEAPON_HEAVYSUPERSHOTGUN].name) 		+
-			CheckInventory(Weapons_Data[DND_WEAPON_ERASUS].name) 					+
-			CheckInventory(Weapons_Data[DND_WEAPON_SHOCKER].name) 					+
-			CheckInventory(Weapons_Data[DND_WEAPON_HADES].name) 					+
-			CheckInventory(Weapons_Data[DND_WEAPON_SILVERGUN].name) 				+
-			CheckInventory(Weapons_Data[DND_WEAPON_INCINERATOR].name) 				+
-			CheckInventory(Weapons_Data[DND_WEAPON_VINDICATOR].name) 				+
-			CheckInventory(Weapons_Data[DND_WEAPON_SAWEDOFF].name);
+	// optimized to not loop over all weapons -- see GetShotgunWeaponList()
+	auto shotguns = GetShotgunWeaponList();
+	int res = 0;
+
+	for(int i = 0; i < DND_SHOTGUN_WEAPON_COUNT; ++i)
+		res += CheckInventory(Weapons_Data[shotguns[i]].name);
+
+	return res;
 }
 
 bool IsTemporaryWeapon(int id) {
@@ -1926,7 +1985,7 @@ str GetWeaponTag(int wepid) {
 }
 
 void GiveOverheat(int pnum, str item, int amt, int wepid) {
-	if((Weapons_Data[wepid].properties & WPROP_TECH) && HasClassPerk_Fast("Cyborg", 1))
+	if((Weapons_Data[wepid].properties & WPROP_TECH) && HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 		amt -= amt * 3 / 10;
 
 	int reduce = GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);

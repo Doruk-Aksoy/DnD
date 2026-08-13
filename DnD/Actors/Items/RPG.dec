@@ -574,7 +574,6 @@ Actor LifeStealAmount : Inventory {
 	inventory.maxamount 0x7FFFFFFF
 }
 
-Actor PlayerIsLeeching : DnD_Boolean { }
 Actor DnD_EliteException : DnD_Boolean { }
 Actor DnD_CleanInventoryRequest : PowerDamage {
 	damagefactor "normal", 1.0

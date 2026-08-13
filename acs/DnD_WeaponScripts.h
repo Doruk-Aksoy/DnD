@@ -362,8 +362,20 @@ void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid,
 
 		// we are now committed to this weapon
 		SetInventory("DnD_WeaponID", wepid);
-		
+
 		CalculatePlayerAccuracy(pnum, wepid);
+
+		// A shotgun gained or lost changes CountShotgunWeaponsOwned(), which is folded
+		// into the cached flat bonus of EVERY boomstick, not just the one that changed
+		// -- so it needs a wholesale invalidation, not a per-weapon one. The menu paths
+		// force it directly; this catches ground pickups (Shotgun, Sawed-off) and acts
+		// as a backstop for anything else that moves a shotgun. 13 inventory lookups on
+		// a weapon swap is nothing next to doing them per pellet.
+		int sg_count = CountShotgunWeaponsOwned();
+		if(sg_count != GetPlayerShotgunCount(pnum)) {
+			SetPlayerShotgunCount(pnum, sg_count);
+			ForceShotgunDamageCaching(pnum);
+		}
 	}
 
 	//printbold(s:"cached id and wep ", d:dmg_id, s:" ", d: wepid);

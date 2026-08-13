@@ -18,56 +18,19 @@ Actor CastRally : CustomInventory {
 Actor RallyCooldown : DnD_Boolean { }
 Actor RallyCooldownCounter : CooldownCounter { }
 
-Actor Rally_DamageBuff : Inventory {
-	inventory.maxamount 10
-}
+// Rally_DamageBuff is gone -- it is BTI_RALLY in the buff system now, which handles
+// cross-player casting and keeps only the strongest caster's effect.
 
-Actor Rally_Speed_Lvl1 : PowerSpeed {
-	Speed 1.08
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl2 : PowerSpeed {
-	Speed 1.09
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl3 : PowerSpeed {
-	Speed 1.1
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl4 : PowerSpeed {
-	Speed 1.11
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl5 : PowerSpeed {
-	Speed 1.12
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl6 : PowerSpeed {
-	Speed 1.13
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl7 : PowerSpeed {
-	Speed 1.14
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl8 : PowerSpeed {
-	Speed 1.15
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl9 : PowerSpeed {
-	Speed 1.16
-	powerup.duration -8
-}
 
-Actor Rally_Speed_Lvl10 : PowerSpeed {
-	Speed 1.18
-	powerup.duration -8
-}
+// The Rally_Speed_Lvl* PowerSpeed actors are gone -- the speed bonus is BTI_RALLY_SPEED
+// in the buff system now, issued by BTI_RALLY so both halves share one lifetime, one
+// strongest-caster-wins rule, and one expiry. Their per-level values live in
+// RallySpeedBonus[] in acs/DnD_SkillDef.h.

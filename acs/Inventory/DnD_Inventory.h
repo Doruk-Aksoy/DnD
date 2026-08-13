@@ -2840,7 +2840,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	}
 	
 	// cybernetic check
-	if(has_cybernetic && HasClassPerk_Fast("Cyborg", 1))
+	if(has_cybernetic && HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 		multiplier = multiplier * (DND_CYBERNETIC_FACTOR + 100) / 100;
 		
 	// implicits dont get well of power factor

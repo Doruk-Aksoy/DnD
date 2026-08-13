@@ -15,7 +15,7 @@ Script "DnD Check Execution" (void) {
 // monster is assumed activator of this function
 void HandleDoomguyExecute(int ptid, int mon_tid) {
 	int pnum = ptid - P_TIDSTART;
-	if(HasActorClassPerk_Fast(ptid, "Doomguy", 1) && CheckInventory("Doomguy_CanExecute")) {
+	if(HasActorClassPerk_Fast(ptid, DND_PLAYER_DOOMGUY, 1) && CheckInventory("Doomguy_CanExecute")) {
 		if(CheckInventory("Doomguy_ValidExecute")) {
 			TakeInventory("Doomguy_CanExecute", 1);
 			TakeInventory("Doomguy_ValidExecute", 1);
@@ -23,9 +23,10 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 			int hp_to_give = GetSpawnHealth(false, pnum) * DND_DOOMGUY_PERK5HEAL / 100;
 			
 			// give extra health to player
-			if(HasActorClassPerk_Fast(ptid, "Doomguy", 2)) {
+			if(HasActorClassPerk_Fast(ptid, DND_PLAYER_DOOMGUY, 2)) {
 				// give the better damage boost
-				GiveActorInventory(ptid, "Doomguy_Perk20_Damage_Execute", 1);
+				// the activator here is the monster, so hand the buff script the player
+				ACS_NamedExecuteAlways("DnD Give Buff", 0, DND_BUFF_DOOMGUY_ORB_EXEC);
 				GiveActorInventory(ptid, "Doomguy_DemonSoul_PickMsg", 1);
 
 				int temp = MonsterProperties[mon_tid - DND_MONSTERTID_BEGIN].maxhp;
@@ -55,7 +56,7 @@ Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIEN
 	// if this guy isnt doomguy, terminate
 	// testing running it in any case to see if it helps fix the bug of these guys sometimes having their shit not taken away
 	//Log(d:ConsolePlayerNumber() + P_TIDSTART, s:" ", d:CheckActorInventory(ConsolePlayerNumber() + P_TIDSTART, "Doomguy_Perk5"));
-	if(!HasActorClassPerk_Fast(ConsolePlayerNumber() + P_TIDSTART, "Doomguy", 1))
+	if(!HasActorClassPerk_Fast(ConsolePlayerNumber() + P_TIDSTART, DND_PLAYER_DOOMGUY, 1))
 		Terminate;
 
 	if(!mode) {
@@ -156,12 +157,18 @@ Script "DnD Doomguy Execute Translation" (int mon_tid, int mode, int m_id) CLIEN
 	SetResultValue(0);
 }
 
+// Started from three places -- map entry, respawn, and the level-up that grants the
+// perk -- because it is a long-running loop that ends for good when the player dies.
+// ACS_NamedExecuteAlways runs duplicate instances happily, so the guard is load-bearing:
+// two checkers would each keep their own proc window and cooldown.
 Script "DnD Marine Perk 50 Checker" (void) {
+	if(CheckInventory("Marine_Perk50_Running"))
+		Terminate;
+	GiveInventory("Marine_Perk50_Running", 1);
+
 	int max_hp;
 	bool proc;
 	int counter;
-	static int i = 0;
-	++i;
     while(isAlive()) {
 		// prev hp recorded 2 seconds ago
 		max_hp = GetSpawnHealth();
@@ -176,7 +183,11 @@ Script "DnD Marine Perk 50 Checker" (void) {
 		SetInventory("Marine_Perk50_DamageTaken", 0);
         
         if(proc) {
+            // The item stays: SBARINFO draws the bar off its amount, and the
+            // damage-dealt tracking in DnD_Damage.h reads it. It is also the ONLY
+            // clock -- the buff carries the reduction but has no duration of its own.
             SetInventory("Marine_DamageReduction_Timer", DND_MARINE_DMGREDUCE_TIMER);
+            HandlePlayerBuffAssignment(PlayerNumber(), 0, BTI_MARINE_DAMAGEREDUCTION);
 
             ACS_NamedExecuteAlways("DnD Marine Shield Anim", 0);
 
@@ -184,6 +195,9 @@ Script "DnD Marine Perk 50 Checker" (void) {
                 Delay(const:1);
                 TakeInventory("Marine_DamageReduction_Timer", 1);
             } while(isAlive() && CheckInventory("Marine_DamageReduction_Timer"));
+
+            // unconditional teardown -- reached whether the timer ran out or we died
+            RemoveBuffWithTableIndex(PlayerNumber(), BTI_MARINE_DAMAGEREDUCTION);
 
             // per 500 give hp
             max_hp = CheckInventory("Marine_Perk50_DamageDealt") / DND_MARINE_PERK50_HPPER;
@@ -206,6 +220,10 @@ Script "DnD Marine Perk 50 Checker" (void) {
 			SetInventory("Marine_Perk50_DamageTaken", 0);
         }
     }
+
+	// only reachable once isAlive() goes false, i.e. we died. Clear the guard so the
+	// restart on respawn is allowed to take.
+	TakeInventory("Marine_Perk50_Running", 1);
 }
 
 Script "DnD Marine Shield Anim" (void) CLIENTSIDE {
@@ -327,7 +345,7 @@ Script "DnD Berserker Perk50 Timer" (int this) {
 
 Script "DnD Berserker Perk5 Check" (void) {
 	// berserker perk5 fail-safe checks for super weapons
-	if(HasClassPerk_Fast("Berserker", 1)) {
+	if(HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1)) {
 		for(int i = DND_WEAPON_BFG32768; i <= DND_WEAPON_SOULREAVER; ++i) {
 			if(CheckInventory(Weapons_Data[i].name)) {
 				TakeInventory(Weapons_Data[i].name, 1);
@@ -342,7 +360,7 @@ Script "DnD Berserker Perk5 Check (Melee)" (void) {
 	// berserker perk5 fail-safe checks for class change from berserker to any other
 	// do not include luxury weapons as part of this
 	bool has_melee = false;
-	if(!HasClassPerk_Fast("Berserker", 1)) {
+	if(!HasClassPerk_Fast(DND_PLAYER_BERSERKER, 1)) {
 		for(int i = DND_WEAPON_DOUBLECHAINSAW; i <= LAST_SLOT0_NONLUXURYWEAPON; ++i) {
 			if(CheckInventory(Weapons_Data[i].name)) {
 				// basically, if we had a melee weapon found, and we find more afterwards, we will take all subsequent ones away
@@ -518,7 +536,7 @@ Script "DnD Punisher Perk50 Display" (void) CLIENTSIDE {
 	if(PlayerNumber() != ConsolePlayerNumber())
 		Terminate;
 
-	while(!HasClassPerk_Fast("Punisher", 3)) {
+	while(!HasClassPerk_Fast(DND_PLAYER_PUNISHER, 3)) {
 		if(!IsAlive())
 			Terminate;
 		Delay(const:TICRATE);

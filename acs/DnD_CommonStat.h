@@ -311,7 +311,7 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		
 		// +FORCERADIUSDMG can come from vaaj or marine
 		case PUP_IGNORERADIUSIMMUNITY:
-		return HasActorClassPerk_Fast(pnum + P_TIDSTART, "Marine", 3);
+		return HasActorClassPerk_Fast(pnum + P_TIDSTART, DND_PLAYER_MARINE, 3);
 		
 		case PUP_SLAINENEMIESRIP:
 		return GetPlayerAttributeValue(pnum, INV_EX_ABILITY_MONSTERSRIP) || pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive;
@@ -522,7 +522,7 @@ int GetResearchHealthBonuses() {
 	res += BIO_HP_ADD_3 * (CheckResearchStatus(RES_BIO3) == RES_DONE);
 	
 	// cyborg's bonus
-	if(HasClassPerk_Fast("Cyborg", 1)) {
+	if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1)) {
 		res *= DND_CYBORG_CYBER_MULT;
 		res /= DND_CYBORG_CYBER_DIV;
 	}
@@ -536,7 +536,7 @@ int GetActorResearchHealthBonuses(int tid) {
 	res += BIO_HP_ADD_3 * (CheckActorResearchStatus(tid, RES_BIO3) == RES_DONE);
 	
 	// cyborg's bonus
-	if(HasClassPerk_Fast("Cyborg", 1)) {
+	if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1)) {
 		res *= DND_CYBORG_CYBER_MULT;
 		res /= DND_CYBORG_CYBER_DIV;
 	}
@@ -592,7 +592,7 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	if(res < DND_BASE_HEALTH)
 		res = DND_BASE_HEALTH;
 
-	if(HasActorClassPerk_Fast(tid, "Cyborg", 5))
+	if(HasActorClassPerk_Fast(tid, DND_PLAYER_CYBORG, 5))
 		res /= 2;
 
 	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
@@ -724,7 +724,7 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 		wepid = CheckInventory("DnD_WeaponID");
 
 	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && IsBoomstick(wepid)) {
-		acc_pct += DND_HOBO_ACCURACYBONUS + HasClassPerk_Fast("Hobo", 5) * DND_HOBO_ACCURACYBONUS;
+		acc_pct += DND_HOBO_ACCURACYBONUS + HasClassPerk_Fast(DND_PLAYER_HOBO, 5) * DND_HOBO_ACCURACYBONUS;
 	}
 
 	// omnisight essence gives % increased accuracy
@@ -740,7 +740,7 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 
 void UpdatePlayerSpreeTimer(int pnum) {
 	int base = DND_SPREE_AMOUNT * (100 + PlayerModData[pnum].value[INV_INCKILLINGSPREE]) / 100;
-	base = base * (100 + DND_PUNISHER_SPREEBONUS * (HasClassPerk_Fast("Punisher", 4))) / 100;
+	base = base * (100 + DND_PUNISHER_SPREEBONUS * (HasClassPerk_Fast(DND_PLAYER_PUNISHER, 4))) / 100;
 	SetAmmoCapacity("DnD_SpreeTimer", base);
 }
 
@@ -763,12 +763,16 @@ void HandleClassPerks(int tid) {
 		}
 	}
 
+	// Perk items are granted ONLY above, so this is the one place the perk cache can go
+	// stale -- rebuild it here, before anything below reads it back.
+	CachePlayerPerkData(tid - P_TIDSTART);
+
 	// he has a perk that updates spree timers so best to do it here
 	if(isActorPlayerClass(tid, DND_PLAYER_PUNISHER))
 		UpdatePlayerSpreeTimer(tid - P_TIDSTART);
 	
 	if(isActorPlayerClass(tid, DND_PLAYER_CYBORG)) {
-		if(HasActorClassPerk_Fast(tid, "Cyborg", 4)) {
+		if(HasActorClassPerk_Fast(tid, DND_PLAYER_CYBORG, 4)) {
 			lvl = ActivatorTID();
 
 			// change activator and update ammo cap
@@ -777,7 +781,7 @@ void HandleClassPerks(int tid) {
 			SetActivator(lvl);
 		}
 
-		if(HasActorClassPerk_Fast(tid, "Cyborg", 5)) {
+		if(HasActorClassPerk_Fast(tid, DND_PLAYER_CYBORG, 5)) {
 			GetSpawnHealth(false, tid - P_TIDSTART);
 			HandleEShieldChange(tid - P_TIDSTART, true);
 		}
@@ -840,7 +844,7 @@ int GetPlayerEnergyShieldCap(int pnum) {
 	int spawn_health = GetSpawnHealth(true, pnum);
 	
 	// cyborg eshield conversion from hp is half
-	base += spawn_health * (GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD) + HasActorClassPerk_Fast(pnum + P_TIDSTART, "Cyborg", 5) * 50) / 100;
+	base += spawn_health * (GetPlayerAttributeValue(pnum, INV_EX_HPTOESHIELD) + HasActorClassPerk_Fast(pnum + P_TIDSTART, DND_PLAYER_CYBORG, 5) * 50) / 100;
 
 	base = (base * (100 + GetPlayerAttributeValue(pnum, INV_PERCENTSHIELD_INCREASE) + int_bonus)) / 100;
 	return base;
@@ -1004,7 +1008,7 @@ void AddMonsterAilment(int source, int tid, int ailment) {
 	int prev = CheckActorInventory(tid, "DnD_AilmentToken");
 	SetActorInventory(tid, "DnD_AilmentToken", prev | ailment);
 
-	if(HasActorClassPerk_Fast(source, "Wanderer", 3) && CheckActorInventory(source, "EShieldAmount") && random(1, 100) <= DND_WANDERER_ELEAVOIDCHANCE)
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 3) && CheckActorInventory(source, "EShieldAmount") && random(1, 100) <= DND_WANDERER_ELEAVOIDCHANCE)
 		GiveActorInventory(source, "RemoveAilments", 1);
 }
 

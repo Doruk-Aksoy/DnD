@@ -1095,7 +1095,7 @@ void HandleLootDrops(int tid, int target, int loc_tid = -1) {
 	}
 	
 	// doomguy drop -- we dont multiply with MonsterProperties[m_id].droprate here as it's for loot only
-	if(HasActorClassPerk_Fast(target, "Doomguy", 2) && RunPrecalcDropChance(p_chance, DND_DOOMGUY_DROPCHANCE, m_id, DND_MON_RNG_3)) {
+	if(HasActorClassPerk_Fast(target, DND_PLAYER_DOOMGUY, 2) && RunPrecalcDropChance(p_chance, DND_DOOMGUY_DROPCHANCE, m_id, DND_MON_RNG_3)) {
 		temp = MonsterProperties[m_id].maxhp;
 		SpawnPlayerDrop(pnum, "Doomguy_DemonSoul", 24.0, 16, temp & 0xFFFF, temp >> 16);
 	}
@@ -1240,7 +1240,7 @@ void ActivateKillingSpree() {
 		int temp = CheckInventory("DnD_MultikillCounter") + 1;
 		if(temp / DND_SPREE_PER >= 1) {
 			// punisher perks
-			if(HasClassPerk_Fast("Punisher", 1)) {
+			if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 1)) {
 				if(!CheckInventory("Punisher_Perk1_MoveSpeed")) {
 					int wepid = GetCurrentWeaponID();
 					if(GetSlotOfWeapon(wepid) != 9) {
@@ -1258,8 +1258,9 @@ void ActivateKillingSpree() {
 			}
 		}
 		else if(temp / DND_HALF_SPREE_PER >= 1 && GetArmorID() == BODYARMOR_RAVAGER) {
-			// ravager armor activation on killing spree
-			GiveInventory("RavagerPower", 1);
+			// ravager armor activation on killing spree -- no tint on this one, so it
+			// goes straight to the buff table rather than through "DnD Give Buff"
+			HandlePlayerBuffAssignment(PlayerNumber(), 0, BTI_RAVAGER_POWER);
 		}
 	}
 	// give spree counter
@@ -1445,7 +1446,6 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("Punisher_Perk5_MoveSpeed", 0);
 	SetInventory("Punisher_Perk50_Counter", 0);
 	SetInventory("Punisher_Perk50_DamageBonus", 0);
-	SetInventory("Punisher_Perk50_DamageBonus", 0);
 	SetInventory("Punisher_Perk50_Tiers", 0);
 
 	SetInventory("Berserker_DamageTracker", 0);
@@ -1457,7 +1457,6 @@ void ClearLingeringBuffs(int pnum) {
 	SetInventory("ReceivedDialogID", 0);
 	SetInventory("DarkWanderer_Artifact", 0);
 
-	SetInventory("PlayerIsLeeching", 0);
 	SetInventory("LifeStealAmount", 0);
 	SetInventory("LifestealScriptRunning", 0);
 
@@ -1480,9 +1479,6 @@ void ClearLingeringBuffs(int pnum) {
 
 	// rework this when we add persistent pets
 	SetInventory("PetCounter", 0);
-	
-	// some buffs from spells, that arent powerups
-	SetInventory("Rally_DamageBuff", 0);
 	
 	// some buffs from weapons
 	SetInventory("SniperZoomTimer", 0);

@@ -68,17 +68,25 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 			spell_level = GetPlayerAttributeValue(pnum, INV_EX_ABILITY_RALLY);
 			temp = RALLY_DISTANCE + GetIntellectEffect(pnum, RALLY_DIST_PER_INT);
 			bufftimer = RALLY_DURATION * TICRATE;
-			sptr2 = StrParam(s:"Rally_Speed_Lvl", d:spell_level);
+
+			// Pack both halves of the spell into the one spare parameter:
+			// damage percent in the low 16 bits, speed percent in the high 16.
+			// Both level curves are resolved here, where their constants live.
+			temp2 = Clamp_Between(spell_level, DND_SKILL_MINLEVEL, DND_SKILL_MAXLEVEL);
+			temp2 = (RALLY_BASEDAMAGE + (temp2 - 1) * RALLY_DAMAGEPERLVL) | ((8 + temp2) << 16);
 
 			for(i = P_TIDSTART; i < P_TIDSTART + MAXPLAYERS; ++i) {
-				if(fdistance(this, i) <= temp) {
-					GiveActorInventory(i, "Rally_DamageBuff", spell_level);
-					GiveActorInventory(i, sptr2, 1);
+				if(fdistance(this, i) <= temp && IsPlayerBuffStateOK(i - P_TIDSTART)) {
+					// The buff goes into THAT player's own buff array, not the caster's,
+					// so players can rally each other. BTI_RALLY is NODUPLICATE_STRICT,
+					// so a second caster does not stack: the stronger cast wins and a
+					// weaker one is ignored.
+					//
+					// One call carries damage AND speed -- BTI_RALLY issues the speed
+					// node itself, so there is no external PowerSpeed dependency.
+					HandlePlayerBuffAssignment(i - P_TIDSTART, this, BTI_RALLY, 0, 0, 0, temp2);
+
 					ACS_NamedExecuteAlways("DnD Spell Effects", 0, DND_SPELL_RALLY, i);
-					
-					SetActivator(i);
-					ACS_NamedExecuteAlways("DnD Spell Buff Ticking", 0, DND_SPELL_RALLY, bufftimer, TICRATE);
-					SetActivator(this);
 				}
 			}
 			
@@ -195,10 +203,9 @@ Script "DnD Spell Buff Ticking" (int spell_id, int time, int period) {
 	}
 	
 	// times out, take away buffs
+	// (nothing here needs a timer at the moment -- buff-backed spells expire on the
+	//  buff ticker instead, which is what BTI_RALLY / BTI_RALLY_SPEED rely on)
 	switch(spell_id) {
-		case DND_SPELL_RALLY:
-			SetInventory("Rally_DamageBuff", 0);
-		break;
 	}
 }
 

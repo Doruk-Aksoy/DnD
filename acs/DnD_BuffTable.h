@@ -28,6 +28,24 @@ enum {
     BTI_MOVESPEED_FLASK,
     BTI_MITIGATION_FLASK,
 
+    // powerup-sourced "more" damage buffs -- the buff ticker owns their lifetime.
+    // KEEP THESE ABOVE THE DEBUFF MARKER: anything >= DND_BTI_DEBUFF_BEGIN gets its
+    // duration cut by Wanderer perk 1.
+    BTI_DOOMGUY_ORB,
+    BTI_TRIPLEDAMAGE,
+    BTI_RAVAGER_POWER,
+    BTI_RALLY,
+    BTI_RALLY_SPEED,
+    BTI_LEECHINGDAMAGE,
+    BTI_PUNISHER_DAMAGE,
+    BTI_MARINE_DAMAGEREDUCTION,
+
+    // sigil element powers -- keep contiguous and in DND_DAMAGECATEGORY order
+    BTI_ELEMENTPOWER_FIRE,
+    BTI_ELEMENTPOWER_ICE,
+    BTI_ELEMENTPOWER_LIGHTNING,
+    BTI_ELEMENTPOWER_POISON,
+
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,
     BTI_CHILL,
@@ -54,7 +72,11 @@ enum {
 
     BTI_TORRASQUE_SNARE,
     BTI_GOLGOTH_SLOW,
-    BTI_GOLGOTH_WEAKEN
+    BTI_GOLGOTH_WEAKEN,
+
+    // KEEP LAST -- sizes the bt_index presence mask. Add new entries ABOVE this,
+    // and above the debuff marker if the entry is a buff rather than a debuff.
+    BTI_MAX
 };
 #define DND_BTI_DEBUFF_BEGIN BTI_OTHERWORDLYGRIP
 
@@ -66,6 +88,16 @@ enum {
 };
 
 #define DND_GRANITE_ARMORBUFF 1000
+
+// Buff durations, in seconds unless the buff sets BUFF_F_DURATIONINTICS.
+#define DND_DOOMGUY_ORB_DURATION        10
+#define DND_DOOMGUY_ORB_EXEC_DURATION   20
+#define DND_TRIPLEDAMAGE_DURATION       (15 * TICRATE)
+#define DND_TRIPLEDAMAGE2_DURATION      787
+#define DND_TRIPLEDAMAGE_TIER2_EFFECT   75                  // 2.0 * 175/100 = 3.5 => x4.5
+#define DND_RAVAGER_POWER_DURATION      4
+#define DND_RALLY_BUFF_DURATION         8                   // must match RALLY_DURATION
+#define DND_ELEMENTPOWER_DURATION       20
 #define DND_BASALT_ARMORBUFF 0.3
 #define DND_BISMUTH_BUFF 35.0
 #define DND_INSULAR_BUFF 35.0
@@ -79,6 +111,14 @@ enum {
 // by default assumes the source of buff to be activator of the script calling this, initiator may not always be activator of script
 // returns duration for blends
 int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, int script_flags = 0, int update = 0, int new_duration = 0, int inc_effect = 0) {
+    // GivePlayerBuff and RemoveBuffMatching both WALK the buff list, and a virgin
+    // pbuffs global has the dummy head linked to itself (see RemoveAllBuffs). The
+    // "DnD Player Buff" script already gates on this, but the many direct callers
+    // -- RestorePersistentBuffs, the Ravager spree, Punisher tiers, Rally, lifesteal,
+    // the sigil powers -- do not, so the check belongs here too.
+    if(!IsPlayerBuffStateOK(pnum))
+        return 0;
+
     int ptid = pnum + P_TIDSTART;
 
     int bsource = 0;
@@ -127,7 +167,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
                 bduration = new_duration;
 
             tic_duration = GetPlayerAttributeValue(pnum, INV_IMP_PHASINGTIME);
-            if(HasActorClassPerk_Fast(ptid, "Trickster", 4))
+            if(HasActorClassPerk_Fast(ptid, DND_PLAYER_TRICKSTER, 4))
                 tic_duration += DND_TRICKSTER_ACROBAT_PHASINGBONUS;
 
             bduration = bduration * (100 + tic_duration) / 100;
@@ -407,6 +447,136 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             tic_duration = bduration;
         break;
 
+        // Powerup-sourced "more" damage buffs.
+        // NODUPLICATE_STRICT => exactly one instance of each (a re-grant refreshes the
+        // timer rather than stacking); MORETYPE => still combines multiplicatively with
+        // every other buff.
+        case BTI_DOOMGUY_ORB:
+            btype = BUFF_DAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+            bvalue = 0.25;                                  // DND_DOOMGUY_DMGBONUS 25 => x1.25
+            // the plain orb is 10s, the execute variant 20s -- same value, so the strict
+            // duplicate rule refreshes to the longer of the two
+            if(!new_duration)
+                bduration = DND_DOOMGUY_ORB_DURATION;
+            else
+                bduration = new_duration;
+            tic_duration = bduration * TICRATE;
+        break;
+
+        case BTI_TRIPLEDAMAGE:
+            btype = BUFF_DAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE | BUFF_F_DURATIONINTICS;
+            bvalue = 2.0;                                   // x3; tier 2 sends inc_effect 75 => 3.5 => x4.5
+            // tier is fully determined by inc_effect, so the caller only needs one arg
+            if(inc_effect) {
+                bvalue = bvalue * (100 + inc_effect) / 100;
+                bduration = DND_TRIPLEDAMAGE2_DURATION;
+            }
+            else
+                bduration = DND_TRIPLEDAMAGE_DURATION;
+
+            if(new_duration) // supplied durations MUST already be in tics
+                bduration = new_duration;
+            tic_duration = bduration;
+        break;
+
+        case BTI_RALLY:
+            btype = BUFF_DAMAGEDEALT;
+            // NODUPLICATE_STRICT is the whole point here: Rally is cast ON OTHER
+            // PLAYERS, so several casters can land it on the same target. Strict keeps
+            // exactly one node and lets a stronger cast overwrite a weaker one, while a
+            // weaker cast on top of a stronger one is ignored. Equal strength just
+            // refreshes the timer.
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+
+            // inc_effect carries BOTH halves of the spell, already resolved from the
+            // caster's level: damage percent in the low 16 bits, speed percent in the
+            // high 16. One int is all HandlePlayerBuffAssignment has spare, and packing
+            // beats threading a second parameter through every call site. Resolving the
+            // level curves at the call site also keeps DnD_SkillDef.h out of the buff
+            // table, which is included well before it.
+            bvalue = (inc_effect & 0xFFFF) * 1.0 / 100;
+
+            bduration = DND_RALLY_BUFF_DURATION;
+            tic_duration = bduration * TICRATE;
+
+            // the speed half rides along as its own node, so it expires on the same
+            // ticker and obeys the same strongest-caster-wins rule
+            HandlePlayerBuffAssignment(pnum, initiator, BTI_RALLY_SPEED, script_flags, 0, 0, inc_effect);
+        break;
+
+        case BTI_LEECHINGDAMAGE:
+            btype = BUFF_DAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+
+            // inc_effect carries INV_LIFESTEAL_DAMAGE's raw 16.16 delta, so the value
+            // keeps its sub-percent precision rather than rounding to whole percent
+            bvalue = inc_effect;
+
+            // bduration stays 0 on purpose: BUFF_F_TICKERREQUIRED is only set when a
+            // duration exists, so this buff has no timer. "DnD Lifesteal Script" owns
+            // its lifetime and drops it in its teardown; ResetPlayerBuffs is the
+            // backstop on death and map change.
+        break;
+
+        // Sigil element powers. One case for all four -- they differ only in which
+        // buff type they land in, and the BTI/BUFF orders are kept parallel so the
+        // mapping is one subtraction.
+        case BTI_ELEMENTPOWER_FIRE:
+        case BTI_ELEMENTPOWER_ICE:
+        case BTI_ELEMENTPOWER_LIGHTNING:
+        case BTI_ELEMENTPOWER_POISON:
+            btype = DND_FIRST_ELEMENTAL_DMGBUFF + (buff_table_index - BTI_ELEMENTPOWER_FIRE);
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+
+            // DND_SIGIL_BUFF is 100, i.e. x2 on the matching element
+            bvalue = DND_SIGIL_BUFF * 1.0 / 100;
+
+            bduration = DND_ELEMENTPOWER_DURATION;
+            tic_duration = bduration * TICRATE;
+        break;
+
+        case BTI_MARINE_DAMAGEREDUCTION:
+            btype = BUFF_DAMAGETAKEN;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+            bvalue = DND_MARINE_50REDUCTION;
+        break;
+
+        case BTI_PUNISHER_DAMAGE:
+            btype = BUFF_DAMAGEDEALT;
+            // The tier only ever climbs (DnD.bcs guards with "if(is_demon < temp)")
+            // and resets on death, so strongest-wins is exactly the tier-up rule: a
+            // higher tier replaces the node, a stale lower one is ignored.
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+
+            // inc_effect carries the already-computed 16.16 delta
+            bvalue = inc_effect;
+
+            // no duration -- it lives until death or map change, where
+            // ResetPlayerBuffs clears it alongside the HUD's tier item
+        break;
+
+        case BTI_RALLY_SPEED:
+            btype = BUFF_SPEED;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+
+            // high half of the packed pair; +0.08 reproduces PowerSpeed "Speed 1.08"
+            // exactly, since HandleBuffApplication FixedMuls the base speed by it
+            bvalue = (inc_effect >> 16) * 1.0 / 100;
+
+            bduration = DND_RALLY_BUFF_DURATION;
+            tic_duration = bduration * TICRATE;
+        break;
+
+        case BTI_RAVAGER_POWER:
+            btype = BUFF_DAMAGEDEALT;
+            bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_MORETYPE;
+            bvalue = 0.25;                                  // DND_RAVAGER_DMGBONUS 25 => x1.25
+            bduration = DND_RAVAGER_POWER_DURATION;
+            tic_duration = bduration * TICRATE;
+        break;
+
         // curses
         case BTI_OTHERWORDLYGRIP:
             btype = BUFF_SPEED;
@@ -591,7 +761,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         tic_duration = tic_duration * (100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION)) / 100;
     }
     
-    if(buff_table_index >= DND_BTI_DEBUFF_BEGIN && HasActorClassPerk_Fast(ptid, "Wanderer", DND_CLASSPERK_1)) {
+    if(buff_table_index >= DND_BTI_DEBUFF_BEGIN && HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, DND_CLASSPERK_1)) {
         bduration = bduration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
         tic_duration = tic_duration * (100 - DND_WANDERER_PERK5_DEBUFFREDUCE) / 100;
     }
@@ -624,7 +794,20 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
     return tic_duration;
 }
 
-Script "DnD Player Buff" (int buff_table_index, int script_flags, int update) {
+// Load-time check that the bt_index presence mask in buffData_T is still wide enough
+// for the BTI enum. The two cannot be tied together at compile time: this file is
+// included at the BOTTOM of DnD_Buffs.h, so BTI_MAX does not exist yet when the struct
+// is declared. Adding entries to the enum is routine, so this shouts rather than
+// letting HasPlayerBuff silently start answering "no" for the entries past the end.
+// Silent when correct.
+void VerifyBuffMaskCapacity() {
+    if(BTI_MAX > DND_BTI_MASK_BITS)
+        Log(s:"DnD SETUP ERROR: BTI_MAX is ", d:BTI_MAX, s:" but the buff presence mask only holds ", d:DND_BTI_MASK_BITS, s:" bits -- raise DND_BTI_MASK_WORDS in DnD_Buffs.h to ", d:(BTI_MAX + 31) / 32);
+}
+
+// inc_effect is optional -- ACS defaults omitted args to 0, so the existing
+// 1- and 2-arg callers are unaffected
+Script "DnD Player Buff" (int buff_table_index, int script_flags, int update, int inc_effect) {
     int initiator = ActivatorTID();
 
     // set the target up
@@ -636,7 +819,7 @@ Script "DnD Player Buff" (int buff_table_index, int script_flags, int update) {
     if(!IsPlayerBuffStateOK(pnum))
         Terminate;
 
-    HandlePlayerBuffAssignment(pnum, initiator, buff_table_index, script_flags, update);
+    HandlePlayerBuffAssignment(pnum, initiator, buff_table_index, script_flags, update, 0, inc_effect);
 
     SetResultValue(0);
 }
