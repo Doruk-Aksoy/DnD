@@ -794,7 +794,7 @@ void DecideAccessories() {
 			SetAmmoCapacity("Souls", a_info.initial_capacity);
 	}
 	
-	// sigil order: 1 = fire, 2 = cold, 3 = lightning, 4 = poison
+	// sigil order: 1 = fire, 2 = cold, 3 = poison, 4 = lightning (the BTI_ELEMENTPOWER_* order)
 	if(IsAccessoryEquipped(this, DND_ACCESSORY_SIGILELEMENTS))
 		SetInventory("SigilCheck", 1);
 	else {
@@ -840,28 +840,43 @@ int GetPlayerWeaponEnchant(int pnum, int wepid) {
 }
 
 // break all trades between this player and others
+// Only ever touches OTHER players -- you are never engaged with yourself, so this is purely
+// "clean up everyone else's reference to the player who left".
 void BreakTradesBetween(int pnum) {
-	int i;
 	int tid;
 	// check all trades of all players, clean players who have one going with this guy
 	for(int j = 0; j < MAXPLAYERS; ++j) {
-		if(PlayerInGame(j)) {
-			tid = j + P_TIDSTART;
-			if(pnum > 31) {
-				if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32)) {
-					SetActorInventory(tid, "DnD_TradeEngaged_2", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32));
-					// fixes disconnect on trade having players name still there bug
-					ACS_NamedExecuteAlways("DnD Refresh Request", 0, tid - P_TIDSTART, 1);
-					TakeActorInventory(tid, "InTradeView", 1);
-				}
-			}
-			else if(IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum)) {
-				SetActorInventory(tid, "DnD_TradeEngaged_1", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum));
-				// fixes disconnect on trade having players name still there bug
-				ACS_NamedExecuteAlways("DnD Refresh Request", 0, tid - P_TIDSTART, 1);
-				TakeActorInventory(tid, "InTradeView", 1);
-			}
+		if(!PlayerInGame(j))
+			continue;
+
+		tid = j + P_TIDSTART;
+		if(pnum > 31) {
+			if(!IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32))
+				continue;
+			SetActorInventory(tid, "DnD_TradeEngaged_2", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_2"), pnum - 32));
 		}
+		else {
+			if(!IsSet(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum))
+				continue;
+			SetActorInventory(tid, "DnD_TradeEngaged_1", ClearBit(CheckActorInventory(tid, "DnD_TradeEngaged_1"), pnum));
+		}
+
+		// Whatever this player had staked is still sitting in their trade view, and nothing saves
+		// TRADEVIEW to the database -- put it back before tearing the trade down or it is gone.
+		ReturnTradeItems(j);
+
+		// State 2, not 1. 1 only refreshes the pane; 2 also raises DnD_CleanTradeviewRequest, which
+		// is what actually deletes the trade graphics. With 1 the trade stayed drawn on top of the
+		// normal menu while every click went to the menu underneath.
+		// fixes disconnect on trade having players name still there bug
+		ACS_NamedExecuteAlways("DnD Refresh Request", 0, j, 2);
+		TakeActorInventory(tid, "InTradeView", 1);
+		// the rest of what CancelTrade clears, minus the engaged bitfields -- those are cleared
+		// per bit above so a pending request from a third player survives
+		TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
+		TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
+		TakeActorInventory(tid, "DnD_Trade_Confirmed", 1);
+		SetActorInventory(tid, "DnD_SelectedInventoryBox", 0);
 	}
 }
 
@@ -870,9 +885,17 @@ void BreakAllTrades() {
 	for(int j = 0; j < MAXPLAYERS; ++j) {
 		if(PlayerInGame(j)) {
 			tid = j + P_TIDSTART;
+			// same reasoning as BreakTradesBetween: TRADEVIEW is never saved, so a staked item is
+			// lost unless it goes home first. This runs from UNLOADING, ahead of SaveAllPlayerData.
+			ReturnTradeItems(j);
 			SetActorInventory(tid, "DnD_TradeEngaged_1", 0);
 			SetActorInventory(tid, "DnD_TradeEngaged_2", 0);
 			TakeActorInventory(tid, "DnD_TradeAcceptWindow", 1);
+			// InTradeView is actor inventory and rides along to the next map, so without this a
+			// player caught mid trade at map end reopens the menu there still in the trade view
+			TakeActorInventory(tid, "InTradeView", 1);
+			TakeActorInventory(tid, "DnD_TradeSpaceFit", 1);
+			TakeActorInventory(tid, "DnD_Trade_Confirmed", 1);
 		}
 	}
 }
@@ -1232,6 +1255,87 @@ int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
 		break;
 	}
 	return base;
+}
+
+// Flat damage a source adds to EVERY attack regardless of the weapon's own type -- "+10 cold damage
+// to attacks" on a physical shotgun. Distinct from INV_FLAT_ICEDMG and friends above, which only
+// apply when the attack is already that type; these create a component that was not there.
+//
+// Written as a switch rather than arithmetic on the two enums: their orders happen to line up today,
+// and an inserted attribute or category would silently reroute every mapping below it.
+int MapDamageCategoryToAddedAttribute(int category) {
+	switch(category) {
+		case DND_DAMAGECATEGORY_MELEE:
+		case DND_DAMAGECATEGORY_BULLET:
+		return INV_ADDED_PHYSDMG;
+
+		case DND_DAMAGECATEGORY_ENERGY:
+		return INV_ADDED_ENERGYDMG;
+
+		case DND_DAMAGECATEGORY_OCCULT:
+		return INV_ADDED_MAGICDMG;
+
+		case DND_DAMAGECATEGORY_FIRE:
+		return INV_ADDED_FIREDMG;
+
+		case DND_DAMAGECATEGORY_ICE:
+		return INV_ADDED_COLDDMG;
+
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return INV_ADDED_LIGHTNINGDMG;
+
+		case DND_DAMAGECATEGORY_POISON:
+		return INV_ADDED_POISONDMG;
+	}
+	return -1;
+}
+
+// The category an added component of this attribute is dealt as. Physical resolves to BULLET: an
+// added component is never the weapon's own swing, so it cannot be melee.
+int MapAddedAttributeToDamageCategory(int attr) {
+	switch(attr) {
+		case INV_ADDED_PHYSDMG:
+		return DND_DAMAGECATEGORY_BULLET;
+
+		case INV_ADDED_ENERGYDMG:
+		return DND_DAMAGECATEGORY_ENERGY;
+
+		case INV_ADDED_MAGICDMG:
+		return DND_DAMAGECATEGORY_OCCULT;
+
+		case INV_ADDED_FIREDMG:
+		return DND_DAMAGECATEGORY_FIRE;
+
+		case INV_ADDED_COLDDMG:
+		return DND_DAMAGECATEGORY_ICE;
+
+		case INV_ADDED_LIGHTNINGDMG:
+		return DND_DAMAGECATEGORY_LIGHTNING;
+
+		case INV_ADDED_POISONDMG:
+		return DND_DAMAGECATEGORY_POISON;
+	}
+	return -1;
+}
+
+// Flat added damage this player deals as "category", before any effectiveness or scaling.
+int GetPlayerAddedFlatDamage(int pnum, int category) {
+	int attr = MapDamageCategoryToAddedAttribute(category);
+	if(attr == -1)
+		return 0;
+	return GetPlayerAttributeValue(pnum, attr);
+}
+
+// One bit per damage category the player currently adds damage in. Zero for anyone without a single
+// added-damage source, which is the whole point: the mixed-damage paths test this first and cost
+// nothing when it is clear.
+int GetPlayerAddedDamageMask(int pnum) {
+	int mask = 0;
+	for(int attr = INV_ADDED_PHYSDMG; attr <= INV_ADDED_POISONDMG; ++attr) {
+		if(GetPlayerAttributeValue(pnum, attr))
+			mask |= 1 << MapAddedAttributeToDamageCategory(attr);
+	}
+	return mask;
 }
 
 int MapDamageCategoryToPercentBonus(int pnum, int talent, int flags) {

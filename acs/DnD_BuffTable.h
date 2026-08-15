@@ -41,10 +41,11 @@ enum {
     BTI_MARINE_DAMAGEREDUCTION,
 
     // sigil element powers -- keep contiguous and in DND_DAMAGECATEGORY order
+    // (that order is the conversion ladder, so poison precedes lightning)
     BTI_ELEMENTPOWER_FIRE,
     BTI_ELEMENTPOWER_ICE,
-    BTI_ELEMENTPOWER_LIGHTNING,
     BTI_ELEMENTPOWER_POISON,
+    BTI_ELEMENTPOWER_LIGHTNING,
 
     // add all debuffs below this one
     BTI_OTHERWORDLYGRIP,

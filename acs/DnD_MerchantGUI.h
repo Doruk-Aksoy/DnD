@@ -291,6 +291,8 @@ Script "DnD Prompt Merchant" (void) CLIENTSIDE {
 	int pnum = PlayerNumber();
 	bool sendInput = false;
     bool redraw = false;
+    // tics left before we may send another input, see the send site below
+    int op_cooldown = 0;
     GiveInventory("DnD_RefreshPane", 1); // force items to draw first time
 	while(isAlive() && CheckInventory("ShowingPrompt") && !CheckInventory("ShowingMenu")) {
         redraw = false;
@@ -317,18 +319,34 @@ Script "DnD Prompt Merchant" (void) CLIENTSIDE {
 
         // check inputs
         ListenMouseInput();
+
+        if(op_cooldown)
+            --op_cooldown;
+
+        // DnD_ClickTicker only debounces us for 3 tics while the server discards anything inside
+        // its own 4 tic window, so clicking alone was always able to outrun it. Pace sends to
+        // DND_MENU_SENDINTERVAL so every one that leaves is accepted -- same reasoning as the main
+        // menu loop in DnD_Menu.h.
         sendInput = CheckInventory("MenuInput") != 0;
-        if(sendInput && !CheckInventory("DnD_ClickTicker")) {
+        if(sendInput && !op_cooldown && !CheckInventory("DnD_ClickTicker")) {
             GiveInventory("DnD_ClickTicker", 1);
             // server gets a few extra info in boxid
-            if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
-                MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+            // recomputed per send: latching it meant every click inside one round trip re-sent the
+            // FIRST box, which reads as the click being eaten
+            MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
             i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
             // guarantee nonzero input
             if(i) {
                 redraw = true;
+                op_cooldown = DND_MENU_SENDINTERVAL;
                 //Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
                 NamedRequestScriptPuke("DND Server Box Receive - Merchant", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD]);
+                // One press, one send. This used to be cleared only when the ack came back, so at
+                // high ping the loop kept seeing MenuInput set and re-sent the same click every
+                // time DnD_ClickTicker and the cooldown both allowed -- buying the item twice off
+                // a single click. The main menu loop avoids this by clearing at the top of every
+                // iteration; this loop reads input in the middle, so clear it on send instead.
+                SetInventory("MenuInput", 0);
             }
         }
 

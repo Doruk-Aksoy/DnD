@@ -294,10 +294,199 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 
 #define DND_EXTRAUNDEADDMG_MULTIPLIER 300
 
-#define DND_MAX_MONSTER_TICDATA 16383 // even this is a bit much but w.e
+// Indexed by monster id (victim tid - DND_MONSTERTID_BEGIN), so DND_MAX_MONSTERS is the real bound.
+// The mask and shift below stay at 14 bits regardless: they are about packing the id into a script
+// argument alongside the flags, and 12800 still fits in 14 bits.
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
 #define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
-global int 27: PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTER_TICDATA];
+global int 27: PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTERS];
+
+// ============================================================================
+//  MIXED DAMAGE WORKING SET
+//
+//  PlayerDamageTicData above is the per victim TOTAL, and for a hit of a single element that is
+//  all any ailment needs -- the subtotal IS the total. It stays the fast path: direct index, no
+//  lookup, untouched.
+//
+//  Once an attack carries more than one element (added cold on a physical shotgun) the total stops
+//  being the right magnitude: ignite must burn for the fire part, bleed for the physical part and
+//  poison for the poison part, not for the sum. That needs a per element breakdown, which
+//  PlayerDamageTicData cannot carry -- it is dimensioned by the whole monster id space, so an
+//  element axis would multiply a 819k int array.
+//
+//  The live working set is tiny by comparison: the victims THIS player hit THIS tic, and only the
+//  ones taking mixed damage at that. So this is a small direct mapped table instead, consulted only
+//  when the player actually has added damage. A player without any never touches it.
+// ============================================================================
+#define DND_MAX_MIXEDVICTIMS 256                        // power of two, doubles as the direct map mask
+#define DND_MIXEDVICTIM_MASK (DND_MAX_MIXEDVICTIMS - 1)
+#define DND_MIXEDTIC_NOSLOT -1
+#define DND_MIXEDTIC_TOMBSTONE -1                       // in the victim field: released, reusable, not a run terminator
+
+// Elements an ailment can key off. Deliberately not all nine damage categories: only these carry a
+// status effect, and two of them (ice, lightning) need the flag rather than a magnitude.
+enum {
+	DND_TICELEM_PHYSICAL,
+	DND_TICELEM_FIRE,
+	DND_TICELEM_ICE,
+	DND_TICELEM_LIGHTNING,
+	DND_TICELEM_POISON,
+
+	DND_MAX_TICELEMS
+};
+
+typedef struct {
+	int victim;										// monster id + 1, 0 == free, so a zeroed table reads as empty
+	int flags_or;									// OR of the tic flags of EVERY hit that contributed
+	int subtotal[DND_MAX_TICELEMS];
+} mixed_tic_T;
+
+global mixed_tic_T 39: PlayerMixedTicData[MAXPLAYERS][DND_MAX_MIXEDVICTIMS];
+
+// which subtotal a hit's tic flags belong to, or DND_MIXEDTIC_NOSLOT for an element that has none
+int GetTicElementOfFlags(int tflags) {
+	if(tflags & DND_DAMAGETICFLAG_PHYSICAL)
+		return DND_TICELEM_PHYSICAL;
+	if(tflags & DND_DAMAGETICFLAG_FIRE)
+		return DND_TICELEM_FIRE;
+	if(tflags & DND_DAMAGETICFLAG_ICE)
+		return DND_TICELEM_ICE;
+	if(tflags & DND_DAMAGETICFLAG_LIGHTNING)
+		return DND_TICELEM_LIGHTNING;
+	if(tflags & DND_DAMAGETICFLAG_POISON)
+		return DND_TICELEM_POISON;
+	return DND_MIXEDTIC_NOSLOT;
+}
+
+// Direct mapped on the monster id with linear probing. Returns DND_MIXEDTIC_NOSLOT when the entry
+// is absent and create is false, or when the table is genuinely full -- callers must treat that as
+// "fall back to the total", which is exactly today's behaviour.
+//
+// Release leaves a TOMBSTONE rather than an empty slot. Zeroing would cut a run in half and hide
+// every entry that had probed past it, and entries from one tic are released while the next tic is
+// already inserting, so runs are live across that boundary. A tombstone is reusable but does not
+// stop a probe.
+int FindMixedTicSlot(int pnum, int m_id, bool create) {
+	int start = m_id & DND_MIXEDVICTIM_MASK;
+	int reusable = DND_MIXEDTIC_NOSLOT;
+	int i, slot, occupant;
+
+	for(i = 0; i < DND_MAX_MIXEDVICTIMS; ++i) {
+		slot = (start + i) & DND_MIXEDVICTIM_MASK;
+		occupant = PlayerMixedTicData[pnum][slot].victim;
+
+		if(occupant == m_id + 1)
+			return slot;
+
+		// never used: the entry cannot be further along, so the search ends here either way
+		if(!occupant) {
+			if(reusable == DND_MIXEDTIC_NOSLOT)
+				reusable = slot;
+			break;
+		}
+
+		// tombstone: claimable, but keep probing in case the entry itself is further along
+		if(occupant == DND_MIXEDTIC_TOMBSTONE && reusable == DND_MIXEDTIC_NOSLOT)
+			reusable = slot;
+	}
+
+	if(!create || reusable == DND_MIXEDTIC_NOSLOT)
+		return DND_MIXEDTIC_NOSLOT;
+
+	PlayerMixedTicData[pnum][reusable].victim = m_id + 1;
+	PlayerMixedTicData[pnum][reusable].flags_or = 0;
+	for(i = 0; i < DND_MAX_TICELEMS; ++i)
+		PlayerMixedTicData[pnum][reusable].subtotal[i] = 0;
+
+	return reusable;
+}
+
+void RecordMixedTicDamage(int pnum, int m_id, int tflags, int dmg) {
+	int slot = FindMixedTicSlot(pnum, m_id, true);
+	if(slot == DND_MIXEDTIC_NOSLOT)
+		return;
+
+	PlayerMixedTicData[pnum][slot].flags_or |= tflags;
+
+	int elem = GetTicElementOfFlags(tflags);
+	if(elem != DND_MIXEDTIC_NOSLOT)
+		PlayerMixedTicData[pnum][slot].subtotal[elem] += dmg;
+}
+
+// -1 when this player has no breakdown for this victim, so the caller keeps using the total
+int GetMixedTicSubtotal(int pnum, int m_id, int elem) {
+	int slot = FindMixedTicSlot(pnum, m_id, false);
+	if(slot == DND_MIXEDTIC_NOSLOT)
+		return -1;
+	return PlayerMixedTicData[pnum][slot].subtotal[elem];
+}
+
+// The damage this element alone did this tic, falling back to the total when no breakdown exists.
+// That fallback covers three cases and all of them want the total: a single element hit (where the
+// total already IS this element's subtotal), a table miss, and ADDEDIGNITE on a weapon with no fire
+// component at all, where the ignite has always scaled off whatever was actually dealt.
+int GetTicElementDamage(int pnum, int m_id, int elem) {
+	int sub = GetMixedTicSubtotal(pnum, m_id, elem);
+	if(sub > 0)
+		return sub;
+	return PlayerDamageTicData[pnum][m_id];
+}
+
+int MapTicElementToDamageType(int elem) {
+	switch(elem) {
+		case DND_TICELEM_PHYSICAL:
+		return DND_DAMAGETYPE_PHYSICAL;
+		case DND_TICELEM_FIRE:
+		return DND_DAMAGETYPE_FIRE;
+		case DND_TICELEM_ICE:
+		return DND_DAMAGETYPE_ICE;
+		case DND_TICELEM_LIGHTNING:
+		return DND_DAMAGETYPE_LIGHTNING;
+		case DND_TICELEM_POISON:
+		return DND_DAMAGETYPE_POISON;
+	}
+	return DND_DAMAGETYPE_PHYSICAL;
+}
+
+// Applies the buff layer's more-multipliers to each element's own share of the tic instead of to the
+// whole thing. Everything HandlePlayerBuffs weighs -- the elemental sigils, the accessory checks, a
+// future "more cold damage for 10 seconds" -- is keyed on the damage type, so on a mixed hit it must
+// only reach the component that actually is that type.
+//
+// With a single element in the tic this is exactly the old arithmetic: one subtotal, equal to the
+// total, multiplied by that element's factor. Damage no element claimed (an untyped component, or a
+// table miss) falls back to the first hit's type, which is what governed all of it before.
+int ApplyPerElementBuffDamage(int pnum, int victim_tid, int victim_data, int wepid, int flags, int damage_type, int total) {
+	int claimed = 0, scaled = 0;
+	int elem, sub;
+
+	for(elem = 0; elem < DND_MAX_TICELEMS; ++elem) {
+		sub = GetMixedTicSubtotal(pnum, victim_data, elem);
+		if(sub <= 0)
+			continue;
+
+		claimed += sub;
+		scaled += MulPercent_Exact(sub, HandlePlayerBuffs(pnum + P_TIDSTART, victim_tid, MapTicElementToDamageType(elem), wepid, flags));
+	}
+
+	if(claimed < total)
+		scaled += MulPercent_Exact(total - claimed, HandlePlayerBuffs(pnum + P_TIDSTART, victim_tid, damage_type, wepid, flags));
+
+	return scaled;
+}
+
+int GetMixedTicFlags(int pnum, int m_id) {
+	int slot = FindMixedTicSlot(pnum, m_id, false);
+	if(slot == DND_MIXEDTIC_NOSLOT)
+		return 0;
+	return PlayerMixedTicData[pnum][slot].flags_or;
+}
+
+void ReleaseMixedTicSlot(int pnum, int m_id) {
+	int slot = FindMixedTicSlot(pnum, m_id, false);
+	if(slot != DND_MIXEDTIC_NOSLOT)
+		PlayerMixedTicData[pnum][slot].victim = DND_MIXEDTIC_TOMBSTONE;
+}
 
 // we use this as a bitfield -- 64 players => 2 ints
 // stores player weapon crit state
@@ -534,14 +723,14 @@ int FactorDOT(int pnum, int dmg, int percent_increase = 0) {
 
 // set pointers appropriately beforehand!
 // uses DND_DAMAGEFLAG for flags
-int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial) {
+int RetrieveWeaponDamage(int pnum, int wepid, int dmgid, int damage_category, int flags, int isSpecial, bool allow_components = false) {
 	// do not lose the weaponid on special ammo -- normally its DMG_ID & (wepid << 16) but special ammo just have the id of the special ammo instead of dmg_id
 	// add +1 because flechette is id 0
 	// correction code moved within main code block
 	
 	//printbold(s:"retrieved acc ", d:GetActorProperty(0, APROP_ACCURACY));
 
-	int res = ScaleCachedDamage(wepid, pnum, dmgid, damage_category, flags, isSpecial);
+	int res = ScaleCachedDamage(wepid, pnum, dmgid, damage_category, flags, isSpecial, allow_components);
 	
 	// special weapons checks -- these are added on top of everything else as the last thing, before crits
 	// they are also dynamic and cant be cached...
@@ -610,25 +799,94 @@ int ApplyNonWeaponBaseDamageBonus(int tid, int dmg, int damage_type, int flags) 
 	return dmg;
 }
 
+// Computes everything this hit deals on top of its own damage type -- flat damage added as another
+// type, and whatever conversion moved out of the weapon's own -- and stages it for the emit point.
+//
+// The two sources are summed per destination rather than kept apart: they land as the same damage
+// type, so emitting them separately would pay for two rounds of resists and two accumulator entries
+// without changing the number. They are computed apart because their amounts are of different kinds
+// and they take different flat effectiveness treatment.
+int StageDamageComponents(int pnum, int slot, int dmgid, int wepid, int damage_category, int base) {
+	ResetComponentStage(pnum);
+
+	int mask = GetCachedComponentMask(pnum, slot, dmgid);
+	if(!mask)
+		return 0;
+
+	// the generic pools apply to every component because they are true of the weapon whatever it
+	// fires; the per-path typed pools are already folded into the cached inc below
+	int generic = 100 + GetCachedPlayerIncreased(pnum, slot, dmgid) +
+				  GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
+	int more_gen = GetCachedPlayerMorePacked(pnum, slot, dmgid);
+	int flat_eff = GetCachedPlayerFlatFactor(pnum, slot, dmgid);
+	int total = 0;
+	int dmg, factor, part;
+
+	for(int cat = DND_DAMAGECATEGORY_BEGIN; cat < DND_DAMAGECATEGORY_END; ++cat) {
+		if(!(mask & (1 << cat)))
+			continue;
+
+		dmg = 0;
+
+		// the share of the weapon's own base that conversion moved into this category
+		part = GetCachedConvWeaponFrac(pnum, slot, dmgid, cat);
+		if(part > 0 && base > 0) {
+			factor = ApplyPackedMultiplier(generic + GetCachedConvWeaponInc(pnum, slot, dmgid, cat), more_gen) * DND_COMPFACTOR_SCALE;
+			// the fraction joins the FACTOR rather than the base, so the divide still lands once
+			factor = MulPercent_Round(factor, part, DND_CONVFRAC_ONE);
+			if(factor > 0)
+				dmg += MulPercent_Round(base, factor, 100 * DND_COMPFACTOR_SCALE);
+		}
+
+		// flat damage added as this type, which conversion may have moved here as well
+		part = GetCachedConvAddedAmount(pnum, slot, dmgid, cat);
+		if(part > 0) {
+			factor = ApplyPackedMultiplier(generic + GetCachedConvAddedInc(pnum, slot, dmgid, cat), more_gen) * DND_COMPFACTOR_SCALE;
+			// added flat is stored raw, so weapon effectiveness applies here -- and joins the factor
+			// for the same reason: a shotgun at 25% would floor "+3 cold" to nothing on its own
+			if(flat_eff != 100)
+				factor = MulPercent_Round(factor, flat_eff);
+			if(factor > 0)
+				// two steps rather than one giant divisor: DND_CONVFRAC_ONE and 100 x the factor
+				// scale multiply out past what MulPercent's split can carry, and the shift is exact
+				dmg += (MulPercent_Round(part, factor, 100 * DND_COMPFACTOR_SCALE) + (DND_CONVFRAC_ONE >> 1)) >> DND_CONVFRAC_BITS;
+		}
+
+		if(dmg > 0) {
+			AddComponentStageValue(pnum, cat, dmg);
+			total += dmg;
+		}
+	}
+
+	return total;
+}
+
 // use only flags with DND_WDMG header here!!!
 // NOTE: DO NOT FACTOR ANY DOT MULTIPLIER IN HERE!
 // isSpecial is id of the special ammo + 1
 // special ammo replaces dmgid 0 of the weapon in cache, so everytime we switch special ammo type we must force damage cache recalc
-int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int flags, int isSpecial) {
+//
+// allow_components is opt-in because only a caller that goes on to call DealDamageComponents may take
+// it: the return value then covers the converted and added portions too, and a caller that never
+// emits them would deal the lot as the weapon's own type, on the wrong resists.
+int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int flags, int isSpecial, bool allow_components = false) {
 	// we don't cache special ammo damage
 	int dmg = 0;
+	// One lookup per shot. The cache is keyed by a per-player slot rather than by weapon id, so
+	// resolving inside each accessor would repeat this eight times on the hot path.
+	int slot = ResolveWeaponCacheSlot(pnum, wepid);
 	int temp,  pct_tmp = 0;
 	int tid = pnum + P_TIDSTART;
 	// get the damage
 	if(!isSpecial)
-		temp = GetCachedPlayerDamage(pnum, wepid, dmgid);
+		temp = GetCachedPlayerDamage(pnum, slot, dmgid);
 	else {
 		// special ammo damage
 		temp = GetSpecialAmmoDamage(isSpecial - 1, dmgid);
 	}
 		
 	// check if we have a random range cached -- special ammo types dont use this
-	int range = GetCachedPlayerRandomRange(pnum, wepid, dmgid);
+	int range = GetCachedPlayerRandomRange(pnum, slot, dmgid);
 	if(range > 1 && !isSpecial)
 		dmg += temp * random(range & 0xFFFF, range >> 16);
 	else // no rng, so just set it to temp
@@ -638,14 +896,14 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 
 	// only store scaling factors here for later use, no modifying damage in this block
 	// damage modifications are done at the end
-	if(PlayerDamageNeedsCaching(pnum, wepid, dmgid)) {
+	if(PlayerDamageNeedsCaching(pnum, slot, dmgid)) {
 		// add potential shotgun flat damage
 		temp = (!!IsBoomstick(wepid)) * GetPlayerAttributeValue(pnum, INV_EX_FLATPERSHOTGUNOWNED) * CountShotgunWeaponsOwned();
 		
 		// add flat damage bonus mapping talent name to flat bonus type
 		temp += MapDamageCategoryToFlatBonus(pnum, damage_category, flags);
 		
-		ClearCache(pnum, wepid, dmgid);
+		ClearCache(pnum, slot, dmgid);
 		
 		if(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
 			temp += GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
@@ -661,7 +919,7 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 			// edge. Actor-based lookup because the cached block is not guaranteed to
 			// run with the player as activator.
 			if(HasActorClassPerk_Fast(tid, DND_PLAYER_CYBORG, DND_CLASSPERK_1))
-				InsertCacheFactor(pnum, wepid, dmgid, 100 + DND_CYBERNETIC_FACTOR, false);
+				InsertCacheFactor(pnum, slot, dmgid, 100 + DND_CYBERNETIC_FACTOR, false);
 		}
 
 		if(IsHandgun(wepid)) {
@@ -694,67 +952,113 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 			pct_tmp += GetPlayerAttributeValue(pnum, INV_MAGIC_PERCENT);
 		}
 		
-		CachePlayerFlatDamage(pnum, temp, wepid, dmgid);
+		CachePlayerFlatDamage(pnum, temp, slot, dmgid);
 
-		// include the stat attunement bonus
-		InsertCacheFactor(pnum, wepid, dmgid, GetStatAttunementBonus(pnum, wepid, damage_category == DND_DAMAGECATEGORY_MELEE || is_melee_mastery_exception), true);
+		// the weapon class percents gathered above are true whatever type this weapon deals
+		if(pct_tmp)
+			InsertCacheFactor(pnum, slot, dmgid, pct_tmp, true);
 
 		// include enhancement orb bonuses
 		temp = GetPlayerWeaponEnchant(pnum, wepid);
 		if(temp)
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-			
-		// finally apply damage type or percentage bonuses
-		// last one is for ghost hit power, we reduce its power by a factor -- add the top pct values from above to here too
-		temp = GetPlayerPercentDamage(pnum, wepid, damage_category, flags) + pct_tmp;
-		if(damage_category != DND_DAMAGECATEGORY_MELEE && is_melee_mastery_exception)
-			temp += MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_MELEE, flags); // prevent double dipping
-		if(temp)
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-		
-		// special damage increase attributes -- usually obtained by means of charms
-		temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
-		if(temp && IsWeaponLightningType(wepid))
-			InsertCacheFactor(pnum, wepid, dmgid, temp, true);
-			
-		// apply flat health to damage conversion if player has any
-		temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
-		if((damage_category == DND_DAMAGECATEGORY_MELEE || damage_category == DND_DAMAGECATEGORY_BULLET) && temp)
-			InsertCacheFactor(pnum, wepid, dmgid, GetFlatHealthDamageFactor(temp), true);
-			
+			InsertCacheFactor(pnum, slot, dmgid, temp, true);
+
 		// factor dot % increase if this is a dot attack
 		if(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
-			InsertCacheFactor(pnum, wepid, dmgid, GetPlayerAttributeValue(pnum, INV_INCREASEDDOT), true);
+			InsertCacheFactor(pnum, slot, dmgid, GetPlayerAttributeValue(pnum, INV_INCREASEDDOT), true);
+
+		// Everything keyed on the damage CATEGORY goes into the per-category pools instead of the
+		// weapon pools above. That separation is the whole point: a component of a different element
+		// can then take this weapon's increases without also taking "increased physical damage".
+		//
+		// Every category is filled in one pass rather than lazily, because this block already runs
+		// only once per weapon raise and a partial fill would need its own per-category dirty state.
+		// Nine categories of a few array reads is nothing next to the chain above it.
+		temp = GetPlayerAttributeValue(pnum, INV_EX_PHYSDAMAGEPER_FLATHEALTH);
+		bool has_demonbane = IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE);
+		int lightning_inc = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_LIGHTNING);
+		int phys_cat = IsMeleeWeapon(wepid) ? DND_DAMAGECATEGORY_MELEE : DND_DAMAGECATEGORY_BULLET;
+		int typed;
+
+		BuildPlayerConversionTable(pnum);
+
+		for(int cat = DND_DAMAGECATEGORY_BEGIN; cat < MAX_DAMAGE_CATEGORIES; ++cat) {
+			// stat attunement -- category enters only through the melee test
+			typed = GetStatAttunementBonus(pnum, wepid, cat == DND_DAMAGECATEGORY_MELEE || is_melee_mastery_exception);
+
+			// damage type percentage bonuses
+			// last one is for ghost hit power, we reduce its power by a factor
+			typed += GetPlayerPercentDamage(pnum, wepid, cat, flags);
+			if(cat != DND_DAMAGECATEGORY_MELEE && is_melee_mastery_exception)
+				typed += MapDamageCategoryToPercentBonus(pnum, DND_DAMAGECATEGORY_MELEE, flags); // prevent double dipping
+
+			// apply flat health to damage conversion if player has any
+			if(temp && (cat == DND_DAMAGECATEGORY_MELEE || cat == DND_DAMAGECATEGORY_BULLET))
+				typed += GetFlatHealthDamageFactor(temp);
+
+			// special damage increase attributes -- usually obtained by means of charms.
+			// This is an increase to LIGHTNING DAMAGE, so it keys on the category being dealt. It
+			// used to be gated on IsWeaponLightningType(wepid), which was the same thing back when a
+			// weapon only ever dealt one type -- now it would hand the bonus to a lightning weapon's
+			// physical component and withhold it from an added lightning component on anything else.
+			if(lightning_inc && cat == DND_DAMAGECATEGORY_LIGHTNING)
+				typed += lightning_inc;
+
+			// these all land in one additive pool, so summing before the insert is the same result
+			if(typed)
+				InsertCacheFactor_Typed(pnum, slot, dmgid, cat, typed, true);
+
+			// MULTIPLICATIVE -- quest or accessory bonuses
+			// is occult (add demon bane bonus)
+			if((flags & DND_DAMAGEFLAG_COUNTSASMAGIC || cat == DND_DAMAGECATEGORY_OCCULT) && has_demonbane)
+				InsertCacheFactor_Typed(pnum, slot, dmgid, cat, 100 + DND_DEMONBANE_GAIN, false);
+
+			// Flat damage added as this type. Physical is the one added type with two categories,
+			// and this weapon only ever deals one of them -- resolving it here rather than at the
+			// consumer keeps a melee weapon's added physical on the melee attunement and stops the
+			// other category from handing out a second, duplicate component.
+			//
+			// Parked RAW: the conversion walk below takes it as its starting vector, because added
+			// physical converts exactly the way the weapon's own physical does. Soul is past the end
+			// of the ladder and takes no part in any of it.
+			if(cat < DND_DAMAGECATEGORY_END) {
+				typed = GetPlayerAddedFlatDamage(pnum, cat);
+				if(typed && (cat == DND_DAMAGECATEGORY_MELEE || cat == DND_DAMAGECATEGORY_BULLET) && cat != phys_cat)
+					typed = 0;
+
+				SeedRawAddedFlat(pnum, slot, dmgid, cat, typed);
+			}
+		}
+
+		// Both conversion trees, now that every typed pool they walk is final. The generic pools
+		// below are deliberately NOT in scope here -- they apply to every component alike and join
+		// at request time, so folding them in would freeze the buff half of them into the cache.
+		ResolveDamageComponents(pnum, slot, dmgid, damage_category);
 
 		// THESE ARE MULTIPLICATIVE STACKING BONUSES BELOW -- HAVE KEYWORD: MORE
-		// quest or accessory bonuses	
-		// is occult (add demon bane bonus)
-		if((flags & DND_DAMAGEFLAG_COUNTSASMAGIC || damage_category == DND_DAMAGECATEGORY_OCCULT) && IsAccessoryEquipped(tid, DND_ACCESSORY_DEMONBANE))
-			InsertCacheFactor(pnum, wepid, dmgid, 100 + DND_DEMONBANE_GAIN, false);
-		
 		// add other multiplicative factors below
 		
 		// % more damage from charms -- already contains 100 in it as it's a multiplicative mod
 		temp = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
 		if(temp)
-			InsertCacheFactor_Fixed(pnum, wepid, dmgid, 1.0 + temp);
+			InsertCacheFactor_Fixed(pnum, slot, dmgid, 1.0 + temp);
 			
 		// % more / less damage from wepmod or orbs
 		temp = GetWeaponModValue(pnum, wepid, WEP_MOD_DMG);
 		if(temp)
-			InsertCacheFactor_Fixed(pnum, wepid, dmgid, temp);
-			//InsertCacheFactor(pnum, wepid, dmgid, temp, false);
+			InsertCacheFactor_Fixed(pnum, slot, dmgid, temp);
+			//InsertCacheFactor(pnum, slot, dmgid, temp, false);
 		
 		// New multipliers go through the stat cache: infrequent ones as cached
 		// factors, frequent ones as buffs.
 
-		MarkCachingComplete(pnum, wepid, dmgid);
+		MarkCachingComplete(pnum, slot, dmgid);
 		
 		//printbold(s:"pre-scale: ", d:temp);
 	}
 
 	// Get the cached flat dmg and factor and apply them both
-	temp = GetCachedPlayerFlatDamage(pnum, wepid, dmgid);
+	temp = GetCachedPlayerFlatDamage(pnum, slot, dmgid);
 	if(isSpecial && isSpecial - 1 == SSAM_FLECHETTE)
 		temp /= 3;
 
@@ -776,6 +1080,24 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	
 	// add flat bonus here
 	dmg += temp;
+
+	// Conversion and added damage components, computed HERE because this is the only point where the
+	// rolled base still exists. Attacks only, exactly like added flat damage was: a DOT tick has no
+	// emit point of its own, so its components would never be dealt and would be re-added every tick.
+	int extra = 0;
+	if(allow_components) {
+		if(flags & DND_DAMAGEFLAG_ISDAMAGEOVERTIME)
+			ResetComponentStage(pnum);
+		else {
+			extra = StageDamageComponents(pnum, slot, dmgid, wepid, damage_category, dmg);
+
+			// whatever conversion moved out is no longer the weapon's own type to deal. Taken off the
+			// base rather than the result so each half meets its own category's percent layers.
+			range = GetPlayerConversionRowTotal(pnum, damage_category);
+			if(range)
+				dmg -= MulPercent_Exact(dmg, range);
+		}
+	}
 	
 	// The weapon layer's "increased" pool, kept SEPARATE from its "more" product so
 	// the buff layer's own increased can join this same pool at request time. Fusing
@@ -785,13 +1107,21 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	// term is read fresh on every shot while the weapon half stays cached, so a buff
 	// takes effect the instant it lands and stops the instant it expires -- without
 	// buff churn ever invalidating the per-weapon cache.
-	temp = 100 + GetCachedPlayerIncreased(pnum, wepid, dmgid) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
+	// The weapon's generic pool, its pool for THIS category, and the live buff term all join here.
+	// Splitting generic from typed changes where the terms are stored, not which pool they land in.
+	temp = 100 + GetCachedPlayerIncreased(pnum, slot, dmgid) + GetCachedPlayerIncreasedTyped(pnum, slot, dmgid, damage_category) +
+		   GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, wepid);
 
 	// Collapse the two layers into ONE integer percent before touching dmg.
 	// Scaling dmg by the increased pool first would quantize it to an integer and
 	// then amplify that error by the whole more-product -- at dmg 5 with a 17x
 	// factor that is a 10% loss. One truncation at the end instead of two.
-	temp = ApplyPackedMultiplier(temp, GetCachedPlayerMorePacked(pnum, wepid, dmgid));
+	// merge the generic and per-category products BEFORE applying -- applying them in sequence
+	// truncates twice, which is the exact error the comment above is about
+	temp = ApplyPackedMultiplier(temp, CombinePackedMultipliers(
+		GetCachedPlayerMorePacked(pnum, slot, dmgid),
+		GetCachedPlayerMorePackedTyped(pnum, slot, dmgid, damage_category)
+	));
 
 	if(isSpecial) {
 		// the tracer scales the bonus of the COMBINED factor, which is why the
@@ -801,10 +1131,139 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 
 	// if we had a factor of 0, dont bother here
 	if(temp <= 0)
-		return 0;
+		dmg = 0;
+	else
+		// exact, and saturates only when the true product really exceeds INT_MAX
+		dmg = MulPercent_Exact(dmg, temp);
 
-	// exact, and saturates only when the true product really exceeds INT_MAX
-	return MulPercent_Exact(dmg, temp);
+	// The emit point splits the FINAL number back into these shares, so the primary has to be part of
+	// the total it divides by -- and it has to be the primary as computed HERE, tracer bonus and all,
+	// or the ratio would quietly drift from what each piece actually earned.
+	if(allow_components)
+		CommitComponentStage(pnum, slot, dmgid, damage_category, dmg);
+
+	return dmg + extra;
+}
+
+// The concrete damage type an added component of this category is dealt as -- resists, ailments and
+// the buff layer are all keyed on the type, not the category.
+int MapDamageCategoryToDamageType(int category) {
+	switch(category) {
+		case DND_DAMAGECATEGORY_MELEE:
+		return DND_DAMAGETYPE_MELEE;
+
+		case DND_DAMAGECATEGORY_BULLET:
+		return DND_DAMAGETYPE_PHYSICAL;
+
+		case DND_DAMAGECATEGORY_ENERGY:
+		return DND_DAMAGETYPE_ENERGY;
+
+		case DND_DAMAGECATEGORY_OCCULT:
+		return DND_DAMAGETYPE_OCCULT;
+
+		case DND_DAMAGECATEGORY_FIRE:
+		return DND_DAMAGETYPE_FIRE;
+
+		case DND_DAMAGECATEGORY_ICE:
+		return DND_DAMAGETYPE_ICE;
+
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return DND_DAMAGETYPE_LIGHTNING;
+
+		case DND_DAMAGECATEGORY_POISON:
+		return DND_DAMAGETYPE_POISON;
+	}
+	return DND_DAMAGETYPE_PHYSICAL;
+}
+
+// Deals every part of this hit that is NOT the weapon's own damage type, and returns what is left
+// for the caller to deal as the primary. Zero means the components finished the monster, or that
+// conversion took the whole hit and there is no primary left.
+//
+// Each one is its own damage instance on purpose: cold that misses cold resists and cannot chill is
+// not cold. Routing back through HandleDamageDeal gets each its own resists and penetration, its own
+// entry in the mixed tic table, and its own ailment. Crit is inherited rather than rolled -- they all
+// land in the same PlayerDamageTicData total and the accumulator applies the crit multiplier to that,
+// so all-or-nothing falls out for free, the way multi-shot weapons already behave.
+//
+// The split is proportional against the staged total because everything between ScaleCachedDamage and
+// here -- the distance bonus, the attack's own percent, LOSEDAMAGEPERHIT, rippers, WarmasterProtect --
+// scales the primary by type-agnostic factors that the components must take as well.
+//
+// ATTACKS ONLY. Never call this from a DOT tick, proc or spell.
+int DealDamageComponents(int pnum, int shooter, int victim, int wepid, int dmgid, int category, int dmg, int flags, int actor_flags) {
+	if(dmg <= 0 || wepid < 0)
+		return dmg;
+
+	int mask = GetComponentStageMask(pnum);
+	if(!mask || !IsActorAlive(victim))
+		return dmg;
+
+	// Another hit slipped in between the staging and here and left its own numbers behind, so there
+	// is nothing trustworthy to split by -- deal the lot as the weapon's own type rather than guess.
+	// The same weapon re-entering is harmless and passes: only the RATIOS are read, and those are a
+	// function of cached data, so its stage carries the same ones.
+	int slot = LookupWeaponCacheSlot(pnum, wepid);
+	if(slot == DND_WEPCACHE_NOSLOT || GetComponentStageKey(pnum) != MakeComponentStageKey(slot, dmgid, category))
+		return dmg;
+
+	int total = GetComponentStageTotal(pnum);
+	if(total <= 0)
+		return dmg;
+
+	int part, dealt = 0;
+	int last_cat = DND_CONV_NOSKIP;
+
+	// The primary pushes when there is one. At full conversion there is not, so the first component
+	// has to, or a fully converted hit would stop shoving anything.
+	if(GetComponentStagePrimary(pnum) > 0)
+		flags |= DND_DAMAGEFLAG_NOPUSH;
+	else {
+		// Nothing may survive as the weapon's own type when every point of it was converted. The
+		// per-component shares each floor, so without this the leftover comes back as a sliver of
+		// exactly the damage type the player converted away. The last component absorbs it instead.
+		for(int c = DND_DAMAGECATEGORY_BEGIN; c < DND_DAMAGECATEGORY_END; ++c)
+			if(mask & (1 << c))
+				last_cat = c;
+	}
+
+	for(int cat = DND_DAMAGECATEGORY_BEGIN; cat < DND_DAMAGECATEGORY_END; ++cat) {
+		if(!(mask & (1 << cat)))
+			continue;
+
+		if(cat == last_cat)
+			part = dmg - dealt;
+		else
+			part = MulPercent_Exact(dmg, GetComponentStageValue(pnum, cat), total);
+
+		if(part <= 0)
+			continue;
+
+		// taken off the primary's share BEFORE resists, so the pieces still sum to the whole hit
+		dealt += part;
+
+		// resists, accumulation and the ailment bookkeeping for this component's own type
+		part = HandleDamageDeal(shooter, victim, part, MapDamageCategoryToDamageType(cat), wepid, flags, 0, 0, 0, actor_flags);
+		flags |= DND_DAMAGEFLAG_NOPUSH;
+
+		// and then actually apply it. The primary reaches the monster through the damage event's
+		// return value; a component dealt from here has no event of its own, so HandleDamageDeal
+		// would leave it accumulated for the damage number and the ailments while never taking a
+		// single point of health. Special_NoPain is on the exception list, so this does not
+		// re-enter the handler and re-scale.
+		if(part > 0) {
+			HandleMonsterDeathConfirm(victim, part);
+			Thing_Damage2(victim, part, "Special_NoPain");
+		}
+
+		// Stop once there is nothing left to hurt. Unlike the primary, these are applied here and
+		// now, so one can finish the monster off mid loop -- every remaining mask bit would then
+		// scale, accumulate and swing at a corpse.
+		if(!IsActorAlive(victim))
+			return 0;
+	}
+
+	return dmg - dealt;
 }
 
 // there may be things that add + to cull % later
@@ -1370,6 +1829,14 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		PlayerDamageVector[pnum].z = oz;
 		ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | ((wep_neg | (oneTimeRipperHack << 1)) << DND_DAMAGE_ACCUM_SHIFT), wepid, extra, damage_type);
 	}
+
+	// Only players who actually add damage of another type need a per element breakdown; for
+	// everyone else the total below already IS the subtotal of the one element they dealt.
+	// Cached read, not a recomputation -- this runs per damage instance, so a 20 pellet shotgun
+	// would otherwise walk the whole added-damage attribute set 20 times for an answer that is
+	// almost always zero.
+	if(GetPlayerExtraDamageMask(pnum))
+		RecordMixedTicDamage(pnum, temp, extra, dmg);
 	PlayerDamageTicData[pnum][temp] += dmg;
 	
 	if((temp = CheckActorInventory(victim, "MonsterFortifyCount")) && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
@@ -1798,8 +2265,13 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// General buff effects, includes curses and stuff too
 	more_dmg = more_dmg * HandleGenericPlayerMoreDamageEffects(pnum, wepid) / 100;
 	
-	// ACCESSORY EFFECTS
-	more_dmg = more_dmg * HandlePlayerBuffs(pnum + P_TIDSTART, victim_tid, damage_type, wepid, flags) / 100;
+	// ACCESSORY EFFECTS -- applied per element rather than folded into more_dmg, because everything
+	// inside HandlePlayerBuffs is keyed on the damage type. Multiplying the whole tic by it would let
+	// a "more cold damage" buff scale the physical portion of the same hit too.
+	PlayerDamageTicData[pnum][victim_data] = ApplyPerElementBuffDamage(
+		pnum, victim_tid, victim_data, wepid, flags | GetMixedTicFlags(pnum, victim_data), damage_type,
+		PlayerDamageTicData[pnum][victim_data]
+	);
 
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
 	// this is the most efficient way to handle this bonus as then we won't be calculating the distance check PER PELLET!!!
@@ -1895,18 +2367,30 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// if cold damage, add stacks of slow and check for potential freeze chance
 	// do these if only the actor was alive after the tic they received dmg
 	if(IsActorAlive(victim_tid)) {
-		if(flags & DND_DAMAGETICFLAG_ICE)
+		// The flags of EVERY hit that contributed this tic, not just the one that happened to land
+		// first and launch this instance. Reads back as plain `flags` for anyone without added
+		// damage, since nothing was recorded for them.
+		int tic_flags = flags | GetMixedTicFlags(pnum, victim_data);
+
+		// Independent tests, not an if/else chain. A chain can only ever fire ONE ailment, so a
+		// physical weapon with added cold would chill or bleed depending on which component landed
+		// first and never both.
+		if(tic_flags & DND_DAMAGETICFLAG_ICE)
 			HandleChillEffects(pnum, victim_tid);
-		else if((flags & DND_DAMAGETICFLAG_FIRE) || (flags & DND_DAMAGETICFLAG_ADDEDIGNITE)) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
-			HandleIgniteEffects(pnum, victim_tid, wepid, flags, GetPlayerIgniteAddedDmg(pnum, wepid, PlayerDamageTicData[pnum][victim_data]));
-		else if((flags & DND_DAMAGETICFLAG_LIGHTNING) || (GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD) && (flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON))))
+
+		if((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE)) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
+			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_FIRE)));
+
+		if((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || (GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD) && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON))))
 			HandleOverloadEffects(pnum, victim_tid);
-		else if((flags & DND_DAMAGETICFLAG_PHYSICAL) && !(flags & DND_DAMAGETICFLAG_DOT))
-			HandleBleedEffects(pnum, victim_tid, wepid, PlayerDamageTicData[pnum][victim_data]);
-		else if((flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
+
+		if((tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
+			HandleBleedEffects(pnum, victim_tid, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL));
+
+		if((tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(tic_flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
 			// poison damage deals 10% of its damage per stack over 3 seconds
 			// 5% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
-			if(!(flags & DND_DAMAGETICFLAG_SPELL)) {
+			if(!(tic_flags & DND_DAMAGETICFLAG_SPELL)) {
 				ox = GetPlayerWeaponModVal(pnum, wepid, WEP_MOD_POISONFORPERCENTDAMAGE);
 				oy = ox + GetWeaponPoisonBaseFactor(wepid);
 			}
@@ -1916,7 +2400,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			}
 
 			oy = Max(DND_BASE_POISON_FACTOR, oy);
-			ox = Max((PlayerDamageTicData[pnum][victim_data] * oy) / 100, 1);
+			ox = Max((GetTicElementDamage(pnum, victim_data, DND_TICELEM_POISON) * oy) / 100, 1);
 
 			oy = !CheckActorInventory(victim_tid, "DnD_PoisonStacks");
 
@@ -1973,6 +2457,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	
 	// reset dmg counter on this mob
 	PlayerDamageTicData[pnum][victim_data] = 0;
+	ReleaseMixedTicSlot(pnum, victim_data);
 
 	Delay(const:CRIT_CLEAR_WAIT_TIME);
 	UnsetPlayerWeaponCritState(pnum, wepid);
@@ -2435,10 +2920,16 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 				Thing_Damage2(victim, dmg, "Special_NoPain");
 		}
 
-		TakeActorInventory(victim, "DnD_BleedTimer", 1);
-		
 		// x 5
 		Delay(const:DND_BLEED_TICRATE - 2);
+
+		// Same reasoning as the ignite loop: decrement only after the delay. HandleBleedEffects
+		// reads a nonzero DnD_BleedTimer as "a script already owns this monster", so a timer that
+		// reads 0 while we are still asleep lets a second bleed script start on the same monster.
+		// Ours then sees the refreshed timer and keeps looping as well, both drain one shared
+		// timer, and whichever finishes first zeroes it out from under the other. Nothing between
+		// here and the loop test delays, so the decrement, the test and the teardown stay atomic.
+		TakeActorInventory(victim, "DnD_BleedTimer", 1);
 
 		// update the newer bleed damage now
 		px = CheckActorInventory(victim, "DnD_CurrentBleedDamage");
@@ -2493,10 +2984,20 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 			next_dmg += inc_by;
 		}
 
-		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
-
 		// x 5
 		Delay(const:7);
+
+		// Decrement AFTER the delay, never before it. A nonzero DnD_IgniteTimer is what
+		// HandleIgniteEffects reads as "a script already owns this monster, just refresh the
+		// timer" -- so the timer must never be observably 0 while this script is still alive.
+		// Decrementing before the delay left a 7 tic window where it read 0 and we were still
+		// running: a hit landing in there started a SECOND ignite script on the same monster,
+		// and our own while check then saw the refreshed timer and kept us looping too. Both
+		// scripts then drained one shared timer, so the ignite ran out in half the time, and
+		// whichever exited first zeroed the timer out from under the other -- which is how a
+		// freshly applied ignite could get cancelled almost immediately. Doing it here keeps
+		// the decrement, the loop test and the teardown below in one uninterrupted step.
+		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
 
 	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
@@ -2517,7 +3018,6 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 	if((ign_flags & DND_IGNITEFLAG_CANPROLIF) && CheckIgniteProlifChance(pnum)) {
 		// Moved here, makes more sense to only check if applicable...
 		// check ignite prolif
-		int owner = P_TIDSTART + pnum;
 		int prolif_dist = GetIgniteProlifRange(pnum);
 		int prolif_count = GetIgniteProlifCount(pnum);
 		
@@ -2540,12 +3040,24 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 			i = UsedMonsterTIDs[mn];
 			if(IsActorAlive(i) && CheckFlag(i, "ISMONSTER")) {
 				next_dmg = fdistance(victim, i);
-				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL)) {
+				// The ignite immunity check belongs here too, not just on the HandleIgniteEffects
+				// path. Without it proliferation sets a timer and starts a burn script on a molten
+				// blood monster that is supposed to be unignitable: it plays the fire FX and takes
+				// nothing, and the nonzero timer it now carries makes every legitimate fire hit for
+				// the rest of that duration take the "already burning" branch instead of igniting it.
+				if(next_dmg < prolif_dist && CheckSight(victim, i, CSF_NOBLOCKALL) && CheckAilmentImmunity(pnum, i - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD)) {
 					// insert sorted
 					inc_by = dmg_tic_buff;
 					// while our calc dist > alloc dist, keep going -- we add things to the end
 					// if we come by a point where we are smaller, shift things
 					for(j = 0; j < inc_by && next_dmg > tlist[pnum][j].dist; ++j);
+
+					// The list is already full and this one is farther than everything in it, so it
+					// has no slot -- drop it instead of writing past the end. j can only reach
+					// prolif_count here, and at the DND_MAX_IGNITEPROLIFS cap that index is one past
+					// this player's row, ie. the next player's first entry.
+					if(j >= prolif_count)
+						continue;
 
 					// we know where to add, check if we must shift (if we should)
 					if(j < inc_by) {
@@ -4093,12 +4605,19 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 						Terminate;
 					}
 
+					// dmg still holds the dmgid at this point and is about to be overwritten with the
+					// rolled damage -- the components need it further down, keyed the same way, and
+					// the category with it so the staged split can be matched back to this hit
+					int added_dmgid = dmg;
+					int added_category = GetDamageCategory(temp, dmg_data);
+
+					// the one call site that can emit components, hence the only one that asks for them
 					if(!(dmg_data & DND_DAMAGEFLAG_ISSPECIALAMMO))
-						dmg = RetrieveWeaponDamage(pnum, m_id, dmg, GetDamageCategory(temp, dmg_data), dmg_data, 0);
+						dmg = RetrieveWeaponDamage(pnum, m_id, dmg, added_category, dmg_data, 0, true);
 					else {
 						// special ammo correction
 						factor = CheckInventory("DnD_WeaponID");
-						dmg = RetrieveWeaponDamage(pnum, factor, dmg, GetDamageCategory(temp, dmg_data), dmg_data, m_id + 1);
+						dmg = RetrieveWeaponDamage(pnum, factor, dmg, added_category, dmg_data, m_id + 1, true);
 						m_id = factor;
 					}
 
@@ -4272,7 +4791,20 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			// finally dealing the damage -- temp holds damage type, dont use temp above here!
 			if(victim) {
 				//printbold(s:"dmg deal to ", d:victim, s:" dmg ", d:dmg, s: " wepid ", d:m_id);
-				dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & DND_DAMAGEFLAG_ISSPELL), 0);
+
+				// "+10 cold damage to attacks" and "50% of physical converted to cold", each as its
+				// own typed instance so it hits its own resists and can inflict its own ailment. The
+				// remainder is what the weapon's own type still deals.
+				//
+				// ATTACKS ONLY. This deliberately sits here rather than inside HandleDamageDeal: most
+				// of that function's callers are DOT ticks, procs and spells, and a fire DOT ticking
+				// several times a second would otherwise re-add its cold component on every tick. It
+				// is also the last point that still knows the dmgid and category the split was keyed
+				// on, and the first where every type-agnostic multiplier has already landed.
+				dmg = DealDamageComponents(pnum, shooter, victim, m_id, added_dmgid, added_category, dmg, dmg_data, actor_flags);
+
+				if(dmg > 0)
+					dmg = HandleDamageDeal(shooter, victim, dmg, temp, m_id, dmg_data, ox, oy, oz, actor_flags, (m_id < 0) || (dmg_data & DND_DAMAGEFLAG_ISSPELL), 0);
 
 				// failsafe -- hopefully not necessary anymore
 				if(GetActorProperty(victim, APROP_HEALTH) > MonsterProperties[victim - DND_MONSTERTID_BEGIN].maxhp) {

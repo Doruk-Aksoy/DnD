@@ -10,7 +10,7 @@
 #define ISDEBUGBUILD
 //#define WANTCURSORPOS
 #define VERBOSE_TID_SETUP
-#define WANT_BUFF_LOG
+//#define WANT_BUFF_LOG
 
 #ifdef ISDEBUGBUILD
 int test_counter = 0;
@@ -55,19 +55,33 @@ struct ValueComponent_T {
 #define DND_PLAYER_RESIST_REDUCE -25.0
 
 // moved here for better access everywhere, was necessary for monster resists
+//
+// THE ORDER IS THE DAMAGE CONVERSION LADDER. A category may only convert into one that sits
+// LATER in this list, which is what makes conversion acyclic and lets the resolver run as a
+// single ascending pass. Occult is the last rung and converts into nothing; Soul sits past the
+// end of the ladder entirely and never converts either way, so the ladder bound is exactly the
+// existing DND_DAMAGECATEGORY_END.
+//
+// Four other declarations are kept PARALLEL to this one and must move with it:
+//   DamageTypes.dec      -- the DECORATE-side copy of this same enum
+//   BUFF_*DAMAGEDEALT    -- indexed by (category - DND_ELECATEGORY_BEGIN)
+//   BTI_ELEMENTPOWER_*   -- both DnD_BuffTable.h and BuffIndex.dec, mapped onto the above by subtraction
+//   LANGUAGE.gen DND_TALENT1..8 -- GetTalentTag() builds the lump name from the category index
 enum {
 	DND_DAMAGECATEGORY_MELEE,
 	DND_DAMAGECATEGORY_BULLET,
 	DND_DAMAGECATEGORY_ENERGY,
-	DND_DAMAGECATEGORY_OCCULT,
 	DND_DAMAGECATEGORY_FIRE,
 	DND_DAMAGECATEGORY_ICE,
-	DND_DAMAGECATEGORY_LIGHTNING,
 	DND_DAMAGECATEGORY_POISON,
+	DND_DAMAGECATEGORY_LIGHTNING,
+	DND_DAMAGECATEGORY_OCCULT,
 	DND_DAMAGECATEGORY_SOUL
 };
+#define DND_DAMAGECONVERSION_BEGIN DND_DAMAGECATEGORY_BULLET
+#define DND_DAMAGECONVERSION_END DND_DAMAGECATEGORY_OCCULT
 #define DND_ELECATEGORY_BEGIN DND_DAMAGECATEGORY_FIRE
-#define DND_ELECATEGORY_END DND_DAMAGECATEGORY_POISON
+#define DND_ELECATEGORY_END DND_DAMAGECATEGORY_LIGHTNING
 #define MAX_DAMAGE_CATEGORIES (DND_DAMAGECATEGORY_SOUL + 1)
 
 #define DND_WEAKNESS_FACTOR 25 // 25% extra dmg
@@ -77,7 +91,7 @@ enum {
 #define DND_IMMUNITY_HARDCAP_FACTOR 99 // 1% damage taken
 
 #define DND_DAMAGECATEGORY_BEGIN DND_DAMAGECATEGORY_MELEE
-#define DND_DAMAGECATEGORY_END (DND_DAMAGECATEGORY_POISON + 1)
+#define DND_DAMAGECATEGORY_END (DND_DAMAGECATEGORY_OCCULT + 1)
 
 // this dumb number wasted weeks of our time, fuck you dumb number!
 //#define DND_DROP_TID 343 // some dumb number
@@ -542,6 +556,22 @@ void UpdateLevelInformation() {
 
 void GiveMonsterTID(int base_tid) {
 	int temp;
+
+	// Everything downstream addresses a monster as MonsterProperties[tid - DND_MONSTERTID_BEGIN],
+	// and that array is exactly DND_MAX_MONSTERS long, so a tid from outside the pool indexes
+	// outside the array. Mapper-assigned tids do precisely that -- tid 1 lands on -1, and editors
+	// hand out 4-5 digit tids that land past the end. Such a monster then reads a properties entry
+	// that is not its own: maxhp comes back 0 so "DnD Monster Scanner Picker" never draws its bar,
+	// name or stats, and trait_list reads whatever happens to sit there, which players see as
+	// immunity to ailments the monster was never given. Drop the tid and let the pool assign a real
+	// one. Pets never reach here, they go through GivePetTID from "DnD Pet Monster Scale".
+	if(base_tid && (base_tid < DND_MONSTERTID_BEGIN || base_tid >= DND_LASTMONSTER_TID)) {
+	#ifdef VERBOSE_MONSTER_SETUP
+		Log(s:"Reassigning out of range tid ", d:base_tid, s:" on ", s:GetActorClass(0));
+	#endif
+		base_tid = 0;
+	}
+
 	if(!base_tid) {
 		temp = DND_MONSTERTID_BEGIN + InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
 		
@@ -705,6 +735,39 @@ int MulPercent_Exact(int v, int pct, int div = 100) {
 	int res = q1 * pct;
 	int r1 = v % div;
 	int acc = r1 * (pct / div) + (r1 * (pct % div)) / div;
+
+	if(res > bcs::INT_MAX - acc)
+		return bcs::INT_MAX;
+
+	return res + acc;
+}
+
+// Same split, but ROUNDS instead of truncating. Only worth reaching for where the result is a small
+// number and losing half a unit on every one of them adds up -- a 20 pellet shotgun's added or
+// converted component is the case this exists for, where truncating cost 19% of the component.
+// The primary damage path deliberately still truncates: rounding it would move every weapon's
+// numbers for no reason.
+//
+// IMPORTANT: div must be <= 46340. The split's last term is (v % div) * (pct % div), which fits an
+// int only while div * div does. MulPercent_Exact carries the same requirement -- it is just never
+// stated there, because until the component path came along every caller passed 100.
+int MulPercent_Round(int v, int pct, int div = 100) {
+	if(v <= 0 || pct <= 0 || div <= 0)
+		return 0;
+
+	// fast path: the biased product fits
+	if(v <= (bcs::INT_MAX - div / 2) / pct)
+		return (v * pct + div / 2) / div;
+
+	int q1 = v / div;
+	if(q1 > bcs::INT_MAX / pct)
+		return bcs::INT_MAX;
+
+	// q1 * pct and r1 * (pct / div) are both exact, so the whole fraction lives in the last term --
+	// biasing it there rounds the result as a whole
+	int res = q1 * pct;
+	int r1 = v % div;
+	int acc = r1 * (pct / div) + (r1 * (pct % div) + div / 2) / div;
 
 	if(res > bcs::INT_MAX - acc)
 		return bcs::INT_MAX;

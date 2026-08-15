@@ -1853,7 +1853,10 @@ void DoWeaponTip(int curweap) {
 }
 
 // This needs a better name for real, but it returns indexing of slot for tabular format, not in-game slot of weapons
-// this will never change so I dont want to waste an array spot for this
+// this will never change so I dont want to waste an array spot for this -- and there is no hot path
+// caller to justify one: a perk check, two menu string builders and a menu table lookup.
+// Deriving it from the ranges also means it cannot disagree with the enum, since the LAST_SLOTn
+// defines are symbolic and follow an id insertion on their own.
 int GetSlotOfWeapon(int wepid) {
 	if(wepid <= LAST_SLOT0_WEAPON)
 		return 0;

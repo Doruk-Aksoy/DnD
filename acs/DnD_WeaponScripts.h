@@ -1486,20 +1486,27 @@ Script "DND Thunderstaff Bolts" (void) {
 		
 		// damage credit
 		SetActivatorToTarget(0);
-		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, 0, 0);
+		dist = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, 0, 0, true);
 
 		for(i = 0; i < DND_THUNDERSTAFF_MAXTARGETS; ++i) {
 			if(tlist[pnum][i].tid) {
 				// store damage in tcount, in case we crit we need to restore it afterwards
 				tcount = dist;
-				
+
 				// do not tokenize to not affect projectiles and clear crit flag after consumption
 				if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 					actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
-				
-				mn = HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, px, py, pz, actor_flags);
-				if(mn > 0)
-					Thing_Damage2(tlist[pnum][i].tid, mn, "SkipHandle");
+
+				// added and converted components first, each on its own resists; what is left is
+				// still lightning. The staged split survives the loop because nothing in it rolls
+				// another hit -- SkipHandle keeps Thing_Damage2 out of the scaling path.
+				dist = DealDamageComponents(pnum, owner, tlist[pnum][i].tid, DND_WEAPON_THUNDERSTAFF, DND_DMGID_1, DND_DAMAGECATEGORY_LIGHTNING, dist, 0, actor_flags);
+
+				if(dist > 0) {
+					mn = HandleDamageDeal(owner, tlist[pnum][i].tid, dist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, 0, px, py, pz, actor_flags);
+					if(mn > 0)
+						Thing_Damage2(tlist[pnum][i].tid, mn, "SkipHandle");
+				}
 
 				dist = tcount;
 			}
@@ -1554,7 +1561,7 @@ Script "DND Thunder Ring" (int radius) CLIENTSIDE {
 Script "DND Thunderstaff Lightning" (void) {
 	int i, this = ActivatorTID();
 	int pnum = PlayerNumber();
-	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, 0, 0);
+	int dmg = RetrieveWeaponDamage(pnum, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, 0, 0, true);
 	int actor_flags = 0;
 	int scan_amt = 0;
 	int adist;
@@ -1567,9 +1574,14 @@ Script "DND Thunderstaff Lightning" (void) {
 			 if(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT)
 				actor_flags ^= DND_ACTORFLAG_CONFIRMEDCRIT;
 
-			adist = HandleDamageDeal(this, i, dmg, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, actor_flags);
-			if(adist)
-				Thing_Damage2(i, adist, "SkipHandle");
+			// added and converted components first, each on its own resists; the rest stays lightning
+			adist = DealDamageComponents(pnum, this, i, DND_WEAPON_THUNDERSTAFF, DND_DMGID_3, DND_DAMAGECATEGORY_LIGHTNING, dmg, DND_DAMAGEFLAG_NOPUSH, actor_flags);
+
+			if(adist > 0) {
+				adist = HandleDamageDeal(this, i, adist, DND_DAMAGETYPE_LIGHTNING, DND_WEAPON_THUNDERSTAFF, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, actor_flags);
+				if(adist)
+					Thing_Damage2(i, adist, "SkipHandle");
+			}
 			
 			// take the range checker
 			TakeActorInventory(i, "ThunderStrike", 1);
@@ -1762,7 +1774,14 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 	bool proj_crit = !ActivatorTID() && GetActorProperty(0, APROP_ACCURACY) == DND_CRIT_TOKEN;
 	int owner = GetActorProperty(0, APROP_TARGETTID);
 	int i, m_id;
-	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, 0, 0);
+	int dmg = RetrieveWeaponDamage(owner - P_TIDSTART, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, 0, 0, true);
+
+	// The number is rolled here but not dealt until each monster lands, seconds later, so the split
+	// has to be parked -- the live stage will belong to whatever the player shoots in the meantime.
+	// One snapshot serves every monster this pull grabs: they all came from the same hit, so they all
+	// share its ratios.
+	SnapshotComponentStage(owner - P_TIDSTART);
+
 	bool got_one = false;
 	
 	for(int mn = 0; mn < InformationInLevel[LEVELINFO_TID_MONSTER]; ++mn) {
@@ -1801,8 +1820,14 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 }
 
 Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_dmg) {
-	//bool projcrit = victim >> 17;
+	//bool projcrit = dmg_source >> 17;
+
+	// The crit bit is packed into dmg_source by the caller, so it has to come back off before the tid
+	// is used for anything -- unmasked it is a garbage actor for SetActivator, CheckActorInventory and
+	// the damage source, on every shot that rolled a crit. Player tids sit near 12800, nowhere near
+	// the top of these 16 bits.
 	victim &= 0xFFFF;
+	dmg_source &= 0xFFFF;
 	int m = GetActorProperty(victim, APROP_MASS);
 	if(m < bcs::INT_MAX / damage * base_dmg)
 		m = m * base_dmg / damage;
@@ -1869,9 +1894,23 @@ Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_d
 	int height_factor = (GRAVDIS_HEIGHT_FACTOR * height / GRAVDIS_HEIGHTADD_PER) >> 16;
 	SetActivator(dmg_source);
 
-	damage = HandleDamageDeal(dmg_source, victim, damage * (100 + height_factor) / 100, DND_DAMAGETYPE_PHYSICAL, DND_WEAPON_GRAVDIS, DND_DAMAGEFLAG_FOILINVUL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, 0);
-	if(damage > 0)
-		Thing_Damage2(victim, damage, "SkipHandle");
+	// The height bonus is type agnostic, so it goes on before the split and every component takes it.
+	// Splitting here rather than at grab time is also what keeps the fling physics untouched -- the
+	// mass calculation above divides by `damage`, and handing it a post-conversion number would
+	// change how far monsters get thrown.
+	damage = damage * (100 + height_factor) / 100;
+
+	int pnum = dmg_source - P_TIDSTART;
+	if(pnum >= 0 && pnum < MAXPLAYERS) {
+		RestoreComponentStage(pnum);
+		damage = DealDamageComponents(pnum, dmg_source, victim, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, damage, DND_DAMAGEFLAG_FOILINVUL | DND_DAMAGEFLAG_NOPUSH, 0);
+	}
+
+	if(damage > 0) {
+		damage = HandleDamageDeal(dmg_source, victim, damage, DND_DAMAGETYPE_PHYSICAL, DND_WEAPON_GRAVDIS, DND_DAMAGEFLAG_FOILINVUL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, 0);
+		if(damage > 0)
+			Thing_Damage2(victim, damage, "SkipHandle");
+	}
 
 	ACS_NamedExecuteWithResult("DnD Gravdis FX Spawner", victim, 1);
 	

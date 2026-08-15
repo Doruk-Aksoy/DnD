@@ -1,6 +1,9 @@
 #ifndef DND_INVATTRIBTABLE_IN
 #define DND_INVATTRIBTABLE_IN
 
+#define DND_DAMAGECONVERSION_MASK 0xFF
+#define DND_DAMAGECONVERSION_BITS 8
+
 // these two imply we have 1000 regular charm mods potentially, 1000 essence and unlimited unique mods
 // reason we have these generous ranges is so when a new mod is added, database resets do not need to happen
 #define CORRUPT_ATTRIB_ID_BEGIN 1000
@@ -204,6 +207,14 @@ enum {
 	INV_INCFLASKCHARGEGAINED,
 	INV_FLASKLIFERECOVERYRATE,
 
+	INV_ADDED_PHYSDMG,
+	INV_ADDED_ENERGYDMG,
+	INV_ADDED_MAGICDMG,
+	INV_ADDED_FIREDMG,
+	INV_ADDED_COLDDMG,
+	INV_ADDED_LIGHTNINGDMG,
+	INV_ADDED_POISONDMG,
+
 	// add new regular rollable attributes here
 
 	// corrupted implicits -- add new ones here
@@ -225,6 +236,8 @@ enum {
 	INV_CORR_MAXFRENZY,
 	INV_CORR_MAXENDURANCE,
 	INV_CORR_MAXPOWER,
+	INV_CORR_DAMAGECONVERSION,
+	INV_CORR_DAMAGEGAINEDAS,
 	// add new corruption implicits here
 
 	// implicits -- add new ones below here
@@ -423,7 +436,7 @@ enum {
 
 // attributes below last_inv (normal rollables) are exotic
 #define FIRST_INV_ATTRIBUTE INV_HP_INCREASE
-#define LAST_INV_ATTRIBUTE INV_FLASKLIFERECOVERYRATE
+#define LAST_INV_ATTRIBUTE INV_ADDED_POISONDMG
 #define NORMAL_ATTRIBUTE_COUNT (LAST_INV_ATTRIBUTE - FIRST_INV_ATTRIBUTE + 1)
 
 // modify the above to make it use the negative last
@@ -433,7 +446,7 @@ enum {
 #define UNIQUE_ATTRIB_COUNT (UNIQUE_ATTRIB_END - UNIQUE_ATTRIB_BEGIN + 1)
 
 #define FIRST_CORRUPT_IMPLICIT INV_CORR_WEAPONDMG
-#define LAST_CORRUPT_IMPLICIT INV_CORR_MAXPOWER
+#define LAST_CORRUPT_IMPLICIT INV_CORR_DAMAGEGAINEDAS
 #define MAX_CORRUPT_IMPLICITS (LAST_CORRUPT_IMPLICIT - FIRST_CORRUPT_IMPLICIT + 1)
 
 #define FIRST_REGULAR_IMPLICIT INV_IMP_INCARMOR
@@ -560,35 +573,35 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MAGAZINE_INCREASE].allowed_slots = DND_MODBASE_AMMO;
 	
 	ItemModTable[INV_FLATPHYS_DAMAGE].attrib_low = 1;
-	ItemModTable[INV_FLATPHYS_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATPHYS_DAMAGE].attrib_high = 5;
 	ItemModTable[INV_FLATPHYS_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLATPHYS_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL;
 	ItemModTable[INV_FLATPHYS_DAMAGE].weight = 750;
 	ItemModTable[INV_FLATPHYS_DAMAGE].allowed_slots = DND_MODBASE_PHYSICALATK;
 	
 	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_low = 1;
-	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_high = 5;
 	ItemModTable[INV_FLATENERGY_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLATENERGY_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ENERGY;
 	ItemModTable[INV_FLATENERGY_DAMAGE].weight = 675;
 	ItemModTable[INV_FLATENERGY_DAMAGE].allowed_slots = DND_MODBASE_ENERGYATK;
 	
 	ItemModTable[INV_FLATRADIUS_DAMAGE].attrib_low = 1;
-	ItemModTable[INV_FLATRADIUS_DAMAGE].attrib_high = 2;
+	ItemModTable[INV_FLATRADIUS_DAMAGE].attrib_high = 4;
 	ItemModTable[INV_FLATRADIUS_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLATRADIUS_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	ItemModTable[INV_FLATRADIUS_DAMAGE].weight = 675;
 	ItemModTable[INV_FLATRADIUS_DAMAGE].allowed_slots = DND_MODBASE_RADIUSATK;
 	
 	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_low = 1;
-	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_high = 5;
 	ItemModTable[INV_FLATMAGIC_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLATMAGIC_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_OCCULT;
 	ItemModTable[INV_FLATMAGIC_DAMAGE].weight = 675;
 	ItemModTable[INV_FLATMAGIC_DAMAGE].allowed_slots = DND_MODBASE_MAGICALATK;
 	
 	ItemModTable[INV_FLATELEM_DAMAGE].attrib_low = 1;
-	ItemModTable[INV_FLATELEM_DAMAGE].attrib_high = 3;
+	ItemModTable[INV_FLATELEM_DAMAGE].attrib_high = 4;
 	ItemModTable[INV_FLATELEM_DAMAGE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLATELEM_DAMAGE].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL;
 	ItemModTable[INV_FLATELEM_DAMAGE].weight = 750;
@@ -665,28 +678,28 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PRECISION_PERCENT].allowed_slots = DND_MODBASE_WEAPONATK;
 	
 	ItemModTable[INV_FLAT_HANDGUN].attrib_low = 1;
-	ItemModTable[INV_FLAT_HANDGUN].attrib_high = 3;
+	ItemModTable[INV_FLAT_HANDGUN].attrib_high = 4;
 	ItemModTable[INV_FLAT_HANDGUN].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_HANDGUN].tags = INV_ATTR_TAG_ATTACK;
 	ItemModTable[INV_FLAT_HANDGUN].weight = 575;
 	ItemModTable[INV_FLAT_HANDGUN].allowed_slots = DND_MODBASE_WEAPONATK;
 	
 	ItemModTable[INV_FLAT_SHOTGUN].attrib_low = 1;
-	ItemModTable[INV_FLAT_SHOTGUN].attrib_high = 3;
+	ItemModTable[INV_FLAT_SHOTGUN].attrib_high = 4;
 	ItemModTable[INV_FLAT_SHOTGUN].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_SHOTGUN].tags = INV_ATTR_TAG_ATTACK;
 	ItemModTable[INV_FLAT_SHOTGUN].weight = 575;
 	ItemModTable[INV_FLAT_SHOTGUN].allowed_slots = DND_MODBASE_WEAPONATK | DND_MODBASE_SPECIALTY_HOBO;
 	
 	ItemModTable[INV_FLAT_AUTOMATIC].attrib_low = 1;
-	ItemModTable[INV_FLAT_AUTOMATIC].attrib_high = 3;
+	ItemModTable[INV_FLAT_AUTOMATIC].attrib_high = 4;
 	ItemModTable[INV_FLAT_AUTOMATIC].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_AUTOMATIC].tags = INV_ATTR_TAG_ATTACK;
 	ItemModTable[INV_FLAT_AUTOMATIC].weight = 575;
 	ItemModTable[INV_FLAT_AUTOMATIC].allowed_slots = DND_MODBASE_WEAPONATK;
 	
 	ItemModTable[INV_FLAT_ARTILLERY].attrib_low = 1;
-	ItemModTable[INV_FLAT_ARTILLERY].attrib_high = 3;
+	ItemModTable[INV_FLAT_ARTILLERY].attrib_high = 4;
 	ItemModTable[INV_FLAT_ARTILLERY].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_ARTILLERY].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_EXPLOSIVE;
 	ItemModTable[INV_FLAT_ARTILLERY].weight = 575;
@@ -861,28 +874,28 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PEN_ELEMENTAL].allowed_slots = DND_MODBASE_ELEMATK;
 
 	ItemModTable[INV_FLAT_FIREDMG].attrib_low = 1;
-	ItemModTable[INV_FLAT_FIREDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_FIREDMG].attrib_high = 5;
 	ItemModTable[INV_FLAT_FIREDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_FIREDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
 	ItemModTable[INV_FLAT_FIREDMG].weight = 600;
 	ItemModTable[INV_FLAT_FIREDMG].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_FLAT_ICEDMG].attrib_low = 1;
-	ItemModTable[INV_FLAT_ICEDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_ICEDMG].attrib_high = 5;
 	ItemModTable[INV_FLAT_ICEDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_ICEDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
 	ItemModTable[INV_FLAT_ICEDMG].weight = 600;
 	ItemModTable[INV_FLAT_ICEDMG].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_FLAT_LIGHTNINGDMG].attrib_low = 1;
-	ItemModTable[INV_FLAT_LIGHTNINGDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_LIGHTNINGDMG].attrib_high = 5;
 	ItemModTable[INV_FLAT_LIGHTNINGDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_LIGHTNINGDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
 	ItemModTable[INV_FLAT_LIGHTNINGDMG].weight = 600;
 	ItemModTable[INV_FLAT_LIGHTNINGDMG].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_FLAT_POISONDMG].attrib_low = 1;
-	ItemModTable[INV_FLAT_POISONDMG].attrib_high = 4;
+	ItemModTable[INV_FLAT_POISONDMG].attrib_high = 5;
 	ItemModTable[INV_FLAT_POISONDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_POISONDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
 	ItemModTable[INV_FLAT_POISONDMG].weight = 600;
@@ -1274,14 +1287,14 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_MAGIC_NEGATION].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_FLAT_TECH].attrib_low = 1;
-	ItemModTable[INV_FLAT_TECH].attrib_high = 3;
+	ItemModTable[INV_FLAT_TECH].attrib_high = 4;
 	ItemModTable[INV_FLAT_TECH].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_TECH].tags = INV_ATTR_TAG_ATTACK;
 	ItemModTable[INV_FLAT_TECH].weight = 600;
 	ItemModTable[INV_FLAT_TECH].allowed_slots = DND_MODBASE_WEAPONATK;
 
 	ItemModTable[INV_FLAT_PRECISION].attrib_low = 1;
-	ItemModTable[INV_FLAT_PRECISION].attrib_high = 3;
+	ItemModTable[INV_FLAT_PRECISION].attrib_high = 4;
 	ItemModTable[INV_FLAT_PRECISION].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_PRECISION].tags = INV_ATTR_TAG_ATTACK;
 	ItemModTable[INV_FLAT_PRECISION].weight = 600;
@@ -1295,7 +1308,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_TECH_PERCENT].allowed_slots = DND_MODBASE_WEAPONATK;
 
 	ItemModTable[INV_FLAT_MAGIC].attrib_low = 1;
-	ItemModTable[INV_FLAT_MAGIC].attrib_high = 3;
+	ItemModTable[INV_FLAT_MAGIC].attrib_high = 5;
 	ItemModTable[INV_FLAT_MAGIC].attrib_level_modifier = 0;
 	ItemModTable[INV_FLAT_MAGIC].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_OCCULT;
 	ItemModTable[INV_FLAT_MAGIC].weight = 600;
@@ -1563,6 +1576,55 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLASKLIFERECOVERYRATE].weight = 500;
 	ItemModTable[INV_FLASKLIFERECOVERYRATE].allowed_slots = DND_MODBASE_CHARM | DND_MODBASE_SPECIALTY_ALL;
 	
+	ItemModTable[INV_ADDED_PHYSDMG].attrib_low = 1;
+	ItemModTable[INV_ADDED_PHYSDMG].attrib_high = 4;
+	ItemModTable[INV_ADDED_PHYSDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDED_PHYSDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_PHYSICAL;
+	ItemModTable[INV_ADDED_PHYSDMG].weight = 300;
+	ItemModTable[INV_ADDED_PHYSDMG].allowed_slots = DND_MODBASE_PHYSICALATK;
+
+	ItemModTable[INV_ADDED_ENERGYDMG].attrib_low = 1;
+	ItemModTable[INV_ADDED_ENERGYDMG].attrib_high = 4;
+	ItemModTable[INV_ADDED_ENERGYDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDED_ENERGYDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_ADDED_ENERGYDMG].weight = 300;
+	ItemModTable[INV_ADDED_ENERGYDMG].allowed_slots = DND_MODBASE_ENERGYATK;
+
+	ItemModTable[INV_ADDED_MAGICDMG].attrib_low = 1;
+	ItemModTable[INV_ADDED_MAGICDMG].attrib_high = 4;
+	ItemModTable[INV_ADDED_MAGICDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDED_MAGICDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_OCCULT;
+	ItemModTable[INV_ADDED_MAGICDMG].weight = 300;
+	ItemModTable[INV_ADDED_MAGICDMG].allowed_slots = DND_MODBASE_MAGICALATK;
+
+	ItemModTable[INV_ADDED_FIREDMG].attrib_low = 1;
+	ItemModTable[INV_ADDED_FIREDMG].attrib_high = 4;
+	ItemModTable[INV_ADDED_FIREDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDED_FIREDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
+	ItemModTable[INV_ADDED_FIREDMG].weight = 300;
+	ItemModTable[INV_ADDED_FIREDMG].allowed_slots = DND_MODBASE_ELEMATK;
+
+	ItemModTable[INV_ADDED_COLDDMG].attrib_low = 1;
+	ItemModTable[INV_ADDED_COLDDMG].attrib_high = 4;
+	ItemModTable[INV_ADDED_COLDDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDED_COLDDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
+	ItemModTable[INV_ADDED_COLDDMG].weight = 300;
+	ItemModTable[INV_ADDED_COLDDMG].allowed_slots = DND_MODBASE_ELEMATK;
+
+	ItemModTable[INV_ADDED_LIGHTNINGDMG].attrib_low = 1;
+	ItemModTable[INV_ADDED_LIGHTNINGDMG].attrib_high = 4;
+	ItemModTable[INV_ADDED_LIGHTNINGDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDED_LIGHTNINGDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
+	ItemModTable[INV_ADDED_LIGHTNINGDMG].weight = 300;
+	ItemModTable[INV_ADDED_LIGHTNINGDMG].allowed_slots = DND_MODBASE_ELEMATK;
+
+	ItemModTable[INV_ADDED_POISONDMG].attrib_low = 1;
+	ItemModTable[INV_ADDED_POISONDMG].attrib_high = 4;
+	ItemModTable[INV_ADDED_POISONDMG].attrib_level_modifier = 0;
+	ItemModTable[INV_ADDED_POISONDMG].tags = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
+	ItemModTable[INV_ADDED_POISONDMG].weight = 300;
+	ItemModTable[INV_ADDED_POISONDMG].allowed_slots = DND_MODBASE_ELEMATK;
+
 	/////////////////////////
 	// corrupted implicits //
 	/////////////////////////
@@ -1655,6 +1717,22 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CORR_MAXPOWER].attrib_high = 1;
 	ItemModTable[INV_CORR_MAXPOWER].attrib_level_modifier = 0;
 	ItemModTable[INV_CORR_MAXPOWER].tags = INV_ATTR_TAG_UTILITY;
+
+	ItemModTable[INV_CORR_DAMAGECONVERSION].attrib_low = 5;
+	ItemModTable[INV_CORR_DAMAGECONVERSION].attrib_high = 20;
+	ItemModTable[INV_CORR_DAMAGECONVERSION].attrib_level_modifier = -1;
+	ItemModTable[INV_CORR_DAMAGECONVERSION].attrib_extra_low = DND_DAMAGECONVERSION_BEGIN;
+	ItemModTable[INV_CORR_DAMAGECONVERSION].attrib_extra_high = DND_DAMAGECONVERSION_END - 1; // no magic picking here
+	ItemModTable[INV_CORR_DAMAGECONVERSION].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_CORR_DAMAGECONVERSION].tags = INV_ATTR_TAG_ATTACK;
+
+	ItemModTable[INV_CORR_DAMAGEGAINEDAS].attrib_low = 1;
+	ItemModTable[INV_CORR_DAMAGEGAINEDAS].attrib_high = 10;
+	ItemModTable[INV_CORR_DAMAGEGAINEDAS].attrib_level_modifier = -1;
+	ItemModTable[INV_CORR_DAMAGEGAINEDAS].attrib_extra_low = DND_DAMAGECONVERSION_BEGIN; // uses same sub-system as damage conversion for indices
+	ItemModTable[INV_CORR_DAMAGEGAINEDAS].attrib_extra_high = DND_DAMAGECONVERSION_END - 1; // no magic picking here
+	ItemModTable[INV_CORR_DAMAGEGAINEDAS].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_CORR_DAMAGEGAINEDAS].tags = INV_ATTR_TAG_ATTACK;
 
 	///////////////////////
 	// regular implicits //

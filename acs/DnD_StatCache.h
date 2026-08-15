@@ -250,6 +250,29 @@ int CombinePackedMultiplier(int packed, int factor) {
     return PackNormalizedMultiplier(mant, exp);
 }
 
+// Merges two packed multipliers into one. Needed wherever a value is scaled by more than one packed
+// product: applying them one after another truncates twice, and the note on ordering in
+// ScaleCachedDamage is the whole reason that matters -- the second truncation amplifies the error of
+// the first. Merge here, apply once.
+//
+// Both mantissas are already normalized into [1.0, 2.0), so this is just the tail of
+// CombinePackedMultiplier with no renormalization pass needed on either operand.
+int CombinePackedMultipliers(int packed_a, int packed_b) {
+    if(!packed_a || !packed_b)
+        return DND_PACKED_MULT_ZERO;
+
+    // product of two [1.0, 2.0) values lands in [1.0, 4.0), so it cannot overflow
+    int mant = FixedMulRound(GetPackedMultiplierMantissa(packed_a), GetPackedMultiplierMantissa(packed_b));
+    int exp = GetPackedMultiplierExponent(packed_a) + GetPackedMultiplierExponent(packed_b);
+
+    if(mant >= 2.0) {
+        mant = (mant + 1) >> 1;
+        ++exp;
+    }
+
+    return PackNormalizedMultiplier(mant, exp);
+}
+
 typedef struct {
     int source;                                     // owning token, so removal is by identity not by value
     int factor;                                     // 16.16 ABSOLUTE multiplier: 1.0 == no change, 1.25 == +25% more

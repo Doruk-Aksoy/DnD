@@ -220,6 +220,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	bool redraw = false;
 	int animcounter = 0, framecounter = 0, pnum = PlayerNumber();
 	int i = 0;
+	// tics left before we may send another input, see the send site below
+	int op_cooldown = 0;
 	int curopt, curopt_prev = MENU_NULL;
 	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE, mainboxid_prev = MAINBOX_NONE;
 	auto CurrentPane = GetPane();
@@ -333,12 +335,27 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		GetInputOnMenuPage(curopt);
 		i = CheckInventory("MenuInput");
 		
-		if(i) {
+		// The server discards anything arriving inside its own DND_MENU_INPUTDELAYTICS debounce --
+		// no ack, no processing, no way for us to know. Clicking faster than that just means a
+		// random subset survives. We already know the rule, so pace ourselves to it instead of
+		// trying to detect the drops: sends spaced by DND_MENU_SENDINTERVAL arrive spaced the same
+		// way, and the server takes every one. Costs one tic over the debounce we were already
+		// bounded by, and does not depend on latency in either direction.
+		if(op_cooldown)
+			--op_cooldown;
+
+		if(i && !op_cooldown) {
 			// server gets a few extra info in boxid
-			if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
-				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+			// Recomputed every send, deliberately. This used to latch on the first click and only
+			// clear once the server's ack came back, so at high ping every further click inside
+			// that round trip re-sent the FIRST box: the input did leave, it just named a box the
+			// player had already moved on from, which looks exactly like the click being eaten.
+			// Nothing here needs to survive a send -- each click names its own box, and the craft
+			// selection is read as it stands right now rather than as it stood one round trip ago.
+			MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
 			i <<= 16;
 			i |= PlayerNumber();
+			op_cooldown = DND_MENU_SENDINTERVAL;
 			//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
 			NamedRequestScriptPuke("DND Server Box Receive", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], mainboxid | (CheckInventory("MenuPosX") << 16));
 			redraw = true;
@@ -487,6 +504,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			}
 			else if(CheckInventory("InTradeView")) {
 				LoadTradeView(InventoryPane);
+			}
+			else if(PlayerCursorData.itemDragged != -1) {
+				// No item view is being drawn, so nothing here will refresh or clear the drag --
+				// DoInventoryBoxDraw is what normally does both. Drop it rather than leaving the
+				// last drawn frame's item stuck to the cursor.
+				ResetCursorDragData();
+				ResetCursorDragConfirm();
 			}
 			
 			if(CheckInventory("DnD_CleanInventoryRequest")) {
@@ -831,7 +855,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 					// show the synced attributes and the overall upsides here
 					for(j = 0; j < DungeonInformation.attrib_count; ++j) {
 						// note \n here is not needed as they inherently have it
-						toShow = StrParam(s:toShow, 
+						// quality is 0 on purpose: SetupCurrentDungeonData already folded it into
+						// attrib_val and attrib_extra, using the same IsDungeonAttributeQualityException
+						// test DungeonAttributeString applies, so handing the quality over again
+						// scales these a second time and the panel stops agreeing with the key the
+						// dungeon was opened with. the key's own tooltip passes raw item values, so
+						// that side is scaled exactly once and is the one to trust.
+						toShow = StrParam(s:toShow,
 							s:DungeonAttributeString(
 								DungeonInformation.attributes[j].attrib_id,
 								DungeonInformation.attributes[j].attrib_val,
@@ -839,7 +869,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 								false,
 								-1,
 								false,
-								DungeonInformation.quality,
+								0,
 								-1
 							)
 						);
@@ -1352,6 +1382,88 @@ Script "DnD Main Button Click Animation" (int boxid) CLIENTSIDE {
 	SetResultValue(0);
 }
 
+// Tell the client what it is actually holding rather than letting it infer that from its own copy
+// of the item arrays -- see idragconfirm_T for why inferring produced a cursor item that was not
+// there. Sent once per processed input, from the server, reflecting final state.
+// Only the plain inventory view is vouched for so far: it is one grid with one source. Stash and
+// trade stack several grids under a single DnD_SelectedInventoryBox, so they keep the old derived
+// path (valid stays clear for them) until this has been proven under real latency.
+void SyncDragPayload(int pnum) {
+	// read through the tid, handlers above may have moved the activator to another player
+	int tid = pnum + P_TIDSTART;
+	int sel = CheckActorInventory(tid, "DnD_SelectedInventoryBox");	// 1 based, 0 = holding nothing
+	int source = -1, grid = 0;
+
+	// Mirrors the offset/source deciphering the click handlers do, view for view: the plain
+	// inventory is one grid, stash stacks stash over player inventory, trade stacks the other
+	// player's offering, ours, then our inventory. If those handlers ever change, this has to move
+	// with them or the cursor will disagree with what a click actually does.
+	if(sel > 0) {
+		if(CheckActorInventory(tid, "DnD_InventoryView"))
+			source = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+		else if(CheckActorInventory(tid, "DnD_StashView")) {
+			if(sel > MAX_INVENTORY_BOXES) {
+				source = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+				grid = 1;
+			}
+			else	// a held stash item keeps the page it was picked up on, not the page on screen
+				source = DND_SYNC_ITEMSOURCE_STASH | ((CheckActorInventory(tid, "DnD_PlayerPreviousPage") - 1) << 16);
+		}
+		else if(CheckActorInventory(tid, "InTradeView")) {
+			if(sel > 2 * MAX_INVENTORY_BOXES) {
+				source = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+				grid = 2;
+			}
+			else {
+				source = DND_SYNC_ITEMSOURCE_TRADEVIEW;
+				grid = 1;
+			}
+		}
+	}
+
+	// nothing selected, or a view we do not vouch for -> client falls back to deriving the cursor
+	if(source == -1) {
+		ACS_NamedExecuteWithResult("DnD Drag Payload Sync", pnum, 0, 0, 0);
+		return;
+	}
+
+	int box = sel - 1 - grid * MAX_INVENTORY_BOXES;
+	int top = box >= 0 ? GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, box, -1, source) - 1 : -1;
+
+	// vouched for, holding nothing. Grid does not matter here, no grid will draw a cursor item
+	if(top < 0 || GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, top, -1, source) == DND_ITEM_NULL) {
+		ACS_NamedExecuteWithResult("DnD Drag Payload Sync", pnum, 0, source | DND_DRAGSYNC_VALID, 0);
+		return;
+	}
+
+	// source keeps the stash page in its high bits, so the rest is packed into the last argument
+	ACS_NamedExecuteWithResult(
+		"DnD Drag Payload Sync",
+		pnum,
+		GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, top, -1, source),
+		source | DND_DRAGSYNC_VALID,
+		GetItemSyncValue(pnum, DND_SYNC_ITEMWIDTH, top, -1, source) |
+		(GetItemSyncValue(pnum, DND_SYNC_ITEMHEIGHT, top, -1, source) << 8) |
+		(top << 16) | (grid << 24)
+	);
+}
+
+Script "DnD Drag Payload Sync" (int pnum, int image, int packed, int dims) CLIENTSIDE {
+	// unlike the item syncer this one IS per viewer -- the cursor is ours alone
+	if(GameType() == GAME_SINGLE_PLAYER || ConsolePlayerNumber() != pnum)
+		Terminate;
+
+	PlayerCursorData.itemDragInfo.confirmed.valid = !!(packed & DND_DRAGSYNC_VALID);
+	PlayerCursorData.itemDragInfo.confirmed.source = packed & ~DND_DRAGSYNC_VALID;
+	PlayerCursorData.itemDragInfo.confirmed.image = image;
+	PlayerCursorData.itemDragInfo.confirmed.size_x = dims & 0xFF;
+	PlayerCursorData.itemDragInfo.confirmed.size_y = (dims >> 8) & 0xFF;
+	PlayerCursorData.itemDragInfo.confirmed.topboxid = (dims >> 16) & 0xFF;
+	PlayerCursorData.itemDragInfo.confirmed.offset = ((dims >> 24) & 0x3) * MAX_INVENTORY_BOXES;
+
+	SetResultValue(0);
+}
+
 Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 	// don't let garbage data slip in
 	if(!pnum)
@@ -1730,6 +1842,10 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 												// handle trade now, other party accepted
 												GiveInventory("InTradeView", 1);
 												GiveActorInventory(i + P_TIDSTART, "InTradeView", 1);
+												// nothing is staked yet, so neither side should be
+												// carrying notes left over from an earlier trade
+												ClearTradeItemOrigins(pnum);
+												ClearTradeItemOrigins(i);
 												ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
 												ACS_NamedExecuteAlways("DnD Refresh Request", 0, i, 1);
 												LocalAmbientSound("RPG/MenuChoose", 127);
@@ -2120,8 +2236,11 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			#endif
 		}
 		
+		// after every handler above has run, so this reflects the settled selection
+		SyncDragPayload(pnum);
+
 		ClearPlayerInput(pnum, true);
-		
+
 		Delay(const:DND_MENU_INPUTDELAYTICS);
 		MenuInputData[pnum][DND_MENUINPUT_DELAY] = 0;
 	}

@@ -389,10 +389,10 @@ IATTR_T51 			= "chance to ignore radius damage immunity";
 IATTR_T52 			= "magic pierce";
 IATTR_T53 			= "elemental pierce";
 	
-IATTR_T54 			= "fire damage";
-IATTR_T55 			= "cold damage";
-IATTR_T56 			= "lightning damage";
-IATTR_T57 			= "poison damage";
+IATTR_T54 			= "fire weapon attack damage";
+IATTR_T55 			= "cold weapon attack damage";
+IATTR_T56 			= "lightning weapon attack damage";
+IATTR_T57 			= "poison weapon attack damage";
 	
 IATTR_T58 			= "lifesteal";
 	
@@ -515,6 +515,14 @@ IATTR_T151			= "chance for \cdReaping Cleave\c-";
 IATTR_T152          = "increased flask charges gained";
 IATTR_T153          = "increased life recovery rate from flasks";
 
+IATTR_T154          = "added physical damage to attacks";
+IATTR_T155          = "added energy damage to attacks";
+IATTR_T156          = "added magic damage to attacks";
+IATTR_T157          = "added fire damage to attacks";
+IATTR_T158          = "added cold damage to attacks";
+IATTR_T159          = "added lightning damage to attacks";
+IATTR_T160          = "added poison damage to attacks";
+
 // corrupt implicits
 IATTR_TC1			= "more weapon damage to";
 IATTR_TC2			= "Increased crit chance to";
@@ -534,6 +542,8 @@ IATTR_TC15			= "Culling Strike";
 IATTR_TC16			= "to maximum frenzy charges";
 IATTR_TC17			= "to maximum endurance charges";
 IATTR_TC18			= "to maximum power charges";
+IATTR_TC19          = "of";        IATTR_TC19_1 = " damage is converted to";      IATTR_TC19_2 = " damage";
+IATTR_TC20_1        = " damage is gained as extra";
 
 // regular implicits
 IATTR_TI1			= "armor";

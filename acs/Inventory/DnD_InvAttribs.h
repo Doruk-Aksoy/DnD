@@ -343,6 +343,18 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
 				res |= DND_INC_TWOPROJ_NEGDMG;
 			break;
+
+			// gained-as rolls its pair exactly like conversion -- same ladder, same packing
+			case INV_CORR_DAMAGEGAINEDAS:
+			case INV_CORR_DAMAGECONVERSION:
+				// pick first mod then mapped mod shift it by 8 to combine.
+				// The source stops one short of the end: it is the LAST rung of the conversion
+				// ladder, so rolling it leaves random() no destination above it and the pair comes
+				// out as either a self-conversion or soul, both of which the ladder drops on the
+				// floor. That would be a dead mod on a seventh of the rolls.
+				res = random(DND_DAMAGECONVERSION_BEGIN, DND_DAMAGECONVERSION_END - 1);
+				res |= random(res + 1, DND_DAMAGECONVERSION_END) << DND_DAMAGECONVERSION_BITS;
+			break;
 		}
 	}
 	else {
@@ -418,6 +430,12 @@ void ResetPlayerModList(int pnum) {
 		PlayerModData[pnum].value[i] = 0;
 		PlayerModData[pnum].extra[i] = 0;
 	}
+
+	// Damage conversion accumulates outside PlayerModData -- one summed attribute cannot tell two
+	// conversion mods apart when each names its own source and destination -- so it has to be reset
+	// alongside it or a character reload doubles everything the player is wearing.
+	ResetPlayerConversionTable(pnum);
+
 	ACS_NamedExecuteWithResult("DnD Reset Player Mod List", pnum);
 }
 
@@ -492,6 +510,8 @@ bool IsAttributeExtraException(int attr) {
 		case INV_CORR_WEAPONPOISONPCT:
 		case INV_CORR_WEAPONFORCEPAIN:
 		case INV_CORR_WEPCULL:
+		case INV_CORR_DAMAGECONVERSION:
+		case INV_CORR_DAMAGEGAINEDAS:
 
 		// incursion things that use extra field
 		case INV_INC_PLUSPROJ:

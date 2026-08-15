@@ -561,8 +561,17 @@ void SavePlayerActivities(int pnum, int char_id) {
 	IncrementDBEntry(GetCharField(DND_DB_BUDGET, char_id), pacc, temp);
 	
 	// save exp
-	temp = PlayerActivities[pnum].exp;
-	SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, temp);
+	// Unlike the fields above this is written absolutely, not as a delta, so a zeroed activity
+	// record does not mean "no change to exp" -- it destroys the stored total. ResetPlayerActivities
+	// clears .exp after every level end save and nothing re-seeds it until the player next gains
+	// exp, so a save anywhere in that window (during intermission, or early on the following map
+	// before the first kill) wrote 0 over the real value. Treat 0 as "nothing tracked this life"
+	// and leave the stored total alone: a genuine 0 is already the stored default from
+	// SaveDefaultPlayer, and SavePlayerData rewrites the true total at every level end anyway.
+	if(PlayerActivities[pnum].exp) {
+		temp = PlayerActivities[pnum].exp;
+		SetDBEntry(GetCharField(DND_DB_EXP, char_id), pacc, temp);
+	}
 	
 	// save unspent attribute/perk points
 	temp = PlayerActivities[pnum].free_attributes;
@@ -1087,6 +1096,15 @@ void load_char(int pnum, int char_id) {
 	LoadPlayerData(pnum, char_id);
 }
 
+// A non-zero saved health is what "this slot holds a real character" means everywhere in here --
+// SaveDefaultPlayer writes one, so any created character has it. Kept as one function so the
+// automatic char_id 0 fallbacks and check_load_char cannot drift apart on the definition.
+bool CharacterSlotHasData(int pnum, int char_id) {
+	if(char_id < 0 || char_id > DND_MAX_CHARS - 1)
+		return false;
+	return !!GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), GetPlayerAccountName(pnum));
+}
+
 int check_load_char(int pnum, int char_id) {
 	// if not hardcore don't bother trying to load
 	if(!(GetCVar("dnd_mode") >= DND_MODE_SOFTCORE) || !isSoftorHardcore()) return DND_LOGIN_NOTHARDCORE;
@@ -1096,7 +1114,7 @@ int check_load_char(int pnum, int char_id) {
 	if(GetGameModeState() == GAMESTATE_COUNTDOWN) return DND_LOGIN_INCOUNTDOWN;
 	if(char_id < 0 || char_id > DND_MAX_CHARS - 1) return DND_LOGIN_CHARNOTINRANGE;
 	// handle no data case -- only let people to load their stuff if there really is some data
-	if(!GetDBEntry(GetCharField(DND_DB_HEALTH, char_id), GetPlayerAccountName(pnum))) return DND_LOGIN_NOCHAR;
+	if(!CharacterSlotHasData(pnum, char_id)) return DND_LOGIN_NOCHAR;
 	// prevent people from loading their stuff to escape death, prevent loading if a save on this player happened already!
 	if(PlayerGameState[pnum] & DND_PSTATE_LOADED) return DND_LOGIN_CHARINUSE;
 	if(!CheckInventory("CanLoad")) return DND_LOGIN_NOTIME;

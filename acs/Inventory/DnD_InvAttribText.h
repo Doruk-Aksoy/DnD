@@ -355,6 +355,14 @@ str ItemAttributeString(
 		case INV_OVERLOAD_ZAPCOUNT:
 		case INV_IGNITE_PROLIFCOUNT:
 
+		case INV_ADDED_PHYSDMG:
+		case INV_ADDED_ENERGYDMG:
+		case INV_ADDED_MAGICDMG:
+		case INV_ADDED_FIREDMG:
+		case INV_ADDED_COLDDMG:
+		case INV_ADDED_LIGHTNINGDMG:
+		case INV_ADDED_POISONDMG:
+
 		case INV_INC_MAXPOISONSTACK:
 			if(val > 0) {
 				if(showDetailedMods) {
@@ -449,7 +457,23 @@ str ItemAttributeString(
 		case INV_IMP_PERCENTDEX:
 		case INV_IMP_PERCENTINT:
 		case INV_CORR_INSTALEECHPCT:
-			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
+			text = StrParam(s:col_tag, d:val, s:"%\c-", l:text);
+		return text;
+
+		// damage conversion
+		case INV_CORR_DAMAGECONVERSION:
+			text = StrParam(
+				s:col_tag, d:val, s:"%\c- ", l:text, s:"\cd ", 
+				l:GetTalentTag(extra & DND_DAMAGECONVERSION_MASK), s:no_tag, l:"IATTR_TC19_1",
+				s:"\cd ", l:GetTalentTag(extra >> DND_DAMAGECONVERSION_BITS), s:"\c-", l:"IATTR_TC19_2"
+			);
+		return text;
+		case INV_CORR_DAMAGEGAINEDAS:
+			text = StrParam(
+				s:col_tag, d:val, s:"%\c- ", l:text, s:"\cd ", 
+				l:GetTalentTag(extra & DND_DAMAGECONVERSION_MASK), s:no_tag, l:"IATTR_TC20_1",
+				s:"\cd ", l:GetTalentTag(extra >> DND_DAMAGECONVERSION_BITS), s:"\c-", l:"IATTR_TC19_2"
+			);
 		return text;
 
 		case INV_IMP_FASTEROVERHEATDISS:

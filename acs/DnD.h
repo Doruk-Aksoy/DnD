@@ -1662,7 +1662,11 @@ void SaveAllPlayerData() {
 		//Log(d:i, s:" ", n:i + 1, s:": ",d:PlayerInGame(i), s:" " ,d:CheckActorInventory(i + P_TIDSTART, "CanLoad"), s:" ", d:PlayerDatabaseState[i][PLAYER_SAVESTATE]);
 		int ptid = i + P_TIDSTART;
 		if(PlayerInGame(i) && IsActorAlive(ptid) && !CheckActorInventory(ptid, "CanLoad") && PlayerDatabaseState[i][PLAYER_SAVESTATE]) {
-			if (PlayerIsLoggedIn(i)) {
+			// DnD_CharacterActive is the only "this player actually loaded a character" marker that
+			// dies with the connection, so it is what separates a real save from one driven by a
+			// stale global. Without it char_id reads back as 0 off a fresh actor and the empty
+			// character lands on slot 0.
+			if (PlayerIsLoggedIn(i) && CheckActorInventory(ptid, "DnD_CharacterActive")) {
 				// if transfer requested, wipeout old one and move to new one
 				if(PlayerDatabaseState[i][PLAYER_TRANSFERSTATE]) {
 					WipeoutPlayerData(i, CheckActorInventory(ptid, "DnD_CharacterID"));

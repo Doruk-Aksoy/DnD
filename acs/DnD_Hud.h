@@ -102,6 +102,7 @@ void ClearMenuDisplay() {
 	CleanInventoryInfo();
 	CleanInventoryInfo(RPGMENUCLICKEDID);
 	CleanMaterialInfo(false);
+	ResetCursorDragConfirm();
 }
 
 void ResetCursorDragData() {
@@ -109,6 +110,19 @@ void ResetCursorDragData() {
 	PlayerCursorData.itemDragInfo.topboxid = -1;
 	PlayerCursorData.itemDragInfo.source = -1;
 	PlayerCursorData.itemDragInfo.click_box = -1;
+}
+
+// Only for closing the menu. Do NOT call this from ResetCursorDragData -- that runs every frame
+// nothing is selected, and clearing the server's word there would drop us back to deriving the
+// cursor exactly during the window this is meant to cover.
+void ResetCursorDragConfirm() {
+	PlayerCursorData.itemDragInfo.confirmed.valid = false;
+	PlayerCursorData.itemDragInfo.confirmed.image = 0;
+	PlayerCursorData.itemDragInfo.confirmed.size_x = 0;
+	PlayerCursorData.itemDragInfo.confirmed.size_y = 0;
+	PlayerCursorData.itemDragInfo.confirmed.topboxid = -1;
+	PlayerCursorData.itemDragInfo.confirmed.source = -1;
+	PlayerCursorData.itemDragInfo.confirmed.offset = -1;
 }
 
 void ResetCursorHoverProc() {
@@ -198,6 +212,14 @@ enum {
 };
 
 #define DND_MENU_INPUTDELAYTICS 4
+
+// How long the client waits between sending inputs. The server accepts at most one per
+// DND_MENU_INPUTDELAYTICS and silently discards the rest, so pacing our sends to the same interval
+// means they arrive spaced the same way and every one is accepted. The extra tic is jitter margin:
+// landing exactly on the boundary is a coin flip. Deliberately not ack driven -- DND_ACK is a
+// 4 tic pulse, not a counter, so it cannot be told apart from the previous input's ack, and any
+// timing rule that tried would break at whichever end of the latency range it was not tuned for.
+#define DND_MENU_SENDINTERVAL (DND_MENU_INPUTDELAYTICS + 1)
 #define DND_MENUINPUT 0
 #define DND_MENUINPUT_DELAY 1
 #define DND_MENUINPUT_PAYLOAD 2
@@ -213,12 +235,32 @@ typedef struct rect {
 } rect_T;
 #define SIZEOF_RECT (SIZEOF_INT * 4)
 
+// marks a payload as coming from a view the server vouches for, packed alongside the source
+#define DND_DRAGSYNC_VALID 0x8000
+
+// What the SERVER says we are holding, as opposed to what we worked out ourselves. Item data
+// reaches us as a long stream of per-field syncs, so mid-stream our own arrays can still resolve
+// the selected box to an item the server has already moved -- drawing from them put an item on the
+// cursor that was not really there, and clicking then dropped nothing. Only "DnD Drag Payload Sync"
+// writes these, so ResetCursorDragData deliberately leaves them alone: they are the server's state,
+// not ours to clear.
+typedef struct idragconfirm {
+	bool valid;					// server vouches for the current view; 0 means fall back to deriving
+	int image;					// 0 while valid is set means "you are holding nothing"
+	int size_x;
+	int size_y;
+	int topboxid;
+	int source;
+	int offset;					// which of the view's stacked grids the selection lives in
+} idragconfirm_T;
+
 typedef struct idragdata {
 	int size_x;
 	int size_y;
 	int topboxid;
 	int source;
 	int click_box;				// the box that we had clicked initially
+	idragconfirm_T confirmed;
 } idragdata_T;
 
 typedef struct cursor {

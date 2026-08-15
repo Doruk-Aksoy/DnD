@@ -92,6 +92,11 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 				// reset these in page transitions
 				if(PlayerCursorData.itemDragged != -1)
 					ResetCursorDragData();
+				// the server's word has to go with it, otherwise the very next draw repopulates the
+				// drag straight back out of it and the item stays stuck to the cursor. The server
+				// will not correct us for a whole round trip, and by the time it does the view has
+				// stopped drawing, so nothing would ever clear it
+				ResetCursorDragConfirm();
 				if(PlayerCursorData.itemHovered != -1)
 					ResetCursorHoverData();
 			}
@@ -123,6 +128,11 @@ void ListenInput(int listenflag, int condx_min, int condx_max, int curr_res_page
 				// reset these in page transitions
 				if(PlayerCursorData.itemDragged != -1)
 					ResetCursorDragData();
+				// the server's word has to go with it, otherwise the very next draw repopulates the
+				// drag straight back out of it and the item stays stuck to the cursor. The server
+				// will not correct us for a whole round trip, and by the time it does the view has
+				// stopped drawing, so nothing would ever clear it
+				ResetCursorDragConfirm();
 				if(PlayerCursorData.itemHovered != -1)
 					ResetCursorHoverData();
 			}
@@ -3139,8 +3149,35 @@ void DrawInventoryBlock(int idx, int idy, int bid, bool hasItem, int basex, int 
 	HudMessage(s:"A"; HUDMSG_PLAIN, idbase - bid - boff - 1, CR_WHITE, basex - (MAXINVENTORYBLOCKS_VERT - idy - 1) * skip, basey - (MAXINVENTORYBLOCKS_HORIZ - idx - 1) * skip, 0.0);
 }
 
+// Which stacked layout the caller is drawing. A box index handed to UpdateDraggedItemLitBoxes spans
+// every grid in the view, so the occupancy test has to be told which grid each index lands in. One
+// blanket source used to be passed for the whole view, which meant the stash view asked the stash
+// (page 0 at that, the page was never packed in) about indices belonging to the player inventory
+// grid -- those always answered "empty", so every box lit green no matter what was under it.
+enum {
+	DND_LITVIEW_INVENTORY,
+	DND_LITVIEW_STASH,
+	DND_LITVIEW_TRADE
+};
+
+// grid order per view mirrors the DoInventoryBoxDraw calls in each Handle*View function
+int GetLitBoxSource(int view, int grid) {
+	if(view == DND_LITVIEW_STASH)
+		return grid ? DND_SYNC_ITEMSOURCE_PLAYERINVENTORY : (DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerCurrentPage") - 1) << 16));
+	if(view == DND_LITVIEW_TRADE)
+		return grid == 2 ? DND_SYNC_ITEMSOURCE_PLAYERINVENTORY : DND_SYNC_ITEMSOURCE_TRADEVIEW;
+	return DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
+}
+
+int GetLitBoxOwner(int view, int grid, int pnum) {
+	// trade draws the other player's offering as its top grid
+	if(view == DND_LITVIEW_TRADE && !grid)
+		return GetTradee();
+	return pnum;
+}
+
 // min is included max is excluded
-void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, int source) {
+void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, int view) {
 	// update the area being hovered wrt item being dragged
 	int temp = PlayerCursorData.itemDragInfo.topboxid;
 	--boxid;
@@ -3151,11 +3188,22 @@ void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, in
 		int idx;
 		int s, p;
 
+		// The hovered box decides which grid we are in, and a dragged item must stay inside it --
+		// clamping to the whole view let a tall or wide item spill out of the stash grid into the
+		// player inventory grid stacked below it, lighting boxes it could never actually occupy.
+		int hov_grid = boxid / MAX_INVENTORY_BOXES;
+		int gmin = hov_grid * MAX_INVENTORY_BOXES;
+		int gmax = gmin + MAX_INVENTORY_BOXES;
+		if(gmin < min_box)
+			gmin = min_box;
+		if(gmax > max_box)
+			gmax = max_box;
+
 		int prev_boxid = boxid;
 		if(!(prev_boxid % MAXINVENTORYBLOCKS_VERT) && temp - PlayerCursorData.itemDragInfo.click_box) {
 			boxid = prev_boxid - (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT;
-			if(boxid < min_box)
-				boxid = min_box;
+			if(boxid < gmin)
+				boxid = gmin;
 		}
 		else {
 			boxid += temp - PlayerCursorData.itemDragInfo.click_box;
@@ -3164,19 +3212,19 @@ void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, in
 			// if we are at the beginning of a row, don't do it obviously, so we check mod for that
 			// to detect beginning of a new line, we check if adding a size - 1 to it would make it go over nearest multiple of 9, if it would we stop it
 			// this coincidentally also checks for upper bound, as the upper bound is always a multiple of 9 as well
-			if(boxid < min_box) {
-				boxid = min_box + (prev_boxid % MAXINVENTORYBLOCKS_VERT) - (PlayerCursorData.itemDragInfo.size_x - 1);
-				if(boxid < min_box)
-					boxid = min_box;
+			if(boxid < gmin) {
+				boxid = gmin + (prev_boxid % MAXINVENTORYBLOCKS_VERT) - (PlayerCursorData.itemDragInfo.size_x - 1);
+				if(boxid < gmin)
+					boxid = gmin;
 			}
 
-			if(boxid % MAXINVENTORYBLOCKS_VERT) {			
+			if(boxid % MAXINVENTORYBLOCKS_VERT) {
 				if(boxid + PlayerCursorData.itemDragInfo.size_x - 1 >= roundUp(boxid, MAXINVENTORYBLOCKS_VERT))
 					boxid -= PlayerCursorData.itemDragInfo.size_x - 1;
 			}
-			
-			if(boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT >= max_box) {
-				temp = ((boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT) - max_box);
+
+			if(boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT >= gmax) {
+				temp = ((boxid + (PlayerCursorData.itemDragInfo.size_y - 1) * MAXINVENTORYBLOCKS_VERT) - gmax);
 				if(!temp)
 					temp = 1;
 				boxid -= roundUp(temp, MAXINVENTORYBLOCKS_VERT);
@@ -3186,9 +3234,16 @@ void UpdateDraggedItemLitBoxes(int boxid, int min_box, int max_box, int pnum, in
 		for(p = 0; p < PlayerCursorData.itemDragInfo.size_y; ++p) {
 			for(s = 0; s < PlayerCursorData.itemDragInfo.size_x; ++s) {
 				idx = boxid + s + p * MAXINVENTORYBLOCKS_VERT;
-				
+
+				// the clamping above is intricate enough that it is worth refusing to write outside
+				// the grid rather than trusting it -- a stray index here would light a box in
+				// another grid, or scribble past the end of InventoryBoxLit entirely
+				if(idx < gmin || idx >= gmax)
+					continue;
+
+				// ask the grid this index actually belongs to, not the view as a whole
 				// if this id isn't occupied by another item and its color scheme, color it
-				if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, idx, -1, source) - 1 == -1) {
+				if(GetItemSyncValue(GetLitBoxOwner(view, hov_grid, pnum), DND_SYNC_ITEMTOPLEFTBOX, idx - hov_grid * MAX_INVENTORY_BOXES, -1, GetLitBoxSource(view, hov_grid)) - 1 == -1) {
 					InventoryBoxLit[idx] = BOXLIT_STATE_CURSORON;
 				}
 				else
@@ -3225,14 +3280,40 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 					InventoryBoxLit[temp + offset + s + p * MAXINVENTORYBLOCKS_VERT] = BOXLIT_STATE_CLICK;
 				}
 			}
+			// click_box is where inside the item the player grabbed it: UpdateDraggedItemLitBoxes
+			// lights up (hovered box + topboxid - click_box), so getting it wrong shifts the whole
+			// lit region somewhere unrelated. It has to come from prevclick, the box the click
+			// actually landed on, NOT from boxid, which is wherever the cursor happens to be when
+			// this first runs. Those are the same box only if the cursor has not moved since the
+			// click, and the selection does not arrive until a round trip later -- so on a quick
+			// click-and-drag at high ping boxid was simply the wrong box.
 			if(PlayerCursorData.itemDragInfo.click_box == -1) {
-				PlayerCursorData.itemDragged = GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, temp, -1, source);
-				PlayerCursorData.itemDragInfo.size_x = wt;
-				PlayerCursorData.itemDragInfo.size_y = ht;
-				PlayerCursorData.itemDragInfo.topboxid = temp;
-				PlayerCursorData.itemDragInfo.source = source;
-				PlayerCursorData.itemDragInfo.click_box = boxid - 1 - offset;
-				//Log(s:"click box ", d:boxid - 1 - offset, s: " tpbxid ", d:temp);
+				if(PlayerCursorData.itemDragInfo.confirmed.valid) {
+					// the server vouches for this view, so draw only what it says we hold. Our own
+					// arrays can still be mid-sync here and must not get a say -- inferring from
+					// them is what used to leave a phantom item on the cursor.
+					// Matched on offset, which names the grid within a stacked view. Not on source:
+					// a held stash item keeps the page it was picked up on packed into its source,
+					// so that stops matching the moment the player flips pages while holding it.
+					if(PlayerCursorData.itemDragInfo.confirmed.offset == offset && PlayerCursorData.itemDragInfo.confirmed.image) {
+						PlayerCursorData.itemDragged = PlayerCursorData.itemDragInfo.confirmed.image;
+						PlayerCursorData.itemDragInfo.size_x = PlayerCursorData.itemDragInfo.confirmed.size_x;
+						PlayerCursorData.itemDragInfo.size_y = PlayerCursorData.itemDragInfo.confirmed.size_y;
+						PlayerCursorData.itemDragInfo.topboxid = PlayerCursorData.itemDragInfo.confirmed.topboxid;
+						PlayerCursorData.itemDragInfo.source = PlayerCursorData.itemDragInfo.confirmed.source;
+						PlayerCursorData.itemDragInfo.click_box = prevclick - offset;
+					}
+				}
+				else {
+					// any view the server does not vouch for keeps deriving the cursor locally
+					PlayerCursorData.itemDragged = GetItemSyncValue(pnum, DND_SYNC_ITEMIMAGE, temp, -1, source);
+					PlayerCursorData.itemDragInfo.size_x = wt;
+					PlayerCursorData.itemDragInfo.size_y = ht;
+					PlayerCursorData.itemDragInfo.topboxid = temp;
+					PlayerCursorData.itemDragInfo.source = source;
+					PlayerCursorData.itemDragInfo.click_box = prevclick - offset;
+					//Log(s:"click box ", d:prevclick - offset, s: " tpbxid ", d:temp);
+				}
 			}
 		}
 		else if(((source & 0xFFFF) == DND_SYNC_ITEMSOURCE_STASH && CheckInventory("DnD_PlayerPreviousPage") == CheckInventory("DnD_PlayerCurrentPage")) || (source & 0xFFFF) != DND_SYNC_ITEMSOURCE_STASH)
@@ -3281,7 +3362,7 @@ void HandleInventoryView(int boxid) {
 	
 	//CleanInventoryInfo();
 	int pnum = PlayerNumber();
-	UpdateDraggedItemLitBoxes(boxid, 0, MAX_INVENTORY_BOXES, pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	UpdateDraggedItemLitBoxes(boxid, 0, MAX_INVENTORY_BOXES, pnum, DND_LITVIEW_INVENTORY);
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, HUDMAX_X, HUDMAX_Y);
@@ -3649,7 +3730,7 @@ void HandleTradeBoxDraw(int boxid, int dimx, int dimy) {
 	
 	// draw other player offering up top
 	ResetInventoryLitState(0, 3 * MAX_INVENTORY_BOXES);
-	UpdateDraggedItemLitBoxes(boxid, 0, 3 * MAX_INVENTORY_BOXES, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW);
+	UpdateDraggedItemLitBoxes(boxid, 0, 3 * MAX_INVENTORY_BOXES, pnum, DND_LITVIEW_TRADE);
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX_TRADEUP, INVENTORYBOX_BASEY_TRADEUP, 32.0, RPGMENUINVENTORYID - 4, 0, DND_SYNC_ITEMSOURCE_TRADEVIEW, GetTradee(), dimx, dimy);
@@ -3749,16 +3830,13 @@ void CancelTradeRoutine(int tradee) {
 
 // returns allocated items in trade views to this player
 void ReturnTradeItems(int pnum) {
-	// from trade view of this player, move items to their new places
+	// from trade view of this player, move items back to the boxes they were staked from
 	int bid;
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
 			bid = j + i * MAXINVENTORYBLOCKS_VERT;
 			if(GlobalItemStorage.TradeViewList[pnum][bid].item_type != DND_ITEM_NULL) {
-				int pos = GetFreeSpotForItem(bid, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-				if(pos != -1)
-					MoveItemTrade(pnum, bid, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-				else {
+				if(!UnstakeTradeItem(pnum, bid)) {
 					// drop this item, just in case
 					// for now, since this isn't very likely to happen, just log an error message
 					Log(s:"Attempted to return item from trade view but no fitting slot found! Drop item.");
@@ -3766,6 +3844,47 @@ void ReturnTradeItems(int pnum) {
 			}
 		}
 	}
+	ClearTradeItemOrigins(pnum);
+}
+
+// Hand a staked item back to the box it was staked from. The trade rules keep that box free for as
+// long as the item is offered -- see TradeItemOrigin -- so this normally cannot fail. The free spot
+// search is only a backstop for an item that reached the grid without a note.
+bool UnstakeTradeItem(int pnum, int itempos) {
+	int tb = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itempos, -1, DND_SYNC_ITEMSOURCE_TRADEVIEW) - 1;
+	if(tb < 0)
+		return false;
+
+	int pos = GetTradeItemOrigin(pnum, tb);
+	if(pos == -1 || !IsFreeSpot(pnum, tb, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY))
+		pos = GetFreeSpotForItem(tb, pnum, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+
+	if(pos == -1)
+		return false;
+
+	MoveItemTrade(pnum, tb, pos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+	return true;
+}
+
+// Offer an item from this player's inventory. Prefers the box they aimed at so dragging still lands
+// where they expect, and falls back to the first free spot rather than swapping with whatever is
+// already there -- a swap would send the displaced offer to a box that isn't its own.
+bool StakeTradeItem(int pnum, int itempos, int destpos) {
+	int tb = GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, itempos, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) - 1;
+	if(tb < 0)
+		return false;
+
+	if(destpos != -1 && IsFreeSpot(pnum, itempos, destpos, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_TRADEVIEW)) {
+		MoveItemTrade(pnum, itempos, destpos, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_TRADEVIEW);
+		return true;
+	}
+
+	int pos = GetFreeSpotForItem(tb, pnum, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_TRADEVIEW);
+	if(pos == -1)
+		return false;
+
+	MoveItemTrade(pnum, tb, pos, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, DND_SYNC_ITEMSOURCE_TRADEVIEW);
+	return true;
 }
 
 void HandleTradeCountdown(int p1, int p2) {
@@ -3875,85 +3994,80 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 
 						// jump click is to auto-dump hovered item to stash or vice versa
 						if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_CROUCH) {
+							if(isource == DND_SYNC_ITEMSOURCE_TRADEVIEW)
+								SetTradeItemOrigin(pnum, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid - 1 - ioffset, -1, isource) - 1, -1);
 							HandleMenuItemDrop(pnum, boxid - ioffset, isource);
 						}
 						else if((GetPlayerInput(-1, INPUT_BUTTONS) & BT_JUMP) && !CheckInventory("DnD_AutoDumpCooldown")) {
 							// auto move code -- returns success if it could move
-							if
-							(
-								GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL &&
-								AutoMoveItem(pnum, boxid - ioffset - 1, isource, ssource)
-							)
-							{
-								GiveInventory("DnD_AutoDumpCooldown", 1);
+							// deliberately not AutoMoveItem: that one merges and splits stacks, and a
+							// split leaves half the stack sitting in the box the other half has to
+							// come home to. stakes stay whole for as long as a trade is open.
+							if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL) {
+								bool moved;
+								if(isource == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)
+									moved = StakeTradeItem(pnum, boxid - ioffset - 1, -1);
+								else
+									moved = UnstakeTradeItem(pnum, boxid - ioffset - 1);
+
+								if(moved)
+									GiveInventory("DnD_AutoDumpCooldown", 1);
 							}
 						}
 						else
 							SetInventory("DnD_SelectedInventoryBox", boxid);
 					}
 					else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
-						int epos, ipos;
-						// i is for current click, s for previous selection
-						isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
-						ioffset = MAX_INVENTORY_BOXES;
-						ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
-						soffset = MAX_INVENTORY_BOXES;
-						
-						// set up source and offsets
-						if(boxid > 2 * MAX_INVENTORY_BOXES) {
-							isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-							ioffset = 2 * MAX_INVENTORY_BOXES;
+						int sel = CheckInventory("DnD_SelectedInventoryBox");
+
+						// past 2 * MAX is the player's own inventory grid, below it is their half of
+						// the offer. i is for the current click, s for the previous selection.
+						bool box_inv = boxid > 2 * MAX_INVENTORY_BOXES;
+						bool sel_inv = sel > 2 * MAX_INVENTORY_BOXES;
+						isource = box_inv ? DND_SYNC_ITEMSOURCE_PLAYERINVENTORY : DND_SYNC_ITEMSOURCE_TRADEVIEW;
+						ssource = sel_inv ? DND_SYNC_ITEMSOURCE_PLAYERINVENTORY : DND_SYNC_ITEMSOURCE_TRADEVIEW;
+						ioffset = box_inv ? 2 * MAX_INVENTORY_BOXES : MAX_INVENTORY_BOXES;
+						soffset = sel_inv ? 2 * MAX_INVENTORY_BOXES : MAX_INVENTORY_BOXES;
+
+						int ipos = boxid - 1 - ioffset, spos = sel - 1 - soffset;
+						bool boxidon = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, ipos, -1, isource) != DND_ITEM_NULL;
+						bool prevselecton = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, spos, -1, ssource) != DND_ITEM_NULL;
+
+						// normalize to "carry the item at frompos onto topos"; clicking an empty box
+						// first and the item second means the same thing as the other way round
+						int frompos = spos, topos = ipos;
+						bool from_inv = sel_inv, to_inv = box_inv;
+						if(!prevselecton && boxidon) {
+							frompos = ipos;
+							topos = spos;
+							from_inv = box_inv;
+							to_inv = sel_inv;
 						}
-						
-						if(CheckInventory("DnD_SelectedInventoryBox") > 2 * MAX_INVENTORY_BOXES) {
-							ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-							soffset = 2 * MAX_INVENTORY_BOXES;
-						}
-						
-						int temp;
-						bool boxidon = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL;
-						bool prevselecton = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL;
-						if(boxidon && prevselecton) {
-							// if both of them point to the same pointer, we need to move this item instead
-							if(isource == ssource && GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, boxid - 1 - ioffset, -1, isource) == GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource)) {
-								ipos = CheckInventory("DnD_SelectedInventoryBox") - 1;
-								epos = boxid - 1;
-								/*
-								// swap because the ipos place is changed
-								temp = ssource;
-								ssource = isource;
-								isource = temp;
-								temp = soffset;
-								soffset = ioffset;
-								ioffset = temp;
-								*/
-								if(IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource))
-									MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
+
+						if(boxidon || prevselecton) {
+							if(from_inv && to_inv) {
+								// No shuffling your own grid while a trade is open. Every staked item
+								// has to find its own box still free and still the right shape if the
+								// trade falls through -- see TradeItemOrigin. Letting the player fill
+								// the hole an offered item left is exactly what breaks that.
 							}
-							else
-								SwapItems(pnum, boxid - 1 - ioffset, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, isource, ssource, false);
-						}
-						else {
-							// find which one has an item, and move it
-							if(!boxidon) {
-								epos = boxid - 1;
-								ipos = CheckInventory("DnD_SelectedInventoryBox") - 1;
-								// swap because the ipos place is changed
-								temp = ssource;
-								ssource = isource;
-								isource = temp;
-								temp = soffset;
-								soffset = ioffset;
-								ioffset = temp;
+							else if(from_inv)
+								StakeTradeItem(pnum, frompos, topos);
+							else if(to_inv) {
+								// the aimed at box is ignored: an offer only ever comes back home
+								UnstakeTradeItem(pnum, frompos);
 							}
-							else {
-								epos = CheckInventory("DnD_SelectedInventoryBox") - 1;
-								ipos = boxid - 1;
+							else if(boxidon && prevselecton) {
+								// both inside the offer, so this is just rearranging what's on show
+								if(GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, ipos, -1, isource) == GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, spos, -1, ssource)) {
+									if(IsFreeSpot(pnum, spos, ipos, ssource, isource))
+										MoveItemTrade(pnum, spos, ipos, ssource, isource);
+								}
+								else
+									SwapItems(pnum, ipos, spos, isource, ssource, false);
 							}
-							// epos holds the empty position now
-							// make sure we aren't both empty slots
-							if((boxidon || prevselecton) && IsFreeSpot(pnum, ipos - ioffset, epos - soffset, isource, ssource))
-								MoveItemTrade(pnum, ipos - ioffset, epos - soffset, isource, ssource);
+							else if(IsFreeSpot(pnum, frompos, topos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_TRADEVIEW))
+								MoveItemTrade(pnum, frompos, topos, DND_SYNC_ITEMSOURCE_TRADEVIEW, DND_SYNC_ITEMSOURCE_TRADEVIEW);
 						}
 						SetInventory("DnD_SelectedInventoryBox", 0);
 					}
@@ -3971,7 +4085,9 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					}
 					
 					if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
-						// drop selected item
+						// drop selected item -- an offer thrown on the floor has no home to keep
+						if(ssource == DND_SYNC_ITEMSOURCE_TRADEVIEW)
+							SetTradeItemOrigin(pnum, GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, -1, ssource) - 1, -1);
 						HandleMenuItemDrop(pnum, CheckInventory("DnD_SelectedInventoryBox") - soffset, ssource);
 						//DropItemToField(pnum, CheckInventory("DnD_SelectedInventoryBox") - 1 - soffset, true, ssource);
 						
@@ -3989,29 +4105,10 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 			}
 		}
 	}
-	else if(HasRightClicked(pnum) && boxid <= 3 * MAX_INVENTORY_BOXES && boxid != MAINBOX_NONE && !CheckInventory("DnD_Trade_Confirmed")) {
-		// dont let player clutter up by spamming m2 while countdown is going
-		isource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
-		ioffset = MAX_INVENTORY_BOXES;
-		ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
-		soffset = MAX_INVENTORY_BOXES;
-		
-		// set up source and offsets
-		if(boxid > 2 * MAX_INVENTORY_BOXES) {
-			isource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-			ioffset = 2 * MAX_INVENTORY_BOXES;
-		}
-		
-		if(CheckInventory("DnD_SelectedInventoryBox") > 2 * MAX_INVENTORY_BOXES) {
-			ssource = DND_SYNC_ITEMSOURCE_PLAYERINVENTORY;
-			soffset = 2 * MAX_INVENTORY_BOXES;
-		}
-		HandleM2Inputs(pnum, boxid - ioffset, isource, soffset, ssource);
-
-		// make sure changes are reflected dynamically
-		ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
-		ACS_NamedExecuteAlways("DnD Refresh Request", 0, bid, 1);
-	}
+	// m2 is deliberately dead while a trade is open. HandleM2Inputs is nothing but stack splitting,
+	// and it CloneItems into the same grid it split from -- in the inventory that eats a box a
+	// staked item has to come home to, and in the offer it leaves a piece with no note attached.
+	// See TradeItemOrigin.
 }
 
 void DrawDraggedItem(int pnum) {
@@ -4048,7 +4145,7 @@ void HandleStashView(int boxid) {
 	PlayerCursorData.itemDraggedStashSize = true;
 	
 	ResetInventoryLitState(0, 2 * MAX_INVENTORY_BOXES);
-	UpdateDraggedItemLitBoxes(boxid, 0, 2 * MAX_INVENTORY_BOXES, pnum, DND_SYNC_ITEMSOURCE_STASH);
+	UpdateDraggedItemLitBoxes(boxid, 0, 2 * MAX_INVENTORY_BOXES, pnum, DND_LITVIEW_STASH);
 	// draw stash at top
 	for(i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
@@ -4170,7 +4267,14 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 				SetInventory("DnD_SelectedInventoryBox", boxid);
 			}
 		}
-		else if(boxid != sel_box) {
+		// A stash box id repeats on every page, so "the box I am already holding" has to mean same
+		// box AND same page. Without the page half, picking up page 1 box N and then clicking box N
+		// on page 2 looked like clicking the held box itself and just dropped the selection instead
+		// of moving. Only the stash grid is paged -- the player inventory grid stacked below it
+		// (boxid > MAX_INVENTORY_BOXES) has no pages, and the page buttons sit past it too, so both
+		// are left on the plain box comparison. The move code below already handles the cross page
+		// case correctly: isource takes the current page, ssource the page the item was picked up on.
+		else if(boxid != sel_box || (boxid <= MAX_INVENTORY_BOXES && CheckInventory("DnD_PlayerCurrentPage") != CheckInventory("DnD_PlayerPreviousPage"))) {
 			if(boxid >= STASHBUTTON_BOXID_START) {
 				// because fucking ACS is stupid somehow this is 2 when evaluated normally...
 				temp = -(STASHBUTTON_BOXID_START - boxid);

@@ -3,6 +3,22 @@
 
 #include "Inventory/DnD_InvInfo.h"
 
+void LogDungeonUpsideState(str who) {
+	Log(s:"[dun][", s:who, s:"] count ", d:DungeonInformation.attrib_count, s:" quality ", d:DungeonInformation.quality, s:" dungeon ", d:DungeonInformation.dungeon_id);
+	for(int i = 0; i < DungeonInformation.attrib_count; ++i) {
+		Log(
+			s:"[dun][", s:who, s:"]   attr ", d:i,
+			s:" id ", d:DungeonInformation.attributes[i].attrib_id,
+			s:" val ", d:DungeonInformation.attributes[i].attrib_val,
+			s:" -> upside ", d:DungeonInformation.attributes[i].attrib_extra & 0xFFFF,
+			s:" +", d:DungeonInformation.attributes[i].attrib_extra >> 16
+		);
+	}
+	for(i = 0; i < DUN_UPSIDE_MAX; ++i)
+		if(DungeonInformation.upside_vals[i])
+			Log(s:"[dun][", s:who, s:"]   SUM upside ", d:i, s:" = ", d:DungeonInformation.upside_vals[i]);
+}
+
 void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	// roll random attributes for the key
 	auto item = GetFieldItem(item_pos);
@@ -87,6 +103,23 @@ void SpawnDungeonKey(int pnum) {
 	}
 }
 
+// Derive the upside sums from the attribute list instead of adding to them as attributes arrive.
+// The client receives its attributes as individual CLIENTSIDE script calls and Zandronum does not
+// order them -- observed arrival is the exact reverse of the send order, with the header that
+// carries attrib_count landing after the attributes it describes. Anything where one message clears
+// and another accumulates loses the values. This is a pure function of attributes[] and
+// attrib_count, both written by plain assignment, so it lands on the right answer whatever order
+// the messages show up in, and simply repeats itself harmlessly if called again.
+void RebuildDungeonUpsides() {
+	int i;
+	for(i = 0; i < DUN_UPSIDE_MAX; ++i)
+		DungeonInformation.upside_vals[i] = 0;
+
+	// the low half of extra is which upside, the high half is how much of it
+	for(i = 0; i < DungeonInformation.attrib_count; ++i)
+		DungeonInformation.upside_vals[DungeonInformation.attributes[i].attrib_extra & 0xFFFF] += DungeonInformation.attributes[i].attrib_extra >> 16;
+}
+
 void ResetCurrentDungeonData() {
 	int i;
 	DungeonInformation.quality = 0;
@@ -141,10 +174,10 @@ void SetupCurrentDungeonData(int pnum, int item_pos, int sel_dungeon_id) {
 		DungeonInformation.attributes[i].attrib_tier = d_item.attributes[i].attrib_tier;
 
 		ACS_NamedExecuteWithResult("DnD Sync Current Dungeon Data - 2", i, DungeonInformation.attributes[i].attrib_id, DungeonInformation.attributes[i].attrib_val, DungeonInformation.attributes[i].attrib_extra);
-
-		// add the sum to the upsides array
-		DungeonInformation.upside_vals[DungeonInformation.attributes[i].attrib_extra & 0xFFFF] += DungeonInformation.attributes[i].attrib_extra >> 16;
 	}
+
+	// same derivation the clients use, so both sides sum identically
+	RebuildDungeonUpsides();
 }
 
 void SyncCurrentDungeonInformation() {
@@ -168,7 +201,13 @@ Script "DnD Sync Current Dungeon Data - 1" (int dung_id, int quality, int level,
 	DungeonInformation.quality = quality;
 	DungeonInformation.level = level;
 	DungeonInformation.attrib_count = attrib_count;
-	
+
+	// Clients never run ResetCurrentDungeonData -- DungeonInformation is a global, so each side
+	// holds its own copy and nothing on the server clears the client's. Redrive the sums from
+	// whatever this client currently holds; this message may well arrive after the attributes it
+	// describes, so it cannot simply clear them.
+	RebuildDungeonUpsides();
+
 	SetResultValue(0);
 }
 
@@ -176,7 +215,10 @@ Script "DnD Sync Current Dungeon Data - 2" (int id, int attrib_id, int val, int 
 	DungeonInformation.attributes[id].attrib_id = attrib_id;
 	DungeonInformation.attributes[id].attrib_val = val;
 	DungeonInformation.attributes[id].attrib_extra = extra;
-	DungeonInformation.upside_vals[extra & 0xFFFF] += extra >> 16;
+
+	// attributes can land before the header that says how many there are, so redrive every time
+	RebuildDungeonUpsides();
+
 	SetResultValue(0);
 }
 

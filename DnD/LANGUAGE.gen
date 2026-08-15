@@ -101,15 +101,18 @@ DND_ATTRIBUTEPTS						= "Attribute Points";
 
 DND_INVENTORY							= "Inventory";
 
+// Positional on DND_DAMAGECATEGORY -- GetTalentTag() builds the lump name as
+// "DND_TALENT" + (category + 1). Reorder the category enum and these move with it.
 DND_TALENT1								= "Melee";
-DND_TALENT2								= "Ballistic";
+DND_TALENT2								= "Physical";
 DND_TALENT3								= "Energy";
-DND_TALENT4								= "Occult";
 
-DND_TALENT5								= "Fire";
-DND_TALENT6								= "Cold";
+DND_TALENT4								= "Fire";
+DND_TALENT5								= "Cold";
+DND_TALENT6								= "Poison";
 DND_TALENT7								= "Lightning";
-DND_TALENT8								= "Poison";
+
+DND_TALENT8								= "Magic";
 
 DND_DAMAGEBONUS							= "damage bonus";
 DND_DAMAGE								= "damage";

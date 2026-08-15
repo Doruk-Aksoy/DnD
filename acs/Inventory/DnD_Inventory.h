@@ -44,6 +44,40 @@ typedef struct {
 // holds indexes to items used that are on players like charms or armors
 global global_item_storage_T 20: GlobalItemStorage;
 
+// While an item sits in a player's trade view, this remembers the inventory box it was staked from,
+// keyed by the item's top left box in the trade grid. Stored +1 so 0 reads as "no record".
+//
+// Handing it back to that exact box is only sound because the inventory cannot change shape while a
+// trade is open: pickup is blocked with the menu up, the trade view refuses moves inside the
+// inventory grid, and stakes never split or merge stacks. So a staked item's home box is still free
+// and still the right shape when the trade falls through. Map scope on purpose -- a trade never
+// outlives the map, and this has no business anywhere near global 20's layout.
+int[] module& GetTradeItemOrigins(int pnum) {
+	static int TradeItemOrigin[MAXPLAYERS][MAX_INVENTORY_BOXES];
+	return TradeItemOrigin[pnum];
+}
+
+bool IsPlayerTradeGrid(int pnum, int source) {
+	return source == DND_SYNC_ITEMSOURCE_TRADEVIEW && pnum >= 0 && pnum < MAXPLAYERS;
+}
+
+// -1 if there is no record
+int GetTradeItemOrigin(int pnum, int tradebox) {
+	auto origins = GetTradeItemOrigins(pnum);
+	return origins[tradebox] - 1;
+}
+
+void SetTradeItemOrigin(int pnum, int tradebox, int invbox) {
+	auto origins = GetTradeItemOrigins(pnum);
+	origins[tradebox] = invbox + 1;
+}
+
+void ClearTradeItemOrigins(int pnum) {
+	auto origins = GetTradeItemOrigins(pnum);
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i)
+		origins[i] = 0;
+}
+
 #include "DnD_InventoryFuncs.h"
 
 #define DND_ITEMMOD_ADD FALSE
@@ -992,6 +1026,8 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 			SyncItemStack(pnum, ipos1 + offset1, source1);
 			// dispose of 2nd item
 			FreeItem(pnum, ipos2 + offset2, source2, false);
+			if(IsPlayerTradeGrid(pnum, source2))
+				SetTradeItemOrigin(pnum, ipos2 + offset2, -1);
 		}
 		else {
 			// set stack of h1p to max, then set the stack of ipos2 to whatever is left
@@ -1017,7 +1053,22 @@ void SwapItems(int pnum, int ipos1, int ipos2, int source1, int source2, bool do
 		
 		CopyItemFromTemporary(pnum, ipos1 + offset2, 1, source1);
 		CopyItemFromTemporary(pnum, ipos2 + offset1, 0, source2);
-		
+
+		// a swap is the one move that doesn't run through MoveItemTrade, so the trade notes are
+		// handed over here too. item1 landed in source2, item2 landed in source1.
+		if(IsPlayerTradeGrid(pnum, source1) || IsPlayerTradeGrid(pnum, source2)) {
+			int org1 = IsPlayerTradeGrid(pnum, source1) ? GetTradeItemOrigin(pnum, ipos1 + offset1) : -1;
+			int org2 = IsPlayerTradeGrid(pnum, source2) ? GetTradeItemOrigin(pnum, ipos2 + offset2) : -1;
+			if(IsPlayerTradeGrid(pnum, source1)) {
+				SetTradeItemOrigin(pnum, ipos1 + offset1, -1);
+				SetTradeItemOrigin(pnum, ipos1 + offset2, org2);
+			}
+			if(IsPlayerTradeGrid(pnum, source2)) {
+				SetTradeItemOrigin(pnum, ipos2 + offset2, -1);
+				SetTradeItemOrigin(pnum, ipos2 + offset1, org1);
+			}
+		}
+
 		// special version calls scripts with 1 tic delay, because apparently script execution order in zandronum is so SHIT, the ones in FreeItem aren't even
 		// guaranteed to run before the scripts called from below
 		SyncItemData_Special(pnum, ipos1 + offset2, source1);
@@ -1364,6 +1415,21 @@ void MoveItemTrade(int pnum, int itempos, int emptypos, int itemsource, int empt
 		FreeItem(pnum, tb, itemsource, false);
 	}
 	
+	// carry the note saying where this item came from, so a trade that falls through can hand it
+	// back to the same box -- read it before clearing, a move inside the trade grid is both sides
+	if(IsPlayerTradeGrid(pnum, itemsource) || IsPlayerTradeGrid(pnum, emptysource)) {
+		int origin = -1;
+		if(IsPlayerTradeGrid(pnum, itemsource)) {
+			origin = GetTradeItemOrigin(pnum, tb);
+			SetTradeItemOrigin(pnum, tb, -1);
+		}
+		else if(itemsource == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)
+			origin = tb;
+
+		if(IsPlayerTradeGrid(pnum, emptysource))
+			SetTradeItemOrigin(pnum, temp, origin);
+	}
+
 	// as soon as this item is offered for a trade it can't be edited
 	if(Player_MostRecent_Orb[pnum].p_tempwep == itempos && itemsource == DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)
 		Player_MostRecent_Orb[pnum].p_tempwep = 0;
@@ -1455,6 +1521,9 @@ void TransferTradeItems(int from, int to) {
 		item_move_list[i].height = 0;
 		item_move_list[i].dest_pos = -1;
 	}
+
+	// the offer went through, so "put it back where it was" means nothing for these anymore
+	ClearTradeItemOrigins(from);
 }
 
 int GetInventoryInfoOffset(int itype) {
@@ -2404,7 +2473,24 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 
 		case INV_EX_HEALTHATONE:
 			IncPlayerModValue(pnum, atype, aval);
-			SetActorProperty(0, APROP_HEALTH, 1);
+
+			// Recompute instead of assuming: on the way in this is 1, on the way out it is the real
+			// cap again. APROP_SPAWNHEALTH is the part that was missing -- nothing writes it when an
+			// item is equipped. It is only set on character load, on respawn and on a strength
+			// change, so equipping this mid-map left the engine still handing out the pre-armor
+			// maximum, and the player kept their old health capacity until one of those three
+			// happened to fire. GetSpawnHealth refreshes PlayerHealthCap on the way past too.
+			temp = GetSpawnHealth();
+			SetActorProperty(0, APROP_SPAWNHEALTH, temp);
+
+			if(!remove)
+				SetActorProperty(0, APROP_HEALTH, 1);
+			else if(GetActorProperty(0, APROP_HEALTH) > temp) {
+				// taking the armor off restores the cap, so only clamp down -- the 1 hp the player
+				// is sitting on is theirs to heal back. this used to pin them at 1 permanently by
+				// running the set above on removal as well.
+				SetActorProperty(0, APROP_HEALTH, temp);
+			}
 		break;
 
 		case INV_EX_UNITY:
@@ -2565,13 +2651,15 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 	int i, temp;
 
 	if(multiplier != 100) {
-		if(aval > bcs::INT_MAX / multiplier) {
-			aval /= 100;
-			aval *= multiplier;
-		}
-		else {
-			aval *= multiplier;
-			aval /= 100;
+		if(!IsAttributeQualityException(atype)) {
+			if(aval > bcs::INT_MAX / multiplier) {
+				aval /= 100;
+				aval *= multiplier;
+			}
+			else {
+				aval *= multiplier;
+				aval /= 100;
+			}
 		}
 
 		if(!IsAttributeExtraException(atype)) {
@@ -2791,6 +2879,23 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 			}
 		break;
 
+		// Deliberately NOT IncPlayerModValue: every one of these names its own source and
+		// destination in aextra, so a single summed attribute value could not tell two of them
+		// apart. The conversion table is the accumulator instead, and it is reset alongside
+		// PlayerModData in ResetPlayerModList.
+		//
+		// aval is already negated on removal; aextra is not, because this mod is on the
+		// IsAttributeExtraException list, so the pair survives an unequip intact.
+		case INV_CORR_DAMAGECONVERSION:
+			IncPlayerConversionPercent(pnum, aextra & DND_DAMAGECONVERSION_MASK, aextra >> DND_DAMAGECONVERSION_BITS, aval);
+		break;
+
+		// same pair, same ladder -- the only difference is that this one does not take the damage
+		// away from the source, so it is uncapped and the source keeps dealing everything it had
+		case INV_CORR_DAMAGEGAINEDAS:
+			IncPlayerDamageGainPercent(pnum, aextra & DND_DAMAGECONVERSION_MASK, aextra >> DND_DAMAGECONVERSION_BITS, aval);
+		break;
+
 		default:
 			IncPlayerModValue(pnum, atype, aval);
 		break;
@@ -2847,9 +2952,11 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	for(i = 0; i < MAX_ITEM_IMPLICITS; ++i)
 		ProcessItemImplicit(pnum, item_index, source, i, remove, multiplier);
 
-	// Well of power factor
+	// Well of power factor -- the item type has to be part of this test. DND_CHARM_SMALL is 0, and
+	// every other equippable keeps an unrelated index in item_subtype (boot/armor/helm base, flask
+	// kind), so a subtype-only check hands the factor to whichever of those happens to be base 0.
 	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
-	if(temp && GetItemSyncValue(pnum, DND_SYNC_ITEMSUBTYPE, item_index, -1, source) == DND_CHARM_SMALL)
+	if(temp && (item.item_type & 0xFFFF) == DND_ITEM_CHARM && item.item_subtype == DND_CHARM_SMALL)
 		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
 
 	for(i = 0; i < ac; ++i)
@@ -3082,7 +3189,7 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 
 	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
 #ifdef ISDEBUGBUILD
-		int corr_mod = INV_CORR_SPEED; //INV_CORR_WEAPONPLUSPROJ;
+		int corr_mod = random(INV_CORR_DAMAGECONVERSION, INV_CORR_DAMAGEGAINEDAS); //INV_CORR_WEAPONPLUSPROJ;
 #else
 		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
 #endif
@@ -3577,6 +3684,7 @@ void ResetTradeViewList(int pnum) {
 			SyncItemData_Null(pnum, i, DND_SYNC_ITEMSOURCE_TRADEVIEW, item.width, item.height);
 		ClearInventoryItem(item);
 	}
+	ClearTradeItemOrigins(pnum);
 }
 
 void ResetPlayerStash(int pnum) {

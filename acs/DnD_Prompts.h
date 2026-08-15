@@ -718,13 +718,18 @@ Script "DnD Prompt Dark Wanderer" (int first_time, int offer_id, int n_state) CL
 			if(sendInput && !CheckInventory("DnD_ClickTicker")) {
 				GiveInventory("DnD_ClickTicker", 1);
 				// server gets a few extra info in boxid
-				if(!MenuInputData[pnum][DND_MENUINPUT_PAYLOAD])
-					MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
+				// recomputed per send: latching it meant a second click inside one round trip
+				// re-sent the first box. DnD_PromptLocked already holds this to one real decision,
+				// so no send pacing is needed here, unlike the item views.
+				MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] = (boxid | MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK]);
 				i = PlayerNumber() | (CheckInventory("MenuInput") << 16);
 				// guarantee nonzero input
 				if(i) {
 					//Log(s:"trying to send prev item ", d:MenuInputData[pnum][DND_MENUINPUT_PAYLOAD] >> 16, s: " vs ", d:MenuInputData[pnum][DND_MENUINPUT_PLAYERCRAFTCLICK] >> 16);
 					NamedRequestScriptPuke("DND Server Box Receive - NPC", i, MenuInputData[pnum][DND_MENUINPUT_PAYLOAD], DND_NPC_DARKWANDERER);
+					// one press, one send -- see the merchant loop. DnD_PromptLocked only arrives
+					// a round trip later, so it cannot stop the resend on its own.
+					SetInventory("MenuInput", 0);
 				}
 			}
 			
