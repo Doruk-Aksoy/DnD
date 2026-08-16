@@ -179,7 +179,7 @@ DND_MENU_MMOD_SPECIAL	=	"Special Modifiers";
 
 DND_MENU_BULLETTEXT		=	"\c[Y5]Physical\n\nThe simplest of all types. You'll find this in hitscan or melee weapons.";
 DND_MENU_MELEETEXT		=	"\c[Y5]Melee\n\nFound specifically in \c[Y5]Slot 1\c- weapons, with some exceptions. Magical weapons deal \cvmagic\c- damage with their melee, but otherwise counts as \cuphysical\c- damage.";
-DND_MENU_OCCULTTEXT		=	"\c[Y5]Occult\n\nDemonic or holy weapons utilize this damage type. The most dominant weapons of this type are \c[Y5]Slot 8\c- weapons. Magical and undead monsters take extra damage from this type.";
+DND_MENU_OCCULTTEXT		=	"\c[Y5]Magic\n\nDemonic or holy weapons utilize this damage type. The most dominant weapons of this type are \c[Y5]Slot 8\c- weapons. Magical and undead monsters take extra damage from this type.";
 DND_MENU_ENERGYTEXT		=	"\c[Y5]Energy\n\nGeneral category of the plasma type weapons. Mostly found in \c[Y5]Slot 6\c- and \c[Y5]7\c- weapons. Mechanical enemies take extra damage from this type.";
 DND_MENU_FIRETEXT		=	"\c[Y5]Fire\n\nWeapon deals fire damage. These weapons can ignite enemies.";
 DND_MENU_ICETEXT		=	"\c[Y5]Cold\n\nWeapon deals cold damage. These weapons can chill and freeze enemies.";
@@ -589,6 +589,10 @@ DND_MENU_MMOD_AGG16		=	"Monster fires projectiles at 1.5 times the speed.";
 DND_MENU_MMOD_AGG17		=	"Upon taking lethal damage from players, the monster becomes more aggressive and is granted a rapidly decaying shield.";
 DND_MENU_MMOD_AGG18		=	"Monster steals 5 stamina with each hit.";
 DND_MENU_MMOD_AGG19		=	"Monster has 50% increased movement speed.";
+DND_MENU_MMOD_AGG20		=	"\cd20%\c- of their physical damage gained as extra fire damage.";
+DND_MENU_MMOD_AGG21		=	"\cd20%\c- of their physical damage gained as extra cold damage.";
+DND_MENU_MMOD_AGG22		=	"\cd20%\c- of their physical damage gained as extra lightning damage.";
+DND_MENU_MMOD_AGG23		=	"\cd20%\c- of their physical damage gained as extra poison damage.";
 
 // defensive group
 DND_MENU_MMOD_DEF1		=	"Monster is ghostly, most of the non-magical projectiles will go through the monster.";

@@ -13,7 +13,7 @@
 #define PAGEID_STASHTAB_ORBS MAX_EXTRA_INVENTORY_PAGES
 
 #include "DnD_InvInfo.h"
-#include "../DnD_UniqueItems.h"
+#include "DnD_UniqueItems.h"
 #include "../DnD_Hud.h"
 #include "../DnD_WeaponDefs.h"
 

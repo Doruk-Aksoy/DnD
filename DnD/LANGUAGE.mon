@@ -120,6 +120,11 @@ DND_EMOD_LIGHTNING_IMMUNE		= "\cmLightning Immune\c-";
 DND_EMOD_EXHAUSTING				= "\cgExhausting";
 DND_EMOD_EXTRASPEED				= "\cgExtra Speed";
 
+DND_EMOD_EMBERTOUCH				= "\cgEmber Touch\c-";
+DND_EMOD_RIMETOUCH				= "\cgRime Touch\c-";
+DND_EMOD_STORMTOUCH				= "\cgStorm Touch\c-";
+DND_EMOD_VILETOUCH				= "\cgVile Touch\c-";
+
 DND_EMOD_GUARDBROKEN			= "\cfGuard Broken\c-";
 
 DND_EMOD_ETHEREAL				= "\cmEthereal\c-";	

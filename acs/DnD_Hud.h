@@ -90,7 +90,14 @@ void ClearMenuDisplay() {
 	DeleteText(RPGMENUPAGEID - 1);
 	DeleteText(RPGMENUHIGHLIGHTID);
 	DeleteTextRange(RPGMENULISTID - 1, RPGMENULISTID);
-	
+
+	// the bar draws outside every sweep below it, so it has to be named to go away
+	DeleteTextRange(RPGMENUSCROLLGRIPID, RPGMENUSCROLLTRACKID);
+	scrollbar_T module& bar = GetScrollBar();
+	bar.listened = false;
+	bar.grabbed = false;
+	bar.drawn = false;
+
 	DeleteTextRange(RPGMENUCURSORID, RPGMENUINVENTORYID);
 	DeleteTextRange(RPGMENUINFOID, RPGMENUWEAPONPANELID);
 	DeleteTextRange(RPGMENUITEMIDEND, RPGMENUITEMSUBID);
@@ -525,9 +532,26 @@ void SetupScreenOffsets() {
 }
 
 // Meant to be used entirely clientside only, for scrolling up and down (used when server doesnt need to know about this)
-bool ListenScroll(int condx_min, int condx_max) {
+//
+// step_px is how many pixels one scroll position moves this page's content -- the multiplier the
+// page already applies to ScrollPos.x when it draws -- and view_px is the height of the clip it
+// draws inside. Together they say how much content exists, which is what sizes the thumb. Leave
+// them out and the bar still works, it just draws a fixed size thumb that only reports position.
+bool ListenScroll(int condx_min, int condx_max, int step_px = 0, int view_px = 0) {
 	bool redraw = false;
 	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
+
+	// Every page states how far it scrolls right here and nowhere else, so this is the only place
+	// the bar can learn its range from. Recording it costs a handful of stores on a path that
+	// already runs every tic, and saves duplicating the per page extents in a second table that
+	// would then have to be kept in step with this one by hand.
+	scrollbar_T module& bar = GetScrollBar();
+	bar.range.x = condx_min;
+	bar.range.y = condx_max;
+	bar.content.x = step_px;
+	bar.content.y = view_px;
+	bar.listened = true;
+
 	// up is 1, down is 2
 	// opposite buttons because view should go up
 	if(IsButtonHeld(bpress, BT_FORWARD)) {
@@ -545,6 +569,167 @@ bool ListenScroll(int condx_min, int condx_max) {
 		SetInventory("MenuUD", 2);
 	}
 	return redraw;
+}
+
+// A page that never called ListenScroll has no scroll to show, and one whose range collapsed to a
+// single position has nothing left to move -- a bar for either would be a control that does
+// nothing. The item views draw their own grids over the page, so the bar stands down for those
+// too rather than floating on top of a view it does not drive.
+bool CanShowScrollBar(scrollbar_T module& bar) {
+	return
+		bar.listened &&
+		bar.range.y > bar.range.x &&
+		!CheckInventory("DnD_InventoryView") &&
+		!CheckInventory("InTradeView") &&
+		!CheckInventory("DnD_StashView");
+}
+
+// The thumb takes the same share of the track that the visible window takes of the whole page, so
+// its length is a readout of how much is left rather than decoration.
+int GetScrollThumbHeight(scrollbar_T module& bar) {
+	// a page that did not declare its content gets a fixed thumb -- better an honest constant
+	// than a proportion guessed from a range whose pixel scale is unknown
+	if(bar.content.x <= 0 || bar.content.y <= 0)
+		return DND_SCROLLBAR_THUMBDEFAULT;
+
+	return Clamp_Between(
+		DND_SCROLLBAR_H * bar.content.y / (bar.content.y + (bar.range.y - bar.range.x) * bar.content.x),
+		DND_SCROLLBAR_THUMBMIN,
+		DND_SCROLLBAR_THUMBMAX
+	);
+}
+
+// How far the thumb can move. THUMBMAX keeps this away from zero, which the drag divides by.
+int GetScrollTravel(scrollbar_T module& bar) {
+	return DND_SCROLLBAR_H - GetScrollThumbHeight(bar);
+}
+
+// Where the thumb's top edge sits, in pixels down from the top of the track.
+int GetScrollThumbOffset(scrollbar_T module& bar) {
+	// Top of the content is range.y and puts the thumb at the top of the track, so the distance
+	// travelled is measured from there. Clamped because the position carries over from the page
+	// before for the one tic between a page change and that page's first ListenScroll, and a stale
+	// position outside the new range would put the thumb off the end of the track.
+	int travel = GetScrollTravel(bar);
+	return Clamp_Between(travel * (bar.range.y - ScrollPos.x) / (bar.range.y - bar.range.x), 0, travel);
+}
+
+bool IsCursorOnScrollBar() {
+	return point_in_points(
+		DND_SCROLLBAR_CURSOR_XMAX, DND_SCROLLBAR_CURSOR_YMAX,
+		DND_SCROLLBAR_CURSOR_XMIN, DND_SCROLLBAR_CURSOR_YMIN,
+		PlayerCursorData.posx, PlayerCursorData.posy, 0
+	);
+}
+
+// Dragging the bar with the mouse. Returns whether anything the eye can see changed, so the caller
+// folds it into its redraw the same way it folds in ListenScroll.
+//
+// This also owns bar.grabbed, which the menu loop reads to keep its own click handling out of the
+// way for the duration -- without that, every drag would additionally count as clicking on
+// whatever box the cursor happened to pass over on the way down.
+bool HandleScrollBarDrag() {
+	scrollbar_T module& bar = GetScrollBar();
+	int bpress = GetPlayerInput(-1, INPUT_BUTTONS);
+	bool shown = CanShowScrollBar(bar);
+	bool lit = shown && (bar.grabbed || IsCursorOnScrollBar());
+
+	// Whether the bar is there at all and whether it is lit are the only two things it draws
+	// differently, so a change in either is exactly when a redraw is owed. It matters that this
+	// asks rather than assumes: pages come and go on box changes that do not always request a
+	// redraw -- the weapon pages only scroll while a weapon with a long description is hovered --
+	// and a bar left drawn over a page that stopped scrolling would sit there responding to
+	// nothing.
+	bool redraw = shown != bar.drawn || lit != bar.lit;
+	bar.drawn = shown;
+	bar.lit = lit;
+
+	if(!shown || CheckInventory("DnD_SellConfirm") || !IsButtonHeld(bpress, BT_ATTACK)) {
+		bar.grabbed = false;
+		return redraw;
+	}
+
+	if(!bar.grabbed) {
+		// Only a press that lands on the bar starts a drag. Testing the press rather than the
+		// hold matters: a button already down from a click elsewhere must not latch onto the bar
+		// the moment the cursor wanders across it mid-click. lit stands in for the hit test here
+		// because nothing is grabbed yet, so it can only have come from the cursor being over it.
+		if(!IsButtonPressed(bpress, GetPlayerInput(-1, INPUT_OLDBUTTONS), BT_ATTACK) || !lit)
+			return redraw;
+
+		bar.grabbed = true;
+		bar.grab_y = PlayerCursorData.posy;
+		bar.grab_pos = ScrollPos.x;
+		LocalAmbientSound("RPG/MenuMove", 127);
+		return true;
+	}
+
+	// The cursor's y runs upward against the screen's, so this subtraction comes out positive
+	// when the mouse is dragged down -- which is the direction the view has to travel toward
+	// range.x. Measured from the grab point rather than from the last frame so the thumb tracks
+	// the cursor exactly instead of drifting away from it as rounding accumulates.
+	int npos = Clamp_Between(
+		bar.grab_pos - (((bar.grab_y - PlayerCursorData.posy) >> 16) * (bar.range.y - bar.range.x)) / GetScrollTravel(bar),
+		bar.range.x,
+		bar.range.y
+	);
+
+	if(npos == ScrollPos.x)
+		return redraw;
+
+	ScrollPos.x = npos;
+	return true;
+}
+
+// Expects the HUDMAX_X x HUDMAX_Y hud size the menu draws its text in.
+void DrawScrollBar() {
+	scrollbar_T module& bar = GetScrollBar();
+	if(!CanShowScrollBar(bar)) {
+		DeleteTextRange(RPGMENUSCROLLGRIPID, RPGMENUSCROLLTRACKID);
+		return;
+	}
+
+	SetFont("SCRLTRAK");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUSCROLLTRACKID, -1, DND_SCROLLBAR_XF + 0.1, DND_SCROLLBAR_YF + 0.1, 0.0, 0.0);
+
+	int th = GetScrollThumbHeight(bar);
+	int ty = DND_SCROLLBAR_Y + GetScrollThumbOffset(bar);
+	// dimmed until it is worth reaching for, so a page you are only reading does not have a bright
+	// orange bar competing with the text. Reads the state the redraw decision was made from rather
+	// than recomputing the hit test, so the two cannot disagree.
+	int alpha = bar.lit ? 1.0 : 0.7;
+
+	// The handle is three passes over one graphic rather than one pass, because its height comes
+	// from clipping and a clipped strip can only keep detail at the end it is anchored by. Each
+	// pass clips to the band it wants and offsets the art so that band lands there: the body from
+	// its top edge, the shadow onto the last row, the notches onto the middle. They overlap on the
+	// body, which is uniform, so the passes agree wherever they meet.
+	SetFont("SCRLTHMB");
+
+	SetHudClipRect(DND_SCROLLBAR_X, ty, DND_SCROLLBAR_W, th, DND_SCROLLBAR_W);
+	HudMessage(
+		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUSCROLLTHUMBID, -1,
+		DND_SCROLLBAR_XF + 0.1, ((ty - DND_SCROLLBAR_THUMBBODY) << 16) + 0.1, 0.0, alpha
+	);
+
+	SetHudClipRect(DND_SCROLLBAR_X, ty + th - 1, DND_SCROLLBAR_W, 1, DND_SCROLLBAR_W);
+	HudMessage(
+		s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUSCROLLCAPID, -1,
+		DND_SCROLLBAR_XF + 0.1, ((ty + th - 1 - DND_SCROLLBAR_THUMBCAP) << 16) + 0.1, 0.0, alpha
+	);
+
+	if(th >= DND_SCROLLBAR_THUMBGRIPMIN) {
+		int gy = ty + (th - DND_SCROLLBAR_THUMBGRIPH) / 2;
+		SetHudClipRect(DND_SCROLLBAR_X, gy, DND_SCROLLBAR_W, DND_SCROLLBAR_THUMBGRIPH, DND_SCROLLBAR_W);
+		HudMessage(
+			s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA, RPGMENUSCROLLGRIPID, -1,
+			DND_SCROLLBAR_XF + 0.1, ((gy - DND_SCROLLBAR_THUMBGRIP) << 16) + 0.1, 0.0, alpha
+		);
+	}
+	else
+		DeleteText(RPGMENUSCROLLGRIPID);
+
+	SetHudClipRect(0, 0, 0, 0, 0);
 }
 
 // we need this because the player name returned from acs functions currently includes color codes which may affect text length for trims
@@ -877,7 +1062,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 		else if(mon_flags & DND_MONFLAG_ISMAGIC)
 			prefix = StrParam(s:"\c[W3]", l:"DND_MAGIC", s:" ");
 		
-		if(MonsterProperties[m_id].trait_list[DND_LEGENDARY])
+		if(HasMonsterTrait(m_id, DND_LEGENDARY))
 			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 454.4, 10.0, MONSTERINFO_HOLDTIME);
 		else if(is_unique)
 			HudMessage(s:prefix, s:GetActorProperty(mon_tid, APROP_NAMETAG); HUDMSG_FADEOUT, MONSTER_NAMEID, CR_RED, 454.4, 10.0, MONSTERINFO_HOLDTIME);
@@ -901,16 +1086,13 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 360.4, 27.0, MONSTERINFO_HOLDTIME);
 		
 		if(monhp) {
-			// clamp to 100 on certain monsters' overheal abilities (Warmaster for example)
-			i = (monhp * 100 / mmaxhp);
-			if(i > 100)
-				i = 100;
-			i <<= 1;
-		
+			// overheal, which some monsters have (Warmaster for example), comes back as a full
+			// bar rather than as a width past the end of one
+			i = GetBarFill(monhp, mmaxhp, DND_MONSTERBAR_WIDTH);
+
 			if(fortify_amt) {
-				j = (fortify_amt * 100) / mmaxhp;
-				j <<= 1;
-				
+				j = GetBarFill(fortify_amt, mmaxhp, DND_MONSTERBAR_WIDTH);
+
 				SetHudClipRect(265, 17, j, 18, j);
 				SetFont("FILLFORT");
 				HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLID, CR_GREEN, 265.1, 28.0, MONSTERINFO_HOLDTIME);
@@ -938,12 +1120,9 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	else {
 		SetFont("MNGHPBAR");
 		HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 360.4, 28.0, MONSTERINFO_HOLDTIME);
-		
-		i = (monhp * 100 / mmaxhp);
-		if(i > 100)
-			i = 100;
-		i <<= 1;
-		
+
+		i = GetBarFill(monhp, mmaxhp, DND_MONSTERBAR_WIDTH);
+
 		if(i > 0) {
 			SetHudClipRect(265, 17, i, 18, i);
 			SetFont("FILLNORM");
@@ -964,22 +1143,22 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	DeleteTextRange(MONSTER_TRAITID, MONSTER_TRAITID + 12);
 	
 	if(!mon_isPet) {
-		if(MonsterProperties[m_id].trait_list[DND_LEGENDARY]) {
+		if(HasMonsterTrait(m_id, DND_LEGENDARY)) {
 			SetFont ("MONFONT");
 			HudMessage(s:"\c[D1]", l:"DND_EMOD_LEGENDARY_LONG"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 		}
-		else if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
+		else if(HasMonsterTrait(m_id, DND_MARKOFCHAOS)) {
 			SetFont ("MONFONT");
 			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFCHAOS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 		}
-		else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS]) {
+		else if(HasMonsterTrait(m_id, DND_MARKOFASMODEUS)) {
 			SetFont ("MONFONT");
 			HudMessage(s:"\c[D1]", l:"DND_EMOD_MARKOFASMODEUS_NOCOL"; HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 		}
 		else if(MonsterProperties[m_id].flags & DND_MONFLAG_HASTRAITS) {
 			SetFont ("MONFONT");
 			for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
-				if(MonsterProperties[m_id].trait_list[i]) {
+				if(HasMonsterTrait(m_id, i)) {
 					HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 					++j;
 				}
@@ -989,7 +1168,7 @@ void DrawMonsterHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	else if(PetMonsterProperties[m_id].flags & DND_MONFLAG_HASTRAITS) {
 		SetFont ("MONFONT");
 		for(i = 0; i < MAX_MONSTER_TRAITS_SHOWN; ++i) {
-			if(PetMonsterProperties[m_id].trait_list[i]) {
+			if(HasPetMonsterTrait(m_id, i)) {
 				HudMessage(l:GetMonsterTraitLabel(i); HUDMSG_FADEOUT, MONSTER_TRAITID + j, CR_WHITE, 404.4, 44.0 + 8.0 * j, MONSTERINFO_HOLDTIME);
 				++j;
 			}
@@ -1015,16 +1194,15 @@ void DrawBigBossHPBar(int mon_tid, int mmaxhp, int monhp, int monlevel, int moni
 	SetFont("MNBHPBAR");
 	HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARID, CR_UNTRANSLATED, 400.4, 0.1, MONSTERINFO_HOLDTIME);
 	
-	// clamp to 100 on certain monsters' overheal abilities (Warmaster for example)
-	int hdisp = (monhp * 100 / MonsterProperties[m_id].maxhp);
-	if(hdisp > 100)
-		hdisp = 100;
-	hdisp = 450 * hdisp / 100;
-	
+	// overheal, which some monsters have (Warmaster for example), comes back as a full bar rather
+	// than as a width past the end of one
+	int hdisp = GetBarFill(monhp, MonsterProperties[m_id].maxhp, DND_BOSSBAR_WIDTH);
+
 	if(monhp) {
 		if(fortify_amt) {
-			int fortify_disp = (fortify_amt * 450 / MonsterProperties[m_id].maxhp);
-		
+			int fortify_disp = GetBarFill(fortify_amt, MonsterProperties[m_id].maxhp, DND_BOSSBAR_WIDTH);
+
+
 			SetFont("FILLARBR");
 			SetHudClipRect(174, 60, fortify_disp, 18, fortify_disp);
 			HudMessage(s:"a"; HUDMSG_FADEOUT, MONSTER_BARFILLOVERLAY, CR_GREEN, 174.1, 61.1, MONSTERINFO_HOLDTIME);

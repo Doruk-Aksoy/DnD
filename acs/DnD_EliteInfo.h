@@ -152,6 +152,15 @@ enum {
 	DND_EXHAUSTING,
 	DND_EXTRASPEED,
 
+	// "touch" traits -- gain a share of the attack's OWN damage type as extra damage of this
+	// element. The source is whatever the attack already is, not physical specifically, so an
+	// energy attack from an EMBERTOUCH monster lands its energy plus extra fire on top.
+	DND_EMBERTOUCH,
+	DND_RIMETOUCH,
+	DND_STORMTOUCH,
+	DND_VILETOUCH,
+
+	// never add below these!!
 	DND_GUARDBROKEN,
 
 	// not rollable special
@@ -259,6 +268,10 @@ int GetEliteModPower(int t) {
 		case DND_ICE_IMMUNE:
 		case DND_POISON_IMMUNE:
 		case DND_LIGHTNING_IMMUNE:
+		case DND_EMBERTOUCH:
+		case DND_RIMETOUCH:
+		case DND_STORMTOUCH:
+		case DND_VILETOUCH:
 		return DND_MODPOWER_MEDIUM;
 
 		// high power
@@ -288,6 +301,29 @@ int GetEliteModPower(int t) {
 
 #define FIRST_MONSTER_TRAIT DND_ENERGY_WEAKNESS
 #define LAST_MONSTER_TRAIT DND_LEGENDARY
+
+// All three touch traits in one mask, for testing "has any of these" in a single AND. Built from the
+// enum symbols rather than written out, so it follows them if they move, and it folds to a constant
+// at compile time. It assumes only that the three share a WORD, not that they stay adjacent --
+// MonsterHasAnyTouchTrait checks that assumption in a way that also folds away.
+#define DND_TOUCHTRAIT_MASK ((1 << (DND_EMBERTOUCH & 31)) | (1 << (DND_RIMETOUCH & 31)) | (1 << (DND_STORMTOUCH & 31)) | (1 << (DND_VILETOUCH & 31)))
+
+// first and last of the contiguous touch trait run, so the scan and the same-word check follow the
+// enum instead of naming individual traits
+#define DND_FIRST_TOUCHTRAIT DND_EMBERTOUCH
+#define DND_LAST_TOUCHTRAIT DND_VILETOUCH
+
+// Traits are stored one BIT each, not one int each -- see HasMonsterTrait in DnD_MonsterDefs.h.
+// The word count follows the enum on its own, so growing the enum is free up to 128 traits and
+// costs one more word after that, with nothing else to adjust.
+#define MONSTER_TRAIT_WORDS ((MAX_MONSTER_TRAITS_STORED + 31) / 32)
+
+// How many of those words the main client sync carries. It passes (script, m_id, w0, w1, w2),
+// which is the line special's five argument ceiling, so three is the most it can take. Any word
+// past that goes through "DnD Sync Monster Trait CS Ex", one call each, and only when the word is
+// actually non-zero -- which for the current layout means the rare specials at the top of the enum
+// and nothing else.
+#define TRAITSYNC_BASE_WORDS 3
 
 str GetMonsterTraitLabel(int id) {
 	// this is faster than using strparam, and the places that'd call this would potentially call it often so we want to avoid strparam
@@ -490,6 +526,15 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_EXHAUSTING";
 		case DND_EXTRASPEED:
 		return "DND_EMOD_EXTRASPEED";
+
+		case DND_EMBERTOUCH:
+		return "DND_EMOD_EMBERTOUCH";
+		case DND_RIMETOUCH:
+		return "DND_EMOD_RIMETOUCH";
+		case DND_STORMTOUCH:
+		return "DND_EMOD_STORMTOUCH";
+		case DND_VILETOUCH:
+		return "DND_EMOD_VILETOUCH";
 
 		case DND_GUARDBROKEN:
 		return "DND_EMOD_GUARDBROKEN";

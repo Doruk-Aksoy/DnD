@@ -876,7 +876,12 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			if(!CheckUniquePropertyOnPlayer(pnum, PUP_PELLETSFIRECIRCLE)) {
 				// this weapon fires half pellets as railgun, half as hitscan -- so we tuck it at the end
 				count = GetPelletCount(pnum, count * 2);
-				Do_Hitscan_Attack(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count / 2, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, sp_x, sp_y, flags, hitscan_id);
+				// vPos was missing here, so hitscan_id landed on the vPos parameter and the real
+				// hitscan_id fell back to its -1 default. Do_Hitscan_Attack only maps it through
+				// HitscanDamageData when it is not -1, so every pellet in this half went out with a
+				// damage of -1 and the puff helper spawned off an int read as a position pointer.
+				// Only the railgun half was ever hurting anything.
+				Do_Hitscan_Attack(owner, pnum, DND_PROJ_HEAVYSSG, wepid, count / 2, ProjectileInfo[DND_PROJ_HEAVYSSG].spd_range, sp_x, sp_y, flags, vPos, hitscan_id);
 				Do_Railgun_Attack("HeavySSG_RailHelper", count / 2);
 			}
 			else {
@@ -1486,6 +1491,10 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 			
 			if(!(isAltFire & DND_ATK_OTHER_DIR)) {
 				proj_id = DND_PROJ_ACIDBULLET;
+				// DND_PROJ_ACIDBULLET is a hitscan, so this has to be set or hitscan_id keeps its
+				// -1 default and Do_Hitscan_Attack never looks the damage up in HitscanDamageData.
+				// The table entry for it existed all along and nothing referenced it.
+				hitscan_id = DND_HITSCAN_ACIDRIFLE;
 				sp_x = 5.6;
 				sp_y = 3.2;
 				ammo_take_amt = Weapons_Data[DND_WEAPON_ACIDRIFLE].ammo_use1;

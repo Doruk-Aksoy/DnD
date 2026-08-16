@@ -178,28 +178,12 @@ str ItemAttributeString(
 	if(extra != -1)
 		ess_tag = "";
 
+	// Same helpers the mechanics use, on purpose -- this text is a promise about what the item does,
+	// and when the two carried their own copy of this arithmetic the flask path silently kept only
+	// the display half.
 	if(qual) {
-		if(!IsAttributeQualityException(attr)) {
-			if(val < 100000) {
-				val *= qual + 100;
-				val /= 100;
-			}
-			else {
-				val /= 100;
-				val *= qual + 100;
-			}
-		}
-
-		if(attr_extra && !IsAttributeExtraException(attr)) {
-			if(attr_extra > 100000) {
-				attr_extra /= 100;
-				attr_extra *= qual + 100;
-			}
-			else {
-				attr_extra *= qual + 100;
-				attr_extra /= 100;
-			}
-		}
+		val = ApplyQualityToAttribValue(val, qual, attr);
+		attr_extra = ApplyQualityToAttribExtra(attr_extra, qual, attr);
 	}
 	
 	switch(attr) {
@@ -831,26 +815,10 @@ str GetItemAttributeText(
 	if(attr <= LAST_FLASK_ATTRIBUTE)
 		return ItemAttributeString(attr, item_type, item_subtype, val1, tier, showDetailedMods, extra, isFractured, qual, val2, craftAffected);
 
+	// both values scale as VALUES here, not as a value/extra pair -- keep it that way
 	if(qual) {
-		if(!IsAttributeQualityException(attr)) {
-			if(val1 < 100000) {
-				val1 *= qual + 100;
-				val1 /= 100;
-			}
-			else {
-				val1 /= 100;
-				val1 *= qual + 100;
-			}
-
-			if(val2 < 100000) {
-				val2 *= qual + 100;
-				val2 /= 100;
-			}
-			else {
-				val2 /= 100;
-				val2 *= qual + 100;
-			}
-		}
+		val1 = ApplyQualityToAttribValue(val1, qual, attr);
+		val2 = ApplyQualityToAttribValue(val2, qual, attr);
 	}
 
 	str col_tag = "\c[Q9]";

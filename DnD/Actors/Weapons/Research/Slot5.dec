@@ -1476,8 +1476,6 @@ Actor GravdisParticle {
 	+NOINTERACTION
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
-		SpawnLoop:
 			OGLP X 2 Bright A_FadeOut(0.08)
 		Loop
 	}
@@ -1492,7 +1490,6 @@ Actor GravdisBorderParticle {
 	+NOINTERACTION
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
 			OGLP PPPPPPPPPP 1 A_FadeIn(0.1)
 		SpawnLoop:
 			OGLP P 2 Bright A_FadeOut(0.08)
@@ -1510,8 +1507,6 @@ Actor GravdisSpinnyParticle {
 	+NOCLIP
 	States {
 		Spawn:
-			TNT1 A 0 NoDelay Thing_ChangeTID(0, SPECIAL_FX_TID)
-		SpawnLoop:
 			SPKP AA 1 Bright A_FadeOut(0.025)
 			TNT1 A 0 A_ChangeVelocity(0, 0, 0.5, CVF_RELATIVE)
 		Loop

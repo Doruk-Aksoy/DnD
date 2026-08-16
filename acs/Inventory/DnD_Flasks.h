@@ -122,6 +122,15 @@ int GetFlaskData(int pnum, inventory_T? flask, int flask_type, int data_type) {
 
 			if((temp = GetFlaskChargeUseEffects(pnum, flask)))
 				res = res * (100 + temp) / 100;
+
+			// Reduced charges per use past 100% used to make this NEGATIVE, so using the flask
+			// refilled it -- a 105% roll on a 40 charge flask returned -2 and the thing gained two
+			// charges every time it was drunk. Nothing downstream checked the sign.
+			//
+			// Floored at 1 rather than 0 so a flask always costs something to use; 0 would make it
+			// free forever, which is the same unbounded problem wearing a different sign.
+			if(res < 1)
+				res = 1;
 		break;
 		case FLASK_DATA_EFFECTDURATION:
 			// guaranteed first implicit contains effect duration on extra
@@ -180,11 +189,16 @@ void UpdatePlayerFlaskData(int pnum, int flask_id, bool charLoad = false) {
 }
 
 // checks to see if this attribute exists on the flask, returns 0 if it doesn't
+// Flasks are never equipped, so their affixes never pass through ProcessItemFeature -- which is
+// where every other item type picks up its quality multiplier. Every flask mechanic reads through
+// these two, so quality has to be applied HERE or it does nothing at all while the tooltip happily
+// shows the boosted number. A 25% quality flask with a rolled 105% reduced charges per use displayed
+// 131% and behaved as 105%.
 int GetFlaskAttributeVal(int pnum, inventory_T? flask, int attrib_to_check) {
 	if(flask.item_type == DND_ITEM_FLASK) {
 		for(int i = 0; i < flask.attrib_count; ++i) {
 			if(flask.attributes[i].attrib_id == attrib_to_check)
-				return flask.attributes[i].attrib_val;
+				return ApplyQualityToAttribValue(flask.attributes[i].attrib_val, flask.quality, attrib_to_check);
 		}
 	}
 	return 0;
@@ -194,7 +208,7 @@ int GetFlaskAttributeExtra(int pnum, inventory_T? flask, int attrib_to_check) {
 	if(flask.item_type == DND_ITEM_FLASK) {
 		for(int i = 0; i < flask.attrib_count; ++i) {
 			if(flask.attributes[i].attrib_id == attrib_to_check)
-				return flask.attributes[i].attrib_extra;
+				return ApplyQualityToAttribExtra(flask.attributes[i].attrib_extra, flask.quality, attrib_to_check);
 		}
 	}
 	return 0;
@@ -320,8 +334,6 @@ int ConstructFlaskDataOnField(int item_pos, int item_tier, int pnum, int flask =
 	}
 	else
 		res = flask;
-
-	res = DND_FLASK_SULPHUR;
 
 	if(item_tier > GetCVar("dnd_maxmonsterlevel"))
 		item_tier = GetCVar("dnd_maxmonsterlevel");

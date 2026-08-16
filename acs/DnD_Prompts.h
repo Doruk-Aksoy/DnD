@@ -82,8 +82,30 @@ bool HasMetNPC(int npc) {
 }
 
 bool CanDarkWandererOfferSuperMonster() {
-	return 	MapData[DND_MAPDATA_BARONCOUNT] || MapData[DND_MAPDATA_FATSOCOUNT] || MapData[DND_MAPDATA_ARACHNOCOUNT] || 
+	return 	MapData[DND_MAPDATA_BARONCOUNT] || MapData[DND_MAPDATA_FATSOCOUNT] || MapData[DND_MAPDATA_ARACHNOCOUNT] ||
 			MapData[DND_MAPDATA_ARCHVILECOUNT] || MapData[DND_MAPDATA_SPIDERMASTERMINDCOUNT] || MapData[DND_MAPDATA_CYBERDEMONCOUNT];
+}
+
+// The artifact offer needs somewhere to PUT the artifacts: each one is anchored beside an existing
+// pickup or shared item. Demand the worst case the quest can roll -- 2 + 2 * difficulty -- so it can
+// never promise more artifacts than the map has anchors for.
+//
+// This reads the tid counters, which are only populated once the per-item setup scripts have run,
+// and those wait on SETUP_CLEANINGMONSTERTIDS. NPC_Setup's caller therefore has to wait for that
+// stage before choosing an offer, or this always sees zero and the offer is never picked at all.
+bool CanDarkWandererOfferArtifacts() {
+	return InformationInLevel[LEVELINFO_TID_PICKUPS] + InformationInLevel[LEVELINFO_TID_SHAREDITEMS] >= 2 + 2 * MapData[DND_MAPDATA_DIFFICULTY];
+}
+
+// Is this offer viable on this map at all? Anything not listed is always placeable.
+bool CanDarkWandererOffer(int offer) {
+	switch(offer) {
+		case NPC_OFFER_SUPERDEMON:
+		return CanDarkWandererOfferSuperMonster();
+		case NPC_OFFER_COLLECTARTIFACT:
+		return CanDarkWandererOfferArtifacts();
+	}
+	return true;
 }
 
 void NPC_Setup() {
@@ -102,9 +124,15 @@ void NPC_Setup() {
 #endif
 		// check if offers can be OK for this particular map
 		NPC_States[DND_NPC_DARKWANDERER].aux_data = 0;
+
+		// Reroll until the offer is one this map can actually host. Bounded, so a map that somehow
+		// supports none of them leaves with whatever came up last rather than hanging the script --
+		// SLAYCHAOSMARK is always viable here, since NPC_Setup already returned on a monsterless map.
+		int offer_tries = 0;
 		do {
 			NPC_States[DND_NPC_DARKWANDERER].offer = random(NPC_OFFER_SLAYCHAOSMARK, NPC_OFFER_SUPERDEMON);
-		} while(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !CanDarkWandererOfferSuperMonster());
+			++offer_tries;
+		} while(!CanDarkWandererOffer(NPC_States[DND_NPC_DARKWANDERER].offer) && offer_tries < 32);
 
 #ifdef ISDEBUGBUILD
 		NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_COLLECTARTIFACT;
@@ -275,18 +303,79 @@ bool IsChallengeTrackException() {
 	return false;
 }
 
+#define DND_ARTIFACT_MAX_ANCHORS 64
+#define DND_ARTIFACT_MAX_TRIES 256
+#define DND_ARTIFACT_SPREAD_PICKUP 20.0
+#define DND_ARTIFACT_SPREAD_SHARED 8.0
+
+// Spawns up to `count` artifacts, each beside a randomly chosen anchor actor drawn from the pickup
+// tid range, the shared item tid range, or both. Returns how many actually got placed.
+//
+// The anchor MUST be checked for still existing, and that is the whole bug this replaced. Those tid
+// ranges are dense only at map start: GivePickupTID and GiveSharedItemTID hand out tids from
+// counters that only ever go UP, and nothing decrements them when a player collects the item. So by
+// the time the wanderer makes this offer, the count still includes every powerup already taken while
+// their tids are vacant -- and GetActorX on a vacant tid returns 0. The old code trusted the count,
+// read coordinates off tids with no actor behind them, and piled the artifacts at map origin. The
+// longer the map had been played, the more of them landed there.
+//
+// The try budget matters just as much. The old loops were `do { ... } while(temp)` decrementing only
+// on a successful spawn, with no bound at all -- a map where anchors keep failing spun the script
+// forever rather than giving up.
+int PlaceWandererArtifacts(int count, int pickup_count, int shared_count) {
+	static int anchors_used[DND_ARTIFACT_MAX_ANCHORS];
+	int used_count = 0;
+	int placed = 0;
+	int tries = 0;
+	int k, j, spread;
+
+	while(placed < count && tries < DND_ARTIFACT_MAX_TRIES) {
+		++tries;
+
+		// draw from whichever pool has anything in it; coin flip only when both do
+		if(!pickup_count || (shared_count && random(0, 1))) {
+			if(!shared_count)
+				break;
+			k = SHARED_ITEM_TID_BEGIN + random(0, shared_count - 1);
+			spread = DND_ARTIFACT_SPREAD_SHARED;
+		}
+		else {
+			k = DND_PICKUPTID_BEGIN + random(0, pickup_count - 1);
+			spread = DND_ARTIFACT_SPREAD_PICKUP;
+		}
+
+		// the anchor has to still be on the map -- see above
+		if(!ThingCount(T_NONE, k))
+			continue;
+
+		// don't stack two artifacts on the same anchor
+		for(j = 0; j < used_count; ++j)
+			if(anchors_used[j] == k)
+				break;
+		if(j != used_count)
+			continue;
+
+		if(used_count < DND_ARTIFACT_MAX_ANCHORS)
+			anchors_used[used_count++] = k;
+
+		if(Spawn("DarkWanderer_Artifact", GetActorX(k) + random(-spread, spread), GetActorY(k) + random(-spread, spread), GetActorZ(k)))
+			++placed;
+	}
+
+	return placed;
+}
+
 void HandleNPC(int npc_id) {
 	int mc = 0;
 	int temp = 0;
 	int count = 0;
-	int i, j, k;
-	
+	int i, j;
+
+	// only the superdemon offer uses this now -- artifact placement keeps its own anchor list
 	static int slots_occupied[64];
 	for(i = 0; i < 64; ++i)
 		slots_occupied[i] = 0;
 
-	int slot_count = 0;
-	
 	switch(npc_id) {
 		case DND_NPC_DARKWANDERER:
 			// dark wanderer's offer must affect the map now
@@ -305,7 +394,7 @@ void HandleNPC(int npc_id) {
 						} while((MonsterProperties[j].flags & DND_MONFLAG_ISELITE) || !isActorAlive(j + DND_MONSTERTID_BEGIN));
 						
 						// give it the mark of chaos
-						if(!MonsterProperties[j].trait_list[DND_MARKOFCHAOS]) {
+						if(!HasMonsterTrait(j, DND_MARKOFCHAOS)) {
 							ApplyMarkOfChaos(j);
 							++count;
 						}
@@ -318,78 +407,18 @@ void HandleNPC(int npc_id) {
 				case NPC_OFFER_COLLECTARTIFACT:
 					// retrieve artifacts -- place the artifacts
 					mc = InformationInLevel[LEVELINFO_TID_PICKUPS];
+					count = InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
 					temp = 2 + random(MapData[DND_MAPDATA_DIFFICULTY], 2 * MapData[DND_MAPDATA_DIFFICULTY]);
+
+					// Both pools go in together. The old code split this into three cases -- enough
+					// powerups, some, none -- but all three differed only in which pool they drew
+					// from, which the picker decides for itself now.
+					temp = PlaceWandererArtifacts(temp, mc, count);
+
+					// Progress is what actually got PLACED, never what was asked for. It counts down
+					// to zero as artifacts are collected, so promising more of them than exist on the
+					// map left the quest impossible to finish.
 					NPC_States[DND_NPC_DARKWANDERER].offer_progress = temp;
-					
-					// we need to find places to spawn these, prioritize high profile powerups, then health, then radsuits etc.
-					if(mc >= temp) {
-						// there're enough powerups to place things around
-						do {
-							k = DND_PICKUPTID_BEGIN + random(0, mc - 1);
-							for(j = 0; j < slot_count; ++j) {
-								if(slots_occupied[j] == k) {
-									j = -1;
-									break;
-								}
-							}
-							if(j != -1) {
-								slots_occupied[j] = k;
-								++slot_count;
-								if(Spawn("DarkWanderer_Artifact", GetActorX(k) + random(-20.0, 20.0), GetActorY(k) + random(-20.0, 20.0), GetActorZ(k)))
-									--temp;
-							}
-						} while(temp);
-					}
-					else if(mc) {
-						// we have some powerups, but not enough, so we'll most likely need shared items
-						count = InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
-						do {
-							// 50% from shared items and the other from powerups
-							if(random(0, 1)) {
-								k = SHARED_ITEM_TID_BEGIN + random(0, count - 1);
-								i = 8.0;
-								//Log(s:"try shared tid ", d:k, s: " begin: ", d:SHARED_ITEM_TID_BEGIN, s: " count: ", d:count);
-							}
-							else {
-								k = DND_PICKUPTID_BEGIN + random(0, mc - 1);
-								i = 20.0;
-								//Log(s:"try pickup tid ", d:k, s: " begin: ", d:DND_PICKUPTID_BEGIN, s: " count: ", d:mc);
-							}
-							for(j = 0; j < slot_count; ++j) {
-								if(slots_occupied[j] == k) {
-									j = -1;
-									break;
-								}
-							}
-							if(j != -1) {
-								slots_occupied[j] = k;
-								++slot_count;
-								if(Spawn("DarkWanderer_Artifact", GetActorX(k) + random(-i, i), GetActorY(k) + random(-i, i), GetActorZ(k))) {
-									--temp;
-									//Log(s:"Spawned artifact at: ", s:GetActorClass(k), s: " ", f:GetActorX(k), s: " ", f:GetActorY(k));
-								}
-							}
-						} while(temp);
-					}
-					else {
-						// we have no powerups, simply loop through the shared items
-						count = InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
-						do {
-							k = SHARED_ITEM_TID_BEGIN + random(0, count - 1);
-							for(j = 0; j < slot_count; ++j) {
-								if(slots_occupied[j] == k) {
-									j = -1;
-									break;
-								}
-							}
-							if(j != -1) {
-								slots_occupied[j] = k;
-								++slot_count;
-								if(Spawn("DarkWanderer_Artifact", GetActorX(k) + random(-8.0, 8.0), GetActorY(k) + random(-8.0, 8.0), GetActorZ(k)))
-									--temp;
-							}
-						} while(temp);
-					}
 				break;
 				case NPC_OFFER_SUPERDEMON:
 					// super powered monster -- find a random monster with matching random id and pick it to be our monster
@@ -432,8 +461,17 @@ void HandleNPC(int npc_id) {
 		break;
 	}
 
+	// Last line of defence for the artifact offer. Viability was checked when the offer was chosen,
+	// but players collect things between then and the vote, so the anchors can be gone by now. A
+	// challenge that placed nothing must NOT start: the tracker reads offer_progress <= 0 as the
+	// quest being complete and hands every survivor a reward chest for doing nothing at all.
+	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_COLLECTARTIFACT && NPC_States[DND_NPC_DARKWANDERER].offer_progress <= 0) {
+		NPC_States[DND_NPC_DARKWANDERER].offer = NPC_OFFER_NA;
+		return;
+	}
+
 	NPC_States[DND_NPC_DARKWANDERER].time = GetDarkWandererChallengeTime(NPC_States[DND_NPC_DARKWANDERER].offer);
-	
+
 	if(!IsChallengeTrackException())
 		ACS_NamedExecuteAlways("DnD Dark Wanderer Challenge Track", 0);
 }

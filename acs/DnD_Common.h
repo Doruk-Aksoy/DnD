@@ -622,14 +622,32 @@ void GiveShootableTID() {
 	++InformationInLevel[LEVELINFO_TID_SHOOTABLE];
 }
 
+// These counters define a tid range that other systems treat as DENSE -- the artifact placer picks a
+// random index inside it and reads coordinates straight off the tid. So the counter must only ever
+// advance when an actor actually took the tid.
+//
+// It could not before. "Dnd Pickup Setup" waits on SETUP_CLEANINGMONSTERTIDS in a Delay loop before
+// calling this, so the item can already be gone by the time it runs -- collected, replaced, removed.
+// Thing_ChangeTID then quietly does nothing while the counter advanced anyway, leaving a tid inside
+// the range that no actor ever held, from map load onward.
 void GivePickupTID() {
-	Thing_ChangeTID(0, DND_PICKUPTID_BEGIN + InformationInLevel[LEVELINFO_TID_PICKUPS]);
-	++InformationInLevel[LEVELINFO_TID_PICKUPS];
+	// The range is MAX_PICKUPS wide and DND_SUBORDINATE_TEMPTID begins immediately after it, so
+	// running past the end hands pickup tids to other systems' actors. Shared items guard this at
+	// their call site in DnD_Shared.h; pickups had no guard anywhere.
+	if(InformationInLevel[LEVELINFO_TID_PICKUPS] >= MAX_PICKUPS)
+		return;
+
+	int tid = DND_PICKUPTID_BEGIN + InformationInLevel[LEVELINFO_TID_PICKUPS];
+	Thing_ChangeTID(0, tid);
+	if(ThingCount(T_NONE, tid))
+		++InformationInLevel[LEVELINFO_TID_PICKUPS];
 }
 
 void GiveSharedItemTID() {
-	Thing_ChangeTID(0, SHARED_ITEM_TID_BEGIN + InformationInLevel[LEVELINFO_TID_SHAREDITEMS]);
-	++InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
+	int tid = SHARED_ITEM_TID_BEGIN + InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
+	Thing_ChangeTID(0, tid);
+	if(ThingCount(T_NONE, tid))
+		++InformationInLevel[LEVELINFO_TID_SHAREDITEMS];
 }
 
 int GiveIncursionMarkerTID() {
@@ -873,6 +891,34 @@ int GetHealthPercentage(int currhp, int maxhp) {
 
 	// get the pct of the hp now
 	return currhp / one_pct;
+}
+
+// How much of a bar_px wide bar is filled at val out of max. This exists for the same reason as
+// GetHealthPercentage above, one step further along: a caller that takes a percentage and then
+// scales it to the bar's width rounds twice, and a caller that skips the percentage and writes
+// val * bar_px / max directly overflows sooner than the percent form does.
+//
+// The overflow is not theoretical. val * 100 stops fitting in an int above 21474836 and monster
+// health passes that -- the product wraps negative, the width comes out negative, and the bar is
+// drawn at no width at all, so it stays empty until the health falls back under the limit partway
+// into the fight. At bar_px 450 the limit is 4771076, lower still.
+int GetBarFill(int val, int max, int bar_px) {
+	if(val <= 0 || max <= 0)
+		return 0;
+
+	// full bar, which also absorbs the overheal several monsters have rather than running past
+	// the end of the bar
+	if(val >= max)
+		return bar_px;
+
+	if(val <= bcs::INT_MAX / bar_px)
+		return bar_px * val / max;
+
+	// Only reachable with val above INT_MAX / bar_px and max above val, so max / bar_px is at
+	// least INT_MAX / (bar_px * bar_px) -- five figures for any bar drawn here, never zero.
+	// Shrinking the divisor rather than the dividend keeps the error under a thousandth of the
+	// bar's width.
+	return val / (max / bar_px);
 }
 
 // user must guarantee setspecial and setspecial2 are less than 65536

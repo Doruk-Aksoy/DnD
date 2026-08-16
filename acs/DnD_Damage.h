@@ -102,7 +102,15 @@ enum {
 	DND_DAMAGETYPEFLAG_REFLECTABLE = 1073741824
 };
 
-#define DND_MONSTER_DAMAGECONVERSIONRATE 25 // 25%
+// The "touch" elite traits -- DND_EMBERTOUCH / RIMETOUCH / STORMTOUCH. The monster gains a share of
+// whatever its attack's OWN damage type is as extra damage of another element, so an energy attack
+// from an EMBERTOUCH monster lands its energy plus extra fire.
+//
+// GAIN, not conversion: the source keeps its full damage and the extra rides on top. Because the
+// gained portion is never fed back through the resolver there is no chaining, which is why none of
+// the acyclic ladder machinery the player's own conversion needs exists here -- any (source,
+// destination) pair is safe, in any order.
+#define DND_MONSTER_TOUCHGAIN_PCT 20 // 20% of the attack's own damage, per touch trait
 
 enum {
 	DND_IGNITEFLAG_CANPROLIF = 1,
@@ -335,6 +343,11 @@ enum {
 	DND_MAX_TICELEMS
 };
 
+// Gains are summed per DESTINATION element, so the most portions a hit can ever carry is the number
+// of destinations that exist -- not the number of sources that can grant one. Tying the bound to the
+// enum means a new gain source can never overflow the portion arrays, however many of them roll.
+#define DND_MAX_TOUCHGAINS DND_MAX_TICELEMS
+
 typedef struct {
 	int victim;										// monster id + 1, 0 == free, so a zeroed table reads as empty
 	int flags_or;									// OR of the tic flags of EVERY hit that contributed
@@ -430,6 +443,24 @@ int GetTicElementDamage(int pnum, int m_id, int elem) {
 	if(sub > 0)
 		return sub;
 	return PlayerDamageTicData[pnum][m_id];
+}
+
+// Same map, but to the receive path's flag bits rather than the dealing path's type ids. The two
+// paths speak different vocabularies for the same five elements, and gains are built on this side.
+int MapTicElementToDamageTypeFlag(int elem) {
+	switch(elem) {
+		case DND_TICELEM_PHYSICAL:
+		return DND_DAMAGETYPEFLAG_PHYSICAL;
+		case DND_TICELEM_FIRE:
+		return DND_DAMAGETYPEFLAG_FIRE;
+		case DND_TICELEM_ICE:
+		return DND_DAMAGETYPEFLAG_ICE;
+		case DND_TICELEM_LIGHTNING:
+		return DND_DAMAGETYPEFLAG_LIGHTNING;
+		case DND_TICELEM_POISON:
+		return DND_DAMAGETYPEFLAG_POISON;
+	}
+	return 0;
 }
 
 int MapTicElementToDamageType(int elem) {
@@ -1688,7 +1719,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	// check blocking/invulnerable status of monster -- if they are and we dont have foilinvul on this, no penetration
 	if
 	(
-		(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_ISBLOCKING] || CheckFlag(victim, "INVULNERABLE")) && !(actor_flags & DND_ACTORFLAG_FOILINVUL)
+		(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_ISBLOCKING) || CheckFlag(victim, "INVULNERABLE")) && !(actor_flags & DND_ACTORFLAG_FOILINVUL)
 	)
 	{
 		temp = GetPlayerAttributeValue(pnum, INV_ESS_HARKIMONDE);
@@ -1710,7 +1741,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		}
 	}
 
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_TEMPORALBUBBLE] && !CheckActorInventory(victim, "TemporalBubbleCooldown")) {
+	if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_TEMPORALBUBBLE) && !CheckActorInventory(victim, "TemporalBubbleCooldown")) {
 		GiveActorInventory(victim, "TemporalBubbleCooldown", 1);
 		PlaySound(victim, "TemporalBubble/Pop", CHAN_7, 1.0);
 		ACS_NamedExecuteAlways("DnD Temporal Bubble Ticker", 0, victim, victim - DND_MONSTERTID_BEGIN);
@@ -1870,7 +1901,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		// give this token early to prevent order of events getting mixed up
 		// is victim dead from this damage?
 		if(GetActorProperty(victim, APROP_HEALTH) <= dmg) {
-			if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BORROWEDTIME] && !CheckActorInventory(victim, "DnD_BorrowedTimeActive")) {
+			if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_BORROWEDTIME) && !CheckActorInventory(victim, "DnD_BorrowedTimeActive")) {
 				GiveActorInventory(victim, "DnD_BorrowedTimeActive", 1);
 				ACS_NamedExecuteAlways("DnD Borrowed Time FX", 0, victim);
 				ACS_NamedExecuteWithResult("DnD Borrowed Time Decay", victim);
@@ -2240,11 +2271,11 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			more_dmg = more_dmg * (100 + temp * DND_DESOLATOR_DMG_GAIN) / 100;
 	}
 
-	if((flags & DND_DAMAGETICFLAG_EXTRATOUNDEAD) && MonsterProperties[victim_data].trait_list[DND_SILVER_WEAKNESS])
+	if((flags & DND_DAMAGETICFLAG_EXTRATOUNDEAD) && HasMonsterTrait(victim_data, DND_SILVER_WEAKNESS))
 		more_dmg = more_dmg * (100 + DND_EXTRAUNDEADDMG_MULTIPLIER) / 100;
 
 	// check blockers take more dmg modifier
-	if(MonsterProperties[victim_data].trait_list[DND_ISBLOCKING] && (temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG)))
+	if(HasMonsterTrait(victim_data, DND_ISBLOCKING) && (temp = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG)))
 		more_dmg = more_dmg * (100 + ((temp * 100) >> 16)) / 100;
 	
 	// buff effectiveness is the maximum of what the monster might have had previously from another player vs. most up-to-date, which is overwritten into its DnD_OverloadDamage item
@@ -2358,7 +2389,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// has wepid non neg
 	if(!(wep_neg & 1)) {
 		// check if player has lifesteal, if they do reward some hp back
-		if(!MonsterProperties[victim_data].trait_list[DND_BLOODLESS] && !(flags & DND_DAMAGETICFLAG_DOT))
+		if(!HasMonsterTrait(victim_data, DND_BLOODLESS) && !(flags & DND_DAMAGETICFLAG_DOT))
 			HandleLifesteal(pnum, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
 	}
 
@@ -2413,7 +2444,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		
 		// frozen monsters cant retaliate	
 		if(!CheckActorInventory(victim_tid, "DnD_FreezeTimer")) {
-			if(MonsterProperties[victim_data].trait_list[DND_VIOLENTRETALIATION] && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_tid, "DnD_ViolentRetaliationCooldown")) {
+			if(HasMonsterTrait(victim_data, DND_VIOLENTRETALIATION) && random(1, 100) <= DND_VIOLENTRETALIATION_CHANCE && !CheckActorInventory(victim_tid, "DnD_ViolentRetaliationCooldown")) {
 				GiveActorInventory(victim_tid, "DnD_ViolentRetaliationItem", 1);
 				GiveActorInventory(victim_tid, "DnD_ViolentRetaliationCounter", 1);
 				if(CheckActorInventory(victim_tid, "DnD_ViolentRetaliationCounter") == DND_MAX_VIOLENTRETALIATES) {
@@ -2421,7 +2452,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 					GiveActorInventory(victim_tid, "DnD_ViolentRetaliationCooldown", 1);
 				}
 			}
-			if(MonsterProperties[victim_data].trait_list[DND_THUNDERSTRUCK] && !CheckInventory("ThunderstruckCooldown")) {
+			if(HasMonsterTrait(victim_data, DND_THUNDERSTRUCK) && !CheckInventory("ThunderstruckCooldown")) {
 				ACS_NamedExecuteAlways("DnD Thunderstruck", 0, victim_tid);
 				GiveInventory("ThunderstruckCooldown", 1);
 			}
@@ -2753,7 +2784,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	int base_speed = GetActorProperty(victim, APROP_SPEED);
 	
 	// revoke monster's extra fast flag if it has it
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HASTE])
+	if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HASTE))
 		GiveActorInventory(victim, "UnMakeFaster", 1);
 
 	if(HasClassPerk_Fast(DND_PLAYER_WANDERER, 2))
@@ -2770,7 +2801,7 @@ Script "DnD Monster Chill" (int victim, int pnum) {
 	SetActorProperty(victim, APROP_SPEED, base_speed);
 	
 	// retain super fast property after chill ends
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HASTE])
+	if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HASTE))
 		GiveActorInventory(victim, "MakeFaster", 1);
 
 	if(HasClassPerk_Fast(DND_PLAYER_WANDERER, 2))
@@ -2818,7 +2849,7 @@ Script "DnD Monster Freeze" (int victim) {
 	SetActorState(victim, "Frozen", 0);
 	
 	// make sure to check BEFORE actually giving NOPAIN property... this would give the trait too, oopsie here!
-	bool hasNoPain = MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_NOPAIN];
+	bool hasNoPain = HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_NOPAIN);
 	
 	GiveActorInventory(victim, "MakeNoPain", 1);
 
@@ -3340,6 +3371,39 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 
 // dmg data encapsulates the information about what damage types this attack involved
 // uses DND_DAMAGETYPEFLAG enums
+// The element a touch trait grants, as a DND_TICELEM_* index rather than a flag, so gains from
+// different sources that name the same element land on the same accumulator slot.
+int GetTouchTraitElement(int trait) {
+	switch(trait) {
+		case DND_EMBERTOUCH:
+		return DND_TICELEM_FIRE;
+		case DND_RIMETOUCH:
+		return DND_TICELEM_ICE;
+		case DND_STORMTOUCH:
+		return DND_TICELEM_LIGHTNING;
+		case DND_VILETOUCH:
+		return DND_TICELEM_POISON;
+	}
+	return DND_TICELEM_PHYSICAL;
+}
+
+// Percent of the attack's own damage a touch trait gains as its element. This is the single seam a
+// dungeon modifier would read through to push the gain above the flat elite value -- add the
+// HasDungeonAttributeVal lookup here and every touch trait picks it up at once. Nothing supplies one
+// yet, so today it is the elite constant alone.
+int GetMonsterTouchGainPercent(int m_id) {
+	return DND_MONSTER_TOUCHGAIN_PCT;
+}
+
+// What the touch traits contributed to the hit a player just took, kept for the stages that run
+// after HandlePlayerResists returns. HandlePlayerChill is the one that needs it: it fires later, on
+// the post armor number, and its caller only ever had the attack's original type flags.
+//
+// Written on every hit that reaches HandlePlayerResists and read in the same damage event with no
+// delay in between, so neither value can go stale between the write and the read.
+int PlayerHitGainedFlags[MAXPLAYERS];
+int PlayerHitIceShare[MAXPLAYERS];
+
 int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool isReflected, str inflictor_class, int m_id = -1) {
 	int temp;
 
@@ -3363,48 +3427,9 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		SetActivator(0, AAPTR_DAMAGE_TARGET);
 	}
 
-	if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
-		res_to_apply = INV_DMGREDUCE_PHYS;
-	else if(dmg_data & DND_DAMAGETYPEFLAG_MAGICAL)
-		res_to_apply = INV_DMGREDUCE_MAGIC;
-	else if(dmg_data & DND_DAMAGETYPEFLAG_FIRE) {
-		res_to_apply = INV_DMGREDUCE_ELEM;
-
-		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSFIRETAKEN);
-		if(temp)
-			mult = CombineFactors(mult, -temp);
-	}
-	else if(dmg_data & DND_DAMAGETYPEFLAG_ICE) {
-		res_to_apply = INV_DMGREDUCE_ELEM;
-	}
-	else if(dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) {
-		res_to_apply = INV_DMGREDUCE_ELEM;
-
-		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSLIGHTNINGTAKEN);
-		if(temp)
-			mult = CombineFactors(mult, -temp);
-	}
-	else if((dmg_data & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
-		// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
-		temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSPOISONTAKEN);
-		if(temp)
-			mult = CombineFactors(mult, -temp);
-		
-		// reduced poison damage taken
-		res_to_apply = INV_DMGREDUCE_ELEM;
-
-		// toxicology ability
-		if(CheckInventory("Ability_AntiPoison")) {
-			if(!HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
-				add -= DND_TOXICOLOGY_REDUCE;
-			else
-				add -= CombineFactors(DND_TOXICOLOGY_REDUCE, DND_CYBORG_CYBERF);
-		}
-	}
-	else if(dmg_data & DND_DAMAGETYPEFLAG_ENERGY)
-		res_to_apply = INV_DMGREDUCE_ENERGY;
-	// ELEMENTAL DAMAGE BLOCK ENDS
-	
+	// Type agnostic factors first. These apply to the whole hit no matter what it is made of, so
+	// they are gathered once here and every portion below inherits them.
+	//
 	// explosion sources
 	if((dmg_data & DND_DAMAGETYPEFLAG_EXPLOSIVE) && HasClassPerk_Fast(DND_PLAYER_MARINE, 3))
 		mult = CombineFactors(mult, DND_MARINE_EXPLOSIVEREDUCTION);
@@ -3416,41 +3441,194 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 	temp = GetPlayerAttributeValue(pnum, INV_EX_LESSDMGTAKENMAXOVERHEAT);
 	if(temp && HasRunningOverheatCooldown(pnum + P_TIDSTART))
 		mult = CombineFactors(mult, -((temp << 16)) / 100);
-	
+
 	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
 	if(temp)
 		mult = CombineFactors(mult, (temp << 16) / 100);
 
-	// Apply additive and multiplicative effects together now -- minimum 10% damage taken.
-	//
-	// Everything stays in 16.16 until the single multiply at the end.
-	//
-	// Do NOT convert to integer percent first the way the damage-DEALT path does. There
-	// the factor is (100 + increased), which is large, so a 1% quantum is noise. Here a
-	// reduction makes the factor SMALL, and collapsing a 37% x 17% chain through integer
-	// percent gives 37 * 16 / 100 = 5% -- a fifth of the value thrown away. Keeping 16.16
-	// resolution costs nothing and cuts the mean error about sevenfold.
-	//
-	// (add * 100) >> 16 is avoided for a second reason: it wraps once add passes 327.68
-	// in fixed, and add is a sum of buff values. That wrap could turn an 884 damage hit
-	// into 2.9 million.
-	if(add < -0.9)
-		add = -0.9;
-
-	int combined = 1.0 + add;
-	if(mult != 1.0)
-		combined = FixedMul(combined, mult);
-
-	// exact, saturating, and yields 0 for a total-negation factor
-	dmg = MulPercent_Exact(dmg, combined, 1.0);
-
-	// finally include resists as their own multiplicative factor
-	if(m_id != -1 && MonsterProperties[m_id].trait_list[DND_PENETRATOR])
+	if(m_id != -1 && HasMonsterTrait(m_id, DND_PENETRATOR))
 		res_bonus += DND_PENETRATOR_PIERCE;
-	dmg = ApplyPlayerResist(pnum, dmg, res_to_apply, res_bonus);
 
-	if(isReflected)
-		dmg = ApplyPlayerResist(pnum, dmg, INV_DMGREDUCE_REFL, 0);
+	// A hit is normally one damage type the whole way down, and for that case there is exactly one
+	// portion here and everything below reduces to what it has always been. A monster with a touch
+	// trait adds one portion per trait: still a single damage event, but each part meets its own
+	// resist and its own typed reduction implicit, and inflicts its own ailment at its own size.
+	//
+	// This is deliberately NOT the dealing side's approach of emitting a second damage instance.
+	// Everything after this function -- armor, the damage floor, the eshield deduction, the on hit
+	// buffs, the hit cooldown, the push -- is once per hit machinery, and a second Thing_Damage2 on
+	// the player would re-enter the damage event and pay every bit of it twice.
+	int p_flags[DND_MAX_TOUCHGAINS + 1];
+	int p_amt[DND_MAX_TOUCHGAINS + 1];
+	int p_count = 1;
+
+	p_flags[0] = dmg_data;
+	p_amt[0] = dmg;
+
+	// Gain, not conversion: the source keeps its full damage and this rides on top. Attacks only,
+	// never DoT ticks -- the hit that applied the DoT already gained, and gaining again on every
+	// tick would compound it. Reflected damage is the player's own coming back, so a monster's
+	// traits have no claim on that either.
+	if(m_id != -1 && !isDot && !isReflected && MonsterHasAnyTouchTrait(m_id)) {
+		// Percent is accumulated per DESTINATION element, then turned into portions -- not one
+		// portion per source. Two sources naming the same element (a rolled RIMETOUCH at 20% and a
+		// dungeon granting 10% cold) become a single 30% cold portion, so cold meets the player's
+		// cold resist once and truncates once. Two separate cold portions would pay both twice,
+		// which is the same "one bucket per destination" rule the dealing side's conversion follows.
+		//
+		// It is also what makes the portion arrays safe: the bound is the number of destinations,
+		// so no number of gain sources can overflow them.
+		int gain_pct[DND_MAX_TICELEMS];
+		int e;
+		for(e = 0; e < DND_MAX_TICELEMS; ++e)
+			gain_pct[e] = 0;
+
+		// the touch traits are one contiguous run in the trait enum, see DnD_EliteInfo.h
+		for(int t = DND_FIRST_TOUCHTRAIT; t <= DND_LAST_TOUCHTRAIT; ++t)
+			if(HasMonsterTrait(m_id, t))
+				gain_pct[GetTouchTraitElement(t)] += GetMonsterTouchGainPercent(m_id);
+
+		// A dungeon granted gain joins here, on the same array, and stacks with a rolled trait of
+		// the same element for free. A source-typed one ("physical gained as cold") gates itself on
+		// the hit's own type first, e.g.
+		//     if(dmg_data & DND_DAMAGETYPEFLAG_PHYSICAL)
+		//         gain_pct[dest] += pct;
+		// NOTE: MonsterHasAnyTouchTrait above short-circuits on the monster's TRAIT bits, so a
+		// dungeon gain that applies without a trait needs that gate widened or it never runs.
+
+		for(e = 0; e < DND_MAX_TICELEMS; ++e) {
+			if(!gain_pct[e])
+				continue;
+
+			int elem = MapTicElementToDamageTypeFlag(e);
+
+			// nothing to gain when the attack already is that element
+			if(dmg_data & elem)
+				continue;
+
+			p_flags[p_count] = elem;
+			p_amt[p_count] = MulPercent_Exact(dmg, gain_pct[e]);
+			++p_count;
+		}
+	}
+
+	// chill is the only ailment that needs its element's own subtotal -- see the block below
+	int sub_ice = 0;
+	int gained_flags = 0;
+	int total = 0;
+
+	for(int p = 0; p < p_count; ++p) {
+		int p_type = p_flags[p];
+		int amt = p_amt[p];		// read once; everything below works on the scalar
+		int p_add = add;
+		int p_mult = mult;
+		res_to_apply = 0;
+
+		if(p_type & DND_DAMAGETYPEFLAG_PHYSICAL)
+			res_to_apply = INV_DMGREDUCE_PHYS;
+		else if(p_type & DND_DAMAGETYPEFLAG_MAGICAL)
+			res_to_apply = INV_DMGREDUCE_MAGIC;
+		else if(p_type & DND_DAMAGETYPEFLAG_FIRE) {
+			res_to_apply = INV_DMGREDUCE_ELEM;
+
+			temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSFIRETAKEN);
+			if(temp)
+				p_mult = CombineFactors(p_mult, -temp);
+		}
+		else if(p_type & DND_DAMAGETYPEFLAG_ICE) {
+			res_to_apply = INV_DMGREDUCE_ELEM;
+		}
+		else if(p_type & DND_DAMAGETYPEFLAG_LIGHTNING) {
+			res_to_apply = INV_DMGREDUCE_ELEM;
+
+			temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSLIGHTNINGTAKEN);
+			if(temp)
+				p_mult = CombineFactors(p_mult, -temp);
+		}
+		else if((p_type & DND_DAMAGETYPEFLAG_POISON) || dmg_string == "PoisonDOT") {
+			// PoisonDOT directly deals damage through the monster, so it can't have its "stamina" / dmg_data set
+			temp = GetPlayerAttributeValue(pnum, INV_IMP_LESSPOISONTAKEN);
+			if(temp)
+				p_mult = CombineFactors(p_mult, -temp);
+
+			// reduced poison damage taken
+			res_to_apply = INV_DMGREDUCE_ELEM;
+
+			// toxicology ability
+			if(CheckInventory("Ability_AntiPoison")) {
+				if(!HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
+					p_add -= DND_TOXICOLOGY_REDUCE;
+				else
+					p_add -= CombineFactors(DND_TOXICOLOGY_REDUCE, DND_CYBORG_CYBERF);
+			}
+		}
+		else if(p_type & DND_DAMAGETYPEFLAG_ENERGY)
+			res_to_apply = INV_DMGREDUCE_ENERGY;
+		// ELEMENTAL DAMAGE BLOCK ENDS
+
+		// Apply additive and multiplicative effects together now -- minimum 10% damage taken.
+		//
+		// Everything stays in 16.16 until the single multiply at the end.
+		//
+		// Do NOT convert to integer percent first the way the damage-DEALT path does. There
+		// the factor is (100 + increased), which is large, so a 1% quantum is noise. Here a
+		// reduction makes the factor SMALL, and collapsing a 37% x 17% chain through integer
+		// percent gives 37 * 16 / 100 = 5% -- a fifth of the value thrown away. Keeping 16.16
+		// resolution costs nothing and cuts the mean error about sevenfold.
+		//
+		// (add * 100) >> 16 is avoided for a second reason: it wraps once add passes 327.68
+		// in fixed, and add is a sum of buff values. That wrap could turn an 884 damage hit
+		// into 2.9 million.
+		if(p_add < -0.9)
+			p_add = -0.9;
+
+		int combined = 1.0 + p_add;
+		if(p_mult != 1.0)
+			combined = FixedMul(combined, p_mult);
+
+		// exact, saturating, and yields 0 for a total-negation factor
+		amt = MulPercent_Exact(amt, combined, 1.0);
+
+		// finally include resists as their own multiplicative factor
+		amt = ApplyPlayerResist(pnum, amt, res_to_apply, res_bonus);
+
+		if(isReflected)
+			amt = ApplyPlayerResist(pnum, amt, INV_DMGREDUCE_REFL, 0);
+
+		if(p_type & DND_DAMAGETYPEFLAG_ICE)
+			sub_ice += amt;
+
+		total += amt;
+
+		// a gained portion genuinely IS its element, so the ailment tests below have to see it
+		if(p)
+			gained_flags |= p_type;
+	}
+
+	dmg = total;
+	dmg_data |= gained_flags;
+
+	// Ailment MAGNITUDES deliberately use the whole hit, not the element's share of it. The
+	// constants they scale by -- DND_MONSTER_BURN_PERCENT, DND_MONSTER_POISONPERCENT -- were tuned
+	// as "percent of the hit", and DND_SCORCHED already grants a full strength burn on a monster
+	// that deals no fire at all. Sizing a touch trait's burn by its 20% portion made the trait that
+	// DOES deal fire burn ten times weaker than the one that does not, which is backwards; at these
+	// numbers it floored to 1 damage a tick and read as the ailment being broken outright.
+	//
+	// Chill is the exception and keeps its share. Its test is a threshold against a fraction of the
+	// player's health pool rather than a damage amount, so a 20% ice portion genuinely should not
+	// freeze like a full ice hit would. HandlePlayerChill runs later still, after armor and the
+	// damage floor, on a number this function never sees -- so the share travels as a percentage
+	// rather than an amount, the same reason the dealing side stages its components as ratios.
+	//
+	// 100 is the default for the single type hit and for a FRIGID monster whose attack carries no
+	// ice at all: both want the whole number, which is what they have always used.
+	int share_ice = 100;
+	if(p_count > 1 && total > 0 && sub_ice)
+		share_ice = sub_ice * 100 / total;
+
+	PlayerHitGainedFlags[pnum] = gained_flags;
+	PlayerHitIceShare[pnum] = share_ice;
 
 	//printbold(s:"res applied dmg: ", d:dmg);
 
@@ -3510,7 +3688,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		
 		if
 		(
-			((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || MonsterProperties[m_id].trait_list[DND_VOLTAIC]) && 
+			((dmg_data & DND_DAMAGETYPEFLAG_LIGHTNING) || HasMonsterTrait(m_id, DND_VOLTAIC)) && 
 			random(1, 100) <= GetMonsterOverloadChance(m_id, pnum) &&
 			GetPlayerElementalAvoidance(pnum, INV_AVOID_OVERLOAD) < random(1, 100)
 		)
@@ -3522,7 +3700,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		
 		if
 		(
-			((dmg_data & DND_DAMAGETYPEFLAG_POISON) || MonsterProperties[m_id].trait_list[DND_VENOMANCER]) &&
+			((dmg_data & DND_DAMAGETYPEFLAG_POISON) || HasMonsterTrait(m_id, DND_VENOMANCER)) &&
 			GetPlayerElementalAvoidance(pnum, INV_AVOID_POISON) < random(1, 100)
 		)
 		{
@@ -3542,7 +3720,7 @@ int HandlePlayerResists(int pnum, int dmg, str dmg_string, int dmg_data, bool is
 		
 		if
 		(
-			((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || MonsterProperties[m_id].trait_list[DND_SCORCHED]) && 
+			((dmg_data & DND_DAMAGETYPEFLAG_FIRE) || HasMonsterTrait(m_id, DND_SCORCHED)) && 
 			random(0, 1.0) < DND_PLAYER_BURNING_CHANCE &&
 			GetPlayerElementalAvoidance(pnum, INV_AVOID_IGNITE) < random(1, 100)
 		) 
@@ -3749,9 +3927,9 @@ int ApplyTrueDamageDeductions(int pnum, int dmg, str dmg_string, int dmg_data) {
 void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg, bool isDot) {
 	// vampirism check
 	int hp;
-	if(MonsterProperties[m_id].trait_list[DND_VAMPIRISM] && isActorAlive(monster_tid)) {
+	if(HasMonsterTrait(m_id, DND_VAMPIRISM) && isActorAlive(monster_tid)) {
 		// if this monster is trying to leech off of a bloodless monster, do not allow (we cant have all rules be against players... right?)
-		if(IsMonster(victim) && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BLOODLESS])
+		if(IsMonster(victim) && HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_BLOODLESS))
 			return;
 		
 		// ignite effects prevent vampirism healing
@@ -3767,12 +3945,12 @@ void HandleMonsterDamageModChecks(int m_id, int monster_tid, int victim, int dmg
 	if(!isPlayer(victim) || !isActorAlive(victim))
 		return;
 
-	if(MonsterProperties[m_id].trait_list[DND_EXHAUSTING] && !isDot) {
+	if(HasMonsterTrait(m_id, DND_EXHAUSTING) && !isDot) {
 		HandleStaminaBarDraw(victim - P_TIDSTART);
 		TakeStamina(DND_EXHAUSTING_STAMINATAKE);
 	}
 
-	if(MonsterProperties[m_id].trait_list[DND_BLACKOUT])
+	if(HasMonsterTrait(m_id, DND_BLACKOUT))
 		ACS_NamedExecuteAlways("DnD Blackout", 0, victim);
 }
 
@@ -3928,7 +4106,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 
 	// basic dot from monsters shouldn't apply these effects
 	if(!isDot) {
-		if(MonsterProperties[m_id].trait_list[DND_THIEF]) {
+		if(HasMonsterTrait(m_id, DND_THIEF)) {
 			// get current weapon's ammo and steal it if possible
 			temp = random(0, 1);
 			str cur_ammo = GetWeaponAmmoType(GetActorWeaponID(this), temp);
@@ -3943,7 +4121,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 		}
 
 		// energy leech
-		if(MonsterProperties[m_id].trait_list[DND_ENERGYLEECH]) {
+		if(HasMonsterTrait(m_id, DND_ENERGYLEECH)) {
 			temp = CheckActorInventory(this, "EShieldAmount") * DND_ENERGYLEECH_PCT / 100;
 			if(temp) {
 				GiveActorInventory(target, "MonsterFortifyCount", temp);
@@ -3954,11 +4132,11 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 		}
 		
 		// shocker check
-		if(MonsterProperties[m_id].trait_list[DND_SHOCKER])
+		if(HasMonsterTrait(m_id, DND_SHOCKER))
 			GiveActorInventory(this, "PlayerStopper", 1);
 		
 		// ruination check
-		if(MonsterProperties[m_id].trait_list[DND_RUINATION]) {
+		if(HasMonsterTrait(m_id, DND_RUINATION)) {
 			if(!CheckActorInventory(this, "RuinationStacks")) {
 				SetActivator(this);
 				
@@ -3974,7 +4152,7 @@ void OnPlayerHit(int this, int pnum, int target, bool isMonster, bool isDot = fa
 		}
 
 		// the curse is applied if the player is not immune, the checks are delegated to curse items
-		if(MonsterProperties[m_id].trait_list[DND_HEXFUSION] && random(1, 100) <= DND_HEXFUSION_CHANCE)
+		if(HasMonsterTrait(m_id, DND_HEXFUSION) && random(1, 100) <= DND_HEXFUSION_CHANCE)
 			ApplyRandomCurse(this, target);
 	}
 }
@@ -4116,7 +4294,13 @@ bool IsDamageEventException(str dt) {
 }
 
 void HandlePlayerChill(int pnum, int m_id, int dmg_received, int dmg_data) {
-	if(m_id != -1 && ((dmg_data & DND_DAMAGETYPEFLAG_ICE) || MonsterProperties[m_id].trait_list[DND_FRIGID])) {
+	// PlayerHitGainedFlags carries the touch traits' contribution: our caller only ever had the
+	// attack's own type flags, so a RIMETOUCH monster's cold would be invisible here without it.
+	if(m_id != -1 && ((dmg_data & DND_DAMAGETYPEFLAG_ICE) || (PlayerHitGainedFlags[pnum] & DND_DAMAGETYPEFLAG_ICE) || HasMonsterTrait(m_id, DND_FRIGID))) {
+		// Only the cold part of the hit gets to chill. 100 for a plain ice hit and for a FRIGID
+		// monster whose attack carries no ice at all, so both keep the whole number as before.
+		dmg_received = MulPercent_Exact(dmg_received, PlayerHitIceShare[pnum]);
+
 		// considerations for chill and freeze
 		int health_cap = CheckInventory("PlayerHealthCap");
 		int stacks = CheckInventory("DnD_ChillStacks");
@@ -4311,7 +4495,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 		bool isDot = false;
 		if(IsMonster(shooter)) {
 			m_id = shooter - DND_MONSTERTID_BEGIN;
-			isArmorPiercing |= MonsterProperties[m_id].trait_list[DND_PIERCE];
+			isArmorPiercing |= HasMonsterTrait(m_id, DND_PIERCE);
 		
 			// if victim was a monster, check for infight situation
 			// BOTH VICTIM AND SHOOTER ARE MONSTERS HERE
@@ -4437,6 +4621,15 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				// check for special reduced damage factors
 				// store damage before reductions to apply to armor later
 				dmg = HandlePlayerResists(pnum, dmg, arg2, dmg_data, isReflected, inflictor_class, m_id);
+
+				// A touch trait genuinely put another element into this hit, and everything below
+				// still keys off the attack's ORIGINAL flags -- dmg_data is by value, so the OR that
+				// HandlePlayerResists does to it never came back here. Without this the Hellfire
+				// Amulet misses an Ember Touch hit's fire and a Rime Touch hit's cold, and Lightning
+				// Coil does not absorb against Storm Touch, even though the damage really is that
+				// type and already met that type's resist inside the call above.
+				dmg_data |= PlayerHitGainedFlags[pnum];
+
 				dmg = HandlePlayerOnHitBuffs(victim, shooter, dmg, dmg_data, arg2);
 				// finally apply player armor
 				dmg = HandlePlayerArmor(pnum, dmg, arg2, dmg_data, isArmorPiercing);
@@ -4780,7 +4973,7 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 					isReflected = CheckInventory("DnD_RipCount");
 					isArmorPiercing = CheckInventory("DnD_RipLimit");
 					// if we reach ripcount and we aren't a "super ripper"
-					if(isArmorPiercing != MAX_RIPCOUNT && (MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_HARDENED_SKIN] || isReflected >= isArmorPiercing))
+					if(isArmorPiercing != MAX_RIPCOUNT && (HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_HARDENED_SKIN) || isReflected >= isArmorPiercing))
 						GiveInventory("TakeRipperAway", 1);
 					isArmorPiercing = GetPlayerAttributeValue(pnum, INV_RIPDAMAGE);
 					dmg = dmg * (100 + isArmorPiercing * isReflected) / 100;

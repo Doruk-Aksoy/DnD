@@ -228,6 +228,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
 	pstat_text_T? pstat_text = GetPlayerStatText();
+	scrollbar_T module& ScrollBar = GetScrollBar();
 	
 	// initialize cursor data
 	ResetCursorHoverProc();
@@ -254,6 +255,9 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			ResetPane(CurrentPane);
 			LoadPane(CurrentPane, curopt);
 			ScrollPos.x = 0;
+			// the new page has its own extent, so a grab carried across would be dragging against
+			// a range that no longer exists
+			ScrollBar.grabbed = false;
 			SetInventory("MenuPosX", 0);
 			SetInventory("DnD_PlayerItemIndex", 0);
 			SetInventory("DnD_PlayerPrevItemIndex", 0);
@@ -329,10 +333,18 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			redraw = true;
 		}
 		
+		// Both of these have to run before the click below is read. HandlePageListening is where a
+		// page states its scroll range, and nothing downstream -- the bar's hit test included --
+		// means anything until it has. The drag then gets first refusal on the click, so a press
+		// that lands on the bar never also reaches the page as a box press.
+		redraw |= HandlePageListening(curopt, boxid);
+		redraw |= HandleScrollBarDrag();
+
 		// clean input buffer
 		SetInventory("MenuInput", 0);
-		// receives MenuInput
-		GetInputOnMenuPage(curopt);
+		// receives MenuInput -- held back while the bar is being dragged, see above
+		if(!ScrollBar.grabbed)
+			GetInputOnMenuPage(curopt);
 		i = CheckInventory("MenuInput");
 		
 		// The server discards anything arriving inside its own DND_MENU_INPUTDELAYTICS debounce --
@@ -367,8 +379,6 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		
 		// clickable main buttons
 		HandleClickableButtonFrames();
-		
-		redraw |= HandlePageListening(curopt, boxid);
 
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 		DrawCursor();
@@ -487,6 +497,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 			
 			// main drawing of texts, labels, icons etc.
 			SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
+			DrawScrollBar();
 			SetFont("NMENUFNT");
 			DeleteTextRange(RPGMENUITEMID - 45, RPGMENUITEMID);
 			DeleteTextRange(RPGMENUPAGEID - 1, RPGMENUPAGEID);

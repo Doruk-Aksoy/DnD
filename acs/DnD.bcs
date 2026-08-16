@@ -294,6 +294,16 @@ Script "DnD On Map Load" OPEN {
 	while(!IsSetupComplete(SETUP_STATE1, SETUP_PLAYERINFO_MINMAXLEVELS))
 		Delay(const:TICRATE);
 
+	// NPC_Setup picks the wanderer's offer, and the artifact offer is only viable if the map has
+	// pickups or shared items to anchor artifacts to. Those register their tids from "Dnd Pickup
+	// Setup" / the shared item setup, which themselves wait on SETUP_CLEANINGMONSTERTIDS and then
+	// wake on their own Delay cycle -- so waiting for the stage is not enough on its own, the item
+	// scripts need a tic to actually run. Without this the counters read zero and the artifact offer
+	// could never be chosen.
+	while(!IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
+		Delay(const:TICRATE);
+	Delay(const:2 * TICRATE);
+
 	NPC_Setup();
 
 	// Always, not only in dungeons. Clients hold their own copy of DungeonInformation and nothing
@@ -569,7 +579,9 @@ Script "DnD Get Pain Alpha" (void) CLIENTSIDE {
 	if(!cap)
 		cap = GetSpawnHealth();
 	// return min 10% of alpha at any damage regardless, it looks too weak to notice otherwise
-	dmg_received = Min(DND_PAINBLEND_MAXALPHA, 25 + dmg_received * 100 / cap);
+	// GetBarFill rather than the multiply so a hit past 21474836 saturates the blend instead of
+	// overflowing to a negative and dropping it entirely on the one hit that most deserves it
+	dmg_received = Min(DND_PAINBLEND_MAXALPHA, 25 + GetBarFill(dmg_received, cap, 100));
 	
 	SetResultValue(dmg_received);
 }
@@ -889,12 +901,12 @@ Script "DND On Kill" KILL {
 		ACS_NamedExecuteWithResult("DnD Register Unique Boss", 0);
 	}
 
-	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
+	if(HasMonsterTrait(m_id, DND_MARKOFCHAOS)) {
 		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
 		// adds 5 seconds for killing it to the timer
 		NPC_States[DND_NPC_DARKWANDERER].time += 5 * (1 + GetMonsterSizeType(MonsterProperties[m_id].id));
 	}
-	else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
+	else if(HasMonsterTrait(m_id, DND_MARKOFASMODEUS))
 		--NPC_States[DND_NPC_DARKWANDERER].offer_progress;
 	
 	// only work if you can determine target as a player and if the player is alive
@@ -924,7 +936,7 @@ Script "DND On Kill" KILL {
 		HandleUniqueDeath(target, MonsterProperties[m_id].id, MonsterProperties[m_id].level);
 
 	// if nodrop is on don't bother with here
-	if(!MonsterProperties[m_id].trait_list[DND_NODROPS]) {
+	if(!HasMonsterTrait(m_id, DND_NODROPS)) {
 		if(!killerWasntPlayer)
 			HandleCreditExp_Regular(this, target, m_id);
 		else if(!CurrentLevelData[LEVELDATA_WISDOMMASTERED] && !CurrentLevelData[LEVELDATA_GREEDMASTERED]) {
@@ -1019,7 +1031,7 @@ Script "DND On Kill" KILL {
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
 		HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5) ||
 		GetPlayerAttributeValue(target - P_TIDSTART, INV_INC_ENEMYRIPCHANCE) >= random(1, 100) ||
-		MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]
+		HasMonsterTrait(m_id, DND_MARKOFCHAOS)
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
 	
@@ -1104,21 +1116,21 @@ Script "DnD Monster Death Effects" (int this, int m_id) {
 	if(CheckInventory("DnD_DeathEffectBlock"))
 		Terminate;
 
-	if(MonsterProperties[m_id].trait_list[DND_NUCLEAR])
+	if(HasMonsterTrait(m_id, DND_NUCLEAR))
 		ACS_NamedExecuteAlways("DnD Monster Nuclear Explosion", 0, this);
 	
-	if(MonsterProperties[m_id].trait_list[DND_REBIRTH]) {
+	if(HasMonsterTrait(m_id, DND_REBIRTH)) {
 		GiveInventory("DnD_RebirthItem", 1);
-		MonsterProperties[m_id].trait_list[DND_REBIRTH] = false;
+		SetMonsterTrait(m_id, DND_REBIRTH, false);
 	}
 	
-	if(MonsterProperties[m_id].trait_list[DND_SUBORDINATE])
+	if(HasMonsterTrait(m_id, DND_SUBORDINATE))
 		HandleSubordinateSpawn(this, m_id);
 
-	if(MonsterProperties[m_id].trait_list[DND_CHTHONBLESSED])
+	if(HasMonsterTrait(m_id, DND_CHTHONBLESSED))
 		GiveInventory("DnD_ChthonCircleSpawner", 1);
 
-	if(MonsterProperties[m_id].trait_list[DND_PHANTASM])
+	if(HasMonsterTrait(m_id, DND_PHANTASM))
 		Spawn("Phantasm", GetActorX(0), GetActorY(0), GetActorZ(0), 0);
 }
 
@@ -1686,17 +1698,17 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 	
 	LoadMonsterTraits(m_id, monsterid);
 	if(isSummoned)
-		MonsterProperties[m_id].trait_list[DND_SUMMONED] = true;
+		SetMonsterTrait(m_id, DND_SUMMONED, true);
 
 	// only allow the hp multiplier feature for bosses placed in maps specifically
 	if(!hp_mult || !IsBossTID(this))
 		hp_mult = 1;
 
-	//MonsterProperties[m_id].trait_list[DND_HASTE] = true;
+	//SetMonsterTrait(m_id, DND_HASTE, true);
 	//GiveInventory("MakeFaster", 1);
-	/*MonsterProperties[m_id].trait_list[DND_REFLECTIVE] = true;
+	/*SetMonsterTrait(m_id, DND_REFLECTIVE, true);
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, ActivatorTID(), DND_ELITEFX_REFLECT);*/
-	//MonsterProperties[m_id].trait_list[DND_FASTPROJ] = true;
+	//SetMonsterTrait(m_id, DND_FASTPROJ, true);
 	//GiveInventory("Cripple_Script_Run", 1);
 
 	if(GetCVar("dnd_monsterscale")) {
@@ -1735,7 +1747,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 			traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
 			DecideEliteTraits(this, m_id, traitcount);
 			// Double Health
-			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+			if(HasMonsterTrait(m_id, DND_VITAL)) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
 				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
@@ -1757,7 +1769,7 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 			traitcount = random(DND_MIN_MAGICMODS, DND_MAX_MAGICMODS);
 			DecideEliteTraits(this, m_id, traitcount);
 			// Double Health
-			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+			if(HasMonsterTrait(m_id, DND_VITAL)) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
 				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
@@ -1774,15 +1786,21 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 		MonsterProperties[m_id].flags &= ~(DND_MONFLAG_ISMAGIC | DND_MONFLAG_ISELITE);
 
 	HandlePostInitTraits(m_id, monsterid, -1);
-	
+
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
-		"DnD Sync Monster Trait CS", 
-		m_id, 
+		"DnD Sync Monster Trait CS",
+		m_id,
 		GetMonsterTraits(m_id, 0),
 		GetMonsterTraits(m_id, 1),
 		GetMonsterTraits(m_id, 2)
 	);
+
+	// words past the main call's three, one call each, and only when the word is actually used --
+	// for the current layout that is just the rare specials at the top of the enum
+	for(int w = TRAITSYNC_BASE_WORDS; w < MONSTER_TRAIT_WORDS; ++w)
+		if(GetMonsterTraits(m_id, w))
+			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS Ex", m_id, w, GetMonsterTraits(m_id, w));
 	
 	//printbold(s:"(Before) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
 	//int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
@@ -1847,7 +1865,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 			Delay(const:3);
 		if(!pcount)
 			pcount = 1;
-		maxhp = ScaleMonster(this, m_id, pcount, realhp, MonsterProperties[m_id].trait_list[DND_SUMMONED], 1);
+		maxhp = ScaleMonster(this, m_id, pcount, realhp, HasMonsterTrait(m_id, DND_SUMMONED), 1);
 	}
 	else {
 		maxhp = realhp;
@@ -1879,7 +1897,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 			traitcount = random(DND_MIN_ELITEMODS, DND_MAX_ELITEMODS);
 			DecideEliteTraits(this, m_id, traitcount);
 			// Double Health
-			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+			if(HasMonsterTrait(m_id, DND_VITAL)) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
 				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
@@ -1901,7 +1919,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 			traitcount = random(DND_MIN_MAGICMODS, DND_MAX_MAGICMODS);
 			DecideEliteTraits(this, m_id, traitcount);
 			// Double Health
-			if(MonsterProperties[m_id].trait_list[DND_VITAL]) {
+			if(HasMonsterTrait(m_id, DND_VITAL)) {
 				base = maxhp;
 				add = base * DND_ELITE_VITAL_SCALE / 100;
 				maxhp = Clamp_Between(base + add, 1, bcs::INT_MAX);
@@ -1921,12 +1939,18 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 
 	// sync the decided traits
 	ACS_NamedExecuteWithResult(
-		"DnD Sync Monster Trait CS", 
-		m_id, 
+		"DnD Sync Monster Trait CS",
+		m_id,
 		GetMonsterTraits(m_id, 0),
 		GetMonsterTraits(m_id, 1),
 		GetMonsterTraits(m_id, 2)
 	);
+
+	// words past the main call's three, one call each, and only when the word is actually used --
+	// for the current layout that is just the rare specials at the top of the enum
+	for(int w = TRAITSYNC_BASE_WORDS; w < MONSTER_TRAIT_WORDS; ++w)
+		if(GetMonsterTraits(m_id, w))
+			ACS_NamedExecuteWithResult("DnD Sync Monster Trait CS Ex", m_id, w, GetMonsterTraits(m_id, w));
 	
 	//printbold(s:"(Before dmg) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp, s:", Mob current hp:", d:maxhp);
 	//int dmg = GetActorProperty(0, APROP_SpawnHealth) - GetActorProperty(0, APROP_Health);
@@ -2260,60 +2284,60 @@ Script "DnD Monster Health Check" (int makeNoPain) {
 
 Script "DnD Monster Trait Take" (int flag1, int flag2, int flag3, int flag4) {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag1] = false;
+	SetMonsterTrait(m_tid, flag1, false);
 	if(flag2 != -1)
-		MonsterProperties[m_tid].trait_list[flag2] = false;
+		SetMonsterTrait(m_tid, flag2, false);
 	if(flag3 != -1)
-		MonsterProperties[m_tid].trait_list[flag3] = false;
+		SetMonsterTrait(m_tid, flag3, false);
 	if(flag4 != -1)
-		MonsterProperties[m_tid].trait_list[flag4] = false;
+		SetMonsterTrait(m_tid, flag4, false);
 	ACS_NamedExecuteWithResult("DnD Monster Trait Take CS", flag1, flag2, flag3, flag4);
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Take CS" (int flag1, int flag2, int flag3, int flag4) CLIENTSIDE {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag1] = false;
+	SetMonsterTrait(m_tid, flag1, false);
 	if(flag2 != -1)
-		MonsterProperties[m_tid].trait_list[flag2] = false;
+		SetMonsterTrait(m_tid, flag2, false);
 	if(flag3 != -1)
-		MonsterProperties[m_tid].trait_list[flag3] = false;
+		SetMonsterTrait(m_tid, flag3, false);
 	if(flag4 != -1)
-		MonsterProperties[m_tid].trait_list[flag4] = false;
+		SetMonsterTrait(m_tid, flag4, false);
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Take - TID" (int tid, int flag1, int flag2, int flag3) {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag1] = false;
+	SetMonsterTrait(m_tid, flag1, false);
 	if(flag2 != -1)
-		MonsterProperties[m_tid].trait_list[flag2] = false;
+		SetMonsterTrait(m_tid, flag2, false);
 	if(flag3 != -1)
-		MonsterProperties[m_tid].trait_list[flag3] = false;
+		SetMonsterTrait(m_tid, flag3, false);
 	ACS_NamedExecuteWithResult("DnD Monster Trait Take CS", tid, flag1, flag2, flag3);
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Take CS - TID" (int tid, int flag1, int flag2, int flag3) CLIENTSIDE {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag1] = false;
+	SetMonsterTrait(m_tid, flag1, false);
 	if(flag2 != -1)
-		MonsterProperties[m_tid].trait_list[flag2] = false;
+		SetMonsterTrait(m_tid, flag2, false);
 	if(flag3 != -1)
-		MonsterProperties[m_tid].trait_list[flag3] = false;
+		SetMonsterTrait(m_tid, flag3, false);
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Take Single" (int tid, int flag) {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag] = false;
+	SetMonsterTrait(m_tid, flag, false);
 	ACS_NamedExecuteWithResult("DnD Monster Trait Take Single CS", tid, flag);
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Take Single CS" (int tid, int flag) CLIENTSIDE {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag] = false;
+	SetMonsterTrait(m_tid, flag, false);
 	SetResultValue(0);
 }
 
@@ -2321,22 +2345,22 @@ Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	bool noAntiBlock = !CheckInventory("DnD_AntiBlockCounter");
 	if(flag1 != DND_ISBLOCKING || noAntiBlock)
-		MonsterProperties[m_tid].trait_list[flag1] = true;
+		SetMonsterTrait(m_tid, flag1, true);
 	else
 		flag1 = -1;
 
 	if(flag2 != -1 && (flag2 != DND_ISBLOCKING || noAntiBlock))
-		MonsterProperties[m_tid].trait_list[flag2] = true;
+		SetMonsterTrait(m_tid, flag2, true);
 	else
 		flag2 = -1;
 
 	if(flag3 != -1 && (flag3 != DND_ISBLOCKING || noAntiBlock))
-		MonsterProperties[m_tid].trait_list[flag3] = true;
+		SetMonsterTrait(m_tid, flag3, true);
 	else
 		flag3 = -1;
 
 	if(flag4 != -1 && (flag4 != DND_ISBLOCKING || noAntiBlock))
-		MonsterProperties[m_tid].trait_list[flag4] = true;
+		SetMonsterTrait(m_tid, flag4, true);
 	else
 		flag4 = -1;
 
@@ -2347,20 +2371,20 @@ Script "DnD Monster Trait Give" (int flag1, int flag2, int flag3, int flag4) {
 Script "DnD Monster Trait Give CS" (int flag1, int flag2, int flag3, int flag4) CLIENTSIDE {
 	int m_tid = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	if(flag1 != -1)
-		MonsterProperties[m_tid].trait_list[flag1] = true;
+		SetMonsterTrait(m_tid, flag1, true);
 	if(flag2 != -1)
-		MonsterProperties[m_tid].trait_list[flag2] = true;
+		SetMonsterTrait(m_tid, flag2, true);
 	if(flag3 != -1)
-		MonsterProperties[m_tid].trait_list[flag3] = true;
+		SetMonsterTrait(m_tid, flag3, true);
 	if(flag4 != -1)
-		MonsterProperties[m_tid].trait_list[flag4] = true;
+		SetMonsterTrait(m_tid, flag4, true);
 	SetResultValue(0);
 }
 
 Script "DnD Monster Trait Give Single" (int tid, int flag) {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
 	if(flag != DND_ISBLOCKING || !CheckInventory("DnD_AntiBlockCounter")) {
-		MonsterProperties[m_tid].trait_list[flag] = true;
+		SetMonsterTrait(m_tid, flag, true);
 		ACS_NamedExecuteWithResult("DnD Monster Trait Give Single CS", tid, flag);
 	}
 	SetResultValue(0);
@@ -2368,13 +2392,13 @@ Script "DnD Monster Trait Give Single" (int tid, int flag) {
 
 Script "DnD Monster Trait Give Single CS" (int tid, int flag) CLIENTSIDE {
 	int m_tid = tid - DND_MONSTERTID_BEGIN;
-	MonsterProperties[m_tid].trait_list[flag] = true;
+	SetMonsterTrait(m_tid, flag, true);
 	SetResultValue(0);
 }
 
 Script "DnD Hit Monster Trait Check" (int flag) {
 	int tracer = GetActorProperty(0, APROP_TRACERTID);
-	SetResultValue(MonsterProperties[tracer - DND_MONSTERTID_BEGIN].trait_list[flag]);
+	SetResultValue(HasMonsterTrait(tracer - DND_MONSTERTID_BEGIN, flag));
 }
 
 // Checks Ankh
@@ -2686,68 +2710,67 @@ Script "DnD Monster Scanner Picker" (void) {
 	SetResultValue(0);
 }
 
-// takes flag segments
-Script "DnD Sync Monster Trait CS" (int m_id, int v1, int v2, int v3) CLIENTSIDE {
+// The trait words, moved wholesale. This used to walk the enum bit by bit -- ninety odd iterations
+// per monster spawn on every client -- because the storage was one int per trait. It is a bitmap
+// now, so the words ARE the storage and the sync is three assignments.
+//
+// Assigning also clears: a word that arrives 0 zeroes that whole range, which is what a recycled
+// m_id needs. Only the words past what this call can carry need clearing by hand, since they come
+// separately and only when non-zero.
+Script "DnD Sync Monster Trait CS" (int m_id, int w0, int w1, int w2) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
-	// get all of the flagsets now
-	int i;
-	if(v1) {
-		for(i = 0; i < 32; ++i)
-			MonsterProperties[m_id].trait_list[i] = IsSet(v1, i);
-		MonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
-	}
-	else {
-		for(i = 0; i < 32; ++i)
-			MonsterProperties[m_id].trait_list[i] = false;
-	}
-	
-	if(v2) {
-		for(i = 32; i < 64; ++i)
-			MonsterProperties[m_id].trait_list[i] = IsSet(v2, i - 32);
-		MonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
-	}
-	else {
-		for(i = 32; i < 64; ++i)
-			MonsterProperties[m_id].trait_list[i] = false;
-	}
 
-	if(v3) {
-		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
-			MonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
+	MonsterProperties[m_id].trait_bits[0] = w0;
+	MonsterProperties[m_id].trait_bits[1] = w1;
+	MonsterProperties[m_id].trait_bits[2] = w2;
+
+	for(int i = TRAITSYNC_BASE_WORDS; i < MONSTER_TRAIT_WORDS; ++i)
+		MonsterProperties[m_id].trait_bits[i] = 0;
+
+	if(w0 || w1 || w2)
 		MonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
-	}
-	else {
-		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
-			MonsterProperties[m_id].trait_list[i] = false;
-	}
-	
+
 	SetResultValue(0);
 }
 
-Script "DnD Sync Pet Monster Trait CS" (int id, int v1, int v2, int v3) CLIENTSIDE {
-	int m_id = id - DND_PETTID_BEGIN;
-	
-	// get all of the flagsets now
-	int i;
-	if(v1) {
-		for(i = 0; i < 32; ++i)
-			PetMonsterProperties[m_id].trait_list[i] = IsSet(v1, i);
-		PetMonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
-	}
-	
-	if(v2) {
-		for(i = 32; i < 64; ++i)
-			PetMonsterProperties[m_id].trait_list[i] = IsSet(v2, i - 32);
-		PetMonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
-	}
+// A word past what the main call can carry, one call each. See TRAITSYNC_BASE_WORDS. The main sync
+// always runs and has already zeroed this word by the time we get here, so this only ever sets.
+Script "DnD Sync Monster Trait CS Ex" (int m_id, int word, int v) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
 
-	if(v3) {
-		for(i = 64; i < MAX_MONSTER_TRAITS_STORED; ++i)
-			PetMonsterProperties[m_id].trait_list[i] = IsSet(v3, i - 64);
+	MonsterProperties[m_id].trait_bits[word] = v;
+	MonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
+
+	SetResultValue(0);
+}
+
+Script "DnD Sync Pet Monster Trait CS" (int id, int w0, int w1, int w2) CLIENTSIDE {
+	int m_id = id - DND_PETTID_BEGIN;
+
+	PetMonsterProperties[m_id].trait_bits[0] = w0;
+	PetMonsterProperties[m_id].trait_bits[1] = w1;
+	PetMonsterProperties[m_id].trait_bits[2] = w2;
+
+	for(int i = TRAITSYNC_BASE_WORDS; i < MONSTER_TRAIT_WORDS; ++i)
+		PetMonsterProperties[m_id].trait_bits[i] = 0;
+
+	if(w0 || w1 || w2)
 		PetMonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
-	}
-	
+
+	SetResultValue(0);
+}
+
+// Same split as the monster version. Pet traits are handed in explicitly rather than rolled, so
+// this only matters if a caller ever names one of the high ids, but both ends have to agree on the
+// format regardless.
+Script "DnD Sync Pet Monster Trait CS Ex" (int id, int word, int v) CLIENTSIDE {
+	int m_id = id - DND_PETTID_BEGIN;
+
+	PetMonsterProperties[m_id].trait_bits[word] = v;
+	PetMonsterProperties[m_id].flags |= DND_MONFLAG_HASTRAITS;
+
 	SetResultValue(0);
 }
 
@@ -3449,7 +3472,7 @@ Script "DnD Monster Active" (void) {
 	int tid = ActivatorTID();
 	MonsterProperties[tid - DND_MONSTERTID_BEGIN].flags &= ~DND_MONFLAG_ISIDLE;
 
-	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !NPC_States[DND_NPC_DARKWANDERER].aux_data && MonsterProperties[tid - DND_MONSTERTID_BEGIN].trait_list[DND_MARKOFASMODEUS]) {
+	if(NPC_States[DND_NPC_DARKWANDERER].offer == NPC_OFFER_SUPERDEMON && !NPC_States[DND_NPC_DARKWANDERER].aux_data && HasMonsterTrait(tid - DND_MONSTERTID_BEGIN, DND_MARKOFASMODEUS)) {
 		NPC_States[DND_NPC_DARKWANDERER].aux_data = 1;
 		ACS_NamedExecuteAlways("DnD Dark Wanderer Challenge Track", 0);
 	}
@@ -3970,8 +3993,10 @@ Script "DnD Energy Shield FX" (int cap, int pnum) CLIENTSIDE {
 		}
 		else {
 			// at this point the tiny pct values we lose are irrelevant
-			pct = amt * 100 / cap;
-			pct <<= 16;
+			// written out through GetBarFill because amt * 100 stops fitting in an int above
+			// 21474836, and a shield that large would wrap the product negative and send both
+			// halves of the graphic sliding the wrong way
+			pct = GetBarFill(amt, cap, 100) << 16;
 		}
 
 		SetHudSize(640, 480, 0);
@@ -4066,7 +4091,7 @@ Script "DnD Monster Projectile Setup" (void) {
 		GiveInventory("MakePierce", 1);
 
 	int temp;
-	int factor = 1.0 + (!!MonsterProperties[m_id].trait_list[DND_FASTPROJ] * DND_FASTPROJ_FACTOR);
+	int factor = 1.0 + (!!HasMonsterTrait(m_id, DND_FASTPROJ) * DND_FASTPROJ_FACTOR);
 
 	if((temp = HasDungeonAttributeVal(DUN_ATTR_FASTPROJ)) != -1)
 		factor = FixedMul(factor, 1.0 + ((temp << 16) / 100));
@@ -4292,7 +4317,7 @@ Script "DnD Give Energy Shield" (int val) {
 
 Script "DnD Toggle NoPain" (void) {
 	// only take away this if the monster initially did not have it, some monsters have this and we dont want to deprive it of that flag
-	if(!MonsterProperties[ActivatorTID() - DND_MONSTERTID_BEGIN].trait_list[DND_NOPAIN])
+	if(!HasMonsterTrait(ActivatorTID() - DND_MONSTERTID_BEGIN, DND_NOPAIN))
 		GiveInventory("TakeNoPain", 1);
 }
 
@@ -4895,21 +4920,25 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	PetMonsterProperties[m_id].basehp = base;
 	PetMonsterProperties[m_id].maxhp = base + add;
 	PetMonsterProperties[m_id].level = level;
-	PetMonsterProperties[m_id].trait_list[DND_PET] = true;
+	SetPetMonsterTrait(m_id, DND_PET, true);
 	
 	// find a better way to transfer these
 	if(trait1 != -1)
-		PetMonsterProperties[m_id].trait_list[trait1] = true;
+		SetPetMonsterTrait(m_id, trait1, true);
 	if(trait2 != -1)
-		PetMonsterProperties[m_id].trait_list[trait2] = true;
+		SetPetMonsterTrait(m_id, trait2, true);
 	
 	ACS_NamedExecuteWithResult(
-		"DnD Sync Pet Monster Trait CS", 
-		this, 
+		"DnD Sync Pet Monster Trait CS",
+		this,
 		GetPetMonsterTraits(m_id, 0),
 		GetPetMonsterTraits(m_id, 1),
 		GetPetMonsterTraits(m_id, 2)
 	);
+
+	for(int w = TRAITSYNC_BASE_WORDS; w < MONSTER_TRAIT_WORDS; ++w)
+		if(GetPetMonsterTraits(m_id, w))
+			ACS_NamedExecuteWithResult("DnD Sync Pet Monster Trait CS Ex", this, w, GetPetMonsterTraits(m_id, w));
 
 	// pet icon
 	ACS_NamedExecuteAlways("DND Spawn Attachment", 0, this, DND_ATTACHMENT_PETICON);
@@ -5055,7 +5084,7 @@ Script "DnD On Artifact Use" (void) {
 Script "DnD On Monster Attack" (int isMelee) {
 	int this = ActivatorTID();
 	int m_id = this - DND_MONSTERTID_BEGIN;
-	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS]) {
+	if(HasMonsterTrait(m_id, DND_MARKOFCHAOS)) {
 		// check monster size category -- small, medium or big
 		int size = GetMonsterSizeType(MonsterProperties[m_id].id);
 		switch(size) {
@@ -5070,7 +5099,7 @@ Script "DnD On Monster Attack" (int isMelee) {
 			break;
 		}
 	}
-	else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
+	else if(HasMonsterTrait(m_id, DND_MARKOFASMODEUS))
 		HandleAsmodeusAttack(m_id, isMelee);
 
 	int target = GetActorProperty(0, APROP_TARGETTID);
@@ -5078,7 +5107,7 @@ Script "DnD On Monster Attack" (int isMelee) {
 	// summon the grabby hands under the player the monster is targeting
 	if
 	(
-		MonsterProperties[m_id].trait_list[DND_OTHERWORLDGRIP] && 
+		HasMonsterTrait(m_id, DND_OTHERWORLDGRIP) && 
 		random(1, 100) <= DND_OTHERWORLDGRIP_CHANCE && !CheckInventory("OtherworldGripCooldown") &&
 		isPlayer(target) && fdistance(this, target) <= OTHERWORLD_GRIP_DIST
 	)
@@ -5435,7 +5464,7 @@ Script "DnD Monster Heal Potency" (int base) {
 	int this = ActivatorTID() - DND_MONSTERTID_BEGIN;
 	int factor = Clamp_Between(MonsterProperties[this].level, 1, DND_MAX_MONSTERLVL) * Clamp_Between(GetCVar("dnd_monster_dmgscalepercent"), 1, 100);
 	
-	if(MonsterProperties[this].trait_list[DND_VITAL])
+	if(HasMonsterTrait(this, DND_VITAL))
 		factor <<= 1;
 	
 	base = base * (100 + factor) / 100;
@@ -5664,7 +5693,7 @@ Script "DnD Phasing" (void) {
 		Delay(TICRATE * random(1, 5));
 
 		// if somehow already ghost here, kill the script, it acquired this through other means
-		if(!isAlive() || CheckFlag(0, "GHOST") || MonsterProperties[m_id].trait_list[DND_GHOST])
+		if(!isAlive() || CheckFlag(0, "GHOST") || HasMonsterTrait(m_id, DND_GHOST))
 			break;
 
 		// make ghost
@@ -5789,7 +5818,7 @@ Script "DnD Get Player WeaponID" (void) {
 Script "DnD Bloodfiend Heal" (void) {
 	int victim = GetActorProperty(0, APROP_TRACERTID);
 
-	if(MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_BLOODLESS])
+	if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_BLOODLESS))
 		Terminate;
 
 	SetActivatorToTarget(0);

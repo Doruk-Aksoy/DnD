@@ -496,14 +496,22 @@ void ConstructSpecialtyItemOnMerchant(int item_pos, int ilvl, int item_type) {
 int RollSpecialtyItemInfoOnMerchant(int item_pos, int ilvl, int itype) {
 	// roll random attributes for the charm
 	int i = 0, roll;
-	int sub_type = ConstructSpecialtyDataOnField(item_pos, ilvl, itype);
+	auto item = GetMerchantItem(item_pos);
+
+	// Take the base the caller ALREADY rolled and stored on this merchant item.
+	//
+	// This used to call ConstructSpecialtyDataOnField, mirroring the field version -- but the field
+	// version owns its item, and this one does not. That call rolled a SECOND, independent subtype
+	// and wrote it into the FIELD item array at the same index, so the implicits below described a
+	// different base than the one on sale, and a field slot got stomped as a side effect. Whenever
+	// the two rolls disagreed you got things like a Cestus carrying a Katar's phasing implicit.
+	int sub_type = item.item_subtype;
 	int count = random(1, MAX_SPECIALTY_ATTRIBS);
 	int special_roll = 0;
 
 	SetupItemImplicit(item_pos, itype, sub_type, ilvl, true);
 
-	auto item = GetMerchantItem(item_pos);
-	
+
 	while(i < count) {
 		do {
 			roll = PickRandomAttribute(itype, special_roll, item.implicit[0].attrib_id);

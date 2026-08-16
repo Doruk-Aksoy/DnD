@@ -1075,7 +1075,7 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 		GiveInventory("DnD_SavageryMasteryTimer", 1);
 	}
 
-	if(victim >= DND_MONSTERTID_BEGIN && MonsterProperties[victim - DND_MONSTERTID_BEGIN].trait_list[DND_OSMIUM])
+	if(victim >= DND_MONSTERTID_BEGIN && HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_OSMIUM))
 		base -= DND_OSMIUM_REDUCTION;
 
 	forcedReturn = GetPlayerAttributeValue(pnum, INV_INC_EXCESSCRIT);
@@ -1548,7 +1548,7 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 // returns true if monster isn't ailment immune, or we can bypass it
 bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 	// is not immune or if it is, we rolled ailment ignore chance
-	return !MonsterProperties[m_id].trait_list[ailment_mod] || random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
+	return !HasMonsterTrait(m_id, ailment_mod) || random(1, 100) < GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
 }
 
 #define DND_BASE_BLEEDCHANCE_MELEE 20

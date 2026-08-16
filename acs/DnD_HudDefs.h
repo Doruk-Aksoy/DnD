@@ -37,6 +37,12 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define QSTBOX2_YF 173.0
 
 #define MONSTERINFO_HOLDTIME 0.2
+
+// Fillable width of the two monster health bars, each in the hud size its own drawing sets up --
+// 720x600 for the target bar, 800x600 for the dungeon boss one. These are what the fill is scaled
+// to, so they have to match the artwork's bar interior.
+#define DND_MONSTERBAR_WIDTH 200
+#define DND_BOSSBAR_WIDTH 450
 #define EXIT_HOLDTIME 0.5
 
 #define MILLION_MINUS_ONE 999999
@@ -60,6 +66,81 @@ typedef struct coord {
 // x is scroll current pos, y is scroll limit
 coord_T ScrollPos = { 0, 0 };
 //coord_T HudScale = { 1.0, 1.0 };
+
+// Everything the scroll bar knows, in one place. All of it is clientside and menu lifetime only.
+struct scrollbar_T {
+	// What the page in view reported to ListenScroll this tic. range x is the lowest position it
+	// will take (bottom of the content) and y the highest (top); content x is how many pixels one
+	// position moves that page and y is the height of the window it draws inside. There is nowhere
+	// else any of this lives -- a page states it in the ListenScroll call and nowhere else.
+	coord_T range;
+	coord_T content;
+
+	// Where the cursor sat and what the view read when a drag began. Both are needed because the
+	// drag is relative: measuring from the cursor's absolute position instead would snap the thumb
+	// under the cursor on the first frame no matter where along the thumb it was grabbed.
+	int grab_y;
+	int grab_pos;
+
+	// listened separates "this page scrolls, and the two above describe it" from "this page has no
+	// scroll at all", which is the difference between drawing a bar and not drawing one.
+	bool listened;
+	bool grabbed;
+
+	// What the frame before settled on for the two things the bar draws differently. Neither is
+	// part of the every-tic draw, so the frame either changes on has to ask for the redraw itself
+	// or nothing will.
+	bool drawn;
+	bool lit;
+};
+
+scrollbar_T module& GetScrollBar() {
+	static scrollbar_T bar;
+	return bar;
+}
+
+// The bar sits in the strip between where the page's text stops and where the panel's right hand
+// frame begins. Every page wraps its text 256 wide from x 192, so nothing it draws can reach past
+// 448 -- starting at 449 means the bar never lands on a line of text no matter how long the line
+// runs, which picking a column inside the content area could not promise. All of these are in the
+// HUDMAX_X x HUDMAX_Y space the menu draws its text in.
+#define DND_SCROLLBAR_X 449
+#define DND_SCROLLBAR_W 7
+#define DND_SCROLLBAR_Y 40
+#define DND_SCROLLBAR_H 240
+
+// Rows in SCRLTHMB.png, which is stacked bands rather than one strip because the handle's height
+// is produced by clipping and anything at a fixed distance from one end would shear off the other.
+// The draw anchors the art once per band to land each where it belongs. These mirror the row
+// numbers in the art, so the two have to move together.
+#define DND_SCROLLBAR_THUMBCAP 0		// bottom shadow, onto the handle's last row
+#define DND_SCROLLBAR_THUMBGRIP 4		// notches, centred on the handle
+#define DND_SCROLLBAR_THUMBGRIPH 9
+#define DND_SCROLLBAR_THUMBBODY 16		// top highlight, then uniform body below it
+
+// below this the notches crowd the whole handle instead of reading as a grip on it
+#define DND_SCROLLBAR_THUMBGRIPMIN 28
+
+// what the thumb falls back to when the page hasn't declared its content size
+#define DND_SCROLLBAR_THUMBDEFAULT 32
+// small enough to still mean "there is a lot below", large enough to still be a mouse target
+#define DND_SCROLLBAR_THUMBMIN 16
+// a thumb that filled the whole track would leave nowhere to drag it to
+#define DND_SCROLLBAR_THUMBMAX (DND_SCROLLBAR_H - 8)
+
+#define DND_SCROLLBAR_XF (DND_SCROLLBAR_X << 16)
+#define DND_SCROLLBAR_YF (DND_SCROLLBAR_Y << 16)
+
+// how far either side of the bar a click still counts as grabbing it -- 7 pixels is a small
+// target to hit with a cursor that moves at mouse speed
+#define DND_SCROLLBAR_GRABPAD 5
+
+// The cursor runs the other way to the screen (top left is 1:1, see point_in_box), so the bar's
+// screen rectangle has to be flipped into cursor space before anything can be tested against it.
+#define DND_SCROLLBAR_CURSOR_XMAX ((HUDMAX_X - DND_SCROLLBAR_X + DND_SCROLLBAR_GRABPAD) << 16)
+#define DND_SCROLLBAR_CURSOR_XMIN ((HUDMAX_X - DND_SCROLLBAR_X - DND_SCROLLBAR_W - DND_SCROLLBAR_GRABPAD) << 16)
+#define DND_SCROLLBAR_CURSOR_YMAX ((HUDMAX_Y - DND_SCROLLBAR_Y) << 16)
+#define DND_SCROLLBAR_CURSOR_YMIN ((HUDMAX_Y - DND_SCROLLBAR_Y - DND_SCROLLBAR_H) << 16)
 
 #define BOSSDATA_TID 0 // unique boss tid, this is typically dungeon boss or one off boss encounters in maps
 #define BOSSDATA_HP 1 // unique boss hp, monster health isnt synced to clients
@@ -140,8 +221,22 @@ enum {
 	RPGMENUDAMAGETYPEID,
 	RPGMENULISTID = 2110,
 	RPGMENUWEAPONPANELID = 2150,
-	RPGMENUBACKGROUNDID = 2151,
-	
+
+	// AttachMessage keeps its list sorted by id and draws the highest first, so a LOWER id lands
+	// in front -- which is why the cursor is 100 and the panel background is the largest number
+	// here. These two have to come in front of that background and behind nothing else the page
+	// draws, so they go directly between the two, and the thumb has to sit below the track for
+	// the same reason or the track paints over it.
+	// Below RPGMENUBACKGROUNDID also keeps them clear of RPGMENUBACKGROUNDID + 1, which the
+	// prompt and vote banners write to.
+	// the handle's three bands, then its groove, each in front of the one after it
+	RPGMENUSCROLLGRIPID = 2151,
+	RPGMENUSCROLLCAPID = 2152,
+	RPGMENUSCROLLTHUMBID = 2153,
+	RPGMENUSCROLLTRACKID = 2154,
+
+	RPGMENUBACKGROUNDID = 2155,
+
 	// monster scanner hud id stuff
 	MONSTER_TYPEICONID = 2300,
 	MONSTER_TYPEICONID_RIGHT,

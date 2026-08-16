@@ -43,7 +43,7 @@ int GetMagicHealthScale(int level) {
 #define MAX_ELITE_TRIES 50
 #define DND_MAX_ELITEIMMUNITIES 2
 
-#define MAX_ROLLABLE_TRAITS 64
+#define MAX_ROLLABLE_TRAITS 68
 
 #include "DnD_EliteInfo.h"
 
@@ -234,12 +234,18 @@ void SetupEliteModWeights() {
 	INSERT_ELITEMODPOOL(DND_EXHAUSTING, 30, 180);
 	INSERT_ELITEMODPOOL(DND_EXTRASPEED, 0, 250);
 
+	// a touch below the FRIGID/SCORCHED/VOLTAIC family they sit next to in power
+	INSERT_ELITEMODPOOL(DND_EMBERTOUCH, 40, 165);
+	INSERT_ELITEMODPOOL(DND_RIMETOUCH, 40, 165);
+	INSERT_ELITEMODPOOL(DND_STORMTOUCH, 40, 165);
+	INSERT_ELITEMODPOOL(DND_VILETOUCH, 40, 165);
+
 	// build the tables off of this info
 	CreateEliteAliasTables(thresholds, i);
 }
 
 bool HasTrait(int id, int trait_index) {
-	return MonsterProperties[id].trait_list[trait_index];
+	return HasMonsterTrait(id, trait_index);
 }
 
 #define ROLLED_MONSTER_IS_MAGIC 1
@@ -278,51 +284,51 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 				MonsterProperties[this].resists[DND_DAMAGECATEGORY_BULLET] = DND_RESIST_FACTOR;
 		break;
 		case DND_BULLET_IMMUNE:
-			MonsterProperties[this].trait_list[DND_BULLET_RESIST] = false;
-			MonsterProperties[this].trait_list[DND_SILVER_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_BULLET_RESIST, false);
+			SetMonsterTrait(this, DND_SILVER_WEAKNESS, false);
 			GiveInventory("MakePhysicalResist", 1);
 
 			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_BULLET] < DND_IMMUNITY_FACTOR)
 				MonsterProperties[this].resists[DND_DAMAGECATEGORY_BULLET] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_ENERGY_RESIST:
-			MonsterProperties[this].trait_list[DND_ENERGY_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_ENERGY_WEAKNESS, false);
 
 			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] < DND_RESIST_FACTOR)
 				MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] = DND_RESIST_FACTOR;
 		break;
 		case DND_ENERGY_IMMUNE:
-			MonsterProperties[this].trait_list[DND_ENERGY_RESIST] = false;
-			MonsterProperties[this].trait_list[DND_ENERGY_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_ENERGY_RESIST, false);
+			SetMonsterTrait(this, DND_ENERGY_WEAKNESS, false);
 
 			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] < DND_IMMUNITY_FACTOR)
 				MonsterProperties[this].resists[DND_DAMAGECATEGORY_ENERGY] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_MAGIC_RESIST:
-			MonsterProperties[this].trait_list[DND_MAGIC_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_MAGIC_WEAKNESS, false);
 
 			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] < DND_RESIST_FACTOR)
 				MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] = DND_RESIST_FACTOR;
 		break;
 		case DND_MAGIC_IMMUNE:
-			MonsterProperties[this].trait_list[DND_MAGIC_RESIST] = false;
-			MonsterProperties[this].trait_list[DND_MAGIC_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_MAGIC_RESIST, false);
+			SetMonsterTrait(this, DND_MAGIC_WEAKNESS, false);
 
 			if(MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] < DND_IMMUNITY_FACTOR)
 				MonsterProperties[this].resists[DND_DAMAGECATEGORY_OCCULT] = DND_IMMUNITY_FACTOR;
 		break;
 		case DND_ELEMENTAL_RESIST:
-			MonsterProperties[this].trait_list[DND_FIRE_WEAKNESS] = false;
-			MonsterProperties[this].trait_list[DND_ICE_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_FIRE_WEAKNESS, false);
+			SetMonsterTrait(this, DND_ICE_WEAKNESS, false);
 
 			for(i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END; ++i)
 				if(MonsterProperties[this].resists[i] < DND_RESIST_FACTOR)
 					MonsterProperties[this].resists[i] = DND_RESIST_FACTOR;
 		break;
 		case DND_ELEMENTAL_IMMUNE:
-			MonsterProperties[this].trait_list[DND_ELEMENTAL_RESIST] = false;
-			MonsterProperties[this].trait_list[DND_FIRE_WEAKNESS] = false;
-			MonsterProperties[this].trait_list[DND_ICE_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_ELEMENTAL_RESIST, false);
+			SetMonsterTrait(this, DND_FIRE_WEAKNESS, false);
+			SetMonsterTrait(this, DND_ICE_WEAKNESS, false);
 
 			for(i = DND_ELECATEGORY_BEGIN; i <= DND_ELECATEGORY_END; ++i)
 				if(MonsterProperties[this].resists[i] < DND_IMMUNITY_FACTOR)
@@ -330,10 +336,10 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 		break;
 
 		case DND_FIRE_IMMUNE:
-			MonsterProperties[this].trait_list[DND_FIRE_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_FIRE_WEAKNESS, false);
 		break;
 		case DND_ICE_IMMUNE:
-			MonsterProperties[this].trait_list[DND_ICE_WEAKNESS] = false;
+			SetMonsterTrait(this, DND_ICE_WEAKNESS, false);
 		break;
 		
 		case DND_GHOST:
@@ -358,7 +364,7 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 		break;
 		case DND_ARMORPEN:
 			// if monster has pierce, remove it
-			MonsterProperties[this].trait_list[DND_PIERCE] = false;
+			SetMonsterTrait(this, DND_PIERCE, false);
 			GiveInventory("MakePierce", 1);
 		break;
 		case DND_REJUVENATING:
@@ -402,7 +408,7 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 		++test_counter;
 #endif*/
 
-	MonsterProperties[this].trait_list[f] = true;
+	SetMonsterTrait(this, f, true);
 	
 	// sync to client too
 	if(updateCS)
@@ -497,26 +503,14 @@ bool CheckImmunityFlagStatus(int try_trait) {
 	return !(IsImmunityFlag(try_trait) && HasMaxImmunes());
 }
 
-// from which segment to return, 0-31, 32-63, 64-95 etc.
+// Which word to return: traits 0-31, 32-63, 64-95 and so on. The bitmap IS the wire format now, so
+// there is nothing to pack -- these stay functions only so the sync call sites read as they did.
 int GetMonsterTraits(int monster_id, int segment) {
-	int ret = 0;
-	int seg5 = segment << 5;
-	int lim = seg5 + 32;
-	for(int i = seg5; i < lim && i < MAX_MONSTER_TRAITS_STORED; ++i) {
-		//if(MonsterProperties[monster_id].class == MONSTERCLASS_IMP && MonsterProperties[monster_id].trait_list[i])
-		//	Log(s:"pack trait ", d:i, s: " for monster ", s:GetActorClass(ActivatorTID()), s: " <", d:monster_id, s: ">: ", d:MonsterProperties[monster_id].trait_list[i]);
-		ret |= MonsterProperties[monster_id].trait_list[i] * (1 << (i - seg5));
-	}
-	return ret;
+	return MonsterProperties[monster_id].trait_bits[segment];
 }
 
 int GetPetMonsterTraits(int monster_id, int segment) {
-	int ret = 0;
-	int seg5 = segment << 5;
-	int lim = seg5 + 32;
-	for(int i = seg5; i < lim && i < MAX_MONSTER_TRAITS_STORED; ++i)
-		ret |= PetMonsterProperties[monster_id].trait_list[i] * (1 << (i - seg5));
-	return ret;
+	return PetMonsterProperties[monster_id].trait_bits[segment];
 }
 
 void DecideEliteTraits(int tid, int m_id, int count) {

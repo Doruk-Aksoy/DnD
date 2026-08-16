@@ -818,22 +818,22 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_STAT_INTELLECT].allowed_slots = DND_MODBASE_ALL;
 	
 	ItemModTable[INV_DMGREDUCE_ELEM].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 6.0;
-	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 6.0;
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_ELEM].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_ELEM].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL;
 	ItemModTable[INV_DMGREDUCE_ELEM].weight = 650;
 	ItemModTable[INV_DMGREDUCE_ELEM].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
 	ItemModTable[INV_DMGREDUCE_PHYS].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 6.0;
-	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 6.0;
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_PHYS].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_PHYS].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_PHYSICAL;
 	ItemModTable[INV_DMGREDUCE_PHYS].weight = 650;
 	ItemModTable[INV_DMGREDUCE_PHYS].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
 	ItemModTable[INV_DMGREDUCE_REFL].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_REFL].attrib_high = 6.0;
-	ItemModTable[INV_DMGREDUCE_REFL].attrib_level_modifier = 6.0;
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_REFL].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_REFL].tags = INV_ATTR_TAG_DEFENSE;
 	ItemModTable[INV_DMGREDUCE_REFL].weight = 400;
 	ItemModTable[INV_DMGREDUCE_REFL].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
@@ -1042,8 +1042,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PROJSPEED].allowed_slots = DND_MODBASE_CHARM;
 	
 	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 6.0;
-	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 6.0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_ENERGY].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_ENERGY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
 	ItemModTable[INV_DMGREDUCE_ENERGY].weight = 650;
 	ItemModTable[INV_DMGREDUCE_ENERGY].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
@@ -1056,8 +1056,8 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_PERCENT_KNOCKBACKRESIST].allowed_slots = DND_MODBASE_CHARM | DND_MODBASE_BODYARMOR | DND_MODBASE_BOOT;
 	
 	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_low = 1.0;
-	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 6.0;
-	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 6.0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_high = 4.0;
+	ItemModTable[INV_DMGREDUCE_MAGIC].attrib_level_modifier = 4.0;
 	ItemModTable[INV_DMGREDUCE_MAGIC].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_OCCULT;
 	ItemModTable[INV_DMGREDUCE_MAGIC].weight = 650;
 	ItemModTable[INV_DMGREDUCE_MAGIC].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
@@ -1933,7 +1933,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FLASK_INCCHARGES].tags = INV_ATTR_TAG_FLASK;
 
 	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].attrib_low = 1;
-	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].attrib_high = 10;
+	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].attrib_high = 5;
 	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].attrib_level_modifier = 0;
 	ItemModTable[INV_FLASK_REDUCEDCHARGEUSE].tags = INV_ATTR_TAG_FLASK;
 

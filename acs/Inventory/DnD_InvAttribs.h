@@ -559,6 +559,46 @@ bool IsAttributeQualityException(int attr) {
 	return false;
 }
 
+// Quality scaling for an attribute's value and extra field.
+//
+// These exist so the tooltip and the mechanics cannot disagree. They used to be the same arithmetic
+// written out in both places, and flasks only ever had the tooltip half: GetFlaskAttributeVal reads
+// straight off the item, so every flask affix displayed a quality boosted number and then behaved as
+// if the item had no quality at all.
+//
+// The odd looking branch is deliberate and must be kept: multiplying first overflows once the value
+// is large, dividing first loses precision when it is small, so each case takes the order that is
+// safe for it.
+int ApplyQualityToAttribValue(int val, int qual, int attr) {
+	if(!qual || IsAttributeQualityException(attr))
+		return val;
+
+	if(val < 100000) {
+		val *= qual + 100;
+		val /= 100;
+	}
+	else {
+		val /= 100;
+		val *= qual + 100;
+	}
+	return val;
+}
+
+int ApplyQualityToAttribExtra(int extra, int qual, int attr) {
+	if(!qual || !extra || IsAttributeExtraException(attr))
+		return extra;
+
+	if(extra > 100000) {
+		extra /= 100;
+		extra *= qual + 100;
+	}
+	else {
+		extra *= qual + 100;
+		extra /= 100;
+	}
+	return extra;
+}
+
 bool IsUniqueModRerollException(int attr) {
 	switch(attr) {
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:

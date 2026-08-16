@@ -547,50 +547,71 @@ void HandleWeaponPropertyImages(int curopt, int boxid, int ypos) {
 	}
 }
 
+// The two trailing arguments on each ListenScroll are the page's pixel step and the height of the
+// clip it draws inside, and both are copied straight out of that page's draw code -- the step is
+// the multiplier it applies to ScrollPos.x, the view is the fourth argument of its SetHudClipRect.
+// The scroll bar sizes its thumb from them. Get one wrong and that page's thumb is the wrong
+// length and drags at the wrong rate; it still reaches both ends, but it lies about how much is
+// left. Change a page's clip or its multiplier and the number here has to follow.
+//
+// Some cases that used to share a ListenScroll are split below because they only ever agreed on
+// the range: MENU_MAIN and MENU_HELP_RESEARCHES both scroll 32, over windows of 128 and 216, and
+// MENU_HELP_CHARACTER and MENU_HELP_MMODS_RESIST both scroll 96, over 216 and 228.
+#define DND_SCROLL_MMODVIEW 228		// every DrawMonsterModCategory page shares one clip
+#define DND_SCROLL_MMODSTEP 4
+
 bool HandlePageListening(int curopt, int boxid) {
 	bool redraw = false;
 	int temp, i;
+	// Pages that scroll set this again through ListenScroll below; the ones that don't leave it
+	// clear, which is how the bar knows to stand down. Cleared here rather than by the caller so
+	// it cannot be forgotten at a call site that only wanted the key handling.
+	GetScrollBar().listened = false;
 	switch(curopt) {
 		case MENU_MAIN:
+			redraw = ListenScroll(-32, 0, 4, 128);
+		break;
 		case MENU_HELP_RESEARCHES:
-			redraw = ListenScroll(-32, 0);
+			redraw = ListenScroll(-32, 0, 4, 216);
 		break;
 		case MENU_HELP_AILMENTS:
-			redraw = ListenScroll(-40, 0);
+			redraw = ListenScroll(-40, 0, 8, 228);
 		break;
 		case MENU_PERK:
-			redraw = ListenScroll(-16, 0);
+			redraw = ListenScroll(-16, 0, 2, 48);
 		break;
 
 		case MENU_HELP_CLASSPERKS:
-			redraw = ListenScroll(-64, 0);
+			redraw = ListenScroll(-64, 0, 4, 216);
 		break;
 
 		case MENU_SHOP_AMMO_SPECIAL1:
-			redraw = ListenScroll(-24, 0);
+			redraw = ListenScroll(-24, 0, 1, 36);
 		break;
 
 		case MENU_STAT2_DEFENSE:
-			redraw = ListenScroll(ScrollPos.y - 8, 0);
+			redraw = ListenScroll(ScrollPos.y - 8, 0, 6, 196);
 		break;
 		case MENU_STAT2_OFFENSE1:
 		case MENU_STAT2_OFFENSE2:
 		case MENU_STAT2_UTILITY:
 		case MENU_STAT2_MISC:
-			redraw = ListenScroll(ScrollPos.y, 0);
+			redraw = ListenScroll(ScrollPos.y, 0, 6, 196);
 		break;
 		case MENU_HELP_MMODS_IMMUNITY:
-			redraw = ListenScroll(-192, 0);
+			redraw = ListenScroll(-192, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_CHARACTER:
+			redraw = ListenScroll(-96, 0, 4, 216);
+		break;
 		case MENU_HELP_MMODS_RESIST:
-			redraw = ListenScroll(-96, 0);
+			redraw = ListenScroll(-96, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_DAMAGETYPES:
-			redraw = ListenScroll(-128, 0);
+			redraw = ListenScroll(-128, 0, 4, 216);
 		break;
 		case MENU_HELP_MMODS_UTILITY:
-			redraw = ListenScroll(-304, 0);
+			redraw = ListenScroll(-304, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_LEGMONS:
 			temp = 0;
@@ -598,63 +619,69 @@ bool HandlePageListening(int curopt, int boxid) {
 				if(HasKilledLegendary(i))
 					++temp;
 			}
-			redraw = ListenScroll(-64 * (temp / 2), 0);
+			// the only page whose length depends on the save -- the thumb grows as entries are
+			// unlocked, which is correct and is also why it cannot be checked by reading the page
+			redraw = ListenScroll(-64 * (temp / 2), 0, 4, 228);
 		break;
 		case MENU_HELP_MMODS_WEAKNESS:
-			redraw = ListenScroll(-64, 0);
+			redraw = ListenScroll(-64, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_WEAPONPROPS:
-			redraw = ListenScroll(-256, 0);
+			// the icons alongside redraw at 640x480 with their own clip -- the text's window is
+			// what the reader is actually scrolling, so that is the one the thumb is sized from
+			redraw = ListenScroll(-256, 0, 4, 224);
 		break;
 		case MENU_HELP_MMODS_AGGRESSIVE:
-			redraw = ListenScroll(-232, 0);
+			redraw = ListenScroll(-344, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
 		case MENU_HELP_ORBS:
-			redraw = ListenScroll(-320, 0);
+			redraw = ListenScroll(-320, 0, 8, 220);
 		break;
 		case MENU_HELP_MMODS_DEFENSIVE:
-			redraw = ListenScroll(-304, 0);
+			redraw = ListenScroll(-304, 0, DND_SCROLL_MMODSTEP, DND_SCROLL_MMODVIEW);
 		break;
-		
+
 		// weapon pages -- this part is ugly I know, at this time I couldnt find a better solution :P
+		// all of them scroll the one help box in DrawToggledImage, so the step and view never vary
 		case MENU_SHOP_WEAPON1:
 		case MENU_SHOP_WEAPON3_1:
 		case MENU_SHOP_WEAPON3_2:
 		case MENU_SHOP_WEAPON4_2:
 			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
-				redraw = ListenScroll(-36, 0);
+				redraw = ListenScroll(-36, 0, 1, 64);
 		break;
 		case MENU_SHOP_WEAPON5_1:
 			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
-				redraw = ListenScroll(-40, 0);
+				redraw = ListenScroll(-40, 0, 1, 64);
 		break;
 		case MENU_SHOP_WEAPON2:
 		case MENU_SHOP_WEAPON6_2:
 		case MENU_SHOP_WEAPON7:
 			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
-				redraw = ListenScroll(-16, 0);
+				redraw = ListenScroll(-16, 0, 1, 64);
 		break;
 		case MENU_SHOP_WEAPON4_1:
 		case MENU_SHOP_WEAPON5_2:
 			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
-				redraw = ListenScroll(-24, 0);
+				redraw = ListenScroll(-24, 0, 1, 64);
 		break;
-		
+
 		case MENU_SHOP_WEAPON6_1:
 			if(boxid != -1 && (GetWeaponDrawInfo(GetWeaponBeginIndexFromOption(curopt) + boxid - 1).flags & OBJ_USESCROLL))
-				redraw = ListenScroll(-40, 0);
+				redraw = ListenScroll(-40, 0, 1, 64);
 		break;
 		case MENU_RESEARCH_BODY:
 		case MENU_RESEARCH_AMMO:
 		case MENU_RESEARCH_SLOTGUNS:
 		case MENU_RESEARCH_LUXURYGUNS:
 		case MENU_RESEARCH_UTILITY:
+			// the investment explanation under the research entry, not the entry itself
 			if(boxid == MBOX_2)
-				redraw = ListenScroll(-16, 0);
+				redraw = ListenScroll(-16, 0, 2, 36);
 		break;
 		#ifdef ISAPRILFIRST
 		case MENU_SHOP_NFT:
-			redraw = ListenScroll(-48, 0);
+			redraw = ListenScroll(-48, 0, 1, 32);
 		break;
 		#endif
 	}
@@ -6457,6 +6484,10 @@ void DrawMonsterModCategory(int category) {
 		DND_BORROWEDTIME,
 		DND_EXHAUSTING,
 		DND_EXTRASPEED,
+		DND_EMBERTOUCH,
+		DND_RIMETOUCH,
+		DND_STORMTOUCH,
+		DND_VILETOUCH,
 		
 		// defense
 		DND_GHOST,

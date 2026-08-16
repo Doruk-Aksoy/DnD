@@ -1329,8 +1329,8 @@ void HandleRuination(int this, int target) {
 }
 
 bool IsEliteException(int m_id, int monster_type) {
-	// used to contain MonsterProperties[m_id].trait_list[DND_LEGENDARY] as well
-	return 	CheckFlag(0, "FRIENDLY") || isUniqueBossMonster(m_id) || MonsterProperties[m_id].trait_list[DND_SUMMONED] || CheckInventory("DnD_EliteException") ||
+	// used to contain HasMonsterTrait(m_id, DND_LEGENDARY) as well
+	return 	CheckFlag(0, "FRIENDLY") || isUniqueBossMonster(m_id) || HasMonsterTrait(m_id, DND_SUMMONED) || CheckInventory("DnD_EliteException") ||
 			monster_type == MONSTER_PHANTASM || monster_type == MONSTER_WRAITH || monster_type == MONSTER_HADESSPHERE || monster_type == MONSTER_UNDEADPRIESTGHOST;
 }
 

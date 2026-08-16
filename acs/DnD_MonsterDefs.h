@@ -64,7 +64,7 @@ typedef struct {
 	int rng_vals[DND_MAX_MONSTER_PRECALC_RNG];		// precalculated rng outcomes
 	int flags;										// isElite, isMagic, isIdle etc.
 	int resists[MAX_DAMAGE_CATEGORIES];				// resists of the monster
-	bool trait_list[MAX_MONSTER_TRAITS_STORED]; 	// 1 if that trait is on, 0 if not
+	int trait_bits[MONSTER_TRAIT_WORDS];			// one bit per trait, see HasMonsterTrait below
 } mo_prop_T;
 
 // allow a max of 8192 monsters' data to be held
@@ -75,10 +75,93 @@ typedef struct {
 	int health;
 	int flags;
 	int rarity;
-	bool trait_list[MAX_MONSTER_TRAITS_STORED];
+	int trait_bits[MONSTER_TRAIT_WORDS];
 } monster_data_T;
 
 global monster_data_T 10: MonsterData[DND_LASTMONSTER_INDEX];
+
+// ============================================================================
+//  TRAIT STORAGE
+//
+//  One bit per trait rather than one int per trait. The old bool array cost MAX_MONSTER_TRAITS_STORED
+//  ints per monster -- 99 x 12800 is 1.27 MILLION ints for MonsterProperties alone, and the same
+//  field again on the pet and per-monster-type tables. Packed it is four words, so about 51k, and a
+//  monster's entire trait set copies or clears in four assignments instead of ninety-nine.
+//
+//  That is also what makes the client sync cheap: it moves whole words instead of looping the enum,
+//  and the enum can grow to 128 traits before the word count moves at all.
+//
+//  Nothing outside these accessors should touch trait_bits. t >> 5 is the word, t & 31 the bit.
+//
+//  The `!!` on every read is LOAD BEARING, not decoration. Callers multiply a trait by a factor --
+//  the resist block does `HasMonsterTrait(m_id, DND_BULLET_RESIST) * DND_RESIST_FACTOR` and there
+//  are a dozen more like it. Returning the masked word instead of a normalized 0/1 would hand them
+//  the bit's VALUE: 64 for trait 6, and 2^30 for a trait high in its word, which overflows outright.
+//  The old bool array happened to be 0/1 by construction; here it has to be forced.
+// ============================================================================
+bool HasMonsterTrait(int m_id, int t) {
+	return !!(MonsterProperties[m_id].trait_bits[t >> 5] & (1 << (t & 31)));
+}
+
+void SetMonsterTrait(int m_id, int t, bool v) {
+	if(v)
+		MonsterProperties[m_id].trait_bits[t >> 5] |= 1 << (t & 31);
+	else
+		MonsterProperties[m_id].trait_bits[t >> 5] &= ~(1 << (t & 31));
+}
+
+// sets when true, leaves alone when false -- the |= form, for folding in a condition
+void AddMonsterTrait(int m_id, int t, bool v) {
+	if(v)
+		MonsterProperties[m_id].trait_bits[t >> 5] |= 1 << (t & 31);
+}
+
+void ClearMonsterTraits(int m_id) {
+	for(int i = 0; i < MONSTER_TRAIT_WORDS; ++i)
+		MonsterProperties[m_id].trait_bits[i] = 0;
+}
+
+bool HasPetMonsterTrait(int m_id, int t) {
+	return !!(PetMonsterProperties[m_id].trait_bits[t >> 5] & (1 << (t & 31)));
+}
+
+void SetPetMonsterTrait(int m_id, int t, bool v) {
+	if(v)
+		PetMonsterProperties[m_id].trait_bits[t >> 5] |= 1 << (t & 31);
+	else
+		PetMonsterProperties[m_id].trait_bits[t >> 5] &= ~(1 << (t & 31));
+}
+
+bool HasMonsterDataTrait(int mon, int t) {
+	return !!(MonsterData[mon].trait_bits[t >> 5] & (1 << (t & 31)));
+}
+
+void SetMonsterDataTrait(int mon, int t, bool v) {
+	if(v)
+		MonsterData[mon].trait_bits[t >> 5] |= 1 << (t & 31);
+	else
+		MonsterData[mon].trait_bits[t >> 5] &= ~(1 << (t & 31));
+}
+
+// Could this monster have any touch trait? One word read and one masked test, in place of three
+// HasMonsterTrait calls that for almost every monster all return false -- and this runs on every hit
+// a player takes, so the wasted calls were the whole cost of the feature for players fighting
+// ordinary monsters.
+//
+// The word comparison folds at compile time. If the enum ever splits the three traits across words
+// this returns true unconditionally and the caller's loop does the real work: it degrades to the old
+// behaviour instead of silently skipping the monsters that do have one.
+bool MonsterHasAnyTouchTrait(int m_id) {
+	if((DND_FIRST_TOUCHTRAIT >> 5) != (DND_LAST_TOUCHTRAIT >> 5))
+		return true;
+	return !!(MonsterProperties[m_id].trait_bits[DND_FIRST_TOUCHTRAIT >> 5] & DND_TOUCHTRAIT_MASK);
+}
+
+// the per-monster-type preset, copied onto a spawned monster whole
+void CopyMonsterDataTraits(int m_id, int mon) {
+	for(int i = 0; i < MONSTER_TRAIT_WORDS; ++i)
+		MonsterProperties[m_id].trait_bits[i] = MonsterData[mon].trait_bits[i];
+}
 
 enum {
 	DND_BOSS_LOWTIER,
@@ -867,7 +950,7 @@ int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_
 	if(forShow)
 		return res;
 
-	if(MonsterProperties[m_id].trait_list[DND_EXTRASTRONG])
+	if(HasMonsterTrait(m_id, DND_EXTRASTRONG))
 		res = res * (100 + DND_ELITE_EXTRASTRONG_BONUS) / 100;
 
 	// elite damage bonus is multiplicative
@@ -877,9 +960,9 @@ int GetMonsterDMGScaling(int m_id, int level, bool forShow = false, int scaling_
 		res = res * (100 + GetEliteBonusDamage(m_id)) / 200;
 
 	// chaos mark is multiplicative
-	if(MonsterProperties[m_id].trait_list[DND_MARKOFCHAOS])
+	if(HasMonsterTrait(m_id, DND_MARKOFCHAOS))
 		res = res * (100 + CHAOSMARK_DAMAGEBUFF) / 100;
-	else if(MonsterProperties[m_id].trait_list[DND_MARKOFASMODEUS])
+	else if(HasMonsterTrait(m_id, DND_MARKOFASMODEUS))
 		res = res * (100 + ASMODEUSMARK_DAMAGEBUFF) / 100;
 	
 	// unique bosses have additional damage multiplier per level -- x^2 * 0.01667 + x
