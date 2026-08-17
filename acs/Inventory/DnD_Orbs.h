@@ -17,9 +17,9 @@
 int GetOrbDropWeight(int id) {
 	static int OrbDropWeights[MAX_ORBS] = {
 		450, 		// DND_ORB_ENHANCE
-		200, 		// DND_ORB_CORRUPT
+		150, 		// DND_ORB_CORRUPT
 		300, 		// DND_ORB_PRISMATIC
-		75, 		// DND_ORB_REPENT
+		25, 		// DND_ORB_REPENT
 		240, 		// DND_ORB_AFFLUENCE
 
 		250,		// DND_ORB_CALAMITY
@@ -290,10 +290,14 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 				item.item_subtype, 
 				special_roll, 
 				item.implicit[0].attrib_id,
-				CheckInventory("OrderStored")
+				CheckInventory("OrderStored"),
+				item.item_base
 			);
-		} while(CheckItemAttribute(pnum, item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
-		
+		} while(temp != -1 && CheckItemAttribute(pnum, item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
+
+		if(temp == -1)
+			break;
+
 		// if not well rolled by default, run the chance (orbs may force it, but sometimes they may not)
 		AddAttributeToItem(pnum, item_index, temp, !isWellRolled ? CheckWellRolled(pnum) : isWellRolled);
 		finish = item.attrib_count >= max_possible + add_lim;

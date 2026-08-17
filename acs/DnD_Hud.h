@@ -767,35 +767,44 @@ int GetRawLength(str name) {
 }
 
 // this applies only to NSMOLFONT right now! If more fonts are needed, add their char widths here
+// Widths are the DNSMR### patch widths out of Font.wad -- that is exactly what the engine uses.
+// The font only has 33-95, so lowercase folds to uppercase and shares its width.
 int GetCharWidth(int c) {
 	switch(c) {
+		// no DNSMR032 exists, so the engine derives space as (width('N') + 1) / 2
+		case ' ':
+		return 5;
+
 		case '.':
 		case ',':
+		case ':':
+		case ';':
+		case '!':
+		case '\'':
 		return 4;
-		
-		case ' ': // this seems the best fit for this particular font
+
 		case '[':
 		case ']':
+		case '(':
+		case ')':
 		case '1':
 		case 'i':
 		case 'I':
 		return 6;
-		
+
 		case '^':
+		case '#':
 		return 10;
-		
+
 		case '-':
 		case '<':
 		case '=':
 		case '>':
 		case '+':
+		case '"':
+		case '_':
 		return 7;
 
-		case ':':
-		case ';':
-		case '!':
-		return 4;
-		
 		case '?':
 		case 'T':
 		case 't':
@@ -1015,9 +1024,9 @@ void DrawInventoryInfo(int pnum) {
 		int prev_y = 3 * my / 2;
 		
 		mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
-		my = GetIntegerBits(3 * my / 2) + 20.1;
+		my = GetIntegerBits(3 * my / 2 + ITEMINFO_TEXTTOP) + 0.1;
 		
-		SetHudClipRect(12 + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
+		SetHudClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
 		DrawInventoryText(
 			PlayerCursorData.itemHovered,
 			PlayerCursorData.itemHoveredSource, 

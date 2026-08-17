@@ -1674,7 +1674,17 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					// handles clicking outside
 					// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
 					if(HasLeftClicked(pnum) && boxid == MAINBOX_NONE) {
-						if(!CheckInventory("DnD_SelectedInventoryBox")) {
+						// A selection only earns the click if it is holding something to throw, and
+						// HandleInventoryViewClicks below is what throws it. One left over on an
+						// empty box used to swallow the click instead, which is why closing with
+						// the mouse needed a second one while the left key always worked.
+						if
+						(
+							!CheckInventory("DnD_SelectedInventoryBox") ||
+							GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL
+						)
+						{
+							SetInventory("DnD_SelectedInventoryBox", 0);
 							TakeInventory("DnD_InventoryView", 1);
 							SetInventory("DnD_SelectedCharmBox", 0);
 							GiveInventory("DnD_CleanInventoryRequest", 1);
@@ -1683,8 +1693,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 							else
 								LocalAmbientSound("RPG/MenuClose", 127);
 						}
-						else if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)
-							SetInventory("DnD_SelectedInventoryBox", 0);
 					}
 					HandleInventoryViewClicks(pnum, boxid, temp);
 				}
@@ -1700,7 +1708,23 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 					// handles clicking outside
 					// at the last part, we reset the prev box only if there's no item there, otherwise another piece of code handles it
 					if(HasLeftClicked(pnum) && boxid == MAINBOX_NONE) {
-						if(!CheckInventory("DnD_SelectedInventoryBox")) {
+						// Same rule the inventory view uses: a selection only earns the click if it
+						// is holding something to throw, and HandleStashViewClicks below is what
+						// throws it. The two arms are the two grids stacked in this view -- the
+						// player inventory past MAX_INVENTORY_BOXES, the stash below it on the page
+						// the item was picked up from.
+						if
+						(
+							!CheckInventory("DnD_SelectedInventoryBox") ||
+							((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
+							(
+								(CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) &&
+								(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerPreviousPage") - 1) << 16)) == DND_ITEM_NULL)
+							)
+						)
+						{
+							//printbold(s:"set to 0 before arrival on page ", d:CheckInventory("DnD_PlayerPreviousPage"));
+							SetInventory("DnD_SelectedInventoryBox", 0);
 							TakeInventory("DnD_StashView", 1);
 							SetInventory("DnD_SelectedCharmBox", 0);
 							GiveInventory("DnD_CleanInventoryRequest", 1);
@@ -1708,18 +1732,6 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 								UpdateMenuPosition_NoSound(MENU_LOAD);
 							else
 								LocalAmbientSound("RPG/MenuClose", 127);
-						}
-						else if
-						(
-							((CheckInventory("DnD_SelectedInventoryBox") > MAX_INVENTORY_BOXES) && (GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - MAX_INVENTORY_BOXES - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)) ||
-							(
-								(CheckInventory("DnD_SelectedInventoryBox") <= MAX_INVENTORY_BOXES) && 
-								(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, CheckInventory("DnD_SelectedInventoryBox") - 1, -1, DND_SYNC_ITEMSOURCE_STASH | ((CheckInventory("DnD_PlayerPreviousPage") - 1) << 16)) == DND_ITEM_NULL)
-							)
-						)
-						{
-							//printbold(s:"set to 0 before arrival on page ", d:CheckInventory("DnD_PlayerPreviousPage"));
-							SetInventory("DnD_SelectedInventoryBox", 0);
 						}
 					}
 					HandleStashViewClicks(pnum, boxid, temp);

@@ -56,6 +56,31 @@ int ScreenResOffsets[MAX_SCREENRES_OFFSETS] = { -1, -1, -1, -1, ASPECT_4_3 };
 #define ITEMINFOBG_MAXMIDS 10
 #define ITEMINFO_CLIPWIDTH 360
 
+// Item info panel text layout. These are HUDTEXTMAX pixels -- the panel art is drawn in HUDMAX, so
+// the two never mix without the 3/2 between them.
+#define ITEMINFO_LINEH 8			// NSMOLFNT height, ie. the engine's line step
+#define ITEMINFO_LINEHF 8.0
+#define ITEMINFO_TEXTTOP 20.0		// panel top -> title row
+#define ITEMINFO_TITLEGAP 2.0		// title bottom -> implicit top
+#define ITEMINFO_SEPGAP 4.0			// implicit bottom -> separator top
+#define ITEMINFO_SEPH 7.0			// IMPSEPR
+#define ITEMINFO_ATTRGAP 5.0		// separator bottom -> attribute top
+#define ITEMINFO_BOTTOMPAD 6.0		// last attribute line -> where the panel may end
+
+// Panel art: LDTITTOR is 17 rows ending in 3 of black interior, LDTITBOR is 21 opening with 9,
+// LDTITMIR is 9 and all interior. In HUDTEXTMAX pixels the interior therefore starts
+// (17 - 3) * 3 / 2 = 21 below the panel top and is (3 + 9) * 3 / 2 = 18 tall before any mids. Text
+// starts at ITEMINFO_TEXTTOP, so 21 + 18 - 20 of it rides on the caps alone.
+#define ITEMINFOBG_CAPTEXTLEN 19
+
+// A mid is ITEMINFOBG_MIDLEN * 3 / 2 = 13.5 text pixels, so mids are counted in halves to stay
+// in integers.
+#define ITEMINFOBG_MIDTEXT2 27
+
+// The text is centred on the panel and wraps at HUD_ITEMBAK_WIDTH, so the clip has to start where
+// a full width line does -- anything to the right of that shaves the leading character off.
+#define ITEMINFO_CLIPX ((HUD_ITEMBAK_X * HUDTEXTMAX_X / (2 * HUDMAX_X)) - HUD_ITEMBAK_WIDTH / 2)
+
 #define ITEMID_SKIP (-10 - ITEMINFOBG_MAXMIDS)
 
 typedef struct coord {

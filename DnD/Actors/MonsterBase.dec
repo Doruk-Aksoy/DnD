@@ -157,6 +157,14 @@ Actor DnD_BaseMonster {
 		Goto See
 		
 		GravdisFling:
+			// A grab force changes state from wherever the monster happened to be, so a sequence
+			// that switched invulnerability on and only switches it off further down never reaches
+			// that half. The Hades Sphere's kamikaze windup is the clearest case: it sets the flag
+			// and expects its own explosion to end the actor, so interrupting it leaves the flag on
+			// for good and every later hit reads as blocked -- no damage, no bleed ticks, just the
+			// immune beep, until something whose puff carries +FOILINVUL ignores the flag outright.
+			// Clearing it here is also the intended feel, since a grabbed monster is a disabled one.
+			"####" "#" 0 A_UnSetInvulnerable
 			// looping sounds should be stopped
 			"####" "#" 0 A_Pain
 			"####" "#" 0 A_StopSound(CHAN_WEAPON)

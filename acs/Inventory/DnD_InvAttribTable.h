@@ -505,7 +505,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ARMOR_INCREASE].attrib_low = 5;
 	ItemModTable[INV_ARMOR_INCREASE].attrib_high = 24;
 	ItemModTable[INV_ARMOR_INCREASE].attrib_level_modifier = 0;
-	ItemModTable[INV_ARMOR_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_ARMOR_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ARMOR;
 	ItemModTable[INV_ARMOR_INCREASE].weight = 1000;
 	ItemModTable[INV_ARMOR_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
@@ -519,7 +519,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_low = 1;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_high = 9;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].attrib_level_modifier = 0;
-	ItemModTable[INV_ARMORPERCENT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_ARMORPERCENT_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ARMOR;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].weight = 800;
 	ItemModTable[INV_ARMORPERCENT_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
@@ -528,14 +528,14 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_EXPGAIN_INCREASE].attrib_level_modifier = 0.03;
 	ItemModTable[INV_EXPGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	ItemModTable[INV_EXPGAIN_INCREASE].weight = 600;
-	ItemModTable[INV_EXPGAIN_INCREASE].allowed_slots = DND_MODBASE_ALL;
+	ItemModTable[INV_EXPGAIN_INCREASE].allowed_slots = DND_MODBASE_GAINBONUS;
 	
 	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_low = 0.02;
 	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_high = 0.04;
 	ItemModTable[INV_CREDITGAIN_INCREASE].attrib_level_modifier = 0.03;
 	ItemModTable[INV_CREDITGAIN_INCREASE].tags = INV_ATTR_TAG_UTILITY;
 	ItemModTable[INV_CREDITGAIN_INCREASE].weight = 600;
-	ItemModTable[INV_CREDITGAIN_INCREASE].allowed_slots = DND_MODBASE_ALL;
+	ItemModTable[INV_CREDITGAIN_INCREASE].allowed_slots = DND_MODBASE_GAINBONUS;
 	
 	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_low = 0.025;
 	ItemModTable[INV_DROPCHANCE_INCREASE].attrib_high = 0.05;
@@ -911,21 +911,21 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_POISON_TICRATE].attrib_low = 5;
 	ItemModTable[INV_POISON_TICRATE].attrib_high = 9;
 	ItemModTable[INV_POISON_TICRATE].attrib_level_modifier = 0;
-	ItemModTable[INV_POISON_TICRATE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
+	ItemModTable[INV_POISON_TICRATE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_POISON_TICRATE].weight = 400;
 	ItemModTable[INV_POISON_TICRATE].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_POISON_DURATION].attrib_low = 5;
 	ItemModTable[INV_POISON_DURATION].attrib_high = 9;
 	ItemModTable[INV_POISON_DURATION].attrib_level_modifier = 0;
-	ItemModTable[INV_POISON_DURATION].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON;
+	ItemModTable[INV_POISON_DURATION].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_POISON_DURATION].weight = 500;
 	ItemModTable[INV_POISON_DURATION].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_POISON_TICDMG].attrib_low = 1;
 	ItemModTable[INV_POISON_TICDMG].attrib_high = 5;
 	ItemModTable[INV_POISON_TICDMG].attrib_level_modifier = 0;
-	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_DAMAGE;
+	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_POISON_TICDMG].weight = 300;
 	ItemModTable[INV_POISON_TICDMG].allowed_slots = DND_MODBASE_ELEMATK;
 	
@@ -939,63 +939,63 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_FREEZECHANCE].attrib_low = 5;
 	ItemModTable[INV_FREEZECHANCE].attrib_high = 9;
 	ItemModTable[INV_FREEZECHANCE].attrib_level_modifier = 0;
-	ItemModTable[INV_FREEZECHANCE].tags = INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_FREEZECHANCE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_FREEZECHANCE].weight = 400;
 	ItemModTable[INV_FREEZECHANCE].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_SLOWEFFECT].attrib_low = 2;
 	ItemModTable[INV_SLOWEFFECT].attrib_high = 6;
 	ItemModTable[INV_SLOWEFFECT].attrib_level_modifier = 0;
-	ItemModTable[INV_SLOWEFFECT].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
+	ItemModTable[INV_SLOWEFFECT].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_SLOWEFFECT].weight = 500;
 	ItemModTable[INV_SLOWEFFECT].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_CHILLTHRESHOLD].attrib_low = 1;
 	ItemModTable[INV_CHILLTHRESHOLD].attrib_high = 4;
 	ItemModTable[INV_CHILLTHRESHOLD].attrib_level_modifier = 0;
-	ItemModTable[INV_CHILLTHRESHOLD].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE;
+	ItemModTable[INV_CHILLTHRESHOLD].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_ICE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_CHILLTHRESHOLD].weight = 400;
 	ItemModTable[INV_CHILLTHRESHOLD].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_IGNITECHANCE].attrib_low = 5;
 	ItemModTable[INV_IGNITECHANCE].attrib_high = 14;
 	ItemModTable[INV_IGNITECHANCE].attrib_level_modifier = 0;
-	ItemModTable[INV_IGNITECHANCE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
+	ItemModTable[INV_IGNITECHANCE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_IGNITECHANCE].weight = 500;
 	ItemModTable[INV_IGNITECHANCE].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_IGNITEDMG].attrib_low = 5;
 	ItemModTable[INV_IGNITEDMG].attrib_high = 14;
 	ItemModTable[INV_IGNITEDMG].attrib_level_modifier = 0;
-	ItemModTable[INV_IGNITEDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_DAMAGE;
+	ItemModTable[INV_IGNITEDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_IGNITEDMG].weight = 600;
 	ItemModTable[INV_IGNITEDMG].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_IGNITEDURATION].attrib_low = 4;
 	ItemModTable[INV_IGNITEDURATION].attrib_high = 12;
 	ItemModTable[INV_IGNITEDURATION].attrib_level_modifier = 0;
-	ItemModTable[INV_IGNITEDURATION].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
+	ItemModTable[INV_IGNITEDURATION].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_IGNITEDURATION].weight = 400;
 	ItemModTable[INV_IGNITEDURATION].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_OVERLOADCHANCE].attrib_low = 5;
 	ItemModTable[INV_OVERLOADCHANCE].attrib_high = 14;
 	ItemModTable[INV_OVERLOADCHANCE].attrib_level_modifier = 0;
-	ItemModTable[INV_OVERLOADCHANCE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
+	ItemModTable[INV_OVERLOADCHANCE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_OVERLOADCHANCE].weight = 400;
 	ItemModTable[INV_OVERLOADCHANCE].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_OVERLOAD_ZAPCOUNT].attrib_low = 1;
 	ItemModTable[INV_OVERLOAD_ZAPCOUNT].attrib_high = 1;
 	ItemModTable[INV_OVERLOAD_ZAPCOUNT].attrib_level_modifier = 1;
-	ItemModTable[INV_OVERLOAD_ZAPCOUNT].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING;
+	ItemModTable[INV_OVERLOAD_ZAPCOUNT].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_OVERLOAD_ZAPCOUNT].weight = 300;
 	ItemModTable[INV_OVERLOAD_ZAPCOUNT].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_low = 0.01;
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_high = 0.04;
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].attrib_level_modifier = 0.04;
-	ItemModTable[INV_OVERLOAD_DMGINCREASE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_DAMAGE;
+	ItemModTable[INV_OVERLOAD_DMGINCREASE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].weight = 250;
 	ItemModTable[INV_OVERLOAD_DMGINCREASE].allowed_slots = DND_MODBASE_ELEMATK;
 	
@@ -1003,7 +1003,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CYBERNETIC].attrib_high = 1;
 	ItemModTable[INV_CYBERNETIC].attrib_level_modifier = 1;
 	ItemModTable[INV_CYBERNETIC].tags = INV_ATTR_TAG_UTILITY;
-	ItemModTable[INV_CYBERNETIC].weight = 125;
+	ItemModTable[INV_CYBERNETIC].weight = 50;
 	ItemModTable[INV_CYBERNETIC].allowed_slots = DND_MODBASE_ALL;
 	
 	ItemModTable[INV_MELEERANGE].attrib_low = 5;
@@ -1074,7 +1074,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_DOTMULTI_POISON].attrib_level_modifier = 0;
 	ItemModTable[INV_DOTMULTI_POISON].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_DAMAGE;
 	ItemModTable[INV_DOTMULTI_POISON].weight = 500;
-	ItemModTable[INV_DOTMULTI_FIRE].allowed_slots = DND_MODBASE_ELEMATK;
+	ItemModTable[INV_DOTMULTI_POISON].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_DOTMULTI_BLEED].attrib_low = 4;
 	ItemModTable[INV_DOTMULTI_BLEED].attrib_high = 9;
@@ -1163,7 +1163,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_low = 5;
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_high = 9;
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].attrib_level_modifier = 0;
-	ItemModTable[INV_CHANCE_AILMENTIGNORE].tags = INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_CHANCE_AILMENTIGNORE].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].weight = 200;
 	ItemModTable[INV_CHANCE_AILMENTIGNORE].allowed_slots = DND_MODBASE_CHARM | DND_MODBASE_SPECIALTY_ALL;
 	
@@ -1184,42 +1184,42 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_SHIELD_INCREASE].attrib_low = 1;
 	ItemModTable[INV_SHIELD_INCREASE].attrib_high = 4;
 	ItemModTable[INV_SHIELD_INCREASE].attrib_level_modifier = 0;
-	ItemModTable[INV_SHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_SHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_ESHIELD;
 	ItemModTable[INV_SHIELD_INCREASE].weight = 650;
 	ItemModTable[INV_SHIELD_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_low = 1;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_high = 9;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].attrib_level_modifier = 0;
-	ItemModTable[INV_PERCENTSHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_PERCENTSHIELD_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_ESHIELD;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].weight = 650;
 	ItemModTable[INV_PERCENTSHIELD_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_low = 5;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_high = 9;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].attrib_level_modifier = 0;
-	ItemModTable[INV_SHIELD_RECOVERYRATE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_SHIELD_RECOVERYRATE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_ESHIELD;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].weight = 500;
 	ItemModTable[INV_SHIELD_RECOVERYRATE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_low = 5;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_high = 10;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].attrib_level_modifier = 0;
-	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY;
+	ItemModTable[INV_SHIELD_RECHARGEDELAY].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_ESHIELD;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].weight = 450;
 	ItemModTable[INV_SHIELD_RECHARGEDELAY].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_MIT_INCREASE].attrib_low = 0.5;
 	ItemModTable[INV_MIT_INCREASE].attrib_high = 1.25;
 	ItemModTable[INV_MIT_INCREASE].attrib_level_modifier = 1.5;
-	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_MIT_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_MITIGATION;
 	ItemModTable[INV_MIT_INCREASE].weight = 750;
 	ItemModTable[INV_MIT_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_low = 0.3;
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_high = 0.875;
 	ItemModTable[INV_MITEFFECT_INCREASE].attrib_level_modifier = 0.575;
-	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_MITEFFECT_INCREASE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_MITIGATION;
 	ItemModTable[INV_MITEFFECT_INCREASE].weight = 400;
 	ItemModTable[INV_MITEFFECT_INCREASE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
@@ -1340,7 +1340,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ITEMRARITY].attrib_level_modifier = 0;
 	ItemModTable[INV_ITEMRARITY].tags = INV_ATTR_TAG_UTILITY;
 	ItemModTable[INV_ITEMRARITY].weight = 250;
-	ItemModTable[INV_ITEMRARITY].allowed_slots = DND_MODBASE_CHARM | DND_MODBASE_SPECIALTY_ALL;
+	ItemModTable[INV_ITEMRARITY].allowed_slots = DND_MODBASE_GAINBONUS;
 
 	ItemModTable[INV_RIPCOUNT].attrib_low = 5;
 	ItemModTable[INV_RIPCOUNT].attrib_high = 15;
@@ -1394,42 +1394,42 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_AVOID_IGNITE].attrib_low = 1;
 	ItemModTable[INV_AVOID_IGNITE].attrib_high = 6;
 	ItemModTable[INV_AVOID_IGNITE].attrib_level_modifier = 0;
-	ItemModTable[INV_AVOID_IGNITE].tags = INV_ATTR_TAG_FIRE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_AVOID_IGNITE].tags = INV_ATTR_TAG_FIRE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_AVOID_IGNITE].weight = 500;
 	ItemModTable[INV_AVOID_IGNITE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_AVOID_CHILLFREEZE].attrib_low = 1;
 	ItemModTable[INV_AVOID_CHILLFREEZE].attrib_high = 6;
 	ItemModTable[INV_AVOID_CHILLFREEZE].attrib_level_modifier = 0;
-	ItemModTable[INV_AVOID_CHILLFREEZE].tags = INV_ATTR_TAG_ICE | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_AVOID_CHILLFREEZE].tags = INV_ATTR_TAG_ICE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_AVOID_CHILLFREEZE].weight = 500;
 	ItemModTable[INV_AVOID_CHILLFREEZE].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_AVOID_POISON].attrib_low = 1;
 	ItemModTable[INV_AVOID_POISON].attrib_high = 6;
 	ItemModTable[INV_AVOID_POISON].attrib_level_modifier = 0;
-	ItemModTable[INV_AVOID_POISON].tags = INV_ATTR_TAG_POISON | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_AVOID_POISON].tags = INV_ATTR_TAG_POISON | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_AVOID_POISON].weight = 500;
 	ItemModTable[INV_AVOID_POISON].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_AVOID_OVERLOAD].attrib_low = 1;
 	ItemModTable[INV_AVOID_OVERLOAD].attrib_high = 6;
 	ItemModTable[INV_AVOID_OVERLOAD].attrib_level_modifier = 0;
-	ItemModTable[INV_AVOID_OVERLOAD].tags = INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_AVOID_OVERLOAD].tags = INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_AVOID_OVERLOAD].weight = 500;
 	ItemModTable[INV_AVOID_OVERLOAD].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_AVOID_ELEAILMENTS].attrib_low = 1;
 	ItemModTable[INV_AVOID_ELEAILMENTS].attrib_high = 3;
 	ItemModTable[INV_AVOID_ELEAILMENTS].attrib_level_modifier = 0;
-	ItemModTable[INV_AVOID_ELEAILMENTS].tags = INV_ATTR_TAG_ELEMENTAL;
+	ItemModTable[INV_AVOID_ELEAILMENTS].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_AVOID_ELEAILMENTS].weight = 125;
 	ItemModTable[INV_AVOID_ELEAILMENTS].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 
 	ItemModTable[INV_AVOID_BLEED].attrib_low = 1;
 	ItemModTable[INV_AVOID_BLEED].attrib_high = 6;
 	ItemModTable[INV_AVOID_BLEED].attrib_level_modifier = 0;
-	ItemModTable[INV_AVOID_BLEED].tags = INV_ATTR_TAG_PHYSICAL;
+	ItemModTable[INV_AVOID_BLEED].tags = INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_AVOID_BLEED].weight = 500;
 	ItemModTable[INV_AVOID_BLEED].allowed_slots = DND_MODBASE_NOTRICKSTERCLAW;
 	
@@ -1841,7 +1841,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_low = 1;
 	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_high = 1;
 	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_level_modifier = 0;
-	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ESHIELD;
 
 	ItemModTable[INV_INC_PLUSPROJ].attrib_low = 1;
 	ItemModTable[INV_INC_PLUSPROJ].attrib_high = 1;
@@ -1864,12 +1864,12 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_TWICEARMORDEFENSE].attrib_low = 1;
 	ItemModTable[INV_INC_TWICEARMORDEFENSE].attrib_high = 2;
 	ItemModTable[INV_INC_TWICEARMORDEFENSE].attrib_level_modifier = 0;
-	ItemModTable[INV_INC_TWICEARMORDEFENSE].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_INC_TWICEARMORDEFENSE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ARMOR;
 
 	ItemModTable[INV_INC_MITIGATIONTODODGE].attrib_low = 1;
 	ItemModTable[INV_INC_MITIGATIONTODODGE].attrib_high = 1;
 	ItemModTable[INV_INC_MITIGATIONTODODGE].attrib_level_modifier = 0;
-	ItemModTable[INV_INC_MITIGATIONTODODGE].tags = INV_ATTR_TAG_DEFENSE;
+	ItemModTable[INV_INC_MITIGATIONTODODGE].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_MITIGATION;
 
 	ItemModTable[INV_INC_ACCURACYFORPRECISION].attrib_low = 1;
 	ItemModTable[INV_INC_ACCURACYFORPRECISION].attrib_high = 2;

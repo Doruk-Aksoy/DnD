@@ -455,7 +455,7 @@ str ItemAttributeString(
 		case INV_CORR_DAMAGEGAINEDAS:
 			text = StrParam(
 				s:col_tag, d:val, s:"%\c- ", l:text, s:"\cd ", 
-				l:GetTalentTag(extra & DND_DAMAGECONVERSION_MASK), s:no_tag, l:"IATTR_TC20_1",
+				l:GetTalentTag(extra & DND_DAMAGECONVERSION_MASK), s:no_tag, l:"IATTR_TC20",
 				s:"\cd ", l:GetTalentTag(extra >> DND_DAMAGECONVERSION_BITS), s:"\c-", l:"IATTR_TC19_2"
 			);
 		return text;

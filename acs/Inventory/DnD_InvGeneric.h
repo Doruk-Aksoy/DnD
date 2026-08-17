@@ -560,36 +560,36 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 			// implicits that come along with the item always
 			switch(subtype) {
 				case HELMS_LICH:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18, DND_ITEMBASE_BOOT_ARMOR_ESHIELD);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 45, 0, item_tier, 18, DND_ITEMBASE_HELM_ARMOR_ESHIELD);
 					imp_func(item_pos, INV_IMP_BONUSPETCAP, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_WARRIOR:
-					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 40, DND_ITEMBASE_HELM_ARMOR);
 					imp_func(item_pos, INV_MELEEDAMAGE, 25, -1, 0, 0, 0);
 					imp_func(item_pos, INV_MELEERANGE, 15, -1, 0, 0, 0);
 				break;
 				case HELMS_SYNTHMETAL:
-					imp_func(item_pos, INV_IMP_INCMIT, 10.0, 0, item_tier, 1.75, DND_ITEMBASE_BOOT_MITIGATION);
+					imp_func(item_pos, INV_IMP_INCMIT, 10.0, 0, item_tier, 1.75, DND_ITEMBASE_HELM_MITIGATION);
 					imp_func(item_pos, INV_IMP_REDUCEDVISIONIMPAIR, 40, 0, item_tier, 5, 0);
 				break;
 				case HELMS_KNIGHT:
-					imp_func(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 40, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_IMP_INCARMOR, 75, 0, item_tier, 40, DND_ITEMBASE_HELM_ARMOR);
 					imp_func(item_pos, INV_IMP_MELEEIGNORESSHIELDS, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_PREDATOR:
-					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 30, DND_ITEMBASE_BOOT_ARMOR);
+					imp_func(item_pos, INV_IMP_INCARMOR, 80, 0, item_tier, 30, DND_ITEMBASE_HELM_ARMOR);
 					imp_func(item_pos, INV_IMP_MOREDAMAGETOBOSSES, 5, 0, item_tier, 1, 0);
 				break;
 				case HELMS_CRUSADER:
-					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 55, 0, item_tier, 25, DND_ITEMBASE_BOOT_ARMOR_ESHIELD);
+					imp_func(item_pos, INV_IMP_INCARMORSHIELD, 55, 0, item_tier, 25, DND_ITEMBASE_HELM_ARMOR_ESHIELD);
 					imp_func(item_pos, INV_IMP_RECOVERESONUNDEADKILL, 1, -1, 0, 0, 0);
 				break;
 				case HELMS_TACTICAL:
-					imp_func(item_pos, INV_IMP_INCMITARMOR, 72, 0, item_tier, 24, DND_ITEMBASE_BOOT_ARMOR_MITIGATION);
+					imp_func(item_pos, INV_IMP_INCMITARMOR, 72, 0, item_tier, 24, DND_ITEMBASE_HELM_ARMOR_MITIGATION);
 					imp_func(item_pos, INV_IMP_PRECISIONCRITBONUS, 0.02, 0, item_tier, 0.01, 0);
 				break;
 				case HELMS_ROBE:
-					imp_func(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16, DND_ITEMBASE_BOOT_ESHIELD_MITIGATION);
+					imp_func(item_pos, INV_IMP_INCMITSHIELD, 36, 0, item_tier, 16, DND_ITEMBASE_HELM_ESHIELD_MITIGATION);
 					imp_func(item_pos, INV_MAGIC_NEGATION, 5, 0, item_tier, 2, 0);
 				break;
 				case HELMS_ELDER:
@@ -597,11 +597,11 @@ int SetupItemImplicit(int item_pos, int type, int subtype, int item_tier, bool i
 
 					// add these first so they can be corruption replaced
 					if(special_roll == INV_CORR_MAXFRENZY)
-						imp_func(item_pos, INV_IMP_INCMIT, 5.0, 0, item_tier, 1.25, DND_ITEMBASE_BOOT_MITIGATION);
+						imp_func(item_pos, INV_IMP_INCMIT, 5.0, 0, item_tier, 1.25, DND_ITEMBASE_HELM_MITIGATION);
 					else if(special_roll == INV_CORR_MAXENDURANCE)
-						imp_func(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 25, DND_ITEMBASE_BOOT_ARMOR);
+						imp_func(item_pos, INV_IMP_INCARMOR, 50, 0, item_tier, 25, DND_ITEMBASE_HELM_ARMOR);
 					else
-						imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8, DND_ITEMBASE_BOOT_ESHIELD);
+						imp_func(item_pos, INV_IMP_INCSHIELD, 25, 0, item_tier, 8, DND_ITEMBASE_HELM_ESHIELD);
 
 					imp_func(item_pos, special_roll, 1, 0, 0, 0, 0);
 				break;

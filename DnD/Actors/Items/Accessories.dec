@@ -371,10 +371,14 @@ Actor PendantEffect : DnD_Activator {
 
 Actor PendantFXSpawner : DnD_Activator {
 	States {
+		// A_FireCustomMissile is a weapon action -- it reads ReadyWeapon and fires through the
+		// player missile path, which has no business running from a pickup chain. 32 is where
+		// P_SpawnPlayerMissile put these, and script 922 repositions them on their first real
+		// tic anyway. Target still lands on the player, which is what 922 reads.
 		Pickup:
-			TNT1 A 0 A_FireCustomMissile("ReflectionFX_1", 0, 0)
-			TNT1 A 0 A_FireCustomMissile("ReflectionFX_2", 0, 0)
-			TNT1 A 0 A_FireCustomMissile("ReflectionFX_3", 0, 0)
+			TNT1 A 0 A_SpawnItemEx("ReflectionFX_1", 0, 0, 32, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("ReflectionFX_2", 0, 0, 32, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
+			TNT1 A 0 A_SpawnItemEx("ReflectionFX_3", 0, 0, 32, 0, 0, 0, 0, SXF_NOCHECKPOSITION)
 		Stop
 	}
 }

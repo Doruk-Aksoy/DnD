@@ -1793,7 +1793,10 @@ Script "DnD Gravdis Debuff" (int base_dmg) {
 			m_id = MonsterProperties[i - DND_MONSTERTID_BEGIN].id;
 			
 			// dont affect teleporting / unshootable things or dungeon bosses --- no stun, no damage etc.
-			if(!CheckFlag(i, "SHOOTABLE") || isUniqueBossMonster(m_id))
+			// m_id is a raw type id here, not an index into MonsterProperties, so the check has to be
+			// the _Id variant. The indexing one silently read whichever monster happened to be
+			// registered at that slot, so this never actually excluded a dungeon boss.
+			if(!CheckFlag(i, "SHOOTABLE") || isUniqueBossMonster_Id(m_id))
 				continue;
 			
 			// this allows other people or even the same player to elevate monsters higher and keep stunning them for longer for more damage potential
@@ -1901,13 +1904,19 @@ Script "DnD Gravdis Flinger" (int victim, int dmg_source, int damage, int base_d
 	damage = damage * (100 + height_factor) / 100;
 
 	int pnum = dmg_source - P_TIDSTART;
+
+	// Foiling invulnerability lives in the actor flags, not the damage flags -- the checks that act
+	// on it read actor_flags, and the translation from the damage flag exists only in the weapon
+	// path these two calls bypass. Passed as DND_DAMAGEFLAG_FOILINVUL it went nowhere, so a slam
+	// against a blocking, invulnerable or fortified monster quietly did nothing. Kept in one slot
+	// rather than both, since a second copy that reads as intent but has no effect is what hid this.
 	if(pnum >= 0 && pnum < MAXPLAYERS) {
 		RestoreComponentStage(pnum);
-		damage = DealDamageComponents(pnum, dmg_source, victim, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, damage, DND_DAMAGEFLAG_FOILINVUL | DND_DAMAGEFLAG_NOPUSH, 0);
+		damage = DealDamageComponents(pnum, dmg_source, victim, DND_WEAPON_GRAVDIS, DND_DMGID_0, DND_DAMAGECATEGORY_BULLET, damage, DND_DAMAGEFLAG_NOPUSH, DND_ACTORFLAG_FOILINVUL);
 	}
 
 	if(damage > 0) {
-		damage = HandleDamageDeal(dmg_source, victim, damage, DND_DAMAGETYPE_PHYSICAL, DND_WEAPON_GRAVDIS, DND_DAMAGEFLAG_FOILINVUL | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, 0);
+		damage = HandleDamageDeal(dmg_source, victim, damage, DND_DAMAGETYPE_PHYSICAL, DND_WEAPON_GRAVDIS, DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_FOILINVUL);
 		if(damage > 0)
 			Thing_Damage2(victim, damage, "SkipHandle");
 	}

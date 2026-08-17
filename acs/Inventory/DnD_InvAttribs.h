@@ -138,32 +138,32 @@ enum {
 	INV_ATTR_TAG_ARMOR = 524288,
 	INV_ATTR_TAG_ESHIELD = 1048576,
 	INV_ATTR_TAG_MITIGATION = 2097152,
+	INV_ATTR_TAG_AILMENT = 4194304,
 
 	// shorthands
-	INV_ATTR_TAG_ALL = 	INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_LIFE | INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_UTILITY |
-						INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_OCCULT | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_STAT |
-						INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_MELEE | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_ICE |
-						INV_ATTR_TAG_POISON | INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_STAMINA | INV_ATTR_TAG_FLASK | INV_ATTR_TAG_ARMOR |
-						INV_ATTR_TAG_ESHIELD | INV_ATTR_TAG_MITIGATION,
+	INV_ATTR_TAG_ALL = 	INV_ATTR_TAG_AILMENT | (INV_ATTR_TAG_AILMENT - 1),
 
 	// bodyarmors
 	INV_ATTR_TAG_OK_BODYARMOR = INV_ATTR_TAG_LIFE | INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_OCCULT | INV_ATTR_TAG_STAT | 
 								INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_ICE | INV_ATTR_TAG_POISON |
-								INV_ATTR_TAG_LIGHTNING,
+								INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_AILMENT | INV_ATTR_TAG_ARMOR | INV_ATTR_TAG_ESHIELD | INV_ATTR_TAG_MITIGATION,
 
 	INV_ATTR_TAG_EXCLUDED_BODYARMOR = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_MELEE | INV_ATTR_TAG_FLASK,
 
 	// helms
 	INV_ATTR_TAG_OK_HELM = 	INV_ATTR_TAG_LIFE | INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_OCCULT | INV_ATTR_TAG_STAT | 
 							INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_ICE | INV_ATTR_TAG_POISON |
-							INV_ATTR_TAG_LIGHTNING,
+							INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_AILMENT | INV_ATTR_TAG_ARMOR | INV_ATTR_TAG_ESHIELD | INV_ATTR_TAG_MITIGATION |
+							INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_CRIT,
 
-	INV_ATTR_TAG_EXCLUDED_HELM = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_FLASK,
+	INV_ATTR_TAG_EXCLUDED_HELM = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_FLASK | INV_ATTR_TAG_AILMENT,
 
 	// boots
 	INV_ATTR_TAG_OK_BOOT = 	INV_ATTR_TAG_LIFE | INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_OCCULT | INV_ATTR_TAG_STAT | 
 							INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_ENERGY | INV_ATTR_TAG_FIRE | INV_ATTR_TAG_ICE | INV_ATTR_TAG_POISON |
-							INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_STAMINA,
+							INV_ATTR_TAG_LIGHTNING | INV_ATTR_TAG_UTILITY | INV_ATTR_TAG_MELEE | INV_ATTR_TAG_STAMINA | INV_ATTR_TAG_AILMENT |
+							INV_ATTR_TAG_ARMOR | INV_ATTR_TAG_ESHIELD | INV_ATTR_TAG_MITIGATION,
+
 	INV_ATTR_TAG_EXCLUDED_BOOT = INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_FLASK,
 };
 
@@ -185,22 +185,31 @@ enum {
 	INV_ATTR_TAG_ICE_ID,
 	INV_ATTR_TAG_POISON_ID,
 	INV_ATTR_TAG_LIGHTNING_ID,
-
-	// these arent "real" tags, but more like sub tags --- dont add them to the below group otherwise they get grouped in their own tag group, which doesnt make sense for these
 	INV_ATTR_TAG_STAMINA_ID,
 	INV_ATTR_TAG_FLASK_ID,
 	INV_ATTR_TAG_ARMOR_ID,
 	INV_ATTR_TAG_ESHIELD_ID,
 	INV_ATTR_TAG_MITIGATION_ID,
+	INV_ATTR_TAG_AILMENT_ID,
 };
+// Which tag group a "can roll X" implicit opens, or -1 when the implicit is not a widening at all.
+// Returning the tag ID rather than the implicit means a new widening is one line here plus the
+// implicit itself -- nothing in the pool key or the pool builder has to know it exists.
+int GetWideningTagId(int implicit_id) {
+	switch(implicit_id) {
+		case INV_IMP_CANROLL_PHYS:		return INV_ATTR_TAG_PHYSICAL_ID;
+		case INV_IMP_CANROLL_MAGIC:		return INV_ATTR_TAG_OCCULT_ID;
+		case INV_IMP_CANROLL_EXPLOSIVE:	return INV_ATTR_TAG_EXPLOSIVE_ID;
+		case INV_IMP_CANROLL_ENERGY:	return INV_ATTR_TAG_ENERGY_ID;
+		case INV_IMP_CANROLL_ELEMENTAL:	return INV_ATTR_TAG_ELEMENTAL_ID;
+	}
+	return DND_MODPOOL_NO_TAG;
+}
+
 #define DND_ATTRIB_TAG_ID_BEGIN INV_ATTR_TAG_DAMAGE_ID
 #define DND_ATTRIB_TAG_ID_END INV_ATTR_TAG_LIGHTNING_ID
 #define MAX_ATTRIB_TAG_GROUPS (DND_ATTRIB_TAG_ID_END + 1)
-#define MAX_ATTRIB_TAG_GROUPCOUNT 64
 
-// indexing on this one is done by checking ranges, and then mapping appropriately
-global int 8: AttributeTagGroups[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES][MAX_ATTRIB_TAG_GROUPCOUNT];
-global int 5: AttributeTagGroupCount[MAX_ATTRIB_TAG_GROUPS][MAX_CRAFTABLEITEMTYPES];
 
 typedef struct {
 	int extra[MAX_TOTAL_ATTRIBUTES];
@@ -760,115 +769,6 @@ int RollUniqueAttributeExtra(int unique_id, int attr, bool isWellRolled) {
 	if(!reverance)
 		return random((UniqueItemList[unique_id].rolls[attr].attrib_extra_low + UniqueItemList[unique_id].rolls[attr].attrib_extra_high) / 2, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
 	return random(UniqueItemList[unique_id].rolls[attr].attrib_extra_low / 4 + 3 * UniqueItemList[unique_id].rolls[attr].attrib_extra_high / 4, UniqueItemList[unique_id].rolls[attr].attrib_extra_high);
-}
-
-bool IsTagArmorException(int tag, int armor_type) {
-	// generic stamina rule -- only allowed on boots or berserker item
-	if(armor_type != DND_CRAFTABLEID_BOOT && armor_type != DND_CRAFTABLEID_SPECIALTY_BERSERKER && (tag & INV_ATTR_TAG_STAMINA))
-		return true;
-
-	if(armor_type == DND_CRAFTABLEID_BODYARMOR || armor_type == DND_CRAFTABLEID_BOOT)
-		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_CRIT | INV_ATTR_TAG_MELEE | INV_ATTR_TAG_FLASK);
-	else if(armor_type == DND_CRAFTABLEID_HELM)
-		return tag & (INV_ATTR_TAG_ATTACK | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_FLASK);
-	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_WANDERER)
-		return tag & (INV_ATTR_TAG_PHYSICAL | INV_ATTR_TAG_FLASK);
-	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_BERSERKER)
-		return tag & (INV_ATTR_TAG_EXPLOSIVE | INV_ATTR_TAG_ENERGY);
-	else if(armor_type == DND_CRAFTABLEID_SPECIALTY_TRICKSTER)
-		return tag & (INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_LIFE | INV_ATTR_TAG_FLASK);
-
-	// generic cant have occult
-	return tag & (INV_ATTR_TAG_OCCULT | INV_ATTR_TAG_FLASK);
-}
-
-bool IsAttributeArmorException(int attr, int armor_type) {
-	return IsTagArmorException(ItemModTable[attr].tags, armor_type);
-}
-
-// given an item type, return the generic attribute tags its allowed to roll
-int GetItemBaseAllowedTags(int item_type) {
-	switch(item_type) {
-		case DND_ITEM_CHARM:
-		return INV_ATTR_TAG_ALL;
-
-		case DND_ITEM_HELM:
-		return 0;
-		case DND_ITEM_BOOT:
-		return 0;
-		case DND_ITEM_BODYARMOR:
-		return 0;
-
-		case DND_ITEM_FLASK:
-		return 0;
-
-		case DND_ITEM_SPECIALTY_DOOMGUY:
-		return 0;
-		case DND_ITEM_SPECIALTY_MARINE:
-		return 0;
-		case DND_ITEM_SPECIALTY_HOBO:
-		return 0;
-		case DND_ITEM_SPECIALTY_PUNISHER:
-		return 0;
-		case DND_ITEM_SPECIALTY_WANDERER:
-		return 0;
-		case DND_ITEM_SPECIALTY_CYBORG:
-		return 0;
-		case DND_ITEM_SPECIALTY_BERSERKER:
-		return 0;
-		case DND_ITEM_SPECIALTY_TRICKSTER:
-		return 0;
-	}
-
-	return 0;
-}
-
-void SetupInventoryTagGroups() {
-	// charms can roll every mod, so we iterate and build a table for them as opposed to by hand
-	// move each groups tags looping through all attribs, extracting their bits
-	int i, j;
-	int tag, tag_id;
-	// init to 0
-	for(j = 0; j < MAX_ATTRIB_TAG_GROUPS; ++j) {
-		for(i = 0; i < MAX_CRAFTABLEITEMTYPES; ++i)
-			AttributeTagGroupCount[j][i] = 0;
-	}
-	
-	// scan all attribs and place them in appropriate slots for charms
-	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
-		tag = ItemModTable[i].tags;
-		tag_id = 0;
-		// can have multiple
-		while(tag > 0) {
-			if(tag & 1) {
-				AttributeTagGroups[tag_id][DND_CRAFTABLEID_CHARM][AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_CHARM]] = i;
-				++AttributeTagGroupCount[tag_id][DND_CRAFTABLEID_CHARM];
-				//Log(s:"tag ", d:tag_id, s: " attr: ", d:i);
-			}
-			tag >>= 1;
-			++tag_id;
-		}
-	}
-
-	for(i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
-		for(j = DND_CRAFTABLEID_BODYARMOR; j < MAX_CRAFTABLEITEMTYPES; ++j) {
-			tag = ItemModTable[i].tags;
-
-			if(IsTagArmorException(tag, j))
-				continue;
-
-			tag_id = 0;
-			// can have multiple
-			while(tag > 0) {
-				if(tag & 1) {
-					AttributeTagGroups[tag_id][j][AttributeTagGroupCount[tag_id][j]] = i;
-					++AttributeTagGroupCount[tag_id][j];
-				}
-				tag >>= 1;
-				++tag_id;
-			}
-		}
-	}
 }
 
 int MapItemTypeToCraftableID(int type) {

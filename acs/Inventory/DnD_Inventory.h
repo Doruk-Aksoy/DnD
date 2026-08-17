@@ -1591,12 +1591,13 @@ void DrawInventoryInfo_Field(int pnum, int topboxid, int source, int yoff, bool 
 		SetHudSize(HUDTEXTMAX_X, HUDTEXTMAX_Y, 1);
 		left = GetHudLeft(HUDTEXTMAX_X);
 		bx = ((left + (HUD_ITEMBAK_X * HUDTEXTMAX_X / (2 * HUDMAX_X))) << 16) + 0.4;
-		by = isOutsideSource ? 20.1 : GetIntegerBits(HUDTEXTMAX_YF / 2 - HUD_ITEMBAK_YF / 2 - yoff - 30.0) + 0.1;
 
-		if(/*lessThanFour && */!isOutsideSource)
-			by += 36.0;
+		// bg_y is a HUDMAX coordinate and this is a HUDTEXTMAX one, so yoff has to cross the 3/2
+		// with it. Subtracting it raw in both spaces slid the text against its own panel as the box
+		// moved, which is why the same item looked differently spaced depending on the row.
+		by = isOutsideSource ? (ITEMINFO_TEXTTOP + 0.1) : (GetIntegerBits(3 * (100.0 - yoff) / 2 + ITEMINFO_TEXTTOP) + 0.1);
 
-		SetHudClipRect(left + 12, (by >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
+		SetHudClipRect(left + ITEMINFO_CLIPX, (by >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
 		DrawInventoryText(topboxid, source, pnum, bx, by, itype, isubt, RPGMENUINVENTORYID, HUD_DII_FIELD_MULT, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count, !isOutsideSource);
 		SetHudSize(HUDMAX_X, HUDMAX_Y, 1);
 	}
@@ -1658,6 +1659,8 @@ void DrawInventoryText(
 			INVENTORY_FADETIME, 
 			INVENTORY_INFO_ALPHA
 		);
+		// stacked items are a title and a paragraph with none of the offsets below, so this one
+		// stays on the old segment-per-line rule rather than TextExtentToMids
 		DrawItemInfoBackground(id_begin - id_mult * MAX_INVENTORY_BOXES, hx, hy, bg_posx, bg_posy, item_vsync_data.attr_lines_count, -1, holdTime);
 		return;
 	}
@@ -1769,33 +1772,37 @@ void DrawInventoryText(
 				}
 			}
 			item_vsync_data.implicit_textID = tmp_text;
-			item_vsync_data.implicit_lines_count = max(0, CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH - 1) - 1); // -1 to fix the off by one error in necro armor
+			// the true count -- this is a text offset at ITEMINFO_LINEH, nothing else reads it now
+			item_vsync_data.implicit_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
 			//Log(s:"implicit lines: ", d:item_vsync_data.implicit_lines_count);
 		}
 		else
 			tmp_text = item_vsync_data.implicit_textID;
 
+		// yoff walks down the block from here on. Every gap it steps over is named, so the panel
+		// can be measured off it at the end instead of guessed at from a line count.
+		yoff = by + ITEMINFO_LINEHF + ITEMINFO_LINEHF * isUnique;
+
 		if(tmp_text != "") {
-			if(isUnique)
-				yoff = 6.0;
+			yoff += ITEMINFO_TITLEGAP;
 			HudMessage(
 				s:tmp_text;
-				HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-				id_begin - id_mult * MAX_INVENTORY_BOXES - 5 + ITEMID_SKIP, CR_WHITE, bx, by + 10.0 + yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+				HUDMSG_PLAIN | HUDMSG_FADEOUT,
+				id_begin - id_mult * MAX_INVENTORY_BOXES - 5 + ITEMID_SKIP, CR_WHITE, bx, yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 			);
 
-			yoff = 10.0 + 8.0 * item_vsync_data.implicit_lines_count;
+			yoff += ITEMINFO_LINEHF * item_vsync_data.implicit_lines_count;
 		}
 
-		by += 12.0 + 8.0 * isUnique;
+		yoff += ITEMINFO_SEPGAP;
 
 		SetFont("IMPSEPR");
 		HudMessage(
-			s:"A"; 
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6 + ITEMID_SKIP, val, GetIntegerBits(bx) + 0.4, by + yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			s:"A";
+			HUDMSG_PLAIN | HUDMSG_FADEOUT, id_begin - id_mult * MAX_INVENTORY_BOXES - 6 + ITEMID_SKIP, val, GetIntegerBits(bx) + 0.4, yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
 
-		by += 12.0;
+		yoff += ITEMINFO_SEPH + ITEMINFO_ATTRGAP;
 
 		// optimization for the potentially busy section with strparam spam
 		if
@@ -1843,17 +1850,13 @@ void DrawInventoryText(
 					tmp_text = StrParam(s:tmp_text, s:"\n\ck>>>\t???\t<<<\n");
 			}
 	
-			// corrupted label and seperator
-			lvl = 0;
-			if(GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, topboxid, -1, source)) {
+			// corrupted label and seperator -- the blank lines these add are paid for by the
+			// measured extent now, so none of them need a hand tuned offset any more
+			if(GetItemSyncValue(pnum, DND_SYNC_ITEMCORRUPTED, topboxid, -1, source))
 				tmp_text = StrParam(s:tmp_text, s:"\n\n\cgCORRUPTED");
-				--lvl;
-			}
 
-			if(unique_creator != "") {
+			if(unique_creator != "")
 				tmp_text = StrParam(s:tmp_text, s:"\n\n", l:"DND_MADE_BY", s:": \cd", s:unique_creator);
-				--lvl;
-			}
 
 			// this check is important, unique items have itype as the id of the unique at this point and it can just so happen for it to be equal to DND_ITEM_DUNGEONKEY
 			if(!isUnique && itype == DND_ITEM_DUNGEONKEY) {
@@ -1861,14 +1864,13 @@ void DrawInventoryText(
 					s:tmp_text, s:"\n\n\c[K9]", l:StrParam(s:"DND_DUNGEONKEYTEXT", d:isubt + 1),
 					s:"\n", s:GetDungeonMonsterTypeString(isubt)
 				);
-				lvl -= 2;
 			}
 
 			item_vsync_data.isDirty = false;
 			item_vsync_data.last_text_mode = showModTiers;
 			item_vsync_data.last_craft_vals = craftMaterialIdx;
 			item_vsync_data.textID = tmp_text;
-			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH) + lvl;
+			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
 		}
 		else
 			tmp_text = item_vsync_data.textID;
@@ -1876,26 +1878,40 @@ void DrawInventoryText(
 		SetFont("NSMOLFNT");
 		HudMessage(
 			s:tmp_text;
-			HUDMSG_PLAIN | HUDMSG_FADEOUT, 
-			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 + ITEMID_SKIP, CR_WHITE, bx, by + yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
+			HUDMSG_PLAIN | HUDMSG_FADEOUT,
+			id_begin - id_mult * MAX_INVENTORY_BOXES - 7 + ITEMID_SKIP, CR_WHITE, bx, yoff, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA
 		);
+
+		// how far the whole block reaches past the title row -- that is what the panel has to cover
+		yoff += ITEMINFO_LINEHF * item_vsync_data.attr_lines_count + ITEMINFO_BOTTOMPAD - by;
 
 		//log(s:"final lines: ", d:item_vsync_data.lines_count);
 	}
 
 	DrawItemInfoBackground(
-		id_begin - id_mult * MAX_INVENTORY_BOXES, 
-		hx, hy, bg_posx, bg_posy, 
-		item_vsync_data.attr_lines_count + item_vsync_data.implicit_lines_count, 
+		id_begin - id_mult * MAX_INVENTORY_BOXES,
+		hx, hy, bg_posx, bg_posy,
+		TextExtentToMids(yoff),
 		craftMaterialIdx, holdTime
 	);
+}
+
+// text_h is the height of the text block in HUDTEXTMAX pixels, measured from the title row.
+int TextExtentToMids(int text_h) {
+	text_h = (text_h >> 16) - ITEMINFOBG_CAPTEXTLEN;
+
+	if(text_h <= 0)
+		return 0;
+
+	// doubled against the half pixel in a mid, and ceil so the last line always has art under it
+	return (2 * text_h + ITEMINFOBG_MIDTEXT2 - 1) / ITEMINFOBG_MIDTEXT2;
 }
 
 void DrawItemInfoBackground(
 	int hudid_begin, 
 	int hx, int hy, 
-	int bg_posx, int bg_posy, 
-	int lines_count, int craft_status = -1, int holdTime = INVENTORY_HOLDTIME
+	int bg_posx, int bg_posy,
+	int mids, int craft_status = -1, int holdTime = INVENTORY_HOLDTIME
 )
 {
 	SetHudClipRect(0, 0, 0, 0, 0);
@@ -1903,8 +1919,8 @@ void DrawItemInfoBackground(
 	// finally draw the background -- use hx and hy to set hudsize
 	SetHudSize(hx, hy, 1);
 
-	if(lines_count > ITEMINFOBG_MAXMIDS)
-		lines_count = ITEMINFOBG_MAXMIDS;
+	if(mids > ITEMINFOBG_MAXMIDS)
+		mids = ITEMINFOBG_MAXMIDS;
 
 	str mid_img = "LDTITMID";
 	if(craft_status) {
@@ -1921,7 +1937,7 @@ void DrawItemInfoBackground(
 	}
 	HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin, CR_WHITE, bg_posx, bg_posy, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 
-	for(int i = 0; i < lines_count; ++i) {
+	for(int i = 0; i < mids; ++i) {
 		SetFont(mid_img);
 		HudMessage(s:"A"; HUDMSG_PLAIN | HUDMSG_ALPHA | HUDMSG_FADEOUT, hudid_begin - 1 - i, CR_WHITE, bg_posx, bg_posy + ITEMINFOBG_TOPLEN + i * ITEMINFOBG_MIDLEN, holdTime, INVENTORY_FADETIME, INVENTORY_INFO_ALPHA);
 	}
@@ -3143,7 +3159,11 @@ void GiveImplicitToField(int item_pos, int attr, int val, int extra = -1, int ti
 			item.implicit[imp_pos].attrib_val = val * (extra + 1);
 	}
 
-	item.item_base = item_base;
+	// Only the first implicit names the base. Every later one passes 0 for it, and
+	// DND_ITEMBASE_CHARM is 0, so writing unconditionally reset the base to charm on any item
+	// carrying more than one implicit -- which is most of them.
+	if(!imp_pos)
+		item.item_base = item_base;
 }
 
 void GiveImplicitToMerchant(int item_pos, int attr, int val, int extra = -1, int tier = 0, int tier_mapping = 0, int item_base = 0) {
@@ -3170,7 +3190,9 @@ void GiveImplicitToMerchant(int item_pos, int attr, int val, int extra = -1, int
 			item.implicit[imp_pos].attrib_val = val * (temp + 1);
 	}
 
-	item.item_base = item_base;
+	// see GiveImplicitToField -- only implicit 0 names the base
+	if(!imp_pos)
+		item.item_base = item_base;
 }
 
 void GiveCorruptionEffect(int pnum, int item_pos) {
@@ -3270,57 +3292,6 @@ int ScourItem(int pnum, int item_pos) {
 	return min_count;
 }
 
-bool CanAllowModRollSpecial(int tag, int special_roll_rule) {
-	return 	(tag == INV_ATTR_TAG_ELEMENTAL_ID && (special_roll_rule == INV_IMP_CANROLL_ELEMENTAL)) ||
-			(tag == INV_ATTR_TAG_OCCULT_ID && (special_roll_rule == INV_IMP_CANROLL_MAGIC)) ||
-			(tag == INV_ATTR_TAG_PHYSICAL_ID && (special_roll_rule == INV_IMP_CANROLL_PHYS)) ||
-			(tag == INV_ATTR_TAG_EXPLOSIVE_ID && (special_roll_rule == INV_IMP_CANROLL_EXPLOSIVE)) ||
-			(tag == INV_ATTR_TAG_ENERGY_ID && (special_roll_rule == INV_IMP_CANROLL_ENERGY));
-}
-
-bool IsArmorAttributeException(int rolled_attr) {
-	return 	rolled_attr == INV_ARMOR_INCREASE || 
-			rolled_attr == INV_ARMORPERCENT_INCREASE;
-}
-
-bool IsEnergyShieldAttributeException(int rolled_attr) {
-	return 	rolled_attr == INV_SHIELD_INCREASE || 
-			rolled_attr == INV_SHIELD_RECHARGEDELAY || 
-			rolled_attr == INV_SHIELD_RECOVERYRATE ||
-			rolled_attr == INV_PERCENTSHIELD_INCREASE;
-}
-
-bool IsMitigationAttributeException(int rolled_attr) {
-	return 	rolled_attr == INV_MIT_INCREASE ||
-			rolled_attr == INV_MITEFFECT_INCREASE;
-}
-
-// assumes the implicit to look for is at implicit id 0!
-bool IsImplicitException(int imp, int rolled_attr) {
-	//printbold(s:"implicit ", d:imp, s: " rolled ", d:rolled_attr, s: " BAD: ", d:INV_MIT_INCREASE, s: ", ", d:INV_MITEFFECT_INCREASE, s:", ", d:INV_SHIELD_INCREASE, s:", ", d:INV_SHIELD_RECHARGEDELAY, s: ", ", d:INV_SHIELD_RECOVERYRATE);
-	switch(imp) {
-		// don't let eshield modifiers roll on armor base items etc.
-		case INV_IMP_INCARMOR:
-		return IsEnergyShieldAttributeException(rolled_attr) || IsMitigationAttributeException(rolled_attr);
-		case INV_IMP_INCSHIELD:
-		return IsArmorAttributeException(rolled_attr) || IsMitigationAttributeException(rolled_attr);
-		case INV_IMP_INCMIT:
-		return IsEnergyShieldAttributeException(rolled_attr) || IsArmorAttributeException(rolled_attr);
-
-		case INV_IMP_INCARMORSHIELD:
-		return IsMitigationAttributeException(rolled_attr);
-		case INV_IMP_INCMITSHIELD:
-		return IsArmorAttributeException(rolled_attr);
-		case INV_IMP_INCMITARMOR:
-		return IsEnergyShieldAttributeException(rolled_attr);
-	}
-	return false;
-}
-
-bool IsItemBaseException(int type, int subtype, int attr_id) {
-	return attr_id == INV_CYBERNETIC && (type == DND_ITEM_SPECIALTY_CYBORG || (type == DND_ITEM_BODYARMOR && subtype == BODYARMOR_CYBER));
-}
-
 int GetHighestModTierOnItem(int pnum, int item_pos) {
 	auto item = GetPlayerInventoryItem(pnum, item_pos);
 	int count = item.attrib_count;
@@ -3351,88 +3322,43 @@ int GetSpecialRollAttribute(int pnum, int item_pos) {
 
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
 // last field is checking for Orb of Order use, if it's not -2 then we must check for its use
-int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1, int respect_order_orb = -2) {
+int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1, int respect_order_orb = -2, int item_base = -1) {
+	// Flasks and dungeon keys draw from their own mod ranges and have no item base, so they keep
+	// their own picking below.
+	if(item_base >= 0) {
+		// respect_order_orb stores tag + 1, with -2 meaning "no orb" and 0 "orb but no tag stored".
+		int forced_tag_id = (respect_order_orb == -2 || !respect_order_orb) ? DND_MODPOOL_NO_TAG : respect_order_orb - 1;
+
+		// The base names the slot and the tagset, a widening implicit adds its tag group on top,
+		// and a guarantee narrows to one tag. All of that was settled when the pool was built, so
+		// this is one weighted draw -- no tag walk, no exception checks, no retry budget.
+		mod_pool_T* pool = GetModPool(item_base, GetWideningTagId(special_roll_rule), forced_tag_id);
+
+		// An empty pool means the guarantee asked for a tag this base cannot roll. Nothing to pick,
+		// so the caller drops this mod rather than substituting one -- same outcome the old code
+		// reached by exhausting its retry budget, just without spending the retries.
+		return (pool != null && pool.count) ? PickModFromPool(pool) : -1;
+	}
+
 	int bias = Timer() & 0xFFFF;
 	int val;
-	int craftable_id = DND_CRAFTABLEID_CHARM;
-	int max_tries = 10;
 
-	if(item_type == DND_ITEM_CHARM) {
-		if(respect_order_orb == -2 || !respect_order_orb) {
-			// unrestricted picking
-			val = random(FIRST_INV_ATTRIBUTE + bias, LAST_INV_ATTRIBUTE + bias) - bias;
-			// this is a last resort random here, in case there was an overflow... shouldn't, but might
-			// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
-			if(val < 0)
-				val = random(FIRST_INV_ATTRIBUTE, LAST_INV_ATTRIBUTE);
-		}
-		else {
-			// we store +1
-			--respect_order_orb;
-			// its not -2 or 0, -2 is default behavior, 0 is "check for orb of order, but we dont have any effect stored"
-			// so we have something here of a tag, just pick from its pool instead
-			val = AttributeTagGroups[respect_order_orb][craftable_id][random(0, AttributeTagGroupCount[respect_order_orb][craftable_id] - 1)];
-		}
-	}
-	else if(item_type != DND_ITEM_FLASK && item_type != DND_ITEM_DUNGEONKEY) {
-		craftable_id = MapItemTypeToCraftableID(item_type);
-
-		// find a random valid tag for this item
-		int tag = 0;
-		do {
-			do {
-				if(respect_order_orb == -2 || !respect_order_orb) {
-					tag = random(DND_ATTRIB_TAG_ID_BEGIN + bias, DND_ATTRIB_TAG_ID_END + bias) - bias;
-					if(tag < 0)
-						tag = random(DND_ATTRIB_TAG_ID_BEGIN, DND_ATTRIB_TAG_ID_END);
-				}
-				else // tag is pre-picked by order orb -- we store +1 of the actual tag
-					tag = respect_order_orb - 1;
-
-				// check rule exceptions -- compare vs charms for "cant roll" condition, charms can roll anything
-				if(AttributeTagGroupCount[tag][craftable_id] < AttributeTagGroupCount[tag][DND_CRAFTABLEID_CHARM]) {
-					// check potential special rolls
-					if(CanAllowModRollSpecial(tag, special_roll_rule)) {
-						// charms can roll everything possible, so we switch it to that, and then let it pick from that category
-						craftable_id = DND_CRAFTABLEID_CHARM;
-						break;
-					}
-				}
-				
-				--max_tries;
-				if(max_tries <= 0)
-					respect_order_orb = -2;
-				// we check for "0" here because, if the above doesnt make it reroll into a wider pool, and if theres non-zero, that means we still get valid stuff here
-			} while(!AttributeTagGroupCount[tag][craftable_id]);
-
-			// finally roll the attrib at random from the group
-			val = random(bias, AttributeTagGroupCount[tag][craftable_id] + bias) - bias;
-			if(val < 0)
-				val = random(0, AttributeTagGroupCount[tag][craftable_id]);
-			val = AttributeTagGroups[tag][craftable_id][val];
-			// finally check for implicit exception => Ex: Don't roll EShield on Armor base items!
-
-			--max_tries;
-			if(max_tries <= 0)
-				respect_order_orb = -2;
-		} while(IsItemBaseException(item_type, item_subtype, val) || IsImplicitException(implicit_id, val));
-	}
-	else if(item_type == DND_ITEM_FLASK) {
+	if(item_type == DND_ITEM_FLASK) {
 		do {
 			// flask code -- for now rolls anything flasks can no regards to life or utility
 			// unrestricted picking for now
 			val = random(FIRST_FLASK_ATTRIBUTE + bias, LAST_FLASK_ATTRIBUTE + bias) - bias;
 			// this is a last resort random here, in case there was an overflow... shouldn't, but might
-			// this random really didn't want to pick the edge values for some reason so we use the shifted one above...
 			if(val < 0)
 				val = random(FIRST_FLASK_ATTRIBUTE, LAST_FLASK_ATTRIBUTE);
 		} while(IsAttributeFlaskException(item_subtype, val));
 	}
-	else if(item_type == DND_ITEM_DUNGEONKEY) {
+	else {
 		val = random(FIRST_DUNGEON_ATTRIBUTE + bias, DUN_ATTR_MAX - 1 + bias) - bias;
 		if(val < 0)
 			val = random(FIRST_DUNGEON_ATTRIBUTE, DUN_ATTR_MAX - 1);
 	}
+
 	return val;
 }
 
@@ -3445,12 +3371,13 @@ void AssignAttributes(int pnum, int item_pos, int itype, int attr_count, int res
 
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute(itype, isubt, special_roll, item.implicit[0].attrib_id, respect_order_orb);
+			roll = PickRandomAttribute(itype, isubt, special_roll, item.implicit[0].attrib_id, respect_order_orb, item.item_base);
 			++max_attempts;
-		} while(max_attempts < DND_MAX_ORB_REROLL_ATTEMPTS && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.attrib_count) != -1);
-		
-		// don't add more than one attribute of the same potentially
-		if(max_attempts >= DND_MAX_ORB_REROLL_ATTEMPTS)
+		} while(roll != -1 && max_attempts < DND_MAX_ORB_REROLL_ATTEMPTS && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.attrib_count) != -1);
+
+		// -1 means the pool had nothing left to offer, most often a guarantee for a tag this base
+		// cannot roll. Either way there is no mod to add.
+		if(roll == -1 || max_attempts >= DND_MAX_ORB_REROLL_ATTEMPTS)
 			break;
 
 		AddAttributeToItem(pnum, item_pos, roll);
@@ -3496,12 +3423,8 @@ void RemoveAttributeFromItem(int pnum, int item_id, int to_remove) {
 void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluence = 1, bool isWellRolled = false) {
 	auto item = GetPlayerInventoryItem(pnum, item_pos);
 	int itype = item.item_type;
-	int craftable_type;
-	
+
 	int min_count = ScourItem(pnum, item_pos);
-	
-	// charm group etc.
-	int rand_attr = -1;
 	int attr_count = GetMaxItemAffixes(itype, item.item_subtype) - min_count;
 
 	// in case this is a fully fractured mod item
@@ -3509,14 +3432,20 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 		return;
 
 	// cap at 2
-	int max_tries = 30;
 	if(affluence > 2)
 		affluence = 2;
 
-	do {
-		if(itype == DND_ITEM_CHARM) {
-			craftable_type = DND_CRAFTABLEID_CHARM;
-			rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
+	// The guarantee is the base's own pool narrowed to one tag, so it already respects the slot,
+	// the base's exclusions and any widening implicit. A tag the base cannot roll leaves the pool
+	// empty, and the guarantee is simply skipped -- the reforge below still runs.
+	mod_pool_T* pool = GetModPool(item.item_base, GetWideningTagId(GetSpecialRollAttribute(pnum, item_pos)), tag_id);
+
+	if(pool != null && pool.count) {
+		int rand_attr;
+		int max_tries = 30;
+
+		while(affluence > 0 && attr_count > 0 && max_tries-- > 0) {
+			rand_attr = PickModFromPool(pool);
 
 			// if this isn't already present on the item in question
 			if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.attrib_count) == -1) {
@@ -3526,51 +3455,9 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 				--affluence;
 			}
 		}
-		else {
-			craftable_type = MapItemTypeToCraftableID(itype);
-			min_count = 5;
-
-			do {
-				// pick an attribute if we have non-zero count, otherwise keep it at -1
-				rand_attr = -1;
-				if(AttributeTagGroupCount[tag_id][craftable_type])
-					rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
-
-				// if no attributes of this type are allowed, but we have some special roll, include it and try again
-				if(rand_attr == -1 || IsAttributeArmorException(rand_attr, craftable_type)) {
-					// check if any of the implicits allow for special roll rules -- assumes multiple DONT exist
-					int imp_id = GetSpecialRollAttribute(pnum, item_pos);
-
-					if(imp_id && CanAllowModRollSpecial(tag_id, imp_id)) {
-						craftable_type = DND_CRAFTABLEID_CHARM;
-						rand_attr = AttributeTagGroups[tag_id][craftable_type][random(0, AttributeTagGroupCount[tag_id][craftable_type] - 1)];
-					}
-					else {
-						// rest of the mods, we can't fit a guaranteed attribute here
-						TakeInventory("ReveranceUsed", 1);
-						AssignAttributes(pnum, item_pos, itype, attr_count);
-						return;
-					}
-				}
-
-				if
-				(
-					CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.attrib_count) == -1 &&
-					!IsItemBaseException(itype, item.item_subtype, rand_attr) &&
-					!IsImplicitException(item.implicit[0].attrib_id, rand_attr)
-				)
-				{
-					//printbold(s:"guaranteed add ", d:rand_attr);
-					AddAttributeToItem(pnum, item_pos, rand_attr, isWellRolled);
-					TakeInventory("ReveranceUsed", 1);
-					--attr_count;
-					--affluence;
-					break;
-				}
-				--min_count;
-			} while(min_count);
-		}
-	} while(affluence > 0 && attr_count > 0 && max_tries-- > 0);
+	}
+	else
+		TakeInventory("ReveranceUsed", 1);
 
 	// rest of the mods
 	AssignAttributes(pnum, item_pos, itype, attr_count);
@@ -3930,9 +3817,20 @@ Script "DnD Load Inventory Attributes" OPEN {
 		Delay(const:8);
 		InitModPoolCache();
 		Delay(const:1);
+
+		// One pool is a 161 entry eligibility scan plus an alias build, so all 35 in one tic is a
+		// runaway. Spread like the storage allocation above.
+		for(i = 0; i < DND_MAX_ITEMBASES; ++i) {
+			GetModPool(i);
+			if(!(i % 4))
+				Delay(const:1);
+		}
+
+		Delay(const:1);
+		LogModPoolCacheSize();
+		Delay(const:1);
 		SetupDungeonModTable();
 		Delay(const:5);
-		SetupInventoryTagGroups();
 		Delay(const:10);
 		SetupUniqueItems();
 		Delay(10);

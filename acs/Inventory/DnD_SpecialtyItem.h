@@ -177,16 +177,20 @@ int RollSpecialtyItemInfo(int item_pos, int item_tier, int pnum, int itype) {
 	int i = 0, roll;
 	int sub_type = ConstructSpecialtyDataOnField(item_pos, item_tier, itype);
 	int count = random(1, MAX_SPECIALTY_ATTRIBS);
-	int special_roll = 0;
-
 	auto item = GetFieldItem(item_pos);
 
-	SetupItemImplicit(item_pos, itype, sub_type, item_tier);
+	// the return is the widening implicit this base grants -- it was being dropped, so specialty
+	// items never widened, and the arguments below were shifted by one slot as a result
+	int special_roll = SetupItemImplicit(item_pos, itype, sub_type, item_tier);
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(itype, special_roll, item.implicit[0].attrib_id);
-		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base);
+		} while(roll != -1 && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+
+		if(roll == -1)
+			break;
+
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
 	}

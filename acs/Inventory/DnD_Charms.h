@@ -99,7 +99,7 @@ int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll, DND_ITEMBASE_CHARM);
 
 			if(max_tries-- < 0)
 				synergy_roll = -2;
@@ -135,8 +135,12 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	// we extend the resolution of the range (the ends weren't being picked as evenly) example: range of 0 to 5 x 10 => 0 to 50, then we divide by 10. We extend possibility of picking the ends
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM);
-		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, DND_CHARM_SMALL, 0, -1, -2, DND_ITEMBASE_CHARM);
+		} while(roll != -1 && CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+
+		if(roll == -1)
+			break;
+
 		AddAttributeToFieldItem(charm_pos, roll, pnum);
 		++i;
 	}

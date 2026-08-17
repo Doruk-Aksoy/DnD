@@ -543,7 +543,7 @@ IATTR_TC16			= "to maximum frenzy charges";
 IATTR_TC17			= "to maximum endurance charges";
 IATTR_TC18			= "to maximum power charges";
 IATTR_TC19          = "of";        IATTR_TC19_1 = " damage is converted to";      IATTR_TC19_2 = " damage";
-IATTR_TC20_1        = " damage is gained as extra";
+IATTR_TC20          = " damage is gained as extra";
 
 // regular implicits
 IATTR_TI1			= "armor";

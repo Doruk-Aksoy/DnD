@@ -608,11 +608,18 @@ ACTOR HS : DnD_BaseMeleeMonster_NoRes 21102 {
 		Goto SpawnSetup
 
 		IdleState:
-			TNT1 A 8 Bright A_GiveInventory("DnD_SightChecker", 1)      
+			// MeleeState below is the only place this actor is meant to be invulnerable, and it
+			// never comes back here -- it ends in its own explosion. So anything that does land
+			// back in these states carrying the flag got here by being pulled out of that windup,
+			// and clearing it on the way past costs a zero tic frame.
+			TNT1 A 0 A_UnSetInvulnerable
+			TNT1 A 8 Bright A_GiveInventory("DnD_SightChecker", 1)
 		Loop
 		SeeState:
+			TNT1 A 0 A_UnSetInvulnerable
 			HADE EFGH 4 Fast Bright
 		See4:
+			TNT1 A 0 A_UnSetInvulnerable
 			TNT1 A 0 A_Chase
 			HADE A 2 Fast Bright A_Playsound("monster/hadwlk")
 		SeeAppear:

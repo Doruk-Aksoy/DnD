@@ -4370,6 +4370,30 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 				if(isPlayer(ActivatorTID()) && isPlayer(victim))
 					arg1 = 0;
 			}
+			else if(arg2 == "Execution") {
+				// The punch behind an execute carries a flat number out of DECORATE, and a flat
+				// number stops being a kill the moment a monster's health passes it -- which is
+				// exactly what a boss does, so the execute landed as an ordinary hit and left it
+				// standing. An execute is meant to kill whatever it lands on, so the number comes
+				// from the victim rather than from the weapon.
+				SetActivator(0, AAPTR_DAMAGE_TARGET);
+
+				// Only a target that was actually marked executable earns the guaranteed kill.
+				// A_CustomPunch traces forward on its own and can land on a monster standing
+				// between the player and the one that was checked; that one keeps the weapon's
+				// own number instead of dying outright to a hit that was never aimed at it.
+				if(CheckInventory("Doomguy_CanExecute")) {
+					arg1 = GetActorProperty(0, APROP_HEALTH);
+
+					// doubled for the reason the cull path doubles -- nothing applied downstream
+					// of this return gets to leave the target standing on a sliver of health.
+					// Guarded because at these health values the doubling is what overflows first.
+					if(arg1 > bcs::INT_MAX / 2)
+						arg1 = bcs::INT_MAX;
+					else
+						arg1 *= 2;
+				}
+			}
 			SetResultValue(arg1);
 			Terminate;
 		}

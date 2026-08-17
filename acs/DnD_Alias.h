@@ -5,6 +5,9 @@
 #define ALIAS_TABLE_SCALE 8192 // this hits a good point of base weights used being 1000, supports up to 256 different elements (size of weights etc.) without overflow
 #define MAX_ALIAS_TABLE_SIZE 256 // 256 elements is a good enough size -- keep maximum weight at 1000
 
+// Bounds the SUM of the weights -- not any single weight, not the entry count. See BuildAliasTable.
+#define ALIAS_TABLE_MAX_TOTALWEIGHT (bcs::INT_MAX / ALIAS_TABLE_SCALE)
+
 typedef struct {
     int size;
     bool isDirty;
@@ -49,74 +52,90 @@ void MarkAliasTableDirty(alias_table_T? table) {
     table.isDirty = true;
 }
 
+// Every bucket full, every alias itself: samples uniformly. Used when the weights cannot be
+// scaled, so a bad table degrades to something defined AND stays built -- leaving it dirty made
+// Pick rebuild on every single call.
+void MakeAliasTableUniform(alias_table_T? table) {
+    for(int i = 0; i < table.size; i++) {
+        table.probability[i] = ALIAS_TABLE_SCALE;
+        table.alias[i] = i;
+    }
+
+    table.isDirty = false;
+}
+
 void BuildAliasTable(alias_table_T? table) {
     int i, s, l;
     int totalWeight = 0;
 
-    //Log(s:"building table of size ", d:table.size, s:" vs max ", d:MAX_ALIAS_TABLE_SIZE);
-
-    int scaled[MAX_ALIAS_TABLE_SIZE];
-    int small[MAX_ALIAS_TABLE_SIZE];
-    int large[MAX_ALIAS_TABLE_SIZE];
-
+    // One scratch array, not two: the small and large stacks partition the same index set, so
+    // small can grow up from the bottom and large down from the top without ever meeting.
+    int workset[MAX_ALIAS_TABLE_SIZE];
     int smallCount = 0;
-    int largeCount = 0;
-
-    //Log(s:"Building table of size ", d:table.size);
+    int largeTop = table.size;
 
     // first sum the weights to get total
 
     for(i = 0; i < table.size; i++)
         totalWeight += table.weights[i];
 
-    //Log(s:"Weight sum: ", d:totalWeight);
-
-    if(totalWeight <= 0)
+    if(totalWeight <= 0) {
+        MakeAliasTableUniform(table);
         return;
+    }
 
-    // now scale the weights
+    // past this the remainder term below wraps and the table silently samples wrong, so fail loud
+    if(totalWeight > ALIAS_TABLE_MAX_TOTALWEIGHT) {
+        Log(s:"Alias table weight total ", d:totalWeight, s:" is over the ", d:ALIAS_TABLE_MAX_TOTALWEIGHT, s:" limit -- scale the weights down.");
+        MakeAliasTableUniform(table);
+        return;
+    }
+
+    // probability holds the scaled weights while they are being worked on. The old separate
+    // scratch was copied into it verbatim, and every entry the loop revisits wants the updated
+    // number anyway, so the copy was the only thing the third array bought.
     for(i = 0; i < table.size; i++) {
-        scaled[i] = table.weights[i] * table.size * ALIAS_TABLE_SCALE / totalWeight;
+        // Quotient + remainder rather than wn * SCALE / totalWeight. Exact, since q * SCALE is
+        // whole, but bounds on totalWeight instead of on max_weight * size.
+        int wn = table.weights[i] * table.size;
+        table.probability[i] = ((wn / totalWeight) * ALIAS_TABLE_SCALE) + (((wn % totalWeight) * ALIAS_TABLE_SCALE) / totalWeight);
 
-        //Log(s:"Scale for ", d:i, s:": ", d:scaled[i]);
-
-        if(scaled[i] < ALIAS_TABLE_SCALE)
-            small[smallCount++] = i;
+        if(table.probability[i] < ALIAS_TABLE_SCALE)
+            workset[smallCount++] = i;
         else
-            large[largeCount++] = i;
+            workset[--largeTop] = i;
     }
 
     // main alias loop to assign them the proper bins
 
-    while(smallCount > 0 && largeCount > 0) {
-        s = small[--smallCount];
-        l = large[--largeCount];
+    while(smallCount > 0 && largeTop < table.size) {
+        s = workset[--smallCount];
+        l = workset[largeTop++];
 
-        table.probability[s] = scaled[s];
         table.alias[s] = l;
 
-        scaled[l] = scaled[l] - ALIAS_TABLE_SCALE + scaled[s];
+        table.probability[l] = table.probability[l] - ALIAS_TABLE_SCALE + table.probability[s];
 
-        if(scaled[l] < ALIAS_TABLE_SCALE)
-            small[smallCount++] = l;
+        if(table.probability[l] < ALIAS_TABLE_SCALE)
+            workset[smallCount++] = l;
         else
-            large[largeCount++] = l;
+            workset[--largeTop] = l;
     }
 
     // handle whatever is left to be max probability of 1.0
 
-    while(largeCount > 0) {
-        l = large[--largeCount];
-
-        table.probability[l] = ALIAS_TABLE_SCALE;
-        table.alias[l] = l;
-    }
-
     while(smallCount > 0) {
-        s = small[--smallCount];
+        s = workset[--smallCount];
 
         table.probability[s] = ALIAS_TABLE_SCALE;
         table.alias[s] = s;
+    }
+
+    while(largeTop < table.size) {
+        l = workset[largeTop++];
+
+        table.probability[l] = ALIAS_TABLE_SCALE;
+        table.alias[l] = l;
     }
 
     table.isDirty = false;

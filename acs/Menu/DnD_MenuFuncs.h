@@ -3472,6 +3472,11 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 			if(!CheckInventory("DnD_SelectedInventoryBox")) {
 				if(GetPlayerInput(-1, INPUT_BUTTONS) & BT_CROUCH)
 					HandleMenuItemDrop(pnum, boxid, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
+				// An empty box has nothing to pick up, so picking it up is a no-op that lights a
+				// box and then eats the next click outside. Move into a gap the other way round:
+				// take the item first, then click where it should go.
+				else if(GlobalItemStorage.PlayerInventoryList[pnum][boxid - 1].item_type == DND_ITEM_NULL)
+					return;
 				else
 					SetInventory("DnD_SelectedInventoryBox", boxid);
 			}
@@ -3646,17 +3651,17 @@ void HandleItemPageInputs(int pnum, int boxid) {
 			if(CheckInventory("DnD_InventoryView")) {
 				// ok we are in inventory view
 				item_sel = CheckInventory("DnD_SelectedInventoryBox");
-				if(item_sel) {
-					// we have selected a box previously, if this has an item drop it otherwise clear it
-					if((temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_sel - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
-						// drop selected item
-						HandleMenuItemDrop(pnum, item_sel, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
-					}
-					// clear selection
+				// A selection only earns the click if it is actually holding something to throw.
+				// One left over on an empty box used to swallow it silently, which is why closing
+				// with the mouse needed a second click while the left key always worked.
+				if(item_sel && (temp = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, item_sel - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY)) != DND_ITEM_NULL) {
+					// drop selected item
+					HandleMenuItemDrop(pnum, item_sel, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 					SetInventory("DnD_SelectedInventoryBox", 0);
 				}
-				else { 
-					// just exit if nothing was selected
+				else {
+					// nothing held, so exit
+					SetInventory("DnD_SelectedInventoryBox", 0);
 					GiveInventory("DnD_CleanInventoryRequest", 1);
 					TakeInventory("DnD_InventoryView", 1);
 					LocalAmbientSound("RPG/MenuClose", 127);
@@ -3926,7 +3931,9 @@ void HandleTradeCountdown(int p1, int p2) {
 void HandleTradeViewButtonClicks(int pnum, int boxid) {
 	int bid = GetTradee();
 	int ioffset = 0, isource, soffset = 0, ssource;
-	
+	// clicking an empty box does nothing, so it should not ring the choose sound either
+	bool acted = true;
+
 	if(!PlayerInGame(bid))
 		CancelTrade(PlayerNumber());
 	
@@ -4041,8 +4048,11 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 									GiveInventory("DnD_AutoDumpCooldown", 1);
 							}
 						}
-						else
+						// an empty box has nothing to pick up -- same rule as HandleInventoryViewClicks
+						else if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL)
 							SetInventory("DnD_SelectedInventoryBox", boxid);
+						else
+							acted = false;
 					}
 					else if(boxid != CheckInventory("DnD_SelectedInventoryBox")) {
 						int sel = CheckInventory("DnD_SelectedInventoryBox");
@@ -4060,8 +4070,9 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 						bool boxidon = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, ipos, -1, isource) != DND_ITEM_NULL;
 						bool prevselecton = GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, spos, -1, ssource) != DND_ITEM_NULL;
 
-						// normalize to "carry the item at frompos onto topos"; clicking an empty box
-						// first and the item second means the same thing as the other way round
+						// "carry the item at frompos onto topos". A selection is always holding
+						// something now, so the carried item is always the selected one -- the swap
+						// below only survives as a guard in case that ever stops being true.
 						int frompos = spos, topos = ipos;
 						bool from_inv = sel_inv, to_inv = box_inv;
 						if(!prevselecton && boxidon) {
@@ -4100,7 +4111,9 @@ void HandleTradeViewButtonClicks(int pnum, int boxid) {
 					}
 					else
 						SetInventory("DnD_SelectedInventoryBox", 0);
-					LocalAmbientSound("RPG/MenuChoose", 127);
+
+					if(acted)
+						LocalAmbientSound("RPG/MenuChoose", 127);
 				}
 				else if(CheckInventory("DnD_SelectedInventoryBox")) {
 					ssource = DND_SYNC_ITEMSOURCE_TRADEVIEW;
@@ -4254,7 +4267,10 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 				HandleMenuItemDrop(pnum, sel_box - soffset, ssource);
 			}
 		}
-		else if(!sel_box && boxid < STASHBUTTON_BOXID_START) {
+		// MAINBOX_NONE is 0, which passes the button range check on its own -- without the guard a
+		// click outside the grid took the pick up path with boxid - 1 as an index and rang the
+		// choose sound for nothing
+		else if(!sel_box && boxid != MAINBOX_NONE && boxid < STASHBUTTON_BOXID_START) {
 			//printbold(s:"set selected box to ", d:boxid);
 			cpage = CheckInventory("DnD_PlayerCurrentPage");
 			SetInventory("DnD_PlayerPreviousPage", cpage);
@@ -4289,7 +4305,8 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				HandleMenuItemDrop(pnum, boxid - ioffset, isource);
 			}
-			else {
+			// an empty box has nothing to pick up -- same rule as HandleInventoryViewClicks
+			else if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1 - ioffset, -1, isource) != DND_ITEM_NULL) {
 				LocalAmbientSound("RPG/MenuChoose", 127);
 				SetInventory("DnD_SelectedInventoryBox", boxid);
 			}
@@ -4888,9 +4905,9 @@ void DrawCraftingInventoryInfo(int pn, int id_begin, int x, int y, int item_id, 
 	prev_y = 3 * my / 2;
 	
 	mx = GetIntegerBits(3 * (mx + HUD_ITEMBAK_XF / 2) / 2) + 0.4;
-	my = GetIntegerBits(3 * my / 2) + 20.1;
-	
-	SetHudClipRect(12 + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
+	my = GetIntegerBits(3 * my / 2 + ITEMINFO_TEXTTOP) + 0.1;
+
+	SetHudClipRect(ITEMINFO_CLIPX + (prev_x >> 16), 15 + (prev_y >> 16), HUD_ITEMBAK_WIDTH, 288, HUD_ITEMBAK_WIDTH);
 	DrawCraftingInventoryText(item_type, item_id, item_source, pn, id_begin, mx, my, HUDMAX_X, HUDMAX_Y, bg_x, bg_y, attr_count);
 	SetHudClipRect(0, 0, 0, 0, 0);
 	SetHudSize(HUDMAX_X, HUDMAX_Y, 1);

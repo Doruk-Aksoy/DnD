@@ -212,10 +212,17 @@ void RollArmorInfoOnMerchant(int item_pos, int item_tier, int item_type, int arm
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id, synergy_roll);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id, synergy_roll, item.item_base);
+			if(roll == -1)
+				break;
 			if(max_tries-- < 0)
 				synergy_roll = -2;
 		} while(CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
+
+		// the break above only leaves the retry loop, so the outer one has to stop as well
+		if(roll == -1)
+			break;
+
 		AddAttributeToMerchant(item_pos, roll, count);
 
 		synergy_roll = CheckMerchantItemSynergy(synergy_roll, item_pos);
@@ -507,15 +514,19 @@ int RollSpecialtyItemInfoOnMerchant(int item_pos, int ilvl, int itype) {
 	// the two rolls disagreed you got things like a Cestus carrying a Katar's phasing implicit.
 	int sub_type = item.item_subtype;
 	int count = random(1, MAX_SPECIALTY_ATTRIBS);
-	int special_roll = 0;
-
-	SetupItemImplicit(item_pos, itype, sub_type, ilvl, true);
+	// the return is the widening implicit this base grants -- the field version keeps it, and
+	// dropping it here meant merchant specialty items never widened
+	int special_roll = SetupItemImplicit(item_pos, itype, sub_type, ilvl, true);
 
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(itype, special_roll, item.implicit[0].attrib_id);
-		} while(CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
+			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base);
+		} while(roll != -1 && CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
+
+		if(roll == -1)
+			break;
+
 		AddAttributeToMerchant(item_pos, roll, count);
 		++i;
 	}
@@ -546,7 +557,7 @@ void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
 	while(i < count) {
 		int max_tries = 10;
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll, DND_ITEMBASE_CHARM);
 
 			// in case there's synergy with not enough mods available for a tag or unlucky rolls, opt out of synergy roll immediately
 			--max_tries;
