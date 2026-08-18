@@ -483,6 +483,10 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 // holds the monster tids that are in use -- arbitrary order
 global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
 
+// NOTE: state keyed on monster ids has to be dropped alongside these counters, and this function
+// cannot do it -- DnD_Damage.h owns that state and is included after this file, and BCS has no
+// forward declarations. FlushDamageTicResidue is called beside the two ResetUsedTIDs sites that
+// matter instead; see its comment.
 void ResetUsedTIDs() {
 	if(IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
 		return;

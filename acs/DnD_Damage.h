@@ -519,6 +519,69 @@ void ReleaseMixedTicSlot(int pnum, int m_id) {
 		PlayerMixedTicData[pnum][slot].victim = DND_MIXEDTIC_TOMBSTONE;
 }
 
+// Drops every damage tic latch left behind by the map that is ending, and the mixed slots under them.
+//
+// PlayerDamageTicData is not just an accumulator, it is the latch that decides whether a tic script
+// exists: "DnD Damage Accumulate" is started only when the slot reads 0, and the only thing that ever
+// writes 0 back is the tail of that same script. So a non-zero slot with no script behind it is stuck
+// for good -- every later hit adds to it, the script is never started again, and everything that lives
+// inside it is silently lost for that (player, monster) pair: every ailment, the damage numbers, the
+// push, lifesteal, the hurt token. The health damage still lands through the event's return value,
+// which is why it reads in play as "this one monster cannot be ignited or chilled any more" rather
+// than as a damage bug.
+//
+// The array is `global`, so it outlives the map, and monster ids are handed out from 0 again on the
+// next one -- a slot bricked on one map resurfaces under whatever monster inherits that id later.
+//
+// WHERE THIS RUNS IS THE WHOLE POINT. ResetUsedTIDs is the single chokepoint for "monster ids are
+// about to be handed out from zero again", and the level exit path reaches it from UNLOADING, which
+// is the very event that creates the residue: the accumulate scripts are destroyed with the level,
+// and any one of them sitting inside its one tic delay leaves its latch set. So the leak is cleaned
+// at the instant it is made, once, while the counter still says how far the ids got.
+//
+// Doing it instead per monster, at the moment an id changes hands, also works and was the first cut --
+// but it charges 64 reads to every monster on a map that may carry thousands of them, and it charges
+// them inside the map load burst, where every "DnD Monster Scale" instance is released from the same
+// wait on the same tic. Here it is one pass, bounded by the ids the finished map actually used, at a
+// moment where the screen is changing anyway.
+//
+// Spreading it over several tics instead would be worse than either: the reset has to land before the
+// monster can be hit, and a hit that lands first legitimately starts a tic script -- a late write
+// would then clear the latch out from under a LIVE script and the next hit would start a second one
+// on the same slot, doubling that tic's multipliers and its ailment rolls. There is no delay in this
+// one, and it needs none.
+//
+// Two details in the body:
+//
+// - The write is conditional. World and global arrays are sparse maps, so assigning 0 to an entry
+//   that was never touched MATERIALISES it, and the sweep would build the table it is walking.
+// - ReleaseMixedTicSlot, the expensive half, probes a 256 wide table and only runs for a latch that
+//   was actually dirty. A mixed slot cannot outlive its latch: the flush writes both back to back
+//   with no delay between them.
+//
+// PlayerInGame is a safe filter HERE, unlike at monster spawn. A player who left earlier in the map
+// cannot have residue: losing its activator does not stop an ACS script, so their accumulate script
+// ran to its end and cleared its own latch. Only a script alive at THIS instant can leak, and its
+// owner is still connected.
+void FlushDamageTicResidue() {
+	int high = InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
+	if(high > DND_MAX_MONSTERS)
+		high = DND_MAX_MONSTERS;
+
+	int p, i;
+	for(p = 0; p < MAXPLAYERS; ++p) {
+		if(!PlayerInGame(p))
+			continue;
+
+		for(i = 0; i < high; ++i) {
+			if(PlayerDamageTicData[p][i]) {
+				PlayerDamageTicData[p][i] = 0;
+				ReleaseMixedTicSlot(p, i);
+			}
+		}
+	}
+}
+
 // we use this as a bitfield -- 64 players => 2 ints
 // stores player weapon crit state
 int PlayerDamageCritState[MAXWEPS][2];
@@ -908,6 +971,24 @@ int ScaleCachedDamage(int wepid, int pnum, int dmgid, int damage_category, int f
 	int slot = ResolveWeaponCacheSlot(pnum, wepid);
 	int temp,  pct_tmp = 0;
 	int tid = pnum + P_TIDSTART;
+
+	// The base roll is the one thing in the slot that does not rebuild itself, and the slot it was
+	// written into is not necessarily the slot this weapon holds now: the eviction clock hand hands
+	// slots out on a first-come basis and pays no attention to what the player is currently holding,
+	// so a proc, a dot tick or a projectile still in the air resolving a slot for its OWN weapon can
+	// take the slot out from under the weapon in your hands. It then fires for zero -- and stays that
+	// way until a weapon swap pushes the base back in, which is exactly how this reads in play.
+	//
+	// The weapon table is pure constants keyed on wepid, so pull it instead of waiting for the push.
+	// Runs once per handover, not per shot. Passing pnum + 1 tells the script this is a rebuild: it
+	// takes the player number from the argument rather than the activator (this block is not
+	// guaranteed to run with the player as activator) and skips the weapon-swap bookkeeping, which
+	// belongs to the raise and would otherwise fire against whatever the activator happens to be.
+	if(!IsWeaponCacheBaseFilled(pnum, slot)) {
+		ACS_NamedExecuteWithResult("DnD Weapon Damage Cache", wepid, pnum + 1);
+		MarkWeaponCacheBaseFilled(pnum, slot);
+	}
+
 	// get the damage
 	if(!isSpecial)
 		temp = GetCachedPlayerDamage(pnum, slot, dmgid);
@@ -4164,16 +4245,20 @@ bool HandleRipperHit(int shooter, int victim) {
 
 	int i;
 
-	// reset ripper hit array
-	int ripper_id = CheckInventory("DnD_RipperId");
-	if(!ripper_id) {
-		ripper_count = (ripper_count + 1) % MAX_RIPPERS_ACTIVE;
+	// Stored +1, so the item's zero-initialized state is the "no id yet" sentinel and every row of
+	// the table is usable. It used to store the id as-is, which meant the row the counter handed out
+	// every 256th projectile was id 0 -- indistinguishable from unassigned. That projectile then
+	// re-entered this branch on every hit, wiped its own hit list each time, and ripped the same
+	// monster over and over for damage a RIPSONCE weapon is supposed to deal exactly once.
+	int ripper_id = CheckInventory("DnD_RipperId") - 1;
+	if(ripper_id < 0) {
 		ripper_id = ripper_count;
+		ripper_count = (ripper_count + 1) % MAX_RIPPERS_ACTIVE;
 
 		for(i = 0; i < MAX_RIPPER_HITS_STORED; ++i)
 			ripper_hits[ripper_id][i] = -1;
 
-		SetInventory("DnD_RipperId", ripper_id);
+		SetInventory("DnD_RipperId", ripper_id + 1);
 	}
 
 	bool found = false;

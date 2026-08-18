@@ -1012,12 +1012,20 @@ void AddMonsterAilment(int source, int tid, int ailment) {
 		GiveActorInventory(source, "RemoveAilments", 1);
 }
 
+// How many ailments are on this monster, which is a POPCOUNT of the token -- not its bit length.
+// Shifting to zero and counting the steps returns the position of the highest set bit instead, so a
+// monster carrying nothing but bleed (bit 5) counted as six ailments and a monster carrying ignite
+// alone counted as one. Feeds the wanderer's flat resist reduction in FactorResists, so the error
+// went straight into damage.
+//
+// Clears the lowest set bit each pass rather than walking every bit position: it costs one iteration
+// per ailment actually present, and it cannot spin on a negative value the way a >>= 1 loop would.
 int CountMonsterAilments(int tid) {
 	int count = 0;
 	int val = CheckActorInventory(tid, "DnD_AilmentToken");
 	while(val) {
+		val &= val - 1;
 		++count;
-		val >>= 1;
 	}
 	return count;
 }

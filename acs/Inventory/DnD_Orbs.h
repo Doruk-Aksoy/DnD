@@ -456,8 +456,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	int overrideValue = 0;
 
 	SetInventory("OrbUseType", orbtype + 1);
-	// for any other orb, reset most recently used orb
-	if(orbtype != DND_ORB_REPENT)
+	
+	// we don't reset the most recent orb use when destiny is used, so that it can be used to repent guaranteed the last used orb as well
+	if(orbtype != DND_ORB_REPENT && orbtype != DND_ORB_DESTINY)
 		ResetMostRecentOrb(pnum);
 	switch(orbtype) {
 		case DND_ORB_ENHANCE:
@@ -1024,23 +1025,20 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SetInventory("OrbResult", 1);
 		break;
 
+		// destiny purposefully doesn't write the "state" into most recent orb use so other orbs can be used in conjunction properly
 		case DND_ORB_DESTINY:
 			GiveInventory("DestinyUsed", 1);
-			res = CheckInventory("DestinyUsed");
-			SetInventory("OrbResult", res);
-			Player_MostRecent_Orb[pnum].values[0] = res;
+			SetInventory("OrbResult", 1);
 		break;
 		case DND_ORB_REVERANCE:
 			GiveInventory("ReveranceUsed", 1);
-			res = CheckInventory("ReveranceUsed");
-			SetInventory("OrbResult", res);
-			Player_MostRecent_Orb[pnum].values[0] = res;
+			SetInventory("OrbResult", 1);
+			Player_MostRecent_Orb[pnum].values[0] = 1;
 		break;
 		case DND_ORB_ORDER:
 			GiveInventory("OrderUsed", 1);
-			res = CheckInventory("OrderUsed");
-			SetInventory("OrbResult", res);
-			Player_MostRecent_Orb[pnum].values[0] = res;
+			SetInventory("OrbResult", 1);
+			Player_MostRecent_Orb[pnum].values[0] = 1;
 		break;
 	}
 
@@ -1051,7 +1049,9 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 	if(orbtype != DND_ORB_ORDER)
 		TakeInventory("OrderUsed", 1);
 
-	Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
+	// destiny never becomes "the last orb" -- see the reset at the top of this function
+	if(orbtype != DND_ORB_DESTINY)
+		Player_MostRecent_Orb[pnum].orb_type = orbtype + 1; // +1 because 0 is used as no orb
 	
 	// clientside msg
 	ACS_NamedExecuteWithResult("DND Orb Use Message", CheckInventory("OrbUseType") - 1, CheckInventory("OrbResult"), affluence, overrideValue);

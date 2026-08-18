@@ -253,8 +253,8 @@ typedef struct rect {
 // not ours to clear.
 typedef struct idragconfirm {
 	bool valid;					// server vouches for the current view; 0 means fall back to deriving
-	int image;					// 0 while valid is set means "you are holding nothing"
-	int size_x;
+	int image;					// image id, and 0 is a REAL one (IIMG_SC_1) -- never test this for "holding"
+	int size_x;					// "holding something" is this: 0 only in the empty-hand payload
 	int size_y;
 	int topboxid;
 	int source;

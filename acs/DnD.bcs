@@ -224,6 +224,13 @@ Script "DnD On Map Load" OPEN {
 	while(GetGameModeState() != GAMESTATE_INPROGRESS)
 		Delay(const:TICRATE);
 
+	// Backstop for a map change that never ran "DnD On Unloading" -- the counter still holds the
+	// previous map's high water mark in that case, so the sweep is still correctly bounded. A no-op
+	// on the normal path, where unloading already cleared it and the counter reads 0. This is ahead
+	// of ResetUsedTIDs on purpose: that is what sets SETUP_CLEANINGMONSTERTIDS, and every monster
+	// setup script is parked waiting on it, so nothing can have been damaged yet.
+	FlushDamageTicResidue();
+
 	ResetUsedTIDs();
 
 	Delay(const:1);
@@ -1668,11 +1675,13 @@ Script "DnD Monster Scale" (int monsterid, int isSummoned, int toughOrElite, int
 
 	GiveMonsterTID(ActivatorTID());
 
+	int this = ActivatorTID();
+	int m_id = this - DND_MONSTERTID_BEGIN;
+
 	//printbold(s:"Monster ", s:GetActorClass(0), s:" id ", d:ActivatorTID());
 	//printbold(s:"Monster id: ",d:monsterid,s:", (After Spawn) Mob spawn hp:", d:GetActorProperty(0, APROP_SpawnHealth), s:", Mob hp:", d:GetActorProperty(0, APROP_Health), s:", Mob realhp",d:realhp);
 	//Make sure mob gets to right amount of hp at this point
-	int maxhp, base, add, pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART], this = ActivatorTID(), realhp = MonsterData[monsterid].health;
-	int m_id = this - DND_MONSTERTID_BEGIN;
+	int maxhp, base, add, pcount = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART], realhp = MonsterData[monsterid].health;
 
 	// reset attachment array to 0
 	ACS_NamedExecuteWithResult("DnD Init Monster Attachments", m_id);
@@ -1846,8 +1855,11 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 		Delay(const:5);
 
 	GiveMonsterTID(ActivatorTID());
-	int maxhp, base, add, pcount = PlayerCount(), this = ActivatorTID(), realhp = GetActorProperty(0, APROP_SPAWNHEALTH);
+
+	int this = ActivatorTID();
 	int m_id = this - DND_MONSTERTID_BEGIN;
+
+	int maxhp, base, add, pcount = PlayerCount(), realhp = GetActorProperty(0, APROP_SPAWNHEALTH);
 	if(!pcount)
 		pcount = 1;
 		
@@ -3088,6 +3100,12 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 
 // End of level checks
 Script "DnD On Unloading" UNLOADING {
+	// Ahead of ResetUsedTIDs, which forgets how far the monster ids got, and ahead of the accumulate
+	// scripts being destroyed with the level -- one of them sitting in its tic delay right now is
+	// what leaves a latch set. Ids restart at 0 next map, so a latch left here belongs to whatever
+	// monster inherits that id.
+	FlushDamageTicResidue();
+
 	SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 	ResetUsedTIDs();
 
@@ -5869,9 +5887,17 @@ Script "DnD Ammo Token Pickup" (void) {
 	// get random owned weapon of player and give ammo to it
 	int id = 0;
 	int pnum = PlayerNumber();
+
+	// Bounded, because a player can own nothing that takes ammo -- fists alone is enough. With the
+	// check reading the right way round now, an unbounded loop there would never end.
+	int tries = 0;
 	do {
 		id = PickRandomOwnedWeaponID(pnum);
-	} while(!IsAmmoUsingWeapon(id));
+		++tries;
+	} while(!IsAmmoUsingWeapon(id) && tries < DND_AMMOTOKEN_MAXTRIES);
+
+	if(!IsAmmoUsingWeapon(id))
+		Terminate;
 
 	// give 10% ammo on this weapon -- soulrender has weapon condition as ammo1 so dont give if it is 
 	str ammo;
@@ -6238,7 +6264,10 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 700);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 700);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 700);
+			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 700);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTINY, true, true, 700);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REPENT, true, true, 700);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 700);*/
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ENHANCE, true, true, 700);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ALCHEMIST, true, true, 700);
 			SpawnCharmWithMods_ForAll(INV_ADDED_COLDDMG);

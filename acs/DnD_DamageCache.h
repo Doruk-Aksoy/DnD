@@ -32,6 +32,20 @@ typedef struct pdmg_cache {
 	int flat_values[MAX_CACHED_WEAPONS][MAX_CACHE_ELEMENTS];						// holds flat dmg bonuses
 	int flat_factor[MAX_CACHED_WEAPONS][MAX_CACHE_ELEMENTS];						// holds added flat damage bonus efficiency
 
+	// Does damage_cache in this slot belong to the weapon that currently owns the slot?
+	//
+	// The rest of the block is derived and recomputes itself on the next shot, which is what makes
+	// losing a slot harmless. damage_cache is NOT: it is the weapon's own base roll, pushed in from
+	// the weapon raise and from nowhere else, so a slot that changes hands carries the previous
+	// occupant's numbers -- or zero, on a slot nobody has filled yet -- and the new owner then shoots
+	// for that. Zero is the bad one: ScaleCachedDamage returns 0, the caller's `if(dmg > 0)` skips
+	// HandleDamageDeal entirely, and the weapon lands no damage, no numbers and no ailments while the
+	// engine still spawns its puff. Swapping weapons fixes it, because that is the push.
+	//
+	// So the base is a pull as well now: false here means ScaleCachedDamage rebuilds it from the
+	// weapon table before reading. See the rebuild in ScaleCachedDamage.
+	bool base_filled[MAX_CACHED_WEAPONS];
+
 	// These two are deliberately kept apart rather than pre-multiplied into one
 	// factor: the buff layer's own "increased" has to rejoin the SAME additive pool
 	// at request time, and once the two are collapsed into a single number the buff
@@ -174,6 +188,21 @@ void ClearWeaponCacheSlot(pdmg_cache_T module& cache, int slot) {
 	}
 }
 
+// Wipes the one thing in a slot that is NOT derived: the base roll the weapon raise pushed in.
+// Separate from ClearWeaponCacheSlot on purpose -- the invalidation paths (crafting, equipping, a
+// shotgun bought) want the derived state rebuilt and the base left alone, since the base cannot have
+// changed. Only a slot changing hands invalidates the base, and that is the sole caller.
+void ClearWeaponCacheBase(pdmg_cache_T module& cache, int slot) {
+	for(int j = 0; j < MAX_CACHE_ELEMENTS; ++j) {
+		cache.damage_cache[slot][j].dmg = 0;
+		cache.damage_cache[slot][j].dmg_low = 0;
+		cache.damage_cache[slot][j].dmg_high = 0;
+		cache.flat_factor[slot][j] = 100;
+	}
+
+	cache.base_filled[slot] = false;
+}
+
 // Slot of an already cached weapon, or DND_WEPCACHE_NOSLOT. Never allocates: invalidation has to go
 // through this, because forcing a recalculation on a weapon nobody has fired must not spend a slot.
 int LookupWeaponCacheSlot(int pnum, int wepid) {
@@ -209,7 +238,21 @@ int ResolveWeaponCacheSlot(int pnum, int wepid) {
 	cache.wep_of_slot[slot] = wepid + 1;
 	ClearWeaponCacheSlot(cache, slot);
 
+	// the slot just changed hands, so whatever base roll is sitting in it belongs to somebody else
+	ClearWeaponCacheBase(cache, slot);
+
 	return slot;
+}
+
+bool IsWeaponCacheBaseFilled(int pnum, int slot) {
+	return GetPlayerDamageCache(pnum).base_filled[slot];
+}
+
+// Set once the weapon table has been walked for this slot, whether or not it had anything to say --
+// a wepid with no entry (spells, and anything that only ever deals damage through a script) must not
+// re-run the rebuild on every single shot.
+void MarkWeaponCacheBaseFilled(int pnum, int slot) {
+	GetPlayerDamageCache(pnum).base_filled[slot] = true;
 }
 
 bool PlayerDamageNeedsCaching(int pnum, int slot, int dmgid) {
@@ -254,6 +297,7 @@ void CachePlayerDamage(int pnum, int dmg, int wepid, int dmgid, int dmg_rand, in
 	cache.damage_cache[slot][dmgid].dmg_high = dmg_rand >> 16;
 	cache.norecalculate[slot][dmgid] = false;
 	cache.flat_factor[slot][dmgid] = flat_factor;
+	cache.base_filled[slot] = true;
 }
 
 void CachePlayerFlatDamage(int pnum, int dmg, int slot, int dmgid) {

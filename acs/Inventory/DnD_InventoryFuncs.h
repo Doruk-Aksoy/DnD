@@ -68,6 +68,10 @@ inventory_T global:20& GetMerchantItem(int id) {
 	return GlobalItemStorage.TradeViewList[MAXPLAYERS][id];
 }
 
+inventory_T global:20& GetSortScratchItem(int id) {
+	return GlobalItemStorage.SortScratchList[id];
+}
+
 inventory_T global:20& AcquireItemFromSource(int pnum, int index, int source) {
 	int page = 0;
 	
@@ -162,6 +166,8 @@ void AllocateNonPlayerItemStorageMemory() {
 	GlobalItemStorage.TradeViewList[MAXPLAYERS] = bcs::arrNew(MAX_INVENTORY_BOXES, INVENTORY_T_INTS);
 
 	GlobalItemStorage.Inventories_On_Field = bcs::arrNew(MAX_INVENTORIES_ON_FIELD, INVENTORY_T_INTS);
+
+	GlobalItemStorage.SortScratchList = bcs::arrNew(MAX_INVENTORY_BOXES, INVENTORY_T_INTS);
 }
 
 void AllocateItemStorageMemory(int i) {

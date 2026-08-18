@@ -2049,8 +2049,13 @@ int GetWeaponPoisonBaseFactor(int wepid) {
 }
 
 
+// how many random draws the ammo token makes before giving up on finding a weapon that takes ammo
+#define DND_AMMOTOKEN_MAXTRIES 32
+
+// This read as "has no ammo type, or does not really spend it" -- the negation of its own name, so
+// the one caller looping until it found an ammo user was in fact looping until it found the fists.
 bool IsAmmoUsingWeapon(int wepid) {
-	return Weapons_Data[wepid].ammo_name1 == "" || (Weapons_Data[wepid].properties & WPROP_NOREALAMMOUSE);
+	return Weapons_Data[wepid].ammo_name1 != "" && !(Weapons_Data[wepid].properties & WPROP_NOREALAMMOUSE);
 }
 
 #endif

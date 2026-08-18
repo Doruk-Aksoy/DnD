@@ -685,6 +685,13 @@ Actor DnD_DumpCooldown : PowerProtection {
 	powerup.duration 54
 }
 
+// the real rate limit on auto sort -- the button greys itself out clientside, but that can be
+// walked around with a direct puke, so the server checks this one
+Actor DnD_SortCooldown : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 54
+}
+
 Actor DnD_CountdownProtection : DnD_Boolean { }
 
 Actor DnD_CantSalvage : DnD_Boolean { }

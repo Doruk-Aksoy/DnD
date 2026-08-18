@@ -348,10 +348,23 @@ Script "DnD Can Fire Weapon" (void) {
 	SetResultValue(0);
 }
 
+// Set while "DnD Weapon Damage Cache" is being run to REFILL a cache slot rather than to raise a
+// weapon. Module scope rather than a parameter because the weapon table below calls
+// DoWeaponDamageCache a hundred odd times and threading a flag through every one of them is how the
+// two paths drift apart later. Safe as a flag: the script has no delays in it, so it runs to
+// completion before anything else can enter, and the one caller that sets it restores it after.
+bool wepcache_refill_only = false;
+
 void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid, int flat_factor = 100) {
 	// we recalc accuracy in case a particular weapon has bonuses to it
 	bool firingLoopRun = false;
-	if(!CheckInventory("DnD_WeaponSwapCheck")) {
+
+	// A refill is not a weapon swap. Everything in this block is about the weapon the player just
+	// raised -- it commits DnD_WeaponID, recalculates accuracy for it and rechecks the shotgun count
+	// -- and a refill can be running for a completely different weapon, for a player who is not even
+	// the activator. CheckInventory would then read the wrong actor, find no DnD_WeaponSwapCheck on
+	// it, and commit that actor to a weapon it is not holding.
+	if(!wepcache_refill_only && !CheckInventory("DnD_WeaponSwapCheck")) {
 		GiveInventory("DnD_WeaponSwapCheck", 1);
 		firingLoopRun = true;
 		
@@ -382,11 +395,21 @@ void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid,
 	CachePlayerDamage(pnum, dmg, wepid, dmg_id, dmg_rand, flat_factor);
 }
 
-Script "DnD Weapon Damage Cache" (int wepid) {
-	int pnum = PlayerNumber();
+// refill_pnum is 0 on the weapon raise, which is every DECORATE call site, and pnum + 1 when
+// ScaleCachedDamage is refilling a cache slot whose base was lost. The raise reads the player off the
+// activator as it always did; a refill cannot, and must not touch the swap state either.
+Script "DnD Weapon Damage Cache" (int wepid, int refill_pnum) {
+	bool is_refill = refill_pnum > 0;
+	int pnum = is_refill ? refill_pnum - 1 : PlayerNumber();
 
-	if(PlayerIsLoggedIn(pnum) && IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
+	// Only the raise waits for player data. A refill writes nothing but the constant table, so
+	// bailing here would leave the slot empty and the weapon dealing nothing -- and this guard is
+	// itself a way slots end up empty, since a raise that lands mid-load never gets retried.
+	if(!is_refill && PlayerIsLoggedIn(pnum) && IsSetupComplete(SETUP_STATE1, SETUP_PLAYERDATAFINISHED))
 		Terminate;
+
+	bool prev_refill = wepcache_refill_only;
+	wepcache_refill_only = is_refill;
 
 	switch(wepid) {
 		case DND_WEAPON_FIST:
@@ -828,6 +851,8 @@ Script "DnD Weapon Damage Cache" (int wepid) {
 			DoWeaponDamageCache(pnum, DND_DMGID_0, 1000, 0, wepid);
 		break;
 	}
+
+	wepcache_refill_only = prev_refill;
 
 	SetResultValue(0);
 }

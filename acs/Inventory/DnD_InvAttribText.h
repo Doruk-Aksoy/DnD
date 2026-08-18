@@ -372,7 +372,7 @@ str ItemAttributeString(
 
 		// flat text with weapon mention
 		case INV_CORR_WEPCULL:
-			return StrParam(s:col_tag, l:GetWeaponTag(extra), s: " ", l:"DND_HAS", s:" ", l:text);
+			return StrParam(s:col_tag, l:GetWeaponTag(extra), s:no_tag, l:"DND_HAS", s:" ", l:text);
 
 		// this doesn't have detailed mod explanation on purpose, each item has their own presets
 		case INV_IMP_INCARMOR:
@@ -441,7 +441,7 @@ str ItemAttributeString(
 		case INV_IMP_PERCENTDEX:
 		case INV_IMP_PERCENTINT:
 		case INV_CORR_INSTALEECHPCT:
-			text = StrParam(s:col_tag, d:val, s:"%\c-", l:text);
+			text = StrParam(s:col_tag, d:val, s:"%\c- ", l:text);
 		return text;
 
 		// damage conversion
@@ -454,8 +454,8 @@ str ItemAttributeString(
 		return text;
 		case INV_CORR_DAMAGEGAINEDAS:
 			text = StrParam(
-				s:col_tag, d:val, s:"%\c- ", l:text, s:"\cd ", 
-				l:GetTalentTag(extra & DND_DAMAGECONVERSION_MASK), s:no_tag, l:"IATTR_TC20",
+				s:col_tag, d:val, s:"%\c- ", l:"IATTR_TC19", s:"\cd ", 
+				l:GetTalentTag(extra & DND_DAMAGECONVERSION_MASK), s:no_tag, l:text,
 				s:"\cd ", l:GetTalentTag(extra >> DND_DAMAGECONVERSION_BITS), s:"\c-", l:"IATTR_TC19_2"
 			);
 		return text;

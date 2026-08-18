@@ -2349,9 +2349,9 @@ rect_T module& LoadRect(int menu_page, int id) {
 
 // specialized one for inventory view
 rect_T module& LoadInventoryViewRect(int id) {
-	// this is the top left box, ie 0, 0
-	static rect_T bp[MAX_INVENTORY_BOXES];
-	
+	// this is the top left box, ie 0, 0 -- one past the grid is the sort button
+	static rect_T bp[MAX_INVENTORY_BOXES + 1];
+
 	// construct for first time, these can be constructed easily from base coordinates
 	if(!IsSet(PaneSetup, INVENTORY_SETUP_BIT)) {
 		for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i)
@@ -2361,6 +2361,12 @@ rect_T module& LoadInventoryViewRect(int id) {
 				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_x = INVENTORYBOX_BASEX_RECT - 32.0 * j - 32.0;
 				bp[i * MAXINVENTORYBLOCKS_VERT + j].botright_y = INVENTORYBOX_BASEY_RECT - 32.0 * i - 32.0;
 			}
+
+		bp[MAX_INVENTORY_BOXES].topleft_x = SORTBUTTON_INVVIEW_RECT_TX;
+		bp[MAX_INVENTORY_BOXES].topleft_y = SORTBUTTON_INVVIEW_RECT_TY;
+		bp[MAX_INVENTORY_BOXES].botright_x = SORTBUTTON_INVVIEW_RECT_BX;
+		bp[MAX_INVENTORY_BOXES].botright_y = SORTBUTTON_INVVIEW_RECT_BY;
+
 		PaneSetup = SetBit(PaneSetup, INVENTORY_SETUP_BIT);
 	}
 	return bp[id];
@@ -2369,7 +2375,8 @@ rect_T module& LoadInventoryViewRect(int id) {
 rect_T module& LoadStashViewRect(int id) {
 	// this is the top left box, ie 0, 0
 	// left and right boxes
-	static rect_T bp[2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 1];
+	// + 2 at the end for the two sort buttons
+	static rect_T bp[2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 3];
 	int i, j;
 	// construct for first time, these can be constructed easily from base coordinates
 	if(!IsSet(PaneSetup, STASH_SETUP_BIT)) {
@@ -2401,6 +2408,17 @@ rect_T module& LoadStashViewRect(int id) {
 		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].topleft_y = STASHTAB_BUTTON_TOPLEFT_Y;
 		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].botright_x = 228.0;
 		bp[2 * MAX_INVENTORY_BOXES + PAGEID_STASHTAB_ORBS].botright_y = STASHTAB_BUTTON_BOTRIGHT_Y;
+
+		// sort buttons -- rect index is box id - 1
+		bp[STASHSORT_BOXID_STASH - 1].topleft_x = SORTBUTTON_STASH_RECT_TX;
+		bp[STASHSORT_BOXID_STASH - 1].topleft_y = SORTBUTTON_STASH_RECT_TY;
+		bp[STASHSORT_BOXID_STASH - 1].botright_x = SORTBUTTON_STASH_RECT_BX;
+		bp[STASHSORT_BOXID_STASH - 1].botright_y = SORTBUTTON_STASH_RECT_BY;
+
+		bp[STASHSORT_BOXID_INV - 1].topleft_x = SORTBUTTON_INV_RECT_TX;
+		bp[STASHSORT_BOXID_INV - 1].topleft_y = SORTBUTTON_INV_RECT_TY;
+		bp[STASHSORT_BOXID_INV - 1].botright_x = SORTBUTTON_INV_RECT_BX;
+		bp[STASHSORT_BOXID_INV - 1].botright_y = SORTBUTTON_INV_RECT_BY;
 
 		PaneSetup = SetBit(PaneSetup, STASH_SETUP_BIT);
 	}
@@ -2504,7 +2522,8 @@ void LoadTradeView(menu_inventory_T module& p) {
 
 void LoadInventoryView(menu_inventory_T module& p) {
 	p.cursize = 0;
-	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+	// + 1 for the sort button past the grid
+	for(int i = 0; i < MAX_INVENTORY_BOXES + 1; ++i) {
 		auto r = LoadInventoryViewRect(i);
 		if(r.topleft_x != -1) {
 			// Log(s:"Adding box: ", f:bp[menu_page][i].topleft_x, s: " ", f:bp[menu_page][i].topleft_y, s: " ", f:bp[menu_page][i].botright_x, s: " ", f:bp[menu_page][i].botright_y);
@@ -2517,7 +2536,8 @@ void LoadInventoryView(menu_inventory_T module& p) {
 
 void LoadStashView(menu_inventory_T module& p) {
 	p.cursize = 0;
-	for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 1; ++i) {
+	// + 2 for the two sort buttons past the tabs
+	for(int i = 0; i < 2 * MAX_INVENTORY_BOXES + MAX_EXTRA_INVENTORY_PAGES + 3; ++i) {
 		auto r = LoadStashViewRect(i);
 		if(r.topleft_x != -1) {
 			// Log(s:"Adding box: ", f:bp[menu_page][i].topleft_x, s: " ", f:bp[menu_page][i].topleft_y, s: " ", f:bp[menu_page][i].botright_x, s: " ", f:bp[menu_page][i].botright_y);
@@ -2550,8 +2570,13 @@ void LoadPane(menu_pane_T module& p, int menu_page) {
 	}
 }
 
+// The early out is a cheap reject before the rect scan, so its bounds have to CONTAIN every rect the
+// pane owns -- including the ones outside the grid. A widget outside these bounds is not merely
+// mispositioned, it is dead: the scan never runs, so its rect is never consulted, and it looks like
+// the click is being swallowed. The sort button hangs below the grid, so the floor is tied to the
+// button's own bottom edge rather than to a literal that stops matching the moment the button moves.
 int GetTriggeredBoxOnInventoryPane(menu_inventory_T module& p, int mx, int my) {
-	if(mx >= 400.0 || my <= 64.0 || mx <= 82.0 || my >= 260.0)
+	if(mx >= 400.0 || my <= SORTBUTTON_INVVIEW_RECT_BY - 1.0 || mx <= 82.0 || my >= 260.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
 		if(point_in_inventory_box(p.MenuRectangles[i], mx, my))
@@ -2581,8 +2606,12 @@ int GetTriggeredBoxOnTradePane(menu_inventory_T module& p, int mx, int my) {
 	return MAINBOX_NONE;
 }
 
+// Same rule as GetTriggeredBoxOnInventoryPane. The floor used to be 27, one under the inventory
+// grid's bottom row -- correct while the grid was the lowest thing in the pane, and wrong the moment
+// the inventory sort button moved onto the panel border below it. All but the button's topmost line
+// was rejected here before the rect scan could see it.
 int GetTriggeredBoxOnStashPane(menu_inventory_T module& p, int mx, int my) {
-	if(mx >= 304.0 || my <= 27.0 || mx <= 68.0 || my >= 293.0)
+	if(mx >= 304.0 || my <= SORTBUTTON_INV_RECT_BY - 1.0 || mx <= 68.0 || my >= 293.0)
 		return MAINBOX_NONE;
 	for(int i = 0; i < p.cursize; ++i) {
 		if(point_in_inventory_box(p.MenuRectangles[i], mx, my))
@@ -3322,7 +3351,14 @@ void DoInventoryBoxDraw(int boxid, int prevclick, int bh, int bw, int basex, int
 					// Matched on offset, which names the grid within a stacked view. Not on source:
 					// a held stash item keeps the page it was picked up on packed into its source,
 					// so that stops matching the moment the player flips pages while holding it.
-					if(PlayerCursorData.itemDragInfo.confirmed.offset == offset && PlayerCursorData.itemDragInfo.confirmed.image) {
+					//
+					// "Holding something" is size_x, NOT image. Image id 0 is a real image -- it is
+					// IIMG_SC_1, the first small charm -- so testing the image here meant the server
+					// could vouch for a held item and be read as vouching for an empty hand. One
+					// small charm in three simply refused to come off the grid: no item on the
+					// cursor, nothing to drop. Width is 0 only in the payload the server sends for
+					// an empty hand, and every real item is at least one box wide.
+					if(PlayerCursorData.itemDragInfo.confirmed.offset == offset && PlayerCursorData.itemDragInfo.confirmed.size_x) {
 						PlayerCursorData.itemDragged = PlayerCursorData.itemDragInfo.confirmed.image;
 						PlayerCursorData.itemDragInfo.size_x = PlayerCursorData.itemDragInfo.confirmed.size_x;
 						PlayerCursorData.itemDragInfo.size_y = PlayerCursorData.itemDragInfo.confirmed.size_y;
@@ -3390,11 +3426,23 @@ void HandleInventoryView(int boxid) {
 	//CleanInventoryInfo();
 	int pnum = PlayerNumber();
 	UpdateDraggedItemLitBoxes(boxid, 0, MAX_INVENTORY_BOXES, pnum, DND_LITVIEW_INVENTORY);
+
+	// The sort button's id is one past the grid, and the box drawer reads boxid - 1 straight into
+	// the item array -- handing it that would index off the end. It is not a grid box, so as far as
+	// the grid is concerned nothing is hovered.
+	int gridboxid = boxid > MAX_INVENTORY_BOXES ? MAINBOX_NONE : boxid;
+
 	for(int i = 0; i < MAXINVENTORYBLOCKS_HORIZ; ++i) {
 		for(int j = 0; j < MAXINVENTORYBLOCKS_VERT; ++j) {
-			DoInventoryBoxDraw(boxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, HUDMAX_X, HUDMAX_Y);
+			DoInventoryBoxDraw(gridboxid, prevclick, i, j, INVENTORYBOX_BASEX, INVENTORYBOX_BASEY, 32.0, RPGMENUINVENTORYID, 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, pnum, HUDMAX_X, HUDMAX_Y);
 		}
 	}
+
+	// sort button -- DND_SBN/DND_SBO are the stash tab graphics standing in until real art exists
+	SetFont(boxid == INVSORT_BOXID ? "TRAOBTNO" : "TRAOBTN");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 20, CR_WHITE, SORTBUTTON_INVVIEW_HUD_X, SORTBUTTON_INVVIEW_HUD_Y, 0.0, 0.0);
+	SetFont("NMENUFNT");
+	HudMessage(l:"DND_SORT"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 3 * MAX_INVENTORY_BOXES - 21, CheckInventory("DnD_SortCooldown") ? CR_DARKGRAY : CR_CYAN, SORTBUTTON_INVVIEW_HUD_X, SORTBUTTON_INVVIEW_HUD_Y, 0.0, 0.0);
 	
 	SetFont("NMENUFNT");
 }
@@ -3466,6 +3514,18 @@ void HandleMenuItemDrop(int pnum, int boxid, int source) {
 void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 	int bid;
 	int epos, ipos, temp;
+	// The sort button's id is one past the grid, so it must never reach anything that reads boxid
+	// as an item slot -- m2 included, since HandleM2Inputs indexes straight off it.
+	if(boxid == INVSORT_BOXID) {
+		if(choice == DND_MENUINPUT_LCLICK && !CheckInventory("DnD_SortCooldown")) {
+			// a held box id means nothing once the grid is repacked under it
+			SetInventory("DnD_SelectedInventoryBox", 0);
+			LocalAmbientSound("RPG/MenuChoose", 127);
+			ACS_NamedExecuteAlways("DnD Sort Inventory", 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0);
+		}
+		return;
+	}
+
 	if(choice == DND_MENUINPUT_LCLICK) {
 		if(boxid != MAINBOX_NONE) {
 			// m1
@@ -3475,7 +3535,7 @@ void HandleInventoryViewClicks(int pnum, int boxid, int choice) {
 				// An empty box has nothing to pick up, so picking it up is a no-op that lights a
 				// box and then eats the next click outside. Move into a gap the other way round:
 				// take the item first, then click where it should go.
-				else if(GlobalItemStorage.PlayerInventoryList[pnum][boxid - 1].item_type == DND_ITEM_NULL)
+				else if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, boxid - 1, -1, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY) == DND_ITEM_NULL)
 					return;
 				else
 					SetInventory("DnD_SelectedInventoryBox", boxid);
@@ -3671,9 +3731,21 @@ void HandleItemPageInputs(int pnum, int boxid) {
 		ClearPlayerInput(pnum, true);
 	}
 	else if(HasRightClicked(pnum) && boxid - 1 != INV_ICON_INDEX) {
+		// With the inventory grid up, boxid is a grid slot and m2 splits a stack -- the same route
+		// the standalone inventory page takes. Without this the grid had no m2 at all, and the
+		// GetUsedItem below was reading a grid id into the equipped list, which only holds
+		// MAX_ITEMS_EQUIPPABLE entries.
+		if(CheckInventory("DnD_InventoryView")) {
+			if(boxid != MAINBOX_NONE)
+				HandleInventoryViewClicks(pnum, boxid, DND_MENUINPUT_RCLICK);
+
+			ClearPlayerInput(pnum, true);
+			return;
+		}
+
 		// mbox 8 is the view inventory button
 		auto item = GetUsedItem(pnum, boxid - 1);
-		if(!CheckInventory("DnD_InventoryView") && boxid != MAINBOX_NONE && item.item_type != DND_ITEM_NULL) {
+		if(boxid != MAINBOX_NONE && item.item_type != DND_ITEM_NULL) {
 			// try to drop item
 			temp = GetFreeSpotForItem(boxid - 1, pnum, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			if(temp != -1) {
@@ -4235,7 +4307,18 @@ void HandleStashView(int boxid) {
 	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2 * MAX_EXTRA_INVENTORY_PAGES, CR_WHITE, 361.4, 210.0, 0.0, 0.0);
 	SetFont("NMENUFNT");
 	HudMessage(s:"Orbs"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 1 - 2 * MAX_EXTRA_INVENTORY_PAGES, color, 361.4, 210.0, 0.0, 0.0);
-	
+
+	// sort buttons
+	SetFont(boxid == STASHSORT_BOXID_STASH ? "TRAOBTNO" : "TRAOBTN");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2 * MAX_EXTRA_INVENTORY_PAGES - 2, CR_WHITE, SORTBUTTON_STASH_HUD_X, SORTBUTTON_HUD_Y, 0.0, 0.0);
+	SetFont("NMENUFNT");
+	HudMessage(l:"DND_SORT"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2 * MAX_EXTRA_INVENTORY_PAGES - 3, CheckInventory("DnD_SortCooldown") ? CR_DARKGRAY : CR_CYAN, SORTBUTTON_STASH_HUD_X, SORTBUTTON_HUD_Y, 0.0, 0.0);
+
+	SetFont(boxid == STASHSORT_BOXID_INV ? "TRAOBTNO" : "TRAOBTN");
+	HudMessage(s:"A"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2 * MAX_EXTRA_INVENTORY_PAGES - 4, CR_WHITE, SORTBUTTON_INV_HUD_X, SORTBUTTON_INV_HUD_Y, 0.0, 0.0);
+	SetFont("NMENUFNT");
+	HudMessage(l:"DND_SORT"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 8 * MAX_INVENTORY_BOXES - 2 * MAX_EXTRA_INVENTORY_PAGES - 5, CheckInventory("DnD_SortCooldown") ? CR_DARKGRAY : CR_CYAN, SORTBUTTON_INV_HUD_X, SORTBUTTON_INV_HUD_Y, 0.0, 0.0);
+
 	SetFont("NMENUFNT");
 	HudMessage(s:"\c[W3]", l:"DND_MENU_HEAD_STASH"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 4, CR_WHITE, 452.4, 30.0, 0.0, 0.0);
 	HudMessage(s:"\c[W3]", l:"DND_MENU_INVENTORY"; HUDMSG_PLAIN, RPGMENUINVENTORYID - 10 * MAX_INVENTORY_BOXES - 5, CR_WHITE, 452.4, 270.0, 0.0, 0.0);
@@ -4265,6 +4348,19 @@ void HandleStashViewClicks(int pnum, int boxid, int choice) {
 			if(GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, sel_box - 1 - soffset, -1, ssource) != DND_ITEM_NULL) {
 				// drop selected item
 				HandleMenuItemDrop(pnum, sel_box - soffset, ssource);
+			}
+		}
+		// sort buttons sit past every grid and tab id, so they get looked at before anything tries
+		// to read boxid as an item slot
+		else if(boxid == STASHSORT_BOXID_STASH || boxid == STASHSORT_BOXID_INV) {
+			if(!CheckInventory("DnD_SortCooldown")) {
+				// a held box id means nothing once the grid is repacked under it
+				SetInventory("DnD_SelectedInventoryBox", 0);
+				LocalAmbientSound("RPG/MenuChoose", 127);
+				if(boxid == STASHSORT_BOXID_STASH)
+					ACS_NamedExecuteAlways("DnD Sort Inventory", 0, DND_SYNC_ITEMSOURCE_STASH, CheckInventory("DnD_PlayerCurrentPage") - 1);
+				else
+					ACS_NamedExecuteAlways("DnD Sort Inventory", 0, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, 0);
 			}
 		}
 		// MAINBOX_NONE is 0, which passes the button range check on its own -- without the guard a

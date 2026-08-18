@@ -12,6 +12,9 @@
 #define MAX_EXTRA_INVENTORY_PAGES 10
 #define PAGEID_STASHTAB_ORBS MAX_EXTRA_INVENTORY_PAGES
 
+// how long a sort waits for the shared scratch grid before taking it anyway
+#define DND_SORT_MAXWAIT 35
+
 #include "DnD_InvInfo.h"
 #include "DnD_UniqueItems.h"
 #include "../DnD_Hud.h"
@@ -39,6 +42,11 @@ typedef struct {
 	inventory_T[]* TradeViewList[MAXPLAYERS + 1]; //[MAXPLAYERS + 1][MAX_INVENTORY_BOXES]; 			// merchant's item list is on MAXPLAYERS index of this
 
 	inventory_T[]* PlayerStashList[MAXPLAYERS][MAX_EXTRA_INVENTORY_PAGES + 1];//[MAX_INVENTORY_BOXES];
+
+	// Staging grid for auto sort. One shared copy rather than one per player: a sort holds the busy
+	// flag from start to finish, so two can never overlap, and per player would be
+	// MAX_INVENTORY_BOXES * INVENTORY_T_INTS * MAXPLAYERS ints for something used a few times a map.
+	inventory_T[]* SortScratchList; //[MAX_INVENTORY_BOXES];
 } global_item_storage_T;
 
 // holds indexes to items used that are on players like charms or armors
@@ -295,27 +303,13 @@ int FindInventoryOfType(int player_index, int item_type, int item_subtype) {
 }
 
 // note to self: height is => horizontal, moving heights => x * MAXINVENTORYBLOCKS_VERT, width is vertical, just + x
-int GetFreeSpotForItem(int item_index, int player_index, int item_source, int dest_source, int source_player = -1, bool source_inv_except = false) {
+// The scan half of GetFreeSpotForItem, split out so a caller that already knows the size can ask
+// directly instead of needing the item to live in a source first. Auto sort needs that -- its items
+// are parked in the scratch list while the grid is being repacked. One implementation on purpose:
+// the sorter decides where things land with the very same placer that runs everywhere else.
+int FindFreeSpotForSize(int player_index, int w, int h, int dest_source) {
 	int i = 0, j = 0;
 	int bid = 0, wcheck = 0, hcheck = 0;
-	int w, h;
-
-	int temp = item_index;
-	if(!source_inv_except && IsSourceInventoryView(item_source))
-		temp = GetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, item_source) - 1;
-	
-	// extended check for potential player source change
-	if(source_player == -1) {
-		w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, temp, -1, item_source);
-		h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
-	}
-	else {
-		w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, temp, -1, item_source);
-		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
-	}
-
-	//printbold(s:"comp with w and h: ", d:w, s: " ", d:h, s: " ", d:item_index, s: " ", d:temp, s: " source: ", d:source_player, s: " player_index: ", d:player_index);
-	
 	bool unfit = false;
 
 	// try every line
@@ -330,6 +324,59 @@ int GetFreeSpotForItem(int item_index, int player_index, int item_source, int de
 					if
 					(
 						bid >= MAX_INVENTORY_BOXES || 
+						(!rowStart && !(bid % MAXINVENTORYBLOCKS_VERT)) ||
+						GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, dest_source) != DND_ITEM_NULL
+					)
+						unfit = true;
+				}
+			}
+			// we return top left corner box id
+			if(wcheck == w && hcheck == h && !unfit) {
+				return j * MAXINVENTORYBLOCKS_VERT + i;
+			}
+		}
+	}
+	//printbold(s:"found no spot");
+	return -1;
+}
+
+// Left as its own copy of the scan rather than a wrapper over FindFreeSpotForSize. Every existing
+// caller runs through here, so it stays byte for byte what it was before auto sort existed.
+int GetFreeSpotForItem(int item_index, int player_index, int item_source, int dest_source, int source_player = -1, bool source_inv_except = false) {
+	int i = 0, j = 0;
+	int bid = 0, wcheck = 0, hcheck = 0;
+	int w, h;
+
+	int temp = item_index;
+	if(!source_inv_except && IsSourceInventoryView(item_source))
+		temp = GetItemSyncValue(player_index, DND_SYNC_ITEMTOPLEFTBOX, temp, -1, item_source) - 1;
+
+	// extended check for potential player source change
+	if(source_player == -1) {
+		w = GetItemSyncValue(player_index, DND_SYNC_ITEMWIDTH, temp, -1, item_source);
+		h = GetItemSyncValue(player_index, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
+	}
+	else {
+		w = GetItemSyncValue(source_player, DND_SYNC_ITEMWIDTH, temp, -1, item_source);
+		h = GetItemSyncValue(source_player, DND_SYNC_ITEMHEIGHT, temp, -1, item_source);
+	}
+
+	//printbold(s:"comp with w and h: ", d:w, s: " ", d:h, s: " ", d:item_index, s: " ", d:temp, s: " source: ", d:source_player, s: " player_index: ", d:player_index);
+
+	bool unfit = false;
+
+	// try every line
+	for(i = 0; i < MAXINVENTORYBLOCKS_VERT; ++i) {
+		for(j = 0; j < MAXINVENTORYBLOCKS_HORIZ; ++j) {
+			// if width matches, try height from here on then and if unfit, restart at a new coordinate
+			unfit = false;
+			bool rowStart = !(i % MAXINVENTORYBLOCKS_VERT);
+			for(hcheck = 0; !unfit && hcheck < h && hcheck + j < MAXINVENTORYBLOCKS_HORIZ; ++hcheck) {
+				for(wcheck = 0; !unfit && wcheck < w && wcheck + i < MAXINVENTORYBLOCKS_VERT; ++wcheck) {
+					bid = (j + hcheck) * MAXINVENTORYBLOCKS_VERT + i + wcheck;
+					if
+					(
+						bid >= MAX_INVENTORY_BOXES ||
 						(!rowStart && !(bid % MAXINVENTORYBLOCKS_VERT)) ||
 						GetItemSyncValue(player_index, DND_SYNC_ITEMTYPE, bid, -1, dest_source) != DND_ITEM_NULL
 					)
@@ -1349,6 +1396,161 @@ void AutoDumpItems(int pnum, int stackableOnly = 0) {
 
 		SyncItemData(pnum, marked_tbids[i], DND_SYNC_ITEMSOURCE_STASH | (curr_page << 16), -1, -1);
 	}
+}
+
+// ---- auto sort -------------------------------------------------------------------------------
+
+typedef struct isort {
+	int origin_box;		// where it sat before, so a pack that cannot finish can put it all back
+	int area;
+	int item_type;
+	int item_subtype;
+	int item_level;
+} isort_T;
+
+isort_T[] module& GetSortList() {
+	static isort_T SortList[MAX_INVENTORY_BOXES];
+	return SortList;
+}
+
+typedef struct isortstate {
+	int busy;
+} isortstate_T;
+
+// Guards the one shared scratch grid. If this ever leaks set, sorting is dead for everyone until
+// the map ends, so the waiter takes it anyway once its patience runs out -- a leak has to degrade
+// to one skipped sort, never to a button that stopped working.
+isortstate_T module& GetSortState() {
+	static isortstate_T SortState;
+	return SortState;
+}
+
+// Consolidates stacks of the same thing, so the packer gets fewer and fuller items to place and a
+// half stack never sits next to its own twin.
+void MergeStacksInGrid(int pnum, int source) {
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		auto item = AcquireItemFromSource(pnum, i, source);
+		if(item.item_type == DND_ITEM_NULL || item.topleftboxid != i + 1 || !IsStackedItem(item.item_type))
+			continue;
+
+		int cap = GetStackValue(item.item_type, source);
+		for(int j = i + 1; j < MAX_INVENTORY_BOXES && item.item_stack < cap; ++j) {
+			auto other = AcquireItemFromSource(pnum, j, source);
+			if(other.topleftboxid != j + 1 || other.item_type != item.item_type || other.item_subtype != item.item_subtype)
+				continue;
+
+			int move = cap - item.item_stack;
+			if(move > other.item_stack)
+				move = other.item_stack;
+
+			item.item_stack += move;
+			other.item_stack -= move;
+
+			if(!other.item_stack)
+				FreeItem(pnum, j, source, true);
+		}
+	}
+}
+
+// Writes a parked item back into the grid at item_index and re-marks every cell it covers.
+void PlaceItemFromSortScratch(int pnum, int item_index, int scratch_pos, int source) {
+	auto s_item = GetSortScratchItem(scratch_pos);
+	auto p_item = AcquireItemFromSource(pnum, item_index, source);
+
+	SetItemToAnother(p_item, s_item);
+
+	for(int i = 0; i < s_item.height; ++i)
+		for(int j = 0; j < s_item.width; ++j) {
+			auto cell = AcquireItemFromSource(pnum, item_index + j + i * MAXINVENTORYBLOCKS_VERT, source);
+			cell.topleftboxid = item_index + 1;
+			cell.item_type = s_item.item_type;
+		}
+}
+
+// Repacks one grid in place. source is a whole source value, so a stash page arrives as
+// DND_SYNC_ITEMSOURCE_STASH | (page << 16). Returns how many items were placed, or -1 if the pack
+// could not finish, in which case the grid is left exactly as it was found.
+// The caller owns the busy flag and the sync pass -- both want to yield and functions cannot.
+int SortInventoryGrid(int pnum, int source) {
+	int i, j, k;
+	auto sort_list = GetSortList();
+	int count = 0;
+
+	MergeStacksInGrid(pnum, source);
+
+	// decide the order first, without touching anything
+	for(i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		auto item = AcquireItemFromSource(pnum, i, source);
+		if(item.item_type == DND_ITEM_NULL || item.topleftboxid != i + 1)
+			continue;
+
+		int area = item.width * item.height;
+
+		// biggest first so the awkward shapes get the open grid, then type, subtype and tier so
+		// identical sizes still land next to their own kind instead of wherever they fell
+		for(k = 0; k < count; ++k) {
+			if(area != sort_list[k].area) {
+				if(area > sort_list[k].area)
+					break;
+				continue;
+			}
+			if(item.item_type != sort_list[k].item_type) {
+				if(item.item_type < sort_list[k].item_type)
+					break;
+				continue;
+			}
+			if(item.item_subtype != sort_list[k].item_subtype) {
+				if(item.item_subtype < sort_list[k].item_subtype)
+					break;
+				continue;
+			}
+			if(item.item_level > sort_list[k].item_level)
+				break;
+		}
+
+		for(j = count; j > k; --j) {
+			sort_list[j].origin_box = sort_list[j - 1].origin_box;
+			sort_list[j].area = sort_list[j - 1].area;
+			sort_list[j].item_type = sort_list[j - 1].item_type;
+			sort_list[j].item_subtype = sort_list[j - 1].item_subtype;
+			sort_list[j].item_level = sort_list[j - 1].item_level;
+		}
+
+		sort_list[k].origin_box = i;
+		sort_list[k].area = area;
+		sort_list[k].item_type = item.item_type;
+		sort_list[k].item_subtype = item.item_subtype;
+		sort_list[k].item_level = item.item_level;
+
+		++count;
+	}
+
+	// lift everything out in placement order, then empty the real grid
+	for(i = 0; i < count; ++i)
+		SetItemToAnother(GetSortScratchItem(i), AcquireItemFromSource(pnum, sort_list[i].origin_box, source));
+
+	for(i = 0; i < count; ++i)
+		FreeItem(pnum, sort_list[i].origin_box, source, true);
+
+	// place with the same placer the rest of the menu uses, so this cannot drift from it
+	for(i = 0; i < count; ++i) {
+		auto s_item = GetSortScratchItem(i);
+		int spot = FindFreeSpotForSize(pnum, s_item.width, s_item.height, source);
+
+		// Biggest first is a heuristic, not a proof: a hand packed grid can be an arrangement it
+		// cannot reproduce. Put everything back rather than leave the player an item short.
+		if(spot == -1) {
+			for(j = 0; j < MAX_INVENTORY_BOXES; ++j)
+				FreeItem(pnum, j, source, true);
+			for(j = 0; j < count; ++j)
+				PlaceItemFromSortScratch(pnum, sort_list[j].origin_box, j, source);
+			return -1;
+		}
+
+		PlaceItemFromSortScratch(pnum, spot, i, source);
+	}
+
+	return count;
 }
 
 // this is made specifically for trade view, the one above is optimized for normal inventory
@@ -3206,12 +3408,12 @@ void GiveCorruptionEffect(int pnum, int item_pos) {
 #ifndef ISDEBUGBUILD
 	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);
 #else
-	int corr_outcome = MAX_CORRUPTION_WEIRD_OUTCOMES;
+	int corr_outcome = random(0, MAX_CORRUPTION_WEIRD_OUTCOMES + MAX_CORRUPT_IMPLICITS - 1);//MAX_CORRUPTION_WEIRD_OUTCOMES;
 #endif
 
 	if(corr_outcome >= MAX_CORRUPTION_WEIRD_OUTCOMES) {
 #ifdef ISDEBUGBUILD
-		int corr_mod = random(INV_CORR_DAMAGECONVERSION, INV_CORR_DAMAGEGAINEDAS); //INV_CORR_WEAPONPLUSPROJ;
+		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;//random(INV_CORR_DAMAGECONVERSION, INV_CORR_DAMAGEGAINEDAS);
 #else
 		int corr_mod = FIRST_CORRUPT_IMPLICIT + corr_outcome - MAX_CORRUPTION_WEIRD_OUTCOMES;
 #endif
@@ -3320,12 +3522,16 @@ int GetSpecialRollAttribute(int pnum, int item_pos) {
 	return special_roll;
 }
 
+bool IsTypeRegularCraftException(int item_type) {
+	return item_type == DND_ITEM_FLASK || item_type == DND_ITEM_DUNGEONKEY;
+}
+
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
 // last field is checking for Orb of Order use, if it's not -2 then we must check for its use
 int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1, int respect_order_orb = -2, int item_base = -1) {
 	// Flasks and dungeon keys draw from their own mod ranges and have no item base, so they keep
 	// their own picking below.
-	if(item_base >= 0) {
+	if(!IsTypeRegularCraftException(item_type) && item_base >= 0) {
 		// respect_order_orb stores tag + 1, with -2 meaning "no orb" and 0 "orb but no tag stored".
 		int forced_tag_id = (respect_order_orb == -2 || !respect_order_orb) ? DND_MODPOOL_NO_TAG : respect_order_orb - 1;
 

@@ -224,6 +224,8 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 	int op_cooldown = 0;
 	int curopt, curopt_prev = MENU_NULL;
 	int boxid = MAINBOX_NONE + 1, boxid_prev = MAINBOX_NONE, mainboxid = MAINBOX_NONE, mainboxid_prev = MAINBOX_NONE;
+	// the sort button's own greyed out state, see the check inside the loop
+	bool sortcd_prev = false;
 	auto CurrentPane = GetPane();
 	ResetPane(CurrentPane);
 	auto InventoryPane = GetInventoryPane();
@@ -330,6 +332,19 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 		if(mainboxid != mainboxid_prev) {
 			if(mainboxid != MAINBOX_NONE)
 				LocalAmbientSound("RPG/MenuMove", 127);
+			redraw = true;
+		}
+
+		// The sort button greys itself out off DnD_SortCooldown, a powerup that lapses on its own with
+		// nothing to announce it. Every other redraw in here is driven by an event, so when the timer
+		// simply ran out the button stayed grey until the player happened to move the cursor onto
+		// something and triggered a redraw for an unrelated reason.
+		//
+		// Watched here rather than waited out on the server: this is the same copy of the item the
+		// draw reads, so the two cannot disagree about when it lapsed, and it costs one inventory
+		// lookup on a loop that already does dozens.
+		if(!!CheckInventory("DnD_SortCooldown") != sortcd_prev) {
+			sortcd_prev = !sortcd_prev;
 			redraw = true;
 		}
 		
@@ -1441,7 +1456,9 @@ void SyncDragPayload(int pnum) {
 	int box = sel - 1 - grid * MAX_INVENTORY_BOXES;
 	int top = box >= 0 ? GetItemSyncValue(pnum, DND_SYNC_ITEMTOPLEFTBOX, box, -1, source) - 1 : -1;
 
-	// vouched for, holding nothing. Grid does not matter here, no grid will draw a cursor item
+	// Vouched for, holding nothing. Grid does not matter here, no grid will draw a cursor item.
+	// The zero DIMENSIONS are what say "empty hand" on the other side, not the zero image -- image
+	// id 0 is IIMG_SC_1, an ordinary small charm, and cannot carry that meaning.
 	if(top < 0 || GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, top, -1, source) == DND_ITEM_NULL) {
 		ACS_NamedExecuteWithResult("DnD Drag Payload Sync", pnum, 0, source | DND_DRAGSYNC_VALID, 0);
 		return;
@@ -2480,6 +2497,61 @@ Script "DnD Dump to Stash" (int stackableOnly) NET {
 		GiveInventory("DnD_DumpCooldown", 1);
 		ACS_NamedExecuteAlways("DnD Refresh Request", 0, PlayerNumber(), 1);
 	}
+}
+
+// Auto sort one grid. source is the bare source id, page only matters for the stash -- each page
+// sorts on its own, so switching tabs and pressing again sorts that tab.
+Script "DnD Sort Inventory" (int source, int page) NET {
+	int pnum = PlayerNumber();
+
+	if(CheckInventory("DnD_SortCooldown"))
+		Terminate;
+
+	auto sort_state = GetSortState();
+
+	// Wait our turn instead of queueing: the engine's own scheduling is the queue, so there is no
+	// pending list to invalidate when a player leaves or changes page. With the cooldown above,
+	// the window two players can collide in is a tic or two.
+	int waited = 0;
+	while(sort_state.busy && waited < DND_SORT_MAXWAIT) {
+		Delay(const:1);
+		++waited;
+	}
+
+	sort_state.busy = 1;
+	GiveInventory("DnD_SortCooldown", 1);
+
+	if(source == DND_SYNC_ITEMSOURCE_STASH)
+		source |= page << 16;
+
+	int count = SortInventoryGrid(pnum, source);
+
+	Delay(const:1);
+
+	// A repack moves nearly everything, so the whole grid is resynced. Deliberately in one tic and
+	// not spread out: a box updates on the client the moment its sync lands, so yielding here shows
+	// the grid half repacked for as many tics as the loop takes. The client sees the old layout
+	// until this tic ends and the new one after it, with nothing in between.
+	for(int i = 0; i < MAX_INVENTORY_BOXES; ++i) {
+		auto item = AcquireItemFromSource(pnum, i, source);
+		if(item.topleftboxid == i + 1)
+			SyncItemData(pnum, i, source, -1, -1);
+		else if(item.item_type == DND_ITEM_NULL)
+			SyncItemData_Null(pnum, i, source, 1, 1);
+	}
+
+	// A repack moves almost every box, and the per box syncs leave the icons of items that were
+	// drawn where they no longer are. Redraw the pane outright rather than trying to chase them.
+	ACS_NamedExecuteAlways("DnD Refresh Request", 0, pnum, 1);
+
+	sort_state.busy = 0;
+
+#ifdef ISDEBUGBUILD
+	if(count == -1)
+		Log(s:"Auto sort could not repack source ", d:source, s:" -- grid restored.");
+#endif
+
+	SetResultValue(0);
 }
 
 Script "DnD Filter Click" (int pnum) CLIENTSIDE {

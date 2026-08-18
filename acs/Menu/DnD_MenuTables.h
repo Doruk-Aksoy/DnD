@@ -94,6 +94,57 @@ enum {
 
 #define STASHTAB_BUTTON_INCREMENT_X 10.0
 
+// Auto sort buttons. Box ids continue past the orb tab, which is the last stash tab id.
+#define STASHSORT_BOXID_STASH (STASHBUTTON_BOXID_START + PAGEID_STASHTAB_ORBS + 1)
+#define STASHSORT_BOXID_INV (STASHSORT_BOXID_STASH + 1)
+#define INVSORT_BOXID (MAX_INVENTORY_BOXES + 1)
+
+// The rect is the click target in cursor space and the HUD pair is where it draws, and the two are
+// tied by hud = HUDMAX - cursor (times 3/2 in the stash view, which runs at HUDMAX_*_STASH). Move one
+// and the other has to follow or the button drifts off its own hitbox.
+//
+// Everything below is derived from the panel, not eyeballed. Both views draw LDTSCRN, 336 x 200,
+// centred on the coordinates below, and the sort art (TRAOBTN) is 40 x 20:
+//
+//   plain inventory  1:1     panel centre (240, 160)  ->  hud x  72..408, y  60..260
+//                            grid                     ->  hud x  96..384, y  80..240
+//   stash view       3:2     stash panel   (452, 120) ->  hud x 284..620, y  20..220
+//                            inventory     (452, 360) ->  hud x 284..620, y 260..460
+//
+// So a panel's bottom border band is its last 20 hud rows, exactly the height of the button art: a
+// button whose CENTRE sits at panel centre + 90 lands flush on that band. The stash tab row already
+// does this (120 + 90 = 210), and the two sort buttons now follow the same rule instead of carrying
+// hand-picked numbers.
+
+// Stash view, stash side: in the tab row, centred in what is left of it. Page tabs are 15 wide and
+// drawn 15 apart from 388.4, so page 10 ends at 530.9 and the panel ends at 620 -- an 89 wide gap,
+// which puts a 40 wide button at 575.4 with ~24 either side. It used to sit at 553.4, hard against
+// page 10 with all of the slack dumped on the corner side.
+#define SORTBUTTON_STASH_HUD_X 575.4
+#define SORTBUTTON_HUD_Y 210.0
+
+#define SORTBUTTON_STASH_RECT_TX 111.0
+#define SORTBUTTON_STASH_RECT_TY 187.0
+#define SORTBUTTON_STASH_RECT_BX 84.0
+#define SORTBUTTON_STASH_RECT_BY 173.0
+
+#define SORTBUTTON_INV_HUD_X 452.4
+#define SORTBUTTON_INV_HUD_Y 450.0
+#define SORTBUTTON_INV_RECT_TX 193.0
+#define SORTBUTTON_INV_RECT_TY 27.0
+#define SORTBUTTON_INV_RECT_BX 166.0
+#define SORTBUTTON_INV_RECT_BY 13.0
+
+// Plain inventory view: bottom centre of the panel border, same rule (160 + 90 = 250). This view is
+// 1:1 with cursor space, so the box matches the art at 40 x 20 with no padding needed -- it was 48
+// wide, and 2 rows of it also reached up into the grid's bottom row, which ends at cursor y 80.
+#define SORTBUTTON_INVVIEW_HUD_X 240.4
+#define SORTBUTTON_INVVIEW_HUD_Y 250.0
+#define SORTBUTTON_INVVIEW_RECT_TX 260.0
+#define SORTBUTTON_INVVIEW_RECT_TY 80.0
+#define SORTBUTTON_INVVIEW_RECT_BX 220.0
+#define SORTBUTTON_INVVIEW_RECT_BY 60.0
+
 #define ITEMOFFSETSCALE 16.0
 #define TRADEITEMSKIP (3 * 32.0 / 2)
 
