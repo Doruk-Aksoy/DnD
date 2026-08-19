@@ -113,7 +113,7 @@ bool IsEvokableItem(int item_type) {
 // extra type holds the base item type, no extra information - this comes from the function that calls this
 bool CanUseOrb(int orbtype, int extra, int extratype) {
 	bool res = 0;
-	int temp = -1, i;
+	int temp = -1, i, j;
 	int pnum = PlayerNumber();
 	
 	SetInventory("OrbUseType", orbtype + 1);
@@ -214,6 +214,7 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		break;
 		case DND_ORB_POTENCY:
 			item = GetPlayerInventoryItem(pnum, extra);
+			j = GetHighestTierModNaturalOnItem(pnum, extra);
 			if(!IsInventoryCorrupted(pnum, extra) && item.item_type < UNIQUE_BEGIN) {
 				temp = item.attrib_count;
 				res = false;
@@ -221,7 +222,8 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 					if(item.attributes[i].fractured)
 						continue;
 
-					if(item.attributes[i].attrib_tier < MAX_CHARM_AFFIXTIERS)
+					// only accept if natural allowed tier is higher than the attrib
+					if(item.attributes[i].attrib_tier < j)
 						res = true;
 				}
 			}
@@ -736,8 +738,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			res = 0;
 
 			// get the highest tier mod's tier and save it here, check if we go above it and hold the old value
-			prev = GetHighestModTierOnItem(pnum, extra);
-			x = prev;
+			prev = GetHighestTierModNaturalOnItem(pnum, extra);
+
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 			item = GetPlayerInventoryItem(pnum, extra);
@@ -752,12 +754,12 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 						!CheckOrderOrb(item.attributes[temp].attrib_id) ||
 						(
 							s++ < DND_MAX_ORB_REROLL_ATTEMPTS && 
-							(item.attributes[temp].attrib_tier == MAX_CHARM_AFFIXTIERS || item.attributes[temp].fractured)
+							(item.attributes[temp].attrib_tier >= prev || item.attributes[temp].fractured)
 						)
 					);
 					
 					// increment the tier and reroll that attribute!
-					if(!item.attributes[temp].fractured && item.attributes[temp].attrib_tier < MAX_CHARM_AFFIXTIERS) {
+					if(!item.attributes[temp].fractured && item.attributes[temp].attrib_tier < prev) {
 						++item.attributes[temp].attrib_tier;
 						item.attributes[temp].attrib_val = RollAttributeValue(
 							item.attributes[temp].attrib_id, 
@@ -767,25 +769,11 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 							item.item_subtype
 						);
 						++res;
-
-						if(item.attributes[temp].attrib_tier > prev)
-							prev = item.attributes[temp].attrib_tier;
 					}
 				}
 			}
 
 			SetInventory("OrderStored", 0);
-
-			// check how many ilvls this should jump now -- only if the item tier itself is higher than the allowed item level range, so low tiers increasing on level 50 don't cause this bump
-			// this rounds it up, so getting tier 5 on ilvl 48 for example would check vs 50 > 48 + 5 / 10 = 5 * 10 = 50, and it's okay that way
-			temp = prev - x;
-			if(temp > 0 && prev * MAX_CHARM_AFFIXTIERS > ((item.item_level + 5) / MAX_CHARM_AFFIXTIERS) * MAX_CHARM_AFFIXTIERS) {
-				// clear difference here, so adjust ilvl accordingly by +6-10 ilvls
-				for(s = 0; s < temp; ++s)
-					item.item_level += random(3 * MAX_CHARM_AFFIXTIERS / 5, MAX_CHARM_AFFIXTIERS);
-				if(item.item_level > MAX_ITEM_LEVEL)
-					item.item_level = MAX_ITEM_LEVEL;
-			}
 
 			SyncItemAttributes(pnum, extra, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 			SetInventory("OrbResult", res);

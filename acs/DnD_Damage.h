@@ -1456,28 +1456,8 @@ void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
 	}
 }
 
-void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_within_tic) {
-	bool addedIgn = flags & DND_DAMAGETICFLAG_ADDEDIGNITE;
-	if
-	(
-		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
-		(addedIgn || CheckIgniteChance(pnum))
-	)
-	{
-		int amt = DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
-		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
-		int ign_flags = DND_IGNITEFLAG_CANPROLIF;
-		if(addedIgn)
-			ign_flags |= DND_IGNITEFLAG_ADDEDIGN;
-
-		if(!current_ign_time) {
-			SetActorInventory(victim, "DnD_IgniteTimer", amt);
-			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim, wepid, ign_flags, dmg_within_tic);
-		}
-		else // only replace timer if this is higher
-			SetActorInventory(victim, "DnD_IgniteTimer", Max(amt, current_ign_time));
-	}
-}
+// HandleIgniteEffects lives further down, just under HandleNonWeaponDamageScale -- it has to price
+// the tick it is applying, and that needs a function BCS has not parsed yet up here.
 
 void HandleOverloadEffects(int pnum, int victim) {
 	int temp;
@@ -2311,6 +2291,51 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	return dmg;
 }
 
+// What one tick of an ignite is worth, priced with the stats and weapon of whoever is applying it.
+// This is pulled out of "DnD Monster Ignite" so an application landing on an ALREADY burning monster
+// can price itself too: that path cannot start a second script, so the number has to be computed by
+// the applier and handed over on the victim.
+int GetIgniteTickDamage(int pnum, int victim, int wepid, int added_dmg) {
+	return HandleNonWeaponDamageScale(GetFireDOTDamage(pnum, added_dmg, victim, wepid), DND_DAMAGECATEGORY_FIRE, DND_WDMG_ISDOT);
+}
+
+void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_within_tic) {
+	bool addedIgn = flags & DND_DAMAGETICFLAG_ADDEDIGNITE;
+	if
+	(
+		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
+		(addedIgn || CheckIgniteChance(pnum))
+	)
+	{
+		int amt = DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
+		int ign_flags = DND_IGNITEFLAG_CANPROLIF;
+		if(addedIgn)
+			ign_flags |= DND_IGNITEFLAG_ADDEDIGN;
+
+		// Price this application now, whether or not it gets to start the script. A refresh only
+		// pushes the timer out -- it cannot restart the burn -- so without parking the number on the
+		// victim the FIRST application is what the monster takes for the whole burn. On anything
+		// tanky enough to stay permanently lit that number was never revisited again, which is why
+		// swapping weapons could not bring a weak burn back up.
+		int tick_dmg = GetIgniteTickDamage(pnum, victim, wepid, addedIgn ? dmg_within_tic : 0);
+
+		if(!current_ign_time) {
+			SetActorInventory(victim, "DnD_IgniteTimer", amt);
+			SetActorInventory(victim, "DnD_CurrentIgniteDamage", tick_dmg);
+			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim, wepid, ign_flags, tick_dmg);
+		}
+		else {
+			// only replace timer if this is higher
+			SetActorInventory(victim, "DnD_IgniteTimer", Max(amt, current_ign_time));
+			// and the damage on the same rule -- a refresh may improve a burn, never weaken one
+			// somebody else's stats are paying for
+			if(tick_dmg > CheckActorInventory(victim, "DnD_CurrentIgniteDamage"))
+				SetActorInventory(victim, "DnD_CurrentIgniteDamage", tick_dmg);
+		}
+	}
+}
+
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
 Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damage_type) {
 	int pnum = PlayerNumber();
@@ -3061,39 +3086,49 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 	SetResultValue(0);
 }
 
-Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg) {
+// tick_dmg is what one tick is worth, already priced by GetIgniteTickDamage on the applying side.
+Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
 
-	// if no added dmg, reset it
-	if(!(ign_flags & DND_IGNITEFLAG_ADDEDIGN))
-		added_dmg = 0;
-
-	int dmg = GetFireDOTDamage(pnum, added_dmg, victim, wepid);
 	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
-	
-	dmg = HandleNonWeaponDamageScale(dmg, DND_DAMAGECATEGORY_FIRE, DND_WDMG_ISDOT);
-	
-	int next_dmg = dmg;
-	int inc_by = dmg * dmg_tic_buff / 100;
+
+	// The base is re-read off the victim every tick rather than captured once. A hit on an already
+	// burning monster cannot restart this script -- HandleIgniteEffects only pushes the timer out --
+	// so a captured base is frozen for the whole burn. Anything tanky enough to stay permanently lit
+	// therefore kept whatever the opening application happened to be worth, and a proliferated burn
+	// (priced against the trash mob it jumped off) could sit at near-nothing for an entire fight
+	// while every weapon swap and every new hit changed nothing.
+	int base_dmg = tick_dmg;
+	int next_dmg;
+	int ticks = 0;
+	int temp;
+	int inc_by;
 	int i;
-	
+
 	// this is the value we will use to set the ignite timers on proliferated targets, if any
 	int ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 
 	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_IGNITE);
-	
+
 	do {
+		// pick up any stronger application that landed while we were asleep
+		temp = CheckActorInventory(victim, "DnD_CurrentIgniteDamage");
+		if(temp > base_dmg)
+			base_dmg = temp;
+
+		// chegovax ramps the burn by a share of the base for every tick it has already run
+		next_dmg = base_dmg + (base_dmg * dmg_tic_buff / 100) * ticks;
+
 		// only apply ignite if target is shootable ie. not teleporting
 		if(CheckFlag(victim, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2);
 			i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME);
 			if(i > 0)
 				Thing_Damage2(victim, i, "SkipHandle");
-			
-			// add base damage's value, not previous
-			next_dmg += inc_by;
+
+			++ticks;
 		}
 
 		// x 5
@@ -3116,6 +3151,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		RemoveMonsterAilment(victim, DND_AILMENT_IGNITE);
 
 	SetActorInventory(victim, "DnD_IgniteTimer", 0);
+	SetActorInventory(victim, "DnD_CurrentIgniteDamage", 0);
 
 	if(IsActorAlive(victim)) {
 		SetResultValue(0);
@@ -3134,7 +3170,11 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 		int prolif_count = GetIgniteProlifCount(pnum);
 		
 		// clear ignite prolif from subsequent ignites from this monster jumping, we don't want that, too laggy
-		ign_flags ^= DND_IGNITEFLAG_CANPROLIF;
+		// ADDEDIGN goes with it: it means "this ignite was sized from the fire in the hit that applied
+		// it", and the hit in question landed on the monster that just DIED. Carrying it over priced a
+		// fresh burn on a full health neighbour off a corpse's last tic, which on a tanky target it
+		// jumped to was a burn worth almost nothing for the rest of that fight.
+		ign_flags &= ~(DND_IGNITEFLAG_CANPROLIF | DND_IGNITEFLAG_ADDEDIGN);
 		next_dmg = 0; // used as temp variable
 		inc_by = 0; // same as above
 		dmg_tic_buff = 0; // same as above...
@@ -3204,15 +3244,24 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int added_dmg
 					//printbold(s:"prolif to ", d:tlist[pnum][i].tid);
 					// check if target was ignited already, if not ignite if so replace timer
 					next_dmg = CheckActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer");
+
+					// priced fresh against THIS target, with no added component -- see the ADDEDIGN
+					// clear above
+					temp = GetIgniteTickDamage(pnum, tlist[pnum][i].tid, wepid, 0);
+
 					if(!next_dmg) {
 						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", ign_time);
-						
+						SetActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage", temp);
+
 						// we don't proliferate from the proliferated targets... that'd be busted
 						// note: WAIT AND SEE IF ITS OP!
-						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, ign_flags, added_dmg);
+						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, ign_flags, temp);
 					}
-					else
+					else {
 						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", Max(ign_time, next_dmg));
+						if(temp > CheckActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage"))
+							SetActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage", temp);
+					}
 
 					// abort if we reached our count
 					++j;

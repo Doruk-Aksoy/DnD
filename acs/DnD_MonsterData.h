@@ -416,6 +416,13 @@ int GetMonsterGainBonus(int flags) {
 
 // you gain the returned value for exp, and third of that for credits -- rarity is monster rarity not item related rarity!
 void CalculateMonsterGainMult(int m_id, int rarity = DND_MWEIGHT_COMMON) {
+	// The divide below is "base * DND_MWEIGHT_COMMON / rarity" and it sits inside a branch guarded by
+	// "rarity <= DND_MWEIGHT_COMMON", which 0 passes. Anything at or below 0 is an unset MonsterData
+	// row rather than a real weight -- see HandlePostInitTraits, which is where that gets fixed at the
+	// source. This is the backstop so no future caller can reintroduce the trap.
+	if(rarity <= 0)
+		rarity = DND_MWEIGHT_COMMON;
+
 	int base = 0;
 	int drop_base = 0;
 	
@@ -498,7 +505,19 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 	if(isRevived)
 		return;
 		
+	// MonsterData is zero initialised and the custom monster ids (MONSTER_CUSTOM, MONSTER_CUSTOM_BOSS,
+	// MONSTER_CUSTOM_UNIQUEBOSS) are never given a rarity anywhere in the mod, so this reads 0 for
+	// every one of them. 0 is not a weight -- the scale runs COMMON (1000) down to EPIC (275), rarer
+	// being the SMALLER number -- but it still satisfies "rarity <= DND_MWEIGHT_COMMON" in
+	// CalculateMonsterGainMult, which then divides by it. That is the divide by zero custom monsters
+	// hit on spawn, and it is not the timing race the wait in "DnD Custom Monster Scale" guards
+	// against: the value is never written at all, so no amount of waiting helps. The hobo perk 50
+	// timer in DnD.bcs divides by this same field on kill.
+	//
+	// Treat unset as COMMON, which is what CalculateMonsterGainMult already defaults its parameter to.
 	MonsterProperties[m_id].rarity = MonsterData[MonsterProperties[m_id].id].rarity;
+	if(MonsterProperties[m_id].rarity <= 0)
+		MonsterProperties[m_id].rarity = DND_MWEIGHT_COMMON;
 	//printbold(s:GetActorClass(0), s:" rarity ", d:MonsterProperties[m_id].rarity, s: " ", d:MonsterProperties[m_id].class, s: " ", d:MonsterProperties[m_id].id);
 
 	// calculate the gains multiplier -- this is the safest place to do as most of monster data is now known by this point, like level etc.
@@ -516,6 +535,28 @@ void HandlePostInitTraits(int m_id, int id, int rarity = DND_MWEIGHT_COMMON, boo
 
 	// finally handle the monster resists according to its traits
 	InitMonsterResists(m_id);
+}
+
+// A weakness means "takes X% more damage", so it scales what actually gets through rather than being
+// subtracted from the resist number.
+//
+// This is deliberately WEAKER than the flat subtraction it replaced, and the reason is that the flat
+// version scaled with the level bonus in a way nothing controlled. A level 90 monster carries +70
+// resist from level alone, so it takes 30% damage; -50 flat put it at +20, ie. 80% damage -- a 2.67x
+// swing off one trait, and the higher the level the bigger it got (at level 100 the same trait was
+// worth 3.3x). As a multiplier the trait is worth exactly what it says at every level: x1.33 damage
+// taken for a 33 weakness, whether the monster is level 1 or level 100.
+//
+// DND_SPECIFICELEWEAKNESS_FACTOR / DND_WEAKNESS_FACTOR are the dials, and they now mean something
+// consistent, which they did not before -- the flat version's real strength depended entirely on how
+// much resist the level curve had already piled on.
+//
+// The input must already be clamped to DND_IMMUNITY_FACTOR: above 100 the (100 - resist) term goes
+// negative and the multiply turns the weakness into MORE resist.
+int ApplyResistWeakness(int resist, int weakness_pct) {
+	if(weakness_pct <= 0)
+		return resist;
+	return 100 - (100 - resist) * (100 + weakness_pct) / 100;
 }
 
 void InitMonsterResists(int m_id) {
@@ -536,54 +577,80 @@ void InitMonsterResists(int m_id) {
 	// can be changed later, bullet and melee is just "phys" atm
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_MELEE] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_BULLET];
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] =	-HasMonsterTrait(m_id, DND_ENERGY_WEAKNESS) * DND_WEAKNESS_FACTOR + bonus +
-																	HasMonsterTrait(m_id, DND_ENERGY_RESIST) * DND_RESIST_FACTOR + 
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] =	bonus +
+																	HasMonsterTrait(m_id, DND_ENERGY_RESIST) * DND_RESIST_FACTOR +
 																	etherealBonus +
 																	HasMonsterTrait(m_id, DND_ENERGY_IMMUNE) * DND_IMMUNITY_FACTOR;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] =	-HasMonsterTrait(m_id, DND_MAGIC_WEAKNESS) * DND_WEAKNESS_FACTOR + bonus + 
-																	HasMonsterTrait(m_id, DND_MAGIC_RESIST) * DND_RESIST_FACTOR + 
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] =	bonus +
+																	HasMonsterTrait(m_id, DND_MAGIC_RESIST) * DND_RESIST_FACTOR +
 																	HasMonsterTrait(m_id, DND_MAGIC_IMMUNE) * DND_IMMUNITY_FACTOR;
 	// this is common to elemental stuff
-	temp =	-HasMonsterTrait(m_id, DND_ELEMENTAL_WEAKNESS) * DND_WEAKNESS_FACTOR + bonus +
-			HasMonsterTrait(m_id, DND_ELEMENTAL_RESIST) * DND_RESIST_FACTOR + 
+	temp =	bonus +
+			HasMonsterTrait(m_id, DND_ELEMENTAL_RESIST) * DND_RESIST_FACTOR +
 			etherealBonus +
 			HasMonsterTrait(m_id, DND_ELEMENTAL_IMMUNE) * DND_IMMUNITY_FACTOR;
 
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = -HasMonsterTrait(m_id, DND_FIRE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
-
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = -HasMonsterTrait(m_id, DND_ICE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR + temp;
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = temp;
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = temp;
 
 	// these two dont have their own weakness category yet...
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = temp;
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = temp;
 
-	// soul is same as magic for now
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_SOUL] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT];
-
 	// creature type bonuses -- only one type allowed per creature
+	// the resist half stays flat, the paired weakness half is collected as a percentage and applied
+	// with every other weakness after the clamp below -- see ApplyResistWeakness
+	int fire_weak = 0, ice_weak = 0, lightning_weak = 0;
 	if(HasMonsterTrait(m_id, DND_ICECREATURE)) {
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = DND_IMMUNITY_FACTOR + bonus;
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] -= DND_SPECIFICELEWEAKNESS_FACTOR;
+		fire_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 	else if(HasMonsterTrait(m_id, DND_FIRECREATURE)) {
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = DND_IMMUNITY_FACTOR + bonus;
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] -= DND_SPECIFICELEWEAKNESS_FACTOR;
+		ice_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 	else if(HasMonsterTrait(m_id, DND_STONECREATURE)) {
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] += DND_RESIST_FACTOR;
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] -= DND_SPECIFICELEWEAKNESS_FACTOR;
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = DND_IMMUNITY_FACTOR + bonus;
+		ice_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 	else if(HasMonsterTrait(m_id, DND_EARTHCREATURE)) {
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] -= DND_SPECIFICELEWEAKNESS_FACTOR;
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = DND_IMMUNITY_FACTOR + bonus;
+		lightning_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
 
-	// do a pass on all categories to clamp them
+	// Clamp to DND_IMMUNITY_FACTOR flat, NOT to IMMUNITY + bonus as this used to. FactorResists
+	// clamps anything above DND_IMMUNITY_FACTOR down to it before ever using the value, so the old
+	// headroom was unobservable -- and leaving a stored resist above 100 would break the weakness
+	// multiplier below, which needs (100 - resist) to stay positive.
 	for(temp = DND_DAMAGECATEGORY_BEGIN; temp <= DND_DAMAGECATEGORY_SOUL ; ++temp)
-		if(MonsterProperties[m_id].resists[temp] > DND_IMMUNITY_FACTOR + bonus)
-			MonsterProperties[m_id].resists[temp] = DND_IMMUNITY_FACTOR + bonus;
+		if(MonsterProperties[m_id].resists[temp] > DND_IMMUNITY_FACTOR)
+			MonsterProperties[m_id].resists[temp] = DND_IMMUNITY_FACTOR;
+
+	// weaknesses last, and multiplicatively
+	temp = HasMonsterTrait(m_id, DND_ELEMENTAL_WEAKNESS) * DND_WEAKNESS_FACTOR;
+	fire_weak += temp + HasMonsterTrait(m_id, DND_FIRE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR;
+	ice_weak += temp + HasMonsterTrait(m_id, DND_ICE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR;
+	lightning_weak += temp;
+
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE], fire_weak);
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE], ice_weak);
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING], lightning_weak);
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON], temp);
+
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] = ApplyResistWeakness(
+		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY],
+		HasMonsterTrait(m_id, DND_ENERGY_WEAKNESS) * DND_WEAKNESS_FACTOR
+	);
+
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] = ApplyResistWeakness(
+		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT],
+		HasMonsterTrait(m_id, DND_MAGIC_WEAKNESS) * DND_WEAKNESS_FACTOR
+	);
+
+	// soul is same as magic for now -- copied after the weakening so it inherits it
+	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_SOUL] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT];
 }
 
 // this is only used in revive of monsters by itself

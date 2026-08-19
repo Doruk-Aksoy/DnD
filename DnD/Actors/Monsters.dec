@@ -449,7 +449,7 @@ Actor DoomImpBall2 : DoomImpBall replaces DoomImpBall
 	+DONTBLAST
 	Decal "DoomImpScorch"
 	States {
-		Spawn:	
+		Spawn:
 			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
 		SpawnLoop:
 			BAL1 AB 2 Bright A_SpawnItemEx("ImpBallTrail",0,0,0,0,0,0,0,128,0)	

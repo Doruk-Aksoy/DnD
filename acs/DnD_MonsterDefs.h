@@ -46,7 +46,8 @@ enum {
 	DND_MONFLAG_ISELITE = 1,
 	DND_MONFLAG_ISMAGIC = 2,
 	DND_MONFLAG_ISIDLE = 4,
-	DND_MONFLAG_HASTRAITS = 8
+	DND_MONFLAG_HASTRAITS = 8,
+	DND_MONFLAG_ISDUNGEONBOSS = 16
 };
 
 typedef struct {
@@ -73,7 +74,7 @@ global mo_prop_T 26: PetMonsterProperties[DND_MAX_PETS];
 
 typedef struct {
 	int health;
-	int flags;
+	int flags; // monster type flags
 	int rarity;
 	int trait_bits[MONSTER_TRAIT_WORDS];
 } monster_data_T;

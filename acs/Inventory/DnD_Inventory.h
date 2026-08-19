@@ -658,22 +658,34 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 }
 
 // based on average player level
-int RollItemLevel() {
+int RollItemLevel(int max_lvl = MAX_REGULAR_ILVL) {
 	int res = InformationInLevel[LEVELINFO_PLAYERCOUNTATSTART];
 	if(!res)
 		res = 1;
+
+	int pavg;
+	if(InformationInLevel[LEVELINFO_ISDUNGEON] && (pavg = HasDungeonUpside(DUN_UPSIDE_ITEMLEVELBONUS))) {
+		max_lvl += pavg;
+		if(max_lvl > MAX_ITEM_LEVEL)
+			max_lvl = MAX_ITEM_LEVEL;
+	}
 	
 	// return average player level, +- some value -- 33% chance to just roll something between min player level and max player level regardless
 	// if that 33% chance rolls then there's a 50-50 chance that it'll be either min - max level players or something much closer to lower lvl player
 	if(DungeonInformation.level == -1 && !random(0, 2)) {
-		if(random(0, 1))
-			return random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MAXPLAYERLEVEL]);
+		if(random(0, 1)) {
+			return Clamp_Between(
+				random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MAXPLAYERLEVEL]),
+				1,
+				max_lvl
+			);
+		}
 		res = random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MINPLAYERLEVEL] + 2 * ITEMLEVEL_VARIANCE_HIGHER);
-		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
+		res = Clamp_Between(res, 1, max_lvl);
 		return res;
 	}
 
-	int pavg = 0;
+	pavg = 0;
 	if(DungeonInformation.level == -1)
 		pavg = InformationInLevel[LEVELINFO_PLAYERLEVEL] / res;
 	else
@@ -681,7 +693,7 @@ int RollItemLevel() {
 
 	if(pavg > 2 * ITEMLEVEL_VARIANCE_LOWER) {
 		res = pavg + random(-ITEMLEVEL_VARIANCE_LOWER, ITEMLEVEL_VARIANCE_HIGHER);
-		res = Clamp_Between(res, 1, MAX_ITEM_LEVEL);
+		res = Clamp_Between(res, 1, max_lvl);
 		return res;
 	}
 
@@ -3224,19 +3236,10 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 	item.attributes[temp].attrib_extra = a_extra;
 	item.attributes[temp].fractured = a_fracture;
 
-	// use for checking ilvl diff
+	// set ilvl to the min requirement of this tier
 	a_tier *= CHARM_ATTRIBLEVEL_SEPERATOR;
-
-	temp = a_tier - item.item_level;
-	if(temp > CHARM_ATTRIBLEVEL_SEPERATOR / 2) {
-		temp /= CHARM_ATTRIBLEVEL_SEPERATOR;
-		if(temp <= 0)
-			temp = 1;
-
-		item.item_level += temp * random(MAX_CHARM_AFFIXTIERS / 2, 3 * MAX_CHARM_AFFIXTIERS / 4);
-		if(item.item_level > MAX_ITEM_LEVEL)
-			item.item_level = MAX_ITEM_LEVEL;
-	}
+	if(item.item_level < a_tier)
+		item.item_level = a_tier;
 
 	CheckAttribEffects(pnum, item_pos, a_id, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY);
 }
@@ -3502,6 +3505,11 @@ int GetHighestModTierOnItem(int pnum, int item_pos) {
 		if(item.attributes[i].attrib_tier > t)
 			t = item.attributes[i].attrib_tier;
 	return t;
+}
+
+int GetHighestTierModNaturalOnItem(int pnum, int item_pos) {
+	auto item = GetPlayerInventoryItem(pnum, item_pos);
+	return Clamp_Between(1 + item.item_level / MAX_CHARM_AFFIXTIERS, 0, MAX_CHARM_AFFIXTIERS);
 }
 
 // 0 means nothing exists of this sort

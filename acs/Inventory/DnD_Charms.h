@@ -147,30 +147,27 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 }
 
 // creates a charm with given mods as guaranteed
-void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnCharmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_lvl = MAX_REGULAR_ILVL) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		RollCharmInfoWithMods(c, RollItemLevel(), m1, m2, m3, pnum);
+		RollCharmInfoWithMods(c, RollItemLevel(max_lvl), m1, m2, m3, pnum);
 		SpawnDrop("CharmDrop", 16.0, 16, pnum + 1, c);
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_CHARM);
-		
-		//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-		//	SpawnCharmWithMods(pnum, m1, m2, m3, true);
 	}
 }
 
-void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnCharmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_lvl = MAX_REGULAR_ILVL) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnCharmWithMods(i, m1, m2, m3, noRepeat);
+			SpawnCharmWithMods(i, m1, m2, m3, max_lvl);
 	}
 }
 
-void SpawnCharmForAll(int rarity_boost, int synergy_boost = -1) {
+void SpawnCharmForAll(int rarity_boost, int synergy_boost = -1, int max_lvl = MAX_REGULAR_ILVL) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnCharm(i, rarity_boost, 0, false, synergy_boost);
+			SpawnCharm(i, rarity_boost, max_lvl, false, synergy_boost);
 	}
 }
 

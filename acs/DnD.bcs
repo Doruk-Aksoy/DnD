@@ -1072,7 +1072,9 @@ Script "DND On Kill" KILL {
 	}
 	
 	if(CheckInventory("Hobo_ShotgunFrenzyTimer") && HasClassPerk_Fast(DND_PLAYER_HOBO, 5))
-		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / MonsterProperties[m_id].rarity);
+		// Max guards the divide -- HandlePostInitTraits normalises an unset rarity to COMMON now, but
+		// this is a kill time crash if a slot is ever read before that ran
+		GiveInventory("Hobo_ShotgunFrenzyTimer", TICRATE + DND_HOBO_PERK50_RARITYBONUS * DND_MWEIGHT_COMMON / Max(1, MonsterProperties[m_id].rarity));
 	
 	if(IsMonsterIdDemon(m_id) && CheckResearchStatus(RES_SLOT3UPG3) == RES_NA) {
 		GiveInventory("Research_Slot3Upgrade3_Tracker", 1);
@@ -1895,7 +1897,7 @@ Script "DnD Custom Monster Scale" (int properties, int traits, int traits2, int 
 	int traitcount;
 	if(!CheckFlag(0, "FRIENDLY") && MonsterProperties[m_id].id != MONSTER_CUSTOM_UNIQUEBOSS) {
 		base = RollEliteChance(random(1, DND_ELITE_RESOLUTION));
-		if(GetCVar("dnd_enable_elites") && base == base == ROLLED_MONSTER_IS_ELITE && InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
+		if(GetCVar("dnd_enable_elites") && base == ROLLED_MONSTER_IS_ELITE && InformationInLevel[LEVELINFO_PLAYERLEVELATSTART] / pcount >= GetCVar("dnd_elite_spawnlevel")) {
 			MonsterProperties[m_id].flags |= DND_MONFLAG_ISELITE;
 			
 			// Elite bonuses
@@ -5963,7 +5965,7 @@ Script "DnD Generic Boss Loot" (int tier, int loc_tid, int time) {
 	
 	if(tier >= 1) {
 		// guaranteed charm drop from anything above medium, and a potential chest drop
-		SpawnItemForAll(DND_ITEM_CHARM, 1, boss_tid - DND_MONSTERTID_BEGIN);
+		SpawnItemForAll(DND_ITEM_CHARM, MAX_BOSS_ILVL, boss_tid - DND_MONSTERTID_BEGIN);
 		
 		// 33% chance to spawn a chest as well
 		if(RunDefaultDropChance(target - P_TIDSTART, DND_BOSSCHEST_DROPRATE)) {
@@ -6246,7 +6248,7 @@ Script 68 (int x) NET {
 			//SpawnCharm(0, true);
 			SpawnCharm(0, true);
 			//Log(s:"armor");
-			SpawnArmor(0, true, 0);
+			SpawnArmor(0, 0);
 			//Log(s:"pcore");
 			//SpawnPowercore(0, true);
 			//Log(s:"orb");
@@ -6264,6 +6266,7 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 700);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 700);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 700);
 			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 700);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTINY, true, true, 700);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REPENT, true, true, 700);
@@ -6284,50 +6287,6 @@ Script 68 (int x) NET {
 				SpawnFlask(0, 0);
 			SpawnDungeonKey(0);
 			//SpawnFlask(0, 0);
-			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, false, 300);
-			//SpawnArmor(0, 0, -BODYARMOR_LIGHTNINGCOIL);
-			IncPlayerModValue(0, INV_PROJSPEED, 0.25);*/
-
-			/*IncPlayerModValue(0, INV_ESS_CHEGOVAX, 40);
-			IncPlayerModValue(0, INV_IGNITE_PROLIFCHANCE, 100);
-			IncPlayerModValue(0, INV_CHANCE_FLATIGNITE, 100);*/
-
-			/*IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 0.1);
-			IncPlayerModValue(0, INV_POWERCHARGE_ONOVERLOAD, 100);
-			IncPlayerModValue(0, INV_OVERLOADCHANCE, 100);*/
-
-			//IncPlayerModValue(0, INV_CRITCHANCE_INCREASE, 1.5);
-			//IncPlayerModValue(0, INV_LIFESTEAL, 1.6);
-			//IncPlayerModValue(0, INV_LIFESTEAL_DAMAGE, 0.05);
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 100);
-			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);*/
-			//IncPlayerModValue(0, INV_AMMOGAIN_CHANCE, 50);
-			//IncPlayerModValue(0, INV_ESS_KRULL, 50);
-			//IncPlayerModValue(0, INV_LIFESTEAL, 0.875);
-			//IncPlayerModValue(0, INV_ACCURACY_INCREASE, 500);
-			//SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);
-			//SpawnSpecificOrbForAll(DND_ORB_SIN, 5);
-			//SpawnCharmWithMods_ForAll(INV_LIFESTEAL);
-			//PlayerModData[0].value[INV_CRITCHANCE_INCREASE] = 0.25;
-			//SpawnCharmWithMods_ForAll(INV_ESS_ZRAVOG);
-			//SpawnSpecificOrbForAll(DND_ORB_WISDOM, 1);
-			//SpawnCharmWithMods_ForAll(INV_RIPDAMAGE, INV_RIPCOUNT);
-			//SpawnCharmWithMods_ForAll(INV_CHANCE_FLATIGNITE, INV_CHANCE_FLATPROLIF);
-			/*SpawnCharmWithMods_ForAll(INV_CRITCHANCE_INCREASE);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true);
-			SpawnCharmWithMods_ForAll(INV_CRITPERCENT_INCREASE);
-			SpawnCharmWithMods_ForAll(INV_DAMAGEPERCENT_MORE);
-			SpawnCharmWithMods_ForAll(INV_LIFESTEAL_DAMAGE);
-			SpawnCharmWithMods_ForAll(INV_ESS_ERYXIA);*/
-			/*SpawnSpecificOrbForAll(DND_ORB_CORRUPT, 25);
-			SpawnSpecificOrbForAll(DND_ORB_SIN, 25);
-			SpawnSpecificOrbForAll(DND_ORB_ENHANCE, 5);*/
 
 			ACS_NamedExecuteWithResult("DnD Handle Attribute Sync", PlayerNumber());
 		}

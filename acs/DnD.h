@@ -469,6 +469,9 @@ void CheckOtherMapEvents() {
 	if(HasDungeonAttributeVal(DUN_ATTR_CULLENEMIES) != -1)
 		AcceptMapEvent(DND_MAPEVENT_CULLINGMONSTERS);
 
+	if(HasDungeonAttributeVal(DUN_ATTR_EXTRASPEED) != -1)
+		AcceptMapEvent(DND_MAPEVENT_EXTRASPEED);
+
 	SetupComplete(SETUP_STATE1, SETUP_MAPEVENTS);
 }
 
@@ -589,18 +592,18 @@ void SpawnLootboxRewards(int i, int guaranteed_orb = 0) {
 		// boot and body armor chance is equal
 		tmp = random(1, 100);
 		if(tmp <= 25)
-			SpawnArmor(i, 0, 0, false);
+			SpawnArmorDrop(i, 0, MAX_REGULAR_ILVL, false);
 		else if(tmp <= 60)
-			SpawnBoot(i, 0);
+			SpawnBoot(i, 0, MAX_REGULAR_ILVL);
 		else if(tmp <= 85)
-			SpawnHelm(i, 0);
+			SpawnHelmDrop(i, 0, MAX_REGULAR_ILVL);
 		else {
 			// class specific spawn -- check if this is the fitting class of the player later here
-			SpawnSpecialtyItem(i, 0, 0, false, GetRandomSpecialtyItem());
+			SpawnSpecialtyItem(i, 0, MAX_REGULAR_ILVL, false, GetRandomSpecialtyItem());
 		}
 	}
 	else
-		SpawnCharm(i, 0, 0, false, random(0, 100));
+		SpawnCharm(i, 0, MAX_REGULAR_ILVL, false, random(0, 100));
 
 	
 	if(random(0, 1.0) <= DND_LOOTBOX_CHESTKEYDROPCHANCE)
@@ -727,7 +730,7 @@ void HandleChestDrops(int ctype) {
 		SpawnOrbForAll(random(5, 8), 1 + random(1, 10) / 2);
 		SpawnItemForAll(DND_ITEM_TOKEN);
 		SpawnItemForAll(GetRandomSpecialtyItem());
-		SpawnItemForAll(DND_ITEM_BODYARMOR, 1, random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MAXPLAYERLEVEL]));
+		SpawnItemForAll(DND_ITEM_BODYARMOR, MAX_REGULAR_ILVL, random(InformationInLevel[LEVELINFO_MINPLAYERLEVEL], InformationInLevel[LEVELINFO_MAXPLAYERLEVEL]));
 	}
 
 	// tid used as value here for credit
@@ -818,39 +821,48 @@ void HandleItemDropsForLoot(int m_id, int drop_boost, int rarity_boost) {
 }
 
 void SpawnLootFromDropTableIndex(int pnum, int rarity_boost, int drop_id, int m_id, bool is_incursion_monster = false) {
+	// allow final dungeon bosses to be more rewarding potentially
+	int cap = MAX_REGULAR_ILVL;
+	if(InformationInLevel[LEVELINFO_ISDUNGEON] && (MonsterProperties[m_id].flags & DND_MONFLAG_ISDUNGEONBOSS))
+		cap = MAX_BOSS_ILVL;
+
+	int max_level = MonsterProperties[m_id].level;
+	if(max_level > cap)
+		max_level = cap;
+
 	switch(drop_id) {
 		case DND_MONSTERLOOT_CHARM:
 			if(is_incursion_monster && RollIncursionItemChance())
-				SpawnCharmWithMods(pnum, PickRandomIncursionMod());
+				SpawnCharmWithMods(pnum, PickRandomIncursionMod(), -1, -1, max_level);
 			else
-				SpawnCharm(pnum, rarity_boost);
+				SpawnCharm(pnum, rarity_boost, max_level);
 		break;
 		case DND_MONSTERLOOT_BODYARMOR:
 			if(is_incursion_monster && RollIncursionItemChance())
-				SpawnArmorWithMods(pnum, PickRandomIncursionMod());
+				SpawnArmorWithMods(pnum, PickRandomIncursionMod(), -1, -1, max_level);
 			else
-				SpawnArmor(pnum, rarity_boost, 0, false, m_id);
+				SpawnArmorDrop(pnum, rarity_boost, max_level, false, m_id);
 		break;
 		case DND_MONSTERLOOT_HELM:
 			if(is_incursion_monster && RollIncursionItemChance())
-				SpawnHelmWithMods(pnum, PickRandomIncursionMod());
+				SpawnHelmWithMods(pnum, PickRandomIncursionMod(), -1, -1, max_level);
 			else
-				SpawnHelm(pnum, rarity_boost);
+				SpawnHelmDrop(pnum, rarity_boost, max_level);
 		break;
 		case DND_MONSTERLOOT_BOOT:
 			if(is_incursion_monster && RollIncursionItemChance())
-				SpawnBootWithMods(pnum, PickRandomIncursionMod());
+				SpawnBootWithMods(pnum, PickRandomIncursionMod(), -1, -1, max_level);
 			else
-				SpawnBoot(pnum, rarity_boost);
+				SpawnBoot(pnum, rarity_boost, max_level);
 		break;
 		
 		// they all spawn a specialty item
 		case DND_MONSTERLOOT_SPECIALTY:
 			drop_id = GetActorPlayerClass(pnum + P_TIDSTART);
 			if(random(1, 100) <= DND_SPECIALTY_BIAS_CHANCE)
-				SpawnSpecialtyItem(pnum, rarity_boost, 0, false, FIRST_SPECIALTY_ITEM_TYPE + drop_id);
+				SpawnSpecialtyItem(pnum, rarity_boost, max_level, false, FIRST_SPECIALTY_ITEM_TYPE + drop_id);
 			else
-				SpawnSpecialtyItem(pnum, rarity_boost, 0, false, GetRandomSpecialtyItem());
+				SpawnSpecialtyItem(pnum, rarity_boost, max_level, false, GetRandomSpecialtyItem());
 		break;
 
 		case DND_MONSTERLOOT_FLASK:
@@ -1151,11 +1163,17 @@ void CheckMonsterMapEventBuffs(int m_id) {
 
 	if(CheckMapEvent(DND_MAPEVENT_EXTRAFAST))
 		SetEliteFlag(m_id, DND_HASTE, true);
+
+	if(CheckMapEvent(DND_MAPEVENT_EXTRASPEED))
+		SetEliteFlag(m_id, DND_EXTRASPEED, true);
 }
 
 int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int hp_mult) {
 	int base = realhp * hp_mult;
 	int add = 0, level = 1, low, high, temp;
+
+	if(hp_mult > 1)
+		MonsterProperties[m_id].flags |= DND_MONFLAG_ISDUNGEONBOSS;
 
 	// if we are in a dungeon of specific level, apply it to the monsters
 	if(DungeonInformation.level == -1)

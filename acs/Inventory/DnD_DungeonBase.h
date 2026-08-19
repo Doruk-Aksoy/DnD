@@ -19,6 +19,7 @@ enum {
 	DUN_UPSIDE_RARERCHEST,
 	DUN_UPSIDE_RARERORBS,
 	DUN_UPSIDE_MERCHANTCHANCE,
+	DUN_UPSIDE_ITEMLEVELBONUS,
 
 	DUN_UPSIDE_MAX
 };
@@ -50,6 +51,7 @@ enum {
 	DUN_ATTR_FASTPROJ,
 	DUN_ATTR_GHOST,
 	DUN_ATTR_INCREASEDRESISTS,
+	DUN_ATTR_EXTRASPEED,
 
 	DUN_ATTR_MAX
 };
@@ -166,6 +168,14 @@ void SetupDungeonModTable() {
 	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_modifier = 0;
 	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].attrib_level_extra_modifier = 0;
 	DungeonModData.DungeonModTable[DUN_ATTR_INCREASEDRESISTS].tags = INV_ATTR_TAG_DEFENSE;
+
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].attrib_low = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].attrib_high = 1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].attrib_extra_low = 10;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].attrib_extra_high = 25;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].attrib_level_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].attrib_level_extra_modifier = -1;
+	DungeonModData.DungeonModTable[DUN_ATTR_EXTRASPEED].tags = INV_ATTR_TAG_UTILITY;
 	
 	/////////////
 	// upsides //
@@ -205,6 +215,11 @@ void SetupDungeonModTable() {
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_MERCHANTCHANCE].attrib_high = 10;
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_MERCHANTCHANCE].attrib_level_modifier = 0;
 	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_MERCHANTCHANCE].tags = INV_ATTR_TAG_NONE;
+
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_ITEMLEVELBONUS].attrib_low = 1;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_ITEMLEVELBONUS].attrib_high = 2;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_ITEMLEVELBONUS].attrib_level_modifier = 0;
+	DungeonModData.DungeonUpsideModTable[DUN_UPSIDE_ITEMLEVELBONUS].tags = INV_ATTR_TAG_NONE;
 }
 
 bool IsDungeonAttributeQualityException(int attr) {
@@ -216,6 +231,7 @@ bool IsDungeonAttributeQualityException(int attr) {
 		case DUN_ATTR_NORIP:
 		case DUN_ATTR_EXTRAFAST:
 		case DUN_ATTR_GHOST:
+		case DUN_ATTR_EXTRASPEED:
 		return true;
 	}
 	return false;
@@ -496,6 +512,7 @@ str DungeonAttributeString(
 		case DUN_ATTR_NORIP:
 		case DUN_ATTR_EXTRAFAST:
 		case DUN_ATTR_GHOST:
+		case DUN_ATTR_EXTRASPEED:
 			text = StrParam(s:no_tag, l:text, s:"\n");
 		break;
 
@@ -530,25 +547,41 @@ str DungeonAttributeString(
 		if(showDetailedMods) {
 			// append this at the end if mod tiers is requested, after the upside
 			text = StrParam(
-				s:text, s:"+", s:col_tag, d:attr_extra, s:GetDetailedDungeonModRangeExtra(attr_extra_id, attr, tier), s:"% ", s:no_tag, 
-				l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id), 
-				s:" - ", s:GetModTierText(tier, extra)
+				s:text, s:DungeonUpsideString(attr_extra_id, attr_extra, true, attr, tier, extra)
 			);
 		}
 		else {
-			text = StrParam(s:text, s:"+", s:col_tag, d:attr_extra, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:attr_extra_id));
+			text = StrParam(s:text, s:DungeonUpsideString(attr_extra_id, attr_extra));
 		}
 	}
 
 	return text;
 }
 
-// this is used for menu only really
-str DungeonUpsideString(int id, int val) {
+// this is used for menu only really -- anything after showDetailedMods is only used if showDetailedMods is true!
+str DungeonUpsideString(int id, int val, bool showDetailedMods = false, int attr = -1, int tier = -1, int extra = -1) {
 	str col_tag = "\c[Q9]";
 	str no_tag = "\c-";
 
-	return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:id));
+	switch(id) {
+		case DUN_UPSIDE_ITEMLEVELBONUS:
+			if(!showDetailedMods)
+				return StrParam(l:"DUNATTR_UPSIDE_7", s:" ", s:col_tag, s:"+", d:val, s:no_tag, s:" ", l:"DUNATTR_UPSIDE_7_2");
+			
+			return StrParam(
+				l:"DUNATTR_UPSIDE_7", s:" ", s:col_tag, s:"+", d:val, s:GetDetailedDungeonModRangeExtra(id, attr, tier),
+				s:no_tag, s:" ", l:"DUNATTR_UPSIDE_7_2", s:" - ", s:GetModTierText(tier, extra)
+			);
+	}
+
+	if(!showDetailedMods)
+		return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:no_tag, l:StrParam(s:"DUNATTR_UPSIDE_", d:id));
+	
+	return StrParam(
+		s:"+", s:col_tag, d:val, s:GetDetailedDungeonModRangeExtra(id, attr, tier), s:"% ", s:no_tag, 
+		l:StrParam(s:"DUNATTR_UPSIDE_", d:id), 
+		s:" - ", s:GetModTierText(tier, extra)
+	);
 }
 
 enum {

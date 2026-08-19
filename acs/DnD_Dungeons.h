@@ -22,7 +22,7 @@ void LogDungeonUpsideState(str who) {
 void RollDungeonKeyInfo(int item_pos, int keytype, int pnum) {
 	// roll random attributes for the key
 	auto item = GetFieldItem(item_pos);
-	item.item_level = RollItemLevel();
+	item.item_level = RollItemLevel(MAX_ITEM_LEVEL);
 	item.item_stack = 0;
 	item.item_type = DND_ITEM_DUNGEONKEY;
 	item.item_subtype = keytype;

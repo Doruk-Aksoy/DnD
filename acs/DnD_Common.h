@@ -84,8 +84,11 @@ enum {
 #define DND_ELECATEGORY_END DND_DAMAGECATEGORY_LIGHTNING
 #define MAX_DAMAGE_CATEGORIES (DND_DAMAGECATEGORY_SOUL + 1)
 
+// both of these are multipliers on the damage that gets through, not subtractions from the resist --
+// see ApplyResistWeakness. They mean the same thing at every monster level now, which is why the
+// specific one came down from 50: as a flat subtraction it was worth far more the higher the level.
 #define DND_WEAKNESS_FACTOR 25 // 25% extra dmg
-#define DND_SPECIFICELEWEAKNESS_FACTOR 50 // 50% extra dmg taken from specific elemental dmg
+#define DND_SPECIFICELEWEAKNESS_FACTOR 33 // 33% extra dmg taken from specific elemental dmg
 #define DND_RESIST_FACTOR 50 // 50% dmg taken
 #define DND_IMMUNITY_FACTOR 95 // 5% dmg taken
 #define DND_IMMUNITY_HARDCAP_FACTOR 99 // 1% damage taken

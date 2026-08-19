@@ -6,6 +6,8 @@
 // put common inventory information here
 #define MAX_ITEM_ATTRIBUTES 9
 
+#define MAX_REGULAR_ILVL 83
+#define MAX_BOSS_ILVL 90
 #define MAX_CHARM_AFFIXTIERS 10
 #define CHARM_ATTRIBLEVEL_SEPERATOR 10 // just leave this as is... its basically every 10 levels a new tier is named for it
 #define MAX_ATTRIBUTE_TIERS 9

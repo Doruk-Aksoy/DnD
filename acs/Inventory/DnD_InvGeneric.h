@@ -4,12 +4,13 @@
 #define QUALITY_ITEM_ADD_MIN 1
 #define QUALITY_ITEM_ADD_MAX 4
 
+// this is the map placed armor spawner
 void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	//Log(s:"alloc armor id: ", d:c, s: " for player: ", d:pnum);
 	int id = 0;
 	if(c != -1) {
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(MAX_REGULAR_ILVL);
 
 		// armor level adjustment for level spawned armors
 		if(tiers == 1) {
@@ -57,10 +58,44 @@ void SpawnArmor(int pnum, int rarity_boost, int tiers = 0, bool noRandomVelXY = 
 	}
 }
 
-void SpawnArmorWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnArmorDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
+    int c = CreateItemSpot();
+	//Log(s:"alloc armor id: ", d:c, s: " for player: ", d:pnum);
+	int id = 0;
+	if(c != -1) {
+		int ilvl = RollItemLevel(max_level);
+		if(ilvl > GetCVar("dnd_maxmonsterlevel"))
+			ilvl = GetCVar("dnd_maxmonsterlevel");
+
+        int type = ConstructArmorDataOnField(c, ilvl, 0, extra);
+
+		// tiers need to be 0 for it to be monster drops
+		if(RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100))
+		{
+			id = PickUniqueItem(DND_ITEM_BODYARMOR);
+			if(UniqueItemList[id].item_level <= ilvl) {
+				ConstructUniqueOnField(c, id, pnum);
+				SpawnDrop(StrParam(s:"UniqueArmor_", d:id - UNIQUE_BODYARMOR_BEGIN), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
+			else {
+				RollArmorInfo(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT);
+				SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+			}
+		}
+		else {
+			RollArmorInfo(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT);
+			SpawnDrop(GetArmorDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+		}
+
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BODYARMOR);
+	}
+}
+
+void SpawnArmorWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(max_level);
         int type = ConstructArmorDataOnField(c, ilvl, 0, -1);
 
 		RollArmorInfoWithMods(c, ilvl, pnum, DND_ITEM_BODYARMOR, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
@@ -74,18 +109,18 @@ void SpawnArmorWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepea
 	}
 }
 
-void SpawnArmorWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnArmorWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_lvl = MAX_REGULAR_ILVL) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnArmorWithMods(i, m1, m2, m3, noRepeat);
+			SpawnArmorWithMods(i, m1, m2, m3, max_lvl);
 	}
 }
 
-void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
+void SpawnBoot(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	int id = 0;
 	if(c != -1) {
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(max_level);
         int type = ConstructBootDataOnField(c, ilvl);
 
 #ifndef ISDEBUGBUILD
@@ -114,10 +149,10 @@ void SpawnBoot(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = 
 	}
 }
 
-void SpawnBootWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnBootWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(max_level);
 		int type = ConstructBootDataOnField(c, ilvl);
 		RollArmorInfoWithMods(c, ilvl, pnum, DND_ITEM_BOOT, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
@@ -125,16 +160,13 @@ void SpawnBootWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_BOOT);
-
-		//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-		//	SpawnBootWithMods(pnum, m1, m2, m3, true);
 	}
 }
 
-void SpawnBootWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnBootWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnBootWithMods(i, m1, m2, m3, noRepeat);
+			SpawnBootWithMods(i, m1, m2, m3, max_level);
 	}
 }
 
@@ -153,10 +185,25 @@ void SpawnHelm(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY =
 	}
 }
 
-void SpawnHelmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnHelmDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
+    int c = CreateItemSpot();
+	if(c != -1) {
+		int ilvl = RollItemLevel(max_level);
+        int type = ConstructHelmDataOnField(c, ilvl, -1);
+		
+		RollArmorInfo(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_HELM_ATTRIB_DEFAULT);
+        // depending on armor type rolled, spawn its appropriate actor
+        SpawnDrop(GetHelmDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
+	}
+}
+
+void SpawnHelmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(max_level);
 		int type = ConstructHelmDataOnField(c, ilvl, -1);
 		RollArmorInfoWithMods(c, ilvl, pnum, DND_ITEM_HELM, type, MAX_ARMOR_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
@@ -164,25 +211,22 @@ void SpawnHelmWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat
 
 		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
 		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_HELM);
-
-		//if(!noRepeat && HasActorMasteredPerk(pnum + P_TIDSTART, X) && random(0, 1.0) <= DND_MASTERY_LUCKCHANCE)
-		//	SpawnBootWithMods(pnum, m1, m2, m3, true);
 	}
 }
 
-void SpawnHelmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnHelmWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnHelmWithMods(i, m1, m2, m3, noRepeat);
+			SpawnHelmWithMods(i, m1, m2, m3, max_level);
 	}
 }
 
 // monsters dropping charms -- extra for synergy boost
-void SpawnCharm(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
+void SpawnCharm(int pnum, int rarity_boost, int max_lvl = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
 	int c = CreateItemSpot();
 	if(c != -1) {
 		int worth = 0;
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(max_lvl);
 		// c is the index on the field now
 		#ifndef ISDEBUGBUILD
 			if(RunDefaultDropChance(pnum, UNIQUE_DROPCHANCE * (100 + rarity_boost) / 100))
@@ -218,11 +262,11 @@ void SpawnUniqueCharm(int pnum, int charm_id, bool noRandomVelXY = false) {
 }
 
 // extra field is the class
-void SpawnSpecialtyItem(int pnum, int rarity_boost, int unused = 0, bool noRandomVelXY = false, int extra = -1) {
+void SpawnSpecialtyItem(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
     int c = CreateItemSpot();
 	int id = 0;
 	if(c != -1) {
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(max_level);
 		if(extra == DND_ITEM_SPECIALTY_CYBORG && RunDefaultDropChance(pnum, UNIQUE_ARMOR_DROPCHANCE * (100 + rarity_boost) / 100)) {
 			id = PickUniqueItem(DND_ITEM_SPECIALTY_CYBORG);
 			if(UniqueItemList[id].item_level <= ilvl) {
@@ -273,10 +317,24 @@ void SpawnFlask(int pnum, int rarity_boost, int pre_id = -1, bool noRandomVelXY 
 	}
 }
 
-void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnFlaskDrop(int pnum, int rarity_boost, int max_level = MAX_REGULAR_ILVL, bool noRandomVelXY = false, int extra = -1) {
+    int c = CreateItemSpot();
+	if(c != -1) {
+		int ilvl = RollItemLevel(max_level);
+        int type = ConstructFlaskDataOnField(c, ilvl, pnum, -1);
+		RollFlaskInfo(c, ilvl, pnum, type, MAX_FLASK_ATTRIB_DEFAULT);
+        // depending on armor type rolled, spawn its appropriate actor
+        SpawnDrop(GetFlaskDropClass(type), 16.0, 16, pnum + 1, c, noRandomVelXY);
+
+		SyncItemData(pnum, c, DND_SYNC_ITEMSOURCE_FIELD, -1, -1);
+		ACS_NamedExecuteAlways("DnD Play Local Item Drop Sound", 0, pnum, DND_ITEM_FLASK);
+	}
+}
+
+void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
 	int c = CreateItemSpot();
 	if(c != -1) {
-		int ilvl = RollItemLevel();
+		int ilvl = RollItemLevel(max_level);
 		int type = ConstructFlaskDataOnField(c, ilvl, pnum, -1);
 		RollFlaskInfoWithMods(c, ilvl, pnum, type, MAX_FLASK_ATTRIB_DEFAULT, m1, m2, m3);
 		// depending on armor type rolled, spawn its appropriate actor
@@ -287,27 +345,27 @@ void SpawnFlaskWithMods(int pnum, int m1, int m2 = -1, int m3 = -1, bool noRepea
 	}
 }
 
-void SpawnFlaskWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, bool noRepeat = false) {
+void SpawnFlaskWithMods_ForAll(int m1, int m2 = -1, int m3 = -1, int max_level = MAX_REGULAR_ILVL) {
 	for(int i = 0; i < MAXPLAYERS; ++i) {
 		if(PlayerInGame(i) && !PlayerIsSpectator(i))
-			SpawnFlaskWithMods(i, m1, m2, m3, noRepeat);
+			SpawnFlaskWithMods(i, m1, m2, m3, max_level);
 	}
 }
 
-void SpawnItemForAll(int type, int repeats = 1, int extra = -1) {
+void SpawnItemForAll(int type, int max_lvl = MAX_REGULAR_ILVL, int extra = -1) {
     void function(int, int, int, bool, int)& f = SpawnArmor;
     switch(type) {
         case DND_ITEM_CHARM:
             f = SpawnCharm;
         break;
         case DND_ITEM_BODYARMOR:
-            f = SpawnArmor;
+            f = SpawnArmorDrop;
         break;
 		case DND_ITEM_BOOT:
 			f = SpawnBoot;
 		break;
 		case DND_ITEM_HELM:
-			f = SpawnHelm;
+			f = SpawnHelmDrop;
 		break;
 
 		case DND_ITEM_SPECIALTY_DOOMGUY:
@@ -327,27 +385,25 @@ void SpawnItemForAll(int type, int repeats = 1, int extra = -1) {
         break;
 
 		case DND_ITEM_FLASK:
-			f = SpawnFlask;
+			f = SpawnFlaskDrop;
 		break;
 
 		default:
 		return;
     }
 
-	for(int k = 0; k < repeats; ++k) {
-		for(int j = 0; j < MAXPLAYERS; ++j) {
-			if(PlayerInGame(j) && !PlayerIsSpectator(j)) {
-				if(PlayerActivities[j].loot_penalty)
-					continue;
-				f(j, 0, 0, 0, extra);
-			}
+	for(int j = 0; j < MAXPLAYERS; ++j) {
+		if(PlayerInGame(j) && !PlayerIsSpectator(j)) {
+			if(PlayerActivities[j].loot_penalty)
+				continue;
+			f(j, 0, max_lvl, 0, extra);
 		}
 	}
 }
 
 // won't spawn powercores
-void SpawnItemForAll_WithMods(int type, int repeats = 1, int extra = -1, int m1 = -1, int m2 = -1, int m3 = -1) {
-    void function(int, int, int, bool)& f = SpawnArmorWithMods_ForAll;
+void SpawnItemForAll_WithMods(int type, int max_lvl = MAX_REGULAR_ILVL, int m1 = -1, int m2 = -1, int m3 = -1) {
+    void function(int, int, int, int)& f = SpawnArmorWithMods_ForAll;
     switch(type) {
         case DND_ITEM_CHARM:
             f = SpawnCharmWithMods_ForAll;
@@ -365,8 +421,7 @@ void SpawnItemForAll_WithMods(int type, int repeats = 1, int extra = -1, int m1 
 		return;
     }
 
-	for(int k = 0; k < repeats; ++k)
-		f(m1, m2, m3, false);
+	f(m1, m2, m3, max_lvl);
 }
 
 str GetItemTagName(int itype, int isubt) {
