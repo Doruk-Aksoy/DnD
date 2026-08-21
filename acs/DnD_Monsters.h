@@ -589,38 +589,91 @@ Script "DnD Monster Blind Cast" (int duration, int rgb, int intensity, int dista
 	if(temp)
 		intensity = (100 - temp) / 100;
 
-	switch(type) {
-		case DND_BLIND_LIGHT:
-			if(!CheckInventory("IsBlinded")) {
-				GiveInventory("IsBlinded", 1);
-				FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / TICRATE);
-				Delay(duration);
-				TakeInventory("IsBlinded", 1);
-			}
-		break;
-		case DND_BLIND_PETRIFY:
-			// set petrification status --- totally frozen player
-			SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
-			PlaySound(0, "Blind/Petrified", CHAN_7, 1.0);
-		case DND_BLIND_HEAVY:
-			// heavy blind comes up front so we can take it even if spammed
-			FadeTo(r, g, b, intensity, 1);
-
-			// dont spam range fade though
-			if(!CheckInventory("IsBlinded")) {
-				GiveInventory("IsBlinded", 1);
-				Delay(duration);
-				FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / (4 * TICRATE));
-				Delay(duration / 4);
-				TakeInventory("IsBlinded", 1);
-
-				if(type == DND_BLIND_PETRIFY)
-					SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
-			}
-		break;
+	// Everything that APPLIED an effect used to sit outside the "am I already blinded" guard while
+	// everything that UNDID it sat inside, so a second cast landing on an already blinded player
+	// repainted the screen and set PROP_TOTALLYFROZEN with nothing left alive to clear either. A
+	// petrify arriving during any other blind froze the player permanently, and a heavy arriving
+	// during a light left the screen dark for good. Meanwhile the running cast still cleared
+	// IsBlinded on its own (shorter) schedule, which is the "they cancel each other" half of it.
+	//
+	// One arbitration now decides all of it -- see ClaimVisionImpair in DnD_Common.h.
+	if(!ClaimVisionImpair(type + DND_VISIONRANK_LIGHT, duration)) {
+		SetResultValue(0);
+		Terminate;
 	}
 
+	if(type == DND_BLIND_PETRIFY) {
+		// set petrification status --- totally frozen player
+		SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN);
+		PlaySound(0, "Blind/Petrified", CHAN_7, 1.0);
+	}
+
+	// a light blind decays across its own duration, the heavier ones slam to full and hold. Repainting
+	// on every cast is what lets a heavy be "taken even if spammed"; only the countdown is exclusive.
+	if(type == DND_BLIND_LIGHT)
+		FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / TICRATE);
+	else
+		FadeTo(r, g, b, intensity, 1);
+
+	ACS_NamedExecuteAlways("DnD Vision Impair Timer", 0, duration / 4);
+
 	SetResultValue(0);
+}
+
+// The one thing that counts a vision impair down and hands the screen back, whichever system painted
+// it. Callers claim through ClaimVisionImpair and start this only when they are told they own the
+// countdown; everything arriving later just pushes BlindTimer out, so there is never more than one
+// restore in flight racing the others.
+Script "DnD Vision Impair Timer" (int fadeout) {
+	// Every claim starts one of these, so a stale counter left by a level change is always picked up
+	// again rather than sitting there forever. Only the newest instance counts: an older one drops
+	// out the moment it sees the generation move, which keeps the counters decrementing once per tic
+	// however many effects are landing.
+	GiveInventory("VisionTimerGen", 1);
+	int gen = CheckInventory("VisionTimerGen");
+
+	// BuffTintTimer runs down alongside, whether or not the buff is the thing currently on screen --
+	// it is the buff's own remaining life, not its claim on the blend.
+	while(IsAlive() && CheckInventory("BlindTimer")) {
+		Delay(const:1);
+
+		if(CheckInventory("VisionTimerGen") != gen)
+			Terminate;
+
+		TakeInventory("BlindTimer", 1);
+		TakeInventory("BuffTintTimer", 1);
+	}
+
+	int tint = CheckInventory("BuffTintTimer");
+	int c = CheckInventory("BuffTintColor");
+	int a = CheckInventory("BuffTintIntensity");
+
+	// FadeTo interpolates from the CURRENT blend, so this needs to know neither which effect painted
+	// the screen nor how far along its own fade it had got. Where a buff tint has outlived whatever
+	// took the screen from it, fade straight into that instead of to nothing -- no blink of clear
+	// screen in between, and the buff gets the rest of its duration back.
+	if(tint > 0)
+		FadeTo((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, a, fadeout * 1.0 / TICRATE);
+	else
+		FadeTo(0, 0, 0, 0.0, fadeout * 1.0 / TICRATE);
+
+	Delay(fadeout);
+	TakeInventory("BuffTintTimer", fadeout);
+
+	// re-read: the petrify to undo is not necessarily the effect that started this countdown
+	if(CheckInventory("BlindSeverity") == DND_VISIONRANK_PETRIFY)
+		SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+
+	SetInventory("BlindSeverity", DND_VISIONRANK_NONE);
+	TakeInventory("IsBlinded", 1);
+
+	// Ownership is free again now, so the buff can reclaim it for what is left. Re-read rather than
+	// reusing tint: the fade out above costs it that many tics too.
+	tint = CheckInventory("BuffTintTimer");
+	if(tint > 0 && ClaimVisionImpair(DND_VISIONRANK_BUFF, tint)) {
+		FadeRange((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF, a, 0, 0, 0, 0, tint * 1.0 / TICRATE);
+		ACS_NamedExecuteAlways("DnD Vision Impair Timer", 0, tint / 4);
+	}
 }
 
 Script "DnD Create Blind FX" (int type, int distance) CLIENTSIDE {

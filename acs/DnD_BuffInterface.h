@@ -67,22 +67,46 @@ bool IsCurse(int debuff_id) {
     return false;
 }
 
-void HandleCurseFade(int player_tid, int origin_tid, int r, int g, int b, int intensity, int duration, int curse_effect) {
-    // curse has a color component attached
-    if(intensity && !CheckActorInventory(player_tid, "IsBlinded")) {
-        int temp = GetPlayerAttributeValue(player_tid - P_TIDSTART, INV_IMP_REDUCEDVISIONIMPAIR);
-        if(temp)
-            intensity = (100 - temp) / 100;
+// Renamed from HandleCurseFade: nothing about this is curse specific. It is the generic "tint the
+// player's screen for a while" path -- the player's own buffs go through it too -- and it has to use
+// the same arbitration the blinds do, or the two fight over one blend.
+//
+// rank separates those two callers. A buff must not be able to extend a curse's hold on the screen,
+// so it sits strictly below one and is simply denied while a curse is running.
+void HandleGenericFade(int player_tid, int origin_tid, int r, int g, int b, int intensity, int duration, int effect_factor, int rank = DND_VISIONRANK_CURSE) {
+    // fade has a color component attached
+    if(!intensity)
+        return;
 
-        if(intensity <= 0)
-            return;
+    int temp = GetPlayerAttributeValue(player_tid - P_TIDSTART, INV_IMP_REDUCEDVISIONIMPAIR);
+    if(temp)
+        intensity = (100 - temp) / 100;
 
-        duration = duration * curse_effect / 100;
+    if(intensity <= 0)
+        return;
 
-        SetActivator(player_tid);
-        FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / TICRATE);
-        SetActivator(origin_tid);
+    duration = duration * effect_factor / 100;
+
+    SetActivator(player_tid);
+
+    // Remembered even when the claim below is denied. A buff that could not paint because a curse was
+    // already running still has time left on it, and the countdown's teardown is what puts it back.
+    if(rank == DND_VISIONRANK_BUFF) {
+        SetInventory("BuffTintColor", (r << 16) | (g << 8) | b);
+        SetInventory("BuffTintIntensity", intensity);
+        SetInventory("BuffTintTimer", duration);
     }
+
+    // The old test here was "not currently blinded", which only worked in one direction: it kept a
+    // fade off a blinded player, but nothing stopped a blind from stomping a fade already running,
+    // and nothing registered the fade, so the pain blend cut it short as well. This is the weakest
+    // rank there is, so it still yields to every blind -- it is simply visible to them now.
+    if(ClaimVisionImpair(rank, duration)) {
+        FadeRange(r, g, b, intensity, 0, 0, 0, 0, duration * 1.0 / TICRATE);
+        ACS_NamedExecuteAlways("DnD Vision Impair Timer", 0, duration / 4);
+    }
+
+    SetActivator(origin_tid);
 }
 
 // player is target, and owner is activator by default
@@ -135,7 +159,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 112;
                 b = 112;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_PHASING, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect, DND_VISIONRANK_BUFF);
                 GiveActorInventory(player_tid, "DnD_HasPhasing", 1);
                 ACS_NamedExecuteAlways("DnD Phasing Anim", 0, player_tid);
             break;
@@ -145,7 +169,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 112;
                 b = 112;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_PHASING, sc_flags, 0, 2 * TICRATE); // this lasts 2 seconds
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect, DND_VISIONRANK_BUFF);
                 GiveActorInventory(player_tid, "DnD_HasPhasing", 1);
                 ACS_NamedExecuteAlways("DnD Phasing Anim", 0, player_tid);
             break;
@@ -156,7 +180,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 33;
                 b = 132;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_AMPHETAMINE, sc_flags) / 6;
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect, DND_VISIONRANK_BUFF);
                 GiveActorInventory(player_tid, "DnD_HasAmphetamine", 1);
             break;
 
@@ -172,7 +196,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                     duration = HandlePlayerBuffAssignment(pnum, this, BTI_DOOMGUY_ORB, sc_flags, 0, DND_DOOMGUY_ORB_EXEC_DURATION);
                 else
                     duration = HandlePlayerBuffAssignment(pnum, this, BTI_DOOMGUY_ORB, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect, DND_VISIONRANK_BUFF);
             break;
 
             case DND_DEBUFF_OTHERWORDLYGRIP:
@@ -229,7 +253,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 r = 200;
                 g = 32;
                 b = 32;
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_PALADIN:               
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_PALADIN, sc_flags);
@@ -237,7 +261,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 r = 117;
                 g = 21;
                 b = 21;
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_GURU:
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_GURU, sc_flags);
@@ -245,7 +269,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 r = 102;
                 g = 102;
                 b = 102;
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_HIEROPHANT:
                 intensity = 0.75;
@@ -255,7 +279,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 PlaySound(player_tid, "CurseHit", 6);
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_HIEROPHANT_DAMAGETAKEN, sc_flags);
                 HandlePlayerBuffAssignment(pnum, this, BTI_HIEROPHANT_SLOW);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_FLESHWIZARD_SLOW:
                 intensity = 0.1875;
@@ -263,7 +287,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 33;
                 b = 33;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SLOW1, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_FLESHWIZARD_WEAKEN:
                 intensity = 0.1875;
@@ -272,7 +296,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 b = 33;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_WEAKEN, sc_flags);
                 HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SLOW2);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_FLESHWIZARD_SNARE:
                 intensity = 0.1875;
@@ -280,7 +304,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 33;
                 b = 33;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_FLESHWIZARD_SNARE, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_STOMPSLOW:
                 intensity = 0.1875;
@@ -288,7 +312,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 68;
                 b = 68;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_STOMPSLOW, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_LICHICE:
                 intensity = 0.8;
@@ -300,7 +324,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                     duration = HandlePlayerBuffAssignment(pnum, this, BTI_LICHICECURSE, sc_flags, -20 * (i + 1));
                     // only proc on first instance
                     if(!i)
-                        HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                        HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
                     Delay(25 * curse_effect / 100);
                 }
                 HandlePlayerBuffAssignment(pnum, this, BTI_LICHICECURSE, BTI_F_REMOVE | sc_flags, -100);
@@ -311,7 +335,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 35;
                 b = 88;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_LICHVISION, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_LICHDEGEN:
                 intensity = 0.8;
@@ -346,7 +370,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 100;
                 b = 18;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_SSRATHSTUN, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_ERYXIASLOW:
                 intensity = 0.2375;
@@ -354,7 +378,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 15;
                 b = 136;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_ERYXIASLOW, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
 
             case DND_DEBUFF_TORRASQUE_SNARE:
@@ -363,7 +387,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 64;
                 b = 64;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_TORRASQUE_SNARE, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_GOLGOTH_SLOW:
                 intensity = 0.275;
@@ -371,7 +395,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 21;
                 b = 69;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_GOLGOTH_SLOW, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
             case DND_DEBUFF_GOLGOTH_WEAKEN:
                 intensity = 0.275;
@@ -379,7 +403,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
                 g = 21;
                 b = 69;
                 duration = HandlePlayerBuffAssignment(pnum, this, BTI_GOLGOTH_WEAKEN, sc_flags);
-                HandleCurseFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
+                HandleGenericFade(player_tid, this, r, g, b, intensity, duration, curse_effect);
             break;
         }
 	}

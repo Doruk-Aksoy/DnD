@@ -398,7 +398,7 @@ IATTR_T58 			= "lifesteal";
 	
 IATTR_T59 			= "faster poison ticrate";
 IATTR_T60 			= "increased poison stack duration";
-IATTR_T61 			= "increased damage per tic for poison";
+IATTR_T61 			= "more damage per tic for poison up to 100%";
 	
 IATTR_T62 			= "more damage against blocking enemies";
 	
@@ -597,7 +597,7 @@ IATTR_TE1 			= "chance for radius damage to reduce enemy resists by "; IATTR_TE1
 IATTR_TE2 			= "Soul weapons pierce ";
 IATTR_TE3 			= " accuracy rating";
 IATTR_TE4 			= " increased accuracy rating";
-IATTR_TE5 			= "Ignite damage increases for each tic by ";
+IATTR_TE5 			= "Ignite damage increases for each tic by ";  IATTR_TE5_2 = "up to 15 tics";
 IATTR_TE6 			= " chance for attacks to ignore shields";
 IATTR_TE7 			= "Poison damage tics twice as fast";
 IATTR_TE8 			= " chance for Slot 5 explosions to trigger again";
@@ -606,17 +606,17 @@ IATTR_TE10 			= "Magical attacks reduce enemy magic resistance by ";
 IATTR_TE11 			= "Frozen enemies take ";
 
 // incursion mods
-IATTR_TINC1			= "health"; IATTR_TINC1S = "Health increase from items is doubled";
+IATTR_TINC1			= "health"; IATTR_TINC1S = "Health increase from items have";  IATTR_TINC1SS = "more effect";
 IATTR_TINC2			= "to maximum poison stacks on enemies";
 IATTR_TINC3			= "chance on kill for poisons to spread up to 8 enemies within 160 units";
-IATTR_TINC4			= "Your critical strikes deal no extra damage"; IATTR_TINC4S = "Crit damage instead applies to damage over time at half the value";
+IATTR_TINC4			= "Your critical strikes deal no extra damage and only critical strikes can apply ailments"; IATTR_TINC4S = "Crit damage instead applies to damage over time at"; IATTR_TINC4SS = "of value";
 IATTR_TINC5			= "Overload can no longer chain, and its effect is reduced by "; IATTR_TINC5S = "All elemental damage can apply overload";
 IATTR_TINC6			= "Energy shield recharge is not interrupted by damage"; IATTR_TINC6S = "Energy shield recharges at half rate";
 IATTR_TINC7			= "+1 additional projectiles fired from "; IATTR_TINC7S = "less damage to ";
 IATTR_TINC8			= "+2 additional projectiles fired from ";
 IATTR_TINC9			= "of lifesteal is instant"; IATTR_TINC9S = "reduced lifesteal recovery rate";
 IATTR_TINC10		= "chance to defend with twice your armor rating";
-IATTR_TINC11		= "Mitigation is converted to dodge chance at half the value"; IATTR_TINC11S = "Dodge chance is capped at 60% (Can't dodge explosives)";
+IATTR_TINC11		= "Mitigation is converted to dodge chance at half the value"; IATTR_TINC11S = "Dodge chance is capped at 60% (Can't dodge radius damage)";
 IATTR_TINC12		= "Accuracy rating increases damage of precision weapons by 1% per 25 points";
 IATTR_TINC13		= "Health regeneration is not interrupted by damage";
 IATTR_TINC14		= "Regenerate "; IATTR_TINC14S1 = "of your life every 10 seconds"; IATTR_TINC14S2 = "reduced lifesteal cap";

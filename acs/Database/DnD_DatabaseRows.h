@@ -82,8 +82,9 @@ enum {
 #define DND_DB_PLAYERINVENTORYFIELD_QUALITY "Quality"
 #define DND_DB_PLAYERINVENTORYFIELD_CORRUPTED "AttributeCorruption"
 #define DND_DB_PLAYERINVENTORYFIELD_BASE "ItemBase"
-#define DND_DB_PLAYERINVENTORYFIELD_ALLOWFLAG "AllowedFlags"
-#define DND_DB_PLAYERINVENTORYFIELD_EXCLUDEFLAG "ExcludedFlags"
+// AllowedFlags / ExcludedFlags used to live here, per item. The mod pool reads its tagset from the
+// static base table keyed by item_base, never from the item, so they were written and read back
+// without ever being consulted. Old saves keep the two orphan keys -- nothing loads them now.
 #define DND_DB_PLAYERINVENTORYFIELD_IMPLICITVAL "ImplicitVal"
 #define DND_DB_PLAYERINVENTORYFIELD_IMPLICITID "ImplicitID"
 #define DND_DB_PLAYERINVENTORYFIELD_IMPLICITTIER "ImplicitTier"

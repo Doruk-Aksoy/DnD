@@ -2652,7 +2652,7 @@ Actor MagmaGolemNade {
 	Speed 24
 	Height 18
 	Radius 9
-	BounceType Hexen
+	BounceType Doom
 	BounceCount 9
 	SeeSound "imp/attack"
 	DeathSound "imp/shotx"

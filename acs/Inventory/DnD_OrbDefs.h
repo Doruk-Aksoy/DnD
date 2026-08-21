@@ -5,7 +5,8 @@
 #include "../DnD_Ammo.h"
 
 #define DND_MAX_ORB_REROLL_ATTEMPTS 100
-#define DND_POTENCY_CHANCE 0.4
+#define DND_POTENCY_CHANCE 0.5			// chance to push a tier 0 mod
+#define DND_POTENCY_MINCHANCE 0.1		// ...falling to this on the last step before a perfect roll
 
 enum {
 	DND_ORBEFFECT_WHOLE,					// whole attribute will change

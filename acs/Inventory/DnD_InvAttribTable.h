@@ -302,7 +302,7 @@ enum {
 	INV_ESS_ERYXIA,
 	// add new essences here
 
-	INV_INC_DOUBLEHPBONUS = INCURSION_ATTRIB_ID_BEGIN,
+	INV_INC_MOREHPBONUS = INCURSION_ATTRIB_ID_BEGIN,
 	INV_INC_MAXPOISONSTACK,
 	INV_INC_POISONSPREAD,
 	INV_INC_CRITFORDOT,
@@ -457,7 +457,7 @@ enum {
 #define ESSENCE_ATTRIBUTE_COUNT (LAST_ESSENCE_ATTRIBUTE - FIRST_ESSENCE_ATTRIBUTE + 1)
 #define ESSENCE_MAP_MACRO(X) ((X) - FIRST_ESSENCE_ATTRIBUTE + 1)
 
-#define FIRST_INCURSION_ATTRIBUTE INV_INC_DOUBLEHPBONUS
+#define FIRST_INCURSION_ATTRIBUTE INV_INC_MOREHPBONUS
 #define LAST_INCURSION_ATTRIBUTE INV_INC_EXCESSCRIT
 #define INCURSION_ATTRIBUTE_COUNT (LAST_INCURSION_ATTRIBUTE - FIRST_INCURSION_ATTRIBUTE + 1)
 #define INCURSION_MAP_MACRO(X) ((X) - FIRST_INCURSION_ATTRIBUTE + 1)
@@ -923,7 +923,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_POISON_DURATION].allowed_slots = DND_MODBASE_ELEMATK;
 	
 	ItemModTable[INV_POISON_TICDMG].attrib_low = 1;
-	ItemModTable[INV_POISON_TICDMG].attrib_high = 5;
+	ItemModTable[INV_POISON_TICDMG].attrib_high = 2;
 	ItemModTable[INV_POISON_TICDMG].attrib_level_modifier = 0;
 	ItemModTable[INV_POISON_TICDMG].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_POISON | INV_ATTR_TAG_DAMAGE | INV_ATTR_TAG_AILMENT;
 	ItemModTable[INV_POISON_TICDMG].weight = 300;
@@ -1773,7 +1773,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_ESS_OMNISIGHT2].tags = INV_ATTR_TAG_ATTACK;
 	
 	ItemModTable[INV_ESS_CHEGOVAX].attrib_low = 1;
-	ItemModTable[INV_ESS_CHEGOVAX].attrib_high = 4;
+	ItemModTable[INV_ESS_CHEGOVAX].attrib_high = 2;
 	ItemModTable[INV_ESS_CHEGOVAX].attrib_level_modifier = 0;
 	ItemModTable[INV_ESS_CHEGOVAX].tags = INV_ATTR_TAG_ELEMENTAL | INV_ATTR_TAG_FIRE;
 	
@@ -1810,13 +1810,13 @@ void SetupInventoryAttributeTable() {
 	////////////////////////////////
 	// incursion from here on out //
 	////////////////////////////////
-	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_low = 1;
-	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_high = 1;
-	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_level_modifier = 0;
-	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_extra_low = 300;
-	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_extra_high = 300;
-	ItemModTable[INV_INC_DOUBLEHPBONUS].attrib_level_extra_modifier = -1;
-	ItemModTable[INV_INC_DOUBLEHPBONUS].tags = INV_ATTR_TAG_LIFE;
+	ItemModTable[INV_INC_MOREHPBONUS].attrib_low = 100;
+	ItemModTable[INV_INC_MOREHPBONUS].attrib_high = 100;
+	ItemModTable[INV_INC_MOREHPBONUS].attrib_level_modifier = -1;
+	ItemModTable[INV_INC_MOREHPBONUS].attrib_extra_low = -600;
+	ItemModTable[INV_INC_MOREHPBONUS].attrib_extra_high = -300;
+	ItemModTable[INV_INC_MOREHPBONUS].attrib_level_extra_modifier = -1;
+	ItemModTable[INV_INC_MOREHPBONUS].tags = INV_ATTR_TAG_LIFE;
 
 	ItemModTable[INV_INC_MAXPOISONSTACK].attrib_low = 1;
 	ItemModTable[INV_INC_MAXPOISONSTACK].attrib_high = 1;
@@ -1828,9 +1828,9 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_POISONSPREAD].attrib_level_modifier = 0;
 	ItemModTable[INV_INC_POISONSPREAD].tags = INV_ATTR_TAG_POISON | INV_ATTR_TAG_ELEMENTAL;
 
-	ItemModTable[INV_INC_CRITFORDOT].attrib_low = 1;
-	ItemModTable[INV_INC_CRITFORDOT].attrib_high = 1;
-	ItemModTable[INV_INC_CRITFORDOT].attrib_level_modifier = 0;
+	ItemModTable[INV_INC_CRITFORDOT].attrib_low = 20;
+	ItemModTable[INV_INC_CRITFORDOT].attrib_high = 35;
+	ItemModTable[INV_INC_CRITFORDOT].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_CRITFORDOT].tags = INV_ATTR_TAG_CRIT | INV_ATTR_TAG_DAMAGE;
 
 	ItemModTable[INV_INC_ALLOVERLOAD].attrib_low = 25;
@@ -1843,13 +1843,13 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].attrib_level_modifier = 0;
 	ItemModTable[INV_INC_ESHIELDNOINTERRUPT].tags = INV_ATTR_TAG_DEFENSE | INV_ATTR_TAG_ESHIELD;
 
-	ItemModTable[INV_INC_PLUSPROJ].attrib_low = 1;
-	ItemModTable[INV_INC_PLUSPROJ].attrib_high = 1;
+	ItemModTable[INV_INC_PLUSPROJ].attrib_low = DND_INC_SINGLEPROJ_NEGDMG;
+	ItemModTable[INV_INC_PLUSPROJ].attrib_high = DND_INC_SINGLEPROJ_NEGDMG;
 	ItemModTable[INV_INC_PLUSPROJ].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_PLUSPROJ].tags = INV_ATTR_TAG_ATTACK;
 
-	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_low = 2;
-	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_high = 2;
+	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_low = DND_INC_TWOPROJ_NEGDMG;
+	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_high = DND_INC_TWOPROJ_NEGDMG;
 	ItemModTable[INV_INC_PLUSTWOPROJ].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_PLUSTWOPROJ].tags = INV_ATTR_TAG_ATTACK;
 
@@ -1920,7 +1920,7 @@ void SetupInventoryAttributeTable() {
 	ItemModTable[INV_INC_PROJREVERSE].tags = INV_ATTR_TAG_ATTACK;
 
 	ItemModTable[INV_INC_EXCESSCRIT].attrib_low = 0.2;
-	ItemModTable[INV_INC_EXCESSCRIT].attrib_high = 0.2;
+	ItemModTable[INV_INC_EXCESSCRIT].attrib_high = 0.4;
 	ItemModTable[INV_INC_EXCESSCRIT].attrib_level_modifier = -1;
 	ItemModTable[INV_INC_EXCESSCRIT].tags = INV_ATTR_TAG_CRIT;
 

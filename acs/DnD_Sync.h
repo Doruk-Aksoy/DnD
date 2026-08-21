@@ -29,8 +29,6 @@ enum {
 	DND_SYNC_ITEMCORRUPTED,
 	DND_SYNC_ITEMQUALITY,
 	DND_SYNC_ITEMBASE,
-	DND_SYNC_ITEMFLAGS_ALLOW,
-	DND_SYNC_ITEMFLAGS_EXCLUDE,
 	// add non attribute related things from above attrib count
 
 	// implicit attribute stuff
@@ -91,10 +89,6 @@ int GetItemSyncValue(int pnum, int which, int extra, int sub, int source) {
 		return item.quality;
 		case DND_SYNC_ITEMBASE:
 		return item.item_base;
-		case DND_SYNC_ITEMFLAGS_ALLOW:
-		return item.item_tags.allowed_tags;
-		case DND_SYNC_ITEMFLAGS_EXCLUDE:
-		return item.item_tags.excluded_tags;
 
 		case DND_SYNC_ITEMATTRIBUTES_ID:
 		return item.attributes[sub].attrib_id;
@@ -164,12 +158,6 @@ void SetItemSyncValue(int pnum, int which, int extra, int sub, int val, int sour
 		break;
 		case DND_SYNC_ITEMBASE:
 			item.item_base = val;
-		break;
-		case DND_SYNC_ITEMFLAGS_ALLOW:
-			item.item_tags.allowed_tags = val;
-		break;
-		case DND_SYNC_ITEMFLAGS_EXCLUDE:
-			item.item_tags.excluded_tags = val;
 		break;
 
 		case DND_SYNC_ITEMATTRIBUTES_ID:
@@ -307,7 +295,7 @@ void SyncItemData(int pnum, int itemid, int source, int wprev, int hprev, bool s
 	//Log(s:"syncing item at field pos ", d:itemid, s:" type ", d:GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), s:" for player ", d:pnum);
 	
 	// skip top left box and item type, we handled it
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMFLAGS_EXCLUDE ; ++i) {
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE ; ++i) {
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 	}
 
@@ -351,7 +339,7 @@ void SyncItemData_Special(int pnum, int itemid, int source) {
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(pnum, DND_SYNC_ITEMTYPE, itemid, -1, source), itemid);
 	}
 
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMFLAGS_EXCLUDE ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Special", pnum, i | payload, GetItemSyncValue(pnum, i, itemid, -1, source), itemid);
 
 	// sync implicits
@@ -380,7 +368,7 @@ void SyncItemData_Field(int itemid) {
 	ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", DND_SYNC_ITEMTYPE | payload, GetItemSyncValue(-1, DND_SYNC_ITEMTYPE, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
 
 
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMFLAGS_EXCLUDE ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer Field", i | payload, GetItemSyncValue(-1, i, itemid, -1, DND_SYNC_ITEMSOURCE_FIELD), itemid);
 
 	// sync implicits
@@ -443,7 +431,7 @@ void SyncItemData_Null(int pnum, int itemid, int source, int wprev, int hprev, b
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, DND_SYNC_ITEMTYPE | payload, DND_ITEM_NULL, itemid);
 	}
 	
-	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMFLAGS_EXCLUDE ; ++i)
+	for(i = DND_SYNC_ITEMBEGIN + 2; i <= DND_SYNC_ITEMBASE ; ++i)
 		ACS_NamedExecuteWithResult("DND Clientside Item Syncer", pnum, i | payload, 0, itemid);
 
 	// sync implicits

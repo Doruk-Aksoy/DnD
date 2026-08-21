@@ -15,6 +15,24 @@ enum {
 
 Actor IsBlinded : DnD_Boolean { }
 
+// One blind cast at a time owns the player's screen blend and the petrify freeze. BlindSeverity is
+// the active type + 1 (0 = nothing running) and decides who is allowed to paint; BlindTimer is the
+// tics left, which any later cast may extend without taking the restore away from the script that
+// is already counting it down. Same shape as BlackoutTimer and DnD_IgniteTimer.
+Actor BlindTimer : DnD_Info { }
+Actor BlindSeverity : DnD_Info { }
+
+// A player buff tint is remembered separately from whatever currently owns the screen, so a curse or
+// a blind painting over a long buff does not destroy it -- the countdown hands the screen back to the
+// buff for whatever is left. Colour is packed r<<16 | g<<8 | b, intensity is the raw fixed point.
+// Bumped by every countdown instance as it starts. Only the newest keeps running, so the counters
+// above are decremented once per tic no matter how many effects land at once.
+Actor VisionTimerGen : DnD_Info { }
+
+Actor BuffTintTimer : DnD_Info { }
+Actor BuffTintColor : DnD_Info { }
+Actor BuffTintIntensity : DnD_Info { }
+
 Actor BlindCancelledSignal : PowerDamage {
 	damagefactor "normal", 1.0
 	powerup.duration 7

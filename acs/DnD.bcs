@@ -655,8 +655,10 @@ Script "DnD Blend Start" (int blend_id) CLIENTSIDE {
 }
 
 Script "DnD Hit Blend" (int blend_id) {
-	// temporary fix to hit blends causing blinds to end
-	if(CheckInventory("IsBlinded"))
+	// Whatever vision impair is running owns the screen blend, and a pain blend painted on top would
+	// replace it and end it early. BlindTimer rather than IsBlinded: IsBlinded means "actually
+	// blinded" and gates the menu, while a curse or buff tint has to be respected here as well.
+	if(CheckInventory("BlindTimer"))
 		Terminate;
 
 	int pnum = PlayerNumber();
@@ -3157,6 +3159,15 @@ Script "DnD Player Setup" ENTER {
 	SetInventory("SphereMade", 0);
 	SetInventory("OrbUseType", 0);
 	SetInventory("OrbResult", 0);
+
+	// Running scripts do not survive a level change but these counters are inventory and do, so a
+	// vision effect still going as the map ended would arrive on the next one as a timer nothing is
+	// counting down -- and, for a petrify, a freeze with nothing left to release it. Start clean.
+	SetInventory("BlindTimer", 0);
+	SetInventory("BlindSeverity", 0);
+	SetInventory("BuffTintTimer", 0);
+	TakeInventory("IsBlinded", 1);
+	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 	// reset anything related to kill sprees on entering a new map
 	SetInventory("SpreeXP", 0);
 	SetInventory("DnD_SpreeTimer", 0);
@@ -5493,7 +5504,7 @@ Script "DnD Monster Heal Potency" (int base) {
 }
 
 Script "DnD Monster Health Regen Script" (int style, int amount, int period) {
-	while(!CheckInventory("DnD_MonsterSetupDone"))
+	while(!isSetupComplete(SETUP_STATE1, SETUP_MONSTERS) || !IsSetupComplete(SETUP_STATE1, SETUP_MAPEVENTS))
 		Delay(const:TICRATE_TIMESFIVE);
 
 	// how many periods will be waited for this to end?
@@ -6115,7 +6126,7 @@ Script "DnD Vaaj Charm" (int spd) {
 			SetInventory("DnD_CharmTimer", base_t);
 
 			PlaySound(0, "Vaaj/Charmed", CHAN_6, 0.75);
-			HandleCurseFade(victim, victim, 255, 192, 203, 0.33, base_t, 100);
+			HandleGenericFade(victim, victim, 255, 192, 203, 0.33, base_t, 100);
 			if(!CheckInventory("DnD_Charmed")) {
 				GiveInventory("DnD_Charmed", 1);
 
@@ -6264,17 +6275,14 @@ Script 68 (int x) NET {
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ELEVATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ASSIMILATION, true, true, 100);
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 700);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_CORRUPT, true, true, 700);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_POTENCY, true, true, 700);
-			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 700);
-			SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTINY, true, true, 700);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_TURMOIL, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ORDER, true, true, 100);
+			SpawnSpecificOrb(PlayerNumber(), DND_ORB_ALCHEMIST, true, true, 100);
+			/*SpawnSpecificOrb(PlayerNumber(), DND_ORB_DESTINY, true, true, 700);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_REPENT, true, true, 700);
 			SpawnSpecificOrb(PlayerNumber(), DND_ORB_SIN, true, true, 700);*/
 			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ENHANCE, true, true, 700);
-			//SpawnSpecificOrb(PlayerNumber(), DND_ORB_ALCHEMIST, true, true, 700);
-			SpawnCharmWithMods_ForAll(INV_ADDED_COLDDMG);
-			SpawnCharmWithMods_ForAll(INV_ADDED_FIREDMG);
+			SpawnCharmWithMods_ForAll(INV_INC_CRITFORDOT);
 			SpawnToken(0, true);
 			//Log(s:"boot");
 			SpawnBoot(0, 0);

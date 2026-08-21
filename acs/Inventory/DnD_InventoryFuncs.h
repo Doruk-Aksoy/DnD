@@ -14,8 +14,6 @@ void ClearInventoryItem(inventory_T* item) {
 	item.corrupted = 0;
 	item.quality = 0;
 	item.item_base = 0;
-	item.item_tags.allowed_tags = 0;
-	item.item_tags.excluded_tags = 0;
 
 	int k;
 	for(k = 0; k < MAX_ITEM_IMPLICITS; ++k) {
@@ -142,8 +140,6 @@ void SetItemToAnother(inventory_T* to, inventory_T* from) {
 	to.corrupted = from.corrupted;
 	to.quality = from.quality;
 	to.item_base = from.item_base;
-	to.item_tags.allowed_tags = from.item_tags.allowed_tags;
-	to.item_tags.excluded_tags = from.item_tags.excluded_tags;
 
 	for(int i = 0; i < MAX_ITEM_IMPLICITS; ++i) {
 		to.implicit[i].attrib_id = from.implicit[i].attrib_id;

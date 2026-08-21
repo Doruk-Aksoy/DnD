@@ -5,6 +5,15 @@
 #include "DnD_ItemBase.h"
 #include "../DnD_WeaponDefs.h"
 
+// The base tier an item level grants, before GetItemTierRoll's +1/-N shuffle. This is the ONE place
+// that conversion lives -- every site that assigns an attrib_tier goes through here (field drops,
+// inventory adds, merchant stock) and GetHighestTierModNaturalOnItem derives the Potency ceiling from
+// it. Two of those used to divide by CHARM_ATTRIBLEVEL_SEPERATOR by hand without the clamp, which let
+// an ilvl 100 drop hand out a base tier of 10 while the same mod added later by an orb started at 9.
+//
+// MAX_ATTRIBUTE_TIERS (9) is the ceiling on purpose: it is the highest base an item level may grant.
+// MAX_CHARM_AFFIXTIERS (10) is the absolute ceiling, and the last step onto it is meant to be earned
+// -- the 10% up roll, or Orb of Potency.
 int GetItemTier(int level) {
 	int res = level / CHARM_ATTRIBLEVEL_SEPERATOR;
 	if(res > MAX_ATTRIBUTE_TIERS)
@@ -86,8 +95,8 @@ void ClearPlayerAttributeExtraSync(int pnum) {
 #define DND_INC_ACCURACYFORPRECRATIO 25
 #define DND_INC_BLOCKPREVENTIONTIME 10
 
-#define DND_INC_SINGLEPROJ_NEGDMG 0.85
-#define DND_INC_TWOPROJ_NEGDMG 0.7
+#define DND_INC_SINGLEPROJ_NEGDMG 0.15
+#define DND_INC_TWOPROJ_NEGDMG 0.3
 
 #define DND_INC_POISONSPREAD_R 160.0
 #define DND_INC_POISONSPREAD_COUNT 8
@@ -211,9 +220,34 @@ int GetWideningTagId(int implicit_id) {
 #define MAX_ATTRIB_TAG_GROUPS (DND_ATTRIB_TAG_ID_END + 1)
 
 
+// Mods whose attribute value is the STRONGEST single source rather than the sum of all of them.
+// Indexed densely rather than by attribute id: the storage below is a row of equipment slots per
+// entry, and a MAX_TOTAL_ATTRIBUTES tall table of those would be a lot of global for two mods.
+enum {
+	DND_HIGHESTSRC_MOREHPBONUS,
+	DND_HIGHESTSRC_CRITFORDOT,
+
+	DND_HIGHESTSRC_COUNT
+};
+
+// One column per equipment slot. Every ApplyItemFeatures call passes DND_SYNC_ITEMSOURCE_ITEMSUSED,
+// so ProcessAttribute's item_index IS the slot, which is what these rows are keyed on.
+//
+// Sized against MAX_ITEMS_EQUIPPABLE, which is 13 and lives in DnD_Inventory.h -- included after
+// this header, so the number cannot be referenced here. Deliberately a few over: a spare entry costs
+// nothing, and the bounds check in SetHighestModSource turns a slot count that outgrows this into a
+// dropped source rather than a write past the end of the struct.
+#define DND_MAX_HIGHESTSRC_SLOTS 16
+
 typedef struct {
 	int extra[MAX_TOTAL_ATTRIBUTES];
 	int value[MAX_TOTAL_ATTRIBUTES];
+
+	// The DND_HIGHESTSRC_* mods take their strongest source rather than adding them up, so the
+	// individual contributions are kept here, indexed by the slot they came from. A running total
+	// cannot do it: dropping the strongest one has to fall back to the second strongest, and a sum
+	// has already forgotten what the parts were.
+	int highest_sources[DND_HIGHESTSRC_COUNT][DND_MAX_HIGHESTSRC_SLOTS];
 } player_item_mod_data_T;
 
 global player_item_mod_data_T 57: PlayerModData[MAXPLAYERS];
@@ -321,7 +355,7 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 
 			// mods that have natural extra values
 			case INV_ESS_VAAJ:
-			case INV_INC_DOUBLEHPBONUS:
+			case INV_INC_MOREHPBONUS:
 			case INV_INC_PASSIVEREGEN:
 			case INV_INC_INSTANTLIFESTEAL:
 			case INV_FLASK_INCAMOUNTRECOVER:
@@ -337,20 +371,15 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 			case INV_INC_PLUSPROJ:
 			case INV_CORR_WEAPONPLUSPROJ:
 				if(pnum != MAXPLAYERS)
-					res = PickRandomOwnedWeaponID_WithProj(pnum) << 16;
+					res = PickRandomOwnedWeaponID_WithProj(pnum);
 				else
-					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
-				
-				// corruption has no reduced damage
-				if(mod != INV_CORR_WEAPONPLUSPROJ)
-					res |=  DND_INC_SINGLEPROJ_NEGDMG;
+					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON);
 			break;
 			case INV_INC_PLUSTWOPROJ:
 				if(pnum != MAXPLAYERS)
-					res = (PickRandomOwnedWeaponID_WithProj(pnum) << 16);
+					res = PickRandomOwnedWeaponID_WithProj(pnum);
 				else
-					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON) << 16;
-				res |= DND_INC_TWOPROJ_NEGDMG;
+					res = random(FIRST_SLOT0_WEAPON, LAST_SLOT9_WEAPON);
 			break;
 
 			// gained-as rolls its pair exactly like conversion -- same ladder, same packing
@@ -409,6 +438,51 @@ void IncPlayerModValue(int pnum, int mod, int val) {
 	PushToPlayerAttributeSync(pnum, mod);
 }
 
+// Which DND_HIGHESTSRC_* row a mod owns, or -1 for everything that adds up normally.
+int GetHighestSourceRow(int mod) {
+	switch(mod) {
+		case INV_INC_MOREHPBONUS:
+		return DND_HIGHESTSRC_MOREHPBONUS;
+		case INV_INC_CRITFORDOT:
+		return DND_HIGHESTSRC_CRITFORDOT;
+	}
+	return -1;
+}
+
+// The attribute value for one of these mods is always the largest live source, never their sum.
+int GetHighestModSource(int pnum, int row) {
+	int res = 0;
+
+	for(int i = 0; i < DND_MAX_HIGHESTSRC_SLOTS; ++i)
+		if(PlayerModData[pnum].highest_sources[row][i] > res)
+			res = PlayerModData[pnum].highest_sources[row][i];
+
+	return res;
+}
+
+// slot is ProcessAttribute's item_index; val of 0 clears the slot.
+//
+// Keyed on the slot rather than on the value, because the value a slot contributes is NOT stable
+// while it is equipped. Well of Power (INV_EX_FACTOR_SMALLCHARM) scales small charm magnitudes, and
+// neither of these mods is in IsAttributeQualityException, so the same charm is worth more with the
+// Well on than off. A value keyed remove would go looking for a number nothing holds any more, find
+// no match, and leave the source switched on for the rest of the session. Slot keying is also immune
+// to the double apply in the INV_EX_FACTOR_SMALLCHARM handler, which strips and re-adds every small
+// charm around the factor change -- writing the same slot twice is a no-op, pushing a second list
+// entry would not have been.
+//
+// One slot holds one contribution, which is exactly right as long as a mod cannot appear twice on the
+// same item -- the roll loops reject a mod the item already carries, so it cannot.
+void SetHighestModSource(int pnum, int mod, int slot, int val) {
+	int row = GetHighestSourceRow(mod);
+
+	if(row < 0 || slot < 0 || slot >= DND_MAX_HIGHESTSRC_SLOTS)
+		return;
+
+	PlayerModData[pnum].highest_sources[row][slot] = val;
+	SetPlayerModValue(pnum, mod, GetHighestModSource(pnum, row));
+}
+
 void IncPlayerModExtra(int pnum, int mod, int val) {
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
@@ -440,6 +514,12 @@ void ResetPlayerModList(int pnum) {
 		PlayerModData[pnum].extra[i] = 0;
 	}
 
+	// The highest source rows are not derived from value[] and have to be cleared with it, or a
+	// character reload leaves phantom sources behind that nothing will ever remove.
+	for(i = 0; i < DND_HIGHESTSRC_COUNT; ++i)
+		for(int j = 0; j < DND_MAX_HIGHESTSRC_SLOTS; ++j)
+			PlayerModData[pnum].highest_sources[i][j] = 0;
+
 	// Damage conversion accumulates outside PlayerModData -- one summed attribute cannot tell two
 	// conversion mods apart when each names its own source and destination -- so it has to be reset
 	// alongside it or a character reload doubles everything the player is wearing.
@@ -463,6 +543,12 @@ Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
 		PlayerModData[pnum].value[i] = 0;
 		PlayerModData[pnum].extra[i] = 0;
 	}
+
+	// The highest source rows are not derived from value[] and have to be cleared with it, or a
+	// character reload leaves phantom sources behind that nothing will ever remove.
+	for(i = 0; i < DND_HIGHESTSRC_COUNT; ++i)
+		for(int j = 0; j < DND_MAX_HIGHESTSRC_SLOTS; ++j)
+			PlayerModData[pnum].highest_sources[i][j] = 0;
 }
 
 // returns the amount to skip over the base range to map it into its appropriate tier

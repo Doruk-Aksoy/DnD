@@ -59,6 +59,7 @@ DND_MENU_GAIN_OFFENSE	=	"Offensive Stats";
 DND_MENU_GAIN_ELEMENT	=	"Elemental Stats";
 DND_MENU_GAIN_DEFENSE	=	"Defensive Stats";
 DND_MENU_GAIN_UTILITY	=	"Utility Stats";
+DND_MENU_GAIN_EXOTIC	=	"Exotic Stats";
 DND_MENU_GAIN_MISC		=	"Misc Stats";
 
 DND_MENU_HEAD_STATS		=	"Player Stats";

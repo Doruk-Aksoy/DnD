@@ -2507,9 +2507,29 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		case INV_ESS_VAAJ:
 		case INV_INC_PASSIVEREGEN:
 		case INV_INC_INSTANTLIFESTEAL:
-		case INV_INC_DOUBLEHPBONUS:
 			IncPlayerModValue(pnum, atype, aval);
 			IncPlayerModExtra(pnum, atype, aextra);
+		break;
+		// this one is like the above but only has ONE (maximum) value as the real value
+		case INV_INC_MOREHPBONUS:
+			// Highest source wins rather than the sources adding up, so this cannot go through
+			// IncPlayerModValue: taking one off has to fall back to the next highest instead of
+			// subtracting, which means the individual contributions have to be tracked. Keyed on the
+			// slot, so a remove does not have to recognise the value it added -- see the Well of
+			// Power note on SetHighestModSource. aval is ignored entirely on a remove, which also
+			// sidesteps the fact that it arrives negated.
+			SetHighestModSource(pnum, atype, item_index, remove ? 0 : aval);
+
+			// the flat health still stacks
+			IncPlayerModExtra(pnum, atype, aextra);
+		break;
+
+		// same highest-source-only rule, no extra field on this one
+		case INV_INC_CRITFORDOT:
+			// The value is read as both the switch (GetCritModifier zeroing crit damage, and the
+			// ailment gate in "DnD Damage Accumulate") and the magnitude the crit damage is handed to
+			// the DoT at, so a second copy must be able to raise the magnitude but never add to it.
+			SetHighestModSource(pnum, atype, item_index, remove ? 0 : aval);
 		break;
 
 		case INV_EX_KNOCKBACK_IMMUNITY:
@@ -2749,14 +2769,19 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
 			// make sure this stays positive even for removal!!!
-			if(remove)
-				temp = -(aextra & 0xFFFF);
-			else
-				temp = aextra & 0xFFFF;
-			aextra >>= 16;
+			if(remove) {
+				temp = -(atype - INV_INC_PLUSPROJ + 1);
+				aval = -(1.0 + aval);
+			}
+			else {
+				temp = (atype - INV_INC_PLUSPROJ + 1);
+				aval = 1.0 - aval;
+			}
 
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, temp);
-			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += aval;
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val = HandleMultiplicativeFactors(Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_DMG][WMOD_ITEMS].val, aval);
+			
+			// this will add 1 or two depending on the mod type in question
+			Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val += temp;
 
 			//Log(s:"extra proj is now: ", d:Player_Weapon_Infos[pnum][aextra].wep_mods[WEP_MOD_EXTRAPROJ][WMOD_ITEMS].val);
 
@@ -3227,6 +3252,8 @@ int GetItemTierRoll(int lvl, bool isWellRolled) {
 	return lvl;
 }
 
+// Orb of Assimilation is the only caller: it copies a mod off the donor at the tier the DONOR rolled
+// it, which can be above anything the host's own level could have produced.
 void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_tier, int a_extra = 0, bool a_fracture = false) {
 	auto item = GetPlayerInventoryItem(pnum, item_pos);
 	int temp = item.attrib_count++;
@@ -3238,6 +3265,20 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 
 	// set ilvl to the min requirement of this tier
 	a_tier *= CHARM_ATTRIBLEVEL_SEPERATOR;
+
+	// ...but only so far. A tier 9 or 10 mod needs ilvl 90/100 to exist naturally, so without this an
+	// ordinary item handed one by assimilation walked straight up to boss item level -- a level range
+	// only boss drops are supposed to reach, and one the host would then demand of whoever wears it.
+	// An item that was ALREADY at boss level keeps the wider ceiling, since it earned that on the drop.
+	//
+	// Read off the live item_level, not a level captured before the first mod: assimilation inserts
+	// several in a row, and the cap of the item as it now stands is the one that should apply to each.
+	// A host above its own ceiling (a boss item at 95) is left where it is -- this only ever raises,
+	// so the clamp can lower what a mod ASKS for but never what the item already has.
+	int ilvl_ceiling = item.item_level >= MAX_BOSS_ILVL ? MAX_BOSS_ILVL : MAX_REGULAR_ILVL;
+	if(a_tier > ilvl_ceiling)
+		a_tier = ilvl_ceiling;
+
 	if(item.item_level < a_tier)
 		item.item_level = a_tier;
 
@@ -3262,7 +3303,7 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 		max_affixes = GetMaxItemAffixes(item.item_type, item.item_subtype);
 	if(item.attrib_count < max_affixes) {
 		int temp = item.attrib_count++;
-		int lvl = item.item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
+		int lvl = GetItemTier(item.item_level);
 		
 		bool makeWellRolled = CheckWellRolled(pnum);
 		
@@ -3509,7 +3550,10 @@ int GetHighestModTierOnItem(int pnum, int item_pos) {
 
 int GetHighestTierModNaturalOnItem(int pnum, int item_pos) {
 	auto item = GetPlayerInventoryItem(pnum, item_pos);
-	return Clamp_Between(1 + item.item_level / MAX_CHARM_AFFIXTIERS, 0, MAX_CHARM_AFFIXTIERS);
+	// the base tier this level grants, plus the one bonus tier an item may be pushed to. Derived from
+	// GetItemTier so it cannot drift from what a mod can actually roll at -- this used to divide the
+	// item LEVEL by MAX_CHARM_AFFIXTIERS, a tier count standing in for a levels-per-tier divisor.
+	return Clamp_Between(GetItemTier(item.item_level) + 1, 0, MAX_CHARM_AFFIXTIERS);
 }
 
 // 0 means nothing exists of this sort
@@ -3528,6 +3572,26 @@ int GetSpecialRollAttribute(int pnum, int item_pos) {
 		special_roll = 0;
 
 	return special_roll;
+}
+
+// The mod pool answers "what may ROLL on this base". This asks the same question about a mod that
+// already exists and is being MOVED onto an item, which orb of assimilation is the only path that
+// does. It runs the pool's own admission test rather than a second copy of the rules, so the two
+// cannot drift: the slot, the base's effective tags and the item's own widening implicit all apply
+// exactly as they would at drop time.
+bool CanModLiveOnItem(int pnum, int item_pos, int mod) {
+	// not a pooled mod (unique-only ids run past the end of ItemModTable), so there is nothing to
+	// judge it against -- assimilation refuses uniques anyway, this is just a guard on the index
+	if(mod < FIRST_INV_ATTRIBUTE || mod > LAST_INV_ATTRIBUTE)
+		return true;
+
+	auto item = GetPlayerInventoryItem(pnum, item_pos);
+	return CanRollModWidened(
+		ItemBaseToModBaseFlag(item.item_base),
+		GetItemBaseEffectiveTags(item.item_base),
+		ModPoolTagIdToMask(GetWideningTagId(GetSpecialRollAttribute(pnum, item_pos))),
+		mod
+	);
 }
 
 bool IsTypeRegularCraftException(int item_type) {

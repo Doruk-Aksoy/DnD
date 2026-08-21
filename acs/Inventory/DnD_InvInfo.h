@@ -216,11 +216,15 @@ typedef struct it {
 	int attrib_count;								// count of attributes
 	attr_inf_T attributes[MAX_ITEM_ATTRIBUTES];		// attribute list
 
-	int	item_base;									// holds item_base value for mod pool filtering
-	itembase_tags_T item_tags;						// holds the flags allowed/excluded for this item to be rolled
+	int	item_base;									// holds item_base value for mod pool filtering, the item's tagset comes with it
 } inventory_T;
-#define SIZEOF_INVENTORY_T (SIZEOF_INT * 12 + SIZEOF_ATTR_INF_T * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES) + SIZEOF_ITEMBASE_TAGS)
-#define INVENTORY_T_INTS (12 + ATTRIB_DATA_COUNT * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES) + 2)
+// These two describe the same struct and have to move together -- INVENTORY_T_INTS is what every
+// bcs::arrNew below allocates with, so a count smaller than the struct runs the last element off the
+// end of the array. They disagreed while a per item itembase_tags_T lived here: 3 ints of struct
+// against a "+ 2" in the int count. The tagset was never read off the item -- the pool takes it from
+// the static base table via item_base -- and was never written to either, so it is gone.
+#define SIZEOF_INVENTORY_T (SIZEOF_INT * 12 + SIZEOF_ATTR_INF_T * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES))
+#define INVENTORY_T_INTS (12 + ATTRIB_DATA_COUNT * (MAX_ITEM_IMPLICITS + MAX_ITEM_ATTRIBUTES))
 
 // visual sync type -- entirely to be used clientside
 typedef struct it_sync {

@@ -213,7 +213,6 @@ str ItemAttributeString(
 			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"% ", s:ess_tag, l:"IATTR_MAGICRES");
 			
 		// text + val%
-		case INV_ESS_CHEGOVAX:
 		case INV_ESS_ZRAVOG:
 			if(showDetailedMods) {
 				return StrParam(
@@ -222,6 +221,15 @@ str ItemAttributeString(
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%");
+
+		case INV_ESS_CHEGOVAX:
+			if(showDetailedMods) {
+				return StrParam(
+					s:ess_tag, l:text, s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%",
+					s:no_tag, s:ess_tag, l:"IATTR_TE5_2", s:" - ", s:GetModTierText(tier, extra)
+				);
+			}
+			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%", s:no_tag, s:ess_tag, l:"IATTR_TE5_2");
 
 		// essence with no numeric values
 		case INV_ESS_LESHRAC:
@@ -605,11 +613,26 @@ str ItemAttributeString(
 			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
 
 		// incursion special attribs
-		case INV_INC_DOUBLEHPBONUS:
-		return StrParam(s:"\cg-", d:attr_extra, s:"\c- ", s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC1S");
+		case INV_INC_MOREHPBONUS:
+			if(showDetailedMods)
+				return StrParam(
+					s:"\cg", d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:"\c- ", 
+					s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC1S",
+					s:"\cd ", d:val, s:"% ", s:ess_tag, l:"IATTR_TINC1SS",
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+		return StrParam(s:"\cg", d:attr_extra, s:"\c- ", s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC1S", s:"\cd ", d:val, s:"% ", s:ess_tag, l:"IATTR_TINC1SS");
 
 		case INV_INC_CRITFORDOT:
-		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC4S");
+			if(showDetailedMods)
+				StrParam(
+					s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC4S", 
+					s:"\cd ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra),
+					s:"% ", l:"IATTR_TINC4SS",
+					s:" - ", s:GetModTierText(tier, extra)
+				);
+		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC4S", s:"\cd ", d:val, s:"% ", l:"IATTR_TINC4SS");
+
 		case INV_INC_ALLOVERLOAD:
 		return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%\n", s:ess_tag, l:"IATTR_TINC5S");
 		case INV_INC_ESHIELDNOINTERRUPT:
@@ -617,22 +640,22 @@ str ItemAttributeString(
 		
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
-		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(attr_extra >> 16), s:"\n", s:col_tag, d:((1.0 - (attr_extra & 0xFFFF)) * 100) >> 16, s:"% ", s:ess_tag, l:"IATTR_TINC7S", s:col_tag, l:GetWeaponTag(attr_extra >> 16));
+		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(attr_extra), s:"\n", s:col_tag, s:GetFixedRepresentation(val, true), s:"% ", s:ess_tag, l:"IATTR_TINC7S", s:col_tag, l:GetWeaponTag(attr_extra));
 		
 		case INV_CORR_WEAPONPLUSPROJ:
-		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(extra >> 16));
+		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(extra));
 
 		case INV_INC_INSTANTLIFESTEAL:
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
-					s:" - ", s:GetModTierText(tier, extra),
-					s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S"
+					s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S",
+					s:" - ", s:GetModTierText(tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S");
 		
-			case INV_INC_MITIGATIONTODODGE:
+		case INV_INC_MITIGATIONTODODGE:
 		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC11S");
 
 		// single text incursion

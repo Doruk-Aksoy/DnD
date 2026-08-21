@@ -42,7 +42,8 @@ enum {
 	DRAW_STAT_OFFENSE2,
 	DRAW_STAT_DEFENSE,
 	DRAW_STAT_UTILITY,
-	DRAW_STAT_MISC // for charges and stuff on player
+	DRAW_STAT_MISC, // for charges and stuff on player
+	DRAW_STAT_EXOTIC // unique item effects -- nothing here rolls on a regular item
 };
 
 // Page definitions
@@ -54,6 +55,7 @@ enum {
 	MENU_STAT2_OFFENSE2,
 	MENU_STAT2_DEFENSE,
 	MENU_STAT2_UTILITY,
+	MENU_STAT2_EXOTIC,
 	MENU_STAT2_MISC,
 	
 	MENU_PERK,

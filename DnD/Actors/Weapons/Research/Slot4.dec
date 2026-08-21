@@ -1950,7 +1950,7 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 	+DONTREFLECT
 	+FORCERADIUSDMG
 	
-	Stamina 4227072
+	Stamina 21004288 // ISEXPLOSIVE | RIPSONCE | SCALEIGNITE
 	
 	States {
 		SpawnState:
@@ -1968,7 +1968,7 @@ Actor IncineratorProjectile1 : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 48)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius)
-			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_SCALEIGNITE)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			DRGP E 3 Bright
@@ -2008,7 +2008,7 @@ Actor IncineratorProjectile2 : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
-	Stamina 4194304
+	Stamina 20971520 // ISEXPLOSIVE | SCALEIGNITE
 	
 	+FOILINVUL
 	+DONTREFLECT
@@ -2032,7 +2032,7 @@ Actor IncineratorProjectile2 : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", ACS_NamedExecuteWithResult("DND Explosion Radius Retrieve", 96, 1))
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", user_expradius / 2)
-			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_BLASTSELF | DND_DAMAGEFLAG_SCALEIGNITE)
 		Goto DoExplosionDamage
 		ContinueFromExplosion:
 			XPL1 ABCD 4 Bright

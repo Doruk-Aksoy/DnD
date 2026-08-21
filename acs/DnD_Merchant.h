@@ -124,7 +124,7 @@ void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
 		max_affixes = GetMaxItemAffixes(item.item_type, item.item_subtype);
 	if(item.attrib_count < max_affixes) {
 		int temp = item.attrib_count++;
-		int lvl = item.item_level / CHARM_ATTRIBLEVEL_SEPERATOR;
+		int lvl = GetItemTier(item.item_level);
 		
 		bool makeWellRolled = CheckWellRolled(MAXPLAYERS);
 		

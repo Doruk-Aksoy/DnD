@@ -1191,7 +1191,7 @@ Actor RubyShot : DnD_BaseProjectile {
 		(100 << DPCT_SHIFT)
 	)
 	
-	Stamina 0
+	Stamina 16777216 // SCALEIGNITE
 	
 	+THRUGHOST
 	+FORCEXYBILLBOARD
@@ -1257,7 +1257,7 @@ Actor RubyCircleFlame : DnD_ExplosiveBase {
 		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
-	Stamina 4194304
+	Stamina 20971520 // ISEXPLOSIVE | SCALEIGNITE
 	
 	+THRUGHOST
 	+FORCERADIUSDMG
@@ -1292,7 +1292,7 @@ Actor RubyCircleFlame : DnD_ExplosiveBase {
 			)
 			TNT1 A 0 A_SetUserVar("user_expradius", 32)
 			TNT1 A 0 A_SetUserVar("user_fullexpradius", 0)
-			TNT1 A 0 A_SetUserVar("user_expflags", 0)
+			TNT1 A 0 A_SetUserVar("user_expflags", DND_DAMAGEFLAG_SCALEIGNITE)
 			CFCF QR 3 Bright
 			CFCF S 3 Bright
 		Goto DoExplosionDamage
@@ -1314,6 +1314,8 @@ Actor RubyFlameMissile : DnD_BaseFastProjectile {
 		(DND_DAMAGETYPE_FIRE << DTYPE_SHIFT) |
 		(100 << DPCT_SHIFT)
 	)
+	
+	Stamina 16777216 // SCALEIGNITE
 	
 	+INVISIBLE
 	+THRUGHOST

@@ -124,7 +124,10 @@ enum {
 	DND_DAMAGEFLAG_NONWEAPON			=			0b1000000000000000000000,
 	DND_DAMAGEFLAG_ISEXPLOSIVE			=			0b10000000000000000000000,
 	DND_DAMAGEFLAG_ISMELEE				=			0b100000000000000000000000,
-	
+	// ignite is sized off the fire in the hit but still has to ROLL the chance -- ADDEDIGNITE above
+	// does that AND makes the ignite guaranteed. Keep in step with DamageTypes.dec (16777216).
+	DND_DAMAGEFLAG_SCALEIGNITE			=			0b1000000000000000000000000,
+
 	// below are special things that are cleared after a certain point in HandleImpactDamage function
 	DND_DAMAGEFLAG_ISREFLECTED			=			67108864,
 	DND_DAMAGEFLAG_COUNTSASMELEE		=			134217728,
@@ -152,6 +155,11 @@ enum {
 	DND_DAMAGETICFLAG_POISON			=			0b100000000000000,
 	DND_DAMAGETICFLAG_INFLICTPOISON		=			0b1000000000000000,
 	DND_DAMAGETICFLAG_SPELL				=			0b10000000000000000,
+	// 18th and LAST slot -- the comment above is a hard cap, the value is shifted by 14 bits elsewhere.
+	// Scales the ignite off the fire in the hit WITHOUT making it guaranteed, which is the half of
+	// ADDEDIGNITE that a normal fire weapon wants. ADDEDIGNITE does both and is for weapons meant to
+	// ignite every time.
+	DND_DAMAGETICFLAG_SCALEIGNITE		=			0b100000000000000000,
 };
 
 #include "DnD_CommonResearch.h"
@@ -550,10 +558,11 @@ int GetMissingHealth() {
 
 int CalculateHealthCapBonuses(int pnum) {
 	int base = GetPlayerAttributeValue(pnum, INV_HP_INCREASE);
-	if(GetPlayerAttributeValue(pnum, INV_INC_DOUBLEHPBONUS)) {
-		// double it then add the negative component
-		base <<= 1;
-		base -= GetPlayerAttributeExtra(pnum, INV_INC_DOUBLEHPBONUS);
+	int temp = 0;
+	if((temp = GetPlayerAttributeValue(pnum, INV_INC_MOREHPBONUS))) {
+		// add negative component then double it -- this used to be the other way around but now it's more challenging to use
+		base += GetPlayerAttributeExtra(pnum, INV_INC_MOREHPBONUS);
+		base = base * (100 + temp) / 100;
 	}
 
 	return base;
@@ -575,10 +584,11 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
 	int percent  = GetPlayerAttributeValue(pnum, INV_HPPERCENT_INCREASE);
-	if(GetPlayerAttributeValue(pnum, INV_INC_DOUBLEHPBONUS))
-		percent <<= 1;
+	int temp = 0;
+	if((temp = GetPlayerAttributeValue(pnum, INV_INC_MOREHPBONUS)))
+		percent = percent * (100 + temp) / 100;
 	
-	percent += 	CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST 						+
+	percent += 	CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST +
 				GetActorResearchHealthBonuses(tid);
 				   
 	// player bonus + % research bonus
@@ -696,7 +706,14 @@ void RestoreRPGStat (int statflag) {
 	if(!(statflag & RES_NOCLASSPERK))
 		HandleClassPerks(ActivatorTID());
 
+	// A player who died mid blind leaves the loop in "DnD Monster Blind Cast" without reaching its
+	// restore, so the freeze and the ownership state have to be dropped here too -- a petrify that
+	// killed you would otherwise respawn you frozen.
 	TakeInventory("IsBlinded", 1);
+	SetInventory("BlindTimer", 0);
+	SetInventory("BlindSeverity", 0);
+	SetInventory("BuffTintTimer", 0);
+	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
 }
 
 bool HasPlayerPowerset(int pnum, int power) {

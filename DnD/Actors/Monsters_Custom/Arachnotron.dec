@@ -1561,7 +1561,8 @@ Actor OphidianDamageMarker {
 	}
 }
 
-Actor OphidianBeam : DnD_BaseProjectile {
+Actor OphidianBeam {
+	PROJECTILE
 	Radius 4
 	Height 8
 	Speed 40
@@ -1577,7 +1578,9 @@ Actor OphidianBeam : DnD_BaseProjectile {
 	DamageType "MagicalFire"
 	Stamina 1073741856
 	States {
-		SpawnState:
+		Spawn:
+			TNT1 A 0 NoDelay ACS_NamedExecuteAlways("DnD Monster Projectile Setup")
+		SpawnLoop:
 			FX01 A 1 Bright A_SpawnItemEx("SunBeamDamagerTrailSpawner", 0, 0, 8)
 		Loop
 		Death:

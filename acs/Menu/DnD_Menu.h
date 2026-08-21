@@ -616,19 +616,20 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				DrawBoxText("DND_MENU_GAIN_OFFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_1, RPGMENUITEMID - 1, 192.1, 96.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_GAIN_DEFENSE", DND_LANGUAGE_LOOKUP, boxid, MBOX_2, RPGMENUITEMID - 2, 192.1, 112.0, "\c[B1]", "\c[Y5]");
 				DrawBoxText("DND_MENU_GAIN_UTILITY", DND_LANGUAGE_LOOKUP, boxid, MBOX_3, RPGMENUITEMID - 3, 192.1, 128.0, "\c[B1]", "\c[Y5]");
-				DrawBoxText("DND_MENU_GAIN_MISC", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_GAIN_EXOTIC", DND_LANGUAGE_LOOKUP, boxid, MBOX_4, RPGMENUITEMID - 4, 192.1, 144.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("DND_MENU_GAIN_MISC", DND_LANGUAGE_LOOKUP, boxid, MBOX_5, RPGMENUITEMID - 5, 192.1, 160.0, "\c[B1]", "\c[Y5]");
 
 				if(GetCVar("survival")) {
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 5, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_LIVESLEFT", s:": \c-", d:GetPlayerLivesLeft(PlayerNumber()); HUDMSG_PLAIN, RPGMENUITEMID - 6, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 7, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 268.1, 0.0, 0.0);
 				}
 				else {
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 8, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
-					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_MAPDIFF", s:": \c-", l:MapDifficultyLabel(MapData[DND_MAPDATA_DIFFICULTY]); HUDMSG_PLAIN, RPGMENUITEMID - 9, CR_WHITE, 190.1, 252.1, 0.0, 0.0);
+					HudMessage(s:"\c[Y5]", l:"DND_MENU_TOTALKILLS", s:": \c-", s:GetPlayerLifetimeKills(); HUDMSG_PLAIN, RPGMENUITEMID - 10, CR_WHITE, 190.1, 260.1, 0.0, 0.0);
 				}
 
-				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_5, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_6, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
 			else if(curopt == MENU_STAT2_OFFENSE1) {
 				HudMessage(s:"--- ", l:"DND_MENU_GAIN_OFFENSE", s:" #1 ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
@@ -656,6 +657,13 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				HudMessage(s:"--- ", l:"DND_MENU_GAIN_UTILITY", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
 				
 				DrawPlayerStats(pnum, DRAW_STAT_UTILITY);
+
+				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
+			}
+			else if(curopt == MENU_STAT2_EXOTIC) {
+				HudMessage(s:"--- ", l:"DND_MENU_GAIN_EXOTIC", s:" ---"; HUDMSG_PLAIN, RPGMENUHELPID, CR_CYAN, 316.4, 44.0, 0.0, 0.0);
+				
+				DrawPlayerStats(pnum, DRAW_STAT_EXOTIC);
 
 				DrawBoxText("<=", DND_NOLOOKUP, boxid, MBOX_1, RPGMENUPAGEID - 1, 184.1, 44.0, "\c[B1]", "\c[Y5]");
 			}
@@ -1582,7 +1590,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 			}
 			else if(curopt == MENU_STAT2) {
 				if(HasPlayerClicked(pnum)) {
-					if(boxid == MBOX_5)
+					if(boxid == MBOX_6)
 						UpdateMenuPosition(MENU_STAT1);
 					else if(boxid == MBOX_1)
 						UpdateMenuPosition(MENU_STAT2_OFFENSE1);
@@ -1612,23 +1620,7 @@ Script "DND Server Box Receive" (int pnum, int boxid, int mainboxid) NET {
 				else if(HasPressedLeft(pnum))
 					UpdateMenuPosition(MENU_STAT2_OFFENSE1);
 			}
-			else if(curopt == MENU_STAT2_DEFENSE) {
-				if(HasPlayerClicked(pnum)) {
-					if(boxid == MBOX_1)
-						UpdateMenuPosition(MENU_STAT2);
-				}
-				else if(HasPressedLeft(pnum))
-					UpdateMenuPosition(MENU_STAT2);
-			}
-			else if(curopt == MENU_STAT2_UTILITY) {
-				if(HasPlayerClicked(pnum)) {
-					if(boxid == MBOX_1)
-						UpdateMenuPosition(MENU_STAT2);
-				}
-				else if(HasPressedLeft(pnum))
-					UpdateMenuPosition(MENU_STAT2);
-			}
-			else if(curopt == MENU_STAT2_MISC) {
+			else if(curopt == MENU_STAT2_DEFENSE || curopt == MENU_STAT2_UTILITY || curopt == MENU_STAT2_EXOTIC || curopt == MENU_STAT2_MISC) {
 				if(HasPlayerClicked(pnum)) {
 					if(boxid == MBOX_1)
 						UpdateMenuPosition(MENU_STAT2);

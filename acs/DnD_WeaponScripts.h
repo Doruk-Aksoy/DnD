@@ -1344,7 +1344,7 @@ Script "DnD Dark Lance Shred" (int dmg, int owner, int stacks, int victim) {
 		int pnum = owner - P_TIDSTART;
 		
 		// special fx script -- since dot has duration it scales off of dot duration increase
-		int time_lim = DARKLANCE_ALT_DURATION_TICS * (100 + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+		int time_lim = GetGenericDoTDuration(pnum, DARKLANCE_ALT_DURATION_TICS);
 		ACS_NamedExecuteWithResult("DnD Dark Lance Shred FX", victim, pnum, time_lim);
 		time_lim /= DARKLANCE_TICKS;
 		

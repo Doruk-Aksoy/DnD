@@ -1161,6 +1161,65 @@ int GetMonsterLevelDroprateBonus(int lvl) {
 	return FixedDiv(400.0, (100.0 / lvl + 3.0)) >> 16;
 }
 
+// Ranks for everything that dims the player's screen. They all share one blend and one IsBlinded
+// flag, so a weaker effect must not repaint over a stronger one -- and, just as important, must not
+// be the thing that clears it. DND_VISIONRANK_LIGHT is the base the DND_BLIND_XXX types are offset
+// from, so that enum can stay exactly as it is (it is mirrored in DECORATE).
+enum {
+	DND_VISIONRANK_NONE,
+	DND_VISIONRANK_BUFF,		// the player's own tints -- phasing, amphetamine, the doomguy orb
+	DND_VISIONRANK_CURSE,		// monster curses and debuffs
+	DND_VISIONRANK_LIGHT,		// DND_VISIONRANK_LIGHT + DND_BLIND_LIGHT
+	DND_VISIONRANK_HEAVY,		// ...           + DND_BLIND_HEAVY
+	DND_VISIONRANK_PETRIFY		// ...           + DND_BLIND_PETRIFY
+};
+
+// Below this the effect is only a tint. At or above it the player is BLINDED, which is a gameplay
+// state and not just a colour: IsBlinded gates the menu (script 900, so a petrify cannot be cheesed
+// by opening the inventory) as well as the pain blend. A buff or curse must never set it.
+#define DND_VISIONRANK_BLINDFLOOR DND_VISIONRANK_LIGHT
+
+// Activator must be the player being impaired. False means outranked -- do not touch the screen.
+//
+// A weaker effect is refused outright rather than merely skipping the paint: letting it extend
+// BlindTimer would let a stream of curse ticks hold a petrify's freeze open indefinitely. The
+// counterpart is that a light blind landing during a petrify simply does not register -- the screen
+// clears when the petrify does, which is the safe direction to be wrong in.
+//
+// There is deliberately no "somebody else already owns the countdown" answer here any more.
+// Inferring a live owner from a non-zero BlindTimer was wrong: running scripts are destroyed at
+// level exit but these counters are inventory and are not, so a map change during any vision effect
+// left a timer with nothing counting it down. Every later claim was then told an owner existed, no
+// countdown ever started again, and the state was stuck for the rest of the session -- petrifies
+// that never released, fades that never restored, hit blends suppressed forever, and every lower
+// ranked effect denied from then on. Callers now always start "DnD Vision Impair Timer" and the
+// newest instance wins, so the next effect to land repairs a stale counter by itself.
+bool ClaimVisionImpair(int rank, int duration) {
+	int active = CheckInventory("BlindSeverity");
+
+	if(duration <= 0 || rank < active)
+		return false;
+
+	SetInventory("BlindSeverity", rank);
+
+	// A strictly stronger effect takes the countdown over outright rather than inheriting a weaker
+	// one's longer timer. Keeping the longer value would leave the screen owned by something that has
+	// already visually finished, and there would be no moment at which the weaker effect could be
+	// handed back -- see the buff tint restore in the timer script. Equal rank is a refresh, so there
+	// the longer of the two wins.
+	if(rank > active || duration > CheckInventory("BlindTimer"))
+		SetInventory("BlindTimer", duration);
+
+	// Only a real blind sets IsBlinded -- see DND_VISIONRANK_BLINDFLOOR. It is a gameplay state (it
+	// gates the menu, so a petrify cannot be cheesed by opening the inventory), which means it has to
+	// be set whenever a blind lands -- not only when the blind happens to be the one that started the
+	// countdown, which is what it used to do.
+	if(rank >= DND_VISIONRANK_BLINDFLOOR)
+		GiveInventory("IsBlinded", 1);
+
+	return true;
+}
+
 #include "DnD_Bitset.h"
 #include "DnD_Alias.h"
 #include "DnD_Globals.h"

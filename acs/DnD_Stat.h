@@ -1418,9 +1418,9 @@ int GetPlayerMeleeRange(int pnum, int range) {
 
 int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1) {
 	int base = GetPlayerAttributeValue(pnum, INV_DOTMULTI) + DND_ACRIMONY_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_ACRM);
-
-	if(GetPlayerAttributeValue(pnum, INV_INC_CRITFORDOT))
-		base += GetCritModifier(pnum, victim, wepid, true) / 2;
+	int temp = 0;
+	if((temp = GetPlayerAttributeValue(pnum, INV_INC_CRITFORDOT)))
+		base += GetCritModifier(pnum, victim, wepid, true) * (100 + temp) / 100;
 	return base;
 }
 
@@ -1458,7 +1458,7 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 			GetPlayerAttributeValue(pnum, INV_EX_FLATDOT);
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + GetPlayerAttributeValue(pnum, INV_POISON_TICDMG) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + GetPlayerAttributeValue(pnum, INV_INCREASEDDOT)) / 100;
 	
 	// dot multi
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
@@ -1607,17 +1607,26 @@ str GetPlayerBleedTimeDisplay(int pnum) {
 }
 
 #define DND_BASE_IGNITECHANCE 15 // 15%
+// Base DoT durations live here rather than in DnD_Damage.h with the rest of the ailment constants:
+// the Get*Duration accessors below are read by the stat menu as well as by the damage code, and this
+// header is parsed FIRST, so a define left behind in DnD_Damage.h is not visible to them.
+#define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
+#define DND_ADDEDIGNITE_CHANCE 25 // flat chance a DND_DAMAGEFLAG_ADDEDIGNITE weapon adds on top of the base
 #define DND_BASE_IGNITEPROLIFCHANCE 20 // 20% chance to prolif on monster death
 #define DND_BASE_IGNITEPROLIFRANGE 128.0
 #define DND_BASE_IGNITEPROLIFCOUNT 5 // max 5 enemies can be proliferated to
 #define DND_MAX_IGNITEPROLIFS 32 // max 32 enemies can be proliferated to from one target
 
-int GetIgniteChance(int pnum) {
-	return Clamp_Between((DND_BASE_IGNITECHANCE + GetPlayerAttributeValue(pnum, INV_CHANCE_FLATIGNITE)) * (100 + GetPlayerAttributeValue(pnum, INV_IGNITECHANCE)) / 100, 0, 100);
+// flat_bonus is a weapon side contribution, currently only DND_ADDEDIGNITE_CHANCE. It goes in the same
+// bucket as INV_CHANCE_FLATIGNITE so the player's % ignite chance scales it too -- a weapon that helps
+// you ignite should get better as you invest in igniting, not sit outside your build.
+// The menu readout calls this with no bonus on purpose: it is a player stat, not a per weapon one.
+int GetIgniteChance(int pnum, int flat_bonus = 0) {
+	return Clamp_Between((DND_BASE_IGNITECHANCE + flat_bonus + GetPlayerAttributeValue(pnum, INV_CHANCE_FLATIGNITE)) * (100 + GetPlayerAttributeValue(pnum, INV_IGNITECHANCE)) / 100, 0, 100);
 }
 
-int CheckIgniteChance(int pnum) {
-	return random(1, 100) <= GetIgniteChance(pnum);
+int CheckIgniteChance(int pnum, int flat_bonus = 0) {
+	return random(1, 100) <= GetIgniteChance(pnum, flat_bonus);
 }
 
 int GetIgniteProlifChance(int pnum) {
@@ -1638,7 +1647,12 @@ int GetIgniteProlifCount(int pnum) {
 	return Clamp_Between(DND_BASE_IGNITEPROLIFCOUNT + GetPlayerAttributeValue(pnum, INV_IGNITE_PROLIFCOUNT), 0, DND_MAX_IGNITEPROLIFS);
 }
 
+int GetIgniteDuration(int pnum) {
+	return DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+}
+
 #define DND_POISON_CHECKRATE 0.1
+#define DND_BASE_POISON_TIMER 3.0
 #define DND_BASE_POISON_TIC 0.5
 #define DND_POISON_TICCHECK 3 // increments ticker every 3 tics
 int GetPoisonTicrate(int pnum) {
@@ -1649,6 +1663,14 @@ int GetPoisonTicrate(int pnum) {
 		ticrate = DND_POISON_CHECKRATE;
 		
 	return ticrate;
+}
+
+int GetPoisonDuration(int pnum) {
+	return DND_BASE_POISON_TIMER * (100 + GetPlayerAttributeValue(pnum, INV_POISON_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+}
+
+int GetGenericDoTDuration(int pnum, int base) {
+	return base * (100 + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
 }
 
 #define DND_BASE_CHILL_SLOW 0.1 // 10% per stack

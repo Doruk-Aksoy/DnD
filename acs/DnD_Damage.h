@@ -52,6 +52,9 @@
 
 #define MAX_RIPCOUNT 4096
 
+#define DND_MAX_CHEGOVAX_TICS 15 // INV_ESS_CHEGOVAX stops ramping an ignite after this many damage tics
+#define DND_MAX_POISON_TICDMG_CAP 100 // 100% multiplier on the tic dmg, essentially double damage
+
 enum {
 	DND_DAMAGETYPE_MELEE,
 	DND_DAMAGETYPE_MELEEOCCULT,
@@ -114,7 +117,7 @@ enum {
 
 enum {
 	DND_IGNITEFLAG_CANPROLIF = 1,
-	DND_IGNITEFLAG_ADDEDIGN = 2
+	DND_IGNITEFLAG_ADDEDIGN = 2 // reserved, currently unread -- the burn is handed a resolved damage now
 };
 
 int MonsterDamageTypeToDamageCategory(int d) {
@@ -291,14 +294,11 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 #define DND_BASE_FREEZETIMER 21 // 3 seconds base time (21 x 5 = 105)
 #define DND_BASE_CHILL_CAP 5 // 50% health dealt in cold = maximum slow
 
-#define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
-
 #define DND_BASE_OVERLOADCHANCE 5
 #define DND_BASE_OVERLOADBUFF 20 // 20%
 #define DND_MAX_OVERLOADTARGETS 128 // up to 128 allowed
 #define DND_BASE_OVERLOADZAPDELAY 3 // 3 tics
 
-#define DND_BASE_POISON_TIMER 3.0
 
 #define DND_EXTRAUNDEADDMG_MULTIPLIER 300
 
@@ -1439,7 +1439,7 @@ void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
 		CheckBleedChance(pnum, wepid, victim)
 	)
 	{
-		int amt = DND_BASE_BLEED_TIME_PLAYER * (100 + GetPlayerAttributeValue(pnum, INV_BLEED_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+		int amt = GetPlayerBleedTime(pnum);
 		int current_bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
 
 		if(!current_bleed_time) {
@@ -1891,6 +1891,7 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 				(!!(actor_flags & DND_ACTORFLAG_CONFIRMEDCRIT) * DND_DAMAGETICFLAG_CRIT)			|
 				(!!(actor_flags & DND_ACTORFLAG_COUNTSASMELEE) * DND_DAMAGETICFLAG_CONSIDERMELEE)	|
 				(!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
+				(!!(flags & DND_DAMAGEFLAG_SCALEIGNITE) * DND_DAMAGETICFLAG_SCALEIGNITE)			|
 				(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
 				(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
 				(!!(flags & DND_DAMAGEFLAG_INFLICTPOISON) * DND_DAMAGETICFLAG_INFLICTPOISON)		|
@@ -2300,25 +2301,25 @@ int GetIgniteTickDamage(int pnum, int victim, int wepid, int added_dmg) {
 }
 
 void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_within_tic) {
-	bool addedIgn = flags & DND_DAMAGETICFLAG_ADDEDIGNITE;
+	// addedIgn adds damage to ignite from weapons' base and gives extra ignite chance, scaleIgn is just damage
+	bool addedIgn = !!(flags & DND_DAMAGETICFLAG_ADDEDIGNITE);
+	bool scaleIgn = addedIgn || (flags & DND_DAMAGETICFLAG_SCALEIGNITE);
 	if
 	(
 		CheckAilmentImmunity(pnum, victim - DND_MONSTERTID_BEGIN, DND_MOLTENBLOOD) &&
-		(addedIgn || CheckIgniteChance(pnum))
+		CheckIgniteChance(pnum, addedIgn * DND_ADDEDIGNITE_CHANCE)
 	)
 	{
-		int amt = DND_BASE_IGNITETIMER * (100 + GetPlayerAttributeValue(pnum, INV_IGNITEDURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+		int amt = GetIgniteDuration(pnum);
 		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 		int ign_flags = DND_IGNITEFLAG_CANPROLIF;
-		if(addedIgn)
-			ign_flags |= DND_IGNITEFLAG_ADDEDIGN;
 
 		// Price this application now, whether or not it gets to start the script. A refresh only
 		// pushes the timer out -- it cannot restart the burn -- so without parking the number on the
 		// victim the FIRST application is what the monster takes for the whole burn. On anything
 		// tanky enough to stay permanently lit that number was never revisited again, which is why
 		// swapping weapons could not bring a weak burn back up.
-		int tick_dmg = GetIgniteTickDamage(pnum, victim, wepid, addedIgn ? dmg_within_tic : 0);
+		int tick_dmg = GetIgniteTickDamage(pnum, victim, wepid, scaleIgn ? dmg_within_tic : 0);
 
 		if(!current_ign_time) {
 			SetActorInventory(victim, "DnD_IgniteTimer", amt);
@@ -2509,22 +2510,33 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		// damage, since nothing was recorded for them.
 		int tic_flags = flags | GetMixedTicFlags(pnum, victim_data);
 
+		// INV_INC_CRITFORDOT gives up crit damage on the hit itself and makes crit the trigger for
+		// ailments instead (see IATTR_TINC4) -- without it this is just true and nothing changes.
+		//
+		// Read off tic_flags rather than flags so a crit landed by ANY component of a mixed hit
+		// counts, which is the same OR the element tests below already read. A DoT tic can never
+		// carry the crit flag (crit is only rolled for non DOT damage), so with this mod the strike
+		// is the only thing that can inflict -- what the strike left burning cannot re-inflict. The
+		// gate is deliberately on application only: proliferation and poison spread move an ailment
+		// that already passed it and are not re-tested.
+		bool can_ail = !GetPlayerAttributeValue(pnum, INV_INC_CRITFORDOT) || !!(tic_flags & DND_DAMAGETICFLAG_CRIT);
+
 		// Independent tests, not an if/else chain. A chain can only ever fire ONE ailment, so a
 		// physical weapon with added cold would chill or bleed depending on which component landed
 		// first and never both.
-		if(tic_flags & DND_DAMAGETICFLAG_ICE)
+		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_ICE))
 			HandleChillEffects(pnum, victim_tid);
 
-		if((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE)) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
+		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
 			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_FIRE)));
 
-		if((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || (GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD) && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON))))
+		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || (GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD) && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON)))))
 			HandleOverloadEffects(pnum, victim_tid);
 
-		if((tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
+		if(can_ail && (tic_flags & DND_DAMAGETICFLAG_PHYSICAL) && !(tic_flags & DND_DAMAGETICFLAG_DOT))
 			HandleBleedEffects(pnum, victim_tid, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_PHYSICAL));
 
-		if((tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(tic_flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
+		if(can_ail && (tic_flags & (DND_DAMAGETICFLAG_POISON | DND_DAMAGETICFLAG_INFLICTPOISON)) && !(tic_flags & DND_DAMAGETICFLAG_NOPOISONSTACK) && CheckAilmentImmunity(pnum, victim_data, DND_TOXICBLOOD)) {
 			// poison damage deals 10% of its damage per stack over 3 seconds
 			// 5% of damage or by the factor -- if factor is with a weapon that already has inflictpoison, it empowers poison of the weapon by +2%
 			if(!(tic_flags & DND_DAMAGETICFLAG_SPELL)) {
@@ -2681,7 +2693,7 @@ Script "DnD Damage Numbers" (int tid, int dmg, int flags) CLIENTSIDE {
 Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	int pnum = PlayerNumber();
 	int source = pnum + P_TIDSTART;
-	int time_limit = DND_BASE_POISON_TIMER * (100 + GetPlayerAttributeValue(pnum, INV_POISON_DURATION) + GetPlayerAttributeValue(pnum, INV_EX_DOTDURATION)) / 100;
+	int time_limit = GetPoisonDuration(pnum);
 	int trigger_tic = GetPoisonTicrate(pnum);
 	
 	int tic_temp = trigger_tic;
@@ -2689,6 +2701,13 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	int stacks = CheckActorInventory(victim, "DnD_PoisonStacks");
 	int temp, i;
 	int mid = victim - DND_MONSTERTID_BEGIN;
+
+	// How much of the stack's own damage INV_POISON_TICDMG adds back per tic already dealt, the count
+	// of those tics, and the bonus the two produce. Read once here, like chegovax does on the ignite
+	// side, but capped differently -- see the ramp below.
+	int dmg_tic_buff = GetPlayerAttributeValue(pnum, INV_POISON_TICDMG);
+	int poison_ticks = 0;
+	int ramp = 0;
 
 	dmg = GetPoisonDOTDamage(pnum, dmg, victim, wepid);
 
@@ -2768,11 +2787,32 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 				}
 			}
 
+			// Gated by DAMAGE, not by time. Chegovax caps the tic COUNT, so its ceiling rides on the
+			// mod roll and a bigger roll simply ends up worth more; this one caps the BONUS itself at
+			// DND_MAX_POISON_TICDMG_CAP, so every roll converges on the same ceiling and a bigger roll
+			// only reaches it sooner. That makes the mod a "how fast does the poison spin up" stat
+			// rather than a "how high does it go" one.
+			// The ramp lands on the SUM, after every live stack has been added up, so a stack that
+			// arrives mid poison inherits whatever the monster has already earned rather than starting
+			// its own -- an ignite re-application under chegovax behaves the same way.
+			ramp = Min(dmg_tic_buff * poison_ticks, DND_MAX_POISON_TICDMG_CAP);
+			if(ramp)
+				dmg += dmg * ramp / 100;
+
 			if(CheckFlag(victim, "SHOOTABLE")) {
 				temp = HandleDamageDeal(source, victim, dmg, DND_DAMAGETYPE_POISON, wepid, DND_DAMAGEFLAG_NOPOISONSTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_PAINLESS | DND_ACTORFLAG_FOILINVUL | DND_ACTORFLAG_ISDAMAGEOVERTIME, wepid < 0);
 				if(temp > 0)
 					Thing_Damage2(victim, temp, "Special_NoPain");
 				ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, stacks);
+
+				// Counted only where damage actually landed, and stopped once the bonus has reached the
+				// cap -- past that point another tic changes nothing, and the counter must not run free:
+				// fresh stacks keep DnD_PoisonStacks non zero, so a monster held poisoned holds this
+				// loop open indefinitely and dmg_tic_buff * poison_ticks would eventually overflow.
+				// The dmg_tic_buff test is what stops a player without the mod counting forever, since
+				// a zero buff never reaches the cap.
+				if(dmg_tic_buff && ramp < DND_MAX_POISON_TICDMG_CAP)
+					++poison_ticks;
 			}
 			
 			// go up to the next threshold for next tic etc.
@@ -3118,7 +3158,8 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 		if(temp > base_dmg)
 			base_dmg = temp;
 
-		// chegovax ramps the burn by a share of the base for every tick it has already run
+		// chegovax ramps the burn by a share of the base for every tick it has already run, up to
+		// DND_MAX_CHEGOVAX_TICS -- see the capped increment below
 		next_dmg = base_dmg + (base_dmg * dmg_tic_buff / 100) * ticks;
 
 		// only apply ignite if target is shootable ie. not teleporting
@@ -3128,10 +3169,19 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 			if(i > 0)
 				Thing_Damage2(victim, i, "SkipHandle");
 
-			++ticks;
+			// Capped, not just clamped where it is read. Every hit and every proliferation arrival
+			// refreshes DnD_IgniteTimer, so a monster held alight in a dense pack keeps this script
+			// running indefinitely and the counter would climb with no ceiling -- an ever growing
+			// ramp, and eventually an overflow in the multiply above.
+			if(ticks < DND_MAX_CHEGOVAX_TICS)
+				++ticks;
 		}
 
 		// x 5
+		// This Delay must stay UNCONDITIONAL, outside the SHOOTABLE test above. The prolif dispatch
+		// below launches this script inline and it runs to here before returning to its caller, which
+		// is still mid-iteration over tlist[pnum] -- a shared static row. Reaching the prolif block
+		// without a delay in between would let the callee rewrite the row the caller is walking.
 		Delay(const:7);
 
 		// Decrement AFTER the delay, never before it. A nonzero DnD_IgniteTimer is what
@@ -3170,11 +3220,7 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 		int prolif_count = GetIgniteProlifCount(pnum);
 		
 		// clear ignite prolif from subsequent ignites from this monster jumping, we don't want that, too laggy
-		// ADDEDIGN goes with it: it means "this ignite was sized from the fire in the hit that applied
-		// it", and the hit in question landed on the monster that just DIED. Carrying it over priced a
-		// fresh burn on a full health neighbour off a corpse's last tic, which on a tanky target it
-		// jumped to was a burn worth almost nothing for the rest of that fight.
-		ign_flags &= ~(DND_IGNITEFLAG_CANPROLIF | DND_IGNITEFLAG_ADDEDIGN);
+		ign_flags &= ~DND_IGNITEFLAG_CANPROLIF;
 		next_dmg = 0; // used as temp variable
 		inc_by = 0; // same as above
 		dmg_tic_buff = 0; // same as above...
@@ -3245,22 +3291,25 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 					// check if target was ignited already, if not ignite if so replace timer
 					next_dmg = CheckActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer");
 
-					// priced fresh against THIS target, with no added component -- see the ADDEDIGN
-					// clear above
-					temp = GetIgniteTickDamage(pnum, tlist[pnum][i].tid, wepid, 0);
-
+					// Spread THIS burn's magnitude, do not re-derive one. base_dmg already carries the
+					// added component -- the fire that was in the hit which started the chain -- and
+					// that is a property of the player's build, not of the monster it landed on:
+					// GetFireDOTDamage reads player stats only and resists are applied later, in
+					// HandleDamageDeal. Re-pricing the jump from scratch dropped the added term, which
+					// on a build whose fire comes from conversion or gained-as (a Thunderstaff, say)
+					// IS the entire ignite -- the source burned hard and every jump landed for base.
 					if(!next_dmg) {
 						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", ign_time);
-						SetActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage", temp);
+						SetActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage", base_dmg);
 
 						// we don't proliferate from the proliferated targets... that'd be busted
 						// note: WAIT AND SEE IF ITS OP!
-						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, ign_flags, temp);
+						ACS_NamedExecuteWithResult("DnD Monster Ignite", tlist[pnum][i].tid, wepid, ign_flags, base_dmg);
 					}
 					else {
 						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", Max(ign_time, next_dmg));
-						if(temp > CheckActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage"))
-							SetActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage", temp);
+						if(base_dmg > CheckActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage"))
+							SetActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage", base_dmg);
 					}
 
 					// abort if we reached our count
@@ -3482,6 +3531,7 @@ int HandlePlayerSelfDamage(int pnum, int dmg, int dmg_type, int wepid, int flags
 	
 	// apply accessory and other sources of damage -- convert to dmg tic flag due to the recent rewrite
 	tflag = (!!(flags & DND_DAMAGEFLAG_ADDEDIGNITE) * DND_DAMAGETICFLAG_ADDEDIGNITE)			|
+			(!!(flags & DND_DAMAGEFLAG_SCALEIGNITE) * DND_DAMAGETICFLAG_SCALEIGNITE)			|
 			(!!(flags & DND_DAMAGEFLAG_EXTRATOUNDEAD) * DND_DAMAGETICFLAG_EXTRATOUNDEAD)		|
 			(!!(flags & DND_DAMAGEFLAG_NOPOISONSTACK) * DND_DAMAGETICFLAG_NOPOISONSTACK)		|
 			(!!(flags & DND_DAMAGEFLAG_NOIGNITESTACK) * DND_DAMAGETICFLAG_NOIGNITESTACK)		|
