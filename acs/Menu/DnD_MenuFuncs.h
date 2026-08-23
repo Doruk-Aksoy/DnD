@@ -950,7 +950,7 @@ int CanTrade (int pnum, int id, int tradeflag, int price) {
 	
 	if(tradeflag & TRADE_BUY) {
 		if(type == TYPE_AMMO) { // ammo
-			cond2 = (CheckInventory(item) < GetAmmoCapacity(item)) && !GetPlayerAttributeValue(pnum, INV_EX_CANNOTPICKAMMO);
+			cond2 = (CheckInventory(item) < GetAmmoCapacity(item)) && !PlayerModData[pnum].f[PSTAT_EX_CANNOTPICKAMMO];
 			cond4 = GlobalData.ShopStockRemaining[PlayerNumber()][id] > 0;
 		}
 		else if(type != TYPE_WEAPON && type != TYPE_ABILITY) { // item
@@ -5588,20 +5588,23 @@ int GetAmmoSlotAndIndexFromShop(int index) {
 	return 0;
 }
 
-int GetResistDisplayVal(int pnum, int res, int reduce) {
-	int val = GetPlayerAttributeValue(pnum, res) + GetPlayerAttributeValue(pnum, INV_DMGREDUCE_ALL) + reduce;
+// Display mirror of ApplyPlayerDamageResist -- same terms, no cap and no damage applied. Takes a
+// DND_PRESIST_* index for the same reason that one does, and renamed alongside it so that a stale
+// attribute id cannot slip through on this side either.
+int GetResistDisplayValue(int pnum, int res_id, int reduce) {
+	int val = PlayerModData[pnum].f[PSTAT_RESIST_BASE + res_id] + PlayerModData[pnum].f[PSTAT_RESIST_ALL] + reduce;
 
-	switch(res) {
-		case INV_DMGREDUCE_ELEM:
+	switch(res_id) {
+		case DND_PRESIST_ELEM:
 			val += pbuffs[pnum].buff_net_values[BUFF_ELEMENTALRESIST].additive;
 		break;
-		case INV_DMGREDUCE_ENERGY:
+		case DND_PRESIST_ENERGY:
 			val += pbuffs[pnum].buff_net_values[BUFF_ENERGYRESIST].additive;
 		break;
-		case INV_DMGREDUCE_PHYS:
+		case DND_PRESIST_PHYS:
 			val += pbuffs[pnum].buff_net_values[BUFF_PHYSRESIST].additive;
 		break;
-		case INV_DMGREDUCE_MAGIC:
+		case DND_PRESIST_MAGIC:
 			val += pbuffs[pnum].buff_net_values[BUFF_MAGICRESIST].additive;
 		break;
 	}	
@@ -5610,7 +5613,7 @@ int GetResistDisplayVal(int pnum, int res, int reduce) {
 }
 
 int GetPlayerMoreDamageDisplay(int pnum) {
-	int base = GetPlayerAttributeValue(pnum, INV_DAMAGEPERCENT_MORE);
+	int base = PlayerModData[pnum].f[PSTAT_DAMAGEPERCENT_MORE];
 	base = FixedMul(1.0 + base, pbuffs[pnum].buff_net_values[BUFF_FRENZYCHARGE].multiplicative);
 	if(base > 0)
 		return base - 1.0;
@@ -5622,11 +5625,11 @@ int GetPlayerLessDamageDisplay(int pnum) {
 	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_DAMAGETAKEN].multiplicative);
 	mult = FixedMul(mult, pbuffs[pnum].buff_net_values[BUFF_ENDURANCECHARGE].multiplicative);
 
-	int temp = GetPlayerAttributeValue(pnum, INV_EX_LESSDMGTAKENMAXOVERHEAT);
+	int temp = PlayerModData[pnum].f[PSTAT_EX_LESSDMGTAKENMAXOVERHEAT];
 	if(temp && HasRunningOverheatCooldown(pnum + P_TIDSTART))
 		mult = CombineFactors(mult, -((temp << 16)) / 100);
 
-	temp = GetPlayerAttributeValue(pnum, INV_EX_DMGINCREASE_TAKEN);
+	temp = PlayerModData[pnum].f[PSTAT_EX_DMGINCREASE_TAKEN];
 	if(temp)
 		mult = CombineFactors(mult, (temp << 16) / 100);
 
@@ -5649,7 +5652,7 @@ void DrawPlayerStats(int pnum, int category) {
 	if(pstat_text.text == "") {
 		if(category == DRAW_STAT_OFFENSE1) {
 			// melee dmg
-			val = GetPlayerAttributeValue(pnum, INV_MELEEDAMAGE);
+			val = PlayerModData[pnum].f[PSTAT_MELEEDAMAGE];
 			if(val) {
 				pstat_text.text = StrParam(s:GetItemAttributeText(INV_MELEEDAMAGE, 0, 0, val), s:"\n");
 				++k;
@@ -5664,7 +5667,7 @@ void DrawPlayerStats(int pnum, int category) {
 
 			// melee specific skill stuff like deep cuts etc.
 			i = GetCVar("dnd_detailedmods");
-			val = GetPlayerAttributeValue(pnum, INV_CRUSHINGBLOW);
+			val = PlayerModData[pnum].f[PSTAT_CRUSHINGBLOW];
 			if(val) {
 				// detailed mods view
 				if(i) {
@@ -5677,7 +5680,7 @@ void DrawPlayerStats(int pnum, int category) {
 				}
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_DEEPCUTS);
+			val = PlayerModData[pnum].f[PSTAT_DEEPCUTS];
 			if(val) {
 				if(i) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DEEPCUTS, 0, 0, val), s:" ", s:"\cu", l:"DND_DEEPCUTS_EXPL", s:"\n");
@@ -5689,7 +5692,7 @@ void DrawPlayerStats(int pnum, int category) {
 				}
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_OPENWOUNDS);
+			val = PlayerModData[pnum].f[PSTAT_OPENWOUNDS];
 			if(val) {
 				if(i) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OPENWOUNDS, 0, 0, val), s:" ", s:"\cu", l:"DND_OPENWOUNDS_EXPL", s:"\n");
@@ -5701,7 +5704,7 @@ void DrawPlayerStats(int pnum, int category) {
 				}
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_DEADLYSTRIKE);
+			val = PlayerModData[pnum].f[PSTAT_DEADLYSTRIKE];
 			if(val) {
 				if(i) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DEADLYSTRIKE, 0, 0, val), s:" ", s:"\cu", l:"DND_DEADLYSTRIKE_EXPL", s:"\n");
@@ -5713,7 +5716,7 @@ void DrawPlayerStats(int pnum, int category) {
 				}
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_REAPINGCLEAVE);
+			val = PlayerModData[pnum].f[PSTAT_REAPINGCLEAVE];
 			if(val) {
 				if(i) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REAPINGCLEAVE, 0, 0, val), s:" ", s:"\cu", l:"DND_REAPINGCLEAVE_EXPL", s:"\n");
@@ -5727,7 +5730,7 @@ void DrawPlayerStats(int pnum, int category) {
 
 			// accuracy
 			val = GetActorProperty(0, APROP_ACCURACY);
-			if(GetPlayerAttributeValue(pnum, INV_INC_ACCURACYREVERSED))
+			if(HasPlayerFlag(pnum, PFLAG_ACCURACY_REVERSED))
 				val *= -1;
 			
 			if(val) {
@@ -5802,7 +5805,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// get the pens of 4 elements here
-			i = GetPlayerAttributeValue(pnum, INV_EX_ELEPENHARMONY) ? GetHighestElePen(pnum) : 0;
+			i = HasPlayerFlag(pnum, PFLAG_ELEPENHARMONY) ? GetHighestElePen(pnum) : 0;
 			val = GetResistPenetration(pnum, DND_DAMAGECATEGORY_FIRE);
 			if(val) {
 				if(i != DND_DAMAGECATEGORY_FIRE)
@@ -5854,7 +5857,7 @@ void DrawPlayerStats(int pnum, int category) {
 			// end block
 			
 			// blocking mons take % more
-			val = GetPlayerAttributeValue(pnum, INV_BLOCKERS_MOREDMG);
+			val = PlayerModData[pnum].f[PSTAT_BLOCKERS_MOREDMG];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_BLOCKERS_MOREDMG, 0, 0, val), s:"\n");
 				++k;
@@ -5870,137 +5873,130 @@ void DrawPlayerStats(int pnum, int category) {
 			// Added damage of a second type. Listed one per element rather than summed: each lands as
 			// its own typed instance against its own resist, so a single total would be a fiction.
 			for(i = INV_ADDED_PHYSDMG; i <= INV_ADDED_POISONDMG; ++i) {
-				val = GetPlayerAttributeValue(pnum, i);
+				val = ReadPlayerModValue(pnum, i);
 				if(val) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(i, 0, 0, val), s:"\n");
 					++k;
 				}
 			}
 
-			// crit chance for one weapon type -- the type it names is in the extra field
-			val = GetPlayerAttributeValue(pnum, INV_CRITPERCENT_FORWEPTYPE);
-			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_CRITPERCENT_FORWEPTYPE, 0, 0, val, GetPlayerAttributeExtra(pnum, INV_CRITPERCENT_FORWEPTYPE)), s:"\n");
-				++k;
-			}
+			// INV_CRITPERCENT_FORWEPTYPE is deliberately absent from this page. It has no player-scope
+			// storage at all -- ProcessAttribute fans it into
+			// Player_Weapon_Infos[pnum][w].wep_mods[WEP_MOD_CRITPERCENT] for every weapon of the type
+			// it names. GetPercentCritChanceIncrease already sums that side, GetCritChance folds that
+			// in, and the Loadout page prints the result per weapon, which is where a per-weapon-type
+			// mod belongs. A player-wide line here could only ever have shown zero.
 
 			// projectile speed
-			val = GetPlayerAttributeValue(pnum, INV_PROJSPEED);
+			val = PlayerModData[pnum].f[PSTAT_PROJSPEED];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PROJSPEED, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// radius immunity ignore
-			val = GetPlayerAttributeValue(pnum, INV_CHANCE_IGNORERADIUSIMMUNITY);
+			val = PlayerModData[pnum].f[PSTAT_CHANCE_IGNORERADIUSIMMUNITY];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_CHANCE_IGNORERADIUSIMMUNITY, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// melee attack cooldown and splash
-			val = GetPlayerAttributeValue(pnum, INV_MELEE_ATKCDR);
+			val = PlayerModData[pnum].f[PSTAT_MELEE_ATKCDR];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_MELEE_ATKCDR, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_MELEESPLASH_NOTONLOWSTAMINA);
+			val = PlayerModData[pnum].f[PSTAT_MELEESPLASH_NOTONLOWSTAMINA];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_MELEESPLASH_NOTONLOWSTAMINA, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// more damage to bosses -- an implicit, but it applies to everything the player fires
-			val = GetPlayerAttributeValue(pnum, INV_IMP_MOREDAMAGETOBOSSES);
+			val = PlayerModData[pnum].f[PSTAT_IMP_MOREDAMAGETOBOSSES];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_MOREDAMAGETOBOSSES, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			// Incursion mods that change how attacks behave. The extra field on the two projectile
-			// ones names the weapon they apply to, so it has to be handed over with the value.
-			val = GetPlayerAttributeValue(pnum, INV_INC_PLUSPROJ);
-			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_PLUSPROJ, 0, 0, val, GetPlayerAttributeExtra(pnum, INV_INC_PLUSPROJ)), s:"\n");
-				++k;
-			}
+			// INV_INC_PLUSPROJ and INV_INC_PLUSTWOPROJ are deliberately absent, same reason as
+			// INV_CRITPERCENT_FORWEPTYPE above: they have no player-scope storage. ProcessAttribute folds
+			// them into Player_Weapon_Infos[pnum][w].wep_mods[WEP_MOD_EXTRAPROJ] and [WEP_MOD_DMG] for the
+			// one weapon their extra field names, and the Loadout page already prints both -- the
+			// projectile count directly, the damage penalty through the damage line. A player-wide line
+			// here could only ever have shown zero.
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_PLUSTWOPROJ);
-			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_PLUSTWOPROJ, 0, 0, val, GetPlayerAttributeExtra(pnum, INV_INC_PLUSTWOPROJ)), s:"\n");
-				++k;
-			}
-
-			val = GetPlayerAttributeValue(pnum, INV_INC_PROJREVERSE);
+			val = PlayerModData[pnum].f[PSTAT_INC_PROJREVERSE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_PROJREVERSE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_ENEMYRIPCHANCE);
+			val = PlayerModData[pnum].f[PSTAT_INC_ENEMYRIPCHANCE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_ENEMYRIPCHANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_RIPPERSEXPLODE);
+			val = PlayerModData[pnum].f[PSTAT_INC_RIPPERSEXPLODE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_RIPPERSEXPLODE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_INVERTRESISTANCES);
+			val = PlayerModData[pnum].f[PSTAT_INC_INVERTRESISTANCES];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_INVERTRESISTANCES, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_BLOCKPREVENTION);
+			val = PlayerModData[pnum].f[PSTAT_INC_BLOCKPREVENTION];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_BLOCKPREVENTION, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// essences that act on the attack itself
-			val = GetPlayerAttributeValue(pnum, INV_ESS_VAAJ);
+			val = PlayerModData[pnum].f[PSTAT_ESS_VAAJ];
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_VAAJ, 0, 0, val, GetPlayerAttributeExtra(pnum, INV_ESS_VAAJ)), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_VAAJ, 0, 0, val, ReadPlayerModExtra(pnum, INV_ESS_VAAJ)), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ESS_SSRATH);
+			val = PlayerModData[pnum].f[PSTAT_ESS_SSRATH];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_SSRATH, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ESS_HARKIMONDE);
+			val = PlayerModData[pnum].f[PSTAT_ESS_HARKIMONDE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_HARKIMONDE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ESS_ZRAVOG);
+			val = PlayerModData[pnum].f[PSTAT_ESS_ZRAVOG];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_ZRAVOG, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// accuracy essences sit next to the accuracy line above
-			val = GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT);
+			val = PlayerModData[pnum].f[PSTAT_ESS_OMNISIGHT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_OMNISIGHT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ESS_OMNISIGHT2);
+			val = PlayerModData[pnum].f[PSTAT_ESS_OMNISIGHT2];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_OMNISIGHT2, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ESS_THORAX);
+			val = PlayerModData[pnum].f[PSTAT_ESS_THORAX];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_THORAX, 0, 0, val), s:"\n");
 				++k;
@@ -6008,85 +6004,85 @@ void DrawPlayerStats(int pnum, int category) {
 		}
 		else if(category == DRAW_STAT_OFFENSE2) {
 			// wep type specific bonuses flat and %
-			val = GetPlayerAttributeValue(pnum, INV_HANDGUN_PERCENT);
+			val = PlayerModData[pnum].f[PSTAT_HANDGUN_PERCENT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_HANDGUN_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_HANDGUN);
+			val = PlayerModData[pnum].f[PSTAT_FLAT_HANDGUN];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_HANDGUN, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_SHOTGUN_PERCENT);
+			val = PlayerModData[pnum].f[PSTAT_SHOTGUN_PERCENT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_SHOTGUN_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_SHOTGUN);
+			val = PlayerModData[pnum].f[PSTAT_FLAT_SHOTGUN];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_SHOTGUN, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_AUTOMATIC_PERCENT);
+			val = PlayerModData[pnum].f[PSTAT_AUTOMATIC_PERCENT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AUTOMATIC_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_AUTOMATIC);
+			val = PlayerModData[pnum].f[PSTAT_FLAT_AUTOMATIC];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_AUTOMATIC, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ARTILLERY_PERCENT);
+			val = PlayerModData[pnum].f[PSTAT_ARTILLERY_PERCENT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ARTILLERY_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_ARTILLERY);
+			val = PlayerModData[pnum].f[PSTAT_FLAT_ARTILLERY];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_ARTILLERY, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_PRECISION_PERCENT);
+			val = PlayerModData[pnum].f[PSTAT_PRECISION_PERCENT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PRECISION_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_PRECISION);
+			val = PlayerModData[pnum].f[PSTAT_FLAT_PRECISION];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_PRECISION, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_TECH_PERCENT);
+			val = PlayerModData[pnum].f[PSTAT_TECH_PERCENT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_TECH_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_TECH);
+			val = PlayerModData[pnum].f[PSTAT_FLAT_TECH];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_TECH, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_MAGIC_PERCENT);
+			val = PlayerModData[pnum].f[PSTAT_MAGIC_PERCENT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_MAGIC_PERCENT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_MAGIC);
+			val = PlayerModData[pnum].f[PSTAT_FLAT_MAGIC];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_MAGIC, 0, 0, val), s:"\n");
 				++k;
@@ -6099,7 +6095,7 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_INCREASEDDOT);
+			val = PlayerModData[pnum].f[PSTAT_DOT_INCREASED];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INCREASEDDOT, 0, 0, val), s:"\n");
 				++k;
@@ -6109,11 +6105,11 @@ void DrawPlayerStats(int pnum, int category) {
 			pstat_text.text = StrParam(s:pstat_text.text, s:"\c[Q9]", s:GetPlayerBleedTimeDisplay(pnum), s:"\c- ", l:"DND_BLEED_TIME", s:"\n");
 			++k;
 
-			val = GetPlayerAttributeValue(pnum, INV_CHANCE_BLEED);
+			val = PlayerModData[pnum].f[PSTAT_BLEED_CHANCE];
 			pstat_text.text = StrParam(s:pstat_text.text, s:GetBleedChanceDisplay(pnum), s:"\n");
 			++k;
 
-			val = GetPlayerAttributeValue(pnum, INV_PERCENTDMG_BLEED);
+			val = PlayerModData[pnum].f[PSTAT_BLEED_DMG_PCT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PERCENTDMG_BLEED, 0, 0, val), s:"\n");
 				++k;
@@ -6127,7 +6123,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// +flat fire damage
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_FIREDMG);
+			val = PlayerModData[pnum].f[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_FIREDMG, 0, 0, val), s:"\n");
 				++k;
@@ -6164,7 +6160,7 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// ice things
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_ICEDMG);
+			val = PlayerModData[pnum].f[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_ICE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_ICEDMG, 0, 0, val), s:"\n");
 				++k;
@@ -6189,19 +6185,19 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// lightning things			
-			val = GetPlayerAttributeValue(pnum, INV_OVERLOADCHANCE);
+			val = PlayerModData[pnum].f[PSTAT_OVERLOADCHANCE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OVERLOADCHANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_ZAPCOUNT);
+			val = PlayerModData[pnum].f[PSTAT_OVERLOAD_ZAPCOUNT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OVERLOAD_ZAPCOUNT, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_DMGINCREASE);
+			val = PlayerModData[pnum].f[PSTAT_OVERLOAD_DMGINCREASE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OVERLOAD_DMGINCREASE, 0, 0, val), s:"\n");
 				++k;
@@ -6214,7 +6210,7 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLAT_POISONDMG);
+			val = PlayerModData[pnum].f[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLAT_POISONDMG, 0, 0, val), s:"\n");
 				++k;
@@ -6232,14 +6228,14 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_POISON_TICDMG);
+			val = PlayerModData[pnum].f[PSTAT_POIS_TICDMG];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_POISON_TICDMG, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// ailment ignore chance
-			val = GetPlayerAttributeValue(pnum, INV_CHANCE_AILMENTIGNORE);
+			val = PlayerModData[pnum].f[PSTAT_AILMENT_IGNORECHANCE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_CHANCE_AILMENTIGNORE, 0, 0, val), s:"\n");
 				++k;
@@ -6247,51 +6243,51 @@ void DrawPlayerStats(int pnum, int category) {
 
 			// Per ailment DoT multipliers. The generic one (INV_DOTMULTI) is already above; these three
 			// only apply to their own ailment and do not show up in it.
-			val = GetPlayerAttributeValue(pnum, INV_DOTMULTI_FIRE);
+			val = PlayerModData[pnum].f[PSTAT_DOTMULTI_FIRE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DOTMULTI_FIRE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_DOTMULTI_POISON);
+			val = PlayerModData[pnum].f[PSTAT_DOTMULTI_POISON];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DOTMULTI_POISON, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_DOTMULTI_BLEED);
+			val = PlayerModData[pnum].f[PSTAT_DOTMULTI_BLEED];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_DOTMULTI_BLEED, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// overload duration -- the chance and the damage bonus are already listed, this was not
-			val = GetPlayerAttributeValue(pnum, INV_OVERLOAD_DURATION);
+			val = PlayerModData[pnum].f[PSTAT_OVERLOAD_DURATION];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_OVERLOAD_DURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_ALLOVERLOAD);
+			val = PlayerModData[pnum].f[PSTAT_INC_ALLOVERLOAD];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_ALLOVERLOAD, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_POISONSPREAD);
+			val = PlayerModData[pnum].f[PSTAT_INC_POISONSPREAD];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_POISONSPREAD, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// ailment essences
-			val = GetPlayerAttributeValue(pnum, INV_ESS_CHEGOVAX);
+			val = PlayerModData[pnum].f[PSTAT_ESS_CHEGOVAX];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_CHEGOVAX, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ESS_ERYXIA);
+			val = PlayerModData[pnum].f[PSTAT_ESS_ERYXIA];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ESS_ERYXIA, 0, 0, val), s:"\n");
 				++k;
@@ -6378,7 +6374,7 @@ void DrawPlayerStats(int pnum, int category) {
 				++k;
 			}
 			else {
-				val = GetPlayerAttributeValue(pnum, INV_KNOCKBACK_RESIST);
+				val = PlayerModData[pnum].f[PSTAT_KNOCKBACK_RESIST];
 				if(val) {
 					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_KNOCKBACK_RESIST, 0, 0, val), s:"\n");
 					++k;
@@ -6393,71 +6389,71 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			i = GetMaxResistCap(pnum);
-			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS) + 1.0 * GetPlayerAttributeValue(pnum, INV_EX_UNITY_RES_BONUS) * GetUnity() / DND_UNITY_DIVISOR;
-			val = GetPlayerAttributeValue(pnum, INV_EX_RESPERESHIELD);
+			temp = DND_PLAYER_RESIST_REDUCE * (GetLevel() / DND_PLAYER_WEAKEN_LEVELS) + 1.0 * PlayerModData[pnum].f[PSTAT_EX_UNITY_RES_BONUS] * GetUnity() / DND_UNITY_DIVISOR;
+			val = PlayerModData[pnum].f[PSTAT_EX_RESPERESHIELD];
 			if(val)
 				temp += DND_RES_PER_PRISMGUARD * (CheckInventory("EShieldAmount") / val);
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_PHYS, temp);
+			val = GetResistDisplayValue(pnum, DND_PRESIST_PHYS, temp);
 			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_PHYS", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ENERGY, temp);
+			val = GetResistDisplayValue(pnum, DND_PRESIST_ENERGY, temp);
 			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ENRG", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_MAGIC, temp);
+			val = GetResistDisplayValue(pnum, DND_PRESIST_MAGIC, temp);
 			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_MAGC", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_ELEM, temp);
+			val = GetResistDisplayValue(pnum, DND_PRESIST_ELEM, temp);
 			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_ELE", s:"\n");
 			++k;
 			
-			val = GetResistDisplayVal(pnum, INV_DMGREDUCE_REFL, temp);
+			val = GetResistDisplayValue(pnum, DND_PRESIST_REFL, temp);
 			pstat_text.text = StrParam(s:pstat_text.text, s:val >= 0 ? "\c[Q9]" : "\cg", s:GetFixedRepresentation(val > i ? i : val, false), s:" \c-(\c[Q9]", s:GetFixedRepresentation(val, false), s:"\c-) ", l:"DND_MENU_RES_REFL", s:"\n");
 			++k;
 			// dmg reduction block ends
 
 			// reduced curse things
-			val = GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEDURATION);
+			val = PlayerModData[pnum].f[PSTAT_REDUCEDCURSEDURATION];
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REDUCEDCURSEDURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEEFFECT);
+			val = PlayerModData[pnum].f[PSTAT_REDUCEDCURSEEFFECT];
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REDUCEDCURSEEFFECT, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// ailment avoidance
-			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_IGNITE);
+			val = GetPlayerElementalAvoidChance(pnum, DND_PAVOID_IGNITE);
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_IGNITE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_CHILLFREEZE);
+			val = GetPlayerElementalAvoidChance(pnum, DND_PAVOID_CHILLFREEZE);
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_CHILLFREEZE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_POISON);
+			val = GetPlayerElementalAvoidChance(pnum, DND_PAVOID_POISON);
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_POISON, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerElementalAvoidance(pnum, INV_AVOID_OVERLOAD);
+			val = GetPlayerElementalAvoidChance(pnum, DND_PAVOID_OVERLOAD);
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_OVERLOAD, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerNonElementalAvoidance(pnum, INV_AVOID_BLEED);
+			val = GetPlayerBleedAvoidChance(pnum);
 			if(val > 0) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AVOID_BLEED, 0, 0, val), s:"\n");
 				++k;
@@ -6482,65 +6478,65 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 
 			// regen rate -- the CAP is listed above, the rate it refills at was not
-			val = GetPlayerAttributeValue(pnum, INV_REGENRATE);
+			val = PlayerModData[pnum].f[PSTAT_REGENRATE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REGENRATE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// percent knockback resist -- the flat one is already listed
-			val = GetPlayerAttributeValue(pnum, INV_PERCENT_KNOCKBACKRESIST);
+			val = PlayerModData[pnum].f[PSTAT_PERCENT_KNOCKBACKRESIST];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_PERCENT_KNOCKBACKRESIST, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_TWICEARMORDEFENSE);
+			val = PlayerModData[pnum].f[PSTAT_ARMOR_DOUBLEDEF];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_TWICEARMORDEFENSE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_HPREGENINTERRUPT);
+			val = PlayerModData[pnum].f[PSTAT_INC_HPREGENINTERRUPT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_HPREGENINTERRUPT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_INC_PASSIVEREGEN);
+			val = PlayerModData[pnum].f[PSTAT_INC_PASSIVEREGEN];
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_PASSIVEREGEN, 0, 0, val, GetPlayerAttributeExtra(pnum, INV_INC_PASSIVEREGEN)), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_PASSIVEREGEN, 0, 0, val, ReadPlayerModExtra(pnum, INV_INC_PASSIVEREGEN)), s:"\n");
 				k += 2; // this one is worded over two lines
 			}
 
 			// Defensive implicits. These pass their second number in the EXTRA slot rather than the
 			// val2 one -- that is the convention the implicit branch of the tooltip uses, and these
 			// cases read it back out of the same place.
-			val = GetPlayerAttributeValue(pnum, INV_IMP_ABSORBLIGHTNING);
+			val = PlayerModData[pnum].f[PSTAT_IMP_ABSORBLIGHTNING];
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_ABSORBLIGHTNING, 0, 0, val, 0, 0, false, GetPlayerAttributeExtra(pnum, INV_IMP_ABSORBLIGHTNING)), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_ABSORBLIGHTNING, 0, 0, val, 0, 0, false, ReadPlayerModExtra(pnum, INV_IMP_ABSORBLIGHTNING)), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_KNIGHTARMOR);
+			val = PlayerModData[pnum].f[PSTAT_IMP_KNIGHTARMOR];
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_KNIGHTARMOR, 0, 0, val, 0, 0, false, GetPlayerAttributeExtra(pnum, INV_IMP_KNIGHTARMOR)), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_KNIGHTARMOR, 0, 0, val, 0, 0, false, ReadPlayerModExtra(pnum, INV_IMP_KNIGHTARMOR)), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_RAVAGER);
+			val = PlayerModData[pnum].f[PSTAT_IMP_RAVAGER];
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_RAVAGER, 0, 0, val, 0, 0, false, GetPlayerAttributeExtra(pnum, INV_IMP_RAVAGER)), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_RAVAGER, 0, 0, val, 0, 0, false, ReadPlayerModExtra(pnum, INV_IMP_RAVAGER)), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_NECROARMOR);
+			val = PlayerModData[pnum].f[PSTAT_IMP_NECROARMOR];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_NECROARMOR, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_RECOVERESONUNDEADKILL);
+			val = PlayerModData[pnum].f[PSTAT_IMP_RECOVERESONUNDEADKILL];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_RECOVERESONUNDEADKILL, 0, 0, val), s:"\n");
 				++k;
@@ -6574,57 +6570,57 @@ void DrawPlayerStats(int pnum, int category) {
 			++k;
 
 			// ripper block
-			val = GetPlayerAttributeValue(pnum, INV_RIPCOUNT);
+			val = PlayerModData[pnum].f[PSTAT_RIPCOUNT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_RIPCOUNT, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_RIPDAMAGE);
+			val = PlayerModData[pnum].f[PSTAT_RIPDAMAGE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_RIPDAMAGE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// lock-on block
-			val = GetPlayerAttributeValue(pnum, INV_LOCKONAREA);
+			val = PlayerModData[pnum].f[PSTAT_LOCKONAREA];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LOCKONAREA, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_LOCKONRANGE);
+			val = PlayerModData[pnum].f[PSTAT_LOCKONRANGE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LOCKONRANGE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// lifesteal block begins
-			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL);
+			val = PlayerModData[pnum].f[PSTAT_LIFESTEAL];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_CAP);
+			val = PlayerModData[pnum].f[PSTAT_LIFESTEAL_CAP];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL_CAP, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RATE);
+			val = PlayerModData[pnum].f[PSTAT_LIFESTEAL_RATE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL_RATE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
-			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_RECOVERY);
+			val = PlayerModData[pnum].f[PSTAT_LIFESTEAL_RECOVERY];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_LIFESTEAL_RECOVERY, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_LIFESTEAL_DAMAGE);
+			val = PlayerModData[pnum].f[PSTAT_LIFESTEAL_DAMAGE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", s:GetFixedRepresentation(val, true), s:"%\c- ", l:"IATTR_T90", s:"\n");
 				++k;
@@ -6632,21 +6628,21 @@ void DrawPlayerStats(int pnum, int category) {
 			// lifesteal block ends
 
 			// killing spree
-			val = GetPlayerAttributeValue(pnum, INV_INCKILLINGSPREE);
+			val = PlayerModData[pnum].f[PSTAT_INCKILLINGSPREE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INCKILLINGSPREE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// ammo gain chance
-			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_CHANCE);
+			val = PlayerModData[pnum].f[PSTAT_AMMOGAIN_CHANCE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AMMOGAIN_CHANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 			
 			// magsize
-			val = GetPlayerAttributeValue(pnum, INV_MAGAZINE_INCREASE);
+			val = PlayerModData[pnum].f[PSTAT_MAGAZINE_INCREASE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:"+ \c[Q9]", d:val, s:"%\c- ", l:"IATTR_T10", s:"\n");
 				++k;
@@ -6660,14 +6656,14 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// ammo pickup inc
-			val = GetPlayerAttributeValue(pnum, INV_AMMOGAIN_INCREASE);
+			val = PlayerModData[pnum].f[PSTAT_AMMOGAIN_INCREASE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_AMMOGAIN_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// reduced overheat
-			val = GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
+			val = PlayerModData[pnum].f[PSTAT_REDUCED_OVERHEAT];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_REDUCED_OVERHEAT, 0, 0, val), s:"\n");
 				++k;
@@ -6699,79 +6695,79 @@ void DrawPlayerStats(int pnum, int category) {
 			}
 			
 			// shop stock
-			val = (GetAmmoCapIncrease(pnum) - 100) * (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)) / 100;
+			val = (GetAmmoCapIncrease(pnum) - 100) * (100 + PlayerModData[pnum].f[PSTAT_SHOPSTOCK_INCREASE]) / 100;
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_SHOPSTOCK_INCREASE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// flask gains -- both of these are player wide, the flask's own mods are on the flask
-			val = GetPlayerAttributeValue(pnum, INV_INCFLASKCHARGEGAINED);
+			val = PlayerModData[pnum].f[PSTAT_INCFLASKCHARGEGAINED];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INCFLASKCHARGEGAINED, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FLASKLIFERECOVERYRATE);
+			val = PlayerModData[pnum].f[PSTAT_FLASKLIFERECOVERYRATE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FLASKLIFERECOVERYRATE, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// stamina pool -- the gain and recovery rate are already listed above
-			val = GetPlayerAttributeValue(pnum, INV_INC_STAMINA);
+			val = PlayerModData[pnum].f[PSTAT_INC_STAMINA];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_STAMINA, 0, 0, val), s:"\n");
 				++k;
 			}
 
 			// instant share of lifesteal, next to the lifesteal block above
-			val = GetPlayerAttributeValue(pnum, INV_INC_INSTANTLIFESTEAL);
+			val = PlayerModData[pnum].f[PSTAT_INC_INSTANTLIFESTEAL];
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_INSTANTLIFESTEAL, 0, 0, val, GetPlayerAttributeExtra(pnum, INV_INC_INSTANTLIFESTEAL)), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_INC_INSTANTLIFESTEAL, 0, 0, val, ReadPlayerModExtra(pnum, INV_INC_INSTANTLIFESTEAL)), s:"\n");
 				++k;
 			}
 
 			// utility implicits
-			val = GetPlayerAttributeValue(pnum, INV_IMP_BONUSPETCAP);
+			val = PlayerModData[pnum].f[PSTAT_IMP_BONUSPETCAP];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_BONUSPETCAP, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_REDUCEDVISIONIMPAIR);
+			val = PlayerModData[pnum].f[PSTAT_IMP_REDUCEDVISIONIMPAIR];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_REDUCEDVISIONIMPAIR, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_FASTEROVERHEATDISS);
+			val = PlayerModData[pnum].f[PSTAT_IMP_FASTEROVERHEATDISS];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_FASTEROVERHEATDISS, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_AMMOGAIN_SHOTGUNS);
+			val = PlayerModData[pnum].f[PSTAT_IMP_AMMOGAIN_SHOTGUNS];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_AMMOGAIN_SHOTGUNS, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_REDUCEDSLOWSHOTGUNS);
+			val = PlayerModData[pnum].f[PSTAT_IMP_REDUCEDSLOWSHOTGUNS];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_REDUCEDSLOWSHOTGUNS, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_PHASINGTIME);
+			val = PlayerModData[pnum].f[PSTAT_IMP_PHASINGTIME];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_PHASINGTIME, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_STAMINAONKILL);
+			val = PlayerModData[pnum].f[PSTAT_IMP_STAMINAONKILL];
 			if(val) {
-				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_STAMINAONKILL, 0, 0, val, 0, 0, false, GetPlayerAttributeExtra(pnum, INV_IMP_STAMINAONKILL)), s:"\n");
+				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_STAMINAONKILL, 0, 0, val, 0, 0, false, ReadPlayerModExtra(pnum, INV_IMP_STAMINAONKILL)), s:"\n");
 				++k;
 			}
 		}
@@ -6784,39 +6780,38 @@ void DrawPlayerStats(int pnum, int category) {
 			// "what unique effects am I carrying", so a mod that also feeds a derived number on another
 			// page still belongs on this one.
 			for(i = UNIQUE_ATTRIB_BEGIN; i <= UNIQUE_ATTRIB_END; ++i) {
-				// Not a magnitude -- it is a bitfield of granted powers, and it is the one id in the
-				// range with no IATTR_TX text of its own. Decoded below instead.
+				// Not a magnitude, and no longer storage either -- the powers it used to pack now live
+				// in PlayerModData.pflags. It is also the one id in the range with no IATTR_TX text of
+				// its own, so it would print blank even if it did hold something. Decoded below.
 				if(i == INV_EX_PLAYERPOWERSET1)
 					continue;
 
-				val = GetPlayerAttributeValue(pnum, i);
+				val = ReadPlayerModValue(pnum, i);
 				if(val) {
-					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(i, 0, 0, val, GetPlayerAttributeExtra(pnum, i)), s:"\n");
+					pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(i, 0, 0, val, ReadPlayerModExtra(pnum, i)), s:"\n");
 					++k;
 				}
 			}
 
-			// The powerset bits are granted by implicits that store no value of their own -- they fold
-			// into INV_EX_PLAYERPOWERSET1 and are otherwise invisible on every page. Each is worded by
+			// The powerset bits are granted by implicits that store no value of their own -- they live
+			// in the player flag words and are otherwise invisible on every page. Each is worded by
 			// the implicit that grants it, which is where the text for it already lives.
-			temp = GetPlayerAttributeValue(pnum, INV_EX_PLAYERPOWERSET1);
-
-			if(temp & PPOWER_CYBER) {
+			if(HasPlayerFlag(pnum, PFLAG_CYBER)) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_DOUBLEESHIELDRECOVERY, 0, 0, 1), s:"\n");
 				++k;
 			}
 
-			if(temp & PPOWER_ESHIELDBLOCKALL) {
+			if(HasPlayerFlag(pnum, PFLAG_ESHIELDBLOCKALL)) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_ESHIELDBLOCKSALL, 0, 0, 1), s:"\n");
 				++k;
 			}
 
-			if(temp & PPOWER_MELEEIGNORESHIELD) {
+			if(HasPlayerFlag(pnum, PFLAG_MELEEIGNORESHIELD)) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_MELEEIGNORESSHIELDS, 0, 0, 1), s:"\n");
 				++k;
 			}
 
-			if(temp & PPOWER_LOWERREFLECT) {
+			if(HasPlayerFlag(pnum, PFLAG_LOWERREFLECT)) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_HIGHREFLECTREDUCE, 0, 0, 1), s:"\n");
 				++k;
 			}
@@ -6825,43 +6820,43 @@ void DrawPlayerStats(int pnum, int category) {
 			// misc stats
 
 			// charge duration and the on-kill charge gains, which belong with the counts below
-			val = GetPlayerAttributeValue(pnum, INV_CHARGEDURATION);
+			val = PlayerModData[pnum].f[PSTAT_CHARGEDURATION];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_CHARGEDURATION, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_FRENZYCHARGE_ONSHATTER);
+			val = PlayerModData[pnum].f[PSTAT_FRENZYCHARGE_ONSHATTER];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_FRENZYCHARGE_ONSHATTER, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_ENDURANCECHARGE_ONMELEE);
+			val = PlayerModData[pnum].f[PSTAT_ENDURANCECHARGE_ONMELEE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_ENDURANCECHARGE_ONMELEE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_POWERCHARGE_ONOVERLOAD);
+			val = PlayerModData[pnum].f[PSTAT_POWERCHARGE_ONOVERLOAD];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_POWERCHARGE_ONOVERLOAD, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_FRENZY);
+			val = PlayerModData[pnum].f[PSTAT_IMP_ONKILL_FRENZY];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_ONKILL_FRENZY, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_ENDURANCE);
+			val = PlayerModData[pnum].f[PSTAT_IMP_ONKILL_ENDURANCE];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_ONKILL_ENDURANCE, 0, 0, val), s:"\n");
 				++k;
 			}
 
-			val = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_POWER);
+			val = PlayerModData[pnum].f[PSTAT_IMP_ONKILL_POWER];
 			if(val) {
 				pstat_text.text = StrParam(s:pstat_text.text, s:GetItemAttributeText(INV_IMP_ONKILL_POWER, 0, 0, val), s:"\n");
 				++k;

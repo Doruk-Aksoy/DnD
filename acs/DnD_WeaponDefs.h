@@ -393,7 +393,7 @@ int WeaponMagazineCaps[DND_MAX_MAGAZINES] = {
 };
 
 int GetMagazineCap(int pnum, int mag_id) {
-	return WeaponMagazineCaps[mag_id] * (100 + GetPlayerAttributeValue(pnum, INV_MAGAZINE_INCREASE)) / 100;
+	return WeaponMagazineCaps[mag_id] * (100 + PlayerModData[pnum].f[PSTAT_MAGAZINE_INCREASE]) / 100;
 }
 
 #include "DnD_TempWeps.h"
@@ -1991,7 +1991,7 @@ void GiveOverheat(int pnum, str item, int amt, int wepid) {
 	if((Weapons_Data[wepid].properties & WPROP_TECH) && HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 		amt -= amt * 3 / 10;
 
-	int reduce = GetPlayerAttributeValue(pnum, INV_REDUCED_OVERHEAT);
+	int reduce = PlayerModData[pnum].f[PSTAT_REDUCED_OVERHEAT];
 	if(reduce)
 		amt = amt * (100 - reduce) / 100;
 

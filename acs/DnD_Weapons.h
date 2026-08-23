@@ -31,10 +31,10 @@ int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AM
 
 	// if hand of artemis is equipped don't run this
 	int curr_wep = GetCurrentWeaponID();
-	int chance = GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_CHANCE);
+	int chance = PlayerModData[PlayerNumber()].f[PSTAT_AMMOGAIN_CHANCE];
 	if(IsBoomstick(curr_wep)) {
 		chance += (!!CheckInventory("Hobo_ShotgunFrenzyTimer")) * (DND_HOBO_PERK50_CHANCE + HasClassPerk_Fast(DND_PLAYER_HOBO, 5) * DND_HOBO_PERK50_CHANCE_BONUSMAXED);
-		chance += GetPlayerAttributeValue(PlayerNumber(), INV_IMP_AMMOGAIN_SHOTGUNS);
+		chance += PlayerModData[PlayerNumber()].f[PSTAT_IMP_AMMOGAIN_SHOTGUNS];
 	}
 	chance <<= 16;
 
@@ -65,13 +65,13 @@ int HandleAmmoGainChance(int slot, int ammo, int amount, int guaranteed = DND_AM
 }
 
 bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
-	if((IsSoulWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_EX_SOULPICKUPSINFAMMO) && CheckInventory("SoulPickupInfinityTimer")) || CheckInventory("ArtemisCheck"))
+	if((IsSoulWeapon(wepid) && PlayerModData[pnum].f[PSTAT_EX_SOULPICKUPSINFAMMO] && CheckInventory("SoulPickupInfinityTimer")) || CheckInventory("ArtemisCheck"))
 		return true;
 
 	int mult = 1;
 	if(!(flags & DND_CFW_NOAMMOCONSUMPTIONCHECKS)) {
-		int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
-		mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
+		int consumption_rate = 100 + PlayerModData[pnum].f[PSTAT_EX_MOREAMMOUSE];
+		mult = PlayerModData[pnum].f[PSTAT_EX_AMMOCOSTMULTIPLIER];
 		if(!mult)
 			mult = 1;
 
@@ -80,7 +80,7 @@ bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0
 			amt = amt * 5 / 2;
 	}
 
-	if(!GetPlayerAttributeValue(pnum, INV_EX_WEAPONSUSEHEALTH))
+	if(!PlayerModData[pnum].f[PSTAT_EX_WEAPONSUSEHEALTH])
 		mult = CheckInventory(ammo);
 	else
 		mult = GetActorProperty(pnum + P_TIDSTART, APROP_HEALTH);
@@ -91,8 +91,8 @@ bool CanTakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0
 int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 	int mult = 1;
 	if(!(flags & DND_ATF_NOAMMOCONSUMPTIONCHECK)) {
-		int consumption_rate = 100 + GetPlayerAttributeValue(pnum, INV_EX_MOREAMMOUSE);
-		mult = GetPlayerAttributeValue(pnum, INV_EX_AMMOCOSTMULTIPLIER);
+		int consumption_rate = 100 + PlayerModData[pnum].f[PSTAT_EX_MOREAMMOUSE];
+		mult = PlayerModData[pnum].f[PSTAT_EX_AMMOCOSTMULTIPLIER];
 		if(!mult)
 			mult = 1;
 
@@ -101,7 +101,7 @@ int TakeAmmoFromPlayer(int pnum, int wepid, str ammo, int amt, int flags = 0) {
 			amt = amt * 5 / 2;
 	}
 
-	if(!GetPlayerAttributeValue(pnum, INV_EX_WEAPONSUSEHEALTH))
+	if(!PlayerModData[pnum].f[PSTAT_EX_WEAPONSUSEHEALTH])
 		TakeInventory(ammo, amt);
 	else if(!CheckActorInventory(pnum + P_TIDSTART, "Invulnerable_Better")) {
 		// we let the invul bypass this
@@ -122,7 +122,7 @@ Script "DnD Fire Weapon" (int wepid, int isAltfire, int ammo_slot, int flags) {
 	if
 	(
 		(IsAccessoryEquipped(owner, DND_ACCESSORY_HANDARTEMIS)) ||
-		(IsSoulWeapon(wepid) && GetPlayerAttributeValue(pnum, INV_EX_SOULPICKUPSINFAMMO) && CheckInventory("SoulPickupInfinityTimer"))
+		(IsSoulWeapon(wepid) && PlayerModData[pnum].f[PSTAT_EX_SOULPICKUPSINFAMMO] && CheckInventory("SoulPickupInfinityTimer"))
 	)
 		flags |= DND_ATF_NOAMMOTAKE;
 	

@@ -18,6 +18,8 @@ enum {
 	DND_ELITEFX_TEMPORALBUBBLE,
 	DND_ELITEFX_ENSHROUD,
 
+	DND_ELITEFX_WARDAURA,
+
 	DND_SPECIALFX_ASMODEUSCIRCLE,
 
 	DND_ATTACHMENT_PETICON
@@ -51,6 +53,12 @@ Script "DND Spawn Attachment" (int tid, int which) CLIENTSIDE {
 			case DND_ELITEFX_ENSHROUD:
 				for(i = 0; i < 7; ++i)
 					CreateMonsterAttachment(tid, "EnshroudFX", xoff, 0, zoff);
+			break;
+
+			// PLACEHOLDER ART: reuses the Asmodeus ring so the aura is visible in game at all. Wants
+			// its own sprite before this ships.
+			case DND_ELITEFX_WARDAURA:
+				CreateMonsterAttachment(tid, "WardAuraFX");
 			break;
 
 			case DND_SPECIALFX_ASMODEUSCIRCLE:

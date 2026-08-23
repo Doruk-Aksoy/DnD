@@ -317,9 +317,9 @@ int GetAmmoContainerValue(int ammo_slot, int ammo) {
 // gets you the percentage to increase by
 int GetAmmoCapIncrease(int pnum) {
 	int bpcount = CheckInventory("BackpackCounter");
-	bpcount = (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (GetPlayerAttributeValue(PlayerNumber(), INV_AMMOCAP_INCREASE)))) / 100;
+	bpcount = (((100 + bpcount * DND_BACKPACK_RATIO)) * (100 + (PlayerModData[PlayerNumber()].f[PSTAT_AMMOCAP_INCREASE]))) / 100;
 
-	int temp = GetPlayerAttributeValue(pnum, INV_EX_REDUCEDAMMOCAP);
+	int temp = PlayerModData[pnum].f[PSTAT_EX_REDUCEDAMMOCAP];
 	if(temp)
 		bpcount = bpcount * (100 - temp) / 100;
 	return bpcount;
@@ -363,7 +363,7 @@ void SetAllAmmoCapacitiesToDefault() {
 // returns true if you CANT pickup
 bool CheckAmmoPickup(int slot, bool simple) {
 	int pnum = PlayerNumber();
-	if(GetPlayerAttributeValue(pnum, INV_EX_CANNOTPICKAMMO))
+	if(PlayerModData[pnum].f[PSTAT_EX_CANNOTPICKAMMO])
 		return true;
 
 	auto a_info = GetAmmoInfo(slot, 0);
@@ -398,7 +398,7 @@ bool CheckAmmoPickup(int slot, bool simple) {
 }
 
 int GetAmmoGainFactor() {
-	return (100 + GetPlayerAttributeValue(PlayerNumber(), INV_AMMOGAIN_INCREASE) + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN));
+	return (100 + PlayerModData[PlayerNumber()].f[PSTAT_AMMOGAIN_INCREASE] + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN));
 }
 
 void HandleAmmoContainerPickup(int slot, int basic_kind) {
@@ -436,7 +436,7 @@ void GiveAmmo(int amt, int slot, int t) {
 	if(slot != DND_AMMOSLOT_SOULS)
 		amt = amt * GetAmmoGainFactor() / 100;
 	else
-		amt = amt * (100 + GetPlayerAttributeValue(PlayerNumber(), INV_EX_PICKUPS_MORESOUL)) / 100;
+		amt = amt * (100 + PlayerModData[PlayerNumber()].f[PSTAT_EX_PICKUPS_MORESOUL]) / 100;
 	auto a_info = GetAmmoInfo(slot, t);
 	GiveInventory(a_info.name, amt);
 }

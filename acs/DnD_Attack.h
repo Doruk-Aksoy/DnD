@@ -131,7 +131,7 @@ int CreateProjectile(int owner, int p_helper_tid, str projectile, int angle, int
 	SetActorAngle(TEMPORARY_ATTACK_TID, angle);
 	SetActorPitch(TEMPORARY_ATTACK_TID, pitch);
 
-	if(isPlayer(owner) && (g = GetPlayerAttributeValue(owner - P_TIDSTART, INV_PROJSPEED))) {
+	if(isPlayer(owner) && (g = PlayerModData[owner - P_TIDSTART].f[PSTAT_PROJSPEED])) {
 		g += 1.0;
 		if(g > 3.0)
 			g = 3.0;
@@ -854,7 +854,7 @@ void Do_DarkLance_Shots(int owner, int pnum, int amt, int dist, int spd, int lvl
 void HandleAttackEvent(int wepid, int isSpecial, int extra) {
 	int pnum = PlayerNumber();
 	// elemental bulwark check
-	if(GetPlayerAttributeValue(pnum, INV_EX_CHANCE_CASTELEMSPELLONATK) >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
+	if(PlayerModData[pnum].f[PSTAT_EX_CHANCE_CASTELEMSPELLONATK] >= random(1, 100) && !CheckInventory("RandomElementalSpellCooldown")) {
 		GiveInventory("RandomElementalSpellCooldown", 1);
 		CastRandomElementalSpell();
 	}

@@ -475,8 +475,12 @@ void HandlePreInitTraits(int mid, int id) {
 		GiveInventory("Rejuvenate_Script_Run", 1);
 	if(HasMonsterTrait(mid, DND_REPEL))
 		GiveInventory("Repel_Script_Run", 1);
+
 	if(HasMonsterTrait(mid, DND_CRIPPLE))
 		GiveInventory("Cripple_Script_Run", 1);
+	if(HasMonsterTrait(mid, DND_AURA_WARD))
+		GiveInventory("Aura_Ward_Script_Run", 1);
+	
 	if(HasMonsterTrait(mid, DND_PHASING))
 		GiveInventory("Phasing_Script_Run", 1);
 	if(HasMonsterTrait(mid, DND_VIOLENTRETALIATION)) {
@@ -559,6 +563,70 @@ int ApplyResistWeakness(int resist, int weakness_pct) {
 	return 100 - (100 - resist) * (100 + weakness_pct) / 100;
 }
 
+// The creature type block in InitMonsterResists is an if / else if chain, so a monster carrying two of
+// these traits only ever gets the first one. Resolving it the same way here is what keeps the weakness
+// matching the resist that was actually stored for it -- testing the traits independently would hand a
+// fire-and-earth creature a lightning weakness InitMonsterResists never gave it.
+int GetMonsterCreatureType(int m_id) {
+	if(HasMonsterTrait(m_id, DND_ICECREATURE))
+		return DND_ICECREATURE;
+	if(HasMonsterTrait(m_id, DND_FIRECREATURE))
+		return DND_FIRECREATURE;
+	if(HasMonsterTrait(m_id, DND_STONECREATURE))
+		return DND_STONECREATURE;
+	if(HasMonsterTrait(m_id, DND_EARTHCREATURE))
+		return DND_EARTHCREATURE;
+	return -1;
+}
+
+// The weakness percentage InitMonsterResists used to bake into the stored resist. It cannot be baked in
+// any more: what is stored now is the monster's TRUE resist, which is allowed above 100, and
+// ApplyResistWeakness needs (100 - resist) to stay positive or it turns a weakness into MORE resist.
+// FactorResists calls this immediately after capping, which is the only place the input is guaranteed
+// to be in range.
+//
+// Recomputed rather than cached, deliberately. It is a handful of bit tests against trait_bits, which
+// is already stored and which nothing moves after init -- SetEliteFlag clears the weakness traits its
+// mods conflict with BEFORE InitMonsterResists runs, and no runtime path sets one. Caching it would
+// have meant a second MAX_DAMAGE_CATEGORIES array on both MonsterProperties and PetMonsterProperties,
+// 129 600 ints, to save work that is dwarfed by the CheckActorInventory calls FactorResists already
+// makes on the same line.
+int GetMonsterResistWeakness(int m_id, int damage_category) {
+	// applies to every elemental category
+	int generic = HasMonsterTrait(m_id, DND_ELEMENTAL_WEAKNESS) * DND_WEAKNESS_FACTOR;
+	int ctype = GetMonsterCreatureType(m_id);
+
+	switch(damage_category) {
+		case DND_DAMAGECATEGORY_FIRE:
+		return	generic +
+				HasMonsterTrait(m_id, DND_FIRE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR +
+				(ctype == DND_ICECREATURE) * DND_SPECIFICELEWEAKNESS_FACTOR;
+
+		case DND_DAMAGECATEGORY_ICE:
+		return	generic +
+				HasMonsterTrait(m_id, DND_ICE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR +
+				(ctype == DND_FIRECREATURE || ctype == DND_STONECREATURE) * DND_SPECIFICELEWEAKNESS_FACTOR;
+
+		case DND_DAMAGECATEGORY_LIGHTNING:
+		return generic + (ctype == DND_EARTHCREATURE) * DND_SPECIFICELEWEAKNESS_FACTOR;
+
+		// no weakness category of its own yet, so it only gets the generic one
+		case DND_DAMAGECATEGORY_POISON:
+		return generic;
+
+		case DND_DAMAGECATEGORY_ENERGY:
+		return HasMonsterTrait(m_id, DND_ENERGY_WEAKNESS) * DND_WEAKNESS_FACTOR;
+
+		// soul reads the same resist as occult, so it takes the same weakness
+		case DND_DAMAGECATEGORY_OCCULT:
+		case DND_DAMAGECATEGORY_SOUL:
+		return HasMonsterTrait(m_id, DND_MAGIC_WEAKNESS) * DND_WEAKNESS_FACTOR;
+	}
+
+	// bullet and melee have no weakness trait
+	return 0;
+}
+
 void InitMonsterResists(int m_id) {
 	int temp = 0;
 	int bonus = 0;
@@ -599,57 +667,34 @@ void InitMonsterResists(int m_id) {
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = temp;
 
 	// creature type bonuses -- only one type allowed per creature
-	// the resist half stays flat, the paired weakness half is collected as a percentage and applied
-	// with every other weakness after the clamp below -- see ApplyResistWeakness
-	int fire_weak = 0, ice_weak = 0, lightning_weak = 0;
-	if(HasMonsterTrait(m_id, DND_ICECREATURE)) {
+	// only the resist half is stored; the paired weakness is rebuilt from these same traits at damage
+	// time by GetMonsterResistWeakness, which resolves this chain the same way
+	if(HasMonsterTrait(m_id, DND_ICECREATURE))
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = DND_IMMUNITY_FACTOR + bonus;
-		fire_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
-	}
-	else if(HasMonsterTrait(m_id, DND_FIRECREATURE)) {
+	else if(HasMonsterTrait(m_id, DND_FIRECREATURE))
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = DND_IMMUNITY_FACTOR + bonus;
-		ice_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
-	}
 	else if(HasMonsterTrait(m_id, DND_STONECREATURE)) {
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] += DND_RESIST_FACTOR;
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = DND_IMMUNITY_FACTOR + bonus;
-		ice_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
 	}
-	else if(HasMonsterTrait(m_id, DND_EARTHCREATURE)) {
+	else if(HasMonsterTrait(m_id, DND_EARTHCREATURE))
 		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = DND_IMMUNITY_FACTOR + bonus;
-		lightning_weak += DND_SPECIFICELEWEAKNESS_FACTOR;
-	}
 
-	// Clamp to DND_IMMUNITY_FACTOR flat, NOT to IMMUNITY + bonus as this used to. FactorResists
-	// clamps anything above DND_IMMUNITY_FACTOR down to it before ever using the value, so the old
-	// headroom was unobservable -- and leaving a stored resist above 100 would break the weakness
-	// multiplier below, which needs (100 - resist) to stay positive.
-	for(temp = DND_DAMAGECATEGORY_BEGIN; temp <= DND_DAMAGECATEGORY_SOUL ; ++temp)
-		if(MonsterProperties[m_id].resists[temp] > DND_IMMUNITY_FACTOR)
-			MonsterProperties[m_id].resists[temp] = DND_IMMUNITY_FACTOR;
+	// What is stored is the monster's TRUE resist, and it is deliberately NOT clamped -- it is allowed
+	// to sit above DND_IMMUNITY_FACTOR, and above 100. FactorResists caps it at the point of use
+	// instead, and that is the whole point: a resist reduction eats into the true number first, so an
+	// overcapped monster has to have its excess chewed through before it takes a point more damage,
+	// while penetration still only ever works against the cap.
+	//
+	// The clamp used to live here, which meant the excess never existed at runtime -- a level 90 magic
+	// immune monster stored 95 rather than 165, and a 33% reduction took it straight to 63.
+	//
+	// The weakness pass moved out with the clamp, for a reason the old comment on it already gave:
+	// ApplyResistWeakness needs (100 - resist) to stay positive, and handed an uncapped 165 it turns a
+	// weakness into MORE resist. It now runs in FactorResists immediately after the cap. That also
+	// fixes a real bug in passing -- see the note there on negative resists.
 
-	// weaknesses last, and multiplicatively
-	temp = HasMonsterTrait(m_id, DND_ELEMENTAL_WEAKNESS) * DND_WEAKNESS_FACTOR;
-	fire_weak += temp + HasMonsterTrait(m_id, DND_FIRE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR;
-	ice_weak += temp + HasMonsterTrait(m_id, DND_ICE_WEAKNESS) * DND_SPECIFICELEWEAKNESS_FACTOR;
-	lightning_weak += temp;
-
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_FIRE], fire_weak);
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ICE], ice_weak);
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_LIGHTNING], lightning_weak);
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON] = ApplyResistWeakness(MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_POISON], temp);
-
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY] = ApplyResistWeakness(
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_ENERGY],
-		HasMonsterTrait(m_id, DND_ENERGY_WEAKNESS) * DND_WEAKNESS_FACTOR
-	);
-
-	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT] = ApplyResistWeakness(
-		MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT],
-		HasMonsterTrait(m_id, DND_MAGIC_WEAKNESS) * DND_WEAKNESS_FACTOR
-	);
-
-	// soul is same as magic for now -- copied after the weakening so it inherits it
+	// soul is same as magic for now
 	MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_SOUL] = MonsterProperties[m_id].resists[DND_DAMAGECATEGORY_OCCULT];
 }
 

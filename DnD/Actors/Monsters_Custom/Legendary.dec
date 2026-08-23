@@ -2318,7 +2318,10 @@ Actor InquisitorChargeSilent : InquisitorCharge {
 Actor InquisitorShot2 : InquisitorShot {
 	Damage (75)
 	DamageType "Explosive"
-	Stamina 1073741828
+	// +1 PHYSICAL: DamageType is Explosive, which is a delivery hint and not a type -- the
+	// type bit was missing, so this resolved as untyped against players. 5 == PHYSICAL|EXPLOSIVE,
+	// the convention used by the other 26 Explosive actors.
+	Stamina 1073741829
 	Speed 28
 	SeeSound "GodSlayer/Grenade"
 	DeathSound "GodSlayer/GrenadeExp"

@@ -82,3 +82,15 @@ Model AsmodeusMagicCrackMarker {
 	
 	FrameIndex AURA F 0 3
 }
+
+Model WardAuraFX {
+	Path "Models/Auras"   
+	Model 0 "flat.md3"   
+	Skin 0 "WARDAURA.png"
+	Scale 1.0 1.0 1.0
+	Zoffset 1
+	ROTATING
+	//DONTCULLBACKFACES
+	
+	FrameIndex AURA G 0 3
+}

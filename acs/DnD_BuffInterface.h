@@ -78,7 +78,7 @@ void HandleGenericFade(int player_tid, int origin_tid, int r, int g, int b, int 
     if(!intensity)
         return;
 
-    int temp = GetPlayerAttributeValue(player_tid - P_TIDSTART, INV_IMP_REDUCEDVISIONIMPAIR);
+    int temp = PlayerModData[player_tid - P_TIDSTART].f[PSTAT_IMP_REDUCEDVISIONIMPAIR];
     if(temp)
         intensity = (100 - temp) / 100;
 
@@ -140,7 +140,7 @@ Script "DnD Give Buff" (int debuff_id, int debuff_flags) {
         int sc_flags = 0;
         if(i) {
             // player's curse effect thing goes here
-            curse_effect = curse_effect * (100 - GetPlayerAttributeValue(pnum, INV_REDUCEDCURSEEFFECT)) / 100;
+            curse_effect = curse_effect * (100 - PlayerModData[pnum].f[PSTAT_REDUCEDCURSEEFFECT]) / 100;
             if(curse_effect <= 0) {
                 SetResultValue(0);
                 Terminate;

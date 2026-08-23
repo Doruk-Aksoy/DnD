@@ -91,10 +91,483 @@ enum {
 #define DND_SPECIFICELEWEAKNESS_FACTOR 33 // 33% extra dmg taken from specific elemental dmg
 #define DND_RESIST_FACTOR 50 // 50% dmg taken
 #define DND_IMMUNITY_FACTOR 95 // 5% dmg taken
+
+// Aura setup -- keep refresh rate below the powerup token's duration!!
+#define DND_MONSTERAURA_REFRESHRATE (TICRATE * 2)
+#define DND_AURAWARD_RESIST 25 // flat, added to the TRUE resist -- see the read in FactorResists
+
+// A_RadiusGive takes a plain unit count and lives in DECORATE, which cannot see this. Aura_Ward_Pulse
+// hardcodes the same number; keep the two in step.
+#define DND_AURAWARD_DISTANCE 256
 #define DND_IMMUNITY_HARDCAP_FACTOR 99 // 1% damage taken
 
 #define DND_DAMAGECATEGORY_BEGIN DND_DAMAGECATEGORY_MELEE
 #define DND_DAMAGECATEGORY_END (DND_DAMAGECATEGORY_OCCULT + 1)
+
+// =================================================================================================
+// Dense player stat slots -- PlayerModData.f[]
+//
+// PlayerModData used to be two MAX_TOTAL_ATTRIBUTES wide arrays per player: 3000 slots each, for the
+// 360 attribute ids that exist, of which only ~250 ever hold a player scoped value. f[] replaces the
+// value side with one dense slot per STAT rather than per mod id.
+//
+// Item data still stores INV_* ids and always will -- an item has to record which mod it rolled, and
+// those ids are persisted. MapAttributeToPStat is the single place that turns an id into a slot and
+// it runs at equip time only. NOTHING on a hot path may take an INV_* id: read the slot directly.
+//
+// Two consequences worth stating, because they are the whole point:
+//
+//  1. A later mod that is just a new SOURCE of an existing stat needs no slot of its own. It gets a
+//     case in MapAttributeToPStat pointing at the slot that already exists, and every formula
+//     downstream is untouched. That is what used to force a new id, a new accumulator and an extra
+//     term added by hand to whichever expression consumed it.
+//  2. Families are laid out as RUNS, so the thing that indexes a family IS its storage index. The
+//     added damage run is keyed by DND_DAMAGECATEGORY_*, which is why the pair of mapper functions
+//     that used to translate between the two enums could be deleted outright -- the mapping is now
+//     the address, and it cannot fall out of step with itself.
+//
+// Adding a family: append its base before PSTAT_COUNT and give it a run of that family's width.
+// The damage resistances a player has. An INDEX, deliberately not an attribute id -- see the rename
+// note on ApplyPlayerDamageResist for why the two must never be confused.
+enum {
+	DND_PRESIST_PHYS,
+	DND_PRESIST_MAGIC,
+	DND_PRESIST_ENERGY,
+	DND_PRESIST_ELEM,
+	DND_PRESIST_REFL,
+
+	DND_PRESIST_COUNT
+};
+
+// Damage that matched no type flag at all. It takes the untyped terms -- all-resist, unity, the
+// level weaken -- and nothing that is keyed on a type.
+#define DND_PRESIST_NONE -1
+
+// Resist penetration the player carries. NOT keyed by damage category: physical pen answers for both
+// MELEE and BULLET, and ELEMENTAL is a bonus on top of the four elements rather than a category of
+// its own, so the two enums do not line up and GetResistPenetration keeps its switch to bridge them.
+enum {
+	DND_PPEN_PHYS,
+	DND_PPEN_ENERGY,
+	DND_PPEN_OCCULT,
+	DND_PPEN_FIRE,
+	DND_PPEN_ICE,
+	DND_PPEN_LIGHTNING,
+	DND_PPEN_POISON,
+	DND_PPEN_ELEMENTAL,
+	DND_PPEN_ALL,
+
+	DND_PPEN_COUNT
+};
+
+// Chance to avoid an ailment outright. Bleed sits in the same run even though it is not elemental --
+// the storage is uniform, the two READERS differ (bleed does not take the all-elemental bonus and
+// carries the Punisher condition).
+enum {
+	DND_PAVOID_IGNITE,
+	DND_PAVOID_CHILLFREEZE,
+	DND_PAVOID_POISON,
+	DND_PAVOID_OVERLOAD,
+	DND_PAVOID_BLEED,
+
+	DND_PAVOID_COUNT
+};
+
+enum {
+	// Flat added damage, one slot per DND_DAMAGECATEGORY_*. Categories with no mod that can fill
+	// them (MELEE, SOUL) simply stay zero, which is exactly what the old -1 return meant.
+	PSTAT_ADDEDFLAT_BASE = 0,
+
+	// Player resistances, one slot per DND_PRESIST_*.
+	PSTAT_RESIST_BASE = PSTAT_ADDEDFLAT_BASE + MAX_DAMAGE_CATEGORIES,
+	// "reduced damage taken" applies to every type, so it sits outside the run above.
+	PSTAT_RESIST_ALL = PSTAT_RESIST_BASE + DND_PRESIST_COUNT,
+
+	// Resist penetration, one slot per DND_PPEN_*.
+	PSTAT_PEN_BASE = PSTAT_RESIST_ALL + 1,
+
+	// Ailment avoidance, one slot per DND_PAVOID_*.
+	PSTAT_AVOID_BASE = PSTAT_PEN_BASE + DND_PPEN_COUNT,
+	// Bonus to every ELEMENTAL avoidance, so it sits outside the run rather than in it.
+	PSTAT_AVOID_ELEALL = PSTAT_AVOID_BASE + DND_PAVOID_COUNT,
+
+	// ---- ailments and damage over time ----------------------------------------------------------
+	// Named one per stat rather than laid out as a run: nothing indexes these, they are read by name
+	// at every site. Flat and percent are separate slots on purpose -- they enter their formulas at
+	// different points (base + flat, then * (100 + pct)) and could never share one.
+	PSTAT_IGN_CHANCE_PCT = PSTAT_AVOID_ELEALL + 1,
+	PSTAT_IGN_CHANCE_FLAT,
+	PSTAT_IGN_DMG,
+	PSTAT_IGN_DURATION,
+	PSTAT_IGN_PROLIF_CHANCE_PCT,
+	PSTAT_IGN_PROLIF_CHANCE_FLAT,
+	PSTAT_IGN_PROLIF_COUNT,
+	PSTAT_IGN_PROLIF_RANGE,
+
+	PSTAT_POIS_TICRATE,
+	PSTAT_POIS_DURATION,
+	PSTAT_POIS_TICDMG,
+
+	PSTAT_BLEED_CHANCE,
+	PSTAT_BLEED_DMG_PCT,
+	PSTAT_BLEED_DURATION,
+
+	PSTAT_FREEZE_CHANCE,
+	PSTAT_CHILL_THRESHOLD,
+
+	PSTAT_OVERLOAD_ZAPCOUNT,
+	PSTAT_OVERLOAD_DMGINCREASE,
+	PSTAT_OVERLOAD_DURATION,
+
+	// Cross-ailment. These are the broadcast mods -- one source, many formulas -- which is exactly
+	// why they keep slots of their own instead of being folded into each ailment at equip time.
+	PSTAT_DOT_INCREASED,
+	PSTAT_DOT_FLAT,
+	PSTAT_DOT_DURATION,
+	PSTAT_AILMENT_IGNORECHANCE,
+
+	// ---- defense --------------------------------------------------------------------------------
+	// Flat and percent are separate slots throughout, same reason as the ailment block: they enter
+	// their formulas at different points and could never share one.
+	PSTAT_HP_FLAT,
+	PSTAT_HP_PCT,
+	PSTAT_ARMOR_FLAT,
+	PSTAT_ARMOR_PCT,
+	PSTAT_SHIELD_FLAT,
+	PSTAT_SHIELD_PCT,
+	PSTAT_SHIELD_RECHARGEDELAY,
+	PSTAT_SHIELD_RECOVERYRATE,
+
+	PSTAT_MIT_CHANCE,
+	PSTAT_MIT_EFFECT,
+
+	PSTAT_MAXRESIST_ADDED,
+	PSTAT_SELFDMG_RESIST,
+	PSTAT_MAGIC_NEGATION,
+	PSTAT_ARMOR_DOUBLEDEF,
+
+	// ---- damage bonuses -------------------------------------------------------------------------
+	// Two runs keyed BY damage category, which is what lets MapDamageCategoryToFlatBonus and
+	// MapDamageCategoryToPercentBonus drop their 30-line switches for three lines of arithmetic.
+	// Physical occupies the BULLET slot and answers for MELEE as well, same as the added damage run.
+	PSTAT_FLATDMG_BASE,
+	PSTAT_PCTDMG_BASE = PSTAT_FLATDMG_BASE + MAX_DAMAGE_CATEGORIES,
+
+	// Broadcasts. One mod feeding all four elements cannot live inside the run -- it is not keyed by
+	// category, it applies to a set of them -- so it gets a slot and the readers add it in.
+	PSTAT_FLATDMG_ELEM = PSTAT_PCTDMG_BASE + MAX_DAMAGE_CATEGORIES,
+	PSTAT_PCTDMG_ELEM,
+
+	// Conditional on the hit being radius damage rather than on its category, so likewise separate.
+	PSTAT_FLATDMG_RADIUS,
+	PSTAT_PCTDMG_RADIUS,
+
+	// ---- crit, sustain and the misc scalars -----------------------------------------------------
+	// Critical strikes.
+	PSTAT_CRITCHANCE_INCREASE,
+	PSTAT_CRITDAMAGE_INCREASE,
+	PSTAT_CRITPERCENT_INCREASE,
+	PSTAT_EX_CRITIGNORERESCHANCE,
+	PSTAT_EX_MORECRIT_LIGHTNING,
+	PSTAT_EX_SWAPFROMMELEECRIT,
+	PSTAT_IMP_PRECISIONCRITBONUS,
+	PSTAT_INC_CRITFORDOT,
+	PSTAT_INC_EXCESSCRIT,
+	PSTAT_MELEECRIT_NOTONLOWSTAMINA,
+
+	// Life steal.
+	PSTAT_LIFESTEAL,
+	PSTAT_LIFESTEAL_CAP,
+	PSTAT_LIFESTEAL_DAMAGE,
+	PSTAT_LIFESTEAL_RATE,
+	PSTAT_LIFESTEAL_RECOVERY,
+	PSTAT_INC_INSTANTLIFESTEAL,
+
+	// Accuracy, luck, gain rates, movement and knockback -- one-off scalars with no shared structure,
+	// so each keeps the name of the mod that feeds it.
+	PSTAT_LUCK_INCREASE,
+	PSTAT_ACCURACY_INCREASE,
+	PSTAT_INC_ACCURACYFORPRECISION,
+	PSTAT_CREDITGAIN_INCREASE,
+	PSTAT_EXPGAIN_INCREASE,
+	PSTAT_SPEED_INCREASE,
+	PSTAT_PROJSPEED,
+	PSTAT_KNOCKBACK_RESIST,
+	PSTAT_PERCENT_KNOCKBACKRESIST,
+
+	// ---- ammo and projectiles -------------------------------------------------------------------
+	PSTAT_AMMOCAP_INCREASE,
+	PSTAT_AMMOGAIN_CHANCE,
+	PSTAT_AMMOGAIN_INCREASE,
+	PSTAT_EX_AMMOCOSTMULTIPLIER,
+	PSTAT_EX_CANNOTPICKAMMO,
+	PSTAT_EX_MOREAMMOUSE,
+	PSTAT_EX_REDUCEDAMMOCAP,
+	PSTAT_EX_REFILLAMMOONMELEEKILL,
+	PSTAT_EX_SOULPICKUPSINFAMMO,
+	PSTAT_EX_SOULPICKUPSONLYAMMO,
+	PSTAT_IMP_AMMOGAIN_SHOTGUNS,
+	PSTAT_INC_PROJREVERSE,
+	PSTAT_PELLET_INCREASE,
+	PSTAT_EX_PICKUPS_MORESOUL,
+
+
+	// ---- the remainder ---------------------------------------------------------------------------
+	// Everything that was still living in the id-keyed value[] array. These have no shared structure
+	// worth modelling, so each keeps the name of the mod that feeds it. With these in place nothing
+	// reads value[] any more and the array is gone -- see the note on what had to be true first.
+
+	// corruption implicits
+	PSTAT_CORR_PERCENTSTATS,
+	PSTAT_CORR_CYBERNETIC,
+	PSTAT_CORR_DMGDOESNTSTOPREGEN,
+	PSTAT_CORR_INSTALEECHPCT,
+	PSTAT_CORR_MOREAOE,
+	PSTAT_CORR_MAXFRENZY,
+	PSTAT_CORR_MAXENDURANCE,
+	PSTAT_CORR_MAXPOWER,
+
+	// regular implicits
+	PSTAT_IMP_RAVAGER,
+	PSTAT_IMP_ABSORBLIGHTNING,
+	PSTAT_IMP_KNIGHTARMOR,
+	PSTAT_IMP_HANDGUNBONUS,
+	PSTAT_IMP_NECROARMOR,
+	PSTAT_IMP_LESSLIGHTNINGTAKEN,
+	PSTAT_IMP_FASTEROVERHEATDISS,
+	PSTAT_IMP_LESSPOISONTAKEN,
+	PSTAT_IMP_LESSFIRETAKEN,
+	PSTAT_IMP_LESSSELFDAMAGETAKEN,
+	PSTAT_IMP_BONUSPETCAP,
+	PSTAT_IMP_REDUCEDVISIONIMPAIR,
+	PSTAT_IMP_MOREDAMAGETOBOSSES,
+	PSTAT_IMP_RECOVERESONUNDEADKILL,
+	PSTAT_IMP_PERCENTSTR,
+	PSTAT_IMP_PERCENTDEX,
+	PSTAT_IMP_PERCENTINT,
+	PSTAT_IMP_REDUCEDSLOWSHOTGUNS,
+	PSTAT_IMP_ONKILL_FRENZY,
+	PSTAT_IMP_ONKILL_ENDURANCE,
+	PSTAT_IMP_ONKILL_POWER,
+	PSTAT_IMP_PHASINGTIME,
+	PSTAT_IMP_STAMINAONKILL,
+
+	// essences
+	PSTAT_ESS_VAAJ,
+	PSTAT_ESS_SSRATH,
+	PSTAT_ESS_OMNISIGHT,
+	PSTAT_ESS_OMNISIGHT2,
+	PSTAT_ESS_CHEGOVAX,
+	PSTAT_ESS_HARKIMONDE,
+	PSTAT_ESS_LESHRAC,
+	PSTAT_ESS_KRULL,
+	PSTAT_ESS_THORAX,
+	PSTAT_ESS_ZRAVOG,
+	PSTAT_ESS_ERYXIA,
+
+	// incursion mods
+	PSTAT_INC_STAMINA,
+	PSTAT_INC_STAMINARECOVERYRATE,
+	PSTAT_INC_STAMINAGAINED,
+	PSTAT_INC_MOREHPBONUS,
+	PSTAT_INC_MAXPOISONSTACK,
+	PSTAT_INC_POISONSPREAD,
+	PSTAT_INC_ALLOVERLOAD,
+	PSTAT_INC_HPREGENINTERRUPT,
+	PSTAT_INC_PASSIVEREGEN,
+	PSTAT_INC_ENEMYRIPCHANCE,
+	PSTAT_INC_BLOCKPREVENTION,
+	PSTAT_INC_RIPPERSEXPLODE,
+	PSTAT_INC_INVERTRESISTANCES,
+
+	// unique mods
+	PSTAT_EX_CHANCE_CASTELEMSPELLONATK,
+	PSTAT_EX_FACTOR_SMALLCHARM,
+	PSTAT_EX_CHANCE_HEALMISSINGONPAIN,
+	PSTAT_EX_DMGINCREASE_LIGHTNING,
+	PSTAT_EX_SECONDEXPBONUS,
+	PSTAT_EX_DOUBLE_HEALTHCAP,
+	PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH,
+	PSTAT_EX_FORBID_ARMOR,
+	PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE,
+	PSTAT_EX_DMGREDUCE_SHAREWITHPETS,
+	PSTAT_EX_DMGINCREASE_TAKEN,
+	PSTAT_EX_ONKILL_HEALMISSING,
+	PSTAT_EX_SOULWEPS_FULLDAMAGE,
+	PSTAT_EX_ABILITY_RALLY,
+	PSTAT_EX_BEHAVIOR_SPELLSFULLDAMAGE,
+	PSTAT_EX_ABILITY_MONSTERSRIP,
+	PSTAT_EX_CURSEIMMUNITY,
+	PSTAT_EX_LIMITEDSMALLCHARMS,
+	PSTAT_EX_FLATPERSHOTGUNOWNED,
+	PSTAT_EX_LESSHEALING,
+	PSTAT_EX_SOULWEPSPEN,
+	PSTAT_EX_DEADEYEBONUS,
+	PSTAT_EX_DAMAGPERMISSINGAMMO,
+	PSTAT_EX_UNITY,
+	PSTAT_EX_UNITY_RES_BONUS,
+	PSTAT_EX_UNITY_PEN_BONUS,
+	PSTAT_EX_UNITY_NOBONUS,
+	PSTAT_EX_INTBONUSTOMELEE,
+	PSTAT_EX_STARTESONDEPLETE,
+	PSTAT_EX_ESEXPLOSIONHPDMG,
+	PSTAT_EX_ESCHARGE_USEHP,
+	PSTAT_EX_HPTOESHIELD,
+	PSTAT_EX_ESHIELDFULLABSORB,
+	PSTAT_EX_HEALTHATONE,
+	PSTAT_EX_RESPERESHIELD,
+	PSTAT_EX_ESHIELDONLYBLOCKPCT,
+	PSTAT_EX_DAMAGELOWESTTAKENASPHYS,
+	PSTAT_EX_DEMONBARRIERS,
+	PSTAT_EX_STREXTRABONUSTOMELEE,
+	PSTAT_EX_CANFIREOVERHEATED,
+	PSTAT_EX_CANTFIRENONOVERHEAT,
+	PSTAT_EX_MOREDMGPEROVERHEAT,
+	PSTAT_EX_LESSDMGTAKENMAXOVERHEAT,
+	PSTAT_EX_WEAPONSUSEHEALTH,
+	PSTAT_EX_RIPPERSONETIMEONLY,
+	PSTAT_EX_RIPPERSRIPALL,
+	PSTAT_EX_MIRROROTHERMEDIUM,
+	PSTAT_EX_CHANCEGAINXCHARGE,
+	PSTAT_EX_CHARGEDURATIONHALVED,
+	PSTAT_EX_MOREDAMAGEPERCHARGE,
+	PSTAT_EX_COUNTASHAVINGMAXCHARGEOF,
+	PSTAT_EX_PLAYERPOWERSET1,
+
+	// everything else (regular rollables)
+	PSTAT_FLASKLIFERECOVERYRATE,
+	PSTAT_DROPCHANCE_INCREASE,
+	PSTAT_MAGAZINE_INCREASE,
+	PSTAT_HANDGUN_PERCENT,
+	PSTAT_SHOTGUN_PERCENT,
+	PSTAT_AUTOMATIC_PERCENT,
+	PSTAT_ARTILLERY_PERCENT,
+	PSTAT_PRECISION_PERCENT,
+	PSTAT_FLAT_HANDGUN,
+	PSTAT_FLAT_SHOTGUN,
+	PSTAT_FLAT_AUTOMATIC,
+	PSTAT_FLAT_ARTILLERY,
+	PSTAT_EXPLOSION_RADIUS,
+	PSTAT_SHOPSTOCK_INCREASE,
+	PSTAT_REGENCAP_INCREASE,
+	PSTAT_DAMAGEPERCENT_MORE,
+	PSTAT_STAT_STRENGTH,
+	PSTAT_STAT_DEXTERITY,
+	PSTAT_STAT_INTELLECT,
+	PSTAT_CHANCE_IGNORERADIUSIMMUNITY,
+	PSTAT_BLOCKERS_MOREDMG,
+	PSTAT_SLOWEFFECT,
+	PSTAT_OVERLOADCHANCE,
+	PSTAT_MELEERANGE,
+	PSTAT_MELEEDAMAGE,
+	PSTAT_DOTMULTI,
+	PSTAT_DOTMULTI_FIRE,
+	PSTAT_DOTMULTI_POISON,
+	PSTAT_DOTMULTI_BLEED,
+	PSTAT_CHARGEDURATION,
+	PSTAT_REGENRATE,
+	PSTAT_FLAT_TECH,
+	PSTAT_FLAT_PRECISION,
+	PSTAT_TECH_PERCENT,
+	PSTAT_FLAT_MAGIC,
+	PSTAT_MAGIC_PERCENT,
+	PSTAT_REDUCED_OVERHEAT,
+	PSTAT_ITEMRARITY,
+	PSTAT_RIPCOUNT,
+	PSTAT_RIPDAMAGE,
+	PSTAT_LOCKONAREA,
+	PSTAT_LOCKONRANGE,
+	PSTAT_INCKILLINGSPREE,
+	PSTAT_REDUCEDCURSEEFFECT,
+	PSTAT_REDUCEDCURSEDURATION,
+	PSTAT_FRENZYCHARGE_ONSHATTER,
+	PSTAT_ENDURANCECHARGE_ONMELEE,
+	PSTAT_POWERCHARGE_ONOVERLOAD,
+	PSTAT_MELEESPLASH_NOTONLOWSTAMINA,
+	PSTAT_MELEE_ATKCDR,
+	PSTAT_CRUSHINGBLOW,
+	PSTAT_DEEPCUTS,
+	PSTAT_OPENWOUNDS,
+	PSTAT_DEADLYSTRIKE,
+	PSTAT_REAPINGCLEAVE,
+	PSTAT_INCFLASKCHARGEGAINED,
+
+	PSTAT_COUNT
+};
+
+// Returned by MapAttributeToPStat for every mod that still lives in the old value[] array.
+#define DND_PSTAT_UNMAPPED -1
+
+// =================================================================================================
+// Player boolean flags -- PlayerModData.pflags[] / .pflag_rc[]
+//
+// Mods whose value is only ever tested for truth. As ints they cost a full slot each; as bits they
+// cost 1/32 of one. These replace the hand rolled bitfield that lived in INV_EX_PLAYERPOWERSET1.
+//
+// Each flag carries a REFCOUNT alongside its bit. That is not decoration: the powerset bitfield this
+// replaces did `|= bit` on equip and `&= ~bit` on unequip, which cannot tell "two items grant Cyber"
+// from "one does", so unequipping either one stripped the power off a player still wearing the
+// other. The int-valued mods never had that bug because +1/-1 refcounts for free; moving to bits
+// means carrying the count explicitly or reintroducing it.
+enum {
+	PFLAG_CYBER,
+	PFLAG_ESHIELDBLOCKALL,
+	PFLAG_MELEEIGNORESHIELD,
+	PFLAG_LOWERREFLECT,
+
+	// Not a power -- a rollable unique mod that happens to be tested for truth at all five of its
+	// read sites, four of them on the damage path. Kept readable through ReadPlayerModValue by
+	// MapAttributeToPFlag so the exotic stat page can still list it.
+	PFLAG_ELEPENHARMONY,
+
+	// Defense booleans. All three roll 1..1 and are tested for truth at every read site.
+	//
+	// PFLAG_ESHIELD_NOINTERRUPT and PFLAG_ESCHARGE_NOINTERRUPT look like the same stat from two
+	// sources and are NOT: DnD.bcs:3978 tests only the charge one and DnD_Stat.h:284 tests only the
+	// shield one. Different conditions, so they keep separate bits -- the sharing rule in the note.
+	PFLAG_MITIGATION_TO_DODGE,
+	PFLAG_ESHIELD_NOINTERRUPT,
+	PFLAG_ESCHARGE_NOINTERRUPT,
+
+	// All three roll 1..1 and are tested for truth at every read site.
+	PFLAG_LUCKYCRIT,
+	PFLAG_ACCURACY_REVERSED,
+	PFLAG_KNOCKBACK_IMMUNITY,
+	PFLAG_PELLETS_FIRE_CIRCLE,
+
+	PFLAG_COUNT
+};
+
+// The handful of mods that carry a second number alongside their value -- a weapon id, a charge
+// index, a conversion pair. Only 13 of the 360 attributes have one, which is why the extra side
+// was the most wasteful half of the old table: a full MAX_TOTAL_ATTRIBUTES array serving 13 mods.
+enum {
+	PEXTRA_ESS_VAAJ,
+	PEXTRA_IMP_ABSORBLIGHTNING,
+	PEXTRA_IMP_KNIGHTARMOR,
+	PEXTRA_IMP_RAVAGER,
+	PEXTRA_IMP_STAMINAONKILL,
+	PEXTRA_IMP_UNSTABLECORE,
+	PEXTRA_INC_INSTANTLIFESTEAL,
+	PEXTRA_INC_MOREHPBONUS,
+	PEXTRA_INC_PASSIVEREGEN,
+	PEXTRA_EX_CHANCEGAINXCHARGE,
+	PEXTRA_EX_CHANCE_HEALMISSINGONPAIN,
+	PEXTRA_EX_COUNTASHAVINGMAXCHARGEOF,
+	PEXTRA_EX_SECONDEXPBONUS,
+
+	DND_PEXTRA_COUNT
+};
+
+// Returned by MapAttributeToPExtra for every mod that carries no extra.
+#define DND_PEXTRA_UNMAPPED -1
+
+// Returned by MapAttributeToPFlag for every mod that is not stored as a flag.
+#define DND_PFLAG_UNMAPPED -1
+
+#define DND_PFLAG_WORDS ((PFLAG_COUNT + 31) / 32)
+// 8 bit counters packed 4 to an int. MAX_ITEMS_EQUIPPABLE is 13, so 255 sources is unreachable.
+#define DND_PFLAG_RCWORDS ((PFLAG_COUNT + 3) / 4)
 
 // this dumb number wasted weeks of our time, fuck you dumb number!
 //#define DND_DROP_TID 343 // some dumb number

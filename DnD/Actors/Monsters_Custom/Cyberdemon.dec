@@ -3705,7 +3705,10 @@ ACTOR ThanatosRocket {
 	Speed 20
 	Damage (100)
 	DamageType "Explosive"
-	Stamina 1073741828
+	// +1 PHYSICAL: DamageType is Explosive, which is a delivery hint and not a type -- the
+	// type bit was missing, so this resolved as untyped against players. 5 == PHYSICAL|EXPLOSIVE,
+	// the convention used by the other 26 Explosive actors.
+	Stamina 1073741829
 	PROJECTILE
 	DeathSound "weapons/heavyrlexp"
 	+SeekerMissile
@@ -3868,7 +3871,10 @@ Actor ThanatosMiniRocket {
 	Speed 22
 	Damage (32)
 	DamageType "Explosive"
-	Stamina 1073741828
+	// +1 PHYSICAL: DamageType is Explosive, which is a delivery hint and not a type -- the
+	// type bit was missing, so this resolved as untyped against players. 5 == PHYSICAL|EXPLOSIVE,
+	// the convention used by the other 26 Explosive actors.
+	Stamina 1073741829
 	SeeSound "weapons/devastatorfire"
 	DeathSound "Weapons/DevastatorExpl"
 	Height 8

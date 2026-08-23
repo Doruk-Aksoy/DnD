@@ -552,7 +552,37 @@ Script "DnD Request Mod Sync" (int pnum, int mod, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
-	PlayerModData[pnum].value[mod] = val;
+	// Routed, not a raw value[] write: the server sent an attribute id and the client has to land it
+	// in whichever storage that id lives in, or a migrated mod would read back zero on every client.
+	WritePlayerModValue(pnum, mod, val);
+	SetResultValue(0);
+}
+
+// Migrated stats are addressed by SLOT. A slot shared by two mods has no single attribute id that
+// names it, so the id-keyed script above could not carry one even in principle.
+Script "DnD Request Stat Sync" (int pnum, int slot, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	PlayerModData[pnum].f[slot] = val;
+	SetResultValue(0);
+}
+
+// Slot-keyed extra, the counterpart to "DnD Request Stat Sync". Used by the full resync, which walks
+// storage rather than the attribute id space now that there is no id-keyed array left to walk.
+Script "DnD Request Extra Sync" (int pnum, int slot, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	PlayerModData[pnum].x[slot] = val;
+	SetResultValue(0);
+}
+
+// The whole word, not one bit. Sending the word makes the client's copy a mirror of the server's
+// rather than something it has to reconstruct, so a dropped update self corrects on the next one.
+// The refcounts stay server side -- the client only ever needs to know whether a flag is on.
+Script "DnD Request Flag Sync" (int pnum, int word, int val) CLIENTSIDE {
+	if(GameType() == GAME_SINGLE_PLAYER)
+		Terminate;
+	PlayerModData[pnum].pflags[word] = val;
 	SetResultValue(0);
 }
 
@@ -561,7 +591,7 @@ Script "DnD Request Mod Sync (Special)" (int pnum, int mod, int val) CLIENTSIDE 
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	Delay(const:1);
-	PlayerModData[pnum].value[mod] = val;
+	WritePlayerModValue(pnum, mod, val);
 	SetResultValue(0);
 }
 
@@ -569,7 +599,7 @@ Script "DnD Request Mod Extra Sync" (int pnum, int mod, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
-	PlayerModData[pnum].extra[mod] = val;
+	WritePlayerModExtra(pnum, mod, val);
 	SetResultValue(0);
 }
 
@@ -578,7 +608,7 @@ Script "DnD Request Mod Extra Sync (Special)" (int pnum, int mod, int val) CLIEN
 		Terminate;
 	// Log(s:"cs set mod ", d:mod, s: " to val ", d:val);
 	Delay(const:1);
-	PlayerModData[pnum].extra[mod] = val;
+	WritePlayerModExtra(pnum, mod, val);
 	SetResultValue(0);
 }
 
@@ -593,7 +623,7 @@ Script "DnD Handle Attribute Sync" (int pnum) {
 	int mod, i;
 	for(i = 0; i < cnt; ++i) {
 		mod = psync.arr[i];
-		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, PlayerModData[pnum].value[mod]);
+		ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, mod, ReadPlayerModValue(pnum, mod));
 	}
 
 	ClearPlayerAttributeSync(pnum);
@@ -604,7 +634,7 @@ Script "DnD Handle Attribute Sync" (int pnum) {
 
 		for(i = 0; i < cnt; ++i) {
 			mod = psync.arr_extra[i];
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, PlayerModData[pnum].extra[mod]);
+			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, mod, ReadPlayerModExtra(pnum, mod));
 		}
 
 		ClearPlayerAttributeExtraSync(pnum);

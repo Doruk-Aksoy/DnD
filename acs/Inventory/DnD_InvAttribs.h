@@ -101,12 +101,11 @@ void ClearPlayerAttributeExtraSync(int pnum) {
 #define DND_INC_POISONSPREAD_R 160.0
 #define DND_INC_POISONSPREAD_COUNT 8
 
-enum {
-	PPOWER_CYBER 						= 	0b1,
-	PPOWER_ESHIELDBLOCKALL				=	0b100,
-	PPOWER_MELEEIGNORESHIELD			=	0b10000,
-	PPOWER_LOWERREFLECT					=	0b1000000
-};
+// The PPOWER_* bitmask enum that used to live here is gone. Its four powers are PFLAG_CYBER,
+// PFLAG_ESHIELDBLOCKALL, PFLAG_MELEEIGNORESHIELD and PFLAG_LOWERREFLECT in DnD_Common.h, and they
+// are INDICES now, not masks. Deleted rather than left as an alias: the two are the same shape and
+// the same order, so a leftover PPOWER_ argument would have compiled happily and tested the wrong
+// bit -- PPOWER_MELEEIGNORESHIELD is 16, which as an index is a flag that does not exist.
 
 bool IsSpecialRollRuleAttribute(int id) {
 	switch(id) {
@@ -239,18 +238,527 @@ enum {
 // dropped source rather than a write past the end of the struct.
 #define DND_MAX_HIGHESTSRC_SLOTS 16
 
+// The two MAX_TOTAL_ATTRIBUTES arrays that used to head this struct are GONE. They were 3000 slots
+// each per player -- 6000 ints for 360 attribute ids, of which only ~315 ever held a player scoped
+// value and only 13 ever held an extra. Everything now lives in the dense members below, addressed by
+// slot rather than by attribute id.
+//
+// Removing them was gated on one property, checked mechanically rather than assumed: EVERY attribute
+// that anything reads is mapped by MapAttributeToPStat, MapAttributeToPFlag or MapAttributeToPExtra.
+// Three mods are deliberately unmapped -- INV_CRITPERCENT_FORWEPTYPE, INV_INC_PLUSPROJ and
+// INV_INC_PLUSTWOPROJ -- because they have no player scope storage at all: they fan into
+// Player_Weapon_Infos and are read from there. Writes for an unmapped mod are now dropped on the
+// floor, which is correct only while that property holds, so re-check it before adding a read.
 typedef struct {
-	int extra[MAX_TOTAL_ATTRIBUTES];
-	int value[MAX_TOTAL_ATTRIBUTES];
-
 	// The DND_HIGHESTSRC_* mods take their strongest source rather than adding them up, so the
 	// individual contributions are kept here, indexed by the slot they came from. A running total
 	// cannot do it: dropping the strongest one has to fall back to the second strongest, and a sum
 	// has already forgotten what the parts were.
 	int highest_sources[DND_HIGHESTSRC_COUNT][DND_MAX_HIGHESTSRC_SLOTS];
+
+	// Dense per-stat storage, one slot per STAT rather than per attribute id. See the long note on
+	// PSTAT_* in DnD_Common.h. This is the whole player scope value side now.
+	int f[PSTAT_COUNT];
+
+	// Second number for the 13 mods that carry one. See MapAttributeToPExtra.
+	int x[DND_PEXTRA_COUNT];
+
+	// Boolean mods, one bit each, plus the packed source counts that make removal correct.
+	int pflags[DND_PFLAG_WORDS];
+	int pflag_rc[DND_PFLAG_RCWORDS];
 } player_item_mod_data_T;
 
 global player_item_mod_data_T 57: PlayerModData[MAXPLAYERS];
+
+// The ONE place an attribute id becomes a stat slot. Everything not listed here still lives in
+// value[] and is looked up by id, which is what makes the migration incremental: a family moves by
+// gaining cases here and having its read sites rewritten to touch f[] directly, and nothing else in
+// the mod has to know it moved.
+//
+// Two mods may share a slot when they are a new source of the same stat -- that is the point of the
+// design. Two rules bound it:
+//   - Never share a slot between mods IsMoreMultiplierMod says are multiplicative. The cancel path
+//     in IncPlayerModValue is only exact while one mod owns the accumulator; two of them in one slot
+//     cannot be unequipped independently.
+//   - Never share a slot between mods with different conditions. Two unconditional accuracy mods
+//     share; one that only applies to a weapon type does not.
+// Thirty mods are DELIBERATELY absent from this switch. Each one has no player-scope value of its
+// own -- their ProcessAttribute / ProcessItemImplicit cases either write into OTHER attributes
+// (INV_IMP_INCARMOR feeds INV_ARMOR_INCREASE, INV_EX_ALLSTATS feeds the three stats), or into
+// Player_Weapon_Infos (the INV_CORR_WEAPON* family), or into the conversion tables, or do nothing
+// at all because they are item-generation markers read off item data (INV_CYBERNETIC, the
+// INV_IMP_CANROLL_* set, INV_IMP_QUALITYCAPFIFTY).
+//
+// Giving them slots would be harmless but dishonest: the slot could never be non-zero, and it
+// would imply storage that does not exist. Unmapped reads return 0, which is the same answer the
+// old value[] array gave for them, so nothing changes behaviourally either way.
+// Some of them DO carry an extra -- INV_IMP_UNSTABLECORE for one -- which lives in
+// MapAttributeToPExtra and is unaffected by their absence here.
+int MapAttributeToPStat(int mod) {
+	switch(mod) {
+		// Flat added damage. The slot IS the damage category it is dealt as -- physical resolves to
+		// BULLET because an added component is never the weapon's own swing.
+		case INV_ADDED_PHYSDMG:			return PSTAT_ADDEDFLAT_BASE + DND_DAMAGECATEGORY_BULLET;
+		case INV_ADDED_ENERGYDMG:		return PSTAT_ADDEDFLAT_BASE + DND_DAMAGECATEGORY_ENERGY;
+		case INV_ADDED_MAGICDMG:		return PSTAT_ADDEDFLAT_BASE + DND_DAMAGECATEGORY_OCCULT;
+		case INV_ADDED_FIREDMG:			return PSTAT_ADDEDFLAT_BASE + DND_DAMAGECATEGORY_FIRE;
+		case INV_ADDED_COLDDMG:			return PSTAT_ADDEDFLAT_BASE + DND_DAMAGECATEGORY_ICE;
+		case INV_ADDED_LIGHTNINGDMG:	return PSTAT_ADDEDFLAT_BASE + DND_DAMAGECATEGORY_LIGHTNING;
+		case INV_ADDED_POISONDMG:		return PSTAT_ADDEDFLAT_BASE + DND_DAMAGECATEGORY_POISON;
+
+		// Player resistances. REFL rides in the same run because it is passed through the same
+		// parameter as the rest, even though nothing rolls it as a damage type.
+		case INV_DMGREDUCE_PHYS:		return PSTAT_RESIST_BASE + DND_PRESIST_PHYS;
+		case INV_DMGREDUCE_MAGIC:		return PSTAT_RESIST_BASE + DND_PRESIST_MAGIC;
+		case INV_DMGREDUCE_ENERGY:		return PSTAT_RESIST_BASE + DND_PRESIST_ENERGY;
+		case INV_DMGREDUCE_ELEM:		return PSTAT_RESIST_BASE + DND_PRESIST_ELEM;
+		case INV_DMGREDUCE_REFL:		return PSTAT_RESIST_BASE + DND_PRESIST_REFL;
+		case INV_DMGREDUCE_ALL:			return PSTAT_RESIST_ALL;
+
+		// Resist penetration.
+		case INV_PEN_PHYSICAL:			return PSTAT_PEN_BASE + DND_PPEN_PHYS;
+		case INV_PEN_ENERGY:			return PSTAT_PEN_BASE + DND_PPEN_ENERGY;
+		case INV_PEN_OCCULT:			return PSTAT_PEN_BASE + DND_PPEN_OCCULT;
+		case INV_PEN_FIRE:				return PSTAT_PEN_BASE + DND_PPEN_FIRE;
+		case INV_PEN_ICE:				return PSTAT_PEN_BASE + DND_PPEN_ICE;
+		case INV_PEN_LIGHTNING:			return PSTAT_PEN_BASE + DND_PPEN_LIGHTNING;
+		case INV_PEN_POISON:			return PSTAT_PEN_BASE + DND_PPEN_POISON;
+		case INV_PEN_ELEMENTAL:			return PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL;
+
+		// A corruption implicit that pierces everything. A second SOURCE of the same stat rather than
+		// a stat of its own, which is exactly the case this design exists to make free -- it shares
+		// the slot and no formula downstream knows it arrived.
+		case INV_CORR_ALLPIERCE:		return PSTAT_PEN_BASE + DND_PPEN_ALL;
+
+		// Ailment avoidance.
+		case INV_AVOID_IGNITE:			return PSTAT_AVOID_BASE + DND_PAVOID_IGNITE;
+		case INV_AVOID_CHILLFREEZE:		return PSTAT_AVOID_BASE + DND_PAVOID_CHILLFREEZE;
+		case INV_AVOID_POISON:			return PSTAT_AVOID_BASE + DND_PAVOID_POISON;
+		case INV_AVOID_OVERLOAD:		return PSTAT_AVOID_BASE + DND_PAVOID_OVERLOAD;
+		case INV_AVOID_BLEED:			return PSTAT_AVOID_BASE + DND_PAVOID_BLEED;
+		case INV_AVOID_ELEAILMENTS:		return PSTAT_AVOID_ELEALL;
+
+		// Ignite.
+		case INV_IGNITECHANCE:			return PSTAT_IGN_CHANCE_PCT;
+		case INV_CHANCE_FLATIGNITE:		return PSTAT_IGN_CHANCE_FLAT;
+		case INV_IGNITEDMG:				return PSTAT_IGN_DMG;
+		case INV_IGNITEDURATION:		return PSTAT_IGN_DURATION;
+		case INV_IGNITE_PROLIFCHANCE:	return PSTAT_IGN_PROLIF_CHANCE_PCT;
+		case INV_CHANCE_FLATPROLIF:		return PSTAT_IGN_PROLIF_CHANCE_FLAT;
+		case INV_IGNITE_PROLIFCOUNT:	return PSTAT_IGN_PROLIF_COUNT;
+		case INV_IGNITE_PROLIFRANGE:	return PSTAT_IGN_PROLIF_RANGE;
+
+		// Poison.
+		case INV_POISON_TICRATE:		return PSTAT_POIS_TICRATE;
+		case INV_POISON_DURATION:		return PSTAT_POIS_DURATION;
+		case INV_POISON_TICDMG:			return PSTAT_POIS_TICDMG;
+
+		// Bleed.
+		case INV_CHANCE_BLEED:			return PSTAT_BLEED_CHANCE;
+		case INV_PERCENTDMG_BLEED:		return PSTAT_BLEED_DMG_PCT;
+		case INV_BLEED_DURATION:		return PSTAT_BLEED_DURATION;
+
+		// Chill and freeze.
+		case INV_FREEZECHANCE:			return PSTAT_FREEZE_CHANCE;
+		case INV_CHILLTHRESHOLD:		return PSTAT_CHILL_THRESHOLD;
+
+		// Overload. INV_OVERLOAD_DMGINCREASE is an IsMoreMultiplierMod, so its slot must stay its
+		// own -- the cancel path in IncPlayerModValue is only exact with one mod per accumulator.
+		case INV_OVERLOAD_ZAPCOUNT:		return PSTAT_OVERLOAD_ZAPCOUNT;
+		case INV_OVERLOAD_DMGINCREASE:	return PSTAT_OVERLOAD_DMGINCREASE;
+		case INV_OVERLOAD_DURATION:		return PSTAT_OVERLOAD_DURATION;
+
+		// Cross-ailment broadcasts.
+		case INV_INCREASEDDOT:			return PSTAT_DOT_INCREASED;
+		case INV_EX_FLATDOT:			return PSTAT_DOT_FLAT;
+		case INV_EX_DOTDURATION:		return PSTAT_DOT_DURATION;
+		case INV_CHANCE_AILMENTIGNORE:	return PSTAT_AILMENT_IGNORECHANCE;
+
+		// Defense.
+		case INV_HP_INCREASE:			return PSTAT_HP_FLAT;
+		case INV_HPPERCENT_INCREASE:	return PSTAT_HP_PCT;
+		case INV_ARMOR_INCREASE:		return PSTAT_ARMOR_FLAT;
+		case INV_ARMORPERCENT_INCREASE:	return PSTAT_ARMOR_PCT;
+		case INV_SHIELD_INCREASE:		return PSTAT_SHIELD_FLAT;
+		case INV_PERCENTSHIELD_INCREASE:return PSTAT_SHIELD_PCT;
+		case INV_SHIELD_RECHARGEDELAY:	return PSTAT_SHIELD_RECHARGEDELAY;
+		case INV_SHIELD_RECOVERYRATE:	return PSTAT_SHIELD_RECOVERYRATE;
+		case INV_MIT_INCREASE:			return PSTAT_MIT_CHANCE;
+		case INV_MITEFFECT_INCREASE:	return PSTAT_MIT_EFFECT;
+		case INV_ADDEDMAXRESIST:		return PSTAT_MAXRESIST_ADDED;
+		case INV_SELFDMG_RESIST:		return PSTAT_SELFDMG_RESIST;
+		case INV_MAGIC_NEGATION:		return PSTAT_MAGIC_NEGATION;
+		case INV_INC_TWICEARMORDEFENSE:	return PSTAT_ARMOR_DOUBLEDEF;
+
+		// Flat damage bonuses, one slot per damage category.
+		case INV_FLATPHYS_DAMAGE:		return PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_BULLET;
+		case INV_FLATMAGIC_DAMAGE:		return PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_OCCULT;
+		case INV_FLATENERGY_DAMAGE:		return PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_ENERGY;
+		case INV_FLAT_FIREDMG:			return PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE;
+		case INV_FLAT_ICEDMG:			return PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_ICE;
+		case INV_FLAT_LIGHTNINGDMG:		return PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_LIGHTNING;
+		case INV_FLAT_POISONDMG:		return PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON;
+		case INV_FLATELEM_DAMAGE:		return PSTAT_FLATDMG_ELEM;
+		case INV_FLATRADIUS_DAMAGE:		return PSTAT_FLATDMG_RADIUS;
+
+		// Percent damage bonuses, same layout.
+		case INV_PERCENTPHYS_DAMAGE:	return PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_BULLET;
+		case INV_PERCENTMAGIC_DAMAGE:	return PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_OCCULT;
+		case INV_PERCENTENERGY_DAMAGE:	return PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_ENERGY;
+		case INV_PERCENTFIRE_DAMAGE:	return PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_FIRE;
+		case INV_PERCENTICE_DAMAGE:		return PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_ICE;
+		case INV_PERCENTLIGHTNING_DAMAGE:return PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_LIGHTNING;
+		case INV_PERCENTPOISON_DAMAGE:	return PSTAT_PCTDMG_BASE + DND_DAMAGECATEGORY_POISON;
+		case INV_PERCENTELEM_DAMAGE:	return PSTAT_PCTDMG_ELEM;
+		case INV_PERCENTRADIUS_DAMAGE:	return PSTAT_PCTDMG_RADIUS;
+
+		// Crit, sustain and misc scalars. Six of these are IsMoreMultiplierMod, and each therefore
+		// owns its slot outright -- the cancel path is only exact with one mod per accumulator.
+		case INV_CRITCHANCE_INCREASE:         return PSTAT_CRITCHANCE_INCREASE;
+		case INV_CRITDAMAGE_INCREASE:         return PSTAT_CRITDAMAGE_INCREASE;
+		case INV_CRITPERCENT_INCREASE:        return PSTAT_CRITPERCENT_INCREASE;
+		case INV_EX_CRITIGNORERESCHANCE:      return PSTAT_EX_CRITIGNORERESCHANCE;
+		case INV_EX_MORECRIT_LIGHTNING:       return PSTAT_EX_MORECRIT_LIGHTNING;
+		case INV_EX_SWAPFROMMELEECRIT:        return PSTAT_EX_SWAPFROMMELEECRIT;
+		case INV_IMP_PRECISIONCRITBONUS:      return PSTAT_IMP_PRECISIONCRITBONUS;
+		case INV_INC_CRITFORDOT:              return PSTAT_INC_CRITFORDOT;
+		case INV_INC_EXCESSCRIT:              return PSTAT_INC_EXCESSCRIT;
+		case INV_MELEECRIT_NOTONLOWSTAMINA:   return PSTAT_MELEECRIT_NOTONLOWSTAMINA;
+		case INV_LIFESTEAL:                   return PSTAT_LIFESTEAL;
+		case INV_LIFESTEAL_CAP:               return PSTAT_LIFESTEAL_CAP;
+		case INV_LIFESTEAL_DAMAGE:            return PSTAT_LIFESTEAL_DAMAGE;
+		case INV_LIFESTEAL_RATE:              return PSTAT_LIFESTEAL_RATE;
+		case INV_LIFESTEAL_RECOVERY:          return PSTAT_LIFESTEAL_RECOVERY;
+		case INV_INC_INSTANTLIFESTEAL:        return PSTAT_INC_INSTANTLIFESTEAL;
+		case INV_LUCK_INCREASE:               return PSTAT_LUCK_INCREASE;
+		case INV_ACCURACY_INCREASE:           return PSTAT_ACCURACY_INCREASE;
+		case INV_INC_ACCURACYFORPRECISION:    return PSTAT_INC_ACCURACYFORPRECISION;
+		case INV_CREDITGAIN_INCREASE:         return PSTAT_CREDITGAIN_INCREASE;
+		case INV_EXPGAIN_INCREASE:            return PSTAT_EXPGAIN_INCREASE;
+		case INV_SPEED_INCREASE:              return PSTAT_SPEED_INCREASE;
+		case INV_PROJSPEED:                   return PSTAT_PROJSPEED;
+		case INV_KNOCKBACK_RESIST:            return PSTAT_KNOCKBACK_RESIST;
+		case INV_PERCENT_KNOCKBACKRESIST:     return PSTAT_PERCENT_KNOCKBACKRESIST;
+
+		// Ammo and projectiles.
+		case INV_AMMOCAP_INCREASE:              return PSTAT_AMMOCAP_INCREASE;
+		case INV_AMMOGAIN_CHANCE:               return PSTAT_AMMOGAIN_CHANCE;
+		case INV_AMMOGAIN_INCREASE:             return PSTAT_AMMOGAIN_INCREASE;
+		case INV_EX_AMMOCOSTMULTIPLIER:         return PSTAT_EX_AMMOCOSTMULTIPLIER;
+		case INV_EX_CANNOTPICKAMMO:             return PSTAT_EX_CANNOTPICKAMMO;
+		case INV_EX_MOREAMMOUSE:                return PSTAT_EX_MOREAMMOUSE;
+		case INV_EX_REDUCEDAMMOCAP:             return PSTAT_EX_REDUCEDAMMOCAP;
+		case INV_EX_REFILLAMMOONMELEEKILL:      return PSTAT_EX_REFILLAMMOONMELEEKILL;
+		case INV_EX_SOULPICKUPSINFAMMO:         return PSTAT_EX_SOULPICKUPSINFAMMO;
+		case INV_EX_SOULPICKUPSONLYAMMO:        return PSTAT_EX_SOULPICKUPSONLYAMMO;
+		case INV_IMP_AMMOGAIN_SHOTGUNS:         return PSTAT_IMP_AMMOGAIN_SHOTGUNS;
+		case INV_INC_PROJREVERSE:               return PSTAT_INC_PROJREVERSE;
+		case INV_PELLET_INCREASE:               return PSTAT_PELLET_INCREASE;
+		case INV_EX_PICKUPS_MORESOUL:           return PSTAT_EX_PICKUPS_MORESOUL;
+
+		// corruption implicits
+		case INV_CORR_PERCENTSTATS:                 return PSTAT_CORR_PERCENTSTATS;
+		case INV_CORR_CYBERNETIC:                   return PSTAT_CORR_CYBERNETIC;
+		case INV_CORR_DMGDOESNTSTOPREGEN:           return PSTAT_CORR_DMGDOESNTSTOPREGEN;
+		case INV_CORR_INSTALEECHPCT:                return PSTAT_CORR_INSTALEECHPCT;
+		case INV_CORR_MOREAOE:                      return PSTAT_CORR_MOREAOE;
+		case INV_CORR_MAXFRENZY:                    return PSTAT_CORR_MAXFRENZY;
+		case INV_CORR_MAXENDURANCE:                 return PSTAT_CORR_MAXENDURANCE;
+		case INV_CORR_MAXPOWER:                     return PSTAT_CORR_MAXPOWER;
+
+		// regular implicits
+		case INV_IMP_RAVAGER:                       return PSTAT_IMP_RAVAGER;
+		case INV_IMP_ABSORBLIGHTNING:               return PSTAT_IMP_ABSORBLIGHTNING;
+		case INV_IMP_KNIGHTARMOR:                   return PSTAT_IMP_KNIGHTARMOR;
+		case INV_IMP_HANDGUNBONUS:                  return PSTAT_IMP_HANDGUNBONUS;
+		case INV_IMP_NECROARMOR:                    return PSTAT_IMP_NECROARMOR;
+		case INV_IMP_LESSLIGHTNINGTAKEN:            return PSTAT_IMP_LESSLIGHTNINGTAKEN;
+		case INV_IMP_FASTEROVERHEATDISS:            return PSTAT_IMP_FASTEROVERHEATDISS;
+		case INV_IMP_LESSPOISONTAKEN:               return PSTAT_IMP_LESSPOISONTAKEN;
+		case INV_IMP_LESSFIRETAKEN:                 return PSTAT_IMP_LESSFIRETAKEN;
+		case INV_IMP_LESSSELFDAMAGETAKEN:           return PSTAT_IMP_LESSSELFDAMAGETAKEN;
+		case INV_IMP_BONUSPETCAP:                   return PSTAT_IMP_BONUSPETCAP;
+		case INV_IMP_REDUCEDVISIONIMPAIR:           return PSTAT_IMP_REDUCEDVISIONIMPAIR;
+		case INV_IMP_MOREDAMAGETOBOSSES:            return PSTAT_IMP_MOREDAMAGETOBOSSES;
+		case INV_IMP_RECOVERESONUNDEADKILL:         return PSTAT_IMP_RECOVERESONUNDEADKILL;
+		case INV_IMP_PERCENTSTR:                    return PSTAT_IMP_PERCENTSTR;
+		case INV_IMP_PERCENTDEX:                    return PSTAT_IMP_PERCENTDEX;
+		case INV_IMP_PERCENTINT:                    return PSTAT_IMP_PERCENTINT;
+		case INV_IMP_REDUCEDSLOWSHOTGUNS:           return PSTAT_IMP_REDUCEDSLOWSHOTGUNS;
+		case INV_IMP_ONKILL_FRENZY:                 return PSTAT_IMP_ONKILL_FRENZY;
+		case INV_IMP_ONKILL_ENDURANCE:              return PSTAT_IMP_ONKILL_ENDURANCE;
+		case INV_IMP_ONKILL_POWER:                  return PSTAT_IMP_ONKILL_POWER;
+		case INV_IMP_PHASINGTIME:                   return PSTAT_IMP_PHASINGTIME;
+		case INV_IMP_STAMINAONKILL:                 return PSTAT_IMP_STAMINAONKILL;
+
+		// essences
+		case INV_ESS_VAAJ:                          return PSTAT_ESS_VAAJ;
+		case INV_ESS_SSRATH:                        return PSTAT_ESS_SSRATH;
+		case INV_ESS_OMNISIGHT:                     return PSTAT_ESS_OMNISIGHT;
+		case INV_ESS_OMNISIGHT2:                    return PSTAT_ESS_OMNISIGHT2;
+		case INV_ESS_CHEGOVAX:                      return PSTAT_ESS_CHEGOVAX;
+		case INV_ESS_HARKIMONDE:                    return PSTAT_ESS_HARKIMONDE;
+		case INV_ESS_LESHRAC:                       return PSTAT_ESS_LESHRAC;
+		case INV_ESS_KRULL:                         return PSTAT_ESS_KRULL;
+		case INV_ESS_THORAX:                        return PSTAT_ESS_THORAX;
+		case INV_ESS_ZRAVOG:                        return PSTAT_ESS_ZRAVOG;
+		case INV_ESS_ERYXIA:                        return PSTAT_ESS_ERYXIA;
+
+		// incursion mods
+		case INV_INC_STAMINA:                       return PSTAT_INC_STAMINA;
+		case INV_INC_STAMINARECOVERYRATE:           return PSTAT_INC_STAMINARECOVERYRATE;
+		case INV_INC_STAMINAGAINED:                 return PSTAT_INC_STAMINAGAINED;
+		case INV_INC_MOREHPBONUS:                   return PSTAT_INC_MOREHPBONUS;
+		case INV_INC_MAXPOISONSTACK:                return PSTAT_INC_MAXPOISONSTACK;
+		case INV_INC_POISONSPREAD:                  return PSTAT_INC_POISONSPREAD;
+		case INV_INC_ALLOVERLOAD:                   return PSTAT_INC_ALLOVERLOAD;
+		case INV_INC_HPREGENINTERRUPT:              return PSTAT_INC_HPREGENINTERRUPT;
+		case INV_INC_PASSIVEREGEN:                  return PSTAT_INC_PASSIVEREGEN;
+		case INV_INC_ENEMYRIPCHANCE:                return PSTAT_INC_ENEMYRIPCHANCE;
+		case INV_INC_BLOCKPREVENTION:               return PSTAT_INC_BLOCKPREVENTION;
+		case INV_INC_RIPPERSEXPLODE:                return PSTAT_INC_RIPPERSEXPLODE;
+		case INV_INC_INVERTRESISTANCES:             return PSTAT_INC_INVERTRESISTANCES;
+
+		// unique mods
+		case INV_EX_CHANCE_CASTELEMSPELLONATK:      return PSTAT_EX_CHANCE_CASTELEMSPELLONATK;
+		case INV_EX_FACTOR_SMALLCHARM:              return PSTAT_EX_FACTOR_SMALLCHARM;
+		case INV_EX_CHANCE_HEALMISSINGONPAIN:       return PSTAT_EX_CHANCE_HEALMISSINGONPAIN;
+		case INV_EX_DMGINCREASE_LIGHTNING:          return PSTAT_EX_DMGINCREASE_LIGHTNING;
+		case INV_EX_SECONDEXPBONUS:                 return PSTAT_EX_SECONDEXPBONUS;
+		case INV_EX_DOUBLE_HEALTHCAP:               return PSTAT_EX_DOUBLE_HEALTHCAP;
+		case INV_EX_PHYSDAMAGEPER_FLATHEALTH:       return PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH;
+		case INV_EX_FORBID_ARMOR:                   return PSTAT_EX_FORBID_ARMOR;
+		case INV_EX_CHANCE_ONDEATH_RAISEZOMBIE:     return PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE;
+		case INV_EX_DMGREDUCE_SHAREWITHPETS:        return PSTAT_EX_DMGREDUCE_SHAREWITHPETS;
+		case INV_EX_DMGINCREASE_TAKEN:              return PSTAT_EX_DMGINCREASE_TAKEN;
+		case INV_EX_ONKILL_HEALMISSING:             return PSTAT_EX_ONKILL_HEALMISSING;
+		case INV_EX_SOULWEPS_FULLDAMAGE:            return PSTAT_EX_SOULWEPS_FULLDAMAGE;
+		case INV_EX_ABILITY_RALLY:                  return PSTAT_EX_ABILITY_RALLY;
+		case INV_EX_BEHAVIOR_SPELLSFULLDAMAGE:      return PSTAT_EX_BEHAVIOR_SPELLSFULLDAMAGE;
+		case INV_EX_ABILITY_MONSTERSRIP:            return PSTAT_EX_ABILITY_MONSTERSRIP;
+		case INV_EX_CURSEIMMUNITY:                  return PSTAT_EX_CURSEIMMUNITY;
+		case INV_EX_LIMITEDSMALLCHARMS:             return PSTAT_EX_LIMITEDSMALLCHARMS;
+		case INV_EX_FLATPERSHOTGUNOWNED:            return PSTAT_EX_FLATPERSHOTGUNOWNED;
+		case INV_EX_LESSHEALING:                    return PSTAT_EX_LESSHEALING;
+		case INV_EX_SOULWEPSPEN:                    return PSTAT_EX_SOULWEPSPEN;
+		case INV_EX_DEADEYEBONUS:                   return PSTAT_EX_DEADEYEBONUS;
+		case INV_EX_DAMAGPERMISSINGAMMO:            return PSTAT_EX_DAMAGPERMISSINGAMMO;
+		case INV_EX_UNITY:                          return PSTAT_EX_UNITY;
+		case INV_EX_UNITY_RES_BONUS:                return PSTAT_EX_UNITY_RES_BONUS;
+		case INV_EX_UNITY_PEN_BONUS:                return PSTAT_EX_UNITY_PEN_BONUS;
+		case INV_EX_UNITY_NOBONUS:                  return PSTAT_EX_UNITY_NOBONUS;
+		case INV_EX_INTBONUSTOMELEE:                return PSTAT_EX_INTBONUSTOMELEE;
+		case INV_EX_STARTESONDEPLETE:               return PSTAT_EX_STARTESONDEPLETE;
+		case INV_EX_ESEXPLOSIONHPDMG:               return PSTAT_EX_ESEXPLOSIONHPDMG;
+		case INV_EX_ESCHARGE_USEHP:                 return PSTAT_EX_ESCHARGE_USEHP;
+		case INV_EX_HPTOESHIELD:                    return PSTAT_EX_HPTOESHIELD;
+		case INV_EX_ESHIELDFULLABSORB:              return PSTAT_EX_ESHIELDFULLABSORB;
+		case INV_EX_HEALTHATONE:                    return PSTAT_EX_HEALTHATONE;
+		case INV_EX_RESPERESHIELD:                  return PSTAT_EX_RESPERESHIELD;
+		case INV_EX_ESHIELDONLYBLOCKPCT:            return PSTAT_EX_ESHIELDONLYBLOCKPCT;
+		case INV_EX_DAMAGELOWESTTAKENASPHYS:        return PSTAT_EX_DAMAGELOWESTTAKENASPHYS;
+		case INV_EX_DEMONBARRIERS:                  return PSTAT_EX_DEMONBARRIERS;
+		case INV_EX_STREXTRABONUSTOMELEE:           return PSTAT_EX_STREXTRABONUSTOMELEE;
+		case INV_EX_CANFIREOVERHEATED:              return PSTAT_EX_CANFIREOVERHEATED;
+		case INV_EX_CANTFIRENONOVERHEAT:            return PSTAT_EX_CANTFIRENONOVERHEAT;
+		case INV_EX_MOREDMGPEROVERHEAT:             return PSTAT_EX_MOREDMGPEROVERHEAT;
+		case INV_EX_LESSDMGTAKENMAXOVERHEAT:        return PSTAT_EX_LESSDMGTAKENMAXOVERHEAT;
+		case INV_EX_WEAPONSUSEHEALTH:               return PSTAT_EX_WEAPONSUSEHEALTH;
+		case INV_EX_RIPPERSONETIMEONLY:             return PSTAT_EX_RIPPERSONETIMEONLY;
+		case INV_EX_RIPPERSRIPALL:                  return PSTAT_EX_RIPPERSRIPALL;
+		case INV_EX_MIRROROTHERMEDIUM:              return PSTAT_EX_MIRROROTHERMEDIUM;
+		case INV_EX_CHANCEGAINXCHARGE:              return PSTAT_EX_CHANCEGAINXCHARGE;
+		case INV_EX_CHARGEDURATIONHALVED:           return PSTAT_EX_CHARGEDURATIONHALVED;
+		case INV_EX_MOREDAMAGEPERCHARGE:            return PSTAT_EX_MOREDAMAGEPERCHARGE;
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:       return PSTAT_EX_COUNTASHAVINGMAXCHARGEOF;
+		case INV_EX_PLAYERPOWERSET1:                return PSTAT_EX_PLAYERPOWERSET1;
+
+		// everything else (regular rollables)
+		case INV_FLASKLIFERECOVERYRATE:             return PSTAT_FLASKLIFERECOVERYRATE;
+		case INV_DROPCHANCE_INCREASE:               return PSTAT_DROPCHANCE_INCREASE;
+		case INV_MAGAZINE_INCREASE:                 return PSTAT_MAGAZINE_INCREASE;
+		case INV_HANDGUN_PERCENT:                   return PSTAT_HANDGUN_PERCENT;
+		case INV_SHOTGUN_PERCENT:                   return PSTAT_SHOTGUN_PERCENT;
+		case INV_AUTOMATIC_PERCENT:                 return PSTAT_AUTOMATIC_PERCENT;
+		case INV_ARTILLERY_PERCENT:                 return PSTAT_ARTILLERY_PERCENT;
+		case INV_PRECISION_PERCENT:                 return PSTAT_PRECISION_PERCENT;
+		case INV_FLAT_HANDGUN:                      return PSTAT_FLAT_HANDGUN;
+		case INV_FLAT_SHOTGUN:                      return PSTAT_FLAT_SHOTGUN;
+		case INV_FLAT_AUTOMATIC:                    return PSTAT_FLAT_AUTOMATIC;
+		case INV_FLAT_ARTILLERY:                    return PSTAT_FLAT_ARTILLERY;
+		case INV_EXPLOSION_RADIUS:                  return PSTAT_EXPLOSION_RADIUS;
+		case INV_SHOPSTOCK_INCREASE:                return PSTAT_SHOPSTOCK_INCREASE;
+		case INV_REGENCAP_INCREASE:                 return PSTAT_REGENCAP_INCREASE;
+		case INV_DAMAGEPERCENT_MORE:                return PSTAT_DAMAGEPERCENT_MORE;
+		case INV_STAT_STRENGTH:                     return PSTAT_STAT_STRENGTH;
+		case INV_STAT_DEXTERITY:                    return PSTAT_STAT_DEXTERITY;
+		case INV_STAT_INTELLECT:                    return PSTAT_STAT_INTELLECT;
+		case INV_CHANCE_IGNORERADIUSIMMUNITY:       return PSTAT_CHANCE_IGNORERADIUSIMMUNITY;
+		case INV_BLOCKERS_MOREDMG:                  return PSTAT_BLOCKERS_MOREDMG;
+		case INV_SLOWEFFECT:                        return PSTAT_SLOWEFFECT;
+		case INV_OVERLOADCHANCE:                    return PSTAT_OVERLOADCHANCE;
+		case INV_MELEERANGE:                        return PSTAT_MELEERANGE;
+		case INV_MELEEDAMAGE:                       return PSTAT_MELEEDAMAGE;
+		case INV_DOTMULTI:                          return PSTAT_DOTMULTI;
+		case INV_DOTMULTI_FIRE:                     return PSTAT_DOTMULTI_FIRE;
+		case INV_DOTMULTI_POISON:                   return PSTAT_DOTMULTI_POISON;
+		case INV_DOTMULTI_BLEED:                    return PSTAT_DOTMULTI_BLEED;
+		case INV_CHARGEDURATION:                    return PSTAT_CHARGEDURATION;
+		case INV_REGENRATE:                         return PSTAT_REGENRATE;
+		case INV_FLAT_TECH:                         return PSTAT_FLAT_TECH;
+		case INV_FLAT_PRECISION:                    return PSTAT_FLAT_PRECISION;
+		case INV_TECH_PERCENT:                      return PSTAT_TECH_PERCENT;
+		case INV_FLAT_MAGIC:                        return PSTAT_FLAT_MAGIC;
+		case INV_MAGIC_PERCENT:                     return PSTAT_MAGIC_PERCENT;
+		case INV_REDUCED_OVERHEAT:                  return PSTAT_REDUCED_OVERHEAT;
+		case INV_ITEMRARITY:                        return PSTAT_ITEMRARITY;
+		case INV_RIPCOUNT:                          return PSTAT_RIPCOUNT;
+		case INV_RIPDAMAGE:                         return PSTAT_RIPDAMAGE;
+		case INV_LOCKONAREA:                        return PSTAT_LOCKONAREA;
+		case INV_LOCKONRANGE:                       return PSTAT_LOCKONRANGE;
+		case INV_INCKILLINGSPREE:                   return PSTAT_INCKILLINGSPREE;
+		case INV_REDUCEDCURSEEFFECT:                return PSTAT_REDUCEDCURSEEFFECT;
+		case INV_REDUCEDCURSEDURATION:              return PSTAT_REDUCEDCURSEDURATION;
+		case INV_FRENZYCHARGE_ONSHATTER:            return PSTAT_FRENZYCHARGE_ONSHATTER;
+		case INV_ENDURANCECHARGE_ONMELEE:           return PSTAT_ENDURANCECHARGE_ONMELEE;
+		case INV_POWERCHARGE_ONOVERLOAD:            return PSTAT_POWERCHARGE_ONOVERLOAD;
+		case INV_MELEESPLASH_NOTONLOWSTAMINA:       return PSTAT_MELEESPLASH_NOTONLOWSTAMINA;
+		case INV_MELEE_ATKCDR:                      return PSTAT_MELEE_ATKCDR;
+		case INV_CRUSHINGBLOW:                      return PSTAT_CRUSHINGBLOW;
+		case INV_DEEPCUTS:                          return PSTAT_DEEPCUTS;
+		case INV_OPENWOUNDS:                        return PSTAT_OPENWOUNDS;
+		case INV_DEADLYSTRIKE:                      return PSTAT_DEADLYSTRIKE;
+		case INV_REAPINGCLEAVE:                     return PSTAT_REAPINGCLEAVE;
+		case INV_INCFLASKCHARGEGAINED:              return PSTAT_INCFLASKCHARGEGAINED;
+	}
+	return DND_PSTAT_UNMAPPED;
+}
+
+// The flag equivalent of MapAttributeToPStat, for mods stored as a bit instead of a value.
+//
+// Its main job is not writing -- ProcessAttribute calls SetPlayerFlag directly for these -- it is
+// READING. The exotic stat page walks the whole unique id range asking ReadPlayerModValue for a
+// magnitude, so without this a mod moved to a flag would report 0 and quietly vanish off the page.
+int MapAttributeToPFlag(int mod) {
+	switch(mod) {
+		case INV_IMP_DOUBLEESHIELDRECOVERY:	return PFLAG_CYBER;
+		case INV_IMP_ESHIELDBLOCKSALL:		return PFLAG_ESHIELDBLOCKALL;
+		case INV_IMP_MELEEIGNORESSHIELDS:	return PFLAG_MELEEIGNORESHIELD;
+		case INV_IMP_HIGHREFLECTREDUCE:		return PFLAG_LOWERREFLECT;
+		case INV_EX_ELEPENHARMONY:			return PFLAG_ELEPENHARMONY;
+		case INV_INC_MITIGATIONTODODGE:		return PFLAG_MITIGATION_TO_DODGE;
+		case INV_INC_ESHIELDNOINTERRUPT:	return PFLAG_ESHIELD_NOINTERRUPT;
+		case INV_EX_ESCHARGE_DMGNOINTERRUPT:return PFLAG_ESCHARGE_NOINTERRUPT;
+		case INV_EX_ABILITY_LUCKYCRIT:            return PFLAG_LUCKYCRIT;
+		case INV_INC_ACCURACYREVERSED:            return PFLAG_ACCURACY_REVERSED;
+		case INV_EX_KNOCKBACK_IMMUNITY:           return PFLAG_KNOCKBACK_IMMUNITY;
+		case INV_EX_BEHAVIOR_PELLETSFIRECIRCLE:   return PFLAG_PELLETS_FIRE_CIRCLE;
+	}
+	return DND_PFLAG_UNMAPPED;
+}
+
+// Attribute id -> extra slot. Same shape as MapAttributeToPStat and consulted at equip time only.
+int MapAttributeToPExtra(int mod) {
+	switch(mod) {
+		case INV_ESS_VAAJ:                          return PEXTRA_ESS_VAAJ;
+		case INV_IMP_ABSORBLIGHTNING:               return PEXTRA_IMP_ABSORBLIGHTNING;
+		case INV_IMP_KNIGHTARMOR:                   return PEXTRA_IMP_KNIGHTARMOR;
+		case INV_IMP_RAVAGER:                       return PEXTRA_IMP_RAVAGER;
+		case INV_IMP_STAMINAONKILL:                 return PEXTRA_IMP_STAMINAONKILL;
+		case INV_IMP_UNSTABLECORE:                  return PEXTRA_IMP_UNSTABLECORE;
+		case INV_INC_INSTANTLIFESTEAL:              return PEXTRA_INC_INSTANTLIFESTEAL;
+		case INV_INC_MOREHPBONUS:                   return PEXTRA_INC_MOREHPBONUS;
+		case INV_INC_PASSIVEREGEN:                  return PEXTRA_INC_PASSIVEREGEN;
+		case INV_EX_CHANCEGAINXCHARGE:              return PEXTRA_EX_CHANCEGAINXCHARGE;
+		case INV_EX_CHANCE_HEALMISSINGONPAIN:       return PEXTRA_EX_CHANCE_HEALMISSINGONPAIN;
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:       return PEXTRA_EX_COUNTASHAVINGMAXCHARGEOF;
+		case INV_EX_SECONDEXPBONUS:                 return PEXTRA_EX_SECONDEXPBONUS;
+	}
+	return DND_PEXTRA_UNMAPPED;
+}
+
+int ReadPlayerModExtra(int pnum, int mod) {
+	int slot = MapAttributeToPExtra(mod);
+	if(slot != DND_PEXTRA_UNMAPPED)
+		return PlayerModData[pnum].x[slot];
+	return 0;
+}
+
+void WritePlayerModExtra(int pnum, int mod, int val) {
+	int slot = MapAttributeToPExtra(mod);
+	if(slot != DND_PEXTRA_UNMAPPED)
+		PlayerModData[pnum].x[slot] = val;
+}
+
+// Id-keyed accessors. These exist for the paths that genuinely only have an id in hand -- item
+// application, the client sync scripts and the stat pages -- and they pay the switch above for it.
+// Gameplay code must not use them for a migrated mod: read the slot.
+int ReadPlayerModValue(int pnum, int mod) {
+	int slot = MapAttributeToPStat(mod);
+	if(slot != DND_PSTAT_UNMAPPED)
+		return PlayerModData[pnum].f[slot];
+
+	// A flag has no magnitude, so 1 is the honest answer to "how much of this does the player have".
+	// The stat pages test exactly that, which is what keeps a flagged mod visible on them.
+	int flag = MapAttributeToPFlag(mod);
+	if(flag != DND_PFLAG_UNMAPPED)
+		return HasPlayerFlag(pnum, flag);
+
+	// Unmapped means the mod has no player scope storage, which is a real answer and not a gap --
+	// see the note on the struct.
+	return 0;
+}
+
+void WritePlayerModValue(int pnum, int mod, int val) {
+	int slot = MapAttributeToPStat(mod);
+	if(slot != DND_PSTAT_UNMAPPED) {
+		PlayerModData[pnum].f[slot] = val;
+		return;
+	}
+
+	// Everything else has nowhere to go, and that is deliberate. A flag is owned by SetPlayerFlag and
+	// its refcount; the three fan-out mods keep their numbers in Player_Weapon_Infos. Dropping the
+	// write is what makes those cases honest instead of parking a number nothing can read back.
+}
+
+// ---- boolean flags ------------------------------------------------------------------------------
+int GetPlayerFlagCount(int pnum, int flag) {
+	return (PlayerModData[pnum].pflag_rc[flag >> 2] >> ((flag & 3) << 3)) & 0xFF;
+}
+
+void SetPlayerFlagCount(int pnum, int flag, int cnt) {
+	int w = flag >> 2;
+	int shift = (flag & 3) << 3;
+	PlayerModData[pnum].pflag_rc[w] = (PlayerModData[pnum].pflag_rc[w] & ~(0xFF << shift)) | ((cnt & 0xFF) << shift);
+}
+
+// One equipped source granting or dropping a flag. The bit is on while the count is non-zero.
+void SetPlayerFlag(int pnum, int flag, bool remove) {
+	int cnt = GetPlayerFlagCount(pnum, flag);
+
+	if(remove) {
+		// Clamp rather than trust the caller. The INV_EX_FACTOR_SMALLCHARM handler strips and re-adds
+		// every small charm around a factor change, so a remove with no matching add is reachable --
+		// and an unclamped decrement would wrap to 255 and pin the flag on for the session.
+		if(!cnt)
+			return;
+		--cnt;
+	}
+	else {
+		if(cnt >= 0xFF)
+			return;
+		++cnt;
+	}
+
+	SetPlayerFlagCount(pnum, flag, cnt);
+
+	if(cnt)
+		PlayerModData[pnum].pflags[flag >> 5] |= 1 << (flag & 31);
+	else
+		PlayerModData[pnum].pflags[flag >> 5] &= ~(1 << (flag & 31));
+
+	ACS_NamedExecuteWithResult("DnD Request Flag Sync", pnum, flag >> 5, PlayerModData[pnum].pflags[flag >> 5]);
+}
 
 // More multiplier mods are multiplied amongst themselves in case of having more than one source, and are all "FIXED POINT" values, not integers
 bool IsMoreMultiplierMod(int mod) {
@@ -404,37 +912,42 @@ int GetExtraForMod(int pnum, int mod, int tier = 0, int item_type = -1, int item
 }
 
 void SetPlayerModValue(int pnum, int mod, int val) {
-	PlayerModData[pnum].value[mod] = val;
+	WritePlayerModValue(pnum, mod, val);
 	PushToPlayerAttributeSync(pnum, mod);
 }
 
 void SetPlayerModExtra(int pnum, int mod, int val) {
-	PlayerModData[pnum].extra[mod] = val;
+	WritePlayerModExtra(pnum, mod, val);
 	PushToPlayerAttributeExtraSync(pnum, mod);
 }
 
 void IncPlayerModValue(int pnum, int mod, int val) {
+	// Read once, decide, write once -- the storage is behind a mapper now, so the old form that
+	// touched PlayerModData[pnum].value[mod] five times in one function cannot be kept.
+	int cur = ReadPlayerModValue(pnum, mod);
+
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
-		PlayerModData[pnum].value[mod] += val;
+		cur += val;
 	}
-	else if(!PlayerModData[pnum].value[mod]) {
+	else if(!cur) {
 		// if we are zero, simply replace with val
-		PlayerModData[pnum].value[mod] = val;
+		cur = val;
 	}
 	else if(val > 0) {
 		// non-zero, multiply case -- we store things like 0.2 etc. here, but while we amplify it we need to consider 1.0 + val
-		PlayerModData[pnum].value[mod] = CombineMultiplicativeFactors(PlayerModData[pnum].value[mod], val) - 1.0;
+		cur = CombineMultiplicativeFactors(cur, val) - 1.0;
 	}
 	else if(val < 0) {
 		// if negative we divide
 		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
-		if(PlayerModData[pnum].value[mod] + val < EPSILON)
-			PlayerModData[pnum].value[mod] = 0;
+		if(cur + val < EPSILON)
+			cur = 0;
 		else
-			PlayerModData[pnum].value[mod] = CancelMultiplicativeFactors(PlayerModData[pnum].value[mod], -val) - 1.0;
+			cur = CancelMultiplicativeFactors(cur, -val) - 1.0;
 	}
 
+	WritePlayerModValue(pnum, mod, cur);
 	PushToPlayerAttributeSync(pnum, mod);
 }
 
@@ -484,41 +997,53 @@ void SetHighestModSource(int pnum, int mod, int slot, int val) {
 }
 
 void IncPlayerModExtra(int pnum, int mod, int val) {
+	// Read once, decide, write once -- same restructure IncPlayerModValue needed, same reason.
+	int cur = ReadPlayerModExtra(pnum, mod);
+
 	// check if it's a "more" multiplier, they are multiplicative with each other
 	if(!IsMoreMultiplierMod(mod)) {
-		PlayerModData[pnum].extra[mod] += val;
+		cur += val;
 	}
-	else if(!PlayerModData[pnum].extra[mod]) {
+	else if(!cur) {
 		// if we are zero, simply replace with val
-		PlayerModData[pnum].extra[mod] = val;
+		cur = val;
 	}
 	else if(val > 0) {
 		// non-zero, multiply case -- we store things like 0.2 etc. here, but while we amplify it we need to consider 1.0 + val
-		PlayerModData[pnum].extra[mod] = CombineMultiplicativeFactors(PlayerModData[pnum].extra[mod], val) - 1.0;
+		cur = CombineMultiplicativeFactors(cur, val) - 1.0;
 	}
 	else if(val < 0) {
 		// if negative we divide
 		// if mod value == val, this means we need to set to zero (it's removed), otherwise just divide it
-		if(PlayerModData[pnum].extra[mod] + val < EPSILON)
-			PlayerModData[pnum].extra[mod] = 0;
+		if(cur + val < EPSILON)
+			cur = 0;
 		else
-			PlayerModData[pnum].extra[mod] = CancelMultiplicativeFactors(PlayerModData[pnum].extra[mod], -val) - 1.0;
+			cur = CancelMultiplicativeFactors(cur, -val) - 1.0;
 	}
+
+	WritePlayerModExtra(pnum, mod, cur);
 	
 	PushToPlayerAttributeExtraSync(pnum, mod);
 }
 
 void ResetPlayerModList(int pnum) {
-	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
-		PlayerModData[pnum].value[i] = 0;
-		PlayerModData[pnum].extra[i] = 0;
-	}
+	for(int i = 0; i < DND_PEXTRA_COUNT; ++i)
+		PlayerModData[pnum].x[i] = 0;
 
 	// The highest source rows are not derived from value[] and have to be cleared with it, or a
 	// character reload leaves phantom sources behind that nothing will ever remove.
 	for(i = 0; i < DND_HIGHESTSRC_COUNT; ++i)
 		for(int j = 0; j < DND_MAX_HIGHESTSRC_SLOTS; ++j)
 			PlayerModData[pnum].highest_sources[i][j] = 0;
+
+	// The dense stat slots and the flag words are not derived from value[] and have to be cleared
+	// with it. Flags carry a refcount, so a leftover count would keep its bit on through a reload.
+	for(i = 0; i < PSTAT_COUNT; ++i)
+		PlayerModData[pnum].f[i] = 0;
+	for(i = 0; i < DND_PFLAG_WORDS; ++i)
+		PlayerModData[pnum].pflags[i] = 0;
+	for(i = 0; i < DND_PFLAG_RCWORDS; ++i)
+		PlayerModData[pnum].pflag_rc[i] = 0;
 
 	// Damage conversion accumulates outside PlayerModData -- one summed attribute cannot tell two
 	// conversion mods apart when each names its own source and destination -- so it has to be reset
@@ -529,26 +1054,41 @@ void ResetPlayerModList(int pnum) {
 }
 
 void SyncPlayerItemMods(int pnum) {
-	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
-		if(PlayerModData[pnum].value[i])
-			ACS_NamedExecuteWithResult("DnD Request Mod Sync", pnum, i, PlayerModData[pnum].value[i]);
-		if(PlayerModData[pnum].extra[i])
-			ACS_NamedExecuteWithResult("DnD Request Mod Extra Sync", pnum, i, PlayerModData[pnum].extra[i]);
-	}
+	// Everything is keyed by SLOT now, so this walks the storage rather than the attribute id space:
+	// 315 slots plus 13 extras plus one flag word, against the 6000 id probes this used to make. A
+	// slot shared by two mods has no single id that could name it, so the id-keyed form could not
+	// have carried it even in principle.
+	for(int i = 0; i < DND_PEXTRA_COUNT; ++i)
+		if(PlayerModData[pnum].x[i])
+			ACS_NamedExecuteWithResult("DnD Request Extra Sync", pnum, i, PlayerModData[pnum].x[i]);
+
+	for(i = 0; i < PSTAT_COUNT; ++i)
+		if(PlayerModData[pnum].f[i])
+			ACS_NamedExecuteWithResult("DnD Request Stat Sync", pnum, i, PlayerModData[pnum].f[i]);
+
+	for(i = 0; i < DND_PFLAG_WORDS; ++i)
+		ACS_NamedExecuteWithResult("DnD Request Flag Sync", pnum, i, PlayerModData[pnum].pflags[i]);
 }
 
 // resets things clientside for the array
 Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
-	for(int i = 0; i < MAX_TOTAL_ATTRIBUTES; ++i) {
-		PlayerModData[pnum].value[i] = 0;
-		PlayerModData[pnum].extra[i] = 0;
-	}
+	for(int i = 0; i < DND_PEXTRA_COUNT; ++i)
+		PlayerModData[pnum].x[i] = 0;
 
 	// The highest source rows are not derived from value[] and have to be cleared with it, or a
 	// character reload leaves phantom sources behind that nothing will ever remove.
 	for(i = 0; i < DND_HIGHESTSRC_COUNT; ++i)
 		for(int j = 0; j < DND_MAX_HIGHESTSRC_SLOTS; ++j)
 			PlayerModData[pnum].highest_sources[i][j] = 0;
+
+	// The dense stat slots and the flag words are not derived from value[] and have to be cleared
+	// with it. Flags carry a refcount, so a leftover count would keep its bit on through a reload.
+	for(i = 0; i < PSTAT_COUNT; ++i)
+		PlayerModData[pnum].f[i] = 0;
+	for(i = 0; i < DND_PFLAG_WORDS; ++i)
+		PlayerModData[pnum].pflags[i] = 0;
+	for(i = 0; i < DND_PFLAG_RCWORDS; ++i)
+		PlayerModData[pnum].pflag_rc[i] = 0;
 }
 
 // returns the amount to skip over the base range to map it into its appropriate tier

@@ -1096,7 +1096,10 @@ Actor PyroImpExp1 : BaseExplosionDamage {
 actor PyroImpBall : DoomImpBall2 {
 	renderstyle Add
 	DamageType "Fire"
-	Stamina 1073741828
+	// +32 FIRE: DamageType is Fire but the type bit was missing, so this resolved as untyped
+	// against players and took no elemental resist at all. 36 == EXPLOSIVE|FIRE, the convention
+	// used by the other 51 Fire actors.
+	Stamina 1073741860
 	Obituary "%o was burned by a pyro imp."
 	+RANDOMIZE
 	+LOWGRAVITY
@@ -1162,7 +1165,10 @@ actor PyroImpBallFire : PyroImpFire {
 
 actor PyroImpBallFire2 {
 	DamageType "Fire"
-	Stamina 4
+	// +32 FIRE: DamageType is Fire but the type bit was missing, so this resolved as untyped
+	// against players and took no elemental resist at all. 36 == EXPLOSIVE|FIRE, the convention
+	// used by the other 51 Fire actors.
+	Stamina 36
 	scale 2.0
 	Radius 8
 	Height 40
@@ -1198,7 +1204,10 @@ actor PyroImpExplosion : BaseExplosionDamage {
 	height 8
 	damage 0
 	DamageType "Fire"
-	Stamina 4
+	// +32 FIRE: DamageType is Fire but the type bit was missing, so this resolved as untyped
+	// against players and took no elemental resist at all. 36 == EXPLOSIVE|FIRE, the convention
+	// used by the other 51 Fire actors.
+	Stamina 36
 	scale 0.8
 	renderstyle Add
 	alpha 0.7
@@ -1410,7 +1419,10 @@ actor Devil2Ball {
     Damage (3 * random(4, 8))
 	DamageType "Fire"
 	Accuracy 133
-	Stamina 1073741828
+	// +32 FIRE: DamageType is Fire but the type bit was missing, so this resolved as untyped
+	// against players and took no elemental resist at all. 36 == EXPLOSIVE|FIRE, the convention
+	// used by the other 51 Fire actors.
+	Stamina 1073741860
     PROJECTILE
 	+DONTBLAST
     RENDERSTYLE ADD

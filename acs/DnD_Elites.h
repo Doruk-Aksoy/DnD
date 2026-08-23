@@ -240,6 +240,8 @@ void SetupEliteModWeights() {
 	INSERT_ELITEMODPOOL(DND_STORMTOUCH, 40, 165);
 	INSERT_ELITEMODPOOL(DND_VILETOUCH, 40, 165);
 
+	INSERT_ELITEMODPOOL(DND_AURA_WARD, 36, 75);
+
 	// build the tables off of this info
 	CreateEliteAliasTables(thresholds, i);
 }
@@ -382,6 +384,9 @@ void SetEliteFlag(int this, int f, bool updateCS) {
 		case DND_CRIPPLE:
 			GiveInventory("Cripple_Script_Run", 1);
 		break;
+		case DND_AURA_WARD:
+			GiveInventory("Aura_Ward_Script_Run", 1);
+		break;
 		case DND_VIOLENTRETALIATION:
 			ACS_NamedExecuteAlways("DnD Aura Giver CS", 0, DND_VIOLENTRETALIATION);
 		break;
@@ -444,6 +449,9 @@ Script "DnD Aura Giver CS" (int trait, int extra) CLIENTSIDE {
 				SetActorProperty(0, APROP_RENDERSTYLE, STYLE_NORMAL);
 			}
 		break;
+		case DND_AURA_WARD:
+			ACS_NamedExecuteAlways("DND Spawn Attachment", 0, tid, DND_ELITEFX_WARDAURA);
+		break;
 	}
 }
 
@@ -470,6 +478,7 @@ bool IsMagicMonsterModBanned(int trait) {
 		case DND_NUCLEAR:
 		case DND_CHTHONBLESSED:
 		case DND_BORROWEDTIME:
+		case DND_AURA_WARD:
 		return true;
 	}
 	return false;

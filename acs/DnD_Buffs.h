@@ -139,8 +139,8 @@ void ResetPlayerBuffs(int pnum) {
 		// do not reset this
 		if
 		(
-			IsChargeBuff(i) && GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && 
-			GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) == i - DND_FIRST_CHARGE_BUFF
+			IsChargeBuff(i) && PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && 
+			ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) == i - DND_FIRST_CHARGE_BUFF
 		)
 			continue;
 

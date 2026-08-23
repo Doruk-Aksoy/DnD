@@ -250,8 +250,9 @@ void ApplyMarkOfAsmodeus(int m_id, int m_class) {
 
 	GiveActorInventory(tid, "AsmodeusMark_Script_Run", 1);
 
+	// add to existing resist now that we changed the model (cap applies on the one area checking for it in damage deal)
 	for(int i = 0; i < MAX_DAMAGE_CATEGORIES; ++i)
-		MonsterProperties[m_id].resists[i] = Min(MonsterProperties[m_id].resists[i] + DND_ASMODEUS_RESISTBUFF, DND_IMMUNITY_FACTOR);
+		MonsterProperties[m_id].resists[i] += DND_ASMODEUS_RESISTBUFF;
 }
 
 Script "DnD Chaos Mark Script" (void) {

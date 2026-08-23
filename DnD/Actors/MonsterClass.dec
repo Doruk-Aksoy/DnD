@@ -355,6 +355,37 @@ Actor Cripple_Script_Run : DnD_Activator {
 	}
 }
 
+// ---- Ward aura ---------------------------------------------------------------------------------
+// Starts the source side loop, same handoff Cripple and Repel use.
+Actor Aura_Ward_Script_Run : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 ACS_NamedExecuteAlways("DnD Aura Ward")
+		Stop
+	}
+}
+
+// One pulse. "DnD Aura Ward" gives this to the monster once per refresh and the engine does the
+// radius sweep from here, natively, centred on whoever is holding it. 256 must match
+// DND_AURAWARD_DISTANCE in DnD_Common.h -- DECORATE cannot see ACS defines.
+// RGF_GIVESELF is deliberate: a ward aura protects its own caster too.
+Actor Aura_Ward_Pulse : DnD_Activator {
+	States {
+		Pickup:
+			TNT1 A 0 A_RadiusGive("Aura_Ward_Token", 256, RGF_MONSTERS | RGF_GIVESELF, 1)
+		Stop
+	}
+}
+
+// The marker on the receiver. A PowerProtection with a 1.0 damagefactor does NOTHING as protection --
+// it is a presence flag wearing a powerup so the engine expires it for free, the same trick
+// CrippleToken and DnD_OverloadZapCandidate already use. The resistance itself is applied by
+// FactorResists, which reads this; see the note there on why a real damagefactor would be wrong.
+Actor Aura_Ward_Token : PowerProtection {
+	damagefactor "normal", 1.0
+	powerup.duration 87
+}
+
 Actor Phasing_Script_Run : DnD_Activator {
 	States {
 		Pickup:

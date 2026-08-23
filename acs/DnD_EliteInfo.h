@@ -160,6 +160,8 @@ enum {
 	DND_STORMTOUCH,
 	DND_VILETOUCH,
 
+	DND_AURA_WARD,
+
 	// never add below these!!
 	DND_GUARDBROKEN,
 
@@ -272,6 +274,7 @@ int GetEliteModPower(int t) {
 		case DND_RIMETOUCH:
 		case DND_STORMTOUCH:
 		case DND_VILETOUCH:
+		case DND_AURA_WARD:
 		return DND_MODPOWER_MEDIUM;
 
 		// high power
@@ -408,6 +411,8 @@ str GetMonsterTraitLabel(int id) {
 		return "DND_EMOD_AGGRESSIVE";
 		case DND_HASTE:
 		return "DND_EMOD_HASTE";
+		case DND_AURA_WARD:
+		return "DND_EMOD_AURAWARD";
 		case DND_FASTREACTION:
 		return "DND_EMOD_FASTREACT";
 		

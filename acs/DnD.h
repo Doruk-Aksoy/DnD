@@ -1517,8 +1517,8 @@ void ClearLingeringBuffs(int pnum) {
 
 void RestorePersistentBuffs(int pnum) {
 	// restore these buffs though -- Max charge of types
-	if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) {
-		HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF), 0);
+	if(PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF]) {
+		HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF), 0);
 	}
 }
 
@@ -1786,17 +1786,17 @@ void HandleAsmodeusAttack(int m_id, int isMelee) {
 }
 
 void HandleChargeAcquisitionOnKill(int this, int pnum) {
-	int temp = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_FRENZY);
+	int temp = PlayerModData[pnum].f[PSTAT_IMP_ONKILL_FRENZY];
 	if(temp && random(1, 100) <= temp) {
 		HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
 	}
 
-	temp = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_ENDURANCE);
+	temp = PlayerModData[pnum].f[PSTAT_IMP_ONKILL_ENDURANCE];
 	if(temp && random(1, 100) <= temp) {
 		HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
 	}
 
-	temp = GetPlayerAttributeValue(pnum, INV_IMP_ONKILL_POWER);
+	temp = PlayerModData[pnum].f[PSTAT_IMP_ONKILL_POWER];
 	if(temp && random(1, 100) <= temp) {
 		HandlePlayerBuffAssignment(pnum, 0, BTI_POWERCHARGE);
 	}

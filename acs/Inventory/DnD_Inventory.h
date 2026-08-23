@@ -603,7 +603,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		return POPUP_NOMORESMALLCHARMS;
 	
 	// or tried to put small charm when well of power is there and would exceed limit
-	if(target_type == DND_CHARM_SMALL && (i = GetPlayerAttributeValue(pnum, INV_EX_LIMITEDSMALLCHARMS)) && i != MAX_SMALL_CHARMS_USED && i == CountPlayerSmallCharms(pnum))
+	if(target_type == DND_CHARM_SMALL && (i = PlayerModData[pnum].f[PSTAT_EX_LIMITEDSMALLCHARMS]) && i != MAX_SMALL_CHARMS_USED && i == CountPlayerSmallCharms(pnum))
 		return POPUP_NOMORESMALLCHARMS;
 
 	// check if player is trying to equip another of the same utility flask if it is utility
@@ -625,7 +625,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	)
 		return POPUP_CANTWEARBODYARMOR;
 
-	if(item_type == DND_ITEM_BODYARMOR && GetPlayerAttributeValue(pnum, INV_EX_FORBID_ARMOR))
+	if(item_type == DND_ITEM_BODYARMOR && PlayerModData[pnum].f[PSTAT_EX_FORBID_ARMOR])
 		return POPUP_CANTPUTONBODYARMOR;
 	// proceed to equip the item now
 
@@ -2486,7 +2486,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 		case INV_EXPLOSION_RADIUS:
 			IncPlayerModValue(pnum, atype, aval);
-			SetActorProperty(0, APROP_SCORE, GetPlayerAttributeValue(pnum, atype));
+			SetActorProperty(0, APROP_SCORE, ReadPlayerModValue(pnum, atype));
 		break;
 		
 		// these are all accuracy mod groups
@@ -2532,9 +2532,15 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			SetHighestModSource(pnum, atype, item_index, remove ? 0 : aval);
 		break;
 
+		// Stored as a flag now, but it keeps the case it always had -- the recompute below is the
+		// whole reason this mod was not on the generic accumulate path to begin with.
 		case INV_EX_KNOCKBACK_IMMUNITY:
-			IncPlayerModValue(pnum, atype, aval);
+			SetPlayerFlag(pnum, PFLAG_KNOCKBACK_IMMUNITY, remove);
 			UpdatePlayerKnockbackResist();
+		break;
+
+		case INV_EX_BEHAVIOR_PELLETSFIRECIRCLE:
+			SetPlayerFlag(pnum, PFLAG_PELLETS_FIRE_CIRCLE, remove);
 		break;
 		case INV_EX_FACTOR_SMALLCHARM:
 			if(!remove) {
@@ -2552,7 +2558,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 						ApplyItemFeatures(pnum, i, DND_SYNC_ITEMSOURCE_ITEMSUSED, DND_ITEMMOD_ADD);
 								
 			}
-			else if(PlayerModData[pnum].value[atype]) {
+			else if(ReadPlayerModValue(pnum, atype)) {
 				// just take the attribute off and remove features and reapply
 				for(i = 0; i < 4; ++i)
 					if(GlobalItemStorage.Items_Used[pnum][i].item_type != DND_ITEM_NULL)
@@ -2624,7 +2630,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 			if(temp != -1) {
 				// update to use the new min if our comparison is better -- dont care otherwise
 				if(!remove)
-					SetPlayerModValue(pnum, atype, Min(aval, PlayerModData[pnum].value[atype]));
+					SetPlayerModValue(pnum, atype, Min(aval, ReadPlayerModValue(pnum, atype)));
 			}
 			else {
 				// no new min was found
@@ -2640,7 +2646,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 		case INV_EX_ABILITY_RALLY:
 			IncPlayerModValue(pnum, atype, aval);
-			if(PlayerModData[pnum].value[atype])
+			if(ReadPlayerModValue(pnum, atype))
 				GiveInventory("CastRally", 1);
 			else
 				TakeInventory("CastRally", 1);
@@ -2677,7 +2683,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 		break;
 		case INV_EX_CURSEIMMUNITY:
 			IncPlayerModValue(pnum, atype, aval);
-			if(PlayerModData[pnum].value[atype])
+			if(ReadPlayerModValue(pnum, atype))
 				GiveInventory("CurseImmunity", 1);
 			else
 				HandleCurseImmunityRemoval();
@@ -2799,7 +2805,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 
 		case INV_INC_STAMINA:
 			IncPlayerModValue(pnum, atype, aval);
-			SetAmmoCapacity("DnD_Stamina", DND_BASE_STAMINA * (100 + GetPlayerAttributeValue(pnum, INV_INC_STAMINA)) / 100);
+			SetAmmoCapacity("DnD_Stamina", DND_BASE_STAMINA * (100 + PlayerModData[pnum].f[PSTAT_INC_STAMINA]) / 100);
 			ACS_NamedExecuteWithResult("DnD Start Stamina Recovery");
 		break;
 
@@ -2814,6 +2820,37 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 				HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE + aextra, 0);
 		break;
 		
+		// Stored as a flag, not a value -- every one of its read sites tests it for truth, four of
+		// them inside GetResistPenetration on the damage path. MapAttributeToPFlag keeps it readable
+		// by id so the exotic stat page still lists it.
+		//
+		// It belongs HERE and not in ProcessItemImplicit: that one only ever sees INV_IMP_* ids, so a
+		// case for a unique attribute placed there compiles, reads correctly, and never once runs.
+		case INV_EX_ELEPENHARMONY:
+			SetPlayerFlag(pnum, PFLAG_ELEPENHARMONY, remove);
+		break;
+
+		// Same treatment, same reason: 1..1 rolls tested for truth at every site.
+		case INV_INC_MITIGATIONTODODGE:
+			SetPlayerFlag(pnum, PFLAG_MITIGATION_TO_DODGE, remove);
+		break;
+
+		case INV_INC_ESHIELDNOINTERRUPT:
+			SetPlayerFlag(pnum, PFLAG_ESHIELD_NOINTERRUPT, remove);
+		break;
+
+		case INV_EX_ESCHARGE_DMGNOINTERRUPT:
+			SetPlayerFlag(pnum, PFLAG_ESCHARGE_NOINTERRUPT, remove);
+		break;
+
+		case INV_EX_ABILITY_LUCKYCRIT:
+			SetPlayerFlag(pnum, PFLAG_LUCKYCRIT, remove);
+		break;
+
+		case INV_INC_ACCURACYREVERSED:
+			SetPlayerFlag(pnum, PFLAG_ACCURACY_REVERSED, remove);
+		break;
+
 		// anything that fits our generic formula
 		default:
 			IncPlayerModValue(pnum, atype, aval);
@@ -2884,15 +2921,13 @@ bool ItemIsCybernetic(int pnum, int item_index, int attrib_count, int source) {
 	return false;
 }
 
-void HandleAttributePowerset(int pnum, int val, int powerset, bool remove) {
-	if(val) {
-		if(!remove)
-			val = GetPlayerAttributeValue(pnum, powerset) | val;
-		else
-			val = GetPlayerAttributeValue(pnum, powerset) & ~val;
-		
-		SetPlayerModValue(pnum, powerset, val);
-	}
+// Was: OR the bit in on equip, AND-NOT it out on unequip, all packed into INV_EX_PLAYERPOWERSET1.
+// That could not tell "two equipped items grant Cyber" from "one does", so unequipping either one
+// stripped the power off a player still wearing the other -- with no way to get it back short of
+// re-equipping. SetPlayerFlag carries a source count per flag, so the bit only clears once the last
+// source is gone. The int-valued mods never had this bug because +1/-1 refcounts for free.
+void HandleAttributePowerset(int pnum, int flag, bool remove) {
+	SetPlayerFlag(pnum, flag, remove);
 }
 
 bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, bool remove, int multiplier = 100) {
@@ -3000,7 +3035,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 
 		// powerset things
 		case INV_IMP_DOUBLEESHIELDRECOVERY:
-			HandleAttributePowerset(pnum, PPOWER_CYBER, INV_EX_PLAYERPOWERSET1, remove);
+			HandleAttributePowerset(pnum, PFLAG_CYBER, remove);
 		break;
 
 		// single value implicits
@@ -3029,15 +3064,15 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		break;
 
 		case INV_IMP_HIGHREFLECTREDUCE:
-			HandleAttributePowerset(pnum, PPOWER_LOWERREFLECT, INV_EX_PLAYERPOWERSET1, remove);
+			HandleAttributePowerset(pnum, PFLAG_LOWERREFLECT, remove);
 		break;
 
 		case INV_IMP_ESHIELDBLOCKSALL:
-			HandleAttributePowerset(pnum, PPOWER_ESHIELDBLOCKALL, INV_EX_PLAYERPOWERSET1, remove);
+			HandleAttributePowerset(pnum, PFLAG_ESHIELDBLOCKALL, remove);
 		break;
 		
 		case INV_IMP_MELEEIGNORESSHIELDS:
-			HandleAttributePowerset(pnum, PPOWER_MELEEIGNORESHIELD, INV_EX_PLAYERPOWERSET1, remove);
+			HandleAttributePowerset(pnum, PFLAG_MELEEIGNORESHIELD, remove);
 		break;
 
 		// corrupted implicits
@@ -3112,7 +3147,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_CORR_MAXFRENZY:
 			IncPlayerModValue(pnum, atype, aval);
 
-			if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && (aextra = GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_FRENZY) {
+			if(PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_FRENZY) {
 				RemoveBuffWithTableIndex(pnum, BTI_FRENZYCHARGE);
 				HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
 			}
@@ -3120,7 +3155,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_CORR_MAXENDURANCE:
 			IncPlayerModValue(pnum, atype, aval);
 
-			if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && (aextra = GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_ENDURANCE) {
+			if(PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_ENDURANCE) {
 				RemoveBuffWithTableIndex(pnum, BTI_ENDURANCECHARGE);
 				HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
 			}
@@ -3128,7 +3163,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_CORR_MAXPOWER:
 			IncPlayerModValue(pnum, atype, aval);
 
-			if(GetPlayerAttributeValue(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) && (aextra = GetPlayerAttributeExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_POWER) {
+			if(PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_POWER) {
 				RemoveBuffWithTableIndex(pnum, BTI_POWERCHARGE);
 				HandlePlayerBuffAssignment(pnum, 0, BTI_POWERCHARGE);
 			}
@@ -3183,7 +3218,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// if player has mirror of eternity and this is a medium charm that is NOT the mirror, multiply magnitude by 2
 	if
 	(
-		GetPlayerAttributeValue(pnum, INV_EX_MIRROROTHERMEDIUM) && 
+		PlayerModData[pnum].f[PSTAT_EX_MIRROROTHERMEDIUM] && 
 		(item.item_type & 0xFFFF) == DND_ITEM_CHARM &&
 		item.item_subtype == DND_CHARM_MEDIUM &&
 		(item.item_type >> 16) - 1 != UITEM_MIRROROFETERNITY
@@ -3210,7 +3245,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// Well of power factor -- the item type has to be part of this test. DND_CHARM_SMALL is 0, and
 	// every other equippable keeps an unrelated index in item_subtype (boot/armor/helm base, flask
 	// kind), so a subtype-only check hands the factor to whichever of those happens to be base 0.
-	temp = GetPlayerAttributeValue(pnum, INV_EX_FACTOR_SMALLCHARM);
+	temp = PlayerModData[pnum].f[PSTAT_EX_FACTOR_SMALLCHARM];
 	if(temp && (item.item_type & 0xFFFF) == DND_ITEM_CHARM && item.item_subtype == DND_CHARM_SMALL)
 		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
 

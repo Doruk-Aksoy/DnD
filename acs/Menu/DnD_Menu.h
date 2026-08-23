@@ -116,7 +116,7 @@ Script "DnD Transmute Orb Sync" (int pnum, int id, int val) CLIENTSIDE {
 
 Script "DnD Menu Reset on Enter" ENTER {
 	int pnum = PlayerNumber();
-	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
+	int ch_factor = (100 + PlayerModData[pnum].f[PSTAT_SHOPSTOCK_INCREASE]), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
 		int stock = GetShopItemInfo(j, DND_SHOPINFO_STOCK);
@@ -148,7 +148,7 @@ Script "DnD Menu Reset on Enter" ENTER {
 // So database can run this
 Script "DnD Menu Reset Forced" (void) {
 	int pnum = PlayerNumber();
-	int ch_factor = (100 + GetPlayerAttributeValue(pnum, INV_SHOPSTOCK_INCREASE)), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
+	int ch_factor = (100 + PlayerModData[pnum].f[PSTAT_SHOPSTOCK_INCREASE]), temp, ammo_bonus = GetAmmoCapIncrease(pnum);
 	for(int j = 0; j < MAXSHOPITEMS; ++j) {
 		// ammo has different stock method -- half of initial capacity
 		int stock = GetShopItemInfo(j, DND_SHOPINFO_STOCK);
@@ -569,7 +569,7 @@ Script "DnD Menu Input Loop" (void) CLIENTSIDE {
 				SetHudClipRect(0, 0, 0, 0, 0);
 				
 				// draw values seperately so they align
-				if(!GetPlayerAttributeValue(pnum, INV_EX_UNITY)) {
+				if(!PlayerModData[pnum].f[PSTAT_EX_UNITY]) {
 					DrawToggledLabel("STR", DND_NOLOOKUP, -1, boxid, MBOX_1, RPGMENUITEMID - 5, "\c[Y5]", "\c[B1]", 192.1, 144.0);
 					DrawToggledLabel("DEX", DND_NOLOOKUP, -1, boxid, MBOX_2, RPGMENUITEMID - 6, "\c[Y5]", "\c[B1]", 192.1, 160.0);
 					DrawToggledLabel("INT", DND_NOLOOKUP, -1, boxid, MBOX_3, RPGMENUITEMID - 7, "\c[Y5]", "\c[B1]", 192.1, 176.0);
