@@ -65,7 +65,7 @@ Script "DnD Cast Spell" (int spell_id, int usesCooldown) NET {
 	switch(spell_id) {
 		case DND_SPELL_RALLY:
 			ActivatorSound("Spell/RallyCast", 127);
-			spell_level = PlayerModData[pnum].f[PSTAT_EX_ABILITY_RALLY];
+			spell_level = PlayerModData[pnum].vals[PSTAT_EX_ABILITY_RALLY];
 			temp = RALLY_DISTANCE + GetIntellectEffect(pnum, RALLY_DIST_PER_INT);
 			bufftimer = RALLY_DURATION * TICRATE;
 

@@ -492,7 +492,9 @@ IATTR_T133			= "chance to avoid bleeding";
 
 IATTR_T134			= "chance to cause bleeding on physical attacks";
 IATTR_T135			= "increased bleed damage";
-IATTR_T136			= "increased bleed duration";							DND_BLEED_TIME = "seconds of bleed duration";
+IATTR_T136			= "increased bleed duration";
+DND_IGNITE_TIME		= "seconds of ignite duration";
+DND_POISON_TIME		= "seconds of poison stack duration";							DND_BLEED_TIME = "seconds of bleed duration";
 
 IATTR_T137			= "increased crit chance for";
 IATTR_T138			= "chance to gain a Frenzy Charge on shattering an enemy";

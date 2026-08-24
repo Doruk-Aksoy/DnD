@@ -1,8 +1,10 @@
 - Ramping Assault (3)
-	* Every 6/5/4th melee hit on the same enemy deals 20% more damage.
+	* Every 6th melee hit on the same enemy deals 20% more damage.
+	+ -1 hits needed for the bonus damage.
 	
 - Cranium Bash (3)
-	* Blunt melee weapons have 3/6/9% chance to stun enemies for 1.5 seconds.
+	* Blunt melee weapons have 3% chance to stun enemies on melee hit for 1.5 seconds.
+	+ 3% additional chance to stun.
 
 - Echoing Strikes (2) [5]
 	* Melee attacks have 12.5% chance to splash around for 50% of the damage.
@@ -10,7 +12,7 @@
 	- Brutal Strikes (1) or Cranium Bash (1)
 
 - Unending Fury (2) [10]
-	* Berserk's damage bonus applies to all weapons at 50% of its value.
+	* Berserk's damage bonus applies to all weapons at 25% effect.
 	+ 25% additional factor.
 	- Requires Ramping Assault.
 	
@@ -18,11 +20,14 @@
 	* Melee splash effects can occur 20% further.
 	+ 20% additional splash distance.
 	- Requires Echoing Strikes.
+	
+- Blademaster (1) [12]
+	* Melee damage and range increase also applies to projectiles fired from melee weapons.
 
 ===============================
 
 - Exhauster (3)
-	* Melee hits have 10% chance to slow enemies hit by 20%.
+	* Melee hits have 15% chance to slow enemies hit by 20%.
 	+ +5% chance to slow.
 
 - Deep Cuts (3)
@@ -31,9 +36,14 @@
 	
 - Quick & Deadly (1) [6]
 	* Slashing attacks repeat an additional time and are 33% faster.
+	- Requires Deep Cuts.
 
 - Swift & Precise (1) [8]
 	* Melee hits grant 10% movement speed per enemy hit up to 100% for 3 seconds.
+	
+- Flesh Carver (2) [12]
+	* Bleed from melee hits deals damage 10% faster.
+	+ 10% faster damage.
 
 ===============================
 
@@ -43,6 +53,14 @@
 
 - Riposte (1) [3]
 	* Successful parries reduce subsequent parry costs by 10% up to a maximum of 30% within a 10 second window.
+	
+- Expose Weakness (2) [8]
+	* Reduce enemy resists by 25% on parry damage for 15 seconds.
+	+ 15% additional resist reduction.
 
-- Martial Finesse (1) [12]
-	* Melee hits reduce melee cooldowns by 10%.
+- Martial Finesse (2) [12]
+	* Melee hits on enemies reduce melee cooldowns by 8%.
+	+ Additional 8% reduction.
+	
+- Gratuitous Violence (1) [12]
+	* Overkilling enemies grants rage.

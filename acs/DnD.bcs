@@ -963,7 +963,7 @@ Script "DND On Kill" KILL {
 	if(!random(0, 3) && HasActorClassPerk_Fast(target, DND_PLAYER_WANDERER, 4))
 		ACS_NamedExecuteAlways("DnD Wanderer Explosions", 0, this, target);
 		
-	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime") && !PlayerModData[target - P_TIDSTART].f[PSTAT_INC_ALLOVERLOAD]) {
+	if(CheckInventory("DnD_OverloadTimer") && !CheckInventory("DnD_OverloadLockTime") && !PlayerModData[target - P_TIDSTART].vals[PSTAT_INC_ALLOVERLOAD]) {
 		GiveInventory("DnD_OverloadZapGiver", 1);
 		ACS_NamedExecuteAlways("DnD Monster Overload Zap", 0, this, target);
 	}
@@ -972,7 +972,7 @@ Script "DND On Kill" KILL {
 	int is_demon = IsDemon();
 
 	// Demon Bane check
-	if(is_demon && PlayerModData[target - P_TIDSTART].f[PSTAT_EX_DEMONBARRIERS]) {
+	if(is_demon && PlayerModData[target - P_TIDSTART].vals[PSTAT_EX_DEMONBARRIERS]) {
 		GiveActorInventory(target, "DaemonicBarrier", 1);
 		if(!CheckActorInventory(target, "DaemonicBarrierTimer"))
 			ACS_NamedExecuteAlways("DnD Demon Barrier Timeout", 0, target);
@@ -1003,7 +1003,7 @@ Script "DND On Kill" KILL {
 	}
 
 	// crusader helm check
-	if(IsMagicOrUndead() && (is_demon = PlayerModData[target - P_TIDSTART].f[PSTAT_IMP_RECOVERESONUNDEADKILL]) && !CheckActorInventory(target, "TaltosEffect") && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
+	if(IsMagicOrUndead() && (is_demon = PlayerModData[target - P_TIDSTART].vals[PSTAT_IMP_RECOVERESONUNDEADKILL]) && !CheckActorInventory(target, "TaltosEffect") && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
 		i = temp * is_demon / 100;
 		if(i < 1)
 			i = 1;
@@ -1027,7 +1027,7 @@ Script "DND On Kill" KILL {
 	
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
-		temp = PlayerModData[target - P_TIDSTART].f[PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE];
+		temp = PlayerModData[target - P_TIDSTART].vals[PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE];
 		if(CanActorHaveMorePets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && temp >= random(1, 100)) {
 			// raise zombie
 			HandleZombieRaiseOnDeath(target);
@@ -1039,7 +1039,7 @@ Script "DND On Kill" KILL {
 	(
 		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
 		HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5) ||
-		PlayerModData[target - P_TIDSTART].f[PSTAT_INC_ENEMYRIPCHANCE] >= random(1, 100) ||
+		PlayerModData[target - P_TIDSTART].vals[PSTAT_INC_ENEMYRIPCHANCE] >= random(1, 100) ||
 		HasMonsterTrait(m_id, DND_MARKOFCHAOS)
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
@@ -1099,13 +1099,13 @@ Script "DND On Kill" KILL {
 
 	is_demon = PlayerNumber();
 
-	i = PlayerModData[is_demon].f[PSTAT_EX_REFILLAMMOONMELEEKILL];
+	i = PlayerModData[is_demon].vals[PSTAT_EX_REFILLAMMOONMELEEKILL];
 	if(i && IsUsingMeleeWeapon())
 		GiveOwnedWeaponsAmmo(i);
 
 	HandleChargeAcquisitionOnKill(target, is_demon);
 	
-	temp = PlayerModData[is_demon].f[PSTAT_EX_ONKILL_HEALMISSING];
+	temp = PlayerModData[is_demon].vals[PSTAT_EX_ONKILL_HEALMISSING];
 	if(temp) {
 		i = GetMissingHealth();
 		temp = (i * temp) / 100;
@@ -3725,7 +3725,7 @@ Script 996 (int type, int id) {
 				type = GetAmmoContainerValue(i, j);
 
 				auto a_info = GetAmmoInfo(i, j);
-				GiveInventory(a_info.name, ((type / 5) + (type / 5) * (PlayerModData[PlayerNumber()].f[PSTAT_AMMOGAIN_INCREASE] + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100));
+				GiveInventory(a_info.name, ((type / 5) + (type / 5) * (PlayerModData[PlayerNumber()].vals[PSTAT_AMMOGAIN_INCREASE] + (CheckInventory("Perk_Munitionist") * DND_MUNITION_GAIN)) / 100));
 			}
 	}
     else if(type == 1) {
@@ -3860,7 +3860,7 @@ Script "DnD Periodic Regeneration" ENTER {
 		if(isAlive()) {
 			int regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].additive;
 
-			if(!(ticker % 10) && (amt = PlayerModData[pnum].f[PSTAT_INC_PASSIVEREGEN])) {
+			if(!(ticker % 10) && (amt = PlayerModData[pnum].vals[PSTAT_INC_PASSIVEREGEN])) {
 				regen_amt += amt;
 				ticker = 0;
 			}
@@ -3876,7 +3876,7 @@ Script "DnD Periodic Regeneration" ENTER {
 					lim = amt;
 
 				amt = amt * (DND_REGEN_PERCENT + regen_amt) / 100;
-				amt = amt * (100 + PlayerModData[pnum].f[PSTAT_REGENRATE]) / 100;
+				amt = amt * (100 + PlayerModData[pnum].vals[PSTAT_REGENRATE]) / 100;
 
 				regen_amt = pbuffs[pnum].buff_net_values[BUFF_HEALTHREGEN].multiplicative;
 				if(regen_amt != 1.0) {
@@ -3891,7 +3891,7 @@ Script "DnD Periodic Regeneration" ENTER {
 				if(HasClassPerk_Fast(DND_PLAYER_CYBORG, 1))
 					amt += amt * DND_CYBORG_CYBER_MULT / DND_CYBORG_CYBER_DIV;
 				
-				if((!CheckInventory("DnD_Hit_CombatTimer") || PlayerModData[pnum].f[PSTAT_CORR_DMGDOESNTSTOPREGEN] || PlayerModData[pnum].f[PSTAT_INC_HPREGENINTERRUPT]) && cur < lim) {
+				if((!CheckInventory("DnD_Hit_CombatTimer") || PlayerModData[pnum].vals[PSTAT_CORR_DMGDOESNTSTOPREGEN] || PlayerModData[pnum].vals[PSTAT_INC_HPREGENINTERRUPT]) && cur < lim) {
 					if(cur + amt < lim)
 						GiveInventory("HealthBonusX", amt);
 					else
@@ -3948,7 +3948,7 @@ Script "DnD Energy Shield Regen" (int cap, int pnum) {
 
 	// we can start the recovery now, but we still have to check if we enter combat etc.
 	rchrg = GetPlayerEnergyShieldRecoveryRate(pnum, cap);
-	if((count = PlayerModData[pnum].f[PSTAT_EX_ESCHARGE_USEHP])) {
+	if((count = PlayerModData[pnum].vals[PSTAT_EX_ESCHARGE_USEHP])) {
 		// take life from player now
 		count = rchrg * count / 100;
 		if(count <= 0)
@@ -4061,7 +4061,7 @@ Script "DnD Lifesteal Script" (int tid) {
 	int pnum = PlayerNumber();
 
 	// only bother granting the leech damage buff when the player has the affix at all
-	int leech_dmg = PlayerModData[pnum].f[PSTAT_LIFESTEAL_DAMAGE];
+	int leech_dmg = PlayerModData[pnum].vals[PSTAT_LIFESTEAL_DAMAGE];
 	if(leech_dmg)
 		HandlePlayerBuffAssignment(pnum, 0, BTI_LEECHINGDAMAGE, 0, 0, 0, leech_dmg);
 
@@ -5011,7 +5011,7 @@ Script "DND Pet Monster Damage Scale" (int base, int rnd, int flags) {
 	res = res * (100 + HandleStatBonus(pnum, 0, 0, DND_STAT_ATTUNEMENT_GAIN, true)) / 100;
 	
 	// TODO: later check if damage is physical, improve this script
-	int temp = PlayerModData[pnum].f[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH];
+	int temp = PlayerModData[pnum].vals[PSTAT_EX_PHYSDAMAGEPER_FLATHEALTH];
 	if(temp) {
 		temp = GetFlatHealthDamageFactor(temp);
 		res = res * (100 + temp) / 100;
@@ -5076,11 +5076,11 @@ Script "DnD Give Soul Ammo" (int amt) {
 
 	// check if special soul pickup mods are there
 	int pnum = PlayerNumber();
-	int temp = PlayerModData[pnum].f[PSTAT_EX_SOULPICKUPSINFAMMO];
+	int temp = PlayerModData[pnum].vals[PSTAT_EX_SOULPICKUPSINFAMMO];
 	if(temp) {
 		if(!CheckInventory("SoulPickupInfinityPrevention")) {
 			SetInventory("SoulPickupInfinityTimer", temp * TICRATE);
-			GiveInventory("SoulPickupInfinityPrevention", PlayerModData[pnum].f[PSTAT_EX_SOULPICKUPSONLYAMMO]);
+			GiveInventory("SoulPickupInfinityPrevention", PlayerModData[pnum].vals[PSTAT_EX_SOULPICKUPSONLYAMMO]);
 
 			// add script call here for the timer deduction
 			ACS_NamedExecuteWithResult("DnD Soul Infinity Timer");
@@ -5626,10 +5626,10 @@ Script "DnD Projectile Checks" (int isPet, int isExplosive) {
 	if(CheckActorInventory(owner, "NetherCheck"))
 		GiveInventory("ApplyNetherMaskBuff", 1);
 	
-	if(CheckUniquePropertyOnPlayer(pnum, PUP_IGNORERADIUSIMMUNITY) || (random(1, 100) < PlayerModData[pnum].f[PSTAT_CHANCE_IGNORERADIUSIMMUNITY]))
+	if(CheckUniquePropertyOnPlayer(pnum, PUP_IGNORERADIUSIMMUNITY) || (random(1, 100) < PlayerModData[pnum].vals[PSTAT_CHANCE_IGNORERADIUSIMMUNITY]))
 		GiveInventory("ApplyForceRadiusDMG", 1);
 
-	wepid = PlayerModData[pnum].f[PSTAT_INC_PROJREVERSE];
+	wepid = PlayerModData[pnum].vals[PSTAT_INC_PROJREVERSE];
 	if(wepid && GetActorProperty(0, APROP_SPEED))
 		ACS_NamedExecuteAlways("DnD Proj Reverse Direction", 0, wepid);
 
@@ -6134,7 +6134,7 @@ Script "DnD Vaaj Charm" (int spd) {
 		int pnum = victim - P_TIDSTART;
 		if(!CheckUniquePropertyOnPlayer(pnum, PUP_CURSEIMMUNITY)) {
 			int base_t = DND_VAAJ_CHARMTIME;
-			int curse_effect = 100 - PlayerModData[pnum].f[PSTAT_REDUCEDCURSEEFFECT];
+			int curse_effect = 100 - PlayerModData[pnum].vals[PSTAT_REDUCEDCURSEEFFECT];
             if(curse_effect <= 0) {
                 SetResultValue(0);
                 Terminate;
@@ -6335,7 +6335,7 @@ Script 68 (int x) NET {
 			HandleEShieldChange(PlayerNumber(), 0);
 		}
 		else if(x == 501)
-			SetPlayerModValue(PlayerNumber(), INV_PELLET_INCREASE, 2 * PlayerModData[PlayerNumber()].f[PSTAT_PELLET_INCREASE] + 1.0);
+			SetPlayerModValue(PlayerNumber(), INV_PELLET_INCREASE, 2 * PlayerModData[PlayerNumber()].vals[PSTAT_PELLET_INCREASE] + 1.0);
 		else if(x == 502) {
 			IncPlayerModValue(PlayerNumber(), INV_ACCURACY_INCREASE, 1000);
 			IncPlayerModValue(PlayerNumber(), INV_ESS_OMNISIGHT2, 10);

@@ -105,10 +105,10 @@ enum {
 #define DND_DAMAGECATEGORY_END (DND_DAMAGECATEGORY_OCCULT + 1)
 
 // =================================================================================================
-// Dense player stat slots -- PlayerModData.f[]
+// Dense player stat slots -- PlayerModData.vals[]
 //
 // PlayerModData used to be two MAX_TOTAL_ATTRIBUTES wide arrays per player: 3000 slots each, for the
-// 360 attribute ids that exist, of which only ~250 ever hold a player scoped value. f[] replaces the
+// 360 attribute ids that exist, of which only ~250 ever hold a player scoped value. vals[] replaces the
 // value side with one dense slot per STAT rather than per mod id.
 //
 // Item data still stores INV_* ids and always will -- an item has to record which mod it rolled, and

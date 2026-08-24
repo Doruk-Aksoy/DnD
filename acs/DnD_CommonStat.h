@@ -315,17 +315,17 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 	switch(prop) {
 		// homing not reflect can come from thorax or marine's perk50 (more generic, all proj cant be reflected)
 		case PUP_HOMINGNOREFLECT:
-		return (PlayerModData[pnum].f[PSTAT_ESS_THORAX] && (extra1 | extra2));
+		return (PlayerModData[pnum].vals[PSTAT_ESS_THORAX] && (extra1 | extra2));
 		
 		// +FORCERADIUSDMG can come from vaaj or marine
 		case PUP_IGNORERADIUSIMMUNITY:
 		return HasActorClassPerk_Fast(pnum + P_TIDSTART, DND_PLAYER_MARINE, 3);
 		
 		case PUP_SLAINENEMIESRIP:
-		return PlayerModData[pnum].f[PSTAT_EX_ABILITY_MONSTERSRIP] || pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive;
+		return PlayerModData[pnum].vals[PSTAT_EX_ABILITY_MONSTERSRIP] || pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive;
 		
 		case PUP_FORBIDARMOR:
-		return PlayerModData[pnum].f[PSTAT_EX_FORBID_ARMOR];
+		return PlayerModData[pnum].vals[PSTAT_EX_FORBID_ARMOR];
 		
 		case PUP_LUCKYCRITS:
 		return HasPlayerFlag(pnum, PFLAG_LUCKYCRIT);
@@ -337,19 +337,19 @@ bool CheckUniquePropertyOnPlayer(int pnum, int prop, int extra1 = 0, int extra2 
 		return HasPlayerFlag(pnum, PFLAG_KNOCKBACK_IMMUNITY) || CheckActorInventory(pnum + P_TIDSTART, "GryphonCheck");
 		
 		case PUP_CURSEIMMUNITY:
-		return PlayerModData[pnum].f[PSTAT_EX_CURSEIMMUNITY];
+		return PlayerModData[pnum].vals[PSTAT_EX_CURSEIMMUNITY];
 		
 		case PUP_PAINSHAREDWITHPETS:
-		return PlayerModData[pnum].f[PSTAT_EX_DMGREDUCE_SHAREWITHPETS];
+		return PlayerModData[pnum].vals[PSTAT_EX_DMGREDUCE_SHAREWITHPETS];
 		
 		case PUP_SOULWEPSDOFULL:
-		return PlayerModData[pnum].f[PSTAT_EX_SOULWEPS_FULLDAMAGE];
+		return PlayerModData[pnum].vals[PSTAT_EX_SOULWEPS_FULLDAMAGE];
 		
 		case PUP_SPELLSDOFULL:
-		return PlayerModData[pnum].f[PSTAT_EX_BEHAVIOR_SPELLSFULLDAMAGE];
+		return PlayerModData[pnum].vals[PSTAT_EX_BEHAVIOR_SPELLSFULLDAMAGE];
 		
 		case PUP_POISONTICSTWICE:
-		return PlayerModData[pnum].f[PSTAT_ESS_LESHRAC];
+		return PlayerModData[pnum].vals[PSTAT_ESS_LESHRAC];
 	}
 	return false;
 }
@@ -419,7 +419,7 @@ enum {
 
 int GetBonusPlayerSpeed(int pnum) {
 	int ptid = pnum + P_TIDSTART;
-	int res = PlayerModData[pnum].f[PSTAT_SPEED_INCREASE] + GetPlayerFrenzyCharges(ptid, pnum) * DND_FRENZYCHARGE_SPEEDBONUS;
+	int res = PlayerModData[pnum].vals[PSTAT_SPEED_INCREASE] + GetPlayerFrenzyCharges(ptid, pnum) * DND_FRENZYCHARGE_SPEEDBONUS;
 	// add other stuff here
 	res += CheckActorInventory(ptid, "GryphonCheck") * DND_GRYPHON_MSPEED + CheckActorInventory(ptid, "CelestialCheck") * DND_CELESTIAL_MSPEED;
 	return res;
@@ -431,15 +431,15 @@ int GetPlayerSpeed(int pnum) {
 
 // returns true if there are things that'd nullify effect of dexterity
 bool HasPlayerDexterityDisablers(int pnum) {
-	return PlayerModData[pnum].f[PSTAT_EX_UNITY];
+	return PlayerModData[pnum].vals[PSTAT_EX_UNITY];
 }
 
 // These getters must be used when doing calculations based on benefit of these stats
 int GetDexterity(int pnum) {
 	return (
 		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Dexterity") + 
-		PlayerModData[pnum].f[PSTAT_STAT_DEXTERITY]
-	) * (100 + PlayerModData[pnum].f[PSTAT_IMP_PERCENTDEX] + PlayerModData[pnum].f[PSTAT_CORR_PERCENTSTATS]) / 100;
+		PlayerModData[pnum].vals[PSTAT_STAT_DEXTERITY]
+	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTDEX] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
 }
 
 int GetDexterityEffect(int pnum, int factor, int divisor = 1) {
@@ -450,14 +450,14 @@ int GetDexterityEffect(int pnum, int factor, int divisor = 1) {
 
 // returns true if there are things that'd nullify effect of int
 bool HasPlayerIntellectDisablers(int pnum) {
-	return PlayerModData[pnum].f[PSTAT_EX_UNITY];
+	return PlayerModData[pnum].vals[PSTAT_EX_UNITY];
 }
 
 int GetIntellect(int pnum) {
 	return (
 		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Intellect") + 
-		PlayerModData[pnum].f[PSTAT_STAT_INTELLECT]
-	) * (100 + PlayerModData[pnum].f[PSTAT_IMP_PERCENTINT] + PlayerModData[pnum].f[PSTAT_CORR_PERCENTSTATS]) / 100;
+		PlayerModData[pnum].vals[PSTAT_STAT_INTELLECT]
+	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTINT] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
 }
 
 int GetIntellectEffect(int pnum, int factor, int divisor = 1) {
@@ -468,14 +468,14 @@ int GetIntellectEffect(int pnum, int factor, int divisor = 1) {
 
 // returns true if there are things that'd nullify effect of strength
 bool HasPlayerStrengthDisablers(int pnum) {
-	return PlayerModData[pnum].f[PSTAT_EX_UNITY] || PlayerModData[pnum].f[PSTAT_EX_INTBONUSTOMELEE];
+	return PlayerModData[pnum].vals[PSTAT_EX_UNITY] || PlayerModData[pnum].vals[PSTAT_EX_INTBONUSTOMELEE];
 }
 
 int GetStrength(int pnum) {
 	return (
 		CheckActorInventory(pnum + P_TIDSTART, "PSTAT_Strength") + 
-		PlayerModData[pnum].f[PSTAT_STAT_STRENGTH]
-	) * (100 + PlayerModData[pnum].f[PSTAT_IMP_PERCENTSTR] + PlayerModData[pnum].f[PSTAT_CORR_PERCENTSTATS]) / 100;
+		PlayerModData[pnum].vals[PSTAT_STAT_STRENGTH]
+	) * (100 + PlayerModData[pnum].vals[PSTAT_IMP_PERCENTSTR] + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
 }
 
 int GetStrengthEffect(int pnum, int factor, int divisor = 1) {
@@ -491,12 +491,12 @@ void CalculateUnity(int pnum) {
 			GetStrength(pnum) +
 			GetDexterity(pnum) +
 			GetIntellect(pnum)
-		) * (100 + PlayerModData[pnum].f[PSTAT_CORR_PERCENTSTATS]) / 100;
+		) * (100 + PlayerModData[pnum].vals[PSTAT_CORR_PERCENTSTATS]) / 100;
 	SetInventory("PSTAT_Unity", val);
 }
 
 void ConditionalCalculateUnity(int pnum) {
-	if(PlayerModData[pnum].f[PSTAT_EX_UNITY])
+	if(PlayerModData[pnum].vals[PSTAT_EX_UNITY])
 		CalculateUnity(pnum);
 }
 
@@ -505,11 +505,11 @@ int GetUnity() {
 }
 
 int GetPetCap() {
-	return BASE_PET_CAP + PlayerModData[PlayerNumber()].f[PSTAT_IMP_BONUSPETCAP];
+	return BASE_PET_CAP + PlayerModData[PlayerNumber()].vals[PSTAT_IMP_BONUSPETCAP];
 }
 
 int GetActorPetCap(int tid) {
-	return BASE_PET_CAP + PlayerModData[tid - P_TIDSTART].f[PSTAT_IMP_BONUSPETCAP];
+	return BASE_PET_CAP + PlayerModData[tid - P_TIDSTART].vals[PSTAT_IMP_BONUSPETCAP];
 }
 
 bool CanActorHaveMorePets(int tid) {
@@ -519,7 +519,7 @@ bool CanActorHaveMorePets(int tid) {
 int GetHealingBonuses(int pnum) {
 	int bonus = PERK_MEDICBONUS * CheckInventory("Perk_Medic");
 	// doesn't make sense for it to go below 0
-	int less_mod = Clamp_Between(100 - PlayerModData[pnum].f[PSTAT_EX_LESSHEALING], 0, 100);
+	int less_mod = Clamp_Between(100 - PlayerModData[pnum].vals[PSTAT_EX_LESSHEALING], 0, 100);
 	bonus = bonus * less_mod / 100;
 	return bonus;
 }
@@ -557,9 +557,9 @@ int GetMissingHealth() {
 }
 
 int CalculateHealthCapBonuses(int pnum) {
-	int base = PlayerModData[pnum].f[PSTAT_HP_FLAT];
+	int base = PlayerModData[pnum].vals[PSTAT_HP_FLAT];
 	int temp = 0;
-	if((temp = PlayerModData[pnum].f[PSTAT_INC_MOREHPBONUS])) {
+	if((temp = PlayerModData[pnum].vals[PSTAT_INC_MOREHPBONUS])) {
 		// add negative component then double it -- this used to be the other way around but now it's more challenging to use
 		base += ReadPlayerModExtra(pnum, INV_INC_MOREHPBONUS);
 		base = base * (100 + temp) / 100;
@@ -575,7 +575,7 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 
 	int tid = pnum + P_TIDSTART;
 
-	if(!bypassEShieldCheck && PlayerModData[pnum].f[PSTAT_EX_HEALTHATONE]) {
+	if(!bypassEShieldCheck && PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE]) {
 		SetActorInventory(tid, "PlayerHealthCap", 1);
 		return 1;
 	}
@@ -583,9 +583,9 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	int str_bonus = GetStrengthEffect(pnum, DND_HP_PER_STR);
 	int res = CalculateHealthCapBonuses(pnum) + DND_BASE_HEALTH + DND_HP_PER_LVL * (CheckActorInventory(tid, "Level") - 1) + str_bonus;
 	// consider percent bonuses from here on
-	int percent  = PlayerModData[pnum].f[PSTAT_HP_PCT];
+	int percent  = PlayerModData[pnum].vals[PSTAT_HP_PCT];
 	int temp = 0;
-	if((temp = PlayerModData[pnum].f[PSTAT_INC_MOREHPBONUS]))
+	if((temp = PlayerModData[pnum].vals[PSTAT_INC_MOREHPBONUS]))
 		percent = percent * (100 + temp) / 100;
 	
 	percent += 	CheckActorInventory(tid, "CelestialCheck") * CELESTIAL_BOOST +
@@ -596,7 +596,7 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_ANGELICANKH))
 		res >>= 1;
 
-	if(PlayerModData[pnum].f[PSTAT_EX_DOUBLE_HEALTHCAP])
+	if(PlayerModData[pnum].vals[PSTAT_EX_DOUBLE_HEALTHCAP])
 		res <<= 1;
 
 	if(res < DND_BASE_HEALTH)
@@ -606,7 +606,7 @@ int GetSpawnHealth(bool bypassEShieldCheck = false, int pnum = -1) {
 		res /= 2;
 
 	// last bit here is necessary to fix a mugshot related bug that may still call this function properly and end up seeing our health is 1
-	SetActorInventory(tid, "PlayerHealthCap", !PlayerModData[pnum].f[PSTAT_EX_HEALTHATONE] ? res : 1);
+	SetActorInventory(tid, "PlayerHealthCap", !PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE] ? res : 1);
 	return res;
 }
 
@@ -638,7 +638,7 @@ int GetActorSpawnHealth(int t) {
 
 void HandleCurseImmunityRemoval() {
 	// we shouldnt immediately take it as there might be other ways the player has obtained curse immunity
-	if(!PlayerModData[PlayerNumber()].f[PSTAT_EX_CURSEIMMUNITY])
+	if(!PlayerModData[PlayerNumber()].vals[PSTAT_EX_CURSEIMMUNITY])
 		TakeInventory("CurseImmunity", 1);
 }
 
@@ -648,9 +648,9 @@ void UpdatePlayerKnockbackResist() {
 		SetActorProperty(0, APROP_MASS, bcs::INT_MAX);
 	else {
 		int val = GetStrengthEffect(pnum, DND_STR_KNOCKBACK_GAIN);
-		val += DND_BASE_PLAYER_MASS + PlayerModData[pnum].f[PSTAT_KNOCKBACK_RESIST];
+		val += DND_BASE_PLAYER_MASS + PlayerModData[pnum].vals[PSTAT_KNOCKBACK_RESIST];
 
-		int pct = (100 + PlayerModData[pnum].f[PSTAT_PERCENT_KNOCKBACKRESIST]);
+		int pct = (100 + PlayerModData[pnum].vals[PSTAT_PERCENT_KNOCKBACKRESIST]);
 		if(val < bcs::INT_MAX / pct)
 			val = val * pct / 100;
 
@@ -659,8 +659,8 @@ void UpdatePlayerKnockbackResist() {
 }
 
 int GetPlayerAoEIncrease(int pnum) {
-	int base = PlayerModData[pnum].f[PSTAT_EXPLOSION_RADIUS];
-	int temp = PlayerModData[pnum].f[PSTAT_CORR_MOREAOE];
+	int base = PlayerModData[pnum].vals[PSTAT_EXPLOSION_RADIUS];
+	int temp = PlayerModData[pnum].vals[PSTAT_CORR_MOREAOE];
 	if(temp)
 		base = base * (100 + (((temp + 0.005) * 100) >> 16)) / 100;
 
@@ -729,11 +729,11 @@ bool HasPlayerFlag(int pnum, int flag) {
 //
 // Call ReadPlayerModValue / ReadPlayerModExtra directly. Both are id-keyed and pay a mapper switch,
 // so they are for the paths that genuinely only have an attribute id in hand -- item application, the
-// sync scripts, the stat pages. Gameplay code on a hot path reads its slot: PlayerModData[p].f[PSTAT_X].
+// sync scripts, the stat pages. Gameplay code on a hot path reads its slot: PlayerModData[p].vals[PSTAT_X].
 
 void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
-	int acc = PlayerModData[pnum].f[PSTAT_ACCURACY_INCREASE] + PlayerModData[pnum].f[PSTAT_ESS_OMNISIGHT];
-	int acc_pct = PlayerModData[pnum].f[PSTAT_ESS_OMNISIGHT2];
+	int acc = PlayerModData[pnum].vals[PSTAT_ACCURACY_INCREASE] + PlayerModData[pnum].vals[PSTAT_ESS_OMNISIGHT];
+	int acc_pct = PlayerModData[pnum].vals[PSTAT_ESS_OMNISIGHT2];
 
 	if(wepid == -1)
 		wepid = CheckInventory("DnD_WeaponID");
@@ -754,7 +754,7 @@ void CalculatePlayerAccuracy(int pnum, int wepid = -1) {
 }
 
 void UpdatePlayerSpreeTimer(int pnum) {
-	int base = DND_SPREE_AMOUNT * (100 + PlayerModData[pnum].f[PSTAT_INCKILLINGSPREE]) / 100;
+	int base = DND_SPREE_AMOUNT * (100 + PlayerModData[pnum].vals[PSTAT_INCKILLINGSPREE]) / 100;
 	base = base * (100 + DND_PUNISHER_SPREEBONUS * (HasClassPerk_Fast(DND_PLAYER_PUNISHER, 4))) / 100;
 	SetAmmoCapacity("DnD_SpreeTimer", base);
 }
@@ -847,21 +847,21 @@ void HandleEShieldChange(int pnum, bool remove) {
 
 // Absorb value for magic or poison attacks
 int GetEShieldMagicAbsorbValue(int pnum) {
-	if(PlayerModData[pnum].f[PSTAT_EX_ESHIELDFULLABSORB] || HasPlayerFlag(pnum, PFLAG_ESHIELDBLOCKALL))
+	if(PlayerModData[pnum].vals[PSTAT_EX_ESHIELDFULLABSORB] || HasPlayerFlag(pnum, PFLAG_ESHIELDBLOCKALL))
 		return 100;
-	return PlayerModData[pnum].f[PSTAT_MAGIC_NEGATION];
+	return PlayerModData[pnum].vals[PSTAT_MAGIC_NEGATION];
 }
 
 int GetPlayerEnergyShieldCap(int pnum) {
-	int base = PlayerModData[pnum].f[PSTAT_SHIELD_FLAT];
+	int base = PlayerModData[pnum].vals[PSTAT_SHIELD_FLAT];
 	
 	int int_bonus = GetIntellectEffect(pnum, 1, 2);
 	int spawn_health = GetSpawnHealth(true, pnum);
 	
 	// cyborg eshield conversion from hp is half
-	base += spawn_health * (PlayerModData[pnum].f[PSTAT_EX_HPTOESHIELD] + HasActorClassPerk_Fast(pnum + P_TIDSTART, DND_PLAYER_CYBORG, 5) * 50) / 100;
+	base += spawn_health * (PlayerModData[pnum].vals[PSTAT_EX_HPTOESHIELD] + HasActorClassPerk_Fast(pnum + P_TIDSTART, DND_PLAYER_CYBORG, 5) * 50) / 100;
 
-	base = (base * (100 + PlayerModData[pnum].f[PSTAT_SHIELD_PCT] + int_bonus)) / 100;
+	base = (base * (100 + PlayerModData[pnum].vals[PSTAT_SHIELD_PCT] + int_bonus)) / 100;
 	return base;
 }
 
@@ -874,7 +874,7 @@ int GetMitigationChance(int pnum, bool forcedReturn = false) {
 	if(!forcedReturn && HasPlayerFlag(pnum, PFLAG_MITIGATION_TO_DODGE))
 		return 0;
 
-	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + PlayerModData[pnum].f[PSTAT_MIT_CHANCE];
+	int base = GetDexterityEffect(pnum, DND_MIT_PER_DEX) + PlayerModData[pnum].vals[PSTAT_MIT_CHANCE];
 	base += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONCHANCE;
 	base += pbuffs[pnum].buff_net_values[BUFF_MITIGATION].additive;
 
@@ -890,7 +890,7 @@ bool CouldMitigateDamage(int pnum) {
 }
 
 int GetMitigationEffect(int pnum) {
-	int mit_eff = PlayerModData[pnum].f[PSTAT_MIT_EFFECT] + DND_MIT_BASE;
+	int mit_eff = PlayerModData[pnum].vals[PSTAT_MIT_EFFECT] + DND_MIT_BASE;
 	mit_eff += CheckActorInventory(pnum + P_TIDSTART, "DnD_HasAmphetamine") * DND_AMPHETAMINE_MITIGATIONEFFECT;
 	if(mit_eff > DND_MIT_MAXEFFECT)
 		mit_eff = DND_MIT_MAXEFFECT;
@@ -915,82 +915,82 @@ int GetResistPenetration(int pnum, int category) {
 	switch(category) {
 		case DND_DAMAGECATEGORY_BULLET:
 		case DND_DAMAGECATEGORY_MELEE:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_PHYS];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_PHYS];
 		break;
 		case DND_DAMAGECATEGORY_ENERGY:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ENERGY];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ENERGY];
 		break;
 		case DND_DAMAGECATEGORY_OCCULT:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_OCCULT];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_OCCULT];
 		break;
 
 		case DND_DAMAGECATEGORY_FIRE:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_FIRE];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_FIRE];
 
 			if(HasPlayerFlag(pnum, PFLAG_ELEPENHARMONY))
 				val = max(val, 
 						max(
-							PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ICE],
+							PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ICE],
 							max(
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING],
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_POISON]
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING],
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_POISON]
 							)
 						)
 				);
-			val += PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
+			val += PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
 		break;
 		case DND_DAMAGECATEGORY_ICE:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ICE];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ICE];
 
 			if(HasPlayerFlag(pnum, PFLAG_ELEPENHARMONY))
 				val = max(val, 
 						max(
-							PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_FIRE],
+							PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_FIRE],
 							max(
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING],
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_POISON]
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING],
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_POISON]
 							)
 						)
 				);
-			val += PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
+			val += PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
 		break;
 		case DND_DAMAGECATEGORY_LIGHTNING:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING];
 
 			if(HasPlayerFlag(pnum, PFLAG_ELEPENHARMONY))
 				val = max(val, 
 						max(
-							PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ICE],
+							PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ICE],
 							max(
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_FIRE],
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_POISON]
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_FIRE],
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_POISON]
 							)
 						)
 				);
-			val += PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
+			val += PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
 		break;
 		case DND_DAMAGECATEGORY_POISON:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_POISON];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_POISON];
 
 			if(HasPlayerFlag(pnum, PFLAG_ELEPENHARMONY))
 				val = max(val, 
 						max(
-							PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ICE],
+							PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ICE],
 							max(
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING],
-								PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_FIRE]
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING],
+								PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_FIRE]
 							)
 						)
 				);
-			val += PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
+			val += PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ELEMENTAL];
 		break;
 
 		case DND_DAMAGECATEGORY_SOUL:
-			val = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_OCCULT] + PlayerModData[pnum].f[PSTAT_EX_SOULWEPSPEN];
+			val = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_OCCULT] + PlayerModData[pnum].vals[PSTAT_EX_SOULWEPSPEN];
 		break;
 	}
 
-	val += PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ALL] + PlayerModData[pnum].f[PSTAT_EX_UNITY_PEN_BONUS] * GetUnity() / DND_UNITY_DIVISOR;
+	val += PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ALL] + PlayerModData[pnum].vals[PSTAT_EX_UNITY_PEN_BONUS] * GetUnity() / DND_UNITY_DIVISOR;
 
 	return val;
 }
@@ -998,10 +998,10 @@ int GetResistPenetration(int pnum, int category) {
 // purely used for cosmetic reasons
 int GetHighestElePen(int pnum) {
 	// this is very awful code but it doesn't matter -- we also dont care about unity or all ele pen... as they all would have it anyways
-	int fpen = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_FIRE];
-	int lpen = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING];
-	int ipen = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_ICE];
-	int ppen = PlayerModData[pnum].f[PSTAT_PEN_BASE + DND_PPEN_POISON];
+	int fpen = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_FIRE];
+	int lpen = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_LIGHTNING];
+	int ipen = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_ICE];
+	int ppen = PlayerModData[pnum].vals[PSTAT_PEN_BASE + DND_PPEN_POISON];
 
 	if(fpen > lpen && fpen > ipen && fpen > ppen)
 		return DND_DAMAGECATEGORY_FIRE;
@@ -1047,37 +1047,37 @@ int CountMonsterAilments(int tid) {
 
 int GetPlayerChargeDuration(int pnum) {
 	int base = DND_BASE_CHARGEDURATION;
-	if(PlayerModData[pnum].f[PSTAT_EX_CHARGEDURATIONHALVED])
+	if(PlayerModData[pnum].vals[PSTAT_EX_CHARGEDURATIONHALVED])
 		base >>= 1;
-	return base * (100 + PlayerModData[pnum].f[PSTAT_CHARGEDURATION]) / 100;
+	return base * (100 + PlayerModData[pnum].vals[PSTAT_CHARGEDURATION]) / 100;
 }
 
 int GetPlayerMaxFrenzyCharges(int pnum) {
-	return DND_BASE_PLAYERCHARGEMAX + PlayerModData[pnum].f[PSTAT_CORR_MAXFRENZY];
+	return DND_BASE_PLAYERCHARGEMAX + PlayerModData[pnum].vals[PSTAT_CORR_MAXFRENZY];
 }
 
 int GetPlayerMaxEnduranceCharges(int pnum) {
-	return DND_BASE_PLAYERCHARGEMAX + PlayerModData[pnum].f[PSTAT_CORR_MAXENDURANCE];
+	return DND_BASE_PLAYERCHARGEMAX + PlayerModData[pnum].vals[PSTAT_CORR_MAXENDURANCE];
 }
 
 int GetPlayerMaxPowerCharges(int pnum) {
-	return DND_BASE_PLAYERCHARGEMAX + PlayerModData[pnum].f[PSTAT_CORR_MAXPOWER];
+	return DND_BASE_PLAYERCHARGEMAX + PlayerModData[pnum].vals[PSTAT_CORR_MAXPOWER];
 }
 
 int GetPlayerFrenzyCharges(int tid, int pnum) {
-	if(!PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] || ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY)
+	if(!PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] || ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY)
 		return CheckActorInventory(tid, "DnD_FrenzyChargeCount");
 	return GetPlayerMaxFrenzyCharges(pnum);
 }
 
 int GetPlayerEnduranceCharges(int tid, int pnum) {
-	if(!PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] || ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)
+	if(!PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] || ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)
 		return CheckActorInventory(tid, "DnD_EnduranceChargeCount");
 	return GetPlayerMaxEnduranceCharges(pnum);
 }
 
 int GetPlayerPowerCharges(int tid, int pnum) {
-	if(!PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] || ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)
+	if(!PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] || ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)
 		return CheckActorInventory(tid, "DnD_PowerChargeCount");
 	return GetPlayerMaxPowerCharges(pnum);
 }
@@ -1133,7 +1133,7 @@ int GetPlayerParryWeakenTimer(int pnum, int mon_tid) {
 }
 
 int CheckPlayerCleave(int pnum) {
-	int res = PlayerModData[pnum].f[PSTAT_REAPINGCLEAVE];
+	int res = PlayerModData[pnum].vals[PSTAT_REAPINGCLEAVE];
 	return res && random(1, 100) <= res;
 }
 

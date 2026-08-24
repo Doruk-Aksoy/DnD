@@ -1,0 +1,77 @@
+- Munitionist (3)
+	* 20% increased ammo gained from pickups.
+	+ Additional 15% increased ammo gained.
+	
+- Plan B (3)
+	* After depleting your magazine fully, gain 10% increased movement speed for 3 seconds.
+	+ Additional 10% movement speed.
+	
+- Excess Conversion (2) [6]
+	- Excess ammo from pickups is converted to another ammo type for a weapon you own at 15% rate.
+	- Conversion rate has an additional 10%.
+	
+- Fresh Clip (3) [6]
+	- Finishing a reload action empowers the next 5 shots to do 15% more damage.
+	+ Empower lasts for an additional round.
+	- Requires: Munitionist or Plan B.
+	
+- Lucky Bullet (2) [9]
+	- The very last round in your magazine has an additional +2.5% chance to crit and 25% crit multiplier.
+	+ Additional 2.5% crit chance and 25% crit multiplier.
+	- Requires: Munitionist or Plan B.
+	
+- Salvager (1) [12]
+	* Enemies have 2% chance to drop ammo tokens, giving 10% ammo to a random weapon you own.
+	- Requires: Munitionist or Plan B.
+	
+==============================================
+
+- Precise Technique (3)
+	* Precision weapons get 15% increased damage.
+	+ 15% additional damage.
+	
+- Fired up (3)
+	* Automatic weapons get +1 additional damage.
+	+ Additional +2 damage.
+	
+- Pumped (3)
+	* Shotguns have +1 shell capacity.
+	+ Additional +1 shell capacity.
+	
+- Quaker (3)
+	* Artillery weapons gain 10% increased radius.
+	+ Additional 10% increased radius.
+	
+- Dark arts (3)
+	* Magic weapons deal 10% increased damage.
+	+ Additional 15% damage.
+	
+- Sharpshooter (1) [6]
+	* Precision weapons gain up to 100% more damage with distance, capped at 2048 units.
+	- Requires: Precise Technique.
+	
+- Ceaseless Assault (1) [6]
+	* Enemies hit by your automatic weapons recently lose 2 to all resistances up to 30.
+	- Requires: Fired up.
+	
+- Blastier Shots (1) [6]
+	* Gain an additional pellet on shotgun attacks.
+	- Requires: Pumped.
+	
+- Earthshaker (1) [6]
+	* Artillery attacks gain 10% more damage and radius per continuous attack, up to 3 times.
+	- Requires: Quaker.
+	
+- Essence Theft (1) [6]
+	* Enemies slain recently by magical attacks grant 2 magic pierce up to 20.
+	
+==============================================
+
+- Bastion Breaker (3)
+	* Hitting shielded enemies instead deals 15% of the damage.
+	+ Additional 15% damage dealt.
+	
+- Shield stealer (1) [6]
+	* Killing shielded enemies recovers 5% of your energy shield.
+	- Requires: Bastion Breaker.
+	

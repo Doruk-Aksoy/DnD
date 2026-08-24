@@ -603,7 +603,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 		return POPUP_NOMORESMALLCHARMS;
 	
 	// or tried to put small charm when well of power is there and would exceed limit
-	if(target_type == DND_CHARM_SMALL && (i = PlayerModData[pnum].f[PSTAT_EX_LIMITEDSMALLCHARMS]) && i != MAX_SMALL_CHARMS_USED && i == CountPlayerSmallCharms(pnum))
+	if(target_type == DND_CHARM_SMALL && (i = PlayerModData[pnum].vals[PSTAT_EX_LIMITEDSMALLCHARMS]) && i != MAX_SMALL_CHARMS_USED && i == CountPlayerSmallCharms(pnum))
 		return POPUP_NOMORESMALLCHARMS;
 
 	// check if player is trying to equip another of the same utility flask if it is utility
@@ -625,7 +625,7 @@ int MakeItemUsed(int pnum, int use_id, int item_index, int item_type, int target
 	)
 		return POPUP_CANTWEARBODYARMOR;
 
-	if(item_type == DND_ITEM_BODYARMOR && PlayerModData[pnum].f[PSTAT_EX_FORBID_ARMOR])
+	if(item_type == DND_ITEM_BODYARMOR && PlayerModData[pnum].vals[PSTAT_EX_FORBID_ARMOR])
 		return POPUP_CANTPUTONBODYARMOR;
 	// proceed to equip the item now
 
@@ -2805,7 +2805,7 @@ void ProcessAttribute(int pnum, int atype, int aval, int aextra, int item_index,
 
 		case INV_INC_STAMINA:
 			IncPlayerModValue(pnum, atype, aval);
-			SetAmmoCapacity("DnD_Stamina", DND_BASE_STAMINA * (100 + PlayerModData[pnum].f[PSTAT_INC_STAMINA]) / 100);
+			SetAmmoCapacity("DnD_Stamina", DND_BASE_STAMINA * (100 + PlayerModData[pnum].vals[PSTAT_INC_STAMINA]) / 100);
 			ACS_NamedExecuteWithResult("DnD Start Stamina Recovery");
 		break;
 
@@ -3147,7 +3147,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_CORR_MAXFRENZY:
 			IncPlayerModValue(pnum, atype, aval);
 
-			if(PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_FRENZY) {
+			if(PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_FRENZY) {
 				RemoveBuffWithTableIndex(pnum, BTI_FRENZYCHARGE);
 				HandlePlayerBuffAssignment(pnum, 0, BTI_FRENZYCHARGE);
 			}
@@ -3155,7 +3155,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_CORR_MAXENDURANCE:
 			IncPlayerModValue(pnum, atype, aval);
 
-			if(PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_ENDURANCE) {
+			if(PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_ENDURANCE) {
 				RemoveBuffWithTableIndex(pnum, BTI_ENDURANCECHARGE);
 				HandlePlayerBuffAssignment(pnum, 0, BTI_ENDURANCECHARGE);
 			}
@@ -3163,7 +3163,7 @@ bool ProcessItemImplicit(int pnum, int item_index, int source, int implicit_id, 
 		case INV_CORR_MAXPOWER:
 			IncPlayerModValue(pnum, atype, aval);
 
-			if(PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_POWER) {
+			if(PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF] && (aextra = ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF)) == DND_CHARGE_POWER) {
 				RemoveBuffWithTableIndex(pnum, BTI_POWERCHARGE);
 				HandlePlayerBuffAssignment(pnum, 0, BTI_POWERCHARGE);
 			}
@@ -3218,7 +3218,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// if player has mirror of eternity and this is a medium charm that is NOT the mirror, multiply magnitude by 2
 	if
 	(
-		PlayerModData[pnum].f[PSTAT_EX_MIRROROTHERMEDIUM] && 
+		PlayerModData[pnum].vals[PSTAT_EX_MIRROROTHERMEDIUM] && 
 		(item.item_type & 0xFFFF) == DND_ITEM_CHARM &&
 		item.item_subtype == DND_CHARM_MEDIUM &&
 		(item.item_type >> 16) - 1 != UITEM_MIRROROFETERNITY
@@ -3245,7 +3245,7 @@ void ApplyItemFeatures(int pnum, int item_index, int source, bool remove = false
 	// Well of power factor -- the item type has to be part of this test. DND_CHARM_SMALL is 0, and
 	// every other equippable keeps an unrelated index in item_subtype (boot/armor/helm base, flask
 	// kind), so a subtype-only check hands the factor to whichever of those happens to be base 0.
-	temp = PlayerModData[pnum].f[PSTAT_EX_FACTOR_SMALLCHARM];
+	temp = PlayerModData[pnum].vals[PSTAT_EX_FACTOR_SMALLCHARM];
 	if(temp && (item.item_type & 0xFFFF) == DND_ITEM_CHARM && item.item_subtype == DND_CHARM_SMALL)
 		multiplier = multiplier * temp / FACTOR_FIXED_RESOLUTION;
 

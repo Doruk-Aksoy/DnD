@@ -50,9 +50,9 @@
 	- Quick Getaway (1) OR Master of Shadows (1)
 	
 - Mercy Kill (3) [12]
-	* Enemies on low life are 15% more susceptible to crits.
+	* Enemies on low life are 10% more susceptible to crits.
 	+ 2.5% additional susceptability.
 	
 - Dance with Death (3) [12]
-	* 20% chance to gain Elusive on crit. (Elusive grants 30% movement speed and 25% chance to avoid damage from hits, rapidly decaying from 100% effect to 0%. Can't gain Elusive until it wears off)
+	* 10% chance to gain Elusive on crit. (Elusive grants 30% movement speed and 25% chance to avoid damage from hits, rapidly decaying from 100% effect to 0%. Can't gain Elusive until it wears off)
 	+ 2.5% chance to gain Elusive.

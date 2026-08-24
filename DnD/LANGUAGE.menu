@@ -170,7 +170,7 @@ DND_MENU_AILMENT4_EXP	=	"Lightning damage has 5% chance to cause the monster to 
 DND_MENU_AILMENT5		=	"Poison";
 DND_MENU_AILMENT5_EXP	=	"Hits from poison damage inflict a stack of poison for 3 seconds dealing 2% of the damage, up to 5 maximum stacks, each with their own instances.";
 DND_MENU_AILMENT6		=	"Bleeding";
-DND_MENU_AILMENT6_EXP	=	"Physical damaage from hits can inflict bleeding, with a base chance of 20% for melee and 5% for ranged attacks. 30% of the hit damage is then dealt over 2.5 seconds in 5 instances. Moving causes victims to take triple damage.";
+DND_MENU_AILMENT6_EXP	=	"Physical damage from hits can inflict bleeding, with a base chance of 20% for melee and 5% for ranged attacks. 30% of the hit damage is then dealt over 2.5 seconds in 5 instances. Moving causes victims to take triple damage.";
 
 DND_MENU_MMOD_WEAK		=	"Weakness Modifiers";
 DND_MENU_MMOD_RESIST	=	"Resistance Modifiers";

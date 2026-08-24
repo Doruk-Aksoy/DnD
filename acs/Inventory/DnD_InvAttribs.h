@@ -258,10 +258,10 @@ typedef struct {
 
 	// Dense per-stat storage, one slot per STAT rather than per attribute id. See the long note on
 	// PSTAT_* in DnD_Common.h. This is the whole player scope value side now.
-	int f[PSTAT_COUNT];
+	int vals[PSTAT_COUNT];
 
 	// Second number for the 13 mods that carry one. See MapAttributeToPExtra.
-	int x[DND_PEXTRA_COUNT];
+	int extras[DND_PEXTRA_COUNT];
 
 	// Boolean mods, one bit each, plus the packed source counts that make removal correct.
 	int pflags[DND_PFLAG_WORDS];
@@ -272,7 +272,7 @@ global player_item_mod_data_T 57: PlayerModData[MAXPLAYERS];
 
 // The ONE place an attribute id becomes a stat slot. Everything not listed here still lives in
 // value[] and is looked up by id, which is what makes the migration incremental: a family moves by
-// gaining cases here and having its read sites rewritten to touch f[] directly, and nothing else in
+// gaining cases here and having its read sites rewritten to touch vals[] directly, and nothing else in
 // the mod has to know it moved.
 //
 // Two mods may share a slot when they are a new source of the same stat -- that is the point of the
@@ -680,14 +680,14 @@ int MapAttributeToPExtra(int mod) {
 int ReadPlayerModExtra(int pnum, int mod) {
 	int slot = MapAttributeToPExtra(mod);
 	if(slot != DND_PEXTRA_UNMAPPED)
-		return PlayerModData[pnum].x[slot];
+		return PlayerModData[pnum].extras[slot];
 	return 0;
 }
 
 void WritePlayerModExtra(int pnum, int mod, int val) {
 	int slot = MapAttributeToPExtra(mod);
 	if(slot != DND_PEXTRA_UNMAPPED)
-		PlayerModData[pnum].x[slot] = val;
+		PlayerModData[pnum].extras[slot] = val;
 }
 
 // Id-keyed accessors. These exist for the paths that genuinely only have an id in hand -- item
@@ -696,7 +696,7 @@ void WritePlayerModExtra(int pnum, int mod, int val) {
 int ReadPlayerModValue(int pnum, int mod) {
 	int slot = MapAttributeToPStat(mod);
 	if(slot != DND_PSTAT_UNMAPPED)
-		return PlayerModData[pnum].f[slot];
+		return PlayerModData[pnum].vals[slot];
 
 	// A flag has no magnitude, so 1 is the honest answer to "how much of this does the player have".
 	// The stat pages test exactly that, which is what keeps a flagged mod visible on them.
@@ -712,7 +712,7 @@ int ReadPlayerModValue(int pnum, int mod) {
 void WritePlayerModValue(int pnum, int mod, int val) {
 	int slot = MapAttributeToPStat(mod);
 	if(slot != DND_PSTAT_UNMAPPED) {
-		PlayerModData[pnum].f[slot] = val;
+		PlayerModData[pnum].vals[slot] = val;
 		return;
 	}
 
@@ -1028,7 +1028,7 @@ void IncPlayerModExtra(int pnum, int mod, int val) {
 
 void ResetPlayerModList(int pnum) {
 	for(int i = 0; i < DND_PEXTRA_COUNT; ++i)
-		PlayerModData[pnum].x[i] = 0;
+		PlayerModData[pnum].extras[i] = 0;
 
 	// The highest source rows are not derived from value[] and have to be cleared with it, or a
 	// character reload leaves phantom sources behind that nothing will ever remove.
@@ -1039,7 +1039,7 @@ void ResetPlayerModList(int pnum) {
 	// The dense stat slots and the flag words are not derived from value[] and have to be cleared
 	// with it. Flags carry a refcount, so a leftover count would keep its bit on through a reload.
 	for(i = 0; i < PSTAT_COUNT; ++i)
-		PlayerModData[pnum].f[i] = 0;
+		PlayerModData[pnum].vals[i] = 0;
 	for(i = 0; i < DND_PFLAG_WORDS; ++i)
 		PlayerModData[pnum].pflags[i] = 0;
 	for(i = 0; i < DND_PFLAG_RCWORDS; ++i)
@@ -1059,12 +1059,12 @@ void SyncPlayerItemMods(int pnum) {
 	// slot shared by two mods has no single id that could name it, so the id-keyed form could not
 	// have carried it even in principle.
 	for(int i = 0; i < DND_PEXTRA_COUNT; ++i)
-		if(PlayerModData[pnum].x[i])
-			ACS_NamedExecuteWithResult("DnD Request Extra Sync", pnum, i, PlayerModData[pnum].x[i]);
+		if(PlayerModData[pnum].extras[i])
+			ACS_NamedExecuteWithResult("DnD Request Extra Sync", pnum, i, PlayerModData[pnum].extras[i]);
 
 	for(i = 0; i < PSTAT_COUNT; ++i)
-		if(PlayerModData[pnum].f[i])
-			ACS_NamedExecuteWithResult("DnD Request Stat Sync", pnum, i, PlayerModData[pnum].f[i]);
+		if(PlayerModData[pnum].vals[i])
+			ACS_NamedExecuteWithResult("DnD Request Stat Sync", pnum, i, PlayerModData[pnum].vals[i]);
 
 	for(i = 0; i < DND_PFLAG_WORDS; ++i)
 		ACS_NamedExecuteWithResult("DnD Request Flag Sync", pnum, i, PlayerModData[pnum].pflags[i]);
@@ -1073,7 +1073,7 @@ void SyncPlayerItemMods(int pnum) {
 // resets things clientside for the array
 Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
 	for(int i = 0; i < DND_PEXTRA_COUNT; ++i)
-		PlayerModData[pnum].x[i] = 0;
+		PlayerModData[pnum].extras[i] = 0;
 
 	// The highest source rows are not derived from value[] and have to be cleared with it, or a
 	// character reload leaves phantom sources behind that nothing will ever remove.
@@ -1084,7 +1084,7 @@ Script "DnD Reset Player Mod List" (int pnum) CLIENTSIDE {
 	// The dense stat slots and the flag words are not derived from value[] and have to be cleared
 	// with it. Flags carry a refcount, so a leftover count would keep its bit on through a reload.
 	for(i = 0; i < PSTAT_COUNT; ++i)
-		PlayerModData[pnum].f[i] = 0;
+		PlayerModData[pnum].vals[i] = 0;
 	for(i = 0; i < DND_PFLAG_WORDS; ++i)
 		PlayerModData[pnum].pflags[i] = 0;
 	for(i = 0; i < DND_PFLAG_RCWORDS; ++i)

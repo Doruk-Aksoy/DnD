@@ -33,7 +33,7 @@
 =================================================
 
 - Thumper (3)
-	* Landing from a great height creates a small shockwave around you dealing 100 (0.05 STR) physical damage in 160 unit radius.
+	* Landing from a great height creates a small shockwave around you dealing 100 (+0.05 STR) physical damage in 160 unit radius.
 	+ 25% increased damage and radius.
 	
 - Head Start (3)
@@ -57,7 +57,7 @@
 	+ 1% movement speed.
 
 - Tailwind (3)
-	* Running past other players grants 10% movement speed with a 10 second cooldown.
+	* Running past other players or monsters grants 10% movement speed with a 10 second cooldown.
 	+ -1 to cooldown.
 	- Augmented Footpads (1)
 	

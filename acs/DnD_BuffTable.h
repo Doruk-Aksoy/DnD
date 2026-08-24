@@ -167,7 +167,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             else
                 bduration = new_duration;
 
-            tic_duration = PlayerModData[pnum].f[PSTAT_IMP_PHASINGTIME];
+            tic_duration = PlayerModData[pnum].vals[PSTAT_IMP_PHASINGTIME];
             if(HasActorClassPerk_Fast(ptid, DND_PLAYER_TRICKSTER, 4))
                 tic_duration += DND_TRICKSTER_ACROBAT_PHASINGBONUS;
 
@@ -189,7 +189,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
 
             // this check may seem redundant but its needed as the extra can be 0 which is DND_CHARGE_FRENZY
-            tic_duration = PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
+            tic_duration = PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
             if(!tic_duration || (tic_duration && ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_FRENZY)) {
                 bvalue = DND_FRENZYCHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
@@ -214,7 +214,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_ENDURANCECHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_MORETYPE | BUFF_F_ADDIFNODUPLICATE;
 
-            tic_duration = PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
+            tic_duration = PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
             if(!tic_duration || (tic_duration  && ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_ENDURANCE)) {
                 bvalue = -DND_ENDURANCECHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
@@ -238,7 +238,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
             btype = BUFF_POWERCHARGE;
             bflags |= BUFF_F_PLAYERSOURCE | BUFF_F_NODUPLICATE_STRICT | BUFF_F_UNIQUETOCLASS | BUFF_F_ADDIFNODUPLICATE;
 
-            tic_duration = PlayerModData[pnum].f[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
+            tic_duration = PlayerModData[pnum].vals[PSTAT_EX_COUNTASHAVINGMAXCHARGEOF];
             if(!tic_duration || (tic_duration && ReadPlayerModExtra(pnum, INV_EX_COUNTASHAVINGMAXCHARGEOF) != DND_CHARGE_POWER)) {
                 bvalue = DND_POWERCHARGE_BONUS;
                 bduration = GetPlayerChargeDuration(pnum);
@@ -756,10 +756,10 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         bflags |= BUFF_F_TICKERREQUIRED;
 
     if(script_flags & BTI_F_ISCURSE) {
-        bduration = bduration * (100 - PlayerModData[pnum].f[PSTAT_REDUCEDCURSEDURATION]) / 100;
+        bduration = bduration * (100 - PlayerModData[pnum].vals[PSTAT_REDUCEDCURSEDURATION]) / 100;
         if(bduration <= 0)
             return 0;
-        tic_duration = tic_duration * (100 - PlayerModData[pnum].f[PSTAT_REDUCEDCURSEDURATION]) / 100;
+        tic_duration = tic_duration * (100 - PlayerModData[pnum].vals[PSTAT_REDUCEDCURSEDURATION]) / 100;
     }
     
     if(buff_table_index >= DND_BTI_DEBUFF_BEGIN && HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, DND_CLASSPERK_1)) {
@@ -775,7 +775,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         }
 
         if(isShotgunSlow)
-            bvalue = bvalue * (100 - PlayerModData[pnum].f[PSTAT_IMP_REDUCEDSLOWSHOTGUNS]) / 100;
+            bvalue = bvalue * (100 - PlayerModData[pnum].vals[PSTAT_IMP_REDUCEDSLOWSHOTGUNS]) / 100;
 
         GivePlayerBuff(pnum, bsource, btype, buff_table_index, bvalue, bflags, bduration, update);
     }
@@ -787,7 +787,7 @@ int HandlePlayerBuffAssignment(int pnum, int initiator, int buff_table_index, in
         }
 
         if(isShotgunSlow)
-            bvalue = bvalue * (100 - PlayerModData[pnum].f[PSTAT_IMP_REDUCEDSLOWSHOTGUNS]) / 100;
+            bvalue = bvalue * (100 - PlayerModData[pnum].vals[PSTAT_IMP_REDUCEDSLOWSHOTGUNS]) / 100;
 
         RemoveBuffMatching(pnum, bsource, btype, buff_table_index, bvalue, bflags);
     }

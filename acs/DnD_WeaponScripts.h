@@ -95,7 +95,7 @@ Script "DnD Can Fire Weapon" (void) {
 			case DND_WEAPON_SHOCKER:
 				// reusing ammo variable here
 				canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
-				canFire = canAltFire && (PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || CheckInventory("ShockerOverheat") <= 80);
+				canFire = canAltFire && (PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || CheckInventory("ShockerOverheat") <= 80);
 				
 				canAltFire &= CheckInventory("ShockerOverheat") >= 10;
 
@@ -119,7 +119,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("DesolatorCooldown");
 
-				canFire &= PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("DesolatorOverheat") < 100);
+				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("DesolatorOverheat") < 100);
 
 				if(flags & DND_CFW_HOLDFIREORRELOADCHECK)
 					canFire &= GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
@@ -213,7 +213,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("FreezerCooldown");
 				
-				canAltFire = PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("FreezerOverheat") < 100);
+				canAltFire = PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("FreezerOverheat") < 100);
 				canFire &= canAltFire;
 				
 				canAltFire &= CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1 / 2, flags);
@@ -224,7 +224,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("VoidCannonCooldown");
 
-				canFire &= PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("VoidCannonOverHeat") < 81);
+				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("VoidCannonOverHeat") < 81);
 
 				isOverheatingWeapon = true;
 			break;
@@ -233,7 +233,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("PlasmaOverheatCooldown");
 
-				canFire &= PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("PlasmaOverheat") < 100);
+				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("PlasmaOverheat") < 100);
 
 				isOverheatingWeapon = true;
 			break;
@@ -248,7 +248,7 @@ Script "DnD Can Fire Weapon" (void) {
 			case DND_WEAPON_REBOUNDER:
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("RebounderCooldown");
-				isOverheatingWeapon = PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED];
+				isOverheatingWeapon = PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED];
 
 				canFire &= isOverheatingWeapon || (!hasOverheatCooldown && CheckInventory("RebounderOverheat") < 98);
 				canAltFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt2, flags);
@@ -265,7 +265,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("BFG32768Cooldown");
 
-				canFire &= PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("BFG32768Overheat") < 100);
+				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("BFG32768Overheat") < 100);
 
 				isOverheatingWeapon = true;
 			break;
@@ -273,7 +273,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("DeathRayCooldown");
 
-				canFire &= PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("DeathRayOverheat") < 100);
+				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("DeathRayOverheat") < 100);
 
 				isOverheatingWeapon = true;
 			break;
@@ -281,7 +281,7 @@ Script "DnD Can Fire Weapon" (void) {
 				canFire = CanTakeAmmoFromPlayer(pnum, wepid, ammo1, amt1, flags);
 				hasOverheatCooldown = CheckInventory("IonCooldown");
 
-				canFire &= PlayerModData[pnum].f[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("IonOverheat") < 100);
+				canFire &= PlayerModData[pnum].vals[PSTAT_EX_CANFIREOVERHEATED] || (!hasOverheatCooldown && CheckInventory("IonOverheat") < 100);
 				canAltFire = canFire && GetPlayerInput(-1, INPUT_BUTTONS) & BT_ATTACK;
 
 				isOverheatingWeapon = true;
@@ -314,7 +314,7 @@ Script "DnD Can Fire Weapon" (void) {
 			canReload = false;
 		}
 
-		if(!isOverheatingWeapon && PlayerModData[pnum].f[PSTAT_EX_CANTFIRENONOVERHEAT] && HasRunningOverheatCooldown(pnum + P_TIDSTART)) {
+		if(!isOverheatingWeapon && PlayerModData[pnum].vals[PSTAT_EX_CANTFIRENONOVERHEAT] && HasRunningOverheatCooldown(pnum + P_TIDSTART)) {
 			// can't fire weapons that dont overheat if there's overheat cooldown active if the HeatBreaker charm is equipped
 			canFire = false;
 			canAltFire = false;
@@ -370,7 +370,7 @@ void DoWeaponDamageCache(int pnum, int dmg_id, int dmg, int dmg_rand, int wepid,
 		
 		// weapon swap related things can go here
 		// we have access to the old/previous weapon at this point until below SetInventory
-		if(PlayerModData[pnum].f[PSTAT_EX_SWAPFROMMELEECRIT] && IsMeleeWeapon(CheckInventory("DnD_WeaponID")))
+		if(PlayerModData[pnum].vals[PSTAT_EX_SWAPFROMMELEECRIT] && IsMeleeWeapon(CheckInventory("DnD_WeaponID")))
 			GiveInventory("DnD_SwappedFromMelee", 1);
 
 		// we are now committed to this weapon
@@ -861,7 +861,7 @@ Script "DnD Weapon Select" (int wepid) {
 	SetInventory("DnD_WeaponID", wepid);
 
 	int pnum = PlayerNumber();
-	if(IsHandgun(wepid) && PlayerModData[pnum].f[PSTAT_IMP_HANDGUNBONUS]) {
+	if(IsHandgun(wepid) && PlayerModData[pnum].vals[PSTAT_IMP_HANDGUNBONUS]) {
 		GiveInventory("DnD_HandgunMoreCritShots", 1);
 	}
 	else
@@ -1013,7 +1013,7 @@ Script "DnD Overheat Reduction" (int index, int rate) {
 		PlayerRunsOverheat[pnum] = SetBit(PlayerRunsOverheat[pnum], index);
 		while(CheckInventory(WeaponOverheatItems[index][WEAPON_OVERHEATID])) {
 			// prevent snapshotting
-			int temp = PlayerModData[pnum].f[PSTAT_IMP_FASTEROVERHEATDISS];
+			int temp = PlayerModData[pnum].vals[PSTAT_IMP_FASTEROVERHEATDISS];
 			int d = base_rate >> 16;
 			rate = base_rate & 0x0000FFFF;
 
@@ -1045,7 +1045,7 @@ wep_cd_T module& GetMeleeWeaponCooldowns(int id) {
 Script "DnD Melee Weapon Cooldown" (int cd_id, int val) {
 	wep_cd_T module& wep_cd = GetMeleeWeaponCooldowns(cd_id);
 	if(!wep_cd.cd) {
-		val = val * 100 / (100 + PlayerModData[PlayerNumber()].f[PSTAT_MELEE_ATKCDR]);
+		val = val * 100 / (100 + PlayerModData[PlayerNumber()].vals[PSTAT_MELEE_ATKCDR]);
 		wep_cd.cd = val;
 
 		str toTake = "";
@@ -2219,12 +2219,12 @@ Script "DnD Set Projectile RipCount" (int amt, int makeOneTimeRipper) {
 
 	int pnum = owner - P_TIDSTART;
 
-	if(!PlayerModData[pnum].f[PSTAT_EX_RIPPERSRIPALL])
-		amt = amt * (100 + PlayerModData[pnum].f[PSTAT_RIPCOUNT]) / 100;
+	if(!PlayerModData[pnum].vals[PSTAT_EX_RIPPERSRIPALL])
+		amt = amt * (100 + PlayerModData[pnum].vals[PSTAT_RIPCOUNT]) / 100;
 	else
 		amt = MAX_RIPCOUNT;
 
-	if(PlayerModData[pnum].f[PSTAT_EX_RIPPERSONETIMEONLY] || makeOneTimeRipper) {
+	if(PlayerModData[pnum].vals[PSTAT_EX_RIPPERSONETIMEONLY] || makeOneTimeRipper) {
 		SetActorProperty(0, APROP_STAMINA, GetActorProperty(0, APROP_STAMINA) | DND_DAMAGEFLAG_RIPSONCE);
 
 		// this trick was necessary for nitro shell to make it go through then damage properly...
@@ -2276,9 +2276,9 @@ int HandleTracerPicking(int owner, int lock_on_range, int width, int height, boo
 
 	if(!no_scale_wh) {
 		vang = owner - P_TIDSTART;
-		width = FixedMul(width, 1.0 + (PlayerModData[vang].f[PSTAT_LOCKONAREA] << 16) / 100);
-		height = FixedMul(height, 1.0 + (PlayerModData[vang].f[PSTAT_LOCKONAREA] << 16) / 100);
-		lock_on_range = FixedMul(lock_on_range, 1.0 + (PlayerModData[vang].f[PSTAT_LOCKONRANGE] << 16) / 100);
+		width = FixedMul(width, 1.0 + (PlayerModData[vang].vals[PSTAT_LOCKONAREA] << 16) / 100);
+		height = FixedMul(height, 1.0 + (PlayerModData[vang].vals[PSTAT_LOCKONAREA] << 16) / 100);
+		lock_on_range = FixedMul(lock_on_range, 1.0 + (PlayerModData[vang].vals[PSTAT_LOCKONRANGE] << 16) / 100);
 	}
 
 	//Log(s:"width height range ", f:width, s: " ", f:height, s: " ", f:lock_on_range);
@@ -2340,9 +2340,9 @@ Script "DnD Homing Lock-on Draw" (int width, int height, int range) CLIENTSIDE {
 	if(ConsolePlayerNumber() != pnum)
 		Terminate;
 
-	width = width * (100 + PlayerModData[pnum].f[PSTAT_LOCKONAREA]) / 100;
-	height = height * (100 + PlayerModData[pnum].f[PSTAT_LOCKONAREA]) / 100;
-	range = range * (100 + PlayerModData[pnum].f[PSTAT_LOCKONRANGE]) / 100;
+	width = width * (100 + PlayerModData[pnum].vals[PSTAT_LOCKONAREA]) / 100;
+	height = height * (100 + PlayerModData[pnum].vals[PSTAT_LOCKONAREA]) / 100;
+	range = range * (100 + PlayerModData[pnum].vals[PSTAT_LOCKONRANGE]) / 100;
 
 	range <<= 16;
 

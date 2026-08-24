@@ -218,7 +218,7 @@ void GiveSpecificFlaskCharges(int pnum, int amt, int flask_id) {
 	// check for inc charges gained mod on flask
 	int temp;
 	auto flask = GetPlayerFlask(pnum, flask_id);
-	if((temp = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY) + PlayerModData[pnum].f[PSTAT_INCFLASKCHARGEGAINED]))
+	if((temp = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCCHARGERECOVERY) + PlayerModData[pnum].vals[PSTAT_INCFLASKCHARGEGAINED]))
 		amt = amt * (100 + temp) / 100;
 
 	FlaskData[pnum][flask_id].curr_charges += amt;
@@ -556,7 +556,7 @@ Script "DnD Flask Use" (int flask_id) NET {
 		// instant recovery check
 		if((GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTONLOWLIFE) && IsLowLife()) || GetFlaskAttributeVal(pnum, flask, INV_FLASK_INSTANTRECOVERY))
 			total_time = 1;
-		else if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCRECOVERYRATE) + PlayerModData[pnum].f[PSTAT_FLASKLIFERECOVERYRATE]))
+		else if((rem = GetFlaskAttributeVal(pnum, flask, INV_FLASK_INCRECOVERYRATE) + PlayerModData[pnum].vals[PSTAT_FLASKLIFERECOVERYRATE]))
 			total_time = total_time * 100 / (100 + rem);
 
 		// quality increases amount recovered

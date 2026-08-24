@@ -17,3 +17,6 @@
 
 Low Life: Less than or equal to 50% health.
 Full Life: At maximum health.
+Recently: 4 seconds.
+Overkill: Killing blow that did more than 30% of an enemy's maximum health.
+Rage: 1% more attack damage per point up to 30. Rapidly goes down to 0 in 3 seconds if no rage is gained.

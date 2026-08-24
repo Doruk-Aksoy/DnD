@@ -38,14 +38,14 @@ void HandleDoomguyExecute(int ptid, int mon_tid) {
 			ACS_NamedExecuteAlways("DnD Health Pickup", 0, hp_to_give, 6, 1);
 
 			// slayer special interaction
-			hp_to_give = PlayerModData[pnum].f[PSTAT_EX_REFILLAMMOONMELEEKILL];
+			hp_to_give = PlayerModData[pnum].vals[PSTAT_EX_REFILLAMMOONMELEEKILL];
 			if(hp_to_give) {
 				SetActivator(ptid);
 				GiveOwnedWeaponsAmmo(hp_to_give);
 				SetActivator(mon_tid);
 			}
 
-			if(PlayerModData[pnum].f[PSTAT_EX_SWAPFROMMELEECRIT])
+			if(PlayerModData[pnum].vals[PSTAT_EX_SWAPFROMMELEECRIT])
 				ACS_NamedExecuteAlways("DnD Swapped From Melee", 0, ptid);
 		}
 		ACS_NamedExecuteWithResult("DnD Doomguy Execute Translation", mon_tid, 1, MonsterProperties[mon_tid - DND_MONSTERTID_BEGIN].id);

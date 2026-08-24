@@ -563,7 +563,7 @@ Script "DnD Request Mod Sync" (int pnum, int mod, int val) CLIENTSIDE {
 Script "DnD Request Stat Sync" (int pnum, int slot, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
-	PlayerModData[pnum].f[slot] = val;
+	PlayerModData[pnum].vals[slot] = val;
 	SetResultValue(0);
 }
 
@@ -572,7 +572,7 @@ Script "DnD Request Stat Sync" (int pnum, int slot, int val) CLIENTSIDE {
 Script "DnD Request Extra Sync" (int pnum, int slot, int val) CLIENTSIDE {
 	if(GameType() == GAME_SINGLE_PLAYER)
 		Terminate;
-	PlayerModData[pnum].x[slot] = val;
+	PlayerModData[pnum].extras[slot] = val;
 	SetResultValue(0);
 }
 

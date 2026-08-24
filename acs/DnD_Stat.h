@@ -130,7 +130,7 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	int pnum = PlayerNumber();
 
 	// dont bother
-	if(PlayerModData[pnum].f[PSTAT_EX_HEALTHATONE])
+	if(PlayerModData[pnum].vals[PSTAT_EX_HEALTHATONE])
 		return;
 
 	int bonus = GetHealingBonuses(pnum);
@@ -259,7 +259,7 @@ int GetPlayerEnergyShieldPercent(int pnum) {
 
 int GetPlayerEnergyShieldRechargeDelay(int pnum) {
 	int res = ESHIELD_RECHARGEDELAY_BASE;
-	res = res * 100 / (100 + PlayerModData[pnum].f[PSTAT_SHIELD_RECHARGEDELAY]);
+	res = res * 100 / (100 + PlayerModData[pnum].vals[PSTAT_SHIELD_RECHARGEDELAY]);
 	if(res < ESHIELD_MIN_TIME)
 		res = ESHIELD_MIN_TIME;
 	return res;
@@ -270,7 +270,7 @@ int GetPlayerEnergyShieldRecoveryRate(int pnum, int cap) {
 	if(HasPlayerFlag(pnum, PFLAG_CYBER))
 		bonus = 2;
 	
-	int pct = 100 + PlayerModData[pnum].f[PSTAT_SHIELD_RECOVERYRATE];
+	int pct = 100 + PlayerModData[pnum].vals[PSTAT_SHIELD_RECOVERYRATE];
 	int res = cap * bonus;
 
 	if(bonus > 1 && HasClassPerk_Fast(DND_PLAYER_CYBORG, 1)) {
@@ -303,7 +303,7 @@ int CanRegenEShield(int pnum) {
 	{
 		// finally consider the special condition that this could be from tesseract
 		int tmp = GetPlayerEnergyShieldRecoveryRate(pnum, cap);
-		int use_hp = PlayerModData[pnum].f[PSTAT_EX_ESCHARGE_USEHP];
+		int use_hp = PlayerModData[pnum].vals[PSTAT_EX_ESCHARGE_USEHP];
 		if(use_hp) {
 			// take life from player now
 			use_hp = tmp * use_hp / 100;
@@ -440,7 +440,7 @@ int GetPlayerWisdomBonus(int pnum, int tid) {
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANWISDOM))
 		base = base * 3 / 2;
 	
-	return ApplyFixedFactorToInt(base, PlayerModData[pnum].f[PSTAT_EXPGAIN_INCREASE]);
+	return ApplyFixedFactorToInt(base, PlayerModData[pnum].vals[PSTAT_EXPGAIN_INCREASE]);
 }
 
 int GetPlayerGreedBonus(int pnum, int tid) {
@@ -455,7 +455,7 @@ int GetPlayerGreedBonus(int pnum, int tid) {
 	if(IsAccessoryEquipped(tid, DND_ACCESSORY_TALISMANGREED))
 		base = base * 3 / 2;
 	
-	return ApplyFixedFactorToInt(base, PlayerModData[pnum].f[PSTAT_CREDITGAIN_INCREASE]);
+	return ApplyFixedFactorToInt(base, PlayerModData[pnum].vals[PSTAT_CREDITGAIN_INCREASE]);
 }
 
 int RewardActorExp(int tid, int amt) {
@@ -602,11 +602,11 @@ int CanPickHealthItem(int type) {
 
 // used for deciding armor pickup values
 int GetPlayerArmor(int pnum) {
-	int amt = PlayerModData[pnum].f[PSTAT_ARMOR_FLAT];
+	int amt = PlayerModData[pnum].vals[PSTAT_ARMOR_FLAT];
 	amt += pbuffs[pnum].buff_net_values[BUFF_ARMORFLAT].additive;
 	amt += (amt * CheckInventory("CelestialCheck") * CELESTIAL_BOOST) / 100;
 	amt += (amt * GetResearchArmorBonuses()) / 100;
-	amt += (amt * PlayerModData[pnum].f[PSTAT_ARMOR_PCT]) / 100;
+	amt += (amt * PlayerModData[pnum].vals[PSTAT_ARMOR_PCT]) / 100;
 	return amt;
 }
 
@@ -626,8 +626,8 @@ int Calculate_Perks() {
 
 // this is used in drop rates, weapons proc chances etc.
 int GetPlayerLuck(int pnum) {
-	//return outcome_val * GetActorPerk(pnum + P_TIDSTART, X) + PlayerModData[pnum].f[PSTAT_LUCK_INCREASE];
-	return PlayerModData[pnum].f[PSTAT_LUCK_INCREASE];
+	//return outcome_val * GetActorPerk(pnum + P_TIDSTART, X) + PlayerModData[pnum].vals[PSTAT_LUCK_INCREASE];
+	return PlayerModData[pnum].vals[PSTAT_LUCK_INCREASE];
 }
 
 bool RunLuckBasedChance(int pnum, int base) {
@@ -651,7 +651,7 @@ int GetPlayerDropQuantity(int pnum) {
 int GetDropChance(int pnum) {
 	int base = 1.0; // base val
 	// additive bonuses first
-	base += PlayerModData[pnum].f[PSTAT_DROPCHANCE_INCREASE];
+	base += PlayerModData[pnum].vals[PSTAT_DROPCHANCE_INCREASE];
 		
 	// more chance to find loot
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum));
@@ -670,7 +670,7 @@ int GetDropChance(int pnum) {
 int GetPlayerItemRarity(int pnum) {
 	int base = 1.0;
 
-	base += PlayerModData[pnum].f[PSTAT_ITEMRARITY] + (HasDungeonUpside(DUN_UPSIDE_RARITY) << 16) / 100;
+	base += PlayerModData[pnum].vals[PSTAT_ITEMRARITY] + (HasDungeonUpside(DUN_UPSIDE_RARITY) << 16) / 100;
 
 	// more chance for rarity -- only at quarter
 	base = FixedMul(base, 1.0 + GetPlayerLuck(pnum) / 4);
@@ -901,7 +901,7 @@ void BreakAllTrades() {
 }
 
 int GetBaseCritChance(int pnum) {
-	int base = CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + PlayerModData[pnum].f[PSTAT_CRITCHANCE_INCREASE];
+	int base = CheckInventory("Perk_Deadliness") * PERK_DEADLINESS_BONUS + PlayerModData[pnum].vals[PSTAT_CRITCHANCE_INCREASE];
 	
 	// this one is percentage based, like 1.0 is 1%, but crit is 0.01 = 1%, so adjust
 	if(HasClassPerk_Fast(DND_PLAYER_TRICKSTER, 1)) {
@@ -915,9 +915,9 @@ int GetBaseCritChance(int pnum) {
 int GetPercentCritChanceIncrease(int pnum, int wepid) {
 	int val = 	Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_ITEMS].val +
 				Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRITPERCENT][WMOD_WEP].val +
-				PlayerModData[pnum].f[PSTAT_CRITPERCENT_INCREASE] +
-				CheckInventory("DnD_SwappedFromMelee") * PlayerModData[pnum].f[PSTAT_EX_SWAPFROMMELEECRIT] +
-				(IsMeleeWeapon(wepid) && !IsOnLowStamina()) * PlayerModData[pnum].f[PSTAT_MELEECRIT_NOTONLOWSTAMINA];
+				PlayerModData[pnum].vals[PSTAT_CRITPERCENT_INCREASE] +
+				CheckInventory("DnD_SwappedFromMelee") * PlayerModData[pnum].vals[PSTAT_EX_SWAPFROMMELEECRIT] +
+				(IsMeleeWeapon(wepid) && !IsOnLowStamina()) * PlayerModData[pnum].vals[PSTAT_MELEECRIT_NOTONLOWSTAMINA];
 
 	val += pbuffs[pnum].buff_net_values[BUFF_CRITPERCENT].additive + pbuffs[pnum].buff_net_values[BUFF_POWERCHARGE].additive;
 
@@ -932,7 +932,7 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 		chance += Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_ITEMS].val + Player_Weapon_Infos[pnum][wepid].wep_mods[WEP_MOD_CRIT][WMOD_WEP].val;
 
 		// precision bonus from tactical helm if any
-		if(IsPrecisionWeapon(wepid) && (pct_bonus = PlayerModData[pnum].f[PSTAT_IMP_PRECISIONCRITBONUS]))
+		if(IsPrecisionWeapon(wepid) && (pct_bonus = PlayerModData[pnum].vals[PSTAT_IMP_PRECISIONCRITBONUS]))
 			chance += pct_bonus;
 	}
 
@@ -943,20 +943,20 @@ int GetCritChance(int pnum, int victim, int wepid, int isLightning = 0) {
 
 	pct_bonus = CheckInventory("DnD_HandgunMoreCritShots");
 	if(pct_bonus && IsHandgun(wepid))
-		chance = FixedMul(chance, 1.0 + PlayerModData[pnum].f[PSTAT_IMP_HANDGUNBONUS]);
+		chance = FixedMul(chance, 1.0 + PlayerModData[pnum].vals[PSTAT_IMP_HANDGUNBONUS]);
 
 	// monster related bonuses
 	//if(victim != -1)
 	
 	// add percent bonuses here
-	pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid) + (!!isLightning) * PlayerModData[pnum].f[PSTAT_EX_MORECRIT_LIGHTNING];
-	if(PlayerModData[pnum].f[PSTAT_EX_DEADEYEBONUS])
+	pct_bonus = 1.0 + GetPercentCritChanceIncrease(pnum, wepid) + (!!isLightning) * PlayerModData[pnum].vals[PSTAT_EX_MORECRIT_LIGHTNING];
+	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		pct_bonus += DND_DEADEYE_BONUSF * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_PLUSPER);
 
 	if(chance)
 		chance = FixedMul(chance, pct_bonus);
 
-	pct_bonus = PlayerModData[pnum].f[PSTAT_INC_EXCESSCRIT];
+	pct_bonus = PlayerModData[pnum].vals[PSTAT_INC_EXCESSCRIT];
 	if(pct_bonus && 1.0 - pct_bonus > 0)
 		chance = FixedMul(chance, 1.0 - pct_bonus);
 
@@ -1024,12 +1024,12 @@ void HandleHunterTalisman() {
 // for base > 1311 at a 5.0 crit chance -- the "if(base < 100) base = 100" floor then
 // caught the negative, so crits landed for exactly base damage.
 int GetIndependentCritModifier(int pnum, bool applyExcess = true) {
-	int base = DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + PlayerModData[pnum].f[PSTAT_CRITDAMAGE_INCREASE];
-	if(PlayerModData[pnum].f[PSTAT_EX_DEADEYEBONUS])
+	int base = DND_BASE_CRITMODIFIER + DND_SAVAGERY_BONUS * CheckInventory("Perk_Savagery") + PlayerModData[pnum].vals[PSTAT_CRITDAMAGE_INCREASE];
+	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		base -= DND_DEADEYE_BONUS * (GetActorProperty(0, APROP_ACCURACY) / DND_DEADEYE_MINUSPER);
 
 	int temp;
-	if(applyExcess && PlayerModData[pnum].f[PSTAT_INC_EXCESSCRIT] && (temp = GetCritChance_Display(pnum)) > 1.0)
+	if(applyExcess && PlayerModData[pnum].vals[PSTAT_INC_EXCESSCRIT] && (temp = GetCritChance_Display(pnum)) > 1.0)
 		base = FixedMul(base, temp);
 
 	return base;
@@ -1046,7 +1046,7 @@ int GetBaseCritModifier(int pnum, int wepid, bool applyExcess = true) {
 
 int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) {
 	// forced return would skip this to get the value for dot multiplier bonus calculation
-	if(!forcedReturn && PlayerModData[pnum].f[PSTAT_INC_CRITFORDOT])
+	if(!forcedReturn && PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT])
 		return 100;
 
 	int base = GetBaseCritModifier(pnum, wepid, false); // excess-crit is applied below with the real crit chance
@@ -1078,7 +1078,7 @@ int GetCritModifier(int pnum, int victim, int wepid, bool forcedReturn = false) 
 	if(victim >= DND_MONSTERTID_BEGIN && HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_OSMIUM))
 		base -= DND_OSMIUM_REDUCTION;
 
-	forcedReturn = PlayerModData[pnum].f[PSTAT_INC_EXCESSCRIT];
+	forcedReturn = PlayerModData[pnum].vals[PSTAT_INC_EXCESSCRIT];
 	if(forcedReturn && (temp = GetCritChance(pnum, victim, wepid, IsWeaponLightningType(wepid))) > 1.0)
 		base = FixedMul(base, temp);
 
@@ -1111,10 +1111,10 @@ int GetPlayerAccuracyDamageBonus(int pnum, int wepid) {
 	int res = 0;
 	int acc = GetActorProperty(pnum + P_TIDSTART, APROP_ACCURACY);
 
-	if(PlayerModData[pnum].f[PSTAT_EX_DEADEYEBONUS])
+	if(PlayerModData[pnum].vals[PSTAT_EX_DEADEYEBONUS])
 		res += DND_DEADEYE_BONUS * (acc / DND_DEADEYE_PLUSPER);
 
-	if(wepid >= 0 && IsPrecisionWeapon(wepid) && PlayerModData[pnum].f[PSTAT_INC_ACCURACYFORPRECISION])
+	if(wepid >= 0 && IsPrecisionWeapon(wepid) && PlayerModData[pnum].vals[PSTAT_INC_ACCURACYFORPRECISION])
 		res += acc / DND_INC_ACCURACYFORPRECRATIO;
 
 	return res;
@@ -1230,12 +1230,12 @@ int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
 	int base = 0;
 
 	if(flags & DND_DAMAGEFLAG_ISRADIUSDMG)
-		base += PlayerModData[pnum].f[PSTAT_FLATDMG_RADIUS];
+		base += PlayerModData[pnum].vals[PSTAT_FLATDMG_RADIUS];
 
 	// What the old switch did with a category it had no case for: the radius term and nothing else.
 	// GetDamageCategory cannot return out of range, but the stat page walks categories itself and
 	// HandleNonWeaponDamageScale passes one it resolved elsewhere, so this is checked rather than
-	// assumed -- an out of range talent would index f[] outside the run.
+	// assumed -- an out of range talent would index vals[] outside the run.
 	if(talent < 0 || talent >= MAX_DAMAGE_CATEGORIES)
 		return base;
 
@@ -1244,12 +1244,12 @@ int MapDamageCategoryToFlatBonus(int pnum, int talent, int flags) {
 	if(talent == DND_DAMAGECATEGORY_MELEE)
 		talent = DND_DAMAGECATEGORY_BULLET;
 
-	base += PlayerModData[pnum].f[PSTAT_FLATDMG_BASE + talent];
+	base += PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + talent];
 
 	// One mod feeding all four elements, so it cannot sit in a run keyed by a single category.
 	// DND_ELECATEGORY_BEGIN..END is exactly FIRE, ICE, POISON, LIGHTNING -- the four the switch listed.
 	if(talent >= DND_ELECATEGORY_BEGIN && talent <= DND_ELECATEGORY_END)
-		base += PlayerModData[pnum].f[PSTAT_FLATDMG_ELEM];
+		base += PlayerModData[pnum].vals[PSTAT_FLATDMG_ELEM];
 
 	return base;
 }
@@ -1272,7 +1272,7 @@ int GetPlayerAddedFlatDamage(int pnum, int category) {
 	if(category == DND_DAMAGECATEGORY_MELEE)
 		category = DND_DAMAGECATEGORY_BULLET;
 
-	return PlayerModData[pnum].f[PSTAT_ADDEDFLAT_BASE + category];
+	return PlayerModData[pnum].vals[PSTAT_ADDEDFLAT_BASE + category];
 }
 
 // One bit per damage category the player currently adds damage in. Zero for anyone without a single
@@ -1283,7 +1283,7 @@ int GetPlayerAddedDamageMask(int pnum) {
 	for(int c = 0; c < MAX_DAMAGE_CATEGORIES; ++c) {
 		// MELEE and SOUL have no mod that can fill them, so they stay zero and never set a bit -- the
 		// same result the old attribute walk produced, without the walk.
-		if(PlayerModData[pnum].f[PSTAT_ADDEDFLAT_BASE + c])
+		if(PlayerModData[pnum].vals[PSTAT_ADDEDFLAT_BASE + c])
 			mask |= 1 << c;
 	}
 	return mask;
@@ -1294,7 +1294,7 @@ int MapDamageCategoryToPercentBonus(int pnum, int talent, int flags) {
 	int base = 0;
 
 	if(flags & DND_DAMAGEFLAG_ISRADIUSDMG)
-		base += PlayerModData[pnum].f[PSTAT_PCTDMG_RADIUS];
+		base += PlayerModData[pnum].vals[PSTAT_PCTDMG_RADIUS];
 
 	if(talent < 0 || talent >= MAX_DAMAGE_CATEGORIES)
 		return base;
@@ -1302,10 +1302,10 @@ int MapDamageCategoryToPercentBonus(int pnum, int talent, int flags) {
 	if(talent == DND_DAMAGECATEGORY_MELEE)
 		talent = DND_DAMAGECATEGORY_BULLET;
 
-	base += PlayerModData[pnum].f[PSTAT_PCTDMG_BASE + talent];
+	base += PlayerModData[pnum].vals[PSTAT_PCTDMG_BASE + talent];
 
 	if(talent >= DND_ELECATEGORY_BEGIN && talent <= DND_ELECATEGORY_END)
-		base += PlayerModData[pnum].f[PSTAT_PCTDMG_ELEM];
+		base += PlayerModData[pnum].vals[PSTAT_PCTDMG_ELEM];
 
 	return base;
 }
@@ -1315,7 +1315,7 @@ int GetFlatHealthDamageFactor(int factor) {
 }
 
 int GetOverloadTime(int pnum) {
-	return (DND_BASE_OVERLOADTIME + ((PlayerModData[pnum].f[PSTAT_OVERLOAD_DURATION] * TICRATE) >> 16)) / DND_BASE_OVERLOADTICK;
+	return (DND_BASE_OVERLOADTIME + ((PlayerModData[pnum].vals[PSTAT_OVERLOAD_DURATION] * TICRATE) >> 16)) / DND_BASE_OVERLOADTICK;
 }
 
 int GetMonsterOverloadChance(int m_id, int pnum) {
@@ -1348,14 +1348,14 @@ int GetPlayerMeleeRange(int pnum, int range) {
 	return FixedMul(
 		range, 
 		1.0 +  
-		0.01 * (PlayerModData[pnum].f[PSTAT_MELEERANGE] + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
+		0.01 * (PlayerModData[pnum].vals[PSTAT_MELEERANGE] + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_RANGEINC)
 	);
 }
 
 int GetPlayerDOTMulti(int pnum, int victim = -1, int wepid = -1) {
-	int base = PlayerModData[pnum].f[PSTAT_DOTMULTI] + DND_ACRIMONY_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_ACRM);
+	int base = PlayerModData[pnum].vals[PSTAT_DOTMULTI] + DND_ACRIMONY_GAIN * GetActorPerk(pnum + P_TIDSTART, STAT_ACRM);
 	int temp = 0;
-	if((temp = PlayerModData[pnum].f[PSTAT_INC_CRITFORDOT]))
+	if((temp = PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT]))
 		base += GetCritModifier(pnum, victim, wepid, true) * (100 + temp) / 100;
 	return base;
 }
@@ -1365,11 +1365,11 @@ int GetFireDOTDamage(int pnum, int bonus = 0, int victim = -1, int wepid = -1) {
 	// flat dmg
 	int dmg = 	DND_BASE_IGNITEDMG + 
 				bonus +
-				PlayerModData[pnum].f[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE] + 
-				PlayerModData[pnum].f[PSTAT_DOT_FLAT];
+				PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_FIRE] + 
+				PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].f[PSTAT_IGN_DMG] + PlayerModData[pnum].f[PSTAT_DOT_INCREASED]) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_FIRE, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].vals[PSTAT_IGN_DMG] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
@@ -1390,11 +1390,11 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 		dmg = 1;
 		
 	// flat dmg
-	dmg += 	PlayerModData[pnum].f[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON] + 
-			PlayerModData[pnum].f[PSTAT_DOT_FLAT];
+	dmg += 	PlayerModData[pnum].vals[PSTAT_FLATDMG_BASE + DND_DAMAGECATEGORY_POISON] + 
+			PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
 	// percent increase
-	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].f[PSTAT_DOT_INCREASED]) / 100;
+	dmg = dmg * (100 + GetPlayerPercentDamage(pnum, -1, DND_DAMAGECATEGORY_POISON, 0) + GetPlayerBuffIncreasedDamage(pnum) + GetPlayerAccuracyDamageBonus(pnum, -1) + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
@@ -1405,9 +1405,9 @@ int GetPoisonDOTDamage(int pnum, int base_poison, int victim = -1, int wepid = -
 // this doesn't consider INV_EX_FLATDOT here because the weapon that calls this does -- if wepid is left at -1, it should then consider it!
 int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1) {
 	if(wepid == -1)
-		base += PlayerModData[pnum].f[PSTAT_DOT_FLAT];
+		base += PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 	
-	base = base * (100 + PlayerModData[pnum].f[PSTAT_DOT_INCREASED]) / 100;
+	base = base * (100 + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100;
 	
 	// dot multi
 	base = base * (100 + GetPlayerDOTMulti(pnum, victim, wepid)) / 100;
@@ -1416,17 +1416,17 @@ int GetGenericDoTDamage(int pnum, int base, int victim = -1, int wepid = -1) {
 }
 
 int GetPlayerPoisonStacks(int pnum) {
-	return DND_BASE_POISON_STACKS + PlayerModData[pnum].f[PSTAT_INC_MAXPOISONSTACK];
+	return DND_BASE_POISON_STACKS + PlayerModData[pnum].vals[PSTAT_INC_MAXPOISONSTACK];
 }
 
 #define DND_BASEREGENCAP 33
 int GetRegenCap(int pnum) {
-	int base = (DND_BASEREGENCAP + PlayerModData[pnum].f[PSTAT_REGENCAP_INCREASE]) * GetSpawnHealth() / 100;
+	int base = (DND_BASEREGENCAP + PlayerModData[pnum].vals[PSTAT_REGENCAP_INCREASE]) * GetSpawnHealth() / 100;
 	return base;
 }
 
 int GetLifesteal(int pnum) {
-	int base = PlayerModData[pnum].f[PSTAT_LIFESTEAL];
+	int base = PlayerModData[pnum].vals[PSTAT_LIFESTEAL];
 
 	if(HasClassPerk_Fast(DND_PLAYER_PUNISHER, 2)) {
 		// spree * 2 => merciless
@@ -1448,7 +1448,7 @@ int GetLifestealCap(int pnum) {
 		bonus -= temp;
 
 	return Clamp_Between(
-		(hp_cap * (DND_BASE_LIFESTEALCAP + PlayerModData[pnum].f[PSTAT_LIFESTEAL_CAP] + bonus)) / 100, 
+		(hp_cap * (DND_BASE_LIFESTEALCAP + PlayerModData[pnum].vals[PSTAT_LIFESTEAL_CAP] + bonus)) / 100, 
 		1, 
 		hp_cap
 	);
@@ -1458,7 +1458,7 @@ int GetLifestealCap(int pnum) {
 int GetLifestealRate(int pnum) {
 	// don't return any faster than 1 tic
 	int reductions = ReadPlayerModExtra(pnum, INV_INC_INSTANTLIFESTEAL);
-	return max(1, DND_BASE_LIFESTEALRATE * (100 - PlayerModData[pnum].f[PSTAT_LIFESTEAL_RATE] + reductions) / 100);
+	return max(1, DND_BASE_LIFESTEALRATE * (100 - PlayerModData[pnum].vals[PSTAT_LIFESTEAL_RATE] + reductions) / 100);
 }
 
 #define DND_BASE_LIFERECOVERY 1 // 1% of healthcap
@@ -1474,7 +1474,7 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 		bonus += bonus * DND_PUNISHER_RECOVERY;
 	}
 
-	cap = cap * (100 + bonus + PlayerModData[pnum].f[PSTAT_LIFESTEAL_RECOVERY]) / 100;
+	cap = cap * (100 + bonus + PlayerModData[pnum].vals[PSTAT_LIFESTEAL_RECOVERY]) / 100;
 	if(cap <= 0)
 		cap = 1;
 	
@@ -1484,7 +1484,7 @@ int GetLifestealLifeRecovery(int pnum, int cap) {
 // returns true if monster isn't ailment immune, or we can bypass it
 bool CheckAilmentImmunity(int pnum, int m_id, int ailment_mod) {
 	// is not immune or if it is, we rolled ailment ignore chance
-	return !HasMonsterTrait(m_id, ailment_mod) || random(1, 100) < PlayerModData[pnum].f[PSTAT_AILMENT_IGNORECHANCE];
+	return !HasMonsterTrait(m_id, ailment_mod) || random(1, 100) < PlayerModData[pnum].vals[PSTAT_AILMENT_IGNORECHANCE];
 }
 
 #define DND_BASE_BLEEDCHANCE_MELEE 20
@@ -1502,14 +1502,14 @@ int CheckBleedChance(int pnum, int wepid, int victim) {
 	else
 		base = DND_BASE_BLEEDCHANCE_PROJ;
 
-	base += PlayerModData[pnum].f[PSTAT_BLEED_CHANCE];
+	base += PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
 	base += CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDCHANCE;
 	return random(1, 100) <= base;
 }
 
 str GetBleedChanceDisplay(int pnum) {
-	int mval = DND_BASE_BLEEDCHANCE_MELEE + PlayerModData[pnum].f[PSTAT_BLEED_CHANCE];
-	int pval = DND_BASE_BLEEDCHANCE_PROJ + PlayerModData[pnum].f[PSTAT_BLEED_CHANCE];
+	int mval = DND_BASE_BLEEDCHANCE_MELEE + PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
+	int pval = DND_BASE_BLEEDCHANCE_PROJ + PlayerModData[pnum].vals[PSTAT_BLEED_CHANCE];
 
 	return StrParam(s:"\c[Q9]", d:mval, s:"% \c-", l:"DND_AND", s:"\c[Q9] ", d:pval, s:"%\c- ", l:"DND_CHANCEBLEED");
 }
@@ -1519,14 +1519,14 @@ int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
 	if(IsMeleeWeapon(wepid))
 		mult = DND_BASE_BLEED_MULT;
 
-	dmg += PlayerModData[pnum].f[PSTAT_DOT_FLAT];
+	dmg += PlayerModData[pnum].vals[PSTAT_DOT_FLAT];
 
 	dmg = dmg * mult / DND_BASE_BLEED_DIV;
 	if(!dmg)
 		dmg = 1;
 	
 	// percent increase
-	dmg = (dmg * (100 + PlayerModData[pnum].f[PSTAT_BLEED_DMG_PCT] + PlayerModData[pnum].f[PSTAT_DOT_INCREASED]) / 100);
+	dmg = (dmg * (100 + PlayerModData[pnum].vals[PSTAT_BLEED_DMG_PCT] + PlayerModData[pnum].vals[PSTAT_DOT_INCREASED]) / 100);
 	
 	// dot multi;
 	dmg = dmg * (100 + GetPlayerDOTMulti(pnum, victim, wepid) + CheckActorInventory(victim, "DnD_OpenWounds") * DND_OPENWOUNDS_BLEEDMULTIBONUS) / 100;
@@ -1535,18 +1535,22 @@ int GetBleedDamage(int pnum, int wepid, int dmg, int victim = -1) {
 }
 
 int GetPlayerBleedTime(int pnum) {
-	return DND_BASE_BLEED_TIME_PLAYER * (100 + PlayerModData[pnum].f[PSTAT_BLEED_DURATION] + PlayerModData[pnum].f[PSTAT_DOT_DURATION]) / 100;
+	return DND_BASE_BLEED_TIME_PLAYER * (100 + PlayerModData[pnum].vals[PSTAT_BLEED_DURATION] + PlayerModData[pnum].vals[PSTAT_DOT_DURATION]) / 100;
 }
 
 str GetPlayerBleedTimeDisplay(int pnum) {
 	return StrParam(f:ftrunc(GetPlayerBleedTime(pnum) * (DND_BLEED_TICRATE << 16) / TICRATE));
 }
 
+
 #define DND_BASE_IGNITECHANCE 15 // 15%
 // Base DoT durations live here rather than in DnD_Damage.h with the rest of the ailment constants:
 // the Get*Duration accessors below are read by the stat menu as well as by the damage code, and this
 // header is parsed FIRST, so a define left behind in DnD_Damage.h is not visible to them.
-#define DND_BASE_IGNITETIMER 20 // 4 seconds x 5
+#define DND_BASE_IGNITETIMER 20 // 20 loops x DND_IGNITE_TICKRATE = 4 seconds
+// One loop of "DnD Monster Ignite" -- the Delay in that script MUST use this, not a bare 7, or the
+// duration shown on the stat page silently stops matching the burn it describes.
+#define DND_IGNITE_TICKRATE 7
 #define DND_ADDEDIGNITE_CHANCE 25 // flat chance a DND_DAMAGEFLAG_ADDEDIGNITE weapon adds on top of the base
 #define DND_BASE_IGNITEPROLIFCHANCE 20 // 20% chance to prolif on monster death
 #define DND_BASE_IGNITEPROLIFRANGE 128.0
@@ -1558,7 +1562,7 @@ str GetPlayerBleedTimeDisplay(int pnum) {
 // you ignite should get better as you invest in igniting, not sit outside your build.
 // The menu readout calls this with no bonus on purpose: it is a player stat, not a per weapon one.
 int GetIgniteChance(int pnum, int flat_bonus = 0) {
-	return Clamp_Between((DND_BASE_IGNITECHANCE + flat_bonus + PlayerModData[pnum].f[PSTAT_IGN_CHANCE_FLAT]) * (100 + PlayerModData[pnum].f[PSTAT_IGN_CHANCE_PCT]) / 100, 0, 100);
+	return Clamp_Between((DND_BASE_IGNITECHANCE + flat_bonus + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_FLAT]) * (100 + PlayerModData[pnum].vals[PSTAT_IGN_CHANCE_PCT]) / 100, 0, 100);
 }
 
 int CheckIgniteChance(int pnum, int flat_bonus = 0) {
@@ -1566,7 +1570,7 @@ int CheckIgniteChance(int pnum, int flat_bonus = 0) {
 }
 
 int GetIgniteProlifChance(int pnum) {
-	return Clamp_Between((DND_BASE_IGNITEPROLIFCHANCE + PlayerModData[pnum].f[PSTAT_IGN_PROLIF_CHANCE_FLAT]) * (100 + PlayerModData[pnum].f[PSTAT_IGN_PROLIF_CHANCE_PCT]) / 100, 0, 100);
+	return Clamp_Between((DND_BASE_IGNITEPROLIFCHANCE + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_CHANCE_FLAT]) * (100 + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_CHANCE_PCT]) / 100, 0, 100);
 }
 
 bool CheckIgniteProlifChance(int pnum) {
@@ -1574,17 +1578,17 @@ bool CheckIgniteProlifChance(int pnum) {
 }
 
 int GetIgniteProlifRange(int pnum) {
-	//return DND_BASE_IGNITEPROLIFRANGE * (100 + PlayerModData[pnum].f[PSTAT_IGN_PROLIF_RANGE]) / 100;
-	return FixedMul(DND_BASE_IGNITEPROLIFRANGE, 1.0 + PlayerModData[pnum].f[PSTAT_IGN_PROLIF_RANGE]);
+	//return DND_BASE_IGNITEPROLIFRANGE * (100 + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_RANGE]) / 100;
+	return FixedMul(DND_BASE_IGNITEPROLIFRANGE, 1.0 + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_RANGE]);
 }
 
 int GetIgniteProlifCount(int pnum) {
 	// clamp between max prolifs
-	return Clamp_Between(DND_BASE_IGNITEPROLIFCOUNT + PlayerModData[pnum].f[PSTAT_IGN_PROLIF_COUNT], 0, DND_MAX_IGNITEPROLIFS);
+	return Clamp_Between(DND_BASE_IGNITEPROLIFCOUNT + PlayerModData[pnum].vals[PSTAT_IGN_PROLIF_COUNT], 0, DND_MAX_IGNITEPROLIFS);
 }
 
 int GetIgniteDuration(int pnum) {
-	return DND_BASE_IGNITETIMER * (100 + PlayerModData[pnum].f[PSTAT_IGN_DURATION] + PlayerModData[pnum].f[PSTAT_DOT_DURATION]) / 100;
+	return DND_BASE_IGNITETIMER * (100 + PlayerModData[pnum].vals[PSTAT_IGN_DURATION] + PlayerModData[pnum].vals[PSTAT_DOT_DURATION]) / 100;
 }
 
 #define DND_POISON_CHECKRATE 0.1
@@ -1592,7 +1596,7 @@ int GetIgniteDuration(int pnum) {
 #define DND_BASE_POISON_TIC 0.5
 #define DND_POISON_TICCHECK 3 // increments ticker every 3 tics
 int GetPoisonTicrate(int pnum) {
-	int ticrate = (DND_BASE_POISON_TIC * 100) / (100 + PlayerModData[pnum].f[PSTAT_POIS_TICRATE] + (100 * !!PlayerModData[pnum].f[PSTAT_ESS_LESHRAC]));
+	int ticrate = (DND_BASE_POISON_TIC * 100) / (100 + PlayerModData[pnum].vals[PSTAT_POIS_TICRATE] + (100 * !!PlayerModData[pnum].vals[PSTAT_ESS_LESHRAC]));
 	
 	// keep min checkrate, there's no point for it to be lower it'll not go below minimum of 3 tics to trigger
 	if(ticrate < DND_POISON_CHECKRATE)
@@ -1602,11 +1606,23 @@ int GetPoisonTicrate(int pnum) {
 }
 
 int GetPoisonDuration(int pnum) {
-	return DND_BASE_POISON_TIMER * (100 + PlayerModData[pnum].f[PSTAT_POIS_DURATION] + PlayerModData[pnum].f[PSTAT_DOT_DURATION]) / 100;
+	return DND_BASE_POISON_TIMER * (100 + PlayerModData[pnum].vals[PSTAT_POIS_DURATION] + PlayerModData[pnum].vals[PSTAT_DOT_DURATION]) / 100;
+}
+
+// Ignite counts DOWN in loops of DND_IGNITE_TICKRATE tics, so its duration is a loop count and has to
+// be converted the same way the bleed one is.
+str GetPlayerIgniteTimeDisplay(int pnum) {
+	return StrParam(f:ftrunc(GetIgniteDuration(pnum) * (DND_IGNITE_TICKRATE << 16) / TICRATE));
+}
+
+// Poison is the odd one out: DND_BASE_POISON_TIMER is already 3.0 in FIXED POINT SECONDS and the
+// burn loop counts up to it in DND_POISON_CHECKRATE steps, so there is no conversion to do.
+str GetPlayerPoisonTimeDisplay(int pnum) {
+	return StrParam(f:ftrunc(GetPoisonDuration(pnum)));
 }
 
 int GetGenericDoTDuration(int pnum, int base) {
-	return base * (100 + PlayerModData[pnum].f[PSTAT_DOT_DURATION]) / 100;
+	return base * (100 + PlayerModData[pnum].vals[PSTAT_DOT_DURATION]) / 100;
 }
 
 #define DND_BASE_CHILL_SLOW 0.1 // 10% per stack
@@ -1616,7 +1632,7 @@ int GetGenericDoTDuration(int pnum, int base) {
 #define DND_BASE_FREEZECHANCE_PERSTACK 2 // 10% base at max slow stacks
 int GetChillEffect(int pnum, int stacks) {
 	// call with 1 stack to get "per stack" value
-	int chill = stacks * DND_BASE_CHILL_SLOW * (100 + PlayerModData[pnum].f[PSTAT_SLOWEFFECT]) / 100;
+	int chill = stacks * DND_BASE_CHILL_SLOW * (100 + PlayerModData[pnum].vals[PSTAT_SLOWEFFECT]) / 100;
 	
 	if(chill > 0.99)
 		chill = 0.99;
@@ -1626,11 +1642,11 @@ int GetChillEffect(int pnum, int stacks) {
 
 int GetChillThreshold(int pnum, int stacks) {
 	// chill threshold reducing is a good thing for player applying it to monsters
-	return Clamp_Between((DND_BASE_CHILL_DAMAGETHRESHOLD * (100 - PlayerModData[pnum].f[PSTAT_CHILL_THRESHOLD]) / 100) * stacks, DND_CHILL_HARDTHRESHOLD, 100);
+	return Clamp_Between((DND_BASE_CHILL_DAMAGETHRESHOLD * (100 - PlayerModData[pnum].vals[PSTAT_CHILL_THRESHOLD]) / 100) * stacks, DND_CHILL_HARDTHRESHOLD, 100);
 }
 
 int GetFreezeChance(int pnum, int stacks) {
-	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + PlayerModData[pnum].f[PSTAT_FREEZE_CHANCE]) / 100;
+	return DND_BASE_FREEZECHANCE_PERSTACK * stacks * (100 + PlayerModData[pnum].vals[PSTAT_FREEZE_CHANCE]) / 100;
 }
 
 int GetMonsterChillThreshold(int m_id) {
@@ -1655,7 +1671,7 @@ int GetCritChance_Display(int pnum) {
 }
 
 int GetPelletIncrease(int pnum) {
-	int base = 1.0 + PlayerModData[pnum].f[PSTAT_PELLET_INCREASE];
+	int base = 1.0 + PlayerModData[pnum].vals[PSTAT_PELLET_INCREASE];
 	if(HasClassPerk_Fast(DND_PLAYER_HOBO, 2))
 		return CombineFactors(base, DND_HOBO_SHOTGUNPELLETBONUS + (GetLevel() / DND_PERK_REGULARTHRESHOLD) * DND_HOBO_SHOTGUNPELLETBONUS_PERLVL);
 	return base;
@@ -1672,10 +1688,10 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 
 	// 1.0 is 100%, we get stuff like 0.03 here for 3% etc.
 	int statOf = 0;
-	int hasStrToIntConversion = PlayerModData[pnum].f[PSTAT_EX_INTBONUSTOMELEE];
+	int hasStrToIntConversion = PlayerModData[pnum].vals[PSTAT_EX_INTBONUSTOMELEE];
 	if(isMelee) {
 		// steelbark bonus potentially checked here
-		strength += PlayerModData[pnum].f[PSTAT_EX_STREXTRABONUSTOMELEE];
+		strength += PlayerModData[pnum].vals[PSTAT_EX_STREXTRABONUSTOMELEE];
 
 		statOf = hasStrToIntConversion;
 		if(statOf) {
@@ -1691,7 +1707,7 @@ int HandleStatBonus(int pnum, int strength, int dexterity, int intellect, bool i
 
 	// brutality is a more multiplier, if there are other "more" things related to melee, keep multiplying here
 	if(isMelee)
-		statOf = (statOf + (PlayerModData[pnum].f[PSTAT_MELEEDAMAGE] << 16) / 100) * (100 + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
+		statOf = (statOf + (PlayerModData[pnum].vals[PSTAT_MELEEDAMAGE] << 16) / 100) * (100 + GetPerk(STAT_BRUT) * DND_PERK_BRUTALITY_DAMAGEINC) / 100;
 	else
 		statOf = (statOf * (100 + GetPerk(STAT_SHRP) * DND_PERK_SHARPSHOOTER_INC)) / 100;
 
@@ -1707,7 +1723,7 @@ int GetStatAttunementBonus(int pnum, int wepid, bool isMelee) {
 
 int GetMaxResistCap(int pnum) {
 	// cap the cap...
-	int cap = PlayerModData[pnum].f[PSTAT_MAXRESIST_ADDED] + DND_BASE_DAMAGERESISTCAP;
+	int cap = PlayerModData[pnum].vals[PSTAT_MAXRESIST_ADDED] + DND_BASE_DAMAGERESISTCAP;
 	if(cap > DND_MAX_DAMAGERESISTCAP)
 		return DND_MAX_DAMAGERESISTCAP;
 	return cap;
@@ -1729,7 +1745,7 @@ int GetExplosiveRepeatChance(int pnum) {
 		bonus += Clamp_Between((((isMarine - GetActorProperty(tid, APROP_HEALTH)) * 150) / isMarine), 0, 75); // * 150 so 50% missing health can reach cap
 	}
 
-	return bonus + PlayerModData[pnum].f[PSTAT_ESS_KRULL];
+	return bonus + PlayerModData[pnum].vals[PSTAT_ESS_KRULL];
 }
 
 int GetSelfExplosiveResist(int pnum) {
@@ -1739,7 +1755,7 @@ int GetSelfExplosiveResist(int pnum) {
 		base = FixedMul(base, (100 - DND_MARINE_SELFEXPLOSIVEREDUCE) * 1.0 / 100);
 	
 	// get player selfdmg res
-	int temp = (PlayerModData[pnum].f[PSTAT_SELFDMG_RESIST] << 16);// + ReadPlayerModValue(pnum, INV_DMGREDUCE_EXPLOSION);
+	int temp = (PlayerModData[pnum].vals[PSTAT_SELFDMG_RESIST] << 16);// + ReadPlayerModValue(pnum, INV_DMGREDUCE_EXPLOSION);
 
 	// roll damage up
 	if(temp) {
@@ -1757,7 +1773,7 @@ int GetSelfExplosiveResist(int pnum) {
 	}
 		
 	// this is 75.0 or maximum 90.0, map it to 0-1.0 and reverse it
-	temp = PlayerModData[pnum].f[PSTAT_MAXRESIST_ADDED] + DND_BASE_DAMAGERESISTCAP;
+	temp = PlayerModData[pnum].vals[PSTAT_MAXRESIST_ADDED] + DND_BASE_DAMAGERESISTCAP;
 	if(temp > DND_MAX_DAMAGERESISTCAP)
 		temp = DND_MAX_DAMAGERESISTCAP;
 	temp = 1.0 - temp / 100;
@@ -1771,7 +1787,7 @@ int GetSelfExplosiveResist(int pnum) {
 
 int GetPlayerSelfDamageReduction_Display(int pnum) {
 	int base = GetSelfExplosiveResist(pnum);
-	int temp = PlayerModData[pnum].f[PSTAT_IMP_LESSSELFDAMAGETAKEN];
+	int temp = PlayerModData[pnum].vals[PSTAT_IMP_LESSSELFDAMAGETAKEN];
 	if(temp)
 		base = base * (100 - temp) / 100;
 
@@ -1791,7 +1807,7 @@ int GetPlayerElementalAvoidChance(int pnum, int avoid_id) {
 	if((HasActorClassPerk_Fast(ptid, DND_PLAYER_WANDERER, 3) && CheckActorInventory(ptid, "EShieldAmount")))
 		return 100;
 
-	return PlayerModData[pnum].f[PSTAT_AVOID_BASE + avoid_id] + PlayerModData[pnum].f[PSTAT_AVOID_ELEALL] + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
+	return PlayerModData[pnum].vals[PSTAT_AVOID_BASE + avoid_id] + PlayerModData[pnum].vals[PSTAT_AVOID_ELEALL] + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
 }
 
 // Split out of GetPlayerNonElementalAvoidance, which was two functions wearing one name: bleed was
@@ -1804,7 +1820,7 @@ int GetPlayerBleedAvoidChance(int pnum) {
 	if(CheckActorInventory(ptid, "Perk_AversionActivated"))
 		return 100;
 
-	int base = PlayerModData[pnum].f[PSTAT_AVOID_BASE + DND_PAVOID_BLEED] + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
+	int base = PlayerModData[pnum].vals[PSTAT_AVOID_BASE + DND_PAVOID_BLEED] + RISK_AVERSION_VALUE * CheckActorInventory(ptid, "Perk_RiskAversion");
 
 	// special conditions like punisher and wanderer
 	if
@@ -1850,7 +1866,7 @@ int GetPlayerAccuracyFactor(int pnum) {
 }
 
 int GetPlayerStaminaRecoveryRate(int pnum) {
-	int base = DND_BASE_STAMINA_RECOVERYRATE * (100 - PlayerModData[pnum].f[PSTAT_INC_STAMINARECOVERYRATE]) / 100;
+	int base = DND_BASE_STAMINA_RECOVERYRATE * (100 - PlayerModData[pnum].vals[PSTAT_INC_STAMINARECOVERYRATE]) / 100;
 	if(base <= 0)
 		base = 3; // minimum value is 3 for tic delay here
 	return base;
@@ -1873,7 +1889,7 @@ void GiveStamina(int amt) {
 }
 
 int GetPlayerStaminaGain(int pnum) {
-	return DND_BASE_STAMINA_GAIN * (100 + PlayerModData[pnum].f[PSTAT_INC_STAMINAGAINED]) / 100;
+	return DND_BASE_STAMINA_GAIN * (100 + PlayerModData[pnum].vals[PSTAT_INC_STAMINAGAINED]) / 100;
 }
 
 bool IsOnLowStamina() {
@@ -1881,7 +1897,7 @@ bool IsOnLowStamina() {
 }
 
 bool CanGainStaminaOnKill(int pnum) {
-	int temp = PlayerModData[pnum].f[PSTAT_IMP_STAMINAONKILL];
+	int temp = PlayerModData[pnum].vals[PSTAT_IMP_STAMINAONKILL];
 	temp += HasClassPerk_Fast(DND_PLAYER_BERSERKER, 2) * DND_BERSERKER_PERK40_STAMINACHANCE;
 	return temp >= random(1, 100);
 }

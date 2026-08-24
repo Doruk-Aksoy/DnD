@@ -585,7 +585,7 @@ Script "DnD Monster Blind Cast" (int duration, int rgb, int intensity, int dista
 	if(!ActivatorTID() || !isAlive() || !IsPlayer(target) || fdistance(this, target) > distance || !IsActorFacing(target, this, DND_BLIND_ANGLETHRESHOLD))
 		Terminate;
 
-	int temp = PlayerModData[target - P_TIDSTART].f[PSTAT_IMP_REDUCEDVISIONIMPAIR];
+	int temp = PlayerModData[target - P_TIDSTART].vals[PSTAT_IMP_REDUCEDVISIONIMPAIR];
 	if(temp)
 		intensity = (100 - temp) / 100;
 
