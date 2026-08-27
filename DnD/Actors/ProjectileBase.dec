@@ -34,15 +34,18 @@ Actor DnD_FreezeTimer : DnD_Info { }
 Actor DnD_IgniteTimer : DnD_Info { }
 Actor DnD_CurrentIgniteDamage : DnD_Info { }
 
-// How many "DnD Monster Ignite" scripts are alive on this monster. This is the ONLY thing that may be
-// read as "the burn already has an owner". DnD_IgniteTimer cannot: it is inventory and the burn is a
-// script, so the two have different lifetimes, and every way they desynced left the monster lit and
-// taking nothing forever -- HandleIgniteEffects would see the stale timer, take the refresh branch,
-// and never restart the burn. A refcount can only be non-zero if a script incremented it and has not
-// yet run its exit, so a dead script always frees it and the next application repairs the monster.
+// How many "DnD Monster Ignite" scripts are alive on this monster -- the ONLY thing that may be
+// read as "the burn already has an owner". DnD_IgniteTimer cannot: it is inventory and the burn is
+// a script, so a desync left the monster lit and taking nothing forever. A refcount is non-zero
+// only while a script holds it, so a dead script always frees it.
 Actor DnD_IgniteScripts : DnD_Info { }
 Actor DnD_BleedTimer : DnD_Info { }
 Actor DnD_CurrentBleedDamage : DnD_Info { }
+
+// The bleed half of the same rule as DnD_IgniteScripts above: DnD_BleedTimer is inventory, the
+// bleed is a script, and inventory outlives scripts. While the timer was the ownership test a
+// monster could carry a non-zero one with nothing behind it, and nothing could restart the bleed.
+Actor DnD_BleedScripts : DnD_Info { }
 Actor DnD_OverloadTimer : DnD_Info { }
 Actor DnD_OverloadDamage : DnD_Info { }
 Actor DnD_OverloadLockTime : PowerProtection {

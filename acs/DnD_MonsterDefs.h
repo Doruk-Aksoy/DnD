@@ -890,22 +890,151 @@ bool IsMonsterCategoryResurrectable(int id) {
 	return MonsterProperties[id].class != MONSTERCLASS_ARCHVILE && !IsMonsterIdBoss(id);
 }
 
-// note: old formula was multiplicative and multiplied by 3 at level 50 onwards and by 9 from 75 onwards. So according to it, at level 100 a monster would have 3600% increased hp (400% from level, x9 from threshold)
-// so our new formula will acommodate for this --- multiplied x^2 factor by 10 it seems to be good
-int GetMonsterHPScaling(int m_id, int level) {
-	// new formula: 0.42x^2 + x, where x is level - 1.
-	// else 0.38x^2 + 2x, which allows for much slower scaling at <25 and sharper from 25 onwards
-	int res = 0;
+// ============================================================================
+//  MONSTER HEALTH SCALING -- returns the PERCENT added to base health, so 400 means 5x total.
+//
+//  SPINE:  level < 25 -> 0.42x^2 + 2x,  level >= 25 -> 0.38x^2 + 3x
+//  The branches are equal at EXACTLY x=25, so the linear term must be added to BOTH or the
+//  crossover breaks and a level 24 monster outranks a level 25 one. That extra x is the low tier
+//  bump: +5..7% below level 40, washed out by 100.
+//
+//  TWO TAILS, because one curve cannot do both jobs:
+//   - QUADRATIC from LIFTKNEE. A cubic is nearly flat just past its own knee, so one placed near
+//     60 contributes nothing AT 60. This lifts the 60-80 stretch.
+//   - CUBIC from SPIKEKNEE. Zero at 80 by construction, small at 85, then it dominates. This is
+//     the "real threat starts at 80" term.
+//
+//    lvl      60     70     80     90    100     60->80   80->100
+//    old    15.9x  21.0x  26.9x  33.6x  41.0x     1.81x     1.52x
+//    new    17.6x  24.8x  33.8x  48.6x  89.1x     1.92x     2.64x
+//
+//  DND_HPSCALE_SPIKEDIV is THE balance knob, and it moves nothing below 80: div 3 gives 76x at
+//  level 100, div 2 gives 90x. The old formula was multiplicative (x3 from level 50, x9 from 75).
+// ============================================================================
+#define DND_HPSCALE_LIFTKNEE 45
+#define DND_HPSCALE_LIFTDIV 2
+#define DND_HPSCALE_SPIKEKNEE 80
+// The spike carries a numerator because the endpoint is fixed: sharpening the lift above raises
+// level 100 as well, so the cubic has to come back down by the same amount to keep 100 where it was.
+// 2/5 is what holds it at ~89x; no whole divisor lands there.
+#define DND_HPSCALE_SPIKEMUL 2
+#define DND_HPSCALE_SPIKEDIV 5
+
+// Cubing (level - SPIKEKNEE) forces a ceiling on the INPUT: dnd_maxmonsterlevel is a server cvar
+// and nothing stops an admin setting 5000, where the cube alone wraps. Past this the curve
+// plateaus, which costs nothing -- DND_MAX_HPSCALE_PCT capped the result long before (~level 129).
+#define DND_HPSCALE_LEVELCAP 250
+
+// How much of the curve is precomputed. Monster level caps at 100 (dnd_maxmonsterlevel), so that is
+// the whole useful range. Levels past it fall through to the arithmetic rather than being clamped, so
+// a server that raises the cvar stays correct instead of silently flattening.
+#define DND_HPSCALE_TABLEMAX 100
+
+int GetMonsterHPScalingRaw(int level) {
+	if(level <= 0)
+		return 0;
+
+	if(level > DND_HPSCALE_LEVELCAP)
+		level = DND_HPSCALE_LEVELCAP;
+
+	int res;
 	if(level < 25)
-		res = 21 * level * level / 50 + level;
+		res = 21 * level * level / 50 + 2 * level;
 	else
-		res = (38 * level * level) / 100 + 2 * level;
-	
-	// big bosses have higher scaling than other monsters -- since we reach much higher values than before I decided to go ahead and reduce the big boss scaling here
-	if(IsUniqueBossMonster(m_id))
-		res *= 1 + (level / 33);
-		
+		res = (38 * level * level) / 100 + 3 * level;
+
+	int t;
+
+	// the 60-80 lift
+	if(level > DND_HPSCALE_LIFTKNEE) {
+		t = level - DND_HPSCALE_LIFTKNEE;
+		res += t * t / DND_HPSCALE_LIFTDIV;
+	}
+
+	// the endgame spike
+	if(level > DND_HPSCALE_SPIKEKNEE) {
+		t = level - DND_HPSCALE_SPIKEKNEE;
+		res += t * t * t * DND_HPSCALE_SPIKEMUL / DND_HPSCALE_SPIKEDIV;
+	}
+
 	return res;
+}
+
+// Memoised level -> percent. The curve depends on nothing but the level, so it is built once on
+// first use and read as an array from then on -- this runs for every monster on the map, and at map
+// load they all clear their setup wait on the same tic.
+int GetMonsterHPScaleForLevel(int level) {
+	static int cache[DND_HPSCALE_TABLEMAX + 1];
+	static bool cache_built = false;
+
+	if(!cache_built) {
+		for(int i = 0; i <= DND_HPSCALE_TABLEMAX; ++i)
+			cache[i] = GetMonsterHPScalingRaw(i);
+		cache_built = true;
+	}
+
+	if(level >= 0 && level <= DND_HPSCALE_TABLEMAX)
+		return cache[level];
+
+	return GetMonsterHPScalingRaw(level);
+}
+
+int GetMonsterHPScaling(int m_id, int level) {
+	int res = GetMonsterHPScaleForLevel(level);
+
+	// big bosses have higher scaling than other monsters
+	if(IsUniqueBossMonster(m_id)) {
+		// clamped for the same reason the curve is -- this multiplies, so an unbounded level here
+		// would undo the ceiling above
+		if(level > DND_HPSCALE_LEVELCAP)
+			level = DND_HPSCALE_LEVELCAP;
+		res *= 1 + (level / 33);
+	}
+
+	return res;
+}
+
+// ============================================================================
+//  HEALTH CEILINGS
+//
+//  Final health must stay far enough below INT_MAX for everything DOWNSTREAM too: borrowed time
+//  and energy leech stock MonsterFortifyCount from maxhp, and the cull path does health * 2.
+//  Half a billion leaves each a clean factor of four.
+#define DND_MAX_MONSTER_HP 500000000
+
+//  The largest percentage any monster may receive, boss multiplier and dungeon bonuses included.
+//  BOUNDING THE PERCENT is what makes base * pct safe -- checking the product afterwards cannot
+//  help, it has already wrapped. 2000x is a backstop for absurd cvars, not a balance knob: a
+//  level 100 unique boss lands on 354x.
+#define DND_MAX_HPSCALE_PCT 200000
+
+// base * pct / 100, without ever forming an intermediate that can wrap.
+int ApplyHPScale(int base, int pct) {
+	if(base <= 0 || pct <= 0)
+		return 0;
+
+	if(pct > DND_MAX_HPSCALE_PCT)
+		pct = DND_MAX_HPSCALE_PCT;
+
+	int add;
+	if(base >= 100) {
+		// Divide FIRST. (base / 100) * pct keeps the product two orders of magnitude smaller, which
+		// is the whole difference between fitting and wrapping; the dropped remainder is under
+		// 99 * pct / 100, noise beside numbers this size. Only reachable with an absurd hp_mult, but
+		// saturate rather than hand back a negative health if even that would not fit.
+		if(base / 100 > bcs::INT_MAX / pct)
+			add = DND_MAX_MONSTER_HP;
+		else
+			add = (base / 100) * pct;
+	}
+	else
+		add = base * pct / 100;
+
+	// clamp the TOTAL, not just the addition
+	if(add > DND_MAX_MONSTER_HP - base)
+		add = DND_MAX_MONSTER_HP - base;
+
+	return add < 0 ? 0 : add;
 }
 
 int GetEliteBonusDamage(int m_id) {

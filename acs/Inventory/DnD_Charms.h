@@ -89,6 +89,8 @@ int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
+	// read the item back -- Construct may level it down for a lower level player
+	auto item = GetFieldItem(charm_pos);
 	int count = random(1, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type));
 
 	int synergy_roll = -2;
@@ -99,14 +101,19 @@ int RollCharmInfo(int charm_pos, int charm_tier, int pnum, int synergy_boost = -
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll, DND_ITEMBASE_CHARM);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll, DND_ITEMBASE_CHARM, item.item_level);
 
 			if(max_tries-- < 0)
 				synergy_roll = -2;
 			else if(synergy_roll != -2)
 				++worth;
 
-		} while(CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+		} while(roll != -1 && CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+
+		// nothing eligible left to draw, so stop rather than adding a non-mod
+		if(roll == -1)
+			break;
+
 		AddAttributeToFieldItem(charm_pos, roll, pnum);
 
 		synergy_roll = CheckItemSynergy(synergy_roll, charm_pos, synergy_boost);
@@ -121,6 +128,8 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	// roll random attributes for the charm
 	int i = 0, roll;
 	int charm_type = ConstructCharmDataOnField(charm_pos, charm_tier);
+	// as above
+	auto item = GetFieldItem(charm_pos);
 	int count = random(0, GetMaxItemAffixes(DND_ITEM_CHARM, charm_type) - 1 - (m2 != -1) - (m3 != -1));
 	
 	// add the guaranteed mods first, because rolling later will check for their presence if they are rolled
@@ -135,7 +144,7 @@ void RollCharmInfoWithMods(int charm_pos, int charm_tier, int m1, int m2, int m3
 	// we extend the resolution of the range (the ends weren't being picked as evenly) example: range of 0 to 5 x 10 => 0 to 50, then we divide by 10. We extend possibility of picking the ends
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM, DND_CHARM_SMALL, 0, -1, -2, DND_ITEMBASE_CHARM);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, DND_CHARM_SMALL, 0, -1, -2, DND_ITEMBASE_CHARM, item.item_level);
 		} while(roll != -1 && CheckItemAttribute(pnum, charm_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 
 		if(roll == -1)

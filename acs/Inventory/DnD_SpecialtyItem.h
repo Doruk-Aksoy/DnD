@@ -185,7 +185,7 @@ int RollSpecialtyItemInfo(int item_pos, int item_tier, int pnum, int itype) {
 	
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base);
+			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base, item.item_level);
 		} while(roll != -1 && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
 
 		if(roll == -1)

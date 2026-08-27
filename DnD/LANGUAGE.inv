@@ -358,7 +358,7 @@ IATTR_T29 			= "artillery attack damage";
 
 IATTR_T30 			= "more pellets";
 	
-IATTR_T31 			= "increased weapon attack radius";
+IATTR_T31 			= "increased weapon area of effect";
 IATTR_T32 			= "reduced self damage";
 	
 IATTR_T33 			= "chance to recover ammo from basic weapon attacks";
@@ -580,7 +580,7 @@ IATTR_TI28			= "\cd+1\c- to pet cap";
 IATTR_TI29			= "reduced vision impairment";
 IATTR_TI30			= "Melee hits can ignore shields";
 IATTR_TI31			= "Deal "; IATTR_TI31S = "more damage to bosses";
-IATTR_TI32			= "Killing magical or undead enemies recover \cd1%\c- of energy shield";
+IATTR_TI32			= "Killing magical or undead enemies have \cd15%\c- chance to recover \cd1%\c- of energy shield";
 IATTR_TI33			= "Precision weapons have "; IATTR_TI33S = " to crit chance";
 IATTR_TI34			= "Quality cap is \cd50%\c-";
 IATTR_TI35			= "increased strength";
@@ -639,7 +639,7 @@ IATTR_TX4 			= "to all attributes";
 IATTR_TX5 			= "to be healed for ";
 IATTR_TX6 			= "increased lightning damage";
 IATTR_TX7 			= "increased crit chance to lightning attacks";
-IATTR_TX8 			= "Explosives that trigger again have "; IATTR_TX8B = "more damage and radius";	IATTR_TX8S = "Your initial explosions have "; IATTR_TX8S2 = " less damage and radius";
+IATTR_TX8 			= "Explosives that trigger again have "; IATTR_TX8B = "more damage and area of effect";	IATTR_TX8S = "Your initial explosions have "; IATTR_TX8S2 = " less damage and area of effect";
 IATTR_TX9 			= "Double Health Cap";
 IATTR_TX10 			= "Gain 1% increased physical damage every ";
 IATTR_TX11 			= "Can't use body armor";
@@ -721,3 +721,30 @@ LCHARGE_2			= "a Power Charge";
 LCHARGE_NOPRE_0		= "Frenzy Charges";
 LCHARGE_NOPRE_1		= "Endurance Charges";
 LCHARGE_NOPRE_2		= "Power Charges";
+
+
+// mod tag names -- shown per mod when dnd_showmodtags is on.
+// Order MUST match the INV_ATTR_TAG_*_ID enum in acs/Inventory/DnD_InvAttribs.h.
+IATTR_TAG0  		= "damage";
+IATTR_TAG1  		= "attack";
+IATTR_TAG2  		= "life";
+IATTR_TAG3  		= "defense";
+IATTR_TAG4  		= "utility";
+IATTR_TAG5  		= "elemental";
+IATTR_TAG6  		= "explosive";
+IATTR_TAG7  		= "occult";
+IATTR_TAG8  		= "critical";
+IATTR_TAG9  		= "attribute";
+IATTR_TAG10 		= "physical";
+IATTR_TAG11 		= "energy";
+IATTR_TAG12 		= "melee";
+IATTR_TAG13 		= "fire";
+IATTR_TAG14 		= "ice";
+IATTR_TAG15 		= "poison";
+IATTR_TAG16 		= "lightning";
+IATTR_TAG17 		= "stamina";
+IATTR_TAG18 		= "flask";
+IATTR_TAG19 		= "armor";
+IATTR_TAG20 		= "energy shield";
+IATTR_TAG21 		= "mitigation";
+IATTR_TAG22 		= "ailment";

@@ -5,8 +5,7 @@ str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int
 	if(extra != -1)
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
 	
-	// limit this to here at t10...
-	str col_tag = GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE);
+	str col_tag = GetCharmString(GetModTierColourIndex(attr, item_type, tier), CHARMSTR_COLORCODE);
 	int tier_mapping = GetModTierRangeMapper(attr, tier);
 
 	// visually change the attribute values depending on item scale factors
@@ -29,8 +28,7 @@ str GetDetailedModRange(int attr, int item_type, int item_subtype, int tier, int
 }
 
 str GetDetailedModRangeExtra(int attr, int item_type, int item_subtype, int tier, int trunc_factor = 0, bool isPercentage = false) {
-	// limit this to here at t10...
-	str col_tag = GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE);
+	str col_tag = GetCharmString(GetModTierColourIndex(attr, item_type, tier), CHARMSTR_COLORCODE);
 	int tier_mapping = GetModTierRangeMapperExtra(attr, tier);
 
 	// visually change the attribute values depending on item scale factors
@@ -109,10 +107,40 @@ str GetDetailedModRange_Unique(int unique_id, int trunc_factor = 0, int unique_r
 	);
 }
 
-str GetModTierText(int tier, int extra) {
+// Descending, so a mod's best tier is always T1 whatever its ladder length.
+str GetModTierText(int attr, int item_type, int tier, int extra) {
 	if(extra != -1)
 		return StrParam(s:"\c[D1]", s:"U");
-	return StrParam(s:GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE), s:"T", d:tier);
+	int count = GetModTierCount(attr, item_type);
+
+	// never let a stale tier print as T-3, whatever the caller handed us
+	tier = Clamp_Between(tier, 0, count - 1);
+
+	return StrParam(
+		s:GetCharmString(GetModTierColourIndex(attr, item_type, tier), CHARMSTR_COLORCODE),
+		s:"T", d:count - tier
+	);
+}
+
+// The tag list for one mod, as a dim second line. No switch: tags are a bitmask on the mod table,
+// so this is one loop over the bits and nothing has to be kept in sync when a mod's tags change.
+//
+// Bound to AILMENT_ID, NOT MAX_ATTRIB_TAG_GROUPS -- that constant stops at LIGHTNING_ID because it
+// sizes the ORB FORCEABLE subset, and bounding here would silently hide stamina, flask, armor,
+// eshield, mitigation and ailment. Bound to the thing you are iterating.
+str GetModTagText(int attr) {
+	if(attr < 0 || attr >= UNIQUE_ATTRIB_ID_BEGIN || !ItemModTable[attr].tags)
+		return "";
+
+	str res = "";
+	for(int i = INV_ATTR_TAG_DAMAGE_ID; i <= INV_ATTR_TAG_AILMENT_ID; ++i)
+		if(ItemModTable[attr].tags & (1 << i))
+			res = StrParam(s:res, s:res != "" ? ", " : "", l:StrParam(s:"IATTR_TAG", d:i));
+
+	if(res == "")
+		return "";
+
+	return StrParam(s:"\n  \ck", s:res, s:"\c-");
 }
 
 str GetInventoryAttributeText(int attr) {
@@ -197,7 +225,7 @@ str ItemAttributeString(
 				col_tag = "\c[R5]";
 			if(showDetailedMods) {
 				return StrParam(
-					s:col_tag, l:text, s:no_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:col_tag, l:text, s:no_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:col_tag, l:text);
@@ -207,7 +235,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:"IATTR_MAGICRES",
-					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"% ", s:ess_tag, l:"IATTR_MAGICRES");
@@ -217,7 +245,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%",
-					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%");
@@ -226,7 +254,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%",
-					s:no_tag, s:ess_tag, l:"IATTR_TE5_2", s:" - ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, l:"IATTR_TE5_2", s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%", s:no_tag, s:ess_tag, l:"IATTR_TE5_2");
@@ -236,7 +264,7 @@ str ItemAttributeString(
 		case INV_ESS_THORAX:
 			if(showDetailedMods) {
 				return StrParam(
-					s:ess_tag, l:text, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:ess_tag, l:text, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text);
@@ -248,7 +276,7 @@ str ItemAttributeString(
 				if(showDetailedMods) {
 					return StrParam(
 						s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
-						s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+						s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
@@ -256,7 +284,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+", s:col_tag, d:val, s:"\c-", s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, s:"%", l:text,
-					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, d:val, s:"%", s:"\c-", l:text);
@@ -265,7 +293,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
-					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"%", s:ess_tag, l:text);
@@ -275,12 +303,12 @@ str ItemAttributeString(
 				if(extra == -1) {
 					return StrParam(
 						s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:ess_tag, l:text,
-						s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+						s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(
 					s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%\c-", l:text,
-					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			if(extra == -1)
@@ -292,7 +320,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:ess_tag, l:text,
-					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:ess_tag, l:text);
@@ -302,7 +330,7 @@ str ItemAttributeString(
 				return StrParam(
 					s:ess_tag, s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:text,
 					s:ess_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:col_tag, s:"% ", s:ess_tag, l:"IATTR_TE1S",
-					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:ess_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TE1S");
@@ -360,7 +388,7 @@ str ItemAttributeString(
 				if(showDetailedMods) {
 					return StrParam(
 						s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:no_tag, l:text,
-						s:" - ", s:GetModTierText(tier, extra)
+						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(s:"+", s:col_tag, d:val, s:no_tag, l:text);
@@ -480,7 +508,7 @@ str ItemAttributeString(
 					no_tag = "\c-";
 
 				if(showDetailedMods)
-					text = StrParam(s:col_tag, d:val, s:GetDetailedModRange_Unique(tier, 0, extra), s:"% ", s:no_tag, l:text, s:" - ", s:GetModTierText(tier, extra));
+					text = StrParam(s:col_tag, d:val, s:GetDetailedModRange_Unique(tier, 0, extra), s:"% ", s:no_tag, l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 				else
 					text = StrParam(s:col_tag, d:val, s:"% ", s:no_tag, l:text);
 			}
@@ -571,7 +599,7 @@ str ItemAttributeString(
 		case INV_MELEECRIT_NOTONLOWSTAMINA:
 			if(showDetailedMods) {
 				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text);
@@ -579,7 +607,7 @@ str ItemAttributeString(
 		case INV_CRITPERCENT_FORWEPTYPE:
 			if(showDetailedMods) {
 				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra),
-					s:no_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:no_tag, l:text, s:" ", s:col_tag, l:GetWeaponTypeTag(attr_extra));
@@ -588,7 +616,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%", s:ess_tag, s:" ", l:"IATTR_MOREDMG",
-					s:no_tag, s:"- ", s:GetModTierText(tier, extra)
+					s:no_tag, s:"- ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:"%", s:ess_tag, s:" ", l:"IATTR_MOREDMG");
@@ -607,7 +635,7 @@ str ItemAttributeString(
 		case INV_MITEFFECT_INCREASE:
 			if(showDetailedMods) {
 				return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"%", s:no_tag, l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val, false), s:"%", s:no_tag, l:text);
@@ -619,7 +647,7 @@ str ItemAttributeString(
 					s:"\cg", d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:"\c- ", 
 					s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC1S",
 					s:"\cd ", d:val, s:"% ", s:ess_tag, l:"IATTR_TINC1SS",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 		return StrParam(s:"\cg", d:attr_extra, s:"\c- ", s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC1S", s:"\cd ", d:val, s:"% ", s:ess_tag, l:"IATTR_TINC1SS");
 
@@ -629,17 +657,31 @@ str ItemAttributeString(
 					s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC4S", 
 					s:"\cd ", d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra),
 					s:"% ", l:"IATTR_TINC4SS",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC4S", s:"\cd ", d:val, s:"% ", l:"IATTR_TINC4SS");
 
 		case INV_INC_ALLOVERLOAD:
+			if(showDetailedMods) {
+				return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%\n", s:ess_tag, l:"IATTR_TINC5S", s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
+			}
 		return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"%\n", s:ess_tag, l:"IATTR_TINC5S");
 		case INV_INC_ESHIELDNOINTERRUPT:
+			if(showDetailedMods) {
+				return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC6S", s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
+			}
 		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC6S");
 		
 		case INV_INC_PLUSPROJ:
 		case INV_INC_PLUSTWOPROJ:
+			if(showDetailedMods) {
+				return StrParam(
+					s:ess_tag, l:text, s:col_tag, s:" ", 
+					l:GetWeaponTag(attr_extra), s:"\n", s:col_tag, 
+					s:GetFixedRepresentation(val, true), s:"% ", s:ess_tag, l:"IATTR_TINC7S", s:col_tag, l:GetWeaponTag(attr_extra),
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
+				);
+			}
 		return StrParam(s:ess_tag, l:text, s:col_tag, s:" ", l:GetWeaponTag(attr_extra), s:"\n", s:col_tag, s:GetFixedRepresentation(val, true), s:"% ", s:ess_tag, l:"IATTR_TINC7S", s:col_tag, l:GetWeaponTag(attr_extra));
 		
 		case INV_CORR_WEAPONPLUSPROJ:
@@ -650,12 +692,15 @@ str ItemAttributeString(
 				return StrParam(
 					s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
 					s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC9S");
 		
 		case INV_INC_MITIGATIONTODODGE:
+			if(showDetailedMods) {
+				return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC11S", s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
+			}
 		return StrParam(s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC11S");
 
 		// single text incursion
@@ -663,7 +708,7 @@ str ItemAttributeString(
 		case INV_INC_HPREGENINTERRUPT:
 		case INV_INC_ACCURACYREVERSED:
 		if(showDetailedMods) {
-			return StrParam(s:ess_tag, l:text, s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(s:ess_tag, l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 		}
 		return StrParam(s:ess_tag, l:text);
 
@@ -671,17 +716,18 @@ str ItemAttributeString(
 		case INV_FLASK_IMMUNE_CHILLFREEZE:
 		case INV_FLASK_IMMUNE_IGNITE:
 		case INV_FLASK_IMMUNE_POISON:
-		case INV_FLASK_IMMUNE_SHOCK:
+		case INV_FLASK_IMMUNE_OVERLOAD:
 		if(showDetailedMods)
-			return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
+			return StrParam(l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 		return StrParam(l:text);
 		
 		case INV_INC_PASSIVEREGEN:
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"% ", s:ess_tag, l:"IATTR_TINC14S1",
-					s:ess_tag, s:" - ", s:GetModTierText(tier, extra),
-					s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC14S2"
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra),
+					s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC14S2",
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, true), s:"% ", s:ess_tag, l:"IATTR_TINC14S1", s:"\n", s:col_tag, d:attr_extra, s:"% ", s:ess_tag, l:"IATTR_TINC14S2");
@@ -690,7 +736,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:"IATTR_TINC15S",
-					s:ess_tag, s:" - ", s:GetModTierText(tier, extra)
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"% ", s:ess_tag, l:"IATTR_TINC15S");
@@ -699,7 +745,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:text,
-					s:ess_tag, s:" - ", s:GetModTierText(tier, extra)
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, d:val, s:"% ", s:ess_tag, l:text);
@@ -707,7 +753,7 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"% ", s:ess_tag, l:"IATTR_TINC17S",
-					s:ess_tag, s:" - ", s:GetModTierText(tier, extra)
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, d:val, s:"% ", s:ess_tag, l:"IATTR_TINC17S");
@@ -716,12 +762,20 @@ str ItemAttributeString(
 			if(showDetailedMods) {
 				return StrParam(
 					s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, false), s:GetDetailedModRange(attr, item_type, item_subtype, tier, FACTOR_FIXED_RESOLUTION, extra, false),
-					s:ess_tag, l:"IATTR_TINC20S"
+					s:ess_tag, l:"IATTR_TINC20S",
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:ess_tag, l:text, s:col_tag, s:GetFixedRepresentation(val, false), s:ess_tag, l:"IATTR_TINC20S");
 
 		case INV_INC_EXCESSCRIT:
+			if(showDetailedMods) {
+				return StrParam(
+					s:col_tag, s:GetFixedRepresentation(val, true), s:ess_tag, 
+					l:text, s:"\n", s:ess_tag, l:"IATTR_TINC21S",
+					s:ess_tag, s:" - ", s:GetModTierText(attr, item_type, tier, extra)
+				);
+			}
 		return StrParam(s:col_tag, s:GetFixedRepresentation(val, true), s:ess_tag, l:text, s:"\n", s:ess_tag, l:"IATTR_TINC21S");
 
 		// fix coloration issue on these text
@@ -733,7 +787,7 @@ str ItemAttributeString(
 				if(showDetailedMods) {
 					return StrParam(
 						s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT",
-						s:" - ", s:GetModTierText(tier, extra)
+						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text, s:no_tag, l:"IATTR_ONMELEEHIT");
@@ -766,7 +820,7 @@ str ItemAttributeString(
 		if(showDetailedMods) {
 			return StrParam(
 				l:text, s:"\n", s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:"%", 
-				s:no_tag, l:"IATTR_FLASK3X", s:" - ", s:GetModTierText(tier, extra)
+				s:no_tag, l:"IATTR_FLASK3X", s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 			);
 		}
 		return StrParam(l:text, s:"\n", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:"IATTR_FLASK3X");
@@ -775,7 +829,7 @@ str ItemAttributeString(
 		if(showDetailedMods) {
 			return StrParam(
 				s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0),
-				s:"%", s:no_tag, l:"IATTR_FLASK13X", s:" - ", s:GetModTierText(tier, extra)
+				s:"%", s:no_tag, l:"IATTR_FLASK13X", s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 			);
 		}
 		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:"IATTR_FLASK13X");
@@ -784,7 +838,7 @@ str ItemAttributeString(
 		if(showDetailedMods) {
 			return StrParam(
 				s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0), 
-				s:"%", s:no_tag, l:text, s:" - ", s:GetModTierText(tier, extra));
+				s:"%", s:no_tag, l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 		}
 		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text);
 
@@ -793,7 +847,7 @@ str ItemAttributeString(
 			return StrParam(
 				s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text, s:"\n",
 				s:col_tag, d:attr_extra, s:GetDetailedModRangeExtra(attr, item_type, item_subtype, tier, 0), s:"%", s:no_tag, l:"IATTR_FLASK4X",
-				s:" - ", s:GetModTierText(tier, extra)
+				s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 			);
 		}
 		return StrParam(s:col_tag, d:val, s:"%", s:no_tag, l:text, s:"\n", s:col_tag, d:attr_extra, s:"%", s:no_tag, l:"IATTR_FLASK4X");
@@ -804,7 +858,7 @@ str ItemAttributeString(
 				if(showDetailedMods) {
 					return StrParam(
 						s:"+", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
-						s:" - ", s:GetModTierText(tier, extra)
+						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(s:"+", s:col_tag, d:val, s:"%", s:no_tag, l:text);
@@ -813,7 +867,7 @@ str ItemAttributeString(
 				if(showDetailedMods) {
 					return StrParam(
 						s:"-", s:col_tag, d:val, s:GetDetailedModRange(attr, item_type, item_subtype, tier, 0, extra), s:"%", s:no_tag, l:text,
-						s:" - ", s:GetModTierText(tier, extra)
+						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(s:"-\cg", d:val, s:"%", s:no_tag, l:text);
@@ -858,7 +912,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:col_tag, d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10, s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c-",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s:col_tag, d:val1 / 1000, s:".", d:(val1 / 100 % 10), d:(val1 / 10) % 10);
@@ -868,7 +922,7 @@ str GetItemAttributeText(
 				return StrParam(
 					s:col_tag, d:val2, s:GetDetailedModRange_Unique(tier, 0, extra, false, true), s:"%\c- ",
 					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_RECOVERHPHURT",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:col_tag, d:val2, s:"%\c- ", l:"IATTR_TX_CHANCE", l:text, s:col_tag, d:val1, s:"%\c- ", l:"IATTR_RECOVERHPHURT");
@@ -877,7 +931,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_MAXHEALTH",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s:col_tag, d:val1, s:"\c- ", l:"IATTR_MAXHEALTH");
@@ -886,7 +940,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_PMISSHP",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s:col_tag, d:val1, s:"%\c- ", l:"IATTR_PMISSHP");
@@ -895,7 +949,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_RALLY",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s:col_tag, d:val1, s:"\c- ", l:"IATTR_RALLY");
@@ -904,7 +958,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_CHANCEIGNORERES",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s:col_tag, d:val1, s:"%\c- ", l:"IATTR_CHANCEIGNORERES");
@@ -914,7 +968,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+", s:col_tag, s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"%\c- ", l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val1, true), s:"%\c- ", l:text);
@@ -924,7 +978,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+", s:col_tag, s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false), s:"%\c- ", l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+", s:col_tag, s:GetFixedRepresentation(val1, false), s:"%\c- ", l:text);
@@ -933,7 +987,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s: " ", s:col_tag, s:"x", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, 1, extra, false),
-					s:"\c- ", l:"IATTR_TX41S", s:"\n", l:"IATTR_TX41B", s:" - ", s:GetModTierText(tier, extra)
+					s:"\c- ", l:"IATTR_TX41S", s:"\n", l:"IATTR_TX41B", s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s: " ", s:col_tag, s:"x", s:GetFixedRepresentation(val1, false), s:"\c- ", l:"IATTR_TX41S", s:"\n", l:"IATTR_TX41B");
@@ -942,7 +996,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_MAGICRES",
-					s:"\c- - ", s:GetModTierText(tier, extra)
+					s:"\c- - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_MAGICRES");
@@ -951,81 +1005,81 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX8B", s:"\n",
-					l:"IATTR_TX8S", s:bad_tag, d:val2, s:"%\c-", l:"IATTR_TX8S2",
-					s:" - ", s:GetModTierText(tier, extra)
+					l:"IATTR_TX8S", s:bad_tag, d:val2, s:GetDetailedModRange_Unique(tier, 0, extra, false, true), s:"%\c-", l:"IATTR_TX8S2",
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(l:text, s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX8B", s:"\n", l:"IATTR_TX8S", s:bad_tag, d:val2, s:"%\c-", l:"IATTR_TX8S2");
 
 		case INV_EX_DEADEYEBONUS:
 			if(showDetailedMods)
-				return StrParam(l:text, s:"\n", l:"IATTR_TX33A", s:"\n", l:"IATTR_TX33B", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:text, s:"\n", l:"IATTR_TX33A", s:"\n", l:"IATTR_TX33B", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text, s:"\n", l:"IATTR_TX33A", s:"\n", l:"IATTR_TX33B");
 
 		case INV_EX_UNITY_RES_BONUS:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX38", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX38", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX38");
 		case INV_EX_UNITY_PEN_BONUS:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX39", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX39", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX_UNITY", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX39");
 
 		case INV_EX_ESEXPLOSIONHPDMG:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX44", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX44S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX44", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX44S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX44", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX44S");
 		case INV_EX_ESCHARGE_USEHP:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX45", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX45S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX45", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX45S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX45", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX45S");
 
 		case INV_EX_HPTOESHIELD:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX46", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX46S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX46", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX46S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX46", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX46S");
 
 		case INV_EX_RESPERESHIELD:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX49", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX49", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX49S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX49", s:col_tag, s:" ", d:val1, s:"\c- ", l:"IATTR_TX49S");
 		case INV_EX_ESHIELDONLYBLOCKPCT:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX50", s:bad_tag, s: " ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\cg%\c- ", l:"IATTR_TX50S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX50", s:bad_tag, s: " ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\cg%\c- ", l:"IATTR_TX50S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX50", s:bad_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX50S");
 
 		case INV_EX_REFILLAMMOONMELEEKILL:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX51", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX51", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX51", s:col_tag, s:" ", d:val1, s:"%");
 		case INV_EX_SWAPFROMMELEECRIT:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX52", s:col_tag, s:" ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX52S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX52", s:col_tag, s:" ", s:GetFixedRepresentation(val1, true), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, true), s:"\c- ", l:"IATTR_TX52S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX52", s:col_tag, s:" ", s:GetFixedRepresentation(val1, true), s:"%\c- ", l:"IATTR_TX52S");
 
 		case INV_EX_SOULPICKUPSINFAMMO:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX55", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX55S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX55", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX55S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX55", s:col_tag, s:" ", d:val1, s:"\c- ", l:"IATTR_TX55S");
 
 		case INV_EX_SOULPICKUPSONLYAMMO:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX56", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX56S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX56", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:"IATTR_TX56S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX56", s:col_tag, s:" ", d:val1, s:"\c- ", l:"IATTR_TX56S");
 
 		case INV_EX_STREXTRABONUSTOMELEE:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX57", s:col_tag, s:" ", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c- ", l:"IATTR_TX57S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX57", s:col_tag, s:" ", s:GetFixedRepresentation(val1, false), s:GetDetailedModRange_Unique(tier, FACTOR_FIXED_RESOLUTION, extra, false), s:"\c- ", l:"IATTR_TX57S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX57", s:col_tag, s:" ", s:GetFixedRepresentation(val1, false), s:"\c- ", l:"IATTR_TX57S");
 
 		case INV_EX_LESSDMGTAKENMAXOVERHEAT:
 			if(showDetailedMods)
-				return StrParam(l:"IATTR_TX62", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX62S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:"IATTR_TX62", s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:"IATTR_TX62S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:"IATTR_TX62", s:col_tag, s:" ", d:val1, s:"%\c- ", l:"IATTR_TX62S");
 		
 		case INV_EX_CHANCEGAINXCHARGE:
 			if(showDetailedMods)
-				return StrParam(s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text, s:" ", s:col_tag, l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(s:col_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text, s:" ", s:col_tag, l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(s:col_tag, d:val1, s:"%\c- ", l:text, s:" ", s:col_tag, l:StrParam(s:"LCHARGE_", d:val2), s: "\c- ", l:"IATTR_TX69S");
 		
 		// single text things, no mod ranges, just tier U
@@ -1052,7 +1106,7 @@ str GetItemAttributeText(
 		case INV_EX_RIPPERSRIPALL:
 		case INV_EX_MIRROROTHERMEDIUM:
 			if(showDetailedMods)
-				return StrParam(l:text, s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(l:text, s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(l:text);
 		
 		case INV_EX_LIMITEDSMALLCHARMS:
@@ -1061,11 +1115,11 @@ str GetItemAttributeText(
 				if(val1 > 1)
 					return StrParam(
 						l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2",
-						s:" - ", s:GetModTierText(tier, extra)
+						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				return StrParam(
 					l:text, s:col_tag, s:" ", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s: "\c- ", l:"IATTR_TX29_2S",
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			if(val1 > 1)
@@ -1082,7 +1136,7 @@ str GetItemAttributeText(
 			if(showDetailedMods) {
 				return StrParam(
 					s:"+\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c- ", l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+\c[Q9]", d:val1, s:"\c- ", l:text);
@@ -1093,7 +1147,7 @@ str GetItemAttributeText(
 				if(showDetailedMods) {
 					return StrParam(
 						s:"-\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
-						s:" - ", s:GetModTierText(tier, extra)
+						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(s:"-\cg", d:val1, s:"%\c[D4] ", l:text);
@@ -1104,7 +1158,7 @@ str GetItemAttributeText(
 		case INV_EX_DMGINCREASE_TAKEN:
 			if(showDetailedMods) {
 				return StrParam(s:"+\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+\cg", d:val1, s:"%\c[D4] ", l:text);
@@ -1113,14 +1167,14 @@ str GetItemAttributeText(
 		case INV_EX_AMMOCOSTMULTIPLIER:
 			if(showDetailedMods) {
 				return StrParam(s:"+\cg", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"\c[D4] ", l:text,
-					s:" - ", s:GetModTierText(tier, extra)
+					s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 				);
 			}
 			return StrParam(s:"+\cg", d:val1, s:"%\c[D4] ", l:text);
 
 		case INV_EX_MOREAMMOUSE:
 			if(showDetailedMods)
-				return StrParam(s:"\c[D4] ", l:text, s:" ", s:bad_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:"IATTR_TX35S", s:" - ", s:GetModTierText(tier, extra));
+				return StrParam(s:"\c[D4] ", l:text, s:" ", s:bad_tag, d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c[D4] ", l:"IATTR_TX35S", s:" - ", s:GetModTierText(attr, item_type, tier, extra));
 			return StrParam(s:"\c[D4] ", l:text, s:" ", s:bad_tag, d:val1, s:"%\c[D4] ", l:"IATTR_TX35S");
 			
 		// single text negative effects
@@ -1130,7 +1184,7 @@ str GetItemAttributeText(
 		case INV_EX_RIPPERSONETIMEONLY:
 		case INV_EX_CHARGEDURATIONHALVED:
 			if(showDetailedMods) {
-				return StrParam(s:"\c[D4]", l:text, s:"\c- - ", s:GetModTierText(tier, extra));
+				return StrParam(s:"\c[D4]", l:text, s:"\c- - ", s:GetModTierText(attr, item_type, tier, extra));
 			}
 			return StrParam(s:"\c[D4]", l:text);
 		
@@ -1140,7 +1194,7 @@ str GetItemAttributeText(
 				if(showDetailedMods) {
 					return StrParam(
 						s:"+\c[Q9]", d:val1, s:GetDetailedModRange_Unique(tier, 0, extra), s:"%\c- ", l:text,
-						s:" - ", s:GetModTierText(tier, extra)
+						s:" - ", s:GetModTierText(attr, item_type, tier, extra)
 					);
 				}
 				return StrParam(s:"+\c[Q9]", d:val1, s:"%\c- ", l:text);

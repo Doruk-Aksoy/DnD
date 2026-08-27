@@ -63,7 +63,7 @@ IATTR_FLASK4        = "increased effect";                   IATTR_FLASK4X = "red
 IATTR_FLASK5        = "increased effect duration";
 IATTR_FLASK6        = "Immunity to bleeding during effect";
 IATTR_FLASK7        = "Immunity to poison during effect";
-IATTR_FLASK8        = "Immunity to shock during effect";
+IATTR_FLASK8        = "Immunity to overload during effect";
 IATTR_FLASK9        = "Immunity to ignite during effect";
 IATTR_FLASK10       = "Immunity to chill and freeze during effect";
 IATTR_FLASK11       = "chance to gain a flask charge on critical hit";

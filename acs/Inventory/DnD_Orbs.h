@@ -63,14 +63,15 @@ int GetOrbDropWeight(int id) {
 	return OrbDropWeights[id];
 }
 
-// Orb of Potency gets less reliable the higher the tier it is being asked to push, so the last step
-// onto a perfect roll is the expensive one. Linear from DND_POTENCY_CHANCE at tier 0 down to
-// DND_POTENCY_MINCHANCE at MAX_CHARM_AFFIXTIERS - 1, which is the tier a perfect mod is pushed FROM.
-// Luck still applies on top, in RunLuckBasedChance.
-int GetPotencyChance(int tier) {
+// Two independent factors. The ramp is "pushing higher is harder" -- linear from DND_POTENCY_CHANCE
+// down to DND_POTENCY_MINCHANCE, on the NORMALISED tier so a short ladder is not cheaper than a long
+// one. The target tier's weight is "this step is rare" and scales the whole thing. Luck still
+// applies on top, in RunLuckBasedChance.
+int GetPotencyChance(int attr, int item_type, int from_tier) {
 	int last = MAX_CHARM_AFFIXTIERS - 1;
-	tier = Clamp_Between(tier, 0, last);
-	return DND_POTENCY_CHANCE - (DND_POTENCY_CHANCE - DND_POTENCY_MINCHANCE) * tier / last;
+	int t = Clamp_Between(GetModTierNormalized(attr, item_type, from_tier), 0, last);
+	int chance = DND_POTENCY_CHANCE - (DND_POTENCY_CHANCE - DND_POTENCY_MINCHANCE) * t / last;
+	return chance * GetModTierWeight(attr, item_type, from_tier + 1) / DND_TIER_WEIGHT_MAX;
 }
 
 #define ORB_MAXWEIGHT 1000
@@ -224,7 +225,6 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 		break;
 		case DND_ORB_POTENCY:
 			item = GetPlayerInventoryItem(pnum, extra);
-			j = GetHighestTierModNaturalOnItem(pnum, extra);
 			if(!IsInventoryCorrupted(pnum, extra) && item.item_type < UNIQUE_BEGIN) {
 				temp = item.attrib_count;
 				res = false;
@@ -232,8 +232,8 @@ bool CanUseOrb(int orbtype, int extra, int extratype) {
 					if(item.attributes[i].fractured)
 						continue;
 
-					// only accept if natural allowed tier is higher than the attrib
-					if(item.attributes[i].attrib_tier < j)
+					// only accept if the mod's own ceiling is above where it sits
+					if(item.attributes[i].attrib_tier < GetModPotencyCeiling(item.attributes[i].attrib_id, item.item_type, item.item_level))
 						res = true;
 				}
 			}
@@ -303,7 +303,8 @@ void HandleAddRandomMod(int pnum, int item_index, int add_lim, bool isWellRolled
 				special_roll, 
 				item.implicit[0].attrib_id,
 				CheckInventory("OrderStored"),
-				item.item_base
+				item.item_base,
+				item.item_level
 			);
 		} while(temp != -1 && CheckItemAttribute(pnum, item_index, temp, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, i) != -1);
 
@@ -457,19 +458,15 @@ int CheckOrderOrb(int attribute_id) {
 	return ItemModTable[attribute_id].tags & (1 << stored_tag);
 }
 
-// Is there anything on this item the banked order tag can actually land on?
-// CheckOrderOrb returns 0 only for "a tag is banked and this mod does not carry it", so a pick loop
-// that retries on !CheckOrderOrb has no exit at all on an item where nothing carries that tag -- and
-// written as "!CheckOrderOrb(...) || attempts++ < MAX" the counter sits behind a short circuit and is
-// never even reached, so it cannot bound anything. The engine kills the orb script as a runaway, which
-// is why the orb still gets consumed while the item is untouched and OrderStored stays set to do the
-// same to the next orb. Reported case: order -> fortitude (which only banks the tag, it does not
-// reforge) -> sin on a charm carrying no defense mod.
+// Is there anything on this item the banked order tag can actually land on? CheckOrderOrb returns
+// 0 for "banked but this mod lacks it", so a pick loop retrying on !CheckOrderOrb has no exit at
+// all when nothing carries the tag -- and written as "!CheckOrderOrb(...) || attempts++ < MAX" the
+// counter sits behind a short circuit and cannot bound anything. The engine then kills the orb
+// script as a runaway, consuming the orb while leaving the item untouched and OrderStored set.
 //
-// skip_fractured drops the mods the caller cannot touch anyway, and tier_ceiling >= 0 keeps only mods
-// below it, which is potency's case -- one already at the ceiling is not something it can act on.
-// Returns true when nothing is banked at all, ie. the unfiltered case.
-bool HasOrderMatchingMod(int pnum, int item_pos, bool skip_fractured = false, int tier_ceiling = -1) {
+// skip_fractured drops mods the caller cannot touch; potency_ceiling keeps only mods below their
+// OWN ceiling. Returns true when nothing is banked, ie. the unfiltered case.
+bool HasOrderMatchingMod(int pnum, int item_pos, bool skip_fractured = false, bool potency_ceiling = false) {
 	if(!CheckInventory("OrderStored"))
 		return true;
 
@@ -478,12 +475,14 @@ bool HasOrderMatchingMod(int pnum, int item_pos, bool skip_fractured = false, in
 		if(skip_fractured && item.attributes[i].fractured)
 			continue;
 
-		if(tier_ceiling >= 0 && item.attributes[i].attrib_tier >= tier_ceiling)
+		if(potency_ceiling && item.attributes[i].attrib_tier >= GetModPotencyCeiling(item.attributes[i].attrib_id, item.item_type, item.item_level))
 			continue;
 
-		// unique-only mod ids run past the end of ItemModTable, which is what CheckOrderOrb indexes --
-		// the refinement orb guards its own tag test the same way
-		if(item.attributes[i].attrib_id > LAST_INV_ATTRIBUTE)
+	// ItemModTable is sized UNIQUE_ATTRIB_ID_BEGIN, so unique ids are the ONLY ones past its end.
+	// Everything below it is in the table and tagged -- essences (1500), incursions (2000), flask
+	// mods (2400). Bounding at LAST_INV_ATTRIBUTE threw those away, so an item whose only life mod
+	// was INV_INC_MOREHPBONUS read as unsatisfiable and sin fractured an unrelated fire mod.
+		if(item.attributes[i].attrib_id >= UNIQUE_ATTRIB_ID_BEGIN)
 			continue;
 
 		if(CheckOrderOrb(item.attributes[i].attrib_id) > 0)
@@ -493,13 +492,48 @@ bool HasOrderMatchingMod(int pnum, int item_pos, bool skip_fractured = false, in
 	return false;
 }
 
-// A banked tag the item cannot satisfy is dropped rather than enforced, so the orb goes on to do what
-// it would have done with no order at all -- a plain random pick -- instead of spinning on a filter
-// nothing can match. Call this before any pick loop that filters on CheckOrderOrb, passing the same
-// rejections that loop applies, so "satisfiable" here means the same thing it does there.
-void ClearUnsatisfiableOrder(int pnum, int item_pos, bool skip_fractured = false, int tier_ceiling = -1) {
-	if(!HasOrderMatchingMod(pnum, item_pos, skip_fractured, tier_ceiling))
+// A banked tag the item cannot satisfy is dropped rather than enforced, so the orb does what it
+// would with no order at all. Call before any pick loop filtering on CheckOrderOrb, with the same
+// rejections that loop applies.
+void ClearUnsatisfiableOrder(int pnum, int item_pos, bool skip_fractured = false, bool potency_ceiling = false) {
+	if(!HasOrderMatchingMod(pnum, item_pos, skip_fractured, potency_ceiling))
 		SetInventory("OrderStored", 0);
+}
+
+// Which mod Potency pushes, weighted by the tier being pushed INTO so a rare step is drawn less
+// often. Replaces a bounded rejection loop that could spend its budget and leave the caller on an
+// ineligible mod. -1 when nothing on the item can be pushed at all.
+int PickPotencyTarget(int pnum, int item_pos) {
+	auto item = GetPlayerInventoryItem(pnum, item_pos);
+	int w[MAX_ITEM_ATTRIBUTES];
+	int i, total = 0;
+	int count = item.attrib_count;
+
+	for(i = 0; i < count; ++i) {
+		w[i] = 0;
+
+		if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
+			continue;
+
+		int t = item.attributes[i].attrib_tier;
+		if(t >= GetModPotencyCeiling(item.attributes[i].attrib_id, item.item_type, item.item_level))
+			continue;
+
+		w[i] = GetModTierWeight(item.attributes[i].attrib_id, item.item_type, t + 1);
+		total += w[i];
+	}
+
+	if(total <= 0)
+		return -1;
+
+	int roll = random(1, total);
+	for(i = 0; i < count; ++i) {
+		roll -= w[i];
+		if(roll <= 0)
+			return i;
+	}
+
+	return -1;
 }
 
 // extra holds item position
@@ -622,21 +656,25 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			for(s = 0; s < affluence && item.attrib_count; ++s) {
 				// find the attribute with the lowest tier, in case of multiple, return a random one
 				res = 0;
-				temp = MAX_CHARM_AFFIXTIERS;
+
+				// one PAST the top, or an item whose mods are all maxed yields no minimum at all
+				temp = MAX_CHARM_AFFIXTIERS + 1;
 				for(i = 0; i < item.attrib_count; ++i) {
 					// ignore the fractured mods
 					if(item.attributes[i].fractured || !CheckOrderOrb(item.attributes[i].attrib_id))
 						continue;
 
-					if(item.attributes[i].attrib_tier < temp) {
+					// normalised, because ladder lengths differ
+					prev = GetModTierNormalized(item.attributes[i].attrib_id, item.item_type, item.attributes[i].attrib_tier);
+					if(prev < temp) {
 						// we use res to hold the count of elements in this temporary array
 						// reset current count if we found a new minimum, then add it to our array
 
 						res = 0;
 						TempArray[TARR_ORB1][res++] = i;
-						temp = item.attributes[i].attrib_tier;
+						temp = prev;
 					}
-					else if(item.attributes[i].attrib_tier == temp) // if equal to current min, store it
+					else if(prev == temp) // if equal to current min, store it
 						TempArray[TARR_ORB1][res++] = i;
 				}
 
@@ -666,22 +704,18 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 			SaveUsedItemAttribs(pnum, extra);
 			item = GetPlayerInventoryItem(pnum, extra);
 
-			// if no mod carries the banked tag, drop it and fracture a random one, exactly as this would
-			// have run with no order at all
+			// no mod carries the banked tag: drop it and fracture at random, as if no order was used
 			ClearUnsatisfiableOrder(pnum, extra);
 
-			// pick random attribute to fracture
-			// if order orb is used, attempt to pick attribute that matches tag -- the retry budget bounds it
-			// The && is load bearing: as a || the counter sat behind a short circuit and was never evaluated
-			// while the pick missed the tag, so the loop had no exit at all. See HasOrderMatchingMod.
+			// pick a random attribute to fracture, preferring the stored tag; the retry budget bounds it.
+			// The && is load bearing -- as a || the counter sat behind a short circuit.
 			temp = 0;
 			do {
 				s = random(0, item.attrib_count - 1);
 			} while(!CheckOrderOrb(item.attributes[s].attrib_id) && temp++ < DND_MAX_ORB_REROLL_ATTEMPTS);
 
-			// a spent budget can leave s on a mod the tag does not cover, and a fracture is permanent and
-			// one per item -- do not lock a mod the player did not ask for. This has to be tested BEFORE
-			// the tag is cleared below, or CheckOrderOrb reports "no order" and waves everything through.
+			// A spent budget can leave s on a mod the tag does not cover, and a fracture is permanent.
+			// Must be tested BEFORE the tag is cleared below.
 			if(CheckOrderOrb(item.attributes[s].attrib_id))
 				item.attributes[s].fractured = true;
 
@@ -707,13 +741,30 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 				temp = (item.item_type >> UNIQUE_BITS) - 1;
 				for(res = 0; res < s; ++res) {
 					for(i = 0; i < item.attrib_count; ++i) {
-						// if its not a regular attribute that can have tags we shouldn't consider
-						if(IsUniqueModRerollException(item.attributes[i].attrib_id) || (item.attributes[i].attrib_id <= LAST_INV_ATTRIBUTE && !CheckOrderOrb(item.attributes[i].attrib_id)))
+						// only mods that can carry tags -- same bound as HasOrderMatchingMod
+						if(IsUniqueModRerollException(item.attributes[i].attrib_id) || (item.attributes[i].attrib_id < UNIQUE_ATTRIB_ID_BEGIN && !CheckOrderOrb(item.attributes[i].attrib_id)))
 							continue;
 
 						item.attributes[i].attrib_val = RollUniqueAttributeValue(temp, i, CheckWellRolled(pnum));
-						if(item.attributes[i].attrib_extra)
+
+						// Two conditions, and both are load bearing.
+						//
+						// The exception list holds extras that are an IDENTITY rather than a magnitude,
+						// so a player cannot reroll until they get the charge type they wanted. The
+						// mod's VALUE still rerolls on the line above.
+						//
+						// The range test then asks whether the mod declares an extra at all. It reads
+						// the RANGE rather than the current value because an extra that legitimately
+						// rolled to 0 would otherwise be unrerollable for the life of the item.
+						// A mod with no extra is 0..0 and stays skipped.
+						if
+						(
+							!IsUniqueExtraRerollException(item.attributes[i].attrib_id) &&
+							(UniqueItemList[temp].rolls[i].attrib_extra_low || UniqueItemList[temp].rolls[i].attrib_extra_high)
+						)
+						{
 							item.attributes[i].attrib_extra = RollUniqueAttributeExtra(temp, i, CheckWellRolled(pnum));
+						}
 					}
 				}
 			}
@@ -771,9 +822,8 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 
 			temp = 0;
 			for(s = 0; s < affluence && item.attrib_count; ++s) {
-				// reroll if fractured, or if it misses the stored order tag -- both rejections have to sit
-				// on the same side of the retry budget, or a miss short circuits past the counter and the
-				// loop never ends. See HasOrderMatchingMod.
+				// Both rejections must sit on the same side of the retry budget, or a miss short circuits
+				// past the counter and the loop never ends.
 				do {
 					res = random(0, item.attrib_count - 1);
 				} while((!CheckOrderOrb(item.attributes[res].attrib_id) || item.attributes[res].fractured) && temp++ < DND_MAX_ORB_REROLL_ATTEMPTS);
@@ -811,52 +861,32 @@ void HandleOrbUse (int pnum, int orbtype, int extra, int extra2 = -1) {
 		case DND_ORB_POTENCY:
 			res = 0;
 
-			// get the highest tier mod's tier and save it here, check if we go above it and hold the old value
-			prev = GetHighestTierModNaturalOnItem(pnum, extra);
-
-			// if no unfractured mod below the ceiling carries the banked tag, drop it and push a random one
-			ClearUnsatisfiableOrder(pnum, extra, true, prev);
+			// if no unfractured mod below its own ceiling carries the banked tag, drop it
+			ClearUnsatisfiableOrder(pnum, extra, true, true);
 
 			// save
 			SaveUsedItemAttribs(pnum, extra);
 			item = GetPlayerInventoryItem(pnum, extra);
 			for(i = 0; i < affluence; ++i) {
-				// failsafe, if it tried it 100 times there's a really good chance the item now has perfect tiers... don't bother
-				s = 0;
+				// weighted, and it cannot hand back an ineligible mod -- so no retry budget to spend
+				temp = PickPotencyTarget(pnum, extra);
+				if(temp == -1)
+					break;
 
-				// every rejection reason sits inside the budget. Missing the order tag used to sit outside
-				// it, short circuiting past s++ entirely, so the loop had no exit at all when nothing on
-				// the item carried the tag. See HasOrderMatchingMod.
-				do {
-					temp = random(0, item.attrib_count - 1);
-				} while(
-					(
-						!CheckOrderOrb(item.attributes[temp].attrib_id) ||
-						item.attributes[temp].attrib_tier >= prev ||
-						item.attributes[temp].fractured
-					) &&
-					s++ < DND_MAX_ORB_REROLL_ATTEMPTS
-				);
-
-				// The mod is picked BEFORE the chance is rolled now: the odds depend on the tier being
-				// pushed, so there is nothing to roll against until we know which mod we drew. Destiny
-				// still forces the success outright.
-				if(!RunLuckBasedChance(pnum, GetPotencyChance(item.attributes[temp].attrib_tier)) && !CheckInventory("DestinyUsed"))
+				// Picked BEFORE the chance is rolled: the odds depend on the tier being pushed, so there is
+				// nothing to roll against until we know which mod we drew. Destiny still forces it.
+				if(!RunLuckBasedChance(pnum, GetPotencyChance(item.attributes[temp].attrib_id, item.item_type, item.attributes[temp].attrib_tier)) && !CheckInventory("DestinyUsed"))
 					continue;
 
-				// increment the tier and reroll that attribute! a spent budget can leave temp on a mod that
-				// fails one of the tests above, so all of them are re-checked here
-				if(!item.attributes[temp].fractured && item.attributes[temp].attrib_tier < prev && CheckOrderOrb(item.attributes[temp].attrib_id)) {
-					++item.attributes[temp].attrib_tier;
-					item.attributes[temp].attrib_val = RollAttributeValue(
-						item.attributes[temp].attrib_id,
-						item.attributes[temp].attrib_tier,
-						false,
-						item.item_type,
-						item.item_subtype
-					);
-					++res;
-				}
+				++item.attributes[temp].attrib_tier;
+				item.attributes[temp].attrib_val = RollAttributeValue(
+					item.attributes[temp].attrib_id,
+					item.attributes[temp].attrib_tier,
+					false,
+					item.item_type,
+					item.item_subtype
+				);
+				++res;
 			}
 
 			SetInventory("OrderStored", 0);
@@ -1842,11 +1872,8 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		break;
 
 		case DND_ORB_SCULPTING:
-			// The preview has to widen exactly where the orb will widen. ClearUnsatisfiableOrder drops a
-			// tag this item cannot satisfy and the pick then covers every mod, so showing none of them
-			// here would advertise a filter the orb is not going to apply. Note this is the read only
-			// twin: the hover path runs every frame the cursor sits on an item and must NOT touch
-			// OrderStored, so it asks the same question without clearing anything.
+			// Preview has to widen exactly where the orb widens: ClearUnsatisfiableOrder drops a tag the
+			// item cannot satisfy. Read only twin -- the hover path must NOT touch OrderStored.
 			honor_order = HasOrderMatchingMod(pnum, item_pos, true);
 			item = GetPlayerInventoryItem(pnum, item_pos);
 			for(i = 0; i < item.attrib_count; ++i) {
@@ -1865,12 +1892,10 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		case DND_ORB_REFINEMENT:
 		case DND_ORB_SIN:
 		case DND_ORB_POTENCY:
-			// as above. Refinement is the exception in this group: it still enforces the tag whatever the
-			// item carries, so it previews as nothing affected, which is exactly what it will do.
-			// Potency's satisfiability includes the tier ceiling, since a mod already sitting on it is not
-			// something the orb can lift either.
+			// as above. Refinement is the exception: it enforces the tag whatever the item carries, so it
+			// previews as nothing affected. Potency also weighs the tier ceiling.
 			honor_order =	orb_type == DND_ORB_REFINEMENT ||
-							HasOrderMatchingMod(pnum, item_pos, true, orb_type == DND_ORB_POTENCY ? GetHighestTierModNaturalOnItem(pnum, item_pos) : -1);
+							HasOrderMatchingMod(pnum, item_pos, true, orb_type == DND_ORB_POTENCY);
 			item = GetPlayerInventoryItem(pnum, item_pos);
 			for(i = 0; i < item.attrib_count; ++i) {
 				if(item.attributes[i].fractured || (honor_order && !CheckOrderOrb(item.attributes[i].attrib_id)))
@@ -1883,7 +1908,7 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 		case DND_ORB_NULLIFICATION:
 			// find the attribute with the lowest tier, in case of multiple, return a random one
 			hovered_orb_craft_result.count = 0;
-			temp = MAX_CHARM_AFFIXTIERS;
+			temp = MAX_CHARM_AFFIXTIERS + 1;
 			// as above -- widen the preview wherever the orb itself will widen
 			honor_order = HasOrderMatchingMod(pnum, item_pos, true);
 			item = GetPlayerInventoryItem(pnum, item_pos);
@@ -1892,15 +1917,16 @@ void GetOrbAffectedIds(int orb_type, int pnum, int item_pos, int source) {
 				if(item.attributes[i].fractured || (honor_order && !CheckOrderOrb(item.attributes[i].attrib_id)))
 					continue;
 
-				if(item.attributes[i].attrib_tier < temp) {
+				j = GetModTierNormalized(item.attributes[i].attrib_id, item.item_type, item.attributes[i].attrib_tier);
+				if(j < temp) {
 					// we use count to hold the count of elements in this temporary array
 					// reset current count if we found a new minimum, then add it to our array
 
 					hovered_orb_craft_result.count = 0;
 					hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
-					temp = item.attributes[i].attrib_tier;
+					temp = j;
 				}
-				else if(item.attributes[i].attrib_tier == temp) // if equal to current min, store it
+				else if(j == temp) // if equal to current min, store it
 					hovered_orb_craft_result.id_list[hovered_orb_craft_result.count++] = i;
 			}
 			hovered_orb_craft_result.effect_type = DND_ORBEFFECT_WHOLE;

@@ -647,6 +647,15 @@ buff_dmg_xform_T module& GetPlayerBuffDamageXform(int pnum) {
     return xform[pnum];
 }
 
+// 1.0 is the neutral sentinel for buff_net_values.multiplicative everywhere else in the buff system
+// -- ResetPlayerBuffs writes it, and the "is this buff doing anything" tests compare against it. So a
+// non-positive value here is an UNWRITTEN slot, not a x0. Folding one as-is yields
+// DND_PACKED_MULT_ZERO, ApplyPackedMultiplier turns that into a hard zero on the WHOLE tic, and the
+// heal back in "DnD Damage Accumulate" then refunds every point of damage the player dealt.
+int SafeBuffFactor(int factor) {
+    return factor > 0 ? factor : 1.0;
+}
+
 void RecomputePlayerBuffDamageXform(int pnum) {
     buff_dmg_xform_T module& x = GetPlayerBuffDamageXform(pnum);
 
@@ -657,23 +666,31 @@ void RecomputePlayerBuffDamageXform(int pnum) {
                                pbuffs[pnum].buff_net_values[BUFF_SULPHUR].additive);
 
     int p = DND_PACKED_MULT_IDENTITY;
-    p = CombinePackedMultiplier(p, pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].multiplicative);
-    p = CombinePackedMultiplier(p, pbuffs[pnum].buff_net_values[BUFF_FRENZYCHARGE].multiplicative);
-    p = CombinePackedMultiplier(p, pbuffs[pnum].buff_net_values[BUFF_RALLY].multiplicative);
+    p = CombinePackedMultiplier(p, SafeBuffFactor(pbuffs[pnum].buff_net_values[BUFF_DAMAGEDEALT].multiplicative));
+    p = CombinePackedMultiplier(p, SafeBuffFactor(pbuffs[pnum].buff_net_values[BUFF_FRENZYCHARGE].multiplicative));
+    p = CombinePackedMultiplier(p, SafeBuffFactor(pbuffs[pnum].buff_net_values[BUFF_RALLY].multiplicative));
     x.mul_packed = p;
 
     for(int i = 0; i < DND_ELEMENTAL_DMGBUFF_COUNT; ++i)
-        x.ele_packed[i] = CombinePackedMultiplier(DND_PACKED_MULT_IDENTITY, pbuffs[pnum].buff_net_values[DND_FIRST_ELEMENTAL_DMGBUFF + i].multiplicative);
+        x.ele_packed[i] = CombinePackedMultiplier(DND_PACKED_MULT_IDENTITY, SafeBuffFactor(pbuffs[pnum].buff_net_values[DND_FIRST_ELEMENTAL_DMGBUFF + i].multiplicative));
 
     pbuffs[pnum].dmg_xform_dirty = false;
 }
 
-// The !mul_packed test is a self-initialisation backstop, not decoration: the
-// static array starts zeroed, and a packed 0 means "hard zero", so without it a
-// player would deal no damage until their first buff event. A genuine hard zero
-// simply recomputes to zero again, which is free.
+// The packed-zero tests are self-initialisation backstops, not decoration: the static array starts
+// zeroed and a packed 0 means "hard zero", so without them a player deals no damage until their first
+// buff event. ele_packed needs the same test as mul_packed -- a zeroed elemental entry is a permanent
+// x0 on that element and nothing else would ever clear it.
 bool PlayerBuffDamageXformNeedsRecompute(int pnum) {
-    return pbuffs[pnum].dmg_xform_dirty || !GetPlayerBuffDamageXform(pnum).mul_packed;
+    if(pbuffs[pnum].dmg_xform_dirty || !GetPlayerBuffDamageXform(pnum).mul_packed)
+        return true;
+
+    for(int i = 0; i < DND_ELEMENTAL_DMGBUFF_COUNT; ++i) {
+        if(!GetPlayerBuffDamageXform(pnum).ele_packed[i])
+            return true;
+    }
+
+    return false;
 }
 
 int GetPlayerBuffIncreasedDamage(int pnum) {

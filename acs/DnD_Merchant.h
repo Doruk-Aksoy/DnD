@@ -124,11 +124,11 @@ void AddAttributeToMerchant(int item_pos, int attrib, int max_affixes = 0) {
 		max_affixes = GetMaxItemAffixes(item.item_type, item.item_subtype);
 	if(item.attrib_count < max_affixes) {
 		int temp = item.attrib_count++;
-		int lvl = GetItemTier(item.item_level);
+		int lvl = GetModTierForLevel(attrib, item.item_type, item.item_level);
 		
 		bool makeWellRolled = CheckWellRolled(MAXPLAYERS);
 		
-		lvl = GetItemTierRoll(lvl, makeWellRolled);
+		lvl = RollModTier(attrib, item.item_type, lvl, makeWellRolled);
 
 		item.attributes[temp].attrib_tier = lvl;
 		item.attributes[temp].attrib_id = attrib;
@@ -212,7 +212,7 @@ void RollArmorInfoOnMerchant(int item_pos, int item_tier, int item_type, int arm
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id, synergy_roll, item.item_base);
+			roll = PickRandomAttribute(item_type, armor_type, special_roll, item.implicit[0].attrib_id, synergy_roll, item.item_base, item.item_level);
 			if(roll == -1)
 				break;
 			if(max_tries-- < 0)
@@ -521,7 +521,7 @@ int RollSpecialtyItemInfoOnMerchant(int item_pos, int ilvl, int itype) {
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base);
+			roll = PickRandomAttribute(itype, sub_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base, item.item_level);
 		} while(roll != -1 && CheckItemAttribute(MAXPLAYERS, item_pos, roll, DND_SYNC_ITEMSOURCE_TRADEVIEW, count) != -1);
 
 		if(roll == -1)
@@ -557,7 +557,7 @@ void RollCharmInfoOnMerchant(int charm_pos, int charm_type, int charm_tier) {
 	while(i < count) {
 		int max_tries = 10;
 		do {
-			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll, DND_ITEMBASE_CHARM);
+			roll = PickRandomAttribute(DND_ITEM_CHARM, charm_type, 0, -1, synergy_roll, DND_ITEMBASE_CHARM, item.item_level);
 
 			// in case there's synergy with not enough mods available for a tag or unlucky rolls, opt out of synergy roll immediately
 			--max_tries;

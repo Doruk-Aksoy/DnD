@@ -327,8 +327,7 @@ str GetDetailedDungeonModRange(int attr, int tier, int trunc_factor = 0, int ext
 	if(extra != -1)
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
 	
-	// limit this to here at t10...
-	str col_tag = GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE);
+	str col_tag = GetCharmString(GetModTierColourIndex(attr, DND_ITEM_DUNGEONKEY, tier), CHARMSTR_COLORCODE);
 	int tier_mapping = GetDungeonModTierRangeMapper(attr, tier);
 	
 	if(!trunc_factor) {
@@ -351,8 +350,7 @@ str GetDetailedDungeonModRangeExtra(int attr, int base_mod, int tier, int trunc_
 	if(extra != -1)
 		return GetDetailedModRange_Unique(tier, trunc_factor, extra, isPercentage);
 	
-	// limit this to here at t10...
-	str col_tag = GetCharmString(Clamp_Between(tier, 0, 9), CHARMSTR_COLORCODE);
+	str col_tag = GetCharmString(GetModTierColourIndex(attr, DND_ITEM_DUNGEONKEY, tier), CHARMSTR_COLORCODE);
 	int tier_mapping = GetDungeonModTierRangeMapperExtra(base_mod, tier);
 	int scale_factor_low = 0, scale_factor_high = 0;
 	if(tier_mapping != -1) {
@@ -570,7 +568,7 @@ str DungeonUpsideString(int id, int val, bool showDetailedMods = false, int attr
 			
 			return StrParam(
 				l:"DUNATTR_UPSIDE_7", s:" ", s:col_tag, s:"+", d:val, s:GetDetailedDungeonModRangeExtra(id, attr, tier),
-				s:no_tag, s:" ", l:"DUNATTR_UPSIDE_7_2", s:" - ", s:GetModTierText(tier, extra)
+				s:no_tag, s:" ", l:"DUNATTR_UPSIDE_7_2", s:" - ", s:GetModTierText(attr, DND_ITEM_DUNGEONKEY, tier, extra)
 			);
 	}
 
@@ -580,7 +578,7 @@ str DungeonUpsideString(int id, int val, bool showDetailedMods = false, int attr
 	return StrParam(
 		s:"+", s:col_tag, d:val, s:GetDetailedDungeonModRangeExtra(id, attr, tier), s:"% ", s:no_tag, 
 		l:StrParam(s:"DUNATTR_UPSIDE_", d:id), 
-		s:" - ", s:GetModTierText(tier, extra)
+		s:" - ", s:GetModTierText(attr, DND_ITEM_DUNGEONKEY, tier, extra)
 	);
 }
 

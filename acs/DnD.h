@@ -1212,16 +1212,16 @@ int ScaleMonster(int tid, int m_id, int pcount, int realhp, bool isSummoned, int
 		// % increase per player adding
 		if(GetCVar("dnd_playercount_scales_monsters"))
 			add += DND_MONSTERHP_PLAYERSCALE * (Clamp_Between(pcount - 1, 0, DND_MAX_PLAYERHPSCALE));
-		
-		add = base * add / 100;
 
+		// Folded into the PERCENT, where the numbers are small. Applied after `add` became a health
+		// figure it had nothing to spare. Identical arithmetic: base*pct*(100+t)/10000.
 		if((temp = HasDungeonAttributeVal(DUN_ATTR_EXTRAHP)) != -1)
 			add = add * (100 + temp) / 100;
 
-		// add level factor to it
-		// first overflow check
-		if(add > bcs::INT_MAX - base)
-			add = bcs::INT_MAX - base;
+		// Bounds the percent, then multiplies without forming an intermediate that can wrap. The old
+		// `add = base * add / 100` wrapped HERE, and the INT_MAX check that followed it was reading a
+		// number that had already gone negative -- see ApplyHPScale.
+		add = ApplyHPScale(base, add);
 	}
 
 	if(CheckMapEvent(DND_MAPEVENT_NOINFIGHTING)) {

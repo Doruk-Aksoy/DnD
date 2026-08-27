@@ -36,7 +36,7 @@ traildef_T DnD_TrailDef[MAXTRAILACTORS] = {
 #define OVERLOAD_DENSITY 4
 #define OVERLOAD_TZ 36.0
 
-void bubblesort(int[]* list, int len) {
+void bubblesort(int[]? list, int len) {
    while (len) {
       int i = 0;
       int k = len - 1;

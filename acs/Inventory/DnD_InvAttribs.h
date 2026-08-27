@@ -5,15 +5,12 @@
 #include "DnD_ItemBase.h"
 #include "../DnD_WeaponDefs.h"
 
-// The base tier an item level grants, before GetItemTierRoll's +1/-N shuffle. This is the ONE place
-// that conversion lives -- every site that assigns an attrib_tier goes through here (field drops,
-// inventory adds, merchant stock) and GetHighestTierModNaturalOnItem derives the Potency ceiling from
-// it. Two of those used to divide by CHARM_ATTRIBLEVEL_SEPERATOR by hand without the clamp, which let
-// an ilvl 100 drop hand out a base tier of 10 while the same mod added later by an orb started at 9.
+#define CRUSADER_HELM_CHANCE 0.15
+
+// Names an item by its level -- the charm tier header and its colour. NOT for mod tiers: those
+// have per-mod ladders now and go through GetModTierForLevel in DnD_ModTiers.h.
 //
-// MAX_ATTRIBUTE_TIERS (9) is the ceiling on purpose: it is the highest base an item level may grant.
-// MAX_CHARM_AFFIXTIERS (10) is the absolute ceiling, and the last step onto it is meant to be earned
-// -- the 10% up roll, or Orb of Potency.
+// MAX_ATTRIBUTE_TIERS (9) is the ceiling on purpose: the highest base an item level may name.
 int GetItemTier(int level) {
 	int res = level / CHARM_ATTRIBLEVEL_SEPERATOR;
 	if(res > MAX_ATTRIBUTE_TIERS)
@@ -120,6 +117,7 @@ bool IsSpecialRollRuleAttribute(int id) {
 }
 
 #include "DnD_InvAttribTable.h"
+#include "DnD_ModTiers.h"
 #include "DnD_ItemModPool.h"
 
 enum {
@@ -1234,8 +1232,29 @@ int ApplyQualityToAttribExtra(int extra, int qual, int attr) {
 	return extra;
 }
 
+// The whole mod is left alone by Orb of Refinement -- neither value nor extra is rerolled.
 bool IsUniqueModRerollException(int attr) {
 	switch(attr) {
+		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
+		return true;
+	}
+	return false;
+}
+
+// The mod's VALUE still rerolls; only its extra is fixed at drop. For extras that are an IDENTITY
+// rather than a magnitude -- a charge type -- so a player cannot reroll until they get the charge
+// they wanted.
+//
+// Deliberately NOT IsAttributeExtraException: that one answers "does quality and other scaling apply
+// to this extra", which is a different question with a different answer set. An extra can be
+// unscalable and still perfectly rerollable, and tying the two would mean a quality change silently
+// altering what crafting can do.
+bool IsUniqueExtraRerollException(int attr) {
+	switch(attr) {
+		case INV_EX_CHANCEGAINXCHARGE:
+
+		// already covered by IsUniqueModRerollException, listed because it belongs to this category
+		// too and should stay excluded if that one ever changes
 		case INV_EX_COUNTASHAVINGMAXCHARGEOF:
 		return true;
 	}

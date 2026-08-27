@@ -7,8 +7,8 @@
 	+ Additional 200 knockback resist and 5% health.
 	
 - Medic (2) [3]
-	* 20% increased effect of healing.
-	+ 20% additional effect of healing.
+	* 20% increased effect of healing on you.
+	+ 20% additional effect of healing on you.
 	
 - Vigour (3) [6]
 	* Gain 2 health regeneration per second up to your regeneration cap.
@@ -55,8 +55,8 @@
 	+ Additional 5% increased energy shield.
 	
 - Dense Shell (2) [9]
-	* 5% chance to defend with twice your armor on hits.
-	+ Additional 5% chance to defend with twice your armor on hits.
+	* 8% chance to defend with twice your armor on hits.
+	+ Additional 8% chance to defend with twice your armor on hits.
 	- Requires: Enhanced Iron.
 	
 - Wind Dancer (2) [9]

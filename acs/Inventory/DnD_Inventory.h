@@ -1833,6 +1833,7 @@ void DrawInventoryText(
 	int val, temp, lvl;
 	int yoff = 0.0;
 	bool showModTiers = GetCVar("dnd_detailedmods");
+	bool showModTags = GetCVar("dnd_showmodtags");
 	bool isUnique = false;
 
 	str tmp_text;
@@ -2023,6 +2024,7 @@ void DrawInventoryText(
 		(
 			item_vsync_data.isDirty || 
 			item_vsync_data.last_text_mode != showModTiers ||
+			item_vsync_data.last_tag_mode != showModTags ||
 			item_vsync_data.last_craft_vals != craftMaterialIdx
 		)
 		{
@@ -2057,6 +2059,7 @@ void DrawInventoryText(
 						val,
 						i == -1 ? (1 | (hovered_orb_craft_result.effect_type << 8)) : 0
 					),
+					s:showModTags ? GetModTagText(temp) : "",
 					s: j != attr_count - 1 ? "\n" : ""
 				);
 
@@ -2082,6 +2085,7 @@ void DrawInventoryText(
 
 			item_vsync_data.isDirty = false;
 			item_vsync_data.last_text_mode = showModTiers;
+			item_vsync_data.last_tag_mode = showModTags;
 			item_vsync_data.last_craft_vals = craftMaterialIdx;
 			item_vsync_data.textID = tmp_text;
 			item_vsync_data.attr_lines_count = CountNewLinesInText(tmp_text, HUD_ITEMBAK_WIDTH);
@@ -3275,18 +3279,6 @@ int GetCraftableItemCount() {
 	return res;
 }
 
-int GetItemTierRoll(int lvl, bool isWellRolled) {
-	// 10% chance to roll a tier up -- if well rolled 20%
-	if(!random(0, 9 - 5 * isWellRolled) || CheckInventory("ReveranceUsed"))
-		++lvl;
-	else // 0-1 do nothing, 2-3 is -1, 4-5 is -2 => if well rolled has only 33% chance for the tier to be a downgrade
-		lvl -= random(0, 9 - 3 * isWellRolled) / 2;
-
-	// clamp just in case
-	lvl = Clamp_Between(lvl, 0, MAX_CHARM_AFFIXTIERS);
-	return lvl;
-}
-
 // Orb of Assimilation is the only caller: it copies a mod off the donor at the tier the DONOR rolled
 // it, which can be above anything the host's own level could have produced.
 void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_tier, int a_extra = 0, bool a_fracture = false) {
@@ -3299,7 +3291,7 @@ void InsertAttributeToItem(int pnum, int item_pos, int a_id, int a_val, int a_ti
 	item.attributes[temp].fractured = a_fracture;
 
 	// set ilvl to the min requirement of this tier
-	a_tier *= CHARM_ATTRIBLEVEL_SEPERATOR;
+	a_tier = GetModTierRequirement(a_id, item.item_type, a_tier);
 
 	// ...but only so far. A tier 9 or 10 mod needs ilvl 90/100 to exist naturally, so without this an
 	// ordinary item handed one by assimilation walked straight up to boss item level -- a level range
@@ -3338,11 +3330,11 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 		max_affixes = GetMaxItemAffixes(item.item_type, item.item_subtype);
 	if(item.attrib_count < max_affixes) {
 		int temp = item.attrib_count++;
-		int lvl = GetItemTier(item.item_level);
+		int lvl = GetModTierForLevel(attrib, item.item_type, item.item_level);
 		
 		bool makeWellRolled = CheckWellRolled(pnum);
 		
-		lvl = GetItemTierRoll(lvl, makeWellRolled);
+		lvl = RollModTier(attrib, item.item_type, lvl, makeWellRolled);
 
 		item.attributes[temp].attrib_tier = lvl;
 		item.attributes[temp].attrib_id = attrib;
@@ -3383,10 +3375,10 @@ void AddAttributeToFieldItem(int item_pos, int attrib, int pnum, int max_affixes
 void AddAttributeToItem(int pnum, int item_pos, int attrib, bool isWellRolled = false) {
 	auto item = GetPlayerInventoryItem(pnum, item_pos);
 	int temp = item.attrib_count++;
-	int lvl = GetItemTier(item.item_level);
+	int lvl = GetModTierForLevel(attrib, item.item_type, item.item_level);
 	
 	// 10% chance to roll a tier up or down for the modifier on the charm
-	lvl = GetItemTierRoll(lvl, isWellRolled);
+	lvl = RollModTier(attrib, item.item_type, lvl, isWellRolled);
 	
 	item.attributes[temp].attrib_tier = lvl;
 	item.attributes[temp].attrib_id = attrib;
@@ -3573,24 +3565,6 @@ int ScourItem(int pnum, int item_pos) {
 	return min_count;
 }
 
-int GetHighestModTierOnItem(int pnum, int item_pos) {
-	auto item = GetPlayerInventoryItem(pnum, item_pos);
-	int count = item.attrib_count;
-	int t = 0;
-	for(int i = 0; i < count; ++i)
-		if(item.attributes[i].attrib_tier > t)
-			t = item.attributes[i].attrib_tier;
-	return t;
-}
-
-int GetHighestTierModNaturalOnItem(int pnum, int item_pos) {
-	auto item = GetPlayerInventoryItem(pnum, item_pos);
-	// the base tier this level grants, plus the one bonus tier an item may be pushed to. Derived from
-	// GetItemTier so it cannot drift from what a mod can actually roll at -- this used to divide the
-	// item LEVEL by MAX_CHARM_AFFIXTIERS, a tier count standing in for a levels-per-tier divisor.
-	return Clamp_Between(GetItemTier(item.item_level) + 1, 0, MAX_CHARM_AFFIXTIERS);
-}
-
 // 0 means nothing exists of this sort
 int GetSpecialRollAttribute(int pnum, int item_pos) {
 	int special_roll;
@@ -3629,16 +3603,28 @@ bool CanModLiveOnItem(int pnum, int item_pos, int mod) {
 	);
 }
 
-bool IsTypeRegularCraftException(int item_type) {
-	return item_type == DND_ITEM_FLASK || item_type == DND_ITEM_DUNGEONKEY;
+// Dungeon key mods live in their own id space: DUN_ATTR_EXTRAHP is 0, so key mod ids run
+// 0..DUN_ATTR_MAX-1 and sit directly on top of INV_ ids. Nothing keyed by mod id may be reached with
+// one -- not the mod pools, not the tier profiles -- so both gate on this.
+//
+// Flasks were lumped in here for both. They should not have been: their ids start at
+// FLASK_ATTRIB_ID_BEGIN and collide with nothing, and they now have real ladders and real pools.
+bool HasSeparateModIdSpace(int item_type) {
+	return item_type == DND_ITEM_DUNGEONKEY;
 }
 
 // special roll rule holds PPOWER_CANROLLXXXX and it checks what is possible based on that
 // last field is checking for Orb of Order use, if it's not -2 then we must check for its use
-int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1, int respect_order_orb = -2, int item_base = -1) {
-	// Flasks and dungeon keys draw from their own mod ranges and have no item base, so they keep
-	// their own picking below.
-	if(!IsTypeRegularCraftException(item_type) && item_base >= 0) {
+int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_CHARM_SMALL, int special_roll_rule = 0, int implicit_id = -1, int respect_order_orb = -2, int item_base = -1, int ilvl = -1) {
+	// Flasks write an item base now, but one saved before they did carries whatever was in the field --
+	// a leftover 0 is DND_ITEMBASE_CHARM and would quietly draw from the charm pool. The subtype is the
+	// authority on which of the two flask pools applies, so derive rather than trust.
+	if(item_type == DND_ITEM_FLASK)
+		item_base = GetFlaskItemBase(item_subtype);
+
+	// Dungeon keys draw from their own mod id range and have no item base, so they keep the flat pick
+	// below. Everything else, flasks included, comes from a weighted pool.
+	if(!HasSeparateModIdSpace(item_type) && item_base >= 0) {
 		// respect_order_orb stores tag + 1, with -2 meaning "no orb" and 0 "orb but no tag stored".
 		int forced_tag_id = (respect_order_orb == -2 || !respect_order_orb) ? DND_MODPOOL_NO_TAG : respect_order_orb - 1;
 
@@ -3650,27 +3636,32 @@ int PickRandomAttribute(int item_type = DND_ITEM_CHARM, int item_subtype = DND_C
 		// An empty pool means the guarantee asked for a tag this base cannot roll. Nothing to pick,
 		// so the caller drops this mod rather than substituting one -- same outcome the old code
 		// reached by exhausting its retry budget, just without spending the retries.
-		return (pool != null && pool.count) ? PickModFromPool(pool) : -1;
-	}
+		if(pool == null || !pool.count)
+			return -1;
 
-	int bias = Timer() & 0xFFFF;
-	int val;
-
-	if(item_type == DND_ITEM_FLASK) {
+		// The item level gate is rejection, not a filtered pool: banding the pool cache by level would
+		// multiply the alias tables well past the heap. Rejection keeps the weights right among what is
+		// eligible. ilvl < 0 means the caller does not gate.
+		int res;
+		int tries = DND_MAX_ORB_REROLL_ATTEMPTS;
 		do {
-			// flask code -- for now rolls anything flasks can no regards to life or utility
-			// unrestricted picking for now
-			val = random(FIRST_FLASK_ATTRIBUTE + bias, LAST_FLASK_ATTRIBUTE + bias) - bias;
-			// this is a last resort random here, in case there was an overflow... shouldn't, but might
-			if(val < 0)
-				val = random(FIRST_FLASK_ATTRIBUTE, LAST_FLASK_ATTRIBUTE);
-		} while(IsAttributeFlaskException(item_subtype, val));
+			res = PickModFromPool(pool);
+		} while(ilvl >= 0 && !CanModRollAtLevel(res, item_type, ilvl) && tries-- > 0);
+
+		// budget spent on a base whose eligible mods all outlevel this item
+		if(ilvl >= 0 && !CanModRollAtLevel(res, item_type, ilvl))
+			return -1;
+
+		return res;
 	}
-	else {
-		val = random(FIRST_DUNGEON_ATTRIBUTE + bias, DUN_ATTR_MAX - 1 + bias) - bias;
-		if(val < 0)
-			val = random(FIRST_DUNGEON_ATTRIBUTE, DUN_ATTR_MAX - 1);
-	}
+
+	// Dungeon keys only. They are unlevelled and unweighted, so this stays a flat draw -- the life
+	// and utility split that used to be filtered here is now the two flask bases' own pools.
+	int bias = Timer() & 0xFFFF;
+	int val = random(FIRST_DUNGEON_ATTRIBUTE + bias, DUN_ATTR_MAX - 1 + bias) - bias;
+	// this is a last resort random here, in case there was an overflow... shouldn't, but might
+	if(val < 0)
+		val = random(FIRST_DUNGEON_ATTRIBUTE, DUN_ATTR_MAX - 1);
 
 	return val;
 }
@@ -3684,7 +3675,7 @@ void AssignAttributes(int pnum, int item_pos, int itype, int attr_count, int res
 
 	while(i < attr_count) {
 		do {
-			roll = PickRandomAttribute(itype, isubt, special_roll, item.implicit[0].attrib_id, respect_order_orb, item.item_base);
+			roll = PickRandomAttribute(itype, isubt, special_roll, item.implicit[0].attrib_id, respect_order_orb, item.item_base, item.item_level);
 			++max_attempts;
 		} while(roll != -1 && max_attempts < DND_MAX_ORB_REROLL_ATTEMPTS && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.attrib_count) != -1);
 
@@ -3760,8 +3751,8 @@ void ReforgeWithOneTagGuaranteed(int pnum, int item_pos, int tag_id, int affluen
 		while(affluence > 0 && attr_count > 0 && max_tries-- > 0) {
 			rand_attr = PickModFromPool(pool);
 
-			// if this isn't already present on the item in question
-			if(CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.attrib_count) == -1) {
+			// if this isn't already present on the item in question, and the item is high enough level
+			if(CanModRollAtLevel(rand_attr, itype, item.item_level) && CheckItemAttribute(pnum, item_pos, rand_attr, DND_SYNC_ITEMSOURCE_PLAYERINVENTORY, item.attrib_count) == -1) {
 				AddAttributeToItem(pnum, item_pos, rand_attr, isWellRolled);
 				TakeInventory("ReveranceUsed", 1);
 				--attr_count;
@@ -3922,7 +3913,7 @@ int DisassembleItem_Price(int pnum, int item_pos) {
 	if(acount) {
 		if(!IsPlayerInventoryItemUnique(pnum, item_pos)) {
 			for(i = 0; i < acount; ++i) {
-				avg_mod_tier += item.attributes[i].attrib_tier + 1;
+				avg_mod_tier += GetModTierNormalized(item.attributes[i].attrib_id, item.item_type, item.attributes[i].attrib_tier) + 1;
 				fracture_count += item.attributes[i].fractured;
 			}
 		
@@ -3962,7 +3953,7 @@ int GetDissassembleChance(int pnum, int item_pos) {
 		for(int i = 0; i < acount; ++i) {
 			// uniques have tier 0
 			if(item.attributes[i].attrib_tier)
-				avg_mod_tier += item.attributes[i].attrib_tier;
+				avg_mod_tier += GetModTierNormalized(item.attributes[i].attrib_id, item.item_type, item.attributes[i].attrib_tier);
 			else
 				avg_mod_tier += MAX_CHARM_AFFIXTIERS / 2;
 			fracture_count += item.attributes[i].fractured;
@@ -4126,6 +4117,7 @@ Script "DnD Load Inventory Attributes" OPEN {
 		SetupFlaskDropWeights();
 		SetupTokenDropWeights();
 		Delay(const:10);
+		SetupModTierProfiles();
 		SetupInventoryAttributeTable();
 		Delay(const:8);
 		InitModPoolCache();
@@ -4141,6 +4133,12 @@ Script "DnD Load Inventory Attributes" OPEN {
 
 		Delay(const:1);
 		LogModPoolCacheSize();
+		Delay(const:1);
+
+		// the two bands that actually gate mods -- see the level requirements in DnD_ModTiers.h
+		LogModPoolLevelCoverage(1);
+		Delay(const:1);
+		LogModPoolLevelCoverage(20);
 		Delay(const:1);
 		SetupDungeonModTable();
 		Delay(const:5);
@@ -4167,6 +4165,7 @@ Script "DnD Load Inventory Attributes - CS" OPEN CLIENTSIDE {
 		SetupFlaskDropWeights();
 		SetupTokenDropWeights();
 		Delay(const:10);
+		SetupModTierProfiles();
 		SetupInventoryAttributeTable();
 		Delay(const:10);
 		SetupDungeonModTable();

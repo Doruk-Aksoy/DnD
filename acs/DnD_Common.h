@@ -959,10 +959,14 @@ global bool 17: PlayerScriptsCheck[MAX_SCRIPT_TRACK][MAXPLAYERS];
 // holds the monster tids that are in use -- arbitrary order
 global int 33: UsedMonsterTIDs[DND_MAX_MONSTERS];
 
-// NOTE: state keyed on monster ids has to be dropped alongside these counters, and this function
-// cannot do it -- DnD_Damage.h owns that state and is included after this file, and BCS has no
-// forward declarations. FlushDamageTicResidue is called beside the two ResetUsedTIDs sites that
-// matter instead; see its comment.
+// NOTE: state keyed on monster ids has to be dropped alongside these counters. FlushDamageTicResidue
+// is called beside EVERY caller of this function, not just the map change ones -- any caller
+// restarts the ids, and a latch that outlives the restart can never be cleared again.
+// BuildActivePlayerList goes beside the three that then release monsters.
+//
+// (BCS forward references DO work across headers -- GiveMonsterTID above calls
+// DropMonsterTicResidue from DnD_Damage.h, included later. Only WITHIN one file must a call
+// follow its definition.)
 void ResetUsedTIDs() {
 	if(IsSetupComplete(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS))
 		return;
@@ -995,7 +999,20 @@ enum {
 	LEVELINFO_TID_LOOTBOXES,
 	LEVELINFO_TID_INCURSIONMARKERS,
 
-	MAX_LEVELINFO_DATA
+	// how many entries of the active player block below are valid
+	LEVELINFO_ACTIVEPLAYERCOUNT,
+
+	// Everything past here is the active player block, NOT a level info value. "DnD Request Level
+	// Info" clamps to this rather than to the array end, so that mapper facing API cannot hand back
+	// a player slot number as though it were level info.
+	MAX_LEVELINFO_SCALARS,
+
+	// The player slots that can deal damage this map, packed. Deliberately a LIST and not a bitmask:
+	// DropMonsterTicResidue walks it once per monster, and the whole point is to iterate the players
+	// who exist rather than all MAXPLAYERS of them.
+	LEVELINFO_ACTIVEPLAYERS = MAX_LEVELINFO_SCALARS,
+
+	MAX_LEVELINFO_DATA = LEVELINFO_ACTIVEPLAYERS + MAXPLAYERS
 };
 
 bool pinfo_pending_reset = true;
@@ -1037,14 +1054,11 @@ void UpdateLevelInformation() {
 void GiveMonsterTID(int base_tid) {
 	int temp;
 
-	// Everything downstream addresses a monster as MonsterProperties[tid - DND_MONSTERTID_BEGIN],
-	// and that array is exactly DND_MAX_MONSTERS long, so a tid from outside the pool indexes
-	// outside the array. Mapper-assigned tids do precisely that -- tid 1 lands on -1, and editors
-	// hand out 4-5 digit tids that land past the end. Such a monster then reads a properties entry
-	// that is not its own: maxhp comes back 0 so "DnD Monster Scanner Picker" never draws its bar,
-	// name or stats, and trait_list reads whatever happens to sit there, which players see as
-	// immunity to ailments the monster was never given. Drop the tid and let the pool assign a real
-	// one. Pets never reach here, they go through GivePetTID from "DnD Pet Monster Scale".
+	// Everything downstream indexes MonsterProperties[tid - DND_MONSTERTID_BEGIN], which is exactly
+	// DND_MAX_MONSTERS long, so a tid from outside the pool indexes outside the array. Mapper
+	// assigned tids do exactly that. Such a monster reads someone else's entry: maxhp comes back 0
+	// so no bar is drawn, and trait_list reads junk, which players see as phantom immunities. Drop
+	// the tid and let the pool assign a real one. Pets go through GivePetTID instead.
 	if(base_tid && (base_tid < DND_MONSTERTID_BEGIN || base_tid >= DND_LASTMONSTER_TID)) {
 	#ifdef VERBOSE_MONSTER_SETUP
 		Log(s:"Reassigning out of range tid ", d:base_tid, s:" on ", s:GetActorClass(0));
@@ -1063,6 +1077,10 @@ void GiveMonsterTID(int base_tid) {
 		base_tid = temp;
 		Thing_ChangeTID(0, base_tid);
 	}
+	// This id has just changed hands, so drop whatever the last owner left latched on it. No Delay
+	// may be introduced between the line above and this one -- see DropMonsterTicResidue.
+	DropMonsterTicResidue(base_tid - DND_MONSTERTID_BEGIN);
+
 	temp = InformationInLevel[LEVELINFO_TID_MONSTER];
 	UsedMonsterTIDs[InformationInLevel[LEVELINFO_TID_MONSTER]++] = base_tid;
 
@@ -1102,14 +1120,11 @@ void GiveShootableTID() {
 	++InformationInLevel[LEVELINFO_TID_SHOOTABLE];
 }
 
-// These counters define a tid range that other systems treat as DENSE -- the artifact placer picks a
-// random index inside it and reads coordinates straight off the tid. So the counter must only ever
-// advance when an actor actually took the tid.
-//
-// It could not before. "Dnd Pickup Setup" waits on SETUP_CLEANINGMONSTERTIDS in a Delay loop before
-// calling this, so the item can already be gone by the time it runs -- collected, replaced, removed.
-// Thing_ChangeTID then quietly does nothing while the counter advanced anyway, leaving a tid inside
-// the range that no actor ever held, from map load onward.
+// These counters define a tid range other systems treat as DENSE -- the artifact placer picks a
+// random index inside it and reads coordinates off the tid. So the counter must only advance when
+// an actor actually took the tid. It could not before: "Dnd Pickup Setup" waits on
+// SETUP_CLEANINGMONSTERTIDS, so the item can be gone by the time this runs, and Thing_ChangeTID
+// then quietly does nothing while the counter advanced anyway.
 void GivePickupTID() {
 	// The range is MAX_PICKUPS wide and DND_SUBORDINATE_TEMPTID begins immediately after it, so
 	// running past the end hands pickup tids to other systems' actors. Shared items guard this at
@@ -1342,6 +1357,27 @@ int GetActivePlayerCount() {
 		res += PlayerInGame(i) && !PlayerIsSpectator(i);
 	
 	return res;
+}
+
+// Captures the players that can deal damage this map, so per monster work walks P entries instead
+// of all MAXPLAYERS. Two engine calls per slot ONCE, against two per slot per monster.
+//
+// Call BEFORE ResetUsedTIDs: that sets SETUP_CLEANINGMONSTERTIDS and every monster setup script
+// parks on it, so no monster can read a half filled list.
+//
+// Capturing once is sound because those call sites sit behind the GAMESTATE_INPROGRESS wait and
+// survival does not let anyone join after the countdown. A later joiner cannot damage anything
+// until the next map, which rebuilds this and clears their slot on the way.
+void BuildActivePlayerList() {
+	int n = 0;
+
+	for(int i = 0; i < MAXPLAYERS; ++i) {
+		if(IsActivePlayer(i))
+			InformationInLevel[LEVELINFO_ACTIVEPLAYERS + n++] = i;
+	}
+
+	// written last, so the count is never larger than the part of the list that is filled in
+	InformationInLevel[LEVELINFO_ACTIVEPLAYERCOUNT] = n;
 }
 
 int GetPlayerCountAny() {

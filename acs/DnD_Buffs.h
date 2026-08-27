@@ -151,6 +151,11 @@ void ResetPlayerBuffs(int pnum) {
 		ACS_NamedExecuteWithResult("DnD Buff Value CS Sync", pnum, i, 1.0, 1);
 	}
 
+	// Every writer of buff_net_values owes this, and the loop above is a writer. The sync script that
+	// sets it is CLIENTSIDE, so on a server it never ran and the derived transform kept its pre-reset
+	// multipliers -- the !mul_packed backstop only catches a ZERO one, not a stale valid one.
+	pbuffs[pnum].dmg_xform_dirty = true;
+
 	for(i = 0; i < DND_MAX_PLAYER_BUFFS; ++i) {
 		pbuffs[pnum].buff_list[i].source = 0;
 		pbuffs[pnum].buff_list[i].next_id = -1;

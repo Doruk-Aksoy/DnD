@@ -5,11 +5,12 @@
 // when count is 0 -- a base that no mod is eligible for.
 typedef struct {
     int count;
-    int[]* mod_list;
+    int[]? mod_list;
     alias_table_T* table;
 } mod_pool_T;
 
-#define SIZEOF_MODPOOL (SIZEOF_INT * 3)
+// mod_list is an int[]?, which costs TWO words, so this is 4 fields wide, not 3.
+#define SIZEOF_MODPOOL (SIZEOF_INT * 4)
 
 // The item base already names the slot and the tagset together, so it IS the pool identity -- no
 // interning needed. 35 bases fit in 6 bits, and the two tag fields hold a tag ID rather than an
@@ -84,7 +85,13 @@ mod_pool_T* BuildModPool(int item_base, int widen_tag_id = DND_MODPOOL_NO_TAG, i
     int widen_mask = ModPoolTagIdToMask(widen_tag_id);
     int forced_mask = ModPoolTagIdToMask(forced_tag_id);
 
-    for(int i = FIRST_INV_ATTRIBUTE; i <= LAST_INV_ATTRIBUTE; ++i) {
+    // Flask mod ids are their own contiguous block past LAST_INV_ATTRIBUTE, so the scan range comes
+    // from the base's slot rather than being fixed. buf is sized for the regular set, which is far
+    // wider than the flask one, so it holds either.
+    bool isFlask = slot_mask & DND_MODBASE_FLASK;
+    int last = isFlask ? LAST_FLASK_ATTRIBUTE : LAST_INV_ATTRIBUTE;
+
+    for(int i = isFlask ? FIRST_FLASK_ATTRIBUTE : FIRST_INV_ATTRIBUTE; i <= last; ++i) {
         if(!CanRollModWidened(slot_mask, allowed, widen_mask, i))
             continue;
 
@@ -153,6 +160,61 @@ void InitModPoolCache() {
 void LogModPoolCacheSize() {
 #ifdef ISDEBUGBUILD
     Log(s:"Mod pools built: ", d:ModPoolTables.curr_size, s:" of ", d:DND_MAX_ITEMBASES, s:" item bases.");
+#endif
+}
+
+// Below this many eligible mods a base's rejection loop starts running out of budget.
+#define DND_MODPOOL_THIN_WARN 20
+
+// How many mods each base can actually offer at a given item level. The roll loops reject until they
+// find an eligible mod and hand out a SHORT item when the budget runs out, without saying so -- this
+// is the only warning that a level band has gone thin. Passing DND_ITEM_CHARM below stays correct
+// for every base including the two flask ones: the item type only selects the dungeon-key exemption,
+// and no key mod ever reaches a pool.
+// The duplicate-rejection loops in RollArmorInfo, RollCharmInfo and friends are UNBOUNDED -- they
+// spin until they draw a mod the item does not already carry. Once a base offers no more eligible
+// mods than an item can hold, that loop stops terminating and the engine kills the script mid-drop.
+//
+// Read off body armour, the widest pooled base, rather than each base's own count: it flags one step
+// early for slots that roll fewer instead of missing one that rolls more, and a base down here is
+// broken whatever slot it is. Taken through GetMaxItemAffixes so it cannot drift -- the constant
+// itself lives in DnD_Armor.h, which the preprocessor has not reached yet at this point.
+void LogModPoolLevelCoverage(int ilvl) {
+    int danger = GetMaxItemAffixes(DND_ITEM_BODYARMOR);
+    int worst = MAX_TOTAL_ATTRIBUTES, worst_base = -1, thin = 0;
+
+    for(int b = 0; b < DND_MAX_ITEMBASES; ++b) {
+        mod_pool_T* m = GetModPool(b);
+        if(m == null || !m.count)
+            continue;
+
+        int ok = 0;
+        for(int i = 0; i < m.count; ++i)
+            if(CanModRollAtLevel(m.mod_list[i], DND_ITEM_CHARM, ilvl))
+                ++ok;
+
+        if(ok < worst) {
+            worst = ok;
+            worst_base = b;
+        }
+
+        // NOT debug gated -- this one hangs a roll script rather than merely thinning a drop, so a
+        // release server has to say so too.
+        if(ok <= danger)
+            Log(s:"MOD POOL DANGER: base ", d:b, s:" offers only ", d:ok, s:" mods at ilvl ", d:ilvl,
+                s:" -- a roll loop here may never terminate. Ungate a mod this base can take.");
+
+#ifdef ISDEBUGBUILD
+        if(ok < DND_MODPOOL_THIN_WARN) {
+            ++thin;
+            Log(s:"  thin: base ", d:b, s:" offers ", d:ok, s:" of ", d:m.count, s:" mods at ilvl ", d:ilvl);
+        }
+#endif
+    }
+
+#ifdef ISDEBUGBUILD
+    Log(s:"ilvl ", d:ilvl, s:" coverage: ", d:thin, s:" thin bases, worst is base ", d:worst_base,
+        s:" with ", d:worst, s:" eligible.");
 #endif
 }
 

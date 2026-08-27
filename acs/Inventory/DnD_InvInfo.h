@@ -86,9 +86,14 @@ enum {
 	DND_MODBASE_SPECIALTY_BERSERKER			= 0b10000000000,		// allow all melee, no energy or explosive
 	DND_MODBASE_SPECIALTY_TRICKSTER			= 0b100000000000,		// allow no defense/life mods
 
-	DND_MODBASE_FLASK						= 0b1000000000000,		// flasks only
+	// Split rather than one FLASK bit, so a life flask and a utility flask build genuinely
+	// different mod pools instead of sharing one and filtering after the pick.
+	DND_MODBASE_FLASK_LIFE					= 0b1000000000000,
+	DND_MODBASE_FLASK_UTILITY				= 0b10000000000000,
 
 	// shorthands
+	DND_MODBASE_FLASK						= 	DND_MODBASE_FLASK_LIFE | DND_MODBASE_FLASK_UTILITY,
+
 	DND_MODBASE_NOTRICKSTERCLAW				= 	~DND_MODBASE_SPECIALTY_TRICKSTER,
 
 	DND_MODBASE_SPECIALTY_ALL				= 	DND_MODBASE_SPECIALTY_DOOMGUY | DND_MODBASE_SPECIALTY_MARINE | DND_MODBASE_SPECIALTY_HOBO | DND_MODBASE_SPECIALTY_PUNISHER |
@@ -239,6 +244,7 @@ typedef struct it_sync {
 	int attr_lines_count;
 	bool isDirty;									// textID is outdated, needs to be updated
 	bool last_text_mode;							// last drawn text mode ie. detailed mods or not (so we can redraw if user changed modes)
+	bool last_tag_mode;							// same, for the mod tag lines -- its own cvar, so its own memory
 } inventory_vsync_T;
 
 enum {

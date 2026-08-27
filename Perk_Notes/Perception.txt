@@ -16,7 +16,7 @@
 	- Requires: Munitionist or Plan B.
 	
 - Lucky Bullet (2) [9]
-	- The very last round in your magazine has an additional +2.5% chance to crit and 25% crit multiplier.
+	- The very last round in your magazine/reserve has an additional +2.5% chance to crit and 25% crit multiplier.
 	+ Additional 2.5% crit chance and 25% crit multiplier.
 	- Requires: Munitionist or Plan B.
 	
@@ -47,15 +47,15 @@
 	+ Additional 15% damage.
 	
 - Sharpshooter (1) [6]
-	* Precision weapons gain up to 100% more damage with distance, capped at 2048 units.
+	* Precision weapons gain up to 30% more damage with distance, capped at 2048 units.
 	- Requires: Precise Technique.
 	
 - Ceaseless Assault (1) [6]
-	* Enemies hit by your automatic weapons recently lose 2 to all resistances up to 30.
+	* Enemies hit by your automatic weapons recently lose 2 to all resistances up to 20.
 	- Requires: Fired up.
 	
 - Blastier Shots (1) [6]
-	* Gain an additional pellet on shotgun attacks.
+	* Gain an additional pellet for shotgun attacks.
 	- Requires: Pumped.
 	
 - Earthshaker (1) [6]
@@ -63,15 +63,25 @@
 	- Requires: Quaker.
 	
 - Essence Theft (1) [6]
-	* Enemies slain recently by magical attacks grant 2 magic pierce up to 20.
+	* Enemies slain recently by magical attacks grant 2 magic pierce up to 10.
 	
 ==============================================
 
 - Bastion Breaker (3)
-	* Hitting shielded enemies instead deals 15% of the damage.
-	+ Additional 15% damage dealt.
+	* Hitting shielded enemies instead lets 15% of the damage go through.
+	+ Additional 15% damage goes through.
 	
 - Shield stealer (1) [6]
 	* Killing shielded enemies recovers 5% of your energy shield.
 	- Requires: Bastion Breaker.
 	
+- Unstoppable Force (3) [9]
+	* 5% chance for rippers to not be destroyed on hitting 'Thick Skin' enemies.
+	+ Additional 7.5% chance.
+	
+- Heatsinks (3)
+	* Gain heatsink item to instantly reduce your overheat to 0 with a 45 second cooldown.
+	+ -10 second cooldown.
+	
+- Emergency Protocol (1) [9]
+	* Fully overheated weapons can continue firing for an extended 3 seconds.

@@ -312,24 +312,42 @@ str HitBeepSounds[DND_MAX_HITBEEPS][2] = {
 // argument alongside the flags, and 12800 still fits in 14 bits.
 #define DND_MONSTER_TICDATA_BITMASK 0x3FFF // 14 bits
 #define DND_DAMAGE_ACCUM_SHIFT 14 // 2^14 = 16384
-global int 27: PlayerDamageTicData[MAXPLAYERS][DND_MAX_MONSTERS];
+// `running` is "is a tic script alive for this pair" and is kept OUT of `total`. While the
+// accumulator doubled as the latch, the bank had to precede every reduction or a fully absorbed hit
+// read as "no script running" and the next hit started a second one. One bit per id, so the latch
+// costs 1/32 of what a second array would. Both live in one struct to spend one global index, not two.
+#define DND_TICLATCH_WORDS (DND_MAX_MONSTERS / 32)
+
+typedef struct {
+	int total[DND_MAX_MONSTERS];					// damage banked this tic, per monster id
+	int running[DND_TICLATCH_WORDS];				// one bit per monster id
+} dmg_tic_T;
+
+global dmg_tic_T 27: PlayerDamageTic[MAXPLAYERS];
+
+bool IsDamageTicRunning(int pnum, int m_id) {
+	return !!(PlayerDamageTic[pnum].running[m_id >> 5] & (1 << (m_id & 31)));
+}
+
+void SetDamageTicRunning(int pnum, int m_id) {
+	PlayerDamageTic[pnum].running[m_id >> 5] |= 1 << (m_id & 31);
+}
+
+void ClearDamageTicRunning(int pnum, int m_id) {
+	PlayerDamageTic[pnum].running[m_id >> 5] &= ~(1 << (m_id & 31));
+}
 
 // ============================================================================
 //  MIXED DAMAGE WORKING SET
 //
-//  PlayerDamageTicData above is the per victim TOTAL, and for a hit of a single element that is
-//  all any ailment needs -- the subtotal IS the total. It stays the fast path: direct index, no
-//  lookup, untouched.
+//  PlayerDamageTic[].total is the per victim TOTAL, which for a single element hit already IS that
+//  element's subtotal. It stays the fast path: direct index, no lookup.
 //
-//  Once an attack carries more than one element (added cold on a physical shotgun) the total stops
-//  being the right magnitude: ignite must burn for the fire part, bleed for the physical part and
-//  poison for the poison part, not for the sum. That needs a per element breakdown, which
-//  PlayerDamageTicData cannot carry -- it is dimensioned by the whole monster id space, so an
-//  element axis would multiply a 819k int array.
-//
-//  The live working set is tiny by comparison: the victims THIS player hit THIS tic, and only the
-//  ones taking mixed damage at that. So this is a small direct mapped table instead, consulted only
-//  when the player actually has added damage. A player without any never touches it.
+//  A hit carrying more than one element needs a breakdown -- ignite must burn for the fire part,
+//  not the sum -- and a flat per victim total cannot carry one: an element axis would multiply a 819k
+//  int array. The live working set is tiny by comparison (the victims THIS player hit THIS tic,
+//  taking mixed damage), so this is a small direct mapped table, touched only when the player
+//  actually has added damage.
 // ============================================================================
 #define DND_MAX_MIXEDVICTIMS 256                        // power of two, doubles as the direct map mask
 #define DND_MIXEDVICTIM_MASK (DND_MAX_MIXEDVICTIMS - 1)
@@ -447,7 +465,7 @@ int GetTicElementDamage(int pnum, int m_id, int elem) {
 	int sub = GetMixedTicSubtotal(pnum, m_id, elem);
 	if(sub > 0)
 		return sub;
-	return PlayerDamageTicData[pnum][m_id];
+	return PlayerDamageTic[pnum].total[m_id];
 }
 
 // Same map, but to the receive path's flag bits rather than the dealing path's type ids. The two
@@ -524,67 +542,135 @@ void ReleaseMixedTicSlot(int pnum, int m_id) {
 		PlayerMixedTicData[pnum][slot].victim = DND_MIXEDTIC_TOMBSTONE;
 }
 
-// Drops every damage tic latch left behind by the map that is ending, and the mixed slots under them.
+// Drops every damage tic latch left behind by the map that is ending, and the mixed slots under
+// them. A stranded latch silently loses every ailment, the damage numbers, the push, lifesteal and
+// the hurt token for that (player, monster) pair, while health damage still lands -- so it reads in
+// play as "this monster cannot be ignited any more", not as a damage bug.
 //
-// PlayerDamageTicData is not just an accumulator, it is the latch that decides whether a tic script
-// exists: "DnD Damage Accumulate" is started only when the slot reads 0, and the only thing that ever
-// writes 0 back is the tail of that same script. So a non-zero slot with no script behind it is stuck
-// for good -- every later hit adds to it, the script is never started again, and everything that lives
-// inside it is silently lost for that (player, monster) pair: every ailment, the damage numbers, the
-// push, lifesteal, the hurt token. The health damage still lands through the event's return value,
-// which is why it reads in play as "this one monster cannot be ignited or chilled any more" rather
-// than as a damage bug.
+// The array is `global` and ids are handed out from 0 again next map, so a slot bricked on one map
+// resurfaces under whatever monster inherits that id later.
 //
-// The array is `global`, so it outlives the map, and monster ids are handed out from 0 again on the
-// next one -- a slot bricked on one map resurfaces under whatever monster inherits that id later.
-//
-// WHERE THIS RUNS IS THE WHOLE POINT. ResetUsedTIDs is the single chokepoint for "monster ids are
-// about to be handed out from zero again", and the level exit path reaches it from UNLOADING, which
-// is the very event that creates the residue: the accumulate scripts are destroyed with the level,
-// and any one of them sitting inside its one tic delay leaves its latch set. So the leak is cleaned
-// at the instant it is made, once, while the counter still says how far the ids got.
-//
-// Doing it instead per monster, at the moment an id changes hands, also works and was the first cut --
-// but it charges 64 reads to every monster on a map that may carry thousands of them, and it charges
-// them inside the map load burst, where every "DnD Monster Scale" instance is released from the same
-// wait on the same tic. Here it is one pass, bounded by the ids the finished map actually used, at a
-// moment where the screen is changing anyway.
-//
-// Spreading it over several tics instead would be worse than either: the reset has to land before the
-// monster can be hit, and a hit that lands first legitimately starts a tic script -- a late write
-// would then clear the latch out from under a LIVE script and the next hit would start a second one
-// on the same slot, doubling that tic's multipliers and its ailment rolls. There is no delay in this
-// one, and it needs none.
+// CALL THIS BESIDE EVERY ResetUsedTIDs, NOT JUST THE MAP CHANGE ONES. The ROUND restarts (survival
+// wipe in "DnD On Death", GAMEEVENT_ROUND_ABORTED) restart ids on the SAME map, where nothing
+// unloads and so nothing else would clear the latches. Those two went unflushed and were the
+// reported "after a while nothing can ignite anything": ids start at 0 every round, so the LOW ids
+// brick first and it reads as a player-wide loss of every ailment.
 //
 // Two details in the body:
+//  - The write is conditional. World and global arrays are sparse maps, so assigning 0 to an
+//    untouched entry MATERIALISES it, and the sweep would build the table it is walking.
+//  - NO PlayerInGame filter. That is true for how residue is CREATED but not for how it is
+//    inherited: a disconnected slot kept its residue and handed it to whoever took the slot next.
 //
-// - The write is conditional. World and global arrays are sparse maps, so assigning 0 to an entry
-//   that was never touched MATERIALISES it, and the sweep would build the table it is walking.
-// - ReleaseMixedTicSlot, the expensive half, probes a 256 wide table and only runs for a latch that
-//   was actually dirty. A mixed slot cannot outlive its latch: the flush writes both back to back
-//   with no delay between them.
-//
-// PlayerInGame is a safe filter HERE, unlike at monster spawn. A player who left earlier in the map
-// cannot have residue: losing its activator does not stop an ACS script, so their accumulate script
-// ran to its end and cleared its own latch. Only a script alive at THIS instant can leak, and its
-// owner is still connected.
+// THIS IS THE BACKSTOP, NOT THE PRIMARY DEFENCE -- DropMonsterTicResidue below needs no bound at
+// all. This sweep can only reach ids it can DESCRIBE, and the id space is sparse: GiveMonsterTID
+// KEEPS a mapper-assigned tid already inside the pool, so a monster on tid 500 takes m_id 498 on a
+// map whose counters only reached 200. It still earns its place for the SKIPPED ids, which belong
+// to non-monster things on pool tids and never pass through GiveMonsterTID.
 void FlushDamageTicResidue() {
 	int high = InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
 	if(high > DND_MAX_MONSTERS)
 		high = DND_MAX_MONSTERS;
 
-	int p, i;
-	for(p = 0; p < MAXPLAYERS; ++p) {
+	for(int p = 0; p < MAXPLAYERS; ++p) {
+		// MAXPLAYERS is 64 and a busy map hands out ~750 monster ids, so sweeping empty slots costs
+		// 48k iterations inside the same tic as SaveAllPlayerData -- that is a runaway, and it is
+		// exactly what killed "DnD On Unloading" and "DnD On Map Load" on CHX05. An empty slot is
+		// cleared by DropPlayerTicResidue as the player LEAVES instead.
 		if(!PlayerInGame(p))
 			continue;
 
-		for(i = 0; i < high; ++i) {
-			if(PlayerDamageTicData[p][i]) {
-				PlayerDamageTicData[p][i] = 0;
+		for(int i = 0; i < high; ++i) {
+			// latch first: a hit fully eaten by fortify banks nothing, so a stranded latch can sit
+			// over a zero accumulator and block that pair's ailments for good
+			if(IsDamageTicRunning(p, i) || PlayerDamageTic[p].total[i]) {
+				ClearDamageTicRunning(p, i);
+				PlayerDamageTic[p].total[i] = 0;
 				ReleaseMixedTicSlot(p, i);
 			}
 		}
 	}
+}
+
+// Clears the latch for ONE monster id at the instant that id changes hands. Primary defence; the
+// sweep above is the backstop.
+//
+// Bound free by construction, and it clears BEFORE first use, so a latch left by a monster that
+// never finished its own setup is gone before anything can trip over it.
+//
+// NOTHING CAN RACE THIS: it runs from GiveMonsterTID, which has no delays. Do not move it behind a
+// Delay -- that is what would create a window.
+// One player's whole row. FlushDamageTicResidue skips slots with nobody in them, so a leaver's
+// residue has to be dropped here or the next player to occupy that pnum inherits a stranded latch --
+// which silently kills every ailment for that pair. One row, not 64.
+void DropPlayerTicResidue(int pnum) {
+	if(pnum < 0 || pnum >= MAXPLAYERS)
+		return;
+
+	int high = InformationInLevel[LEVELINFO_TID_MONSTER] + InformationInLevel[LEVELINFO_SKIPPEDMONSTERTID];
+	if(high > DND_MAX_MONSTERS)
+		high = DND_MAX_MONSTERS;
+
+	for(int i = 0; i < high; ++i) {
+		if(IsDamageTicRunning(pnum, i) || PlayerDamageTic[pnum].total[i]) {
+			ClearDamageTicRunning(pnum, i);
+			PlayerDamageTic[pnum].total[i] = 0;
+			ReleaseMixedTicSlot(pnum, i);
+		}
+	}
+}
+
+void DropMonsterTicResidue(int m_id) {
+	// this indexes a global array; a junk id would corrupt whatever sits at that offset
+	if(m_id < 0 || m_id >= DND_MAX_MONSTERS)
+		return;
+
+	int p;
+	int n = InformationInLevel[LEVELINFO_ACTIVEPLAYERCOUNT];
+
+	for(int i = 0; i < n; ++i) {
+		p = InformationInLevel[LEVELINFO_ACTIVEPLAYERS + i];
+
+		if(IsDamageTicRunning(p, m_id) || PlayerDamageTic[p].total[m_id]) {
+			ClearDamageTicRunning(p, m_id);
+			PlayerDamageTic[p].total[m_id] = 0;
+			ReleaseMixedTicSlot(p, m_id);
+		}
+	}
+}
+
+// ============================================================================
+//  DEAD AILMENT TICS
+//
+//  An ailment that cannot damage its victim must not keep holding that victim's ailment slot. The
+//  loop keeps the timer non-zero, every application path reads that as "already ailed, just
+//  refresh", and the monster burns or bleeds forever taking nothing. That is the "on fire and
+//  taking no damage" report AND the "some monsters cannot bleed" one, in three loops.
+//
+//  Fire creatures are the worst case, immune BY DESIGN: InitMonsterResists gives DND_FIRECREATURE
+//  DND_IMMUNITY_FACTOR plus a level bonus, so a level 90 one sits at 165.
+//
+//  OUTCOME BASED on purpose -- predicting it off the resist tables would duplicate FactorResists
+//  and the penetration rules on top of it. Two consecutive dead tics, not one, so a single
+//  transient cannot cancel a burn that was about to start working.
+// ============================================================================
+#define DND_AILMENT_DEADTICS 2
+
+bool IsAilmentTicWasted(int victim, int dealt) {
+	if(dealt > 0)
+		return false;
+
+	// TRANSIENT ABSORBERS -- each eats a whole tic then goes away on its own, so a dead tic under one
+	// means "wait", not "give up". A standing fortify pool is a shield draining, not immunity.
+	if(CheckActorInventory(victim, "MonsterFortifyCount"))
+		return false;
+
+	// Blocking and invulnerability are timed states (Hellsmith raises DND_ISBLOCKING in its charge
+	// and pain states). HandleDamageDeal bails on both before FactorResists, so they leave no trace.
+	if(HasMonsterTrait(victim - DND_MONSTERTID_BEGIN, DND_ISBLOCKING) || CheckFlag(victim, "INVULNERABLE"))
+		return false;
+
+	return true;
 }
 
 // we use this as a bitfield -- 64 players => 2 ints
@@ -1313,19 +1399,14 @@ int MapDamageCategoryToDamageType(int category) {
 	return DND_DAMAGETYPE_PHYSICAL;
 }
 
-// Deals every part of this hit that is NOT the weapon's own damage type, and returns what is left
-// for the caller to deal as the primary. Zero means the components finished the monster, or that
-// conversion took the whole hit and there is no primary left.
+// Deals every part of this hit that is NOT the weapon's own damage type and returns what is left
+// for the caller. Zero means the components finished the monster, or conversion took the whole hit.
 //
-// Each one is its own damage instance on purpose: cold that misses cold resists and cannot chill is
-// not cold. Routing back through HandleDamageDeal gets each its own resists and penetration, its own
-// entry in the mixed tic table, and its own ailment. Crit is inherited rather than rolled -- they all
-// land in the same PlayerDamageTicData total and the accumulator applies the crit multiplier to that,
-// so all-or-nothing falls out for free, the way multi-shot weapons already behave.
-//
-// The split is proportional against the staged total because everything between ScaleCachedDamage and
-// here -- the distance bonus, the attack's own percent, LOSEDAMAGEPERHIT, rippers, WarmasterProtect --
-// scales the primary by type-agnostic factors that the components must take as well.
+// Each is its own damage instance on purpose: cold that misses cold resists and cannot chill is not
+// cold. That buys each its own resists, penetration, mixed tic entry and ailment. Crit is inherited,
+// not rolled -- they share one PlayerDamageTic total, so all-or-nothing falls out for free. The
+// split is proportional against the staged total, since everything above scales the primary by
+// type-agnostic factors the components must take too.
 //
 // ATTACKS ONLY. Never call this from a DOT tick, proc or spell.
 int DealDamageComponents(int pnum, int shooter, int victim, int wepid, int dmgid, int category, int dmg, int flags, int actor_flags) {
@@ -1465,11 +1546,20 @@ void HandleBleedEffects(int pnum, int victim, int wepid, int overall_dmg) {
 	)
 	{
 		int amt = GetPlayerBleedTime(pnum);
+
+		// only the refresh branch consults this now; it is no longer the ownership test
 		int current_bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
 
-		if(!current_bleed_time) {
+		// Ownership is the SCRIPT REFCOUNT, never the timer -- same rule as HandleIgniteEffects.
+		// Inventory outlives scripts, so a stale timer used to trap this in the refresh branch for
+		// good. A script ending for ANY reason frees its count.
+		if(!CheckActorInventory(victim, "DnD_BleedScripts")) {
 			SetActorInventory(victim, "DnD_BleedTimer", amt);
 			SetActorInventory(victim, "DnD_CurrentBleedDamage", overall_dmg);
+
+			// Claim BEFORE launching: the first iteration runs inline, so a second application in the same
+			// tic would otherwise start a second script on one timer.
+			GiveActorInventory(victim, "DnD_BleedScripts", 1);
 			ACS_NamedExecuteWithResult("DnD Monster Bleed (Player)", victim, wepid, overall_dmg);
 		}
 		else {
@@ -1572,7 +1662,9 @@ int ApplyPenetrationToDamage(int pnum, int victim, int dmg, int damage_category,
 	int factor = Clamp_Between((100 - resist + pen), 0, 200);
 
 	// non-zero, we're good
-	return dmg * factor / 100;
+	int res = dmg * factor / 100;
+
+	return res;
 }
 
 int FactorResists(int source, int victim, int wepid, int dmg, int damage_type, int actor_flags, int flags, bool forced_full, bool wep_neg = false) {
@@ -1972,35 +2064,40 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 	}
 
 	//printbold(s:"before num pnum ", d:pnum, s: " ", d:temp, s:" dmg ", d:dmg);
-	if(!PlayerDamageTicData[pnum][temp]) {
+	int m_id = temp;
+	if(!IsDamageTicRunning(pnum, m_id)) {
+		SetDamageTicRunning(pnum, m_id);
 		PlayerDamageVector[pnum].x = ox;
 		PlayerDamageVector[pnum].y = oy;
 		PlayerDamageVector[pnum].z = oz;
-		ACS_NamedExecuteWithResult("DnD Damage Accumulate", temp | ((wep_neg | (oneTimeRipperHack << 1)) << DND_DAMAGE_ACCUM_SHIFT), wepid, extra, damage_type);
+		ACS_NamedExecuteWithResult("DnD Damage Accumulate", m_id | ((wep_neg | (oneTimeRipperHack << 1)) << DND_DAMAGE_ACCUM_SHIFT), wepid, extra, damage_type);
 	}
 
-	// Only players who actually add damage of another type need a per element breakdown; for
-	// everyone else the total below already IS the subtotal of the one element they dealt.
-	// Cached read, not a recomputation -- this runs per damage instance, so a 20 pellet shotgun
-	// would otherwise walk the whole added-damage attribute set 20 times for an answer that is
-	// almost always zero.
-	if(GetPlayerExtraDamageMask(pnum))
-		RecordMixedTicDamage(pnum, temp, extra, dmg);
-	PlayerDamageTicData[pnum][temp] += dmg;
-	
+	// bank happens at the bottom now, on the number the monster is actually dealt
 	if((temp = CheckActorInventory(victim, "MonsterFortifyCount")) && !(actor_flags & DND_ACTORFLAG_FOILINVUL)) {
+		// The pool eats min(pool, dmg) and both sides settle from that one number. Reusing temp as
+		// scratch got each wrong: a holding shield subtracted the WHOLE pool from the hit, and a
+		// breaking one overwrote the pool before use, cancelling the hit instead of overflowing it.
+		int absorbed = temp;
+		if(absorbed > dmg)
+			absorbed = dmg;
+
 		if(temp <= dmg) {
-			temp = dmg;
 			PlaySound(victim, "Elite/FortifyCrack", CHAN_VOICE, 1.0);
 			// remove fortify modifier from monster
 			ACS_NamedExecuteWithResult("DnD Monster Trait Take Single", victim, DND_FORTIFIED);
 		}
-		SetActorInventory(victim, "MonsterFortifyCount", temp - dmg);
-		dmg -= temp;
+
+		SetActorInventory(victim, "MonsterFortifyCount", temp - absorbed);
+		dmg -= absorbed;
 	}
 	
 	HandleTargetPicking(victim);
-	
+
+	// What the monster is actually dealt, which is what gets banked. Cull's doubling below is a kill
+	// device, not damage, so it stays out of the numbers and the statistics.
+	int dealt = dmg;
+
 	// cull checks
 	if(CheckCullRange(source, victim, dmg)) {
 		//printbold(s:"can cull");
@@ -2076,7 +2173,17 @@ int HandleDamageDeal(int source, int victim, int dmg, int damage_type, int wepid
 		else if(HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5)) 
 			GiveActorInventory(victim, "Doomguy_ResistReduced", 1);
 	}
-	
+
+	// Banked only now, so the accumulator holds what the monster took and not what it was swung at;
+	// "DnD Damage Accumulate" reconciles health against this total. Borrowed time returns above and
+	// so banks nothing, which is correct. The per element breakdown is only for players with added
+	// damage -- for everyone else this total already IS the one element's subtotal.
+	if(dealt > 0) {
+		if(GetPlayerExtraDamageMask(pnum))
+			RecordMixedTicDamage(pnum, m_id, extra, dealt);
+		PlayerDamageTic[pnum].total[m_id] += dealt;
+	}
+
 	return dmg;
 }
 
@@ -2348,10 +2455,8 @@ int HandleNonWeaponDamageScale(int dmg, int damage_category, int flags, int str_
 	return dmg;
 }
 
-// What one tick of an ignite is worth, priced with the stats and weapon of whoever is applying it.
-// This is pulled out of "DnD Monster Ignite" so an application landing on an ALREADY burning monster
-// can price itself too: that path cannot start a second script, so the number has to be computed by
-// the applier and handed over on the victim.
+// What one tick is worth, priced with the applier's stats and weapon. Pulled out of
+// "DnD Monster Ignite" so an application landing on an ALREADY burning monster can price itself.
 int GetIgniteTickDamage(int pnum, int victim, int wepid, int added_dmg) {
 	return HandleNonWeaponDamageScale(GetFireDOTDamage(pnum, added_dmg, victim, wepid), DND_DAMAGECATEGORY_FIRE, DND_WDMG_ISDOT);
 }
@@ -2370,29 +2475,19 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 		int current_ign_time = CheckActorInventory(victim, "DnD_IgniteTimer");
 		int ign_flags = DND_IGNITEFLAG_CANPROLIF;
 
-		// Price this application now, whether or not it gets to start the script. A refresh only
-		// pushes the timer out -- it cannot restart the burn -- so without parking the number on the
-		// victim the FIRST application is what the monster takes for the whole burn. On anything
-		// tanky enough to stay permanently lit that number was never revisited again, which is why
-		// swapping weapons could not bring a weak burn back up.
+		// Price this application even if it cannot start the script: a refresh only pushes the timer
+		// out, so without parking the number the FIRST application would set the burn for its life.
 		int tick_dmg = GetIgniteTickDamage(pnum, victim, wepid, scaleIgn ? dmg_within_tic : 0);
 
-		// Ownership is the SCRIPT REFCOUNT, never the timer. DnD_IgniteTimer is inventory and the burn
-		// is a script; inventory outlives scripts, so any desync between them used to be permanent and
-		// unrecoverable -- the monster kept a non-zero timer, every later hit took the refresh branch
-		// below, and nothing could ever start a script to actually deal the ticks. That is the "monster
-		// is on fire and takes 0" report, and it is why it was intermittent and stuck to particular
-		// monsters. Reading the refcount instead makes it self healing: a script that ends for ANY
-		// reason frees its count, so the next application starts a fresh burn over the stale timer.
+		// Ownership is the SCRIPT REFCOUNT, never the timer. Inventory outlives scripts, so a stale
+		// timer used to trap the monster in the refresh branch for good -- on fire, taking nothing.
+		// A script that ends for ANY reason frees its count, so this is self healing.
 		if(!CheckActorInventory(victim, "DnD_IgniteScripts")) {
 			SetActorInventory(victim, "DnD_IgniteTimer", amt);
 			SetActorInventory(victim, "DnD_CurrentIgniteDamage", tick_dmg);
 
-			// Claim BEFORE launching, not inside the script. ACS_NamedExecuteWithResult runs the
-			// script's first iteration inline, and a second application landing in the same tic (two
-			// players share one monster but not one damage accumulator) would otherwise also read
-			// zero and start a second script on the same timer -- which is how two burns ended up
-			// draining one counter at double rate and tearing each other down.
+			// Claim BEFORE launching: ACS_NamedExecuteWithResult runs the first iteration inline, so a
+			// second application in the same tic would otherwise start a second script on one timer.
 			GiveActorInventory(victim, "DnD_IgniteScripts", 1);
 			ACS_NamedExecuteWithResult("DnD Monster Ignite", victim, wepid, ign_flags, tick_dmg);
 		}
@@ -2405,6 +2500,19 @@ void HandleIgniteEffects(int pnum, int victim, int wepid, int flags, int dmg_wit
 				SetActorInventory(victim, "DnD_CurrentIgniteDamage", tick_dmg);
 		}
 	}
+}
+
+// What the ignite prices itself off. The two flags promise different things and now read differently:
+// SCALEIGNITE is "scales off the FIRE in the hit", ADDEDIGNITE is "this damage is contributed on top",
+// ie. the whole hit. Reading the fire subtotal for both made them non-monotonic -- a weapon with no
+// fire at all falls back to the total, but a small added fire component returned only that slice, so
+// adding a LITTLE fire made the burn far weaker than none. It also tied the magnitude to winning a
+// mixed tic slot, which varies per victim inside one crowd.
+int GetIgniteScaleSource(int pnum, int m_id, int tic_flags) {
+	if(tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE)
+		return PlayerDamageTic[pnum].total[m_id];
+
+	return GetTicElementDamage(pnum, m_id, DND_TICELEM_FIRE);
 }
 
 // ASSUMPTION: PLAYER RUNS THIS! -- care if adapting this later for other things
@@ -2420,12 +2528,16 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	int victim_tid = victim_data + DND_MONSTERTID_BEGIN;
 	int temp;
 
+	// Health before anything this tic landed -- this instance is launched inline from the first
+	// HandleDamageDeal, ahead of the engine applying anything. Bounds the heal back below.
+	int hp_at_launch = GetActorProperty(victim_tid, APROP_HEALTH);
+
 	Delay(const:1);
 
 	/*
 		THINGS THAT ALTER DAMAGE IN ANY WAY AFTER ACCUMULATION END UP HERE!!!!
 	*/
-	int prev_dmg = PlayerDamageTicData[pnum][victim_data];
+	int prev_dmg = PlayerDamageTic[pnum].total[victim_data];
 	int more_dmg = 100; // baseline damage, 100% is regular value
 
 	// desolator damage increase
@@ -2476,9 +2588,9 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// ACCESSORY EFFECTS -- applied per element rather than folded into more_dmg, because everything
 	// inside HandlePlayerBuffs is keyed on the damage type. Multiplying the whole tic by it would let
 	// a "more cold damage" buff scale the physical portion of the same hit too.
-	PlayerDamageTicData[pnum][victim_data] = ApplyPerElementBuffDamage(
+	PlayerDamageTic[pnum].total[victim_data] = ApplyPerElementBuffDamage(
 		pnum, victim_tid, victim_data, wepid, flags | GetMixedTicFlags(pnum, victim_data), damage_type,
-		PlayerDamageTicData[pnum][victim_data]
+		PlayerDamageTic[pnum].total[victim_data]
 	);
 
 	// check hobo's level 50 perk here, after 1 tic, and deal the extra damage with "_NoPain" attached
@@ -2515,31 +2627,40 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	// moved crit at the end here -- copied code to save from 1 extra if check to see if more_dmg or crit is non-zero
 	if(flags & DND_DAMAGETICFLAG_CRIT) {
 		if(more_dmg != 100)
-			PlayerDamageTicData[pnum][victim_data] = MulPercent_Exact(PlayerDamageTicData[pnum][victim_data], more_dmg);
+			PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
 
 		// amplify the overall damage as a crit here -- wepid negativity check happens inside np
 		more_dmg = GetCritModifier(pnum, victim_tid, wepid);
 
-		PlayerDamageTicData[pnum][victim_data] = MulPercent_Exact(PlayerDamageTicData[pnum][victim_data], more_dmg);
+		PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
 
 		HandleHunterTalisman();
 	}
 	else if(more_dmg != 100)
-		PlayerDamageTicData[pnum][victim_data] = MulPercent_Exact(PlayerDamageTicData[pnum][victim_data], more_dmg);
+		PlayerDamageTic[pnum].total[victim_data] = MulPercent_Exact(PlayerDamageTic[pnum].total[victim_data], more_dmg);
 
-	//printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTicData[pnum][victim_data], s: " ", d:more_dmg);
+	//printbold(s:"before ", d:prev_dmg, s: " new dmg: ", d:PlayerDamageTic[pnum].total[victim_data], s: " ", d:more_dmg);
 
 	// deal the damage difference between the crit and original on top, like hobo thing -- note use of Special_NoPain
-	if(PlayerDamageTicData[pnum][victim_data] > prev_dmg) {
-		prev_dmg = PlayerDamageTicData[pnum][victim_data] - prev_dmg;
+	if(PlayerDamageTic[pnum].total[victim_data] > prev_dmg) {
+		prev_dmg = PlayerDamageTic[pnum].total[victim_data] - prev_dmg;
 		HandleMonsterDeathConfirm(victim_tid, prev_dmg);
 		Thing_Damage2(victim_tid, prev_dmg, "Special_NoPain");
 	}
-	else if(IsActorAlive(victim_tid) && PlayerDamageTicData[pnum][victim_data] != prev_dmg) {
+	else if(IsActorAlive(victim_tid) && PlayerDamageTic[pnum].total[victim_data] != prev_dmg) {
 		// we have reduced the overall damage instead, heal for the difference instead -- hope we dont need HealThing here...
-		prev_dmg = GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTicData[pnum][victim_data];
+		prev_dmg = GetactorProperty(victim_tid, APROP_HEALTH) + prev_dmg - PlayerDamageTic[pnum].total[victim_data];
 		if(prev_dmg > MonsterProperties[victim_data].maxhp)
 			prev_dmg = MonsterProperties[victim_data].maxhp;
+
+		// This branch assumes the engine already took EXACTLY prev_dmg. Insurance only now that the
+		// bank equals the delivery -- it used to be taken before fortify absorption and before the
+		// borrowed time return, so the gap came back as health nothing had removed.
+		// Inert when the assumption holds: health is then hp_at_launch - prev_dmg, so the sum is
+		// hp_at_launch - new, already under this bound.
+		if(prev_dmg > hp_at_launch)
+			prev_dmg = hp_at_launch;
+
 		SetActorProperty(victim_tid, APROP_HEALTH, prev_dmg);
 	}
 
@@ -2556,18 +2677,18 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 	}
 
 	// moved here as it's simpler and more efficient to run this function after 1 tic rather than immediately with multiple instances
-	IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, PlayerDamageTicData[pnum][victim_data], pnum + P_TIDSTART);
+	IncrementStatistic(DND_STATISTIC_DAMAGEDEALT, PlayerDamageTic[pnum].total[victim_data], pnum + P_TIDSTART);
 
 	// do the real pushing after 1 tic of dmg data has been accumulated and we have non-zero damage in effect
 	// wep_neg here contains 2 bits: was it negative at 1st bit and was it a one time ripper in 2nd bit
-	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTicData[pnum][victim_data] > 0)
-		HandleDamagePush(2 * PlayerDamageTicData[pnum][victim_data], ox, oy, oz, victim_tid, wep_neg & 2);
+	if((flags & DND_DAMAGETICFLAG_PUSH) && PlayerDamageTic[pnum].total[victim_data] > 0)
+		HandleDamagePush(2 * PlayerDamageTic[pnum].total[victim_data], ox, oy, oz, victim_tid, wep_neg & 2);
 	
 	// has wepid non neg
 	if(!(wep_neg & 1)) {
 		// check if player has lifesteal, if they do reward some hp back
 		if(!HasMonsterTrait(victim_data, DND_BLOODLESS) && !(flags & DND_DAMAGETICFLAG_DOT))
-			HandleLifesteal(pnum, wepid, flags, PlayerDamageTicData[pnum][victim_data]);
+			HandleLifesteal(pnum, wepid, flags, PlayerDamageTic[pnum].total[victim_data]);
 	}
 
 	// ox, oy and oz arent used below
@@ -2580,15 +2701,9 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		// damage, since nothing was recorded for them.
 		int tic_flags = flags | GetMixedTicFlags(pnum, victim_data);
 
-		// INV_INC_CRITFORDOT gives up crit damage on the hit itself and makes crit the trigger for
-		// ailments instead (see IATTR_TINC4) -- without it this is just true and nothing changes.
-		//
-		// Read off tic_flags rather than flags so a crit landed by ANY component of a mixed hit
-		// counts, which is the same OR the element tests below already read. A DoT tic can never
-		// carry the crit flag (crit is only rolled for non DOT damage), so with this mod the strike
-		// is the only thing that can inflict -- what the strike left burning cannot re-inflict. The
-		// gate is deliberately on application only: proliferation and poison spread move an ailment
-		// that already passed it and are not re-tested.
+		// INV_INC_CRITFORDOT makes crit the trigger for ailments instead of a damage bonus (see
+		// IATTR_TINC4); true and inert without it. Read off tic_flags so a crit from ANY component of
+		// a mixed hit counts. Application only -- proliferation and spread are not re-tested.
 		bool can_ail = !PlayerModData[pnum].vals[PSTAT_INC_CRITFORDOT] || !!(tic_flags & DND_DAMAGETICFLAG_CRIT);
 
 		// Independent tests, not an if/else chain. A chain can only ever fire ONE ailment, so a
@@ -2598,7 +2713,7 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 			HandleChillEffects(pnum, victim_tid);
 
 		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_FIRE) || (tic_flags & DND_DAMAGETICFLAG_ADDEDIGNITE))) // should be able to ign if it has addedignite flag even if damagetype isnt fire!
-			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetTicElementDamage(pnum, victim_data, DND_TICELEM_FIRE)));
+			HandleIgniteEffects(pnum, victim_tid, wepid, tic_flags, GetPlayerIgniteAddedDmg(pnum, wepid, GetIgniteScaleSource(pnum, victim_data, tic_flags)));
 
 		if(can_ail && ((tic_flags & DND_DAMAGETICFLAG_LIGHTNING) || (PlayerModData[pnum].vals[PSTAT_INC_ALLOVERLOAD] && (tic_flags & (DND_DAMAGETICFLAG_ICE | DND_DAMAGETICFLAG_FIRE | DND_DAMAGETICFLAG_POISON)))))
 			HandleOverloadEffects(pnum, victim_tid);
@@ -2669,14 +2784,16 @@ Script "DnD Damage Accumulate" (int victim_data, int wepid, int flags, int damag
 		}
 	}
 
-	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_tid, PlayerDamageTicData[pnum][victim_data], flags);
+	ACS_NamedExecuteWithResult("DnD Damage Numbers", victim_tid, PlayerDamageTic[pnum].total[victim_data], flags);
 
 	if(CheckInventory("Marine_DamageReduction_Timer"))
-		GiveInventory("Marine_Perk50_DamageDealt", PlayerDamageTicData[pnum][victim_data]);
+		GiveInventory("Marine_Perk50_DamageDealt", PlayerDamageTic[pnum].total[victim_data]);
 	
-	// reset dmg counter on this mob
-	PlayerDamageTicData[pnum][victim_data] = 0;
+	// reset dmg counter on this mob. The latch drops HERE, not after the delay below, or the pair
+	// would be blocked from starting a new tic for CRIT_CLEAR_WAIT_TIME.
+	PlayerDamageTic[pnum].total[victim_data] = 0;
 	ReleaseMixedTicSlot(pnum, victim_data);
+	ClearDamageTicRunning(pnum, victim_data);
 
 	Delay(const:CRIT_CLEAR_WAIT_TIME);
 	UnsetPlayerWeaponCritState(pnum, wepid);
@@ -2777,6 +2894,7 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 	// side, but capped differently -- see the ramp below.
 	int dmg_tic_buff = PlayerModData[pnum].vals[PSTAT_POIS_TICDMG];
 	int poison_ticks = 0;
+	int dead_tics = 0;
 	int ramp = 0;
 
 	dmg = GetPoisonDOTDamage(pnum, dmg, victim, wepid);
@@ -2874,6 +2992,16 @@ Script "DnD Do Poison Damage" (int victim, int dmg, int wepid, int firstEntry) {
 				if(temp > 0)
 					Thing_Damage2(victim, temp, "Special_NoPain");
 				ACS_NamedExecuteAlways("DnD Spawn Poison FX", 0, victim, stacks);
+
+				// This ailment cannot hurt this monster. Drop it instead of holding its slot -- see
+				// IsAilmentTicWasted. Breaking here lands in the teardown below, which clears the timer, so
+				// the monster goes back to being ailable immediately.
+				if(IsAilmentTicWasted(victim, temp)) {
+					if(++dead_tics >= DND_AILMENT_DEADTICS)
+						break;
+				}
+				else
+					dead_tics = 0;
 
 				// Counted only where damage actually landed, and stopped once the bonus has reached the
 				// cap -- past that point another tic changes nothing, and the counter must not run free:
@@ -3134,12 +3262,12 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 
 	dmg = GetBleedDamage(pnum, wepid, dmg, victim);
 
-	int bleed_time = CheckActorInventory(victim, "DnD_BleedTimer");
 	int next_dmg = dmg; // holds scaled bleed damage
 
 	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
 		AddMonsterAilment(source, victim, DND_AILMENT_BLEED);
 
+	int dead_tics = 0;
 	bool isRobot = IsActorFullRobotic(victim);
 	bool isMoving = false;
 
@@ -3165,17 +3293,23 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 			);
 			if(dmg > 0)
 				Thing_Damage2(victim, dmg, "Special_NoPain");
+
+			// This ailment cannot hurt this monster. Drop it instead of holding its slot -- see
+			// IsAilmentTicWasted. Breaking here lands in the teardown below, which clears the timer, so
+			// the monster goes back to being ailable immediately.
+			if(IsAilmentTicWasted(victim, dmg)) {
+				if(++dead_tics >= DND_AILMENT_DEADTICS)
+					break;
+			}
+			else
+				dead_tics = 0;
 		}
 
 		// x 5
 		Delay(const:DND_BLEED_TICRATE - 2);
 
-		// Same reasoning as the ignite loop: decrement only after the delay. HandleBleedEffects
-		// reads a nonzero DnD_BleedTimer as "a script already owns this monster", so a timer that
-		// reads 0 while we are still asleep lets a second bleed script start on the same monster.
-		// Ours then sees the refreshed timer and keeps looping as well, both drain one shared
-		// timer, and whichever finishes first zeroes it out from under the other. Nothing between
-		// here and the loop test delays, so the decrement, the test and the teardown stay atomic.
+		// Decrement only after the delay, as in the ignite loop. The timer is still what this loop
+		// tests, so the decrement, the test and the teardown have to stay in one uninterrupted step.
 		TakeActorInventory(victim, "DnD_BleedTimer", 1);
 
 		// update the newer bleed damage now
@@ -3185,6 +3319,17 @@ Script "DnD Monster Bleed (Player)" (int victim, int wepid, int dmg) {
 			base_dmg = px;
 		}
 	} while(CheckActorInventory(victim, "DnD_BleedTimer") && IsActorAlive(victim));
+
+	// Release ownership the moment the loop stops, and before anything below can terminate or yield.
+	// Everything past this point is epilogue that no longer owns the monster, and holding the count
+	// across it would block a fresh application for that whole window.
+	TakeActorInventory(victim, "DnD_BleedScripts", 1);
+
+	// Bleed was the one ailment that added its token and never took it back, so a monster bled once
+	// by a wanderer counted as bleeding forever. CountMonsterAilments feeds the flat resist reduction
+	// in FactorResists, so that fed straight into damage. Every other ailment loop pairs these.
+	if(HasActorClassPerk_Fast(source, DND_PLAYER_WANDERER, 2))
+		RemoveMonsterAilment(victim, DND_AILMENT_BLEED);
 
 	if(!IsActorAlive(victim) && HasActorMasteredPerk(source, STAT_ACRM) && random(0, 1.0) <= DND_ACRIMONY_RECOVERCHANCE) {
 		HandleHealthPickup(DND_ACRIMONY_RECOVERPERCENT, 0, true, true);
@@ -3203,15 +3348,12 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 
 	int dmg_tic_buff = PlayerModData[pnum].vals[PSTAT_ESS_CHEGOVAX];
 
-	// The base is re-read off the victim every tick rather than captured once. A hit on an already
-	// burning monster cannot restart this script -- HandleIgniteEffects only pushes the timer out --
-	// so a captured base is frozen for the whole burn. Anything tanky enough to stay permanently lit
-	// therefore kept whatever the opening application happened to be worth, and a proliferated burn
-	// (priced against the trash mob it jumped off) could sit at near-nothing for an entire fight
-	// while every weapon swap and every new hit changed nothing.
+	// Re-read off the victim every tick, not captured once: a hit on an already burning monster only
+	// pushes the timer out, so a captured base would freeze the burn at whatever opened it.
 	int base_dmg = tick_dmg;
 	int next_dmg;
 	int ticks = 0;
+	int dead_tics = 0;
 	int temp;
 	int inc_by;
 	int i;
@@ -3235,35 +3377,38 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 		// only apply ignite if target is shootable ie. not teleporting
 		if(CheckFlag(victim, "SHOOTABLE")) {
 			ACS_NamedExecuteAlways("DnD Monster Ignite FX", 0, victim, 2);
-			i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME);
-			if(i > 0)
-				Thing_Damage2(victim, i, "SkipHandle");
 
-			// Capped, not just clamped where it is read. Every hit and every proliferation arrival
-			// refreshes DnD_IgniteTimer, so a monster held alight in a dense pack keeps this script
-			// running indefinitely and the counter would climb with no ceiling -- an ever growing
-			// ramp, and eventually an overflow in the multiply above.
+			i = HandleDamageDeal(source, victim, next_dmg, DND_DAMAGETYPE_FIRE, wepid, DND_DAMAGEFLAG_NOIGNITESTACK | DND_DAMAGEFLAG_NOPUSH, 0, 0, 0, DND_ACTORFLAG_ISDAMAGEOVERTIME | DND_ACTORFLAG_PAINLESS);
+
+			// Special_NoPain, not SkipHandle. The handler treats both identically; the only difference is
+			// the pain table, and only Special_NoPain has an entry (MonsterBase.dec). SkipHandle fell
+			// through to the monster's default pain chance, so every tick rolled to stagger it.
+			if(i > 0)
+				Thing_Damage2(victim, i, "Special_NoPain");
+
+			// This ailment cannot hurt this monster -- drop it instead of holding its slot. See
+			// IsAilmentTicWasted. DND_AILMENT_DEADTICS is 2 so the earliest break is the second
+			// iteration, which guarantees a Delay before the prolif dispatch gets control back.
+			if(IsAilmentTicWasted(victim, i)) {
+				if(++dead_tics >= DND_AILMENT_DEADTICS)
+					break;
+			}
+			else
+				dead_tics = 0;
+
+			// Capped, not clamped at the read. Refreshes keep this script alive indefinitely, so the
+			// counter would climb with no ceiling and overflow the multiply above.
 			if(ticks < DND_MAX_CHEGOVAX_TICS)
 				++ticks;
 		}
 
 		// x 5
-		// This Delay must stay UNCONDITIONAL, outside the SHOOTABLE test above. The prolif dispatch
-		// below launches this script inline and it runs to here before returning to its caller, which
-		// is still mid-iteration over tlist[pnum] -- a shared static row. Reaching the prolif block
-		// without a delay in between would let the callee rewrite the row the caller is walking.
+		// UNCONDITIONAL, outside the SHOOTABLE test: the prolif dispatch runs this script inline and
+		// must reach a delay before returning to a caller still walking the shared tlist row.
 		Delay(const:DND_IGNITE_TICKRATE);
 
-		// Decrement AFTER the delay, never before it. A nonzero DnD_IgniteTimer is what
-		// HandleIgniteEffects reads as "a script already owns this monster, just refresh the
-		// timer" -- so the timer must never be observably 0 while this script is still alive.
-		// Decrementing before the delay left a 7 tic window where it read 0 and we were still
-		// running: a hit landing in there started a SECOND ignite script on the same monster,
-		// and our own while check then saw the refreshed timer and kept us looping too. Both
-		// scripts then drained one shared timer, so the ignite ran out in half the time, and
-		// whichever exited first zeroed the timer out from under the other -- which is how a
-		// freshly applied ignite could get cancelled almost immediately. Doing it here keeps
-		// the decrement, the loop test and the teardown below in one uninterrupted step.
+		// Decrement AFTER the delay. A nonzero DnD_IgniteTimer is what HandleIgniteEffects reads as
+		// "already owned, just refresh", so it must never read 0 while this script is still alive.
 		TakeActorInventory(victim, "DnD_IgniteTimer", 1);
 	} while(CheckActorInventory(victim, "DnD_IgniteTimer") && IsActorAlive(victim));
 
@@ -3369,13 +3514,8 @@ Script "DnD Monster Ignite" (int victim, int wepid, int ign_flags, int tick_dmg)
 					// the moment its script ended for any reason other than the timer running out.
 					next_dmg = CheckActorInventory(tlist[pnum][i].tid, "DnD_IgniteScripts");
 
-					// Spread THIS burn's magnitude, do not re-derive one. base_dmg already carries the
-					// added component -- the fire that was in the hit which started the chain -- and
-					// that is a property of the player's build, not of the monster it landed on:
-					// GetFireDOTDamage reads player stats only and resists are applied later, in
-					// HandleDamageDeal. Re-pricing the jump from scratch dropped the added term, which
-					// on a build whose fire comes from conversion or gained-as (a Thunderstaff, say)
-					// IS the entire ignite -- the source burned hard and every jump landed for base.
+					// Spread THIS burn's magnitude, do not re-derive one. base_dmg already carries the added fire
+					// from the hit that started the chain, which is a property of the build, not of the victim.
 					if(!next_dmg) {
 						SetActorInventory(tlist[pnum][i].tid, "DnD_IgniteTimer", ign_time);
 						SetActorInventory(tlist[pnum][i].tid, "DnD_CurrentIgniteDamage", base_dmg);
@@ -3571,18 +3711,21 @@ Script "DnD Check Explosion Repeat" (void) {
 
 			SetUserVariable(0, "user_expdmg", temp | (factor << DPCT_SHIFT));
 
-			// undo effect of first
-			temp = GetUserVariable(0, "user_expradius") * 100 / (100 - x);
-			SetUserVariable(0, "user_expradius", temp * res / 100);
+			// Undo the first explosion's shrink and apply this one's bonus. AREA, matching
+			// "DnD Explosion Radius Retrieve" -- a LINEAR undo does not cancel a square root shrink, it
+			// overshoots. Both steps in one so the truncations do not compound.
+			//
+			// Damage above stays linear on purpose: it is not a geometric quantity. Sprite scale is
+			// linear in radius, so it follows the radius ratio rather than the area percentage.
+			int r_old = GetUserVariable(0, "user_expradius");
+			if(r_old > 0) {
+				int r_new = sqrt_z(r_old * r_old * res / (100 - x));
 
-			temp = GetUserVariable(0, "user_fullexpradius") * 100 / (100 - x);
-			SetUserVariable(0, "user_fullexpradius", temp * res / 100);
-
-			temp = GetActorProperty(0, APROP_SCALEX) * 100 / (100 - x);
-			SetActorProperty(0, APROP_SCALEX, temp * res / 100);
-
-			temp = GetActorProperty(0, APROP_SCALEY) * 100 / (100 - x);
-			SetActorProperty(0, APROP_SCALEY, temp * res / 100);
+				SetUserVariable(0, "user_expradius", r_new);
+				SetUserVariable(0, "user_fullexpradius", GetUserVariable(0, "user_fullexpradius") * r_new / r_old);
+				SetActorProperty(0, APROP_SCALEX, GetActorProperty(0, APROP_SCALEX) * r_new / r_old);
+				SetActorProperty(0, APROP_SCALEY, GetActorProperty(0, APROP_SCALEY) * r_new / r_old);
+			}
 		}
 
 		res = 1;
@@ -4457,26 +4600,25 @@ bool HandleRipperHit(int shooter, int victim) {
 
 	int i;
 
-	// Stored +1, so the item's zero-initialized state is the "no id yet" sentinel and every row of
-	// the table is usable. It used to store the id as-is, which meant the row the counter handed out
-	// every 256th projectile was id 0 -- indistinguishable from unassigned. That projectile then
-	// re-entered this branch on every hit, wiped its own hit list each time, and ripped the same
-	// monster over and over for damage a RIPSONCE weapon is supposed to deal exactly once.
+	// Id stored +1 so the item's zero state is "no id yet". Victims are stored +1 for the same reason:
+	// ripper_hits is a static, ie. a MAP array that zero fills on every map load, and a -1 keyed table
+	// reads all of those zeros as real entries -- the scan then runs to the cap and every rip returns
+	// "already hit", which is a RIPSONCE weapon silently dealing nothing. 0 has to BE the empty slot.
 	int ripper_id = CheckInventory("DnD_RipperId") - 1;
 	if(ripper_id < 0) {
 		ripper_id = ripper_count;
 		ripper_count = (ripper_count + 1) % MAX_RIPPERS_ACTIVE;
 
 		for(i = 0; i < MAX_RIPPER_HITS_STORED; ++i)
-			ripper_hits[ripper_id][i] = -1;
+			ripper_hits[ripper_id][i] = 0;
 
 		SetInventory("DnD_RipperId", ripper_id + 1);
 	}
 
 	bool found = false;
 
-	for(i = 0; i < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][i] != -1; ++i) {
-		if(ripper_hits[ripper_id][i] == victim) {
+	for(i = 0; i < MAX_RIPPER_HITS_STORED && ripper_hits[ripper_id][i]; ++i) {
+		if(ripper_hits[ripper_id][i] == victim + 1) {
 			found = true;
 			break;
 		}
@@ -4484,7 +4626,7 @@ bool HandleRipperHit(int shooter, int victim) {
 
 	// record it as added into the array and return true
 	if(!found && i < MAX_RIPPER_HITS_STORED) {
-		ripper_hits[ripper_id][i] = victim;
+		ripper_hits[ripper_id][i] = victim + 1;
 		return false;
 	}
 
@@ -5545,6 +5687,14 @@ Script "DnD Event Handler" (int type, int arg1, int arg2) EVENT {
 			SetResultValue(0);
 	}
 	else if(type == GAMEEVENT_ROUND_ABORTED) {
+		// Same reason as the unloading path: ResetUsedTIDs is about to hand monster ids out from 0
+		// again, and a latch left set is inherited by whatever monster takes that id next round.
+		// Must run BEFORE the reset -- the sweep is bounded by the id counters that clears.
+		FlushDamageTicResidue();
+
+		// and refresh the list the respawning monsters will clear themselves against
+		BuildActivePlayerList();
+
 		SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 		ResetUsedTIDs();
 	}

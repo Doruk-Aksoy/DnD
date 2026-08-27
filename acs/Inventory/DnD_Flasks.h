@@ -88,6 +88,12 @@ bool IsUtilityFlask(int subtype) {
 	return subtype >= FLASK_UTILITY_BEGIN && subtype <= FLASK_UTILITY_END;
 }
 
+// Which of the two flask mod pools this subtype draws from. Derive it wherever mods are picked
+// rather than trusting the stored field -- flasks saved before flasks had a base carry a stale one.
+int GetFlaskItemBase(int subtype) {
+	return IsLifeFlask(subtype) ? DND_ITEMBASE_FLASK_LIFE : DND_ITEMBASE_FLASK_UTILITY;
+}
+
 int GetFlaskChargeUseEffects(int pnum, inventory_T? flask) {
 	int base = -GetFlaskAttributeVal(pnum, flask, INV_FLASK_REDUCEDCHARGEUSE);
 	base += GetFlaskAttributeExtra(pnum, flask, INV_FLASK_INCCHARGERECOVERY);
@@ -344,6 +350,7 @@ int ConstructFlaskDataOnField(int item_pos, int item_tier, int pnum, int flask =
 	item.item_stack = 0;
 	item.item_type = DND_ITEM_FLASK;
 	item.item_subtype = res;
+	item.item_base = GetFlaskItemBase(res);
 	item.width = DND_FLASK_BASEWIDTH;
 	item.height = DND_FLASK_BASEHEIGHT;
 	item.item_image = ITEM_IMAGE_FLASK_BEGIN + res;
@@ -394,8 +401,13 @@ void RollFlaskInfo(int item_pos, int item_tier, int pnum, int flask_type, int ma
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, item.implicit[0].attrib_id);
-		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base, item.item_level);
+		} while(roll != -1 && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+
+		// nothing eligible left at this flask's level, so stop rather than adding a non-mod
+		if(roll == -1)
+			break;
+
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
 	}
@@ -416,8 +428,13 @@ void RollFlaskInfoWithMods(int item_pos, int item_tier, int pnum, int flask_type
 
 	while(i < count) {
 		do {
-			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, item.implicit[0].attrib_id);
-		} while(CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+			roll = PickRandomAttribute(DND_ITEM_FLASK, flask_type, special_roll, item.implicit[0].attrib_id, -2, item.item_base, item.item_level);
+		} while(roll != -1 && CheckItemAttribute(pnum, item_pos, roll, DND_SYNC_ITEMSOURCE_FIELD, count) != -1);
+
+		// nothing eligible left at this flask's level, so stop rather than adding a non-mod
+		if(roll == -1)
+			break;
+
 		AddAttributeToFieldItem(item_pos, roll, pnum, count);
 		++i;
 	}
@@ -461,7 +478,7 @@ void HandleCommonFlaskActivationEffects(int pnum, inventory_T? flask) {
 		GiveActorInventory(tid, "RemoveChillFreeze", 1);
 	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_POISON))
 		GiveActorInventory(tid, "RemovePoison", 1);
-	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_SHOCK))
+	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_OVERLOAD))
 		GiveActorInventory(tid, "RemoveShock", 1);
 	if(GetFlaskAttributeVal(pnum, flask, INV_FLASK_IMMUNE_IGNITE))
 		GiveActorInventory(tid, "RemoveIgnite", 1);

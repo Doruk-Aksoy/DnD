@@ -225,11 +225,13 @@ Script "DnD On Map Load" OPEN {
 		Delay(const:TICRATE);
 
 	// Backstop for a map change that never ran "DnD On Unloading" -- the counter still holds the
-	// previous map's high water mark in that case, so the sweep is still correctly bounded. A no-op
-	// on the normal path, where unloading already cleared it and the counter reads 0. This is ahead
-	// of ResetUsedTIDs on purpose: that is what sets SETUP_CLEANINGMONSTERTIDS, and every monster
-	// setup script is parked waiting on it, so nothing can have been damaged yet.
+	// previous high water mark, so the sweep stays bounded. Ahead of ResetUsedTIDs on purpose: that
+	// sets SETUP_CLEANINGMONSTERTIDS, which every monster setup script is parked on.
 	FlushDamageTicResidue();
+
+	// Before ResetUsedTIDs, which is what sets SETUP_CLEANINGMONSTERTIDS and releases every parked
+	// monster setup script -- so no monster can read this list before it is finished.
+	BuildActivePlayerList();
 
 	ResetUsedTIDs();
 
@@ -445,7 +447,14 @@ Script "DnD On Death" DEATH {
 
 	// everyone died in survival
 	if(GetGamemodeState() == GAMESTATE_INRESULTSEQUENCE) {
-		// reset used tids
+		// reset used tids -- drop the damage tic latches first, as the unloading path does. This is a
+		// ROUND restart: nothing unloads, so nothing else clears them, yet ids restart from 0. A latch
+		// left here is inherited and can never be cleared, compounding every round.
+		FlushDamageTicResidue();
+
+		// and refresh the list the respawning monsters will clear themselves against
+		BuildActivePlayerList();
+
 		SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
 		ResetUsedTIDs();
 
@@ -457,7 +466,7 @@ Script "DnD On Death" DEATH {
 
 // Health Kits Script (Used by Portable Medikits as well, ported here)
 Script "DnD Health Pickup" (int amt, int isSpecial, int useTarget) {
-	HandleHealthPickup(amt, isSpecial, useTarget);
+	HandleHealthPickup(amt, isSpecial, useTarget, false);
 }
 
 Script "DnD Can Pick Health Item" (int type) {
@@ -970,9 +979,10 @@ Script "DND On Kill" KILL {
 	SetInventory("DnD_OverloadTimer", 0);
 
 	int is_demon = IsDemon();
+	int pnum = target - P_TIDSTART;
 
 	// Demon Bane check
-	if(is_demon && PlayerModData[target - P_TIDSTART].vals[PSTAT_EX_DEMONBARRIERS]) {
+	if(is_demon && PlayerModData[pnum].vals[PSTAT_EX_DEMONBARRIERS]) {
 		GiveActorInventory(target, "DaemonicBarrier", 1);
 		if(!CheckActorInventory(target, "DaemonicBarrierTimer"))
 			ACS_NamedExecuteAlways("DnD Demon Barrier Timeout", 0, target);
@@ -1003,7 +1013,15 @@ Script "DND On Kill" KILL {
 	}
 
 	// crusader helm check
-	if(IsMagicOrUndead() && (is_demon = PlayerModData[target - P_TIDSTART].vals[PSTAT_IMP_RECOVERESONUNDEADKILL]) && !CheckActorInventory(target, "TaltosEffect") && (temp = GetPlayerEnergyShieldCap(target - P_TIDSTART))) {
+	if
+	(
+		IsMagicOrUndead() && 
+		(is_demon = PlayerModData[pnum].vals[PSTAT_IMP_RECOVERESONUNDEADKILL]) && 
+		!CheckActorInventory(target, "TaltosEffect") && 
+		(temp = GetPlayerEnergyShieldCap(pnum)) &&
+		RunLuckBasedChance(pnum, CRUSADER_HELM_CHANCE)
+	)
+	{
 		i = temp * is_demon / 100;
 		if(i < 1)
 			i = 1;
@@ -1027,7 +1045,7 @@ Script "DND On Kill" KILL {
 	
 	// check zombie summon
 	if(!IsLostSoul() && !IsRobotic()) {
-		temp = PlayerModData[target - P_TIDSTART].vals[PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE];
+		temp = PlayerModData[pnum].vals[PSTAT_EX_CHANCE_ONDEATH_RAISEZOMBIE];
 		if(CanActorHaveMorePets(target) && CheckActorInventory(target, "SummonedZombiePets") < MAX_SUMMON_ZOMBIECOUNT && temp >= random(1, 100)) {
 			// raise zombie
 			HandleZombieRaiseOnDeath(target);
@@ -1037,9 +1055,9 @@ Script "DND On Kill" KILL {
 	// chaos marked monsters are removed on death, no ressing
 	if
 	(
-		CheckUniquePropertyOnPlayer(target - P_TIDSTART, PUP_SLAINENEMIESRIP) || 
+		CheckUniquePropertyOnPlayer(pnum, PUP_SLAINENEMIESRIP) || 
 		HasClassPerk_Fast(DND_PLAYER_DOOMGUY, 5) ||
-		PlayerModData[target - P_TIDSTART].vals[PSTAT_INC_ENEMYRIPCHANCE] >= random(1, 100) ||
+		PlayerModData[pnum].vals[PSTAT_INC_ENEMYRIPCHANCE] >= random(1, 100) ||
 		HasMonsterTrait(m_id, DND_MARKOFCHAOS)
 	)
 		ACS_NamedExecuteAlways("DnD Monster RIP", 0);
@@ -1067,7 +1085,7 @@ Script "DND On Kill" KILL {
 				// renders it); the buff carries the actual damage multiplier
 				SetInventory("Punisher_Perk50_DamageBonus", is_demon);
 				SetInventory("Punisher_Perk50_Tiers", temp);
-				HandlePlayerBuffAssignment(target - P_TIDSTART, 0, BTI_PUNISHER_DAMAGE, 0, 0, 0, is_demon);
+				HandlePlayerBuffAssignment(pnum, 0, BTI_PUNISHER_DAMAGE, 0, 0, 0, is_demon);
 			}
 			SetInventory("Punisher_Perk50_NextReq", GetPunisherTierRequirement(temp));
 		}
@@ -3071,6 +3089,9 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 	ResetPlayerFlaskData(pnum);
 	RemoveAllBuffs(pnum);
 
+	// this slot is about to be reusable -- see DropPlayerTicResidue
+	DropPlayerTicResidue(pnum);
+
 	Delay(const:1);
 	
 	// if player was in middle of saving, don't accidently interfere if player leaves early
@@ -3104,10 +3125,8 @@ Script "DnD On Disconnect" (int pnum) DISCONNECT {
 
 // End of level checks
 Script "DnD On Unloading" UNLOADING {
-	// Ahead of ResetUsedTIDs, which forgets how far the monster ids got, and ahead of the accumulate
-	// scripts being destroyed with the level -- one of them sitting in its tic delay right now is
-	// what leaves a latch set. Ids restart at 0 next map, so a latch left here belongs to whatever
-	// monster inherits that id.
+	// Ahead of ResetUsedTIDs, which forgets how far the ids got, and ahead of the accumulate scripts
+	// dying with the level -- one sitting in its tic delay now is what leaves a latch set.
 	FlushDamageTicResidue();
 
 	SetupUndo(SETUP_STATE1, SETUP_CLEANINGMONSTERTIDS);
@@ -4842,14 +4861,19 @@ Script "DnD Explosion Radius Retrieve" (int r_base, int noSecondExp) {
 	int pnum = owner - P_TIDSTART;
 	int orig = r_base;
 	
-	// all the pct increases here
-	r_base = r_base * (100 + GetPlayerAoEIncrease(pnum)) / 100;
+	// AREA, not radius. Area goes with r^2, so scaling the radius by the percentage squared the
+	// effect -- what read as +49% was +122% area. Scale the area and take the root back to a radius.
+	// Integer sqrt because radius IS an integer here; no fixed point round trip, and fsqrt carries a
+	// documented ceiling this does not need. Largest base radius in DECORATE is 448, so 448^2 * 300
+	// is nowhere near overflow.
+	r_base = sqrt_z(r_base * r_base * (100 + GetPlayerAoEIncrease(pnum)) / 100);
 
 	// less mods
 	if(!noSecondExp) {
 		int temp = ReadPlayerModExtra(pnum, INV_EX_SECONDEXPBONUS);
 		if(temp) {
-			r_base = r_base * (100 - temp) / 100;
+			// same geometry as the increase above, or the two would read the same number differently
+			r_base = sqrt_z(r_base * r_base * (100 - temp) / 100);
 
 			// we embed a damage factor into this, so we can scale that and reput it
 			int dmg = GetUserVariable(0, "user_expdmg");
@@ -4932,18 +4956,22 @@ Script "DnD Pet Monster Scale" (int petid, int trait1, int trait2) {
 	
 	add = 0, level = CheckActorInventory(master, "Level");
 	if(level > 1) {
-		// our new scaling formula
-		add = GetMonsterHPScaling(m_id, level);
-		
-		add = base * add / 100;
+		// The level-only curve, NOT GetMonsterHPScaling: m_id indexes PetMonsterProperties, but that
+		// function's unique boss branch reads MonsterProperties, so a pet picked up the boss
+		// multiplier whenever a custom unique boss sat at the same index. A pet is never one.
+		add = GetMonsterHPScaleForLevel(level);
+
+		add = ApplyHPScale(base, add);
 		
 		// flat int scaling to pets
 		add += GetIntellectEffect(pnum, SKILL_ZOMBIE_HP_PER_INT);
 
-		// add level factor to it
-		// first overflow check
-		if(add > bcs::INT_MAX - base)
-			add = bcs::INT_MAX - base;
+		// and re-clamp: the flat intellect bonus above lands after the scale, so it can push the total
+		// back over the ceiling on its own
+		if(add > DND_MAX_MONSTER_HP - base)
+			add = DND_MAX_MONSTER_HP - base;
+		if(add < 0)
+			add = 0;
 	}
 	SetActorProperty(0, APROP_HEALTH, base + add);
 	ScaleMonsterMass(level);
@@ -6055,8 +6083,10 @@ Script "DnD Request Level Info" (int val) {
 	#define LEVELINFO_MAXPLAYERLEVEL 2
 	#define LEVELINFO_PLAYERCOUNTATSTART 3
 	#define LEVELINFO_SKIPPEDMONSTERTID 4*/
-	if(val > MAX_LEVELINFO_DATA - 1)
-		val = MAX_LEVELINFO_DATA - 1;
+	// clamped to the SCALARS end, not the array end -- everything past that is the active player
+	// block, and this API must never hand a player slot number back as though it were level info
+	if(val > MAX_LEVELINFO_SCALARS - 1)
+		val = MAX_LEVELINFO_SCALARS - 1;
 	SetResultValue(InformationInLevel[val]);
 }
 
@@ -6085,6 +6115,15 @@ Script 1007 (void) NET CLIENTSIDE {
 	SetCVar("dnd_detailedmods", !GetCVar("dnd_detailedmods"));
 	
 	// so the toggle is changed on the menu if you press it while in help page for some reason... you are weird if you do this!
+	GiveInventory("DnD_RefreshPane", 1);
+	GiveInventory("DnD_ResetDrawnStatText", 1);
+}
+
+// Mod tags are their own toggle, not part of the range/tier view: they answer "which orb can hit
+// this mod", which is a crafting question, and they cost a line per mod.
+Script 1008 (void) NET CLIENTSIDE {
+	SetCVar("dnd_showmodtags", !GetCVar("dnd_showmodtags"));
+
 	GiveInventory("DnD_RefreshPane", 1);
 	GiveInventory("DnD_ResetDrawnStatText", 1);
 }

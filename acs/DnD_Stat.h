@@ -144,8 +144,8 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 	amt = amt * (100 + bonus) / 100;
 	
 	// health bonus
-	if(isspecial == 6) { // x1.5 overheal
-		toGive = healthcap * 3 / 2 - curhp;
+	if(isspecial == 6) { // +100 above cap
+		toGive = healthcap + 100;
 	}
 	else if(isspecial == 5) {
 		// fixed to always go up to x2 health cap
@@ -158,12 +158,13 @@ void HandleHealthPickup(int amt, int isSpecial, int useTarget, bool noMedkitStor
 		GiveInventory("Research_Body_Hp_1_Tracker", amt);
 	    return;
 	}
-	else if(isspecial == 2) { // ubersphere / megasphere
-		toGive /= 100; // get the multiplier for mega / uber
-		toGive = healthcap * toGive - curhp;
+	else if(isspecial == 2 || isspecial == 1) {
+		// ubersphere / megasphere / soulsphere
+		if(amt + curhp > healthcap + toGive)
+			toGive = healthcap + toGive - curhp;
+		else
+			toGive = healthcap + amt - curhp;
 	}
-	else if(isspecial == 1)
-		toGive = amt + healthcap - curhp;
 	else // for anything else (stims, medkits etc)
 	    toGive = healthcap - curhp;
 	
